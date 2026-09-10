@@ -1,0 +1,45 @@
+{
+  "kind": "AI准备性自检，非独立审查或板上验收",
+  "time": "2026-09-10T14:33:44.364423+08:00",
+  "base_commit": "04512edf174d818bb013a7c653a666c2e433c63d",
+  "tested_worktree": "包含本轮新增核验脚本；以逐文件SHA256标识，不宣称基线提交包含该脚本",
+  "sha256": {
+    "verification/check_saved_golden.py": "5b776bf04ef9ae7598b5355272474de52bdd11ef7fb239fd32639a11b9941010",
+    "verification/int8_mac_reference.py": "cac91e68c0f2cbbeaa9f3b1f112076778729a14fdd4de3d11e82e70760460787",
+    "verification/test_int8_mac_reference.py": "4999b8ba7caa68dbd80fe6da3430675fbabac870e0386b1cb69b30d4c8cc975d",
+    "verification/sim_results/int8_mac_golden.json": "e8d72bd39f7606e6d91c44a8801711aafb26448af81aaadd29072d6876a720ae"
+  },
+  "checks": [
+    {
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "verification",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_golden_cases (test_int8_mac_reference.ReferenceTests.test_golden_cases) ... ok\ntest_invalid_input (test_int8_mac_reference.ReferenceTests.test_invalid_input) ... ok\ntest_rounding_and_saturation (test_int8_mac_reference.ReferenceTests.test_rounding_and_saturation) ... ok\ntest_wrap_boundaries (test_int8_mac_reference.ReferenceTests.test_wrap_boundaries) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.146s\n\nOK\n"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "verification/check_saved_golden.py"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"golden_cases\": 25, \"mismatches\": 0, \"boundary_checks\": 5, \"invalid_input_checks\": 12, \"source_modified\": false}\n",
+      "stderr": ""
+    }
+  ]
+}

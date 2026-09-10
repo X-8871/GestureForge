@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#315c9b"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#23845d"/>
+    </marker>
+    <style>
+      .title { font: 700 30px "Microsoft YaHei", "SimHei", sans-serif; fill: #172033; }
+      .subtitle { font: 16px "Microsoft YaHei", "SimHei", sans-serif; fill: #61708a; }
+      .zone { font: 700 21px "Microsoft YaHei", "SimHei", sans-serif; fill: #294875; }
+      .boxTitle { font: 700 19px "Microsoft YaHei", "SimHei", sans-serif; fill: #172033; }
+      .boxText { font: 15px "Microsoft YaHei", "SimHei", sans-serif; fill: #3d4a60; }
+      .small { font: 14px "Microsoft YaHei", "SimHei", sans-serif; fill: #61708a; }
+      .note { font: 700 15px "Microsoft YaHei", "SimHei", sans-serif; fill: #8a5a12; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="900" fill="#f7f9fc"/>
+  <text x="700" y="55" text-anchor="middle" class="title">AX7Z020 低比特神经网络手势识别系统总体技术方案</text>
+  <text x="700" y="86" text-anchor="middle" class="subtitle">摄像头输入 → PL 低比特推理 → PS 控制解析 → 板卡实时交互</text>
+
+  <rect x="45" y="175" width="230" height="155" rx="18" fill="#e7f0ff" stroke="#6c94cf" stroke-width="2"/>
+  <text x="160" y="215" text-anchor="middle" class="boxTitle">输入来源</text>
+  <text x="160" y="250" text-anchor="middle" class="boxText">摄像头图像</text>
+  <text x="160" y="278" text-anchor="middle" class="boxText">或固定测试图像</text>
+  <text x="160" y="307" text-anchor="middle" class="small">第一版允许使用稳定替代输入</text>
+
+  <rect x="310" y="115" width="770" height="470" rx="24" fill="#eef5ff" stroke="#6687b7" stroke-width="2" stroke-dasharray="9 7"/>
+  <text x="695" y="150" text-anchor="middle" class="zone">Zynq-7000 XC7Z020</text>
+
+  <rect x="350" y="190" width="205" height="145" rx="16" fill="#ffffff" stroke="#6c94cf" stroke-width="2"/>
+  <text x="452" y="228" text-anchor="middle" class="boxTitle">PL：输入与预处理</text>
+  <text x="452" y="262" text-anchor="middle" class="boxText">采集 / 灰度化</text>
+  <text x="452" y="288" text-anchor="middle" class="boxText">缩放 / 定点化</text>
+  <text x="452" y="316" text-anchor="middle" class="small">32×32 灰度输入</text>
+
+  <rect x="605" y="190" width="205" height="145" rx="16" fill="#e4f7ed" stroke="#4d9c77" stroke-width="2"/>
+  <text x="707" y="228" text-anchor="middle" class="boxTitle">PL：INT8 加速器</text>
+  <text x="707" y="262" text-anchor="middle" class="boxText">并行 MAC</text>
+  <text x="707" y="288" text-anchor="middle" class="boxText">卷积 / 全连接</text>
+  <text x="707" y="316" text-anchor="middle" class="small">低比特、流水线、复用</text>
+
+  <rect x="860" y="190" width="180" height="145" rx="16" fill="#fff3dc" stroke="#d1a04c" stroke-width="2"/>
+  <text x="950" y="228" text-anchor="middle" class="boxTitle">PS：控制与解析</text>
+  <text x="950" y="262" text-anchor="middle" class="boxText">启动任务</text>
+  <text x="950" y="288" text-anchor="middle" class="boxText">读取结果 / 交互</text>
+  <text x="950" y="316" text-anchor="middle" class="small">ARM 软件基线</text>
+
+  <rect x="455" y="405" width="260" height="120" rx="16" fill="#ffffff" stroke="#7a8ea9" stroke-width="2"/>
+  <text x="585" y="443" text-anchor="middle" class="boxTitle">片上存储与数据通道</text>
+  <text x="585" y="475" text-anchor="middle" class="boxText">BRAM / ROM：输入、权重、中间结果</text>
+  <text x="585" y="501" text-anchor="middle" class="boxText">AXI / BRAM：PS ↔ PL 数据交换</text>
+
+  <rect x="845" y="405" width="195" height="120" rx="16" fill="#ffffff" stroke="#7a8ea9" stroke-width="2"/>
+  <text x="942" y="443" text-anchor="middle" class="boxTitle">验证与测量</text>
+  <text x="942" y="475" text-anchor="middle" class="boxText">准确率、延迟、FPS</text>
+  <text x="942" y="501" text-anchor="middle" class="boxText">LUT / FF / BRAM / DSP</text>
+
+  <line x1="275" y1="252" x2="345" y2="252" stroke="#315c9b" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="555" y1="252" x2="600" y2="252" stroke="#315c9b" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="810" y1="252" x2="855" y2="252" stroke="#315c9b" stroke-width="4" marker-end="url(#arrow)"/>
+  <line x1="707" y1="340" x2="625" y2="398" stroke="#23845d" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="625" y1="398" x2="707" y2="340" stroke="#23845d" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="850" y1="465" x2="720" y2="465" stroke="#7a8ea9" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="950" y1="340" x2="950" y2="398" stroke="#d1a04c" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="1120" y="175" width="235" height="155" rx="18" fill="#e9e6ff" stroke="#8277c3" stroke-width="2"/>
+  <text x="1237" y="215" text-anchor="middle" class="boxTitle">板卡交互输出</text>
+  <text x="1237" y="250" text-anchor="middle" class="boxText">HDMI 显示类别</text>
+  <text x="1237" y="278" text-anchor="middle" class="boxText">LED / 串口反馈</text>
+  <text x="1237" y="307" text-anchor="middle" class="small">根据手势驱动板卡状态</text>
+  <line x1="1045" y1="252" x2="1115" y2="252" stroke="#315c9b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="130" y="650" width="1140" height="150" rx="22" fill="#ffffff" stroke="#b1bdcf" stroke-width="2"/>
+  <text x="700" y="687" text-anchor="middle" class="zone">PC 端模型与工程验证链路</text>
+  <text x="260" y="735" text-anchor="middle" class="boxTitle">数据集 / 训练</text>
+  <text x="260" y="765" text-anchor="middle" class="boxText">浮点模型与测试集</text>
+  <text x="565" y="735" text-anchor="middle" class="boxTitle">INT8 量化</text>
+  <text x="565" y="765" text-anchor="middle" class="boxText">scale、位宽、舍入规则</text>
+  <text x="865" y="735" text-anchor="middle" class="boxTitle">Python 黄金参考</text>
+  <text x="865" y="765" text-anchor="middle" class="boxText">与 RTL / PL 结果逐样本比对</text>
+  <text x="1135" y="735" text-anchor="middle" class="boxTitle">Vivado / Vitis</text>
+  <text x="1135" y="765" text-anchor="middle" class="boxText">综合、实现、上板与测量</text>
+  <line x1="365" y1="735" x2="465" y2="735" stroke="#23845d" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="670" y1="735" x2="765" y2="735" stroke="#23845d" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="970" y1="735" x2="1035" y2="735" stroke="#23845d" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="565" y1="650" x2="585" y2="530" stroke="#23845d" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#arrowGreen)"/>
+
+  <text x="700" y="855" text-anchor="middle" class="note">当前重点：先完成可解释的 INT8 MAC 与最小上板闭环，再扩展摄像头和完整 CNN</text>
+</svg>

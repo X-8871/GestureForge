@@ -6,12 +6,16 @@
 
 当前 S1-T01 的数据检查器位于 `verification/s1_t01_dataset_check.py`，使用受控 Python 运行时和外部 UTF-8 CSV 清单；不自动下载 HaGRIDv2，不自动安装 Darknet/CUDA，不启动正式长训。命令与清单接口见 `data/README.md`。
 
-环境探针位于 `verification/s1_t01_environment_probe.py`，固定检查官方 Darknet/CUDA 路线、GPU、`nvcc` 和受控 Python；未提供 Darknet 可执行文件时保持失败，不自动切换框架：
+环境探针位于 `verification/s1_t01_environment_probe.py`，固定检查官方 Darknet/CUDA 路线、GPU、`nvcc`、Darknet 版本/帮助输出和明确的 CUDA 设备冒烟程序；未提供 Darknet 或设备冒烟程序时保持失败，不自动切换框架。设备冒烟程序只有在退出码为 0 且输出包含 `S1_T01_CUDA_SMOKE_PASS` 时才算通过：
 
 ```powershell
 & 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' verification\s1_t01_environment_probe.py `
+  --darknet-executable 'D:\darknet\darknet.exe' `
+  --cuda-smoke-executable 'D:\darknet\s1_t01_cuda_smoke.exe' `
   --report report\evidence\S1-T01\<运行编号>_environment_probe.json
 ```
+
+Darknet 必须通过 PE 文件检查和版本/帮助命令；CUDA 冒烟程序必须退出码为 0 且输出 `S1_T01_CUDA_SMOKE_PASS`。任一条件缺失都保持失败，不自动切换框架或把 `nvidia-smi` 查询当作设备张量运算。
 
 在正式数据到位后运行：
 

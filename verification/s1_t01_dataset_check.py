@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import binascii
 import csv
 import hashlib
 import html
@@ -12,6 +13,7 @@ import json
 import math
 import struct
 import sys
+import zlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -108,75 +110,180 @@ def _sha256(path: Path) -> str:
 
 
 def _read_png_info(path: Path) -> dict[str, int | str]:
-    """读取 PNG 基本尺寸。"""
+    """完整校验非隔行 PNG 的块、CRC、压缩流和像素载荷。"""
 
-    with path.open("rb") as stream:
-        header = stream.read(24)
-    if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+    data = path.read_bytes()
+    signature = b"\x89PNG\r\n\x1a\n"
+    if len(data) < len(signature) or data[:8] != signature:
         raise ValueError("PNG 文件头无效")
-    width, height = struct.unpack(">II", header[16:24])
+    position = 8
+    ihdr: tuple[int, int, int, int, int, int, int] | None = None
+    idat = bytearray()
+    seen_iend = False
+    has_palette = False
+    while position < len(data):
+        if position + 12 > len(data):
+            raise ValueError("PNG 块头或块尾被截断")
+        length = struct.unpack(">I", data[position : position + 4])[0]
+        chunk_start = position + 8
+        chunk_end = chunk_start + length
+        crc_end = chunk_end + 4
+        if crc_end > len(data):
+            raise ValueError("PNG 块载荷被截断")
+        chunk_type = data[position + 4 : position + 8]
+        chunk_data = data[chunk_start:chunk_end]
+        expected_crc = struct.unpack(">I", data[chunk_end:crc_end])[0]
+        actual_crc = binascii.crc32(chunk_type + chunk_data) & 0xFFFFFFFF
+        if expected_crc != actual_crc:
+            raise ValueError(f"PNG CRC 校验失败: {chunk_type.decode('ascii', errors='replace')}")
+        if chunk_type == b"IHDR":
+            if ihdr is not None or len(chunk_data) != 13:
+                raise ValueError("PNG IHDR 无效或重复")
+            ihdr = struct.unpack(">IIBBBBB", chunk_data)
+        elif chunk_type == b"PLTE":
+            has_palette = True
+        elif chunk_type == b"IDAT":
+            idat.extend(chunk_data)
+        elif chunk_type == b"IEND":
+            if chunk_data:
+                raise ValueError("PNG IEND 不应包含载荷")
+            seen_iend = True
+            position = crc_end
+            if position != len(data):
+                raise ValueError("PNG IEND 后存在未校验数据")
+            break
+        position = crc_end
+    if ihdr is None or not seen_iend or not idat:
+        raise ValueError("PNG 缺少 IHDR、IDAT 或 IEND")
+    width, height, bit_depth, color_type, compression, filter_method, interlace = ihdr
     if width <= 0 or height <= 0:
         raise ValueError("PNG 尺寸无效")
+    if compression != 0 or filter_method != 0 or interlace != 0:
+        raise ValueError("PNG 仅支持标准非隔行编码")
+    channels_by_type = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
+    allowed_depths = {0: {1, 2, 4, 8, 16}, 2: {8, 16}, 3: {1, 2, 4, 8}, 4: {8, 16}, 6: {8, 16}}
+    if color_type not in channels_by_type or bit_depth not in allowed_depths.get(color_type, set()):
+        raise ValueError("PNG 颜色类型或位深无效")
+    if color_type == 3 and not has_palette:
+        raise ValueError("索引 PNG 缺少 PLTE")
+    decompressor = zlib.decompressobj()
+    raw = decompressor.decompress(bytes(idat))
+    raw += decompressor.flush()
+    if not decompressor.eof or decompressor.unused_data:
+        raise ValueError("PNG zlib 载荷未完整结束")
+    row_bytes = (width * channels_by_type[color_type] * bit_depth + 7) // 8
+    expected_length = (row_bytes + 1) * height
+    if len(raw) != expected_length:
+        raise ValueError(f"PNG 像素载荷长度错误: {len(raw)} != {expected_length}")
     return {"format": "png", "width": width, "height": height}
 
 
 def _read_bmp_info(path: Path) -> dict[str, int | str]:
-    """读取 BMP 基本尺寸。"""
+    """完整校验常见未压缩 BMP 的头部和像素载荷。"""
 
-    with path.open("rb") as stream:
-        header = stream.read(26)
-    if len(header) < 26 or header[:2] != b"BM":
+    data = path.read_bytes()
+    if len(data) < 54 or data[:2] != b"BM":
         raise ValueError("BMP 文件头无效")
-    width, signed_height = struct.unpack_from("<ii", header, 18)
+    file_size = struct.unpack_from("<I", data, 2)[0]
+    pixel_offset = struct.unpack_from("<I", data, 10)[0]
+    dib_size = struct.unpack_from("<I", data, 14)[0]
+    if dib_size < 40 or 14 + dib_size > len(data):
+        raise ValueError("BMP DIB 头无效")
+    width, signed_height = struct.unpack_from("<ii", data, 18)
+    planes, bits_per_pixel = struct.unpack_from("<HH", data, 26)
+    compression = struct.unpack_from("<I", data, 30)[0]
     height = abs(signed_height)
-    if width <= 0 or height <= 0:
-        raise ValueError("BMP 尺寸无效")
+    if width <= 0 or height <= 0 or planes != 1 or bits_per_pixel not in {1, 4, 8, 16, 24, 32}:
+        raise ValueError("BMP 尺寸、平面或位深无效")
+    if compression != 0:
+        raise ValueError("BMP 仅支持未压缩 BI_RGB")
+    if pixel_offset < 14 + dib_size or pixel_offset > len(data):
+        raise ValueError("BMP 像素偏移无效")
+    row_stride = ((width * bits_per_pixel + 31) // 32) * 4
+    expected_length = row_stride * height
+    if len(data) - pixel_offset < expected_length:
+        raise ValueError("BMP 像素载荷被截断")
+    if file_size not in {0, len(data)} and file_size > len(data):
+        raise ValueError("BMP 文件声明长度超过实际长度")
     return {"format": "bmp", "width": width, "height": height}
 
 
 def _read_jpeg_info(path: Path) -> dict[str, int | str]:
-    """扫描 JPEG 标记并读取首个有效帧尺寸。"""
+    """完整扫描 JPEG 段、熵编码区和 EOI，拒绝截断文件。"""
 
+    data = path.read_bytes()
     sof_markers = set(range(0xC0, 0xC4)) | set(range(0xC5, 0xC8)) | set(range(0xC9, 0xCC)) | set(range(0xCD, 0xD0))
-    with path.open("rb") as stream:
-        if stream.read(2) != b"\xff\xd8":
-            raise ValueError("JPEG 文件头无效")
-        while True:
-            byte = stream.read(1)
-            if not byte:
-                break
-            if byte != b"\xff":
+    if len(data) < 4 or data[:2] != b"\xff\xd8":
+        raise ValueError("JPEG 文件头无效")
+    position = 2
+    in_scan = False
+    saw_scan = False
+    saw_eoi = False
+    width = height = None
+    while position < len(data):
+        if in_scan:
+            marker_start = data.find(b"\xff", position)
+            if marker_start < 0:
+                raise ValueError("JPEG 熵编码区缺少 EOI")
+            marker_position = marker_start
+            while marker_position < len(data) and data[marker_position] == 0xFF:
+                marker_position += 1
+            if marker_position >= len(data):
+                raise ValueError("JPEG 标记被截断")
+            marker = data[marker_position]
+            if marker == 0x00 or 0xD0 <= marker <= 0xD7:
+                position = marker_position + 1
                 continue
-            marker_byte = stream.read(1)
-            while marker_byte == b"\xff":
-                marker_byte = stream.read(1)
-            if not marker_byte:
-                break
-            marker = marker_byte[0]
             if marker == 0xD9:
+                if marker_position + 1 != len(data):
+                    raise ValueError("JPEG EOI 后存在未校验数据")
+                saw_eoi = True
                 break
-            if marker == 0xDA:
-                break
-            if marker == 0x01 or 0xD0 <= marker <= 0xD8:
-                continue
-            length_bytes = stream.read(2)
-            if len(length_bytes) != 2:
-                break
-            length = struct.unpack(">H", length_bytes)[0]
-            if length < 2:
-                raise ValueError("JPEG 段长度无效")
-            segment = stream.read(length - 2)
-            if len(segment) != length - 2:
-                raise ValueError("JPEG 段被截断")
-            if marker in sof_markers and len(segment) >= 5:
-                height, width = struct.unpack(">HH", segment[1:5])
-                if width > 0 and height > 0:
-                    return {"format": "jpeg", "width": width, "height": height}
-    raise ValueError("JPEG 未找到有效帧尺寸")
+            in_scan = False
+            position = marker_start
+            continue
+        if data[position] != 0xFF:
+            raise ValueError("JPEG 段之间存在非法字节")
+        while position < len(data) and data[position] == 0xFF:
+            position += 1
+        if position >= len(data):
+            raise ValueError("JPEG 标记被截断")
+        marker = data[position]
+        position += 1
+        if marker == 0xD9:
+            raise ValueError("JPEG 在扫描数据前结束")
+        if marker == 0xDA:
+            if position + 2 > len(data):
+                raise ValueError("JPEG SOS 长度被截断")
+            length = struct.unpack(">H", data[position : position + 2])[0]
+            if length < 2 or position + length > len(data):
+                raise ValueError("JPEG SOS 段被截断")
+            position += length
+            in_scan = True
+            saw_scan = True
+            continue
+        if marker == 0x01 or 0xD0 <= marker <= 0xD8:
+            continue
+        if position + 2 > len(data):
+            raise ValueError("JPEG 段长度被截断")
+        length = struct.unpack(">H", data[position : position + 2])[0]
+        if length < 2 or position + length > len(data):
+            raise ValueError("JPEG 段载荷被截断")
+        segment = data[position + 2 : position + length]
+        if marker in sof_markers:
+            if len(segment) < 5:
+                raise ValueError("JPEG SOF 段无效")
+            height, width = struct.unpack(">HH", segment[1:5])
+            if width <= 0 or height <= 0:
+                raise ValueError("JPEG 尺寸无效")
+        position += length
+    if not saw_scan or not saw_eoi or width is None or height is None:
+        raise ValueError("JPEG 缺少有效 SOF、SOS 或 EOI")
+    return {"format": "jpeg", "width": width, "height": height}
 
 
 def _read_pnm_info(path: Path) -> dict[str, int | str]:
-    """读取 PPM/PGM 文本头部尺寸。"""
+    """读取 PPM/PGM 头部并校验完整像素载荷。"""
 
     tokens: list[bytes] = []
     current = bytearray()
@@ -192,18 +299,33 @@ def _read_pnm_info(path: Path) -> dict[str, int | str]:
                 if current:
                     tokens.append(bytes(current))
                     current.clear()
+                    if len(tokens) == 4:
+                        if byte == b"\r":
+                            next_byte = stream.read(1)
+                            if next_byte != b"\n" and next_byte:
+                                stream.seek(-1, 1)
+                        break
                 continue
             current.extend(byte)
         if current and len(tokens) < 4:
             tokens.append(bytes(current))
+        if len(tokens) < 4:
+            raise ValueError("PNM 文件头不完整")
+        payload_offset = stream.tell()
     if len(tokens) < 4 or tokens[0] not in {b"P5", b"P6"}:
         raise ValueError("PNM 文件头无效")
     try:
         width, height, maximum = int(tokens[1]), int(tokens[2]), int(tokens[3])
     except ValueError as exc:
         raise ValueError("PNM 尺寸或最大值不是整数") from exc
-    if width <= 0 or height <= 0 or maximum <= 0:
+    if width <= 0 or height <= 0 or maximum <= 0 or maximum > 65535:
         raise ValueError("PNM 尺寸或最大值无效")
+    channels = 1 if tokens[0] == b"P5" else 3
+    bytes_per_sample = 1 if maximum <= 255 else 2
+    expected_length = width * height * channels * bytes_per_sample
+    actual_length = path.stat().st_size - payload_offset
+    if actual_length < expected_length:
+        raise ValueError(f"PNM 像素载荷被截断: {actual_length} < {expected_length}")
     return {"format": tokens[0].decode("ascii").lower(), "width": width, "height": height}
 
 
@@ -326,6 +448,10 @@ def _check_row(row: RowResult, root: Path, report: dict) -> None:
     except ValueError as exc:
         _error(report, f"清单第 {row.row_number} 行路径无效: {exc}")
         return
+    if row.image_path.stem.casefold() != row.label_path.stem.casefold():
+        _error(report, f"清单第 {row.row_number} 行图片与标签 stem 不一致: {values['image']} != {values['label']}")
+    if row.label_path.suffix.casefold() != ".txt":
+        _error(report, f"清单第 {row.row_number} 行标签不是 .txt 文件: {values['label']}")
     if row.image_path is None or not row.image_path.is_file():
         _error(report, f"清单第 {row.row_number} 行图片不存在: {values['image']}")
     else:
@@ -432,6 +558,10 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
     for image, count in image_paths.items():
         if count > 1:
             _error(report, f"图片在清单中重复出现 {count} 次: {image}")
+    label_paths = Counter(row.values["label"] for row in rows)
+    for label, count in label_paths.items():
+        if count > 1:
+            _error(report, f"标签在清单中重复映射 {count} 次: {label}")
 
     split_rows: dict[str, list[RowResult]] = {split: [] for split in VALID_SPLITS}
     class_counts = Counter()

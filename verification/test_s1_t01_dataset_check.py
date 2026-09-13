@@ -93,6 +93,35 @@ class DatasetCheckTest(unittest.TestCase):
             self.assertEqual(len(report["preview_files"]), 15)
             self.assertTrue(all(Path(path).is_file() for path in report["preview_files"]))
 
+    def test_label_stem_mismatch_is_reported(self) -> None:
+        """图片和标签 stem 不一致时应阻断自动检查。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            with manifest.open("r", encoding="utf-8", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            rows[2]["label"] = rows[3]["label"]
+            with manifest.open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+                writer.writeheader()
+                writer.writerows(rows)
+            report = validate_dataset(root, manifest, Thresholds())
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any("stem 不一致" in error for error in report["errors"]))
+
+    def test_truncated_pnm_is_reported(self) -> None:
+        """只有 PNM 头部而缺少像素载荷时应被拒绝。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            truncated = root / "images" / "train" / "image_02.ppm"
+            truncated.write_bytes(b"P6\n4 4\n255\n")
+            report = validate_dataset(root, manifest, Thresholds())
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any("图片不可解析" in error and "像素载荷被截断" in error for error in report["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()

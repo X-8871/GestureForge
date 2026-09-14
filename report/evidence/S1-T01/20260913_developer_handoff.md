@@ -120,3 +120,9 @@
 - 当前回归：新定向 13 项退出 `0`；新全量 18 项退出 `0`；11 个 Python 文件 `py_compile` 退出 `0`。历史计数 8 项定向、12 项修复阶段全量、14 项旧最终提交全量保持不变。
 - 当前未执行：AC01/G0 仍失败；AC04 人工未回传；AC05～AC07、G1、G2、G4 未执行；正式长训、INT8、RTL、板卡烧录和板卡验收未执行。
 - 详细证据：`20260914_audit_repair.md`、`20260914_sha256_manifest.txt`、`20260914_environment_recheck.json`、`20260914_hagrid_prepare.json`、`20260914_hagrid_filter_manifest.json`、`20260914_hagrid_dataset_check_clean.json`、`20260914_hagrid_visual_review.md` 和 `20260914_hagrid_previews_clean/`。
+
+## 2026-09-14 Wong 人工复核回传
+
+- 1–10 号带框预览：Wong 回传没有问题，人工通过 10/10。
+- 11–15 号预览：Wong 观察为捂脸动作，没有识别，可能不属于五个目标手势范围。
+- 交接限定：11–15 号不是“确实无手”，而是“可能属于五类目标之外、但画面有手”的负样本候选；AC04 记录为带框部分通过，负样本语义待独立复审确认。

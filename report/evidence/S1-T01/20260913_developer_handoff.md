@@ -90,6 +90,8 @@
 
 请审查当前 S1-T01 数据准备版本。Wong 已提供外部 HaGRIDv2 数据，七个下载包已逐个 CRC/内容校验、解压并清理；正式数据根目录为 `D:\FPGA_Data\HaGRIDv2`，正式清单为 `manifest.csv`，未去重备份为 `manifest_all.csv`。
 
+本轮开发与证据交付提交：`9174c465481b153872c83cf4312679438641a6ec`；提交后 14 项 Python 回归、编译和证据 JSON 解析均退出码 0。
+
 - 标签生成：`verification\s1_t01_prepare_hagrid.py`，逐 JSON、递归适配官方嵌套目录；目标编码 `0=fist, 1=palm, 2=one, 3=two_up, 4=three`，`no_gesture` 作为无框负样本。原始转换 158,698 行/156,536 框，缺图 0、未知目标标签 0。
 - 去重：`verification\s1_t01_filter_manifest.py`，完整 SHA-256 重复分析定位 16 组/54 行跨 split 重复，按 `train > val > test` 移除 23 行（val 7、test 16），不删除原始图片或标签。正式清单 158,675 行/156,518 框，SHA-256 `74d4a0abec61ea4698caf0479ffb8fffd0b27f308166d81e13a5c20ad06aecb4`。
 - 清洁清单全量回归退出码 0，`PASS_AUTOMATED_MANUAL_PENDING`：158,675/158,675 图片和标签有效，AC02/AC03 自动通过，跨 split 完全重复为 0，人员/会话交叉为空。报告：`20260914_hagrid_dataset_check_clean.json`。

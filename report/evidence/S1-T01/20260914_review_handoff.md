@@ -1,8 +1,10 @@
-# S1-T01 独立复审接力提示词（2026-09-14）
+# S1-T01 独立复审接力提示词（2026-09-14，修复后版本）
+
+> 本文件包含旧固定版本的历史复核要求；文件末尾“本轮修复后权威输入”优先。开发侧不代替独立复审签结。
 
 请在不修改共享工程实现、不代替开发签结的前提下，独立复审 `S1-T01 训练环境与数据准备` 当前交付。复审对象固定为 Git 提交 `1e0641d45c95f4ca8336ef8b191efcd3f3cf9e4d`；其中 AUD-S1-T01-004～006 的开发修复提交为 `48cbd749721917c30346dafd631a5e11941b654c`，HaGRIDv2 数据准备与证据交付提交为 `9174c465481b153872c83cf4312679438641a6ec`。工作区已有与本任务无关的改动：`docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 以及两张板卡照片；不得把它们纳入本次审查版本。
 
-任务规格固定为原 Vault 任务记录 `S1-T01_训练环境与数据准备.md`（当前源文件 SHA-256：`01A0056D3367CC3BC9DE189A537BAD57698056318DC7587D4801DDFADDAF8B29`）和《B方案实施与阶段验收计划》v3.0。范围边界：五类带框检测；YOLOv4-tiny 优先作为上板候选；完整 YOLOv4 仅作 PC 对照；输入尺寸和性能尚未冻结；不把 32×32 分类规格带入本任务；本任务不包含正式长训、INT8、RTL 或板卡验收。
+任务规格固定为原 Vault 任务记录 `S1-T01_训练环境与数据准备.md`（本轮更新后源文件 SHA-256：`61379EDD0CC78BFCBFF6F40A85C15BB8D69E032D366A5FEE8BD697FC5C327D00`）和《B方案实施与阶段验收计划》v3.0。范围边界：五类带框检测；YOLOv4-tiny 优先作为上板候选；完整 YOLOv4 仅作 PC 对照；输入尺寸和性能尚未冻结；不把 32×32 分类规格带入本任务；本任务不包含正式长训、INT8、RTL 或板卡验收。
 
 请按以下顺序核查：
 
@@ -38,3 +40,33 @@
 已知复核结果：全量 Python 回归 14 项通过、退出码 0；Python 编译检查退出码 0；证据 JSON 解析退出码 0；环境探针退出码 2，属于当前环境未就绪的预期失败。数据全量检查已耗时约 34 分钟并退出 0，已有报告时请先读取报告，不要无依据重复启动长检查。
 
 请以表格回传：问题编号、审查版本、文件位置、复现命令/退出码、证据路径、独立结论（已关闭/未关闭/不适用）和剩余关闭条件。特别回传 AC04 的人工叠框观察结果，以及是否接受 `session_id` 的分区键限定。本复审不得直接修改实现代码，也不得代替阶段1或板卡验收签结。
+
+## 本轮修复后权威输入（开发侧，待独立复审）
+
+请固定核查提交 `05faaaf574548d6dccb0976bcbb019b44ad71c81` 及其后仅包含本轮文档绑定的交付提交；最终交付提交完整哈希由开发侧在提交完成后回传。`05faa...` 是本轮代码、测试、数据报告和新预览的实现基线，最终审查应以聊天回传的最新交付提交为固定版本。不得把本文件视为独立签结。
+
+本轮只处理以下问题：
+
+- AUD-S1-T01-004：`verification/s1_t01_environment_probe.py` 现验证结构化 Windows PE；Darknet 需真实执行版本/帮助命令；CUDA 冒烟需真实执行固定 `verification/s1_t01_cuda_smoke.cu` 编译产物并返回 `S1_T01_CUDA_SMOKE_PASS`。新增回归拒绝伪造 PE、伪造 Darknet 输出和伪造 CUDA 成功标记。当前真实环境探针命令退出码 `2`，因为没有 `nvcc`、官方 Darknet 和 CUDA 冒烟可执行文件；AC01/G0 仍不通过。
+- AUD-S1-T01-005：图片/标签同 stem、标签扩展名 `.txt`，重复唯一性基于规范化物理路径；新增 `..`、大小写和路径别名重复回归，定向回归退出码 `0`。
+- AUD-S1-T01-006：PNG zlib、PNM 精确像素长度、JPEG 表/熵编码和 Pillow 完整 `Image.load()` 检查均已实现；非法 PNG、截断 PNM、空/伪 JPEG 均应生成失败报告而不是无报告异常退出。
+- AUD-S1-T01-008：已修正 HaGRIDv2 COCO 框到 YOLO 中心框转换；无手候选只从 `dataset/no_gesture/` 空标签行选择。当前预览目录只保留 15 张新真实 SVG（每类 2 张带框、5 张无手），自动 landmarks 辅助核对 10/10 带框候选的 21 点落框；这不能替代 Wong 的逐张人工观察。
+- AUD-S1-T01-009/010：`manifest_all.csv` 是原始输入/去重前证据，`manifest.csv` 是最终清洁/后续检查入口；当前两者路径和 SHA-256 已在 `20260914_sha256_manifest.txt` 分开登记。环境报告、复审接力文件和 CUDA 源随新交付链登记。训练配置、权重、检查点和评估脚本尚未生成，必须登记未执行/未生成，不填伪哈希。
+
+本轮实际验证：13 项定向回归退出码 `0`；清洁数据全量检查退出码 `0`，`158675/158675` 有效，状态 `PASS_AUTOMATED_MANUAL_PENDING`；当前全量 Python 回归 18 项退出码 `0`；11 个 Python 文件 `py_compile` 退出码 `0`。历史 AUD-007 计数保持：8 项定向、12 项修复阶段全量、14 项旧最终提交全量；不能改写为本轮 13/18。
+
+复审材料：
+
+- `report/evidence/S1-T01/20260914_audit_repair.md`
+- `report/evidence/S1-T01/20260914_sha256_manifest.txt`
+- `report/evidence/S1-T01/20260914_environment_recheck.json`
+- `report/evidence/S1-T01/20260914_hagrid_prepare.json`
+- `report/evidence/S1-T01/20260914_hagrid_filter_manifest.json`
+- `report/evidence/S1-T01/20260914_hagrid_dataset_check_clean.json`
+- `report/evidence/S1-T01/20260914_hagrid_previews_clean/`（当前 15 张新 SVG）
+- `report/evidence/S1-T01/20260914_hagrid_visual_review.md`（待 Wong 填写）
+- `verification/s1_t01_cuda_smoke.cu`
+
+复审必须明确：AUD-004～006 是否按代码与回归关闭；AUD-008 的 15 张新预览是否逐张通过（不能用自动报告替代）；AUD-009/010 的新提交 Git blob 与证据 SHA 是否一致；是否接受 `session_id=hagridv2_official_split_<split>` 仅作为分区键而非物理会话。AC01/G0 仍应记录为失败；AC04 在 Wong 回传前保持未关闭；AC05～AC07、G1、G2、G4 保持未执行。不要把单测、公开数据规模或自动清单检查写成训练精度。
+
+本文件只提供复审输入，不代替独立审查签结。

@@ -106,5 +106,17 @@
 - 当前审查锚点：`1e0641d45c95f4ca8336ef8b191efcd3f3cf9e4d`；代码修复、数据准备和文档证据均以该提交及其祖先链定位。工作区列出的 Vivado、总控、接手提示词和板卡照片改动均与本任务无关。
 - 环境再核对：`20260914_environment_recheck.json`，SHA-256 `995238D2331A1910D76746AD36CF137F54777FFEA1114046BD3DCF7E9EEBE722`，实际退出码 `2`；GPU 查询成功，`nvcc`、官方 Darknet 和固定 CUDA 设备冒烟程序缺失。
 - 当前全量自动回归：14 项 Python 单测退出码 `0`；显式 `py_compile` 退出码 `0`；4 份证据 JSON 解析退出码 `0`。这只证明工具和数据完整性检查，不证明训练精度或阶段通过。
-- 独立复审接力文件：`20260914_review_handoff.md`，SHA-256 `8280C8DEBFF165868187FE4602032A77C7F014B13B1F71E591EB9454E428311`。该文件固定 AUD-S1-T01-004～006、007、AC04 人工抽查和 G0/AC01 环境边界的复核要求。
+- 独立复审接力文件：`20260914_review_handoff.md`，本轮更新后 SHA-256 `6EEEACC2C397D9C1BEE442694DA26BAB3666C6CC870A7469DA2DE476C3E24630`。该文件固定 AUD-S1-T01-004～006、007、AC04 人工抽查和 G0/AC01 环境边界的复核要求。
 - 复审输入仍为正式清单 `D:\FPGA_Data\HaGRIDv2\manifest.csv`，SHA-256 `74d4a0abec61ea4698caf0479ffb8fffd0b27f308166d81e13a5c20ad06aecb4`；人工叠框观察和环境就绪仍是未完成项。没有新的任务编号和任务卡时，不启动后续任务。
+
+## 2026-09-14 AUD 修复后开发绑定
+
+- 本轮实现/数据/报告修复基线提交：`05faaaf574548d6dccb0976bcbb019b44ad71c81`。最终交付还包含本节更新、最新复审接力文档和哈希清单；最终交付提交完整哈希由本轮结束时回传，复审请以回传的最新完整哈希固定版本。
+- AUD-S1-T01-004：环境探针已拒绝结构不完整的伪造 PE、伪造 Darknet 输出和伪造 CUDA 成功标记；真实探针仍因 `nvcc`、官方 Darknet 和固定 CUDA 冒烟可执行文件缺失而退出 `2`，不得据此写成 AC01/G0 通过。
+- AUD-S1-T01-005：图片/标签同 stem、`.txt` 和规范化物理路径唯一性已实现；`..`、大小写及路径别名回归通过。
+- AUD-S1-T01-006：PNG zlib、PNM 精确像素载荷、JPEG 完整 Pillow 解码已实现；损坏输入统一生成失败报告。清洁 HaGRIDv2 全量检查实际退出 `0`。
+- AUD-S1-T01-008：已修正 COCO→YOLO 框转换并重新生成 15 张真实候选；开发侧 landmarks 辅助检查为带框 10/10，人工复核单仍待 Wong，不能替代 AC04。
+- AUD-S1-T01-009/010：原始 `manifest_all.csv` 与清洁 `manifest.csv` 已分开绑定；训练配置、权重、检查点和评估脚本尚未生成，登记未执行/未生成，不填伪哈希。环境报告、复审接力文档、CUDA 源程序均属于新交付链材料。
+- 当前回归：新定向 13 项退出 `0`；新全量 18 项退出 `0`；11 个 Python 文件 `py_compile` 退出 `0`。历史计数 8 项定向、12 项修复阶段全量、14 项旧最终提交全量保持不变。
+- 当前未执行：AC01/G0 仍失败；AC04 人工未回传；AC05～AC07、G1、G2、G4 未执行；正式长训、INT8、RTL、板卡烧录和板卡验收未执行。
+- 详细证据：`20260914_audit_repair.md`、`20260914_sha256_manifest.txt`、`20260914_environment_recheck.json`、`20260914_hagrid_prepare.json`、`20260914_hagrid_filter_manifest.json`、`20260914_hagrid_dataset_check_clean.json`、`20260914_hagrid_visual_review.md` 和 `20260914_hagrid_previews_clean/`。

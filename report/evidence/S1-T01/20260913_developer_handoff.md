@@ -27,12 +27,12 @@
 - 修复后环境探针：退出码 2；GPU 查询成功但 `nvcc`、Darknet 和 CUDA 设备冒烟程序仍缺失，见 `20260913_audit_fix_environment_probe.json`。
 - 问题处置与复审边界：见 `20260913_audit_fix.md`；AUD-S1-T01-004～006为“开发已修复、待独立复审确认”，不代替审查签结。
 
-当前结论：S1-T01 G0 未通过，G1/G2/G4 未执行，G3 对纯 PC 准备任务不适用；没有图片、标签、Darknet cfg、数据哈希、权重、检查点、训练日志或评估输出。不得把回归夹具或 HaGRID 公开资料指标写成真实手势精度。
+历史空数据结论（已由 2026-09-14 最新数据准备交接更新）：S1-T01 G0 仍未通过，G1/G2/G4 未执行，G3 对纯 PC 准备任务不适用；当前真实数据、标签、清单和自动检查证据已补齐，但仍没有 Darknet cfg、权重、检查点、训练日志或评估输出。不得把回归夹具或 HaGRID 公开资料指标写成真实手势精度。
 
 请审查以下范围：
 
 1. 检查器的清单字段、归一化 YOLO 标签约束、人员/会话隔离和跨集合重复检查是否覆盖 AC02—AC04。
-2. 检查当前失败证据是否准确反映“数据和 Darknet 未提供”，以及是否错误扩大了任务边界。
+2. 检查历史失败证据和 2026-09-14 最新数据证据是否准确反映“数据已提供但 Darknet/CUDA 未就绪”，以及是否错误扩大了任务边界。
 3. 审查不得把 G0、环境探针失败或工具回归通过改写为阶段1或模型精度通过。
 
 审查结果请按问题编号、文件位置、依据、关闭条件和复核版本回写；审查窗口不直接修改被审实现。
@@ -41,7 +41,7 @@
 
 - 任务规格：原项目笔记 `03-实验记录/任务记录/S1-T01_训练环境与数据准备.md`，2026-09-13。
 - 阶段计划：原项目笔记 `02-方案设计/B方案实施与阶段验收计划.md`，v3.0，2026-09-13。
-- 当前代码提交：`48cbd749721917c30346dafd631a5e11941b654c`；初始功能提交为 `6be0d6e80b8b55ca214061103ac64852a76cea75`；当前代码文件 SHA-256 见下表。
+- 基础修复提交：`48cbd749721917c30346dafd631a5e11941b654c`；初始功能提交为 `6be0d6e80b8b55ca214061103ac64852a76cea75`；本轮数据准备脚本和证据随新的交付提交提交；当前代码文件 SHA-256 见下表。
 - 当前工作区既有无关改动：`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr`，不属于 S1-T01，不应混入审查版本。
 
 | 对象 | SHA-256 或状态 |
@@ -50,11 +50,24 @@
 | `verification/s1_t01_environment_probe.py` | `6A77BC477758B4DB61F68A2F4D2A4242C52B6D9C100C11F1932DB036806928A5` |
 | `verification/test_s1_t01_dataset_check.py` | `9188116CE1108C4D78A9E60D0671B84891CE6F3F8BFC180D85ACAC2B45067266` |
 | `verification/test_s1_t01_environment_probe.py` | `9B3B95225AB9AF18C5A9536FF946A9986ACCB8AFA4E8B3F61B05763162B6FCDA` |
-| `data/README.md` | `464475DE605C832A0E7C451E77BEA5F9527E36444A6B1FAF2D076335AA80620D` |
-| `scripts/README.md` | `EF44B684049560F82D7721A4DFA372731F395EC957132FABBB6BFEEA12933468` |
-| S1-T01 主记录 | `54AC9E3D6FD45B3E59501542D1641E2D32BDC456978A8CEE603E34265A678E17` |
+| `verification/s1_t01_prepare_hagrid.py` | `44617AAAC645DB120625E18DBFEB0B90769D6FFC98EC53BF530BF732675F1BF3` |
+| `verification/s1_t01_filter_manifest.py` | `BED9A422567F0D4485A4A66FFB2FC67110564280D9581DE7E4394659251CF21D` |
+| `verification/test_s1_t01_prepare_hagrid.py` | `D4687615BACDEEE564E0E53CA72AF608FC4C951E02D37B0C4009B754F31EC768` |
+| `verification/test_s1_t01_filter_manifest.py` | `A80DCB4B7076877951AB9A0B47C288628B45EABC97FE0239ACAF6BF26A9CA54A` |
+| `data/README.md` | `582CA4EC4896EE608636F57ACD5CC4BFFC867F74C6A08CAFD71DD7CDEB597F81` |
+| `scripts/README.md` | `A66BD12921D3A0D9AF3FBF05C0E692E440071C4D3F15062A49DC696C0123A950` |
+| S1-T01 主记录 | `C7DA418D22575D0D87604F816E8F3874EAC2D37ABE665D06E8B9F40D75EC776D` |
+| `report/evidence/S1-T01/20260914_hagrid_prepare.json` | `884F500B775D10B17B1ED0CDB82B3D8BB708B3293384953CF431EFA50080C5C0` |
+| `report/evidence/S1-T01/20260914_hagrid_filter_manifest.json` | `29B4CEC5505DFC5C67FF4C5CE0B0AFB36944B1100AAB5D8BFFE37D63A50B3EFE` |
+| `report/evidence/S1-T01/20260914_hagrid_dataset_check_clean.json` | `01D658D0E76F26EEAA17984EFCDC7F6959D9488E33CD1BD66E7785A47990DC63` |
+| `report/evidence/S1-T01/20260914_hagrid_extract_progress.md` | `9EE815D99B8FA96D654C20787F7BCBE5B40635CF3E4CAFD6E964AB5E731EA621` |
+| `report/evidence/S1-T01/20260914_hagrid_visual_review.md` | `F7C89DE82580CB664F4D582B497A6C1BC9844B57BCAFB7256526CCD3314CEFED` |
+| `report/evidence/S1-T01/20260914_hagrid_dataset_check_clean.log` | `32D06A0BA4F8D60987F61747C7F48B34601527D7D1B198E09C8D866F9A1FFCDC` |
+| `report/evidence/S1-T01/20260914_hagrid_duplicate_analysis.log` | `AE1E92B8BC4E03ABF53E553EC176D5D27B2741B731A1C84425F348D79710968B` |
+| `report/evidence/S1-T01/20260914_hagrid_filter_manifest_final.log` | `498F61CA1E93EE4C9B999D8AE3FB58CC9603F9FD911620575DB8716642CA9F21` |
+| `report/evidence/S1-T01/20260914_hagrid_prepare_final.log` | `A349F2AE55D85012680BFD43D3F28DA44AF0F0241EA2F34B4F63F63FA6316EF9` |
 | B 方案实施与阶段验收计划 v3.0 | `A94830AFE60AE6A339038C1F41656101931A2999529A1BF866AD75D8D1C9F3FD` |
-| 数据清单 `data/manifest.csv` | 未提供，不存在，SHA-256 不适用 |
+| 数据清单 `D:\FPGA_Data\HaGRIDv2\manifest.csv` | `74D4A0ABEC61EA4698CAF0479FFB8FFFD0B27F308166D81E13A5C20AD06AECB4`（正式清单） |
 | Darknet 提交与五类 tiny cfg | 尚未锁定，不存在，SHA-256 不适用 |
 | 训练检查点 | 未生成（AC05 未执行） |
 | 初始空数据检查 JSON | `41DBACB3B22531DF224859B5E919F13664E9D36077EA9E0DE2DBA6204C5F8AE6` |
@@ -72,3 +85,16 @@
 - AC05—AC07：未训练、未保存/恢复检查点、未评估、未复跑交接。
 - AUD-S1-T01-004～006：开发修复已提交并回归，等待独立复审在固定提交上复核关闭；真实环境失败不是修复回归失败。
 - Wong 需按任务记录中的采集/标注操作单回传外部数据根目录、会话与人员信息、五类框统计、无手统计、来源许可和清单/数据包 SHA-256；无需进行板卡接线或烧录。
+
+## 2026-09-14 最新数据准备交接消息
+
+请审查当前 S1-T01 数据准备版本。Wong 已提供外部 HaGRIDv2 数据，七个下载包已逐个 CRC/内容校验、解压并清理；正式数据根目录为 `D:\FPGA_Data\HaGRIDv2`，正式清单为 `manifest.csv`，未去重备份为 `manifest_all.csv`。
+
+- 标签生成：`verification\s1_t01_prepare_hagrid.py`，逐 JSON、递归适配官方嵌套目录；目标编码 `0=fist, 1=palm, 2=one, 3=two_up, 4=three`，`no_gesture` 作为无框负样本。原始转换 158,698 行/156,536 框，缺图 0、未知目标标签 0。
+- 去重：`verification\s1_t01_filter_manifest.py`，完整 SHA-256 重复分析定位 16 组/54 行跨 split 重复，按 `train > val > test` 移除 23 行（val 7、test 16），不删除原始图片或标签。正式清单 158,675 行/156,518 框，SHA-256 `74d4a0abec61ea4698caf0479ffb8fffd0b27f308166d81e13a5c20ad06aecb4`。
+- 清洁清单全量回归退出码 0，`PASS_AUTOMATED_MANUAL_PENDING`：158,675/158,675 图片和标签有效，AC02/AC03 自动通过，跨 split 完全重复为 0，人员/会话交叉为空。报告：`20260914_hagrid_dataset_check_clean.json`。
+- 可视化：15 张真实图片自包含 SVG 位于 `20260914_hagrid_previews_clean`；人工复核单为 `20260914_hagrid_visual_review.md`。人工观察尚未执行，AC04 保持自动通过、人工待复核，不代替审查签结论。
+- 许可证：`D:\FPGA_Data\HaGRIDv2\license\en_us.pdf` SHA-256 `14f4845e9c8d3de875cbac4139491da368ab1040a7f565e02894477279134d22`。原 ZIP 按用户要求删除，未采集 ZIP SHA-256，仅保留 ZIP CRC/条目数/解压尺寸证据。
+- 训练：`nvcc`、官方 Darknet/CUDA 设备环境仍缺失；小样本训练、评估、检查点、恢复和真实精度验证未执行，G0/AC01 仍未通过。不得把公开数据规模或本次自动校验当作识别精度。
+
+审查回传应明确：人工叠框是否通过；是否接受 `session_id=hagridv2_official_split_<split>` 作为“分区键而非物理会话”的限定；以及是否关闭当前 AC04 人工观察项。审查窗口不直接修改实现代码。

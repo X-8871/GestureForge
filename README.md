@@ -4,6 +4,15 @@
 
 仓库：https://github.com/X-8871/GestureForge 。同步范围与操作见 [仓库同步说明](docs/仓库同步说明.md)。
 
+## 阶段开发入口
+
+新阶段在本项目新建一个总控会话，只需给出阶段目标，例如：“读取 AGENTS.md 和 .codex/STATE.md，继续当前阶段；使用 Developer 与 Reviewer subagent 自动完成开发、审查和修复。”
+
+- [AGENTS.md](AGENTS.md)：当前 Agent 工作规则、验证要求与自动协作协议。
+- [.codex/STATE.md](.codex/STATE.md)：唯一当前状态和下一步；代码与 Git 保存实现及历史。
+- 总控在当前阶段内自动交接；阶段结束验证、更新状态、提交并汇报，由 Wong 决定下一阶段。
+- `docs/obsidian-project/` 中旧总控、角色提示词、工作流、工程协作规范及项目进程保留作历史快照，不再作为当前协作指令或状态源。正式需求、设计、接口与验收证据仍按任务读取。
+
 工程根目录：`D:\FPGA_Competition\`
 
 ## 目录

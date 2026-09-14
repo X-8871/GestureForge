@@ -1,10 +1,8 @@
-start=2026-09-14T15:01:54.8217585+08:00
-command=& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' verification\s1_t01_dataset_check.py --data-root 'D:\FPGA_Data\HaGRIDv2' --manifest 'D:\FPGA_Data\HaGRIDv2\manifest.csv' --report 'report\evidence\S1-T01\20260914_hagrid_dataset_check_clean.json' --preview-dir 'report\evidence\S1-T01\20260914_hagrid_previews_clean'
 {
-  "status": "PASS_AUTOMATED_MANUAL_PENDING",
+  "status": "FAIL",
   "checks": {
     "AC02": "ͨ���Զ����",
-    "AC03": "ͨ���Զ����",
+    "AC03": "δͨ��: ����ͼƬ 0 < 5��train ��ȱ������ͼƬ��val ��ȱ������ͼƬ",
     "AC04": "���˹���飺ÿ��2��5������ͼ"
   },
   "metrics": {
@@ -49,16 +47,27 @@ command=& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependenci
       }
     },
     "no_hand_images_per_split": {
-      "train": 1465,
+      "train": 0,
+      "val": 0,
+      "test": 0
+    },
+    "non_target_gesture_images_per_split": {
+      "train": 5,
+      "val": 0,
+      "test": 0
+    },
+    "unclassified_empty_label_images_per_split": {
+      "train": 1460,
       "val": 199,
       "test": 496
+    },
+    "semantic_role_counts": {
+      "no_hand": 0,
+      "non_target_gesture": 5,
+      "target_gesture": 10
     },
     "session_person_overlap": {}
   },
   "errors": [],
-  "warnings": [
-    "AC04 ���˹����ӻ���������� Wong �۲첢�ش����"
-  ]
+  "warnings": []
 }
-end=2026-09-14T15:35:36.7800491+08:00
-exit_code=0

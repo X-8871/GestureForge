@@ -36,6 +36,22 @@ MANIFEST_COLUMNS = (
     "license",
     "is_real",
 )
+SEMANTIC_REVIEW_COLUMNS = (
+    "image",
+    "label",
+    "split",
+    "session_id",
+    "person_id",
+    "source",
+    "license",
+    "is_real",
+    "image_sha256",
+    "sample_role",
+    "manual_result",
+    "reviewer",
+    "reviewed_at_utc8",
+)
+SEMANTIC_ROLES = {"no_hand", "non_target_gesture", "target_gesture"}
 
 
 @dataclass(frozen=True)
@@ -58,6 +74,8 @@ class RowResult:
     image_info: dict[str, int | str] | None = None
     image_sha256: str | None = None
     labels: list[tuple[int, float, float, float, float]] | None = None
+    semantic_role: str | None = None
+    semantic_manual_result: str | None = None
 
 
 def _now_iso() -> str:
@@ -116,6 +134,12 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _physical_key(path: Path) -> str:
+    """返回用于唯一映射比较的规范化物理路径键。"""
+
+    return os.path.normcase(os.path.realpath(os.path.abspath(os.fspath(path))))
 
 
 def _read_png_info(path: Path) -> dict[str, int | str]:
@@ -425,6 +449,7 @@ def _new_report(root: Path, manifest: Path, thresholds: Thresholds) -> dict:
         "created_at_utc8": _now_iso(),
         "data_root": str(root),
         "manifest": str(manifest),
+        "semantic_review": None,
         "class_mapping": {str(index): name for index, name in enumerate(CLASS_NAMES)},
         "thresholds": {
             "min_images": thresholds.min_images,
@@ -468,6 +493,115 @@ def _load_manifest(path: Path, report: dict) -> list[RowResult]:
     except OSError as exc:
         _error(report, f"读取清单失败: {path} ({exc})")
     return []
+
+
+def _load_semantic_review(path: Path | None, rows: list[RowResult], report: dict) -> dict[str, dict[str, str]]:
+    """读取人工语义补充表，并将记录绑定到清单的规范化物理图片。"""
+
+    if path is None:
+        _warning(report, "未提供人工语义补充表；不能从 no_gesture 目录名推断 no_hand")
+        return {}
+    report["semantic_review"] = str(path)
+    if not path.is_file():
+        _error(report, f"人工语义补充表不存在: {path}")
+        return {}
+
+    manifest_by_image: dict[str, RowResult] = {}
+    for row in rows:
+        if row.image_path is None:
+            continue
+        key = _physical_key(row.image_path)
+        if key in manifest_by_image:
+            _error(report, f"人工语义补充表无法唯一绑定重复图片: {row.values['image']}")
+        else:
+            manifest_by_image[key] = row
+
+    bound: dict[str, dict[str, str]] = {}
+    seen_images: set[str] = set()
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as stream:
+            reader = csv.DictReader(stream)
+            fieldnames = tuple(reader.fieldnames or ())
+            missing = [column for column in SEMANTIC_REVIEW_COLUMNS if column not in fieldnames]
+            if missing:
+                _error(report, f"人工语义补充表缺少必需列: {', '.join(missing)}")
+                return {}
+            for row_number, raw in enumerate(reader, start=2):
+                values = {key: (raw.get(key) or "").strip() for key in SEMANTIC_REVIEW_COLUMNS}
+                if not any(values.values()):
+                    _warning(report, f"人工语义补充表第 {row_number} 行为空，已跳过")
+                    continue
+                try:
+                    image_path = _safe_path(Path(report["data_root"]), values["image"])
+                    label_path = _safe_path(Path(report["data_root"]), values["label"])
+                except ValueError as exc:
+                    _error(report, f"人工语义补充表第 {row_number} 行路径无效: {exc}")
+                    continue
+                image_key = _physical_key(image_path)
+                label_key = _physical_key(label_path)
+                if image_key in seen_images:
+                    _error(report, f"人工语义补充表第 {row_number} 行重复映射同一物理图片: {values['image']}")
+                    continue
+                seen_images.add(image_key)
+                manifest_row = manifest_by_image.get(image_key)
+                if manifest_row is None:
+                    _error(report, f"人工语义补充表第 {row_number} 行图片不在正式清单: {values['image']}")
+                    continue
+                if manifest_row.label_path is None or _physical_key(manifest_row.label_path) != label_key:
+                    _error(report, f"人工语义补充表第 {row_number} 行标签未绑定到清单同一物理路径: {values['label']}")
+                    continue
+                for field in MANIFEST_COLUMNS:
+                    expected = manifest_row.values[field]
+                    actual = values[field]
+                    if field == "image" or field == "label":
+                        continue
+                    if field == "is_real":
+                        try:
+                            actual = "true" if _parse_bool(actual) else "false"
+                        except ValueError:
+                            pass
+                    if actual != expected:
+                        _error(report, f"人工语义补充表第 {row_number} 行 {field} 与正式清单不一致")
+                if manifest_row.image_sha256 is None or values["image_sha256"].casefold() != manifest_row.image_sha256.casefold():
+                    _error(report, f"人工语义补充表第 {row_number} 行图片 SHA-256 不一致: {values['image']}")
+                if values["sample_role"] not in SEMANTIC_ROLES:
+                    _error(report, f"人工语义补充表第 {row_number} 行 sample_role 无效: {values['sample_role']!r}")
+                if not values["manual_result"]:
+                    _error(report, f"人工语义补充表第 {row_number} 行缺少 manual_result")
+                if not values["reviewer"]:
+                    _error(report, f"人工语义补充表第 {row_number} 行缺少 reviewer")
+                if not values["reviewed_at_utc8"]:
+                    _error(report, f"人工语义补充表第 {row_number} 行缺少 reviewed_at_utc8")
+                elif values["reviewed_at_utc8"] != "未提供":
+                    try:
+                        datetime.fromisoformat(values["reviewed_at_utc8"])
+                    except ValueError:
+                        _error(report, f"人工语义补充表第 {row_number} 行 reviewed_at_utc8 不是 ISO 时间")
+                if values["sample_role"] == "no_hand":
+                    if manifest_row.labels != []:
+                        _error(report, f"人工语义补充表第 {row_number} 行 no_hand 样本存在目标框")
+                    if values["manual_result"] != "confirmed_no_hand":
+                        _error(report, f"人工语义补充表第 {row_number} 行 no_hand 必须使用 confirmed_no_hand")
+                    if values["reviewed_at_utc8"] == "未提供":
+                        _error(report, f"人工语义补充表第 {row_number} 行 no_hand 缺少实际人工复核时间")
+                elif values["sample_role"] == "non_target_gesture":
+                    if manifest_row.labels != []:
+                        _error(report, f"人工语义补充表第 {row_number} 行 non_target_gesture 存在五类目标框")
+                    if values["manual_result"] != "accepted_non_target":
+                        _error(report, f"人工语义补充表第 {row_number} 行 non_target_gesture 必须使用 accepted_non_target")
+                elif values["sample_role"] == "target_gesture":
+                    if not manifest_row.labels:
+                        _error(report, f"人工语义补充表第 {row_number} 行 target_gesture 缺少目标框")
+                    if values["manual_result"] != "pass_box":
+                        _error(report, f"人工语义补充表第 {row_number} 行 target_gesture 必须使用 pass_box")
+                bound[image_key] = values
+                manifest_row.semantic_role = values["sample_role"]
+                manifest_row.semantic_manual_result = values["manual_result"]
+    except UnicodeDecodeError as exc:
+        _error(report, f"人工语义补充表不是 UTF-8 编码: {path} ({exc})")
+    except OSError as exc:
+        _error(report, f"读取人工语义补充表失败: {path} ({exc})")
+    return bound
 
 
 def _check_row(row: RowResult, root: Path, report: dict) -> None:
@@ -557,12 +691,15 @@ def _choose_preview_candidates(rows: list[RowResult]) -> list[RowResult]:
 
 
 def _is_no_hand_row(row: RowResult) -> bool:
-    """只把官方 no_gesture 目录中的空标签行视为无手样本。"""
+    """只把人工语义补充表明确确认的空标签行视为无手样本。"""
 
-    if row.labels != []:
-        return False
-    normalized = row.values["image"].replace("\\", "/").casefold()
-    return "/no_gesture/" in f"/{normalized}/"
+    return row.semantic_role == "no_hand" and row.labels == []
+
+
+def _is_non_target_row(row: RowResult) -> bool:
+    """识别人工确认的非五类目标负样本。"""
+
+    return row.semantic_role == "non_target_gesture" and row.labels == []
 
 
 def _write_svg_preview(row: RowResult, preview_dir: Path, index: int) -> Path | None:
@@ -600,7 +737,13 @@ def _write_svg_preview(row: RowResult, preview_dir: Path, index: int) -> Path | 
     return output
 
 
-def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview_dir: Path | None = None) -> dict:
+def validate_dataset(
+    root: Path,
+    manifest: Path,
+    thresholds: Thresholds,
+    preview_dir: Path | None = None,
+    semantic_review: Path | None = None,
+) -> dict:
     """执行 S1-T01 数据集自动检查并返回 JSON 兼容报告。"""
 
     report = _new_report(root, manifest, thresholds)
@@ -611,13 +754,14 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
     rows = _load_manifest(manifest, report)
     for row in rows:
         _check_row(row, root, report)
+    _load_semantic_review(semantic_review, rows, report)
 
     valid_rows = [row for row in rows if row.image_info is not None and row.labels is not None]
-    image_paths = Counter(str(row.image_path) for row in rows if row.image_path is not None)
+    image_paths = Counter(_physical_key(row.image_path) for row in rows if row.image_path is not None)
     for image, count in image_paths.items():
         if count > 1:
             _error(report, f"规范化物理图片路径在清单中重复映射 {count} 次: {image}")
-    label_paths = Counter(str(row.label_path) for row in rows if row.label_path is not None)
+    label_paths = Counter(_physical_key(row.label_path) for row in rows if row.label_path is not None)
     for label, count in label_paths.items():
         if count > 1:
             _error(report, f"规范化物理标签路径在清单中重复映射 {count} 次: {label}")
@@ -626,6 +770,8 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
     class_counts = Counter()
     split_class_counts: dict[str, Counter] = {split: Counter() for split in VALID_SPLITS}
     split_no_hand = Counter()
+    split_non_target = Counter()
+    split_unclassified_empty = Counter()
     image_hash_splits: dict[str, set[str]] = defaultdict(set)
     real_images = 0
     total_boxes = 0
@@ -643,6 +789,10 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
             image_hash_splits[row.image_sha256].add(split)
         if _is_no_hand_row(row):
             split_no_hand[split] += 1
+        elif _is_non_target_row(row):
+            split_non_target[split] += 1
+        elif row.labels == []:
+            split_unclassified_empty[split] += 1
         for class_id, *_ in row.labels:
             class_counts[class_id] += 1
             split_class_counts[split][class_id] += 1
@@ -664,6 +814,12 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
         "images_per_split": {split: len(split_rows[split]) for split in VALID_SPLITS},
         "boxes_per_split": {split: {CLASS_NAMES[class_id]: split_class_counts[split][class_id] for class_id in range(len(CLASS_NAMES))} for split in VALID_SPLITS},
         "no_hand_images_per_split": {split: split_no_hand[split] for split in VALID_SPLITS},
+        "non_target_gesture_images_per_split": {split: split_non_target[split] for split in VALID_SPLITS},
+        "unclassified_empty_label_images_per_split": {split: split_unclassified_empty[split] for split in VALID_SPLITS},
+        "semantic_role_counts": {
+            role: sum(1 for row in valid_rows if row.semantic_role == role)
+            for role in sorted(SEMANTIC_ROLES)
+        },
         "session_person_overlap": overlaps,
     }
 
@@ -731,6 +887,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="检查 S1-T01 五类带框数据清单、标签和分组隔离")
     parser.add_argument("--data-root", type=Path, required=True, help="数据根目录，清单中的路径相对该目录")
     parser.add_argument("--manifest", type=Path, required=True, help="UTF-8 CSV 清单路径")
+    parser.add_argument("--semantic-review", type=Path, help="人工语义补充 CSV，明确 no_hand/non_target_gesture/target_gesture")
     parser.add_argument("--report", type=Path, help="输出 JSON 报告路径")
     parser.add_argument("--preview-dir", type=Path, help="输出自包含 SVG 抽查图目录")
     parser.add_argument("--min-images", type=int, default=30, help="真实图片最低数量，默认30")
@@ -749,7 +906,7 @@ def main(argv: list[str] | None = None) -> int:
         min_boxes_per_class=args.min_boxes_per_class,
         min_no_hand_images=args.min_no_hand_images,
     )
-    report = validate_dataset(args.data_root, args.manifest, thresholds, args.preview_dir)
+    report = validate_dataset(args.data_root, args.manifest, thresholds, args.preview_dir, args.semantic_review)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

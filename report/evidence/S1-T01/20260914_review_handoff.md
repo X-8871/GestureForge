@@ -76,3 +76,35 @@
 - Wong 已回传：1–10 号带框预览没有问题，带框人工结果为 10/10。
 - Wong 已回传：11–15 号是捂脸动作，没有识别，可能不属于五个目标手势范围。请独立复审决定这是否满足 AC04 对“无手/无目标”样本的定义：它们画面中有手，因此不能被开发侧直接记为“确实无手”通过；若验收允许“非五类目标但画面可有手”的负样本，应在复审结论中明确该语义。
 - 当前不要把 AC04 写成完全通过；开发侧记录为“带框部分人工通过，无手/非目标负样本语义待独立复审确认”。
+
+## 本轮语义整改后权威输入（开发侧，待独立复审）
+
+本轮从独立复审基线 `f6364bb5dcf6de1d74c30c346fb53e9ac9a89a42` 继续产生后续提交，不修改或重写该基线。复审请以开发侧最终回传的新提交为固定版本，并核对本节列出的代码、报告和证据哈希。
+
+### AUD-S1-T01-008 / AC04
+
+- 新增 `report/evidence/S1-T01/20260914_hagrid_semantic_review.csv`，不覆盖 `D:\FPGA_Data\HaGRIDv2\manifest.csv`。
+- 1～10 是 Wong 已回传通过的 `target_gesture` 带框样本。
+- 11～15 是 Wong 观察到的捂脸/遮挡动作，登记为 `non_target_gesture`；这些图片中存在手，不是 `no_hand`，不计入无手数量，但可作为五类检测器空标签负样本候选。
+- HaGRIDv2 `dataset/no_gesture` 共 2164 条官方记录，均有 `bboxes`，当前未找到可诚实登记的真实无手样本；新增 `report/evidence/S1-T01/20260914_no_hand_collection_sheet.md` 要求 Wong 提供并逐张确认至少 5 张真实无手图片。当前 `no_hand=0/5`。
+- 人工观察不能由自动解码、目录名或自动报告替代；AC04 仍未完全关闭，不代替独立审查签结。
+
+### 检查器语义边界
+
+`verification/s1_t01_dataset_check.py` 新增 `--semantic-review`。只有语义表中明确的 `sample_role=no_hand`、`manual_result=confirmed_no_hand` 且有人和实际 UTC+8 时间的空标签样本才计入 `no_hand`；`non_target_gesture` 单独统计；未绑定语义的空标签样本单独统计为 `unclassified_empty_label`。语义表的大小写、`..` 和其他物理路径别名重复绑定会失败。
+
+### 本轮状态
+
+- AC03：随着路径名推断被移除，当前正式 HaGRIDv2 清单的明确 `no_hand` 为 0，待补样本，因此不通过。
+- AC04：1～10 带框人工通过 10/10；11～15 非五类目标负样本，不是无手；真实无手 0/5，因此未完全关闭。
+- AC01/G0、AC05～AC07、G1、G2、G4：状态不变；没有 nvcc、官方 Darknet、CUDA 设备冒烟可执行文件，也没有训练/恢复/完整评估/真实精度结果。
+- 历史 AUD-007 计数不改写：8 项定向、12 项修复阶段全量、14 项旧最终提交全量；本轮新增测试数量单独记录。
+
+### 独立复审建议核对命令
+
+```powershell
+& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' -m unittest verification.test_s1_t01_dataset_check -v
+& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' verification\s1_t01_dataset_check.py --data-root 'D:\FPGA_Data\HaGRIDv2' --manifest 'D:\FPGA_Data\HaGRIDv2\manifest.csv' --semantic-review report\evidence\S1-T01\20260914_hagrid_semantic_review.csv --report report\evidence\S1-T01\20260914_hagrid_dataset_check_semantic.json
+```
+
+请独立复核提交、报告与证据绑定，并单独决定 AC04 是否接受 `non_target_gesture` 作为“五类目标之外”的负样本；不得把它们改写成 `no_hand`，也不得由开发侧代替审查签结。

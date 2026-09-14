@@ -1,8 +1,9 @@
 {
   "schema_version": 1,
-  "created_at_utc8": "2026-09-14T16:44:24+08:00",
+  "created_at_utc8": "2026-09-14T19:08:27+08:00",
   "data_root": "D:\\FPGA_Data\\HaGRIDv2",
   "manifest": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+  "semantic_review": "report\\evidence\\S1-T01\\20260914_hagrid_semantic_review.csv",
   "class_mapping": {
     "0": "fist",
     "1": "palm",
@@ -15,11 +16,9 @@
     "min_boxes_per_class": 5,
     "min_no_hand_images": 5
   },
-  "status": "PASS_AUTOMATED_MANUAL_PENDING",
+  "status": "FAIL",
   "errors": [],
-  "warnings": [
-    "AC04 的人工可视化抽查仍需由 Wong 观察并回传结果"
-  ],
+  "warnings": [],
   "metrics": {
     "manifest_rows": 158675,
     "valid_rows": 158675,
@@ -62,15 +61,30 @@
       }
     },
     "no_hand_images_per_split": {
-      "train": 1464,
+      "train": 0,
+      "val": 0,
+      "test": 0
+    },
+    "non_target_gesture_images_per_split": {
+      "train": 5,
+      "val": 0,
+      "test": 0
+    },
+    "unclassified_empty_label_images_per_split": {
+      "train": 1460,
       "val": 199,
       "test": 496
+    },
+    "semantic_role_counts": {
+      "no_hand": 0,
+      "non_target_gesture": 5,
+      "target_gesture": 10
     },
     "session_person_overlap": {}
   },
   "checks": {
     "AC02": "通过自动检查",
-    "AC03": "通过自动检查",
+    "AC03": "未通过: 无手图片 0 < 5；train 集缺少无手图片；val 集缺少无手图片",
     "AC04": "待人工抽查：每类2框及5张无手图"
   },
   "preview_candidates": [
@@ -173,63 +187,7 @@
       "classes": [
         "three"
       ]
-    },
-    {
-      "row_number": 116536,
-      "image": "dataset/no_gesture/0f30b2cf-f649-4064-9706-3f921592aee6.jpg",
-      "split": "train",
-      "session_id": "hagridv2_official_split_train",
-      "person_id": "64e39d1ae6445a3ffa8bcb3d8f85bfde",
-      "classes": []
-    },
-    {
-      "row_number": 116537,
-      "image": "dataset/no_gesture/148ddae3-87ee-4bf8-a392-9b14b639b326.jpg",
-      "split": "train",
-      "session_id": "hagridv2_official_split_train",
-      "person_id": "c9d9eeef9242225814ecc91da596d924",
-      "classes": []
-    },
-    {
-      "row_number": 116538,
-      "image": "dataset/no_gesture/1dd94133-9e93-4645-8092-2d2a810f0ba4.jpg",
-      "split": "train",
-      "session_id": "hagridv2_official_split_train",
-      "person_id": "ca50a629cc0e723bf8723c0412dd7045",
-      "classes": []
-    },
-    {
-      "row_number": 116539,
-      "image": "dataset/no_gesture/1e52df63-42ac-4236-9207-3b88f8dc08c7.jpg",
-      "split": "train",
-      "session_id": "hagridv2_official_split_train",
-      "person_id": "12a408cf010c22553dced80ce6c66f2b",
-      "classes": []
-    },
-    {
-      "row_number": 116540,
-      "image": "dataset/no_gesture/2e0acf83-3b22-47e6-bef4-cdad47e6b000.jpg",
-      "split": "train",
-      "session_id": "hagridv2_official_split_train",
-      "person_id": "445040b0ce4f4693325fd1b9737d2994",
-      "classes": []
     }
   ],
-  "preview_files": [
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_01_row2182.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_02_row1815.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_03_row26931.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_04_row39191.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_05_row70371.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_06_row70407.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_07_row93230.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_08_row72071.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_09_row94070.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_10_row99136.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_11_row116536.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_12_row116537.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_13_row116538.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_14_row116539.svg",
-    "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_previews_clean\\preview_15_row116540.svg"
-  ]
+  "preview_files": []
 }

@@ -12,7 +12,7 @@
 - AUD-S1-T01-004：环境探针对 Darknet 和 CUDA 冒烟程序要求结构化 Windows PE；Darknet 必须真实执行并返回可识别的版本/帮助输出；CUDA 冒烟必须真实执行并包含 `S1_T01_CUDA_SMOKE_PASS`。固定源程序为 `verification/s1_t01_cuda_smoke.cu`。当前没有 `nvcc`、官方 Darknet 或 CUDA 冒烟可执行文件，环境探针仍应失败。
 - AUD-S1-T01-005：图片与标签按同 stem、`.txt` 标签扩展名校验；重复计数使用规范化物理路径，覆盖 `..`、大小写和其他物理路径别名；新增别名重复回归。
 - AUD-S1-T01-006：PNG 解压流、PNM 精确载荷长度、JPEG 量化表/霍夫曼表/熵编码和 Pillow 完整像素解码均进入检查；异常输入统一写入报告，不使检查器无报告退出；新增非法 PNG、截断 PNM、空/伪 JPEG 回归。
-- AUD-S1-T01-008：HaGRIDv2 的官方归一化 COCO `[left, top, width, height]` 先转换为归一化 YOLO `[center_x, center_y, width, height]`；无手候选只从 `dataset/no_gesture/` 空标签行选取。重新生成 15 张真实 SVG：每类 2 张带框、5 张无手。开发侧用官方 landmarks 做辅助核对为带框 10/10 全部 21 点落框、无手 5/5 路径和空标签符合；仍待 Wong 逐张观察。
+- AUD-S1-T01-008：HaGRIDv2 的官方归一化 COCO `[left, top, width, height]` 先转换为归一化 YOLO `[center_x, center_y, width, height]`；此前空标签候选只按 `dataset/no_gesture/` 路径选择，Wong 后续确认其中 11～15 为捂脸/遮挡且存在手，现改记为 `non_target_gesture`，不再宣称为无手。10 张带框候选的官方 landmarks 辅助核对为 10/10 全部 21 点落框；真实 `no_hand` 仍待补充。
 - AUD-S1-T01-009/010：重新绑定原始与清洁清单字段和哈希；当前交付将环境报告、复审接力文档、CUDA 源程序及本轮证据纳入同一交付提交。训练配置、权重、检查点和评估脚本尚未生成，保持“未执行/未生成”，不填伪哈希。
 
 ## 实际命令、版本和退出码
@@ -62,3 +62,10 @@
 - Wong 回传：1–10 号预览没有问题，带框样本人工通过 10/10。
 - Wong 回传：11–15 号为捂脸动作，没有识别，可能不属于五个目标手势范围。
 - 记录限定：11–15 号虽可作为五类目标之外的负样本候选，但画面中存在手，不能直接写成“确实无手”通过。AC04 的带框部分通过；无手/非目标负样本语义仍待独立复审确认。
+## 2026-09-14 复审后语义整改附录
+
+- 独立复审及 Wong 人工观察确认：此前由 `dataset/no_gesture` 空标签路径选择的 `preview_11`～`preview_15` 是捂脸/遮挡动作，画面存在手；它们现登记为 `non_target_gesture`，不计入 `no_hand`。
+- HaGRIDv2 官方 `dataset/no_gesture` 2164 条记录逐条元数据核对均有 `bboxes`，当前未发现可直接证明“确实无手”的官方样本。
+- 检查器已改为只接受人工语义表中明确的 `no_hand`，并分别统计 `no_hand`、`non_target_gesture` 和未分类空标签；路径名和空标签不再提供无手语义。
+- 当前全量语义报告：`20260914_hagrid_dataset_check_clean.json`，`no_hand=0/0/0`、`non_target_gesture=5/0/0`、未分类空标签 `1460/199/496`，退出码 `2`。真实无手补充操作单见 `20260914_no_hand_collection_sheet.md`。
+- 本附录不代替独立复审签结；AC04 仍未完全关闭。

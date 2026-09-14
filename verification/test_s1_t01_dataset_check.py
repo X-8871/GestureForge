@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import binascii
 import csv
+import hashlib
 import struct
 import tempfile
 import unittest
 from pathlib import Path
 
-from verification.s1_t01_dataset_check import Thresholds, validate_dataset
+from verification.s1_t01_dataset_check import SEMANTIC_REVIEW_COLUMNS, Thresholds, validate_dataset
 
 
 class DatasetCheckTest(unittest.TestCase):
@@ -70,6 +71,15 @@ class DatasetCheckTest(unittest.TestCase):
             writer.writeheader()
             writer.writerows(rows)
 
+    @staticmethod
+    def _write_semantic_rows(path: Path, rows: list[dict[str, str]]) -> None:
+        """以 UTF-8 写入人工语义补充表。"""
+
+        with path.open("w", encoding="utf-8", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=SEMANTIC_REVIEW_COLUMNS)
+            writer.writeheader()
+            writer.writerows(rows)
+
     def _make_dataset(self, root: Path) -> Path:
         """建立仅供检查器回归使用的最小清单。"""
 
@@ -109,17 +119,85 @@ class DatasetCheckTest(unittest.TestCase):
         self._write_rows(manifest, rows)
         return manifest
 
+    def _make_semantic_review(self, root: Path, manifest: Path, roles: dict[int, str] | None = None) -> Path:
+        """为测试夹具生成带人工结果和图片哈希的语义表。"""
+
+        roles = roles or {0: "no_hand", 1: "no_hand", 16: "no_hand", 17: "no_hand", 18: "no_hand"}
+        with manifest.open("r", encoding="utf-8", newline="") as stream:
+            manifest_rows = list(csv.DictReader(stream))
+        semantic_rows: list[dict[str, str]] = []
+        for index, role in roles.items():
+            source = manifest_rows[index]
+            image_path = root / source["image"]
+            record = dict(source)
+            record["image_sha256"] = hashlib.sha256(image_path.read_bytes()).hexdigest()
+            record["sample_role"] = role
+            record["manual_result"] = {
+                "no_hand": "confirmed_no_hand",
+                "non_target_gesture": "accepted_non_target",
+                "target_gesture": "pass_box",
+            }[role]
+            record["reviewer"] = "Wong"
+            record["reviewed_at_utc8"] = "2026-09-14T12:00:00+08:00"
+            semantic_rows.append(record)
+        semantic_path = root / "semantic_review.csv"
+        self._write_semantic_rows(semantic_path, semantic_rows)
+        return semantic_path
+
     def test_valid_manifest_passes_automated_checks(self) -> None:
         """正常数据应通过自动门槛，但仍保留人工抽查状态。"""
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             manifest = self._make_dataset(root)
-            report = validate_dataset(root, manifest, Thresholds())
+            semantic_review = self._make_semantic_review(root, manifest)
+            report = validate_dataset(root, manifest, Thresholds(), semantic_review=semantic_review)
             self.assertEqual(report["status"], "PASS_AUTOMATED_MANUAL_PENDING")
             self.assertEqual(report["checks"]["AC03"], "通过自动检查")
             self.assertIn("人工抽查", report["checks"]["AC04"])
             self.assertEqual(report["metrics"]["real_images"], 30)
+            self.assertEqual(sum(report["metrics"]["no_hand_images_per_split"].values()), 5)
+            self.assertEqual(sum(report["metrics"]["non_target_gesture_images_per_split"].values()), 0)
+
+    def test_no_gesture_directory_alone_is_not_no_hand(self) -> None:
+        """没有语义记录时，目录名和空标签不能冒充无手样本。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            report = validate_dataset(root, manifest, Thresholds())
+            self.assertEqual(sum(report["metrics"]["no_hand_images_per_split"].values()), 0)
+            self.assertEqual(sum(report["metrics"]["non_target_gesture_images_per_split"].values()), 0)
+            self.assertIn("无手图片 0 < 5", report["checks"]["AC03"])
+
+    def test_semantic_roles_are_counted_separately(self) -> None:
+        """非五类目标负样本不能计入 no_hand。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            semantic_review = self._make_semantic_review(root, manifest, {0: "non_target_gesture", 1: "no_hand", 16: "no_hand", 17: "no_hand", 18: "no_hand"})
+            report = validate_dataset(root, manifest, Thresholds(), semantic_review=semantic_review)
+            self.assertEqual(sum(report["metrics"]["no_hand_images_per_split"].values()), 4)
+            self.assertEqual(sum(report["metrics"]["non_target_gesture_images_per_split"].values()), 1)
+
+    def test_semantic_path_alias_duplicate_is_reported(self) -> None:
+        """语义表通过大小写和 .. 别名重复绑定同一物理图片时应失败。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            semantic_review = self._make_semantic_review(root, manifest)
+            with semantic_review.open("r", encoding="utf-8", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            duplicate = dict(rows[0])
+            duplicate["image"] = "images/train/no_gesture/../no_gesture/IMAGE_00.PPM"
+            duplicate["label"] = "labels/train/no_gesture/../no_gesture/IMAGE_00.TXT"
+            rows.append(duplicate)
+            self._write_semantic_rows(semantic_review, rows)
+            report = validate_dataset(root, manifest, Thresholds(), semantic_review=semantic_review)
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any("重复映射同一物理图片" in error for error in report["errors"]))
 
     def test_invalid_label_is_reported(self) -> None:
         """非法 class_id 应阻断自动检查。"""
@@ -140,7 +218,8 @@ class DatasetCheckTest(unittest.TestCase):
             root = Path(directory)
             manifest = self._make_dataset(root)
             preview_dir = root / "previews"
-            report = validate_dataset(root, manifest, Thresholds(), preview_dir)
+            semantic_review = self._make_semantic_review(root, manifest)
+            report = validate_dataset(root, manifest, Thresholds(), preview_dir, semantic_review)
             self.assertEqual(len(report["preview_files"]), 15)
             self.assertTrue(all(Path(path).is_file() for path in report["preview_files"]))
 

@@ -13,7 +13,7 @@
 - 原始图片和官方标注已解压到 `D:\FPGA_Data\HaGRIDv2\dataset`；七个下载包均已在内容校验后清理，下载目录不再有 ZIP。
 - 生成标签根目录：`D:\FPGA_Data\HaGRIDv2\labels`；正式清单：`D:\FPGA_Data\HaGRIDv2\manifest.csv`；未去重全清单备份：`D:\FPGA_Data\HaGRIDv2\manifest_all.csv`。标签文件保留原始转换的 158,698 个，正式清单引用其中 158,675 个；为保留可追溯性，去重移除的 23 个标签文件未删除。
 - 正式清单含 158,675 行、156,518 个五类框；原始转换清单含 158,698 行、156,536 个框。正式清单按 `train > val > test` 移除 23 条跨 split 完全重复图片行，原始图片不删除。
-- `no_gesture` 目录有 2,166 张图片，其中 2 张带 `-checkpoint` 后缀且未被官方 JSON 引用，未伪造 split/person 字段，保留为未入清单原始数据。
+- `no_gesture` 目录有 2,166 张图片，其中 2 张带 `-checkpoint` 后缀且未被官方 JSON 引用，未伪造 split/person 字段，保留为未入清单原始数据。官方 JSON 引用的 2,164 条 `no_gesture` 记录均有 `bboxes`，目录名和空标签不能证明画面中确实无手。
 - 许可证文件 `D:\FPGA_Data\HaGRIDv2\license\en_us.pdf` SHA-256：`14f4845e9c8d3de875cbac4139491da368ab1040a7f565e02894477279134d22`。原 ZIP 已按用户要求删除，未在删除前采集 ZIP SHA-256；证据保留 ZIP CRC、条目数、解压尺寸和清理结果。
 
 ## S1-T01 清单接口
@@ -36,6 +36,7 @@ image,label,split,session_id,person_id,source,license,is_real
 & 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' verification\s1_t01_dataset_check.py `
   --data-root 'D:\FPGA_Data\HaGRIDv2' `
   --manifest 'D:\FPGA_Data\HaGRIDv2\manifest.csv' `
+  --semantic-review report\evidence\S1-T01\20260914_hagrid_semantic_review.csv `
   --report report\evidence\S1-T01\<运行编号>_dataset_check.json `
   --preview-dir report\evidence\S1-T01\<运行编号>_previews
 ```
@@ -50,6 +51,6 @@ image,label,split,session_id,person_id,source,license,is_real
   --report report\evidence\S1-T01\<运行编号>_prepare.json
 ```
 
-工具主要使用标准库完成支持格式的结构和像素载荷校验；JPEG 还要求 Pillow 完整解码像素载荷。检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并输出每类两个框及五张无手图的确定性抽查候选。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
+工具主要使用标准库完成支持格式的结构和像素载荷校验；JPEG 还要求 Pillow 完整解码像素载荷。检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并通过 `--semantic-review` 分别统计人工确认的 `no_hand`、`non_target_gesture`、`target_gesture` 和未分类空标签。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
 
 最低流程门槛为至少 30 张真实图片、每类至少 5 个框、至少 5 张无手图，且训练/验证都覆盖五类和无手样本。该门槛只用于 S1-T01 流程验证，不是阶段1正式精度验收门槛。

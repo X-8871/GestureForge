@@ -119,16 +119,20 @@ def _iter_annotation_records(path: Path) -> Iterator[tuple[str, dict[str, Any]]]
 
 
 def _format_bbox(bbox: Any) -> str:
-    """检查并格式化一个已归一化的 HaGRID 框。"""
+    """把归一化 COCO 左上角框转换为归一化 YOLO 中心框。"""
 
     if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
         raise ValueError(f"bbox 不是四元数组：{bbox!r}")
-    values = [float(value) for value in bbox]
-    if any(value < 0.0 or value > 1.0 for value in values):
+    left, top, box_width, box_height = (float(value) for value in bbox)
+    if any(value < 0.0 or value > 1.0 for value in (left, top, box_width, box_height)):
         raise ValueError(f"bbox 超出 [0,1]：{bbox!r}")
-    if values[2] <= 0.0 or values[3] <= 0.0:
+    if box_width <= 0.0 or box_height <= 0.0:
         raise ValueError(f"bbox 宽高必须为正：{bbox!r}")
-    return " ".join(f"{value:.8f}" for value in values)
+    if left + box_width > 1.0 or top + box_height > 1.0:
+        raise ValueError(f"COCO bbox 右下角超出 [0,1]：{bbox!r}")
+    center_x = left + box_width / 2.0
+    center_y = top + box_height / 2.0
+    return " ".join(f"{value:.8f}" for value in (center_x, center_y, box_width, box_height))
 
 
 def prepare_dataset(data_root: Path, manifest_path: Path, labels_root: Path) -> dict[str, Any]:
@@ -252,6 +256,10 @@ def prepare_dataset(data_root: Path, manifest_path: Path, labels_root: Path) -> 
         "manifest_columns": list(MANIFEST_COLUMNS),
         "classes": {str(index): name for name, index in CLASS_TO_ID.items()},
         "source_urls": SOURCE_URLS,
+        "bbox_conversion": {
+            "source": "HaGRIDv2 normalized COCO [left, top, width, height]",
+            "output": "normalized YOLO [center_x, center_y, width, height]",
+        },
         "license_pdf": {
             "path": str(data_root / "license" / "en_us.pdf"),
             "sha256": "14f4845e9c8d3de875cbac4139491da368ab1040a7f565e02894477279134d22",

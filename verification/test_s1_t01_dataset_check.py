@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import binascii
 import csv
+import struct
 import tempfile
 import unittest
 from pathlib import Path
@@ -19,6 +21,55 @@ class DatasetCheckTest(unittest.TestCase):
 
         path.write_bytes(b"P6\n4 4\n255\n" + bytes([color, 220, 200]) * 16)
 
+    @staticmethod
+    def _png_chunk(chunk_type: bytes, payload: bytes) -> bytes:
+        """构造带正确 CRC 的 PNG 数据块。"""
+
+        crc = binascii.crc32(chunk_type + payload) & 0xFFFFFFFF
+        return struct.pack(">I", len(payload)) + chunk_type + payload + struct.pack(">I", crc)
+
+    @classmethod
+    def _write_invalid_png(cls, path: Path) -> None:
+        """写入 CRC 正确但 zlib 载荷非法的 PNG。"""
+
+        ihdr = struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0)
+        path.write_bytes(
+            b"\x89PNG\r\n\x1a\n"
+            + cls._png_chunk(b"IHDR", ihdr)
+            + cls._png_chunk(b"IDAT", b"\x78\x9c\xff\xff")
+            + cls._png_chunk(b"IEND", b"")
+        )
+
+    @staticmethod
+    def _write_empty_jpeg(path: Path, entropy: bytes = b"") -> None:
+        """写入含表、含扫描段但熵编码为空或伪造的 JPEG。"""
+
+        def segment(marker: int, payload: bytes) -> bytes:
+            return b"\xff" + bytes([marker]) + struct.pack(">H", len(payload) + 2) + payload
+
+        dqt = b"\x00" + bytes(64)
+        dht = b"\x00" + bytes(16) + b"\x00"
+        sof0 = b"\x08\x00\x01\x00\x01\x01\x01\x11\x00"
+        sos = b"\x01\x01\x00\x00\x3f\x00"
+        path.write_bytes(
+            b"\xff\xd8"
+            + segment(0xDB, dqt)
+            + segment(0xC4, dht)
+            + segment(0xC0, sof0)
+            + segment(0xDA, sos)
+            + entropy
+            + b"\xff\xd9"
+        )
+
+    @staticmethod
+    def _write_rows(manifest: Path, rows: list[dict[str, str]]) -> None:
+        """以 UTF-8 重写测试清单。"""
+
+        with manifest.open("w", encoding="utf-8", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
+
     def _make_dataset(self, root: Path) -> Path:
         """建立仅供检查器回归使用的最小清单。"""
 
@@ -29,12 +80,15 @@ class DatasetCheckTest(unittest.TestCase):
             split = "train" if index < 16 else "val"
             session = "session_train" if split == "train" else "session_val"
             person = "person_train" if split == "train" else "person_val"
-            image = root / "images" / split / f"image_{index:02d}.ppm"
-            label = root / "labels" / split / f"image_{index:02d}.txt"
+            is_no_hand = index in {0, 1, 16, 17, 18}
+            image_dir = root / "images" / split / ("no_gesture" if is_no_hand else "target")
+            label_dir = root / "labels" / split / ("no_gesture" if is_no_hand else "target")
+            image = image_dir / f"image_{index:02d}.ppm"
+            label = label_dir / f"image_{index:02d}.txt"
             image.parent.mkdir(parents=True, exist_ok=True)
             label.parent.mkdir(parents=True, exist_ok=True)
             self._write_ppm(image, 20 + index)
-            if index in {0, 1, 16, 17, 18}:
+            if is_no_hand:
                 label.write_text("", encoding="utf-8")
             else:
                 class_id = label_index % 5
@@ -52,10 +106,7 @@ class DatasetCheckTest(unittest.TestCase):
                     "is_real": "true",
                 }
             )
-        with manifest.open("w", encoding="utf-8", newline="") as stream:
-            writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
-            writer.writeheader()
-            writer.writerows(rows)
+        self._write_rows(manifest, rows)
         return manifest
 
     def test_valid_manifest_passes_automated_checks(self) -> None:
@@ -76,7 +127,7 @@ class DatasetCheckTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             manifest = self._make_dataset(root)
-            bad_label = root / "labels" / "train" / "image_02.txt"
+            bad_label = root / "labels" / "train" / "target" / "image_02.txt"
             bad_label.write_text("9 0.5 0.5 0.4 0.4\n", encoding="utf-8")
             report = validate_dataset(root, manifest, Thresholds())
             self.assertEqual(report["status"], "FAIL")
@@ -102,13 +153,28 @@ class DatasetCheckTest(unittest.TestCase):
             with manifest.open("r", encoding="utf-8", newline="") as stream:
                 rows = list(csv.DictReader(stream))
             rows[2]["label"] = rows[3]["label"]
-            with manifest.open("w", encoding="utf-8", newline="") as stream:
-                writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
-                writer.writeheader()
-                writer.writerows(rows)
+            self._write_rows(manifest, rows)
             report = validate_dataset(root, manifest, Thresholds())
             self.assertEqual(report["status"], "FAIL")
             self.assertTrue(any("stem 不一致" in error for error in report["errors"]))
+
+    def test_physical_path_alias_duplicate_is_reported(self) -> None:
+        """大小写和 .. 别名映射同一物理图片/标签时应阻断检查。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            with manifest.open("r", encoding="utf-8", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            rows[3]["image"] = "images/val/../val/IMAGE_03.PPM"
+            rows[3]["label"] = "labels/val/../val/IMAGE_03.TXT"
+            rows[4]["image"] = "images/val/../val/IMAGE_03.PPM"
+            rows[4]["label"] = "labels/val/../val/IMAGE_03.TXT"
+            self._write_rows(manifest, rows)
+            report = validate_dataset(root, manifest, Thresholds())
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any("规范化物理图片路径" in error for error in report["errors"]))
+            self.assertTrue(any("规范化物理标签路径" in error for error in report["errors"]))
 
     def test_truncated_pnm_is_reported(self) -> None:
         """只有 PNM 头部而缺少像素载荷时应被拒绝。"""
@@ -116,11 +182,45 @@ class DatasetCheckTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             manifest = self._make_dataset(root)
-            truncated = root / "images" / "train" / "image_02.ppm"
+            truncated = root / "images" / "train" / "target" / "image_02.ppm"
             truncated.write_bytes(b"P6\n4 4\n255\n")
             report = validate_dataset(root, manifest, Thresholds())
             self.assertEqual(report["status"], "FAIL")
-            self.assertTrue(any("图片不可解析" in error and "像素载荷被截断" in error for error in report["errors"]))
+            self.assertTrue(any("图片不可解析" in error and "像素载荷长度错误" in error for error in report["errors"]))
+
+    def test_invalid_png_zlib_reports_failure(self) -> None:
+        """非法 PNG zlib 载荷应返回可审计报告而不是抛出异常。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self._make_dataset(root)
+            image = root / "images" / "train" / "target" / "image_02.png"
+            self._write_invalid_png(image)
+            with manifest.open("r", encoding="utf-8", newline="") as stream:
+                rows = list(csv.DictReader(stream))
+            rows[2]["image"] = "images/train/target/image_02.png"
+            self._write_rows(manifest, rows)
+            report = validate_dataset(root, manifest, Thresholds())
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any("PNG zlib 载荷无效" in error for error in report["errors"]))
+
+    def test_empty_and_fake_jpeg_entropy_reports_failure(self) -> None:
+        """空或伪造 JPEG 熵编码应被完整解码检查拒绝。"""
+
+        for entropy in (b"", b"\x01\x02"):
+            with self.subTest(entropy=entropy):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    manifest = self._make_dataset(root)
+                    image = root / "images" / "train" / "target" / "image_02.jpg"
+                    self._write_empty_jpeg(image, entropy)
+                    with manifest.open("r", encoding="utf-8", newline="") as stream:
+                        rows = list(csv.DictReader(stream))
+                    rows[2]["image"] = "images/train/target/image_02.jpg"
+                    self._write_rows(manifest, rows)
+                    report = validate_dataset(root, manifest, Thresholds())
+                    self.assertEqual(report["status"], "FAIL")
+                    self.assertTrue(any("JPEG" in error and ("熵编码区为空" in error or "解码失败" in error) for error in report["errors"]))
 
 
 if __name__ == "__main__":

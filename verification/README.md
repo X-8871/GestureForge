@@ -16,3 +16,5 @@ build\s1_t01\s1_t01_cuda_smoke.exe
 只有进程退出码为 `0` 且输出包含 `S1_T01_CUDA_SMOKE_PASS` 时，才能把生成的可执行文件路径传给 `s1_t01_environment_probe.py`；编译产物不提交 Git。当前机器没有 `nvcc`，上述编译和运行尚未执行。
 
 实验结论同步记录到 Obsidian 的 `03-实验记录/实验记录.md`。
+
+`s1_t01_dataset_check.py` 对 PNG、BMP、PNM 和 JPEG 执行结构及像素载荷检查；JPEG 还要求当前环境可导入 Pillow 并完成 `Image.load()`，否则该图片按失败写入审计报告。检查器输出的 `PASS_AUTOMATED_MANUAL_PENDING` 不能替代真实图片人工叠框观察。

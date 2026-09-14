@@ -61,7 +61,7 @@ class PrepareHaGRIDTest(unittest.TestCase):
             self.assertEqual(rows[0]["image"].count("\\"), 0)
             self.assertEqual(
                 (root / rows[0]["label"]).read_text(encoding="utf-8").strip(),
-                "0 0.50000000 0.50000000 0.25000000 0.25000000",
+                "0 0.62500000 0.62500000 0.25000000 0.25000000",
             )
             negative_rows = [row for row in rows if row["image"].endswith("negative-id.jpg")]
             self.assertEqual(len(negative_rows), 3)

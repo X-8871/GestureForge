@@ -11,6 +11,7 @@ import hashlib
 import html
 import json
 import math
+import os
 import struct
 import sys
 import zlib
@@ -90,13 +91,21 @@ def _parse_bool(value: str) -> bool:
 
 
 def _safe_path(root: Path, relative: str) -> Path:
-    """解析相对路径并拒绝越出数据根目录。"""
+    """解析相对路径、消除别名并拒绝越出数据根目录。"""
 
-    root_resolved = root.resolve()
-    candidate = (root / relative).resolve()
-    if candidate != root_resolved and root_resolved not in candidate.parents:
+    if not relative.strip() or os.path.isabs(relative) or Path(relative).is_absolute():
+        raise ValueError(f"路径必须是数据根目录内的相对路径: {relative}")
+    root_resolved = os.path.normcase(os.path.realpath(os.path.abspath(os.fspath(root))))
+    candidate_resolved = os.path.normcase(
+        os.path.realpath(os.path.abspath(os.path.join(root_resolved, relative)))
+    )
+    try:
+        common = os.path.commonpath((root_resolved, candidate_resolved))
+    except ValueError as exc:
+        raise ValueError(f"路径与数据根目录不在同一物理卷: {relative}") from exc
+    if common != root_resolved:
         raise ValueError(f"路径越出数据根目录: {relative}")
-    return candidate
+    return Path(candidate_resolved)
 
 
 def _sha256(path: Path) -> str:
@@ -167,8 +176,11 @@ def _read_png_info(path: Path) -> dict[str, int | str]:
     if color_type == 3 and not has_palette:
         raise ValueError("索引 PNG 缺少 PLTE")
     decompressor = zlib.decompressobj()
-    raw = decompressor.decompress(bytes(idat))
-    raw += decompressor.flush()
+    try:
+        raw = decompressor.decompress(bytes(idat))
+        raw += decompressor.flush()
+    except zlib.error as exc:
+        raise ValueError(f"PNG zlib 载荷无效: {exc}") from exc
     if not decompressor.eof or decompressor.unused_data:
         raise ValueError("PNG zlib 载荷未完整结束")
     row_bytes = (width * channels_by_type[color_type] * bit_depth + 7) // 8
@@ -219,19 +231,27 @@ def _read_jpeg_info(path: Path) -> dict[str, int | str]:
     in_scan = False
     saw_scan = False
     saw_eoi = False
+    saw_quantization = False
+    saw_huffman = False
+    entropy_bytes = 0
     width = height = None
     while position < len(data):
         if in_scan:
             marker_start = data.find(b"\xff", position)
             if marker_start < 0:
                 raise ValueError("JPEG 熵编码区缺少 EOI")
+            entropy_bytes += marker_start - position
             marker_position = marker_start
             while marker_position < len(data) and data[marker_position] == 0xFF:
                 marker_position += 1
             if marker_position >= len(data):
                 raise ValueError("JPEG 标记被截断")
             marker = data[marker_position]
-            if marker == 0x00 or 0xD0 <= marker <= 0xD7:
+            if marker == 0x00:
+                entropy_bytes += 1
+                position = marker_position + 1
+                continue
+            if 0xD0 <= marker <= 0xD7:
                 position = marker_position + 1
                 continue
             if marker == 0xD9:
@@ -256,8 +276,12 @@ def _read_jpeg_info(path: Path) -> dict[str, int | str]:
             if position + 2 > len(data):
                 raise ValueError("JPEG SOS 长度被截断")
             length = struct.unpack(">H", data[position : position + 2])[0]
-            if length < 2 or position + length > len(data):
+            if length < 8 or position + length > len(data):
                 raise ValueError("JPEG SOS 段被截断")
+            scan_header = data[position + 2 : position + length]
+            component_count = scan_header[0]
+            if component_count < 1 or length != 6 + 2 * component_count:
+                raise ValueError("JPEG SOS 段无效")
             position += length
             in_scan = True
             saw_scan = True
@@ -270,6 +294,10 @@ def _read_jpeg_info(path: Path) -> dict[str, int | str]:
         if length < 2 or position + length > len(data):
             raise ValueError("JPEG 段载荷被截断")
         segment = data[position + 2 : position + length]
+        if marker == 0xDB:
+            saw_quantization = True
+        elif marker == 0xC4:
+            saw_huffman = True
         if marker in sof_markers:
             if len(segment) < 5:
                 raise ValueError("JPEG SOF 段无效")
@@ -279,6 +307,21 @@ def _read_jpeg_info(path: Path) -> dict[str, int | str]:
         position += length
     if not saw_scan or not saw_eoi or width is None or height is None:
         raise ValueError("JPEG 缺少有效 SOF、SOS 或 EOI")
+    if not saw_quantization or not saw_huffman:
+        raise ValueError("JPEG 缺少量化表或霍夫曼表")
+    if entropy_bytes == 0:
+        raise ValueError("JPEG 熵编码区为空")
+    try:
+        from PIL import Image
+    except ImportError as exc:
+        raise ValueError("JPEG 完整像素解码需要 Pillow") from exc
+    try:
+        with Image.open(path) as image:
+            if image.size != (width, height):
+                raise ValueError(f"JPEG 解码尺寸不一致: {image.size} != {(width, height)}")
+            image.load()
+    except Exception as exc:
+        raise ValueError(f"JPEG 像素/熵编码解码失败: {exc}") from exc
     return {"format": "jpeg", "width": width, "height": height}
 
 
@@ -324,8 +367,8 @@ def _read_pnm_info(path: Path) -> dict[str, int | str]:
     bytes_per_sample = 1 if maximum <= 255 else 2
     expected_length = width * height * channels * bytes_per_sample
     actual_length = path.stat().st_size - payload_offset
-    if actual_length < expected_length:
-        raise ValueError(f"PNM 像素载荷被截断: {actual_length} < {expected_length}")
+    if actual_length != expected_length:
+        raise ValueError(f"PNM 像素载荷长度错误: {actual_length} != {expected_length}")
     return {"format": tokens[0].decode("ascii").lower(), "width": width, "height": height}
 
 
@@ -458,14 +501,14 @@ def _check_row(row: RowResult, root: Path, report: dict) -> None:
         try:
             row.image_info = read_image_info(row.image_path)
             row.image_sha256 = _sha256(row.image_path)
-        except (OSError, ValueError, UnicodeError) as exc:
+        except Exception as exc:
             _error(report, f"清单第 {row.row_number} 行图片不可解析: {values['image']} ({exc})")
     if row.label_path is None or not row.label_path.is_file():
         _error(report, f"清单第 {row.row_number} 行标签不存在: {values['label']}")
     else:
         try:
             row.labels = parse_yolo_label(row.label_path)
-        except (OSError, ValueError, UnicodeError) as exc:
+        except Exception as exc:
             _error(report, f"清单第 {row.row_number} 行标签无效: {values['label']} ({exc})")
 
 
@@ -491,10 +534,17 @@ def _group_overlaps(rows: Iterable[RowResult]) -> dict[str, list[str]]:
 def _choose_preview_candidates(rows: list[RowResult]) -> list[RowResult]:
     """确定每类两个框和五个无手样本的抽查候选。"""
 
-    no_hand = [row for row in rows if row.labels == []]
+    no_hand = [row for row in rows if _is_no_hand_row(row)]
     result: list[RowResult] = []
     for class_id in range(len(CLASS_NAMES)):
         class_rows = [row for row in rows if row.labels and any(label[0] == class_id for label in row.labels)]
+        class_rows.sort(
+            key=lambda row: (
+                sum(label[0] == class_id for label in row.labels or []) != 1,
+                abs(next((label[3] * label[4] for label in row.labels or [] if label[0] == class_id), 0.2) - 0.2),
+                row.row_number,
+            )
+        )
         result.extend(class_rows[:2])
     result.extend(no_hand[:5])
     unique: list[RowResult] = []
@@ -504,6 +554,15 @@ def _choose_preview_candidates(rows: list[RowResult]) -> list[RowResult]:
             unique.append(row)
             seen.add(row.row_number)
     return unique
+
+
+def _is_no_hand_row(row: RowResult) -> bool:
+    """只把官方 no_gesture 目录中的空标签行视为无手样本。"""
+
+    if row.labels != []:
+        return False
+    normalized = row.values["image"].replace("\\", "/").casefold()
+    return "/no_gesture/" in f"/{normalized}/"
 
 
 def _write_svg_preview(row: RowResult, preview_dir: Path, index: int) -> Path | None:
@@ -554,14 +613,14 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
         _check_row(row, root, report)
 
     valid_rows = [row for row in rows if row.image_info is not None and row.labels is not None]
-    image_paths = Counter(row.values["image"] for row in rows)
+    image_paths = Counter(str(row.image_path) for row in rows if row.image_path is not None)
     for image, count in image_paths.items():
         if count > 1:
-            _error(report, f"图片在清单中重复出现 {count} 次: {image}")
-    label_paths = Counter(row.values["label"] for row in rows)
+            _error(report, f"规范化物理图片路径在清单中重复映射 {count} 次: {image}")
+    label_paths = Counter(str(row.label_path) for row in rows if row.label_path is not None)
     for label, count in label_paths.items():
         if count > 1:
-            _error(report, f"标签在清单中重复映射 {count} 次: {label}")
+            _error(report, f"规范化物理标签路径在清单中重复映射 {count} 次: {label}")
 
     split_rows: dict[str, list[RowResult]] = {split: [] for split in VALID_SPLITS}
     class_counts = Counter()
@@ -582,7 +641,7 @@ def validate_dataset(root: Path, manifest: Path, thresholds: Thresholds, preview
             non_real_images += 1
         if row.image_sha256:
             image_hash_splits[row.image_sha256].add(split)
-        if row.labels == []:
+        if _is_no_hand_row(row):
             split_no_hand[split] += 1
         for class_id, *_ in row.labels:
             class_counts[class_id] += 1

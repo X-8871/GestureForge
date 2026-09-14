@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import json
 import platform
+import re
 import shutil
 import struct
 import subprocess
@@ -67,7 +68,7 @@ def _sha256(path: Path) -> str:
 
 
 def _is_windows_pe(path: Path) -> bool:
-    """检查文件是否具有基本 Windows PE 标识。"""
+    """检查文件是否具有可执行的基本 Windows PE 结构。"""
 
     try:
         with path.open("rb") as stream:
@@ -75,8 +76,28 @@ def _is_windows_pe(path: Path) -> bool:
             if len(header) < 64 or header[:2] != b"MZ":
                 return False
             pe_offset = struct.unpack_from("<I", header, 0x3C)[0]
+            stream.seek(0, 2)
+            file_size = stream.tell()
+            if pe_offset < 64 or pe_offset + 4 + 20 > file_size:
+                return False
             stream.seek(pe_offset)
-            return stream.read(4) == b"PE\0\0"
+            if stream.read(4) != b"PE\0\0":
+                return False
+            coff = stream.read(20)
+            if len(coff) != 20:
+                return False
+            machine, sections, _, _, _, optional_size, characteristics = struct.unpack("<HHIIIHH", coff)
+            if machine not in {0x014C, 0x8664, 0xAA64} or not 1 <= sections <= 96:
+                return False
+            if optional_size < 2 or optional_size > 4096:
+                return False
+            optional = stream.read(optional_size)
+            if len(optional) != optional_size or struct.unpack_from("<H", optional, 0)[0] not in {0x010B, 0x020B}:
+                return False
+            if not characteristics & 0x0002:
+                return False
+            section_table_end = pe_offset + 4 + 20 + optional_size + sections * 40
+            return section_table_end <= file_size
     except (OSError, struct.error):
         return False
 
@@ -85,7 +106,10 @@ def _looks_like_darknet(output: str) -> bool:
     """判断版本或帮助输出是否明确属于 Darknet。"""
 
     normalized = output.casefold()
-    return any(marker in normalized for marker in ("darknet", "yolo", "usage:"))
+    has_name = bool(re.search(r"\bdarknet\b", normalized))
+    has_version = bool(re.search(r"\b(?:v(?:ersion)?\s*)?\d+\.\d+(?:\.\d+)?\b", normalized))
+    has_usage = bool(re.search(r"\busage:\s*darknet\b", normalized))
+    return has_name and (has_version or has_usage)
 
 
 def _probe_darknet(executable: Path | None, report: dict) -> bool:
@@ -126,6 +150,9 @@ def _probe_cuda_smoke(executable: Path | None, report: dict) -> bool:
         return False
     if not executable.is_file():
         report["checks"]["cuda_device_smoke"] = "未通过：设备运算程序不存在"
+        return False
+    if not _is_windows_pe(executable):
+        report["checks"]["cuda_device_smoke"] = "未通过：不是有效 Windows PE 可执行文件"
         return False
     report["cuda_smoke_executable"] = str(executable)
     report["cuda_smoke_sha256"] = _sha256(executable)

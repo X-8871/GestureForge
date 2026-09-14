@@ -24,7 +24,7 @@
 image,label,split,session_id,person_id,source,license,is_real
 ```
 
-- `image` 和 `label` 分别指向图片与同名 YOLO 标签；无手图片保留同名空标签文件。
+- `image` 和 `label` 分别指向图片与同名 YOLO 标签；无手图片保留同名空标签文件。HaGRIDv2 官方 `bboxes` 使用归一化 COCO `[left, top, width, height]`，转换器发布前会转为归一化 YOLO `[center_x, center_y, width, height]`。
 - `split` 只能是 `train`、`val` 或 `test`；训练、验证、测试不得共享 `session_id` 或 `person_id`。
 - `source` 和 `license` 记录来源与使用条件；`is_real` 必须为 `true` 或 `false`。
 - YOLO 标签每行是 `class_id center_x center_y width height`，五个数值均在 `[0,1]`，宽高为正；一只手一个框，多手逐手标注。
@@ -50,6 +50,6 @@ image,label,split,session_id,person_id,source,license,is_real
   --report report\evidence\S1-T01\<运行编号>_prepare.json
 ```
 
-工具使用标准库完成支持格式的结构和像素载荷校验，检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并输出每类两个框及五张无手图的确定性抽查候选。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
+工具主要使用标准库完成支持格式的结构和像素载荷校验；JPEG 还要求 Pillow 完整解码像素载荷。检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并输出每类两个框及五张无手图的确定性抽查候选。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
 
 最低流程门槛为至少 30 张真实图片、每类至少 5 个框、至少 5 张无手图，且训练/验证都覆盖五类和无手样本。该门槛只用于 S1-T01 流程验证，不是阶段1正式精度验收门槛。

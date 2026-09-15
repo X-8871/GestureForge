@@ -293,8 +293,62 @@ class DarknetWorkflowTest(unittest.TestCase):
                     saved = json.loads((root / "report.json").read_text(encoding="utf-8"))
                     self.assertEqual(code, 2)
                     self.assertEqual(saved["status"], "BLOCKED_PREFLIGHT")
+                    self.assertEqual(saved["exit_code"], 2)
                     self.assertTrue(any("256" in error and "不会截断" in error for error in saved["errors"]))
                     execute.assert_not_called()
+
+    def test_top_level_exit_code_is_zero_for_success_and_dry_run(self) -> None:
+        """成功执行和 dry-run 报告的顶层退出码都必须为零。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            checkpoint_output = root / "backup" / "gesture_10.weights"
+            context = {
+                "executable": root / "darknet.exe",
+                "working_directory": root,
+                "valid_images": [],
+                "checkpoint_output": checkpoint_output,
+                "checkpoint_plan": {"candidates": []},
+            }
+            common = [
+                "train",
+                "--darknet-executable", str(root / "darknet.exe"),
+                "--environment-report", str(root / "environment.json"),
+                "--data-root", str(root),
+                "--manifest", str(root / "manifest.csv"),
+                "--dataset-report", str(root / "dataset.json"),
+                "--dataset-approval", str(root / "approval.json"),
+                "--data-config", str(root / "gesture.data"),
+                "--model-config", str(root / "gesture.cfg"),
+                "--names-file", str(root / "gesture.names"),
+                "--working-directory", str(root),
+                "--run-dir", str(root / "run"),
+                "--initial-weights", str(root / "initial.weights"),
+                "--checkpoint-output", str(checkpoint_output),
+            ]
+
+            def fake_success(args: Namespace, report: dict[str, object], value: dict[str, object]) -> None:
+                """注入成功动作结果，验证 main 的报告收口。"""
+
+                report["status"] = "EXECUTED_REVIEW_REQUIRED"
+
+            success_report = root / "success.json"
+            with patch.object(workflow, "_preflight", return_value=context), patch.object(
+                workflow, "_execute", side_effect=fake_success
+            ):
+                success_code = workflow.main([*common, "--report", str(success_report)])
+            success = json.loads(success_report.read_text(encoding="utf-8"))
+            self.assertEqual(success_code, 0)
+            self.assertEqual(success["status"], "EXECUTED_REVIEW_REQUIRED")
+            self.assertEqual(success["exit_code"], 0)
+
+            dry_run_report = root / "dry_run.json"
+            with patch.object(workflow, "_preflight", return_value=context):
+                dry_run_code = workflow.main([*common, "--report", str(dry_run_report), "--dry-run"])
+            dry_run = json.loads(dry_run_report.read_text(encoding="utf-8"))
+            self.assertEqual(dry_run_code, 0)
+            self.assertEqual(dry_run["status"], "PLANNED_NO_EXECUTION")
+            self.assertEqual(dry_run["exit_code"], 0)
 
     def test_no_hand_binding_rejects_unapproved_target(self) -> None:
         """zero 目标不在 Wong 批准的 no_hand 行中时必须失败。"""
@@ -657,6 +711,7 @@ class DarknetWorkflowTest(unittest.TestCase):
                 saved = json.loads(report_path.read_text(encoding="utf-8"))
                 self.assertEqual(code, 2)
                 self.assertEqual(saved["status"], "EXECUTION_FAILED")
+                self.assertEqual(saved["exit_code"], 2)
                 self.assertEqual(len(saved["commands"]), 1)
                 self.assertTrue(saved["errors"])
 
@@ -773,6 +828,7 @@ class DarknetWorkflowTest(unittest.TestCase):
             self.assertEqual(code, 2)
             report = json.loads(report_path.read_text(encoding="utf-8"))
             self.assertEqual(report["status"], "BLOCKED_PREFLIGHT")
+            self.assertEqual(report["exit_code"], 2)
             self.assertTrue(report["errors"])
             self.assertFalse(any("AttributeError" in error for error in report["errors"]))
 

@@ -1114,6 +1114,7 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
         "framework": "official-darknet-cuda",
         "action": args.action,
         "status": "BLOCKED_PREFLIGHT",
+        "exit_code": 2,
         "commands": [],
         "errors": [],
         "notes": [
@@ -1356,6 +1357,14 @@ def _write_report(path: Path, report: dict[str, Any]) -> None:
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
+def _workflow_exit_code(report: dict[str, Any]) -> int:
+    """根据最终状态计算 workflow 进程退出码。"""
+
+    if report["status"] in {"PLANNED_NO_EXECUTION", "EXECUTED_REVIEW_REQUIRED"} and not report["errors"]:
+        return 0
+    return 2
+
+
 def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str, Any]) -> None:
     """执行动作并填充可复核的运行结果。"""
 
@@ -1574,6 +1583,7 @@ def main(argv: list[str] | None = None) -> int:
         context = _preflight(args, report)
         _validate_darknet_path_lengths(args, context, report["errors"])
         if report["errors"]:
+            report["exit_code"] = 2
             _write_report(args.report, report)
             print(json.dumps({"status": report["status"], "errors": report["errors"]}, ensure_ascii=False, indent=2))
             return 2
@@ -1586,9 +1596,10 @@ def main(argv: list[str] | None = None) -> int:
             report["status"] = "BLOCKED_PREFLIGHT"
     if report["errors"] and report["status"] not in {"BLOCKED_PREFLIGHT", "PLANNED_NO_EXECUTION"}:
         report["status"] = "EXECUTION_FAILED"
+    report["exit_code"] = _workflow_exit_code(report)
     _write_report(args.report, report)
     print(json.dumps({"status": report["status"], "errors": report["errors"], "report": str(args.report.resolve())}, ensure_ascii=False, indent=2))
-    return 0 if report["status"] in {"PLANNED_NO_EXECUTION", "EXECUTED_REVIEW_REQUIRED"} and not report["errors"] else 2
+    return report["exit_code"]
 
 
 if __name__ == "__main__":

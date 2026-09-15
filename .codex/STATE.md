@@ -1,12 +1,12 @@
 # 项目状态
 
-更新：2026-09-15（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
+更新：2026-09-16（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
 
 ## 目标、阶段与基线
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- 活动任务：S1-T01 训练环境与数据准备；D4 环境子任务、D5A 配置/权重/dry-run 子任务和 D5B-1 短训/恢复子任务已完成 G1/G2，D5A 证据提交为 `29e43a0`、D5B-1 代码/证据提交为 `5645a17`；D5B-2 全量评估/复现尚未完成，整体 AC06/AC07 与 G4 仍未完成；G3 对本任务不适用。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`；D5B2 单进程 stdin 评估工具改进已提交 `de822c4`，全量评估证据已提交 `0619905`，不等于整体任务或阶段通过。
+- 活动任务：S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。AC07 证据提交为 `33dce790eba35abec305a4f081db5d9ecf5b7005`，AC05 修复证据提交为 `edbc9e131584e1f219e22825a8ab1c598d137f13`；S1-T01 通过不等于阶段1通过。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`；D5B2 工具改进已提交 `de822c40771a45e2dc8be8bc6baa559bbe1933d2`，全量评估证据已提交 `0619905`。
 - 最近工程实现基线：`4c82535dba330a85187adba53e42f4e41c365981`（D4 CUDA smoke、官方 Darknet CUDA 构建、环境 probe 与身份绑定）。本提交不推进训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -22,7 +22,7 @@
 - 实际数据目录 `D:\FPGA_Data\HaGRIDv2`；最终清单 `manifest.csv`，158680 行；原始 `manifest_all.csv` 与最终清单须区分，当前 manifest SHA-256 为 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`。
 - 已实现 HaGRID COCO→YOLO 转换、去重、图片/标签与分组检查、人工语义绑定，以及环境探针和 CUDA 冒烟源；CUDA 源存在不代表已编译运行。
 - 2026-09-15 追加 Wong 确认的 5 张真实 no_hand（朋友照片且同意内部项目使用）：前三张 train、后两张 val，人员/会话两侧不交叉，空标签；语义表与外部 manifest 均精确追加 5 行。
-- 新语义全量检查报告退出码 **0**，有效行/图片 `158680/158680`，`no_hand=train 3、val 2、test 0`，人员/会话交叉为空，AC02/AC03 自动通过；报告状态仍按工具约定为 `PASS_AUTOMATED_MANUAL_PENDING`，AC04 的 10 张带框、5 张 no_hand 与 5 张非目标手势人工语义现已分别有记录和批准 JSON，任务总体验收仍保留人工证据核对。
+- 新语义全量检查报告退出码 **0**，有效行/图片 `158680/158680`，`no_hand=train 3、val 2、test 0`，人员/会话交叉为空，AC02/AC03 自动通过；报告状态仍按工具约定为 `PASS_AUTOMATED_MANUAL_PENDING`，但 AC04 的 10 张带框、5 张 no_hand 与 5 张非目标手势人工语义已有记录、批准 JSON 和独立 G4 核对。`friend_005` 明确为 Wong 提供并授权的真实风景/空场景负样本，不是人物肖像，也不把 `no_gesture` 解释为 `no_hand`。
 - 已完成 D3 官方 Darknet 输入绑定独立复审：158680/158680 sidecar 内容匹配，train/valid 清单与 manifest 集合/顺序一致，五类 names/data 可解析，Reviewer PASS；外部产物与哈希见 `20260915_darknet_input_binding.md`。不等于 Darknet/CUDA 已构建或训练通过。
 - 最新语义证据记录 AC02 自动检查通过；不替代其他验收或独立签结。历史全量数据退出码0已被语义重查的退出码2更新。
 - 最近代码回归证据：S1-T01-D1 定向 24 项、全量 `verification` 48 项测试通过，14 个 Python 文件编译检查通过，独立 Reviewer 对第3轮候选 PASS；真实预检退出码2、`BLOCKED_PREFLIGHT`、Darknet 命令数0。工作流和三轮阻断证据入口见 `report/evidence/S1-T01/`，代码提交为 `94fe7da2689f5556d49418e089858aa8001cc736`。本轮全量数据扫描运行约 78 分钟后退出码0，报告为 `20260915_hagrid_dataset_check_semantic_after_no_hand.json`。
@@ -31,9 +31,9 @@
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
-- 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 工具状态仍保留人工待复核语义，后续训练前复核预览入口和批准记录哈希，不用非目标手势代替 no_hand。
-- 3. D4 环境关口、D5A 配置/权重/dry-run 和 D5B-1 短训/恢复关口已通过；D5B-2 工具提交 `de822c4` 与全量输出已独立复审 PASS，AC06 流程闭环完成但不含 mAP/精度结论；AC07 复跑、正式精度阈值和 S1-T01 G4 仍待完成。勿把当前 200 步诊断权重冻结为最终模型。
-4. 在固定配置与权重后完成 AC04 总体核对及 AC05～AC07 短程训练/恢复/评估/复现，再验收 S1-T01。不得自行跳到正式长训、量化、烧录或下一阶段。
+- 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
+- 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
+4. 下一任务为 S1-T02 浮点模型基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照；正式测试 G0 必须先冻结测试样本、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检和 INT8 相对浮点损失阈值。最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）
@@ -50,3 +50,7 @@
 - D5B-1 短训/恢复：`report/evidence/S1-T01/20260915_s1_t01_d5b1_r1_summary.md`、`20260915_s1_t01_d5b1_train_r1.json`、`20260915_s1_t01_d5b1_resume_r1.json`；训练报告 SHA-256 `e46a433d5bccd209fc1f117280affce06e6f47a1166bd2024aaa3d776da3b45b`，恢复报告 SHA-256 `24cbecaccb37cde0e4755499a771b3291948714a813ebad7cdee4d7222d8111a`，workflow 修复提交 `5645a17`；独立 Reviewer PASS 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d5b1-fix-20260915-191045\review_s1_t01_d5b1_fix_r1_final.json`。外部训练/恢复 checkpoint 和日志位于 `D:\FPGA_Data\HaGRIDv2\darknet_inputs`，未纳入 Git。
 - D5B-2 工具改进：提交 `de822c4`；独立复审 PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d5b2-r3-20260915-r2\independent_r3_final_check.json`；r2 中止与 r3 smoke 分别见 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t01_d5b2_eval_r2\abort_status.json`、`D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t01_d5b2_eval_r3_smoke_final\smoke_result.json`，均为外部运行证据，未纳入 Git。
 - D5B-2 全量评估：报告与失败/中止摘要已提交 `0619905`，主报告 `20260915_s1_t01_d5b2_eval_r4_full_200.json` SHA-256 `843ed924af2b6799b75eed57fe799c8dba232409b2188bea07a11e1ee04d12e8`；valid 15195/15195、逐图 15195、11,212 框、friend_004 零框；独立 Reviewer 31/31 PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d5b2-full-r1-20260915\review_s1_t01_d5b2_full_r1_final.json`，SHA-256 `deb1cf23d15abce5304dda30951dcfccc2720ba5a31119099e83e209c83f48bd`。外部 run-dir 未纳入 Git。
+- AC05 修复与语义澄清：`edbc9e131584e1f219e22825a8ab1c598d137f13`；主报告 `20260915_s1_t01_d5b1_ac05_repair_r1.json` SHA-256 `cbecaed68b65a1f3b1ff42565b7b45ab1b6a6c5888e3e5a8f669ffabaaeb17e5`；独立 Reviewer PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-ac05-repair-r1-20260915\review_s1_t01_ac05_repair_r1_final.json`，SHA-256 `8edd0ac519066da7db0572c2aeec94f1f3e81b9d7451ced779b38e701164368c`。stateless SGD 的机器梯度证据在外部 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\ac05_repair_r1\runs\ac05_gradient_finite_evidence.json`，SHA-256 `164a69a18dc7f332520f134ecba632a08a1b68debefbe6094addf62a2e50d2fc`。
+- AC07 复现与绑定：`33dce790eba35abec305a4f081db5d9ecf5b7005`；数据复检报告 SHA-256 `ec9be81db33a36830c9dbc3f50a6127a5cc949c20862ae59941bdea97d852082`，r1 全量报告 SHA-256 `0394d2125e9597f01e9d5c0cca2ce5e81483505f63bb7b3a7611ce5a4dd6cf6f`，r2 绑定报告 SHA-256 `8ada6e3572577464639aba3248ceb1e38056977b36df3c7a013917de8ff1eb06`；独立 Reviewer r2 PASS，证据 SHA-256 `67d709bc5b8875766d4fbc540bb54a8a673063f4b34d2e86c65ff9fa2ec4002c`。
+- S1-T01 G4 任务验收：摘要 `report/evidence/S1-T01/20260915_s1_t01_g4_acceptance_summary.md`；独立 Reviewer 第2轮 PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-g4-r2-20260915\review_s1_t01_g4_r2_final.json`，SHA-256 `d1192a35a292e59d5b0f7fd859b65292e455ee44fef81d57ac24b8b1832b61d4`。S1-T01 已通过 G4，但不构成阶段1 G5 或外部最终验收。
+- 当前活动任务已转为 S1-T02 G0 准备：正式测试阈值、对照模型与数据口径必须先冻结；最终上板模型、输入尺寸和性能仍由 Wong 决策。不得将 S1-T01 小样本或 200 步诊断权重写成正式精度结论。

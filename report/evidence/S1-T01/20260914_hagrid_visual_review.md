@@ -58,10 +58,10 @@ AC04 人工复核：通过 / 需修订 / 无法判断
 | 04 | `preview_04_row39191.svg` | palm | `dataset/palm/palm/0e125bd3-5be8-46f4-a6c1-c944d1e86923.jpg`；官方 21 点均在框内 | 待 Wong |
 | 05 | `preview_05_row70371.svg` | one | `dataset/one/32110431-93d1-43f9-8fe1-b94867a11564.jpg`；官方 21 点均在框内 | 待 Wong |
 | 06 | `preview_06_row70407.svg` | one | `dataset/one/785e9096-bed3-4e6b-933f-8fd5be39d64d.jpg`；官方 21 点均在框内 | 待 Wong |
-| 07 | `preview_07_row93230.svg` | two_up | `dataset/two_up/46efedfc-2eaa-4fc8-8f25-ef712fcd6d98.jpg`；官方 21 点均在框内 | 待 Wong |
-| 08 | `preview_08_row72071.svg` | two_up | `dataset/two_up/6a7a657c-fa53-4d89-afac-4c10bee8c353.jpg`；官方 21 点均在框内 | 待 Wong |
-| 09 | `preview_09_row94070.svg` | three | `dataset/three/f62049db-f3fa-403e-be5e-01c1c0315430.jpg`；官方 21 点均在框内 | 待 Wong |
-| 10 | `preview_10_row99136.svg` | three | `dataset/three/58b091ae-68ca-4985-8da2-c6a32f3cdda9.jpg`；官方 21 点均在框内 | 待 Wong |
+| 07 | `preview_07_row93230.svg` | two_up | `dataset/two_up/two_up/46efedfc-2eaa-4fc8-8f25-ef712fcd6d98.jpg`；官方 21 点均在框内 | 待 Wong |
+| 08 | `preview_08_row72071.svg` | two_up | `dataset/two_up/two_up/6a7a657c-fa53-4d89-afac-4c10bee8c353.jpg`；官方 21 点均在框内 | 待 Wong |
+| 09 | `preview_09_row94070.svg` | three | `dataset/three/three/f62049db-f3fa-403e-be5e-01c1c0315430.jpg`；官方 21 点均在框内 | 待 Wong |
+| 10 | `preview_10_row99136.svg` | three | `dataset/three/three/58b091ae-68ca-4985-8da2-c6a32f3cdda9.jpg`；官方 21 点均在框内 | 待 Wong |
 | 11 | `preview_11_row116536.svg` | `non_target_gesture` | `dataset/no_gesture/0f30b2cf-f649-4064-9706-3f921592aee6.jpg`；空标签，画面有手 | Wong 已确认非五类目标，不是 no_hand |
 | 12 | `preview_12_row116537.svg` | `non_target_gesture` | `dataset/no_gesture/148ddae3-87ee-4bf8-a392-9b14b639b326.jpg`；空标签，画面有手 | Wong 已确认非五类目标，不是 no_hand |
 | 13 | `preview_13_row116538.svg` | `non_target_gesture` | `dataset/no_gesture/1dd94133-9e93-4645-8092-2d2a810f0ba4.jpg`；空标签，画面有手 | Wong 已确认非五类目标，不是 no_hand |

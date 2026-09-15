@@ -14,6 +14,20 @@ import verification.s1_t01_environment_probe as environment_probe
 class EnvironmentProbeTest(unittest.TestCase):
     """验证 PE、Darknet 输出和 CUDA 设备冒烟标记不能被省略。"""
 
+    def test_darknet_usage_accepts_paths_but_rejects_other_basenames(self) -> None:
+        """Darknet 帮助中的相对路径、绝对路径和 Unix 路径必须按 basename 识别。"""
+
+        accepted = (
+            "usage: darknet <function>",
+            "usage: darknet.exe <function>",
+            r"usage: D:\\FPGA_Data\\darknet\\darknet.exe <function>",
+            "usage: /opt/darknet <function>",
+        )
+        for output in accepted:
+            with self.subTest(output=output):
+                self.assertTrue(environment_probe._looks_like_darknet(output))
+        self.assertFalse(environment_probe._looks_like_darknet("usage: notdarknet.exe <function>"))
+
     def test_invalid_darknet_file_cannot_pass(self) -> None:
         """非 PE 文件即使包含伪造成功输出也不能通过。"""
 

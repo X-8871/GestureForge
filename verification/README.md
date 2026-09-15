@@ -9,11 +9,11 @@
 
 ```powershell
 New-Item -ItemType Directory -Force build\s1_t01 | Out-Null
-nvcc -O2 -o build\s1_t01\s1_t01_cuda_smoke.exe verification\s1_t01_cuda_smoke.cu
+nvcc -O2 -arch=sm_89 -o build\s1_t01\s1_t01_cuda_smoke.exe verification\s1_t01_cuda_smoke.cu
 build\s1_t01\s1_t01_cuda_smoke.exe
 ```
 
-只有进程退出码为 `0` 且输出包含 `S1_T01_CUDA_SMOKE_PASS` 时，才能把生成的可执行文件路径传给 `s1_t01_environment_probe.py`；编译产物不提交 Git。当前机器没有 `nvcc`，上述编译和运行尚未执行。
+上述命令必须在对应的 Visual Studio `vcvars64.bat` 环境中执行，并确保 CUDA `bin` 已加入 PATH；`-arch=sm_89` 与 RTX 4060 Laptop GPU 的 Ada 架构一致，可避免使用默认 PTX 目标导致的运行时不兼容。只有进程退出码为 `0` 且输出包含 `S1_T01_CUDA_SMOKE_PASS` 时，才能把生成的可执行文件路径传给 `s1_t01_environment_probe.py`。本机安装后验证已使用该参数在真实 RTX 4060 Laptop GPU 上编译并运行通过；`build/s1_t01/s1_t01_cuda_smoke.exe` 仅作为本机证据产物，不提交 Git。
 
 实验结论同步记录到 Obsidian 的 `03-实验记录/实验记录.md`。
 

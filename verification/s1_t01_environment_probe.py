@@ -164,9 +164,10 @@ def _looks_like_darknet(output: str) -> bool:
     """判断版本或帮助输出是否明确属于 Darknet。"""
 
     normalized = output.casefold()
-    has_name = bool(re.search(r"\bdarknet\b", normalized))
+    darknet_name = r"darknet(?:\.exe)?"
+    has_name = bool(re.search(r"(?<![a-z0-9_])" + darknet_name + r"(?=$|[\s:;,()\[\]{}])", normalized))
     has_version = bool(re.search(r"\b(?:v(?:ersion)?\s*)?\d+\.\d+(?:\.\d+)?\b", normalized))
-    has_usage = bool(re.search(r"\busage:\s*darknet\b", normalized))
+    has_usage = bool(re.search(r"(?im)^\s*usage:\s*(?:[^\r\n]*[\\/])?" + darknet_name + r"(?=\s|$)", normalized))
     return has_name and (has_version or has_usage)
 
 

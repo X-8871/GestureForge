@@ -68,9 +68,19 @@ class DarknetWorkflowTest(unittest.TestCase):
             self.assertEqual(workflow._commands_for_action(train, context)[0][1:3], ["detector", "train"])
             self.assertEqual(workflow._commands_for_action(resume, context)[0][1:3], ["detector", "train"])
             self.assertEqual(workflow._commands_for_action(evaluate, context)[0][1:3], ["detector", "test"])
-            self.assertIn("-out", workflow._commands_for_action(evaluate, context)[0])
-            self.assertIn(str(image), workflow._commands_for_action(evaluate, context)[0])
+            evaluate_command = workflow._commands_for_action(evaluate, context)[0]
+            self.assertIn("-out", evaluate_command)
+            self.assertNotIn(workflow._darknet_cli_path(image), evaluate_command)
+            self.assertNotIn("-ext_output", evaluate_command)
             self.assertNotIn("-shell", workflow._commands_for_action(train, context)[0])
+
+    def test_evaluate_help_describes_runtime_stdin_workflow(self) -> None:
+        """evaluate help 必须准确描述 runtime stdin 单进程流程。"""
+
+        help_text = " ".join(workflow._build_parser().format_help().split())
+        expected = "读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON 并逐图解析"
+        self.assertIn(expected, help_text)
+        self.assertNotIn("带显式 filename", help_text)
 
     def test_dataset_gate_rejects_current_unapproved_report(self) -> None:
         """缺少人工批准时不能进入训练或评估。"""
@@ -596,6 +606,8 @@ class DarknetWorkflowTest(unittest.TestCase):
                 root = Path(directory)
                 image = root / "image.jpg"
                 image.write_bytes(b"image")
+                valid_list = root / "valid.txt"
+                valid_list.write_text(f"{image}\n", encoding="utf-8")
                 run_dir = root / f"run_{index}"
                 args = Namespace(
                     action="evaluate",
@@ -715,8 +727,8 @@ class DarknetWorkflowTest(unittest.TestCase):
                 self.assertEqual(len(saved["commands"]), 1)
                 self.assertTrue(saved["errors"])
 
-    def test_evaluate_simulated_commands_keep_explicit_filename_per_image(self) -> None:
-        """模拟官方命令逐图写 JSON，验证 filename、逐文件输出和全量合并。"""
+    def test_evaluate_simulated_single_process_binds_ordered_records(self) -> None:
+        """模拟单进程 stdin 评估，验证 frame_id 顺序绑定和逐图派生输出。"""
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -755,29 +767,160 @@ class DarknetWorkflowTest(unittest.TestCase):
             }
 
             def fake_darknet(command: list[str], *_args: object, **_kwargs: object) -> dict[str, object]:
-                """写入模拟 detector test 的单图片 JSON。"""
+                """写入模拟 detector test 的规范 filename 有序 JSON。"""
 
                 output_path = Path(command[command.index("-out") + 1])
-                image_path = command[6]
-                objects: list[dict[str, object]] = []
-                if image_path == str(image_two):
-                    objects = [{
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(json.dumps([
+                    {"frame_id": 1, "filename": workflow._darknet_cli_path(image_one), "objects": []},
+                    {"frame_id": 2, "filename": workflow._darknet_cli_path(image_two), "objects": [{
                         "class_id": 0,
+                        "name": "fist",
                         "confidence": 0.8,
                         "relative_coordinates": {"center_x": 0.5, "center_y": 0.5, "width": 0.2, "height": 0.2},
-                    }]
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(json.dumps([{"filename": image_path, "objects": objects}]), encoding="utf-8")
+                    }]},
+                ]), encoding="utf-8")
                 return {"exit_code": 0, "stop_reason": None, "non_finite_observed": False, "log_sha256": "unavailable", "output": ""}
 
             with patch.object(workflow, "_run_command", side_effect=fake_darknet) as runner:
                 workflow._execute(args, report, context)
-            self.assertEqual(runner.call_count, 2)
-            self.assertEqual([call.args[0][6] for call in runner.call_args_list], [str(image_one), str(image_two)])
+            self.assertEqual(runner.call_count, 1)
+            command = runner.call_args_list[0].args[0]
+            self.assertNotIn("-ext_output", command)
+            self.assertNotIn(str(image_one), command)
+            self.assertNotIn(str(image_two), command)
+            runtime_list = run_dir / "runtime_valid.list"
+            self.assertEqual(runner.call_args_list[0].kwargs["stdin_path"], runtime_list)
+            self.assertEqual(
+                runtime_list.read_text(encoding="utf-8"),
+                f"{workflow._darknet_cli_path(image_one)}\n{workflow._darknet_cli_path(image_two)}\n",
+            )
             self.assertEqual(report["acceptance"]["completed_image_count"], 2)
+            self.assertEqual(report["acceptance"]["detector_test_command_count"], 1)
+            self.assertEqual(report["acceptance"]["ordered_binding"], "filename_and_frame_id_ordered_valid_list")
             self.assertTrue(report["acceptance"]["zero_prediction_actual_zero_boxes"])
             self.assertTrue((run_dir / "evaluation.json").is_file())
             self.assertTrue((run_dir / "evaluation.jsonl").is_file())
+            self.assertEqual(
+                json.loads(output_paths[0].read_text(encoding="utf-8"))[0]["filename"],
+                workflow._darknet_cli_path(image_one),
+            )
+            self.assertEqual(
+                json.loads(output_paths[1].read_text(encoding="utf-8"))[0]["filename"],
+                workflow._darknet_cli_path(image_two),
+            )
+
+    def test_ordered_detector_json_rejects_frame_id_gap(self) -> None:
+        """detector JSON 出现 frame_id 跳号时必须失败。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "image.jpg"
+            output = root / "evaluation.json"
+            image.write_bytes(b"image")
+            output.write_text(
+                json.dumps([{"frame_id": 2, "filename": workflow._darknet_cli_path(image), "objects": []}]),
+                encoding="utf-8",
+            )
+            errors: list[str] = []
+            workflow._parse_detection_output(
+                output,
+                [image],
+                image,
+                errors,
+                root,
+                require_zero=True,
+                allow_ordered_records=True,
+            )
+            self.assertTrue(any("frame_id" in error for error in errors))
+
+    def test_runtime_stdin_list_normalizes_windows_paths_and_records_mapping(self) -> None:
+        """runtime 清单使用正斜杠，且每行仍解析到对应 source 图片。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            images = [root / "a.jpg", root / "nested" / "b.png"]
+            for image in images:
+                image.parent.mkdir(parents=True, exist_ok=True)
+                image.write_bytes(b"image")
+            source = root / "valid.list"
+            source.write_text("\n".join(str(image) for image in images) + "\n", encoding="utf-8")
+            runtime = root / "run" / "runtime_valid.list"
+            errors: list[str] = []
+            info = workflow._prepare_runtime_stdin_list(source, runtime, images, errors)
+            self.assertEqual(errors, [])
+            self.assertEqual(info["line_count"], 2)
+            self.assertEqual(info["source_valid_list"]["sha256"], hashlib.sha256(source.read_bytes()).hexdigest())
+            self.assertTrue(info["source_to_runtime_ordered_canonical"])
+            self.assertNotIn("\\", runtime.read_text(encoding="utf-8"))
+
+    def test_runtime_stdin_list_rejects_malformed_duplicate_and_wrong_order(self) -> None:
+        """runtime 清单的畸形、重复和错序必须在启动前拒绝。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = root / "first.jpg"
+            second = root / "second.jpg"
+            first.write_bytes(b"image")
+            second.write_bytes(b"image")
+            cases = {
+                "malformed": "not-an-absolute-path\n",
+                "duplicate": "{first}\n{first}\n",
+                "wrong_order": "{second}\n{first}\n",
+            }
+            for name, template in cases.items():
+                with self.subTest(case=name):
+                    runtime = root / f"{name}.list"
+                    runtime.write_text(
+                        template.format(
+                            first=workflow._darknet_cli_path(first),
+                            second=workflow._darknet_cli_path(second),
+                        ),
+                        encoding="utf-8",
+                    )
+                    errors: list[str] = []
+                    workflow._validate_runtime_stdin_list(runtime, [first, second], errors)
+                    self.assertTrue(errors)
+
+    def test_evaluate_cli_omits_filename_for_stdin_mode(self) -> None:
+        """单进程 stdin 评估命令不携带 filename，避免 Darknet 写出非法 JSON 反斜杠。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "image.jpg"
+            image.write_bytes(b"image")
+            args = Namespace(
+                action="evaluate",
+                data_config=root / "gesture.data",
+                model_config=root / "gesture.cfg",
+                weights=root / "weights",
+                valid_list=root / "valid.txt",
+                zero_prediction_image=image,
+                run_dir=root / "run",
+            )
+            commands = workflow._commands_for_action(
+                args,
+                {
+                    "executable": root / "darknet.exe",
+                    "working_directory": root,
+                    "valid_images": [image],
+                    "evaluation_json": args.run_dir / "evaluation.json",
+                },
+            )
+            command = commands[0]
+            self.assertEqual(
+                command[3:9],
+                [
+                    str(args.data_config.resolve()),
+                    str(args.model_config.resolve()),
+                    str(args.weights.resolve()),
+                    "-dont_show",
+                    "-out",
+                    str(args.run_dir.resolve() / "evaluation.json"),
+                ],
+            )
+            self.assertNotIn(str(image), command)
+            self.assertNotIn("-ext_output", command)
 
     def test_malformed_preflight_schema_writes_blocked_report(self) -> None:
         """畸形环境、数据或审批 JSON 必须统一写 BLOCKED_PREFLIGHT 报告并返回 2。"""

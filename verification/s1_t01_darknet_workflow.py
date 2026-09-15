@@ -141,6 +141,13 @@ def _resolve_working_path(value: str, working_directory: Path) -> Path:
     return path.resolve()
 
 
+def _darknet_cli_path(path: Path) -> str:
+    """将 Windows 路径转换为 Darknet JSON 可安全记录的命令参数。"""
+
+    value = str(path)
+    return value.replace("\\", "/") if os.name == "nt" else value
+
+
 def _darknet_path_size(path: Path) -> int:
     """按 UTF-8 字节数计算 Darknet 路径及结尾空字符的长度。"""
 
@@ -478,6 +485,104 @@ def _load_valid_list(
     if seen != manifest_keys:
         errors.append(f"{split} 清单与 manifest {split} 集合不一致: list={len(seen)}, manifest={len(manifest_keys)}")
     return entries
+
+
+def _validate_runtime_stdin_list(
+    runtime_list: Path,
+    expected_images: list[Path],
+    errors: list[str],
+) -> dict[str, Any]:
+    """严格核对交给 Darknet stdin 的规范化清单与 source valid 顺序绑定。"""
+
+    if not runtime_list.is_file():
+        errors.append(f"runtime stdin 清单不存在: {runtime_list}")
+        return {"path": str(runtime_list), "sha256": "unavailable", "line_count": 0}
+    try:
+        lines = runtime_list.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"runtime stdin 清单不可读取: {exc}")
+        return {"path": str(runtime_list), "sha256": _safe_sha256(runtime_list), "line_count": 0}
+
+    expected_keys = [_canonical_path(image) for image in expected_images]
+    observed_keys: list[str] = []
+    if len(lines) != len(expected_images):
+        errors.append(
+            f"runtime stdin 清单行数与 source valid.list 不一致: runtime={len(lines)}, expected={len(expected_images)}"
+        )
+    for index, line in enumerate(lines, start=1):
+        if not line or line.strip() != line or line.startswith("#"):
+            errors.append(f"runtime stdin 清单第 {index} 行格式非法，必须是单个规范化绝对路径: {line!r}")
+            continue
+        try:
+            runtime_image = Path(line)
+            resolved_key = _canonical_path(runtime_image)
+        except (OSError, RuntimeError, ValueError) as exc:
+            errors.append(f"runtime stdin 清单第 {index} 行路径非法: {exc}")
+            continue
+        if not runtime_image.is_absolute():
+            errors.append(f"runtime stdin 清单第 {index} 行不是绝对路径: {line}")
+        observed_keys.append(resolved_key)
+        if resolved_key in observed_keys[:-1]:
+            errors.append(f"runtime stdin 清单存在重复图片，第 {index} 行: {line}")
+        if index > len(expected_images):
+            continue
+        expected_image = expected_images[index - 1]
+        expected_key = expected_keys[index - 1]
+        if resolved_key != expected_key:
+            errors.append(
+                f"runtime stdin 清单第 {index} 行未 canonical-resolve 到 source valid.list 对应图片: {line} -> {expected_image}"
+            )
+        expected_cli_path = _darknet_cli_path(expected_image)
+        if line != expected_cli_path:
+            errors.append(
+                f"runtime stdin 清单第 {index} 行未保持 source valid.list 的规范化路径映射: {line!r} != {expected_cli_path!r}"
+            )
+    if observed_keys != expected_keys:
+        errors.append(
+            f"runtime stdin 清单顺序或集合不一致，拒绝只依靠 frame_id 继续: observed={len(observed_keys)}, expected={len(expected_keys)}"
+        )
+    return {
+        "path": str(runtime_list),
+        "sha256": _safe_sha256(runtime_list),
+        "line_count": len(lines),
+        "mapping": "runtime 每行使用 _darknet_cli_path(source valid.list 对应绝对路径)，并按 canonical-resolve 一一且有序绑定",
+        "source_to_runtime_ordered_canonical": observed_keys == expected_keys,
+    }
+
+
+def _prepare_runtime_stdin_list(
+    source_valid_list: Path,
+    runtime_list: Path,
+    expected_images: list[Path],
+    errors: list[str],
+) -> dict[str, Any]:
+    """在隔离 run-dir 创建不可覆盖的 Darknet stdin runtime 清单并立即复核。"""
+
+    source_info: dict[str, Any] = {
+        "path": str(source_valid_list),
+        "sha256": _safe_sha256(source_valid_list),
+        "entry_count": len(expected_images),
+    }
+    try:
+        source_lines = source_valid_list.read_text(encoding="utf-8-sig").splitlines()
+        source_info["physical_line_count"] = len(source_lines)
+        source_info["nonempty_entry_count"] = sum(
+            1 for line in source_lines if line.strip() and not line.lstrip().startswith("#")
+        )
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"source valid.list 不可读取，不能生成 runtime stdin 清单: {exc}")
+        source_info["physical_line_count"] = 0
+        source_info["nonempty_entry_count"] = 0
+    try:
+        runtime_list.parent.mkdir(parents=True, exist_ok=True)
+        with runtime_list.open("x", encoding="utf-8", newline="\n") as stream:
+            for image in expected_images:
+                stream.write(_darknet_cli_path(image) + "\n")
+    except (OSError, UnicodeError) as exc:
+        errors.append(f"runtime stdin 清单创建失败，拒绝启动 Darknet: {exc}")
+    runtime_info = _validate_runtime_stdin_list(runtime_list, expected_images, errors)
+    runtime_info["source_valid_list"] = source_info
+    return runtime_info
 
 
 def _validate_environment_gate(report_path: Path, executable: Path, errors: list[str]) -> dict[str, Any]:
@@ -1000,6 +1105,7 @@ def _parse_detection_output(
     errors: list[str],
     working_directory: Path | None = None,
     require_zero: bool = True,
+    allow_ordered_records: bool = False,
 ) -> dict[str, Any]:
     """解析官方 detector test -out JSON，并以 objects 数量证明零框。"""
 
@@ -1022,6 +1128,14 @@ def _parse_detection_output(
             errors.append(f"检测 JSON 第 {record_index} 条必须是对象")
             continue
         filename = record.get("filename")
+        if allow_ordered_records:
+            frame_id = record.get("frame_id")
+            if (
+                not isinstance(frame_id, int)
+                or isinstance(frame_id, bool)
+                or frame_id != record_index
+            ):
+                errors.append(f"检测 JSON 第 {record_index} 条 frame_id 不匹配 valid 顺序: {frame_id!r}")
         objects = record.get("objects")
         if not isinstance(filename, str) or not filename.strip():
             errors.append(f"检测 JSON 第 {record_index} 条缺少 filename")
@@ -1033,6 +1147,10 @@ def _parse_detection_output(
         if not filename_path.is_absolute() and working_directory is not None:
             filename_path = working_directory / filename_path
         key = _canonical_path(filename_path)
+        if allow_ordered_records and record_index <= len(expected_keys) and key != expected_keys[record_index - 1]:
+            errors.append(
+                f"检测 JSON 第 {record_index} 条 filename 未与 valid.list 同序绑定: {filename}"
+            )
         if key in observed:
             errors.append(f"检测 JSON 重复 filename: {filename}")
         if key not in expected_set:
@@ -1052,6 +1170,7 @@ def _parse_detection_output(
     return {
         "record_count": len(value),
         "image_count": len(observed),
+        "binding_mode": "filename_and_frame_id_ordered_valid_list" if allow_ordered_records else "filename",
         "raw_records": value,
         "records": observed,
         "zero_prediction": {
@@ -1097,7 +1216,10 @@ def _build_parser() -> argparse.ArgumentParser:
     resume.add_argument("--checkpoint", type=Path, required=True, help="既有检查点路径")
     resume.add_argument("--checkpoint-output", type=Path, required=True, help="恢复动作应新生成的检查点路径，不得与输入相同")
     resume.add_argument("--resume-from-step", type=int, required=True, help="检查点记录的恢复起始步数")
-    evaluate = subparsers.add_parser("evaluate", help="对 valid 清单逐图执行带显式 filename 的官方 Darknet detector test")
+    evaluate = subparsers.add_parser(
+        "evaluate",
+        help="读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON 并逐图解析",
+    )
     _common_parser(evaluate)
     evaluate.add_argument("--weights", type=Path, required=True, help="显式提供的评估权重")
     evaluate.add_argument("--valid-list", type=Path, required=True, help="必须与 manifest val 集合完全一致的 valid 清单")
@@ -1329,25 +1451,18 @@ def _commands_for_action(args: argparse.Namespace, context: dict[str, Any]) -> l
         return [[executable, "detector", "train", data_config, model_config, str(args.initial_weights.resolve()), "-dont_show"]]
     if args.action == "resume":
         return [[executable, "detector", "train", data_config, model_config, str(args.checkpoint.resolve()), "-dont_show"]]
-    output_paths = context.get("evaluation_output_paths")
-    if not output_paths:
-        output_paths = [context["working_directory"] / f"evaluation_{index:06d}.json" for index, _ in enumerate(context["valid_images"], start=1)]
-    return [
-        [
-            executable,
-            "detector",
-            "test",
-            data_config,
-            model_config,
-            str(args.weights.resolve()),
-            str(image),
-            "-dont_show",
-            "-ext_output",
-            "-out",
-            str(output_path),
-        ]
-        for image, output_path in zip(context["valid_images"], output_paths)
-    ]
+    output_json = context.get("evaluation_json") or context["working_directory"] / "evaluation.json"
+    return [[
+        executable,
+        "detector",
+        "test",
+        data_config,
+        model_config,
+        str(args.weights.resolve()),
+        "-dont_show",
+        "-out",
+        str(output_json),
+    ]]
 
 
 def _write_report(path: Path, report: dict[str, Any]) -> None:
@@ -1473,71 +1588,90 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
             output_directory = args.run_dir.resolve() / "detections"
             output_directory.mkdir(parents=True, exist_ok=True)
             evaluation_output_paths = context.get("evaluation_output_paths") or [
-                Path(command[-1]) for command in commands
+                output_directory / f"eval_{index:06d}.json"
+                for index, _ in enumerate(context["valid_images"], start=1)
             ]
             records: list[dict[str, Any]] = []
-            merged_raw_records: list[Any] = []
             command_records: list[dict[str, Any]] = []
             zero_result: dict[str, Any] = {}
-            for index, (command, image, image_output) in enumerate(
-                zip(commands, context["valid_images"], evaluation_output_paths), start=1
-            ):
-                log_path = args.run_dir.resolve() / f"eval_{index:06d}.log"
-                if image_output.exists():
-                    report["errors"].append(f"评估逐图 JSON 在启动前已出现，拒绝覆盖: {image_output}")
-                    break
-                result = _run_command(
-                    command,
-                    context["working_directory"],
-                    log_path,
-                    args.timeout_seconds,
-                    args.no_progress_timeout_seconds,
-                )
-                command_record = {
-                    **result,
-                    "image": str(image),
-                    "evaluation_json": str(image_output),
-                    "evaluation_json_sha256": _safe_sha256(image_output),
-                }
-                command_records.append(command_record)
-                if result.get("non_finite_observed"):
-                    report["errors"].append(f"evaluate 第 {index} 张图观察到 NaN/Inf 非有限值，失败即停")
-                    break
-                if result.get("exit_code") != 0 or result.get("stop_reason"):
-                    report["errors"].append(f"evaluate 第 {index} 张图未以干净状态结束，失败即停")
-                    break
+            parsed: dict[str, Any] = {}
+            runtime_stdin_list = args.run_dir.resolve() / "runtime_valid.list"
+            runtime_info = _prepare_runtime_stdin_list(
+                args.valid_list.resolve(),
+                runtime_stdin_list,
+                context["valid_images"],
+                report["errors"],
+            )
+            report.setdefault("inputs", {})
+            report.setdefault("inputs", {})
+            report["inputs"]["valid_list_source"] = runtime_info.get("source_valid_list", {})
+            report["inputs"]["darknet_stdin_list"] = runtime_info
+            report["outputs"]["runtime_stdin_list"] = runtime_info
+            if report["errors"]:
+                report["commands"] = command_records
+                return
+            command = commands[0]
+            log_path = args.run_dir.resolve() / "evaluate.log"
+            result = _run_command(
+                command,
+                context["working_directory"],
+                log_path,
+                args.timeout_seconds,
+                args.no_progress_timeout_seconds,
+                stdin_path=runtime_stdin_list,
+            )
+            command_record = {
+                **result,
+                "stdin_valid_list_source": str(args.valid_list.resolve()),
+                "stdin_valid_list_runtime": str(runtime_stdin_list),
+                "evaluation_json": str(output_json),
+                "evaluation_json_sha256": _safe_sha256(output_json),
+            }
+            command_records.append(command_record)
+            if result.get("non_finite_observed"):
+                report["errors"].append("evaluate 单进程观察到 NaN/Inf 非有限值，失败即停")
+            elif result.get("exit_code") != 0 or result.get("stop_reason"):
+                report["errors"].append("evaluate 单进程未以干净状态结束，失败即停")
+            else:
                 error_count = len(report["errors"])
                 parsed = _parse_detection_output(
-                    image_output,
-                    [image],
+                    output_json,
+                    context["valid_images"],
                     args.zero_prediction_image.resolve(),
                     report["errors"],
                     context["working_directory"],
-                    require_zero=_same_path(image, args.zero_prediction_image.resolve()),
+                    require_zero=True,
+                    allow_ordered_records=True,
                 )
-                if len(report["errors"]) != error_count:
-                    break
-                merged_raw_records.extend(parsed.get("raw_records", []))
-                if _same_path(image, args.zero_prediction_image.resolve()):
+                if len(report["errors"]) == error_count:
+                    parsed_records = parsed.get("records", {})
+                    raw_records = parsed.get("raw_records", [])
+                    for index, (image, image_output, raw_record) in enumerate(
+                        zip(context["valid_images"], evaluation_output_paths, raw_records), start=1
+                    ):
+                        if image_output.exists():
+                            report["errors"].append(f"评估逐图 JSON 在写入前已出现，拒绝覆盖: {image_output}")
+                            break
+                        normalized_record = dict(raw_record)
+                        normalized_record["filename"] = _darknet_cli_path(image)
+                        with image_output.open("x", encoding="utf-8", newline="\n") as stream:
+                            stream.write(json.dumps([normalized_record], ensure_ascii=False, indent=2) + "\n")
+                        parsed_record = parsed_records.get(_canonical_path(image), {})
+                        records.append(
+                            {
+                                "index": index,
+                                "frame_id": raw_record.get("frame_id"),
+                                "image": str(image),
+                                "box_count": parsed_record.get("box_count"),
+                                "objects": parsed_record.get("objects", []),
+                                "output_json": str(image_output),
+                                "output_json_sha256": _safe_sha256(image_output),
+                                "log": str(log_path),
+                                "log_sha256": result.get("log_sha256"),
+                            }
+                        )
                     zero_result = parsed.get("zero_prediction", {})
-                parsed_records = parsed.get("records", {})
-                parsed_record = parsed_records.get(_canonical_path(image), {})
-                records.append(
-                    {
-                        "index": index,
-                        "image": str(image),
-                        "box_count": parsed_record.get("box_count"),
-                        "objects": parsed_record.get("objects", []),
-                        "output_json": str(image_output),
-                        "output_json_sha256": _safe_sha256(image_output),
-                        "log": str(log_path),
-                        "log_sha256": result.get("log_sha256"),
-                    }
-                )
             report["commands"] = command_records
-            if not report["errors"] and len(records) == len(context["valid_images"]):
-                with output_json.open("x", encoding="utf-8", newline="\n") as stream:
-                    stream.write(json.dumps(merged_raw_records, ensure_ascii=False, indent=2) + "\n")
             with output_jsonl.open("x", encoding="utf-8", newline="\n") as stream:
                 for record in records:
                     stream.write(json.dumps(record, ensure_ascii=False) + "\n")
@@ -1551,7 +1685,8 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
             )
             report["outputs"]["evaluation_per_image"] = {
                 "directory": str(output_directory),
-                "count": len(command_records),
+                "count": len(records),
+                "planned_count": len(context["valid_images"]),
                 "all_completed": len(records) == len(context["valid_images"]),
             }
             report["acceptance"] = {
@@ -1559,7 +1694,9 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 "validation_manifest_count": len(context["valid_images"]),
                 "completed_image_count": len(records),
                 "all_validation_images_completed": len(records) == len(context["valid_images"]),
-                "per_image_box_class_score_output": "evaluation.jsonl 已由 detector test -out JSON 逐条结构化解析",
+                "detector_test_command_count": len(command_records),
+                "per_image_box_class_score_output": "evaluation.jsonl 和 detections/eval_*.json 由单进程 detector test -out JSON 按 runtime stdin 清单与 source valid.list 的同序 canonical 映射结构化绑定",
+                "ordered_binding": parsed.get("binding_mode", "unavailable"),
                 "zero_prediction_actual_zero_boxes": zero_result.get("actual_zero_boxes", False),
                 "zero_prediction_box_count": zero_result.get("box_count"),
                 "zero_prediction_semantics": "同时绑定 Wong 批准 no_hand manifest 行和 detector test JSON 的 objects=[]",

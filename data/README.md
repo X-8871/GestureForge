@@ -51,6 +51,6 @@ image,label,split,session_id,person_id,source,license,is_real
   --report report\evidence\S1-T01\<运行编号>_prepare.json
 ```
 
-工具主要使用标准库完成支持格式的结构和像素载荷校验；JPEG 还要求 Pillow 完整解码像素载荷。检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并通过 `--semantic-review` 分别统计人工确认的 `no_hand`、`non_target_gesture`、`target_gesture` 和未分类空标签。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
+工具主要使用标准库完成支持格式的结构和像素载荷校验；JPEG 还要求 Pillow 完整解码像素载荷。检查标签合法性、图片/标签 stem 一一对应、来源字段、人员/会话隔离和跨集合重复内容，并通过 `--semantic-review` 分别统计人工确认的 `no_hand`、`non_target_gesture`、`target_gesture` 和未分类空标签。Darknet workflow 还会拒绝缺少 `label` 的 manifest、拒绝 `.data` train/valid 与 manifest 集合不一致，并要求 `.data backup` 和保存间隔显式存在。人工批准记录的 reviewer 必须精确为 `Wong`，并用报告/manifest SHA-256 及逐项 manifest 行绑定 no_hand 图片；检测输出的类别还必须与五类固定编码一致。它不能替代 Wong 对真实图片、框覆盖和遮挡规则的人工观察；AC04 在人工回传前保持待抽查。
 
 最低流程门槛为至少 30 张真实图片、每类至少 5 个框、至少 5 张无手图，且训练/验证都覆盖五类和无手样本。该门槛只用于 S1-T01 流程验证，不是阶段1正式精度验收门槛。

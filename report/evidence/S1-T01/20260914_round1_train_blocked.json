@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "created_at_utc8": "2026-09-14T21:58:36+08:00",
+  "framework": "official-darknet-cuda",
+  "action": "train",
+  "status": "BLOCKED_PREFLIGHT",
+  "commands": [],
+  "errors": [
+    "Darknet 可执行文件不存在: D:\\Darknet\\darknet.exe",
+    "环境报告不是 official-darknet-cuda PASS",
+    "环境报告检查未通过: nvcc",
+    "环境报告检查未通过: darknet",
+    "环境报告检查未通过: cuda_device_smoke",
+    "环境报告中的 Darknet 可执行文件必须是非空字符串",
+    "Darknet 可执行文件不是有效 Windows PE",
+    "环境报告没有真实 Darknet SHA-256",
+    "数据人工批准记录不存在: D:\\FPGA_Data\\HaGRIDv2\\dataset_approval.json",
+    "模型 cfg 不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.cfg",
+    "data cfg 不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.data",
+    "names 文件不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.names",
+    "人工批准记录必须提供非空 no_hand_images 列表",
+    "配置文件不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.data",
+    "配置文件不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.cfg",
+    "配置文件不存在: D:\\FPGA_Data\\HaGRIDv2\\gesture.names",
+    "初始权重不存在或为空: D:\\Darknet\\weights\\init.weights",
+    "checkpoint-output 不是本次 train 按 saveweights/savelast 可能产生的输出: gesture_final.weights"
+  ],
+  "notes": [
+    "本入口不下载数据、不安装依赖、不切换 YOLO 框架。",
+    "模型 cfg 的 max_batches 必须是专用短训值，超过安全上限会在启动前失败。",
+    "检查点输出严格绑定 .data backup、cfg 基名、saveweights、savelast，已有候选文件一律不覆盖。",
+    "日志不能独立证明梯度有限或优化器状态恢复，相关 AC05 结论仍需审查证据。",
+    "evaluate 必须由 detector test -out JSON 的 objects 数量证明零框，并拒绝 NaN/Inf/OOM/损坏。"
+  ],
+  "git": {
+    "repository": "D:\\FPGA_Competition",
+    "head": "649f50cedc06ffdbb35bf74c8cc44434a9e7afd0",
+    "worktree": "dirty",
+    "status_lines": [
+      " M data/README.md",
+      " M \"docs/obsidian-project/\\346\\200\\273\\346\\216\\247.md\"",
+      " M \"docs/obsidian-project/\\351\\241\\271\\347\\233\\256\\346\\216\\245\\346\\211\\213\\346\\217\\220\\347\\244\\272\\350\\257\\215.md\"",
+      " M scripts/README.md",
+      " M verification/README.md",
+      " M vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr",
+      "?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\345\\217\\215\\351\\235\\242.jpg\"",
+      "?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\346\\255\\243\\351\\235\\242.jpg\"",
+      "?? report/evidence/S1-T01/20260914_developer_workflow_entry.md",
+      "?? report/evidence/S1-T01/20260914_round1_train_blocked.json",
+      "?? verification/s1_t01_darknet_workflow.py",
+      "?? verification/test_s1_t01_darknet_workflow.py"
+    ]
+  },
+  "identity": {
+    "environment_probe_py": "D:\\FPGA_Competition\\verification\\s1_t01_environment_probe.py",
+    "dataset_check_py": "D:\\FPGA_Competition\\verification\\s1_t01_dataset_check.py",
+    "cuda_smoke_source": "D:\\FPGA_Competition\\verification\\s1_t01_cuda_smoke.cu",
+    "cuda_smoke_executable": "unavailable",
+    "official_darknet_source": "unavailable",
+    "official_darknet_source_reference": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/src/detector.c",
+    "environment_probe_py_sha256": "ef32e7568e940f20b271c44dbaa9ca59a930c3be61084e7d179fce0128a85f35",
+    "dataset_check_py_sha256": "352624d453225ca5febd1193e70a75d8eb82e98fc95e6ad4d94d085349945a8e",
+    "cuda_smoke_source_sha256": "a2dfef5005e5745c5d154531131aab28a8e00bad5b8530cd34657fa7ff903b51",
+    "cuda_smoke_executable_sha256": "unavailable",
+    "official_darknet_source_commit": "unavailable",
+    "official_darknet_binary_sha256": "unavailable"
+  },
+  "inputs": {
+    "darknet_executable": "D:\\Darknet\\darknet.exe",
+    "environment_report": "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_environment_recheck.json",
+    "data_root": "D:\\FPGA_Data\\HaGRIDv2",
+    "manifest": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+    "manifest_sha256": "74d4a0abec61ea4698caf0479ffb8fffd0b27f308166d81e13a5c20ad06aecb4",
+    "dataset_report": "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260914_hagrid_dataset_check_semantic.json",
+    "dataset_approval": "D:\\FPGA_Data\\HaGRIDv2\\dataset_approval.json",
+    "data_config": "D:\\FPGA_Data\\HaGRIDv2\\gesture.data",
+    "model_config": "D:\\FPGA_Data\\HaGRIDv2\\gesture.cfg",
+    "names_file": "D:\\FPGA_Data\\HaGRIDv2\\gesture.names",
+    "working_directory": "D:\\FPGA_Data\\HaGRIDv2",
+    "model_config_values": {},
+    "data_config_values": {},
+    "resolved_data_paths": {
+      "train": "unavailable",
+      "valid": "unavailable",
+      "backup": "unavailable"
+    },
+    "train_manifest_count": 117998,
+    "validation_image_count": 0,
+    "workflow_script_sha256": "e5b4f8255159c9a552a491a4e479f88e8d6f78211a928609ec7fa2aebf21244f",
+    "checkpoint_mapping": {
+      "cfg_stem": "gesture",
+      "candidates": []
+    },
+    "checkpoint_output": "D:\\FPGA_Data\\HaGRIDv2\\backup\\gesture_final.weights",
+    "artifact_sha256": {
+      "environment_report": "a9b5a61f08c079b9f77c716d9e64bd0b869c0c62d77854f922e674eba7196f3c",
+      "dataset_report": "34aaea7375c4d2bfd42e53b6942186f01fba8d65ff12e7ec68a20d1c37cd148f",
+      "dataset_approval": "unavailable",
+      "data_config": "unavailable",
+      "model_config": "unavailable",
+      "names_file": "unavailable",
+      "initial_weights": "unavailable"
+    }
+  },
+  "outputs": {
+    "checkpoint_output": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\backup\\gesture_final.weights",
+      "sha256_before": "unavailable",
+      "created_by_this_run": "not_executed"
+    },
+    "evaluation_json": {
+      "path": "unavailable",
+      "sha256": "unavailable"
+    }
+  }
+}

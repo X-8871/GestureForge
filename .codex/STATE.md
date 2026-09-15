@@ -6,8 +6,8 @@
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- 活动任务：S1-T01 训练环境与数据准备；整体 G0/AC01 未通过，G4 未完成；G3 对本任务不适用。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`，不等于整体任务或阶段通过。
-- 最近工程实现基线：`94fe7da2689f5556d49418e089858aa8001cc736`（S1-T01-D1 短训/恢复/逐图评估严格门禁与证据）。本提交不推进训练、硬件验收或阶段切换。
+- 活动任务：S1-T01 训练环境与数据准备；D4 环境子任务已完成 G1/G2，整体 AC05～AC07 与 G4 仍未完成；G3 对本任务不适用。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`，不等于整体任务或阶段通过。
+- 最近工程实现基线：`4c82535dba330a85187adba53e42f4e41c365981`（D4 CUDA smoke、官方 Darknet CUDA 构建、环境 probe 与身份绑定）。本提交不推进训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
 
@@ -22,18 +22,18 @@
 - 实际数据目录 `D:\FPGA_Data\HaGRIDv2`；最终清单 `manifest.csv`，158680 行；原始 `manifest_all.csv` 与最终清单须区分，当前 manifest SHA-256 为 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`。
 - 已实现 HaGRID COCO→YOLO 转换、去重、图片/标签与分组检查、人工语义绑定，以及环境探针和 CUDA 冒烟源；CUDA 源存在不代表已编译运行。
 - 2026-09-15 追加 Wong 确认的 5 张真实 no_hand（朋友照片且同意内部项目使用）：前三张 train、后两张 val，人员/会话两侧不交叉，空标签；语义表与外部 manifest 均精确追加 5 行。
-- 新语义全量检查报告退出码 **0**，有效行/图片 `158680/158680`，`no_hand=train 3、val 2、test 0`，人员/会话交叉为空，AC02/AC03 自动通过；报告状态仍按工具约定为 `PASS_AUTOMATED_MANUAL_PENDING`，AC04 的 10 张带框、5 张 no_hand 与 5 张非目标手势人工语义现已分别有记录和批准 JSON。
+- 新语义全量检查报告退出码 **0**，有效行/图片 `158680/158680`，`no_hand=train 3、val 2、test 0`，人员/会话交叉为空，AC02/AC03 自动通过；报告状态仍按工具约定为 `PASS_AUTOMATED_MANUAL_PENDING`，AC04 的 10 张带框、5 张 no_hand 与 5 张非目标手势人工语义现已分别有记录和批准 JSON，任务总体验收仍保留人工证据核对。
 - 已完成 D3 官方 Darknet 输入绑定独立复审：158680/158680 sidecar 内容匹配，train/valid 清单与 manifest 集合/顺序一致，五类 names/data 可解析，Reviewer PASS；外部产物与哈希见 `20260915_darknet_input_binding.md`。不等于 Darknet/CUDA 已构建或训练通过。
 - 最新语义证据记录 AC02 自动检查通过；不替代其他验收或独立签结。历史全量数据退出码0已被语义重查的退出码2更新。
 - 最近代码回归证据：S1-T01-D1 定向 24 项、全量 `verification` 48 项测试通过，14 个 Python 文件编译检查通过，独立 Reviewer 对第3轮候选 PASS；真实预检退出码2、`BLOCKED_PREFLIGHT`、Darknet 命令数0。工作流和三轮阻断证据入口见 `report/evidence/S1-T01/`，代码提交为 `94fe7da2689f5556d49418e089858aa8001cc736`。本轮全量数据扫描运行约 78 分钟后退出码0，报告为 `20260915_hagrid_dataset_check_semantic_after_no_hand.json`。
-- 环境最近证据：受控 Python 3.12.14、Pillow 12.3.0；NumPy/NVIDIA 查询/CMake 可用，`nvcc`、官方 Darknet、固定 CUDA 冒烟可执行文件未就绪；默认探针退出码2。CUDA Toolkit 与 VS Build Tools 安装包已下载并哈希核对，但尚未安装，需 Wong 明确执行管理员/许可证交互。AC05～AC07 未完成，无短训保存/恢复/评估闭环；正式长训、INT8 检测量化及整网 RTL 尚未开始。
+- 环境 D4 已通过：VS Build Tools 17.14.40/MSVC 19.44、CUDA Toolkit 13.4.59、CMake 3.30.2、RTX 4060 Laptop/驱动 610.88；固定 smoke `sm_89` 真实运行通过，官方 Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f` 以 CMake CUDA ON/CUDNN OFF/OpenCV OFF 构建成功。安装后 probe status=PASS、退出码0；Darknet SHA-256 `358807f0f22f943fb521c0b8188e8b803abb0bc358965f273fa47d58bfadd48f`，smoke SHA-256 `4abc2065f7d798685043dd8066bc231f0098285e0ff1d82e66b2b360c4a8480c`。AC05～AC07 未完成，无短训保存/恢复/评估闭环；正式长训、INT8 检测量化及整网 RTL 尚未开始。
 
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 工具状态仍保留人工待复核语义，后续训练前复核预览入口和批准记录哈希，不用非目标手势代替 no_hand。
-- 3. 在管理员/许可证交互获 Wong 明确处理后安装 CUDA Toolkit 与 VS C++ Build Tools；构建官方 Darknet 和固定 CUDA smoke，运行探针并冻结代码/cfg/依赖哈希。恢复先检查既有长进程，勿重复启动训练。
-4. 数据、环境关口通过后完成 AC04 与 AC05～AC07 短程训练/恢复/评估及复现，再验收 S1-T01。不得自行跳到正式长训、量化、烧录或下一阶段。
+- 3. D4 环境关口已通过；下一任务准备五类 YOLOv4-tiny 短训 cfg、显式初始权重和配置/数据哈希，恢复先检查既有长进程，勿重复启动训练。
+4. 在固定配置与权重后完成 AC04 总体核对及 AC05～AC07 短程训练/恢复/评估/复现，再验收 S1-T01。不得自行跳到正式长训、量化、烧录或下一阶段。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）
@@ -45,3 +45,4 @@
 - 最新整改：`report/evidence/S1-T01/20260914_semantic_repair.md`；报告：同目录 `20260914_hagrid_dataset_check_semantic.json`（clean 报告为同结果副本）。
 - 人工语义：`report/evidence/S1-T01/20260914_hagrid_semantic_review.csv`；本轮收尾：`20260915_no_hand_ingest.md`、`20260915_hagrid_visual_review_after_no_hand.md`、`20260915_hagrid_dataset_approval.json`。
 - 环境：`report/evidence/S1-T01/20260914_environment_recheck.json`；命令和源程序入口：`verification/README.md`、`verification/s1_t01_cuda_smoke.cu`。
+- D4 安装后环境：`report/evidence/S1-T01/20260915_s1_t01_d4_round3_summary.md`、`20260915_environment_probe_after_install_v3.json`、`20260915_darknet_cmake_build_release.md`、`20260915_cudnn_check_after_install.md`；独立 Reviewer 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d4-round3-20260915\review_s1_t01_d4_round3_final.json`。

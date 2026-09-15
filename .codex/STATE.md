@@ -6,7 +6,7 @@
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- 活动任务：S1-T01 训练环境与数据准备；D4 环境子任务、D5A 配置/权重/dry-run 子任务已完成 G1/G2，D5A 证据提交为 `29e43a0`；D5B 短训/恢复/评估尚未完成，整体 AC05～AC07 与 G4 仍未完成；G3 对本任务不适用。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`，不等于整体任务或阶段通过。
+- 活动任务：S1-T01 训练环境与数据准备；D4 环境子任务、D5A 配置/权重/dry-run 子任务和 D5B-1 短训/恢复子任务已完成 G1/G2，D5A 证据提交为 `29e43a0`、D5B-1 代码/证据提交为 `5645a17`；D5B-2 全量评估/复现尚未完成，整体 AC06/AC07 与 G4 仍未完成；G3 对本任务不适用。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`，不等于整体任务或阶段通过。
 - 最近工程实现基线：`4c82535dba330a85187adba53e42f4e41c365981`（D4 CUDA smoke、官方 Darknet CUDA 构建、环境 probe 与身份绑定）。本提交不推进训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -26,13 +26,13 @@
 - 已完成 D3 官方 Darknet 输入绑定独立复审：158680/158680 sidecar 内容匹配，train/valid 清单与 manifest 集合/顺序一致，五类 names/data 可解析，Reviewer PASS；外部产物与哈希见 `20260915_darknet_input_binding.md`。不等于 Darknet/CUDA 已构建或训练通过。
 - 最新语义证据记录 AC02 自动检查通过；不替代其他验收或独立签结。历史全量数据退出码0已被语义重查的退出码2更新。
 - 最近代码回归证据：S1-T01-D1 定向 24 项、全量 `verification` 48 项测试通过，14 个 Python 文件编译检查通过，独立 Reviewer 对第3轮候选 PASS；真实预检退出码2、`BLOCKED_PREFLIGHT`、Darknet 命令数0。工作流和三轮阻断证据入口见 `report/evidence/S1-T01/`，代码提交为 `94fe7da2689f5556d49418e089858aa8001cc736`。本轮全量数据扫描运行约 78 分钟后退出码0，报告为 `20260915_hagrid_dataset_check_semantic_after_no_hand.json`。
-- 环境 D4 已通过：VS Build Tools 17.14.40/MSVC 19.44、CUDA Toolkit 13.4.59、CMake 3.30.2、RTX 4060 Laptop/驱动 610.88；固定 smoke `sm_89` 真实运行通过，官方 Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f` 以 CMake CUDA ON/CUDNN OFF/OpenCV OFF 构建成功。安装后 probe status=PASS、退出码0；Darknet SHA-256 `358807f0f22f943fb521c0b8188e8b803abb0bc358965f273fa47d58bfadd48f`，smoke SHA-256 `4abc2065f7d798685043dd8066bc231f0098285e0ff1d82e66b2b360c4a8480c`。D5A 已固定 416 cfg（SHA-256 `76ad1108d199150bef8b949a8a67937ca36b33209f8cfe744f2969847c506025`）和官方 `yolov4-tiny.conv.29`（19,789,716 bytes，SHA-256 `3c794b8420b12ed2a609daa71d075880e7bd152671323f5eb3e8d9e57e31785b`），r2 dry-run 为 `PLANNED_NO_EXECUTION`/exit 0，独立 Reviewer PASS；D5B 短训保存/恢复/评估尚未完成，正式长训、INT8 检测量化及整网 RTL 尚未开始。
+- 环境 D4 已通过：VS Build Tools 17.14.40/MSVC 19.44、CUDA Toolkit 13.4.59、CMake 3.30.2、RTX 4060 Laptop/驱动 610.88；固定 smoke `sm_89` 真实运行通过，官方 Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f` 以 CMake CUDA ON/CUDNN OFF/OpenCV OFF 构建成功。安装后 probe status=PASS、退出码0；Darknet SHA-256 `358807f0f22f943fb521c0b8188e8b803abb0bc358965f273fa47d58bfadd48f`，smoke SHA-256 `4abc2065f7d798685043dd8066bc231f0098285e0ff1d82e66b2b360c4a8480c`。D5A 已固定 416 cfg（SHA-256 `76ad1108d199150bef8b949a8a67937ca36b33209f8cfe744f2969847c506025`）和官方 `yolov4-tiny.conv.29`（19,789,716 bytes，SHA-256 `3c794b8420b12ed2a609daa71d075880e7bd152671323f5eb3e8d9e57e31785b`），r2 dry-run 为 `PLANNED_NO_EXECUTION`/exit 0，独立 Reviewer PASS；D5B-1 已真实训练 1～20 步并恢复 11～20 步，train/resume 报告均 `EXECUTED_REVIEW_REQUIRED`、顶层 exit 0、独立 Reviewer PASS；D5B-2 全量评估/复现尚未完成，正式长训、INT8 检测量化及整网 RTL 尚未开始。
 
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 工具状态仍保留人工待复核语义，后续训练前复核预览入口和批准记录哈希，不用非目标手势代替 no_hand。
-- 3. D4 环境关口和 D5A 配置/权重/dry-run 关口已通过；下一任务 D5B 执行五类 YOLOv4-tiny 短训、保存/恢复、评估和复现，恢复先检查既有长进程，勿重复启动训练。
+- 3. D4 环境关口、D5A 配置/权重/dry-run 和 D5B-1 短训/恢复关口已通过；下一任务 D5B-2 执行全量 valid 逐图评估与独立复现，先检查既有长进程，勿重复启动评估。
 4. 在固定配置与权重后完成 AC04 总体核对及 AC05～AC07 短程训练/恢复/评估/复现，再验收 S1-T01。不得自行跳到正式长训、量化、烧录或下一阶段。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
@@ -47,3 +47,4 @@
 - 环境：`report/evidence/S1-T01/20260914_environment_recheck.json`；命令和源程序入口：`verification/README.md`、`verification/s1_t01_cuda_smoke.cu`。
 - D4 安装后环境：`report/evidence/S1-T01/20260915_s1_t01_d4_round3_summary.md`、`20260915_environment_probe_after_install_v3.json`、`20260915_darknet_cmake_build_release.md`、`20260915_cudnn_check_after_install.md`；独立 Reviewer 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d4-round3-20260915\review_s1_t01_d4_round3_final.json`。
 - D5A 配置/权重/dry-run：`report/evidence/S1-T01/20260915_s1_t01_d5a_preflight_r2.json`、`20260915_s1_t01_d5a_preflight_r2_summary.md`、`20260915_s1_t01_d5a_short_train_preflight_blocked.md`；独立 Reviewer PASS 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d5a-r2-final-20260915-180935\review_s1_t01_d5a_r2_final.json`。外部 cfg/weight 不在 Git，使用上述固定路径与哈希。
+- D5B-1 短训/恢复：`report/evidence/S1-T01/20260915_s1_t01_d5b1_r1_summary.md`、`20260915_s1_t01_d5b1_train_r1.json`、`20260915_s1_t01_d5b1_resume_r1.json`；训练报告 SHA-256 `e46a433d5bccd209fc1f117280affce06e6f47a1166bd2024aaa3d776da3b45b`，恢复报告 SHA-256 `24cbecaccb37cde0e4755499a771b3291948714a813ebad7cdee4d7222d8111a`，workflow 修复提交 `5645a17`；独立 Reviewer PASS 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-d5b1-fix-20260915-191045\review_s1_t01_d5b1_fix_r1_final.json`。外部训练/恢复 checkpoint 和日志位于 `D:\FPGA_Data\HaGRIDv2\darknet_inputs`，未纳入 Git。

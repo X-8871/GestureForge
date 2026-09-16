@@ -68,6 +68,11 @@
 - D5 workflow SHA `7121439c4b3b47ca63b21f677acb2c33e3a2a990d94054b6cc98a2e3359aa588`；对应测试 SHA `ed1aede99a142ccda5dc9b2c96578028c11225f4f3a759393b1169018ec896f0`。专项 33/33、verification 全量 105/105、py_compile、git diff check、UTF-8/AST/tokenize 均 exit 0。独立 Reviewer 证据：`C:\Users\22061\AppData\Local\Temp\review-s1-t02-d5-seed-r1-20260916\review_s1_t02_d5_seed_r1.json` SHA `1fefde0a9e829dea3537d01d6068f3bf02693d9ffdd780fd8d3a50fc93908142`，摘要 SHA `ec76bd6002b56593428f3b9ac9bf854bed61c406505121a68d4130f9ec9f6fb9`。
 - D5 真实链已完成任务级 G1/G2 核对：tiny416 seeded train 1..20、编号 step10 checkpoint、resume 11..20 均 exit 0；train/resume 报告状态均为 `EXECUTED_REVIEW_REQUIRED`、errors=[]，固定 seed=`424242`，父环境未污染，输入 checkpoint 前后 SHA 不变，resume 新 last SHA 独立绑定。真实报告/日志/checkpoint/环境哈希见 `report/evidence/S1-T02/20260916_s1_t02_d5_seeded_train_resume_r1_{train,resume}.json` 与 summary；独立 Reviewer R2 `PASS`，JSON SHA `c11ebcff325e10309758acfcda3657d6fd050fc13bc4f94cc125a19c1c2224ab`，summary SHA `603a7dfa1c9e5a1982693fca978a8b3f3ebb6e416ab5cfeb6732c5ceae56cd5d`。本证据只证明诊断短训/恢复流程，不是正式训练、精度、bit-exact、full、INT8、Vivado 或板测。
 
+## S1-T02-D6 离线检测指标评估基础
+
+- 2026-09-16：D6 评估器、夹具测试和口径文档完成任务级 G1/G2；独立 Reviewer R1/R2 发现并关闭 CLI/纯入口的 NMS、最大框数、坐标格式、阈值和类型边界问题，R3 最终 `PASS`。评估器 SHA `e2294aef39e51e0e3f4f11efbb527be81b6b38744f34de2fbfa8f3cc1c01346f`，测试 SHA `f9ef71044dda7ad2cf38f602788cf4850eb23f2ce8dc9233ad78d6fdbd25afc3`；D6 r3 报告 SHA `b46680146f754c2a4c4e32bf7f75b9530a84c6d2751aeb890003d4d029cc6136`，summary SHA `0d3ae2fc0cf6687bf4d38c9d763cbe63d1aef763fb6e794d193df16131805459`。
+- 固定评估口径实现为五类 mAP@0.5 与 mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point、同类一对一匹配）、每类 precision/recall、类别内 greedy NMS IoU=0.45、每图最多15框、score threshold 0.25..0.50；filename/split/坐标格式/类别绑定和空标签检查已覆盖。合成夹具两张图、一个 GT 的 mAP=1.0 仅为手算回归；r3 状态为 `G0_PENDING`，no_hand/non-target 为 `NOT_EXECUTED`，未执行真实 Darknet 精度或正式 test/robustness。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。

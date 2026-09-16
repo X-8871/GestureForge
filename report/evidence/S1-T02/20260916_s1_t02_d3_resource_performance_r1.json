@@ -1,0 +1,866 @@
+{
+  "schema_version": "s1_t02_d3_resource_performance_v1",
+  "task": "S1-T02-D3",
+  "status": "REFERENCE_SPEC_READY_REVIEW_REQUIRED",
+  "scope": {
+    "purpose": "阶段1资源、性能和验收门槛的可复核口径",
+    "training_executed": false,
+    "formal_evaluation_executed": false,
+    "cuda_long_run_executed": false,
+    "vivado_synthesis_executed": false,
+    "board_measurement_executed": false,
+    "precision_or_map_executed": false
+  },
+  "hardware_baseline": {
+    "board": "AX7Z020",
+    "device": "XA7Z020",
+    "package": "CLG400",
+    "speed_grade": "-1"
+  },
+  "thresholds": {
+    "max_utilization_percent": 85,
+    "wns_min_ns": 0,
+    "whs_min_ns": 0,
+    "tns_max_ns": 0,
+    "ths_max_ns": 0
+  },
+  "final_threshold_status": "pending_until_wong_decision",
+  "file_bindings": {
+    "darknet_executable": "D:\\FPGA_Data\\darknet\\build\\s1_t01_vc_cuda134_v2\\Release\\darknet.exe",
+    "darknet_source_image_c": "D:\\FPGA_Data\\darknet\\src\\image.c",
+    "fixed_tiny416_cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\configs\\gesture_yolov4_tiny_416_short.cfg",
+    "tiny320_cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_320_float_setup.cfg",
+    "tiny416_cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_416_float_setup.cfg",
+    "full_cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\yolov4_5class_float_pc_setup.cfg",
+    "names": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+    "valid_list": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+    "d1_setup_evidence": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d1_float_setup_r3.json",
+    "d2_spec_evidence": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d2_numeric_spec_r2.json",
+    "d2_golden": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d2_numeric_golden_r2.json",
+    "d2_calibration": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_calibration_r2.json",
+    "d2_calibration_list": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+    "d2_numeric_reference": "D:\\FPGA_Competition\\verification\\s1_t02_d2_numeric_reference.py",
+    "d3_spec_document": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\S1-T02-D3_资源性能与阶段验收门槛.md",
+    "d3_checker": "D:\\FPGA_Competition\\verification\\s1_t02_d3_resource_performance.py",
+    "d3_tests": "D:\\FPGA_Competition\\verification\\test_s1_t02_d3_resource_performance.py",
+    "verification_readme": "D:\\FPGA_Competition\\verification\\README.md"
+  },
+  "provenance_requests": {
+    "competition_repository": "D:\\FPGA_Competition",
+    "darknet_source_repository": "D:\\FPGA_Data\\darknet"
+  },
+  "models": {
+    "tiny320": {
+      "role": "board_candidate",
+      "applicability": {
+        "board_resource_gate": true,
+        "pc_budget": true
+      },
+      "pc_estimate": {
+        "source": "D1 外部 parser estimate；不是综合或运行时测量",
+        "parameters": 5886460,
+        "bflops": 4.019814,
+        "float_weight_bytes": 23545840
+      },
+      "resource": {
+        "evidence": {
+          "estimate": {
+            "evidence_kind": "estimate",
+            "status": "PENDING",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          },
+          "synthesis": {
+            "evidence_kind": "synthesis",
+            "status": "NOT_EXECUTED",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          },
+          "board_measurement": {
+            "evidence_kind": "board_measurement",
+            "status": "NOT_EXECUTED",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          }
+        },
+        "storage": {
+          "status": "PENDING",
+          "address_unit": "byte_address_half_open",
+          "weights_bytes": null,
+          "feature_map_peak_bytes": null,
+          "frame_buffer_bytes": null,
+          "ps_buffer_bytes": null,
+          "ddr_peak_bytes": null,
+          "address_ranges": []
+        },
+        "ddr_bandwidth": {
+          "status": "PENDING",
+          "unit": "bytes_per_second",
+          "video_input_bytes_per_s": null,
+          "model_transfer_bytes_per_s": null,
+          "ps_decode_nms_bytes_per_s": null,
+          "cache_competition_bytes_per_s": null,
+          "total_peak_bytes_per_s": null
+        }
+      },
+      "performance": {
+        "status": "NOT_EXECUTED",
+        "fixed_config": {
+          "model_id": "yolov4_tiny_320_float_setup",
+          "input_size": [
+            320,
+            320
+          ],
+          "weight_sha256": null,
+          "weight_version_status": "PENDING_FORMAL_FLOAT_WEIGHT",
+          "cfg_sha256": "9b4da2163d4a540ac2f7535312ffc22d1f465445fd175509575fc601dad74fa8",
+          "preprocess_sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+          "score_threshold": 0.25,
+          "nms_iou": 0.45,
+          "max_detections": 15
+        },
+        "warmup": 100,
+        "effective_inferences": 0,
+        "sample_selection": "all_valid_samples_no_fast_sample_filter",
+        "stages": {
+          "preprocess": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "pl_model": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "ps_decode_nms": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "display": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "end_to_end": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          }
+        },
+        "failure_counts": {
+          "timeout": 0,
+          "drop": 0,
+          "failure": 0
+        }
+      }
+    },
+    "tiny416": {
+      "role": "board_candidate",
+      "applicability": {
+        "board_resource_gate": true,
+        "pc_budget": true
+      },
+      "pc_estimate": {
+        "source": "D1 外部 parser estimate；不是综合或运行时测量",
+        "parameters": 5886460,
+        "bflops": 6.793486,
+        "float_weight_bytes": 23545840
+      },
+      "resource": {
+        "evidence": {
+          "estimate": {
+            "evidence_kind": "estimate",
+            "status": "PENDING",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          },
+          "synthesis": {
+            "evidence_kind": "synthesis",
+            "status": "NOT_EXECUTED",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          },
+          "board_measurement": {
+            "evidence_kind": "board_measurement",
+            "status": "NOT_EXECUTED",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          }
+        },
+        "storage": {
+          "status": "PENDING",
+          "address_unit": "byte_address_half_open",
+          "weights_bytes": null,
+          "feature_map_peak_bytes": null,
+          "frame_buffer_bytes": null,
+          "ps_buffer_bytes": null,
+          "ddr_peak_bytes": null,
+          "address_ranges": []
+        },
+        "ddr_bandwidth": {
+          "status": "PENDING",
+          "unit": "bytes_per_second",
+          "video_input_bytes_per_s": null,
+          "model_transfer_bytes_per_s": null,
+          "ps_decode_nms_bytes_per_s": null,
+          "cache_competition_bytes_per_s": null,
+          "total_peak_bytes_per_s": null
+        }
+      },
+      "performance": {
+        "status": "NOT_EXECUTED",
+        "fixed_config": {
+          "model_id": "yolov4_tiny_416_float_setup",
+          "input_size": [
+            416,
+            416
+          ],
+          "weight_sha256": null,
+          "weight_version_status": "PENDING_FORMAL_FLOAT_WEIGHT",
+          "cfg_sha256": "5c5af96850ca3f13a86decb111fb2710d1b061353d46253ffb16be097da8fa09",
+          "preprocess_sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+          "score_threshold": 0.25,
+          "nms_iou": 0.45,
+          "max_detections": 15
+        },
+        "warmup": 100,
+        "effective_inferences": 0,
+        "sample_selection": "all_valid_samples_no_fast_sample_filter",
+        "stages": {
+          "preprocess": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "pl_model": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "ps_decode_nms": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "display": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "end_to_end": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          }
+        },
+        "failure_counts": {
+          "timeout": 0,
+          "drop": 0,
+          "failure": 0
+        }
+      }
+    },
+    "full": {
+      "role": "pc_only_reference",
+      "applicability": {
+        "board_resource_gate": false,
+        "pc_budget": true
+      },
+      "pc_estimate": {
+        "source": "D1 外部 parser estimate；不是综合或运行时测量",
+        "parameters": 63992378,
+        "bflops": 123.248005,
+        "float_weight_bytes": 255969512
+      },
+      "resource": {
+        "evidence": {
+          "estimate": {
+            "evidence_kind": "estimate",
+            "status": "PENDING",
+            "utilization": {
+              "lut_pct": null,
+              "ff_pct": null,
+              "bram_pct": null,
+              "dsp_pct": null
+            },
+            "timing": {
+              "wns_ns": null,
+              "whs_ns": null,
+              "tns_ns": null,
+              "ths_ns": null
+            }
+          },
+          "synthesis": {
+            "evidence_kind": "synthesis",
+            "status": "NOT_APPLICABLE",
+            "reason": "完整 YOLOv4 仅作 PC 对照，不做板上资源验收"
+          },
+          "board_measurement": {
+            "evidence_kind": "board_measurement",
+            "status": "NOT_APPLICABLE",
+            "reason": "完整 YOLOv4 不进入上板候选"
+          }
+        },
+        "storage": {
+          "status": "PENDING",
+          "address_unit": "byte_address_half_open",
+          "weights_bytes": null,
+          "feature_map_peak_bytes": null,
+          "frame_buffer_bytes": null,
+          "ps_buffer_bytes": null,
+          "ddr_peak_bytes": null,
+          "address_ranges": []
+        },
+        "ddr_bandwidth": {
+          "status": "PENDING",
+          "unit": "bytes_per_second",
+          "video_input_bytes_per_s": null,
+          "model_transfer_bytes_per_s": null,
+          "ps_decode_nms_bytes_per_s": null,
+          "cache_competition_bytes_per_s": null,
+          "total_peak_bytes_per_s": null
+        }
+      },
+      "performance": {
+        "status": "NOT_EXECUTED",
+        "fixed_config": {
+          "model_id": "yolov4_full_608_pc_reference",
+          "input_size": [
+            608,
+            608
+          ],
+          "weight_sha256": null,
+          "weight_version_status": "PENDING_FORMAL_FLOAT_WEIGHT",
+          "cfg_sha256": "9f3f518e995a0f536bc0edf0530a10362ead0ec3858466f1bdcc81bfdd71fb41",
+          "preprocess_sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+          "score_threshold": 0.25,
+          "nms_iou": 0.45,
+          "max_detections": 15
+        },
+        "warmup": 100,
+        "effective_inferences": 0,
+        "sample_selection": "all_valid_samples_no_fast_sample_filter",
+        "stages": {
+          "preprocess": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "pl_model": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "ps_decode_nms": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "display": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          },
+          "end_to_end": {
+            "status": "NOT_EXECUTED",
+            "mean_ms": null,
+            "p50_ms": null,
+            "p95_ms": null,
+            "p99_ms": null
+          }
+        },
+        "failure_counts": {
+          "timeout": 0,
+          "drop": 0,
+          "failure": 0
+        }
+      }
+    }
+  },
+  "validation": {
+    "status": "NOT_EXECUTED_PENDING",
+    "schema_valid": true,
+    "errors": [],
+    "pending": [
+      "models.tiny320.resource.evidence.estimate: PENDING",
+      "models.tiny320.resource.evidence.estimate.utilization.lut_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.utilization.ff_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.utilization.bram_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.utilization.dsp_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.timing.wns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.timing.whs_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.timing.tns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.estimate.timing.ths_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis: NOT_EXECUTED",
+      "models.tiny320.resource.evidence.synthesis.utilization.lut_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.utilization.ff_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.utilization.bram_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.utilization.dsp_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.timing.wns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.timing.whs_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.timing.tns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.synthesis.timing.ths_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement: NOT_EXECUTED",
+      "models.tiny320.resource.evidence.board_measurement.utilization.lut_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.utilization.ff_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.utilization.bram_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.utilization.dsp_pct: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.timing.wns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.timing.whs_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.timing.tns_ns: 尚无观测值",
+      "models.tiny320.resource.evidence.board_measurement.timing.ths_ns: 尚无观测值",
+      "models.tiny320.resource.storage: PENDING",
+      "models.tiny320.resource.storage.weights_bytes: 尚无观测值",
+      "models.tiny320.resource.storage.feature_map_peak_bytes: 尚无观测值",
+      "models.tiny320.resource.storage.frame_buffer_bytes: 尚无观测值",
+      "models.tiny320.resource.storage.ps_buffer_bytes: 尚无观测值",
+      "models.tiny320.resource.storage.ddr_peak_bytes: 尚无观测值",
+      "models.tiny320.resource.ddr_bandwidth: PENDING",
+      "models.tiny320.resource.ddr_bandwidth.video_input_bytes_per_s: 尚无观测值",
+      "models.tiny320.resource.ddr_bandwidth.model_transfer_bytes_per_s: 尚无观测值",
+      "models.tiny320.resource.ddr_bandwidth.ps_decode_nms_bytes_per_s: 尚无观测值",
+      "models.tiny320.resource.ddr_bandwidth.cache_competition_bytes_per_s: 尚无观测值",
+      "models.tiny320.resource.ddr_bandwidth.total_peak_bytes_per_s: 尚无观测值",
+      "models.tiny320.performance.fixed_config.weight_sha256: 尚未绑定最终权重",
+      "models.tiny320.performance.effective_inferences: 尚未达到 10000 次有效推理",
+      "models.tiny320.performance: NOT_EXECUTED",
+      "models.tiny320.performance.stages.preprocess.mean_ms: 尚无观测值",
+      "models.tiny320.performance.stages.preprocess.p50_ms: 尚无观测值",
+      "models.tiny320.performance.stages.preprocess.p95_ms: 尚无观测值",
+      "models.tiny320.performance.stages.preprocess.p99_ms: 尚无观测值",
+      "models.tiny320.performance.stages.pl_model.mean_ms: 尚无观测值",
+      "models.tiny320.performance.stages.pl_model.p50_ms: 尚无观测值",
+      "models.tiny320.performance.stages.pl_model.p95_ms: 尚无观测值",
+      "models.tiny320.performance.stages.pl_model.p99_ms: 尚无观测值",
+      "models.tiny320.performance.stages.ps_decode_nms.mean_ms: 尚无观测值",
+      "models.tiny320.performance.stages.ps_decode_nms.p50_ms: 尚无观测值",
+      "models.tiny320.performance.stages.ps_decode_nms.p95_ms: 尚无观测值",
+      "models.tiny320.performance.stages.ps_decode_nms.p99_ms: 尚无观测值",
+      "models.tiny320.performance.stages.display.mean_ms: 尚无观测值",
+      "models.tiny320.performance.stages.display.p50_ms: 尚无观测值",
+      "models.tiny320.performance.stages.display.p95_ms: 尚无观测值",
+      "models.tiny320.performance.stages.display.p99_ms: 尚无观测值",
+      "models.tiny320.performance.stages.end_to_end.mean_ms: 尚无观测值",
+      "models.tiny320.performance.stages.end_to_end.p50_ms: 尚无观测值",
+      "models.tiny320.performance.stages.end_to_end.p95_ms: 尚无观测值",
+      "models.tiny320.performance.stages.end_to_end.p99_ms: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate: PENDING",
+      "models.tiny416.resource.evidence.estimate.utilization.lut_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.utilization.ff_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.utilization.bram_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.utilization.dsp_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.timing.wns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.timing.whs_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.timing.tns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.estimate.timing.ths_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis: NOT_EXECUTED",
+      "models.tiny416.resource.evidence.synthesis.utilization.lut_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.utilization.ff_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.utilization.bram_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.utilization.dsp_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.timing.wns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.timing.whs_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.timing.tns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.synthesis.timing.ths_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement: NOT_EXECUTED",
+      "models.tiny416.resource.evidence.board_measurement.utilization.lut_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.utilization.ff_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.utilization.bram_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.utilization.dsp_pct: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.timing.wns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.timing.whs_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.timing.tns_ns: 尚无观测值",
+      "models.tiny416.resource.evidence.board_measurement.timing.ths_ns: 尚无观测值",
+      "models.tiny416.resource.storage: PENDING",
+      "models.tiny416.resource.storage.weights_bytes: 尚无观测值",
+      "models.tiny416.resource.storage.feature_map_peak_bytes: 尚无观测值",
+      "models.tiny416.resource.storage.frame_buffer_bytes: 尚无观测值",
+      "models.tiny416.resource.storage.ps_buffer_bytes: 尚无观测值",
+      "models.tiny416.resource.storage.ddr_peak_bytes: 尚无观测值",
+      "models.tiny416.resource.ddr_bandwidth: PENDING",
+      "models.tiny416.resource.ddr_bandwidth.video_input_bytes_per_s: 尚无观测值",
+      "models.tiny416.resource.ddr_bandwidth.model_transfer_bytes_per_s: 尚无观测值",
+      "models.tiny416.resource.ddr_bandwidth.ps_decode_nms_bytes_per_s: 尚无观测值",
+      "models.tiny416.resource.ddr_bandwidth.cache_competition_bytes_per_s: 尚无观测值",
+      "models.tiny416.resource.ddr_bandwidth.total_peak_bytes_per_s: 尚无观测值",
+      "models.tiny416.performance.fixed_config.weight_sha256: 尚未绑定最终权重",
+      "models.tiny416.performance.effective_inferences: 尚未达到 10000 次有效推理",
+      "models.tiny416.performance: NOT_EXECUTED",
+      "models.tiny416.performance.stages.preprocess.mean_ms: 尚无观测值",
+      "models.tiny416.performance.stages.preprocess.p50_ms: 尚无观测值",
+      "models.tiny416.performance.stages.preprocess.p95_ms: 尚无观测值",
+      "models.tiny416.performance.stages.preprocess.p99_ms: 尚无观测值",
+      "models.tiny416.performance.stages.pl_model.mean_ms: 尚无观测值",
+      "models.tiny416.performance.stages.pl_model.p50_ms: 尚无观测值",
+      "models.tiny416.performance.stages.pl_model.p95_ms: 尚无观测值",
+      "models.tiny416.performance.stages.pl_model.p99_ms: 尚无观测值",
+      "models.tiny416.performance.stages.ps_decode_nms.mean_ms: 尚无观测值",
+      "models.tiny416.performance.stages.ps_decode_nms.p50_ms: 尚无观测值",
+      "models.tiny416.performance.stages.ps_decode_nms.p95_ms: 尚无观测值",
+      "models.tiny416.performance.stages.ps_decode_nms.p99_ms: 尚无观测值",
+      "models.tiny416.performance.stages.display.mean_ms: 尚无观测值",
+      "models.tiny416.performance.stages.display.p50_ms: 尚无观测值",
+      "models.tiny416.performance.stages.display.p95_ms: 尚无观测值",
+      "models.tiny416.performance.stages.display.p99_ms: 尚无观测值",
+      "models.tiny416.performance.stages.end_to_end.mean_ms: 尚无观测值",
+      "models.tiny416.performance.stages.end_to_end.p50_ms: 尚无观测值",
+      "models.tiny416.performance.stages.end_to_end.p95_ms: 尚无观测值",
+      "models.tiny416.performance.stages.end_to_end.p99_ms: 尚无观测值",
+      "models.full.resource.evidence.estimate: PENDING",
+      "models.full.resource.evidence.estimate.utilization.lut_pct: 尚无观测值",
+      "models.full.resource.evidence.estimate.utilization.ff_pct: 尚无观测值",
+      "models.full.resource.evidence.estimate.utilization.bram_pct: 尚无观测值",
+      "models.full.resource.evidence.estimate.utilization.dsp_pct: 尚无观测值",
+      "models.full.resource.evidence.estimate.timing.wns_ns: 尚无观测值",
+      "models.full.resource.evidence.estimate.timing.whs_ns: 尚无观测值",
+      "models.full.resource.evidence.estimate.timing.tns_ns: 尚无观测值",
+      "models.full.resource.evidence.estimate.timing.ths_ns: 尚无观测值",
+      "models.full.resource.storage: PENDING",
+      "models.full.resource.storage.weights_bytes: 尚无观测值",
+      "models.full.resource.storage.feature_map_peak_bytes: 尚无观测值",
+      "models.full.resource.storage.frame_buffer_bytes: 尚无观测值",
+      "models.full.resource.storage.ps_buffer_bytes: 尚无观测值",
+      "models.full.resource.storage.ddr_peak_bytes: 尚无观测值",
+      "models.full.resource.ddr_bandwidth: PENDING",
+      "models.full.resource.ddr_bandwidth.video_input_bytes_per_s: 尚无观测值",
+      "models.full.resource.ddr_bandwidth.model_transfer_bytes_per_s: 尚无观测值",
+      "models.full.resource.ddr_bandwidth.ps_decode_nms_bytes_per_s: 尚无观测值",
+      "models.full.resource.ddr_bandwidth.cache_competition_bytes_per_s: 尚无观测值",
+      "models.full.resource.ddr_bandwidth.total_peak_bytes_per_s: 尚无观测值",
+      "models.full.performance.fixed_config.weight_sha256: 尚未绑定最终权重",
+      "models.full.performance.effective_inferences: 尚未达到 10000 次有效推理",
+      "models.full.performance: NOT_EXECUTED",
+      "models.full.performance.stages.preprocess.mean_ms: 尚无观测值",
+      "models.full.performance.stages.preprocess.p50_ms: 尚无观测值",
+      "models.full.performance.stages.preprocess.p95_ms: 尚无观测值",
+      "models.full.performance.stages.preprocess.p99_ms: 尚无观测值",
+      "models.full.performance.stages.pl_model.mean_ms: 尚无观测值",
+      "models.full.performance.stages.pl_model.p50_ms: 尚无观测值",
+      "models.full.performance.stages.pl_model.p95_ms: 尚无观测值",
+      "models.full.performance.stages.pl_model.p99_ms: 尚无观测值",
+      "models.full.performance.stages.ps_decode_nms.mean_ms: 尚无观测值",
+      "models.full.performance.stages.ps_decode_nms.p50_ms: 尚无观测值",
+      "models.full.performance.stages.ps_decode_nms.p95_ms: 尚无观测值",
+      "models.full.performance.stages.ps_decode_nms.p99_ms: 尚无观测值",
+      "models.full.performance.stages.display.mean_ms: 尚无观测值",
+      "models.full.performance.stages.display.p50_ms: 尚无观测值",
+      "models.full.performance.stages.display.p95_ms: 尚无观测值",
+      "models.full.performance.stages.display.p99_ms: 尚无观测值",
+      "models.full.performance.stages.end_to_end.mean_ms: 尚无观测值",
+      "models.full.performance.stages.end_to_end.p50_ms: 尚无观测值",
+      "models.full.performance.stages.end_to_end.p95_ms: 尚无观测值",
+      "models.full.performance.stages.end_to_end.p99_ms: 尚无观测值"
+    ],
+    "models": {
+      "tiny320": {
+        "resource_status": "NOT_EXECUTED_PENDING",
+        "performance_status": "NOT_EXECUTED_PENDING"
+      },
+      "tiny416": {
+        "resource_status": "NOT_EXECUTED_PENDING",
+        "performance_status": "NOT_EXECUTED_PENDING"
+      },
+      "full": {
+        "resource_status": "NOT_APPLICABLE_PC_ONLY",
+        "performance_status": "NOT_EXECUTED_PENDING"
+      }
+    }
+  },
+  "files": {
+    "darknet_executable": {
+      "path": "D:\\FPGA_Data\\darknet\\build\\s1_t01_vc_cuda134_v2\\Release\\darknet.exe",
+      "sha256": "358807f0f22f943fb521c0b8188e8b803abb0bc358965f273fa47d58bfadd48f",
+      "bytes": 3030528
+    },
+    "darknet_source_image_c": {
+      "path": "D:\\FPGA_Data\\darknet\\src\\image.c",
+      "sha256": "d56645b220f7b8ec58415d2ebb1c4286258ac87c0bc1720fc4abcf9a98cdaf86",
+      "bytes": 50540
+    },
+    "fixed_tiny416_cfg": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\configs\\gesture_yolov4_tiny_416_short.cfg",
+      "sha256": "76ad1108d199150bef8b949a8a67937ca36b33209f8cfe744f2969847c506025",
+      "bytes": 3499
+    },
+    "tiny320_cfg": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_320_float_setup.cfg",
+      "sha256": "9b4da2163d4a540ac2f7535312ffc22d1f465445fd175509575fc601dad74fa8",
+      "bytes": 3507
+    },
+    "tiny416_cfg": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_416_float_setup.cfg",
+      "sha256": "5c5af96850ca3f13a86decb111fb2710d1b061353d46253ffb16be097da8fa09",
+      "bytes": 3507
+    },
+    "full_cfg": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\yolov4_5class_float_pc_setup.cfg",
+      "sha256": "9f3f518e995a0f536bc0edf0530a10362ead0ec3858466f1bdcc81bfdd71fb41",
+      "bytes": 13383
+    },
+    "names": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+      "sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+      "bytes": 27
+    },
+    "valid_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+      "bytes": 1230948
+    },
+    "d1_setup_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d1_float_setup_r3.json",
+      "sha256": "8b7239a9c3cec511b5cb5e8795f2670fe0601cbcc90592bde70c01d205a9c12d",
+      "bytes": 256928
+    },
+    "d2_spec_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d2_numeric_spec_r2.json",
+      "sha256": "14e61b90e0eac8a9a96ffcbf326ff7784e896b12fa293ef01a86892dbc7f58d6",
+      "bytes": 407559
+    },
+    "d2_golden": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d2_numeric_golden_r2.json",
+      "sha256": "7f469d8274a3ce2ca1f89727b847961f93b8d322407dc89b17a4e7ed1ca802e1",
+      "bytes": 3590
+    },
+    "d2_calibration": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_calibration_r2.json",
+      "sha256": "ffe3596ff8ae265ab8489c051878588833d80266028448c37c8b890e0c35059f",
+      "bytes": 374528
+    },
+    "d2_calibration_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+      "sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+      "bytes": 41408
+    },
+    "d2_numeric_reference": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_numeric_reference.py",
+      "sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+      "bytes": 17935
+    },
+    "d3_spec_document": {
+      "path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\S1-T02-D3_资源性能与阶段验收门槛.md",
+      "sha256": "d6d442e24b757c8c0357d104ad23c8b4b00fe73a069dccaa8c10f2a50ff87c87",
+      "bytes": 5404
+    },
+    "d3_checker": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d3_resource_performance.py",
+      "sha256": "79621c530c8463b391f449000cc1ca882b1c7a0c9168cc8e01f4bcafc388866a",
+      "bytes": 30438
+    },
+    "d3_tests": {
+      "path": "D:\\FPGA_Competition\\verification\\test_s1_t02_d3_resource_performance.py",
+      "sha256": "3fb2cd2832a0cb5659d977088285708f0a8b42e29b142ad169b8a54cedb65f08",
+      "bytes": 13415
+    },
+    "verification_readme": {
+      "path": "D:\\FPGA_Competition\\verification\\README.md",
+      "sha256": "d5b7f5d2842cb719f0b1a44373a574e93d1a7dbdd8a95dfdc20dc514e0a50c88",
+      "bytes": 4521
+    }
+  },
+  "git_probes": {
+    "competition_repository": {
+      "head": {
+        "repository": "D:\\FPGA_Competition",
+        "cwd": "D:\\FPGA_Competition",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Competition",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdout": "82f4817dc9200a9d2b2b1c210a648d5070d8b8e9\n",
+        "stderr": "",
+        "exit_code": 0,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      },
+      "diff_quiet": {
+        "repository": "D:\\FPGA_Competition",
+        "cwd": "D:\\FPGA_Competition",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Competition",
+          "diff",
+          "--quiet"
+        ],
+        "stdout": "",
+        "stderr": "warning: in the working copy of 'verification/README.md', LF will be replaced by CRLF the next time Git touches it\n",
+        "exit_code": 1,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      },
+      "status_short": {
+        "repository": "D:\\FPGA_Competition",
+        "cwd": "D:\\FPGA_Competition",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Competition",
+          "status",
+          "--short"
+        ],
+        "stdout": " M \"docs/obsidian-project/\\346\\200\\273\\346\\216\\247.md\"\n M \"docs/obsidian-project/\\351\\241\\271\\347\\233\\256\\346\\216\\245\\346\\211\\213\\346\\217\\220\\347\\244\\272\\350\\257\\215.md\"\n M verification/README.md\n M vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr\n?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\345\\217\\215\\351\\235\\242.jpg\"\n?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\346\\255\\243\\351\\235\\242.jpg\"\n?? \"docs/obsidian-project/04-\\346\\217\\220\\344\\272\\244\\346\\235\\220\\346\\226\\231/\\351\\230\\266\\346\\256\\265\\351\\252\\214\\346\\224\\266/S1-T02-D3_\\350\\265\\204\\346\\272\\220\\346\\200\\247\\350\\203\\275\\344\\270\\216\\351\\230\\266\\346\\256\\265\\351\\252\\214\\346\\224\\266\\351\\227\\250\\346\\247\\233.md\"\n?? report/evidence/S1-T01/20260915_after_no_hand_previews/\n?? report/evidence/S1-T01/20260915_s1_t01_d5b1_train.json\n?? report/evidence/S1-T01/20260915_s1_t01_d5b1_train_r2_dllfix.json\n?? report/evidence/S1-T02/20260916_s1_t02_d3_resource_performance_r1.json\n?? report/evidence/S1-T02/20260916_s1_t02_d3_resource_performance_r1_spec.json\n?? report/evidence/S1-T02/20260916_s1_t02_d3_resource_performance_r1_summary.md\n?? verification/s1_t02_d3_resource_performance.py\n?? verification/test_s1_t02_d3_resource_performance.py\n",
+        "stderr": "",
+        "exit_code": 0,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      }
+    },
+    "darknet_source_repository": {
+      "head": {
+        "repository": "D:\\FPGA_Data\\darknet",
+        "cwd": "D:\\FPGA_Data\\darknet",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Data\\darknet",
+          "rev-parse",
+          "HEAD"
+        ],
+        "stdout": "59596d7880f6504768df41d6daa586f5cb2b932f\n",
+        "stderr": "",
+        "exit_code": 0,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      },
+      "diff_quiet": {
+        "repository": "D:\\FPGA_Data\\darknet",
+        "cwd": "D:\\FPGA_Data\\darknet",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Data\\darknet",
+          "diff",
+          "--quiet"
+        ],
+        "stdout": "",
+        "stderr": "",
+        "exit_code": 0,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      },
+      "status_short": {
+        "repository": "D:\\FPGA_Data\\darknet",
+        "cwd": "D:\\FPGA_Data\\darknet",
+        "argv": [
+          "git",
+          "-C",
+          "D:\\FPGA_Data\\darknet",
+          "status",
+          "--short"
+        ],
+        "stdout": "?? build/s1_t01_vc_cuda134_v2/\n?? weights/\n",
+        "stderr": "",
+        "exit_code": 0,
+        "observed_utc8": "2026-09-16T16:11:22+08:00",
+        "network_access": false
+      }
+    }
+  },
+  "observed_utc8": "2026-09-16T16:11:22+08:00",
+  "argv": [
+    "verification\\s1_t02_d3_resource_performance.py",
+    "--input",
+    "report\\evidence\\S1-T02\\20260916_s1_t02_d3_resource_performance_r1_spec.json",
+    "--report",
+    "report\\evidence\\S1-T02\\20260916_s1_t02_d3_resource_performance_r1.json",
+    "--summary",
+    "report\\evidence\\S1-T02\\20260916_s1_t02_d3_resource_performance_r1_summary.md"
+  ],
+  "cwd": "D:\\FPGA_Competition",
+  "network_access": false,
+  "spec_input": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260916_s1_t02_d3_resource_performance_r1_spec.json"
+}

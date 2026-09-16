@@ -45,12 +45,20 @@
 - 2026-09-16：接受评估口径预设：报告 mAP@0.5、mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point AP、五类宏平均）、各类 precision/recall；同类别一对一匹配、按 score 降序；no_hand 误检率≤5%，non-target 误检率≤10% 为辅助门槛。score threshold 仅在 val 的 0.25–0.50 范围内选择后固定，NMS 为类别内 greedy、IoU=0.45；每图最大输出框数由 20 调整为 15。test 和鲁棒性测试均不得重新调参；该项已确认，但不等于 S1-T02 整体 G0 通过。
 - 2026-09-16：接受模型/训练/恢复预设：PC 对照包含完整 YOLOv4 608×608，候选包含 YOLOv4-tiny 320×320 与 416×416；tiny 使用官方 `yolov4-tiny.conv.29`，完整模型使用官方 `yolov4.conv.137`，正式训练不使用 20/200 步诊断权重。训练参数预设为 batch=64、tiny subdivisions=16、完整模型 subdivisions=32、SGD momentum=0.9、decay=0.0005、tiny learning_rate=0.00261、完整模型 learning_rate=0.0013、max_batches=6000、steps=4800/5400、burn_in=1000；固定输入训练、保存 checkpoint/last/final。正式训练需补充固定 seed 支持并绑定源码/可执行文件哈希；恢复只保证权重与 seen 计数恢复，因 Darknet 不保存 momentum 缓冲区不宣称 bit-exact。当前无板上模型运行；完整 YOLOv4 仅 PC 对照，板上默认候选为 tiny、优先评估 tiny416，但最终模型仍待精度/数值/资源三关和 Wong 确认。
 
+## S1-T02-D3 资源、性能与阶段验收门槛
+
+- 2026-09-16：Wong 批准第5项冻结口径；D3 任务级 G1/G2/G4 通过（仅冻结规范、检查器和 pending 证据结构，不代表 G3、资源/性能实测或阶段通过）。独立 Reviewer 第3轮 PASS；证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d3-r3-20260916\review-s1-t02-d3_r3.json` 与同目录 summary，SHA-256 分别为 `6bb9cdae85dcdd87d13caff6572441e0944d53075dca95c5fddcd6bd4d3e75bb`、`1a911f79731c2da8ab5d1773115e187e35186acea6cca264df7c8b46ae7fbebd`。
+- 固定 AX7Z020/XA7Z020 CLG400、-1 基线；LUT/FF/BRAM/DSP 各≤85%，WNS/WHS≥0、TNS/THS=0；存储、地址半开区间和 DDR 视频/模型/PS/NMS/缓存带宽分栏；tiny320/tiny416 分开，full 仅 PC 对照。
+- 固定性能测量方法：固定模型/输入/权重/预处理/阈值/NMS，warmup=100、有效推理≥10000，五阶段 mean/P50/P95/P99，timeout/drop/failure 单列；最终 FPS、端到端 P99、ARM 对照仍为 `pending_until_wong_decision`，不继承旧20 FPS/100 ms。
+- D3 实现与证据：`verification/s1_t02_d3_resource_performance.py`、对应测试、规范、`report/evidence/S1-T02/20260916_s1_t02_d3_resource_performance_r1_spec.json`、r1 report/summary；checker SHA `79621c530c8463b391f449000cc1ca882b1c7a0c9168cc8e01f4bcafc388866a`，spec SHA `d25ca3903d13ff2224b187c74f5795965aa20d7cba08a6cd2d6839ce4ee57226`，report SHA `0f7812c1dfd6c6b33795bd322c21f6a368b76af8c275e243c1774bddd3b84b20`。
+- 当前 D3 report 为 `NOT_EXECUTED_PENDING`，errors=0、pending=168；未执行正式权重训练/评估、CUDA 长测、Vivado 综合、烧录、板测、最终精度或性能。输入 spec 与 report 输出分离，同路径被拒绝；D3 不关闭 S1-T02 G0。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1 setup 与 D2 固定预处理/INT8 参考已完成任务级验收；S1-T02 G0 尚未通过。下一步为正式浮点模型基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 训练/恢复/评估和 INT8 对照。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1 setup、D2 固定预处理/INT8 参考与 D3 资源性能门槛已完成任务级验收；S1-T02 G0 尚未通过。下一步为正式浮点模型基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 训练/恢复/评估和 INT8 对照。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

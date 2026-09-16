@@ -23,6 +23,8 @@ build\s1_t01\s1_t01_cuda_smoke.exe
 
 S1-T02-D2 的测试可从仓库根目录运行 `python -m unittest discover -s verification -p 'test_*.py'`，也可在 `verification` 目录运行 `py -m unittest discover -s . -p 'test_*.py'`；测试导入兼容两种入口，正式验收应记录实际工作目录和退出码。
 
+S1-T02-D3 的专项测试可从仓库根目录运行 `python -m unittest verification.test_s1_t02_d3_resource_performance`，也可在 `verification` 目录运行 `py -m unittest discover -s . -p 'test_s1_t02_d3_*.py' -v`。资源/性能 JSON 检查命令见 `S1-T02-D3_资源性能与阶段验收门槛.md`，必须使用独立的 `*_spec.json` 输入、`*.json` 报告和 `*_summary.md` 输出，禁止 `--input` 与 `--report` 同路径；检查器将 estimate、synthesis、board_measurement 分开，缺少综合或板测只返回 `NOT_EXECUTED_PENDING`，不代表 PASS。
+
 训练检查点输出严格由 `.data` 的 `backup`、`saveweights`、`savelast` 和 cfg 基名确定。`train` 必须使用新建的 `--checkpoint-output`；`resume` 只允许同一 cfg 基名的 numbered 输入（例如 `gesture_10.weights`），拒绝 `*_last.weights`/`*_final.weights`，并必须使用不同的 `--checkpoint-output`。入口会拒绝已有候选文件，运行后核对输出路径、大小、修改时间和 SHA-256，并核对 resume 输入哈希未改变。`evaluate` 对 valid 清单逐图执行带显式 filename 的官方 `detector test -out`，每图产生独立 JSON 后合并解析；只有解析出与清单一一对应的 `filename`/`objects` 记录，并证明批准 no_hand 图片 `objects=[]`，才形成 AC06 候选。类别必须在五类范围内，`class_id` 与 `name` 同时出现时必须一致。实际运行输出只作为 AC05/AC06 候选证据，梯度、优化器状态和精度结论仍需独立核对。
 
 入口在启动前对所有传给 Darknet 的路径、valid 图片、逐图 JSON 输出以及 checkpoint 的 backup/cfg 候选路径执行固定缓冲区检查：UTF-8 字节数加结尾空字符必须小于 256；train、resume、evaluate 任一超长路径均返回 2，绝不截断。运行中和进程退出后的完整日志均识别大小写不敏感的 `Cannot load image`、`Can't open label file`、`Couldn't open file`、OOM 和损坏输入标记。

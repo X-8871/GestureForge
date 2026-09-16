@@ -32,6 +32,11 @@
 
 - R3 JSON SHA-256 `8b7239a9c3cec511b5cb5e8795f2670fe0601cbcc90592bde70c01d205a9c12d`；R3 summary SHA-256 `ae76dcc6e11add7079f4b46a48dfce103b8f4b5ac41e3ec3f8921b69e5ed6768`；setup 脚本 SHA-256 `936cc77b527498a78dc532a2842b6a3098bdb19c28018c7eef0b6aef556a8295`。tiny416=`5,886,460` params/`6.793486` BFLOPs，tiny320=`5,886,460`/`4.019814`，与既有官方日志按三位小数交叉核对；完整 YOLOv4 五类=`63,992,378` params/`123.248005` BFLOPs 仅为 parser estimate，无五类权重或 official runtime pilot。R1/R2/R3 文件在 `report/evidence/S1-T02/`；Nietzsche 最终独立 PASS 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d1-r3-final-20260916\final_pass_review_s1_t02_d1_r3.json`，SHA-256 `DBFDE14BBA0D0AE1B723B46402C947341A8AF6E37F6AB528D2687921DF0D28B2`。D1 未执行正式训练、mAP、INT8、完整模型 pilot 或 pilot 重跑。
 
+## Wong 已确认的 S1-T02 G0 决策
+
+- 2026-09-16：同意“官方 test 作为主要最终测试集，并另建独立鲁棒性测试集”的数据口径。当前官方 test 保留为最终基准；no_hand、non-target、多手、遮挡和小目标等鲁棒性指标使用独立、固定且不与 train/val/test 人员或 session 重叠的集合。已提供的 5 张 no_hand 继续保持 train 3 张、val 2 张，不移入 test；它们不单独代表正式 no_hand 泛化率。
+- 该决定冻结的是数据集组织方案；官方 test 是否全量使用、鲁棒性集合的最低样本数量和各类覆盖仍需在后续 G0 决策中写成数值。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。

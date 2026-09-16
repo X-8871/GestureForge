@@ -56,7 +56,7 @@
 ## S1-T02-D4 官方 Darknet 浮点基线与可复现执行
 
 - 2026-09-16：D4 完成任务级 G1/G2 复核；独立 Reviewer 第3轮 `PASS`。D4 只绑定 tiny320/tiny416 与 full608 的官方 Darknet 浮点执行计划、seeded 隔离构建、数据/配置/权重/日志哈希和有限 pilot，不冻结最终模型/尺寸/精度/性能，也不关闭 S1-T02 G0。
-- D4 checker/test/doc/README：`verification/s1_t02_d4_float_baseline.py` SHA `433e3ea3b1b30bd941e725af9743bcbf68bed5a487f5a96fe24efa09d0125b78`；对应测试 SHA `9fb7ba717e4ae9b13a16441c5a33f2a1ae13e50ece644368d673a1bffd7144b3`；规范 SHA `c926e56eb0a3b9510ee60dfb76bdf22a8e9258727531bfe7a1ed4590cf1ca03a`；README 当前仍为 `805a767aa9c27d08a86f87cf0345d184906c919702320cca6dc781ad763b7a96`。
+- D4 checker/test/doc/README：`verification/s1_t02_d4_float_baseline.py` SHA `433e3ea3b1b30bd941e725af9743bcbf68bed5a487f5a96fe24efa09d0125b78`；对应测试 SHA `9fb7ba717e4ae9b13a16441c5a33f2a1ae13e50ece644368d673a1bffd7144b3`；规范 SHA `c926e56eb0a3b9510ee60dfb76bdf22a8e9258727531bfe7a1ed4590cf1ca03a`；README 经 D5 更新为 `6b8902b1dbd6efda29882f5d4a135236871332fa65fe9ac6b2631c1bdf94b701`。
 - D4 计划/报告/摘要：`report/evidence/S1-T02/20260916_s1_t02_d4_float_baseline_r1_plan.json` / `.json` / `_summary.md`，SHA 分别为 `63f569005239d76ec44629271a7db0280fd584210dd51f51fe8b7e8df2d14ff5`、`4bbda22f0feb0df1edf5e82701f539ecfe9ac08565d4540ece72364ebcaae7d8`、`dbf75e214afcba3bce13a7eaace7d3af1046ded5be6650c298e2d5ad44b70ed3`。D2 参考实现实际 SHA 为 `ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90`；报告 `schema_valid=true`、`errors=[]`、`status=BLOCKED`。
 - 外部证据根为 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_float_baseline_r1`：官方源 commit `59596d7880f6504768df41d6daa586f5cb2b932f`、source diff exit 0；seed patch SHA `b3025639731271fac3476647823e5cb4cfa1a09e9fd54fedf36cd45e6539c01b`；seeded configure/build 均 exit 0，executable SHA `01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e`；seed smoke A/B/C 均 exit 0，真实 checkpoint SHA 见 D4 报告。固定 seed 入口不承诺 bit-exact，受数据线程、CUDA/OpenMP 并发和浮点归约影响。
 - tiny416 pilot 真实执行至 `8/100` 后 exit `-1073741510`（Windows `0xC000013A`），无 OOM/NaN/Inf/损坏输入，未生成 checkpoint；full `yolov4.conv.137` 缺失保持 `PENDING`；formal train/test/mAP/robustness、INT8 整网、Vivado 综合/时序/资源、烧录、板测和最终性能均 `NOT_EXECUTED`。不把 pilot loss、BLOCKED、PENDING 或 NOT_EXECUTED 当作训练/精度/板上通过。
@@ -64,16 +64,16 @@
 
 ## S1-T02-D5 固定 seed 的 train/resume 工作流支持
 
-- 2026-09-16：D5 第一子任务完成任务级 G1/G2；独立 Reviewer `PASS`。在 `verification/s1_t01_darknet_workflow.py` 增加 train/resume 可选 `--darknet-seed`，严格接受十进制 `0..4294967295`，只向 Darknet 子进程注入 `GESTUREFORGE_DARKNET_SEED`，父进程环境不污染；报告记录 seed 变量和值及 binding 语义；未提供参数和 evaluate 行为保持原有语义，不宣称 bit-exact。
+- 2026-09-16：D5 工作流子任务完成任务级 G1/G2；独立 Reviewer `PASS`。在 `verification/s1_t01_darknet_workflow.py` 增加 train/resume 可选 `--darknet-seed`，严格接受十进制 `0..4294967295`，只向 Darknet 子进程注入 `GESTUREFORGE_DARKNET_SEED`，父进程环境不污染；报告记录 seed 变量和值及 binding 语义；未提供参数和 evaluate 行为保持原有语义，不宣称 bit-exact。
 - D5 workflow SHA `7121439c4b3b47ca63b21f677acb2c33e3a2a990d94054b6cc98a2e3359aa588`；对应测试 SHA `ed1aede99a142ccda5dc9b2c96578028c11225f4f3a759393b1169018ec896f0`。专项 33/33、verification 全量 105/105、py_compile、git diff check、UTF-8/AST/tokenize 均 exit 0。独立 Reviewer 证据：`C:\Users\22061\AppData\Local\Temp\review-s1-t02-d5-seed-r1-20260916\review_s1_t02_d5_seed_r1.json` SHA `1fefde0a9e829dea3537d01d6068f3bf02693d9ffdd780fd8d3a50fc93908142`，摘要 SHA `ec76bd6002b56593428f3b9ac9bf854bed61c406505121a68d4130f9ec9f6fb9`。
-- D5 代码阶段尚未执行真实 seeded train/resume；未生成 D5 checkpoint/运行报告，未执行 full、正式 test/mAP、INT8、Vivado 或板测。下一子任务必须使用新的外部 run-dir、seeded exe、固定 seed 和明确 checkpoint 输入输出完成真实短训/恢复；失败或中止不得写成通过。
+- D5 真实链已完成任务级 G1/G2 核对：tiny416 seeded train 1..20、编号 step10 checkpoint、resume 11..20 均 exit 0；train/resume 报告状态均为 `EXECUTED_REVIEW_REQUIRED`、errors=[]，固定 seed=`424242`，父环境未污染，输入 checkpoint 前后 SHA 不变，resume 新 last SHA 独立绑定。真实报告/日志/checkpoint/环境哈希见 `report/evidence/S1-T02/20260916_s1_t02_d5_seeded_train_resume_r1_{train,resume}.json` 与 summary；独立 Reviewer R2 `PASS`，JSON SHA `c11ebcff325e10309758acfcda3657d6fd050fc13bc4f94cc125a19c1c2224ab`，summary SHA `603a7dfa1c9e5a1982693fca978a8b3f3ebb6e416ab5cfeb6732c5ceae56cd5d`。本证据只证明诊断短训/恢复流程，不是正式训练、精度、bit-exact、full、INT8、Vivado 或板测。
 
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1 setup、D2 固定预处理/INT8 参考、D3 资源性能门槛、D4 官方 Darknet 执行绑定与 D5 seed 工作流支持已完成各自任务级验收；S1-T02 G0 尚未通过。下一步为在 D5 工作流上完成可控的真实 tiny416 浮点短训/恢复，再推进正式浮点基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 评估和 INT8 对照；full 权重仍需单独解决。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1 setup、D2 固定预处理/INT8 参考、D3 资源性能门槛、D4 官方 Darknet 执行绑定与 D5 seed 工作流及真实短训/恢复证据已完成各自任务级审查；S1-T02 G0 尚未通过。下一步为正式浮点基线：先解决/核验完整 YOLOv4 `yolov4.conv.137` 权重，再按固定 seed 和独立 test/robustness 口径执行 tiny320/tiny416/full608 的正式训练与评估；随后做 INT8 对照、逐层黄金结果、后处理测例和资源预算。正式测试前仍须冻结样本、随机种子、mAP、各类召回/精确率、无手/非目标误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

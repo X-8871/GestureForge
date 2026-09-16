@@ -24,6 +24,8 @@ MIN_RESUME_UPDATES = 1
 MAX_SHORT_BATCHES = 100
 MAX_DARKNET_PATH_BYTES = 256
 REPORT_SCHEMA_VERSION = 1
+DARKNET_SEED_ENV = "GESTUREFORGE_DARKNET_SEED"
+MAX_DARKNET_SEED = 0xFFFFFFFF
 REQUIRED_MANIFEST_FIELDS = {
     "image",
     "label",
@@ -59,6 +61,37 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _parse_darknet_seed(value: str) -> int:
+    """解析仅供 Darknet 子进程使用的非负 32 位十进制种子。"""
+
+    if re.fullmatch(r"[0-9]+", value or "") is None:
+        raise argparse.ArgumentTypeError("--darknet-seed 必须是非负 32 位十进制整数")
+    parsed = int(value, 10)
+    if parsed > MAX_DARKNET_SEED:
+        raise argparse.ArgumentTypeError("--darknet-seed 超出非负 32 位整数范围")
+    return parsed
+
+
+def _seed_binding(seed: int | None) -> dict[str, Any]:
+    """返回种子环境变量的可审计绑定，不修改当前 Python 进程环境。"""
+
+    return {
+        "environment_variable": DARKNET_SEED_ENV,
+        "value": seed,
+        "passed_to_child_process": seed is not None,
+        "parent_process_unchanged": True,
+    }
+
+
+def _child_environment(seed: int | None) -> dict[str, str]:
+    """复制父环境，并仅为有显式种子的子进程覆盖种子变量。"""
+
+    environment = os.environ.copy()
+    if seed is not None:
+        environment[DARKNET_SEED_ENV] = str(seed)
+    return environment
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -902,6 +935,7 @@ def _run_command(
     timeout_seconds: float,
     no_progress_timeout_seconds: float,
     stdin_path: Path | None = None,
+    darknet_seed: int | None = None,
 ) -> dict[str, Any]:
     """执行一个显式官方 Darknet 命令，禁止 shell 并监控停止条件。"""
 
@@ -921,6 +955,7 @@ def _run_command(
                 stdout=log_stream,
                 stderr=subprocess.STDOUT,
                 shell=False,
+                env=_child_environment(darknet_seed),
             )
             last_size = 0
             last_progress = time.monotonic()
@@ -948,7 +983,15 @@ def _run_command(
                     break
             exit_code = process.returncode
     except OSError as exc:
-        return {"command": command, "cwd": str(working_directory), "log": str(log_path), "exit_code": None, "error": str(exc), "stop_reason": "启动失败"}
+        return {
+            "command": command,
+            "cwd": str(working_directory),
+            "log": str(log_path),
+            "exit_code": None,
+            "error": str(exc),
+            "stop_reason": "启动失败",
+            "seed_binding": _seed_binding(darknet_seed),
+        }
     finally:
         if stdin_stream is not None:
             stdin_stream.close()
@@ -969,6 +1012,7 @@ def _run_command(
         "loss_token_observed": bool(re.search(r"(?i)\bloss\b", text)),
         "non_finite_observed": bool(BAD_NUMERIC_RE.search(text)),
         "output": text,
+        "seed_binding": _seed_binding(darknet_seed),
     }
     return result
 
@@ -1209,10 +1253,22 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="action", required=True)
     train = subparsers.add_parser("train", help="运行至少10个更新步的短训")
     _common_parser(train)
+    train.add_argument(
+        "--darknet-seed",
+        type=_parse_darknet_seed,
+        default=None,
+        help=f"仅传给 Darknet 子进程的非负 32 位十进制种子（环境变量 {DARKNET_SEED_ENV}）",
+    )
     train.add_argument("--initial-weights", type=Path, required=True, help="显式提供的初始权重，不自动下载")
     train.add_argument("--checkpoint-output", type=Path, required=True, help="按 .data/cfg 规则由本次短训新生成的检查点路径")
     resume = subparsers.add_parser("resume", help="从既有检查点恢复至少1个更新步")
     _common_parser(resume)
+    resume.add_argument(
+        "--darknet-seed",
+        type=_parse_darknet_seed,
+        default=None,
+        help=f"仅传给 Darknet 子进程的非负 32 位十进制种子（环境变量 {DARKNET_SEED_ENV}）",
+    )
     resume.add_argument("--checkpoint", type=Path, required=True, help="既有检查点路径")
     resume.add_argument("--checkpoint-output", type=Path, required=True, help="恢复动作应新生成的检查点路径，不得与输入相同")
     resume.add_argument("--resume-from-step", type=int, required=True, help="检查点记录的恢复起始步数")
@@ -1235,6 +1291,7 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
         "created_at_utc8": _now_iso(),
         "framework": "official-darknet-cuda",
         "action": args.action,
+        "seed_binding": _seed_binding(getattr(args, "darknet_seed", None)),
         "status": "BLOCKED_PREFLIGHT",
         "exit_code": 2,
         "commands": [],
@@ -1343,6 +1400,8 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         errors.append(process_error)
     report["git"] = _git_identity()
     report["identity"] = _identity_artifacts(environment, executable)
+    seed = getattr(args, "darknet_seed", None)
+    report["seed_binding"] = _seed_binding(seed)
     report["inputs"] = {
         "darknet_executable": str(executable),
         "environment_report": str(args.environment_report.resolve()),
@@ -1355,6 +1414,8 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "model_config": str(args.model_config.resolve()),
         "names_file": str(args.names_file.resolve()),
         "working_directory": str(working_directory),
+        "darknet_executable_sha256": _safe_sha256(executable),
+        "seed_binding": _seed_binding(seed),
         "model_config_values": model,
         "data_config_values": data_config,
         "resolved_data_paths": {
@@ -1396,6 +1457,7 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
     report["inputs"]["artifact_sha256"] = {
         key: _safe_sha256(path) for key, path in artifact_paths.items()
     }
+    report["inputs"]["environment_report_sha256"] = _safe_sha256(args.environment_report.resolve())
     report["outputs"] = {
         "checkpoint_output": {
             "path": str(checkpoint_output) if checkpoint_output is not None else "unavailable",
@@ -1485,7 +1547,15 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
 
     report["status"] = "EXECUTING"
     commands = _commands_for_action(args, context)
-    report["planned_commands"] = [{"command": command, "cwd": str(context["working_directory"])} for command in commands]
+    seed = getattr(args, "darknet_seed", None)
+    report["planned_commands"] = [
+        {
+            "command": command,
+            "cwd": str(context["working_directory"]),
+            "seed_binding": _seed_binding(seed),
+        }
+        for command in commands
+    ]
     if args.dry_run:
         report["status"] = "PLANNED_NO_EXECUTION"
         report["acceptance"] = {"command_executed": False, "reason": "dry-run"}
@@ -1505,7 +1575,9 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 log_path,
                 args.timeout_seconds,
                 args.no_progress_timeout_seconds,
+                darknet_seed=seed,
             )
+            result.setdefault("seed_binding", _seed_binding(seed))
             report["commands"].append(result)
             if result.get("exit_code") != 0 or result.get("stop_reason") or result.get("non_finite_observed"):
                 report["errors"].append("Darknet 短训/恢复未以干净状态结束")

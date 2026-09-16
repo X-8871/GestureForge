@@ -19,6 +19,46 @@ except ModuleNotFoundError:
 class DarknetWorkflowTest(unittest.TestCase):
     """验证短训边界、审批门槛和官方命令格式。"""
 
+    def test_darknet_seed_parser_accepts_only_nonnegative_uint32(self) -> None:
+        """种子解析接受边界值并拒绝缺失、负数、溢出和非十进制文本。"""
+
+        self.assertEqual(workflow._parse_darknet_seed("0"), 0)
+        self.assertEqual(workflow._parse_darknet_seed("4294967295"), 4294967295)
+        for value in ("-1", "4294967296", "1.0", "abc", "+1", " 1", ""):
+            with self.subTest(value=value):
+                with self.assertRaises(Exception):
+                    workflow._parse_darknet_seed(value)
+
+    def test_darknet_seed_is_child_only_and_parent_is_unchanged(self) -> None:
+        """显式种子只覆盖子进程环境，父 Python 环境保持原值。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "seed.log"
+            command = [
+                workflow.sys.executable,
+                "-c",
+                f"import os; print(os.environ.get('{workflow.DARKNET_SEED_ENV}'), flush=True)",
+            ]
+            with patch.dict(workflow.os.environ, {workflow.DARKNET_SEED_ENV: "parent-value"}, clear=False):
+                result = workflow._run_command(command, root, log, 10, 10, darknet_seed=424242)
+                self.assertEqual(workflow.os.environ[workflow.DARKNET_SEED_ENV], "parent-value")
+            self.assertEqual(result["exit_code"], 0)
+            self.assertIn("424242", result["output"])
+            self.assertEqual(result["seed_binding"]["environment_variable"], workflow.DARKNET_SEED_ENV)
+            self.assertEqual(result["seed_binding"]["value"], 424242)
+            self.assertTrue(result["seed_binding"]["parent_process_unchanged"])
+
+    def test_seed_binding_is_recorded_for_train_and_default_is_unseeded(self) -> None:
+        """训练报告记录显式种子，未提供种子时不改变默认无注入语义。"""
+
+        seeded = workflow._base_report(Namespace(action="train", darknet_seed=424242))
+        unseeded = workflow._base_report(Namespace(action="train"))
+        self.assertEqual(seeded["seed_binding"]["value"], 424242)
+        self.assertTrue(seeded["seed_binding"]["passed_to_child_process"])
+        self.assertIsNone(unseeded["seed_binding"]["value"])
+        self.assertFalse(unseeded["seed_binding"]["passed_to_child_process"])
+
     def test_model_config_rejects_long_training(self) -> None:
         """完整长训 max_batches 不能从短训入口启动。"""
 

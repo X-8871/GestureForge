@@ -62,12 +62,18 @@
 - tiny416 pilot 真实执行至 `8/100` 后 exit `-1073741510`（Windows `0xC000013A`），无 OOM/NaN/Inf/损坏输入，未生成 checkpoint；full `yolov4.conv.137` 缺失保持 `PENDING`；formal train/test/mAP/robustness、INT8 整网、Vivado 综合/时序/资源、烧录、板测和最终性能均 `NOT_EXECUTED`。不把 pilot loss、BLOCKED、PENDING 或 NOT_EXECUTED 当作训练/精度/板上通过。
 - D4 Reviewer 第3轮独立证据：`C:\Users\22061\AppData\Local\Temp\review-s1-t02-d4-r3-20260916\review_s1_t02_d4_r3.json` SHA `47917f8be3905d7692dcbff31936b9a8096172b4ad46dd50b5e4a7b6c2b23174`，摘要 `review_s1_t02_d4_r3_summary.md` SHA `18f6d428ab8acfd2425e54d2b58618c58138545a96a478c66e800f443940d018`；该目录记录 14/14 D4、102/102 全量、独立重生成、错绑 fixture、cfg 参数反例、patch apply/hash/编码审查均 exit 0。D4 仍不构成阶段1内部验收。
 
+## S1-T02-D5 固定 seed 的 train/resume 工作流支持
+
+- 2026-09-16：D5 第一子任务完成任务级 G1/G2；独立 Reviewer `PASS`。在 `verification/s1_t01_darknet_workflow.py` 增加 train/resume 可选 `--darknet-seed`，严格接受十进制 `0..4294967295`，只向 Darknet 子进程注入 `GESTUREFORGE_DARKNET_SEED`，父进程环境不污染；报告记录 seed 变量和值及 binding 语义；未提供参数和 evaluate 行为保持原有语义，不宣称 bit-exact。
+- D5 workflow SHA `7121439c4b3b47ca63b21f677acb2c33e3a2a990d94054b6cc98a2e3359aa588`；对应测试 SHA `ed1aede99a142ccda5dc9b2c96578028c11225f4f3a759393b1169018ec896f0`。专项 33/33、verification 全量 105/105、py_compile、git diff check、UTF-8/AST/tokenize 均 exit 0。独立 Reviewer 证据：`C:\Users\22061\AppData\Local\Temp\review-s1-t02-d5-seed-r1-20260916\review_s1_t02_d5_seed_r1.json` SHA `1fefde0a9e829dea3537d01d6068f3bf02693d9ffdd780fd8d3a50fc93908142`，摘要 SHA `ec76bd6002b56593428f3b9ac9bf854bed61c406505121a68d4130f9ec9f6fb9`。
+- D5 代码阶段尚未执行真实 seeded train/resume；未生成 D5 checkpoint/运行报告，未执行 full、正式 test/mAP、INT8、Vivado 或板测。下一子任务必须使用新的外部 run-dir、seeded exe、固定 seed 和明确 checkpoint 输入输出完成真实短训/恢复；失败或中止不得写成通过。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1 setup、D2 固定预处理/INT8 参考、D3 资源性能门槛与 D4 官方 Darknet 执行绑定已完成各自任务级验收；S1-T02 G0 尚未通过。下一步为修复/重跑可控的正式 tiny 浮点基线，并在 full 权重可用后完成完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 训练/恢复/评估和 INT8 对照。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1 setup、D2 固定预处理/INT8 参考、D3 资源性能门槛、D4 官方 Darknet 执行绑定与 D5 seed 工作流支持已完成各自任务级验收；S1-T02 G0 尚未通过。下一步为在 D5 工作流上完成可控的真实 tiny416 浮点短训/恢复，再推进正式浮点基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 评估和 INT8 对照；full 权重仍需单独解决。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

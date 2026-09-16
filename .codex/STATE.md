@@ -32,6 +32,12 @@
 
 - R3 JSON SHA-256 `8b7239a9c3cec511b5cb5e8795f2670fe0601cbcc90592bde70c01d205a9c12d`；R3 summary SHA-256 `ae76dcc6e11add7079f4b46a48dfce103b8f4b5ac41e3ec3f8921b69e5ed6768`；setup 脚本 SHA-256 `936cc77b527498a78dc532a2842b6a3098bdb19c28018c7eef0b6aef556a8295`。tiny416=`5,886,460` params/`6.793486` BFLOPs，tiny320=`5,886,460`/`4.019814`，与既有官方日志按三位小数交叉核对；完整 YOLOv4 五类=`63,992,378` params/`123.248005` BFLOPs 仅为 parser estimate，无五类权重或 official runtime pilot。R1/R2/R3 文件在 `report/evidence/S1-T02/`；Nietzsche 最终独立 PASS 证据在 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d1-r3-final-20260916\final_pass_review_s1_t02_d1_r3.json`，SHA-256 `DBFDE14BBA0D0AE1B723B46402C947341A8AF6E37F6AB528D2687921DF0D28B2`。D1 未执行正式训练、mAP、INT8、完整模型 pilot 或 pilot 重跑。
 
+## S1-T02-D2 固定预处理与 INT8 数值规格
+
+- 2026-09-16：Wong 接受第4项预设并完成任务级 G1/G2/G4；独立 Reviewer 最终确认 PASS。固定 RGB→letterbox→CHW/255→INT8，INT8 `[-127,127]`、zero-point=0、输入 scale=`1/127`、权重逐输出通道/激活逐层对称量化、INT32 累加和 INT64 溢出检查、半数远离零、PS 浮点检测头后处理。
+- R2 证据：spec `14e61b90e0eac8a9a96ffcbf326ff7784e896b12fa293ef01a86892dbc7f58d6`，summary `0153db5b5dd93ac80f8551d2098fd33d107b2d33583062dfb669d36801347d7b`，golden `7f469d8274a3ce2ca1f89727b847961f93b8d322407dc89b17a4e7ed1ca802e1`，calibration `ffe3596ff8ae265ab8489c051878588833d80266028448c37c8b890e0c35059f`，list `d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c`。
+- Reviewer 最终确认 JSON 位于 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d2-submit-20260916\review_s1_t02_d2_submit_final.json`，SHA-256 `1D9083EAD70F0DCE0E21F602D00FC6FB7C8AE2AF3D50B910900463740D5AC9BD`。D2 测试16/16、全量71/71；仅完成输入绑定和数值参考，未执行正式训练、mAP、INT8 整网、资源、RTL 或板上验证。
+
 ## Wong 已确认的 S1-T02 G0 决策
 
 - 2026-09-16：同意“官方 test 作为主要最终测试集，并另建独立鲁棒性测试集”的数据口径。当前官方 test 保留为最终基准；no_hand、non-target、多手、遮挡和小目标等鲁棒性指标使用独立、固定且不与 train/val/test 人员或 session 重叠的集合。已提供的 5 张 no_hand 继续保持 train 3 张、val 2 张，不移入 test；它们不单独代表正式 no_hand 泛化率。
@@ -44,7 +50,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1 setup 已完成；下一步为正式浮点模型基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照，但 S1-T02 G0 尚未通过。正式测试前必须冻结测试样本、随机种子、预处理、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1 setup 与 D2 固定预处理/INT8 参考已完成任务级验收；S1-T02 G0 尚未通过。下一步为正式浮点模型基线与完整 YOLOv4 / YOLOv4-tiny 320/416 对照、真实 Darknet 训练/恢复/评估和 INT8 对照。正式测试前仍须冻结测试样本、随机种子、mAP@0.5、mAP@0.5:0.95、各类召回/精确率、无手误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）
@@ -53,6 +59,7 @@
 - 接口依据：`docs/obsidian-project/02-方案设计/INT8乘加接口说明.md`（原型接口，不代表整网支持）。
 - 任务标准：`docs/obsidian-project/03-实验记录/任务记录/S1-T01_训练环境与数据准备.md`（历史状态按最新证据解释）。
 - 验收：`docs/obsidian-project/04-提交材料/验收执行手册.md`；阶段1范围：同目录 `阶段验收/阶段1_PC模型与数值规格收尾记录.md`。
+- D2 规范：`docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md`；R2 机器证据：`report/evidence/S1-T02/20260916_s1_t02_d2_numeric_spec_r2.json`。
 - 最新整改：`report/evidence/S1-T01/20260914_semantic_repair.md`；报告：同目录 `20260914_hagrid_dataset_check_semantic.json`（clean 报告为同结果副本）。
 - 人工语义：`report/evidence/S1-T01/20260914_hagrid_semantic_review.csv`；本轮收尾：`20260915_no_hand_ingest.md`、`20260915_hagrid_visual_review_after_no_hand.md`、`20260915_hagrid_dataset_approval.json`。
 - 环境：`report/evidence/S1-T01/20260914_environment_recheck.json`；命令和源程序入口：`verification/README.md`、`verification/s1_t01_cuda_smoke.cu`。

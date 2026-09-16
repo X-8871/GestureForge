@@ -8,7 +8,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from verification.s1_t01_prepare_hagrid import prepare_dataset
+try:
+    from verification.s1_t01_prepare_hagrid import prepare_dataset
+except ModuleNotFoundError:
+    from s1_t01_prepare_hagrid import prepare_dataset
 
 
 class PrepareHaGRIDTest(unittest.TestCase):

@@ -10,7 +10,10 @@ import hashlib
 import json
 from unittest.mock import patch
 
-import verification.s1_t01_darknet_workflow as workflow
+try:
+    import verification.s1_t01_darknet_workflow as workflow
+except ModuleNotFoundError:
+    import s1_t01_darknet_workflow as workflow
 
 
 class DarknetWorkflowTest(unittest.TestCase):

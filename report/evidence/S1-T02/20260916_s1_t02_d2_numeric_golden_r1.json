@@ -1,0 +1,153 @@
+{
+  "schema_version": "s1_t02_d2_numeric_golden_v1",
+  "scope": "预处理与 INT8 数值参考，不含训练、解码和 NMS",
+  "spec": {
+    "input": "RGB -> CHW -> /255",
+    "letterbox": "Darknet 整数尺寸、左上 floor 偏移、双线性、归一化 pad=0.5",
+    "int8_range": [
+      -127,
+      127
+    ],
+    "zero_point": 0,
+    "input_scale": 0.007874015748031496,
+    "weight_quantization": "per-output-channel symmetric",
+    "activation_quantization": "per-layer per-tensor symmetric",
+    "accumulator": "INT32 with independent INT64 overflow checks",
+    "rounding": "symmetric half-away-from-zero"
+  },
+  "vectors": {
+    "round_away_from_zero": {
+      "inputs": [
+        -2.5,
+        -1.5,
+        -0.5,
+        0.5,
+        1.5,
+        2.5
+      ],
+      "outputs": [
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3
+      ]
+    },
+    "saturation": {
+      "inputs": [
+        -1000,
+        -127,
+        0,
+        127,
+        1000
+      ],
+      "outputs": [
+        -127,
+        -127,
+        0,
+        127,
+        127
+      ]
+    },
+    "rgb_chw_255": {
+      "input": [
+        [
+          [
+            255.0,
+            0.0,
+            128.0
+          ]
+        ]
+      ],
+      "output": [
+        [
+          [
+            1.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.5019607843137255
+          ]
+        ]
+      ]
+    },
+    "input_pad": {
+      "normalized": 0.5,
+      "scale": 0.007874015748031496,
+      "int8": 64
+    },
+    "letterbox_odd_geometry": {
+      "src_width": 4,
+      "src_height": 3,
+      "dst_width": 7,
+      "dst_height": 7,
+      "new_width": 7,
+      "new_height": 5,
+      "offset_x": 0,
+      "offset_y": 1,
+      "padding_normalized": 0.5,
+      "padding_uint8": 128
+    },
+    "letterbox_pad_corner": {
+      "pixel": [
+        0.5,
+        0.5,
+        0.5
+      ],
+      "expected_normalized": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "weights_per_output_channel": {
+      "weights": [
+        [
+          -2.0,
+          0.0,
+          2.0
+        ],
+        [
+          -0.5,
+          0.25,
+          0.5
+        ]
+      ],
+      "quantized_and_scales": [
+        [
+          [
+            -127,
+            0,
+            127
+          ],
+          0.015748031496062992
+        ],
+        [
+          [
+            -127,
+            64,
+            127
+          ],
+          0.003937007874015748
+        ]
+      ]
+    },
+    "bias_requant": {
+      "bias_accumulator": [
+        4032
+      ],
+      "requantized": 1
+    },
+    "int64_boundary": {
+      "max_value": 9223372036854775807,
+      "max_sum": 9223372036854775807
+    }
+  }
+}

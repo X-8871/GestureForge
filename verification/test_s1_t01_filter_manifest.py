@@ -8,7 +8,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from verification.s1_t01_filter_manifest import filter_manifest
+try:
+    from verification.s1_t01_filter_manifest import filter_manifest
+except ModuleNotFoundError:
+    from s1_t01_filter_manifest import filter_manifest
 
 
 class FilterManifestTest(unittest.TestCase):

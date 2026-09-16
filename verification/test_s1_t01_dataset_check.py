@@ -10,7 +10,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from verification.s1_t01_dataset_check import SEMANTIC_REVIEW_COLUMNS, Thresholds, validate_dataset
+try:
+    from verification.s1_t01_dataset_check import SEMANTIC_REVIEW_COLUMNS, Thresholds, validate_dataset
+except ModuleNotFoundError:
+    from s1_t01_dataset_check import SEMANTIC_REVIEW_COLUMNS, Thresholds, validate_dataset
 
 
 class DatasetCheckTest(unittest.TestCase):

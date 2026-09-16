@@ -8,7 +8,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import verification.s1_t01_environment_probe as environment_probe
+try:
+    import verification.s1_t01_environment_probe as environment_probe
+except ModuleNotFoundError:
+    import s1_t01_environment_probe as environment_probe
 
 
 class EnvironmentProbeTest(unittest.TestCase):

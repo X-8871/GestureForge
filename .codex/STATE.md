@@ -37,6 +37,7 @@
 - 2026-09-16：同意“官方 test 作为主要最终测试集，并另建独立鲁棒性测试集”的数据口径。当前官方 test 保留为最终基准；no_hand、non-target、多手、遮挡和小目标等鲁棒性指标使用独立、固定且不与 train/val/test 人员或 session 重叠的集合。已提供的 5 张 no_hand 继续保持 train 3 张、val 2 张，不移入 test；它们不单独代表正式 no_hand 泛化率。
 - 该决定冻结的是数据集组织方案；官方 test 是否全量使用、鲁棒性集合的最低样本数量和各类覆盖仍需在后续 G0 决策中写成数值。
 - 2026-09-16：接受评估口径预设：报告 mAP@0.5、mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point AP、五类宏平均）、各类 precision/recall；同类别一对一匹配、按 score 降序；no_hand 误检率≤5%，non-target 误检率≤10% 为辅助门槛。score threshold 仅在 val 的 0.25–0.50 范围内选择后固定，NMS 为类别内 greedy、IoU=0.45；每图最大输出框数由 20 调整为 15。test 和鲁棒性测试均不得重新调参；该项已确认，但不等于 S1-T02 整体 G0 通过。
+- 2026-09-16：接受模型/训练/恢复预设：PC 对照包含完整 YOLOv4 608×608，候选包含 YOLOv4-tiny 320×320 与 416×416；tiny 使用官方 `yolov4-tiny.conv.29`，完整模型使用官方 `yolov4.conv.137`，正式训练不使用 20/200 步诊断权重。训练参数预设为 batch=64、tiny subdivisions=16、完整模型 subdivisions=32、SGD momentum=0.9、decay=0.0005、tiny learning_rate=0.00261、完整模型 learning_rate=0.0013、max_batches=6000、steps=4800/5400、burn_in=1000；固定输入训练、保存 checkpoint/last/final。正式训练需补充固定 seed 支持并绑定源码/可执行文件哈希；恢复只保证权重与 seen 计数恢复，因 Darknet 不保存 momentum 缓冲区不宣称 bit-exact。当前无板上模型运行；完整 YOLOv4 仅 PC 对照，板上默认候选为 tiny、优先评估 tiny416，但最终模型仍待精度/数值/资源三关和 Wong 确认。
 
 ## 下一步与边界
 

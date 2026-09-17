@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
 from argparse import Namespace
+from contextlib import redirect_stderr
 from pathlib import Path
 import hashlib
 import json
@@ -64,13 +66,299 @@ class DarknetWorkflowTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             config = Path(directory) / "long.cfg"
+            for max_batches in (4000, 6000):
+                with self.subTest(max_batches=max_batches):
+                    config.write_text(
+                        f"[net]\nmax_batches={max_batches}\nwidth=320\nheight=320\n[yolo]\nclasses=5\n",
+                        encoding="utf-8",
+                    )
+                    errors: list[str] = []
+                    workflow._validate_model_config(config, errors)
+                    self.assertTrue(any("max_batches" in error for error in errors))
+
+    def test_formal_training_profile_accepts_only_exact_6000_schedule(self) -> None:
+        """正式 profile 只接受 6000 步及获批的 4800/5400 学习率节点。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "formal.cfg"
+            for max_batches in (5999, 6001):
+                with self.subTest(max_batches=max_batches):
+                    config.write_text(
+                        "[net]\n"
+                        f"max_batches={max_batches}\nsteps=4800,5400\nwidth=416\nheight=416\n"
+                        "[convolutional]\nfilters=30\n[yolo]\nclasses=5\n",
+                        encoding="utf-8",
+                    )
+                    errors: list[str] = []
+                    workflow._validate_model_config(config, errors, formal_training=True)
+                    self.assertTrue(any("max_batches 必须恰好为 6000" in error for error in errors))
+
             config.write_text(
-                "[net]\nmax_batches=4000\nwidth=320\nheight=320\n[yolo]\nclasses=5\n",
+                "[net]\nmax_batches=6000\nsteps=4800,5400\nwidth=416\nheight=416\n"
+                "[convolutional]\nfilters=30\n[yolo]\nclasses=5\n",
                 encoding="utf-8",
             )
-            errors: list[str] = []
-            workflow._validate_model_config(config, errors)
-            self.assertTrue(any("max_batches" in error for error in errors))
+            errors = []
+            model = workflow._validate_model_config(config, errors, formal_training=True)
+            self.assertEqual(errors, [])
+            self.assertEqual(model["max_batches"], 6000)
+            self.assertEqual(model["steps"], [4800, 5400])
+
+            config.write_text(
+                "[net]\nmax_batches=6000\nsteps=4800,5401\nwidth=416\nheight=416\n"
+                "[convolutional]\nfilters=30\n[yolo]\nclasses=5\n",
+                encoding="utf-8",
+            )
+            errors = []
+            workflow._validate_model_config(config, errors, formal_training=True)
+            self.assertTrue(any("steps 必须为 4800,5400" in error for error in errors))
+
+    def test_formal_flag_is_limited_to_train_and_resume_and_reported(self) -> None:
+        """正式 profile 参数仅注册在 train/resume，且报告明确绑定 profile 与验收边界。"""
+
+        parser = workflow._build_parser()
+        common = [
+            "--darknet-executable", "darknet.exe",
+            "--environment-report", "environment.json",
+            "--data-root", "data",
+            "--manifest", "manifest.csv",
+            "--dataset-report", "dataset.json",
+            "--dataset-approval", "approval.json",
+            "--data-config", "gesture.data",
+            "--model-config", "gesture.cfg",
+            "--names-file", "gesture.names",
+            "--working-directory", "work",
+            "--run-dir", "run",
+            "--report", "report.json",
+        ]
+        train = parser.parse_args([
+            "train", "--formal-training", *common,
+            "--initial-weights", "initial.weights",
+            "--checkpoint-output", "backup/gesture_1000.weights",
+        ])
+        resume = parser.parse_args([
+            "resume", "--formal-training", *common,
+            "--checkpoint", "backup/gesture_1000.weights",
+            "--resume-from-step", "1000",
+            "--checkpoint-output", "backup/gesture_2000.weights",
+        ])
+        self.assertTrue(train.formal_training)
+        self.assertTrue(resume.formal_training)
+        self.assertEqual(workflow._base_report(train)["training_profile"], "formal_6000")
+        self.assertEqual(workflow._base_report(resume)["training_profile"], "formal_6000")
+        self.assertIn("不代表精度", workflow._base_report(train)["training_profile_notice"])
+
+        evaluate_args = [
+            "evaluate", *common,
+            "--weights", "weights",
+            "--valid-list", "valid.list",
+            "--zero-prediction-image", "no_hand.jpg",
+            "--formal-training",
+        ]
+        stderr = io.StringIO()
+        with redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+            parser.parse_args(evaluate_args)
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn("unrecognized arguments: --formal-training", stderr.getvalue())
+        evaluate = parser.parse_args(evaluate_args[:-1])
+        self.assertEqual(workflow._base_report(evaluate)["training_profile"], "not_applicable")
+
+    def test_formal_profile_is_bound_to_execution_result(self) -> None:
+        """训练命令、运行结果和候选验收字段都记录同一正式 profile。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run_dir = root / "run"
+            backup = root / "backup"
+            backup.mkdir()
+            checkpoint = backup / "gesture_10.weights"
+            args = Namespace(
+                action="train",
+                formal_training=True,
+                darknet_seed=424242,
+                data_config=root / "gesture.data",
+                model_config=root / "gesture.cfg",
+                initial_weights=root / "initial.weights",
+                checkpoint_output=checkpoint,
+                run_dir=run_dir,
+                timeout_seconds=21600.0,
+                no_progress_timeout_seconds=300.0,
+                dry_run=False,
+            )
+            report = workflow._base_report(args)
+            report["inputs"] = {"checkpoint_mapping": {"candidate_names": [checkpoint.name]}}
+            report["outputs"] = {"checkpoint_output": {"path": str(checkpoint)}}
+            context = {
+                "executable": root / "darknet.exe",
+                "working_directory": root,
+                "checkpoint_output": checkpoint,
+                "checkpoint_plan": {"candidates": [str(checkpoint)]},
+            }
+
+            def fake_train(*_args: object, **_kwargs: object) -> dict[str, object]:
+                """模拟训练返回并创建一个隔离的测试检查点。"""
+
+                checkpoint.write_bytes(b"simulated checkpoint")
+                return {
+                    "exit_code": 0,
+                    "stop_reason": None,
+                    "non_finite_observed": False,
+                    "loss_token_observed": True,
+                    "observed_update_steps": list(range(1, 6001)),
+                    "output": "loss=1.0",
+                    "log_sha256": "simulated-log-sha256",
+                }
+
+            with patch.object(workflow, "_run_command", side_effect=fake_train):
+                workflow._execute(args, report, context)
+
+            self.assertEqual(report["status"], "EXECUTED_REVIEW_REQUIRED")
+            self.assertEqual(report["planned_commands"][0]["training_profile"], "formal_6000")
+            self.assertEqual(report["commands"][0]["training_profile"], "formal_6000")
+            self.assertEqual(report["acceptance"]["training_profile"], "formal_6000")
+
+    def test_formal_update_range_requires_all_contiguous_steps(self) -> None:
+        """正式 train 和 resume 的日志不得缺步、提前结束或越过 6000。"""
+
+        errors: list[str] = []
+        workflow._validate_formal_update_range("train", list(range(1, 6001)), None, errors)
+        self.assertEqual(errors, [])
+
+        workflow._validate_formal_update_range("train", list(range(1, 6000)), None, errors)
+        self.assertTrue(any("未证明本次动作完整连续更新至 6000" in error for error in errors))
+
+        errors = []
+        workflow._validate_formal_update_range("resume", list(range(21, 6001)), 20, errors)
+        self.assertEqual(errors, [])
+
+        errors = []
+        workflow._validate_formal_update_range("resume", list(range(21, 6000)), 20, errors)
+        self.assertTrue(any("未证明本次动作完整连续更新至 6000" in error for error in errors))
+
+    def test_formal_training_preflight_accepts_train_resume_and_rejects_resume_at_6000(self) -> None:
+        """正式 profile 通过完整结构预检，并保持恢复步数严格小于 6000。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            data_root = root / "data"
+            working = root / "working"
+            run_dir = root / "run"
+            backup = root / "backup"
+            for path in (data_root, working, run_dir, backup):
+                path.mkdir()
+            executable = root / "darknet.exe"
+            executable.write_bytes(b"binary")
+            manifest = data_root / "manifest.csv"
+            manifest.write_text("fixture manifest\n", encoding="utf-8")
+            environment_report = root / "environment.json"
+            environment_report.write_text("{}", encoding="utf-8")
+            dataset_report = root / "dataset.json"
+            dataset_report.write_text("{}", encoding="utf-8")
+            dataset_approval = root / "approval.json"
+            dataset_approval.write_text("{}", encoding="utf-8")
+            train_list = root / "train.list"
+            train_list.write_text("", encoding="utf-8")
+            valid_list = root / "valid.list"
+            valid_list.write_text("", encoding="utf-8")
+            names = root / "gesture.names"
+            names.write_text("fist\npalm\none\ntwo_up\nthree\n", encoding="utf-8")
+            data_config = root / "gesture.data"
+            data_config.write_text(
+                f"classes=5\nnames={names}\ntrain={train_list}\nvalid={valid_list}\n"
+                f"backup={backup}\nsaveweights=1000\nsavelast=500\n",
+                encoding="utf-8",
+            )
+            model_config = root / "gesture.cfg"
+            model_config.write_text(
+                "[net]\nmax_batches=6000\nsteps=4800,5400\nwidth=416\nheight=416\n"
+                "[convolutional]\nfilters=30\n[yolo]\nclasses=5\n",
+                encoding="utf-8",
+            )
+            initial_weights = root / "initial.weights"
+            initial_weights.write_bytes(b"initial")
+
+            def make_args(action: str, resume_from_step: int = 1000) -> Namespace:
+                """结构化构造 train/resume 预检参数，不启动 Darknet。"""
+
+                checkpoint_output = backup / (
+                    "gesture_1000.weights" if action == "train" else "gesture_final.weights"
+                )
+                checkpoint = backup / f"gesture_{resume_from_step}.weights"
+                if action == "resume" and not checkpoint.exists():
+                    checkpoint.write_bytes(b"resume input")
+                return Namespace(
+                    action=action,
+                    formal_training=True,
+                    darknet_executable=executable,
+                    environment_report=environment_report,
+                    data_root=data_root,
+                    manifest=manifest,
+                    dataset_report=dataset_report,
+                    dataset_approval=dataset_approval,
+                    data_config=data_config,
+                    model_config=model_config,
+                    names_file=names,
+                    working_directory=working,
+                    run_dir=run_dir,
+                    report=root / "report.json",
+                    dry_run=True,
+                    timeout_seconds=21600.0,
+                    no_progress_timeout_seconds=300.0,
+                    darknet_seed=424242,
+                    initial_weights=initial_weights,
+                    checkpoint_output=checkpoint_output,
+                    checkpoint=checkpoint,
+                    resume_from_step=resume_from_step,
+                )
+
+            patches = [
+                patch.object(workflow, "_validate_environment_gate", return_value={}),
+                patch.object(workflow, "_validate_dataset_gate", return_value={"approval": {}}),
+                patch.object(workflow, "_load_manifest_images", return_value={"train": {}, "val": {}, "test": {}}),
+                patch.object(workflow, "_load_valid_list", return_value=[]),
+                patch.object(workflow, "_validate_no_hand_approval", return_value={}),
+                patch.object(workflow, "_check_no_existing_process", return_value=None),
+                patch.object(workflow, "_identity_artifacts", return_value={}),
+            ]
+            with patches[0], patches[1], patches[2], patches[3], patches[4], patches[5], patches[6]:
+                default_train = make_args("train")
+                default_train.formal_training = False
+                default_train.darknet_seed = None
+                default_report = workflow._base_report(default_train)
+                workflow._preflight(default_train, default_report)
+                self.assertEqual(default_report["training_profile"], "diagnostic_short")
+                self.assertFalse(any("必须显式提供 --darknet-seed" in error for error in default_report["errors"]))
+                self.assertTrue(any("短训安全范围" in error for error in default_report["errors"]))
+
+                for action in ("train", "resume"):
+                    with self.subTest(action=action, seed="missing"):
+                        formal_without_seed = make_args(action, 2345 if action == "resume" else 1000)
+                        formal_without_seed.darknet_seed = None
+                        formal_without_seed_report = workflow._base_report(formal_without_seed)
+                        workflow._preflight(formal_without_seed, formal_without_seed_report)
+                        self.assertEqual(formal_without_seed_report["status"], "BLOCKED_PREFLIGHT")
+                        self.assertTrue(
+                            any("必须显式提供 --darknet-seed" in error for error in formal_without_seed_report["errors"])
+                        )
+                        if action == "resume":
+                            formal_without_seed.checkpoint.unlink()
+
+                for action, step in (("train", 1000), ("resume", 5999)):
+                    with self.subTest(action=action, step=step):
+                        args = make_args(action, step)
+                        report = workflow._base_report(args)
+                        context = workflow._preflight(args, report)
+                        self.assertEqual(report["errors"], [])
+                        self.assertEqual(report["training_profile"], "formal_6000")
+                        self.assertEqual(report["seed_binding"]["value"], 424242)
+                        self.assertTrue(report["seed_binding"]["passed_to_child_process"])
+                        self.assertEqual(report["inputs"]["model_config_values"]["max_batches"], 6000)
+                        self.assertEqual(context["checkpoint_output"], args.checkpoint_output.resolve())
+
+                invalid_resume = make_args("resume", 6000)
+                invalid_report = workflow._base_report(invalid_resume)
+                workflow._preflight(invalid_resume, invalid_report)
+                self.assertTrue(any("必须小于 cfg max_batches" in error for error in invalid_report["errors"]))
 
     def test_model_config_requires_eleven_batches_for_resume(self) -> None:
         """十步训练不能为恢复再提供一个更新步。"""

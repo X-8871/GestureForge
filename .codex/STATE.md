@@ -78,12 +78,17 @@
 - 2026-09-17：任务级 G1/G2/G4 通过；官方 `yolov4.conv.137` 已绑定至 `D:\FPGA_Data\darknet\weights\yolov4.conv.137`，170038676 bytes，SHA-256 `11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0`。来源 README SHA `9fc4a7ce8cd6be5221ce1811c5df20645bb12487e6cba11ca54876eaf3f021e2`，Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f`；报告/摘要 SHA 分别为 `b25dad229b7a0914ef0f2deae2eefc54fec8453ac841ed4eb1bd0841304c93f6`、`263c95fccf9adb58f127a503e1e757bb50f4f6d4c55133ea9487615afcd1e640`。
 - 独立 Reviewer R2 `PASS`；JSON SHA `68fff1f070bbe685dfa8b55e4716d0ed29e87e62f6cac4abb4d4a88b2ce45aa9`、summary SHA `dc1a654dea14980aa62b794022d192e833f109e69337e8191c1a6534033c3349`。仅完成官方 backbone 初始化权重绑定，不代表五类完整权重、正式训练、评估/mAP、INT8、Vivado 或板测。
 
+## S1-T02-D8a 正式 Darknet 训练入口
+
+- 2026-09-17：任务级 G1/G2/G4 通过。`train`/`resume` 默认仍限制为 11–100 步；显式 `--formal-training` 才允许且仅允许 `max_batches=6000`、`steps=4800,5400`，并强制显式 uint32 seed；formal resume 和连续日志步数覆盖到 6000 均受检，evaluate 不接受该参数。workflow/test/README SHA 分别为 `89f48210bc7f6ebd8b3c622f15fac89b4b4b7c400ff0beb5e2965c49026be034`、`e85a8f9ed0f6d3bc1f6147c5166ddece5a573adc34cfd4368b6be90186fe7a22`、`3397b269d337c7265be0bd0df253fa82d8165f10443f0040d6470e26dfe6ab09`；专项 38/38、全量 122/122、py_compile、CLI help 和 diff check 均 exit 0。Reviewer R1 `PASS`，JSON SHA `540370c0377a8d62692434343336714760acf288e69e1fc41db22f68534f8422`，summary SHA `b236a1e006c6b11e6e2ec12f66a90c6fddd58acf2a4bd3efeb4adcc044e3c29e`。
+- 本任务只实现并审查长训入口，未启动 Darknet 训练或证明模型精度、泛化、mAP、INT8、资源、最终模型或板上验收。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1～D7 已完成任务级范围内的实现/证据和独立审查；D4 tiny416 pilot 曾于 8/100 中断，D7 已解决完整 YOLOv4 初始化权重缺失。S1-T02 G0 尚未通过：正式训练前仍须冻结固定样本清单/数量、随机种子及 robustness 覆盖，并核对已批准 mAP、类别 precision/recall、no_hand/non-target 辅助门槛、INT8 相对浮点损失和性能口径；之后才按固定口径执行 tiny320/tiny416/full608 正式训练与评估，再做 INT8 对照、逐层黄金结果、后处理测例和资源预算。最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1～D8a 已完成各自任务级实现/证据和独立审查；D4 tiny416 pilot 曾于 8/100 中断，D7 已补齐完整 YOLOv4 初始化权重，D8a 已补正式长训入口但未训练。下一任务 D8 为 tiny416 固定 seed、6000-step 正式训练；其后排 tiny320/full608 对照。S1-T02 整体 G0 尚未通过：正式 official test/robustness 前仍须冻结样本清单/数量/覆盖及 mAP、各类 precision/recall、量化损失和性能的数值验收限；test 不调参。随后做 INT8 对照、逐层黄金结果、后处理测例与资源预算；最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""S1-T01 官方 Darknet 短训、恢复和逐验证图评估入口。"""
+"""S1-T01 官方 Darknet 训练、恢复和逐验证图评估入口。"""
 
 from __future__ import annotations
 
@@ -22,6 +22,8 @@ EXPECTED_CLASSES = ["fist", "palm", "one", "two_up", "three"]
 MIN_TRAIN_UPDATES = 10
 MIN_RESUME_UPDATES = 1
 MAX_SHORT_BATCHES = 100
+FORMAL_TRAINING_MAX_BATCHES = 6000
+FORMAL_TRAINING_STEPS = (4800, 5400)
 MAX_DARKNET_PATH_BYTES = 256
 REPORT_SCHEMA_VERSION = 1
 DARKNET_SEED_ENV = "GESTUREFORGE_DARKNET_SEED"
@@ -284,8 +286,13 @@ def _cfg_int(section: dict[str, str], key: str) -> int | None:
         return None
 
 
-def _validate_model_config(path: Path, errors: list[str], require_short_batches: bool = True) -> dict[str, Any]:
-    """校验五类模型，并按动作需要校验短训 batch 上限。"""
+def _validate_model_config(
+    path: Path,
+    errors: list[str],
+    require_short_batches: bool = True,
+    formal_training: bool = False,
+) -> dict[str, Any]:
+    """校验五类模型，并对诊断短训或正式训练应用各自固定的 schedule。"""
 
     if not path.is_file():
         errors.append(f"模型 cfg 不存在: {path}")
@@ -304,10 +311,28 @@ def _validate_model_config(path: Path, errors: list[str], require_short_batches:
     height = _cfg_int(net, "height")
     if max_batches is None:
         errors.append("模型 cfg 的 [net] 缺少有效 max_batches")
-    elif require_short_batches and not MIN_TRAIN_UPDATES + MIN_RESUME_UPDATES <= max_batches <= MAX_SHORT_BATCHES:
+    elif require_short_batches and formal_training and max_batches != FORMAL_TRAINING_MAX_BATCHES:
+        errors.append(
+            f"正式训练 cfg max_batches 必须恰好为 {FORMAL_TRAINING_MAX_BATCHES}，实际为 {max_batches}"
+        )
+    elif require_short_batches and not formal_training and not (
+        MIN_TRAIN_UPDATES + MIN_RESUME_UPDATES <= max_batches <= MAX_SHORT_BATCHES
+    ):
         errors.append(
             f"模型 cfg max_batches={max_batches} 不在短训安全范围 "
             f"[{MIN_TRAIN_UPDATES + MIN_RESUME_UPDATES}, {MAX_SHORT_BATCHES}]"
+        )
+    steps_value = net.get("steps")
+    steps: tuple[int, ...] | None = None
+    if steps_value is not None:
+        try:
+            steps = tuple(int(value.strip()) for value in steps_value.split(","))
+        except ValueError:
+            steps = None
+    if require_short_batches and formal_training and steps != FORMAL_TRAINING_STEPS:
+        errors.append(
+            "正式训练 cfg steps 必须为 4800,5400，"
+            f"实际为 {steps_value!r}"
         )
     if width is None or height is None or width <= 0 or height <= 0:
         errors.append("模型 cfg 的 width/height 必须为正整数")
@@ -334,6 +359,7 @@ def _validate_model_config(path: Path, errors: list[str], require_short_batches:
         head_details.append({"head": head_number, "filters": filters, "expected_filters": expected_filters})
     return {
         "max_batches": max_batches,
+        "steps": list(steps) if steps is not None else None,
         "width": width,
         "height": height,
         "yolo_heads": len(yolo_sections),
@@ -869,6 +895,26 @@ def _validate_checkpoint_io(
         errors.append("resume 的 checkpoint 输入和 checkpoint-output 必须是两个不同路径")
 
 
+def _validate_formal_update_range(
+    action: str,
+    observed_steps: list[int],
+    resume_from_step: int | None,
+    errors: list[str],
+) -> None:
+    """要求正式 train/resume 日志覆盖本次动作应执行的全部连续更新步。"""
+
+    first_step = 1 if action == "train" else (resume_from_step or 0) + 1
+    expected_steps = list(range(first_step, FORMAL_TRAINING_MAX_BATCHES + 1))
+    if observed_steps != expected_steps:
+        errors.append(
+            "正式训练日志未证明本次动作完整连续更新至 6000："
+            f"期望 {first_step}..{FORMAL_TRAINING_MAX_BATCHES} 共 {len(expected_steps)} 步，"
+            f"实际 {len(observed_steps)} 步，首末步为 "
+            f"{observed_steps[0] if observed_steps else '无'}/"
+            f"{observed_steps[-1] if observed_steps else '无'}"
+        )
+
+
 def _check_no_existing_process(executable: Path) -> str | None:
     """拒绝在同一 Windows 主机已有同名 Darknet 进程时启动。"""
 
@@ -1236,7 +1282,7 @@ def _common_parser(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--dataset-report", type=Path, required=True, help="AC02/AC03 自动通过的数据检查报告")
     parser.add_argument("--dataset-approval", type=Path, required=True, help="Wong 人工抽查后的 APPROVED JSON")
     parser.add_argument("--data-config", type=Path, required=True, help="官方 Darknet .data 配置")
-    parser.add_argument("--model-config", type=Path, required=True, help="官方 Darknet YOLO cfg，必须是短训 cfg")
+    parser.add_argument("--model-config", type=Path, required=True, help="官方 Darknet YOLO cfg")
     parser.add_argument("--names-file", type=Path, required=True, help="严格为五类固定顺序的 names 文件")
     parser.add_argument("--working-directory", type=Path, required=True, help="运行 Darknet 的工作目录")
     parser.add_argument("--run-dir", type=Path, required=True, help="本次运行日志和 JSONL 输出目录")
@@ -1249,10 +1295,15 @@ def _common_parser(parser: argparse.ArgumentParser) -> None:
 def _build_parser() -> argparse.ArgumentParser:
     """构建命令行解析器。"""
 
-    parser = argparse.ArgumentParser(description="S1-T01 官方 Darknet 短训、恢复和逐验证图评估")
+    parser = argparse.ArgumentParser(description="S1-T01 官方 Darknet 训练、恢复和逐验证图评估")
     subparsers = parser.add_subparsers(dest="action", required=True)
-    train = subparsers.add_parser("train", help="运行至少10个更新步的短训")
+    train = subparsers.add_parser("train", help="运行诊断短训或固定 6000-step 正式训练")
     _common_parser(train)
+    train.add_argument(
+        "--formal-training",
+        action="store_true",
+        help="显式选择固定正式 schedule：max_batches=6000、steps=4800,5400；不代表精度或最终模型通过",
+    )
     train.add_argument(
         "--darknet-seed",
         type=_parse_darknet_seed,
@@ -1260,9 +1311,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"仅传给 Darknet 子进程的非负 32 位十进制种子（环境变量 {DARKNET_SEED_ENV}）",
     )
     train.add_argument("--initial-weights", type=Path, required=True, help="显式提供的初始权重，不自动下载")
-    train.add_argument("--checkpoint-output", type=Path, required=True, help="按 .data/cfg 规则由本次短训新生成的检查点路径")
-    resume = subparsers.add_parser("resume", help="从既有检查点恢复至少1个更新步")
+    train.add_argument("--checkpoint-output", type=Path, required=True, help="按 .data/cfg 规则由本次训练新生成的检查点路径")
+    resume = subparsers.add_parser("resume", help="从既有检查点恢复诊断短训或正式训练")
     _common_parser(resume)
+    resume.add_argument(
+        "--formal-training",
+        action="store_true",
+        help="显式选择固定正式 schedule：max_batches=6000、steps=4800,5400；不代表精度或最终模型通过",
+    )
     resume.add_argument(
         "--darknet-seed",
         type=_parse_darknet_seed,
@@ -1286,11 +1342,21 @@ def _build_parser() -> argparse.ArgumentParser:
 def _base_report(args: argparse.Namespace) -> dict[str, Any]:
     """建立不含运行结果的报告。"""
 
+    action = getattr(args, "action", None)
+    if action in {"train", "resume"}:
+        training_profile = "formal_6000" if getattr(args, "formal_training", False) else "diagnostic_short"
+    else:
+        training_profile = "not_applicable"
+
     return {
         "schema_version": REPORT_SCHEMA_VERSION,
         "created_at_utc8": _now_iso(),
         "framework": "official-darknet-cuda",
         "action": args.action,
+        "training_profile": training_profile,
+        "training_profile_notice": (
+            "profile 仅绑定训练 schedule；训练完成不代表精度、泛化、INT8、资源、最终模型选择或板上验收通过。"
+        ),
         "seed_binding": _seed_binding(getattr(args, "darknet_seed", None)),
         "status": "BLOCKED_PREFLIGHT",
         "exit_code": 2,
@@ -1298,7 +1364,7 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
         "errors": [],
         "notes": [
             "本入口不下载数据、不安装依赖、不切换 YOLO 框架。",
-            "模型 cfg 的 max_batches 必须是专用短训值，超过安全上限会在启动前失败。",
+            "train/resume 默认仅允许 11..100 诊断短训；只有显式 --formal-training 才允许固定 max_batches=6000、steps=4800,5400。",
             "检查点输出严格绑定 .data backup、cfg 基名、saveweights、savelast，已有候选文件一律不覆盖。",
             "日志不能独立证明梯度有限或优化器状态恢复，相关 AC05 结论仍需审查证据。",
             "evaluate 必须由 detector test -out JSON 的 objects 数量证明零框，并拒绝 NaN/Inf/OOM/损坏。",
@@ -1326,7 +1392,17 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         errors.append("超时参数必须为正数")
     environment = _validate_environment_gate(args.environment_report.resolve(), executable, errors)
     dataset = _validate_dataset_gate(args.dataset_report.resolve(), args.dataset_approval.resolve(), manifest, data_root, errors)
-    model = _validate_model_config(args.model_config.resolve(), errors, args.action in {"train", "resume"})
+    formal_training = bool(getattr(args, "formal_training", False))
+    if formal_training and args.action not in {"train", "resume"}:
+        errors.append("--formal-training 仅允许用于 train 或 resume")
+    if formal_training and getattr(args, "darknet_seed", None) is None:
+        errors.append("正式训练必须显式提供 --darknet-seed（uint32）")
+    model = _validate_model_config(
+        args.model_config.resolve(),
+        errors,
+        args.action in {"train", "resume"},
+        formal_training=formal_training,
+    )
     data_config = _validate_data_config(args.data_config.resolve(), args.names_file.resolve(), errors, working_directory)
     _validate_names_file(args.names_file.resolve(), errors)
     manifest_images = _load_manifest_images(manifest, data_root, errors)
@@ -1553,6 +1629,7 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
             "command": command,
             "cwd": str(context["working_directory"]),
             "seed_binding": _seed_binding(seed),
+            "training_profile": report.get("training_profile", "not_applicable"),
         }
         for command in commands
     ]
@@ -1578,9 +1655,10 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 darknet_seed=seed,
             )
             result.setdefault("seed_binding", _seed_binding(seed))
+            result["training_profile"] = report.get("training_profile", "not_applicable")
             report["commands"].append(result)
             if result.get("exit_code") != 0 or result.get("stop_reason") or result.get("non_finite_observed"):
-                report["errors"].append("Darknet 短训/恢复未以干净状态结束")
+                report["errors"].append("Darknet 训练/恢复未以干净状态结束")
                 return
             if not result.get("loss_token_observed"):
                 report["errors"].append("Darknet 日志未观察到 loss，不能核对训练数值")
@@ -1614,8 +1692,13 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 if len(steps) < MIN_TRAIN_UPDATES:
                     report["errors"].append(f"日志只观察到 {len(steps)} 个更新步，少于 {MIN_TRAIN_UPDATES}")
                     return
+                if report.get("training_profile") == "formal_6000":
+                    _validate_formal_update_range(args.action, steps, None, report["errors"])
+                    if report["errors"]:
+                        return
                 report["acceptance"] = {
                     "ac05_candidate": True,
+                    "training_profile": report.get("training_profile", "diagnostic_short"),
                     "observed_update_steps": steps,
                     "loss_finite_in_log": not bool(BAD_NUMERIC_RE.search(log_text)),
                     "gradient_finite": "NOT_OBSERVABLE_FROM_OFFICIAL_DARKNET_LOG",
@@ -1642,8 +1725,13 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 if before_hash == "unavailable" or before_hash != after_input_hash:
                     report["errors"].append("恢复后输入 checkpoint SHA-256 发生变化或不可核对")
                     return
+                if report.get("training_profile") == "formal_6000":
+                    _validate_formal_update_range(args.action, steps, args.resume_from_step, report["errors"])
+                    if report["errors"]:
+                        return
                 report["acceptance"] = {
                     "ac05_resume_candidate": True,
+                    "training_profile": report.get("training_profile", "diagnostic_short"),
                     "resume_from_step": args.resume_from_step,
                     "observed_update_steps": steps,
                     "checkpoint_output_created": True,

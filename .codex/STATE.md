@@ -1,12 +1,12 @@
 # 项目状态
 
-更新：2026-09-16（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
+更新：2026-09-17（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
 
 ## 目标、阶段与基线
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- 活动任务：S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。AC07 证据提交为 `33dce790eba35abec305a4f081db5d9ecf5b7005`，AC05 修复证据提交为 `edbc9e131584e1f219e22825a8ab1c598d137f13`；S1-T01 通过不等于阶段1通过。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`；D5B2 工具改进已提交 `de822c40771a45e2dc8be8bc6baa559bbe1933d2`，全量评估证据已提交 `0619905`。S1-T02-D1 浮点 setup 已完成 G1/G2/G4，独立 Reviewer 最终 PASS；仅建立 tiny 320/416 与完整 YOLOv4 五类配置、拓扑/参数/BFLOPs 和 provenance 证据，不代表正式训练、mAP 或最终模型验收。
+- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。AC07 证据提交为 `33dce790eba35abec305a4f081db5d9ecf5b7005`，AC05 修复证据提交为 `edbc9e131584e1f219e22825a8ab1c598d137f13`；S1-T01 通过不等于阶段1通过。S1-T01-D1 official Darknet 工作流入口已完成 G1/G2 并提交 `94fe7da2689f5556d49418e089858aa8001cc736`；D5B2 工具改进已提交 `de822c40771a45e2dc8be8bc6baa559bbe1933d2`，全量评估证据已提交 `0619905`。当前活动任务为 S1-T02 G0/正式浮点基线准备；D1 setup 已完成任务级 G1/G2/G4，仅建立 tiny 320/416 与完整 YOLOv4 五类配置、拓扑/参数/BFLOPs 和 provenance 证据，不代表正式训练、mAP 或最终模型验收。
 - 最近工程实现基线：`8bc6f195f0462a8d1471b875172dcca901e47f17`（S1-T02-D3 资源/性能门槛规格）。本基线不代表训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -73,12 +73,17 @@
 - 2026-09-16：D6 评估器、夹具测试和口径文档完成任务级 G1/G2；独立 Reviewer R1/R2 发现并关闭 CLI/纯入口的 NMS、最大框数、坐标格式、阈值和类型边界问题，R3 最终 `PASS`。评估器 SHA `e2294aef39e51e0e3f4f11efbb527be81b6b38744f34de2fbfa8f3cc1c01346f`，测试 SHA `f9ef71044dda7ad2cf38f602788cf4850eb23f2ce8dc9233ad78d6fdbd25afc3`；D6 r3 报告 SHA `b46680146f754c2a4c4e32bf7f75b9530a84c6d2751aeb890003d4d029cc6136`，summary SHA `0d3ae2fc0cf6687bf4d38c9d763cbe63d1aef763fb6e794d193df16131805459`。
 - 固定评估口径实现为五类 mAP@0.5 与 mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point、同类一对一匹配）、每类 precision/recall、类别内 greedy NMS IoU=0.45、每图最多15框、score threshold 0.25..0.50；filename/split/坐标格式/类别绑定和空标签检查已覆盖。合成夹具两张图、一个 GT 的 mAP=1.0 仅为手算回归；r3 状态为 `G0_PENDING`，no_hand/non-target 为 `NOT_EXECUTED`，未执行真实 Darknet 精度或正式 test/robustness。
 
+## S1-T02-D7 完整 YOLOv4 初始化权重绑定
+
+- 2026-09-17：任务级 G1/G2/G4 通过；官方 `yolov4.conv.137` 已绑定至 `D:\FPGA_Data\darknet\weights\yolov4.conv.137`，170038676 bytes，SHA-256 `11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0`。来源 README SHA `9fc4a7ce8cd6be5221ce1811c5df20645bb12487e6cba11ca54876eaf3f021e2`，Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f`；报告/摘要 SHA 分别为 `b25dad229b7a0914ef0f2deae2eefc54fec8453ac841ed4eb1bd0841304c93f6`、`263c95fccf9adb58f127a503e1e757bb50f4f6d4c55133ea9487615afcd1e640`。
+- 独立 Reviewer R2 `PASS`；JSON SHA `68fff1f070bbe685dfa8b55e4716d0ed29e87e62f6cac4abb4d4a88b2ce45aa9`、summary SHA `dc1a654dea14980aa62b794022d192e833f109e69337e8191c1a6534033c3349`。仅完成官方 backbone 初始化权重绑定，不代表五类完整权重、正式训练、评估/mAP、INT8、Vivado 或板测。
+
 ## 下一步与边界
 
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. S1-T02-D1 setup、D2 固定预处理/INT8 参考、D3 资源性能门槛、D4 官方 Darknet 执行绑定与 D5 seed 工作流及真实短训/恢复证据已完成各自任务级审查；S1-T02 G0 尚未通过。下一步为正式浮点基线：先解决/核验完整 YOLOv4 `yolov4.conv.137` 权重，再按固定 seed 和独立 test/robustness 口径执行 tiny320/tiny416/full608 的正式训练与评估；随后做 INT8 对照、逐层黄金结果、后处理测例和资源预算。正式测试前仍须冻结样本、随机种子、mAP、各类召回/精确率、无手/非目标误检、INT8 相对浮点损失和性能统计口径；最终上板模型/尺寸/性能仍由 Wong 决策。
+4. S1-T02-D1～D7 已完成任务级范围内的实现/证据和独立审查；D4 tiny416 pilot 曾于 8/100 中断，D7 已解决完整 YOLOv4 初始化权重缺失。S1-T02 G0 尚未通过：正式训练前仍须冻结固定样本清单/数量、随机种子及 robustness 覆盖，并核对已批准 mAP、类别 precision/recall、no_hand/non-target 辅助门槛、INT8 相对浮点损失和性能口径；之后才按固定口径执行 tiny320/tiny416/full608 正式训练与评估，再做 INT8 对照、逐层黄金结果、后处理测例和资源预算。最终上板模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

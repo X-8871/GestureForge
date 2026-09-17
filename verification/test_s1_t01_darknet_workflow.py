@@ -354,6 +354,14 @@ class DarknetWorkflowTest(unittest.TestCase):
                         self.assertTrue(report["seed_binding"]["passed_to_child_process"])
                         self.assertEqual(report["inputs"]["model_config_values"]["max_batches"], 6000)
                         self.assertEqual(context["checkpoint_output"], args.checkpoint_output.resolve())
+                        if action == "train":
+                            expected = [
+                                "gesture_last.weights",
+                                *(f"gesture_{step}.weights" for step in range(1000, 6001, 1000)),
+                                "gesture_final.weights",
+                            ]
+                            self.assertEqual(context["checkpoint_plan"]["candidate_names"], expected)
+                            self.assertNotIn("gesture_1001.weights", context["checkpoint_plan"]["candidate_names"])
 
                 invalid_resume = make_args("resume", 6000)
                 invalid_report = workflow._base_report(invalid_resume)
@@ -541,12 +549,22 @@ class DarknetWorkflowTest(unittest.TestCase):
             errors: list[str] = []
             plan = workflow._checkpoint_plan(values, cfg, root, 20, 0, errors)
             self.assertEqual(errors, [])
-            self.assertIn("gesture_10.weights", plan["candidate_names"])
-            self.assertIn("gesture_20.weights", plan["candidate_names"])
-            self.assertIn("gesture_last.weights", plan["candidate_names"])
-            self.assertIn("gesture_final.weights", plan["candidate_names"])
+            self.assertEqual(
+                plan["candidate_names"],
+                ["gesture_last.weights", "gesture_10.weights", "gesture_20.weights", "gesture_final.weights"],
+            )
             self.assertIsNotNone(workflow._checkpoint_name_kind(Path("gesture_last.weights"), "gesture"))
             self.assertIsNone(workflow._checkpoint_name_kind(Path("other_10.weights"), "gesture"))
+            errors = []
+            workflow._validate_checkpoint_io(
+                "train", None, backup / "gesture_15.weights", plan, "gesture", None, errors
+            )
+            self.assertTrue(any("可能产生" in error for error in errors))
+            errors = []
+            workflow._validate_checkpoint_io(
+                "train", None, backup / "gesture_10.weights", plan, "gesture", None, errors
+            )
+            self.assertEqual(errors, [])
             existing = backup / "gesture_10.weights"
             existing.write_bytes(b"old")
             errors = []
@@ -565,6 +583,10 @@ class DarknetWorkflowTest(unittest.TestCase):
             cfg = root / "gesture.cfg"
             values = {"backup": "backup", "saveweights": "10", "savelast": "5"}
             plan = workflow._checkpoint_plan(values, cfg, root, 20, 10, [])
+            self.assertEqual(
+                plan["candidate_names"],
+                ["gesture_last.weights", "gesture_20.weights", "gesture_final.weights"],
+            )
             numbered = backup / "gesture_10.weights"
             numbered.write_bytes(b"input")
             errors: list[str] = []
@@ -572,12 +594,56 @@ class DarknetWorkflowTest(unittest.TestCase):
                 "resume", numbered, backup / "gesture_final.weights", plan, "gesture", 10, errors
             )
             self.assertEqual(errors, [])
+            errors = []
+            workflow._validate_checkpoint_io(
+                "resume", numbered, backup / "gesture_15.weights", plan, "gesture", 10, errors
+            )
+            self.assertTrue(any("可能产生" in error for error in errors))
             for suffix in ("last", "final"):
                 errors = []
                 workflow._validate_checkpoint_io(
                     "resume", backup / f"gesture_{suffix}.weights", backup / "gesture_20.weights", plan, "gesture", 10, errors
                 )
                 self.assertTrue(any("只允许同一 cfg 基名的 numbered" in error for error in errors))
+
+    def test_checkpoint_plan_simulates_dynamic_resume_intervals(self) -> None:
+        """恢复起点非整除保存间隔时，候选点须逐步更新以贴合 Darknet。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            backup = root / "backup"
+            backup.mkdir()
+            cfg = root / "gesture.cfg"
+            values = {"backup": "backup", "saveweights": "10", "savelast": "5"}
+            errors: list[str] = []
+            plan = workflow._checkpoint_plan(values, cfg, root, 20, 7, errors)
+            self.assertEqual(errors, [])
+            self.assertEqual(
+                plan["candidate_names"],
+                ["gesture_10.weights", "gesture_last.weights", "gesture_20.weights", "gesture_final.weights"],
+            )
+            self.assertNotIn("gesture_17.weights", plan["candidate_names"])
+
+    def test_checkpoint_plan_formal_6000_contains_only_save_intervals(self) -> None:
+        """正式 6000 步只列出每千步编号点、last 与 final，不枚举间隔外更新。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            backup = root / "backup"
+            backup.mkdir()
+            cfg = root / "gesture_yolov4_tiny_416_d8_formal.cfg"
+            values = {"backup": "backup", "saveweights": "1000", "savelast": "500"}
+            errors: list[str] = []
+            plan = workflow._checkpoint_plan(values, cfg, root, 6000, 0, errors)
+            expected = [
+                f"{cfg.stem}_last.weights",
+                *(f"{cfg.stem}_{step}.weights" for step in range(1000, 6001, 1000)),
+                f"{cfg.stem}_final.weights",
+            ]
+            self.assertEqual(errors, [])
+            self.assertEqual(plan["candidate_names"], expected)
+            self.assertEqual(len(plan["candidate_names"]), 8)
+            self.assertNotIn(f"{cfg.stem}_1001.weights", plan["candidate_names"])
 
     def test_path_length_gate_blocks_train_resume_and_evaluate(self) -> None:
         """实际传给 Darknet 的超长路径必须在三种动作启动前失败。"""

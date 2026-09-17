@@ -840,13 +840,17 @@ def _checkpoint_plan(
         return plan
     base = model_config.stem
     candidates: list[Path] = []
+    iter_save = start_iteration
+    iter_save_last = start_iteration
     for iteration in range(max(1, start_iteration + 1), max_batches + 1):
-        if iteration >= start_iteration + saveweights or iteration % saveweights == 0:
+        if iteration >= iter_save + saveweights or iteration % saveweights == 0:
             candidates.append(backup / f"{base}_{iteration}.weights")
+            iter_save = iteration
         if saveweights > savelast and (
-            iteration >= start_iteration + savelast or (iteration % savelast == 0 and iteration > 1)
+            iteration >= iter_save_last + savelast or (iteration % savelast == 0 and iteration > 1)
         ):
             candidates.append(backup / f"{base}_last.weights")
+            iter_save_last = iteration
     candidates.append(backup / f"{base}_final.weights")
     unique: dict[str, Path] = {_canonical_path(path): path for path in candidates}
     plan["candidates"] = [str(path) for path in unique.values()]

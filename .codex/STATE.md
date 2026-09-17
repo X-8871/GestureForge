@@ -103,6 +103,11 @@
 - 2026-09-17 22:18:22（UTC+8）隐藏启动工作流 PID 12372。manifest、train/valid 和 `.data` 的 preflight 与 before-child 快照一致，退出后 after-child 也一致；Darknet child 即时退出 `0xC0000135`，没有更新步、loss、训练日志内容或 checkpoint。机器报告 `20260917_s1_t02_d8_tiny416_train_r2.json` SHA-256 `6e93c3ab6ee542c81a0c8716a47ac5d1ea45b22a3b9dac2a4cda6c09b879f9ad`，状态 `EXECUTION_FAILED`，exit 2；外部 `train.log` 为0字节，checkpoint目录为空。该失败不构成训练或精度证据。
 - loader 诊断：PE 导入 `pthreadVC2.dll`，运行时 PATH 未含其目录；DLL 存在于 `D:\FPGA_Data\darknet\3rdparty\pthreads\bin\pthreadVC2.dll`，SHA-256 `0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e`。在进程局部 PATH 前置该目录后，无参数 loader 探针按 Darknet 源码在 GPU 初始化前返回 usage/exit 0；系统 PATH 未改。下一次使用独立 retry 日志与报告路径、仅进程级 DLL 搜索路径修正，不覆盖本次失败证据。
 
+## S1-T02-D8 retry01 tiny416 正式训练
+
+- 2026-09-17 22:37:36（UTC+8）由隐藏 detached workflow PID 23312 启动 Darknet PID 13184；进程局部 PATH 前置 pthread DLL 目录，系统 PATH 未改。独立日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny416_formal_r2\logs_retry01`，预定报告 `20260917_s1_t02_d8_tiny416_train_r2_retry01.json`。当前状态快照到63/6000步，avg loss `313.731689`，日志数值有限；截至上次扫描未见 NaN/Inf/OOM/error/corrupt。总超时21600秒、无进度300秒。训练仍在运行，未有最终报告或 checkpoint，精度未评估；会话结束后不承诺 Agent 持续监管。
+- tiny320 后续候选已预备但未启动：`D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1`；cfg 从已审 D4 tiny320 formal cfg 原样复制，SHA `92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94`；独立 `.data` 使用专属 checkpoints backup，SHA `5153f9febb002300c994550aefa584bf98f9f040ca3717b7dde84a0a149fe194`。与 tiny416 顺序执行，不并发占用 GPU。
+
 ## S1-T02-D4-W5 来源校验工具审查状态
 
 - 2026-09-17：R5 对启动闸门、deadline、回收、计数及 callback 生命周期相关实现/测试的独立复核通过；但整体 `CHANGES_REQUIRED`。成功报告验证仅要求至少一条 `matches=true` 依赖记录，未强制完整15项固定依赖集合、路径唯一性及 expected/observed SHA 与大小相等；单条伪匹配报告可被接纳。候选源码 SHA `1424df7ed2cd1cad439c1e19c3252c0aa7ad5c033dd304c9a6651b45d7919ed0`、测试 SHA `b41816ac06051884f858dba123a844404902cc5732ea3888f6ce662d8f0a2472`，42项离线测试通过但 G2 未通过，文件未提交。Reviewer R5 JSON `C:\Users\22061\AppData\Local\Temp\s1_t02_d4_w5_r5_20260917\review_s1_t02_d4_w5_r5.json` SHA `a8d491aff0d61aa82680e09dcf25f187e4d57a94b5a6570c9794c1ce96728381`。尚未联网、读取 full 权重或执行 provenance；许可证仍 `UNRESOLVED`。不得用当前候选启动真实 HTTP；后续需重新限定完整依赖绑定任务并完成独立复审。
@@ -122,7 +127,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D8c/D8d 代码 G2 已通过并提交。训练尝试01因缺少 `pthreadVC2.dll` 搜索路径即时失败，已保留报告；在独立 retry 日志/报告路径中使用进程级 PATH 修正后重试 tiny416 6000 步，并重验输入绑定。训练报告独立复审通过后，才运行 D6 val 候选推理（capture threshold `0.249999`，不是最终阈值）。W5 当前 G2 未通过，不可联网或读 full 权重；依赖完整绑定缺陷需重新限定后审查。tiny320/full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
+4. D8c/D8d 代码 G2 已通过并提交。tiny416 retry01 正在运行，完成后审阅其报告及 after-child 输入绑定；G2 通过后才运行 D6 val 候选推理（capture threshold `0.249999`，不是最终阈值）。W5 当前 G2 未通过，不可联网或读 full 权重；完整15项依赖绑定缺陷未关闭。tiny320 run 配置已隔离准备，等待 tiny416 完成后依序预检/训练；full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

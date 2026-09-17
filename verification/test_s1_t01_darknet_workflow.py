@@ -7,10 +7,11 @@ import struct
 import tempfile
 import unittest
 from argparse import Namespace
-from contextlib import redirect_stderr
+from contextlib import ExitStack, redirect_stderr
 from pathlib import Path
 import hashlib
 import json
+from datetime import datetime
 from unittest.mock import patch
 
 try:
@@ -26,6 +27,616 @@ except ModuleNotFoundError:
 
 class DarknetWorkflowTest(unittest.TestCase):
     """验证短训边界、审批门槛和官方命令格式。"""
+
+    @staticmethod
+    def _make_training_inputs(root: Path, train_bytes: bytes | None = None, valid_bytes: bytes | None = None) -> dict[str, object]:
+        """建立隔离的训练清单、.data、manifest 和对应的人工期望索引。"""
+
+        train_image = root / "train_image.jpg"
+        valid_image = root / "valid_image.jpg"
+        train_label = root / "train_image.txt"
+        valid_label = root / "valid_image.txt"
+        train_image.write_bytes(b"train image")
+        valid_image.write_bytes(b"valid image")
+        train_label.write_text("", encoding="utf-8")
+        valid_label.write_text("", encoding="utf-8")
+        train_list = root / "train.list"
+        valid_list = root / "valid.list"
+        train_list.write_bytes(train_bytes if train_bytes is not None else f"{train_image}\n".encode())
+        valid_list.write_bytes(valid_bytes if valid_bytes is not None else f"{valid_image}\n".encode())
+        data_config = root / "gesture.data"
+        data_config.write_text(
+            f"classes=5\ntrain={train_list}\nvalid={valid_list}\n",
+            encoding="utf-8",
+        )
+        manifest = root / "manifest.csv"
+        manifest.write_text(
+            "image,label,split,session_id,person_id,source,license,is_real\n"
+            "train_image.jpg,train_image.txt,train,session_train,person_train,synthetic,CC0,false\n"
+            "valid_image.jpg,valid_image.txt,val,session_val,person_val,synthetic,CC0,false\n",
+            encoding="utf-8",
+        )
+        args = Namespace(data_config=data_config, manifest=manifest, data_root=root)
+        snapshot, manifest_images, data_config_values = workflow._capture_training_input_snapshot(
+            args, root, "preflight"
+        )
+        return {
+            "args": args,
+            "manifest_images": manifest_images,
+            "data_config_values": data_config_values,
+            "snapshot": snapshot,
+            "train_list": train_list,
+            "valid_list": valid_list,
+            "train_image": train_image,
+            "valid_image": valid_image,
+            "data_config": data_config,
+            "manifest": manifest,
+        }
+
+    @staticmethod
+    def _make_approved_preflight_fixture(root: Path, dry_run: bool = False) -> dict[str, object]:
+        """建立获批 manifest A 及可将其替换为合法 B 的 train 预检夹具。"""
+
+        inputs = DarknetWorkflowTest._make_training_inputs(root)
+        train_image = inputs["train_image"]
+        valid_image = inputs["valid_image"]
+        train_label = root / "train_image.txt"
+        valid_label = root / "valid_image.txt"
+        second_train_image = root / "second_train_image.jpg"
+        second_train_label = root / "second_train_image.txt"
+        second_train_image.write_bytes(b"second train image")
+        second_train_label.write_text("", encoding="utf-8")
+
+        manifest = inputs["manifest"]
+        header = "image,label,split,session_id,person_id,source,license,is_real\n"
+        train_row = "train_image.jpg,train_image.txt,train,session_train,person_train,friend,approved,true\n"
+        no_hand_row = "valid_image.jpg,valid_image.txt,val,session_no_hand,person_no_hand,friend,approved,true\n"
+        manifest_a = (header + train_row + no_hand_row).encode("utf-8")
+        manifest_b = (
+            header
+            + train_row
+            + no_hand_row
+            + "second_train_image.jpg,second_train_image.txt,train,session_train_2,person_train_2,friend,approved,true\n"
+        ).encode("utf-8")
+        manifest.write_bytes(manifest_a)
+        inputs["train_list"].write_text(f"{train_image}\n", encoding="utf-8")
+        inputs["valid_list"].write_text(f"{valid_image}\n", encoding="utf-8")
+
+        names = root / "gesture.names"
+        names.write_text("fist\npalm\none\ntwo_up\nthree\n", encoding="utf-8")
+        backup = root / "backup"
+        backup.mkdir()
+        data_config = inputs["data_config"]
+        data_config.write_text(
+            f"classes=5\nnames={names}\ntrain={inputs['train_list']}\nvalid={inputs['valid_list']}\n"
+            f"backup={backup}\nsaveweights=1000\nsavelast=500\n",
+            encoding="utf-8",
+        )
+        model_config = root / "gesture.cfg"
+        model_config.write_text("[net]\nmax_batches=6000\n", encoding="utf-8")
+        executable = root / "darknet.exe"
+        executable.write_bytes(b"synthetic executable")
+        environment_report = root / "environment.json"
+        environment_report.write_text("{}", encoding="utf-8")
+        initial_weights = root / "initial.weights"
+        initial_weights.write_bytes(b"initial")
+
+        dataset_report = root / "dataset.json"
+        dataset_report.write_text(
+            json.dumps(
+                {
+                    "status": "PASS_AUTOMATED_MANUAL_PENDING",
+                    "manifest": str(manifest),
+                    "data_root": str(root),
+                    "checks": {"AC02": "通过", "AC03": "通过", "AC04": "待人工抽查"},
+                }
+            ),
+            encoding="utf-8",
+        )
+        dataset_approval = root / "approval.json"
+        approval = {
+            "status": "APPROVED",
+            "reviewer": "Wong",
+            "dataset_report": str(dataset_report),
+            "dataset_report_sha256": hashlib.sha256(dataset_report.read_bytes()).hexdigest(),
+            "manifest_sha256": hashlib.sha256(manifest_a).hexdigest(),
+            "no_hand_images": [
+                {"image": "valid_image.jpg", "split": "val", "role": "no_hand", "manifest_row": 3}
+            ],
+        }
+        dataset_approval.write_text(json.dumps(approval), encoding="utf-8")
+
+        args = Namespace(
+            action="train",
+            formal_training=True,
+            darknet_executable=executable,
+            environment_report=environment_report,
+            data_root=root,
+            manifest=manifest,
+            dataset_report=dataset_report,
+            dataset_approval=dataset_approval,
+            data_config=data_config,
+            model_config=model_config,
+            names_file=names,
+            working_directory=root,
+            run_dir=root / "run",
+            report=root / "report.json",
+            timeout_seconds=60.0,
+            no_progress_timeout_seconds=30.0,
+            darknet_seed=424242,
+            initial_weights=initial_weights,
+            checkpoint_output=backup / "gesture_1000.weights",
+            dry_run=dry_run,
+        )
+        return {
+            **inputs,
+            "args": args,
+            "manifest_a": manifest_a,
+            "manifest_b": manifest_b,
+            "second_train_image": second_train_image,
+            "report": workflow._base_report(args),
+            "dataset_approval": approval,
+        }
+
+    @staticmethod
+    def _preflight_test_patches(dataset_gate_side_effect: object) -> ExitStack:
+        """替换与清单竞态无关的环境和模型依赖，保留真实数据 gate。"""
+
+        stack = ExitStack()
+        stack.enter_context(patch.object(workflow, "_validate_environment_gate", return_value={}))
+        stack.enter_context(patch.object(workflow, "_validate_dataset_gate", side_effect=dataset_gate_side_effect))
+        stack.enter_context(patch.object(workflow, "_validate_model_config", return_value={"max_batches": 6000}))
+        stack.enter_context(patch.object(workflow, "_validate_checkpoint_io", return_value=None))
+        stack.enter_context(patch.object(workflow, "_check_no_existing_process", return_value=None))
+        stack.enter_context(patch.object(workflow, "_identity_artifacts", return_value={}))
+        return stack
+
+    @staticmethod
+    def _attach_training_binding(report: dict[str, object], fixture: dict[str, object]) -> None:
+        """把通过合成预检的输入快照装入运行测试报告。"""
+
+        report["training_input_binding"] = {
+            "status": "PREFLIGHT_CAPTURED",
+            "preflight": fixture["snapshot"],
+            "before_child": None,
+            "after_child": None,
+            "execution_status": "NOT_STARTED",
+            "scope_notice": "仅比较 preflight、before_child、after_child 各采样点；不证明 child 运行期间未发生后又恢复的修改。",
+        }
+
+    @staticmethod
+    def _make_train_execute_fixture(
+        root: Path,
+        training_inputs: dict[str, object],
+        dry_run: bool = False,
+    ) -> tuple[Namespace, dict[str, object], dict[str, object]]:
+        """构造不依赖 CUDA/Darknet 的训练执行夹具。"""
+
+        checkpoint = root / "backup" / "gesture_10.weights"
+        args = Namespace(
+            action="train",
+            data_config=training_inputs["data_config"],
+            manifest=training_inputs["manifest"],
+            data_root=root,
+            model_config=root / "gesture.cfg",
+            initial_weights=root / "initial.weights",
+            checkpoint_output=checkpoint,
+            run_dir=root / "run",
+            timeout_seconds=10.0,
+            no_progress_timeout_seconds=10.0,
+            dry_run=dry_run,
+            darknet_seed=424242,
+        )
+        report = workflow._base_report(args)
+        DarknetWorkflowTest._attach_training_binding(report, training_inputs)
+        report["inputs"] = {"checkpoint_mapping": {"candidate_names": [checkpoint.name]}}
+        report["outputs"] = {"checkpoint_output": {"path": str(checkpoint)}}
+        context = {
+            "executable": root / "darknet.exe",
+            "working_directory": root,
+            "checkpoint_output": checkpoint,
+            "checkpoint_plan": {"candidate_names": [checkpoint.name]},
+            "manifest_images": training_inputs["manifest_images"],
+        }
+        return args, report, context
+
+    def test_training_input_snapshot_binds_exact_bytes_counts_paths_and_utc8(self) -> None:
+        """训练输入快照必须记录实际路径、字节、行数、哈希、manifest 计数及时点。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            train_image = root / "train_image.jpg"
+            train_image.write_bytes(b"train image")
+            fixture = self._make_training_inputs(
+                root,
+                train_bytes=f"{train_image}\n# synthetic note\n\n".encode("utf-8"),
+            )
+            snapshot = fixture["snapshot"]
+            train_list = fixture["train_list"]
+            self.assertEqual(snapshot["status"], "CAPTURED")
+            self.assertEqual(snapshot["capture_point"], "preflight")
+            captured = datetime.fromisoformat(snapshot["captured_at_utc8"])
+            self.assertEqual(captured.utcoffset().total_seconds(), 8 * 60 * 60)
+            self.assertEqual(snapshot["data_config"]["path"], workflow._canonical_path(fixture["data_config"]))
+            self.assertEqual(snapshot["data_config"]["sha256"], hashlib.sha256(fixture["data_config"].read_bytes()).hexdigest())
+            self.assertEqual(snapshot["manifest"]["path"], workflow._canonical_path(fixture["manifest"]))
+            self.assertEqual(snapshot["manifest"]["sha256"], hashlib.sha256(fixture["manifest"].read_bytes()).hexdigest())
+            self.assertEqual(snapshot["manifest"]["size_bytes"], fixture["manifest"].stat().st_size)
+            self.assertEqual(snapshot["manifest"]["sample_counts"], {"train": 1, "val": 1, "test": 0})
+            self.assertEqual(snapshot["lists"]["train"]["path"], workflow._canonical_path(train_list))
+            self.assertEqual(snapshot["lists"]["train"]["sha256"], hashlib.sha256(train_list.read_bytes()).hexdigest())
+            self.assertEqual(snapshot["lists"]["train"]["size_bytes"], train_list.stat().st_size)
+            self.assertEqual(snapshot["lists"]["train"]["line_count"], 3)
+            self.assertEqual(snapshot["lists"]["train"]["sample_count"], 1)
+
+    def test_manifest_replacement_and_restore_during_parse_cannot_mix_snapshot_and_counts(self) -> None:
+        """解析期间 manifest A→B→A 时，快照映射和计数仍绑定已捕获的 A 字节。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._make_training_inputs(root)
+            manifest_path = inputs["manifest"]
+            manifest_a = manifest_path.read_bytes()
+            train_b = root / "second_train_image.jpg"
+            label_b = root / "second_train_image.txt"
+            train_b.write_bytes(b"second train image")
+            label_b.write_text("", encoding="utf-8")
+            manifest_b = (
+                "image,label,split,session_id,person_id,source,license,is_real\n"
+                "train_image.jpg,train_image.txt,train,session_train,person_train,synthetic,CC0,false\n"
+                "second_train_image.jpg,second_train_image.txt,train,session_train_2,person_train_2,synthetic,CC0,false\n"
+                "valid_image.jpg,valid_image.txt,val,session_val,person_val,synthetic,CC0,false\n"
+            ).encode("utf-8")
+            original_parser = workflow._load_manifest_images_from_bytes
+
+            def replace_and_restore(raw: bytes, manifest: Path, data_root: Path, errors: list[str]) -> dict[str, dict[str, dict[str, object]]]:
+                """模拟解析期间磁盘文件换成 B 后再恢复 A。"""
+
+                manifest.write_bytes(manifest_b)
+                try:
+                    return original_parser(raw, manifest, data_root, errors)
+                finally:
+                    manifest.write_bytes(manifest_a)
+
+            with patch.object(workflow, "_load_manifest_images_from_bytes", side_effect=replace_and_restore):
+                snapshot, manifest_images, _ = workflow._capture_training_input_snapshot(
+                    inputs["args"], root, "preflight"
+                )
+            self.assertEqual(snapshot["status"], "CAPTURED")
+            self.assertEqual(snapshot["manifest"]["sha256"], hashlib.sha256(manifest_a).hexdigest())
+            self.assertEqual(snapshot["manifest"]["size_bytes"], len(manifest_a))
+            self.assertEqual(snapshot["manifest"]["sample_counts"], {"train": 1, "val": 1, "test": 0})
+            self.assertEqual(len(manifest_images["train"]), 1)
+            self.assertEqual(len(manifest_images["val"]), 1)
+            self.assertEqual(snapshot["lists"]["train"]["capture_status"], "CAPTURED")
+
+    def test_manifest_replaced_after_approval_blocks_preflight_and_never_spawns_child(self) -> None:
+        """批准 A 后在预检前或 child 前替换成 B，均须阻断且不调用 child。"""
+
+        for replacement_point in ("before_preflight", "after_approval_gate"):
+            with self.subTest(replacement_point=replacement_point), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                fixture = self._make_approved_preflight_fixture(root)
+                args = fixture["args"]
+                report = fixture["report"]
+                manifest = fixture["manifest"]
+                manifest_a = fixture["manifest_a"]
+                manifest_b = fixture["manifest_b"]
+                expected_hash = hashlib.sha256(manifest_a).hexdigest()
+                actual_hash = hashlib.sha256(manifest_b).hexdigest()
+                validate_gate = workflow._validate_dataset_gate
+                if replacement_point == "before_preflight":
+                    manifest.write_bytes(manifest_b)
+
+                def approve_a_then_replace_with_b(
+                    report_path: Path,
+                    approval_path: Path,
+                    manifest_path: Path,
+                    data_root: Path,
+                    errors: list[str],
+                    training_manifest_snapshot: dict[str, object] | None = None,
+                ) -> dict[str, object]:
+                    """按稳定快照真实核验批准 SHA，并可在校验后替换磁盘文件。"""
+
+                    result = validate_gate(
+                        report_path,
+                        approval_path,
+                        manifest_path,
+                        data_root,
+                        errors,
+                        training_manifest_snapshot=training_manifest_snapshot,
+                    )
+                    if replacement_point == "after_approval_gate":
+                        self.assertEqual(errors, [])
+                        manifest_path.write_bytes(manifest_b)
+                    return result
+
+                with self._preflight_test_patches(approve_a_then_replace_with_b) as _patches:
+                    context = workflow._preflight(args, report)
+
+                binding = report["training_input_binding"]
+                snapshot = binding["preflight"]
+                self.assertEqual(
+                    snapshot["status"],
+                    "FAILED" if replacement_point == "before_preflight" else "CAPTURED",
+                )
+                expected_snapshot_hash = (
+                    actual_hash if replacement_point == "before_preflight" else expected_hash
+                )
+                self.assertEqual(snapshot["manifest"]["sha256"], expected_snapshot_hash)
+                self.assertEqual(report["inputs"]["manifest_sha256"], snapshot["manifest"]["sha256"])
+                if replacement_point == "after_approval_gate":
+                    self.assertEqual(report["errors"], [])
+                with patch.object(workflow, "_run_command") as runner:
+                    workflow._execute(args, report, context)
+                runner.assert_not_called()
+                if replacement_point == "before_preflight":
+                    self.assertTrue(
+                        any("获批 manifest SHA-256 与训练输入快照不一致" in error for error in report["errors"])
+                    )
+                    self.assertEqual(binding["status"], "BLOCKED")
+                    self.assertEqual(binding["execution_status"], "BLOCKED_PREFLIGHT")
+                    self.assertEqual(report["status"], "BLOCKED_PREFLIGHT")
+                else:
+                    self.assertEqual(binding["preflight"]["manifest"]["sha256"], expected_hash)
+                    self.assertEqual(binding["before_child"]["manifest"]["sha256"], actual_hash)
+                    self.assertFalse(binding["before_child"]["comparison_to_preflight"]["matches"])
+                    self.assertEqual(binding["execution_status"], "PRELAUNCH_REJECTED")
+                    self.assertEqual(report["status"], "EXECUTION_FAILED")
+                    self.assertTrue(any("启动前训练输入与 preflight 不一致" in error for error in report["errors"]))
+
+    def test_approved_manifest_snapshot_is_the_reported_training_identity(self) -> None:
+        """审批清单 A 与快照一致时预检通过，报告 SHA/字节数直接来自该快照。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fixture = self._make_approved_preflight_fixture(root)
+            manifest = fixture["manifest"]
+            manifest_a = fixture["manifest_a"]
+            validate_gate = workflow._validate_dataset_gate
+
+            def validate_unchanged_gate(
+                report_path: Path,
+                approval_path: Path,
+                manifest_path: Path,
+                data_root: Path,
+                errors: list[str],
+                training_manifest_snapshot: dict[str, object] | None = None,
+            ) -> dict[str, object]:
+                """使用真实 gate 验证清单 A 和对应批准。"""
+
+                return validate_gate(
+                    report_path,
+                    approval_path,
+                    manifest_path,
+                    data_root,
+                    errors,
+                    training_manifest_snapshot=training_manifest_snapshot,
+                )
+
+            manifest_file_hash_reads: list[Path] = []
+            original_sha256 = workflow._sha256
+
+            def track_sha256(path: Path) -> str:
+                if workflow._same_path(path, manifest):
+                    manifest_file_hash_reads.append(path)
+                return original_sha256(path)
+
+            with self._preflight_test_patches(validate_unchanged_gate) as _patches, patch.object(
+                workflow, "_sha256", side_effect=track_sha256
+            ):
+                workflow._preflight(fixture["args"], fixture["report"])
+
+            report = fixture["report"]
+            snapshot = report["training_input_binding"]["preflight"]
+            expected_hash = hashlib.sha256(manifest_a).hexdigest()
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["training_input_binding"]["status"], "PREFLIGHT_CAPTURED")
+            self.assertEqual(report["inputs"]["manifest_sha256"], expected_hash)
+            self.assertEqual(report["inputs"]["manifest_size_bytes"], len(manifest_a))
+            self.assertEqual(snapshot["manifest"]["sha256"], expected_hash)
+            self.assertEqual(snapshot["manifest"]["size_bytes"], len(manifest_a))
+            self.assertEqual(
+                fixture["dataset_approval"]["manifest_sha256"],
+                snapshot["manifest"]["sha256"],
+            )
+            self.assertEqual(
+                report["inputs"]["manifest_sha256"],
+                snapshot["manifest"]["sha256"],
+            )
+            self.assertEqual(manifest_file_hash_reads, [])
+
+    def test_training_dry_run_records_only_preflight_and_never_spawns_child(self) -> None:
+        """dry-run 明确为 PLANNED_NO_EXECUTION，不能伪称执行前后复核。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._make_training_inputs(root)
+            args, report, context = self._make_train_execute_fixture(root, inputs, dry_run=True)
+            with patch.object(workflow, "_run_command") as runner:
+                workflow._execute(args, report, context)
+            self.assertEqual(report["status"], "PLANNED_NO_EXECUTION")
+            binding = report["training_input_binding"]
+            self.assertEqual(binding["status"], "PLANNED_NO_EXECUTION")
+            self.assertEqual(binding["execution_status"], "PLANNED_NO_EXECUTION")
+            self.assertIsNone(binding["before_child"])
+            self.assertIsNone(binding["after_child"])
+            self.assertIn("仅记录 preflight", report["acceptance"]["training_input_binding"])
+            self.assertIn("不证明 child 运行期间", binding["scope_notice"])
+            runner.assert_not_called()
+
+    def test_training_list_change_before_child_prevents_spawn(self) -> None:
+        """正式 child 启动前任一训练清单内容变化都必须被拦截。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._make_training_inputs(root)
+            args, report, context = self._make_train_execute_fixture(root, inputs)
+            inputs["valid_list"].write_bytes(inputs["valid_list"].read_bytes() + b"# changed before launch\n")
+            with patch.object(workflow, "_run_command") as runner:
+                workflow._execute(args, report, context)
+            self.assertEqual(report["status"], "EXECUTION_FAILED")
+            self.assertEqual(report["training_input_binding"]["execution_status"], "PRELAUNCH_REJECTED")
+            self.assertFalse(report["training_input_binding"]["before_child"]["comparison_to_preflight"]["matches"])
+            self.assertTrue(any("启动前训练输入与 preflight 不一致" in error for error in report["errors"]))
+            self.assertEqual(report["acceptance"]["command_executed"], False)
+            runner.assert_not_called()
+
+    def test_training_list_change_during_child_is_detected_after_return(self) -> None:
+        """child 运行期间修改任一清单必须在返回后造成执行失败。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._make_training_inputs(root)
+            args, report, context = self._make_train_execute_fixture(root, inputs)
+
+            def mutate_during_child(*_args: object, **_kwargs: object) -> dict[str, object]:
+                """模拟 child 改写 train.list 后正常返回。"""
+
+                inputs["train_list"].write_bytes(inputs["train_list"].read_bytes() + b"# changed in child\n")
+                context["checkpoint_output"].parent.mkdir(parents=True, exist_ok=True)
+                context["checkpoint_output"].write_bytes(b"synthetic checkpoint")
+                return {
+                    "exit_code": 0,
+                    "stop_reason": None,
+                    "non_finite_observed": False,
+                    "loss_token_observed": True,
+                    "observed_update_steps": list(range(1, 11)),
+                    "output": "loss=1.0",
+                    "log_sha256": "synthetic-log",
+                }
+
+            with patch.object(workflow, "_run_command", side_effect=mutate_during_child) as runner:
+                workflow._execute(args, report, context)
+            self.assertEqual(runner.call_count, 1)
+            self.assertEqual(report["training_input_binding"]["execution_status"], "POSTRUN_MISMATCH")
+            self.assertFalse(report["training_input_binding"]["after_child"]["comparison_to_preflight"]["matches"])
+            self.assertEqual(report["status"], "EXECUTION_FAILED")
+            self.assertTrue(any("返回后训练输入与 preflight 不一致" in error for error in report["errors"]))
+            self.assertNotIn("ac05_candidate", report.get("acceptance", {}))
+
+    def test_child_nonzero_and_postrun_list_read_failure_remain_failed(self) -> None:
+        """child 非零退出且返回后清单缺失时，报告保留两项失败证据。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            inputs = self._make_training_inputs(root)
+            args, report, context = self._make_train_execute_fixture(root, inputs)
+
+            def fail_child_and_remove_list(*_args: object, **_kwargs: object) -> dict[str, object]:
+                """模拟 child 失败后 valid.list 消失。"""
+
+                inputs["valid_list"].unlink()
+                return {
+                    "exit_code": 1,
+                    "stop_reason": None,
+                    "non_finite_observed": False,
+                    "loss_token_observed": False,
+                    "observed_update_steps": [],
+                    "output": "synthetic child failure",
+                }
+
+            with patch.object(workflow, "_run_command", side_effect=fail_child_and_remove_list):
+                workflow._execute(args, report, context)
+            self.assertEqual(report["status"], "EXECUTION_FAILED")
+            self.assertEqual(report["commands"][0]["exit_code"], 1)
+            self.assertEqual(report["training_input_binding"]["after_child"]["status"], "FAILED")
+            self.assertFalse(
+                report["training_input_binding"]["after_child"]["comparison_to_preflight"]["matches"]
+            )
+            self.assertTrue(any("清单缺失、不可读或读取期间发生变化" in error for error in report["errors"]))
+
+    def test_missing_or_unreadable_training_list_blocks_report_and_child(self) -> None:
+        """缺失或不可读清单均不得让 train/resume 报告进入通过状态。"""
+
+        for mode in ("missing", "unreadable"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                inputs = self._make_training_inputs(root)
+                train_list = inputs["train_list"]
+                if mode == "missing":
+                    train_list.unlink()
+                    snapshot, _, _ = workflow._capture_training_input_snapshot(
+                        inputs["args"], root, "preflight"
+                    )
+                elif mode == "unreadable":
+                    original_read_bytes = Path.read_bytes
+
+                    def fail_training_list_read(path: Path) -> bytes:
+                        if path == train_list:
+                            raise PermissionError("synthetic access denied")
+                        return original_read_bytes(path)
+
+                    with patch.object(Path, "read_bytes", fail_training_list_read):
+                        snapshot, _, _ = workflow._capture_training_input_snapshot(
+                            inputs["args"], root, "preflight"
+                        )
+                self.assertEqual(snapshot["status"], "FAILED")
+                self.assertEqual(snapshot["lists"]["train"]["capture_status"], "FAILED")
+                args, report, context = self._make_train_execute_fixture(root, inputs, dry_run=True)
+                report["training_input_binding"].update(
+                    {"status": "BLOCKED", "preflight": snapshot, "execution_status": "BLOCKED_PREFLIGHT"}
+                )
+                with patch.object(workflow, "_run_command") as runner:
+                    workflow._execute(args, report, context)
+                self.assertEqual(report["status"], "BLOCKED_PREFLIGHT")
+                self.assertNotEqual(report["status"], "PASS")
+                runner.assert_not_called()
+
+    def test_missing_or_unreadable_manifest_blocks_snapshot_and_child(self) -> None:
+        """manifest 缺失、不可读或采集期间变化时必须阻断执行。"""
+
+        for mode in ("missing", "unreadable", "unstable"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                inputs = self._make_training_inputs(root)
+                manifest = inputs["manifest"]
+                if mode == "missing":
+                    manifest.unlink()
+                    snapshot, _, _ = workflow._capture_training_input_snapshot(
+                        inputs["args"], root, "preflight"
+                    )
+                elif mode == "unreadable":
+                    original_read_bytes = Path.read_bytes
+
+                    def fail_manifest_read(path: Path) -> bytes:
+                        if path == manifest:
+                            raise PermissionError("synthetic manifest access denied")
+                        return original_read_bytes(path)
+
+                    with patch.object(Path, "read_bytes", fail_manifest_read):
+                        snapshot, _, _ = workflow._capture_training_input_snapshot(
+                            inputs["args"], root, "preflight"
+                        )
+                else:
+                    original_read_bytes = Path.read_bytes
+
+                    def change_manifest_during_read(path: Path) -> bytes:
+                        """在读出 A 后替换为不同字节，使前后 stat 不同。"""
+
+                        raw = original_read_bytes(path)
+                        if path == manifest:
+                            path.write_bytes(raw + b"# changed during read\n")
+                        return raw
+
+                    with patch.object(Path, "read_bytes", change_manifest_during_read):
+                        snapshot, _, _ = workflow._capture_training_input_snapshot(
+                            inputs["args"], root, "preflight"
+                        )
+                self.assertEqual(snapshot["status"], "FAILED")
+                self.assertEqual(snapshot["manifest"]["capture_status"], "FAILED")
+                if mode == "unstable":
+                    self.assertTrue(any("读取期间发生变化" in error for error in snapshot["errors"]))
+                else:
+                    self.assertTrue(snapshot["errors"])
+                args, report, context = self._make_train_execute_fixture(root, inputs, dry_run=True)
+                report["training_input_binding"].update(
+                    {"status": "BLOCKED", "preflight": snapshot, "execution_status": "BLOCKED_PREFLIGHT"}
+                )
+                with patch.object(workflow, "_run_command") as runner:
+                    workflow._execute(args, report, context)
+                self.assertEqual(report["status"], "BLOCKED_PREFLIGHT")
+                runner.assert_not_called()
 
     def test_darknet_seed_parser_accepts_only_nonnegative_uint32(self) -> None:
         """种子解析接受边界值并拒绝缺失、负数、溢出和非十进制文本。"""
@@ -174,6 +785,7 @@ class DarknetWorkflowTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            training_inputs = self._make_training_inputs(root)
             run_dir = root / "run"
             backup = root / "backup"
             backup.mkdir()
@@ -182,7 +794,9 @@ class DarknetWorkflowTest(unittest.TestCase):
                 action="train",
                 formal_training=True,
                 darknet_seed=424242,
-                data_config=root / "gesture.data",
+                data_config=training_inputs["data_config"],
+                manifest=training_inputs["manifest"],
+                data_root=root,
                 model_config=root / "gesture.cfg",
                 initial_weights=root / "initial.weights",
                 checkpoint_output=checkpoint,
@@ -192,6 +806,7 @@ class DarknetWorkflowTest(unittest.TestCase):
                 dry_run=False,
             )
             report = workflow._base_report(args)
+            self._attach_training_binding(report, training_inputs)
             report["inputs"] = {"checkpoint_mapping": {"candidate_names": [checkpoint.name]}}
             report["outputs"] = {"checkpoint_output": {"path": str(checkpoint)}}
             context = {
@@ -199,6 +814,7 @@ class DarknetWorkflowTest(unittest.TestCase):
                 "working_directory": root,
                 "checkpoint_output": checkpoint,
                 "checkpoint_plan": {"candidates": [str(checkpoint)]},
+                "manifest_images": training_inputs["manifest_images"],
             }
 
             def fake_train(*_args: object, **_kwargs: object) -> dict[str, object]:
@@ -319,8 +935,19 @@ class DarknetWorkflowTest(unittest.TestCase):
 
             patches = [
                 patch.object(workflow, "_validate_environment_gate", return_value={}),
-                patch.object(workflow, "_validate_dataset_gate", return_value={"approval": {}}),
-                patch.object(workflow, "_load_manifest_images", return_value={"train": {}, "val": {}, "test": {}}),
+                patch.object(
+                    workflow,
+                    "_validate_dataset_gate",
+                    return_value={
+                        "approval": {"manifest_sha256": hashlib.sha256(manifest.read_bytes()).hexdigest()},
+                        "manifest_snapshot_matches_approval": True,
+                    },
+                ),
+                patch.object(
+                    workflow,
+                    "_load_manifest_images_from_bytes",
+                    return_value={"train": {}, "val": {}, "test": {}},
+                ),
                 patch.object(workflow, "_load_valid_list", return_value=[]),
                 patch.object(workflow, "_validate_no_hand_approval", return_value={}),
                 patch.object(workflow, "_check_no_existing_process", return_value=None),
@@ -335,6 +962,54 @@ class DarknetWorkflowTest(unittest.TestCase):
                 self.assertEqual(default_report["training_profile"], "diagnostic_short")
                 self.assertFalse(any("必须显式提供 --darknet-seed" in error for error in default_report["errors"]))
                 self.assertTrue(any("短训安全范围" in error for error in default_report["errors"]))
+
+                data_a = data_config.read_bytes()
+                data_b = (
+                    f"classes=4\nnames={root / 'wrong.names'}\ntrain={train_list}\nvalid={valid_list}\n"
+                    f"backup={root / 'missing_backup'}\nsaveweights=0\nsavelast=500\n"
+                ).encode("utf-8")
+                original_text_parser = workflow._parse_key_values_text
+
+                def replace_data_during_parse(text: str) -> dict[str, str]:
+                    """解析已捕获 A 文本时暂将路径内容替换为 B，再恢复 A。"""
+
+                    data_config.write_bytes(data_b)
+                    try:
+                        return original_text_parser(text)
+                    finally:
+                        data_config.write_bytes(data_a)
+
+                race_args = make_args("train")
+                race_report = workflow._base_report(race_args)
+                with patch.object(
+                    workflow,
+                    "_parse_key_values_text",
+                    side_effect=replace_data_during_parse,
+                ), patch.object(workflow, "_parse_key_values", side_effect=AssertionError("禁止从路径重读 .data")) as path_parser:
+                    workflow._preflight(race_args, race_report)
+                expected_data_values = original_text_parser(data_a.decode("utf-8-sig"))
+                expected_data_sha = hashlib.sha256(data_a).hexdigest()
+                path_parser.assert_not_called()
+                self.assertEqual(race_report["errors"], [])
+                self.assertEqual(
+                    race_report["inputs"]["data_config"],
+                    workflow._canonical_path(data_config),
+                )
+                self.assertEqual(race_report["inputs"]["data_config_values"], expected_data_values)
+                self.assertEqual(race_report["inputs"]["artifact_sha256"]["data_config"], expected_data_sha)
+                self.assertEqual(
+                    race_report["training_input_binding"]["preflight"]["data_config"]["sha256"],
+                    expected_data_sha,
+                )
+                self.assertEqual(
+                    race_report["training_input_binding"]["preflight"]["data_config"]["size_bytes"],
+                    len(data_a),
+                )
+                self.assertEqual(
+                    race_report["training_input_binding"]["preflight"]["data_config"]["values"],
+                    expected_data_values,
+                )
+                self.assertEqual(data_config.read_bytes(), data_a)
 
                 for action in ("train", "resume"):
                     with self.subTest(action=action, seed="missing"):
@@ -761,6 +1436,7 @@ class DarknetWorkflowTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            training_inputs = self._make_training_inputs(root)
             checkpoint_output = root / "backup" / "gesture_10.weights"
             context = {
                 "executable": root / "darknet.exe",
@@ -768,16 +1444,17 @@ class DarknetWorkflowTest(unittest.TestCase):
                 "valid_images": [],
                 "checkpoint_output": checkpoint_output,
                 "checkpoint_plan": {"candidates": []},
+                "manifest_images": training_inputs["manifest_images"],
             }
             common = [
                 "train",
                 "--darknet-executable", str(root / "darknet.exe"),
                 "--environment-report", str(root / "environment.json"),
                 "--data-root", str(root),
-                "--manifest", str(root / "manifest.csv"),
+                "--manifest", str(training_inputs["manifest"]),
                 "--dataset-report", str(root / "dataset.json"),
                 "--dataset-approval", str(root / "approval.json"),
-                "--data-config", str(root / "gesture.data"),
+                "--data-config", str(training_inputs["data_config"]),
                 "--model-config", str(root / "gesture.cfg"),
                 "--names-file", str(root / "gesture.names"),
                 "--working-directory", str(root),
@@ -791,8 +1468,14 @@ class DarknetWorkflowTest(unittest.TestCase):
 
                 report["status"] = "EXECUTED_REVIEW_REQUIRED"
 
+            def fake_preflight(args: Namespace, report: dict[str, object]) -> dict[str, object]:
+                """注入具有真实合成输入快照的最小预检上下文。"""
+
+                self._attach_training_binding(report, training_inputs)
+                return context
+
             success_report = root / "success.json"
-            with patch.object(workflow, "_preflight", return_value=context), patch.object(
+            with patch.object(workflow, "_preflight", side_effect=fake_preflight), patch.object(
                 workflow, "_execute", side_effect=fake_success
             ):
                 success_code = workflow.main([*common, "--report", str(success_report)])
@@ -802,7 +1485,7 @@ class DarknetWorkflowTest(unittest.TestCase):
             self.assertEqual(success["exit_code"], 0)
 
             dry_run_report = root / "dry_run.json"
-            with patch.object(workflow, "_preflight", return_value=context):
+            with patch.object(workflow, "_preflight", side_effect=fake_preflight):
                 dry_run_code = workflow.main([*common, "--report", str(dry_run_report), "--dry-run"])
             dry_run = json.loads(dry_run_report.read_text(encoding="utf-8"))
             self.assertEqual(dry_run_code, 0)
@@ -986,6 +1669,7 @@ class DarknetWorkflowTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            training_inputs = self._make_training_inputs(root)
             backup = root / "backup"
             backup.mkdir()
             checkpoint = backup / "gesture_10.weights"
@@ -995,7 +1679,9 @@ class DarknetWorkflowTest(unittest.TestCase):
             run_dir = root / "run"
             args = Namespace(
                 action="resume",
-                data_config=root / "gesture.data",
+                data_config=training_inputs["data_config"],
+                manifest=training_inputs["manifest"],
+                data_root=root,
                 model_config=root / "gesture.cfg",
                 checkpoint=checkpoint,
                 checkpoint_output=output,
@@ -1009,6 +1695,14 @@ class DarknetWorkflowTest(unittest.TestCase):
                 "status": "BLOCKED_PREFLIGHT",
                 "commands": [],
                 "errors": [],
+                "training_input_binding": {
+                    "status": "PREFLIGHT_CAPTURED",
+                    "preflight": training_inputs["snapshot"],
+                    "before_child": None,
+                    "after_child": None,
+                    "execution_status": "NOT_STARTED",
+                    "scope_notice": "仅比较 preflight、before_child、after_child 各采样点；不证明 child 运行期间未发生后又恢复的修改。",
+                },
                 "inputs": {
                     "resume_checkpoint_sha256_before": before,
                     "checkpoint_mapping": {"cfg_stem": "gesture", "candidates": []},
@@ -1021,6 +1715,7 @@ class DarknetWorkflowTest(unittest.TestCase):
                 "checkpoint_input": checkpoint,
                 "checkpoint_output": output,
                 "checkpoint_plan": {"cfg_stem": "gesture", "candidates": []},
+                "manifest_images": training_inputs["manifest_images"],
             }
 
             def fake_resume(command: list[str], *_args: object, **_kwargs: object) -> dict[str, object]:
@@ -1105,6 +1800,7 @@ class DarknetWorkflowTest(unittest.TestCase):
         for action in ("train", "evaluate"):
             with self.subTest(action=action), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
+                training_inputs = self._make_training_inputs(root) if action == "train" else None
                 run_dir = root / "run"
                 report_path = root / "report.json"
                 image = root / "image.jpg"
@@ -1116,10 +1812,10 @@ class DarknetWorkflowTest(unittest.TestCase):
                     "--darknet-executable", str(root / "darknet.exe"),
                     "--environment-report", str(root / "environment.json"),
                     "--data-root", str(root),
-                    "--manifest", str(root / "manifest.csv"),
+                    "--manifest", str(training_inputs["manifest"] if training_inputs else root / "manifest.csv"),
                     "--dataset-report", str(root / "dataset.json"),
                     "--dataset-approval", str(root / "approval.json"),
-                    "--data-config", str(root / "gesture.data"),
+                    "--data-config", str(training_inputs["data_config"] if training_inputs else root / "gesture.data"),
                     "--model-config", str(root / "gesture.cfg"),
                     "--names-file", str(root / "gesture.names"),
                     "--working-directory", str(root),
@@ -1145,7 +1841,13 @@ class DarknetWorkflowTest(unittest.TestCase):
                     if args.action == "train":
                         output = args.checkpoint_output.resolve()
                         report["outputs"] = {"checkpoint_output": {"path": str(output)}}
-                        return {"executable": args.darknet_executable.resolve(), "working_directory": root, "checkpoint_output": output}
+                        self._attach_training_binding(report, training_inputs)
+                        return {
+                            "executable": args.darknet_executable.resolve(),
+                            "working_directory": root,
+                            "checkpoint_output": output,
+                            "manifest_images": training_inputs["manifest_images"],
+                        }
                     output = args.run_dir.resolve() / "evaluation.json"
                     image_output = args.run_dir.resolve() / "detections" / "eval_000001.json"
                     report["outputs"] = {"evaluation_json": {"path": str(output)}}

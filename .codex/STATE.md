@@ -89,6 +89,10 @@
 - 独立 Reviewer PASS；对照 Darknet `59596d7` 源码，并以独立模拟穷举 3,744 组起点/间隔组合。冻结 SHA：workflow `5be424495b70d442f177a8f5fa3f96da812afad211c067392e92e34c5539e172`、tests `3530163ae42131eaeffd2fca4090c65a929464c6ee61443e6ebceaec12dd3454f`；审查记录与测试日志在 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8b-c83b64945c0e44da8ba75351032eee8c`。
 - D8 tiny416 正式训练于 2026-09-17 12:22:26（UTC+8）启动，seed=424242、formal_6000；17:27 完成 6000 步，退出码0，loss 有限且无 OOM/NaN/Inf/数据损坏标记。报告 `report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r1.json` SHA-256 `ce61ab57973d27f27f64094c7eafeeddf5a9e5076a577b23f3e3940838f4dadc`；final/last/6000 权重一致，SHA-256 `c03616fa823181478885d99db21b1f2ed9fd57b59db118776241758b54c4df1e`，保存在外部 run-dir，不纳入 Git。独立 Reviewer R2 判定 `CHANGES_REQUIRED`：D8 当次缺 train.list/valid.list SHA；D5A 较早哈希和当前 NTFS 时间戳仅为追溯旁证，不足以证明训练读取字节。复审证据 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8-tiny416-r2-20260917\review_s1_t02_d8_tiny416_input_chain_r2.md` SHA-256 `ea55947e821b0fa653a319bfac6df8f8fc4dc246488c35344662d3b694288022`。该权重不用于通过 G2 的正式评估；不代表精度结论。系统 PATH 未改。
 
+## S1-T02-D8c manifest 审批与训练快照绑定
+
+- 2026-09-17：训练预检对同一稳定 manifest 字节计算 SHA 并建立解析索引；审批门槛、`inputs.manifest_sha256`/大小及报告均使用该快照。train/resume 在 child 启动前重新采样，不匹配时不调用 child；异常 fail-closed。独立 Reviewer R3 `PASS`，关闭审批 SHA = 快照 SHA = 报告 SHA，以及批准 A 后替换 B 必须阻断、child 调用为0。workflow SHA `3188b6f1546e97c0569fd2cf65c5436a840e7a2a1238a01b139e1bcb4c21fdd8`，tests SHA `f123e962ebc712131e439398c1c8700f929e407a14a351f51348472973b60c9a`；定向51/51、全量148/148、UTF-8/AST/tokenize/py_compile、diff-check 均通过。Reviewer 摘要 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8-r3-20260917\review_validation_summary.json` SHA-256 `5bc536a097f4d37329c2c145f14a6cc5f4fa1e929eca7ec3fdea0836e853f49d`。仅为代码 G2；未训练或评估。限制：检查约束 preflight、child 前后采样点，不证明 child 运行期间发生后又恢复的瞬时改动。
+
 ## S1-T02-D6 Darknet 捕获阈值边界
 
 - 2026-09-17：evaluate 显式使用 Darknet `-thresh 0.249999`，只作候选捕获下限；D6 最终指标仍按 `confidence >= score_threshold`，可选范围 `[0.25,0.50]`，selected=null、frozen=false。独立 Reviewer R2 对代码及 R3 证据 PASS；D6 workflow/tests SHA-256 分别为 `a4c77c92eb8f3c62d126cc801d3b82b3f9f8c309b999bd6532a2526721cd0c53`、`4813f3bfceea9749c42dd7b9688531cb069913bb20308f1dbcb48210448a453a`。

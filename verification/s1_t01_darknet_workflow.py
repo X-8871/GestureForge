@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import os
 import re
@@ -247,17 +248,255 @@ def _validate_darknet_path_lengths(
             )
 
 
-def _parse_key_values(path: Path) -> dict[str, str]:
-    """读取 Darknet data 配置中的键值。"""
-
+def _parse_key_values_text(text: str) -> dict[str, str]:
+    """解析 Darknet data 配置文本中的键值。"""
     values: dict[str, str] = {}
-    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
+    for raw_line in text.splitlines():
         line = raw_line.split("#", 1)[0].strip()
         if not line or "=" not in line:
             continue
         key, value = line.split("=", 1)
         values[key.strip().casefold()] = value.strip()
     return values
+
+
+def _parse_key_values(path: Path) -> dict[str, str]:
+    """读取并解析 Darknet data 配置中的键值。"""
+
+    return _parse_key_values_text(path.read_text(encoding="utf-8-sig"))
+
+
+def _read_stable_bytes(path: Path) -> tuple[bytes, os.stat_result]:
+    """读取文件并拒绝读取期间大小或文件版本发生变化的快照。"""
+
+    before = path.stat()
+    raw = path.read_bytes()
+    after = path.stat()
+    before_identity = (before.st_size, before.st_mtime_ns, before.st_dev, before.st_ino)
+    after_identity = (after.st_size, after.st_mtime_ns, after.st_dev, after.st_ino)
+    if before_identity != after_identity or len(raw) != after.st_size:
+        raise OSError(f"读取期间文件发生变化: {path}")
+    return raw, after
+
+
+def _capture_training_list(
+    path: Path,
+    split: str,
+    working_directory: Path,
+    manifest_images: dict[str, dict[str, dict[str, Any]]],
+) -> tuple[dict[str, Any], list[str]]:
+    """对训练清单同一份字节计算哈希、行数并核对 manifest 划分。"""
+
+    errors: list[str] = []
+    canonical_path = _canonical_path(path)
+    record: dict[str, Any] = {
+        "path": canonical_path,
+        "sha256": "unavailable",
+        "size_bytes": None,
+        "line_count": None,
+        "sample_count": None,
+        "capture_status": "FAILED",
+    }
+    try:
+        raw, _ = _read_stable_bytes(path)
+        text = raw.decode("utf-8-sig")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"{split} 清单缺失、不可读或读取期间发生变化: {canonical_path}: {exc}")
+        return record, errors
+
+    lines = text.splitlines()
+    record.update(
+        {
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "size_bytes": len(raw),
+            "line_count": len(lines),
+        }
+    )
+    expected = manifest_images.get(split, {})
+    expected_keys = set(expected)
+    observed_keys: set[str] = set()
+    sample_count = 0
+    for line_number, raw_line in enumerate(lines, start=1):
+        value = raw_line.strip()
+        if not value or value.startswith("#"):
+            continue
+        sample_count += 1
+        image = Path(value)
+        if not image.is_absolute():
+            image = working_directory / image
+        try:
+            resolved = image.resolve()
+        except (OSError, RuntimeError) as exc:
+            errors.append(f"{split} 清单第 {line_number} 行路径无法规范化: {value}: {exc}")
+            continue
+        key = _canonical_path(resolved)
+        if key in observed_keys:
+            errors.append(f"{split} 清单存在重复图片: {value}")
+        observed_keys.add(key)
+        if key not in expected_keys:
+            errors.append(f"{split} 清单图片不在 manifest {split} 集合: {value}")
+        elif not resolved.is_file():
+            errors.append(f"{split} 清单图片不存在: {resolved}")
+    record["sample_count"] = sample_count
+    if observed_keys != expected_keys:
+        errors.append(
+            f"{split} 清单与 manifest 集合不一致: list={len(observed_keys)}, manifest={len(expected_keys)}"
+        )
+    record["capture_status"] = "CAPTURED" if not errors else "FAILED"
+    return record, errors
+
+
+def _capture_training_input_snapshot(
+    args: argparse.Namespace,
+    working_directory: Path,
+    capture_point: str,
+) -> tuple[
+    dict[str, Any],
+    dict[str, dict[str, dict[str, Any]]],
+    dict[str, str],
+]:
+    """记录 train/resume 的 .data、manifest 和两份实际清单输入快照。"""
+
+    errors: list[str] = []
+    data_path = args.data_config.resolve()
+    manifest_path = args.manifest.resolve()
+    manifest_images: dict[str, dict[str, dict[str, Any]]] = {}
+    data_values: dict[str, str] = {}
+    data_record: dict[str, Any] = {
+        "path": _canonical_path(data_path),
+        "sha256": "unavailable",
+        "size_bytes": None,
+        "train_list_path": "unavailable",
+        "valid_list_path": "unavailable",
+        "values": data_values,
+        "capture_status": "FAILED",
+    }
+    try:
+        data_bytes, _ = _read_stable_bytes(data_path)
+        data_text = data_bytes.decode("utf-8-sig")
+        data_values = _parse_key_values_text(data_text)
+        data_record.update(
+            {
+                "sha256": hashlib.sha256(data_bytes).hexdigest(),
+                "size_bytes": len(data_bytes),
+                "values": data_values,
+                "capture_status": "CAPTURED",
+            }
+        )
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"Darknet .data 缺失、不可读或读取期间发生变化: {data_path}: {exc}")
+
+    list_paths: dict[str, Path | None] = {"train": None, "valid": None}
+    for key in ("train", "valid"):
+        configured = data_values.get(key)
+        if not configured:
+            errors.append(f"Darknet .data 未提供可解析的 {key} 清单路径")
+            continue
+        try:
+            resolved = _resolve_working_path(configured, working_directory)
+        except (OSError, RuntimeError) as exc:
+            errors.append(f"Darknet .data 的 {key} 清单路径无法规范化: {configured}: {exc}")
+            continue
+        list_paths[key] = resolved
+        data_record[f"{key}_list_path"] = _canonical_path(resolved)
+
+    try:
+        manifest_bytes, _ = _read_stable_bytes(manifest_path)
+        manifest_parse_errors: list[str] = []
+        manifest_images = _load_manifest_images_from_bytes(
+            manifest_bytes,
+            manifest_path,
+            args.data_root.resolve(),
+            manifest_parse_errors,
+        )
+        errors.extend(manifest_parse_errors)
+        manifest_counts = {
+            split: len(manifest_images.get(split, {})) for split in ("train", "val", "test")
+        }
+        manifest_record: dict[str, Any] = {
+            "path": _canonical_path(manifest_path),
+            "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+            "size_bytes": len(manifest_bytes),
+            "sample_counts": manifest_counts,
+            "capture_status": "CAPTURED",
+        }
+        if manifest_parse_errors:
+            manifest_record["capture_status"] = "FAILED"
+    except OSError as exc:
+        errors.append(f"manifest 缺失、不可读或读取期间发生变化: {manifest_path}: {exc}")
+        manifest_record = {
+            "path": _canonical_path(manifest_path),
+            "sha256": "unavailable",
+            "size_bytes": None,
+            "sample_counts": {"train": 0, "val": 0, "test": 0},
+            "capture_status": "FAILED",
+        }
+    except (UnicodeDecodeError, csv.Error) as exc:
+        errors.append(f"manifest 字节无法解析: {manifest_path}: {exc}")
+        manifest_record = {
+            "path": _canonical_path(manifest_path),
+            "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+            "size_bytes": len(manifest_bytes),
+            "sample_counts": {"train": 0, "val": 0, "test": 0},
+            "capture_status": "FAILED",
+        }
+
+    lists: dict[str, dict[str, Any]] = {}
+    for key, split in (("train", "train"), ("valid", "val")):
+        path = list_paths[key]
+        if path is None:
+            lists[key] = {
+                "path": "unavailable",
+                "sha256": "unavailable",
+                "size_bytes": None,
+                "line_count": None,
+                "sample_count": None,
+                "capture_status": "FAILED",
+            }
+            continue
+        lists[key], list_errors = _capture_training_list(path, split, working_directory, manifest_images)
+        errors.extend(list_errors)
+
+    if data_record["capture_status"] != "CAPTURED":
+        errors.append("Darknet .data 快照未通过")
+    if manifest_record["capture_status"] != "CAPTURED":
+        errors.append("manifest 快照未通过")
+    status = "CAPTURED" if not errors else "FAILED"
+    snapshot = {
+        "capture_point": capture_point,
+        "captured_at_utc8": _now_iso(),
+        "status": status,
+        "data_config": data_record,
+        "manifest": manifest_record,
+        "lists": lists,
+        "errors": errors,
+    }
+    return snapshot, manifest_images, data_values
+
+
+def _training_snapshot_differences(before: dict[str, Any], current: dict[str, Any]) -> list[str]:
+    """逐字段比较训练输入身份，忽略不同采集时点的时间戳。"""
+
+    differences: list[str] = []
+    if current.get("status") != "CAPTURED":
+        differences.append(f"当前快照状态为 {current.get('status', 'unavailable')}")
+        differences.extend(current.get("errors", []))
+    for section, fields in (
+        ("data_config", ("path", "sha256", "size_bytes", "values", "train_list_path", "valid_list_path")),
+        ("manifest", ("path", "sha256", "size_bytes", "sample_counts")),
+    ):
+        expected = before.get(section, {})
+        observed = current.get(section, {})
+        for field in fields:
+            if expected.get(field) != observed.get(field):
+                differences.append(f"{section}.{field} 已变化")
+    for key in ("train", "valid"):
+        expected = before.get("lists", {}).get(key, {})
+        observed = current.get("lists", {}).get(key, {})
+        for field in ("path", "sha256", "size_bytes", "line_count", "sample_count", "capture_status"):
+            if expected.get(field) != observed.get(field):
+                differences.append(f"lists.{key}.{field} 已变化")
+    return differences
 
 
 def _parse_cfg_sections(path: Path) -> list[dict[str, str]]:
@@ -400,6 +639,18 @@ def _validate_data_config(
     except (OSError, UnicodeDecodeError) as exc:
         errors.append(f"data cfg 不可读取: {exc}")
         return {}
+    return _validate_data_config_values(values, path, names_path, errors, working_directory)
+
+
+def _validate_data_config_values(
+    values: dict[str, str],
+    path: Path,
+    names_path: Path,
+    errors: list[str],
+    working_directory: Path | None = None,
+) -> dict[str, str]:
+    """校验已绑定的 data 配置值，不重新读取配置路径。"""
+
     if values.get("classes") != str(len(EXPECTED_CLASSES)):
         errors.append(f"data cfg 必须 classes={len(EXPECTED_CLASSES)}")
     missing = sorted(key for key in REQUIRED_DATA_KEYS if not values.get(key))
@@ -441,18 +692,23 @@ def _validate_data_config(
     return values
 
 
-def _load_manifest_images(manifest: Path, data_root: Path, errors: list[str]) -> dict[str, dict[str, dict[str, Any]]]:
-    """读取清单全部划分并建立 image、label 和审计字段绑定索引。"""
+def _load_manifest_images_from_bytes(
+    raw: bytes,
+    manifest: Path,
+    data_root: Path,
+    errors: list[str],
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """从指定 manifest 字节解析划分索引，供快照与 SHA/大小共用。"""
 
     try:
-        with manifest.open("r", encoding="utf-8-sig", newline="") as stream:
-            reader = csv.DictReader(stream)
-            fieldnames = set(reader.fieldnames or [])
-            if not fieldnames or not REQUIRED_MANIFEST_FIELDS.issubset(fieldnames):
-                errors.append(f"manifest 缺少必要列: {sorted(REQUIRED_MANIFEST_FIELDS - fieldnames)}")
-                return {}
-            rows = list(reader)
-    except (OSError, UnicodeDecodeError, csv.Error) as exc:
+        text = raw.decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text, newline=""))
+        fieldnames = set(reader.fieldnames or [])
+        if not fieldnames or not REQUIRED_MANIFEST_FIELDS.issubset(fieldnames):
+            errors.append(f"manifest 缺少必要列: {sorted(REQUIRED_MANIFEST_FIELDS - fieldnames)}")
+            return {}
+        rows = list(reader)
+    except (UnicodeDecodeError, csv.Error) as exc:
         errors.append(f"manifest 不可读取: {exc}")
         return {}
     result: dict[str, dict[str, dict[str, Any]]] = {"train": {}, "val": {}, "test": {}}
@@ -503,6 +759,17 @@ def _load_manifest_images(manifest: Path, data_root: Path, errors: list[str]) ->
     if not result["val"]:
         errors.append("manifest 没有 val 图片")
     return result
+
+
+def _load_manifest_images(manifest: Path, data_root: Path, errors: list[str]) -> dict[str, dict[str, dict[str, Any]]]:
+    """读取清单全部划分并建立 image、label 和审计字段绑定索引。"""
+
+    try:
+        raw = manifest.read_bytes()
+    except OSError as exc:
+        errors.append(f"manifest 不可读取: {exc}")
+        return {}
+    return _load_manifest_images_from_bytes(raw, manifest, data_root, errors)
 
 
 def _load_valid_list(
@@ -682,7 +949,14 @@ def _validate_environment_gate(report_path: Path, executable: Path, errors: list
     return report
 
 
-def _validate_dataset_gate(report_path: Path, approval_path: Path, manifest: Path, data_root: Path, errors: list[str]) -> dict[str, Any]:
+def _validate_dataset_gate(
+    report_path: Path,
+    approval_path: Path,
+    manifest: Path,
+    data_root: Path,
+    errors: list[str],
+    training_manifest_snapshot: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """验证自动数据检查和 Wong 人工批准均绑定到同一清单。"""
 
     if not report_path.is_file():
@@ -735,14 +1009,43 @@ def _validate_dataset_gate(report_path: Path, approval_path: Path, manifest: Pat
     ):
         errors.append("人工批准记录中的数据报告 SHA-256 不一致")
     reported_manifest_hash = approval.get("manifest_sha256")
-    if (
-        not isinstance(reported_manifest_hash, str)
-        or not re.fullmatch(r"[0-9a-fA-F]{64}", reported_manifest_hash)
-        or not manifest.is_file()
-        or _sha256(manifest).casefold() != reported_manifest_hash.casefold()
-    ):
-        errors.append("人工批准记录中的 manifest SHA-256 不一致")
-    return {"report": report, "approval": approval}
+    reported_manifest_hash_valid = isinstance(reported_manifest_hash, str) and bool(
+        re.fullmatch(r"[0-9a-fA-F]{64}", reported_manifest_hash)
+    )
+    manifest_snapshot_matches_approval: bool | None = None
+    if training_manifest_snapshot is None:
+        if (
+            not reported_manifest_hash_valid
+            or not manifest.is_file()
+            or _sha256(manifest).casefold() != str(reported_manifest_hash).casefold()
+        ):
+            errors.append("人工批准记录中的 manifest SHA-256 不一致")
+    else:
+        snapshot_path = training_manifest_snapshot.get("path")
+        snapshot_hash = training_manifest_snapshot.get("sha256")
+        snapshot_hash_valid = isinstance(snapshot_hash, str) and bool(
+            re.fullmatch(r"[0-9a-fA-F]{64}", snapshot_hash)
+        )
+        snapshot_valid = (
+            training_manifest_snapshot.get("capture_status") == "CAPTURED"
+            and isinstance(snapshot_path, str)
+            and _same_path(Path(snapshot_path), manifest)
+            and snapshot_hash_valid
+        )
+        manifest_snapshot_matches_approval = bool(
+            snapshot_valid
+            and reported_manifest_hash_valid
+            and str(reported_manifest_hash).casefold() == str(snapshot_hash).casefold()
+        )
+        if not snapshot_valid:
+            errors.append("训练输入中的 manifest 稳定快照无效，不能校验人工批准 SHA")
+        elif not manifest_snapshot_matches_approval:
+            errors.append("人工批准记录中的 manifest SHA-256 与训练输入稳定快照不一致")
+    return {
+        "report": report,
+        "approval": approval,
+        "manifest_snapshot_matches_approval": manifest_snapshot_matches_approval,
+    }
 
 
 def _validate_no_hand_approval(
@@ -1376,6 +1679,15 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
             "evaluate 必须由 detector test -out JSON 的 objects 数量证明零框，并拒绝 NaN/Inf/OOM/损坏。",
         ],
     }
+    if action in {"train", "resume"}:
+        report["training_input_binding"] = {
+            "status": "NOT_CAPTURED",
+            "preflight": None,
+            "before_child": None,
+            "after_child": None,
+            "execution_status": "NOT_STARTED",
+            "scope_notice": "仅比较 preflight、before_child、after_child 各采样点；不证明 child 运行期间未发生后又恢复的修改。",
+        }
     if action == "evaluate":
         report["evaluation_threshold_policy"] = {
             "darknet_capture": {
@@ -1398,6 +1710,7 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
     """执行所有动作共用的启动前检查。"""
 
     errors: list[str] = report["errors"]
+    training_action = args.action in {"train", "resume"}
     executable = args.darknet_executable.resolve()
     working_directory = args.working_directory.resolve()
     data_root = args.data_root.resolve()
@@ -1413,7 +1726,6 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
     if args.timeout_seconds <= 0 or args.no_progress_timeout_seconds <= 0:
         errors.append("超时参数必须为正数")
     environment = _validate_environment_gate(args.environment_report.resolve(), executable, errors)
-    dataset = _validate_dataset_gate(args.dataset_report.resolve(), args.dataset_approval.resolve(), manifest, data_root, errors)
     formal_training = bool(getattr(args, "formal_training", False))
     if formal_training and args.action not in {"train", "resume"}:
         errors.append("--formal-training 仅允许用于 train 或 resume")
@@ -1425,9 +1737,68 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         args.action in {"train", "resume"},
         formal_training=formal_training,
     )
-    data_config = _validate_data_config(args.data_config.resolve(), args.names_file.resolve(), errors, working_directory)
     _validate_names_file(args.names_file.resolve(), errors)
-    manifest_images = _load_manifest_images(manifest, data_root, errors)
+    training_input_snapshot: dict[str, Any] | None = None
+    manifest_approval_matches_snapshot = True
+    if training_action:
+        training_input_snapshot, manifest_images, data_config_values = _capture_training_input_snapshot(
+            args,
+            working_directory,
+            "preflight",
+        )
+        errors.extend(training_input_snapshot["errors"])
+        dataset = _validate_dataset_gate(
+            args.dataset_report.resolve(),
+            args.dataset_approval.resolve(),
+            manifest,
+            data_root,
+            errors,
+            training_manifest_snapshot=training_input_snapshot["manifest"],
+        )
+        approval = dataset.get("approval", {})
+        approved_manifest_hash = approval.get("manifest_sha256") if isinstance(approval, dict) else None
+        captured_manifest_hash = training_input_snapshot["manifest"].get("sha256")
+        approved_hash_valid = isinstance(approved_manifest_hash, str) and re.fullmatch(
+            r"[0-9a-fA-F]{64}", approved_manifest_hash
+        )
+        captured_hash_valid = isinstance(captured_manifest_hash, str) and re.fullmatch(
+            r"[0-9a-fA-F]{64}", captured_manifest_hash
+        )
+        manifest_approval_matches_snapshot = bool(
+            dataset.get("manifest_snapshot_matches_approval") is True
+            and approved_hash_valid
+            and captured_hash_valid
+            and approved_manifest_hash.casefold() == captured_manifest_hash.casefold()
+        )
+        if not manifest_approval_matches_snapshot:
+            expected_hash = approved_manifest_hash.casefold() if approved_hash_valid else "<invalid-or-unavailable>"
+            actual_hash = captured_manifest_hash.casefold() if captured_hash_valid else "<invalid-or-unavailable>"
+            errors.append(
+                "获批 manifest SHA-256 与训练输入快照不一致，拒绝启动: "
+                f"expected={expected_hash} actual={actual_hash}"
+            )
+        data_config = _validate_data_config_values(
+            data_config_values,
+            Path(training_input_snapshot["data_config"]["path"]),
+            args.names_file.resolve(),
+            errors,
+            working_directory,
+        )
+    else:
+        dataset = _validate_dataset_gate(
+            args.dataset_report.resolve(),
+            args.dataset_approval.resolve(),
+            manifest,
+            data_root,
+            errors,
+        )
+        data_config = _validate_data_config(
+            args.data_config.resolve(),
+            args.names_file.resolve(),
+            errors,
+            working_directory,
+        )
+        manifest_images = _load_manifest_images(manifest, data_root, errors)
     train_images: list[Path] = []
     valid_images: list[Path] = []
     configured_train = None
@@ -1439,6 +1810,29 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         configured_valid = _resolve_working_path(data_config["valid"], working_directory)
         valid_images = _load_valid_list(configured_valid, manifest_images, working_directory, errors, "val")
     approved_no_hand = _validate_no_hand_approval(dataset.get("approval", {}), manifest_images, data_root, errors)
+    if training_action:
+        for key, configured in (("train", configured_train), ("valid", configured_valid)):
+            expected_path = _canonical_path(configured) if configured is not None else "unavailable"
+            observed_path = training_input_snapshot["data_config"].get(f"{key}_list_path")
+            if observed_path != expected_path:
+                errors.append(f".data 的 {key} 路径在校验与输入快照之间发生变化")
+                training_input_snapshot["status"] = "FAILED"
+        if training_input_snapshot["status"] != "CAPTURED" or not manifest_approval_matches_snapshot:
+            report["training_input_binding"].update(
+                {
+                    "status": "BLOCKED",
+                    "preflight": training_input_snapshot,
+                    "execution_status": "BLOCKED_PREFLIGHT",
+                }
+            )
+        else:
+            report["training_input_binding"].update(
+                {
+                    "status": "PREFLIGHT_CAPTURED",
+                    "preflight": training_input_snapshot,
+                    "execution_status": "NOT_STARTED",
+                }
+            )
     if args.action == "evaluate":
         explicit_valid = args.valid_list.resolve()
         if configured_valid is None or not _same_path(configured_valid, explicit_valid):
@@ -1505,10 +1899,18 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "environment_report": str(args.environment_report.resolve()),
         "data_root": str(data_root),
         "manifest": str(manifest),
-        "manifest_sha256": _safe_sha256(manifest),
+        "manifest_sha256": (
+            training_input_snapshot["manifest"].get("sha256", "unavailable")
+            if training_action and training_input_snapshot is not None
+            else _safe_sha256(manifest)
+        ),
         "dataset_report": str(args.dataset_report.resolve()),
         "dataset_approval": str(args.dataset_approval.resolve()),
-        "data_config": str(args.data_config.resolve()),
+        "data_config": (
+            training_input_snapshot["data_config"]["path"]
+            if training_action and training_input_snapshot is not None
+            else str(args.data_config.resolve())
+        ),
         "model_config": str(args.model_config.resolve()),
         "names_file": str(args.names_file.resolve()),
         "working_directory": str(working_directory),
@@ -1526,6 +1928,7 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "workflow_script_sha256": _safe_sha256(Path(__file__).resolve()),
     }
     if args.action in {"train", "resume"}:
+        report["inputs"]["manifest_size_bytes"] = training_input_snapshot["manifest"].get("size_bytes")
         report["inputs"]["checkpoint_mapping"] = checkpoint_plan
         report["inputs"]["checkpoint_output"] = str(checkpoint_output)
     if args.action == "resume":
@@ -1540,7 +1943,11 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "environment_report": args.environment_report.resolve(),
         "dataset_report": args.dataset_report.resolve(),
         "dataset_approval": args.dataset_approval.resolve(),
-        "data_config": args.data_config.resolve(),
+        "data_config": (
+            Path(training_input_snapshot["data_config"]["path"])
+            if training_action and training_input_snapshot is not None
+            else args.data_config.resolve()
+        ),
         "model_config": args.model_config.resolve(),
         "names_file": args.names_file.resolve(),
     }
@@ -1553,7 +1960,12 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
     else:
         artifact_paths["evaluation_weights"] = args.weights.resolve()
     report["inputs"]["artifact_sha256"] = {
-        key: _safe_sha256(path) for key, path in artifact_paths.items()
+        key: (
+            training_input_snapshot["data_config"].get("sha256", "unavailable")
+            if key == "data_config" and training_action and training_input_snapshot is not None
+            else _safe_sha256(path)
+        )
+        for key, path in artifact_paths.items()
     }
     report["inputs"]["environment_report_sha256"] = _safe_sha256(args.environment_report.resolve())
     report["outputs"] = {
@@ -1592,6 +2004,8 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "environment": environment,
         "dataset": dataset,
         "manifest_images": manifest_images,
+        "data_config_values": data_config,
+        "training_input_preflight": training_input_snapshot,
         "approved_no_hand": approved_no_hand,
         "checkpoint_plan": checkpoint_plan,
         "checkpoint_input": checkpoint_input,
@@ -1657,9 +2071,33 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
         }
         for command in commands
     ]
+    if args.action in {"train", "resume"}:
+        binding = report.get("training_input_binding")
+        if (
+            not isinstance(binding, dict)
+            or binding.get("status") not in {"PREFLIGHT_CAPTURED", "PLANNED_NO_EXECUTION"}
+            or not isinstance(binding.get("preflight"), dict)
+            or binding["preflight"].get("status") != "CAPTURED"
+        ):
+            report["errors"].append("train/resume 缺少有效的 preflight 清单快照，拒绝将流程标为通过")
+            report["status"] = "BLOCKED_PREFLIGHT"
+            report["exit_code"] = 2
+            if isinstance(binding, dict):
+                binding["status"] = "BLOCKED"
+                binding["execution_status"] = "BLOCKED_PREFLIGHT"
+            return
     if args.dry_run:
+        if args.action in {"train", "resume"}:
+            binding = report.get("training_input_binding")
+            if isinstance(binding, dict):
+                binding["execution_status"] = "PLANNED_NO_EXECUTION"
+                binding["status"] = "PLANNED_NO_EXECUTION"
+                binding["before_child"] = None
+                binding["after_child"] = None
         report["status"] = "PLANNED_NO_EXECUTION"
         report["acceptance"] = {"command_executed": False, "reason": "dry-run"}
+        if args.action in {"train", "resume"}:
+            report["acceptance"]["training_input_binding"] = "仅记录 preflight；before-child 与 after-child 未执行"
         return
     try:
         lock = _make_lock(args.run_dir.resolve())
@@ -1668,19 +2106,78 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
         return
     try:
         if args.action in {"train", "resume"}:
+            binding = report.get("training_input_binding")
+            if (
+                not isinstance(binding, dict)
+                or binding.get("status") != "PREFLIGHT_CAPTURED"
+                or not isinstance(binding.get("preflight"), dict)
+                or binding["preflight"].get("status") != "CAPTURED"
+            ):
+                report["errors"].append("缺少通过预检的训练输入快照，拒绝启动 Darknet child")
+                report["status"] = "EXECUTION_FAILED"
+                if isinstance(binding, dict):
+                    binding["status"] = "BLOCKED"
+                    binding["execution_status"] = "PRELAUNCH_REJECTED"
+                return
             log_path = args.run_dir.resolve() / f"{args.action}.log"
             started_ns = time.time_ns()
-            result = _run_command(
-                commands[0],
+            before_child, _, _ = _capture_training_input_snapshot(
+                args,
                 context["working_directory"],
-                log_path,
-                args.timeout_seconds,
-                args.no_progress_timeout_seconds,
-                darknet_seed=seed,
+                "before_child",
             )
+            preflight_differences = _training_snapshot_differences(binding["preflight"], before_child)
+            before_child["comparison_to_preflight"] = {
+                "matches": not preflight_differences,
+                "differences": preflight_differences,
+            }
+            binding["before_child"] = before_child
+            if preflight_differences:
+                report["errors"].append(
+                    "Darknet child 启动前训练输入与 preflight 不一致: " + "; ".join(preflight_differences)
+                )
+                binding["status"] = "PRELAUNCH_REJECTED"
+                binding["execution_status"] = "PRELAUNCH_REJECTED"
+                report["acceptance"] = {"command_executed": False, "reason": "training_input_changed_before_child"}
+                report["status"] = "EXECUTION_FAILED"
+                return
+            result: dict[str, Any]
+            try:
+                result = _run_command(
+                    commands[0],
+                    context["working_directory"],
+                    log_path,
+                    args.timeout_seconds,
+                    args.no_progress_timeout_seconds,
+                    darknet_seed=seed,
+                )
+            finally:
+                after_child, _, _ = _capture_training_input_snapshot(
+                    args,
+                    context["working_directory"],
+                    "after_child",
+                )
+                postrun_differences = _training_snapshot_differences(binding["preflight"], after_child)
+                after_child["comparison_to_preflight"] = {
+                    "matches": not postrun_differences,
+                    "differences": postrun_differences,
+                }
+                binding["after_child"] = after_child
+                if postrun_differences:
+                    binding["status"] = "POSTRUN_MISMATCH"
+                    binding["execution_status"] = "POSTRUN_MISMATCH"
+                    report["errors"].append(
+                        "Darknet child 返回后训练输入与 preflight 不一致: " + "; ".join(postrun_differences)
+                    )
+                else:
+                    binding["status"] = "AFTER_CHILD_MATCHED_PREFLIGHT"
+                    binding["execution_status"] = "AFTER_CHILD_MATCHED_PREFLIGHT"
             result.setdefault("seed_binding", _seed_binding(seed))
             result["training_profile"] = report.get("training_profile", "not_applicable")
             report["commands"].append(result)
+            if report["training_input_binding"].get("status") == "POSTRUN_MISMATCH":
+                report["status"] = "EXECUTION_FAILED"
+                return
             if result.get("exit_code") != 0 or result.get("stop_reason") or result.get("non_finite_observed"):
                 report["errors"].append("Darknet 训练/恢复未以干净状态结束")
                 return

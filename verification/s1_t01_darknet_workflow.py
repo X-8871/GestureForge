@@ -1225,14 +1225,14 @@ def _validate_formal_update_range(
 
 
 def _check_no_existing_process(executable: Path) -> str | None:
-    """拒绝在同一 Windows 主机已有同名 Darknet 进程时启动。"""
+    """拒绝同名 Darknet 进程，并在无法解析进程列表时失败关闭。"""
 
     if os.name != "nt":
         return None
     image_name = executable.name
     try:
         completed = subprocess.run(
-            ["tasklist", "/FI", f"IMAGENAME eq {image_name}", "/FO", "CSV", "/NH"],
+            ["tasklist", "/FO", "CSV", "/NH"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -1244,9 +1244,44 @@ def _check_no_existing_process(executable: Path) -> str | None:
         return f"无法确认同名进程状态: {exc}"
     if completed.returncode != 0:
         return f"tasklist 退出码 {completed.returncode}，无法确认同名进程状态"
-    output = completed.stdout.strip()
-    if output and "INFO: No tasks are running" not in output:
-        return f"检测到已有同名 Darknet 进程: {image_name}"
+    stderr = getattr(completed, "stderr", "")
+    if stderr and str(stderr).strip():
+        return "tasklist 返回错误输出，无法确认同名进程状态"
+    output = getattr(completed, "stdout", None)
+    if not isinstance(output, str):
+        return "tasklist stdout 格式无效，无法确认同名进程状态"
+
+    process_rows = 0
+    for line_number, raw_line in enumerate(output.splitlines(), start=1):
+        line = raw_line.lstrip("\ufeff").strip()
+        if not line:
+            continue
+        if not line.startswith('"'):
+            if re.match(r"(?i)^INFO\s*:", line):
+                # tasklist 的 no-task 提示前缀稳定，提示正文会随系统语言改变。
+                continue
+            return f"tasklist 第 {line_number} 行包含非 CSV 输出，无法确认同名进程状态"
+        try:
+            records = list(csv.reader([line], strict=True))
+        except csv.Error as exc:
+            return f"tasklist 第 {line_number} 行 CSV 无法解析: {exc}"
+        if len(records) != 1:
+            return f"tasklist 第 {line_number} 行 CSV 记录数异常"
+        fields = records[0]
+        if (
+            len(fields) != 5
+            or not fields[0].strip()
+            or not re.fullmatch(r"[0-9]+", fields[1].strip())
+            or not fields[2].strip()
+            or not fields[3].strip()
+            or not fields[4].strip()
+        ):
+            return f"tasklist 第 {line_number} 行不是可信的 CSV 进程记录"
+        process_rows += 1
+        if fields[0].strip().casefold() == image_name.casefold():
+            return f"检测到已有同名 Darknet 进程: {image_name}"
+    if process_rows == 0:
+        return "tasklist 没有可验证的 CSV 进程记录，无法确认同名进程状态"
     return None
 
 

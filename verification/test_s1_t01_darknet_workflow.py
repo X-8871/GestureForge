@@ -638,6 +638,85 @@ class DarknetWorkflowTest(unittest.TestCase):
                 self.assertEqual(report["status"], "BLOCKED_PREFLIGHT")
                 runner.assert_not_called()
 
+    def test_process_check_accepts_localized_notice_when_csv_has_valid_process_rows(self) -> None:
+        """忽略本地化空任务提示，只按完整 CSV 进程行判断且无目标行时通过。"""
+
+        executable = Path("darknet.exe")
+        output = (
+            "INFO: ��� localized no-task notice\r\n"
+            '"python.exe","1234","Console","1","10,000 K"\r\n'
+            '"explorer.exe","2345","Console","1","20,000 K"\r\n'
+            '"darknet-helper.exe","3456","Console","1","30,000 K"\r\n'
+        )
+        completed = Namespace(returncode=0, stdout=output, stderr="")
+        with patch.object(workflow.os, "name", "nt"), patch.object(
+            workflow.subprocess, "run", return_value=completed
+        ) as runner:
+            error = workflow._check_no_existing_process(executable)
+
+        self.assertIsNone(error)
+        command = runner.call_args.args[0]
+        self.assertEqual(command, ["tasklist", "/FO", "CSV", "/NH"])
+        self.assertNotIn("/FI", command)
+
+    def test_process_check_blocks_exact_darknet_image_name(self) -> None:
+        """完整 tasklist CSV 中 image name 大小写不同但精确同名时阻断。"""
+
+        output = (
+            '"python.exe","1234","Console","1","10,000 K"\r\n'
+            '"DarkNet.EXE","4321","Console","1","25,000 K"\r\n'
+        )
+        completed = Namespace(returncode=0, stdout=output, stderr="")
+        with patch.object(workflow.os, "name", "nt"), patch.object(
+            workflow.subprocess, "run", return_value=completed
+        ):
+            error = workflow._check_no_existing_process(Path("darknet.exe"))
+
+        self.assertIsNotNone(error)
+        self.assertIn("检测到已有同名 Darknet 进程", error)
+
+    def test_process_check_fails_closed_for_untrusted_or_failed_output(self) -> None:
+        """无有效进程行、畸形 CSV、非零退出和命令异常都不能误放行。"""
+
+        valid_row = '"python.exe","1234","Console","1","10,000 K"\r\n'
+        cases = (
+            (Namespace(returncode=0, stdout="INFO: ��� no-task notice\r\n", stderr=""), "可验证"),
+            (Namespace(returncode=0, stdout="unrecognized output\r\n" + valid_row, stderr=""), "非 CSV 输出"),
+            (
+                Namespace(returncode=0, stdout='"bad row","x"\r\n' + valid_row, stderr=""),
+                "不是可信的 CSV 进程记录",
+            ),
+            (
+                Namespace(returncode=0, stdout='"unterminated\r\n' + valid_row, stderr=""),
+                "CSV 无法解析",
+            ),
+            (Namespace(returncode=1, stdout=valid_row, stderr="tasklist failed"), "退出码 1"),
+            (Namespace(returncode=0, stdout=valid_row, stderr="tasklist warning"), "错误输出"),
+        )
+        for completed, expected_error in cases:
+            with self.subTest(expected_error=expected_error), patch.object(
+                workflow.os, "name", "nt"
+            ), patch.object(workflow.subprocess, "run", return_value=completed):
+                error = workflow._check_no_existing_process(Path("darknet.exe"))
+                self.assertIsNotNone(error)
+                self.assertIn(expected_error, error)
+
+        with patch.object(workflow.os, "name", "nt"), patch.object(
+            workflow.subprocess, "run", side_effect=OSError("synthetic tasklist failure")
+        ):
+            error = workflow._check_no_existing_process(Path("darknet.exe"))
+        self.assertIsNotNone(error)
+        self.assertIn("无法确认同名进程状态", error)
+
+        with patch.object(workflow.os, "name", "nt"), patch.object(
+            workflow.subprocess,
+            "run",
+            side_effect=workflow.subprocess.TimeoutExpired(cmd="tasklist", timeout=10),
+        ):
+            error = workflow._check_no_existing_process(Path("darknet.exe"))
+        self.assertIsNotNone(error)
+        self.assertIn("无法确认同名进程状态", error)
+
     def test_darknet_seed_parser_accepts_only_nonnegative_uint32(self) -> None:
         """种子解析接受边界值并拒绝缺失、负数、溢出和非十进制文本。"""
 

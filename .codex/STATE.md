@@ -93,6 +93,11 @@
 
 - 2026-09-17：训练预检对同一稳定 manifest 字节计算 SHA 并建立解析索引；审批门槛、`inputs.manifest_sha256`/大小及报告均使用该快照。train/resume 在 child 启动前重新采样，不匹配时不调用 child；异常 fail-closed。独立 Reviewer R3 `PASS`，关闭审批 SHA = 快照 SHA = 报告 SHA，以及批准 A 后替换 B 必须阻断、child 调用为0。workflow SHA `3188b6f1546e97c0569fd2cf65c5436a840e7a2a1238a01b139e1bcb4c21fdd8`，tests SHA `f123e962ebc712131e439398c1c8700f929e407a14a351f51348472973b60c9a`；定向51/51、全量148/148、UTF-8/AST/tokenize/py_compile、diff-check 均通过。Reviewer 摘要 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8-r3-20260917\review_validation_summary.json` SHA-256 `5bc536a097f4d37329c2c145f14a6cc5f4fa1e929eca7ec3fdea0836e853f49d`。仅为代码 G2；未训练或评估。限制：检查约束 preflight、child 前后采样点，不证明 child 运行期间发生后又恢复的瞬时改动。
 
+## S1-T02-D8d tasklist 进程预检修复
+
+- 2026-09-17：R2 修复改为无语言筛选的完整 `tasklist /FO CSV /NH`，解析可信五字段记录并按 image name 精确匹配；仅忽略 `INFO:` 提示行，空有效记录、畸形/噪声输出、stderr、非零、异常和超时均 fail-closed。独立 Reviewer R4 `PASS`；再次确认 D8c 的 manifest 审批/快照/报告 SHA 共用及 A→B 拒绝、child 调用为0。workflow SHA `3496e3b1ba0c6d77edb5b9e34e3a8443d1aa526291f135e34429321a16ce3bfa`，tests SHA `98017c373b1794da9eaad82bd2318f2e1fafbd13dd67d3e1bef02d756ee9f241`；专项54/54、全量151/151、py_compile 与 diff-check 退出码0。R4 JSON `C:\Users\22061\AppData\Local\Temp\review_s1_t02_d8_processlist_r4_20260917\review_s1_t02_d8_processlist_r4.json` SHA `988dd269916f835bc8e8c0df9e6a8102e9ed0d86ee2242880023220d2b87e413`。
+- 两次重试都在预检阶段被同名进程探测误阻断；报告分别为 `20260917_s1_t02_d8_tiny416_train_r2_blocked_preflight_01.json` SHA `5e4bc8d35a4d9a60cf593e498856e6936800eff4bc180a2c37d8071c7e16a885`、`20260917_s1_t02_d8_tiny416_train_r2_blocked_preflight_02.json` SHA `dcffb5fc9340016a51bca81f28c3a9dd64e234190bc80bdadf1d86d5d44bd333`；两次 child 命令数均为0，无训练进程、日志或检查点。修复后尚未重跑预检或训练。保留 D8c 关于训练 child 运行期间瞬时改动的限制。
+
 ## S1-T02-D6 Darknet 捕获阈值边界
 
 - 2026-09-17：evaluate 显式使用 Darknet `-thresh 0.249999`，只作候选捕获下限；D6 最终指标仍按 `confidence >= score_threshold`，可选范围 `[0.25,0.50]`，selected=null、frozen=false。独立 Reviewer R2 对代码及 R3 证据 PASS；D6 workflow/tests SHA-256 分别为 `a4c77c92eb8f3c62d126cc801d3b82b3f9f8c309b999bd6532a2526721cd0c53`、`4813f3bfceea9749c42dd7b9688531cb069913bb20308f1dbcb48210448a453a`。
@@ -108,7 +113,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D1–D9 规格/工具子任务已完成；D8 r1 训练完成但因输入清单缺同期哈希绑定而未通过 G2，必须由修复后的入口记录 train/valid 清单 SHA 后另开 run 重训，不能覆盖 r1。D6 捕获阈值代码/证据 G2 PASS，但 GPU 推理仍等 D8 合规权重证据。tiny320/full608 对照、最终测试/robustness 数量及门槛、INT8、逐层黄金、资源预算仍待执行；不得用 test 调参。最终模型/尺寸/性能仍由 Wong 决策。
+4. D8c/D8d 代码 G2 已通过并提交后，重新验证绑定与空 run-dir，再启动 fresh r2 tiny416 6000 步训练；训练报告独立复审通过后，才运行 D6 val 候选推理（capture threshold `0.249999`，不是最终阈值）。tiny320/full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行；不得用 test 调参。D4 full 权重来源校验等待 W5 G2，许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

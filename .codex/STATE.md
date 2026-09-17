@@ -127,7 +127,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D8c/D8d 代码 G2 已通过并提交。tiny416 retry01 正在运行，完成后审阅其报告及 after-child 输入绑定；G2 通过后才运行 D6 val 候选推理（capture threshold `0.249999`，不是最终阈值）。W5 当前 G2 未通过，不可联网或读 full 权重；完整15项依赖绑定缺陷未关闭。tiny320 run 配置已隔离准备，等待 tiny416 完成后依序预检/训练；full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
+4. D8c/D8d 代码 G2 已通过并提交。tiny416 retry01 正在运行，完成后审阅其报告及 after-child 输入绑定；G2 通过后才运行 D6 val 候选推理（capture threshold `0.249999`，不是最终阈值）。W5 当前 G2 未通过，不可联网或读 full 权重；完整15项依赖绑定缺陷未关闭。tiny320 隔离 run 配置经独立 Reviewer R1 PASS（证据 JSON SHA-256 `A349E6C15C3C265D7920EE4B1D42737987280C0E68DE878AFC9EA2EAEBEE2D9F`），cfg 与 D4 源文件逐字节一致，`.data`/数据清单/初始化权重/seeded 可执行文件绑定已核实；目录无训练产物，待 tiny416 完成后依序预检/训练。full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

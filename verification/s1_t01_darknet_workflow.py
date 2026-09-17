@@ -26,6 +26,8 @@ FORMAL_TRAINING_MAX_BATCHES = 6000
 FORMAL_TRAINING_STEPS = (4800, 5400)
 MAX_DARKNET_PATH_BYTES = 256
 REPORT_SCHEMA_VERSION = 1
+D6_CAPTURE_THRESHOLD = 0.249999
+D6_SCORE_THRESHOLD_RANGE = (0.25, 0.50)
 DARKNET_SEED_ENV = "GESTUREFORGE_DARKNET_SEED"
 MAX_DARKNET_SEED = 0xFFFFFFFF
 REQUIRED_MANIFEST_FIELDS = {
@@ -1334,7 +1336,7 @@ def _build_parser() -> argparse.ArgumentParser:
     resume.add_argument("--resume-from-step", type=int, required=True, help="检查点记录的恢复起始步数")
     evaluate = subparsers.add_parser(
         "evaluate",
-        help="读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON 并逐图解析",
+        help="读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON；-thresh 0.249999 仅用于捕获，并逐图解析",
     )
     _common_parser(evaluate)
     evaluate.add_argument("--weights", type=Path, required=True, help="显式提供的评估权重")
@@ -1352,7 +1354,7 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
     else:
         training_profile = "not_applicable"
 
-    return {
+    report = {
         "schema_version": REPORT_SCHEMA_VERSION,
         "created_at_utc8": _now_iso(),
         "framework": "official-darknet-cuda",
@@ -1374,6 +1376,22 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
             "evaluate 必须由 detector test -out JSON 的 objects 数量证明零框，并拒绝 NaN/Inf/OOM/损坏。",
         ],
     }
+    if action == "evaluate":
+        report["evaluation_threshold_policy"] = {
+            "darknet_capture": {
+                "cli_flag": "-thresh",
+                "value": D6_CAPTURE_THRESHOLD,
+                "comparison": "Darknet YOLO retains score > capture_threshold (strict)",
+                "purpose": "pre-D6 candidate capture threshold only; not a final model/metric threshold",
+            },
+            "final_metric_score_threshold": {
+                "allowed_range_inclusive": list(D6_SCORE_THRESHOLD_RANGE),
+                "comparison": "D6 retains confidence >= selected score_threshold",
+                "selected": None,
+                "frozen": False,
+            },
+        }
+    return report
 
 
 def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, Any]:
@@ -1604,6 +1622,8 @@ def _commands_for_action(args: argparse.Namespace, context: dict[str, Any]) -> l
         "-dont_show",
         "-out",
         str(output_json),
+        "-thresh",
+        f"{D6_CAPTURE_THRESHOLD:.6f}",
     ]]
 
 

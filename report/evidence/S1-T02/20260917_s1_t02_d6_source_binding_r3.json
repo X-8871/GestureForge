@@ -1,0 +1,170 @@
+{
+  "schema_version": "s1-t02-d6-source-binding-supplement-v1",
+  "task": "S1-T02-D6-R2-evidence-only-remediation",
+  "status": "SOURCE_BINDING_VERIFIED_DRY_RUN_ONLY",
+  "purpose": "将 D4 上游原始源码内容哈希与 seed-patched 副本文件哈希分栏记录；不修改 D6 代码候选、R1/R2 证据或 D4 输入。",
+  "repository_candidate": {
+    "competition_head_captured_by_r3_preflight": "5de369708c73b0dcac9e17fd56fe54625296f265",
+    "prior_r2_preflight_head": "78f62b61c52040942fa8920628d2cd388306771b",
+    "head_transition_note": "The immutable R2 report records 78f62b6; the R3 report records 5de3697. Read-only git show shows 5de3697 changes only .codex/STATE.md. This remediation made no repository or Git writes; D6 workflow/test content hashes remain the supplied values.",
+    "d6_workflow": {
+      "path": "D:/FPGA_Competition/verification/s1_t01_darknet_workflow.py",
+      "sha256": "a4c77c92eb8f3c62d126cc801d3b82b3f9f8c309b999bd6532a2526721cd0c53"
+    },
+    "d6_tests": {
+      "path": "D:/FPGA_Competition/verification/test_s1_t01_darknet_workflow.py",
+      "sha256": "4813f3bfceea9749c42dd7b9688531cb069913bb20308f1dbcb48210448a453a"
+    }
+  },
+  "d4_provenance": {
+    "immutable_plan": {
+      "path": "D:/FPGA_Competition/report/evidence/S1-T02/20260916_s1_t02_d4_float_baseline_r1_plan.json",
+      "sha256": "63f569005239d76ec44629271a7db0280fd584210dd51f51fe8b7e8df2d14ff5",
+      "fields": {
+        "source.repository": "D:/FPGA_Data/darknet",
+        "source.commit_observed": "59596d7880f6504768df41d6daa586f5cb2b932f",
+        "source.patch_applied": true,
+        "source.patched_repository": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_seeded",
+        "source.source_archive": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_59596d7_source.zip",
+        "source.source_archive_sha256": "474916bd5b61b6e913e1d9b6bd4e3a48117000be62deffe5191f966df85a1a47",
+        "seed.patch_path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/seed_support.patch",
+        "seed.patch_sha256": "b3025639731271fac3476647823e5cb4cfa1a09e9fd54fedf36cd45e6539c01b"
+      }
+    },
+    "provenance_report": {
+      "path": "D:/FPGA_Competition/report/evidence/S1-T02/20260916_s1_t02_d4_float_baseline_r1.json",
+      "sha256": "4bbda22f0feb0df1edf5e82701f539ecfe9ac08565d4540ece72364ebcaae7d8",
+      "scope_note": "Used only to link recorded D4 source, patch, seeded tree, archive and executable provenance; the D4 validation status is BLOCKED and is not asserted as a pass."
+    },
+    "source_archive": {
+      "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_59596d7_source.zip",
+      "sha256": "474916bd5b61b6e913e1d9b6bd4e3a48117000be62deffe5191f966df85a1a47"
+    },
+    "seed_support_patch": {
+      "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/seed_support.patch",
+      "sha256": "b3025639731271fac3476647823e5cb4cfa1a09e9fd54fedf36cd45e6539c01b",
+      "scope_from_read_only_git_apply_stat": [
+        {"path": "src/utils.h", "insertions": 2, "deletions": 0},
+        {"path": "src/utils.c", "insertions": 53, "deletions": 2},
+        {"path": "src/detector.c", "insertions": 5, "deletions": 3},
+        {"path": "src/yolo_layer.c", "insertions": 1, "deletions": 1},
+        {"path": "src/detection_layer.c", "insertions": 1, "deletions": 1},
+        {"path": "src/gaussian_yolo_layer.c", "insertions": 1, "deletions": 1},
+        {"path": "src/dark_cuda.c", "insertions": 1, "deletions": 1}
+      ],
+      "total_insertions": 64,
+      "total_deletions": 9
+    },
+    "upstream_repository_check": {
+      "path": "D:/FPGA_Data/darknet",
+      "observed_head": "59596d7880f6504768df41d6daa586f5cb2b932f",
+      "head_matches_plan": true,
+      "network_access": false
+    }
+  },
+  "source_file_hash_comparison": {
+    "hash_method": "SHA256 of raw file-content bytes returned by git cat-file blob at the pinned commit versus SHA256 of the exact post-patch file bytes in official_darknet_seeded/src; upstream values are content hashes, not Git object IDs.",
+    "interpretation": "The hashes intentionally differ by design: the seeded copy contains seed_support.patch changes. Raw upstream hashes and post-seed-patch hashes are distinct evidence columns and must not be described interchangeably.",
+    "files": [
+      {
+        "relative_path": "src/detector.c",
+        "upstream_commit": "59596d7880f6504768df41d6daa586f5cb2b932f",
+        "raw_upstream_content_sha256": "7dd184184ce3a01be5c2361a821d4b0a09597bcf5854343950b00c1b28eda6be",
+        "post_seed_patch_path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_seeded/src/detector.c",
+        "post_seed_patch_sha256": "3795c4b144ce12177268128c019dc29589ca94412622d137b7a5ecf5528a4a77",
+        "hashes_differ_by_design": true
+      },
+      {
+        "relative_path": "src/utils.c",
+        "upstream_commit": "59596d7880f6504768df41d6daa586f5cb2b932f",
+        "raw_upstream_content_sha256": "d046a6ccc4eb784186a697851877612109777bbd554756591924498fede449ad",
+        "post_seed_patch_path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_seeded/src/utils.c",
+        "post_seed_patch_sha256": "d5a3d487b0086af2361282b002302c4a7581fb7daaf6b272ee07eb5d82b154ec",
+        "hashes_differ_by_design": true
+      },
+      {
+        "relative_path": "src/yolo_layer.c",
+        "upstream_commit": "59596d7880f6504768df41d6daa586f5cb2b932f",
+        "raw_upstream_content_sha256": "3996ef6b465add3b1779f52c757a7d16250ac1036b332cc3ec975071c947d94e",
+        "post_seed_patch_path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/official_darknet_seeded/src/yolo_layer.c",
+        "post_seed_patch_sha256": "8b164c3dcf82b276698a3ffd9694d0ccd029f22b9b09f8a98e38e64627dfd381",
+        "hashes_differ_by_design": true
+      }
+    ]
+  },
+  "d6_preflight_report_identity": {
+    "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3/preflight_evaluate.json",
+    "reported_identity_official_darknet_source": "unavailable",
+    "captured_by_workflow_report": false,
+    "field_was_modified": false,
+    "supplement_role": "This separate evidence links D4 provenance and file hashes only; it does not rewrite or reinterpret the workflow identity field."
+  },
+  "r3_cpu_dry_run": {
+    "run_dir": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3",
+    "report": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3/preflight_evaluate.json",
+    "report_sha256": "5cce02ef02cb47ca585f7518812be45b1e9e26e193c482a3514cd598be9c3a7c",
+    "workflow_cli_argv": [
+      "py", "-3", "-B", "verification/s1_t01_darknet_workflow.py", "evaluate",
+      "--darknet-executable", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/build_seeded_release_r2/Release/darknet.exe",
+      "--environment-report", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d5_seed_short_r1/environment_seeded_binding.json",
+      "--data-root", "D:/FPGA_Data/HaGRIDv2",
+      "--manifest", "D:/FPGA_Data/HaGRIDv2/manifest.csv",
+      "--dataset-report", "D:/FPGA_Competition/report/evidence/S1-T01/20260915_hagrid_dataset_check_semantic_after_no_hand.json",
+      "--dataset-approval", "D:/FPGA_Competition/report/evidence/S1-T01/20260915_hagrid_dataset_approval.json",
+      "--data-config", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/data/gesture_tiny416_d8_formal.data",
+      "--model-config", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/configs/gesture_yolov4_tiny_416_d8_formal.cfg",
+      "--names-file", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/gesture.names",
+      "--working-directory", "D:/FPGA_Data/HaGRIDv2/darknet_inputs",
+      "--run-dir", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3",
+      "--report", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3/preflight_evaluate.json",
+      "--weights", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/checkpoints/gesture_yolov4_tiny_416_d8_formal_final.weights",
+      "--valid-list", "D:/FPGA_Data/HaGRIDv2/darknet_inputs/valid.list",
+      "--zero-prediction-image", "D:/FPGA_Data/HaGRIDv2/user_no_hand/20260915_friend_004.png",
+      "--dry-run"
+    ],
+    "exit_code": 0,
+    "status": "PLANNED_NO_EXECUTION",
+    "commands_executed": 0,
+    "planned_commands": 1,
+    "planned_detector_argv": [
+      "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d4_float_baseline_r1/build_seeded_release_r2/Release/darknet.exe",
+      "detector",
+      "test",
+      "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/data/gesture_tiny416_d8_formal.data",
+      "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/configs/gesture_yolov4_tiny_416_d8_formal.cfg",
+      "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny416_formal_r1/checkpoints/gesture_yolov4_tiny_416_d8_formal_final.weights",
+      "-dont_show",
+      "-out",
+      "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r3/evaluation.json",
+      "-thresh",
+      "0.249999"
+    ],
+    "manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "valid_list_sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+    "validation_image_count": 15195,
+    "no_hand_manifest_rows": [158680, 158681],
+    "approved_zero_prediction_image": "D:/FPGA_Data/HaGRIDv2/user_no_hand/20260915_friend_004.png",
+    "capture_threshold": 0.249999,
+    "final_metric_threshold_range_inclusive": [0.25, 0.5],
+    "final_metric_threshold_selected": null,
+    "final_metric_threshold_frozen": false,
+    "predictions_or_metrics_generated": false,
+    "d8_g2_status": "CHANGES_REQUIRED; GPU execution remains blocked"
+  },
+  "preserved_prior_evidence": {
+    "r2_report": {
+      "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r2/preflight_evaluate.json",
+      "sha256_before_and_after_r3": "2f7034b6bfcc3852ea8227b63820aaf2b7641a3483b576ca96efdad76d350260"
+    },
+    "r2_summary": {
+      "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d6_val_tiny416_6000_r2/preflight_summary.md",
+      "sha256_before_and_after_r3": "6eb50dba760ffe4ed01579169ec94ff53fc00d0cf488a4cde239c802de9a4fcc"
+    }
+  },
+  "limitations": [
+    "Dry-run inspected manifests, approvals, labels and binding metadata only; no image pixels were opened, no predictions were made, no test/robustness images were inferred, and no training/resume was run.",
+    "The workflow preflight may check file-existence/binding metadata across manifest splits; this is not image-content access or inference.",
+    "No download, network access, GPU/CUDA execution, license conclusion, final threshold selection, or accuracy-pass claim is made.",
+    "This is supplemental evidence only; it does not change D6 workflow/test code, D4 artifacts, or prior R1/R2 evidence."
+  ]
+}

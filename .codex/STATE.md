@@ -6,7 +6,7 @@
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS，详见 D9 证据。当前 S1-T02 正式 tiny416 6000-step 训练进行中；训练、精度、INT8 和阶段1均未验收。
+- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 6000-step 正式训练已完成但 D8 G2 因缺少同期 train/valid 清单哈希未通过；精度、INT8 和阶段1均未验收。
 - 最近工程实现基线：`8bc6f195f0462a8d1471b875172dcca901e47f17`（S1-T02-D3 资源/性能门槛规格）。本基线不代表训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -89,6 +89,12 @@
 - 独立 Reviewer PASS；对照 Darknet `59596d7` 源码，并以独立模拟穷举 3,744 组起点/间隔组合。冻结 SHA：workflow `5be424495b70d442f177a8f5fa3f96da812afad211c067392e92e34c5539e172`、tests `3530163ae42131eaeffd2fca4090c65a929464c6ee61443e6ebceaec12dd3454f`；审查记录与测试日志在 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8b-c83b64945c0e44da8ba75351032eee8c`。
 - D8 tiny416 正式训练于 2026-09-17 12:22:26（UTC+8）启动，seed=424242、formal_6000；17:27 完成 6000 步，退出码0，loss 有限且无 OOM/NaN/Inf/数据损坏标记。报告 `report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r1.json` SHA-256 `ce61ab57973d27f27f64094c7eafeeddf5a9e5076a577b23f3e3940838f4dadc`；final/last/6000 权重一致，SHA-256 `c03616fa823181478885d99db21b1f2ed9fd57b59db118776241758b54c4df1e`，保存在外部 run-dir，不纳入 Git。独立 Reviewer R2 判定 `CHANGES_REQUIRED`：D8 当次缺 train.list/valid.list SHA；D5A 较早哈希和当前 NTFS 时间戳仅为追溯旁证，不足以证明训练读取字节。复审证据 `C:\Users\22061\AppData\Local\Temp\review-s1-t02-d8-tiny416-r2-20260917\review_s1_t02_d8_tiny416_input_chain_r2.md` SHA-256 `ea55947e821b0fa653a319bfac6df8f8fc4dc246488c35344662d3b694288022`。该权重不用于通过 G2 的正式评估；不代表精度结论。系统 PATH 未改。
 
+## S1-T02-D6 Darknet 捕获阈值边界
+
+- 2026-09-17：evaluate 显式使用 Darknet `-thresh 0.249999`，只作候选捕获下限；D6 最终指标仍按 `confidence >= score_threshold`，可选范围 `[0.25,0.50]`，selected=null、frozen=false。独立 Reviewer R2 对代码及 R3 证据 PASS；D6 workflow/tests SHA-256 分别为 `a4c77c92eb8f3c62d126cc801d3b82b3f9f8c309b999bd6532a2526721cd0c53`、`4813f3bfceea9749c42dd7b9688531cb069913bb20308f1dbcb48210448a453a`。
+- R3 CPU dry-run 为 `PLANNED_NO_EXECUTION`/exit 0、实际 Darknet commands=0；只绑定 val 清单 15,195 项与两条 approved no_hand 行。R1 源文件哈希描述歧义由 R3 source-binding 证据分列 raw upstream blobs 与 seed-patched 文件关闭。机器报告、来源 JSON 与摘要见 `20260917_s1_t02_d6_capture_preflight_r3.json`、`20260917_s1_t02_d6_source_binding_r3.json`、`20260917_s1_t02_d6_preflight_r3_summary.md`。
+- 本 PASS 仅为代码/证据 G2；D6 仍 G0_PENDING，未运行 GPU/推理、未生成预测/指标、未冻结最终阈值，不代表 G3/G4。
+
 ## S1-T02-D9 tiny416 CPU 解码参考
 
 - D9 代码、13项合成测试及 JSON/摘要证据见 `verification/s1_t02_d9_yolo_decode.py`、`verification/test_s1_t02_d9_yolo_decode.py`、`report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1.json` 与同名 `_summary.md`。候选3通过独立 Darknet/D2/D6 语义与证据审查；PASS 后状态快照另经 metadata-only Reviewer PASS。D9 全量回归137项通过；G3不适用（仅CPU参考），任务级G4由总控验收；不代表训练/mAP/板上或阶段验收。四文件哈希在正式证据中绑定。
@@ -98,7 +104,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D1–D9 规格/工具子任务已完成；D8 r1 训练完成但因输入清单缺同期哈希绑定而未通过 G2，必须由修复后的入口记录 train/valid 清单 SHA 后另开 run 重训，不能覆盖 r1。D6 val GPU 推理在阈值捕获修复并独立复审、正式训练证据满足输入绑定前不启动。tiny320/full608 对照、最终测试/robustness 数量及门槛、INT8、逐层黄金、资源预算仍待执行；不得用 test 调参。最终模型/尺寸/性能仍由 Wong 决策。
+4. D1–D9 规格/工具子任务已完成；D8 r1 训练完成但因输入清单缺同期哈希绑定而未通过 G2，必须由修复后的入口记录 train/valid 清单 SHA 后另开 run 重训，不能覆盖 r1。D6 捕获阈值代码/证据 G2 PASS，但 GPU 推理仍等 D8 合规权重证据。tiny320/full608 对照、最终测试/robustness 数量及门槛、INT8、逐层黄金、资源预算仍待执行；不得用 test 调参。最终模型/尺寸/性能仍由 Wong 决策。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）
@@ -119,4 +125,4 @@
 - AC05 修复与语义澄清：`edbc9e131584e1f219e22825a8ab1c598d137f13`；主报告 `20260915_s1_t01_d5b1_ac05_repair_r1.json` SHA-256 `cbecaed68b65a1f3b1ff42565b7b45ab1b6a6c5888e3e5a8f669ffabaaeb17e5`；独立 Reviewer PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-ac05-repair-r1-20260915\review_s1_t01_ac05_repair_r1_final.json`，SHA-256 `8edd0ac519066da7db0572c2aeec94f1f3e81b9d7451ced779b38e701164368c`。stateless SGD 的机器梯度证据在外部 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\ac05_repair_r1\runs\ac05_gradient_finite_evidence.json`，SHA-256 `164a69a18dc7f332520f134ecba632a08a1b68debefbe6094addf62a2e50d2fc`。
 - AC07 复现与绑定：`33dce790eba35abec305a4f081db5d9ecf5b7005`；数据复检报告 SHA-256 `ec9be81db33a36830c9dbc3f50a6127a5cc949c20862ae59941bdea97d852082`，r1 全量报告 SHA-256 `0394d2125e9597f01e9d5c0cca2ce5e81483505f63bb7b3a7611ce5a4dd6cf6f`，r2 绑定报告 SHA-256 `8ada6e3572577464639aba3248ceb1e38056977b36df3c7a013917de8ff1eb06`；独立 Reviewer r2 PASS，证据 SHA-256 `67d709bc5b8875766d4fbc540bb54a8a673063f4b34d2e86c65ff9fa2ec4002c`。
 - S1-T01 G4 任务验收：摘要 `report/evidence/S1-T01/20260915_s1_t01_g4_acceptance_summary.md`；独立 Reviewer 第2轮 PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-g4-r2-20260915\review_s1_t01_g4_r2_final.json`，SHA-256 `d1192a35a292e59d5b0f7fd859b65292e455ee44fef81d57ac24b8b1832b61d4`。S1-T01 已通过 G4，但不构成阶段1 G5 或外部最终验收。
-- 当前活动为 S1-T02 D6 detector 捕获阈值修复/复审、D8 运行时数据清单哈希绑定后重训，以及 D4 完整 YOLOv4 权重来源补证；D8 r1 权重保留但不用于正式评估。正式测试样本数/阈值、tiny320/full608 对照、量化误差和资源可行性仍未完成。不得把训练 loss 或 val 调参结果写成独立 test 精度；最终模型、输入尺寸与性能仍由 Wong 决策。
+- 当前活动为 D8 运行时数据清单哈希绑定、tiny416 新 run 重训；D6 代码/证据 G2 已通过但未执行 GPU 评估。D4 完整 YOLOv4 权重来源仍 G2 阻断（W3/W4 捕获失败/计数不完整），许可元数据 UNRESOLVED，不作法律结论。D8 r1 权重与日志保留但不用于正式评估。正式测试样本数/阈值、tiny320/full608 对照、量化误差和资源可行性仍未完成。不得把训练 loss 或 val 调参结果写成独立 test 精度；最终模型、输入尺寸与性能仍由 Wong 决策。

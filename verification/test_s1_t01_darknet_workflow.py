@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import struct
 import tempfile
 import unittest
 from argparse import Namespace
@@ -16,6 +17,11 @@ try:
     import verification.s1_t01_darknet_workflow as workflow
 except ModuleNotFoundError:
     import s1_t01_darknet_workflow as workflow
+
+try:
+    import verification.s1_t02_d6_detection_metrics as d6_metrics
+except ModuleNotFoundError:
+    import s1_t02_d6_detection_metrics as d6_metrics
 
 
 class DarknetWorkflowTest(unittest.TestCase):
@@ -417,9 +423,55 @@ class DarknetWorkflowTest(unittest.TestCase):
         """evaluate help 必须准确描述 runtime stdin 单进程流程。"""
 
         help_text = " ".join(workflow._build_parser().format_help().split())
-        expected = "读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON 并逐图解析"
+        expected = "读取 valid 清单生成隔离 runtime stdin 清单，单进程执行官方 Darknet detector test -out JSON；-thresh 0.249999 仅用于捕获，并逐图解析"
         self.assertIn(expected, help_text)
         self.assertNotIn("带显式 filename", help_text)
+
+    def test_capture_threshold_cli_and_metric_lower_boundary_are_compatible(self) -> None:
+        """显式捕获阈值低于D6下限，确保0.25经Darknet严格比较后仍可评估。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = Namespace(
+                action="evaluate",
+                data_config=root / "gesture.data",
+                model_config=root / "gesture.cfg",
+                weights=root / "weights",
+                run_dir=root / "run",
+            )
+            command = workflow._commands_for_action(
+                args,
+                {
+                    "executable": root / "darknet.exe",
+                    "working_directory": root,
+                    "evaluation_json": args.run_dir / "evaluation.json",
+                },
+            )[0]
+            threshold_index = command.index("-thresh")
+            threshold_text = command[threshold_index + 1]
+            self.assertEqual(threshold_text, "0.249999")
+
+            darknet_float_threshold = struct.unpack("f", struct.pack("f", float(threshold_text)))[0]
+            metric_floor = workflow.D6_SCORE_THRESHOLD_RANGE[0]
+            self.assertGreater(metric_floor, darknet_float_threshold)
+            captured_scores = [0.25] if 0.25 > darknet_float_threshold else []
+            self.assertEqual(captured_scores, [0.25])
+            prediction = d6_metrics.Prediction(
+                image_key=str(root / "image.png"),
+                class_id=0,
+                name="fist",
+                confidence=captured_scores[0],
+                box=(0.1, 0.1, 0.3, 0.3),
+                source_order=0,
+            )
+            self.assertEqual(d6_metrics.stable_nms([prediction], metric_floor, 0.45, 15), [prediction])
+
+            policy = workflow._base_report(args)["evaluation_threshold_policy"]
+            self.assertEqual(policy["darknet_capture"]["cli_flag"], "-thresh")
+            self.assertEqual(policy["darknet_capture"]["value"], workflow.D6_CAPTURE_THRESHOLD)
+            self.assertEqual(policy["final_metric_score_threshold"]["allowed_range_inclusive"], [0.25, 0.50])
+            self.assertIsNone(policy["final_metric_score_threshold"]["selected"])
+            self.assertFalse(policy["final_metric_score_threshold"]["frozen"])
 
     def test_dataset_gate_rejects_current_unapproved_report(self) -> None:
         """缺少人工批准时不能进入训练或评估。"""

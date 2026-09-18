@@ -111,6 +111,12 @@
 - 2026-09-18：tiny416 retry01 实际执行报告经独立 Reviewer R2 `PASS`（29项）；审查 JSON `C:\Users\22061\AppData\Local\Temp\review_s1_t02_d8_retry01_execution_r2\review_s1_t02_d8_retry01_execution_r2.json` SHA-256 `a177e1d60e53ec58f829f370370e50ed85dc7f14c1cdd1c08dcb4b7d85a84ca4`。确认批准、报告及当前 manifest SHA 一致，train/valid 三快照一致，日志为连续6000步且 loss 有限，checkpoint 与 D6 retry02 权重绑定。仅执行证据 G2，不是精度结论。
 - tiny320 后续候选已预备但未启动：`D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1`；cfg 从已审 D4 tiny320 formal cfg 原样复制，SHA `92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94`；独立 `.data` 使用专属 checkpoints backup，SHA `5153f9febb002300c994550aefa584bf98f9f040ca3717b7dde84a0a149fe194`。与 tiny416 顺序执行，不并发占用 GPU。
 
+## S1-T02-D8 tiny320 正式训练
+
+- tiny320 cfg/.data、初始化权重及 seeded executable/environment report 绑定见上方预备记录。正式参数为 seed `424242`、max_batches `6000`、steps `4800,5400`、timeout `21600s`、无进度 `300s`。
+- attempt 00 于 2026-09-18 14:13 启动后，Darknet child 立即以 `0xC0000135` 退出；无训练步、train.log 为0字节、未生成 checkpoint。报告 `20260918_s1_t02_d8_tiny320_train_r1.json` SHA-256 `f247cbe8ec77f3e8a8d7fa123232f08826d757e5010377e47c1fd67e01826f09`，状态 `EXECUTION_FAILED`。原因是启动进程未包含 pthread DLL 搜索目录；已用进程局部 PATH 的 no-argument loader probe 复现/关闭，DLL SHA-256 `0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e`，未改系统 PATH。
+- retry01 于 2026-09-18 14:22:35 隐藏启动 PID 5828；使用新日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1\logs_retry01`、新报告 `20260918_s1_t02_d8_tiny320_train_r1_retry01.json`，仍绑定同一空 checkpoint 目标。14:22:59 仍在输入预检，Darknet child 尚未出现，训练结果待核验。
+
 ## S1-T02-D4-W5 来源校验工具审查状态
 
 - 2026-09-17：R5 对启动闸门、deadline、回收、计数及 callback 生命周期相关实现/测试的独立复核通过；但整体 `CHANGES_REQUIRED`。成功报告验证仅要求至少一条 `matches=true` 依赖记录，未强制完整15项固定依赖集合、路径唯一性及 expected/observed SHA 与大小相等；单条伪匹配报告可被接纳。候选源码 SHA `1424df7ed2cd1cad439c1e19c3252c0aa7ad5c033dd304c9a6651b45d7919ed0`、测试 SHA `b41816ac06051884f858dba123a844404902cc5732ea3888f6ce662d8f0a2472`，42项离线测试通过但 G2 未通过，文件未提交。Reviewer R5 JSON `C:\Users\22061\AppData\Local\Temp\s1_t02_d4_w5_r5_20260917\review_s1_t02_d4_w5_r5.json` SHA `a8d491aff0d61aa82680e09dcf25f187e4d57a94b5a6570c9794c1ce96728381`。尚未联网、读取 full 权重或执行 provenance；许可证仍 `UNRESOLVED`。不得用当前候选启动真实 HTTP；后续需重新限定完整依赖绑定任务并完成独立复审。
@@ -133,7 +139,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D8c/D8d 代码 G2 与 tiny416 retry01 执行报告审查 G2 均已通过。D6 val 候选 retry02 已完成并经 R3 PASS；只属于候选捕获，不含精度指标。W5 工具代码 R6 与真实 full-weight 来源核验报告 R5 均已通过独立审查。tiny320 隔离 run 配置经 Reviewer R1 PASS（证据 JSON SHA-256 `A349E6C15C3C265D7920EE4B1D42737987280C0E68DE878AFC9EA2EAEBEE2D9F`），cfg 与 D4 源文件逐字节一致，`.data`/数据清单/权重/seeded 可执行文件绑定已核实。tiny320 正式训练工作流 PID 11492 于 2026-09-18 14:13:11 隐藏启动；截至 14:15:20 仍在 CPU 预检阶段，Darknet child、训练日志与 GPU 使用尚未出现。full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
+4. D8c/D8d 代码 G2 与 tiny416 retry01 执行报告审查 G2 均已通过。D6 val 候选 retry02 已完成并经 R3 PASS；只属于候选捕获，不含精度指标。W5 工具代码 R6 与真实 full-weight 来源核验报告 R5 均已通过独立审查。tiny320 run 配置经 Reviewer R1 PASS；attempt 00 的 DLL 搜索路径错误已诊断并保留失败报告，retry01 当前执行状态见上方 D8 记录。full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

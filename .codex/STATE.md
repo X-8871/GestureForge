@@ -115,7 +115,7 @@
 
 - tiny320 cfg/.data、初始化权重及 seeded executable/environment report 绑定见上方预备记录。正式参数为 seed `424242`、max_batches `6000`、steps `4800,5400`、timeout `21600s`、无进度 `300s`。
 - attempt 00 于 2026-09-18 14:13 启动后，Darknet child 立即以 `0xC0000135` 退出；无训练步、train.log 为0字节、未生成 checkpoint。报告 `20260918_s1_t02_d8_tiny320_train_r1.json` SHA-256 `f247cbe8ec77f3e8a8d7fa123232f08826d757e5010377e47c1fd67e01826f09`，状态 `EXECUTION_FAILED`。原因是启动进程未包含 pthread DLL 搜索目录；已用进程局部 PATH 的 no-argument loader probe 复现/关闭，DLL SHA-256 `0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e`，未改系统 PATH。
-- retry01 于 2026-09-18 14:22:35 隐藏启动 PID 5828；使用新日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1\logs_retry01`、新报告 `20260918_s1_t02_d8_tiny320_train_r1_retry01.json`，仍绑定同一空 checkpoint 目标。14:22:59 仍在输入预检，Darknet child 尚未出现，训练结果待核验。
+- retry01 于 2026-09-18 14:22:35 隐藏启动 PID 5828；仅进程 PATH 前置 pthread DLL 目录；使用新日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1\logs_retry01`、新报告 `20260918_s1_t02_d8_tiny320_train_r1_retry01.json`，仍绑定同一空 checkpoint 目标。Darknet child PID 14400 于 14:29:12 启动；14:29:22 日志 6/6000、首批 loss 有限、未见 OOM/NaN/Inf；早期 ETA 约5.9小时，须观察稳定步速，硬超时仍为6小时。
 
 ## S1-T02-D4-W5 来源校验工具审查状态
 

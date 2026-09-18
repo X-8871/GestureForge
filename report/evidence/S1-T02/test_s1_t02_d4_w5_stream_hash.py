@@ -729,14 +729,18 @@ class W5StreamHashTests(unittest.TestCase):
                     import time
                     from pathlib import Path
 
-                    script_path, local_path, stage = sys.argv[1:]
+                    script_path, local_path, stage, stage_marker = sys.argv[1:]
                     spec = importlib.util.spec_from_file_location("w5_child_fixture", script_path)
                     module = importlib.util.module_from_spec(spec)
                     sys.modules[spec.name] = module
                     spec.loader.exec_module(module)
+                    print(json.dumps({"kind": "ready"}), flush=True)
+                    if sys.stdin.readline() != "start\\n":
+                        sys.exit(2)
 
                     def block_if(target):
                         if stage == target:
+                            Path(stage_marker).write_text(target, encoding="utf-8")
                             time.sleep(30)
 
                     class Response:
@@ -797,11 +801,17 @@ class W5StreamHashTests(unittest.TestCase):
                             str(SCRIPT_PATH.resolve()),
                             str(weight_path),
                             stage,
+                            str(root / f"{stage}.reached"),
                         ],
-                        total_timeout=0.5,
+                        total_timeout=4.0,
+                        start_gate=True,
                     )
                     elapsed = time.monotonic() - started
                     attempts, confirmed, responses, actual, statuses = expected
+                    self.assertTrue(
+                        (root / f"{stage}.reached").is_file(),
+                        f"stage={stage}, report={report}, worker={worker}",
+                    )
                     self.assertLess(elapsed, 3.0)
                     self.assertTrue(worker["timed_out"])
                     self.assertTrue(worker["worker_terminated"])
@@ -827,6 +837,7 @@ class W5StreamHashTests(unittest.TestCase):
             worker_path.write_text(
                 "import sys, time\n"
                 "from pathlib import Path\n"
+                "print('{\"kind\":\"ready\"}', flush=True)\n"
                 "if sys.stdin.readline() == 'start\\n':\n"
                 "    Path(sys.argv[1]).write_text('released', encoding='utf-8')\n"
                 "time.sleep(30)\n",
@@ -907,6 +918,7 @@ class W5StreamHashTests(unittest.TestCase):
             worker_path.write_text(
                 "import sys, time\n"
                 "from pathlib import Path\n"
+                "print('{\"kind\":\"ready\"}', flush=True)\n"
                 "if sys.stdin.readline() == 'start\\n':\n"
                 "    Path(sys.argv[1]).write_text('released', encoding='utf-8')\n"
                 "time.sleep(30)\n",
@@ -937,12 +949,13 @@ class W5StreamHashTests(unittest.TestCase):
                 with patch.object(threading.Thread, "start", new=fail_dispatcher_start):
                     with patch.object(w5, "_PROGRESS_DISPATCH_THREAD", None):
                         with patch.object(w5, "_PROGRESS_DISPATCH_QUEUE", None):
-                            report, worker = w5._run_supervised_process(
-                                [sys.executable, str(worker_path), str(network_marker)],
-                                total_timeout=2.0,
-                                progress_callback=lambda _record: None,
-                                start_gate=True,
-                            )
+                            with patch.object(w5, "_PROGRESS_DISPATCH_READY", None):
+                                report, worker = w5._run_supervised_process(
+                                    [sys.executable, str(worker_path), str(network_marker)],
+                                    total_timeout=2.0,
+                                    progress_callback=lambda _record: None,
+                                    start_gate=True,
+                                )
 
         self.assertEqual(report["error_type"], "WorkerSetupError")
         self.assertEqual(len(started_processes), 1)
@@ -984,6 +997,7 @@ class W5StreamHashTests(unittest.TestCase):
             worker_path.write_text(
                 "import json, sys\n"
                 "from pathlib import Path\n"
+                "print(json.dumps({'kind':'ready'}), flush=True)\n"
                 "if sys.stdin.readline() != 'start\\n':\n"
                 "    sys.exit(2)\n"
                 "ready = Path(sys.argv[1]).exists()\n"
@@ -998,8 +1012,13 @@ class W5StreamHashTests(unittest.TestCase):
                 callback: Callable[[dict[str, object]], None] | None,
                 *,
                 deadline: float,
+                on_dispatcher_start: Callable[..., None] | None = None,
             ) -> tuple[Callable[[dict[str, object]], None], bool]:
-                enqueue, ready = start_dispatcher(callback, deadline=deadline)
+                enqueue, ready = start_dispatcher(
+                    callback,
+                    deadline=deadline,
+                    on_dispatcher_start=on_dispatcher_start,
+                )
                 if ready:
                     dispatcher_marker.write_text("ready", encoding="utf-8")
                 return enqueue, ready
@@ -1026,6 +1045,163 @@ class W5StreamHashTests(unittest.TestCase):
         self.assertTrue(worker["worker_terminated"])
         self.assertTrue(worker["reader_stopped"])
         self.assertTrue(worker["callback_dispatcher_started"])
+        self.assertTrue(worker["worker_ready"])
+
+    def test_03_worker_readiness_wait_has_a_hard_deadline(self) -> None:
+        """worker 未报告 ready 时受父级绝对期限约束并被回收。"""
+
+        with tempfile.TemporaryDirectory(prefix="w5-worker-not-ready-") as temp_dir:
+            worker_path = Path(temp_dir) / "not_ready.py"
+            worker_path.write_text("import time\ntime.sleep(30)\n", encoding="utf-8")
+            processes: list[subprocess.Popen[str]] = []
+            real_popen = subprocess.Popen
+
+            def capture_popen(*args: Any, **kwargs: Any) -> subprocess.Popen[str]:
+                process = real_popen(*args, **kwargs)
+                processes.append(process)
+                return process
+
+            started = time.monotonic()
+            with patch.object(w5.subprocess, "Popen", side_effect=capture_popen):
+                report, lifecycle = w5._run_supervised_process(
+                    [sys.executable, str(worker_path)],
+                    total_timeout=4.0,
+                    start_gate=True,
+                )
+            elapsed = time.monotonic() - started
+
+        self.assertLess(elapsed, 3.0)
+        self.assertEqual(report["error_type"], "TotalTimeoutError")
+        self.assertEqual(report["exit_code"], 1)
+        self.assertIsNone(report["sha256"])
+        self.assertFalse(lifecycle["worker_ready"])
+        self.assertTrue(lifecycle["worker_terminated"])
+        self.assertTrue(lifecycle["reader_stopped"])
+        self.assertIsNotNone(lifecycle["worker_exit_code"])
+        self.assertEqual(len(processes), 1)
+        self.assertTrue(processes[0].stdout.closed)
+        self.assertTrue(processes[0].stdin.closed)
+        self.assertIsNotNone(processes[0].poll())
+
+    def test_04_real_delayed_dispatcher_is_tracked_and_reaped(self) -> None:
+        """真实 dispatcher 延迟 ready 时父级回收线程且拒绝迟到结果。"""
+
+        with tempfile.TemporaryDirectory(prefix="w5-dispatcher-ready-deadline-") as temp_dir:
+            root = Path(temp_dir)
+            worker_path = root / "gated_worker.py"
+            network_marker = root / "network-started.marker"
+            result_marker = root / "result-emitted.marker"
+            serialized_report = json.dumps(
+                self.valid_worker_report(), ensure_ascii=True, separators=(",", ":")
+            )
+            worker_path.write_text(
+                "import json, sys, time\n"
+                "from pathlib import Path\n"
+                "print(json.dumps({'kind':'ready'}), flush=True)\n"
+                "Path(sys.argv[2]).write_text('emitted', encoding='utf-8')\n"
+                f"print(json.dumps({{'kind':'result','report':json.loads({serialized_report!r})}}), flush=True)\n"
+                "if sys.stdin.readline() == 'start\\n':\n"
+                "    Path(sys.argv[1]).write_text('started', encoding='utf-8')\n"
+                "time.sleep(30)\n",
+                encoding="utf-8",
+            )
+            processes: list[subprocess.Popen[str]] = []
+            dispatcher_threads: list[threading.Thread] = []
+            dispatcher_entered = threading.Event()
+            real_popen = subprocess.Popen
+            real_dispatch = w5._dispatch_progress_records
+            tracked_state_cleared = False
+            result_was_emitted = False
+            network_was_started = False
+            reader_threads_before = {
+                id(thread)
+                for thread in threading.enumerate()
+                if thread.name == "w5-worker-reader"
+            }
+            callback_threads_before = {
+                id(thread)
+                for thread in threading.enumerate()
+                if thread.name == "w5-progress-callback"
+            }
+
+            def capture_popen(*args: Any, **kwargs: Any) -> subprocess.Popen[str]:
+                process = real_popen(*args, **kwargs)
+                processes.append(process)
+                return process
+
+            def delayed_dispatcher_target(
+                pending: Any,
+                ready: threading.Event,
+            ) -> None:
+                dispatcher_threads.append(threading.current_thread())
+                dispatcher_entered.set()
+                time.sleep(2.3)
+                real_dispatch(pending, ready)
+
+            total_timeout = 4.0
+            started = time.monotonic()
+            with patch.object(w5.subprocess, "Popen", side_effect=capture_popen):
+                with patch.object(w5, "_dispatch_progress_records", delayed_dispatcher_target):
+                    with patch.object(w5, "_PROGRESS_DISPATCH_THREAD", None):
+                        with patch.object(w5, "_PROGRESS_DISPATCH_QUEUE", None):
+                            with patch.object(w5, "_PROGRESS_DISPATCH_READY", None):
+                                report, lifecycle = w5._run_supervised_process(
+                                    [
+                                        sys.executable,
+                                        str(worker_path),
+                                        str(network_marker),
+                                        str(result_marker),
+                                    ],
+                                    total_timeout=total_timeout,
+                                    progress_callback=lambda _record: None,
+                                    start_gate=True,
+                                )
+                                tracked_state_cleared = (
+                                    w5._PROGRESS_DISPATCH_THREAD is None
+                                    and w5._PROGRESS_DISPATCH_QUEUE is None
+                                    and w5._PROGRESS_DISPATCH_READY is None
+                                )
+                                result_was_emitted = result_marker.is_file()
+                                network_was_started = network_marker.exists()
+            elapsed = time.monotonic() - started
+
+        self.assertTrue(dispatcher_entered.is_set())
+        self.assertEqual(len(dispatcher_threads), 1)
+        self.assertLess(elapsed, total_timeout + 0.1)
+        self.assertTrue(result_was_emitted, f"report={report}, lifecycle={lifecycle}")
+        self.assertEqual(report["error_type"], "TotalTimeoutError")
+        self.assertEqual(report["exit_code"], 1)
+        self.assertIsNone(report["sha256"])
+        self.assertFalse(lifecycle["worker_ready"])
+        self.assertTrue(lifecycle["timed_out"])
+        self.assertTrue(lifecycle["worker_terminated"])
+        self.assertTrue(lifecycle["reader_stopped"])
+        self.assertFalse(lifecycle["callback_dispatcher_started"])
+        self.assertTrue(lifecycle["callback_dispatcher_stopped"])
+        self.assertIsNotNone(lifecycle["worker_exit_code"])
+        self.assertEqual(len(processes), 1)
+        self.assertTrue(processes[0].stdout.closed)
+        self.assertTrue(processes[0].stdin.closed)
+        self.assertIsNotNone(processes[0].poll())
+        self.assertFalse(network_was_started)
+        self.assertFalse(dispatcher_threads[0].is_alive())
+        self.assertTrue(tracked_state_cleared)
+        self.assertEqual(
+            {
+                id(thread)
+                for thread in threading.enumerate()
+                if thread.name == "w5-worker-reader"
+            },
+            reader_threads_before,
+        )
+        self.assertEqual(
+            {
+                id(thread)
+                for thread in threading.enumerate()
+                if thread.name == "w5-progress-callback"
+            },
+            callback_threads_before,
+        )
 
     def test_parent_interrupt_reaps_worker(self) -> None:
         """父级监督等待被中断时强制回收 worker。"""
@@ -1186,7 +1362,7 @@ class W5StreamHashTests(unittest.TestCase):
         self.assertTrue(w5._worker_report_is_consistent(failed))
 
     def test_reader_delayed_eof_cannot_extend_deadline_or_accept_result(self) -> None:
-        """EOF 延迟 0.1 秒并越过 deadline 时不返回成功。"""
+        """reader 卡在 EOF 时拒绝结果，并由关闭管道回收线程。"""
 
         report_data = self.valid_worker_report()
         with tempfile.TemporaryDirectory(prefix="w5-delayed-eof-") as temp_dir:
@@ -1196,7 +1372,9 @@ class W5StreamHashTests(unittest.TestCase):
             )
             worker_path.write_text(
                 "import json, sys, time\n"
-                "time.sleep(0.47)\n"
+                "print(json.dumps({'kind':'ready'}), flush=True)\n"
+                "if sys.stdin.readline() != 'start\\n':\n"
+                "    sys.exit(2)\n"
                 f"print(json.dumps({{'kind':'result','report':json.loads({serialized_report!r})}}), flush=True)\n"
                 "sys.exit(0)\n",
                 encoding="utf-8",
@@ -1209,7 +1387,8 @@ class W5StreamHashTests(unittest.TestCase):
                 def __init__(self, stream: Any) -> None:
                     self.stream = stream
                     self.iterator = iter(stream)
-                    self.delayed = False
+                    self.eof_wait_started = threading.Event()
+                    self.release_eof = threading.Event()
 
                 def __iter__(self) -> "DelayedEOF":
                     return self
@@ -1218,41 +1397,42 @@ class W5StreamHashTests(unittest.TestCase):
                     try:
                         return next(self.iterator)
                     except StopIteration:
-                        if not self.delayed:
-                            self.delayed = True
-                            time.sleep(0.1)
+                        self.eof_wait_started.set()
+                        self.release_eof.wait(timeout=5.0)
                         raise
 
                 def close(self) -> None:
+                    self.release_eof.set()
                     self.stream.close()
+
+            delayed_streams: list[DelayedEOF] = []
 
             def delayed_popen(*args: Any, **kwargs: Any) -> subprocess.Popen[str]:
                 process: Any = real_popen(*args, **kwargs)
                 assert process.stdout is not None
-                process.stdout = DelayedEOF(process.stdout)
+                delayed = DelayedEOF(process.stdout)
+                delayed_streams.append(delayed)
+                process.stdout = delayed
                 return process
 
             started = time.monotonic()
             with patch.object(w5.subprocess, "Popen", side_effect=delayed_popen):
                 received, lifecycle = w5._run_supervised_process(
-                    [sys.executable, str(worker_path)], total_timeout=0.6
+                    [sys.executable, str(worker_path)],
+                    total_timeout=4.0,
+                    start_gate=True,
                 )
             elapsed = time.monotonic() - started
 
-        self.assertLess(elapsed, 0.8)
+        self.assertLess(elapsed, 3.0)
         self.assertEqual(received["exit_code"], 1)
-        self.assertIn(
-            received["error_type"],
-            {"TotalTimeoutError", "WorkerCleanupTimeoutError", "WorkerTerminationError"},
-        )
+        self.assertEqual(received["error_type"], "WorkerCleanupTimeoutError")
         self.assertTrue(lifecycle["worker_terminated"])
+        self.assertTrue(lifecycle["worker_ready"])
+        self.assertTrue(lifecycle["reader_stopped"])
         self.assertIsNone(received["sha256"])
-        reader_deadline = time.monotonic() + 0.5
-        while (
-            any(thread.name == "w5-worker-reader" for thread in threading.enumerate())
-            and time.monotonic() < reader_deadline
-        ):
-            time.sleep(0.005)
+        self.assertTrue(delayed_streams[0].eof_wait_started.is_set())
+        self.assertTrue(delayed_streams[0].release_eof.is_set())
         self.assertFalse(
             any(thread.name == "w5-worker-reader" for thread in threading.enumerate())
         )
@@ -1262,54 +1442,90 @@ class W5StreamHashTests(unittest.TestCase):
 
         callback_started = threading.Event()
         callback_finished = threading.Event()
+        callback_release = threading.Event()
+        supervisor_finished = threading.Event()
+        outcome: list[tuple[dict[str, object], dict[str, object]]] = []
         report_data = self.valid_worker_report()
         serialized_report = json.dumps(report_data, ensure_ascii=True, separators=(",", ":"))
         with tempfile.TemporaryDirectory(prefix="w5-blocking-callback-timeout-") as temp_dir:
             worker_path = Path(temp_dir) / "late_result_worker.py"
             worker_path.write_text(
-                "import json, time\n"
+                "import json, sys, time\n"
+                "print(json.dumps({'kind':'ready'}), flush=True)\n"
+                "if sys.stdin.readline() != 'start\\n':\n"
+                "    sys.exit(2)\n"
                 "print(json.dumps({'kind':'progress','record':{'event':'progress'}}), flush=True)\n"
-                "time.sleep(0.45)\n"
+                "time.sleep(2.5)\n"
                 f"print(json.dumps({{'kind':'result','report':json.loads({serialized_report!r})}}), flush=True)\n",
                 encoding="utf-8",
             )
 
             def slow_callback(_record: dict[str, object]) -> None:
                 callback_started.set()
-                time.sleep(0.7)
+                callback_release.wait(timeout=3.0)
                 callback_finished.set()
 
+            def run_supervisor() -> None:
+                try:
+                    outcome.append(
+                        w5._run_supervised_process(
+                            [sys.executable, str(worker_path)],
+                            total_timeout=4.0,
+                            progress_callback=slow_callback,
+                            start_gate=True,
+                        )
+                    )
+                finally:
+                    supervisor_finished.set()
+
             started = time.monotonic()
-            received, lifecycle = w5._run_supervised_process(
-                [sys.executable, str(worker_path)],
-                total_timeout=0.3,
-                progress_callback=slow_callback,
+            supervisor = threading.Thread(
+                target=run_supervisor,
+                name="w5-supervisor-test",
+                daemon=True,
             )
+            supervisor.start()
+            callback_was_started = callback_started.wait(timeout=0.75)
+            supervisor_did_finish = supervisor_finished.wait(timeout=2.8)
+            supervisor.join(timeout=0.2)
+            callback_remained_blocked = not callback_finished.is_set()
+            callback_release.set()
+            callback_did_finish = callback_finished.wait(timeout=0.5)
             elapsed = time.monotonic() - started
 
-        self.assertTrue(callback_started.wait(timeout=0.25))
-        self.assertLess(elapsed, 0.5)
+        self.assertTrue(callback_was_started)
+        self.assertTrue(supervisor_did_finish)
+        self.assertFalse(supervisor.is_alive())
+        self.assertEqual(len(outcome), 1)
+        received, lifecycle = outcome[0]
+        self.assertLess(elapsed, 3.0)
         self.assertTrue(lifecycle["timed_out"])
         self.assertTrue(lifecycle["worker_terminated"])
+        self.assertTrue(lifecycle["worker_ready"])
         self.assertTrue(lifecycle["reader_stopped"])
         self.assertIsNotNone(lifecycle["worker_exit_code"])
         self.assertEqual(received["error_type"], "TotalTimeoutError")
         self.assertEqual(received["exit_code"], 1)
         self.assertIsNone(received["sha256"])
-        self.assertTrue(callback_finished.wait(timeout=1.0))
+        self.assertTrue(callback_remained_blocked)
+        self.assertTrue(callback_did_finish)
 
     def test_blocking_progress_callback_is_best_effort_and_reused(self) -> None:
         """阻塞和抛错的进度回调不延长期限、不改变结果且只复用一个线程。"""
 
         callback_started = threading.Event()
         callback_finished = threading.Event()
+        callback_release = threading.Event()
         records: list[dict[str, object]] = []
         with tempfile.TemporaryDirectory(prefix="w5-blocking-callback-") as temp_dir:
             worker_path = Path(temp_dir) / "result_worker.py"
             report_data = self.valid_worker_report()
             serialized_report = json.dumps(report_data, ensure_ascii=True, separators=(",", ":"))
             worker_path.write_text(
-                "import json, time\n"
+                "import json, sys, time\n"
+                "print(json.dumps({'kind':'ready'}), flush=True)\n"
+                "if sys.stdin.readline() != 'start\\n':\n"
+                "    sys.exit(2)\n"
                 "print(json.dumps({'kind':'progress','record':{'event':'progress'}}), flush=True)\n"
                 f"print(json.dumps({{'kind':'result','report':json.loads({serialized_report!r})}}), flush=True)\n",
                 encoding="utf-8",
@@ -1317,7 +1533,7 @@ class W5StreamHashTests(unittest.TestCase):
 
             def slow_callback(record: dict[str, object]) -> None:
                 callback_started.set()
-                time.sleep(0.6)
+                callback_release.wait(timeout=3.0)
                 records.append(record)
                 callback_finished.set()
                 raise KeyboardInterrupt
@@ -1325,32 +1541,40 @@ class W5StreamHashTests(unittest.TestCase):
             started = time.monotonic()
             received, lifecycle = w5._run_supervised_process(
                 [sys.executable, str(worker_path)],
-                total_timeout=0.2,
+                total_timeout=4.0,
                 progress_callback=slow_callback,
+                start_gate=True,
             )
             elapsed = time.monotonic() - started
+            callback_was_started = callback_started.wait(timeout=0.75)
             for _ in range(3):
                 repeated, _ = w5._run_supervised_process(
                     [sys.executable, str(worker_path)],
-                    total_timeout=1.0,
+                    total_timeout=4.0,
                     progress_callback=lambda _record: None,
+                    start_gate=True,
                 )
-                self.assertEqual(repeated["exit_code"], 0)
+                self.assertEqual(repeated["exit_code"], 0, json.dumps(repeated, sort_keys=True))
+            callback_remained_blocked = not callback_finished.is_set()
             dispatcher_ids = {
                 thread.ident
                 for thread in threading.enumerate()
                 if thread.name == "w5-progress-callback"
             }
+            callback_release.set()
+            callback_did_finish = callback_finished.wait(timeout=0.5)
 
-        self.assertTrue(callback_started.wait(timeout=0.2))
-        self.assertLess(elapsed, 0.45)
+        self.assertTrue(callback_was_started)
+        self.assertLess(elapsed, 1.5)
         self.assertTrue(lifecycle["worker_terminated"])
+        self.assertTrue(lifecycle["worker_ready"])
         self.assertTrue(lifecycle["reader_stopped"])
         self.assertEqual(received["exit_code"], 0)
         self.assertEqual(received["sha256"], report_data["sha256"])
-        self.assertTrue(callback_finished.wait(timeout=1.0))
+        self.assertTrue(callback_remained_blocked)
+        self.assertTrue(callback_did_finish)
         self.assertEqual(len(records), 1)
-        self.assertLessEqual(len(dispatcher_ids), 1)
+        self.assertEqual(len(dispatcher_ids), 1)
 
     def test_connect_request_response_and_header_stages_obey_idle_deadline(self) -> None:
         """連線、request、response 與 header 階段超過無進度期限都失敗。"""

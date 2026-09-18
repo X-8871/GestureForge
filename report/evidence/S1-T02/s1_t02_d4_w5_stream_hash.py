@@ -505,15 +505,18 @@ _PROGRESS_DISPATCH_QUEUE: queue.Queue[
     tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
 ] | None = None
 _PROGRESS_DISPATCH_THREAD: threading.Thread | None = None
+_PROGRESS_DISPATCH_READY: threading.Event | None = None
 
 
 def _dispatch_progress_records(
     pending: queue.Queue[
         tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
     ],
+    ready: threading.Event,
 ) -> None:
     """在唯一后台线程中尽力交付记录；用户回调错误不影响网络结果。"""
 
+    ready.set()
     while True:
         item = pending.get()
         if item is None:
@@ -529,6 +532,17 @@ def _start_progress_dispatcher(
     callback: Callable[[dict[str, object]], None] | None,
     *,
     deadline: float,
+    on_dispatcher_start: Callable[
+        [
+            threading.Thread,
+            queue.Queue[
+                tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
+            ],
+            threading.Event,
+        ],
+        None,
+    ]
+    | None = None,
 ) -> tuple[Callable[[dict[str, object]], None], bool]:
     """以单个进程级 daemon 和 8 项队列尽力交付进度。
 
@@ -539,8 +553,11 @@ def _start_progress_dispatcher(
     if callback is None:
         return lambda _record: None, False
 
-    global _PROGRESS_DISPATCH_QUEUE, _PROGRESS_DISPATCH_THREAD
-    with _PROGRESS_DISPATCH_LOCK:
+    global _PROGRESS_DISPATCH_QUEUE, _PROGRESS_DISPATCH_THREAD, _PROGRESS_DISPATCH_READY
+    remaining = max(0.0, deadline - time.monotonic())
+    if not _PROGRESS_DISPATCH_LOCK.acquire(timeout=remaining):
+        raise RuntimeError("callback dispatcher lock timed out")
+    try:
         if (
             _PROGRESS_DISPATCH_QUEUE is None
             or _PROGRESS_DISPATCH_THREAD is None
@@ -549,28 +566,31 @@ def _start_progress_dispatcher(
             pending: queue.Queue[
                 tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
             ] = queue.Queue(maxsize=8)
+            ready = threading.Event()
             thread = threading.Thread(
                 target=_dispatch_progress_records,
-                args=(pending,),
+                args=(pending, ready),
                 name="w5-progress-callback",
                 daemon=True,
             )
-            try:
-                thread.start()
-            except BaseException:
-                try:
-                    pending.put_nowait(None)
-                except queue.Full:
-                    pass
-                if thread.ident is not None:
-                    try:
-                        thread.join(timeout=max(0.0, deadline - time.monotonic()))
-                    except RuntimeError:
-                        pass
-                raise
             _PROGRESS_DISPATCH_QUEUE = pending
             _PROGRESS_DISPATCH_THREAD = thread
+            _PROGRESS_DISPATCH_READY = ready
+            if on_dispatcher_start is not None:
+                on_dispatcher_start(thread, pending, ready)
+            thread.start()
+        else:
+            assert _PROGRESS_DISPATCH_READY is not None
+            thread = _PROGRESS_DISPATCH_THREAD
+            pending = _PROGRESS_DISPATCH_QUEUE
+            ready = _PROGRESS_DISPATCH_READY
+            if on_dispatcher_start is not None:
+                on_dispatcher_start(thread, pending, ready)
+        if not ready.wait(timeout=max(0.0, deadline - time.monotonic())):
+            raise RuntimeError("callback dispatcher not ready")
         dispatcher_queue = _PROGRESS_DISPATCH_QUEUE
+    finally:
+        _PROGRESS_DISPATCH_LOCK.release()
 
     def enqueue(record: dict[str, object]) -> None:
         """队列拥塞时丢弃旧快照，保留最新累计状态且不等待用户代码。"""
@@ -590,6 +610,54 @@ def _start_progress_dispatcher(
                 pass
 
     return enqueue, True
+
+
+def _stop_starting_progress_dispatcher(
+    thread: threading.Thread | None,
+    pending: queue.Queue[
+        tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
+    ]
+    | None,
+    *,
+    deadline: float,
+) -> bool | None:
+    """停止启动未完成的 dispatcher，并在总期限内等待线程退出。"""
+
+    if thread is None:
+        return None
+    if thread.ident is None:
+        stopped = True
+    else:
+        if thread.is_alive() and pending is not None:
+            try:
+                pending.put_nowait(None)
+            except queue.Full:
+                try:
+                    pending.get_nowait()
+                except queue.Empty:
+                    pass
+                try:
+                    pending.put_nowait(None)
+                except queue.Full:
+                    pass
+        if thread.is_alive():
+            try:
+                thread.join(timeout=max(0.0, deadline - time.monotonic()))
+            except RuntimeError:
+                pass
+        stopped = not thread.is_alive()
+
+    if stopped:
+        global _PROGRESS_DISPATCH_QUEUE, _PROGRESS_DISPATCH_THREAD, _PROGRESS_DISPATCH_READY
+        lock_remaining = max(0.0, deadline - time.monotonic())
+        lock_acquired = _PROGRESS_DISPATCH_LOCK.acquire(timeout=lock_remaining)
+        if lock_acquired:
+            if _PROGRESS_DISPATCH_THREAD is thread:
+                _PROGRESS_DISPATCH_QUEUE = None
+                _PROGRESS_DISPATCH_THREAD = None
+                _PROGRESS_DISPATCH_READY = None
+            _PROGRESS_DISPATCH_LOCK.release()
+    return stopped
 
 
 def _worker_report_is_consistent(report: object) -> bool:
@@ -778,7 +846,7 @@ def _run_supervised_process(
 
     started = time.monotonic()
     deadline = started + total_timeout
-    cleanup_reserve = min(0.05, total_timeout * 0.25)
+    cleanup_reserve = min(2.0, total_timeout * 0.5)
     operation_deadline = deadline - cleanup_reserve
     last_snapshot: dict[str, object] = {}
     messages: queue.Queue[object] = queue.Queue()
@@ -804,8 +872,13 @@ def _run_supervised_process(
             "worker_exit_code": None,
             "worker_terminated": True,
             "reader_stopped": True,
+            "callback_dispatcher_started": False,
+            "callback_dispatcher_stopped": None,
+            "worker_ready": False,
             "timed_out": False,
         }
+
+    reader_stop_requested = threading.Event()
 
     def read_messages() -> None:
         """从 worker 管道持续读行，避免父进程阻塞在未完成的 readline。"""
@@ -814,13 +887,37 @@ def _run_supervised_process(
         try:
             for line in process.stdout:
                 messages.put(line)
+        except (OSError, ValueError):
+            if not reader_stop_requested.is_set():
+                messages.put({"kind": "reader-error"})
         finally:
             messages.put(None)
-            process.stdout.close()
+            try:
+                process.stdout.close()
+            except (OSError, ValueError):
+                pass
 
     reader: threading.Thread | None = None
     dispatcher_ready = False
+    dispatcher_thread: threading.Thread | None = None
+    dispatcher_queue: queue.Queue[
+        tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
+    ] | None = None
+    worker_ready = False
     enqueue_progress: Callable[[dict[str, object]], None] = lambda _record: None
+
+    def track_dispatcher(
+        thread: threading.Thread,
+        pending: queue.Queue[
+            tuple[Callable[[dict[str, object]], None], dict[str, object]] | None
+        ],
+        _ready: threading.Event,
+    ) -> None:
+        """保留尚在启动中的共享 dispatcher，供父级超时回收。"""
+
+        nonlocal dispatcher_thread, dispatcher_queue
+        dispatcher_thread = thread
+        dispatcher_queue = pending
 
     def cleanup_worker(
         *,
@@ -845,27 +942,37 @@ def _run_supervised_process(
                 process.stdin.close()
             except Exception:
                 pass
-        if reader is not None and reader.is_alive() and stop_reader:
-            try:
-                reader.join(timeout=max(0.0, deadline - time.monotonic()))
-            except RuntimeError:
-                pass
-        if process.stdout is not None and (reader is None or not reader.is_alive()):
+        if stop_reader:
+            reader_stop_requested.set()
+        if process.stdout is not None and stop_reader:
             try:
                 process.stdout.close()
-            except Exception:
+            except (OSError, ValueError):
                 pass
         if reader is not None and reader.is_alive() and stop_reader:
             try:
                 reader.join(timeout=max(0.0, deadline - time.monotonic()))
             except RuntimeError:
                 pass
+        dispatcher_stopped: bool | None = None
+        if dispatcher_thread is not None and not dispatcher_ready:
+            dispatcher_stopped = _stop_starting_progress_dispatcher(
+                dispatcher_thread,
+                dispatcher_queue,
+                deadline=deadline,
+            )
         worker_stopped = process.poll() is not None
         reader_stopped = reader is None or not reader.is_alive()
+        if not worker_stopped:
+            final_error_type = "WorkerTerminationError"
+        elif dispatcher_stopped is False:
+            final_error_type = "CallbackDispatcherTerminationError"
+        else:
+            final_error_type = reason
         report = _timeout_report(
             last_snapshot,
             elapsed_seconds=time.monotonic() - started,
-            error_type=reason if worker_stopped else "WorkerTerminationError",
+            error_type=final_error_type,
         )
         return report, {
             "worker_pid": process.pid,
@@ -873,6 +980,8 @@ def _run_supervised_process(
             "worker_terminated": worker_stopped,
             "reader_stopped": reader_stopped,
             "callback_dispatcher_started": dispatcher_ready,
+            "callback_dispatcher_stopped": dispatcher_stopped,
+            "worker_ready": worker_ready,
             "timed_out": reason == "TotalTimeoutError",
         }
 
@@ -884,16 +993,17 @@ def _run_supervised_process(
         )
         reader.start()
         enqueue_progress, dispatcher_ready = _start_progress_dispatcher(
-            progress_callback, deadline=deadline
+            progress_callback,
+            deadline=operation_deadline,
+            on_dispatcher_start=track_dispatcher,
         )
-        if start_gate:
-            if process.stdin is None:
-                raise RuntimeError("worker gate unavailable")
-            process.stdin.write("start\n")
-            process.stdin.flush()
-            process.stdin.close()
     except BaseException as exc:
-        reason = "InterruptedError" if isinstance(exc, KeyboardInterrupt) else "WorkerSetupError"
+        if isinstance(exc, KeyboardInterrupt):
+            reason = "InterruptedError"
+        elif time.monotonic() >= operation_deadline:
+            reason = "TotalTimeoutError"
+        else:
+            reason = "WorkerSetupError"
         return cleanup_worker(reason=reason, stop_reader=True)
 
     def terminate(error_type: str, *, timed_out: bool) -> tuple[dict[str, object], dict[str, object]]:
@@ -902,6 +1012,39 @@ def _run_supervised_process(
         report, lifecycle = cleanup_worker(reason=error_type, stop_reader=True)
         lifecycle["timed_out"] = timed_out
         return report, lifecycle
+
+    if start_gate:
+        while True:
+            remaining = operation_deadline - time.monotonic()
+            if remaining <= 0:
+                return terminate("TotalTimeoutError", timed_out=True)
+            try:
+                line = messages.get(timeout=remaining)
+            except KeyboardInterrupt:
+                return terminate("InterruptedError", timed_out=False)
+            except queue.Empty:
+                return terminate("TotalTimeoutError", timed_out=True)
+            if time.monotonic() >= operation_deadline:
+                return terminate("TotalTimeoutError", timed_out=True)
+            if line is None or not isinstance(line, str):
+                return terminate("WorkerProtocolError", timed_out=False)
+            try:
+                ready_message = json.loads(line)
+            except Exception:
+                return terminate("WorkerProtocolError", timed_out=False)
+            if ready_message != {"kind": "ready"}:
+                return terminate("WorkerProtocolError", timed_out=False)
+            worker_ready = True
+            break
+        try:
+            if process.stdin is None:
+                raise RuntimeError("worker gate unavailable")
+            process.stdin.write("start\n")
+            process.stdin.flush()
+            process.stdin.close()
+        except BaseException as exc:
+            reason = "InterruptedError" if isinstance(exc, KeyboardInterrupt) else "WorkerSetupError"
+            return terminate(reason, timed_out=False)
 
     while True:
         remaining = operation_deadline - time.monotonic()
@@ -928,7 +1071,7 @@ def _run_supervised_process(
             elif kind == "progress" and isinstance(message.get("record"), dict):
                 enqueue_progress(message["record"])
             elif kind == "result" and isinstance(message.get("report"), dict):
-                remaining = deadline - time.monotonic()
+                remaining = operation_deadline - time.monotonic()
                 if remaining <= 0:
                     return terminate("TotalTimeoutError", timed_out=True)
                 try:
@@ -937,11 +1080,11 @@ def _run_supervised_process(
                     return terminate("InterruptedError", timed_out=False)
                 except subprocess.TimeoutExpired:
                     return terminate("TotalTimeoutError", timed_out=True)
-                if time.monotonic() >= deadline:
+                if time.monotonic() >= operation_deadline:
                     return terminate("TotalTimeoutError", timed_out=True)
-                remaining = max(0.0, deadline - time.monotonic())
+                remaining = max(0.0, operation_deadline - time.monotonic())
                 reader.join(timeout=remaining)
-                if reader.is_alive() or time.monotonic() >= deadline:
+                if reader.is_alive() or time.monotonic() >= operation_deadline:
                     return terminate("WorkerCleanupTimeoutError", timed_out=True)
                 report = message["report"]
                 if (
@@ -957,6 +1100,8 @@ def _run_supervised_process(
                     "worker_terminated": exit_code is not None,
                     "reader_stopped": True,
                     "callback_dispatcher_started": dispatcher_ready,
+                    "callback_dispatcher_stopped": None,
+                    "worker_ready": worker_ready,
                     "timed_out": False,
                 }
             else:
@@ -969,6 +1114,7 @@ def _worker_process_main(encoded_options: str) -> int:
     """子进程入口：独占执行 DNS、TLS、HTTP 和正文读取。"""
 
     try:
+        _worker_message("ready", {})
         if sys.stdin.readline() != "start\n":
             return 1
     except Exception:

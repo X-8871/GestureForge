@@ -1,0 +1,431 @@
+{
+  "schema": "s1-t02-d6-robustness-source-feasibility-r1",
+  "task_id": "S1-T02-D6-ROBUST-SOURCE-FEASIBILITY-R1",
+  "status": "BLOCKED_NO_ELIGIBLE_INDEPENDENT_LOCAL_ROBUSTNESS_SOURCE_IN_SCOPED_INPUTS",
+  "observed_at_local": "2026-09-18T22:15:27.9947913+08:00",
+  "approval_and_thresholds": {
+    "approved_manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "official_test_unique_images": 25484,
+    "target_classes": [
+      "fist",
+      "palm",
+      "one",
+      "two_up",
+      "three"
+    ],
+    "minimum_unique_images_per_target_class": 100,
+    "condition_buckets": [
+      "no_hand",
+      "non-target",
+      "multi-hand",
+      "occlusion",
+      "small-target"
+    ],
+    "minimum_unique_images_per_condition_bucket": 100,
+    "person_and_session_must_be_disjoint_from": [
+      "train",
+      "val",
+      "test"
+    ],
+    "small_target_boundary": "not_frozen"
+  },
+  "scope_and_non_scope": {
+    "data_root": "D:/FPGA_Data/HaGRIDv2",
+    "read_inputs": [
+      "manifest.csv",
+      "manifest_all.csv",
+      "labels referenced by manifest_all-only rows",
+      "committed D6 R2 directory inventory JSON and summary"
+    ],
+    "not_read": [
+      "image bytes or decoded pixels",
+      "annotation JSON files"
+    ],
+    "network_accessed": false,
+    "vault_accessed": false,
+    "repository_files_modified_other_than_outputs": false,
+    "scope_is_exhaustive_for_root_or_external_sources": false,
+    "limitation": "Findings cover only the enumerated manifests, candidate label texts, and the already reviewed R2 dataset-directory snapshot; they do not claim all local directories, root-external data, or unknown sources were exhausted.",
+    "license_assessment": "not performed; no legal conclusion"
+  },
+  "input_bindings": [
+    {
+      "name": "approved_manifest",
+      "path": "D:/FPGA_Data/HaGRIDv2/manifest.csv",
+      "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+      "bytes": 57672948,
+      "rows": 158680
+    },
+    {
+      "name": "manifest_all",
+      "path": "D:/FPGA_Data/HaGRIDv2/manifest_all.csv",
+      "sha256": "c0f93b494cd6649fdbf14d5bae0448ed7f9f77ca340a82f6e16b98657cb0c07e",
+      "bytes": 57679622,
+      "rows": 158698
+    },
+    {
+      "name": "reviewed_R2_directory_inventory_json",
+      "path": "report/evidence/S1-T02/20260918_s1_t02_d6_robustness_directory_inventory_r2.json",
+      "sha256": "44c8a7c36f94401762cea3e4b93ae6364b407609feb01a22031e6d91818fe99f"
+    },
+    {
+      "name": "reviewed_R2_directory_inventory_summary",
+      "path": "report/evidence/S1-T02/20260918_s1_t02_d6_robustness_directory_inventory_r2_summary.md",
+      "sha256": "473e8bc4ca85d84cf414501320641cc9af8c4848a9c7ea6cf8a0c720e269f85a"
+    }
+  ],
+  "approved_manifest_audit": {
+    "field_names": [
+      "image",
+      "label",
+      "split",
+      "session_id",
+      "person_id",
+      "source",
+      "license",
+      "is_real"
+    ],
+    "row_count": 158680,
+    "unique_image_path_count": 158680,
+    "split_counts": {
+      "test": 25484,
+      "train": 118001,
+      "val": 15195
+    },
+    "label_class_counts_by_split": {
+      "test": {
+        "fist": 4998,
+        "no_gesture": 496,
+        "one": 4997,
+        "palm": 4997,
+        "three": 5000,
+        "two_up": 4996
+      },
+      "train": {
+        "fist": 23543,
+        "no_gesture": 1464,
+        "one": 23872,
+        "palm": 23710,
+        "three": 22721,
+        "two_up": 22688,
+        "user_no_hand": 3
+      },
+      "val": {
+        "fist": 2999,
+        "no_gesture": 199,
+        "one": 2999,
+        "palm": 2999,
+        "three": 2998,
+        "two_up": 2999,
+        "user_no_hand": 2
+      }
+    },
+    "robustness_split_row_count": 0,
+    "user_no_hand_counts_by_split": {
+      "train": 3,
+      "val": 2
+    },
+    "person_session_aggregates_by_split": {
+      "test": {
+        "unique_person_count": 1699,
+        "unique_session_count": 1,
+        "missing_person_rows": 0,
+        "missing_session_rows": 0
+      },
+      "train": {
+        "unique_person_count": 18928,
+        "unique_session_count": 4,
+        "missing_person_rows": 0,
+        "missing_session_rows": 0
+      },
+      "val": {
+        "unique_person_count": 1323,
+        "unique_session_count": 3,
+        "missing_person_rows": 0,
+        "missing_session_rows": 0
+      }
+    },
+    "person_session_intersections_between_current_splits": {
+      "test__train": {
+        "person_overlap_count": 0,
+        "session_overlap_count": 0
+      },
+      "test__val": {
+        "person_overlap_count": 0,
+        "session_overlap_count": 0
+      },
+      "train__val": {
+        "person_overlap_count": 0,
+        "session_overlap_count": 0
+      }
+    }
+  },
+  "manifest_all_audit": {
+    "field_names": [
+      "image",
+      "label",
+      "split",
+      "session_id",
+      "person_id",
+      "source",
+      "license",
+      "is_real"
+    ],
+    "row_count": 158698,
+    "unique_image_path_count": 158698,
+    "split_counts": {
+      "test": 25500,
+      "train": 117998,
+      "val": 15200
+    },
+    "label_class_counts_by_split": {
+      "test": {
+        "fist": 5000,
+        "no_gesture": 500,
+        "one": 5000,
+        "palm": 5000,
+        "three": 5000,
+        "two_up": 5000
+      },
+      "train": {
+        "fist": 23543,
+        "no_gesture": 1464,
+        "one": 23872,
+        "palm": 23710,
+        "three": 22721,
+        "two_up": 22688
+      },
+      "val": {
+        "fist": 3000,
+        "no_gesture": 200,
+        "one": 3000,
+        "palm": 3000,
+        "three": 3000,
+        "two_up": 3000
+      }
+    },
+    "path_set_comparison": {
+      "intersection_count": 158675,
+      "current_manifest_only_count": 5,
+      "current_manifest_only_aggregate": {
+        "row_count": 5,
+        "split_counts": {
+          "train": 3,
+          "val": 2
+        },
+        "label_class_counts": {
+          "user_no_hand": 5
+        }
+      },
+      "manifest_all_only_count": 23,
+      "manifest_all_only_aggregate": {
+        "row_count": 23,
+        "split_counts": {
+          "test": 16,
+          "val": 7
+        },
+        "label_class_counts": {
+          "fist": 3,
+          "no_gesture": 5,
+          "one": 4,
+          "palm": 4,
+          "three": 2,
+          "two_up": 5
+        },
+        "unique_person_count": 13,
+        "unique_session_count": 2,
+        "person_overlap_with_current_splits": {
+          "test": 5,
+          "train": 0,
+          "val": 0
+        },
+        "session_overlap_with_current_splits": {
+          "test": 1,
+          "train": 0,
+          "val": 1
+        },
+        "missing_person_rows": 0,
+        "missing_session_rows": 0,
+        "candidate_row_binding_sha256": "16b8f3779d58d76b74f9953714c940d90c50d96a105ca93aa5bbcd69407946c6",
+        "eligible_as_independent_robustness": false,
+        "ineligibility_reasons": [
+          "all-only rows are assigned to val/test in manifest_all, not a robustness split",
+          "candidate people overlap current test",
+          "candidate sessions overlap current val and test",
+          "per-target-class and non-target counts are below 100"
+        ]
+      }
+    },
+    "candidate_label_audit": {
+      "candidate_row_count": 23,
+      "candidate_label_files_present": 23,
+      "candidate_label_files_missing": 0,
+      "strict_utf8_decode_errors": 0,
+      "malformed_label_rows": 0,
+      "per_category_box_rows_per_image_distribution": {
+        "fist": {
+          "1": 3
+        },
+        "no_gesture": {
+          "0": 5
+        },
+        "one": {
+          "1": 4
+        },
+        "palm": {
+          "1": 4
+        },
+        "three": {
+          "1": 2
+        },
+        "two_up": {
+          "1": 5
+        }
+      },
+      "per_category_label_class_id_counts": {
+        "fist": {
+          "0": 3
+        },
+        "no_gesture": {},
+        "one": {
+          "2": 4
+        },
+        "palm": {
+          "1": 4
+        },
+        "three": {
+          "4": 2
+        },
+        "two_up": {
+          "3": 5
+        }
+      },
+      "normalized_box_area_descriptive_summary": {
+        "box_count": 18,
+        "normalized_area_min": 0.007596558588101999,
+        "normalized_area_max": 0.07075524481984359,
+        "count_area_le_0_01_descriptive_only": 1,
+        "count_area_le_0_0025_descriptive_only": 0,
+        "definition": "normalized YOLO width multiplied by normalized YOLO height; these are descriptive bins, not an approved small-target cutoff"
+      },
+      "candidate_label_content_multiset_sha256": "31a96aaf62b9a6a7057e4578e640dc7f02bcd6c2181d5a4fe52f36e3ec7df45c",
+      "label_content_hash_serialization": "For each candidate label file, category + TAB + SHA256(raw bytes) + LF; lines sorted ordinally, hashed as UTF-8; paths and identifiers are not emitted.",
+      "interpretation": "Label text provides category placement, annotated box-row counts, and normalized geometry only; it cannot certify visual object count, complete annotation, no_hand/non-target semantics, occlusion, or image condition."
+    }
+  },
+  "reviewed_R2_directory_snapshot": {
+    "input_json_sha256": "44c8a7c36f94401762cea3e4b93ae6364b407609feb01a22031e6d91818fe99f",
+    "input_summary_sha256": "473e8bc4ca85d84cf414501320641cc9af8c4848a9c7ea6cf8a0c720e269f85a",
+    "dataset_image_file_count": 158705,
+    "standard_manifest_dataset_path_count": 158675,
+    "standard_manifest_dataset_path_missing_count": 0,
+    "unlisted_path_count": 30,
+    "unlisted_path_counts_by_category": {
+      "fist": 3,
+      "no_gesture": 7,
+      "one": 4,
+      "palm": 4,
+      "three": 2,
+      "two_up": 5,
+      "user_no_hand": 5
+    },
+    "path_and_size_inventory_sha256": "46642ac0b7343b8a726276dabc850b3221c624a19a3840466496b35866aca16e",
+    "unlisted_path_and_size_inventory_sha256": "b1e848f9f8b1a38da1450daf452b8a3968c93489f609dcd38e851a700e8501e4",
+    "approved_user_no_hand_path_metadata_matches": {
+      "count": 5,
+      "same_basename_size_and_last_write_time": true,
+      "content_hash_compared": false,
+      "content_identity_claimed": false
+    },
+    "eligible_as_independent_robustness": false,
+    "limitations": [
+      "R2 binds path/size metadata, not image content identity.",
+      "Unlisted paths lack sufficient approved condition and person/session evidence.",
+      "Per-class/category counts remain below 100."
+    ]
+  },
+  "metadata_capability_and_required_manual_evidence": {
+    "five_target_classes": "Manifest label categories and YOLO text expose category IDs, box-row counts, and normalized box geometry.",
+    "non_target": "no_gesture is an empty-label category but is not evidence of no_hand; manifest_all-only rows remain assigned to val/test.",
+    "multi_hand": "Multiple annotation rows are a candidate filter only; they do not certify distinct visible hands or completeness. The 18 target candidate labels each contain one row.",
+    "small_target": "Normalized box geometry permits prefiltering; no accepted pixel/area cutoff is frozen.",
+    "occlusion": "No occlusion field appears in the scoped manifest or candidate label text; visual review under an explicit rubric is required.",
+    "no_hand": "Cannot be inferred from empty YOLO labels or no_gesture; five approved user photos are already assigned train/val.",
+    "person_session": "Current manifest has person_id/session_id and no observed cross-split overlap. manifest_all-only candidates overlap current test people and current val/test sessions. R2-only unlisted paths lack bound identity evidence.",
+    "content_uniqueness": "R2 path/size is not a content hash; independent identity needs content duplicate audit plus human condition review."
+  },
+  "conclusion": {
+    "scoped_local_inputs_can_meet_approved_minimum": false,
+    "reason": "No scoped candidate pool meets both sample minimums and person/session isolation from approved train/val/test.",
+    "does_not_claim": [
+      "G0/G4 acceptance",
+      "robustness inference or metrics",
+      "exhaustive discovery of all local/external sources"
+    ]
+  },
+  "execution_and_counting_method": {
+    "runtime": "3.12.14",
+    "command": "bundled Python runtime -B <system TEMP>/d6_robust_source_feasibility_r1_tmp.py",
+    "generator_exit_code": 0,
+    "algorithm": [
+      "Strict UTF-8-sig CSV read; SHA256 raw source bytes.",
+      "Require approved manifest and reviewed R2 SHA baselines.",
+      "Exact set difference by image; candidate set equals manifest_all paths absent from approved manifest.",
+      "Aggregate by split and label parent category; emit no row paths or identity values.",
+      "Compare person_id/session_id sets and report only unique cardinalities/intersection counts.",
+      "Read only candidate label texts; strict UTF-8-sig decode, parse class ID and normalized x/y/width/height, hash category plus raw label-file SHA multiset.",
+      "Reuse already reviewed R2 snapshot by exact JSON/summary SHA; no image or annotation JSON read."
+    ],
+    "privacy_output_rule": "Only aggregate counts, source names, schema field names and hashes are emitted; no raw person/session values or sample-specific path identifiers are stored.",
+    "command_exit_codes": [
+      {
+        "command": "bundled-python.exe -B <system TEMP>/d6_robust_source_feasibility_r1_tmp.py",
+        "exit_code": 0,
+        "purpose": "recompute source eligibility and generate JSON/summary"
+      }
+    ],
+    "summary_path": "report/evidence/S1-T02/20260918_s1_t02_d6_robustness_source_feasibility_r1_summary.md",
+    "validation_command_exit_codes": [
+      {
+        "command": "strict UTF-8 decode + json.loads + aggregate and summary assertions + raw-ID-pattern scan + source SHA reread",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      },
+      {
+        "command": "git -c core.autocrlf=false diff --no-index --check -- <empty system-temp file> <each untracked output>",
+        "exit_code": 1,
+        "result": "expected diff status; no whitespace diagnostics"
+      }
+    ]
+  },
+  "validation": {
+    "status": "PASS",
+    "strict_utf8_and_json_parse": "PASS",
+    "summary_consistency": "PASS; asserted approved/manifest_all SHA, row counts, set intersection/differences, candidate split counts, person/session overlap and label-file totals",
+    "raw_sample_identifier_scan": "PASS; no UUID-shaped token or known user-photo filename in report outputs",
+    "input_sha_recheck": "PASS; approved manifest, manifest_all and both reviewed R2 files matched report-bound SHA256",
+    "git_diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS; Git emitted only a line-ending advisory for a pre-existing modified file; no whitespace error"
+    },
+    "untracked_output_whitespace_checks": [
+      {
+        "command": "git -c core.autocrlf=false diff --no-index --check -- <empty system-temp file> <output JSON>",
+        "exit_code": 1,
+        "exit_meaning": "expected content difference for an untracked file",
+        "whitespace_diagnostics": 0
+      },
+      {
+        "command": "git -c core.autocrlf=false diff --no-index --check -- <empty system-temp file> <output summary>",
+        "exit_code": 1,
+        "exit_meaning": "expected content difference for an untracked file",
+        "whitespace_diagnostics": 0
+      }
+    ],
+    "no_staging_or_commit": "true"
+  }
+}

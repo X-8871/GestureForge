@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "task": "S1-T02-D3-WEIGHTS-PAYLOAD-R1",
+  "created_at_utc8": "2026-09-18T22:55:01+08:00",
+  "status": "ESTIMATE_ONLY_SCALAR_PAYLOAD_PROXY",
+  "git_binding": {
+    "repository": "D:\\FPGA_Competition",
+    "head": "af3c1d5922390948ac3777784100ed68073b21fd"
+  },
+  "scope": {
+    "kind": "estimate",
+    "purpose": "为 D3 后续 storage 预算提供按 D1 参数计数进行的标量负载代理算术。",
+    "not_actual_model_file_size": true,
+    "not_total_deployment_storage": true,
+    "not_an_upper_bound": true,
+    "not_synthesis_or_board_measurement": true
+  },
+  "inputs": {
+    "d1_parameter_source": {
+      "path": "report/evidence/S1-T02/20260916_s1_t02_d1_float_setup_r3.json",
+      "sha256": "8b7239a9c3cec511b5cb5e8795f2670fe0601cbcc90592bde70c01d205a9c12d",
+      "parameter_field": "configs[].trainable_parameter_count_estimate",
+      "method_note": "D1 外部 cfg parser estimate。"
+    },
+    "d2_int8_semantics": {
+      "path": "report/evidence/S1-T02/20260916_s1_t02_d2_numeric_spec_r2.json",
+      "sha256": "14e61b90e0eac8a9a96ffcbf326ff7784e896b12fa293ef01a86892dbc7f58d6",
+      "range": [
+        -127,
+        127
+      ],
+      "zero_point": 0,
+      "weight_scale": "symmetric per output channel",
+      "activation_scale": "symmetric per layer per tensor",
+      "bias": "BN-folded bias in accumulator domain"
+    },
+    "d3_resource_classification": {
+      "path": "report/evidence/S1-T02/20260916_s1_t02_d3_resource_performance_r1_spec.json",
+      "sha256": "d25ca3903d13ff2224b187c74f5795965aa20d7cba08a6cd2d6839ce4ee57226",
+      "estimate": "estimate",
+      "synthesis": "synthesis",
+      "board_measurement": "board_measurement",
+      "source_status": "REFERENCE_SPEC_READY_REVIEW_REQUIRED"
+    }
+  },
+  "calculation": {
+    "parameter_count_symbol": "N",
+    "fp32_formula": "fp32_bytes = N * 4",
+    "int8_scalar_formula": "int8_scalar_bytes = N * 1",
+    "decimal_MB_formula": "bytes / 1000000",
+    "binary_MiB_formula": "bytes / 1048576",
+    "int8_interpretation": "每个 D1 参数都暂按 1 byte 标量计；D2 的 INT8 语义只界定值域 [-127,127] 与 zero-point 0，不代表已生成量化权重或已定稿物理格式。"
+  },
+  "models": {
+    "tiny416": {
+      "role": "board_candidate",
+      "input_size_px": {
+        "width": 416,
+        "height": 416
+      },
+      "parameter_count": {
+        "value": 5886460,
+        "source_field": "D1 configs[].trainable_parameter_count_estimate",
+        "interpretation": "沿用 D1 外部 cfg parser 的参数计数估算；此处只对该 N 做标量字节代理算术。"
+      },
+      "d1_config_binding": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_416_float_setup.cfg",
+        "sha256_from_d1_evidence": "5c5af96850ca3f13a86decb111fb2710d1b061353d46253ffb16be097da8fa09"
+      },
+      "scalar_payload_proxy": {
+        "fp32": {
+          "bytes": 23545840,
+          "bytes_per_scalar": 4,
+          "formula": "N * 4",
+          "decimal_MB": {
+            "value": "23.54584",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "22.4550628662109375",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        },
+        "int8_uniform_scalar": {
+          "bytes": 5886460,
+          "bytes_per_scalar": 1,
+          "formula": "N * 1",
+          "decimal_MB": {
+            "value": "5.88646",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "5.613765716552734375",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        }
+      }
+    },
+    "tiny320": {
+      "role": "board_candidate",
+      "input_size_px": {
+        "width": 320,
+        "height": 320
+      },
+      "parameter_count": {
+        "value": 5886460,
+        "source_field": "D1 configs[].trainable_parameter_count_estimate",
+        "interpretation": "沿用 D1 外部 cfg parser 的参数计数估算；此处只对该 N 做标量字节代理算术。"
+      },
+      "d1_config_binding": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\gesture_yolov4_tiny_320_float_setup.cfg",
+        "sha256_from_d1_evidence": "9b4da2163d4a540ac2f7535312ffc22d1f465445fd175509575fc601dad74fa8"
+      },
+      "scalar_payload_proxy": {
+        "fp32": {
+          "bytes": 23545840,
+          "bytes_per_scalar": 4,
+          "formula": "N * 4",
+          "decimal_MB": {
+            "value": "23.54584",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "22.4550628662109375",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        },
+        "int8_uniform_scalar": {
+          "bytes": 5886460,
+          "bytes_per_scalar": 1,
+          "formula": "N * 1",
+          "decimal_MB": {
+            "value": "5.88646",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "5.613765716552734375",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        }
+      }
+    },
+    "full608": {
+      "role": "pc_only_reference",
+      "input_size_px": {
+        "width": 608,
+        "height": 608
+      },
+      "parameter_count": {
+        "value": 63992378,
+        "source_field": "D1 configs[].trainable_parameter_count_estimate",
+        "interpretation": "沿用 D1 外部 cfg parser 的参数计数估算；此处只对该 N 做标量字节代理算术。"
+      },
+      "d1_config_binding": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\s1_t02_float_setup_r1\\configs\\yolov4_5class_float_pc_setup.cfg",
+        "sha256_from_d1_evidence": "9f3f518e995a0f536bc0edf0530a10362ead0ec3858466f1bdcc81bfdd71fb41"
+      },
+      "scalar_payload_proxy": {
+        "fp32": {
+          "bytes": 255969512,
+          "bytes_per_scalar": 4,
+          "formula": "N * 4",
+          "decimal_MB": {
+            "value": "255.969512",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "244.11154937744140625",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        },
+        "int8_uniform_scalar": {
+          "bytes": 63992378,
+          "bytes_per_scalar": 1,
+          "formula": "N * 1",
+          "decimal_MB": {
+            "value": "63.992378",
+            "formula": "bytes / 1000000",
+            "unit": "MB (十进制，1 MB = 1000000 byte)"
+          },
+          "binary_MiB": {
+            "value": "61.0278873443603515625",
+            "formula": "bytes / 1048576",
+            "unit": "MiB（二进制，1 MiB = 1048576 byte)"
+          }
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "tiny320_equals_tiny416": true,
+    "full608_to_tiny_parameter_ratio": {
+      "formula": "63992378 / 5886460",
+      "numerator": 63992378,
+      "denominator": 5886460,
+      "decimal_rounded_12_places": "10.871114048172",
+      "applies_to": "FP32 与统一每参数 1 byte 的 INT8 scalar proxy；不表示实际文件格式的大小比。"
+    }
+  },
+  "excluded_from_proxy": [
+    "Darknet 权重格式中的额外 BN rolling statistics 与 header。",
+    "BN-fold 与 bias 的实际编码、数量和字节布局。",
+    "逐输出通道权重 scale。",
+    "逐层 activation scale。",
+    "对齐与 padding。",
+    "其他 metadata。",
+    "feature maps。",
+    "frame buffers。",
+    "PS buffers。"
+  ],
+  "interpretation_limits": [
+    "结果仅是 scalar-payload proxy，既非实际权重文件大小，也非总体部署存储量或其上界。",
+    "D3 的 estimate、synthesis、board_measurement 是不同证据类别；本报告只属于 estimate，不得升级为综合或板上测量结论。",
+    "没有读取实际权重文件，没有执行综合、真实量化模型生成或板上验证。",
+    "D1 参数数本身是 parser estimate；按给定 N 的乘法结果精确，不消除 N 来源的不确定性。"
+  ],
+  "external_files_read": [],
+  "actual_weights_read": false,
+  "images_read": false,
+  "synthesis_executed": false,
+  "board_measurement_executed": false,
+  "tooling": {
+    "generation_and_validation": "Windows PowerShell / .NET",
+    "python_launcher_attempt": "python -",
+    "python_launcher_result": "启动失败：Unable to create process using the configured Python 3.12 executable；生成流程改由 PowerShell/.NET 执行。"
+  }
+}

@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import math
 import os
@@ -18,13 +19,29 @@ import re
 import subprocess
 import sys
 import traceback
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 
 EXPECTED_CLASSES = ["fist", "palm", "one", "two_up", "three"]
+G0_DECISION_DATE = "2026-09-18"
+G0_POLICY_DOCUMENT_PATH = "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md"
+G0_POLICY_DOCUMENT_SHA256 = "62d8e11c90c6cd1711684725748e27ba6e72b3695ab47f3f2fd3ac7008e6f1dd"
+APPROVED_TEST_MANIFEST_SHA256 = "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
+APPROVED_TEST_IMAGE_COUNT = 25484
+APPROVED_SPLIT_IMAGE_COUNTS = {"train": 118001, "val": 15195, "test": 25484}
+# 当前没有完整、获批且哈希绑定的 G0 指标策略快照。
+APPROVED_G0_METRIC_POLICY_EVIDENCE: tuple[str, str] | None = None
+ROBUSTNESS_MIN_IMAGES_PER_CLASS = 100
+ROBUSTNESS_CONDITION_BUCKETS = {
+    "no_hand": 100,
+    "non-target": 100,
+    "multi-hand": 100,
+    "occlusion": 100,
+    "small-target": 100,
+}
 IOU_THRESHOLDS = [round(0.50 + 0.05 * index, 2) for index in range(10)]
 MAX_OUTPUTS = 15
 FIXED_NMS_IOU = 0.45
@@ -49,6 +66,27 @@ class ImageEntry:
     label_text: str
     label_path: Path
     key: str
+
+
+_EVALUATION_CONTEXT_SEAL = object()
+
+
+@dataclass(frozen=True)
+class EvaluationContext:
+    """不可变的 manifest、split 与当前评估授权绑定。"""
+
+    manifest_path: Path
+    data_root: Path
+    labels_root: Path
+    split: str
+    manifest_sha256: str
+    manifest_bytes: bytes = field(repr=False)
+    split_counts: tuple[tuple[str, int], ...]
+    entries: tuple[ImageEntry, ...] = field(repr=False)
+    authorization_state: str
+    metric_policy_evidence: tuple[str, str] | None
+    _integrity_sha256: str = field(default="", repr=False, compare=False)
+    _seal: object = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -152,11 +190,15 @@ def _read_class_names(path: Path) -> list[str]:
     return names
 
 
-def load_manifest(manifest_path: Path, data_root: Path, labels_root: Path, split: str) -> list[ImageEntry]:
-    """读取 manifest，保留指定 split 的原始顺序并建立图片/标签绑定。"""
+def _entries_from_manifest_snapshot(
+    manifest_path: Path,
+    data_root: Path,
+    labels_root: Path,
+    split: str,
+    manifest_bytes: bytes,
+) -> tuple[ImageEntry, ...]:
+    """从已校验的完整快照构造一个 split 的不可变条目序列。"""
 
-    if not manifest_path.is_file():
-        raise EvaluationError(f"manifest 不存在: {manifest_path}")
     if not data_root.is_dir():
         raise EvaluationError(f"data-root 不存在: {data_root}")
     if not labels_root.is_dir():
@@ -164,38 +206,231 @@ def load_manifest(manifest_path: Path, data_root: Path, labels_root: Path, split
     entries: list[ImageEntry] = []
     seen: set[str] = set()
     try:
-        with manifest_path.open("r", encoding="utf-8-sig", newline="") as stream:
-            reader = csv.DictReader(stream)
-            required = {"image", "label", "split"}
-            fields = set(reader.fieldnames or [])
-            missing = sorted(required - fields)
-            if missing:
-                raise EvaluationError(f"manifest 缺少字段: {missing}")
-            for row_number, row in enumerate(reader, start=2):
-                if row.get("split", "") != split:
-                    continue
-                image_text = (row.get("image") or "").strip()
-                label_text = (row.get("label") or "").strip()
-                if not image_text or not label_text:
-                    raise EvaluationError(f"manifest 第 {row_number} 行 image/label 不能为空")
-                image_path = _resolve_input_path(image_text, data_root)
-                label_path = _resolve_label_path(label_text, labels_root)
-                if image_path.stem != label_path.stem:
-                    raise EvaluationError(
-                        f"manifest 第 {row_number} 行图片与标签 stem 不一致: {image_path.name} / {label_path.name}"
-                    )
-                if not label_path.is_file():
-                    raise EvaluationError(f"标签文件不存在: {label_path}")
-                key = _canonical_path(image_path)
-                if key in seen:
-                    raise EvaluationError(f"manifest split={split} 图片重复: {image_text}")
-                seen.add(key)
-                entries.append(ImageEntry(len(entries) + 1, image_text, image_path, label_text, label_path, key))
+        if manifest_bytes is None:
+            manifest_bytes = manifest_path.read_bytes()
+        text = manifest_bytes.decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text, newline=""))
+        required = {"image", "label", "split"}
+        fields = set(reader.fieldnames or [])
+        missing = sorted(required - fields)
+        if missing:
+            raise EvaluationError(f"manifest 缺少字段: {missing}")
+        for row_number, row in enumerate(reader, start=2):
+            if row.get("split", "") != split:
+                continue
+            image_text = (row.get("image") or "").strip()
+            label_text = (row.get("label") or "").strip()
+            if not image_text or not label_text:
+                raise EvaluationError(f"manifest 第 {row_number} 行 image/label 不能为空")
+            image_path = _resolve_input_path(image_text, data_root)
+            label_path = _resolve_label_path(label_text, labels_root)
+            if image_path.stem != label_path.stem:
+                raise EvaluationError(
+                    f"manifest 第 {row_number} 行图片与标签 stem 不一致: {image_path.name} / {label_path.name}"
+                )
+            if not label_path.is_file():
+                raise EvaluationError(f"标签文件不存在: {label_path}")
+            key = _canonical_path(image_path)
+            if key in seen:
+                raise EvaluationError(f"manifest split={split} 图片重复: {image_text}")
+            seen.add(key)
+            entries.append(ImageEntry(len(entries) + 1, image_text, image_path, label_text, label_path, key))
     except (OSError, UnicodeError, csv.Error) as exc:
         raise EvaluationError(f"manifest 不可读取: {manifest_path}: {exc}") from exc
     if not entries:
         raise EvaluationError(f"manifest 中没有 split={split} 图片")
-    return entries
+    return tuple(entries)
+
+
+def load_manifest(context: EvaluationContext | None = None) -> tuple[ImageEntry, ...]:
+    """从已验证上下文取回条目；不接受裸路径或未绑定 split。"""
+
+    validated = _require_valid_evaluation_context(context)
+    return validated.entries
+
+
+def _validate_approved_manifest_binding(manifest_bytes: bytes, manifest_sha256: str, split: str) -> int:
+    """在读取标签、预测和计算指标前校验完整 manifest 快照及 split 计数。"""
+
+    if manifest_sha256 != APPROVED_TEST_MANIFEST_SHA256:
+        raise EvaluationError(
+            f"split={split} manifest SHA-256 与 Wong 批准的完整 train/val/test manifest 不一致: "
+            f"expected={APPROVED_TEST_MANIFEST_SHA256}, actual={manifest_sha256}"
+        )
+    try:
+        text = manifest_bytes.decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text, newline=""))
+        required = {"image", "label", "split"}
+        missing = sorted(required - set(reader.fieldnames or []))
+        if missing:
+            raise EvaluationError(f"manifest 缺少字段: {missing}")
+        counts = {name: 0 for name in APPROVED_SPLIT_IMAGE_COUNTS}
+        for row_number, row in enumerate(reader, start=2):
+            row_split = row.get("split", "")
+            if row_split not in counts:
+                raise EvaluationError(
+                    f"manifest 第 {row_number} 行 split 非规范；只允许 {sorted(counts)}"
+                )
+            counts[row_split] += 1
+    except (UnicodeError, csv.Error) as exc:
+        raise EvaluationError(f"manifest 不可读取或 CSV 格式错误: {exc}") from exc
+    for split_name, expected_count in APPROVED_SPLIT_IMAGE_COUNTS.items():
+        actual_count = counts[split_name]
+        if actual_count != expected_count:
+            raise EvaluationError(
+                f"manifest split={split_name} 图片数与 Wong 批准口径不一致: "
+                f"expected={expected_count}, actual={actual_count}"
+            )
+    return counts[split]
+
+
+def _require_complete_g0_metric_policy(split: str) -> None:
+    """在读取 test/robustness 标签或预测前要求完整获批策略证据。"""
+
+    if split not in {"test", "robustness"}:
+        return
+    if APPROVED_G0_METRIC_POLICY_EVIDENCE is None:
+        raise EvaluationError(
+            f"split={split} 已阻断：缺少完整、获批且哈希绑定的 D6 G0 指标策略证据；"
+            "最终 score threshold 与 mAP/逐类 precision-recall 验收门槛仍未冻结"
+        )
+    raise EvaluationError(
+        f"split={split} 已阻断：本版本尚无完整 G0 指标策略快照验证器，不能据此开放正式评估"
+    )
+
+
+def create_evaluation_context(
+    manifest_path: Path,
+    data_root: Path,
+    labels_root: Path,
+    split: str,
+) -> EvaluationContext:
+    """校验完整 manifest 快照并建立只供该 split 使用的授权上下文。"""
+
+    allowed_splits = {*APPROVED_SPLIT_IMAGE_COUNTS, "robustness"}
+    if not isinstance(split, str) or split not in allowed_splits:
+        raise EvaluationError(f"split 非规范；只允许 {sorted(allowed_splits)}，不接受大小写/别名映射")
+    if split == "robustness":
+        _require_complete_g0_metric_policy(split)
+    try:
+        resolved_manifest = manifest_path.resolve()
+        resolved_data_root = data_root.resolve()
+        resolved_labels_root = labels_root.resolve()
+        manifest_bytes = resolved_manifest.read_bytes()
+    except (OSError, RuntimeError) as exc:
+        raise EvaluationError(f"manifest 或输入根目录不可解析/不可读取: {exc}") from exc
+    manifest_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
+    if split in APPROVED_SPLIT_IMAGE_COUNTS:
+        _validate_approved_manifest_binding(manifest_bytes, manifest_sha256, split)
+    _require_complete_g0_metric_policy(split)
+    entries = _entries_from_manifest_snapshot(
+        resolved_manifest,
+        resolved_data_root,
+        resolved_labels_root,
+        split,
+        manifest_bytes,
+    )
+    context = EvaluationContext(
+        manifest_path=resolved_manifest,
+        data_root=resolved_data_root,
+        labels_root=resolved_labels_root,
+        split=split,
+        manifest_sha256=manifest_sha256,
+        manifest_bytes=manifest_bytes,
+        split_counts=tuple(sorted(APPROVED_SPLIT_IMAGE_COUNTS.items())),
+        entries=entries,
+        authorization_state=("VAL_ONLY_G0_PENDING" if split == "val" else "TRAIN_DIAGNOSTIC_ONLY"),
+        metric_policy_evidence=APPROVED_G0_METRIC_POLICY_EVIDENCE,
+        _seal=_EVALUATION_CONTEXT_SEAL,
+    )
+    object.__setattr__(context, "_integrity_sha256", _evaluation_context_integrity(context))
+    _require_valid_evaluation_context(context)
+    return context
+
+
+def _evaluation_context_integrity(context: EvaluationContext) -> str:
+    """为冻结上下文的全部授权字段生成一致性摘要。"""
+
+    payload = {
+        "manifest_path": str(context.manifest_path),
+        "data_root": str(context.data_root),
+        "labels_root": str(context.labels_root),
+        "split": context.split,
+        "manifest_sha256": context.manifest_sha256,
+        "manifest_bytes_sha256": hashlib.sha256(context.manifest_bytes).hexdigest(),
+        "split_counts": list(context.split_counts),
+        "entries": [
+            [entry.index, entry.image_text, str(entry.image_path), entry.label_text, str(entry.label_path), entry.key]
+            for entry in context.entries
+        ],
+        "authorization_state": context.authorization_state,
+        "metric_policy_evidence": context.metric_policy_evidence,
+    }
+    serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _require_valid_evaluation_context(
+    context: EvaluationContext | None,
+    expected_split: str | None = None,
+) -> EvaluationContext:
+    """拒绝裸路径、手造上下文、损坏快照及未授权 split。"""
+
+    if type(context) is not EvaluationContext or context._seal is not _EVALUATION_CONTEXT_SEAL:
+        raise EvaluationError("评估 API 必须使用 create_evaluation_context 返回的已验证上下文")
+    allowed_splits = {*APPROVED_SPLIT_IMAGE_COUNTS, "robustness"}
+    if not isinstance(context.split, str) or context.split not in allowed_splits:
+        raise EvaluationError(f"上下文 split 非规范；只允许 {sorted(allowed_splits)}")
+    if expected_split is not None and context.split != expected_split:
+        raise EvaluationError(f"上下文 split={context.split} 与调用要求 split={expected_split} 不一致")
+    if context.split in {"test", "robustness"}:
+        _require_complete_g0_metric_policy(context.split)
+    expected_authorization = "VAL_ONLY_G0_PENDING" if context.split == "val" else "TRAIN_DIAGNOSTIC_ONLY"
+    if context.authorization_state != expected_authorization:
+        raise EvaluationError("上下文 split 授权状态与当前 G0 策略不一致")
+    if context.metric_policy_evidence != APPROVED_G0_METRIC_POLICY_EVIDENCE:
+        raise EvaluationError("上下文 G0 策略证据已变化，必须重新验证 manifest")
+    if (
+        not isinstance(context.manifest_path, Path)
+        or not isinstance(context.data_root, Path)
+        or not isinstance(context.labels_root, Path)
+        or type(context.entries) is not tuple
+    ):
+        raise EvaluationError("上下文路径或条目序列类型无效")
+    if type(context.manifest_bytes) is not bytes:
+        raise EvaluationError("上下文必须绑定不可变 manifest bytes")
+    actual_sha256 = hashlib.sha256(context.manifest_bytes).hexdigest()
+    if actual_sha256 != context.manifest_sha256 or actual_sha256 != APPROVED_TEST_MANIFEST_SHA256:
+        raise EvaluationError("上下文 manifest SHA-256 与当前批准的完整快照不一致")
+    if context.split_counts != tuple(sorted(APPROVED_SPLIT_IMAGE_COUNTS.items())):
+        raise EvaluationError("上下文 train/val/test 计数政策与当前批准口径不一致")
+    if context._integrity_sha256 != _evaluation_context_integrity(context):
+        raise EvaluationError("上下文内容与工厂签发时的不可变快照不一致")
+    if context.split not in APPROVED_SPLIT_IMAGE_COUNTS:
+        raise EvaluationError(f"split={context.split} 缺少已批准的正式 manifest 绑定")
+    if len(context.entries) != APPROVED_SPLIT_IMAGE_COUNTS[context.split]:
+        raise EvaluationError(f"上下文条目数与批准 split={context.split} 计数不一致")
+    if any(type(entry) is not ImageEntry for entry in context.entries):
+        raise EvaluationError("上下文包含未验证 manifest 条目")
+    if len({entry.key for entry in context.entries}) != len(context.entries):
+        raise EvaluationError("上下文 manifest 条目包含重复图片")
+    return context
+
+
+def _require_context_entries(
+    entries: Sequence[ImageEntry],
+    context: EvaluationContext | None,
+) -> EvaluationContext:
+    """确认下游 API 使用上下文原样绑定的完整条目顺序。"""
+
+    validated = _require_valid_evaluation_context(context)
+    try:
+        candidate_entries = tuple(entries)
+    except TypeError as exc:
+        raise EvaluationError("评估条目必须是上下文绑定的有序序列") from exc
+    if candidate_entries != validated.entries:
+        raise EvaluationError("评估条目与上下文绑定的完整 manifest split 不一致")
+    return validated
 
 
 def _checked_class_id(value: Any, field: str) -> int:
@@ -236,8 +471,20 @@ def _yolo_to_xyxy(values: Sequence[Any], field: str) -> tuple[float, float, floa
     )
 
 
-def parse_yolo_label(path: Path) -> list[GroundTruth]:
-    """解析一个空标签或五列归一化 YOLO 标签文件。"""
+def parse_yolo_label(
+    entry: ImageEntry,
+    context: EvaluationContext | None = None,
+) -> list[GroundTruth]:
+    """按已验证上下文解析其中一个条目的 YOLO 标签。"""
+
+    validated = _require_valid_evaluation_context(context)
+    if type(entry) is not ImageEntry or entry not in validated.entries:
+        raise EvaluationError("标签条目不属于已验证上下文")
+    return _read_yolo_label_file(entry.label_path)
+
+
+def _read_yolo_label_file(path: Path) -> list[GroundTruth]:
+    """读取单个标签文件正文；调用方必须先验证所属上下文。"""
 
     try:
         text = path.read_text(encoding="utf-8-sig")
@@ -257,10 +504,14 @@ def parse_yolo_label(path: Path) -> list[GroundTruth]:
     return result
 
 
-def load_ground_truths(entries: Sequence[ImageEntry]) -> dict[str, list[GroundTruth]]:
-    """读取所有评估图片标签。"""
+def load_ground_truths(
+    entries: Sequence[ImageEntry],
+    context: EvaluationContext | None = None,
+) -> dict[str, list[GroundTruth]]:
+    """读取上下文完整 split 的标签。"""
 
-    return {entry.key: parse_yolo_label(entry.label_path) for entry in entries}
+    validated = _require_context_entries(entries, context)
+    return {entry.key: _read_yolo_label_file(entry.label_path) for entry in validated.entries}
 
 
 def _validated_coordinate_format(value: Any, field: str) -> str:
@@ -383,9 +634,13 @@ def parse_prediction_record(
     return result
 
 
-def _load_prediction_records(path: Path) -> tuple[list[dict[str, Any]], str | None]:
-    """读取数组 JSON、records 包装 JSON 或每行一个对象的 JSONL。"""
+def _load_prediction_records(
+    path: Path,
+    context: EvaluationContext | None = None,
+) -> tuple[list[dict[str, Any]], str | None]:
+    """仅在已验证上下文下读取 JSON、records JSON 或 JSONL。"""
 
+    _require_valid_evaluation_context(context)
     if not path.is_file():
         raise EvaluationError(f"预测输入不存在: {path}")
     try:
@@ -413,22 +668,23 @@ def _load_prediction_records(path: Path) -> tuple[list[dict[str, Any]], str | No
 def bind_predictions(
     prediction_path: Path,
     entries: Sequence[ImageEntry],
-    data_root: Path,
+    context: EvaluationContext | None = None,
 ) -> dict[str, list[Prediction]]:
     """按 manifest 原始顺序严格绑定预测 filename、frame_id 和对象。"""
 
-    records, root_format = _load_prediction_records(prediction_path)
-    if len(records) != len(entries):
-        raise EvaluationError(f"预测记录数 {len(records)} 与 split 图片数 {len(entries)} 不一致")
+    validated = _require_context_entries(entries, context)
+    records, root_format = _load_prediction_records(prediction_path, validated)
+    if len(records) != len(validated.entries):
+        raise EvaluationError(f"预测记录数 {len(records)} 与 split 图片数 {len(validated.entries)} 不一致")
     bound: dict[str, list[Prediction]] = {}
     document_format: str | None = None
-    for position, (record, entry) in enumerate(zip(records, entries), start=1):
+    for position, (record, entry) in enumerate(zip(records, validated.entries), start=1):
         if not isinstance(record, dict):
             raise EvaluationError(f"预测记录 {position} 必须是对象")
         filename = record.get("filename")
         if not isinstance(filename, str) or not filename.strip():
             raise EvaluationError(f"预测记录 {position} 缺少 filename")
-        predicted_path = _resolve_input_path(filename, data_root)
+        predicted_path = _resolve_input_path(filename, validated.data_root)
         predicted_key = _canonical_path(predicted_path)
         if predicted_key in bound:
             raise EvaluationError(f"预测 filename 重复: {filename}")
@@ -448,7 +704,7 @@ def bind_predictions(
         bound[entry.key] = parse_prediction_record(
             record, entry.key, position, root_format, record_format
         )
-    if set(bound) != {entry.key for entry in entries}:
+    if set(bound) != {entry.key for entry in validated.entries}:
         raise EvaluationError("预测 filename 集合与 manifest split 不一致")
     return bound
 
@@ -593,9 +849,16 @@ def evaluate_metrics(
     score_threshold: float,
     nms_iou: float,
     max_outputs: int,
+    context: EvaluationContext | None = None,
 ) -> dict[str, Any]:
     """执行完整离线指标计算并返回机器可读结果。"""
 
+    validated = _require_context_entries(entries, context)
+    expected_keys = {entry.key for entry in validated.entries}
+    if set(ground_truths) != expected_keys:
+        raise EvaluationError("ground_truths 图片集合与上下文绑定的 manifest split 不一致")
+    if set(bound_predictions) != expected_keys:
+        raise EvaluationError("predictions 图片集合与上下文绑定的 manifest split 不一致")
     if type(max_outputs) is not int or max_outputs != MAX_OUTPUTS:
         raise EvaluationError(f"max_outputs 必须是整数 {MAX_OUTPUTS}")
     if isinstance(score_threshold, bool) or type(score_threshold) not in (int, float):
@@ -714,6 +977,9 @@ def _summary_text(report: dict[str, Any]) -> str:
 
     validation = report["validation"]
     metrics = report.get("metrics", {})
+    sample_policy = report["sample_policy"]
+    official_test = sample_policy["official_test"]
+    robustness = sample_policy["robustness"]
     lines = [
         "# S1-T02-D6 离线检测指标证据",
         "",
@@ -730,8 +996,12 @@ def _summary_text(report: dict[str, Any]) -> str:
         "## 绑定与限制",
         "",
         f"- manifest、预测、names 和代码 SHA 见机器报告：`{report['report_path']}`。",
+        f"- 批准样本政策决策日期：`{sample_policy['decision_date']}`；正式口径文档 SHA-256：`{sample_policy['decision_document']['sha256']}`。",
+        f"- 官方 test：批准 manifest SHA-256=`{official_test['approved_manifest_sha256']}`，完整图片数=`{official_test['required_image_count']}`；本次绑定状态=`{official_test['runtime_binding_status']}`。",
+        f"- 独立 robustness：每个目标类别至少 `{robustness['minimum_unique_images_per_class']}` 张、每个条件 bucket 至少 `{min(robustness['condition_bucket_minimum_unique_images'].values())}` 张；实际数据绑定=`{robustness['dataset_binding_status']}`。",
+        f"- 完整 G0 指标策略快照：`{sample_policy['metric_policy_evidence']['status']}`；test/robustness 在策略获批并哈希绑定前阻断。",
         f"- no_hand 误检率：`{report['subsets']['no_hand']['status']}`；non-target 误检率：`{report['subsets']['non_target']['status']}`。缺少批准 subset 时不生成0%。",
-        "- 当前 threshold 是 CLI 绑定值而非本轮冻结的独立 G0 配置；test/robustness 不得重新调参。",
+        "- 仍未决：最终 score threshold、mAP 与逐类 precision/recall 验收门槛，以及 robustness 数据集构建和人物/session 隔离审计。test/robustness 不得重新调参。",
         "- 本轮未启动 Darknet、训练、权重下载、INT8 整网或硬件测量。",
         "",
         "## 验证",
@@ -745,6 +1015,9 @@ def _summary_text(report: dict[str, Any]) -> str:
 def build_report(args: argparse.Namespace) -> dict[str, Any]:
     """读取输入并构建完整离线评估报告。"""
 
+    allowed_splits = {*APPROVED_SPLIT_IMAGE_COUNTS, "robustness"}
+    if not isinstance(args.split, str) or args.split not in allowed_splits:
+        raise EvaluationError(f"split 非规范；只允许 {sorted(allowed_splits)}，不接受大小写/别名映射")
     manifest = args.manifest.resolve()
     predictions = args.predictions.resolve()
     class_names_path = args.class_names.resolve()
@@ -753,6 +1026,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     report_path = args.report.resolve()
     summary_path = args.summary.resolve()
     _output_paths_are_safe(predictions, manifest, class_names_path, report_path, summary_path, (args.no_hand_list, args.non_target_list))
+    context = create_evaluation_context(manifest, data_root, labels_root, args.split)
     names = _read_class_names(class_names_path)
     score_threshold = _validate_range(args.score_threshold, "score-threshold", 0.25, 0.50)
     nms_iou = _finite(args.nms_iou, "nms-iou")
@@ -760,10 +1034,10 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         raise EvaluationError(f"nms-iou 必须固定为 {FIXED_NMS_IOU}")
     if type(args.max_outputs) is not int or args.max_outputs != MAX_OUTPUTS:
         raise EvaluationError(f"max-outputs 必须固定为 {MAX_OUTPUTS}")
-    entries = load_manifest(manifest, data_root, labels_root, args.split)
-    ground_truths = load_ground_truths(entries)
-    bound_predictions = bind_predictions(predictions, entries, data_root)
-    measured = evaluate_metrics(entries, ground_truths, bound_predictions, score_threshold, nms_iou, args.max_outputs)
+    entries = load_manifest(context)
+    ground_truths = load_ground_truths(entries, context)
+    bound_predictions = bind_predictions(predictions, entries, context)
+    measured = evaluate_metrics(entries, ground_truths, bound_predictions, score_threshold, nms_iou, args.max_outputs, context)
 
     def subset_result(path: Path | None, name: str) -> dict[str, Any]:
         value = _subset_images(path, entries, data_root, ground_truths, name)
@@ -774,15 +1048,54 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         return value
 
     subset_values = {"no_hand": subset_result(args.no_hand_list, "no_hand"), "non_target": subset_result(args.non_target_list, "non_target")}
+    sample_policy = {
+        "decision_date": G0_DECISION_DATE,
+        "decision_document": {
+            "path": G0_POLICY_DOCUMENT_PATH,
+            "sha256": G0_POLICY_DOCUMENT_SHA256,
+        },
+        "metric_policy_evidence": {
+            "status": "MISSING" if APPROVED_G0_METRIC_POLICY_EVIDENCE is None else "UNSUPPORTED",
+            "binding": APPROVED_G0_METRIC_POLICY_EVIDENCE,
+            "required_for_splits": ["test", "robustness"],
+        },
+        "official_test": {
+            "approved_manifest_sha256": APPROVED_TEST_MANIFEST_SHA256,
+            "required_image_count": APPROVED_TEST_IMAGE_COUNT,
+            "runtime_binding_status": "BOUND" if args.split == "test" else "NOT_EVALUATED",
+            "runtime_manifest_sha256": context.manifest_sha256,
+            "runtime_test_image_count": len(entries) if args.split == "test" else None,
+        },
+        "robustness": {
+            "minimum_unique_images_per_class": ROBUSTNESS_MIN_IMAGES_PER_CLASS,
+            "target_classes": list(EXPECTED_CLASSES),
+            "condition_bucket_minimum_unique_images": dict(ROBUSTNESS_CONDITION_BUCKETS),
+            "unique_count_basis": "image",
+            "same_image_may_count_in_multiple_condition_buckets": True,
+            "multiple_bucket_membership_requires_evidence": True,
+            "no_hand_is_a_target_class": False,
+            "person_and_session_must_be_disjoint_from": ["train", "val", "test"],
+            "dataset_binding_status": "PENDING",
+            "observed_counts": None,
+            "person_session_isolation_audit_status": "PENDING",
+        },
+    }
+    g0_open_items = [
+        {"id": "complete_metric_policy_snapshot", "status": "OPEN", "requirement": "完整获批且哈希绑定的指标策略快照尚不存在；test/robustness 必须阻断。"},
+        {"id": "final_score_threshold", "status": "OPEN", "requirement": "在 val 的 0.25..0.50 范围内选择并冻结；test/robustness 不调参。"},
+        {"id": "map_acceptance_threshold", "status": "OPEN", "requirement": "正式 mAP 验收门槛尚未冻结。"},
+        {"id": "per_class_precision_recall_thresholds", "status": "OPEN", "requirement": "每类 precision/recall 验收门槛尚未全部冻结。"},
+        {"id": "robustness_dataset_and_isolation", "status": "OPEN", "requirement": "robustness 实际数据集、类别/条件计数及 person/session 隔离证据尚未绑定。"},
+    ]
     report: dict[str, Any] = {
         "schema_version": "s1-t02-d6-detection-metrics-v1",
         "task": "S1-T02-D6",
         "generated_utc8": _now_iso(),
         "status": "G0_PENDING",
-        "validation": {"schema_valid": True, "errors": [], "warnings": ["本轮 threshold 和正式最小样本数尚未独立冻结为 G0 配置"], "status": "G0_PENDING"},
+        "validation": {"schema_valid": True, "errors": [], "warnings": ["样本数量政策已批准；最终阈值、指标验收门槛和 robustness 数据集绑定仍未完成"], "status": "G0_PENDING"},
         "code": {"path": str(Path(__file__).resolve()), "sha256": sha256_file(Path(__file__).resolve()), "repository": _repo_identity()},
         "inputs": {
-            "manifest": {"path": str(manifest), "sha256": sha256_file(manifest)},
+            "manifest": {"path": str(manifest), "sha256": context.manifest_sha256},
             "predictions": {"path": str(predictions), "sha256": sha256_file(predictions)},
             "class_names": {"path": str(class_names_path), "sha256": sha256_file(class_names_path), "values": names},
             "data_root": str(data_root),
@@ -802,12 +1115,14 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "test_and_robustness_retuning": "forbidden",
         },
         "counts": {key: measured[key] for key in ("image_count", "ground_truth_box_count", "prediction_box_count_raw", "prediction_box_count_after_score_nms")},
+        "sample_policy": sample_policy,
+        "g0_open_items": g0_open_items,
         "metrics": measured["metrics"],
         "subsets": subset_values,
         "outputs": {"report": str(report_path), "summary": str(summary_path)},
         "limitations": [
             "本轮未启动 Darknet 或任何正式模型推理；输入可以是夹具或外部生成的 raw JSON，但 raw JSON 不等于 mAP。",
-            "正式 test/robustness 的最小样本数和最终独立 G0 配置尚未绑定，因此状态保持 G0_PENDING。",
+            "官方 test 样本口径已绑定，但 robustness 实际数据集尚未构建/绑定；最终 score threshold 和 mAP/逐类 precision-recall 验收门槛仍未冻结，因此状态保持 G0_PENDING。",
             "mAP 和辅助误检率不构成最终验收门槛通过；no_hand/non-target 未提供批准集合时为 NOT_EXECUTED。",
         ],
     }

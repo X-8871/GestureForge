@@ -6,7 +6,7 @@
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 旧 r1 虽跑满6000步但未在训练时绑定 train/valid 清单 SHA，不用于正式评估；修复 D8 后的 tiny416 r2 已合规跑满6000步并经 Reviewer R2 执行证据 PASS。D6 val 候选捕获完成但没有精度结论；tiny320 r1 retry01 仅到 5111/6000 且缺正式报告，不能作为正式训练证据；fresh formal_r2 dry-run 已通过，训练尚未启动。精度、INT8 和阶段1均未验收。
+- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 旧 r1 虽跑满6000步但未在训练时绑定 train/valid 清单 SHA，不用于正式评估；修复 D8 后的 tiny416 r2 已合规跑满6000步并经 Reviewer R2 执行证据 PASS。D6 val 候选捕获完成但没有精度结论；tiny320 r1 retry01 仅到 5111/6000 且缺正式报告，不能作为正式训练证据；fresh formal_r2 工作流已隐藏启动，PID 8156 正在做清单绑定预检，尚未观察到 Darknet child。精度、INT8 和阶段1均未验收。
 - 最近工程实现基线：`8bc6f195f0462a8d1471b875172dcca901e47f17`（S1-T02-D3 资源/性能门槛规格）。本基线不代表训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -117,7 +117,7 @@
 - tiny320 cfg/.data、初始化权重及 seeded executable/environment report 绑定见上方预备记录。正式参数为 seed `424242`、max_batches `6000`、steps `4800,5400`、timeout `21600s`、无进度 `300s`。
 - attempt 00 于 2026-09-18 14:13 启动后，Darknet child 立即以 `0xC0000135` 退出；无训练步、train.log 为0字节、未生成 checkpoint。报告 `20260918_s1_t02_d8_tiny320_train_r1.json` SHA-256 `f247cbe8ec77f3e8a8d7fa123232f08826d757e5010377e47c1fd67e01826f09`，状态 `EXECUTION_FAILED`。原因是启动进程未包含 pthread DLL 搜索目录；已用进程局部 PATH 的 no-argument loader probe 复现/关闭，DLL SHA-256 `0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e`，未改系统 PATH。
 - retry01 于 2026-09-18 14:22:35 隐藏启动 PID 5828；仅进程 PATH 前置 pthread DLL 目录；使用新日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1\logs_retry01`、新报告 `20260918_s1_t02_d8_tiny320_train_r1_retry01.json`，仍绑定同一空 checkpoint 目标。Darknet child PID 14400 于 14:29:12 启动；14:29:22 日志 6/6000、首批 loss 有限、未见 OOM/NaN/Inf；早期 ETA 约5.9小时，须观察稳定步速，硬超时仍为6小时。
-- 2026-09-18 收尾核验：retry01 `train.log` 最后一条可解析步数为 5111/6000，SHA-256 `2535889547B4FA3EBDC5F7E95DD38B5BB91FACB842DF269BA53E0F7D6BCDE0C4`，32,771,374 bytes。只见1000–5000与last checkpoint；5000/last SHA 同为 `85e479278ebe3719b6d94c6fff88aab09c89f9d748bdda23976789ae56c51d74`。预期 retry01 正式报告不存在；现存 `20260918_s1_t02_d8_tiny320_train_r1.json` 是 attempt00 的 `EXECUTION_FAILED` 报告。残留锁在 `logs_retry01`，PID 5828 当前被 `jhi_service` 复用；未发现 Darknet 训练进程。停止根因无法确认，retry01输入绑定无法重建，5000 checkpoint 不得用于正式续训/评估。Fresh formal_r2 新目录已创建，dry-run `PLANNED_NO_EXECUTION`/exit 0；尚未启动训练。
+- 2026-09-18 收尾核验：retry01 `train.log` 最后一条可解析步数为 5111/6000，SHA-256 `2535889547B4FA3EBDC5F7E95DD38B5BB91FACB842DF269BA53E0F7D6BCDE0C4`，32,771,374 bytes。只见1000–5000与last checkpoint；5000/last SHA 同为 `85e479278ebe3719b6d94c6fff88aab09c89f9d748bdda23976789ae56c51d74`。预期 retry01 正式报告不存在；现存 `20260918_s1_t02_d8_tiny320_train_r1.json` 是 attempt00 的 `EXECUTION_FAILED` 报告。残留锁在 `logs_retry01`，PID 5828 当前被 `jhi_service` 复用；未发现 Darknet 训练进程。停止根因无法确认，retry01输入绑定无法重建，5000 checkpoint 不得用于正式续训/评估。Fresh formal_r2 cfg SHA `92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94`、独立 .data SHA `ac66677decb2b8a0c374e650505e8cb4b94c772c9bfe7df9795273e58aa581f5`；dry-run `PLANNED_NO_EXECUTION`/exit 0。隐藏工作流 PID 8156 于 2026-09-18 20:30:48 启动，当前仍在训练前快照核验，尚未观察到 Darknet child；正式报告预定 `20260918_s1_t02_d8_tiny320_train_r2.json`，结果未出。
 
 ## S1-T02-D4-W5 来源校验工具审查状态
 
@@ -144,7 +144,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D8c/D8d 与 tiny416 retry01 执行证据 G2 已通过；tiny416 val retry02 仅为候选捕获、无精度指标。tiny320 retry01 止于5111/6000且缺正式报告，来源绑定不可恢复；fresh formal_r2 dry-run 已通过，待按预检参数启动。D6 API R4代码G2通过，D6 G0仍pending；正式 val/test/robustness 指标未完成。D4-W5 R6 实现与测试经独立 Reviewer PASS；总控已完成定向回归，待精确提交。test样本数和robustness最低覆盖已获批准，robustness set/隔离、完整G0策略、最终阈值与正式指标仍待冻结/验证。full608对照、INT8、逐层黄金和资源预算待执行；许可证 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
+4. D8c/D8d 与 tiny416 retry01 执行证据 G2 已通过；tiny416 val retry02 仅为候选捕获、无精度指标。tiny320 retry01 止于5111/6000且缺正式报告，来源绑定不可恢复；fresh formal_r2 workflow PID 8156 正在启动前输入快照核验，尚未观察到 Darknet child。D6 API R4代码G2通过，D6 G0仍pending；正式 val/test/robustness 指标未完成。D4-W5 R6 实现、45项专项测试和审查通过，提交 `b731254`。test样本数和robustness最低覆盖已获批准，robustness set/隔离、完整G0策略、最终阈值与正式指标仍待冻结/验证。full608对照、INT8、逐层黄金和资源预算待执行；许可证 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

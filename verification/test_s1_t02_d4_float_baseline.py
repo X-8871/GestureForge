@@ -7,10 +7,13 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 try:
+    from . import s1_t02_d4_float_baseline as d4
     from .s1_t02_d4_float_baseline import main, make_report, sha256_file, validate_plan
 except ImportError:
+    import s1_t02_d4_float_baseline as d4
     from s1_t02_d4_float_baseline import main, make_report, sha256_file, validate_plan
 
 
@@ -77,6 +80,7 @@ class D4Fixture(unittest.TestCase):
         self.pilot_log.write_text("pilot not executed\n", encoding="utf-8")
         self.weight = self.root / "yolov4-tiny.conv.29"
         self.weight.write_bytes(b"tiny weight")
+        self.full_weight = self.root / "yolov4.conv.137"
         self.configs = {}
         self.data_configs = {}
         for model_id, size, yolo_count in (("tiny320", 320, 2), ("tiny416", 416, 2), ("full", 608, 3)):
@@ -101,6 +105,57 @@ class D4Fixture(unittest.TestCase):
             )
             self.data_configs[model_id] = data
         self.plan = self._make_plan()
+
+    def _full_ready_plan(self) -> dict:
+        """创建 full 权重已绑定且 pilot 阻断仍保留的计划副本。"""
+        self.full_weight.write_bytes(b"full weight fixture with a distinct size")
+        plan = copy.deepcopy(self.plan)
+        full_weight = plan["models"]["full"]["initial_weight"]
+        full_weight.update(
+            {
+                "path": str(self.full_weight),
+                "sha256": sha256_file(self.full_weight),
+                "status": "READY",
+            }
+        )
+        plan["models"]["full"]["command"][5] = str(self.full_weight)
+        plan["file_bindings"].append(self._binding("full_weight", self.full_weight))
+        plan["pilot"].update(
+            {
+                "status": "BLOCKED",
+                "model_id": "tiny416",
+                "updates": 8,
+                "exit_code": -1073741510,
+                "reason": "Windows 0xC000013A 中止，未生成 checkpoint。",
+            }
+        )
+        return plan
+
+    def _run_cli(self, plan: dict) -> tuple[int, dict]:
+        """通过正式 CLI 校验隔离计划并读取机器报告。"""
+        cli_dir = self.root / "cli"
+        cli_dir.mkdir(exist_ok=True)
+        input_path = cli_dir / "input.json"
+        report_path = cli_dir / "report.json"
+        summary_path = cli_dir / "summary.md"
+        input_path.write_text(json.dumps(plan, ensure_ascii=False) + "\n", encoding="utf-8")
+        with patch.multiple(
+            d4,
+            W5_R5_FULL_WEIGHT_SHA256=sha256_file(self.full_weight),
+            W5_R5_FULL_WEIGHT_SIZE_BYTES=self.full_weight.stat().st_size,
+        ):
+            exit_code = main(
+                [
+                    "validate",
+                    "--input",
+                    str(input_path),
+                    "--report",
+                    str(report_path),
+                    "--summary",
+                    str(summary_path),
+                ]
+            )
+        return exit_code, json.loads(report_path.read_text(encoding="utf-8"))
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -387,6 +442,110 @@ class D4Fixture(unittest.TestCase):
         result = validate_plan(bad)
         self.assertEqual("BLOCKED", result["status"])
         self.assertTrue(any("tiny416_pilot" in item for item in result["blocking_reasons"]))
+
+    def test_full_ready_uses_full_weight_binding_and_preserves_pilot_blocker(self) -> None:
+        exit_code, report = self._run_cli(self._full_ready_plan())
+        validation = report["validation"]
+        self.assertEqual(0, exit_code)
+        self.assertTrue(validation["schema_valid"])
+        self.assertEqual([], validation["errors"])
+        self.assertEqual("BLOCKED", validation["status"])
+        self.assertTrue(any("tiny416_pilot" in item for item in validation["blocking_reasons"]))
+
+    def test_full_weight_trust_anchor_matches_w5_r5_provenance(self) -> None:
+        self.assertEqual(
+            "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+            d4.W5_R5_FULL_WEIGHT_SHA256,
+        )
+        self.assertEqual(170038676, d4.W5_R5_FULL_WEIGHT_SIZE_BYTES)
+        self.assertEqual(
+            "768022d56bde61f4b7b24623b76ce0c0ab3edea0252a6afb4b7d1b6e72fe6fc8",
+            d4.W5_R5_PROVENANCE_REPORT_SHA256,
+        )
+
+    def test_full_ready_requires_a_full_weight_binding(self) -> None:
+        plan = self._full_ready_plan()
+        plan["file_bindings"] = [
+            item for item in plan["file_bindings"] if item["name"] != "full_weight"
+        ]
+        exit_code, report = self._run_cli(plan)
+        validation = report["validation"]
+        self.assertEqual(2, exit_code)
+        self.assertFalse(validation["schema_valid"])
+        self.assertEqual("BLOCKED", validation["status"])
+        self.assertTrue(any("file_bindings.full_weight" in item for item in validation["errors"]))
+        self.assertTrue(any("tiny416_pilot" in item for item in validation["blocking_reasons"]))
+
+    def test_full_ready_rejects_wrong_binding_name(self) -> None:
+        plan = self._full_ready_plan()
+        full_binding = next(item for item in plan["file_bindings"] if item["name"] == "full_weight")
+        full_binding["name"] = "other_weight"
+        exit_code, report = self._run_cli(plan)
+        validation = report["validation"]
+        self.assertEqual(2, exit_code)
+        self.assertFalse(validation["schema_valid"])
+        self.assertTrue(any("file_bindings.full_weight" in item for item in validation["errors"]))
+
+    def test_full_ready_rejects_incorrect_declared_and_binding_hashes(self) -> None:
+        for mutate in ("model", "binding"):
+            with self.subTest(mutate=mutate):
+                plan = self._full_ready_plan()
+                if mutate == "model":
+                    plan["models"]["full"]["initial_weight"]["sha256"] = "0" * 64
+                else:
+                    full_binding = next(
+                        item for item in plan["file_bindings"] if item["name"] == "full_weight"
+                    )
+                    full_binding["sha256"] = "0" * 64
+                exit_code, report = self._run_cli(plan)
+                validation = report["validation"]
+                self.assertEqual(2, exit_code)
+                self.assertFalse(validation["schema_valid"])
+                self.assertTrue(any("full" in item and "SHA-256" in item for item in validation["errors"]))
+
+    def test_full_weight_cannot_be_substituted_by_tiny_binding(self) -> None:
+        plan = self._full_ready_plan()
+        tiny_binding = next(item for item in plan["file_bindings"] if item["name"] == "tiny_weight")
+        full_binding = next(item for item in plan["file_bindings"] if item["name"] == "full_weight")
+        full_binding["path"] = tiny_binding["path"]
+        full_binding["sha256"] = tiny_binding["sha256"]
+        exit_code, report = self._run_cli(plan)
+        validation = report["validation"]
+        self.assertEqual(2, exit_code)
+        self.assertFalse(validation["schema_valid"])
+        self.assertTrue(any("file_bindings.full_weight.path" in item for item in validation["errors"]))
+        self.assertTrue(any("file_bindings.full_weight.sha256" in item for item in validation["errors"]))
+        self.assertTrue(any("tiny416_pilot" in item for item in validation["blocking_reasons"]))
+
+    def test_consistent_full_model_command_and_binding_replacement_by_tiny_is_rejected(self) -> None:
+        plan = self._full_ready_plan()
+        tiny_hash = sha256_file(self.weight)
+        full_weight = plan["models"]["full"]["initial_weight"]
+        full_weight["path"] = str(self.weight)
+        full_weight["sha256"] = tiny_hash
+        plan["models"]["full"]["command"][5] = str(self.weight)
+        full_binding = next(item for item in plan["file_bindings"] if item["name"] == "full_weight")
+        full_binding["path"] = str(self.weight)
+        full_binding["sha256"] = tiny_hash
+        exit_code, report = self._run_cli(plan)
+        validation = report["validation"]
+        self.assertEqual(2, exit_code)
+        self.assertFalse(validation["schema_valid"])
+        self.assertEqual("BLOCKED", validation["status"])
+        self.assertTrue(any("W5 R5 已核验 full 权重 SHA-256" in item for item in validation["errors"]))
+        self.assertTrue(any("size_bytes" in item for item in validation["errors"]))
+        self.assertTrue(any("tiny416_pilot" in item for item in validation["blocking_reasons"]))
+
+    def test_tiny_ready_still_requires_tiny_weight_binding(self) -> None:
+        plan = self._full_ready_plan()
+        plan["file_bindings"] = [
+            item for item in plan["file_bindings"] if item["name"] != "tiny_weight"
+        ]
+        exit_code, report = self._run_cli(plan)
+        validation = report["validation"]
+        self.assertEqual(2, exit_code)
+        self.assertFalse(validation["schema_valid"])
+        self.assertTrue(any("file_bindings.tiny_weight" in item for item in validation["errors"]))
 
 
 class D4CliContract(unittest.TestCase):

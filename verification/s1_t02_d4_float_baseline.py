@@ -23,6 +23,15 @@ EXPECTED_MODELS = {
     "tiny416": {"role": "board_candidate", "input_size": [416, 416], "yolo_count": 2},
     "full": {"role": "pc_only_reference", "input_size": [608, 608], "yolo_count": 3},
 }
+WEIGHT_BINDING_BY_MODEL = {
+    "tiny320": "tiny_weight",
+    "tiny416": "tiny_weight",
+    "full": "full_weight",
+}
+# 绑定到 W5 R5 已核验来源，输入计划不能自行改写 full 权重身份。
+W5_R5_FULL_WEIGHT_SHA256 = "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0"
+W5_R5_FULL_WEIGHT_SIZE_BYTES = 170038676
+W5_R5_PROVENANCE_REPORT_SHA256 = "768022d56bde61f4b7b24623b76ce0c0ab3edea0252a6afb4b7d1b6e72fe6fc8"
 EXPECTED_TRAINING = {
     "tiny320": {
         "batch": 64,
@@ -685,6 +694,24 @@ def validate_plan(plan: Mapping[str, Any]) -> Dict[str, Any]:
                     _error(errors, f"models.{model_id}.initial_weight", "初始权重不存在")
             else:
                 _check_hash(errors, f"models.{model_id}.initial_weight.sha256", weight.get("sha256"), sha256_file(normalized(weight_path)))
+            if model_id == "full" and weight_status == "READY":
+                declared_hash = weight.get("sha256")
+                if not isinstance(declared_hash, str) or declared_hash.lower() != W5_R5_FULL_WEIGHT_SHA256:
+                    _error(
+                        errors,
+                        "models.full.initial_weight.sha256",
+                        "必须匹配 W5 R5 已核验 full 权重 SHA-256 "
+                        f"{W5_R5_FULL_WEIGHT_SHA256}（来源报告 SHA-256 {W5_R5_PROVENANCE_REPORT_SHA256}）",
+                    )
+                if exists:
+                    actual_size = normalized(weight_path).stat().st_size
+                    if actual_size != W5_R5_FULL_WEIGHT_SIZE_BYTES:
+                        _error(
+                            errors,
+                            "models.full.initial_weight.size_bytes",
+                            "与 W5 R5 已核验 full 权重大小不一致；"
+                            f"实际 {actual_size} bytes，预期 {W5_R5_FULL_WEIGHT_SIZE_BYTES} bytes",
+                        )
         weight_path_for_command = weight.get("path") if isinstance(weight, Mapping) else None
         _check_command(
             errors,
@@ -758,7 +785,7 @@ def validate_plan(plan: Mapping[str, Any]) -> Dict[str, Any]:
             _check_plan_binding(
                 errors,
                 binding_by_name,
-                "tiny_weight",
+                WEIGHT_BINDING_BY_MODEL[model_id],
                 weight.get("path"),
                 weight.get("sha256"),
             )

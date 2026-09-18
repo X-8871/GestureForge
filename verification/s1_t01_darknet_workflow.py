@@ -1296,12 +1296,32 @@ def _make_lock(run_directory: Path) -> Path:
 
 
 def _read_log(path: Path) -> str:
-    """读取运行日志并替换不可解码字节。"""
+    """读取运行日志并替换不可解码字节；文件不可读时向调用方报告。"""
 
-    try:
-        return path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return ""
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
+def _log_artifact_metadata(path: Path) -> dict[str, Any]:
+    """采集稳定日志文件的绝对路径、SHA-256 和字节数。"""
+
+    resolved_path = path.resolve()
+    before = path.stat()
+    digest = _sha256(path)
+    after = path.stat()
+    if before.st_size != after.st_size or before.st_mtime_ns != after.st_mtime_ns:
+        raise OSError(f"日志在 SHA-256 采集期间发生变化: {resolved_path}")
+    return {
+        "log": str(resolved_path),
+        "log_sha256": digest,
+        "log_size_bytes": after.st_size,
+    }
+
+
+def _command_report_record(result: dict[str, Any]) -> dict[str, Any]:
+    """移除不应写入报告的原始进程输出，只保留结构化命令结果。"""
+
+    raw_output_fields = {"output", "stdout", "stderr", "log_text", "captured_output"}
+    return {key: value for key, value in result.items() if key not in raw_output_fields}
 
 
 def _stop_process(process: subprocess.Popen[bytes]) -> None:
@@ -1333,6 +1353,7 @@ def _run_command(
     started = time.monotonic()
     process: subprocess.Popen[bytes] | None = None
     stop_reason: str | None = None
+    run_error: str | None = None
     stdin_stream = None
     try:
         if stdin_path is not None:
@@ -1373,19 +1394,35 @@ def _run_command(
                     break
             exit_code = process.returncode
     except OSError as exc:
-        return {
-            "command": command,
-            "cwd": str(working_directory),
-            "log": str(log_path),
-            "exit_code": None,
-            "error": str(exc),
-            "stop_reason": "启动失败",
-            "seed_binding": _seed_binding(darknet_seed),
-        }
+        run_error = f"Darknet 执行或运行日志读取失败: {exc}"
+        stop_reason = "启动失败" if process is None else "运行日志不可读"
+        if process is not None and process.poll() is None:
+            _stop_process(process)
+        exit_code = process.returncode if process is not None else None
     finally:
         if stdin_stream is not None:
             stdin_stream.close()
-    text = _read_log(log_path)
+
+    try:
+        text = _read_log(log_path)
+    except OSError as exc:
+        text = ""
+        stop_reason = stop_reason or "运行日志不可读"
+        read_error = f"运行日志不可读，无法验证完整输出: {exc}"
+        run_error = f"{run_error}; {read_error}" if run_error else read_error
+
+    try:
+        log_metadata = _log_artifact_metadata(log_path)
+    except OSError as exc:
+        log_metadata = {
+            "log": str(log_path.absolute()),
+            "log_sha256": None,
+            "log_size_bytes": None,
+        }
+        stop_reason = stop_reason or "运行日志证据不可用"
+        metadata_error = f"运行日志 SHA-256 或字节数不可采集: {exc}"
+        run_error = f"{run_error}; {metadata_error}" if run_error else metadata_error
+
     if stop_reason is None:
         if BAD_NUMERIC_RE.search(text):
             stop_reason = "日志出现 NaN/Inf"
@@ -1394,16 +1431,16 @@ def _run_command(
     result = {
         "command": command,
         "cwd": str(working_directory),
-        "log": str(log_path),
+        **log_metadata,
         "exit_code": exit_code,
         "stop_reason": stop_reason,
-        "log_sha256": _sha256(log_path) if log_path.is_file() else None,
         "observed_update_steps": sorted(set(int(value) for value in STEP_RE.findall(text))),
         "loss_token_observed": bool(re.search(r"(?i)\bloss\b", text)),
         "non_finite_observed": bool(BAD_NUMERIC_RE.search(text)),
-        "output": text,
         "seed_binding": _seed_binding(darknet_seed),
     }
+    if run_error:
+        result["error"] = run_error
     return result
 
 
@@ -2209,7 +2246,7 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                     binding["execution_status"] = "AFTER_CHILD_MATCHED_PREFLIGHT"
             result.setdefault("seed_binding", _seed_binding(seed))
             result["training_profile"] = report.get("training_profile", "not_applicable")
-            report["commands"].append(result)
+            report["commands"].append(_command_report_record(result))
             if report["training_input_binding"].get("status") == "POSTRUN_MISMATCH":
                 report["status"] = "EXECUTION_FAILED"
                 return
@@ -2220,7 +2257,6 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 report["errors"].append("Darknet 日志未观察到 loss，不能核对训练数值")
                 return
             steps = result.get("observed_update_steps", [])
-            log_text = result.get("output", "")
             checkpoint_output = context["checkpoint_output"]
             if not checkpoint_output.is_file() or checkpoint_output.stat().st_size == 0:
                 report["errors"].append(f"本次运行未生成明确 checkpoint-output: {checkpoint_output}")
@@ -2256,7 +2292,7 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                     "ac05_candidate": True,
                     "training_profile": report.get("training_profile", "diagnostic_short"),
                     "observed_update_steps": steps,
-                    "loss_finite_in_log": not bool(BAD_NUMERIC_RE.search(log_text)),
+                    "loss_finite_in_log": not bool(result.get("non_finite_observed")),
                     "gradient_finite": "NOT_OBSERVABLE_FROM_OFFICIAL_DARKNET_LOG",
                     "checkpoint_saved": True,
                     "optimizer_state_restore": "待恢复动作和独立审查",
@@ -2338,12 +2374,13 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
             )
             command_record = {
                 **result,
+                "training_profile": report.get("training_profile", "not_applicable"),
                 "stdin_valid_list_source": str(args.valid_list.resolve()),
                 "stdin_valid_list_runtime": str(runtime_stdin_list),
                 "evaluation_json": str(output_json),
                 "evaluation_json_sha256": _safe_sha256(output_json),
             }
-            command_records.append(command_record)
+            command_records.append(_command_report_record(command_record))
             if result.get("non_finite_observed"):
                 report["errors"].append("evaluate 单进程观察到 NaN/Inf 非有限值，失败即停")
             elif result.get("exit_code") != 0 or result.get("stop_reason"):

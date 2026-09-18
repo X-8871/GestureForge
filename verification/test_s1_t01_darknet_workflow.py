@@ -742,10 +742,71 @@ class DarknetWorkflowTest(unittest.TestCase):
                 result = workflow._run_command(command, root, log, 10, 10, darknet_seed=424242)
                 self.assertEqual(workflow.os.environ[workflow.DARKNET_SEED_ENV], "parent-value")
             self.assertEqual(result["exit_code"], 0)
-            self.assertIn("424242", result["output"])
+            self.assertNotIn("output", result)
+            self.assertEqual(result["log"], str(log.resolve()))
+            self.assertEqual(result["log_sha256"], hashlib.sha256(log.read_bytes()).hexdigest())
+            self.assertEqual(result["log_size_bytes"], log.stat().st_size)
             self.assertEqual(result["seed_binding"]["environment_variable"], workflow.DARKNET_SEED_ENV)
             self.assertEqual(result["seed_binding"]["value"], 424242)
             self.assertTrue(result["seed_binding"]["parent_process_unchanged"])
+
+    def test_run_command_parses_runtime_log_without_returning_raw_output(self) -> None:
+        """完整进程输出只用于提取摘要，命令结果不携带原始日志文本。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "parsed.log"
+            command = [
+                workflow.sys.executable,
+                "-c",
+                "print('10: loss=0.125', flush=True); print('11: loss=0.0625', flush=True)",
+            ]
+            result = workflow._run_command(command, root, log, 10, 10)
+
+            self.assertEqual(result["observed_update_steps"], [10, 11])
+            self.assertTrue(result["loss_token_observed"])
+            self.assertFalse(result["non_finite_observed"])
+            self.assertEqual(result["exit_code"], 0)
+            self.assertIsNone(result["stop_reason"])
+            self.assertNotIn("output", result)
+            self.assertNotIn(log.read_text(encoding="utf-8"), json.dumps(result, ensure_ascii=False))
+            self.assertEqual(result["log"], str(log.resolve()))
+            self.assertEqual(result["log_sha256"], hashlib.sha256(log.read_bytes()).hexdigest())
+            self.assertEqual(result["log_size_bytes"], len(log.read_bytes()))
+
+    def test_run_command_fails_closed_when_log_hash_cannot_be_collected(self) -> None:
+        """运行日志摘要采集失败时保留明确错误并使命令结果不可通过。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "hash_failure.log"
+            command = [workflow.sys.executable, "-c", "print('10: loss=0.125', flush=True)"]
+            with patch.object(workflow, "_sha256", side_effect=OSError("synthetic digest failure")):
+                result = workflow._run_command(command, root, log, 10, 10)
+
+            self.assertEqual(result["exit_code"], 0)
+            self.assertEqual(result["stop_reason"], "运行日志证据不可用")
+            self.assertIn("SHA-256 或字节数不可采集", result["error"])
+            self.assertIsNone(result["log_sha256"])
+            self.assertIsNone(result["log_size_bytes"])
+            self.assertNotIn("output", result)
+
+    def test_run_command_fails_closed_when_log_cannot_be_read(self) -> None:
+        """运行日志读取失败必须留下错误并阻止命令结果通过。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "read_failure.log"
+            command = [workflow.sys.executable, "-c", "print('10: loss=0.125', flush=True)"]
+            with patch.object(workflow, "_read_log", side_effect=OSError("synthetic read failure")):
+                result = workflow._run_command(command, root, log, 10, 10)
+
+            self.assertEqual(result["exit_code"], 0)
+            self.assertEqual(result["stop_reason"], "运行日志不可读")
+            self.assertIn("无法验证完整输出", result["error"])
+            self.assertTrue(result["log_sha256"])
+            self.assertIsInstance(result["log_size_bytes"], int)
+            self.assertNotIn("output", result)
 
     def test_seed_binding_is_recorded_for_train_and_default_is_unseeded(self) -> None:
         """训练报告记录显式种子，未提供种子时不改变默认无注入语义。"""
@@ -906,8 +967,10 @@ class DarknetWorkflowTest(unittest.TestCase):
                     "non_finite_observed": False,
                     "loss_token_observed": True,
                     "observed_update_steps": list(range(1, 6001)),
-                    "output": "loss=1.0",
+                    "output": "FULL_LOG_SENTINEL_" + ("x" * 10000),
                     "log_sha256": "simulated-log-sha256",
+                    "log_size_bytes": 10016,
+                    "log": str(run_dir / "darknet.log"),
                 }
 
             with patch.object(workflow, "_run_command", side_effect=fake_train):
@@ -917,6 +980,11 @@ class DarknetWorkflowTest(unittest.TestCase):
             self.assertEqual(report["planned_commands"][0]["training_profile"], "formal_6000")
             self.assertEqual(report["commands"][0]["training_profile"], "formal_6000")
             self.assertEqual(report["acceptance"]["training_profile"], "formal_6000")
+            self.assertNotIn("output", report["commands"][0])
+            serialized_report = json.dumps(report, ensure_ascii=False)
+            self.assertNotIn("FULL_LOG_SENTINEL_", serialized_report)
+            self.assertEqual(report["commands"][0]["log_size_bytes"], 10016)
+            self.assertEqual(report["commands"][0]["log"], str((run_dir / "darknet.log")))
 
     def test_formal_update_range_requires_all_contiguous_steps(self) -> None:
         """正式 train 和 resume 的日志不得缺步、提前结束或越过 6000。"""
@@ -1946,7 +2014,7 @@ class DarknetWorkflowTest(unittest.TestCase):
                         "stop_reason": "日志出现 OOM 或数据损坏停止标记",
                         "non_finite_observed": False,
                         "log_sha256": "unavailable",
-                        "output": "CUDA out of memory",
+                        "output": "FULL_FAILURE_LOG_SENTINEL_" + ("y" * 10000),
                     },
                 ):
                     code = workflow.main(common)
@@ -1955,6 +2023,8 @@ class DarknetWorkflowTest(unittest.TestCase):
                 self.assertEqual(saved["status"], "EXECUTION_FAILED")
                 self.assertEqual(saved["exit_code"], 2)
                 self.assertEqual(len(saved["commands"]), 1)
+                self.assertNotIn("output", saved["commands"][0])
+                self.assertNotIn("FULL_FAILURE_LOG_SENTINEL_", report_path.read_text(encoding="utf-8"))
                 self.assertTrue(saved["errors"])
 
     def test_evaluate_simulated_single_process_binds_ordered_records(self) -> None:
@@ -2010,7 +2080,15 @@ class DarknetWorkflowTest(unittest.TestCase):
                         "relative_coordinates": {"center_x": 0.5, "center_y": 0.5, "width": 0.2, "height": 0.2},
                     }]},
                 ]), encoding="utf-8")
-                return {"exit_code": 0, "stop_reason": None, "non_finite_observed": False, "log_sha256": "unavailable", "output": ""}
+                return {
+                    "exit_code": 0,
+                    "stop_reason": None,
+                    "non_finite_observed": False,
+                    "log_sha256": "simulated-log-sha256",
+                    "log_size_bytes": 9000,
+                    "log": str(run_dir / "evaluate.log"),
+                    "output": "FULL_EVALUATION_LOG_SENTINEL_" + ("z" * 9000),
+                }
 
             with patch.object(workflow, "_run_command", side_effect=fake_darknet) as runner:
                 workflow._execute(args, report, context)
@@ -2027,6 +2105,11 @@ class DarknetWorkflowTest(unittest.TestCase):
             )
             self.assertEqual(report["acceptance"]["completed_image_count"], 2)
             self.assertEqual(report["acceptance"]["detector_test_command_count"], 1)
+            self.assertNotIn("output", report["commands"][0])
+            serialized_report = json.dumps(report, ensure_ascii=False)
+            self.assertNotIn("FULL_EVALUATION_LOG_SENTINEL_", serialized_report)
+            self.assertEqual(report["commands"][0]["log_size_bytes"], 9000)
+            self.assertEqual(report["commands"][0]["training_profile"], "not_applicable")
             self.assertEqual(report["acceptance"]["ordered_binding"], "filename_and_frame_id_ordered_valid_list")
             self.assertTrue(report["acceptance"]["zero_prediction_actual_zero_boxes"])
             self.assertTrue((run_dir / "evaluation.json").is_file())

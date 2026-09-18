@@ -1,0 +1,113 @@
+{
+  "schema": "s1-t02-d6-robustness-inventory-v1",
+  "task_id": "S1-T02-D6-ROBUSTNESS-INVENTORY-R1",
+  "created_at_utc8": "2026-09-18T20:59:06+08:00",
+  "status": "BLOCKED_NO_INDEPENDENT_ROBUSTNESS_ROWS_IN_APPROVED_MANIFEST",
+  "input": {
+    "path": "D:/FPGA_Data/HaGRIDv2/manifest.csv",
+    "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "bytes": 57672948,
+    "rows": 158680,
+    "current_approved_manifest": true
+  },
+  "approved_policy": {
+    "official_test_rows": 25484,
+    "robustness_minimum_unique_images_per_target_class": 100,
+    "robustness_minimum_unique_images_per_condition": 100,
+    "target_classes": [
+      "fist",
+      "palm",
+      "one",
+      "two_up",
+      "three"
+    ],
+    "condition_buckets": [
+      "no_hand",
+      "non-target",
+      "multi-hand",
+      "occlusion",
+      "small-target"
+    ],
+    "require_person_and_session_disjoint_from": [
+      "train",
+      "val",
+      "test"
+    ]
+  },
+  "split_counts": {
+    "train": {
+      "rows": 118001,
+      "unique_persons": 18928,
+      "unique_sessions": 4
+    },
+    "val": {
+      "rows": 15195,
+      "unique_persons": 1323,
+      "unique_sessions": 3
+    },
+    "test": {
+      "rows": 25484,
+      "unique_persons": 1699,
+      "unique_sessions": 1
+    },
+    "robustness": {
+      "rows": 0
+    }
+  },
+  "cross_split_intersections": {
+    "person_id_groups": 0,
+    "session_id_groups": 0
+  },
+  "image_folder_counts_by_split": {
+    "fist": {
+      "train": 23543,
+      "val": 2999,
+      "test": 4998
+    },
+    "palm": {
+      "train": 23710,
+      "val": 2999,
+      "test": 4997
+    },
+    "one": {
+      "train": 23872,
+      "val": 2999,
+      "test": 4997
+    },
+    "two_up": {
+      "train": 22688,
+      "val": 2999,
+      "test": 4996
+    },
+    "three": {
+      "train": 22721,
+      "val": 2998,
+      "test": 5000
+    },
+    "no_gesture": {
+      "train": 1464,
+      "val": 199,
+      "test": 496
+    }
+  },
+  "user_no_hand_rows": {
+    "train": 3,
+    "val": 2,
+    "test": 0,
+    "robustness": 0,
+    "already_assigned_to_existing_splits": true
+  },
+  "condition_audit": {
+    "multi_hand": "No image-level condition field or audit was found in the manifest schema.",
+    "occlusion": "No image-level condition field or audit was found in the manifest schema.",
+    "small_target": "No image-level condition field or audit was found in the manifest schema.",
+    "non_target": "The manifest contains no_gesture folder rows, but it has no separately approved non-target audit bucket; these rows are already assigned to train/val/test."
+  },
+  "conclusion": "The approved manifest contains no robustness split or unassigned rows. Its five user-provided no_hand images are already assigned to train/val, and all existing rows are in train/val/test. The requested robustness set cannot be formed from this manifest while preserving person/session isolation from train, val, and test.",
+  "not_established": [
+    "No recursive inventory of unmanifested files in the dataset directory was performed.",
+    "No images were opened or manually labeled in this inventory task.",
+    "No robustness predictions or accuracy metrics were produced."
+  ],
+  "reproduction": "PowerShell Import-Csv on the input manifest; group by split, image-path parent category, person_id, and session_id; count distinct person_id/session_id intersections across split pairs. Counts in this report are manifest metadata only."
+}

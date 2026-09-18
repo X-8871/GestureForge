@@ -6,7 +6,7 @@
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
-- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 retry01 6000 步正式训练完成，D8 报告 R1 的打包阻断经 compact R2 PASS 关闭；D8 r1 仍因训练时缺 train/valid SHA 不可用于正式评估。精度、INT8 和阶段1均未验收。
+- S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 旧 r1 虽跑满6000步但未在训练时绑定 train/valid 清单 SHA，不用于正式评估；修复 D8 后的 tiny416 r2 已合规跑满6000步并经 Reviewer R2 执行证据 PASS。D6 val 候选捕获完成但没有精度结论；tiny320 独立训练正在执行。精度、INT8 和阶段1均未验收。
 - 最近工程实现基线：`8bc6f195f0462a8d1471b875172dcca901e47f17`（S1-T02-D3 资源/性能门槛规格）。本基线不代表训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
@@ -41,7 +41,7 @@
 ## Wong 已确认的 S1-T02 G0 决策
 
 - 2026-09-16：同意“官方 test 作为主要最终测试集，并另建独立鲁棒性测试集”的数据口径。当前官方 test 保留为最终基准；no_hand、non-target、多手、遮挡和小目标等鲁棒性指标使用独立、固定且不与 train/val/test 人员或 session 重叠的集合。已提供的 5 张 no_hand 继续保持 train 3 张、val 2 张，不移入 test；它们不单独代表正式 no_hand 泛化率。
-- 该决定冻结的是数据集组织方案；官方 test 是否全量使用、鲁棒性集合的最低样本数量和各类覆盖仍需在后续 G0 决策中写成数值。
+- 2026-09-18：批准当前 manifest（SHA-256 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`）的全部官方 test 共25,484张；另建独立 robustness set，五个目标类各至少100张唯一图片，`no_hand`、`non-target`、多手、遮挡、小目标五个条件 bucket 各至少100张唯一图片。`no_hand` 为负样本条件、不是第六类；每张图可计入多个 condition bucket 仅限有标注/审计证据支持。robustness set 的 person 和 session 均须与 train/val/test 隔离。数量已批准，但 robustness set 尚未证实构建/绑定；D6 的其他 G0 项仍未关闭。D6 口径文档 SHA `62d8e11c90c6cd1711684725748e27ba6e72b3695ab47f3f2fd3ac7008e6f1dd`，Reviewer R1 PASS JSON SHA `8c54340837b87453488323f89a5d61abb76f241fbecc182560490351b249520e`。
 - 2026-09-16：接受评估口径预设：报告 mAP@0.5、mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point AP、五类宏平均）、各类 precision/recall；同类别一对一匹配、按 score 降序；no_hand 误检率≤5%，non-target 误检率≤10% 为辅助门槛。score threshold 仅在 val 的 0.25–0.50 范围内选择后固定，NMS 为类别内 greedy、IoU=0.45；每图最大输出框数由 20 调整为 15。test 和鲁棒性测试均不得重新调参；该项已确认，但不等于 S1-T02 整体 G0 通过。
 - 2026-09-16：接受模型/训练/恢复预设：PC 对照包含完整 YOLOv4 608×608，候选包含 YOLOv4-tiny 320×320 与 416×416；tiny 使用官方 `yolov4-tiny.conv.29`，完整模型使用官方 `yolov4.conv.137`，正式训练不使用 20/200 步诊断权重。训练参数预设为 batch=64、tiny subdivisions=16、完整模型 subdivisions=32、SGD momentum=0.9、decay=0.0005、tiny learning_rate=0.00261、完整模型 learning_rate=0.0013、max_batches=6000、steps=4800/5400、burn_in=1000；固定输入训练、保存 checkpoint/last/final。正式训练需补充固定 seed 支持并绑定源码/可执行文件哈希；恢复只保证权重与 seen 计数恢复，因 Darknet 不保存 momentum 缓冲区不宣称 bit-exact。当前无板上模型运行；完整 YOLOv4 仅 PC 对照，板上默认候选为 tiny、优先评估 tiny416，但最终模型仍待精度/数值/资源三关和 Wong 确认。
 
@@ -116,6 +116,7 @@
 - tiny320 cfg/.data、初始化权重及 seeded executable/environment report 绑定见上方预备记录。正式参数为 seed `424242`、max_batches `6000`、steps `4800,5400`、timeout `21600s`、无进度 `300s`。
 - attempt 00 于 2026-09-18 14:13 启动后，Darknet child 立即以 `0xC0000135` 退出；无训练步、train.log 为0字节、未生成 checkpoint。报告 `20260918_s1_t02_d8_tiny320_train_r1.json` SHA-256 `f247cbe8ec77f3e8a8d7fa123232f08826d757e5010377e47c1fd67e01826f09`，状态 `EXECUTION_FAILED`。原因是启动进程未包含 pthread DLL 搜索目录；已用进程局部 PATH 的 no-argument loader probe 复现/关闭，DLL SHA-256 `0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e`，未改系统 PATH。
 - retry01 于 2026-09-18 14:22:35 隐藏启动 PID 5828；仅进程 PATH 前置 pthread DLL 目录；使用新日志目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d8_tiny320_formal_r1\logs_retry01`、新报告 `20260918_s1_t02_d8_tiny320_train_r1_retry01.json`，仍绑定同一空 checkpoint 目标。Darknet child PID 14400 于 14:29:12 启动；14:29:22 日志 6/6000、首批 loss 有限、未见 OOM/NaN/Inf；早期 ETA 约5.9小时，须观察稳定步速，硬超时仍为6小时。
+- 进度更新（14:41:09）：child仍在运行，日志到429/6000且持续增长，Darknet ETA约2.37小时；未发现 NaN/Inf/OOM/CUDA error 标记。硬超时21600秒、无进度300秒不变。
 
 ## S1-T02-D4-W5 来源校验工具审查状态
 
@@ -128,6 +129,7 @@
 - 2026-09-17：evaluate 显式使用 Darknet `-thresh 0.249999`，只作候选捕获下限；D6 最终指标仍按 `confidence >= score_threshold`，可选范围 `[0.25,0.50]`，selected=null、frozen=false。独立 Reviewer R2 对代码及 R3 证据 PASS；D6 workflow/tests SHA-256 分别为 `a4c77c92eb8f3c62d126cc801d3b82b3f9f8c309b999bd6532a2526721cd0c53`、`4813f3bfceea9749c42dd7b9688531cb069913bb20308f1dbcb48210448a453a`。
 - R3 CPU dry-run 为 `PLANNED_NO_EXECUTION`/exit 0、实际 Darknet commands=0；只绑定 val 清单 15,195 项与两条 approved no_hand 行。R1 源文件哈希描述歧义由 R3 source-binding 证据分列 raw upstream blobs 与 seed-patched 文件关闭。机器报告、来源 JSON 与摘要见 `20260917_s1_t02_d6_capture_preflight_r3.json`、`20260917_s1_t02_d6_source_binding_r3.json`、`20260917_s1_t02_d6_preflight_r3_summary.md`。
 - 本 PASS 仅为代码/证据 G2；D6 仍 G0_PENDING，未运行 GPU/推理、未生成预测/指标、未冻结最终阈值，不代表 G3/G4。
+- 2026-09-18：Wong 批准全量官方 test 25,484 张及独立 robustness set 每目标类/每条件至少100张，person/session隔离，见上方 G0 决策。D6 文档修订经 Reviewer R1 PASS；robustness set、最终指标门槛及最终 threshold 仍未完成，D6 保持 G0_PENDING。
 - 2026-09-18：tiny416 val 候选 retry02 执行完成，Darknet child exit 0、15,195/15,195 图像均完成。报告 `20260918_s1_t02_d6_tiny416_val_candidate_r1_retry02.json` SHA-256 `2eeabde5dfd56283f42fdf53d4b393aceb58c42b9b24c499585b6ce3bab4354b`，摘要 SHA-256 `e5d76ad214842e5684f213263c34c701b35de187e57d578dd3f2fbbb9b8c399f`；独立 Reviewer R3 `PASS`，审查 JSON SHA-256 `0375a326f18cacbab65d5986ef19c25818ad86c822bc594f59839d93d66c36de`。stdout 184 bytes、stderr 0 bytes 均按哈希核对。该结果仅为候选捕获；未计算 mAP/precision/recall，最终 score threshold 未选择/冻结、mAP threshold 未设置，D6 G0/G4 与正式 test 仍未通过。
 
 ## S1-T02-D9 tiny416 CPU 解码参考
@@ -139,7 +141,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. D8c/D8d 代码 G2 与 tiny416 retry01 执行报告审查 G2 均已通过。D6 val 候选 retry02 已完成并经 R3 PASS；只属于候选捕获，不含精度指标。W5 工具代码 R6 与真实 full-weight 来源核验报告 R5 均已通过独立审查。tiny320 run 配置经 Reviewer R1 PASS；attempt 00 的 DLL 搜索路径错误已诊断并保留失败报告，retry01 当前执行状态见上方 D8 记录。full608 对照、最终 test/robustness 数量与指标门槛、INT8、逐层黄金及资源预算仍待执行。正式 test/robustness 数值门槛待 Wong 决定；不得用 test 调参。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
+4. D8c/D8d 代码 G2 与 tiny416 retry01 执行报告审查 G2 均已通过。D6 val 候选 retry02 已完成并经 R3 PASS；只属于候选捕获，不含精度指标。W5 工具代码 R6 与真实 full-weight 来源核验报告 R5 均已通过独立审查。tiny320 run 配置经 Reviewer R1 PASS；attempt 00 的 DLL 搜索路径错误已诊断并保留失败报告，retry01 当前执行状态见上方 D8 记录。test 全量数和 robustness 最低覆盖数已获 Wong 批准；robustness set 实际构建/绑定、mAP及每类 precision/recall 指标门槛、最终 threshold 冻结仍未完成。不得用 test 调参。full608 对照、INT8、逐层黄金及资源预算仍待执行。许可证仍 `UNRESOLVED`。最终模型/尺寸/性能由 Wong 决策；阶段1未通过，不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

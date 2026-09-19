@@ -25,7 +25,7 @@
 - `models.command` 固定为 `[exe, detector, train, data_config_path, config_path, initial_weight.path, flags...]`；checker 会交叉核对 argv[3]、argv[4]、argv[5]，不能只检查 `detector train` 前缀。
 - `file_bindings`：每个文件现场计算 SHA-256，并由 checker 与 source/build/seed/model/pilot 字段逐项交叉核对路径和 SHA；`scope=run` 的文件必须位于隔离 run-dir。配置、构建日志、seed smoke 日志和 checkpoint 不得写入固定输入目录。
 
-模型角色固定为：tiny320 和 tiny416 是 PC 预检/未来上板候选，tiny416 仅作为优先比较对象；完整 YOLOv4 608 是 PC-only 对照，不做板上资源或板上性能验收。完整模型缺少官方 `yolov4.conv.137` 时必须保持 PENDING，不下载或伪造。
+模型角色固定为：tiny320 和 tiny416 是 PC 预检/未来上板候选，tiny416 仅作为优先比较对象；完整 YOLOv4 608 是 PC-only 对照，不做板上资源或板上性能验收。完整模型缺少官方 `yolov4.conv.137` 时必须保持 PENDING，不下载或伪造。当前 full608 输入已绑定 W5 R5 核验的官方 `D:\FPGA_Data\darknet\weights\yolov4.conv.137`，大小 `170038676` bytes、SHA-256 `11C5286CFBFFABC9A3059927401AB3480E9483CEAFD3265779A0DC26C769BED0`；该输入绑定不代表训练或精度通过。
 
 ## 随机性与可复现语义
 
@@ -38,6 +38,14 @@
 允许的有限 pilot 只使用官方 `detector train`，不带 `-map` 或正式 test 参数；每个 run 使用独立 `.data` backup、日志和 checkpoint。`READY` 表示结构、版本和 seed patch 构建绑定已通过；`PENDING` 表示缺少后续产物；`BLOCKED` 表示已执行步骤存在失败或未满足停止条件；`NOT_EXECUTED` 不是通过。
 
 本轮 seeded build 配置和构建均退出 0。tiny416 pilot 以 `max_batches=100` 启动，真实推进到 8/100，随后退出码 `-1073741510`（Windows `0xC000013A`），未生成 checkpoint。日志中未发现 OOM、NaN、Inf 或损坏输入标记，但由于非零退出和无 checkpoint，D4 报告保持 `BLOCKED`，不把 8 步 loss 当作正式训练结果，也不重跑第二个 pilot。
+
+### full608 formal_r3 CPU RAM 失败与当前重试
+
+full608 formal_r3 使用 `random=1`、`subdivisions=64` 和 seed `424242`，实际推进到 `1164/6000` 后在 `image.c:807 make_image()` 因 CPU `calloc` 失败退出码 `2`。失败前隔离诊断观测到 private memory 约 `14.96 GB`、free commit 约 `5.37 GB`。1000 checkpoint 存在（`256102140` bytes，SHA-256 `9306AA18C04DC68373DA121E9D69BE0A0D0920003C736EBF627D2361372F3CD5`），但本次没有 `6000` 或 `final` 权重，不能作为完成的正式训练证据。
+
+失败证据入口为 `report/evidence/S1-T02/20260919_s1_t02_d4_full608_formal_r3_cpu_ram_failure.json`（SHA-256 `CCF967C88B89CDDADFDE68B56196BAF55CF1221C57248AB98A48F3541BF3E6A7`）及同名 `_summary.md`（SHA-256 `A09DE3F914A71614040B9BD0485B3AC94CE33FFAF338FBEDFA081E2564903CF5`），对应证据提交为 `047cab6`。该证据只记录失败事实，不产生精度、最终模型或阶段验收结论。
+
+当前 retry r2 使用固定 `608×608`、`random=0` 和独立目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r5_random0\workflow_formal_r2`，训练仍在进行，尚无正式完成报告或最终权重，不能写成通过。
 
 ## 复现与检查命令
 
@@ -55,4 +63,4 @@ git diff --check
 
 ## 当前未执行项和阻断
 
-未执行正式三模型训练、恢复、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。当前 D4 只形成可审的版本/路径/seed patch 绑定和 seed smoke；tiny416 pilot 被中止，full 权重缺失。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。
+尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 formal_r3 已有上述失败证据，当前 random=0 retry r2 尚在执行。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。

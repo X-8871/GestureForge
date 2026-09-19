@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "schema": "gestureforge-s1-t02-d4-full608-random0-start-dll-failure-evidence-v1",
+  "created_at_utc8": "2026-09-19T23:58:24+08:00",
+  "task_id": "S1-T02-D4-FORMAL-RANDOM0-START-FAIL-R1",
+  "status": "EXECUTION_FAILED",
+  "formal_training_started": false,
+  "formal_training_started_by_this_plan": false,
+  "scope_notice": "本证据仅记录 full608、608、random=0 正式候选在进程启动阶段失败；未开始 Darknet 训练，不代表模型、精度、正式 test、鲁棒性或阶段通过。",
+  "capture": {
+    "repository": "D:\\FPGA_Competition",
+    "git_head_at_capture": "d92c1492f0873cc05dfe4463dce9eaf7c323d782",
+    "candidate_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0",
+    "external_files_not_modified": true,
+    "capture_method": "现场读取文件并重算 SHA-256/字节数；仅新增本证据 JSON 与摘要。"
+  },
+  "failure": {
+    "failure_class": "ENVIRONMENT_DLL_STARTUP_FAILURE",
+    "interpretation": "子进程在 Windows 加载器/DLL 启动阶段退出；未观察到 Darknet 训练输出。0xC0000135 指示 DLL 启动失败，但本证据未确定具体缺失 DLL 名称。",
+    "child_exit_code": 3221225781,
+    "child_exit_hex": "0xC0000135",
+    "workflow_wrapper_exit_code": 2,
+    "observed_update_steps": [],
+    "loss_token_observed": false,
+    "non_finite_observed": false,
+    "train_log": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\workflow_formal_r1\\train.log",
+      "exists": true,
+      "size_bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "last_write_time_utc8": "2026-09-19T23:51:07.152608+08:00"
+    },
+    "checkpoint_files_after_failure": [],
+    "final_weight_exists": false,
+    "no_checkpoint_created_by_run": true
+  },
+  "formal_workflow": {
+    "workflow_report": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\workflow_formal_r1.json",
+      "exists": true,
+      "size_bytes": 20547,
+      "sha256": "C8B515D3FF837AEED3719A43D72811E91226BB8503C9B97073ED0C6E433F8F49",
+      "last_write_time_utc8": "2026-09-19T23:52:15.346534+08:00"
+    },
+    "report_status": "EXECUTION_FAILED",
+    "report_exit_code": 2,
+    "report_created_at_utc8": "2026-09-19T23:48:27+08:00",
+    "command_count": 1,
+    "command": {
+      "executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+      "arguments": [
+        "detector",
+        "train",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\data\\gesture_full608_random0.data",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\configs\\yolov4_5class_608_formal_r5_random0.cfg",
+        "D:\\FPGA_Data\\darknet\\weights\\yolov4.conv.137",
+        "-dont_show"
+      ],
+      "working_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release",
+      "run_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\workflow_formal_r1",
+      "log_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\workflow_formal_r1\\train.log",
+      "checkpoint_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\checkpoints",
+      "formal_timeout_seconds": 21600,
+      "no_progress_timeout_seconds": 300,
+      "seed_environment_variable": "GESTUREFORGE_DARKNET_SEED",
+      "seed": 424242,
+      "command_exit_code": 3221225781
+    },
+    "training_input_binding": {
+      "overall_status": "AFTER_CHILD_MATCHED_PREFLIGHT",
+      "preflight": {
+        "status": "CAPTURED",
+        "captured_at_utc8": "2026-09-19T23:49:35+08:00"
+      },
+      "before_child": {
+        "status": "CAPTURED",
+        "captured_at_utc8": "2026-09-19T23:51:07+08:00",
+        "comparison_to_preflight": {
+          "matches": true,
+          "differences": []
+        }
+      },
+      "after_child": {
+        "status": "CAPTURED",
+        "captured_at_utc8": "2026-09-19T23:52:15+08:00",
+        "comparison_to_preflight": {
+          "matches": true,
+          "differences": []
+        }
+      },
+      "execution_status": "AFTER_CHILD_MATCHED_PREFLIGHT",
+      "interpretation": "preflight、before_child、after_child 的输入绑定快照一致；after_child 仅证明绑定捕获完成，不能证明 Darknet child 成功运行。"
+    },
+    "output_state": {
+      "checkpoint_directory": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\checkpoints",
+        "exists": true,
+        "file_count": 0,
+        "files": []
+      },
+      "workflow_directory": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\workflow_formal_r1",
+        "exists": true,
+        "file_count": 1,
+        "files": [
+          "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\workflow_formal_r1\\train.log"
+        ]
+      },
+      "reported_checkpoint_output": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\checkpoints\\yolov4_5class_608_formal_r5_random0_6000.weights",
+        "sha256_before": "unavailable",
+        "created_by_this_run": "not_executed"
+      },
+      "reported_evaluation_output": {
+        "path": "unavailable",
+        "sha256": "unavailable"
+      }
+    }
+  },
+  "input_binding": {
+    "executable": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+      "exists": true,
+      "size_bytes": 3087360,
+      "sha256": "01C96DCCB902A3F1F776B1619188A30BEF7B33BF5ED607F466DE0B6EEDF1635E",
+      "last_write_time_utc8": "2026-09-16T16:37:44.461951+08:00"
+    },
+    "model_config": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\configs\\yolov4_5class_608_formal_r5_random0.cfg",
+      "exists": true,
+      "size_bytes": 13380,
+      "sha256": "2F4934D55FB47416A72985367BC3ACEC872D02E4B361EDE380ADE0CAF7F60B5D",
+      "last_write_time_utc8": "2026-09-19T23:27:05.226689+08:00"
+    },
+    "data_config": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\data\\gesture_full608_random0.data",
+      "exists": true,
+      "size_bytes": 302,
+      "sha256": "C240179FECD0357C850D7779A592BBA4B50616F70527904A6BA23A74844EE07A",
+      "last_write_time_utc8": "2026-09-19T23:27:05.227696+08:00"
+    },
+    "manifest": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+      "exists": true,
+      "size_bytes": 57672948,
+      "sha256": "FD60E7A67161F242276A1B97B09AD07C0D7F41D30067266BB99620ABE6D7ED74",
+      "last_write_time_utc8": "2026-09-15T13:20:32.653102+08:00"
+    },
+    "train_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+      "exists": true,
+      "size_bytes": 9552441,
+      "sha256": "4D8E965E7FC3F5D8A9F1EC3613FADB72C50B8463F78FEEBF863FD26978C8E3FA",
+      "last_write_time_utc8": "2026-09-15T14:08:39.986839+08:00"
+    },
+    "valid_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "exists": true,
+      "size_bytes": 1230948,
+      "sha256": "8FA102BB95ACA67BD862AD2E29194A51360ABE8C34195EFAE750E07869F22E3C",
+      "last_write_time_utc8": "2026-09-15T14:08:39.992364+08:00"
+    },
+    "names_file": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+      "exists": true,
+      "size_bytes": 27,
+      "sha256": "5926AA20DA3FA403315E64A116202D355B044D17F6D7949F5709CE9C9AE3D368",
+      "last_write_time_utc8": "2026-09-15T14:08:39.993353+08:00"
+    },
+    "environment_report": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\bindings\\environment_seeded_binding.json",
+      "exists": true,
+      "size_bytes": 2156,
+      "sha256": "EBD70A70A8DA348FF2B80622384B6BCCC7090E46278D8AC11BD7D31DD8E095F9",
+      "last_write_time_utc8": "2026-09-19T23:27:05.226689+08:00"
+    },
+    "initial_weights": {
+      "path": "D:\\FPGA_Data\\darknet\\weights\\yolov4.conv.137",
+      "exists": true,
+      "size_bytes": 170038676,
+      "sha256": "11C5286CFBFFABC9A3059927401AB3480E9483CEAFD3265779A0DC26C769BED0",
+      "last_write_time_utc8": "2026-09-16T23:09:25.490508+08:00"
+    },
+    "workflow_script": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t01_darknet_workflow.py",
+      "exists": true,
+      "size_bytes": 114432,
+      "sha256": "F2B6ACDF65A15CB17616D97492792222D80C1BE337AE0E1F93FFE672D47F2E9D",
+      "last_write_time_utc8": "2026-09-18T12:25:41.645086+08:00"
+    },
+    "configuration_values": {
+      "batch": 64,
+      "subdivisions": 64,
+      "width": 608,
+      "height": 608,
+      "max_batches": 6000,
+      "steps": [
+        4800,
+        5400
+      ],
+      "random": 0,
+      "classes": 5,
+      "train_manifest_count": 118001,
+      "validation_image_count": 15195
+    },
+    "data_values": {
+      "train": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+      "valid": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "names": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+      "backup": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\checkpoints",
+      "saveweights": 1000,
+      "savelast": 500
+    }
+  },
+  "preflight_and_launch_gate": {
+    "formal_plan": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\formal_plan_random0.json",
+      "exists": true,
+      "size_bytes": 11553,
+      "sha256": "AF9FEC08A3A4E5CC574738B84982CE99124065A6103F94561D4EF2743069F975",
+      "last_write_time_utc8": "2026-09-19T23:29:11.059267+08:00"
+    },
+    "preflight_expected": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\preflight_expected_random0.json",
+      "exists": true,
+      "size_bytes": 3433,
+      "sha256": "DD956523438E29191DBEA74CC4344F146195313EB0C2EAEEEE7F5DA68620F690",
+      "last_write_time_utc8": "2026-09-19T23:27:20.472880+08:00"
+    },
+    "preflight_script": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\preflight_formal_random0.ps1",
+      "exists": true,
+      "size_bytes": 5829,
+      "sha256": "FA336CDC11E52370900DB1939B3B55AF951BB4E8814C85616C6059A4F27E2AE9",
+      "last_write_time_utc8": "2026-09-19T23:27:05.227696+08:00"
+    },
+    "approved_stable_preflight": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\preflight_verification_random0.json",
+      "exists": true,
+      "size_bytes": 18552,
+      "sha256": "4835E1CE1AA23D6A739701EF5E99BCEC4522B8CEEC365DA09490396E1C53DADA",
+      "last_write_time_utc8": "2026-09-19T23:27:21.229331+08:00"
+    },
+    "fresh_launch_preflight": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\preflight_verification_random0_launch.json",
+      "exists": true,
+      "size_bytes": 11281,
+      "sha256": "2B2C7F955CA1DDDE2CCDB4D09C628698FA29CA889475090063ADA4CE83C4FDC6",
+      "last_write_time_utc8": "2026-09-19T23:30:59.252799+08:00"
+    },
+    "launch_gate": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\launch_gate_random0_r1.json",
+      "exists": true,
+      "size_bytes": 1596,
+      "sha256": "D622CDBCAF6D1E80881FD2AF12146F6F26F80BD94802E0168501C49F5EB0F743",
+      "last_write_time_utc8": "2026-09-19T23:31:49.694680+08:00"
+    },
+    "launch_gate_status_recorded": "PASS",
+    "launch_gate_scope": "启动门槛快照 PASS 只表示启动前绑定/资源/隔离检查通过，不表示训练已启动或完成。",
+    "binding_observation": "workflow 报告记录 preflight/before_child/after_child 均匹配；子进程随后以 0xC0000135 退出。"
+  },
+  "launcher_context": {
+    "launch_command": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\launch_command_random0_r2.txt",
+      "exists": true,
+      "size_bytes": 1639,
+      "sha256": "5883AF865C53CA6526158EC51B268F753986DC164C13B1D2433FCA42FF576654",
+      "last_write_time_utc8": "2026-09-19T23:48:27.740244+08:00"
+    },
+    "launcher_pid_file": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\launcher_pid_r2.txt",
+      "exists": true,
+      "size_bytes": 7,
+      "sha256": "26FB8DF12415687CA5A498AB200A8B81086039EC9364A9965BE3DC9D72A41B4B",
+      "last_write_time_utc8": "2026-09-19T23:48:27.764893+08:00"
+    },
+    "launcher_pid_text": "14152",
+    "launcher_stdout": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\launcher_stdout_r2.log",
+      "exists": true,
+      "size_bytes": 233,
+      "sha256": "3E2F3C29E609A1B1334061A72B4D04DE177B8B36F0D9056A8BD900AF15926009",
+      "last_write_time_utc8": "2026-09-19T23:52:15.422042+08:00"
+    },
+    "launcher_stderr": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_formal_r5_random0\\reports\\launcher_stderr_r2.log",
+      "exists": true,
+      "size_bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+      "last_write_time_utc8": "2026-09-19T23:48:27.747245+08:00"
+    },
+    "launcher_pid_14152_state_at_capture": "ABSENT"
+  },
+  "process_state_after_failure": {
+    "darknet_process_count_at_capture": 0,
+    "launcher_pid_14152_absent_at_capture": true,
+    "checkpoint_files_present": false
+  },
+  "limitations": [
+    "未获得任何训练步、loss、验证指标或最终权重；不得用于模型/精度/正式 test/鲁棒性/阶段验收结论。",
+    "0xC0000135 表明启动加载失败，但没有从空 train.log 确定具体 DLL 名称；后续应修复并重新执行独立 preflight、审查和正式训练。",
+    "launch gate 的 PASS 与 workflow 的 EXECUTION_FAILED 同时保留，二者分别表示启动前门槛和实际子进程结果。",
+    "launcher stdout 存在编码异常；本证据以 workflow 报告、现场哈希、退出码及空日志为准。"
+  ]
+}

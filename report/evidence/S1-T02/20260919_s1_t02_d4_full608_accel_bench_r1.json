@@ -1,0 +1,859 @@
+{
+  "schema_version": 1,
+  "created_at_utc8": "2026-09-19T17:13:38+08:00",
+  "task_id": "S1-T02-D4-ACCEL-BENCH-EVIDENCE",
+  "framework": "official-darknet-cuda",
+  "action": "isolated_diagnostic_benchmark",
+  "status": "DIAGNOSTIC_ONLY",
+  "scope": "full608 加速诊断短跑证据；不构成正式 6000 步训练、精度、泛化、INT8、资源预算、板上验证或阶段验收证据。",
+  "conclusion": {
+    "subdiv64": "20/20 步完成，生成独立 final.weights；日志每步耗时约 24 秒。",
+    "subdiv16": "在第 1 步前的 CUDA 内存分配处 OOM；未生成权重。",
+    "formal_training_recommendation": "当前证据仅支持 subdiv64 作为后续候选；是否进行正式训练仍需总控审查和独立复查。"
+  },
+  "git": {
+    "repository": "D:\\FPGA_Competition",
+    "head_at_capture": "70cc4008cca1092da4c74ac50af499eb91873c0f",
+    "worktree_note": "生成证据前后未触碰用户既有修改；本任务不提交。"
+  },
+  "external_run_directory": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1",
+    "exists": true
+  },
+  "seed_binding": {
+    "environment_variable": "GESTUREFORGE_DARKNET_SEED",
+    "value": 424242,
+    "passed_to_child_process": true
+  },
+  "runner_contract": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\run_accel_bench.ps1",
+    "hard_timeout_seconds": 900,
+    "no_progress_seconds": 300,
+    "max_batches": 20,
+    "target": "single-step gate before 20-step benchmark; actual subdiv64 log completed 20 steps; subdiv16 stopped before step 1.",
+    "termination": "taskkill.exe /PID <child_pid> /T /F",
+    "c_drive_guard_minimum_bytes": 1073741824,
+    "runner_result_limitation": "subdiv16/subdiv64 trial directories均未生成 runner_result.json；无法从包装层恢复 child 数值退出码、精确 stop_reason 或 taskkill 返回码。"
+  },
+  "artifacts": {
+    "diagnosis_plan": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\diagnosis_plan.json",
+      "exists": true,
+      "bytes": 11331,
+      "sha256": "0aac55aa86e8e89e800111adab39aae5565a6d5d177ee8b2942c12fef067196c",
+      "created_at_utc8": "2026-09-19T16:18:24+08:00",
+      "modified_at_utc8": "2026-09-19T16:55:07+08:00"
+    },
+    "prepared_files": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\prepared_files.json",
+      "exists": true,
+      "bytes": 2392,
+      "sha256": "f5d3f2ae241d39eb071efda8f6243137b380529ede913bce4a6ed871444f3690",
+      "created_at_utc8": "2026-09-19T16:17:51+08:00",
+      "modified_at_utc8": "2026-09-19T16:55:07+08:00"
+    },
+    "runner": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\run_accel_bench.ps1",
+      "exists": true,
+      "bytes": 19201,
+      "sha256": "cbf4c77f5309b506c01e5868c6d5c958d358fe98d5e9da7ced14b7a195400c19",
+      "created_at_utc8": "2026-09-19T16:38:26+08:00",
+      "modified_at_utc8": "2026-09-19T16:54:49+08:00"
+    },
+    "executable": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+      "exists": true,
+      "bytes": 3087360,
+      "sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+      "created_at_utc8": "2026-09-16T16:37:44+08:00",
+      "modified_at_utc8": "2026-09-16T16:37:44+08:00"
+    },
+    "environment_report": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d5_seed_short_r1\\environment_seeded_binding.json",
+      "exists": true,
+      "bytes": 2156,
+      "sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+      "created_at_utc8": "2026-09-16T18:12:32+08:00",
+      "modified_at_utc8": "2026-09-16T18:13:07+08:00"
+    },
+    "manifest": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+      "exists": true,
+      "bytes": 57672948,
+      "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+      "created_at_utc8": "2026-09-14T17:59:18+08:00",
+      "modified_at_utc8": "2026-09-15T13:20:32+08:00"
+    },
+    "train_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+      "exists": true,
+      "bytes": 9552441,
+      "sha256": "4d8e965e7fc3f5d8a9f1ec3613fadb72c50b8463f78feebf863fd26978c8e3fa",
+      "created_at_utc8": "2026-09-15T14:08:39+08:00",
+      "modified_at_utc8": "2026-09-15T14:08:39+08:00"
+    },
+    "valid_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "exists": true,
+      "bytes": 1230948,
+      "sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+      "created_at_utc8": "2026-09-15T14:08:39+08:00",
+      "modified_at_utc8": "2026-09-15T14:08:39+08:00"
+    },
+    "names": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+      "exists": true,
+      "bytes": 27,
+      "sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+      "created_at_utc8": "2026-09-15T14:08:39+08:00",
+      "modified_at_utc8": "2026-09-15T14:08:39+08:00"
+    },
+    "initial_weights": {
+      "path": "D:\\FPGA_Data\\darknet\\weights\\yolov4.conv.137",
+      "exists": true,
+      "bytes": 170038676,
+      "sha256": "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+      "created_at_utc8": "2026-09-16T23:08:37+08:00",
+      "modified_at_utc8": "2026-09-16T23:09:25+08:00"
+    },
+    "expected_subdiv16": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\preflight_expected_subdiv16.json",
+      "exists": true,
+      "bytes": 2810,
+      "sha256": "213308785f7cf5095c02cd894724c1aaa4921a30f1cce4647606237e08207485",
+      "created_at_utc8": "2026-09-19T16:51:04+08:00",
+      "modified_at_utc8": "2026-09-19T16:51:04+08:00"
+    },
+    "expected_subdiv64": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\preflight_expected_subdiv64.json",
+      "exists": true,
+      "bytes": 2810,
+      "sha256": "b204e5fbca69b5d489da232942d16d7c5fc5c9ef800893d1501462da2353da8d",
+      "created_at_utc8": "2026-09-19T16:51:04+08:00",
+      "modified_at_utc8": "2026-09-19T16:51:04+08:00"
+    },
+    "verification_subdiv16": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\preflight_verification_subdiv16.json",
+      "exists": true,
+      "bytes": 6739,
+      "sha256": "f2fd621bb239dca3537167c388a603acbabf2dc1e953a23a1ae99163ec262328",
+      "created_at_utc8": "2026-09-19T16:41:51+08:00",
+      "modified_at_utc8": "2026-09-19T17:07:25+08:00"
+    },
+    "verification_subdiv64": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\preflight_verification_subdiv64.json",
+      "exists": true,
+      "bytes": 6738,
+      "sha256": "59c739ba61aed84c3a4321ceab4bde9c2e408e5c39a05dd187e624f8b877ce5a",
+      "created_at_utc8": "2026-09-19T16:41:51+08:00",
+      "modified_at_utc8": "2026-09-19T16:57:39+08:00"
+    },
+    "cfg_subdiv64": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_safe_subdiv64_bench20.cfg",
+      "exists": true,
+      "bytes": 13374,
+      "sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+      "created_at_utc8": "2026-09-19T16:17:51+08:00",
+      "modified_at_utc8": "2026-09-19T16:20:33+08:00"
+    },
+    "data_subdiv64": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv64.data",
+      "exists": true,
+      "bytes": 311,
+      "sha256": "459d959aec83659940e5f1198a7d85177a4f361b77c0fed1d4218be2a32b4f97",
+      "created_at_utc8": "2026-09-19T16:50:54+08:00",
+      "modified_at_utc8": "2026-09-19T16:50:54+08:00"
+    },
+    "subdiv64_stdout": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv64\\darknet.stdout.log",
+      "exists": true,
+      "bytes": 4495,
+      "sha256": "4907c084e3956024db1553a9199d632f6b1f419e57ad2c7bf623e121dd92c6a3",
+      "created_at_utc8": "2026-09-19T16:57:49+08:00",
+      "modified_at_utc8": "2026-09-19T17:06:14+08:00"
+    },
+    "subdiv64_stderr": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv64\\darknet.stderr.log",
+      "exists": true,
+      "bytes": 753166,
+      "sha256": "ffbdd7deb271e5eaa55ba83aef4808b6c38b8bd3f2c3b126e5f5d7e360b2d890",
+      "created_at_utc8": "2026-09-19T16:57:49+08:00",
+      "modified_at_utc8": "2026-09-19T17:06:12+08:00"
+    },
+    "cfg_subdiv16": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_accel_subdiv16_bench20.cfg",
+      "exists": true,
+      "bytes": 13374,
+      "sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+      "created_at_utc8": "2026-09-19T16:17:51+08:00",
+      "modified_at_utc8": "2026-09-19T16:20:33+08:00"
+    },
+    "data_subdiv16": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv16.data",
+      "exists": true,
+      "bytes": 311,
+      "sha256": "b87e7f29c10a419b13c10ccd0396da75e45d094ae34912772dc75d7790fbff0c",
+      "created_at_utc8": "2026-09-19T16:50:54+08:00",
+      "modified_at_utc8": "2026-09-19T16:50:54+08:00"
+    },
+    "subdiv16_stdout": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv16\\darknet.stdout.log",
+      "exists": true,
+      "bytes": 907,
+      "sha256": "e48e7104c018038bc6774b8894a61af0f709ed806548fb9a1a0014815aba48fa",
+      "created_at_utc8": "2026-09-19T17:10:30+08:00",
+      "modified_at_utc8": "2026-09-19T17:10:46+08:00"
+    },
+    "subdiv16_stderr": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv16\\darknet.stderr.log",
+      "exists": true,
+      "bytes": 13576,
+      "sha256": "b2e8e66949107f461c857e803a4edc296a6530bd42fcda3cce196a540702dfd4",
+      "created_at_utc8": "2026-09-19T17:10:30+08:00",
+      "modified_at_utc8": "2026-09-19T17:10:45+08:00"
+    }
+  },
+  "preflight_binding": {
+    "subdiv64": {
+      "status": "PASS",
+      "captured_at_utc8": "2026-09-19T16:57:39+08:00",
+      "subdivision": 64,
+      "working_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs",
+      "executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+      "cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_safe_subdiv64_bench20.cfg",
+      "data": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv64.data",
+      "seed": 424242,
+      "c_drive_free_bytes": 46773067776,
+      "min_c_drive_free_bytes": 1073741824,
+      "records": [
+        {
+          "name": "manifest",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+          "expected_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+          "observed_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+          "expected_bytes": 57672948,
+          "observed_bytes": 57672948,
+          "match": true
+        },
+        {
+          "name": "train_list",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+          "expected_sha256": "4d8e965e7fc3f5d8a9f1ec3613fadb72c50b8463f78feebf863fd26978c8e3fa",
+          "observed_sha256": "4d8e965e7fc3f5d8a9f1ec3613fadb72c50b8463f78feebf863fd26978c8e3fa",
+          "expected_bytes": 9552441,
+          "observed_bytes": 9552441,
+          "match": true
+        },
+        {
+          "name": "valid_list",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+          "expected_sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+          "observed_sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+          "expected_bytes": 1230948,
+          "observed_bytes": 1230948,
+          "match": true
+        },
+        {
+          "name": "names",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+          "expected_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+          "observed_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+          "expected_bytes": 27,
+          "observed_bytes": 27,
+          "match": true
+        },
+        {
+          "name": "data_subdiv64",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv64.data",
+          "expected_sha256": "459d959aec83659940e5f1198a7d85177a4f361b77c0fed1d4218be2a32b4f97",
+          "observed_sha256": "459d959aec83659940e5f1198a7d85177a4f361b77c0fed1d4218be2a32b4f97",
+          "expected_bytes": 311,
+          "observed_bytes": 311,
+          "match": true
+        },
+        {
+          "name": "cfg_subdiv16",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_accel_subdiv16_bench20.cfg",
+          "expected_sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+          "observed_sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+          "expected_bytes": 13374,
+          "observed_bytes": 13374,
+          "match": true
+        },
+        {
+          "name": "cfg_subdiv64",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_safe_subdiv64_bench20.cfg",
+          "expected_sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+          "observed_sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+          "expected_bytes": 13374,
+          "observed_bytes": 13374,
+          "match": true
+        },
+        {
+          "name": "initial_weights",
+          "path": "D:\\FPGA_Data\\darknet\\weights\\yolov4.conv.137",
+          "expected_sha256": "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+          "observed_sha256": "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+          "expected_bytes": 170038676,
+          "observed_bytes": 170038676,
+          "match": true
+        },
+        {
+          "name": "executable",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+          "expected_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+          "observed_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+          "expected_bytes": 3087360,
+          "observed_bytes": 3087360,
+          "match": true
+        },
+        {
+          "name": "environment_report",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d5_seed_short_r1\\environment_seeded_binding.json",
+          "expected_sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+          "observed_sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+          "expected_bytes": 2156,
+          "observed_bytes": 2156,
+          "match": true
+        }
+      ],
+      "mismatches": [],
+      "all_records_match": true
+    },
+    "subdiv16": {
+      "status": "PASS",
+      "captured_at_utc8": "2026-09-19T17:07:25+08:00",
+      "subdivision": 16,
+      "working_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs",
+      "executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+      "cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_accel_subdiv16_bench20.cfg",
+      "data": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv16.data",
+      "seed": 424242,
+      "c_drive_free_bytes": 46764969984,
+      "min_c_drive_free_bytes": 1073741824,
+      "records": [
+        {
+          "name": "manifest",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+          "expected_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+          "observed_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+          "expected_bytes": 57672948,
+          "observed_bytes": 57672948,
+          "match": true
+        },
+        {
+          "name": "train_list",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+          "expected_sha256": "4d8e965e7fc3f5d8a9f1ec3613fadb72c50b8463f78feebf863fd26978c8e3fa",
+          "observed_sha256": "4d8e965e7fc3f5d8a9f1ec3613fadb72c50b8463f78feebf863fd26978c8e3fa",
+          "expected_bytes": 9552441,
+          "observed_bytes": 9552441,
+          "match": true
+        },
+        {
+          "name": "valid_list",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+          "expected_sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+          "observed_sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+          "expected_bytes": 1230948,
+          "observed_bytes": 1230948,
+          "match": true
+        },
+        {
+          "name": "names",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+          "expected_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+          "observed_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+          "expected_bytes": 27,
+          "observed_bytes": 27,
+          "match": true
+        },
+        {
+          "name": "data_subdiv16",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv16.data",
+          "expected_sha256": "b87e7f29c10a419b13c10ccd0396da75e45d094ae34912772dc75d7790fbff0c",
+          "observed_sha256": "b87e7f29c10a419b13c10ccd0396da75e45d094ae34912772dc75d7790fbff0c",
+          "expected_bytes": 311,
+          "observed_bytes": 311,
+          "match": true
+        },
+        {
+          "name": "cfg_subdiv16",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_accel_subdiv16_bench20.cfg",
+          "expected_sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+          "observed_sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+          "expected_bytes": 13374,
+          "observed_bytes": 13374,
+          "match": true
+        },
+        {
+          "name": "cfg_subdiv64",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_safe_subdiv64_bench20.cfg",
+          "expected_sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+          "observed_sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+          "expected_bytes": 13374,
+          "observed_bytes": 13374,
+          "match": true
+        },
+        {
+          "name": "initial_weights",
+          "path": "D:\\FPGA_Data\\darknet\\weights\\yolov4.conv.137",
+          "expected_sha256": "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+          "observed_sha256": "11c5286cfbffabc9a3059927401ab3480e9483ceafd3265779a0dc26c769bed0",
+          "expected_bytes": 170038676,
+          "observed_bytes": 170038676,
+          "match": true
+        },
+        {
+          "name": "executable",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+          "expected_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+          "observed_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+          "expected_bytes": 3087360,
+          "observed_bytes": 3087360,
+          "match": true
+        },
+        {
+          "name": "environment_report",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d5_seed_short_r1\\environment_seeded_binding.json",
+          "expected_sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+          "observed_sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+          "expected_bytes": 2156,
+          "observed_bytes": 2156,
+          "match": true
+        }
+      ],
+      "mismatches": [],
+      "all_records_match": true
+    }
+  },
+  "trials": {
+    "subdiv64": {
+      "cfg": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_safe_subdiv64_bench20.cfg",
+        "exists": true,
+        "bytes": 13374,
+        "sha256": "5e5c0ec768e99716f3b201b2a29f22be02769f41a5a6e1a66fe150b0cecbbfb1",
+        "created_at_utc8": "2026-09-19T16:17:51+08:00",
+        "modified_at_utc8": "2026-09-19T16:20:33+08:00"
+      },
+      "data": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv64.data",
+        "exists": true,
+        "bytes": 311,
+        "sha256": "459d959aec83659940e5f1198a7d85177a4f361b77c0fed1d4218be2a32b4f97",
+        "created_at_utc8": "2026-09-19T16:50:54+08:00",
+        "modified_at_utc8": "2026-09-19T16:50:54+08:00"
+      },
+      "cfg_values": {
+        "batch": "64",
+        "subdivisions": "64",
+        "width": "608",
+        "height": "608",
+        "max_batches": "20",
+        "steps": "16,18",
+        "random": "1",
+        "letter_box": "1"
+      },
+      "log_start_observed_at_utc8": "2026-09-19T16:57:49+08:00",
+      "log_end_observed_at_utc8": "2026-09-19T17:06:14+08:00",
+      "timing_basis": "日志/权重文件系统创建和最后修改时间；包装层未输出 runner_result，不能替代 child 的精确启动/退出时间。",
+      "stdout": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv64\\darknet.stdout.log",
+        "exists": true,
+        "bytes": 4495,
+        "sha256": "4907c084e3956024db1553a9199d632f6b1f419e57ad2c7bf623e121dd92c6a3",
+        "created_at_utc8": "2026-09-19T16:57:49+08:00",
+        "modified_at_utc8": "2026-09-19T17:06:14+08:00"
+      },
+      "stderr": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv64\\darknet.stderr.log",
+        "exists": true,
+        "bytes": 753166,
+        "sha256": "ffbdd7deb271e5eaa55ba83aef4808b6c38b8bd3f2c3b126e5f5d7e360b2d890",
+        "created_at_utc8": "2026-09-19T16:57:49+08:00",
+        "modified_at_utc8": "2026-09-19T17:06:12+08:00"
+      },
+      "steps": [
+        {
+          "step": 1,
+          "loss": 4689.056641,
+          "avg_loss": 4689.056641,
+          "rate": 0.0,
+          "seconds": 25.407,
+          "images": 64,
+          "hours_left": -1.0
+        },
+        {
+          "step": 2,
+          "loss": 4688.498047,
+          "avg_loss": 4689.000977,
+          "rate": 0.0,
+          "seconds": 24.188,
+          "images": 128,
+          "hours_left": 0.134098
+        },
+        {
+          "step": 3,
+          "loss": 4687.589844,
+          "avg_loss": 4688.859863,
+          "rate": 0.0,
+          "seconds": 24.203,
+          "images": 192,
+          "hours_left": 0.133966
+        },
+        {
+          "step": 4,
+          "loss": 4690.681152,
+          "avg_loss": 4689.041992,
+          "rate": 0.0,
+          "seconds": 24.383,
+          "images": 256,
+          "hours_left": 0.133769
+        },
+        {
+          "step": 5,
+          "loss": 4685.449707,
+          "avg_loss": 4688.682617,
+          "rate": 0.0,
+          "seconds": 24.337,
+          "images": 320,
+          "hours_left": 0.133515
+        },
+        {
+          "step": 6,
+          "loss": 4687.872559,
+          "avg_loss": 4688.601562,
+          "rate": 0.0,
+          "seconds": 24.294,
+          "images": 384,
+          "hours_left": 0.133194
+        },
+        {
+          "step": 7,
+          "loss": 4689.899902,
+          "avg_loss": 4688.731445,
+          "rate": 0.0,
+          "seconds": 24.321,
+          "images": 448,
+          "hours_left": 0.132807
+        },
+        {
+          "step": 8,
+          "loss": 4686.947754,
+          "avg_loss": 4688.553223,
+          "rate": 0.0,
+          "seconds": 24.323,
+          "images": 512,
+          "hours_left": 0.132357
+        },
+        {
+          "step": 9,
+          "loss": 4687.051758,
+          "avg_loss": 4688.40332,
+          "rate": 0.0,
+          "seconds": 24.39,
+          "images": 576,
+          "hours_left": 0.131845
+        },
+        {
+          "step": 10,
+          "loss": 4688.493164,
+          "avg_loss": 4688.412109,
+          "rate": 0.0,
+          "seconds": 24.328,
+          "images": 640,
+          "hours_left": 0.131271
+        },
+        {
+          "step": 11,
+          "loss": 4688.67334,
+          "avg_loss": 4688.438477,
+          "rate": 0.0,
+          "seconds": 24.38,
+          "images": 704,
+          "hours_left": 0.130635
+        },
+        {
+          "step": 12,
+          "loss": 4687.528809,
+          "avg_loss": 4688.347656,
+          "rate": 0.0,
+          "seconds": 24.184,
+          "images": 768,
+          "hours_left": 0.129938
+        },
+        {
+          "step": 13,
+          "loss": 4684.961426,
+          "avg_loss": 4688.008789,
+          "rate": 0.0,
+          "seconds": 24.384,
+          "images": 832,
+          "hours_left": 0.129176
+        },
+        {
+          "step": 14,
+          "loss": 4685.053711,
+          "avg_loss": 4687.713379,
+          "rate": 0.0,
+          "seconds": 24.397,
+          "images": 896,
+          "hours_left": 0.128358
+        },
+        {
+          "step": 15,
+          "loss": 4686.897949,
+          "avg_loss": 4687.631836,
+          "rate": 0.0,
+          "seconds": 24.18,
+          "images": 960,
+          "hours_left": 0.127481
+        },
+        {
+          "step": 16,
+          "loss": 4684.532715,
+          "avg_loss": 4687.321777,
+          "rate": 0.0,
+          "seconds": 24.243,
+          "images": 1024,
+          "hours_left": 0.126542
+        },
+        {
+          "step": 17,
+          "loss": 4687.870605,
+          "avg_loss": 4687.376465,
+          "rate": 0.0,
+          "seconds": 24.332,
+          "images": 1088,
+          "hours_left": 0.125546
+        },
+        {
+          "step": 18,
+          "loss": 4684.936035,
+          "avg_loss": 4687.132324,
+          "rate": 0.0,
+          "seconds": 24.423,
+          "images": 1152,
+          "hours_left": 0.124493
+        },
+        {
+          "step": 19,
+          "loss": 4685.748535,
+          "avg_loss": 4686.994141,
+          "rate": 0.0,
+          "seconds": 24.375,
+          "images": 1216,
+          "hours_left": 0.123384
+        },
+        {
+          "step": 20,
+          "loss": 4684.013672,
+          "avg_loss": 4686.696289,
+          "rate": 0.0,
+          "seconds": 24.504,
+          "images": 1280,
+          "hours_left": 0.122218
+        }
+      ],
+      "step_count": 20,
+      "step_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "step_seconds": [
+        25.407,
+        24.188,
+        24.203,
+        24.383,
+        24.337,
+        24.294,
+        24.321,
+        24.323,
+        24.39,
+        24.328,
+        24.38,
+        24.184,
+        24.384,
+        24.397,
+        24.18,
+        24.243,
+        24.332,
+        24.423,
+        24.375,
+        24.504
+      ],
+      "step_seconds_mean": 24.3788,
+      "step_seconds_median": 24.3345,
+      "step_seconds_min": 24.18,
+      "step_seconds_max": 25.407,
+      "step_seconds_sum": 487.576,
+      "completion_marker_observed": true,
+      "oom_marker_observed": false,
+      "error_markers": [],
+      "checkpoint_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\checkpoints\\subdiv64",
+      "checkpoint_files": [
+        {
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\checkpoints\\subdiv64\\yolov4_5class_608_d4_safe_subdiv64_bench20_final.weights",
+          "exists": true,
+          "bytes": 256102140,
+          "sha256": "8f1c16ee2e3849651b24fdb593c9c64271b1e24ef1be8e1a510c02bfee81bdfd",
+          "created_at_utc8": "2026-09-19T17:06:12+08:00",
+          "modified_at_utc8": "2026-09-19T17:06:13+08:00"
+        }
+      ],
+      "checkpoint_expected": true,
+      "checkpoint_output": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\checkpoints\\subdiv64\\yolov4_5class_608_d4_safe_subdiv64_bench20_final.weights",
+        "exists": true,
+        "bytes": 256102140,
+        "sha256": "8f1c16ee2e3849651b24fdb593c9c64271b1e24ef1be8e1a510c02bfee81bdfd",
+        "created_at_utc8": "2026-09-19T17:06:12+08:00",
+        "modified_at_utc8": "2026-09-19T17:06:13+08:00"
+      },
+      "process_capture_after_run": {
+        "captured_at_utc8": "2026-09-19T17:13:38+08:00",
+        "darknet_process_count": 0,
+        "powershell_process_count": 1,
+        "interpretation": "当前捕获无 Darknet 进程；因 runner_result 缺失，这不能单独证明 child 的退出码。"
+      },
+      "runner_result": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv64\\runner_result.json",
+        "exists": false,
+        "exit_code": "UNKNOWN_NO_RUNNER_RESULT",
+        "limitation": "监视器包装层未生成 runner_result.json；只能以日志完成/OOM 标记、最终权重和事后无进程状态作为可复现证据，不能记录 child 的数值退出码或 taskkill 返回码。"
+      },
+      "c_drive_free_at_capture_bytes": 46754643968
+    },
+    "subdiv16": {
+      "cfg": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\configs\\yolov4_5class_608_d4_accel_subdiv16_bench20.cfg",
+        "exists": true,
+        "bytes": 13374,
+        "sha256": "d8360fc7aa12a88ce934198ab983a325400102ee73eb37313a2d0dee665d64eb",
+        "created_at_utc8": "2026-09-19T16:17:51+08:00",
+        "modified_at_utc8": "2026-09-19T16:20:33+08:00"
+      },
+      "data": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\data\\gesture_full_d4_accel_subdiv16.data",
+        "exists": true,
+        "bytes": 311,
+        "sha256": "b87e7f29c10a419b13c10ccd0396da75e45d094ae34912772dc75d7790fbff0c",
+        "created_at_utc8": "2026-09-19T16:50:54+08:00",
+        "modified_at_utc8": "2026-09-19T16:50:54+08:00"
+      },
+      "cfg_values": {
+        "batch": "64",
+        "subdivisions": "16",
+        "width": "608",
+        "height": "608",
+        "max_batches": "20",
+        "steps": "16,18",
+        "random": "1",
+        "letter_box": "1"
+      },
+      "log_start_observed_at_utc8": "2026-09-19T17:10:30+08:00",
+      "log_end_observed_at_utc8": "2026-09-19T17:10:46+08:00",
+      "timing_basis": "日志/权重文件系统创建和最后修改时间；包装层未输出 runner_result，不能替代 child 的精确启动/退出时间。",
+      "stdout": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv16\\darknet.stdout.log",
+        "exists": true,
+        "bytes": 907,
+        "sha256": "e48e7104c018038bc6774b8894a61af0f709ed806548fb9a1a0014815aba48fa",
+        "created_at_utc8": "2026-09-19T17:10:30+08:00",
+        "modified_at_utc8": "2026-09-19T17:10:46+08:00"
+      },
+      "stderr": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv16\\darknet.stderr.log",
+        "exists": true,
+        "bytes": 13576,
+        "sha256": "b2e8e66949107f461c857e803a4edc296a6530bd42fcda3cce196a540702dfd4",
+        "created_at_utc8": "2026-09-19T17:10:30+08:00",
+        "modified_at_utc8": "2026-09-19T17:10:45+08:00"
+      },
+      "steps": [],
+      "step_count": 0,
+      "step_numbers": [],
+      "step_seconds": [],
+      "step_seconds_mean": null,
+      "step_seconds_median": null,
+      "step_seconds_min": null,
+      "step_seconds_max": null,
+      "step_seconds_sum": null,
+      "completion_marker_observed": false,
+      "oom_marker_observed": true,
+      "error_markers": [
+        "CUDA\\s+Error",
+        "out\\s+of\\s+memory"
+      ],
+      "checkpoint_directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\checkpoints\\subdiv16",
+      "checkpoint_files": [],
+      "checkpoint_expected": false,
+      "checkpoint_output": null,
+      "process_capture_after_run": {
+        "captured_at_utc8": "2026-09-19T17:13:38+08:00",
+        "darknet_process_count": 0,
+        "powershell_process_count": 1,
+        "interpretation": "当前捕获无 Darknet 进程；因 runner_result 缺失，这不能单独证明 child 的退出码。"
+      },
+      "runner_result": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\trials\\subdiv16\\runner_result.json",
+        "exists": false,
+        "exit_code": "UNKNOWN_NO_RUNNER_RESULT",
+        "limitation": "监视器包装层未生成 runner_result.json；只能以日志完成/OOM 标记、最终权重和事后无进程状态作为可复现证据，不能记录 child 的数值退出码或 taskkill 返回码。"
+      },
+      "c_drive_free_at_capture_bytes": 46754643968,
+      "failure_location": {
+        "phase": "初始化/第 1 步前的 CUDA 内存分配",
+        "source_log_evidence": "Darknet error location: D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\official_darknet_seeded\\src\\dark_cuda.c, cuda_make_array(), line #484",
+        "error_log_evidence": "CUDA Error: out of memory: No error",
+        "step_summary_observed": false,
+        "checkpoint_files_observed": 0,
+        "residual_darknet_processes_at_capture": 0
+      },
+      "checkpoint_absence_evidence": {
+        "directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_full608_accel_bench_r1\\checkpoints\\subdiv16",
+        "files": [],
+        "final_weight_exists": false,
+        "statement": "subdiv16 checkpoint 目录为空；没有生成权重。"
+      }
+    }
+  },
+  "process_state_after_all_trials": {
+    "captured_at_utc8": "2026-09-19T17:13:38+08:00",
+    "darknet_process_count": 0,
+    "interpretation": "事后未发现 Darknet 进程；这是当前快照，不是对整个运行期间进程树的连续记录。"
+  },
+  "limitations": [
+    "subdiv64 短跑使用 max_batches=20，不是正式 max_batches=6000。",
+    "短跑 loss/耗时不能证明检测精度、泛化或最终模型选择。",
+    "最终权重虽已生成，但未进行独立 GPU 推理、验证集指标、test 或 robustness 评估。",
+    "包装层未生成 runner_result.json，child 退出码只能标记为未知；完成依据为 20 个完整步摘要、训练结束提示、final.weights 和事后无进程。",
+    "C 盘余量是 preflight 与生成报告时的采样，不是完整运行期间的连续时序。"
+  ],
+  "subdiv64_step_timing_evidence": {
+    "source": "trials\\subdiv64\\darknet.stdout.log",
+    "pattern": "每个 1..20 摘要行的 seconds 字段",
+    "all_steps_present": true,
+    "completion_marker": "If you want to train from the beginning, then use flag in the end of training command: -clear",
+    "final_weight_marker": "Saving weights to ..._final.weights"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "task": "S1-T02-D3-TINY416-FP32-CHECKPOINT-SIZE-R1",
+  "created_at_utc8": "2026-09-18T23:56:01+08:00",
+  "status": "MEASURED_EXISTING_FP32_DARKNET_CHECKPOINT_FILE_SIZE",
+  "git_binding": {
+    "repository": "D:\\FPGA_Competition",
+    "head": "70f55a1c0321152151a6653b2d8a9b147e4154ea"
+  },
+  "inputs": {
+    "training_execution_report": {
+      "path": "report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r2_retry01.json",
+      "sha256": "6ebc69807fd6e08f8c33dab7204c193a9fc98646de9c329fd02c455c6c1fac0e",
+      "status": "EXECUTED_REVIEW_REQUIRED",
+      "exit_code": 0,
+      "checkpoint_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+      "checkpoint_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+      "checkpoint_size_bytes": 23558276
+    },
+    "reviewer_execution_evidence": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\review_s1_t02_d8_retry01_execution_r2\\review_s1_t02_d8_retry01_execution_r2.json",
+      "sha256": "a177e1d60e53ec58f829f370370e50ed85dc7f14c1cdd1c08dcb4b7d85a84ca4",
+      "review": "PASS",
+      "check_count": 29
+    },
+    "d3_scalar_proxy": {
+      "path": "report/evidence/S1-T02/20260918_s1_t02_d3_weight_payload_estimate_r1.json",
+      "sha256": "9da748b290cdefdaecd88d2c4b0bcd0fbfeadf1dae90f7deec659a16237be2ac",
+      "status": "ESTIMATE_ONLY_SCALAR_PAYLOAD_PROXY",
+      "tiny416_fp32_scalar_proxy_bytes": 23545840
+    }
+  },
+  "measurement": {
+    "kind": "existing_file_size_and_sha256",
+    "classification": "按 D8 formal r2 训练报告绑定的现存 FP32 Darknet checkpoint 文件",
+    "checkpoint_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+    "checkpoint_size_bytes": 23558276,
+    "checkpoint_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+    "checkpoint_and_alias_observations": [
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+        "size_bytes": 23558276,
+        "sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_final.weights",
+        "size_bytes": 23558276,
+        "sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_last.weights",
+        "size_bytes": 23558276,
+        "sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a"
+      }
+    ],
+    "all_names_hash_and_size_match": true
+  },
+  "comparison": {
+    "formula": "measured_checkpoint_file_bytes - D3_tiny416_fp32_scalar_proxy_bytes",
+    "measured_checkpoint_file_bytes": 23558276,
+    "d3_fp32_scalar_proxy_bytes": 23545840,
+    "difference_bytes": 12436,
+    "interpretation": "只报告算术差值，不推测差值原因。"
+  },
+  "interpretation_limits": [
+    "测得的是现存 checkpoint 文件的字节长度与 SHA-256，不读取或解析权重张量内容。",
+    "此文件大小不代表 INT8 文件大小、参数标量代理、封装部署体积、整体 storage、上界或板上容量。",
+    "不得把单文件测量升级为 D3 整体存储预算或板上实测结论。"
+  ],
+  "execution": {
+    "gpu_used": false,
+    "training_executed": false,
+    "inference_executed": false,
+    "network_used": false,
+    "weight_tensor_contents_parsed": false,
+    "synthesis_executed": false,
+    "board_measurement_executed": false
+  },
+  "output_conflict_checked": true
+}

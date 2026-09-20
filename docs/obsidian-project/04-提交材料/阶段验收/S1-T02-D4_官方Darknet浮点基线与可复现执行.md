@@ -39,13 +39,13 @@
 
 本轮 seeded build 配置和构建均退出 0。tiny416 pilot 以 `max_batches=100` 启动，真实推进到 8/100，随后退出码 `-1073741510`（Windows `0xC000013A`），未生成 checkpoint。日志中未发现 OOM、NaN、Inf 或损坏输入标记，但由于非零退出和无 checkpoint，D4 报告保持 `BLOCKED`，不把 8 步 loss 当作正式训练结果，也不重跑第二个 pilot。
 
-### full608 formal_r3 CPU RAM 失败与当前重试
+### full608 formal 失败与 random=0 重试结果
 
 full608 formal_r3 使用 `random=1`、`subdivisions=64` 和 seed `424242`，实际推进到 `1164/6000` 后在 `image.c:807 make_image()` 因 CPU `calloc` 失败退出码 `2`。失败前隔离诊断观测到 private memory 约 `14.96 GB`、free commit 约 `5.37 GB`。1000 checkpoint 存在（`256102140` bytes，SHA-256 `9306AA18C04DC68373DA121E9D69BE0A0D0920003C736EBF627D2361372F3CD5`），但本次没有 `6000` 或 `final` 权重，不能作为完成的正式训练证据。
 
 失败证据入口为 `report/evidence/S1-T02/20260919_s1_t02_d4_full608_formal_r3_cpu_ram_failure.json`（SHA-256 `CCF967C88B89CDDADFDE68B56196BAF55CF1221C57248AB98A48F3541BF3E6A7`）及同名 `_summary.md`（SHA-256 `A09DE3F914A71614040B9BD0485B3AC94CE33FFAF338FBEDFA081E2564903CF5`），对应证据提交为 `047cab6`。该证据只记录失败事实，不产生精度、最终模型或阶段验收结论。
 
-当前 retry r2 使用固定 `608×608`、`random=0` 和独立目录 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r5_random0\workflow_formal_r2`，训练仍在进行，尚无正式完成报告或最终权重，不能写成通过。
+当前重试使用固定 608×608、random=0、subdivisions=64、seed 424242 和全新隔离目录 D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r6_random0\workflow_formal_r3。工作流于 2026-09-20 17:19:37 因预设总超时 21600 秒停止，报告状态 EXECUTION_FAILED、工作流退出码 2、Darknet 命令退出码 1，最后观察到 1786/6000 步。报告 SHA-256 为 B82CC1D0F8375207838A9C41263C7594B9F6521965B01F988F0C8E4D016245FF，日志 SHA-256 为 AB52D2168E1BD6C2A8C0387E59F3FE6D8FFD842888745614CD5955CE1DF5B102。生成的 1000 checkpoint（256102140 bytes，SHA-256 C4D28C6605D105A1B97D51E41C8E35F8D18754DAF7AAB62F98A5895CAB6B33B3）与 last checkpoint（同大小，SHA-256 B37348630D3EE5311D6CE044076B48BDC09822B34153285E3CCBC81275154E6C）仅为中间恢复材料；没有 6000 或 final 权重。硬超时证据为 report/evidence/S1-T02/20260920_s1_t02_d4_full608_random0_timeout_r3.json（SHA-256 DF7DAC7AD8B7A9BDABF1A8DDD6AAC42DF1D5E46D9040996A665EE2701A65170F）及同名 _summary.md（SHA-256 D786EE3EA0AA397C59D950B93AAD2525905669D272407B70EA2DDF7ED3A37093）。日志未发现 NaN、Inf、OOM、calloc 或 CUDA 错误关键词；该证据只记录未完成事实，不产生训练完成、精度、最终模型或阶段验收结论。
 
 ## 复现与检查命令
 
@@ -63,4 +63,4 @@ git diff --check
 
 ## 当前未执行项和阻断
 
-尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 formal_r3 已有上述失败证据，当前 random=0 retry r2 尚在执行。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。
+尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 formal_r3 已有上述失败证据，当前 random=0 retry r3 已因硬超时未完成。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。

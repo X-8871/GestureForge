@@ -47,6 +47,10 @@ full608 formal_r3 使用 `random=1`、`subdivisions=64` 和 seed `424242`，实�
 
 当前重试使用固定 608×608、random=0、subdivisions=64、seed 424242 和全新隔离目录 D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r6_random0\workflow_formal_r3。工作流于 2026-09-20 17:19:37 因预设总超时 21600 秒停止，报告状态 EXECUTION_FAILED、工作流退出码 2、Darknet 命令退出码 1，最后观察到 1786/6000 步。报告 SHA-256 为 B82CC1D0F8375207838A9C41263C7594B9F6521965B01F988F0C8E4D016245FF，日志 SHA-256 为 AB52D2168E1BD6C2A8C0387E59F3FE6D8FFD842888745614CD5955CE1DF5B102。生成的 1000 checkpoint（256102140 bytes，SHA-256 C4D28C6605D105A1B97D51E41C8E35F8D18754DAF7AAB62F98A5895CAB6B33B3）与 last checkpoint（同大小，SHA-256 B37348630D3EE5311D6CE044076B48BDC09822B34153285E3CCBC81275154E6C）仅为中间恢复材料；没有 6000 或 final 权重。硬超时证据为 report/evidence/S1-T02/20260920_s1_t02_d4_full608_random0_timeout_r3.json（SHA-256 DF7DAC7AD8B7A9BDABF1A8DDD6AAC42DF1D5E46D9040996A665EE2701A65170F）及同名 _summary.md（SHA-256 D786EE3EA0AA397C59D950B93AAD2525905669D272407B70EA2DDF7ED3A37093）。日志未发现 NaN、Inf、OOM、calloc 或 CUDA 错误关键词；该证据只记录未完成事实，不产生训练完成、精度、最终模型或阶段验收结论。
 
+随后创建的恢复候选 r7、r8 均由工作流在预检阶段安全阻断，未创建 Darknet 子进程：r7 误用 `_last.weights`，报告 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r7_resume1500\reports\workflow_resume_r4.json` SHA-256 `756F7743E776E4533FBFA6EA2989D25561C591879289BACE982A68A967780A42A`；r8 的 cfg 基名与编号 checkpoint 不一致，报告 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d4_full608_formal_r8_resume1000\reports\workflow_resume_r5.json` SHA-256 `701A6F92A9F8F7187B7A85468490F1175114925F2B7AFF70ADDDD79B3CDB9013`。两次均为 `BLOCKED_PREFLIGHT`、命令数为0，不能解释为训练失败或训练结果。
+
+当前恢复候选 r9 使用与 cfg 基名完全一致的编号 checkpoint `yolov4_5class_608_formal_r6_random0_1000.weights`（256102140 bytes，SHA-256 `C4D28C6605D105A1B97D51E41C8E35F8D18754DAF7AAB62F98A5895CAB6B33B3`），独立计划 Reviewer PASS（结果 SHA-256 `C74E2E2C7BD68E5FE547A0FEFBFF92B07F9C803B2139F3C4A173E688A08C21E7`），预检 PASS。r9 于 2026-09-20 23:02:30 以隐藏脱离方式启动，工作流 PID 468、Darknet PID 21396；日志已观察到 `1002/6000`，当前使用总超时 86400 秒、无进度超时 300 秒。启动门证据为 `report/evidence/S1-T02/20260920_s1_t02_d4_full608_random0_resume1000_launch_gate_r6.json`（SHA-256 `92E281097784E6C64B09F360B6FE2DAC6640D5B270C34F1A08B5E6AE8DB8C2F5`），独立启动门 Reviewer PASS 结果 SHA-256 `81D666E44EA628EDB0E06A0764354A00E943D22D1FAD9EA846829886E24F65FE`。日志仍在写入，启动门中的日志哈希是共享读取快照；最终训练报告和最终 checkpoint 未生成前，不得宣称 formal 完成、精度通过或阶段验收。
+
 ## 复现与检查命令
 
 从仓库根目录运行：
@@ -63,4 +67,4 @@ git diff --check
 
 ## 当前未执行项和阻断
 
-尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 formal_r3 已有上述失败证据，当前 random=0 retry r3 已因硬超时未完成。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。
+尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 formal_r3 和 random=0 retry r3 已有失败/超时证据，r9 恢复训练仍在执行，尚无最终报告或 6000/final 权重。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。

@@ -1,6 +1,6 @@
 # 项目状态
 
-更新：2026-09-19（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
+更新：2026-09-20（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
 
 ## 目标、阶段与基线
 
@@ -138,6 +138,7 @@
 - 2026-09-20：D4 阶段说明文档补录 full608 formal_r3 的 CPU `calloc` 失败、证据哈希、当前 retry r2 状态及过时 full 权重描述修正；独立 Reviewer PASS，提交 `40ccdcd`。
 - 2026-09-20：retry r2 计划 `formal_plan_random0_retry_r2.json` 外部 SHA `50FE4D62131B8B7FFA7E8BFD277FF80B178E08ADB1CF6ED776314C4B651EC0E0` 经独立 Reviewer PASS（结果 SHA `5D8E5A6E9230EBD7A952557D9AC91FBCDCEA656FD0E0EB02A4E27766DAD76DC3`）；系统 Python 与显式 pthreads/CUDA PATH 的 harmless probe PASS，preflight SHA `51DEEF9A0CF7EDF86EB853B1AE078EEF850955002112B6648766A1A844357A1B`，launch gate SHA `53335C4B457611A3491270E6D36409E96ADC3B878DF0B11FD569215FAD0A335B`。随后脱离当前命令启动 `workflow_formal_r2`，父进程 PID `5428`、Darknet child PID `19908`，日志已持续增长并在约 `150/6000` 步观察到 `11.687–14.036 s/step`；报告和 checkpoint 尚未生成，当前仍是进行中的正式候选训练，不能据此作精度或阶段结论。按当前速度 6000 步预计约20小时，超过21600秒硬时限，后续须以工作流最终报告/停止原因为准，不擅自延长或改变门槛。
 - 2026-09-20：上述 random0 retry r2 在日志推进至 `254/6000` 后异常中断；最后日志 SHA `AE533CFEF20B1454CBCDE47CFAAD9CAED352FA18AB6E21690A5E5F7EB8DCF6D8`、大小 `9,313,951` bytes，workflow 最终报告不存在、checkpoint 为0、残留 lock 文件，日志未出现 NaN/Inf/OOM/CUDA/calloc 或错误关键词，原因保持 `UNKNOWN_EXTERNAL_TERMINATION`，不能归因 CPU/GPU OOM。异常证据经独立 Reviewer PASS（结果 SHA `486ECBF83480470BBC790E5EE0EA024185B7379C9511C95EB3D0237916321C43`），提交 `7e89fd9`；该次没有正式模型或精度结论。
+- 2026-09-20 11:15:09：在 random0 r2 于254/6000未知外部中断后，建立全新隔离 s1_t02_d4_full608_formal_r6_random0 与 workflow_formal_r3。重启计划外部 SHA 4E414C2409DB8DE48DCB3519E43052FD33A4B63C1C495DC486F860C22E9BE98F，独立 Reviewer PASS 结果 C:\Users\22061\AppData\Local\Temp\r6_review_87537025033e4c3787c1a1717a794d81.json SHA 4FCF7645141D7142646A1DF8789DA457D5EA58EF607693166339CB4C703A2B95；preflight PASS SHA 3066777EF6FD9B3FEE2F2B9495DA364DFD92EB657E414ABD05F20AB660AA7857，launcher SHA E8453B214C74BBACD88BFB65E44D8A497F7CA0AB4F199048728FE5F87DC1ECAE。11:15:09 隐藏启动 wrapper/workflow/Darknet PID 18448/6576/10044，日志已进入 3/6000；启动门证据 report/evidence/S1-T02/20260920_s1_t02_d4_full608_random0_launch_gate_r3.json SHA E5BDDE8ED3DFD3A2FEC87054A1312E8175E322CB7CEF1F193DE452BC978DAF82。当前仍无最终报告/正式 checkpoint/精度结论；约12.9秒/步，预估超过21600秒硬时限，按预设停止条件监控。
 - 2026-09-18：D4-W5 官方 full 权重来源真实核验 r5 独立 Reviewer `PASS`。报告 `report/evidence/S1-T02/20260918_s1_t02_d4_full_weight_provenance_r5.json` SHA `768022d56bde61f4b7b24623b76ce0c0ab3edea0252a6afb4b7d1b6e72fe6fc8`，摘要 SHA `01035b4247baacf5af6ea28581b757d24b722b8a65011dfc4414540ae1923ed8`；复审 JSON `C:\Users\22061\AppData\Local\Temp\review_s1_t02_d4_w5_provenance_r5\review_s1_t02_d4_w5_provenance_r5.json` SHA `4510d18fc5e680cbf43e47c56c7643ded630cb49cfdb0071c11fa961c7a33600`。真实请求读取170,038,676字节，302→200，远端、固定期望和本地权重前后快照 SHA 一致；15项固定依赖全部匹配，W5 离线测试43项通过。原始 stdout/stderr 在外部 run 目录；许可证仍 `UNRESOLVED`，仅为字节来源核验，不代表法律许可或精度/阶段验收。
 - 2026-09-18：W5 timeout/dispatcher R5 生命周期问题由 R6 关闭：父级先登记真实 dispatcher，readiness 与清理均受总期限约束；延迟 ready 测试验证无晚到结果被接纳、无孤儿 worker/reader/dispatcher。R6 独立 Reviewer PASS，W5 专项45/45、全量172/172通过；实现/测试已提交 `b731254`。
 

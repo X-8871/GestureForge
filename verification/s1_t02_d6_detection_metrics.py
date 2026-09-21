@@ -28,7 +28,7 @@ from typing import Any, Iterable, Sequence
 EXPECTED_CLASSES = ["fist", "palm", "one", "two_up", "three"]
 G0_DECISION_DATE = "2026-09-18"
 G0_POLICY_DOCUMENT_PATH = "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md"
-G0_POLICY_DOCUMENT_SHA256 = "a8857296c3c2c9b5471fe80353a96e664b11a94168ae9856957d6b2d342b5865"
+G0_POLICY_DOCUMENT_SHA256 = "1fdfdb74281ccd14271c79a9622ac14c743f489dce2a7e420f945b23b4bddaff"
 COORDINATE_POLICY_DECISION_DATE = "2026-09-21"
 COORDINATE_POLICY = "clip_finite_positive_xyxy_to_unit_range"
 COORDINATE_POLICY_DIAGNOSTIC_PATH = "report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_coordinate_clip_impact_r1.json"
@@ -489,7 +489,10 @@ def _yolo_to_xyxy(
     center_x, center_y, width, height = (
         _finite(value, f"{field}.{name}") for value, name in zip(values, ("center_x", "center_y", "width", "height"))
     )
-    if not (0.0 <= center_x <= 1.0 and 0.0 <= center_y <= 1.0 and 0.0 < width <= 1.0 and 0.0 < height <= 1.0):
+    if allow_out_of_range:
+        if width <= 0.0 or height <= 0.0:
+            raise EvaluationError(f"{field} 的 width 和 height 必须为正数")
+    elif not (0.0 <= center_x <= 1.0 and 0.0 <= center_y <= 1.0 and 0.0 < width <= 1.0 and 0.0 < height <= 1.0):
         raise EvaluationError(f"{field} 必须是合法归一化 YOLO 坐标")
     box = (center_x - width / 2.0, center_y - height / 2.0, center_x + width / 2.0, center_y + height / 2.0)
     if allow_out_of_range:

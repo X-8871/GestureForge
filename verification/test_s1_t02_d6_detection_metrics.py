@@ -148,6 +148,11 @@ class DetectionMetricsTest(unittest.TestCase):
         self.assertEqual(prediction.raw_box, (-0.05, 0.3, 0.15000000000000002, 0.7))
         self.assertTrue(prediction.coordinate_clipped)
 
+        wide = self._load_and_evaluate(self._records([self._relative_object(width=1.2)], []))
+        self.assertEqual(wide["coordinate_policy"]["clipped_box_count"], 1)
+        wide_prediction = next(iter(wide["predictions_after_nms"].values()))[0]
+        self.assertTrue(wide_prediction.coordinate_clipped)
+
     def test_prediction_coordinates_reject_zero_area_after_clip_and_raw_non_positive(self) -> None:
         """完全在图像外或原始非正面积框不能被 clip 静默接受。"""
 

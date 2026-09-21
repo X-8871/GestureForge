@@ -136,6 +136,36 @@ class DetectionMetricsTest(unittest.TestCase):
             with self.assertRaises(metrics.EvaluationError):
                 metrics.bind_predictions(prediction, entries, context)
 
+    def test_prediction_coordinates_clip_and_keep_raw_diagnostics(self) -> None:
+        """有限正面积的预测框裁剪后参与评估，并保留 raw 坐标诊断。"""
+
+        relative = self._relative_object(center_x=0.05, width=0.2)
+        result = self._load_and_evaluate(self._records([relative], []))
+        self.assertEqual(result["coordinate_policy"]["raw_out_of_range_box_count"], 1)
+        self.assertEqual(result["coordinate_policy"]["clipped_box_count"], 1)
+        prediction = next(iter(result["predictions_after_nms"].values()))[0]
+        self.assertEqual(prediction.box, (0.0, 0.3, 0.15000000000000002, 0.7))
+        self.assertEqual(prediction.raw_box, (-0.05, 0.3, 0.15000000000000002, 0.7))
+        self.assertTrue(prediction.coordinate_clipped)
+
+    def test_prediction_coordinates_reject_zero_area_after_clip_and_raw_non_positive(self) -> None:
+        """完全在图像外或原始非正面积框不能被 clip 静默接受。"""
+
+        fixture = self._fixture()
+        prediction = fixture["root"] / "bad_coordinates.json"
+        cases = [
+            self._records([{"name": "fist", "confidence": 0.9, "xyxy": [1.1, 0.2, 1.2, 0.3]}], []),
+            self._records([{"name": "fist", "confidence": 0.9, "xyxy": [0.6, 0.2, 0.4, 0.3]}], []),
+        ]
+        with self._bind_fixture_manifest(fixture) as context:
+            entries = metrics.load_manifest(context)
+            for records in cases:
+                prediction.write_text(
+                    json.dumps({"coordinate_format": "xyxy_normalized", "records": records}), encoding="utf-8"
+                )
+                with self.assertRaises(metrics.EvaluationError):
+                    metrics.bind_predictions(prediction, entries, context)
+
     def test_jsonl_coordinate_format_conflict_is_rejected(self) -> None:
         """JSONL 后续记录不能改变前序记录的坐标格式。"""
 

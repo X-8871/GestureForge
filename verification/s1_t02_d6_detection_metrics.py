@@ -28,7 +28,11 @@ from typing import Any, Iterable, Sequence
 EXPECTED_CLASSES = ["fist", "palm", "one", "two_up", "three"]
 G0_DECISION_DATE = "2026-09-18"
 G0_POLICY_DOCUMENT_PATH = "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md"
-G0_POLICY_DOCUMENT_SHA256 = "62d8e11c90c6cd1711684725748e27ba6e72b3695ab47f3f2fd3ac7008e6f1dd"
+G0_POLICY_DOCUMENT_SHA256 = "a8857296c3c2c9b5471fe80353a96e664b11a94168ae9856957d6b2d342b5865"
+COORDINATE_POLICY_DECISION_DATE = "2026-09-21"
+COORDINATE_POLICY = "clip_finite_positive_xyxy_to_unit_range"
+COORDINATE_POLICY_DIAGNOSTIC_PATH = "report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_coordinate_clip_impact_r1.json"
+COORDINATE_POLICY_DIAGNOSTIC_SHA256 = "88896cedea23f8cb50ea981c1a7072f1bae41871dbd425f575ec4f8ec423f569"
 APPROVED_TEST_MANIFEST_SHA256 = "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
 APPROVED_TEST_IMAGE_COUNT = 25484
 APPROVED_SPLIT_IMAGE_COUNTS = {"train": 118001, "val": 15195, "test": 25484}
@@ -108,6 +112,8 @@ class Prediction:
     confidence: float
     box: tuple[float, float, float, float]
     source_order: int
+    raw_box: tuple[float, float, float, float] | None = None
+    coordinate_clipped: bool = False
 
 
 def _now_iso() -> str:
@@ -455,7 +461,27 @@ def _checked_box(box: Sequence[Any], field: str) -> tuple[float, float, float, f
     return values
 
 
-def _yolo_to_xyxy(values: Sequence[Any], field: str) -> tuple[float, float, float, float]:
+def _clip_prediction_box(
+    box: Sequence[Any], field: str
+) -> tuple[tuple[float, float, float, float], tuple[float, float, float, float]]:
+    """校验预测框并将有限正面积框裁剪到单位图像范围。"""
+
+    if not isinstance(box, (list, tuple)) or len(box) != 4:
+        raise EvaluationError(f"{field} 必须是四元素 xyxy 数组")
+    raw_values = tuple(_finite(value, f"{field}[{index}]") for index, value in enumerate(box))
+    raw_left, raw_top, raw_right, raw_bottom = raw_values
+    if raw_right <= raw_left or raw_bottom <= raw_top:
+        raise EvaluationError(f"{field} 原始框必须满足 right>left 且 bottom>top")
+    clipped = tuple(min(max(value, 0.0), 1.0) for value in raw_values)
+    left, top, right, bottom = clipped
+    if right <= left or bottom <= top:
+        raise EvaluationError(f"{field} 裁剪后必须满足 right>left 且 bottom>top")
+    return raw_values, clipped
+
+
+def _yolo_to_xyxy(
+    values: Sequence[Any], field: str, allow_out_of_range: bool = False
+) -> tuple[float, float, float, float]:
     """将归一化 YOLO 中心点格式转换为归一化 xyxy。"""
 
     if not isinstance(values, (list, tuple)) or len(values) != 4:
@@ -465,10 +491,10 @@ def _yolo_to_xyxy(values: Sequence[Any], field: str) -> tuple[float, float, floa
     )
     if not (0.0 <= center_x <= 1.0 and 0.0 <= center_y <= 1.0 and 0.0 < width <= 1.0 and 0.0 < height <= 1.0):
         raise EvaluationError(f"{field} 必须是合法归一化 YOLO 坐标")
-    return _checked_box(
-        (center_x - width / 2.0, center_y - height / 2.0, center_x + width / 2.0, center_y + height / 2.0),
-        field,
-    )
+    box = (center_x - width / 2.0, center_y - height / 2.0, center_x + width / 2.0, center_y + height / 2.0)
+    if allow_out_of_range:
+        return box
+    return _checked_box(box, field)
 
 
 def parse_yolo_label(
@@ -627,10 +653,22 @@ def parse_prediction_record(
             if not isinstance(relative, dict):
                 raise EvaluationError(f"预测 {record_index}/{object_index}:relative_coordinates 必须是对象")
             values = [relative.get(key) for key in ("center_x", "center_y", "width", "height")]
-            box = _yolo_to_xyxy(values, f"预测 {record_index}/{object_index}:relative_coordinates")
+            raw_box = _yolo_to_xyxy(values, f"预测 {record_index}/{object_index}:relative_coordinates", allow_out_of_range=True)
+            raw_box, box = _clip_prediction_box(raw_box, f"预测 {record_index}/{object_index}:relative_coordinates")
         else:
-            box = _checked_box(object_value["xyxy"], f"预测 {record_index}/{object_index}:xyxy")
-        result.append(Prediction(image_key, class_id, name, confidence, box, object_index))
+            raw_box, box = _clip_prediction_box(object_value["xyxy"], f"预测 {record_index}/{object_index}:xyxy")
+        result.append(
+            Prediction(
+                image_key,
+                class_id,
+                name,
+                confidence,
+                box,
+                object_index,
+                raw_box,
+                raw_box != box,
+            )
+        )
     return result
 
 
@@ -870,6 +908,8 @@ def evaluate_metrics(
         key: stable_nms(value, score_threshold, nms_iou, max_outputs)
         for key, value in bound_predictions.items()
     }
+    all_predictions = [prediction for values in bound_predictions.values() for prediction in values]
+    clipped_predictions = [prediction for prediction in all_predictions if prediction.coordinate_clipped]
     per_class: dict[str, Any] = {}
     ap_by_threshold: dict[str, dict[str, float | None]] = {name: {} for name in EXPECTED_CLASSES}
     for class_id, name in enumerate(EXPECTED_CLASSES):
@@ -905,6 +945,26 @@ def evaluate_metrics(
         "ground_truth_box_count": sum(len(values) for values in ground_truths.values()),
         "prediction_box_count_raw": sum(len(values) for values in bound_predictions.values()),
         "prediction_box_count_after_score_nms": sum(len(values) for values in filtered.values()),
+        "coordinate_policy": {
+            "name": COORDINATE_POLICY,
+            "decision_date": COORDINATE_POLICY_DECISION_DATE,
+            "raw_box_must_be_finite": True,
+            "raw_box_must_have_positive_area": True,
+            "operation": "min(max(value, 0), 1) per xyxy coordinate",
+            "clipped_box_must_have_positive_area": True,
+            "raw_reject_diagnostic": {
+                "path": COORDINATE_POLICY_DIAGNOSTIC_PATH,
+                "sha256": COORDINATE_POLICY_DIAGNOSTIC_SHA256,
+                "status": "REFERENCE_DIAGNOSTIC_ONLY",
+            },
+            "raw_out_of_range_box_count": sum(
+                1 for prediction in all_predictions if prediction.raw_box is not None and prediction.raw_box != prediction.box
+            ),
+            "clipped_box_count": len(clipped_predictions),
+            "clipped_box_count_after_score_nms": sum(
+                1 for values in filtered.values() for prediction in values if prediction.coordinate_clipped
+            ),
+        },
         "metrics": {
             "mAP@0.5": map_50,
             "mAP@0.5:0.95": map_50_95,
@@ -959,7 +1019,15 @@ def _json_safe(value: Any) -> Any:
     if isinstance(value, tuple):
         return [_json_safe(item) for item in value]
     if isinstance(value, Prediction):
-        return {"class_id": value.class_id, "name": value.name, "confidence": value.confidence, "xyxy_normalized": list(value.box), "source_order": value.source_order}
+        return {
+            "class_id": value.class_id,
+            "name": value.name,
+            "confidence": value.confidence,
+            "xyxy_normalized": list(value.box),
+            "raw_xyxy_normalized": list(value.raw_box) if value.raw_box is not None else None,
+            "coordinate_clipped": value.coordinate_clipped,
+            "source_order": value.source_order,
+        }
     if isinstance(value, Path):
         return str(value)
     return value
@@ -992,6 +1060,7 @@ def _summary_text(report: dict[str, Any]) -> str:
         f"- score threshold：`{report['evaluation']['score_threshold']}`；NMS：类别内 greedy IoU=`{report['evaluation']['nms_iou']}`；每图最大输出=`{report['evaluation']['max_outputs']}`。",
         "- AP：IoU 0.50:0.05:0.95、101-point all-point interpolation、五类宏平均；无 GT 类别保留 support 并不静默计入0。",
         f"- mAP@0.5：`{metrics.get('mAP@0.5')}`；mAP@0.5:0.95：`{metrics.get('mAP@0.5:0.95')}`（仅夹具/当前输入结果）。",
+        f"- 坐标政策：`{report['evaluation']['coordinate_policy']['name']}`；有限正面积框逐坐标裁剪到 `[0,1]`，裁剪后零面积仍拒绝；本次 raw 越界框=`{report['coordinate_diagnostics']['raw_out_of_range_box_count']}`，实际裁剪=`{report['coordinate_diagnostics']['clipped_box_count']}`。",
         "",
         "## 绑定与限制",
         "",
@@ -1006,8 +1075,8 @@ def _summary_text(report: dict[str, Any]) -> str:
         "",
         "## 验证",
         "",
-        "- 评估器使用显式 relative_coordinates 或 xyxy_normalized，严格拒绝缺失、重复、额外、错序 filename/frame_id、非法类别、非法坐标和输出覆盖。",
-        "- 预测输出中的对象字段保留 class_id/name、confidence 和归一化 xyxy；原始预测输入保持外部/夹具位置，不被报告覆盖。",
+        "- 评估器使用显式 relative_coordinates 或 xyxy_normalized，严格拒绝缺失、重复、额外、错序 filename/frame_id、非法类别、非有限/非正面积坐标和输出覆盖；有限正面积的越界框按冻结政策裁剪。",
+        "- 预测输出中的对象字段保留 class_id/name、confidence、裁剪后和 raw 归一化 xyxy；原始预测输入保持外部/夹具位置，不被报告覆盖。",
     ]
     return "\n".join(lines) + "\n"
 
@@ -1111,10 +1180,21 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "nms_iou": nms_iou,
             "max_outputs": args.max_outputs,
             "coordinate_formats": ["darknet_relative_coordinates", "xyxy_normalized"],
+            "coordinate_policy": {
+                "name": COORDINATE_POLICY,
+                "decision_date": COORDINATE_POLICY_DECISION_DATE,
+                "description": "有限且原始正面积的预测框逐坐标裁剪到[0,1]；裁剪后零面积或完全在图像外的框拒绝。",
+                "raw_reject_diagnostic": {
+                    "path": COORDINATE_POLICY_DIAGNOSTIC_PATH,
+                    "sha256": COORDINATE_POLICY_DIAGNOSTIC_SHA256,
+                    "status": "REFERENCE_DIAGNOSTIC_ONLY",
+                },
+            },
             "matching": "同图同类一对一，IoU>=阈值，score 降序稳定排序",
             "test_and_robustness_retuning": "forbidden",
         },
         "counts": {key: measured[key] for key in ("image_count", "ground_truth_box_count", "prediction_box_count_raw", "prediction_box_count_after_score_nms")},
+        "coordinate_diagnostics": measured["coordinate_policy"],
         "sample_policy": sample_policy,
         "g0_open_items": g0_open_items,
         "metrics": measured["metrics"],

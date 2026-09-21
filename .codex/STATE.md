@@ -1,6 +1,6 @@
 # 项目状态
 
-更新：2026-09-20（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
+更新：2026-09-21（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
 
 ## 目标、阶段与基线
 
@@ -41,7 +41,7 @@
 ## Wong 已确认的 S1-T02 G0 决策
 
 - 2026-09-16：同意“官方 test 作为主要最终测试集，并另建独立鲁棒性测试集”的数据口径。当前官方 test 保留为最终基准；no_hand、non-target、多手、遮挡和小目标等鲁棒性指标使用独立、固定且不与 train/val/test 人员或 session 重叠的集合。已提供的 5 张 no_hand 继续保持 train 3 张、val 2 张，不移入 test；它们不单独代表正式 no_hand 泛化率。
-- 2026-09-18：批准当前 manifest（SHA-256 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`）的全部官方 test 共25,484张；另建独立 robustness set，五个目标类各至少100张唯一图片，`no_hand`、`non-target`、多手、遮挡、小目标五个条件 bucket 各至少100张唯一图片。`no_hand` 为负样本条件、不是第六类；每张图可计入多个 condition bucket 仅限有标注/审计证据支持。robustness set 的 person 和 session 均须与 train/val/test 隔离。数量已批准，但 robustness set 尚未证实构建/绑定；D6 的其他 G0 项仍未关闭。D6 口径文档 SHA `62d8e11c90c6cd1711684725748e27ba6e72b3695ab47f3f2fd3ac7008e6f1dd`，Reviewer R1 PASS JSON SHA `8c54340837b87453488323f89a5d61abb76f241fbecc182560490351b249520e`。
+- 2026-09-18：批准当前 manifest（SHA-256 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`）的全部官方 test 共25,484张；另建独立 robustness set，五个目标类各至少100张唯一图片，`no_hand`、`non-target`、多手、遮挡、小目标五个条件 bucket 各至少100张唯一图片。`no_hand` 为负样本条件、不是第六类；每张图可计入多个 condition bucket 仅限有标注/审计证据支持。robustness set 的 person 和 session 均须与 train/val/test 隔离。数量已批准，但 robustness set 尚未证实构建/绑定；D6 的其他 G0 项仍未关闭。D6 口径文档当前 SHA `1fdfdb74281ccd14271c79a9622ac14c743f489dce2a7e420f945b23b4bddaff`，Reviewer R1 PASS JSON SHA `8c54340837b87453488323f89a5d61abb76f241fbecc182560490351b249520e`。
 - 2026-09-16：接受评估口径预设：报告 mAP@0.5、mAP@0.5:0.95（IoU 0.50:0.05:0.95、101-point AP、五类宏平均）、各类 precision/recall；同类别一对一匹配、按 score 降序；no_hand 误检率≤5%，non-target 误检率≤10% 为辅助门槛。score threshold 仅在 val 的 0.25–0.50 范围内选择后固定，NMS 为类别内 greedy、IoU=0.45；每图最大输出框数由 20 调整为 15。test 和鲁棒性测试均不得重新调参；该项已确认，但不等于 S1-T02 整体 G0 通过。
 - 2026-09-16：接受模型/训练/恢复预设：PC 对照包含完整 YOLOv4 608×608，候选包含 YOLOv4-tiny 320×320 与 416×416；tiny 使用官方 `yolov4-tiny.conv.29`，完整模型使用官方 `yolov4.conv.137`，正式训练不使用 20/200 步诊断权重。训练参数预设为 batch=64、tiny subdivisions=16、完整模型 subdivisions=32、SGD momentum=0.9、decay=0.0005、tiny learning_rate=0.00261、完整模型 learning_rate=0.0013、max_batches=6000、steps=4800/5400、burn_in=1000；固定输入训练、保存 checkpoint/last/final。正式训练需补充固定 seed 支持并绑定源码/可执行文件哈希；恢复只保证权重与 seen 计数恢复，因 Darknet 不保存 momentum 缓冲区不宣称 bit-exact。当前无板上模型运行；完整 YOLOv4 仅 PC 对照，板上默认候选为 tiny、优先评估 tiny416，但最终模型仍待精度/数值/资源三关和 Wong 确认。
 
@@ -159,6 +159,7 @@
 - 2026-09-18：tiny416 val 候选 retry02 执行完成，Darknet child exit 0、15,195/15,195 图像均完成。报告 `20260918_s1_t02_d6_tiny416_val_candidate_r1_retry02.json` SHA-256 `2eeabde5dfd56283f42fdf53d4b393aceb58c42b9b24c499585b6ce3bab4354b`，摘要 SHA-256 `e5d76ad214842e5684f213263c34c701b35de187e57d578dd3f2fbbb9b8c399f`；独立 Reviewer R3 `PASS`，审查 JSON SHA-256 `0375a326f18cacbab65d5986ef19c25818ad86c822bc594f59839d93d66c36de`。stdout 184 bytes、stderr 0 bytes 均按哈希核对。该结果仅为候选捕获；未计算 mAP/precision/recall，最终 score threshold 未选择/冻结、mAP threshold 未设置，D6 G0/G4 与正式 test 仍未通过。
 - 2026-09-19：tiny416 val 坐标裁剪影响诊断经独立 Reviewer R1 `PASS`。JSON/摘要 SHA-256 `88896cedea23f8cb50ea981c1a7072f1bae41871dbd425f575ec4f8ec423f569` / `d13d314bd82bf75ffe2bab5d724aa69519d71bd2e31f93ce3b2c89533afe5053`；输入 evaluation SHA-256 `56cc6cc222b281b1f3f2aa1a952d86444892bef1052463a4bbaf66675ba7700e`，Reviewer 证据 SHA-256 `9878fcd2825b70f074ad5b6461d377a35e3fcd31ba553d1fe73b92c02911aad7`。15,223 个 objects 中 raw 有效 15,174、越界/裁剪改变 49，clip 后正面积 15,223、零面积 0；无非有限值。该证据仅为诊断，不产生 mAP/IoU/precision/recall/阈值或政策结论；正式计分仍待 Wong 决定 raw 严格拒绝或 clip 后计分。
 - 2026-09-20：D6 坐标影响复核使用合规 val `evaluation.jsonl`（SHA `C22492F3B19C036B5F479556DB29B43C6E0F0A35288147F8488AC18775DB0BD1`，15195 条）：49 个越界框、非有限/非正为0；raw reject 诊断 mAP@0.5/0.5:0.95=`0.96500930/0.75206514`，clip=`0.96890356/0.75349824`，差值 `+0.00389426/+0.00143311`。该诊断经独立 Reviewer PASS（结果 SHA `3390231EC437142F26901146FEE8380B6A93C66E433408A44C0443CF1B58FBD3`），仍不产生正式指标；当前评估器保持 fail-closed，是否改为显式 clip 需 Wong 决策。
+- 2026-09-21：Wong 确认正式采用 `clip_finite_positive_xyxy_to_unit_range`：预测 raw xyxy 必须有限且有正面积，逐坐标裁剪到 `[0,1]`，裁剪后零面积/完全外部仍拒绝；GT 继续严格限制在 `[0,1]`。实现、23/23 定向测试、全量174项 verification 测试和文档哈希经独立 Reviewer PASS。tiny416 val 使用标准化预测 SHA `6757FE88D076647E14116068D603A9B535FE9719D65E7CE9D4BFAE867621294D`，26个阈值报告目录为 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d6_tiny416_val_formal_clip_r3`；逐份绑定15195张图、14994个GT、15223个raw预测、49个越界及49个裁剪，状态均为 `G0_PENDING`。该结果不代表最终 threshold、test/robustness、G4/G5 或阶段1通过。
 
 ## S1-T02-D9 tiny416 CPU 解码参考
 
@@ -169,7 +170,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. tiny416 与 tiny320 formal_r2 均完成 6000 步并经 Reviewer 执行证据 PASS；val retry02 仅为候选捕获，未产出精度指标。D4 full608 formal_r3 在 1164/6000 因 CPU RAM `calloc` 失败，random=0 retry r3 在 1786/6000 因 21600 秒硬超时；r9 已从合规编号 checkpoint `1000/6000` 恢复并完成6000步，完成证据待独立 Reviewer。D6 val score scan 受合法越界框计分策略待 Wong 决定所阻；正式 val/test/robustness 指标未完成。manifest 无独立 robustness split；D6 R1 来源审计确认 manifest_all 差异候选23条且与 test/val person/session 重叠，本地无独立 robustness set；需新独立样本源并完成图像条件及 person/session 审计，最终精度门槛仍待基线与 Wong 决定。官方 test 25,484 及 robustness 每类/每条件至少100张、person/session隔离已批准。D3 仅有权重标量代理、实际 tiny416 checkpoint 文件大小和最大单层激活 estimate，完整存储/DDR/峰值缓冲预算待做；INT8逐层黄金待做；许可证 UNRESOLVED；最终模型/尺寸/性能由 Wong 决定；阶段1未通过、不进入阶段2。
+4. tiny416 与 tiny320 formal_r2 均完成 6000 步并经 Reviewer 执行证据 PASS；tiny416 val 已完成 26 个阈值的 clip 口径扫描但尚未冻结 threshold。D4 full608 formal_r3 在 1164/6000 因 CPU RAM `calloc` 失败，random=0 retry r3 在 1786/6000 因 21600 秒硬超时；r9 已从合规编号 checkpoint `1000/6000` 恢复并完成6000步，完成证据和独立 Reviewer PASS 均已记录。tiny320/full608 正式 val 预测捕获、统一指标、test/robustness 指标仍未完成。manifest 无独立 robustness split；D6 R1 来源审计确认 manifest_all 差异候选23条且与 test/val person/session 重叠，本地无独立 robustness set；需新独立样本源并完成图像条件及 person/session 审计，最终精度门槛仍待基线与 Wong 决定。官方 test 25,484 及 robustness 每类/每条件至少100张、person/session隔离已批准。D3 仅有权重标量代理、实际 tiny416 checkpoint 文件大小和最大单层激活 estimate，完整存储/DDR/峰值缓冲预算待做；INT8逐层黄金待做；许可证 UNRESOLVED；最终模型/尺寸/性能由 Wong 决定；阶段1未通过、不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

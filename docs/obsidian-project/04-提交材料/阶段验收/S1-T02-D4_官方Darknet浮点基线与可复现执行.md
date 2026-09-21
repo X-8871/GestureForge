@@ -67,4 +67,4 @@ git diff --check
 
 ## 当前未执行项和阻断
 
-尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 r9 已完成正式恢复训练并产出权重，但完成证据仍待独立 Reviewer，且不产生精度或阶段验收结论。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。
+尚未形成可供 D4 验收的三模型完整正式训练/恢复闭环、official test、robustness、mAP、INT8 整网、最终精度比较、Vivado 综合、资源/时序签核、烧录、板上测量和性能门槛判断。tiny416 pilot 仍为 `BLOCKED`；full608 r9 已完成正式恢复训练并产出权重，完成证据和独立 Reviewer PASS 已记录，且不产生精度或阶段验收结论。D4 不关闭 S1-T02 G0，也不产生最终模型选择结论。

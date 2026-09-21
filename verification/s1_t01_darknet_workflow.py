@@ -225,7 +225,8 @@ def _validate_darknet_path_lengths(
         add("resume 输入检查点", args.checkpoint.resolve())
     else:
         add("评估 valid 清单", args.valid_list.resolve())
-        add("zero-prediction-image", args.zero_prediction_image.resolve())
+        if getattr(args, "evaluation_split", "val") == "val" and getattr(args, "zero_prediction_image", None) is not None:
+            add("zero-prediction-image", args.zero_prediction_image.resolve())
     if args.action in {"train", "resume"}:
         add("checkpoint-output", context.get("checkpoint_output"))
         checkpoint_plan = context.get("checkpoint_plan", {})
@@ -778,6 +779,7 @@ def _load_valid_list(
     working_directory: Path,
     errors: list[str],
     split: str = "val",
+    require_manifest_order: bool = False,
 ) -> list[Path]:
     """读取 Darknet 清单并要求与 manifest 指定划分完全一致。"""
 
@@ -812,6 +814,11 @@ def _load_valid_list(
     manifest_keys = set(manifest_images.get(split, {}) if split in manifest_images else manifest_images)
     if seen != manifest_keys:
         errors.append(f"{split} 清单与 manifest {split} 集合不一致: list={len(seen)}, manifest={len(manifest_keys)}")
+    if require_manifest_order:
+        expected_order = list(manifest_images.get(split, {}) if split in manifest_images else manifest_images)
+        observed_order = [_canonical_path(image) for image in entries]
+        if observed_order != expected_order:
+            errors.append(f"{split} 清单顺序与 manifest {split} 行顺序不一致")
     return entries
 
 
@@ -1572,7 +1579,7 @@ def _validate_detection_object(item: Any, record_index: int, object_index: int, 
 def _parse_detection_output(
     output_path: Path,
     expected_images: list[Path],
-    zero_image: Path,
+    zero_image: Path | None,
     errors: list[str],
     working_directory: Path | None = None,
     require_zero: bool = True,
@@ -1631,13 +1638,20 @@ def _parse_detection_output(
         observed[key] = {"filename": filename, "box_count": len(objects), "objects": objects}
     if set(observed) != expected_set:
         errors.append(f"检测 JSON 图片集合不完整: observed={len(observed)}, expected={len(expected_set)}")
-    zero_key = _canonical_path(zero_image)
-    zero_record = observed.get(zero_key)
+    zero_record = None
     if require_zero:
+        if zero_image is None:
+            errors.append("require_zero=True 时必须提供 zero-prediction-image")
+        else:
+            zero_key = _canonical_path(zero_image)
+            zero_record = observed.get(zero_key)
         if zero_record is None:
             errors.append("zero-prediction-image 没有对应的结构化检测 JSON 记录")
         elif zero_record["box_count"] != 0:
             errors.append(f"zero-prediction-image 实际检测框数量为 {zero_record['box_count']}，不是零框")
+    elif zero_image is not None:
+        zero_key = _canonical_path(zero_image)
+        zero_record = observed.get(zero_key)
     return {
         "record_count": len(value),
         "image_count": len(observed),
@@ -1645,10 +1659,16 @@ def _parse_detection_output(
         "raw_records": value,
         "records": observed,
         "zero_prediction": {
-            "image": str(zero_image),
+            "image": str(zero_image) if zero_image is not None else None,
+            "check_status": "EXECUTED" if require_zero else "NOT_EXECUTED",
+            "check_reason": "required_by_val_split" if require_zero else "not_applicable_to_test_split",
             "record_present": zero_record is not None,
             "box_count": zero_record["box_count"] if zero_record is not None else None,
-            "actual_zero_boxes": bool(require_zero and zero_record is not None and zero_record["box_count"] == 0),
+            "actual_zero_boxes": (
+                bool(zero_record is not None and zero_record["box_count"] == 0)
+                if require_zero
+                else None
+            ),
         },
     }
 
@@ -1715,8 +1735,14 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     _common_parser(evaluate)
     evaluate.add_argument("--weights", type=Path, required=True, help="显式提供的评估权重")
-    evaluate.add_argument("--valid-list", type=Path, required=True, help="必须与 manifest val 集合完全一致的 valid 清单")
-    evaluate.add_argument("--zero-prediction-image", type=Path, required=True, help="人工确认的无手图，必须包含在 valid 清单中")
+    evaluate.add_argument(
+        "--evaluation-split",
+        choices=("val", "test"),
+        default="val",
+        help="评估清单对应的 manifest 划分，默认 val；test 不使用 no-hand 零框检查",
+    )
+    evaluate.add_argument("--valid-list", type=Path, required=True, help="必须与 manifest 评估划分集合完全一致的评估清单")
+    evaluate.add_argument("--zero-prediction-image", type=Path, help="val 模式必需的人工确认无手图，必须包含在评估清单中")
     return parser
 
 
@@ -1761,6 +1787,9 @@ def _base_report(args: argparse.Namespace) -> dict[str, Any]:
             "scope_notice": "仅比较 preflight、before_child、after_child 各采样点；不证明 child 运行期间未发生后又恢复的修改。",
         }
     if action == "evaluate":
+        evaluation_split = getattr(args, "evaluation_split", "val")
+        report["evaluation_split"] = evaluation_split
+        report["evaluation_image_count"] = None
         report["evaluation_threshold_policy"] = {
             "darknet_capture": {
                 "cli_flag": "-thresh",
@@ -1878,10 +1907,21 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
     if data_config.get("train"):
         configured_train = _resolve_working_path(data_config["train"], working_directory)
         train_images = _load_valid_list(configured_train, manifest_images, working_directory, errors, "train")
+    configured_valid_split = getattr(args, "evaluation_split", "val") if args.action == "evaluate" else "val"
     if data_config.get("valid"):
         configured_valid = _resolve_working_path(data_config["valid"], working_directory)
-        valid_images = _load_valid_list(configured_valid, manifest_images, working_directory, errors, "val")
-    approved_no_hand = _validate_no_hand_approval(dataset.get("approval", {}), manifest_images, data_root, errors)
+        valid_images = _load_valid_list(
+            configured_valid,
+            manifest_images,
+            working_directory,
+            errors,
+            configured_valid_split,
+            require_manifest_order=args.action == "evaluate" and configured_valid_split == "test",
+        )
+    if args.action == "evaluate" and getattr(args, "evaluation_split", "val") == "test":
+        approved_no_hand = {}
+    else:
+        approved_no_hand = _validate_no_hand_approval(dataset.get("approval", {}), manifest_images, data_root, errors)
     if training_action:
         for key, configured in (("train", configured_train), ("valid", configured_valid)):
             expected_path = _canonical_path(configured) if configured is not None else "unavailable"
@@ -1906,16 +1946,29 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
                 }
             )
     if args.action == "evaluate":
+        evaluation_split = getattr(args, "evaluation_split", "val")
         explicit_valid = args.valid_list.resolve()
         if configured_valid is None or not _same_path(configured_valid, explicit_valid):
             errors.append("data cfg valid 未绑定到显式 valid 清单")
-        valid_images = _load_valid_list(explicit_valid, manifest_images, working_directory, errors, "val")
-        zero_image = args.zero_prediction_image.resolve()
-        zero_key = _canonical_path(zero_image)
-        if zero_key not in approved_no_hand:
-            errors.append("zero-prediction-image 未属于 Wong 批准的 no_hand manifest val 样本")
-        if not any(_same_path(zero_image, image) for image in valid_images):
-            errors.append("zero-prediction-image 不在完整 valid 清单中")
+        valid_images = _load_valid_list(
+            explicit_valid,
+            manifest_images,
+            working_directory,
+            errors,
+            evaluation_split,
+            require_manifest_order=evaluation_split == "test",
+        )
+        zero_image_arg = getattr(args, "zero_prediction_image", None)
+        if evaluation_split == "val":
+            if zero_image_arg is None:
+                errors.append("val 模式必须提供 --zero-prediction-image")
+            else:
+                zero_image = zero_image_arg.resolve()
+                zero_key = _canonical_path(zero_image)
+                if zero_key not in approved_no_hand:
+                    errors.append("zero-prediction-image 未属于 Wong 批准的 no_hand manifest val 样本")
+                if not any(_same_path(zero_image, image) for image in valid_images):
+                    errors.append("zero-prediction-image 不在完整 valid 清单中")
     for path in (args.data_config, args.model_config, args.names_file):
         if not path.resolve().is_file():
             errors.append(f"配置文件不存在: {path.resolve()}")
@@ -1996,7 +2049,11 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
             "backup": checkpoint_plan.get("backup", "unavailable"),
         },
         "train_manifest_count": len(manifest_images.get("train", {})),
-        "validation_image_count": len(valid_images),
+        "validation_image_count": (
+            len(valid_images)
+            if args.action != "evaluate" or getattr(args, "evaluation_split", "val") == "val"
+            else None
+        ),
         "workflow_script_sha256": _safe_sha256(Path(__file__).resolve()),
     }
     if args.action in {"train", "resume"}:
@@ -2007,7 +2064,17 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         report["inputs"]["resume_checkpoint"] = str(checkpoint_input)
         report["inputs"]["resume_checkpoint_sha256_before"] = _safe_sha256(checkpoint_input)
     if args.action == "evaluate":
-        report["inputs"]["zero_prediction_image"] = str(args.zero_prediction_image.resolve())
+        evaluation_split = getattr(args, "evaluation_split", "val")
+        report["evaluation_split"] = evaluation_split
+        report["evaluation_image_count"] = len(valid_images)
+        report["inputs"]["evaluation_split"] = evaluation_split
+        report["inputs"]["evaluation_image_count"] = len(valid_images)
+        zero_image_arg = getattr(args, "zero_prediction_image", None)
+        report["inputs"]["zero_prediction_image"] = (
+            str(zero_image_arg.resolve()) if zero_image_arg is not None else None
+        )
+        report["inputs"]["zero_prediction_check"] = "EXECUTED" if evaluation_split == "val" else "NOT_EXECUTED"
+        report["inputs"]["approved_no_hand_check"] = "EXECUTED" if evaluation_split == "val" else "NOT_EXECUTED"
         report["inputs"]["approved_no_hand_manifest_rows"] = sorted(
             int(row["manifest_row"]) for row in approved_no_hand.values() if isinstance(row.get("manifest_row"), int)
         )
@@ -2084,6 +2151,7 @@ def _preflight(args: argparse.Namespace, report: dict[str, Any]) -> dict[str, An
         "checkpoint_output": checkpoint_output,
         "evaluation_json": args.run_dir.resolve() / "evaluation.json" if args.action == "evaluate" else None,
         "evaluation_output_paths": evaluation_output_paths,
+        "evaluation_split": getattr(args, "evaluation_split", "val") if args.action == "evaluate" else None,
     }
 
 
@@ -2333,6 +2401,8 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 }
         else:
             output_json = context["evaluation_json"]
+            evaluation_split = context.get("evaluation_split") or getattr(args, "evaluation_split", "val")
+            require_zero = evaluation_split == "val"
             output_jsonl = args.run_dir.resolve() / "evaluation.jsonl"
             if output_json.exists():
                 report["errors"].append(f"评估 JSON 已存在，为避免覆盖请指定新的 run-dir: {output_json}")
@@ -2390,10 +2460,14 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
                 parsed = _parse_detection_output(
                     output_json,
                     context["valid_images"],
-                    args.zero_prediction_image.resolve(),
+                    (
+                        args.zero_prediction_image.resolve()
+                        if require_zero and getattr(args, "zero_prediction_image", None) is not None
+                        else None
+                    ),
                     report["errors"],
                     context["working_directory"],
-                    require_zero=True,
+                    require_zero=require_zero,
                     allow_ordered_records=True,
                 )
                 if len(report["errors"]) == error_count:
@@ -2444,15 +2518,28 @@ def _execute(args: argparse.Namespace, report: dict[str, Any], context: dict[str
             }
             report["acceptance"] = {
                 "ac06_candidate": not report["errors"] and len(records) == len(context["valid_images"]),
-                "validation_manifest_count": len(context["valid_images"]),
+                "evaluation_split": evaluation_split,
+                "evaluation_image_count": len(context["valid_images"]),
+                "validation_manifest_count": len(context["valid_images"]) if evaluation_split == "val" else None,
                 "completed_image_count": len(records),
-                "all_validation_images_completed": len(records) == len(context["valid_images"]),
+                "all_validation_images_completed": (
+                    len(records) == len(context["valid_images"])
+                    if evaluation_split == "val"
+                    else None
+                ),
                 "detector_test_command_count": len(command_records),
                 "per_image_box_class_score_output": "evaluation.jsonl 和 detections/eval_*.json 由单进程 detector test -out JSON 按 runtime stdin 清单与 source valid.list 的同序 canonical 映射结构化绑定",
                 "ordered_binding": parsed.get("binding_mode", "unavailable"),
-                "zero_prediction_actual_zero_boxes": zero_result.get("actual_zero_boxes", False),
-                "zero_prediction_box_count": zero_result.get("box_count"),
-                "zero_prediction_semantics": "同时绑定 Wong 批准 no_hand manifest 行和 detector test JSON 的 objects=[]",
+                "zero_prediction_actual_zero_boxes": (
+                    zero_result.get("actual_zero_boxes") if require_zero else None
+                ),
+                "zero_prediction_box_count": zero_result.get("box_count") if require_zero else None,
+                "zero_prediction_check": zero_result.get("check_status", "NOT_EXECUTED"),
+                "zero_prediction_semantics": (
+                    "同时绑定 Wong 批准 no_hand manifest 行和 detector test JSON 的 objects=[]"
+                    if require_zero
+                    else "test split 不执行 zero-prediction-image 或 no-hand 零框检查"
+                ),
                 "mAP_threshold": "未设置",
             }
     finally:

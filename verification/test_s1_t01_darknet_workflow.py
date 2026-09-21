@@ -1693,6 +1693,191 @@ class DarknetWorkflowTest(unittest.TestCase):
             self.assertFalse(parsed["zero_prediction"]["actual_zero_boxes"])
             self.assertTrue(any("不是零框" in error for error in errors))
 
+    def test_evaluate_parser_accepts_test_split_without_zero_image(self) -> None:
+        """test 评估可以省略 val 专用的 zero-prediction-image。"""
+
+        parser = workflow._build_parser()
+        common = [
+            "--darknet-executable", "darknet.exe",
+            "--environment-report", "environment.json",
+            "--data-root", "data",
+            "--manifest", "manifest.csv",
+            "--dataset-report", "dataset.json",
+            "--dataset-approval", "approval.json",
+            "--data-config", "gesture.data",
+            "--model-config", "gesture.cfg",
+            "--names-file", "gesture.names",
+            "--working-directory", "work",
+            "--run-dir", "run",
+            "--report", "report.json",
+        ]
+        args = parser.parse_args([
+            "evaluate", *common,
+            "--weights", "weights",
+            "--evaluation-split", "test",
+            "--valid-list", "test.list",
+        ])
+        self.assertEqual(args.evaluation_split, "test")
+        self.assertIsNone(args.zero_prediction_image)
+
+    def test_detection_parser_test_split_skips_zero_check_without_faking_zero_boxes(self) -> None:
+        """test 解析只校验检测记录，不把缺少 zero 图伪造成零框证据。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "test.jpg"
+            image.write_bytes(b"image")
+            output = root / "detections.json"
+            output.write_text(
+                json.dumps([{
+                    "frame_id": 1,
+                    "filename": str(image),
+                    "objects": [{
+                        "class_id": 0,
+                        "name": "fist",
+                        "confidence": 0.8,
+                        "bbox": [0.5, 0.5, 0.2, 0.2],
+                    }],
+                }]),
+                encoding="utf-8",
+            )
+            errors: list[str] = []
+            parsed = workflow._parse_detection_output(
+                output,
+                [image],
+                None,
+                errors,
+                root,
+                require_zero=False,
+                allow_ordered_records=True,
+            )
+            self.assertEqual(errors, [])
+            self.assertEqual(parsed["zero_prediction"]["check_status"], "NOT_EXECUTED")
+            self.assertIsNone(parsed["zero_prediction"]["actual_zero_boxes"])
+            self.assertIsNone(parsed["zero_prediction"]["box_count"])
+
+    def test_val_detection_parser_rejects_missing_zero_image(self) -> None:
+        """val 解析仍必须提供 zero-prediction-image 并执行零框检查。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image = root / "val.jpg"
+            image.write_bytes(b"image")
+            output = root / "detections.json"
+            output.write_text(json.dumps([{"filename": str(image), "objects": []}]), encoding="utf-8")
+            errors: list[str] = []
+            parsed = workflow._parse_detection_output(output, [image], None, errors, root, require_zero=True)
+            self.assertFalse(parsed["zero_prediction"]["actual_zero_boxes"])
+            self.assertTrue(any("必须提供 zero-prediction-image" in error for error in errors))
+
+    def test_test_valid_list_requires_manifest_order(self) -> None:
+        """test 评估清单必须按 manifest test 行顺序逐项绑定。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = root / "first.jpg"
+            second = root / "second.jpg"
+            first.write_bytes(b"image")
+            second.write_bytes(b"image")
+            manifest_images = {
+                "test": {
+                    workflow._canonical_path(first): {},
+                    workflow._canonical_path(second): {},
+                }
+            }
+            valid_list = root / "test.list"
+            valid_list.write_text(f"{second}\n{first}\n", encoding="utf-8")
+            errors: list[str] = []
+            entries = workflow._load_valid_list(
+                valid_list,
+                manifest_images,
+                root,
+                errors,
+                "test",
+                require_manifest_order=True,
+            )
+            self.assertEqual(entries, [second.resolve(), first.resolve()])
+            self.assertTrue(any("顺序与 manifest test 行顺序不一致" in error for error in errors))
+
+    def test_test_split_preflight_skips_no_hand_and_records_evaluation_count(self) -> None:
+        """test 预检不读取 val no-hand 批准，并绑定通用评估划分与图片数。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            val_image = root / "val.jpg"
+            test_image = root / "test.jpg"
+            for image in (val_image, test_image):
+                image.write_bytes(b"image")
+                image.with_suffix(".txt").write_text("", encoding="utf-8")
+            manifest = root / "manifest.csv"
+            manifest.write_text(
+                "image,label,split,session_id,person_id,source,license,is_real\n"
+                "val.jpg,val.txt,val,s_val,p_val,synthetic,CC0,false\n"
+                "test.jpg,test.txt,test,s_test,p_test,synthetic,CC0,false\n",
+                encoding="utf-8",
+            )
+            test_list = root / "test.list"
+            test_list.write_text(f"{test_image}\n", encoding="utf-8")
+            names = root / "gesture.names"
+            names.write_text("fist\npalm\none\ntwo_up\nthree\n", encoding="utf-8")
+            data_config = root / "gesture.data"
+            data_config.write_text(f"classes=5\nnames={names}\nvalid={test_list}\n", encoding="utf-8")
+            model_config = root / "gesture.cfg"
+            model_config.write_text("[net]\nmax_batches=6000\n", encoding="utf-8")
+            executable = root / "darknet.exe"
+            executable.write_bytes(b"darknet")
+            environment_report = root / "environment.json"
+            environment_report.write_text("{}", encoding="utf-8")
+            dataset_report = root / "dataset.json"
+            dataset_report.write_text("{}", encoding="utf-8")
+            dataset_approval = root / "approval.json"
+            dataset_approval.write_text("{}", encoding="utf-8")
+            weights = root / "weights"
+            weights.write_bytes(b"weights")
+            args = Namespace(
+                action="evaluate",
+                evaluation_split="test",
+                darknet_executable=executable,
+                environment_report=environment_report,
+                data_root=root,
+                manifest=manifest,
+                dataset_report=dataset_report,
+                dataset_approval=dataset_approval,
+                data_config=data_config,
+                model_config=model_config,
+                names_file=names,
+                working_directory=root,
+                run_dir=root / "run",
+                report=root / "report.json",
+                timeout_seconds=10.0,
+                no_progress_timeout_seconds=5.0,
+                weights=weights,
+                valid_list=test_list,
+                zero_prediction_image=None,
+            )
+            report = workflow._base_report(args)
+            with patch.object(workflow, "_validate_environment_gate", return_value={}), patch.object(
+                workflow, "_validate_dataset_gate", return_value={"approval": {}},
+            ), patch.object(
+                workflow, "_validate_model_config", return_value={"max_batches": 6000},
+            ), patch.object(
+                workflow, "_validate_data_config", return_value={"names": str(names), "valid": str(test_list)},
+            ), patch.object(
+                workflow, "_validate_no_hand_approval", side_effect=AssertionError("test 不应执行 no-hand 校验"),
+            ), patch.object(
+                workflow, "_check_no_existing_process", return_value=None,
+            ), patch.object(
+                workflow, "_identity_artifacts", return_value={},
+            ):
+                context = workflow._preflight(args, report)
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(context["evaluation_split"], "test")
+            self.assertEqual(report["evaluation_split"], "test")
+            self.assertEqual(report["evaluation_image_count"], 1)
+            self.assertEqual(report["inputs"]["evaluation_image_count"], 1)
+            self.assertEqual(report["inputs"]["zero_prediction_check"], "NOT_EXECUTED")
+            self.assertEqual(context["approved_no_hand"], {})
+
     def test_detection_object_rejects_invalid_class_identity(self) -> None:
         """检测框必须使用范围内且相互一致的 class_id/name。"""
 
@@ -2122,6 +2307,84 @@ class DarknetWorkflowTest(unittest.TestCase):
                 json.loads(output_paths[1].read_text(encoding="utf-8"))[0]["filename"],
                 workflow._darknet_cli_path(image_two),
             )
+
+    def test_evaluate_test_split_records_generic_acceptance_without_zero_check(self) -> None:
+        """test 执行报告只记录通用评估字段，不声称 val 或 no-hand 已验证。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            images = [root / "first.jpg", root / "second.jpg"]
+            for image in images:
+                image.write_bytes(b"image")
+            valid_list = root / "test.list"
+            valid_list.write_text("\n".join(str(image) for image in images) + "\n", encoding="utf-8")
+            run_dir = root / "run"
+            output_paths = [
+                run_dir / "detections" / "eval_000001.json",
+                run_dir / "detections" / "eval_000002.json",
+            ]
+            args = Namespace(
+                action="evaluate",
+                evaluation_split="test",
+                data_config=root / "gesture.data",
+                model_config=root / "gesture.cfg",
+                weights=root / "weights",
+                valid_list=valid_list,
+                run_dir=run_dir,
+                timeout_seconds=10.0,
+                no_progress_timeout_seconds=10.0,
+                dry_run=False,
+            )
+            report = {
+                "status": "BLOCKED_PREFLIGHT",
+                "commands": [],
+                "errors": [],
+                "outputs": {"evaluation_json": {"path": str(run_dir / "evaluation.json"), "sha256": "unavailable"}},
+            }
+            context = {
+                "executable": root / "darknet.exe",
+                "working_directory": root,
+                "valid_images": images,
+                "evaluation_split": "test",
+                "evaluation_json": run_dir / "evaluation.json",
+                "evaluation_output_paths": output_paths,
+            }
+
+            def fake_darknet(command: list[str], *_args: object, **_kwargs: object) -> dict[str, object]:
+                """写入没有 zero 图语义的 test detector JSON。"""
+
+                output_path = Path(command[command.index("-out") + 1])
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_text(
+                    json.dumps([
+                        {"frame_id": 1, "filename": workflow._darknet_cli_path(images[0]), "objects": []},
+                        {"frame_id": 2, "filename": workflow._darknet_cli_path(images[1]), "objects": [{
+                            "class_id": 0,
+                            "name": "fist",
+                            "confidence": 0.8,
+                            "bbox": [0.5, 0.5, 0.2, 0.2],
+                        }]},
+                    ]),
+                    encoding="utf-8",
+                )
+                return {
+                    "exit_code": 0,
+                    "stop_reason": None,
+                    "non_finite_observed": False,
+                    "log_sha256": "simulated-log-sha256",
+                    "log_size_bytes": 9000,
+                    "log": str(run_dir / "evaluate.log"),
+                }
+
+            with patch.object(workflow, "_run_command", side_effect=fake_darknet):
+                workflow._execute(args, report, context)
+            self.assertEqual(report["errors"], [])
+            self.assertEqual(report["acceptance"]["evaluation_split"], "test")
+            self.assertEqual(report["acceptance"]["evaluation_image_count"], 2)
+            self.assertIsNone(report["acceptance"]["validation_manifest_count"])
+            self.assertIsNone(report["acceptance"]["all_validation_images_completed"])
+            self.assertEqual(report["acceptance"]["zero_prediction_check"], "NOT_EXECUTED")
+            self.assertIsNone(report["acceptance"]["zero_prediction_actual_zero_boxes"])
 
     def test_ordered_detector_json_rejects_frame_id_gap(self) -> None:
         """detector JSON 出现 frame_id 跳号时必须失败。"""

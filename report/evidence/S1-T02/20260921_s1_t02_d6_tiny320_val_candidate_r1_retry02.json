@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "created_at_utc8": "2026-09-21T18:33:44+08:00",
+  "framework": "official-darknet-cuda",
+  "action": "evaluate",
+  "training_profile": "not_applicable",
+  "training_profile_notice": "profile 仅绑定训练 schedule；训练完成不代表精度、泛化、INT8、资源、最终模型选择或板上验收通过。",
+  "seed_binding": {
+    "environment_variable": "GESTUREFORGE_DARKNET_SEED",
+    "value": null,
+    "passed_to_child_process": false,
+    "parent_process_unchanged": true
+  },
+  "status": "EXECUTED_REVIEW_REQUIRED",
+  "exit_code": 0,
+  "commands": [
+    {
+      "command": [
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+        "detector",
+        "test",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\data\\gesture_tiny320_d8_formal.data",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\configs\\gesture_yolov4_tiny_320_d8_formal.cfg",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\checkpoints\\gesture_yolov4_tiny_320_d8_formal_6000.weights",
+        "-dont_show",
+        "-out",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluation.json",
+        "-thresh",
+        "0.249999"
+      ],
+      "cwd": "D:\\FPGA_Data\\darknet",
+      "log": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluate.log",
+      "log_sha256": "55e448cc3b1829545bf391912ba9bd660dd9d31ca4ec4e88653a12704cbd4ca4",
+      "log_size_bytes": 3353444,
+      "exit_code": 0,
+      "stop_reason": null,
+      "observed_update_steps": [],
+      "loss_token_observed": true,
+      "non_finite_observed": false,
+      "seed_binding": {
+        "environment_variable": "GESTUREFORGE_DARKNET_SEED",
+        "value": null,
+        "passed_to_child_process": false,
+        "parent_process_unchanged": true
+      },
+      "training_profile": "not_applicable",
+      "stdin_valid_list_source": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "stdin_valid_list_runtime": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\runtime_valid.list",
+      "evaluation_json": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluation.json",
+      "evaluation_json_sha256": "f713a1a63c20878a4c9d59886ba260f56969f533f0e7617f7b4eef88bb388451"
+    }
+  ],
+  "errors": [],
+  "notes": [
+    "本入口不下载数据、不安装依赖、不切换 YOLO 框架。",
+    "train/resume 默认仅允许 11..100 诊断短训；只有显式 --formal-training 才允许固定 max_batches=6000、steps=4800,5400。",
+    "检查点输出严格绑定 .data backup、cfg 基名、saveweights、savelast，已有候选文件一律不覆盖。",
+    "日志不能独立证明梯度有限或优化器状态恢复，相关 AC05 结论仍需审查证据。",
+    "evaluate 必须由 detector test -out JSON 的 objects 数量证明零框，并拒绝 NaN/Inf/OOM/损坏。"
+  ],
+  "evaluation_threshold_policy": {
+    "darknet_capture": {
+      "cli_flag": "-thresh",
+      "value": 0.249999,
+      "comparison": "Darknet YOLO retains score > capture_threshold (strict)",
+      "purpose": "pre-D6 candidate capture threshold only; not a final model/metric threshold"
+    },
+    "final_metric_score_threshold": {
+      "allowed_range_inclusive": [
+        0.25,
+        0.5
+      ],
+      "comparison": "D6 retains confidence >= selected score_threshold",
+      "selected": null,
+      "frozen": false
+    }
+  },
+  "git": {
+    "repository": "D:\\FPGA_Competition",
+    "head": "86755920fa178e67c83de50e975c14e7630db6c2",
+    "worktree": "dirty",
+    "status_lines": [
+      " M \"docs/obsidian-project/\\346\\200\\273\\346\\216\\247.md\"",
+      " M \"docs/obsidian-project/\\351\\241\\271\\347\\233\\256\\346\\216\\245\\346\\211\\213\\346\\217\\220\\347\\244\\272\\350\\257\\215.md\"",
+      " M verification/test_s1_t02_d9_yolo_decode.py",
+      " M vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr",
+      "?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\345\\217\\215\\351\\235\\242.jpg\"",
+      "?? \"docs/obsidian-project/01-\\347\\253\\236\\350\\265\\233\\346\\235\\220\\346\\226\\231/\\346\\235\\277\\345\\215\\241\\346\\255\\243\\351\\235\\242.jpg\"",
+      "?? report/evidence/S1-T01/20260915_after_no_hand_previews/",
+      "?? report/evidence/S1-T01/20260915_s1_t01_d5b1_train.json",
+      "?? report/evidence/S1-T01/20260915_s1_t01_d5b1_train_r2_dllfix.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r1.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r1_summary.md",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r2.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r2_summary.md",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r3.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r3_summary.md",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r4.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d4_full_weight_provenance_r4_summary.md",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r1.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r1_input_chain.json",
+      "?? report/evidence/S1-T02/20260917_s1_t02_d8_tiny416_train_r1_input_chain_summary.md",
+      "?? report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_candidate_r1.json",
+      "?? report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_candidate_r1_retry01.json",
+      "?? report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_sweep_failed_025.json",
+      "?? report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_sweep_failed_025.md",
+      "?? report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_sweep_no_hand_val.txt",
+      "?? report/evidence/S1-T02/20260919_s1_t02_d4_full608_train_r2.json",
+      "?? report/evidence/S1-T02/20260919_s1_t02_d4_full608_train_r2_retry01.json",
+      "?? report/evidence/S1-T02/20260921_s1_t02_d6_tiny320_val_candidate_r1.json",
+      "?? report/evidence/S1-T02/20260921_s1_t02_d6_tiny320_val_candidate_r1_retry01.json",
+      "?? report/evidence/S1-T02/20260921_s1_t02_d6_tiny320_val_candidate_r1_retry01_preflight.json",
+      "?? report/evidence/S1-T02/s1_t02_d4_w3_safe_capture.ps1",
+      "?? report/evidence/S1-T02/s1_t02_d4_w4_safe_range_capture.py",
+      "?? \"\\346\\221\\204\\345\\203\\217\\345\\244\\264\\350\\265\\204\\346\\226\\231/\""
+    ]
+  },
+  "identity": {
+    "environment_probe_py": "D:\\FPGA_Competition\\verification\\s1_t01_environment_probe.py",
+    "dataset_check_py": "D:\\FPGA_Competition\\verification\\s1_t01_dataset_check.py",
+    "cuda_smoke_source": "D:\\FPGA_Competition\\verification\\s1_t01_cuda_smoke.cu",
+    "cuda_smoke_executable": "unavailable",
+    "official_darknet_source": "unavailable",
+    "official_darknet_source_reference": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/src/detector.c",
+    "environment_probe_py_sha256": "a1b6355236bfda561023e0e004f838421e6de2b3bbc5cb3248a32f1a176e189a",
+    "dataset_check_py_sha256": "352624d453225ca5febd1193e70a75d8eb82e98fc95e6ad4d94d085349945a8e",
+    "cuda_smoke_source_sha256": "a2dfef5005e5745c5d154531131aab28a8e00bad5b8530cd34657fa7ff903b51",
+    "cuda_smoke_executable_sha256": "unavailable",
+    "official_darknet_source_commit": "unavailable",
+    "official_darknet_binary_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e"
+  },
+  "inputs": {
+    "darknet_executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+    "environment_report": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d5_seed_short_r1\\environment_seeded_binding.json",
+    "data_root": "D:\\FPGA_Data\\HaGRIDv2",
+    "manifest": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+    "manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "dataset_report": "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260915_hagrid_dataset_check_semantic_after_no_hand.json",
+    "dataset_approval": "D:\\FPGA_Competition\\report\\evidence\\S1-T01\\20260915_hagrid_dataset_approval.json",
+    "data_config": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\data\\gesture_tiny320_d8_formal.data",
+    "model_config": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\configs\\gesture_yolov4_tiny_320_d8_formal.cfg",
+    "names_file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+    "working_directory": "D:\\FPGA_Data\\darknet",
+    "darknet_executable_sha256": "01c96dccb902a3f1f776b1619188a30bef7b33bf5ed607f466de0b6eedf1635e",
+    "seed_binding": {
+      "environment_variable": "GESTUREFORGE_DARKNET_SEED",
+      "value": null,
+      "passed_to_child_process": false,
+      "parent_process_unchanged": true
+    },
+    "model_config_values": {
+      "max_batches": 6000,
+      "steps": [
+        4800,
+        5400
+      ],
+      "width": 320,
+      "height": 320,
+      "yolo_heads": 2,
+      "yolo_head_details": [
+        {
+          "head": 1,
+          "filters": 30,
+          "expected_filters": 30
+        },
+        {
+          "head": 2,
+          "filters": 30,
+          "expected_filters": 30
+        }
+      ]
+    },
+    "data_config_values": {
+      "classes": "5",
+      "names": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/gesture.names",
+      "train": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/train.list",
+      "valid": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/valid.list",
+      "backup": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d8_tiny320_formal_r2/checkpoints",
+      "saveweights": "1000",
+      "savelast": "500"
+    },
+    "resolved_data_paths": {
+      "train": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\train.list",
+      "valid": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "backup": "unavailable"
+    },
+    "train_manifest_count": 118001,
+    "validation_image_count": 15195,
+    "workflow_script_sha256": "f2b6acdf65a15cb17616d97492792222d80c1be337ae0e1f93ffe672d47f2e9d",
+    "zero_prediction_image": "D:\\FPGA_Data\\HaGRIDv2\\user_no_hand\\20260915_friend_005.png",
+    "approved_no_hand_manifest_rows": [
+      158680,
+      158681
+    ],
+    "artifact_sha256": {
+      "environment_report": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+      "dataset_report": "9b2e4336e30ab49dfd4dfcfa4c9363be8ab82ec13f9fe80c55d8a3412b3277be",
+      "dataset_approval": "90f37987de1cea597515926115fe064ed20df3f83f40ca45a04b41b86c0da213",
+      "data_config": "ac66677decb2b8a0c374e650505e8cb4b94c772c9bfe7df9795273e58aa581f5",
+      "model_config": "92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94",
+      "names_file": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+      "valid_list": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+      "evaluation_weights": "f5bac83dc76cfe435e8f177111b81df77663968845083514ddce197291c4d901"
+    },
+    "environment_report_sha256": "ebd70a70a8da348ff2b80622384b6bccc7090e46278d8ac11bd7d31dd8e095f9",
+    "valid_list_source": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+      "sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+      "entry_count": 15195,
+      "physical_line_count": 15195,
+      "nonempty_entry_count": 15195
+    },
+    "darknet_stdin_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\runtime_valid.list",
+      "sha256": "14604d2313c6bdbdb206ae979f60d7681ffc8ed27ccd2ad5191985ae631c4f60",
+      "line_count": 15195,
+      "mapping": "runtime 每行使用 _darknet_cli_path(source valid.list 对应绝对路径)，并按 canonical-resolve 一一且有序绑定",
+      "source_to_runtime_ordered_canonical": true,
+      "source_valid_list": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+        "sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+        "entry_count": 15195,
+        "physical_line_count": 15195,
+        "nonempty_entry_count": 15195
+      }
+    }
+  },
+  "outputs": {
+    "checkpoint_output": {
+      "path": "unavailable",
+      "sha256_before": "unavailable",
+      "created_by_this_run": "not_executed"
+    },
+    "evaluation_json": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluation.json",
+      "sha256": "f713a1a63c20878a4c9d59886ba260f56969f533f0e7617f7b4eef88bb388451",
+      "size": 4478587
+    },
+    "evaluation_per_image": {
+      "directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\detections",
+      "count": 15195,
+      "planned_count": 15195,
+      "all_completed": true
+    },
+    "runtime_stdin_list": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\runtime_valid.list",
+      "sha256": "14604d2313c6bdbdb206ae979f60d7681ffc8ed27ccd2ad5191985ae631c4f60",
+      "line_count": 15195,
+      "mapping": "runtime 每行使用 _darknet_cli_path(source valid.list 对应绝对路径)，并按 canonical-resolve 一一且有序绑定",
+      "source_to_runtime_ordered_canonical": true,
+      "source_valid_list": {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\valid.list",
+        "sha256": "8fa102bb95aca67bd862ad2e29194a51360abe8c34195efae750e07869f22e3c",
+        "entry_count": 15195,
+        "physical_line_count": 15195,
+        "nonempty_entry_count": 15195
+      }
+    }
+  },
+  "planned_commands": [
+    {
+      "command": [
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\build_seeded_release_r2\\Release\\darknet.exe",
+        "detector",
+        "test",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\data\\gesture_tiny320_d8_formal.data",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\configs\\gesture_yolov4_tiny_320_d8_formal.cfg",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\checkpoints\\gesture_yolov4_tiny_320_d8_formal_6000.weights",
+        "-dont_show",
+        "-out",
+        "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluation.json",
+        "-thresh",
+        "0.249999"
+      ],
+      "cwd": "D:\\FPGA_Data\\darknet",
+      "seed_binding": {
+        "environment_variable": "GESTUREFORGE_DARKNET_SEED",
+        "value": null,
+        "passed_to_child_process": false,
+        "parent_process_unchanged": true
+      },
+      "training_profile": "not_applicable"
+    }
+  ],
+  "evaluation_jsonl": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d6_tiny320_val_candidate_r1_retry02\\evaluation.jsonl",
+    "sha256": "e1a5e6dc88c8f9dabe772e1e8d583ee292a3e52d9093ce9800eefd69e748a0b6",
+    "record_count": 15195
+  },
+  "acceptance": {
+    "ac06_candidate": true,
+    "validation_manifest_count": 15195,
+    "completed_image_count": 15195,
+    "all_validation_images_completed": true,
+    "detector_test_command_count": 1,
+    "per_image_box_class_score_output": "evaluation.jsonl 和 detections/eval_*.json 由单进程 detector test -out JSON 按 runtime stdin 清单与 source valid.list 的同序 canonical 映射结构化绑定",
+    "ordered_binding": "filename_and_frame_id_ordered_valid_list",
+    "zero_prediction_actual_zero_boxes": true,
+    "zero_prediction_box_count": 0,
+    "zero_prediction_semantics": "同时绑定 Wong 批准 no_hand manifest 行和 detector test JSON 的 objects=[]",
+    "mAP_threshold": "未设置"
+  }
+}

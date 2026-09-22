@@ -1,6 +1,6 @@
 # 项目状态
 
-更新：2026-09-21（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
+更新：2026-09-22（UTC+8）。恢复先读 `AGENTS.md`；本文件只保存跨会话事实，详细实现与证据按需读取。
 
 ## 目标、阶段与基线
 
@@ -40,8 +40,8 @@
 
 ## S1-T02-D2 tiny416 权重级 INT8 中间证据
 
-- 2026-09-22：在不训练、不覆盖外部原始权重的前提下，使用 tiny416 formal 6000 checkpoint、正式 cfg、Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f` 和 512 行 train-only 校准清单，运行 `verification/s1_t02_d2_int8_weight_reference.py`（SHA-256 `ea70b8b082133c3dbbc03d9e412e365fc59eff7ed5c91276bef224e790cabc90`）生成 BN fold 后逐输出通道对称 INT8 权重中间包。输入 cfg SHA `5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376`、6000 weights SHA `3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a`、calibration list SHA `d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c`；输出包 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d2_tiny416_int8_weight_r1\gesture_yolov4_tiny_416_int8_weights.gf8` 为 5,903,100 bytes，SHA `bd76f84d6dfafb8f70c2df6141d4595d7300c6795d034d5d047183bb83e2eb30`。
-- 报告 `report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_int8_weight_r1.json` SHA `6ed47d2e22e5fca2e4b2e7368cc8b569d3e3336ee5fb8b7ef793d8c7e1f63b8b`，摘要 SHA `97ba0cc2d218ae997f8b04441aa774bc53caf9d5b12a80480bc27c3ed966733d`；21 个卷积层、5,877,088 个权重，融合权重 aggregate RMSE `0.0006044735551187254`、relative L2 `0.00919796714898233`、饱和值3,270。状态为 `INT8_WEIGHT_REFERENCE_GENERATED_ACTIVATION_SCALE_PENDING`；激活 scale、实际输入域累加器 bias、整数前向、检测头/mAP、D3 资源及时序和 G4/G5 仍未完成。
+- 2026-09-22：在不训练、不覆盖外部原始权重的前提下，使用 tiny416 formal 6000 checkpoint、正式 cfg、Darknet commit `59596d7880f6504768df41d6daa586f5cb2b932f` 和 512 行 train-only 校准清单，按 Darknet 的 `beta - rolling_mean * scale` 公式折叠 BN，运行 `verification/s1_t02_d2_int8_weight_reference.py`（SHA-256 `C7E6C5282C7B9C24BC6CC82B9D84F7578D6D6D45670CD23A6425CC52382DC196`）生成逐输出通道对称 INT8 权重中间包。输入 cfg SHA `5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376`、6000 weights SHA `3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a`、calibration list SHA `d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c`；r2 包 `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d2_tiny416_int8_weight_r2\gesture_yolov4_tiny_416_int8_weights.gf8` 为 5,903,100 bytes，SHA `f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39`。r1 证据保留为历史产物，不作为当前数值基线。
+- 报告 `report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_int8_weight_r2.json` SHA `D867CD5DC7497F0DE9DB5C4E0643AFD2E52D4C1E77632852487E8AFCEAA0DD80`，摘要 SHA `A7EF25C387B90B3A8DD4F7CCB724ACB02B487C05ABECFE7977DE6828E52F2E1E`；21 个卷积层、5,877,088 个权重，融合权重 aggregate RMSE `0.0006044735551187254`、relative L2 `0.00919796714898233`、饱和值3,270。状态为 `INT8_WEIGHT_REFERENCE_GENERATED_ACTIVATION_SCALE_PENDING`；整数前向、检测头/mAP、D3 资源及时序和 G4/G5 仍未完成。
 
 ## S1-T02-D2 tiny416 激活 scale 校准证据
 
@@ -50,9 +50,10 @@
 
 ## S1-T02-D2 tiny416 CPU INT8 整数前向证据
 
-- 2026-09-22：在不训练、不修改外部原始权重的前提下，新增 `verification/s1_t02_d2_int8_forward.py`，绑定正式 tiny416 cfg/6000 权重、已提交的 GFINT8W1 权重包、权重量化报告、512 张 train-only 校准清单和真实激活 scale 报告。参考器执行卷积 INT64 精确累加并审计 INT32 范围，将 BN 折叠 bias 按 `round(fused_bias/(input_scale*weight_scale))` 映射到累加器域，执行 leaky/linear、输出重定标和 `[-127,127]` 饱和；route 输入按最大输入 scale 统一重定标，该语义仍是本轮参考约定，未冻结为 FPGA 接口。
-- 使用校准清单前 8 张真实图像完成 CPU 双路径前向；21 个卷积层和两个 YOLO raw head 均产生完整输出。报告状态 `INT8_INTEGER_FORWARD_COMPLETE_FLOAT_REFERENCE_COMPARISON_PENDING_REVIEW`；INT32 溢出 `0`，带 bias 累加器范围 `-228196..128342`，INT8 输出饱和计数 `4754`。主干层与共享预处理下的浮点参考误差已记录，检测头 layer 29 的平均 relative L2 为约 `0.4784`，不作精度通过结论。
-- 工具 SHA-256 `8f4278fd7fae457c9273df917ce57ed28e05dbfad339f5e093a893a25e326881`；报告 `report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_int8_forward_r1.json` SHA `ccea1c410fccbdb0ada3e87ebd164dc8ab0813fe4f0430ec1a8bb9c812bb04f6`；摘要 SHA `2ff65b8ca251957d1ec9c015270fe81da56f64282f17d6d7711e658fd186b02d`。本轮定向测试 3/3、全量 verification 192/192、py_compile 通过；未完成 Darknet 二进制逐层逐值绑定、YOLO 解码/NMS/mAP、鲁棒性、Vivado 资源时序或 G2/G4/G5。
+- 2026-09-22：在不训练、不修改外部原始权重的前提下，`verification/s1_t02_d2_int8_forward.py`（SHA-256 `5DFDBB4A9E57256B362629A2DE40B9724DF6D28AE225CE6D6622429B9CBAD393`）绑定 r2 GFINT8W1 包、正式 cfg/6000 权重、512 张 train-only 校准清单和真实激活 scale 报告。参考器执行已证明边界的 INT64 精确累加，分别审计 product/raw/bias/with-bias 的 INT64 溢出及 raw/bias/with-bias 的 INT32 越界，并绑定 cfg 的 stride/pad/padding、maxpool 与 upsample 参数；route 输入按最大输入 scale 统一重定标，该语义仍是本轮参考约定，未冻结为 FPGA 接口。
+- 使用校准清单前 8 张真实图像完成 CPU 双路径前向；21 个卷积层和两个 YOLO raw head 均产生完整输出。r2 报告 `report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_int8_forward_r2.json` SHA `63F5BFEF5CB9801F45CC51779CA87997686F46F52B48A3A22D87FF012271D3E4`，摘要 SHA `D9ED6D184DCFE1D68663239A198AF29026150F7FA79E7D9ED1CED23588D97DCA`；四类 INT64 溢出均 `0`，三类 INT32 审计均 `0`，含 bias 累加器范围 `-133399..191959`，INT8 输出饱和计数 `0`。状态仍为 `INT8_INTEGER_FORWARD_COMPLETE_FLOAT_REFERENCE_COMPARISON_PENDING_REVIEW`，不作检测精度或部署通过结论。
+- 当前浮点逐层绑定报告 `report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_darknet_float_binding_r4.json` SHA `76D0FC7A439726E3230F42E875A67690BDF902654498AAF5A5BC62DA5827E9DF`，摘要 SHA `AE67F4EDFAF9284C08526FC3D596679115F32600292E892087C3A85000260A99`；8 个样本、21 个卷积层完整，layer 0 RMSE `0.0056288391`，最差 layer 7 平均 relative L2 `0.0148447426`。该报告只绑定 Darknet float32 与 Python 浮点参考；本轮独立 Reviewer A 已对修正版本复审 `PASS`，但不构成 INT8 检测精度、FPGA 或阶段 G4/G5 通过。
+- 本轮定向测试 10/10、全量 verification 196/196、相关 Python 文件 `py_compile` 和 `git diff --check` 均通过；YOLO 解码/NMS/mAP、鲁棒性、Vivado 资源时序或阶段 G4/G5 仍未完成。
 
 ## Wong 已确认的 S1-T02 G0 决策
 

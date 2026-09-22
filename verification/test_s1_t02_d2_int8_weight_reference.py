@@ -78,7 +78,7 @@ activation=linear
         self.assertEqual([layer.spec.weight_count for layer in layers], [6, 2])
         first = layers[0]
         expected_factor = 2.0 / math.sqrt(3.0 + reference.BN_EPSILON)
-        self.assertAlmostEqual(first.fused_biases[0], (1.0 - 0.5) * expected_factor, places=6)
+        self.assertAlmostEqual(first.fused_biases[0], 1.0 - 0.5 * expected_factor, places=6)
         self.assertAlmostEqual(first.scales[0], 3.0 * expected_factor / 127.0, places=6)
         decoded = [value if value < 128 else value - 256 for value in first.quantized_weights]
         self.assertEqual(decoded, [42, -85, 127, 127, 16, -8])

@@ -294,7 +294,8 @@ def _quantize_layer(
             if variance + BN_EPSILON <= 0.0:
                 raise Int8WeightReferenceError(f"卷积层 {spec.layer_index} BN variance 无效")
             bn_factor = float(bn_scales[filter_index]) / math.sqrt(variance + BN_EPSILON)
-            fused_bias = (float(raw_biases[filter_index]) - float(rolling_mean[filter_index])) * bn_factor
+            # Darknet 的卷积 bias 是 BN 的 beta；推理折叠为 beta - mean * factor。
+            fused_bias = float(raw_biases[filter_index]) - float(rolling_mean[filter_index]) * bn_factor
         else:
             bn_factor = 1.0
             fused_bias = float(raw_biases[filter_index])
@@ -539,6 +540,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "input_scale": INPUT_SCALE,
             "weight_quantization": "per-output-channel symmetric",
             "bn_fold": "inference_fused_before_weight_quantization",
+            "bn_bias_formula": "darknet_beta_minus_rolling_mean_times_scale_over_sqrt_variance_plus_epsilon",
             "bn_epsilon": BN_EPSILON,
             "rounding": "half_away_from_zero",
             "saturation": [INT8_MIN, INT8_MAX],

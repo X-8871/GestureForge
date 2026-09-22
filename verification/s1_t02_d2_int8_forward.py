@@ -31,6 +31,8 @@ INT8_MIN = -127
 INT8_MAX = 127
 INT32_MIN = -(1 << 31)
 INT32_MAX = (1 << 31) - 1
+INT64_MIN = -(1 << 63)
+INT64_MAX = (1 << 63) - 1
 INPUT_SCALE = 1.0 / 127.0
 PACKAGE_MAGIC = b"GFINT8W1"
 PACKAGE_VERSION = 1
@@ -188,6 +190,84 @@ def cfg_int(options: dict[str, str], key: str, default: int | None = None) -> in
         raise Int8ForwardError(f"cfg 字段不是整数: {key}={value}") from exc
 
 
+def _optional_cfg_int(options: dict[str, str], key: str, default: int) -> int:
+    """读取可选 cfg 整数，并把非法值转换为统一错误。"""
+
+    return cfg_int(options, key, default)
+
+
+def convolution_parameters(options: dict[str, str], size: int) -> tuple[int, int]:
+    """绑定 Darknet 卷积的 stride、pad/padding 语义。"""
+
+    if size <= 0:
+        raise Int8ForwardError(f"卷积 size 无效: {size}")
+    stride = cfg_int(options, "stride", 1)
+    stride_x = _optional_cfg_int(options, "stride_x", stride)
+    stride_y = _optional_cfg_int(options, "stride_y", stride)
+    if stride <= 0 or stride_x != stride or stride_y != stride:
+        raise Int8ForwardError(
+            f"暂不支持非方形卷积 stride: stride={stride}, stride_x={stride_x}, stride_y={stride_y}"
+        )
+    dilation = _optional_cfg_int(options, "dilation", 1)
+    if dilation != 1:
+        raise Int8ForwardError(f"暂不支持卷积 dilation={dilation}")
+    if _optional_cfg_int(options, "antialiasing", 0) != 0:
+        raise Int8ForwardError("暂不支持卷积 antialiasing")
+    pad_flag = _optional_cfg_int(options, "pad", 0)
+    if pad_flag not in (0, 1):
+        raise Int8ForwardError(f"卷积 pad 必须为 0 或 1: {pad_flag}")
+    padding = _optional_cfg_int(options, "padding", 0)
+    if pad_flag:
+        padding = size // 2
+    if padding < 0:
+        raise Int8ForwardError(f"卷积 padding 不能为负数: {padding}")
+    return stride, padding
+
+
+def maxpool_parameters(options: dict[str, str], size: int) -> tuple[int, int, int]:
+    """绑定 Darknet 最大池化的 stride、padding 和受支持选项。"""
+
+    if size <= 0:
+        raise Int8ForwardError(f"最大池化 size 无效: {size}")
+    stride = cfg_int(options, "stride", 1)
+    stride_x = _optional_cfg_int(options, "stride_x", stride)
+    stride_y = _optional_cfg_int(options, "stride_y", stride)
+    if stride <= 0 or stride_x != stride or stride_y != stride:
+        raise Int8ForwardError(
+            f"暂不支持非方形最大池化 stride: stride={stride}, stride_x={stride_x}, stride_y={stride_y}"
+        )
+    padding = _optional_cfg_int(options, "padding", size - 1)
+    if padding < 0:
+        raise Int8ForwardError(f"最大池化 padding 不能为负数: {padding}")
+    for key, default in (("maxpool_depth", 0), ("out_channels", 1), ("antialiasing", 0), ("maxpool_zero_nonmax", 0)):
+        value = _optional_cfg_int(options, key, default)
+        if value != default:
+            raise Int8ForwardError(f"暂不支持最大池化 {key}={value}")
+    return size, stride, padding
+
+
+def upsample_stride(options: dict[str, str]) -> int:
+    """绑定 Darknet upsample 的 stride/scale 语义。"""
+
+    stride = cfg_int(options, "stride", 2)
+    stride_x = _optional_cfg_int(options, "stride_x", stride)
+    stride_y = _optional_cfg_int(options, "stride_y", stride)
+    if stride <= 0 or stride_x != stride or stride_y != stride:
+        raise Int8ForwardError(
+            f"暂不支持非方形 upsample stride: stride={stride}, stride_x={stride_x}, stride_y={stride_y}"
+        )
+    try:
+        scale = float(options.get("scale", "1"))
+    except ValueError as exc:
+        raise Int8ForwardError(f"upsample scale 不是浮点数: {options.get('scale')}") from exc
+    if not math.isfinite(scale) or not math.isclose(scale, 1.0, rel_tol=0.0, abs_tol=0.0):
+        raise Int8ForwardError(f"暂不支持 upsample scale={scale}")
+    reverse = _optional_cfg_int(options, "reverse", 0)
+    if reverse != 0:
+        raise Int8ForwardError(f"暂不支持 upsample reverse={reverse}")
+    return stride
+
+
 def resolve_reference(reference: int, layer_index: int) -> int:
     """解析 Darknet route 的相对或绝对层号。"""
 
@@ -301,7 +381,8 @@ def read_fused_float_layers(cfg: Path, weights: Path) -> dict[int, FloatLayer]:
             if np.any(rolling_variance + BN_EPSILON <= 0.0):
                 raise Int8ForwardError(f"layer {conv.layer_index} BN variance 无效")
             factors = bn_scales / np.sqrt(rolling_variance + BN_EPSILON)
-            biases = (raw_biases - rolling_mean) * factors
+            # Darknet 的卷积 bias 是 BN 的 beta；推理折叠为 beta - mean * factor。
+            biases = raw_biases - rolling_mean * factors
         else:
             factors = np.ones(conv.filters, dtype=np.float64)
             biases = raw_biases
@@ -419,11 +500,14 @@ def load_image_chw(path: Path, width: int, height: int) -> np.ndarray:
     return boxed.transpose(2, 0, 1).astype(np.float32)
 
 
-def make_patches(values: np.ndarray, size: int, stride: int) -> tuple[np.ndarray, int, int]:
+def make_patches(values: np.ndarray, size: int, stride: int, padding: int | None = None) -> tuple[np.ndarray, int, int]:
     """把 CHW 张量转换为卷积 im2col 视图。"""
 
     channels, height, width = values.shape
-    padding = size // 2
+    if padding is None:
+        padding = size // 2
+    if size <= 0 or stride <= 0 or padding < 0:
+        raise Int8ForwardError(f"卷积参数无效: size={size}, stride={stride}, padding={padding}")
     padded = np.pad(values, ((0, 0), (padding, padding), (padding, padding)), mode="constant")
     out_height = (height + 2 * padding - size) // stride + 1
     out_width = (width + 2 * padding - size) // stride + 1
@@ -435,29 +519,62 @@ def make_patches(values: np.ndarray, size: int, stride: int) -> tuple[np.ndarray
     return view.transpose(0, 3, 4, 1, 2).reshape(channels * size * size, out_height * out_width), out_height, out_width
 
 
-def conv_float(values: np.ndarray, layer: FloatLayer, stride: int) -> np.ndarray:
+def conv_float(values: np.ndarray, layer: FloatLayer, stride: int, padding: int | None = None) -> np.ndarray:
     """执行浮点参考卷积和激活。"""
 
     if layer.groups != 1:
         raise Int8ForwardError("当前参考器只支持 groups=1 卷积")
-    patches, out_height, out_width = make_patches(values, layer.size, stride)
+    patches, out_height, out_width = make_patches(values, layer.size, stride, padding)
     output = np.matmul(layer.weights.reshape(layer.filters, -1).astype(np.float64), patches.astype(np.float64))
     output += layer.fused_biases[:, None]
     output = output.reshape(layer.filters, out_height, out_width)
     return output
 
 
-def conv_int8(values: Tensor, layer: PackageLayer, activation_scale: float, activation: str, stride: int) -> tuple[Tensor, dict[str, Any]]:
-    """执行 INT8 卷积、INT32 范围检查、激活和输出重定标。"""
+def conv_int8(
+    values: Tensor,
+    layer: PackageLayer,
+    activation_scale: float,
+    activation: str,
+    stride: int,
+    padding: int | None = None,
+) -> tuple[Tensor, dict[str, Any]]:
+    """执行 INT8 卷积、严格 INT64 边界证明、INT32 审计和重定标。"""
 
     if layer.groups != 1:
         raise Int8ForwardError("当前参考器只支持 groups=1 卷积")
-    patches, out_height, out_width = make_patches(values.values, layer.size, stride)
-    raw_acc = np.matmul(layer.quantized_weights.reshape(layer.filters, -1).astype(np.int64), patches.astype(np.int64))
+    if np.any(values.values < INT8_MIN) or np.any(values.values > INT8_MAX):
+        raise Int8ForwardError("输入 INT8 张量超出项目规定的 [-127,127]")
+    patches, out_height, out_width = make_patches(values.values, layer.size, stride, padding)
+    qweights = layer.quantized_weights.reshape(layer.filters, -1).astype(np.int64)
+    qpatches = patches.astype(np.int64)
+    if np.any(qweights < INT8_MIN) or np.any(qweights > INT8_MAX):
+        raise Int8ForwardError(f"layer {layer.layer_index} 权重超出项目规定的 [-127,127]")
+    reduction_length = qweights.shape[1]
+    product_abs_bound = INT8_MAX * INT8_MAX
+    raw_abs_bound = product_abs_bound * reduction_length
+    if raw_abs_bound > INT64_MAX:
+        raise Int8ForwardError(
+            f"layer {layer.layer_index} 原始累加器理论边界超出 INT64: {raw_abs_bound}"
+        )
+    # 已先验证输入/权重范围，并以 K*127*127 证明每个点积不会溢出，
+    # 因而 NumPy 的 INT64 矩阵乘法在这里是精确整数路径，而非溢出后再检测。
+    raw_acc = np.matmul(qweights, qpatches)
     input_scale = values.scale
-    bias_acc = round_away_array(layer.fused_biases / (input_scale * layer.weight_scales))
+    bias_values = layer.fused_biases / (input_scale * layer.weight_scales)
+    if not np.all(np.isfinite(bias_values)) or np.any(np.abs(bias_values) > float(INT64_MAX)):
+        raise Int8ForwardError(f"layer {layer.layer_index} bias 累加器无法安全映射到 INT64")
+    bias_acc = round_away_array(bias_values)
+    bias_abs_bound = int(np.max(np.abs(bias_acc))) if bias_acc.size else 0
+    with_bias_abs_bound = raw_abs_bound + bias_abs_bound
+    if with_bias_abs_bound > INT64_MAX:
+        raise Int8ForwardError(
+            f"layer {layer.layer_index} 含 bias 累加器理论边界超出 INT64: {with_bias_abs_bound}"
+        )
     with_bias = raw_acc + bias_acc[:, None]
-    overflow_count = int(np.count_nonzero((with_bias < INT32_MIN) | (with_bias > INT32_MAX)))
+    raw_int32_overflow_count = int(np.count_nonzero((raw_acc < INT32_MIN) | (raw_acc > INT32_MAX)))
+    bias_int32_overflow_count = int(np.count_nonzero((bias_acc < INT32_MIN) | (bias_acc > INT32_MAX)))
+    with_bias_int32_overflow_count = int(np.count_nonzero((with_bias < INT32_MIN) | (with_bias > INT32_MAX)))
     real_scale = input_scale * layer.weight_scales[:, None]
     scaled = with_bias.astype(np.float64) * real_scale / activation_scale
     if activation == "leaky":
@@ -474,7 +591,18 @@ def conv_int8(values: Tensor, layer: PackageLayer, activation_scale: float, acti
         "raw_accumulator_max": int(np.max(raw_acc)),
         "accumulator_with_bias_min": int(np.min(with_bias)),
         "accumulator_with_bias_max": int(np.max(with_bias)),
-        "int32_overflow_count": overflow_count,
+        "product_abs_bound": product_abs_bound,
+        "product_int64_overflow_count": 0,
+        "raw_accumulator_abs_bound": raw_abs_bound,
+        "raw_accumulator_int64_overflow_count": 0,
+        "raw_accumulator_int32_overflow_count": raw_int32_overflow_count,
+        "bias_accumulator_abs_bound": bias_abs_bound,
+        "bias_accumulator_int64_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": bias_int32_overflow_count,
+        "accumulator_with_bias_abs_bound": with_bias_abs_bound,
+        "accumulator_with_bias_int64_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": with_bias_int32_overflow_count,
+        "int32_overflow_count": with_bias_int32_overflow_count,
         "saturated_count": int(np.count_nonzero((quantized == INT8_MIN) | (quantized == INT8_MAX))),
         "quantized_min": int(np.min(quantized)),
         "quantized_max": int(np.max(quantized)),
@@ -482,16 +610,39 @@ def conv_int8(values: Tensor, layer: PackageLayer, activation_scale: float, acti
     return Tensor(quantized, activation_scale), stats
 
 
-def maxpool(values: np.ndarray, size: int, stride: int) -> np.ndarray:
-    """执行 Darknet tiny cfg 使用的无填充最大池化。"""
+def maxpool(values: np.ndarray, size: int, stride: int, padding: int | None = None) -> np.ndarray:
+    """执行 Darknet 最大池化，按其单侧 padding 和负半 padding 偏移语义。"""
 
     channels, height, width = values.shape
-    out_height = (height - size) // stride + 1
-    out_width = (width - size) // stride + 1
+    if padding is None:
+        padding = 0
+    if size <= 0 or stride <= 0 or padding < 0:
+        raise Int8ForwardError(f"最大池化参数无效: size={size}, stride={stride}, padding={padding}")
+    out_height = (height + padding - size) // stride + 1
+    out_width = (width + padding - size) // stride + 1
     if out_height <= 0 or out_width <= 0:
         raise Int8ForwardError("最大池化输出尺寸无效")
-    view = np.lib.stride_tricks.sliding_window_view(values, (size, size), axis=(1, 2))
-    return view[:, ::stride, ::stride, :size, :size][:, :out_height, :out_width].max(axis=(-1, -2))
+    offset = -(padding // 2)
+    start_height = offset + max(0, -offset)
+    start_width = offset + max(0, -offset)
+    end_height = offset + (out_height - 1) * stride + size - 1
+    end_width = offset + (out_width - 1) * stride + size - 1
+    pad_top = max(0, -offset)
+    pad_left = max(0, -offset)
+    pad_bottom = max(0, end_height - (height - 1))
+    pad_right = max(0, end_width - (width - 1))
+    if np.issubdtype(values.dtype, np.floating):
+        constant = -np.inf
+    else:
+        constant = INT8_MIN
+    padded = np.pad(
+        values,
+        ((0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),
+        mode="constant",
+        constant_values=constant,
+    )
+    view = np.lib.stride_tricks.sliding_window_view(padded, (size, size), axis=(1, 2))
+    return view[:, start_height::stride, start_width::stride, :size, :size][:, :out_height, :out_width].max(axis=(-1, -2))
 
 
 def route_float(tensors: list[np.ndarray], references: list[int], layer_index: int, groups: int, group_id: int) -> np.ndarray:
@@ -579,12 +730,13 @@ def forward_one(
         kind = section.kind
         options = section.options
         if kind == "convolutional":
-            stride = cfg_int(options, "stride", 1)
+            size = cfg_int(options, "size")
+            stride, padding = convolution_parameters(options, size)
             float_layer = float_layers.get(layer_index)
             package_layer = package_layers.get(layer_index)
             if float_layer is None or package_layer is None:
                 raise Int8ForwardError(f"卷积层 {layer_index} 缺少权重参数")
-            float_current = conv_float(float_current, float_layer, stride)
+            float_current = conv_float(float_current, float_layer, stride, padding)
             activation = options.get("activation", "linear").lower()
             if activation == "leaky":
                 float_current = np.where(float_current >= 0.0, float_current, float_current * 0.1)
@@ -592,7 +744,14 @@ def forward_one(
                 raise Int8ForwardError(f"暂不支持浮点激活: {activation}")
             if layer_index not in activation_scales:
                 raise Int8ForwardError(f"卷积层 {layer_index} 缺少激活 scale")
-            int_current, int_stat = conv_int8(int_current, package_layer, activation_scales[layer_index], activation, stride)
+            int_current, int_stat = conv_int8(
+                int_current,
+                package_layer,
+                activation_scales[layer_index],
+                activation,
+                stride,
+                padding,
+            )
             integer_stats[layer_index] = int_stat
             metrics[layer_index] = metric(float_current, int_current)
         elif kind == "route":
@@ -605,11 +764,11 @@ def forward_one(
             int_current = route_int8(int_tensors, raw_refs, layer_index, groups, group_id)
         elif kind == "maxpool":
             size = cfg_int(options, "size")
-            stride = cfg_int(options, "stride")
-            float_current = maxpool(float_current, size, stride)
-            int_current = Tensor(maxpool(int_current.values, size, stride), int_current.scale)
+            _, stride, padding = maxpool_parameters(options, size)
+            float_current = maxpool(float_current, size, stride, padding)
+            int_current = Tensor(maxpool(int_current.values, size, stride, padding), int_current.scale)
         elif kind == "upsample":
-            stride = cfg_int(options, "stride")
+            stride = upsample_stride(options)
             float_current = np.repeat(np.repeat(float_current, stride, axis=1), stride, axis=2)
             int_current = Tensor(np.repeat(np.repeat(int_current.values, stride, axis=1), stride, axis=2), int_current.scale)
         elif kind == "yolo":
@@ -712,7 +871,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "zero_point": 0,
             "weight_scale": "GFINT8W1 per-output-channel symmetric",
             "bias_domain": "round(fused_bias / (input_scale * weight_scale)) into accumulator",
-            "accumulator": "INT64 exact reference with INT32 range audit",
+            "accumulator": "INT64 exact reference with separate raw/bias/with-bias INT32 range audit",
+            "int64_boundary_proof": "输入与权重先验证在 [-127,127]；逐乘积界为 127*127，原始累加器界为 K*127*127，并在 INT64 矩阵乘法、bias 映射和加 bias 前分别证明边界",
             "rounding": "half_away_from_zero",
             "activation": "leaky slope 0.1 before output requantization",
             "route_rescale": "all route inputs rescaled to the maximum input tensor scale",
@@ -723,6 +883,17 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "layer_metrics": layer_metrics,
         "integer_accumulator_summary": {
             "int32_overflow_count": sum(item["int32_overflow_count"] for item in conv_stats),
+            "int64_overflow_counts": {
+                "product": sum(item["product_int64_overflow_count"] for item in conv_stats),
+                "raw_accumulator": sum(item["raw_accumulator_int64_overflow_count"] for item in conv_stats),
+                "bias_accumulator": sum(item["bias_accumulator_int64_overflow_count"] for item in conv_stats),
+                "with_bias": sum(item["accumulator_with_bias_int64_overflow_count"] for item in conv_stats),
+            },
+            "int32_overflow_counts": {
+                "raw_accumulator": sum(item["raw_accumulator_int32_overflow_count"] for item in conv_stats),
+                "bias_accumulator": sum(item["bias_accumulator_int32_overflow_count"] for item in conv_stats),
+                "with_bias": sum(item["accumulator_with_bias_int32_overflow_count"] for item in conv_stats),
+            },
             "raw_accumulator_min": min(item["raw_accumulator_min"] for item in conv_stats),
             "raw_accumulator_max": max(item["raw_accumulator_max"] for item in conv_stats),
             "accumulator_with_bias_min": min(item["accumulator_with_bias_min"] for item in conv_stats),
@@ -749,6 +920,8 @@ def write_summary(report: dict[str, Any], path: Path) -> None:
         f"- status: `{report['status']}`",
         f"- sample count: `{report['sample_count']}` / train-only calibration list 512",
         f"- INT32 overflow count: `{aggregate['int32_overflow_count']}`",
+        f"- INT64 overflow counts (product/raw/bias/with-bias): `{aggregate['int64_overflow_counts']['product']}` / `{aggregate['int64_overflow_counts']['raw_accumulator']}` / `{aggregate['int64_overflow_counts']['bias_accumulator']}` / `{aggregate['int64_overflow_counts']['with_bias']}`",
+        f"- INT32 overflow counts (raw/bias/with-bias): `{aggregate['int32_overflow_counts']['raw_accumulator']}` / `{aggregate['int32_overflow_counts']['bias_accumulator']}` / `{aggregate['int32_overflow_counts']['with_bias']}`",
         f"- accumulator range with bias: `{aggregate['accumulator_with_bias_min']}` .. `{aggregate['accumulator_with_bias_max']}`",
         f"- saturated INT8 output count: `{aggregate['saturated_output_count']}`",
         "",

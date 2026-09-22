@@ -16,12 +16,16 @@ if str(ROOT) not in sys.path:
 from verification.s1_t02_d2_int8_forward import (
     INT8_MAX,
     INT8_MIN,
+    Int8ForwardError,
     PackageLayer,
     Tensor,
+    convolution_parameters,
     conv_int8,
+    maxpool_parameters,
     rescale_tensor,
     round_away_array,
     saturate_array,
+    upsample_stride,
 )
 
 
@@ -59,3 +63,31 @@ class Int8ForwardTest(unittest.TestCase):
         self.assertEqual(result.values.tolist(), [[[3]]])
         self.assertEqual(stats["int32_overflow_count"], 0)
         self.assertEqual(stats["accumulator_with_bias_min"], 10)
+        self.assertEqual(stats["product_int64_overflow_count"], 0)
+        self.assertEqual(stats["raw_accumulator_int64_overflow_count"], 0)
+        self.assertEqual(stats["bias_accumulator_int64_overflow_count"], 0)
+        self.assertEqual(stats["accumulator_with_bias_int64_overflow_count"], 0)
+
+    def test_cfg_parameters_bind_darknet_defaults_and_reject_mismatch(self) -> None:
+        """验证卷积、池化和上采样参数不会静默采用硬编码。"""
+        self.assertEqual(convolution_parameters({"stride": "2", "pad": "1"}, 3), (2, 1))
+        self.assertEqual(maxpool_parameters({"size": "2", "stride": "2"}, 2), (2, 2, 1))
+        self.assertEqual(upsample_stride({"stride": "2", "scale": "1"}), 2)
+        with self.assertRaises(Int8ForwardError):
+            convolution_parameters({"stride": "2", "stride_x": "1"}, 3)
+
+    def test_rejects_bias_mapping_outside_int64(self) -> None:
+        """验证 bias 映射在进入整数加法前拒绝 INT64 不可表示值。"""
+        layer = PackageLayer(
+            layer_index=0,
+            filters=1,
+            input_channels=1,
+            groups=1,
+            size=1,
+            weight_count=1,
+            weight_scales=np.array([1.0], dtype=np.float64),
+            fused_biases=np.array([1.0e20], dtype=np.float64),
+            quantized_weights=np.array([[[[1]]]], dtype=np.int8),
+        )
+        with self.assertRaises(Int8ForwardError):
+            conv_int8(Tensor(np.array([[[1]]], dtype=np.int8), 1.0), layer, 1.0, "linear", 1)

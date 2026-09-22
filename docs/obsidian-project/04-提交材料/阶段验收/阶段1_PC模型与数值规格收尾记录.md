@@ -65,14 +65,16 @@ updated: 2026-09-22
 |---|---|---|
 | 带框五类数据集 | S1-T01 G4 已通过 | manifest、语义审查、分组和 Darknet 输入绑定已留证；独立 robustness set 尚不存在 |
 | 浮点模型 | 已形成候选执行证据 | tiny416/tiny320 formal checkpoint 已绑定；full608 只作 PC 对照；test 精度只对 tiny416 完成测量 |
-| INT8 检测模型 | CPU 整数前向参考已执行，检测精度未验收 | D2 已生成 tiny416 BN 折叠/输出通道权重量化包，并用 512 张 train-only 校准图完成 21 个卷积层真实浮点激活 scale；8 张固定清单图完成 CPU INT8 双路径对照，route 重定标和检测头误差仍待审查，不代表 mAP 或可部署封装 |
+| INT8 检测模型 | CPU 整数前向参考已执行，检测精度未验收 | D2 已按 Darknet BN 公式生成 tiny416 r2 权重包，并用 512 张 train-only 校准图完成 21 个卷积层真实浮点激活 scale；8 张固定清单图完成 CPU INT8 双路径对照，INT64/INT32 分项审计为零，route 重定标和检测头误差仍待审查，不代表 mAP 或可部署封装 |
 | 固定预处理 | D2 规则已冻结，路由仍需整网验证 | RGB、Darknet letterbox、CHW/255、INT8 输入规则已绑定；显式 `letter_box=1` 使用隔离 cfg 副本 |
 | 固定权重 | 浮点候选及 INT8 中间参数已绑定 | tiny416 当前为优先候选；权重包、激活 scale 和 8 张 CPU 整数前向已留证，但 route 语义、metadata 部署对齐和最终选型仍待数值关口 |
 | Python 检测黄金结果 | 部分完成 | D9 提供 CPU 解码参考，D6 提供离线检测指标；二者不等于 INT8 整网黄金 |
 | 解码/NMS 测例 | 已完成参考层 | D9 CPU 解码和 D6 指标/NMS 夹具已通过既有任务级审查；板上接口尚未验证 |
 | 精度关 | `G0_PENDING` | tiny416 test 25,484/25,484 已按固定 `score_threshold=0.25` 测量，mAP 已记录；mAP/逐类门槛、robustness 和 no_hand/non-target 仍未闭合 |
-| 数值关 | CPU 参考前向已执行，尚未验收 | D2 完成输入/量化算子参考与 golden；8 张图的逐卷积 INT8 累加、重定标、饱和和浮点对照已记录，但 route 统一 scale 仍是参考约定，检测头/mAP、独立复审和部署接口仍待完成 |
+| 数值关 | CPU 参考前向已执行，尚未验收 | D2 r2 完成输入/量化算子参考与逐层浮点绑定；8 张图的逐卷积 INT8 累加、重定标和分项溢出审计已记录，但 route 统一 scale 仍是参考约定，检测头/mAP、独立复审和部署接口仍待完成 |
 | 资源关 | `NOT_EXECUTED_PENDING` | 已有标量/形状预算；目标 YOLO 加速器 Vivado 综合、DDR/峰值缓存和性能实测尚未完成 |
+
+本轮 D2 修正已由独立 Reviewer A 只读复审并给出 `PASS`。复审确认 Darknet BN 折叠公式、INT64/INT32 分项审计、cfg 参数绑定以及 r2/r4 证据哈希一致；这只关闭 D2 的任务级复审，不代表阶段 1 的精度、部署资源、上板或 G4/G5 已通过。
 
 ## 数据集与评估口径
 

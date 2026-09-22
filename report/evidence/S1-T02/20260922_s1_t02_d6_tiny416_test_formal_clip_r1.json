@@ -60,12 +60,7 @@
     "coordinate_policy": {
       "name": "clip_finite_positive_xyxy_to_unit_range",
       "decision_date": "2026-09-21",
-      "description": "有限且原始正面积的预测框逐坐标裁剪到[0,1]；裁剪后零面积或完全在图像外的框拒绝。",
-      "raw_reject_diagnostic": {
-        "path": "report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_coordinate_clip_impact_r1.json",
-        "sha256": "88896cedea23f8cb50ea981c1a7072f1bae41871dbd425f575ec4f8ec423f569",
-        "status": "REFERENCE_DIAGNOSTIC_ONLY"
-      }
+      "description": "有限且原始正面积的预测框逐坐标裁剪到[0,1]；裁剪后零面积或完全在图像外的框拒绝。"
     },
     "matching": "同图同类一对一，IoU>=阈值，score 降序稳定排序",
     "test_and_robustness_retuning": "forbidden"
@@ -83,11 +78,6 @@
     "raw_box_must_have_positive_area": true,
     "operation": "min(max(value, 0), 1) per xyxy coordinate",
     "clipped_box_must_have_positive_area": true,
-    "raw_reject_diagnostic": {
-      "path": "report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_coordinate_clip_impact_r1.json",
-      "sha256": "88896cedea23f8cb50ea981c1a7072f1bae41871dbd425f575ec4f8ec423f569",
-      "status": "REFERENCE_DIAGNOSTIC_ONLY"
-    },
     "raw_out_of_range_box_count": 76,
     "clipped_box_count": 76,
     "clipped_box_count_after_score_nms": 75
@@ -101,8 +91,7 @@
     "metric_policy_evidence": {
       "status": "BOUND_AND_VERIFIED",
       "binding": [
-        "report/evidence/S1-T02/20260922_s1_t02_d6_metric_policy_r1.json",
-        "0915737ced6bdfa73713f023548c92680fa7b294b7d0cd011d279015587dfc9b"
+        "report/evidence/S1-T02/20260922_s1_t02_d6_metric_policy_r2.json"
       ],
       "required_for_splits": [
         "test",

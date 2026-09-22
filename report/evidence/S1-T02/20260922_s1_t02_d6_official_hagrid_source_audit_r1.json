@@ -1,0 +1,154 @@
+{
+  "schema": "s1-t02-d6-official-hagrid-source-audit-r1",
+  "task_id": "S1-T02-D6-OFFICIAL-HAGRID-SOURCE-AUDIT-R1",
+  "observed_at_local": "2026-09-22T20:16:08.198+08:00",
+  "status": "SOURCE_CANDIDATE_IDENTIFIED_BUT_D6_ROBUSTNESS_NOT_READY",
+  "scope": {
+    "project_stage": "stage1_pc_model_and_numeric_specification_only",
+    "training_executed": false,
+    "stage2_or_rtl_executed": false,
+    "image_archive_downloaded_in_this_audit": false,
+    "read_inputs": [
+      "D:/FPGA_Data/HaGRIDv2/manifest.csv",
+      "D:/FPGA_Data/HaGRIDv2/dataset/annotations/annotations/{train,val,test}/*.json",
+      "official hukenovs/hagrid repository source at two commits"
+    ],
+    "privacy_output_rule": "只保存聚合统计、版本、文件清单哈希和来源地址，不保存 user_id、文件名样本或个人图像。"
+  },
+  "official_sources": {
+    "hagrid_v2": {
+      "repository_url": "https://github.com/hukenovs/hagrid",
+      "source_commit": "080e18917376ec935e453cd0e599c23478c7e98f",
+      "role": "当前正式五类训练、验证、测试来源",
+      "annotation_capabilities": [
+        "逐手边界框",
+        "labels",
+        "user_id",
+        "按 subject 的官方 split 信息"
+      ]
+    },
+    "hagrid_v1_subsample_candidate": {
+      "repository_url": "https://github.com/hukenovs/hagrid",
+      "branch": "Hagrid_v1",
+      "source_commit": "116ee6b548f5611d543768ad9991f33f140f979d",
+      "role": "v2 之外的独立鲁棒性候选来源，尚未纳入正式清单",
+      "published_scope": "官方 README 声明 subsample 每个手势 100 张",
+      "image_archive_url": "https://n-usr-2uzac.s3pd12.sbercloud.ru/b-usr-2uzac-mv4/hagrid/subsample.zip",
+      "image_archive_published_size": "2.5 GB",
+      "annotation_archive_url": "https://n-usr-2uzac.s3pd12.sbercloud.ru/b-usr-2uzac-mv4/hagrid/ann_subsample.zip",
+      "annotation_archive_published_size": "1.2 MB",
+      "acquisition_status": "NOT_DOWNLOADED",
+      "current_environment_observation": "本机 Shell 对 v1 README 中的旧 S3 主机名 DNS 解析失败；这只表示当前获取链路未验证，不否定官方仓库来源。"
+    },
+    "license_reference": {
+      "local_v1_license_path": "C:/Users/22061/AppData/Local/Temp/gestureforge-hagrid-v1-source/license/en_us.pdf",
+      "local_v1_license_sha256": "14f4845e9c8d3de875cbac4139491da368ab1040a7f565e02894477279134d22",
+      "legal_conclusion": "未在本证据中作新的法律判断；正式使用仍须保留许可证、署名、来源 URI 和适用的同许可要素。"
+    }
+  },
+  "local_v2_audit": {
+    "approved_manifest": {
+      "path": "D:/FPGA_Data/HaGRIDv2/manifest.csv",
+      "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+      "bytes": 57672948,
+      "rows": 158680,
+      "unique_people": 21950,
+      "unique_image_keys": 158680
+    },
+    "annotation_inventory": {
+      "root": "D:/FPGA_Data/HaGRIDv2/dataset/annotations/annotations",
+      "selected_files": 30,
+      "total_bytes": 1031291630,
+      "inventory_sha256": "2ab3195fbdaf6b78d780850bd576f087b5ec3bd390a4513d6992fd12499985e9",
+      "selection": "train、val、test 中的五个目标类、no_gesture、like、ok、stop、peace JSON"
+    },
+    "target_classes": {
+      "fist": {
+        "annotation_entries": 31543,
+        "entries_with_person_outside_current_manifest": 1,
+        "outside_person_count": 1,
+        "entries_with_multiple_boxes": 6450,
+        "isolated_multiple_box_entries": 0,
+        "isolated_small_area_le_003_descriptive": 1
+      },
+      "palm": {
+        "annotation_entries": 31710,
+        "entries_with_person_outside_current_manifest": 1,
+        "outside_person_count": 1,
+        "entries_with_multiple_boxes": 6856,
+        "isolated_multiple_box_entries": 0,
+        "isolated_small_area_le_003_descriptive": 0
+      },
+      "one": {
+        "annotation_entries": 31872,
+        "entries_with_person_outside_current_manifest": 1,
+        "outside_person_count": 1,
+        "entries_with_multiple_boxes": 8099,
+        "isolated_multiple_box_entries": 0,
+        "isolated_small_area_le_003_descriptive": 0
+      },
+      "two_up": {
+        "annotation_entries": 30688,
+        "entries_with_person_outside_current_manifest": 1,
+        "outside_person_count": 1,
+        "entries_with_multiple_boxes": 5930,
+        "isolated_multiple_box_entries": 0,
+        "isolated_small_area_le_003_descriptive": 1
+      },
+      "three": {
+        "annotation_entries": 30721,
+        "entries_with_person_outside_current_manifest": 2,
+        "outside_person_count": 2,
+        "entries_with_multiple_boxes": 7203,
+        "isolated_multiple_box_entries": 0,
+        "isolated_small_area_le_003_descriptive": 2
+      }
+    },
+    "no_gesture": {
+      "annotation_entries": 2164,
+      "entries_with_empty_bboxes": 0,
+      "entries_with_nonempty_bboxes": 2164,
+      "maximum_boxes_per_entry": 2,
+      "entries_with_person_outside_current_manifest": 4,
+      "semantic_result": "不能作为 no_hand；官方语义是自然手势或画面中的第二只无手势手，仍然有手框。"
+    },
+    "non_target_candidates_not_present_in_current_image_manifest": {
+      "like": {
+        "entries_with_person_outside_current_manifest": 1967,
+        "outside_person_count": 1783
+      },
+      "ok": {
+        "entries_with_person_outside_current_manifest": 3294,
+        "outside_person_count": 2579
+      },
+      "stop": {
+        "entries_with_person_outside_current_manifest": 1968,
+        "outside_person_count": 1805
+      },
+      "peace": {
+        "entries_with_person_outside_current_manifest": 2104,
+        "outside_person_count": 1880
+      }
+    }
+  },
+  "interpretation": {
+    "v2_target_independent_pool": "FAILS_APPROVED_MINIMUM; current v2 target annotations leave only 1,1,1,1,2 person-disjoint entries by class, not 100 images per class.",
+    "v2_non_target_pool": "CANDIDATE; official non-target classes have enough person-disjoint annotation candidates, but image archives and visual condition review are still required.",
+    "v2_multi_hand_and_small_target": "CANDIDATE_FILTER_ONLY; annotation box counts and descriptive area bins do not replace decoded-image and manual condition review.",
+    "v2_no_hand": "BLOCKED; no_gesture has zero empty-bbox entries in the selected annotations and must not be relabeled as no_hand.",
+    "v1_subsample": "CANDIDATE_PENDING_ACQUISITION_AND_ID_AUDIT; it is the smallest same-publisher route found, but actual archive bytes, user_id isolation, image integrity and condition labels are not yet bound.",
+    "d6_or_stage1_acceptance": "NOT_READY; this audit does not freeze mAP/precision/recall thresholds, does not create a robustness manifest, and does not authorize G4/G5."
+  },
+  "required_next": [
+    "获取官方 Hagrid_v1 subsample.zip 与 ann_subsample.zip，记录实际字节数和 SHA-256；若旧 endpoint 继续不可达，只能使用官方仓库提供的可核验镜像或由 Wong 指定替代，不静默换第三方数据。",
+    "解压后将 v1 五类目标及候选非目标按 user_id 与现有 train/val/test 做集合差集，形成 person/session 绑定清单；执行图片完整性、重复内容和人工条件审核。",
+    "为 no_hand 补充至少 100 张真实无手图，并保存采集会话、授权/来源和人工确认记录；不能用 no_gesture、空标签推断或合成图替代。",
+    "在 D6 G0 冻结 mAP、逐类 precision/recall、量化损失和 robustness 条件阈值后，才重新测量并进入 G4/G5 判断。"
+  ],
+  "validation": {
+    "method": "Python 3.12.14 逐文件 JSON 解析，按 user_id 与图片键集合聚合；未保存原始身份值。",
+    "json_self_validation": "PENDING_AFTER_FILE_CREATION",
+    "git_diff_check": "PENDING_AFTER_FILE_CREATION",
+    "independent_review": "PENDING"
+  }
+}

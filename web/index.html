@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GestureForge / 三模型手势观测台</title>
+  <style>
+    :root {
+      --ink: #f5f4ec;
+      --muted: #a7aca5;
+      --night: #0b1112;
+      --panel: #111b1c;
+      --panel-2: #162324;
+      --line: rgba(221, 255, 198, .16);
+      --acid: #d7ff72;
+      --cyan: #73e4dd;
+      --coral: #ff8e70;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .26);
+      --display: "Aptos Display", "Bahnschrift", "Microsoft YaHei UI", sans-serif;
+      --body: "Aptos", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--night); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 16% 10%, rgba(115, 228, 221, .14), transparent 28rem),
+        radial-gradient(circle at 88% 12%, rgba(215, 255, 114, .13), transparent 24rem),
+        linear-gradient(135deg, #0b1112 0%, #0e1718 48%, #101b1b 100%);
+      font-family: var(--body);
+      letter-spacing: .01em;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: .34;
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+    }
+
+    .shell { width: min(1440px, calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--acid);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 30px; height: 2px; content: ""; background: var(--acid); }
+    header { padding: 44px 0 26px; animation: enter .7s ease both; }
+    header h1 {
+      max-width: 760px;
+      margin: 18px 0 10px;
+      font-family: var(--display);
+      font-size: clamp(38px, 6vw, 78px);
+      font-weight: 700;
+      line-height: .94;
+      letter-spacing: -.055em;
+    }
+    header h1 em { color: var(--cyan); font-style: normal; }
+    header p { max-width: 720px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.7; }
+
+    .topline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 28px;
+    }
+    .status-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,.035);
+      font-size: 12px;
+    }
+    .chip strong { color: var(--ink); font-weight: 700; }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--acid); box-shadow: 0 0 12px var(--acid); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
+      gap: 18px;
+      align-items: start;
+      margin: 16px 0 22px;
+    }
+    .camera-panel, .notes-panel, .model-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(22,35,36,.92), rgba(12,20,21,.92));
+      box-shadow: var(--shadow);
+    }
+    .camera-panel { position: relative; overflow: hidden; border-radius: 26px; }
+    .camera-panel::after {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-top: 1px solid var(--acid);
+      border-right: 1px solid var(--acid);
+      content: "";
+      opacity: .6;
+      pointer-events: none;
+    }
+    .camera-head, .notes-head { display: flex; justify-content: space-between; gap: 20px; padding: 22px 24px 16px; }
+    .camera-head h2, .notes-head h2 { margin: 0; font-family: var(--display); font-size: 20px; letter-spacing: -.025em; }
+    .camera-head span, .notes-head span { color: var(--muted); font-size: 12px; }
+    .viewfinder { position: relative; aspect-ratio: 16 / 10; overflow: hidden; margin: 0 12px; border-radius: 17px; background: #050909; }
+    .viewfinder video, .viewfinder img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+    .viewfinder img { display: none; }
+    .scanline { position: absolute; right: 0; left: 0; height: 1px; background: rgba(215,255,114,.68); box-shadow: 0 0 16px var(--acid); animation: scan 3.8s linear infinite; }
+    .corner { position: absolute; width: 28px; height: 28px; border-color: rgba(215,255,114,.72); border-style: solid; }
+    .corner.tl { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+    .corner.tr { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+    .corner.bl { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+    .corner.br { right: 14px; bottom: 14px; border-width: 0 2px 2px 0; }
+    .camera-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 14px 24px 20px; color: var(--muted); font-size: 12px; }
+    .camera-meta b { color: var(--cyan); font-weight: 700; }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 9px; padding: 0 24px 24px; }
+    button, select, .file-label {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--ink);
+      background: rgba(255,255,255,.055);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    button, .file-label { padding: 0 15px; }
+    select { padding: 0 12px; }
+    button:hover, select:hover, .file-label:hover { border-color: rgba(215,255,114,.66); background: rgba(215,255,114,.1); transform: translateY(-1px); }
+    button:disabled { cursor: wait; opacity: .5; transform: none; }
+    .primary { color: #10160e; border-color: var(--acid); background: var(--acid); font-weight: 800; }
+    .primary:hover { color: #10160e; background: #e5ff9e; }
+    .danger { color: var(--coral); }
+    input[type=file] { display: none; }
+    .notes-panel { border-radius: 26px; }
+    .notes-body { padding: 0 24px 24px; }
+    .metric-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .metric { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(0,0,0,.15); }
+    .metric b { display: block; color: var(--acid); font-family: var(--display); font-size: 29px; letter-spacing: -.04em; }
+    .metric span { color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .notes-body h3 { margin: 19px 0 8px; color: var(--cyan); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .notes-body p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .notes-body ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+    .notes-body li::marker { color: var(--acid); }
+    .truth-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
+    .truth-row label { color: var(--muted); font-size: 12px; }
+    .truth-row select { flex: 1; min-width: 150px; }
+
+    .models-header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin: 32px 0 14px; animation: enter .7s .1s ease both; }
+    .models-header h2 { margin: 0; font-family: var(--display); font-size: 29px; letter-spacing: -.04em; }
+    .models-header p { max-width: 510px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-bottom: 38px; }
+    .model-card { position: relative; min-height: 280px; overflow: hidden; border-radius: 19px; animation: enter .7s .18s ease both; }
+    .model-card:nth-child(2) { animation-delay: .25s; }
+    .model-card:nth-child(3) { animation-delay: .32s; }
+    .model-card::before { position: absolute; top: 0; right: 0; left: 0; height: 3px; content: ""; background: var(--card-accent, var(--acid)); }
+    .card-top { display: flex; align-items: start; justify-content: space-between; gap: 10px; padding: 20px 18px 12px; }
+    .card-top h3 { margin: 0; font-family: var(--display); font-size: 20px; letter-spacing: -.03em; }
+    .card-top small { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .role { padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--card-accent, var(--acid)); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .card-note { min-height: 39px; padding: 0 18px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .prediction { min-height: 76px; margin: 13px 18px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,.18); }
+    .prediction.empty { color: var(--muted); font-size: 12px; }
+    .prediction-main { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .prediction-main strong { color: var(--card-accent, var(--acid)); font-family: var(--display); font-size: 25px; letter-spacing: -.04em; }
+    .prediction-main span { color: var(--ink); font-size: 13px; }
+    .prediction-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; color: var(--muted); font-size: 10px; }
+    .prediction-list span { padding: 3px 5px; border-radius: 4px; background: rgba(255,255,255,.06); }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 18px 18px; }
+    .latency { color: var(--muted); font-size: 11px; }
+    .mark-actions { display: flex; gap: 6px; }
+    .mark-actions button { min-height: 31px; padding: 0 9px; border-radius: 7px; font-size: 11px; }
+    .mark-actions .yes { color: #10160e; border-color: var(--acid); background: var(--acid); }
+    .mark-actions .no { color: var(--coral); border-color: rgba(255,142,112,.4); }
+    .accuracy { display: flex; justify-content: space-between; margin: 0 18px 16px; padding-top: 11px; border-top: 1px dashed var(--line); color: var(--muted); font-size: 11px; }
+    .accuracy b { color: var(--ink); }
+    .error { color: var(--coral) !important; }
+    footer { padding: 0 0 36px; color: #727d78; font-size: 11px; line-height: 1.6; }
+    footer code { color: var(--cyan); }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 5; max-width: min(360px, calc(100% - 48px)); padding: 13px 15px; border: 1px solid var(--acid); border-radius: 10px; color: var(--ink); background: #17221d; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translateY(12px); transition: opacity .2s ease, transform .2s ease; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @keyframes enter { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scan { from { top: 12%; } to { top: 88%; } }
+    @media (max-width: 1020px) {
+      .workspace { grid-template-columns: 1fr; }
+      .model-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 660px) {
+      .shell { width: min(100% - 28px, 1440px); }
+      header { padding-top: 28px; }
+      header h1 { font-size: 48px; }
+      .model-grid { grid-template-columns: 1fr; }
+      .camera-head, .notes-head { padding-right: 17px; padding-left: 17px; }
+      .controls, .camera-meta, .notes-body { padding-right: 17px; padding-left: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="eyebrow">GestureForge / Stage 1</div>
+      <h1>把三套模型，<em>放到同一只手前。</em></h1>
+      <p>本地摄像头观测台：同一帧图像可依次送入 tiny320、tiny416 与 full608。用真实摄像头逐帧标记“正确 / 错误”，快速获得每个模型的人工样本估计。</p>
+      <div class="topline">
+        <div class="status-strip">
+          <span class="chip"><i class="chip-dot"></i><strong id="serviceStatus">正在读取模型绑定…</strong></span>
+          <span class="chip">阈值 <strong>0.25</strong></span>
+          <span class="chip">NMS IoU <strong>0.45</strong></span>
+        </div>
+        <button id="resetStats" class="danger">清空本机人工统计</button>
+      </div>
+    </header>
+
+    <section class="workspace" aria-label="摄像头与阶段一口径">
+      <section class="camera-panel">
+        <div class="camera-head">
+          <div><h2>Live view / 现场帧</h2><span>浏览器权限仅在本机使用</span></div>
+          <span id="cameraStatus">未连接</span>
+        </div>
+        <div class="viewfinder">
+          <video id="camera" autoplay playsinline muted></video>
+          <img id="stillImage" alt="导入的待检测图像">
+          <div class="scanline"></div>
+          <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        </div>
+        <div class="camera-meta">
+          <span>画面 <b id="frameSize">—</b></span>
+          <span>当前样本 <b id="sampleState">尚未捕获</b></span>
+          <span>存储策略 <b>不保存帧</b></span>
+        </div>
+        <div class="controls">
+          <button id="startCamera" class="primary">启动摄像头</button>
+          <button id="stopCamera">停止</button>
+          <button id="analyzeAll">同帧跑三模型</button>
+          <select id="singleModel" aria-label="选择单模型">
+            <option value="tiny416">tiny416</option>
+            <option value="tiny320">tiny320</option>
+            <option value="full608">full608</option>
+          </select>
+          <button id="analyzeOne">只跑选中模型</button>
+          <button id="liveMode">连续观测</button>
+          <label class="file-label" for="imageInput">导入一帧</label>
+          <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp">
+        </div>
+      </section>
+
+      <aside class="notes-panel">
+        <div class="notes-head"><div><h2>Acceptance / 口径</h2><span>阶段一冻结建议</span></div><span>可回滚</span></div>
+        <div class="notes-body">
+          <div class="metric-hero">
+            <div class="metric"><b>90%</b><span>mAP@0.5 与逐类 precision / recall 的正式门槛</span></div>
+            <div class="metric"><b>−5pp</b><span>浮点到 INT8 的 mAP@0.5 / 逐类 recall 最大下降</span></div>
+          </div>
+          <h3>怎么用</h3>
+          <ul>
+            <li>点击“启动摄像头”，选择真实手势后让手进入取景框。</li>
+            <li>点击“同帧跑三模型”，每个卡片会显示最高分框和延迟。</li>
+            <li>按真实手势选择框标记“正确 / 错误”；统计保存在当前浏览器。</li>
+          </ul>
+          <div class="truth-row">
+            <label for="truthLabel">当前真实手势</label>
+            <select id="truthLabel">
+              <option value="fist">fist / 握拳</option>
+              <option value="palm">palm / 手掌</option>
+              <option value="one">one / 数字一</option>
+              <option value="two_up">two_up / 数字二</option>
+              <option value="three">three / 数字三</option>
+              <option value="unknown">无目标 / 不计入准确率</option>
+            </select>
+          </div>
+          <h3>边界</h3>
+          <p>卡片中的“人工样本估计”不是官方 test mAP。<code>no_hand</code> 目前是阶段一非阻断诊断项；官方 <code>no_gesture</code> 不会被改写成无手类别。</p>
+        </div>
+      </aside>
+    </section>
+
+    <section>
+      <div class="models-header">
+        <div><div class="eyebrow">Model console</div><h2>同一帧，三种答案</h2></div>
+        <p>三张卡片绑定固定 cfg / weights。模型文件不上传到浏览器，浏览器只把当前 JPEG 帧交给本机 Darknet 服务。</p>
+      </div>
+      <div id="modelGrid" class="model-grid" aria-live="polite"></div>
+    </section>
+
+    <footer>
+      服务命令：<code>py web\gestureforge_web.py --host 127.0.0.1 --port 8765</code>。阶段一冻结后仍可替换注册表中的模型路径回滚，不需要重新训练；外部权重始终留在 <code>D:\FPGA_Data\HaGRIDv2</code>。
+    </footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <canvas id="frameCanvas" hidden></canvas>
+
+  <script>
+    const state = {
+      models: [],
+      stream: null,
+      busy: false,
+      live: false,
+      liveTimer: null,
+      currentFrame: null,
+      lastResults: {},
+      stats: loadStats(),
+    };
+
+    const els = {
+      camera: document.querySelector("#camera"),
+      stillImage: document.querySelector("#stillImage"),
+      canvas: document.querySelector("#frameCanvas"),
+      grid: document.querySelector("#modelGrid"),
+      status: document.querySelector("#serviceStatus"),
+      cameraStatus: document.querySelector("#cameraStatus"),
+      frameSize: document.querySelector("#frameSize"),
+      sampleState: document.querySelector("#sampleState"),
+      truth: document.querySelector("#truthLabel"),
+      singleModel: document.querySelector("#singleModel"),
+      toast: document.querySelector("#toast"),
+    };
+
+    function loadStats() {
+      try { return JSON.parse(localStorage.getItem("gestureforge-web-stats-v1")) || {}; }
+      catch (error) { return {}; }
+    }
+
+    function saveStats() {
+      try { localStorage.setItem("gestureforge-web-stats-v1", JSON.stringify(state.stats)); }
+      catch (error) { showToast("浏览器未允许保存统计，本次仍可继续测试"); }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove("show"), 3300);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (character) => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;"}[character]));
+    }
+
+    function modelStats(modelId) {
+      return state.stats[modelId] || { correct: 0, total: 0 };
+    }
+
+    function accuracyText(modelId) {
+      const stats = modelStats(modelId);
+      const value = stats.total ? `${(stats.correct / stats.total * 100).toFixed(1)}%` : "—";
+      return `<span>人工样本 <b>${stats.correct}/${stats.total}</b></span><b>${value}</b>`;
+    }
+
+    function createCard(model) {
+      const accent = model.id === "tiny416" ? "var(--acid)" : model.id === "tiny320" ? "var(--cyan)" : "var(--coral)";
+      const role = model.role === "pc_only_reference" ? "PC ONLY" : "BOARD CANDIDATE";
+      const card = document.createElement("article");
+      card.className = "model-card";
+      card.dataset.model = model.id;
+      card.style.setProperty("--card-accent", accent);
+      card.innerHTML = `
+        <div class="card-top">
+          <div><h3>${escapeHtml(model.label)}</h3><small>${escapeHtml(model.input_size)} · ${escapeHtml(model.stage_status)}</small></div>
+          <span class="role">${role}</span>
+        </div>
+        <div class="card-note">${escapeHtml(model.evidence_note)}<br><span>权重 ${Number(model.weights_bytes || 0).toLocaleString()} B</span><br><span>证据绑定：${escapeHtml(model.evidence_path || "未提供")}</span></div>
+        <div class="prediction empty" data-slot="prediction">等待一帧…</div>
+        <div class="card-foot"><span class="latency" data-slot="latency">—</span><div class="mark-actions"><button class="yes" data-action="correct">正确</button><button class="no" data-action="wrong">错误</button></div></div>
+        <div class="accuracy" data-slot="accuracy">${accuracyText(model.id)}</div>
+      `;
+      card.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => mark(model.id, button.dataset.action === "correct")));
+      return card;
+    }
+
+    function renderCards() {
+      els.grid.replaceChildren(...state.models.map(createCard));
+    }
+
+    function updateCard(modelId, result) {
+      const card = els.grid.querySelector(`[data-model="${modelId}"]`);
+      if (!card) return;
+      const prediction = card.querySelector('[data-slot="prediction"]');
+      const latency = card.querySelector('[data-slot="latency"]');
+      card.querySelector('[data-slot="accuracy"]').innerHTML = accuracyText(modelId);
+      latency.textContent = result.error ? "请求失败" : `${result.elapsed_ms} ms${result.darknet_ms ? ` · Darknet ${result.darknet_ms} ms` : ""}`;
+      if (result.error) {
+        prediction.className = "prediction empty error";
+        prediction.textContent = result.error;
+        return;
+      }
+      state.lastResults[modelId] = result;
+      const top = result.predictions[0];
+      prediction.className = "prediction";
+      if (!top) {
+        prediction.innerHTML = `<div class="prediction-main"><strong>无检测</strong><span>低于 0.25</span></div>`;
+        return;
+      }
+      const chips = result.predictions.slice(0, 5).map((item) => `<span>${escapeHtml(item.class_name)} ${(item.confidence_pct).toFixed(1)}%</span>`).join("");
+      prediction.innerHTML = `<div class="prediction-main"><strong>${escapeHtml(top.class_name)}</strong><span>${top.confidence_pct.toFixed(1)}%</span></div><div class="prediction-list">${chips}</div>`;
+    }
+
+    function mark(modelId, correct) {
+      const truth = els.truth.value;
+      if (truth === "unknown") {
+        showToast("请选择五类真实手势；无目标样本不计入人工准确率");
+        return;
+      }
+      const result = state.lastResults[modelId];
+      if (!result || result.error) {
+        showToast("请先让该模型完成一次检测");
+        return;
+      }
+      const stats = modelStats(modelId);
+      stats.total += 1;
+      stats.correct += correct ? 1 : 0;
+      state.stats[modelId] = stats;
+      saveStats();
+      const card = els.grid.querySelector(`[data-model="${modelId}"]`);
+      card.querySelector('[data-slot="accuracy"]').innerHTML = accuracyText(modelId);
+      showToast(`${modelId} 已记录：${correct ? "正确" : "错误"} · 真实标签 ${truth}`);
+    }
+
+    function frameFromVideo() {
+      if (els.camera.readyState < 2 || !els.camera.videoWidth) return null;
+      els.canvas.width = els.camera.videoWidth;
+      els.canvas.height = els.camera.videoHeight;
+      els.canvas.getContext("2d").drawImage(els.camera, 0, 0, els.canvas.width, els.canvas.height);
+      return els.canvas.toDataURL("image/jpeg", .82);
+    }
+
+    function currentFrame() {
+      const frame = frameFromVideo() || state.currentFrame;
+      if (!frame) { showToast("请先启动摄像头，或导入一帧图片"); return null; }
+      state.currentFrame = frame;
+      els.sampleState.textContent = "已捕获 · 未上传保存";
+      return frame;
+    }
+
+    async function runModel(modelId, frame) {
+      updateCard(modelId, { error: "分析中…" });
+      try {
+        const response = await fetch("/api/predict", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: modelId, image_data: frame }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+        updateCard(modelId, result);
+      } catch (error) {
+        updateCard(modelId, { error: error.message || "请求失败" });
+      }
+    }
+
+    async function analyzeAll() {
+      if (state.busy) return;
+      const frame = currentFrame();
+      if (!frame) return;
+      state.busy = true;
+      setControls(true);
+      for (const model of state.models) await runModel(model.id, frame);
+      state.busy = false;
+      setControls(false);
+    }
+
+    async function analyzeOne() {
+      if (state.busy) return;
+      const frame = currentFrame();
+      if (!frame) return;
+      state.busy = true;
+      setControls(true);
+      await runModel(els.singleModel.value, frame);
+      state.busy = false;
+      setControls(false);
+    }
+
+    function setControls(disabled) {
+      ["analyzeAll", "analyzeOne", "liveMode"].forEach((id) => { document.getElementById(id).disabled = disabled && id !== "liveMode"; });
+    }
+
+    async function startCamera() {
+      if (!navigator.mediaDevices?.getUserMedia) { showToast("当前浏览器不支持摄像头 API，请使用 localhost 访问"); return; }
+      try {
+        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+        els.camera.srcObject = state.stream;
+        els.camera.style.display = "block";
+        els.stillImage.style.display = "none";
+        els.cameraStatus.textContent = "摄像头已连接";
+        els.cameraStatus.style.color = "var(--acid)";
+      } catch (error) { showToast(`摄像头权限失败：${error.message}`); }
+    }
+
+    function stopCamera() {
+      state.stream?.getTracks().forEach((track) => track.stop());
+      state.stream = null;
+      els.camera.srcObject = null;
+      els.cameraStatus.textContent = "未连接";
+      els.cameraStatus.style.color = "";
+    }
+
+    function toggleLive() {
+      state.live = !state.live;
+      document.getElementById("liveMode").textContent = state.live ? "停止连续观测" : "连续观测";
+      if (!state.live) { window.clearTimeout(state.liveTimer); return; }
+      const loop = async () => {
+        if (!state.live) return;
+        await analyzeAll();
+        state.liveTimer = window.setTimeout(loop, 350);
+      };
+      loop();
+    }
+
+    function importImage(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const image = new Image();
+      image.onload = () => {
+        els.canvas.width = image.naturalWidth;
+        els.canvas.height = image.naturalHeight;
+        els.canvas.getContext("2d").drawImage(image, 0, 0);
+        state.currentFrame = els.canvas.toDataURL("image/jpeg", .84);
+        els.stillImage.src = state.currentFrame;
+        els.stillImage.style.display = "block";
+        els.camera.style.display = "none";
+        els.frameSize.textContent = `${image.naturalWidth}×${image.naturalHeight}`;
+        els.sampleState.textContent = "已导入 · 未上传保存";
+        showToast("已载入一帧，可以开始三模型对比");
+      };
+      image.src = URL.createObjectURL(file);
+    }
+
+    document.querySelector("#startCamera").addEventListener("click", startCamera);
+    document.querySelector("#stopCamera").addEventListener("click", stopCamera);
+    document.querySelector("#analyzeAll").addEventListener("click", analyzeAll);
+    document.querySelector("#analyzeOne").addEventListener("click", analyzeOne);
+    document.querySelector("#liveMode").addEventListener("click", toggleLive);
+    document.querySelector("#imageInput").addEventListener("change", importImage);
+    document.querySelector("#resetStats").addEventListener("click", () => {
+      if (!window.confirm("清空当前浏览器保存的三模型人工统计？")) return;
+      state.stats = {};
+      saveStats();
+      renderCards();
+      showToast("人工统计已清空");
+    });
+
+    async function bootstrap() {
+      try {
+        const response = await fetch("/api/models", { cache: "no-store" });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "模型注册表读取失败");
+        state.models = payload.models;
+        renderCards();
+        els.status.textContent = state.models.every((model) => model.available) ? "三模型绑定正常" : "有模型文件缺失";
+        if (!state.models.every((model) => model.available)) els.status.classList.add("error");
+        els.models = state.models;
+        els.camera.addEventListener("loadedmetadata", () => { els.frameSize.textContent = `${els.camera.videoWidth}×${els.camera.videoHeight}`; });
+      } catch (error) {
+        els.status.textContent = "服务未就绪";
+        els.status.classList.add("error");
+        showToast(error.message || "无法读取模型注册表");
+      }
+    }
+    bootstrap();
+  </script>
+</body>
+</html>

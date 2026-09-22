@@ -1,0 +1,54 @@
+{
+  "schema_version": "s1-t02-d3-pc-benchmark-summary-v1",
+  "task": "S1-T02-D3",
+  "status": "PC_MODEL_PERFORMANCE_MEASURED_BOARD_GATE_DEFERRED_TO_STAGE2A",
+  "decision_date": "2026-09-22",
+  "method": {
+    "warmup": 100,
+    "valid": 1000,
+    "fixed_test_images": 20,
+    "sampling": "按 manifest 顺序循环固定 20 张官方 test 图片；只统计 Darknet 输出的模型推理时间。",
+    "threshold": 0.25,
+    "nms_iou": 0.45,
+    "max_outputs": 15,
+    "excluded": ["进程装载", "浏览器传输", "预处理", "PS 解码/NMS", "显示"]
+  },
+  "models": {
+    "tiny320": {
+      "report": "report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_tiny320_r1.json",
+      "mean_ms": 17.895892,
+      "p50_ms": 17.648,
+      "p95_ms": 20.195,
+      "p99_ms": 21.176,
+      "min_ms": 15.014,
+      "max_ms": 22.364,
+      "failure_counts": {"timeout": 0, "drop": 0, "failure": 0}
+    },
+    "tiny416": {
+      "report": "report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_tiny416_r1.json",
+      "mean_ms": 27.45645,
+      "p50_ms": 27.446,
+      "p95_ms": 29.675,
+      "p99_ms": 31.559,
+      "min_ms": 13.335,
+      "max_ms": 35.642,
+      "failure_counts": {"timeout": 0, "drop": 0, "failure": 0}
+    },
+    "full608": {
+      "report": "report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_full608_r1.json",
+      "mean_ms": 43.861036,
+      "p50_ms": 43.351,
+      "p95_ms": 46.832,
+      "p99_ms": 48.585,
+      "min_ms": 42.248,
+      "max_ms": 51.566,
+      "failure_counts": {"timeout": 0, "drop": 0, "failure": 0}
+    }
+  },
+  "interpretation": {
+    "pc_measurement": "PASS_FOR_STAGE1_PC_PERFORMANCE_EVIDENCE",
+    "board_resource_and_timing": "DEFERRED_TO_STAGE2A",
+    "accuracy": "本报告不改变 D6 精度门槛，不把重复 test 图片的性能样本当作精度样本。",
+    "retraining": "NOT_EXECUTED"
+  }
+}

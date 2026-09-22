@@ -216,3 +216,10 @@
 - AC07 复现与绑定：`33dce790eba35abec305a4f081db5d9ecf5b7005`；数据复检报告 SHA-256 `ec9be81db33a36830c9dbc3f50a6127a5cc949c20862ae59941bdea97d852082`，r1 全量报告 SHA-256 `0394d2125e9597f01e9d5c0cca2ce5e81483505f63bb7b3a7611ce5a4dd6cf6f`，r2 绑定报告 SHA-256 `8ada6e3572577464639aba3248ceb1e38056977b36df3c7a013917de8ff1eb06`；独立 Reviewer r2 PASS，证据 SHA-256 `67d709bc5b8875766d4fbc540bb54a8a673063f4b34d2e86c65ff9fa2ec4002c`。
 - S1-T01 G4 任务验收：摘要 `report/evidence/S1-T01/20260915_s1_t01_g4_acceptance_summary.md`；独立 Reviewer 第2轮 PASS 在 `C:\Users\22061\AppData\Local\Temp\review-s1-t01-g4-r2-20260915\review_s1_t01_g4_r2_final.json`，SHA-256 `d1192a35a292e59d5b0f7fd859b65292e455ee44fef81d57ac24b8b1832b61d4`。S1-T01 已通过 G4，但不构成阶段1 G5 或外部最终验收。
 - D6 val 候选推理：首次尝试因 `0xC0000135`（Darknet 运行时 DLL 加载）未执行推理，失败报告/空日志保留；retry01 因 CWD 缺 `data/labels/*.png` 字体资源而失败且报告/日志保留。retry02 于 2026-09-18 12:45:03 启动，Darknet child exit 0，15,195 张 val 完成；R2 指出摘要 stdout 大小错误已修正，R3 PASS。报告与摘要见上方 D6 捕获记录。捕获阈值 `0.249999` 仅用于候选保留，未计算精度指标。D4-W5 full-weight 来源真实核验已通过 Reviewer；许可证仍 UNRESOLVED，不作法律结论。D8 r1 权重/报告保留但不用于正式评估。正式测试样本数/阈值、tiny320/full608 对照、量化误差和资源可行性仍未完成。不得把训练 loss 或 val 候选结果写成独立 test 精度；最终模型、输入尺寸与性能仍由 Wong 决策。
+
+## 2026-09-22 本轮总控收口事实
+
+- 按 Wong 授权新增 D6 r2：浮点正式门槛冻结为 mAP@0.5≥0.90、mAP@0.5:0.95≥0.70、五类逐类 precision/recall≥0.90；INT8 相对浮点 mAP@0.5 与逐类 recall 下降≤5个百分点；`no_hand` 为非阻断诊断项，官方 `no_gesture` 不改写为 `no_hand`。tiny416 官方 test 25,484 张达到上述浮点门槛，结果与原始 G0_PENDING 报告分离保存。
+- 按 Wong 授权新增 D3 r2：阶段一 PC 门固定 100 warmup+1000 valid；tiny320/tiny416/full608 的 Darknet 模型本体 PC 基准均已完成，三份单模型报告和汇总报告在 `report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_*`。tiny320/tiny416 板上 LUT/FF/BRAM/DSP≤85%、WNS/WHS≥0、TNS/THS=0 的资源/时序门明确保留到阶段2A，full608 为 PC-only。
+- 新增本地三模型网页：`web/gestureforge_web.py`、`web/index.html`、`web/README.md`。服务真实调用三套只读权重；网页端到端冒烟已分别识别同一张 fist 图，三套均返回 fist；浏览器控制台无错误。模型 ID、cfg、data、weights 独立绑定，可通过注册表切换回滚，不重新训练。
+- 已检查官方 [HaGRID 仓库](https://github.com/hukenovs/hagrid) 与 v1 subsample 候选；没有适合当前正式 person/session 审计的独立 no_hand 来源，未下载大包、未训练、未进入阶段2。第三轮独立 Reviewer 已对 D6/D3/网页/清理/绑定一致性给出 PASS；待最终差异核对和 Git 提交后更新阶段一冻结入口。

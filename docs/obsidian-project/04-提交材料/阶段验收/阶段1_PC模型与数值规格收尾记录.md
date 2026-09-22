@@ -65,7 +65,7 @@ updated: 2026-09-22
 |---|---|---|
 | 带框五类数据集 | S1-T01 G4 已通过 | manifest、语义审查、分组和 Darknet 输入绑定已留证；独立 robustness set 尚不存在 |
 | 浮点模型 | 已形成候选执行证据 | tiny416/tiny320 formal checkpoint 已绑定；full608 只作 PC 对照；test 精度只对 tiny416 完成测量 |
-| INT8 检测模型 | 未执行 | D2 只冻结规则和 512 张 train-only 校准清单，尚无检测网络量化权重或整网误差报告 |
+| INT8 检测模型 | 权重级中间包已生成，整网未执行 | D2 已生成 tiny416 BN 折叠/输出通道权重量化包；仍无激活 scale、整数前向、检测网络误差或可部署封装 |
 | 固定预处理 | D2 规则已冻结，路由仍需整网验证 | RGB、Darknet letterbox、CHW/255、INT8 输入规则已绑定；显式 `letter_box=1` 使用隔离 cfg 副本 |
 | 固定权重 | 浮点候选已绑定，INT8 版本未形成 | tiny416 当前为优先候选；量化权重、scale、metadata 和最终选型仍待数值关口 |
 | Python 检测黄金结果 | 部分完成 | D9 提供 CPU 解码参考，D6 提供离线检测指标；二者不等于 INT8 整网黄金 |

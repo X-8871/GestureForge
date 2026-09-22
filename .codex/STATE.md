@@ -5,7 +5,7 @@
 ## 目标、阶段与基线
 
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
-- 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
+- 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」的 PC 范围、正式数值门槛和三模型网页已冻结。本冻结不代表板上资源/时序或整网 INT8 检测下降门已通过，也不自动进入阶段2。
 - S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 旧 r1 虽跑满6000步但未在训练时绑定 train/valid 清单 SHA，不用于正式评估；修复 D8 后的 tiny416 r2 已合规跑满6000步并经 Reviewer R2 执行证据 PASS。D6 val 候选捕获完成但没有精度结论；tiny320 r1 retry01 仅到 5111/6000 且缺正式报告，不能作为正式训练证据；fresh tiny320 formal_r2 于 2026-09-18 20:30:48 隐藏启动，2026-09-19 00:25:06 完成 6000/6000，正式报告经独立 Reviewer PASS；精度、INT8 和阶段1均未验收。
 - 最近工程实现基线：`965c40e7b1de460e4118a4f2d0c527ad662ba3bf`（D6 固定 test 测量策略、报告和证据已提交）。本基线不代表训练、硬件验收或阶段切换。
 
@@ -222,4 +222,10 @@
 - 按 Wong 授权新增 D6 r2：浮点正式门槛冻结为 mAP@0.5≥0.90、mAP@0.5:0.95≥0.70、五类逐类 precision/recall≥0.90；INT8 相对浮点 mAP@0.5 与逐类 recall 下降≤5个百分点；`no_hand` 为非阻断诊断项，官方 `no_gesture` 不改写为 `no_hand`。tiny416 官方 test 25,484 张达到上述浮点门槛，结果与原始 G0_PENDING 报告分离保存。
 - 按 Wong 授权新增 D3 r2：阶段一 PC 门固定 100 warmup+1000 valid；tiny320/tiny416/full608 的 Darknet 模型本体 PC 基准均已完成，三份单模型报告和汇总报告在 `report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_*`。tiny320/tiny416 板上 LUT/FF/BRAM/DSP≤85%、WNS/WHS≥0、TNS/THS=0 的资源/时序门明确保留到阶段2A，full608 为 PC-only。
 - 新增本地三模型网页：`web/gestureforge_web.py`、`web/index.html`、`web/README.md`。服务真实调用三套只读权重；网页端到端冒烟已分别识别同一张 fist 图，三套均返回 fist；浏览器控制台无错误。模型 ID、cfg、data、weights 独立绑定，可通过注册表切换回滚，不重新训练。
-- 已检查官方 [HaGRID 仓库](https://github.com/hukenovs/hagrid) 与 v1 subsample 候选；没有适合当前正式 person/session 审计的独立 no_hand 来源，未下载大包、未训练、未进入阶段2。第三轮独立 Reviewer 已对 D6/D3/网页/清理/绑定一致性给出 PASS；待最终差异核对和 Git 提交后更新阶段一冻结入口。
+- 已检查官方 [HaGRID 仓库](https://github.com/hukenovs/hagrid) 与 v1 subsample 候选；没有适合当前正式 person/session 审计的独立 no_hand 来源，未下载大包、未训练、未进入阶段2。第三轮独立 Reviewer 已对 D6/D3/网页/清理/绑定一致性给出 PASS；本轮完成最终差异核对后写入阶段一冻结入口。
+
+## 2026-09-22 阶段一 PC 冻结结论
+
+- 本轮在既有提交 `27ff12a` 基础上完成 D6/D3/网页的最终状态收口：PC 范围、90% 浮点门槛、固定推理口径、D3 100 warmup+1000 valid 和三模型回滚契约均已冻结。
+- tiny416 官方 test 的 mAP@0.5=`0.9774176565`、mAP@0.5:0.95=`0.7700877728`，最小逐类 precision=`0.9479207151`、recall=`0.9701880752`；满足本轮门槛。
+- `no_hand` 不阻断阶段一；没有适合正式 person/session 审计的独立来源时不强行补集。板上资源/时序和整网 INT8 下降门保留为后续集成条件；本轮不进入阶段2。

@@ -1,0 +1,344 @@
+{
+  "schema_version": "s1_t02_d2_activation_calibration_v1",
+  "status": "ACTIVATION_SCALE_CALIBRATION_COMPLETE_INTEGER_FORWARD_PENDING",
+  "generated_at_utc8": "2026-09-22T13:45:35+08:00",
+  "tool": {
+    "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_activation_calibration.py",
+    "sha256": "288390f8bafe2c601604556e61f104a35305f1503802c3ca7bf96e7788f7dde4"
+  },
+  "scope": "tiny416 formal 6000 的真实 Darknet GPU 浮点前向激活范围；不含整数前向、检测头和 mAP",
+  "inputs": {
+    "cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+    "cfg_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+    "weights": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+    "weights_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+    "calibration_list": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+    "calibration_list_sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+    "calibration_sample_count": 512,
+    "stats_csv": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\activation_stats_r1.csv",
+    "stats_csv_sha256": "a4b807f7a5cc9d3b62047757931741a60e4c414f18cb5c09616a211fb8af37cb",
+    "darknet_executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+    "darknet_executable_sha256": "f025f5ab7547b2c33976a19f6aad4b46fd95e38485df85c08878d0ec6f229948",
+    "activation_hook_source": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\src\\network_kernels.cu",
+    "activation_hook_source_sha256": "0487e69488483bd1f99ad9d0070973b1ea2e288c842cc57790abbb0cd7ef7d65",
+    "darknet_source_commit": "59596d7880f6504768df41d6daa586f5cb2b932f"
+  },
+  "network": {
+    "width": 416,
+    "height": 416,
+    "channels": 3,
+    "convolution_count": 21,
+    "expected_sample_count": 512
+  },
+  "activation_quantization": {
+    "scheme": "per-layer per-tensor symmetric",
+    "zero_point": 0,
+    "int8_range": [
+      -127,
+      127
+    ],
+    "scale_formula": "max(abs(observed_minimum), abs(observed_maximum)) / 127; zero layer falls back to 1/127",
+    "global_max_abs": 96.50657653808594
+  },
+  "layers": {
+    "0": {
+      "sample_count": 512,
+      "output_count": 1384448,
+      "observed_minimum": -5.348108768463135,
+      "observed_maximum": 49.676456451416016,
+      "max_abs": 49.676456451416016,
+      "activation_scale": 0.3911532004048505,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "1": {
+      "sample_count": 512,
+      "output_count": 692224,
+      "observed_minimum": -14.917144775390625,
+      "observed_maximum": 96.50657653808594,
+      "max_abs": 96.50657653808594,
+      "activation_scale": 0.7598943034494956,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "2": {
+      "sample_count": 512,
+      "output_count": 692224,
+      "observed_minimum": -15.092928886413574,
+      "observed_maximum": 57.45196533203125,
+      "max_abs": 57.45196533203125,
+      "activation_scale": 0.4523776797797736,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "4": {
+      "sample_count": 512,
+      "output_count": 346112,
+      "observed_minimum": -4.499246120452881,
+      "observed_maximum": 30.40950584411621,
+      "max_abs": 30.40950584411621,
+      "activation_scale": 0.23944492790642685,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "5": {
+      "sample_count": 512,
+      "output_count": 346112,
+      "observed_minimum": -3.15456485748291,
+      "observed_maximum": 36.86393737792969,
+      "max_abs": 36.86393737792969,
+      "activation_scale": 0.2902672234482653,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "7": {
+      "sample_count": 512,
+      "output_count": 692224,
+      "observed_minimum": -5.830562114715576,
+      "observed_maximum": 28.878644943237305,
+      "max_abs": 28.878644943237305,
+      "activation_scale": 0.22739090506486068,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "10": {
+      "sample_count": 512,
+      "output_count": 346112,
+      "observed_minimum": -3.2272164821624756,
+      "observed_maximum": 23.668004989624023,
+      "max_abs": 23.668004989624023,
+      "activation_scale": 0.1863622440127876,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "12": {
+      "sample_count": 512,
+      "output_count": 173056,
+      "observed_minimum": -2.491657257080078,
+      "observed_maximum": 25.85338592529297,
+      "max_abs": 25.85338592529297,
+      "activation_scale": 0.20356996791569268,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "13": {
+      "sample_count": 512,
+      "output_count": 173056,
+      "observed_minimum": -2.819565534591675,
+      "observed_maximum": 30.16136932373047,
+      "max_abs": 30.16136932373047,
+      "activation_scale": 0.23749109703724777,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "15": {
+      "sample_count": 512,
+      "output_count": 346112,
+      "observed_minimum": -3.714167356491089,
+      "observed_maximum": 28.862823486328125,
+      "max_abs": 28.862823486328125,
+      "activation_scale": 0.22726632666400098,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "18": {
+      "sample_count": 512,
+      "output_count": 173056,
+      "observed_minimum": -2.2410244941711426,
+      "observed_maximum": 26.753925323486328,
+      "max_abs": 26.753925323486328,
+      "activation_scale": 0.21066082931879,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "20": {
+      "sample_count": 512,
+      "output_count": 86528,
+      "observed_minimum": -2.1099965572357178,
+      "observed_maximum": 32.0630989074707,
+      "max_abs": 32.0630989074707,
+      "activation_scale": 0.2524653457281158,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "21": {
+      "sample_count": 512,
+      "output_count": 86528,
+      "observed_minimum": -2.786254644393921,
+      "observed_maximum": 28.408248901367188,
+      "max_abs": 28.408248901367188,
+      "activation_scale": 0.2236869992233637,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "23": {
+      "sample_count": 512,
+      "output_count": 173056,
+      "observed_minimum": -3.6100754737854004,
+      "observed_maximum": 20.24860954284668,
+      "max_abs": 20.24860954284668,
+      "activation_scale": 0.1594378704161156,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "26": {
+      "sample_count": 512,
+      "output_count": 86528,
+      "observed_minimum": -2.4682273864746094,
+      "observed_maximum": 17.60378646850586,
+      "max_abs": 17.60378646850586,
+      "activation_scale": 0.1386124918779989,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "27": {
+      "sample_count": 512,
+      "output_count": 43264,
+      "observed_minimum": -4.03316593170166,
+      "observed_maximum": 18.308792114257812,
+      "max_abs": 18.308792114257812,
+      "activation_scale": 0.1441637174351009,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "28": {
+      "sample_count": 512,
+      "output_count": 86528,
+      "observed_minimum": -3.1107866764068604,
+      "observed_maximum": 25.19668197631836,
+      "max_abs": 25.19668197631836,
+      "activation_scale": 0.19839907067967213,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "29": {
+      "sample_count": 512,
+      "output_count": 5070,
+      "observed_minimum": -30.819787979125977,
+      "observed_maximum": 16.185007095336914,
+      "max_abs": 30.819787979125977,
+      "activation_scale": 0.24267549589862975,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "32": {
+      "sample_count": 512,
+      "output_count": 21632,
+      "observed_minimum": -1.5673826932907104,
+      "observed_maximum": 18.480113983154297,
+      "max_abs": 18.480113983154297,
+      "activation_scale": 0.145512708528774,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "35": {
+      "sample_count": 512,
+      "output_count": 173056,
+      "observed_minimum": -1.1967217922210693,
+      "observed_maximum": 16.1207275390625,
+      "max_abs": 16.1207275390625,
+      "activation_scale": 0.12693486251230315,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    },
+    "36": {
+      "sample_count": 512,
+      "output_count": 20280,
+      "observed_minimum": -38.383785247802734,
+      "observed_maximum": 19.944849014282227,
+      "max_abs": 38.383785247802734,
+      "activation_scale": 0.30223452951025775,
+      "zero_point": 0,
+      "int8_range": [
+        -127,
+        127
+      ],
+      "nonfinite_count": 0
+    }
+  },
+  "limitations": [
+    "仅校准浮点 Darknet 前向输出，未执行 INT8 整数卷积或逐层误差传播",
+    "未验证累加器 bias 的实际整数输入域、重定标、检测头解码、NMS 或 mAP",
+    "不构成 D3 Vivado 资源/时序、G4、G5 或阶段1通过"
+  ]
+}

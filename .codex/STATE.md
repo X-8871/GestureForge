@@ -7,7 +7,7 @@
 - 目标：AX7020 摄像头五类手势检测，经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现竞赛作品。
 - 阶段0已按硬件身份、JTAG 与 XA 目标工程范围通过；当前阶段1「PC 模型与数值规格」未通过。阶段1文档收尾不代表训练或验收完成。
 - S1-T01 训练环境与数据准备已完成任务级 G4；AC01–AC07、G1、G2、G4 均由独立 Reviewer 第2轮通过，G3 对纯 PC 环境/数据流程任务不适用。S1-T01 通过不等于阶段1通过；相关代码/证据提交见下方正式证据入口。S1-T02-D1 setup 已完成 G4；D1–D9 规格、工具及 CPU 解码参考已有证据，D9 G2 PASS。tiny416 旧 r1 虽跑满6000步但未在训练时绑定 train/valid 清单 SHA，不用于正式评估；修复 D8 后的 tiny416 r2 已合规跑满6000步并经 Reviewer R2 执行证据 PASS。D6 val 候选捕获完成但没有精度结论；tiny320 r1 retry01 仅到 5111/6000 且缺正式报告，不能作为正式训练证据；fresh tiny320 formal_r2 于 2026-09-18 20:30:48 隐藏启动，2026-09-19 00:25:06 完成 6000/6000，正式报告经独立 Reviewer PASS；精度、INT8 和阶段1均未验收。
-- 最近工程实现基线：`8bc6f195f0462a8d1471b875172dcca901e47f17`（S1-T02-D3 资源/性能门槛规格）。本基线不代表训练、硬件验收或阶段切换。
+- 最近工程实现基线：`965c40e7b1de460e4118a4f2d0c527ad662ba3bf`（D6 固定 test 测量策略、报告和证据已提交）。本基线不代表训练、硬件验收或阶段切换。
 
 ## 已确定的架构与接口
 
@@ -176,7 +176,7 @@
 1. 按 `git status` 重新确认工作区归属；迁移开始前用户已有 `docs/obsidian-project/总控.md`、`docs/obsidian-project/项目接手提示词.md`、`vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr` 修改及两张板卡 JPG，未纳入工作流提交。
 - 2. 数据/无手输入已完成自动检查、人工语义记录、批准 JSON 和 Darknet sidecar/list 绑定；AC04 已由人工记录与独立 G4 核对闭合，不用非目标手势代替 no_hand。
 - 3. S1-T01 G4 已通过；AC05 采用专用 stateless SGD 证据，旧 stateful r1 优化器状态不宣称恢复。AC06/AC07 仍不代表正式精度，勿把当前 200 步诊断权重冻结为最终模型。
-4. tiny416、tiny320、full608 formal_r2/r9 均完成正式权重执行证据并经 Reviewer 或完成证据核对；三者 val 均已完成26个阈值的 clip 口径扫描但尚未冻结 threshold。D4 full608 formal_r3 在 1164/6000 因 CPU RAM `calloc` 失败，random=0 retry r3 在 1786/6000 因 21600 秒硬超时；r9 已从合规编号 checkpoint `1000/6000` 恢复并完成6000步，完成证据和独立 Reviewer PASS 均已记录。统一模型对照、test/robustness 指标仍未完成。manifest 无独立 robustness split；D6 来源审计确认 manifest_all 差异候选23条且与 test/val person/session 重叠，本地无独立 robustness set；需新独立样本源并完成图像条件及 person/session 审计，最终精度门槛仍待基线与 Wong 决定。官方 test 25,484 及 robustness 每类/每条件至少100张、person/session隔离已批准。D3 仅有权重标量代理、实际 tiny416 checkpoint 文件大小和最大单层激活 estimate，完整存储/DDR/峰值缓冲预算待做；INT8逐层黄金待做；许可证 UNRESOLVED；最终模型/尺寸/性能由 Wong 决定；阶段1未通过、不进入阶段2。
+4. tiny416、tiny320、full608 formal_r2/r9 均完成正式权重执行证据并经 Reviewer 或完成证据核对；三者 val 均已完成26个阈值的 clip 口径扫描。tiny416 官方 test 已按固定 `score_threshold=0.25` 完成25,484/25,484图测量，D6 报告为 `G0_PENDING`；mAP/逐类验收门槛、no_hand/non-target 误检集合和 robustness 指标仍未闭合。D4 full608 formal_r3 在 1164/6000 因 CPU RAM `calloc` 失败，random=0 retry r3 在 1786/6000 因 21600 秒硬超时；r9 已从合规编号 checkpoint `1000/6000` 恢复并完成6000步，完成证据和独立 Reviewer PASS 均已记录。manifest 无独立 robustness split；D6 来源审计确认 manifest_all 差异候选23条且与 test/val person/session 重叠，本地无独立 robustness set；需新独立样本源并完成图像条件及 person/session 审计。官方 test 25,484 及 robustness 每类/每条件至少100张、person/session隔离已批准。D3 仅有权重标量代理、实际 tiny416 checkpoint 文件大小和最大单层激活 estimate，完整存储/DDR/峰值缓冲预算待做；INT8逐层黄金、实际量化部署封装、目标 YOLO 加速器 Vivado 综合/时序/资源和10000次性能样本待做；许可证 UNRESOLVED；最终模型/尺寸/性能由 Wong 决定；阶段1未通过、不进入阶段2。
 5. 当前采用一个阶段总控自动协调 Developer/Reviewer，最多3轮修复复审后总控重析；状态在此维护，不再依赖旧窗口或交接文件。
 
 ## 正式文档与证据入口（仓库相对路径）

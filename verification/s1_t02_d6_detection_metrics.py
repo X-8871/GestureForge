@@ -26,9 +26,9 @@ from typing import Any, Iterable, Sequence
 
 
 EXPECTED_CLASSES = ["fist", "palm", "one", "two_up", "three"]
-G0_DECISION_DATE = "2026-09-18"
+G0_DECISION_DATE = "2026-09-22"
 G0_POLICY_DOCUMENT_PATH = "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md"
-G0_POLICY_DOCUMENT_SHA256 = "1fdfdb74281ccd14271c79a9622ac14c743f489dce2a7e420f945b23b4bddaff"
+G0_POLICY_DOCUMENT_SHA256 = "a79245b577e72ecdc9c36a0e2f5dac783a67422e5a8ad414b2eb2a77f40734c0"
 COORDINATE_POLICY_DECISION_DATE = "2026-09-21"
 COORDINATE_POLICY = "clip_finite_positive_xyxy_to_unit_range"
 COORDINATE_POLICY_DIAGNOSTIC_PATH = "report/evidence/S1-T02/20260918_s1_t02_d6_tiny416_val_coordinate_clip_impact_r1.json"
@@ -36,8 +36,12 @@ COORDINATE_POLICY_DIAGNOSTIC_SHA256 = "88896cedea23f8cb50ea981c1a7072f1bae41871d
 APPROVED_TEST_MANIFEST_SHA256 = "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
 APPROVED_TEST_IMAGE_COUNT = 25484
 APPROVED_SPLIT_IMAGE_COUNTS = {"train": 118001, "val": 15195, "test": 25484}
-# 当前没有完整、获批且哈希绑定的 G0 指标策略快照。
-APPROVED_G0_METRIC_POLICY_EVIDENCE: tuple[str, str] | None = None
+G0_METRIC_POLICY_EVIDENCE_PATH = "report/evidence/S1-T02/20260922_s1_t02_d6_metric_policy_r1.json"
+G0_METRIC_POLICY_EVIDENCE_SHA256 = "0915737ced6bdfa73713f023548c92680fa7b294b7d0cd011d279015587dfc9b"
+APPROVED_G0_METRIC_POLICY_EVIDENCE: tuple[str, str] = (
+    G0_METRIC_POLICY_EVIDENCE_PATH,
+    G0_METRIC_POLICY_EVIDENCE_SHA256,
+)
 ROBUSTNESS_MIN_IMAGES_PER_CLASS = 100
 ROBUSTNESS_CONDITION_BUCKETS = {
     "no_hand": 100,
@@ -182,6 +186,153 @@ def _validate_sha256(value: Any, field: str) -> str:
     return value.lower()
 
 
+def _repository_root() -> Path:
+    """返回本仓库根目录。"""
+
+    return Path(__file__).resolve().parent.parent
+
+
+def _require_policy_object(value: Any, field: str) -> dict[str, Any]:
+    """要求策略字段为 JSON 对象。"""
+
+    if type(value) is not dict:
+        raise EvaluationError(f"G0 策略快照字段 {field} 必须是 JSON 对象")
+    return value
+
+
+def _require_policy_string(value: Any, field: str, expected: str | None = None) -> str:
+    """要求策略字段为非空字符串，并可选择核对固定值。"""
+
+    if type(value) is not str or not value:
+        raise EvaluationError(f"G0 策略快照字段 {field} 必须是非空字符串")
+    if expected is not None and value != expected:
+        raise EvaluationError(f"G0 策略快照字段 {field} 不符合固定值")
+    return value
+
+
+def _require_policy_number(value: Any, field: str, expected: float | None = None) -> float:
+    """要求策略字段为有限 JSON 数值，并可选择核对固定值。"""
+
+    if type(value) not in (int, float) or isinstance(value, bool) or not math.isfinite(float(value)):
+        raise EvaluationError(f"G0 策略快照字段 {field} 必须是有限数值")
+    converted = float(value)
+    if expected is not None and converted != expected:
+        raise EvaluationError(f"G0 策略快照字段 {field} 不符合固定值")
+    return converted
+
+
+def _require_g0_metric_policy(split: str) -> dict[str, Any]:
+    """在正式测量前严格验证仓库内绑定的 G0 指标策略快照。"""
+
+    if split not in {"test", "robustness"}:
+        return {}
+    binding = APPROVED_G0_METRIC_POLICY_EVIDENCE
+    if (
+        type(binding) is not tuple
+        or len(binding) != 2
+        or binding != (G0_METRIC_POLICY_EVIDENCE_PATH, G0_METRIC_POLICY_EVIDENCE_SHA256)
+    ):
+        raise EvaluationError("G0 策略快照路径或绑定 SHA-256 不是仓库批准值")
+    relative_path, expected_snapshot_sha256 = binding
+    candidate = Path(relative_path)
+    if candidate.is_absolute() or ".." in candidate.parts or candidate.as_posix() != relative_path:
+        raise EvaluationError("G0 策略快照路径必须是固定的仓库相对路径")
+    snapshot_path = (_repository_root() / candidate).resolve()
+    if not snapshot_path.is_file():
+        raise EvaluationError(f"G0 策略快照不存在: {relative_path}")
+    try:
+        actual_snapshot_sha256 = sha256_file(snapshot_path)
+        if actual_snapshot_sha256 != expected_snapshot_sha256:
+            raise EvaluationError(
+                "G0 策略快照 SHA-256 不匹配: "
+                f"expected={expected_snapshot_sha256}, actual={actual_snapshot_sha256}"
+            )
+        raw = snapshot_path.read_text(encoding="utf-8")
+        snapshot = json.loads(raw, parse_constant=lambda value: (_ for _ in ()).throw(ValueError(value)))
+    except EvaluationError:
+        raise
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        raise EvaluationError(f"G0 策略快照不可按 UTF-8 JSON 读取: {relative_path}: {exc}") from exc
+    if type(snapshot) is not dict:
+        raise EvaluationError("G0 策略快照根节点必须是 JSON 对象")
+
+    _require_policy_string(snapshot.get("schema_version"), "schema_version", "s1-t02-d6-metric-policy-v1")
+    _require_policy_string(snapshot.get("task"), "task", "S1-T02-D6")
+    _require_policy_string(snapshot.get("status"), "status", "MEASUREMENT_AUTHORIZED_G0_ACCEPTANCE_PENDING")
+    _require_policy_string(snapshot.get("decision_date"), "decision_date", G0_DECISION_DATE)
+
+    document = _require_policy_object(snapshot.get("policy_document"), "policy_document")
+    _require_policy_string(document.get("path"), "policy_document.path", G0_POLICY_DOCUMENT_PATH)
+    document_sha256 = _validate_sha256(document.get("sha256"), "policy_document.sha256")
+    if document_sha256 != G0_POLICY_DOCUMENT_SHA256:
+        raise EvaluationError("G0 策略快照 policy_document.sha256 与代码绑定值不一致")
+    document_path = _repository_root() / G0_POLICY_DOCUMENT_PATH
+    try:
+        document_sha256_actual = sha256_file(document_path) if document_path.is_file() else None
+    except OSError as exc:
+        raise EvaluationError("G0 策略文档不可读取") from exc
+    if document_sha256_actual != G0_POLICY_DOCUMENT_SHA256:
+        raise EvaluationError("G0 策略文档不存在或 SHA-256 与代码绑定值不一致")
+
+    approved_manifest = _require_policy_object(snapshot.get("approved_manifest"), "approved_manifest")
+    if _validate_sha256(approved_manifest.get("sha256"), "approved_manifest.sha256") != APPROVED_TEST_MANIFEST_SHA256:
+        raise EvaluationError("G0 策略快照 approved_manifest.sha256 与当前批准快照不一致")
+    snapshot_counts = approved_manifest.get("split_counts")
+    if type(snapshot_counts) is not dict or set(snapshot_counts) != set(APPROVED_SPLIT_IMAGE_COUNTS):
+        raise EvaluationError("G0 策略快照 approved_manifest.split_counts 字段错误")
+    for name, expected_count in APPROVED_SPLIT_IMAGE_COUNTS.items():
+        if type(snapshot_counts.get(name)) is not int or isinstance(snapshot_counts.get(name), bool) or snapshot_counts[name] != expected_count:
+            raise EvaluationError(f"G0 策略快照 approved_manifest.split_counts.{name} 字段错误")
+    if type(approved_manifest.get("test_image_count")) is not int or approved_manifest["test_image_count"] != APPROVED_TEST_IMAGE_COUNT:
+        raise EvaluationError("G0 策略快照 approved_manifest.test_image_count 字段错误")
+
+    threshold = _require_policy_object(snapshot.get("score_threshold"), "score_threshold")
+    allowed_range = threshold.get("allowed_val_range_inclusive")
+    if (
+        type(allowed_range) is not list
+        or len(allowed_range) != 2
+        or _require_policy_number(allowed_range[0], "score_threshold.allowed_val_range_inclusive[0]") != 0.25
+        or _require_policy_number(allowed_range[1], "score_threshold.allowed_val_range_inclusive[1]") != 0.50
+    ):
+        raise EvaluationError("G0 策略快照 val score threshold 范围必须严格为 [0.25, 0.50]")
+    _require_policy_number(threshold.get("selected_for_test_and_robustness"), "score_threshold.selected_for_test_and_robustness", 0.25)
+    if threshold.get("frozen") is not True:
+        raise EvaluationError("G0 策略快照 selected test/robustness threshold 必须 frozen=true")
+    _require_policy_string(threshold.get("retuning_on_test_or_robustness"), "score_threshold.retuning_on_test_or_robustness", "forbidden")
+
+    fixed = _require_policy_object(snapshot.get("fixed_evaluation"), "fixed_evaluation")
+    _require_policy_string(fixed.get("nms"), "fixed_evaluation.nms", "class-wise greedy")
+    _require_policy_number(fixed.get("nms_iou"), "fixed_evaluation.nms_iou", FIXED_NMS_IOU)
+    if type(fixed.get("max_outputs")) is not int or fixed["max_outputs"] != MAX_OUTPUTS:
+        raise EvaluationError("G0 策略快照 fixed_evaluation.max_outputs 必须固定为 15")
+    if fixed.get("iou_thresholds") != IOU_THRESHOLDS:
+        raise EvaluationError("G0 策略快照 IoU 阈值序列与固定 0.50:0.05:0.95 不一致")
+    if type(fixed.get("ap_interpolation_points")) is not int or fixed["ap_interpolation_points"] != AP_POINTS:
+        raise EvaluationError("G0 策略快照 AP 插值点数必须固定为 101")
+    _require_policy_string(fixed.get("matching"), "fixed_evaluation.matching")
+    coordinate = _require_policy_object(fixed.get("coordinate_policy"), "fixed_evaluation.coordinate_policy")
+    _require_policy_string(coordinate.get("name"), "fixed_evaluation.coordinate_policy.name", COORDINATE_POLICY)
+    _require_policy_string(coordinate.get("diagnostic_path"), "fixed_evaluation.coordinate_policy.diagnostic_path", COORDINATE_POLICY_DIAGNOSTIC_PATH)
+    if _validate_sha256(coordinate.get("diagnostic_sha256"), "fixed_evaluation.coordinate_policy.diagnostic_sha256") != COORDINATE_POLICY_DIAGNOSTIC_SHA256:
+        raise EvaluationError("G0 策略快照 coordinate policy SHA-256 与代码绑定值不一致")
+
+    authorized_scope = _require_policy_object(snapshot.get("authorized_scope"), "authorized_scope")
+    splits = authorized_scope.get("splits")
+    if splits != ["test", "robustness"]:
+        raise EvaluationError("G0 策略快照 authorized_scope.splits 必须严格为 [test, robustness]")
+    _require_policy_string(authorized_scope.get("purpose"), "authorized_scope.purpose")
+    _require_policy_string(authorized_scope.get("no_hand_without_approved_list"), "authorized_scope.no_hand_without_approved_list", "NOT_EXECUTED")
+    _require_policy_string(authorized_scope.get("robustness"), "authorized_scope.robustness", "PENDING_NO_DATASET_BINDING")
+
+    gates = _require_policy_object(snapshot.get("acceptance_gates"), "acceptance_gates")
+    _require_policy_string(gates.get("map_acceptance_threshold"), "acceptance_gates.map_acceptance_threshold", "NOT_FROZEN")
+    _require_policy_string(gates.get("per_class_precision_recall_thresholds"), "acceptance_gates.per_class_precision_recall_thresholds", "NOT_FROZEN")
+    _require_policy_string(gates.get("robustness_dataset_and_person_session_isolation"), "acceptance_gates.robustness_dataset_and_person_session_isolation", "PENDING")
+    _require_policy_string(gates.get("d6_report_status"), "acceptance_gates.d6_report_status", "G0_PENDING")
+    _require_policy_string(gates.get("g4_g5_or_stage1_pass"), "acceptance_gates.g4_g5_or_stage1_pass", "NOT_AUTHORIZED_BY_THIS_SNAPSHOT")
+    return snapshot
+
+
 def _read_class_names(path: Path) -> list[str]:
     """读取并校验固定五类 names 文件。"""
 
@@ -290,19 +441,24 @@ def _validate_approved_manifest_binding(manifest_bytes: bytes, manifest_sha256: 
     return counts[split]
 
 
-def _require_complete_g0_metric_policy(split: str) -> None:
-    """在读取 test/robustness 标签或预测前要求完整获批策略证据。"""
+def _require_complete_g0_metric_policy(split: str) -> dict[str, Any]:
+    """在读取 test/robustness 标签或预测前验证完整 G0 策略快照。"""
+
+    return _require_g0_metric_policy(split)
+
+
+def _require_fixed_measurement_threshold(split: str, score_threshold: float) -> None:
+    """要求 test/robustness 使用已获批快照中的固定 threshold。"""
 
     if split not in {"test", "robustness"}:
         return
-    if APPROVED_G0_METRIC_POLICY_EVIDENCE is None:
+    policy = _require_complete_g0_metric_policy(split)
+    selected_threshold = policy["score_threshold"]["selected_for_test_and_robustness"]
+    if score_threshold != selected_threshold:
         raise EvaluationError(
-            f"split={split} 已阻断：缺少完整、获批且哈希绑定的 D6 G0 指标策略证据；"
-            "最终 score threshold 与 mAP/逐类 precision-recall 验收门槛仍未冻结"
+            f"split={split} score_threshold 必须严格等于 G0 快照 selected={selected_threshold}；"
+            "test/robustness 禁止调参"
         )
-    raise EvaluationError(
-        f"split={split} 已阻断：本版本尚无完整 G0 指标策略快照验证器，不能据此开放正式评估"
-    )
 
 
 def create_evaluation_context(
@@ -316,7 +472,7 @@ def create_evaluation_context(
     allowed_splits = {*APPROVED_SPLIT_IMAGE_COUNTS, "robustness"}
     if not isinstance(split, str) or split not in allowed_splits:
         raise EvaluationError(f"split 非规范；只允许 {sorted(allowed_splits)}，不接受大小写/别名映射")
-    if split == "robustness":
+    if split in {"test", "robustness"}:
         _require_complete_g0_metric_policy(split)
     try:
         resolved_manifest = manifest_path.resolve()
@@ -345,7 +501,12 @@ def create_evaluation_context(
         manifest_bytes=manifest_bytes,
         split_counts=tuple(sorted(APPROVED_SPLIT_IMAGE_COUNTS.items())),
         entries=entries,
-        authorization_state=("VAL_ONLY_G0_PENDING" if split == "val" else "TRAIN_DIAGNOSTIC_ONLY"),
+        authorization_state={
+            "val": "VAL_ONLY_G0_PENDING",
+            "test": "TEST_MEASUREMENT_G0_ACCEPTANCE_PENDING",
+            "robustness": "ROBUSTNESS_MEASUREMENT_G0_ACCEPTANCE_PENDING",
+            "train": "TRAIN_DIAGNOSTIC_ONLY",
+        }[split],
         metric_policy_evidence=APPROVED_G0_METRIC_POLICY_EVIDENCE,
         _seal=_EVALUATION_CONTEXT_SEAL,
     )
@@ -391,7 +552,12 @@ def _require_valid_evaluation_context(
         raise EvaluationError(f"上下文 split={context.split} 与调用要求 split={expected_split} 不一致")
     if context.split in {"test", "robustness"}:
         _require_complete_g0_metric_policy(context.split)
-    expected_authorization = "VAL_ONLY_G0_PENDING" if context.split == "val" else "TRAIN_DIAGNOSTIC_ONLY"
+    expected_authorization = {
+        "val": "VAL_ONLY_G0_PENDING",
+        "test": "TEST_MEASUREMENT_G0_ACCEPTANCE_PENDING",
+        "robustness": "ROBUSTNESS_MEASUREMENT_G0_ACCEPTANCE_PENDING",
+        "train": "TRAIN_DIAGNOSTIC_ONLY",
+    }[context.split]
     if context.authorization_state != expected_authorization:
         raise EvaluationError("上下文 split 授权状态与当前 G0 策略不一致")
     if context.metric_policy_evidence != APPROVED_G0_METRIC_POLICY_EVIDENCE:
@@ -406,16 +572,22 @@ def _require_valid_evaluation_context(
     if type(context.manifest_bytes) is not bytes:
         raise EvaluationError("上下文必须绑定不可变 manifest bytes")
     actual_sha256 = hashlib.sha256(context.manifest_bytes).hexdigest()
-    if actual_sha256 != context.manifest_sha256 or actual_sha256 != APPROVED_TEST_MANIFEST_SHA256:
-        raise EvaluationError("上下文 manifest SHA-256 与当前批准的完整快照不一致")
+    if actual_sha256 != context.manifest_sha256:
+        raise EvaluationError("上下文 manifest SHA-256 与其绑定 bytes 不一致")
     if context.split_counts != tuple(sorted(APPROVED_SPLIT_IMAGE_COUNTS.items())):
         raise EvaluationError("上下文 train/val/test 计数政策与当前批准口径不一致")
     if context._integrity_sha256 != _evaluation_context_integrity(context):
         raise EvaluationError("上下文内容与工厂签发时的不可变快照不一致")
-    if context.split not in APPROVED_SPLIT_IMAGE_COUNTS:
+    if context.split in APPROVED_SPLIT_IMAGE_COUNTS:
+        if actual_sha256 != APPROVED_TEST_MANIFEST_SHA256:
+            raise EvaluationError("正式 split 上下文 manifest SHA-256 与当前批准的完整快照不一致")
+        if len(context.entries) != APPROVED_SPLIT_IMAGE_COUNTS[context.split]:
+            raise EvaluationError(f"上下文条目数与批准 split={context.split} 计数不一致")
+    elif context.split == "robustness":
+        if not context.entries:
+            raise EvaluationError("robustness 上下文不能没有测量条目")
+    else:
         raise EvaluationError(f"split={context.split} 缺少已批准的正式 manifest 绑定")
-    if len(context.entries) != APPROVED_SPLIT_IMAGE_COUNTS[context.split]:
-        raise EvaluationError(f"上下文条目数与批准 split={context.split} 计数不一致")
     if any(type(entry) is not ImageEntry for entry in context.entries):
         raise EvaluationError("上下文包含未验证 manifest 条目")
     if len({entry.key for entry in context.entries}) != len(context.entries):
@@ -905,6 +1077,7 @@ def evaluate_metrics(
     if isinstance(score_threshold, bool) or type(score_threshold) not in (int, float):
         raise EvaluationError("score_threshold 必须是有限数值")
     score_threshold = _validate_range(score_threshold, "score_threshold", 0.25, 0.50)
+    _require_fixed_measurement_threshold(validated.split, score_threshold)
     if nms_iou != FIXED_NMS_IOU:
         raise EvaluationError(f"nms_iou 必须固定为 {FIXED_NMS_IOU}")
     filtered = {
@@ -1071,9 +1244,9 @@ def _summary_text(report: dict[str, Any]) -> str:
         f"- 批准样本政策决策日期：`{sample_policy['decision_date']}`；正式口径文档 SHA-256：`{sample_policy['decision_document']['sha256']}`。",
         f"- 官方 test：批准 manifest SHA-256=`{official_test['approved_manifest_sha256']}`，完整图片数=`{official_test['required_image_count']}`；本次绑定状态=`{official_test['runtime_binding_status']}`。",
         f"- 独立 robustness：每个目标类别至少 `{robustness['minimum_unique_images_per_class']}` 张、每个条件 bucket 至少 `{min(robustness['condition_bucket_minimum_unique_images'].values())}` 张；实际数据绑定=`{robustness['dataset_binding_status']}`。",
-        f"- 完整 G0 指标策略快照：`{sample_policy['metric_policy_evidence']['status']}`；test/robustness 在策略获批并哈希绑定前阻断。",
+        f"- 完整 G0 指标策略快照：`{sample_policy['metric_policy_evidence']['status']}`；test/robustness 使用快照固定 score threshold=0.25，禁止调参。",
         f"- no_hand 误检率：`{report['subsets']['no_hand']['status']}`；non-target 误检率：`{report['subsets']['non_target']['status']}`。缺少批准 subset 时不生成0%。",
-        "- 仍未决：最终 score threshold、mAP 与逐类 precision/recall 验收门槛，以及 robustness 数据集构建和人物/session 隔离审计。test/robustness 不得重新调参。",
+        "- 仍未决：mAP 与逐类 precision/recall 验收门槛，以及 robustness 数据集构建和人物/session 隔离审计；G0 acceptance 仍 pending。",
         "- 本轮未启动 Darknet、训练、权重下载、INT8 整网或硬件测量。",
         "",
         "## 验证",
@@ -1099,8 +1272,9 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     summary_path = args.summary.resolve()
     _output_paths_are_safe(predictions, manifest, class_names_path, report_path, summary_path, (args.no_hand_list, args.non_target_list))
     context = create_evaluation_context(manifest, data_root, labels_root, args.split)
-    names = _read_class_names(class_names_path)
     score_threshold = _validate_range(args.score_threshold, "score-threshold", 0.25, 0.50)
+    _require_fixed_measurement_threshold(args.split, score_threshold)
+    names = _read_class_names(class_names_path)
     nms_iou = _finite(args.nms_iou, "nms-iou")
     if nms_iou != FIXED_NMS_IOU:
         raise EvaluationError(f"nms-iou 必须固定为 {FIXED_NMS_IOU}")
@@ -1127,7 +1301,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "sha256": G0_POLICY_DOCUMENT_SHA256,
         },
         "metric_policy_evidence": {
-            "status": "MISSING" if APPROVED_G0_METRIC_POLICY_EVIDENCE is None else "UNSUPPORTED",
+            "status": "BOUND_AND_VERIFIED",
             "binding": APPROVED_G0_METRIC_POLICY_EVIDENCE,
             "required_for_splits": ["test", "robustness"],
         },
@@ -1153,8 +1327,6 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         },
     }
     g0_open_items = [
-        {"id": "complete_metric_policy_snapshot", "status": "OPEN", "requirement": "完整获批且哈希绑定的指标策略快照尚不存在；test/robustness 必须阻断。"},
-        {"id": "final_score_threshold", "status": "OPEN", "requirement": "在 val 的 0.25..0.50 范围内选择并冻结；test/robustness 不调参。"},
         {"id": "map_acceptance_threshold", "status": "OPEN", "requirement": "正式 mAP 验收门槛尚未冻结。"},
         {"id": "per_class_precision_recall_thresholds", "status": "OPEN", "requirement": "每类 precision/recall 验收门槛尚未全部冻结。"},
         {"id": "robustness_dataset_and_isolation", "status": "OPEN", "requirement": "robustness 实际数据集、类别/条件计数及 person/session 隔离证据尚未绑定。"},
@@ -1164,7 +1336,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "task": "S1-T02-D6",
         "generated_utc8": _now_iso(),
         "status": "G0_PENDING",
-        "validation": {"schema_valid": True, "errors": [], "warnings": ["样本数量政策已批准；最终阈值、指标验收门槛和 robustness 数据集绑定仍未完成"], "status": "G0_PENDING"},
+        "validation": {"schema_valid": True, "errors": [], "warnings": ["G0 指标策略快照已绑定并验证；mAP/逐类验收门槛和 robustness 数据集绑定仍未完成"], "status": "G0_PENDING"},
         "code": {"path": str(Path(__file__).resolve()), "sha256": sha256_file(Path(__file__).resolve()), "repository": _repo_identity()},
         "inputs": {
             "manifest": {"path": str(manifest), "sha256": context.manifest_sha256},
@@ -1178,7 +1350,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "evaluation": {
             "split": args.split,
             "score_threshold": score_threshold,
-            "threshold_selection": "val 0.25-0.50 选择后固定；本轮只绑定 CLI 值，G0_PENDING",
+            "threshold_selection": "test/robustness 已选择并固定 score_threshold=0.25，禁止调参；val 仍允许 0.25..0.50 评估夹具；G0 acceptance 仍 pending",
             "nms": "class-wise greedy",
             "nms_iou": nms_iou,
             "max_outputs": args.max_outputs,
@@ -1205,7 +1377,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "outputs": {"report": str(report_path), "summary": str(summary_path)},
         "limitations": [
             "本轮未启动 Darknet 或任何正式模型推理；输入可以是夹具或外部生成的 raw JSON，但 raw JSON 不等于 mAP。",
-            "官方 test 样本口径已绑定，但 robustness 实际数据集尚未构建/绑定；最终 score threshold 和 mAP/逐类 precision-recall 验收门槛仍未冻结，因此状态保持 G0_PENDING。",
+            "官方 test 样本口径、策略快照和 test 固定 threshold 已绑定；robustness 实际数据集及 person/session 隔离仍未构建/绑定，mAP/逐类 precision-recall 验收门槛仍未冻结，因此状态保持 G0_PENDING。",
             "mAP 和辅助误检率不构成最终验收门槛通过；no_hand/non-target 未提供批准集合时为 NOT_EXECUTED。",
         ],
     }

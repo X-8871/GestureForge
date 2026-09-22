@@ -54,6 +54,45 @@ class DetectionMetricsTest(unittest.TestCase):
                     fixture["manifest"], fixture["root"], fixture["labels"], "val"
                 )
 
+    @contextmanager
+    def _bind_measurement_policy(
+        self,
+        fixture: dict[str, Path],
+        split: str,
+        mutate=None,
+        binding_hash: str | None = None,
+    ):
+        """在仓库临时目录构造隔离的测量策略快照并绑定测试常量。"""
+
+        repository = Path(metrics.__file__).resolve().parent.parent
+        temporary = tempfile.TemporaryDirectory(dir=repository / "tmp")
+        self.addCleanup(temporary.cleanup)
+        snapshot_path = Path(temporary.name) / "metric_policy.json"
+        snapshot = json.loads(
+            (repository / metrics.G0_METRIC_POLICY_EVIDENCE_PATH).read_text(encoding="utf-8")
+        )
+        manifest_sha256 = hashlib.sha256(fixture["manifest"].read_bytes()).hexdigest()
+        approved_counts = {"train": 0, "val": 0, "test": 2 if split == "test" else 0}
+        snapshot["approved_manifest"] = {
+            "sha256": manifest_sha256,
+            "split_counts": approved_counts,
+            "test_image_count": approved_counts["test"],
+        }
+        if mutate is not None:
+            mutate(snapshot)
+        snapshot_path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        snapshot_sha256 = hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
+        relative_path = snapshot_path.relative_to(repository).as_posix()
+        bound_sha256 = binding_hash or snapshot_sha256
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(metrics, "APPROVED_TEST_MANIFEST_SHA256", manifest_sha256))
+            stack.enter_context(patch.object(metrics, "APPROVED_SPLIT_IMAGE_COUNTS", approved_counts))
+            stack.enter_context(patch.object(metrics, "APPROVED_TEST_IMAGE_COUNT", approved_counts["test"]))
+            stack.enter_context(patch.object(metrics, "G0_METRIC_POLICY_EVIDENCE_PATH", relative_path))
+            stack.enter_context(patch.object(metrics, "G0_METRIC_POLICY_EVIDENCE_SHA256", bound_sha256))
+            stack.enter_context(patch.object(metrics, "APPROVED_G0_METRIC_POLICY_EVIDENCE", (relative_path, bound_sha256)))
+            yield
+
     def _records(self, a_objects: list[dict], b_objects: list[dict]) -> list[dict]:
         """按 manifest 顺序构造 Darknet 风格数组记录。"""
 
@@ -338,7 +377,7 @@ class DetectionMetricsTest(unittest.TestCase):
         self.assertEqual(generated["status"], "G0_PENDING")
         self.assertEqual(generated["validation"]["errors"], [])
         policy = generated["sample_policy"]
-        self.assertEqual(policy["decision_date"], "2026-09-18")
+        self.assertEqual(policy["decision_date"], "2026-09-22")
         self.assertEqual(policy["decision_document"]["sha256"], metrics.G0_POLICY_DOCUMENT_SHA256)
         self.assertEqual(
             policy["official_test"]["approved_manifest_sha256"],
@@ -353,10 +392,10 @@ class DetectionMetricsTest(unittest.TestCase):
         self.assertIsNone(policy["robustness"]["observed_counts"])
         self.assertEqual(
             {item["id"] for item in generated["g0_open_items"]},
-            {"complete_metric_policy_snapshot", "final_score_threshold", "map_acceptance_threshold", "per_class_precision_recall_thresholds", "robustness_dataset_and_isolation"},
+            {"map_acceptance_threshold", "per_class_precision_recall_thresholds", "robustness_dataset_and_isolation"},
         )
-        self.assertEqual(policy["metric_policy_evidence"]["status"], "MISSING")
-        self.assertIsNone(policy["metric_policy_evidence"]["binding"])
+        self.assertEqual(policy["metric_policy_evidence"]["status"], "BOUND_AND_VERIFIED")
+        self.assertEqual(tuple(policy["metric_policy_evidence"]["binding"]), metrics.APPROVED_G0_METRIC_POLICY_EVIDENCE)
         self.assertTrue(summary_path.is_file())
         alias = fixture["root"] / "alias.json"
         base = args[:-6]
@@ -461,60 +500,112 @@ class DetectionMetricsTest(unittest.TestCase):
             with patch.object(metrics, "APPROVED_SPLIT_IMAGE_COUNTS", {"train": 0, "val": 0, "test": 3}):
                 with redirect_stderr(stderr):
                     self.assertEqual(metrics.main(count_args), 2)
-        self.assertIn("图片数", stderr.getvalue())
+        self.assertIn("approved_manifest.sha256", stderr.getvalue())
         self.assertFalse(count_report.exists())
         self.assertFalse(count_summary.exists())
 
-    def test_test_and_robustness_fail_closed_without_metric_policy_evidence(self) -> None:
-        """正式 test 与 robustness 即使样本绑定有效、阈值不同也在下游前阻断。"""
+    def test_valid_snapshot_allows_test_cli_at_selected_threshold(self) -> None:
+        """有效隔离快照允许 test=0.25 测量，报告仍保持 G0_PENDING。"""
 
-        downstream_functions = (
-            "_read_class_names",
-            "load_manifest",
-            "parse_yolo_label",
-            "load_ground_truths",
-            "bind_predictions",
-            "evaluate_metrics",
-            "_summary_text",
-            "_write_json",
+        fixture = self._fixture()
+        fixture["manifest"].write_text(
+            fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,"), encoding="utf-8"
         )
-        for split in ("test", "robustness"):
-            for threshold in ("0.25", "0.37", "0.50"):
-                with self.subTest(split=split, threshold=threshold):
-                    fixture = self._fixture()
-                    manifest_text = fixture["manifest"].read_text(encoding="utf-8").replace(",val,", f",{split},")
-                    fixture["manifest"].write_text(manifest_text, encoding="utf-8")
-                    predictions = fixture["root"] / "predictions.json"
-                    predictions.write_text(json.dumps(self._records([self._relative_object()], [])), encoding="utf-8")
-                    report_path = fixture["root"] / "blocked_report.json"
-                    summary_path = fixture["root"] / "blocked_summary.md"
-                    cli_args = [
-                        "--manifest", str(fixture["manifest"]), "--data-root", str(fixture["root"]), "--labels-root", str(fixture["labels"]),
-                        "--predictions", str(predictions), "--class-names", str(fixture["names"]), "--split", split,
-                        "--score-threshold", threshold, "--report", str(report_path), "--summary", str(summary_path),
-                    ]
-                    manifest_sha256 = hashlib.sha256(fixture["manifest"].read_bytes()).hexdigest()
-                    stderr = io.StringIO()
-                    with ExitStack() as stack:
-                        sentinels = {
-                            name: stack.enter_context(
-                                patch.object(metrics, name, side_effect=AssertionError(f"下游调用不应发生: {name}"))
-                            )
-                            for name in downstream_functions
-                        }
-                        summary_writer = stack.enter_context(patch.object(Path, "write_text", autospec=True))
-                        if split == "test":
-                            stack.enter_context(patch.object(metrics, "APPROVED_TEST_MANIFEST_SHA256", manifest_sha256))
-                            stack.enter_context(patch.object(metrics, "APPROVED_SPLIT_IMAGE_COUNTS", {"train": 0, "val": 0, "test": 2}))
-                        with redirect_stderr(stderr):
-                            self.assertEqual(metrics.main(cli_args), 2)
-                        self.assertIn("D6_ERROR", stderr.getvalue())
-                        self.assertIn("G0 指标策略证据", stderr.getvalue())
-                        for sentinel in sentinels.values():
-                            sentinel.assert_not_called()
-                        summary_writer.assert_not_called()
-                    self.assertFalse(report_path.exists())
-                    self.assertFalse(summary_path.exists())
+        predictions = fixture["root"] / "predictions.json"
+        predictions.write_text(json.dumps(self._records([self._relative_object()], [])), encoding="utf-8")
+        report_path = fixture["root"] / "test_report.json"
+        summary_path = fixture["root"] / "test_summary.md"
+        cli_args = [
+            "--manifest", str(fixture["manifest"]), "--data-root", str(fixture["root"]), "--labels-root", str(fixture["labels"]),
+            "--predictions", str(predictions), "--class-names", str(fixture["names"]), "--split", "test",
+            "--score-threshold", "0.25", "--report", str(report_path), "--summary", str(summary_path),
+        ]
+        with self._bind_measurement_policy(fixture, "test"):
+            self.assertEqual(metrics.main(cli_args), 0)
+        generated = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual(generated["status"], "G0_PENDING")
+        self.assertEqual(generated["evaluation"]["score_threshold"], 0.25)
+        self.assertEqual(generated["sample_policy"]["metric_policy_evidence"]["status"], "BOUND_AND_VERIFIED")
+        self.assertEqual(generated["subsets"]["no_hand"]["status"], "NOT_EXECUTED")
+        self.assertEqual(generated["g0_open_items"], [
+            {"id": "map_acceptance_threshold", "status": "OPEN", "requirement": "正式 mAP 验收门槛尚未冻结。"},
+            {"id": "per_class_precision_recall_thresholds", "status": "OPEN", "requirement": "每类 precision/recall 验收门槛尚未全部冻结。"},
+            {"id": "robustness_dataset_and_isolation", "status": "OPEN", "requirement": "robustness 实际数据集、类别/条件计数及 person/session 隔离证据尚未绑定。"},
+        ])
+
+    def test_invalid_snapshot_fields_and_hash_fail_closed_before_manifest(self) -> None:
+        """错误快照字段或绑定哈希必须在 manifest 读取前阻断。"""
+
+        mutations = {
+            "missing_field": lambda snapshot: snapshot.pop("fixed_evaluation"),
+            "selected_threshold": lambda snapshot: snapshot["score_threshold"].update(selected_for_test_and_robustness=0.30),
+            "max_outputs": lambda snapshot: snapshot["fixed_evaluation"].update(max_outputs=20),
+            "coordinate_policy": lambda snapshot: snapshot["fixed_evaluation"]["coordinate_policy"].update(name="wrong"),
+            "acceptance_gate": lambda snapshot: snapshot["acceptance_gates"].update(map_acceptance_threshold="FROZEN"),
+        }
+        for name, mutation in mutations.items():
+            with self.subTest(name=name):
+                fixture = self._fixture()
+                fixture["manifest"].write_text(
+                    fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,"), encoding="utf-8"
+                )
+                with self._bind_measurement_policy(fixture, "test", mutate=mutation):
+                    with patch.object(Path, "read_bytes", autospec=True) as manifest_reader:
+                        with self.assertRaises(metrics.EvaluationError):
+                            metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "test")
+                        manifest_reader.assert_not_called()
+
+        fixture = self._fixture()
+        fixture["manifest"].write_text(
+            fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,"), encoding="utf-8"
+        )
+        with self._bind_measurement_policy(fixture, "test", binding_hash="0" * 64):
+            with self.assertRaisesRegex(metrics.EvaluationError, "SHA-256"):
+                metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "test")
+
+    def test_test_threshold_other_than_snapshot_selected_is_rejected(self) -> None:
+        """test CLI 使用非 0.25 阈值时拒绝且不写报告。"""
+
+        fixture = self._fixture()
+        fixture["manifest"].write_text(
+            fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,"), encoding="utf-8"
+        )
+        predictions = fixture["root"] / "predictions.json"
+        predictions.write_text(json.dumps(self._records([self._relative_object()], [])), encoding="utf-8")
+        report_path = fixture["root"] / "wrong_threshold.json"
+        summary_path = fixture["root"] / "wrong_threshold.md"
+        args = [
+            "--manifest", str(fixture["manifest"]), "--data-root", str(fixture["root"]), "--labels-root", str(fixture["labels"]),
+            "--predictions", str(predictions), "--class-names", str(fixture["names"]), "--split", "test",
+            "--score-threshold", "0.30", "--report", str(report_path), "--summary", str(summary_path),
+        ]
+        stderr = io.StringIO()
+        with self._bind_measurement_policy(fixture, "test"):
+            with redirect_stderr(stderr):
+                self.assertEqual(metrics.main(args), 2)
+        self.assertIn("selected=0.25", stderr.getvalue())
+        self.assertFalse(report_path.exists())
+        self.assertFalse(summary_path.exists())
+
+    def test_robustness_measurement_context_has_distinct_pending_authorization(self) -> None:
+        """robustness 测量上下文有独立授权状态并使用固定 0.25。"""
+
+        fixture = self._fixture()
+        fixture["manifest"].write_text(
+            fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",robustness,"), encoding="utf-8"
+        )
+        predictions = fixture["root"] / "predictions.json"
+        predictions.write_text(json.dumps(self._records([self._relative_object()], [])), encoding="utf-8")
+        with self._bind_measurement_policy(fixture, "robustness"):
+            context = metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "robustness")
+            self.assertEqual(context.authorization_state, "ROBUSTNESS_MEASUREMENT_G0_ACCEPTANCE_PENDING")
+            entries = metrics.load_manifest(context)
+            truths = metrics.load_ground_truths(entries, context)
+            bound = metrics.bind_predictions(predictions, entries, context)
+            result = metrics.evaluate_metrics(entries, truths, bound, 0.25, 0.45, 15, context)
+            with self.assertRaisesRegex(metrics.EvaluationError, "selected=0.25"):
+                metrics.evaluate_metrics(entries, truths, bound, 0.30, 0.45, 15, context)
+        self.assertEqual(result["image_count"], 2)
 
     def test_direct_metric_apis_require_the_same_verified_context(self) -> None:
         """公共标签、预测和指标 API 只接受原样绑定的不可变验证上下文。"""
@@ -532,7 +623,6 @@ class DetectionMetricsTest(unittest.TestCase):
             locked_test_context = replace(context, split="test")
             locked_robustness_context = replace(context, split="robustness")
             with ExitStack() as stack:
-                label_reader = stack.enter_context(patch.object(Path, "read_text", autospec=True))
                 metric_runner = stack.enter_context(patch.object(metrics, "_match_predictions", side_effect=AssertionError("metric execution")))
                 invalid_contexts = (None, manual_context, wrong_split_context, wrong_sha_context, locked_test_context, locked_robustness_context)
                 for candidate in invalid_contexts:
@@ -549,33 +639,24 @@ class DetectionMetricsTest(unittest.TestCase):
                             metrics.evaluate_metrics(entries, ground_truths, bound_predictions, 0.25, 0.45, 15, candidate)
                         with self.assertRaises(metrics.EvaluationError):
                             metrics._load_prediction_records(prediction, candidate)
-                label_reader.assert_not_called()
                 metric_runner.assert_not_called()
 
-    def test_direct_factory_blocks_test_and_robustness_before_labels_or_predictions(self) -> None:
-        """直接上下文工厂在未批准策略下不返回 test/robustness 条目。"""
+    def test_direct_factory_requires_verified_snapshot_before_test_manifest(self) -> None:
+        """策略快照字段错误时，直接工厂在读取 test manifest 前阻断。"""
 
         fixture = self._fixture()
-        test_text = fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,")
-        fixture["manifest"].write_text(test_text, encoding="utf-8")
-        test_digest = hashlib.sha256(fixture["manifest"].read_bytes()).hexdigest()
-        test_predictions = fixture["root"] / "predictions.json"
-        test_predictions.write_text(json.dumps(self._records([], [])), encoding="utf-8")
-        with ExitStack() as stack:
-            stack.enter_context(patch.object(metrics, "APPROVED_TEST_MANIFEST_SHA256", test_digest))
-            stack.enter_context(patch.object(metrics, "APPROVED_SPLIT_IMAGE_COUNTS", {"train": 0, "val": 0, "test": 2}))
-            label_reader = stack.enter_context(patch.object(Path, "read_text", autospec=True))
-            with self.assertRaisesRegex(metrics.EvaluationError, "G0 指标策略证据"):
-                metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "test")
-            label_reader.assert_not_called()
-
-        with ExitStack() as stack:
-            manifest_reader = stack.enter_context(patch.object(Path, "read_bytes", autospec=True))
-            label_reader = stack.enter_context(patch.object(Path, "read_text", autospec=True))
-            with self.assertRaisesRegex(metrics.EvaluationError, "G0 指标策略证据"):
-                metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "robustness")
-            manifest_reader.assert_not_called()
-            label_reader.assert_not_called()
+        fixture["manifest"].write_text(
+            fixture["manifest"].read_text(encoding="utf-8").replace(",val,", ",test,"), encoding="utf-8"
+        )
+        with self._bind_measurement_policy(
+            fixture,
+            "test",
+            mutate=lambda snapshot: snapshot["policy_document"].update(sha256="0" * 64),
+        ):
+            with patch.object(Path, "read_bytes", autospec=True) as manifest_reader:
+                with self.assertRaisesRegex(metrics.EvaluationError, "policy_document.sha256"):
+                    metrics.create_evaluation_context(fixture["manifest"], fixture["root"], fixture["labels"], "test")
+                manifest_reader.assert_not_called()
 
     def test_direct_api_rejects_relabelled_test_rows_and_keeps_approved_val_working(self) -> None:
         """改标 test 行的 manifest 在直接 API 入口失败，获批 val 链仍可计算。"""

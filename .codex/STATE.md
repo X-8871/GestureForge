@@ -72,7 +72,7 @@
 - 2026-09-19：D3 tiny416 FP32 checkpoint 文件大小 R1 经独立 Reviewer PASS。JSON/摘要 SHA-256 `018dbeaece39f7dfd3054c591c4d28c9f30f79465395517d0191ca919c3e230f` / `61dddadd7abb36e06f2a4ff4e3a0ec60fff8b38205c2fb89cdc6274a950b4f18`；6000/final/last 均为 23,558,276 B、SHA-256 `3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a`，相对 scalar proxy 差值 12,436 B。证据仅测量 FP32 Darknet checkpoint 文件长度，不代表 INT8、总体部署存储、综合或板测。
 - 2026-09-19：D3 存储预算 R1 经独立 Reviewer PASS。JSON/摘要 SHA-256 `1a9905cf713733fc5edfe35613bfeba275eb090de54cadcf673b715a3be68906` / `301DA73A2881475745CE757391BE04676377A69CC67562DDBF0FC171CBD9F129`；复核 54 项通过。tiny320/tiny416 实测 FP32 checkpoint 均 23,558,276 B；FP32/INT8 标量代理分别 23,545,840/5,886,460 B，full608 代理 255,969,512/63,992,378 B；输入、YOLO raw head、最大单层激活均单列，未相加冒充同时峰值。INT8 实际权重、scale/metadata、对齐、PS/NMS、帧缓存、DDR/带宽仍 pending，D3 总报告未关闭。
 - 2026-09-20：D3 阶段验收文档补充上述已审存储预算分栏、full608 仅 PC 对照及未完成部署/综合/板测限制；独立 Reviewer 复审 PASS，提交 `9b45fcd`。D3 总状态仍 `NOT_EXECUTED_PENDING`。
-- 2026-09-22：只读核对 `vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr`：文件声明器件 `xa7z020clg400-1I`、top `rom_controller`，但其引用的 `D:\FPGA_Competition\vivado\src\sync_rom.sv`、`rom_controller.sv`、`counter.sv`、`control_fsm.sv`、仿真文件及 `vivado\constrs_1` 均不存在；工程目录当前仅有一个 `rom_controller.dcp`。未启动 Vivado 综合或修改现有 XPR；D3 真实资源/时序关口继续阻断，不能用缓存 DCP 冒充综合结果。
+- 2026-09-22：更正前一轮路径核对：XPR 中 `$PPRDIR/../../src` 实际解析到仓库根 `D:\FPGA_Competition\src`，`sync_rom.sv`、`rom_controller.sv`、`counter.sv`、`control_fsm.sv` 及 `sim` 测试文件均存在；前一轮“源码缺失”结论无效，未据此修改源码或 XPR。当前阶段仍不启动 RTL/综合，D3 仅保留既有规范与 pending 资源/性能证据。
 - 当前 D3 report 为 `NOT_EXECUTED_PENDING`，errors=0、pending=168；未执行正式权重训练/评估、CUDA 长测、Vivado 综合、烧录、板测、最终精度或性能。输入 spec 与 report 输出分离，同路径被拒绝；D3 不关闭 S1-T02 G0。
 
 ## S1-T02-D4 官方 Darknet 浮点基线与可复现执行

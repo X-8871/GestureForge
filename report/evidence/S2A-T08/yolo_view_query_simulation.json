@@ -1,0 +1,293 @@
+{
+  "schema_version": "gestureforge_s2a_t08_yolo_view_query_simulation_v1",
+  "result": "PASS",
+  "scope": "tiny416 两个 YOLO head 的 NCHW INT8 零拷贝单元素视图查询",
+  "bindings": {
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "g0_spec_path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+    "g0_spec_sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "d2_spec_path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+    "d2_spec_sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+    "t05_evidence_sha256": "0b3f8919c0c25a267e359e452ab2c3e71a4e04cd454be20ecfb82764256c678e",
+    "t06_evidence_sha256": "9237d06d387209281789ab966b4e0e987b9f07a87c7103e7e112de62d3d7632a",
+    "rtl_sha256": "ed617c797f5cd21a886453ac83e3e6a6a71312c4feca4c044a5477620e994b93",
+    "testbench_sha256": "45e84b937487058a7d74490d0eafd0ecc3a71031129d920c3cf063aa1e87a66d",
+    "runner_sha256": "ac33ee621c0a6a911e6bf172d77cad1dfb352a60184286c3a18e00bff0e57e56",
+    "vector_file_sha256": "a138c40daa9edeee80330db5ae4d2d87561a4e527ad14ca58a3822e85d358473",
+    "stimulus_vector_sha256": "3902d6ce1b9a7223ff6f1b80a43855e912d371b5f24e2f6aad225b2cea3584ae",
+    "golden_output_sha256": "0abb71a72636a209dc1e764fc8def6e76ccf07fe1e72ca9d4c22a50b033a0de3"
+  },
+  "randomness": {
+    "seed": 20260922,
+    "state_after_route": "0x0BE74782",
+    "state_before_upsample": "0x0BE74782",
+    "state_before_yolo": "0xD3804965",
+    "draw_order": "随机 head 按 layer_index 升序；每个查询依次消耗 anchor_local、entry、row、column 四个 selector；directed case 不消耗状态",
+    "state_after_random_queries": "0xAA476160",
+    "per_head": [
+      {
+        "layer_index": 30,
+        "state_before_random": "0xD3804965",
+        "state_after_random": "0xEB32F146",
+        "random_queries": 1000,
+        "directed_cases": 16,
+        "directed_queries": 17
+      },
+      {
+        "layer_index": 37,
+        "state_before_random": "0xEB32F146",
+        "state_after_random": "0xAA476160",
+        "random_queries": 1000,
+        "directed_cases": 16,
+        "directed_queries": 17
+      }
+    ]
+  },
+  "head_descriptors": [
+    {
+      "head_layer_index": 30,
+      "head_input_tensor_index": 29,
+      "head_output_tensor_index": 29,
+      "source_layer_index": 29,
+      "source_tensor_index": 29,
+      "head_base_address": 27549952,
+      "head_length_bytes": 5070,
+      "head_channels": 30,
+      "head_height": 13,
+      "head_width": 13,
+      "anchor_count": 3,
+      "entries_per_anchor": 10,
+      "mask": [
+        3,
+        4,
+        5
+      ],
+      "classes": 5,
+      "output_scale": 0.24267549589862975
+    },
+    {
+      "head_layer_index": 37,
+      "head_input_tensor_index": 36,
+      "head_output_tensor_index": 36,
+      "source_layer_index": 36,
+      "source_tensor_index": 36,
+      "head_base_address": 28139136,
+      "head_length_bytes": 20280,
+      "head_channels": 30,
+      "head_height": 26,
+      "head_width": 26,
+      "anchor_count": 3,
+      "entries_per_anchor": 10,
+      "mask": [
+        1,
+        2,
+        3
+      ],
+      "classes": 5,
+      "output_scale": 0.30223452951025775
+    }
+  ],
+  "counts": {
+    "model_random_queries": 2000,
+    "model_directed_cases": 32,
+    "model_directed_queries": 34,
+    "BAD_ARGUMENT": 13,
+    "BAD_RANGE": 2,
+    "maximum_uint32_boundary_success": 1
+  },
+  "directed_cases": [
+    {
+      "layer_index": 30,
+      "case_index": 0,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 1,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 2,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 3,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 4,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 5,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 6,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 7,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 8,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 9,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 10,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 11,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 12,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 13,
+      "query_count": 1
+    },
+    {
+      "layer_index": 30,
+      "case_index": 14,
+      "query_count": 2
+    },
+    {
+      "layer_index": 30,
+      "case_index": 15,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 0,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 1,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 2,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 3,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 4,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 5,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 6,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 7,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 8,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 9,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 10,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 11,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 12,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 13,
+      "query_count": 1
+    },
+    {
+      "layer_index": 37,
+      "case_index": 14,
+      "query_count": 2
+    },
+    {
+      "layer_index": 37,
+      "case_index": 15,
+      "query_count": 1
+    }
+  ],
+  "vector_file_bytes": 535050,
+  "invalid_assertions": {
+    "BAD_ARGUMENT_code_1": 13,
+    "BAD_RANGE_code_2": 2,
+    "producer_tensor_identity_mismatch_both_heads": 2,
+    "non_immediate_producer_guard": 1,
+    "maximum_uint32_boundary_success": 1
+  },
+  "vivado": {
+    "bin": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0
+      }
+    ],
+    "command_template": "python -B -m unittest verification.test_s2a_yolo_view_rtl -v"
+  },
+  "limitations": [
+    "只查询一个 YOLO 输出元素的逻辑通道、NCHW byte offset 和来源地址别名，不发起 memory transaction。",
+    "不执行 INT8 值读取、解码、sigmoid、阈值、NMS、PS/PL 联调或完整网络运算。",
+    "本证据不代表整网逐层比对、Vivado 综合、资源估算或时序通过。",
+    "地址是 G0 逻辑仿真 byte address，不表示 Zynq DDR 物理地址。"
+  ]
+}

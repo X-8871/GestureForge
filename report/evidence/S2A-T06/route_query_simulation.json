@@ -1,0 +1,871 @@
+{
+  "schema_version": "gestureforge_s2a_t06_route_query_simulation_v1",
+  "result": "PASS",
+  "scope": "tiny416 route 单输出元素的 cfg 来源映射、groups 切片、NCHW INT8 byte address 与 Q31/half-away 重标定",
+  "bindings": {
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "rtl_sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+    "testbench_sha256": "7b6dc712133f60db0a085a5cea8822489e7cc61268a5dd8a8ec195fb471e33db",
+    "runner_sha256": "bfd661391b234a97e66f6cadd73d7c2d323b4099203eeed46aa6397082286934",
+    "vector_sha256": "f3abaf49f1daaae44c4c3329f8af6a2fa74adcee248ca6ea3b64c45c43dad6da",
+    "expected_stream_sha256": "493cee18e59df88caca05c8a7fa91b215cee9c084c9837914ee96ad8172e3ddd",
+    "golden_output_sha256": "ee28f81cd42c0fd80cefe80afa807d587ff74ac0e2dc8f4c2e2d447eb6f4ad30"
+  },
+  "randomness": {
+    "seed": 20260922,
+    "state_after_convolution": "0x2DC4F9F4",
+    "state_after_int8_mac": "0x3AFEA916",
+    "state_after_maxpool": "0xA9D661B5",
+    "state_before_route": "0xA9D661B5",
+    "state_after_route": "0x0BE74782",
+    "stage_counts": {
+      "convolution_layers": 21,
+      "int8_mac_random_vectors": 1000,
+      "maxpool_layers": 3,
+      "route_layers": 11,
+      "route_random_spatial_cases_per_layer": 1000
+    },
+    "route_layer_states": [
+      {
+        "layer_index": 3,
+        "state_before_random": "0xA9D661B5",
+        "state_after_random": "0x913164B1",
+        "selected_source_channels_per_case": [
+          32
+        ]
+      },
+      {
+        "layer_index": 6,
+        "state_before_random": "0x913164B1",
+        "state_after_random": "0x1D3BE95E",
+        "selected_source_channels_per_case": [
+          32,
+          32
+        ]
+      },
+      {
+        "layer_index": 8,
+        "state_before_random": "0x1D3BE95E",
+        "state_after_random": "0x6097A863",
+        "selected_source_channels_per_case": [
+          64,
+          64
+        ]
+      },
+      {
+        "layer_index": 11,
+        "state_before_random": "0x6097A863",
+        "state_after_random": "0xBF9B5F70",
+        "selected_source_channels_per_case": [
+          64
+        ]
+      },
+      {
+        "layer_index": 14,
+        "state_before_random": "0xBF9B5F70",
+        "state_after_random": "0xF02AD90A",
+        "selected_source_channels_per_case": [
+          64,
+          64
+        ]
+      },
+      {
+        "layer_index": 16,
+        "state_before_random": "0xF02AD90A",
+        "state_after_random": "0xE075924A",
+        "selected_source_channels_per_case": [
+          128,
+          128
+        ]
+      },
+      {
+        "layer_index": 19,
+        "state_before_random": "0xE075924A",
+        "state_after_random": "0x88983882",
+        "selected_source_channels_per_case": [
+          128
+        ]
+      },
+      {
+        "layer_index": 22,
+        "state_before_random": "0x88983882",
+        "state_after_random": "0xC5DCF6A8",
+        "selected_source_channels_per_case": [
+          128,
+          128
+        ]
+      },
+      {
+        "layer_index": 24,
+        "state_before_random": "0xC5DCF6A8",
+        "state_after_random": "0x7C35F104",
+        "selected_source_channels_per_case": [
+          256,
+          256
+        ]
+      },
+      {
+        "layer_index": 31,
+        "state_before_random": "0x7C35F104",
+        "state_after_random": "0x0B372D51",
+        "selected_source_channels_per_case": [
+          256
+        ]
+      },
+      {
+        "layer_index": 34,
+        "state_before_random": "0x0B372D51",
+        "state_after_random": "0x0BE74782",
+        "selected_source_channels_per_case": [
+          128,
+          256
+        ]
+      }
+    ],
+    "draw_order": "卷积层按 layer_index：channel/y/x selector 后 K 个 INT8；共享 MAC：按卷积 K 循环，K 个 activation、K 个 weight、一个 INT32 bias；maxpool 层按 layer_index：channel/y/x selector 后 kernel_y/kernel_x 候选；route 层按 layer_index：y/x selector 后，cfg 来源顺序、所选通道顺序各一个 INT8；directed 不消耗 PRNG。"
+  },
+  "counts": {
+    "model_random_spatial_cases": 11000,
+    "model_random_output_queries": 2208000,
+    "model_directed_cases": 176,
+    "model_directed_output_queries": 35328,
+    "route_half_away_fixture_values": 12
+  },
+  "record_count": 11177,
+  "vector_file_bytes": 12509303,
+  "expected_file_bytes": 11456425,
+  "route_layers": [
+    {
+      "layer_index": 3,
+      "source_tensor_indices": [
+        2
+      ],
+      "source_base_addresses": [
+        18853888
+      ],
+      "source_length_bytes": [
+        692224
+      ],
+      "source_channel_ranges": [
+        [
+          32,
+          64
+        ]
+      ],
+      "source_scales": [
+        0.4523776797797736
+      ],
+      "target_scale": 0.4523776797797736,
+      "groups": 2,
+      "group_id": 1,
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 32000,
+      "directed_cases": 16,
+      "directed_output_queries": 512
+    },
+    {
+      "layer_index": 6,
+      "source_tensor_indices": [
+        5,
+        4
+      ],
+      "source_base_addresses": [
+        20238336,
+        19892224
+      ],
+      "source_length_bytes": [
+        346112,
+        346112
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          32
+        ],
+        [
+          0,
+          32
+        ]
+      ],
+      "source_scales": [
+        0.2902672234482653,
+        0.23944492790642685
+      ],
+      "target_scale": 0.2902672234482653,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 64000,
+      "directed_cases": 16,
+      "directed_output_queries": 1024
+    },
+    {
+      "layer_index": 8,
+      "source_tensor_indices": [
+        2,
+        7
+      ],
+      "source_base_addresses": [
+        18853888,
+        21276672
+      ],
+      "source_length_bytes": [
+        692224,
+        692224
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          64
+        ],
+        [
+          0,
+          64
+        ]
+      ],
+      "source_scales": [
+        0.4523776797797736,
+        0.22739090506486068
+      ],
+      "target_scale": 0.4523776797797736,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        128,
+        104,
+        104
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 128000,
+      "directed_cases": 16,
+      "directed_output_queries": 2048
+    },
+    {
+      "layer_index": 11,
+      "source_tensor_indices": [
+        10
+      ],
+      "source_base_addresses": [
+        23699456
+      ],
+      "source_length_bytes": [
+        346112
+      ],
+      "source_channel_ranges": [
+        [
+          64,
+          128
+        ]
+      ],
+      "source_scales": [
+        0.1863622440127876
+      ],
+      "target_scale": 0.1863622440127876,
+      "groups": 2,
+      "group_id": 1,
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 64000,
+      "directed_cases": 16,
+      "directed_output_queries": 1024
+    },
+    {
+      "layer_index": 14,
+      "source_tensor_indices": [
+        13,
+        12
+      ],
+      "source_base_addresses": [
+        24391680,
+        24218624
+      ],
+      "source_length_bytes": [
+        173056,
+        173056
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          64
+        ],
+        [
+          0,
+          64
+        ]
+      ],
+      "source_scales": [
+        0.23749109703724777,
+        0.20356996791569268
+      ],
+      "target_scale": 0.23749109703724777,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 128000,
+      "directed_cases": 16,
+      "directed_output_queries": 2048
+    },
+    {
+      "layer_index": 16,
+      "source_tensor_indices": [
+        10,
+        15
+      ],
+      "source_base_addresses": [
+        23699456,
+        24910848
+      ],
+      "source_length_bytes": [
+        346112,
+        346112
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_scales": [
+        0.1863622440127876,
+        0.22726632666400098
+      ],
+      "target_scale": 0.22726632666400098,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        256,
+        52,
+        52
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 256000,
+      "directed_cases": 16,
+      "directed_output_queries": 4096
+    },
+    {
+      "layer_index": 19,
+      "source_tensor_indices": [
+        18
+      ],
+      "source_base_addresses": [
+        26122240
+      ],
+      "source_length_bytes": [
+        173056
+      ],
+      "source_channel_ranges": [
+        [
+          128,
+          256
+        ]
+      ],
+      "source_scales": [
+        0.21066082931879
+      ],
+      "target_scale": 0.21066082931879,
+      "groups": 2,
+      "group_id": 1,
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 128000,
+      "directed_cases": 16,
+      "directed_output_queries": 2048
+    },
+    {
+      "layer_index": 22,
+      "source_tensor_indices": [
+        21,
+        20
+      ],
+      "source_base_addresses": [
+        26468352,
+        26381824
+      ],
+      "source_length_bytes": [
+        86528,
+        86528
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_scales": [
+        0.2236869992233637,
+        0.2524653457281158
+      ],
+      "target_scale": 0.2524653457281158,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 256000,
+      "directed_cases": 16,
+      "directed_output_queries": 4096
+    },
+    {
+      "layer_index": 24,
+      "source_tensor_indices": [
+        18,
+        23
+      ],
+      "source_base_addresses": [
+        26122240,
+        26727936
+      ],
+      "source_length_bytes": [
+        173056,
+        173056
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          256
+        ],
+        [
+          0,
+          256
+        ]
+      ],
+      "source_scales": [
+        0.21066082931879,
+        0.1594378704161156
+      ],
+      "target_scale": 0.21066082931879,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        512,
+        26,
+        26
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 512000,
+      "directed_cases": 16,
+      "directed_output_queries": 8192
+    },
+    {
+      "layer_index": 31,
+      "source_tensor_indices": [
+        27
+      ],
+      "source_base_addresses": [
+        27420160
+      ],
+      "source_length_bytes": [
+        43264
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          256
+        ]
+      ],
+      "source_scales": [
+        0.1441637174351009
+      ],
+      "target_scale": 0.1441637174351009,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 256000,
+      "directed_cases": 16,
+      "directed_output_queries": 4096
+    },
+    {
+      "layer_index": 34,
+      "source_tensor_indices": [
+        33,
+        23
+      ],
+      "source_base_addresses": [
+        27619968,
+        26727936
+      ],
+      "source_length_bytes": [
+        86528,
+        173056
+      ],
+      "source_channel_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          256
+        ]
+      ],
+      "source_scales": [
+        0.145512708528774,
+        0.1594378704161156
+      ],
+      "target_scale": 0.1594378704161156,
+      "groups": 1,
+      "group_id": 0,
+      "output_shape_nchw": [
+        1,
+        384,
+        26,
+        26
+      ],
+      "random_spatial_cases": 1000,
+      "random_output_queries": 384000,
+      "directed_cases": 16,
+      "directed_output_queries": 6144
+    }
+  ],
+  "route_source_parameters_and_exhaustive_q31": [
+    {
+      "layer_index": 3,
+      "sources": [
+        {
+          "tensor_index": 2,
+          "base_address": 18853888,
+          "length_bytes": 692224,
+          "channels": 64,
+          "channel_start": 32,
+          "channel_end": 64,
+          "input_scale": 0.4523776797797736,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 6,
+      "sources": [
+        {
+          "tensor_index": 5,
+          "base_address": 20238336,
+          "length_bytes": 346112,
+          "channels": 32,
+          "channel_start": 0,
+          "channel_end": 32,
+          "input_scale": 0.2902672234482653,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 4,
+          "base_address": 19892224,
+          "length_bytes": 346112,
+          "channels": 32,
+          "channel_start": 0,
+          "channel_end": 32,
+          "input_scale": 0.23944492790642685,
+          "multiplier_hex": "0x6996B7C0",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 8,
+      "sources": [
+        {
+          "tensor_index": 2,
+          "base_address": 18853888,
+          "length_bytes": 692224,
+          "channels": 64,
+          "channel_start": 0,
+          "channel_end": 64,
+          "input_scale": 0.4523776797797736,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 7,
+          "base_address": 21276672,
+          "length_bytes": 692224,
+          "channels": 64,
+          "channel_start": 0,
+          "channel_end": 64,
+          "input_scale": 0.22739090506486068,
+          "multiplier_hex": "0x40571258",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 11,
+      "sources": [
+        {
+          "tensor_index": 10,
+          "base_address": 23699456,
+          "length_bytes": 346112,
+          "channels": 128,
+          "channel_start": 64,
+          "channel_end": 128,
+          "input_scale": 0.1863622440127876,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 14,
+      "sources": [
+        {
+          "tensor_index": 13,
+          "base_address": 24391680,
+          "length_bytes": 173056,
+          "channels": 64,
+          "channel_start": 0,
+          "channel_end": 64,
+          "input_scale": 0.23749109703724777,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 12,
+          "base_address": 24218624,
+          "length_bytes": 173056,
+          "channels": 64,
+          "channel_start": 0,
+          "channel_end": 64,
+          "input_scale": 0.20356996791569268,
+          "multiplier_hex": "0x6DB7B561",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 16,
+      "sources": [
+        {
+          "tensor_index": 10,
+          "base_address": 23699456,
+          "length_bytes": 346112,
+          "channels": 128,
+          "channel_start": 0,
+          "channel_end": 128,
+          "input_scale": 0.1863622440127876,
+          "multiplier_hex": "0x68F650E5",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 15,
+          "base_address": 24910848,
+          "length_bytes": 346112,
+          "channels": 128,
+          "channel_start": 0,
+          "channel_end": 128,
+          "input_scale": 0.22726632666400098,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 19,
+      "sources": [
+        {
+          "tensor_index": 18,
+          "base_address": 26122240,
+          "length_bytes": 173056,
+          "channels": 256,
+          "channel_start": 128,
+          "channel_end": 256,
+          "input_scale": 0.21066082931879,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 22,
+      "sources": [
+        {
+          "tensor_index": 21,
+          "base_address": 26468352,
+          "length_bytes": 86528,
+          "channels": 128,
+          "channel_start": 0,
+          "channel_end": 128,
+          "input_scale": 0.2236869992233637,
+          "multiplier_hex": "0x7168CC7F",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 20,
+          "base_address": 26381824,
+          "length_bytes": 86528,
+          "channels": 128,
+          "channel_start": 0,
+          "channel_end": 128,
+          "input_scale": 0.2524653457281158,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 24,
+      "sources": [
+        {
+          "tensor_index": 18,
+          "base_address": 26122240,
+          "length_bytes": 173056,
+          "channels": 256,
+          "channel_start": 0,
+          "channel_end": 256,
+          "input_scale": 0.21066082931879,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 23,
+          "base_address": 26727936,
+          "length_bytes": 173056,
+          "channels": 256,
+          "channel_start": 0,
+          "channel_end": 256,
+          "input_scale": 0.1594378704161156,
+          "multiplier_hex": "0x60E056F9",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 31,
+      "sources": [
+        {
+          "tensor_index": 27,
+          "base_address": 27420160,
+          "length_bytes": 43264,
+          "channels": 256,
+          "channel_start": 0,
+          "channel_end": 256,
+          "input_scale": 0.1441637174351009,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    },
+    {
+      "layer_index": 34,
+      "sources": [
+        {
+          "tensor_index": 33,
+          "base_address": 27619968,
+          "length_bytes": 86528,
+          "channels": 128,
+          "channel_start": 0,
+          "channel_end": 128,
+          "input_scale": 0.145512708528774,
+          "multiplier_hex": "0x74D2126F",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        },
+        {
+          "tensor_index": 23,
+          "base_address": 26727936,
+          "length_bytes": 173056,
+          "channels": 256,
+          "channel_start": 0,
+          "channel_end": 256,
+          "input_scale": 0.1594378704161156,
+          "multiplier_hex": "0x80000000",
+          "exhaustive_values": 255,
+          "mismatch_count": 0
+        }
+      ]
+    }
+  ],
+  "invalid_assertions": {
+    "BAD_ARGUMENT_code_1": 23,
+    "BAD_RANGE_code_2": 4,
+    "maximum_uint32_address_success": 1
+  },
+  "vivado": {
+    "tool_directory": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "phase_exit_codes": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0
+      }
+    ],
+    "test_command": "python -B -m unittest verification.test_s2a_route_rtl -v"
+  },
+  "limitations": [
+    "仅实现单输出元素组合查询，不发起访存事务，不是完整 route layer engine。",
+    "未验证 tiny416 完整网络、PS/D9 联调、整网逐层黄金、综合资源或时序。",
+    "route_half_away 的 base address=0 是独立局部夹具，不表示模型或硬件映射。"
+  ]
+}

@@ -1,0 +1,869 @@
+{
+  "schema_version": "gestureforge_s2a_t07_conv_tap_geometry_simulation_v1",
+  "result": "PASS",
+  "scope": "tiny416 卷积单输出点的全部 reduction tap 坐标、padding 标志和 NCHW INT8 逻辑字节地址",
+  "bindings": {
+    "g0_manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "g0_manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "g0_document_sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "d2_reference_sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393",
+    "rtl_sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+    "testbench_sha256": "cfcf0c499d9a161eb7a040437d7e7b7865a52898394971552e2c995ea4da95a0",
+    "runner_sha256": "37edf76e0b077defc08306f30e8d83c6ac700afaec82a6c6073f17b89998fe7f",
+    "stimulus_vector_sha256": "bef8f4f720070b44fd8b2af8f0e6b15aef996b3d9cf36870a19a34e0dac7917c",
+    "geometry_golden_sha256": "554f1f3c59fa607595ed0e57441051fc6ef9af82a9b401bfdf3a8c39fe120c94",
+    "random_activation_draw_sha256": "26e44bc15a89592bedfea4c1a0aa9fa05402a9a372ff34405ab859088206419b"
+  },
+  "randomness": {
+    "seed": 20260922,
+    "state_before_convolution": "0x0135283A",
+    "state_after_convolution": "0x2DC4F9F4",
+    "expected_state_after_convolution": "0x2DC4F9F4",
+    "draw_order": "每个模型卷积层按 cfg layer_index；每个随机输出点先抽 channel,row,column，再按 input_channel,kernel_y,kernel_x 消耗 K 个 INT8 activation；directed 与 fixture 不消耗随机流"
+  },
+  "counts": {
+    "random_output_points": 21000,
+    "directed_cases": 336,
+    "fixture_output_points": 9
+  },
+  "tap_counts": {
+    "random": 20731000,
+    "directed": 331696,
+    "fixture": 81,
+    "padding": 1273307,
+    "valid": 19789470
+  },
+  "random_activation_draws": 20731000,
+  "vector_file_bytes": 1776361,
+  "model_layers": [
+    {
+      "layer_index": 0,
+      "input_producer": "network_input",
+      "input_shape_nchw": [
+        1,
+        3,
+        416,
+        416
+      ],
+      "input_base_address": 0,
+      "input_length_bytes": 519168,
+      "output_shape_nchw": [
+        1,
+        32,
+        208,
+        208
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 27,
+      "random_taps": 27000,
+      "directed_taps": 432,
+      "state_before_random": "0x0135283A",
+      "state_after_random": "0xCD788F71"
+    },
+    {
+      "layer_index": 1,
+      "input_producer": 0,
+      "input_shape_nchw": [
+        1,
+        32,
+        208,
+        208
+      ],
+      "input_base_address": 16777216,
+      "input_length_bytes": 1384448,
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 288,
+      "random_taps": 288000,
+      "directed_taps": 4608,
+      "state_before_random": "0xCD788F71",
+      "state_after_random": "0xDD324D6A"
+    },
+    {
+      "layer_index": 2,
+      "input_producer": 1,
+      "input_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "input_base_address": 18161664,
+      "input_length_bytes": 692224,
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 576,
+      "random_taps": 576000,
+      "directed_taps": 9216,
+      "state_before_random": "0xDD324D6A",
+      "state_after_random": "0xB8D2BA74"
+    },
+    {
+      "layer_index": 4,
+      "input_producer": 3,
+      "input_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "input_base_address": 19546112,
+      "input_length_bytes": 346112,
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 288,
+      "random_taps": 288000,
+      "directed_taps": 4608,
+      "state_before_random": "0xB8D2BA74",
+      "state_after_random": "0x4291F42F"
+    },
+    {
+      "layer_index": 5,
+      "input_producer": 4,
+      "input_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "input_base_address": 19892224,
+      "input_length_bytes": 346112,
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 288,
+      "random_taps": 288000,
+      "directed_taps": 4608,
+      "state_before_random": "0x4291F42F",
+      "state_after_random": "0xD54278C2"
+    },
+    {
+      "layer_index": 7,
+      "input_producer": 6,
+      "input_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "input_base_address": 20584448,
+      "input_length_bytes": 692224,
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 64,
+      "random_taps": 64000,
+      "directed_taps": 1024,
+      "state_before_random": "0xD54278C2",
+      "state_after_random": "0x462E1F8E"
+    },
+    {
+      "layer_index": 10,
+      "input_producer": 9,
+      "input_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "input_base_address": 23353344,
+      "input_length_bytes": 346112,
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 1152,
+      "random_taps": 1152000,
+      "directed_taps": 18432,
+      "state_before_random": "0x462E1F8E",
+      "state_after_random": "0xB3D66A81"
+    },
+    {
+      "layer_index": 12,
+      "input_producer": 11,
+      "input_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "input_base_address": 24045568,
+      "input_length_bytes": 173056,
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 576,
+      "random_taps": 576000,
+      "directed_taps": 9216,
+      "state_before_random": "0xB3D66A81",
+      "state_after_random": "0x5D0D2022"
+    },
+    {
+      "layer_index": 13,
+      "input_producer": 12,
+      "input_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "input_base_address": 24218624,
+      "input_length_bytes": 173056,
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 576,
+      "random_taps": 576000,
+      "directed_taps": 9216,
+      "state_before_random": "0x5D0D2022",
+      "state_after_random": "0x4D1A7A4E"
+    },
+    {
+      "layer_index": 15,
+      "input_producer": 14,
+      "input_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "input_base_address": 24564736,
+      "input_length_bytes": 346112,
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 128,
+      "random_taps": 128000,
+      "directed_taps": 2048,
+      "state_before_random": "0x4D1A7A4E",
+      "state_after_random": "0x25E74501"
+    },
+    {
+      "layer_index": 18,
+      "input_producer": 17,
+      "input_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "input_base_address": 25949184,
+      "input_length_bytes": 173056,
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 2304,
+      "random_taps": 2304000,
+      "directed_taps": 36864,
+      "state_before_random": "0x25E74501",
+      "state_after_random": "0xBB3ACE15"
+    },
+    {
+      "layer_index": 20,
+      "input_producer": 19,
+      "input_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "input_base_address": 26295296,
+      "input_length_bytes": 86528,
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 1152,
+      "random_taps": 1152000,
+      "directed_taps": 18432,
+      "state_before_random": "0xBB3ACE15",
+      "state_after_random": "0xFA365CC1"
+    },
+    {
+      "layer_index": 21,
+      "input_producer": 20,
+      "input_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "input_base_address": 26381824,
+      "input_length_bytes": 86528,
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 1152,
+      "random_taps": 1152000,
+      "directed_taps": 18432,
+      "state_before_random": "0xFA365CC1",
+      "state_after_random": "0xC90429A8"
+    },
+    {
+      "layer_index": 23,
+      "input_producer": 22,
+      "input_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "input_base_address": 26554880,
+      "input_length_bytes": 173056,
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 256,
+      "random_taps": 256000,
+      "directed_taps": 4096,
+      "state_before_random": "0xC90429A8",
+      "state_after_random": "0x5B9465F4"
+    },
+    {
+      "layer_index": 26,
+      "input_producer": 25,
+      "input_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "input_base_address": 27247104,
+      "input_length_bytes": 86528,
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 4608,
+      "random_taps": 4608000,
+      "directed_taps": 73728,
+      "state_before_random": "0x5B9465F4",
+      "state_after_random": "0x37408415"
+    },
+    {
+      "layer_index": 27,
+      "input_producer": 26,
+      "input_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "input_base_address": 27333632,
+      "input_length_bytes": 86528,
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 512,
+      "random_taps": 512000,
+      "directed_taps": 8192,
+      "state_before_random": "0x37408415",
+      "state_after_random": "0x6C17C840"
+    },
+    {
+      "layer_index": 28,
+      "input_producer": 27,
+      "input_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "input_base_address": 27420160,
+      "input_length_bytes": 43264,
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 2304,
+      "random_taps": 2304000,
+      "directed_taps": 36864,
+      "state_before_random": "0x6C17C840",
+      "state_after_random": "0x210B5CAB"
+    },
+    {
+      "layer_index": 29,
+      "input_producer": 28,
+      "input_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "input_base_address": 27463424,
+      "input_length_bytes": 86528,
+      "output_shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 512,
+      "random_taps": 512000,
+      "directed_taps": 8192,
+      "state_before_random": "0x210B5CAB",
+      "state_after_random": "0x4C81369D"
+    },
+    {
+      "layer_index": 32,
+      "input_producer": 31,
+      "input_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "input_base_address": 27555072,
+      "input_length_bytes": 43264,
+      "output_shape_nchw": [
+        1,
+        128,
+        13,
+        13
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 256,
+      "random_taps": 256000,
+      "directed_taps": 4096,
+      "state_before_random": "0x4C81369D",
+      "state_after_random": "0xCFBC650A"
+    },
+    {
+      "layer_index": 35,
+      "input_producer": 34,
+      "input_shape_nchw": [
+        1,
+        384,
+        26,
+        26
+      ],
+      "input_base_address": 27706496,
+      "input_length_bytes": 259584,
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "groups": 1,
+      "reduction_count": 3456,
+      "random_taps": 3456000,
+      "directed_taps": 55296,
+      "state_before_random": "0xCFBC650A",
+      "state_after_random": "0x54F151F6"
+    },
+    {
+      "layer_index": 36,
+      "input_producer": 35,
+      "input_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "input_base_address": 27966080,
+      "input_length_bytes": 173056,
+      "output_shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "groups": 1,
+      "reduction_count": 256,
+      "random_taps": 256000,
+      "directed_taps": 4096,
+      "state_before_random": "0x54F151F6",
+      "state_after_random": "0x2DC4F9F4"
+    }
+  ],
+  "error_assertions": {
+    "BAD_ARGUMENT_code_1": 23,
+    "BAD_RANGE_code_2": 3,
+    "maximum_uint32_last_byte_success": 1,
+    "padding_success_without_address": 1
+  },
+  "vivado": {
+    "bin": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0
+      }
+    ],
+    "command_template": "python -B -m unittest verification.test_s2a_conv_tap_geometry_rtl -v"
+  },
+  "fixture_address_semantics": "base_address=0xF0000000 仅为不重叠的本地 synthetic fixture 地址；测试相对 NCHW byte offset，不代表模型或硬件映射地址",
+  "limitations": [
+    "仅查询卷积输入 tap 几何，不计算权重地址、MAC、输出量化或访存事务。",
+    "groups 仅支持 G0 实际冻结为 1 的卷积层。",
+    "零填充 3x3 fixture 使用本地 synthetic 地址；不代表模型张量映射。",
+    "不代表完整网络逐层黄金比对、PS 解码/NMS、综合、资源估算、时序或板上验证通过。"
+  ]
+}

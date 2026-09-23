@@ -1,0 +1,247 @@
+{
+  "schema_version": "gestureforge_s2a_t05_upsample_query_simulation_v1",
+  "result": "PASS",
+  "scope": "tiny416 layer33 nearest-repeat 单查询映射、NCHW INT8 byte address 和精确值复制",
+  "bindings": {
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "rtl_sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+    "testbench_sha256": "ab98c671ceaa40532238b7d66483fd117ddda1344005e14e376d475b7707c9a0",
+    "runner_sha256": "532447cf37ac588eff404b9c591a649a2b5f7bf72050baa9aa5582493c0cb324",
+    "vector_sha256": "491453e899af6f42ef7e3b3a028b28ddbf02166e9656b007c1599089a2cd0ab0",
+    "golden_output_sha256": "ddc0f43a432fb0d8d65c90916a60c76904c95f717b81982e1138e46b2d2e9daa",
+    "input_tensor_producer_layer": 32,
+    "input_base_address": 27598336,
+    "input_tensor_length_bytes": 21632
+  },
+  "random_vectors": {
+    "seed": 20260922,
+    "state_after_convolution": "0x2DC4F9F4",
+    "state_after_int8_mac": "0x3AFEA916",
+    "state_after_maxpool": "0xA9D661B5",
+    "state_after_route": "0x0BE74782",
+    "state_before_upsample": "0x0BE74782",
+    "convolution_layers": 21,
+    "int8_mac_random_vectors": 1000,
+    "maxpool_layers": 3,
+    "route_layers": 11,
+    "route_layer_states": [
+      {
+        "layer_index": 3,
+        "selected_source_channels_per_case": [
+          32
+        ],
+        "state_before_random": "0xA9D661B5",
+        "state_after_random": "0x913164B1"
+      },
+      {
+        "layer_index": 6,
+        "selected_source_channels_per_case": [
+          32,
+          32
+        ],
+        "state_before_random": "0x913164B1",
+        "state_after_random": "0x1D3BE95E"
+      },
+      {
+        "layer_index": 8,
+        "selected_source_channels_per_case": [
+          64,
+          64
+        ],
+        "state_before_random": "0x1D3BE95E",
+        "state_after_random": "0x6097A863"
+      },
+      {
+        "layer_index": 11,
+        "selected_source_channels_per_case": [
+          64
+        ],
+        "state_before_random": "0x6097A863",
+        "state_after_random": "0xBF9B5F70"
+      },
+      {
+        "layer_index": 14,
+        "selected_source_channels_per_case": [
+          64,
+          64
+        ],
+        "state_before_random": "0xBF9B5F70",
+        "state_after_random": "0xF02AD90A"
+      },
+      {
+        "layer_index": 16,
+        "selected_source_channels_per_case": [
+          128,
+          128
+        ],
+        "state_before_random": "0xF02AD90A",
+        "state_after_random": "0xE075924A"
+      },
+      {
+        "layer_index": 19,
+        "selected_source_channels_per_case": [
+          128
+        ],
+        "state_before_random": "0xE075924A",
+        "state_after_random": "0x88983882"
+      },
+      {
+        "layer_index": 22,
+        "selected_source_channels_per_case": [
+          128,
+          128
+        ],
+        "state_before_random": "0x88983882",
+        "state_after_random": "0xC5DCF6A8"
+      },
+      {
+        "layer_index": 24,
+        "selected_source_channels_per_case": [
+          256,
+          256
+        ],
+        "state_before_random": "0xC5DCF6A8",
+        "state_after_random": "0x7C35F104"
+      },
+      {
+        "layer_index": 31,
+        "selected_source_channels_per_case": [
+          256
+        ],
+        "state_before_random": "0x7C35F104",
+        "state_after_random": "0x0B372D51"
+      },
+      {
+        "layer_index": 34,
+        "selected_source_channels_per_case": [
+          128,
+          256
+        ],
+        "state_before_random": "0x0B372D51",
+        "state_after_random": "0x0BE74782"
+      }
+    ],
+    "state_after_random_queries": "0xD3804965",
+    "state_after_upsample": "0xD3804965",
+    "random_draw_order": "output_channel selector, output_y selector, output_x selector, then one INT8 source value"
+  },
+  "counts": {
+    "model_random_queries": 1000,
+    "model_directed_cases": 16,
+    "model_directed_queries": 18,
+    "fixture_queries": 16
+  },
+  "vector_file_bytes": 423409,
+  "directed_cases": [
+    {
+      "case_index": 0,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 1,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 2,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 3,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 4,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 5,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 6,
+      "query_count": 2,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 7,
+      "query_count": 2,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 8,
+      "query_count": 1,
+      "source_tensor_rule": "zero_source"
+    },
+    {
+      "case_index": 9,
+      "query_count": 1,
+      "source_tensor_rule": "positive_extreme_source"
+    },
+    {
+      "case_index": 10,
+      "query_count": 1,
+      "source_tensor_rule": "negative_extreme_source"
+    },
+    {
+      "case_index": 11,
+      "query_count": 1,
+      "source_tensor_rule": "flat_nchw_even=-127_odd=+127"
+    },
+    {
+      "case_index": 12,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 13,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 14,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    },
+    {
+      "case_index": 15,
+      "query_count": 1,
+      "source_tensor_rule": "single_marker_else_zero"
+    }
+  ],
+  "invalid_assertions": {
+    "BAD_ARGUMENT_code_1": 9,
+    "BAD_RANGE_code_2": 2,
+    "maximum_uint32_boundary_success": 1
+  },
+  "vivado": {
+    "bin": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0
+      }
+    ],
+    "command_template": "python -B -m unittest verification.test_s2a_upsample_rtl -v"
+  },
+  "fixture_address_semantics": "fixture base_address=0 仅用于验证局部 NCHW byte offset，不表示模型或硬件地址映射",
+  "limitations": [
+    "仅实现一个查询点和单个通道的紧凑来源平面，不发起 memory bus 事务。",
+    "输入平面最大支持 13x13；实测模型 layer33 13x13 与独立 2x2 stride2 fixture。",
+    "不代表完整 upsample layer engine、整网逐层黄金比对、综合、资源或时序通过。"
+  ]
+}

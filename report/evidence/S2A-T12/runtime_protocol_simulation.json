@@ -1,0 +1,290 @@
+{
+  "baseline_head": "2309d2cbe7a27951ac433b2ca4eca7987301021b",
+  "bindings": {
+    "control_rtl_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "g0_spec_path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+    "g0_spec_sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "golden_response_sha256": "0bba148284e6d14724be8b10fda5e8c15680bf41bcf7735049ba26c7e547ff9d",
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_ranges_sha256": "8e90cbe86c762c856fe8c2eff6e7089730557f2560d09d9a76a6f37dd51b6e7f",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "memory_master_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "memory_model_sha256": "4db3a955e2bdf9007a6365fd2dd01e588c63e9e2cc7b270fc511d1f5a06f3ae2",
+    "runner_sha256": "93b85a8b45e58062f1fe5486b3b13f78d35f758ebb686b3a602af7f8c5de0f45",
+    "runtime_params_sha256": "b87e2d2a5381f3a14570694e71ef459d7a1aa9c8a7d85b041e44e06a588643d5",
+    "runtime_shell_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "stall_schedule_sha256": "1c48678d5b9310b8d3998668d2178f3c70ab885befa1e9cf9cf87d4ecd4618ab",
+    "stimulus_sha256": "2239a3063886e1f00a4496158a21a0525bf5888bb447e85647e41c16f84293ff",
+    "testbench_sha256": "155f476cef4e8352611d777e73ee0bd9b78ad51fabd41cc9ca331d797bf2c2bf",
+    "vector_file_sha256": "46d6c4ba353f862461d52a46cb2fd64f6d9069dd6df2c41c22afea8056d7ffaa"
+  },
+  "coverage": {
+    "accepted_write_feature_transfer_counts_include_retries": true,
+    "backend_one_outstanding_stability_assertion": true,
+    "bad_argument_zero_strobe_cases": 1,
+    "bad_range_unaligned_cases": 1,
+    "cancel_checks": 3,
+    "cancelled_pending_feature_write_cases": [
+      "hard_reset_before_ready_after_7_low_cycles",
+      "accepted_soft_reset_before_ready_after_7_low_cycles",
+      "timeout_before_ready_after_7_low_cycles"
+    ],
+    "error_checks": 5,
+    "memory_fault_directed_cases": 2,
+    "memory_fault_mapping": {
+      "code_1": 1,
+      "code_2": 2,
+      "code_6": 6,
+      "code_7": 6
+    },
+    "operator_code0_completion_required_for_done_and_head_valid": true,
+    "pass_marker_count": 1,
+    "post_cancel_readback_no_side_effect_cases": 3,
+    "random_transfers": 4000,
+    "read_feature": 1003,
+    "read_input": 1000,
+    "read_weights": 1000,
+    "retry_checks": 3,
+    "retry_same_write_feature_stall_slot_7_cases": 3,
+    "write_feature": 1014
+  },
+  "limitations": [
+    "只验证 T12 runtime shell、T11 控制与 T10 行为模型的仿真集成。",
+    "backend request/response 是 T12 内部测试接口；没有实现真实算子或 PL DMA。",
+    "未连接整网计算、PS 解码/NMS，未执行综合、资源估算、时序分析或实物验证。",
+    "外部权重包未读取；权重区使用 T10 确定性 byte pattern。",
+    "取消用例证明未握手 pending feature write 无模型副作用，不替代器件/真实 memory controller 集成。"
+  ],
+  "objects": {
+    "feature_address_source": "manifest 非 YOLO tensor_address/tensor_length_bytes 去重",
+    "feature_cancel_test_addresses": [
+      18853888,
+      19546112,
+      19892224,
+      20238336
+    ],
+    "feature_unique_range_count": 36,
+    "feature_unique_ranges": [
+      {
+        "end_exclusive": 18161664,
+        "start_inclusive": 16777216
+      },
+      {
+        "end_exclusive": 18853888,
+        "start_inclusive": 18161664
+      },
+      {
+        "end_exclusive": 19546112,
+        "start_inclusive": 18853888
+      },
+      {
+        "end_exclusive": 19892224,
+        "start_inclusive": 19546112
+      },
+      {
+        "end_exclusive": 20238336,
+        "start_inclusive": 19892224
+      },
+      {
+        "end_exclusive": 20584448,
+        "start_inclusive": 20238336
+      },
+      {
+        "end_exclusive": 21276672,
+        "start_inclusive": 20584448
+      },
+      {
+        "end_exclusive": 21968896,
+        "start_inclusive": 21276672
+      },
+      {
+        "end_exclusive": 23353344,
+        "start_inclusive": 21968896
+      },
+      {
+        "end_exclusive": 23699456,
+        "start_inclusive": 23353344
+      },
+      {
+        "end_exclusive": 24045568,
+        "start_inclusive": 23699456
+      },
+      {
+        "end_exclusive": 24218624,
+        "start_inclusive": 24045568
+      },
+      {
+        "end_exclusive": 24391680,
+        "start_inclusive": 24218624
+      },
+      {
+        "end_exclusive": 24564736,
+        "start_inclusive": 24391680
+      },
+      {
+        "end_exclusive": 24910848,
+        "start_inclusive": 24564736
+      },
+      {
+        "end_exclusive": 25256960,
+        "start_inclusive": 24910848
+      },
+      {
+        "end_exclusive": 25949184,
+        "start_inclusive": 25256960
+      },
+      {
+        "end_exclusive": 26122240,
+        "start_inclusive": 25949184
+      },
+      {
+        "end_exclusive": 26295296,
+        "start_inclusive": 26122240
+      },
+      {
+        "end_exclusive": 26381824,
+        "start_inclusive": 26295296
+      },
+      {
+        "end_exclusive": 26468352,
+        "start_inclusive": 26381824
+      },
+      {
+        "end_exclusive": 26554880,
+        "start_inclusive": 26468352
+      },
+      {
+        "end_exclusive": 26727936,
+        "start_inclusive": 26554880
+      },
+      {
+        "end_exclusive": 26900992,
+        "start_inclusive": 26727936
+      },
+      {
+        "end_exclusive": 27247104,
+        "start_inclusive": 26900992
+      },
+      {
+        "end_exclusive": 27333632,
+        "start_inclusive": 27247104
+      },
+      {
+        "end_exclusive": 27420160,
+        "start_inclusive": 27333632
+      },
+      {
+        "end_exclusive": 27463424,
+        "start_inclusive": 27420160
+      },
+      {
+        "end_exclusive": 27549952,
+        "start_inclusive": 27463424
+      },
+      {
+        "end_exclusive": 27555022,
+        "start_inclusive": 27549952
+      },
+      {
+        "end_exclusive": 27598336,
+        "start_inclusive": 27555072
+      },
+      {
+        "end_exclusive": 27619968,
+        "start_inclusive": 27598336
+      },
+      {
+        "end_exclusive": 27706496,
+        "start_inclusive": 27619968
+      },
+      {
+        "end_exclusive": 27966080,
+        "start_inclusive": 27706496
+      },
+      {
+        "end_exclusive": 28139136,
+        "start_inclusive": 27966080
+      },
+      {
+        "end_exclusive": 28159416,
+        "start_inclusive": 28139136
+      }
+    ],
+    "input": {
+      "access": "read_only",
+      "end_exclusive": 519168,
+      "start_inclusive": 0
+    },
+    "weights": {
+      "access": "read_only",
+      "end_exclusive": 6951676,
+      "external_weight_package_read": false,
+      "start_inclusive": 1048576
+    }
+  },
+  "randomness": {
+    "draw_order": "按 read_input/read_weights/read_feature/write_feature 分组；每笔先选 word，再产生 write data",
+    "prng": "xorshift32",
+    "seed": 705825059,
+    "stall_schedule_by_class": {
+      "read_feature": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "read_input": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "read_weights": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "write_feature": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ]
+    },
+    "state_after_generation": "0x330B7295",
+    "transfer_counts": {
+      "read_feature": 1000,
+      "read_input": 1000,
+      "read_weights": 1000,
+      "write_feature": 1000
+    }
+  },
+  "result": "PASS",
+  "schema_version": "gestureforge_s2a_t12_runtime_protocol_simulation_v1",
+  "scope": "T11 CSR/control + T12 单 outstanding memory master + T10 行为 memory model 集成",
+  "task": "S2A-T12",
+  "vivado": {
+    "log_gate_negative_cases": 7,
+    "phases": [
+      {
+        "exit_code": 0,
+        "phase": "xvlog"
+      },
+      {
+        "exit_code": 0,
+        "phase": "xelab"
+      },
+      {
+        "exit_code": 0,
+        "phase": "xsim"
+      }
+    ],
+    "xsim_failure_diagnostic_count": 0,
+    "xsim_pass_marker_count": 1
+  }
+}

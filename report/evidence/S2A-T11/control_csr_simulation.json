@@ -1,0 +1,80 @@
+{
+  "baseline_head": "025724ccd904c2208b38783d274edeb728004e13",
+  "binding_sha256": {
+    "g0_manifest": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "g0_spec": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "rtl": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "runner": "3a1ca1a17601dfd6827294b274d0d32d9abc1e60101053e0105d05dc39f55c1d",
+    "testbench": "27aeefa5595110a53eda32385769f46fecaa90c35123f49ff3ccdebd2aa04e53"
+  },
+  "coverage": {
+    "argument_error_single_faults": {
+      "BAD_ARGUMENT_zero_timeout": 1,
+      "BAD_LENGTH": 2,
+      "BAD_RANGE": 2
+    },
+    "csr_accepted_transfers": 595,
+    "directed_checks": 116,
+    "manifest_protocol_vectors": [
+      "csr",
+      "completion_boundary",
+      "timeout_recovery",
+      "memory_error_recovery",
+      "accumulator_overflow_recovery"
+    ],
+    "memory_codes_checked": {
+      "1": 1,
+      "2": 2,
+      "6": 6,
+      "7": 6
+    },
+    "not_covered_manifest_vector": "cancel_pending_write requires memory-master integration",
+    "operator_codes_preserved": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "protocol_case_counter": 5,
+    "random_csr_accesses": 256,
+    "recovery_cases": [
+      "ACK_done",
+      "ACK_error",
+      "legal_start_after_ACK"
+    ],
+    "reset_cases": [
+      "hard_reset_idle",
+      "hard_reset_busy",
+      "soft_reset_idle_defaults",
+      "soft_reset_busy",
+      "soft_reset_wins_over_start"
+    ]
+  },
+  "limitations": [
+    "仅验证独立 CSR/控制 FSM 与行为后端事件 stub。",
+    "未连接 T10 memory model、PL memory master、DMA 或真实算子。",
+    "backend_abort 事件检查不证明未握手 memory 写撤销集成。",
+    "未执行综合、资源估算、时序分析或实物验证。",
+    "3-bit 错误输入域仅含 G0 定义的 0..7，不伪造不可表达的未知码。",
+    "不测试多个非法参数同时出现时的错误码优先级，也不承诺 CMD/ACK 读回或 ACK 双位同写语义。"
+  ],
+  "stimulus": {
+    "control_protocol_sha256": "f0af8064c88ef15ce17e01b14f89bb1c1add76a1b0cdca2f1487b4e8b6d4f796",
+    "count": 256,
+    "golden_readback_sha256": "4a9b4111f54b3d86602ee884a415824891d308c1be40537b8e843aa5f20f05a6",
+    "seed": "0x2A110923",
+    "state_after_generation": "0x30D83080",
+    "vector_sha256": "9f38fe3903a396d304359e520238ea1ff8ec88566e1db9ab1637169cabf44a69"
+  },
+  "task": "S2A-T11",
+  "vivado": {
+    "xelab_exit_code": 0,
+    "xsim_exit_code": 0,
+    "xsim_failure_diagnostic_count": 0,
+    "xsim_pass_marker_count": 1,
+    "xvlog_exit_code": 0
+  }
+}

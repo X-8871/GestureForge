@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "S2A-T02",
+  "status": "UNIT_SIM_PASS",
+  "baseline_commit": "e556b3dd0903aad6aa2dae2e7711817c4db6a8ca",
+  "model_binding": {
+    "model_id": "tiny416",
+    "cfg_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+    "darknet_weights_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+    "gf8_package_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+    "g0_spec_path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+    "g0_spec_sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+  },
+  "implementation": {
+    "rtl_path": "src/int8_mac_accumulator.sv",
+    "rtl_sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+    "testbench_path": "sim/tb_s2a_int8_mac_accumulator.sv",
+    "testbench_sha256": "78e211cc8cdbe3b0cef17d5b243c0bc24c5bbf182ffa0acd8d08e5d4d3882662",
+    "verification_path": "verification/test_s2a_mac_rtl.py",
+    "verification_sha256": "e6d2f8824f33a2277f001410f21307eaa0f28dee0d68870f635bd3b2b1c0e4e0"
+  },
+  "vectors": {
+    "prng": "xorshift32",
+    "initial_seed": 20260922,
+    "convolutional_prefix_layers": 21,
+    "convolutional_random_cases_per_layer": 1000,
+    "mac_prng_state_before_random_vectors": "0x2DC4F9F4",
+    "random_vector_count": 1000,
+    "directed_vector_count": 16,
+    "operand_pair_count": 987591,
+    "materialized_inputs_and_expected_outputs_sha256": "9e9e1c24b85d0ca5d11158b3a960262a016b8bd6781c4400fea35fd5a9ceb61e"
+  },
+  "verification": {
+    "simulator": "Vivado Simulator v2026.1",
+    "command": "python -B -m unittest verification.test_s2a_mac_rtl -v",
+    "exit_code": 0,
+    "tool_exit_codes": {
+      "xvlog": 0,
+      "xelab": 0,
+      "xsim": 0
+    },
+    "independent_directed_vector_audit": {
+      "vector_count": 16,
+      "exact_int64_sum_mismatches": 0,
+      "first_int32_overflow_index_mismatches": 0,
+      "expected_result_mismatches": 0,
+      "exit_code": 0,
+      "status": "PASS",
+      "total_mismatches": 0,
+      "command": "python -B verification/s2a_mac_vector_audit.py",
+      "tool": {
+        "name": "CPython",
+        "version": "3.12.10",
+        "version_full": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+      },
+      "auditor_path": "verification/s2a_mac_vector_audit.py",
+      "auditor_sha256": "c24087821eff286b2c831b7f9b304de97b1f3a6c49728d423aaab1959828caa3",
+      "result_artifact_path": "report/evidence/S2A-T02/mac_directed_vector_audit.json",
+      "result_artifact_sha256": "f988535dc7d4bbb340d8721e0ea1b7d3734455f86f09122b3da6b3ab1184cf5c"
+    },
+    "artifact_retention": "测试向量与仿真日志在 TemporaryDirectory 中生成并自动清除；可用记录的命令复现，完整输入与预期输出由向量 SHA-256 绑定。"
+  },
+  "limitations": [
+    "仅验证共享 MAC 原语的隔离 RTL 仿真。",
+    "未执行 Vivado 综合、资源或时序估算、工程集成、逐层卷积、整网仿真、板测或烧录。"
+  ]
+}

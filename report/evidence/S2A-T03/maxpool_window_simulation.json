@@ -1,0 +1,98 @@
+{
+  "schema_version": "s2a-t03-maxpool-window-simulation-v1",
+  "status": "PASS",
+  "scope": "tiny416 maxpool 单窗口 4-tap/9-tap 有符号 INT8 最大值归约",
+  "bindings": {
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "rtl_path": "src/int8_maxpool_window.sv",
+    "rtl_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "testbench_path": "sim/tb_s2a_maxpool_window.sv",
+    "testbench_sha256": "43d801092ef6b7276965c0894e7835de0dbc715636798a7e870918a98c4c6e97",
+    "test_script_path": "verification/test_s2a_maxpool_rtl.py",
+    "test_script_sha256": "f3da8587c855383297443c62af09c311a90a8af235d825a7e89dd7d28d69e51f",
+    "random_seed": 20260922,
+    "shared_prng_state_before_pool": "0x3AFEA916",
+    "shared_prng_state_after_pool": "0xA9D661B5",
+    "materialized_vector_sha256": "caf8b0be16fe878926d109d8329d6bd321400b1efa6a326a9f03127bdb61258f",
+    "golden_output_sha256": "e4a0be096dad83b0e4a526d7dbea97fec52b2bb531fc74c5bd76ab4753bf214a",
+    "materialized_vector_bytes": 124163
+  },
+  "counts": {
+    "model_layers": [
+      {
+        "layer_index": 9,
+        "random": 1000,
+        "directed": 16,
+        "total": 1016
+      },
+      {
+        "layer_index": 17,
+        "random": 1000,
+        "directed": 16,
+        "total": 1016
+      },
+      {
+        "layer_index": 25,
+        "random": 1000,
+        "directed": 16,
+        "total": 1016
+      }
+    ],
+    "model_random": 3000,
+    "model_directed": 48,
+    "model_comparisons": 3048,
+    "padding_fixture": {
+      "name": "maxpool_darknet_padding",
+      "windows": 16,
+      "taps_per_window": 9,
+      "pad_value_int8": -127
+    },
+    "invalid_assertions": [
+      "BAD_ARGUMENT(1): candidate_count=0",
+      "BAD_ARGUMENT(1): candidate_count=5",
+      "BAD_ARGUMENT(1): candidate_count=10",
+      "BAD_ARGUMENT(1): selected candidate=-128 with candidate_count=4"
+    ],
+    "invalid_assertion_count": 4,
+    "error_code_semantics": {
+      "success": 0,
+      "BAD_ARGUMENT": 1
+    },
+    "unselected_minus_128_ignored": true,
+    "all_rtl_comparisons": 3064
+  },
+  "result_statistics": {
+    "mismatches": 0,
+    "golden_ranges": {
+      "random": {
+        "minimum": -89,
+        "maximum": 127
+      },
+      "directed": {
+        "minimum": -127,
+        "maximum": 127
+      },
+      "fixture": {
+        "minimum": 6,
+        "maximum": 16
+      }
+    },
+    "comparison": "有符号整数逐字节完全相等"
+  },
+  "vivado": {
+    "tool_directory": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "exit_codes": {
+      "xvlog": 0,
+      "xelab": 0,
+      "xsim": 0
+    },
+    "xsim_pass_summary": "PASS: model_vectors=3048 random=3000 directed=48 fixture=16 invalid=4 mismatches=0",
+    "total_timeout_seconds": 600
+  },
+  "limitations": [
+    "仅实现单窗口候选最大值归约，不含 layer window geometry、坐标生成或访存地址引擎。",
+    "通用 padding fixture 将冻结坐标几何生成的 16 个 tap 组送入 RTL；只验证候选归约与 -127 padding 映射。",
+    "未验证完整 maxpool layer、整网 RTL、逐层张量比对、综合资源或板上行为。"
+  ]
+}

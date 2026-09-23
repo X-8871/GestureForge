@@ -1,13 +1,21 @@
 # 项目状态
 
-更新：2026-09-22（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和阶段一归档记录。
+更新：2026-09-23（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
 
 ## 当前目标与阶段
 
 - 目标：AX7020 摄像头五类手势检测，最终经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现作品。
-- 当前阶段：阶段一「PC 模型与数值规格」已按 PC 范围冻结；不自动进入阶段二。
-- 本阶段未重新训练、未执行 Vivado 综合、未执行板上烧录或板上性能测试。
+- 当前阶段：阶段 2A「PL 推理仿真」。阶段一已冻结；阶段 2A G0 已冻结，RTL/G1/G2 尚未开始。
+- 本轮未重新训练；G0 未执行 Vivado 综合、板上烧录或板上性能测试。
 - 归档主入口：`docs/obsidian-project/04-提交材料/阶段验收/阶段1_实施步骤与决策_最终产物_20260922.md`。
+
+## 阶段 2A G0 冻结入口
+
+- G0 规格：`docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md`；状态 `G0_FROZEN`，主候选 `tiny416`。
+- 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
+- G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
+- 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
+- 下一项：实现并验证共享 INT8 MAC RTL，再依冻结清单逐步实现基础算子。G0 不代表 RTL、整网黄金、综合/时序或板测通过。
 
 ## 已冻结的模型和口径
 
@@ -35,4 +43,4 @@
 
 - tiny320/tiny416 后续板上门：LUT/FF/BRAM/DSP≤85%，WNS/WHS≥0，TNS/THS=0；full608 不适用板上资源门。
 - 未来若要求“无手必须拒绝输出”，需另建独立、可审计数据集和新验收门，不回写当前阶段一冻结结论。
-- Wong 未另行开启阶段二前，不启动 RTL、Vivado、烧录、板测或新的训练。
+- 阶段 2A 已开启；当前仅推进 PL 推理仿真。阶段 2B 固定输入上板须在 2A 验收完成、硬件条件核对并经 Wong 明确允许后开始。摄像头视频、HDMI、实物操作、烧录和新训练均不在当前范围。

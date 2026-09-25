@@ -1,0 +1,1515 @@
+{
+  "schema_version": 1,
+  "task": "S2A-T15",
+  "result": "PASS",
+  "seed": 20260922,
+  "bindings": {
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "sim/tb_s2a_route_engine.sv": "8de3c9bb146527e8017faa919b9b591397ee90bacc36aaed3f742ed3413586eb",
+    "verification/test_s2a_route_engine_rtl.py": "f49d00c24e22850024209872504bcf5a93165eaf79c2b04fad15f6056e163937",
+    "src/int8_route_query.sv": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "sim/s2a_memory_model.sv": "4db3a955e2bdf9007a6365fd2dd01e588c63e9e2cc7b270fc511d1f5a06f3ae2",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "report/evidence/S2A-T06/route_query_simulation.json": "9237d06d387209281789ab966b4e0e987b9f07a87c7103e7e112de62d3d7632a",
+    "report/evidence/S2A-T10/memory_model_simulation.json": "0629d137c2df4aa96f3bc1713556cd6cd23f5cec4f2e35a388a448f13b370556",
+    "report/evidence/S2A-T12/runtime_protocol_simulation.json": "332e038d85f27366b9692e4a4aeaa4933fcec9a22d64c2f9b905fe7978dcd01d",
+    "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+  },
+  "baseline_ancestor": "c47cd864f7c2e9891e2fd3e4b4063d5bfede0224",
+  "random_queries": 2208000,
+  "directed_queries": 35328,
+  "total_queries": 2243328,
+  "deterministic_runs": 2,
+  "runner_invocation": {
+    "shell": "PowerShell",
+    "command": "$env:S2A_T15_MODE='full'; & 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -B 'verification/test_s2a_route_engine_rtl.py'",
+    "environment": {
+      "S2A_T15_MODE": "full"
+    },
+    "cwd": "repository root (D:\\FPGA_Competition for developer run; isolated clone root for independent review)",
+    "python": {
+      "version": "3.12.14",
+      "executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe"
+    },
+    "unittest_note": "python -m unittest ran only two smoke tests; it did not launch the recorded full runs.",
+    "vivado_child_phases": "Vivado subprocess commands and working directories are recorded under runs[*].phases."
+  },
+  "vectors": {
+    "t06": {
+      "vector_sha256": "f3abaf49f1daaae44c4c3329f8af6a2fa74adcee248ca6ea3b64c45c43dad6da",
+      "expected_stream_sha256": "493cee18e59df88caca05c8a7fa91b215cee9c084c9837914ee96ad8172e3ddd",
+      "golden_output_sha256": "ee28f81cd42c0fd80cefe80afa807d587ff74ac0e2dc8f4c2e2d447eb6f4ad30",
+      "vector_file_bytes": 12509303,
+      "expected_file_bytes": 11456425,
+      "record_count": 11177,
+      "counts": {
+        "model_random_spatial_cases": 11000,
+        "model_random_output_queries": 2208000,
+        "model_directed_cases": 176,
+        "model_directed_output_queries": 35328,
+        "route_half_away_fixture_values": 12
+      },
+      "per_layer": [
+        {
+          "layer_index": 3,
+          "source_tensor_indices": [
+            2
+          ],
+          "source_base_addresses": [
+            18853888
+          ],
+          "source_length_bytes": [
+            692224
+          ],
+          "source_channel_ranges": [
+            [
+              32,
+              64
+            ]
+          ],
+          "source_scales": [
+            0.4523776797797736
+          ],
+          "target_scale": 0.4523776797797736,
+          "groups": 2,
+          "group_id": 1,
+          "output_shape_nchw": [
+            1,
+            32,
+            104,
+            104
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 32000,
+          "directed_cases": 16,
+          "directed_output_queries": 512
+        },
+        {
+          "layer_index": 6,
+          "source_tensor_indices": [
+            5,
+            4
+          ],
+          "source_base_addresses": [
+            20238336,
+            19892224
+          ],
+          "source_length_bytes": [
+            346112,
+            346112
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              32
+            ],
+            [
+              0,
+              32
+            ]
+          ],
+          "source_scales": [
+            0.2902672234482653,
+            0.23944492790642685
+          ],
+          "target_scale": 0.2902672234482653,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            64,
+            104,
+            104
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 64000,
+          "directed_cases": 16,
+          "directed_output_queries": 1024
+        },
+        {
+          "layer_index": 8,
+          "source_tensor_indices": [
+            2,
+            7
+          ],
+          "source_base_addresses": [
+            18853888,
+            21276672
+          ],
+          "source_length_bytes": [
+            692224,
+            692224
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              64
+            ],
+            [
+              0,
+              64
+            ]
+          ],
+          "source_scales": [
+            0.4523776797797736,
+            0.22739090506486068
+          ],
+          "target_scale": 0.4523776797797736,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            128,
+            104,
+            104
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 128000,
+          "directed_cases": 16,
+          "directed_output_queries": 2048
+        },
+        {
+          "layer_index": 11,
+          "source_tensor_indices": [
+            10
+          ],
+          "source_base_addresses": [
+            23699456
+          ],
+          "source_length_bytes": [
+            346112
+          ],
+          "source_channel_ranges": [
+            [
+              64,
+              128
+            ]
+          ],
+          "source_scales": [
+            0.1863622440127876
+          ],
+          "target_scale": 0.1863622440127876,
+          "groups": 2,
+          "group_id": 1,
+          "output_shape_nchw": [
+            1,
+            64,
+            52,
+            52
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 64000,
+          "directed_cases": 16,
+          "directed_output_queries": 1024
+        },
+        {
+          "layer_index": 14,
+          "source_tensor_indices": [
+            13,
+            12
+          ],
+          "source_base_addresses": [
+            24391680,
+            24218624
+          ],
+          "source_length_bytes": [
+            173056,
+            173056
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              64
+            ],
+            [
+              0,
+              64
+            ]
+          ],
+          "source_scales": [
+            0.23749109703724777,
+            0.20356996791569268
+          ],
+          "target_scale": 0.23749109703724777,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            128,
+            52,
+            52
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 128000,
+          "directed_cases": 16,
+          "directed_output_queries": 2048
+        },
+        {
+          "layer_index": 16,
+          "source_tensor_indices": [
+            10,
+            15
+          ],
+          "source_base_addresses": [
+            23699456,
+            24910848
+          ],
+          "source_length_bytes": [
+            346112,
+            346112
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              128
+            ],
+            [
+              0,
+              128
+            ]
+          ],
+          "source_scales": [
+            0.1863622440127876,
+            0.22726632666400098
+          ],
+          "target_scale": 0.22726632666400098,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            256,
+            52,
+            52
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 256000,
+          "directed_cases": 16,
+          "directed_output_queries": 4096
+        },
+        {
+          "layer_index": 19,
+          "source_tensor_indices": [
+            18
+          ],
+          "source_base_addresses": [
+            26122240
+          ],
+          "source_length_bytes": [
+            173056
+          ],
+          "source_channel_ranges": [
+            [
+              128,
+              256
+            ]
+          ],
+          "source_scales": [
+            0.21066082931879
+          ],
+          "target_scale": 0.21066082931879,
+          "groups": 2,
+          "group_id": 1,
+          "output_shape_nchw": [
+            1,
+            128,
+            26,
+            26
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 128000,
+          "directed_cases": 16,
+          "directed_output_queries": 2048
+        },
+        {
+          "layer_index": 22,
+          "source_tensor_indices": [
+            21,
+            20
+          ],
+          "source_base_addresses": [
+            26468352,
+            26381824
+          ],
+          "source_length_bytes": [
+            86528,
+            86528
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              128
+            ],
+            [
+              0,
+              128
+            ]
+          ],
+          "source_scales": [
+            0.2236869992233637,
+            0.2524653457281158
+          ],
+          "target_scale": 0.2524653457281158,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            256,
+            26,
+            26
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 256000,
+          "directed_cases": 16,
+          "directed_output_queries": 4096
+        },
+        {
+          "layer_index": 24,
+          "source_tensor_indices": [
+            18,
+            23
+          ],
+          "source_base_addresses": [
+            26122240,
+            26727936
+          ],
+          "source_length_bytes": [
+            173056,
+            173056
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              256
+            ],
+            [
+              0,
+              256
+            ]
+          ],
+          "source_scales": [
+            0.21066082931879,
+            0.1594378704161156
+          ],
+          "target_scale": 0.21066082931879,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            512,
+            26,
+            26
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 512000,
+          "directed_cases": 16,
+          "directed_output_queries": 8192
+        },
+        {
+          "layer_index": 31,
+          "source_tensor_indices": [
+            27
+          ],
+          "source_base_addresses": [
+            27420160
+          ],
+          "source_length_bytes": [
+            43264
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              256
+            ]
+          ],
+          "source_scales": [
+            0.1441637174351009
+          ],
+          "target_scale": 0.1441637174351009,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            256,
+            13,
+            13
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 256000,
+          "directed_cases": 16,
+          "directed_output_queries": 4096
+        },
+        {
+          "layer_index": 34,
+          "source_tensor_indices": [
+            33,
+            23
+          ],
+          "source_base_addresses": [
+            27619968,
+            26727936
+          ],
+          "source_length_bytes": [
+            86528,
+            173056
+          ],
+          "source_channel_ranges": [
+            [
+              0,
+              128
+            ],
+            [
+              0,
+              256
+            ]
+          ],
+          "source_scales": [
+            0.145512708528774,
+            0.1594378704161156
+          ],
+          "target_scale": 0.1594378704161156,
+          "groups": 1,
+          "group_id": 0,
+          "output_shape_nchw": [
+            1,
+            384,
+            26,
+            26
+          ],
+          "random_spatial_cases": 1000,
+          "random_output_queries": 384000,
+          "directed_cases": 16,
+          "directed_output_queries": 6144
+        }
+      ],
+      "route_source_parameters_and_exhaustive_q31": [
+        {
+          "layer_index": 3,
+          "sources": [
+            {
+              "tensor_index": 2,
+              "base_address": 18853888,
+              "length_bytes": 692224,
+              "channels": 64,
+              "channel_start": 32,
+              "channel_end": 64,
+              "input_scale": 0.4523776797797736,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 6,
+          "sources": [
+            {
+              "tensor_index": 5,
+              "base_address": 20238336,
+              "length_bytes": 346112,
+              "channels": 32,
+              "channel_start": 0,
+              "channel_end": 32,
+              "input_scale": 0.2902672234482653,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 4,
+              "base_address": 19892224,
+              "length_bytes": 346112,
+              "channels": 32,
+              "channel_start": 0,
+              "channel_end": 32,
+              "input_scale": 0.23944492790642685,
+              "multiplier_hex": "0x6996B7C0",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 8,
+          "sources": [
+            {
+              "tensor_index": 2,
+              "base_address": 18853888,
+              "length_bytes": 692224,
+              "channels": 64,
+              "channel_start": 0,
+              "channel_end": 64,
+              "input_scale": 0.4523776797797736,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 7,
+              "base_address": 21276672,
+              "length_bytes": 692224,
+              "channels": 64,
+              "channel_start": 0,
+              "channel_end": 64,
+              "input_scale": 0.22739090506486068,
+              "multiplier_hex": "0x40571258",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 11,
+          "sources": [
+            {
+              "tensor_index": 10,
+              "base_address": 23699456,
+              "length_bytes": 346112,
+              "channels": 128,
+              "channel_start": 64,
+              "channel_end": 128,
+              "input_scale": 0.1863622440127876,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 14,
+          "sources": [
+            {
+              "tensor_index": 13,
+              "base_address": 24391680,
+              "length_bytes": 173056,
+              "channels": 64,
+              "channel_start": 0,
+              "channel_end": 64,
+              "input_scale": 0.23749109703724777,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 12,
+              "base_address": 24218624,
+              "length_bytes": 173056,
+              "channels": 64,
+              "channel_start": 0,
+              "channel_end": 64,
+              "input_scale": 0.20356996791569268,
+              "multiplier_hex": "0x6DB7B561",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 16,
+          "sources": [
+            {
+              "tensor_index": 10,
+              "base_address": 23699456,
+              "length_bytes": 346112,
+              "channels": 128,
+              "channel_start": 0,
+              "channel_end": 128,
+              "input_scale": 0.1863622440127876,
+              "multiplier_hex": "0x68F650E5",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 15,
+              "base_address": 24910848,
+              "length_bytes": 346112,
+              "channels": 128,
+              "channel_start": 0,
+              "channel_end": 128,
+              "input_scale": 0.22726632666400098,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 19,
+          "sources": [
+            {
+              "tensor_index": 18,
+              "base_address": 26122240,
+              "length_bytes": 173056,
+              "channels": 256,
+              "channel_start": 128,
+              "channel_end": 256,
+              "input_scale": 0.21066082931879,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 22,
+          "sources": [
+            {
+              "tensor_index": 21,
+              "base_address": 26468352,
+              "length_bytes": 86528,
+              "channels": 128,
+              "channel_start": 0,
+              "channel_end": 128,
+              "input_scale": 0.2236869992233637,
+              "multiplier_hex": "0x7168CC7F",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 20,
+              "base_address": 26381824,
+              "length_bytes": 86528,
+              "channels": 128,
+              "channel_start": 0,
+              "channel_end": 128,
+              "input_scale": 0.2524653457281158,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 24,
+          "sources": [
+            {
+              "tensor_index": 18,
+              "base_address": 26122240,
+              "length_bytes": 173056,
+              "channels": 256,
+              "channel_start": 0,
+              "channel_end": 256,
+              "input_scale": 0.21066082931879,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 23,
+              "base_address": 26727936,
+              "length_bytes": 173056,
+              "channels": 256,
+              "channel_start": 0,
+              "channel_end": 256,
+              "input_scale": 0.1594378704161156,
+              "multiplier_hex": "0x60E056F9",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 31,
+          "sources": [
+            {
+              "tensor_index": 27,
+              "base_address": 27420160,
+              "length_bytes": 43264,
+              "channels": 256,
+              "channel_start": 0,
+              "channel_end": 256,
+              "input_scale": 0.1441637174351009,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        },
+        {
+          "layer_index": 34,
+          "sources": [
+            {
+              "tensor_index": 33,
+              "base_address": 27619968,
+              "length_bytes": 86528,
+              "channels": 128,
+              "channel_start": 0,
+              "channel_end": 128,
+              "input_scale": 0.145512708528774,
+              "multiplier_hex": "0x74D2126F",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            },
+            {
+              "tensor_index": 23,
+              "base_address": 26727936,
+              "length_bytes": 173056,
+              "channels": 256,
+              "channel_start": 0,
+              "channel_end": 256,
+              "input_scale": 0.1594378704161156,
+              "multiplier_hex": "0x80000000",
+              "exhaustive_values": 255,
+              "mismatch_count": 0
+            }
+          ]
+        }
+      ],
+      "randomness": {
+        "seed": 20260922,
+        "state_after_convolution": "0x2DC4F9F4",
+        "state_after_int8_mac": "0x3AFEA916",
+        "state_after_maxpool": "0xA9D661B5",
+        "state_before_route": "0xA9D661B5",
+        "state_after_route": "0x0BE74782",
+        "stage_counts": {
+          "convolution_layers": 21,
+          "int8_mac_random_vectors": 1000,
+          "maxpool_layers": 3,
+          "route_layers": 11,
+          "route_random_spatial_cases_per_layer": 1000
+        },
+        "route_layer_states": [
+          {
+            "layer_index": 3,
+            "state_before_random": "0xA9D661B5",
+            "state_after_random": "0x913164B1",
+            "selected_source_channels_per_case": [
+              32
+            ]
+          },
+          {
+            "layer_index": 6,
+            "state_before_random": "0x913164B1",
+            "state_after_random": "0x1D3BE95E",
+            "selected_source_channels_per_case": [
+              32,
+              32
+            ]
+          },
+          {
+            "layer_index": 8,
+            "state_before_random": "0x1D3BE95E",
+            "state_after_random": "0x6097A863",
+            "selected_source_channels_per_case": [
+              64,
+              64
+            ]
+          },
+          {
+            "layer_index": 11,
+            "state_before_random": "0x6097A863",
+            "state_after_random": "0xBF9B5F70",
+            "selected_source_channels_per_case": [
+              64
+            ]
+          },
+          {
+            "layer_index": 14,
+            "state_before_random": "0xBF9B5F70",
+            "state_after_random": "0xF02AD90A",
+            "selected_source_channels_per_case": [
+              64,
+              64
+            ]
+          },
+          {
+            "layer_index": 16,
+            "state_before_random": "0xF02AD90A",
+            "state_after_random": "0xE075924A",
+            "selected_source_channels_per_case": [
+              128,
+              128
+            ]
+          },
+          {
+            "layer_index": 19,
+            "state_before_random": "0xE075924A",
+            "state_after_random": "0x88983882",
+            "selected_source_channels_per_case": [
+              128
+            ]
+          },
+          {
+            "layer_index": 22,
+            "state_before_random": "0x88983882",
+            "state_after_random": "0xC5DCF6A8",
+            "selected_source_channels_per_case": [
+              128,
+              128
+            ]
+          },
+          {
+            "layer_index": 24,
+            "state_before_random": "0xC5DCF6A8",
+            "state_after_random": "0x7C35F104",
+            "selected_source_channels_per_case": [
+              256,
+              256
+            ]
+          },
+          {
+            "layer_index": 31,
+            "state_before_random": "0x7C35F104",
+            "state_after_random": "0x0B372D51",
+            "selected_source_channels_per_case": [
+              256
+            ]
+          },
+          {
+            "layer_index": 34,
+            "state_before_random": "0x0B372D51",
+            "state_after_random": "0x0BE74782",
+            "selected_source_channels_per_case": [
+              128,
+              256
+            ]
+          }
+        ],
+        "draw_order": "卷积层按 layer_index：channel/y/x selector 后 K 个 INT8；共享 MAC：按卷积 K 循环，K 个 activation、K 个 weight、一个 INT32 bias；maxpool 层按 layer_index：channel/y/x selector 后 kernel_y/kernel_x 候选；route 层按 layer_index：y/x selector 后，cfg 来源顺序、所选通道顺序各一个 INT8；directed 不消耗 PRNG。"
+      },
+      "fixture_address_semantics": "route_half_away 使用 source0/source1 base address=0 的独立局部夹具，不表示模型或硬件映射地址。"
+    },
+    "layers": {
+      "3": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 32512,
+          "legal": 32407,
+          "raw80": 105
+        },
+        "vector_sha256": "6146446b3a9f83267b24fedacb355ae6bf46caed1266f35a1c45e7d5ba85c6d1",
+        "memory_golden_sha256": "fbb467d1e4901dc16b3bff2fc573c6e96e7aedb2f43e3135f5b0c93c3556e8ee",
+        "memory_input_sha256": "de5ce1b8ca86e04f7386edf01144a3a11170c245280d612a34157e371b866bb5"
+      },
+      "6": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 65024,
+          "legal": 64746,
+          "raw80": 278
+        },
+        "vector_sha256": "de0f8ed6ffaeabba154d9855daf036d439c2b61c9033e5ee8f68cce129bb730d",
+        "memory_golden_sha256": "934f6d8fe6d4dc40b1c084fd2aebb654bc5418cebf8070b9cd872da7a9beff64",
+        "memory_input_sha256": "c053193eda86e25259e73e69f19246badf98eb39be618dd419c778f9f641de45"
+      },
+      "8": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 130048,
+          "legal": 129525,
+          "raw80": 523
+        },
+        "vector_sha256": "6665311d53a2fe54da311a48e121bb37523ab07d549f67db6a9caf4039b40cdb",
+        "memory_golden_sha256": "b87eefb14bf4511028b2d413b3921fc49e8caaac650a7c0955967169f36a08c9",
+        "memory_input_sha256": "d315655df5368b242fdc7adcffe16395cc3a7a8b99a3e381f9e5422a64e34c5a"
+      },
+      "11": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 65024,
+          "legal": 64770,
+          "raw80": 254
+        },
+        "vector_sha256": "08d86328f1e541255e5e64c457e35814016470bdef386adf226458a5c4df5e3f",
+        "memory_golden_sha256": "788e5e611524d0859d0abff61a28c77e9af4ab54bc25c5d1ef50c331754d7638",
+        "memory_input_sha256": "1aa481419d3444a2f2c84b978090c07d869de3b94b925361bcaac8c8446e0a05"
+      },
+      "14": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 130048,
+          "legal": 129579,
+          "raw80": 469
+        },
+        "vector_sha256": "8e25c077b21d0f78a7759824b234553ce35d8a964a957d45e3eb6504d0930fdd",
+        "memory_golden_sha256": "cb1fb16cedb5a0def681fb989e1bcfd24769d97f7fe5af4411b84ec89ede1c00",
+        "memory_input_sha256": "7c2de6253ebd5ff4c1bad8bfd1def0c545a45c65f886afd6fff49fc879026ba9"
+      },
+      "16": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 260096,
+          "legal": 259092,
+          "raw80": 1004
+        },
+        "vector_sha256": "069c27c0d7c8e8377f64b432db7d106547d1389abf12af3ff2ba5f868873306d",
+        "memory_golden_sha256": "2a8ef23e35fc9b4676e7eb04e591b6452edeadfc6a56f0e202e6035a85020050",
+        "memory_input_sha256": "ef50d922e78045a7d3ad86254a00023a9cc682696c4b3b81a9268b9a01cf5172"
+      },
+      "19": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 130048,
+          "legal": 129557,
+          "raw80": 491
+        },
+        "vector_sha256": "0f62e1e2525e0e416bbda61ea6e8fe74d52056b0b97c5fca36e9da49d8af8576",
+        "memory_golden_sha256": "340a25f15980cc686f9613bf9774bff36bf2efac607d979cf013cd83a8cf055f",
+        "memory_input_sha256": "289fe78addd1eb2df0303d211cfccbdd94d8aa50d69ff77fdd75a3bebf928999"
+      },
+      "22": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 260096,
+          "legal": 259062,
+          "raw80": 1034
+        },
+        "vector_sha256": "49f9acde430fec5e45ffb9a07e73e30bd73ca19febaf3df1c5bd1775ba9a9771",
+        "memory_golden_sha256": "88b82304c658e3b138d5c13c9a8eb344dedea2a9cf10b9948e7af062f768231e",
+        "memory_input_sha256": "ceef62f4f6deb375cc6f21bda304eaf7e15cf278c67b2bb52f08becbe4ecf4b2"
+      },
+      "24": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 520192,
+          "legal": 518128,
+          "raw80": 2064
+        },
+        "vector_sha256": "94d62a43917f4cadb789bc2a1cef9818a0e383aa735eb3830f165cb33bb79efb",
+        "memory_golden_sha256": "6c5596073d5490544b56872beb7a56e36d86e8a3cac24738806d33613695fa6b",
+        "memory_input_sha256": "af176e48a177f5d21e96e0e6e72f0056213644931b7318ad43edd0e94c9589e1"
+      },
+      "31": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 260096,
+          "legal": 259099,
+          "raw80": 997
+        },
+        "vector_sha256": "253f6418abfcbdb2c2350d133ba26933866b0a862a89ba9eef1f71bac2fe9dbb",
+        "memory_golden_sha256": "7c82a00cec16c296197d5ea512e46d8df92d6b760d670a6462ed64c412dca912",
+        "memory_input_sha256": "1310a516fdc868ae48d899a6339998ff3a4051100e7b8afe3b2953150dd39055"
+      },
+      "34": {
+        "counts": {
+          "spatial": 1016,
+          "random": 1000,
+          "directed": 16,
+          "queries": 390144,
+          "legal": 388625,
+          "raw80": 1519
+        },
+        "vector_sha256": "6185f58851fb72418927e2a2a79e7b6525efa52f80648087956458a93ef8bffd",
+        "memory_golden_sha256": "aa4a3c2ba84833eba5aa26d726248dfd4a4db4a2c1f53d68de5c23c32472eeef",
+        "memory_input_sha256": "67f1ca5c90f5c55ec10acfa862b640d29e9bf9dc8957493ebfd691069b21f038"
+      }
+    }
+  },
+  "runs": [
+    {
+      "layers": {
+        "3": {
+          "spatial": 1016,
+          "queries": 32512,
+          "legal": 32407,
+          "raw80": 105,
+          "reads": 65024,
+          "writes": 32407,
+          "readbacks": 32512,
+          "accepted": 97431,
+          "responses": 97431,
+          "stalls": 253316
+        },
+        "6": {
+          "spatial": 1016,
+          "queries": 65024,
+          "legal": 64746,
+          "raw80": 278,
+          "reads": 130048,
+          "writes": 64746,
+          "readbacks": 65024,
+          "accepted": 194794,
+          "responses": 194794,
+          "stalls": 506457
+        },
+        "8": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129525,
+          "raw80": 523,
+          "reads": 260096,
+          "writes": 129525,
+          "readbacks": 130048,
+          "accepted": 389621,
+          "responses": 389621,
+          "stalls": 1013012
+        },
+        "11": {
+          "spatial": 1016,
+          "queries": 65024,
+          "legal": 64770,
+          "raw80": 254,
+          "reads": 130048,
+          "writes": 64770,
+          "readbacks": 65024,
+          "accepted": 194818,
+          "responses": 194818,
+          "stalls": 506522
+        },
+        "14": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129579,
+          "raw80": 469,
+          "reads": 260096,
+          "writes": 129579,
+          "readbacks": 130048,
+          "accepted": 389675,
+          "responses": 389675,
+          "stalls": 1013152
+        },
+        "16": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259092,
+          "raw80": 1004,
+          "reads": 520192,
+          "writes": 259092,
+          "readbacks": 260096,
+          "accepted": 779284,
+          "responses": 779284,
+          "stalls": 2026130
+        },
+        "19": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129557,
+          "raw80": 491,
+          "reads": 260096,
+          "writes": 129557,
+          "readbacks": 130048,
+          "accepted": 389653,
+          "responses": 389653,
+          "stalls": 1013091
+        },
+        "22": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259062,
+          "raw80": 1034,
+          "reads": 520192,
+          "writes": 259062,
+          "readbacks": 260096,
+          "accepted": 779254,
+          "responses": 779254,
+          "stalls": 2026052
+        },
+        "24": {
+          "spatial": 1016,
+          "queries": 520192,
+          "legal": 518128,
+          "raw80": 2064,
+          "reads": 1040384,
+          "writes": 518128,
+          "readbacks": 520192,
+          "accepted": 1558512,
+          "responses": 1558512,
+          "stalls": 4052126
+        },
+        "31": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259099,
+          "raw80": 997,
+          "reads": 520192,
+          "writes": 259099,
+          "readbacks": 260096,
+          "accepted": 779291,
+          "responses": 779291,
+          "stalls": 2026152
+        },
+        "34": {
+          "spatial": 1016,
+          "queries": 390144,
+          "legal": 388625,
+          "raw80": 1519,
+          "reads": 780288,
+          "writes": 388625,
+          "readbacks": 390144,
+          "accepted": 1168913,
+          "responses": 1168913,
+          "stalls": 3039169
+        }
+      },
+      "exceptions": {
+        "half_away": 6,
+        "invalid": 15,
+        "bus_errors": 8,
+        "cancels": 4,
+        "recoveries": 28,
+        "result_cases": 57
+      },
+      "phases": [
+        {
+          "phase": "xvlog",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv {repository}\\src\\int8_route_query.sv {repository}\\src\\s2a_route_engine.sv {repository}\\src\\s2a_memory_master.sv {repository}\\sim\\s2a_memory_model.sv {repository}\\sim\\tb_s2a_route_engine.sv",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xelab",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_route_engine_full -snapshot tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xvlog",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv {repository}\\src\\int8_route_query.sv {repository}\\src\\s2a_route_engine.sv {repository}\\src\\s2a_memory_master.sv {repository}\\sim\\s2a_memory_model.sv {repository}\\sim\\tb_s2a_route_engine.sv",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xelab",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_route_engine_exceptions -snapshot tb_s2a_route_engine_exceptions",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_exceptions",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        }
+      ]
+    },
+    {
+      "layers": {
+        "3": {
+          "spatial": 1016,
+          "queries": 32512,
+          "legal": 32407,
+          "raw80": 105,
+          "reads": 65024,
+          "writes": 32407,
+          "readbacks": 32512,
+          "accepted": 97431,
+          "responses": 97431,
+          "stalls": 253316
+        },
+        "6": {
+          "spatial": 1016,
+          "queries": 65024,
+          "legal": 64746,
+          "raw80": 278,
+          "reads": 130048,
+          "writes": 64746,
+          "readbacks": 65024,
+          "accepted": 194794,
+          "responses": 194794,
+          "stalls": 506457
+        },
+        "8": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129525,
+          "raw80": 523,
+          "reads": 260096,
+          "writes": 129525,
+          "readbacks": 130048,
+          "accepted": 389621,
+          "responses": 389621,
+          "stalls": 1013012
+        },
+        "11": {
+          "spatial": 1016,
+          "queries": 65024,
+          "legal": 64770,
+          "raw80": 254,
+          "reads": 130048,
+          "writes": 64770,
+          "readbacks": 65024,
+          "accepted": 194818,
+          "responses": 194818,
+          "stalls": 506522
+        },
+        "14": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129579,
+          "raw80": 469,
+          "reads": 260096,
+          "writes": 129579,
+          "readbacks": 130048,
+          "accepted": 389675,
+          "responses": 389675,
+          "stalls": 1013152
+        },
+        "16": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259092,
+          "raw80": 1004,
+          "reads": 520192,
+          "writes": 259092,
+          "readbacks": 260096,
+          "accepted": 779284,
+          "responses": 779284,
+          "stalls": 2026130
+        },
+        "19": {
+          "spatial": 1016,
+          "queries": 130048,
+          "legal": 129557,
+          "raw80": 491,
+          "reads": 260096,
+          "writes": 129557,
+          "readbacks": 130048,
+          "accepted": 389653,
+          "responses": 389653,
+          "stalls": 1013091
+        },
+        "22": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259062,
+          "raw80": 1034,
+          "reads": 520192,
+          "writes": 259062,
+          "readbacks": 260096,
+          "accepted": 779254,
+          "responses": 779254,
+          "stalls": 2026052
+        },
+        "24": {
+          "spatial": 1016,
+          "queries": 520192,
+          "legal": 518128,
+          "raw80": 2064,
+          "reads": 1040384,
+          "writes": 518128,
+          "readbacks": 520192,
+          "accepted": 1558512,
+          "responses": 1558512,
+          "stalls": 4052126
+        },
+        "31": {
+          "spatial": 1016,
+          "queries": 260096,
+          "legal": 259099,
+          "raw80": 997,
+          "reads": 520192,
+          "writes": 259099,
+          "readbacks": 260096,
+          "accepted": 779291,
+          "responses": 779291,
+          "stalls": 2026152
+        },
+        "34": {
+          "spatial": 1016,
+          "queries": 390144,
+          "legal": 388625,
+          "raw80": 1519,
+          "reads": 780288,
+          "writes": 388625,
+          "readbacks": 390144,
+          "accepted": 1168913,
+          "responses": 1168913,
+          "stalls": 3039169
+        }
+      },
+      "exceptions": {
+        "half_away": 6,
+        "invalid": 15,
+        "bus_errors": 8,
+        "cancels": 4,
+        "recoveries": 28,
+        "result_cases": 57
+      },
+      "phases": [
+        {
+          "phase": "xvlog",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv {repository}\\src\\int8_route_query.sv {repository}\\src\\s2a_route_engine.sv {repository}\\src\\s2a_memory_master.sv {repository}\\sim\\s2a_memory_model.sv {repository}\\sim\\tb_s2a_route_engine.sv",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xelab",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_route_engine_full -snapshot tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xvlog",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv {repository}\\src\\int8_route_query.sv {repository}\\src\\s2a_route_engine.sv {repository}\\src\\s2a_memory_master.sv {repository}\\sim\\s2a_memory_model.sv {repository}\\sim\\tb_s2a_route_engine.sv",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xelab",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_route_engine_exceptions -snapshot tb_s2a_route_engine_exceptions",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_exceptions",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        },
+        {
+          "phase": "xsim",
+          "exit_code": 0,
+          "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R tb_s2a_route_engine_full",
+          "cwd": "{system_TEMP}/s2a_t15_route_full_*"
+        }
+      ]
+    }
+  ],
+  "logs": "完整 stdout、实际命令/cwd、耗时及 run_report.json 仅保留系统 TEMP/s2a_t15_route_full_*；仓库证据不收录完整日志。",
+  "scope": "11 个冻结 route 层，每层官方 1000 随机+16 定向空间坐标，全部输出通道；逐元素真实总线输入、写回及读回。",
+  "input_semantics": "T06 官方 materialize 流及候选值黄金用于来源绑定和空间/描述符复用；实际 memory 输入为未修改的 T10 initial_byte(address)，raw 0x80 返回 BAD_ARGUMENT 并禁止写回，非 T06 候选值加载。",
+  "golden_semantics": "Python 按 G0 source mapping 和原始浮点 input_scale/output_scale 计算 D2 half-away 黄金，不复用 RTL Q31 计算；另有6项正负奇数/2手算半舍入真实内存测试。",
+  "fixture_semantics": "仅每个独立 spatial 的全部通道写回和真实 readback 完成且总线空闲后清 patch_count，保留 stall_index；异常/取消/复位测试全过程不清 patch。",
+  "limitations": [
+    "仅算子与 T10 memory、T12 memory master 集成；未执行真实 controller/runtime shell 与 route engine 联调，soft reset/timeout 到 abort 映射尚未验证。",
+    "buffer_owner_pl 固定为 1；T15 未单独验证 owner 门控，依赖 T12 已冻结协议证据。",
+    "未执行综合、时序、板测、完整网络黄金或 G5；仿真 PASS 不表示阶段完成。"
+  ]
+}

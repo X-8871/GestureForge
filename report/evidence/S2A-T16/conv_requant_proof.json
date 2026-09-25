@@ -1,0 +1,1866 @@
+{
+  "schema": "GestureForge-S2A-T16-requant-proof-v1",
+  "status": "EXACT_FIXED_POINT_FOUND",
+  "coverage": {
+    "complete_tiny416_convolution_model": true,
+    "convolution_layers_audited": 21,
+    "output_channels_audited": 3164,
+    "output_channels_with_exact_candidate": 3164,
+    "failures": 0
+  },
+  "binding": {
+    "git_head_at_run": "1a7cf76675426abc70b0c56ae9d216d2c6d44b17",
+    "audit_script": {
+      "path": "verification/s2a_conv_requant_proof.py",
+      "sha256": "3bfb6d711160c21ae38147a181a042dcc5fee872d0688ae688f31e5909ebe8c9"
+    },
+    "manifest": {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    "d2_int8_forward_reference": {
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
+    },
+    "d2_numeric_reference": {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90"
+    },
+    "python": "3.12.14",
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "numpy": "2.3.5",
+    "working_directory": "D:\\FPGA_Competition",
+    "command_argv": [
+      "verification/s2a_conv_requant_proof.py"
+    ],
+    "bytecode_writes_disabled": true,
+    "random_seed": null,
+    "randomness": "无随机过程；所有转移点以确定性二分查找获得。"
+  },
+  "semantics": {
+    "accumulator_domain": [
+      -2147483648,
+      2147483647
+    ],
+    "d2_order": "float64(acc) * (input_scale * weight_scale)，再除 output_scale；leaky 且结果为负时再乘 binary64 0.1；half-away-from-zero；饱和到 [-127,127]。",
+    "bias": "累加器输入视为已经包含 D2 的 INT32 bias；不重复加 bias。",
+    "candidate": "非负幅值使用精确整数 round_half_away(magnitude * M / 2**Q)，再对符号和 [-127,127] 饱和；linear 两侧共享 M/Q，leaky 两侧允许独立 M/Q。",
+    "transition_values": [
+      -126,
+      -125,
+      -124,
+      -123,
+      -122,
+      -121,
+      -120,
+      -119,
+      -118,
+      -117,
+      -116,
+      -115,
+      -114,
+      -113,
+      -112,
+      -111,
+      -110,
+      -109,
+      -108,
+      -107,
+      -106,
+      -105,
+      -104,
+      -103,
+      -102,
+      -101,
+      -100,
+      -99,
+      -98,
+      -97,
+      -96,
+      -95,
+      -94,
+      -93,
+      -92,
+      -91,
+      -90,
+      -89,
+      -88,
+      -87,
+      -86,
+      -85,
+      -84,
+      -83,
+      -82,
+      -81,
+      -80,
+      -79,
+      -78,
+      -77,
+      -76,
+      -75,
+      -74,
+      -73,
+      -72,
+      -71,
+      -70,
+      -69,
+      -68,
+      -67,
+      -66,
+      -65,
+      -64,
+      -63,
+      -62,
+      -61,
+      -60,
+      -59,
+      -58,
+      -57,
+      -56,
+      -55,
+      -54,
+      -53,
+      -52,
+      -51,
+      -50,
+      -49,
+      -48,
+      -47,
+      -46,
+      -45,
+      -44,
+      -43,
+      -42,
+      -41,
+      -40,
+      -39,
+      -38,
+      -37,
+      -36,
+      -35,
+      -34,
+      -33,
+      -32,
+      -31,
+      -30,
+      -29,
+      -28,
+      -27,
+      -26,
+      -25,
+      -24,
+      -23,
+      -22,
+      -21,
+      -20,
+      -19,
+      -18,
+      -17,
+      -16,
+      -15,
+      -14,
+      -13,
+      -12,
+      -11,
+      -10,
+      -9,
+      -8,
+      -7,
+      -6,
+      -5,
+      -4,
+      -3,
+      -2,
+      -1,
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127
+    ],
+    "absent_transition_sentinel": {
+      "no_transition_in_domain": 2147483648,
+      "transition_already_true_at_int32_min": -2147483648
+    },
+    "proof": "D2 与候选映射均单调。对每个 k=-126..127，相同的最小 acc 满足 output>=k，再加两端点输出相同，可确定 [-127,127] 有限输出域内的每个累加器输入输出相同。候选阈值由整数不等式精确计算；斜率可行区间使用 Fraction 精确交集，并逐个检查 Q=0..65。",
+    "q_search_bound": 65,
+    "q_bound_reason": "任一非空区间端点的分母至多 2**32；不同有理端点间的非零间隔至少 2**-64，故 2**-65 dyadic 网格必含区间内一点。若实数区间为空，则任何 Q 均无候选。"
+  },
+  "layers": [
+    {
+      "layer_index": 0,
+      "cfg_section": 1,
+      "activation": "leaky",
+      "output_channels_audited": 32,
+      "channels_with_exact_candidate": 32,
+      "positive_branch_q_shift_histogram": {
+        "22": 1,
+        "25": 1,
+        "27": 1,
+        "28": 2,
+        "29": 7,
+        "30": 5,
+        "31": 3,
+        "32": 5,
+        "33": 5,
+        "36": 1,
+        "39": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "29": 1,
+        "30": 1,
+        "31": 1,
+        "33": 1,
+        "34": 1,
+        "35": 2,
+        "36": 2,
+        "37": 5,
+        "38": 5,
+        "39": 5,
+        "40": 4,
+        "41": 3,
+        "47": 1
+      },
+      "maximum_q_shift": 47,
+      "maximum_multiplier_bits": 30,
+      "q_feasibility_checks": {
+        "positive_branch": 1008,
+        "negative_branch": 1231,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 2175
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 0,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 27,
+          "nominal_multiplier": 167437,
+          "first_mismatch": {
+            "magnitude_transition": 3,
+            "d2_threshold_magnitude": 2004,
+            "candidate_threshold_magnitude": 2005
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 0,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 32,
+          "nominal_multiplier": 535800,
+          "first_mismatch": {
+            "magnitude_transition": 98,
+            "d2_threshold_magnitude": 781560,
+            "candidate_threshold_magnitude": 781559
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "46ad5d24d353e9038d3c5086b5137eb2670b4d7b3224e6f23e7702e92e8d9dc7",
+      "candidate_parameter_sha256": "8f27800cee8c41025a36bb68ca94b706eaa4925aa70a67623736fe05bd182cff",
+      "d2_threshold_and_endpoint_sha256": "38541e06c42073b890f8db53b16b02bd437bbc0c655b68c46ecfc4af534e765b"
+    },
+    {
+      "layer_index": 1,
+      "cfg_section": 2,
+      "activation": "leaky",
+      "output_channels_audited": 64,
+      "channels_with_exact_candidate": 64,
+      "positive_branch_q_shift_histogram": {
+        "23": 2,
+        "25": 1,
+        "26": 1,
+        "27": 3,
+        "28": 9,
+        "29": 10,
+        "30": 11,
+        "31": 10,
+        "32": 10,
+        "33": 5,
+        "34": 1,
+        "36": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "24": 1,
+        "31": 2,
+        "32": 2,
+        "33": 1,
+        "34": 8,
+        "35": 13,
+        "36": 9,
+        "37": 16,
+        "38": 5,
+        "39": 2,
+        "40": 3,
+        "41": 2
+      },
+      "maximum_q_shift": 41,
+      "maximum_multiplier_bits": 28,
+      "q_feasibility_checks": {
+        "positive_branch": 1979,
+        "negative_branch": 2360,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 4211
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 1,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 27,
+          "nominal_multiplier": 365628,
+          "first_mismatch": {
+            "magnitude_transition": 40,
+            "d2_threshold_magnitude": 14501,
+            "candidate_threshold_magnitude": 14500
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 1,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 35,
+          "nominal_multiplier": 9360065,
+          "first_mismatch": {
+            "magnitude_transition": 111,
+            "d2_threshold_magnitude": 405634,
+            "candidate_threshold_magnitude": 405633
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "5044acfc760a74f47616c0bc33bb0addff2bfe938f5bb0dc1b389d675ef6e608",
+      "candidate_parameter_sha256": "1ead2ab6b2cc6e71e94a266e04ace00be7012750aea45ac82de268d13a016826",
+      "d2_threshold_and_endpoint_sha256": "624f7dc6a4b59ecf41b470c53659ff5ef80e7fb694c0e7cfecc6f2a2aa60dff7"
+    },
+    {
+      "layer_index": 2,
+      "cfg_section": 3,
+      "activation": "leaky",
+      "output_channels_audited": 64,
+      "channels_with_exact_candidate": 64,
+      "positive_branch_q_shift_histogram": {
+        "17": 1,
+        "22": 2,
+        "23": 3,
+        "24": 1,
+        "25": 1,
+        "26": 9,
+        "27": 11,
+        "28": 15,
+        "29": 10,
+        "30": 6,
+        "31": 4,
+        "33": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "25": 2,
+        "27": 1,
+        "29": 2,
+        "30": 3,
+        "32": 6,
+        "33": 8,
+        "34": 8,
+        "35": 19,
+        "36": 10,
+        "37": 3,
+        "38": 2
+      },
+      "maximum_q_shift": 38,
+      "maximum_multiplier_bits": 26,
+      "q_feasibility_checks": {
+        "positive_branch": 1821,
+        "negative_branch": 2229,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 3922
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 2,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 28,
+          "nominal_multiplier": 925379,
+          "first_mismatch": {
+            "magnitude_transition": 25,
+            "d2_threshold_magnitude": 7107,
+            "candidate_threshold_magnitude": 7108
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 2,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 34,
+          "nominal_multiplier": 5922429,
+          "first_mismatch": {
+            "magnitude_transition": 14,
+            "d2_threshold_magnitude": 39162,
+            "candidate_threshold_magnitude": 39161
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "1d53ccd2ecf896ea5c7ab3bba8413b2ec38440f650f6b0ea6b4b6d6cffe13a20",
+      "candidate_parameter_sha256": "d0df3092bde14da12b3fff67b0abf6eecd7106e05b29d3ce34966cd54aadd9e7",
+      "d2_threshold_and_endpoint_sha256": "a297184962cefb8b5c2c2b6c29a1f3e22a0ff8b1f2e00f5bb6dd192cb736851d"
+    },
+    {
+      "layer_index": 4,
+      "cfg_section": 5,
+      "activation": "leaky",
+      "output_channels_audited": 32,
+      "channels_with_exact_candidate": 32,
+      "positive_branch_q_shift_histogram": {
+        "17": 1,
+        "20": 1,
+        "21": 1,
+        "22": 3,
+        "23": 1,
+        "24": 4,
+        "25": 8,
+        "26": 6,
+        "27": 5,
+        "28": 2
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 4,
+        "29": 1,
+        "30": 2,
+        "31": 3,
+        "32": 11,
+        "33": 6,
+        "34": 2,
+        "35": 3
+      },
+      "maximum_q_shift": 35,
+      "maximum_multiplier_bits": 25,
+      "q_feasibility_checks": {
+        "positive_branch": 822,
+        "negative_branch": 1049,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 1807
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 4,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 25,
+          "nominal_multiplier": 235247,
+          "first_mismatch": {
+            "magnitude_transition": 84,
+            "d2_threshold_magnitude": 11910,
+            "candidate_threshold_magnitude": 11911
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 4,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 32,
+          "nominal_multiplier": 3011167,
+          "first_mismatch": {
+            "magnitude_transition": 90,
+            "d2_threshold_magnitude": 127658,
+            "candidate_threshold_magnitude": 127659
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "9621ab9f5920f78b2edc8483f7f4819a86fbcc896bd3fcb4f7278344358fec81",
+      "candidate_parameter_sha256": "21103e2db17177b1b356d8fe2ade59351ee9167147f8b08b5a756dae3c1080a0",
+      "d2_threshold_and_endpoint_sha256": "7ef7b4b3ff19e82c54643fa46f9613997ae63c3ca1df39a35006edbf4d3a90bf"
+    },
+    {
+      "layer_index": 5,
+      "cfg_section": 6,
+      "activation": "leaky",
+      "output_channels_audited": 32,
+      "channels_with_exact_candidate": 32,
+      "positive_branch_q_shift_histogram": {
+        "24": 2,
+        "26": 1,
+        "27": 1,
+        "28": 10,
+        "29": 3,
+        "30": 6,
+        "31": 7,
+        "32": 2
+      },
+      "negative_branch_q_shift_histogram": {
+        "32": 2,
+        "33": 2,
+        "34": 3,
+        "35": 8,
+        "36": 7,
+        "37": 7,
+        "38": 3
+      },
+      "maximum_q_shift": 38,
+      "maximum_multiplier_bits": 26,
+      "q_feasibility_checks": {
+        "positive_branch": 961,
+        "negative_branch": 1169,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 2066
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 5,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 30,
+          "nominal_multiplier": 2569143,
+          "first_mismatch": {
+            "magnitude_transition": 113,
+            "d2_threshold_magnitude": 47019,
+            "candidate_threshold_magnitude": 47018
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 5,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 35,
+          "nominal_multiplier": 8221257,
+          "first_mismatch": {
+            "magnitude_transition": 23,
+            "d2_threshold_magnitude": 94037,
+            "candidate_threshold_magnitude": 94036
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "6fef6bf8be0189ab38f70b2e748b8ddd32313b01c79a0e83dffaca6722d2e214",
+      "candidate_parameter_sha256": "1f3ef4d9f900a82e2a1ae3dc0771656a450e63cfaf649fae748dc464ee62bc7d",
+      "d2_threshold_and_endpoint_sha256": "7ecc3e53aa7d1ff68cf84301fa21cb47f179517bd4366526595a405232d558ba"
+    },
+    {
+      "layer_index": 7,
+      "cfg_section": 8,
+      "activation": "leaky",
+      "output_channels_audited": 64,
+      "channels_with_exact_candidate": 64,
+      "positive_branch_q_shift_histogram": {
+        "18": 1,
+        "20": 2,
+        "21": 4,
+        "22": 4,
+        "23": 4,
+        "24": 9,
+        "25": 8,
+        "26": 15,
+        "27": 10,
+        "28": 5,
+        "29": 2
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "29": 3,
+        "30": 3,
+        "31": 11,
+        "32": 10,
+        "33": 20,
+        "34": 9,
+        "35": 6,
+        "36": 1
+      },
+      "maximum_q_shift": 36,
+      "maximum_multiplier_bits": 26,
+      "q_feasibility_checks": {
+        "positive_branch": 1660,
+        "negative_branch": 2142,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 3674
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 7,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 23,
+          "nominal_multiplier": 65428,
+          "first_mismatch": {
+            "magnitude_transition": 10,
+            "d2_threshold_magnitude": 1218,
+            "candidate_threshold_magnitude": 1219
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 7,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 30,
+          "nominal_multiplier": 837485,
+          "first_mismatch": {
+            "magnitude_transition": 49,
+            "d2_threshold_magnitude": 62183,
+            "candidate_threshold_magnitude": 62182
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "ed2a73e5122a32ffbb993c5bbc6b91d894a073681cf95fb20ab68e32fadff52a",
+      "candidate_parameter_sha256": "817c965c2a8bb46a6ebff16f979631dc8615eb0f488db5138af0d7bbdecc933b",
+      "d2_threshold_and_endpoint_sha256": "7e87c484d0a8bc1a4ebff8bd3403f22abfc779378bb5a4ae434877043776cd0b"
+    },
+    {
+      "layer_index": 10,
+      "cfg_section": 11,
+      "activation": "leaky",
+      "output_channels_audited": 128,
+      "channels_with_exact_candidate": 128,
+      "positive_branch_q_shift_histogram": {
+        "18": 1,
+        "19": 1,
+        "22": 4,
+        "24": 2,
+        "25": 7,
+        "26": 18,
+        "27": 21,
+        "28": 21,
+        "29": 26,
+        "30": 11,
+        "31": 13,
+        "32": 3
+      },
+      "negative_branch_q_shift_histogram": {
+        "26": 1,
+        "27": 1,
+        "29": 3,
+        "30": 2,
+        "31": 2,
+        "32": 11,
+        "33": 14,
+        "34": 33,
+        "35": 14,
+        "36": 23,
+        "37": 15,
+        "38": 3,
+        "39": 6
+      },
+      "maximum_q_shift": 39,
+      "maximum_multiplier_bits": 28,
+      "q_feasibility_checks": {
+        "positive_branch": 3682,
+        "negative_branch": 4547,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 7973
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 10,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 26,
+          "nominal_multiplier": 291534,
+          "first_mismatch": {
+            "magnitude_transition": 63,
+            "d2_threshold_magnitude": 14387,
+            "candidate_threshold_magnitude": 14388
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 10,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 33,
+          "nominal_multiplier": 3731642,
+          "first_mismatch": {
+            "magnitude_transition": 25,
+            "d2_threshold_magnitude": 56398,
+            "candidate_threshold_magnitude": 56397
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "93b9ef0cd124856c1bcbb1c9fd21d5026f220a72e8135c9c3503fda27f63c0b6",
+      "candidate_parameter_sha256": "57d8eff4861af074c4cdbfab6dfa14d2118ddcebe17ca2a2cdd114d1de322351",
+      "d2_threshold_and_endpoint_sha256": "ca69becc49a907caf8a1c293902c5a8c5060a0b069b2f342fb942db19df4a2b7"
+    },
+    {
+      "layer_index": 12,
+      "cfg_section": 13,
+      "activation": "leaky",
+      "output_channels_audited": 64,
+      "channels_with_exact_candidate": 64,
+      "positive_branch_q_shift_histogram": {
+        "22": 1,
+        "23": 2,
+        "25": 5,
+        "26": 4,
+        "27": 9,
+        "28": 12,
+        "29": 12,
+        "30": 11,
+        "31": 6,
+        "32": 1,
+        "33": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "29": 1,
+        "31": 3,
+        "32": 3,
+        "33": 3,
+        "34": 7,
+        "35": 20,
+        "36": 14,
+        "37": 7,
+        "38": 4,
+        "39": 1
+      },
+      "maximum_q_shift": 39,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 1869,
+        "negative_branch": 2301,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 4042
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 12,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 29,
+          "nominal_multiplier": 860202,
+          "first_mismatch": {
+            "magnitude_transition": 66,
+            "d2_threshold_magnitude": 40881,
+            "candidate_threshold_magnitude": 40880
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 12,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 33,
+          "nominal_multiplier": 1376322,
+          "first_mismatch": {
+            "magnitude_transition": 25,
+            "d2_threshold_magnitude": 152910,
+            "candidate_threshold_magnitude": 152911
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "19fd7f4dc85b4e39e0790cbc09d6b426e459ead2091a38e7d64709003787221e",
+      "candidate_parameter_sha256": "f483edcbb5a9546069ee1954421496495c0d236fde2305b226fbccaa5fe893b6",
+      "d2_threshold_and_endpoint_sha256": "e7da385b980c9aa7a9c0baa1b3a4f950dc33bc790fb817f767d931c91c478313"
+    },
+    {
+      "layer_index": 13,
+      "cfg_section": 14,
+      "activation": "leaky",
+      "output_channels_audited": 64,
+      "channels_with_exact_candidate": 64,
+      "positive_branch_q_shift_histogram": {
+        "22": 1,
+        "24": 2,
+        "26": 4,
+        "27": 3,
+        "28": 5,
+        "29": 14,
+        "30": 19,
+        "31": 7,
+        "32": 6,
+        "33": 3
+      },
+      "negative_branch_q_shift_histogram": {
+        "29": 1,
+        "33": 1,
+        "34": 6,
+        "35": 6,
+        "36": 17,
+        "37": 18,
+        "38": 9,
+        "39": 4,
+        "40": 2
+      },
+      "maximum_q_shift": 40,
+      "maximum_multiplier_bits": 28,
+      "q_feasibility_checks": {
+        "positive_branch": 1943,
+        "negative_branch": 2396,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 4211
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 13,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 25,
+          "nominal_multiplier": 56057,
+          "first_mismatch": {
+            "magnitude_transition": 30,
+            "d2_threshold_magnitude": 17658,
+            "candidate_threshold_magnitude": 17659
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 13,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 39,
+          "nominal_multiplier": 91844508,
+          "first_mismatch": {
+            "magnitude_transition": 127,
+            "d2_threshold_magnitude": 757194,
+            "candidate_threshold_magnitude": 757195
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "7e0fd71a5d6cdd9f444dd92c7bded8924e00e46afae79928367aaf877c34e30e",
+      "candidate_parameter_sha256": "0325e8e3b1eff66f185fa8e02794bee089e9a23bf4106f6fc468785657cd99dd",
+      "d2_threshold_and_endpoint_sha256": "ad138558cbb46ebb956112bd7d235ce7bdb817cabead1e08e01be6b255533714"
+    },
+    {
+      "layer_index": 15,
+      "cfg_section": 16,
+      "activation": "leaky",
+      "output_channels_audited": 128,
+      "channels_with_exact_candidate": 128,
+      "positive_branch_q_shift_histogram": {
+        "19": 1,
+        "20": 1,
+        "21": 3,
+        "23": 3,
+        "24": 9,
+        "25": 13,
+        "26": 23,
+        "27": 20,
+        "28": 29,
+        "29": 16,
+        "30": 7,
+        "31": 3
+      },
+      "negative_branch_q_shift_histogram": {
+        "27": 1,
+        "28": 1,
+        "29": 6,
+        "30": 8,
+        "31": 5,
+        "32": 10,
+        "33": 18,
+        "34": 28,
+        "35": 29,
+        "36": 17,
+        "37": 4,
+        "38": 1
+      },
+      "maximum_q_shift": 38,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 3557,
+        "negative_branch": 4431,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 7732
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 15,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 28,
+          "nominal_multiplier": 1366100,
+          "first_mismatch": {
+            "magnitude_transition": 105,
+            "d2_threshold_magnitude": 20534,
+            "candidate_threshold_magnitude": 20535
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 15,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 33,
+          "nominal_multiplier": 4371522,
+          "first_mismatch": {
+            "magnitude_transition": 104,
+            "d2_threshold_magnitude": 203376,
+            "candidate_threshold_magnitude": 203375
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "c20f11d9eca27f785ee1e775a8fb775514010a8889e93fada6aa4ebab4ef668f",
+      "candidate_parameter_sha256": "2caa2db4f146f773cd54f0060a76447642b645cd214706ebfaa8178e0988c4cd",
+      "d2_threshold_and_endpoint_sha256": "189f5a33d73c347e34d45e0d8894400e176cb5e6c62483cc931a855be31cb5ff"
+    },
+    {
+      "layer_index": 18,
+      "cfg_section": 19,
+      "activation": "leaky",
+      "output_channels_audited": 256,
+      "channels_with_exact_candidate": 256,
+      "positive_branch_q_shift_histogram": {
+        "23": 1,
+        "24": 3,
+        "25": 3,
+        "26": 7,
+        "27": 10,
+        "28": 9,
+        "29": 29,
+        "30": 33,
+        "31": 50,
+        "32": 49,
+        "33": 38,
+        "34": 16,
+        "35": 8
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "31": 3,
+        "32": 8,
+        "33": 9,
+        "34": 9,
+        "35": 18,
+        "36": 27,
+        "37": 31,
+        "38": 56,
+        "39": 36,
+        "40": 30,
+        "41": 21,
+        "42": 5,
+        "43": 2
+      },
+      "maximum_q_shift": 43,
+      "maximum_multiplier_bits": 29,
+      "q_feasibility_checks": {
+        "positive_branch": 8157,
+        "negative_branch": 9874,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 17519
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 18,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 28,
+          "nominal_multiplier": 491306,
+          "first_mismatch": {
+            "magnitude_transition": 49,
+            "d2_threshold_magnitude": 26499,
+            "candidate_threshold_magnitude": 26500
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 18,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 34,
+          "nominal_multiplier": 3144361,
+          "first_mismatch": {
+            "magnitude_transition": 21,
+            "d2_threshold_magnitude": 112006,
+            "candidate_threshold_magnitude": 112007
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "b864261d79d6089a4d91093396eec5d909dc9cebbed7bdc879b6a215221ca6de",
+      "candidate_parameter_sha256": "3fa92e162117f2052fb653bb701592c5c428938f960381fb1ccf50b3b3e6ef4a",
+      "d2_threshold_and_endpoint_sha256": "770842c77f3bbf507ce210ee21431d08e079b7cd90ac539888148f3924cf58c5"
+    },
+    {
+      "layer_index": 20,
+      "cfg_section": 21,
+      "activation": "leaky",
+      "output_channels_audited": 128,
+      "channels_with_exact_candidate": 128,
+      "positive_branch_q_shift_histogram": {
+        "23": 1,
+        "24": 3,
+        "25": 3,
+        "26": 10,
+        "27": 9,
+        "28": 22,
+        "29": 29,
+        "30": 27,
+        "31": 14,
+        "32": 4,
+        "33": 5,
+        "34": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "25": 1,
+        "28": 1,
+        "29": 1,
+        "30": 1,
+        "31": 3,
+        "32": 5,
+        "33": 8,
+        "34": 14,
+        "35": 24,
+        "36": 29,
+        "37": 25,
+        "38": 11,
+        "39": 3,
+        "40": 2
+      },
+      "maximum_q_shift": 40,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 3829,
+        "negative_branch": 4657,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 8230
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 20,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 28,
+          "nominal_multiplier": 844177,
+          "first_mismatch": {
+            "magnitude_transition": 66,
+            "d2_threshold_magnitude": 20828,
+            "candidate_threshold_magnitude": 20829
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 20,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 33,
+          "nominal_multiplier": 2701368,
+          "first_mismatch": {
+            "magnitude_transition": 7,
+            "d2_threshold_magnitude": 20670,
+            "candidate_threshold_magnitude": 20669
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "144a40bd068ec49c06b6c1060b680a1f4f8c9a7451e64acd263106ec9c3fd3e6",
+      "candidate_parameter_sha256": "362d4d3ef175c029ef62aa5b1fb409725efa931ff0c92d27cdf560fcad53bd07",
+      "d2_threshold_and_endpoint_sha256": "fd3be03d6ba637aa0815d8471d3c7a97eb1429b93f42a1e1d105838796fd20aa"
+    },
+    {
+      "layer_index": 21,
+      "cfg_section": 22,
+      "activation": "leaky",
+      "output_channels_audited": 128,
+      "channels_with_exact_candidate": 128,
+      "positive_branch_q_shift_histogram": {
+        "22": 1,
+        "24": 5,
+        "25": 4,
+        "26": 3,
+        "27": 15,
+        "28": 18,
+        "29": 24,
+        "30": 21,
+        "31": 21,
+        "32": 13,
+        "33": 2,
+        "34": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "30": 2,
+        "32": 3,
+        "33": 12,
+        "34": 15,
+        "35": 25,
+        "36": 18,
+        "37": 28,
+        "38": 13,
+        "39": 10,
+        "40": 1
+      },
+      "maximum_q_shift": 40,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 3850,
+        "negative_branch": 4701,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 8295
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 21,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 23,
+          "nominal_multiplier": 19570,
+          "first_mismatch": {
+            "magnitude_transition": 19,
+            "d2_threshold_magnitude": 7931,
+            "candidate_threshold_magnitude": 7930
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 21,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 32,
+          "nominal_multiplier": 1001958,
+          "first_mismatch": {
+            "magnitude_transition": 58,
+            "d2_threshold_magnitude": 246478,
+            "candidate_threshold_magnitude": 246479
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "1f8adae9449c61f4645ca51ab23c1394c5ccb80d15fa8392bdc271338f786ef0",
+      "candidate_parameter_sha256": "d24cd8acaad94817747432d1f4b500ccc51848bbfb266268b00116fdef24b4e4",
+      "d2_threshold_and_endpoint_sha256": "7e8dcc09b7bc6770f85c5f14263f71a2107b7b13583ffcadedc171d07c35f810"
+    },
+    {
+      "layer_index": 23,
+      "cfg_section": 24,
+      "activation": "leaky",
+      "output_channels_audited": 256,
+      "channels_with_exact_candidate": 256,
+      "positive_branch_q_shift_histogram": {
+        "16": 1,
+        "18": 1,
+        "20": 2,
+        "21": 3,
+        "22": 6,
+        "23": 14,
+        "24": 19,
+        "25": 40,
+        "26": 52,
+        "27": 56,
+        "28": 33,
+        "29": 22,
+        "30": 6,
+        "31": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "27": 1,
+        "28": 4,
+        "29": 9,
+        "30": 15,
+        "31": 26,
+        "32": 43,
+        "33": 53,
+        "34": 57,
+        "35": 23,
+        "36": 21,
+        "37": 4
+      },
+      "maximum_q_shift": 37,
+      "maximum_multiplier_bits": 26,
+      "q_feasibility_checks": {
+        "positive_branch": 6940,
+        "negative_branch": 8684,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 15112
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 23,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 25,
+          "nominal_multiplier": 329420,
+          "first_mismatch": {
+            "magnitude_transition": 114,
+            "d2_threshold_magnitude": 11561,
+            "candidate_threshold_magnitude": 11562
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 23,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 30,
+          "nominal_multiplier": 1054145,
+          "first_mismatch": {
+            "magnitude_transition": 31,
+            "d2_threshold_magnitude": 31067,
+            "candidate_threshold_magnitude": 31068
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "5275f7e31ca3ccd14f01f82fbf29f59f6796b346ef506412026afc02fbd68adb",
+      "candidate_parameter_sha256": "ce530ae2ea6c387075ce5b0074bb06782182bd981fcd33e941a2bfdc4a97ba72",
+      "d2_threshold_and_endpoint_sha256": "c479551e65633a9a4d12147ba688929c7a87482d7df3cb8c27ba62db058b47a4"
+    },
+    {
+      "layer_index": 26,
+      "cfg_section": 27,
+      "activation": "leaky",
+      "output_channels_audited": 512,
+      "channels_with_exact_candidate": 512,
+      "positive_branch_q_shift_histogram": {
+        "20": 1,
+        "22": 1,
+        "23": 2,
+        "24": 4,
+        "25": 6,
+        "26": 8,
+        "27": 18,
+        "28": 26,
+        "29": 53,
+        "30": 89,
+        "31": 105,
+        "32": 96,
+        "33": 64,
+        "34": 31,
+        "35": 7,
+        "36": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "29": 1,
+        "30": 3,
+        "31": 2,
+        "32": 3,
+        "33": 12,
+        "34": 24,
+        "35": 40,
+        "36": 56,
+        "37": 68,
+        "38": 111,
+        "39": 106,
+        "40": 55,
+        "41": 25,
+        "42": 6
+      },
+      "maximum_q_shift": 42,
+      "maximum_multiplier_bits": 29,
+      "q_feasibility_checks": {
+        "positive_branch": 16249,
+        "negative_branch": 19762,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 34987
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 26,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 30,
+          "nominal_multiplier": 1051897,
+          "first_mismatch": {
+            "magnitude_transition": 37,
+            "d2_threshold_magnitude": 37259,
+            "candidate_threshold_magnitude": 37258
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 26,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 37,
+          "nominal_multiplier": 13464277,
+          "first_mismatch": {
+            "magnitude_transition": 22,
+            "d2_threshold_magnitude": 219466,
+            "candidate_threshold_magnitude": 219465
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "e81ec1c1288e03d9b3e58e501009e2d0259f764821b8f3c9591d730089ec7cd7",
+      "candidate_parameter_sha256": "425ae63077b44ff6614ca8bbfbbd7ee2b22869a540c1346a44772d40eaf51e2e",
+      "d2_threshold_and_endpoint_sha256": "7dee9f58a88e2700801ae345d955096e9f05016611571d9efd02a8d3a08ab3a6"
+    },
+    {
+      "layer_index": 27,
+      "cfg_section": 28,
+      "activation": "leaky",
+      "output_channels_audited": 256,
+      "channels_with_exact_candidate": 256,
+      "positive_branch_q_shift_histogram": {
+        "18": 1,
+        "20": 3,
+        "21": 6,
+        "22": 8,
+        "23": 6,
+        "24": 10,
+        "25": 17,
+        "26": 38,
+        "27": 50,
+        "28": 38,
+        "29": 38,
+        "30": 27,
+        "31": 10,
+        "32": 3,
+        "34": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "26": 1,
+        "27": 1,
+        "28": 1,
+        "29": 9,
+        "30": 9,
+        "31": 12,
+        "32": 33,
+        "33": 52,
+        "34": 36,
+        "35": 51,
+        "36": 30,
+        "37": 11,
+        "38": 8,
+        "39": 2
+      },
+      "maximum_q_shift": 39,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 7193,
+        "negative_branch": 8890,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 15571
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 27,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 27,
+          "nominal_multiplier": 756190,
+          "first_mismatch": {
+            "magnitude_transition": 32,
+            "d2_threshold_magnitude": 5591,
+            "candidate_threshold_magnitude": 5592
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 27,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 31,
+          "nominal_multiplier": 1209905,
+          "first_mismatch": {
+            "magnitude_transition": 44,
+            "d2_threshold_magnitude": 77210,
+            "candidate_threshold_magnitude": 77209
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "5520d9da1142a05309921a11f83257d532e41a1c5e29535c8b136b3379e369fa",
+      "candidate_parameter_sha256": "1792f77595b62c30194793f1f4ee0278650c9534b7e24af6103d8ff075b04075",
+      "d2_threshold_and_endpoint_sha256": "d23157a3ce4c86f4e7dd0c7e9a5c767f950cd1ac8b4b57de5be92bf234299268"
+    },
+    {
+      "layer_index": 28,
+      "cfg_section": 29,
+      "activation": "leaky",
+      "output_channels_audited": 512,
+      "channels_with_exact_candidate": 512,
+      "positive_branch_q_shift_histogram": {
+        "20": 1,
+        "22": 2,
+        "23": 3,
+        "24": 4,
+        "25": 6,
+        "26": 26,
+        "27": 23,
+        "28": 58,
+        "29": 74,
+        "30": 112,
+        "31": 94,
+        "32": 74,
+        "33": 23,
+        "34": 9,
+        "35": 2,
+        "37": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "29": 2,
+        "30": 7,
+        "31": 5,
+        "32": 17,
+        "33": 22,
+        "34": 28,
+        "35": 61,
+        "36": 84,
+        "37": 112,
+        "38": 106,
+        "39": 44,
+        "40": 13,
+        "41": 8,
+        "42": 2
+      },
+      "maximum_q_shift": 42,
+      "maximum_multiplier_bits": 28,
+      "q_feasibility_checks": {
+        "positive_branch": 15772,
+        "negative_branch": 19164,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 33912
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 28,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 26,
+          "nominal_multiplier": 90190,
+          "first_mismatch": {
+            "magnitude_transition": 12,
+            "d2_threshold_magnitude": 8558,
+            "candidate_threshold_magnitude": 8557
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 28,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 35,
+          "nominal_multiplier": 4617704,
+          "first_mismatch": {
+            "magnitude_transition": 51,
+            "d2_threshold_magnitude": 375765,
+            "candidate_threshold_magnitude": 375764
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "7d225a239d76587ae3b7b60c177a51649cdaece8874a2b4045936aea002dbb22",
+      "candidate_parameter_sha256": "0cdecde59317061cc869511b31907da059c44e7a835f65b999d488c994f52701",
+      "d2_threshold_and_endpoint_sha256": "c601f4497fa6a798952a3de8702ef536e2c4b8232828f3ef032292e772990e2e"
+    },
+    {
+      "layer_index": 29,
+      "cfg_section": 30,
+      "activation": "linear",
+      "output_channels_audited": 30,
+      "channels_with_exact_candidate": 30,
+      "positive_branch_q_shift_histogram": {
+        "28": 1,
+        "29": 4,
+        "30": 1,
+        "31": 8,
+        "32": 4,
+        "33": 4,
+        "34": 4,
+        "35": 3,
+        "36": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "28": 1,
+        "29": 4,
+        "30": 1,
+        "31": 8,
+        "32": 4,
+        "33": 4,
+        "34": 4,
+        "35": 3,
+        "36": 1
+      },
+      "maximum_q_shift": 36,
+      "maximum_multiplier_bits": 25,
+      "q_feasibility_checks": {
+        "positive_branch": 989,
+        "negative_branch": 989,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 1918
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 29,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 30,
+          "nominal_multiplier": 1500451,
+          "first_mismatch": {
+            "magnitude_transition": 96,
+            "d2_threshold_magnitude": 68341,
+            "candidate_threshold_magnitude": 68342
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 29,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 30,
+          "nominal_multiplier": 1500451,
+          "first_mismatch": {
+            "magnitude_transition": 96,
+            "d2_threshold_magnitude": 68341,
+            "candidate_threshold_magnitude": 68342
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "0fe7587912c731252626b8065c5bb487b6b25e536d714051f3a9d5b97b7a45e8",
+      "candidate_parameter_sha256": "3f31377ad3ed87a64e9af7ce12b7679b35cd789075f164a773bbf832c8534062",
+      "d2_threshold_and_endpoint_sha256": "ad56b781c41aef6fd5c470af9b86c25ab4aa1a9e17079ebb14866e70dc943e7a"
+    },
+    {
+      "layer_index": 32,
+      "cfg_section": 33,
+      "activation": "leaky",
+      "output_channels_audited": 128,
+      "channels_with_exact_candidate": 128,
+      "positive_branch_q_shift_histogram": {
+        "22": 1,
+        "23": 4,
+        "24": 2,
+        "25": 3,
+        "26": 8,
+        "27": 7,
+        "28": 22,
+        "29": 33,
+        "30": 31,
+        "31": 13,
+        "32": 3,
+        "34": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "26": 1,
+        "27": 1,
+        "29": 1,
+        "30": 2,
+        "31": 3,
+        "32": 6,
+        "33": 4,
+        "34": 16,
+        "35": 23,
+        "36": 36,
+        "37": 27,
+        "38": 7,
+        "39": 1
+      },
+      "maximum_q_shift": 39,
+      "maximum_multiplier_bits": 27,
+      "q_feasibility_checks": {
+        "positive_branch": 3798,
+        "negative_branch": 4636,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 8178
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 32,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 28,
+          "nominal_multiplier": 619040,
+          "first_mismatch": {
+            "magnitude_transition": 101,
+            "d2_threshold_magnitude": 43580,
+            "candidate_threshold_magnitude": 43581
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 32,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 34,
+          "nominal_multiplier": 3961857,
+          "first_mismatch": {
+            "magnitude_transition": 51,
+            "d2_threshold_magnitude": 218984,
+            "candidate_threshold_magnitude": 218985
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "d033fffd3f7e037d2956961a95d02585385253736551eb37676a392d38d2d0f6",
+      "candidate_parameter_sha256": "3779ecaa1c88e245261a8e8f405787e5607ffe8461787c0c811ee1a5c7465030",
+      "d2_threshold_and_endpoint_sha256": "5ac0f889f959fd95756c539524e26e6ffcbba07832604156128be0f6e5ef7a9a"
+    },
+    {
+      "layer_index": 35,
+      "cfg_section": 36,
+      "activation": "leaky",
+      "output_channels_audited": 256,
+      "channels_with_exact_candidate": 256,
+      "positive_branch_q_shift_histogram": {
+        "21": 1,
+        "24": 1,
+        "25": 2,
+        "26": 1,
+        "27": 4,
+        "28": 4,
+        "29": 5,
+        "30": 11,
+        "31": 17,
+        "32": 27,
+        "33": 58,
+        "34": 47,
+        "35": 54,
+        "36": 19,
+        "37": 4,
+        "38": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "32": 2,
+        "34": 3,
+        "35": 1,
+        "36": 10,
+        "37": 16,
+        "38": 26,
+        "39": 36,
+        "40": 60,
+        "41": 51,
+        "42": 37,
+        "43": 14
+      },
+      "maximum_q_shift": 43,
+      "maximum_multiplier_bits": 29,
+      "q_feasibility_checks": {
+        "positive_branch": 8735,
+        "negative_branch": 10448,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 18671
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 35,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 26,
+          "nominal_multiplier": 47393,
+          "first_mismatch": {
+            "magnitude_transition": 1,
+            "d2_threshold_magnitude": 708,
+            "candidate_threshold_magnitude": 709
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 35,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 37,
+          "nominal_multiplier": 9706159,
+          "first_mismatch": {
+            "magnitude_transition": 38,
+            "d2_threshold_magnitude": 530999,
+            "candidate_threshold_magnitude": 531000
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "fb24c6dfd7fb423674c0a9685d9e4b0f9f9707024ce6c8c3be0e54c841e43a8e",
+      "candidate_parameter_sha256": "93a49c25387a459cb2964d988ac6e803d8ba9c8a3fcab664b948efb6354e3f29",
+      "d2_threshold_and_endpoint_sha256": "e1925d5ca8ceb5593e586873be793ae5f13c7566657baa65b520f68e9f3688be"
+    },
+    {
+      "layer_index": 36,
+      "cfg_section": 37,
+      "activation": "linear",
+      "output_channels_audited": 30,
+      "channels_with_exact_candidate": 30,
+      "positive_branch_q_shift_histogram": {
+        "27": 2,
+        "28": 1,
+        "29": 4,
+        "30": 3,
+        "31": 3,
+        "32": 5,
+        "33": 6,
+        "34": 3,
+        "35": 1,
+        "36": 1,
+        "37": 1
+      },
+      "negative_branch_q_shift_histogram": {
+        "27": 2,
+        "28": 1,
+        "29": 4,
+        "30": 3,
+        "31": 3,
+        "32": 5,
+        "33": 6,
+        "34": 3,
+        "35": 1,
+        "36": 1,
+        "37": 1
+      },
+      "maximum_q_shift": 37,
+      "maximum_multiplier_bits": 26,
+      "q_feasibility_checks": {
+        "positive_branch": 979,
+        "negative_branch": 979,
+        "interpretation": "每个 Q 检查可行乘数区间；linear 两个分支共享同一 Q，分别计入正、负域约束。空实数区间以精确矛盾直接排除所有 Q，不重复遍历。",
+        "coarser_q_rejections_before_selected_shift": 1898
+      },
+      "first_shift_counterexamples": {
+        "positive": {
+          "layer_index": 36,
+          "channel": 0,
+          "branch": "positive",
+          "q_shift": 32,
+          "nominal_multiplier": 2260770,
+          "first_mismatch": {
+            "magnitude_transition": 37,
+            "d2_threshold_magnitude": 69343,
+            "candidate_threshold_magnitude": 69342
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        },
+        "negative": {
+          "layer_index": 36,
+          "channel": 0,
+          "branch": "negative",
+          "q_shift": 32,
+          "nominal_multiplier": 2260770,
+          "first_mismatch": {
+            "magnitude_transition": 37,
+            "d2_threshold_magnitude": 69343,
+            "candidate_threshold_magnitude": 69342
+          },
+          "meaning": "该移位下最近理想斜率乘数的首个转移点不匹配；更粗移位是否可行由精确整数乘数区间逐 Q 判定。"
+        }
+      },
+      "target_threshold_sha256": "089282fe0387a20e3f40dac07c5ae1ebda9e424780f66c6788c621e215f8ad32",
+      "candidate_parameter_sha256": "ebbf60b7c524b94b5d6a9205c824d47ba80ac5df55e3e5004ffe6f2193fd8e46",
+      "d2_threshold_and_endpoint_sha256": "977ceada23c029faf5250a9fe83265187e0780fc1e69eaf72918342db851d3ac"
+    }
+  ],
+  "failures": [],
+  "limitations": [
+    "此项只证明累加器重定标的数学等价性，不证明 MAC/卷积 RTL、张量逐值比对、PS/PL 协议、G1/G2/G4 或阶段 2A 验收。",
+    "定点乘数位宽及乘法器资源/时序尚未约束；Q 搜索覆盖的是任意精度整数乘数。"
+  ]
+}

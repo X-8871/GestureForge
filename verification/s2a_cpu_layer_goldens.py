@@ -1,13 +1,16 @@
-"""S2A-T24：按冻结 D2 参考生成 CPU 逐层整数张量 pilot。"""
+"""S2A-T24/T25：按冻结 D2 参考生成 CPU 逐层整数张量证据。"""
 
 from __future__ import annotations
 
 import argparse
+import datetime
 import hashlib
 import importlib
 import json
 import math
+import os
 import sys
+import tempfile
 import time
 import zlib
 from pathlib import Path
@@ -51,6 +54,8 @@ EXPECTED_WIDTH = 416
 EXPECTED_HEIGHT = 416
 EXPECTED_UNIQUE_OUTPUT_BYTES = 11_382_150
 EXPECTED_SEED = 20260922
+T25_INDEX_NAME = "cpu_layer_golden_index.json"
+T25_LOG_NAME = "run.log"
 
 
 class GoldenExportError(ValueError):
@@ -642,25 +647,46 @@ def _check_input_descriptors(
     return tensors
 
 
-def run_sample0_pilot(context: dict[str, Any], max_seconds: float = 600.0) -> dict[str, Any]:
-    """执行唯一允许的 sample0 完整网络整数前向并捕获 38 层输出。"""
-    _require(max_seconds > 0.0, "pilot timeout 必须为正")
+def run_sample_pilot(
+    context: dict[str, Any],
+    sample_index: int,
+    max_seconds: float = 600.0,
+    synthetic_checks: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """执行一个冻结样本的完整网络整数前向并捕获 38 层输出。"""
+    _require(max_seconds > 0.0, "sample timeout 必须为正")
+    _require(0 <= sample_index < len(context["samples"]), "sample index 越界")
     started = time.monotonic()
     modules = context["modules"]
     numeric = modules["numeric"]
     forward = modules["forward"]
     delivery = modules["delivery"]
-    sample = context["samples"][0]
-    _require(sample.get("frame_id") == 0 and sample.get("sample_id") == "test_fist_000", "sample0 identity 不匹配")
+    sample = context["samples"][sample_index]
+    _require(sample.get("frame_id") == sample_index, f"sample {sample_index} frame_id 不匹配")
 
-    synthetic_checks = verify_synthetic_replay(context)
+    if synthetic_checks is None:
+        synthetic_checks = verify_synthetic_replay(context)
     _check_deadline(started, max_seconds, "synthetic 输入闭环")
 
-    image_path, label_path = _sample_paths(context, sample)
-    image_digest = verify_digest(image_path.read_bytes(), sample["image_sha256"], "sample0 original image")
-    label_digest = verify_digest(label_path.read_bytes(), sample["label_sha256"], "sample0 label")
-    rgb = delivery.decode_rgb(image_path)
-    _require(rgb.dtype == np.uint8 and list(rgb.shape) == [sample["height"], sample["width"], 3], "sample0 RGB decode shape/dtype 不匹配")
+    source = sample.get("source")
+    if source == "synthetic_rgb416":
+        synthetic_inputs = context.get("_synthetic_rgb_inputs")
+        if synthetic_inputs is None:
+            synthetic_inputs = _synthetic_rgb_inputs(delivery, context["samples_doc"]["seed"])
+            context["_synthetic_rgb_inputs"] = synthetic_inputs
+        rgb = synthetic_inputs.get(sample["sample_id"])
+        _require(rgb is not None, f"synthetic sample {sample_index} 缺少冻结 RGB 输入")
+        rgb_raw = np.ascontiguousarray(rgb).tobytes(order="C")
+        image_digest = verify_digest(rgb_raw, sample["rgb_sha256"], f"sample {sample_index} synthetic RGB")
+        label_digest = None
+        image_path = None
+        label_path = None
+    else:
+        image_path, label_path = _sample_paths(context, sample)
+        image_digest = verify_digest(image_path.read_bytes(), sample["image_sha256"], f"sample {sample_index} original image")
+        label_digest = verify_digest(label_path.read_bytes(), sample["label_sha256"], f"sample {sample_index} label")
+        rgb = delivery.decode_rgb(image_path)
+    _require(rgb.dtype == np.uint8 and list(rgb.shape) == [sample["height"], sample["width"], 3], f"sample {sample_index} RGB shape/dtype 不匹配")
     preprocessed = np.asarray(
         numeric.preprocess_rgb_uint8_to_chw_int8(rgb.tolist(), EXPECTED_WIDTH, EXPECTED_HEIGHT),
         dtype=np.int8,
@@ -669,26 +695,32 @@ def run_sample0_pilot(context: dict[str, Any], max_seconds: float = 600.0) -> di
     input_raw, input_digest = validate_preprocessed_input(
         preprocessed, input_desc["shape_nchw"], sample["pl_input_sha256"]
     )
-    _check_deadline(started, max_seconds, "sample0 D2 preprocessing")
+    _check_deadline(started, max_seconds, f"sample {sample_index} D2 preprocessing")
 
     manifest = context["manifest"]
     layers = manifest["layers"]
     dispatch_rows = context["t22"]["network_dispatch"]["layers"]
-    cfg_path = _resolve_declared_path(manifest["bindings"]["cfg"]["path"])
-    gf8_path = _resolve_declared_path(manifest["bindings"]["gf8_package"]["path"])
-    sections = forward.parse_cfg_sections(cfg_path)
-    _require(len(sections) == EXPECTED_LAYER_COUNT + 1, "cfg section 数量不为 net+38")
-    package_header, package_layers = forward.parse_package(gf8_path)
-    _require(package_header["width"] == EXPECTED_WIDTH and package_header["height"] == EXPECTED_HEIGHT, "GF8 输入尺寸不匹配")
-    _require(package_header["channels"] == EXPECTED_CHANNELS, "GF8 输入通道数不匹配")
-    _require(package_header["layer_count"] == 21, "GF8 卷积层数不为 21")
+    network_runtime = context.get("_network_runtime")
+    if network_runtime is None:
+        cfg_path = _resolve_declared_path(manifest["bindings"]["cfg"]["path"])
+        gf8_path = _resolve_declared_path(manifest["bindings"]["gf8_package"]["path"])
+        sections = forward.parse_cfg_sections(cfg_path)
+        _require(len(sections) == EXPECTED_LAYER_COUNT + 1, "cfg section 数量不为 net+38")
+        package_header, package_layers = forward.parse_package(gf8_path)
+        _require(package_header["width"] == EXPECTED_WIDTH and package_header["height"] == EXPECTED_HEIGHT, "GF8 输入尺寸不匹配")
+        _require(package_header["channels"] == EXPECTED_CHANNELS, "GF8 输入通道数不匹配")
+        _require(package_header["layer_count"] == 21, "GF8 卷积层数不为 21")
+        network_runtime = {"sections": sections, "package_layers": package_layers}
+        context["_network_runtime"] = network_runtime
+    sections = network_runtime["sections"]
+    package_layers = network_runtime["package_layers"]
 
     network_input = forward.Tensor(preprocessed, float(input_desc["scale"]))
     outputs: list[Any] = []
     captures = []
     convolution_stats = []
     for index, (row, contract_row, section) in enumerate(zip(layers, dispatch_rows, sections[1:])):
-        _check_deadline(started, max_seconds, f"layer {index} 前")
+        _check_deadline(started, max_seconds, f"sample {sample_index} layer {index} 前")
         op = row["op"]
         _require(section.kind == op, f"layer {index} cfg op 与 manifest 不一致")
         input_tensors = _check_input_descriptors(index, contract_row, outputs, network_input)
@@ -777,15 +809,16 @@ def run_sample0_pilot(context: dict[str, Any], max_seconds: float = 600.0) -> di
                 "raw_bytes": raw,
             }
         )
-        _check_deadline(started, max_seconds, f"layer {index} 后")
+        _check_deadline(started, max_seconds, f"sample {sample_index} layer {index} 后")
 
     _require(len(outputs) == EXPECTED_LAYER_COUNT, "捕获输出不是完整 38 层")
     _require(len(convolution_stats) == 21, "卷积 overflow/shape/scale 统计未覆盖 21 层")
     raw_stream, compressed, tensor_rows = serialize_tensor_stream(captures, dispatch_rows)
     _require(len(tensor_rows) == EXPECTED_LAYER_COUNT, "序列化 tensor row 数不为 38")
     _require(len(raw_stream) == EXPECTED_UNIQUE_OUTPUT_BYTES, f"unique tensor stream length 意外: {len(raw_stream)}")
-    _check_deadline(started, max_seconds, "stream 压缩和验证")
+    _check_deadline(started, max_seconds, f"sample {sample_index} stream 压缩和验证")
     return {
+        "sample_index": sample_index,
         "sample": sample,
         "image_path": image_path,
         "label_path": label_path,
@@ -801,6 +834,13 @@ def run_sample0_pilot(context: dict[str, Any], max_seconds: float = 600.0) -> di
         "convolution_stats": convolution_stats,
         "elapsed_seconds": time.monotonic() - started,
     }
+
+
+def run_sample0_pilot(context: dict[str, Any], max_seconds: float = 600.0) -> dict[str, Any]:
+    """保留 T24 sample0 pilot 入口和输入语义。"""
+    sample = context["samples"][0]
+    _require(sample.get("frame_id") == 0 and sample.get("sample_id") == "test_fist_000", "sample0 identity 不匹配")
+    return run_sample_pilot(context, 0, max_seconds)
 
 
 def build_index(context: dict[str, Any], pilot: dict[str, Any], shard_relative_path: str) -> dict[str, Any]:
@@ -898,6 +938,479 @@ def build_index(context: dict[str, Any], pilot: dict[str, Any], shard_relative_p
     return index
 
 
+def _t25_tooling_bindings(context: dict[str, Any]) -> list[dict[str, str]]:
+    """绑定 T25 导出器与测试文件的当前字节版本。"""
+    root = context["root"]
+    return [
+        {
+            "role": "t25_exporter",
+            "path": T24_EXPORTER_PATH,
+            "sha256": sha256_file(_repo_file(root, T24_EXPORTER_PATH)),
+        },
+        {
+            "role": "t25_test",
+            "path": T24_TEST_PATH,
+            "sha256": sha256_file(_repo_file(root, T24_TEST_PATH)),
+        },
+    ]
+
+
+def _t25_status(completed_samples: int, total_samples: int) -> str:
+    """仅在冻结的 109 项全部完成时返回 COMPLETE。"""
+    _require(isinstance(total_samples, int) and not isinstance(total_samples, bool), "T25 total sample count 类型错误")
+    _require(isinstance(completed_samples, int) and not isinstance(completed_samples, bool), "T25 completed sample count 类型错误")
+    _require(total_samples == EXPECTED_SAMPLE_COUNT, "T25 total sample count 必须为 109")
+    _require(0 <= completed_samples <= total_samples, "T25 completed sample count 越界")
+    return "COMPLETE" if completed_samples == total_samples else "IN_PROGRESS"
+
+
+def _t25_sample_record(pilot: dict[str, Any], shard_relative_path: str) -> dict[str, Any]:
+    """把一个已验证推理的摘要整理为 checkpoint 记录。"""
+    sample = pilot["sample"]
+    index = int(pilot["sample_index"])
+    synthetic = sample["source"] == "synthetic_rgb416"
+    original_input = {
+        "kind": "synthetic_rgb" if synthetic else "image_file",
+        "path": sample.get("relative_image"),
+        "sha256": pilot["image_sha256"],
+        "width": sample["width"],
+        "height": sample["height"],
+        "rgb_shape_hwc": pilot["rgb_shape_hwc"],
+    }
+    label = None if synthetic else {
+        "path": sample["relative_label"],
+        "sha256": pilot["label_sha256"],
+    }
+    return {
+        "sample_index": index,
+        "sample_id": sample["sample_id"],
+        "frame_id": sample["frame_id"],
+        "source": sample["source"],
+        "coverage_tags": sample.get("coverage_tags", []),
+        "ground_truth_yolo": sample.get("ground_truth_yolo", []),
+        "original_input": original_input,
+        "label": label,
+        "preprocessed_input": {
+            "oracle_path": D2_NUMERIC_PATH,
+            "oracle_callable": "preprocess_rgb_uint8_to_chw_int8",
+            "shape_nchw": [1, EXPECTED_CHANNELS, EXPECTED_HEIGHT, EXPECTED_WIDTH],
+            "dtype": "signed int8 two's complement",
+            "raw_bytes": pilot["input_raw_bytes"],
+            "sha256": pilot["input_sha256"],
+        },
+        "network": {
+            "layer_count": EXPECTED_LAYER_COUNT,
+            "unique_output_raw_bytes": len(pilot["raw_stream"]),
+            "raw_stream_sha256": sha256_bytes(pilot["raw_stream"]),
+            "compressed_shard": {
+                "path": shard_relative_path,
+                "codec": "zlib",
+                "compression_level": 9,
+                "zlib_version": zlib.ZLIB_VERSION,
+                "compressed_bytes": len(pilot["compressed_stream"]),
+                "sha256": sha256_bytes(pilot["compressed_stream"]),
+                "decompressed_bytes": len(pilot["raw_stream"]),
+                "decompressed_sha256": sha256_bytes(pilot["raw_stream"]),
+            },
+            "tensors": pilot["tensor_rows"],
+            "convolution_stats": pilot["convolution_stats"],
+        },
+        "elapsed_seconds": round(float(pilot["elapsed_seconds"]), 6),
+    }
+
+
+def build_t25_index(context: dict[str, Any], records: list[dict[str, Any]]) -> dict[str, Any]:
+    """构造可逐样本原子更新的 T25 全量索引与 checkpoint。"""
+    total = len(context["samples"])
+    _require(total == EXPECTED_SAMPLE_COUNT, "T25 不能使用不完整固定样本目录")
+    _require(
+        [record.get("sample_index") for record in records] == list(range(len(records))),
+        "T25 checkpoint 样本必须按固定目录连续有序",
+    )
+    completed = len(records)
+    status = _t25_status(completed, total)
+    return {
+        "schema_version": "gestureforge_s2a_cpu_layer_golden_index_v2",
+        "task_id": "S2A-T25",
+        "status": status,
+        "model_id": "tiny416",
+        "stage_acceptance": {"G4": "NOT_MET", "G5": "NOT_MET"},
+        "runtime": context["runtime"],
+        "source_bindings": context["source_bindings"],
+        "tooling_bindings": _t25_tooling_bindings(context),
+        "fixed_sample_catalog": {
+            "path": SAMPLES_PATH,
+            "sha256": PINNED_SHA256[SAMPLES_PATH],
+            "total_samples": total,
+            "seed": context["samples_doc"]["seed"],
+            "completed_samples": completed,
+            "remaining_samples": total - completed,
+            "synthetic_rgb_preprocess_replays": context.get("_synthetic_replay_checks", []),
+        },
+        "network": {
+            "layer_count": EXPECTED_LAYER_COUNT,
+            "operator_counts": context["t22"]["network_dispatch"]["operator_counts"],
+            "unique_output_raw_bytes_per_sample": EXPECTED_UNIQUE_OUTPUT_BYTES,
+            "completed_unique_output_raw_bytes": completed * EXPECTED_UNIQUE_OUTPUT_BYTES,
+        },
+        "run_log_path": "report/evidence/S2A-T25/run.log",
+        "samples": records,
+        "limitations": {
+            "completed_fixed_samples": completed,
+            "pending_fixed_samples": total - completed,
+            "cpu_per_layer_goldens": status,
+            "full_109_sample_run": status,
+            "ps_decode_nms_comparison": "NOT_RUN",
+            "rtl_or_vivado": "NOT_RUN",
+            "G4": "NOT_MET",
+            "G5": "NOT_MET",
+        },
+    }
+
+
+def validate_t25_index_status(index: dict[str, Any]) -> None:
+    """保证 COMPLETE 与 109/109 严格一致，并维持 G4/G5 未满足声明。"""
+    catalog = index.get("fixed_sample_catalog", {})
+    total = catalog.get("total_samples")
+    completed = catalog.get("completed_samples")
+    _require(total == EXPECTED_SAMPLE_COUNT, "T25 index total sample count 不为 109")
+    _require(isinstance(completed, int) and not isinstance(completed, bool), "T25 index completed count 类型错误")
+    expected_status = _t25_status(completed, total)
+    _require(index.get("status") == expected_status, "T25 index status 与完成数不一致")
+    _require(catalog.get("remaining_samples") == total - completed, "T25 index remaining count 不一致")
+    _require(index.get("stage_acceptance") == {"G4": "NOT_MET", "G5": "NOT_MET"}, "T25 不得宣称 G4/G5 完成")
+    limitations = index.get("limitations", {})
+    _require(limitations.get("completed_fixed_samples") == completed, "T25 limitations completed count 不一致")
+    _require(limitations.get("pending_fixed_samples") == total - completed, "T25 limitations pending count 不一致")
+    _require(limitations.get("cpu_per_layer_goldens") == expected_status, "T25 golden 状态不一致")
+    _require(limitations.get("full_109_sample_run") == expected_status, "T25 full-run 状态不一致")
+    _require(limitations.get("G4") == "NOT_MET" and limitations.get("G5") == "NOT_MET", "T25 limitations 不得宣称 G4/G5")
+
+
+def _write_temp_file(path: Path, payload: bytes) -> Path:
+    """在目标目录创建并同步一个完整临时文件。"""
+    descriptor, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temp_path = Path(temp_name)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except BaseException:
+        temp_path.unlink(missing_ok=True)
+        raise
+    return temp_path
+
+
+def atomic_create_shard(path: Path, payload: bytes) -> None:
+    """原子创建新 shard，目标已存在时绝不覆盖。"""
+    _require(not path.exists(), f"T25 shard 已存在，拒绝覆盖: {path}")
+    temp_path = _write_temp_file(path, payload)
+    try:
+        os.link(temp_path, path)
+    except FileExistsError as exc:
+        raise GoldenExportError(f"T25 shard 发生冲突，拒绝覆盖: {path}") from exc
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def atomic_write_checkpoint(path: Path, index: dict[str, Any]) -> None:
+    """通过同目录原子替换更新 JSON checkpoint。"""
+    payload = (json.dumps(index, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
+    temp_path = _write_temp_file(path, payload)
+    try:
+        os.replace(temp_path, path)
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def _append_t25_log(path: Path, event: dict[str, Any], create: bool = False) -> None:
+    """将简短运行事件追加到 UTF-8 JSON Lines 日志。"""
+    event_row = {
+        "time_utc8": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat(),
+        **event,
+    }
+    mode = "xb" if create else "ab"
+    with path.open(mode) as stream:
+        stream.write((json.dumps(event_row, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8"))
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _expected_t25_sample_paths(context: dict[str, Any], sample: dict[str, Any]) -> tuple[Path | None, Path | None]:
+    """解析真实图像路径；合成 RGB 样本不伪造原图文件。"""
+    if sample["source"] == "synthetic_rgb416":
+        return None, None
+    return _sample_paths(context, sample)
+
+
+def _validate_t25_sample_record(
+    context: dict[str, Any], output_dir: Path, record: dict[str, Any], expected_index: int
+) -> None:
+    """逐样本验证 checkpoint 元数据、原始输入、shard 与 38 层摘要。"""
+    sample = context["samples"][expected_index]
+    _require(record.get("sample_index") == expected_index, f"T25 sample {expected_index} checkpoint 顺序错误")
+    for key in ("sample_id", "frame_id", "source"):
+        _require(record.get(key) == sample.get(key), f"T25 sample {expected_index} {key} 与固定目录不匹配")
+    _require(record.get("coverage_tags") == sample.get("coverage_tags", []), f"T25 sample {expected_index} coverage tags 不匹配")
+    _require(record.get("ground_truth_yolo") == sample.get("ground_truth_yolo", []), f"T25 sample {expected_index} ground truth 不匹配")
+
+    original = record.get("original_input", {})
+    synthetic = sample["source"] == "synthetic_rgb416"
+    expected_original_sha = sample["rgb_sha256"] if synthetic else sample["image_sha256"]
+    _require(original.get("kind") == ("synthetic_rgb" if synthetic else "image_file"), f"T25 sample {expected_index} 原始输入类型不匹配")
+    _require(original.get("path") == sample.get("relative_image"), f"T25 sample {expected_index} 原始输入路径不匹配")
+    _require(original.get("sha256") == expected_original_sha, f"T25 sample {expected_index} 原始输入 SHA 与固定目录不匹配")
+    _require(original.get("width") == sample["width"] and original.get("height") == sample["height"], f"T25 sample {expected_index} 原始尺寸不匹配")
+    _require(original.get("rgb_shape_hwc") == [sample["height"], sample["width"], 3], f"T25 sample {expected_index} RGB shape 不匹配")
+    label_record = record.get("label")
+    if synthetic:
+        _require(label_record is None, f"T25 synthetic sample {expected_index} 不应绑定 label 文件")
+    else:
+        _require(label_record == {"path": sample["relative_label"], "sha256": sample["label_sha256"]}, f"T25 sample {expected_index} label binding 不匹配")
+        image_path, label_path = _expected_t25_sample_paths(context, sample)
+        _require(sha256_file(image_path) == sample["image_sha256"], f"T25 sample {expected_index} 原图当前 SHA 不匹配")
+        _require(sha256_file(label_path) == sample["label_sha256"], f"T25 sample {expected_index} 标签当前 SHA 不匹配")
+
+    input_record = record.get("preprocessed_input", {})
+    _require(input_record.get("oracle_path") == D2_NUMERIC_PATH, f"T25 sample {expected_index} preprocessing oracle 路径不匹配")
+    _require(input_record.get("oracle_callable") == "preprocess_rgb_uint8_to_chw_int8", f"T25 sample {expected_index} preprocessing oracle 函数不匹配")
+    _require(input_record.get("shape_nchw") == [1, 3, 416, 416], f"T25 sample {expected_index} PL input shape 不匹配")
+    _require(input_record.get("dtype") == "signed int8 two's complement", f"T25 sample {expected_index} PL input dtype 不匹配")
+    _require(input_record.get("raw_bytes") == 519168, f"T25 sample {expected_index} PL input length 不匹配")
+    _require(input_record.get("sha256") == sample["pl_input_sha256"], f"T25 sample {expected_index} PL input SHA 不匹配")
+
+    network = record.get("network", {})
+    _require(network.get("layer_count") == EXPECTED_LAYER_COUNT, f"T25 sample {expected_index} layer count 不为 38")
+    _require(network.get("unique_output_raw_bytes") == EXPECTED_UNIQUE_OUTPUT_BYTES, f"T25 sample {expected_index} unique tensor bytes 不匹配")
+    tensor_rows = network.get("tensors")
+    dispatch_rows = context["t22"]["network_dispatch"]["layers"]
+    _require(isinstance(tensor_rows, list) and len(tensor_rows) == EXPECTED_LAYER_COUNT, f"T25 sample {expected_index} tensor rows 不为 38")
+    for layer_index, (tensor_row, dispatch_row) in enumerate(zip(tensor_rows, dispatch_rows)):
+        descriptor = dispatch_row["output_tensor"]
+        _require(tensor_row.get("layer_index") == layer_index, f"T25 sample {expected_index} tensor 顺序错误")
+        _require(tensor_row.get("cfg_section") == dispatch_row["cfg_section"], f"T25 sample {expected_index} layer {layer_index} cfg_section 不匹配")
+        _require(tensor_row.get("op") == dispatch_row["op"], f"T25 sample {expected_index} layer {layer_index} op 不匹配")
+        _require(tensor_row.get("shape_nchw") == descriptor["shape_nchw"], f"T25 sample {expected_index} layer {layer_index} shape 不匹配")
+        _require(tensor_row.get("scale") == descriptor["scale"], f"T25 sample {expected_index} layer {layer_index} scale 不匹配")
+        _require(tensor_row.get("element_type") == descriptor["element_type"], f"T25 sample {expected_index} layer {layer_index} dtype 不匹配")
+        _require(tensor_row.get("byte_length") == descriptor["length_bytes"], f"T25 sample {expected_index} layer {layer_index} length 不匹配")
+        if descriptor["allocation_kind"] == "head_alias":
+            _require(tensor_row.get("stored") is False, f"T25 sample {expected_index} layer {layer_index} alias 重复存储")
+            _require(tensor_row.get("alias_of_layer_index") == descriptor["alias_of_layer_index"], f"T25 sample {expected_index} layer {layer_index} alias source 不匹配")
+        else:
+            _require(tensor_row.get("stored") is True and tensor_row.get("alias_of_layer_index") is None, f"T25 sample {expected_index} layer {layer_index} owned storage 标记不匹配")
+
+    conv_stats = network.get("convolution_stats")
+    conv_indexes = [row["layer_index"] for row in context["manifest"]["layers"] if row["op"] == "convolutional"]
+    _require(isinstance(conv_stats, list) and [row.get("layer_index") for row in conv_stats] == conv_indexes, f"T25 sample {expected_index} 卷积统计覆盖不完整")
+    for stats in conv_stats:
+        validate_no_conv_overflow(stats)
+
+    shard = network.get("compressed_shard", {})
+    expected_shard_rel = f"report/evidence/S2A-T25/tensors/sample_{expected_index:03d}.zlib"
+    _require(shard.get("path") == expected_shard_rel, f"T25 sample {expected_index} shard 路径不匹配")
+    _require(shard.get("codec") == "zlib" and shard.get("compression_level") == 9, f"T25 sample {expected_index} shard codec 不匹配")
+    shard_path = output_dir / "tensors" / f"sample_{expected_index:03d}.zlib"
+    _require(shard_path.is_file() and not shard_path.is_symlink(), f"T25 sample {expected_index} shard 缺失或类型不合法")
+    compressed = shard_path.read_bytes()
+    _require(len(compressed) == shard.get("compressed_bytes"), f"T25 sample {expected_index} compressed length 不匹配")
+    compressed_digest = sha256_bytes(compressed)
+    _require(compressed_digest == shard.get("sha256"), f"T25 sample {expected_index} compressed SHA 不匹配")
+    try:
+        raw = zlib.decompress(compressed)
+    except zlib.error as exc:
+        raise GoldenExportError(f"T25 sample {expected_index} zlib shard 损坏") from exc
+    _require(len(raw) == EXPECTED_UNIQUE_OUTPUT_BYTES, f"T25 sample {expected_index} decompressed length 不匹配")
+    raw_digest = sha256_bytes(raw)
+    _require(raw_digest == network.get("raw_stream_sha256"), f"T25 sample {expected_index} raw stream SHA 不匹配")
+    _require(shard.get("decompressed_bytes") == len(raw), f"T25 sample {expected_index} shard raw length 元数据不匹配")
+    _require(shard.get("decompressed_sha256") == raw_digest, f"T25 sample {expected_index} shard raw SHA 元数据不匹配")
+    validate_tensor_stream(raw, tensor_rows)
+
+
+def validate_t25_checkpoint(context: dict[str, Any], output_dir: Path, index: dict[str, Any]) -> list[dict[str, Any]]:
+    """验证现有 checkpoint、全部已完成 shard 和输出目录，无效项一律拒绝恢复。"""
+    _require(index.get("schema_version") == "gestureforge_s2a_cpu_layer_golden_index_v2", "T25 checkpoint schema 不匹配")
+    _require(index.get("task_id") == "S2A-T25" and index.get("model_id") == "tiny416", "T25 checkpoint identity 不匹配")
+    _require(index.get("source_bindings") == context["source_bindings"], "T25 checkpoint source bindings 不匹配")
+    _require(index.get("tooling_bindings") == _t25_tooling_bindings(context), "T25 checkpoint tooling hash 不匹配")
+    _require(index.get("runtime") == context["runtime"], "T25 checkpoint runtime 与当前匹配 runtime 不一致")
+    catalog = index.get("fixed_sample_catalog", {})
+    _require(catalog.get("path") == SAMPLES_PATH and catalog.get("sha256") == PINNED_SHA256[SAMPLES_PATH], "T25 checkpoint sample catalog binding 不匹配")
+    _require(catalog.get("seed") == EXPECTED_SEED and catalog.get("total_samples") == EXPECTED_SAMPLE_COUNT, "T25 checkpoint seed/count 不匹配")
+    synthetic_checks = catalog.get("synthetic_rgb_preprocess_replays")
+    expected_synthetic_checks = context.get("_synthetic_replay_checks", [])
+    _require(len(expected_synthetic_checks) == 4 and synthetic_checks == expected_synthetic_checks, "T25 synthetic RGB/D2 replay binding 不匹配")
+    _require(index.get("run_log_path") == "report/evidence/S2A-T25/run.log", "T25 checkpoint run log path 不匹配")
+    network = index.get("network", {})
+    expected_operator_counts = context["t22"]["network_dispatch"]["operator_counts"]
+    _require(network.get("layer_count") == EXPECTED_LAYER_COUNT, "T25 checkpoint 网络层数不为 38")
+    _require(network.get("operator_counts") == expected_operator_counts, "T25 checkpoint operator counts 不匹配")
+    _require(network.get("unique_output_raw_bytes_per_sample") == EXPECTED_UNIQUE_OUTPUT_BYTES, "T25 checkpoint per-sample byte count 不匹配")
+    _require(
+        network.get("completed_unique_output_raw_bytes") == catalog.get("completed_samples") * EXPECTED_UNIQUE_OUTPUT_BYTES,
+        "T25 checkpoint completed raw byte count 不匹配",
+    )
+    validate_t25_index_status(index)
+
+    _require(output_dir.is_dir() and not output_dir.is_symlink(), "T25 output directory 缺失或不是普通目录")
+    index_path = output_dir / T25_INDEX_NAME
+    log_path = output_dir / T25_LOG_NAME
+    tensor_dir = output_dir / "tensors"
+    _require(index_path.is_file() and not index_path.is_symlink(), "T25 checkpoint 文件缺失或类型不合法")
+    _require(log_path.is_file() and not log_path.is_symlink(), "T25 run log 缺失或类型不合法")
+    _require(tensor_dir.is_dir() and not tensor_dir.is_symlink(), "T25 tensor 目录缺失或类型不合法")
+    expected_top = {T25_INDEX_NAME, T25_LOG_NAME, "tensors"}
+    _require({path.name for path in output_dir.iterdir()} == expected_top, "T25 输出目录含未绑定文件/临时文件")
+    try:
+        log_lines = log_path.read_text(encoding="utf-8").splitlines()
+        _require(bool(log_lines), "T25 run log 为空")
+        for line_number, line in enumerate(log_lines, start=1):
+            event = json.loads(line)
+            _require(isinstance(event, dict) and isinstance(event.get("event"), str), f"T25 run log 第 {line_number} 行 schema 无效")
+            _require(isinstance(event.get("time_utc8"), str), f"T25 run log 第 {line_number} 行缺少 UTC+8 时间")
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GoldenExportError("T25 run log 损坏或无法解析") from exc
+
+    records = index.get("samples")
+    completed = catalog["completed_samples"]
+    _require(isinstance(records, list) and len(records) == completed, "T25 checkpoint rows 与 completed count 不一致")
+    expected_shards = {f"sample_{i:03d}.zlib" for i in range(completed)}
+    _require({path.name for path in tensor_dir.iterdir()} == expected_shards, "T25 tensor 目录有缺失或冲突 shard")
+    for expected_index, record in enumerate(records):
+        _validate_t25_sample_record(context, output_dir, record, expected_index)
+    return records
+
+
+def _append_t25_checkpoint_sample(
+    context: dict[str, Any], output_dir: Path, records: list[dict[str, Any]], pilot: dict[str, Any]
+) -> dict[str, Any]:
+    """先原子创建一个 shard，再原子提交包含该样本的 checkpoint。"""
+    sample_index = int(pilot["sample_index"])
+    _require(sample_index == len(records), "T25 新样本 index 非连续")
+    shard_rel = f"report/evidence/S2A-T25/tensors/sample_{sample_index:03d}.zlib"
+    shard_path = output_dir / "tensors" / f"sample_{sample_index:03d}.zlib"
+    atomic_create_shard(shard_path, pilot["compressed_stream"])
+    record = _t25_sample_record(pilot, shard_rel)
+    updated_records = [*records, record]
+    index = build_t25_index(context, updated_records)
+    _validate_t25_sample_record(context, output_dir, record, sample_index)
+    atomic_write_checkpoint(output_dir / T25_INDEX_NAME, index)
+    return index
+
+
+def _load_t25_checkpoint(context: dict[str, Any], output_dir: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """读取并完整校验可恢复 checkpoint。"""
+    index_path = output_dir / T25_INDEX_NAME
+    _require(index_path.is_file() and not index_path.is_symlink(), "--resume 需要已有普通 checkpoint 文件")
+    try:
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise GoldenExportError("T25 checkpoint 无法解析，拒绝覆盖或恢复") from exc
+    records = validate_t25_checkpoint(context, output_dir, index)
+    return index, records
+
+
+def _execute_t25(
+    context: dict[str, Any],
+    target_dir: Path,
+    resume: bool,
+    max_sample_seconds: float,
+    max_total_seconds: float,
+    sample_runner: Any = run_sample_pilot,
+    started_total: float | None = None,
+) -> dict[str, Any]:
+    """执行 checkpoint 状态机；sample_runner 仅用于隔离的持久化测试。"""
+    _require(max_sample_seconds > 0 and max_total_seconds > 0, "T25 timeout 必须为正")
+    if started_total is None:
+        started_total = time.monotonic()
+    synthetic_checks = verify_synthetic_replay(context)
+    context["_synthetic_replay_checks"] = synthetic_checks
+    if resume:
+        _require(target_dir.exists(), "--resume 指定的 T25 输出目录不存在")
+        index, records = _load_t25_checkpoint(context, target_dir)
+        if index["status"] == "COMPLETE":
+            print("S2A-T25 checkpoint 已验证为 COMPLETE 109/109；没有待运行样本。")
+            return index
+        _append_t25_log(target_dir / T25_LOG_NAME, {"event": "resume", "completed_samples": len(records)})
+    else:
+        _require(not target_dir.exists(), "T25 输出目录已存在；请用 --resume 验证后续跑，拒绝覆盖")
+        target_dir.mkdir()
+        (target_dir / "tensors").mkdir()
+        index = build_t25_index(context, [])
+        atomic_write_checkpoint(target_dir / T25_INDEX_NAME, index)
+        _append_t25_log(target_dir / T25_LOG_NAME, {"event": "start", "total_samples": EXPECTED_SAMPLE_COUNT}, create=True)
+        records = []
+
+    for sample_index in range(len(records), EXPECTED_SAMPLE_COUNT):
+        elapsed_total = time.monotonic() - started_total
+        _require(elapsed_total < max_total_seconds, f"T25 达到全程 {max_total_seconds:.0f}s 上限；checkpoint 保留在 {T25_INDEX_NAME}")
+        sample = context["samples"][sample_index]
+        try:
+            pilot = sample_runner(
+                context,
+                sample_index,
+                max_sample_seconds,
+                synthetic_checks=synthetic_checks,
+            )
+            index = _append_t25_checkpoint_sample(context, target_dir, records, pilot)
+        except BaseException as exc:
+            _append_t25_log(
+                target_dir / T25_LOG_NAME,
+                {"event": "failure", "sample_index": sample_index, "sample_id": sample["sample_id"], "error": str(exc)},
+            )
+            raise
+        records = index["samples"]
+        _append_t25_log(
+            target_dir / T25_LOG_NAME,
+            {
+                "event": "sample_checkpointed",
+                "sample_index": sample_index,
+                "sample_id": sample["sample_id"],
+                "completed_samples": len(records),
+                "compressed_bytes": index["samples"][-1]["network"]["compressed_shard"]["compressed_bytes"],
+                "elapsed_seconds": index["samples"][-1]["elapsed_seconds"],
+                "status": index["status"],
+            },
+        )
+        print(
+            f"T25 checkpoint {len(records)}/{EXPECTED_SAMPLE_COUNT}: {sample['sample_id']} "
+            f"sample_seconds={pilot['elapsed_seconds']:.2f} total_seconds={time.monotonic()-started_total:.1f}",
+            flush=True,
+        )
+    final_index, final_records = _load_t25_checkpoint(context, target_dir)
+    _require(len(final_records) == EXPECTED_SAMPLE_COUNT and final_index["status"] == "COMPLETE", "T25 结束时未达到 COMPLETE 109/109")
+    _append_t25_log(target_dir / T25_LOG_NAME, {"event": "complete", "completed_samples": len(final_records)})
+    return final_index
+
+
+def write_t25(
+    repo_root: Path,
+    output_dir: Path,
+    resume: bool = False,
+    max_sample_seconds: float = 600.0,
+    max_total_seconds: float = 7200.0,
+) -> dict[str, Any]:
+    """执行或续跑全 109 样本，并在每个样本后原子保存 checkpoint。"""
+    started_total = time.monotonic()
+    root = repo_root.resolve()
+    target_dir = output_dir if output_dir.is_absolute() else root / output_dir
+    target_dir = target_dir.resolve()
+    expected_dir = (root / "report" / "evidence" / "S2A-T25").resolve()
+    _require(target_dir == expected_dir, "T25 输出目录必须精确为 report/evidence/S2A-T25")
+    _require(target_dir.parent.is_dir(), "T25 输出父目录不存在")
+    context = load_context(root)
+    return _execute_t25(
+        context,
+        target_dir,
+        resume=resume,
+        max_sample_seconds=max_sample_seconds,
+        max_total_seconds=max_total_seconds,
+        started_total=started_total,
+    )
+
+
 def write_pilot(repo_root: Path, output_dir: Path, max_seconds: float = 600.0) -> dict[str, Any]:
     """执行 sample0 pilot，校验完成后只创建指定 evidence 目录中的 index/shard。"""
     root = repo_root.resolve()
@@ -926,16 +1439,36 @@ def write_pilot(repo_root: Path, output_dir: Path, max_seconds: float = 600.0) -
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="生成 sample0 的 tiny416 CPU 逐层整数张量 pilot")
+    parser = argparse.ArgumentParser(description="生成 tiny416 CPU 逐层整数张量 pilot 或 T25 全样本证据")
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--max-seconds", type=float, default=600.0)
+    parser.add_argument("--all-samples", action="store_true", help="执行固定清单全部109个样本并逐项checkpoint")
+    parser.add_argument("--resume", action="store_true", help="校验已有 T25 checkpoint/shard 后跳过已完成样本")
+    parser.add_argument("--max-total-seconds", type=float, default=7200.0)
     args = parser.parse_args(argv)
     started = time.monotonic()
+    if args.resume and not args.all_samples:
+        parser.error("--resume 只能与 --all-samples 一起使用")
     try:
+        if args.all_samples:
+            index = write_t25(
+                args.repo_root,
+                args.output_dir,
+                resume=args.resume,
+                max_sample_seconds=args.max_seconds,
+                max_total_seconds=args.max_total_seconds,
+            )
+            print(
+                f"S2A-T25 {index['status']}: "
+                f"{index['fixed_sample_catalog']['completed_samples']}/{EXPECTED_SAMPLE_COUNT} samples "
+                f"elapsed_seconds={time.monotonic()-started:.3f}"
+            )
+            return 0
         index = write_pilot(args.repo_root, args.output_dir, args.max_seconds)
     except (GoldenExportError, OSError, ValueError, OverflowError, ImportError, AssertionError) as exc:
-        print(f"S2A-T24 pilot error: {exc}", file=sys.stderr)
+        task = "T25" if args.all_samples else "T24"
+        print(f"S2A-{task} exporter error: {exc}", file=sys.stderr)
         return 2
     pilot = index["pilot_sample"]
     network = index["network"]

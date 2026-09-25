@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import copy
+import contextlib
 import hashlib
+import io
 import unittest
+import tempfile
 import zlib
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -20,6 +24,66 @@ class CpuLayerGoldenTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.context = goldens.load_context(ROOT)
+        cls.context["_synthetic_replay_checks"] = goldens.verify_synthetic_replay(cls.context)
+
+    def _make_zero_pilot(self, sample_index: int) -> dict[str, object]:
+        sample = self.context["samples"][sample_index]
+        contract_rows = self.context["t22"]["network_dispatch"]["layers"]
+        captures = []
+        for layer_index, contract_row in enumerate(contract_rows):
+            output = contract_row["output_tensor"]
+            captures.append(
+                {
+                    "layer_index": layer_index,
+                    "op": contract_row["op"],
+                    "shape_nchw": output["shape_nchw"],
+                    "scale": output["scale"],
+                    "raw_bytes": bytes(output["length_bytes"]),
+                }
+            )
+        raw_stream, compressed, tensor_rows = goldens.serialize_tensor_stream(captures, contract_rows)
+        conv_stats = [
+            {
+                "layer_index": row["layer_index"],
+                "int32_overflow_count": 0,
+                "raw_accumulator_int32_overflow_count": 0,
+                "bias_accumulator_int32_overflow_count": 0,
+                "accumulator_with_bias_int32_overflow_count": 0,
+            }
+            for row in self.context["manifest"]["layers"]
+            if row["op"] == "convolutional"
+        ]
+        return {
+            "sample_index": sample_index,
+            "sample": sample,
+            "image_path": None,
+            "label_path": None,
+            "image_sha256": sample.get("image_sha256", sample.get("rgb_sha256")),
+            "label_sha256": sample.get("label_sha256"),
+            "rgb_shape_hwc": [sample["height"], sample["width"], 3],
+            "input_raw_bytes": 519168,
+            "input_sha256": sample["pl_input_sha256"],
+            "synthetic_checks": [],
+            "raw_stream": raw_stream,
+            "compressed_stream": compressed,
+            "tensor_rows": tensor_rows,
+            "convolution_stats": conv_stats,
+            "elapsed_seconds": 0.001,
+        }
+
+    def _create_t25_test_checkpoint(self, output_dir: Path, completed: int = 1) -> dict[str, object]:
+        output_dir.mkdir()
+        tensor_dir = output_dir / "tensors"
+        tensor_dir.mkdir()
+        goldens._append_t25_log(output_dir / goldens.T25_LOG_NAME, {"event": "test"}, create=True)
+        records = []
+        index = goldens.build_t25_index(self.context, records)
+        goldens.atomic_write_checkpoint(output_dir / goldens.T25_INDEX_NAME, index)
+        for sample_index in range(completed):
+            pilot = self._make_zero_pilot(sample_index)
+            index = goldens._append_t25_checkpoint_sample(self.context, output_dir, records, pilot)
+            records = index["samples"]
+        return index
 
     def test_source_pin_mutation_and_omission_fail_closed(self) -> None:
         mutated = copy.deepcopy(self.context["source_bindings"])
@@ -174,6 +238,87 @@ class CpuLayerGoldenTests(unittest.TestCase):
         mutated["stage_acceptance"]["G5"] = "PASS"
         with self.assertRaises(goldens.GoldenExportError):
             goldens.validate_pilot_index(mutated)
+
+    def test_t25_checkpoint_resume_skips_completed_and_completes_only_at_109(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="s2a_t25_resume_") as temporary:
+            output_dir = Path(temporary) / "output"
+            initial = self._create_t25_test_checkpoint(output_dir, completed=1)
+            self.assertEqual(initial["status"], "IN_PROGRESS")
+            loaded, records = goldens._load_t25_checkpoint(self.context, output_dir)
+            self.assertEqual(loaded["fixed_sample_catalog"]["completed_samples"], 1)
+            self.assertEqual([row["sample_index"] for row in records], [0])
+
+            called = []
+
+            def fake_runner(context, sample_index, max_seconds, synthetic_checks=None):
+                called.append(sample_index)
+                return self._make_zero_pilot(sample_index)
+
+            with mock.patch.object(
+                goldens,
+                "_append_t25_checkpoint_sample",
+                wraps=goldens._append_t25_checkpoint_sample,
+            ) as checkpoint_writer:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    result = goldens._execute_t25(
+                        self.context,
+                        output_dir,
+                        resume=True,
+                        max_sample_seconds=600.0,
+                        max_total_seconds=7200.0,
+                        sample_runner=fake_runner,
+                    )
+            self.assertEqual(called, list(range(1, goldens.EXPECTED_SAMPLE_COUNT)))
+            self.assertEqual(checkpoint_writer.call_count, goldens.EXPECTED_SAMPLE_COUNT - 1)
+            self.assertEqual(result["status"], "COMPLETE")
+            self.assertEqual(result["fixed_sample_catalog"]["completed_samples"], 109)
+            goldens.validate_t25_index_status(result)
+            validated, complete_records = goldens._load_t25_checkpoint(self.context, output_dir)
+            self.assertEqual(validated["status"], "COMPLETE")
+            self.assertEqual(len(complete_records), 109)
+
+    def test_t25_rejects_corrupt_or_unindexed_shard_and_preserves_existing_bytes(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="s2a_t25_corrupt_") as temporary:
+            output_dir = Path(temporary) / "corrupt"
+            self._create_t25_test_checkpoint(output_dir, completed=1)
+            shard = output_dir / "tensors" / "sample_000.zlib"
+            original = shard.read_bytes()
+            with self.assertRaises(goldens.GoldenExportError):
+                goldens.atomic_create_shard(shard, b"replacement")
+            self.assertEqual(shard.read_bytes(), original)
+            goldens._load_t25_checkpoint(self.context, output_dir)
+            shard.write_bytes(b"corrupt")
+            with self.assertRaises(goldens.GoldenExportError):
+                goldens._load_t25_checkpoint(self.context, output_dir)
+
+        with tempfile.TemporaryDirectory(prefix="s2a_t25_conflict_") as temporary:
+            output_dir = Path(temporary) / "conflict"
+            self._create_t25_test_checkpoint(output_dir, completed=1)
+            (output_dir / "tensors" / "sample_001.zlib").write_bytes(b"orphan")
+            with self.assertRaises(goldens.GoldenExportError):
+                goldens._load_t25_checkpoint(self.context, output_dir)
+
+    def test_t25_status_gate_and_source_binding_mutations_fail_closed(self) -> None:
+        incomplete = goldens.build_t25_index(self.context, [{"sample_index": i} for i in range(108)])
+        self.assertEqual(incomplete["status"], "IN_PROGRESS")
+        goldens.validate_t25_index_status(incomplete)
+        complete = goldens.build_t25_index(self.context, [{"sample_index": i} for i in range(109)])
+        self.assertEqual(complete["status"], "COMPLETE")
+        goldens.validate_t25_index_status(complete)
+        invalid = copy.deepcopy(incomplete)
+        invalid["status"] = "COMPLETE"
+        with self.assertRaises(goldens.GoldenExportError):
+            goldens.validate_t25_index_status(invalid)
+
+        with tempfile.TemporaryDirectory(prefix="s2a_t25_binding_") as temporary:
+            output_dir = Path(temporary) / "output"
+            self._create_t25_test_checkpoint(output_dir, completed=1)
+            index_path = output_dir / goldens.T25_INDEX_NAME
+            index = goldens.json.loads(index_path.read_text(encoding="utf-8"))
+            index["tooling_bindings"][0]["sha256"] = "0" * 64
+            goldens.atomic_write_checkpoint(index_path, index)
+            with self.assertRaises(goldens.GoldenExportError):
+                goldens._load_t25_checkpoint(self.context, output_dir)
 
 
 if __name__ == "__main__":

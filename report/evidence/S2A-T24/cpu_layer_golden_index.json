@@ -1,0 +1,1193 @@
+{
+  "schema_version": "gestureforge_s2a_cpu_layer_golden_index_v1",
+  "task_id": "S2A-T24",
+  "status": "PILOT_ONLY",
+  "model_id": "tiny416",
+  "stage_acceptance": {
+    "G4": "NOT_MET",
+    "G5": "NOT_MET"
+  },
+  "runtime": {
+    "python": "3.12.10",
+    "numpy": "2.4.6",
+    "opencv": "4.13.0"
+  },
+  "source_bindings": [
+    {
+      "role": "repo:docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "role": "repo:report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "role": "repo:report/evidence/S2A-T01/fixed_test_samples.json",
+      "path": "report/evidence/S2A-T01/fixed_test_samples.json",
+      "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed"
+    },
+    {
+      "role": "repo:verification/s1_t02_d2_numeric_reference.py",
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90"
+    },
+    {
+      "role": "repo:verification/s1_t02_d2_int8_forward.py",
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
+    },
+    {
+      "role": "repo:verification/s1_t02_d2_int8_weight_reference.py",
+      "path": "verification/s1_t02_d2_int8_weight_reference.py",
+      "sha256": "c7e6c5282c7b9c24bc6cc82b9d84f7578d6d6d45670cd23a6425cc52382dc196"
+    },
+    {
+      "role": "repo:verification/s2a_model_delivery.py",
+      "path": "verification/s2a_model_delivery.py",
+      "sha256": "4831fff0e8ebb189ac9767ae423ad8d5268fc5bee5e333cc2a132112ccfdaab8"
+    },
+    {
+      "role": "repo:report/evidence/S2A-T22/network_dispatch_contract_validation.json",
+      "path": "report/evidence/S2A-T22/network_dispatch_contract_validation.json",
+      "sha256": "611d47cc85bd254474c5412fcab2f8acce3a263138787588f2a6445eac61d9a8"
+    },
+    {
+      "role": "repo:verification/s2a_conv_requant_table.py",
+      "path": "verification/s2a_conv_requant_table.py",
+      "sha256": "aa45f5e4ef88c00ac83ce92684449c79d4060c39d3bf5dec2942e355330b86f8"
+    },
+    {
+      "role": "repo:verification/test_s2a_conv_requant_table.py",
+      "path": "verification/test_s2a_conv_requant_table.py",
+      "sha256": "2cc8d2fd4387372eeccee4b823d0ed215a87ffa5a407df9ea761e6463e382985"
+    },
+    {
+      "role": "repo:report/evidence/S2A-T23/conv_requant_parameter_table.json",
+      "path": "report/evidence/S2A-T23/conv_requant_parameter_table.json",
+      "sha256": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1"
+    },
+    {
+      "role": "frozen_cfg",
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+      "sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376"
+    },
+    {
+      "role": "frozen_darknet_weights",
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+      "sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a"
+    },
+    {
+      "role": "frozen_gf8_parameter_package",
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+      "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+    },
+    {
+      "role": "official_test_manifest",
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+      "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
+    }
+  ],
+  "tooling_bindings": [
+    {
+      "role": "t24_exporter",
+      "path": "verification/s2a_cpu_layer_goldens.py",
+      "sha256": "c51ed77d2f5bd48da973d86338bd1d00abb984af493a0938dd11beba9d6fea80"
+    },
+    {
+      "role": "t24_test",
+      "path": "verification/test_s2a_cpu_layer_goldens.py",
+      "sha256": "13c2e986fce110e96e5d389cf28848670795d6b13b78ab4fed1152838a2220ab"
+    }
+  ],
+  "fixed_sample_catalog": {
+    "path": "report/evidence/S2A-T01/fixed_test_samples.json",
+    "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+    "total_samples": 109,
+    "seed": 20260922,
+    "catalog_rows_structurally_validated": 109,
+    "completed_samples": 1,
+    "remaining_samples": 108,
+    "synthetic_rgb_preprocess_replays": [
+      {
+        "sample_id": "synthetic_black",
+        "rgb_sha256": "9ba3c3abe62d70c07a6c910efd20d18a7eef671ca547a9f91ee86eec32f797ca",
+        "pl_input_sha256": "9ba3c3abe62d70c07a6c910efd20d18a7eef671ca547a9f91ee86eec32f797ca"
+      },
+      {
+        "sample_id": "synthetic_white",
+        "rgb_sha256": "0546864f1b8bd24c89e50833edd3acff3d1676faa2de3ef2c516c3cba29671f2",
+        "pl_input_sha256": "53c453bc850c8132e526f90bec2da831bfdaf189b514b56c08d4a52239f864f5"
+      },
+      {
+        "sample_id": "synthetic_checkerboard",
+        "rgb_sha256": "70ca1d9eeca8456d9d9075016f66d793bb799aba3e94a1bf903f7b9412909067",
+        "pl_input_sha256": "9c831f91e6a36f5e445fed2ed6fb6c48892b496ff55a46aaf863448a197c32c4"
+      },
+      {
+        "sample_id": "synthetic_xorshift32",
+        "rgb_sha256": "a16de725516edb4b63eb14bc31a0e62d0cb8be372976cf2c708cbb8940448a24",
+        "pl_input_sha256": "5c249ce0d873be6dd422385ad7ffdb0c144e9e453f4cd922a68d3f9375c64ebe"
+      }
+    ]
+  },
+  "network": {
+    "layer_count": 38,
+    "operator_counts": {
+      "convolutional": 21,
+      "route": 11,
+      "maxpool": 3,
+      "yolo": 2,
+      "upsample": 1
+    },
+    "non_alias_tensor_count": 36,
+    "unique_output_raw_bytes": 11382150,
+    "raw_stream_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80",
+    "compressed_shard": {
+      "path": "report/evidence/S2A-T24/tensors/sample_000.zlib",
+      "codec": "zlib",
+      "compression_level": 9,
+      "zlib_version": "1.3.1",
+      "compressed_bytes": 4189605,
+      "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+      "decompressed_bytes": 11382150,
+      "decompressed_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80"
+    },
+    "tensors": [
+      {
+        "layer_index": 0,
+        "cfg_section": 1,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          32,
+          208,
+          208
+        ],
+        "scale": 0.3911532004048505,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 0,
+        "byte_length": 1384448,
+        "tensor_sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 1,
+        "cfg_section": 2,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "scale": 0.7598943034494956,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 1384448,
+        "byte_length": 692224,
+        "tensor_sha256": "8c2f7e83293f127e2cab0a5425c2f509a9d449cf1dcfae6a4e6e8ed01fabfd57",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 2,
+        "cfg_section": 3,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "scale": 0.4523776797797736,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 2076672,
+        "byte_length": 692224,
+        "tensor_sha256": "b63e6a0e557e8bc85f3a3aa18925832f8975be12a5822616ea480a6ddf42b376",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 3,
+        "cfg_section": 4,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "scale": 0.4523776797797736,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 2768896,
+        "byte_length": 346112,
+        "tensor_sha256": "133de1b2ee43dce9c133ed99aadc2492df813559474178267375acbde3616063",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 4,
+        "cfg_section": 5,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "scale": 0.23944492790642685,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 3115008,
+        "byte_length": 346112,
+        "tensor_sha256": "da6d7b965adbd2158132c21bb68fa22d8887882077da8b297282f613e26eb575",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 5,
+        "cfg_section": 6,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "scale": 0.2902672234482653,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 3461120,
+        "byte_length": 346112,
+        "tensor_sha256": "577ffda876fbac6e4c34c6ae07697dc1e707de07bafc978044bec4e2f16b0c9e",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 6,
+        "cfg_section": 7,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "scale": 0.2902672234482653,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 3807232,
+        "byte_length": 692224,
+        "tensor_sha256": "186152265eedf5073afc0533975a2448849a0252d71fa68e2707530a94509882",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 7,
+        "cfg_section": 8,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "scale": 0.22739090506486068,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 4499456,
+        "byte_length": 692224,
+        "tensor_sha256": "b2c81887d86d368c7a4b6ae500b5bebf8d02425c4c30fa485c804bcf37692fc7",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 8,
+        "cfg_section": 9,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          128,
+          104,
+          104
+        ],
+        "scale": 0.4523776797797736,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 5191680,
+        "byte_length": 1384448,
+        "tensor_sha256": "8bac14682a3454fae6729201984cafac29d9167ce38b4dd4c6f10f4e829340f6",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 9,
+        "cfg_section": 10,
+        "op": "maxpool",
+        "shape_nchw": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "scale": 0.4523776797797736,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 6576128,
+        "byte_length": 346112,
+        "tensor_sha256": "826e8804b4faeb80819162ee3cb6ab999163e31941df3253714d672f520594d4",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 10,
+        "cfg_section": 11,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "scale": 0.1863622440127876,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 6922240,
+        "byte_length": 346112,
+        "tensor_sha256": "e8e9d530637e1b9c999d85cf06f945e5e2ce4df084ba6a3599678bada407c03b",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 11,
+        "cfg_section": 12,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "scale": 0.1863622440127876,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 7268352,
+        "byte_length": 173056,
+        "tensor_sha256": "a420e149534791a5ee6599f842d367594e282359db6b8b11ba0e415d95fb1691",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 12,
+        "cfg_section": 13,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "scale": 0.20356996791569268,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 7441408,
+        "byte_length": 173056,
+        "tensor_sha256": "bf6429bb56a90a9db5b2ab05c1b6df1d8112c8048ae73deb317bfddf974375f1",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 13,
+        "cfg_section": 14,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "scale": 0.23749109703724777,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 7614464,
+        "byte_length": 173056,
+        "tensor_sha256": "025b96363b9c5adc4840b20ab9a09be18c9e34bf7bbbeb862701b15f785ef53b",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 14,
+        "cfg_section": 15,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "scale": 0.23749109703724777,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 7787520,
+        "byte_length": 346112,
+        "tensor_sha256": "fd09cded53b71728c7e85155de70225839924eece3a7ffdec6d946e07b1d6394",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 15,
+        "cfg_section": 16,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "scale": 0.22726632666400098,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 8133632,
+        "byte_length": 346112,
+        "tensor_sha256": "236ce24b5279b7f6f2dd149ebda5fe00fa793edff65320db2c5a978d705fec6b",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 16,
+        "cfg_section": 17,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          256,
+          52,
+          52
+        ],
+        "scale": 0.22726632666400098,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 8479744,
+        "byte_length": 692224,
+        "tensor_sha256": "2e743f7e4d613d146ebd4bf497a9b9c8cbd8d9eb0d28cda12aaa3ae730999071",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 17,
+        "cfg_section": 18,
+        "op": "maxpool",
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "scale": 0.22726632666400098,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9171968,
+        "byte_length": 173056,
+        "tensor_sha256": "76dc331748d1379c197a355a769324cf27f4c013753b534b4e658a941801ca12",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 18,
+        "cfg_section": 19,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "scale": 0.21066082931879,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9345024,
+        "byte_length": 173056,
+        "tensor_sha256": "ed234a6a4e180dcac70678f956706cb42d74be09ba3ffdac198bcbbdb4019d31",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 19,
+        "cfg_section": 20,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "scale": 0.21066082931879,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9518080,
+        "byte_length": 86528,
+        "tensor_sha256": "927f7a4a87453be8e8dc7b59c574828322020cb7f5d45b18e982578cc5a40c1e",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 20,
+        "cfg_section": 21,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "scale": 0.2524653457281158,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9604608,
+        "byte_length": 86528,
+        "tensor_sha256": "cae163bcd856e39adc1f0ab9e42b2ce94a0e67d89d4800a79251c75ff9012903",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 21,
+        "cfg_section": 22,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "scale": 0.2236869992233637,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9691136,
+        "byte_length": 86528,
+        "tensor_sha256": "097c47a98764f4697b8ffcf6a92ac0eca5a899ce23551e0afaee743b988c665e",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 22,
+        "cfg_section": 23,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "scale": 0.2524653457281158,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9777664,
+        "byte_length": 173056,
+        "tensor_sha256": "a3fbc555c12db0b7834b36c48ce1906333f51ae7365c9a3a41d0704e585d83aa",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 23,
+        "cfg_section": 24,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "scale": 0.1594378704161156,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 9950720,
+        "byte_length": 173056,
+        "tensor_sha256": "5bd1d4ece8700156de5d05bccee8fbd532a838d48cee9b36566dee0bd9d62cce",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 24,
+        "cfg_section": 25,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          512,
+          26,
+          26
+        ],
+        "scale": 0.21066082931879,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10123776,
+        "byte_length": 346112,
+        "tensor_sha256": "172e20542594a5ce569ca7ddf999d69e795bc2d6544df0ce2b5a3ca705968c6b",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 25,
+        "cfg_section": 26,
+        "op": "maxpool",
+        "shape_nchw": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "scale": 0.21066082931879,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10469888,
+        "byte_length": 86528,
+        "tensor_sha256": "4cff869804fda23afdf325a3705b136ab1552a834add643d3e2f710e1f97b979",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 26,
+        "cfg_section": 27,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "scale": 0.1386124918779989,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10556416,
+        "byte_length": 86528,
+        "tensor_sha256": "520943e4a2762b29669e1078794de8566475049ba3fffb3f45e572c8e97c3d7d",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 27,
+        "cfg_section": 28,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "scale": 0.1441637174351009,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10642944,
+        "byte_length": 43264,
+        "tensor_sha256": "6c80f38e70436d3695e459d0c413c6ce0062c5f66ee9abf5fef611027bbe38d1",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 28,
+        "cfg_section": 29,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "scale": 0.19839907067967213,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10686208,
+        "byte_length": 86528,
+        "tensor_sha256": "3d0de8dfee5836126b46fdc8a6861518c4d4a52f683422ef17334d80e7697f5c",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 29,
+        "cfg_section": 30,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "scale": 0.24267549589862975,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10772736,
+        "byte_length": 5070,
+        "tensor_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 30,
+        "cfg_section": 31,
+        "op": "yolo",
+        "shape_nchw": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "scale": 0.24267549589862975,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10772736,
+        "byte_length": 5070,
+        "tensor_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+        "stored": false,
+        "alias_of_layer_index": 29
+      },
+      {
+        "layer_index": 31,
+        "cfg_section": 32,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "scale": 0.1441637174351009,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10777806,
+        "byte_length": 43264,
+        "tensor_sha256": "6c80f38e70436d3695e459d0c413c6ce0062c5f66ee9abf5fef611027bbe38d1",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 32,
+        "cfg_section": 33,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          128,
+          13,
+          13
+        ],
+        "scale": 0.145512708528774,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10821070,
+        "byte_length": 21632,
+        "tensor_sha256": "ec21f09681cbd8e39ee1ef1d076f5c5cf1180069a69278e9d0a83ac4b47989f6",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 33,
+        "cfg_section": 34,
+        "op": "upsample",
+        "shape_nchw": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "scale": 0.145512708528774,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10842702,
+        "byte_length": 86528,
+        "tensor_sha256": "f729b5b575a331ebc9c634efd9700efd752c419a62062e2fbd2cc7099a8e153b",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 34,
+        "cfg_section": 35,
+        "op": "route",
+        "shape_nchw": [
+          1,
+          384,
+          26,
+          26
+        ],
+        "scale": 0.1594378704161156,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 10929230,
+        "byte_length": 259584,
+        "tensor_sha256": "82b74ae418917e10d623ab0509ec6a023779d5588c442f9862d271ff18d433d3",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 35,
+        "cfg_section": 36,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "scale": 0.12693486251230315,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 11188814,
+        "byte_length": 173056,
+        "tensor_sha256": "9fa8b5661e934da173635fa0cc462cedffce13279130ff78750555c0f358d979",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 36,
+        "cfg_section": 37,
+        "op": "convolutional",
+        "shape_nchw": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "scale": 0.30223452951025775,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 11361870,
+        "byte_length": 20280,
+        "tensor_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+        "stored": true,
+        "alias_of_layer_index": null
+      },
+      {
+        "layer_index": 37,
+        "cfg_section": 38,
+        "op": "yolo",
+        "shape_nchw": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "scale": 0.30223452951025775,
+        "element_type": "int8_twos_complement",
+        "byte_offset": 11361870,
+        "byte_length": 20280,
+        "tensor_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+        "stored": false,
+        "alias_of_layer_index": 36
+      }
+    ],
+    "convolution_stats": [
+      {
+        "layer_index": 0,
+        "input_scale": 0.007874015748031496,
+        "output_scale": 0.3911532004048505,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -156873,
+        "raw_accumulator_max": 88109,
+        "accumulator_with_bias_min": -82853,
+        "accumulator_with_bias_max": 103544,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 1,
+        "input_scale": 0.3911532004048505,
+        "output_scale": 0.7598943034494956,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -44702,
+        "raw_accumulator_max": 45780,
+        "accumulator_with_bias_min": -44109,
+        "accumulator_with_bias_max": 36220,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 2,
+        "input_scale": 0.7598943034494956,
+        "output_scale": 0.4523776797797736,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -23607,
+        "raw_accumulator_max": 16278,
+        "accumulator_with_bias_min": -22506,
+        "accumulator_with_bias_max": 18097,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 4,
+        "input_scale": 0.4523776797797736,
+        "output_scale": 0.23944492790642685,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -21060,
+        "raw_accumulator_max": 14371,
+        "accumulator_with_bias_min": -17273,
+        "accumulator_with_bias_max": 11405,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 5,
+        "input_scale": 0.23944492790642685,
+        "output_scale": 0.2902672234482653,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -39783,
+        "raw_accumulator_max": 54748,
+        "accumulator_with_bias_min": -35926,
+        "accumulator_with_bias_max": 40440,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 7,
+        "input_scale": 0.2902672234482653,
+        "output_scale": 0.22739090506486068,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -26305,
+        "raw_accumulator_max": 13713,
+        "accumulator_with_bias_min": -24808,
+        "accumulator_with_bias_max": 13594,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 10,
+        "input_scale": 0.4523776797797736,
+        "output_scale": 0.1863622440127876,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -42494,
+        "raw_accumulator_max": 27246,
+        "accumulator_with_bias_min": -36501,
+        "accumulator_with_bias_max": 28331,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 12,
+        "input_scale": 0.1863622440127876,
+        "output_scale": 0.20356996791569268,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -34936,
+        "raw_accumulator_max": 42171,
+        "accumulator_with_bias_min": -26911,
+        "accumulator_with_bias_max": 39674,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 13,
+        "input_scale": 0.20356996791569268,
+        "output_scale": 0.23749109703724777,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -46663,
+        "raw_accumulator_max": 67527,
+        "accumulator_with_bias_min": -41516,
+        "accumulator_with_bias_max": 42725,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 15,
+        "input_scale": 0.23749109703724777,
+        "output_scale": 0.22726632666400098,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -30888,
+        "raw_accumulator_max": 16785,
+        "accumulator_with_bias_min": -28231,
+        "accumulator_with_bias_max": 13236,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 18,
+        "input_scale": 0.22726632666400098,
+        "output_scale": 0.21066082931879,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -59289,
+        "raw_accumulator_max": 61585,
+        "accumulator_with_bias_min": -62091,
+        "accumulator_with_bias_max": 61543,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 20,
+        "input_scale": 0.21066082931879,
+        "output_scale": 0.2524653457281158,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -21977,
+        "raw_accumulator_max": 16887,
+        "accumulator_with_bias_min": -18078,
+        "accumulator_with_bias_max": 18604,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 21,
+        "input_scale": 0.2524653457281158,
+        "output_scale": 0.2236869992233637,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -27156,
+        "raw_accumulator_max": 28096,
+        "accumulator_with_bias_min": -28133,
+        "accumulator_with_bias_max": 24477,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 23,
+        "input_scale": 0.2524653457281158,
+        "output_scale": 0.1594378704161156,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -14718,
+        "raw_accumulator_max": 15718,
+        "accumulator_with_bias_min": -15506,
+        "accumulator_with_bias_max": 12518,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 26,
+        "input_scale": 0.21066082931879,
+        "output_scale": 0.1386124918779989,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -85241,
+        "raw_accumulator_max": 65776,
+        "accumulator_with_bias_min": -95776,
+        "accumulator_with_bias_max": 62848,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 27,
+        "input_scale": 0.1386124918779989,
+        "output_scale": 0.1441637174351009,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -26671,
+        "raw_accumulator_max": 29719,
+        "accumulator_with_bias_min": -30877,
+        "accumulator_with_bias_max": 36511,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 28,
+        "input_scale": 0.1441637174351009,
+        "output_scale": 0.19839907067967213,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -38218,
+        "raw_accumulator_max": 40598,
+        "accumulator_with_bias_min": -36280,
+        "accumulator_with_bias_max": 29407,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 29,
+        "input_scale": 0.19839907067967213,
+        "output_scale": 0.24267549589862975,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -53529,
+        "raw_accumulator_max": 22619,
+        "accumulator_with_bias_min": -53909,
+        "accumulator_with_bias_max": 22619,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 32,
+        "input_scale": 0.1441637174351009,
+        "output_scale": 0.145512708528774,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -26235,
+        "raw_accumulator_max": 23019,
+        "accumulator_with_bias_min": -22279,
+        "accumulator_with_bias_max": 22634,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 35,
+        "input_scale": 0.1594378704161156,
+        "output_scale": 0.12693486251230315,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -95709,
+        "raw_accumulator_max": 113747,
+        "accumulator_with_bias_min": -92361,
+        "accumulator_with_bias_max": 113252,
+        "saturated_count": 0
+      },
+      {
+        "layer_index": 36,
+        "input_scale": 0.12693486251230315,
+        "output_scale": 0.30223452951025775,
+        "raw_accumulator_int32_overflow_count": 0,
+        "bias_accumulator_int32_overflow_count": 0,
+        "accumulator_with_bias_int32_overflow_count": 0,
+        "int32_overflow_count": 0,
+        "raw_accumulator_min": -64525,
+        "raw_accumulator_max": 24931,
+        "accumulator_with_bias_min": -65816,
+        "accumulator_with_bias_max": 24950,
+        "saturated_count": 0
+      }
+    ]
+  },
+  "pilot_sample": {
+    "sample_index": 0,
+    "sample_id": "test_fist_000",
+    "frame_id": 0,
+    "source": "official_hagrid_test",
+    "original_image": {
+      "path": "dataset/fist/fist/c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+      "sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+      "width": 1440,
+      "height": 1920,
+      "rgb_shape_hwc": [
+        1920,
+        1440,
+        3
+      ]
+    },
+    "label": {
+      "path": "labels/test/fist/c39c0301-d0ed-4d34-97a0-84c93dd0f515.txt",
+      "sha256": "f2dcb6ad3be4c7b2451ac6c07af8807fc40e22a91be3b67de629d77bbaa7e1d0"
+    },
+    "preprocessed_input": {
+      "oracle_path": "verification/s1_t02_d2_numeric_reference.py",
+      "oracle_callable": "preprocess_rgb_uint8_to_chw_int8",
+      "shape_nchw": [
+        1,
+        3,
+        416,
+        416
+      ],
+      "dtype": "signed int8 two's complement",
+      "raw_bytes": 519168,
+      "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e"
+    },
+    "ground_truth_yolo": [
+      [
+        0,
+        0.29566005,
+        0.4056526,
+        0.11041148,
+        0.06810704
+      ]
+    ]
+  },
+  "limitations": {
+    "completed_fixed_samples": 1,
+    "pending_fixed_samples": 108,
+    "cpu_per_layer_goldens": "PILOT_ONLY",
+    "full_109_sample_run": "NOT_RUN",
+    "ps_decode_nms_comparison": "NOT_RUN",
+    "rtl_or_vivado": "NOT_RUN",
+    "G4": "NOT_MET",
+    "G5": "NOT_MET"
+  }
+}

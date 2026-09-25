@@ -1,0 +1,188 @@
+{
+  "schema_version": "gestureforge_s2a_t27_layer33_shell_child_v1",
+  "task_id": "S2A-T27",
+  "result": "PASS",
+  "mode": "FULL",
+  "scope": "单层 tiny416 layer33 shell-child pilot；不是通用38层 dispatcher，不代表 G4/G5",
+  "source_bindings": [
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "path": "report/evidence/S2A-T18/upsample_layer_scheduler_simulation.json",
+      "sha256": "0f2a4a81275ffa225babb78b767bfc42a597320308ef7b150af5f80fd6aac35d"
+    },
+    {
+      "path": "report/evidence/S2A-T22/network_dispatch_contract_validation.json",
+      "sha256": "611d47cc85bd254474c5412fcab2f8acce3a263138787588f2a6445eac61d9a8"
+    },
+    {
+      "path": "sim/s2a_memory_model.sv",
+      "sha256": "4db3a955e2bdf9007a6365fd2dd01e588c63e9e2cc7b270fc511d1f5a06f3ae2"
+    },
+    {
+      "path": "sim/tb_s2a_runtime_layer33_pilot.sv",
+      "sha256": "612de6f7f65d5a1e51579d7b4052b257e2a426b665309255ee14a098e6e19ad5"
+    },
+    {
+      "path": "sim/tb_s2a_upsample_layer_scheduler.sv",
+      "sha256": "ec15fd8a86a6c63e1a0ffa2fe4059c644cb61a78cd01f1ebef03901f917469de"
+    },
+    {
+      "path": "src/int8_upsample_query.sv",
+      "sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+    },
+    {
+      "path": "src/s2a_runtime_layer33_pilot.sv",
+      "sha256": "6c3a5fd7bb0d0351f01ecfd722da41532db0405c2405a141274e26aca6381c1d"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+    },
+    {
+      "path": "src/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b"
+    },
+    {
+      "path": "src/s2a_upsample_layer_scheduler.sv",
+      "sha256": "1473fd371c65658e105ff2ad575d523a98a53e5c5ebd8bb9f21ca33b61678bce"
+    },
+    {
+      "path": "verification/s2a_runtime_layer33_pilot.py",
+      "sha256": "3f53cd3a4a2137f3ae4ed316b62197823ae8f612bf0c53d98125ce7c8597a5ca"
+    },
+    {
+      "path": "verification/test_s2a_runtime_layer33_pilot_rtl.py",
+      "sha256": "8defc1fbcb8fc3c717997a71b836427e82df22f06dd4ead84ecb0036441fa542"
+    },
+    {
+      "path": "verification/test_s2a_upsample_layer_scheduler_rtl.py",
+      "sha256": "c8ddc62aae0a1da19379c600349de4380287afec85f82727828b0cd55ec5af1b"
+    }
+  ],
+  "layer33": {
+    "cfg_section": 34,
+    "input_address": 27598336,
+    "input_length_bytes": 21632,
+    "input_shape_nchw": [
+      1,
+      128,
+      13,
+      13
+    ],
+    "input_scale": 0.145512708528774,
+    "output_address": 27619968,
+    "output_length_bytes": 86528,
+    "output_shape_nchw": [
+      1,
+      128,
+      26,
+      26
+    ],
+    "output_scale": 0.145512708528774,
+    "stride": 2,
+    "layout": "NCHW",
+    "method": "nearest_repeat"
+  },
+  "golden": {
+    "input_byte_count": 21632,
+    "input_sha256": "e4a755bd4b0e34607c3d245adc640aaf427e1f6d2a25f1cd39a33fb9bb51abcb",
+    "output_byte_count": 86528,
+    "expected_output_sha256": "39d1494ec1dfa28846aebfd56bff2396c5610c60873c99cae6186d8f3ea4a9ab",
+    "observed_output_sha256": "39d1494ec1dfa28846aebfd56bff2396c5610c60873c99cae6186d8f3ea4a9ab",
+    "comparison": "逐项对 86,528 个 NCHW byte 与冻结 T10 initial_byte 输入及独立 nearest-repeat CPU oracle 比较"
+  },
+  "control_and_memory": {
+    "ps_visible_abi": "原样实例化冻结 G0 s2a_runtime_shell；CSR/register semantics 未修改",
+    "child_start": "单周期 G0 backend_start 驱动 layer33 scheduler start_valid",
+    "terminal_event": "child done/error 生成无 backpressure operator_result_valid；成功路径逐任务恰 1 个单周期事件",
+    "abort_equivalence": "child scheduler backend_cancel 与 G0 shell cancel_master 同为 hard_reset || backend_abort || 接受的 soft_reset",
+    "global_timeout": "由冻结 G0 CSR 单一 whole-task deadline 触发；不在 layer33 内重新计时",
+    "memory_master": "冻结 T12 单 outstanding master；memory stall request 字段由 T10 模型检查稳定"
+  },
+  "simulation": {
+    "summary": {
+      "layer33_bytes": 86528,
+      "reads": 86528,
+      "writes": 86528,
+      "terminal_events": 1,
+      "stalls": 449960,
+      "timeout_abort": 1,
+      "hard_reset_pending_write": 1,
+      "soft_reset_pending_write": 1,
+      "recovery": 1
+    },
+    "tool_versions": {
+      "xvlog": "Vivado Simulator v2026.1",
+      "xelab": "Vivado Simulator v2026.1",
+      "xsim": "Vivado Simulator v2026.1"
+    },
+    "phases": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0,
+        "elapsed_seconds": 2.453,
+        "log_file": "xvlog_command.log",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv D:\\FPGA_Competition\\src\\int8_upsample_query.sv D:\\FPGA_Competition\\src\\s2a_upsample_engine.sv D:\\FPGA_Competition\\src\\s2a_upsample_layer_scheduler.sv D:\\FPGA_Competition\\src\\s2a_control_csr.sv D:\\FPGA_Competition\\src\\s2a_memory_master.sv D:\\FPGA_Competition\\src\\s2a_runtime_shell.sv D:\\FPGA_Competition\\src\\s2a_runtime_layer33_pilot.sv D:\\FPGA_Competition\\sim\\s2a_memory_model.sv D:\\FPGA_Competition\\sim\\tb_s2a_runtime_layer33_pilot.sv",
+        "progress_checkpoints": []
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0,
+        "elapsed_seconds": 5.063,
+        "log_file": "xelab_command.log",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_runtime_layer33_pilot -snapshot s2a_runtime_layer33_pilot_snapshot",
+        "progress_checkpoints": []
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0,
+        "elapsed_seconds": 66.937,
+        "log_file": "xsim_command.log",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R s2a_runtime_layer33_pilot_snapshot",
+        "progress_checkpoints": [
+          "CHECK timeout abort=1 terminal_events=0 reads=3 writes=3",
+          "CHECK hard_reset pending_write=1 late_writes=0",
+          "CHECK soft_reset pending_write=1 late_writes=0",
+          "PROGRESS layer33 writes=8192 reads=8192",
+          "PROGRESS layer33 writes=16384 reads=16384",
+          "PROGRESS layer33 writes=24576 reads=24576",
+          "PROGRESS layer33 writes=32768 reads=32768",
+          "PROGRESS layer33 writes=40960 reads=40960",
+          "PROGRESS layer33 writes=49152 reads=49152",
+          "PROGRESS layer33 writes=57344 reads=57344",
+          "PROGRESS layer33 writes=65536 reads=65536",
+          "PROGRESS layer33 writes=73728 reads=73728",
+          "PROGRESS layer33 writes=81920 reads=81920",
+          "RESULT layer33_bytes=86528 reads=86528 writes=86528 terminal_events=1 stalls=449960 timeout_abort=1 hard_reset_pending_write=1 soft_reset_pending_write=1 recovery=1",
+          "PASS S2A-T27 G0 shell-child layer33 pilot"
+        ],
+        "no_progress_stop_seconds": 1800
+      }
+    ],
+    "memory_ranges_sha256": "8e90cbe86c762c856fe8c2eff6e7089730557f2560d09d9a76a6f37dd51b6e7f",
+    "memory_ranges_count": 36,
+    "temporary_log_directory_name": "s2a_t27_layer33_full_iqw__3ad",
+    "elapsed_seconds": 79.406,
+    "overall_timeout_seconds": 3600,
+    "no_progress_stop_seconds": 1800
+  },
+  "synthesis": "NOT_EXECUTED：此 pilot 不含综合检查或资源估算",
+  "board_validation": "NOT_APPLICABLE：未执行上板或实物操作",
+  "g4_status": "NOT_MET",
+  "g5_status": "NOT_MET"
+}

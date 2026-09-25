@@ -1,0 +1,165 @@
+{
+  "schema_version": "gestureforge_s2a_t18_upsample_layer_scheduler_v1",
+  "task": "S2A-T18",
+  "result": "PASS",
+  "mode": "FULL",
+  "base_commit": "0612eb80f1798bcbe8a0083e83fdecda5005f280",
+  "scope": "tiny416 layer33 整层 nearest-repeat 调度 pilot；不代表完整网络或阶段 G4/G5",
+  "bindings": {
+    "g0_spec_path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "t13_engine_path": "src/s2a_upsample_engine.sv",
+    "t13_query_path": "src/int8_upsample_query.sv",
+    "t13_evidence_path": "report/evidence/S2A-T13/upsample_simulation.json",
+    "t10_memory_model_path": "sim/s2a_memory_model.sv",
+    "t12_memory_master_path": "src/s2a_memory_master.sv",
+    "g0_spec_sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "t13_engine_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "t13_query_sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+    "t13_testbench_sha256": "bb2e9f83dd1a27f18d16538cd8cafd08c856e309fc5af53428e468e16fa43b9d",
+    "t13_runner_sha256": "86c3ebded47494d7683f94a0dc57c3f732352e7b33321b561b553d02690e391a",
+    "t13_evidence_sha256": "ee9c1c0cdd4500eac6398ef0eb0a893021aee3b66d4845e50930f7cfac15d04e",
+    "t12_memory_master_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "t10_memory_model_sha256": "4db3a955e2bdf9007a6365fd2dd01e588c63e9e2cc7b270fc511d1f5a06f3ae2",
+    "scheduler_rtl": "1473fd371c65658e105ff2ad575d523a98a53e5c5ebd8bb9f21ca33b61678bce",
+    "testbench": "ec15fd8a86a6c63e1a0ffa2fe4059c644cb61a78cd01f1ebef03901f917469de",
+    "runner": "c8ddc62aae0a1da19379c600349de4380287afec85f82727828b0cd55ec5af1b",
+    "gitattributes": "f46e7552ee678b8f2f400b62899cebf83a29e500e381bbc29ea202b75e1dfd71",
+    "t13_engine_rtl": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "t13_query_rtl": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+    "t13_testbench": "bb2e9f83dd1a27f18d16538cd8cafd08c856e309fc5af53428e468e16fa43b9d",
+    "t13_runner": "86c3ebded47494d7683f94a0dc57c3f732352e7b33321b561b553d02690e391a",
+    "t10_memory_model": "4db3a955e2bdf9007a6365fd2dd01e588c63e9e2cc7b270fc511d1f5a06f3ae2",
+    "t12_memory_master": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "g0_spec": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "manifest": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "t13_evidence": "ee9c1c0cdd4500eac6398ef0eb0a893021aee3b66d4845e50930f7cfac15d04e",
+    "memory_ranges_sha256": "8e90cbe86c762c856fe8c2eff6e7089730557f2560d09d9a76a6f37dd51b6e7f",
+    "memory_ranges_count": 36
+  },
+  "layer33": {
+    "cfg_section": 34,
+    "input_nchw": [
+      1,
+      128,
+      13,
+      13
+    ],
+    "input_base_address": 27598336,
+    "input_length_bytes": 21632,
+    "output_nchw": [
+      1,
+      128,
+      26,
+      26
+    ],
+    "output_base_address": 27619968,
+    "output_length_bytes": 86528,
+    "output_half_open_range": [
+      27619968,
+      27706496
+    ],
+    "last_output_byte_address": 27706495,
+    "stride": 2,
+    "input_scale": 0.145512708528774,
+    "output_scale": 0.145512708528774,
+    "layout": "NCHW channel,row,column order",
+    "mapping": "input(c, output_y//2, output_x//2), byte unchanged"
+  },
+  "golden": {
+    "generator": "T10 initial_byte(address) = address[7:0] XOR [15:8] XOR [23:16] XOR [31:24] XOR 0xA5",
+    "input_byte_count": 21632,
+    "input_sha256": "e4a755bd4b0e34607c3d245adc640aaf427e1f6d2a25f1cd39a33fb9bb51abcb",
+    "expected_output_byte_count": 86528,
+    "expected_output_sha256": "39d1494ec1dfa28846aebfd56bff2396c5610c60873c99cae6186d8f3ea4a9ab",
+    "comparison": "all output writes in NCHW order compared byte-for-byte with independent Python nearest-repeat mapping",
+    "observed_output_sha256": "39d1494ec1dfa28846aebfd56bff2396c5610c60873c99cae6186d8f3ea4a9ab",
+    "observed_hex_trace_sha256": "adafce960ae712d6a6c040eb5a188a457817d586d808e8a50d63a4ab6b9acf91",
+    "observed_hex_trace_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t18_layer33_full_1q4zp9up\\observed_output_hex.txt"
+  },
+  "verification": {
+    "xsim_summary": {
+      "output_count": 86528,
+      "reads": 86528,
+      "writes": 86528,
+      "stalls": 449953,
+      "error_responses": 1,
+      "pending_read_abort": 1,
+      "pending_write_reset": 1,
+      "busy_start_checks": 3,
+      "completion_hold": 3,
+      "error_hold": 3,
+      "recovery_runs": 1,
+      "cycles": 969115
+    },
+    "protocol": "one outstanding T12 memory master; T10 byte-lane handshake and stable request checks",
+    "scheduled_stalls": [
+      0,
+      1,
+      2,
+      7,
+      3
+    ],
+    "patch_capacity": 131072,
+    "tool_versions": {
+      "xvlog": "Vivado Simulator v2026.1",
+      "xelab": "Vivado Simulator v2026.1",
+      "xsim": "Vivado Simulator v2026.1"
+    },
+    "python_version": "3.12.14",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat -sv D:\\FPGA_Competition\\src\\int8_upsample_query.sv D:\\FPGA_Competition\\src\\s2a_upsample_engine.sv D:\\FPGA_Competition\\src\\s2a_upsample_layer_scheduler.sv D:\\FPGA_Competition\\src\\s2a_memory_master.sv D:\\FPGA_Competition\\sim\\s2a_memory_model.sv D:\\FPGA_Competition\\sim\\tb_s2a_upsample_layer_scheduler.sv",
+        "exit_code": 0,
+        "elapsed_seconds": 2.5,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t18_layer33_full_1q4zp9up\\xvlog_command.log"
+      },
+      {
+        "phase": "xelab",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat -top tb_s2a_upsample_layer_scheduler -snapshot s2a_upsample_layer_scheduler_snapshot",
+        "exit_code": 0,
+        "elapsed_seconds": 4.781,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t18_layer33_full_1q4zp9up\\xelab_command.log"
+      },
+      {
+        "phase": "xsim",
+        "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat -R s2a_upsample_layer_scheduler_snapshot",
+        "exit_code": 0,
+        "elapsed_seconds": 66.844,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t18_layer33_full_1q4zp9up\\xsim_command.log",
+        "no_progress_timeout_seconds": 1800,
+        "progress_checkpoints": [
+          "PROGRESS full outputs=4096 reads=4096 stalls=21305",
+          "PROGRESS full outputs=8192 reads=8192 stalls=42604",
+          "PROGRESS full outputs=12288 reads=12288 stalls=63905",
+          "PROGRESS full outputs=16384 reads=16384 stalls=85203",
+          "PROGRESS full outputs=20480 reads=20480 stalls=106499",
+          "PROGRESS full outputs=24576 reads=24576 stalls=127801",
+          "PROGRESS full outputs=28672 reads=28672 stalls=149100",
+          "PROGRESS full outputs=32768 reads=32768 stalls=170401",
+          "PROGRESS full outputs=36864 reads=36864 stalls=191699",
+          "PROGRESS full outputs=40960 reads=40960 stalls=212995",
+          "PROGRESS full outputs=45056 reads=45056 stalls=234297",
+          "PROGRESS full outputs=49152 reads=49152 stalls=255596",
+          "PROGRESS full outputs=53248 reads=53248 stalls=276897",
+          "PROGRESS full outputs=57344 reads=57344 stalls=298195",
+          "PROGRESS full outputs=61440 reads=61440 stalls=319491",
+          "PROGRESS full outputs=65536 reads=65536 stalls=340793",
+          "PROGRESS full outputs=69632 reads=69632 stalls=362092",
+          "PROGRESS full outputs=73728 reads=73728 stalls=383393",
+          "PROGRESS full outputs=77824 reads=77824 stalls=404691",
+          "PROGRESS full outputs=81920 reads=81920 stalls=425987",
+          "PROGRESS full outputs=86016 reads=86016 stalls=447289"
+        ]
+      }
+    ],
+    "work_directory": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t18_layer33_full_1q4zp9up",
+    "elapsed_seconds": 78.657,
+    "overall_timeout_seconds": 7200,
+    "no_progress_stop_seconds": 1800,
+    "synthesis": "not executed; pilot task does not require synthesis",
+    "board_validation": "not executed; no hardware access authorized or needed"
+  }
+}

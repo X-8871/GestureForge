@@ -8,7 +8,6 @@ import importlib.util
 import json
 import math
 import struct
-import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -76,15 +75,6 @@ def _verify_pinned_file(root: Path, relative_path: str, expected_sha256: str) ->
     actual = _sha256_file(path)
     _require(actual == expected_sha256, f"source hash mismatch: {relative_path}: {actual} != {expected_sha256}")
     return {"path": relative_path, "sha256": actual}
-
-
-def _git_head(root: Path) -> str:
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=root, text=True, stderr=subprocess.DEVNULL
-        ).strip()
-    except (OSError, subprocess.CalledProcessError) as exc:
-        raise RequantTableError(f"无法读取 Git HEAD: {exc}") from exc
 
 
 def _load_frozen_t16_module(root: Path):
@@ -164,8 +154,6 @@ def _proof_layer_map(proof: dict[str, Any]) -> dict[int, dict[str, Any]]:
 
 def _verify_context_bindings(root: Path) -> dict[str, Any]:
     _require(root.is_dir(), f"仓库根目录不存在: {root}")
-    head = _git_head(root)
-    _require(head == "40f992237c36e7dc30bd8063e236502563c41052", f"Git HEAD 与 T23 基线不一致: {head}")
     pinned_records = [
         _verify_pinned_file(root, relative, digest)
         for relative, digest in PINNED_SOURCE_SHA256.items()
@@ -214,7 +202,6 @@ def _verify_context_bindings(root: Path) -> dict[str, Any]:
     source_records = pinned_records + d2_records
     return {
         "root": root.resolve(),
-        "head": head,
         "manifest": manifest,
         "proof": proof,
         "t22_contract": contract,

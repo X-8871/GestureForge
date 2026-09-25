@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -38,6 +39,15 @@ class ConvRequantTableTests(unittest.TestCase):
             self.assertEqual(row["candidate_parameter_sha256"], proof_row["candidate_parameter_sha256"])
             self.assertEqual(row["d2_threshold_and_endpoint_sha256"], proof_row["d2_threshold_and_endpoint_sha256"])
             self.assertEqual(row["target_threshold_sha256"], proof_row["target_threshold_sha256"])
+
+    def test_build_succeeds_when_head_differs_from_original_t23_parent(self) -> None:
+        current_head = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip()
+        self.assertNotEqual(current_head, "40f992237c36e7dc30bd8063e236502563c41052")
+        self.assertNotIn("head", self.context)
+        table_module.validate_parameter_table(self.table, self.context, self.t16)
+        self.assertEqual(self.table["status"], "ALL_CHANNELS_EXACT_AND_T16_DIGEST_MATCH")
 
     def test_linear_and_leaky_use_frozen_branch_rules(self) -> None:
         rows = {item["layer_index"]: item for item in self.table["layers"]}

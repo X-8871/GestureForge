@@ -1,0 +1,507 @@
+{
+  "schema": "GestureForge-S2A-T34-layer35-oc0-full-v1",
+  "task_id": "S2A-T34",
+  "status": "PASS",
+  "scope": "tiny416 cfg layer35 oc0; full 26x26 NCHW output grid",
+  "bindings": {
+    "T01_manifest": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    "T16_proof": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T16\\conv_requant_proof.json",
+      "sha256": "edd2e766278849136c806b755b275c6ad089964ff784ebe687032733f2ccbb24"
+    },
+    "T17_engine_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T17\\conv_engine_simulation.json",
+      "sha256": "4cd1d0f0e5edf7b34907179dea47a9a9c0994eb1d8bd89adfa341067cac17ab2"
+    },
+    "T20_scheduler_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T20\\conv_layer_scheduler_simulation.json",
+      "sha256": "d6bc16966a2d3c7707d98aafa6b435ae158cd28faa53baa8f795e13e86a17887"
+    },
+    "T23_parameter_table": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T23\\conv_requant_parameter_table.json",
+      "sha256": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1"
+    },
+    "T16_script": {
+      "path": "D:\\FPGA_Competition\\verification\\s2a_conv_requant_proof.py",
+      "sha256": "3bfb6d711160c21ae38147a181a042dcc5fee872d0688ae688f31e5909ebe8c9"
+    },
+    "D2_forward_reference": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+      "sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
+    },
+    "weight_report": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260922_s1_t02_d2_tiny416_int8_weight_r2.json",
+      "sha256": "d867cd5dc7497f0de9db5c4e0643afd2e52d4c1e77632852487e8afceaa0dd80"
+    },
+    "GF8_package": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+      "bytes": 5903100,
+      "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+    },
+    "T17_source_hashes": {
+      "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "sim/tb_s2a_conv_engine.sv": "2b642eb47cded4644e4e9ba3a1e3fa60d484cf795ec6e51dd8d4cfcc97d2f001",
+      "verification/test_s2a_conv_engine_rtl.py": "adbb7e2574c50fd8e702e386a0898d27a0e4a16aebfc782436e386d56c768357",
+      "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+      "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "verification/s2a_conv_requant_proof.py": "3bfb6d711160c21ae38147a181a042dcc5fee872d0688ae688f31e5909ebe8c9",
+      "report/evidence/S2A-T16/conv_requant_proof.json": "edd2e766278849136c806b755b275c6ad089964ff784ebe687032733f2ccbb24",
+      "report/evidence/S2A-T22/network_dispatch_contract_validation.json": "611d47cc85bd254474c5412fcab2f8acce3a263138787588f2a6445eac61d9a8",
+      "verification/s1_t02_d2_int8_forward.py": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393",
+      "verification/s1_t02_d2_numeric_reference.py": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+      "verification/s2a_conv_requant_table.py": "aa45f5e4ef88c00ac83ce92684449c79d4060c39d3bf5dec2942e355330b86f8",
+      "verification/test_s2a_conv_requant_table.py": "2cc8d2fd4387372eeccee4b823d0ed215a87ffa5a407df9ea761e6463e382985"
+    },
+    "T34_source_hashes": {
+      "src/s2a_conv_layer35_oc0_full.sv": "c3f835b3631881b3d64eaa0063f765c8a288dceaedb7b01ec30ea92aba89e018",
+      "sim/tb_s2a_conv_layer35_oc0_full.sv": "6f130c16a9f12911f416b4bc34142c0e06f1669217d63ca7976ed3787dae0974",
+      "verification/test_s2a_conv_layer35_oc0_full_rtl.py": "2d9bc86401696dbe8afce83824c1339682cd613e48a76088cdc57f16b746b2bc"
+    }
+  },
+  "fixture": {
+    "generator": "T17 xorshift32; INT8=((next_u32&255)%255)-127",
+    "seed": 20260922,
+    "draw_count": 259584,
+    "final_state": 1225356223,
+    "bytes": 259584,
+    "minimum_int8": -127,
+    "maximum_int8": 127,
+    "minus_128_count": 0,
+    "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+    "file_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\feature_input.bin",
+    "weight_oc0_file_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\weight_oc0.bin"
+  },
+  "oracle": {
+    "reduction_order": "k=ic*9+ky*3+kx; input NCHW byte=base+ic*676+iy*26+ix",
+    "bias_int32": -896,
+    "raw_accumulator_count": 676,
+    "raw_accumulator_min": -300045,
+    "raw_accumulator_max": 330600,
+    "valid_tap_count": 2217984,
+    "padding_tap_count": 118272,
+    "d2_and_fixed_point_match_count": 676,
+    "raw_int32_le_sha256": "58e19149ebdba3fb032e75e19059d041e9d5c6e6c8f47f9ad562c8d220aa6445",
+    "quantized_int8_sha256": "dd3471dc314f737348d3c280df91285fde2bbdefe340e7a513a1bd3684138a35",
+    "combined_golden_sha256": "13dbc6d48808da7b0fef2e6b82101f02ededbcf952a114b19170436cf7f8aa5a",
+    "golden_file_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\golden.bin"
+  },
+  "expected_counts": {
+    "output_pixels": 676,
+    "raw_int32_compares": 676,
+    "quantized_int8_compares": 676,
+    "feature_reads": 2217984,
+    "weight_reads": 2217984,
+    "output_writes": 676,
+    "all_kernel_taps": 2336256,
+    "padding_taps": 118272,
+    "corner_padding_taps_each": 1920,
+    "feature_lane_mask": 15,
+    "weight_lane_mask": 15,
+    "output_lane_mask": 15,
+    "request_stall_sequence": [
+      0,
+      1,
+      2,
+      7,
+      3
+    ],
+    "feature_transfers": 2217984,
+    "feature_stall_cycles": 5766758,
+    "feature_slot_counts": [
+      443597,
+      443597,
+      443597,
+      443597,
+      443596
+    ],
+    "feature_slot0": 443597,
+    "feature_slot1": 443597,
+    "feature_slot2": 443597,
+    "feature_slot3": 443597,
+    "feature_slot4": 443596,
+    "weight_transfers": 2217984,
+    "weight_stall_cycles": 5766758,
+    "weight_slot_counts": [
+      443597,
+      443597,
+      443597,
+      443597,
+      443596
+    ],
+    "weight_slot0": 443597,
+    "weight_slot1": 443597,
+    "weight_slot2": 443597,
+    "weight_slot3": 443597,
+    "weight_slot4": 443596,
+    "output_transfers": 676,
+    "output_stall_cycles": 1755,
+    "output_slot_counts": [
+      136,
+      135,
+      135,
+      135,
+      135
+    ],
+    "output_slot0": 136,
+    "output_slot1": 135,
+    "output_slot2": 135,
+    "output_slot3": 135,
+    "output_slot4": 135,
+    "request_stall_cycles": 11535271
+  },
+  "simulation": {
+    "phases": [
+      {
+        "phase": "xvlog",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat",
+          "-sv",
+          "D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv",
+          "D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv",
+          "D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv",
+          "D:\\FPGA_Competition\\src\\s2a_conv_engine.sv",
+          "D:\\FPGA_Competition\\src\\s2a_conv_layer35_oc0_full.sv",
+          "D:\\FPGA_Competition\\sim\\tb_s2a_conv_layer35_oc0_full.sv"
+        ],
+        "exit_code": 0,
+        "tool_version": "unknown",
+        "seconds": 2.453,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\xvlog.stdout.log"
+      },
+      {
+        "phase": "xelab",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat",
+          "-top",
+          "tb_s2a_conv_layer35_oc0_full",
+          "-snapshot",
+          "s2a_t34_snapshot"
+        ],
+        "exit_code": 0,
+        "tool_version": "unknown",
+        "seconds": 8.437,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\xelab.stdout.log"
+      },
+      {
+        "phase": "xsim",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat",
+          "-R",
+          "s2a_t34_snapshot"
+        ],
+        "exit_code": 0,
+        "tool_version": "****** xsim v2026.1 (64-bit)",
+        "seconds": 138.094,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\xsim.stdout.log"
+      }
+    ],
+    "summary": null,
+    "status": "PASS",
+    "xsim_summary": {
+      "pixels": 676,
+      "raw": 676,
+      "feature_reads": 2217984,
+      "weight_reads": 2217984,
+      "output_writes": 676,
+      "padding": 118272,
+      "taps": 2336256,
+      "feature_lanes": 15,
+      "weight_lanes": 15,
+      "output_lanes": 15,
+      "corners": [
+        1920,
+        1920,
+        1920,
+        1920
+      ],
+      "error_mask": 70,
+      "fault_responses": 3,
+      "request_stalls": 11535271,
+      "feature_transfers": 2217984,
+      "feature_stall_cycles": 5766758,
+      "feature_slot0": 443597,
+      "feature_slot1": 443597,
+      "feature_slot2": 443597,
+      "feature_slot3": 443597,
+      "feature_slot4": 443596,
+      "weight_transfers": 2217984,
+      "weight_stall_cycles": 5766758,
+      "weight_slot0": 443597,
+      "weight_slot1": 443597,
+      "weight_slot2": 443597,
+      "weight_slot3": 443597,
+      "weight_slot4": 443596,
+      "output_transfers": 676,
+      "output_stall_cycles": 1755,
+      "output_slot0": 136,
+      "output_slot1": 135,
+      "output_slot2": 135,
+      "output_slot3": 135,
+      "output_slot4": 135,
+      "result_stalls": 108,
+      "abort_cancels": 2,
+      "reset_cancels": 1
+    },
+    "raw_int32_compares": 676,
+    "quantized_int8_compares": 676,
+    "observed_raw_int32_le_sha256": "58e19149ebdba3fb032e75e19059d041e9d5c6e6c8f47f9ad562c8d220aa6445",
+    "observed_output_int8_sha256": "dd3471dc314f737348d3c280df91285fde2bbdefe340e7a513a1bd3684138a35",
+    "address_lane_order": "PASS; per-request feature/weight/output byte address, word alignment, single-byte strobe, lane, and NCHW order checked",
+    "single_outstanding_stability": "PASS; valid/address/write/data/strobes held to acceptance",
+    "memory_error_codes": {
+      "1": "PASS feature read",
+      "2": "PASS weight read",
+      "6": "PASS output write"
+    },
+    "pending_cancellation": {
+      "read_abort": "PASS",
+      "read_hard_reset": "PASS",
+      "output_write_abort": "PASS; zero accepted write side effect"
+    },
+    "backpressure": {
+      "request_policy": "per transfer class repeat exactly [0,1,2,7,3] low-ready cycles",
+      "request_stall_sequence": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "request_stall_prng_seed": null,
+      "fixture_seed": 20260922,
+      "total_request_stall_cycles": 11535271,
+      "classes": {
+        "feature": {
+          "transfers": 2217984,
+          "slot_counts": [
+            443597,
+            443597,
+            443597,
+            443597,
+            443596
+          ],
+          "stall_cycles": 5766758
+        },
+        "weight": {
+          "transfers": 2217984,
+          "slot_counts": [
+            443597,
+            443597,
+            443597,
+            443597,
+            443596
+          ],
+          "stall_cycles": 5766758
+        },
+        "output": {
+          "transfers": 676,
+          "slot_counts": [
+            136,
+            135,
+            135,
+            135,
+            135
+          ],
+          "stall_cycles": 1755
+        }
+      },
+      "held_result_cycles": 108
+    },
+    "grid_rows": 26,
+    "grid_columns": 26,
+    "elapsed_seconds": 148.984
+  },
+  "synthesis": {
+    "status": "PASS",
+    "part": "xc7z020clg400-1",
+    "top": "s2a_conv_layer35_oc0_full",
+    "xdc": "NOT_PROVIDED",
+    "timing_conclusion": "N/A; standalone synthesis has no XDC",
+    "resources": {
+      "lut": 15418,
+      "ff": 235,
+      "bram_tile": 0,
+      "dsp": 211
+    },
+    "phase": {
+      "phase": "vivado",
+      "command": [
+        "D:\\Xilinx\\2026.1\\Vivado\\bin\\vivado.bat",
+        "-mode",
+        "batch",
+        "-notrace",
+        "-source",
+        "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\synth.tcl",
+        "-log",
+        "vivado_synth.log",
+        "-journal",
+        "vivado_synth.jou"
+      ],
+      "exit_code": 0,
+      "tool_version": "****** Vivado v2026.1 (64-bit)",
+      "seconds": 214.438,
+      "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\vivado.stdout.log"
+    },
+    "report_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01\\utilization.rpt"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t34_layer35_frozen_stalls_20260927_01",
+    "evidence_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T34\\layer35_oc0_full_frozen_stalls_attested.json"
+  },
+  "baseline": {
+    "task_base": "83c603b327ac0d18959f49a38633521963aa3fbd",
+    "t17_base": "f0b7791d2db7b0a13126d3a0d3db586a01a294b1",
+    "current_head": "83c603b327ac0d18959f49a38633521963aa3fbd",
+    "task_base_is_ancestor": true,
+    "t17_base_is_ancestor": true
+  },
+  "geometry": {
+    "input_base_address": 27706496,
+    "input_length_bytes": 259584,
+    "input_shape_nchw": [
+      1,
+      384,
+      26,
+      26
+    ],
+    "feature_byte_address": "base+ic*676+iy*26+ix",
+    "output_base_address": 27966080,
+    "output_length_bytes": 173056,
+    "output_shape_nchw": [
+      1,
+      256,
+      26,
+      26
+    ],
+    "output_byte_address": "base+y*26+x for oc0",
+    "weight_package_base": 1048576,
+    "weight_package_bytes": 5903100,
+    "layer35_weight_offset": 5010412,
+    "layer35_weight_bytes": 884736,
+    "layer35_fused_bias_offset": 5009388,
+    "fused_bias_storage": "little-endian IEEE-754 float32",
+    "fused_bias_float32_oc0": -0.0803467184305191,
+    "oc0_reduction_length": 3456,
+    "oc0_weight_slice_sha256": "34739ac6458bc1e0735151749c2af0b3afa320af96634c084119f35592d774b7",
+    "bias_int32": -896,
+    "channel0_mq": {
+      "positive_M": 94787,
+      "positive_Q": 27,
+      "negative_M": 19412319,
+      "negative_Q": 38
+    }
+  },
+  "completed_utc8": "2026-09-27T04:33:14+0800",
+  "attestation": {
+    "method": "read-only verification of the existing PASS run; no simulator or synthesis relaunch",
+    "status": "PASS",
+    "source_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T34\\layer35_oc0_full_frozen_stalls.json",
+      "bytes": 14566,
+      "sha256": "e2e7e7fd762bd659a2a36d0924ca946195da41269d955b6de6af417a909ef0d6"
+    },
+    "active_run_process_check": "NO_ACTIVE_T34_TOOL_PROCESS",
+    "xsim_progress_rows_verified": 26,
+    "raw_int32_elements_verified": 676,
+    "quantized_int8_elements_verified": 676,
+    "tool_exit_codes": {
+      "xvlog": 0,
+      "xelab": 0,
+      "xsim": 0,
+      "vivado": 0
+    },
+    "tool_phase_order": [
+      "xvlog",
+      "xelab",
+      "xsim",
+      "vivado"
+    ],
+    "artifacts": {
+      "feature_input.bin": {
+        "bytes": 259584,
+        "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1"
+      },
+      "weight_oc0.bin": {
+        "bytes": 3456,
+        "sha256": "34739ac6458bc1e0735151749c2af0b3afa320af96634c084119f35592d774b7"
+      },
+      "golden.bin": {
+        "bytes": 3380,
+        "sha256": "13dbc6d48808da7b0fef2e6b82101f02ededbcf952a114b19170436cf7f8aa5a"
+      },
+      "observed_raw.bin": {
+        "bytes": 2704,
+        "sha256": "58e19149ebdba3fb032e75e19059d041e9d5c6e6c8f47f9ad562c8d220aa6445"
+      },
+      "observed_output.bin": {
+        "bytes": 676,
+        "sha256": "dd3471dc314f737348d3c280df91285fde2bbdefe340e7a513a1bd3684138a35"
+      },
+      "orchestration.log": {
+        "bytes": 2303,
+        "sha256": "18e0492ed3d701c7dd5a64960670fc46f87ea8b41050194a5a9ff0f142de7986"
+      },
+      "xvlog.stdout.log": {
+        "bytes": 1084,
+        "sha256": "47ad3d468e5e8fdf8b08a4cb27c9667d985cb878c8714819590a9ca5fb933d67"
+      },
+      "xvlog.log": {
+        "bytes": 1084,
+        "sha256": "47ad3d468e5e8fdf8b08a4cb27c9667d985cb878c8714819590a9ca5fb933d67"
+      },
+      "xelab.stdout.log": {
+        "bytes": 845,
+        "sha256": "95496a7ea11ca3f0783b289c61d500df2793fe32a5b6f9b4939dc27af5d03bbc"
+      },
+      "xelab.log": {
+        "bytes": 845,
+        "sha256": "95496a7ea11ca3f0783b289c61d500df2793fe32a5b6f9b4939dc27af5d03bbc"
+      },
+      "xsim.stdout.log": {
+        "bytes": 2650,
+        "sha256": "378ea2dc77fb7fd76c12d20332374eb15cb7d553c3031882bac5f370b81fc3b3"
+      },
+      "xsim.log": {
+        "bytes": 3406,
+        "sha256": "500784bda12ab6a5280411b965df93cff4d6b6bf82840e11b55a01b270933cc2"
+      },
+      "xsim.jou": {
+        "bytes": 1212,
+        "sha256": "4c36fc07047e123d115b2194293bc01c75361d340c25f823ec14d91da1feea4b"
+      },
+      "vivado.stdout.log": {
+        "bytes": 150722,
+        "sha256": "ac0bc955cbcdda961369f89c42e06a01f1c4d2a4ae15e8e3fabbb1f8356b63d4"
+      },
+      "vivado_synth.log": {
+        "bytes": 151597,
+        "sha256": "fe1a568216695855a49a522d6ca12ec8dc3a4499b7c70217f2f130739be6d1d7"
+      },
+      "vivado_synth.jou": {
+        "bytes": 1379,
+        "sha256": "1378e51c93163df61e6d9ecf65561ad551a72ca6632ca9539c3cf04414bba746"
+      },
+      "synth.tcl": {
+        "bytes": 555,
+        "sha256": "ddacc4a1c8fbaa08a0d9b409a78a4c70fd8261b6cf19c3d25748de7c673f4650"
+      },
+      "utilization.rpt": {
+        "bytes": 8551,
+        "sha256": "4a7c1d9c7f8e5a4ba5fb9176a8720c89dabb39303e350550ecb73c619ac25b84"
+      }
+    },
+    "compiled_rtl_tb_sha256_verified": {
+      "src/s2a_conv_layer35_oc0_full.sv": "c3f835b3631881b3d64eaa0063f765c8a288dceaedb7b01ec30ea92aba89e018",
+      "sim/tb_s2a_conv_layer35_oc0_full.sv": "6f130c16a9f12911f416b4bc34142c0e06f1669217d63ca7976ed3787dae0974"
+    },
+    "runner_sha256_at_simulation": "2d9bc86401696dbe8afce83824c1339682cd613e48a76088cdc57f16b746b2bc",
+    "runner_sha256_at_attestation": "5a01c0dc5da6096cdcbba136d0c8eb3834461d974fca53b5960b259fe9d06dbb",
+    "notes": "fixtures/traces were compared byte-for-byte with a recomputed oracle; tool logs, synth TCL and utilization report were hashed"
+  }
+}

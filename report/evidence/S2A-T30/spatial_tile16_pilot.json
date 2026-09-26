@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "task": "S2A-T30",
+  "result": "PASS",
+  "scope": "layer36 channel0 的16-lane spatial MAC datapath pilot",
+  "baseline_git_head": "7277b1a2afcc26ecd9febdd2d39255a48f5c4526",
+  "runtime_git_head_start": "7277b1a2afcc26ecd9febdd2d39255a48f5c4526",
+  "runtime_git_head_end": "7277b1a2afcc26ecd9febdd2d39255a48f5c4526",
+  "source_bindings_sha256": {
+    "g0_spec": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "t01_manifest": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "d2_int8_forward": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393",
+    "t16_proof": "edd2e766278849136c806b755b275c6ad089964ff784ebe687032733f2ccbb24",
+    "t16_proof_script": "3bfb6d711160c21ae38147a181a042dcc5fee872d0688ae688f31e5909ebe8c9",
+    "t17_loader_runner": "adbb7e2574c50fd8e702e386a0898d27a0e4a16aebfc782436e386d56c768357",
+    "t20_helper_runner": "9474108ee39ed1d89113241ebaef1ac177a0d0cca6878dbfc1415f25543117c2",
+    "t20_evidence": "d6bc16966a2d3c7707d98aafa6b435ae158cd28faa53baa8f795e13e86a17887",
+    "rtl": "42ad5217e7be65b8fa255a587bb27382b10da7b32ede2ce6f24b2e7787b97fdb",
+    "testbench": "8f2ef37d655557fe5d76a1afbb2ed47f1481cbf907ff2c3764c7a397e9f19483",
+    "test_runner": "9b9345a9d8d36b2f7ac53fd8ce27a24da21675bd0f36c68300e0a5c55ced4f45",
+    "gfint8w1_package": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+  },
+  "frozen_layer36": {
+    "model": "tiny416",
+    "layer_index": 36,
+    "cfg_section": 37,
+    "input_shape_nchw": [
+      1,
+      256,
+      26,
+      26
+    ],
+    "output_shape_nchw": [
+      1,
+      30,
+      26,
+      26
+    ],
+    "kernel_hw": [
+      1,
+      1
+    ],
+    "activation": "linear",
+    "layout": "NCHW",
+    "reduction_k": 256,
+    "tile": {
+      "output_channel": 0,
+      "row": 0,
+      "pixel_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "input_byte_mapping": "input_bytes[k*676+lane]",
+      "weight_byte_mapping": "package_weights[36][0*256+k]",
+      "shared_weight_broadcast_lanes": 16
+    },
+    "input_scale": 0.12693486251230315,
+    "output_scale": 0.30223452951025775,
+    "channel0_weight_scale": 0.0012533131521195173,
+    "channel0_bias_int32": -40,
+    "channel0_weight_bytes": 256,
+    "channel0_weight_sha256": "62b6b53c4f05027806a42e441e6de0a5d123fed4ff4dd4aff3299748772228d9",
+    "integer_accumulation": "逐 lane 按 k=0..255 有序累加；每步检查 signed INT32；不回绕、不饱和"
+  },
+  "t20_cpu_reference": {
+    "fixture_helper": "verification/test_s2a_conv_layer_scheduler_rtl.py::_input_fixture",
+    "golden_helper": "verification/test_s2a_conv_layer_scheduler_rtl.py::_input_and_golden",
+    "input_generator": "T10 地址 XOR byte pattern；raw 0x80 sentinel 按 T20 helper 置零",
+    "input_bytes": 173056,
+    "input_sha256": "3ab3cb8aba6e67fe3ffa6b9b071c706a905563b125d4f500b814fa9d0092572b",
+    "patched_minus128_sentinel_count": 675,
+    "full_layer_output_bytes": 20280,
+    "full_layer_golden_sha256": "80462a11ba6e9e0f3ba2bfbf5c25e6c6db24bf884dd93d0c00d79b348f5a6bda",
+    "full_layer_accumulator_range": {
+      "min": -143287,
+      "max": 134214
+    },
+    "d2_float_cross_checks": 20280,
+    "tile_raw_accumulators_int32": [
+      -10746,
+      -16049,
+      -9216,
+      -9143,
+      1061,
+      7628,
+      6667,
+      -2638,
+      11431,
+      18938,
+      15421,
+      16784,
+      19425,
+      31828,
+      31123,
+      28294
+    ],
+    "tile_quantized_bytes_signed": [
+      -6,
+      -8,
+      -5,
+      -5,
+      1,
+      4,
+      4,
+      -1,
+      6,
+      10,
+      8,
+      9,
+      10,
+      17,
+      16,
+      15
+    ],
+    "tile_matches_t20_layer_golden": true
+  },
+  "stimulus": {
+    "file_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\vectors.dat",
+    "file_bytes": 16024919,
+    "file_sha256": "2be62b0462944596adc7c573f8cf6cb063d69818f06cdeb07e4ced9d8577d65e",
+    "format": "每 tile 为 case_id/bias/error/16个raw结果头部，随后256行 shared_weight+16个signed activation",
+    "tile_count": 1002,
+    "t20_real_tile_count": 1,
+    "directed_boundary_tile_count": 1,
+    "random_tile_count": 1000,
+    "random_seed": 20260926,
+    "xorshift32_state_start": 20260926,
+    "xorshift32_state_end": 3259218130,
+    "xorshift32_draws": 4353000,
+    "random_value_min": -127,
+    "random_value_max": 127,
+    "random_boundary_values_observed": [
+      -127,
+      0,
+      127
+    ],
+    "random_input_bytes_sha256": "f108352348c6688e2747322d5da82761a84dbe716775a98c1cafb6f7e8548fd0",
+    "random_raw_output_sha256": "a359ecc175dd322b6201e77b6262922f14202e293196db2d960b34d6e8053347",
+    "raw_lane_outputs_oracle_comparisons": 16000,
+    "t20_tile_raw_accumulators_int32": [
+      -10746,
+      -16049,
+      -9216,
+      -9143,
+      1061,
+      7628,
+      6667,
+      -2638,
+      11431,
+      18938,
+      15421,
+      16784,
+      19425,
+      31828,
+      31123,
+      28294
+    ],
+    "directed_tile_raw_accumulators_int32": [
+      16146,
+      17,
+      -16112,
+      16146,
+      -16112,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17
+    ]
+  },
+  "python_oracle": {
+    "implementation": "独立 Python 整数逐步累加；每个 lane/k 检查 INT32 范围",
+    "random_seed": 20260926,
+    "random_valid_tiles": 1000,
+    "random_lane_results_compared": 16000,
+    "random_tile_k_values": 256,
+    "activation_and_weight_valid_range": [
+      -127,
+      127
+    ],
+    "random_raw_output_sha256": "a359ecc175dd322b6201e77b6262922f14202e293196db2d960b34d6e8053347",
+    "directed_value_coverage": [
+      -127,
+      0,
+      127
+    ]
+  },
+  "simulation": {
+    "simulator": "Vivado xvlog/xelab/xsim v2026.1",
+    "commands": [
+      [
+        "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat",
+        "-sv",
+        "D:\\FPGA_Competition\\src\\s2a_conv_spatial_tile16.sv",
+        "D:\\FPGA_Competition\\sim\\tb_s2a_conv_spatial_tile16.sv"
+      ],
+      [
+        "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat",
+        "-top",
+        "tb_s2a_conv_spatial_tile16",
+        "-snapshot",
+        "s2a_t30_tile16_snapshot"
+      ],
+      [
+        "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat",
+        "-R",
+        "s2a_t30_tile16_snapshot"
+      ]
+    ],
+    "phases": [
+      {
+        "name": "xvlog",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat",
+          "-sv",
+          "D:\\FPGA_Competition\\src\\s2a_conv_spatial_tile16.sv",
+          "D:\\FPGA_Competition\\sim\\tb_s2a_conv_spatial_tile16.sv"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.485,
+        "stdout_log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\xvlog.stdout.log",
+        "stdout_log_sha256": "8442ec2c55007ba4142eb5a616c632a8fd22047161553ce9d44f755370a1a80b"
+      },
+      {
+        "name": "xelab",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat",
+          "-top",
+          "tb_s2a_conv_spatial_tile16",
+          "-snapshot",
+          "s2a_t30_tile16_snapshot"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 2.61,
+        "stdout_log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\xelab.stdout.log",
+        "stdout_log_sha256": "035a60576e8013d6a16ba08215889b09deb199264fa3d300d3436cdcbf508f5a"
+      },
+      {
+        "name": "xsim",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat",
+          "-R",
+          "s2a_t30_tile16_snapshot"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 9.547,
+        "stdout_log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\xsim.stdout.log",
+        "stdout_log_sha256": "ebbe98ec25058db022dbe0d4c8183c67d39f4efbef63491dd02ed848f03f5743"
+      }
+    ],
+    "testbench_summary": {
+      "dataset_tiles": 1002,
+      "t20_tiles": 1,
+      "directed_tiles": 1,
+      "random_tiles": 1000,
+      "accepted_k_beats_per_tile": 256,
+      "dataset_k_beats": 256512,
+      "recovery_tiles": 8,
+      "recovery_k_beats": 2048,
+      "bad_activation_beats": 1,
+      "bad_weight_beats": 1,
+      "overflow_beats": 2,
+      "abort_accepted_beats": 5,
+      "reset_accepted_beats": 5,
+      "error_remaining_unissued_k": 1020,
+      "abort_remaining_unissued_k": 251,
+      "reset_remaining_unissued_k": 251,
+      "invalid_start_transactions": 2,
+      "invalid_start_unissued_k": 512,
+      "protocol_scenarios": 8,
+      "errors": 0
+    },
+    "successful_tile_k_handshakes": 256512,
+    "accepted_k_beats_per_successful_tile": 256,
+    "result_stall_cycles": 3,
+    "protocol_coverage": {
+      "wrong_k_bad_argument": [
+        255,
+        257
+      ],
+      "activation_minus128_bad_argument_beats": 1,
+      "weight_minus128_bad_argument_beats": 1,
+      "positive_int32_overflow_beats": 1,
+      "negative_int32_overflow_beats": 1,
+      "abort_accepted_beats_before_cancel": 5,
+      "reset_accepted_beats_before_cancel": 5,
+      "abort_unissued_k_remainder": 251,
+      "reset_unissued_k_remainder": 251,
+      "invalid_start_transactions_without_input": 2,
+      "invalid_start_unissued_k": 512,
+      "error_transactions_accepted_beats": 4,
+      "error_transactions_unissued_k_remainder": 1020,
+      "recovery_tiles_passed": 8,
+      "late_response_after_abort_or_reset": false
+    }
+  },
+  "standalone_synthesis": {
+    "tool": "Vivado v2026.1",
+    "top": "s2a_conv_spatial_tile16",
+    "part": "xc7z020clg400-1",
+    "opened_project_xpr": false,
+    "included_other_rtl_modules": false,
+    "phase_exit_code": 0,
+    "phase_elapsed_seconds": 91.703,
+    "tcl_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\synth_tile16.tcl",
+    "stdout_log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\synthesis.stdout.log",
+    "stdout_log_sha256": "e0a093f0ed6d5f80cace220a8ce58bf665cb43e2a34eee30e979ab60932b4130",
+    "utilization_report_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\utilization.rpt",
+    "utilization_report_sha256": "2e45ad11a4d21152a2241bfe7baf8dee6a74cf6703fef2358f0057aa57ae67f1",
+    "module_only_utilization": {
+      "lut": 1195,
+      "ff": 1048,
+      "bram_tile": 0,
+      "dsp": 15
+    },
+    "timing_summary_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t30_tile16_r7\\timing_summary.rpt",
+    "timing_summary_sha256": "5172e66bd8a271d2642c75317eb54861a9b2f2b9de89538284588547ef811aa9",
+    "timing_constraints_applied": false,
+    "timing_risk": "独立综合未加入 XDC 或时钟周期约束；不报告目标时钟或系统时序结论。"
+  },
+  "limitations": [
+    "仅为16路空间 MAC 数据通路 pilot，不是完整 layer36 卷积实现或系统联调。",
+    "不含片上 tile buffer 加载、外部内存寻址/总线、requant RTL、PS 接口或系统调度。",
+    "CPU T20 helper 生成地址公式输入和完整 layer golden；本测试只逐值核对 channel0 row0 的16个 raw INT32 累加及对应量化字节。",
+    "未读取 T25 shard 或原图；未训练模型；未连接板卡、未烧录；未进入 2B 或阶段3。",
+    "资源数字只对应本模块独立综合，不代表完整卷积层或全系统资源。"
+  ]
+}

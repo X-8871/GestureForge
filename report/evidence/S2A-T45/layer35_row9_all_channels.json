@@ -1,0 +1,728 @@
+{
+  "schema": "GestureForge-S2A-T45-layer35-row9-all-channels-v1",
+  "task_id": "S2A-T45",
+  "status": "PASS",
+  "scope": "tiny416 cfg section36 layer35; all 256 output channels at y=9, x=0..25; not full layer or network",
+  "bindings": {
+    "T01_manifest": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    "G0_specification": {
+      "path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    "T16_proof": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T16\\conv_requant_proof.json",
+      "sha256": "edd2e766278849136c806b755b275c6ad089964ff784ebe687032733f2ccbb24"
+    },
+    "T17_engine_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T17\\conv_engine_simulation.json",
+      "sha256": "4cd1d0f0e5edf7b34907179dea47a9a9c0994eb1d8bd89adfa341067cac17ab2"
+    },
+    "T20_scheduler_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T20\\conv_layer_scheduler_simulation.json",
+      "sha256": "d6bc16966a2d3c7707d98aafa6b435ae158cd28faa53baa8f795e13e86a17887"
+    },
+    "T23_parameter_table": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T23\\conv_requant_parameter_table.json",
+      "sha256": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1"
+    },
+    "T16_script": {
+      "path": "D:\\FPGA_Competition\\verification\\s2a_conv_requant_proof.py",
+      "sha256": "3bfb6d711160c21ae38147a181a042dcc5fee872d0688ae688f31e5909ebe8c9"
+    },
+    "D2_forward_reference": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+      "sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
+    },
+    "weight_report": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260922_s1_t02_d2_tiny416_int8_weight_r2.json",
+      "sha256": "d867cd5dc7497f0de9db5c4e0643afd2e52d4c1e77632852487e8afceaa0dd80"
+    },
+    "GF8_package": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+      "bytes": 5903100,
+      "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+    },
+    "T17_source_hashes": {
+      "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "sim/tb_s2a_conv_engine.sv": "2b642eb47cded4644e4e9ba3a1e3fa60d484cf795ec6e51dd8d4cfcc97d2f001",
+      "verification/test_s2a_conv_engine_rtl.py": "adbb7e2574c50fd8e702e386a0898d27a0e4a16aebfc782436e386d56c768357",
+      "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74"
+    },
+    "T45_baseline": {
+      "commit": "f6594c18cf1a7ac5f5bde6e80f5b709c97b74163",
+      "current_head": "f6594c18cf1a7ac5f5bde6e80f5b709c97b74163"
+    },
+    "T35_synthesis_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T35\\layer35_channel_probe.json",
+      "sha256": "e9233ae7e5f166e88ec31c701578f6241fcef21386aeb1535a1b2a9d20ca8456"
+    },
+    "T40_row4_parent_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T40\\layer35_row4_all_channels.json",
+      "sha256": "99f7d37d8fab96ecd6fd4ec0bafe6b49da691e166cd8f496827988be41ec4e30"
+    },
+    "T44_row8_parent_evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T44\\layer35_row8_all_channels.json",
+      "sha256": "0eb25f4e550841f94774555e8346fd00002df938366a24763c725187440b665d"
+    },
+    "T45_source_hashes": {
+      "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "src/s2a_conv_layer35_channel_probe.sv": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+      "sim/tb_s2a_conv_layer35_row9_all_channels.sv": "0b68c2c9d8c820012166049f0be54ecb76efae1d88ecdb6153da294f184074d7",
+      "verification/test_s2a_conv_layer35_row9_all_channels_rtl.py": "b1ebc707ef12fbb39c747d6c9e67e35896244529832f81d3073d7d32dd473a76"
+    },
+    "weight_layer35": {
+      "byte_offset": 5010412,
+      "bytes": 884736,
+      "sha256": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2"
+    },
+    "model": {
+      "name": "tiny416",
+      "cfg_section": 36,
+      "input_tensor": {
+        "base": 27706496,
+        "bytes": 259584,
+        "shape_nchw": [
+          1,
+          384,
+          26,
+          26
+        ]
+      },
+      "output_tensor": {
+        "base": 27966080,
+        "bytes": 173056,
+        "shape_nchw": [
+          1,
+          256,
+          26,
+          26
+        ]
+      },
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "padding_lrtb": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "padding_int8": 0,
+      "layout": "NCHW",
+      "accumulator_bits": 32,
+      "activation": "leaky",
+      "input_scale": 0.1594378704161156,
+      "output_scale": 0.12693486251230315,
+      "weight_scale_per_output_channel_sha256": "2b959bd9c88b8e633a0af8cc96070c6f422788c2e7276e3e5279fff0742e966c"
+    },
+    "fixture": {
+      "generator": "T17 xorshift32; INT8=((next_u32&255)%255)-127",
+      "seed": 20260922,
+      "draw_count": 259584,
+      "final_state": 1225356223,
+      "bytes": 259584,
+      "minimum_int8": -127,
+      "maximum_int8": 127,
+      "minus_128_count": 0,
+      "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+      "feature_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\feature_input.bin",
+      "weights_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\layer35_weights.bin",
+      "vectors_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\vectors.txt",
+      "golden_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\golden.bin"
+    },
+    "fixed_points_yx": [
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        11
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        9,
+        15
+      ],
+      [
+        9,
+        16
+      ],
+      [
+        9,
+        17
+      ],
+      [
+        9,
+        18
+      ],
+      [
+        9,
+        19
+      ],
+      [
+        9,
+        20
+      ],
+      [
+        9,
+        21
+      ],
+      [
+        9,
+        22
+      ],
+      [
+        9,
+        23
+      ],
+      [
+        9,
+        24
+      ],
+      [
+        9,
+        25
+      ]
+    ],
+    "parameter_map": "T01 int32 bias[oc] 与 T23 正/负 M/Q[oc]，由仿真向量逐项驱动 wrapper 可见输入"
+  },
+  "fixture": {
+    "generator": "T17 xorshift32; INT8=((next_u32&255)%255)-127",
+    "seed": 20260922,
+    "draw_count": 259584,
+    "final_state": 1225356223,
+    "bytes": 259584,
+    "minimum_int8": -127,
+    "maximum_int8": 127,
+    "minus_128_count": 0,
+    "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+    "feature_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\feature_input.bin",
+    "weights_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\layer35_weights.bin",
+    "vectors_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\vectors.txt",
+    "golden_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\golden.bin"
+  },
+  "oracle": {
+    "algorithm": "独立 Python INT32 NCHW 卷积 + D2 float64 舍入交叉核验 T23 M/Q",
+    "reduction_order": "k=ic*9+ky*3+kx; feature=base+ic*676+iy*26+ix; weight=oc*3456+k",
+    "raw_int32_count": 6656,
+    "quantized_int8_count": 6656,
+    "raw_int32_min": -705239,
+    "raw_int32_max": 535413,
+    "valid_taps": 22413312,
+    "padding_taps": 589824,
+    "d2_t23_match_count": 6656,
+    "raw_int32_le_sha256": "61fb3e8d855e95830e6aba4f89dccdcc14529f024556ad5e060cb1ab4cd0bb47",
+    "quantized_int8_sha256": "2ced3aee8d4cce9037e6ce80a81c2a339447ae9c4edb49908b6f5104d3d6c9b1",
+    "combined_golden_sha256": "9abb7c1a01398f534895af4e492608fce0867255561bb6d0c9b0925dc575de26"
+  },
+  "expected_counts": {
+    "output_cases": 6656,
+    "raw_int32_compares": 6656,
+    "quantized_int8_compares": 6656,
+    "feature_reads": 22413312,
+    "weight_reads": 22413312,
+    "output_writes": 6656,
+    "stall_sequence": [
+      0,
+      1,
+      2,
+      7,
+      3
+    ],
+    "feature_transfers": 22413312,
+    "feature_slot_counts": [
+      4482663,
+      4482663,
+      4482662,
+      4482662,
+      4482662
+    ],
+    "feature_stall_cycles": 58274607,
+    "weight_transfers": 22413312,
+    "weight_slot_counts": [
+      4482663,
+      4482663,
+      4482662,
+      4482662,
+      4482662
+    ],
+    "weight_stall_cycles": 58274607,
+    "output_transfers": 6656,
+    "output_slot_counts": [
+      1332,
+      1331,
+      1331,
+      1331,
+      1331
+    ],
+    "output_stall_cycles": 17303,
+    "all_kernel_taps": 23003136,
+    "padding_taps": 589824,
+    "point_valid_taps_per_input_channel": 228,
+    "point_padding_taps_per_input_channel": 6,
+    "total_request_stall_cycles": 116566517
+  },
+  "attempt_history": [
+    {
+      "task_id": "S2A-T45",
+      "attempt_id": "T45-preflight-01",
+      "stage": "CPU oracle preflight",
+      "status": "PASS",
+      "evidence_role": "ACCEPTANCE_PREFLIGHT",
+      "cwd": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02",
+      "preflight_json": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02\\preflight.json",
+        "bytes": 6076,
+        "sha256": "2244059c314611906812cf20704ef3ea082422a78106e0b837b4a46c08bb9f5b"
+      },
+      "preflight_stdout": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02\\preflight.stdout.log",
+        "bytes": 1728,
+        "sha256": "78ce30a452e110afcf1da98a6b96159211d51e2064b498aa527091f9234fdf41"
+      },
+      "runner_source_used": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02\\runner_source_used.py",
+        "bytes": 64137,
+        "sha256": "b1ebc707ef12fbb39c747d6c9e67e35896244529832f81d3073d7d32dd473a76"
+      },
+      "invocation": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02\\invocation.json",
+        "bytes": 843,
+        "sha256": "975e09e3e5adb28b6d4f7d6e0333a82dc80515bcbc3255d660a74b46d0dac919"
+      },
+      "preflight_exit_code": 0,
+      "dut_compile_elaborate_simulate_synthesis": false
+    }
+  ],
+  "simulation": {
+    "status": "PASS",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xvlog.bat",
+          "-sv",
+          "D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv",
+          "D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv",
+          "D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv",
+          "D:\\FPGA_Competition\\src\\s2a_conv_engine.sv",
+          "D:\\FPGA_Competition\\src\\s2a_conv_layer35_channel_probe.sv",
+          "D:\\FPGA_Competition\\sim\\tb_s2a_conv_layer35_row9_all_channels.sv"
+        ],
+        "exit_code": 0,
+        "tool_version": "unknown",
+        "seconds": 2.5,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xvlog.stdout.log"
+      },
+      {
+        "phase": "xelab",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xelab.bat",
+          "-top",
+          "tb_s2a_conv_layer35_row9_all_channels",
+          "-snapshot",
+          "s2a_t45_snapshot"
+        ],
+        "exit_code": 0,
+        "tool_version": "unknown",
+        "seconds": 6.031,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xelab.stdout.log"
+      },
+      {
+        "phase": "xsim",
+        "command": [
+          "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsim.bat",
+          "-R",
+          "s2a_t45_snapshot"
+        ],
+        "exit_code": 0,
+        "tool_version": "unknown",
+        "seconds": 1145.281,
+        "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xsim.stdout.log"
+      }
+    ],
+    "static_preflight": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\static_preflight.json",
+      "sha256": "b91b3e3abee8e687775a29f619fecc3bcb36757a460b674848a7ed155d3ad7ae",
+      "status": "PASS"
+    },
+    "xsim_summary": {
+      "outputs": 6656,
+      "raw": 6656,
+      "feature_reads": 22413312,
+      "weight_reads": 22413312,
+      "output_writes": 6656,
+      "padding": 589824,
+      "taps": 23003136,
+      "feature_lanes": 15,
+      "weight_lanes": 15,
+      "output_lanes": 15,
+      "error_mask": 70,
+      "fault_responses": 3,
+      "abort_cancel": 2,
+      "reset_cancel": 1,
+      "recovery": 1,
+      "request_stalls": 116566517,
+      "feature_transfers": 22413312,
+      "feature_stall_cycles": 58274607,
+      "feature_slot0": 4482663,
+      "feature_slot1": 4482663,
+      "feature_slot2": 4482662,
+      "feature_slot3": 4482662,
+      "feature_slot4": 4482662,
+      "weight_transfers": 22413312,
+      "weight_stall_cycles": 58274607,
+      "weight_slot0": 4482663,
+      "weight_slot1": 4482663,
+      "weight_slot2": 4482662,
+      "weight_slot3": 4482662,
+      "weight_slot4": 4482662,
+      "output_transfers": 6656,
+      "output_stall_cycles": 17303,
+      "output_slot0": 1332,
+      "output_slot1": 1331,
+      "output_slot2": 1331,
+      "output_slot3": 1331,
+      "output_slot4": 1331
+    },
+    "raw_int32_compares": 6656,
+    "quantized_int8_compares": 6656,
+    "observed_raw_int32_le_sha256": "61fb3e8d855e95830e6aba4f89dccdcc14529f024556ad5e060cb1ab4cd0bb47",
+    "observed_quantized_int8_sha256": "2ced3aee8d4cce9037e6ce80a81c2a339447ae9c4edb49908b6f5104d3d6c9b1",
+    "memory_stall": {
+      "source": "T01 manifest protocol_vectors.memory_stall_cycles",
+      "sequence": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "classes": {
+        "feature": {
+          "transfers": 22413312,
+          "slot_counts": [
+            4482663,
+            4482663,
+            4482662,
+            4482662,
+            4482662
+          ],
+          "stall_cycles": 58274607
+        },
+        "weight": {
+          "transfers": 22413312,
+          "slot_counts": [
+            4482663,
+            4482663,
+            4482662,
+            4482662,
+            4482662
+          ],
+          "stall_cycles": 58274607
+        },
+        "output": {
+          "transfers": 6656,
+          "slot_counts": [
+            1332,
+            1331,
+            1331,
+            1331,
+            1331
+          ],
+          "stall_cycles": 17303
+        }
+      },
+      "expected_counts_match": true
+    },
+    "address_checks": "PASS; feature NCHW, channel-major oc*3456 weights, output NCHW, aligned word/lane/strobe and stable pending request fields",
+    "smoke": {
+      "memory_error_codes": {
+        "feature": "PASS",
+        "weight": "PASS",
+        "output": "PASS"
+      },
+      "abort_pending_read": "PASS",
+      "reset_pending_read": "PASS",
+      "abort_pending_output_write_no_side_effect": "PASS",
+      "post_smoke_full_probe_recovery": "PASS"
+    },
+    "progress_checkpoints": "PROGRESS T45 one checkpoint per completed output channel: 26/6656 ... 6656/6656",
+    "artifacts": {
+      "feature_input.bin": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\feature_input.bin",
+        "bytes": 259584,
+        "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1"
+      },
+      "golden.bin": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\golden.bin",
+        "bytes": 33280,
+        "sha256": "9abb7c1a01398f534895af4e492608fce0867255561bb6d0c9b0925dc575de26"
+      },
+      "layer35_weights.bin": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\layer35_weights.bin",
+        "bytes": 884736,
+        "sha256": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2"
+      },
+      "observed_output.bin": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\observed_output.bin",
+        "bytes": 6656,
+        "sha256": "2ced3aee8d4cce9037e6ce80a81c2a339447ae9c4edb49908b6f5104d3d6c9b1"
+      },
+      "observed_raw.bin": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\observed_raw.bin",
+        "bytes": 26624,
+        "sha256": "61fb3e8d855e95830e6aba4f89dccdcc14529f024556ad5e060cb1ab4cd0bb47"
+      },
+      "static_preflight.json": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\static_preflight.json",
+        "bytes": 6495,
+        "sha256": "b91b3e3abee8e687775a29f619fecc3bcb36757a460b674848a7ed155d3ad7ae"
+      },
+      "vectors.txt": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\vectors.txt",
+        "bytes": 247950,
+        "sha256": "a61c272224a7260c4efaa820445d344e5bdf6cde6b04b7f97dcbefd9eaedf136"
+      },
+      "xelab.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xelab.log",
+        "bytes": 866,
+        "sha256": "d723fdee06e11b823df539c932e68febb0e952c90b9ef825df49d3a3c3fa032e"
+      },
+      "xelab.pb": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xelab.pb",
+        "bytes": 1662,
+        "sha256": "4ae7b31de3009c091122cfa5d97e11b750060c4b650438f232cdc90c0300c057"
+      },
+      "xelab.stdout.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xelab.stdout.log",
+        "bytes": 866,
+        "sha256": "d723fdee06e11b823df539c932e68febb0e952c90b9ef825df49d3a3c3fa032e"
+      },
+      "xsim.jou": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xsim.jou",
+        "bytes": 1233,
+        "sha256": "67db7013fd06bebc2b504405d428c978f1c2abdb4947d02164fe3b70301194b5"
+      },
+      "xsim.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xsim.log",
+        "bytes": 10327,
+        "sha256": "f3c3b8485708b698c212eea898e5379e134db3eca6495dcfab7d511c862934d7"
+      },
+      "xsim.stdout.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xsim.stdout.log",
+        "bytes": 9550,
+        "sha256": "1bfb723efd63bf6962c6d161026ab14d321fa342d1fcbc0bf2cedffa1dda2e2c"
+      },
+      "xvlog.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xvlog.log",
+        "bytes": 1112,
+        "sha256": "4b339c05d27c0dd125c5c15cb2dfcf45a346373b1776a3e1c97bc719e80bc33c"
+      },
+      "xvlog.pb": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xvlog.pb",
+        "bytes": 1548,
+        "sha256": "6da59b1db0e7d6c46bd402ba752bef0ba6ffc3daa852bcb985ad5eb17d790b03"
+      },
+      "xvlog.stdout.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01\\xvlog.stdout.log",
+        "bytes": 1112,
+        "sha256": "4b339c05d27c0dd125c5c15cb2dfcf45a346373b1776a3e1c97bc719e80bc33c"
+      }
+    }
+  },
+  "synthesis": {
+    "reuse_code": "REUSED_EXACT_RTL_SYNTHESIS_FROM_T35",
+    "status": "REUSED_EXACT_RTL_SYNTHESIS_FROM_T35",
+    "evidence": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T35\\layer35_channel_probe.json",
+      "sha256": "e9233ae7e5f166e88ec31c701578f6241fcef21386aeb1535a1b2a9d20ca8456"
+    },
+    "part": "xc7z020clg400-1",
+    "top": "s2a_conv_layer35_channel_probe",
+    "xdc": "NOT_PROVIDED",
+    "timing_conclusion": "N/A; standalone synthesis has no XDC",
+    "resources": {
+      "lut": 15853,
+      "ff": 465,
+      "bram_tile": 0,
+      "dsp": 211
+    },
+    "artifacts": {
+      "synth.tcl": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\synth.tcl",
+        "bytes": 557,
+        "sha256": "ffbfbe8b4949d3186ab883ee1e61121301bac6cd7de7d331ad743e4f444bd86e"
+      },
+      "utilization.rpt": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\utilization.rpt",
+        "bytes": 8548,
+        "sha256": "8ad6ba2bbd5e47fcd2539e66db402ee4a4207ee7984b2195a26e3c2583ad5dc0"
+      },
+      "vivado_synth.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\vivado_synth.log",
+        "bytes": 151404,
+        "sha256": "83aaa80c101dd5ad87c517291837962076d357a09478b3163baaa1cf06a91b8f"
+      },
+      "vivado_synth.jou": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\vivado_synth.jou",
+        "bytes": 1340,
+        "sha256": "8888c3ed9d782d5cec07da7d37f4dd01af887765185651d8193a871d44cb6222"
+      },
+      "vivado.stdout.log": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\vivado.stdout.log",
+        "bytes": 150560,
+        "sha256": "68ac10e51f599dd52d1457a216b0b0646698ac815f3b388f6b63cf7cab6f3b70"
+      }
+    },
+    "source_hashes": {
+      "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "src/s2a_conv_layer35_channel_probe.sv": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4"
+    },
+    "phase": {
+      "phase": "vivado",
+      "command": [
+        "D:\\Xilinx\\2026.1\\Vivado\\bin\\vivado.bat",
+        "-mode",
+        "batch",
+        "-notrace",
+        "-source",
+        "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\synth.tcl",
+        "-log",
+        "vivado_synth.log",
+        "-journal",
+        "vivado_synth.jou"
+      ],
+      "exit_code": 0,
+      "tool_version": "unknown",
+      "seconds": 197.797,
+      "log_path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t35_channel_probe_20260927_01\\vivado.stdout.log"
+    }
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01",
+    "evidence_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T45\\layer35_row9_all_channels.json"
+  },
+  "completed_utc8": "2026-09-27T12:51:27+08:00",
+  "post_run_setup_review": {
+    "scope": "仅补记 T45 静态预检前的 setup 历史；不改变已运行源码、仿真工件或工具退出码",
+    "simulation_rerun": false,
+    "simulation_bindings_preserved": true,
+    "execution_and_reviewed_runner_sha256": "b1ebc707ef12fbb39c747d6c9e67e35896244529832f81d3073d7d32dd473a76",
+    "superseded_cpu_preflight": {
+      "attempt_id": "T45-setup-preflight-01",
+      "evidence_role": "NON_ACCEPTANCE_SUPERSEDED_SOURCE",
+      "driver_invocation": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_01\\invocation.json",
+        "bytes": 843,
+        "sha256": "a83864368c73a9a89312668e06bb0480bc27517ee8f5c7a9e0198ef83a01c9a9"
+      },
+      "preflight_json": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_01\\preflight.json",
+        "bytes": 6076,
+        "sha256": "2981feb4859652a72c2218b58dfcbf7aab1adf169655bfee4e570b87d2fa7c52"
+      },
+      "preflight_stdout": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_01\\preflight.stdout.log",
+        "bytes": 1728,
+        "sha256": "c6a20751289c058596c5cc3f886dcd663ab49a059516fb2391eb17248ee94500"
+      },
+      "runner_source_used": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_01\\runner_source_used.py",
+        "bytes": 64137,
+        "sha256": "8b2987b6450fd6c96ee33dabc19cfb503740d119c6c2f6ed2f16a09b54ba365b"
+      },
+      "driver_recorded_exit_code": 0,
+      "superseded_by": "T45-preflight-01"
+    },
+    "failed_static_setup": {
+      "attempt_id": "T45-static-setup-01",
+      "evidence_role": "NON_ACCEPTANCE",
+      "reported_command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "D:\\FPGA_Competition\\verification\\test_s2a_conv_layer35_row9_all_channels_rtl.py",
+        "--static-only",
+        "--run-dir",
+        "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01"
+      ],
+      "requested_run_dir": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_all_channels_20260927_run01",
+      "frozen_source_expected_run_dir": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t44_layer35_row9_all_channels_20260927_run01",
+      "source_sha256": "8b2987b6450fd6c96ee33dabc19cfb503740d119c6c2f6ed2f16a09b54ba365b",
+      "reported_exit_code": 1,
+      "exit_code_independently_verified_from_saved_shell_log": false,
+      "raw_shell_stdout_saved": false,
+      "failure_before_vivado_inferred_from_frozen_source_control_flow": true,
+      "reason": "首次源码的 RUN_TEMP 仍为 t44 路径，main 在进入 xvlog/xelab 前拒绝 t45 --run-dir。原始 shell stdout 未单独归档；退出码和报错属于执行者报告，不作为验收证据。"
+    },
+    "acceptance_preflight_attempt_id": "T45-preflight-01",
+    "acceptance_preflight_actual_root": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t45_layer35_row9_preflight_20260927_02"
+  }
+}

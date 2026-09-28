@@ -1,0 +1,87 @@
+{
+  "schema": "GestureForge-S2A-T54-run-nonacceptance-v1",
+  "task_id": "S2A-T54",
+  "attempt_id": "T54-preflight03-launcher",
+  "stage": "PowerShell Start-Process退出捕获失败；子Python oracle产物为PASS但OS退出码未观测",
+  "status": "NON_ACCEPTANCE",
+  "evidence_role": "NON_ACCEPTANCE",
+  "baseline": {
+    "commit": "5ffc123b18319f8fb80c8166c9888203b1e66a14",
+    "current_head": "5ffc123b18319f8fb80c8166c9888203b1e66a14"
+  },
+  "scope": "tiny416 cfg section36 layer35; all 256 output channels at y=18, x=0..25",
+  "run_dir": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03",
+  "actual_cwd": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03",
+  "environment": {
+    "TEMP": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03",
+    "TMP": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03",
+    "TMPDIR": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03"
+  },
+  "snapshot": null,
+  "runner_exit_code": null,
+  "launcher_exit_code": 1,
+  "launcher_exit_code_status": "OBSERVED",
+  "child_process": {
+    "started": true,
+    "process_id": 30120,
+    "parent_process_id": 29928,
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "D:\\FPGA_Competition\\verification\\test_s2a_conv_layer35_row18_all_channels_rtl.py",
+      "--preflight-only"
+    ],
+    "exit_code": null,
+    "exit_code_status": "NOT_CAPTURED",
+    "observed_status": "PASS",
+    "raw_int32_count": 6656,
+    "quantized_int8_count": 6656
+  },
+  "launcher_diagnostic": {
+    "phase": "PowerShell Start-Process返回子进程后",
+    "failed_statement": "$pid = $proc.Id",
+    "error": "Cannot overwrite variable PID because it is read-only or constant.",
+    "python_child_was_already_started": true,
+    "outer_powerShell_exit_code": 1
+  },
+  "source_hashes": {
+    "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+    "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+    "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+    "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+    "src/s2a_conv_layer35_channel_probe.sv": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+    "sim/tb_s2a_conv_layer35_row18_all_channels.sv": "e7e4490128dcde59071daefe81e6b0754b50b4e0dae3858fa3d4c428f71951e8",
+    "verification/test_s2a_conv_layer35_row18_all_channels_rtl.py": "02b80f5c1a8b7822aaf3587fe6ec8e834919239ba850778e1d79eee3ec4e4a9d"
+  },
+  "runner_source_snapshot": {
+    "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03\\runner_source_used.py",
+    "bytes": 197994,
+    "sha256": "02b80f5c1a8b7822aaf3587fe6ec8e834919239ba850778e1d79eee3ec4e4a9d"
+  },
+  "phases": [],
+  "failure": {
+    "type": "PowerShellLauncherExitCaptureError",
+    "message": "Start-Process已启动Python PID 30120；随后PowerShell对只读自动变量$PID赋值失败，外层exit=1；子进程后来生成PASS preflight.json与完整stdout，但其OS exit未被捕获。故该attempt保留为NON_ACCEPTANCE，不将CPU JSON PASS升级为可验收预检。"
+  },
+  "artifacts": {
+    "preflight.json": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03\\preflight.json",
+      "bytes": 8408,
+      "sha256": "4324d79b79d751ca37eaff7f30557d097a36412d769077e16330859559310380"
+    },
+    "preflight.stdout.log": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03\\preflight.stdout.log",
+      "bytes": 1730,
+      "sha256": "ee52f2d0ab7baa2476ee6713b9d01a1c4f98a2991a4d090316adee83dc7909df"
+    },
+    "preflight.stderr.log": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03\\preflight.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runner_source_used.py": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t54_layer35_row18_preflight_20260928_03\\runner_source_used.py",
+      "bytes": 197994,
+      "sha256": "02b80f5c1a8b7822aaf3587fe6ec8e834919239ba850778e1d79eee3ec4e4a9d"
+    }
+  }
+}

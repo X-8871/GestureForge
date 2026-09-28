@@ -1,0 +1,359 @@
+{
+  "schema": "GestureForge-S2A-T55-mcp-project-run-summary-v1",
+  "task_id": "S2A-T55",
+  "attempt_id": "T55-mcp-project-run01",
+  "status": "PASS_SIMULATION_DATA",
+  "evidence_role": "SIMULATION_DATA_ONLY",
+  "acceptance_status": "PENDING_INDEPENDENT_REVIEW",
+  "baseline_head": "071343bf146d006c893a0011c099de2f563db7ab",
+  "scope": "tiny416 cfg section36 layer35; all 256 output channels at y=19, x=0..25; not full layer or network",
+  "project": {
+    "part": "xa7z020clg400-1I",
+    "snapshot": "tb_s2a_conv_layer35_row19_all_channels_behav",
+    "directory": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture",
+    "simset": "sim_s2a_t55_row19",
+    "project": "AX7Z020_Gesture",
+    "working_directory": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim",
+    "top": "tb_s2a_conv_layer35_row19_all_channels",
+    "runtime": "all"
+  },
+  "mcp_calls": [
+    {
+      "tool": "mcp__vivado_mcp__run_tcl",
+      "status": "RPC_TIMEOUT",
+      "expr": "run -all",
+      "simulator_os_exit_code": null,
+      "rpc_exit_code": null,
+      "simulator_continued_after_rpc_timeout": true,
+      "timeout_seconds": 300,
+      "completion_independently_observed_in_simulate_log": true,
+      "response_error": "timed out awaiting tools/call after 300s"
+    },
+    {
+      "status": "SUCCESS_AFTER_FINISH",
+      "tool": "mcp__vivado_mcp__close_sim",
+      "expr": "close_sim",
+      "result_text": ""
+    }
+  ],
+  "timing": {
+    "last_log_write_utc": "2026-09-28T21:14:42.5618206+08:00",
+    "rpc_timeout_return_local": "2026-09-28T20:43:48+08:00",
+    "start_local": "2026-09-28T20:38:48+08:00",
+    "last_log_write_local": "2026-09-28T21:14:42.5618206+08:00",
+    "xsim_cpu_usage_ms": 1813859,
+    "elapsed_from_start_to_last_log_write_seconds_approx": 2154.562,
+    "finish_simulation_time_ns": 2971541060,
+    "run_all_rpc_timeout_seconds": 300,
+    "xsim_pid": 22924
+  },
+  "process_check_before_launch": {
+    "satisfies_runner_xsim_gate": false,
+    "status": "PASS_ONLY_CURRENT_MCP_VIVADO",
+    "recorded_utc8": "2026-09-28T20:38:36.167+08:00",
+    "timing_scope": "紧邻MCP launch_simulation调用前采集；编译/展开发生在该调用内部，因此不宣称紧邻xsim子进程启动。",
+    "artifact": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\process_check_before_launch.json",
+      "sha256": "388ae04519680a1485af3e3c785ef570c0a2591c039d02f154846a9544fdc840",
+      "bytes": 1011
+    },
+    "process_count": 1,
+    "process_names": [
+      "vivado",
+      "vivado_lab",
+      "xsct",
+      "xsim",
+      "xsimk",
+      "xelab",
+      "xvlog",
+      "xvhdl"
+    ],
+    "xsim_process_count": 0,
+    "processes": [
+      {
+        "Name": "vivado.exe",
+        "ProcessId": 8388,
+        "ParentProcessId": 22204,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+        "CommandLine": "\"D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe\"   -mode batch -source C:\\Users\\22061\\AppData\\Local\\Temp\\vivado-mcp-keepalive-759cb815345d4923bdefa566e02bf82b.tcl -nolog -nojournal",
+        "CreationDate": "2026-09-28T18:15:02.309765+08:00"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "path": "src/int8_conv_tap_geometry.sv"
+    },
+    {
+      "sha256": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "path": "src/int8_conv_weight_address.sv"
+    },
+    {
+      "sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "path": "src/int8_mac_accumulator.sv"
+    },
+    {
+      "sha256": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "path": "src/s2a_conv_engine.sv"
+    },
+    {
+      "sha256": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+      "path": "src/s2a_conv_layer35_channel_probe.sv"
+    },
+    {
+      "sha256": "2c248d1a3e4488fc1ffd70850f317a076d025b443f0def84bf4e98ddc9df2b54",
+      "path": "sim/tb_s2a_conv_layer35_row19_all_channels.sv"
+    }
+  ],
+  "fixture_files": {
+    "layer35_weights.bin": {
+      "project_artifact": {
+        "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\layer35_weights.bin",
+        "sha256": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+        "bytes": 884736
+      },
+      "run02_source": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t55_layer35_row19_all_channels_20260928_run02\\layer35_weights.bin",
+        "sha256": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+        "bytes": 884736
+      },
+      "byte_identical": true
+    },
+    "golden.bin": {
+      "project_artifact": {
+        "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\golden.bin",
+        "sha256": "36dd652fe41a53cfd359d28aea71a71d4b86c8fa56df43b9d95ce6ed2034a190",
+        "bytes": 33280
+      },
+      "run02_source": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t55_layer35_row19_all_channels_20260928_run02\\golden.bin",
+        "sha256": "36dd652fe41a53cfd359d28aea71a71d4b86c8fa56df43b9d95ce6ed2034a190",
+        "bytes": 33280
+      },
+      "byte_identical": true
+    },
+    "vectors.txt": {
+      "project_artifact": {
+        "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\vectors.txt",
+        "sha256": "a7296b0b23b996a264ece5adfbcde7fd57b04feef50ed1ca80f9338ff9c35845",
+        "bytes": 254606
+      },
+      "run02_source": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t55_layer35_row19_all_channels_20260928_run02\\vectors.txt",
+        "sha256": "a7296b0b23b996a264ece5adfbcde7fd57b04feef50ed1ca80f9338ff9c35845",
+        "bytes": 254606
+      },
+      "byte_identical": true
+    },
+    "feature_input.bin": {
+      "project_artifact": {
+        "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\feature_input.bin",
+        "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+        "bytes": 259584
+      },
+      "run02_source": {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t55_layer35_row19_all_channels_20260928_run02\\feature_input.bin",
+        "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+        "bytes": 259584
+      },
+      "byte_identical": true
+    }
+  },
+  "compile": {
+    "artifact": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\compile.log",
+      "sha256": "16ae5114fd5fd07e108820c64ece11ee58c5b9290df48cc32a7d42b2127c39a3",
+      "bytes": 1389,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\compile.log"
+    },
+    "status": "PASS_LOG_EVIDENCE",
+    "error_fatal_line_count": 0,
+    "exit_code": null
+  },
+  "elaboration": {
+    "snapshot": "tb_s2a_conv_layer35_row19_all_channels_behav",
+    "status": "PASS_LOG_EVIDENCE",
+    "artifact": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\elaborate.log",
+      "sha256": "3723c570b3d69bfd5ebf077bf0c500f73f6c11ed6c3a1c95423a77f56d1099de",
+      "bytes": 1173,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\elaborate.log"
+    },
+    "error_fatal_line_count": 0,
+    "exit_code": null
+  },
+  "simulation_result": {
+    "progress_checkpoint_count": 256,
+    "quantized_int8_output": {
+      "golden_expected_sha256": "f7c82825d4eedf1e9e89493004b894b6d86d606ba6b9ee6ad87ced1da578b548",
+      "artifact": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_output.bin",
+        "sha256": "f7c82825d4eedf1e9e89493004b894b6d86d606ba6b9ee6ad87ced1da578b548",
+        "bytes": 6656,
+        "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_output.bin"
+      },
+      "sha256": "f7c82825d4eedf1e9e89493004b894b6d86d606ba6b9ee6ad87ced1da578b548",
+      "byte_identical_to_golden": true,
+      "bytes": 6656
+    },
+    "quantized_int8_compares": 6656,
+    "progress_first_output_count": 26,
+    "progress_step": 26,
+    "finish_line_count": 1,
+    "pass_line": "PASS T55 outputs=6656 raw=6656 feature_reads=22413312 weight_reads=22413312 output_writes=6656 padding=589824 taps=23003136 feature_lanes=15 weight_lanes=15 output_lanes=15 error_mask=70 fault_responses=3 abort_cancel=2 reset_cancel=1 recovery=1 request_stalls=116566517 feature_transfers=22413312 feature_stall_cycles=58274607 feature_slot0=4482663 feature_slot1=4482663 feature_slot2=4482662 feature_slot3=4482662 feature_slot4=4482662 weight_transfers=22413312 weight_stall_cycles=58274607 weight_slot0=4482663 weight_slot1=4482663 weight_slot2=4482662 weight_slot3=4482662 weight_slot4=4482662 output_transfers=6656 output_stall_cycles=17303 output_slot0=1332 output_slot1=1331 output_slot2=1331 output_slot3=1331 output_slot4=1331",
+    "simulation_cpu_usage_ms": 1813859,
+    "finish_line": "$finish called at time : 2971541060 ns : File \"D:/FPGA_Competition/sim/tb_s2a_conv_layer35_row19_all_channels.sv\" Line 516",
+    "outputs": 6656,
+    "pass_line_count": 1,
+    "raw_int32_output": {
+      "golden_expected_sha256": "afd35aab5ef3d64ec1d1ec979fee36eac0727f91a084d05b4a054da0a970ce77",
+      "artifact": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_raw.bin",
+        "sha256": "afd35aab5ef3d64ec1d1ec979fee36eac0727f91a084d05b4a054da0a970ce77",
+        "bytes": 26624,
+        "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_raw.bin"
+      },
+      "sha256": "afd35aab5ef3d64ec1d1ec979fee36eac0727f91a084d05b4a054da0a970ce77",
+      "byte_identical_to_golden": true,
+      "bytes": 26624
+    },
+    "raw_int32_compares": 6656,
+    "xsim_pass_fields": {
+      "outputs": 6656,
+      "raw": 6656,
+      "feature_reads": 22413312,
+      "weight_reads": 22413312,
+      "output_writes": 6656,
+      "padding": 589824,
+      "taps": 23003136,
+      "feature_lanes": 15,
+      "weight_lanes": 15,
+      "output_lanes": 15,
+      "error_mask": 70,
+      "fault_responses": 3,
+      "abort_cancel": 2,
+      "reset_cancel": 1,
+      "recovery": 1,
+      "request_stalls": 116566517,
+      "feature_transfers": 22413312,
+      "feature_stall_cycles": 58274607,
+      "weight_transfers": 22413312,
+      "weight_stall_cycles": 58274607,
+      "output_transfers": 6656,
+      "output_stall_cycles": 17303
+    },
+    "progress_last_output_count": 6656,
+    "status": "PASS"
+  },
+  "artifacts": {
+    "observed_output": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_output.bin",
+      "sha256": "f7c82825d4eedf1e9e89493004b894b6d86d606ba6b9ee6ad87ced1da578b548",
+      "bytes": 6656,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_output.bin"
+    },
+    "simulate_log_copy": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\simulate.log",
+      "sha256": "d38b2172a08b548811eaccf7b7414fcb9c291a2579bc5c44397ded8581b6acca",
+      "bytes": 9140
+    },
+    "process_check_before_launch": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\process_check_before_launch.json",
+      "sha256": "388ae04519680a1485af3e3c785ef570c0a2591c039d02f154846a9544fdc840",
+      "bytes": 1011
+    },
+    "compile_log": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\compile.log",
+      "sha256": "16ae5114fd5fd07e108820c64ece11ee58c5b9290df48cc32a7d42b2127c39a3",
+      "bytes": 1389,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\compile.log"
+    },
+    "wdb": {
+      "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\tb_s2a_conv_layer35_row19_all_channels_behav.wdb",
+      "last_write_utc": "2026-09-28T13:14:43.1031141Z",
+      "sha256": "NOT_COMPUTED_NOT_COPIED",
+      "bytes": 16470061530
+    },
+    "elaborate_log": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\elaborate.log",
+      "sha256": "3723c570b3d69bfd5ebf077bf0c500f73f6c11ed6c3a1c95423a77f56d1099de",
+      "bytes": 1173,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\elaborate.log"
+    },
+    "simulate_log_source": {
+      "path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\simulate.log",
+      "sha256": "d38b2172a08b548811eaccf7b7414fcb9c291a2579bc5c44397ded8581b6acca",
+      "bytes": 9140
+    },
+    "observed_raw": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_raw.bin",
+      "sha256": "afd35aab5ef3d64ec1d1ec979fee36eac0727f91a084d05b4a054da0a970ce77",
+      "bytes": 26624,
+      "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_raw.bin"
+    }
+  },
+  "non_claims": [
+    "仅为 y=19、x=0..25、256 输出通道仿真数据通过；不代表 layer35 整层或整网。",
+    "G2 独立审查仍待完成；G3 板测、G4 整体验收及 G5 阶段验收均未声明通过。",
+    "run-all MCP RPC 在300秒超时；日志确认 XSim 后续 PASS/$finish，但 MCP/XSim OS exit code 未捕获。",
+    "启动前进程门禁在 launch_simulation 前采集，compile/elaborate 在该调用内发生，因此不能称为紧邻 xsim 子进程启动门禁。",
+    "no-wave Tcl 仅为注释文件；本次 WDB 仍生成并保留，未复制或删除。"
+  ],
+  "report_update_history": [
+    {
+      "attempt": 1,
+      "operation": "canonical_report_schema_update",
+      "outcome": "SELF_CHECK_FAILED_AND_REPAIRED",
+      "failure": "首次报告更新自检发现准备阶段 JSON 未定义 evidence_role、mcp_project_run、simulation_status、simulation_summary_path，直接属性赋值未建立缺失属性，报告 schema 自检失败。",
+      "classification": "报告更新失败；不是仿真失败，仿真数据 PASS 证据保持不变。",
+      "recovery": "使用 PowerShell Add-Member 为缺失属性添加值后重新序列化，并执行完整报告、源码绑定、证据哈希及日志自检。",
+      "simulator_result_changed": false
+    },
+    {
+      "attempt": 2,
+      "operation": "canonical_report_schema_update",
+      "outcome": "PASS",
+      "repair_method": "PowerShell Add-Member",
+      "self_check": "JSON schema、8 项 T55/7 项 T54 源码绑定、父报告与证据哈希、仿真日志计数和 PASS/$finish 全部核验通过。",
+      "simulator_result_changed": false
+    },
+    {
+      "attempt": 3,
+      "operation": "evidence_persistence_correction",
+      "outcome": "PASS",
+      "classification": "仅修正仿真工件的证据持久化路径；不改变或重跑仿真，不改变数值结果。",
+      "simulation_result_changed": false,
+      "copied_artifacts": [
+        {
+          "name": "observed_raw.bin",
+          "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_raw.bin",
+          "committed_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_raw.bin",
+          "bytes": 26624,
+          "sha256": "afd35aab5ef3d64ec1d1ec979fee36eac0727f91a084d05b4a054da0a970ce77"
+        },
+        {
+          "name": "observed_output.bin",
+          "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\observed_output.bin",
+          "committed_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\observed_output.bin",
+          "bytes": 6656,
+          "sha256": "f7c82825d4eedf1e9e89493004b894b6d86d606ba6b9ee6ad87ced1da578b548"
+        },
+        {
+          "name": "compile.log",
+          "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\compile.log",
+          "committed_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\compile.log",
+          "bytes": 1389,
+          "sha256": "16ae5114fd5fd07e108820c64ece11ee58c5b9290df48cc32a7d42b2127c39a3"
+        },
+        {
+          "name": "elaborate.log",
+          "original_sim_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.sim\\sim_s2a_t55_row19\\behav\\xsim\\elaborate.log",
+          "committed_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T55\\mcp_project_run01\\elaborate.log",
+          "bytes": 1173,
+          "sha256": "3723c570b3d69bfd5ebf077bf0c500f73f6c11ed6c3a1c95423a77f56d1099de"
+        }
+      ]
+    }
+  ]
+}

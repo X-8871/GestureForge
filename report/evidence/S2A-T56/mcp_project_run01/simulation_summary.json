@@ -4,7 +4,7 @@
   "attempt_id": "T56-mcp-project-run01",
   "status": "PASS_SIMULATION_DATA",
   "evidence_role": "SIMULATION_DATA_ONLY",
-  "acceptance_status": "PENDING_INDEPENDENT_REVIEW",
+  "acceptance_status": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
   "baseline_head": "ad99b18f23122436bcdf900ef5dee15cb6492d42",
   "scope": "tiny416 cfg section36 layer35；y=20，x=0..25，256输出通道；仅此行数据，不代表整层或整网。",
   "project": {
@@ -273,6 +273,23 @@
     "run_simulate MCP RPC在300秒超时；XSim之后自然运行到PASS和$finish，但MCP RPC与XSim OS退出码均未捕获。",
     "process_check_before_xsim.json记录query_success=true、exit_code=0、xsim_process_count=0及PID 8388，但其invocation.command字段异常，不能视为可复现的完整命令记录。",
     "T56 simset曾被设为当前simset，XPR ActiveSimSet因此变为sim_s2a_t56_row20；本次离线收尾没有修改XPR，当前MCP不可达，故未恢复该属性。",
-    "结论仅适用于tiny416 layer35 y=20、x=0..25、256通道的仿真数据；G2独立审查未完成，G3板测、G4整体验收、G5阶段验收以及整层/整网通过均未声明。"
+    "结论仅适用于tiny416 layer35 y=20、x=0..25、256通道的仿真数据；G2数据级独立审查已通过，G3板测、G4整体验收、G5阶段验收以及整层/整网通过均未声明。"
+  ],
+  "report_update_history": [
+    {
+      "operation": "independent_review_status_update",
+      "reviewer": "reviewer_t53",
+      "outcome": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
+      "classification": "仅更新验收状态与复审摘要；没有修改或重跑仿真。",
+      "reviewed_baseline": "ad99b18f23122436bcdf900ef5dee15cb6492d42",
+      "review_scope": "tiny416 cfg section36 layer35；y=20，x=0..25，256输出通道，数据级审查。",
+      "review_checks": [
+        "核验范围及23项源码绑定",
+        "raw INT32与INT8输出逐字节比较差异为0",
+        "日志PASS/$finish及证据副本哈希核验通过"
+      ],
+      "simulator_result_changed": false,
+      "vivado_rerun": false
+    }
   ]
 }

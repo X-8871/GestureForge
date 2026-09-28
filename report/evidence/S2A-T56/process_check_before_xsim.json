@@ -1,0 +1,35 @@
+{
+  "schema": "GestureForge-S2A-T56-process-check-v1",
+  "task_id": "S2A-T56",
+  "status": "PASS_NO_XSIM",
+  "recorded_at_utc": "2026-09-28T14:35:47.0859726Z",
+  "recorded_at_utc8": "2026-09-28T22:35:47.0970196+08:00",
+  "process_names": [
+    "vivado",
+    "vivado_lab",
+    "xsct",
+    "xsim",
+    "xsimk",
+    "xelab",
+    "xvlog",
+    "xvhdl"
+  ],
+  "invocation": {
+    "shell": "PowerShell",
+    "command": "vivado vivado_lab xsct xsim xsimk xelab xvlog xvhdl=@('vivado','vivado_lab','xsct','xsim','xsimk','xelab','xvlog','xvhdl'); Get-CimInstance Win32_Process | Where-Object { =[IO.Path]::GetFileNameWithoutExtension(.Name); vivado vivado_lab xsct xsim xsimk xelab xvlog xvhdl -contains  }",
+    "exit_code": 0
+  },
+  "query_success": true,
+  "xsim_process_count": 0,
+  "processes": [
+    {
+      "Name": "vivado.exe",
+      "ProcessId": 8388,
+      "ParentProcessId": 22204,
+      "ExecutablePath": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+      "CommandLine": "\"D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe\"   -mode batch -source C:\\Users\\22061\\AppData\\Local\\Temp\\vivado-mcp-keepalive-759cb815345d4923bdefa566e02bf82b.tcl -nolog -nojournal",
+      "CreationDate": "2026-09-28T18:15:02.309765+08:00"
+    }
+  ],
+  "error": null
+}

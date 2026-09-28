@@ -44,3 +44,8 @@
 - tiny320/tiny416 后续板上门：LUT/FF/BRAM/DSP≤85%，WNS/WHS≥0，TNS/THS=0；full608 不适用板上资源门。
 - 未来若要求“无手必须拒绝输出”，需另建独立、可审计数据集和新验收门，不回写当前阶段一冻结结论。
 - 阶段 2A 已开启；当前仅推进 PL 推理仿真。阶段 2B 固定输入上板须在 2A 验收完成、硬件条件核对并经 Wong 明确允许后开始。摄像头视频、HDMI、实物操作、烧录和新训练均不在当前范围。
+
+## 阶段 2A 最新恢复点
+
+- S2A-T56 数据级独立复核状态为 `PASS_INDEPENDENT_REVIEW_DATA_ONLY`，覆盖 tiny416 layer35 的 y=20、x=0..25、256 通道；layer35 整层、整网和阶段整体 G2/G3/G4/G5 仍待验收。提交 `7e6eac725bd9c4ed41540ca6874ae67fc03fe911`；证据：`report/evidence/S2A-T56/layer35_row20_all_channels.json`。
+- 后续 Vivado 仿真等待本会话恢复 Vivado MCP 连接；当前 `check_connection` 连接 `127.0.0.1:7654` 被拒（WinError 1225），`get_project_info` 同样失败，未能确认在线实例。2026-09-28 检查无 Vivado/XSim 进程；未停止、关闭、重启其他实例。

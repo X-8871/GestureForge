@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import subprocess
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -13,6 +14,27 @@ try:
     import verification.s1_t02_d9_yolo_decode as decoder
 except ModuleNotFoundError:
     import s1_t02_d9_yolo_decode as decoder
+
+
+D9_R1_D6_METRICS_SOURCE_COMMIT = "f30fa9c085b6811adede9b9c88373ffa86f21ad5"
+D9_R1_TEST_SOURCE_COMMIT = "78f62b61c52040942fa8920628d2cd388306771b"
+
+
+def _historical_git_source_sha256(repository: Path, revision: str, source_path: str) -> str:
+    """从 Git 历史读取经审查源码并实算 SHA-256。"""
+
+    command = ["git", "-C", str(repository), "show", f"{revision}:{source_path}"]
+    try:
+        result = subprocess.run(command, capture_output=True, check=False, timeout=10)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"git show 读取历史源码失败: {revision}:{source_path}: {exc}") from exc
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(
+            f"git show 读取历史源码失败: {revision}:{source_path}; "
+            f"exit={result.returncode}; stderr={detail}"
+        )
+    return hashlib.sha256(result.stdout).hexdigest()
 
 
 def _empty_heads() -> dict[str, list[float]]:
@@ -342,7 +364,12 @@ class YoloDecodeTest(unittest.TestCase):
                 basis = evidence["source_basis"][basis_id]
                 self.assertEqual(basis["file"], expected_path)
                 self.assertEqual(basis["sha256"], expected_sha)
-                actual_sha = hashlib.sha256((repository / basis["file"]).read_bytes()).hexdigest()
+                if basis_id == "d6_metrics":
+                    actual_sha = _historical_git_source_sha256(
+                        repository, D9_R1_D6_METRICS_SOURCE_COMMIT, basis["file"]
+                    )
+                else:
+                    actual_sha = hashlib.sha256((repository / basis["file"]).read_bytes()).hexdigest()
                 self.assertEqual(basis["sha256"], actual_sha)
 
         review = evidence["review"]
@@ -390,8 +417,27 @@ class YoloDecodeTest(unittest.TestCase):
         ):
             with self.subTest(implementation=file_key):
                 source_path = repository / implementation[file_key]
-                actual_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
+                if file_key == "test_file":
+                    actual_sha = _historical_git_source_sha256(
+                        repository, D9_R1_TEST_SOURCE_COMMIT, implementation[file_key]
+                    )
+                else:
+                    actual_sha = hashlib.sha256(source_path.read_bytes()).hexdigest()
                 self.assertEqual(implementation[hash_key], actual_sha)
+
+    def test_historical_d6_source_hash_lookup_fails_clearly(self) -> None:
+        """历史源码无法由 git show 读取时明确失败。"""
+
+        def failed_git_show(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[bytes]:
+            return subprocess.CompletedProcess(command, 128, b"", b"fatal: bad object")
+
+        with patch.object(subprocess, "run", side_effect=failed_git_show):
+            with self.assertRaisesRegex(RuntimeError, "git show 读取历史源码失败.*exit=128.*fatal: bad object"):
+                _historical_git_source_sha256(
+                    Path(__file__).resolve().parents[1],
+                    D9_R1_D6_METRICS_SOURCE_COMMIT,
+                    "verification/s1_t02_d6_detection_metrics.py",
+                )
 
     def test_rejects_nonfinite_values_and_exponential_overflow(self) -> None:
         """即使低分通道也检查 NaN/Inf，并拒绝有限但导致 exp 溢出的 tw。"""

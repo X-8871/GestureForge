@@ -39,7 +39,7 @@ D9_REFERENCE = ROOT / "verification/s1_t02_d9_yolo_decode.py"
 CLASS_NAMES = ("fist", "palm", "one", "two_up", "three")
 SAMPLE_COUNT = 109
 BASELINE_HEAD = "ec25ea282783da2e7c6e6c3f042398a75e5f130c"
-PREVIOUS_REPORT_SHA256 = "8aceb76892f0bcb8b3174ffc49b33206840f94b40724cb915d9f03386130fca7"
+PREVIOUS_REPORT_SHA256 = "beb8a873c5f888e34e2d1a63ce7e692517cd9fb661219c6c8cb52e96f2b2d76b"
 SCORE_TOLERANCE = 1e-6
 COORDINATE_TOLERANCE = 1e-6
 
@@ -79,6 +79,23 @@ def require(condition: bool, message: str) -> None:
 
     if not condition:
         raise RuntimeError(message)
+
+
+def require_baseline_ancestor(runtime_head: str) -> None:
+    """要求运行提交位于冻结基线之上。"""
+
+    result = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", BASELINE_HEAD, runtime_head],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    if result.returncode == 1:
+        raise RuntimeError(f"T62 当前 HEAD 不是冻结基线的后代：{runtime_head}")
+    require(result.returncode == 0, f"无法验证冻结基线祖先关系，退出码={result.returncode}：{result.stderr.strip()}")
 
 
 def compile_library(temp_dir: Path) -> tuple[ctypes.CDLL, dict[str, Any]]:
@@ -568,7 +585,7 @@ def main() -> int:
     args = parser.parse_args()
 
     initial_head = t29.current_git_head(ROOT)
-    require(initial_head == BASELINE_HEAD, f"T62 基线 HEAD 不匹配：{initial_head}")
+    require_baseline_ancestor(initial_head)
     parent, parent_sha = load_parent_report()
     previous_report_sha: str | None = None
     if args.write_evidence:
@@ -580,6 +597,8 @@ def main() -> int:
         require(previous_report_sha == PREVIOUS_REPORT_SHA256, "待修订 T62 报告 SHA 不等于已审版本")
         previous_report = json.loads(previous_payload.decode("utf-8"))
         require(previous_report.get("task_id") == "S2A-T62" and previous_report.get("status") == "PASS_CPU_REFERENCE_ONLY", "待修订 T62 报告身份或状态不符")
+        require(previous_report.get("review_revision", {}).get("iteration") == 3, "待修订 T62 报告不是 revision 3")
+        require(previous_report.get("baseline_git_head") == BASELINE_HEAD, "待修订 T62 报告冻结基线不符")
     require(all(path.is_file() and not path.is_symlink() for path in (G0_SPEC, T01_PLAN, MANIFEST, T25_INDEX, T29_RUNNER, D6_REFERENCE, D9_REFERENCE, C_SOURCE, C_HEADER)), "T62 绑定源文件缺失或类型错误")
 
     with tempfile.TemporaryDirectory(prefix="s2a_t62_gcc_") as temporary:
@@ -596,11 +615,12 @@ def main() -> int:
                 cpu_comparison, regenerated = compare_109_cpu_goldens(library, parent)
                 require(cpu_comparison["samples_compared"] == SAMPLE_COUNT, "109 样本比较不完整")
 
+            final_head = t29.current_git_head(ROOT)
+            require(final_head == initial_head, "T62 验证期间 Git HEAD 发生变化")
+            require_baseline_ancestor(final_head)
             if args.write_evidence or args.refresh_evidence:
                 require(cpu_comparison is not None and regenerated is not None, "写证据前必须完成 109 样本比较")
                 require(sha256_file(T29_EVIDENCE) == parent_sha, "T29 父报告在比较期间发生变化")
-                final_head = t29.current_git_head(ROOT)
-                require(final_head == initial_head == BASELINE_HEAD, "T62 验证期间 Git HEAD 发生变化")
                 if args.write_evidence:
                     require(not T62_EVIDENCE.exists(), f"拒绝覆盖 T62 证据：{T62_EVIDENCE}")
                 else:
@@ -639,9 +659,9 @@ def main() -> int:
                     },
                 },
                 "review_revision": {
-                    "iteration": 2 if args.refresh_evidence else 1,
+                    "iteration": 4 if args.refresh_evidence else 1,
                     "supersedes_sha256": previous_report_sha,
-                    "change_summary": "修复有限 tw/th 导致 exp 溢出时返回 -3，并验证参数/非有限输入/指数溢出负例失败时保持输出哨兵不变。" if args.refresh_evidence else "首次生成 T62 CPU C 参考证据。",
+                    "change_summary": "在 D 盘隔离临时目录复核 109 个固定样本、T01 语义夹具及错误输出哨兵契约；核对 D9 历史源码绑定并确认运行期间 HEAD 稳定，结果仅限主机 CPU。" if args.refresh_evidence else "首次生成 T62 CPU C 参考证据。",
                 },
                 "toolchain": compile_record,
                 "verification_run": {

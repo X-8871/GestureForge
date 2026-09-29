@@ -27,7 +27,7 @@
     },
     "python_bridge_test": {
       "path": "verification/test_s2a_ps_decode_nms_c.py",
-      "sha256": "28f05e9363fc69fd0645e6599fb73d139ac3d5cbbb168afaa45236cca81b2706"
+      "sha256": "c523c9c070e2a5aa8ae534b0b7cded69d18a26cf13112868239cd00fd000f699"
     },
     "s2a_plan": {
       "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
@@ -84,7 +84,7 @@
   },
   "cpu_golden_comparison": {
     "coordinate_abs_tolerance": 1e-06,
-    "elapsed_seconds": 7.528896,
+    "elapsed_seconds": 7.396235,
     "output_box_count_total": 104,
     "per_sample": [
       {
@@ -8440,11 +8440,11 @@
     "结果不表示完整 layer/network、G3、G4 或 G5 已通过。"
   ],
   "review_revision": {
-    "change_summary": "修复有限 tw/th 导致 exp 溢出时返回 -3，并验证参数/非有限输入/指数溢出负例失败时保持输出哨兵不变。",
-    "iteration": 2,
-    "supersedes_sha256": "8aceb76892f0bcb8b3174ffc49b33206840f94b40724cb915d9f03386130fca7"
+    "change_summary": "在 D 盘隔离临时目录复核 109 个固定样本、T01 语义夹具及错误输出哨兵契约；核对 D9 历史源码绑定并确认运行期间 HEAD 稳定，结果仅限主机 CPU。",
+    "iteration": 4,
+    "supersedes_sha256": "beb8a873c5f888e34e2d1a63ce7e692517cd9fb661219c6c8cb52e96f2b2d76b"
   },
-  "runtime_git_head": "ec25ea282783da2e7c6e6c3f042398a75e5f130c",
+  "runtime_git_head": "5d432a2f72112f6d85c150dfd33eef7f29c6797a",
   "schema_version": "gestureforge_s2a_t62_ps_decode_nms_c_reference_v1",
   "scope": {
     "description": "tiny416 PS decode/NMS 可移植 C99 主机参考核，与冻结 D9 CPU 解码结果逐项比较。",
@@ -8469,14 +8469,14 @@
       "-shared",
       "D:\\FPGA_Competition\\verification\\s2a_ps_decode_nms_reference.c",
       "-o",
-      "C:\\Users\\22061\\AppData\\Local\\Temp\\s2a_t62_gcc_cnjtv43b\\s2a_t62_ps_decode_nms.dll",
+      "D:\\FPGA_Competition\\report\\evidence\\S2A-T62\\temp\\s2a_t62_gcc_slbfl1tq\\s2a_t62_ps_decode_nms.dll",
       "-lm"
     ],
-    "elapsed_seconds": 1.212282,
+    "elapsed_seconds": 2.545783,
     "exit_code": 0,
     "gcc_version_first_line": "gcc (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
     "language_standard": "ISO C99",
-    "shared_library_sha256": "3ba8270bd187205aea7b20574ebb42ed94f787b325fa213471aa0a93e5b46eef",
+    "shared_library_sha256": "f8e090a876984533981ea46adb14b259e6fa78a565f6862448a2b34b2c53b822",
     "stderr": "",
     "stdout": ""
   },
@@ -8486,7 +8486,7 @@
       "D:\\FPGA_Competition\\verification\\test_s2a_ps_decode_nms_c.py",
       "--refresh-evidence"
     ],
-    "elapsed_seconds_before_evidence_write": 8.976581,
+    "elapsed_seconds_before_evidence_write": 10.228226,
     "exit_code_after_evidence_write": 0,
     "python_version": "3.12.10",
     "working_directory": "D:\\FPGA_Competition"

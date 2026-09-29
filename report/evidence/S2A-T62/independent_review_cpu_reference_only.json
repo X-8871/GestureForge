@@ -1,0 +1,51 @@
+{
+  "schema": "GestureForge-S2A-independent-cpu-reference-review-v1",
+  "task_id": "S2A-T62",
+  "decision": "PASS_CPU_REFERENCE_ONLY",
+  "reviewed_at_utc8": "2026-09-30",
+  "reviewed_head": "5d432a2f72112f6d85c150dfd33eef7f29c6797a",
+  "review_revision": 4,
+  "primary_evidence": [
+    {
+      "path": "report/evidence/S2A-T62/layer35_ps_decode_nms_c_reference.json",
+      "bytes": 258920,
+      "sha256": "d1feada739a89791ccea5ae26f6e90463d1145830043847a3b4dfc281aaedbe1"
+    },
+    {
+      "path": "verification/test_s2a_ps_decode_nms_c.py",
+      "bytes": 34928,
+      "sha256": "c523c9c070e2a5aa8ae534b0b7cded69d18a26cf13112868239cd00fd000f699"
+    },
+    {
+      "path": "verification/test_s1_t02_d9_yolo_decode.py",
+      "bytes": 21614,
+      "sha256": "bd29e48068102ee345f08a7a10ca4029bc2b3c18bf5280499a52873659878eb4"
+    },
+    {
+      "path": "report/evidence/S2A-T62/logs/rev4_d9_unittest.log",
+      "bytes": 118,
+      "sha256": "a784d26d39240d23a23e1abf08d4d1f46f1a5563ca3dd4aa103765f8e753deee"
+    },
+    {
+      "path": "report/evidence/S2A-T62/logs/rev4_t62_109_refresh.log",
+      "bytes": 637,
+      "sha256": "f288bf4eb9134a5268144155d78bf728bc871da0005367d6c1e3b6d8b136e138"
+    },
+    {
+      "path": "report/evidence/S2A-T62/logs/rev4_environment_probe.log",
+      "bytes": 295,
+      "sha256": "193fa17e21a74db05d4f291effba79b3bbace4202a5d6a3d15e87d74ea21a3ab"
+    }
+  ],
+  "checks": [
+    "T25、T29、T62 的 109 个固定样本 ID 一致；逐样本输入头、几何与 raw 候选数一致。",
+    "C 与 D9 参考比较覆盖 109 样本、297 raw 候选和 104 输出框；分数及坐标最大误差均为 0。",
+    "5 个语义夹具与 5 个错误契约用例通过；错误路径保持输出缓冲区及计数哨兵。",
+    "D9 unittest 为 14 tests / OK；报告、测试及 D 盘运行日志哈希与复审内容一致。",
+    "TEMP/TMP/TMPDIR 指向 D 盘，T62 隔离临时目录在结束后为空。"
+  ],
+  "limitations": [
+    "NO_MEMORY 分支仅静态核对，未注入 malloc 失败。",
+    "结论仅为主机 CPU 参考；不代表 PL、Vivado/XSim、整层、整网、板测或 G3/G4/G5 通过。"
+  ]
+}

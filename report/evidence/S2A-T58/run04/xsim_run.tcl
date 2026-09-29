@@ -1,0 +1,2 @@
+run all
+puts "T58_XSIM_TCL_RUN_ALL_RETURNED"

@@ -1,0 +1,24 @@
+set project_dir {D:/FPGA_Competition/report/evidence/S2A-T58/run05/isolated_project/T58_Row22_Attempt05}
+if {[file exists $project_dir]} { error "拒绝覆盖已存在的 run05 isolated project" }
+file mkdir [file dirname $project_dir]
+create_project T58_Row22_Attempt05 $project_dir -part xc7z020clg400-1
+set_property target_language Verilog [current_project]
+set_property simulator_language Mixed [current_project]
+set_property TARGET_SIMULATOR XSim [current_project]
+add_files -norecurse -fileset sources_1 {D:/FPGA_Competition/src/int8_conv_tap_geometry.sv}
+add_files -norecurse -fileset sources_1 {D:/FPGA_Competition/src/int8_conv_weight_address.sv}
+add_files -norecurse -fileset sources_1 {D:/FPGA_Competition/src/int8_mac_accumulator.sv}
+add_files -norecurse -fileset sources_1 {D:/FPGA_Competition/src/s2a_conv_engine.sv}
+add_files -norecurse -fileset sources_1 {D:/FPGA_Competition/src/s2a_conv_layer35_channel_probe.sv}
+add_files -norecurse -fileset sim_1 {D:/FPGA_Competition/sim/tb_s2a_conv_layer35_row22_attempt05.sv}
+set_property top tb_s2a_conv_layer35_row22_attempt05 [get_filesets sim_1]
+set_property xsim.simulate.runtime {all} [get_filesets sim_1]
+set_property xsim.simulate.custom_tcl {D:/FPGA_Competition/report/evidence/S2A-T58/run05/xsim_run.tcl} [get_filesets sim_1]
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+puts {T58_RUN_PROJECT=ISOLATED_PROJECT_CREATED}
+puts {T58_RUN_PROJECT=COMPILE_ELABORATE_SIMULATE_BEGIN}
+launch_simulation -mode behavioral -step all
+puts {T58_RUN_PROJECT=COMPILE_ELABORATE_SIMULATE_RETURNED}
+close_project
+puts {T58_RUN_PROJECT=CLOSED}

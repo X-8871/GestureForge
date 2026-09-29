@@ -21,6 +21,7 @@ sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_HEAD = "7b8bad78a456310d2ca797a02e3a5a7f873f9c18"
+RUN02_SNAPSHOT_COMMIT = "decaef9ceb97befab2ff6d6ba5a72fc822905f58"
 TASK_ID = "S2A-T60"
 ROW_Y = 24
 OUTPUT_SIZE = 26
@@ -84,11 +85,129 @@ T60_SOURCE_PATHS = (*RTL_PATHS, T60_TESTBENCH_RELATIVE, T60_RUNNER_RELATIVE)
 
 XPR_PATH = ROOT / "vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr"
 EVIDENCE_ROOT = ROOT / "report/evidence/S2A-T60"
-RUN_ROOT = EVIDENCE_ROOT / "run02"
+RUN_ROOT = EVIDENCE_ROOT / "run04"
 FIXTURE_ROOT = RUN_ROOT / "fixture"
 PROJECT_PREFLIGHT = RUN_ROOT / "project_preflight_binding.json"
 PREPARE_REPORT = RUN_ROOT / "prepare_summary.json"
 FIXTURE_MANIFEST = FIXTURE_ROOT / "fixture_manifest.json"
+PRESERVED_ARTIFACTS = {
+    "project_preflight_binding.json": (
+        10136,
+        "1c1d4de1198208b8d56e03c631ba3e9fefb4c93ae315a4508480ea1a94df7708",
+    ),
+    "run01/prepare_summary.json": (
+        17155,
+        "e0a40ecc9d24f6aa959ccd6a451d3e134d0af7440d68c12bcef59ac076a12be5",
+    ),
+    "run01/fixture/feature_input.bin": (
+        259584,
+        "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+    ),
+    "run01/fixture/fixture_manifest.json": (
+        13456,
+        "876811d21bab822108ab3b2b5ecbd0f256cc867bec2d352ad910ea63e47f9f90",
+    ),
+    "run01/fixture/golden.bin": (
+        33280,
+        "76c4ec16b07560d14bc2ed37d353ff28c377b8c62ad8a90da8d8a858088c117d",
+    ),
+    "run01/fixture/layer35_weights.bin": (
+        884736,
+        "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+    ),
+    "run01/fixture/vectors.txt": (
+        254606,
+        "e4f6d4fa790ea4a6fea9cbef1e134b3dbddbb457ddd076ae67637cead99283a7",
+    ),
+    "run02/prepare_summary.json": (
+        17162,
+        "a1dbd8d4cbd32f4eb91cd78468c67a889637c5ca587907b462f81f6407b31531",
+    ),
+    "run02/project_preflight_binding.json": (
+        10136,
+        "32bf9da0ed3b22bffac02062d17a111ffe48b6aa34973289881f28b9f856833b",
+    ),
+    "run02/fixture/feature_input.bin": (
+        259584,
+        "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+    ),
+    "run02/fixture/fixture_manifest.json": (
+        13463,
+        "f424ee0bc24710aac5ec83cb1a6aadf3332ecf8a405e6f603fb6ab0f23c9bdd1",
+    ),
+    "run02/fixture/golden.bin": (
+        33280,
+        "76c4ec16b07560d14bc2ed37d353ff28c377b8c62ad8a90da8d8a858088c117d",
+    ),
+    "run02/fixture/layer35_weights.bin": (
+        884736,
+        "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+    ),
+    "run02/fixture/vectors.txt": (
+        254606,
+        "e4f6d4fa790ea4a6fea9cbef1e134b3dbddbb457ddd076ae67637cead99283a7",
+    ),
+    "run03/prepare_summary.json": (
+        25275,
+        "89e9fcb8773f6b8aa11c992cab3119221c39e95074d74d848fcdb158d6109491",
+    ),
+    "run03/project_preflight_binding.json": (
+        18249,
+        "fd1c8cc71a1cf84ab04ba615b9390b269ec7e80c8da01259bd448aad31eb4be1",
+    ),
+    "run03/fixture/feature_input.bin": (
+        259584,
+        "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+    ),
+    "run03/fixture/fixture_manifest.json": (
+        21247,
+        "603add941a9f3ce3115717ef798baf78803864bcdb800e89d6394cf1d3b9810d",
+    ),
+    "run03/fixture/golden.bin": (
+        33280,
+        "76c4ec16b07560d14bc2ed37d353ff28c377b8c62ad8a90da8d8a858088c117d",
+    ),
+    "run03/fixture/layer35_weights.bin": (
+        884736,
+        "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+    ),
+    "run03/fixture/vectors.txt": (
+        254606,
+        "e4f6d4fa790ea4a6fea9cbef1e134b3dbddbb457ddd076ae67637cead99283a7",
+    ),
+}
+RUN02_SOURCE_SNAPSHOTS = {
+    "src/int8_conv_tap_geometry.sv":
+        "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+    "src/int8_conv_weight_address.sv":
+        "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+    "src/int8_mac_accumulator.sv":
+        "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+    "src/s2a_conv_engine.sv":
+        "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+    "src/s2a_conv_layer35_channel_probe.sv":
+        "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+    "verification/test_s2a_conv_layer35_row24_all_channels_rtl.py":
+        "bd66783d11c52e6e31b8fbc91bd423ca675bfb55427fba58ce4d821d34fba370",
+    "sim/tb_s2a_conv_layer35_row24_all_channels.sv":
+        "d1d93f3c827b84c23555813393f4b579d9d76f4212c1af605d2f16b26021d86e",
+}
+RUN03_SOURCE_SNAPSHOT_SHA256 = {
+    "src/int8_conv_tap_geometry.sv":
+        "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+    "src/int8_conv_weight_address.sv":
+        "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+    "src/int8_mac_accumulator.sv":
+        "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+    "src/s2a_conv_engine.sv":
+        "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+    "src/s2a_conv_layer35_channel_probe.sv":
+        "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+    "sim/tb_s2a_conv_layer35_row24_all_channels.sv":
+        "bf14189daa9cb78fccc546756ac0f1d151c222dabc64783df9c8716d13d7d4ec",
+    "verification/test_s2a_conv_layer35_row24_all_channels_rtl.py":
+        "e6dc52619b330541cdaa29041ac03c8510a291286100e63eb8123ffc8150a2fe",
+}
 FIXTURE_NAMES = (
     "feature_input.bin",
     "layer35_weights.bin",
@@ -135,94 +254,101 @@ if ($xprItem.PSIsContainer -or $xprItem.Length -le 0 -or
     throw "目标 XPR 不是普通非空文件：$xpr"
 }
 $evidenceRoot = 'D:\FPGA_Competition\report\evidence\S2A-T60'
-$legacyRunRoot = Join-Path $evidenceRoot 'run01'
-$legacyFixtureRoot = Join-Path $legacyRunRoot 'fixture'
-$legacyPreflight = Join-Path $evidenceRoot 'project_preflight_binding.json'
-$runRoot = Join-Path $evidenceRoot 'run02'
-$fixtureRoot = Join-Path $runRoot 'fixture'
+$run01Root = Join-Path $evidenceRoot 'run01'
+$run01Fixture = Join-Path $run01Root 'fixture'
+$run02Root = Join-Path $evidenceRoot 'run02'
+$run02Fixture = Join-Path $run02Root 'fixture'
+$run03Root = Join-Path $evidenceRoot 'run03'
+$run03Fixture = Join-Path $run03Root 'fixture'
+$run04Root = Join-Path $evidenceRoot 'run04'
+$run04Fixture = Join-Path $run04Root 'fixture'
+$rootBinding = Join-Path $evidenceRoot 'project_preflight_binding.json'
 $rootExists = Test-Path -LiteralPath $evidenceRoot
-$legacyRunExists = Test-Path -LiteralPath $legacyRunRoot
-$legacyFixtureExists = Test-Path -LiteralPath $legacyFixtureRoot
-$legacyPreflightExists = Test-Path -LiteralPath $legacyPreflight
-$runExists = Test-Path -LiteralPath $runRoot
-if ($mode -eq 'prepare') {
-    if (-not $rootExists -or -not $legacyRunExists -or
-        -not $legacyFixtureExists -or -not $legacyPreflightExists -or $runExists) {
-        throw 'T60 run02 prepare 目标/保留快照不满足隔离条件'
-    }
-    foreach ($path in @($evidenceRoot, $legacyRunRoot, $legacyFixtureRoot)) {
-        $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop
-        if (-not $item.PSIsContainer -or
-            (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
-            throw "T60 保留快照目录不是普通目录：$path"
-        }
-    }
-    $legacyItem = Get-Item -LiteralPath $legacyPreflight -Force -ErrorAction Stop
-    if ($legacyItem.PSIsContainer -or $legacyItem.Length -le 0 -or
-        (($legacyItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
-        throw "T60 保留 project_preflight_binding 不是普通非空文件：$legacyPreflight"
-    }
-    $expectedRootEntries = @('project_preflight_binding.json', 'run01')
-    $actualRootEntries = @(Get-ChildItem -LiteralPath $evidenceRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualRootEntries -join '|') -ne ($expectedRootEntries -join '|')) {
-        throw 'T60 证据根目录不是预期的 run01 保留快照'
-    }
-    $expectedLegacyRunEntries = @('fixture', 'prepare_summary.json')
-    $actualLegacyRunEntries = @(Get-ChildItem -LiteralPath $legacyRunRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualLegacyRunEntries -join '|') -ne ($expectedLegacyRunEntries -join '|')) {
-        throw 'T60 run01 保留快照含非预期节点'
-    }
-    $expectedLegacyFixtureEntries = @(
-        'feature_input.bin', 'fixture_manifest.json', 'golden.bin',
-        'layer35_weights.bin', 'vectors.txt'
-    )
-    $actualLegacyFixtureEntries = @(Get-ChildItem -LiteralPath $legacyFixtureRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualLegacyFixtureEntries -join '|') -ne ($expectedLegacyFixtureEntries -join '|')) {
-        throw 'T60 run01 fixture 保留快照含非预期节点'
+$run01Exists = Test-Path -LiteralPath $run01Root
+$run02Exists = Test-Path -LiteralPath $run02Root
+$run03Exists = Test-Path -LiteralPath $run03Root
+$run04Exists = Test-Path -LiteralPath $run04Root
+$run01FixtureExists = Test-Path -LiteralPath $run01Fixture
+$run02FixtureExists = Test-Path -LiteralPath $run02Fixture
+$run03FixtureExists = Test-Path -LiteralPath $run03Fixture
+$run04FixtureExists = Test-Path -LiteralPath $run04Fixture
+$rootBindingExists = Test-Path -LiteralPath $rootBinding
+if (-not $rootExists -or -not $run01Exists -or -not $run02Exists -or
+    -not $run03Exists -or -not $run01FixtureExists -or
+    -not $run02FixtureExists -or -not $run03FixtureExists -or
+    -not $rootBindingExists -or ($mode -eq 'prepare' -and $run04Exists) -or
+    ($mode -eq 'verify' -and (-not $run04Exists -or -not $run04FixtureExists))) {
+    throw 'T60 运行目录或历史快照状态不满足预检条件'
+}
+$ordinaryDirectories = @(
+    $evidenceRoot, $run01Root, $run01Fixture, $run02Root, $run02Fixture,
+    $run03Root, $run03Fixture
+)
+if ($mode -eq 'verify') {
+    $ordinaryDirectories += @($run04Root, $run04Fixture)
+}
+foreach ($path in $ordinaryDirectories) {
+    $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop
+    if (-not $item.PSIsContainer -or
+        (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
+        throw "T60 证据目录不是普通目录：$path"
     }
 }
-else {
-    if (-not $rootExists -or -not $legacyRunExists -or
-        -not $legacyFixtureExists -or -not $legacyPreflightExists -or -not $runExists) {
-        throw 'T60 verify-only 所需证据目录缺失'
+function Assert-T60DirectoryEntries {
+    param(
+        [string]$Directory,
+        [string[]]$ExpectedEntries,
+        [string[]]$ExpectedDirectories
+    )
+    $actualItems = @(Get-ChildItem -LiteralPath $Directory -Force -ErrorAction Stop)
+    $actualEntries = @($actualItems | ForEach-Object { $_.Name } | Sort-Object)
+    $expectedSorted = @($ExpectedEntries | Sort-Object)
+    if (($actualEntries -join '|') -ne ($expectedSorted -join '|')) {
+        throw "T60 目录节点集合错误：$Directory"
     }
-    foreach ($path in @($evidenceRoot, $legacyRunRoot, $legacyFixtureRoot,
-                        $runRoot, $fixtureRoot)) {
-        $item = Get-Item -LiteralPath $path -Force -ErrorAction Stop
-        if (-not $item.PSIsContainer -or
-            (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
-            throw "T60 既有证据目录不是普通目录：$path"
+    foreach ($entry in $actualItems) {
+        $isExpectedDirectory = $ExpectedDirectories -contains $entry.Name
+        if (([bool]$entry.PSIsContainer) -ne $isExpectedDirectory -or
+            (($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) -or
+            (-not $entry.PSIsContainer -and $entry.Length -le 0)) {
+            throw "T60 证据节点类型、reparse 或文件长度错误：$($entry.FullName)"
         }
     }
-    $legacyItem = Get-Item -LiteralPath $legacyPreflight -Force -ErrorAction Stop
-    if ($legacyItem.PSIsContainer -or $legacyItem.Length -le 0 -or
-        (($legacyItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
-        throw "T60 run01 保留 binding 不是普通非空文件：$legacyPreflight"
-    }
-    $expectedRootEntries = @('project_preflight_binding.json', 'run01', 'run02')
-    $actualRootEntries = @(Get-ChildItem -LiteralPath $evidenceRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualRootEntries -join '|') -ne ($expectedRootEntries -join '|')) {
-        throw 'T60 evidence 根目录含非预期节点'
-    }
-    $expectedRunEntries = @('fixture', 'prepare_summary.json', 'project_preflight_binding.json')
-    $actualRunEntries = @(Get-ChildItem -LiteralPath $runRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualRunEntries -join '|') -ne ($expectedRunEntries -join '|')) {
-        throw 'T60 run02 目录含非预期节点'
-    }
-    $expectedFixtureEntries = @(
-        'feature_input.bin', 'fixture_manifest.json', 'golden.bin',
-        'layer35_weights.bin', 'vectors.txt'
-    )
-    $actualFixtureEntries = @(Get-ChildItem -LiteralPath $fixtureRoot -Force |
-        ForEach-Object { $_.Name } | Sort-Object)
-    if (($actualFixtureEntries -join '|') -ne ($expectedFixtureEntries -join '|')) {
-        throw 'T60 fixture 目录含非预期节点'
-    }
+}
+$fixtureEntries = @(
+    'feature_input.bin', 'fixture_manifest.json', 'golden.bin',
+    'layer35_weights.bin', 'vectors.txt'
+)
+Assert-T60DirectoryEntries $run01Root @('fixture', 'prepare_summary.json') @('fixture')
+Assert-T60DirectoryEntries $run01Fixture $fixtureEntries @()
+Assert-T60DirectoryEntries $run02Root @(
+    'fixture', 'prepare_summary.json', 'project_preflight_binding.json'
+) @('fixture')
+Assert-T60DirectoryEntries $run02Fixture $fixtureEntries @()
+$rootBindingItem = Get-Item -LiteralPath $rootBinding -Force -ErrorAction Stop
+if ($rootBindingItem.PSIsContainer -or $rootBindingItem.Length -le 0 -or
+    (($rootBindingItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
+    throw "T60 历史 binding 不是普通非空文件：$rootBinding"
+}
+if ($mode -eq 'prepare') {
+    Assert-T60DirectoryEntries $evidenceRoot @(
+        'project_preflight_binding.json', 'run01', 'run02', 'run03'
+    ) @('run01', 'run02', 'run03')
+}
+else {
+    Assert-T60DirectoryEntries $evidenceRoot @(
+        'project_preflight_binding.json', 'run01', 'run02', 'run03', 'run04'
+    ) @('run01', 'run02', 'run03', 'run04')
+}
+Assert-T60DirectoryEntries $run03Root @(
+    'fixture', 'prepare_summary.json', 'project_preflight_binding.json'
+) @('fixture')
+Assert-T60DirectoryEntries $run03Fixture $fixtureEntries @()
+if ($mode -eq 'verify') {
+    Assert-T60DirectoryEntries $run04Root @(
+        'fixture', 'prepare_summary.json', 'project_preflight_binding.json'
+    ) @('fixture')
+    Assert-T60DirectoryEntries $run04Fixture $fixtureEntries @()
 }
 $names = @(
     'vivado.exe', 'vivado_lab.exe', 'xsct.exe', 'xsim.exe',
@@ -242,8 +368,14 @@ $result = [ordered]@{
     path_chain_valid = $true
     checked_directories = $requiredDirectories
     checked_xpr = $xpr
-    target_absent = (-not $runExists)
-    existing_run02 = $runExists
+    evidence_root = $evidenceRoot
+    run_directory = $run04Root
+    fixture_directory = $run04Fixture
+    target_absent = (-not $run04Exists)
+    existing_run01 = $run01Exists
+    existing_run02 = $run02Exists
+    existing_run03 = $run03Exists
+    existing_run04 = $run04Exists
     process_names = $names
     processes = $processes
 }
@@ -306,6 +438,183 @@ def _current_head() -> str:
     return result.stdout.strip().lower()
 
 
+def _require_ancestor(ancestor: str, descendant: str, label: str) -> None:
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "merge-base", "--is-ancestor",
+         ancestor, descendant],
+        cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
+        errors="replace", check=False, timeout=15,
+    )
+    _require(result.returncode == 0,
+             f"{label} 不是当前 HEAD 的祖先：{ancestor} -> {descendant}")
+
+
+def _require_supported_head(head: str, prepare_head: str | None = None) -> None:
+    _require(re.fullmatch(r"[0-9a-f]{40}", head) is not None,
+             f"T60 HEAD 不是完整小写提交 SHA：{head}")
+    _require_ancestor(BASE_HEAD, head, "T60 固定基线")
+    _require_ancestor(RUN02_SNAPSHOT_COMMIT, head, "T60 run02 Git 快照")
+    if prepare_head is not None:
+        _require(re.fullmatch(r"[0-9a-f]{40}", prepare_head) is not None,
+                 f"T60 prepare_head 不是完整小写提交 SHA：{prepare_head}")
+        _require_ancestor(prepare_head, head, "T60 run03 prepare_head")
+
+
+def _git_blob_sha256(commit: str, relative: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(ROOT), "show", f"{commit}:{relative}"],
+        cwd=ROOT, capture_output=True, check=False, timeout=30,
+    )
+    _require(result.returncode == 0,
+             f"git show 读取冻结快照失败：{commit}:{relative}")
+    return _sha256(result.stdout)
+
+
+def _verify_preserved_attempts() -> dict[str, Any]:
+    """逐字节核验既有 T60 证据，并验证 run02 的 Git 来源。"""
+    observed: dict[str, dict[str, Any]] = {}
+    for relative, (expected_bytes, expected_sha256) in PRESERVED_ARTIFACTS.items():
+        path = EVIDENCE_ROOT / relative
+        _require(path.is_file() and path.stat().st_size == expected_bytes and
+                 _sha_file(path) == expected_sha256,
+                 f"T60 既有证据被修改或缺失：{path}")
+        observed[relative] = _artifact(path)
+
+    run01_summary, _ = _read_json(EVIDENCE_ROOT / "run01/prepare_summary.json")
+    run02_summary, _ = _read_json(EVIDENCE_ROOT / "run02/prepare_summary.json")
+    run02_binding, _ = _read_json(
+        EVIDENCE_ROOT / "run02/project_preflight_binding.json")
+    run03_summary, _ = _read_json(EVIDENCE_ROOT / "run03/prepare_summary.json")
+    run03_binding, run03_binding_sha = _read_json(
+        EVIDENCE_ROOT / "run03/project_preflight_binding.json")
+    run03_manifest, run03_manifest_sha = _read_json(
+        EVIDENCE_ROOT / "run03/fixture/fixture_manifest.json")
+    _require(run01_summary.get("task_id") == TASK_ID and
+             run01_summary.get("run_id") == "run01" and
+             run01_summary.get("status") == "PREPARED_NOT_SIMULATED" and
+             run02_summary.get("task_id") == TASK_ID and
+             run02_summary.get("run_id") == "run02" and
+             run02_summary.get("status") == "PREPARED_NOT_SIMULATED" and
+             run02_binding.get("task_id") == TASK_ID and
+             run02_binding.get("run_id") == "run02" and
+             run03_summary.get("task_id") == TASK_ID and
+             run03_summary.get("run_id") == "run03" and
+             run03_summary.get("status") == "PREPARED_NOT_SIMULATED" and
+             run03_binding.get("task_id") == TASK_ID and
+             run03_binding.get("run_id") == "run03" and
+             run03_manifest.get("task_id") == TASK_ID and
+             run03_manifest.get("run_id") == "run03" and
+             run03_manifest.get("status") == "PREPARED_NOT_SIMULATED",
+             "T60 run01/run02/run03 历史证据的任务号、attempt 或状态不匹配")
+    _require("current_head" not in run01_summary and
+             "current_head" not in run02_summary and
+             "current_head" not in run02_binding and
+             "current_head" not in run03_summary and
+             "current_head" not in run03_binding,
+             "T60 历史 JSON 与已核验的未记录 HEAD 状态不一致")
+    _require(run02_summary.get("bindings", {}).get("T60_source_hashes") ==
+             RUN02_SOURCE_SNAPSHOTS and
+             run02_binding.get("T60_source_hashes") == RUN02_SOURCE_SNAPSHOTS,
+             "T60 run02 原始证据声明的源码 SHA 与 Git 快照不一致")
+    run03_prepare_head = run03_summary.get("prepare_head")
+    _require(isinstance(run03_prepare_head, str) and
+             run03_summary.get("current_head_at_prepare") == run03_prepare_head and
+             run03_binding.get("prepare_head") == run03_prepare_head and
+             run03_binding.get("current_head_at_prepare") == run03_prepare_head and
+             run03_manifest.get("prepare_head") == run03_prepare_head and
+             run03_manifest.get("current_head_at_prepare") == run03_prepare_head,
+             "T60 run03 历史快照的 prepare HEAD 字段不一致")
+    _require_supported_head(run03_prepare_head)
+    _require(run03_summary.get("bindings", {}).get("T60_source_hashes") ==
+             RUN03_SOURCE_SNAPSHOT_SHA256 and
+             run03_binding.get("T60_source_hashes") == RUN03_SOURCE_SNAPSHOT_SHA256 and
+             run03_manifest.get("T60_source_hashes") ==
+             RUN03_SOURCE_SNAPSHOT_SHA256,
+             "T60 run03 历史证据声明的源码 SHA 与原始 prepare 快照不一致")
+    run03_binding_record = _artifact(
+        EVIDENCE_ROOT / "run03/project_preflight_binding.json")
+    run03_manifest_record = _artifact(
+        EVIDENCE_ROOT / "run03/fixture/fixture_manifest.json")
+    _require(run03_summary.get("project_preflight", {}).get("path") ==
+             run03_binding_record["path"] and
+             run03_summary.get("project_preflight", {}).get("bytes") ==
+             run03_binding_record["bytes"] and
+             run03_summary.get("project_preflight", {}).get("sha256") ==
+             run03_binding_sha and
+             run03_manifest.get("project_preflight_binding") ==
+             run03_binding_record and
+             run03_summary.get("fixture", {}).get("manifest") ==
+             run03_manifest_record and run03_manifest_sha ==
+             run03_manifest_record["sha256"],
+             "T60 run03 历史 binding/manifest 交叉引用不匹配")
+
+    committed_hashes: dict[str, str] = {}
+    for relative, (_, expected_sha256) in PRESERVED_ARTIFACTS.items():
+        if relative.startswith("run02/"):
+            committed_hash = _git_blob_sha256(
+                RUN02_SNAPSHOT_COMMIT,
+                f"report/evidence/S2A-T60/{relative}",
+            )
+            _require(committed_hash == expected_sha256,
+                     f"T60 run02 证据与冻结提交字节不同：{relative}")
+            committed_hashes[f"report/evidence/S2A-T60/{relative}"] = committed_hash
+    for relative, expected_sha256 in RUN02_SOURCE_SNAPSHOTS.items():
+        committed_hash = _git_blob_sha256(RUN02_SNAPSHOT_COMMIT, relative)
+        _require(committed_hash == expected_sha256,
+                 f"T60 run02 源码与冻结提交字节不同：{relative}")
+        committed_hashes[relative] = committed_hash
+
+    return {
+        "run01": {
+            "status": run01_summary["status"],
+            "prepare_summary": observed["run01/prepare_summary.json"],
+            "current_head_recorded": False,
+            "artifacts": {
+                key: observed[key] for key in observed
+                if key.startswith("run01/")
+            },
+        },
+        "run02": {
+            "status": run02_summary["status"],
+            "prepare_summary": observed["run02/prepare_summary.json"],
+            "project_preflight_binding": observed[
+                "run02/project_preflight_binding.json"],
+            "current_head_recorded": False,
+            "snapshot_commit": RUN02_SNAPSHOT_COMMIT,
+            "snapshot_commit_ancestor_verified": True,
+            "source_hashes_in_snapshot_commit": RUN02_SOURCE_SNAPSHOTS,
+            "committed_artifact_and_source_sha256": committed_hashes,
+            "artifacts": {
+                key: observed[key] for key in observed
+                if key.startswith("run02/")
+            },
+        },
+        "run03": {
+            "prepare_status": run03_summary["status"],
+            "prepare_head": run03_prepare_head,
+            "verify_only": {
+                "result": "FAIL_PREFLIGHT",
+                "exit_code": 1,
+                "failure": "PowerShell verify preflight rejected the evidence-root entry set before oracle or file verification.",
+                "source_sha256": RUN03_SOURCE_SNAPSHOT_SHA256[
+                    T60_RUNNER_RELATIVE],
+            },
+            "prepare_summary": observed["run03/prepare_summary.json"],
+            "project_preflight_binding": observed[
+                "run03/project_preflight_binding.json"],
+            "fixture_manifest": observed[
+                "run03/fixture/fixture_manifest.json"],
+            "source_hashes_at_prepare": RUN03_SOURCE_SNAPSHOT_SHA256,
+            "artifacts": {
+                key: observed[key] for key in observed
+                if key.startswith("run03/")
+            },
+        },
+        "root_project_preflight_binding": observed[
+            "project_preflight_binding.json"],
+    }
+
+
 def _source_hashes() -> dict[str, str]:
     hashes: dict[str, str] = {}
     for relative in T60_SOURCE_PATHS:
@@ -313,6 +622,28 @@ def _source_hashes() -> dict[str, str]:
         _require(path.is_file(), f"T60 源码缺失：{relative}")
         hashes[relative] = _sha_file(path)
     return hashes
+
+
+def _powershell_ast_check() -> str:
+    command = (
+        "$tokens = $null; $parseErrors = $null; "
+        "$null = [System.Management.Automation.Language.Parser]::ParseInput("
+        "$env:S2A_T60_POWERSHELL_SOURCE, [ref]$tokens, [ref]$parseErrors); "
+        "if ($parseErrors.Count -gt 0) { "
+        "throw ($parseErrors | ForEach-Object { $_.Message } | Out-String) "
+        "}; [Console]::Out.Write('PASS')"
+    )
+    env = os.environ.copy()
+    env["S2A_T60_POWERSHELL_SOURCE"] = POWERSHELL_PREFLIGHT
+    result = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command],
+        cwd=ROOT, env=env, capture_output=True, text=True, encoding="utf-8",
+        errors="replace", check=False, timeout=30,
+    )
+    _require(result.returncode == 0 and result.stdout.strip() == "PASS",
+             "T60 内嵌 PowerShell AST 解析失败："
+             f"exit={result.returncode} stderr={result.stderr.strip()}")
+    return "PASS"
 
 
 def _source_configuration_check() -> dict[str, Any]:
@@ -361,7 +692,7 @@ def _source_configuration_check() -> dict[str, Any]:
                      isinstance(node.args[0].elts[0], ast.Constant),
                      "T60 runner subprocess 命令必须是静态字面量")
             subprocess_commands.append(node.args[0].elts[0].value)
-    _require(sorted(subprocess_commands) == ["git", "powershell.exe"],
+    _require(set(subprocess_commands) == {"git", "powershell.exe"},
              f"T60 runner 外部命令超出 git/只读 PowerShell：{subprocess_commands}")
     forbidden_powershell = (
         "start-process", "invoke-expression", "start-job", "remove-item",
@@ -386,17 +717,23 @@ def _source_configuration_check() -> dict[str, Any]:
              "PASS T60 outputs=%0d raw=%0d" in tb_text and
              "PROGRESS T60 outputs=%0d/%0d" in tb_text and
              "S2A-T58" not in tb_text and "row22" not in tb_text and
-             "y=22" not in tb_text and ".tcl" not in tb_text.lower(),
+             "y=22" not in tb_text and "run02" not in tb_text and
+             "run03" not in tb_text and
+             ".tcl" not in tb_text.lower(),
              "T60 testbench 模块名、坐标、摘要或范围静态检查不匹配")
     for path_string in (
-        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run02\\fixture\\feature_input.bin",
-        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run02\\fixture\\layer35_weights.bin",
-        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run02\\fixture\\golden.bin",
-        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run02\\fixture\\vectors.txt",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\fixture\\feature_input.bin",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\fixture\\layer35_weights.bin",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\fixture\\golden.bin",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\fixture\\vectors.txt",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\observed_raw.bin",
+        r"D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run04\\observed_output.bin",
     ):
         _require(path_string in tb_text, f"T60 testbench fixture 路径缺失：{path_string}")
+    powershell_ast = _powershell_ast_check()
     return {
         "python_ast": "PASS",
+        "powershell_ast": powershell_ast,
         "cli_modes": mode_options,
         "runner_no_xilinx_launch_or_tcl": True,
         "powershell_read_only_path_and_process_scan": "PASS",
@@ -428,16 +765,25 @@ def _runtime_preflight(mode: str) -> dict[str, Any]:
              snapshot.get("mode") == mode and
              snapshot.get("path_chain_valid") is True and
              snapshot.get("checked_xpr") == str(XPR_PATH.resolve()) and
+             snapshot.get("evidence_root") == str(EVIDENCE_ROOT.resolve()) and
+             snapshot.get("run_directory") == str(RUN_ROOT.resolve()) and
+             snapshot.get("fixture_directory") == str(FIXTURE_ROOT.resolve()) and
              tuple(snapshot.get("process_names", ())) == PROCESS_NAMES and
              snapshot.get("processes") == [],
              "T60 路径、XPR 或 8 类 Vivado/XSim 进程检查失败")
     if mode == "prepare":
         _require(snapshot.get("target_absent") is True and
-             snapshot.get("existing_run02") is False,
+             snapshot.get("existing_run01") is True and
+             snapshot.get("existing_run02") is True and
+             snapshot.get("existing_run03") is True and
+             snapshot.get("existing_run04") is False,
                  "T60 prepare 目标已存在，拒绝覆盖")
     else:
         _require(snapshot.get("target_absent") is False and
-             snapshot.get("existing_run02") is True,
+             snapshot.get("existing_run01") is True and
+             snapshot.get("existing_run02") is True and
+             snapshot.get("existing_run03") is True and
+             snapshot.get("existing_run04") is True,
                  "T60 verify-only 证据路径绑定不匹配")
     snapshot["powershell_exit_code"] = result.returncode
     snapshot["mcp_status"] = "NOT_QUERIED"
@@ -467,8 +813,7 @@ def _load_binding_record(parent: dict[str, Any], key: str,
 
 def _load_frozen_inputs() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     """只从公开 G0/T01/T23/GF8 输入构造 oracle，不访问其他任务 TEMP。"""
-    _require(_current_head() == BASE_HEAD,
-             f"当前 HEAD 与 T60 冻结基线不符：{_current_head()}")
+    _require_supported_head(_current_head())
     parent, parent_sha = _read_json(T54_REPORT)
     _require(parent_sha == T54_REPORT_SHA256 and
              parent.get("schema") == "GestureForge-S2A-T54-layer35-row18-all-channels-v1" and
@@ -755,10 +1100,11 @@ def _file_set(root: Path) -> set[str]:
 
 
 def _prepare() -> dict[str, Any]:
-    _require(_current_head() == BASE_HEAD,
-             f"当前 HEAD 与 T60 冻结基线不符：{_current_head()}")
+    prepare_head = _current_head()
+    _require_supported_head(prepare_head)
     static_checks = _source_configuration_check()
     runtime_before = _runtime_preflight("prepare")
+    previous_attempts = _verify_preserved_attempts()
     xpr_sha_before = _sha_file(XPR_PATH)
     parent, inputs, preparation_inputs = _load_frozen_inputs()
     oracle = _build_oracle(inputs, progress=True)
@@ -769,7 +1115,8 @@ def _prepare() -> dict[str, Any]:
              source_hashes[T60_TESTBENCH_RELATIVE],
              "T60 源文件在静态检查后发生变化")
     runtime_final = _runtime_preflight("prepare")
-    _require(_current_head() == BASE_HEAD and
+    _verify_preserved_attempts()
+    _require(_current_head() == prepare_head and
              _sha_file(XPR_PATH) == xpr_sha_before and
              _source_hashes() == source_hashes,
              "T60 准备期间 HEAD、XPR 或绑定源码发生变化")
@@ -800,11 +1147,15 @@ def _prepare() -> dict[str, Any]:
         "schema": "GestureForge-S2A-T60-project-preflight-v1",
         "status": "READ_ONLY_BOUND",
         "task_id": TASK_ID,
-        "run_id": "run02",
+        "run_id": "run04",
         "run_directory": str(RUN_ROOT.resolve()),
         "project_name": "AX7Z020_Gesture",
         "project_xpr_path": str(XPR_PATH.resolve()),
         "baseline_head": BASE_HEAD,
+        "prepare_head": prepare_head,
+        "current_head_at_prepare": prepare_head,
+        "run02_snapshot_commit": RUN02_SNAPSHOT_COMMIT,
+        "prior_attempts": previous_attempts,
         "target_xpr_sha256_before_prepare": xpr_sha_before,
         "target_xpr_sha256_after_prepare": xpr_sha_after,
         "target_xpr_unchanged": True,
@@ -829,9 +1180,13 @@ def _prepare() -> dict[str, Any]:
     manifest = {
         "schema": "GestureForge-S2A-T60-fixture-manifest-v1",
         "task_id": TASK_ID,
-        "run_id": "run02",
+        "run_id": "run04",
         "status": "PREPARED_NOT_SIMULATED",
         "baseline_head": BASE_HEAD,
+        "prepare_head": prepare_head,
+        "current_head_at_prepare": prepare_head,
+        "run02_snapshot_commit": RUN02_SNAPSHOT_COMMIT,
+        "prior_attempts": previous_attempts,
         "scope": "tiny416 cfg section36 layer35; all 256 output channels at y=24, x=0..25",
         "parent_report": preparation_inputs["T54_parent_report"],
         "generator_source": preparation_inputs["T54_oracle_source"],
@@ -849,9 +1204,13 @@ def _prepare() -> dict[str, Any]:
     summary = {
         "schema": "GestureForge-S2A-T60-preparation-summary-v1",
         "task_id": TASK_ID,
-        "run_id": "run02",
+        "run_id": "run04",
         "status": "PREPARED_NOT_SIMULATED",
         "baseline_head": BASE_HEAD,
+        "prepare_head": prepare_head,
+        "current_head_at_prepare": prepare_head,
+        "run02_snapshot_commit": RUN02_SNAPSHOT_COMMIT,
+        "prior_attempts": previous_attempts,
         "scope": "tiny416 cfg section36 layer35; all 256 output channels at y=24, x=0..25",
         "T54_parent_report": preparation_inputs["T54_parent_report"],
         "oracle_source": {
@@ -941,10 +1300,11 @@ def _prepare() -> dict[str, Any]:
 
 
 def _verify_prepared() -> dict[str, Any]:
-    _require(_current_head() == BASE_HEAD,
-             f"当前 HEAD 与 T60 冻结基线不符：{_current_head()}")
+    verify_head = _current_head()
+    _require_supported_head(verify_head)
     static_checks = _source_configuration_check()
     runtime = _runtime_preflight("verify")
+    previous_attempts = _verify_preserved_attempts()
     parent, inputs, preparation_inputs = _load_frozen_inputs()
     oracle = _build_oracle(inputs, progress=True)
     _require(PREPARE_REPORT.is_file() and PROJECT_PREFLIGHT.is_file() and
@@ -953,25 +1313,41 @@ def _verify_prepared() -> dict[str, Any]:
     summary, summary_sha = _read_json(PREPARE_REPORT)
     binding, binding_sha = _read_json(PROJECT_PREFLIGHT)
     manifest, manifest_sha = _read_json(FIXTURE_MANIFEST)
+    prepare_head = summary.get("prepare_head")
+    _require(isinstance(prepare_head, str),
+             "T60 run03 prepare_summary 未记录实际 prepare_head")
+    _require_supported_head(verify_head, prepare_head)
     source_hashes = _source_hashes()
     preparation_inputs["T60_source_hashes"] = source_hashes
     _require(summary.get("schema") ==
              "GestureForge-S2A-T60-preparation-summary-v1" and
-             summary.get("task_id") == TASK_ID and summary.get("run_id") == "run02" and
+             summary.get("task_id") == TASK_ID and summary.get("run_id") == "run04" and
              summary.get("status") == "PREPARED_NOT_SIMULATED" and
              summary.get("baseline_head") == BASE_HEAD and
+             summary.get("prepare_head") == prepare_head and
+             summary.get("current_head_at_prepare") == prepare_head and
+             summary.get("run02_snapshot_commit") == RUN02_SNAPSHOT_COMMIT and
+             summary.get("prior_attempts") == previous_attempts and
              summary.get("scope") ==
              "tiny416 cfg section36 layer35; all 256 output channels at y=24, x=0..25" and
              binding.get("schema") ==
              "GestureForge-S2A-T60-project-preflight-v1" and
              binding.get("status") == "READ_ONLY_BOUND" and
-             binding.get("task_id") == TASK_ID and binding.get("run_id") == "run02" and
+             binding.get("task_id") == TASK_ID and binding.get("run_id") == "run04" and
              binding.get("baseline_head") == BASE_HEAD and
+             binding.get("prepare_head") == prepare_head and
+             binding.get("current_head_at_prepare") == prepare_head and
+             binding.get("run02_snapshot_commit") == RUN02_SNAPSHOT_COMMIT and
+             binding.get("prior_attempts") == previous_attempts and
              manifest.get("schema") ==
              "GestureForge-S2A-T60-fixture-manifest-v1" and
-             manifest.get("task_id") == TASK_ID and manifest.get("run_id") == "run02" and
+             manifest.get("task_id") == TASK_ID and manifest.get("run_id") == "run04" and
              manifest.get("status") == "PREPARED_NOT_SIMULATED" and
              manifest.get("baseline_head") == BASE_HEAD and
+             manifest.get("prepare_head") == prepare_head and
+             manifest.get("current_head_at_prepare") == prepare_head and
+             manifest.get("run02_snapshot_commit") == RUN02_SNAPSHOT_COMMIT and
+             manifest.get("prior_attempts") == previous_attempts and
              manifest.get("fixed_points_yx") == [list(point) for point in POINTS],
              "T60 prepare evidence schema、状态、基线或范围不匹配")
     _require(summary.get("bindings", {}).get("T60_source_hashes") == source_hashes and
@@ -1009,6 +1385,7 @@ def _verify_prepared() -> dict[str, Any]:
              binding.get("runtime_preflight", {}).get("powershell_exit_code") == 0 and
              runtime.get("processes") == [] and
              binding.get("static_checks", {}).get("python_ast") == "PASS" and
+             binding.get("static_checks", {}).get("powershell_ast") == "PASS" and
              binding.get("static_checks", {}).get(
                  "powershell_read_only_path_and_process_scan") == "PASS" and
              summary.get("runtime_preflight") == binding.get("runtime_preflight") and
@@ -1086,15 +1463,21 @@ def _verify_prepared() -> dict[str, Any]:
         "fixture/fixture_manifest.json",
     }
     _require(_file_set(RUN_ROOT) == expected_files,
-             f"T60 run02 文件集合错误：actual={sorted(_file_set(RUN_ROOT))}")
+             f"T60 run04 文件集合错误：actual={sorted(_file_set(RUN_ROOT))}")
     _require(summary.get("simulation", {}).get("status") == "NOT_RUN" and
              summary.get("review") == {
                  "G2": "NOT_REVIEWED", "G3": "NOT_CLAIMED",
                  "G4": "NOT_CLAIMED", "G5": "NOT_CLAIMED",
              },
              "T60 准备报告错误声明仿真或验收状态")
+    _verify_preserved_attempts()
+    _require(_current_head() == verify_head,
+             "T60 verify-only 期间当前 HEAD 发生变化")
     print(json.dumps({
         "result": "PREPARED_NOT_SIMULATED",
+        "prepare_head": prepare_head,
+        "runtime_head_at_verify": verify_head,
+        "run02_snapshot_commit": RUN02_SNAPSHOT_COMMIT,
         "prepare_summary_sha256": summary_sha,
         "project_preflight_sha256": binding_sha,
         "fixture_manifest_sha256": manifest_sha,

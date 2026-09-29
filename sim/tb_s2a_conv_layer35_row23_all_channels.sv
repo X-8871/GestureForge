@@ -307,7 +307,7 @@ module tb_s2a_conv_layer35_row23_all_channels;
         for (initial_index = 0; initial_index < NUM_OUTPUTS; initial_index = initial_index + 1)
             output_memory[initial_index] = 8'd0;
 
-        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\fixture\\feature_input.bin", "rb");
+        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\fixture\\feature_input.bin", "rb");
         if (fixture_fd == 0) $fatal(1, "无法打开 feature_input.bin");
         for (initial_index = 0; initial_index < INPUT_BYTES; initial_index = initial_index + 1) begin
             byte_value = $fgetc(fixture_fd);
@@ -317,7 +317,7 @@ module tb_s2a_conv_layer35_row23_all_channels;
         if ($fgetc(fixture_fd) != -1) $fatal(1, "feature fixture 长度过长");
         $fclose(fixture_fd);
 
-        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\fixture\\layer35_weights.bin", "rb");
+        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\fixture\\layer35_weights.bin", "rb");
         if (fixture_fd == 0) $fatal(1, "无法打开 layer35_weights.bin");
         for (initial_index = 0; initial_index < WEIGHT_BYTES; initial_index = initial_index + 1) begin
             byte_value = $fgetc(fixture_fd);
@@ -327,7 +327,7 @@ module tb_s2a_conv_layer35_row23_all_channels;
         if ($fgetc(fixture_fd) != -1) $fatal(1, "layer35 weights 长度过长");
         $fclose(fixture_fd);
 
-        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\fixture\\golden.bin", "rb");
+        fixture_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\fixture\\golden.bin", "rb");
         if (fixture_fd == 0) $fatal(1, "无法打开 golden.bin");
         for (initial_index = 0; initial_index < NUM_OUTPUTS; initial_index = initial_index + 1) begin
             byte_value = $fgetc(fixture_fd); if (byte_value < 0) $fatal(1, "raw golden 截断");
@@ -348,7 +348,7 @@ module tb_s2a_conv_layer35_row23_all_channels;
         if ($fgetc(fixture_fd) != -1) $fatal(1, "golden 长度过长");
         $fclose(fixture_fd);
 
-        vectors_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\fixture\\vectors.txt", "r");
+        vectors_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\fixture\\vectors.txt", "r");
         if (vectors_fd == 0) $fatal(1, "无法打开 vectors.txt");
         for (initial_index = 0; initial_index < NUM_OUTPUTS; initial_index = initial_index + 1) begin
             current_low_index = $fscanf(vectors_fd, "%d %d %d %d %d %d %d %d",
@@ -429,8 +429,8 @@ module tb_s2a_conv_layer35_row23_all_channels;
         for (initial_index = 0; initial_index < NUM_OUTPUTS; initial_index = initial_index + 1)
             output_memory[initial_index] = 8'd0;
 
-        raw_trace_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\observed_raw.bin", "wb");
-        output_trace_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run07\\observed_output.bin", "wb");
+        raw_trace_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\observed_raw.bin", "wb");
+        output_trace_fd = $fopen("D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run10\\observed_output.bin", "wb");
         if ((raw_trace_fd == 0) || (output_trace_fd == 0))
             $fatal(1, "无法创建 RTL 观察 trace");
         capture_enable = 1;

@@ -1,0 +1,55 @@
+{
+  "schema": "GestureForge-S2A-T59-run12-batch-tcl-contract-v1",
+  "status": "PASS_STATIC_ONLY",
+  "target_xpr_opened": false,
+  "independent_project": true,
+  "project_setup": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\isolated_project\\project_setup.tcl",
+    "bytes": 1003,
+    "sha256": "df5bfb42283dd455404666091dcd4f6b6ffe3e9f791a1ae598e4d98046e275b0"
+  },
+  "project_command_count": 13,
+  "project_commands": [
+    "create_project s2a_t59_row23_attempt12 {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\isolated_project} -part xc7z020clg400-1",
+    "set_property target_language Verilog [current_project]",
+    "set_property simulator_language Mixed [current_project]",
+    "set_property TARGET_SIMULATOR XSim [current_project]",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\s2a_conv_engine.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\s2a_conv_layer35_channel_probe.sv}",
+    "add_files -fileset sim_1 -norecurse {D:\\FPGA_Competition\\sim\\tb_s2a_conv_layer35_attempt12.sv}",
+    "set_property top tb_s2a_conv_layer35_row23_all_channels [get_filesets sim_1]",
+    "update_compile_order -fileset sources_1",
+    "update_compile_order -fileset sim_1"
+  ],
+  "simulation_tcl": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\run_project_sim_batch.tcl",
+    "bytes": 574,
+    "sha256": "cc67188220e74047b4b7ef441844f258fc7e53f36551d8d137571845994eae25"
+  },
+  "simulation_command_count": 10,
+  "simulation_commands": [
+    "set t59_run12_temp {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\temp}",
+    "file mkdir $t59_run12_temp",
+    "set ::env(TEMP) $t59_run12_temp",
+    "set ::env(TMP) $t59_run12_temp",
+    "set ::env(TMPDIR) $t59_run12_temp",
+    "source {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\isolated_project\\project_setup.tcl}",
+    "launch_simulation -simset sim_1 -mode behavioral -step compile",
+    "launch_simulation -simset sim_1 -mode behavioral -step elaborate",
+    "xsim tb_s2a_conv_layer35_row23_all_channels_behav -R -onfinish quit -log {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\simulate.log}",
+    "close_project"
+  ],
+  "separators": "literal LF; one Tcl command per line",
+  "batch_mode": "xsim snapshot -R",
+  "gui_option_present": false,
+  "wdb_option_present": false,
+  "waveform_commands_present": false,
+  "expected_child_temp_environment": {
+    "TEMP": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\temp",
+    "TMP": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\temp",
+    "TMPDIR": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run12\\temp"
+  }
+}

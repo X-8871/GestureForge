@@ -1,0 +1,48 @@
+{
+  "schema": "GestureForge-S2A-independent-row-data-review-v1",
+  "task_id": "S2A-T59",
+  "decision": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
+  "reviewed_at_utc8": "2026-09-30",
+  "reviewed_head": "5d432a2f72112f6d85c150dfd33eef7f29c6797a",
+  "scope": {
+    "layer": 35,
+    "row_y": 23,
+    "x_start": 0,
+    "x_end": 25,
+    "channels": 256,
+    "output_values": 6656
+  },
+  "primary_evidence": [
+    {
+      "path": "report/evidence/S2A-T59/run12/simulation_result_attempt02.json",
+      "bytes": 7325,
+      "sha256": "6f9f802d7ec68581898c47381bb80d21a5af7129a1b307fc3c1fd87b5823a0c8"
+    },
+    {
+      "path": "report/evidence/S2A-T59/run12/simulation_inventory_attempt02.json",
+      "bytes": 2578,
+      "sha256": "46a2c84eeddb2bcf17e90a6fba058e75f85c7387135c83550aef78d0ce77f21a"
+    },
+    {
+      "path": "report/evidence/S2A-T59/run12/simulate_attempt02.log",
+      "bytes": 9160,
+      "sha256": "8a3cdc6a58b96541c08d1cc9f8c0505498042baaa925bab5e098430f52075a2c"
+    }
+  ],
+  "output_comparison": {
+    "raw_bytes": 26624,
+    "int8_bytes": 6656,
+    "raw_vs_golden_prefix_mismatches": 0,
+    "int8_vs_golden_suffix_mismatches": 0
+  },
+  "checks": [
+    "范围仅为 layer35 row23、x=0..25、256 通道、6,656 输出。",
+    "运行绑定的工程 Tcl、仿真 Tcl、RTL、testbench、fixture 与输出相互吻合。",
+    "仿真日志含 256 个进度点、PASS、sentinel、$finish，且无 ERROR/FATAL。",
+    "实测 raw 与 golden 前段、INT8 与 golden 后段逐字节比较均为零差异。"
+  ],
+  "limitations": [
+    "当前 preparer runner 哈希与 prepare_summary 冻结记录不一致，降低从当前 runner 原样复现的保证；不改变已绑定运行产物的 row-data 比较结果。",
+    "本结论不代表 layer35 整层、整网、G3/G4/G5 或阶段 2A 冻结通过。"
+  ]
+}

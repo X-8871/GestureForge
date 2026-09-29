@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("dryrun", "run")]
+    [ValidateSet("dryrun", "run", "recover")]
     [string]$Mode
 )
 
@@ -11,8 +11,8 @@ $VivadoPath = "D:\Xilinx\2026.1\Vivado\bin\vivado.bat"
 $TclPath = Join-Path $RepositoryRoot "report\evidence\S2A-T57\run_project_sim.tcl"
 $XprPath = Join-Path $RepositoryRoot "vivado\AX7Z020_Gesture\AX7Z020_Gesture.xpr"
 $BindingPath = Join-Path $RepositoryRoot "report\evidence\S2A-T57\project_preflight_binding.json"
-$RunDirectory = Join-Path $RepositoryRoot "report\evidence\S2A-T57\run09\attempt02"
-$ExpectedRunDirectory = "D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02"
+$RunDirectory = Join-Path $RepositoryRoot "report\evidence\S2A-T57\run09\attempt09"
+$ExpectedRunDirectory = "D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09"
 $XsimTclPath = Join-Path $RunDirectory "xsim_run.tcl"
 $PrepareSummaryPath = Join-Path $RunDirectory "prepare_summary.json"
 $FixtureManifestPath = Join-Path $RunDirectory "fixture\fixture_manifest.json"
@@ -31,6 +31,7 @@ $ExpectedT57SourceRelPaths = @(
     "sim/tb_s2a_conv_layer35_row21_all_channels.sv",
     "sim/s2a_t57_no_wave.tcl",
     "verification/test_s2a_conv_layer35_row21_all_channels_rtl.py",
+    "verification/test_s2a_t57_attempt09_transcript.py",
     "report/evidence/S2A-T57/run_project_sim.tcl",
     "verification/run_s2a_t57_project_sim.ps1"
 )
@@ -409,7 +410,7 @@ function Set-T57JsonField {
 
 function Get-T57TranscriptEvidence {
     param([Parameter(Mandatory = $true)][string]$Text)
-    $sentinelCount = [regex]::Matches($Text, 'T57_CUSTOM_TCL_SENTINEL=run09').Count
+    $sentinelCount = [regex]::Matches($Text, '(?m)^T57_CUSTOM_TCL_SENTINEL=run09_attempt09[ \t]*\r?$').Count
     $passCount = [regex]::Matches($Text, '(?m)^PASS T57 outputs=').Count
     $progressMatches = [regex]::Matches($Text, '(?m)^PROGRESS T57 outputs=(\d+)/6656[ \t]*\r?$')
     $progressValues = @($progressMatches | ForEach-Object { [int]$_.Groups[1].Value })
@@ -421,7 +422,7 @@ function Get-T57TranscriptEvidence {
     if ($finishMatches.Count -eq 1) {
         $finishTimeNs = [long]$finishMatches[0].Groups[1].Value
     }
-    $hasError = [regex]::IsMatch($Text, '(?im)^\s*(?:ERROR|FATAL)(?:\s|:)')
+    $hasError = [regex]::IsMatch($Text, '(?im)^[ \t]*(?:ERROR|FATAL)(?:[ \t]|:)')
     return [pscustomobject]@{
         sentinel_count = $sentinelCount
         pass_line_count = $passCount
@@ -439,6 +440,9 @@ function Complete-T57StageStatus {
     param(
         [Parameter(Mandatory = $true)][string]$RunDirectory,
         [Parameter(Mandatory = $true)][string]$XsimTclPath,
+        [Parameter(Mandatory = $true)][string]$TranscriptRunnerPath,
+        [Parameter(Mandatory = $true)][string]$PythonExecutable,
+        [Parameter(Mandatory = $true)][string]$ExpectedTranscriptRunnerSha256,
         [Parameter(Mandatory = $true)][AllowNull()][object]$VivadoExitCode,
         [Parameter(Mandatory = $true)][string]$ExpectedXprSha256,
         [Parameter(Mandatory = $true)][string]$ExpectedCompileSourceManifestSha256,
@@ -463,6 +467,63 @@ function Complete-T57StageStatus {
     }
 
     $reasons = [Collections.Generic.List[string]]::new()
+    $consolePath = Join-Path $RunDirectory "vivado_batch_console.log"
+    $extractedTranscriptPath = Join-Path $RunDirectory "xsim_simulate_transcript.log"
+    $transcriptPath = $consolePath
+    $transcriptSource = "vivado_batch_console.log"
+    $transcriptText = ""
+    $transcriptFacts = $null
+    $transcriptExtractionExitCode = $null
+    $transcriptExtractionRecord = $null
+    $transcriptExtractionFailure = $null
+    $transcriptOriginSha256 = $null
+    if (Test-Path -LiteralPath $consolePath -PathType Leaf) {
+        try {
+            if ((Get-T57Sha256 -Path $TranscriptRunnerPath) -cne
+                $ExpectedTranscriptRunnerSha256.ToLowerInvariant()) {
+                throw "transcript extractor runner SHA 与启动前绑定不一致"
+            }
+            $extractArguments = @("-B", $TranscriptRunnerPath, "--extract-console-transcript")
+            $extractOutput = @(& $PythonExecutable @extractArguments 2>&1)
+            $transcriptExtractionExitCode = [int]$LASTEXITCODE
+            if ($transcriptExtractionExitCode -ne 0) {
+                throw "Python transcript extractor 返回非零：$transcriptExtractionExitCode；$($extractOutput -join ' ')"
+            }
+            $extractJson = [string]::Join([Environment]::NewLine, [string[]]$extractOutput)
+            $transcriptExtractionRecord = $extractJson | ConvertFrom-Json -ErrorAction Stop
+            $transcriptOriginSha256 = Get-T57Sha256 -Path $consolePath
+            $expectedTranscriptPath = [IO.Path]::GetFullPath($extractedTranscriptPath)
+            $expectedConsolePath = [IO.Path]::GetFullPath($consolePath)
+            if ($transcriptExtractionRecord.schema -cne "S2A-T57-xsim-transcript-extraction-v1" -or
+                $transcriptExtractionRecord.status -cne "PASS" -or
+                $transcriptExtractionRecord.algorithm -cne "byte_lines_unique_sentinel_through_unique_finish_v1" -or
+                -not [string]::Equals([IO.Path]::GetFullPath([string]$transcriptExtractionRecord.source.path),
+                    $expectedConsolePath, [StringComparison]::OrdinalIgnoreCase) -or
+                [int64]$transcriptExtractionRecord.source.bytes -ne (Get-Item -LiteralPath $consolePath).Length -or
+                $transcriptExtractionRecord.source.sha256 -cne $transcriptOriginSha256 -or
+                -not [string]::Equals([IO.Path]::GetFullPath([string]$transcriptExtractionRecord.transcript.path),
+                    $expectedTranscriptPath, [StringComparison]::OrdinalIgnoreCase) -or
+                [int64]$transcriptExtractionRecord.transcript.bytes -ne (Get-Item -LiteralPath $extractedTranscriptPath).Length -or
+                $transcriptExtractionRecord.transcript.sha256 -cne (Get-T57Sha256 -Path $extractedTranscriptPath)) {
+                throw "Python transcript extractor 返回值未绑定本轮 console 与 transcript 文件"
+            }
+            $transcriptPath = $extractedTranscriptPath
+            $transcriptText = [IO.File]::ReadAllText($transcriptPath, [Text.Encoding]::UTF8)
+            $transcriptFacts = Get-T57TranscriptEvidence -Text $transcriptText
+            if (-not $transcriptFacts.complete) {
+                throw "截取后的 XSim transcript 不完整"
+            }
+            $transcriptSource = "xsim_simulate_transcript.log"
+        }
+        catch {
+            $transcriptExtractionFailure = $_.Exception.Message
+            $reasons.Add("XSim transcript 提取失败：$transcriptExtractionFailure")
+        }
+    }
+    else {
+        $transcriptExtractionFailure = "缺少 vivado_batch_console.log"
+        $reasons.Add($transcriptExtractionFailure)
+    }
     $originalStatus = [string]$stage.status
     if ($stage.schema -cne "GestureForge-S2A-T57-isolated-simulation-status-v5") {
         $reasons.Add("stage_status schema 不匹配")
@@ -494,6 +555,12 @@ function Complete-T57StageStatus {
         $stage.top -cne "tb_s2a_conv_layer35_row21_all_channels") {
         $reasons.Add("stage_status 仿真集或顶层不匹配")
     }
+    if ($stage.runtime_property_empty -ne $true -or
+        $stage.runtime_control -cne "CUSTOM_TCL_RUN_ALL" -or
+        $stage.effective_debug_level -cne "off" -or
+        $stage.log_all_signals -ne 0) {
+        $reasons.Add("no-wave runtime/debug 属性未满足冻结配置")
+    }
     try {
         if (-not [string]::Equals([IO.Path]::GetFullPath([string]$stage.custom_tcl_path),
                 [IO.Path]::GetFullPath($XsimTclPath), [StringComparison]::OrdinalIgnoreCase)) {
@@ -505,7 +572,7 @@ function Complete-T57StageStatus {
     }
 
     $requiredNames = @(
-        "vivado_batch_console.log", "compile.log", "elaborate.log", "xsim_run.tcl", "compile_source_manifest.tsv",
+        "vivado_batch_console.log", "xsim_simulate_transcript.log", "compile.log", "elaborate.log", "xsim_run.tcl", "compile_source_manifest.tsv",
         "observed_raw.bin", "observed_output.bin",
         "elaborate.before_compile.bat", "elaborate.after_compile.bat", "elaborate.after_elaborate.bat",
         "simulate.before_compile.bat", "simulate.after_compile.bat", "simulate.after_elaborate.bat"
@@ -526,48 +593,11 @@ function Complete-T57StageStatus {
         $reasons.Add("缺少运行证据：$($missingNames -join ', ')")
     }
 
-    $consolePath = Join-Path $RunDirectory "vivado_batch_console.log"
-    $simulatePath = Join-Path $RunDirectory "simulate.log"
-    $consoleText = ""
-    $simulateText = ""
-    $consoleFacts = $null
-    $simulateFacts = $null
-    if (Test-Path -LiteralPath $simulatePath) {
-        $simulateItem = Get-Item -LiteralPath $simulatePath -ErrorAction Stop
-        if ($simulateItem.PSIsContainer -or
-            (($simulateItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) {
-            $reasons.Add("simulate.log 不是普通文件")
-        }
-        else {
-            $simulateText = [IO.File]::ReadAllText($simulatePath, [Text.Encoding]::UTF8)
-            $simulateFacts = Get-T57TranscriptEvidence -Text $simulateText
-        }
-    }
-    if (Test-Path -LiteralPath $consolePath -PathType Leaf) {
-        $consoleText = [IO.File]::ReadAllText($consolePath, [Text.Encoding]::UTF8)
-        $consoleFacts = Get-T57TranscriptEvidence -Text $consoleText
-    }
-    if ($null -ne $simulateFacts -and $simulateFacts.complete) {
-        $transcriptPath = $simulatePath
-        $transcript = $simulateText
-        $transcriptFacts = $simulateFacts
-    }
-    elseif ($null -ne $consoleFacts) {
-        $transcriptPath = $consolePath
-        $transcript = $consoleText
-        $transcriptFacts = $consoleFacts
-    }
-    elseif ($null -ne $simulateFacts) {
-        $transcriptPath = $simulatePath
-        $transcript = $simulateText
-        $transcriptFacts = $simulateFacts
-    }
-    else {
-        $transcriptPath = $consolePath
-        $transcript = ""
-        $transcriptFacts = Get-T57TranscriptEvidence -Text $transcript
-    }
-    $transcriptSource = [IO.Path]::GetFileName($transcriptPath)
+    $transcriptOriginSha256 = if ($null -ne $transcriptOriginSha256) {
+        $transcriptOriginSha256
+    } elseif (Test-Path -LiteralPath $consolePath -PathType Leaf) {
+        Get-T57Sha256 -Path $consolePath
+    } else { $null }
     $sentinelCount = $transcriptFacts.sentinel_count
     $passCount = $transcriptFacts.pass_line_count
     $progressMatchesExpected = $transcriptFacts.progress_matches_expected
@@ -592,6 +622,7 @@ function Complete-T57StageStatus {
         $expectedSnapshot = "tb_s2a_conv_layer35_row21_all_channels_behav"
         $expectedSnapshotKey = "Behavioral:sim_s2a_t57_row21:Functional:tb_s2a_conv_layer35_row21_all_channels"
         $batchMatches = [regex]::Matches($signature, '(?i)(?:^|[ \t])-tclbatch[ \t]+(?:"([^"]+)"|\{([^}]+)\}|([^ \t]+))')
+        $testplusargMatches = [regex]::Matches($signature, '(?i)(?:^|[ \t])-testplusarg[ \t]+(?:"([^"]+)"|\{([^}]+)\}|([^ \t]+))')
         $batchValue = ""
         if ($batchMatches.Count -eq 1) {
             foreach ($groupIndex in 1..3) {
@@ -601,12 +632,24 @@ function Complete-T57StageStatus {
                 }
             }
         }
+        $testplusargValue = ""
+        if ($testplusargMatches.Count -eq 1) {
+            foreach ($groupIndex in 1..3) {
+                if ($testplusargMatches[0].Groups[$groupIndex].Success) {
+                    $testplusargValue = $testplusargMatches[0].Groups[$groupIndex].Value
+                    break
+                }
+            }
+        }
+        $expectedRunRootArgument = "T57_RUN_ROOT=" + [IO.Path]::GetFullPath($RunDirectory).Replace([char]92, [char]47)
         if ($batchMatches.Count -ne 1 -or $batchValue.Contains([char]92) -or
             -not [string]::Equals($batchValue, $expectedBatchPath, [StringComparison]::OrdinalIgnoreCase) -or
+            $testplusargMatches.Count -ne 1 -or
+            -not [string]::Equals($testplusargValue, $expectedRunRootArgument, [StringComparison]::Ordinal) -or
             -not $signature.Contains($expectedSnapshot) -or
             -not $signature.Contains($expectedSnapshotKey) -or
             [regex]::IsMatch($signature, '(?i)(?:^|[ \t])-wdb(?:[ \t=]|$)')) {
-            $reasons.Add("唯一 xsim 签名未绑定目标 snapshot/top、run09 正斜杠 custom Tcl 或启用了 WDB")
+            $reasons.Add("唯一 xsim 签名未绑定目标 snapshot/top、run09/attempt09 custom Tcl/testplusarg 或启用了 WDB")
         }
     }
     else {
@@ -648,6 +691,14 @@ function Complete-T57StageStatus {
     Set-T57JsonField -Object $stage -Name "simulate_log_path" -Value ([IO.Path]::GetFullPath($transcriptPath))
     Set-T57JsonField -Object $stage -Name "simulate_log_source" -Value $transcriptSource
     Set-T57JsonField -Object $stage -Name "simulate_log_sha256" -Value $(if (Test-Path -LiteralPath $transcriptPath -PathType Leaf) { (Get-FileHash -LiteralPath $transcriptPath -Algorithm SHA256).Hash.ToLowerInvariant() } else { $null })
+    Set-T57JsonField -Object $stage -Name "simulate_log_bytes" -Value $(if (Test-Path -LiteralPath $transcriptPath -PathType Leaf) { (Get-Item -LiteralPath $transcriptPath).Length } else { $null })
+    Set-T57JsonField -Object $stage -Name "simulate_log_origin_path" -Value ([IO.Path]::GetFullPath($consolePath))
+    Set-T57JsonField -Object $stage -Name "simulate_log_origin_sha256" -Value $transcriptOriginSha256
+    Set-T57JsonField -Object $stage -Name "simulate_log_origin_bytes" -Value $(if (Test-Path -LiteralPath $consolePath -PathType Leaf) { (Get-Item -LiteralPath $consolePath).Length } else { $null })
+    Set-T57JsonField -Object $stage -Name "simulate_log_extraction_algorithm" -Value "byte_lines_unique_sentinel_through_unique_finish_v1"
+    Set-T57JsonField -Object $stage -Name "simulate_log_extraction_status" -Value $(if ($transcriptComplete) { "PASS" } else { "FAIL" })
+    Set-T57JsonField -Object $stage -Name "simulate_log_extraction_exit_code" -Value $transcriptExtractionExitCode
+    Set-T57JsonField -Object $stage -Name "simulate_log_extraction_line_range" -Value $(if ($null -ne $transcriptExtractionRecord) { $transcriptExtractionRecord.line_range_1based_inclusive } else { $null })
     Set-T57JsonField -Object $stage -Name "wdb_generated" -Value ($wdbFiles.Count -gt 0)
     Set-T57JsonField -Object $stage -Name "failure" -Value ($reasons -join "; ")
     Set-T57JsonField -Object $stage -Name "wrapper_finalization" -Value ([ordered]@{
@@ -655,6 +706,12 @@ function Complete-T57StageStatus {
         original_status = $originalStatus
         terminal_status = $finalStatus
         transcript_source = $transcriptSource
+        transcript_origin = "vivado_batch_console.log"
+        transcript_origin_sha256 = $transcriptOriginSha256
+        transcript_extraction_algorithm = "byte_lines_unique_sentinel_through_unique_finish_v1"
+        transcript_extraction_exit_code = $transcriptExtractionExitCode
+        transcript_extraction_failure = $transcriptExtractionFailure
+        transcript_extraction_line_range = $(if ($null -ne $transcriptExtractionRecord) { $transcriptExtractionRecord.line_range_1based_inclusive } else { $null })
         sentinel_count = $sentinelCount
         pass_line_count = $passCount
         progress_checkpoint_count = $progressCheckpointCount
@@ -760,6 +817,42 @@ if ([int]$binding.preflight_exit_code -ne 0) {
 $XprShaBefore = Get-T57Sha256 -Path $XprPath
 if ($XprShaBefore -cne ([string]$binding.xpr_sha256_before_run).ToLowerInvariant()) {
     throw "目标 XPR SHA-256 与当前只读预检绑定不匹配"
+}
+if ($Mode -eq "recover") {
+    if (-not [string]::Equals($RunFullPath, $ExpectedRunDirectory,
+            [StringComparison]::OrdinalIgnoreCase)) {
+        throw "recover 仅允许固定 attempt09 根目录：$RunFullPath"
+    }
+    $recoverBefore = @(Get-T57ProcessSnapshot)
+    if ($recoverBefore.Count -ne 0) {
+        throw "recover 启动前发现 Vivado/XSim 进程，拒绝修改 attempt09 状态"
+    }
+    $recoverArguments = @("-X", "utf8", "-B", $T57RunnerPath, "--recover-attempt09")
+    Push-Location -LiteralPath $RepositoryRoot
+    try {
+        & $PythonPath @recoverArguments
+        $recoverExitCode = [int]$LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
+    $recoverAfter = @(Get-T57ProcessSnapshot)
+    if ($recoverAfter.Count -ne 0) {
+        throw "recover 结束后发现 Vivado/XSim 进程"
+    }
+    if ($recoverExitCode -ne 0) {
+        throw "attempt09 recover runner 返回非零：$recoverExitCode"
+    }
+    Write-Output (ConvertTo-Json -InputObject ([ordered]@{
+        result = "T57_ATTEMPT09_RECOVERY_PASS"
+        run_directory = $RunFullPath
+        python_command = @($PythonPath) + $recoverArguments
+        vivado_processes_before = $recoverBefore
+        vivado_processes_after = $recoverAfter
+        vivado_started = $false
+        xsim_started = $false
+    }) -Depth 5 -Compress)
+    exit 0
 }
 $StartupBindings = Assert-T57StartupSourceBindings -RunDirectory $RunDirectory
 $CompileSourceManifestSha256 = $StartupBindings.compile_source_manifest_sha256
@@ -1017,6 +1110,9 @@ finally {
             $stageFinalization = Complete-T57StageStatus `
                 -RunDirectory $RunDirectory `
                 -XsimTclPath $XsimTclPath `
+                -TranscriptRunnerPath $T57RunnerPath `
+                -PythonExecutable $PythonPath `
+                -ExpectedTranscriptRunnerSha256 ([string]$StartupBindings.python_runner_sha256) `
                 -VivadoExitCode $vivadoExitCode `
                 -ExpectedXprSha256 $XprShaBefore `
                 -ExpectedCompileSourceManifestSha256 $CompileSourceManifestSha256 `

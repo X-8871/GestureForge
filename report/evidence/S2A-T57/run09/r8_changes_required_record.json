@@ -1,0 +1,23 @@
+{
+  "schema": "GestureForge-S2A-T57-R8-review-findings-record-v1",
+  "task_id": "S2A-T57-R8",
+  "reviewer_outcome": "CHANGES_REQUIRED",
+  "record_type": "root-supplied R9 task-card summary",
+  "exact_reviewer_report_in_run08": false,
+  "findings": [
+    {
+      "id": "R8-1",
+      "required_correction": "Validate the prepare summary and fixture manifest against exact regular-file paths, reparse status, byte length, and SHA256 before launch; recheck actual compile-source hashes in Tcl before adding and launching.",
+      "finding": "PowerShell did not enforce the prepared source SHA/size bindings for all T57 sources and actual compile inputs before starting Vivado; compile-source hash verification was not a complete prelaunch gate."
+    },
+    {
+      "id": "R8-2",
+      "required_correction": "Keep stage_status at simulation-flow PASS with data verification pending; after archiving evidence run the exact bound runner --verify-only and expose overall PASS only when its actual exit code is zero and its data report passes raw/INT8/D2 checks.",
+      "finding": "Simulation-flow completion could be interpreted as data acceptance without an automatic invocation of the same bound Python runner verification."
+    }
+  ],
+  "limitations": [
+    "The original R8 reviewer report was not found among run08 files; this record preserves the findings supplied by the root task card and is not a verbatim reviewer transcript.",
+    "No Vivado/XSim was started for R9 preparation or static tests."
+  ]
+}

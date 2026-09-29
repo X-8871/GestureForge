@@ -1,0 +1,1 @@
+call xsim tb_s2a_conv_layer35_row21_all_channels_behav -key {Behavioral:sim_s2a_t57_row21:Functional:tb_s2a_conv_layer35_row21_all_channels} -tclbatch {D:/FPGA_Competition/report/evidence/S2A-T57/run09/_r9_batch_signature_gate_unit/xsim_run.tcl} -log simulate.log

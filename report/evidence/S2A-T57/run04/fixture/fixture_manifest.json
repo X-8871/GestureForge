@@ -1,0 +1,175 @@
+{
+  "schema": "GestureForge-S2A-T57-fixture-manifest-v2",
+  "task_id": "S2A-T57",
+  "status": "PREPARED_NOT_SIMULATED",
+  "baseline_head": "7b8bad78a456310d2ca797a02e3a5a7f873f9c18",
+  "parent_report": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T56\\layer35_row20_all_channels.json",
+    "sha256": "44a25b6b5af6f8868dd2cb9780c4834bdd87860ba43a71b0c696c0b67627da12"
+  },
+  "generator_source": {
+    "path": "D:\\FPGA_Competition\\verification\\test_s2a_conv_layer35_row18_all_channels_rtl.py",
+    "sha256": "4ec6a743d6a80c380505be2a8601879c311a7f42e07323027098c07a8dadd4f3"
+  },
+  "runner_source_sha256": "ce7188976d087090b7f1f7ff4846837836d9b85468646eb9d0a38962b793b981",
+  "T57_source_hashes": {
+    "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+    "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+    "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+    "src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+    "src/s2a_conv_layer35_channel_probe.sv": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4",
+    "sim/tb_s2a_conv_layer35_row21_all_channels.sv": "16caf94a11d2197a0e2061c5426444d2e4652eaed691c10d58bc8e0d2a02f7d1",
+    "sim/s2a_t57_no_wave.tcl": "4dca6f29ee63d1d30de933587e799021ba80f5840cb309bb840c331951a64728",
+    "verification/test_s2a_conv_layer35_row21_all_channels_rtl.py": "ce7188976d087090b7f1f7ff4846837836d9b85468646eb9d0a38962b793b981",
+    "report/evidence/S2A-T57/run_project_sim.tcl": "33c2a3f57d5577197fe4640613f332570001940e1a761fe4bed369b3a4d8099b",
+    "verification/run_s2a_t57_project_sim.ps1": "fc63207fb91389eb33bcc67a757a2a4ab165c42b9904f0e9c27eb3ba555cde8d"
+  },
+  "xsim_custom_tcl": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\xsim_run.tcl",
+    "bytes": 50,
+    "sha256": "a8fed0cc6a360cad2bdaeca28abd293f0e4ed08cd33e56d7929eb36a3ffb37c4"
+  },
+  "fixture_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\fixture",
+  "files": {
+    "feature_input.bin": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\fixture\\feature_input.bin",
+      "bytes": 259584,
+      "sha256": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1"
+    },
+    "layer35_weights.bin": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\fixture\\layer35_weights.bin",
+      "bytes": 884736,
+      "sha256": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2"
+    },
+    "golden.bin": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\fixture\\golden.bin",
+      "bytes": 33280,
+      "sha256": "7129dc9b616e263c95e616cb2b6c538d4f6908fd16dee14b84f2e065cfab4397"
+    },
+    "vectors.txt": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run04\\fixture\\vectors.txt",
+      "bytes": 254606,
+      "sha256": "5f7b8e8fa94502e8fba0f27456040a5e84a92b17188817eefe71070ae24b8fd4"
+    }
+  },
+  "oracle": {
+    "algorithm": "独立 Python INT32 NCHW 卷积 + D2 float64 舍入交叉核验 T23 M/Q",
+    "reduction_order": "k=ic*9+ky*3+kx; feature=base+ic*676+iy*26+ix; weight=oc*3456+k",
+    "raw_int32_count": 6656,
+    "quantized_int8_count": 6656,
+    "raw_int32_min": -658092,
+    "raw_int32_max": 588167,
+    "valid_taps": 22413312,
+    "padding_taps": 589824,
+    "d2_t23_match_count": 6656,
+    "raw_int32_le_sha256": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93",
+    "quantized_int8_sha256": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed",
+    "combined_golden_sha256": "7129dc9b616e263c95e616cb2b6c538d4f6908fd16dee14b84f2e065cfab4397"
+  },
+  "fixed_points_yx": [
+    [
+      21,
+      0
+    ],
+    [
+      21,
+      1
+    ],
+    [
+      21,
+      2
+    ],
+    [
+      21,
+      3
+    ],
+    [
+      21,
+      4
+    ],
+    [
+      21,
+      5
+    ],
+    [
+      21,
+      6
+    ],
+    [
+      21,
+      7
+    ],
+    [
+      21,
+      8
+    ],
+    [
+      21,
+      9
+    ],
+    [
+      21,
+      10
+    ],
+    [
+      21,
+      11
+    ],
+    [
+      21,
+      12
+    ],
+    [
+      21,
+      13
+    ],
+    [
+      21,
+      14
+    ],
+    [
+      21,
+      15
+    ],
+    [
+      21,
+      16
+    ],
+    [
+      21,
+      17
+    ],
+    [
+      21,
+      18
+    ],
+    [
+      21,
+      19
+    ],
+    [
+      21,
+      20
+    ],
+    [
+      21,
+      21
+    ],
+    [
+      21,
+      22
+    ],
+    [
+      21,
+      23
+    ],
+    [
+      21,
+      24
+    ],
+    [
+      21,
+      25
+    ]
+  ]
+}

@@ -1,0 +1,1 @@
+call xelab --debug off --snapshot tb_s2a_conv_layer35_row21_all_channels_behav xil_defaultlib.tb_s2a_conv_layer35_row21_all_channels

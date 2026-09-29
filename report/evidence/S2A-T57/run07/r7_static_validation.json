@@ -1,0 +1,235 @@
+{
+  "schema": "GestureForge-S2A-T57-R7-static-validation-v1",
+  "task_id": "S2A-T57-R7",
+  "status": "PASS_STATIC_PREPARATION_AND_GATE_FIXTURES",
+  "simulator_started": false,
+  "vivado_mcp": {
+    "tool_available": true,
+    "tool_calls": [
+      "mcp__vivado_mcp__check_connection"
+    ],
+    "connection_result": "NOT_REACHABLE",
+    "error": "127.0.0.1:7654 refused connection after 5 attempts; no project query or Tcl operation followed"
+  },
+  "source_changes": {
+    "scope": "Five T57 source files plus this run07 evidence directory",
+    "hashes": {
+      "verification/test_s2a_conv_layer35_row21_all_channels_rtl.py": "7128b6f664278ca3f1e5f23add625706619eb8eed46db06b921a4614e17f4910",
+      "verification/run_s2a_t57_project_sim.ps1": "dd99bda7f4c3d8119a5039121f20118ee670d06cc0bd9a44d180dd9388bcfc5e",
+      "report/evidence/S2A-T57/run_project_sim.tcl": "aa6b9266842850419182e087c3893066a9c9796145aa9b97a146645ed57b4eaa",
+      "sim/s2a_t57_no_wave.tcl": "f6ce7b27be343c558ece426096fd381a3f1a28c3324c3e2965389baa0d6d9aeb",
+      "sim/tb_s2a_conv_layer35_row21_all_channels.sv": "23fed2ac0ebd627c4174d5c1cb12d641cc6b5c6ddaa48d2b620a3a0a539745ad"
+    }
+  },
+  "run06_initial_status": {
+    "schema": "GestureForge-S2A-T57-isolated-simulation-status-v3",
+    "status": "RUNNING",
+    "custom_tcl_executed": false,
+    "simulate_log_complete": false,
+    "xsim_exit_code": null,
+    "vivado_process_exit_code": 0,
+    "console_progress_lines": 256,
+    "console_pass_lines": 0,
+    "console_finish_lines": 1,
+    "raw_sha256": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93",
+    "int8_sha256": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed",
+    "raw_byte_mismatches_vs_golden": 0,
+    "int8_byte_mismatches_vs_golden": 0
+  },
+  "prior_attempt_inventory": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run07\\r7_prior_runs_sha256_manifest.json",
+    "sha256": "e7c71d87105df30be1cee1de5a98b74c02e089061a69f548016ca232d663f1de",
+    "files": 113,
+    "attempt_file_counts": {
+      "run01": 17,
+      "run02": 7,
+      "run03": 13,
+      "run04": 17,
+      "run05": 22,
+      "run06": 37
+    },
+    "current_comparison": "PASS",
+    "mismatches": 0,
+    "historical_scope": "This records the current R7-start state and does not prove content integrity before R6."
+  },
+  "run07_prepare": {
+    "command": "python -B verification/test_s2a_conv_layer35_row21_all_channels_rtl.py --prepare-only",
+    "exit_code": 0,
+    "status": "PREPARED_NOT_SIMULATED",
+    "raw_int32_count": 6656,
+    "int8_count": 6656,
+    "expected_progress_checkpoints": 256,
+    "prepare_summary_sha256": "d5f98275a71d7245f5c317dae9438f0c90051bd2fb8383275be91b7d7a9c777a",
+    "fixture_manifest_sha256": "5f4f18762b91bfaac2a804da5249c278eba6f67c8c73bdab026e36bf08c6cb4c",
+    "source_binding_count": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixture_file_count": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "fixture_data_records_unchanged_after_binding_refresh": true
+  },
+  "static_checks": {
+    "python_ast_parse": "PASS exit 0",
+    "powershell_ast_parse": "PASS exit 0",
+    "tcl_info_complete": "PASS exit 0",
+    "wrapper_status_gate_fixture_test": {
+      "exit_code": 0,
+      "status": "PASS_STATIC_SYNTHETIC_FIXTURES",
+      "case_count": 5,
+      "cases": [
+        {
+          "case": "pass_console_fallback",
+          "passed": true,
+          "status": "PASS",
+          "transcript_source": "vivado_batch_console.log",
+          "xsim_exit_code": null,
+          "xsim_exit_code_captured": false
+        },
+        {
+          "case": "incomplete_running",
+          "passed": true,
+          "status": "FAIL",
+          "exit_code": 1
+        },
+        {
+          "case": "vivado_nonzero",
+          "passed": true,
+          "status": "FAIL",
+          "vivado_process_exit_code": 1,
+          "xsim_exit_code": null
+        },
+        {
+          "case": "missing_compile_log",
+          "passed": true,
+          "status": "FAIL",
+          "exit_code": 1
+        },
+        {
+          "case": "missing_stage_status",
+          "passed": true,
+          "status": "MISSING",
+          "exit_code": 1
+        }
+      ]
+    },
+    "prepare_binding_refresh": "PASS exit 0",
+    "verify_only": {
+      "command": "python -B verification/test_s2a_conv_layer35_row21_all_channels_rtl.py --verify-only",
+      "actual_exit_code": 1,
+      "expected": "FAIL CLOSED because root run07/stage_status.json is absent",
+      "final_report_written": false
+    }
+  },
+  "retained_initial_synthetic_attempt": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run07\\_r7_wrapper_gate_unit",
+    "type": "directory containing synthetic-only gate fixture files",
+    "file_count": 15,
+    "reason": "First static fixture caught File.Replace null backup path failure; implementation was fixed and successful fixture suite is recorded separately.",
+    "files": [
+      {
+        "relative_path": "pass_console_fallback\\compile.log",
+        "bytes": 27,
+        "sha256": "7d477b156d70d35303ea54906caab762cb2cb7e418a349a09db2297487983656"
+      },
+      {
+        "relative_path": "pass_console_fallback\\elaborate.after_compile.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\elaborate.after_elaborate.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\elaborate.before_compile.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\elaborate.log",
+        "bytes": 71,
+        "sha256": "496cf113352e3d0dfde27ef0fcd6f4ff463ab5df108742a33de2f1356aac645d"
+      },
+      {
+        "relative_path": "pass_console_fallback\\observed_output.bin",
+        "bytes": 6656,
+        "sha256": "16cc39e093d21650607a4fe4ccbbb56b1219575378edea7fbe80a96e9096033f"
+      },
+      {
+        "relative_path": "pass_console_fallback\\observed_raw.bin",
+        "bytes": 26624,
+        "sha256": "0c35865eec2cf793b54c4c420887951a56ee651be16a620d880ea7bd9772bb26"
+      },
+      {
+        "relative_path": "pass_console_fallback\\simulate.after_compile.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\simulate.after_elaborate.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\simulate.before_compile.bat",
+        "bytes": 33,
+        "sha256": "9c6acfb30e5f1becb0edc0b955b87e265b0b41416cb12766a98861d9e366d8d9"
+      },
+      {
+        "relative_path": "pass_console_fallback\\simulate.log",
+        "bytes": 25,
+        "sha256": "4e8bc87720ef54ded93c557c11e3ba6fb70e5c4923b319d2f92c8e84de2e765a"
+      },
+      {
+        "relative_path": "pass_console_fallback\\stage_status.json",
+        "bytes": 816,
+        "sha256": "f5ac12c324dae36ebe0afd1184794d6eff24106512b98921e11d12fd35a00d6c"
+      },
+      {
+        "relative_path": "pass_console_fallback\\stage_status.json.r7tmp",
+        "bytes": 1750,
+        "sha256": "da48b68296574d214284ccc987826ffe70dfd03ca77dbfa3f6a02eb37c5ee822"
+      },
+      {
+        "relative_path": "pass_console_fallback\\vivado_batch_console.log",
+        "bytes": 7986,
+        "sha256": "fdb705e106dde608c51d708ee4b56120e6171d9a2d9b1f38948d850488d8ca4b"
+      },
+      {
+        "relative_path": "pass_console_fallback\\xsim_run.tcl",
+        "bytes": 13,
+        "sha256": "6218ffa4f2392f3c61113605d4ab2cd023186e11f1da826b920e510a9a797efb"
+      }
+    ]
+  },
+  "final_environment": {
+    "xpr_path": "D:\\FPGA_Competition\\vivado\\AX7Z020_Gesture\\AX7Z020_Gesture.xpr",
+    "xpr_sha256_before": "9e637bb8a31c8c74cdb703d632282a020875f5623893665719c1bbb5035be1ec",
+    "xpr_sha256_after": "9e637bb8a31c8c74cdb703d632282a020875f5623893665719c1bbb5035be1ec",
+    "xpr_unchanged": true,
+    "vivado_xsim_process_count": 0,
+    "root_stage_status_exists": false,
+    "root_process_status_exists": false,
+    "final_simulation_report_exists": false,
+    "vivado_or_xsim_started": false
+  },
+  "limitations": [
+    "No Vivado/XSim run was started; independent review is required before any simulation.",
+    "The R7 run01-run06 inventory is a read-only snapshot captured at R7 start and does not prove historical integrity before R6.",
+    "The XSim OS exit code remains uncaptured and is intentionally null; only the Vivado batch process exit code is recorded when available."
+  ]
+}

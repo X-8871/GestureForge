@@ -34,5 +34,4 @@ set_property simulator_language Mixed [current_project]
 add_files -fileset sim_1 -norecurse $t60_source_files
 set_property top $t60_expected_top [get_filesets sim_1]
 update_compile_order -fileset sim_1
-save_project
 puts "T60_RUN06_PROJECT_READY xpr=[file join $t60_project_dir ${t60_project_name}.xpr] top=$t60_expected_top"

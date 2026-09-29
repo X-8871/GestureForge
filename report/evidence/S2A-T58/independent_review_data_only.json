@@ -1,0 +1,55 @@
+{
+  "schema": "GestureForge-S2A-independent-row-data-review-v1",
+  "task_id": "S2A-T58",
+  "decision": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
+  "reviewed_at_utc8": "2026-09-30",
+  "reviewed_head": "cee1b3b6ee8250f64601bcf95f737a1b43c0b67d",
+  "scope": {
+    "layer": 35,
+    "row_y": 22,
+    "x_start": 0,
+    "x_end": 25,
+    "channels": 256,
+    "output_values": 6656
+  },
+  "primary_evidence": [
+    {
+      "path": "report/evidence/S2A-T58/run06/simulation_result.json",
+      "bytes": 23040,
+      "sha256": "20c2ba419c92e000e7ff5015229312b5fcd940a9e6a5c650184458c11a9b99fa"
+    },
+    {
+      "path": "report/evidence/S2A-T58/run06/simulation_inventory.json",
+      "bytes": 16921,
+      "sha256": "8fca923bc0c42abde9139a54ade24b719d5f4e2a5a89738fc1edbf1544a4414e",
+      "entries_verified": 48,
+      "entry_size_or_hash_mismatches": 0
+    }
+  ],
+  "bindings": {
+    "testbench_sha256": "b1f53f31d0a061b80038ca60225f84b0c639da97a33cc9e232929b47210f5c0a",
+    "runner_sha256": "7269d3c948eb0a7cbeeb76c6c16103fa8ff4e00a2cd1ba699b9e0936b6363c40",
+    "fixture_sha256": {
+      "golden": "0892e785cfb724eb10c9fd39b5bdba2836fa4eb9c0374dd31e5fd2aa7ce50271"
+    }
+  },
+  "outputs": {
+    "raw_bytes": 26624,
+    "raw_sha256": "e05dc9b38f2d8fac77aa48fcdf9d93f0800670620094a6d9bac2828a940b4d6c",
+    "int8_bytes": 6656,
+    "int8_sha256": "f164e91bc13c0c9c1e366b6b3bdaf6937e1afea0fb7ad556725d52c5c7f018d0",
+    "raw_vs_golden_prefix_mismatches": 0,
+    "int8_vs_golden_suffix_mismatches": 0
+  },
+  "checks": [
+    "testbench 坐标/顺序约束覆盖 y=22、x=0..25、256 通道；6,656 个输出记录满足契约",
+    "日志含 256 进度点、唯一 PASS 行、sentinel、$finish 且无 ERROR/FATAL",
+    "48 项清单的文件存在性、大小与 SHA-256 独立重算全部通过"
+  ],
+  "limitations": [
+    "run06 finalizer 记录 exit code 1（Add-InventoryArtifact 调用缺少 List 参数），但现存 inventory 的 48 项与文件均匹配，输出和 golden 逐字节比较可独立复核",
+    "MCP 客户端 run-all 超时、xsim_run.tcl return marker 缺失且无原始 MCP 收据；不声称客户端成功或 marker 执行",
+    "一个 inventory relative_path 是逻辑别名，实际 artifact.path 指向且校验通过；若合同要求标签本身对应实际文件，需单独修正归档标签",
+    "仅本行 data-only 子项；不代表整层、整网、G3/G4/G5"
+  ]
+}

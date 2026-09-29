@@ -1,0 +1,53 @@
+{
+  "schema": "GestureForge-S2A-independent-row-data-review-v1",
+  "task_id": "S2A-T57",
+  "decision": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
+  "reviewed_at_utc8": "2026-09-30",
+  "reviewed_head": "cee1b3b6ee8250f64601bcf95f737a1b43c0b67d",
+  "scope": {
+    "layer": 35,
+    "row_y": 21,
+    "x_start": 0,
+    "x_end": 25,
+    "channels": 256,
+    "output_values": 6656
+  },
+  "primary_evidence": {
+    "path": "report/evidence/S2A-T57/run09/attempt09/layer35_row21_all_channels.json",
+    "bytes": 33163,
+    "sha256": "c4153f6a095f81f4beaa411f443a50f94af728ad096ec02a97664ce9fe9e1ee5"
+  },
+  "bindings": {
+    "common_rtl_sha256": {
+      "int8_conv_tap_geometry": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "int8_conv_weight_address": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "int8_mac_accumulator": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "s2a_conv_engine": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "s2a_conv_layer35_channel_probe": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4"
+    },
+    "testbench_sha256": "a105fb6846d84674fd92a35aeff4a797c34282750e1f193ed35633abee9078e3",
+    "compile_source_manifest_sha256": "bab3313e19b1268b94aeaae252eb3364fe562a46c349e0570d207f8b2f5e7d54",
+    "fixture_manifest_sha256": "3ab48a2c786c64c0636199db9081c8ca6c4ce8f7c9a6e9994255ff17cf023b2f",
+    "fixture_sha256": {
+      "golden": "7129dc9b616e263c95e616cb2b6c538d4f6908fd16dee14b84f2e065cfab4397"
+    }
+  },
+  "outputs": {
+    "raw_bytes": 26624,
+    "raw_sha256": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93",
+    "int8_bytes": 6656,
+    "int8_sha256": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed",
+    "raw_vs_golden_prefix_mismatches": 0,
+    "int8_vs_golden_suffix_mismatches": 0
+  },
+  "checks": [
+    "五个 RTL 与 row21 testbench 编译清单及当前源码绑定相符",
+    "fixture 和运行副本哈希/长度匹配",
+    "raw 与 INT8 分别逐字节匹配 golden 对应片段",
+    "批处理 Vivado 退出码为 0；日志有 256 进度点、自定义 sentinel、PASS 和 $finish，无 ERROR/FATAL"
+  ],
+  "limitations": [
+    "XSim 独立退出码未捕获；恢复后的 verify-only 退出码为 0，隔离工程已清理且源 XPR 前后哈希一致",
+    "仅本行 data-only 子项；不代表整层、整网、G3/G4/G5"
+  ]
+}

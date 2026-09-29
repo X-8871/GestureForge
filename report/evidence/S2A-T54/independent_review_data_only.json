@@ -1,0 +1,53 @@
+{
+  "schema": "GestureForge-S2A-independent-row-data-review-v1",
+  "task_id": "S2A-T54",
+  "decision": "PASS_INDEPENDENT_REVIEW_DATA_ONLY",
+  "reviewed_at_utc8": "2026-09-30",
+  "reviewed_head": "cee1b3b6ee8250f64601bcf95f737a1b43c0b67d",
+  "scope": {
+    "layer": 35,
+    "row_y": 18,
+    "x_start": 0,
+    "x_end": 25,
+    "channels": 256,
+    "output_values": 6656
+  },
+  "primary_evidence": {
+    "path": "report/evidence/S2A-T54/layer35_row18_all_channels.json",
+    "bytes": 55933,
+    "sha256": "089c0aa4b0b163d49c38602e44c61c0e606b8efc7ecbc546c1cfc8385f327f7a"
+  },
+  "bindings": {
+    "common_rtl_sha256": {
+      "int8_conv_tap_geometry": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+      "int8_conv_weight_address": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+      "int8_mac_accumulator": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+      "s2a_conv_engine": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+      "s2a_conv_layer35_channel_probe": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4"
+    },
+    "testbench_sha256": "e7e4490128dcde59071daefe81e6b0754b50b4e0dae3858fa3d4c428f71951e8",
+    "fixture_sha256": {
+      "feature": "f7cbcdae9627c974b0210b3329be66a4264d96d0e2474d3c7f30a1b9c2f59ff1",
+      "weights": "e7b7d6fd8511b918d0a3ee372ef9d35eb4f3a2827fac77e28cf4f9d775d85bc2",
+      "golden": "8f9ad1ad1981bd2d5fa491e8993f9cd760b1fff1fcb03679a08cc405f4adf7d2"
+    }
+  },
+  "outputs": {
+    "raw_bytes": 26624,
+    "raw_sha256": "2a850e89f3a3d17dad00a91d87245b54b3b9dfed44debcef4687e820bf30fac9",
+    "int8_bytes": 6656,
+    "int8_sha256": "fe5318db59e6ec5de0394af94662f26b97f9244b10c7f2b090361cd06a248502",
+    "raw_vs_golden_prefix_mismatches": 0,
+    "int8_vs_golden_suffix_mismatches": 0
+  },
+  "checks": [
+    "五个 RTL 与 testbench 编译清单及冻结绑定相符",
+    "raw 26,624 字节与 golden 前段逐字节相同；INT8 6,656 字节与 golden 后段逐字节相同",
+    "日志含 256 个进度点、唯一 PASS 行和 $finish，无 ERROR/FATAL"
+  ],
+  "limitations": [
+    "MCP run -all 客户端 RPC 超时，XSim 退出码及 custom-Tcl sentinel 未捕获；结论依据 PASS、完整进度、$finish 和独立数据比较",
+    "记录的运行时 XPR SHA 前缀为 9423e288，与当前 XPR SHA 前缀 9e637bb8 不同；不声称当前工程可完全复现",
+    "仅本行 data-only 子项；不代表整层、整网、G3/G4/G5"
+  ]
+}

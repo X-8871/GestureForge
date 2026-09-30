@@ -1,0 +1,70 @@
+{
+  "schema_version": "s2a_t63_dynamic_rom_fixture_binding_v1",
+  "task_id": "S2A-T63-DYNAMIC-ROM",
+  "status": "FIXTURE_PREPARED_NOT_SIMULATED",
+  "source": "独立解析冻结 T01 manifest、T22 contract、T23 M/Q 表后生成；不读取或导入 SV package 生成器作为 expected 数据源",
+  "frozen_input_sha256": {
+    "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "report/evidence/S2A-T22/network_dispatch_contract_validation.json": "611d47cc85bd254474c5412fcab2f8acce3a263138787588f2a6445eac61d9a8",
+    "report/evidence/S2A-T23/conv_requant_parameter_table.json": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1"
+  },
+  "package": {
+    "path": "src/s2a_network_descriptor_pkg.sv",
+    "sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14"
+  },
+  "testbench": {
+    "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/tb_s2a_t63_descriptor_rom_dynamic.sv",
+    "sha256": "81e30e8e96786c5beedfc10caad6862dfbe66fae4dcf776d015574eed3e9b24f"
+  },
+  "runner": {
+    "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/run_s2a_t63_descriptor_rom_dynamic.ps1",
+    "sha256": "dcd5ac70b1d7a2541a420871e52a67f66d769d685ec818b6dbed2cf91b5eb575"
+  },
+  "independent_verifier": {
+    "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/prepare_s2a_t63_dynamic_rom.py",
+    "sha256": "e64ed5de61b7da6f029f3bfb3c51750b38a23372e431f77c21145ec231c17b7a"
+  },
+  "offline_tests": {
+    "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/test_s2a_t63_dynamic_rom.py",
+    "sha256": "a4bb272581a0a104ce0043d65505d5dedaa76715b6d942551d0e6ac88be36d49"
+  },
+  "fixtures": {
+    "expected_layers.mem": {
+      "records": 38,
+      "record_bits": 2608,
+      "sha256": "7e78be8b917c3ea9d1592f6a23ed774cf6d114f75d74bee0bf44db998aa0c0d3"
+    },
+    "expected_channels.mem": {
+      "records": 3164,
+      "record_bits": 232,
+      "sha256": "34c6a12d2be98834bda604c74c38fa43c03fdc0a081336bb5cb9ff3e46640349"
+    }
+  },
+  "runtime_coverage": {
+    "layers": 38,
+    "descriptor_fields_per_layer": 104,
+    "descriptor_record_bits_before_padding": 2605,
+    "convolution_channels": 3164,
+    "channel_fields_per_record": 6,
+    "channel_record_bits_before_padding": 230,
+    "operator_counts": {
+      "convolutional": 21,
+      "maxpool": 3,
+      "route": 11,
+      "upsample": 1,
+      "yolo": 2
+    },
+    "dynamic_alias_layers": {
+      "30": 29,
+      "37": 36
+    },
+    "global_rom_array_count": 84
+  },
+  "execution": {
+    "vivado_run": false,
+    "xvlog_run": false,
+    "xelab_run": false,
+    "xsim_run": false
+  }
+}

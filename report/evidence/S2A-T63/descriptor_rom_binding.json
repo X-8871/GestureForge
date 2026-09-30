@@ -1,0 +1,241 @@
+{
+  "schema_version": "gestureforge_s2a_network_descriptor_rom_binding_v1",
+  "task_id": "S2A-T63",
+  "status": "GENERATED_AND_INPUTS_VALIDATED",
+  "source_bindings": [
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+      "bytes": 21110
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "bytes": 22153976
+    },
+    {
+      "path": "report/evidence/S2A-T22/network_dispatch_contract_validation.json",
+      "sha256": "611d47cc85bd254474c5412fcab2f8acce3a263138787588f2a6445eac61d9a8",
+      "bytes": 203878
+    },
+    {
+      "path": "report/evidence/S2A-T23/conv_requant_parameter_table.json",
+      "sha256": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1",
+      "bytes": 2871266
+    }
+  ],
+  "descriptor_summary": {
+    "model_id": "tiny416",
+    "layer_count": 38,
+    "operator_counts": {
+      "convolutional": 21,
+      "maxpool": 3,
+      "route": 11,
+      "upsample": 1,
+      "yolo": 2
+    },
+    "flat_conv_channels": 3164,
+    "channel_order": "ascending convolution layer_index, then ascending channel index",
+    "requantization_rom_storage_layout": {
+      "bits_79_48": "positive_M",
+      "bits_47_40": "positive_Q (unsigned 8-bit ROM storage)",
+      "bits_39_8": "negative_M",
+      "bits_7_0": "negative_Q (unsigned 8-bit ROM storage)",
+      "frozen_engine_port_width": false,
+      "consumer_rule": "zero extend Q to the existing 32-bit engine parameter port"
+    },
+    "serial_dispatch": true,
+    "global_timeout_one_deadline": true,
+    "per_layer_timeout_restart": false,
+    "ps_visible_csr_changed": false,
+    "memory_outstanding_limit": 1,
+    "yolo_aliases": [
+      {
+        "layer_index": 30,
+        "tensor_index": 29,
+        "alias_of_layer_index": 29,
+        "memory_write_required": false,
+        "address": 27549952,
+        "length_bytes": 5070,
+        "shape_nchw": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "scale_bits": "3FCF0FFD9B366CDA"
+      },
+      {
+        "layer_index": 37,
+        "tensor_index": 36,
+        "alias_of_layer_index": 36,
+        "memory_write_required": false,
+        "address": 28139136,
+        "length_bytes": 20280,
+        "shape_nchw": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "scale_bits": "3FD357CF7EFDFBF8"
+      }
+    ],
+    "convolution_candidate_digests": [
+      {
+        "layer_index": 0,
+        "cfg_section": 1,
+        "flat_channel_base": 0,
+        "channel_count": 32,
+        "candidate_parameter_sha256": "8f27800cee8c41025a36bb68ca94b706eaa4925aa70a67623736fe05bd182cff"
+      },
+      {
+        "layer_index": 1,
+        "cfg_section": 2,
+        "flat_channel_base": 32,
+        "channel_count": 64,
+        "candidate_parameter_sha256": "1ead2ab6b2cc6e71e94a266e04ace00be7012750aea45ac82de268d13a016826"
+      },
+      {
+        "layer_index": 2,
+        "cfg_section": 3,
+        "flat_channel_base": 96,
+        "channel_count": 64,
+        "candidate_parameter_sha256": "d0df3092bde14da12b3fff67b0abf6eecd7106e05b29d3ce34966cd54aadd9e7"
+      },
+      {
+        "layer_index": 4,
+        "cfg_section": 5,
+        "flat_channel_base": 160,
+        "channel_count": 32,
+        "candidate_parameter_sha256": "21103e2db17177b1b356d8fe2ade59351ee9167147f8b08b5a756dae3c1080a0"
+      },
+      {
+        "layer_index": 5,
+        "cfg_section": 6,
+        "flat_channel_base": 192,
+        "channel_count": 32,
+        "candidate_parameter_sha256": "1f3ef4d9f900a82e2a1ae3dc0771656a450e63cfaf649fae748dc464ee62bc7d"
+      },
+      {
+        "layer_index": 7,
+        "cfg_section": 8,
+        "flat_channel_base": 224,
+        "channel_count": 64,
+        "candidate_parameter_sha256": "817c965c2a8bb46a6ebff16f979631dc8615eb0f488db5138af0d7bbdecc933b"
+      },
+      {
+        "layer_index": 10,
+        "cfg_section": 11,
+        "flat_channel_base": 288,
+        "channel_count": 128,
+        "candidate_parameter_sha256": "57d8eff4861af074c4cdbfab6dfa14d2118ddcebe17ca2a2cdd114d1de322351"
+      },
+      {
+        "layer_index": 12,
+        "cfg_section": 13,
+        "flat_channel_base": 416,
+        "channel_count": 64,
+        "candidate_parameter_sha256": "f483edcbb5a9546069ee1954421496495c0d236fde2305b226fbccaa5fe893b6"
+      },
+      {
+        "layer_index": 13,
+        "cfg_section": 14,
+        "flat_channel_base": 480,
+        "channel_count": 64,
+        "candidate_parameter_sha256": "0325e8e3b1eff66f185fa8e02794bee089e9a23bf4106f6fc468785657cd99dd"
+      },
+      {
+        "layer_index": 15,
+        "cfg_section": 16,
+        "flat_channel_base": 544,
+        "channel_count": 128,
+        "candidate_parameter_sha256": "2caa2db4f146f773cd54f0060a76447642b645cd214706ebfaa8178e0988c4cd"
+      },
+      {
+        "layer_index": 18,
+        "cfg_section": 19,
+        "flat_channel_base": 672,
+        "channel_count": 256,
+        "candidate_parameter_sha256": "3fa92e162117f2052fb653bb701592c5c428938f960381fb1ccf50b3b3e6ef4a"
+      },
+      {
+        "layer_index": 20,
+        "cfg_section": 21,
+        "flat_channel_base": 928,
+        "channel_count": 128,
+        "candidate_parameter_sha256": "362d4d3ef175c029ef62aa5b1fb409725efa931ff0c92d27cdf560fcad53bd07"
+      },
+      {
+        "layer_index": 21,
+        "cfg_section": 22,
+        "flat_channel_base": 1056,
+        "channel_count": 128,
+        "candidate_parameter_sha256": "d24cd8acaad94817747432d1f4b500ccc51848bbfb266268b00116fdef24b4e4"
+      },
+      {
+        "layer_index": 23,
+        "cfg_section": 24,
+        "flat_channel_base": 1184,
+        "channel_count": 256,
+        "candidate_parameter_sha256": "ce530ae2ea6c387075ce5b0074bb06782182bd981fcd33e941a2bfdc4a97ba72"
+      },
+      {
+        "layer_index": 26,
+        "cfg_section": 27,
+        "flat_channel_base": 1440,
+        "channel_count": 512,
+        "candidate_parameter_sha256": "425ae63077b44ff6614ca8bbfbbd7ee2b22869a540c1346a44772d40eaf51e2e"
+      },
+      {
+        "layer_index": 27,
+        "cfg_section": 28,
+        "flat_channel_base": 1952,
+        "channel_count": 256,
+        "candidate_parameter_sha256": "1792f77595b62c30194793f1f4ee0278650c9534b7e24af6103d8ff075b04075"
+      },
+      {
+        "layer_index": 28,
+        "cfg_section": 29,
+        "flat_channel_base": 2208,
+        "channel_count": 512,
+        "candidate_parameter_sha256": "0cdecde59317061cc869511b31907da059c44e7a835f65b999d488c994f52701"
+      },
+      {
+        "layer_index": 29,
+        "cfg_section": 30,
+        "flat_channel_base": 2720,
+        "channel_count": 30,
+        "candidate_parameter_sha256": "3f31377ad3ed87a64e9af7ce12b7679b35cd789075f164a773bbf832c8534062"
+      },
+      {
+        "layer_index": 32,
+        "cfg_section": 33,
+        "flat_channel_base": 2750,
+        "channel_count": 128,
+        "candidate_parameter_sha256": "3779ecaa1c88e245261a8e8f405787e5607ffe8461787c0c811ee1a5c7465030"
+      },
+      {
+        "layer_index": 35,
+        "cfg_section": 36,
+        "flat_channel_base": 2878,
+        "channel_count": 256,
+        "candidate_parameter_sha256": "93a49c25387a459cb2964d988ac6e803d8ba9c8a3fcab664b948efb6354e3f29"
+      },
+      {
+        "layer_index": 36,
+        "cfg_section": 37,
+        "flat_channel_base": 3134,
+        "channel_count": 30,
+        "candidate_parameter_sha256": "ebbf60b7c524b94b5d6a9205c824d47ba80ac5df55e3e5004ffe6f2193fd8e46"
+      }
+    ]
+  },
+  "generated_package": {
+    "path": "src/s2a_network_descriptor_pkg.sv",
+    "sha256": "729101a32cece481f6d8b6a54dedf4259b3ba457e191efbb2b4ea29c7385bccd",
+    "bytes": 369006,
+    "format": "read-only SystemVerilog package constants",
+    "vivado_or_xsim_run": "NOT_RUN_BY_TASK_SCOPE"
+  }
+}

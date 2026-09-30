@@ -1,0 +1,206 @@
+{
+  "task": "S2A-T64",
+  "status": "STATIC_STRUCTURE_PASS",
+  "simulation_status": "SIM_RUN11_LAYER0_FIRST_OUTPUT_PASS_FULL_NETWORK_UNVERIFIED",
+  "scope": "静态结构检查通过。sim_run10 首错快照确认成功码 0 被旧映射误报为 operator INTERNAL=6；修复后 sim_run11 的真实 backend layer0 首个 CONV 输出通过 dispatch/start/result/write，读取 24 次并写回 1 次。该结果仅覆盖首个 layer0 输出元素；其余 layer0 元素、38 层整网及 109 输入一致性仍未验证。",
+  "success_code_mapping_diagnostic": {
+    "run": "report/evidence/S2A-T64/sim_run10",
+    "launch_method": "Vivado MCP run_tcl；D 盘隔离运行目录",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "FAIL",
+    "runner_status": "XSIM_LOG_FAIL",
+    "observed_failure": "sim_run10 首错快照于 CSR 置错/abort 前记录 backend ST_WAIT_CONV、descriptor_valid=1、selected_result_valid=1/selected_result_error=0、conv_result_valid=1/conv_result_error=0，但 operator_result_valid=1/operator_error_code=6；同一快照 CSR error=0/error_code=0，确认 normalize_engine_error(0) 错误落入 default INTERNAL。",
+    "milestones": {
+      "layer0_dispatch": 1,
+      "layer0_conv_start": 1,
+      "layer0_result_handshake": 1,
+      "layer0_output_write_handshake": 1,
+      "memory_reads": 24,
+      "output_writes": 1
+    },
+    "attempted_backend_sha256": "3b69e25584ec86515819804a005bfe4a32aa08fa5e11b053c3841d3b6ad27537",
+    "attempted_probe_sha256": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c",
+    "current_backend_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+    "current_probe_sha256": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c",
+    "first_error_snapshot": {
+      "backend_state": "ST_WAIT_CONV",
+      "layer": 0,
+      "descriptor_valid": 1,
+      "operator_result_valid": 1,
+      "operator_error_code": 6,
+      "selected_result_valid": 1,
+      "selected_result_error_code": 0,
+      "conv_result_valid": 1,
+      "conv_result_error_code": 0,
+      "csr_error_before_event": 0,
+      "csr_error_code_before_event": 0
+    },
+    "snapshot_status": "sim_run10 首错快照确认映射根因；修复后的真实 layer0 probe 结果记录在 sim_run11。",
+    "evidence_sha256": {
+      "run_layer0_probe.cmd": "747fd659fcce641a08a0fc34bc6bfc0f1d3c8f3d5eecc2b64c2737005b702bd2",
+      "xvlog_console.txt": "d09ffbe0d228ff18bc3644773eb158ddce2f4cecfe5daa825cf39c82316aa7be",
+      "xelab_console.txt": "f92d4b2ba9cef71d7d77b4ea367494df32634d1bfb1435385ca6fd0c96acc8e5",
+      "xsim_console.txt": "c62affb526bc6af39f63f98b4343a215b13fc7675e74c508622a442b144610e4",
+      "xsim.log": "88097be2e007fb5f510ea0dd392e6313b8327314402197df493b0ddafb5cc3d9",
+      "status.txt": "2c1ba071a0beec5233d5d2e7dcb2dac9bc88118e50ed5be5aa713e12bd00df3d"
+    }
+  },
+  "last_dynamic_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run11",
+    "launch_method": "Vivado MCP run_tcl；D 盘隔离运行目录",
+    "tool_version": "Vivado Simulator 2026.1",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "PASS",
+    "runner_status": "PASS",
+    "pass_marker": "PASS: layer0真实CONV dispatch/start/result/write，reads=24 writes=1 cycles=109",
+    "finish": "$finish called at time : 1166 ns",
+    "validation_scope": "真实 backend 接受合法 CSR start，layer0 CONV 完成 dispatch/start/result，并成功握手首个输出写回；memory reads=24、writes=1、elapsed cycles=109。",
+    "backend_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+    "probe_sha256": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c",
+    "evidence_sha256": {
+      "run_layer0_probe.cmd": "eccd6403375fc013aea15aadd8e01d2efba86e6bfd29742541b554798bec319d",
+      "status.txt": "d596d218a458868c7af4743d37dc4cc2d91246735b0bb8d2512444fbac86efb8",
+      "xvlog_console.txt": "d09ffbe0d228ff18bc3644773eb158ddce2f4cecfe5daa825cf39c82316aa7be",
+      "xvlog.log": "e9a50e37da05ee5b4963236375bd6a6efbe641770296791256c30d036bd6b06c",
+      "xelab_console.txt": "f92d4b2ba9cef71d7d77b4ea367494df32634d1bfb1435385ca6fd0c96acc8e5",
+      "xelab.log": "91f892490f2e301c066de791afca82e839363c305a7aa4bdd98fe5e2bf73a907",
+      "xsim_console.txt": "dd335e14e347975f492263dcdd4167f16c2d3214d526ba586d5746bed8cb09da",
+      "xsim.log": "aaa4ab1a1198cfec33787c1f7f621d0d651ee4aba5a8d50036dd72662ec21700"
+    }
+  },
+  "prior_layer0_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run09",
+    "runner_status": "XSIM_LOG_FAIL",
+    "observed_failure": "elapsed=109 报 INTERNAL=6；当时未在 abort 前采集到足以区分原因的字段。",
+    "attempted_backend_sha256": "3b69e25584ec86515819804a005bfe4a32aa08fa5e11b053c3841d3b6ad27537",
+    "attempted_probe_sha256": "bc986a1f3b525992fea1f2391e6b6b50d9338d440676fab2fe16b47690796520",
+    "evidence_sha256": {
+      "run_layer0_probe.cmd": "ab46f54c79a385914c3c4f66704f27d1f7be5774fec8a31254750e7365b6b8e5",
+      "xvlog_console.txt": "d09ffbe0d228ff18bc3644773eb158ddce2f4cecfe5daa825cf39c82316aa7be",
+      "xelab_console.txt": "f92d4b2ba9cef71d7d77b4ea367494df32634d1bfb1435385ca6fd0c96acc8e5",
+      "xsim_console.txt": "028705821b8e5f702857a7f4a01b25957a67b31819d3c4395a6bd16154bdfd8d",
+      "xsim.log": "a3cb0236c975f1cf4fe1c684fb6e38dd6046b02b9c29a2a5d35a294058b6407e",
+      "status.txt": "2c1ba071a0beec5233d5d2e7dcb2dac9bc88118e50ed5be5aa713e12bd00df3d"
+    }
+  },
+  "success_code_mapping_fix": {
+    "function": "normalize_engine_error",
+    "mapping": {
+      "0": "NONE",
+      "1..7": "透传",
+      "未知或含 X/Z": "INTERNAL"
+    },
+    "operator_event_contract": "selected_result_valid 且归一化错误码非 NONE 时才生成 operator error；成功码 0 不触发错误事件。",
+    "dynamic_post_fix_status": "SIM_RUN11_LAYER0_FIRST_OUTPUT_PASS",
+    "dynamic_pre_fix_run": "report/evidence/S2A-T64/sim_run10",
+    "dynamic_post_fix_run": "report/evidence/S2A-T64/sim_run11",
+    "dynamic_post_fix_backend_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+    "dynamic_post_fix_probe_sha256": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c"
+  },
+  "descriptor_fault_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run08",
+    "launch_method": "Vivado MCP run_tcl；D 盘隔离运行目录",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "FAIL at 86 ns",
+    "runner_status": "XSIM_LOG_FAIL",
+    "observed_failure": "CSR error=1/code=6，descriptor_valid=0/descriptor_fault=1，memory reads=0/output_writes=0。CONV bad-fields 条件为假时跌入非 alias fallback；该分支现已修复。",
+    "attempted_backend_sha256": "4d5c1291a45696f73ca331a127cb02f092e7c77e870ae1f4ae9c7fe0feaceea9",
+    "attempted_probe_sha256": "568815316a297e22b64dbb1c8f24e924ed4161905c8f8ff87a053d8d6987c7df",
+    "evidence_sha256": {
+      "run_layer0_probe.cmd": "181d3af3fd0bb22ab5d7e2e878fab858d6b7f0e90bbde51bc3a4ad2452e7f733",
+      "xvlog_console.txt": "d09ffbe0d228ff18bc3644773eb158ddce2f4cecfe5daa825cf39c82316aa7be",
+      "xelab_console.txt": "224077731ede4fc7731b90600a6ac2556268af3f07cbcc039aa5a89622010be8",
+      "xsim_console.txt": "d29269a3749be2c5b03e20641e25d00a16eb9f2baf431abfb763e4178bc8c393",
+      "xsim.log": "fe7758f2deea9435f57855e13976e137e64f4cd2f7b0828816c3efa8386d777a",
+      "status.txt": "2c1ba071a0beec5233d5d2e7dcb2dac9bc88118e50ed5be5aa713e12bd00df3d"
+    }
+  },
+  "deadline_interface_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run07",
+    "launch_method": "Vivado MCP check_connection（healthy）+ run_tcl；D 盘隔离运行目录",
+    "tool_version": "Vivado 2026.1",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "PASS",
+    "runner_status": "PASS",
+    "pass_marker": "PASS: backend/CSR deadline 同沿完成与错误，错误码 4 透传",
+    "finish": "$finish called at 227 ns",
+    "validation_scope": "仅 backend/CSR deadline 同沿完成和错误接口；backend 在合法 start 被 CSR 接受后被冻结，随后注入 alias 最终成功或错误码 4。",
+    "bench_sha256": "3c964f315a5686e4ba7a4f993f92e06664a503c3c1344524a2f9ada6fc4a60c6",
+    "evidence_sha256": {
+      "xvlog.log": "3f0d334c15b64a700dede74cb5d50986bc976765b13550617868c5c08b870793",
+      "xelab.log": "7a475e0d3aa40f1a363d9f70b10584dbba142bbed20b02ac0f28b5ee3f78ebc3",
+      "xsim.log": "84db5ca6e89fb55b9dcb64bd291fa2de34d0c01cec92a4f51d6ceb1797993ab8",
+      "run_deadline.cmd": "16478c49ce46e2a6de78fe05dfe1459f0dd88eab0684ab8bf8fb7ccdbcbb2100"
+    }
+  },
+  "unisolated_backend_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run06",
+    "launch_method": "Vivado MCP run_tcl in an isolated D-drive run directory",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "FAIL",
+    "observed_failure": "At 90ns, before the deadline, CSR busy fell with elapsed_cycles=1, done=0, error=1, error_code=6, backend_start=0, and backend_abort=1.",
+    "attempted_bench_sha256": "512ff5f5fe5c6a8f75a7c9fc829fc5beb092ff597fce9607084f63b60d5b6058",
+    "current_bench_sha256": "3c964f315a5686e4ba7a4f993f92e06664a503c3c1344524a2f9ada6fc4a60c6",
+    "interpretation": "该运行使用修复前 backend，失败来自 CONV descriptor 分支缺陷；后续 sim_run08/09 分别记录修复前后状态，sim_run07 deadline PASS 与真实启动无关。"
+  },
+  "prior_dynamic_attempt": {
+    "run": "report/evidence/S2A-T64/sim_run05",
+    "xvlog": "PASS",
+    "xelab": "PASS",
+    "xsim": "FAIL at the prior bench 100us watchdog before deadline assertions",
+    "attempted_bench_sha256": "09c1f6f6faa1c38409edb21fd827e7d9abeae898ad4c0c25e45956e3875946ff"
+  },
+  "layer0_probe": {
+    "bench": "sim/tb_s2a_network_backend_layer0_probe.sv",
+    "status": "SIM_RUN11_PASS_LAYER0_FIRST_OUTPUT_ONLY",
+    "attempted_bench_sha256": "bc986a1f3b525992fea1f2391e6b6b50d9338d440676fab2fe16b47690796520",
+    "bench_sha256": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c",
+    "timeout_cycles": 1000000,
+    "probe_cycle_limit": 20000,
+    "memory_model": "mem_ready=0 during reset/CSR idle/non-PL ownership; mem_ready=1 only while CSR busy and PL owns buffers; mem_rdata=0; mem_error_code=0",
+    "current_probe_diagnostics": "打印 layer/op/input_count、两路 source 的 kind/base/length/NCHW、output allocation/write ownership、activation/weight layer/T23 base-count/decoded channel/mq index/channel total，以及 header/source/output/op-specific 每项 descriptor_valid 子谓词。",
+    "error_snapshot": "negedge 捕获首个非零 operator/memory error 的 state/layer/op/output index、start/selected/result/conv状态、request/response、memory总线及CSR elapsed；error后negedge+1ns打印快照。",
+    "snapshot_source_status": "sim_run10 捕获 CSR 置错前成功码0/operator码6错配；sim_run11 绑定修复版 RTL/probe 并通过首个 layer0 输出。",
+    "success_criteria": [
+      "真实 CSR start 被接受且 backend 经过 layer0 CONV dispatch/start",
+      "首个 layer0 conv result 成功握手",
+      "layer0 输出地址对应的 memory write 成功握手"
+    ],
+    "scope": "仅首个 layer0 输出元素；不验证其余层、整网输出或 109 输入一致性。"
+  },
+  "checks_passed": [
+    "frozen_package_binding",
+    "shared_engines",
+    "rom_operator_and_alias_rows",
+    "descriptor_field_binding",
+    "nchw_decode",
+    "t23_flattened_rom",
+    "activation_adapter",
+    "route_sources",
+    "memory_handshake_and_response_stage",
+    "combinational_deadline_event",
+    "deadline_bench_source",
+    "alias_skip_and_completion",
+    "no_local_timeout_or_layer_special_case"
+  ],
+  "checks_failed": [],
+  "sha256": {
+    "test_script": "310d86affe324563fffdd6a007de7a86d1f2cd17fb207d08a28b7ed463265e81",
+    "backend_module": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+    "descriptor_package": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+    "conv_engine_contract": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+    "deadline_bench": "3c964f315a5686e4ba7a4f993f92e06664a503c3c1344524a2f9ada6fc4a60c6",
+    "layer0_probe_bench": "fc4823532aa5bac37f490153a1a70aa6e5e7e456e32729f1887fc157f1a7b49c",
+    "csr_deadline_contract": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "limitations": [
+    "sim_run07 仅通过 deadline 接口联合验证；bench 冻结 backend 后注入 terminal event，不证明真实 backend 的 38 层整网执行或 memory 协议周期行为。",
+    "sim_run08 的 CONV descriptor_fault 已通过分支结构修复；sim_run10 定位成功码0错误映射，sim_run11 证明修复版真实 backend 首个 layer0 输出通过。",
+    "动态覆盖只到首个 layer0 输出元素；其余层、38 层整网运行和 109 输入一致性仍未验证。"
+  ]
+}

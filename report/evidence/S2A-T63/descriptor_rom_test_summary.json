@@ -2,12 +2,45 @@
   "schema_version": "gestureforge_s2a_network_descriptor_rom_test_v1",
   "task_id": "S2A-T63",
   "status": "PASS",
-  "tests_run": 9,
+  "tests_run": 12,
   "failures": [],
   "errors": [],
-  "test_source_sha256": "105045720eac89580f91fd69ec230cf8987085bec07e3940854c276081e719a8",
-  "generator_source_sha256": "6eade2aa9f3f8510f66ab2996f2602dd8a8cebb26ac6b6e70c0924c479e07c3c",
-  "generated_package_sha256": "729101a32cece481f6d8b6a54dedf4259b3ba457e191efbb2b4ea29c7385bccd",
-  "binding_report_sha256": "1742902cdf0e78995eab1e6e2056b0d9787aac6c5ecfda1f4fa678277fab86d3",
+  "test_source_sha256": "0c2cd8f61527c3998f138053b2e44628603152f75b7f6793dbc87302cfc0dd77",
+  "generator_source_sha256": "efb50763ca178ce378367c151338dde605c1f2a7685f1d79a97113dee41a8ca6",
+  "generated_package_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+  "binding_report_sha256": "945b42d9ae4c33ccda3be44ee13e45cacf14ff076f2df7638c83bf0de698468e",
+  "route_q31_source_bindings": [
+    {
+      "path": "src/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "bytes": 17616,
+      "role": "route engine RTL and accepted uint32 Q31 coefficient interface"
+    },
+    {
+      "path": "src/int8_route_query.sv",
+      "sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+      "bytes": 11196,
+      "role": "route source query RTL"
+    },
+    {
+      "path": "verification/test_s2a_route_engine_rtl.py",
+      "sha256": "f49d00c24e22850024209872504bcf5a93165eaf79c2b04fad15f6056e163937",
+      "bytes": 20634,
+      "role": "T15 full-run formula source and runner"
+    },
+    {
+      "path": "verification/test_s2a_route_rtl.py",
+      "sha256": "bfd661391b234a97e66f6cadd73d7c2d323b4099203eeed46aa6397082286934",
+      "bytes": 35969,
+      "role": "route quantization and source-mapping reference tests"
+    },
+    {
+      "path": "report/evidence/S2A-T15/route_simulation.json",
+      "sha256": "6011c3272c05b8e428128410b0d7a25a689873a12404631f23dc707f1fa9f124",
+      "bytes": 47337,
+      "role": "T15 simulation evidence"
+    }
+  ],
+  "route_q31_formula": "floor((source_scale / target_scale) * 2**31 + 0.5)",
   "execution_scope": "static Python tests; Vivado and XSim were not run"
 }

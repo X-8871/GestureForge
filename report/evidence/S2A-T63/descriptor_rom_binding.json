@@ -24,6 +24,69 @@
       "bytes": 2871266
     }
   ],
+  "route_q31_bindings": {
+    "layout": {
+      "package_path": "src/s2a_network_descriptor_pkg.sv",
+      "symbol": "S2A_ROUTE_SOURCE_MULTIPLIER_Q31",
+      "shape": [
+        38,
+        2
+      ],
+      "index_order": "[cfg layer_index][manifest/T22 input source slot]",
+      "element_type": "unsigned logic [31:0]",
+      "active_route_source_range_inclusive": [
+        1,
+        2147483648
+      ],
+      "unused_source_slot_value": 0,
+      "non_route_layer_value": 0
+    },
+    "scale_binding": {
+      "source_scale": "G0 manifest route input_scales[source_slot], validated against the matching T22 input tensor scale",
+      "target_scale": "G0/T22 route operator output_scale, validated equal to the maximum source scale",
+      "formula": "floor((source_scale / target_scale) * 2**31 + 0.5)",
+      "rounding": "positive half-away-from-zero via floor(value + 0.5)",
+      "formula_source": {
+        "path": "verification/test_s2a_route_engine_rtl.py",
+        "sha256": "f49d00c24e22850024209872504bcf5a93165eaf79c2b04fad15f6056e163937",
+        "evidence_path": "report/evidence/S2A-T15/route_simulation.json",
+        "evidence_sha256": "6011c3272c05b8e428128410b0d7a25a689873a12404631f23dc707f1fa9f124"
+      },
+      "rtl_conversion": "none; RTL reads the precomputed unsigned 32-bit ROM value"
+    },
+    "source_bindings": [
+      {
+        "path": "src/s2a_route_engine.sv",
+        "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+        "bytes": 17616,
+        "role": "route engine RTL and accepted uint32 Q31 coefficient interface"
+      },
+      {
+        "path": "src/int8_route_query.sv",
+        "sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+        "bytes": 11196,
+        "role": "route source query RTL"
+      },
+      {
+        "path": "verification/test_s2a_route_engine_rtl.py",
+        "sha256": "f49d00c24e22850024209872504bcf5a93165eaf79c2b04fad15f6056e163937",
+        "bytes": 20634,
+        "role": "T15 full-run formula source and runner"
+      },
+      {
+        "path": "verification/test_s2a_route_rtl.py",
+        "sha256": "bfd661391b234a97e66f6cadd73d7c2d323b4099203eeed46aa6397082286934",
+        "bytes": 35969,
+        "role": "route quantization and source-mapping reference tests"
+      },
+      {
+        "path": "report/evidence/S2A-T15/route_simulation.json",
+        "sha256": "6011c3272c05b8e428128410b0d7a25a689873a12404631f23dc707f1fa9f124",
+        "bytes": 47337,
+        "role": "T15 simulation evidence"
+      }
+    ]
+  },
   "descriptor_summary": {
     "model_id": "tiny416",
     "layer_count": 38,
@@ -233,8 +296,8 @@
   },
   "generated_package": {
     "path": "src/s2a_network_descriptor_pkg.sv",
-    "sha256": "729101a32cece481f6d8b6a54dedf4259b3ba457e191efbb2b4ea29c7385bccd",
-    "bytes": 369006,
+    "sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+    "bytes": 370591,
     "format": "read-only SystemVerilog package constants",
     "vivado_or_xsim_run": "NOT_RUN_BY_TASK_SCOPE"
   }

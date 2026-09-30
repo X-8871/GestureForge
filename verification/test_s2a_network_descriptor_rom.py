@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import os
+import struct
 import sys
 import unittest
 from pathlib import Path
@@ -151,6 +152,86 @@ class NetworkDescriptorRomTests(unittest.TestCase):
                 self.assertLessEqual(offsets["weight_scale_offset"] + descriptor["mq_count"] * 4, self.data["weight_package"]["length_bytes"])
                 self.assertLessEqual(offsets["fused_bias_offset"] + descriptor["mq_count"] * 4, self.data["weight_package"]["length_bytes"])
 
+    def test_route_q31_rom_covers_each_active_source_and_zeros_unused_slots(self) -> None:
+        active_sources = 0
+        saw_identity = False
+        saw_non_identity = False
+        for descriptor in self.data["layers"]:
+            multipliers = descriptor["parameters"].get("source_multiplier_q31", [0] * rom.MAX_INPUTS)
+            self.assertEqual(len(multipliers), rom.MAX_INPUTS)
+            if descriptor["op"] != "route":
+                self.assertEqual(multipliers, [0] * rom.MAX_INPUTS)
+                continue
+
+            target_scale = struct.unpack(">d", descriptor["output"]["scale_bits"].to_bytes(8, "big"))[0]
+            source_count = len(descriptor["inputs"])
+            for slot in range(source_count):
+                source_scale = struct.unpack(">d", descriptor["inputs"][slot]["scale_bits"].to_bytes(8, "big"))[0]
+                ratio = source_scale / target_scale
+                expected = math.floor(ratio * (1 << 31) + 0.5)
+                self.assertGreater(ratio, 0.0)
+                self.assertLessEqual(ratio, 1.0)
+                self.assertEqual(multipliers[slot], expected)
+                self.assertGreaterEqual(multipliers[slot], 1)
+                self.assertLessEqual(multipliers[slot], 0x80000000)
+                saw_identity |= ratio == 1.0 and multipliers[slot] == 0x80000000
+                saw_non_identity |= multipliers[slot] != 0x80000000
+                active_sources += 1
+            self.assertEqual(multipliers[source_count:], [0] * (rom.MAX_INPUTS - source_count))
+
+        expected_active_sources = sum(
+            len(row["input_tensor_indices"])
+            for row in self.frozen["manifest"]["layers"]
+            if row["op"] == "route"
+        )
+        self.assertEqual(active_sources, expected_active_sources)
+        self.assertTrue(saw_identity, "至少一个 route source 应采用 Q31 1.0 编码 0x80000000")
+        self.assertTrue(saw_non_identity, "至少一个 route source 应使用非恒等 Q31 系数")
+        self.assertEqual(rom._route_source_multiplier_q31(3.0, float(1 << 32), "half-away fixture"), 2)
+
+    def test_route_q31_rejects_invalid_scale_and_coefficient_ranges(self) -> None:
+        invalid_pairs = (
+            (0.0, 1.0),
+            (-1.0, 1.0),
+            (1.0, 0.0),
+            (1.0, -1.0),
+            (math.nan, 1.0),
+            (math.inf, 1.0),
+            (1.0, math.inf),
+            (2.0, 1.0),
+            (1e-20, 1.0),
+            (1e-300, 1e300),
+        )
+        for source_scale, target_scale in invalid_pairs:
+            with self.subTest(source_scale=source_scale, target_scale=target_scale):
+                with self.assertRaises(rom.DescriptorRomError):
+                    rom._route_source_multiplier_q31(source_scale, target_scale, "negative test")
+
+    def test_route_q31_report_binds_t15_formula_rtl_tests_and_evidence(self) -> None:
+        report_path = REPO_ROOT.joinpath(*rom.BINDING_REPORT_PATH.split("/"))
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        route_bindings = report["route_q31_bindings"]
+        self.assertEqual(route_bindings["layout"]["shape"], [38, 2])
+        self.assertEqual(route_bindings["layout"]["element_type"], "unsigned logic [31:0]")
+        self.assertEqual(route_bindings["layout"]["unused_source_slot_value"], 0)
+        self.assertEqual(route_bindings["layout"]["non_route_layer_value"], 0)
+        self.assertEqual(
+            route_bindings["scale_binding"]["formula"],
+            "floor((source_scale / target_scale) * 2**31 + 0.5)",
+        )
+        source_bindings = route_bindings["source_bindings"]
+        self.assertEqual([item["path"] for item in source_bindings], list(rom.ROUTE_Q31_BINDING_PATHS))
+        for item in source_bindings:
+            source_path = REPO_ROOT.joinpath(*item["path"].split("/"))
+            self.assertEqual(item["sha256"], _sha256(source_path))
+
+        formula_source = route_bindings["scale_binding"]["formula_source"]
+        formula_binding = next(item for item in source_bindings if item["path"] == formula_source["path"])
+        evidence_binding = next(item for item in source_bindings if item["path"] == formula_source["evidence_path"])
+        self.assertEqual(formula_source["sha256"], formula_binding["sha256"])
+        self.assertEqual(formula_source["evidence_sha256"], evidence_binding["sha256"])
+        self.assertEqual(route_bindings, rom._route_q31_bindings(REPO_ROOT.resolve()))
+
     def test_global_dispatch_deadline_and_existing_control_boundary_are_encoded(self) -> None:
         self.assertTrue(self.data["serial_dispatch"])
         self.assertTrue(self.data["global_timeout_one_deadline"])
@@ -193,6 +274,8 @@ class NetworkDescriptorRomTests(unittest.TestCase):
         self.assertNotIn("csr_valid", text)
         self.assertIn("S2A_CONV_FUSED_BIAS_FLOAT32_BITS", text)
         self.assertIn("S2A_CONV_WEIGHT_SCALE_BITS", text)
+        self.assertIn("S2A_ROUTE_SOURCE_MULTIPLIER_Q31", text)
+        self.assertIn("32'h80000000", text)
 
 
 def _test_summary(result: unittest.result.TestResult) -> bytes:
@@ -203,6 +286,8 @@ def _test_summary(result: unittest.result.TestResult) -> bytes:
     test_path = root / "verification" / "test_s2a_network_descriptor_rom.py"
     failures = [test.id() for test, _ in result.failures]
     errors = [test.id() for test, _ in result.errors]
+    binding_report = json.loads(binding_path.read_text(encoding="utf-8")) if binding_path.is_file() else {}
+    route_q31_bindings = binding_report.get("route_q31_bindings", {})
     report = {
         "schema_version": "gestureforge_s2a_network_descriptor_rom_test_v1",
         "task_id": "S2A-T63",
@@ -214,6 +299,8 @@ def _test_summary(result: unittest.result.TestResult) -> bytes:
         "generator_source_sha256": _sha256(generator_path),
         "generated_package_sha256": _sha256(package_path) if package_path.is_file() else None,
         "binding_report_sha256": _sha256(binding_path) if binding_path.is_file() else None,
+        "route_q31_source_bindings": route_q31_bindings.get("source_bindings", []),
+        "route_q31_formula": route_q31_bindings.get("scale_binding", {}).get("formula"),
         "execution_scope": "static Python tests; Vivado and XSim were not run",
     }
     return (json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
@@ -225,11 +312,12 @@ def _write_test_summary(result: unittest.result.TestResult) -> None:
         raise OSError(f"测试摘要父目录不存在: {path.parent}")
     encoded = _test_summary(result)
     if path.exists():
-        if path.read_bytes() != encoded:
-            raise OSError(f"拒绝覆盖与本次结果不同的测试摘要: {path}")
-        return
-    with path.open("xb") as handle:
-        handle.write(encoded)
+        if not path.is_file() or path.is_symlink():
+            raise OSError(f"测试摘要目标不是普通文件: {path}")
+        path.write_bytes(encoded)
+    else:
+        with path.open("xb") as handle:
+            handle.write(encoded)
 
 
 if __name__ == "__main__":

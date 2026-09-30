@@ -19,6 +19,19 @@ T22_PATH = "report/evidence/S2A-T22/network_dispatch_contract_validation.json"
 T23_PATH = "report/evidence/S2A-T23/conv_requant_parameter_table.json"
 PACKAGE_PATH = "src/s2a_network_descriptor_pkg.sv"
 BINDING_REPORT_PATH = "report/evidence/S2A-T63/descriptor_rom_binding.json"
+ROUTE_Q31_FORMULA_SOURCE_PATH = "verification/test_s2a_route_engine_rtl.py"
+ROUTE_Q31_BINDING_PATHS = (
+    "src/s2a_route_engine.sv",
+    "src/int8_route_query.sv",
+    ROUTE_Q31_FORMULA_SOURCE_PATH,
+    "verification/test_s2a_route_rtl.py",
+    "report/evidence/S2A-T15/route_simulation.json",
+)
+# 仅允许从本次任务已确认的旧生成版本更新这两个精确产物。
+PREVIOUS_ARTIFACT_SHA256 = {
+    PACKAGE_PATH: "729101a32cece481f6d8b6a54dedf4259b3ba457e191efbb2b4ea29c7385bccd",
+    BINDING_REPORT_PATH: "1742902cdf0e78995eab1e6e2056b0d9787aac6c5ecfda1f4fa678277fab86d3",
+}
 
 FROZEN_SHA256 = {
     G0_SPEC_PATH: "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
@@ -160,6 +173,35 @@ def _scale_bits(value: Any, name: str) -> int:
     scale = float(value)
     _require(math.isfinite(scale) and scale > 0.0, f"{name} 必须是有限正数")
     return struct.unpack(">Q", struct.pack(">d", scale))[0]
+
+
+def _route_source_multiplier_q31(source_scale: Any, target_scale: Any, name: str) -> int:
+    """按 T15 已验证公式生成正值 route 来源 Q31 乘数。"""
+    _require(
+        isinstance(source_scale, (int, float)) and not isinstance(source_scale, bool),
+        f"{name} source scale 必须是数值",
+    )
+    _require(
+        isinstance(target_scale, (int, float)) and not isinstance(target_scale, bool),
+        f"{name} target scale 必须是数值",
+    )
+    try:
+        source = float(source_scale)
+        target = float(target_scale)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise DescriptorRomError(f"{name} scale 无法表示为 float64") from exc
+    _require(math.isfinite(source) and source > 0.0, f"{name} source scale 必须是有限正数")
+    _require(math.isfinite(target) and target > 0.0, f"{name} target scale 必须是有限正数")
+    try:
+        ratio = source / target
+    except OverflowError as exc:
+        raise DescriptorRomError(f"{name} scale ratio 溢出") from exc
+    _require(math.isfinite(ratio) and 0.0 < ratio <= 1.0, f"{name} scale ratio 必须在 (0, 1] 内")
+    scaled = ratio * (1 << 31)
+    _require(math.isfinite(scaled), f"{name} Q31 缩放中间值溢出")
+    coefficient = math.floor(scaled + 0.5)
+    _require(1 <= coefficient <= (1 << 31), f"{name} Q31 乘数超出 route RTL 范围 1..0x80000000")
+    return coefficient
 
 
 def _field_equal(actual: Any, expected: Any, name: str) -> None:
@@ -484,6 +526,33 @@ def build_rom_data(
         _field_equal(output_length, _shape_bytes(output_shape, f"layer {index} shape bytes"), f"layer {index} output length")
         output_address = _checked_int(layer.get("tensor_address"), f"layer {index} output address", 0, 0xFFFFFFFF)
         output_scale = _scale_bits(layer.get("output_scale"), f"layer {index} output scale")
+        route_source_multipliers = [0] * MAX_INPUTS
+        if op == "route":
+            route_input_scales = layer.get("input_scales")
+            _require(
+                isinstance(route_input_scales, list) and len(route_input_scales) == len(inputs),
+                f"layer {index} route input_scales 数量不匹配",
+            )
+            normalized_route_scales = []
+            for slot, (source_scale, input_descriptor) in enumerate(zip(route_input_scales, inputs)):
+                _field_equal(
+                    _scale_bits(source_scale, f"layer {index} route input scale {slot}"),
+                    input_descriptor["scale_bits"],
+                    f"layer {index} route input scale {slot} manifest/T22 binding",
+                )
+                normalized_route_scales.append(float(source_scale))
+            target_scale = struct.unpack(">d", output_scale.to_bytes(8, "big"))[0]
+            _field_equal(
+                target_scale,
+                max(normalized_route_scales),
+                f"layer {index} route output scale equals maximum source scale",
+            )
+            for slot, source_scale in enumerate(normalized_route_scales):
+                route_source_multipliers[slot] = _route_source_multiplier_q31(
+                    source_scale,
+                    target_scale,
+                    f"layer {index} route source {slot}",
+                )
         _field_equal(output.get("address"), output_address, f"layer {index} output address binding")
         _field_equal(output.get("length_bytes"), output_length, f"layer {index} output length binding")
         _field_equal(output.get("shape_nchw"), output_shape, f"layer {index} output shape binding")
@@ -516,6 +585,8 @@ def build_rom_data(
         if op != "convolutional":
             _require(table_layer is None, f"非卷积 layer {index} 出现在 T23")
         parameters = _validate_operator_parameters(layer, contract_layer, table_layer)
+        if op == "route":
+            parameters["source_multiplier_q31"] = route_source_multipliers
         descriptor = {
             "layer_index": index,
             "cfg_section": index + 1,
@@ -841,6 +912,7 @@ def render_sv_package(data: dict[str, Any]) -> bytes:
         "  localparam logic [1:0] S2A_ROUTE_REQUANT_TO_OUTPUT_SCALE = 2'd1;",
         "  localparam logic [1:0] S2A_ROUTE_ORDER_NONE = 2'd0;",
         "  localparam logic [1:0] S2A_ROUTE_ORDER_SLICE_THEN_CFG_CONCAT = 2'd1;",
+        "  localparam int unsigned S2A_ROUTE_Q31_FRACTIONAL_BITS = 31;",
         "  localparam logic [1:0] S2A_MAXPOOL_FORMULA_NONE = 2'd0;",
         "  // maxpool 输出尺寸按 (input_hw + darknet_padding_parameter - kernel_hw) / stride_hw + 1 取整。",
         "  localparam logic [1:0] S2A_MAXPOOL_FORMULA_DARKNET = 2'd1;",
@@ -919,6 +991,14 @@ def render_sv_package(data: dict[str, Any]) -> bytes:
     op_array("S2A_YOLO_HEAD_LOGIT_SCALE_BITS", 64, [int(row["parameters"].get("head_logit_scale_bits", 0)) for row in rows], "YOLO head logit scale 位模式。")
     lines.append(_array_2d("S2A_ROUTE_CHANNEL_START", 16, inputs_matrix["S2A_INPUT_ROUTE_CHANNEL_START"], "按来源顺序排列的 route C 轴切片起点。"))
     lines.append(_array_2d("S2A_ROUTE_CHANNEL_END", 16, inputs_matrix["S2A_INPUT_ROUTE_CHANNEL_END"], "按来源顺序排列的 route C 轴切片终点（exclusive）。"))
+    lines.append(
+        _array_2d(
+            "S2A_ROUTE_SOURCE_MULTIPLIER_Q31",
+            32,
+            pair_values("source_multiplier_q31"),
+            "每层两个来源槽的无符号 Q31 重标定系数；route 活动槽为 1..0x80000000，其余槽为 0。",
+        )
+    )
     lines.append(_array_2d("S2A_YOLO_ANCHOR_W", 16, [[row["parameters"].get("anchors_wh", [[0, 0]] * MAX_ANCHORS)[slot][0] for slot in range(MAX_ANCHORS)] for row in rows], "YOLO 六组 anchor 宽度。"))
     lines.append(_array_2d("S2A_YOLO_ANCHOR_H", 16, [[row["parameters"].get("anchors_wh", [[0, 0]] * MAX_ANCHORS)[slot][1] for slot in range(MAX_ANCHORS)] for row in rows], "YOLO 六组 anchor 高度。"))
     lines.append(_array_2d("S2A_YOLO_MASK", 16, [[row["parameters"].get("mask", [0] * MAX_MASK)[slot] for slot in range(MAX_MASK)] for row in rows], "YOLO 每个输出头的三项 anchor mask。"))
@@ -957,6 +1037,74 @@ def render_sv_package(data: dict[str, Any]) -> bytes:
     return "\n".join(lines).encode("utf-8")
 
 
+def _route_q31_bindings(root: Path) -> dict[str, Any]:
+    """校验 T15 所用 route RTL、测试和来源清单的内容绑定。"""
+    source_roles = {
+        "src/s2a_route_engine.sv": "route engine RTL and accepted uint32 Q31 coefficient interface",
+        "src/int8_route_query.sv": "route source query RTL",
+        ROUTE_Q31_FORMULA_SOURCE_PATH: "T15 full-run formula source and runner",
+        "verification/test_s2a_route_rtl.py": "route quantization and source-mapping reference tests",
+        "report/evidence/S2A-T15/route_simulation.json": "T15 simulation evidence",
+    }
+    source_bindings = []
+    hashes: dict[str, str] = {}
+    for relative_path, role in source_roles.items():
+        path = root.joinpath(*relative_path.split("/"))
+        _require(path.is_file(), f"route Q31 绑定来源缺失: {relative_path}")
+        encoded = path.read_bytes()
+        digest = _sha256_bytes(encoded)
+        hashes[relative_path] = digest
+        source_bindings.append(
+            {"path": relative_path, "sha256": digest, "bytes": len(encoded), "role": role}
+        )
+
+    evidence_path = root.joinpath(*"report/evidence/S2A-T15/route_simulation.json".split("/"))
+    try:
+        evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise DescriptorRomError("T15 route_simulation.json 无法解析") from exc
+    _require(evidence.get("task") == "S2A-T15" and evidence.get("result") == "PASS", "T15 route 证据未通过")
+    evidence_sources = evidence.get("bindings")
+    _require(isinstance(evidence_sources, dict), "T15 route 证据缺少 bindings")
+    for relative_path in (
+        "src/s2a_route_engine.sv",
+        "src/int8_route_query.sv",
+        ROUTE_Q31_FORMULA_SOURCE_PATH,
+    ):
+        _field_equal(
+            str(evidence_sources.get(relative_path, "")).lower(),
+            hashes[relative_path],
+            f"T15 evidence source binding {relative_path}",
+        )
+
+    return {
+        "layout": {
+            "package_path": PACKAGE_PATH,
+            "symbol": "S2A_ROUTE_SOURCE_MULTIPLIER_Q31",
+            "shape": [38, MAX_INPUTS],
+            "index_order": "[cfg layer_index][manifest/T22 input source slot]",
+            "element_type": "unsigned logic [31:0]",
+            "active_route_source_range_inclusive": [1, 1 << 31],
+            "unused_source_slot_value": 0,
+            "non_route_layer_value": 0,
+        },
+        "scale_binding": {
+            "source_scale": "G0 manifest route input_scales[source_slot], validated against the matching T22 input tensor scale",
+            "target_scale": "G0/T22 route operator output_scale, validated equal to the maximum source scale",
+            "formula": "floor((source_scale / target_scale) * 2**31 + 0.5)",
+            "rounding": "positive half-away-from-zero via floor(value + 0.5)",
+            "formula_source": {
+                "path": ROUTE_Q31_FORMULA_SOURCE_PATH,
+                "sha256": hashes[ROUTE_Q31_FORMULA_SOURCE_PATH],
+                "evidence_path": "report/evidence/S2A-T15/route_simulation.json",
+                "evidence_sha256": hashes["report/evidence/S2A-T15/route_simulation.json"],
+            },
+            "rtl_conversion": "none; RTL reads the precomputed unsigned 32-bit ROM value",
+        },
+        "source_bindings": source_bindings,
+    }
+
+
 def _binding_report(data: dict[str, Any], package_bytes: bytes, sizes: dict[str, int]) -> bytes:
     conv_rows = [
         {
@@ -977,6 +1125,7 @@ def _binding_report(data: dict[str, Any], package_bytes: bytes, sizes: dict[str,
             {"path": path, "sha256": data["source_hashes"][path], "bytes": sizes[path]}
             for path in (G0_SPEC_PATH, MANIFEST_PATH, T22_PATH, T23_PATH)
         ],
+        "route_q31_bindings": data["route_q31_bindings"],
         "descriptor_summary": {
             "model_id": "tiny416",
             "layer_count": len(data["layers"]),
@@ -1037,6 +1186,7 @@ def generate(root: Path, check_only: bool = False) -> dict[str, Any]:
     _require(os.path.normcase(str(root)) == os.path.normcase(str(EXPECTED_ROOT)), "输出根目录不是任务卡指定路径")
     frozen = load_frozen_inputs(root, verify_upstream=True)
     data = build_rom_data(frozen["manifest"], frozen["contract"], frozen["table"], frozen["hashes"])
+    data["route_q31_bindings"] = _route_q31_bindings(root)
     weight_package = frozen["manifest"]["address_map"]["weight_package"]
     data["weight_package"] = {
         "address": _checked_int(weight_package["address"], "GF8 package base", 0, 0xFFFFFFFF),
@@ -1053,12 +1203,27 @@ def generate(root: Path, check_only: bool = False) -> dict[str, Any]:
         _require(package_path.read_bytes() == package_bytes, "现有 SystemVerilog package 与重生成字节不一致")
         _require(report_path.read_bytes() == report_bytes, "现有绑定报告与重生成字节不一致")
     else:
-        _require(not package_path.exists(), f"拒绝覆盖已存在 package: {package_path}")
-        _require(not report_path.exists(), f"拒绝覆盖已存在绑定报告: {report_path}")
-        with package_path.open("xb") as handle:
-            handle.write(package_bytes)
-        with report_path.open("xb") as handle:
-            handle.write(report_bytes)
+        outputs = ((package_path, PACKAGE_PATH, package_bytes), (report_path, BINDING_REPORT_PATH, report_bytes))
+        pending = []
+        for path, relative_path, encoded in outputs:
+            _require(not path.is_symlink(), f"拒绝写入符号链接输出: {path}")
+            if path.exists():
+                _require(path.is_file(), f"输出不是普通文件: {path}")
+                current = path.read_bytes()
+                if current != encoded:
+                    _require(
+                        _sha256_bytes(current) == PREVIOUS_ARTIFACT_SHA256[relative_path],
+                        f"拒绝覆盖非本任务确认的旧生成产物: {path}",
+                    )
+                    pending.append((path, encoded, True))
+            else:
+                pending.append((path, encoded, False))
+        for path, encoded, replace_existing in pending:
+            if replace_existing:
+                path.write_bytes(encoded)
+            else:
+                with path.open("xb") as handle:
+                    handle.write(encoded)
     return {
         "package_path": package_path,
         "package_sha256": _sha256_bytes(package_bytes),

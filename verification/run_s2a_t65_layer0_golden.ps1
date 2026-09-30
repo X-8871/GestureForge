@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [switch]$PrepareOnly,
     [switch]$RunSimulation
@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $rootPath = 'D:\FPGA_Competition'
 $t64BaselineCommit = 'ec686741e0553ebc4a8701129e381526e0b06974'
 $evidenceRootPath = 'D:\FPGA_Competition\report\evidence\S2A-T65'
-$runPath = 'D:\FPGA_Competition\report\evidence\S2A-T65\run01'
+$runPath = 'D:\FPGA_Competition\report\evidence\S2A-T65\run02'
 $pythonTestPath = 'D:\FPGA_Competition\verification\test_s2a_t65_layer0_golden.py'
 $vivadoBinPath = 'D:\Xilinx\2026.1\Vivado\bin'
 $passMarker = 'PASS: sample0 layer0 首个输出字节 memory-read/write matched T25'
@@ -37,13 +37,20 @@ if ($baselineAncestorExit -ne 0) {
     throw "当前 HEAD 不包含冻结 T64 基线：baseline=$t64BaselineCommit actual=$actualHead exit=$baselineAncestorExit"
 }
 $runItem = Get-Item -LiteralPath $runPath -ErrorAction SilentlyContinue
-if ($runItem -and -not $runItem.PSIsContainer) {
-    throw "T65 run01 路径已存在但不是目录：$($runItem.FullName)"
+if ($runItem -and (-not $runItem.PSIsContainer -or $runItem.FullName -cne $runPath)) {
+    throw "T65 runPath 类型或完整路径不匹配：$($runItem.FullName)"
 }
 if (-not $runItem) {
     New-Item -ItemType Directory -Path $runPath | Out-Null
 }
-
+$runItem = Get-Item -LiteralPath $runPath -ErrorAction Stop
+if (-not $runItem.PSIsContainer -or $runItem.FullName -cne $runPath) {
+    throw "T65 runPath 类型或完整路径不匹配：$($runItem.FullName)"
+}
+$simPath = Join-Path $runPath 'sim01'
+if ($RunSimulation -and (Test-Path -LiteralPath $simPath)) {
+    throw "T65_SIM_PATH_COLLISION: 仿真证据目录已存在，拒绝覆盖：$simPath"
+}
 $tempPath = Join-Path $runPath 'temp'
 if (-not (Test-Path -LiteralPath $tempPath -PathType Container)) {
     New-Item -ItemType Directory -Path $tempPath | Out-Null
@@ -85,11 +92,14 @@ foreach ($toolPath in $toolPaths) {
     }
 }
 
-$simPath = Join-Path $runPath 'sim01'
 if (Test-Path -LiteralPath $simPath) {
-    throw "仿真证据目录已存在，拒绝覆盖：$simPath"
+    throw "T65_SIM_PATH_COLLISION: 仿真证据目录已存在，拒绝覆盖：$simPath"
 }
-New-Item -ItemType Directory -Path $simPath | Out-Null
+New-Item -ItemType Directory -Path $simPath -ErrorAction Stop | Out-Null
+$simDirectory = Get-Item -LiteralPath $simPath -ErrorAction Stop
+if (-not $simDirectory.PSIsContainer -or $simDirectory.FullName -cne $simPath) {
+    throw "T65_SIM_PATH_MISMATCH: 新建仿真目录类型或完整路径不匹配：$($simDirectory.FullName)"
+}
 
 $sourcePaths = @(
     'D:\FPGA_Competition\src\s2a_network_descriptor_pkg.sv',
@@ -118,13 +128,13 @@ foreach ($sourcePath in $sourcePaths) {
 $xvlogConsole = Join-Path $simPath 'xvlog_console.txt'
 $xelabConsole = Join-Path $simPath 'xelab_console.txt'
 $xsimConsole = Join-Path $simPath 'xsim_console.txt'
-$xvlogLog = Join-Path $runPath 'xvlog.log'
+$xvlogLog = Join-Path $simPath 'xvlog.log'
 $xelabLog = Join-Path $simPath 'xelab.log'
 $xsimLog = Join-Path $simPath 'xsim.log'
 $snapshotName = 's2a_t65_layer0_golden_snapshot'
 $statusPath = Join-Path $simPath 'status.txt'
 
-Push-Location -LiteralPath $runPath
+Push-Location -LiteralPath $simPath
 try {
     Write-Output '在独立 T65 evidence 工作目录编译冻结 T64 backend 和 T65 bench。'
     & (Join-Path $vivadoBinPath 'xvlog.bat') -sv -work xil_defaultlib @sourcePaths *> $xvlogConsole

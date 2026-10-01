@@ -1,6 +1,6 @@
 # 项目状态
 
-更新：2026-10-01（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
+更新：2026-10-02（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
 
 ## 当前目标与阶段
 
@@ -47,15 +47,15 @@
 
 ## 阶段 2A 最新恢复点
 
-- 更新：2026-10-01（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
+- 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
 
 | T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |
 |---|---|---|---|
 | G0 输入与接口 | T01 `G0_FROZEN`，独立审查通过；模型/样本与规则哈希见 T01 规格 | 无；冻结仅定义基线，不证明 RTL | 后续均沿用此基线 |
-| 单元向量与协议 | T69 独立只读审计 PASS：T02 MAC、T17 21层卷积、T14 maxpool、T13 upsample、T15 route、T08 YOLO 随机/定向向量覆盖齐；T10–T12/T18–T21 有固定 stall、错误、取消、timeout、ACK/恢复证据 | 不需重复跑已通过单元项；新 backend 的整网 fault/cancel/recovery 如 T68 未覆盖，另补短集成刺激 | 完成 sample0 整网集成后，仅补其真实backend未覆盖路径 |
-| CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；CPU decode/NMS 测试通过（`f61b8ce`） | 这是 CPU 结果，不是 PL；实际 PL heads 尚无比较 | 复用 T25 做 PL 逐层逐值比对 |
+| 单元向量与协议 | T69 独立只读审计 PASS：T02 MAC、T17 21层卷积、T14 maxpool、T13 upsample、T15 route、T08 YOLO 随机/定向向量覆盖齐；T10–T12/T18–T21 有固定 stall、错误、取消、timeout、ACK/恢复证据 | T68 `protocol_directed03` 实际 backend+CSR 的读错误/未握手读取消仿真通过，但独立审查要求再覆盖待决 output write 在 reset/timeout 下取消；该短测正在补齐 | 完成真实 backend 待决写取消与 ACK/restart 复审 |
+| CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；T29 D9 CPU reference 可从冻结 T25 heads 重建，109/109 canonical 比对通过；T68 D9 verifier 已提交 `e55fae0`、独立源码审查 PASS | CPU 链路不代表 PL；实际 PL heads 尚无比较 | 用整网模拟实际 head bytes 与 T29 对照，离散字段一致、score/坐标绝对误差≤1e-6 |
 | PL backend 与新卷积 tile | T66 byte-lane 修复与 layer0 tile 回归已静态审查通过；另有独立 Verilator 5.050 sample0 layer0 golden 仿真 8/8 通过，1,384,448 字节、0 mismatch、26,002,719 cycles。证据目录：`report/evidence/S2A-T66/tile01/verilator_run01/` | 尚无 PL 38 层整网 golden；此前 XSim attempt07 按 Wong 指示继续自行运行，本轮未查询、读取或干预 | T67 backend 接入提交 `433b720c1006f34d191e0fd7ed07bee62d6a276c`；静态独立审查 PASS；独立 lint exit=0、143 warnings、0 errors |
-| 全网 PL 与头后处理 | T68 正在新增独立 Verilator golden harness；sample0 未运行 | 109×38 PL 零差异；两头 INT8 字节完全一致；D9 离散字段完全一致、分数/坐标绝对误差≤1e-6 | 先跑 sample0 38 层、绑定 T25 golden 并测吞吐，再做109输入批跑与头比较 |
+| 全网 PL 与头后处理 | T68 harness commit `e55fae02554933a7af02600ffaa6300e33b9647b`；静态独立审查 PASS；实际 backend 写入后导出 layer29/36 heads，并绑定 109 样本 T25/T29 D9 verifier；sample0 未运行 | 尚无 PL 38 层整网结果；109 个 PL head 导出和 D9 对照均待运行 | 先完成待决写协议短测复审，再跑 sample0 38 层全网 golden 校准并行吞吐，随后并行跑其余108样本 |
 
 - 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成；截至 2026-10-02 尚余 6 天（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
 - 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。

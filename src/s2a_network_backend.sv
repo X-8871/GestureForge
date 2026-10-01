@@ -28,9 +28,6 @@ module s2a_network_backend (
     import s2a_network_descriptor_pkg::*;
 
     localparam logic [2:0] NONE = 3'd0;
-    localparam logic [2:0] BAD_ARGUMENT = 3'd1;
-    localparam logic [2:0] BAD_RANGE = 3'd2;
-    localparam logic [2:0] BAD_LENGTH = 3'd3;
     localparam logic [2:0] INTERNAL = 3'd6;
 
     typedef enum logic [2:0] {
@@ -69,7 +66,6 @@ module s2a_network_backend (
     logic [63:0] output_plane_elements;
     logic [63:0] output_batch_elements;
     logic [63:0] output_element_count;
-    logic [31:0] decoded_batch;
     logic [31:0] decoded_channel;
     logic [31:0] decoded_y;
     logic [31:0] decoded_x;
@@ -86,7 +82,7 @@ module s2a_network_backend (
     logic maxpool_start_valid, maxpool_start_ready;
     logic route_start_valid, route_start_ready;
     logic upsample_start_valid, upsample_start_ready;
-    logic conv_cancel, maxpool_cancel, route_cancel, upsample_cancel;
+    logic maxpool_cancel, route_cancel, upsample_cancel;
     logic conv_req_valid, conv_req_ready, conv_req_write;
     logic [31:0] conv_req_addr, conv_req_wdata;
     logic [3:0] conv_req_rstrb, conv_req_wstrb;
@@ -103,8 +99,6 @@ module s2a_network_backend (
     logic [31:0] conv_rsp_data, maxpool_rsp_data, route_rsp_data, upsample_rsp_data;
     logic [2:0] conv_rsp_error, maxpool_rsp_error, route_rsp_error, upsample_rsp_error;
     logic conv_result_valid, conv_result_ready;
-    logic [31:0] conv_result_address;
-    logic [7:0] conv_result_value;
     logic [2:0] conv_result_error;
     logic maxpool_result_valid, maxpool_result_ready;
     logic [127:0] maxpool_tap_addresses;
@@ -168,13 +162,11 @@ module s2a_network_backend (
         output_plane_elements = {48'd0, output_h} * {48'd0, output_w};
         output_batch_elements = {48'd0, output_c} * output_plane_elements;
         output_element_count = {48'd0, output_n} * output_batch_elements;
-        decoded_batch = 32'd0;
         decoded_channel = 32'd0;
         decoded_y = 32'd0;
         decoded_x = 32'd0;
         if ((output_plane_elements != 64'd0) &&
             (output_batch_elements != 64'd0) && (output_w != 16'd0)) begin
-            decoded_batch = output_element_index / output_batch_elements;
             decoded_channel = (output_element_index / output_plane_elements) % output_c;
             decoded_y = (output_element_index / {48'd0, output_w}) % output_h;
             decoded_x = output_element_index % output_w;
@@ -430,8 +422,9 @@ module s2a_network_backend (
                         operator_result_valid = 1'b1;
                         operator_error_code = normalize_engine_error(selected_result_error);
                     end else if (selected_result_valid &&
-                                 (({32'd0, output_element_index} + 64'd1) >=
-                                  output_element_count) &&
+                                 ((current_op == S2A_OP_CONV) ||
+                                  (({32'd0, output_element_index} + 64'd1) >=
+                                   output_element_count)) &&
                                  ((layer_cursor + 6'd1) >= S2A_LAYER_COUNT)) begin
                         operator_result_valid = 1'b1;
                         operator_error_code = NONE;
@@ -446,7 +439,7 @@ module s2a_network_backend (
         end
     end
 
-    s2a_conv_engine u_conv_engine (
+    s2a_conv_tile_engine u_conv_engine (
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .buffer_owner_pl(buffer_owner_pl),
         .start_valid(conv_start_valid), .start_ready(conv_start_ready),
@@ -474,22 +467,15 @@ module s2a_network_backend (
         .weight_package_length_bytes(weight_package_length_bytes),
         .quantized_weight_offset(S2A_GF8_WEIGHT_OFFSET[layer_cursor]),
         .quantized_weight_bytes(S2A_GF8_WEIGHT_BYTES[layer_cursor]),
-        .output_batch(decoded_batch), .output_channel(decoded_channel),
-        .output_y(decoded_y), .output_x(decoded_x),
-        .bias_int32($signed(S2A_CONV_BIAS_ACCUMULATOR_INT32[mq_index])),
+        .output_batch(32'd0),
         .activation_mode(map_conv_activation(S2A_ACTIVATION[layer_cursor])),
-        .positive_multiplier(S2A_T23_MQ_ROM[mq_index][79:48]),
-        .positive_q_shift({24'd0, S2A_T23_MQ_ROM[mq_index][47:40]}),
-        .negative_multiplier(S2A_T23_MQ_ROM[mq_index][39:8]),
-        .negative_q_shift({24'd0, S2A_T23_MQ_ROM[mq_index][7:0]}),
-        .backend_cancel(conv_cancel), .backend_req_valid(conv_req_valid),
+        .backend_cancel(), .backend_req_valid(conv_req_valid),
         .backend_req_ready(conv_req_ready), .backend_req_write(conv_req_write),
         .backend_req_addr(conv_req_addr), .backend_req_wdata(conv_req_wdata),
         .backend_req_rstrb(conv_req_rstrb), .backend_req_wstrb(conv_req_wstrb),
         .backend_rsp_valid(conv_rsp_valid), .backend_rsp_rdata(conv_rsp_data),
         .backend_rsp_error(conv_rsp_error), .busy(),
         .result_valid(conv_result_valid), .result_ready(conv_result_ready),
-        .result_output_address(conv_result_address), .result_value(conv_result_value),
         .result_error_code(conv_result_error)
     );
 
@@ -640,8 +626,9 @@ module s2a_network_backend (
                     if (selected_result_valid) begin
                         if (normalize_engine_error(selected_result_error) != NONE) begin
                             state <= ST_IDLE;
-                        end else if (({32'd0, output_element_index} + 64'd1) <
-                                     output_element_count) begin
+                        end else if ((current_op != S2A_OP_CONV) &&
+                                     (({32'd0, output_element_index} + 64'd1) <
+                                      output_element_count)) begin
                             output_element_index <= output_element_index + 32'd1;
                             state <= ST_DISPATCH;
                         end else if ((layer_cursor + 6'd1) >= S2A_LAYER_COUNT) begin

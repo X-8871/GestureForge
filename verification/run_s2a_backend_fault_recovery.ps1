@@ -133,6 +133,7 @@ $sourceRows = Get-SourceRows -Paths $sources
 $compileArguments = @(
     '--binary',
     '--timing',
+    '--trace',
     '-Wno-fatal',
     '--top-module', 'tb_s2a_backend_fault_recovery',
     '--Mdir', $buildDirectory,
@@ -249,8 +250,10 @@ $simulationExecutable = Join-Path $buildDirectory 'Vtb_s2a_backend_fault_recover
 if (-not (Test-Path -LiteralPath $simulationExecutable -PathType Leaf)) {
     throw "Verilator 未生成预期短仿真程序：$simulationExecutable"
 }
+$waveformPath = Join-Path $evidenceDirectory 'backend_fault_recovery.vcd'
 $simulationWatch = [System.Diagnostics.Stopwatch]::StartNew()
-$simulationResult = Invoke-NativeCommand -Executable $simulationExecutable -Arguments @()
+$simulationResult = Invoke-NativeCommand -Executable $simulationExecutable `
+    -Arguments @("+WAVEFORM_PATH=$waveformPath")
 $simulationOutput = @($simulationResult.output)
 $simulationExitCode = [int]$simulationResult.exit_code
 $simulationWatch.Stop()
@@ -335,8 +338,21 @@ foreach ($markerName in $retryCaseMarkerCounts.Keys) {
         $retryCaseMarkersPassed = $false
     }
 }
+$waveformExists = Test-Path -LiteralPath $waveformPath -PathType Leaf
+$waveformBytes = 0
+$waveformSha256 = $null
+$waveformValid = $false
+if ($waveformExists) {
+    $waveformItem = Get-Item -LiteralPath $waveformPath -ErrorAction Stop
+    $waveformBytes = [long]$waveformItem.Length
+    if ($waveformBytes -gt 0) {
+        $waveformSha256 = (Get-FileHash -LiteralPath $waveformPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        $waveformValid = ($waveformSha256 -match '^[0-9a-f]{64}$')
+    }
+}
 $simulationGatePassed = ($simulationExitCode -eq 0) -and $passObserved -and
-    $outputWriteMarkersPassed -and $cancelCaseMarkersPassed -and $retryCaseMarkersPassed
+    $outputWriteMarkersPassed -and $cancelCaseMarkersPassed -and $retryCaseMarkersPassed -and
+    $waveformValid
 $simulationRecord = [ordered]@{
     schema_version = 'gestureforge_s2a_t68_backend_fault_simulation_record_v1'
     command = @($simulationExecutable)
@@ -351,6 +367,11 @@ $simulationRecord = [ordered]@{
     retry_case_marker_counts = $retryCaseMarkerCounts
     unexpected_retry_case_markers = @($unexpectedRetryCaseMarkers)
     retry_case_markers_passed = [bool]$retryCaseMarkersPassed
+    waveform_path = $waveformPath
+    waveform_exists = [bool]$waveformExists
+    waveform_bytes = $waveformBytes
+    waveform_sha256 = $waveformSha256
+    waveform_valid = [bool]$waveformValid
     simulator_started = $true
     duration_seconds = [Math]::Round($simulationWatch.Elapsed.TotalSeconds, 3)
     compile_source_snapshot = Join-Path $evidenceDirectory 'compile_source_snapshot.json'

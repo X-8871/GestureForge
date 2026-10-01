@@ -52,6 +52,7 @@ module tb_s2a_backend_fault_recovery;
     logic [31:0] transaction_start_cycle = 32'd0;
     integer memory_read_handshakes = 0;
     integer memory_write_side_effects = 0;
+    string waveform_path;
 
     always #5 clk = ~clk;
 
@@ -68,6 +69,22 @@ module tb_s2a_backend_fault_recovery;
     initial begin
         #5000000;
         $fatal(1, "定向 backend/CSR fault-recovery 自检超时");
+    end
+
+    initial begin
+        if (!$value$plusargs("WAVEFORM_PATH=%s", waveform_path)) begin
+            $fatal(1, "缺少定向测试波形输出路径");
+        end
+        $dumpfile(waveform_path);
+        $dumpvars(0, clk, hard_reset,
+                  csr_valid, csr_write, csr_addr, csr_wdata, csr_ready,
+                  backend_start, backend_abort, busy, done, error,
+                  buffer_owner_pl, head_output_valid,
+                  backend_memory_error_valid, backend_memory_error_code,
+                  mem_valid, mem_write, mem_addr, mem_wdata, mem_rstrb, mem_wstrb,
+                  mem_ready, mem_rdata, mem_error_code,
+                  simulation_cycle_count, memory_read_handshakes,
+                  memory_write_side_effects);
     end
 
     always @(posedge clk) begin

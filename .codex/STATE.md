@@ -15,7 +15,7 @@
 - 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
 - G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
 - 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项：完成 T66-A layer0 full golden XSim，按冻结 CSR、timeout 与 memory protocol 核验；再集成 descriptor backend，推进真实 sample0 全网闭环。当前预算仍待 RTL 验证。
+- 下一项：T67 backend 接入已提交；完成独立 sample0 38 层闭环，按实测吞吐决策 109 输入批跑，再补齐缺失协议项、D9 对照及阶段冻结验收。
 
 ## 已冻结的模型和口径
 
@@ -52,12 +52,12 @@
 | T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |
 |---|---|---|---|
 | G0 输入与接口 | T01 `G0_FROZEN`，独立审查通过；模型/样本与规则哈希见 T01 规格 | 无；冻结仅定义基线，不证明 RTL | 后续均沿用此基线 |
-| 单元向量与协议 | 共享 MAC：T02 提交 `f547522`，单元仿真及只读审查通过；已有算子/协议证据按其具体覆盖复用 | 每 cfg 算子层 1,000 随机+16定向、MAC 1,000+16，以及固定 stall/error/reset/timeout 路径未形成完整 T01 覆盖证明 | 汇总既有证据，只补跑明确缺失项 |
+| 单元向量与协议 | 已有证据初核：T02 MAC 1,000+16；T17 conv 21 层各 1,000+16；maxpool T03/T04/T14、upsample T05/T13、route T06/T15、YOLO T08 | T10–T12、T18–T21 协议覆盖存在但与 T01 固定 stall/error/reset/timeout/cancel/recovery 对齐尚未收口 | T69 只读审计列明可复用项和最小补测，不重复已通过向量 |
 | CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；CPU decode/NMS 测试通过（`f61b8ce`） | 这是 CPU 结果，不是 PL；实际 PL heads 尚无比较 | 复用 T25 做 PL 逐层逐值比对 |
-| PL backend 与新卷积 tile | 描述符 ROM/route 改动见 `b423994`、`f7ec51b`；T64 run11 仅24 reads/1 write/109 cycles 首输出握手，无 golden | T63 XVLOG 日志同名冲突退出1；T65 唯一受进程门禁保护的 sim02 XSim CLI exit=1，`Expected a switch but found D`，未进入仿真且无 sample0 PL 输出（见 `report/evidence/S2A-T65/run02/sim02_xsim_execution_record.json`）。限定范围的 reconciliation 独立复审 PASS：当前 manifest/runtime binding 与编译源、夹具摘要关联一致，纯离线重验 exit=0；但 XSim exit=1、无 sample0 PL 输出，离线 PASS 不等于仿真 PASS。旧版 manifest 原文缺失，不能声称历史版本已逐字段审计。T66 attempt06 编译通过但 30 分钟无进度行后按门限停止；byte-lane 修复、100k 周期进度及 8-lane 缓存采样回归已静态验证并独立审查 PASS；attempt07 `xvlog/xelab=0`、离线绑定核验通过，XSim 单次运行中、golden 结果待定（证据：`report/evidence/S2A-T66/tile01/compile_attempt07/`）；backend 未集成 | 获取并独立审查 attempt07 完整 layer0 XSim 结果；通过后接入 descriptor backend 做 sample0 38层闭环 |
-| 全网 PL 与头后处理 | 暂无 sample0 完整38层 PL 闭环；T65 sim02 未输出 sample0 PL 结果 | 109×38 PL 零差异；两头 INT8 字节完全一致；D9 离散字段完全一致、分数/坐标绝对误差≤1e-6 | 先完成真实 sample0 38层闭环并测吞吐，再扩展109输入与头比较 |
+| PL backend 与新卷积 tile | T66 byte-lane 修复与 layer0 tile 回归已静态审查通过；另有独立 Verilator 5.050 sample0 layer0 golden 仿真 8/8 通过，1,384,448 字节、0 mismatch、26,002,719 cycles。证据目录：`report/evidence/S2A-T66/tile01/verilator_run01/` | 尚无 PL 38 层整网 golden；此前 XSim attempt07 按 Wong 指示继续自行运行，本轮未查询、读取或干预 | T67 backend 接入提交 `433b720c1006f34d191e0fd7ed07bee62d6a276c`；静态独立审查 PASS；独立 lint exit=0、143 warnings、0 errors |
+| 全网 PL 与头后处理 | T68 正在新增独立 Verilator golden harness；sample0 未运行 | 109×38 PL 零差异；两头 INT8 字节完全一致；D9 离散字段完全一致、分数/坐标绝对误差≤1e-6 | 先跑 sample0 38 层、绑定 T25 golden 并测吞吐，再做109输入批跑与头比较 |
 
-- 架构与预算：Wong 已批准 8×8 空间 tile / 8 output-channel lanes；CSR、32-bit `TIMEOUT_CYCLES` 和 memory protocol 均不变。当前估算约21,744,845次卷积32-bit word传输，计入最坏7-cycle stall约1.16B cycles，低于最大4,294,967,295。此为待 RTL 验证的预算估算，不代表已实现或资源通过。
+- 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
 - 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。
 - 保护状态：PID 8712 Vivado、22488/13156 XSim 为审计记录的受保护进程，任何运行前重新核对身份，不停止/关闭/重置/发送状态修改。MCP 当前连接健康但项目为 `s2a_t61_run04` 的 `isolated_project`、Top 为空，不是2A仿真实例。
 - T63/T64/T65、进行中的 T66-A 与其他工作区差异均须保留并先核对；日志、夹具、临时文件和大型生成物留在 D 盘，默认不生成大波形。

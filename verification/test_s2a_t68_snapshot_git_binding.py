@@ -31,8 +31,13 @@ class SnapshotGitBindingTests(unittest.TestCase):
         """只加载并验证一次固定静态闭包。"""
         cls.closure = checker.load_pinned_closure()
 
-    def make_batch(self, evidence_root: Path, run_id: str = "synthetic109") -> None:
-        """构造 109 份仅含冻结源元数据的合成记录。"""
+    def make_batch(
+        self,
+        evidence_root: Path,
+        run_id: str = "synthetic109",
+        omit_sample_index: int | None = None,
+    ) -> None:
+        """构造合成记录，可选跳过一个固定样本目录。"""
         manifest_sources = self.closure["sources"]
         source_rows = [
             {
@@ -56,6 +61,8 @@ class SnapshotGitBindingTests(unittest.TestCase):
         runner_sha = manifest_sources[checker.COMPILE_TOOLING_PATHS[0]]["sha256"]
 
         for sample_index in range(checker.SAMPLE_COUNT):
+            if sample_index == omit_sample_index:
+                continue
             sample_dir = evidence_root / "runs" / f"sample_{sample_index:03d}" / run_id
             command_args = [
                 "--binary",
@@ -268,6 +275,30 @@ class SnapshotGitBindingTests(unittest.TestCase):
                 _write_json(snapshot_path, snapshot)
                 _write_json(compile_path, compile_record)
                 self.assert_cli_failure_without_report(evidence_root)
+
+    def test_exact_run_directory_set_fail_closed(self) -> None:
+        """RunId 目录必须恰好对应 sample_000..sample_108。"""
+        cases = ("missing_sample", "extra_sample_109")
+        for case_name in cases:
+            with self.subTest(case=case_name), tempfile.TemporaryDirectory(prefix=f"s2a_t68_directory_set_{case_name}_") as temporary:
+                evidence_root = Path(temporary)
+                if case_name == "missing_sample":
+                    self.make_batch(evidence_root, omit_sample_index=108)
+                else:
+                    self.make_batch(evidence_root)
+                    (evidence_root / "runs" / "sample_109" / "synthetic109").mkdir(parents=True)
+                self.assert_cli_failure_without_report(evidence_root)
+
+    def test_source_row_path_escape_fails_without_report(self) -> None:
+        """仓库外的编译源路径必须令 CLI 失败且不留报告。"""
+        with tempfile.TemporaryDirectory(prefix="s2a_t68_source_path_escape_") as temporary:
+            evidence_root = Path(temporary)
+            self.make_batch(evidence_root)
+            snapshot_path = evidence_root / "runs" / "sample_000" / "synthetic109" / "compile_source_snapshot.json"
+            snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+            snapshot["sources"][0]["path"] = str(evidence_root / "outside_source.sv")
+            _write_json(snapshot_path, snapshot)
+            self.assert_cli_failure_without_report(evidence_root)
 
 
 if __name__ == "__main__":

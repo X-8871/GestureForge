@@ -52,12 +52,12 @@
 | T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |
 |---|---|---|---|
 | G0 输入与接口 | T01 `G0_FROZEN`，独立审查通过；模型/样本与规则哈希见 T01 规格 | 无；冻结仅定义基线，不证明 RTL | 后续均沿用此基线 |
-| 单元向量与协议 | 已有证据初核：T02 MAC 1,000+16；T17 conv 21 层各 1,000+16；maxpool T03/T04/T14、upsample T05/T13、route T06/T15、YOLO T08 | T10–T12、T18–T21 协议覆盖存在但与 T01 固定 stall/error/reset/timeout/cancel/recovery 对齐尚未收口 | T69 只读审计列明可复用项和最小补测，不重复已通过向量 |
+| 单元向量与协议 | T69 独立只读审计 PASS：T02 MAC、T17 21层卷积、T14 maxpool、T13 upsample、T15 route、T08 YOLO 随机/定向向量覆盖齐；T10–T12/T18–T21 有固定 stall、错误、取消、timeout、ACK/恢复证据 | 不需重复跑已通过单元项；新 backend 的整网 fault/cancel/recovery 如 T68 未覆盖，另补短集成刺激 | 完成 sample0 整网集成后，仅补其真实backend未覆盖路径 |
 | CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；CPU decode/NMS 测试通过（`f61b8ce`） | 这是 CPU 结果，不是 PL；实际 PL heads 尚无比较 | 复用 T25 做 PL 逐层逐值比对 |
 | PL backend 与新卷积 tile | T66 byte-lane 修复与 layer0 tile 回归已静态审查通过；另有独立 Verilator 5.050 sample0 layer0 golden 仿真 8/8 通过，1,384,448 字节、0 mismatch、26,002,719 cycles。证据目录：`report/evidence/S2A-T66/tile01/verilator_run01/` | 尚无 PL 38 层整网 golden；此前 XSim attempt07 按 Wong 指示继续自行运行，本轮未查询、读取或干预 | T67 backend 接入提交 `433b720c1006f34d191e0fd7ed07bee62d6a276c`；静态独立审查 PASS；独立 lint exit=0、143 warnings、0 errors |
 | 全网 PL 与头后处理 | T68 正在新增独立 Verilator golden harness；sample0 未运行 | 109×38 PL 零差异；两头 INT8 字节完全一致；D9 离散字段完全一致、分数/坐标绝对误差≤1e-6 | 先跑 sample0 38 层、绑定 T25 golden 并测吞吐，再做109输入批跑与头比较 |
 
-- 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
+- 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成；截至 2026-10-02 尚余 6 天（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
 - 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。
 - 保护状态：PID 8712 Vivado、22488/13156 XSim 为审计记录的受保护进程，任何运行前重新核对身份，不停止/关闭/重置/发送状态修改。MCP 当前连接健康但项目为 `s2a_t61_run04` 的 `isolated_project`、Top 为空，不是2A仿真实例。
 - T63/T64/T65、进行中的 T66-A 与其他工作区差异均须保留并先核对；日志、夹具、临时文件和大型生成物留在 D 盘，默认不生成大波形。

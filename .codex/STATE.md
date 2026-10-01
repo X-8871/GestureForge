@@ -15,7 +15,7 @@
 - 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
 - G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
 - 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项：T67 backend、T68 harness 与 protocol_directed05 均已通过各自独立源码审查；在 `report/evidence/S2A-T68/batch109_r1` 运行 sample0 38 层整网校准，按实测吞吐完成其余 108 样本及 T29 D9 对照，再验收 G4/G5。
+- 下一项：sample0 已在 `report/evidence/S2A-T68/batch109_r1` / RunId `batch109_r1` 启动；fixture-only 绑定检查通过，整网编译/仿真结果待定。通过后按实测吞吐批跑其余 108 样本，执行 T29 D9 对照并验收 G4/G5。
 
 ## 已冻结的模型和口径
 
@@ -55,7 +55,7 @@
 | 单元向量与协议 | T69 独立只读审计 PASS：T02 MAC、T17 21层卷积、T14 maxpool、T13 upsample、T15 route、T08 YOLO 随机/定向向量覆盖齐；T10–T12/T18–T21 有固定 stall、错误、取消、timeout、ACK/恢复证据；T11 CSR 回归通过非法/保留 CSR 与 BAD_RANGE/BAD_LENGTH/BAD_ARGUMENT start（595 transfers、116 directed、256 random）；T68 protocol_directed05 真实 backend+CSR code6/7→INTERNAL、pending layer0 output write 的 soft/hard reset/timeout 取消、无迟到副作用及 ACK/restart 独立审查 PASS | 无（该行通过不代表整网或阶段通过） | T68 sample0 38 层 PL golden 仿真与吞吐校准 |
 | CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；T29 D9 CPU reference 可从冻结 T25 heads 重建，109/109 canonical 比对通过；T68 D9 verifier 已提交 `e55fae0`、独立源码审查 PASS | CPU 链路不代表 PL；实际 PL heads 尚无比较 | 用整网模拟实际 head bytes 与 T29 对照，离散字段一致、score/坐标绝对误差≤1e-6 |
 | PL backend 与新卷积 tile | T66 byte-lane 修复与 layer0 tile 回归已静态审查通过；另有独立 Verilator 5.050 sample0 layer0 golden 仿真 8/8 通过，1,384,448 字节、0 mismatch、26,002,719 cycles。证据目录：`report/evidence/S2A-T66/tile01/verilator_run01/` | 尚无 PL 38 层整网 golden；此前 XSim attempt07 按 Wong 指示继续自行运行，本轮未查询、读取或干预 | T67 backend 接入提交 `433b720c1006f34d191e0fd7ed07bee62d6a276c`；静态独立审查 PASS；独立 lint exit=0、143 warnings、0 errors |
-| 全网 PL 与头后处理 | T68 harness commit `e55fae02554933a7af02600ffaa6300e33b9647b`；静态独立审查 PASS；实际 backend 写入后导出 layer29/36 heads，并绑定 109 样本 T25/T29 D9 verifier；protocol_directed05 独立审查 PASS；sample0 尚未运行 | 尚无 PL 38 层整网结果；109 个 PL head 导出和 D9 对照均待运行 | 在 `report/evidence/S2A-T68/batch109_r1` 用 RunId `batch109_r1` 跑 sample0 校准，然后按实测吞吐并行跑其余108样本 |
+| 全网 PL 与头后处理 | T68 harness commit `e55fae02554933a7af02600ffaa6300e33b9647b`；静态独立审查 PASS；protocol_directed05 独立审查 PASS；sample0 在 `batch109_r1` 运行中，backend SHA `3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154` | 整网 38 层逐值结果、109 个实际 PL head 导出和 D9 对照待完成 | 完成 sample0 并按实测吞吐运行其余108样本，然后执行109样本 D9 对照 |
 
 - 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成；截至 2026-10-02 尚余 6 天（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
 - 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。

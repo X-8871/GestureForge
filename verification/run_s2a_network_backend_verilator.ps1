@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidateRange(0, 108)]
     [int]$SampleIndex = 0,
@@ -50,6 +50,76 @@ function Write-CommandLog {
 function Quote-ProcessArgument {
     param([Parameter(Mandatory = $true)][string]$Argument)
     return '"' + $Argument + '"'
+}
+
+function Invoke-NativeCapturedProcess {
+    param(
+        [Parameter(Mandatory = $true)][string]$ExecutablePath,
+        [Parameter(Mandatory = $true)][string[]]$Arguments,
+        [Parameter(Mandatory = $true)][string]$WorkingDirectory,
+        [Parameter(Mandatory = $true)][string]$StandardOutputPath,
+        [Parameter(Mandatory = $true)][string]$StandardErrorPath
+    )
+    $process = $null
+    $exitCode = 127
+    $launchError = ''
+    $argumentLine = ($Arguments | ForEach-Object { Quote-ProcessArgument -Argument ([string]$_) }) -join ' '
+    try {
+        $process = Start-Process -FilePath $ExecutablePath -ArgumentList $argumentLine `
+            -WorkingDirectory $WorkingDirectory -WindowStyle Hidden -RedirectStandardOutput $StandardOutputPath `
+            -RedirectStandardError $StandardErrorPath -Wait -PassThru
+        if ($null -eq $process) { throw 'Start-Process 未返回 native process。' }
+        $process.WaitForExit()
+        $exitCode = [int]$process.ExitCode
+    } catch {
+        $launchError = $_.ToString()
+        if ($null -ne $process) {
+            try {
+                $process.Refresh()
+                if ($process.HasExited) { $exitCode = [int]$process.ExitCode }
+            } catch { }
+        }
+        $encoding = [System.Text.UTF8Encoding]::new($false)
+        [System.IO.File]::AppendAllText($StandardErrorPath, $launchError + [Environment]::NewLine, $encoding)
+    } finally {
+        if ($null -ne $process) {
+            try {
+                $process.Refresh()
+                if ($process.HasExited) { $exitCode = [int]$process.ExitCode }
+            } catch { }
+        }
+        if (-not (Test-Path -LiteralPath $StandardOutputPath -PathType Leaf)) {
+            [System.IO.File]::WriteAllBytes($StandardOutputPath, [byte[]]@())
+        }
+        if (-not (Test-Path -LiteralPath $StandardErrorPath -PathType Leaf)) {
+            [System.IO.File]::WriteAllBytes($StandardErrorPath, [byte[]]@())
+        }
+    }
+    return [pscustomobject]@{
+        exit_code = $exitCode
+        launch_error = $launchError
+        process_id = if ($null -ne $process) { $process.Id } else { $null }
+        stdout_path = $StandardOutputPath
+        stderr_path = $StandardErrorPath
+    }
+}
+
+function Write-NativeProcessConsole {
+    param(
+        [Parameter(Mandatory = $true)][string]$ConsolePath,
+        [Parameter(Mandatory = $true)][string]$StandardOutputPath,
+        [Parameter(Mandatory = $true)][string]$StandardErrorPath
+    )
+    $lines = @()
+    if ((Get-Item -LiteralPath $StandardOutputPath).Length -gt 0) {
+        $lines += [System.IO.File]::ReadAllLines($StandardOutputPath, [System.Text.Encoding]::UTF8)
+    }
+    if ((Get-Item -LiteralPath $StandardErrorPath).Length -gt 0) {
+        $lines += '--- STDERR ---'
+        $lines += [System.IO.File]::ReadAllLines($StandardErrorPath, [System.Text.Encoding]::UTF8)
+    }
+    if ($lines.Count -eq 0) { $lines = @('') }
+    Write-CommandLog -Path $ConsolePath -Lines $lines
 }
 
 function Test-StartedProcessIdentity {
@@ -149,6 +219,7 @@ if ([string]::IsNullOrWhiteSpace($EvidenceDirectory)) {
 $evidenceRoot = [System.IO.Path]::GetFullPath($EvidenceDirectory)
 $prepareScript = Join-Path $PSScriptRoot 'prepare_s2a_network_backend_golden.py'
 $verifyScript = Join-Path $PSScriptRoot 'verify_s2a_network_backend_golden.py'
+$runnerSource = (Resolve-Path -LiteralPath $PSCommandPath).Path
 $testbench = Join-Path $repoRoot 'sim\tb_s2a_network_backend_golden.sv'
 $backendSource = Join-Path $repoRoot 'src\s2a_network_backend.sv'
 
@@ -183,6 +254,36 @@ if ($actualBackendSha256 -ne $ExpectedBackendSha256.ToLowerInvariant()) {
     throw "当前 backend SHA 与冻结值不同；actual=$actualBackendSha256 expected=$ExpectedBackendSha256"
 }
 
+$toolchainRoot = 'D:\FPGA_S2A_MSYS2_20261001\env'
+$toolBin = Join-Path $toolchainRoot 'mingw64\bin'
+$makeBin = Join-Path $toolchainRoot 'usr\bin'
+$verilator = Join-Path $toolBin 'verilator_bin.exe'
+$makePath = Join-Path $makeBin 'make.exe'
+$compilerPath = Join-Path $toolBin 'g++.exe'
+$verilatorRoot = [System.IO.Path]::GetFullPath((Join-Path $toolBin '..\share\verilator'))
+if (-not (Test-Path -LiteralPath $toolchainRoot -PathType Container)) { throw "缺少批准的 MSYS2 环境目录：$toolchainRoot" }
+if (-not (Test-Path -LiteralPath $toolBin -PathType Container)) { throw "缺少指定 MSYS2 bin 目录：$toolBin" }
+if (-not (Test-Path -LiteralPath $makeBin -PathType Container)) { throw "缺少 MSYS2 make 目录：$makeBin" }
+if (-not (Test-Path -LiteralPath $verilator -PathType Leaf)) { throw "缺少 Verilator 二进制：$verilator" }
+if (-not (Test-Path -LiteralPath $makePath -PathType Leaf)) { throw "缺少 MSYS2 make：$makePath" }
+if (-not (Test-Path -LiteralPath $compilerPath -PathType Leaf)) { throw "缺少 MSYS2 C++ 编译器：$compilerPath" }
+if (-not (Test-Path -LiteralPath $verilatorRoot -PathType Container)) { throw "缺少 Verilator 数据目录：$verilatorRoot" }
+$env:PATH = "$makeBin;$toolBin;$env:PATH"
+$env:VERILATOR_ROOT = $verilatorRoot
+$resolvedMakeMatches = @(Get-Command -Name 'make.exe' -CommandType Application -All -ErrorAction Stop)
+$resolvedCompilerMatches = @(Get-Command -Name 'g++.exe' -CommandType Application -All -ErrorAction Stop)
+if (($resolvedMakeMatches.Count -lt 1) -or ($resolvedCompilerMatches.Count -lt 1)) {
+    throw 'PATH 中未解析到 make.exe 或 g++.exe。'
+}
+$resolvedMakePath = [System.IO.Path]::GetFullPath([string]$resolvedMakeMatches[0].Path)
+$resolvedCompilerPath = [System.IO.Path]::GetFullPath([string]$resolvedCompilerMatches[0].Path)
+if ($resolvedMakePath -ine [System.IO.Path]::GetFullPath($makePath)) {
+    throw "PATH 解析到批准 toolchain 之外的 make：$resolvedMakePath"
+}
+if ($resolvedCompilerPath -ine [System.IO.Path]::GetFullPath($compilerPath)) {
+    throw "PATH 解析到批准 toolchain 之外的 g++：$resolvedCompilerPath"
+}
+
 $runDirectory = Join-Path $evidenceRoot ("runs\sample_{0:D3}\{1}" -f $SampleIndex, $RunId)
 if (Test-Path -LiteralPath $runDirectory) {
     throw "拒绝复用已存在的运行目录：$runDirectory"
@@ -190,12 +291,6 @@ if (Test-Path -LiteralPath $runDirectory) {
 $null = New-Item -ItemType Directory -Path $runDirectory -Force:$false
 $buildDirectory = Join-Path $runDirectory 'build'
 $null = New-Item -ItemType Directory -Path $buildDirectory -Force:$false
-
-$toolBin = 'D:\FPGA_S2A_MSYS2_20261001\env\mingw64\bin'
-$verilator = Join-Path $toolBin 'verilator.exe'
-if (-not (Test-Path -LiteralPath $toolBin -PathType Container)) { throw "缺少指定 MSYS2 bin 目录：$toolBin" }
-if (-not (Test-Path -LiteralPath $verilator -PathType Leaf)) { throw "缺少 Verilator：$verilator" }
-$env:PATH = "$toolBin;$env:PATH"
 
 $rtlRelativePaths = @(
     'src\s2a_network_descriptor_pkg.sv',
@@ -217,6 +312,16 @@ $rtlSources = @(
     }
 )
 $compileSources = @($rtlSources) + @($testbench)
+$toolingSourceRows = @(
+    foreach ($sourcePath in @($runnerSource, $prepareScript, $verifyScript)) {
+        $sourceItem = Get-Item -LiteralPath $sourcePath
+        [ordered]@{
+            path = $sourceItem.FullName
+            bytes = $sourceItem.Length
+            sha256 = Get-Sha256Literal -Path $sourceItem.FullName
+        }
+    }
+)
 
 $sourceSnapshotRows = @(
     foreach ($sourcePath in $compileSources) {
@@ -236,6 +341,7 @@ if ($null -eq $currentBackendRow -or $currentBackendRow.sha256 -ne $ExpectedBack
 $commandArgs = @(
     '--binary',
     '--timing',
+    '-Wno-fatal',
     '--top-module', 'tb_s2a_network_backend_golden',
     '--Mdir', $buildDirectory,
     '-CFLAGS', '-D_GLIBCXX_USE_CXX11_ABI=0'
@@ -249,28 +355,70 @@ $snapshot = [ordered]@{
     backend_sha256_expected = $ExpectedBackendSha256.ToLowerInvariant()
     source_count = $compileSources.Count
     verilator_path = $verilator
+    make_path = $resolvedMakePath
+    compiler_path = $resolvedCompilerPath
+    verilator_root = $verilatorRoot
+    toolchain_path_prefix = @($makeBin, $toolBin)
     command = @($commandArgs)
     sources = $sourceSnapshotRows
+    tooling_sources = $toolingSourceRows
     simulator_started = $false
 }
 $snapshotPath = Join-Path $runDirectory 'compile_source_snapshot.json'
 Write-Utf8NoBom -Path $snapshotPath -Content (($snapshot | ConvertTo-Json -Depth 8) + [Environment]::NewLine)
 
-$versionLines = @(& $verilator '--version' 2>&1)
-$versionExitCode = $LASTEXITCODE
-Write-CommandLog -Path (Join-Path $runDirectory 'verilator_version.txt') -Lines $versionLines
-if ($versionExitCode -ne 0) {
-    $versionRecord = [ordered]@{ exit_code = $versionExitCode; output = @($versionLines) }
-    Write-Utf8NoBom -Path (Join-Path $runDirectory 'verilator_version_record.json') -Content (($versionRecord | ConvertTo-Json -Depth 4) + [Environment]::NewLine)
+$versionStdoutPath = Join-Path $runDirectory 'verilator_version_stdout.txt'
+$versionStderrPath = Join-Path $runDirectory 'verilator_version_stderr.txt'
+$versionConsolePath = Join-Path $runDirectory 'verilator_version.txt'
+$versionInvocation = Invoke-NativeCapturedProcess -ExecutablePath $verilator -Arguments @('--version') `
+    -WorkingDirectory $repoRoot -StandardOutputPath $versionStdoutPath -StandardErrorPath $versionStderrPath
+$versionExitCode = [int]$versionInvocation.exit_code
+Write-NativeProcessConsole -ConsolePath $versionConsolePath -StandardOutputPath $versionStdoutPath -StandardErrorPath $versionStderrPath
+$versionOutputText = [System.IO.File]::ReadAllText($versionStdoutPath, [System.Text.Encoding]::UTF8) + [Environment]::NewLine +
+    [System.IO.File]::ReadAllText($versionStderrPath, [System.Text.Encoding]::UTF8)
+$versionWarningCount = [regex]::Matches($versionOutputText, '(?m)^%Warning[^:\r\n]*:').Count
+$versionErrorCount = [regex]::Matches($versionOutputText, '(?m)^%Error[^:\r\n]*:').Count
+$versionAccepted = ($versionExitCode -eq 0) -and ($versionErrorCount -eq 0) -and [string]::IsNullOrEmpty($versionInvocation.launch_error)
+$versionRecord = [ordered]@{
+    schema_version = 'gestureforge_s2a_t68_verilator_version_v1'
+    command = @($verilator, '--version')
+    exit_code = $versionExitCode
+    accepted = $versionAccepted
+    launch_error = $versionInvocation.launch_error
+    process_id = $versionInvocation.process_id
+    warning_count = $versionWarningCount
+    error_count = $versionErrorCount
+    warning_text_retained = (Test-Path -LiteralPath $versionStderrPath -PathType Leaf)
+    stdout_path = $versionStdoutPath
+    stdout_sha256 = Get-Sha256Literal -Path $versionStdoutPath
+    stderr_path = $versionStderrPath
+    stderr_sha256 = Get-Sha256Literal -Path $versionStderrPath
+    console_path = $versionConsolePath
+    console_sha256 = Get-Sha256Literal -Path $versionConsolePath
+}
+$versionRecordPath = Join-Path $runDirectory 'verilator_version_record.json'
+Write-Utf8NoBom -Path $versionRecordPath -Content (($versionRecord | ConvertTo-Json -Depth 4) + [Environment]::NewLine)
+if (-not $versionAccepted) {
+    if ($versionExitCode -eq 0) { $versionExitCode = 125 }
     exit $versionExitCode
 }
 
 $compileLog = Join-Path $runDirectory 'verilator_compile_console.txt'
+$compileStdoutPath = Join-Path $runDirectory 'verilator_compile_stdout.txt'
+$compileStderrPath = Join-Path $runDirectory 'verilator_compile_stderr.txt'
 $compileWatch = [System.Diagnostics.Stopwatch]::StartNew()
-$compileOutput = @(& $verilator @commandArgs 2>&1)
-$compileExitCode = $LASTEXITCODE
+$compileInvocation = Invoke-NativeCapturedProcess -ExecutablePath $verilator -Arguments $commandArgs `
+    -WorkingDirectory $repoRoot -StandardOutputPath $compileStdoutPath -StandardErrorPath $compileStderrPath
+$compileNativeExitCode = [int]$compileInvocation.exit_code
 $compileWatch.Stop()
-Write-CommandLog -Path $compileLog -Lines $compileOutput
+Write-NativeProcessConsole -ConsolePath $compileLog -StandardOutputPath $compileStdoutPath -StandardErrorPath $compileStderrPath
+$compileOutputText = [System.IO.File]::ReadAllText($compileStdoutPath, [System.Text.Encoding]::UTF8) + [Environment]::NewLine +
+    [System.IO.File]::ReadAllText($compileStderrPath, [System.Text.Encoding]::UTF8)
+$compileWarningCount = [regex]::Matches($compileOutputText, '(?m)^%Warning[^:\r\n]*:').Count
+$compileErrorCount = [regex]::Matches($compileOutputText, '(?m)^%Error[^:\r\n]*:').Count
+$compileAccepted = ($compileNativeExitCode -eq 0) -and ($compileErrorCount -eq 0) -and [string]::IsNullOrEmpty($compileInvocation.launch_error)
+$compileExitCode = $compileNativeExitCode
+if (-not $compileAccepted -and ($compileExitCode -eq 0)) { $compileExitCode = 125 }
 $postCompileSourceRows = @(
     foreach ($sourcePath in $compileSources) {
         $sourceItem = Get-Item -LiteralPath $sourcePath
@@ -281,22 +429,58 @@ $postCompileSourceRows = @(
         }
     }
 )
+$postCompileToolingSourceRows = @(
+    foreach ($sourcePath in @($runnerSource, $prepareScript, $verifyScript)) {
+        $sourceItem = Get-Item -LiteralPath $sourcePath
+        [ordered]@{
+            path = $sourceItem.FullName
+            bytes = $sourceItem.Length
+            sha256 = Get-Sha256Literal -Path $sourceItem.FullName
+        }
+    }
+)
 $compileRecord = [ordered]@{
     schema_version = 'gestureforge_s2a_t68_compile_execution_v1'
+    sample_index = $SampleIndex
+    run_id = $RunId
+    backend_sha256_expected = $ExpectedBackendSha256.ToLowerInvariant()
+    runner_path = $runnerSource
+    runner_sha256 = Get-Sha256Literal -Path $runnerSource
     command = @($verilator) + @($commandArgs)
+    verilator_path = $verilator
+    make_path = $resolvedMakePath
+    compiler_path = $resolvedCompilerPath
+    verilator_root = $verilatorRoot
     exit_code = $compileExitCode
+    native_exit_code = $compileNativeExitCode
+    compile_accepted = $compileAccepted
+    launch_error = $compileInvocation.launch_error
+    warning_count = $compileWarningCount
+    error_count = $compileErrorCount
+    warning_text_retained = (Test-Path -LiteralPath $compileStderrPath -PathType Leaf)
     duration_seconds = [Math]::Round($compileWatch.Elapsed.TotalSeconds, 3)
     source_unchanged = (($sourceSnapshotRows | ConvertTo-Json -Depth 5 -Compress) -ceq ($postCompileSourceRows | ConvertTo-Json -Depth 5 -Compress))
+    tooling_sources = $toolingSourceRows
+    tooling_sources_after = $postCompileToolingSourceRows
+    tooling_sources_unchanged = (($toolingSourceRows | ConvertTo-Json -Depth 5 -Compress) -ceq ($postCompileToolingSourceRows | ConvertTo-Json -Depth 5 -Compress))
     sources_after = $postCompileSourceRows
     console_path = $compileLog
+    console_sha256 = Get-Sha256Literal -Path $compileLog
+    stdout_path = $compileStdoutPath
+    stdout_sha256 = Get-Sha256Literal -Path $compileStdoutPath
+    stderr_path = $compileStderrPath
+    stderr_sha256 = Get-Sha256Literal -Path $compileStderrPath
+    warning_gate = '-Wno-fatal'
+    version_record_path = $versionRecordPath
+    version_record_sha256 = Get-Sha256Literal -Path $versionRecordPath
     simulator_started = $false
 }
 $compileRecordPath = Join-Path $runDirectory 'compile_execution_record.json'
 Write-Utf8NoBom -Path $compileRecordPath -Content (($compileRecord | ConvertTo-Json -Depth 8) + [Environment]::NewLine)
-if (-not $compileRecord.source_unchanged) {
+if (-not $compileRecord.source_unchanged -or -not $compileRecord.tooling_sources_unchanged) {
     throw "RTL compile 期间输入源发生变化；记录已保留：$compileRecordPath"
 }
-if ($compileExitCode -ne 0) { exit $compileExitCode }
+if (-not $compileAccepted -or ($compileExitCode -ne 0)) { exit $compileExitCode }
 
 if ($RunSimulation) {
     $fixtureDirectory = Join-Path $evidenceRoot ("fixtures\sample_{0:D3}" -f $SampleIndex)
@@ -304,12 +488,16 @@ if ($RunSimulation) {
     if (-not (Test-Path -LiteralPath $binary -PathType Leaf)) { throw "Verilator 未生成预期 binary：$binary" }
     $resultPath = Join-Path $runDirectory 'result_summary.txt'
     $progressMarkerPath = Join-Path $runDirectory 'progress_markers.txt'
+    $head13Path = Join-Path $runDirectory 'head13_actual_int8.bin'
+    $head26Path = Join-Path $runDirectory 'head26_actual_int8.bin'
     $simulationArgs = @(
         "+SAMPLE_INDEX=$SampleIndex",
         "+FIXTURE_DIR=$fixtureDirectory",
         "+MAX_CYCLES=$MaxCycles",
         "+RESULT_FILE=$resultPath",
-        "+PROGRESS_FILE=$progressMarkerPath"
+        "+PROGRESS_FILE=$progressMarkerPath",
+        "+HEAD13_FILE=$head13Path",
+        "+HEAD26_FILE=$head26Path"
     )
     $simulationLog = Join-Path $runDirectory 'verilator_simulation_console.txt'
     $simulationErrorLog = Join-Path $runDirectory 'verilator_simulation_stderr.txt'
@@ -415,7 +603,8 @@ if ($RunSimulation) {
     if (($runnerExitCode -eq 0) -and (Test-Path -LiteralPath $resultPath -PathType Leaf)) {
         $resultSummary = [System.IO.File]::ReadAllText($resultPath, [System.Text.Encoding]::UTF8)
         $resultSummaryValid = ($resultSummary -match '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$') -and
-            ($resultSummary -match '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$')
+            ($resultSummary -match '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$') -and
+            ($resultSummary -match '(?m)^head13_bytes=5070 head26_bytes=20280$')
         if (-not $resultSummaryValid) {
             $runnerExitCode = 125
             $watchdogTerminationReason = 'RESULT_SUMMARY_INVALID'
@@ -424,6 +613,25 @@ if ($RunSimulation) {
         $runnerExitCode = 125
         $watchdogTerminationReason = 'RESULT_SUMMARY_MISSING'
     }
+    $head13Bytes = $null
+    $head13Sha256 = $null
+    $head26Bytes = $null
+    $head26Sha256 = $null
+    $headExportsValid = $false
+    if (($runnerExitCode -eq 0) -and (Test-Path -LiteralPath $head13Path -PathType Leaf) -and
+        (Test-Path -LiteralPath $head26Path -PathType Leaf)) {
+        $head13Bytes = (Get-Item -LiteralPath $head13Path).Length
+        $head26Bytes = (Get-Item -LiteralPath $head26Path).Length
+        if (($head13Bytes -eq 5070) -and ($head26Bytes -eq 20280)) {
+            $head13Sha256 = Get-Sha256Literal -Path $head13Path
+            $head26Sha256 = Get-Sha256Literal -Path $head26Path
+            $headExportsValid = $true
+        }
+    }
+    if (($runnerExitCode -eq 0) -and (-not $headExportsValid)) {
+        $runnerExitCode = 125
+        $watchdogTerminationReason = 'HEAD_EXPORT_INVALID'
+    }
     $simulationRecord = [ordered]@{
         schema_version = 'gestureforge_s2a_t68_simulation_execution_v1'
         command = @($binary) + @($simulationArgs)
@@ -431,11 +639,22 @@ if ($RunSimulation) {
         runner_exit_code = $runnerExitCode
         duration_seconds = [Math]::Round($simulationWatch.Elapsed.TotalSeconds, 3)
         sample_index = $SampleIndex
+        run_id = $RunId
+        runner_path = $runnerSource
+        runner_sha256 = Get-Sha256Literal -Path $runnerSource
+        tooling_sources = $toolingSourceRows
+        compile_source_snapshot_path = $snapshotPath
+        compile_source_snapshot_sha256 = Get-Sha256Literal -Path $snapshotPath
+        compile_execution_record_path = $compileRecordPath
+        compile_execution_record_sha256 = Get-Sha256Literal -Path $compileRecordPath
         result_summary_path = $resultPath
         result_summary_sha256 = if (Test-Path -LiteralPath $resultPath -PathType Leaf) { Get-Sha256Literal -Path $resultPath } else { $null }
         console_path = $simulationLog
+        console_sha256 = if (Test-Path -LiteralPath $simulationLog -PathType Leaf) { Get-Sha256Literal -Path $simulationLog } else { $null }
         stderr_path = $simulationErrorLog
+        stderr_sha256 = if (Test-Path -LiteralPath $simulationErrorLog -PathType Leaf) { Get-Sha256Literal -Path $simulationErrorLog } else { $null }
         progress_marker_path = $progressMarkerPath
+        progress_marker_sha256 = if (Test-Path -LiteralPath $progressMarkerPath -PathType Leaf) { Get-Sha256Literal -Path $progressMarkerPath } else { $null }
         progress_marker_count = $progressMarkerCount
         progress_markers_valid = $progressMarkersValid
         functional_progress_observed = $functionalProgressObserved
@@ -443,6 +662,9 @@ if ($RunSimulation) {
         last_progress_phase = $lastProgressPhase
         last_progress_signature = $lastProgressSignature
         result_summary_valid = $resultSummaryValid
+        head_exports_valid = $headExportsValid
+        head13_export = [ordered]@{ path = $head13Path; bytes = $head13Bytes; sha256 = $head13Sha256 }
+        head26_export = [ordered]@{ path = $head26Path; bytes = $head26Bytes; sha256 = $head26Sha256 }
         progress_interval_cycles = 30000000
         watchdog_no_progress_seconds = 1800
         watchdog_failure = $watchdogFailure

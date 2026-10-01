@@ -166,7 +166,9 @@ def verify_progress_watchdog_semantics(runner_text: str) -> dict[str, Any]:
 
 def verify_harness_bindings() -> dict[str, Any]:
     """只读核对编译闭包、端口、byte-lane 规则与无进度看门狗。"""
-    runner_text = T68_RUNNER.read_text(encoding="utf-8")
+    runner_bytes = T68_RUNNER.read_bytes()
+    require(runner_bytes.startswith(b"\xef\xbb\xbf"), "T68 PowerShell runner 必须带 UTF-8 BOM，确保 Windows PowerShell 5.1 正确识别中文 UTF-8")
+    runner_text = runner_bytes.decode("utf-8-sig")
     testbench_text = T68_TESTBENCH.read_text(encoding="utf-8")
     backend_text = (ROOT / "src/s2a_network_backend.sv").read_text(encoding="utf-8")
     match = re.search(r"\$rtlRelativePaths\s*=\s*@\((.*?)\n\)", runner_text, re.S)
@@ -176,6 +178,53 @@ def verify_harness_bindings() -> dict[str, Any]:
         for value in re.findall(r"^\s*'([^']+\.sv)'\s*,?\s*$", match.group(1), re.M)
     )
     require(rtl_paths == EXPECTED_RTL_SOURCE_PATHS, "runner compile source list 与冻结闭包不一致")
+    expected_toolchain_bindings = (
+        "$toolchainRoot = 'D:\\FPGA_S2A_MSYS2_20261001\\env'",
+        "$toolBin = Join-Path $toolchainRoot 'mingw64\\bin'",
+        "$makeBin = Join-Path $toolchainRoot 'usr\\bin'",
+        "$verilator = Join-Path $toolBin 'verilator_bin.exe'",
+        "$makePath = Join-Path $makeBin 'make.exe'",
+        "$compilerPath = Join-Path $toolBin 'g++.exe'",
+        '$env:PATH = "$makeBin;$toolBin;$env:PATH"',
+        "$env:VERILATOR_ROOT = $verilatorRoot",
+        "Get-Command -Name 'make.exe' -CommandType Application -All",
+        "Get-Command -Name 'g++.exe' -CommandType Application -All",
+        "$resolvedMakeMatches[0].Path",
+        "$resolvedCompilerMatches[0].Path",
+        "if ($resolvedMakePath -ine [System.IO.Path]::GetFullPath($makePath))",
+        "if ($resolvedCompilerPath -ine [System.IO.Path]::GetFullPath($compilerPath))",
+    )
+    require(
+        all(binding in runner_text for binding in expected_toolchain_bindings)
+        and ".Source)" not in runner_text
+        and "Join-Path $toolBin 'verilator.exe'" not in runner_text,
+        "runner 的 Verilator/make/compiler 解析未绑定批准 toolchain 的真实安装路径",
+    )
+    expected_native_capture_bindings = (
+        "function Invoke-NativeCapturedProcess",
+        "Start-Process -FilePath $ExecutablePath -ArgumentList $argumentLine",
+        "-RedirectStandardOutput $StandardOutputPath",
+        "-RedirectStandardError $StandardErrorPath",
+        "-Wait -PassThru",
+        "Invoke-NativeCapturedProcess -ExecutablePath $verilator -Arguments @('--version')",
+        "'-Wno-fatal'",
+        "$compileNativeExitCode = [int]$compileInvocation.exit_code",
+        "warning_count = $compileWarningCount",
+        "error_count = $compileErrorCount",
+        "warning_text_retained = (Test-Path -LiteralPath $compileStderrPath -PathType Leaf)",
+        "stdout_sha256 = Get-Sha256Literal -Path $compileStdoutPath",
+        "stderr_sha256 = Get-Sha256Literal -Path $compileStderrPath",
+        "warning_gate = '-Wno-fatal'",
+        "versionWarningCount",
+        "versionErrorCount",
+        "version_record_path = $versionRecordPath",
+        "version_record_sha256 = Get-Sha256Literal -Path $versionRecordPath",
+    )
+    require(
+        all(binding in runner_text for binding in expected_native_capture_bindings)
+        and "& $verilator" not in runner_text,
+        "runner 未通过 Start-Process 原样保留 Verilator 输出、退出码、warning/error 计数及 -Wno-fatal 记录",
+    )
     source_paths = (*rtl_paths, "sim/tb_s2a_network_backend_golden.sv")
     source_rows: list[dict[str, Any]] = []
     source_texts: dict[str, str] = {}
@@ -200,6 +249,48 @@ def verify_harness_bindings() -> dict[str, Any]:
     require(instance_block is not None, "TB 缺少冻结 backend instance")
     testbench_ports = set(re.findall(r"\.(\w+)\s*\(", instance_block.group(1)))
     require(backend_ports == testbench_ports, "TB/backend 端口集合不匹配")
+
+    head_export_bindings = (
+        '$value$plusargs("HEAD13_FILE=%s", head13_file_path)',
+        '$value$plusargs("HEAD26_FILE=%s", head26_file_path)',
+        'task automatic export_head_bytes',
+        'feature_byte_valid[feature_index] != 8\'d1',
+        '$fwrite(output_file_id, "%c", feature_bytes[feature_index])',
+        'export_head_bytes(head13_file_path, S2A_OUTPUT_ADDRESS[29], S2A_OUTPUT_LENGTH_BYTES[29])',
+        'export_head_bytes(head26_file_path, S2A_OUTPUT_ADDRESS[36], S2A_OUTPUT_LENGTH_BYTES[36])',
+    )
+    require(
+        all(binding in testbench_text for binding in head_export_bindings),
+        "TB 未从已写入且有效的 layer29/layer36 backend memory 导出原始 INT8 head 字节",
+    )
+    mismatch_gate_position = testbench_text.find("if (total_mismatches != 0)")
+    head_export_position = testbench_text.find("export_head_bytes(head13_file_path")
+    complete_marker_position = testbench_text.find('emit_progress("complete")')
+    require(
+        mismatch_gate_position >= 0
+        and mismatch_gate_position < head_export_position < complete_marker_position,
+        "head export 必须位于完整逐字节 golden/mismatch gate 之后及 complete marker 之前",
+    )
+    head_runner_bindings = (
+        '"+HEAD13_FILE=$head13Path"',
+        '"+HEAD26_FILE=$head26Path"',
+        '$head13Bytes -eq 5070',
+        '$head26Bytes -eq 20280',
+        'head_exports_valid = $headExportsValid',
+        'head13_export = [ordered]@{ path = $head13Path; bytes = $head13Bytes; sha256 = $head13Sha256 }',
+        'head26_export = [ordered]@{ path = $head26Path; bytes = $head26Bytes; sha256 = $head26Sha256 }',
+        "head13_bytes=5070 head26_bytes=20280",
+    )
+    require(
+        all(binding in runner_text for binding in head_runner_bindings),
+        "runner 未把两个真实 head export 绑定到样本仿真记录和精确长度门",
+    )
+    require(
+        "tooling_sources = $toolingSourceRows" in runner_text
+        and "tooling_sources_unchanged" in runner_text
+        and "runner_sha256 = Get-Sha256Literal -Path $runnerSource" in runner_text,
+        "runner execution records 缺少 runner/preparer/verifier 源哈希闭包",
+    )
 
     conv_text = source_texts["src/s2a_conv_tile_engine.sv"]
     maxpool_text = source_texts["src/s2a_maxpool_engine.sv"]
@@ -318,6 +409,14 @@ def verify_harness_bindings() -> dict[str, Any]:
         "progress_watchdog_semantics": watchdog_semantics,
         "watchdog_no_progress_seconds": 1800,
         "32_bit_cycle_limit_retained": True,
+        "toolchain_binding": {
+            "approved_root": r"D:\FPGA_S2A_MSYS2_20261001\env",
+            "verilator": r"mingw64\bin\verilator_bin.exe",
+            "make": r"usr\bin\make.exe",
+            "compiler": r"mingw64\bin\g++.exe",
+            "path_resolution_checked": True,
+        },
+        "verilator_native_capture_contract": True,
         "python_syntax": True,
         "simulator_started": False,
     }

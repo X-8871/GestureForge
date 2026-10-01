@@ -57,6 +57,8 @@ module tb_s2a_network_backend_golden;
     string golden_fixture_path;
     string result_file_path;
     string progress_file_path;
+    string head13_file_path;
+    string head26_file_path;
     integer sample_index = -1;
     longint unsigned max_cycles = DEFAULT_MAX_CYCLES;
     longint unsigned cycle_count = 0;
@@ -111,6 +113,32 @@ module tb_s2a_network_backend_golden;
     integer total_memory_write_transactions = 0;
     integer total_memory_read_transactions = 0;
     logic [31:0] total_mismatches = 32'd0;
+
+    task automatic export_head_bytes(
+        input string output_path,
+        input integer tensor_address,
+        input integer tensor_length
+    );
+        integer output_file_id;
+        integer head_offset;
+        integer feature_index;
+        begin
+            output_file_id = $fopen(output_path, "wb");
+            if (output_file_id == 0) begin
+                $fatal(1, "T68 不能创建 backend head 导出文件：%s", output_path);
+            end
+            for (head_offset = 0; head_offset < tensor_length; head_offset = head_offset + 1) begin
+                feature_index = tensor_address + head_offset - FEATURE_BASE_ADDRESS;
+                if ((feature_index < 0) || (feature_index >= FEATURE_WORKSPACE_BYTES) ||
+                    (feature_byte_valid[feature_index] != 8'd1)) begin
+                    $fatal(1, "T68 backend head 字节未有效写入：addr=%08h offset=%0d",
+                           tensor_address + head_offset, head_offset);
+                end
+                $fwrite(output_file_id, "%c", feature_bytes[feature_index]);
+            end
+            $fclose(output_file_id);
+        end
+    endtask
 
     always #5 clk = ~clk;
 
@@ -361,6 +389,8 @@ module tb_s2a_network_backend_golden;
         fixture_dir = "";
         result_file_path = "";
         progress_file_path = "";
+        head13_file_path = "";
+        head26_file_path = "";
         if (!$value$plusargs("SAMPLE_INDEX=%d", sample_index)) begin
             $fatal(1, "T68 缺少 +SAMPLE_INDEX=0..108");
         end
@@ -375,6 +405,12 @@ module tb_s2a_network_backend_golden;
         end
         if (!$value$plusargs("PROGRESS_FILE=%s", progress_file_path)) begin
             $fatal(1, "T68 缺少 +PROGRESS_FILE");
+        end
+        if (!$value$plusargs("HEAD13_FILE=%s", head13_file_path)) begin
+            $fatal(1, "T68 缺少 +HEAD13_FILE");
+        end
+        if (!$value$plusargs("HEAD26_FILE=%s", head26_file_path)) begin
+            $fatal(1, "T68 缺少 +HEAD26_FILE");
         end
         if (!$value$plusargs("MAX_CYCLES=%d", max_cycles)) begin
             max_cycles = DEFAULT_MAX_CYCLES;
@@ -493,6 +529,8 @@ module tb_s2a_network_backend_golden;
             $fatal(1, "T68 tensor mismatch 非零：%0d", total_mismatches);
         end
 
+        export_head_bytes(head13_file_path, S2A_OUTPUT_ADDRESS[29], S2A_OUTPUT_LENGTH_BYTES[29]);
+        export_head_bytes(head26_file_path, S2A_OUTPUT_ADDRESS[36], S2A_OUTPUT_LENGTH_BYTES[36]);
         emit_progress("complete");
 
         file_id = $fopen(result_file_path, "w");
@@ -504,6 +542,8 @@ module tb_s2a_network_backend_golden;
                   total_input_read_bytes, total_weight_read_bytes, total_feature_read_bytes);
         $fdisplay(file_id, "feature_write_bytes=%0d mismatches=%0d cycles=%0d",
                   total_feature_write_bytes, total_mismatches, cycle_count);
+        $fdisplay(file_id, "head13_bytes=%0d head26_bytes=%0d",
+                  S2A_OUTPUT_LENGTH_BYTES[29], S2A_OUTPUT_LENGTH_BYTES[36]);
         $fdisplay(file_id, "stall_pattern_per_class=0,1,2,7,3");
         $fclose(file_id);
         $display("T68_RESULT status=PASS_LAYERWISE_EXACT_GOLDEN sample=%0d layers=38 stored=36 aliases=2 bytes=%0d mismatches=%0d cycles=%0d",

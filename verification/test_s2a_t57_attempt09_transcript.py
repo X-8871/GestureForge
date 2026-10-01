@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import tempfile
 import unittest
@@ -133,15 +134,278 @@ class T57Attempt09TranscriptTests(unittest.TestCase):
     def test_accepts_only_the_saved_old_pass_parser_failure_shape(self) -> None:
         RUNNER._validate_recoverable_failure_shape(*self._recoverable_failure())
 
-    def test_accepts_the_exact_saved_attempt09_failure_snapshots(self) -> None:
-        root = RUNNER.RUN_ROOT
-        stage, stage_sha = RUNNER._read_json(root / "stage_status.json")
-        process, process_sha = RUNNER._read_json(root / "process_status.json")
-        summary, summary_sha = RUNNER._read_json(root / "run_summary.json")
-        self.assertEqual(stage_sha, RUNNER.T57_ATTEMPT09_STAGE_FAIL_SHA256)
-        self.assertEqual(process_sha, RUNNER.T57_ATTEMPT09_PROCESS_FAIL_SHA256)
-        self.assertEqual(summary_sha, RUNNER.T57_ATTEMPT09_RUN_FAIL_SHA256)
-        RUNNER._validate_recoverable_failure_shape(stage, process, summary)
+    def _load_original_failure_snapshots(self):
+        record, _ = RUNNER._read_json(RUNNER.RECOVERY_RECORD)
+        self.assertEqual(record.get("schema"), "GestureForge-S2A-T57-attempt09-recovery-v1")
+        self.assertEqual(record.get("task_id"), "S2A-T57")
+        self.assertEqual(record.get("attempt_root"), str(RUNNER.RUN_ROOT.resolve()))
+        self.assertEqual(record.get("status"), "RECOVERY_PASS")
+
+        expected = {
+            "stage_status.json": (
+                RUNNER.STAGE_STATUS, RUNNER.T57_ATTEMPT09_STAGE_FAIL_SHA256),
+            "process_status.json": (
+                RUNNER.PROCESS_STATUS, RUNNER.T57_ATTEMPT09_PROCESS_FAIL_SHA256),
+            "run_summary.json": (
+                RUNNER.RUN_SUMMARY, RUNNER.T57_ATTEMPT09_RUN_FAIL_SHA256),
+        }
+        snapshots = record.get("original_snapshots")
+        self.assertIsInstance(snapshots, dict)
+        self.assertEqual(set(snapshots), set(expected))
+
+        original_values = {}
+        original_bytes = {}
+        for name, (path, expected_sha256) in expected.items():
+            snapshot = snapshots[name]
+            data, parsed = RUNNER._decode_json_snapshot(snapshot, path)
+            self.assertEqual(snapshot.get("sha256"), expected_sha256)
+            self.assertEqual(RUNNER._sha256(data), expected_sha256)
+            self.assertEqual(snapshot.get("bytes"), len(data))
+            original_bytes[name] = data
+            original_values[name] = parsed
+
+        RUNNER._validate_recoverable_failure_shape(
+            original_values["stage_status.json"],
+            original_values["process_status.json"],
+            original_values["run_summary.json"],
+        )
+        original_states = record.get("original_states", {})
+        self.assertEqual(original_states.get("stage_status"),
+                         original_values["stage_status.json"].get("status"))
+        self.assertEqual(original_states.get("process_failure"),
+                         original_values["process_status.json"].get("failure"))
+        self.assertEqual(original_states.get("run_summary"),
+                         original_values["run_summary.json"].get("overall_status"))
+        self.assertEqual(original_states.get("data_verification"),
+                         original_values["run_summary.json"].get(
+                             "data_verification_status"))
+        return record, original_values, original_bytes
+
+    def _assert_recovery_source_bindings(self, record, preparation) -> None:
+        source_bindings = record.get("source_bindings", {})
+        prepared_hashes = source_bindings.get("prepared_sha256")
+        current_hashes = source_bindings.get("current_sha256")
+        current_snapshot = source_bindings.get("current_snapshot")
+        expected_paths = set(RUNNER.T57_SOURCE_PATHS)
+        self.assertIsInstance(prepared_hashes, dict)
+        self.assertIsInstance(current_hashes, dict)
+        self.assertIsInstance(current_snapshot, dict)
+        self.assertEqual(set(prepared_hashes), expected_paths)
+        self.assertEqual(set(current_hashes), expected_paths)
+        self.assertEqual(set(current_snapshot), expected_paths)
+
+        prepared_manifest_hashes = preparation.get("bindings", {}).get(
+            "T57_source_hashes")
+        self.assertIsInstance(prepared_manifest_hashes, dict)
+        self.assertEqual(set(prepared_manifest_hashes), expected_paths)
+        self.assertEqual(prepared_hashes, prepared_manifest_hashes)
+
+        for relative in RUNNER.T57_SOURCE_PATHS:
+            snapshot = current_snapshot[relative]
+            expected_path = str((RUNNER.ROOT / relative).resolve())
+            self.assertEqual(snapshot.get("path"), expected_path)
+            self.assertIs(type(snapshot.get("bytes")), int)
+            self.assertGreater(snapshot["bytes"], 0)
+            snapshot_sha = snapshot.get("sha256")
+            self.assertIsInstance(snapshot_sha, str)
+            self.assertEqual(len(snapshot_sha), 64)
+            self.assertEqual(snapshot_sha, snapshot_sha.lower())
+            self.assertTrue(all(char in "0123456789abcdef" for char in snapshot_sha))
+            self.assertEqual(snapshot_sha, current_hashes[relative])
+
+        allowed_delta = sorted((
+            *RUNNER.T57_RECOVERY_DELTA_PATHS,
+            RUNNER.T57_RECOVERY_CONTROLLER_RELATIVE,
+        ))
+        actual_delta = sorted(
+            relative for relative in RUNNER.T57_SOURCE_PATHS
+            if str(prepared_hashes[relative]).lower() !=
+            str(current_hashes[relative]).lower()
+        )
+        self.assertEqual(actual_delta, allowed_delta)
+        self.assertEqual(source_bindings.get("delta_paths"), allowed_delta)
+        self.assertEqual(source_bindings.get("parser_fix_checkpoint"), {
+            "runner_sha256": RUNNER.T57_PARSER_FIX_RUNNER_SHA256,
+            "transcript_test_sha256": RUNNER.T57_PARSER_FIX_TEST_SHA256,
+            "contract": (
+                "PASS 行只要求 outputs/raw；INT8 由 observed 文件长度与 "
+                "verify-only golden 比对证明。"
+            ),
+        })
+
+        validated_hashes = RUNNER._validate_recovery_source_delta(
+            prepared_hashes, current_hashes)
+        self.assertEqual(validated_hashes, {
+            relative: str(current_hashes[relative]).lower()
+            for relative in RUNNER.T57_SOURCE_PATHS
+        })
+
+    def _load_recovery_source_bindings(self):
+        record, _ = RUNNER._read_json(RUNNER.RECOVERY_RECORD)
+        preparation, preparation_sha256 = RUNNER._read_json(RUNNER.PREPARE_REPORT)
+        self.assertEqual(preparation_sha256, RUNNER.T57_ATTEMPT09_PREPARE_SHA256)
+        self.assertEqual(record.get("prepare_summary_sha256"),
+                         RUNNER.T57_ATTEMPT09_PREPARE_SHA256)
+        self._assert_recovery_source_bindings(record, preparation)
+        return record, preparation
+
+    def _assert_current_recovery_contract(
+            self, record, original_values, stage, stage_sha, process, process_sha,
+            summary, summary_sha, report, report_sha) -> None:
+        original_stage = original_values["stage_status.json"]
+        original_process = original_values["process_status.json"]
+        self.assertEqual(record.get("new_states"), {
+            "stage_status": "SIMULATION_FLOW_PASS",
+            "process_status": "RECOVERY_PASS",
+            "data_verification": "PASS_AFTER_VERIFY_ONLY",
+        })
+
+        self.assertEqual(stage.get("status"), "SIMULATION_FLOW_PASS")
+        self.assertEqual(stage.get("failure"), None)
+        self.assertEqual(stage.get("recovery_previous_failure"),
+                         original_stage.get("failure"))
+        self.assertTrue(stage.get("simulate_log_complete"))
+        self.assertEqual(stage.get("simulate_log_extraction_status"), "PASS")
+        self.assertEqual(stage.get("simulate_step_tcl_code"), None)
+        self.assertEqual(stage.get("xsim_exit_code"), None)
+        self.assertIs(stage.get("xsim_exit_code_captured"), False)
+        stage_provenance = stage.get("recovery_provenance", {})
+        self.assertEqual(stage_provenance.get("record_path"),
+                         str(RUNNER.RECOVERY_RECORD.resolve()))
+        self.assertEqual(stage_provenance.get("original_status"), "SIMULATION_FLOW_FAIL")
+        self.assertEqual(stage_provenance.get("terminal_status"), "SIMULATION_FLOW_PASS")
+
+        self.assertEqual(process.get("mode"), "recover")
+        self.assertEqual(process.get("failure"), None)
+        self.assertEqual(process.get("cleanup_failure"), None)
+        self.assertEqual(process.get("recovery_previous_failure"),
+                         original_process.get("failure"))
+        self.assertEqual(process.get("stage_status_sha256"), stage_sha)
+        self.assertTrue(process.get("xpr_unchanged"))
+        self.assertTrue(process.get("cleanup_verified"))
+        self.assertEqual(process.get("unrelated_processes_before"), [])
+        self.assertEqual(process.get("unrelated_processes_after"), [])
+        process_provenance = process.get("recovery_provenance", {})
+        self.assertEqual(process_provenance.get("record_path"),
+                         str(RUNNER.RECOVERY_RECORD.resolve()))
+        self.assertIs(process_provenance.get("vivado_or_xsim_started_by_recovery"), False)
+
+        self.assertEqual(summary.get("overall_status"), "PASS")
+        self.assertEqual(summary.get("simulation_flow_status"), "SIMULATION_FLOW_PASS")
+        self.assertEqual(summary.get("data_verification_status"), "PASS")
+        self.assertEqual(summary.get("failure"), None)
+        self.assertEqual(summary.get("stage_status", {}).get("path"),
+                         str(RUNNER.STAGE_STATUS.resolve()))
+        self.assertEqual(summary.get("stage_status", {}).get("sha256"), stage_sha)
+        self.assertEqual(summary.get("stage_status", {}).get("terminal_status"),
+                         "SIMULATION_FLOW_PASS")
+        self.assertEqual(summary.get("process_status", {}).get("path"),
+                         str(RUNNER.PROCESS_STATUS.resolve()))
+        self.assertEqual(summary.get("process_status", {}).get("sha256"), process_sha)
+        self.assertEqual(record.get("run_summary_after_recovery", {}).get("path"),
+                         str(RUNNER.RUN_SUMMARY.resolve()))
+        self.assertEqual(record.get("run_summary_after_recovery", {}).get("sha256"),
+                         summary_sha)
+        self.assertEqual(summary.get("recovery_record", {}).get("path"),
+                         str(RUNNER.RECOVERY_RECORD.resolve()))
+        self.assertEqual(summary.get("recovery_record", {}).get("provenance"),
+                         "RECOVERED_FROM_EXISTING_ATTEMPT09_CONSOLE")
+
+        verify = summary.get("verify_only", {})
+        recorded_verify = record.get("verify_only", {})
+        self.assertEqual(verify.get("exit_code"), 0)
+        self.assertEqual(verify.get("failure"), None)
+        self.assertEqual(recorded_verify.get("exit_code"), 0)
+        self.assertEqual(verify.get("report"), recorded_verify.get("report"))
+        self.assertEqual(verify.get("log"), recorded_verify.get("log"))
+        self.assertEqual(verify.get("log", {}).get("path"),
+                         str(RUNNER.VERIFY_ONLY_LOG.resolve()))
+        self.assertEqual(RUNNER._sha_file(RUNNER.VERIFY_ONLY_LOG),
+                         verify.get("log", {}).get("sha256"))
+
+        report_binding = verify.get("report", {})
+        self.assertEqual(report_binding.get("path"), str(RUNNER.FINAL_REPORT.resolve()))
+        self.assertEqual(report_binding.get("sha256"), report_sha)
+        self.assertEqual(report_binding.get("bytes"), RUNNER.FINAL_REPORT.stat().st_size)
+        self.assertEqual(report_binding.get("raw_int32_compares"), RUNNER.RAW_COUNT)
+        self.assertEqual(report_binding.get("int8_compares"), RUNNER.INT8_COUNT)
+        self.assertEqual(report_binding.get("raw_mismatch_bytes"), 0)
+        self.assertEqual(report_binding.get("int8_mismatch_bytes"), 0)
+        self.assertEqual(report.get("status"), "PASS_SIMULATION_DATA_ONLY")
+        self.assertEqual(report.get("acceptance_status"), "NOT_REVIEWED")
+        self.assertEqual(report.get("scope"),
+                         "tiny416 cfg section36 layer35; all 256 output channels at y=21, "
+                         "x=0..25; not full layer or network")
+        simulation = report.get("simulation", {})
+        self.assertEqual(simulation.get("raw_int32_compares"), RUNNER.RAW_COUNT)
+        self.assertEqual(simulation.get("int8_compares"), RUNNER.INT8_COUNT)
+        self.assertEqual(simulation.get("raw_mismatch_bytes"), 0)
+        self.assertEqual(simulation.get("int8_mismatch_bytes"), 0)
+        self.assertIs(simulation.get("raw_byte_identical_to_independent_golden"), True)
+        self.assertIs(simulation.get("int8_byte_identical_to_independent_golden"), True)
+
+    def _read_current_recovery_evidence(self):
+        stage, stage_sha = RUNNER._read_json(RUNNER.STAGE_STATUS)
+        process, process_sha = RUNNER._read_json(RUNNER.PROCESS_STATUS)
+        summary, summary_sha = RUNNER._read_json(RUNNER.RUN_SUMMARY)
+        report, report_sha = RUNNER._read_json(RUNNER.FINAL_REPORT)
+        return stage, stage_sha, process, process_sha, summary, summary_sha, report, report_sha
+
+    def test_accepts_original_failure_snapshots_from_recovery_record(self) -> None:
+        self._load_original_failure_snapshots()
+
+    def test_rejects_original_snapshot_sha_drift(self) -> None:
+        record, _, _ = self._load_original_failure_snapshots()
+        snapshot = dict(record["original_snapshots"]["stage_status.json"])
+        snapshot["sha256"] = "0" * 64
+        with self.assertRaises(RUNNER.T57Error):
+            RUNNER._decode_json_snapshot(snapshot, RUNNER.STAGE_STATUS)
+
+        corrupted = dict(record["original_snapshots"]["stage_status.json"])
+        encoded = corrupted["base64"]
+        corrupted["base64"] = ("A" if encoded[0] != "A" else "B") + encoded[1:]
+        with self.assertRaises(RUNNER.T57Error):
+            RUNNER._decode_json_snapshot(corrupted, RUNNER.STAGE_STATUS)
+
+    def test_binds_recovery_to_current_pass_and_verify_only_evidence(self) -> None:
+        record, original_values, _ = self._load_original_failure_snapshots()
+        current = self._read_current_recovery_evidence()
+        self._assert_current_recovery_contract(record, original_values, *current)
+
+    def test_binds_recovery_source_maps_to_fixed_prepare_manifest(self) -> None:
+        self._load_recovery_source_bindings()
+
+    def test_rejects_missing_or_altered_current_source_binding(self) -> None:
+        record, preparation = self._load_recovery_source_bindings()
+        missing = copy.deepcopy(record)
+        del missing["source_bindings"]["current_sha256"][RUNNER.T57_SOURCE_PATHS[0]]
+        with self.assertRaises(AssertionError):
+            self._assert_recovery_source_bindings(missing, preparation)
+
+        altered = copy.deepcopy(record)
+        relative = RUNNER.T57_SOURCE_PATHS[0]
+        altered["source_bindings"]["current_sha256"][relative] = "0" * 64
+        with self.assertRaises(AssertionError):
+            self._assert_recovery_source_bindings(altered, preparation)
+
+    def test_rejects_out_of_allowlist_recovery_source_delta(self) -> None:
+        record, _ = self._load_recovery_source_bindings()
+        source_bindings = record["source_bindings"]
+        prepared_hashes = copy.deepcopy(source_bindings["prepared_sha256"])
+        current_hashes = dict(source_bindings["current_sha256"])
+        relative = "src/int8_mac_accumulator.sv"
+        current_hashes[relative] = "0" * 64
+        with self.assertRaises(RUNNER.T57Error):
+            RUNNER._validate_recovery_source_delta(prepared_hashes, current_hashes)
+
+    def test_rejects_current_verify_only_mismatch_claim(self) -> None:
+        record, original_values, _ = self._load_original_failure_snapshots()
+        current = list(self._read_current_recovery_evidence())
+        bad_summary = copy.deepcopy(current[4])
+        bad_summary["verify_only"]["report"]["int8_mismatch_bytes"] = 1
+        current[4] = bad_summary
+        with self.assertRaises(AssertionError):
+            self._assert_current_recovery_contract(record, original_values, *current)
 
     def test_rejects_an_additional_or_different_failure(self) -> None:
         stage, process, summary = self._recoverable_failure()

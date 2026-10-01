@@ -47,6 +47,40 @@ Write-Host "启动器标准错误：$stderrPath"
 
 程序完成后检查 `unattended_continuation_batch109_r3.json` 的 `status`。`PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9` 表示 109 个实际 PL 样本的 D9 对照通过；它仍不等于 Stage 2A 冻结。若该文件尚未出现，说明协调程序尚未写入终态结果，或启动/运行中断；可查看上面打印出的标准输出、标准错误文件路径。出现失败状态时保留整个证据目录，不要覆盖或清理。
 
+只有当终态 JSON 顶层 `status` 为 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`，且 `d9.passed` 为 `true`、`d9.report_status` 同为该 PASS 值、`d9.sample_count` 为 `109` 后，才运行下列命令一次。它仅核验 109 个编译源码快照到冻结 Git tree 的映射，不代表 G4/G5 或阶段通过。若目标报告已存在，检查器会拒绝覆盖；保留既有报告，不要删除后重跑。
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$repoRoot = 'D:\FPGA_Competition'
+$runId = 'batch109_r3'
+$evidenceRoot = Join-Path $repoRoot 'report\evidence\S2A-T68\batch109_r3'
+$summaryPath = Join-Path $evidenceRoot 'unattended_continuation_batch109_r3.json'
+if (-not (Test-Path -LiteralPath $summaryPath -PathType Leaf)) { throw "终态 JSON 不存在：$summaryPath" }
+$summary = Get-Content -LiteralPath $summaryPath -Raw -Encoding UTF8 | ConvertFrom-Json
+if (($summary.status -cne 'PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9') -or
+    ($summary.d9.passed -ne $true) -or
+    ($summary.d9.report_status -cne 'PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9') -or
+    ($summary.d9.sample_count -ne 109)) {
+    throw "终态 JSON 未确认 109 样本 D9 PASS；保留证据目录。"
+}
+
+$python = 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw "Python 不存在：$python" }
+$snapshotGitVerifier = Join-Path $repoRoot 'verification\verify_s2a_t68_snapshot_git_binding.py'
+$snapshotGitReportPath = Join-Path $evidenceRoot "source_snapshot_git_binding_${runId}.json"
+if (Test-Path -LiteralPath $snapshotGitReportPath) {
+    throw "源码映射报告已存在；拒绝重复运行并保留既有报告：$snapshotGitReportPath"
+}
+& $python -B $snapshotGitVerifier --evidence-root $evidenceRoot --run-id $runId
+if ($LASTEXITCODE -ne 0) { throw "源码快照到 Git tree 映射核验失败，退出码 $LASTEXITCODE；保留证据目录。" }
+$sourceMapReport = Get-Content -LiteralPath $snapshotGitReportPath -Raw -Encoding UTF8 | ConvertFrom-Json
+if (($sourceMapReport.status -cne 'PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE') -or ($sourceMapReport.sample_count -ne 109)) {
+    throw "源码映射报告状态或样本数不符：status=$($sourceMapReport.status), sample_count=$($sourceMapReport.sample_count)"
+}
+Write-Host "源码映射状态：PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE（仅映射 109 个源码快照到冻结 Git tree）。"
+Write-Host "源码映射报告：$snapshotGitReportPath"
+```
+
 这个启动器只接续 `batch109_r3`：sample0 最多等待 24 小时；发现已有 scheduler 时最长等待其终态 72 小时且不会再次派发。要从零新跑完整 109 样本，请使用下文“如何让任务自己运行”的新 RunId 命令块。
 
 相关程序：
@@ -54,6 +88,7 @@ Write-Host "启动器标准错误：$stderrPath"
 - `verification/run_s2a_network_backend_verilator.ps1`：准备并运行一个样本；编译和仿真在同一次调用中执行。
 - `verification/run_s2a_t68_batch_verilator.ps1`：确认 sample0 已通过后，并行运行 sample1 至 sample108，最多 8 个 worker。
 - `verification/verify_s2a_t68_d9_outputs.py`：对 109 个实际 PL head 导出执行冻结 CPU D9 对照。
+- `verification/verify_s2a_t68_snapshot_git_binding.py`：在 D9 通过后，将 109 个编译源码快照映射到固定静态源码闭包和冻结 Git tree；输出只说明源码映射核验结果。
 
 本基线固定 RTL SHA-256：`3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154`。runner 会检查该值以及本机绑定的工具链。工具链目录为 `D:\FPGA_S2A_MSYS2_20261001\env`；本机已验证 PowerShell 为 7.6.5，固定 Python 为 3.12.14。
 
@@ -61,7 +96,7 @@ Write-Host "启动器标准错误：$stderrPath"
 
 1. 在 Windows 开始菜单打开 **PowerShell 7**。运行 `$PSVersionTable.PSVersion`，本机应显示 `7.6.5`。
 2. 复制下方完整命令块，粘贴到 PowerShell 7 后按 Enter。
-3. 命令会创建唯一的新证据目录，依次等待 sample0、108 样本批跑和 D9 对照完成。仿真 worker 在隐藏窗口运行，输出写入证据目录。
+3. 命令会创建唯一的新证据目录，依次等待 sample0、108 样本批跑、D9 对照以及随后进行的源码映射核验完成。仿真 worker 在隐藏窗口运行，输出写入证据目录。
 4. 外层 PowerShell 会一直等待整个流程结束。可以最小化窗口；保持电脑通电、唤醒并连接当前 Windows 用户会话，直到出现最终成功消息。不要关闭 PowerShell 窗口、注销或关机。
 
 命令块会在同一个 T68 证据目录下生成 `manual_时间戳` RunId。运行前会拒绝已存在的同名目录，并核对 backend 哈希、Python、PowerShell 和 Verilator 安装位置。它不会使用 runner 的默认 `run01` 路径。
@@ -161,9 +196,25 @@ if (($d9Report.status -cne 'PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9') -or ($d9
     throw "D9 报告状态或样本数不符：status=$($d9Report.status), sample_count=$($d9Report.sample_count)"
 }
 
-Write-Host "T68 109 样本仿真和 D9 对照全部通过。" -ForegroundColor Green
+$snapshotGitVerifier = Join-Path $repoRoot 'verification\verify_s2a_t68_snapshot_git_binding.py'
+$snapshotGitReportPath = Join-Path $evidenceRoot "source_snapshot_git_binding_${runId}.json"
+if (Test-Path -LiteralPath $snapshotGitReportPath) {
+    throw "源码映射报告已存在；拒绝覆盖并保留既有报告：$snapshotGitReportPath"
+}
+& $python -B $snapshotGitVerifier --evidence-root $evidenceRoot --run-id $runId
+if ($LASTEXITCODE -ne 0) {
+    throw "109 样本源码快照到 Git tree 映射核验失败，退出码 $LASTEXITCODE。保留证据目录。"
+}
+$snapshotGitReport = Get-Content -LiteralPath $snapshotGitReportPath -Raw -Encoding UTF8 | ConvertFrom-Json
+if (($snapshotGitReport.status -cne 'PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE') -or ($snapshotGitReport.sample_count -ne 109)) {
+    throw "源码映射报告状态或样本数不符：status=$($snapshotGitReport.status), sample_count=$($snapshotGitReport.sample_count)"
+}
+
+Write-Host "T68 109 样本仿真与 D9 对照已通过；源码映射核验也通过。" -ForegroundColor Green
+Write-Host "源码映射 PASS 只表示 109 个源码快照映射到冻结 Git tree，不代表运行/D9/G4/G5 或阶段通过。"
 Write-Host "证据目录：$evidenceRoot"
 Write-Host "D9 报告：$reportPath"
+Write-Host "源码映射报告：$snapshotGitReportPath"
 ```
 
 ## 接续当前已启动的批次
@@ -232,7 +283,8 @@ Write-Host "D9 报告：$reportPath"
 1. sample0 runner 退出码为 `0`，其逐层 golden 和 head 导出记录通过。
 2. `batch_dispatch\batch_summary.json` 中 `status` 为 `PASS_108_RUNNERS`，代表 sample1 至 sample108 的 runner 都成功。这一项还不是 D9 对照或 Stage 2A 冻结结论。
 3. 最终报告 `d9_109_sample_report.json` 中 `status` 为 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9` 且 `sample_count` 为 `109`。
-4. 将证据目录和最终 D9 报告交给 Stage 2A 总控，继续完成独立审查及阶段 G4/G5 验收。
+4. `source_snapshot_git_binding_<RunId>.json` 中 `status` 为 `PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE` 且 `sample_count` 为 `109`。此结果只证明 109 个编译源码快照映射到固定静态源码闭包和冻结 Git tree；不证明运行完成、D9、G4/G5 或阶段通过。若报告已存在，检查器会拒绝覆盖并保留原报告。
+5. 将证据目录、D9 报告和源码映射报告交给 Stage 2A 总控，继续完成独立审查及阶段 G4/G5 验收。
 
 ## 失败、重跑和证据保留
 

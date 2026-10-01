@@ -1,12 +1,12 @@
 # 项目状态
 
-更新：2026-09-23（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
+更新：2026-10-01（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
 
 ## 当前目标与阶段
 
 - 目标：AX7020 摄像头五类手势检测，最终经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现作品。
-- 当前阶段：阶段 2A「PL 推理仿真」。阶段一已冻结；阶段 2A G0 已冻结，RTL/G1/G2 尚未开始。
-- 本轮未重新训练；G0 未执行 Vivado 综合、板上烧录或板上性能测试。
+- 当前阶段：阶段 2A「PL 推理仿真」。阶段一与 G0 已冻结；共享 INT8 MAC 原语 RTL 单元已完成独立仿真与只读审查。其他算子、控制器集成、整网逐层黄金和整体 G2 尚未完成。
+- 本轮未重新训练；S2A-T02 仅执行独立 MAC RTL 单元仿真，未执行综合、Vivado 工程集成、整网仿真、板上烧录或板测。
 - 归档主入口：`docs/obsidian-project/04-提交材料/阶段验收/阶段1_实施步骤与决策_最终产物_20260922.md`。
 
 ## 阶段 2A G0 冻结入口
@@ -15,7 +15,7 @@
 - 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
 - G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
 - 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项：实现并验证共享 INT8 MAC RTL，再依冻结清单逐步实现基础算子。G0 不代表 RTL、整网黄金、综合/时序或板测通过。
+- 下一项：先针对冻结的全网 timeout 核定可实现吞吐/存储预算，提出可审查的后端方案供 Wong 决定；不擅改 CSR/timeout，也不把未实现缓存的 8-lane 估算当 RTL 证据。
 
 ## 已冻结的模型和口径
 
@@ -47,5 +47,17 @@
 
 ## 阶段 2A 最新恢复点
 
-- S2A-T56 数据级独立复核状态为 `PASS_INDEPENDENT_REVIEW_DATA_ONLY`，覆盖 tiny416 layer35 的 y=20、x=0..25、256 通道；layer35 整层、整网和阶段整体 G2/G3/G4/G5 仍待验收。提交 `7e6eac725bd9c4ed41540ca6874ae67fc03fe911`；证据：`report/evidence/S2A-T56/layer35_row20_all_channels.json`。
-- 后续 Vivado 仿真等待本会话恢复 Vivado MCP 连接；当前 `check_connection` 连接 `127.0.0.1:7654` 被拒（WinError 1225），`get_project_info` 同样失败，未能确认在线实例。2026-09-28 检查无 Vivado/XSim 进程；未停止、关闭、重启其他实例。
+- 更新：2026-10-01（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录完整病灶与当前未提交文件哈希。
+
+| T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |
+|---|---|---|---|
+| G0 输入与接口 | T01 `G0_FROZEN`，独立审查通过；模型/样本与规则哈希见 T01 规格 | 无；冻结仅定义基线，不证明 RTL | 后续均沿用此基线 |
+| 单元向量与协议 | 共享 MAC：T02 提交 `f547522`，单元仿真及只读审查通过；已有算子/协议证据按其具体覆盖复用 | 每 cfg 算子层 1,000 随机+16定向、MAC 1,000+16，以及固定 stall/error/reset/timeout 路径未形成完整 T01 覆盖证明 | 汇总既有证据，只补跑明确缺失项 |
+| CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；CPU decode/NMS 测试通过（`f61b8ce`） | 这是 CPU 结果，不是 PL；实际 PL heads 尚无比较 | 复用 T25 做 PL 逐层逐值比对 |
+| 描述符后端尝试 | 描述符 ROM/route 改动见 `b423994`、`f7ec51b`；T64 run11 仅24 reads/1 write/109 cycles 首输出握手 | T63 XVLOG 同名日志冲突退出1、未启动 XSim；T64 无 golden；T65 sim01 曾 0ps 路径失败且修复已审，sim02 未运行，后续进程门禁未独立复审 | 核对当前差异，选单一 D 盘路径做一次短 smoke |
+| 全网 PL 与头后处理 | 暂无 sample0 完整38层 PL 闭环 | 109×38 PL 零差异；两头 INT8 字节完全一致；D9 离散字段完全一致、分数/坐标绝对误差≤1e-6 | 先 sample0 全网闭环并测吞吐，再扩展109输入与头比较 |
+
+- 架构阻断：当前标量卷积有效tap约32.509亿，无停顿周期下界约19,837,821,226，超过32-bit `TIMEOUT_CYCLES` 最大值4,294,967,295约4.62倍。缓存/并行结构、读写次数、存储与吞吐须先有具体方案并由 Wong 决定；不改冻结协议或 timeout。
+- 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。
+- 保护状态：PID 8712 Vivado、22488/13156 XSim 为审计记录的受保护进程，任何运行前重新核对身份，不停止/关闭/重置/发送状态修改。MCP 当前连接健康但项目为 `s2a_t61_run04` 的 `isolated_project`、Top 为空，不是2A仿真实例。
+- 未提交 T63/T64/T65 与其他工作区差异均须保留并先核对；日志、夹具、临时文件和大型生成物留在 D 盘，默认不生成大波形。

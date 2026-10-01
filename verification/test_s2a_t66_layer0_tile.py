@@ -243,12 +243,105 @@ def verify_previous_attempt_failure_evidence(evidence_dir: Path, metadata: Any) 
             "T66 attempt02 失败原因或 XSim 未启动计数不匹配")
 
 
+def verify_observability_static_contract(bench_text: str) -> None:
+    """按 TB 限定代码块核对进度、NBA 延迟和复位清零顺序。"""
+    for token in (
+        "next_cycle_progress = 100000",
+        "next_cycle_progress <= 100000;",
+        "next_cycle_progress <= next_cycle_progress + 100000;",
+        "if (!feature_capture_checked[selected_lane])",
+        "if (!weight_capture_checked[selected_lane])",
+        "check_read_byte_capture(FEATURE_CLASS, destination_index, selected_byte);",
+        "check_read_byte_capture(WEIGHT_CLASS, destination_index, selected_byte);",
+        "feature_capture_checked !== 4'b1111",
+        "weight_capture_checked !== 4'b1111",
+        "T66_READ_CAPTURE_PASS samples=8 feature_lanes=1111 weight_lanes=1111",
+        "selected_read_lane_work = strobe_lane_index(backend_req_rstrb);",
+        "feature_lane_request_count[selected_read_lane_work]",
+        "weight_lane_request_count[selected_read_lane_work]",
+        "T66 输出 mismatch",
+        "PASS: T66 sample0 layer0 full tensor matched T25; bytes=%0d mismatches=0",
+    ):
+        require(token in bench_text, f"T66 observability/static capture 检查缺失：{token}")
+    require("next_cycle_progress = 2000000" not in bench_text and
+            "next_cycle_progress <= next_cycle_progress + 2000000" not in bench_text and
+            bench_text.count("check_read_byte_capture(") == 3,
+            "T66 cycle interval 未统一到 100k，或缓存比较未限为两个首次 lane 调用")
+
+    task_start_token = "task automatic check_read_byte_capture("
+    task_start = bench_text.find(task_start_token)
+    task_end = bench_text.find("\n    endtask", task_start)
+    require(task_start >= 0 and task_end > task_start and
+            bench_text.count(task_start_token) == 1,
+            "T66 缓存捕获 task 边界缺失或重复")
+    capture_task = bench_text[task_start:task_end]
+    nba_delay = capture_task.find("#1;")
+    feature_compare = capture_task.find(
+        "u_dut.feature_patch[destination_index] !== expected_byte")
+    weight_compare = capture_task.find(
+        "u_dut.weight_group[destination_index] !== expected_byte")
+    require(nba_delay >= 0 and feature_compare > nba_delay and weight_compare > nba_delay,
+            "T66 缓存比较未在 task 内的 #1 NBA 延迟之后执行")
+
+    monitor_start_token = "always @(posedge clk) begin : t66_read_capture_monitor"
+    monitor_start = bench_text.find(monitor_start_token)
+    monitor_end = bench_text.find("always_ff @(posedge clk) begin", monitor_start + len(monitor_start_token))
+    require(monitor_start >= 0 and monitor_end > monitor_start and
+            bench_text.count(monitor_start_token) == 1,
+            "T66 read capture monitor 边界缺失或重复")
+    monitor = bench_text[monitor_start:monitor_end]
+    reset_branch = monitor.find("if (hard_reset || abort) begin")
+    response_branch = monitor.find(
+        "end else if (memory_pending && backend_rsp_valid && (backend_rsp_error == NONE)) begin")
+    feature_clear = monitor.find("feature_capture_checked = 4'b0000;", reset_branch)
+    weight_clear = monitor.find("weight_capture_checked = 4'b0000;", reset_branch)
+    require(reset_branch >= 0 and response_branch > reset_branch and
+            feature_clear > reset_branch and feature_clear < response_branch and
+            weight_clear > reset_branch and weight_clear < response_branch,
+            "T66 reset/abort 分支未在 response else-if 之前清除两组 capture mask")
+
+
+def verify_observability_static_regression() -> tuple[str, str]:
+    """核对真实 TB，并确认延迟或复位清零缺失都会被静态检查拒绝。"""
+    bench_path = ROOT / "sim" / "tb_s2a_t66_layer0_tile.sv"
+    require(bench_path.is_file() and not bench_path.is_symlink(),
+            f"T66 testbench 普通文件缺失：{bench_path}")
+    bench_text = bench_path.read_text(encoding="utf-8")
+    verify_observability_static_contract(bench_text)
+
+    task_start = bench_text.find("task automatic check_read_byte_capture(")
+    task_end = bench_text.find("\n    endtask", task_start) + len("\n    endtask")
+    task_text = bench_text[task_start:task_end]
+    delayed_task, delay_replacements = task_text.replace("#1;", "", 1), task_text.count("#1;")
+    require(delay_replacements == 1, "T66 负向回归无法唯一移除缓存比较的 #1 延迟")
+    missing_delay_variant = bench_text[:task_start] + delayed_task + bench_text[task_end:]
+    try:
+        verify_observability_static_contract(missing_delay_variant)
+    except VerificationError:
+        pass
+    else:
+        raise VerificationError("T66 静态回归未拒绝删除 #1 延迟的 TB 变体")
+
+    reset_line = "            feature_capture_checked = 4'b0000;\n"
+    require(bench_text.count(reset_line) == 1,
+            "T66 负向回归无法唯一移除 feature capture reset mask 清零")
+    missing_reset_variant = bench_text.replace(reset_line, "", 1)
+    try:
+        verify_observability_static_contract(missing_reset_variant)
+    except VerificationError:
+        pass
+    else:
+        raise VerificationError("T66 静态回归未拒绝缺失 reset mask 清零的 TB 变体")
+    return ("missing_delay_rejected", "missing_feature_reset_clear_rejected")
+
+
 def verify(evidence_dir: Path, require_simulation: bool) -> dict[str, Any]:
     """核对夹具、源码快照和可选的唯一完整 XSim 结果。"""
     evidence_dir = evidence_dir.resolve()
     evidence_root = (ROOT / "report" / "evidence" / "S2A-T66").resolve()
     require(evidence_dir != evidence_root and evidence_root in evidence_dir.parents,
             f"核验目录必须位于 T66 evidence 子目录：{evidence_dir}")
+    verify_observability_static_regression()
     verify_previous_attempt_failure_semantics_regression()
     fixture_manifest_path = evidence_dir / "fixture_manifest.json"
     manifest = read_json(fixture_manifest_path, "T66 夹具清单")
@@ -367,7 +460,11 @@ def verify(evidence_dir: Path, require_simulation: bool) -> dict[str, Any]:
         "stall-pattern=[0,1,2,7,3]",
         "CYCLE_LIMIT = 75000000",
         "estimated_cycles<=26003000",
-        "next_cycle_progress = 2000000",
+        "next_cycle_progress = 100000",
+        "next_cycle_progress <= next_cycle_progress + 100000",
+        "feature_capture_checked !== 4'b1111",
+        "weight_capture_checked !== 4'b1111",
+        "T66_READ_CAPTURE_PASS samples=8 feature_lanes=1111 weight_lanes=1111",
         "T66 backpressure 期间 request 字段变化",
         "T66 重复写输出字节",
         "T66 输出 mismatch",
@@ -668,7 +765,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="核验 T66 夹具绑定和 layer0 完整 XSim 结果")
     parser.add_argument("--evidence-dir", type=Path, default=DEFAULT_EVIDENCE_DIR)
     parser.add_argument("--require-simulation", action="store_true")
+    parser.add_argument("--static-observability-only", action="store_true",
+                        help="只运行周期进度和首次 byte-lane 缓存采样的静态回归")
     args = parser.parse_args()
+    if args.static_observability_only:
+        negative_results = verify_observability_static_regression()
+        print("PASS: T66 100k cycle marker and eight post-NBA lane capture checks verified")
+        print(f"PASS: T66 negative regression rejected {negative_results[0]}")
+        print(f"PASS: T66 negative regression rejected {negative_results[1]}")
+        return 0
     result = verify(args.evidence_dir, args.require_simulation)
     if args.require_simulation:
         print("PASS: T66 fixture/source binding and one full-layer XSim evidence verified")

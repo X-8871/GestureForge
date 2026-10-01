@@ -78,7 +78,7 @@ module tb_s2a_t66_layer0_tile;
     integer lane;
     integer address_index;
     integer cycle_count = 0;
-    integer next_cycle_progress = 2000000;
+    integer next_cycle_progress = 100000;
     integer result_count = 0;
     integer next_progress = 200000;
     integer missing_count;
@@ -90,6 +90,11 @@ module tb_s2a_t66_layer0_tile;
     integer active_response_stall_observed = 0;
     integer reset_index;
     integer point_bias_lane;
+    integer selected_read_lane_work;
+    integer feature_lane_request_count [0:3];
+    integer weight_lane_request_count [0:3];
+    logic [3:0] feature_capture_checked = 4'b0000;
+    logic [3:0] weight_capture_checked = 4'b0000;
     string fixture_input_path = "../fixture/sample0_input_chw_int8.bin";
     string fixture_weight_path = "../fixture/sample0_layer0_gf8_weights.bin";
     string fixture_expected_path = "../fixture/sample0_layer0_expected_nchw_int8.bin";
@@ -143,6 +148,18 @@ module tb_s2a_t66_layer0_tile;
             end else begin
                 classify_transfer = -1;
             end
+        end
+    endfunction
+
+    function automatic integer strobe_lane_index(input logic [3:0] strobe);
+        begin
+            case (strobe)
+                4'b0001: strobe_lane_index = 0;
+                4'b0010: strobe_lane_index = 1;
+                4'b0100: strobe_lane_index = 2;
+                4'b1000: strobe_lane_index = 3;
+                default: strobe_lane_index = -1;
+            endcase
         end
     endfunction
 
@@ -212,6 +229,26 @@ module tb_s2a_t66_layer0_tile;
         .result_error_code(result_error_code)
     );
 
+    // 响应后核验目标缓存确实收到了 strobe 选中的小端字节。
+    task automatic check_read_byte_capture(
+        input integer transfer_class,
+        input integer destination_index,
+        input logic signed [7:0] expected_byte
+    );
+        begin
+            #1;
+            if (transfer_class == FEATURE_CLASS) begin
+                if (u_dut.feature_patch[destination_index] !== expected_byte)
+                    $fatal(1, "T66 feature byte lane 提取错误：index=%0d actual=%02h expected=%02h",
+                           destination_index, u_dut.feature_patch[destination_index], expected_byte);
+            end else if (transfer_class == WEIGHT_CLASS) begin
+                if (u_dut.weight_group[destination_index] !== expected_byte)
+                    $fatal(1, "T66 weight byte lane 提取错误：index=%0d actual=%02h expected=%02h",
+                           destination_index, u_dut.weight_group[destination_index], expected_byte);
+            end
+        end
+    endtask
+
     // 确认同一 tile 和输出通道组内第二个空间点从冻结 bias 重新开始累加。
     always @(negedge clk) begin
         if (hard_reset || abort) begin
@@ -256,6 +293,35 @@ module tb_s2a_t66_layer0_tile;
         end
     end
 
+    // 每类每个 byte lane 首次响应后检查缓存，并覆盖 byte lane 0 到 3。
+    always @(posedge clk) begin : t66_read_capture_monitor
+        integer selected_lane;
+        integer destination_index;
+        logic signed [7:0] selected_byte;
+        if (hard_reset || abort) begin
+            feature_capture_checked = 4'b0000;
+            weight_capture_checked = 4'b0000;
+        end else if (memory_pending && backend_rsp_valid && (backend_rsp_error == NONE)) begin
+            selected_lane = u_dut.request_byte_lane;
+            if (pending_transfer_class == FEATURE_CLASS) begin
+                if (!feature_capture_checked[selected_lane]) begin
+                    selected_byte = $signed(backend_rsp_rdata >> (selected_lane * 8));
+                    destination_index = u_dut.feature_scan_index;
+                    check_read_byte_capture(FEATURE_CLASS, destination_index, selected_byte);
+                    feature_capture_checked[selected_lane] = 1'b1;
+                end
+            end else if (pending_transfer_class == WEIGHT_CLASS) begin
+                if (!weight_capture_checked[selected_lane]) begin
+                    selected_byte = $signed(backend_rsp_rdata >> (selected_lane * 8));
+                    destination_index = (u_dut.weight_lane_index * u_dut.reduction_count_latched) +
+                                        u_dut.weight_reduction_index;
+                    check_read_byte_capture(WEIGHT_CLASS, destination_index, selected_byte);
+                    weight_capture_checked[selected_lane] = 1'b1;
+                end
+            end
+        end
+    end
+
     // 该模型只映射指定的输入、权重和输出对象，并按小端字节 lane 解释请求。
     always_ff @(posedge clk) begin
         transfer_class_work = classify_transfer(backend_req_write, backend_req_addr);
@@ -272,6 +338,10 @@ module tb_s2a_t66_layer0_tile;
                 class_request_stall_count[reset_index] <= 0;
                 class_response_stall_count[reset_index] <= 0;
             end
+            for (reset_index = 0; reset_index < 4; reset_index = reset_index + 1) begin
+                feature_lane_request_count[reset_index] <= 0;
+                weight_lane_request_count[reset_index] <= 0;
+            end
             for (reset_index = 0; reset_index < WEIGHT_BYTES; reset_index = reset_index + 1)
                 weight_seen[reset_index] <= 1'b0;
             pending_transfer_class <= -1;
@@ -287,7 +357,7 @@ module tb_s2a_t66_layer0_tile;
             held_request <= 0;
             stall_remaining <= 0;
             cycle_count <= 0;
-            next_cycle_progress <= 2000000;
+            next_cycle_progress <= 100000;
             result_count <= 0;
             next_progress <= 200000;
         end else begin
@@ -295,7 +365,7 @@ module tb_s2a_t66_layer0_tile;
             if (cycle_count + 1 >= next_cycle_progress) begin
                 $display("T66_CYCLE_PROGRESS cycles=%0d requests=%0d writes=%0d", cycle_count + 1,
                          request_count, output_write_count);
-                next_cycle_progress <= next_cycle_progress + 2000000;
+                next_cycle_progress <= next_cycle_progress + 100000;
             end
             if (held_request != 0) begin
                 if (!backend_req_valid ||
@@ -415,6 +485,19 @@ module tb_s2a_t66_layer0_tile;
                         $fatal(1, "T66 读请求方向或 strobe 错误：r=%b w=%b",
                                backend_req_rstrb, backend_req_wstrb);
                     end
+                    selected_read_lane_work = strobe_lane_index(backend_req_rstrb);
+                    if ((selected_read_lane_work < 0) ||
+                        (u_dut.request_byte_lane !== selected_read_lane_work[1:0])) begin
+                        $fatal(1, "T66 read request lane decode 错误：class=%0d strobe=%b lane=%0d decoded=%0d",
+                               transfer_class_work, backend_req_rstrb, selected_read_lane_work,
+                               u_dut.request_byte_lane);
+                    end
+                    if (transfer_class_work == FEATURE_CLASS)
+                        feature_lane_request_count[selected_read_lane_work] <=
+                            feature_lane_request_count[selected_read_lane_work] + 1;
+                    else if (transfer_class_work == WEIGHT_CLASS)
+                        weight_lane_request_count[selected_read_lane_work] <=
+                            weight_lane_request_count[selected_read_lane_work] + 1;
                     read_word_work = 32'd0;
                     read_error_work = NONE;
                     for (lane = 0; lane < 4; lane = lane + 1) begin
@@ -599,6 +682,21 @@ module tb_s2a_t66_layer0_tile;
             if (!weight_seen[load_index])
                 $fatal(1, "T66 layer0 权重地址未覆盖：index=%0d", load_index);
         end
+        for (load_index = 0; load_index < 4; load_index = load_index + 1) begin
+            if ((feature_lane_request_count[load_index] == 0) ||
+                (weight_lane_request_count[load_index] == 0))
+                $fatal(1, "T66 feature/weight read lane 覆盖不完整：lane=%0d feature=%0d weight=%0d",
+                       load_index, feature_lane_request_count[load_index],
+                       weight_lane_request_count[load_index]);
+            $display("T66_READ_LANE_PASS lane=%0d feature_requests=%0d weight_requests=%0d",
+                     load_index, feature_lane_request_count[load_index],
+                     weight_lane_request_count[load_index]);
+        end
+        if ((feature_capture_checked !== 4'b1111) ||
+            (weight_capture_checked !== 4'b1111))
+            $fatal(1, "T66 feature/weight 缓存延迟采样未覆盖全部 8 个 byte lane：feature=%b weight=%b",
+                   feature_capture_checked, weight_capture_checked);
+        $display("T66_READ_CAPTURE_PASS samples=8 feature_lanes=1111 weight_lanes=1111");
         for (load_index = 0; load_index < TRANSFER_CLASS_COUNT; load_index = load_index + 1) begin
             if ((class_request_stall_count[load_index] !=
                  expected_stall_total(class_request_count[load_index])) ||

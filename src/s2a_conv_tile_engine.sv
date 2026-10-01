@@ -222,6 +222,7 @@ module s2a_conv_tile_engine (
     logic [63:0] output_byte_offset_wide;
     logic [63:0] output_address_wide;
     logic [2:0] mapped_response_error;
+    logic [1:0] request_byte_lane;
     integer comb_lane;
     integer seq_lane;
 
@@ -540,6 +541,15 @@ module s2a_conv_tile_engine (
             mapped_response_error = backend_rsp_error;
         end
 
+        request_byte_lane = 2'd0;
+        case (request_strobe_latched)
+            4'b0001: request_byte_lane = 2'd0;
+            4'b0010: request_byte_lane = 2'd1;
+            4'b0100: request_byte_lane = 2'd2;
+            4'b1000: request_byte_lane = 2'd3;
+            default: request_byte_lane = 2'd0;
+        endcase
+
         start_ready = (state == ST_IDLE) && !hard_reset && !abort;
         busy = (state != ST_IDLE);
         result_valid = (state == ST_RESULT);
@@ -758,7 +768,7 @@ module s2a_conv_tile_engine (
                             state <= ST_RESULT;
                         end else begin
                             feature_patch[feature_scan_index] <=
-                                $signed(backend_rsp_rdata >> (request_address_latched[1:0] * 8));
+                                $signed(backend_rsp_rdata >> (request_byte_lane * 8));
                             feature_scan_index <= feature_scan_index + 32'd1;
                             state <= ST_FEATURE_SCAN;
                         end
@@ -805,7 +815,7 @@ module s2a_conv_tile_engine (
                         end else begin
                             weight_group[(weight_lane_index * reduction_count_latched) +
                                          weight_reduction_index] <=
-                                $signed(backend_rsp_rdata >> (request_address_latched[1:0] * 8));
+                                $signed(backend_rsp_rdata >> (request_byte_lane * 8));
                             weight_reduction_index <= weight_reduction_index + 32'd1;
                             state <= ST_WEIGHT_SCAN;
                         end

@@ -8,13 +8,54 @@
 
 该流程只运行数字仿真，不烧录 FPGA，也不执行 Vivado 综合或板上验证。仿真通过不等于 Stage 2A 已冻结；冻结还需要完成项目规定的独立审查、阶段验收和 G5 记录。
 
+## 快速启动当前批次：你启动，本机自行接续
+
+下面的命令用于接续当前已建立的 `batch109_r3`。你只需在本机 **PowerShell 7.6.5** 粘贴并运行一次；仿真协调程序随后在隐藏进程中等待 sample0 终态、接续或等待已有的 108 样本批次，并运行 D9 对照。它是本地 PowerShell 程序，不需要 AI 继续操控。
+
+运行期间保持电脑通电且不要让 Windows 睡眠、注销或重启。启动命令返回后可以关闭这个 PowerShell 窗口；仿真进程独立运行。不要并发启动同一个 RunId：协调程序用互斥锁拒绝并发实例。若上次异常中断且没有终态 summary，可以重新启动同一命令，它会安全等待已有批次或只读复核已有 D9 报告，不会重复派发或覆盖；若已生成终态失败/超时 summary，则保留该 RunId 和证据。诊断后如需重跑，必须新建 RunId 和证据目录。
+
+```powershell
+$ErrorActionPreference = 'Stop'
+$repoRoot = 'D:\FPGA_Competition'
+$pwsh = 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.exe'
+$scriptPath = Join-Path $repoRoot 'verification\run_s2a_t68_unattended_continuation.ps1'
+$runId = 'batch109_r3'
+$evidenceRoot = Join-Path $repoRoot 'report\evidence\S2A-T68\batch109_r3'
+$backendSha256 = '3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154'
+
+if (-not (Test-Path -LiteralPath $pwsh -PathType Leaf)) { throw "找不到 PowerShell 7：$pwsh" }
+if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) { throw "找不到协调程序：$scriptPath" }
+if (-not (Test-Path -LiteralPath $evidenceRoot -PathType Container)) { throw "证据目录不存在：$evidenceRoot" }
+
+$launchId = [Guid]::NewGuid().ToString('N')
+$stdoutPath = Join-Path $evidenceRoot "manual_continuation_${launchId}_stdout.txt"
+$stderrPath = Join-Path $evidenceRoot "manual_continuation_${launchId}_stderr.txt"
+$arguments = @(
+    '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+    '-File', $scriptPath,
+    '-EvidenceDirectory', $evidenceRoot,
+    '-RunId', $runId,
+    '-ExpectedBackendSha256', $backendSha256
+)
+Start-Process -FilePath $pwsh -ArgumentList $arguments `
+    -WorkingDirectory $repoRoot -WindowStyle Hidden `
+    -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+Write-Host "已启动本地后台协调程序。完成结果写入：$(Join-Path $evidenceRoot 'unattended_continuation_batch109_r3.json')" -ForegroundColor Green
+Write-Host "启动器标准输出：$stdoutPath"
+Write-Host "启动器标准错误：$stderrPath"
+```
+
+程序完成后检查 `unattended_continuation_batch109_r3.json` 的 `status`。`PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9` 表示 109 个实际 PL 样本的 D9 对照通过；它仍不等于 Stage 2A 冻结。若该文件尚未出现，说明协调程序尚未写入终态结果，或启动/运行中断；可查看上面打印出的标准输出、标准错误文件路径。出现失败状态时保留整个证据目录，不要覆盖或清理。
+
+这个启动器只接续 `batch109_r3`：sample0 最多等待 24 小时；发现已有 scheduler 时最长等待其终态 72 小时且不会再次派发。要从零新跑完整 109 样本，请使用下文“如何让任务自己运行”的新 RunId 命令块。
+
 相关程序：
 
 - `verification/run_s2a_network_backend_verilator.ps1`：准备并运行一个样本；编译和仿真在同一次调用中执行。
 - `verification/run_s2a_t68_batch_verilator.ps1`：确认 sample0 已通过后，并行运行 sample1 至 sample108，最多 8 个 worker。
 - `verification/verify_s2a_t68_d9_outputs.py`：对 109 个实际 PL head 导出执行冻结 CPU D9 对照。
 
-本基线固定 RTL SHA-256：`3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154`。runner 会检查该值以及本机绑定的工具链。工具链目录为 `D:\FPGA_S2A_MSYS2_20261001\env`；本机已验证 PowerShell 为 7.6.5，Python 3.12 可用。
+本基线固定 RTL SHA-256：`3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154`。runner 会检查该值以及本机绑定的工具链。工具链目录为 `D:\FPGA_S2A_MSYS2_20261001\env`；本机已验证 PowerShell 为 7.6.5，固定 Python 为 3.12.14。
 
 ## 如何让任务自己运行
 
@@ -59,8 +100,9 @@ $resolvedPython = (Get-Command -Name python -CommandType Application -ErrorActio
 if ([System.IO.Path]::GetFullPath($resolvedPython) -ine [System.IO.Path]::GetFullPath($python)) {
     throw "worker 默认会调用 python；PATH 当前解析到 $resolvedPython"
 }
-& $python --version
+$pythonVersion = (& $python --version).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'Python 启动失败。' }
+if ($pythonVersion -cne 'Python 3.12.14') { throw "需要 Python 3.12.14；当前版本是 $pythonVersion" }
 
 $verilator = 'D:\FPGA_S2A_MSYS2_20261001\env\mingw64\bin\verilator_bin.exe'
 if (-not (Test-Path -LiteralPath $verilator -PathType Leaf)) {

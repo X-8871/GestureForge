@@ -15,7 +15,7 @@
 - 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
 - G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
 - 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项：sample0 当前在 `report/evidence/S2A-T68/batch109_r3` / RunId `batch109_r3` 由隐藏 pwsh 7.6.5 进程 PID 1188 运行（启动日志在 EvidenceDirectory 根目录）；`batch109_r1` 中断于 layer1/cycle30,000,000 且无仿真记录，`batch109_r2` 在 Windows PowerShell 5.1 未识别 Get-FileHash、无实际 PL 仿真；两者均保留且不纳入验收。待 r3 完成后按吞吐批跑剩余样本。
+- 下一项：2026-10-02 已使用隐藏 pwsh 7.6.5 接受 RunId `batch109_r3` 的 continuation 启动；按 Wong 要求，未查询运行进程、日志或运行证据，当前运行/终态未核验。预期完成记录：`report/evidence/S2A-T68/batch109_r3/unattended_continuation_batch109_r3.json`。不得并发启动同一 RunId。此前 `batch109_r1` 中断于 layer1/cycle30,000,000 且无仿真记录，`batch109_r2` 在 Windows PowerShell 5.1 未识别 Get-FileHash、无实际 PL 仿真；两者均保留且不纳入验收。待 r3 完成后按吞吐批跑剩余样本。
 
 ## 已冻结的模型和口径
 

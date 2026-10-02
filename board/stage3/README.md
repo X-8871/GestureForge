@@ -76,7 +76,7 @@ AX7020 原理图 PDF 第 15 页：J10 使用 EX_IO1 网络，J11 使用 EX_IO2 �
 
 2026-10-02 进一步实际创建 BD，原厂未修改 IP 在 XA/-1I 上失败：`BD 5-683`，`axi_dynclk:1.0` 不支持当前 part。Vivado 查询目标家族为 `azynq`；三个自定义视频 IP 的原 XML 仅列 `zynq` 等家族，没有 `azynq`。所以目录检查的 13/13 不等于目标上可实例化。
 
-`scripts/s3_validate_vendor_bd.tcl` 在固定提交且单路来源 Git 状态干净时，创建全新的隔离工程，只 source `ps_config.tcl` / `pl_config.tcl`，不 source 自动构建脚本，不加载 XDC、生成 HDL、综合或连接硬件。
+`scripts/s3_validate_vendor_bd.tcl` 在固定提交且单路来源 Git 状态干净时，创建全新的隔离工程，只 source `ps_config.tcl` / `pl_config.tcl`，不 source 自动构建脚本。默认阶段 `bd` 不生成 HDL；显式阶段 `hdl` 仅生成 IP/BD 源文件和顶层包装器。不加载最终板卡 XDC，不综合或连接硬件；HDL 生成会产生 IP 内部 XDC，报告中的 `NO_XDC` 不能解读为没有任何约束文件。
 
 - 默认 `native`：保留原厂 IP 封装，诊断原生兼容性。
 - 显式 `azynq_metadata`：只在新副本的三个 `component.xml` 中增加 `azynq / Pre-Production` 声明；这是诊断实验，不是正式支持声明或生产迁移批准。没有改 HDL、接口和视频参数。
@@ -86,3 +86,13 @@ AX7020 原理图 PDF 第 15 页：J10 使用 EX_IO1 网络，J11 使用 EX_IO2 �
 复现：沿用上节已精确验证的 Vivado/源目录，在 `-source` 使用 `<工作树绝对路径>\scripts\s3_validate_vendor_bd.tcl`；`-tclargs` 为 `<官方仓库绝对路径> <新输出目录绝对路径> native` 或显式 `azynq_metadata`。输出目录必须不存在、父目录存在，日志另用新名字；预计 1–2 分钟、单线程。失败保留产物，禁止原地覆盖或自动回退器件。
 
 仍需解决：实际 PCB/DDR/电平对应、PCLK 与视频完整约束、自定义 IP 在 XA/-1 的 HDL/时序兼容性、Windows 路径长度提示、旧 xlconcat/xlconstant 的工具迁移提示、Vitis 软件迁移，以及缓冲/丢帧口径。实验通过不能关闭硬件 G0，也不能代替综合、时序或 G3/G4/G5。
+
+## HDL 生成诊断与下一步
+
+2026-10-02 在新短路径 `tmp/s3h01` 实测 `azynq_metadata hdl`，52 秒、退出码 0，16-cell BD 及顶层包装器生成完成。摘要和日志/包装器哈希见 `report/stage3_hdl_generation_20261002.json`。这不是语法、仿真、综合或时序通过；三个自定义 IP 的家族声明仍是实验。
+
+复现时在上一节 `-tclargs` 后增加第四参数 `hdl`，例如 `<官方仓库绝对路径> <新输出目录绝对路径> azynq_metadata hdl`；省略第四参数仍为 `bd`。保持新目录、新日志、单线程和失败保留原则。生成时出现五条不同的 AXI ID 1/6 位宽连接警告 `BD 41-2384`，需要逐项验证事务 ID 和生成连接；在关闭前不得把工程视为可直接上板。
+
+另外已用 read-pdf-reliably 的 diagram 模式实际读取旧资料 `D:\FPGA\AX7Z020\AX7Z020\01_hardware\hardware\01_原理图\ax7z010_ax7z020原理图.pdf` 第 1、14 页（14 页总数，SHA-256 `e51ffd1677bc2387f86c6123951486fd2a5c90faee4f59a91e9fceb9750aaf78`）。第 1 页为核心板加底板架构，含 CAN/RS485/MIPI；第 14 页为 J28/J29 调整 VCCIO_35。它不能用来证明现有 AX7020 单板的端口或 bank 电压，禁止把该图的跳线操作用于实物。没有改动或复制厂商原件到正式工程。
+
+下一步依次关闭 AXI ID 警告、进行隔离 HDL 检查、核对 Vitis 软件依赖和缓存/缓冲所有权；与接口资料核对并行。最终约束和接线步骤仍需硬件 G0，当前无需 Wong 上板。

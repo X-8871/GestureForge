@@ -1,10 +1,13 @@
-# 仅在新隔离目录校验固定厂商提交的单路 BD，不加载 XDC、不综合、不连接设备。
-if {$argc < 2 || $argc > 3} {puts stderr "EXPECTED_VENDOR_ROOT_NEW_OUTPUT_DIR_AND_OPTIONAL_MODE"; exit 2}
+# 仅在新隔离目录校验固定厂商单路 BD 或生成 HDL，不加载 XDC、不综合、不连接设备。
+if {$argc < 2 || $argc > 4} {puts stderr "EXPECTED_VENDOR_ROOT_NEW_OUTPUT_DIR_OPTIONAL_MODE_OPTIONAL_PHASE"; exit 2}
 set vendor_root [lindex $argv 0]
 set output_dir [lindex $argv 1]
 set mode native
-if {$argc == 3} {set mode [lindex $argv 2]}
+if {$argc >= 3} {set mode [lindex $argv 2]}
 if {$mode ni {native azynq_metadata}} {puts stderr "INVALID_MODE"; exit 2}
+set phase bd
+if {$argc == 4} {set phase [lindex $argv 3]}
+if {$phase ni {bd hdl}} {puts stderr "INVALID_PHASE"; exit 2}
 if {[file pathtype $vendor_root] ne "absolute" || ![file isdirectory $vendor_root]} {
     puts stderr "INVALID_VENDOR_ROOT"; exit 2
 }
@@ -71,9 +74,25 @@ set failed [catch {
     validate_bd_design
     save_bd_design
     set cell_count [llength [get_bd_cells]]
+    if {$phase eq "hdl"} {
+        # 只生成源文件与顶层包装器，禁用任何综合/实现运行；失败保留隔离产物。
+        set bd_files [get_files -quiet */design_1.bd]
+        if {[llength $bd_files] != 1} {error "EXPECTED_SINGLE_BD_FILE"}
+        generate_target all $bd_files
+        set wrappers [make_wrapper -files $bd_files -top]
+        if {[llength $wrappers] == 0} {error "NO_GENERATED_WRAPPER"}
+        foreach wrapper $wrappers {
+            if {![file isfile $wrapper]} {error "MISSING_GENERATED_WRAPPER"}
+        }
+        add_files -norecurse $wrappers
+        set_property top design_1_wrapper [current_fileset]
+        update_compile_order -fileset sources_1
+        puts "GENERATED_WRAPPERS=$wrappers"
+    }
     close_project
     set result PASS_BD_VALIDATION_ONLY
     if {$mode eq "azynq_metadata"} {set result PASS_BD_METADATA_EXPERIMENT_ONLY}
+    if {$phase eq "hdl"} {set result PASS_HDL_GENERATION_ONLY}
     set result
 } result]
 set report [open [file join $output_dir result.txt] {WRONLY CREAT EXCL}]
@@ -82,11 +101,12 @@ puts $report "VIVADO=[version -short]"
 puts $report "VENDOR_COMMIT=$expected_commit"
 puts $report "PART=xa7z020clg400-1I"
 puts $report "MODE=$mode"
+puts $report "PHASE=$phase"
 if {[info exists family]} {puts $report "FAMILY=$family"}
 puts $report "FAILED=$failed"
 puts $report "RESULT=$result"
 if {[info exists cell_count]} {puts $report "BD_CELL_COUNT=$cell_count"}
-puts $report "SCOPE=BD_ONLY_NO_XDC_NO_SYNTHESIS_NO_HARDWARE"
+puts $report "SCOPE=BD_OR_HDL_ONLY_NO_XDC_NO_SYNTHESIS_NO_HARDWARE"
 close $report
 puts "RESULT=$result"
 if {$failed} {exit 2}

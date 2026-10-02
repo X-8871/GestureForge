@@ -13,7 +13,8 @@
 
 - Wong 已批准执行 AN5642 原始视频链路，实物操作由 Wong 执行；本会话工作树分支 `codex/stage3-video` 基于 `955a2b4`，不改主工作树、不查询或干预 2A/T68 运行。
 - 入口 `board/stage3/README.md`：计划与原计划差别、固定官方 AX7020 源 `fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327`、PDF 页码/哈希及候选 CMOS1 引脚；旧 AX7Z020 2017.4 XDC 不直接复用。
-- Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结，需板卡 PCB/扩展口照片及 AN5642 实物版本，当前无需上电接线。
+- Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结，继续核对资料对应及 AN5642 模块版本，当前无需上电接线。
+- Wong 已确认 AN5642 到手；指定 Vault 项目的 `01-竞赛材料/板卡正面.jpg`、`板卡反面.jpg` 已实际读取并计算哈希，入口 `board/stage3/hardware_photo_evidence.md`。不再向 Wong 索要板卡照片；沿用阶段0已记版本标记 `AX701020.3.0`，与候选图纸的对应仍内部核对，不伪称电气/板测通过。
 - 离线准备六文件静态独立审查 PASS（不含 PDF 独立视觉或板测）；下一步离线 BD 迁移验证，接口冻结后再准备 HDMI 与摄像头的准确板测步骤。双通道最终语义、缓冲/丢帧口径仍待 G0 冻结。
 - BD 诊断：原厂 IP 在 XA/-1I 上因 `axi_dynclk` 家族声明拒绝实例化；显式隔离副本只给三个 IP XML 增加 azynq 声明后，16-cell BD 校验实测通过，见 `report/stage3_bd_experiment_20261002.json`。只是元数据实验，不是正式 IP 支持、RTL/时序或板测通过；硬件 G0 继续待实物证据，禁止据此烧录。未修改厂商原件。
 

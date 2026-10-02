@@ -15,6 +15,7 @@
 - 入口 `board/stage3/README.md`：计划与原计划差别、固定官方 AX7020 源 `fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327`、PDF 页码/哈希及候选 CMOS1 引脚；旧 AX7Z020 2017.4 XDC 不直接复用。
 - Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结，需板卡 PCB/扩展口照片及 AN5642 实物版本，当前无需上电接线。
 - 离线准备六文件静态独立审查 PASS（不含 PDF 独立视觉或板测）；下一步离线 BD 迁移验证，接口冻结后再准备 HDMI 与摄像头的准确板测步骤。双通道最终语义、缓冲/丢帧口径仍待 G0 冻结。
+- BD 诊断：原厂 IP 在 XA/-1I 上因 `axi_dynclk` 家族声明拒绝实例化；显式隔离副本只给三个 IP XML 增加 azynq 声明后，16-cell BD 校验实测通过，见 `report/stage3_bd_experiment_20261002.json`。只是元数据实验，不是正式 IP 支持、RTL/时序或板测通过；硬件 G0 继续待实物证据，禁止据此烧录。未修改厂商原件。
 
 ## 阶段 2A G0 冻结入口
 

@@ -69,3 +69,18 @@ AX7020 原理图 PDF 第 15 页：J10 使用 EX_IO1 网络，J11 使用 EX_IO2 �
 ```
 
 目录与文件必须先精确验证；结果文件必须不存在。预计 1–2 分钟，只创建内存工程并查目录，不 source 厂商构建模板（该模板会自动综合/实现/生成 bitstream）。失败时保留日志并诊断，不回退 XC/-2 或静默替换 IP 版本。目录通过不是 BD、综合、时序、Vitis 编译或 G3/G4/G5 通过。原始日志只留本地临时目录，不混入代码提交。
+
+## BD 迁移诊断（不是可烧录工程）
+
+2026-10-02 进一步实际创建 BD，原厂未修改 IP 在 XA/-1I 上失败：`BD 5-683`，`axi_dynclk:1.0` 不支持当前 part。Vivado 查询目标家族为 `azynq`；三个自定义视频 IP 的原 XML 仅列 `zynq` 等家族，没有 `azynq`。所以目录检查的 13/13 不等于目标上可实例化。
+
+`scripts/s3_validate_vendor_bd.tcl` 在固定提交且单路来源 Git 状态干净时，创建全新的隔离工程，只 source `ps_config.tcl` / `pl_config.tcl`，不 source 自动构建脚本，不加载 XDC、生成 HDL、综合或连接硬件。
+
+- 默认 `native`：保留原厂 IP 封装，诊断原生兼容性。
+- 显式 `azynq_metadata`：只在新副本的三个 `component.xml` 中增加 `azynq / Pre-Production` 声明；这是诊断实验，不是正式支持声明或生产迁移批准。没有改 HDL、接口和视频参数。
+- 实测实验 `bd_metadata02` 创建/校验并保存 16 个 BD cell，退出码 0、`PASS_BD_METADATA_EXPERIMENT_ONLY`；33 个源文件中 30 个副本字节相同，另外 3 个 XML 除换行规范外仅增加该声明。原仓库仍干净。
+- 首次实验报告终态为空是包装器自身错误，已修复重跑；失败工程/日志均保留，不充作通过结果。证据见 `report/stage3_bd_experiment_20261002.json`。
+
+复现：沿用上节已精确验证的 Vivado/源目录，在 `-source` 使用 `<工作树绝对路径>\scripts\s3_validate_vendor_bd.tcl`；`-tclargs` 为 `<官方仓库绝对路径> <新输出目录绝对路径> native` 或显式 `azynq_metadata`。输出目录必须不存在、父目录存在，日志另用新名字；预计 1–2 分钟、单线程。失败保留产物，禁止原地覆盖或自动回退器件。
+
+仍需解决：实际 PCB/DDR/电平对应、PCLK 与视频完整约束、自定义 IP 在 XA/-1 的 HDL/时序兼容性、Windows 路径长度提示、旧 xlconcat/xlconstant 的工具迁移提示、Vitis 软件迁移，以及缓冲/丢帧口径。实验通过不能关闭硬件 G0，也不能代替综合、时序或 G3/G4/G5。

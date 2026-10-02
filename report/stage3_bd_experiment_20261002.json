@@ -1,0 +1,49 @@
+{
+  "recorded_at": "2026-10-02T18:07:20+08:00",
+  "status": "PASS_BD_METADATA_EXPERIMENT_ONLY",
+  "scope": "BD_ONLY_NO_XDC_NO_SYNTHESIS_NO_HARDWARE",
+  "vivado_version": "2026.1",
+  "part": "xa7z020clg400-1I",
+  "part_family": "azynq",
+  "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+  "script": "scripts/s3_validate_vendor_bd.tcl",
+  "script_sha256": "6273fa6353262c93aaffcd35323a818be1dfe816cd99b773656c16831ab98545",
+  "native_attempt": {
+    "process_exit_code": 1,
+    "script_exit_argument": 2,
+    "error": "BD 5-683: digilentinc.com:ip:axi_dynclk:1.0 is not supported for the current part",
+    "tested_script_sha256": "1cc7b290091abeeffd562d69cc302bf4bd635dcafea2aad94da3a7eb7b86ecbc",
+    "local_log": "tmp/stage3_reference/probe01/bd_validate.log",
+    "local_log_sha256": "8b95d9e641998f55d5e6eb0638c54396b80fe050ed3e6d8fb2f10361ce32d18a"
+  },
+  "experiment": {
+    "mode": "azynq_metadata",
+    "process_exit_code": 0,
+    "bd_cell_count": 16,
+    "output_directory": "tmp/stage3_reference/bd_metadata02",
+    "local_log": "tmp/stage3_reference/probe01/bd_metadata02.log",
+    "local_log_sha256": "a29c0862af0dacbc75ac53035a829e2ed7d548c668a8e4bdb80c7bb7e050366e",
+    "vendor_ip_source_files": 33,
+    "byte_identical_nonmodified_files": 30,
+    "modified_copy_files": [
+      "axi_dynclk_v1_0/component.xml",
+      "ov5640_ip/component.xml",
+      "rgb2dvi_v1_3/component.xml"
+    ],
+    "only_semantic_change": "隔离副本的 supportedFamilies 各加入一条 azynq / Pre-Production；按 UTF-8/LF 重写这三个 XML",
+    "xml_expected_delta_check": "PASS",
+    "source_git_status_after": "CLEAN"
+  },
+  "discarded_diagnostic_attempt": {
+    "output_directory": "tmp/stage3_reference/bd_metadata01",
+    "reason": "早期包装器成功结果被 close_project 返回空串覆盖；已修复并以 bd_metadata02 重跑，不纳入终态验收"
+  },
+  "review_status": "PASS_STATIC_BD_DIAGNOSTIC_ONLY",
+  "limitations": [
+    "不是正式IP家族支持或RTL兼容性证明，仅诊断目录拒绝的原因",
+    "Windows 长路径与旧 xlconcat/xlconstant 迁移提示尚未关闭",
+    "未生成HDL目标、综合、时序验证、Vitis编译或板测",
+    "硬件G0未冻结，未采用候选XDC或实际接线",
+    "本地日志和工程未归档，固定源提交与脚本支持重跑"
+  ]
+}

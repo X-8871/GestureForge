@@ -43,11 +43,11 @@
 
 - tiny320/tiny416 后续板上门：LUT/FF/BRAM/DSP≤85%，WNS/WHS≥0，TNS/THS=0；full608 不适用板上资源门。
 - 未来若要求“无手必须拒绝输出”，需另建独立、可审计数据集和新验收门，不回写当前阶段一冻结结论。
-- 阶段 2A 已开启；当前仅推进 PL 推理仿真。阶段 2B 固定输入上板须在 2A 验收完成、硬件条件核对并经 Wong 明确允许后开始。摄像头视频、HDMI、实物操作、烧录和新训练均不在当前范围。
+- 阶段2A仍未冻结；2B固定输入推理上板仍依赖2A验收。Wong最新选择并行开启阶段3，暂定目标为摄像头→已核实输入→FPGA→HDMI显示原始画面；正式计划允许3在视频接口核实后独立穿插，不依赖2A/2B推理验收。阶段3先按板卡/PCB版本核对端口方向、器件、引脚、电平和摄像头兼容性；分辨率/像素格式/帧率及丢帧策略在G0明确，按原计划至少30分钟无死锁并留计数、日志和视频。本目标不等于已授权烧录/实物操作或已完成验收；不自动引入CNN/检测框。
 
 ## 阶段 2A 最新恢复点
 
-- 当前运行（2026-10-02，UTC+8）：Wong 已从独立 Windows PowerShell 手动启动 manual_20261002_140325（启动时间 14:03:25）；一次定向进程核验确认 sample0 runner PID 21704、coordinator PID 7196、sample0 Verilator PID 40472 正在运行。入口 report/evidence/S2A-T68/manual_20261002_140325/unattended_continuation_manual_20261002_140325.json；自动 sample0→108 样本（最多 8 workers）→D9，不主动监视。batch109_r5 已按 Wong 切换请求停止且旧证据保留；batch109_r4 中断原因未确认。启动核验不代表样本验收或 G4/G5 通过。
+- 当前批次最新记录（用户请求状态核查，2026-10-02，UTC+8）：`manual_20261002_140325` 最终协调报告现为 `COORDINATOR_ERROR`，报 Cannot bind argument to parameter Text because it is an empty string；sample0终态 `PASS_SAMPLE0_TERMINAL`、simulation/runner exit0。batch字段保留 `RUNNING_EXISTING_SCHEDULER`，但 `batch_dispatch/batch_summary.json` 不存在、D9为null；本轮未查询进程，不能从该字段断言scheduler当前仍在跑或已停。必须诊断协调器并核对既有scheduler再恢复，禁止盲重跑或覆盖证据；不改变用户要求不主动监控的边界。2A/G4/G5未通过。
 
 - 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
 

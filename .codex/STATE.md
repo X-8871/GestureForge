@@ -47,7 +47,7 @@
 
 ## 阶段 2A 最新恢复点
 
-- 当前恢复（2026-10-02 14:01，UTC+8）：Wong 要求改为自行在 Windows PowerShell 独立启动；已核对并停止本会话启动的 batch109_r5 coordinator/runner/Verilator 及其 conhost 子进程，定向复核无 r5 活动进程，全部证据保留。batch109_r4 此前无活动进程且缺失终态记录，中断原因未确认。下一次由 Wong 在 Codex 外的 PowerShell 7 按 docs/S2A-T68_local_run_guide.md 全新启动块生成 manual_时间戳 RunId，从 sample0→108 样本（最多 8 workers）→D9；尚未获知手动新批次 RunId/启动结果，不主动监视，G4/G5 未通过。
+- 当前运行（2026-10-02，UTC+8）：Wong 已从独立 Windows PowerShell 手动启动 manual_20261002_140325（启动时间 14:03:25）；一次定向进程核验确认 sample0 runner PID 21704、coordinator PID 7196、sample0 Verilator PID 40472 正在运行。入口 report/evidence/S2A-T68/manual_20261002_140325/unattended_continuation_manual_20261002_140325.json；自动 sample0→108 样本（最多 8 workers）→D9，不主动监视。batch109_r5 已按 Wong 切换请求停止且旧证据保留；batch109_r4 中断原因未确认。启动核验不代表样本验收或 G4/G5 通过。
 
 - 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
 

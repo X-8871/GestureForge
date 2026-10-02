@@ -17,7 +17,7 @@
 - Wong 已确认 AN5642 到手；指定 Vault 项目的 `01-竞赛材料/板卡正面.jpg`、`板卡反面.jpg` 已实际读取并计算哈希，入口 `board/stage3/hardware_photo_evidence.md`。不再向 Wong 索要板卡照片；沿用阶段0已记版本标记 `AX701020.3.0`，与候选图纸的对应仍内部核对，不伪称电气/板测通过。
 - 离线准备六文件静态独立审查 PASS（不含 PDF 独立视觉或板测）；下一步离线 BD 迁移验证，接口冻结后再准备 HDMI 与摄像头的准确板测步骤。双通道最终语义、缓冲/丢帧口径仍待 G0 冻结。
 - BD 诊断：原厂 IP 在 XA/-1I 上因 `axi_dynclk` 家族声明拒绝实例化；显式隔离副本只给三个 IP XML 增加 azynq 声明后，16-cell BD 校验实测通过，见 `report/stage3_bd_experiment_20261002.json`。只是元数据实验，不是正式 IP 支持、RTL/时序或板测通过；硬件 G0 继续待实物证据，禁止据此烧录。未修改厂商原件。
-- HDL 诊断：`azynq_metadata hdl` 在 `tmp/s3h01` 实测退出 0、生成包装器；证据 `report/stage3_hdl_generation_20261002.json`。五项 AXI ID 1/6 位宽警告未关闭；没有语法/综合/时序/软件/板测通过证据。下一步先查 ID 连接与软件依赖；旧 AX7Z020 核心板/底板图不能作为当前 AX7020 电气绑定，不要求重复提供板卡照片。
+- HDL 诊断：`azynq_metadata hdl` 在 `tmp/s3h01` 实测退出 0、生成包装器；证据 `report/stage3_hdl_generation_20261002.json`。随后 `check_syntax -fileset sources_1` 退出 0、语法检查无错误/警告，见 `report/stage3_hdl_syntax_20261002.json`；不代表 elaboration/综合/时序/软件/板测通过。五项 AXI ID 1/6 位宽警告未关闭，下一步先查 ID 连接及厂商软件错误处理/超时/缓存交接。旧 AX7Z020 核心板/底板图不能作为当前 AX7020 电气绑定，不要求重复提供板卡照片。
 
 ## 阶段 2A G0 冻结入口
 

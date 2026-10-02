@@ -1,0 +1,192 @@
+%Warning-TIMESCALEMOD: source\s2a_network_descriptor_pkg.sv:3:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    3 | package s2a_network_descriptor_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+                       source\tb_s2a_conv_tile_memory.sv:3:8: ... Location of module with timescale
+    3 | module tb_s2a_conv_tile_memory;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: source\s2a_conv_tile_engine.sv:2:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    2 | module s2a_conv_tile_engine (
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       source\tb_s2a_conv_tile_memory.sv:3:8: ... Location of module with timescale
+    3 | module tb_s2a_conv_tile_memory;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:317:69: Operator NEQ expects 32 bits on the LHS, but LHS's ARRAYSEL generates 16 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  317 |                      (S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched] != output_channels_latched) ||
+      |                                                                     ^~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:318:69: Operator ADD expects 128 bits on the LHS, but LHS's REPLICATE generates 32 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  318 |                      ({16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+      |                                                                     ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:320:50: Operator GT expects 128 bits on the RHS, but RHS's VARREF 'MAX_FEATURE_PATCH_BYTES' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  320 |                      (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||
+      |                                                  ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:321:52: Operator GT expects 128 bits on the RHS, but RHS's VARREF 'MAX_WEIGHT_GROUP_BYTES' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  321 |                      (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin
+      |                                                    ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:346:55: Operator DIV expects 64 bits on the LHS, but LHS's VARREF 'feature_scan_index' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  346 |             feature_scan_channel = feature_scan_index / patch_plane_bytes;
+      |                                                       ^
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:346:34: Operator ASSIGN expects 32 bits on the Assign RHS, but Assign RHS's DIV generates 64 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  346 |             feature_scan_channel = feature_scan_index / patch_plane_bytes;
+      |                                  ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:347:51: Operator MODDIV expects 64 bits on the LHS, but LHS's VARREF 'feature_scan_index' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  347 |             feature_scan_rem = feature_scan_index % patch_plane_bytes;
+      |                                                   ^
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:347:30: Operator ASSIGN expects 32 bits on the Assign RHS, but Assign RHS's MODDIV generates 64 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  347 |             feature_scan_rem = feature_scan_index % patch_plane_bytes;
+      |                              ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:480:76: Operator ADD expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  480 |                              {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+      |                                                                            ^
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:514:57: Operator ASSIGN expects 64 bits on the Assign RHS, but Assign RHS's NEGATE generates 65 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  514 |                         requant_signed_value[comb_lane] =
+      |                                                         ^
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:517:57: Operator ASSIGN expects 64 bits on the Assign RHS, but Assign RHS's SIGNED generates 65 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  517 |                         requant_signed_value[comb_lane] =
+      |                                                         ^
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:770:63: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SIGNED generates 32 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  770 |                             feature_patch[feature_scan_index] <=
+      |                                                               ^~
+%Warning-WIDTHTRUNC: source\s2a_conv_tile_engine.sv:817:66: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SIGNED generates 32 bits.
+                                                          : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  817 |                                          weight_reduction_index] <=
+      |                                                                  ^~
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:833:78: Operator ADD expects 32 bits on the LHS, but LHS's ARRAYSEL generates 16 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  833 |                                         S2A_T23_MQ_BASE[layer_index_latched] + output_group_base + seq_lane
+      |                                                                              ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:854:78: Operator ADD expects 32 bits on the LHS, but LHS's ARRAYSEL generates 16 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  854 |                                         S2A_T23_MQ_BASE[layer_index_latched] + output_group_base + seq_lane
+      |                                                                              ^
+%Warning-WIDTHEXPAND: source\s2a_conv_tile_engine.sv:909:59: Operator GTE expects 128 bits on the LHS, but LHS's VARREF 'output_byte_offset_wide' generates 64 bits.
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+  909 |                                  (output_byte_offset_wide >= output_elements_wide)) begin
+      |                                                           ^~
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:116:23: Operator DIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  116 |                 y=(idx/S2A_OUTPUT_W[layer_id])%S2A_OUTPUT_H[layer_id]; x=idx%S2A_OUTPUT_W[layer_id];
+      |                       ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:116:47: Operator MODDIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  116 |                 y=(idx/S2A_OUTPUT_W[layer_id])%S2A_OUTPUT_H[layer_id]; x=idx%S2A_OUTPUT_W[layer_id];
+      |                                               ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:116:77: Operator MODDIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  116 |                 y=(idx/S2A_OUTPUT_W[layer_id])%S2A_OUTPUT_H[layer_id]; x=idx%S2A_OUTPUT_W[layer_id];
+      |                                                                             ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:120:69: Operator NEQ expects 32 bits on the RHS, but RHS's ARRAYSEL generates 8 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  120 |                 if(seen[idx] || ((req_wdata>>(8*selected_lane))&255)!=golden[idx])
+      |                                                                     ^~
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:127:23: Operator DIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  127 |                 y=(idx/S2A_INPUT_W[layer_id][0])%S2A_INPUT_H[layer_id][0]; x=idx%S2A_INPUT_W[layer_id][0];
+      |                       ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:127:49: Operator MODDIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  127 |                 y=(idx/S2A_INPUT_W[layer_id][0])%S2A_INPUT_H[layer_id][0]; x=idx%S2A_INPUT_W[layer_id][0];
+      |                                                 ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:127:81: Operator MODDIV expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  127 |                 y=(idx/S2A_INPUT_W[layer_id][0])%S2A_INPUT_H[layer_id][0]; x=idx%S2A_INPUT_W[layer_id][0];
+      |                                                                                 ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:128:47: Operator ADD expects 32 bits on the RHS, but RHS's ARRAYSEL generates 8 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  128 |                 py=y-ty*S2A_STRIDE_H[layer_id]+S2A_PADDING_TOP[layer_id];
+      |                                               ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:129:47: Operator ADD expects 32 bits on the RHS, but RHS's ARRAYSEL generates 8 bits.
+                                                              : ... note: In instance 'tb_s2a_conv_tile_memory'
+  129 |                 px=x-tx*S2A_STRIDE_W[layer_id]+S2A_PADDING_LEFT[layer_id];
+      |                                               ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:159:107: Operator SUB expects 32 bits on the RHS, but RHS's ARRAYSEL generates 8 bits.
+                                                               : ... note: In instance 'tb_s2a_conv_tile_memory'
+  159 |                 if(ty*S2A_STRIDE_H[layer_id]+py>=S2A_PADDING_TOP[layer_id] && ty*S2A_STRIDE_H[layer_id]+py-S2A_PADDING_TOP[layer_id]<S2A_INPUT_H[layer_id][0] && tx*S2A_STRIDE_W[layer_id]+px>=S2A_PADDING_LEFT[layer_id] && tx*S2A_STRIDE_W[layer_id]+px-S2A_PADDING_LEFT[layer_id]<S2A_INPUT_W[layer_id][0]) expected_reads=expected_reads+ci;
+      |                                                                                                           ^
+%Warning-WIDTHEXPAND: source\tb_s2a_conv_tile_memory.sv:159:250: Operator SUB expects 32 bits on the RHS, but RHS's ARRAYSEL generates 8 bits.
+                                                               : ... note: In instance 'tb_s2a_conv_tile_memory'
+  159 |                 if(ty*S2A_STRIDE_H[layer_id]+py>=S2A_PADDING_TOP[layer_id] && ty*S2A_STRIDE_H[layer_id]+py-S2A_PADDING_TOP[layer_id]<S2A_INPUT_H[layer_id][0] && tx*S2A_STRIDE_W[layer_id]+px>=S2A_PADDING_LEFT[layer_id] && tx*S2A_STRIDE_W[layer_id]+px-S2A_PADDING_LEFT[layer_id]<S2A_INPUT_W[layer_id][0]) expected_reads=expected_reads+ci;
+      |                                                                                                                                                                                                                                                          ^
+%Warning-MULTIDRIVEN: source\s2a_conv_tile_engine.sv:615:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_group_base'
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+                      source\s2a_conv_tile_engine.sv:615:13: 
+  615 |             output_group_base <= 32'd0;
+      |             ^~~~~~~~~~~~~~~~~
+                      source\tb_s2a_conv_tile_memory.sv:170:17: ... Location of other write
+  170 |             dut.output_group_base=group_base;
+      |                 ^~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/MULTIDRIVEN?v=5.050
+                      ... Use "/* verilator lint_off MULTIDRIVEN */" and lint_on around source to disable this message.
+%Warning-MULTIDRIVEN: source\s2a_conv_tile_engine.sv:616:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_y'
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+                      source\s2a_conv_tile_engine.sv:616:13: 
+  616 |             tile_start_y <= 32'd0;
+      |             ^~~~~~~~~~~~
+                      source\tb_s2a_conv_tile_memory.sv:164:17: ... Location of other write
+  164 |             dut.tile_start_y=ty;dut.tile_start_x=tx;
+      |                 ^~~~~~~~~~~~
+%Warning-MULTIDRIVEN: source\s2a_conv_tile_engine.sv:617:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_x'
+                                                           : ... note: In instance 'tb_s2a_conv_tile_memory.dut'
+                      source\s2a_conv_tile_engine.sv:617:13: 
+  617 |             tile_start_x <= 32'd0;
+      |             ^~~~~~~~~~~~
+                      source\tb_s2a_conv_tile_memory.sv:164:37: ... Location of other write
+  164 |             dut.tile_start_y=ty;dut.tile_start_x=tx;
+      |                                     ^~~~~~~~~~~~
+make: Entering directory '/d/FPGA_Competition/report/evidence/S2A-T70/memory_full01/obj_dir'
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated.cpp
+D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:78:10: warning: 'STDOUT_FILENO' redefined
+   78 | # define STDOUT_FILENO _fileno(stdout)
+      |          ^~~~~~~~~~~~~
+In file included from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/locale.h:12,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/clocale:47,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/x86_64-w64-mingw32/bits/c++locale.h:41,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/bits/localefwd.h:42,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/string:48,
+                 from D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilatedos.h:653,
+                 from D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:51:
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:56:9: note: this is the location of the previous definition
+   56 | #define STDOUT_FILENO   1
+      |         ^~~~~~~~~~~~~
+D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:79:10: warning: 'STDERR_FILENO' redefined
+   79 | # define STDERR_FILENO _fileno(stderr)
+      |          ^~~~~~~~~~~~~
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:57:9: note: this is the location of the previous definition
+   57 | #define STDERR_FILENO   2
+      |         ^~~~~~~~~~~~~
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_s2a_conv_tile_memory__pch.h -o Vtb_s2a_conv_tile_memory__pch.h.fast.gch
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.fast -c Vtb_s2a_conv_tile_memory.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.fast -c Vtb_s2a_conv_tile_memory___024root__0.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.fast -c Vtb_s2a_conv_tile_memory___024root__1.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.fast -c Vtb_s2a_conv_tile_memory__main.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_s2a_conv_tile_memory__pch.h -o Vtb_s2a_conv_tile_memory__pch.h.slow.gch
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.slow -c Vtb_s2a_conv_tile_memory__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.slow -c Vtb_s2a_conv_tile_memory___024root__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.slow -c Vtb_s2a_conv_tile_memory___024root__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.slow -c Vtb_s2a_conv_tile_memory_s2a_network_descriptor_pkg__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2a_conv_tile_memory__pch.h.slow -c Vtb_s2a_conv_tile_memory__Syms__Slow.cpp
+g++    verilated.o verilated_timing.o verilated_threads.o Vtb_s2a_conv_tile_memory__ALL.a    -pthread -lpthread -latomic   -o Vtb_s2a_conv_tile_memory
+rm Vtb_s2a_conv_tile_memory__ALL.verilator_deplist.tmp
+make: Leaving directory '/d/FPGA_Competition/report/evidence/S2A-T70/memory_full01/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702
+- Verilator: Built from 1.217 MB sources in 4 modules, into 1.227 MB in 9 C++ files needing 0.014 MB
+- Verilator: Walltime 34.285 s (elab=0.088, cvt=0.355, bld=33.722); cpu 0.000 s on 1 threads; allocated 39.477 MB

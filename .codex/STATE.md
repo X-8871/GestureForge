@@ -47,6 +47,8 @@
 
 ## 阶段 2A 最新恢复点
 
+- 当前运行（2026-10-02 13:40，UTC+8）：Wong 要求继续运行后，定向 Windows 进程核验确认 batch109_r4 无活动进程，sample0 simulation record/coordinator summary/batch summary 均缺失；具体中断原因未确定，旧证据保留。已按本地无人值守说明隐藏启动新 RunId batch109_r5，sample0 runner PID 40776、coordinator PID 40656，启动后一次核验二者存活；其后自行执行 sample0→108 样本（最多 8 workers）→D9，不主动监视。最终入口 report/evidence/S2A-T68/batch109_r5/unattended_continuation_batch109_r5.json；启动不代表样本验收或 G4/G5 通过。
+
 - 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
 
 | T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |

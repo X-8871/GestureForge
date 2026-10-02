@@ -15,9 +15,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "report/evidence/S2A-T68/static_source_closure_20261002.json"
-MANIFEST_SHA256 = "165ce2e8a208d967b0f0c4041a5a879757e8134fabf8a07a93ca416afde2d284"
-BASELINE_COMMIT = "11ab1413727b72934345da250d6851a256aa75a9"
-BASELINE_TREE = "f0f3ff0e688325da8d647eeacab3587b9ae540ae"
+MANIFEST_SHA256 = "93df3e1947e618f72324444268640382416dd6d631b4ae260e0c49f07fc51b8f"
+BASELINE_COMMIT = "a1298dbc4b41eb9ac54caca77e18fd00bee30538"
+BASELINE_TREE = "dbac6be3f860e1ade64eaf55add4e1915ea74545"
 SAMPLE_COUNT = 109
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 SAMPLE_DIRECTORY_PATTERN = re.compile(r"^sample_([0-9]{3})$")

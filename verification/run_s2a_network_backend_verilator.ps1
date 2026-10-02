@@ -26,6 +26,15 @@ function Get-Sha256Literal {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
+function Test-S2aNetworkBackendResultSummary {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string]$Text)
+
+    $normalizedText = $Text.Replace("`r`n", "`n")
+    return ($normalizedText -match '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$') -and
+        ($normalizedText -match '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$') -and
+        ($normalizedText -match '(?m)^head13_bytes=5070 head26_bytes=20280$')
+}
+
 function Write-Utf8NoBom {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -602,9 +611,7 @@ if ($RunSimulation) {
     $resultSummaryValid = $false
     if (($runnerExitCode -eq 0) -and (Test-Path -LiteralPath $resultPath -PathType Leaf)) {
         $resultSummary = [System.IO.File]::ReadAllText($resultPath, [System.Text.Encoding]::UTF8)
-        $resultSummaryValid = ($resultSummary -match '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$') -and
-            ($resultSummary -match '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$') -and
-            ($resultSummary -match '(?m)^head13_bytes=5070 head26_bytes=20280$')
+        $resultSummaryValid = Test-S2aNetworkBackendResultSummary -Text $resultSummary
         if (-not $resultSummaryValid) {
             $runnerExitCode = 125
             $watchdogTerminationReason = 'RESULT_SUMMARY_INVALID'

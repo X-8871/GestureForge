@@ -53,6 +53,31 @@ $script:Summary = [ordered]@{
     created_utc = [DateTime]::UtcNow.ToString('o')
 }
 
+function Assert-ApprovedPythonCommandResolution {
+    param(
+        [Parameter(Mandatory = $true)][string]$ApprovedPath,
+        [Parameter(Mandatory = $true)][AllowEmptyCollection()][object[]]$ResolvedCommands
+    )
+
+    $approvedItem = Get-Item -LiteralPath $ApprovedPath -ErrorAction Stop
+    if ($approvedItem.PSIsContainer -or (($approvedItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)) {
+        throw "固定 Python 必须是普通文件：$ApprovedPath"
+    }
+    if ($ResolvedCommands.Count -lt 1) {
+        throw 'PATH 中未解析到 python.exe。'
+    }
+
+    $resolvedPath = [string]$ResolvedCommands[0].Path
+    if ([string]::IsNullOrWhiteSpace($resolvedPath)) {
+        throw 'PATH 首选 python.exe 没有可验证的文件路径。'
+    }
+    $approvedFullPath = [System.IO.Path]::GetFullPath($approvedItem.FullName)
+    if ([System.IO.Path]::GetFullPath($resolvedPath) -ine $approvedFullPath) {
+        throw "批 worker 的 python.exe 首选解析不等于固定 Python：$resolvedPath"
+    }
+    return $approvedFullPath
+}
+
 function Get-Sha256Literal {
     param([Parameter(Mandatory = $true)][string]$Path)
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256 -ErrorAction Stop).Hash.ToLowerInvariant()
@@ -655,10 +680,8 @@ try {
     }
     $pythonDirectory = Split-Path -Parent $pythonPath
     $env:PATH = $pythonDirectory + [System.IO.Path]::PathSeparator + $env:PATH
-    $resolvedPython = (Get-Command -Name 'python.exe' -CommandType Application -ErrorAction Stop).Path
-    if ([System.IO.Path]::GetFullPath($resolvedPython) -ine [System.IO.Path]::GetFullPath($pythonPath)) {
-        throw "批 worker 的 python.exe 未解析到固定 Python：$resolvedPython"
-    }
+    $resolvedPythonCommands = @(Get-Command -Name 'python.exe' -CommandType Application -All -ErrorAction Stop)
+    $resolvedPython = Assert-ApprovedPythonCommandResolution -ApprovedPath $pythonPath -ResolvedCommands $resolvedPythonCommands
     $script:Summary.pinned_python_sha256 = Get-Sha256Literal -Path $pythonPath
 
     $script:SummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}.json" -f $RunId)

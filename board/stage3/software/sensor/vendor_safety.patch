@@ -1,0 +1,285 @@
+--- a/i2c/PS_i2c.c
++++ b/i2c/PS_i2c.c
+@@ -1,76 +1,65 @@
+-#include "xil_printf.h"
+-#include "PS_i2c.h"
+-
+-int i2c_reg8_write(XIicPs *InstancePtr, char IIC_ADDR, char Addr, char Data)
+-{
+-	int Status;
+-	u8 SendBuffer[2];
+-
+-	SendBuffer[0] = Addr;
+-	SendBuffer[1] = Data;
+-	Status = XIicPs_MasterSendPolled(InstancePtr, SendBuffer, 2, IIC_ADDR);
+-	while (XIicPs_BusIsBusy(InstancePtr));
+-
+-	return Status;
+-}
+-
+-char i2c_reg8_read(XIicPs *InstancePtr, char IIC_ADDR, char Addr)
+-{
+-	u8 wr_data, rd_data;
+-
+-	wr_data = Addr;
+-	XIicPs_MasterSendPolled(InstancePtr, &wr_data, 1, IIC_ADDR);
+-	XIicPs_MasterRecvPolled(InstancePtr, &rd_data, 1, IIC_ADDR);
+-	while (XIicPs_BusIsBusy(InstancePtr));
+-	return rd_data;
+-}
+-
+-int i2c_reg16_write(XIicPs *InstancePtr, char IIC_ADDR, unsigned short Addr, char Data)
+-{
+-	int Status;
+-	u8 SendBuffer[3];
+-
+-	SendBuffer[0] = Addr>>8;
+-	SendBuffer[1] = Addr;
+-	SendBuffer[2] = Data;
+-	Status = XIicPs_MasterSendPolled(InstancePtr, SendBuffer, 3, IIC_ADDR);
+-	while (XIicPs_BusIsBusy(InstancePtr));
+-
+-	return Status;
+-}
+-
+-char i2c_reg16_read(XIicPs *InstancePtr, char IIC_ADDR, unsigned short Addr)
+-{
+-	u8 rd_data;
+-	u8 SendBuffer[2];
+-
+-	SendBuffer[0] = Addr>>8;
+-	SendBuffer[1] = Addr;
+-	XIicPs_MasterSendPolled(InstancePtr, SendBuffer, 2, IIC_ADDR);
+-	XIicPs_MasterRecvPolled(InstancePtr, &rd_data, 1, IIC_ADDR);
+-	while (XIicPs_BusIsBusy(InstancePtr));
+-	return rd_data;
+-}
+-
+-
+-
+-int i2c_init(XIicPs *Iic,short DeviceID ,u32 IIC_SCLK_RATE)
+-{
+-	XIicPs_Config *Config;
+-	int Status;
+-
+-	Config = XIicPs_LookupConfig(DeviceID);
+-	if (NULL == Config) {
+-		xil_printf("XIicPs_LookupConfig failure\r\n");
+-		return XST_FAILURE;
+-	}
+-
+-	Status = XIicPs_CfgInitialize(Iic, Config, Config->BaseAddress);
+-	if (Status != XST_SUCCESS) {
+-		xil_printf("XIicPs_CfgInitialize failure\r\n");
+-		return XST_FAILURE;
+-	}
+-	XIicPs_SetSClk(Iic, IIC_SCLK_RATE);
+-	while (XIicPs_BusIsBusy(Iic));	// Wait
+-	return XST_SUCCESS;
+-}
++#include "PS_i2c.h"
++/* 沿用厂商逐次发送/接收协议；不增加重试、复位或模式变更。 */
++static int wait_idle(XIicPs *iic)
++{
++    u32 n;
++    for (n = 0; n < S3_I2C_BUSY_LIMIT; ++n)
++        if (!XIicPs_BusIsBusy(iic)) return XST_SUCCESS;
++    return S3_ERR_BUSY;
++}
++static int send(XIicPs *iic, u8 slave, u8 *data, int count)
++{
++    int status;
++    if (iic == NULL || slave > 0x7fU) return S3_ERR_ARGUMENT;
++    status = wait_idle(iic);
++    if (status != XST_SUCCESS) return status;
++    status = XIicPs_MasterSendPolled(iic, data, count, slave);
++    if (status != XST_SUCCESS) return status;
++    return wait_idle(iic);
++}
++static int read_reg(XIicPs *iic, u8 slave, u8 *address, int count, u8 *out)
++{
++    u8 value;
++    int status;
++    if (out == NULL) return S3_ERR_ARGUMENT;
++    status = send(iic, slave, address, count);
++    if (status != XST_SUCCESS) return status;
++    status = XIicPs_MasterRecvPolled(iic, &value, 1, slave);
++    if (status != XST_SUCCESS) return status;
++    status = wait_idle(iic);
++    if (status != XST_SUCCESS) return status;
++    *out = value;
++    return XST_SUCCESS;
++}
++int i2c_reg8_write(XIicPs *iic, u8 slave, u8 addr, u8 data)
++{
++    u8 buffer[2] = {addr, data};
++    return send(iic, slave, buffer, 2);
++}
++int i2c_reg16_write(XIicPs *iic, u8 slave, u16 addr, u8 data)
++{
++    u8 buffer[3] = {(u8)(addr >> 8), (u8)addr, data};
++    return send(iic, slave, buffer, 3);
++}
++int i2c_reg8_read(XIicPs *iic, u8 slave, u8 addr, u8 *out)
++{
++    return read_reg(iic, slave, &addr, 1, out);
++}
++int i2c_reg16_read(XIicPs *iic, u8 slave, u16 addr, u8 *out)
++{
++    u8 buffer[2] = {(u8)(addr >> 8), (u8)addr};
++    return read_reg(iic, slave, buffer, 2, out);
++}
++int i2c_init(XIicPs *iic, s3_iic_device_id device, u32 rate)
++{
++    XIicPs_Config *config;
++    int status;
++    if (iic == NULL || rate == 0U) return S3_ERR_ARGUMENT;
++    config = XIicPs_LookupConfig(device);
++    if (config == NULL) return XST_FAILURE;
++    status = XIicPs_CfgInitialize(iic, config, config->BaseAddress);
++    if (status != XST_SUCCESS) return status;
++    status = XIicPs_SetSClk(iic, rate);
++    if (status != XST_SUCCESS) return status;
++    return wait_idle(iic);
++}
+--- a/i2c/PS_i2c.h
++++ b/i2c/PS_i2c.h
+@@ -1,13 +1,24 @@
+-#ifndef __PS_I2C_H__
+-#define __PS_I2C_H__
+-
+-#include "xil_types.h"
+-#include "xiicps.h"
+-
+-int i2c_reg8_write(XIicPs *InstancePtr, char IIC_ADDR, char Addr, char Data);
+-char i2c_reg8_read(XIicPs *InstancePtr, char IIC_ADDR, char Addr);
+-int i2c_reg16_write(XIicPs *InstancePtr, char IIC_ADDR, unsigned short Addr, char Data);
+-char i2c_reg16_read(XIicPs *InstancePtr, char IIC_ADDR, unsigned short Addr);
+-int i2c_init(XIicPs *Iic,short DeviceID ,u32 IIC_SCLK_RATE);
+-
+-#endif
++#ifndef S3_PS_I2C_H
++#define S3_PS_I2C_H
++#include <stddef.h>
++#include "xil_types.h"
++#include "xiicps.h"
++#ifdef SDT
++typedef UINTPTR s3_iic_device_id;
++#else
++typedef u16 s3_iic_device_id;
++#endif
++/* 仅约束外层查询次数，不约束底层阻塞调用的持续时间。 */
++#ifndef S3_I2C_BUSY_LIMIT
++#define S3_I2C_BUSY_LIMIT 10000U
++#endif
++#define S3_ERR_ARGUMENT (-1001)
++#define S3_ERR_BUSY (-1002)
++#define S3_ERR_ID (-1003)
++#define S3_ERR_TABLE (-1004)
++int i2c_reg8_write(XIicPs *, u8, u8, u8);
++int i2c_reg8_read(XIicPs *, u8, u8, u8 *);
++int i2c_reg16_write(XIicPs *, u8, u16, u8);
++int i2c_reg16_read(XIicPs *, u8, u16, u8 *);
++int i2c_init(XIicPs *, s3_iic_device_id, u32);
++#endif
+--- a/ov5640.h
++++ b/ov5640.h
+@@ -1,18 +1,16 @@
+-#ifndef __OV5640_H__
+-#define __OV5640_H__
+-#include "xil_types.h"
+-struct reginfo
+-{
+-    u16 reg;
+-    u8 val;
+-};
+-
+-#define SEQUENCE_INIT        0x00
+-#define SEQUENCE_NORMAL      0x01
+-
+-#define SEQUENCE_PROPERTY    0xFFFD
+-#define SEQUENCE_WAIT_MS     0xFFFE
+-#define SEQUENCE_END	     0xFFFF
+-#define IIC_DEVICE_ID	XPAR_XIICPS_0_DEVICE_ID
+-int sensor_init();
+-#endif
++#ifndef S3_OV5640_H
++#define S3_OV5640_H
++#include <stddef.h>
++#include "i2c/PS_i2c.h"
++struct reginfo { u16 reg; u8 val; };
++#define SEQUENCE_INIT 0x00
++#define SEQUENCE_NORMAL 0x01
++#define SEQUENCE_PROPERTY 0xFFFD
++#define SEQUENCE_WAIT_MS 0xFFFE
++#define SEQUENCE_END 0xFFFF
++extern struct reginfo sensor_init_data[];
++int ov5640_read(XIicPs *, u16, u8 *);
++int ov5640_write(XIicPs *, u16, u8);
++int sensor_write_array(XIicPs *, const struct reginfo *, size_t);
++int sensor_init(XIicPs *);
++#endif
+--- a/ov5640.c
++++ b/ov5640.c
+@@ -314,28 +314,33 @@
+-int ov5640_read(XIicPs *IicInstance,u16 addr,u8 *read_buf)
+-{
+-	*read_buf=i2c_reg16_read(IicInstance,0x3c,addr);
+-	return XST_SUCCESS;
+-}
+-
+-int ov5640_write(XIicPs *IicInstance,u16 addr,u8 data)
+-{
+-
+-	return i2c_reg16_write(IicInstance,0x3c,addr,data);
+-}
+-
+-/* write a array of registers  */
+-void sensor_write_array(XIicPs *IicInstance, struct reginfo *regarray)
+-{
+-    int i = 0;
+-    while (regarray[i].reg != SEQUENCE_END) {
+-		ov5640_write(IicInstance,regarray[i].reg,regarray[i].val);
+-		i++;
+-	}
+-
+-}
+-
+-int sensor_init(XIicPs *IicInstance)
+-{
+-	sensor_write_array(IicInstance,sensor_init_data);
+-	return 0;
+-}
++int ov5640_read(XIicPs *iic, u16 addr, u8 *out)
++{
++    return i2c_reg16_read(iic, 0x3c, addr, out);
++}
++int ov5640_write(XIicPs *iic, u16 addr, u8 data)
++{
++    return i2c_reg16_write(iic, 0x3c, addr, data);
++}
++/* 长度含终止符；调用者保证该长度对应真实可读对象。首个错误立即返回。 */
++int sensor_write_array(XIicPs *iic, const struct reginfo *table, size_t length)
++{
++    size_t n;
++    int status;
++    if (iic == NULL || table == NULL || length == 0) return S3_ERR_ARGUMENT;
++    for (n = 0; n < length; ++n) {
++        if (table[n].reg == SEQUENCE_END) return XST_SUCCESS;
++        status = ov5640_write(iic, table[n].reg, table[n].val);
++        if (status != XST_SUCCESS) return status;
++    }
++    return S3_ERR_TABLE;
++}
++int sensor_init(XIicPs *iic)
++{
++    u8 high, low;
++    int status;
++    status = ov5640_read(iic, 0x300a, &high);
++    if (status != XST_SUCCESS) return status;
++    status = ov5640_read(iic, 0x300b, &low);
++    if (status != XST_SUCCESS) return status;
++    if (high != 0x56 || low != 0x40) return S3_ERR_ID;
++    return sensor_write_array(iic, sensor_init_data,
++                             sizeof(sensor_init_data) / sizeof(sensor_init_data[0]));
++}

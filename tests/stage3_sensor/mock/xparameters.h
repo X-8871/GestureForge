@@ -1,0 +1,3 @@
+#ifndef MOCK_XPARAMETERS_H
+#define MOCK_XPARAMETERS_H
+#endif

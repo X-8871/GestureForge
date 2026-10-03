@@ -1,0 +1,94 @@
+{
+  "date_utc8": "2026-10-04",
+  "scope": "固定官方 AX7020 HDMI-only 源的隔离 BD 校验与 HDL/顶层包装器生成；随后对该输出工程执行 check_syntax；未加载板级 XDC，未综合、实现、生成 bitstream/XSA 或操作硬件。",
+  "script_commit": "2836214d19aa9588bca2298acc67b0733e724dd2",
+  "script": "scripts/s3_validate_hdmi_only_bd.tcl",
+  "script_sha256": "B56FCAC3A5087D693DD53EFF71E9364FBDA881942B77F6E0296C23E919094318",
+  "vendor_root_relative": "tmp/stage3_reference/AX7020_2023.1",
+  "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+  "vendor_source_relative": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project",
+  "vendor_source_status_after_run": "clean",
+  "vivado": "2026.1",
+  "part": "xa7z020clg400-1I",
+  "part_family": "azynq",
+  "mode": "azynq_metadata",
+  "phase": "hdl",
+  "exit_code": 0,
+  "result": "PASS_HDL_EXPERIMENTAL_METADATA_ONLY",
+  "bd_cell_count": 11,
+  "bd_cells": [
+    "axi_dynclk_0",
+    "axi_smc",
+    "axi_vdma_0",
+    "processing_system7_0",
+    "ps7_0_axi_periph",
+    "rgb2dvi_0",
+    "rst_ps7_0_100M",
+    "rst_ps7_0_142M",
+    "v_axi4s_vid_out_0",
+    "v_tc_0",
+    "xlconcat_0"
+  ],
+  "bd_interface_ports": ["DDR", "FIXED_IO", "hdmi_ddc", "TMDS"],
+  "hdmi_top_ports": ["hdmi_oen", "TMDS_clk_n", "TMDS_clk_p", "TMDS_data_n", "TMDS_data_p"],
+  "camera_ports": "none; HDMI-only signal-set assertion passed",
+  "project_level_xdc_loaded": false,
+  "output_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff",
+  "result_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff/result.txt",
+  "result_sha256": "DFD5AEF74E244592463A064A47BCF18AA0C966500B3EF38E210327C18B22F081",
+  "diagnostics_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff/diagnostics.txt",
+  "diagnostics_sha256": "83DB2991A43565609A1EADC477B49CF998A636CD6D442F8284AFE29B0B1999C1",
+  "bd_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff/project/s3_hdmi_only.srcs/sources_1/bd/s3_hdmi_only/s3_hdmi_only.bd",
+  "bd_sha256": "9B1B7DBA53113ACE9AB63EBA12733F61391B2358F04882CC5B7767A456E9B352",
+  "wrapper_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/hdl/s3_hdmi_only_wrapper.v",
+  "wrapper_sha256": "C02FFDB6119D2FDD35D65680EFA9F3D23A8EEFED32659575FD0A932D94207DF0",
+  "hdl_log_relative": "tmp/s3_tcl_syntax_44713c68dfe64c5bb3070820d80b2f05/stage3_hdmi_hdl_2d2921bd08124472972bfa7fbd4ad8ff.log",
+  "hdl_log_sha256": "5A8364680C1C83DA96C5189D10CC518515ADA9BD22700EA4236B4F3A8FC7FCDF",
+  "syntax_check": {
+    "command": "check_syntax -fileset sources_1",
+    "helper_relative": "tmp/s3_tcl_syntax_44713c68dfe64c5bb3070820d80b2f05/check_generated_hdmi_hdl.tcl",
+    "helper_sha256": "988E568F59BA0653C0A2224BC62DE34CB0E84BE4B56436431C231A56EC280CD7",
+    "exit_code": 0,
+    "completed_marker": true,
+    "vivado_message": "No errors or warning reported.",
+    "log_relative": "tmp/s3_tcl_syntax_44713c68dfe64c5bb3070820d80b2f05/syntax_hdmi_hdl_2d2921bd08124472972bfa7fbd4ad8ff.log",
+    "log_sha256": "BB6216DA7EF84E4248AC90D9E5DCB83F0BA4CC8BA1C88C45702F16F174DD17CE"
+  },
+  "diagnostics": [
+    {
+      "id": "Common 17-741",
+      "severity": "CRITICAL WARNING",
+      "summary": "local Tcl Store at C was not writable; Vivado fell back to its installation area. No permission/cache changes were made."
+    },
+    {
+      "id": "IP_Flow 19-4994",
+      "severity": "WARNING",
+      "summary": "two OOC XDC files were overwritten while generating targets inside this isolated project output; vendor source/cache was not modified."
+    },
+    {
+      "id": "Project 1-5713",
+      "severity": "WARNING",
+      "summary": "the empty board-part property was not found and was unset during syntax-check project open; the exact FPGA part remains xa7z020clg400-1I. Board-level pin mapping is not thereby verified."
+    },
+    {
+      "id": "ProjectBase 1-489",
+      "severity": "INFO",
+      "summary": "Vivado warned that the project path exceeds 80 characters on this Windows host; generation and syntax check completed, but a shorter path is preferred before a full build."
+    }
+  ],
+  "comparison_with_20261002_report": {
+    "prior_report": "report/stage3_hdl_generation_20261002.json",
+    "prior_script": "scripts/s3_validate_vendor_bd.tcl",
+    "prior_script_sha256": "FC3B7B275C1DF899B318C88B0E7719C0192D1ACB34965494EF0D7C114A7294FF",
+    "prior_source_relative": "course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "current_source_relative": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project",
+    "conclusion": "prior 16-cell report is from the camera-inclusive OV5640 design, while this 11-cell report is from the HDMI-only design; counts are different-scope results, not a same-design replay mismatch."
+  },
+  "limitations": [
+    "The azynq family declaration was applied only to copied IP metadata under the isolated output; this remains an experimental workaround, not a vendor support claim.",
+    "IP-generated OOC constraints exist; project_level_xdc_loaded=false only means no final board XDC was loaded.",
+    "No complete clock graph, external HDMI timing, pin/differential-pair DRC, synthesis, implementation, timing sign-off, XSA, BSP integration, or hardware validation was performed.",
+    "Generated project and full logs remain under ignored local tmp paths; this JSON is the tracked summary, not a complete archived build package.",
+    "The top-level XDC/board revision binding, HDMI clock-period warnings, and the camera-to-display path remain open; no bitstream is approved for download."
+  ]
+}

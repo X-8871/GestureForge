@@ -9,7 +9,10 @@ param(
 
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^[0-9a-fA-F]{64}$')]
-    [string]$ExpectedBackendSha256
+    [string]$ExpectedBackendSha256,
+
+    [ValidatePattern('^[0-9a-f]{64}$')]
+    [string]$ResumeFailedCoordinatorSha256
 )
 
 Set-StrictMode -Version Latest
@@ -119,6 +122,29 @@ function Read-JsonObject {
     return $value
 }
 
+function Assert-FailedCoordinatorRecovery {
+    param(
+        [string]$SummaryPath, [string]$ExpectedSummaryHash, [string]$EvidenceRoot,
+        [string]$ExpectedRunId, [string]$ExpectedBackendHash
+    )
+    $null = Assert-NormalFile -Path $SummaryPath -Label '原失败 coordinator summary'
+    if ((Get-Sha256Literal -Path $SummaryPath) -cne $ExpectedSummaryHash) { throw '原失败 coordinator summary SHA 不匹配。' }
+    $prior = Read-JsonObject -Path $SummaryPath -Label '原失败 coordinator summary'
+    if ($prior.schema_version -cne 'gestureforge_s2a_t68_unattended_continuation_v1' -or
+        $prior.status -cne 'COORDINATOR_ERROR' -or $prior.stage2a_pass -ne $false -or
+        $prior.run_id -cne $ExpectedRunId -or $prior.evidence_directory -cne $EvidenceRoot -or
+        $prior.expected_backend_sha256 -cne $ExpectedBackendHash -or $prior.observed_backend_sha256 -cne $ExpectedBackendHash -or
+        $prior.sample0.terminal_record_status -cne 'PASS_SAMPLE0_TERMINAL' -or
+        $prior.sample0.exit_code -ne 0 -or $prior.sample0.runner_exit_code -ne 0 -or
+        $prior.batch.status -cne 'RUNNING_EXISTING_SCHEDULER' -or $null -ne $prior.batch.process_exit_code -or
+        $null -ne $prior.d9 -or $prior.error -notlike '*Cannot bind argument to parameter ''Text'' because it is an empty string.*') {
+        throw '原失败 summary 不符合空日志故障的单次恢复条件。'
+    }
+    $recordPath = Join-Path $EvidenceRoot ("runs\sample_000\{0}\simulation_execution_record.json" -f $ExpectedRunId)
+    if ($prior.sample0.terminal_record_path -cne $recordPath -or
+        (Get-Sha256Literal -Path $recordPath) -cne $prior.sample0.terminal_record_sha256) { throw '原 sample0 终态绑定不匹配。' }
+    if (Test-Path -LiteralPath (Join-Path $EvidenceRoot 'batch_dispatch')) { throw '单次恢复要求尚无 batch_dispatch；拒绝重复派发。' }
+}
 function Write-NewUtf8File {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -687,7 +713,15 @@ try {
     $resolvedPython = Assert-ApprovedPythonCommandResolution -ApprovedPath $pythonPath -ResolvedCommands $resolvedPythonCommands
     $script:Summary.pinned_python_sha256 = Get-Sha256Literal -Path $pythonPath
 
-    $script:SummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}.json" -f $RunId)
+    $originalSummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}.json" -f $RunId)
+    $script:SummaryPath = $originalSummaryPath
+    if ($ResumeFailedCoordinatorSha256) {
+        Assert-FailedCoordinatorRecovery -SummaryPath $originalSummaryPath -ExpectedSummaryHash $ResumeFailedCoordinatorSha256 `
+            -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -ExpectedBackendHash $expectedBackendHash
+        $script:SummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}_recovery.json" -f $RunId)
+        $script:Summary.recovered_from_summary_path = $originalSummaryPath
+        $script:Summary.recovered_from_summary_sha256 = $ResumeFailedCoordinatorSha256
+    }
     if (Test-Path -LiteralPath $script:SummaryPath) { throw "拒绝覆盖既有 coordinator summary：$($script:SummaryPath)" }
 
     $mutexKey = [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData([System.Text.Encoding]::UTF8.GetBytes(($evidenceRoot.ToLowerInvariant() + '|' + $RunId.ToLowerInvariant()))))

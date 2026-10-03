@@ -14,10 +14,10 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST_PATH = ROOT / "report/evidence/S2A-T68/static_source_closure_20261003.json"
-MANIFEST_SHA256 = "c42e2b2bb420239e4988b95bbe241476d1be89fe798079b8fa5136b42daf8f49"
-BASELINE_COMMIT = "ff3d00245da9c28097f2f4c130469b5cb278b53a"
-BASELINE_TREE = "f6799d6b06141cef20090d8d75311a7417fa29cf"
+MANIFEST_PATH = ROOT / "report/evidence/S2A-T68/static_source_closure_20261003_runtime.json"
+MANIFEST_SHA256 = "3181e9618c01247dc19903ae5545f5684ff787838444f3b5323ad0b78e1d31b3"
+BASELINE_COMMIT = "6a2e58f1b7dfbcae9c09ae2ba3d22918d5e63e6c"
+BASELINE_TREE = "c7ec1f7df6f528ae8b208c388aa2715c7457e892"
 SAMPLE_COUNT = 109
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 SAMPLE_DIRECTORY_PATTERN = re.compile(r"^sample_([0-9]{3})$")

@@ -106,3 +106,5 @@ AX7020 原理图 PDF 第 15 页：J10 使用 EX_IO1 网络，J11 使用 EX_IO2 �
 传感器适配入口 `software/sensor/ADAPTATION.md`：只保存厂商差异补丁及固定源准备脚本，不重新编写寄存器表。主机四组合各 968 cases / 847246 checks / 302 writes，303 项表值一致；独立 Reviewer 复验和冻结检查通过。证据 `report/stage3_sensor_host_20261003.json`。底层 `MasterRecvPolled` 仍有无限等待，主机进程 30 秒限时不等于 I2C 超时；真实 BSP/VDMA/显示集成未完成。
 
 首次需要 Wong 的实物操作是 [prepower_check.md](prepower_check.md) 的断电模块核对：AN5642 型号/版本、Pin1 和直插/排线方式。不是立即烧录上板，不要求重发板卡照片，不授权猜方向或带电测量。模块与板卡电气绑定后，才冻结最终接口、约束和接线；后续仍须解决调试核心/生成时钟、底层接收截止时间、缓存/缓冲所有权、视频背压/复位及帧行像素观测，完成正式构建和审查后再发可执行板测步骤。G0/G3/G4/G5 尚未通过。
+
+AXI4-Stream 背压适配 S3-VAXIS-01：WinPS 5.1 策略自测 5/5 通过；真实厂商顶层 host 仿真 `xvlog/xelab/xsim` 均退出 0，12 beats、6 个停顿周期、12 次 FIFO 弹出。launcher 退出码缺失或读取失败时，即使 sentinel 为 0 也会 fail-closed。结果及源码哈希见 `report/stage3_vaxis01_host_20261003.json`；原始日志留在本地 `tmp`。该回归使用同钟 FWFT mock，不证明异步 CDC 或板级行为。

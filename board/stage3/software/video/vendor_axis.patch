@@ -1,0 +1,8 @@
+--- a/alinx_ov5640.v
++++ b/alinx_ov5640.v
+@@ -162,1 +162,1 @@
+-assign m_axis_video_tvalid = ~empty & m_axis_video_tready;
++assign m_axis_video_tvalid = ~empty & fifo_ready_maxis;
+@@ -198,1 +198,1 @@
+-      .rd_en            (m_axis_video_tready & ~empty & fifo_ready_maxis),
++      .rd_en            (m_axis_video_tvalid & m_axis_video_tready),

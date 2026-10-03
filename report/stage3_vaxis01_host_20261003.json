@@ -1,0 +1,56 @@
+{
+  "date_utc8": "2026-10-03",
+  "task": "S3-VAXIS-01",
+  "baseline_commit": "19034ec45a46b9b93b313032222af4cb04aae3c3",
+  "scope": "修复 Vivado 批处理 launcher 退出码不可读时可能被 sentinel 单独放行的问题，并复验厂商 AXI4-Stream 背压适配。",
+  "exit_code_policy_self_test": {
+    "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/s3_test_video_axis.ps1 -ValidateExitCodePolicy",
+    "exit_code": 0,
+    "powershell_version": "5.1.26100.8457",
+    "cases_passed": 5,
+    "cases": [
+      "launcher 缺失且读取失败、sentinel 为 0：拒绝 CAPTURED，exit_code 为空",
+      "launcher 缺失且无读取错误、sentinel 为 0：拒绝 CAPTURED，exit_code 为空",
+      "launcher 与 sentinel 不同：拒绝 CAPTURED，exit_code 为空",
+      "launcher 与 sentinel 均为 0：CAPTURED",
+      "launcher 与 sentinel 均为 23：CAPTURED"
+    ],
+    "evidence": "tmp/s3_vaxis01_ps51_fix_20261003_01/exit_code_policy_selftest.stdout.log",
+    "evidence_sha256": "95CEA29C15405E652B4BFD8BB2EB7ED2CB2717C17116A1658D98A601C3081B41"
+  },
+  "host_regression": {
+    "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/s3_test_video_axis.ps1 -RunName s3_vaxis01_ps51_fix_20261003_01 -TimeoutSeconds 120",
+    "runner_exit_code": 0,
+    "status": "PASS",
+    "vivado_version": "2026.1",
+    "tools": [
+      { "name": "xvlog", "exit_code": 0, "launcher_exit_code": 0, "sentinel_exit_code": 0, "timed_out": false },
+      { "name": "xelab", "exit_code": 0, "launcher_exit_code": 0, "sentinel_exit_code": 0, "timed_out": false },
+      { "name": "xsim", "exit_code": 0, "launcher_exit_code": 0, "sentinel_exit_code": 0, "timed_out": false }
+    ],
+    "simulation_summary": {
+      "beats": 12,
+      "stalled_cycles": 6,
+      "fifo_pops": 12,
+      "tuser_count": 1,
+      "tlast_count": 3
+    },
+    "evidence": "tmp/s3_vaxis01_ps51_fix_20261003_01/result.json",
+    "evidence_sha256": "1F348F4DF9FAFE1677D2B00D7CC3FFD7A1854B27F271311F78A507885DB68435",
+    "xsim_stdout": "tmp/s3_vaxis01_ps51_fix_20261003_01/xsim.stdout.log",
+    "xsim_stdout_sha256": "EA0AF9200EB4D689AC425B01A342D130083EB3B6FEC069C0D1A7F4A545FBA3C5"
+  },
+  "source_sha256": {
+    "scripts/s3_test_video_axis.ps1": "436AE847E7A819FC4625193C103090BFBF1E2B056FC0A0EB60438734AA0A32E6",
+    "board/stage3/software/video/ADAPTATION.md": "4E0EEB0723A26135D5BE72B689120D829CDFACD0BC5FC79977CFDB91FA1EA73E",
+    "board/stage3/software/video/prepare_vendor.ps1": "74F322275794413BA62CE873122A157369DF683E2BAF9185E832ECEB18182C89",
+    "board/stage3/software/video/vendor_axis.patch": "045B3A44A568D8DFDC303CDF279030B1E9BE1D0880D53BC153AE92F5543CB7A0",
+    "tests/stage3_video/test_axis_backpressure.sv": "7EC6F2BD3F97F6A685E39BCB225FB5016DEA21932BD5C09CFB53939AD5212330",
+    "tests/stage3_video/mock/xpm_fifo_async.v": "2A5F9BB6DD245E6667C42F34EBFEDB30B8347B71EEFEB2AC8ACE425CB7314A9B"
+  },
+  "limitations": [
+    "使用同一时钟和 FWFT FIFO 仿真模型，未验证真实 XPM 异步 CDC。",
+    "未覆盖传感器图像语义、I2C、真实复位时序、HDMI、持续运行或板卡行为。",
+    "此主机结果不代表硬件 G0、G3、G4 或阶段 G5 通过。"
+  ]
+}

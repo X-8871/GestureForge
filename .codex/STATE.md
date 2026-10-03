@@ -11,15 +11,15 @@
 
 ## 阶段 3 独立穿插入口
 
-- AN5642 模块资料优先级：Wong 指定目录 `D:\FPGA_Competition\摄像头资料\官方资料` 为模块首要基线；用户手册/模块原理图/OV5640 与 SCCB PDF 的 SHA-256、光盘板卡例程清单见 `board/stage3/README.md`。AI/第三方搜集材料仅辅助；AX7020 电气仍查其对应官方图纸/工程。阻断冲突：手册 PDF p.6 Pin1=GND，AN5642 原理图 p.1 J3 Pin1=CMOS2_D9，且手册 p.3/p.6 对 40 针接口性别描述不同；在 ALINX 书面确认前禁止接插/冻结 XDC，无需 Wong 当前上板。
+- AN5642 模块资料优先级：Wong 指定目录 `D:\FPGA_Competition\摄像头资料\官方资料` 为模块首要基线；用户手册/模块原理图/OV5640 与 SCCB PDF 的 SHA-256、光盘板卡例程清单见 `board/stage3/README.md`。AI/第三方材料仅辅助；AX7020 电气仍查其对应官方图纸/工程。2026-10-03 视觉复核确认手册 p.6 与 AN5642 原理图 p.1 J3 一致：Pin1=GND、Pin3=`CMOS2_D9`；此前 Pin1 冲突为误读，已撤回。未决项是手册 p.3/p.6 对 40 针连接器类型的文字不一致、Pin8 信号名 `CMOS_D2`/`CMOS2_D2` 差异，以及模块到 AX7020 的实物配接、PCB 版本和 I/O 电平绑定；详见 `board/stage3/README.md`。
 
 - Debug hub 探针已加 `tmp/s3s05` 规范化路径边界。路径矩阵/调用顺序静态检查通过；Vivado 重放在 Tcl 载入前受启动/授权问题阻断，报告区分当前脚本哈希与此前成功运行哈希。
 
 - Wong 已批准执行 AN5642 原始视频链路，实物操作由 Wong 执行；本会话工作树分支 `codex/stage3-video` 基于 `955a2b4`，不改主工作树、不查询或干预 2A/T68 运行。
 - 入口 `board/stage3/README.md`：计划与原计划差别、固定官方 AX7020 源 `fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327`、PDF 页码/哈希及候选 CMOS1 引脚；旧 AX7Z020 2017.4 XDC 不直接复用。
-- Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结；AN5642 标签型号已由实物照片确认，模块版本、Pin1 与连接方式仍待核对。
-- Wong 提供的 AN5642 模块照片标签可读为 `ALINX`、`AN5642`、`S/N: 001165`；照片可见两排连接器焊点，但未可靠确定 Pin1、模块版本或最终接插方向。板卡正反面照片已在指定 Vault 项目 `01-竞赛材料/板卡正面.jpg`、`板卡反面.jpg` 读取并计算哈希，入口 `board/stage3/hardware_photo_evidence.md`；不再向 Wong 索要板卡照片。沿用阶段0已记板卡版本标记 `AX701020.3.0`，与候选图纸对应关系仍内部核对，不伪称电气/板测通过。
-- 离线准备及诊断工具已独立审查并提交；AN5642 官方手册与同包原理图的 Pin1 冲突未由厂商澄清前，无需 Wong 上板/插接，见 `board/stage3/prepower_check.md`。此后还需核对模块版本、Pin1/连接方式及板卡 PCB 电气绑定；双通道最终语义、缓冲/丢帧口径仍待 G0 冻结，不重复索要板卡照片/已确认型号序列号。
+- Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结；AN5642 标签型号已由实物照片确认，模块版本、连接器配接/物理方向和 AX7020 电气绑定仍待核对；逻辑 Pin1/Pin3 已由官方资料确认。
+- Wong 提供的 AN5642 模块照片标签可读为 `ALINX`、`AN5642`、`S/N: 001165`；照片可见两排连接器焊点，但未可靠确定模块版本、连接器配接面或最终接插方向。板卡正反面照片已在指定 Vault 项目 `01-竞赛材料/板卡正面.jpg`、`板卡反面.jpg` 读取并计算哈希，入口 `board/stage3/hardware_photo_evidence.md`；不再向 Wong 索要板卡照片。沿用阶段0已记板卡版本标记 `AX701020.3.0`，与候选图纸对应关系仍内部核对，不伪称电气/板测通过。
+- 离线准备及诊断工具已独立审查并提交；AN5642 Pin1/Pin3 不再阻塞（手册 p.6 / 模块原理图 p.1：Pin1=GND、Pin3=`CMOS2_D9`），但手册 p.3/p.6 连接器类型文字差异、Pin8 命名差异和 AX7020 PCB/电气绑定待闭环，见 `board/stage3/prepower_check.md`。双通道最终语义、缓冲/丢帧口径仍待 G0 冻结；不重复索要板卡照片/已确认型号序列号。
 - BD 诊断：原厂 IP 在 XA/-1I 上因 `axi_dynclk` 家族声明拒绝实例化；显式隔离副本只给三个 IP XML 增加 azynq 声明后，16-cell BD 校验实测通过，见 `report/stage3_bd_experiment_20261002.json`。只是元数据实验，不是正式 IP 支持、RTL/时序或板测通过；硬件 G0 继续待实物证据，禁止据此烧录。未修改厂商原件。
 - HDL 诊断：`azynq_metadata hdl` 在 `tmp/s3h01` 实测退出 0、生成包装器；证据 `report/stage3_hdl_generation_20261002.json`。随后 `check_syntax -fileset sources_1` 退出 0、语法检查无错误/警告，见 `report/stage3_hdl_syntax_20261002.json`；不代表 elaboration/综合/时序/软件/板测通过。五项 AXI ID 1/6 位宽警告未关闭，下一步先查 ID 连接及厂商软件错误处理/超时/缓存交接。旧 AX7Z020 核心板/底板图不能作为当前 AX7020 电气绑定，不要求重复提供板卡照片。
 - PL 恢复与 debug-hub 生命周期：综合历史记录 `report/stage3_synth_diag_20261003.json` 中的 `UNRESOLVED_BLACKBOXES:dbg_hub` 是 synth-stage 检查结果，不是 `synth_design` 失败；AMD UG908 描述 7-series debug hub 在 `opt_design` 实现。隔离复验报告 `report/stage3_debug_hub_opt_20261003.json`：相同哈希综合 DCP 的新副本、Vivado 2026.1/XA/-1I，`opt_design` 退出 0，`dbg_hub` 从 blackbox 变为非 blackbox、未解析黑盒为 0；run 停在 `Not started place_design`，未开始 place/route/bitstream。13 项 critical warning 和普通 warning 未关闭；普通 warning 汇总 11 项但日志仅定位 9 项，含 XCI 不一致、无目标 CDC-10 waiver、6 条同钟 XPM 告警，另 2 项未定位。Timing 38-249、debug-hub XDC、NSTD/UCIO/RAM DRC warning 仍未关闭；无最终 XDC、完整时序、bitstream 或板测，G0/G3/G4/G5 未通过。

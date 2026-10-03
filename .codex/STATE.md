@@ -15,7 +15,7 @@
 - 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
 - G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
 - 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项（2026-10-03）：新批次 `repair109_20261003_124125` 已后台启动并核验实际编译进程；sample0通过后自动8-worker运行其余108并执行D9。按Wong要求不主动监控；用户要求时定向检查。完成后执行runtime源码映射、真实归档/恢复与独立G4/G5。
+- 下一项（2026-10-03）：最新批次 `repair109_20261003_194620` 已启动；一次核验确认sample0 runner、coordinator和Verilator/make编译进程运行，启动stderr均为空，尚未通过sample0。通过后自动8-worker运行其余108并执行D9。按Wong要求不主动监控；用户要求时单次检查。完成后执行runtime源码映射、归档/恢复和独立G4/G5。
 
 ## 已冻结的模型和口径
 
@@ -47,7 +47,7 @@
 
 ## 阶段 2A 最新恢复点
 
-- 当前批次最新记录（2026-10-03 12:41后一次启动核验，UTC+8）：`repair109_20261003_124125` sample0 runner PID40596、coordinator PID11912、Verilator编译PID28060及make进程实际存在，启动stderr均为空；仍在编译，尚无新样本PASS。旧 `manual_20261002_140325` sample0保持PASS；首次协调器空日志错误，修复恢复后8worker因缺cv2在输入准备退出，全部记录保留、未覆盖。新批次从sample0完整开始；原成功sample0不计入新批次。启动/输入109哈希检查证据 `report/evidence/S2A-T68/repair109_20261003_124125/repair_launch_record.json`。
+- 当前批次最新记录（2026-10-03 19:46 UTC+8）：`repair109_20261003_194620` sample0 runner PID26384、coordinator PID38084；一次启动查询确认3个pwsh、Verilator进程1个、make进程2个，stderr均空，sample0处于编译，尚无样本通过。启动证据 `report/evidence/S2A-T68/repair109_20261003_194620/startup_check_20261003.json`。之前 `repair109_20261003_124125` sample0通过，但8个worker仿真exit0且写出heads/摘要后，被遗漏的第二处CRLF raw regex拒收；失败汇总保留、不计验收。worker CRLF修复commit `fecbf1f` 及闭包commit `01d2f9e`，新批次从sample0开始；其他失败RunId均保留。
 
 - 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
 
@@ -68,7 +68,7 @@
 - T25 clean-copy恢复实测（2026-10-02）：干净副本 `tmp/s2a_clean_restore_20261002_160036` HEAD `d530281`；冻结Python3.12.10/NumPy2.4.6/OpenCV4.13.0，单线程数值库BelowNormal。真实恢复109×38成功（2283.61s）、CPU D9 canonical109复验成功（12.359s，总2296.36s），独立Reviewer逐新分片压缩/解压SHA及全部终态记录审查PASS。证据 `report/evidence/S2A-T25/clean_restore_20261002_160036/recovery_execution_record.json`、`final_evidence_integrity.json`；恢复器109完整校验后原子发布，未读取原shards/PL109运行。这关闭CPU oracle clean-copy恢复缺口；不证明PL证据归档、PL全流程副本重跑、G4/G5。
 - 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成；截至 2026-10-02 尚余 6 天（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
 - G4/G5 静态实施资格审查：基于 HEAD `5116ac1d0f05cb9ad2ea76ee91e45da2ca152161` 的可复用实现与验收链路审查为 `PASS`；该结论仅表示静态上具备按冻结规格产出并核验完整交付物的路径，**不表示仿真运行通过，也不表示 G4/G5 已通过或阶段已冻结**。最终验收仍须在同一冻结基线上取得 109 个固定样本各自完整 38 层 PL golden 记录且零 mismatch；取得 109 样本真实 PL heads 对冻结 CPU T25/T29 D9 的完整比较；合并 T69 已通过的单元/协议结果时逐项保留其证据与适用性，不能替代整网结果；将每个样本编译 source snapshot 的文件哈希映射到干净且可恢复的 Git tree/commit；证据须归档于可访问、可恢复的 `report/evidence/S2A-T68/<RunId>/`（含输入/模型/源码与工具清单、运行记录、逐样本结果、SHA-256、复现命令及从干净副本重建/重跑步骤）；形成真实结果的阶段验收记录并完成独立 G4/G5 签收。G3 板测在 2A 属 N/A：本阶段仅 PL RTL 仿真，T01 与当前范围均不授权烧录或实物操作；综合、资源利用率和时序在 2A 亦属 N/A：本阶段验收目标是功能仿真，不执行综合，不能据此声称资源/时序通过。以上实际结果及审查均待完成。
-- 静态源闭合复核（2026-10-03）：最新 `report/evidence/S2A-T68/static_source_closure_20261003_runtime.json` SHA3181e9618c01247dc19903ae5545f5684ff787838444f3b5323ad0b78e1d31b3，baseline6a2e58f1b7dfbcae9c09ae2ba3d22918d5e63e6c/treec7ec1f7df6f528ae8b208c388aa2715c7457e892；38源核验、独立审查PASS、10项映射回归通过，pins提交eb580f4。两处脚本修复de76786、单次恢复ff3d002、依赖预检6a2e58f均已审查。固定Python3.12.14通过当前进程PYTHONPATH使用既有NumPy2.4.6/OpenCV4.13.0，109输入长度/冻结SHA实际全通过；运行说明已更新。生产RTL及编译11+3源不变，runtime109映射仍待完成。
+- 静态源闭合复核（2026-10-03）：最新 `report/evidence/S2A-T68/static_source_closure_20261003_worker_crlf.json` SHA9920c8f782677de1fb38053ae5357f517b8f24526ccb9edab816a56b72830244，compile source baseline `fecbf1f8f37fcee8b25e6e2517b9621850912a4e`/tree `094e1492396a6788cc33b3b5866dd304387c02da`，38源核验、独立PASS、10项映射回归通过，pins提交`01d2f9e`。CRLF worker验证提交`fecbf1f`；固定Python3.12.14通过当前进程PYTHONPATH使用既有NumPy2.4.6/OpenCV4.13.0，109个输入长度与冻结SHA实际全通过；生产RTL与编译11+3源不变。runtime 109映射、G4/G5未完成。
 - 归档忽略规则核对（2026-10-02）：`git check-ignore -v` 对 `report/evidence/S2A-T68/batch109_r3` 和预期 D9 报告 `report/evidence/S2A-T68/batch109_r3/d9_109_sample_report.json` 均无匹配（not ignored）；根目录 `.gitignore` 无 `report/evidence` 规则。此项仅记录忽略配置，不代表目录内容或运行状态已核实。阶段冻结时须逐项枚举必要证据文件、记录 SHA-256、注明可访问且可恢复的归档路径及干净副本重建/重跑步骤；不得批量暂存整个证据目录。
 - 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。
 - 保护状态：PID 8712 Vivado、22488/13156 XSim 为审计记录的受保护进程，任何运行前重新核对身份，不停止/关闭/重置/发送状态修改。MCP 当前连接健康但项目为 `s2a_t61_run04` 的 `isolated_project`、Top 为空，不是2A仿真实例。

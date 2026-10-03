@@ -260,3 +260,8 @@ try {
 当前运行目录为 `D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_124125`。一次启动核验确认 sample0 runner PID40596、coordinator PID11912及实际 Verilator/make 编译进程存在，启动 stderr 为空；该记录只说明当时启动成功，不代表此后进程仍活跃或样本通过。先完成 sample0，再自动最多8个worker运行108样本和D9。启动记录为该目录的 `repair_launch_record.json`；最终报告为 `unattended_continuation_repair109_20261003_124125.json`。不主动监控。
 
 `manual_20261002_140325` 原成功sample0和两次失败协调记录全部保留；新批次完整从sample0开始，不把旧sample0计入新批次。恢复参数 `-ResumeFailedCoordinatorSha256` 仅处理尚无dispatch的特定空日志故障；旧目录现在已有失败dispatch，不能再使用该恢复入口。不要对当前新批次重复启动。
+## 2026-10-03 后续worker摘要修复与重跑
+
+`repair109_20261003_124125` 的sample0通过；其余8个样本均完成RTL仿真、runner exit0并生成head及结果摘要，但调度器worker终态校验仍有一处未使用CRLF规范化helper的正则，导致这8项及批次汇总被判失败。目录和失败汇总均保留，不纳入完成计数。修复提交 `fecbf1f` 已经独立审查；真实 sample001 摘要回归、38源闭包和10项映射回归均通过。
+
+当前重跑RunId为 `repair109_20261003_194620`，目录 `D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_194620`。一次启动核验确认sample0 runner、coordinator和Verilator编译进程存在，两个启动stderr为空；sample0通过后自动8-worker跑108样本及D9。提交后的这次启动从sample0完整开始，不把上一失败RunId内的仿真产物计入本次批次。用户要求不主动监控。

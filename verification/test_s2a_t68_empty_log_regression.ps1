@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$ManualEvidenceDirectory = 'report/evidence/S2A-T68/manual_20261002_140325'
+    [string]$ManualEvidenceDirectory = 'report/evidence/S2A-T68/manual_20261002_140325',
+    [string]$Sample1RunDirectory = 'report/evidence/S2A-T68/repair109_20261003_124125/runs/sample_001/repair109_20261003_124125'
 )
 
 Set-StrictMode -Version Latest
@@ -116,7 +117,8 @@ $badTexts = @(
     (($goodLines[0..0] + @('feature_write_bytes=11382149 mismatches=0 cycles=972865374', $goodLines[2])) -join "`n"),
     (($goodLines[0..1]) -join "`r`n"),
     (('status=PASS_LAYERWISE_EXACT_GOLDEN trailing' + "`r`n" + $goodLines[1] + "`n" + $goodLines[2])),
-    (($goodLines[0] + "`r`n" + $goodLines[1] + "`nhead13_bytes=5070 head26_bytes=20280 extra"))
+    (($goodLines[0] + "`r`n" + $goodLines[1] + "`nhead13_bytes=5070 head26_bytes=20280 extra")),
+    (($goodLines[0] + "`r`n" + $goodLines[1] + "`r`nhead13_bytes=5071 head26_bytes=20280"))
 )
 foreach ($badText in $badTexts) {
     Assert-TestCondition -Condition (-not (Test-S2aNetworkBackendResultSummary -Text $badText)) -Message '错误、缺失或尾随内容摘要被接受。'
@@ -133,6 +135,39 @@ $preflight = Assert-Sample0Passed -EvidenceRoot $manualRoot -RunId $manualRunId 
     -BackendPath $backendPath -ExpectedBackendHash $compileRecord.backend_sha256_expected
 $simulationPath = Join-Path $preflight.sample_directory 'simulation_execution_record.json'
 $simulationRecord = Read-JsonObject -Path $simulationPath -Label '授权manual sample0 simulation record'
+$sample1Path = if ([System.IO.Path]::IsPathRooted($Sample1RunDirectory)) { $Sample1RunDirectory } else { Join-Path $repositoryRoot $Sample1RunDirectory }
+$sample1Root = Assert-NormalDirectory -Path $sample1Path -Label '授权repair109 sample001目录'
+$sample1Root = Assert-PathWithin -Path $sample1Root -Parent $repositoryRoot -Label '授权repair109 sample001目录'
+$sample1RunId = Split-Path -Leaf $sample1Root
+$sample1RecordPath = Join-Path $sample1Root 'simulation_execution_record.json'
+$sample1Record = Read-JsonObject -Path $sample1RecordPath -Label '授权repair109 sample001 simulation record'
+Assert-TestCondition -Condition ([int]$sample1Record.sample_index -eq 1) -Message 'repair109 sample001记录的sample_index不是1。'
+Assert-TestCondition -Condition ([string]$sample1Record.run_id -ceq $sample1RunId) -Message 'repair109 sample001记录RunId与目录不符。'
+$sample1SummaryPath = Get-SafeRunFile -RunDirectory $sample1Root -PathValue $sample1Record.result_summary_path -Label '授权repair109 sample001 result summary'
+$sample1SummarySha256 = Get-Sha256Literal -Path $sample1SummaryPath
+Assert-TestCondition -Condition ($sample1SummarySha256 -ceq [string]$sample1Record.result_summary_sha256) -Message 'repair109 sample001 result summary SHA 与 execution record 不符。'
+$sample1SummaryText = [System.IO.File]::ReadAllText($sample1SummaryPath, [System.Text.Encoding]::UTF8)
+$sample1CrLfCount = [regex]::Matches($sample1SummaryText, "`r`n").Count
+Assert-TestCondition -Condition ($sample1CrLfCount -gt 0) -Message '授权repair109 sample001 result summary 未包含CRLF。'
+Assert-TestCondition -Condition ($sample1SummaryText -notmatch '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$') -Message '真实CRLF样本未复现旧raw状态正则的误拒绝。'
+Assert-TestCondition -Condition (Test-S2aNetworkBackendResultSummary -Text $sample1SummaryText) -Message '统一helper拒绝了SHA匹配的真实repair109 sample001摘要。'
+$sample1NormalizedSummaryText = $sample1SummaryText.Replace("`r`n", "`n")
+$sample1StatusMatch = [regex]::Match($sample1NormalizedSummaryText, '(?m)^status=(?<status>[A-Z0-9_]+)$')
+$sample1FeatureStatsMatch = [regex]::Match($sample1NormalizedSummaryText, '(?m)^feature_write_bytes=(?<feature_write_bytes>[0-9]+) mismatches=(?<mismatches>[0-9]+) cycles=(?<cycles>[0-9]+)$')
+$sample1HeadStatsMatch = [regex]::Match($sample1NormalizedSummaryText, '(?m)^head13_bytes=(?<head13_bytes>[0-9]+) head26_bytes=(?<head26_bytes>[0-9]+)$')
+Assert-TestCondition -Condition ($sample1StatusMatch.Success) -Message '真实sample001摘要的status行无法解析。'
+Assert-TestCondition -Condition ($sample1FeatureStatsMatch.Success) -Message '真实sample001摘要的feature统计行无法解析。'
+Assert-TestCondition -Condition ($sample1HeadStatsMatch.Success) -Message '真实sample001摘要的head统计行无法解析。'
+Assert-TestCondition -Condition ($sample1StatusMatch.Groups['status'].Value -ceq 'PASS_LAYERWISE_EXACT_GOLDEN') -Message '真实sample001摘要状态不符合PASS要求。'
+$sample1FeatureWriteBytes = [long]::Parse($sample1FeatureStatsMatch.Groups['feature_write_bytes'].Value, [Globalization.CultureInfo]::InvariantCulture)
+$sample1Mismatches = [long]::Parse($sample1FeatureStatsMatch.Groups['mismatches'].Value, [Globalization.CultureInfo]::InvariantCulture)
+$sample1Cycles = [long]::Parse($sample1FeatureStatsMatch.Groups['cycles'].Value, [Globalization.CultureInfo]::InvariantCulture)
+$sample1Head13Bytes = [long]::Parse($sample1HeadStatsMatch.Groups['head13_bytes'].Value, [Globalization.CultureInfo]::InvariantCulture)
+$sample1Head26Bytes = [long]::Parse($sample1HeadStatsMatch.Groups['head26_bytes'].Value, [Globalization.CultureInfo]::InvariantCulture)
+Assert-TestCondition -Condition ($sample1FeatureWriteBytes -eq 11382150) -Message '真实sample001 feature bytes 不符合验收值。'
+Assert-TestCondition -Condition ($sample1Mismatches -eq 0) -Message '真实sample001 mismatch 不为0。'
+Assert-TestCondition -Condition ($sample1Head13Bytes -eq 5070) -Message '真实sample001 head13 bytes 不符合验收值。'
+Assert-TestCondition -Condition ($sample1Head26Bytes -eq 20280) -Message '真实sample001 head26 bytes 不符合验收值。'
 $evidenceRoot = Join-Path $repositoryRoot 'report\evidence\S2A-T68\fix_empty_log_20261003'
 if (Test-Path -LiteralPath $evidenceRoot) {
     $evidenceItem = Get-Item -LiteralPath $evidenceRoot -ErrorAction Stop
@@ -169,6 +204,22 @@ $evidence = [ordered]@{
         common_weight_sha256 = $preflight.common_weight_sha256
         head13_sha256 = $simulationRecord.head13_export.sha256
         head26_sha256 = $simulationRecord.head26_export.sha256
+    }
+    sample1_real_summary = [ordered]@{
+        run_id = $sample1RunId
+        sample_index = [int]$sample1Record.sample_index
+        status = $sample1StatusMatch.Groups['status'].Value
+        summary_path = $sample1SummaryPath
+        summary_sha256_recorded = $sample1Record.result_summary_sha256
+        summary_sha256_actual = $sample1SummarySha256
+        crlf_line_ending_count = $sample1CrLfCount
+        old_raw_status_regex_match = $false
+        shared_summary_helper = 'PASS'
+        feature_write_bytes = $sample1FeatureWriteBytes
+        mismatches = $sample1Mismatches
+        cycles = $sample1Cycles
+        head13_bytes = $sample1Head13Bytes
+        head26_bytes = $sample1Head26Bytes
     }
     evidence_created_utc = [DateTime]::UtcNow.ToString('o')
 }

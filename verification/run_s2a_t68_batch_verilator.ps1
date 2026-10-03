@@ -437,9 +437,7 @@ function Test-CompletedSampleRecords {
     $resultPath = Get-SafeRunFile -RunDirectory $sampleDirectory -PathValue $simulationRecord.result_summary_path -Label "$sampleKey result summary"
     if ((Get-Sha256Literal -Path $resultPath) -cne $simulationRecord.result_summary_sha256) { throw "$sampleKey result summary SHA 不匹配。" }
     $resultText = [System.IO.File]::ReadAllText($resultPath, [System.Text.Encoding]::UTF8)
-    if ($resultText -notmatch '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$' -or
-        $resultText -notmatch '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$' -or
-        $resultText -notmatch '(?m)^head13_bytes=5070 head26_bytes=20280$') {
+    if (-not (Test-S2aNetworkBackendResultSummary -Text $resultText)) {
         throw "$sampleKey result summary 缺少 PASS 或字节统计。"
     }
     $headHashes = [ordered]@{}

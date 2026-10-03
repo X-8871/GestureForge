@@ -24,6 +24,8 @@
 - 厂商传感器差异补丁已提交 `203ab10`；独立审查及主控复验四组合各 968 cases / 847246 checks，303 项表值一致，见 `report/stage3_sensor_host_20261003.json`。底层接收整体截止时间、真实 BSP/显示集成仍未完成；后续还须验证视频背压/复位、缓冲所有权和帧行像素观测，不能宣称仅剩烧录。
 - S3-VAXIS-01 host 回归：launcher 退出码读取失败/缺失时，sentinel 即使为 0 也不再通过；WinPS 5.1 策略自测 5/5，Vivado 2026.1 `xvlog/xelab/xsim` 全部退出 0，12 beats、6 stalled cycles、12 FIFO pops。结果 `report/stage3_vaxis01_host_20261003.json`。同钟 FWFT mock 未覆盖真实 XPM CDC、传感器或硬件；G0/G3/G4/G5 均未通过。
 
+- IICPS 接收硬件 TO overlay `board/stage3/software/sensor/iicps_v3_23_hw_timeout.patch` 针对 Vitis 2026.1 固定哈希 `iicps_v3_23`，未改安装原件；补丁重放、4 项源码契约和实际提取函数体的主机行为测试通过（GCC 编译/运行 0，TO 中止两场景及正常对照共 3/3），记录 `report/stage3_iicps_hw_timeout_20261003.json`。独立 Reviewer 对本任务冻结文件只读审查 PASS，不代表阶段整体验收通过。XA EN257 的零字节+HOLD 读勘误已注明，当前相机读为 1 byte。它不是墙钟 deadline；重复起始条件错误恢复、真实 BSP、超时寄存器/硬件行为及板测仍未验证。
+
 ## 阶段 2A G0 冻结入口
 
 - G0 规格：`docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md`；状态 `G0_FROZEN`，主候选 `tiny416`。

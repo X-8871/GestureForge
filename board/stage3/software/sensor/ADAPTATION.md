@@ -33,7 +33,40 @@ xiicps_xfer.c SHA-256：628414e27016be423ca950af493d522556587e4e04f1eef0e1ce7b10
 hw.h 中存在默认超时常量不证明此接收路径用了它。
 本层 busy 仅在底层调用前后最多查询 S3_I2C_BUSY_LIMIT 次（默认10000），不是毫秒时限，
 不能中断不返回的 polled 调用。因此整体接收超时仍是实际 BSP/板上验证前的限制。
-本轮不改底层驱动；需要整体截止时间时须另行选择并验证底层有限等待或异步方案。
+传感器适配补丁本身不改底层驱动；需要整体墙钟 deadline 时仍须另行选择并验证底层有限等待或异步方案。
+
+## IICPS 接收硬件 TO 错误 overlay
+
+`iicps_v3_23_hw_timeout.patch` 是针对本机 Vitis 2026.1 `iicps_v3_23` 的最小差异包，
+不修改 `D:\Xilinx\2026.1\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\iicps_v3_23\src` 安装原件，也尚未集成进本项目 BSP。
+原件 `xiicps_master.c`、`xiicps_xfer.c`、`xiicps.h`、`xiicps_hw.h` 的 SHA-256 锁定值见
+`report/stage3_iicps_hw_timeout_20261003.json`；补丁只改前两个文件中的 polled receive 路径。
+使用时须先把官方驱动源复制到独立、可弃置的 BSP/测试副本，再在那里应用该补丁；
+不得直接修改 Vitis 安装目录。当前无经验证的 Vitis BSP overlay 集成步骤。
+
+修复范围：`XIicPs_MasterPolledRead` 在每次 FIFO 服务后重新读 ISR，并将 `TO` 纳入错误掩码；
+Zynq 大读取 FIFO-full 等待也轮询这些错误，在写入下一段传输长度前再次检查。外层
+`XIicPs_MasterRecvPolled` 将 `TO` 纳入最终错误掩码，使它与 NACK 一样返回 `XST_FAILURE`；
+仲裁丢失既有返回码不变。该错误位只报告控制器硬件超时，不是对 API 调用设置的软件墙钟期限；
+UG585 将其定义为 SCL 被主控或从设备持续拉低超过 Timeout register 周期。即使初始化后
+驱动重置该寄存器为 `0xFF`，仍不能据此声称全路径具备固定毫秒上限或所有死锁都能返回。
+
+XA Zynq-7000 EN257 另记录：master read 同时 `HOLD=1` 且 `Transfer Size=0` 时，超时可能导致
+额外 16 字节读取和 Transfer Size 损坏；该勘误不因屏蔽 TO 而消失。本项目当前摄像头读调用为
+1 字节；之后调用本驱动必须使用正的 `ByteCount`，并避免零长度 HOLD 读取。本轮验证不覆盖
+`IsRepeatedStart != 0` 时的 HOLD 错误恢复语义；BSP 集成前须核实实例选项并单独验证该路径。
+
+测试入口：
+
+```powershell
+& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
+  scripts\test_s3_iicps_hw_timeout.py --run-name <新的唯一运行名>
+```
+
+运行名只接受 ASCII 字母、数字、下划线和连字符；证据写到 `tmp/s3_iicps_timeout/<运行名>`，
+已存在目录拒绝覆盖。该检查要求固定基线提交是当前 HEAD 的祖先（所以任务提交后仍可复跑），
+再核对 Vitis 原件 SHA-256、重放 unified diff 并执行源码契约检查。
+它不是实际 BSP 编译或 MMIO 验证；运行时覆盖见同目录 `summary.json`，测试报告不替代阶段审查或验收。
 
 ## 复验
 

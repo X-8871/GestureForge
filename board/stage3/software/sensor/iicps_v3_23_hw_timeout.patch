@@ -1,0 +1,62 @@
+diff --git a/src/xiicps_xfer.c b/src/xiicps_xfer.c
+--- a/src/xiicps_xfer.c
++++ b/src/xiicps_xfer.c
+@@ -161,18 +161,23 @@ void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ 	UINTPTR BaseAddr;
+ 	u32 IntrStatusReg;
++	u32 ErrorMask;
+ 
+ 	Platform = XGetPlatform_Info();
+ 	BaseAddr = InstancePtr->Config.BaseAddress;
+ 	SlaveAddr = (u16)XIicPs_ReadReg(BaseAddr, (u32)XIICPS_ADDR_OFFSET);
+ 	IntrStatusReg = XIicPs_ReadReg(BaseAddr, XIICPS_ISR_OFFSET);
++	ErrorMask = (u32)XIICPS_IXR_ARB_LOST_MASK | (u32)XIICPS_IXR_RX_OVR_MASK |
++			(u32)XIICPS_IXR_RX_UNF_MASK | (u32)XIICPS_IXR_NACK_MASK |
++			(u32)XIICPS_IXR_TO_MASK;
+ 
+ 	while ((InstancePtr->RecvByteCount > 0) &&
+-			(((IntrStatusReg) & ((u32)XIICPS_IXR_ARB_LOST_MASK |
+-					     (u32)XIICPS_IXR_RX_OVR_MASK |
+-					     (u32)XIICPS_IXR_RX_UNF_MASK |
+-					     (u32)XIICPS_IXR_NACK_MASK)) == 0U)) {
++			((IntrStatusReg & ErrorMask) == 0U)) {
+ 
+ 		XIicPs_MasterRead(InstancePtr, IsHold, &ByteCountVar);
++		IntrStatusReg = XIicPs_ReadReg(BaseAddr, XIICPS_ISR_OFFSET);
++		if ((IntrStatusReg & ErrorMask) != 0U) {
++			break;
++		}
+ 
+ 		if (Platform == (u32)XPLAT_ZYNQ) {
+ 			if ((InstancePtr->UpdateTxSize != 0) &&
+@@ -180,8 +185,17 @@ void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ 				(ByteCountVar == (XIICPS_FIFO_DEPTH + 1))) {
+ 			    /*  wait while fifo is full */
+ 			while (XIicPs_RxFIFOFull(InstancePtr,
+-						 ByteCountVar) != 0U) { ;
++						 ByteCountVar) != 0U) {
++				IntrStatusReg = XIicPs_ReadReg(BaseAddr,
++								XIICPS_ISR_OFFSET);
++				if ((IntrStatusReg & ErrorMask) != 0U) {
++					return;
++				}
+ 				}
++			IntrStatusReg = XIicPs_ReadReg(BaseAddr, XIICPS_ISR_OFFSET);
++			if ((IntrStatusReg & ErrorMask) != 0U) {
++				return;
++			}
+ 				if ((InstancePtr->RecvByteCount - XIICPS_FIFO_DEPTH) >
+ 					(s32)XIICPS_MAX_TRANSFER_SIZE) {
+ 
+diff --git a/src/xiicps_master.c b/src/xiicps_master.c
+--- a/src/xiicps_master.c
++++ b/src/xiicps_master.c
+@@ -496,6 +496,7 @@ s32 XIicPs_MasterRecvPolled(XIicPs *InstancePtr, u8 *MsgPtr,
+ 	 * Intrs keeps all the error-related interrupts.
+ 	 */
+ 	Intrs = (u32)XIICPS_IXR_ARB_LOST_MASK | (u32)XIICPS_IXR_RX_OVR_MASK |
+-			(u32)XIICPS_IXR_RX_UNF_MASK | (u32)XIICPS_IXR_NACK_MASK;
++			(u32)XIICPS_IXR_RX_UNF_MASK | (u32)XIICPS_IXR_NACK_MASK |
++			(u32)XIICPS_IXR_TO_MASK;
+ 
+ 	XIicPs_MasterPolledRead(InstancePtr, IsHold, ByteCountVar);

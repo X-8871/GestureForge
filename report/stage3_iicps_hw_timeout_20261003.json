@@ -1,0 +1,90 @@
+{
+  "date_utc8": "2026-10-03",
+  "task_id": "S3-SW02-IICPS-HW-TO-01",
+  "baseline_commit": "cd484f986e307500305f3db5c5f2f28e67d6126f",
+  "test_script_sha256": "5a05e18215913d21483c69f8e229f5c69ac7d7a43666da6925dce261390a537e",
+  "scope": "Vitis 2026.1 iicps_v3_23 polled receive path: propagate hardware TO and terminate receive polling after detecting it; preserve installed vendor source",
+  "vendor_source": {
+    "root": "D:\\Xilinx\\2026.1\\Vitis\\data\\embeddedsw\\XilinxProcessorIPLib\\drivers\\iicps_v3_23\\src",
+    "original_modified": false,
+    "sha256_before": {
+      "xiicps_master.c": "6e002edfd94b80b0dfdd54215c0a536e5fbe06380d7a40f0418b6e52066e3b10",
+      "xiicps_xfer.c": "628414e27016be423ca950af493d522556587e4e04f1eef0e1ce7b10ecffbc1f",
+      "xiicps.h": "a96553e979223be1828a781f1bdeb818c61db661e154337b8cf3b4bf10b500ca",
+      "xiicps_hw.h": "0013bcfc147a4c7fc1e60bba7368b5742b638661afb7fdf7efb8dab3223b3d9a"
+    },
+    "overlay_source_sha256": {
+      "xiicps_master.c": "8f675ad98686df7bb1c9ae1259c374b95ceff6dc3255a30a879d5c783a33c63b",
+      "xiicps_xfer.c": "9dfb1465516acf0ed6047392c586dc6a6366cd0c97fd9bc21db2c3e167cdd919"
+    }
+  },
+  "overlay": {
+    "path": "board/stage3/software/sensor/iicps_v3_23_hw_timeout.patch",
+    "sha256": "73083bc57385e8aeabf659db69a1a7c017db2021d5d24e0eeb8dfbdbda77f859",
+    "files": ["src/xiicps_xfer.c", "src/xiicps_master.c"],
+    "behavior": [
+      "XIicPs_MasterPolledRead 在 FIFO 服务后重读 ISR，并在 TO 等错误置位时停止普通轮询",
+      "Zynq 大读取 FIFO-full 等待检查错误，发现错误时不继续写下一段 Transfer Size",
+      "XIicPs_MasterRecvPolled 将 TO 计入最终失败判断；仲裁丢失返回语义不变"
+    ]
+  },
+  "verification": {
+    "command": "& 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' scripts\\test_s3_iicps_hw_timeout.py --run-name hw_to_20261003_main03",
+    "exit_code": 0,
+    "patch_check_exit_code": 0,
+    "patch_apply_exit_code": 0,
+    "source_contract_checks_passed": 4,
+    "gcc": "gcc.EXE (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
+    "compile_exit_code": 0,
+    "runtime_exit_code": 0,
+    "runtime_harness": {
+      "status": "PASS",
+      "tested_function": "从固定散列原件应用补丁后提取的真实 XIicPs_MasterPolledRead 函数体；MMIO、ISR、FIFO 和字节服务为 mock",
+      "scenarios": [
+        {"name": "mid_read_to", "master_read_calls": 2, "isr_reads_after_to": 1, "transfer_size_writes": 0},
+        {"name": "fifo_wait_delayed_to", "fifo_full_polls": 2, "isr_reads_after_to": 1, "transfer_size_writes": 0},
+        {"name": "normal_completion_control", "master_read_calls": 1, "isr_reads_after_to": 0, "transfer_size_writes": 0}
+      ],
+      "transfer_size_write_count_scope": "仅统计被测 MasterPolledRead 函数执行期间的写入，不包括 MasterRecvPolled 启动事务时设置的初始 Transfer Size。"
+    },
+    "evidence_relative": "tmp/s3_iicps_timeout/hw_to_20261003_main03/summary.json",
+    "evidence_sha256": "273e67f53528c65f10b780eca679abff34c716b1e190059f0b5113e67d9dc5cf",
+    "initial_harness_attempt": {
+      "evidence_relative": "tmp/s3_iicps_timeout/hw_to_behavior_20261003_01/summary.json",
+      "status": "RUNTIME_FAILED",
+      "cause": "harness 对循环尾一次 ISR 读取计数预期少 1；首次失败证据保留。修正测试期望后，子代理及主控的独立新运行均通过。"
+    }
+  },
+  "independent_review": {
+    "status": "PASS",
+    "scope": "本任务冻结文件的只读审查；不代表 Vitis/BSP、实板或阶段门通过",
+    "reviewer_rerun_evidence": "tmp/s3_iicps_timeout/hw_to_review_20261003_01/summary.json",
+    "reviewer_rerun_evidence_sha256": "05287c88332aade6e8568600ae9f7a421169b9547e2d897ebd1f0e3b028015b3"
+  },
+  "semantics_and_constraints": {
+    "hardware_to": "UG585: TO is generated when SCL is held Low by master or slave beyond the Timeout register period; it is not a software wall-clock deadline",
+    "reset_timeout_value": "The local Vitis driver reset sequence writes XIICPS_TO_RESET_VALUE 0xFF; this does not establish a millisecond deadline or guarantee recovery from every hang",
+    "zero_length_erratum": "XA Zynq-7000 EN257: master read with HOLD=1 and Transfer Size=0 can transfer 16 extra bytes and corrupt Transfer Size when timeout expires; this patch does not remove the erratum. Project caller currently uses 1-byte reads; future callers must use positive ByteCount and avoid zero-byte HOLD reads."
+  },
+  "references": [
+    {
+      "title": "UG585 Read Transfer",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Read-Transfer"
+    },
+    {
+      "title": "UG585 Register XIICPS_ISR_OFFSET Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-XIICPS_ISR_OFFSET-Details"
+    },
+    {
+      "title": "XA Zynq-7000 Production Errata EN257",
+      "url": "https://docs.amd.com/api/khub/documents/tzA6Nahp94mLDXZQjv~MgQ/content"
+    }
+  ],
+  "limitations": [
+    "主机 harness mock 了 MMIO、ISR、FIFO 和字节服务；没有编译 Vitis BSP，也没有执行真实 MMIO/FIFO 操作。",
+    "不证明 Timeout 寄存器在最终 BSP 中的实际配置、有效硬件超时周期、模块接线或板上行为。",
+    "没有验证 IsRepeatedStart 非零时的 HOLD 错误恢复语义；BSP 集成前须核实实例选项并单独验证。",
+    "没有将 overlay 集成到当前 BSP；不得修改 Vitis 安装原件。",
+    "不是阶段 3 G0/G1/G2/G3/G4/G5 验收结论。"
+  ]
+}

@@ -1,0 +1,62 @@
+diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/main.c b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/main.c
+--- a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/main.c
++++ b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/main.c
+@@ -10,6 +10,7 @@
+ #include "xil_types.h"
+ #include "xil_cache.h"
+ #include "xparameters.h"
++#include "xstatus.h"
+ #include "pic_800_600.h"
+ #include "sleep.h"
+ /*
+@@ -62,34 +63,43 @@ int main(void)
+ 	vdmaConfig = XAxiVdma_LookupConfig(VGA_VDMA_ID);
+ 	if (!vdmaConfig)
+ 	{
+-		xil_printf("No video DMA found for ID %d\r\n", VGA_VDMA_ID);
++		xil_printf("ERROR: VDMA lookup failed for ID %d\r\n", VGA_VDMA_ID);
++		return XST_FAILURE;
+ 
+ 	}
+ 	Status = XAxiVdma_CfgInitialize(&vdma, vdmaConfig, vdmaConfig->BaseAddress);
+ 	if (Status != XST_SUCCESS)
+ 	{
+-		xil_printf("VDMA Configuration Initialization failed %d\r\n", Status);
++		xil_printf("ERROR: VDMA initialization failed: %d\r\n", Status);
++		return XST_FAILURE;
+ 
+ 	}
++	xil_printf("OK: VDMA initialized\r\n");
+ 
+ 	/*
+ 	 * Initialize the Display controller and start it
+ 	 */
+ 	Status = DisplayInitialize(&dispCtrl, &vdma, DISP_VTC_ID, DYNCLK_BASEADDR, pFrames, DEMO_STRIDE);
+ 	if (Status != XST_SUCCESS)
+ 	{
+-		xil_printf("Display Ctrl initialization failed during demo initialization%d\r\n", Status);
++		xil_printf("ERROR: DisplayInitialize failed: %d\r\n", Status);
++		return XST_FAILURE;
+ 
+ 	}
++	xil_printf("OK: display controller initialized\r\n");
++
++	DemoPrintTest(dispCtrl.framePtr[dispCtrl.curFrame], dispCtrl.vMode.width, dispCtrl.vMode.height, dispCtrl.stride, DEMO_PATTERN_0);
++	xil_printf("OK: 800x600 test frame rendered and cache flushed\r\n");
++
+ 	Status = DisplayStart(&dispCtrl);
+ 	if (Status != XST_SUCCESS)
+ 	{
+-		xil_printf("Couldn't start display during demo initialization%d\r\n", Status);
++		xil_printf("ERROR: DisplayStart failed: %d\r\n", Status);
++		return XST_FAILURE;
+ 
+ 	}
++	xil_printf("OK: HDMI display started\r\n");
+ 
+-	DemoPrintTest(dispCtrl.framePtr[dispCtrl.curFrame], dispCtrl.vMode.width, dispCtrl.vMode.height, dispCtrl.stride, DEMO_PATTERN_0);
+-
+ 
+-	return 0;
++	return XST_SUCCESS;
+ }

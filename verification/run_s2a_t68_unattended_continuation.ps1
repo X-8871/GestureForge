@@ -120,7 +120,10 @@ function Read-JsonObject {
 }
 
 function Write-NewUtf8File {
-    param([Parameter(Mandatory = $true)][string]$Path, [Parameter(Mandatory = $true)][string]$Text)
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Text
+    )
     $encoding = [System.Text.UTF8Encoding]::new($false)
     $bytes = $encoding.GetBytes($Text)
     $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
@@ -815,12 +818,13 @@ try {
                     )
                     $script:Summary.batch.status = 'RUNNING_EXISTING_SCHEDULER'
                     $execution = Invoke-CapturedProcess -ExecutablePath $pwshPath -Arguments $arguments -WorkingDirectory $repositoryRoot
+                    $script:Summary.batch.process_exit_code = [int]$execution.exit_code
+                    $script:Summary.batch.status = 'SCHEDULER_PROCESS_EXITED'
+                    $script:Summary.batch.stdout_path = $batchStdoutPath
+                    $script:Summary.batch.stderr_path = $batchStderrPath
                     Write-NewUtf8File -Path $batchStdoutPath -Text $execution.stdout
                     Write-NewUtf8File -Path $batchStderrPath -Text $execution.stderr
-                    $script:Summary.batch.process_exit_code = $execution.exit_code
-                    $script:Summary.batch.stdout_path = $batchStdoutPath
                     $script:Summary.batch.stdout_sha256 = Get-Sha256Literal -Path $batchStdoutPath
-                    $script:Summary.batch.stderr_path = $batchStderrPath
                     $script:Summary.batch.stderr_sha256 = Get-Sha256Literal -Path $batchStderrPath
 
                     if (Test-Path -LiteralPath $batchSummaryPath -PathType Leaf) {
@@ -842,8 +846,8 @@ try {
                             $script:Summary.status = 'STOP_BATCH_FAILED'
                         }
                     } else {
-                        $script:Summary.batch.status = 'FAIL_BATCH_SUMMARY_MISSING'
-                        $script:Summary.batch.message = 'scheduler 结束但没有 batch_summary.json；不重启、不重试。'
+                        $script:Summary.batch.status = if ($execution.exit_code -ne 0) { 'FAIL_SCHEDULER_EXITED_WITHOUT_SUMMARY' } else { 'FAIL_BATCH_SUMMARY_MISSING' }
+                        $script:Summary.batch.message = "scheduler exit_code=$($execution.exit_code); 未生成 batch_summary.json；stdout=$batchStdoutPath；stderr=$batchStderrPath；不重启、不重试。"
                         $script:Summary.status = 'STOP_BATCH_FAILED'
                     }
                 }

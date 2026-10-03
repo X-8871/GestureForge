@@ -27,6 +27,15 @@ function Get-Sha256Literal {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
+function Test-S2aNetworkBackendResultSummary {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string]$Text)
+
+    $normalizedText = $Text.Replace("`r`n", "`n")
+    return ($normalizedText -match '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$') -and
+        ($normalizedText -match '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$') -and
+        ($normalizedText -match '(?m)^head13_bytes=5070 head26_bytes=20280$')
+}
+
 function Add-SchedulerError {
     param([Parameter(Mandatory = $true)][string]$Message)
     if ([string]::IsNullOrWhiteSpace($script:schedulerError)) {
@@ -302,9 +311,7 @@ function Assert-Sample0Passed {
     $summaryPath = Get-SafeRunFile -RunDirectory $sampleDirectory -PathValue $simulationRecord.result_summary_path -Label 'sample0 result summary'
     if ((Get-Sha256Literal -Path $summaryPath) -cne $simulationRecord.result_summary_sha256) { throw 'sample0 result summary SHA 不匹配。' }
     $summaryText = [System.IO.File]::ReadAllText($summaryPath, [System.Text.Encoding]::UTF8)
-    if ($summaryText -notmatch '(?m)^status=PASS_LAYERWISE_EXACT_GOLDEN$' -or
-        $summaryText -notmatch '(?m)^feature_write_bytes=11382150 mismatches=0 cycles=[0-9]+$' -or
-        $summaryText -notmatch '(?m)^head13_bytes=5070 head26_bytes=20280$') {
+    if (-not (Test-S2aNetworkBackendResultSummary -Text $summaryText)) {
         throw 'sample0 result summary 未包含完整 golden/head PASS 记录。'
     }
     foreach ($head in @(

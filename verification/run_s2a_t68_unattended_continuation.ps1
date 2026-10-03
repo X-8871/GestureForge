@@ -707,6 +707,13 @@ try {
     if ($pythonVersionCheck.exit_code -ne 0 -or $pythonVersionStdout -cne $script:Summary.pinned_python_version_expected) {
         throw "固定 Python 版本断言失败：exit=$($pythonVersionCheck.exit_code)，stdout='$pythonVersionStdout'。"
     }
+    $dependencyCheck = Invoke-CapturedProcess -ExecutablePath $pythonPath `
+        -Arguments @('-B', '-c', 'import numpy,cv2; print(numpy.__version__ + "|" + cv2.__version__)') -WorkingDirectory $repositoryRoot
+    $script:Summary.python_dependency_versions = ([string]$dependencyCheck.stdout).Trim()
+    $script:Summary.python_dependency_exit_code = $dependencyCheck.exit_code
+    if ($dependencyCheck.exit_code -ne 0 -or $script:Summary.python_dependency_versions -cne '2.4.6|4.13.0') {
+        throw "固定 NumPy/OpenCV 预检失败：exit=$($dependencyCheck.exit_code)，stderr=$($dependencyCheck.stderr)"
+    }
     $pythonDirectory = Split-Path -Parent $pythonPath
     $env:PATH = $pythonDirectory + [System.IO.Path]::PathSeparator + $env:PATH
     $resolvedPythonCommands = @(Get-Command -Name 'python.exe' -CommandType Application -All -ErrorAction Stop)

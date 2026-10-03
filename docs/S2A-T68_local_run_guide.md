@@ -1,6 +1,6 @@
 # Stage 2A T68 本地无人值守运行说明
 
-更新日期：2026-10-02（南京时间）
+更新日期：2026-10-03（南京时间）
 
 ## 用途与范围
 
@@ -12,7 +12,7 @@
 
 旧 RunId `batch109_r3` 已终止：sample0 的 RTL 仿真实际完成 38 层且 0 mismatch，但 Windows CRLF 摘要被旧 runner 误拒；协调器随后又在派发其余样本前遇到 Python 多候选解析错误。该目录是失败证据，必须保留，不要用同一 RunId 重跑。修复已提交；下面命令会创建一个新的 RunId 和证据目录。
 
-从 Windows 开始菜单打开独立的 **PowerShell 7.6.5** 窗口，在该窗口粘贴并运行一次；不要从 Codex 的工具执行器启动。本机用户手动启动的 RunId 为 `manual_20261002_140325`，这里只记录身份，不重新观察其进度。Codex 工具启动的进程在关闭应用后是否存活，尚无官方保证；独立 Windows 窗口启动可避免将运行生命周期交给 Codex。命令会隐藏启动 sample0 runner 和无人值守协调器；协调器等待 sample0 写出终态记录后，自动运行最多 8 个 worker 的剩余 108 个样本并做 D9 对照。启动命令返回后不需要 AI 操作或周期监视，也可以关闭启动用的 PowerShell 窗口。保持电脑通电、唤醒并保持 Windows 用户会话登录；不要睡眠、注销或重启。
+从 Windows 开始菜单打开独立的 **PowerShell 7.6.5** 窗口，在该窗口粘贴并运行一次；不要从 Codex 的工具执行器启动。原手动批次 `manual_20261002_140325` 已停止：sample0 通过，但调度器 CRLF 判断和协调器空日志处理失败；2026-10-03 修复恢复尝试又发现固定 Python 缺少 cv2，前 8 个任务在输入准备阶段退出。所有旧记录保留。新启动必须通过下面的 NumPy/OpenCV 预检，使用新的 RunId。Codex 工具启动的进程在关闭应用后是否存活，尚无官方保证；独立 Windows 窗口启动可避免将运行生命周期交给 Codex。命令会隐藏启动 sample0 runner 和无人值守协调器；协调器等待 sample0 写出终态记录后，自动运行最多 8 个 worker 的剩余 108 个样本并做 D9 对照。启动命令返回后不需要 AI 操作或周期监视，也可以关闭启动用的 PowerShell 窗口。保持电脑通电、唤醒并保持 Windows 用户会话登录；不要睡眠、注销或重启。
 
 ```powershell
 $ErrorActionPreference = 'Stop'
@@ -23,6 +23,11 @@ $evidenceParent = Join-Path $repoRoot 'report\evidence\S2A-T68'
 $evidenceRoot = Join-Path $evidenceParent $runId
 $pwsh = 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\powershell\pwsh.exe'
 $python = 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$dependencyRoot = 'C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages'
+if (-not (Test-Path -LiteralPath $dependencyRoot -PathType Container)) { throw "冻结依赖目录不存在：$dependencyRoot" }
+$env:PYTHONPATH = (Get-Item -LiteralPath $dependencyRoot).FullName
+$dependencyVersions = (& $python -B -c 'import numpy,cv2; print(numpy.__version__ + "|" + cv2.__version__)').Trim()
+if ($LASTEXITCODE -ne 0 -or $dependencyVersions -cne '2.4.6|4.13.0') { throw '固定 Python 的 NumPy/OpenCV 预检失败；停止启动。' }
 $backendSha256 = '3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154'
 $sampleRunner = Join-Path $repoRoot 'verification\run_s2a_network_backend_verilator.ps1'
 $coordinator = Join-Path $repoRoot 'verification\run_s2a_t68_unattended_continuation.ps1'

@@ -40,7 +40,7 @@
 - `course_s2_vitis/22_ov5640_single`：首轮采集与显示参考；含 Vivado Tcl、约束、自定义 IP 和 Vitis 源码。
 - `course_s2_vitis/23_ov5640_dual`：双通道参考；不以单通道结果证明双通道通过。
 - `Hardware/01_SCH/AX7020开发板原理图V2.0.pdf`：329858 B，SHA-256 `e35eb1b654774a6f314de0140f5608d38a1c6be72d1c3e1008f5e288ac83c87e`。文件名 V2.0，而图框标记 Rev 1.0 / 2018-10-08；不得据文件名推定实物 PCB 版本。
-- 用户手册原件 `D:\FPGA_Competition\摄像头资料\01_AN5642_原始资料\AN5642_UG.pdf`：1565440 B，SHA-256 `53b4fe327c58d0f6f7fe315ccc6079603c5c7bfce30262e0227a2e8c1596856d`。
+- 用户手册原件 `D:\FPGA_Competition\摄像头资料\01_AN5642_原始资料\AN5642_UG.pdf`：1565440 B，SHA-256 `53b4fe327c58d0f6f7fe315ccc6079603c5c7bfce30262e0227a2e8c1596856d`。ALINX 官方公开入口：[AN5642 双目摄像头用户手册](https://www.alinx.com/public/upload/file/AN5642_UG.pdf)。
 
 本工作树的官方源缓存为 `tmp/stage3_reference/AX7020_2023.1`，未纳入项目 Git；可删除缓存不等于可删除厂商原件。固定提交与以下命令支持重新取回，不声称已有永久备份：
 

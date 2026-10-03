@@ -254,3 +254,9 @@ try {
 - 固定静态源码闭包、绑定的 Git commits/trees、源码和 testbench、runner/协调器/验证器版本、Verilator/MSYS2/PowerShell/Python 及依赖版本；从干净副本重建的准确步骤与真实恢复证据。
 - T02/T08/T10–T21 原始定名 JSON、引用的单元/协议结果与被审版本（入口见本轮准备 JSON）；T17/T20 历史串行 engine/pilot 与新 tile 的适用性及差异回归结果，T68 `protocol_directed05/06` 真实 backend 结果及 `backend_fault_recovery.vcd` 等适用原始证据；随机种子、样本数、误差口径和独立审查结论。G3/综合 N/A 理由及实际 G4/G5 签收记录。
 - 失败批次保持独立诊断归档，不纳入成功批次计数。构建缓存是否可清理须在列清所有验证器依赖并完成恢复核验后决定，不能在正在运行的目录中删除。
+
+## 2026-10-03 修复后的当前批次
+
+当前运行目录为 `D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_124125`。一次启动核验确认 sample0 runner PID40596、coordinator PID11912及实际 Verilator/make 编译进程存在，启动 stderr 为空；该记录只说明当时启动成功，不代表此后进程仍活跃或样本通过。先完成 sample0，再自动最多8个worker运行108样本和D9。启动记录为该目录的 `repair_launch_record.json`；最终报告为 `unattended_continuation_repair109_20261003_124125.json`。不主动监控。
+
+`manual_20261002_140325` 原成功sample0和两次失败协调记录全部保留；新批次完整从sample0开始，不把旧sample0计入新批次。恢复参数 `-ResumeFailedCoordinatorSha256` 仅处理尚无dispatch的特定空日志故障；旧目录现在已有失败dispatch，不能再使用该恢复入口。不要对当前新批次重复启动。

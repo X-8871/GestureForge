@@ -1,0 +1,230 @@
+{
+  "date_utc8": "2026-10-03",
+  "task": "S3-DBG-HUB-OPT-01",
+  "baseline_commit": "6f3d40c7e32b06f75fbbbf6f337c953a42433a59",
+  "status": "PASS_OPT_DESIGN_STAGE_REACHED_ONLY",
+  "scope": "使用固定 AX7020 厂商源的隔离 azynq_metadata BD 实验副本；仅验证 Vivado 2026.1 的 opt_design 阶段调试核心生命周期；无最终板卡 XDC、无 place/route、无 bitstream、无硬件操作",
+  "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+  "vivado": "2026.1",
+  "part": "xa7z020clg400-1I",
+  "top": "design_1_wrapper",
+  "probe_script": {
+    "path": "scripts/s3_probe_debug_hub_opt.tcl",
+    "current_sha256": "f2c04c75ed6016089e32e940f72ade9a339bc4aa4a1b02dd538a00acde88762d",
+    "successful_run_sha256": "ca5f68a48482092c41115e53c3b26b3f82dc633b532fdb41db1cb3e9bf927806"
+  },
+  "input_synth_checkpoint": {
+    "path": "tmp/s3s01/project/s3_vendor_bd.runs/synth_1/design_1_wrapper.dcp",
+    "sha256": "f619445c97562f558f9572a8ff6e66c66ee59c7f399b2365f6273d6746f479ff",
+    "fresh_copy_path": "tmp/s3s05/project/s3_vendor_bd.runs/synth_1/design_1_wrapper.dcp",
+    "fresh_copy_sha256": "f619445c97562f558f9572a8ff6e66c66ee59c7f399b2365f6273d6746f479ff"
+  },
+  "runner": {
+    "exit_code": 0,
+    "result": "PASS_OPT_DESIGN_STAGE_REACHED_ONLY",
+    "result_file": "tmp/s3s05/opt_probe/result.txt",
+    "result_sha256": "e14e962c136af90069b8e784e1234fdb8efd558ad797e2e5239bf8080136c8dd",
+    "launcher_log": "tmp/s3s05_opt_retry_20261003_01.log",
+    "launcher_log_sha256": "04d4fc1ece8aa866acc7a0eb0de360e599536107262875d1c5a1508ed326eab7"
+  },
+  "post_run_hardening": {
+    "allowed_root_relative": "tmp/s3s05",
+    "changes": [
+      "Normalize the project and result paths and reject either path outside the isolated root before creating outputs, opening the project, or launching a run.",
+      "Use a quiet empty-blackbox query while retaining the explicit result-count check."
+    ],
+    "validation_method": "绑定当前 TCL SHA-256 的 source-contract 检查与 Windows canonical-path 语义对等测试；不是 Tcl 解释器执行。",
+    "path_guard_test": {
+      "script_path": "scripts/test_s3_probe_debug_hub_path_guard.ps1",
+      "script_sha256": "d581bf808455436bbf13f7ea7a5e257ea960ed6409e9c41ce750b2a9e770af89",
+      "bound_tcl_path": "scripts/s3_probe_debug_hub_opt.tcl",
+      "bound_tcl_sha256": "f2c04c75ed6016089e32e940f72ade9a339bc4aa4a1b02dd538a00acde88762d",
+      "runtime": "Windows PowerShell 5.1.26100.8457",
+      "working_directory": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition",
+      "command": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\scripts\\test_s3_probe_debug_hub_path_guard.ps1\"",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "SCRIPT_PATH=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\scripts\\test_s3_probe_debug_hub_path_guard.ps1\"\r\nSCRIPT_SHA256=d581bf808455436bbf13f7ea7a5e257ea960ed6409e9c41ce750b2a9e770af89\r\nTCL_PATH=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\scripts\\s3_probe_debug_hub_opt.tcl\"\r\nTCL_SHA256 expected=f2c04c75ed6016089e32e940f72ade9a339bc4aa4a1b02dd538a00acde88762d actual=f2c04c75ed6016089e32e940f72ade9a339bc4aa4a1b02dd538a00acde88762d result=PASS\r\nCONTRACT name=procedure_definition result=PASS\r\nCONTRACT name=candidate_normalized result=PASS\r\nCONTRACT name=root_normalized result=PASS\r\nCONTRACT name=exact_root_allowed_case_insensitively result=PASS\r\nCONTRACT name=prefix_comparison_case_insensitive result=PASS\r\nCONTRACT name=descendant_boundary_requires_separator result=PASS\r\nCONTRACT name=non_descendants_rejected result=PASS\r\nCASE name=inside_project input=\"C:\\USERS\\22061\\.CODEX\\WORKTREES\\DBDF\\FPGA_COMPETITION\\TMP\\S3S05\\project\\design_1.xpr\" canonical=\"C:\\USERS\\22061\\.CODEX\\WORKTREES\\DBDF\\FPGA_COMPETITION\\TMP\\S3S05\\project\\design_1.xpr\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=ALLOW actual=ALLOW result=PASS\r\nCASE name=outside_project input=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_outside\\project\\design_1.xpr\" canonical=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_outside\\project\\design_1.xpr\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=REJECT actual=REJECT result=PASS\r\nCASE name=prefix_sibling input=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_sibling\\project\\design_1.xpr\" canonical=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_sibling\\project\\design_1.xpr\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=REJECT actual=REJECT result=PASS\r\nCASE name=dotdot_escape input=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\..\\s3s05_dotdot_escape\\project\\design_1.xpr\" canonical=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_dotdot_escape\\project\\design_1.xpr\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=REJECT actual=REJECT result=PASS\r\nCASE name=inside_result input=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\guard_result\\result.txt\" canonical=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\guard_result\\result.txt\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=ALLOW actual=ALLOW result=PASS\r\nCASE name=outside_result input=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_guard_outside_output\" canonical=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_guard_outside_output\" root=\"C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\" expected=REJECT actual=REJECT result=PASS\r\nSUMMARY contracts=7 contract_failures=0 cases=6 case_failures=0 result=PASS\r\nEXIT_CODE=0\r\n",
+      "source_contract_checks": [
+        "procedure_definition",
+        "candidate_normalized",
+        "root_normalized",
+        "exact_root_allowed_case_insensitively",
+        "prefix_comparison_case_insensitive",
+        "descendant_boundary_requires_separator",
+        "non_descendants_rejected"
+      ],
+      "matrix": [
+        {
+          "name": "inside_project",
+          "input_absolute": "C:\\USERS\\22061\\.CODEX\\WORKTREES\\DBDF\\FPGA_COMPETITION\\TMP\\S3S05\\project\\design_1.xpr",
+          "canonical_absolute": "C:\\USERS\\22061\\.CODEX\\WORKTREES\\DBDF\\FPGA_COMPETITION\\TMP\\S3S05\\project\\design_1.xpr",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "ALLOW",
+          "actual": "ALLOW",
+          "result": "PASS"
+        },
+        {
+          "name": "outside_project",
+          "input_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_outside\\project\\design_1.xpr",
+          "canonical_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_outside\\project\\design_1.xpr",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "REJECT",
+          "actual": "REJECT",
+          "result": "PASS"
+        },
+        {
+          "name": "prefix_sibling",
+          "input_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_sibling\\project\\design_1.xpr",
+          "canonical_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_sibling\\project\\design_1.xpr",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "REJECT",
+          "actual": "REJECT",
+          "result": "PASS"
+        },
+        {
+          "name": "dotdot_escape",
+          "input_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\..\\s3s05_dotdot_escape\\project\\design_1.xpr",
+          "canonical_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_dotdot_escape\\project\\design_1.xpr",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "REJECT",
+          "actual": "REJECT",
+          "result": "PASS"
+        },
+        {
+          "name": "inside_result",
+          "input_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\guard_result\\result.txt",
+          "canonical_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05\\guard_result\\result.txt",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "ALLOW",
+          "actual": "ALLOW",
+          "result": "PASS"
+        },
+        {
+          "name": "outside_result",
+          "input_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_guard_outside_output",
+          "canonical_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05_guard_outside_output",
+          "root_absolute": "C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3s05",
+          "expected": "REJECT",
+          "actual": "REJECT",
+          "result": "PASS"
+        }
+      ],
+      "tcl_interpreter_available": false,
+      "tcl_proc_execution": "NOT_EXECUTED",
+      "scope_note": "Get-Command tclsh returned no command in this environment. This test checks the TCL source contract bound to bound_tcl_sha256 and mirrors Windows canonical-path semantics; it does not execute the Tcl proc or prove Vivado behavior."
+    },
+    "vivado_replay_status": "NO_SUCCESSFUL_REPLAY_CURRENT_TCL",
+    "vivado_replay_attempts": [
+      {
+        "profile": "default user profile",
+        "status": "FAILED_BEFORE_TCL_SOURCE",
+        "exit_code": 1,
+        "diagnostic": "Vivado failed during user-app initialization before sourcing the probe script.",
+        "evidence_path": "tmp/s3s05/guard_project.log",
+        "evidence_sha256": "55ecb63a3ab9d915fc1e41a99623eea7709229ea4ec4f51f608b11cbbdac9218"
+      },
+      {
+        "profile": "temporary isolated APPDATA",
+        "status": "UNVERIFIED_NO_PERSISTED_LOG",
+        "reported_exit_code": 42,
+        "diagnostic": "历史操作者记录，未独立核验；Vivado 报告无有效许可证的原始输出文件未找到。"
+      }
+    ],
+    "impact": "The default-profile attempt has persisted, SHA-256-verified evidence that initialization failed before Tcl source. The temporary isolated APPDATA attempt is an unverified historical operator record because its raw output was not found. The opt_design evidence above remains tied to successful_run_sha256; no successful Vivado replay has exercised current_sha256."
+  },
+  "opt_design": {
+    "run_log": "tmp/s3s05/project/s3_vendor_bd.runs/impl_1/runme.log",
+    "run_log_sha256": "e21436ccb4b4e98c8d20a5a0ea4dc065412f3703b3f1b7c7db9663f781b631d8",
+    "checkpoint": "tmp/s3s05/project/s3_vendor_bd.runs/impl_1/design_1_wrapper_opt.dcp",
+    "checkpoint_sha256": "4af5906bd33ed2b21fda4fa0dde87a6dd54e16539f7f9a4fb6011e499bbb7dd0",
+    "synth_debug_hub_is_blackbox": true,
+    "opt_debug_hub_is_blackbox": false,
+    "opt_unresolved_blackbox_count": 0,
+    "run_status": "Not started place_design",
+    "run_progress": "40%",
+    "stage_markers": {
+      "opt_design_end": true,
+      "place_design_begin": false,
+      "route_design_begin": false,
+      "write_bitstream_begin": false
+    },
+    "summary": {
+      "info_messages": 75,
+      "warnings": 11,
+      "critical_warnings": 13,
+      "errors": 0,
+      "drc_errors": 0
+    },
+    "warning_inventory": {
+      "source": "tmp/s3s05/project/s3_vendor_bd.runs/impl_1/runme.log",
+      "summary_line_after_link_design": 157,
+      "warning_count_after_link_design": 9,
+      "summary_line_after_opt_design": 372,
+      "warning_count_after_opt_design": 11,
+      "individual_warning_records_located": 9,
+      "summary_delta_not_individually_located": 2,
+      "identified": [
+        {
+          "id": "IP_Flow 19-4995",
+          "count": 1,
+          "run_log_line": 47,
+          "finding": "IP cache path exceeds the recommended 80 characters; host normal-path limit is 260 characters.",
+          "disposition": "Did not block this isolated run. Before a full build, shorten/map the project and IP-cache paths and rerun."
+        },
+        {
+          "id": "IP_Flow 19-12246",
+          "count": 1,
+          "run_log_line": 49,
+          "finding": "axis_subset_converter XCI contents changed since it was last written.",
+          "disposition": "Unresolved consistency warning. Regenerate/synchronize the IP output products and revalidate the BD before the formal build."
+        },
+        {
+          "id": "Vivado_Tcl 4-921",
+          "count": 1,
+          "run_log_line": 87,
+          "finding": "CDC-10 waiver has an empty -to list.",
+          "disposition": "Waiver is not evidence of coverage. Audit the generated ILA XDC and CDC constraints against finalized clocks."
+        },
+        {
+          "id": "XPM_CDC_SINGLE: TCL-1000",
+          "count": 6,
+          "run_log_lines": [110, 116, 122, 128, 134, 140],
+          "finding": "Each message reports that the source and destination clocks are the same.",
+          "disposition": "Unassessed. Trace all six endpoints and their clock domains before deciding whether the generated CDC logic or constraints need changes."
+        }
+      ],
+      "unlocated_summary_delta_disposition": "The final Vivado warning total exceeds the individually located WARNING records by two. Their message IDs and causes are not evidenced by this run log; keep them unresolved and capture the message database or fuller tool output in a follow-up run."
+    },
+    "drc_report": {
+      "path": "tmp/s3s05/project/s3_vendor_bd.runs/impl_1/design_1_wrapper_drc_opted.rpt",
+      "sha256": "26d68ed8acd15d2b90982f989d8db18c9df1757898673f821918ba7059ad56db",
+      "findings": {
+        "NSTD-1_critical_warning": 1,
+        "UCIO-1_critical_warning": 1,
+        "REQP-1839_warning": 2,
+        "REQP-1840_warning": 1
+      }
+    }
+  },
+  "interpretation": {
+    "prior_synth_diagnostic": "UNRESOLVED_BLACKBOXES:dbg_hub describes the synthesis-stage checkpoint and the prior supplemental checker result; it is not a synth_design tool failure. The debug-hub blackbox is resolved during opt_design in this isolated run.",
+    "official_references": [
+      {
+        "title": "AMD UG908 2026.1: Debug Hub",
+        "url": "https://docs.amd.com/r/en-US/ug908-vivado-programming-debugging/Debug-Hub"
+      },
+      {
+        "title": "AMD UG908: Implementing the Design Containing the Debug Cores",
+        "url": "https://docs.amd.com/r/2025.1-English/ug908-vivado-programming-debugging/Implementing-the-Design-Containing-the-Debug-Cores"
+      }
+    ]
+  },
+  "remaining_blockers": [
+    "Timing 38-249 generated SerialClk has no logical path from axi_dynclk_0_PXL_CLK_O.",
+    "Debug-hub xsdbm generated XDC emitted CRITICAL WARNINGs for missing queried objects and unset clock/skew variables; these constraints remain unverified.",
+    "Ordinary warning inventory remains open: XCI changed, empty CDC-10 waiver, six same-clock XPM_CDC_SINGLE warnings, and two summary-count warnings not individually located in the run log.",
+    "The isolated experimental source lacks final board pin/I/O-standard constraints; DRC still reports NSTD-1 and UCIO-1 critical warnings and RAM async-control warnings.",
+    "No placement, routing, complete timing signoff, Vitis application build, bitstream, or hardware test was performed. G0/G3/G4/G5 remain unpassed."
+  ]
+}

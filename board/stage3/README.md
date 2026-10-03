@@ -25,7 +25,7 @@
 |---|---|---|---|
 | S3-T01 | 固定资料和工具基线 | 源仓库提交、PDF 哈希、源工程清单、版本差异 | 资料已核对；器件/IP 目录实测通过；离线准备静态独立审查 PASS（不含 PDF 独立视觉） |
 | S3-T02 | 接口 G0 | 实物 PCB 对应图纸、逐针电平/方向、复位时序、视频模式、缓冲/丢帧语义 | 到手模块版本/Pin1/连接方式需断电核对；候选表不是接线授权 |
-| S3-T03 | HDMI 独立画面 | 在 XA/-1 目标验证 BD、综合/时序，Wong 上板验证颜色、运动与计数 | 参考单路综合网表已生成；整体诊断因调试黑盒失败，完整时序/最终构建待完成 |
+| S3-T03 | HDMI 独立画面 | 在 XA/-1 目标验证 BD、综合/时序，Wong 上板验证颜色、运动与计数 | 隔离副本 `opt_design` 已验证综合阶段的调试 hub 黑盒被解析；最终 XDC、完整时序与最终构建仍待完成 |
 | S3-T04 | 摄像头输入 | 厂商初始化加错误检查、传感器 ID、测试色条、帧/行/像素计数与恢复测试 | 厂商错误处理补丁主机测试及独立审查通过；底层接收截止时间、实际 BSP/板测未通过 |
 | S3-T05 | 原始画面直通 | VDMA 缓冲所有权、采集/显示帧号、双通道语义、撕裂与背压检查 | 依赖 T03/T04；不能直接认可示例的缓冲策略 |
 | S3-T06 | 耐久与归档 | ≥30 分钟真实记录、配置/计数/错误/丢帧/视频、干净副本重建、G4/G5 | 待前序全部通过 |
@@ -99,12 +99,14 @@ AX7020 原理图 PDF 第 15 页：J10 使用 EX_IO1 网络，J11 使用 EX_IO2 �
 
 ## 2026-10-03 离线结果与首次实物关口
 
-原综合在会话中断后留下排队/运行标记。本轮只读确认本阶段对应进程已不存在，保留 13 个已完成 IP；备份中断产物后仅恢复四个未完成 IP 和顶层。实际 `synth_1` 完成，但整体诊断 `FAILED=1`，结果为 `UNRESOLVED_BLACKBOXES:dbg_hub`，不宣称综合诊断通过。该标志不是进程退出码；日志请求 `exit 2`，启动器实际退出码未归档为本地证据。只读网表查询确认唯一黑盒为 `dbg_hub_CV`、Vivado 调试核心 `dbg_hub`，另有厂商 ILA；没有把它当作功能 IP 源码缺失，也没有白名单屏蔽检查。摘要见 `report/stage3_synth_diag_20261003.json`。
+原综合在会话中断后留下排队/运行标记。本轮只读确认本阶段对应进程已不存在，保留 13 个已完成 IP；备份中断产物后仅恢复四个未完成 IP 和顶层。实际 `synth_1` 完成，但原补充检查器在综合阶段以 `UNRESOLVED_BLACKBOXES:dbg_hub` 标记未通过；该结果不是进程退出码。只读网表查询确认当时唯一黑盒为 `dbg_hub_CV`、Vivado 调试核心 `dbg_hub`，另有厂商 ILA；没有把它当作功能 IP 源码缺失，也没有白名单屏蔽检查。摘要 `report/stage3_synth_diag_20261003.json` 保留为综合阶段历史证据。
 
-该综合网表的资源为 7724 Slice LUT、11924 Slice Registers，仅代表本次原厂视频参考，不是实现后资源或 CNN 资源。未加载最终板卡 XDC，DRC 有 NSTD-1/UCIO-1 以及三个 RAM 异步控制警告；打开网表另有 `Timing 38-249` 生成时钟关键警告。没有降低 DRC 等级、没有实现/完整时序/bitstream 或板测通过。AXI ID 五处静态连接及五个检查器测试通过，仍不能代替事务验收。
+AMD UG908 说明 7-series 的 debug hub 在 `opt_design` 阶段由 Vivado 插入/实现，因此综合 DCP 中的 debug-hub blackbox 本身不能判作 `synth_design` 失败（[Debug Hub](https://docs.amd.com/r/en-US/ug908-vivado-programming-debugging/Debug-Hub)，[Implementing the Design Containing the Debug Cores](https://docs.amd.com/r/2025.1-English/ug908-vivado-programming-debugging/Implementing-the-Design-Containing-the-Debug-Cores)）。新隔离复验使用相同 SHA-256 的综合 checkpoint 副本，固定 Vivado 2026.1 / `xa7z020clg400-1I`，只运行到 `opt_design`：综合前 `dbg_hub=1`，优化后 `dbg_hub=0`、blackbox 查询为空；run 状态 `Not started place_design`、进度 40%。`.opt_design.end.rst` 存在，而 `.place_design.begin.rst`、`.route_design.begin.rst`、`.write_bitstream.begin.rst` 均不存在；此前的 `.vivado`、`.init_design` 和 `.opt_design.begin` 标记存在。工具退出码 0，日志报告 `opt_design completed successfully`、DRC 0 errors；完整摘要与证据哈希见 `report/stage3_debug_hub_opt_20261003.json`。这仅关闭“debug hub 在 opt_design 中解析”这一诊断项，不代表整个工程通过。探针随后增加了隔离根路径拒绝和空查询静默；路径矩阵/调用次序静态检查通过，但 Vivado 在脚本载入前启动失败，未用加固后哈希重放。报告区分记录了成功运行版与当前脚本哈希，不把前者冒充为后者的执行证据。
+
+该综合网表的资源为 7724 Slice LUT、11924 Slice Registers，仅代表本次原厂视频参考，不是实现后资源或 CNN 资源。优化阶段有 13 个 critical warnings，其中 HDMI `SerialClk` 的 `Timing 38-249` 尚未解决；自动生成的 debug-hub `xsdbm` XDC 还报告对象/时钟变量缺失。普通 warning 的日志汇总由 link 后 9 条增至 opt 后 11 条，但 `runme.log` 仅定位到 9 条单项记录，另 2 条原因未定位，均保留为未关闭。已定位项包括 IP cache 路径过长（完整构建前缩短路径复验）、`axis_subset_converter` XCI 与上次写入内容不一致（需重新同步输出产物并复验 BD）、空目标列表的 `CDC-10` waiver（不算覆盖，须按最终时钟审计），以及 6 条 XPM 同源/目的时钟告警（须追踪端点后再判断）。未加载最终板卡 XDC，DRC 有 NSTD-1/UCIO-1 critical warnings 以及三个 RAM 异步控制 warning；没有降低 DRC 等级、没有 place/route/完整时序/bitstream 或板测通过。AXI ID 五处静态连接及五个检查器测试通过，仍不能代替事务验收。逐条证据和处置见上述 JSON 报告。
 
 传感器适配入口 `software/sensor/ADAPTATION.md`：只保存厂商差异补丁及固定源准备脚本，不重新编写寄存器表。主机四组合各 968 cases / 847246 checks / 302 writes，303 项表值一致；独立 Reviewer 复验和冻结检查通过。证据 `report/stage3_sensor_host_20261003.json`。底层 `MasterRecvPolled` 仍有无限等待，主机进程 30 秒限时不等于 I2C 超时；真实 BSP/VDMA/显示集成未完成。
 
-首次需要 Wong 的实物操作是 [prepower_check.md](prepower_check.md) 的断电模块核对：AN5642 型号/版本、Pin1 和直插/排线方式。不是立即烧录上板，不要求重发板卡照片，不授权猜方向或带电测量。模块与板卡电气绑定后，才冻结最终接口、约束和接线；后续仍须解决调试核心/生成时钟、底层接收截止时间、缓存/缓冲所有权、视频背压/复位及帧行像素观测，完成正式构建和审查后再发可执行板测步骤。G0/G3/G4/G5 尚未通过。
+首次需要 Wong 的实物操作是 [prepower_check.md](prepower_check.md) 的断电模块核对：AN5642 型号/版本、Pin1 和直插/排线方式。不是立即烧录上板，不要求重发板卡照片，不授权猜方向或带电测量。模块与板卡电气绑定后，才冻结最终接口、约束和接线；后续仍须解决 HDMI 生成时钟与 debug-hub XDC 告警、上述普通 warning 清单、底层接收截止时间、缓存/缓冲所有权、视频背压/复位及帧行像素观测，完成正式构建和审查后再发可执行板测步骤。G0/G3/G4/G5 尚未通过。
 
 AXI4-Stream 背压适配 S3-VAXIS-01：WinPS 5.1 策略自测 5/5 通过；真实厂商顶层 host 仿真 `xvlog/xelab/xsim` 均退出 0，12 beats、6 个停顿周期、12 次 FIFO 弹出。launcher 退出码缺失或读取失败时，即使 sentinel 为 0 也会 fail-closed。结果及源码哈希见 `report/stage3_vaxis01_host_20261003.json`；原始日志留在本地 `tmp`。该回归使用同钟 FWFT mock，不证明异步 CDC 或板级行为。

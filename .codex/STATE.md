@@ -1,6 +1,6 @@
 # 项目状态
 
-更新：2026-10-02（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
+更新：2026-10-03（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
 
 ## 当前目标与阶段
 
@@ -15,9 +15,11 @@
 - 入口 `board/stage3/README.md`：计划与原计划差别、固定官方 AX7020 源 `fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327`、PDF 页码/哈希及候选 CMOS1 引脚；旧 AX7Z020 2017.4 XDC 不直接复用。
 - Vivado 2026.1 的 XA/-1I 与 13 项精确 IP 目录检查实测通过，见 `report/stage3_vendor_probe_20261002.json`；不代表 BD、综合、时序、软件编译或板测。接口 G0 尚未冻结，继续核对资料对应及 AN5642 模块版本，当前无需上电接线。
 - Wong 已确认 AN5642 到手；指定 Vault 项目的 `01-竞赛材料/板卡正面.jpg`、`板卡反面.jpg` 已实际读取并计算哈希，入口 `board/stage3/hardware_photo_evidence.md`。不再向 Wong 索要板卡照片；沿用阶段0已记版本标记 `AX701020.3.0`，与候选图纸的对应仍内部核对，不伪称电气/板测通过。
-- 离线准备六文件静态独立审查 PASS（不含 PDF 独立视觉或板测）；下一步离线 BD 迁移验证，接口冻结后再准备 HDMI 与摄像头的准确板测步骤。双通道最终语义、缓冲/丢帧口径仍待 G0 冻结。
+- 离线准备及诊断工具已独立审查并提交；下一关为 `board/stage3/prepower_check.md` 的 AN5642 型号/版本、Pin1 和直插/排线方式断电核对，不要求重发板卡照片、不上电/烧录。PCB 电气绑定、双通道最终语义、缓冲/丢帧口径仍待 G0 冻结。
 - BD 诊断：原厂 IP 在 XA/-1I 上因 `axi_dynclk` 家族声明拒绝实例化；显式隔离副本只给三个 IP XML 增加 azynq 声明后，16-cell BD 校验实测通过，见 `report/stage3_bd_experiment_20261002.json`。只是元数据实验，不是正式 IP 支持、RTL/时序或板测通过；硬件 G0 继续待实物证据，禁止据此烧录。未修改厂商原件。
 - HDL 诊断：`azynq_metadata hdl` 在 `tmp/s3h01` 实测退出 0、生成包装器；证据 `report/stage3_hdl_generation_20261002.json`。随后 `check_syntax -fileset sources_1` 退出 0、语法检查无错误/警告，见 `report/stage3_hdl_syntax_20261002.json`；不代表 elaboration/综合/时序/软件/板测通过。五项 AXI ID 1/6 位宽警告未关闭，下一步先查 ID 连接及厂商软件错误处理/超时/缓存交接。旧 AX7Z020 核心板/底板图不能作为当前 AX7020 电气绑定，不要求重复提供板卡照片。
+- PL 恢复：确认原阶段3进程不存在后备份中断产物，仅重跑四个 IP 和顶层；`synth_1` 完成但整体诊断 `FAILED=1`（唯一黑盒 dbg_hub 调试核心，不是退出码），另有 Timing 38-249/NSTD/UCIO/RAM 警告；见 `report/stage3_synth_diag_20261003.json`。没有实现/完整时序/bitstream/板测。AXI ID 静态连接及 5 个检查器用例通过，不代替事务验收。
+- 厂商传感器差异补丁已提交 `203ab10`；独立审查及主控复验四组合各 968 cases / 847246 checks，303 项表值一致，见 `report/stage3_sensor_host_20261003.json`。底层接收整体截止时间、真实 BSP/显示集成仍未完成；后续还须验证视频背压/复位、缓冲所有权和帧行像素观测，不能宣称仅剩烧录。
 
 ## 阶段 2A G0 冻结入口
 

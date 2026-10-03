@@ -1,0 +1,15 @@
+{
+  "date_utc8": "2026-10-03",
+  "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+  "scope": "厂商差异补丁的主机 mock 故障注入及真实头文件签名兼容检查；不是实际 BSP 或板测",
+  "command": "./scripts/s3_test_sensor.ps1 -RunName s3_sensor_main_final_20261003_01",
+  "exit_code": 0,
+  "evidence_relative": "tmp/s3_sensor_main_final_20261003_01/result.json",
+  "evidence_sha256": "16fbd778ab659951958fbe60b847105adffcbf706fdb35c35a31e03b9dca53b8",
+  "variants": ["mock header / traditional", "mock header / SDT", "real xiicps.h / traditional", "real xiicps.h / SDT"],
+  "each_variant": {"compile_exit": 0, "test_exit": 0, "cases": 968, "checks": 847246, "vendor_writes": 302},
+  "counting": "同一组定向用例在四种组合重复执行，不把它们算成四组独立场景；没有随机测试",
+  "register_table": {"entries_with_terminator": 303, "values_equal": true, "golden": "原厂原始副本独立提取，正常初始化逐字节核对发送载荷"},
+  "changes": ["读函数状态与输出分离，失败保留输出", "逐级错误传播和有限 busy 查询", "空参数及初始化错误检查", "传感器 ID 校验", "寄存器数组显式长度及首错返回"],
+  "limitations": ["真实 XIicPs_MasterRecvPolled 内部仍有无限等待，整体截止时间未实现", "主机测试进程30秒限制不是I2C事务超时", "未编译真实BSP、未集成完整VDMA/显示应用", "未冻结模块版本、电平、接线或最终视频模式", "原始日志和适配生成物是本地忽略缓存，不是永久归档"]
+}

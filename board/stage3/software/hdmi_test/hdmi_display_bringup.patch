@@ -60,3 +60,119 @@ diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_h
 -	return 0;
 +	return XST_SUCCESS;
  }
+
+diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c
+--- a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c
++++ b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c
+@@ -73,6 +73,11 @@
+ #include "dynclk.h"
+ #include "xil_io.h"
+ #include "math.h"
++#include "xstatus.h"
++#include "xtime_l.h"
++
++/* 动态时钟启动或停止的最长等待时间为一秒。 */
++#define DYNCLK_TIMEOUT_TICKS ((XTime)COUNTS_PER_SECOND)
+ 
+ u32 ClkCountCalc(u32 divide)
+ {
+@@ -222,7 +227,23 @@
+-void ClkStart(u32 dynClkAddr)
++int ClkStart(u32 dynClkAddr)
+ {
++	XTime startTime;
++	XTime currentTime;
++	XTime_GetTime(&startTime);
+ 	Xil_Out32(dynClkAddr + OFST_DYNCLK_CTRL, (1 << BIT_DYNCLK_START));
+-	while(!(Xil_In32(dynClkAddr + OFST_DYNCLK_STATUS) & (1 << BIT_DYNCLK_RUNNING)));
+-
+-	return;
++	for (;;)
++	{
++		u32 status = Xil_In32(dynClkAddr + OFST_DYNCLK_STATUS);
++		XTime_GetTime(&currentTime);
++		if ((currentTime - startTime) >= DYNCLK_TIMEOUT_TICKS)
++		{
++			break;
++		}
++		if (status & (1 << BIT_DYNCLK_RUNNING))
++		{
++			return XST_SUCCESS;
++		}
++	}
++	/* 超时或截止点后才观察到启动，尽力关闭且不再等待。 */
++	Xil_Out32(dynClkAddr + OFST_DYNCLK_CTRL, 0);
++	return XST_FAILURE;
+ }
+@@ -230,7 +251,21 @@
+-void ClkStop(u32 dynClkAddr)
++int ClkStop(u32 dynClkAddr)
+ {
++	XTime startTime;
++	XTime currentTime;
+ 	Xil_Out32(dynClkAddr + OFST_DYNCLK_CTRL, 0);
+-	while((Xil_In32(dynClkAddr + OFST_DYNCLK_STATUS) & (1 << BIT_DYNCLK_RUNNING)));
++	XTime_GetTime(&startTime);
++	for (;;)
++	{
++		u32 status = Xil_In32(dynClkAddr + OFST_DYNCLK_STATUS);
++		XTime_GetTime(&currentTime);
++		if ((currentTime - startTime) >= DYNCLK_TIMEOUT_TICKS)
++		{
++			return XST_FAILURE;
++		}
++		if (!(status & (1 << BIT_DYNCLK_RUNNING)))
++		{
++			return XST_SUCCESS;
++		}
++	}
+ 
+-	return;
+ }
+diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.h b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.h
+--- a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.h
++++ b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.h
+@@ -266,8 +266,8 @@
+ u32 ClkFindReg (ClkConfig *regValues, ClkMode *clkParams);
+ void ClkWriteReg (ClkConfig *regValues, u32 dynClkAddr);
+ double ClkFindParams(double freq, ClkMode *bestPick);
+-void ClkStart(u32 dynClkAddr);
+-void ClkStop(u32 dynClkAddr);
++int ClkStart(u32 dynClkAddr);
++int ClkStop(u32 dynClkAddr);
+ 
+ 
+ #endif /* DYNCLK_H_ */
+diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/display_ctrl.c b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/display_ctrl.c
+--- a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/display_ctrl.c
++++ b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/display_ctrl.c
+@@ -183,8 +183,16 @@ int DisplayStart(DisplayCtrl *dispPtr)
+ 	/*
+ 	 * Enable the dynamically generated clock
+     */
+-	ClkStop(dispPtr->dynClkAddr);
+-	ClkStart(dispPtr->dynClkAddr);
++	/* 时钟停止失败时终止显示启动。 */
++	if (ClkStop(dispPtr->dynClkAddr) != XST_SUCCESS)
++	{
++		return XST_FAILURE;
++	}
++	/* 时钟启动失败时终止显示启动。 */
++	if (ClkStart(dispPtr->dynClkAddr) != XST_SUCCESS)
++	{
++		return XST_FAILURE;
++	}
+ 
+ 	/*
+ 	 * Configure the vtc core with the display mode timing parameters
+@@ -353,5 +361,9 @@ int DisplayInitialize(DisplayCtrl *dispPtr, XAxiVdma *vdma, u16 vtcId, u32 dynClkAddr, u8 *framePtr[DISPLAY_NUM_FRAMES], u32 stride)
+ 	/*
+ 	 * Enable the dynamically generated clock
+     */
+-	ClkStart(dispPtr->dynClkAddr);
++	/* 时钟启动失败时报告显示初始化失败。 */
++	if (ClkStart(dispPtr->dynClkAddr) != XST_SUCCESS)
++	{
++		return XST_FAILURE;
++	}
+ 

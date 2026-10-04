@@ -1,0 +1,276 @@
+{
+  "date_utc8": "2026-10-04",
+  "task": "S3-HDMI-ONLY-PRISTINE-SYNTH-DIAGNOSTIC",
+  "baseline": {
+    "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "vendor_source_relative": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project",
+    "vendor_source_clean_after_run": true,
+    "device": "xa7z020clg400-1I",
+    "vivado": "2026.1",
+    "license_detected": "ENTERPRISE",
+    "license_expiration_reported_by_vivado": "2026-10-06"
+  },
+  "scope": "Fresh HDMI-only BD/HDL regeneration, syntax check, and isolated non-project synth_design diagnostic. Experimental azynq metadata is confined to the generated output copy. No board-level XDC, implementation, bitstream, XSA, BSP, or hardware operation.",
+  "hdl_generation": {
+    "script_relative": "scripts/s3_validate_hdmi_only_bd.tcl",
+    "script_sha256": "B56FCAC3A5087D693DD53EFF71E9364FBDA881942B77F6E0296C23E919094318",
+    "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\vivado.bat -mode batch -source C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\scripts\\s3_validate_hdmi_only_bd.tcl -log C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3hp01_vivado.log -journal C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3hp01_vivado.jou -tclargs C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\stage3_reference\\AX7020_2023.1 C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\s3hp01 azynq_metadata hdl",
+    "output_relative": "tmp/s3hp01",
+    "exit_code": 0,
+    "result": "PASS_HDL_EXPERIMENTAL_METADATA_ONLY",
+    "bd_cell_count": 11,
+    "bd_cells": [
+      "axi_dynclk_0",
+      "axi_smc",
+      "axi_vdma_0",
+      "processing_system7_0",
+      "ps7_0_axi_periph",
+      "rgb2dvi_0",
+      "rst_ps7_0_100M",
+      "rst_ps7_0_142M",
+      "v_axi4s_vid_out_0",
+      "v_tc_0",
+      "xlconcat_0"
+    ],
+    "bd_sha256": "9B1B7DBA53113ACE9AB63EBA12733F61391B2358F04882CC5B7767A456E9B352",
+    "bd_matches_prior_committed_hdl_report": true,
+    "wrapper_sha256": "805ED39F67B02D925136FC038948E0C120C2E1453CC92063AA4C4047489F94E2",
+    "prior_wrapper_sha256": "C02FFDB6119D2FDD35D65680EFA9F3D23A8EEFED32659575FD0A932D94207DF0",
+    "prior_wrapper_relative": "tmp/s3_hdmi_only_hdl_2d2921bd08124472972bfa7fbd4ad8ff/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/hdl/s3_hdmi_only_wrapper.v",
+    "wrapper_timestamp_normalized_sha256": "25E691C6A483E578CEC42DC761ED78A1B60D493A77A4FB1C7AF3E6A5110DC105",
+    "wrapper_normalization": "Read UTF-8; remove the entire line matching (?m)^//Date[^\\r\\n]*(?:\\r\\n|\\n|\\r), including its line terminator; convert any remaining CRLF or CR to LF; SHA-256 the remaining UTF-8 bytes without a BOM.",
+    "wrapper_comparison": "Prior and fresh wrapper contents are byte-identical after the stated normalization; raw hash difference is the generated date comment.",
+    "result_sha256": "BE12C51A7C58B2CFE0747F5C65F3B199F67E40FCD0AC5A1258D5C78A03840B9A",
+    "diagnostics_sha256": "83DB2991A43565609A1EADC477B49CF998A636CD6D442F8284AFE29B0B1999C1",
+    "vivado_log_relative": "tmp/s3hp01_vivado.log",
+    "vivado_log_sha256": "1F6C547EA38EA2A9400BB80421619A2AFDB5908D8E486FD17CD1F89DEFF35436",
+    "syntax_check": {
+      "command": "check_syntax -fileset sources_1",
+      "helper_relative": "tmp/s3_tcl_syntax_44713c68dfe64c5bb3070820d80b2f05/check_generated_hdmi_hdl.tcl",
+      "helper_sha256": "988E568F59BA0653C0A2224BC62DE34CB0E84BE4B56436431C231A56EC280CD7",
+      "exit_code": 0,
+      "result": "No errors or warning reported.",
+      "log_relative": "tmp/s3hp01_syntax.log",
+      "log_sha256": "50AB7D2D7FDF6BC23C16695EFC864550EF37E3C48D66B5B8FCB266B2DE3FE552"
+    },
+    "pristine_reproduction_checks": {
+      "bd_41_2576_missing_xci_messages": 0,
+      "bd_41_1942_recovery_messages": 0,
+      "xci_names_with_unintended_0_1_suffix": 0,
+      "scope": "Counts checked in fresh HDL generation, syntax, and synth logs; source BD hash is unchanged."
+    }
+  },
+  "synthesis_diagnostic": {
+    "helper_relative": "tmp/s3_tcl_syntax_44713c68dfe64c5bb3070820d80b2f05/run_hdmi_nonproject_inline_bd_synth.tcl",
+    "helper_sha256": "2A7B9BB5C479DEC9A2EAC518AB1B8A1930ADE891E96F96EB762652A0D0E575FC",
+    "mode": "non-project read_bd; synth_checkpoint_mode=None; generate_target all; make_wrapper; synth_design",
+    "copied_input_root_relative": "tmp/s3hpsyn01",
+    "vivado_log_relative": "tmp/s3hpsyn01_vivado_synth.log",
+    "vivado_log_sha256": "65B907DF0A2104AF0435C50E207FD0D35D7A1AB7B0777DC26E13CDAADA932D41",
+    "exit_code": 0,
+    "result": "PASS_SYNTHESIS_ONLY_DIAGNOSTIC",
+    "synth_design_complete": true,
+    "summary": {
+      "infos": 588,
+      "warnings": 183,
+      "critical_warnings": 1,
+      "errors": 0,
+      "peak_memory_mb": 2950.637
+    },
+    "reports": {
+      "utilization": {
+        "relative": "tmp/s3hpsyn01/reports/utilization.rpt",
+        "sha256": "7F8AA16126406EAA6D42CF2006791CCA88645444DAEAB538E1ADA1362A253EF1",
+        "slice_luts": 4322,
+        "slice_registers": 7030,
+        "bram_tiles": 7.5,
+        "dsps": 0,
+        "bufgctrl": 2,
+        "scope": "Pre-placement synthesis diagnostic only; not final implementation/resource sign-off."
+      },
+      "clocks": {
+        "relative": "tmp/s3hpsyn01/reports/clocks.rpt",
+        "sha256": "99234ED60FE4F921DFFA40391334B4725BAD9BAD4F0C0C33E1A1E851AA89B0B9",
+        "reported_periods_ns": {
+          "clk_fpga_0": 10.0,
+          "clk_fpga_1": 7.0,
+          "SerialClk": 2.0,
+          "axi_dynclk_0_PXL_CLK_O": 10.0
+        }
+      },
+      "timing_check": {
+        "relative": "tmp/s3hpsyn01/reports/timing_check.rpt",
+        "sha256": "491980489DAC9F0593D569E2D4C95ADA1CC3DC898C85A70470CAE4B5D7E09DD9",
+        "ports_without_output_delay": [
+          "TMDS_clk_p",
+          "TMDS_data_p[0]",
+          "TMDS_data_p[1]",
+          "TMDS_data_p[2]"
+        ],
+        "unconnected_generated_clock": "s3_hdmi_only_i/rgb2dvi_0/U0/SerialClk"
+      },
+      "timing_summary": {
+        "relative": "tmp/s3hpsyn01/reports/timing_summary.rpt",
+        "sha256": "EC508962443B7F61486EBF49003A107A93C35075488BBBE23BA59F955BE11452"
+      }
+    },
+    "board_xdc_loaded": false,
+    "ip_generated_constraints_loaded": true,
+    "timing_critical_warning": {
+      "id": "Timing 38-249",
+      "text": "Generated clock s3_hdmi_only_i/rgb2dvi_0/U0/SerialClk has no logical paths from master clock axi_dynclk_0_PXL_CLK_O.",
+      "generated_clock_declaration_relative": "tmp/s3hp01/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_rgb2dvi_0_0/src/rgb2dvi_clocks.xdc",
+      "warning_report_location_relative": "tmp/s3hpsyn01/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_v_tc_0_0/s3_hdmi_only_v_tc_0_0_clocks.xdc:2",
+      "warning_location_note": "The generated-clock declaration is in the RGB2DVI XDC; Vivado emitted the no-logical-path warning while processing the VTC clock-constraint context at line 2.",
+      "constraint": "create_generated_clock -source [get_ports PixelClk] -multiply_by 5 [get_ports SerialClk]",
+      "observed_bd_connections": "PixelClk is connected to axi_dynclk_0/PXL_CLK_O and SerialClk to axi_dynclk_0/PXL_CLK_5X_O; they are separate outputs of the dynamic-clock IP.",
+      "assessment": "The untouched baseline warning is directly triggered by this generated RGB2DVI clock relationship. A single-variable scratch run removing only this line eliminated Timing 38-249; this is causal diagnostic evidence, not project or implementation sign-off. The official reference RTL and BD route the 5x clock through BUFIO to SerialClk and derive PixelClk from that same fast source through BUFR divide-by-5, so the XDC describes the sibling clocks in the reverse parent-child direction. The scratch run retains an auto-derived 2 ns MMCM clock and its 10 ns BUFR-derived pixel clock, but four TMDS outputs still lack output delay and the synthesis timing summary still reports failing hold endpoints. No final project constraint change is accepted; clock/timing sign-off remains open."
+    },
+    "clock_constraint_isolation_trial": {
+      "status": "PASS_MATCHED_SINGLE_VARIABLE_CAUSAL_DIAGNOSTIC_ONLY",
+      "trial_root_relative": "tmp/s3rpt03_matched_20261004_1015",
+      "master_generation": {
+        "source_copy_relative": "tmp/s3rpt02_repair_20261004_62ed40d0f008/master/project",
+        "log_relative": "tmp/s3rpt02_repair_20261004_62ed40d0f008/logs/master_generate.log",
+        "log_sha256": "35A775C97CCC297BF657E09BCA2C129661CB080743D4EC83A71D9F0E34174EB7",
+        "exit_code": 0,
+        "result": "PASS_SYNTHESIS_ONLY_DIAGNOSTIC",
+        "bd_sha256": "5D638EA2F16FF1A9977FBF95AAB1A307E50A9D4DAA461EFDE647AA72E2C69E45",
+        "wrapper_sha256": "1EF36B424C09CDA8E8443D1D9F48C6D0BE63FA370E7526B90F71AACA4C6312E6"
+      },
+      "pre_run_control": {
+        "project_file_count_each": 231,
+        "copies_identical_before_patch": true,
+        "bd_sha256_each": "5D638EA2F16FF1A9977FBF95AAB1A307E50A9D4DAA461EFDE647AA72E2C69E45",
+        "wrapper_sha256_each": "1EF36B424C09CDA8E8443D1D9F48C6D0BE63FA370E7526B90F71AACA4C6312E6",
+        "only_differing_file_relative_from_project_root": "s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_rgb2dvi_0_0/src/rgb2dvi_clocks.xdc",
+        "post_run_project_file_count_each": 231,
+        "post_run_differing_file_count": 1,
+        "baseline_clock_xdc_sha256": "E6CEADC3FCFCF59FE1F5EAF13F8F94D862E9513AD6CD2E850A035C312C8D2002",
+        "patched_clock_xdc_sha256": "A8A46CEAC24C4BA73D64D9066F6BE09D20E02207D20B49963022C06EB088ECD1",
+        "change": "Removed only create_generated_clock -source [get_ports PixelClk] -multiply_by 5 [get_ports SerialClk]; retained the XDC header."
+      },
+      "reference_clock_topology": {
+        "vendor_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+        "axi_dynclk_rtl_relative": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/axi_dynclk_v1_0/src/axi_dynclk.vhd",
+        "axi_dynclk_rtl_sha256": "334A8C8BF5FE3BAEFB4E44FB0DE36A5B37248B08C3786BB7308D012810D837DF",
+        "rgb2dvi_clock_xdc_relative": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/rgb2dvi_v1_3/src/rgb2dvi_clocks.xdc",
+        "rgb2dvi_clock_xdc_sha256": "E6CEADC3FCFCF59FE1F5EAF13F8F94D862E9513AD6CD2E850A035C312C8D2002",
+        "rtl_and_bd_observation": "axi_dynclk.vhd feeds PXL_CLK_5X_O from mmcm_clk through BUFIO and PXL_CLK_O from the same fast-clock source through BUFR_DIVIDE=5; the BD connects PXL_CLK_5X_O to rgb2dvi_0/SerialClk and PXL_CLK_O to rgb2dvi_0/PixelClk.",
+        "interpretation_is_inference": "The generated constraint models PixelClk as the parent of SerialClk, although the observed clock tree has the 2 ns MMCM clock as the parent and the 10 ns PixelClk as its divide-by-5 descendant."
+      },
+      "baseline_run": {
+        "helper_relative": "tmp/s3hpsyn05_synth_noreg.tcl",
+        "helper_sha256": "7504DBD746C07E18CB8920F46C996D2582C0EA1CF99165D37DA0A1334150DDB2",
+        "helper_flow": "read_bd, open_bd_design, read the already-generated wrapper, then synth_design; no generate_target or make_wrapper call.",
+        "helper_log_literal_note": "The shared helper hard-codes SYNTH_DESIGN_RESULT=PASS_PATCHED_XDC_NO_REGENERATION, so that literal also appears in the baseline log and does not identify the case. Case identity and outcome are established by each case's XDC hash/path, exit code, warning count, and reports.",
+        "reports_relative": "tmp/s3rpt03_matched_20261004_1015/baseline/synth_reports",
+        "log_relative": "tmp/s3rpt03_matched_20261004_1015/logs/baseline/vivado.log",
+        "log_sha256": "7FEA5BA20FE047512E07ADFB30C581E3881B625F762CBE109584B472A1788F8B",
+        "exit_code": 0,
+        "result": "PASS_SYNTHESIS_ONLY_DIAGNOSTIC",
+        "timing_38_249_log_occurrences": 3,
+        "timing_38_249_unique_critical_diagnostic": true,
+        "clocks_report_sha256": "1ECA9CFC3AD0CA27B42F120A3C9567686F7530F956066C6728CCA2E00328DBFD",
+        "timing_check_report_sha256": "C16624C364764879D92C455443D724C1E58AEB6742F8E89CB69B1F7CC46CAE2D",
+        "timing_summary_report_sha256": "09ACA01C25CCF4D54FC7C789ED7DA8084B47F5FC8F798BEC28288F543C05A2D7",
+        "utilization_report_sha256": "AD45A9597CD780261E3EA25AB9DF0B5B4AC38CA907C6504DB96C2B39E3E23181",
+        "timing_check": {
+          "unclocked_register_pins": 0,
+          "generated_clocks_without_source": 1,
+          "ports_without_output_delay": [
+            "TMDS_clk_p",
+            "TMDS_data_p[0]",
+            "TMDS_data_p[1]",
+            "TMDS_data_p[2]"
+          ]
+        },
+        "assessment": "The exact untouched clock-constraint baseline emits Timing 38-249."
+      },
+      "single_variable_patch": {
+        "change": "Removed only the create_generated_clock line from the copied generated rgb2dvi_clocks.xdc; retained its header.",
+        "patched_clock_xdc_relative": "tmp/s3rpt03_matched_20261004_1015/patched/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_rgb2dvi_0_0/src/rgb2dvi_clocks.xdc",
+        "patched_clock_xdc_sha256_before_and_after_synthesis": "A8A46CEAC24C4BA73D64D9066F6BE09D20E02207D20B49963022C06EB088ECD1",
+        "helper_relative": "tmp/s3hpsyn05_synth_noreg.tcl",
+        "helper_sha256": "7504DBD746C07E18CB8920F46C996D2582C0EA1CF99165D37DA0A1334150DDB2",
+        "helper_flow": "read_bd, open_bd_design, read the already-generated wrapper, then synth_design; the helper contains no generate_target or make_wrapper call.",
+        "helper_log_literal_note": "The shared helper hard-codes SYNTH_DESIGN_RESULT=PASS_PATCHED_XDC_NO_REGENERATION, so that literal also appears in the baseline log and does not identify the case. Case identity and outcome are established by each case's XDC hash/path, exit code, warning count, and reports.",
+        "reports_relative": "tmp/s3rpt03_matched_20261004_1015/patched/synth_reports",
+        "log_relative": "tmp/s3rpt03_matched_20261004_1015/logs/patched/vivado.log",
+        "log_sha256": "76ECAA72130586ED19A952703DDC2760B05DAD67CECE68C211B2CF152597DA9D",
+        "journal_relative": "tmp/s3rpt03_matched_20261004_1015/logs/patched/vivado.jou",
+        "console_relative": "tmp/s3rpt03_matched_20261004_1015/logs/patched/console.txt",
+        "exit_code": 0,
+        "result": "PASS_SYNTHESIS_ONLY_DIAGNOSTIC",
+        "timing_38_249_log_occurrences": 0,
+        "clocks_report_sha256": "3A2930FAEDB0F03D17F27DB68A1EB73968CA4BF38A3D7517AEF1F96A7DE21EA7",
+        "timing_check_report_sha256": "9FC8BEAB1AC7E577E691442D3990AD323F801BC31C69BB7B52FC50F8F07A76C9",
+        "timing_summary_report_sha256": "1A6FD64372260B3958CA2A94C335E60527491943D82D7D2A8C6CCEB2F6DBB870",
+        "utilization_report_sha256": "F4A6EE0CB6561A6B5C418EBC5167EF1B5863EFC09B41AE1782142FC705A6F8E4",
+        "timing_check": {
+          "unclocked_register_pins": 0,
+          "generated_clocks_without_source": 0,
+          "ports_without_output_delay": [
+            "TMDS_clk_p",
+            "TMDS_data_p[0]",
+            "TMDS_data_p[1]",
+            "TMDS_data_p[2]"
+          ]
+        }
+      },
+      "patched_timing_observation": {
+        "named_serialclk_clock_present": false,
+        "auto_derived_mmcm_clock": "I, 2.000 ns, sourced from axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKOUT0",
+        "pixel_clock": "axi_dynclk_0_PXL_CLK_O, 10.000 ns, auto-derived from I through BUFR",
+        "register_pins_without_clock": 0,
+        "unconstrained_output_count": 4,
+        "unconstrained_outputs": [
+          "TMDS_clk_p",
+          "TMDS_data_p[0]",
+          "TMDS_data_p[1]",
+          "TMDS_data_p[2]"
+        ],
+        "timing_constraints_met": false,
+        "worst_hold_slack_ns": -0.166,
+        "hold_total_negative_slack_ns": -1.327,
+        "hold_failing_endpoints": 8,
+        "assessment": "The matched scratch-only trial still reports four TMDS outputs without output delay and eight hold-failing endpoints. The experiment only isolates the warning trigger; it is not accepted as a final clock/XDC fix or implementation sign-off."
+      }
+    },
+    "vdma_port_warnings": {
+      "id": [
+        "Synth 8-7071",
+        "Synth 8-7023"
+      ],
+      "text": "The AXI VDMA instance has 42 declared ports but 40 connections; mm2s_frame_ptr_out and m_axis_mm2s_tkeep are reported unconnected.",
+      "component": "xilinx.com:ip:axi_vdma:6.3",
+      "component_interface_file_relative": "tmp/s3hp01/project/s3_hdmi_only.srcs/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_axi_vdma_0_0/s3_hdmi_only_axi_vdma_0_0.xci",
+      "component_interface_hash_algorithm": "SHA-256 of complete XCI file bytes",
+      "component_interface_sha256": "4F362585B8588B618093319828750639BCD7414FCD9ABA2A17E296E25AE2834A",
+      "generated_vhdl_sha256": "E6EC24B5D1F4112D6165C5AF5D04D2F740E0C42C0185F75ABEF228CBE0423464",
+      "component_ports_confirmed": {
+        "mm2s_frame_ptr_out": "output[5:0]",
+        "m_axis_mm2s_tkeep": "output[2:0]"
+      },
+      "assessment": "Both ports exist in the generated VDMA interface but are omitted from the BD top-level instance connections. This is an unconnected-output warning, not a missing module-port or synthesis error. Functional acceptability is not established by this synthesis-only check."
+    },
+    "stale_xci_recovery_warning_counts": {
+      "BD_41_2576": 0,
+      "BD_41_1942": 0
+    },
+    "report_errors": [],
+    "scope_marker": "NO_BOARD_XDC_NO_IMPLEMENTATION_NO_BITSTREAM_NO_HARDWARE"
+  },
+  "environment_diagnostic": {
+    "tcl_store_warning": "Vivado could not write the user Tcl store at C: and fell back to its installation area; no ACL, cache, or environment change was made.",
+    "tool_license": "Vivado reported an active Enterprise license expiring 2026-10-06 during all three invocations."
+  },
+  "limitations": [
+    "azynq family declaration is an isolated metadata experiment and is not a vendor-support claim.",
+    "Board-specific XDC and external HDMI output-delay constraints are absent; generated IP constraints were still loaded.",
+    "The untouched baseline emits Timing 38-249; removing only the suspect generated-clock declaration in an isolated scratch run suppresses it, but no project-owned XDC fix is adopted. Four TMDS outputs lack output delay, eight hold endpoints fail in the synthesis timing summary, and placed timing remains unsigned.",
+    "No implementation, placed timing, bitstream, XSA/BSP build, or hardware output test was performed.",
+    "The reference HDMI-only design does not include the camera path; camera-to-HDMI integration remains open.",
+    "Build logs and reports remain in local ignored tmp paths; this JSON records hashes and is not a portable full-build archive."
+  ]
+}

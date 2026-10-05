@@ -1416,6 +1416,10 @@ function New-FakeChild([string]$Directory, [string]$Code, [string]$Name) {
 function Invoke-SupervisorSelfTests {
     $tmpRoot = Join-Path $repoRoot 'tmp'
     if (-not (Test-Path -LiteralPath $tmpRoot -PathType Container)) { throw 'REPOSITORY_TMP_MISSING_FOR_SELFTEST' }
+    Assert-Test (Test-OutputParentMatchesRepoTmp $tmpRoot $tmpRoot) 'direct-repository-tmp-output-parent-accepted'
+    Assert-Test (Test-OutputParentMatchesRepoTmp (Join-Path $tmpRoot 'nested') $tmpRoot) 'nested-repository-tmp-output-parent-accepted'
+    $outsideTmp = Join-Path (Split-Path -Parent $tmpRoot) 'tmp_outside'
+    Assert-Test (-not (Test-OutputParentMatchesRepoTmp $outsideTmp $tmpRoot)) 'output-parent-outside-repository-tmp-rejected'
     $powershellExe = Get-WindowsPowerShellExecutable
     $testRoot = Join-Path $tmpRoot ('s3_t03_runner_selftest_' + [Guid]::NewGuid().ToString('N'))
     if (Test-Path -LiteralPath $testRoot) { throw 'SELFTEST_TEMP_COLLISION' }
@@ -2258,6 +2262,13 @@ function Assert-OutputTarget([string]$Target) {
     return $full
 }
 
+function Test-OutputParentMatchesRepoTmp([string]$OutputParent, [string]$TmpRoot) {
+    $parentFull = [IO.Path]::GetFullPath($OutputParent).TrimEnd('\')
+    $tmpRootFull = [IO.Path]::GetFullPath($TmpRoot).TrimEnd('\')
+    if ([string]::Equals($parentFull, $tmpRootFull, [StringComparison]::OrdinalIgnoreCase)) { return $true }
+    return $parentFull.StartsWith($tmpRootFull + '\', [StringComparison]::OrdinalIgnoreCase)
+}
+
 function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$RunnerSha, $Leases) {
     $tclPath = Join-Path $PSScriptRoot 's3_implement_hdmi_only_diag.tcl'
     $manifest = @(
@@ -2281,8 +2292,7 @@ function Initialize-SafeOutputLeases([string]$Directory) {
         $tmpRoot = Join-Path $repoRoot 'tmp'
         $leases.LockParentDirectory($tmpRoot)
         $outputParent = [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($Directory))
-        $tmpPrefix = [IO.Path]::GetFullPath($tmpRoot).TrimEnd('\') + '\'
-        if (-not $outputParent.StartsWith($tmpPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'OUTPUT_PARENT_OUTSIDE_REPOSITORY_TMP' }
+        if (-not (Test-OutputParentMatchesRepoTmp $outputParent $tmpRoot)) { throw 'OUTPUT_PARENT_OUTSIDE_REPOSITORY_TMP' }
         $leases.LockParentDirectory($outputParent)
         $rootHandle = [S3T03SafeFile]::CreateDirectoryWithinRoot($Directory, $outputParent)
         $leases.AdoptDirectory($Directory, $rootHandle)

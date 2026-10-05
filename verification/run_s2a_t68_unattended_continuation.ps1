@@ -122,28 +122,153 @@ function Read-JsonObject {
     return $value
 }
 
+function Assert-RecoveryBoundFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$RecordedPath,
+        [Parameter(Mandatory = $true)][string]$ExpectedPath,
+        [Parameter(Mandatory = $true)][string]$RecordedSha256,
+        [Parameter(Mandatory = $true)][string]$Label
+    )
+    if (-not [System.IO.Path]::IsPathRooted($RecordedPath) -or
+        [System.IO.Path]::GetFullPath($RecordedPath) -ine [System.IO.Path]::GetFullPath($ExpectedPath) -or
+        $RecordedSha256 -notmatch '^[0-9a-f]{64}$') {
+        throw "$Label 的记录路径或 SHA-256 未绑定到本次证据。"
+    }
+    $normalPath = Assert-NormalFile -Path $ExpectedPath -Label $Label
+    if ((Get-Sha256Literal -Path $normalPath) -cne $RecordedSha256) {
+        throw "$Label 的实际 SHA-256 与原 coordinator 终态记录不符。"
+    }
+    return $normalPath
+}
+
+function Assert-FailedBatchValidationRecovery {
+    param(
+        [Parameter(Mandatory = $true)][System.Collections.IDictionary]$Prior,
+        [Parameter(Mandatory = $true)][string]$SummaryPath,
+        [Parameter(Mandatory = $true)][string]$ExpectedSummaryHash,
+        [Parameter(Mandatory = $true)][string]$EvidenceRoot,
+        [Parameter(Mandatory = $true)][string]$ExpectedRunId,
+        [Parameter(Mandatory = $true)][string]$ExpectedBackendHash,
+        [Parameter(Mandatory = $true)][string]$SchedulerPath,
+        [Parameter(Mandatory = $true)][string]$RunnerPath
+    )
+    if ($Prior.schema_version -isnot [string] -or $Prior.schema_version -cne 'gestureforge_s2a_t68_unattended_continuation_v1' -or
+        $Prior.status -isnot [string] -or $Prior.status -cne 'STOP_BATCH_FAILED' -or
+        $Prior.stage2a_pass -isnot [bool] -or $Prior.stage2a_pass -ne $false -or
+        $Prior.run_id -isnot [string] -or $Prior.run_id -cne $ExpectedRunId -or
+        $Prior.evidence_directory -isnot [string] -or $Prior.evidence_directory -cne $EvidenceRoot -or
+        $Prior.expected_backend_sha256 -isnot [string] -or
+        $Prior.expected_backend_sha256 -cne $ExpectedBackendHash -or $Prior.observed_backend_sha256 -cne $ExpectedBackendHash -or
+        -not $Prior.Contains('d9') -or $null -ne $Prior.d9 -or
+        -not $Prior.Contains('error') -or $null -ne $Prior.error -or
+        $Prior.sample0 -isnot [System.Collections.IDictionary] -or
+        $Prior.batch -isnot [System.Collections.IDictionary]) {
+        throw '旧 STOP_BATCH_FAILED summary 不符合 false-stop 白名单。'
+    }
+
+    $expectedSummaryPath = Join-Path $EvidenceRoot ("unattended_continuation_{0}.json" -f $ExpectedRunId)
+    if ([System.IO.Path]::GetFullPath($SummaryPath) -ine [System.IO.Path]::GetFullPath($expectedSummaryPath)) {
+        throw '旧 coordinator summary 路径与本次 RunId 不匹配。'
+    }
+    $null = Assert-RecoveryBoundFile -RecordedPath $SummaryPath -ExpectedPath $expectedSummaryPath `
+        -RecordedSha256 $ExpectedSummaryHash -Label '旧 coordinator summary'
+
+    $sample0 = $Prior.sample0
+    $batch = $Prior.batch
+    if ($sample0.terminal_record_status -isnot [string] -or $sample0.terminal_record_status -cne 'PASS_SAMPLE0_TERMINAL' -or
+        $sample0.exit_code -isnot [long] -or
+        $sample0.runner_exit_code -isnot [long] -or $sample0.exit_code -ne 0 -or $sample0.runner_exit_code -ne 0 -or
+        -not $sample0.Contains('read_error') -or $null -ne $sample0.read_error -or
+        $sample0.terminal_record_sha256 -isnot [string] -or
+        $sample0.terminal_record_sha256 -notmatch '^[0-9a-f]{64}$' -or
+        $batch.status -isnot [string] -or $batch.status -cne 'FAIL_BATCH_NOT_PASS' -or
+        $batch.process_exit_code -isnot [long] -or $batch.process_exit_code -ne 0 -or
+        $batch.message -isnot [string] -or
+        $batch.message -cne 'batch_summary.json 的 scheduler 源码冻结证据不完整或不一致。') {
+        throw '旧 STOP_BATCH_FAILED 的 sample0 或批次失败特征不符合 false-stop 白名单。'
+    }
+
+    $runsDirectory = Assert-NormalDirectory -Path (Join-Path $EvidenceRoot 'runs') -Label 'sample000 runs 目录'
+    $sample0ParentDirectory = Assert-NormalDirectory -Path (Join-Path $runsDirectory 'sample_000') -Label 'sample000 目录'
+    $sample0RunDirectory = Assert-NormalDirectory -Path (Join-Path $sample0ParentDirectory $ExpectedRunId) -Label 'sample000 RunId 目录'
+    $sample0RecordPath = Join-Path $sample0RunDirectory 'simulation_execution_record.json'
+    $normalSample0RecordPath = Assert-RecoveryBoundFile -RecordedPath ([string]$sample0.terminal_record_path) `
+        -ExpectedPath $sample0RecordPath -RecordedSha256 ([string]$sample0.terminal_record_sha256) `
+        -Label 'sample000 仿真终态记录'
+    $sample0Record = Read-JsonObject -Path $normalSample0RecordPath -Label 'sample000 仿真终态记录'
+    if (-not (Test-Sample0Passed -Record $sample0Record -ExpectedRunId $ExpectedRunId)) {
+        throw 'sample000 仿真终态记录内容不通过冻结 PASS 条件。'
+    }
+
+    $dispatchDirectory = Join-Path $EvidenceRoot 'batch_dispatch'
+    $dispatchDirectory = Assert-NormalDirectory -Path $dispatchDirectory -Label 'batch_dispatch 目录'
+    $expectedBatchSummaryPath = Join-Path $dispatchDirectory 'batch_summary.json'
+    $expectedStdoutPath = Join-Path $EvidenceRoot ("unattended_batch_stdout_{0}.log" -f $ExpectedRunId)
+    $expectedStderrPath = Join-Path $EvidenceRoot ("unattended_batch_stderr_{0}.log" -f $ExpectedRunId)
+    $normalBatchSummaryPath = Assert-RecoveryBoundFile -RecordedPath ([string]$batch.summary_path) `
+        -ExpectedPath $expectedBatchSummaryPath -RecordedSha256 ([string]$batch.summary_sha256) `
+        -Label 'batch_summary.json'
+    $null = Assert-RecoveryBoundFile -RecordedPath ([string]$batch.stdout_path) -ExpectedPath $expectedStdoutPath `
+        -RecordedSha256 ([string]$batch.stdout_sha256) -Label 'batch stdout log'
+    $null = Assert-RecoveryBoundFile -RecordedPath ([string]$batch.stderr_path) -ExpectedPath $expectedStderrPath `
+        -RecordedSha256 ([string]$batch.stderr_sha256) -Label 'batch stderr log'
+
+    $batchSummary = Read-JsonObject -Path $normalBatchSummaryPath -Label '失败前已完成的 batch summary'
+    if ($batchSummary.scheduler_path -isnot [string] -or
+        [System.IO.Path]::GetFullPath($batchSummary.scheduler_path) -ine [System.IO.Path]::GetFullPath($SchedulerPath)) {
+        throw 'batch_summary.json 的 scheduler 路径不匹配当前仓库。'
+    }
+    $normalSchedulerPath = Assert-NormalFile -Path $SchedulerPath -Label '固定 batch scheduler 源码'
+    $normalRunnerPath = Assert-NormalFile -Path $RunnerPath -Label '固定 batch worker 源码'
+    $schedulerHash = Get-Sha256Literal -Path $normalSchedulerPath
+    if ($batch.scheduler_path -isnot [string] -or
+        [System.IO.Path]::GetFullPath($batch.scheduler_path) -ine [System.IO.Path]::GetFullPath($normalSchedulerPath) -or
+        $batch.scheduler_sha256 -cne $schedulerHash) {
+        throw '旧 coordinator 记录中的 scheduler 源码绑定与当前仓库不符。'
+    }
+    Assert-PassingBatchSummary -BatchSummary $batchSummary -EvidenceRoot $EvidenceRoot -ExpectedRunId $ExpectedRunId `
+        -ExpectedBackendHash $ExpectedBackendHash -ExpectedSchedulerHash $schedulerHash `
+        -ExpectedRunnerHash (Get-Sha256Literal -Path $normalRunnerPath)
+}
+
 function Assert-FailedCoordinatorRecovery {
     param(
         [string]$SummaryPath, [string]$ExpectedSummaryHash, [string]$EvidenceRoot,
-        [string]$ExpectedRunId, [string]$ExpectedBackendHash
+        [string]$ExpectedRunId, [string]$ExpectedBackendHash,
+        [string]$SchedulerPath, [string]$RunnerPath
     )
     $null = Assert-NormalFile -Path $SummaryPath -Label '原失败 coordinator summary'
     if ((Get-Sha256Literal -Path $SummaryPath) -cne $ExpectedSummaryHash) { throw '原失败 coordinator summary SHA 不匹配。' }
     $prior = Read-JsonObject -Path $SummaryPath -Label '原失败 coordinator summary'
-    if ($prior.schema_version -cne 'gestureforge_s2a_t68_unattended_continuation_v1' -or
-        $prior.status -cne 'COORDINATOR_ERROR' -or $prior.stage2a_pass -ne $false -or
-        $prior.run_id -cne $ExpectedRunId -or $prior.evidence_directory -cne $EvidenceRoot -or
-        $prior.expected_backend_sha256 -cne $ExpectedBackendHash -or $prior.observed_backend_sha256 -cne $ExpectedBackendHash -or
-        $prior.sample0.terminal_record_status -cne 'PASS_SAMPLE0_TERMINAL' -or
-        $prior.sample0.exit_code -ne 0 -or $prior.sample0.runner_exit_code -ne 0 -or
-        $prior.batch.status -cne 'RUNNING_EXISTING_SCHEDULER' -or $null -ne $prior.batch.process_exit_code -or
-        $null -ne $prior.d9 -or $prior.error -notlike '*Cannot bind argument to parameter ''Text'' because it is an empty string.*') {
-        throw '原失败 summary 不符合空日志故障的单次恢复条件。'
+    if ($prior.status -ceq 'COORDINATOR_ERROR') {
+        if ($prior.schema_version -cne 'gestureforge_s2a_t68_unattended_continuation_v1' -or
+            $prior.stage2a_pass -ne $false -or
+            $prior.run_id -cne $ExpectedRunId -or $prior.evidence_directory -cne $EvidenceRoot -or
+            $prior.expected_backend_sha256 -cne $ExpectedBackendHash -or $prior.observed_backend_sha256 -cne $ExpectedBackendHash -or
+            $prior.sample0.terminal_record_status -cne 'PASS_SAMPLE0_TERMINAL' -or
+            $prior.sample0.exit_code -ne 0 -or $prior.sample0.runner_exit_code -ne 0 -or
+            $prior.batch.status -cne 'RUNNING_EXISTING_SCHEDULER' -or $null -ne $prior.batch.process_exit_code -or
+            $null -ne $prior.d9 -or $prior.error -notlike '*Cannot bind argument to parameter ''Text'' because it is an empty string.*') {
+            throw '原失败 summary 不符合空日志故障的单次恢复条件。'
+        }
+        $recordPath = Join-Path $EvidenceRoot ("runs\sample_000\{0}\simulation_execution_record.json" -f $ExpectedRunId)
+        if ($prior.sample0.terminal_record_path -cne $recordPath -or
+            (Get-Sha256Literal -Path $recordPath) -cne $prior.sample0.terminal_record_sha256) { throw '原 sample0 终态绑定不匹配。' }
+        if (Test-Path -LiteralPath (Join-Path $EvidenceRoot 'batch_dispatch')) { throw '单次恢复要求尚无 batch_dispatch；拒绝重复派发。' }
+        return [ordered]@{ kind = 'SAMPLE0_EMPTY_LOG'; sample0 = $null }
     }
-    $recordPath = Join-Path $EvidenceRoot ("runs\sample_000\{0}\simulation_execution_record.json" -f $ExpectedRunId)
-    if ($prior.sample0.terminal_record_path -cne $recordPath -or
-        (Get-Sha256Literal -Path $recordPath) -cne $prior.sample0.terminal_record_sha256) { throw '原 sample0 终态绑定不匹配。' }
-    if (Test-Path -LiteralPath (Join-Path $EvidenceRoot 'batch_dispatch')) { throw '单次恢复要求尚无 batch_dispatch；拒绝重复派发。' }
+
+    if ($prior.status -ceq 'STOP_BATCH_FAILED') {
+        Assert-FailedBatchValidationRecovery -Prior $prior -SummaryPath $SummaryPath -ExpectedSummaryHash $ExpectedSummaryHash `
+            -EvidenceRoot $EvidenceRoot -ExpectedRunId $ExpectedRunId -ExpectedBackendHash $ExpectedBackendHash `
+            -SchedulerPath $SchedulerPath -RunnerPath $RunnerPath
+        return [ordered]@{
+            kind = 'BATCH_FALSE_STOP_VALIDATION'
+            sample0 = $prior.sample0
+            batch_summary_sha256 = $prior.batch.summary_sha256
+        }
+    }
+    throw '原 coordinator summary 状态不在允许的单次恢复白名单中。'
 }
 function Write-NewUtf8File {
     param(
@@ -772,9 +897,19 @@ try {
 
     $originalSummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}.json" -f $RunId)
     $script:SummaryPath = $originalSummaryPath
+    $falseStopBatchRecovery = $false
+    $falseStopExpectedBatchSummarySha256 = $null
     if ($ResumeFailedCoordinatorSha256) {
-        Assert-FailedCoordinatorRecovery -SummaryPath $originalSummaryPath -ExpectedSummaryHash $ResumeFailedCoordinatorSha256 `
-            -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -ExpectedBackendHash $expectedBackendHash
+        $recoveryResult = Assert-FailedCoordinatorRecovery -SummaryPath $originalSummaryPath -ExpectedSummaryHash $ResumeFailedCoordinatorSha256 `
+            -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -ExpectedBackendHash $expectedBackendHash `
+            -SchedulerPath (Join-Path $repositoryRoot 'verification\run_s2a_t68_batch_verilator.ps1') `
+            -RunnerPath (Join-Path $repositoryRoot 'verification\run_s2a_network_backend_verilator.ps1')
+        $script:Summary.recovery_mode = $recoveryResult.kind
+        if ($recoveryResult.kind -ceq 'BATCH_FALSE_STOP_VALIDATION') {
+            $falseStopBatchRecovery = $true
+            $falseStopExpectedBatchSummarySha256 = [string]$recoveryResult.batch_summary_sha256
+            $script:Summary.sample0 = $recoveryResult.sample0
+        }
         $script:SummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}_recovery.json" -f $RunId)
         $script:Summary.recovered_from_summary_path = $originalSummaryPath
         $script:Summary.recovered_from_summary_sha256 = $ResumeFailedCoordinatorSha256
@@ -818,7 +953,14 @@ try {
 
     $continueToD9 = $false
     $launchScheduler = $false
-    if ($existingBatch.state -eq 'PASS') {
+    if ($falseStopBatchRecovery -and
+        ($existingBatch.state -ne 'PASS' -or $existingBatch.summary_sha256 -cne $falseStopExpectedBatchSummarySha256)) {
+        $script:Summary.batch.status = 'STOP_RECOVERY_BATCH_NOT_PASS_NO_DISPATCH'
+        $script:Summary.batch.summary_path = $existingBatch.summary_path
+        $script:Summary.batch.summary_sha256 = $existingBatch.summary_sha256
+        $script:Summary.batch.message = "严格 false-stop 恢复要求现有 batch_summary.json 复验为 PASS 且 SHA-256 与旧终态记录一致；observed state=$($existingBatch.state)，observed SHA=$($existingBatch.summary_sha256)，拒绝重新调度 108 个样本。 $($existingBatch.message)"
+        $script:Summary.status = 'STOP_EXISTING_BATCH_NO_DUPLICATE'
+    } elseif ($existingBatch.state -eq 'PASS') {
         $script:Summary.batch.status = 'EXISTING_PASS'
         $script:Summary.batch.summary_path = $existingBatch.summary_path
         $script:Summary.batch.summary_sha256 = $existingBatch.summary_sha256

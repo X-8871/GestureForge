@@ -193,9 +193,6 @@ proc s3_repo_root_from_vendor {vendor_root} {
 }
 
 proc s3_audit_hdmi_xdc {text} {
-    if {[regexp -nocase {camera|cmos|ov[0-9]{4}} $text]} {
-        error "CAMERA_REFERENCE_IN_HDMI_ONLY_XDC"
-    }
     if {[regexp -nocase {set_output_delay} $text]} {
         error "UNEXPECTED_OUTPUT_DELAY_MUST_NOT_BE_INVENTED_OR_IMPORTED"
     }
@@ -215,6 +212,9 @@ proc s3_audit_hdmi_xdc {text} {
             error "UNEXPECTED_ACTIVE_XDC_COMMAND: $line"
         }
         set port [string trim $port_token "{} \t"]
+        if {[regexp -nocase {camera|cmos|ov[0-9]{4}} $port]} {
+            error "CAMERA_REFERENCE_IN_HDMI_ONLY_XDC: $port"
+        }
         if {![regexp -nocase {^(TMDS_|hdmi_)} $port]} {
             error "NON_HDMI_PORT_IN_HDMI_XDC: $port"
         }
@@ -834,7 +834,7 @@ proc s3_exec_main {vendor_root output_dir action run_id} {
 proc s3_run_selftest {} {
     set failures {}
     set checks 0
-    set synthetic_xdc "set_property PACKAGE_PIN N18 \[get_ports TMDS_clk_p\]\nset_property IOSTANDARD TMDS_33 \[get_ports TMDS_clk_p\]\nset_property PACKAGE_PIN V16 \[get_ports hdmi_oen\]"
+    set synthetic_xdc "set_property PACKAGE_PIN N18 \[get_ports TMDS_clk_p\]\nset_property IOSTANDARD TMDS_33 \[get_ports TMDS_clk_p\]\nset_property PACKAGE_PIN V16 \[get_ports hdmi_oen\]\nset_property IOSTANDARD LVCMOS33 \[get_ports hdmi_oen\]"
     set xdc_text $synthetic_xdc
     if {[catch {set ports [s3_audit_hdmi_xdc $xdc_text]} err]} {
         lappend failures "valid HDMI pin XDC rejected: $err"
@@ -844,6 +844,10 @@ proc s3_run_selftest {} {
     incr checks
     if {![catch {s3_audit_hdmi_xdc "set_property IOSTANDARD LVCMOS33 \[get_ports camera_clk\]"}]} {
         lappend failures "camera signal was not rejected"
+    }
+    incr checks
+    if {![catch {s3_audit_hdmi_xdc "set_property PACKAGE_PIN P1 \[get_ports CMOS2_D9\]"}]} {
+        lappend failures "CMOS camera port was not rejected"
     }
     incr checks
     if {![catch {s3_audit_hdmi_xdc "set_output_delay -clock pix 1.0 \[get_ports TMDS_clk_p\]"}]} {

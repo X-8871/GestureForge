@@ -5,9 +5,11 @@
     [switch]$SecureHelper,
     [switch]$SecureHashOnWrite,
     [switch]$SecureReadHelper,
+    [switch]$SecureTreeHashHelper,
     [switch]$SecureLeaseServer,
     [string]$SecurePath,
     [string]$SecureRoot,
+    [string]$SecureTreeRoot,
     [ValidateSet('CreateNew','OpenExisting')][string]$SecureMode
 )
 
@@ -695,6 +697,79 @@ public sealed class S3T03OutputLeaseSet : IDisposable
 
 if (-not ('S3T03SafeFile' -as [type])) {
     Add-Type -TypeDefinition $safeFileSource -Language CSharp
+}
+
+function Get-SecureTreeSha256Manifest([string]$Root) {
+    if ([string]::IsNullOrWhiteSpace($Root) -or -not [IO.Path]::IsPathRooted($Root) -or $Root -match '(^|[\\/])\.\.([\\/]|$)') {
+        throw 'SECURE_TREE_ROOT_NOT_ABSOLUTE_OR_TRAVERSAL_FREE'
+    }
+    $treeRootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@([char]92,[char]47))
+    $treeRelativePrefix = $treeRootFull + [IO.Path]::DirectorySeparatorChar
+    $treePendingDirectories = New-Object 'System.Collections.Generic.Stack[string]'
+    $treePendingDirectories.Push($treeRootFull)
+    $treeRecords = New-Object 'System.Collections.Generic.List[object]'
+    while ($treePendingDirectories.Count -gt 0) {
+        $treeDirectory = $treePendingDirectories.Pop()
+        $treeDirectoryHandle = [S3T03SafeFile]::OpenDirectory($treeDirectory)
+        try { $treeEntries = [IO.Directory]::GetFileSystemEntries($treeDirectory) }
+        finally { $treeDirectoryHandle.Dispose() }
+        foreach ($treeEntry in $treeEntries) {
+            $treeEntryFull = [IO.Path]::GetFullPath($treeEntry)
+            if (-not $treeEntryFull.StartsWith($treeRelativePrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                throw ('SECURE_TREE_ENTRY_OUTSIDE_ROOT:' + $treeEntryFull)
+            }
+            $treeAttributes = [IO.File]::GetAttributes($treeEntryFull)
+            if (($treeAttributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw ('SECURE_TREE_REPARSE_POINT_REJECTED:' + $treeEntryFull)
+            }
+            if (($treeAttributes -band [IO.FileAttributes]::Directory) -ne 0) {
+                $treeChildHandle = [S3T03SafeFile]::OpenDirectory($treeEntryFull)
+                $treeChildHandle.Dispose()
+                $treePendingDirectories.Push($treeEntryFull)
+                continue
+            }
+            $treeFileHandle = [S3T03SafeFile]::OpenReadLease($treeEntryFull)
+            try {
+                $treeBytes = [S3T03SafeFile]::ReadHandle($treeFileHandle)
+                $treeSha = [Security.Cryptography.SHA256]::Create()
+                try { $treeDigest = [BitConverter]::ToString($treeSha.ComputeHash($treeBytes)).Replace('-','') }
+                finally { $treeSha.Dispose() }
+            } finally { $treeFileHandle.Dispose() }
+            $treeRelativePath = $treeEntryFull.Substring($treeRelativePrefix.Length).Replace('\','/')
+            if ([string]::IsNullOrWhiteSpace($treeRelativePath)) { throw 'SECURE_TREE_RELATIVE_PATH_EMPTY' }
+            $treeRecords.Add([pscustomobject]@{ RelativePath=$treeRelativePath; Digest=$treeDigest })
+        }
+    }
+    if ($treeRecords.Count -eq 0) { throw 'SECURE_TREE_EMPTY' }
+    foreach ($treeRecord in ($treeRecords | Sort-Object -Property RelativePath)) {
+        Write-Output ($treeRecord.Digest + [char]9 + $treeRecord.RelativePath)
+    }
+}
+
+if ($SecureTreeHashHelper) {
+    try {
+        if ([string]::IsNullOrWhiteSpace($SecureRoot) -or [string]::IsNullOrWhiteSpace($SecureTreeRoot) -or
+            -not [IO.Path]::IsPathRooted($SecureRoot) -or -not [IO.Path]::IsPathRooted($SecureTreeRoot) -or
+            $SecureRoot -match '(^|[\\/])\.\.([\\/]|$)' -or $SecureTreeRoot -match '(^|[\\/])\.\.([\\/]|$)') {
+            throw 'SECURE_TREE_HASH_ROOTS_INVALID'
+        }
+        $secureTreeBoundary = [IO.Path]::GetFullPath($SecureRoot).TrimEnd([char[]]@([char]92,[char]47))
+        $secureTreeRootFull = [IO.Path]::GetFullPath($SecureTreeRoot).TrimEnd([char[]]@([char]92,[char]47))
+        $secureTreeRepoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd([char[]]@([char]92,[char]47))
+        if (-not $secureTreeBoundary.StartsWith(($secureTreeRepoTmp + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'SECURE_TREE_HASH_BOUNDARY_OUTSIDE_REPOSITORY_TMP'
+        }
+        if (-not $secureTreeRootFull.StartsWith(($secureTreeBoundary + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'SECURE_TREE_HASH_ROOT_OUTSIDE_OUTPUT_BOUNDARY'
+        }
+        foreach ($treeRecord in (Get-SecureTreeSha256Manifest -Root $secureTreeRootFull)) {
+            [Console]::Out.WriteLine('S3_SECURE_TREE_SHA256=' + $treeRecord)
+        }
+        exit 0
+    } catch {
+        [Console]::Error.WriteLine('S3_SECURE_TREE_SHA256=FAIL:' + $_.Exception.Message)
+        exit 3
+    }
 }
 
 if ($SecureLeaseServer) {
@@ -1445,6 +1520,45 @@ function Invoke-SupervisorSelfTests {
         Assert-Test ($vivadoInstall.IsValid -and $vivadoInstall.BatchExists -and $vivadoInstall.ExecutableExists) `
             'fixed-vivado-install-files-exist-without-launch'
 
+        $secureTreeRoot = Join-Path $testRoot 'secure-tree'
+        [void][IO.Directory]::CreateDirectory($secureTreeRoot)
+        $secureTreeFile = Join-Path $secureTreeRoot 'ordinary.txt'
+        [S3T03SafeFile]::WriteSingle($secureTreeFile, $true, [Text.Encoding]::UTF8.GetBytes('tree-content'))
+        $treeFileSha = [Security.Cryptography.SHA256]::Create()
+        try { $expectedTreeDigest = [BitConverter]::ToString($treeFileSha.ComputeHash([IO.File]::ReadAllBytes($secureTreeFile))).Replace('-','') }
+        finally { $treeFileSha.Dispose() }
+        $ordinaryTreeManifest = @(Get-SecureTreeSha256Manifest -Root $secureTreeRoot)
+        Assert-Test ($ordinaryTreeManifest.Count -eq 1 -and $ordinaryTreeManifest[0] -eq ($expectedTreeDigest + [char]9 + 'ordinary.txt')) `
+            'secure-tree-hash-manifest-matches-file'
+
+        $secureTreeOutsideFile = Join-Path $testRoot 'secure-tree-outside-target.txt'
+        $secureTreeOutsideLink = Join-Path $secureTreeRoot 'outside-target-link.txt'
+        [S3T03SafeFile]::WriteSingle($secureTreeOutsideFile, $true, [Text.Encoding]::UTF8.GetBytes('outside-tree-target'))
+        $outsideBefore = [Convert]::ToBase64String([IO.File]::ReadAllBytes($secureTreeOutsideFile))
+        $outsideLinkRejected = $false
+        try {
+            [S3T03SafeFile]::CreateHardLink($secureTreeOutsideLink, $secureTreeOutsideFile)
+            try { $null = @(Get-SecureTreeSha256Manifest -Root $secureTreeRoot) }
+            catch { $outsideLinkRejected = $_.Exception.ToString().Contains('OUTPUT_LINK_COUNT_NOT_ONE') }
+        } finally {
+            if (Test-Path -LiteralPath $secureTreeOutsideLink -PathType Leaf) { [IO.File]::Delete($secureTreeOutsideLink) }
+        }
+        $outsideAfter = [Convert]::ToBase64String([IO.File]::ReadAllBytes($secureTreeOutsideFile))
+        Assert-Test ($outsideLinkRejected -and $outsideBefore -ceq $outsideAfter) `
+            'secure-tree-hash-rejects-outside-hardlink-without-modification'
+
+        $secureTreeBusyRoot = Join-Path $testRoot 'secure-tree-busy-writer'
+        [void][IO.Directory]::CreateDirectory($secureTreeBusyRoot)
+        $secureTreeBusyFile = Join-Path $secureTreeBusyRoot 'writer-held.txt'
+        [S3T03SafeFile]::WriteSingle($secureTreeBusyFile, $true, [Text.Encoding]::UTF8.GetBytes('writer-held'))
+        $secureTreeWriter = [IO.File]::Open($secureTreeBusyFile, [IO.FileMode]::Open, [IO.FileAccess]::Write, [IO.FileShare]::ReadWrite)
+        $concurrentWriterRejected = $false
+        try {
+            try { $null = @(Get-SecureTreeSha256Manifest -Root $secureTreeBusyRoot) }
+            catch { $concurrentWriterRejected = $_.Exception.ToString().Contains('SECURE_READ_LEASE_OPEN_FAILED') }
+        } finally { $secureTreeWriter.Dispose() }
+        Assert-Test $concurrentWriterRejected 'secure-tree-hash-blocks-concurrent-writer'
+
         $secureRoot = Join-Path $testRoot 'secure-files'
         [void][IO.Directory]::CreateDirectory($secureRoot)
         $secureLeases = New-Object S3T03OutputLeaseSet($secureRoot)
@@ -2052,10 +2166,11 @@ Start-Sleep -Seconds 20
         $lateProcessStartState = [pscustomobject]@{ Count=0 }
         $lateProcessClockState = [pscustomobject]@{ Count=0; Now=$deadlineStartAt.AddMinutes(5) }
         $lateProcessClock = { $lateProcessClockState.Count++; $lateProcessClockState.Now }.GetNewClosure()
+        $guardedVivadoStartCommand = Get-Command -Name 'Invoke-GuardedVivadoStart' -CommandType Function
         $lateProcessStartAction = {
             param([DateTime]$RouteDeadlineUtc)
             $childStartAction = { $lateProcessStartState.Count++; 'UNEXPECTED_ROUTE_CHILD_START' }.GetNewClosure()
-            Invoke-GuardedVivadoStart -ProcessStartAction $childStartAction -ProcessQuery $presentProcessQuery
+            & $guardedVivadoStartCommand -ProcessStartAction $childStartAction -ProcessQuery $presentProcessQuery
         }.GetNewClosure()
         $lateProcessStartFailure = $null
         $lateProcessCatchAction = $null
@@ -2397,7 +2512,7 @@ try {
 
     $logPath = Join-Path $outputFull 'vivado.log'
     $journalPath = Join-Path $outputFull 'vivado.jou'
-    $runArgs = @('-mode','batch','-threads','1','-log',$logPath,'-journal',$journalPath,
+    $runArgs = @('-mode','batch','-log',$logPath,'-journal',$journalPath,
         '-source','scripts/s3_implement_hdmi_only_diag.tcl','-tclargs',$vendorFull,$outputFull,'run',$runId)
     $runCommand = New-BatchCommandLine $vivadoBat $runArgs
     $xdcBroker = New-GeneratedClockXdcBrokerState

@@ -255,13 +255,31 @@ proc s3_ps_quote {value} {
     return "'[string map [list "'" "''"] $value]'"
 }
 
+proc s3_sha256_read_mode {path} {
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {return Read}
+    set output_root $::s3_state(output)
+    if {[file pathtype $output_root] ne "absolute" || [s3_path_has_traversal $output_root]} {return Read}
+    if {[file pathtype $path] ne "absolute" || [s3_path_has_traversal $path]} {return Read}
+    set output_key [s3_normalized_key [file normalize $output_root]]
+    set path_key [s3_normalized_key [file normalize $path]]
+    if {[string first "${output_key}/" $path_key] == 0} {return ReadWrite}
+    return Read
+}
+
 proc s3_sha256_manifest {paths} {
     if {[llength $paths] == 0} {error "EMPTY_SHA256_INPUT_MANIFEST"}
-    set quoted_paths {}
-    foreach path $paths {lappend quoted_paths [s3_ps_quote $path]}
-    set powershell_script "\$ErrorActionPreference='Stop'; \$ProgressPreference='SilentlyContinue'; \$VerbosePreference='SilentlyContinue'; \$paths=@([join $quoted_paths ,]); foreach (\$p in \$paths) { \$sha=\[Security.Cryptography.SHA256\]::Create(); \$stream=\[IO.File\]::OpenRead(\$p); try { \$h=\[BitConverter\]::ToString(\$sha.ComputeHash(\$stream)).Replace('-','') } finally { \$stream.Dispose(); \$sha.Dispose() }; Write-Output (\$h + \[char\]9 + \$p) }"
+    set quoted_read_paths {}
+    set quoted_shared_read_paths {}
+    foreach path $paths {
+        if {[s3_sha256_read_mode $path] eq "ReadWrite"} {
+            lappend quoted_shared_read_paths [s3_ps_quote $path]
+        } else {
+            lappend quoted_read_paths [s3_ps_quote $path]
+        }
+    }
+    set powershell_script "\$ErrorActionPreference='Stop'; \$ProgressPreference='SilentlyContinue'; \$VerbosePreference='SilentlyContinue'; \$readPaths=@([join $quoted_read_paths ,]); \$sharedReadPaths=@([join $quoted_shared_read_paths ,]); function Write-S3Hash(\$p,\$share) { \$sha=\[Security.Cryptography.SHA256\]::Create(); \$stream=\[IO.File\]::Open(\$p,\[IO.FileMode\]::Open,\[IO.FileAccess\]::Read,\$share); try { \$h=\[BitConverter\]::ToString(\$sha.ComputeHash(\$stream)).Replace('-','') } finally { \$stream.Dispose(); \$sha.Dispose() }; Write-Output (\$h + \[char\]9 + \$p) }; foreach (\$p in \$readPaths) { Write-S3Hash \$p (\[IO.FileShare\]::Read) }; foreach (\$p in \$sharedReadPaths) { Write-S3Hash \$p (\[IO.FileShare\]::ReadWrite) }"
     set encoded [binary encode base64 -maxlen 0 [encoding convertto unicode $powershell_script]]
-    set output [exec powershell.exe -NoLogo -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>NUL]
+    set output [exec powershell.exe -NoLogo -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>@1]
     set hashes [dict create]
     foreach line [split [string trim $output "\r\n"] "\n"] {
         set line [string trimright $line "\r"]
@@ -278,35 +296,37 @@ proc s3_sha256_manifest {paths} {
 }
 
 proc s3_tree_sha256_manifest {root} {
-    set powershell_script {
-$ErrorActionPreference = 'Stop'
-$ProgressPreference = 'SilentlyContinue'
-$VerbosePreference = 'SilentlyContinue'
-$root = [IO.Path]::GetFullPath(@ROOT@).TrimEnd([char[]]@([char]92,[char]47))
-$files = Get-ChildItem -LiteralPath $root -Recurse -Force | Where-Object { -not $_.PSIsContainer } | Sort-Object FullName
-foreach ($file in $files) {
-    $relative = $file.FullName.Substring($root.Length).TrimStart('\','/').Replace('\','/')
-    $sha = [Security.Cryptography.SHA256]::Create()
-    $stream = [IO.File]::OpenRead($file.FullName)
-    try { $digest = [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-','') }
-    finally { $stream.Dispose(); $sha.Dispose() }
-    Write-Output ($digest + [char]9 + $relative)
-}
-}
-    set powershell_script [string map [list @ROOT@ [s3_ps_quote $root]] $powershell_script]
-    set encoded [binary encode base64 -maxlen 0 [encoding convertto unicode $powershell_script]]
-    set output [exec powershell.exe -NoLogo -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>NUL]
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq "" ||
+        [s3_sha256_read_mode $root] ne "ReadWrite"} {
+        error "TREE_SHA256_ROOT_OUTSIDE_VERIFIED_OUTPUT"
+    }
+    set helper [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]
+    if {![file isfile $helper] || ![file isdirectory $root]} {error "SECURE_TREE_SHA256_HELPER_OR_ROOT_NOT_FOUND"}
+    set command [list powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $helper \
+        -SecureTreeHashHelper -SecureRoot $::s3_state(output) -SecureTreeRoot $root]
+    if {[catch {set output [exec {*}$command 2>@1]} error_text]} {
+        error "SECURE_TREE_SHA256_HELPER_FAILED: $error_text"
+    }
     set hashes [dict create]
+    set records 0
     foreach line [split [string trim $output "\r\n"] "\n"] {
         set line [string trimright $line "\r"]
         if {$line eq ""} {continue}
-        if {![regexp {^([A-Fa-f0-9]{64})\t(.+)$} $line -> digest relative]} {
-            error "INVALID_TREE_SHA256_HELPER_OUTPUT: $line"
+        if {![regexp {^S3_SECURE_TREE_SHA256=([A-Fa-f0-9]{64})\t(.+)$} $line -> digest relative]} {
+            error "INVALID_SECURE_TREE_SHA256_HELPER_OUTPUT: $line"
         }
-        if {[dict exists $hashes $relative]} {error "DUPLICATE_TREE_SHA256_RELATIVE_PATH: $relative"}
+        if {[string first "\t" $relative] >= 0 || [string first "\r" $relative] >= 0 ||
+            [string first "\n" $relative] >= 0 || [string first ":" $relative] >= 0 ||
+            [string match {/*} $relative] || [regexp {(^|/)\.\.?(/|$)} $relative]} {
+            error "INVALID_SECURE_TREE_RELATIVE_PATH: $relative"
+        }
+        if {[dict exists $hashes $relative]} {error "DUPLICATE_SECURE_TREE_RELATIVE_PATH: $relative"}
         dict set hashes $relative [string toupper $digest]
+        incr records
     }
-    if {[dict size $hashes] == 0} {error "EMPTY_SECURE_METADATA_COPY"}
+    if {$records == 0 || [dict size $hashes] != $records} {
+        error "SECURE_TREE_SHA256_MANIFEST_CARDINALITY_MISMATCH"
+    }
     return $hashes
 }
 
@@ -883,6 +903,21 @@ proc s3_run_selftest {} {
         lappend failures "fixed official HDMI port set must contain eleven unique ports"
     }
     incr checks
+    set saved_output_exists [info exists ::s3_state(output)]
+    if {$saved_output_exists} {set saved_output $::s3_state(output)}
+    set ::s3_state(output) {C:/repo/tmp/out}
+    if {[s3_sha256_read_mode {C:/repo/tmp/out/inputs/hdmi_out.xdc}] ne "ReadWrite" ||
+        [s3_sha256_read_mode {C:/repo/tmp/outside/inputs/hdmi_out.xdc}] ne "Read" ||
+        [s3_sha256_read_mode {C:/repo/tmp/out/../outside/inputs/hdmi_out.xdc}] ne "Read" ||
+        [s3_sha256_read_mode {relative/inputs/hdmi_out.xdc}] ne "Read"} {
+        lappend failures "SHA256 shared-read mode escaped the absolute output subtree"
+    }
+    set ::s3_state(output) {relative/tmp/out}
+    if {[s3_sha256_read_mode {C:/repo/tmp/out/inputs/hdmi_out.xdc}] ne "Read"} {
+        lappend failures "relative output root enabled shared-write hash reads"
+    }
+    if {$saved_output_exists} {set ::s3_state(output) $saved_output} else {unset ::s3_state(output)}
+    incr checks
     if {[catch {s3_load_existing_guard .; s3_extend_guard_api} guard_error guard_options]} {
         lappend failures "verified path-guard API extension failed: $guard_error [dict get $guard_options -errorinfo]"
     } else {
@@ -899,6 +934,8 @@ proc s3_run_selftest {} {
         lappend failures "secure-write selftest output collision: $secure_test_dir"
     } else {
         file mkdir $secure_test_dir
+        set ::s3_state(output) $secure_test_dir
+        set ::s3_state(project) [file join $secure_test_dir project]
         set owner_text "S3_T03_TCL_SELFTEST_[pid]_[clock clicks]"
         set owner_path [file join $secure_test_dir .s3_t03_selftest_owner]
         if {[catch {s3_secure_write_bytes $owner_path [encoding convertto utf-8 $owner_text] CreateNew} owner_error]} {
@@ -919,13 +956,32 @@ proc s3_run_selftest {} {
         incr checks
         set control_dir [file join $secure_test_dir reports]
         file mkdir $control_dir
-        set ::s3_state(output) $secure_test_dir
-        set ::s3_state(project) [file join $secure_test_dir project]
+        if {[catch {
+            set secure_read_record [s3_secure_read_utf8 $secure_test_file $secure_test_dir]
+            set hash_manifest [s3_sha256_manifest [list $secure_test_file]]
+            if {[dict get $hash_manifest $secure_test_file] ne [dict get $secure_read_record sha256]} {
+                error "SHA256_MANIFEST_DIFFERS_FROM_SECURE_READ"
+            }
+        } hash_manifest_error]} {
+            lappend failures "SHA256 manifest could not read an existing secure output: $hash_manifest_error"
+        }
+        incr checks
         foreach leaf {generated_clock_xdc.lease_request generated_clock_xdc.lease_ack generated_clock_xdc.lease_error} {
             if {[catch {s3_secure_write_bytes [file join $control_dir $leaf] [encoding convertto utf-8 ""] CreateNew} control_create_error]} {
                 lappend failures "lease control leaf secure reservation failed: $leaf; $control_create_error"
             }
         }
+        if {[catch {
+            set control_tree_hashes [s3_tree_sha256_manifest $control_dir]
+            set secure_error_read [s3_secure_read_utf8 [file join $control_dir generated_clock_xdc.lease_error] $secure_test_dir]
+            if {[dict size $control_tree_hashes] != 3 ||
+                [dict get $control_tree_hashes generated_clock_xdc.lease_error] ne [dict get $secure_error_read sha256]} {
+                error "TREE_SHA256_MANIFEST_DIFFERS_FROM_SECURE_READ"
+            }
+        } tree_hash_error]} {
+            lappend failures "tree SHA256 manifest could not hash secure output leaves: $tree_hash_error"
+        }
+        incr checks
         set control_read_failures {}
         foreach leaf {generated_clock_xdc.lease_request generated_clock_xdc.lease_ack generated_clock_xdc.lease_error} {
             set control_path [file join $control_dir $leaf]

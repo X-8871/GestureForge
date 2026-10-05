@@ -1623,6 +1623,30 @@ function Invoke-SupervisorSelfTests {
                         $preDeadlineActionState.Count -eq 1 -and $preDeadlineClockState.Count -eq 2 -and
                         $null -eq $preDeadlineCaptured) 'route-start-gate-before-deadline-samples-twice-and-invokes-action-once'
 
+                    $routeScopeState = [pscustomobject]@{ Count=0; Deadline=[DateTime]::MinValue }
+                    $routeScopeProcessQuery = { @() }
+                    $routeScopeAction = {
+                        param([DateTime]$RouteDeadlineUtc)
+                        Invoke-GuardedVivadoStart -ProcessStartAction {
+                            $routeScopeState.Count++
+                            $routeScopeState.Deadline = $RouteDeadlineUtc
+                            'ROUTE_DEADLINE_SCOPE_REACHED'
+                        } -ProcessQuery $routeScopeProcessQuery
+                    }.GetNewClosure()
+                    $routeScopeNow = $preDeadlineStart.AddMinutes(1)
+                    $routeScopeClockState = [pscustomobject]@{ Count=0 }
+                    $routeScopeClock = { $routeScopeClockState.Count++; $routeScopeNow }.GetNewClosure()
+                    $routeScopeCaptured = $null
+                    $routeScopeResult = Invoke-RouteStartGate -PrepareResult $deadlinePrepareResult `
+                        -StartedAt $preDeadlineStart -MaxRuntime $deadlineMaxRuntime -Directory $deadlineRoot `
+                        -RunId 'S3T03_ROUTE_DEADLINE_SCOPE' -RunnerSha 'selftest-runner-sha' -Leases $deadlineLeases `
+                        -CapturedFailureStatus ([ref]$routeScopeCaptured) -FailureMessage 'SELFTEST_ROUTE_DEADLINE_SCOPE' `
+                        -RouteStartAction $routeScopeAction -Clock $routeScopeClock
+                    Assert-Test ($routeScopeResult -eq 'ROUTE_DEADLINE_SCOPE_REACHED' -and $routeScopeState.Count -eq 1 -and
+                        $routeScopeState.Deadline -eq $preDeadlineStart.Add($deadlineMaxRuntime) -and
+                        $routeScopeClockState.Count -eq 2 -and $null -eq $routeScopeCaptured) `
+                        'guarded-route-start-inherits-deadline-without-closure-copy'
+
                     $deadlineStartAt = [DateTime]::UtcNow
                     $deadlineBoundary = $deadlineStartAt.Add($deadlineMaxRuntime)
                     $deadlineClockState = [pscustomobject]@{ Count=0 }
@@ -2355,8 +2379,7 @@ try {
     $prepareArgs = @('-mode','batch','-nolog','-nojournal','-source','scripts/s3_implement_hdmi_only_diag.tcl',
         '-tclargs',$vendorFull,$outputFull,'prepare-only',$runId)
     $prepareCommand = New-BatchCommandLine $vivadoBat $prepareArgs
-    $prepareStartAction = { [S3T03RunnerProcess]::Start($comSpec,$prepareCommand,$repoRoot) }.GetNewClosure()
-    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction $prepareStartAction
+    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$prepareCommand,$repoRoot) }
     try {
         $prepareResult = Resolve-SupervisedResult $prepareProcess $outputFull 'prepare' $supervisionStartedAt $defaultMaxRuntime $defaultNoProgress $pollIntervalMs $null $outputLeases
     } finally { $prepareProcess.Dispose() }
@@ -2381,8 +2404,7 @@ try {
         -FailureMessage '总监督时间达到 60 分钟；已在 route 启动前停止。' `
         -RouteStartAction {
             param([DateTime]$RouteDeadlineUtc)
-            $startAction = { [S3T03RunnerProcess]::Start($comSpec,$runCommand,$repoRoot,$RouteDeadlineUtc) }.GetNewClosure()
-            Invoke-GuardedVivadoStart -ProcessStartAction $startAction
+            Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$runCommand,$repoRoot,$RouteDeadlineUtc) }
         }
     try {
         $result = Resolve-SupervisedResult $process $outputFull 'run' $supervisionStartedAt $defaultMaxRuntime $defaultNoProgress $pollIntervalMs $xdcBroker $outputLeases

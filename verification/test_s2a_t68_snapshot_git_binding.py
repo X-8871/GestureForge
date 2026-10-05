@@ -11,6 +11,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest import mock
 
 from verification import verify_s2a_t68_snapshot_git_binding as checker
 
@@ -148,6 +149,22 @@ class SnapshotGitBindingTests(unittest.TestCase):
         self.assertEqual(len(report["samples"][0]["compile_sources"]), 11)
         self.assertEqual(len(report["samples"][0]["compile_tooling_sources"]), 3)
         self.assertIn("不证明仿真完成", report["scope"])
+
+    def test_worktree_blob_check_is_limited_to_compiled_sources_and_tooling(self) -> None:
+        """冻结闭包的辅助源码按 baseline tree 核验，不要求当前工作树未变。"""
+        actual_run = checker.subprocess.run
+        checked_paths: list[str] = []
+
+        def record_git_call(command: list[str], *args: Any, **kwargs: Any) -> Any:
+            if len(command) > 3 and command[3] == "hash-object":
+                checked_paths.append(Path(command[-1]).relative_to(checker.ROOT).as_posix())
+            return actual_run(command, *args, **kwargs)
+
+        with mock.patch.object(checker.subprocess, "run", side_effect=record_git_call):
+            closure = checker.load_pinned_closure()
+
+        self.assertEqual(checked_paths, list(checker.COMPILE_SOURCE_PATHS + checker.COMPILE_TOOLING_PATHS))
+        self.assertEqual(len(closure["sources"]), 38)
 
     def test_wrong_source_hash_fails_without_output(self) -> None:
         """错误的编译源哈希必须失败，且不留下结果报告。"""

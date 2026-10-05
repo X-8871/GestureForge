@@ -214,6 +214,7 @@ def load_pinned_closure(repo_root: Path = ROOT, manifest_path: Path = MANIFEST_P
     require(set(COMPILE_SOURCE_PATHS).issubset(sources), "static closure 缺少获批编译源")
     require(set(COMPILE_TOOLING_PATHS).issubset(sources), "static closure 缺少获批编译工具源")
     git_tree = _load_git_tree(root)
+    compile_paths = set(COMPILE_SOURCE_PATHS + COMPILE_TOOLING_PATHS)
     for path, row in sources.items():
         entry = git_tree.get(path)
         require(entry is not None, f"manifest source 不在冻结 Git tree：{path}")
@@ -227,18 +228,24 @@ def load_pinned_closure(repo_root: Path = ROOT, manifest_path: Path = MANIFEST_P
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             ).stdout.decode("ascii").strip()
-            normalized_worktree_oid = subprocess.run(
-                ["git", "-C", str(root), "hash-object", f"--path={path}", str(root / Path(*PurePosixPath(path).parts))],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            ).stdout.decode("ascii").strip()
         except (OSError, subprocess.CalledProcessError, UnicodeError) as error:
             detail = getattr(error, "stderr", b"")
             detail_text = detail.decode("utf-8", errors="replace").strip() if isinstance(detail, bytes) else str(detail)
             raise SnapshotBindingError(f"无法核验 Git path/blob binding {path}：{detail_text or error}") from error
         require(revision_oid == row["git_blob_sha1"], f"manifest blob id 与 baseline:path 不符：{path}")
-        require(normalized_worktree_oid == row["git_blob_sha1"], f"工作树 Git-normalized blob 与冻结 baseline 不符：{path}")
+        if path in compile_paths:
+            try:
+                normalized_worktree_oid = subprocess.run(
+                    ["git", "-C", str(root), "hash-object", f"--path={path}", str(root / Path(*PurePosixPath(path).parts))],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                ).stdout.decode("ascii").strip()
+            except (OSError, subprocess.CalledProcessError, UnicodeError) as error:
+                detail = getattr(error, "stderr", b"")
+                detail_text = detail.decode("utf-8", errors="replace").strip() if isinstance(detail, bytes) else str(error)
+                raise SnapshotBindingError(f"无法核验编译闭包工作树 Git blob {path}：{detail_text or error}") from error
+            require(normalized_worktree_oid == row["git_blob_sha1"], f"编译闭包工作树 Git-normalized blob 与冻结 baseline 不符：{path}")
 
     for path in COMPILE_SOURCE_PATHS + COMPILE_TOOLING_PATHS:
         row = sources[path]
@@ -504,7 +511,7 @@ def verify_batch(evidence_root: Path, run_id: str, repo_root: Path = ROOT) -> di
             "compile_tooling_count": len(COMPILE_TOOLING_PATHS),
             "baseline_blob_membership_count": len(closure["sources"]),
             "compiled_baseline_blob_content_verified_count": len(COMPILE_SOURCE_PATHS) + len(COMPILE_TOOLING_PATHS),
-            "support_file_git_normalization": "其余闭包路径使用 git hash-object --path 核对冻结 baseline blob；原始字节长度保留清单采集值，不与经过 clean 过滤的 blob 长度比较。",
+            "support_file_git_normalization": "38 项静态闭包全部绑定固定 manifest 与 baseline Git tree；当前工作树字节及 Git-normalized blob 仅对 11 个编译源和 3 个编译工具核验，辅助文件按冻结 tree 的 blob id 核验，不要求运行后工作树仍与 baseline 相同。",
         },
         "samples": samples,
     }

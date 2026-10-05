@@ -80,6 +80,7 @@ module s2a_conv_tile_engine (
         ST_WEIGHT_SCAN,
         ST_WEIGHT_REQUEST,
         ST_WEIGHT_RESPONSE,
+        ST_MQ_PREFETCH,
         ST_COMPUTE_PREP,
         ST_COMPUTE_POINT_PREP,
         ST_COMPUTE,
@@ -171,7 +172,6 @@ module s2a_conv_tile_engine (
     logic [127:0] full_weight_group_bytes_wide;
     logic validation_ok;
     logic [2:0] validation_error;
-    logic mq_group_invalid;
 
     logic [63:0] patch_plane_bytes;
     logic [31:0] feature_scan_channel;
@@ -205,16 +205,24 @@ module s2a_conv_tile_engine (
     logic compute_bad_argument;
     logic compute_overflow;
 
-    logic [31:0] mq_index_for_lane [0:LANE_COUNT-1];
-    logic signed [31:0] requant_accumulator [0:LANE_COUNT-1];
-    logic [31:0] requant_multiplier [0:LANE_COUNT-1];
-    logic [31:0] requant_q_shift [0:LANE_COUNT-1];
-    logic [31:0] requant_magnitude [0:LANE_COUNT-1];
-    logic [63:0] requant_product [0:LANE_COUNT-1];
-    logic [63:0] requant_rounding_add [0:LANE_COUNT-1];
-    logic [63:0] requant_rounded_magnitude [0:LANE_COUNT-1];
-    logic signed [63:0] requant_signed_value [0:LANE_COUNT-1];
-    logic signed [7:0] requantized_value [0:LANE_COUNT-1];
+    logic [31:0] mq_prefetch_lane;
+    logic [31:0] mq_prefetch_index;
+    logic [79:0] mq_prefetch_parameter;
+    logic signed [31:0] mq_prefetch_bias;
+    logic mq_prefetch_invalid;
+    logic [79:0] lane_mq_parameter [0:LANE_COUNT-1];
+    logic signed [31:0] lane_bias [0:LANE_COUNT-1];
+    logic [31:0] requant_lane_index;
+    logic [79:0] requant_parameter;
+    logic signed [31:0] requant_accumulator;
+    logic [31:0] requant_multiplier;
+    logic [31:0] requant_q_shift;
+    logic [31:0] requant_magnitude;
+    logic [63:0] requant_product;
+    logic [63:0] requant_rounding_add;
+    logic [63:0] requant_rounded_magnitude;
+    logic signed [63:0] requant_signed_value;
+    logic signed [7:0] requantized_value;
 
     logic [31:0] output_global_y;
     logic [31:0] output_global_x;
@@ -386,7 +394,6 @@ module s2a_conv_tile_engine (
         compute_feature_index = 32'd0;
         compute_bad_argument = 1'b0;
         compute_overflow = 1'b0;
-        mq_group_invalid = 1'b0;
         for (comb_lane = 0; comb_lane < LANE_COUNT; comb_lane = comb_lane + 1) begin
             compute_feature_byte[comb_lane] = 8'sd0;
             compute_weight_byte[comb_lane] = 8'sd0;
@@ -460,75 +467,81 @@ module s2a_conv_tile_engine (
             {32'd0, output_global_x};
         output_address_wide = {32'd0, output_base_latched} + output_byte_offset_wide;
 
-        for (comb_lane = 0; comb_lane < LANE_COUNT; comb_lane = comb_lane + 1) begin
-            mq_index_for_lane[comb_lane] = 32'd0;
-            requant_accumulator[comb_lane] = lane_accumulator[comb_lane];
-            requant_multiplier[comb_lane] = 32'd0;
-            requant_q_shift[comb_lane] = 32'd0;
-            requant_magnitude[comb_lane] = 32'd0;
-            requant_product[comb_lane] = 64'd0;
-            requant_rounding_add[comb_lane] = 64'd0;
-            requant_rounded_magnitude[comb_lane] = 64'd0;
-            requant_signed_value[comb_lane] = 64'sd0;
-            requantized_value[comb_lane] = 8'sd0;
-            if (layer_index_latched < S2A_LAYER_COUNT) begin
-                mq_index_for_lane[comb_lane] = {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
-                                          output_group_base + comb_lane;
-                if (mq_index_for_lane[comb_lane] < S2A_CONV_CHANNEL_COUNT) begin
-                    if (comb_lane < group_lane_count) begin
-                        if ((mq_index_for_lane[comb_lane] >=
-                             {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
-                             S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched]) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][79:48] == 32'd0) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][39:8] == 32'd0) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][79:48] > 32'h3FFF_FFFF) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][39:8] > 32'h3FFF_FFFF) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][47:40] > 8'd47) ||
-                            (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][7:0] > 8'd47) ||
-                            ((activation_mode_latched == 2'd0) &&
-                             ((S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][79:48] !=
-                               S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][39:8]) ||
-                              (S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][47:40] !=
-                               S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][7:0])))) begin
-                            mq_group_invalid = 1'b1;
-                        end
-                    end
-                    if (lane_accumulator[comb_lane][31]) begin
-                        requant_multiplier[comb_lane] = S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][39:8];
-                        requant_q_shift[comb_lane] = {24'd0, S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][7:0]};
-                        requant_magnitude[comb_lane] = ~$unsigned(lane_accumulator[comb_lane]) + 32'd1;
-                    end else begin
-                        requant_multiplier[comb_lane] = S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][79:48];
-                        requant_q_shift[comb_lane] = {24'd0, S2A_T23_MQ_ROM[mq_index_for_lane[comb_lane]][47:40]};
-                        requant_magnitude[comb_lane] = $unsigned(lane_accumulator[comb_lane]);
-                    end
-                    requant_product[comb_lane] = {32'd0, requant_magnitude[comb_lane]} *
-                                             {32'd0, requant_multiplier[comb_lane]};
-                    if (requant_q_shift[comb_lane] != 32'd0) begin
-                        requant_rounding_add[comb_lane] = 64'd1 << (requant_q_shift[comb_lane] - 32'd1);
-                    end
-                    requant_rounded_magnitude[comb_lane] =
-                        (requant_product[comb_lane] + requant_rounding_add[comb_lane]) >>
-                        requant_q_shift[comb_lane];
-                    if (lane_accumulator[comb_lane][31]) begin
-                        requant_signed_value[comb_lane] =
-                            -$signed({1'b0, requant_rounded_magnitude[comb_lane]});
-                    end else begin
-                        requant_signed_value[comb_lane] =
-                            $signed({1'b0, requant_rounded_magnitude[comb_lane]});
-                    end
-                    if (requant_signed_value[comb_lane] > 64'sd127) begin
-                        requantized_value[comb_lane] = 8'sd127;
-                    end else if (requant_signed_value[comb_lane] < -64'sd127) begin
-                        requantized_value[comb_lane] = -8'sd127;
-                    end else begin
-                        requantized_value[comb_lane] = requant_signed_value[comb_lane][7:0];
-                    end
-                end else if (comb_lane < group_lane_count) begin
-                    mq_group_invalid = 1'b1;
+        mq_prefetch_index = 32'd0;
+        mq_prefetch_parameter = 80'd0;
+        mq_prefetch_bias = 32'sd0;
+        mq_prefetch_invalid = 1'b0;
+        if ((mq_prefetch_lane < group_lane_count) &&
+            (layer_index_latched < S2A_LAYER_COUNT)) begin
+            mq_prefetch_index = {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+                                output_group_base + mq_prefetch_lane;
+            if (mq_prefetch_index < S2A_CONV_CHANNEL_COUNT) begin
+                mq_prefetch_parameter = S2A_T23_MQ_ROM[mq_prefetch_index];
+                mq_prefetch_bias = $signed(S2A_CONV_BIAS_ACCUMULATOR_INT32[mq_prefetch_index]);
+                if ((mq_prefetch_index >=
+                     {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+                     S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched]) ||
+                    (mq_prefetch_parameter[79:48] == 32'd0) ||
+                    (mq_prefetch_parameter[39:8] == 32'd0) ||
+                    (mq_prefetch_parameter[79:48] > 32'h3FFF_FFFF) ||
+                    (mq_prefetch_parameter[39:8] > 32'h3FFF_FFFF) ||
+                    (mq_prefetch_parameter[47:40] > 8'd47) ||
+                    (mq_prefetch_parameter[7:0] > 8'd47) ||
+                    ((activation_mode_latched == 2'd0) &&
+                     ((mq_prefetch_parameter[79:48] != mq_prefetch_parameter[39:8]) ||
+                      (mq_prefetch_parameter[47:40] != mq_prefetch_parameter[7:0])))) begin
+                    mq_prefetch_invalid = 1'b1;
                 end
-            end else if (comb_lane < group_lane_count) begin
-                mq_group_invalid = 1'b1;
+            end else begin
+                mq_prefetch_invalid = 1'b1;
+            end
+        end else if (mq_prefetch_lane < group_lane_count) begin
+            mq_prefetch_invalid = 1'b1;
+        end
+
+        requant_parameter = 80'd0;
+        requant_accumulator = 32'sd0;
+        requant_multiplier = 32'd0;
+        requant_q_shift = 32'd0;
+        requant_magnitude = 32'd0;
+        requant_product = 64'd0;
+        requant_rounding_add = 64'd0;
+        requant_rounded_magnitude = 64'd0;
+        requant_signed_value = 64'sd0;
+        requantized_value = 8'sd0;
+        if ((requant_lane_index < LANE_COUNT) &&
+            (requant_lane_index < group_lane_count)) begin
+            requant_parameter = lane_mq_parameter[requant_lane_index];
+            requant_accumulator = lane_accumulator[requant_lane_index];
+            if (requant_accumulator[31]) begin
+                requant_multiplier = requant_parameter[39:8];
+                requant_q_shift = {24'd0, requant_parameter[7:0]};
+                requant_magnitude = ~$unsigned(requant_accumulator) + 32'd1;
+            end else begin
+                requant_multiplier = requant_parameter[79:48];
+                requant_q_shift = {24'd0, requant_parameter[47:40]};
+                requant_magnitude = $unsigned(requant_accumulator);
+            end
+            requant_product = {32'd0, requant_magnitude} *
+                              {32'd0, requant_multiplier};
+            if (requant_q_shift != 32'd0) begin
+                requant_rounding_add = 64'd1 << (requant_q_shift - 32'd1);
+            end
+            requant_rounded_magnitude =
+                (requant_product + requant_rounding_add) >> requant_q_shift;
+            if (requant_accumulator[31]) begin
+                requant_signed_value =
+                    -$signed({1'b0, requant_rounded_magnitude});
+            end else begin
+                requant_signed_value =
+                    $signed({1'b0, requant_rounded_magnitude});
+            end
+            if (requant_signed_value > 64'sd127) begin
+                requantized_value = 8'sd127;
+            end else if (requant_signed_value < -64'sd127) begin
+                requantized_value = -8'sd127;
+            end else begin
+                requantized_value = requant_signed_value[7:0];
             end
         end
 
@@ -629,6 +642,8 @@ module s2a_conv_tile_engine (
             compute_reduction_index <= 32'd0;
             output_lane_index <= 32'd0;
             output_point_index <= 32'd0;
+            mq_prefetch_lane <= 32'd0;
+            requant_lane_index <= 32'd0;
             request_address_latched <= 32'd0;
             request_strobe_latched <= 4'd0;
             request_write_latched <= 1'b0;
@@ -636,6 +651,10 @@ module s2a_conv_tile_engine (
             output_address_latched <= 32'd0;
             output_value_latched <= 8'd0;
             result_error_latched <= NONE;
+            for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
+                lane_mq_parameter[seq_lane] <= 80'd0;
+                lane_bias[seq_lane] <= 32'sd0;
+            end
         end else if (abort) begin
             state <= ST_IDLE;
             reduction_count_latched <= 32'd0;
@@ -646,12 +665,18 @@ module s2a_conv_tile_engine (
             compute_reduction_index <= 32'd0;
             output_lane_index <= 32'd0;
             output_point_index <= 32'd0;
+            mq_prefetch_lane <= 32'd0;
+            requant_lane_index <= 32'd0;
             request_strobe_latched <= 4'd0;
             request_write_latched <= 1'b0;
             request_wdata_latched <= 32'd0;
             output_address_latched <= 32'd0;
             output_value_latched <= 8'd0;
             result_error_latched <= NONE;
+            for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
+                lane_mq_parameter[seq_lane] <= 80'd0;
+                lane_bias[seq_lane] <= 32'sd0;
+            end
         end else begin
             case (state)
                 ST_IDLE: begin
@@ -782,12 +807,14 @@ module s2a_conv_tile_engine (
                                             LANE_COUNT : output_channels_latched - output_group_base;
                         weight_lane_index <= 32'd0;
                         weight_reduction_index <= 32'd0;
+                        mq_prefetch_lane <= 32'd0;
                         state <= ST_WEIGHT_SCAN;
                     end
                 end
                 ST_WEIGHT_SCAN: begin
                     if (weight_lane_index >= group_lane_count) begin
-                        state <= ST_COMPUTE_PREP;
+                        mq_prefetch_lane <= 32'd0;
+                        state <= ST_MQ_PREFETCH;
                     end else if (weight_reduction_index >= reduction_count_latched) begin
                         weight_lane_index <= weight_lane_index + 32'd1;
                         weight_reduction_index <= 32'd0;
@@ -821,46 +848,42 @@ module s2a_conv_tile_engine (
                         end
                     end
                 end
-                ST_COMPUTE_PREP: begin
-                    if (mq_group_invalid) begin
+                ST_MQ_PREFETCH: begin
+                    if (mq_prefetch_invalid) begin
                         result_error_latched <= BAD_ARGUMENT;
                         state <= ST_RESULT;
                     end else begin
-                        for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
-                            if (seq_lane < group_lane_count) begin
-                                lane_accumulator[seq_lane] <= $signed(
-                                    S2A_CONV_BIAS_ACCUMULATOR_INT32[
-                                        S2A_T23_MQ_BASE[layer_index_latched] + output_group_base + seq_lane
-                                    ]
-                                );
-                            end else begin
-                                lane_accumulator[seq_lane] <= 32'sd0;
-                            end
+                        lane_mq_parameter[mq_prefetch_lane] <= mq_prefetch_parameter;
+                        lane_bias[mq_prefetch_lane] <= mq_prefetch_bias;
+                        if (mq_prefetch_lane + 32'd1 >= group_lane_count) begin
+                            state <= ST_COMPUTE_PREP;
+                        end else begin
+                            mq_prefetch_lane <= mq_prefetch_lane + 32'd1;
                         end
-                        compute_point_index <= 32'd0;
-                        compute_reduction_index <= 32'd0;
-                        state <= ST_COMPUTE;
                     end
                 end
-                ST_COMPUTE_POINT_PREP: begin
-                    if (mq_group_invalid) begin
-                        result_error_latched <= BAD_ARGUMENT;
-                        state <= ST_RESULT;
-                    end else begin
-                        for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
-                            if (seq_lane < group_lane_count) begin
-                                lane_accumulator[seq_lane] <= $signed(
-                                    S2A_CONV_BIAS_ACCUMULATOR_INT32[
-                                        S2A_T23_MQ_BASE[layer_index_latched] + output_group_base + seq_lane
-                                    ]
-                                );
-                            end else begin
-                                lane_accumulator[seq_lane] <= 32'sd0;
-                            end
+                ST_COMPUTE_PREP: begin
+                    for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
+                        if (seq_lane < group_lane_count) begin
+                            lane_accumulator[seq_lane] <= lane_bias[seq_lane];
+                        end else begin
+                            lane_accumulator[seq_lane] <= 32'sd0;
                         end
-                        compute_reduction_index <= 32'd0;
-                        state <= ST_COMPUTE;
                     end
+                    compute_point_index <= 32'd0;
+                    compute_reduction_index <= 32'd0;
+                    state <= ST_COMPUTE;
+                end
+                ST_COMPUTE_POINT_PREP: begin
+                    for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
+                        if (seq_lane < group_lane_count) begin
+                            lane_accumulator[seq_lane] <= lane_bias[seq_lane];
+                        end else begin
+                            lane_accumulator[seq_lane] <= 32'sd0;
+                        end
+                    end
+                    compute_reduction_index <= 32'd0;
+                    state <= ST_COMPUTE;
                 end
                 ST_COMPUTE: begin
                     if (compute_bad_argument) begin
@@ -876,6 +899,7 @@ module s2a_conv_tile_engine (
                             end
                         end
                         if (compute_reduction_index + 32'd1 >= reduction_count_latched) begin
+                            requant_lane_index <= 32'd0;
                             state <= ST_COMPUTE_REQUANT;
                         end else begin
                             compute_reduction_index <= compute_reduction_index + 32'd1;
@@ -883,20 +907,22 @@ module s2a_conv_tile_engine (
                     end
                 end
                 ST_COMPUTE_REQUANT: begin
-                    for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
-                        if (seq_lane < group_lane_count) begin
-                            output_block[(seq_lane * (TILE_EDGE * TILE_EDGE)) + compute_point_index] <=
-                                requantized_value[seq_lane];
-                        end
+                    if (requant_lane_index < group_lane_count) begin
+                        output_block[(requant_lane_index * (TILE_EDGE * TILE_EDGE)) + compute_point_index] <=
+                            requantized_value;
                     end
-                    if (compute_point_index + 32'd1 >= tile_point_count) begin
-                        output_lane_index <= 32'd0;
-                        output_point_index <= 32'd0;
-                        state <= ST_OUTPUT_SCAN;
+                    if (requant_lane_index + 32'd1 >= group_lane_count) begin
+                        if (compute_point_index + 32'd1 >= tile_point_count) begin
+                            output_lane_index <= 32'd0;
+                            output_point_index <= 32'd0;
+                            state <= ST_OUTPUT_SCAN;
+                        end else begin
+                            compute_point_index <= compute_point_index + 32'd1;
+                            compute_reduction_index <= 32'd0;
+                            state <= ST_COMPUTE_POINT_PREP;
+                        end
                     end else begin
-                        compute_point_index <= compute_point_index + 32'd1;
-                        compute_reduction_index <= 32'd0;
-                        state <= ST_COMPUTE_POINT_PREP;
+                        requant_lane_index <= requant_lane_index + 32'd1;
                     end
                 end
                 ST_OUTPUT_SCAN: begin

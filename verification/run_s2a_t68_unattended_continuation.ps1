@@ -269,13 +269,63 @@ function Assert-PassingBatchSummary {
     }
     Test-ExpectedIndices -Observed $BatchSummary.failed_indices -Expected @() -Label 'failed_indices'
     Test-ExpectedIndices -Observed $BatchSummary.remaining_indices -Expected @() -Label 'remaining_indices'
+    $sourceSnapshot = $BatchSummary.scheduler_source_snapshot
     if ($BatchSummary.scheduler_sha256 -notmatch '^[0-9a-f]{64}$' -or
         $BatchSummary.runner_sha256 -notmatch '^[0-9a-f]{64}$' -or
-        $BatchSummary.scheduler_source_snapshot.sha256 -cne $BatchSummary.scheduler_sha256 -or
-        $null -ne $BatchSummary.scheduler_source_snapshot.write_error -or
-        $BatchSummary.scheduler_final_observation.unchanged -ne $true -or
-        @($BatchSummary.scheduler_hash_mismatches).Count -ne 0) {
+        $BatchSummary.scheduler_path -isnot [string] -or [string]::IsNullOrWhiteSpace($BatchSummary.scheduler_path) -or
+        $BatchSummary.scheduler_bytes -isnot [long] -or $BatchSummary.scheduler_bytes -le 0 -or
+        $sourceSnapshot -isnot [System.Collections.IDictionary] -or
+        -not $sourceSnapshot.Contains('path') -or -not $sourceSnapshot.Contains('bytes') -or
+        -not $sourceSnapshot.Contains('sha256') -or -not $sourceSnapshot.Contains('write_error') -or
+        $sourceSnapshot.path -isnot [string] -or [string]::IsNullOrWhiteSpace($sourceSnapshot.path) -or
+        $sourceSnapshot.bytes -isnot [long] -or $sourceSnapshot.bytes -le 0 -or
+        $sourceSnapshot.sha256 -isnot [string] -or $sourceSnapshot.sha256 -notmatch '^[0-9a-f]{64}$' -or
+        $null -ne $sourceSnapshot.write_error) {
         throw 'batch_summary.json 的 scheduler 源码冻结证据不完整或不一致。'
+    }
+
+    $dispatchDirectory = Assert-NormalDirectory -Path (Join-Path $EvidenceRoot 'batch_dispatch') -Label 'scheduler dispatch 目录'
+    $expectedSnapshotPath = [System.IO.Path]::GetFullPath((Join-Path $dispatchDirectory 'scheduler_source_snapshot.json'))
+    if (-not [System.IO.Path]::IsPathRooted([string]$sourceSnapshot.path) -or
+        [System.IO.Path]::GetFullPath([string]$sourceSnapshot.path) -ine $expectedSnapshotPath) {
+        throw 'scheduler_source_snapshot.path 未绑定到本次 batch_dispatch 清单。'
+    }
+    $snapshotPath = Assert-NormalFile -Path $expectedSnapshotPath -Label 'scheduler 源码快照清单'
+    $snapshotItem = Get-Item -LiteralPath $snapshotPath -ErrorAction Stop
+    if ($snapshotItem.Length -ne [long]$sourceSnapshot.bytes -or
+        (Get-Sha256Literal -Path $snapshotPath) -cne [string]$sourceSnapshot.sha256) {
+        throw 'scheduler_source_snapshot.json 的长度或 SHA-256 与批次记录不符。'
+    }
+
+    $sourceManifest = Read-JsonObject -Path $snapshotPath -Label 'scheduler 源码快照清单'
+    if (-not $sourceManifest.Contains('schema_version') -or -not $sourceManifest.Contains('path') -or
+        -not $sourceManifest.Contains('bytes') -or -not $sourceManifest.Contains('sha256') -or
+        $sourceManifest.schema_version -cne 'gestureforge_s2a_t68_batch_scheduler_source_v1' -or
+        $sourceManifest.path -isnot [string] -or [string]::IsNullOrWhiteSpace($sourceManifest.path) -or
+        -not [System.IO.Path]::IsPathRooted([string]$sourceManifest.path) -or
+        $sourceManifest.bytes -isnot [long] -or $sourceManifest.bytes -le 0 -or
+        $sourceManifest.sha256 -isnot [string] -or $sourceManifest.sha256 -notmatch '^[0-9a-f]{64}$' -or
+        [System.IO.Path]::GetFullPath([string]$sourceManifest.path) -ine [System.IO.Path]::GetFullPath([string]$BatchSummary.scheduler_path) -or
+        $sourceManifest.bytes -ne $BatchSummary.scheduler_bytes -or
+        $sourceManifest.sha256 -cne $BatchSummary.scheduler_sha256) {
+        throw 'scheduler_source_snapshot.json 未将冻结源码路径、长度与 SHA-256 绑定到 batch_summary.json。'
+    }
+
+    $finalObservation = $BatchSummary.scheduler_final_observation
+    if ($finalObservation -isnot [System.Collections.IDictionary] -or
+        $finalObservation.unchanged -ne $true -or
+        $finalObservation.path -isnot [string] -or
+        [System.IO.Path]::GetFullPath([string]$finalObservation.path) -ine [System.IO.Path]::GetFullPath([string]$BatchSummary.scheduler_path) -or
+        $finalObservation.expected_bytes -ne $BatchSummary.scheduler_bytes -or
+        $finalObservation.current_bytes -ne $BatchSummary.scheduler_bytes -or
+        $finalObservation.expected_sha256 -cne $BatchSummary.scheduler_sha256 -or
+        $finalObservation.current_sha256 -cne $BatchSummary.scheduler_sha256 -or
+        -not $finalObservation.Contains('read_error') -or
+        $null -ne $finalObservation.read_error -or
+        -not $BatchSummary.Contains('scheduler_hash_mismatches') -or
+        $BatchSummary.scheduler_hash_mismatches -isnot [array] -or
+        $BatchSummary.scheduler_hash_mismatches.Count -ne 0) {
+        throw 'batch_summary.json 的 scheduler 最终观察或哈希差异记录不完整。'
     }
 }
 

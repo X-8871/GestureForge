@@ -1632,7 +1632,7 @@ function Invoke-SupervisorSelfTests {
                             $routeScopeState.Deadline = $RouteDeadlineUtc
                             'ROUTE_DEADLINE_SCOPE_REACHED'
                         } -ProcessQuery $routeScopeProcessQuery
-                    }.GetNewClosure()
+                    }
                     $routeScopeNow = $preDeadlineStart.AddMinutes(1)
                     $routeScopeClockState = [pscustomobject]@{ Count=0 }
                     $routeScopeClock = { $routeScopeClockState.Count++; $routeScopeNow }.GetNewClosure()

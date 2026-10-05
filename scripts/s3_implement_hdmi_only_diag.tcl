@@ -358,13 +358,13 @@ proc s3_extend_guard_api {} {
         {string reportsPath = "", checkpointsPath = "", sentinelsPath = "", inputsPath = "";
         if (phase == "run") @L@
             OutputFinal = AcquireSubtree(TmpFinal, Join(TmpFinal, OutputLeaf));
-            string projectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));
-            string metadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));
-            string reportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));
-            string checkpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));
-            string sentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));
-            string inputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));
-            return "RESULT=PASS_PATH_GUARD_RUN\nOUTPUT=" + OutputFinal + "\nPROJECT=" + projectPath + "\nMETADATA=" + metadataPath + "\nREPORTS=" + reportsPath + "\nCHECKPOINTS=" + checkpointsPath + "\nSENTINELS=" + sentinelsPath + "\nINPUTS=" + inputsPath;
+            string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));
+            string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));
+            string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));
+            string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));
+            string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));
+            string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));
+            return "RESULT=PASS_PATH_GUARD_RUN\nOUTPUT=" + OutputFinal + "\nPROJECT=" + runProjectPath + "\nMETADATA=" + runMetadataPath + "\nREPORTS=" + runReportsPath + "\nCHECKPOINTS=" + runCheckpointsPath + "\nSENTINELS=" + runSentinelsPath + "\nINPUTS=" + runInputsPath;
         @R@ else if (phase == "hdl_precreated") @L@
             OutputFinal = AcquireSubtree(TmpFinal, Join(TmpFinal, OutputLeaf));
             reportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));
@@ -883,7 +883,7 @@ proc s3_run_selftest {} {
         lappend failures "verified path-guard API extension failed: $guard_error [dict get $guard_options -errorinfo]"
     } else {
         set extended_guard_body [info body s3_launch_secure_guardian]
-        foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
+        foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));} {string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));} {string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));} {string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));} {string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));} {string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
             if {[string first $required_snippet $extended_guard_body] < 0} {
                 lappend failures "secure guard extension missing required operation: $required_snippet"
             }

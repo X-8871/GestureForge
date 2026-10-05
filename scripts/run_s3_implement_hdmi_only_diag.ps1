@@ -2376,7 +2376,10 @@ try {
     }
     Write-RunnerStatus $outputFull $runId $startingPrepare $runnerSha $outputLeases
 
-    $prepareArgs = @('-mode','batch','-nolog','-nojournal','-source','scripts/s3_implement_hdmi_only_diag.tcl',
+    $prepareLogPath = Join-Path $outputFull 'vivado.log'
+    $prepareJournalPath = Join-Path $outputFull 'vivado.jou'
+    $prepareArgs = @('-mode','batch','-log',$prepareLogPath,'-journal',$prepareJournalPath,
+        '-source','scripts/s3_implement_hdmi_only_diag.tcl',
         '-tclargs',$vendorFull,$outputFull,'prepare-only',$runId)
     $prepareCommand = New-BatchCommandLine $vivadoBat $prepareArgs
     $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$prepareCommand,$repoRoot) }

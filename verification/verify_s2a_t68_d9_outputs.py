@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import math
@@ -37,6 +38,11 @@ T68_FIXTURE_VERIFIER = ROOT / "verification/verify_s2a_network_backend_golden.py
 T68_D9_VERIFIER = Path(__file__).resolve()
 T68_TESTBENCH = ROOT / "sim/tb_s2a_network_backend_golden.sv"
 SAMPLE_COUNT = 109
+T29_CANONICAL_SHA256 = "10a4116904261ee092940e1e354bed64dbd944023f6d8fdae5cf2079ad9b4c63"
+T29_REGENERATED_CANONICAL_SHA256 = "1cd26b9e655a9e8faa6d9f614b4569fecda8fb236cf9237e6e72726469de8cdd"
+T29_RUNTIME_FIELDS = ("python", "zlib_compile", "zlib_runtime")
+T29_FROZEN_RUNTIME = {"python": "3.12.10", "zlib_compile": "1.3.1", "zlib_runtime": "1.3.1"}
+T29_PINNED_RUNTIME = {"python": "3.12.14", "zlib_compile": "1.3.2", "zlib_runtime": "1.3.2"}
 HEAD_SPECS = {
     "head13": {"file": "head13_actual_int8.bin", "layer": 29, "bytes": 5070, "shape": (3, 10, 13, 13)},
     "head26": {"file": "head26_actual_int8.bin", "layer": 36, "bytes": 20280, "shape": (3, 10, 26, 26)},
@@ -86,7 +92,7 @@ def canonical_path(path: Path) -> str:
     return os.path.normcase(str(path.resolve()))
 
 
-def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, Any]], dict[str, Any]]:
     """重建 109 个 T25 CPU head 的 D9 结果并核对冻结 T29 报告。"""
     pinned_files = (
         (T29_REPORT, T29_REPORT_SHA256, "T29 CPU D9 evidence"),
@@ -107,15 +113,55 @@ def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, An
 
     regenerated = t29.generate_evidence(ROOT, progress=None, preflight_only=False)
     require(len(regenerated.get("samples", [])) == SAMPLE_COUNT, "从 T25 重建的 CPU D9 结果不是 109 样本")
+    frozen_canonical = t29._canonical_evidence_bytes(parent)
+    regenerated_canonical = t29._canonical_evidence_bytes(regenerated)
+    frozen_canonical_sha256 = sha256_bytes(frozen_canonical)
+    regenerated_canonical_sha256 = sha256_bytes(regenerated_canonical)
+    require(frozen_canonical_sha256 == T29_CANONICAL_SHA256, "冻结 T29 canonical SHA-256 不符")
+    require(regenerated_canonical_sha256 == T29_REGENERATED_CANONICAL_SHA256, "当前固定 Python T29 canonical SHA-256 不符")
+
+    frozen_normalized = copy.deepcopy(parent)
+    regenerated_normalized = copy.deepcopy(regenerated)
+    frozen_runtime = frozen_normalized.get("runtime")
+    regenerated_runtime = regenerated_normalized.get("runtime")
+    require(isinstance(frozen_runtime, dict) and isinstance(regenerated_runtime, dict), "T29 runtime 必须是对象")
+    runtime_versions: dict[str, dict[str, str]] = {}
+    for field in T29_RUNTIME_FIELDS:
+        frozen_value = frozen_runtime.get(field)
+        regenerated_value = regenerated_runtime.get(field)
+        require(isinstance(frozen_value, str) and isinstance(regenerated_value, str), f"T29 runtime.{field} 必须是字符串")
+        require(frozen_value == T29_FROZEN_RUNTIME[field], f"冻结 T29 runtime.{field} 不符")
+        require(regenerated_value == T29_PINNED_RUNTIME[field], f"当前 T29 runtime.{field} 不符")
+        runtime_versions[field] = {"frozen": frozen_value, "regenerated": regenerated_value}
+        frozen_runtime[field] = None
+        regenerated_runtime[field] = None
+
+    sample_outputs_match = regenerated_normalized.get("samples") == frozen_normalized.get("samples")
+    require(sample_outputs_match, "T29 CPU D9 样本输出不能与冻结报告逐字段精确匹配")
+    normalized_canonical_match = (
+        t29._canonical_evidence_bytes(regenerated_normalized)
+        == t29._canonical_evidence_bytes(frozen_normalized)
+    )
     require(
-        t29._canonical_evidence_bytes(regenerated) == t29._canonical_evidence_bytes(parent),
-        "T29 CPU D9 父 evidence 不能由当前冻结 T25 shards/source 确定性重建",
+        normalized_canonical_match,
+        "T29 CPU D9 父 evidence 除三个明确 runtime 版本字段外不能由当前冻结 T25 shards/source 确定性重建",
     )
     require(regenerated.get("decoder", {}).get("score_threshold") == 0.25, "T29 score threshold 不等于冻结值 0.25")
     require(regenerated.get("decoder", {}).get("max_outputs") == 15, "T29 max output 不等于冻结值 15")
     generated_rows = {row["sample_id"]: row for row in regenerated["samples"]}
     require(len(generated_rows) == SAMPLE_COUNT, "T29 sample_id 重复或缺失")
-    return regenerated, generated_rows
+    reconstruction = {
+        "schema_version": "gestureforge_s2a_t68_cpu_d9_reconstruction_v1",
+        "status": "PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS",
+        "frozen_canonical_sha256": frozen_canonical_sha256,
+        "regenerated_canonical_sha256": regenerated_canonical_sha256,
+        "runtime_versions": runtime_versions,
+        "ignored_fields": [f"runtime.{field}" for field in T29_RUNTIME_FIELDS],
+        "exact_outputs_status": "PASS_ALL_109_SAMPLES_EXACT",
+        "exact_outputs_match": sample_outputs_match,
+        "normalized_canonical_match": normalized_canonical_match,
+    }
+    return regenerated, generated_rows, reconstruction
 
 
 def verify_tooling_bindings(record: dict[str, Any], sample_dir: Path, label: str) -> dict[str, str]:
@@ -429,7 +475,7 @@ def verify_batch(evidence_root: Path, run_id: str) -> dict[str, Any]:
     require(evidence_root.is_dir() and not evidence_root.is_symlink(), f"evidence root 缺失或类型错误：{evidence_root}")
     evidence_root = evidence_root.resolve()
     require(all(part.casefold() != "run01" for part in evidence_root.parts), "为保护既有 run01，拒绝读取路径中包含 run01 的 T68 evidence root")
-    cpu_report, cpu_rows = verify_frozen_cpu_baseline()
+    cpu_report, cpu_rows, reconstruction = verify_frozen_cpu_baseline()
     threshold = float(cpu_report["decoder"]["score_threshold"])
     sample_reports = [
         verify_sample(evidence_root, run_id, sample_index, cpu_rows_by_index(cpu_rows, sample_index), threshold)
@@ -439,12 +485,13 @@ def verify_batch(evidence_root: Path, run_id: str) -> dict[str, Any]:
     max_score_error = max((row["d9_comparison"]["max_score_abs_error"] for row in sample_reports), default=0.0)
     max_coordinate_error = max((row["d9_comparison"]["max_xyxy_abs_error"] for row in sample_reports), default=0.0)
     return {
-        "schema_version": "gestureforge_s2a_t68_d9_actual_head_comparison_v1",
+        "schema_version": "gestureforge_s2a_t68_d9_actual_head_comparison_v2",
         "status": "PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9",
         "sample_count": len(sample_reports),
         "run_id": run_id,
         "evidence_root": str(evidence_root.resolve()),
         "cpu_d9_reference": {"path": str(T29_REPORT.relative_to(ROOT).as_posix()), "sha256": sha256_file(T29_REPORT)},
+        "cpu_d9_reconstruction": reconstruction,
         "t25_index": {"path": str(T25_INDEX.relative_to(ROOT).as_posix()), "sha256": sha256_file(T25_INDEX)},
         "d9_decoder_sha256": sha256_file(D9_REFERENCE),
         "verifier_sha256": sha256_file(T68_D9_VERIFIER),

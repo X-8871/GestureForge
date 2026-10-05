@@ -12,7 +12,10 @@ param(
     [string]$ExpectedBackendSha256,
 
     [ValidatePattern('^[0-9a-f]{64}$')]
-    [string]$ResumeFailedCoordinatorSha256
+    [string]$ResumeFailedCoordinatorSha256,
+
+    [ValidatePattern('^[0-9a-f]{64}$')]
+    [string]$ResumeFailedRecoverySha256
 )
 
 Set-StrictMode -Version Latest
@@ -20,10 +23,29 @@ $ErrorActionPreference = 'Stop'
 
 $script:ApprovedBackendSha256 = '3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154'
 $script:ApprovedPythonPath = 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$script:ApprovedPythonModulePath = 'C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages'
 $script:ExpectedPowerShellVersion = '7.6.5'
 $script:ExpectedT29ReportSha256 = '24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231'
 $script:ExpectedT25IndexSha256 = 'cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d'
 $script:ExpectedD9DecoderSha256 = '0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6'
+$script:ExpectedT29CanonicalSha256 = '10a4116904261ee092940e1e354bed64dbd944023f6d8fdae5cf2079ad9b4c63'
+$script:ExpectedT29RegeneratedCanonicalSha256 = '1cd26b9e655a9e8faa6d9f614b4569fecda8fb236cf9237e6e72726469de8cdd'
+$script:ApprovedD9RecoveryRunId = 'repair109_20261003_194620'
+$script:ApprovedD9RecoveryEvidenceDirectory = 'D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_194620'
+$script:ExpectedD9RecoverySummarySha256 = '4c187dda223209d2a4308dd7fbe210f34ff5be06bb2cce624229cc477e664cda'
+$script:ExpectedD9Attempt1StdoutSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+$script:ExpectedD9Attempt1StderrSha256 = '38b3c4ec5b626ac905e23e6fdeb99090616b21afc470b4df04f257de14f87ef5'
+$script:ExpectedD9FailedCoordinatorSha256 = '36f9543827e71b08907cbe10a8aef37a91388d1300c683008130935dba2f1542'
+$script:ExpectedD9RecoveryBatchSummarySha256 = '93cb51989c98fdb074c5c5857acd9842ee7902c8a27d09c655ae555c41ac2e38'
+$script:ExpectedD9ReplayEvidencePath = 'D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_194620\t29_runtime_normalization_preflight_20261005.json'
+$script:ExpectedD9ReplayEvidenceSha256 = '0ad4b0fd6ffce3d2e624c8879a04f8f51daa308685352045e95d32c6e1b61e15'
+$script:ExpectedD9FailureVerifierCommit = '10ef3a499a976c3005adcbed0399bfc2d7279e5c'
+$script:ExpectedD9FailureVerifierBlobOid = 'c60b04c9a046a0125cf9f7a63652245c49442402'
+$script:ExpectedD9FailureVerifierSha256 = 'a86ca04a5f763616030cdf774672d9e7e3808942e216f8132ba1c3f50e5b3f0e'
+$script:ExpectedD9ReplayExitCode = 2
+$script:ExpectedD9ReplayStdoutSha256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+$script:ExpectedD9ReplayStderrSha256 = 'de34afc0edbea18e22e5e1fba101ef190fa4f9084e0ea6974b69d88f7ff41a1e'
+$script:ExpectedD9FailureSummaryError = 'System.Management.Automation.RuntimeException: D9 verifier 未生成预期报告。'
 $script:Sample0WaitLimit = [TimeSpan]::FromHours(24)
 $script:Sample0PollInterval = [TimeSpan]::FromSeconds(30)
 $script:ExistingBatchWaitLimit = [TimeSpan]::FromHours(72)
@@ -52,6 +74,7 @@ $script:Summary = [ordered]@{
     sample0 = $null
     batch = $null
     d9 = $null
+    d9_recovery = $null
     error = $null
     created_utc = [DateTime]::UtcNow.ToString('o')
 }
@@ -270,6 +293,211 @@ function Assert-FailedCoordinatorRecovery {
     }
     throw '原 coordinator summary 状态不在允许的单次恢复白名单中。'
 }
+
+function Assert-FailedD9Recovery {
+    param(
+        [Parameter(Mandatory = $true)][string]$SummaryPath,
+        [Parameter(Mandatory = $true)][string]$ExpectedSummaryHash,
+        [Parameter(Mandatory = $true)][string]$EvidenceRoot,
+        [Parameter(Mandatory = $true)][string]$ExpectedRunId,
+        [Parameter(Mandatory = $true)][string]$ExpectedBackendHash,
+        [Parameter(Mandatory = $true)][string]$SchedulerPath,
+        [Parameter(Mandatory = $true)][string]$RunnerPath
+    )
+    if ($ExpectedRunId -cne $script:ApprovedD9RecoveryRunId -or
+        [System.IO.Path]::GetFullPath($EvidenceRoot) -cne $script:ApprovedD9RecoveryEvidenceDirectory -or
+        $ExpectedSummaryHash -cne $script:ExpectedD9RecoverySummarySha256) {
+        throw 'D9 attempt2 恢复仅允许固定 RunId、evidence 目录与首次 recovery summary SHA。'
+    }
+    $expectedPriorPath = Join-Path $EvidenceRoot ("unattended_continuation_{0}_recovery.json" -f $ExpectedRunId)
+    if ([System.IO.Path]::GetFullPath($SummaryPath) -cne [System.IO.Path]::GetFullPath($expectedPriorPath)) {
+        throw 'D9 恢复输入路径必须精确匹配固定 RunId 的 recovery.json。'
+    }
+    $normalPriorPath = Assert-RecoveryBoundFile -RecordedPath $SummaryPath -ExpectedPath $expectedPriorPath `
+        -RecordedSha256 $ExpectedSummaryHash -Label '首次 D9 失败 recovery summary'
+    $prior = Read-JsonObject -Path $normalPriorPath -Label '首次 D9 失败 recovery summary'
+    $replayEvidencePath = Assert-NormalFile -Path $script:ExpectedD9ReplayEvidencePath -Label 'T29 固定输入只读复放证据'
+    if ([System.IO.Path]::GetFullPath($replayEvidencePath) -cne [System.IO.Path]::GetFullPath($script:ExpectedD9ReplayEvidencePath) -or
+        (Get-Sha256Literal -Path $replayEvidencePath) -cne $script:ExpectedD9ReplayEvidenceSha256) {
+        throw 'T29 固定输入只读复放证据路径或 SHA-256 与白名单不符。'
+    }
+    $replayEvidence = Read-JsonObject -Path $replayEvidencePath -Label 'T29 固定输入只读复放证据'
+    if ($replayEvidence.schema_version -isnot [string] -or
+        $replayEvidence.schema_version -cne 'gestureforge_s2a_t68_t29_recovery_preflight_v1' -or
+        $replayEvidence.run_id -isnot [string] -or $replayEvidence.run_id -cne $script:ApprovedD9RecoveryRunId -or
+        $replayEvidence.evidence_root -isnot [string] -or $replayEvidence.evidence_root -cne $script:ApprovedD9RecoveryEvidenceDirectory -or
+        $replayEvidence.fixed_environment -isnot [System.Collections.IDictionary] -or
+        $replayEvidence.t29_readonly_preflight -isnot [System.Collections.IDictionary] -or
+        $replayEvidence.original_failure_replay -isnot [System.Collections.IDictionary] -or
+        $replayEvidence.original_attempt1_artifacts -isnot [System.Collections.IDictionary]) {
+        throw 'T29 固定输入只读复放证据 schema、RunId、evidence root 或嵌套结构不符。'
+    }
+    $replayEnvironment = $replayEvidence.fixed_environment
+    $t29Preflight = $replayEvidence.t29_readonly_preflight
+    $replay = $replayEvidence.original_failure_replay
+    $attempt1Artifacts = $replayEvidence.original_attempt1_artifacts
+    $replayRecoveryPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_continuation_repair109_20261003_194620_recovery.json'
+    $replayStdoutPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_d9_stdout_repair109_20261003_194620.log'
+    $replayStderrPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_d9_stderr_repair109_20261003_194620.log'
+    $preflightRuntime = $t29Preflight.runtime_versions
+    if ($preflightRuntime -isnot [System.Collections.IDictionary] -or
+        $preflightRuntime.python -isnot [System.Collections.IDictionary] -or
+        $preflightRuntime.zlib_compile -isnot [System.Collections.IDictionary] -or
+        $preflightRuntime.zlib_runtime -isnot [System.Collections.IDictionary]) {
+        throw 'T29 runtime normalization 字段必须是对象。'
+    }
+    if ($replayEnvironment.python_path -isnot [string] -or
+        $replayEnvironment.python_path -cne $script:ApprovedPythonPath -or
+        $replayEnvironment.python_version -isnot [string] -or $replayEnvironment.python_version -cne '3.12.14' -or
+        $replayEnvironment.pythonpath -isnot [string] -or $replayEnvironment.pythonpath -cne $script:ApprovedPythonModulePath -or
+        $t29Preflight.status -isnot [string] -or $t29Preflight.status -cne 'PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS' -or
+        $t29Preflight.exit_code -isnot [long] -or $t29Preflight.exit_code -ne 0 -or
+        $t29Preflight.sample_count -isnot [long] -or $t29Preflight.sample_count -ne 109 -or
+        $t29Preflight.frozen_canonical_sha256 -isnot [string] -or $t29Preflight.frozen_canonical_sha256 -cne $script:ExpectedT29CanonicalSha256 -or
+        $t29Preflight.regenerated_canonical_sha256 -isnot [string] -or $t29Preflight.regenerated_canonical_sha256 -cne $script:ExpectedT29RegeneratedCanonicalSha256 -or
+        $preflightRuntime -isnot [System.Collections.IDictionary] -or
+        $preflightRuntime.python.frozen -cne '3.12.10' -or $preflightRuntime.python.regenerated -cne '3.12.14' -or
+        $preflightRuntime.zlib_compile.frozen -cne '1.3.1' -or $preflightRuntime.zlib_compile.regenerated -cne '1.3.2' -or
+        $preflightRuntime.zlib_runtime.frozen -cne '1.3.1' -or $preflightRuntime.zlib_runtime.regenerated -cne '1.3.2') {
+        throw 'T29 只读预检结果与固定 runtime normalization 证据不符。'
+    }
+    if ($replay.mode -isnot [string] -or $replay.mode -cne 'memory_exec_of_git_source_with___main__' -or
+        $replay.source_commit -isnot [string] -or $replay.source_commit -cne $script:ExpectedD9FailureVerifierCommit -or
+        $replay.source_file -isnot [string] -or $replay.source_file -cne 'verification/verify_s2a_t68_d9_outputs.py' -or
+        $replay.source_bytes -isnot [long] -or $replay.source_bytes -ne 32602 -or
+        $replay.source_sha256 -isnot [string] -or $replay.source_sha256 -cne $script:ExpectedD9FailureVerifierSha256 -or
+        $replay.git_blob_oid -isnot [string] -or $replay.git_blob_oid -cne $script:ExpectedD9FailureVerifierBlobOid -or
+        $replay.evidence_root -isnot [string] -or $replay.evidence_root -cne $script:ApprovedD9RecoveryEvidenceDirectory -or
+        $replay.run_id -isnot [string] -or $replay.run_id -cne $script:ApprovedD9RecoveryRunId -or
+        $replay.report_argument_supplied -isnot [bool] -or $replay.report_argument_supplied -ne $false -or
+        $replay.exit_code -isnot [long] -or $replay.exit_code -ne $script:ExpectedD9ReplayExitCode -or
+        $replay.stdout_sha256 -isnot [string] -or $replay.stdout_sha256 -cne $script:ExpectedD9ReplayStdoutSha256 -or
+        $replay.stderr_sha256 -isnot [string] -or $replay.stderr_sha256 -cne $script:ExpectedD9ReplayStderrSha256 -or
+        $replay.failure_class -isnot [string] -or $replay.failure_class -cne 'T29 CPU canonical regeneration mismatch') {
+        throw '旧 D9 verifier 同固定输入复放的 commit、源码、输入、输出或退出码不符。'
+    }
+    if ([System.IO.Path]::GetFullPath([string]$attempt1Artifacts.recovery_path) -cne [System.IO.Path]::GetFullPath($replayRecoveryPath) -or
+        $attempt1Artifacts.recovery_sha256 -isnot [string] -or $attempt1Artifacts.recovery_sha256 -cne $script:ExpectedD9RecoverySummarySha256 -or
+        [System.IO.Path]::GetFullPath([string]$attempt1Artifacts.stdout_path) -cne [System.IO.Path]::GetFullPath($replayStdoutPath) -or
+        $attempt1Artifacts.stdout_bytes -isnot [long] -or $attempt1Artifacts.stdout_bytes -ne 0 -or
+        $attempt1Artifacts.stdout_sha256 -isnot [string] -or $attempt1Artifacts.stdout_sha256 -cne $script:ExpectedD9Attempt1StdoutSha256 -or
+        [System.IO.Path]::GetFullPath([string]$attempt1Artifacts.stderr_path) -cne [System.IO.Path]::GetFullPath($replayStderrPath) -or
+        $attempt1Artifacts.stderr_bytes -isnot [long] -or $attempt1Artifacts.stderr_bytes -ne 118 -or
+        $attempt1Artifacts.stderr_sha256 -isnot [string] -or $attempt1Artifacts.stderr_sha256 -cne $script:ExpectedD9Attempt1StderrSha256) {
+        throw '首轮 D9 日志与 recovery 的固定路径或字节哈希不符。'
+    }
+    $expectedCoordinatorPath = Join-Path (Split-Path -Parent $SchedulerPath) 'run_s2a_t68_unattended_continuation.ps1'
+    if ($prior.schema_version -isnot [string] -or $prior.schema_version -cne 'gestureforge_s2a_t68_unattended_continuation_v1' -or
+        $prior.status -isnot [string] -or $prior.status -cne 'COORDINATOR_ERROR' -or
+        $prior.stage2a_pass -isnot [bool] -or $prior.stage2a_pass -ne $false -or
+        $prior.run_id -isnot [string] -or $prior.run_id -cne $ExpectedRunId -or
+        $prior.evidence_directory -isnot [string] -or $prior.evidence_directory -cne $EvidenceRoot -or
+        $prior.expected_backend_sha256 -isnot [string] -or $prior.expected_backend_sha256 -cne $ExpectedBackendHash -or
+        $prior.observed_backend_sha256 -isnot [string] -or $prior.observed_backend_sha256 -cne $ExpectedBackendHash -or
+        $prior.coordinator_path -isnot [string] -or [System.IO.Path]::GetFullPath($prior.coordinator_path) -ine [System.IO.Path]::GetFullPath($expectedCoordinatorPath) -or
+        $prior.coordinator_sha256 -isnot [string] -or $prior.coordinator_sha256 -cne $script:ExpectedD9FailedCoordinatorSha256 -or
+        $prior.pinned_python_version_stdout -isnot [string] -or $prior.pinned_python_version_stdout -cne 'Python 3.12.14' -or
+        $prior.pinned_python_sha256 -isnot [string] -or $prior.pinned_python_sha256 -cne '4278cf2a296f31737cae77cafeeb3dc71683094cf3b8fd6f3f02c968687e771c' -or
+        $prior.python_dependency_versions -isnot [string] -or $prior.python_dependency_versions -cne '2.4.6|4.13.0' -or
+        $prior.recovery_mode -isnot [string] -or $prior.recovery_mode -cne 'BATCH_FALSE_STOP_VALIDATION' -or
+        -not $prior.Contains('error') -or $prior.error -isnot [string] -or
+        $prior.error -cne $script:ExpectedD9FailureSummaryError -or
+        -not $prior.Contains('d9') -or $null -ne $prior.d9 -or
+        $prior.sample0 -isnot [System.Collections.IDictionary] -or
+        $prior.batch -isnot [System.Collections.IDictionary]) {
+        throw '首次 D9 失败 recovery summary 不符合严格单次恢复白名单。'
+    }
+    if ($prior.sample0.terminal_record_status -isnot [string] -or $prior.sample0.terminal_record_status -cne 'PASS_SAMPLE0_TERMINAL' -or
+        $prior.sample0.exit_code -isnot [long] -or $prior.sample0.exit_code -ne 0 -or
+        $prior.sample0.runner_exit_code -isnot [long] -or $prior.sample0.runner_exit_code -ne 0 -or
+        -not $prior.sample0.Contains('read_error') -or $null -ne $prior.sample0.read_error -or
+        $prior.sample0.terminal_record_sha256 -isnot [string] -or $prior.sample0.terminal_record_sha256 -notmatch '^[0-9a-f]{64}$' -or
+        $prior.batch.status -isnot [string] -or $prior.batch.status -cne 'EXISTING_PASS' -or
+        $prior.batch.summary_sha256 -isnot [string] -or $prior.batch.summary_sha256 -cne $script:ExpectedD9RecoveryBatchSummarySha256 -or
+        $prior.batch.scheduler_sha256 -isnot [string] -or $prior.batch.sample0_snapshot_sha256 -isnot [string] -or
+        $prior.batch.sample0_snapshot_sha256 -notmatch '^[0-9a-f]{64}$') {
+        throw '首次 D9 失败 recovery 中 sample000 或 PASS batch 绑定无效。'
+    }
+
+    $sample0Path = Join-Path $EvidenceRoot (Join-Path 'runs\sample_000' (Join-Path $ExpectedRunId 'simulation_execution_record.json'))
+    $normalSample0Path = Assert-RecoveryBoundFile -RecordedPath ([string]$prior.sample0.terminal_record_path) `
+        -ExpectedPath $sample0Path -RecordedSha256 ([string]$prior.sample0.terminal_record_sha256) -Label 'sample000 终态记录'
+    $sample0 = Read-JsonObject -Path $normalSample0Path -Label 'sample000 终态记录'
+    if (-not (Test-Sample0Passed -Record $sample0 -ExpectedRunId $ExpectedRunId)) { throw 'sample000 终态记录不再满足 PASS。' }
+
+    $dispatchDirectory = Assert-NormalDirectory -Path (Join-Path $EvidenceRoot 'batch_dispatch') -Label 'batch_dispatch 目录'
+    $batchSummaryPath = Join-Path $dispatchDirectory 'batch_summary.json'
+    $normalBatchSummaryPath = Assert-RecoveryBoundFile -RecordedPath ([string]$prior.batch.summary_path) `
+        -ExpectedPath $batchSummaryPath -RecordedSha256 ([string]$prior.batch.summary_sha256) -Label 'PASS batch_summary.json'
+    $batchSummary = Read-JsonObject -Path $normalBatchSummaryPath -Label 'PASS batch_summary.json'
+    $normalSchedulerPath = Assert-NormalFile -Path $SchedulerPath -Label '固定 scheduler 源码'
+    $normalRunnerPath = Assert-NormalFile -Path $RunnerPath -Label '固定 runner 源码'
+    $schedulerHash = Get-Sha256Literal -Path $normalSchedulerPath
+    if ($prior.batch.scheduler_path -isnot [string] -or
+        [System.IO.Path]::GetFullPath($prior.batch.scheduler_path) -ine [System.IO.Path]::GetFullPath($normalSchedulerPath) -or
+        $prior.batch.scheduler_sha256 -cne $schedulerHash -or
+        $prior.batch.summary_path -cne $batchSummaryPath) {
+        throw '首次 D9 失败 recovery 的 PASS batch 路径或 scheduler 绑定不符。'
+    }
+    Assert-PassingBatchSummary -BatchSummary $batchSummary -EvidenceRoot $EvidenceRoot -ExpectedRunId $ExpectedRunId `
+        -ExpectedBackendHash $ExpectedBackendHash -ExpectedSchedulerHash $schedulerHash `
+        -ExpectedRunnerHash (Get-Sha256Literal -Path $normalRunnerPath)
+    if ($batchSummary.sample0_snapshot.sha256 -cne $prior.batch.sample0_snapshot_sha256) {
+        throw '首次 D9 失败 recovery 中 batch sample000 snapshot hash 不符。'
+    }
+
+    $reportPath = Join-Path $EvidenceRoot 'd9_109_sample_report.json'
+    if (Test-Path -LiteralPath $reportPath) { throw '首次 D9 失败 recovery 要求 D9 报告缺失。' }
+    $attempt1StdoutPath = Join-Path $EvidenceRoot ("unattended_d9_stdout_{0}.log" -f $ExpectedRunId)
+    $attempt1StderrPath = Join-Path $EvidenceRoot ("unattended_d9_stderr_{0}.log" -f $ExpectedRunId)
+    $normalAttempt1StdoutPath = Assert-NormalFile -Path $attempt1StdoutPath -Label 'D9 attempt1 stdout'
+        $normalAttempt1StderrPath = Assert-NormalFile -Path $attempt1StderrPath -Label 'D9 attempt1 stderr'
+        $expectedAttempt1StdoutPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_d9_stdout_repair109_20261003_194620.log'
+    $expectedAttempt1StderrPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_d9_stderr_repair109_20261003_194620.log'
+    if ($normalAttempt1StdoutPath -cne $expectedAttempt1StdoutPath -or
+        $normalAttempt1StderrPath -cne $expectedAttempt1StderrPath -or
+        (Get-Sha256Literal -Path $normalAttempt1StdoutPath) -cne $script:ExpectedD9Attempt1StdoutSha256 -or
+        (Get-Sha256Literal -Path $normalAttempt1StderrPath) -cne $script:ExpectedD9Attempt1StderrSha256) {
+        throw 'D9 attempt1 stdout/stderr 路径或精确字节 SHA 与固定失败证据不符。'
+    }
+    return [ordered]@{
+        kind = 'D9_FIRST_ATTEMPT_NO_REPORT'
+        sample0 = $prior.sample0
+        batch_summary_sha256 = [string]$prior.batch.summary_sha256
+        attempt1_stdout_path = $normalAttempt1StdoutPath
+        attempt1_stdout_sha256 = $script:ExpectedD9Attempt1StdoutSha256
+        attempt1_stderr_path = $normalAttempt1StderrPath
+        attempt1_stderr_sha256 = $script:ExpectedD9Attempt1StderrSha256
+        attempt1_exit_code = $null
+        attempt1_exit_code_observed = $false
+        attempt1_error_summary = [string]$prior.error
+        failure_verifier_commit = $script:ExpectedD9FailureVerifierCommit
+        failure_verifier_blob_oid = $script:ExpectedD9FailureVerifierBlobOid
+        failure_verifier_sha256 = $script:ExpectedD9FailureVerifierSha256
+        failure_verifier_path = 'verification/verify_s2a_t68_d9_outputs.py'
+        replay_exit_code = $script:ExpectedD9ReplayExitCode
+        replay_exit_code_source = 'READ_ONLY_FIXED_VERIFIER_REPLAY_NOT_FIRST_ATTEMPT'
+        replay_stdout_sha256 = $script:ExpectedD9ReplayStdoutSha256
+        replay_stderr_sha256 = $script:ExpectedD9ReplayStderrSha256
+        replay_failure_class = [string]$replay.failure_class
+        replay_evidence_path = $replayEvidencePath
+        replay_evidence_sha256 = $script:ExpectedD9ReplayEvidenceSha256
+    }
+}
+
+function Get-D9AttemptLogPaths {
+    param(
+        [Parameter(Mandatory = $true)][string]$EvidenceRoot,
+        [Parameter(Mandatory = $true)][string]$ExpectedRunId,
+        [switch]$Attempt2
+    )
+    $attemptSuffix = if ($Attempt2) { '_attempt2' } else { '' }
+    return [ordered]@{
+        stdout_path = Join-Path $EvidenceRoot ("unattended_d9_stdout_{0}{1}.log" -f $ExpectedRunId, $attemptSuffix)
+        stderr_path = Join-Path $EvidenceRoot ("unattended_d9_stderr_{0}{1}.log" -f $ExpectedRunId, $attemptSuffix)
+    }
+}
+
 function Write-NewUtf8File {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -318,7 +546,8 @@ function Invoke-CapturedProcess {
     param(
         [Parameter(Mandatory = $true)][string]$ExecutablePath,
         [Parameter(Mandatory = $true)][string[]]$Arguments,
-        [Parameter(Mandatory = $true)][string]$WorkingDirectory
+        [Parameter(Mandatory = $true)][string]$WorkingDirectory,
+        [switch]$PythonUtf8
     )
     $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
     $startInfo.FileName = $ExecutablePath
@@ -328,6 +557,13 @@ function Invoke-CapturedProcess {
     $startInfo.RedirectStandardOutput = $true
     $startInfo.RedirectStandardError = $true
     $startInfo.Environment['PATH'] = $env:PATH
+    if ($PythonUtf8) {
+        $null = Assert-NormalDirectory -Path $script:ApprovedPythonModulePath -Label '固定 Python 模块目录'
+        $startInfo.Environment['PYTHONIOENCODING'] = 'UTF-8'
+        $startInfo.Environment['PYTHONPATH'] = $script:ApprovedPythonModulePath
+        $startInfo.StandardOutputEncoding = [System.Text.UTF8Encoding]::new($false)
+        $startInfo.StandardErrorEncoding = [System.Text.UTF8Encoding]::new($false)
+    }
     foreach ($argument in $Arguments) { $null = $startInfo.ArgumentList.Add([string]$argument) }
 
     $process = [System.Diagnostics.Process]::new()
@@ -576,10 +812,13 @@ function Assert-D9ReportBinding {
         [Parameter(Mandatory = $true)][string]$VerifierHash,
         [Parameter(Mandatory = $true)][string]$ExpectedBackendHash,
         [Parameter(Mandatory = $true)][string]$ExpectedSample0SnapshotHash,
-        [AllowNull()][string]$ExpectedSample0SimulationHash
+        [AllowNull()][object]$ExpectedSample0SimulationHash
     )
     $resolvedRoot = [System.IO.Path]::GetFullPath($EvidenceRoot).TrimEnd('\')
-    if ($Report.schema_version -cne 'gestureforge_s2a_t68_d9_actual_head_comparison_v1' -or
+    $reconstruction = $Report.cpu_d9_reconstruction
+    $runtimeVersions = if ($reconstruction -is [System.Collections.IDictionary]) { $reconstruction.runtime_versions } else { $null }
+    $ignoredFields = @('runtime.python', 'runtime.zlib_compile', 'runtime.zlib_runtime')
+    if ($Report.schema_version -cne 'gestureforge_s2a_t68_d9_actual_head_comparison_v2' -or
         $Report.status -cne 'PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9' -or
         $Report.sample_count -ne 109 -or $Report.run_id -cne $ExpectedRunId -or
         [System.IO.Path]::GetFullPath([string]$Report.evidence_root).TrimEnd('\') -ine $resolvedRoot -or
@@ -591,8 +830,35 @@ function Assert-D9ReportBinding {
         $Report.d9_decoder_sha256 -cne $script:ExpectedD9DecoderSha256 -or
         $Report.score_threshold -ne 0.25 -or $Report.score_absolute_tolerance -ne 1e-6 -or
         $Report.coordinate_absolute_tolerance -ne 1e-6 -or $Report.relative_tolerance -ne 0.0 -or
-        $Report.simulator_started_by_verifier -ne $false) {
+        $Report.simulator_started_by_verifier -ne $false -or
+        $reconstruction -isnot [System.Collections.IDictionary] -or
+        $reconstruction.Count -ne 9 -or
+        $reconstruction.schema_version -cne 'gestureforge_s2a_t68_cpu_d9_reconstruction_v1' -or
+        $reconstruction.status -cne 'PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS' -or
+        $reconstruction.frozen_canonical_sha256 -cne $script:ExpectedT29CanonicalSha256 -or
+        $reconstruction.regenerated_canonical_sha256 -cne $script:ExpectedT29RegeneratedCanonicalSha256 -or
+        $reconstruction.exact_outputs_status -cne 'PASS_ALL_109_SAMPLES_EXACT' -or
+        $reconstruction.exact_outputs_match -isnot [bool] -or $reconstruction.exact_outputs_match -ne $true -or
+        $reconstruction.normalized_canonical_match -isnot [bool] -or $reconstruction.normalized_canonical_match -ne $true -or
+        $reconstruction.ignored_fields -isnot [array] -or
+        (@($reconstruction.ignored_fields) -join '|') -cne ($ignoredFields -join '|')) {
         throw 'D9 报告顶层 schema、样本范围、运行路径、verifier 或冻结基线绑定不符。'
+    }
+    $expectedRuntimeVersions = @{
+        python = @{ frozen = '3.12.10'; regenerated = '3.12.14' }
+        zlib_compile = @{ frozen = '1.3.1'; regenerated = '1.3.2' }
+        zlib_runtime = @{ frozen = '1.3.1'; regenerated = '1.3.2' }
+    }
+    if ($runtimeVersions -isnot [System.Collections.IDictionary] -or $runtimeVersions.Count -ne $expectedRuntimeVersions.Count) {
+        throw 'D9 T29 重建 runtime_versions 字段集合不符。'
+    }
+    foreach ($field in $expectedRuntimeVersions.Keys) {
+        $observed = $runtimeVersions[$field]
+        if ($observed -isnot [System.Collections.IDictionary] -or $observed.Count -ne 2 -or
+            $observed.frozen -isnot [string] -or $observed.frozen -cne $expectedRuntimeVersions[$field].frozen -or
+            $observed.regenerated -isnot [string] -or $observed.regenerated -cne $expectedRuntimeVersions[$field].regenerated) {
+            throw "D9 T29 重建 runtime_versions.$field 不符。"
+        }
     }
     if ($ExpectedBackendHash -cne $script:ApprovedBackendSha256 -or
         $ExpectedSample0SnapshotHash -notmatch '^[0-9a-f]{64}$') {
@@ -744,17 +1010,63 @@ function Invoke-VerifiedD9 {
         [Parameter(Mandatory = $true)][string]$PythonPath,
         [Parameter(Mandatory = $true)][string]$ExpectedBackendHash,
         [Parameter(Mandatory = $true)][string]$ExpectedSample0SnapshotHash,
-        [AllowNull()][string]$ExpectedSample0SimulationHash
+        [AllowNull()][object]$ExpectedSample0SimulationHash,
+        [switch]$RecoveryAttempt2,
+        [AllowNull()][System.Collections.IDictionary]$PreservedFirstAttempt
     )
     $verifierPath = Join-Path $RepositoryRoot 'verification\verify_s2a_t68_d9_outputs.py'
     $reportPath = Join-Path $EvidenceRoot 'd9_109_sample_report.json'
-    $stdoutPath = Join-Path $EvidenceRoot ("unattended_d9_stdout_{0}.log" -f $ExpectedRunId)
-    $stderrPath = Join-Path $EvidenceRoot ("unattended_d9_stderr_{0}.log" -f $ExpectedRunId)
+    $logPaths = Get-D9AttemptLogPaths -EvidenceRoot $EvidenceRoot -ExpectedRunId $ExpectedRunId -Attempt2:$RecoveryAttempt2
+    if ($RecoveryAttempt2) {
+        if ($PreservedFirstAttempt -isnot [System.Collections.IDictionary]) { throw 'D9 attempt2 缺少 attempt1 保留哈希。' }
+        $stdoutPath = [string]$logPaths.stdout_path
+        $stderrPath = [string]$logPaths.stderr_path
+        if (Test-Path -LiteralPath $reportPath) { throw 'D9 recovery attempt2 要求报告仍缺失，拒绝复用或覆盖。' }
+        foreach ($path in @($stdoutPath, $stderrPath)) {
+            if (Test-Path -LiteralPath $path) { throw "拒绝覆盖既有 D9 attempt2 日志：$path" }
+        }
+    } else {
+        $stdoutPath = [string]$logPaths.stdout_path
+        $stderrPath = [string]$logPaths.stderr_path
+    }
+    $attempt1StdoutPath = Join-Path $EvidenceRoot ("unattended_d9_stdout_{0}.log" -f $ExpectedRunId)
+    $attempt1StderrPath = Join-Path $EvidenceRoot ("unattended_d9_stderr_{0}.log" -f $ExpectedRunId)
+    if ($RecoveryAttempt2 -and
+        ($ExpectedRunId -cne $script:ApprovedD9RecoveryRunId -or
+        [System.IO.Path]::GetFullPath($EvidenceRoot) -cne [System.IO.Path]::GetFullPath($script:ApprovedD9RecoveryEvidenceDirectory) -or
+        $PreservedFirstAttempt.stdout_path -cne $attempt1StdoutPath -or
+        $PreservedFirstAttempt.stderr_path -cne $attempt1StderrPath -or
+        [string]$PreservedFirstAttempt.stdout_sha256 -cne $script:ExpectedD9Attempt1StdoutSha256 -or
+        [string]$PreservedFirstAttempt.stderr_sha256 -cne $script:ExpectedD9Attempt1StderrSha256 -or
+        -not (Test-Path -LiteralPath $attempt1StdoutPath -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $attempt1StderrPath -PathType Leaf) -or
+        (Get-Sha256Literal -Path $attempt1StdoutPath) -cne [string]$PreservedFirstAttempt.stdout_sha256 -or
+        (Get-Sha256Literal -Path $attempt1StderrPath) -cne [string]$PreservedFirstAttempt.stderr_sha256)) {
+        throw 'D9 attempt2 启动前 attempt1 stdout/stderr 路径或 SHA-256 已变化。'
+    }
+    if ($RecoveryAttempt2) {
+        $priorRecoveryPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_continuation_repair109_20261003_194620_recovery.json'
+        $replayEvidencePath = $script:ExpectedD9ReplayEvidencePath
+        $priorRecoveryPath = Assert-NormalFile -Path $priorRecoveryPath -Label 'attempt2 前旧 recovery summary 固定路径'
+        $replayEvidencePath = Assert-NormalFile -Path $replayEvidencePath -Label 'attempt2 前 replay evidence 固定路径'
+        if ([string]$PreservedFirstAttempt.recovery_summary_path -cne $priorRecoveryPath -or
+            [string]$PreservedFirstAttempt.recovery_summary_sha256 -cne $script:ExpectedD9RecoverySummarySha256 -or
+            [string]$PreservedFirstAttempt.replay_evidence_path -cne $replayEvidencePath -or
+            [string]$PreservedFirstAttempt.replay_evidence_sha256 -cne $script:ExpectedD9ReplayEvidenceSha256 -or
+            (Get-Sha256Literal -Path $priorRecoveryPath) -cne $script:ExpectedD9RecoverySummarySha256 -or
+            (Read-JsonObject -Path $priorRecoveryPath -Label 'attempt2 前旧 recovery summary').run_id -cne $script:ApprovedD9RecoveryRunId -or
+            (Get-Sha256Literal -Path $replayEvidencePath) -cne $script:ExpectedD9ReplayEvidenceSha256) {
+            throw 'D9 attempt2 启动前旧 recovery summary 或固定复放证据身份、SHA 已变化。'
+        }
+    }
     $verifierHash = Get-Sha256Literal -Path $verifierPath
     $pythonHash = Get-Sha256Literal -Path $PythonPath
     $reportExists = Test-Path -LiteralPath $reportPath
     $stdoutExists = Test-Path -LiteralPath $stdoutPath
     $stderrExists = Test-Path -LiteralPath $stderrPath
+    if ($RecoveryAttempt2 -and ($reportExists -or $stdoutExists -or $stderrExists)) {
+        throw 'D9 recovery attempt2 的报告或独立日志路径已存在，拒绝重用。'
+    }
     if (-not $reportExists -and ($stdoutExists -or $stderrExists)) {
         throw '存在 D9 coordinator log 但报告缺失，拒绝覆盖或重新运行。'
     }
@@ -765,7 +1077,7 @@ function Invoke-VerifiedD9 {
             -ExpectedBackendHash $ExpectedBackendHash -ExpectedSample0SnapshotHash $ExpectedSample0SnapshotHash `
             -ExpectedSample0SimulationHash $ExpectedSample0SimulationHash
         $arguments = @('-B', $verifierPath, '--evidence-root', $EvidenceRoot, '--run-id', $ExpectedRunId)
-        $execution = Invoke-CapturedProcess -ExecutablePath $PythonPath -Arguments $arguments -WorkingDirectory $RepositoryRoot
+        $execution = Invoke-CapturedProcess -ExecutablePath $PythonPath -Arguments $arguments -WorkingDirectory $RepositoryRoot -PythonUtf8
         if ($execution.exit_code -ne 0) { throw "D9 只读全量重算失败，exit=$($execution.exit_code)；保留既有报告与日志。" }
         if (-not [string]::IsNullOrWhiteSpace($execution.stderr)) { throw 'D9 只读全量重算 stderr 非空；保留既有报告与日志。' }
         $recomputed = ConvertFrom-Json -InputObject $execution.stdout -AsHashtable -Depth 64 -ErrorAction Stop
@@ -805,9 +1117,26 @@ function Invoke-VerifiedD9 {
         if (Test-Path -LiteralPath $path) { throw "拒绝覆盖已有 D9 coordinator log：$path" }
     }
     $arguments = @('-B', $verifierPath, '--evidence-root', $EvidenceRoot, '--run-id', $ExpectedRunId, '--report', $reportPath)
-    $execution = Invoke-CapturedProcess -ExecutablePath $PythonPath -Arguments $arguments -WorkingDirectory $RepositoryRoot
+    $execution = Invoke-CapturedProcess -ExecutablePath $PythonPath -Arguments $arguments -WorkingDirectory $RepositoryRoot -PythonUtf8
     Write-NewUtf8File -Path $stdoutPath -Text $execution.stdout
     Write-NewUtf8File -Path $stderrPath -Text $execution.stderr
+    if ($RecoveryAttempt2) {
+        if (-not (Test-Path -LiteralPath $attempt1StdoutPath -PathType Leaf) -or
+            -not (Test-Path -LiteralPath $attempt1StderrPath -PathType Leaf) -or
+            [string]$PreservedFirstAttempt.stdout_sha256 -cne $script:ExpectedD9Attempt1StdoutSha256 -or
+            [string]$PreservedFirstAttempt.stderr_sha256 -cne $script:ExpectedD9Attempt1StderrSha256 -or
+            (Get-Sha256Literal -Path $attempt1StdoutPath) -cne [string]$PreservedFirstAttempt.stdout_sha256 -or
+            (Get-Sha256Literal -Path $attempt1StderrPath) -cne [string]$PreservedFirstAttempt.stderr_sha256) {
+            throw 'D9 attempt2 后 attempt1 stdout/stderr 未保持原路径与原哈希。'
+        }
+        $priorRecoveryPath = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_continuation_repair109_20261003_194620_recovery.json'
+        $replayEvidencePath = $script:ExpectedD9ReplayEvidencePath
+        if ((Get-Sha256Literal -Path $priorRecoveryPath) -cne $script:ExpectedD9RecoverySummarySha256 -or
+            (Read-JsonObject -Path $priorRecoveryPath -Label 'attempt2 后旧 recovery summary').run_id -cne $script:ApprovedD9RecoveryRunId -or
+            (Get-Sha256Literal -Path $replayEvidencePath) -cne $script:ExpectedD9ReplayEvidenceSha256) {
+            throw 'D9 attempt2 后旧 recovery summary 或固定复放证据身份、SHA 已变化。'
+        }
+    }
     if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) { throw 'D9 verifier 未生成预期报告。' }
     $report = Read-JsonObject -Path $reportPath -Label 'D9 报告'
     $reportHash = Get-Sha256Literal -Path $reportPath
@@ -875,7 +1204,7 @@ try {
 
     $pythonPath = $script:ApprovedPythonPath
     $null = Assert-NormalFile -Path $pythonPath -Label '固定 Python'
-    $pythonVersionCheck = Invoke-CapturedProcess -ExecutablePath $pythonPath -Arguments @('--version') -WorkingDirectory $repositoryRoot
+    $pythonVersionCheck = Invoke-CapturedProcess -ExecutablePath $pythonPath -Arguments @('--version') -WorkingDirectory $repositoryRoot -PythonUtf8
     $pythonVersionStdout = ([string]$pythonVersionCheck.stdout).Trim()
     $script:Summary.pinned_python_version_stdout = $pythonVersionStdout
     $script:Summary.pinned_python_version_exit_code = $pythonVersionCheck.exit_code
@@ -883,7 +1212,7 @@ try {
         throw "固定 Python 版本断言失败：exit=$($pythonVersionCheck.exit_code)，stdout='$pythonVersionStdout'。"
     }
     $dependencyCheck = Invoke-CapturedProcess -ExecutablePath $pythonPath `
-        -Arguments @('-B', '-c', 'import numpy,cv2; print(numpy.__version__ + "|" + cv2.__version__)') -WorkingDirectory $repositoryRoot
+        -Arguments @('-B', '-c', 'import numpy,cv2; print(numpy.__version__ + "|" + cv2.__version__)') -WorkingDirectory $repositoryRoot -PythonUtf8
     $script:Summary.python_dependency_versions = ([string]$dependencyCheck.stdout).Trim()
     $script:Summary.python_dependency_exit_code = $dependencyCheck.exit_code
     if ($dependencyCheck.exit_code -ne 0 -or $script:Summary.python_dependency_versions -cne '2.4.6|4.13.0') {
@@ -899,7 +1228,67 @@ try {
     $script:SummaryPath = $originalSummaryPath
     $falseStopBatchRecovery = $false
     $falseStopExpectedBatchSummarySha256 = $null
-    if ($ResumeFailedCoordinatorSha256) {
+    $d9FirstAttemptRecovery = $false
+    $d9RecoveryExpectedBatchSummarySha256 = $null
+    $preservedFirstD9Attempt = $null
+    if ($ResumeFailedCoordinatorSha256 -and $ResumeFailedRecoverySha256) {
+        throw 'ResumeFailedCoordinatorSha256 与 ResumeFailedRecoverySha256 不能同时使用。'
+    }
+    if ($ResumeFailedRecoverySha256) {
+        $recoveryResult = Assert-FailedD9Recovery -SummaryPath (Join-Path $evidenceRoot ("unattended_continuation_{0}_recovery.json" -f $RunId)) `
+            -ExpectedSummaryHash $ResumeFailedRecoverySha256 -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId `
+            -ExpectedBackendHash $expectedBackendHash `
+            -SchedulerPath (Join-Path $repositoryRoot 'verification\run_s2a_t68_batch_verilator.ps1') `
+            -RunnerPath (Join-Path $repositoryRoot 'verification\run_s2a_network_backend_verilator.ps1')
+        $d9FirstAttemptRecovery = $true
+        $d9RecoveryExpectedBatchSummarySha256 = [string]$recoveryResult.batch_summary_sha256
+        $preservedFirstD9Attempt = [ordered]@{
+            stdout_path = [string]$recoveryResult.attempt1_stdout_path
+            stdout_sha256 = [string]$recoveryResult.attempt1_stdout_sha256
+            stderr_path = [string]$recoveryResult.attempt1_stderr_path
+            stderr_sha256 = [string]$recoveryResult.attempt1_stderr_sha256
+            recovery_summary_path = Join-Path $script:ApprovedD9RecoveryEvidenceDirectory 'unattended_continuation_repair109_20261003_194620_recovery.json'
+            recovery_summary_sha256 = $ResumeFailedRecoverySha256
+            replay_evidence_path = [string]$recoveryResult.replay_evidence_path
+            replay_evidence_sha256 = [string]$recoveryResult.replay_evidence_sha256
+        }
+        $script:Summary.recovery_mode = $recoveryResult.kind
+        $script:Summary.sample0 = $recoveryResult.sample0
+        $script:Summary.d9_recovery = [ordered]@{
+            prior_stdout_path = $preservedFirstD9Attempt.stdout_path
+            prior_stdout_sha256 = $preservedFirstD9Attempt.stdout_sha256
+            prior_stderr_path = $preservedFirstD9Attempt.stderr_path
+            prior_stderr_sha256 = $preservedFirstD9Attempt.stderr_sha256
+            retry_stdout_path = (Get-D9AttemptLogPaths -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -Attempt2).stdout_path
+            retry_stderr_path = (Get-D9AttemptLogPaths -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -Attempt2).stderr_path
+            batch_summary_sha256 = $d9RecoveryExpectedBatchSummarySha256
+            prior_recovery_summary_path = $preservedFirstD9Attempt.recovery_summary_path
+            prior_recovery_summary_sha256 = $preservedFirstD9Attempt.recovery_summary_sha256
+            first_attempt_exit_code = $recoveryResult.attempt1_exit_code
+            first_attempt_exit_code_observed = $recoveryResult.attempt1_exit_code_observed
+            first_attempt_exit_code_recording = 'NOT_RECORDED_IN_PRIOR_RECOVERY_SUMMARY'
+            first_attempt_exit_code_note = '旧 recovery summary 未记录 attempt1 进程退出码；null 表示未观察，不代表 0 或 2。'
+            first_attempt_error_summary = $recoveryResult.attempt1_error_summary
+            failure_verifier_commit = $recoveryResult.failure_verifier_commit
+            failure_verifier_blob_oid = $recoveryResult.failure_verifier_blob_oid
+            failure_verifier_sha256 = $recoveryResult.failure_verifier_sha256
+            failure_verifier_path = $recoveryResult.failure_verifier_path
+            first_attempt_stderr_sha256 = $recoveryResult.attempt1_stderr_sha256
+            first_attempt_stderr_interpretation = 'HASH_ONLY_NO_TEXT_DECODE'
+            replay_exit_code = $recoveryResult.replay_exit_code
+            replay_exit_code_source = $recoveryResult.replay_exit_code_source
+            replay_stdout_sha256 = $recoveryResult.replay_stdout_sha256
+            replay_stderr_sha256 = $recoveryResult.replay_stderr_sha256
+            replay_failure_class = $recoveryResult.replay_failure_class
+            replay_evidence_path = $preservedFirstD9Attempt.replay_evidence_path
+            replay_evidence_sha256 = $preservedFirstD9Attempt.replay_evidence_sha256
+            replay_exit_code_note = 'exit 2 来自固定旧 verifier 对同一输入的只读复放，不是首轮 coordinator 直接记录的退出码。'
+            retry_count = 0
+        }
+        $script:SummaryPath = Join-Path $evidenceRoot ("unattended_continuation_{0}_recovery2.json" -f $RunId)
+        $script:Summary.recovered_from_summary_path = Join-Path $evidenceRoot ("unattended_continuation_{0}_recovery.json" -f $RunId)
+        $script:Summary.recovered_from_summary_sha256 = $ResumeFailedRecoverySha256
+    } elseif ($ResumeFailedCoordinatorSha256) {
         $recoveryResult = Assert-FailedCoordinatorRecovery -SummaryPath $originalSummaryPath -ExpectedSummaryHash $ResumeFailedCoordinatorSha256 `
             -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -ExpectedBackendHash $expectedBackendHash `
             -SchedulerPath (Join-Path $repositoryRoot 'verification\run_s2a_t68_batch_verilator.ps1') `
@@ -953,12 +1342,14 @@ try {
 
     $continueToD9 = $false
     $launchScheduler = $false
-    if ($falseStopBatchRecovery -and
-        ($existingBatch.state -ne 'PASS' -or $existingBatch.summary_sha256 -cne $falseStopExpectedBatchSummarySha256)) {
-        $script:Summary.batch.status = 'STOP_RECOVERY_BATCH_NOT_PASS_NO_DISPATCH'
+    if (($falseStopBatchRecovery -and
+        ($existingBatch.state -ne 'PASS' -or $existingBatch.summary_sha256 -cne $falseStopExpectedBatchSummarySha256)) -or
+        ($d9FirstAttemptRecovery -and
+        ($existingBatch.state -ne 'PASS' -or $existingBatch.summary_sha256 -cne $d9RecoveryExpectedBatchSummarySha256))) {
+        $script:Summary.batch.status = if ($d9FirstAttemptRecovery) { 'STOP_D9_RECOVERY_BATCH_NOT_PASS_NO_DISPATCH' } else { 'STOP_RECOVERY_BATCH_NOT_PASS_NO_DISPATCH' }
         $script:Summary.batch.summary_path = $existingBatch.summary_path
         $script:Summary.batch.summary_sha256 = $existingBatch.summary_sha256
-        $script:Summary.batch.message = "严格 false-stop 恢复要求现有 batch_summary.json 复验为 PASS 且 SHA-256 与旧终态记录一致；observed state=$($existingBatch.state)，observed SHA=$($existingBatch.summary_sha256)，拒绝重新调度 108 个样本。 $($existingBatch.message)"
+        $script:Summary.batch.message = "严格恢复要求现有 batch_summary.json 复验为 PASS 且 SHA-256 与先前终态记录一致；observed state=$($existingBatch.state)，observed SHA=$($existingBatch.summary_sha256)，拒绝重新调度 108 个样本。 $($existingBatch.message)"
         $script:Summary.status = 'STOP_EXISTING_BATCH_NO_DUPLICATE'
     } elseif ($existingBatch.state -eq 'PASS') {
         $script:Summary.batch.status = 'EXISTING_PASS'
@@ -1090,10 +1481,21 @@ try {
 
     if ($continueToD9) {
         $sample0SimulationHash = if ($null -ne $script:Summary.sample0) { [string]$script:Summary.sample0.terminal_record_sha256 } else { $null }
-        $script:Summary.d9 = Invoke-VerifiedD9 -EvidenceRoot $evidenceRoot -ExpectedRunId $RunId -RepositoryRoot $repositoryRoot `
-            -PythonPath $pythonPath -ExpectedBackendHash $expectedBackendHash `
-            -ExpectedSample0SnapshotHash $script:Summary.batch.sample0_snapshot_sha256 `
-            -ExpectedSample0SimulationHash $sample0SimulationHash
+        $d9Arguments = @{
+            EvidenceRoot = $evidenceRoot
+            ExpectedRunId = $RunId
+            RepositoryRoot = $repositoryRoot
+            PythonPath = $pythonPath
+            ExpectedBackendHash = $expectedBackendHash
+            ExpectedSample0SnapshotHash = $script:Summary.batch.sample0_snapshot_sha256
+            ExpectedSample0SimulationHash = $sample0SimulationHash
+        }
+        if ($d9FirstAttemptRecovery) {
+            $d9Arguments.RecoveryAttempt2 = $true
+            $d9Arguments.PreservedFirstAttempt = $preservedFirstD9Attempt
+            $script:Summary.d9_recovery.retry_count = 1
+        }
+        $script:Summary.d9 = Invoke-VerifiedD9 @d9Arguments
         if ($script:Summary.d9.passed) {
             $script:Summary.status = 'PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9'
             $script:Summary.stage2a_pass = $false

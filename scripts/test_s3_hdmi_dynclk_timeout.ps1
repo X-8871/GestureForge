@@ -197,8 +197,9 @@ try {
         throw "隔离副本补丁应用检查失败。"
     }
 
-    Add-EvidenceLine "COMMAND: git -C $scratchRoot apply --whitespace=error $patchPath"
-    $scratchApplyOutput = & git -C $scratchRoot apply --whitespace=error $patchPath 2>&1
+    $scratchApplyArguments = @('-C', $scratchRoot, 'apply', '--whitespace=error', $patchPath)
+    Add-EvidenceLine "COMMAND: git $([string]::Join(' ', $scratchApplyArguments))"
+    $scratchApplyOutput = & git @scratchApplyArguments 2>&1
     $scratchApplyExit = $LASTEXITCODE
     foreach ($line in $scratchApplyOutput) {
         Add-EvidenceLine "$line"

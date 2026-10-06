@@ -1,0 +1,119 @@
+{
+  "schema": "fpga.stage3.hdmi_dynclk_host_test.v1",
+  "report_date": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "task_id": "S3-HOST-DCLK-REPORT-01",
+  "baseline": {
+    "git_commit": "c4b27f7853459d1be0b6463f0b22a0859345ffd9",
+    "branch": "codex/stage3-video"
+  },
+  "official_source": {
+    "repository_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "verified_files": [
+      {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c",
+        "sha256": "BE827313363BAAD59D1693C8E7B1894AB6C0AACC569934EA85919ABE73846E14"
+      },
+      {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.h",
+        "sha256": "62D8815CE504EA1BDA24B23AA404A860D59B6BF96D98A91A2519B16EDE437ED3"
+      },
+      {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/display_ctrl.c",
+        "sha256": "3E9E02D815CC6CA1D6D4A457467ECD26EC4A1126F6696C038C2EEE1E6D4CF29C"
+      }
+    ]
+  },
+  "patch": {
+    "path": "board/stage3/software/hdmi_test/hdmi_display_bringup.patch",
+    "sha256": "83DBBFA7A9C24FF6F473BE39D1BC629CD60F217783DA7D36BAE641513E6CC583",
+    "apply_check": [
+      {
+        "command": "git -C C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\tmp\\stage3_reference\\AX7020_2023.1 apply --check --whitespace=error C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\board\\stage3\\software\\hdmi_test\\hdmi_display_bringup.patch",
+        "exit_code": 0,
+        "target": "official-source-checkout"
+      },
+      {
+        "command": "git -C C:\\Users\\22061\\AppData\\Local\\Temp\\s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c\\patched-source apply --check --whitespace=error C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\board\\stage3\\software\\hdmi_test\\hdmi_display_bringup.patch",
+        "exit_code": 0,
+        "target": "isolated-source-before-apply"
+      }
+    ],
+    "scratch_apply": {
+      "command": "git -C C:\\Users\\22061\\AppData\\Local\\Temp\\s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c\\patched-source apply --whitespace=error C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\board\\stage3\\software\\hdmi_test\\hdmi_display_bringup.patch",
+      "exit_code": 0,
+      "log_evidence_path": "tmp/s3_hdmi_dynclk_host_20261007_b/test-results.txt"
+    }
+  },
+  "test_script": {
+    "path": "scripts/test_s3_hdmi_dynclk_timeout.ps1",
+    "sha256": "6CC2CA95759FD9818D35E2BDC1E8D2FFCF22742F93404E4323FBA82C870FEE59",
+    "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/test_s3_hdmi_dynclk_timeout.ps1 -RepoRoot C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition",
+    "exit_code": 0,
+    "run_id": "s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c"
+  },
+  "host_test": {
+    "result": "PASS",
+    "scope": "从 HDMI 补丁提取 ClkStart/ClkStop 函数，在隔离 C harness 中验证主机侧行为。",
+    "compiler": {
+      "executable": "D:\\mingw64\\bin\\gcc.exe",
+      "flags": ["-std=c99", "-Wall", "-Wextra", "-Werror", "-pedantic"],
+      "compile_command": "D:\\mingw64\\bin\\gcc.exe -std=c99 -Wall -Wextra -Werror -pedantic -o C:\\Users\\22061\\AppData\\Local\\Temp\\s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c\\dynclk_timeout_harness.exe C:\\Users\\22061\\AppData\\Local\\Temp\\s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c\\dynclk_timeout_harness.c",
+      "execution_command": "C:\\Users\\22061\\AppData\\Local\\Temp\\s3-dclk-host-a6e1de7b97cd4f149f87f7f6f7d3377c\\dynclk_timeout_harness.exe",
+      "compile_exit_code": 0,
+      "test_execution_exit_code": 0
+    },
+    "cases": {
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "names": [
+        "start_immediate_success",
+        "stop_immediate_success",
+        "start_delayed_success",
+        "stop_delayed_success",
+        "start_timeout_single_best_effort_stop",
+        "stop_timeout",
+        "start_terminal_at_deadline_rejected",
+        "stop_terminal_at_deadline_rejected",
+        "start_terminal_after_deadline_rejected",
+        "stop_terminal_after_deadline_rejected",
+        "start_success_across_timer_wrap",
+        "stop_success_across_timer_wrap",
+        "start_timeout_across_timer_wrap",
+        "stop_timeout_across_timer_wrap"
+      ]
+    },
+    "coverage_summary": [
+      "start/stop 立即成功与延迟成功",
+      "start/stop 超时及 start 超时后的尽力 stop",
+      "恰在截止点或晚于截止点到达的终态不被判为成功",
+      "XTime 64 位计时器回绕下的 start/stop 成功与超时"
+    ],
+    "evidence": [
+      {
+        "role": "原始测试结果文本",
+        "path": "tmp/s3_hdmi_dynclk_host_20261007_b/test-results.txt",
+        "sha256": "C26B06C2D8550EB7B6BFCE4F2D6E1AB8C2B922EDEE5005260A867F50C75FBA90"
+      },
+      {
+        "role": "隔离 C harness 源码",
+        "path": "tmp/s3_hdmi_dynclk_host_20261007_b/dynclk_timeout_harness.c",
+        "sha256": "09B7AE86761B96B45DD92848330F976F69ABE695946B2ABA67FB67DDEBC38C7B"
+      }
+    ]
+  },
+  "not_established": [
+    "Vitis/BSP 完整编译或主程序及整个补丁的构建正确性",
+    "Vivado 综合、实现、时序收敛或 bitstream 生成",
+    "实物动态时钟频率、HDMI 信号与显示效果",
+    "G3 实物验证、G4 任务验收或 G5 阶段验收"
+  ],
+  "execution_safety": {
+    "vivado_started": false,
+    "vitis_started": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false,
+    "vendor_originals_modified": false
+  }
+}

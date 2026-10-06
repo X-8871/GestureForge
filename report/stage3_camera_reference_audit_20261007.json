@@ -1,0 +1,84 @@
+{
+  "schema": "stage3_camera_reference_audit_v1",
+  "classification": "STATIC_OFFICIAL_REFERENCE_AUDIT_NOT_BUILD_OR_BOARD_VALIDATION",
+  "audited_local_time": "2026-10-07 Asia/Shanghai",
+  "workspace_snapshot": {
+    "head_when_initial_source_audit_was_read": "086150c1af058bf3d253037342833a8a35d79ce1",
+    "head_when_report_was_authored": "6b81d0b01489084d9c2ee36f48063b2d1e903e13",
+    "intervening_change": "提交 6b81d0b 仅新增 HDMI 路由诊断报告；官方缓存源文件未修改。"
+  },
+  "official_source": {
+    "repository": "https://github.com/alinxalinx/AX7020_2023.1",
+    "commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "sample": "course_s2_vitis/23_ov5640_dual",
+    "files": {
+      "Vivado/auto_create_project/pl_config.tcl": "E9565C642647148A1D5DDAA0047DA3F19AD5EDE1C0BD17B00976885084D95836",
+      "Vivado/auto_create_project/src/constraints/an5642.xdc": "3B57CF39B9E78FEEF8E76B1BA4EB1F63C0A3AD979768589EB807CCF946719E64",
+      "Vitis/auto_create_vitis/src/an5642_dual/display_demo.c": "C5FBF5697A5C435D9C1A4F49E4EBE50E856C061EAEF55BE37FB99C9846FD8749",
+      "Vitis/auto_create_vitis/src/an5642_dual/vdma.c": "53BDC14501E91735F72D743FC73532832246EBBEE65F8739F1A26480AC31750A",
+      "Vitis/auto_create_vitis/src/an5642_dual/ov5640.c": "394AF4AC3AAD35FCC55D6798E357C994CA97F202DAC8567462D846BAED14F8EC",
+      "Vitis/auto_create_vitis/src/an5642_dual/display_ctrl/display_ctrl.h": "E16BCC1BF093ED7A41EBF9A25C0E72C1973AE5F795B9D082EB0981383BDBCAD3",
+      "Vitis/auto_create_vitis/src/an5642_dual/display_ctrl/display_ctrl.c": "1BC6718964D19D7E8B286173A740EC7602FE733C1904885318C69156538137B1",
+      "Vitis/auto_create_vitis/src/an5642_dual/display_ctrl/vga_modes.h": "8544A68F725F04001D82881BEC21435F27FE39B52B54227D75D77EC75EC5F57F"
+    }
+  },
+  "source_facts": {
+    "camera": {
+      "sensor_config": "OV5640 initialization source selects RGB565 (ov5640.c:63-64).",
+      "active_image": "1280x720 (ov5640.c:273-276).",
+      "clock_and_blanking": {
+        "pixel_clock_comment_mhz": 84,
+        "input_clock_comment_mhz": 24,
+        "hts_registers": "0x0764",
+        "hts_pixels": 1892,
+        "vts_registers": "0x02E4",
+        "vts_lines": 740,
+        "derived_nominal_frame_rate_fps": 59.9966,
+        "derivation": "84,000,000 / (1892 * 740)",
+        "qualification": "仅由源码注释与 HTS/VTS 寄存器推导的名义值；不是帧率保证，也未实测。"
+      },
+      "control": "PS IIC0/IIC1 各按 100 kHz 初始化，复位 GPIO 后分别调用两次 sensor_init（display_demo.c:69-83）。"
+    },
+    "video_path": {
+      "camera_to_memory": "两路相机 AXI4-Stream 分别经 subset converter 进入 AXI VDMA 1/3 的 S2MM；pl_config.tcl:321-332。",
+      "memory_to_display": "AXI VDMA 0/2 的 MM2S 分别供给 OSD 两层；pl_config.tcl:321-332。",
+      "hardware_frame_stores": "四个 VDMA 均配置 c_num_fstores=1；pl_config.tcl:106-157。",
+      "software_buffers": "每路分配 DISPLAY_NUM_FRAMES=3 个缓冲区；display_ctrl.h:71，display_demo.c:52,88-93。",
+      "observed_ownership_pattern": "DisplayInitialize 将两路 curFrame 初始化为 0；display path 对 curFrame 停泊；capture setup 也把相同 curFrame 地址传给 VDMA1/3；display_ctrl.c:251-284,331-338，display_demo.c:147-150。",
+      "risk_inference": "源码没有显示采集/显示之间的安全 buffer rotation 或所有权交接；同一缓冲区并发读写存在撕裂/数据竞争风险。其余已分配缓冲不能视为已在轮换。"
+    },
+    "display": {
+      "canvas": "1920x1080 RGB OSD；pl_config.tcl:297-302。",
+      "layer0": "1280x720 at (0,0)，priority 0；pl_config.tcl:234-240。",
+      "layer1": "1280x720 at (640,360)，priority 1；pl_config.tcl:241-248。",
+      "layout_inference": "两层有 640x360 区域重叠，不是并排布局。",
+      "hdmi_mode_candidate": "1920x1080@60Hz，软件模式表给出 148.5 MHz，且通过 axi_dynclk 在运行时写入并启动时钟；vga_modes.h:100-112，display_ctrl.c:344-368。此为官方软件候选，不是本工程运行时钟或显示器实测证据。"
+    },
+    "constraints_and_reliability": {
+      "camera_xdc": "有静态 PACKAGE_PIN 与 LVCMOS33 映射；末尾对两个 PCLK 设置 CLOCK_DEDICATED_ROUTE FALSE（an5642.xdc:19-76）。",
+      "camera_timing": "官方 an5642.xdc 没有 create_clock 或 set_input_delay；CLOCK_DEDICATED_ROUTE FALSE 不是输入时序约束。",
+      "sensor_error_handling": "sensor_write_array 丢弃每次 ov5640_write 状态，sensor_init 固定返回 0；ov5640.c:327-341。",
+      "startup_error_handling": "display_demo 在显示初始化失败后只打印而继续；两次 vdma_write_init 返回值未检查；display_demo.c:129-150。",
+      "counters_and_endurance": "显示 VDMA frame counter 禁用，采集 VDMA 也配置 EnableFrameCounter=0；display_ctrl.c:392-399，vdma.c:135-146。程序没有提供本项目 30 分钟无死锁、帧/行/像素计数或丢帧统计证据。"
+    }
+  },
+  "stage3_g0_open_decisions": [
+    "首个相机环路要先单通道还是双通道。",
+    "若双通道，最终 HDMI 排列不能默认沿用官方例程的重叠 OSD。",
+    "当前计划草案 30 fps 与官方寄存器表推导约 60 fps 不一致；需冻结帧率及传感器配置。",
+    "明确帧缓冲所有权、显示同步和过载/丢帧策略；不能直接照搬该单帧存储配置。"
+  ],
+  "not_established": [
+    "实物 PCB/手册修订绑定、模块 Pin1 朝向、板上电压与物理接线。",
+    "当前正式工程是否加载上述 XDC、HDL/BSP 构建、实际相机画面、帧率或显示器模式兼容性。",
+    "30 分钟耐久、无死锁、帧计数和最终阶段验收。"
+  ],
+  "work_performed": {
+    "read_only": true,
+    "vivado_or_vitis_run": false,
+    "board_accessed": false,
+    "batch109_accessed": false,
+    "vendor_sources_modified": false
+  },
+  "next": "先完成 HDMI-only 148.5 MHz pixel / 5x serial clock 静态约束准备与独立审查；之后再申请一次新的受控 Vivado 诊断。摄像头 G0 选择留待相机集成前冻结。"
+}

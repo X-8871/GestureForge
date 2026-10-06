@@ -1,5 +1,5 @@
 # 在全新隔离目录验证 AX7020 官方 HDMI-only BD；不调用厂商自动构建脚本。
-# 用法：vivado -mode batch -source s3_validate_hdmi_only_bd.tcl -tclargs <厂商根目录> <tmp 下的新唯一运行目录> ?native|azynq_metadata? ?guard|race_test|lock_test|subpath_reparse_test|bd|hdl?
+# 用法：vivado -mode batch -source s3_validate_hdmi_only_bd.tcl -tclargs <厂商根目录> <仓库 tmp\s3r04 下的新唯一运行目录> ?native|azynq_metadata? ?guard|race_test|lock_test|subpath_reparse_test|bd|hdl?
 
 proc s3_launch_secure_guardian {vendor_root source_root output_dir mode phase} {
     set token "[pid]_[clock clicks]"
@@ -40,7 +40,7 @@ public static class S3PathGuardR3
     private static readonly List<SafeFileHandle> SourceHandles = new List<SafeFileHandle>();
     private static readonly List<FileStream> DataHandles = new List<FileStream>();
     private static readonly Dictionary<string, SafeFileHandle> Directories = new Dictionary<string, SafeFileHandle>(StringComparer.OrdinalIgnoreCase);
-    private static string RepoFinal, ScriptsFinal, TmpFinal, VendorFinal, SourceFinal, OutputFinal, OutputLeaf;
+    private static string RepoFinal, ScriptsFinal, TmpFinal, AuthorizedOutputParentFinal, VendorFinal, SourceFinal, OutputFinal, OutputLeaf;
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
     private static extern SafeFileHandle CreateFileW(string path, uint access, uint share, IntPtr security, uint creation, uint flags, IntPtr template);
@@ -345,24 +345,29 @@ public static class S3PathGuardR3
         HoldRegularScript(script, ScriptsFinal);
         TmpFinal = AcquireSubtree(RepoFinal, Join(RepoFinal, "tmp"));
         if (!String.Equals(TmpFinal, Join(RepoFinal, "tmp"), StringComparison.OrdinalIgnoreCase)) throw new IOException("REPO_TMP_ALIAS_REJECTED");
+        AuthorizedOutputParentFinal = AcquireSubtree(TmpFinal, Join(TmpFinal, "s3r04"));
+        if (!String.Equals(AuthorizedOutputParentFinal, Join(TmpFinal, "s3r04"), StringComparison.OrdinalIgnoreCase)) throw new IOException("AUTHORIZED_S3R04_ALIAS_REJECTED");
         VendorFinal = AcquireSubtree(TmpFinal, vendor); SourceFinal = AcquireSubtree(VendorFinal, source);
         if (!Under(VendorFinal, SourceFinal)) throw new IOException("VENDOR_SOURCE_ESCAPES_VENDOR_ROOT");
+        string portableOutput = output.Replace('\\', '/');
+        foreach (string component in portableOutput.Split('/'))
+            if (component == "." || component == "..") throw new IOException("OUTPUT_PATH_TRAVERSAL_REJECTED");
         string full = Path.GetFullPath(output); OutputLeaf = Path.GetFileName(full);
         if (String.IsNullOrWhiteSpace(OutputLeaf) || OutputLeaf == "." || OutputLeaf == "..") throw new IOException("OUTPUT_PATH_MUST_NAME_NEW_DIRECTORY");
         string inputParent = Normalize(Path.GetDirectoryName(full));
-        if (!String.Equals(inputParent, TmpFinal, StringComparison.OrdinalIgnoreCase)) throw new IOException("OUTPUT_MUST_BE_DIRECT_CHILD_OF_CANONICAL_REPO_TMP");
-        string candidate = Join(TmpFinal, OutputLeaf);
+        if (!String.Equals(inputParent, AuthorizedOutputParentFinal, StringComparison.OrdinalIgnoreCase)) throw new IOException("OUTPUT_MUST_BE_DIRECT_CHILD_OF_AUTHORIZED_S3R04");
+        string candidate = Join(AuthorizedOutputParentFinal, OutputLeaf);
         bool overlaps = Under(VendorFinal, candidate) || Under(candidate, VendorFinal);
         if (overlaps) throw new IOException("OUTPUT_AND_VENDOR_PATHS_MUST_BE_DISJOINT");
-        if (ChildExists(GetDirectory(TmpFinal), OutputLeaf)) throw new IOException("OUTPUT_PATH_ALREADY_EXISTS");
-        if (phase == "guard") return "RESULT=PASS_PATH_PREFLIGHT\nREPO=" + RepoFinal + "\nTMP=" + TmpFinal + "\nVENDOR=" + VendorFinal + "\nSOURCE=" + SourceFinal + "\nOUTPUT=" + candidate;
+        if (ChildExists(GetDirectory(AuthorizedOutputParentFinal), OutputLeaf)) throw new IOException("OUTPUT_PATH_ALREADY_EXISTS");
+        if (phase == "guard") return "RESULT=PASS_PATH_PREFLIGHT\nREPO=" + RepoFinal + "\nTMP=" + TmpFinal + "\nAUTHORIZED_OUTPUT_PARENT=" + AuthorizedOutputParentFinal + "\nVENDOR=" + VendorFinal + "\nSOURCE=" + SourceFinal + "\nOUTPUT=" + candidate;
         return "RESULT=PATHS_LOCKED";
     @R@
     public static string Prepare(string mode, string phase, string sourceRoot, string[] manifest)
     @L@
-        if (phase == "guard") return "RESULT=PASS_PATH_PREFLIGHT\nREPO=" + RepoFinal + "\nTMP=" + TmpFinal + "\nOUTPUT=" + Join(TmpFinal, OutputLeaf);
+        if (phase == "guard") return "RESULT=PASS_PATH_PREFLIGHT\nREPO=" + RepoFinal + "\nTMP=" + TmpFinal + "\nAUTHORIZED_OUTPUT_PARENT=" + AuthorizedOutputParentFinal + "\nOUTPUT=" + Join(AuthorizedOutputParentFinal, OutputLeaf);
         if (phase == "race_test") {
-            string target = Join(TmpFinal, OutputLeaf);
+            string target = Join(AuthorizedOutputParentFinal, OutputLeaf);
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "powershell.exe";
             string targetEncoded = Convert.ToBase64String(Encoding.Unicode.GetBytes(target));
@@ -371,7 +376,7 @@ public static class S3PathGuardR3
             start.UseShellExecute = false; start.CreateNoWindow = true;
             using (Process process = Process.Start(start)) { process.WaitForExit(); if (process.ExitCode != 0) throw new IOException("RACE_FIXTURE_CREATION_FAILED"); }
             bool rejected = false;
-            try { CreateDirectoryChild(TmpFinal, OutputLeaf); }
+            try { CreateDirectoryChild(AuthorizedOutputParentFinal, OutputLeaf); }
             catch (IOException error) {
                 if (error.Message != "NT_OBJECT_NAME_COLLISION") throw;
                 rejected = true;
@@ -381,7 +386,7 @@ public static class S3PathGuardR3
             if (!RemoveDirectoryW(target)) throw new Win32Exception(Marshal.GetLastWin32Error());
             return "RESULT=PASS_CONCURRENT_OUTPUT_CREATE_REJECTED\nOUTPUT=" + target + "\nTARGET_FILES_WRITTEN=0\nFIXTURE_CLEANED=YES";
         }
-        OutputFinal = CreateDirectoryChild(TmpFinal, OutputLeaf);
+        OutputFinal = CreateDirectoryChild(AuthorizedOutputParentFinal, OutputLeaf);
         if (Under(VendorFinal, OutputFinal) || Under(OutputFinal, VendorFinal)) throw new IOException("OUTPUT_AND_VENDOR_PATHS_MUST_BE_DISJOINT_AFTER_CREATE");
         if (phase == "lock_test") {
             string lockSource = CreateDirectoryChild(OutputFinal, "lock_fixture");

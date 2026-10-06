@@ -2,6 +2,7 @@
     [string]$VendorRoot,
     [string]$OutputDir,
     [switch]$SupervisorSelfTest,
+    [switch]$OutputBoundarySelfTest,
     [switch]$WshPreflightOnly,
     [switch]$WshPreflightSelfTest,
     [switch]$SecureHelper,
@@ -1757,18 +1758,42 @@ function Restore-SecureMetadataTree([string]$Root, [object]$LeaseSet,
     }
 }
 
+function Get-AuthorizedS3R04Root([string]$TmpRoot) {
+    if ([string]::IsNullOrWhiteSpace($TmpRoot) -or -not [IO.Path]::IsPathRooted($TmpRoot)) {
+        throw 'AUTHORIZED_S3R04_TMP_ROOT_INVALID'
+    }
+    $tmpRootFull = [IO.Path]::GetFullPath($TmpRoot).TrimEnd([char[]]@([char]92,[char]47))
+    return [IO.Path]::GetFullPath((Join-Path $tmpRootFull 's3r04')).TrimEnd([char[]]@([char]92,[char]47))
+}
+
+function Test-OutputParentMatchesAuthorizedS3R04([string]$OutputParent, [string]$TmpRoot) {
+    if ($OutputParent -match '(^|[\\/])\.\.?([\\/]|$)') { return $false }
+    $parentFull = [IO.Path]::GetFullPath($OutputParent).TrimEnd([char[]]@([char]92,[char]47))
+    $authorizedParent = Get-AuthorizedS3R04Root $TmpRoot
+    return [string]::Equals($parentFull, $authorizedParent, [StringComparison]::OrdinalIgnoreCase)
+}
+
+function Test-OutputRootMatchesAuthorizedS3R04([string]$OutputRoot, [string]$TmpRoot) {
+    if ([string]::IsNullOrWhiteSpace($OutputRoot) -or -not [IO.Path]::IsPathRooted($OutputRoot)) { return $false }
+    if ($OutputRoot -match '(^|[\\/])\.\.?([\\/]|$)') { return $false }
+    $outputFull = [IO.Path]::GetFullPath($OutputRoot).TrimEnd([char[]]@([char]92,[char]47))
+    $parent = [IO.Path]::GetDirectoryName($outputFull)
+    if ([string]::IsNullOrWhiteSpace($parent)) { return $false }
+    return Test-OutputParentMatchesAuthorizedS3R04 $parent $TmpRoot
+}
+
 if ($SecureTreeHashHelper) {
     try {
         if ([string]::IsNullOrWhiteSpace($SecureRoot) -or [string]::IsNullOrWhiteSpace($SecureTreeRoot) -or
             -not [IO.Path]::IsPathRooted($SecureRoot) -or -not [IO.Path]::IsPathRooted($SecureTreeRoot) -or
-            $SecureRoot -match '(^|[\\/])\.\.([\\/]|$)' -or $SecureTreeRoot -match '(^|[\\/])\.\.([\\/]|$)') {
+            $SecureRoot -match '(^|[\\/])\.\.?([\\/]|$)' -or $SecureTreeRoot -match '(^|[\\/])\.\.?([\\/]|$)') {
             throw 'SECURE_TREE_HASH_ROOTS_INVALID'
         }
         $secureTreeBoundary = [IO.Path]::GetFullPath($SecureRoot).TrimEnd([char[]]@([char]92,[char]47))
         $secureTreeRootFull = [IO.Path]::GetFullPath($SecureTreeRoot).TrimEnd([char[]]@([char]92,[char]47))
         $secureTreeRepoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd([char[]]@([char]92,[char]47))
-        if (-not $secureTreeBoundary.StartsWith(($secureTreeRepoTmp + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) {
-            throw 'SECURE_TREE_HASH_BOUNDARY_OUTSIDE_REPOSITORY_TMP'
+        if (-not (Test-OutputRootMatchesAuthorizedS3R04 $secureTreeBoundary $secureTreeRepoTmp)) {
+            throw 'SECURE_TREE_HASH_BOUNDARY_OUTSIDE_AUTHORIZED_S3R04_RUN_ROOT'
         }
         if (-not $secureTreeRootFull.StartsWith(($secureTreeBoundary + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) {
             throw 'SECURE_TREE_HASH_ROOT_OUTSIDE_OUTPUT_BOUNDARY'
@@ -1788,14 +1813,16 @@ if ($SecureLeaseServer) {
     $leaseServerExit = 3
     try {
         if ([string]::IsNullOrWhiteSpace($SecurePath) -or [string]::IsNullOrWhiteSpace($SecureRoot)) { throw 'SECURE_LEASE_ARGUMENTS_MISSING' }
+        if ($SecurePath -match '(^|[\\/])\.\.?([\\/]|$)' -or $SecureRoot -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'SECURE_LEASE_PATH_TRAVERSAL_REJECTED' }
         $target = [IO.Path]::GetFullPath($SecurePath)
         $rootFull = [IO.Path]::GetFullPath($SecureRoot).TrimEnd('\')
         $repoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
-        if (-not $rootFull.StartsWith(($repoTmp + '\'), [StringComparison]::OrdinalIgnoreCase)) { throw 'SECURE_LEASE_ROOT_OUTSIDE_REPOSITORY_TMP' }
+        if (-not (Test-OutputRootMatchesAuthorizedS3R04 $rootFull $repoTmp)) { throw 'SECURE_LEASE_ROOT_OUTSIDE_AUTHORIZED_S3R04_RUN_ROOT' }
         if (-not $target.StartsWith(($rootFull + '\'), [StringComparison]::OrdinalIgnoreCase)) { throw 'SECURE_LEASE_TARGET_OUTSIDE_OUTPUT_ROOT' }
         $leaseSet = New-Object S3T03OutputLeaseSet($rootFull)
         $leaseSet.LockParentDirectory($repoRoot)
         $leaseSet.LockParentDirectory($repoTmp)
+        $leaseSet.LockParentDirectory((Get-AuthorizedS3R04Root $repoTmp))
         $parent = [IO.Path]::GetDirectoryName($target)
         $leaseSet.LockDirectoryChain($parent)
         $leaseSet.LockExistingReadOnly($target)
@@ -1822,8 +1849,11 @@ if ($SecureLeaseServer) {
 if ($SecureHelper) {
     try {
         if ([string]::IsNullOrWhiteSpace($SecurePath) -or [string]::IsNullOrWhiteSpace($SecureRoot) -or [string]::IsNullOrWhiteSpace($SecureMode)) { throw 'SECURE_HELPER_ARGUMENTS_MISSING' }
+        if ($SecurePath -match '(^|[\\/])\.\.?([\\/]|$)' -or $SecureRoot -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'SECURE_WRITE_PATH_TRAVERSAL_REJECTED' }
         $target = [IO.Path]::GetFullPath($SecurePath)
         $secureRootFull = [IO.Path]::GetFullPath($SecureRoot).TrimEnd('\')
+        $secureRepoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
+        if (-not (Test-OutputRootMatchesAuthorizedS3R04 $secureRootFull $secureRepoTmp)) { throw 'SECURE_WRITE_ROOT_OUTSIDE_AUTHORIZED_S3R04_RUN_ROOT' }
         $securePrefix = $secureRootFull + '\'
         if (-not $target.StartsWith($securePrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'SECURE_HELPER_TARGET_OUTSIDE_GUARDED_OUTPUT_TREE' }
         $encodedInput = [Console]::In.ReadToEnd().Trim()
@@ -1847,8 +1877,11 @@ if ($SecureHelper) {
 if ($SecureReadHelper) {
     try {
         if ([string]::IsNullOrWhiteSpace($SecurePath) -or [string]::IsNullOrWhiteSpace($SecureRoot)) { throw 'SECURE_READ_ARGUMENTS_MISSING' }
+        if ($SecurePath -match '(^|[\\/])\.\.?([\\/]|$)' -or $SecureRoot -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'SECURE_READ_PATH_TRAVERSAL_REJECTED' }
         $target = [IO.Path]::GetFullPath($SecurePath)
         $secureRootFull = [IO.Path]::GetFullPath($SecureRoot).TrimEnd('\')
+        $secureRepoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
+        if (-not (Test-OutputRootMatchesAuthorizedS3R04 $secureRootFull $secureRepoTmp)) { throw 'SECURE_READ_ROOT_OUTSIDE_AUTHORIZED_S3R04_RUN_ROOT' }
         if (-not $target.StartsWith(($secureRootFull + '\'), [StringComparison]::OrdinalIgnoreCase)) { throw 'SECURE_READ_TARGET_OUTSIDE_GUARDED_OUTPUT_TREE' }
         $handle = [S3T03SafeFile]::OpenReadLease($target)
         try { $bytes = [S3T03SafeFile]::ReadHandle($handle) }
@@ -1901,6 +1934,7 @@ function New-S3T03VivadoExecutionContext([string]$OutputDirectory, [string]$TclS
     if ([string]::IsNullOrWhiteSpace($OutputDirectory) -or -not [IO.Path]::IsPathRooted($OutputDirectory)) {
         throw 'Vivado 工作目录必须是已创建的绝对输出目录。'
     }
+    if ($OutputDirectory -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'Vivado 工作目录路径不得包含 . 或 .. 路径分量。' }
     if ([string]::IsNullOrWhiteSpace($TclSourcePath) -or -not [IO.Path]::IsPathRooted($TclSourcePath)) {
         throw 'Tcl 源文件必须使用绝对路径。'
     }
@@ -1911,8 +1945,8 @@ function New-S3T03VivadoExecutionContext([string]$OutputDirectory, [string]$TclS
     }
     $repoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
     $workingParent = [IO.Path]::GetDirectoryName($workingDirectory).TrimEnd('\')
-    if (-not (Test-OutputParentMatchesRepoTmp $workingParent $repoTmp)) {
-        throw 'Vivado 工作目录必须是仓库 tmp 内本轮输出目录。'
+    if (-not (Test-OutputParentMatchesAuthorizedS3R04 $workingParent $repoTmp)) {
+        throw 'Vivado 工作目录必须是仓库 tmp\s3r04 内本轮输出目录。'
     }
     if (-not (Test-Path -LiteralPath $tclSource -PathType Leaf)) {
         throw '绝对 Tcl 源文件不存在。'
@@ -2796,7 +2830,7 @@ function New-FakeChild([string]$Directory, [string]$Code, [string]$Name) {
 function Invoke-GeneratedClockXdcBrokerRejectSelfTest([string]$TestRoot, [string]$Name,
     [string]$RequestPath, [string]$RequestHash, [string]$ExpectedError) {
     $caseRoot = Join-Path $TestRoot $Name
-    $leases = Initialize-SafeOutputLeases $caseRoot
+    $leases = Initialize-SafeOutputLeases $caseRoot -SelfTestRoot $TestRoot
     $fake = $null
     try {
         $expectedXdc = Get-ExpectedGeneratedClockXdcPath $caseRoot
@@ -2831,16 +2865,21 @@ exit 8
 function Invoke-SupervisorSelfTests {
     $tmpRoot = Join-Path $repoRoot 'tmp'
     if (-not (Test-Path -LiteralPath $tmpRoot -PathType Container)) { throw 'REPOSITORY_TMP_MISSING_FOR_SELFTEST' }
-    Assert-Test (Test-OutputParentMatchesRepoTmp $tmpRoot $tmpRoot) 'direct-repository-tmp-output-parent-accepted'
-    Assert-Test (Test-OutputParentMatchesRepoTmp (Join-Path $tmpRoot 'nested') $tmpRoot) 'nested-repository-tmp-output-parent-accepted'
+    $authorizedOutputParent = Get-AuthorizedS3R04Root $tmpRoot
+    if (-not (Test-Path -LiteralPath $authorizedOutputParent -PathType Container)) { throw 'AUTHORIZED_S3R04_MISSING_FOR_SELFTEST' }
+    Assert-Test (Test-OutputParentMatchesAuthorizedS3R04 $authorizedOutputParent $tmpRoot) 'authorized-s3r04-output-parent-accepted'
+    Assert-Test (-not (Test-OutputParentMatchesAuthorizedS3R04 $tmpRoot $tmpRoot)) 'repository-tmp-direct-output-parent-rejected'
+    Assert-Test (-not (Test-OutputParentMatchesAuthorizedS3R04 (Join-Path $authorizedOutputParent 'nested') $tmpRoot)) 'nested-authorized-output-parent-rejected'
+    Assert-Test (-not (Test-OutputParentMatchesAuthorizedS3R04 (Join-Path $tmpRoot 'other') $tmpRoot)) 'sibling-tmp-output-parent-rejected'
+    Assert-Test (-not (Test-OutputParentMatchesAuthorizedS3R04 (Join-Path $authorizedOutputParent '..\other') $tmpRoot)) 'traversal-to-sibling-tmp-output-parent-rejected'
     $outsideTmp = Join-Path (Split-Path -Parent $tmpRoot) 'tmp_outside'
-    Assert-Test (-not (Test-OutputParentMatchesRepoTmp $outsideTmp $tmpRoot)) 'output-parent-outside-repository-tmp-rejected'
+    Assert-Test (-not (Test-OutputParentMatchesAuthorizedS3R04 $outsideTmp $tmpRoot)) 'output-parent-outside-repository-tmp-rejected'
     $powershellExe = Get-WindowsPowerShellExecutable
-    $testRoot = Join-Path $tmpRoot ('s3_t03_runner_selftest_' + [Guid]::NewGuid().ToString('N'))
+    $testRoot = Join-Path $authorizedOutputParent ('s3_t03_runner_selftest_' + [Guid]::NewGuid().ToString('N'))
     if (Test-Path -LiteralPath $testRoot) { throw 'SELFTEST_TEMP_COLLISION' }
-    $tmpHandle = [S3T03SafeFile]::OpenDirectory($tmpRoot)
+    $tmpHandle = [S3T03SafeFile]::OpenDirectory($authorizedOutputParent)
     try {
-        $testRootHandle = [S3T03SafeFile]::CreateDirectoryWithinRoot($testRoot, $tmpRoot)
+        $testRootHandle = [S3T03SafeFile]::CreateDirectoryWithinRoot($testRoot, $authorizedOutputParent)
         $testRootHandle.Dispose()
     } finally { $tmpHandle.Dispose() }
     $ownerMarker = Join-Path $testRoot '.s3_t03_runner_selftest_owned'
@@ -2856,18 +2895,26 @@ function Invoke-SupervisorSelfTests {
     $testFailureMessage = $null
     $cleanupFailureMessage = $null
     try {
-        $nestedTestParent = Join-Path $testRoot 'nested'
-        [void][IO.Directory]::CreateDirectory($nestedTestParent)
-        $nestedOutputTarget = Join-Path $nestedTestParent 'fresh_output'
-        $nestedOutputAccepted = Assert-OutputTarget $nestedOutputTarget
-        Assert-Test ([string]::Equals($nestedOutputAccepted, [IO.Path]::GetFullPath($nestedOutputTarget), [StringComparison]::OrdinalIgnoreCase)) `
-            'nested-tmp-output-target-accepted'
+        $authorizedOutputTarget = Join-Path $authorizedOutputParent ('s3_t03_runner_boundary_probe_' + [Guid]::NewGuid().ToString('N'))
+        $authorizedOutputAccepted = Assert-OutputTarget $authorizedOutputTarget
+        Assert-Test ([string]::Equals($authorizedOutputAccepted, [IO.Path]::GetFullPath($authorizedOutputTarget), [StringComparison]::OrdinalIgnoreCase)) `
+            'fresh-authorized-s3r04-output-target-accepted'
         $outsideOutputTarget = Join-Path (Join-Path (Split-Path -Parent $tmpRoot) 'tmp_outside') 'fresh_output'
         $outsideOutputRejected = $false
         try { [void](Assert-OutputTarget $outsideOutputTarget) } catch { $outsideOutputRejected = $true }
         Assert-Test $outsideOutputRejected 'tmp-outside-output-target-rejected'
+        $siblingOutputTarget = Join-Path (Join-Path $tmpRoot 'other') 'fresh_output'
+        $siblingOutputRejected = $false
+        try { [void](Assert-OutputTarget $siblingOutputTarget) } catch { $siblingOutputRejected = $true }
+        Assert-Test $siblingOutputRejected 'sibling-tmp-output-target-rejected'
+        $nestedOutputTarget = Join-Path (Join-Path $authorizedOutputParent 'nested') 'fresh_output'
+        $nestedOutputRejected = $false
+        try { [void](Assert-OutputTarget $nestedOutputTarget) } catch { $nestedOutputRejected = $true }
+        Assert-Test $nestedOutputRejected 'nested-authorized-output-target-rejected'
         $existingOutputRejected = $false
-        try { [void](Assert-OutputTarget $testRoot) } catch { $existingOutputRejected = $true }
+        $existingChild = [IO.Directory]::EnumerateDirectories($authorizedOutputParent) | Select-Object -First 1
+        if ([string]::IsNullOrWhiteSpace($existingChild)) { throw 'OUTPUT_BOUNDARY_SELFTEST_REQUIRES_EXISTING_S3R04_CHILD' }
+        try { [void](Assert-OutputTarget $existingChild) } catch { $existingOutputRejected = $true }
         Assert-Test $existingOutputRejected 'existing-output-target-rejected'
 
         $testTclPath = Join-Path $PSScriptRoot 's3_implement_hdmi_only_diag.tcl'
@@ -2954,6 +3001,7 @@ function Invoke-SupervisorSelfTests {
         $secureLeases = New-Object S3T03OutputLeaseSet($secureRoot)
         $secureLeases.LockParentDirectory($repoRoot)
         $secureLeases.LockParentDirectory((Join-Path $repoRoot 'tmp'))
+        $secureLeases.LockParentDirectory((Join-Path (Join-Path $repoRoot 'tmp') 's3r04'))
         $secureLeases.LockParentDirectory($testRoot)
         $secureLeases.LockDirectory($secureRoot)
         $normalPath = Join-Path $secureRoot 'ordinary.txt'
@@ -3176,7 +3224,7 @@ function Invoke-SupervisorSelfTests {
         }
         $realVivadoSiblingFailure = ''
         $realVivadoSiblingE2eRoot = Join-Path $testRoot 'real-vivado-sibling-prepare-e2e'
-        $realVivadoSiblingE2eLeases = Initialize-SafeOutputLeases $realVivadoSiblingE2eRoot
+        $realVivadoSiblingE2eLeases = Initialize-SafeOutputLeases $realVivadoSiblingE2eRoot -SelfTestRoot $testRoot
         $realVivadoSiblingE2eCaptured = $null
         $realVivadoSiblingE2eCatchAction = ''
         $realVivadoSiblingE2eRouteActionState = [pscustomobject]@{ Count=0 }
@@ -3424,7 +3472,7 @@ function Invoke-SupervisorSelfTests {
         Assert-Test ($logText -eq 'vivado-compatible-log' -and $journalText -eq 'vivado-compatible-journal') 'held-vivado-log-journal-content-stable'
 
         $layoutRoot = Join-Path $testRoot 'output-layout'
-        $layoutLeases = Initialize-SafeOutputLeases $layoutRoot
+        $layoutLeases = Initialize-SafeOutputLeases $layoutRoot -SelfTestRoot $testRoot
         try {
             $runStatusPath = Join-Path $layoutRoot 'run_status.txt'
             $prepareCode = 'Set-FakeFile (Join-Path $d ''run_status.txt'') ''S3_TCL_RESULT=FAIL:IMPLEMENTATION_ERROR''; exit 2'
@@ -3458,7 +3506,7 @@ function Invoke-SupervisorSelfTests {
                 $prepareCaptured.Source -eq 'prepare' -and $prepareStatusPreserved) 'prepare-failure-write-mark-throw-common-catch-preserves-final-status'
 
             $runCatchRoot = Join-Path $testRoot 'run-catch-output'
-            $runCatchLeases = Initialize-SafeOutputLeases $runCatchRoot
+            $runCatchLeases = Initialize-SafeOutputLeases $runCatchRoot -SelfTestRoot $testRoot
             try {
                 $runFailureCode = 'Set-FakeFile (Join-Path $d ''run_status.txt'') ''S3_TCL_RESULT=PASS:ROUTE_COMPLETE''; exit 7'
                 $fakeRunFailure = New-FakeChild $testRoot $runFailureCode 'run-failure-catch'
@@ -3484,7 +3532,7 @@ function Invoke-SupervisorSelfTests {
                     $runCaptured.Source -eq 'run' -and $runStatusPreserved) 'run-failure-write-mark-throw-common-catch-preserves-final-status'
 
                 $deadlineRoot = Join-Path $testRoot 'deadline-catch-output'
-                $deadlineLeases = Initialize-SafeOutputLeases $deadlineRoot
+                $deadlineLeases = Initialize-SafeOutputLeases $deadlineRoot -SelfTestRoot $testRoot
                 try {
                     $deadlineCode = 'Set-FakeFile (Join-Path $d ''run_status.txt'') ''S3_TCL_RESULT=PASS:PREPARED''; exit 0'
                     $fakeDeadlinePrepare = New-FakeChild $testRoot $deadlineCode 'deadline-prepare-success'
@@ -3762,7 +3810,7 @@ function Invoke-SupervisorSelfTests {
             } finally { $runCatchLeases.Dispose() }
 
             $hardlinkRoot = Join-Path $testRoot 'hardlink-output'
-            $hardlinkLeases = Initialize-SafeOutputLeases $hardlinkRoot
+            $hardlinkLeases = Initialize-SafeOutputLeases $hardlinkRoot -SelfTestRoot $testRoot
             $hardlinkFake = $null
             $hardlinkAlias = Join-Path $hardlinkRoot 'reports\final-summary-alias.txt'
             $hardlinkTarget = Join-Path $hardlinkRoot 'reports\final_summary.txt'
@@ -3882,7 +3930,7 @@ exit 8
             Assert-Test $heldMoveBlocked 'xdc-broker-retains-lease-after-run-child-exit'
 
             $badRoot = Join-Path $testRoot 'broker-hash-failure'
-            $badLeases = Initialize-SafeOutputLeases $badRoot
+            $badLeases = Initialize-SafeOutputLeases $badRoot -SelfTestRoot $testRoot
             try {
                 $badXdc = Get-ExpectedGeneratedClockXdcPath $badRoot
                 [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($badXdc))
@@ -3921,7 +3969,7 @@ Start-Sleep -Seconds 20
             Invoke-GeneratedClockXdcBrokerRejectSelfTest $testRoot 'broker-outside-root' $outsideProjectPath $brokerRejectSha 'REQUEST_PATH_ESCAPES_PROJECT'
 
             $timeoutRoot = Join-Path $testRoot 'broker-wait-timeout'
-            $timeoutLeases = Initialize-SafeOutputLeases $timeoutRoot
+            $timeoutLeases = Initialize-SafeOutputLeases $timeoutRoot -SelfTestRoot $testRoot
             try {
                 $timeoutCode = @'
 $root=@ROOT@
@@ -3968,7 +4016,7 @@ Start-Sleep -Seconds 20
         $lateProcessCatchAction = $null
         $lateProcessCapturedStatus = $null
         $lateProcessOutputRoot = Join-Path $testRoot 'late-vivado-output'
-        $lateProcessOutputLeases = Initialize-SafeOutputLeases $lateProcessOutputRoot
+        $lateProcessOutputLeases = Initialize-SafeOutputLeases $lateProcessOutputRoot -SelfTestRoot $testRoot
         try {
             try {
                 [void](Invoke-RouteStartGate -PrepareResult $deadlinePrepareResult -StartedAt $deadlineStartAt `
@@ -4181,7 +4229,7 @@ Start-Sleep -Seconds 30
             }
         }
         try {
-            Remove-S3T03OwnedSelfTestTree $testRoot $tmpRoot 's3_t03_runner_selftest_' $ownerText
+            Remove-S3T03OwnedSelfTestTree $testRoot $authorizedOutputParent 's3_t03_runner_selftest_' $ownerText
             [Console]::Out.WriteLine('SELFTEST_TEMP_CLEANUP=PASS;ROOT=' + $testRoot)
         } catch {
             $rootFailure = 'SELFTEST_TEMP_CLEANUP=FAIL;ROOT=' + $testRoot + ';ERROR=' + $_.Exception.Message
@@ -4199,23 +4247,17 @@ Start-Sleep -Seconds 30
 function Assert-OutputTarget([string]$Target) {
     if ([string]::IsNullOrWhiteSpace($Target)) { throw '必须提供全新的输出目录绝对路径。' }
     if (-not [IO.Path]::IsPathRooted($Target)) { throw '输出目录必须是绝对路径。' }
+    if ($Target -match '(^|[\\/])\.\.?([\\/]|$)') { throw '输出路径不得包含 . 或 .. 路径分量。' }
     $full = [IO.Path]::GetFullPath($Target)
     $repoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
     $parent = [IO.Path]::GetDirectoryName($full).TrimEnd('\')
-    if (-not (Test-OutputParentMatchesRepoTmp $parent $repoTmp)) {
-        throw '输出目录必须位于仓库 tmp 内。'
+    if (-not (Test-OutputParentMatchesAuthorizedS3R04 $parent $repoTmp)) {
+        throw '输出目录必须是仓库 tmp\s3r04 的直接子目录。'
     }
-    if (-not (Test-Path -LiteralPath $parent -PathType Container)) { throw '输出目录的父目录必须是 tmp 内已存在的目录。' }
+    if (-not (Test-Path -LiteralPath $parent -PathType Container)) { throw '输出目录的父目录必须是已存在的仓库 tmp\s3r04。' }
     if (Test-Path -LiteralPath $full) { throw '输出目录必须尚不存在；拒绝覆盖。' }
     if ($full.IndexOfAny([char[]]@('%','!','"','&','|','<','>','^',"`r","`n")) -ge 0) { throw '输出路径含批处理不安全字符。' }
     return $full
-}
-
-function Test-OutputParentMatchesRepoTmp([string]$OutputParent, [string]$TmpRoot) {
-    $parentFull = [IO.Path]::GetFullPath($OutputParent).TrimEnd('\')
-    $tmpRootFull = [IO.Path]::GetFullPath($TmpRoot).TrimEnd('\')
-    if ([string]::Equals($parentFull, $tmpRootFull, [StringComparison]::OrdinalIgnoreCase)) { return $true }
-    return $parentFull.StartsWith($tmpRootFull + '\', [StringComparison]::OrdinalIgnoreCase)
 }
 
 function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$RunnerSha, $Leases, $VivadoExecutionContext) {
@@ -4236,19 +4278,34 @@ function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$Runne
     Write-SafeOutputText (Join-Path $Directory 'reports\runner_manifest.txt') $manifest $Leases
 }
 
-function Initialize-SafeOutputLeases([string]$Directory) {
-    $leases = New-Object S3T03OutputLeaseSet($Directory)
+function Initialize-SafeOutputLeases([string]$Directory, [string]$SelfTestRoot = $null) {
+    if ([string]::IsNullOrWhiteSpace($Directory) -or $Directory -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'OUTPUT_PATH_TRAVERSAL_REJECTED' }
+    if ($SelfTestRoot -and $SelfTestRoot -match '(^|[\\/])\.\.?([\\/]|$)') { throw 'SELFTEST_ROOT_TRAVERSAL_REJECTED' }
+    $directoryFull = [IO.Path]::GetFullPath($Directory).TrimEnd([char[]]@([char]92,[char]47))
+    $tmpRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd([char[]]@([char]92,[char]47))
+    $authorizedOutputParent = Get-AuthorizedS3R04Root $tmpRoot
+    $outputParent = [IO.Path]::GetDirectoryName($directoryFull)
+    $selfTestRootFull = $null
+    if ([string]::IsNullOrWhiteSpace($SelfTestRoot)) {
+        if (-not (Test-OutputParentMatchesAuthorizedS3R04 $outputParent $tmpRoot)) { throw 'OUTPUT_PARENT_OUTSIDE_AUTHORIZED_S3R04' }
+    } else {
+        $selfTestRootFull = [IO.Path]::GetFullPath($SelfTestRoot).TrimEnd([char[]]@([char]92,[char]47))
+        if (-not (Test-OutputRootMatchesAuthorizedS3R04 $selfTestRootFull $tmpRoot)) { throw 'SELFTEST_ROOT_OUTSIDE_AUTHORIZED_S3R04' }
+        if (-not $directoryFull.StartsWith(($selfTestRootFull + [IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'SELFTEST_OUTPUT_OUTSIDE_OWNED_TEST_ROOT'
+        }
+    }
+    $leases = New-Object S3T03OutputLeaseSet($directoryFull)
     try {
         $leases.LockParentDirectory($repoRoot)
-        $tmpRoot = Join-Path $repoRoot 'tmp'
         $leases.LockParentDirectory($tmpRoot)
-        $outputParent = [IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($Directory))
-        if (-not (Test-OutputParentMatchesRepoTmp $outputParent $tmpRoot)) { throw 'OUTPUT_PARENT_OUTSIDE_REPOSITORY_TMP' }
+        $leases.LockParentDirectory($authorizedOutputParent)
+        if ($selfTestRootFull) { $leases.LockParentDirectory($selfTestRootFull) }
         $leases.LockParentDirectory($outputParent)
-        $rootHandle = [S3T03SafeFile]::CreateDirectoryWithinRoot($Directory, $outputParent)
-        $leases.AdoptDirectory($Directory, $rootHandle)
+        $rootHandle = [S3T03SafeFile]::CreateDirectoryWithinRoot($directoryFull, $outputParent)
+        $leases.AdoptDirectory($directoryFull, $rootHandle)
         foreach ($relative in @('reports','checkpoints','sentinels','inputs','project','vendor_ip_metadata')) {
-            $leases.CreateDirectory((Join-Path $Directory $relative))
+            $leases.CreateDirectory((Join-Path $directoryFull $relative))
         }
         $outputs = @(
             'run_status.txt', 'prepare.result', 'reports\input_sha256.txt', 'reports\hdmi_xdc_audit.txt',
@@ -4267,12 +4324,88 @@ function Initialize-SafeOutputLeases([string]$Directory) {
             'sentinels\synth.complete', 'sentinels\opt.complete', 'sentinels\place.complete',
             'sentinels\route.complete', 'sentinels\final_reports.complete', 'sentinels\failed.sentinel'
         )
-        foreach ($relative in $outputs) { $leases.ReserveNew((Join-Path $Directory $relative)) }
+        foreach ($relative in $outputs) { $leases.ReserveNew((Join-Path $directoryFull $relative)) }
         return $leases
     } catch {
         $leases.Dispose()
         throw
     }
+}
+
+function Invoke-OutputBoundarySelfTest {
+    $tmpRoot = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp'))
+    $authorizedOutputParent = Get-AuthorizedS3R04Root $tmpRoot
+    if (-not (Test-Path -LiteralPath $tmpRoot -PathType Container)) { throw 'REPOSITORY_TMP_MISSING_FOR_OUTPUT_BOUNDARY_SELFTEST' }
+    if (-not (Test-Path -LiteralPath $authorizedOutputParent -PathType Container)) { throw 'AUTHORIZED_S3R04_MISSING_FOR_OUTPUT_BOUNDARY_SELFTEST' }
+
+    $probeRoot = Join-Path $authorizedOutputParent ('s3_t03_boundary_selftest_' + [Guid]::NewGuid().ToString('N'))
+    if ([IO.Directory]::Exists($probeRoot) -or [IO.File]::Exists($probeRoot)) { throw 'OUTPUT_BOUNDARY_SELFTEST_PROBE_COLLISION' }
+    $leases = New-Object S3T03OutputLeaseSet($probeRoot)
+    $caseCount = 0
+    try {
+        $leases.LockParentDirectory($repoRoot)
+        $leases.LockParentDirectory($tmpRoot)
+        $leases.LockParentDirectory($authorizedOutputParent)
+        $caseCount++
+
+        $freshTarget = Join-Path $authorizedOutputParent ('s3_t03_boundary_probe_' + [Guid]::NewGuid().ToString('N'))
+        $acceptedTarget = Assert-OutputTarget $freshTarget
+        if (-not [string]::Equals($acceptedTarget, [IO.Path]::GetFullPath($freshTarget), [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'OUTPUT_BOUNDARY_SELFTEST_FRESH_TARGET_MISMATCH'
+        }
+        if ([IO.Directory]::Exists($freshTarget) -or [IO.File]::Exists($freshTarget)) { throw 'OUTPUT_BOUNDARY_SELFTEST_CREATED_FRESH_TARGET' }
+        $caseCount++
+
+        $rejectedTargets = @(
+            (Join-Path $tmpRoot 'fresh_output'),
+            (Join-Path (Join-Path $tmpRoot 'other') 'fresh_output'),
+            (Join-Path (Join-Path $authorizedOutputParent 'nested') 'fresh_output'),
+            (Join-Path $authorizedOutputParent '..\other\fresh_output'),
+            (Join-Path $authorizedOutputParent 'nested\..\fresh_output'),
+            (Join-Path $repoRoot 'fresh_output'),
+            (Join-Path (Join-Path $tmpRoot 'stage3_reference\AX7020_2023.1') 'fresh_output')
+        )
+        foreach ($target in $rejectedTargets) {
+            $rejected = $false
+            try { [void](Assert-OutputTarget $target) } catch { $rejected = $true }
+            if (-not $rejected) { throw ('OUTPUT_BOUNDARY_SELFTEST_ACCEPTED_FORBIDDEN_TARGET:' + $target) }
+            $caseCount++
+        }
+
+        $initializerRejected = $false
+        try { [void](Initialize-SafeOutputLeases (Join-Path (Join-Path $tmpRoot 'other') 'fresh_run')) }
+        catch { $initializerRejected = $_.Exception.Message -eq 'OUTPUT_PARENT_OUTSIDE_AUTHORIZED_S3R04' }
+        if (-not $initializerRejected) { throw 'OUTPUT_BOUNDARY_SELFTEST_INITIALIZER_ACCEPTED_SIBLING_TMP' }
+        $caseCount++
+
+        $initializerTraversalRejected = $false
+        try { [void](Initialize-SafeOutputLeases (Join-Path $authorizedOutputParent 'nested\..\fresh_run')) }
+        catch { $initializerTraversalRejected = $_.Exception.Message -eq 'OUTPUT_PATH_TRAVERSAL_REJECTED' }
+        if (-not $initializerTraversalRejected) { throw 'OUTPUT_BOUNDARY_SELFTEST_INITIALIZER_ACCEPTED_TRAVERSAL' }
+        $caseCount++
+
+        $existingChild = [IO.Directory]::EnumerateDirectories($authorizedOutputParent) | Select-Object -First 1
+        if ([string]::IsNullOrWhiteSpace($existingChild)) { throw 'OUTPUT_BOUNDARY_SELFTEST_REQUIRES_EXISTING_S3R04_CHILD' }
+        $existingRejected = $false
+        try { [void](Assert-OutputTarget $existingChild) } catch { $existingRejected = $true }
+        if (-not $existingRejected) { throw 'OUTPUT_BOUNDARY_SELFTEST_ACCEPTED_EXISTING_LEAF' }
+        $caseCount++
+
+        $reparseRejected = $false
+        try { [S3T03SafeFile]::ValidateAttributesForTest(0x410, $true) }
+        catch { $reparseRejected = $_.Exception.ToString().Contains('OUTPUT_REPARSE_POINT_REJECTED') }
+        if (-not $reparseRejected) { throw 'OUTPUT_BOUNDARY_SELFTEST_REPARSE_GATE_NOT_PRESERVED' }
+        $caseCount++
+    } finally {
+        $leases.Dispose()
+    }
+    if ([IO.Directory]::Exists($probeRoot) -or [IO.File]::Exists($probeRoot)) { throw 'OUTPUT_BOUNDARY_SELFTEST_CREATED_PROBE_ROOT' }
+    [Console]::Out.WriteLine('OUTPUT_BOUNDARY_SELFTEST=PASS;CASES=' + $caseCount + ';FILESYSTEM_WRITES=0')
+}
+
+if ($OutputBoundarySelfTest) {
+    try { Invoke-OutputBoundarySelfTest; exit 0 }
+    catch { [Console]::Error.WriteLine('OUTPUT_BOUNDARY_SELFTEST=FAIL;' + $_.Exception.Message); exit 2 }
 }
 
 if ($WshPreflightSelfTest) {

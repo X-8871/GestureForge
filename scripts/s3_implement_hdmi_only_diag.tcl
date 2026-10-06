@@ -6,7 +6,7 @@ set ::s3_expected_commit fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327
 set ::s3_source_relative course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project
 set ::s3_expected_device xa7z020clg400-1I
 set ::s3_synthesis_flow {Vivado Synthesis 2026}
-set ::s3_guard_script_sha256 30031404FB7617B3B05CAA131099E201E2741A15134B302FA5EE5FB8AD1A6450
+set ::s3_guard_script_sha256 D7D6BC893DBBE891FD75432DAA899783052C35A593C0ECFBEE87B1823575F212
 set ::s3_expected_board_xdc_sha256 D8FD1B1AD450BC44C25AECB0EF2AE3ECE67EB1F718B60D564EA5BBB803665058
 set ::s3_classification DIAGNOSTIC_ONLY_NO_BITSTREAM_NO_BOARD_NO_TIMING_SIGNOFF
 
@@ -162,12 +162,12 @@ proc s3_normalized_key {path} {
     return [string tolower [string trimright $value "/"]]
 }
 
-proc s3_output_is_repo_tmp_child {repo_root output_dir} {
+proc s3_output_is_authorized_s3r04_child {repo_root output_dir} {
     if {[file pathtype $output_dir] ne "absolute" || [s3_path_has_traversal $output_dir]} {return 0}
-    set tmp_key [s3_normalized_key [file join $repo_root tmp]]
+    set authorized_parent_key [s3_normalized_key [file join $repo_root tmp s3r04]]
     set output_key [s3_normalized_key $output_dir]
-    if {$output_key eq $tmp_key} {return 0}
-    return [string match "${tmp_key}/*" $output_key]
+    set output_parent_key [s3_normalized_key [file dirname $output_key]]
+    return [string equal $authorized_parent_key $output_parent_key]
 }
 
 proc s3_validate_arguments {vendor_root output_dir repo_root action} {
@@ -175,8 +175,8 @@ proc s3_validate_arguments {vendor_root output_dir repo_root action} {
         error "INVALID_VENDOR_ROOT_MUST_BE_ABSOLUTE_AND_TRAVERSAL_FREE"
     }
     if {![file isdirectory $vendor_root]} {error "VENDOR_ROOT_NOT_A_DIRECTORY"}
-    if {![s3_output_is_repo_tmp_child $repo_root $output_dir]} {
-        error "OUTPUT_MUST_BE_AN_ABSOLUTE_TRAVERSAL_FREE_CHILD_OF_REPOSITORY_TMP"
+    if {![s3_output_is_authorized_s3r04_child $repo_root $output_dir]} {
+        error "OUTPUT_MUST_BE_AN_ABSOLUTE_TRAVERSAL_FREE_DIRECT_CHILD_OF_REPOSITORY_TMP_S3R04"
     }
     if {$action eq "prepare-only" && ![file isdirectory $output_dir]} {error "PRELEASED_OUTPUT_TREE_MISSING"}
     if {$action eq "run" && ![file isdirectory $output_dir]} {error "PREPARED_OUTPUT_DIRECTORY_MISSING"}
@@ -607,15 +607,15 @@ proc s3_replace_guard_body_once {body needle replacement label} {
 proc s3_extend_guard_api {} {
     set body [info body s3_launch_secure_guardian]
     set body [s3_replace_guard_body_once $body \
-        {if (ChildExists(GetDirectory(TmpFinal), OutputLeaf)) throw new IOException("OUTPUT_PATH_ALREADY_EXISTS");} \
-        {bool outputExists = ChildExists(GetDirectory(TmpFinal), OutputLeaf);
+        {if (ChildExists(GetDirectory(AuthorizedOutputParentFinal), OutputLeaf)) throw new IOException("OUTPUT_PATH_ALREADY_EXISTS");} \
+        {bool outputExists = ChildExists(GetDirectory(AuthorizedOutputParentFinal), OutputLeaf);
         if ((phase == "run" && !outputExists) || (phase == "hdl_precreated" && !outputExists) || (phase == "hdl" && outputExists)) throw new IOException((phase == "run" || phase == "hdl_precreated") ? "PREPARED_OUTPUT_MISSING" : "OUTPUT_PATH_ALREADY_EXISTS");} \
         output-existence-gate]
     set body [s3_replace_guard_body_once $body \
-        {OutputFinal = CreateDirectoryChild(TmpFinal, OutputLeaf);} \
+        {OutputFinal = CreateDirectoryChild(AuthorizedOutputParentFinal, OutputLeaf);} \
         {string reportsPath = "", checkpointsPath = "", sentinelsPath = "", inputsPath = "";
         if (phase == "run") @L@
-            OutputFinal = AcquireSubtree(TmpFinal, Join(TmpFinal, OutputLeaf));
+            OutputFinal = AcquireSubtree(AuthorizedOutputParentFinal, Join(AuthorizedOutputParentFinal, OutputLeaf));
             string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));
             string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));
             string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));
@@ -624,13 +624,13 @@ proc s3_extend_guard_api {} {
             string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));
             return "RESULT=PASS_PATH_GUARD_RUN\nOUTPUT=" + OutputFinal + "\nPROJECT=" + runProjectPath + "\nMETADATA=" + runMetadataPath + "\nREPORTS=" + runReportsPath + "\nCHECKPOINTS=" + runCheckpointsPath + "\nSENTINELS=" + runSentinelsPath + "\nINPUTS=" + runInputsPath;
         @R@ else if (phase == "hdl_precreated") @L@
-            OutputFinal = AcquireSubtree(TmpFinal, Join(TmpFinal, OutputLeaf));
+            OutputFinal = AcquireSubtree(AuthorizedOutputParentFinal, Join(AuthorizedOutputParentFinal, OutputLeaf));
             reportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));
             checkpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));
             sentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));
             inputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));
         @R@ else @L@
-        OutputFinal = CreateDirectoryChild(TmpFinal, OutputLeaf);
+        OutputFinal = CreateDirectoryChild(AuthorizedOutputParentFinal, OutputLeaf);
         if (phase == "hdl") @L@
             reportsPath = CreateDirectoryChild(OutputFinal, "reports");
             checkpointsPath = CreateDirectoryChild(OutputFinal, "checkpoints");
@@ -1308,8 +1308,14 @@ proc s3_run_selftest {} {
         lappend failures "output delay was not rejected"
     }
     incr checks
-    if {![s3_output_is_repo_tmp_child {C:/repo} {C:/repo/tmp/fresh_run}]} {
-        lappend failures "fresh absolute output under repository tmp was rejected"
+    if {![s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/s3r04/fresh_run}]} {
+        lappend failures "fresh absolute output under authorized repository tmp/s3r04 was rejected"
+    }
+    incr checks
+    if {[s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/fresh_run}] ||
+        [s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/other/fresh_run}] ||
+        [s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/s3r04/nested/fresh_run}]} {
+        lappend failures "output outside the exact direct-child boundary was accepted"
     }
     incr checks
     set bad_clock_xdc "# Clock constraints ###\ncreate_generated_clock -source \[get_ports PixelClk\] -multiply_by 5 \[get_ports SerialClk\]\n"
@@ -1360,12 +1366,13 @@ proc s3_run_selftest {} {
         }
     }
     incr checks
-    if {[s3_output_is_repo_tmp_child {C:/repo} {C:/repo/tmp/x/../outside}]} {
+    if {[s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/x/../outside}] ||
+        [s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/s3r04/nested/../fresh_run}]} {
         lappend failures "path traversal was not rejected"
     }
     incr checks
-    if {[s3_output_is_repo_tmp_child {C:/repo} {C:/repo/out-of-scope}]} {
-        lappend failures "output outside repository tmp was not rejected"
+    if {[s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/out-of-scope}]} {
+        lappend failures "output outside repository tmp/s3r04 was not rejected"
     }
     incr checks
     if {[string first "/.codex/" [s3_normalized_key {C:\Users\22061\.codex\worktrees\repo\tmp\run01}]] < 0} {

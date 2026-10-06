@@ -1,0 +1,66 @@
+{
+  "schema": "stage3_ov5640_dvp_timing_audit_v1",
+  "classification": "OFFICIAL_DATASHEET_STATIC_AUDIT_NOT_BUILD_OR_BOARD_VALIDATION",
+  "audited_local_date": "2026-10-07 Asia/Shanghai",
+  "official_source": {
+    "path": "D:\\FPGA_Competition\\摄像头资料\\官方资料\\AN5642\\AN5642_CD\\CD\\datasheet\\camera\\OV5640_datasheet.pdf",
+    "size_bytes": 1711217,
+    "sha256": "B7059C287DD23AB36730DAF5DB93F1D921BB1509FCE37AF1884C09DCDA06ACE7",
+    "document_version": "2.03",
+    "pdf_pages": 179,
+    "parser": {
+      "tool": "read-pdf-reliably",
+      "effective_mode": "text",
+      "ocr_enabled": false,
+      "manifest": "tmp/s3_ov5640_datasheet_20261007/manifest.json",
+      "status": "SUCCESS"
+    }
+  },
+  "findings": [
+    {
+      "topic": "DVP timing diagram and mode table",
+      "pdf_pages": [94, 95],
+      "printed_pages": ["6-18", "6-19"],
+      "visual_review": true,
+      "facts": {
+        "diagram": "Figure 6-7 depicts VSYNC, HREF, HSYNC and D[9:0] timing; table 6-7 expresses mode intervals as counts in tp.",
+        "720p_1280x720_table_values_tp": [5596992, 5688, 3530644, 2844, 14544, 1280, 1564, 0, 1564],
+        "register_dependency_note": "The datasheet says table 6-7 timing values may vary depending on register settings."
+      },
+      "qualification": "These mode counts are not numerical DVP data-to-PCLK setup/hold limits; do not convert them into set_input_delay values."
+    },
+    {
+      "topic": "clock characteristics",
+      "pdf_pages": [168],
+      "printed_pages": ["8-4"],
+      "visual_review": true,
+      "facts": {
+        "table": "Table 8-5",
+        "XVCLK_MHz": {"min": 6, "typ": 24, "max": 54},
+        "PCLK_MHz": {
+          "typ": 48,
+          "typ_footnote_d_condition": "较小尺寸输出（VGA YUV 或以下）或全尺寸压缩",
+          "max": 96,
+          "max_footnote_e_condition": "RAW 15 fps 或 YUV 7.5 fps"
+        },
+        "clock_input_rise_fall": "The table lists 5 ns, with a footnote-dependent 10 ns value; this is labeled clock-input rise/fall time, not DVP output-data setup/hold."
+      }
+    }
+  ],
+  "not_specified_in_reviewed_dvp_sections": [
+    "Numeric minimum/maximum OV5640 DVP data-output delay or setup/hold relative to PCLK across operating conditions.",
+    "A board-specific end-to-end delay budget for the AN5642 module, connector, board routing and FPGA input path."
+  ],
+  "design_consequence": {
+    "input_delay_constraint": "BLOCKED_NO_NUMERIC_DVP_DATA_WINDOW_IN_REVIEWED_OFFICIAL_DATASHEET_PAGES",
+    "action": "Do not invent set_input_delay, input clock phase, or uncertainty values. Obtain a directly applicable guaranteed timing specification or characterize the path with an explicitly approved measurement plan before claiming camera-input timing closure.",
+    "sample_relation": "The separate AX7020 dual-camera sample audit records an 84 MHz PCLK source-code comment and a 1280x720 RGB565 configuration. Table 8-5 footnote e associates its 96 MHz maximum with RAW 15 fps or YUV 7.5 fps; the reviewed table does not establish whether that limit applies to 1280x720 RGB565. Therefore this datasheet table alone cannot confirm that 84 MHz is applicable or compliant for that sample mode, and it is not an FPGA input-delay value. See report/stage3_camera_reference_audit_20261007.json."
+  },
+  "work_performed": {
+    "read_only": true,
+    "vendor_original_modified": false,
+    "vivado_or_vitis_run": false,
+    "board_accessed": false,
+    "batch109_accessed": false
+  }
+}

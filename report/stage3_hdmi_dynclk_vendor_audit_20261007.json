@@ -1,0 +1,70 @@
+{
+  "schema": "stage3_hdmi_dynclk_vendor_source_audit_v1",
+  "classification": "STATIC_LOCAL_VENDOR_SOURCE_DERIVATION_NOT_BUILD_OR_CLOCK_MEASUREMENT",
+  "audited_local_date": "2026-10-07 Asia/Shanghai",
+  "vendor_source": {
+    "root": "D:\\FPGA\\AX7Z020\\AX7Z020",
+    "sample": "course_s2_sdk/18_ov5640_dual/ov5640_dual.sdk/dual_an5642_test",
+    "source_tree_modified": false,
+    "files": {
+      "src/display_ctrl/vga_modes.h": {
+        "sha256": "2780FF1AF9ABE88C16EC7783BFC003338769059B87ED75FF61CBA2D884D5370B",
+        "relevant_lines": "101-112"
+      },
+      "src/display_ctrl/display_ctrl.c": {
+        "sha256": "09452E173A568B318799A43920421659CEDD630B9D310C98BE53FE044245A7AA",
+        "relevant_lines": "162-187, 344-368"
+      },
+      "src/dynclk/dynclk.c": {
+        "sha256": "D40A8CE32203282B16881C7A110E611E1A8FE76EE8284F914E2A0A72F4A12C77",
+        "relevant_lines": "155-218"
+      }
+    },
+    "relation_to_github_snapshot_in_camera_audit": "The local vendor-tree vga_modes.h and display_ctrl.c SHA-256 values differ from those recorded for the separately pinned GitHub snapshot in report/stage3_camera_reference_audit_20261007.json. This audit therefore identifies and analyzes the local vendor-tree files by their hashes and does not claim they are the same source revision."
+  },
+  "findings": {
+    "display_mode": {
+      "label": "1920x1080@60Hz",
+      "requested_pixel_clock_mhz": 148.5,
+      "evidence": "vga_modes.h:101-112"
+    },
+    "algorithm": {
+      "reference_clock_assumption_mhz": 100,
+      "assumption_note": "dynclk.c says this implementation currently requires a 100 MHz reference clock; the source marks configurable/read-from-hardware support as TODO.",
+      "mmcm_vco_multiplier_before_bufr_divide": 5,
+      "search": "For DIVCLK_DIVIDE 1..10, feedback multiplier from 6*D through min(12*D,64), calculate the rounded output divider and choose the smallest frequency error.",
+      "evidence": "dynclk.c:155-218"
+    },
+    "independent_algorithm_reproduction": {
+      "target_mmcm_frequency_mhz": 742.5,
+      "unique_minimum_error_tuple": {
+        "divclk_divide": 7,
+        "feedback_multiplier": 52,
+        "output_divide": 1
+      },
+      "calculated_mmcm_output_mhz": 742.857142857143,
+      "bufr_divide": 5,
+      "calculated_pixel_clock_mhz": 148.571428571429,
+      "pixel_clock_error_from_requested_mhz": 0.071428571429,
+      "reproduction_method": "A read-only PowerShell loop reproduced the integer search and rounding equations visible in dynclk.c:184-205, then applied the source's final divide-by-five at lines 216-217.",
+      "qualification": "This is a calculation of the source algorithm under its 100 MHz reference assumption, not evidence that software ran or that these clocks exist on the current PL design."
+    },
+    "runtime_path_in_source": {
+      "description": "display_ctrl.c calls ClkFindParams and ClkFindReg, then ClkStart for the selected display mode. Static source flow only.",
+      "evidence": "display_ctrl.c:162-187, 344-368"
+    }
+  },
+  "not_established": [
+    "The current project's implemented MMCM/BUFR configuration, DRP register writes, or MMCM lock.",
+    "Actual HDMI pixel clock, 1080p60 monitor synchronization, image stability, or 30-minute endurance.",
+    "A Vivado/Vitis build or execution of this vendor sample."
+  ],
+  "work_performed": {
+    "read_only": true,
+    "algorithm_reproduced_offline": true,
+    "vivado_or_vitis_run": false,
+    "board_accessed": false,
+    "batch109_accessed": false,
+    "vendor_original_modified": false
+  }
+}

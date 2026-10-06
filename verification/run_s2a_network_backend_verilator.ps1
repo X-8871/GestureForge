@@ -15,7 +15,9 @@ param(
 
     [switch]$Compile,
 
-    [switch]$RunSimulation
+    [switch]$RunSimulation,
+
+    [switch]$ReuseVerifiedFixtures
 )
 
 Set-StrictMode -Version Latest
@@ -264,15 +266,21 @@ if (-not (Test-Path -LiteralPath $verifyScript -PathType Leaf)) { throw "缺少�
 if (-not (Test-Path -LiteralPath $testbench -PathType Leaf)) { throw "缺少 testbench：$testbench" }
 if (-not (Test-Path -LiteralPath $backendSource -PathType Leaf)) { throw "缺少 backend：$backendSource" }
 
-$prepareArgs = @(
-    $prepareScript,
-    '--sample-index', [string]$SampleIndex,
-    '--output-root', $evidenceRoot
-)
-& $PythonExecutable @prepareArgs
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
 $fixtureManifest = Join-Path $evidenceRoot ("fixtures\sample_{0:D3}\fixture_manifest.json" -f $SampleIndex)
+if ($ReuseVerifiedFixtures) {
+    if (-not (Test-Path -LiteralPath $fixtureManifest -PathType Leaf)) {
+        throw "只读复用模式要求 fixture manifest 已存在：$fixtureManifest"
+    }
+} else {
+    $prepareArgs = @(
+        $prepareScript,
+        '--sample-index', [string]$SampleIndex,
+        '--output-root', $evidenceRoot
+    )
+    & $PythonExecutable @prepareArgs
+    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+}
+
 $verifyArgs = @($verifyScript, '--manifest', $fixtureManifest)
 & $PythonExecutable @verifyArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -676,6 +676,118 @@ def verify_batch(
     return report
 
 
+def verify_recovery_batch(
+    evidence_root: Path,
+    recovery_manifest_path: Path,
+    repo_root: Path = ROOT,
+) -> dict[str, Any]:
+    """按恢复清单分别核验旧组和新组，并绑定全部记录原始字节摘要。"""
+    from verification import s2a_t68_recovery_manifest as recovery_manifest
+
+    root = _require_plain_directory(repo_root, "repository root")
+    evidence = _require_plain_directory(evidence_root, "evidence root")
+    manifest_path = Path(os.path.abspath(recovery_manifest_path))
+    _require_plain_file(manifest_path, "recovery manifest", evidence)
+    manifest, manifest_sha = recovery_manifest.load_manifest(manifest_path, evidence)
+    old_group = manifest["old_group"]
+    new_group = manifest["new_group"]
+    runs_directory = evidence / "runs"
+    require(runs_directory.is_dir() and not runs_directory.is_symlink(), f"runs directory 缺失或类型错误：{runs_directory}")
+
+    expected_new_id = new_group["run_id"]
+    observed_new_indices: list[int] = []
+    for sample_directory in runs_directory.iterdir():
+        candidate = sample_directory / expected_new_id
+        if not os.path.lexists(candidate):
+            continue
+        require(sample_directory.is_dir() and not sample_directory.is_symlink(), f"新 RunId 父目录缺失、类型错误或为符号链接：{sample_directory}")
+        require(candidate.is_dir() and not candidate.is_symlink(), f"新 RunId 目录类型错误或为符号链接：{candidate}")
+        match = SAMPLE_DIRECTORY_PATTERN.fullmatch(sample_directory.name)
+        require(match is not None, f"新 RunId 出现在非标准样本目录：{sample_directory.name}")
+        observed_new_indices.append(int(match.group(1)))
+    require(
+        sorted(observed_new_indices) == list(range(25, SAMPLE_COUNT)),
+        "新 RunId 目录集合必须精确为 sample_025..sample_108，且不能重跑旧 PASS 样本",
+    )
+
+    samples, closures = recovery_manifest.verify_recovery_samples(
+        evidence,
+        old_group["candidate_commit"],
+        old_group["candidate_tree"],
+        new_group["run_id"],
+        new_group["candidate_commit"],
+        new_group["candidate_tree"],
+        root,
+    )
+    manifest_rows = manifest["samples"]
+    require(len(samples) == len(manifest_rows) == SAMPLE_COUNT, "恢复清单或验证结果不是 109 行")
+    for actual, expected in zip(samples, manifest_rows, strict=True):
+        index = actual["sample_index"]
+        require(actual["run_id"] == expected["run_id"], f"sample_{index:03d} RunId 与恢复清单不符")
+        require(actual["candidate_commit"] == expected["candidate_commit"], f"sample_{index:03d} commit 与恢复清单不符")
+        require(actual["candidate_tree"] == expected["candidate_tree"], f"sample_{index:03d} tree 与恢复清单不符")
+        require(actual["backend_sha256"] == expected["backend_sha256"], f"sample_{index:03d} backend SHA 与恢复清单不符")
+        require(actual["record_sha256"] == expected["record_sha256"], f"sample_{index:03d} 原始记录 SHA 与恢复清单不符")
+        require(actual["compile_tooling_sources"] == expected["compile_tooling_sources"], f"sample_{index:03d} tooling rows 与恢复清单不符")
+
+    source_groups: list[dict[str, Any]] = []
+    for label, group in (("old", old_group), ("new", new_group)):
+        closure = closures[label]
+        source_groups.append({
+            "group": label,
+            "sample_range": [group["first_index"], group["last_index"]],
+            "run_id": group["run_id"],
+            "candidate_commit": closure["candidate_commit"],
+            "candidate_tree_sha1": closure["candidate_tree_sha1"],
+            "binding_scope": "11 编译源与 3 个编译工具逐样本绑定；静态 manifest 的 38 项路径范围仍固定",
+            "static_source_manifest": {
+                "path": str(closure["manifest_path"].relative_to(root).as_posix()),
+                "sha256": closure["manifest_sha256"],
+                "source_count": len(closure["sources"]),
+            },
+            "candidate_sources": [
+                {
+                    "path": row["path"],
+                    "sha256": row["sha256"],
+                    "bytes": row["bytes"],
+                    "git_blob_sha1": row["git_blob_sha1"],
+                }
+                for row in closure["sources"].values()
+            ],
+        })
+    return {
+        "schema_version": "gestureforge_s2a_t68_snapshot_git_binding_recovery_v1",
+        "status": "PASS_109_CROSS_RUNID_RECOVERY_SOURCE_SNAPSHOT_TO_GIT_TREE",
+        "scope": "逐样本验证恢复清单中旧组 0..24 与新组 25..108 的 11 个编译源、3 个编译工具、backend SHA、RunId、记录原始字节哈希和各自 Git commit/tree；不声称 PL golden、D9、G4 或 G5 通过。",
+        "sample_count": SAMPLE_COUNT,
+        "evidence_root": str(evidence),
+        "recovery_manifest": {
+            "path": str(manifest_path.relative_to(evidence).as_posix()),
+            "sha256": manifest_sha,
+        },
+        "groups": source_groups,
+        "samples": samples,
+    }
+
+
+def _write_new_recovery_report(evidence_root: Path, new_run_id: str, report: dict[str, Any]) -> tuple[Path, str]:
+    """独占创建跨 RunId 验证报告，不覆盖旧报告。"""
+    report_path = evidence_root / f"source_snapshot_git_binding_recovery_{new_run_id}.json"
+    require(report_path.parent == evidence_root, "recovery report 路径必须位于 evidence root")
+    require(not report_path.is_symlink() and not os.path.lexists(report_path), f"拒绝覆盖既有 recovery report：{report_path}")
+    raw = (json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n").encode("utf-8")
+    try:
+        with report_path.open("xb") as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+    except OSError as error:
+        raise SnapshotBindingError(
+            f"无法独占写入 recovery report；保留已存在或部分写入的目标，请使用新名称重试：{report_path}: {error}"
+        ) from error
+    return report_path, sha256_bytes(raw)
+
+
 def _write_new_report(evidence_root: Path, run_id: str, report: dict[str, Any]) -> tuple[Path, str]:
     """在 evidence root 中独占创建验证通过后的报告。"""
     report_name = f"source_snapshot_git_binding_{run_id}.json"
@@ -702,20 +814,30 @@ def main(argv: list[str] | None = None) -> int:
     """执行 109 样本只读核验，并仅在完整通过后写新报告。"""
     parser = argparse.ArgumentParser(description="核验 T68 编译源快照是否映射到冻结或显式 candidate Git tree")
     parser.add_argument("--evidence-root", type=Path, required=True, help="包含 runs/sample_NNN/<RunId> 的 T68 evidence root")
-    parser.add_argument("--run-id", required=True, help="109 个样本共有的 RunId")
+    parser.add_argument("--run-id", help="单 RunId 模式下 109 个样本共有的 RunId")
     parser.add_argument("--candidate-commit", help="candidate 模式下使用的完整 40 位 commit SHA-1")
     parser.add_argument("--candidate-tree", help="candidate 模式下使用的完整 40 位 tree SHA-1")
+    parser.add_argument("--recovery-manifest", type=Path, help="跨 RunId recovery manifest；启用时不使用单 RunId 参数")
+    parser.add_argument("--new-run-id", help="recovery 模式下用于输出报告名的新组 RunId")
     args = parser.parse_args(argv)
     try:
-        require((args.candidate_commit is None) == (args.candidate_tree is None), "candidate commit/tree 必须同时提供")
         evidence = _require_plain_directory(args.evidence_root, "evidence root")
-        report = verify_batch(
-            evidence,
-            args.run_id,
-            candidate_commit=args.candidate_commit,
-            candidate_tree=args.candidate_tree,
-        )
-        report_path, report_sha = _write_new_report(evidence, args.run_id, report)
+        if args.recovery_manifest is not None:
+            require(args.run_id is None and args.candidate_commit is None and args.candidate_tree is None, "recovery manifest 不可与单 RunId/candidate 参数混用")
+            report = verify_recovery_batch(evidence, args.recovery_manifest)
+            new_run_id = args.new_run_id or report["groups"][1]["run_id"]
+            report_path, report_sha = _write_new_recovery_report(evidence, new_run_id, report)
+        else:
+            require(args.run_id is not None, "单 RunId 模式必须提供 --run-id")
+            require((args.candidate_commit is None) == (args.candidate_tree is None), "candidate commit/tree 必须同时提供")
+            require(args.new_run_id is None, "--new-run-id 仅用于 recovery manifest 模式")
+            report = verify_batch(
+                evidence,
+                args.run_id,
+                candidate_commit=args.candidate_commit,
+                candidate_tree=args.candidate_tree,
+            )
+            report_path, report_sha = _write_new_report(evidence, args.run_id, report)
         console_report = dict(report)
         console_report["report_path"] = str(report_path)
         console_report["report_sha256"] = report_sha

@@ -164,12 +164,17 @@ def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, An
     return regenerated, generated_rows, reconstruction
 
 
-def verify_tooling_bindings(record: dict[str, Any], sample_dir: Path, label: str) -> dict[str, str]:
-    """核对 compile/run records 对当前 runner 与 Python 工具源的哈希绑定。"""
-    expected = {
-        canonical_path(T68_RUNNER): sha256_file(T68_RUNNER),
-        canonical_path(T68_PREPARER): sha256_file(T68_PREPARER),
-        canonical_path(T68_FIXTURE_VERIFIER): sha256_file(T68_FIXTURE_VERIFIER),
+def verify_tooling_bindings(
+    record: dict[str, Any],
+    sample_dir: Path,
+    label: str,
+    expected_tooling: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, str]:
+    """核对记录与当前工具，或恢复清单验证过的 Git 工具源闭包。"""
+    expected = expected_tooling or {
+        canonical_path(T68_RUNNER): {"sha256": sha256_file(T68_RUNNER), "bytes": T68_RUNNER.stat().st_size},
+        canonical_path(T68_PREPARER): {"sha256": sha256_file(T68_PREPARER), "bytes": T68_PREPARER.stat().st_size},
+        canonical_path(T68_FIXTURE_VERIFIER): {"sha256": sha256_file(T68_FIXTURE_VERIFIER), "bytes": T68_FIXTURE_VERIFIER.stat().st_size},
     }
     recorded = record.get("tooling_sources")
     require(isinstance(recorded, list) and len(recorded) == len(expected), f"{label}: tooling_sources 数量不符")
@@ -180,12 +185,14 @@ def verify_tooling_bindings(record: dict[str, Any], sample_dir: Path, label: str
         key = canonical_path(path)
         require(key in expected, f"{label}: 未批准的 tooling source：{path}")
         require(key not in observed, f"{label}: tooling source 重复：{path}")
-        require(row.get("sha256") == expected[key], f"{label}: tooling source SHA 不符：{path}")
-        require(path.is_file() and path.stat().st_size == row.get("bytes"), f"{label}: tooling source byte length 不符：{path}")
+        require(row.get("sha256") == expected[key]["sha256"], f"{label}: tooling source SHA 不符：{path}")
+        require(type(row.get("bytes")) is int and row.get("bytes") == expected[key]["bytes"], f"{label}: tooling source byte length 不符：{path}")
+        if expected_tooling is None:
+            require(path.is_file() and path.stat().st_size == row.get("bytes"), f"{label}: 当前 tooling source byte length 不符：{path}")
         observed[key] = row["sha256"]
-    require(observed == expected, f"{label}: tooling source 集合不完整")
+    require(observed == {key: value["sha256"] for key, value in expected.items()}, f"{label}: tooling source 集合不完整")
     require(canonical_path(Path(str(record.get("runner_path", "")))) == canonical_path(T68_RUNNER), f"{label}: runner path 不符")
-    require(record.get("runner_sha256") == expected[canonical_path(T68_RUNNER)], f"{label}: runner SHA 不符")
+    require(record.get("runner_sha256") == expected[canonical_path(T68_RUNNER)]["sha256"], f"{label}: runner SHA 不符")
     require(sample_dir.is_dir() and not sample_dir.is_symlink(), f"{label}: sample run directory 类型错误")
     return {str(Path(key)): value for key, value in observed.items()}
 
@@ -196,6 +203,7 @@ def verify_compiled_source_binding(
     compile_record: dict[str, Any],
     source_snapshot: dict[str, Any],
     sample_index: int,
+    expected_tooling: dict[str, dict[str, Any]] | None = None,
 ) -> None:
     """核对本样本编译闭包、TB/backend SHA 和实际仿真命令。"""
     require(compile_record.get("schema_version") == "gestureforge_s2a_t68_compile_execution_v1", "compile record schema 不符")
@@ -249,8 +257,8 @@ def verify_compiled_source_binding(
             observed[key] = row["sha256"]
         require(set(observed) == set(expected_by_path), f"{label}: compiled source 集合不完整")
     require(source_snapshot.get("tooling_sources") == compile_record.get("tooling_sources"), "compile snapshot 与 execution record 的 tooling bindings 不同")
-    verify_tooling_bindings(compile_record, sample_dir, "compile")
-    verify_tooling_bindings(simulation_record, sample_dir, "simulation")
+    verify_tooling_bindings(compile_record, sample_dir, "compile", expected_tooling)
+    verify_tooling_bindings(simulation_record, sample_dir, "simulation", expected_tooling)
 
     backend_rows = [row for row in source_snapshot["sources"] if canonical_path(Path(row["path"])) == canonical_path(ROOT / "src/s2a_network_backend.sv")]
     tb_rows = [row for row in source_snapshot["sources"] if canonical_path(Path(row["path"])) == canonical_path(T68_TESTBENCH)]
@@ -320,10 +328,11 @@ def decode_heads(head13: bytes, head26: bytes, head13_scale: float, head26_scale
     require(values26.size == int(np.prod(HEAD_SPECS["head26"]["shape"])), "head26 元素数错误")
     require(math.isfinite(head13_scale) and head13_scale > 0.0, "head13 scale 非法")
     require(math.isfinite(head26_scale) and head26_scale > 0.0, "head26 scale 非法")
-    return {
+    result = {
         "13x13": values13.astype(np.float64).reshape(HEAD_SPECS["head13"]["shape"]) * np.float64(head13_scale),
         "26x26": values26.astype(np.float64).reshape(HEAD_SPECS["head26"]["shape"]) * np.float64(head26_scale),
     }
+    return result
 
 
 def compare_d9_rows(
@@ -372,6 +381,8 @@ def verify_sample(
     sample_index: int,
     expected_cpu_row: dict[str, Any],
     threshold: float,
+    recovery_row: dict[str, Any] | None = None,
+    expected_tooling: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """验证一个 sample 的 fixture、RTL 源、仿真记录和两个实际 head。"""
     sample_key = f"sample_{sample_index:03d}"
@@ -390,7 +401,16 @@ def verify_sample(
     require(simulation_record.get("progress_markers_valid") is True and simulation_record.get("last_progress_phase") == "complete", f"{sample_key}: simulation 未正常完成")
     require(simulation_record.get("wave_dump_requested") is False, f"{sample_key}: 不应生成波形")
     require(simulation_record.get("run_id") == run_id, f"{sample_key}: simulation run_id 不符")
-    verify_compiled_source_binding(sample_dir, simulation_record, compile_record, source_snapshot, sample_index)
+    verify_compiled_source_binding(sample_dir, simulation_record, compile_record, source_snapshot, sample_index, expected_tooling)
+    if recovery_row is not None:
+        require(recovery_row.get("sample_index") == sample_index, f"{sample_key}: recovery manifest index 不符")
+        require(recovery_row.get("run_id") == run_id, f"{sample_key}: recovery manifest RunId 不符")
+        for filename, path in (
+            ("compile_source_snapshot.json", snapshot_path),
+            ("compile_execution_record.json", compile_record_path),
+            ("simulation_execution_record.json", simulation_record_path),
+        ):
+            require(sha256_file(path) == recovery_row["record_sha256"].get(filename), f"{sample_key}: {filename} 与 recovery manifest SHA 不符")
 
     compile_console = safe_child_file(sample_dir, compile_record.get("console_path"), f"{sample_key} compile console")
     require(sha256_file(compile_console) == compile_record.get("console_sha256"), f"{sample_key}: compile console SHA 不符")
@@ -457,6 +477,7 @@ def verify_sample(
     )
     return {
         "sample_index": sample_index,
+        "run_id": run_id,
         "sample_id": expected_cpu_row["sample_id"],
         "frame_id": expected_cpu_row["frame_id"],
         "fixture_manifest_sha256": sha256_file(fixture_manifest_path),
@@ -466,26 +487,65 @@ def verify_sample(
         "input_sha256": fixture_manifest["input"]["sha256"],
         "head_exports": head_report,
         "d9_comparison": d9_comparison,
+        **({
+            "candidate_commit": recovery_row["candidate_commit"],
+            "candidate_tree": recovery_row["candidate_tree"],
+            "backend_sha256": recovery_row["backend_sha256"],
+        } if recovery_row is not None else {}),
     }
 
 
-def verify_batch(evidence_root: Path, run_id: str) -> dict[str, Any]:
-    """按固定 sample_000..108 路径执行只读 109 样本 D9 比对。"""
-    require(RUN_ID_PATTERN.fullmatch(run_id) is not None, "run_id 仅可含 ASCII 字母、数字、下划线、连字符")
+def verify_batch(
+    evidence_root: Path,
+    run_id: str | None = None,
+    recovery_manifest_path: Path | None = None,
+) -> dict[str, Any]:
+    """按固定样本路径执行单 RunId 或跨 RunId 109 样本 D9 比对。"""
+    require((run_id is None) != (recovery_manifest_path is None), "必须且只能选择单 RunId 或 recovery manifest")
+    if run_id is not None:
+        require(RUN_ID_PATTERN.fullmatch(run_id) is not None, "run_id 仅可含 ASCII 字母、数字、下划线、连字符")
     require(evidence_root.is_dir() and not evidence_root.is_symlink(), f"evidence root 缺失或类型错误：{evidence_root}")
     evidence_root = evidence_root.resolve()
     require(all(part.casefold() != "run01" for part in evidence_root.parts), "为保护既有 run01，拒绝读取路径中包含 run01 的 T68 evidence root")
     cpu_report, cpu_rows, reconstruction = verify_frozen_cpu_baseline()
     threshold = float(cpu_report["decoder"]["score_threshold"])
-    sample_reports = [
-        verify_sample(evidence_root, run_id, sample_index, cpu_rows_by_index(cpu_rows, sample_index), threshold)
-        for sample_index in range(SAMPLE_COUNT)
-    ]
+    snapshot_report: dict[str, Any] | None = None
+    manifest_value: dict[str, Any] | None = None
+    manifest_sha: str | None = None
+    rows_by_index: dict[int, dict[str, Any]] = {}
+    tooling_by_index: dict[int, dict[str, dict[str, Any]]] = {}
+    if recovery_manifest_path is not None:
+        from verification import s2a_t68_recovery_manifest as recovery_manifest
+        from verification import verify_s2a_t68_snapshot_git_binding as snapshot_binding
+
+        snapshot_report = snapshot_binding.verify_recovery_batch(evidence_root, recovery_manifest_path)
+        manifest_value, manifest_sha = recovery_manifest.load_manifest(recovery_manifest_path, evidence_root)
+        rows_by_index = {row["sample_index"]: row for row in manifest_value["samples"]}
+        for sample in snapshot_report["samples"]:
+            tooling_by_index[sample["sample_index"]] = {
+                canonical_path(ROOT / Path(*str(row["path"]).split("/"))): {
+                    "sha256": row["sha256"],
+                    "bytes": row["bytes"],
+                }
+                for row in sample["compile_tooling_sources"]
+            }
+    sample_reports = []
+    for sample_index in range(SAMPLE_COUNT):
+        recovery_row = rows_by_index.get(sample_index)
+        sample_reports.append(verify_sample(
+            evidence_root,
+            run_id or str(recovery_row["run_id"]),
+            sample_index,
+            cpu_rows_by_index(cpu_rows, sample_index),
+            threshold,
+            recovery_row=recovery_row,
+            expected_tooling=tooling_by_index.get(sample_index),
+        ))
     require(len(sample_reports) == SAMPLE_COUNT, "实际 PL head 未覆盖全部 109 个固定样本")
     max_score_error = max((row["d9_comparison"]["max_score_abs_error"] for row in sample_reports), default=0.0)
     max_coordinate_error = max((row["d9_comparison"]["max_xyxy_abs_error"] for row in sample_reports), default=0.0)
-    return {
-        "schema_version": "gestureforge_s2a_t68_d9_actual_head_comparison_v2",
+    result = {
+        "schema_version": "gestureforge_s2a_t68_d9_actual_head_comparison_recovery_v1" if snapshot_report is not None else "gestureforge_s2a_t68_d9_actual_head_comparison_v2",
         "status": "PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9",
         "sample_count": len(sample_reports),
         "run_id": run_id,
@@ -504,6 +564,12 @@ def verify_batch(evidence_root: Path, run_id: str) -> dict[str, Any]:
         "samples": sample_reports,
         "simulator_started_by_verifier": False,
     }
+    if snapshot_report is not None:
+        result["recovery_manifest"] = snapshot_report["recovery_manifest"]
+        result["recovery_manifest_sha256"] = manifest_sha
+        result["snapshot_git_binding_status"] = snapshot_report["status"]
+        result["recovery_groups"] = snapshot_report["groups"]
+    return result
 
 
 def cpu_rows_by_index(rows: dict[str, dict[str, Any]], sample_index: int) -> dict[str, Any]:
@@ -517,11 +583,13 @@ def main(argv: list[str] | None = None) -> int:
     """验证所有实际 head 导出并可选写入新的独立报告。"""
     parser = argparse.ArgumentParser(description="逐样本绑定 T68 PL INT8 heads 并与冻结 T29 CPU D9 对照")
     parser.add_argument("--evidence-root", type=Path, required=True, help="含 fixtures 与 runs 的 T68 独立 evidence root")
-    parser.add_argument("--run-id", required=True, help="109 个样本共用的唯一 T68 RunId")
+    parser.add_argument("--run-id", help="单 RunId 模式下 109 个样本共用的唯一 T68 RunId")
+    parser.add_argument("--recovery-manifest", type=Path, help="按恢复清单分别验证旧组和新组")
     parser.add_argument("--report", type=Path, help="可选的新报告路径，须位于 evidence root 内且尚不存在")
     args = parser.parse_args(argv)
     try:
-        result = verify_batch(args.evidence_root.absolute(), args.run_id)
+        require((args.run_id is None) != (args.recovery_manifest is None), "必须且只能提供 --run-id 或 --recovery-manifest")
+        result = verify_batch(args.evidence_root.absolute(), args.run_id, args.recovery_manifest)
         if args.report is not None:
             report_candidate = args.report.absolute()
             require(report_candidate.parent.is_dir() and not report_candidate.parent.is_symlink(), "报告父目录缺失或类型错误")

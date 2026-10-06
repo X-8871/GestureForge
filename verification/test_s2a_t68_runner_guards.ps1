@@ -32,6 +32,7 @@ $coordinatorPath = Join-Path $PSScriptRoot 'run_s2a_t68_unattended_continuation.
 foreach ($functionBinding in @(
     @{ path = $runnerPath; name = 'Test-S2aNetworkBackendResultSummary' },
     @{ path = $runnerPath; name = 'Get-CompleteProgressMarkerLines' },
+    @{ path = (Join-Path $PSScriptRoot 'run_s2a_t68_batch_verilator.ps1'); name = 'Get-StableWorkerLogSnapshot' },
     @{ path = $coordinatorPath; name = 'Assert-ApprovedPythonCommandResolution' }
 )) {
     $tokens = $null
@@ -53,6 +54,42 @@ $validLines = @(
     'head13_bytes=5070 head26_bytes=20280'
 )
 $summaryCases = 0
+$fixtureReuseGuardCases = 0
+$recoverySchedulerGuardCases = 0
+$runnerSourceText = [System.IO.File]::ReadAllText($runnerPath, [System.Text.Encoding]::UTF8)
+$reuseBranch = $runnerSourceText.IndexOf('if ($ReuseVerifiedFixtures) {', [System.StringComparison]::Ordinal)
+$prepareBranch = $runnerSourceText.IndexOf('$prepareArgs = @(', [System.StringComparison]::Ordinal)
+$fixtureVerifierCall = $runnerSourceText.IndexOf('& $PythonExecutable @verifyArgs', [System.StringComparison]::Ordinal)
+Assert-TestCondition -Condition ($runnerSourceText.Contains('[switch]$ReuseVerifiedFixtures')) -Message 'runner 必须提供显式只读 fixture 复用开关。'
+Assert-TestCondition -Condition (($reuseBranch -ge 0) -and ($prepareBranch -gt $reuseBranch) -and ($fixtureVerifierCall -gt $prepareBranch)) -Message '只读复用分支必须跳过 preparer 且仍运行原 fixture verifier。'
+Assert-TestCondition -Condition ($runnerSourceText.Contains('if (-not (Test-Path -LiteralPath $fixtureManifest -PathType Leaf))')) -Message '只读复用分支必须要求既有 fixture manifest。'
+$fixtureReuseGuardCases++
+$batchPath = Join-Path $PSScriptRoot 'run_s2a_t68_batch_verilator.ps1'
+$batchSourceText = [System.IO.File]::ReadAllText($batchPath, [System.Text.Encoding]::UTF8)
+$preflightIndex = $batchSourceText.IndexOf("Invoke-RecoveryManifestTool -Operation 'preflight'", [System.StringComparison]::Ordinal)
+$preflightExitIndex = $batchSourceText.IndexOf('if ($PreflightOnly) {', $preflightIndex, [System.StringComparison]::Ordinal)
+$launchRecoveryGateIndex = $batchSourceText.IndexOf('if ($LaunchRecovery) {', $preflightExitIndex, [System.StringComparison]::Ordinal)
+$processGateIndex = $batchSourceText.IndexOf('Assert-NoCandidateT68Processes -EvidenceRoot', $preflightExitIndex, [System.StringComparison]::Ordinal)
+$launchRecoveryGateEndIndex = $batchSourceText.IndexOf('}', $launchRecoveryGateIndex, [System.StringComparison]::Ordinal)
+$dispatchCreateIndex = $batchSourceText.IndexOf('$null = New-Item -ItemType Directory -Path $dispatchDirectory', [System.StringComparison]::Ordinal)
+$workerLaunchIndex = $batchSourceText.IndexOf('Start-Process -FilePath $pwshPath', [System.StringComparison]::Ordinal)
+foreach ($requiredToken in @(
+    '[switch]$ResumeCandidate109', '[switch]$PreflightOnly', '[switch]$LaunchRecovery',
+    '$firstIndex -ne 25 -or $lastIndex -ne 108', '-ReuseVerifiedFixtures',
+    'Get-StableWorkerLogSnapshot', 'stdout_read_error', 'stderr_read_error',
+    '$Worker.process.HasExited', '$DispatchSubdirectory',
+    'Get-CimInstance -ClassName Win32_Process -ErrorAction Stop'
+)) {
+    Assert-TestCondition -Condition ($batchSourceText.Contains($requiredToken)) -Message "batch scheduler 缺少恢复安全门：$requiredToken"
+}
+Assert-TestCondition -Condition (($preflightIndex -ge 0) -and ($preflightExitIndex -gt $preflightIndex) -and
+    ($dispatchCreateIndex -gt $preflightExitIndex) -and ($workerLaunchIndex -gt $dispatchCreateIndex)) -Message '只读预检必须先于 dispatch 创建与任何 worker 启动。'
+Assert-TestCondition -Condition (($launchRecoveryGateIndex -gt $preflightExitIndex) -and
+    ($processGateIndex -gt $launchRecoveryGateIndex) -and ($processGateIndex -lt $launchRecoveryGateEndIndex) -and
+    ($processGateIndex -lt $dispatchCreateIndex)) -Message '进程 fail-closed 门只能在静态预检退出后、LaunchRecovery 分支内且 dispatch 创建前执行。'
+Assert-TestCondition -Condition ($batchSourceText.Contains('process_check_performed -ne $false') -and
+    $batchSourceText.Contains('process_check=not_performed')) -Message '静态预检必须明确不执行进程检查且不得声称进程空闲。'
+$recoverySchedulerGuardCases++
 foreach ($newLine in @("`n", "`r`n")) {
     $validSummary = New-TestSummary -Lines $validLines -NewLine $newLine
     Assert-TestCondition -Condition (Test-S2aNetworkBackendResultSummary -Text $validSummary) -Message '有效 LF/CRLF 摘要应被接受。'
@@ -84,6 +121,7 @@ $approvedPython = Join-Path $approvedDirectory 'python.exe'
 $originalPath = $env:PATH
 $pythonPathCases = 0
 $progressMarkerReadCases = 0
+$workerLogSnapshotCases = 0
 try {
     $null = [System.IO.Directory]::CreateDirectory($approvedDirectory)
     foreach ($directory in $otherDirectories) { $null = [System.IO.Directory]::CreateDirectory($directory) }
@@ -110,6 +148,24 @@ try {
     Assert-TestCondition -Condition ($recoveredProgressRead.lines.Count -eq 1) -Message '恢复读取应只返回完整进度行。'
     Assert-TestCondition -Condition ($recoveredProgressRead.lines[0] -ceq $firstProgressMarker) -Message '恢复读取的完整进度行内容不匹配。'
     $progressMarkerReadCases++
+
+    $workerLogPath = Join-Path $temporaryRoot 'worker.stdout.log'
+    $workerLogBytes = [System.Text.Encoding]::UTF8.GetBytes("worker output`n")
+    [System.IO.File]::WriteAllBytes($workerLogPath, $workerLogBytes)
+    $exclusiveWorkerLog = [System.IO.FileStream]::new($workerLogPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::None)
+    try {
+        Assert-ExpectedFailure -Name '持久 worker log 文件锁' -Action {
+            Get-StableWorkerLogSnapshot -Path $workerLogPath -MaxAttempts 2 -RetryDelayMilliseconds 10
+        }
+        $workerLogSnapshotCases++
+    } finally {
+        $exclusiveWorkerLog.Dispose()
+    }
+    $workerLogSnapshot = Get-StableWorkerLogSnapshot -Path $workerLogPath -MaxAttempts 2 -RetryDelayMilliseconds 10
+    Assert-TestCondition -Condition ($workerLogSnapshot.bytes -eq $workerLogBytes.Length) -Message '共享读取的 worker log byte length 不符。'
+    Assert-TestCondition -Condition ($workerLogSnapshot.sha256 -ceq [Convert]::ToHexString([System.Security.Cryptography.SHA256]::HashData($workerLogBytes)).ToLowerInvariant()) -Message '共享读取的 worker log SHA 不符。'
+    Assert-TestCondition -Condition ($workerLogSnapshot.attempts -eq 1) -Message '可读 worker log 不应无故重试。'
+    $workerLogSnapshotCases++
 
     $sharedWriter = [System.IO.FileStream]::new($progressMarkerPath, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write,
         ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete))
@@ -173,8 +229,11 @@ try {
     powershell_version = $PSVersionTable.PSVersion.ToString()
     powershell_executable = Join-Path $PSHOME 'pwsh.exe'
     summary_cases = $summaryCases
+    fixture_reuse_guard_cases = $fixtureReuseGuardCases
+    recovery_scheduler_guard_cases = $recoverySchedulerGuardCases
     python_path_resolution_cases = $pythonPathCases
     progress_marker_read_cases = $progressMarkerReadCases
+    worker_log_snapshot_cases = $workerLogSnapshotCases
     python_interpreter_invocations = 0
     simulation_invocations = 0
 } | ConvertTo-Json -Compress

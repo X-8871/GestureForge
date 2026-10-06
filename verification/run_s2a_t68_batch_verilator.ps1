@@ -16,7 +16,29 @@ param(
     [int]$LastIndex = 108,
 
     [ValidateRange(1, 108)]
-    [int]$MaxWorkers = 8
+    [int]$MaxWorkers = 8,
+
+    [switch]$ResumeCandidate109,
+
+    [switch]$PreflightOnly,
+
+    [switch]$LaunchRecovery,
+
+    [string]$OldRunId = 'candidate8x8_109_20261006_130252',
+
+    [string]$OldCandidateCommit = '999238284157bed77cdb3a37e3e6eea52daeefc4',
+
+    [string]$OldCandidateTree = 'b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67',
+
+    [string]$CandidateCommit,
+
+    [string]$CandidateTree,
+
+    [string]$DispatchSubdirectory,
+
+    [string]$RecoveryManifestName,
+
+    [string]$PythonExecutable = 'python'
 )
 
 Set-StrictMode -Version Latest
@@ -25,6 +47,50 @@ $ErrorActionPreference = 'Stop'
 function Get-Sha256Literal {
     param([Parameter(Mandatory = $true)][string]$Path)
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+
+function Get-StableWorkerLogSnapshot {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [ValidateRange(1, 20)][int]$MaxAttempts = 8,
+        [ValidateRange(10, 5000)][int]$RetryDelayMilliseconds = 250
+    )
+    $lastFailure = $null
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        $stream = $null
+        $digest = $null
+        try {
+            $before = Get-Item -LiteralPath $Path -ErrorAction Stop
+            if ($before.PSIsContainer -or (($before.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0)) {
+                throw "worker log 必须是普通文件：$Path"
+            }
+            $beforeLength = [long]$before.Length
+            $beforeWriteUtc = $before.LastWriteTimeUtc.Ticks
+            $stream = [System.IO.FileStream]::new(
+                $Path,
+                [System.IO.FileMode]::Open,
+                [System.IO.FileAccess]::Read,
+                ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete)
+            )
+            $sha = [System.Security.Cryptography.SHA256]::Create()
+            try { $digest = [Convert]::ToHexString($sha.ComputeHash($stream)).ToLowerInvariant() } finally { $sha.Dispose() }
+            $bytesRead = [long]$stream.Length
+            $stream.Dispose()
+            $stream = $null
+            $after = Get-Item -LiteralPath $Path -ErrorAction Stop
+            if (($beforeLength -eq $bytesRead) -and ($beforeLength -eq [long]$after.Length) -and
+                ($beforeWriteUtc -eq $after.LastWriteTimeUtc.Ticks)) {
+                return [ordered]@{ bytes = $bytesRead; sha256 = $digest; attempts = $attempt }
+            }
+            $lastFailure = "worker log 在读取期间发生变化：$Path"
+        } catch [System.IO.IOException] {
+            $lastFailure = $_.Exception.Message
+        } finally {
+            if ($null -ne $stream) { $stream.Dispose() }
+        }
+        if ($attempt -lt $MaxAttempts) { Start-Sleep -Milliseconds $RetryDelayMilliseconds }
+    }
+    throw "worker log 在 $MaxAttempts 次共享只读重试后仍不可稳定读取：$Path；$lastFailure"
 }
 
 function Test-S2aNetworkBackendResultSummary {
@@ -374,6 +440,64 @@ function Assert-PendingRunDirectories {
     }
 }
 
+function Assert-NoCandidateT68Processes {
+    param(
+        [Parameter(Mandatory = $true)][string]$EvidenceRoot,
+        [Parameter(Mandatory = $true)][string]$OldRunId,
+        [Parameter(Mandatory = $true)][string]$NewRunId
+    )
+    $rootToken = [System.IO.Path]::GetFullPath($EvidenceRoot)
+    $matching = @()
+    foreach ($process in @(Get-CimInstance -ClassName Win32_Process -ErrorAction Stop)) {
+        $name = [string]$process.Name
+        if ($name -notin @('pwsh.exe', 'verilator_bin.exe', 'make.exe', 'g++.exe')) { continue }
+        if ([int]$process.ProcessId -eq $PID) { continue }
+        $commandLine = [string]$process.CommandLine
+        if ([string]::IsNullOrWhiteSpace($commandLine)) { continue }
+        if (($commandLine.IndexOf($rootToken, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) -and
+            (($commandLine.IndexOf($OldRunId, [System.StringComparison]::Ordinal) -ge 0) -or
+             ($commandLine.IndexOf($NewRunId, [System.StringComparison]::Ordinal) -ge 0))) {
+            $matching += [ordered]@{ process_id = [int]$process.ProcessId; name = $name; command_line = $commandLine }
+        }
+    }
+    if ($matching.Count -gt 0) {
+        $ids = @($matching | ForEach-Object { '{0}:{1}' -f $_.name, $_.process_id }) -join ', '
+        throw "检测到与本 candidate RunId 相关的存活进程，拒绝启动：$ids"
+    }
+}
+
+function Invoke-RecoveryManifestTool {
+    param(
+        [Parameter(Mandatory = $true)][string]$Operation,
+        [Parameter(Mandatory = $true)][string]$EvidenceRoot,
+        [Parameter(Mandatory = $true)][string]$NewRunId,
+        [Parameter(Mandatory = $true)][string]$CandidateCommit,
+        [Parameter(Mandatory = $true)][string]$CandidateTree,
+        [Parameter(Mandatory = $true)][string]$DispatchName,
+        [Parameter(Mandatory = $true)][string]$ManifestName,
+        [Parameter(Mandatory = $true)][string]$PythonPath
+    )
+    $helperPath = Join-Path $PSScriptRoot 's2a_t68_recovery_manifest.py'
+    if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) { throw "缺少 recovery manifest 工具：$helperPath" }
+    $arguments = @(
+        $helperPath,
+        $Operation,
+        '--evidence-root', $EvidenceRoot,
+        '--new-run-id', $NewRunId,
+        '--new-candidate-commit', $CandidateCommit,
+        '--new-candidate-tree', $CandidateTree,
+        '--dispatch-name', $DispatchName,
+        '--manifest-name', $ManifestName
+    )
+    $output = @(& $PythonPath @arguments)
+    if ($LASTEXITCODE -ne 0) { throw "recovery manifest $Operation 失败，Python exit=$LASTEXITCODE" }
+    try {
+        return (($output -join [Environment]::NewLine) | ConvertFrom-Json -AsHashtable -ErrorAction Stop)
+    } catch {
+        throw "recovery manifest $Operation 返回了无效 JSON：$($_.Exception.Message)"
+    }
+}
+
 function Test-CompletedSampleRecords {
     param(
         [Parameter(Mandatory = $true)][string]$EvidenceRoot,
@@ -486,6 +610,8 @@ function Get-WorkerEvent {
         [Parameter(Mandatory = $true)][string]$ExpectedBackendHash,
         [Parameter(Mandatory = $true)][System.Collections.IDictionary]$FrozenClosure
     )
+    $Worker.process.Refresh()
+    if (-not $Worker.process.HasExited) { throw "runner 仍运行，拒绝读取其 stdout/stderr：sample=$($Worker.sample_index)" }
     $validation = $null
     $failure = $null
     if ($ExitCode -ne 0) {
@@ -499,8 +625,16 @@ function Get-WorkerEvent {
             $failure = $_.Exception.Message
         }
     }
-    $stdoutHash = if (Test-Path -LiteralPath $Worker.stdout_path -PathType Leaf) { Get-Sha256Literal -Path $Worker.stdout_path } else { $null }
-    $stderrHash = if (Test-Path -LiteralPath $Worker.stderr_path -PathType Leaf) { Get-Sha256Literal -Path $Worker.stderr_path } else { $null }
+    $stdoutSnapshot = $null
+    $stderrSnapshot = $null
+    $stdoutReadError = $null
+    $stderrReadError = $null
+    try { $stdoutSnapshot = Get-StableWorkerLogSnapshot -Path $Worker.stdout_path } catch { $stdoutReadError = $_.Exception.Message }
+    try { $stderrSnapshot = Get-StableWorkerLogSnapshot -Path $Worker.stderr_path } catch { $stderrReadError = $_.Exception.Message }
+    foreach ($readError in @($stdoutReadError, $stderrReadError)) {
+        if ([string]::IsNullOrWhiteSpace($readError)) { continue }
+        if ([string]::IsNullOrWhiteSpace($failure)) { $failure = $readError } else { $failure += " | $readError" }
+    }
     return [ordered]@{
         schema_version = 'gestureforge_s2a_t68_batch_event_v1'
         sample_index = $Worker.sample_index
@@ -511,9 +645,15 @@ function Get-WorkerEvent {
         process_started_utc = $Worker.started_utc
         process_finished_utc = [DateTime]::UtcNow.ToString('o')
         stdout_path = $Worker.stdout_path
-        stdout_sha256 = $stdoutHash
+        stdout_sha256 = if ($null -ne $stdoutSnapshot) { $stdoutSnapshot.sha256 } else { $null }
+        stdout_bytes = if ($null -ne $stdoutSnapshot) { $stdoutSnapshot.bytes } else { $null }
+        stdout_read_attempts = if ($null -ne $stdoutSnapshot) { $stdoutSnapshot.attempts } else { $null }
+        stdout_read_error = $stdoutReadError
         stderr_path = $Worker.stderr_path
-        stderr_sha256 = $stderrHash
+        stderr_sha256 = if ($null -ne $stderrSnapshot) { $stderrSnapshot.sha256 } else { $null }
+        stderr_bytes = if ($null -ne $stderrSnapshot) { $stderrSnapshot.bytes } else { $null }
+        stderr_read_attempts = if ($null -ne $stderrSnapshot) { $stderrSnapshot.attempts } else { $null }
+        stderr_read_error = $stderrReadError
         validated_records = $validation
         failure = $failure
     }
@@ -651,14 +791,77 @@ $firstIndex = [int]$FirstIndex
 $lastIndex = [int]$LastIndex
 $maxWorkers = [int]$MaxWorkers
 $targetIndices = @($firstIndex..$lastIndex)
-$frozen = Assert-Sample0Passed -EvidenceRoot $evidenceRoot -RunId $RunId `
-    -RepositoryRoot $repoRoot -BackendPath $backendPath -ExpectedBackendHash $expectedBackendHash
+if ($ResumeCandidate109) {
+    if ($PreflightOnly -eq $LaunchRecovery) { throw '恢复模式必须且只能选择 -PreflightOnly 或 -LaunchRecovery。' }
+    if ($firstIndex -ne 25 -or $lastIndex -ne 108) { throw 'candidate109 恢复模式仅允许 FirstIndex=25、LastIndex=108。' }
+    if ($OldRunId -cne 'candidate8x8_109_20261006_130252' -or
+        $OldCandidateCommit -cne '999238284157bed77cdb3a37e3e6eea52daeefc4' -or
+        $OldCandidateTree -cne 'b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67') {
+        throw '拒绝更改已核验的旧组 RunId 或完整 14 项闭包 Git commit/tree。'
+    }
+    if ($RunId -ceq $OldRunId) { throw '续跑必须使用全新的 RunId。' }
+    if ($CandidateCommit -notmatch '^[0-9a-f]{40}$' -or $CandidateTree -notmatch '^[0-9a-f]{40}$') {
+        throw '恢复模式必须显式提供完整小写 CandidateCommit 与 CandidateTree。'
+    }
+    if ([string]::IsNullOrWhiteSpace($DispatchSubdirectory) -or $DispatchSubdirectory -notmatch '^[A-Za-z0-9_-]+$') {
+        throw '恢复模式必须给出新的单组件 DispatchSubdirectory 名称。'
+    }
+    if ([string]::IsNullOrWhiteSpace($RecoveryManifestName) -or $RecoveryManifestName -notmatch '^[A-Za-z0-9_-]+$') {
+        throw '恢复模式必须给出新的 manifest 名称（不含 .json）。'
+    }
+    if (-not [System.IO.Path]::IsPathRooted($PythonExecutable) -or -not (Test-Path -LiteralPath $PythonExecutable -PathType Leaf)) {
+        throw '恢复模式必须显式提供存在的 Python 绝对路径。'
+    }
+    $PythonExecutable = (Resolve-Path -LiteralPath $PythonExecutable).Path
+    $recoveryPreflight = Invoke-RecoveryManifestTool -Operation 'preflight' -EvidenceRoot $evidenceRoot `
+        -NewRunId $RunId -CandidateCommit $CandidateCommit -CandidateTree $CandidateTree `
+        -DispatchName $DispatchSubdirectory -ManifestName $RecoveryManifestName -PythonPath $PythonExecutable
+    if ($recoveryPreflight.status -cne 'PASS_READ_ONLY_RECOVERY_PREFLIGHT' -or $recoveryPreflight.simulator_started -ne $false -or
+        $recoveryPreflight.process_check_performed -ne $false -or
+        $recoveryPreflight.old_group.samples.Count -ne 25 -or $recoveryPreflight.fixture_read_only_check.sample_count -ne 109 -or
+        $recoveryPreflight.new_targets_absent -ne $true -or $recoveryPreflight.new_group.backend_sha256 -cne $expectedBackendHash) {
+        throw '只读 recovery preflight 未返回完整且一致的通过结果。'
+    }
+    $newClosureSnapshot = [ordered]@{
+        sources = @($recoveryPreflight.new_group.sources)
+        tooling_sources = @($recoveryPreflight.new_group.tooling_sources)
+    }
+    $currentClosure = Get-SourceClosureFromSnapshot -Snapshot $newClosureSnapshot `
+        -RepositoryRoot $repoRoot -BackendPath $backendPath -ExpectedBackendHash $expectedBackendHash
+    $oldSample0Directory = Join-Path $evidenceRoot (Join-Path 'runs\sample_000' $OldRunId)
+    $oldSample0SnapshotPath = Join-Path $oldSample0Directory 'compile_source_snapshot.json'
+    $oldSample0CompilePath = Join-Path $oldSample0Directory 'compile_execution_record.json'
+    $commonWeightPath = Join-Path $evidenceRoot 'fixtures\common\weights.gf8'
+    $frozen = [ordered]@{
+        closure = $currentClosure
+        sample_directory = $oldSample0Directory
+        snapshot_path = $oldSample0SnapshotPath
+        snapshot_bytes = [long](Get-Item -LiteralPath $oldSample0SnapshotPath).Length
+        snapshot_sha256 = Get-Sha256Literal -Path $oldSample0SnapshotPath
+        compile_record_sha256 = Get-Sha256Literal -Path $oldSample0CompilePath
+        common_weight_path = $commonWeightPath
+        common_weight_bytes = [long](Get-Item -LiteralPath $commonWeightPath).Length
+        common_weight_sha256 = Get-Sha256Literal -Path $commonWeightPath
+    }
+    if ($PreflightOnly) {
+        Write-Output ("T68 recovery preflight status=PASS_READ_ONLY_RECOVERY_PREFLIGHT old_passed=25 fixture_samples=109 simulator_started=false process_check=not_performed new_run_id={0} candidate_tree={1}" -f $RunId, $CandidateTree)
+        exit 0
+    }
+    if ($LaunchRecovery) {
+        Assert-NoCandidateT68Processes -EvidenceRoot $evidenceRoot -OldRunId $OldRunId -NewRunId $RunId
+    }
+} else {
+    if ($PreflightOnly -or $LaunchRecovery) { throw '-PreflightOnly 与 -LaunchRecovery 仅能和 -ResumeCandidate109 一起使用。' }
+    $frozen = Assert-Sample0Passed -EvidenceRoot $evidenceRoot -RunId $RunId `
+        -RepositoryRoot $repoRoot -BackendPath $backendPath -ExpectedBackendHash $expectedBackendHash
+}
 Assert-PendingRunDirectories -EvidenceRoot $evidenceRoot -RunId $RunId -Indices $targetIndices
 
-$dispatchDirectory = Join-Path $evidenceRoot 'batch_dispatch'
-if (Test-Path -LiteralPath $dispatchDirectory) { throw "拒绝复用既有 batch_dispatch：$dispatchDirectory" }
+$dispatchName = if ($ResumeCandidate109) { $DispatchSubdirectory } else { 'batch_dispatch' }
+$dispatchDirectory = Join-Path $evidenceRoot $dispatchName
+if (Test-Path -LiteralPath $dispatchDirectory) { throw "拒绝复用既有 dispatch 目录：$dispatchDirectory" }
 $null = New-Item -ItemType Directory -Path $dispatchDirectory -Force:$false
-$dispatchDirectory = Assert-NormalDirectory -Path $dispatchDirectory -Label 'batch_dispatch'
+$dispatchDirectory = Assert-NormalDirectory -Path $dispatchDirectory -Label $dispatchName
 
 $schedulerSnapshotPath = Join-Path $dispatchDirectory 'scheduler_source_snapshot.json'
 $schedulerSnapshot = [ordered]@{
@@ -722,10 +925,12 @@ try {
                     '-RunId', $RunId,
                     '-EvidenceDirectory', $evidenceRoot,
                     '-ExpectedBackendSha256', $expectedBackendHash,
+                    '-PythonExecutable', $PythonExecutable,
                     '-MaxCycles', '4294967295',
                     '-Compile',
                     '-RunSimulation'
                 )
+                if ($ResumeCandidate109) { $arguments += '-ReuseVerifiedFixtures' }
                 $argumentLine = ($arguments | ForEach-Object { Quote-WindowsArgument -Argument ([string]$_) }) -join ' '
                 $dispatchObservation = Test-SchedulerSourceStable -Checkpoint ("immediately_before_sample_{0:D3}_start_process" -f $sampleIndex)
                 if (-not $dispatchObservation.unchanged) { throw 'scheduler source integrity check failed immediately before worker launch.' }
@@ -817,7 +1022,9 @@ foreach ($workerKey in @($workerProcesses.Keys)) { $null = $finalDispatched.Add(
 $dispatchedIndices = @($targetIndices | Where-Object { $finalDispatched.Contains([int]$_) } | Sort-Object)
 $remainingIndices = @($targetIndices | Where-Object { -not $finalDispatched.Contains([int]$_) } | Sort-Object)
 $allTargetSucceeded = ($succeededIndices.Count -eq $targetIndices.Count) -and ($failedIndices.Count -eq 0) -and ($workerProcesses.Count -eq 0) -and ($null -eq $schedulerError)
-if ($allTargetSucceeded -and ($targetIndices.Count -eq 108) -and ($firstIndex -eq 1) -and ($lastIndex -eq 108)) {
+if ($ResumeCandidate109 -and $allTargetSucceeded -and ($targetIndices.Count -eq 84) -and ($firstIndex -eq 25) -and ($lastIndex -eq 108)) {
+    $batchStatus = 'PASS_RESUMED_84_RUNNERS'
+} elseif ($allTargetSucceeded -and ($targetIndices.Count -eq 108) -and ($firstIndex -eq 1) -and ($lastIndex -eq 108)) {
     $batchStatus = 'PASS_108_RUNNERS'
 } elseif ($allTargetSucceeded) {
     $batchStatus = "PASS_SUBSET_$($targetIndices.Count)_RUNNERS"
@@ -838,6 +1045,12 @@ try {
         status = $batchStatus
         evidence_directory = $evidenceRoot
         run_id = $RunId
+        recovery_mode = [bool]$ResumeCandidate109
+        old_run_id = if ($ResumeCandidate109) { $OldRunId } else { $null }
+        candidate_commit = if ($ResumeCandidate109) { $CandidateCommit } else { $null }
+        candidate_tree = if ($ResumeCandidate109) { $CandidateTree } else { $null }
+        dispatch_subdirectory = $dispatchName
+        recovery_manifest_name = if ($ResumeCandidate109) { "$RecoveryManifestName.json" } else { $null }
         expected_backend_sha256 = $expectedBackendHash
         scheduler_path = $script:schedulerPath
         scheduler_bytes = $script:schedulerFrozenBytes
@@ -864,6 +1077,7 @@ try {
             compile_record_sha256 = $frozen.compile_record_sha256
             source_closure_sha256 = $frozen.closure.source_digest
             tooling_closure_sha256 = $frozen.closure.tooling_digest
+            source_closure_basis = if ($ResumeCandidate109) { 'new_candidate_git_tree; old sample0 records were independently verified by preflight' } else { 'same_run_sample0' }
         }
         common_weight = [ordered]@{
             path = $frozen.common_weight_path
@@ -919,7 +1133,25 @@ try {
             $summaryFailure, $fallbackWriteFailure)
     }
 }
-Write-Output ("T68 batch status={0} succeeded={1} failed={2} remaining={3} summary={4}" -f `
-    $batchStatus, $succeededIndices.Count, $failedIndices.Count, $remainingIndices.Count, $summaryPath)
-if (-not $allTargetSucceeded) { exit 1 }
+$recoveryManifestPath = $null
+$recoveryManifestFailure = $null
+if ($ResumeCandidate109 -and $allTargetSucceeded) {
+    try {
+        $manifestResult = Invoke-RecoveryManifestTool -Operation 'create' -EvidenceRoot $evidenceRoot `
+            -NewRunId $RunId -CandidateCommit $CandidateCommit -CandidateTree $CandidateTree `
+            -DispatchName $DispatchSubdirectory -ManifestName $RecoveryManifestName -PythonPath $PythonExecutable
+        if ($manifestResult.status -cne 'PASS_109_RECOVERY_MANIFEST' -or $manifestResult.sample_count -ne 109) {
+            throw 'recovery manifest 工具未确认 109 个样本全部通过。'
+        }
+        $recoveryManifestPath = [string]$manifestResult.manifest_path
+    } catch {
+        $recoveryManifestFailure = $_.Exception.Message
+        Add-SchedulerError -Message ("recovery manifest finalization failed: {0}" -f $recoveryManifestFailure)
+        $allTargetSucceeded = $false
+    }
+}
+Write-Output ("T68 batch status={0} succeeded={1} failed={2} remaining={3} summary={4} recovery_manifest={5}" -f `
+    $(if ($null -eq $recoveryManifestFailure) { $batchStatus } else { 'FAIL_RECOVERY_MANIFEST' }),
+    $succeededIndices.Count, $failedIndices.Count, $remainingIndices.Count, $summaryPath, $recoveryManifestPath)
+if (-not $allTargetSucceeded) { if ($null -ne $recoveryManifestFailure) { exit 2 } else { exit 1 } }
 exit 0

@@ -95,7 +95,7 @@ proc s3_secure_read_utf8 {path root} {
 
 proc s3_expected_generated_clock_xdc_path {project} {
     return [file join $project s3_hdmi_only.gen sources_1 bd s3_hdmi_only ip \
-        s3_hdmi_only_rgb2dvi_0_0 rgb2dvi_0_0 src rgb2dvi_clocks.xdc]
+        s3_hdmi_only_rgb2dvi_0_0 src rgb2dvi_clocks.xdc]
 }
 
 proc s3_wait_for_generated_clock_xdc_lease {path digest {timeout_ms 120000}} {
@@ -907,7 +907,7 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
     add_files -norecurse $wrapper_files
     set_property top s3_hdmi_only_wrapper [current_fileset]
 
-    set clock_xdcs [glob -nocomplain -types f [file join [dict get $guard project] s3_hdmi_only.gen sources_1 bd s3_hdmi_only ip * rgb2dvi_0_0 src rgb2dvi_clocks.xdc]]
+    set clock_xdcs [glob -nocomplain -types f [file join [dict get $guard project] s3_hdmi_only.gen sources_1 bd s3_hdmi_only ip * src rgb2dvi_clocks.xdc]]
     if {[llength $clock_xdcs] != 1} {error "EXPECTED_ONE_GENERATED_RGB2DVI_CLOCK_XDC_GOT_[llength $clock_xdcs]"}
     set generated_clock_xdc [lindex $clock_xdcs 0]
     set project_key [s3_normalized_key [dict get $guard project]]
@@ -1060,6 +1060,15 @@ proc s3_run_selftest {} {
     incr checks
     if {[string first "/.codex/" [s3_normalized_key {C:\Users\22061\.codex\worktrees\repo\tmp\run01}]] < 0} {
         lappend failures "path key normalization changed the literal hidden-directory component"
+    }
+    incr checks
+    set synthetic_project_root {C:/repo/tmp/s3_route/project}
+    set synthetic_clock_xdc [s3_expected_generated_clock_xdc_path $synthetic_project_root]
+    set expected_synthetic_clock_xdc {C:/repo/tmp/s3_route/project/s3_hdmi_only.gen/sources_1/bd/s3_hdmi_only/ip/s3_hdmi_only_rgb2dvi_0_0/src/rgb2dvi_clocks.xdc}
+    set expected_synthetic_clock_xdc_windows {C:\repo\tmp\s3_route\project\s3_hdmi_only.gen\sources_1\bd\s3_hdmi_only\ip\s3_hdmi_only_rgb2dvi_0_0\src\rgb2dvi_clocks.xdc}
+    if {[s3_normalized_key $synthetic_clock_xdc] ne [s3_normalized_key $expected_synthetic_clock_xdc] ||
+        [s3_normalized_key $expected_synthetic_clock_xdc] ne [s3_normalized_key $expected_synthetic_clock_xdc_windows]} {
+        lappend failures "generated-clock XDC helper did not return the exact single-layer IP-instance path: $synthetic_clock_xdc"
     }
     incr checks
     if {[llength [s3_expected_hdmi_ports]] != 11} {

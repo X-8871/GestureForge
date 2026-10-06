@@ -2003,14 +2003,42 @@ function Get-Sha256Hex([byte[]]$Bytes) {
     finally { $sha.Dispose() }
 }
 
+function ConvertTo-CanonicalWindowsAbsolutePath([string]$Path) {
+    if ([string]::IsNullOrWhiteSpace($Path) -or $Path -match '[\x00-\x1F]') {
+        throw 'REQUEST_PATH_FORMAT_INVALID'
+    }
+    if ($Path -match '(^|[\\/])\.{1,2}([\\/]|$)') {
+        throw 'REQUEST_PATH_TRAVERSAL_REJECTED'
+    }
+
+    $separatorNormalized = $Path.Replace('/', '\')
+    if ($separatorNormalized -notmatch '^[A-Za-z]:\\') {
+        throw 'REQUEST_PATH_NOT_ABSOLUTE_WINDOWS'
+    }
+    $remainder = $separatorNormalized.Substring(3)
+    if ($remainder.StartsWith('\', [StringComparison]::Ordinal) -or $remainder.Contains('\\') -or
+        ($remainder.Length -gt 0 -and $remainder.EndsWith('\', [StringComparison]::Ordinal))) {
+        throw 'REQUEST_PATH_NOT_CANONICAL'
+    }
+    if ($remainder.Contains(':')) { throw 'REQUEST_PATH_ALTERNATE_STREAM_REJECTED' }
+
+    try { $canonical = [IO.Path]::GetFullPath($separatorNormalized) }
+    catch { throw 'REQUEST_PATH_CANONICALIZATION_FAILED' }
+    if (-not [string]::Equals($separatorNormalized, $canonical, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'REQUEST_PATH_NOT_CANONICAL'
+    }
+    return $canonical
+}
+
 function Get-ExpectedGeneratedClockXdcPath([string]$Directory) {
-    $relative = 'project\s3_hdmi_only.gen\sources_1\bd\s3_hdmi_only\ip\s3_hdmi_only_rgb2dvi_0_0\rgb2dvi_0_0\src\rgb2dvi_clocks.xdc'
-    return [IO.Path]::GetFullPath((Join-Path $Directory $relative))
+    $canonicalDirectory = ConvertTo-CanonicalWindowsAbsolutePath $Directory
+    $relative = 'project\s3_hdmi_only.gen\sources_1\bd\s3_hdmi_only\ip\s3_hdmi_only_rgb2dvi_0_0\src\rgb2dvi_clocks.xdc'
+    return ConvertTo-CanonicalWindowsAbsolutePath (Join-Path $canonicalDirectory $relative)
 }
 
 function New-GeneratedClockXdcBrokerState([int]$BarrierTimeoutSeconds = 105) {
     return [pscustomobject]@{
-        RequestPath=$null; Sha256=$null; Completed=$false; Error=$null
+        RequestPath=$null; RequestWireText=$null; Sha256=$null; Completed=$false; Error=$null
         BarrierStartedAt=$null; BarrierTimeout=[TimeSpan]::FromSeconds($BarrierTimeoutSeconds)
         ExpectedPath=$null
     }
@@ -2049,8 +2077,7 @@ function Invoke-GeneratedClockXdcLeaseBroker([string]$Directory, $Broker, $Lease
     $requestText = [Text.Encoding]::UTF8.GetString($requestBytes)
     if (-not $requestText.EndsWith("`n", [StringComparison]::Ordinal)) { return }
     if ($Broker.Completed) {
-        $expectedRequest = "S3_GENERATED_CLOCK_LEASE=1`nPATH_B64=" + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Broker.RequestPath)) + "`nSHA256=$($Broker.Sha256)`n"
-        if ($requestText -cne $expectedRequest) {
+        if ($requestText -cne $Broker.RequestWireText) {
             Write-GeneratedClockXdcBrokerError $Directory $Broker $Leases 'DUPLICATE_OR_MUTATED_REQUEST'
             throw 'GENERATED_CLOCK_XDC_BROKER_DUPLICATE_REQUEST'
         }
@@ -2063,21 +2090,22 @@ function Invoke-GeneratedClockXdcLeaseBroker([string]$Directory, $Broker, $Lease
         $pathMatch = [regex]::Match($lines[1], '^PATH_B64=([A-Za-z0-9+/]*={0,2})$')
         $hashMatch = [regex]::Match($lines[2], '^SHA256=([A-Fa-f0-9]{64})$')
         if (-not $pathMatch.Success -or -not $hashMatch.Success) { throw 'REQUEST_FORMAT_INVALID' }
-        $target = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($pathMatch.Groups[1].Value))
+        try { $decodedPath = [Text.UTF8Encoding]::new($false, $true).GetString([Convert]::FromBase64String($pathMatch.Groups[1].Value)) }
+        catch { throw 'REQUEST_PATH_UTF8_INVALID' }
+        $target = ConvertTo-CanonicalWindowsAbsolutePath $decodedPath
         $requestedHash = $hashMatch.Groups[1].Value.ToUpperInvariant()
         $expected = Get-ExpectedGeneratedClockXdcPath $Directory
-        if (-not [string]::Equals($target, $expected, [StringComparison]::OrdinalIgnoreCase) -or
-            -not [string]::Equals($target, [IO.Path]::GetFullPath($target), [StringComparison]::OrdinalIgnoreCase)) {
-            throw 'REQUEST_PATH_NOT_EXACT_EXPECTED_GENERATED_XDC'
-        }
-        $projectRoot = [IO.Path]::GetFullPath((Join-Path $Directory 'project')).TrimEnd('\') + '\'
-        if (-not $target.StartsWith($projectRoot, [StringComparison]::OrdinalIgnoreCase)) { throw 'REQUEST_PATH_ESCAPES_PROJECT' }
+        $projectRoot = ConvertTo-CanonicalWindowsAbsolutePath (Join-Path $Directory 'project')
+        $projectPrefix = if ($projectRoot.EndsWith('\', [StringComparison]::Ordinal)) { $projectRoot } else { $projectRoot + '\' }
+        if (-not $target.StartsWith($projectPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'REQUEST_PATH_ESCAPES_PROJECT' }
+        if (-not [string]::Equals($target, $expected, [StringComparison]::OrdinalIgnoreCase)) { throw 'REQUEST_PATH_NOT_EXACT_EXPECTED_GENERATED_XDC' }
         $Leases.LockDirectoryChain([IO.Path]::GetDirectoryName($target))
         $Leases.LockExistingReadOnly($target)
         $actualHash = Get-Sha256Hex ($Leases.ReadHeld($target))
         if ($actualHash -cne $requestedHash) { throw 'REQUEST_SHA256_MISMATCH' }
 
         $Broker.RequestPath = $target
+        $Broker.RequestWireText = $requestText
         $Broker.Sha256 = $actualHash
         $Broker.ExpectedPath = $expected
         $ackPath = Join-Path $Directory 'reports\generated_clock_xdc.lease_ack'
@@ -2573,6 +2601,41 @@ function New-FakeChild([string]$Directory, [string]$Code, [string]$Name) {
     $exe = Get-WindowsPowerShellExecutable
     $line = New-DirectCommandLine $exe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$encoded)
     return [pscustomobject]@{ Directory=$caseDir; Process=[S3T03RunnerProcess]::Start($exe,$line,$repoRoot) }
+}
+
+function Invoke-GeneratedClockXdcBrokerRejectSelfTest([string]$TestRoot, [string]$Name,
+    [string]$RequestPath, [string]$RequestHash, [string]$ExpectedError) {
+    $caseRoot = Join-Path $TestRoot $Name
+    $leases = Initialize-SafeOutputLeases $caseRoot
+    $fake = $null
+    try {
+        $expectedXdc = Get-ExpectedGeneratedClockXdcPath $caseRoot
+        [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($expectedXdc))
+        $xdcBytes = [Text.Encoding]::UTF8.GetBytes('broker-rejection-selftest-xdc')
+        [S3T03SafeFile]::WriteWithinRoot($expectedXdc, $caseRoot, $true, $xdcBytes)
+        $requestFile = Join-Path $caseRoot 'reports\generated_clock_xdc.lease_request'
+        $errorFile = Join-Path $caseRoot 'reports\generated_clock_xdc.lease_error'
+        $fakeCode = @'
+$root=@ROOT@;$target=@TARGET@;$request=@REQUEST@;$errorPath=@ERROR@;$requestHash=@HASH@
+Set-FakeFile (Join-Path $root 'run_status.txt') "STAGE=GENERATED_CLOCK_XDC_LEASE_BARRIER`nRESULT=RUNNING"
+$pathB64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($target))
+Set-FakeFile $request "S3_GENERATED_CLOCK_LEASE=1`nPATH_B64=$pathB64`nSHA256=$requestHash`n"
+$until=[DateTime]::UtcNow.AddSeconds(8)
+while([DateTime]::UtcNow -lt $until){if((Read-FakeFile $errorPath).Contains('S3_GENERATED_CLOCK_LEASE=FAIL')){exit 0};Start-Sleep -Milliseconds 25}
+exit 8
+'@
+        $fakeCode = $fakeCode.Replace('@ROOT@',(ConvertTo-PowerShellLiteral $caseRoot)).Replace('@TARGET@',(ConvertTo-PowerShellLiteral $RequestPath)).Replace('@REQUEST@',(ConvertTo-PowerShellLiteral $requestFile)).Replace('@ERROR@',(ConvertTo-PowerShellLiteral $errorFile)).Replace('@HASH@',(ConvertTo-PowerShellLiteral $RequestHash))
+        $fake = New-FakeChild $TestRoot $fakeCode $Name
+        $broker = New-GeneratedClockXdcBrokerState 4
+        try { $result = Resolve-SupervisedResult $fake.Process $caseRoot 'run' ([DateTime]::UtcNow) ([TimeSpan]::FromSeconds(8)) ([TimeSpan]::FromSeconds(5)) 25 $broker $leases }
+        finally { $fake.Process.Dispose() }
+        $errorText = [Text.Encoding]::UTF8.GetString($leases.ReadHeld($errorFile))
+        Assert-Test ($result.StopReason -eq 'GENERATED_CLOCK_XDC_BROKER_FAILED' -and
+            $broker.Error -eq $ExpectedError -and $errorText.Contains($ExpectedError)) $Name
+    } finally {
+        if ($fake) { $fake.Process.Dispose() }
+        $leases.Dispose()
+    }
 }
 
 function Invoke-SupervisorSelfTests {
@@ -3530,15 +3593,15 @@ Start-Sleep -Seconds 30
             $brokerXdcBytes = [Text.Encoding]::UTF8.GetBytes('# broker-fake-generated-clock-xdc')
             [S3T03SafeFile]::WriteWithinRoot($brokerXdc, $layoutRoot, $true, $brokerXdcBytes)
             $brokerSha = Get-Sha256Hex $brokerXdcBytes
-            $brokerPathB64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($brokerXdc))
+            $brokerWirePath = $brokerXdc.Replace('\','/')
             $requestPath = Join-Path $layoutRoot 'reports\generated_clock_xdc.lease_request'
             $ackPath = Join-Path $layoutRoot 'reports\generated_clock_xdc.lease_ack'
             $errorPath = Join-Path $layoutRoot 'reports\generated_clock_xdc.lease_error'
             $brokerFakeCode = @'
-$root=@ROOT@;$xdc=@XDC@;$request=@REQUEST@;$ack=@ACK@;$errorPath=@ERROR@
+$root=@ROOT@;$xdc=@XDC@;$wirePath=@WIREPATH@;$request=@REQUEST@;$ack=@ACK@;$errorPath=@ERROR@
 Set-FakeFile (Join-Path $root 'run_status.txt') "STAGE=GENERATED_CLOCK_XDC_LEASE_BARRIER`nRESULT=RUNNING"
 $hash=[BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash([IO.File]::ReadAllBytes($xdc))).Replace('-','')
-$pathB64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($xdc))
+$pathB64=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($wirePath))
 Set-FakeFile $request "S3_GENERATED_CLOCK_LEASE=1`nPATH_B64=$pathB64`nSHA256=$hash`n"
 $until=[DateTime]::UtcNow.AddSeconds(8)
 while([DateTime]::UtcNow -lt $until){
@@ -3554,18 +3617,30 @@ while([DateTime]::UtcNow -lt $until){
 }
 exit 8
 '@
-            $brokerFakeCode = $brokerFakeCode.Replace('@ROOT@',(ConvertTo-PowerShellLiteral $layoutRoot)).Replace('@XDC@',(ConvertTo-PowerShellLiteral $brokerXdc)).Replace('@REQUEST@',(ConvertTo-PowerShellLiteral $requestPath)).Replace('@ACK@',(ConvertTo-PowerShellLiteral $ackPath)).Replace('@ERROR@',(ConvertTo-PowerShellLiteral $errorPath))
+            $brokerFakeCode = $brokerFakeCode.Replace('@ROOT@',(ConvertTo-PowerShellLiteral $layoutRoot)).Replace('@XDC@',(ConvertTo-PowerShellLiteral $brokerXdc)).Replace('@WIREPATH@',(ConvertTo-PowerShellLiteral $brokerWirePath)).Replace('@REQUEST@',(ConvertTo-PowerShellLiteral $requestPath)).Replace('@ACK@',(ConvertTo-PowerShellLiteral $ackPath)).Replace('@ERROR@',(ConvertTo-PowerShellLiteral $errorPath))
             $brokerFake = New-FakeChild $testRoot $brokerFakeCode 'xdc-broker-handoff'
             $brokerState = New-GeneratedClockXdcBrokerState 4
             try { $brokerResult = Resolve-SupervisedResult $brokerFake.Process $layoutRoot 'run' ([DateTime]::UtcNow) ([TimeSpan]::FromSeconds(8)) ([TimeSpan]::FromSeconds(5)) 25 $brokerState $layoutLeases }
             finally { $brokerFake.Process.Dispose() }
             $brokerStatus = [Text.Encoding]::UTF8.GetString($layoutLeases.ReadHeld((Join-Path $layoutRoot 'run_status.txt')))
+            $brokerAckText = [Text.Encoding]::UTF8.GetString($layoutLeases.ReadHeld($ackPath))
+            $brokerAckLines = $brokerAckText -split "`r?`n"
+            $brokerAckPathMatch = [regex]::Match($brokerAckText, '(?m)^PATH_B64=([A-Za-z0-9+/]*={0,2})$')
+            $brokerAckHashMatch = [regex]::Match($brokerAckText, '(?m)^SHA256=([A-Fa-f0-9]{64})$')
+            $brokerAckPath = if ($brokerAckPathMatch.Success) { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($brokerAckPathMatch.Groups[1].Value)) } else { '' }
+            $brokerAckCanonicalPath = if ($brokerAckPath) { ConvertTo-CanonicalWindowsAbsolutePath $brokerAckPath } else { '' }
             if (-not ($brokerResult.Result -eq 'SUCCESS' -and $brokerState.Completed -and $brokerStatus.Contains('WRITE_BLOCKED=True') -and $brokerStatus.Contains('REPLACE_BLOCKED=True'))) {
                 $fakeErrorPath = Join-Path $brokerFake.Directory 'fake_error.txt'
                 $fakeErrorText = if (Test-Path -LiteralPath $fakeErrorPath -PathType Leaf) { [IO.File]::ReadAllText($fakeErrorPath) } else { 'NONE' }
                 [Console]::Error.WriteLine('XDC_BROKER_SELFTEST_DIAGNOSTIC=RESULT:' + $brokerResult.Result + ';STOP:' + $brokerResult.StopReason + ';EXIT:' + $brokerResult.ExitCode + ';ERROR:' + $brokerState.Error + ';BROKER_FAILURE:' + $brokerResult.BrokerError + ';FAKE_ERROR:' + $fakeErrorText + ';STATUS:' + $brokerStatus.Replace("`n",'|'))
             }
-            Assert-Test ($brokerResult.Result -eq 'SUCCESS' -and $brokerState.Completed -and $brokerStatus.Contains('WRITE_BLOCKED=True') -and $brokerStatus.Contains('REPLACE_BLOCKED=True')) 'xdc-broker-wait-ack-read-compatible-write-and-replacement-blocked'
+            Assert-Test ($brokerResult.Result -eq 'SUCCESS' -and $brokerState.Completed -and $brokerStatus.Contains('WRITE_BLOCKED=True') -and $brokerStatus.Contains('REPLACE_BLOCKED=True') -and
+                [string]::Equals($brokerState.RequestPath, $brokerXdc, [StringComparison]::OrdinalIgnoreCase) -and
+                $brokerAckLines[0] -ceq 'S3_GENERATED_CLOCK_LEASE=READY' -and
+                [string]::Equals($brokerAckPath, $brokerXdc, [StringComparison]::OrdinalIgnoreCase) -and
+                [string]::Equals($brokerAckCanonicalPath, $brokerXdc, [StringComparison]::OrdinalIgnoreCase) -and
+                $brokerAckHashMatch.Success -and $brokerAckHashMatch.Groups[1].Value.ToUpperInvariant() -ceq $brokerSha.ToUpperInvariant()) `
+                'xdc-broker-normalizes-forward-slash-request-and-acks-canonical-path-hash-and-lease'
             $heldMoveBlocked = $false
             try { [IO.File]::Move($brokerXdc,$brokerXdc+'.held-probe') } catch { $heldMoveBlocked = $true }
             Assert-Test $heldMoveBlocked 'xdc-broker-retains-lease-after-run-child-exit'
@@ -3600,6 +3675,14 @@ Start-Sleep -Seconds 20
                 [IO.File]::Move($badXdc,$badXdc+'.released')
                 Assert-Test (Test-Path -LiteralPath ($badXdc+'.released') -PathType Leaf) 'xdc-broker-failure-lease-released-by-finally-disposal'
             } finally { $badLeases.Dispose() }
+
+            $brokerRejectSha = Get-Sha256Hex ([Text.Encoding]::UTF8.GetBytes('broker-rejection-selftest-xdc'))
+            $traversalCaseRoot = Join-Path $testRoot 'broker-path-traversal'
+            $traversalExpected = Get-ExpectedGeneratedClockXdcPath $traversalCaseRoot
+            $traversalPath = $traversalExpected.Replace('\s3_hdmi_only.gen\','\..\project\s3_hdmi_only.gen\')
+            Invoke-GeneratedClockXdcBrokerRejectSelfTest $testRoot 'broker-path-traversal' $traversalPath $brokerRejectSha 'REQUEST_PATH_TRAVERSAL_REJECTED'
+            $outsideProjectPath = Join-Path $testRoot 'broker-outside-project\generated_clock.xdc'
+            Invoke-GeneratedClockXdcBrokerRejectSelfTest $testRoot 'broker-outside-root' $outsideProjectPath $brokerRejectSha 'REQUEST_PATH_ESCAPES_PROJECT'
 
             $timeoutRoot = Join-Path $testRoot 'broker-wait-timeout'
             $timeoutLeases = Initialize-SafeOutputLeases $timeoutRoot

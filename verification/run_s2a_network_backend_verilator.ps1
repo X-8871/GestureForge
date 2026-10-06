@@ -162,14 +162,41 @@ function Test-StartedProcessIdentity {
 
 function Get-CompleteProgressMarkerLines {
     param([Parameter(Mandatory = $true)][string]$Path)
-    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return @() }
-    $text = [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        return [pscustomobject]@{ readable = $true; lines = [string[]]@() }
+    }
+    $sharing = [System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete
+    $text = $null
+    for ($attempt = 0; $attempt -lt 4; $attempt++) {
+        $stream = $null
+        $reader = $null
+        try {
+            $stream = [System.IO.FileStream]::new($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, $sharing)
+            $reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::UTF8, $true)
+            $text = $reader.ReadToEnd()
+            break
+        } catch [System.IO.IOException] {
+            if ($attempt -lt 3) { Start-Sleep -Milliseconds 25 }
+        } catch [System.UnauthorizedAccessException] {
+            break
+        } finally {
+            if ($null -ne $reader) {
+                try { $reader.Dispose() } catch { }
+            } elseif ($null -ne $stream) {
+                try { $stream.Dispose() } catch { }
+            }
+        }
+    }
+    if ($null -eq $text) {
+        return [pscustomobject]@{ readable = $false; lines = [string[]]@() }
+    }
     if (-not $text.EndsWith("`n")) {
         $lastNewline = $text.LastIndexOf("`n")
-        if ($lastNewline -lt 0) { return @() }
+        if ($lastNewline -lt 0) { return [pscustomobject]@{ readable = $true; lines = [string[]]@() } }
         $text = $text.Substring(0, $lastNewline + 1)
     }
-    return @($text -split "`r?`n" | Where-Object { $_.StartsWith('S2A_PROGRESS ', [System.StringComparison]::Ordinal) })
+    $lines = @($text -split "`r?`n" | Where-Object { $_.StartsWith('S2A_PROGRESS ', [System.StringComparison]::Ordinal) })
+    return [pscustomobject]@{ readable = $true; lines = [string[]]$lines }
 }
 
 function ConvertFrom-ProgressMarker {
@@ -532,45 +559,48 @@ if ($RunSimulation) {
     while ($true) {
         $simProcess.Refresh()
         $processExited = $simProcess.HasExited
-        $progressLines = @(Get-CompleteProgressMarkerLines -Path $progressMarkerPath)
-        if ($progressLines.Count -lt $processedMarkerCount) {
-            $badProgressMarkerSeen = $true
-        } else {
-            for ($markerIndex = $processedMarkerCount; $markerIndex -lt $progressLines.Count; $markerIndex++) {
-                $progressMarker = ConvertFrom-ProgressMarker -Line ([string]$progressLines[$markerIndex])
-                if ($null -eq $progressMarker) {
-                    $badProgressMarkerSeen = $true
-                    $processedMarkerCount++
-                    continue
-                }
-                $phaseSequenceValid = if ($progressMarkerCount -eq 0) {
-                    $progressMarker.phase -eq 'start'
-                } else {
-                    ($progressMarker.phase -ne 'start') -and ($lastProgressPhase -ne 'complete')
-                }
-                if (($progressMarker.sample -ne $SampleIndex) -or
-                    ($progressMarker.layer -lt 0) -or ($progressMarker.layer -ge 38) -or
-                    ($progressMarker.cycle -lt $previousProgressCycle) -or
-                    ($progressMarker.cycle -gt $MaxCycles) -or (-not $phaseSequenceValid)) {
-                    $badProgressMarkerSeen = $true
-                    $processedMarkerCount++
-                    continue
-                }
-                if ($progressMarkerCount -eq 0) {
-                    $firstProgressPhase = $progressMarker.phase
-                    $lastProgressSignature = $progressMarker.signature
-                } else {
-                    if (Test-ProgressSignatureChanged -PreviousSignature $lastProgressSignature `
-                        -CurrentSignature $progressMarker.signature) {
-                        $lastProgressAtUtc = [datetime]::UtcNow
-                        $functionalProgressObserved = $true
+        $progressRead = Get-CompleteProgressMarkerLines -Path $progressMarkerPath
+        if ($progressRead.readable) {
+            $progressLines = @($progressRead.lines)
+            if ($progressLines.Count -lt $processedMarkerCount) {
+                $badProgressMarkerSeen = $true
+            } else {
+                for ($markerIndex = $processedMarkerCount; $markerIndex -lt $progressLines.Count; $markerIndex++) {
+                    $progressMarker = ConvertFrom-ProgressMarker -Line ([string]$progressLines[$markerIndex])
+                    if ($null -eq $progressMarker) {
+                        $badProgressMarkerSeen = $true
+                        $processedMarkerCount++
+                        continue
                     }
-                    $lastProgressSignature = $progressMarker.signature
+                    $phaseSequenceValid = if ($progressMarkerCount -eq 0) {
+                        $progressMarker.phase -eq 'start'
+                    } else {
+                        ($progressMarker.phase -ne 'start') -and ($lastProgressPhase -ne 'complete')
+                    }
+                    if (($progressMarker.sample -ne $SampleIndex) -or
+                        ($progressMarker.layer -lt 0) -or ($progressMarker.layer -ge 38) -or
+                        ($progressMarker.cycle -lt $previousProgressCycle) -or
+                        ($progressMarker.cycle -gt $MaxCycles) -or (-not $phaseSequenceValid)) {
+                        $badProgressMarkerSeen = $true
+                        $processedMarkerCount++
+                        continue
+                    }
+                    if ($progressMarkerCount -eq 0) {
+                        $firstProgressPhase = $progressMarker.phase
+                        $lastProgressSignature = $progressMarker.signature
+                    } else {
+                        if (Test-ProgressSignatureChanged -PreviousSignature $lastProgressSignature `
+                            -CurrentSignature $progressMarker.signature) {
+                            $lastProgressAtUtc = [datetime]::UtcNow
+                            $functionalProgressObserved = $true
+                        }
+                        $lastProgressSignature = $progressMarker.signature
+                    }
+                    $previousProgressCycle = $progressMarker.cycle
+                    $lastProgressPhase = $progressMarker.phase
+                    $progressMarkerCount++
+                    $processedMarkerCount++
                 }
-                $previousProgressCycle = $progressMarker.cycle
-                $lastProgressPhase = $progressMarker.phase
-                $progressMarkerCount++
-                $processedMarkerCount++
             }
         }
         if ($processExited) { break }

@@ -31,6 +31,7 @@ $runnerPath = Join-Path $PSScriptRoot 'run_s2a_network_backend_verilator.ps1'
 $coordinatorPath = Join-Path $PSScriptRoot 'run_s2a_t68_unattended_continuation.ps1'
 foreach ($functionBinding in @(
     @{ path = $runnerPath; name = 'Test-S2aNetworkBackendResultSummary' },
+    @{ path = $runnerPath; name = 'Get-CompleteProgressMarkerLines' },
     @{ path = $coordinatorPath; name = 'Assert-ApprovedPythonCommandResolution' }
 )) {
     $tokens = $null
@@ -71,7 +72,7 @@ foreach ($newLine in @("`n", "`r`n")) {
     }
 }
 
-$temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('s2a-t68-python-path-test-' + [guid]::NewGuid().ToString('N'))
+$temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('s2a-t68-runner-guards-' + [guid]::NewGuid().ToString('N'))
 $temporaryRoot = [System.IO.Path]::GetFullPath($temporaryRoot)
 $approvedDirectory = Join-Path $temporaryRoot 'approved'
 $otherDirectories = @(
@@ -82,9 +83,49 @@ $otherDirectories = @(
 $approvedPython = Join-Path $approvedDirectory 'python.exe'
 $originalPath = $env:PATH
 $pythonPathCases = 0
+$progressMarkerReadCases = 0
 try {
     $null = [System.IO.Directory]::CreateDirectory($approvedDirectory)
     foreach ($directory in $otherDirectories) { $null = [System.IO.Directory]::CreateDirectory($directory) }
+
+    $progressMarkerPath = Join-Path $temporaryRoot 'progress_markers.txt'
+    $firstProgressMarker = 'S2A_PROGRESS sample=7 layer=0 cycle=10 output=0 conv_tile_y=0 conv_tile_x=0 conv_group=0 conv_point=0 conv_reduction=0 conv_feature_scan=0 conv_weight_reduction=0 conv_output_lane=0 conv_output_point=0 pool_tap=0 feature_write_bytes=0 read_transactions=0 write_transactions=0 phase=start'
+    $secondProgressMarker = 'S2A_PROGRESS sample=7 layer=1 cycle=20 output=1 conv_tile_y=0 conv_tile_x=0 conv_group=0 conv_point=1 conv_reduction=0 conv_feature_scan=0 conv_weight_reduction=0 conv_output_lane=0 conv_output_point=0 pool_tap=0 feature_write_bytes=4 read_transactions=1 write_transactions=1 phase=running'
+    $partialProgressMarker = 'S2A_PROGRESS sample=7 layer=2 cycle=30'
+    $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    [System.IO.File]::WriteAllText($progressMarkerPath, $firstProgressMarker + "`n", $utf8NoBom)
+
+    $exclusiveWriter = [System.IO.FileStream]::new($progressMarkerPath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+    try {
+        $blockedProgressRead = Get-CompleteProgressMarkerLines -Path $progressMarkerPath
+        Assert-TestCondition -Condition (-not $blockedProgressRead.readable) -Message '排他写入期间应安全报告进度文件暂不可读。'
+        Assert-TestCondition -Condition ($blockedProgressRead.lines.Count -eq 0) -Message '排他写入期间不得返回伪造进度行。'
+        $progressMarkerReadCases++
+    } finally {
+        $exclusiveWriter.Dispose()
+    }
+
+    $recoveredProgressRead = Get-CompleteProgressMarkerLines -Path $progressMarkerPath
+    Assert-TestCondition -Condition $recoveredProgressRead.readable -Message '释放写入锁后进度文件应可恢复读取。'
+    Assert-TestCondition -Condition ($recoveredProgressRead.lines.Count -eq 1) -Message '恢复读取应只返回完整进度行。'
+    Assert-TestCondition -Condition ($recoveredProgressRead.lines[0] -ceq $firstProgressMarker) -Message '恢复读取的完整进度行内容不匹配。'
+    $progressMarkerReadCases++
+
+    $sharedWriter = [System.IO.FileStream]::new($progressMarkerPath, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write,
+        ([System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete))
+    try {
+        $appendBytes = $utf8NoBom.GetBytes("`n" + $secondProgressMarker + "`n" + $partialProgressMarker)
+        $sharedWriter.Write($appendBytes, 0, $appendBytes.Length)
+        $sharedWriter.Flush()
+        $concurrentProgressRead = Get-CompleteProgressMarkerLines -Path $progressMarkerPath
+        Assert-TestCondition -Condition $concurrentProgressRead.readable -Message '共享写入期间进度文件应可并发读取。'
+        Assert-TestCondition -Condition ($concurrentProgressRead.lines.Count -eq 2) -Message '并发读取应排除末尾未完成行。'
+        Assert-TestCondition -Condition ($concurrentProgressRead.lines[1] -ceq $secondProgressMarker) -Message '并发读取的第二条完整进度行内容不匹配。'
+        $progressMarkerReadCases++
+    } finally {
+        $sharedWriter.Dispose()
+    }
+
     [System.IO.File]::WriteAllBytes($approvedPython, [byte[]]@())
     foreach ($directory in $otherDirectories) {
         [System.IO.File]::WriteAllBytes((Join-Path $directory 'python.exe'), [byte[]]@())
@@ -133,6 +174,7 @@ try {
     powershell_executable = Join-Path $PSHOME 'pwsh.exe'
     summary_cases = $summaryCases
     python_path_resolution_cases = $pythonPathCases
+    progress_marker_read_cases = $progressMarkerReadCases
     python_interpreter_invocations = 0
     simulation_invocations = 0
 } | ConvertTo-Json -Compress

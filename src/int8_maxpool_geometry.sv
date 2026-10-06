@@ -32,15 +32,18 @@ module int8_maxpool_geometry (
     logic [32:0] output_width_work;
     logic signed [63:0] origin_y;
     logic signed [63:0] origin_x;
-    logic [63:0] output_y_step;
-    logic [63:0] output_x_step;
+    logic [32:0] output_y_step;
+    logic [32:0] output_x_step;
     logic signed [63:0] source_y_work;
     logic signed [63:0] source_x_work;
-    logic [95:0] channel_row_work;
-    logic [95:0] row_work;
+    logic [63:0] channel_row_work;
+    logic signed [63:0] row_y_work [0:2];
+    logic [63:0] row_index_work [0:2];
+    logic [95:0] row_offset_work [0:2];
     logic [95:0] logical_offset_work;
     logic [96:0] address_work;
     integer tap_index;
+    integer row_index;
     integer kernel_y_work;
     integer kernel_x_work;
     logic tap_range_error;
@@ -50,12 +53,11 @@ module int8_maxpool_geometry (
         extent_x = {1'b0, input_width} + {1'b0, darknet_padding_parameter};
         output_height_work = 33'd0;
         output_width_work = 33'd0;
-        output_y_step = 64'd0;
-        output_x_step = 64'd0;
+        output_y_step = 33'd0;
+        output_x_step = 33'd0;
         source_y_work = 64'sd0;
         source_x_work = 64'sd0;
-        channel_row_work = 96'd0;
-        row_work = 96'd0;
+        channel_row_work = 64'd0;
         logical_offset_work = 96'd0;
         address_work = 97'd0;
         kernel_y_work = 0;
@@ -69,6 +71,11 @@ module int8_maxpool_geometry (
         error_code = 3'd0;
         origin_y = 64'sd0;
         origin_x = 64'sd0;
+        for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
+            row_y_work[row_index] = 64'sd0;
+            row_index_work[row_index] = 64'd0;
+            row_offset_work[row_index] = 96'd0;
+        end
         for (tap_index = 0; tap_index < 9; tap_index = tap_index + 1) begin
             tap_address[tap_index] = 32'd0;
             tap_source_channel[tap_index] = 32'd0;
@@ -111,18 +118,32 @@ module int8_maxpool_geometry (
                 tap_count = (kernel_height == 32'd2) ? 4'd4 : 4'd9;
                 origin_y = -$signed({32'd0, darknet_padding_parameter[31:1]});
                 origin_x = -$signed({32'd0, darknet_padding_parameter[31:1]});
+                // 坐标合法时，坐标乘步长不大于 extent-kernel，33 位足够。
                 if (stride_y == 32'd2) begin
-                    output_y_step = {32'd0, output_y} << 1;
+                    output_y_step = {1'b0, output_y} << 1;
                 end else begin
-                    output_y_step = {32'd0, output_y} * {32'd0, stride_y};
+                    output_y_step = {1'b0, output_y} * {1'b0, stride_y};
                 end
                 if (stride_x == 32'd2) begin
-                    output_x_step = {32'd0, output_x} << 1;
+                    output_x_step = {1'b0, output_x} << 1;
                 end else begin
-                    output_x_step = {32'd0, output_x} * {32'd0, stride_x};
+                    output_x_step = {1'b0, output_x} * {1'b0, stride_x};
                 end
-                source_y_work = origin_y + $signed(output_y_step);
-                source_x_work = origin_x + $signed(output_x_step);
+                source_y_work = origin_y + $signed({31'd0, output_y_step});
+                source_x_work = origin_x + $signed({31'd0, output_x_step});
+                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。
+                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};
+                // 各行独立预计算，避免 tap 的行内地址重复执行宽乘法。
+                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
+                    row_y_work[row_index] = source_y_work + row_index;
+                    if ((row_y_work[row_index] >= 64'sd0) &&
+                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin
+                        row_index_work[row_index] = channel_row_work +
+                            {32'd0, row_y_work[row_index][31:0]};
+                        row_offset_work[row_index] =
+                            {32'd0, row_index_work[row_index]} * {64'd0, input_width};
+                    end
+                end
 
                 for (tap_index = 0; tap_index < 9; tap_index = tap_index + 1) begin
                     if (tap_index < tap_count) begin
@@ -157,12 +178,15 @@ module int8_maxpool_geometry (
                             (tap_source_x[tap_index] >= 64'sd0) &&
                             (tap_source_x[tap_index] < $signed({32'd0, input_width}))) begin
                             tap_valid_mask[tap_index] = 1'b1;
-                            channel_row_work =
-                                {64'd0, input_channel} * {64'd0, input_height};
-                            row_work = channel_row_work +
-                                {64'd0, tap_source_y[tap_index][31:0]};
-                            logical_offset_work = row_work * {64'd0, input_width} +
-                                {64'd0, tap_source_x[tap_index][31:0]};
+                            case (kernel_y_work)
+                                0: logical_offset_work = row_offset_work[0] +
+                                    {64'd0, tap_source_x[tap_index][31:0]};
+                                1: logical_offset_work = row_offset_work[1] +
+                                    {64'd0, tap_source_x[tap_index][31:0]};
+                                2: logical_offset_work = row_offset_work[2] +
+                                    {64'd0, tap_source_x[tap_index][31:0]};
+                                default: logical_offset_work = 96'd0;
+                            endcase
                             address_work = {65'd0, input_base_address} +
                                 {1'b0, logical_offset_work};
                             if (address_work[96:32] != 65'd0) begin

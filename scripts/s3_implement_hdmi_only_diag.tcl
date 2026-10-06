@@ -252,6 +252,192 @@ proc s3_remove_bad_clock_relation {text} {
     return $result
 }
 
+proc s3_dynamic_clock_xdc_text {} {
+    return {# 仅供综合完成后、当前实现诊断设计使用；不加入综合约束集。
+set s3_dynclk_source [get_pins -quiet -hierarchical {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKIN1}]
+if {[llength $s3_dynclk_source] != 1} {error {DYNCLK_SOURCE_PIN_NOT_UNIQUE}}
+set s3_dynclk_target [get_pins -quiet -hierarchical {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKOUT0}]
+if {[llength $s3_dynclk_target] != 1} {error {DYNCLK_TARGET_PIN_NOT_UNIQUE}}
+create_generated_clock -name dynclk_ser_742p857 -source [lindex $s3_dynclk_source 0] -multiply_by 52 -divide_by 7 [lindex $s3_dynclk_target 0]
+unset s3_dynclk_source s3_dynclk_target
+}
+}
+
+proc s3_require_unique_hierarchical_pin {name role} {
+    set pins [get_pins -quiet -hierarchical $name]
+    if {[llength $pins] != 1} {error "${role}_PIN_NOT_UNIQUE: $name; COUNT=[llength $pins]"}
+    set actual_name [get_property NAME [lindex $pins 0]]
+    if {$actual_name ne $name} {error "${role}_PIN_NAME_MISMATCH: EXPECTED=$name ACTUAL=$actual_name"}
+    return [lindex $pins 0]
+}
+
+proc s3_require_single_clock_at_pin {pin role} {
+    set clocks [get_clocks -quiet -of_objects $pin]
+    if {[llength $clocks] != 1} {
+        error "${role}_CLOCK_NOT_UNIQUE: PIN=[get_property NAME $pin]; COUNT=[llength $clocks]"
+    }
+    return [lindex $clocks 0]
+}
+
+proc s3_require_clock_period {clock expected_period tolerance role} {
+    set actual_period [get_property PERIOD $clock]
+    if {![string is double -strict $actual_period] ||
+        abs(double($actual_period) - $expected_period) > $tolerance} {
+        error "${role}_CLOCK_PERIOD_MISMATCH: EXPECTED_NS=[format %.9f $expected_period] ACTUAL_NS=$actual_period"
+    }
+    return [format %.9f [expr {double($actual_period)}]]
+}
+
+proc s3_clock_master_source_pin_name {clock role} {
+    set source_property [get_property -quiet SOURCE $clock]
+    if {$source_property eq ""} {error "${role}_CLOCK_MASTER_SOURCE_MISSING"}
+    set source_pin [s3_require_unique_hierarchical_pin $source_property "${role}_CLOCK_MASTER_SOURCE"]
+    return [get_property NAME $source_pin]
+}
+
+proc s3_clock_generated_pin_names {clock role} {
+    set generated_property [get_property -quiet SOURCE_PINS $clock]
+    if {[llength $generated_property] < 1} {error "${role}_CLOCK_GENERATED_PINS_MISSING"}
+    set generated_names {}
+    foreach generated_name $generated_property {
+        set generated_pin [s3_require_unique_hierarchical_pin $generated_name "${role}_CLOCK_GENERATED_PIN"]
+        lappend generated_names [get_property NAME $generated_pin]
+    }
+    return $generated_names
+}
+
+proc s3_apply_1080p60_clock_model {} {
+    set source_name {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKIN1}
+    set target_name {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKOUT0}
+    set serial_input_name {s3_hdmi_only_i/rgb2dvi_0/SerialClk}
+    set pixel_input_name {s3_hdmi_only_i/rgb2dvi_0/PixelClk}
+    set pixel_master_source_name {s3_hdmi_only_i/axi_dynclk_0/U0/BUFR_inst/I}
+    set pixel_generated_pin_name {s3_hdmi_only_i/axi_dynclk_0/U0/BUFR_inst/O}
+    set source_period_ns 10.0
+    set default_target_period_ns 2.0
+    set serial_period_ns [expr {$source_period_ns * 7.0 / 52.0}]
+    set pixel_period_ns [expr {$source_period_ns * 7.0 * 5.0 / 52.0}]
+    set tolerance_ns 0.00001
+
+    set source_pin [s3_require_unique_hierarchical_pin $source_name DYNCLK_SOURCE]
+    set target_pin [s3_require_unique_hierarchical_pin $target_name DYNCLK_TARGET]
+    set source_clock [s3_require_single_clock_at_pin $source_pin DYNCLK_REFERENCE]
+    if {[get_property NAME $source_clock] ne {clk_fpga_0}} {
+        error "DYNCLK_REFERENCE_CLOCK_NAME_MISMATCH: [get_property NAME $source_clock]"
+    }
+    s3_require_clock_period $source_clock $source_period_ns $tolerance_ns DYNCLK_REFERENCE
+
+    set prior_target_clock [s3_require_single_clock_at_pin $target_pin DYNCLK_DEFAULT_TARGET]
+    set prior_target_name [get_property NAME $prior_target_clock]
+    if {$prior_target_name ne {I}} {error "DYNCLK_DEFAULT_TARGET_CLOCK_NAME_UNEXPECTED: $prior_target_name"}
+    s3_require_clock_period $prior_target_clock $default_target_period_ns $tolerance_ns DYNCLK_DEFAULT_500MHZ
+
+    set xdc_path [file join $::s3_state(output) inputs hdmi_1080p60_dynclk_impl_only.xdc]
+    set xdc_text [s3_dynamic_clock_xdc_text]
+    s3_write_utf8_secure $xdc_path $xdc_text
+    read_xdc -no_add -verbose $xdc_path
+
+    set modeled_target_clock [s3_require_single_clock_at_pin $target_pin DYNCLK_MODELED_TARGET]
+    if {[get_property NAME $modeled_target_clock] ne {dynclk_ser_742p857}} {
+        error "DYNCLK_MODELED_TARGET_NAME_MISMATCH: [get_property NAME $modeled_target_clock]"
+    }
+    set serial_period_actual [s3_require_clock_period $modeled_target_clock $serial_period_ns $tolerance_ns DYNCLK_SERIAL]
+    if {![string is true -strict [get_property IS_GENERATED $modeled_target_clock]]} {
+        error "DYNCLK_SERIAL_CLOCK_NOT_GENERATED"
+    }
+    set target_master_source [s3_clock_master_source_pin_name $modeled_target_clock DYNCLK_SERIAL]
+    if {$target_master_source ne $source_name} {
+        error "DYNCLK_SERIAL_MASTER_SOURCE_MISMATCH: EXPECTED=$source_name ACTUAL=$target_master_source"
+    }
+    set target_generated_pins [s3_clock_generated_pin_names $modeled_target_clock DYNCLK_SERIAL]
+    if {$target_generated_pins ne [list $target_name]} {
+        error "DYNCLK_SERIAL_GENERATED_PINS_MISMATCH: EXPECTED=$target_name ACTUAL=$target_generated_pins"
+    }
+    set target_master [get_property -quiet MASTER_CLOCK $modeled_target_clock]
+    if {$target_master ne [get_property NAME $source_clock]} {
+        error "DYNCLK_SERIAL_MASTER_CLOCK_MISMATCH: EXPECTED=[get_property NAME $source_clock] ACTUAL=$target_master"
+    }
+    foreach {property expected_value} {MULTIPLY_BY 52 DIVIDE_BY 7} {
+        set actual_value [get_property -quiet $property $modeled_target_clock]
+        if {![string is double -strict $actual_value] || abs(double($actual_value) - $expected_value) > 0.000001} {
+            error "DYNCLK_SERIAL_${property}_MISMATCH: EXPECTED=$expected_value ACTUAL=$actual_value"
+        }
+    }
+
+    set serial_pin [s3_require_unique_hierarchical_pin $serial_input_name RGB2DVI_SERIAL]
+    set serial_clock [s3_require_single_clock_at_pin $serial_pin RGB2DVI_SERIAL]
+    if {[get_property NAME $serial_clock] ne {dynclk_ser_742p857}} {
+        error "RGB2DVI_SERIAL_CLOCK_NAME_MISMATCH: [get_property NAME $serial_clock]"
+    }
+    s3_require_clock_period $serial_clock $serial_period_ns $tolerance_ns RGB2DVI_SERIAL
+
+    set pixel_pin [s3_require_unique_hierarchical_pin $pixel_input_name RGB2DVI_PIXEL]
+    set pixel_clock [s3_require_single_clock_at_pin $pixel_pin RGB2DVI_PIXEL]
+    if {[get_property NAME $pixel_clock] ne {axi_dynclk_0_PXL_CLK_O}} {
+        error "RGB2DVI_PIXEL_CLOCK_NAME_MISMATCH: [get_property NAME $pixel_clock]"
+    }
+    set pixel_period_actual [s3_require_clock_period $pixel_clock $pixel_period_ns $tolerance_ns RGB2DVI_PIXEL]
+    set pixel_master_source [s3_clock_master_source_pin_name $pixel_clock RGB2DVI_PIXEL]
+    if {$pixel_master_source ne $pixel_master_source_name} {
+        error "RGB2DVI_PIXEL_MASTER_SOURCE_MISMATCH: EXPECTED=$pixel_master_source_name ACTUAL=$pixel_master_source"
+    }
+    set pixel_generated_pins [s3_clock_generated_pin_names $pixel_clock RGB2DVI_PIXEL]
+    if {$pixel_generated_pins ne [list $pixel_generated_pin_name]} {
+        error "RGB2DVI_PIXEL_GENERATED_PINS_MISMATCH: EXPECTED=$pixel_generated_pin_name ACTUAL=$pixel_generated_pins"
+    }
+    set pixel_master [get_property -quiet MASTER_CLOCK $pixel_clock]
+    if {$pixel_master ne {dynclk_ser_742p857}} {
+        error "RGB2DVI_PIXEL_MASTER_CLOCK_MISMATCH: EXPECTED=dynclk_ser_742p857 ACTUAL=$pixel_master"
+    }
+
+    set xdc_hashes [s3_sha256_manifest [list $xdc_path]]
+    set xdc_sha256 [dict get $xdc_hashes $xdc_path]
+    set serial_frequency_mhz [expr {100.0 * 52.0 / 7.0}]
+    set pixel_frequency_mhz [expr {$serial_frequency_mhz / 5.0}]
+    set report_text [join [list \
+        "MODE=1920x1080@60 software target" \
+        "SOFTWARE_PIXEL_CLOCK_TARGET_MHZ=148.500000" \
+        "REFERENCE_CLOCK_NAME=[get_property NAME $source_clock]" \
+        "REFERENCE_CLOCK_PERIOD_NS=10.000000000" \
+        "SOURCE_PIN=$source_name" \
+        "TARGET_PIN=$target_name" \
+        "DEFAULT_TARGET_CLOCK=I" \
+        "DEFAULT_TARGET_PERIOD_NS=2.000000000" \
+        "DEFAULT_500MHZ_CLOCK_REPLACED=YES; METHOD=NO_ADD" \
+        "XDC_PATH=$xdc_path" \
+        "XDC_SCOPE=read_xdc after open_run; not added to constrs_1 or synthesis input" \
+        "XDC_SHA256=$xdc_sha256" \
+        "SERIAL_CLOCK_NAME=dynclk_ser_742p857" \
+        "SERIAL_CLOCK_FREQUENCY_MHZ=[format %.9f $serial_frequency_mhz]" \
+        "SERIAL_CLOCK_PERIOD_NS=$serial_period_actual" \
+        "SERIAL_CLOCK_MASTER_SOURCE_PIN=$target_master_source" \
+        "SERIAL_CLOCK_GENERATED_PINS=$target_generated_pins" \
+        "SERIAL_CLK_PIN=$serial_input_name" \
+        "SERIAL_CLK_PIN_CLOCK=[get_property NAME $serial_clock]" \
+        "PIXEL_CLOCK_NAME=[get_property NAME $pixel_clock]" \
+        "PIXEL_CLOCK_FREQUENCY_MHZ=[format %.9f $pixel_frequency_mhz]" \
+        "PIXEL_CLOCK_PERIOD_NS=$pixel_period_actual" \
+        "PIXEL_CLOCK_MASTER_SOURCE_PIN=$pixel_master_source" \
+        "PIXEL_CLOCK_GENERATED_PINS=$pixel_generated_pins" \
+        "PIXEL_CLK_PIN=$pixel_input_name" \
+        "PIXEL_CLK_PIN_CLOCK=[get_property NAME $pixel_clock]" \
+        "TARGET_500MHZ_CLOCK_REPLACED=YES; prior target clock I at 2ns is now the modeled clock" \
+        "RUNTIME_DRP_PROGRAMMING_AND_LOCK_SEQUENCE=NOT_MODELED_OR_VALIDATED" \
+        "HDMI_IO_SIGNOFF=BLOCKED; set_output_delay and board-revision timing budget are incomplete" \
+    ] "\n"]
+    set report_text "$report_text\n"
+    s3_write_utf8_secure [file join $::s3_state(output) reports mode_clock_model.txt] $report_text
+    set ::s3_state(clock_constraint_file) $xdc_path
+    set ::s3_state(clock_constraint_sha256) $xdc_sha256
+    set ::s3_state(serial_clock_name) dynclk_ser_742p857
+    set ::s3_state(serial_clock_period_ns) $serial_period_actual
+    set ::s3_state(pixel_clock_name) [get_property NAME $pixel_clock]
+    set ::s3_state(pixel_clock_period_ns) $pixel_period_actual
+    set ::s3_state(clock_model_validation) PASS_STATIC_CANDIDATE_ONLY
+    set ::s3_state(hdmi_io_signoff) BLOCKED_INCOMPLETE_OUTPUT_DELAY_AND_BOARD_TIMING_BUDGET
+    return [dict create xdc_path $xdc_path xdc_sha256 $xdc_sha256 serial_period_ns $serial_period_actual pixel_period_ns $pixel_period_actual]
+}
+
 proc s3_ps_quote {value} {
     return "'[string map [list "'" "''"] $value]'"
 }
@@ -616,6 +802,16 @@ proc s3_status_text {} {
         "BLACKBOXES_AFTER_OPT=$::s3_state(blackboxes_after_opt)" \
         "OUTPUT_PORTS_WITHOUT_SET_OUTPUT_DELAY=$::s3_state(missing_output_delays)" \
         "CLOCK_MODEL_LIMITATION=$::s3_state(clock_model_limitation)" \
+        "CLOCK_MODEL_VALIDATION=$::s3_state(clock_model_validation)" \
+        "CLOCK_CONSTRAINT_FILE=$::s3_state(clock_constraint_file)" \
+        "CLOCK_CONSTRAINT_SHA256=$::s3_state(clock_constraint_sha256)" \
+        "SERIAL_CLOCK_NAME=$::s3_state(serial_clock_name)" \
+        "SERIAL_CLOCK_PERIOD_NS=$::s3_state(serial_clock_period_ns)" \
+        "PIXEL_CLOCK_NAME=$::s3_state(pixel_clock_name)" \
+        "PIXEL_CLOCK_PERIOD_NS=$::s3_state(pixel_clock_period_ns)" \
+        "BUS_SKEW_REPORT=$::s3_state(bus_skew_report)" \
+        "METHODOLOGY_REPORT=$::s3_state(methodology_report)" \
+        "HDMI_IO_SIGNOFF=$::s3_state(hdmi_io_signoff)" \
         "ERROR=$::s3_state(error)"]
     return "[join $lines \n]\n"
 }
@@ -776,12 +972,17 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
         metadata_copy_count NOT_READY metadata_tree_sha256 NOT_READY metadata_copy_manifest_sha256 NOT_READY \
         vivado_log NOT_STARTED vivado_journal NOT_STARTED \
         timing_report NOT_STARTED clock_report NOT_STARTED drc_report NOT_STARTED \
+        clock_constraint_file NOT_APPLIED clock_constraint_sha256 NOT_APPLIED \
+        serial_clock_name NOT_APPLIED serial_clock_period_ns NOT_APPLIED \
+        pixel_clock_name NOT_APPLIED pixel_clock_period_ns NOT_APPLIED \
+        bus_skew_report NOT_STARTED methodology_report NOT_STARTED \
+        clock_model_validation NOT_APPLIED hdmi_io_signoff BLOCKED_INCOMPLETE_OUTPUT_DELAY_AND_BOARD_TIMING_BUDGET \
         vivado_version UNKNOWN vendor_commit UNKNOWN max_threads UNKNOWN \
         synth_state NOT_STARTED opt_state NOT_STARTED place_state NOT_STARTED route_state NOT_STARTED \
         synthesis_flow $::s3_synthesis_flow synth_run_status NOT_CREATED synth_progress NOT_STARTED verified_hdmi_ports NOT_CHECKED \
         blackboxes_after_synth NOT_CHECKED blackboxes_after_opt NOT_CHECKED missing_output_delays NOT_CHECKED \
         expected_runtime {10-40 minutes} max_runtime {60 minutes total} no_progress_stop {15 minutes without log/stage progress} \
-        clock_model_limitation {Static implementation uses generated default clock constraints; runtime axi_dynclk DRP reprogramming is not modeled.}]
+        clock_model_limitation {Single software-selected 1920x1080@60Hz static candidate: 742.857MHz serial and 148.571MHz pixel clocks from the 100MHz reference; runtime axi_dynclk DRP programming/lock is not validated, and HDMI I/O constraints remain incomplete.}]
 
     lassign [s3_validate_arguments $vendor_root $output_dir $::s3_repo_root $action] vendor_root output_dir
     if {$action eq "run"} {
@@ -1022,6 +1223,9 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
     set ::s3_state(verified_hdmi_ports) [s3_validate_hdmi_ports_after_synth $expected_hdmi_ports]
     set ::s3_state(blackboxes_after_synth) [s3_blackbox_names]
     s3_stage_complete synth "synth_state" [file join $checkpoints synth.dcp]
+    set ::s3_state(stage) APPLY_IMPLEMENTATION_CLOCK_MODEL
+    s3_persist_status
+    s3_apply_1080p60_clock_model
     set ::s3_state(stage) SYNTHESIS_REPORTS
     s3_persist_status
     report_utilization -file [file join $reports synth_utilization.rpt]
@@ -1059,9 +1263,14 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
     report_clocks -file [file join $reports routed_clocks.rpt]
     report_clock_interaction -file [file join $reports routed_clock_interaction.rpt]
     check_timing -verbose -file [file join $reports routed_check_timing.rpt]
+    report_bus_skew -file [file join $reports routed_bus_skew.rpt]
+    report_methodology -file [file join $reports routed_methodology.rpt]
+    set ::s3_state(bus_skew_report) [file join $reports routed_bus_skew.rpt]
+    set ::s3_state(methodology_report) [file join $reports routed_methodology.rpt]
     report_drc -file [file join $reports routed_drc.rpt]
     set ::s3_state(missing_output_delays) [s3_all_output_ports]
     set ::s3_state(output_delay_constraint_count) 0
+    set ::s3_state(hdmi_io_signoff) BLOCKED_INCOMPLETE_OUTPUT_DELAY_AND_BOARD_TIMING_BUDGET
     set ::s3_state(timing_report) [file join $reports routed_timing_summary.rpt]
     set ::s3_state(clock_report) [file join $reports routed_clocks.rpt]
     set ::s3_state(drc_report) [file join $reports routed_drc.rpt]
@@ -1110,6 +1319,45 @@ proc s3_run_selftest {} {
     incr checks
     if {![catch {s3_remove_bad_clock_relation "# empty\n"}]} {
         lappend failures "missing clock relation did not fail closed"
+    }
+    incr checks
+    set mode_clock_xdc [s3_dynamic_clock_xdc_text]
+    foreach required_clock_constraint {
+        {create_generated_clock -name dynclk_ser_742p857}
+        {-multiply_by 52 -divide_by 7}
+        {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKIN1}
+        {s3_hdmi_only_i/axi_dynclk_0/U0/Inst_mmcme2_drp/mmcm_adv_inst/CLKOUT0}
+    } {
+        if {[string first $required_clock_constraint $mode_clock_xdc] < 0} {
+            lappend failures "1080p60 static clock XDC is missing a required exact constraint: $required_clock_constraint"
+        }
+    }
+    if {[string first {-add} $mode_clock_xdc] >= 0 || [string first {PixelClk] -multiply_by 5} $mode_clock_xdc] >= 0} {
+        lappend failures "1080p60 static clock XDC adds a parallel clock or restores the removed PixelClk-to-SerialClk relation"
+    }
+    set expected_serial_period [expr {7.0 * 10.0 / 52.0}]
+    set expected_pixel_period [expr {5.0 * 7.0 * 10.0 / 52.0}]
+    if {abs($expected_serial_period - 1.3461538461538463) > 0.000000001 ||
+        abs($expected_pixel_period - 6.730769230769231) > 0.000000001} {
+        lappend failures "1080p60 serial/pixel period calculations changed unexpectedly"
+    }
+    incr checks
+    set master_source_helper_body [info body s3_clock_master_source_pin_name]
+    set generated_pin_helper_body [info body s3_clock_generated_pin_names]
+    if {[string first {get_property -quiet SOURCE $clock} $master_source_helper_body] < 0 ||
+        [string first {get_property -quiet SOURCE_PINS $clock} $generated_pin_helper_body] < 0} {
+        lappend failures "clock master-source and generated-pin properties are not queried independently"
+    }
+    set clock_model_body [info body s3_apply_1080p60_clock_model]
+    foreach required_pin_check {
+        {if {$target_master_source ne $source_name}}
+        {if {$target_generated_pins ne [list $target_name]}}
+        {if {$pixel_master_source ne $pixel_master_source_name}}
+        {if {$pixel_generated_pins ne [list $pixel_generated_pin_name]}}
+    } {
+        if {[string first $required_pin_check $clock_model_body] < 0} {
+            lappend failures "1080p60 clock model does not verify separate master/generated pins: $required_pin_check"
+        }
     }
     incr checks
     if {[s3_output_is_repo_tmp_child {C:/repo} {C:/repo/tmp/x/../outside}]} {
@@ -1193,9 +1441,15 @@ proc s3_run_selftest {} {
         {s3_validate_hdmi_ports_after_synth $expected_hdmi_ports}
         {set ::s3_state(blackboxes_after_synth) [s3_blackbox_names]}
         {s3_stage_complete synth "synth_state" [file join $checkpoints synth.dcp]}
+        {s3_apply_1080p60_clock_model}
+        {report_clocks -file [file join $reports synth_clocks.rpt]}
+        {report_timing_summary -delay_type min_max -max_paths 50 -report_unconstrained -file [file join $reports synth_timing_summary.rpt]}
         {opt_design}
         {place_design}
         {route_design}
+        {report_bus_skew -file [file join $reports routed_bus_skew.rpt]}
+        {report_methodology -file [file join $reports routed_methodology.rpt]}
+        {set ::s3_state(hdmi_io_signoff) BLOCKED_INCOMPLETE_OUTPUT_DELAY_AND_BOARD_TIMING_BUDGET}
     }
     set prior_contract_position -1
     foreach marker $synthesis_contract_markers {
@@ -1208,6 +1462,15 @@ proc s3_run_selftest {} {
     }
     if {[regexp -nocase {(?m)^[ \t]*synth_design([ \t]|$)} $synthesis_body]} {
         lappend failures "direct synth_design call remains inside the project-mode run procedure"
+    }
+    incr checks
+    set clock_model_body [info body s3_apply_1080p60_clock_model]
+    set clock_xdc_path_position [string first {set xdc_path} $clock_model_body]
+    set clock_xdc_write_position [string first {s3_write_utf8_secure $xdc_path $xdc_text} $clock_model_body]
+    set clock_xdc_read_position [string first {read_xdc -no_add -verbose $xdc_path} $clock_model_body]
+    if {$clock_xdc_path_position < 0 || $clock_xdc_write_position <= $clock_xdc_path_position ||
+        $clock_xdc_read_position <= $clock_xdc_write_position} {
+        lappend failures "1080p60 clock constraints are not explicitly loaded after synthesis without entering the project constraint set"
     }
     incr checks
     set synthetic_tree_manifest [format "ROOT=C:/repo/tmp/out/vendor_ip_metadata\nFILE_COUNT=2\n%s  axi_dynclk_v1_0/component.xml\n%s  rgb2dvi_v1_3/component.xml\n" \

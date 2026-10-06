@@ -1897,6 +1897,54 @@ function New-BatchCommandLine([string]$BatchPath, [string[]]$Arguments) {
     return (ConvertTo-WindowsArgument $comSpec) + ' /d /s /c "' + $payload + '"'
 }
 
+function New-S3T03VivadoExecutionContext([string]$OutputDirectory, [string]$TclSourcePath) {
+    if ([string]::IsNullOrWhiteSpace($OutputDirectory) -or -not [IO.Path]::IsPathRooted($OutputDirectory)) {
+        throw 'Vivado 工作目录必须是已创建的绝对输出目录。'
+    }
+    if ([string]::IsNullOrWhiteSpace($TclSourcePath) -or -not [IO.Path]::IsPathRooted($TclSourcePath)) {
+        throw 'Tcl 源文件必须使用绝对路径。'
+    }
+    $workingDirectory = [IO.Path]::GetFullPath($OutputDirectory)
+    $tclSource = [IO.Path]::GetFullPath($TclSourcePath)
+    if (-not (Test-Path -LiteralPath $workingDirectory -PathType Container)) {
+        throw 'Vivado 工作目录必须已经存在。'
+    }
+    $repoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
+    $workingParent = [IO.Path]::GetDirectoryName($workingDirectory).TrimEnd('\')
+    if (-not (Test-OutputParentMatchesRepoTmp $workingParent $repoTmp)) {
+        throw 'Vivado 工作目录必须是仓库 tmp 内本轮输出目录。'
+    }
+    if (-not (Test-Path -LiteralPath $tclSource -PathType Leaf)) {
+        throw '绝对 Tcl 源文件不存在。'
+    }
+    return [pscustomobject]@{ WorkingDirectory=$workingDirectory; TclSourcePath=$tclSource }
+}
+
+function New-S3T03VivadoBatchArguments($VivadoContext, [string]$LogPath,
+    [string]$JournalPath, [string[]]$TclArguments) {
+    if (-not $VivadoContext -or [string]::IsNullOrWhiteSpace($VivadoContext.WorkingDirectory) -or
+        [string]::IsNullOrWhiteSpace($VivadoContext.TclSourcePath)) {
+        throw 'Vivado 执行上下文无效。'
+    }
+    $workingDirectory = [IO.Path]::GetFullPath([string]$VivadoContext.WorkingDirectory).TrimEnd('\')
+    $tclSource = [IO.Path]::GetFullPath([string]$VivadoContext.TclSourcePath)
+    $workingPrefix = $workingDirectory + '\'
+    $validatedPaths = @()
+    foreach ($candidate in @($LogPath, $JournalPath)) {
+        if ([string]::IsNullOrWhiteSpace($candidate) -or -not [IO.Path]::IsPathRooted($candidate)) {
+            throw 'Vivado 日志和 journal 必须使用绝对路径。'
+        }
+        $fullCandidate = [IO.Path]::GetFullPath($candidate)
+        if (-not $fullCandidate.StartsWith($workingPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'Vivado 日志和 journal 必须位于本轮输出目录内。'
+        }
+        $validatedPaths += $fullCandidate
+    }
+    $arguments = @('-mode','batch','-log',$validatedPaths[0],'-journal',$validatedPaths[1],
+        '-source',$tclSource,'-tclargs') + @($TclArguments)
+    return ,$arguments
+}
+
 function New-DirectCommandLine([string]$Executable, [string[]]$Arguments) {
     return ((@($Executable) + $Arguments | ForEach-Object { ConvertTo-WindowsArgument $_ }) -join ' ')
 }
@@ -2808,6 +2856,52 @@ function Invoke-SupervisorSelfTests {
     $testFailureMessage = $null
     $cleanupFailureMessage = $null
     try {
+        $nestedTestParent = Join-Path $testRoot 'nested'
+        [void][IO.Directory]::CreateDirectory($nestedTestParent)
+        $nestedOutputTarget = Join-Path $nestedTestParent 'fresh_output'
+        $nestedOutputAccepted = Assert-OutputTarget $nestedOutputTarget
+        Assert-Test ([string]::Equals($nestedOutputAccepted, [IO.Path]::GetFullPath($nestedOutputTarget), [StringComparison]::OrdinalIgnoreCase)) `
+            'nested-tmp-output-target-accepted'
+        $outsideOutputTarget = Join-Path (Join-Path (Split-Path -Parent $tmpRoot) 'tmp_outside') 'fresh_output'
+        $outsideOutputRejected = $false
+        try { [void](Assert-OutputTarget $outsideOutputTarget) } catch { $outsideOutputRejected = $true }
+        Assert-Test $outsideOutputRejected 'tmp-outside-output-target-rejected'
+        $existingOutputRejected = $false
+        try { [void](Assert-OutputTarget $testRoot) } catch { $existingOutputRejected = $true }
+        Assert-Test $existingOutputRejected 'existing-output-target-rejected'
+
+        $testTclPath = Join-Path $PSScriptRoot 's3_implement_hdmi_only_diag.tcl'
+        $testVivadoContext = New-S3T03VivadoExecutionContext $testRoot $testTclPath
+        $testVivadoLog = Join-Path $testRoot 'selftest-vivado.log'
+        $testVivadoJournal = Join-Path $testRoot 'selftest-vivado.jou'
+        $testPrepareTclArguments = @('C:\selftest-vendor','C:\selftest-output','prepare-only','selftest','selftest_pipe')
+        $testRunTclArguments = @('C:\selftest-vendor','C:\selftest-output','run','selftest','selftest_manifest','selftest_tree')
+        $testPrepareArguments = New-S3T03VivadoBatchArguments $testVivadoContext $testVivadoLog $testVivadoJournal $testPrepareTclArguments
+        $testRunArguments = New-S3T03VivadoBatchArguments $testVivadoContext $testVivadoLog $testVivadoJournal $testRunTclArguments
+        Assert-Test ([string]::Equals($testVivadoContext.WorkingDirectory, [IO.Path]::GetFullPath($testRoot), [StringComparison]::OrdinalIgnoreCase)) `
+            'vivado-working-directory-is-new-output-root'
+        Assert-Test ([IO.Path]::IsPathRooted($testVivadoContext.TclSourcePath) -and
+            [string]::Equals($testVivadoContext.TclSourcePath, [IO.Path]::GetFullPath($testTclPath), [StringComparison]::OrdinalIgnoreCase)) `
+            'vivado-source-argument-is-absolute-tcl-path'
+        foreach ($argumentSet in @($testPrepareArguments,$testRunArguments)) {
+            $sourceArgumentIndex = [Array]::IndexOf([string[]]$argumentSet, '-source')
+            Assert-Test ($sourceArgumentIndex -ge 0 -and
+                [string]::Equals($argumentSet[$sourceArgumentIndex + 1], $testVivadoContext.TclSourcePath, [StringComparison]::OrdinalIgnoreCase)) `
+                'vivado-batch-source-uses-absolute-path'
+            foreach ($pathFlag in @('-log','-journal')) {
+                $pathFlagIndex = [Array]::IndexOf([string[]]$argumentSet, $pathFlag)
+                Assert-Test ($pathFlagIndex -ge 0 -and
+                    $argumentSet[$pathFlagIndex + 1].StartsWith(($testRoot.TrimEnd('\') + '\'), [StringComparison]::OrdinalIgnoreCase)) `
+                    ('vivado-' + $pathFlag.TrimStart('-') + '-stays-in-output-tree')
+            }
+        }
+        $testPrepareCommand = New-BatchCommandLine $vivadoBat $testPrepareArguments
+        $testRunCommand = New-BatchCommandLine $vivadoBat $testRunArguments
+        $expectedTclSourceToken = ConvertTo-CmdArgument $testVivadoContext.TclSourcePath
+        Assert-Test ($testPrepareCommand.Contains($expectedTclSourceToken) -and
+            $testRunCommand.Contains($expectedTclSourceToken)) `
+            'vivado-command-line-contains-absolute-tcl-source-token'
+
         $vivadoInstall = Get-FixedVivadoInstallStatus
         $expectedVivadoExe = Join-Path $vivadoBin 'unwrapped\win64.o\vivado.exe'
         Assert-Test ([string]::Equals($vivadoInstall.BatchPath, (Join-Path $vivadoBin 'vivado.bat'), [StringComparison]::OrdinalIgnoreCase) -and
@@ -4104,12 +4198,14 @@ Start-Sleep -Seconds 30
 
 function Assert-OutputTarget([string]$Target) {
     if ([string]::IsNullOrWhiteSpace($Target)) { throw '必须提供全新的输出目录绝对路径。' }
+    if (-not [IO.Path]::IsPathRooted($Target)) { throw '输出目录必须是绝对路径。' }
     $full = [IO.Path]::GetFullPath($Target)
     $repoTmp = [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp')).TrimEnd('\')
     $parent = [IO.Path]::GetDirectoryName($full).TrimEnd('\')
-    if (-not [string]::Equals($parent, $repoTmp, [StringComparison]::OrdinalIgnoreCase)) {
-        throw '输出目录必须是仓库 tmp 的直接子目录。'
+    if (-not (Test-OutputParentMatchesRepoTmp $parent $repoTmp)) {
+        throw '输出目录必须位于仓库 tmp 内。'
     }
+    if (-not (Test-Path -LiteralPath $parent -PathType Container)) { throw '输出目录的父目录必须是 tmp 内已存在的目录。' }
     if (Test-Path -LiteralPath $full) { throw '输出目录必须尚不存在；拒绝覆盖。' }
     if ($full.IndexOfAny([char[]]@('%','!','"','&','|','<','>','^',"`r","`n")) -ge 0) { throw '输出路径含批处理不安全字符。' }
     return $full
@@ -4122,8 +4218,8 @@ function Test-OutputParentMatchesRepoTmp([string]$OutputParent, [string]$TmpRoot
     return $parentFull.StartsWith($tmpRootFull + '\', [StringComparison]::OrdinalIgnoreCase)
 }
 
-function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$RunnerSha, $Leases) {
-    $tclPath = Join-Path $PSScriptRoot 's3_implement_hdmi_only_diag.tcl'
+function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$RunnerSha, $Leases, $VivadoExecutionContext) {
+    $tclPath = $VivadoExecutionContext.TclSourcePath
     $manifest = @(
         'RUN_ID=' + $RunId
         'RUNNER_SCRIPT_SHA256=' + $RunnerSha
@@ -4132,8 +4228,10 @@ function Write-RunnerManifest([string]$Directory, [string]$RunId, [string]$Runne
         'FIXED_VIVADO_BATCH=' + $vivadoBat
         'MAX_RUNTIME=60 minutes'
         'NO_PROGRESS_STOP=15 minutes'
-        'COMMAND_WORKING_DIRECTORY=' + $repoRoot
-        'TCL_SOURCE_ARGUMENT=scripts/s3_implement_hdmi_only_diag.tcl'
+        'CLOCK_MODEL=1920x1080@60 software-selected static candidate; 742.857MHz serial / 148.571MHz pixel; runtime DRP not validated'
+        'HDMI_IO_SIGNOFF=BLOCKED; set_output_delay and board-revision timing budget are incomplete'
+        'COMMAND_WORKING_DIRECTORY=' + $VivadoExecutionContext.WorkingDirectory
+        'TCL_SOURCE_ARGUMENT=' + $tclPath
     ) -join "`n"
     Write-SafeOutputText (Join-Path $Directory 'reports\runner_manifest.txt') $manifest $Leases
 }
@@ -4162,7 +4260,9 @@ function Initialize-SafeOutputLeases([string]$Directory) {
             'reports\placed_utilization.rpt', 'reports\placed_timing_summary.rpt',
             'reports\routed_timing_summary.rpt', 'reports\routed_clocks.rpt',
             'reports\routed_clock_interaction.rpt', 'reports\routed_check_timing.rpt',
-            'reports\routed_drc.rpt', 'reports\final_summary.txt',
+            'reports\routed_bus_skew.rpt', 'reports\routed_methodology.rpt',
+            'reports\routed_drc.rpt', 'reports\mode_clock_model.txt', 'reports\final_summary.txt',
+            'inputs\hdmi_1080p60_dynclk_impl_only.xdc',
             'checkpoints\synth.dcp', 'checkpoints\opt.dcp', 'checkpoints\placed.dcp', 'checkpoints\routed.dcp',
             'sentinels\synth.complete', 'sentinels\opt.complete', 'sentinels\place.complete',
             'sentinels\route.complete', 'sentinels\final_reports.complete', 'sentinels\failed.sentinel'
@@ -4219,7 +4319,9 @@ try {
     $runnerSha = (Get-FileHash -Algorithm SHA256 -LiteralPath $PSCommandPath).Hash
     $vendorFull = [IO.Path]::GetFullPath($VendorRoot)
     $outputLeases = Initialize-SafeOutputLeases $outputFull
-    Write-RunnerManifest $outputFull $runId $runnerSha $outputLeases
+    $vivadoTclPath = Join-Path $PSScriptRoot 's3_implement_hdmi_only_diag.tcl'
+    $vivadoExecutionContext = New-S3T03VivadoExecutionContext $outputFull $vivadoTclPath
+    Write-RunnerManifest $outputFull $runId $runnerSha $outputLeases $vivadoExecutionContext
     $startingPrepare = [pscustomobject]@{
         Result='PREPARE_RUNNING'; StopReason='PREPARE_RUNNING'; ExitCode='RUNNING'; Marker=$null
         ProcessId=0; Elapsed=([DateTime]::UtcNow - $supervisionStartedAt)
@@ -4229,14 +4331,13 @@ try {
     $prepareLogPath = Join-Path $outputFull 'vivado.log'
     $prepareJournalPath = Join-Path $outputFull 'vivado.jou'
     $prepareDigestPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
-    $prepareArgs = @('-mode','batch','-log',$prepareLogPath,'-journal',$prepareJournalPath,
-        '-source','scripts/s3_implement_hdmi_only_diag.tcl',
-        '-tclargs',$vendorFull,$outputFull,'prepare-only',$runId,$prepareDigestPipeName)
+    $prepareTclArguments = @($vendorFull,$outputFull,'prepare-only',$runId,$prepareDigestPipeName)
+    $prepareArgs = New-S3T03VivadoBatchArguments $vivadoExecutionContext $prepareLogPath $prepareJournalPath $prepareTclArguments
     $prepareCommand = New-BatchCommandLine $vivadoBat $prepareArgs
     $prepareTrustedFileCount = 0
     $prepareTrustedTreeSha256 = $null
     $prepareDigestAuthorization = $null
-    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::StartForPrepare($comSpec,$prepareCommand,$repoRoot,$runId,$vivadoExe,$prepareDigestPipeName) }
+    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::StartForPrepare($comSpec,$prepareCommand,$vivadoExecutionContext.WorkingDirectory,$runId,$vivadoExe,$prepareDigestPipeName) }
     try {
         $prepareResult = Resolve-SupervisedResult $prepareProcess $outputFull 'prepare' $supervisionStartedAt $defaultMaxRuntime $defaultNoProgress $pollIntervalMs $null $outputLeases
         if ($prepareResult.Result -eq 'SUCCESS') {
@@ -4296,8 +4397,8 @@ try {
 
     $logPath = Join-Path $outputFull 'vivado.log'
     $journalPath = Join-Path $outputFull 'vivado.jou'
-    $runArgs = @('-mode','batch','-log',$logPath,'-journal',$journalPath,
-        '-source','scripts/s3_implement_hdmi_only_diag.tcl','-tclargs',$vendorFull,$outputFull,'run',$runId,$metadataManifestSha256,$preparedMetadataTreeSha256)
+    $runTclArguments = @($vendorFull,$outputFull,'run',$runId,$metadataManifestSha256,$preparedMetadataTreeSha256)
+    $runArgs = New-S3T03VivadoBatchArguments $vivadoExecutionContext $logPath $journalPath $runTclArguments
     $runCommand = New-BatchCommandLine $vivadoBat $runArgs
     $xdcBroker = New-GeneratedClockXdcBrokerState
     $process = Invoke-RouteStartGate -PrepareResult $prepareResult -StartedAt $supervisionStartedAt `
@@ -4306,7 +4407,7 @@ try {
         -FailureMessage '总监督时间达到 60 分钟；已在 route 启动前停止。' `
         -RouteStartAction {
             param([DateTime]$RouteDeadlineUtc)
-            Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$runCommand,$repoRoot,$RouteDeadlineUtc) }
+            Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$runCommand,$vivadoExecutionContext.WorkingDirectory,$RouteDeadlineUtc) }
         }
     try {
         $result = Resolve-SupervisedResult $process $outputFull 'run' $supervisionStartedAt $defaultMaxRuntime $defaultNoProgress $pollIntervalMs $xdcBroker $outputLeases

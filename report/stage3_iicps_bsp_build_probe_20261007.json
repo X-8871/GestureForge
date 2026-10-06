@@ -1,0 +1,211 @@
+{
+  "schema": "stage3_iicps_bsp_build_probe_v1",
+  "task_id": "S3-SW04-BSP-PROBE",
+  "date_local": "2026-10-07",
+  "baseline_commit": "1aae354390dc16ee22f2c78dbb6c95d19dc8267f",
+  "classification": "FAILED_BLOCKED_NO_BSP",
+  "vitis": {
+    "version": "2026.1 (64-bit)",
+    "sw_build": "6511674",
+    "sw_build_date": "2026-06-16-13:14:45"
+  },
+  "fixture_xsa": {
+    "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/design_1_wrapper.xsa",
+    "origin": "AX7020_2023.1 vendor example 22_ov5640_single",
+    "vivado_version": "2023.1",
+    "part": "xc7z020clg400-2",
+    "sha256": "45875133C9746C29985F0DF3895F0EBC1C3A473CAFC002294AFA0C904C66922B",
+    "scope_limit": "Vendor single-OV5640 fixture only; not the project's XA7Z020/-1 final XSA."
+  },
+  "imported_bit_artifact": {
+    "workspace_copy": "tmp/s3_vitis_bsp_probe_20261007_01/workspace/ax7020_ov5640_vendor_fixture/hw/sdt/design_1_wrapper.bit",
+    "embedded_xsa_entry": "design_1_wrapper.bit",
+    "workspace_copy_sha256": "7E20D4FC2F7C4B2572BE576E4B57B239A653A03C5B934A0FA7C0E614F3B4EA84",
+    "xsa_entry_sha256": "7E20D4FC2F7C4B2572BE576E4B57B239A653A03C5B934A0FA7C0E614F3B4EA84",
+    "interpretation": "Vitis copied a byte-identical bitstream already embedded in the input XSA. It was not synthesized during this probe and was not programmed."
+  },
+  "candidate_repository": {
+    "path": "tmp/s3_iicps_repository_20261007_015648_aa049eaf7b1a4e12a7f952f8569cfd89/repository/XilinxProcessorIPLib",
+    "scope": "LOCAL to each applicable Vitis workspace; no global repository setting requested.",
+    "candidate_driver": "iicps_v3_24",
+    "installed_driver": "iicps_v3_23",
+    "candidate_source_manifest_sha256": "AECE2EE31E13DE87A8FA46E1A8BB4E9C81B24FF0B50E54104003D8D6BD6C85F9",
+    "rescan": {
+      "method_used": "client._platformObj._rescanSwRepo()",
+      "classification": "PRIVATE_TEST_ONLY_WORKAROUND",
+      "public_wrapper_issue": "Previously observed client.rescan_embedded_sw_repo(path=...) failure: TypeError: Platform._rescanSwRepo() got an unexpected keyword argument 'path'."
+    },
+    "observed_index": {
+      "candidate_order": [
+        "candidate iicps_v3_24",
+        "installed iicps_v3_23"
+      ],
+      "standalone_component": "standalone_v9_5",
+      "sha256": "0964F892725ACA517617720E484109496EED50F081C81B048546F6B3B0C330A5",
+      "paths": [
+        "tmp/s3_vitis_bsp_probe_20261007_01/workspace/_ide/.wsdata/.repo.yaml",
+        "tmp/s3_vitis_bsp_probe_20261007_02/workspace/_ide/.wsdata/.repo.yaml",
+        "tmp/s3_vitis_zc702_bsp_probe_20261007_01/workspace/_ide/.wsdata/.repo.yaml",
+        "tmp/s3_vitis_zc702_bsp_probe_20261007_02/workspace/_ide/.wsdata/.repo.yaml"
+      ],
+      "meaning": "Index discovery only; not evidence that a BSP selected or compiled the candidate driver."
+    }
+  },
+  "attempts": [
+    {
+      "id": "xsa-platform-then-add-domain",
+      "run_root": "tmp/s3_vitis_bsp_probe_20261007_01",
+      "script": "tmp/s3_vitis_bsp_probe_20261007_01/build_fixture_platform.py",
+      "workspace": "tmp/s3_vitis_bsp_probe_20261007_01/workspace",
+      "log": "tmp/s3_vitis_bsp_probe_20261007_01/vitis_bsp_build.log",
+      "log_sha256": "6B057B9AF5616D3D05414AC8577BCA2DFF8FD1E32E2F5A711231246B1289846B",
+      "server_port": 7408,
+      "local_repository_set": true,
+      "private_rescan": true,
+      "outer_wrapper": {
+        "return_code": 0,
+        "origin": "VITIS_EXIT_CODE=0 printed by the outer PowerShell command after vitis.bat -s ... | Tee-Object; this marker is absent from the raw Vitis log.",
+        "interpretation": "Not a Vitis success result: the raw log shows platform creation followed by add_domain failure, with no domain/BSP generated."
+      },
+      "result": "PLATFORM_CREATED_ADD_DOMAIN_FAILED",
+      "observed": [
+        "Processor/OS query returned only deviceFamily and flow: EMBEDDED.",
+        "Platform creation finished successfully.",
+        "add_domain(ps7_cortexa9_0, standalone) failed: valid processors were []."
+      ],
+      "server_shutdown_log_line": "Shutting down Vitis server running on port '7408'"
+    },
+    {
+      "id": "xsa-platform-direct-os-cpu",
+      "run_root": "tmp/s3_vitis_bsp_probe_20261007_02",
+      "script": "tmp/s3_vitis_bsp_probe_20261007_02/build_fixture_platform.py",
+      "workspace": "tmp/s3_vitis_bsp_probe_20261007_02/workspace",
+      "log": "tmp/s3_vitis_bsp_probe_20261007_02/vitis_bsp_build.log",
+      "log_sha256": "9F4FEB4315BA5FC212A29232B352618B635C86BAE6DE72AF826AE4768B856405",
+      "server_port": 9087,
+      "local_repository_set": true,
+      "private_rescan": true,
+      "outer_wrapper": {
+        "return_code": 0,
+        "origin": "VITIS_EXIT_CODE=0 printed by the outer PowerShell command after vitis.bat -s ... | Tee-Object; this marker is absent from the raw Vitis log.",
+        "interpretation": "Not a Vitis success result: the raw log rejects standalone because the valid OS list is empty; no platform/domain/BSP was generated."
+      },
+      "result": "PLATFORM_CREATE_FAILED",
+      "observed": [
+        "Platform creation rejected standalone: valid OSes were [].",
+        "The wrapper subsequently reported an invalid project location after platform creation failed."
+      ],
+      "server_shutdown_log_line": "Shutting down Vitis server running on port '9087'"
+    },
+    {
+      "id": "xsa-and-builtin-metadata-query",
+      "run_root": "tmp/s3_vitis_xsa_metadata_probe_20261007_01",
+      "script": "tmp/s3_vitis_xsa_metadata_probe_20261007_01/query_processors.py",
+      "workspace": "tmp/s3_vitis_xsa_metadata_probe_20261007_01/workspace",
+      "log": "tmp/s3_vitis_xsa_metadata_probe_20261007_01/processor_probe.log",
+      "log_sha256": "3CDB805239E7B8B42FC4CE499569ADACE588B75EAD2FC0EB33FA044F3B8FA1CD",
+      "server_port": 9571,
+      "local_repository_set": false,
+      "outer_wrapper": {
+        "return_code": 0,
+        "origin": "VITIS_EXIT_CODE=0 printed by the outer PowerShell command after vitis.bat -s ... | Tee-Object; this marker is absent from the raw Vitis log.",
+        "interpretation": "The metadata-only script completed after catching the invalid zc702-as-XSA-path diagnostic. It did not attempt platform creation or BSP generation."
+      },
+      "result": "DIAGNOSTIC_METADATA_ONLY",
+      "observed": [
+        "The OV5640 XSA query again returned only deviceFamily and flow: EMBEDDED.",
+        "Passing builtin zc702 to the XSA-path query was rejected as invalid path C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\\zc702; this misuse is diagnostic only, not a platform test."
+      ],
+      "server_shutdown_log_line": "Shutting down Vitis server running on port '9571'"
+    },
+    {
+      "id": "builtin-zc702-platform-local-repo",
+      "run_root": "tmp/s3_vitis_zc702_bsp_probe_20261007_01",
+      "script": "tmp/s3_vitis_zc702_bsp_probe_20261007_01/build_zc702_bsp.py",
+      "workspace": "tmp/s3_vitis_zc702_bsp_probe_20261007_01/workspace",
+      "log": "tmp/s3_vitis_zc702_bsp_probe_20261007_01/vitis_bsp_build.log",
+      "log_sha256": "7CE2F64E0F6430F55A1A711BEF622379207B02E94F665BAB160A65E6DF3FA79D",
+      "server_port": 7058,
+      "local_repository_set": true,
+      "private_rescan": true,
+      "outer_wrapper": {
+        "return_code": 0,
+        "origin": "VITIS_EXIT_CODE=0 printed by the outer PowerShell command after vitis.bat -s ... | Tee-Object; this marker is absent from the raw Vitis log.",
+        "interpretation": "Not a Vitis success result: the raw log reports missing dtc support application before platform/domain/BSP creation."
+      },
+      "generate_dtb": "default",
+      "result": "PLATFORM_CREATE_FAILED_BEFORE_DOMAIN_OR_BSP",
+      "observed": "Error in generating Processor List: support application 'dtc' not found.",
+      "server_shutdown_log_line": "Shutting down Vitis server running on port '7058'"
+    },
+    {
+      "id": "builtin-zc702-platform-local-repo-no-generate-dtb",
+      "run_root": "tmp/s3_vitis_zc702_bsp_probe_20261007_02",
+      "script": "tmp/s3_vitis_zc702_bsp_probe_20261007_02/build_zc702_bsp.py",
+      "workspace": "tmp/s3_vitis_zc702_bsp_probe_20261007_02/workspace",
+      "log": "tmp/s3_vitis_zc702_bsp_probe_20261007_02/vitis_bsp_build.log",
+      "log_sha256": "575ECA4852FA18A064770D2BA0F860DD8EF5180FC3DAA52623F437EFEE561272",
+      "server_port": 10714,
+      "local_repository_set": true,
+      "private_rescan": true,
+      "outer_wrapper": {
+        "return_code": 0,
+        "origin": "VITIS_EXIT_CODE=0 printed by the outer PowerShell command after vitis.bat -s ... | Tee-Object; this marker is absent from the raw Vitis log.",
+        "interpretation": "Not a Vitis success result: even with generate_dtb=false, the raw log reports missing dtc support application before platform/domain/BSP creation."
+      },
+      "generate_dtb": false,
+      "result": "PLATFORM_CREATE_FAILED_BEFORE_DOMAIN_OR_BSP",
+      "observed": "Error in generating Processor List: support application 'dtc' not found; disabling DTB generation did not avoid the failure.",
+      "server_shutdown_log_line": "Shutting down Vitis server running on port '10714'"
+    }
+  ],
+  "support_application_observations": {
+    "dtc_executable": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\dtc.exe",
+      "exists": true,
+      "length_bytes": 228780
+    },
+    "sw_apps_directory": "D:\\Xilinx\\2026.1\\Vitis\\data\\embeddedsw\\lib\\sw_apps",
+    "immediate_subdirectory_count": 35,
+    "contains_dtc_named_subdirectory": false,
+    "contains_zynq_fsbl": true,
+    "contains_zynqmp_fsbl": true,
+    "interpretation": "The observed dtc support-application error is not resolved by the presence of dtc.exe. This directory observation does not prove an incomplete installation or establish root cause."
+  },
+  "conclusion": {
+    "domain_generated": false,
+    "bsp_generated": false,
+    "bsp_built": false,
+    "candidate_driver_selected_or_compiled": false,
+    "project_xa7z020_minus1_software_build_verified": false,
+    "stage3_pass": false,
+    "vivado_started": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false,
+    "next_condition": "Resolve the Vitis support-application/component availability required during platform generation (the observed 'dtc' support application is distinct from dtc.exe); retry only after Vivado licensing is restored and a final project XSA is available."
+  },
+  "official_references": [
+    {
+      "title": "AMD UG1400 2026.1 - Creating a Platform Component from XSA",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Creating-a-Platform-Component-from-XSA",
+      "scope": "Official platform creation workflow and XSA processor/OS discovery; not evidence this local probe succeeded."
+    },
+    {
+      "title": "AMD UG1400 2026.1 - Adding a Domain to an Existing Platform",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-a-Domain-to-an-Existing-Platform",
+      "scope": "Official domain creation workflow; Standalone and FreeRTOS domains generate BSPs."
+    },
+    {
+      "title": "AMD UG1400 2026.1 - Adding the Software Repository",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-the-Software-Repository",
+      "scope": "Official workspace-local versus global software repository configuration."
+    }
+  ],
+  "limits": [
+    "No domain or BSP was generated or built.",
+    "The probe does not establish that iicps_v3_24 was selected or compiled.",
+    "The imported sample XSA is a Vivado 2023.1 xc7z020clg400-2 vendor fixture, not the project's final XA7Z020/-1 XSA.",
+    "No Vivado was started for this documentation task; no board/JTAG or Batch109 was accessed.",
+    "Vitis server shutdown is confirmed by the shutdown line in each of the five run logs."
+  ]
+}

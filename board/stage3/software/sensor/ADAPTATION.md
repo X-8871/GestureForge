@@ -180,3 +180,17 @@ MMIO、FIFO、平台查询、
 ```
 
 本轮运行状态和退出码见任务报告；证据仅落在 `tmp/s3_iicps_sw_timeout/<运行名>`。
+
+## S3-SW04 Vitis BSP 隔离探测失败（2026-10-07）
+
+本机 Vitis `2026.1 (64-bit)`、SW build `6511674` 的隔离探测未生成或构建任何 domain/BSP。详细尝试、工作区、日志路径与 SHA-256 见 `report/stage3_iicps_bsp_build_probe_20261007.json`；结果分类为失败/受阻，不是 BSP PASS。
+
+所有五次外层 PowerShell 调用都输出 `VITIS_EXIT_CODE=0`（在 `vitis.bat -s ... | Tee-Object` 后），但该标记不在原始 Vitis 日志中，也不是成功门：尝试 1、2、4、5 的原始日志明确显示失败；尝试 3 仅完成捕获了无效 `zc702` XSA 路径诊断的 metadata 脚本，未尝试创建 platform/BSP。判定必须核对脚本错误/终态标记和 platform 状态。
+
+摄像头软件夹具使用 AX7020 例程 `22_ov5640_single` 的 XSA：由 Vivado 2023.1 生成，器件为 `xc7z020clg400-2`（速度等级 `-2`），SHA-256 `45875133C9746C29985F0DF3895F0EBC1C3A473CAFC002294AFA0C904C66922B`。Vitis 首次导入时复制到隔离 workspace 的 `design_1_wrapper.bit` 与 XSA 内 bit 条目逐字节相同，SHA-256 均为 `7E20D4FC2F7C4B2572BE576E4B57B239A653A03C5B934A0FA7C0E614F3B4EA84`；这是 XSA 内既有产物的复制，不是本次综合生成，也未烧录。
+
+两次 XSA 平台尝试分别在添加 `ps7_cortexa9_0/standalone` domain 时因有效处理器列表为空失败，及在直接创建 `os=standalone` 平台时因有效 OS 列表为空失败。另一次无本地仓库的元数据查询也只返回 `deviceFamily`/`flow`；将内建 `zc702` 误作 XSA 路径传入查询而被拒绝，仅是诊断，不构成平台测试。随后两次以 `zc702`、workspace-local 候选仓库探测，均在平台创建前报告缺少 `dtc` support application；第二次设置 `generate_dtb=False` 仍失败。虽然 `D:\Xilinx\2026.1\Vitis\bin\dtc.exe` 存在，但它不等同 Vitis 报错所指的 support application。本次目录枚举在 `D:\Xilinx\2026.1\Vitis\data\embeddedsw\lib\sw_apps` 下看到 35 个直接子目录（包括 `zynq_fsbl`、`zynqmp_fsbl`，无 `dtc` 子目录）；这只是观察，不足以断定 Vitis 安装不完整或确定根因。
+
+候选 `iicps_v3_24` 仓库仅逐 workspace 设为 `LOCAL`，本探测使用私有 `_rescanSwRepo()` workaround；候选索引同时列有 `standalone_v9_5`，且候选 IICPS 排在已安装 `iicps_v3_23` 前面。这只说明隔离索引发现候选，未证明 BSP 选中或编译了它。Vitis server 在全部探测日志中均有关闭记录；本轮未启动 Vivado、未访问板卡/JTAG/Batch109。
+
+AMD UG1400 2026.1 分别说明从 XSA 创建 platform、为 platform 添加 domain（Standalone 会生成 BSP），以及把软件仓库添加为当前 workspace 的 local repository：[Creating a Platform Component from XSA](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Creating-a-Platform-Component-from-XSA)、[Adding a Domain to an Existing Platform](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-a-Domain-to-an-Existing-Platform)、[Adding the Software Repository](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-the-Software-Repository)。这些是流程依据，不改变本次本机失败结果。仍未生成/构建 BSP，未确认补丁驱动被选择或编译，未验证项目 XA7Z020/`-1` 目标，Stage 3 未通过。后续须先解决 Vitis 所需 support application/component 的可用性，并在 Vivado 许可证恢复、最终项目 XSA 生成后再评估重试。

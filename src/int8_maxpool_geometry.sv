@@ -86,10 +86,20 @@ module int8_maxpool_geometry (
                      (extent_x < {1'b0, kernel_width})) begin
             error_code = BAD_ARGUMENT;
         end else begin
-            output_height_work =
-                ((extent_y - {1'b0, kernel_height}) / {1'b0, stride_y}) + 33'd1;
-            output_width_work =
-                ((extent_x - {1'b0, kernel_width}) / {1'b0, stride_x}) + 33'd1;
+            if (stride_y == 32'd2) begin
+                output_height_work =
+                    ((extent_y - {1'b0, kernel_height}) >> 1) + 33'd1;
+            end else begin
+                output_height_work =
+                    ((extent_y - {1'b0, kernel_height}) / {1'b0, stride_y}) + 33'd1;
+            end
+            if (stride_x == 32'd2) begin
+                output_width_work =
+                    ((extent_x - {1'b0, kernel_width}) >> 1) + 33'd1;
+            end else begin
+                output_width_work =
+                    ((extent_x - {1'b0, kernel_width}) / {1'b0, stride_x}) + 33'd1;
+            end
             output_height = output_height_work;
             output_width = output_width_work;
 
@@ -101,15 +111,43 @@ module int8_maxpool_geometry (
                 tap_count = (kernel_height == 32'd2) ? 4'd4 : 4'd9;
                 origin_y = -$signed({32'd0, darknet_padding_parameter[31:1]});
                 origin_x = -$signed({32'd0, darknet_padding_parameter[31:1]});
-                output_y_step = {32'd0, output_y} * {32'd0, stride_y};
-                output_x_step = {32'd0, output_x} * {32'd0, stride_x};
+                if (stride_y == 32'd2) begin
+                    output_y_step = {32'd0, output_y} << 1;
+                end else begin
+                    output_y_step = {32'd0, output_y} * {32'd0, stride_y};
+                end
+                if (stride_x == 32'd2) begin
+                    output_x_step = {32'd0, output_x} << 1;
+                end else begin
+                    output_x_step = {32'd0, output_x} * {32'd0, stride_x};
+                end
                 source_y_work = origin_y + $signed(output_y_step);
                 source_x_work = origin_x + $signed(output_x_step);
 
                 for (tap_index = 0; tap_index < 9; tap_index = tap_index + 1) begin
                     if (tap_index < tap_count) begin
-                        kernel_y_work = tap_index / kernel_width;
-                        kernel_x_work = tap_index % kernel_width;
+                        if (kernel_width == 32'd2) begin
+                            case (tap_index)
+                                0: begin kernel_y_work = 0; kernel_x_work = 0; end
+                                1: begin kernel_y_work = 0; kernel_x_work = 1; end
+                                2: begin kernel_y_work = 1; kernel_x_work = 0; end
+                                3: begin kernel_y_work = 1; kernel_x_work = 1; end
+                                default: begin kernel_y_work = 0; kernel_x_work = 0; end
+                            endcase
+                        end else begin
+                            case (tap_index)
+                                0: begin kernel_y_work = 0; kernel_x_work = 0; end
+                                1: begin kernel_y_work = 0; kernel_x_work = 1; end
+                                2: begin kernel_y_work = 0; kernel_x_work = 2; end
+                                3: begin kernel_y_work = 1; kernel_x_work = 0; end
+                                4: begin kernel_y_work = 1; kernel_x_work = 1; end
+                                5: begin kernel_y_work = 1; kernel_x_work = 2; end
+                                6: begin kernel_y_work = 2; kernel_x_work = 0; end
+                                7: begin kernel_y_work = 2; kernel_x_work = 1; end
+                                8: begin kernel_y_work = 2; kernel_x_work = 2; end
+                                default: begin kernel_y_work = 0; kernel_x_work = 0; end
+                            endcase
+                        end
                         tap_source_channel[tap_index] = input_channel;
                         tap_source_y[tap_index] = source_y_work + kernel_y_work;
                         tap_source_x[tap_index] = source_x_work + kernel_x_work;

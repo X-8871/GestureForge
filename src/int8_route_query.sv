@@ -59,10 +59,12 @@ module int8_route_query (
     logic [31:0] selected_base_address;
     logic [31:0] selected_length_bytes;
     logic signed [7:0] selected_value;
-    logic [7:0] selected_magnitude;
-    logic [63:0] scaled_product;
-    logic [63:0] rounded_magnitude;
-    logic signed [63:0] scaled_signed;
+    // 成功路径已排除 -128 并限制倍率，绝对值为 7 位，乘积可精确落在 39 位。
+    logic [6:0] selected_magnitude;
+    logic [38:0] scaled_product;
+    logic [39:0] rounded_product;
+    logic [8:0] rounded_magnitude;
+    logic signed [8:0] scaled_signed;
     logic [31:0] selected_source_index;
     logic [31:0] selected_source_channel;
 
@@ -96,10 +98,11 @@ module int8_route_query (
         selected_base_address = 32'd0;
         selected_length_bytes = 32'd0;
         selected_value = 8'sd0;
-        selected_magnitude = 8'd0;
-        scaled_product = 64'd0;
-        rounded_magnitude = 64'd0;
-        scaled_signed = 64'sd0;
+        selected_magnitude = 7'd0;
+        scaled_product = 39'd0;
+        rounded_product = 40'd0;
+        rounded_magnitude = 9'd0;
+        scaled_signed = 9'sd0;
         selected_source_index = 32'd0;
         selected_source_channel = 32'd0;
 
@@ -131,7 +134,20 @@ module int8_route_query (
             ((source0_channel_start != 32'd0) ||
              (source0_channel_end != source0_channels))) begin
             bad_argument = 1'b1;
-        end else if (groups > 32'd1) begin
+        end else if (groups == 32'd2) begin
+            if ((source_count != 32'd1) || source0_channels[0]) begin
+                bad_argument = 1'b1;
+            end else begin
+                expected_group_start = (group_id == 32'd1) ?
+                    {32'd0, source0_channels[31:1]} : 64'd0;
+                expected_group_end = expected_group_start +
+                                     {33'd0, source0_channels[31:1]};
+                if ((source0_channel_start != expected_group_start[31:0]) ||
+                    (source0_channel_end != expected_group_end[31:0])) begin
+                    bad_argument = 1'b1;
+                end
+            end
+        end else if (groups > 32'd2) begin
             if ((source_count != 32'd1) ||
                 ((source0_channels % groups) != 32'd0)) begin
                 bad_argument = 1'b1;
@@ -249,19 +265,19 @@ module int8_route_query (
             end else begin
                 selected_magnitude = $unsigned(selected_value);
             end
-            scaled_product = {56'd0, selected_magnitude} *
-                             {32'd0, selected_multiplier};
-            rounded_magnitude =
-                (scaled_product + 64'd1_073_741_824) >> 31;
+            scaled_product = {32'd0, selected_magnitude} *
+                             {7'd0, selected_multiplier};
+            rounded_product = {1'b0, scaled_product} + 40'd1_073_741_824;
+            rounded_magnitude = rounded_product[39:31];
             if (selected_value < 8'sd0) begin
                 scaled_signed = -$signed(rounded_magnitude);
             end else begin
                 scaled_signed = $signed(rounded_magnitude);
             end
-            if (scaled_signed > 64'sd127) begin
-                scaled_signed = 64'sd127;
-            end else if (scaled_signed < -64'sd127) begin
-                scaled_signed = -64'sd127;
+            if (scaled_signed > 9'sd127) begin
+                scaled_signed = 9'sd127;
+            end else if (scaled_signed < -9'sd127) begin
+                scaled_signed = -9'sd127;
             end
 
             output_channels = output_channels_wide[31:0];

@@ -67,6 +67,7 @@ module s2a_conv_tile_engine (
     localparam integer LANE_COUNT = 8;
     localparam integer MAX_FEATURE_PATCH_BYTES = 51200;
     localparam integer MAX_WEIGHT_GROUP_BYTES = 36864;
+    localparam integer MAX_WEIGHT_REDUCTION_COUNT = 4608;
     localparam integer OUTPUT_BLOCK_BYTES = 512;
 
     typedef enum logic [4:0] {
@@ -126,9 +127,11 @@ module s2a_conv_tile_engine (
     logic [1:0] activation_mode_latched;
 
     logic signed [7:0] feature_patch [0:MAX_FEATURE_PATCH_BYTES-1];
-    logic signed [7:0] weight_group [0:MAX_WEIGHT_GROUP_BYTES-1];
     logic signed [7:0] output_block [0:OUTPUT_BLOCK_BYTES-1];
     logic signed [31:0] lane_accumulator [0:LANE_COUNT-1];
+    logic signed [7:0] feature_read_data;
+    logic feature_read_in_bounds;
+    logic signed [7:0] weight_read_byte [0:LANE_COUNT-1];
 
     logic [31:0] reduction_count_latched;
     logic [31:0] output_group_base;
@@ -145,6 +148,8 @@ module s2a_conv_tile_engine (
     logic [31:0] weight_lane_index;
     logic [31:0] weight_reduction_index;
     logic [31:0] compute_point_index;
+    logic [31:0] compute_point_scan_y;
+    logic [31:0] compute_point_scan_x;
     logic [31:0] compute_reduction_index;
     logic [31:0] output_lane_index;
     logic [31:0] output_point_index;
@@ -166,6 +171,12 @@ module s2a_conv_tile_engine (
     logic [127:0] quantized_weight_end_wide;
     logic [63:0] output_height_numerator;
     logic [63:0] output_width_numerator;
+    logic [63:0] output_height_shape_span;
+    logic [63:0] output_width_shape_span;
+    logic [63:0] output_height_shape_product;
+    logic [63:0] output_width_shape_product;
+    logic [63:0] output_height_span_plus_stride;
+    logic [63:0] output_width_span_plus_stride;
     logic [127:0] full_tile_patch_height_wide;
     logic [127:0] full_tile_patch_width_wide;
     logic [127:0] full_tile_patch_bytes_wide;
@@ -175,9 +186,9 @@ module s2a_conv_tile_engine (
 
     logic [63:0] patch_plane_bytes;
     logic [31:0] feature_scan_channel;
-    logic [31:0] feature_scan_rem;
     logic [31:0] feature_scan_y;
     logic [31:0] feature_scan_x;
+    logic feature_scan_advance;
     logic signed [63:0] feature_input_y;
     logic signed [63:0] feature_input_x;
     logic feature_scan_in_bounds;
@@ -191,13 +202,22 @@ module s2a_conv_tile_engine (
     logic [31:0] compute_input_channel;
     logic [31:0] compute_kernel_y;
     logic [31:0] compute_kernel_x;
-    logic [31:0] compute_point_y;
-    logic [31:0] compute_point_x;
-    logic signed [63:0] compute_input_y;
-    logic signed [63:0] compute_input_x;
-    logic compute_tap_in_bounds;
-    logic [63:0] compute_feature_index_wide;
-    logic [31:0] compute_feature_index;
+    logic [31:0] compute_next_input_channel;
+    logic [31:0] compute_next_kernel_y;
+    logic [31:0] compute_next_kernel_x;
+    logic [31:0] compute_next_reduction_index;
+    logic [31:0] compute_read_point_y;
+    logic [31:0] compute_read_point_x;
+    logic [31:0] compute_read_input_channel;
+    logic [31:0] compute_read_kernel_y;
+    logic [31:0] compute_read_kernel_x;
+    logic [31:0] compute_read_reduction_index;
+    logic signed [63:0] compute_read_input_y;
+    logic signed [63:0] compute_read_input_x;
+    logic compute_read_tap_in_bounds;
+    logic [63:0] compute_read_feature_index_wide;
+    logic [31:0] compute_read_feature_index;
+    logic compute_read_enable;
     logic signed [7:0] compute_feature_byte [0:LANE_COUNT-1];
     logic signed [7:0] compute_weight_byte [0:LANE_COUNT-1];
     logic signed [15:0] compute_product [0:LANE_COUNT-1];
@@ -226,6 +246,8 @@ module s2a_conv_tile_engine (
 
     logic [31:0] output_global_y;
     logic [31:0] output_global_x;
+    logic [31:0] output_point_scan_y;
+    logic [31:0] output_point_scan_x;
     logic [31:0] output_channel_current;
     logic [63:0] output_byte_offset_wide;
     logic [63:0] output_address_wide;
@@ -260,6 +282,12 @@ module s2a_conv_tile_engine (
                                   {32'd0, pad_top_latched} + {32'd0, pad_bottom_latched};
         output_width_numerator = {32'd0, input_width_latched} +
                                  {32'd0, pad_left_latched} + {32'd0, pad_right_latched};
+        output_height_shape_span = output_height_numerator - {32'd0, kernel_height_latched};
+        output_width_shape_span = output_width_numerator - {32'd0, kernel_width_latched};
+        output_height_shape_product = {32'd0, output_height_latched} * {32'd0, stride_y_latched};
+        output_width_shape_product = {32'd0, output_width_latched} * {32'd0, stride_x_latched};
+        output_height_span_plus_stride = output_height_shape_span + {32'd0, stride_y_latched};
+        output_width_span_plus_stride = output_width_shape_span + {32'd0, stride_x_latched};
 
         full_tile_patch_height_wide = 128'd0;
         full_tile_patch_width_wide = 128'd0;
@@ -299,7 +327,7 @@ module s2a_conv_tile_engine (
             (groups_latched != 32'd1) ||
             (padding_latched != 32'sd0) ||
             (reduction_count_wide == 128'd0) ||
-            (reduction_count_wide > 128'd8191) ||
+            (reduction_count_wide > 128'd4608) ||
             (layer_index_latched >= S2A_LAYER_COUNT) ||
             ((layer_index_latched < S2A_LAYER_COUNT) &&
              (S2A_OP[layer_index_latched] != S2A_OP_CONV)) ||
@@ -330,10 +358,10 @@ module s2a_conv_tile_engine (
             validation_error = BAD_RANGE;
         end else if ((output_height_numerator < {32'd0, kernel_height_latched}) ||
                      (output_width_numerator < {32'd0, kernel_width_latched}) ||
-                     (((output_height_numerator - {32'd0, kernel_height_latched}) /
-                       {32'd0, stride_y_latched}) + 64'd1 != {32'd0, output_height_latched}) ||
-                     (((output_width_numerator - {32'd0, kernel_width_latched}) /
-                       {32'd0, stride_x_latched}) + 64'd1 != {32'd0, output_width_latched})) begin
+                     (output_height_shape_product <= output_height_shape_span) ||
+                     (output_height_shape_product > output_height_span_plus_stride) ||
+                     (output_width_shape_product <= output_width_shape_span) ||
+                     (output_width_shape_product > output_width_span_plus_stride)) begin
             validation_error = BAD_ARGUMENT;
         end else begin
             validation_ok = 1'b1;
@@ -341,20 +369,13 @@ module s2a_conv_tile_engine (
         end
 
         patch_plane_bytes = {32'd0, patch_height} * {32'd0, patch_width};
-        feature_scan_channel = 32'd0;
-        feature_scan_rem = 32'd0;
-        feature_scan_y = 32'd0;
-        feature_scan_x = 32'd0;
         feature_input_y = 64'sd0;
         feature_input_x = 64'sd0;
         feature_scan_in_bounds = 1'b0;
+        feature_scan_advance = 1'b0;
         feature_source_offset = 64'd0;
         feature_source_address_wide = 64'd0;
         if ((patch_plane_bytes != 64'd0) && (patch_width != 32'd0)) begin
-            feature_scan_channel = feature_scan_index / patch_plane_bytes;
-            feature_scan_rem = feature_scan_index % patch_plane_bytes;
-            feature_scan_y = feature_scan_rem / patch_width;
-            feature_scan_x = feature_scan_rem % patch_width;
             feature_input_y =
                 $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) +
                 $signed({32'd0, feature_scan_y}) - $signed({32'd0, pad_top_latched});
@@ -382,16 +403,33 @@ module s2a_conv_tile_engine (
             {32'd0, weight_reduction_index};
 
         compute_kernel_area = kernel_height_latched * kernel_width_latched;
-        compute_input_channel = 32'd0;
-        compute_kernel_y = 32'd0;
-        compute_kernel_x = 32'd0;
-        compute_point_y = 32'd0;
-        compute_point_x = 32'd0;
-        compute_input_y = 64'sd0;
-        compute_input_x = 64'sd0;
-        compute_tap_in_bounds = 1'b0;
-        compute_feature_index_wide = 64'd0;
-        compute_feature_index = 32'd0;
+        compute_next_input_channel = compute_input_channel;
+        compute_next_kernel_y = compute_kernel_y;
+        compute_next_kernel_x = compute_kernel_x;
+        compute_next_reduction_index = compute_reduction_index + 32'd1;
+        if (compute_kernel_x + 32'd1 >= kernel_width_latched) begin
+            compute_next_kernel_x = 32'd0;
+            if (compute_kernel_y + 32'd1 >= kernel_height_latched) begin
+                compute_next_kernel_y = 32'd0;
+                compute_next_input_channel = compute_input_channel + 32'd1;
+            end else begin
+                compute_next_kernel_y = compute_kernel_y + 32'd1;
+            end
+        end else begin
+            compute_next_kernel_x = compute_kernel_x + 32'd1;
+        end
+        compute_read_point_y = compute_point_scan_y;
+        compute_read_point_x = compute_point_scan_x;
+        compute_read_input_channel = compute_input_channel;
+        compute_read_kernel_y = compute_kernel_y;
+        compute_read_kernel_x = compute_kernel_x;
+        compute_read_reduction_index = compute_reduction_index;
+        compute_read_input_y = 64'sd0;
+        compute_read_input_x = 64'sd0;
+        compute_read_tap_in_bounds = 1'b0;
+        compute_read_feature_index_wide = 64'd0;
+        compute_read_feature_index = 32'd0;
+        compute_read_enable = 1'b0;
         compute_bad_argument = 1'b0;
         compute_overflow = 1'b0;
         for (comb_lane = 0; comb_lane < LANE_COUNT; comb_lane = comb_lane + 1) begin
@@ -399,67 +437,68 @@ module s2a_conv_tile_engine (
             compute_weight_byte[comb_lane] = 8'sd0;
             compute_product[comb_lane] = 16'sd0;
             compute_sum[comb_lane] = 33'sd0;
-        end
-        if ((compute_kernel_area != 32'd0) && (tile_width != 32'd0)) begin
-            compute_input_channel = compute_reduction_index / compute_kernel_area;
-            compute_kernel_y = (compute_reduction_index % compute_kernel_area) /
-                               kernel_width_latched;
-            compute_kernel_x = compute_reduction_index % kernel_width_latched;
-            compute_point_y = compute_point_index / tile_width;
-            compute_point_x = compute_point_index % tile_width;
-            compute_input_y =
-                $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) +
-                $signed({32'd0, compute_point_y} * {32'd0, stride_y_latched}) +
-                $signed({32'd0, compute_kernel_y}) - $signed({32'd0, pad_top_latched});
-            compute_input_x =
-                $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) +
-                $signed({32'd0, compute_point_x} * {32'd0, stride_x_latched}) +
-                $signed({32'd0, compute_kernel_x}) - $signed({32'd0, pad_left_latched});
-            compute_tap_in_bounds =
-                (compute_input_y >= 64'sd0) &&
-                (compute_input_y < $signed({32'd0, input_height_latched})) &&
-                (compute_input_x >= 64'sd0) &&
-                (compute_input_x < $signed({32'd0, input_width_latched}));
-            compute_feature_index_wide =
-                ({32'd0, compute_input_channel} * patch_plane_bytes) +
-                ((({32'd0, compute_point_y} * {32'd0, stride_y_latched}) +
-                  {32'd0, compute_kernel_y}) * {32'd0, patch_width}) +
-                ({32'd0, compute_point_x} * {32'd0, stride_x_latched}) +
-                {32'd0, compute_kernel_x};
-            compute_feature_index = compute_feature_index_wide[31:0];
-            for (comb_lane = 0; comb_lane < LANE_COUNT; comb_lane = comb_lane + 1) begin
-                if (comb_lane < group_lane_count) begin
-                    if (compute_tap_in_bounds) begin
-                        compute_feature_byte[comb_lane] = feature_patch[compute_feature_index];
-                    end else begin
-                        compute_feature_byte[comb_lane] = 8'sd0;
-                    end
-                    compute_weight_byte[comb_lane] = weight_group[(comb_lane * reduction_count_latched) +
-                                                              compute_reduction_index];
-                    compute_product[comb_lane] =
-                        $signed({{8{compute_feature_byte[comb_lane][7]}}, compute_feature_byte[comb_lane]}) *
-                        $signed({{8{compute_weight_byte[comb_lane][7]}}, compute_weight_byte[comb_lane]});
-                    compute_sum[comb_lane] = $signed({lane_accumulator[comb_lane][31], lane_accumulator[comb_lane]}) +
-                        $signed({{17{compute_product[comb_lane][15]}}, compute_product[comb_lane]});
-                    if (compute_tap_in_bounds &&
-                        ((compute_feature_byte[comb_lane] == -8'sd128) ||
-                         (compute_weight_byte[comb_lane] == -8'sd128))) begin
-                        compute_bad_argument = 1'b1;
-                    end
-                    if (compute_sum[comb_lane][32] != compute_sum[comb_lane][31]) begin
-                        compute_overflow = 1'b1;
-                    end
-                end else begin
-                    compute_feature_byte[comb_lane] = 8'sd0;
-                    compute_weight_byte[comb_lane] = 8'sd0;
-                    compute_product[comb_lane] = 16'sd0;
-                    compute_sum[comb_lane] = 33'sd0;
+            if (comb_lane < group_lane_count) begin
+                compute_feature_byte[comb_lane] = feature_read_in_bounds ? feature_read_data : 8'sd0;
+                compute_weight_byte[comb_lane] = weight_read_byte[comb_lane];
+                compute_product[comb_lane] =
+                    $signed({{8{compute_feature_byte[comb_lane][7]}}, compute_feature_byte[comb_lane]}) *
+                    $signed({{8{compute_weight_byte[comb_lane][7]}}, compute_weight_byte[comb_lane]});
+                compute_sum[comb_lane] = $signed({lane_accumulator[comb_lane][31], lane_accumulator[comb_lane]}) +
+                    $signed({{17{compute_product[comb_lane][15]}}, compute_product[comb_lane]});
+                if (feature_read_in_bounds &&
+                    ((compute_feature_byte[comb_lane] == -8'sd128) ||
+                     (compute_weight_byte[comb_lane] == -8'sd128))) begin
+                    compute_bad_argument = 1'b1;
+                end
+                if (compute_sum[comb_lane][32] != compute_sum[comb_lane][31]) begin
+                    compute_overflow = 1'b1;
                 end
             end
         end
-
-        output_global_y = tile_start_y + (tile_width == 32'd0 ? 32'd0 : output_point_index / tile_width);
-        output_global_x = tile_start_x + (tile_width == 32'd0 ? 32'd0 : output_point_index % tile_width);
+        if ((state == ST_COMPUTE_PREP) || (state == ST_COMPUTE_POINT_PREP)) begin
+            compute_read_point_y = compute_point_scan_y;
+            compute_read_point_x = compute_point_scan_x;
+            compute_read_input_channel = 32'd0;
+            compute_read_kernel_y = 32'd0;
+            compute_read_kernel_x = 32'd0;
+            compute_read_reduction_index = 32'd0;
+            compute_read_enable = 1'b1;
+        end else if (state == ST_COMPUTE) begin
+            if ((compute_reduction_index + 32'd1 < reduction_count_latched) &&
+                !compute_bad_argument && !compute_overflow) begin
+                compute_read_point_y = compute_point_scan_y;
+                compute_read_point_x = compute_point_scan_x;
+                compute_read_input_channel = compute_next_input_channel;
+                compute_read_kernel_y = compute_next_kernel_y;
+                compute_read_kernel_x = compute_next_kernel_x;
+                compute_read_reduction_index = compute_next_reduction_index;
+                compute_read_enable = 1'b1;
+            end
+        end
+        if ((compute_kernel_area != 32'd0) && (tile_width != 32'd0)) begin
+            compute_read_input_y =
+                $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) +
+                $signed({32'd0, compute_read_point_y} * {32'd0, stride_y_latched}) +
+                $signed({32'd0, compute_read_kernel_y}) - $signed({32'd0, pad_top_latched});
+            compute_read_input_x =
+                $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) +
+                $signed({32'd0, compute_read_point_x} * {32'd0, stride_x_latched}) +
+                $signed({32'd0, compute_read_kernel_x}) - $signed({32'd0, pad_left_latched});
+            compute_read_tap_in_bounds =
+                (compute_read_input_y >= 64'sd0) &&
+                (compute_read_input_y < $signed({32'd0, input_height_latched})) &&
+                (compute_read_input_x >= 64'sd0) &&
+                (compute_read_input_x < $signed({32'd0, input_width_latched}));
+            compute_read_feature_index_wide =
+                ({32'd0, compute_read_input_channel} * patch_plane_bytes) +
+                ((({32'd0, compute_read_point_y} * {32'd0, stride_y_latched}) +
+                  {32'd0, compute_read_kernel_y}) * {32'd0, patch_width}) +
+                ({32'd0, compute_read_point_x} * {32'd0, stride_x_latched}) +
+                {32'd0, compute_read_kernel_x};
+            compute_read_feature_index = compute_read_feature_index_wide[31:0];
+        end
+        output_global_y = tile_start_y + output_point_scan_y;
+        output_global_x = tile_start_x + output_point_scan_x;
         output_channel_current = output_group_base + output_lane_index;
         output_byte_offset_wide =
             (({32'd0, output_channel_current} * {32'd0, output_height_latched} +
@@ -554,6 +593,14 @@ module s2a_conv_tile_engine (
             mapped_response_error = backend_rsp_error;
         end
 
+        if ((state == ST_FEATURE_SCAN) &&
+            (feature_scan_index < patch_byte_count) && !feature_scan_in_bounds) begin
+            feature_scan_advance = 1'b1;
+        end else if ((state == ST_FEATURE_RESPONSE) && backend_rsp_valid &&
+                     (mapped_response_error == NONE)) begin
+            feature_scan_advance = 1'b1;
+        end
+
         request_byte_lane = 2'd0;
         case (request_strobe_latched)
             4'b0001: request_byte_lane = 2'd0;
@@ -636,12 +683,24 @@ module s2a_conv_tile_engine (
             tile_point_count <= 32'd0;
             group_lane_count <= 32'd0;
             feature_scan_index <= 32'd0;
+            feature_scan_channel <= 32'd0;
+            feature_scan_y <= 32'd0;
+            feature_scan_x <= 32'd0;
+            feature_read_data <= 8'sd0;
+            feature_read_in_bounds <= 1'b0;
             weight_lane_index <= 32'd0;
             weight_reduction_index <= 32'd0;
             compute_point_index <= 32'd0;
+            compute_point_scan_y <= 32'd0;
+            compute_point_scan_x <= 32'd0;
             compute_reduction_index <= 32'd0;
+            compute_input_channel <= 32'd0;
+            compute_kernel_y <= 32'd0;
+            compute_kernel_x <= 32'd0;
             output_lane_index <= 32'd0;
             output_point_index <= 32'd0;
+            output_point_scan_y <= 32'd0;
+            output_point_scan_x <= 32'd0;
             mq_prefetch_lane <= 32'd0;
             requant_lane_index <= 32'd0;
             request_address_latched <= 32'd0;
@@ -659,12 +718,24 @@ module s2a_conv_tile_engine (
             state <= ST_IDLE;
             reduction_count_latched <= 32'd0;
             feature_scan_index <= 32'd0;
+            feature_scan_channel <= 32'd0;
+            feature_scan_y <= 32'd0;
+            feature_scan_x <= 32'd0;
+            feature_read_data <= 8'sd0;
+            feature_read_in_bounds <= 1'b0;
             weight_lane_index <= 32'd0;
             weight_reduction_index <= 32'd0;
             compute_point_index <= 32'd0;
+            compute_point_scan_y <= 32'd0;
+            compute_point_scan_x <= 32'd0;
             compute_reduction_index <= 32'd0;
+            compute_input_channel <= 32'd0;
+            compute_kernel_y <= 32'd0;
+            compute_kernel_x <= 32'd0;
             output_lane_index <= 32'd0;
             output_point_index <= 32'd0;
+            output_point_scan_y <= 32'd0;
+            output_point_scan_x <= 32'd0;
             mq_prefetch_lane <= 32'd0;
             requant_lane_index <= 32'd0;
             request_strobe_latched <= 4'd0;
@@ -678,6 +749,27 @@ module s2a_conv_tile_engine (
                 lane_bias[seq_lane] <= 32'sd0;
             end
         end else begin
+            if (compute_read_enable) begin
+                feature_read_in_bounds <= compute_read_tap_in_bounds;
+                if (compute_read_tap_in_bounds) begin
+                    feature_read_data <= feature_patch[compute_read_feature_index];
+                end else begin
+                    feature_read_data <= 8'sd0;
+                end
+            end
+            if (feature_scan_advance) begin
+                if (feature_scan_x + 32'd1 >= patch_width) begin
+                    feature_scan_x <= 32'd0;
+                    if (feature_scan_y + 32'd1 >= patch_height) begin
+                        feature_scan_y <= 32'd0;
+                        feature_scan_channel <= feature_scan_channel + 32'd1;
+                    end else begin
+                        feature_scan_y <= feature_scan_y + 32'd1;
+                    end
+                end else begin
+                    feature_scan_x <= feature_scan_x + 32'd1;
+                end
+            end
             case (state)
                 ST_IDLE: begin
                     if (start_valid && start_ready) begin
@@ -716,12 +808,22 @@ module s2a_conv_tile_engine (
                         tile_start_y <= 32'd0;
                         tile_start_x <= 32'd0;
                         feature_scan_index <= 32'd0;
+                        feature_scan_channel <= 32'd0;
+                        feature_scan_y <= 32'd0;
+                        feature_scan_x <= 32'd0;
                         weight_lane_index <= 32'd0;
                         weight_reduction_index <= 32'd0;
                         compute_point_index <= 32'd0;
+                        compute_point_scan_y <= 32'd0;
+                        compute_point_scan_x <= 32'd0;
                         compute_reduction_index <= 32'd0;
+                        compute_input_channel <= 32'd0;
+                        compute_kernel_y <= 32'd0;
+                        compute_kernel_x <= 32'd0;
                         output_lane_index <= 32'd0;
                         output_point_index <= 32'd0;
+                        output_point_scan_y <= 32'd0;
+                        output_point_scan_x <= 32'd0;
                         result_error_latched <= NONE;
                         state <= ST_VALIDATE;
                     end
@@ -755,6 +857,11 @@ module s2a_conv_tile_engine (
                         ((((output_width_latched - tile_start_x >= TILE_EDGE) ? TILE_EDGE :
                            output_width_latched - tile_start_x) - 1) * stride_x_latched +
                          kernel_width_latched) * input_channels_latched;
+                    feature_scan_channel <= 32'd0;
+                    feature_scan_y <= 32'd0;
+                    feature_scan_x <= 32'd0;
+                    compute_point_scan_y <= 32'd0;
+                    compute_point_scan_x <= 32'd0;
                     tile_point_count <=
                         ((output_height_latched - tile_start_y >= TILE_EDGE) ? TILE_EDGE :
                          output_height_latched - tile_start_y) *
@@ -805,6 +912,8 @@ module s2a_conv_tile_engine (
                     end else begin
                         group_lane_count <= (output_channels_latched - output_group_base >= LANE_COUNT) ?
                                             LANE_COUNT : output_channels_latched - output_group_base;
+                        compute_point_scan_y <= 32'd0;
+                        compute_point_scan_x <= 32'd0;
                         weight_lane_index <= 32'd0;
                         weight_reduction_index <= 32'd0;
                         mq_prefetch_lane <= 32'd0;
@@ -840,9 +949,6 @@ module s2a_conv_tile_engine (
                             result_error_latched <= mapped_response_error;
                             state <= ST_RESULT;
                         end else begin
-                            weight_group[(weight_lane_index * reduction_count_latched) +
-                                         weight_reduction_index] <=
-                                $signed(backend_rsp_rdata >> (request_byte_lane * 8));
                             weight_reduction_index <= weight_reduction_index + 32'd1;
                             state <= ST_WEIGHT_SCAN;
                         end
@@ -863,6 +969,9 @@ module s2a_conv_tile_engine (
                     end
                 end
                 ST_COMPUTE_PREP: begin
+                    compute_input_channel <= 32'd0;
+                    compute_kernel_y <= 32'd0;
+                    compute_kernel_x <= 32'd0;
                     for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
                         if (seq_lane < group_lane_count) begin
                             lane_accumulator[seq_lane] <= lane_bias[seq_lane];
@@ -875,6 +984,9 @@ module s2a_conv_tile_engine (
                     state <= ST_COMPUTE;
                 end
                 ST_COMPUTE_POINT_PREP: begin
+                    compute_input_channel <= 32'd0;
+                    compute_kernel_y <= 32'd0;
+                    compute_kernel_x <= 32'd0;
                     for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
                         if (seq_lane < group_lane_count) begin
                             lane_accumulator[seq_lane] <= lane_bias[seq_lane];
@@ -903,6 +1015,17 @@ module s2a_conv_tile_engine (
                             state <= ST_COMPUTE_REQUANT;
                         end else begin
                             compute_reduction_index <= compute_reduction_index + 32'd1;
+                            if (compute_kernel_x + 32'd1 >= kernel_width_latched) begin
+                                compute_kernel_x <= 32'd0;
+                                if (compute_kernel_y + 32'd1 >= kernel_height_latched) begin
+                                    compute_kernel_y <= 32'd0;
+                                    compute_input_channel <= compute_input_channel + 32'd1;
+                                end else begin
+                                    compute_kernel_y <= compute_kernel_y + 32'd1;
+                                end
+                            end else begin
+                                compute_kernel_x <= compute_kernel_x + 32'd1;
+                            end
                         end
                     end
                 end
@@ -915,9 +1038,17 @@ module s2a_conv_tile_engine (
                         if (compute_point_index + 32'd1 >= tile_point_count) begin
                             output_lane_index <= 32'd0;
                             output_point_index <= 32'd0;
+                            output_point_scan_y <= 32'd0;
+                            output_point_scan_x <= 32'd0;
                             state <= ST_OUTPUT_SCAN;
                         end else begin
                             compute_point_index <= compute_point_index + 32'd1;
+                            if (compute_point_scan_x + 32'd1 >= tile_width) begin
+                                compute_point_scan_x <= 32'd0;
+                                compute_point_scan_y <= compute_point_scan_y + 32'd1;
+                            end else begin
+                                compute_point_scan_x <= compute_point_scan_x + 32'd1;
+                            end
                             compute_reduction_index <= 32'd0;
                             state <= ST_COMPUTE_POINT_PREP;
                         end
@@ -931,6 +1062,8 @@ module s2a_conv_tile_engine (
                     end else if (output_point_index >= tile_point_count) begin
                         output_lane_index <= output_lane_index + 32'd1;
                         output_point_index <= 32'd0;
+                        output_point_scan_y <= 32'd0;
+                        output_point_scan_x <= 32'd0;
                     end else if ((output_address_wide > 64'h0000_0000_FFFF_FFFF) ||
                                  (output_byte_offset_wide >= output_elements_wide)) begin
                         result_error_latched <= BAD_RANGE;
@@ -962,6 +1095,12 @@ module s2a_conv_tile_engine (
                             state <= ST_RESULT;
                         end else begin
                             output_point_index <= output_point_index + 32'd1;
+                            if (output_point_scan_x + 32'd1 >= tile_width) begin
+                                output_point_scan_x <= 32'd0;
+                                output_point_scan_y <= output_point_scan_y + 32'd1;
+                            end else begin
+                                output_point_scan_x <= output_point_scan_x + 32'd1;
+                            end
                             state <= ST_OUTPUT_SCAN;
                         end
                     end
@@ -997,4 +1136,29 @@ module s2a_conv_tile_engine (
             endcase
         end
     end
+
+    genvar weight_bank_index;
+    generate
+        for (weight_bank_index = 0; weight_bank_index < LANE_COUNT; weight_bank_index = weight_bank_index + 1) begin : gen_weight_lane_bank
+            logic signed [7:0] lane_weight_memory [0:MAX_WEIGHT_REDUCTION_COUNT-1];
+
+            always_ff @(posedge clk) begin
+                if (hard_reset || abort) begin
+                    weight_read_byte[weight_bank_index] <= 8'sd0;
+                end else begin
+                    if ((state == ST_WEIGHT_RESPONSE) && backend_rsp_valid &&
+                        (mapped_response_error == NONE) &&
+                        (weight_lane_index == weight_bank_index) &&
+                        (weight_reduction_index < MAX_WEIGHT_REDUCTION_COUNT)) begin
+                        lane_weight_memory[weight_reduction_index] <=
+                            $signed(backend_rsp_rdata[(request_byte_lane * 8) +: 8]);
+                    end
+                    if (compute_read_enable && (weight_bank_index < group_lane_count)) begin
+                        weight_read_byte[weight_bank_index] <=
+                            lane_weight_memory[compute_read_reduction_index];
+                    end
+                end
+            end
+        end
+    endgenerate
 endmodule

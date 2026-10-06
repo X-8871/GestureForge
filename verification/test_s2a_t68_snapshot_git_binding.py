@@ -7,6 +7,7 @@ import copy
 import hashlib
 import io
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -37,9 +38,10 @@ class SnapshotGitBindingTests(unittest.TestCase):
         evidence_root: Path,
         run_id: str = "synthetic109",
         omit_sample_index: int | None = None,
+        closure: dict[str, Any] | None = None,
     ) -> None:
         """构造合成记录，可选跳过一个固定样本目录。"""
-        manifest_sources = self.closure["sources"]
+        manifest_sources = (closure or self.closure)["sources"]
         source_rows = [
             {
                 "path": str(checker.ROOT / Path(*Path(relative).parts)),
@@ -316,6 +318,152 @@ class SnapshotGitBindingTests(unittest.TestCase):
             snapshot["sources"][0]["path"] = str(evidence_root / "outside_source.sv")
             _write_json(snapshot_path, snapshot)
             self.assert_cli_failure_without_report(evidence_root)
+
+
+class CandidateSnapshotGitBindingTests(unittest.TestCase):
+    """覆盖显式 candidate commit/tree 的 Git object 绑定路径。"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """从当前 HEAD 自动选取可复现的 candidate commit/tree。"""
+        cls.candidate_commit = subprocess.run(
+            ["git", "-C", str(checker.ROOT), "rev-parse", "--verify", "HEAD^{commit}"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.decode("ascii").strip()
+        cls.candidate_tree = subprocess.run(
+            ["git", "-C", str(checker.ROOT), "rev-parse", "--verify", "HEAD^{tree}"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.decode("ascii").strip()
+        cls.mismatched_tree = checker.BASELINE_TREE
+        if cls.mismatched_tree == cls.candidate_tree:
+            cls.mismatched_tree = subprocess.run(
+                ["git", "-C", str(checker.ROOT), "rev-parse", "--verify", f"{cls.candidate_commit}^1^{{tree}}"],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout.decode("ascii").strip()
+        if cls.mismatched_tree == cls.candidate_tree:
+            raise RuntimeError("测试需要一个与 candidate tree 不同的有效 Git tree")
+        cls.closure = checker.load_candidate_closure(checker.ROOT, cls.candidate_commit, cls.candidate_tree)
+
+    def test_candidate_closure_uses_git_objects_and_fixed_38_source_scope(self) -> None:
+        """候选清单按给定 commit/tree 读取全部 Git objects 并保留 11+3 编译分类。"""
+        self.assertEqual(len(self.closure["sources"]), 38)
+        self.assertEqual(len(checker.COMPILE_SOURCE_PATHS), 11)
+        self.assertEqual(len(checker.COMPILE_TOOLING_PATHS), 3)
+        for relative, row in self.closure["sources"].items():
+            object_id = subprocess.run(
+                ["git", "-C", str(checker.ROOT), "rev-parse", "--verify", f"{self.candidate_commit}:{relative}"],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout.decode("ascii").strip()
+            raw = subprocess.run(
+                ["git", "-C", str(checker.ROOT), "cat-file", "blob", object_id],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout
+            self.assertEqual(row["git_blob_sha1"], object_id)
+            self.assertEqual(row["bytes"], len(raw))
+            self.assertEqual(row["sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_full_109_candidate_snapshot_batch_passes_without_t29_claim(self) -> None:
+        """109 个快照逐样本匹配 candidate object，报告明确选择 commit/tree。"""
+        with tempfile.TemporaryDirectory(prefix="s2a_t68_candidate_snapshot_pass_") as temporary:
+            evidence_root = Path(temporary)
+            SnapshotGitBindingTests.make_batch(self, evidence_root, closure=self.closure)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                result = checker.main(
+                    [
+                        "--evidence-root",
+                        str(evidence_root),
+                        "--run-id",
+                        "synthetic109",
+                        "--candidate-commit",
+                        self.candidate_commit,
+                        "--candidate-tree",
+                        self.candidate_tree,
+                    ]
+                )
+            self.assertEqual(result, 0, output.getvalue())
+            report = json.loads(output.getvalue())
+            saved_report = json.loads((evidence_root / "source_snapshot_git_binding_synthetic109.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(report["status"], checker.CANDIDATE_REPORT_STATUS)
+        self.assertEqual(report["binding_mode"], "candidate_git_commit_tree")
+        self.assertEqual(report["sample_count"], 109)
+        self.assertEqual(report["static_source_closure"]["candidate_commit"], self.candidate_commit)
+        self.assertEqual(report["static_source_closure"]["candidate_tree_sha1"], self.candidate_tree)
+        self.assertEqual(report["static_source_closure"]["source_count"], 38)
+        self.assertEqual(report["static_source_closure"]["compiled_source_count"], 11)
+        self.assertEqual(report["static_source_closure"]["compile_tooling_count"], 3)
+        self.assertEqual(report["static_source_closure"]["candidate_git_object_content_verified_count"], 38)
+        candidate_sources = {row["path"]: row for row in report["static_source_closure"]["candidate_sources"]}
+        self.assertEqual(len(candidate_sources), 38)
+        self.assertTrue(set(checker.COMPILE_SOURCE_PATHS).issubset(candidate_sources))
+        self.assertTrue(set(checker.COMPILE_TOOLING_PATHS).issubset(candidate_sources))
+        for sample in report["samples"]:
+            self.assertEqual(len(sample["compile_sources"]), 11)
+            self.assertEqual(len(sample["compile_tooling_sources"]), 3)
+            for row in sample["compile_sources"] + sample["compile_tooling_sources"]:
+                expected = candidate_sources[row["path"]]
+                self.assertEqual(row["sha256"], expected["sha256"])
+                self.assertEqual(row["bytes"], expected["bytes"])
+                self.assertEqual(row["git_blob_sha1"], expected["git_blob_sha1"])
+        self.assertNotIn("baseline_commit", report["static_source_closure"])
+        self.assertNotIn("baseline_tree_sha1", report["static_source_closure"])
+        self.assertNotIn("matches_t29_frozen_binding", json.dumps(report, ensure_ascii=False))
+        self.assertIn("不声称与旧 T29 冻结源码绑定", report["scope"])
+        self.assertEqual(saved_report["binding_mode"], "candidate_git_commit_tree")
+
+    def test_candidate_tree_mismatch_fails_closed(self) -> None:
+        """commit/tree 参数不匹配时必须在遍历样本前失败。"""
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "candidate commit 的 tree id 与指定值不符"):
+            checker.load_candidate_closure(checker.ROOT, self.candidate_commit, self.mismatched_tree)
+
+    def test_candidate_source_and_runner_mismatches_name_candidate_binding(self) -> None:
+        """候选源哈希、字节长度和 runner 哈希错误需指出 candidate 来源。"""
+        relative = checker.COMPILE_SOURCE_PATHS[0]
+        expected = self.closure["sources"][relative]
+        absolute = str(checker.ROOT / Path(*Path(relative).parts))
+        wrong_sha_row = {"path": absolute, "sha256": "0" * 64, "bytes": expected["bytes"]}
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "candidate Git commit/tree"):
+            checker._binding_rows([wrong_sha_row], (relative,), self.closure, checker.ROOT, "sample_000 snapshot sources")
+
+        wrong_length_row = {"path": absolute, "sha256": expected["sha256"], "bytes": expected["bytes"] + 1}
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "candidate Git commit/tree"):
+            checker._binding_rows([wrong_length_row], (relative,), self.closure, checker.ROOT, "sample_000 snapshot sources")
+
+        runner_relative = checker.COMPILE_TOOLING_PATHS[0]
+        wrong_runner_record = {
+            "runner_path": str(checker.ROOT / Path(*Path(runner_relative).parts)),
+            "runner_sha256": "0" * 64,
+        }
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "candidate Git commit/tree"):
+            checker._require_runner_binding(wrong_runner_record, self.closure, checker.ROOT, "sample_000 compile")
+
+        pinned_closure = dict(self.closure)
+        pinned_closure.pop("binding_mode")
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "Git baseline"):
+            checker._binding_rows([wrong_sha_row], (relative,), pinned_closure, checker.ROOT, "sample_000 snapshot sources")
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "Git baseline"):
+            checker._binding_rows([wrong_length_row], (relative,), pinned_closure, checker.ROOT, "sample_000 snapshot sources")
+        with self.assertRaisesRegex(checker.SnapshotBindingError, "Git baseline"):
+            checker._require_runner_binding(wrong_runner_record, pinned_closure, checker.ROOT, "sample_000 compile")
+
+    def test_candidate_cli_requires_both_commit_and_tree(self) -> None:
+        """CLI 拒绝只提供 commit 或只提供 tree 的不完整绑定参数。"""
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            result = checker.main(["--evidence-root", str(checker.ROOT), "--run-id", "synthetic109", "--candidate-commit", self.candidate_commit])
+        self.assertEqual(result, 2)
+        self.assertIn("必须同时提供", stderr.getvalue())
 
 
 if __name__ == "__main__":

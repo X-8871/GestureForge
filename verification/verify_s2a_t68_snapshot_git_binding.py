@@ -46,6 +46,7 @@ COMPILED_SOURCE_SCHEMA = "gestureforge_s2a_t68_compile_source_snapshot_v1"
 COMPILE_RECORD_SCHEMA = "gestureforge_s2a_t68_compile_execution_v1"
 SIMULATION_RECORD_SCHEMA = "gestureforge_s2a_t68_simulation_execution_v1"
 REPORT_STATUS = "PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE"
+CANDIDATE_REPORT_STATUS = "PASS_109_SOURCE_SNAPSHOT_TO_CANDIDATE_GIT_TREE"
 TASK_ID = "S2A-T68"
 TOP_MODULE = "tb_s2a_network_backend_golden"
 VERILATOR_PATH = r"D:\FPGA_S2A_MSYS2_20261001\env\mingw64\bin\verilator_bin.exe"
@@ -54,6 +55,11 @@ ABI_CFLAGS = "-D_GLIBCXX_USE_CXX11_ABI=0"
 
 class SnapshotBindingError(ValueError):
     """表示 T68 快照、执行记录或冻结 Git 源闭包绑定失败。"""
+
+
+def _git_binding_source(closure: dict[str, Any]) -> str:
+    """返回当前核验模式的 Git 源说明。"""
+    return "candidate Git commit/tree" if closure.get("binding_mode") == "candidate_git_commit_tree" else "Git baseline"
 
 
 def require(condition: bool, message: str) -> None:
@@ -122,19 +128,24 @@ def _read_json_bytes(raw: bytes, label: str) -> dict[str, Any]:
     return value
 
 
-def _load_git_tree(root: Path) -> dict[str, dict[str, Any]]:
-    """读取冻结 commit 的 tree，并核验其 tree id 与对象类型。"""
+def _load_git_tree(
+    root: Path,
+    revision: str = BASELINE_COMMIT,
+    expected_tree: str = BASELINE_TREE,
+    label: str = "冻结",
+) -> dict[str, dict[str, Any]]:
+    """读取指定 commit 的 tree，并核验其 tree id 与对象类型。"""
     try:
         tree_result = subprocess.run(
-            ["git", "-C", str(root), "rev-parse", "--verify", f"{BASELINE_COMMIT}^{{tree}}"],
+            ["git", "-C", str(root), "rev-parse", "--verify", f"{revision}^{{tree}}"],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
         actual_tree = tree_result.stdout.decode("ascii").strip()
-        require(actual_tree == BASELINE_TREE, "冻结 commit 的 tree id 与 pinned manifest 不符")
+        require(actual_tree == expected_tree, f"{label} commit 的 tree id 与指定值不符")
         listing = subprocess.run(
-            ["git", "-C", str(root), "ls-tree", "-r", "-l", "-z", BASELINE_COMMIT],
+            ["git", "-C", str(root), "ls-tree", "-r", "-l", "-z", revision],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -145,7 +156,7 @@ def _load_git_tree(root: Path) -> dict[str, dict[str, Any]]:
             detail_text = detail.decode("utf-8", errors="replace").strip()
         else:
             detail_text = str(detail)
-        raise SnapshotBindingError(f"无法读取冻结 Git tree：{detail_text or error}") from error
+        raise SnapshotBindingError(f"无法读取{label} Git tree：{detail_text or error}") from error
 
     entries: dict[str, dict[str, Any]] = {}
     for raw_row in listing.split(b"\0"):
@@ -161,6 +172,105 @@ def _load_git_tree(root: Path) -> dict[str, dict[str, Any]]:
         size = None if size_text == "-" else int(size_text)
         entries[path] = {"mode": mode, "type": object_type, "oid": object_id, "bytes": size}
     return entries
+
+
+def _load_candidate_manifest_scope(root: Path) -> tuple[Path, str, list[str]]:
+    """从固定哈希的静态清单读取 candidate 模式共用的源码路径范围。"""
+    manifest = root / MANIFEST_PATH.relative_to(ROOT)
+    require(manifest.is_file() and not manifest.is_symlink(), f"static closure manifest 缺失或类型不符：{manifest}")
+    require(_canonical_absolute_path(manifest) == _canonical_absolute_path(manifest.resolve(strict=True)), "static closure manifest 路径含符号链接")
+    raw_manifest = manifest.read_bytes()
+    digest = sha256_bytes(raw_manifest)
+    require(digest == MANIFEST_SHA256, "static closure manifest SHA-256 与固定值不符")
+    value = _read_json_bytes(raw_manifest, "static closure manifest")
+    require(value.get("schema_version") == 1 and value.get("task_id") == "S2A-T68", "static closure manifest schema/task 不符")
+    require(
+        isinstance(value.get("repository_root"), str)
+        and _canonical_absolute_path(value["repository_root"]) == _canonical_absolute_path(root),
+        "static closure repository_root 与当前仓库不符",
+    )
+    require(value.get("baseline_commit") == BASELINE_COMMIT, "static closure baseline commit 不符")
+    require(value.get("baseline_tree_sha1") == BASELINE_TREE, "static closure baseline tree 不符")
+    require(value.get("source_count") == 38, "static closure source_count 不符")
+    require(value.get("compiled_rtl_and_testbench_count") == len(COMPILE_SOURCE_PATHS), "static closure compile source count 不符")
+    require(value.get("compile_tooling_count") == len(COMPILE_TOOLING_PATHS), "static closure compile tooling count 不符")
+    rows = value.get("sources")
+    require(isinstance(rows, list) and len(rows) == 38, "static closure sources 缺失或数量不符")
+
+    paths: list[str] = []
+    for row in rows:
+        require(isinstance(row, dict), "static closure source row 类型错误")
+        path = row.get("path")
+        require(isinstance(path, str) and path, "static closure source path 缺失")
+        pure_path = PurePosixPath(path)
+        require(not pure_path.is_absolute() and ".." not in pure_path.parts and pure_path.as_posix() == path, f"static closure path 非法：{path}")
+        require(path not in paths, f"static closure source 重复：{path}")
+        require(row.get("matches_baseline_tree") is True, f"static closure source 未标记 baseline tree 匹配：{path}")
+        require(row.get("matches_t29_frozen_binding") is True, f"static closure source 未确认既有静态范围：{path}")
+        paths.append(path)
+
+    require(len(paths) == 38, "static closure source path 数量不符")
+    require(set(COMPILE_SOURCE_PATHS).issubset(paths), "static closure 缺少获批编译源")
+    require(set(COMPILE_TOOLING_PATHS).issubset(paths), "static closure 缺少获批编译工具源")
+    return manifest, digest, paths
+
+
+def load_candidate_closure(
+    repo_root: Path,
+    candidate_commit: str,
+    candidate_tree: str,
+) -> dict[str, Any]:
+    """从显式 candidate commit/tree 的 Git objects 构建 38 项源码闭包。"""
+    root = _require_plain_directory(repo_root, "repository root")
+    require(isinstance(candidate_commit, str) and GIT_BLOB_PATTERN.fullmatch(candidate_commit) is not None, "candidate commit 必须是 40 位小写 SHA-1")
+    require(isinstance(candidate_tree, str) and GIT_BLOB_PATTERN.fullmatch(candidate_tree) is not None, "candidate tree 必须是 40 位小写 SHA-1")
+    manifest, manifest_digest, paths = _load_candidate_manifest_scope(root)
+    try:
+        resolved_commit = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--verify", f"{candidate_commit}^{{commit}}"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout.decode("ascii").strip()
+    except (OSError, subprocess.CalledProcessError, UnicodeError) as error:
+        detail = getattr(error, "stderr", b"")
+        detail_text = detail.decode("utf-8", errors="replace").strip() if isinstance(detail, bytes) else str(error)
+        raise SnapshotBindingError(f"无法解析 candidate commit：{detail_text or error}") from error
+    require(resolved_commit == candidate_commit, "candidate commit 必须是仓库中精确的完整 commit SHA-1")
+
+    git_tree = _load_git_tree(root, candidate_commit, candidate_tree, "candidate")
+    sources: dict[str, dict[str, Any]] = {}
+    for path in paths:
+        entry = git_tree.get(path)
+        require(entry is not None, f"candidate Git tree 缺少闭包路径：{path}")
+        require(entry["type"] == "blob" and entry["mode"] in {"100644", "100755"}, f"candidate source 不是普通文件 blob：{path}")
+        try:
+            raw_source = subprocess.run(
+                ["git", "-C", str(root), "cat-file", "blob", entry["oid"]],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError) as error:
+            detail = getattr(error, "stderr", b"")
+            detail_text = detail.decode("utf-8", errors="replace").strip() if isinstance(detail, bytes) else str(error)
+            raise SnapshotBindingError(f"无法读取 candidate Git object {path}：{detail_text or error}") from error
+        require(entry["bytes"] is None or len(raw_source) == entry["bytes"], f"candidate Git object 长度与 tree 不符：{path}")
+        sources[path] = {
+            "path": path,
+            "sha256": sha256_bytes(raw_source),
+            "bytes": len(raw_source),
+            "git_blob_sha1": entry["oid"],
+        }
+
+    return {
+        "binding_mode": "candidate_git_commit_tree",
+        "manifest_path": manifest,
+        "manifest_sha256": manifest_digest,
+        "candidate_commit": candidate_commit,
+        "candidate_tree_sha1": candidate_tree,
+        "sources": sources,
+    }
 
 
 def load_pinned_closure(repo_root: Path = ROOT, manifest_path: Path = MANIFEST_PATH) -> dict[str, Any]:
@@ -278,6 +388,7 @@ def _binding_rows(
     """校验记录中的路径、SHA-256、长度和精确集合。"""
     require(isinstance(rows, list) and len(rows) == len(expected_paths), f"{label}: row 数量不符")
     expected_set = set(expected_paths)
+    git_source = _git_binding_source(closure)
     observed: dict[str, dict[str, Any]] = {}
     expected_absolute = {
         relative: _canonical_absolute_path(repo_root / Path(*PurePosixPath(relative).parts))
@@ -297,8 +408,8 @@ def _binding_rows(
         digest = row.get("sha256")
         length = row.get("bytes")
         expected = closure["sources"][relative]
-        require(digest == expected["sha256"], f"{label}: SHA-256 與 Git baseline 不符：{relative}")
-        require(type(length) is int and length == expected["bytes"], f"{label}: byte length 與 Git baseline 不符：{relative}")
+        require(digest == expected["sha256"], f"{label}: SHA-256 與 {git_source} 不符：{relative}")
+        require(type(length) is int and length == expected["bytes"], f"{label}: byte length 與 {git_source} 不符：{relative}")
         observed[relative] = {"path": value, "sha256": digest, "bytes": length}
     require(set(observed) == expected_set, f"{label}: path 集合缺失或多出來源")
     return observed
@@ -308,13 +419,14 @@ def _require_runner_binding(record: dict[str, Any], closure: dict[str, Any], rep
     """核对 execution record 的 runner path 和固定 SHA。"""
     runner_relative = COMPILE_TOOLING_PATHS[0]
     runner = closure["sources"][runner_relative]
+    git_source = _git_binding_source(closure)
     path_value = record.get("runner_path")
     require(isinstance(path_value, str) and Path(path_value).is_absolute(), f"{label}: runner_path 缺失或非绝对路径")
     require(
         _canonical_absolute_path(path_value) == _canonical_absolute_path(repo_root / Path(*PurePosixPath(runner_relative).parts)),
         f"{label}: runner_path 不属于批准闭包",
     )
-    require(record.get("runner_sha256") == runner["sha256"], f"{label}: runner SHA 与 Git baseline 不符")
+    require(record.get("runner_sha256") == runner["sha256"], f"{label}: runner SHA 与 {git_source} 不符")
 
 
 def _verify_compile_command(
@@ -479,12 +591,23 @@ def _verify_run_directory_set(runs_directory: Path, run_id: str) -> None:
     require(set(observed) == set(range(SAMPLE_COUNT)), "RunId 样本目录不是精确的 0..108")
 
 
-def verify_batch(evidence_root: Path, run_id: str, repo_root: Path = ROOT) -> dict[str, Any]:
+def verify_batch(
+    evidence_root: Path,
+    run_id: str,
+    repo_root: Path = ROOT,
+    candidate_commit: str | None = None,
+    candidate_tree: str | None = None,
+) -> dict[str, Any]:
     """验证并返回完整 109 样本 source-to-Git 绑定报告，不写文件。"""
     require(isinstance(run_id, str) and RUN_ID_PATTERN.fullmatch(run_id) is not None, "run_id 仅可含 ASCII 字母、数字、下划线和连字符")
+    require((candidate_commit is None) == (candidate_tree is None), "candidate commit/tree 必须同时提供")
     root = _require_plain_directory(repo_root, "repository root")
     evidence = _require_plain_directory(evidence_root, "evidence root")
-    closure = load_pinned_closure(root)
+    candidate_mode = candidate_commit is not None
+    if candidate_mode:
+        closure = load_candidate_closure(root, candidate_commit, candidate_tree or "")
+    else:
+        closure = load_pinned_closure(root)
     runs_directory = evidence / "runs"
     require(runs_directory.is_dir() and not runs_directory.is_symlink(), f"runs directory 缺失或类型错误：{runs_directory}")
     _verify_run_directory_set(runs_directory, run_id)
@@ -493,28 +616,64 @@ def verify_batch(evidence_root: Path, run_id: str, repo_root: Path = ROOT) -> di
         for sample_index in range(SAMPLE_COUNT)
     ]
     require(len(samples) == SAMPLE_COUNT and [row["sample_index"] for row in samples] == list(range(SAMPLE_COUNT)), "样本索引集合不是精确的 0..108")
-    return {
-        "schema_version": "gestureforge_s2a_t68_snapshot_git_binding_v1",
-        "status": REPORT_STATUS,
-        "scope": "仅核验 109 个编译源快照到静态闭包及冻结 Git tree 的映射；不证明仿真完成、逐层 PL golden、PL head/D9、G4、G5 或阶段通过。",
+    static_source_closure = {
+        "path": str(closure["manifest_path"].relative_to(root).as_posix()),
+        "sha256": closure["manifest_sha256"],
+    }
+    if candidate_mode:
+        static_source_closure.update(
+            {
+                "candidate_commit": closure["candidate_commit"],
+                "candidate_tree_sha1": closure["candidate_tree_sha1"],
+                "source_count": len(closure["sources"]),
+                "compiled_source_count": len(COMPILE_SOURCE_PATHS),
+                "compile_tooling_count": len(COMPILE_TOOLING_PATHS),
+                "candidate_git_blob_membership_count": len(closure["sources"]),
+                "candidate_git_object_content_verified_count": len(closure["sources"]),
+                "candidate_sources": [
+                    {
+                        "path": row["path"],
+                        "sha256": row["sha256"],
+                        "bytes": row["bytes"],
+                        "git_blob_sha1": row["git_blob_sha1"],
+                    }
+                    for row in closure["sources"].values()
+                ],
+                "support_file_git_object_binding": "固定 38 项路径范围来自固定哈希清单；候选 commit/tree 的 blob 字节均从 Git object 读取并核验长度、SHA-256 与 blob id。每个样本的 11 个编译源和 3 个工具源均逐项绑定该闭包。",
+            }
+        )
+    else:
+        static_source_closure.update(
+            {
+                "baseline_commit": closure["baseline_commit"],
+                "baseline_tree_sha1": closure["baseline_tree_sha1"],
+                "source_count": len(closure["sources"]),
+                "compiled_source_count": len(COMPILE_SOURCE_PATHS),
+                "compile_tooling_count": len(COMPILE_TOOLING_PATHS),
+                "baseline_blob_membership_count": len(closure["sources"]),
+                "compiled_baseline_blob_content_verified_count": len(COMPILE_SOURCE_PATHS) + len(COMPILE_TOOLING_PATHS),
+                "support_file_git_normalization": "38 项静态闭包全部绑定固定 manifest 与 baseline Git tree；当前工作树字节及 Git-normalized blob 仅对 11 个编译源和 3 个编译工具核验，辅助文件按冻结 tree 的 blob id 核验，不要求运行后工作树仍与 baseline 相同。",
+            }
+        )
+
+    report = {
+        "schema_version": "gestureforge_s2a_t68_snapshot_git_binding_candidate_v1" if candidate_mode else "gestureforge_s2a_t68_snapshot_git_binding_v1",
+        "status": CANDIDATE_REPORT_STATUS if candidate_mode else REPORT_STATUS,
+        "scope": (
+            "仅核验 109 个编译源快照到固定 38 项路径范围及显式 candidate Git commit/tree 的映射；不声称与旧 T29 冻结源码绑定，也不证明仿真完成、逐层 PL golden、PL head/D9、G4、G5 或阶段通过。"
+            if candidate_mode
+            else "仅核验 109 个编译源快照到静态闭包及冻结 Git tree 的映射；不证明仿真完成、逐层 PL golden、PL head/D9、G4、G5 或阶段通过。"
+        ),
         "sample_count": SAMPLE_COUNT,
         "run_id": run_id,
         "evidence_root": str(evidence),
         "repository_root": str(root),
-        "static_source_closure": {
-            "path": str(closure["manifest_path"].relative_to(root).as_posix()),
-            "sha256": closure["manifest_sha256"],
-            "baseline_commit": closure["baseline_commit"],
-            "baseline_tree_sha1": closure["baseline_tree_sha1"],
-            "source_count": len(closure["sources"]),
-            "compiled_source_count": len(COMPILE_SOURCE_PATHS),
-            "compile_tooling_count": len(COMPILE_TOOLING_PATHS),
-            "baseline_blob_membership_count": len(closure["sources"]),
-            "compiled_baseline_blob_content_verified_count": len(COMPILE_SOURCE_PATHS) + len(COMPILE_TOOLING_PATHS),
-            "support_file_git_normalization": "38 项静态闭包全部绑定固定 manifest 与 baseline Git tree；当前工作树字节及 Git-normalized blob 仅对 11 个编译源和 3 个编译工具核验，辅助文件按冻结 tree 的 blob id 核验，不要求运行后工作树仍与 baseline 相同。",
-        },
+        "static_source_closure": static_source_closure,
         "samples": samples,
     }
+    if candidate_mode:
+        report["binding_mode"] = closure["binding_mode"]
+    return report
 
 
 def _write_new_report(evidence_root: Path, run_id: str, report: dict[str, Any]) -> tuple[Path, str]:
@@ -541,13 +700,21 @@ def _write_new_report(evidence_root: Path, run_id: str, report: dict[str, Any]) 
 
 def main(argv: list[str] | None = None) -> int:
     """执行 109 样本只读核验，并仅在完整通过后写新报告。"""
-    parser = argparse.ArgumentParser(description="核验 T68 编译源快照是否映射到冻结 Git tree")
+    parser = argparse.ArgumentParser(description="核验 T68 编译源快照是否映射到冻结或显式 candidate Git tree")
     parser.add_argument("--evidence-root", type=Path, required=True, help="包含 runs/sample_NNN/<RunId> 的 T68 evidence root")
     parser.add_argument("--run-id", required=True, help="109 个样本共有的 RunId")
+    parser.add_argument("--candidate-commit", help="candidate 模式下使用的完整 40 位 commit SHA-1")
+    parser.add_argument("--candidate-tree", help="candidate 模式下使用的完整 40 位 tree SHA-1")
     args = parser.parse_args(argv)
     try:
+        require((args.candidate_commit is None) == (args.candidate_tree is None), "candidate commit/tree 必须同时提供")
         evidence = _require_plain_directory(args.evidence_root, "evidence root")
-        report = verify_batch(evidence, args.run_id)
+        report = verify_batch(
+            evidence,
+            args.run_id,
+            candidate_commit=args.candidate_commit,
+            candidate_tree=args.candidate_tree,
+        )
         report_path, report_sha = _write_new_report(evidence, args.run_id, report)
         console_report = dict(report)
         console_report["report_path"] = str(report_path)

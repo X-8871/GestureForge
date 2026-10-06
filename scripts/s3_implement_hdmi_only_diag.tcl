@@ -5,6 +5,7 @@ set ::s3_repo_root [file dirname [file dirname $::s3_script_path]]
 set ::s3_expected_commit fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327
 set ::s3_source_relative course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project
 set ::s3_expected_device xa7z020clg400-1I
+set ::s3_synthesis_flow {Vivado Synthesis 2026}
 set ::s3_guard_script_sha256 30031404FB7617B3B05CAA131099E201E2741A15134B302FA5EE5FB8AD1A6450
 set ::s3_expected_board_xdc_sha256 D8FD1B1AD450BC44C25AECB0EF2AE3ECE67EB1F718B60D564EA5BBB803665058
 set ::s3_classification DIAGNOSTIC_ONLY_NO_BITSTREAM_NO_BOARD_NO_TIMING_SIGNOFF
@@ -596,6 +597,10 @@ proc s3_status_text {} {
         "VIVADO_LOG=$::s3_state(vivado_log)" \
         "VIVADO_JOURNAL=$::s3_state(vivado_journal)" \
         "SYNTH_STATE=$::s3_state(synth_state)" \
+        "SYNTHESIS_FLOW=$::s3_state(synthesis_flow)" \
+        "SYNTH_RUN_STATUS=$::s3_state(synth_run_status)" \
+        "SYNTH_PROGRESS=$::s3_state(synth_progress)" \
+        "VERIFIED_HDMI_PORTS=$::s3_state(verified_hdmi_ports)" \
         "OPT_STATE=$::s3_state(opt_state)" \
         "PLACE_STATE=$::s3_state(place_state)" \
         "ROUTE_STATE=$::s3_state(route_state)" \
@@ -678,21 +683,47 @@ proc s3_emit_prepare_metadata_digest {pipe_name run_id file_count tree_sha256} {
     }
 }
 
-proc s3_validate_hdmi_ports_before_xdc {expected_ports} {
+proc s3_validate_hdmi_ports_after_synth {expected_ports} {
     set actual_xdc_ports [lsort -unique $expected_ports]
     set resolved_ports {}
     foreach port $expected_ports {
         set matches [get_ports -quiet -filter "NAME == {$port}"]
-        if {[llength $matches] != 1} {error "HDMI_PORT_NOT_UNIQUELY_RESOLVED_BEFORE_XDC: $port COUNT=[llength $matches]"}
+        if {[llength $matches] != 1} {error "HDMI_PORT_NOT_UNIQUELY_RESOLVED_AFTER_SYNTH: $port COUNT=[llength $matches]"}
         set resolved_name [get_property NAME [lindex $matches 0]]
-        if {$resolved_name ne $port} {error "HDMI_PORT_NAME_MISMATCH_BEFORE_XDC: EXPECTED=$port ACTUAL=$resolved_name"}
+        if {$resolved_name ne $port} {error "HDMI_PORT_NAME_MISMATCH_AFTER_SYNTH: EXPECTED=$port ACTUAL=$resolved_name"}
         lappend resolved_ports $resolved_name
     }
     set resolved_ports [lsort -unique $resolved_ports]
     if {$resolved_ports ne $actual_xdc_ports || [llength $resolved_ports] != 11} {
-        error "HDMI_PORT_EXACT_SET_MISMATCH_BEFORE_XDC: EXPECTED=$actual_xdc_ports ACTUAL=$resolved_ports"
+        error "HDMI_PORT_EXACT_SET_MISMATCH_AFTER_SYNTH: EXPECTED=$actual_xdc_ports ACTUAL=$resolved_ports"
     }
     return $resolved_ports
+}
+
+proc s3_validate_synthesis_run_flow {actual_flow expected_flow} {
+    if {$actual_flow ne $expected_flow} {
+        error "SYNTHESIS_RUN_FLOW_MISMATCH: EXPECTED=$expected_flow ACTUAL=$actual_flow"
+    }
+    return $actual_flow
+}
+
+proc s3_validate_synthesis_completion {run_name run_count progress} {
+    if {$run_name ne "synth_1"} {error "UNEXPECTED_SYNTHESIS_RUN_NAME: $run_name"}
+    if {![string is integer -strict $run_count] || $run_count != 1} {
+        error "EXPECTED_SINGLE_SYNTHESIS_RUN: NAME=$run_name COUNT=$run_count"
+    }
+    if {$progress ne "100%"} {error "SYNTHESIS_RUN_NOT_COMPLETE: NAME=$run_name PROGRESS=$progress"}
+    return COMPLETE
+}
+
+proc s3_mark_synthesis_failure {} {
+    if {[info exists ::s3_state(synth_state)] && $::s3_state(synth_state) eq "RUNNING"} {
+        set ::s3_state(synth_state) FAILED
+    }
+    if {[info exists ::s3_state(synth_run_status)] &&
+        [lsearch -exact {DISCOVERING CREATING READY LAUNCHING RUNNING} $::s3_state(synth_run_status)] >= 0} {
+        set ::s3_state(synth_run_status) FAILED
+    }
 }
 
 proc s3_expected_hdmi_ports {} {
@@ -747,6 +778,7 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
         timing_report NOT_STARTED clock_report NOT_STARTED drc_report NOT_STARTED \
         vivado_version UNKNOWN vendor_commit UNKNOWN max_threads UNKNOWN \
         synth_state NOT_STARTED opt_state NOT_STARTED place_state NOT_STARTED route_state NOT_STARTED \
+        synthesis_flow $::s3_synthesis_flow synth_run_status NOT_CREATED synth_progress NOT_STARTED verified_hdmi_ports NOT_CHECKED \
         blackboxes_after_synth NOT_CHECKED blackboxes_after_opt NOT_CHECKED missing_output_delays NOT_CHECKED \
         expected_runtime {10-40 minutes} max_runtime {60 minutes total} no_progress_stop {15 minutes without log/stage progress} \
         clock_model_limitation {Static implementation uses generated default clock constraints; runtime axi_dynclk DRP reprogramming is not modeled.}]
@@ -932,13 +964,6 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
     s3_write_utf8_secure [file join $::s3_state(output) reports clock_constraint_change.txt] \
         "OFFICIAL_SOURCE_XDC=[file join $source_root my_ip rgb2dvi_v1_3 src rgb2dvi_clocks.xdc]\nOFFICIAL_SOURCE_SHA256=$::s3_state(generated_clock_xdc_sha256_before)\nISOLATED_PROJECT_COPY=$generated_clock_xdc\nISOLATED_PROJECT_COPY_SHA256_AFTER=$::s3_state(generated_clock_xdc_sha256_after)\nCHANGE=Removed exactly the known PixelClk-to-SerialClk x5 generated-clock command from the project-local generated copy; vendor source unchanged.\n"
 
-    set ::s3_state(stage) RTL_PORT_ELABORATION
-    s3_persist_status
-    update_compile_order -fileset sources_1
-    synth_design -rtl -top s3_hdmi_only_wrapper -part $::s3_expected_device -constrset constrs_1
-    set ::s3_state(verified_hdmi_ports) [s3_validate_hdmi_ports_before_xdc $expected_hdmi_ports]
-    close_design
-
     add_files -fileset constrs_1 -norecurse $local_board_xdc
     set local_xdc_obj [get_files -quiet -of_objects [get_filesets constrs_1] $local_board_xdc]
     if {[llength $local_xdc_obj] != 1} {error "HDMI_XDC_NOT_PRESENT_IN_CONSTRAINT_SET"}
@@ -954,10 +979,47 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
 
     set reports [file join $::s3_state(output) reports]
     set checkpoints [file join $::s3_state(output) checkpoints]
-    set ::s3_state(stage) SYNTHESIS
+    set ::s3_state(stage) SYNTHESIS_RUN_SETUP
     set ::s3_state(synth_state) RUNNING
+    set ::s3_state(synth_run_status) DISCOVERING
+    set ::s3_state(synth_progress) NOT_STARTED
     s3_persist_status
-    synth_design -top s3_hdmi_only_wrapper -part $::s3_expected_device -constrset constrs_1
+
+    set synth_runs [get_runs -quiet synth_1]
+    if {[llength $synth_runs] > 1} {error "DUPLICATE_SYNTHESIS_RUN_NAME: synth_1"}
+    if {[llength $synth_runs] == 0} {
+        set ::s3_state(synth_run_status) CREATING
+        s3_persist_status
+        create_run -constrset constrs_1 -part $::s3_expected_device -flow $::s3_synthesis_flow synth_1
+        set synth_runs [get_runs -quiet synth_1]
+    }
+    if {[llength $synth_runs] != 1} {error "EXPECTED_SINGLE_SYNTHESIS_RUN_AFTER_SETUP: synth_1 COUNT=[llength $synth_runs]"}
+    set synth_run [lindex $synth_runs 0]
+    set synth_flow [get_property FLOW $synth_run]
+    s3_validate_synthesis_run_flow $synth_flow $::s3_synthesis_flow
+    set ::s3_state(synth_run_status) READY
+    set ::s3_state(stage) SYNTHESIS_RUN_LAUNCH
+    s3_persist_status
+
+    set ::s3_state(synth_run_status) LAUNCHING
+    s3_persist_status
+    launch_runs -jobs 1 $synth_run
+    set ::s3_state(synth_run_status) RUNNING
+    set ::s3_state(stage) SYNTHESIS_RUN_WAIT
+    s3_persist_status
+    wait_on_run $synth_run
+
+    set synth_runs [get_runs -quiet synth_1]
+    set synth_progress NOT_AVAILABLE
+    if {[llength $synth_runs] == 1} {set synth_progress [get_property PROGRESS [lindex $synth_runs 0]]}
+    set ::s3_state(synth_progress) $synth_progress
+    s3_validate_synthesis_completion synth_1 [llength $synth_runs] $synth_progress
+    set ::s3_state(synth_run_status) [get_property STATUS [lindex $synth_runs 0]]
+    set ::s3_state(stage) OPEN_SYNTHESIS_RUN
+    s3_persist_status
+    open_run -name s3_hdmi_only_synth [lindex $synth_runs 0]
+
+    set ::s3_state(verified_hdmi_ports) [s3_validate_hdmi_ports_after_synth $expected_hdmi_ports]
     set ::s3_state(blackboxes_after_synth) [s3_blackbox_names]
     s3_stage_complete synth "synth_state" [file join $checkpoints synth.dcp]
     set ::s3_state(stage) SYNTHESIS_REPORTS
@@ -1073,6 +1135,79 @@ proc s3_run_selftest {} {
     incr checks
     if {[llength [s3_expected_hdmi_ports]] != 11} {
         lappend failures "fixed official HDMI port set must contain eleven unique ports"
+    }
+    incr checks
+    if {[catch {set checked_flow [s3_validate_synthesis_run_flow {Vivado Synthesis 2026} $::s3_synthesis_flow]} flow_error] ||
+        $checked_flow ne $::s3_synthesis_flow} {
+        lappend failures "Vivado 2026.1 synthesis run flow was not accepted: $flow_error"
+    }
+    incr checks
+    if {![catch {s3_validate_synthesis_run_flow {Vivado Implementation 2026} $::s3_synthesis_flow} flow_mismatch_error] ||
+        [string first "SYNTHESIS_RUN_FLOW_MISMATCH:" $flow_mismatch_error] != 0} {
+        lappend failures "unexpected synthesis flow did not fail closed"
+    }
+    incr checks
+    if {[catch {set complete_state [s3_validate_synthesis_completion synth_1 1 100%]} completion_error] ||
+        $complete_state ne "COMPLETE"} {
+        lappend failures "successful synthesis run completion was rejected: $completion_error"
+    }
+    incr checks
+    foreach {run_name run_count progress expected_error} {
+        synth_2 1 100% UNEXPECTED_SYNTHESIS_RUN_NAME:
+        synth_1 0 100% EXPECTED_SINGLE_SYNTHESIS_RUN:
+        synth_1 2 100% EXPECTED_SINGLE_SYNTHESIS_RUN:
+        synth_1 1 0% SYNTHESIS_RUN_NOT_COMPLETE:
+        synth_1 1 NOT_AVAILABLE SYNTHESIS_RUN_NOT_COMPLETE:
+    } {
+        if {![catch {s3_validate_synthesis_completion $run_name $run_count $progress} completion_error] ||
+            [string first $expected_error $completion_error] != 0} {
+            lappend failures "synthesis completion guard missed $expected_error for $run_name/$run_count/$progress"
+        }
+    }
+    incr checks
+    set had_synth_state [info exists ::s3_state(synth_state)]
+    set had_synth_run_status [info exists ::s3_state(synth_run_status)]
+    if {$had_synth_state} {set saved_synth_state $::s3_state(synth_state)}
+    if {$had_synth_run_status} {set saved_synth_run_status $::s3_state(synth_run_status)}
+    set ::s3_state(synth_state) RUNNING
+    set ::s3_state(synth_run_status) RUNNING
+    s3_mark_synthesis_failure
+    if {$::s3_state(synth_state) ne "FAILED" || $::s3_state(synth_run_status) ne "FAILED"} {
+        lappend failures "active synthesis run state did not become FAILED on the guarded error path"
+    }
+    if {$had_synth_state} {set ::s3_state(synth_state) $saved_synth_state} else {unset ::s3_state(synth_state)}
+    if {$had_synth_run_status} {set ::s3_state(synth_run_status) $saved_synth_run_status} else {unset ::s3_state(synth_run_status)}
+    incr checks
+    set synthesis_body [info body s3_exec_main]
+    set synthesis_contract_markers {
+        {set_property USED_IN_SYNTHESIS true $local_xdc_obj}
+        {if {[llength $synth_runs] > 1}}
+        {if {[llength $synth_runs] == 0}}
+        {create_run -constrset constrs_1 -part $::s3_expected_device -flow $::s3_synthesis_flow synth_1}
+        {get_property FLOW $synth_run}
+        {launch_runs -jobs 1 $synth_run}
+        {wait_on_run $synth_run}
+        {get_property PROGRESS [lindex $synth_runs 0]}
+        {s3_validate_synthesis_completion synth_1 [llength $synth_runs] $synth_progress}
+        {open_run -name s3_hdmi_only_synth [lindex $synth_runs 0]}
+        {s3_validate_hdmi_ports_after_synth $expected_hdmi_ports}
+        {set ::s3_state(blackboxes_after_synth) [s3_blackbox_names]}
+        {s3_stage_complete synth "synth_state" [file join $checkpoints synth.dcp]}
+        {opt_design}
+        {place_design}
+        {route_design}
+    }
+    set prior_contract_position -1
+    foreach marker $synthesis_contract_markers {
+        set contract_position [string first $marker $synthesis_body]
+        if {$contract_position <= $prior_contract_position} {
+            lappend failures "project-mode synthesis/implementation contract is missing or out of order: $marker"
+            break
+        }
+        set prior_contract_position $contract_position
+    }
+    if {[regexp -nocase {(?m)^[ \t]*synth_design([ \t]|$)} $synthesis_body]} {
+        lappend failures "direct synth_design call remains inside the project-mode run procedure"
     }
     incr checks
     set synthetic_tree_manifest [format "ROOT=C:/repo/tmp/out/vendor_ip_metadata\nFILE_COUNT=2\n%s  axi_dynclk_v1_0/component.xml\n%s  rgb2dvi_v1_3/component.xml\n" \
@@ -1371,6 +1506,7 @@ if {[catch {s3_exec_main $s3_vendor_root $s3_output_dir $s3_action $s3_run_id $s
     puts stderr "S3_DIAGNOSTIC_FAILED: $s3_error"
     if {[dict exists $s3_error_options -errorinfo]} {puts stderr [dict get $s3_error_options -errorinfo]}
     if {[info exists ::s3_state(output)] && $::s3_state(output) ne "" && [file isdirectory $::s3_state(output)]} {
+        s3_mark_synthesis_failure
         set ::s3_state(result) FAILED
         set ::s3_state(error) $s3_error
         set ::s3_state(tcl_result) FAIL:IMPLEMENTATION_ERROR

@@ -107,11 +107,22 @@ AMD [UG1400 2026.1「Modifying the Domain Sources」](https://docs.amd.com/r/en-
 说明驱动组件包含 src 与 data 中的 .mdd/.mld 元数据，并要求提升版本后将自建仓库加入 Vitis；
 [「Creating a Software Repository」](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Creating-a-Software-Repository)
 说明软件仓库按驱动/服务/BSP/应用等组件目录组织，[「Adding the Software Repository」](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-the-Software-Repository)
-说明可将仓库添加为当前 workspace 的 local repository。当前文档没有明确说明本候选中任务指定的
-XilinxProcessorIPLib/ 额外前缀会被 Vitis 2026.1 扫描器接受；因此该包只是离线候选，不推断 Vitis
-如何发现或选择其中的 driver。尚未在 Vitis 2026.1 中添加/扫描/选中此仓库，未生成或编译 XA7Z020/-1
-BSP，也未板测。后续需在获准的 Vitis workspace 中实测 repository discovery、所选 driver 版本、
-BSP regeneration 和目标编译；本节不构成该验证已通过的证据。
+说明可将仓库添加为当前 workspace 的 local repository。以上是 AMD 文档依据；以下是 Vitis 2026.1
+本机隔离 workspace 的实测结果，不是 AMD 对本候选目录布局的兼容性承诺。
+
+2026-10-07 对本机 Vitis `2026.1 (64-bit)`（SW build `6511674`，日期 `2026-06-16-13:14:45`）
+执行了隔离扫描，详细证据见 `report/stage3_iicps_vitis_repo_scan_20261007.json`。在两个全新 workspace
+中，`client.set_embedded_sw_repo(level='LOCAL', path=[...])` 对候选包根和其
+`XilinxProcessorIPLib` 组件根均返回 True；扫描索引均包含候选 `iicps_v3_24`，且排在已安装
+`iicps_v3_23` 之前。候选由前述安全准备测试生成：20 个驱动源文件，硬件 TO overlay 在先、软件轮询
+期限 overlay 在后。由此仅证明 Vitis 本地扫描器能发现该候选组件；没有全局仓库设置。
+
+Vitis wrapper 的公开 `client.rescan_embedded_sw_repo(path=...)` 调用在本机因
+`TypeError: Platform._rescanSwRepo() got an unexpected keyword argument 'path'` 失败；本次隔离探测随后
+调用私有方法 `client._platformObj._rescanSwRepo()` 并得到 True。私有方法仅为本次测试 workaround，
+不是稳定或生产 API，不应作为项目集成接口依赖。该扫描未创建 XSA/platform/domain，未确认实际选用的
+BSP driver 版本，未重新生成 BSP、未构建目标软件，也未进行板测；这些仍是后续验证项。本节不构成
+Vitis BSP、XA7Z020/-1 目标构建或阶段 G2/G3/G4/G5 已通过的证据。
 
 ## S3-SW03 IICPS 接收软件轮询上限 overlay
 

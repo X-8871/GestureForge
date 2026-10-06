@@ -1,0 +1,114 @@
+{
+  "schema": "stage3_iicps_vitis_repo_scan_v1",
+  "task_id": "S3-SW04-REPO-SCAN",
+  "date_local": "2026-10-07",
+  "baseline_commit": "c016721b2ae10c37362950c7a4ed13b3cf3728a3",
+  "classification": "ISOLATED_VITIS_LOCAL_REPOSITORY_DISCOVERY_ONLY",
+  "vitis": {
+    "version": "2026.1 (64-bit)",
+    "sw_build": "6511674",
+    "sw_build_date": "2026-06-16-13:14:45",
+    "api_sources": {
+      "cli_client.py": {
+        "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\cli_client.py",
+        "sha256": "1754CFEC181BEE482BF9457E21EC8991FA9B6E0A4DE7B08DEE89ECE48B27320F"
+      },
+      "platform_component.py": {
+        "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\platform_component.py",
+        "sha256": "69B9C313B0762C5FAFA5DADF8DAB100D8AA20AADDEEB0A8C5399B256E03FCF5B"
+      }
+    }
+  },
+  "candidate_package": {
+    "path": "tmp/s3_iicps_repository_20261007_015648_aa049eaf7b1a4e12a7f952f8569cfd89/repository",
+    "preparation_summary": "tmp/s3_iicps_repository_20261007_015648_aa049eaf7b1a4e12a7f952f8569cfd89/summary.json",
+    "preparation_result": "PASS",
+    "source_file_count": 20,
+    "overlay_order": [
+      "iicps_v3_23_hw_timeout.patch",
+      "iicps_v3_23_sw_deadline.patch"
+    ],
+    "source_manifest_sha256": "AECE2EE31E13DE87A8FA46E1A8BB4E9C81B24FF0B50E54104003D8D6BD6C85F9",
+    "test_summary_sha256": "AC7D334D9907A671049B95FF3F519E3BB4B9AAEB88C1A684993F9F3BA9BAD9BE"
+  },
+  "isolated_scan": {
+    "repo_level": "LOCAL",
+    "global_repository_setting_requested": false,
+    "workspaces": [
+      {
+        "name": "workspace_package_root",
+        "registered_path": "tmp/s3_iicps_repository_20261007_015648_aa049eaf7b1a4e12a7f952f8569cfd89/repository",
+        "set_embedded_sw_repo_result": true,
+        "rescan_result": true,
+        "index_path": "tmp/s3_vitis_repo_probe_20261007_02/workspace_package_root/_ide/.wsdata/.repo.yaml",
+        "index_sha256": "228FDAFB0698F41B1BD9BF9EC9BC9C98ED3EF2132717D1E5944D3ADBBEBF53C8",
+        "index_bytes": 26409,
+        "driver_order": [
+          "candidate iicps_v3_24",
+          "installed iicps_v3_23"
+        ],
+        "run_reported_workspace_journal_sha256": "C1DAD188F349568CEA96A53D1A319319360104C97A2ED8A42177E254C63CFE8B",
+        "currently_retained_workspace_journal_py_sha256": "DAB07829AD2D7304A8590979B0A614F4AC23145A4441F7243F84046EF577A87F"
+      },
+      {
+        "name": "workspace_component_root",
+        "registered_path": "tmp/s3_iicps_repository_20261007_015648_aa049eaf7b1a4e12a7f952f8569cfd89/repository/XilinxProcessorIPLib",
+        "set_embedded_sw_repo_result": true,
+        "rescan_result": true,
+        "index_path": "tmp/s3_vitis_repo_probe_20261007_02/workspace_component_root/_ide/.wsdata/.repo.yaml",
+        "index_sha256": "0964F892725ACA517617720E484109496EED50F081C81B048546F6B3B0C330A5",
+        "index_bytes": 26430,
+        "driver_order": [
+          "candidate iicps_v3_24",
+          "installed iicps_v3_23"
+        ],
+        "run_reported_workspace_journal_sha256": "9BB77312D4D7DE9624FFD3E4F73EF533FE2EF9C13C82609ACF2A19BAAB6C8997",
+        "currently_retained_workspace_journal_py_sha256": "C524926587DECB302443AA5A58FD7B2346DB3DCB2D06EE8D729BE4B35C5D78C2"
+      }
+    ],
+    "public_rescan_api": {
+      "attempted": true,
+      "result": "FAILED",
+      "exception": "TypeError: Platform._rescanSwRepo() got an unexpected keyword argument 'path'"
+    },
+    "private_rescan_workaround": {
+      "method": "client._platformObj._rescanSwRepo()",
+      "result": true,
+      "classification": "TEST_ONLY_UNSTABLE_PRIVATE_API"
+    }
+  },
+  "official_reference": [
+    {
+      "title": "AMD UG1400 2026.1 - Modifying the Domain Sources, Driver and Library Code",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Modifying-the-Domain-Sources-Driver-and-Library-Code",
+      "supports": "官方关于驱动 src/data 元数据和自建仓库版本管理的说明；不是本次扫描结果。"
+    },
+    {
+      "title": "AMD UG1400 2026.1 - Creating a Software Repository",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Creating-a-Software-Repository",
+      "supports": "官方软件仓库组件目录组织说明；不保证任务候选路径布局被扫描。"
+    },
+    {
+      "title": "AMD UG1400 2026.1 - Adding the Software Repository",
+      "url": "https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-the-Software-Repository",
+      "supports": "官方添加当前 workspace local repository 的说明；与本机经验结果区分。"
+    }
+  ],
+  "limits": [
+    "仅证明 Vitis 2026.1 本地软件仓库扫描索引发现候选 iicps_v3_24，并将其排在安装版 iicps_v3_23 之前。",
+    "未创建或导入 XSA/platform/domain；未确认某个 BSP 实际选用的驱动版本。",
+    "未重新生成 BSP，未构建 XA7Z020/-1 目标软件，未进行板上验证。",
+    "私有 rescan 方法仅为一次隔离测试 workaround，不是稳定 API；公开 wrapper 参数错误仍需后续确认/修复路径。",
+    "没有运行 Vivado 或 Vitis 构建，也没有操作板卡或 Batch109。"
+  ],
+  "work_performed": {
+    "repository_setting_scope": "LOCAL workspace only",
+    "vitis_cli_probe_runs": 3,
+    "vitis_server_shutdown_logged": true,
+    "installed_vitis_files_modified": false,
+    "vendor_original_modified": false,
+    "vivado_invoked": false,
+    "board_accessed": false,
+    "batch109_accessed": false
+  }
+}

@@ -1,75 +1,39 @@
-# 项目状态
+# 项目状态入口
 
-更新：2026-10-03（UTC+8）。恢复时先读 `AGENTS.md`，再读本文件和当前阶段正式规格。
+更新：2026-10-07（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
-- 目标：AX7020 摄像头五类手势检测，最终经 PL INT8 推理、PS 后处理和 HDMI/板卡交互形成可复现作品。
-- 当前阶段：阶段2A「PL推理仿真」，未冻结。8×8 tile / 8 lanes 已批准，生产backend已集成；独立tile算术/内存/边界和CPU恢复已通过，完整109 PL、D9、runtime源码映射与G4/G5仍待完成。Wong选择阶段3并行开展摄像头到HDMI原始视频链路，先核对视频接口；不自动执行烧录或板测。
-- 本轮未重新训练；S2A-T02 仅执行独立 MAC RTL 单元仿真，未执行综合、Vivado 工程集成、整网仿真、板上烧录或板测。
-- 归档主入口：`docs/obsidian-project/04-提交材料/阶段验收/阶段1_实施步骤与决策_最终产物_20260922.md`。
+- 阶段2A「PL 推理仿真」尚未冻结，当前在 G4/G5 独立终审。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
+- 用户选择阶段3并行推进，暂定范围为摄像头到 HDMI 的原始视频链路。先核对 AX7020 PCB/接口、器件、引脚和电平并完成 G0；阶段3不依赖 2A/2B 推理验收。不烧录、不操作实物，除非后续明确授权。
+- 本轮不修改阶段3内容。保留共享工作区中其他阶段及用户已有的改动。
+- 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
 
-## 阶段 2A G0 冻结入口
+## 当前候选批次（2026-10-06）
 
-- G0 规格：`docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md`；状态 `G0_FROZEN`，主候选 `tiny416`。
-- 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`；固定输入：`report/evidence/S2A-T01/fixed_test_samples.json`。模型清单覆盖 38 层、21 个卷积层、5 个 cfg 算子类型及共享 INT8 MAC；固定样本 109 项。
-- G0 冻结模型/量化/参考源码哈希、NCHW 张量与地址、PS/PL CSR 和 memory 协议、内部 operator completion event、解码/NMS 规则、随机种子及误差口径。算子与 MAC 定向向量各 16 项，case 9 route 用于非恒等 scale 转换。
-- 独立复审通过；G0 规格、生成器、测试、model manifest 和 samples manifest 的最终 SHA-256 均记在 G0 规格内。
-- 下一项（2026-10-03）：最新批次 `repair109_20261003_194620` 已启动；一次核验确认sample0 runner、coordinator和Verilator/make编译进程运行，启动stderr均为空，尚未通过sample0。通过后自动8-worker运行其余108并执行D9。按Wong要求不主动监控；用户要求时单次检查。完成后执行runtime源码映射、归档/恢复和独立G4/G5。
+- 候选代码提交 `999238284157bed77cdb3a37e3e6eea52daeefc4`，tree `b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`；包含 8×8 tile/8-lane 引擎、T66 黑盒 testbench 与 runner。T66 layer0 运行记录报告 1,384,448 bytes、mismatch=0；同名并发锁争用记录 PASS。独立静态 runner 复审发现超时/异常清理和 marker 唯一性阻断（见 Git 与下一步），因此这些结果不单独作为阶段签收依据。
+- 原始 T68 RunId `candidate8x8_109_20261006_130252` 于 2026-10-06 13:02（UTC+8）启动，证据根 `report/evidence/S2A-T68/candidate8x8_109_20261006_130252/`。原批次异常停止：样本 0–24 有完整 38 层 PASS；sample030 事件失败，sample025–032 只留部分记录；没有批次 summary。旧进度最新完整 marker 是 sample025、layer26、cycle690,000,000（2026-10-06 23:32:18），原协调器和仿真进程已退出。原日志、事件、部分运行目录和 marker 均保留。
+- 恢复修复提交 `d767a93`、`81db0f0`、`f21fd2d` 分别处理共享 progress marker 读取、跨 RunId 安全续跑/证据绑定，以及 harness verifier 格式耦合；恢复实现和最后一项修复均已独立审查 PASS。sample033 由现有 fixture-only runner 单独生成；sample034–108 共 75 份由同一 runner 从冻结 T01/T25 输入生成并验证，记录在 `fixture_prep_resume_20261007_022841/fixture_prep_progress.json`。109 份 fixture 通过只读恢复预检。首次 coordinator 尝试在样本启动前被 fail-closed 进程门拦截（观察用 PowerShell 自匹配），没有仿真或样本输出；记录为 `recovery_launch_outcome_20261007_022502.json`，未覆盖。
+- 当前恢复 RunId `candidate8x8_109_resume_20261007_023531` 仅运行尚未通过的 25–108，最多 8 workers；旧组 0–24 绑定原 commit/tree `999238284157bed77cdb3a37e3e6eea52daeefc4`/`b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`，新组绑定 `f21fd2d4237445772f30b901975676455a5766e7`/`25cb9b19282ff110e95448e0edf0c4e1b6976122`。2026-10-07 02:46（UTC+8）核验协调器 PID17232、8 个 runner 和 8 个 `Vtb_s2a_network_backend_golden.exe` 存活；样本 25–32 的完整 marker 均到 `layer=1/cycle=60,000,000/phase=running`，暂无完成事件、结果摘要或 recovery manifest。批次仍运行，未完成 109/109。启动核验记录为 `recovery_startup_check_20261007_023531.json`。现有 4 小时 heartbeat 已更新为监控此恢复 RunId。
+- 旧 RunId `repair109_20261003_194620` 属于旧源码基线，已完成并保持不变；恢复批次全部通过后，先验证 recovery manifest 的 109 个跨 RunId 记录，再运行冻结 CPU D9 对比和 `verify_s2a_t68_snapshot_git_binding.py`/相关 Git-tree 核验。禁止只凭进程视为通过。
 
-## 已冻结的模型和口径
+## 阶段2A 已验证事实
 
-- 类别：`fist`、`palm`、`one`、`two_up`、`three`；旧 32×32 分类方案停用。
-- 模型：`tiny320`、`tiny416` 为上板候选，`full608` 为 PC-only 对照。
-- 固定推理：`score_threshold=0.25`、NMS IoU=`0.45`、每图最多 15 框。
-- 浮点门槛：mAP@0.5≥0.90、mAP@0.5:0.95≥0.70、五类逐类 precision/recall≥0.90。
-- INT8 保留门：相对浮点 mAP@0.5 和逐类 recall 下降≤5个百分点，且 D2 溢出规则满足；本轮未把整网 INT8 检测下降写成已通过。
-- `no_hand` 不是第六类，也不是阶段一阻断项；官方 `no_gesture` 不改名。没有合适独立来源时只保留为可选诊断。
+- 主批次 RunId：`repair109_20261003_194620`；原始运行证据 `report/evidence/S2A-T68/repair109_20261003_194620/`，逐样本审计 `report/evidence/S2A-T68/acceptance_audit_repair109_20261003_194620.json`。
+- 109 个索引 0–108 均通过完整 38 cfg 层 PL golden，无 mismatch；每样本 972,865,374 cycles。协调器摘要状态 `PASS_108_RUNNERS` 只含 1–108；sample000 是同 RunId 独立成功记录。最终审计合并为 109，不能称协调器原始摘要为 `PASS_109`。
+- 109 个真实 PL head 对冻结 CPU D9 比较通过，最大 score/xyxy 绝对误差为 0：`d9_109_sample_report.json`，`PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`。
+- 109 份编译快照映射到冻结 38 项闭包：源码 commit `fecbf1f8f37fcee8b25e6e2517b9621850912a4e`，tree `094e1492396a6788cc33b3b5866dd304387c02da`。映射报告状态 `PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE`。
+- T70 tile 算术、选定内存和边界/异常结果，以及 T68 `protocol_directed05/06` 有各自独立范围，不替代 109 样本整网结果；T17/T20 是历史串行 engine/pilot，不能称作新 tile 等价覆盖。详见 `report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`。
+- T25 独立干净副本实际恢复 109×38 CPU shards 并完成 109 样本 D9 canonical replay；恢复 2,283.61 秒、D9 12.359 秒。它证明 CPU oracle 可恢复，不证明 PL 在干净副本全量重跑。
 
-## 已核对的正式结果
+## 冻结前的限制与证据保全
 
-- 官方数据来源为 HaGRID；manifest 158,680 行，SHA-256 `fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74`。
-- tiny416 官方 test 25,484 张：mAP@0.5=`0.9774176565`，mAP@0.5:0.95=`0.7700877728`，最小 precision=`0.9479207151`，最小 recall=`0.9701880752`。
-- D3 PC 本体（100 warmup+1000 valid）：tiny320 mean/P99=`17.895892/21.176 ms`；tiny416=`27.456450/31.559 ms`；full608=`43.861036/48.585 ms`；三者 timeout/drop/failure 均为 0。
-- Wong 已确认三个模型通过网页/摄像头人工测试；该项是人工可用性确认，不替代正式 mAP。
+- 当前候选全核心 OOC Vivado 综合（`s2a_stage2a_core_ooc`，14 个 RTL，candidate commit/tree）已成功，launcher exit 0、0 errors、0 latch；LUT 40,550/53,200，FF 3,082/106,400，BRAM 32/140，DSP 186/220。无 XDC/冻结时钟，风险报告不代表 timing closure。独立 Reviewer 已对该 G4 子项 PASS；详细证据在 `report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/`。早期 Tcl Store 启动失败和安装器权限探针保留为历史记录。当前整网109/D9/快照映射仍待完成；整体G4/G5未通过。T66 runner 独立审查发现4项证据完整性/异常清理问题，须修复复审后才可把其作为稳定的复现入口。
+- T68、T25 与 tile/协议支持证据已分别归档到 `archive/S2A-T68/repair109_20261003_194620/`、`archive/S2A-T25/clean_restore_20261002_160036/`、`archive/S2A-Support/Stage2A_20261005/`，逐文件 manifest 校验通过。归档和源都在 D 盘同一物理卷，不是异盘备份。
+- 在证据归档校验后，仅清理 109 个 PL `build` 与 4 个支持回归 `build/obj_dir` 缓存，释放 33,104,952,077 字节；输入、结果、日志、VCD、T25 shards 和失败记录保留。该 RunId 已完成，绝不重跑。
+- 验收候选：`report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`；用户本地运行说明：`docs/S2A-T68_local_run_guide.md`。候选仍是 review-pending，不能当成通过报告。
 
-## 可恢复入口
+## Git 与下一步
 
-- 网页代码：`web/index.html`、`web/gestureforge_web.py`、`web/README.md`；模型注册表保留三个独立 ID、cfg/data/weights 路径和 SHA，可切换回滚。
-- D2/D3/D6/D9 最终证据和清理后的保留清单见阶段一归档记录；外部模型仍在 `D:\FPGA_Data\HaGRIDv2`，本次未删除。
-- 阶段冻结基础提交：`27ff12a`、`b3e82d1`；本次整理完成后以最新清理提交为准。
-
-## 后续边界
-
-- tiny320/tiny416 后续板上门：LUT/FF/BRAM/DSP≤85%，WNS/WHS≥0，TNS/THS=0；full608 不适用板上资源门。
-- 未来若要求“无手必须拒绝输出”，需另建独立、可审计数据集和新验收门，不回写当前阶段一冻结结论。
-- 阶段2A仍未冻结；2B固定输入推理上板仍依赖2A验收。Wong最新选择并行开启阶段3，暂定目标为摄像头→已核实输入→FPGA→HDMI显示原始画面；正式计划允许3在视频接口核实后独立穿插，不依赖2A/2B推理验收。阶段3先按板卡/PCB版本核对端口方向、器件、引脚、电平和摄像头兼容性；分辨率/像素格式/帧率及丢帧策略在G0明确，按原计划至少30分钟无死锁并留计数、日志和视频。本目标不等于已授权烧录/实物操作或已完成验收；不自动引入CNN/检测框。
-
-## 阶段 2A 最新恢复点
-
-- 当前批次最新记录（2026-10-03 19:46 UTC+8）：`repair109_20261003_194620` sample0 runner PID26384、coordinator PID38084；一次启动查询确认3个pwsh、Verilator进程1个、make进程2个，stderr均空，sample0处于编译，尚无样本通过。启动证据 `report/evidence/S2A-T68/repair109_20261003_194620/startup_check_20261003.json`。之前 `repair109_20261003_124125` sample0通过，但8个worker仿真exit0且写出heads/摘要后，被遗漏的第二处CRLF raw regex拒收；失败汇总保留、不计验收。worker CRLF修复commit `fecbf1f` 及闭包commit `01d2f9e`，新批次从sample0开始；其他失败RunId均保留。
-
-- 更新：2026-10-02（UTC+8）。恢复审计：`report/stage2a_execution_audit_20261001.md`，提交 `f7c5830f37f749a71fcb9639f1be58e1ca412c13`；该报告记录当时的病灶、文件哈希与恢复边界。
-
-| T01 项 | 已通过 / 可复用版本 | 缺口 | 下一项验证 |
-|---|---|---|---|
-| G0 输入与接口 | T01 `G0_FROZEN`，独立审查通过；模型/样本与规则哈希见 T01 规格 | 无；冻结仅定义基线，不证明 RTL | 后续均沿用此基线 |
-| 单元向量与协议 | T69 独立只读审计 PASS：T02 MAC、T17 21层卷积、T14 maxpool、T13 upsample、T15 route、T08 YOLO 随机/定向向量覆盖齐；T10–T12/T18–T21 有固定 stall、错误、取消、timeout、ACK/恢复证据；T11 CSR 回归通过非法/保留 CSR 与 BAD_RANGE/BAD_LENGTH/BAD_ARGUMENT start（595 transfers、116 directed、256 random）；T68 protocol_directed05 真实 backend+CSR code6/7→INTERNAL、pending layer0 output write 的 soft/hard reset/timeout 取消、无迟到副作用及 ACK/restart 独立审查 PASS；protocol_directed06 波形版独立复审 PASS，VCD `report/evidence/S2A-T68/protocol_directed06/backend_fault_recovery.vcd`（15,383,328 B，SHA-256 `e08b209e00c467b9571e96f723025fe59930db0721463404a18fe6459b4b1c5f`） | 无（该行通过不代表整网或阶段通过） | T68 sample0 38 层 PL golden 仿真与吞吐校准 |
-| CPU oracle 与 D9 | T25 `cpu_layer_golden_index.json` 为109输入×38层整数黄金 `COMPLETE`（提交 `f669103`）；T29 D9 CPU reference 可从冻结 T25 heads 重建，109/109 canonical 比对通过；T68 D9 verifier 已提交 `e55fae0`、独立源码审查 PASS | CPU 链路不代表 PL；实际 PL heads 尚无比较 | 用整网模拟实际 head bytes 与 T29 对照，离散字段一致、score/坐标绝对误差≤1e-6 |
-| PL backend 与新卷积 tile | T66 byte-lane 修复与 layer0 tile 回归已静态审查通过；另有独立 Verilator 5.050 sample0 layer0 golden 仿真 8/8 通过，1,384,448 字节、0 mismatch、26,002,719 cycles。证据目录：`report/evidence/S2A-T66/tile01/verilator_run01/` | 尚无 PL 38 层整网 golden；此前 XSim attempt07 按 Wong 指示继续自行运行，本轮未查询、读取或干预 | T67 backend 接入提交 `433b720c1006f34d191e0fd7ed07bee62d6a276c`；静态独立审查 PASS；独立 lint exit=0、143 warnings、0 errors |
-| 全网 PL 与头后处理 | harness `e55fae0`、protocol_directed05/06 独立审查 PASS；`batch109_r3` 只读核查发现 sample0 原始 PL RTL 仿真 38 层完成、0 mismatch、972,865,374 cycles，但 runner 因 CRLF 摘要解析误判，coordinator 在后续样本 dispatch 前因 Python 多候选解析退出；验收计数 0/109，失败证据保留。runner/coordinator 修复提交 `a1298db`，合成审查 PASS；静态闭包提交 `eb8ce87`；新 RunId `batch109_r4` 已启动；2026-10-02 13:16（UTC+8）定向进程查询确认 sample0 Verilator 全网仿真正在运行，未见 108 样本批跑或 D9 进程；之后按 Wong 要求不主动监视。 | 109 样本完整 PL golden/head 导出与 D9 比较均未完成 | 按 Wong 要求不主动轮询；用户再次要求时做定向只读状态核验。完成后检查 summary 与 D9、核验各样本快照映射、独立 G4/G5 审查与阶段记录 |
-
-- 新tile边界/缓存/异常回归（2026-10-02）：T70 `report/evidence/S2A-T70/boundary_full01/boundary_report.json`，真实head29/36各零输入和非零pattern完整生产遍历，共50700输出字节逐独立INT64/D2黄金零差异；8异常含5非法descriptor零请求、feature/weight -128与首tapoverflow注入零输出，result背压5拍稳定无请求，12/12 exit0，独立审查PASS。固定request class stall/地址/strobe/cache读数齐，生产RTL不改。overflow仅白盒原语；response固定一拍；不证明3×3完整缓存遍历、PL109或G4/G5。
-- 新tile所选tile/group内存回归（2026-10-02）：T70 `report/evidence/S2A-T70/memory_full01/summary.json` 实测21层×16定向=336项、147896输出字节零差异，56740684cycles，编译/仿真exit0，独立审查PASS；真实descriptor和GF8，白盒仅起始tile/group，其后生产patch/weight加载、算术、地址/strobe和固定class stall精确计数。新增独立runner/TB，生产RTL不变；完整遍历/cache和异常仍由boundary任务补，不表示G4/G5通过。
-- 新tile算术回归（2026-10-02）：T70 `report/evidence/S2A-T70/whitebox_diagnostic03/summary.json` 实测21层×(1000随机+16定向)=21336查询、169790实际lane、零差异，编译/仿真exit0；独立审查PASS，冻结T17向量/共享PRNG与真实GF8全组权重逐项一致。新增runner/TB，不改生产RTL。白盒只预装所选点patch/权重并执行生产算术/MQ，再取消；不覆盖memory/cache/整层遍历/异常/G4G5。相关缺口由独立memory回归继续补。
-- 验收准备（2026-10-02，静态范围）：运行说明 `docs/S2A-T68_local_run_guide.md` 已补齐终态门、证据保留和干净副本恢复/复验命令；真实核查摘要 `report/stage2a_acceptance_preparation_20261002.json` 记录38项源码大小/SHA/基线blob匹配、109项T25 manifest-index元数据匹配、既有定名单元及protocol05/06终态证据。未检查当前批次、未重读shards/大波形、未执行备份或真实恢复。T69无独立机器目录，应使用摘要所列T02/T08/T10–T21原始JSON；T17/T20仅历史串行engine/pilot，新tile适用性须终审及必要回归。实际109 PL/D9/源码映射、clean-copy恢复、归档可恢复性与G4/G5仍PENDING。
-- T25/T29 冻结 CPU oracle 可恢复性（2026-10-02，只读文件清单/源码审查）：Git 跟踪 `report/evidence/S2A-T01/tiny416_model_manifest.json`、`report/evidence/S2A-T01/fixed_test_samples.json`、`report/evidence/S2A-T25/cpu_layer_golden_index.json` 和 `report/evidence/S2A-T29/cpu_decode_nms_reference.json`。`report/evidence/S2A-T25/tensors/` 当前有 109 个普通文件、共 390,700,998 B，Git 跟踪路径数为 0。静态 D9 验证器 `verification/verify_s2a_t68_d9_outputs.py::verify_frozen_cpu_baseline` 调用 T29 generator，从这些 T25 shards 确定性重建并与冻结 T29 报告作 canonical bytes 比较；因此干净副本 D9 重验依赖保留这些未跟踪冻结 CPU-oracle shards，它们是 G4/G5 恢复材料。该 T25 归档输入与 `S2A-T68` runtime evidence 分开；本检查没有查询 T68 进程、日志或运行证据，不改变 no-monitoring 边界。阶段冻结时须归档精确 shard 文件清单及逐文件 SHA-256，并记录可恢复路径；不得批量暂存整个 shard 目录。本次未读取 shard 内容或计算其哈希。恢复清单 `report/evidence/S2A-T25/t25_shard_recovery_manifest_20261002.json` 已于提交 `e42f689644be74239ab8d1a2b3f0c505090d7656` 纳入 Git，文件 SHA-256 `5352b2ef6edb8f40bb1e635aaa1337556171937db176db841fb044406657d0d9`；主控已对全部 109 个 shard 计算 SHA-256 并匹配冻结 index 条目/大小，总计 390,700,998 B。独立 Reviewer 的 `PASS` 仅覆盖 manifest-to-index 一致性审查，没有重新计算 shard 内容哈希。该 manifest 是本地恢复/完整性元数据，不是第二份备份，也不是 `S2A-T68` runtime evidence；保持不轮询、不读取、不干预 T68 进程、日志与运行证据的边界。
-- T25 clean-copy 恢复风险（2026-10-02，静态源码核对）：`verification/s2a_cpu_layer_goldens.py` 的全量新建流程要求目标目录不存在；干净 Git 副本含已跟踪的 T25 index，因此不能直接按新建流程生成。`--resume` 会验证既有 checkpoint 和 shards，不能补回缺失分片；故未完成 clean-copy shard 恢复验证前，不把“理论可重算”视为可恢复证明。ZIP 归档尝试被本地执行策略在启动前拒绝，未生成归档或 sidecar，源 shards/manifest 未修改；不通过改策略或替代工具绕过。另一次状态整理子代理误用宽泛 Git 状态查询，意外输出受限 T68 目录的文件名；未读取文件内容或查看进程/日志，发现后停止访问并已告知 Wong。按既有边界继续不查询、不读取、不干预 T68 运行状态。
-- T25 clean-copy恢复实测（2026-10-02）：干净副本 `tmp/s2a_clean_restore_20261002_160036` HEAD `d530281`；冻结Python3.12.10/NumPy2.4.6/OpenCV4.13.0，单线程数值库BelowNormal。真实恢复109×38成功（2283.61s）、CPU D9 canonical109复验成功（12.359s，总2296.36s），独立Reviewer逐新分片压缩/解压SHA及全部终态记录审查PASS。证据 `report/evidence/S2A-T25/clean_restore_20261002_160036/recovery_execution_record.json`、`final_evidence_integrity.json`；恢复器109完整校验后原子发布，未读取原shards/PL109运行。这关闭CPU oracle clean-copy恢复缺口；不证明PL证据归档、PL全流程副本重跑、G4/G5。
-- 截止与预算：Wong 于 2026-10-01 要求 2A 在 7 天内完成；截至 2026-10-02 尚余 6 天（目标 2026-10-08 前通过 G5），不得降低验收标准。架构仍为 8×8 tile / 8 output lanes，CSR、32-bit timeout 与 memory protocol 不变。冻结 manifest 的保守脚本估算为单帧 1,940,519,260 cycles（request stall `[0,1,2,7,3]`，4 个算术用例通过），脚本状态 `ESTIMATE_ONLY_NOT_RTL_PROOF`；109 帧按当前 8-worker layer0 吞吐线性外推约 59 小时，必须由 sample0 全网实测校准。此前约 1.16B cycles 预算仍未被 RTL 验证；不作为当前排期依据。
-- G4/G5 静态实施资格审查：基于 HEAD `5116ac1d0f05cb9ad2ea76ee91e45da2ca152161` 的可复用实现与验收链路审查为 `PASS`；该结论仅表示静态上具备按冻结规格产出并核验完整交付物的路径，**不表示仿真运行通过，也不表示 G4/G5 已通过或阶段已冻结**。最终验收仍须在同一冻结基线上取得 109 个固定样本各自完整 38 层 PL golden 记录且零 mismatch；取得 109 样本真实 PL heads 对冻结 CPU T25/T29 D9 的完整比较；合并 T69 已通过的单元/协议结果时逐项保留其证据与适用性，不能替代整网结果；将每个样本编译 source snapshot 的文件哈希映射到干净且可恢复的 Git tree/commit；证据须归档于可访问、可恢复的 `report/evidence/S2A-T68/<RunId>/`（含输入/模型/源码与工具清单、运行记录、逐样本结果、SHA-256、复现命令及从干净副本重建/重跑步骤）；形成真实结果的阶段验收记录并完成独立 G4/G5 签收。G3 板测在 2A 属 N/A：本阶段仅 PL RTL 仿真，T01 与当前范围均不授权烧录或实物操作；综合、资源利用率和时序在 2A 亦属 N/A：本阶段验收目标是功能仿真，不执行综合，不能据此声称资源/时序通过。以上实际结果及审查均待完成。
-- 静态源闭合复核（2026-10-03）：最新 `report/evidence/S2A-T68/static_source_closure_20261003_worker_crlf.json` SHA9920c8f782677de1fb38053ae5357f517b8f24526ccb9edab816a56b72830244，compile source baseline `fecbf1f8f37fcee8b25e6e2517b9621850912a4e`/tree `094e1492396a6788cc33b3b5866dd304387c02da`，38源核验、独立PASS、10项映射回归通过，pins提交`01d2f9e`。CRLF worker验证提交`fecbf1f`；固定Python3.12.14通过当前进程PYTHONPATH使用既有NumPy2.4.6/OpenCV4.13.0，109个输入长度与冻结SHA实际全通过；生产RTL与编译11+3源不变。runtime 109映射、G4/G5未完成。
-- 归档忽略规则核对（2026-10-02）：`git check-ignore -v` 对 `report/evidence/S2A-T68/batch109_r3` 和预期 D9 报告 `report/evidence/S2A-T68/batch109_r3/d9_109_sample_report.json` 均无匹配（not ignored）；根目录 `.gitignore` 无 `report/evidence` 规则。此项仅记录忽略配置，不代表目录内容或运行状态已核实。阶段冻结时须逐项枚举必要证据文件、记录 SHA-256、注明可访问且可恢复的归档路径及干净副本重建/重跑步骤；不得批量暂存整个证据目录。
-- 执行边界：范围为完整 Stage 2A PL 推理仿真，不含综合资源声明、板测或烧录。T61 run05 attempt05 是离线准备，不是新仿真结果；run04 DATA_ONLY 也不是全网通过。
-- 保护状态：PID 8712 Vivado、22488/13156 XSim 为审计记录的受保护进程，任何运行前重新核对身份，不停止/关闭/重置/发送状态修改。MCP 当前连接健康但项目为 `s2a_t61_run04` 的 `isolated_project`、Top 为空，不是2A仿真实例。
-- T63/T64/T65、进行中的 T66-A 与其他工作区差异均须保留并先核对；日志、夹具、临时文件和大型生成物留在 D 盘，默认不生成大波形。
+- 历史 T68 源映射修复基线为 `65dd1c310e7686d50685d2f83b9b2b623e6cf3ad`。候选实现提交 `999238284157bed77cdb3a37e3e6eea52daeefc4` 包含 tile engine、T66 testbench 与 runner；2026-10-06 G4 acceptance/OOC 综合证据提交为 `a232bc7c815a1e9bb18c675b0e9f31bccd857c62`。均未推送；保持其他阶段改动、运行目录、shards、模型数据、密钥和构建产物不入提交。
+- 下一步：保持当前 25–108 恢复批次运行且不另启进程；按四小时 heartbeat 核对进度、事件与 summary。完成后检查 recovery manifest、109 份 PL 结果、D9 报告和新旧源码快照映射。T66 独立候选 runner 的遗留复审问题继续单独保留；整体 G4/G5 仍未通过，全部适用关口 PASS 后再冻结阶段，不降低门槛。

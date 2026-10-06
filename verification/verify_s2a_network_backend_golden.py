@@ -84,6 +84,28 @@ def progress_signature(values: dict[str, Any]) -> tuple[int, ...]:
     return tuple(values[name] for name in PROGRESS_FUNCTIONAL_FIELDS)
 
 
+def verify_progress_failure_bindings(runner_text: str) -> None:
+    """验证坏 marker 必须阻断通过，且 runner 必须保留非零退出码。"""
+    require(
+        re.search(
+            r"(?m)^[ \t]*if\s*\(\s*\$null\s+-eq\s+\$progressMarker\s*\)\s*\{\s*"
+            r"\$badProgressMarkerSeen\s*=\s*\$true\b",
+            runner_text,
+            re.I | re.S,
+        ) is not None,
+        "坏 progress marker 未设置 badProgressMarkerSeen",
+    )
+    require(
+        re.search(
+            r"(?m)^[ \t]*if\s*\(\s*\$runnerExitCode\s+-ne\s+0\s*\)\s*\{\s*"
+            r"exit\s+\$runnerExitCode\s*;?\s*\}",
+            runner_text,
+            re.I | re.S,
+        ) is not None,
+        "runner 未保留失败退出码",
+    )
+
+
 def verify_progress_watchdog_semantics(runner_text: str) -> dict[str, Any]:
     """离线验证周期变化不冒充工作进度，坏 marker 与超时不能通过。"""
     parser_match = re.search(
@@ -146,11 +168,7 @@ def verify_progress_watchdog_semantics(runner_text: str) -> dict[str, Any]:
         re.search(r"if \(\$watchdogFailure\) \{\s*\$runnerExitCode = 124", runner_text) is not None,
         "runner watchdog timeout 未映射到失败退出码",
     )
-    require(
-        "if ($null -eq $progressMarker) {\n                    $badProgressMarkerSeen = $true" in runner_text
-        and "if ($runnerExitCode -ne 0) { exit $runnerExitCode }" in runner_text,
-        "坏 marker 未阻断 PASS 或 runner 未保留失败退出码",
-    )
+    verify_progress_failure_bindings(runner_text)
     return {
         "functional_signature_fields": list(signature_fields),
         "cycle_only_change_is_progress": False,
@@ -160,6 +178,7 @@ def verify_progress_watchdog_semantics(runner_text: str) -> dict[str, Any]:
         "transaction_change_is_progress": True,
         "completed_bytes_change_is_progress": True,
         "bad_marker_blocks_pass": True,
+        "nonzero_runner_exit_preserved": True,
         "watchdog_timeout_blocks_pass": True,
     }
 

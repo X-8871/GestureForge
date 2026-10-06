@@ -2,6 +2,8 @@
     [string]$VendorRoot,
     [string]$OutputDir,
     [switch]$SupervisorSelfTest,
+    [switch]$WshPreflightOnly,
+    [switch]$WshPreflightSelfTest,
     [switch]$SecureHelper,
     [switch]$SecureHashOnWrite,
     [switch]$SecureReadHelper,
@@ -1939,6 +1941,146 @@ function Get-WindowsPowerShellExecutable {
     $fullPath = [IO.Path]::GetFullPath($path)
     if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) { throw ('WINDOWS_POWERSHELL_EXECUTABLE_NOT_FOUND: ' + $fullPath) }
     return $fullPath
+}
+
+function Resolve-WindowsScriptHostExecutable {
+    $systemDirectory = [Environment]::GetFolderPath([Environment+SpecialFolder]::System)
+    if ([string]::IsNullOrWhiteSpace($systemDirectory)) { throw 'WINDOWS_SYSTEM_DIRECTORY_NOT_FOUND' }
+    $fullPath = [IO.Path]::GetFullPath((Join-Path $systemDirectory 'cscript.exe'))
+    if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+        throw ('WINDOWS_SCRIPT_HOST_EXECUTABLE_NOT_FOUND: ' + $fullPath)
+    }
+    return $fullPath
+}
+
+function Get-WshSafeDiagnosticText([string]$Text) {
+    if ([string]::IsNullOrEmpty($Text)) { return '<empty>' }
+    $safe = [regex]::Replace($Text, '[\x00-\x1F\x7F]+', ' ')
+    $safe = [regex]::Replace($safe, '\s+', ' ').Trim()
+    $safe = $safe.Replace(';', ',').Replace('"', "'")
+    if ($safe.Length -gt 512) { return $safe.Substring(0,512) + '...<truncated>' }
+    if ([string]::IsNullOrEmpty($safe)) { return '<empty>' }
+    return $safe
+}
+
+function Invoke-CscriptProbeProcess([string]$ExecutablePath, [string]$ProbePath) {
+    $process = New-Object System.Diagnostics.Process
+    $started = $false
+    try {
+        $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $startInfo.FileName = $ExecutablePath
+        $startInfo.Arguments = '//nologo //E:JScript "' + $ProbePath + '"'
+        $startInfo.WorkingDirectory = $repoRoot
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+        $startInfo.RedirectStandardOutput = $true
+        $startInfo.RedirectStandardError = $true
+        $wshOutputEncoding = [Text.Encoding]::GetEncoding([Globalization.CultureInfo]::CurrentCulture.TextInfo.OEMCodePage)
+        $startInfo.StandardOutputEncoding = $wshOutputEncoding
+        $startInfo.StandardErrorEncoding = $wshOutputEncoding
+        $process.StartInfo = $startInfo
+        $started = $process.Start()
+        if (-not $started) {
+            return [pscustomobject]@{ ExitCode=$null; Stdout=''; Stderr='CSCRIPT_PROCESS_START_RETURNED_FALSE'; TimedOut=$false }
+        }
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit(10000)) {
+            try { $process.Kill() } catch { }
+            $treeStopped = $process.WaitForExit(5000)
+            $stdout = if ($stdoutTask.IsCompleted) { $stdoutTask.GetAwaiter().GetResult() } else { '' }
+            $stderr = if ($stderrTask.IsCompleted) { $stderrTask.GetAwaiter().GetResult() } else { '' }
+            if (-not $treeStopped) { $stderr += ' CSCRIPT_TERMINATION_UNCONFIRMED' }
+            return [pscustomobject]@{ ExitCode=$null; Stdout=$stdout; Stderr=$stderr; TimedOut=$true }
+        }
+        $process.WaitForExit()
+        return [pscustomobject]@{
+            ExitCode=$process.ExitCode
+            Stdout=$stdoutTask.GetAwaiter().GetResult()
+            Stderr=$stderrTask.GetAwaiter().GetResult()
+            TimedOut=$false
+        }
+    } catch {
+        $errorText = $_.Exception.Message
+        if ($started) {
+            try { if (-not $process.HasExited) { $process.Kill(); [void]$process.WaitForExit(5000) } } catch { }
+        }
+        return [pscustomobject]@{ ExitCode=$null; Stdout=''; Stderr=$errorText; TimedOut=$false }
+    } finally {
+        $process.Dispose()
+    }
+}
+
+function Invoke-WindowsScriptHostPreflight {
+    param(
+        [string]$CscriptPath,
+        [scriptblock]$ProcessInvoker
+    )
+    $exitCodeText = 'NOT_STARTED'
+    $stdoutText = ''
+    $stderrText = ''
+    try {
+        if ([string]::IsNullOrWhiteSpace($CscriptPath)) {
+            $CscriptPath = Resolve-WindowsScriptHostExecutable
+        } else {
+            $CscriptPath = [IO.Path]::GetFullPath($CscriptPath)
+            if (-not (Test-Path -LiteralPath $CscriptPath -PathType Leaf)) {
+                throw ('WINDOWS_SCRIPT_HOST_EXECUTABLE_NOT_FOUND: ' + $CscriptPath)
+            }
+        }
+        $probePath = Join-Path $PSScriptRoot 's3_wsh_preflight.js'
+        if (-not (Test-Path -LiteralPath $probePath -PathType Leaf)) { throw 'WINDOWS_SCRIPT_HOST_PROBE_FILE_MISSING' }
+        $expectedNonce = 'S3_WSH_PREFLIGHT_PASS_7E81D29C4B304D6DB6A1'
+        if ($ProcessInvoker) {
+            $probeResult = & $ProcessInvoker $CscriptPath $probePath $expectedNonce
+        } else {
+            $probeResult = Invoke-CscriptProbeProcess $CscriptPath $probePath
+        }
+        if ($null -eq $probeResult) { throw 'WINDOWS_SCRIPT_HOST_PROBE_RETURNED_NO_RESULT' }
+        $stdoutText = [string]$probeResult.Stdout
+        $stderrText = [string]$probeResult.Stderr
+        if ($probeResult.TimedOut) { $exitCodeText = 'TIMEOUT' }
+        elseif ($null -ne $probeResult.ExitCode) { $exitCodeText = [string]$probeResult.ExitCode }
+        if ($probeResult.TimedOut) { throw 'WINDOWS_SCRIPT_HOST_PROBE_TIMEOUT_AFTER_10000_MS' }
+        if ($null -eq $probeResult.ExitCode -or [int]$probeResult.ExitCode -ne 0) {
+            throw 'WINDOWS_SCRIPT_HOST_PROBE_NONZERO_OR_MISSING_EXIT_CODE'
+        }
+        if ($stdoutText.IndexOf($expectedNonce, [StringComparison]::Ordinal) -lt 0) {
+            throw 'WINDOWS_SCRIPT_HOST_PROBE_EXACT_NONCE_MISSING'
+        }
+        return [pscustomobject]@{ CscriptPath=$CscriptPath; ProbePath=$probePath; Nonce=$expectedNonce; ExitCode=0 }
+    } catch {
+        $detailText = Get-WshSafeDiagnosticText $_.Exception.Message
+        $safeStdout = Get-WshSafeDiagnosticText $stdoutText
+        $safeStderr = Get-WshSafeDiagnosticText $stderrText
+        throw ('WINDOWS_SCRIPT_HOST_PREFLIGHT_FAILED; EXIT_CODE=' + $exitCodeText +
+            '; STDOUT=' + $safeStdout + '; STDERR=' + $safeStderr + '; DETAIL=' + $detailText)
+    }
+}
+
+function Invoke-WshPreflightSelfTest {
+    $expectedNonce = 'S3_WSH_PREFLIGHT_PASS_7E81D29C4B304D6DB6A1'
+    $passInvoker = {
+        param($ExecutablePath, $ProbePath, $Nonce)
+        [pscustomobject]@{ ExitCode=0; Stdout=$Nonce; Stderr=''; TimedOut=$false }
+    }.GetNewClosure()
+    $passed = Invoke-WindowsScriptHostPreflight -ProcessInvoker $passInvoker
+    if ($passed.Nonce -cne $expectedNonce -or $passed.ExitCode -ne 0) {
+        throw 'WINDOWS_SCRIPT_HOST_PREFLIGHT_MOCK_PASS_ASSERTION_FAILED'
+    }
+    $rejectCases = @(
+        [pscustomobject]@{ ExitCode=0; Stdout='CScript usage help'; Stderr=''; TimedOut=$false; Expected='WINDOWS_SCRIPT_HOST_PROBE_EXACT_NONCE_MISSING' }
+        [pscustomobject]@{ ExitCode=7; Stdout=$expectedNonce; Stderr='mock denied'; TimedOut=$false; Expected='WINDOWS_SCRIPT_HOST_PROBE_NONZERO_OR_MISSING_EXIT_CODE' }
+    )
+    foreach ($case in $rejectCases) {
+        $caseInvoker = { param($ExecutablePath, $ProbePath, $Nonce) $case }.GetNewClosure()
+        $rejected = $false
+        try { [void](Invoke-WindowsScriptHostPreflight -ProcessInvoker $caseInvoker) }
+        catch { $rejected = $_.Exception.Message.Contains('WINDOWS_SCRIPT_HOST_PREFLIGHT_FAILED') -and $_.Exception.Message.Contains($case.Expected) }
+        if (-not $rejected) { throw 'WINDOWS_SCRIPT_HOST_PREFLIGHT_MOCK_REJECT_ASSERTION_FAILED' }
+    }
+    [Console]::Out.WriteLine('WINDOWS_SCRIPT_HOST_SELFTEST=PASS;CASES=3')
 }
 
 function Try-ReadSafeBytes([string]$Path) {
@@ -4033,6 +4175,22 @@ function Initialize-SafeOutputLeases([string]$Directory) {
     }
 }
 
+if ($WshPreflightSelfTest) {
+    try { Invoke-WshPreflightSelfTest; exit 0 }
+    catch { [Console]::Error.WriteLine($_.Exception.Message); exit 2 }
+}
+
+if ($WshPreflightOnly) {
+    try {
+        $wshPreflight = Invoke-WindowsScriptHostPreflight
+        [Console]::Out.WriteLine('WINDOWS_SCRIPT_HOST_PREFLIGHT=PASS;EXECUTABLE=' + $wshPreflight.CscriptPath)
+        exit 0
+    } catch {
+        [Console]::Error.WriteLine($_.Exception.Message)
+        exit 2
+    }
+}
+
 if ($SupervisorSelfTest) {
     $selfTestExit = Invoke-SupervisorSelfTests
     exit $selfTestExit
@@ -4048,6 +4206,7 @@ $runId = $null
 $runnerSha = $null
 $capturedFailureStatus = $null
 try {
+    [void](Invoke-WindowsScriptHostPreflight)
     if ([string]::IsNullOrWhiteSpace($VendorRoot)) { throw '必须提供固定官方源码根目录。' }
     if (-not [string]::Equals([IO.Path]::GetFullPath($VendorRoot), [IO.Path]::GetFullPath((Join-Path $repoRoot 'tmp\stage3_reference\AX7020_2023.1')), [StringComparison]::OrdinalIgnoreCase)) {
         throw 'VendorRoot 必须逐路径匹配本仓库固定官方资料副本。'

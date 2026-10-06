@@ -32,8 +32,9 @@ xiicps_xfer.c SHA-256：628414e27016be423ca950af493d522556587e4e04f1eef0e1ce7b10
 没有有限计数，且错误掩码未包含 TO；第183行 FIFO 等待亦无软件超时。
 hw.h 中存在默认超时常量不证明此接收路径用了它。
 本层 busy 仅在底层调用前后最多查询 S3_I2C_BUSY_LIMIT 次（默认10000），不是毫秒时限，
-不能中断不返回的 polled 调用。因此整体接收超时仍是实际 BSP/板上验证前的限制。
-传感器适配补丁本身不改底层驱动；需要整体墙钟 deadline 时仍须另行选择并验证底层有限等待或异步方案。
+不能中断不返回的 polled 调用。S3-SW03 overlay 为接收轮询增加有限软件计数，但在其集成到实际 BSP
+并完成验证前，整体接收超时仍是限制；有限计数也不构成硬实时墙钟保证。S3-SW03 不改发送路径，
+也不提供异步事务取消语义。
 
 ## IICPS 接收硬件 TO 错误 overlay
 
@@ -82,3 +83,60 @@ ID错误、busy各阶段不结束、NULL参数、读值保留、长度边界及�
 这是测试防挂起措施，不提供实际 I2C 事务的截止时间保证。
 从原始副本独立提取黄金寄存器项，逐项静态比较并验证正常初始化的实际发送字节。
 生成物及日志不入库。本次交付待独立 Reviewer，不自行声称 G2、板测或阶段验收通过。
+
+## S3-SW03 IICPS 接收软件轮询上限 overlay
+
+软件补丁 `iicps_v3_23_sw_deadline.patch` 必须在前述硬件 TO overlay 后应用，顺序固定为：
+
+1. 在隔离的 BSP/测试副本应用 `iicps_v3_23_hw_timeout.patch`；
+2. 再应用 `iicps_v3_23_sw_deadline.patch`。
+
+仓库交付只保存可重放补丁，不把厂商原件作为项目适配文件或提交项。验证脚本仅在
+`tmp/s3_iicps_sw_timeout/<运行名>` 下建立隔离重放副本和测试产物，不触碰 Vitis 安装目录。
+
+软件补丁只修改 `xiicps_xfer.c`、`xiicps_xfer.h`、`xiicps_master.c`：
+`XIicPs_MasterPolledRead` 返回 `s32`，普通接收等待与 Zynq RX FIFO-full 内循环共用可覆盖宏
+`XIICPS_RX_MAX_LOOPCNT`，生产默认 `1000000U`，每次等待调用 `usleep(1U)` 后计数。该值沿用同版
+发送路径约 1 秒的轮询计数模式，**只是有限软件轮询界限，不是硬实时或墙钟期限承诺**；
+达到上限返回标准 `XST_TIMEOUT`。
+
+`XIicPs_MasterRecvPolled` 先保留并映射已有硬件 ISR 语义：仲裁丢失返回 `XST_IIC_ARB_LOST`，
+NACK/硬件 TO 等普通错误返回 `XST_FAILURE`；只有未发现硬件错误且内部读返回 `XST_TIMEOUT`
+时才调用 `XIicPs_Abort`，并把软件超时返回为 `XST_TIMEOUT`。固定版本 Abort 将控制寄存器写为
+复位值并清 FIFO，释放 HOLD；调用 Abort 前先采样和映射 ISR，因此不会先清状态而掩盖已存在的
+仲裁丢失。超时返回点在下一段 `TRANS_SIZE` 写入之前。
+
+固定原件控制流在长读开始时将实例字段 `UpdateTxSize` 置 1，仅在正常完成最后一段时清 0；
+`XIicPs_Abort` 不会清除该软件字段。因此纯软件超时路径在 Abort 后只清
+`InstancePtr->UpdateTxSize`，不清 `RecvByteCount`、`RecvBufferPtr` 或持久配置
+`IsRepeatedStart`。否则同一实例后续 17 字节 Zynq 接收可能误入分段/FIFO-full 路径。
+
+固定只读原件目录：`D:\Xilinx\2026.1\Vitis\data\embeddedsw\XilinxProcessorIPLib\drivers\iicps_v3_23\src`。
+测试每次固定校验以下六个原件 SHA-256，并拒绝任何变化：
+
+| 文件 | SHA-256 |
+|---|---|
+| `xiicps_master.c` | `6e002edfd94b80b0dfdd54215c0a536e5fbe06380d7a40f0418b6e52066e3b10` |
+| `xiicps_xfer.c` | `628414e27016be423ca950af493d522556587e4e04f1eef0e1ce7b10ecffbc1f` |
+| `xiicps_xfer.h` | `94a72a32a8c1e1a18a0506c998de88c69e9e1cb612da483cec91bccc7ef64a0b` |
+| `xiicps.c` | `c60c4afda63d4b6dbe09066ac67ad2883aae04f81d637b38ccd7c0b7f70b58b3` |
+| `xiicps.h` | `a96553e979223be1828a781f1bdeb818c61db661e154337b8cf3b4bf10b500ca` |
+| `xiicps_hw.h` | `0013bcfc147a4c7fc1e60bba7368b5742b638661afb7fdf7efb8dab3223b3d9a` |
+
+测试要求固定提交 `806331d6e6193b539dea76058ad38e5bf71d2d70` 是当前 HEAD 的祖先，而非要求 HEAD 精确相等，
+因此补丁提交后仍可复验；无关基线及变化的厂商源码均拒绝。测试还扫描固定源目录，确认该 API 恰有一个声明、一个调用和一个定义；按上述顺序重放两补丁后，
+抽取真实 `XIicPs_MasterPolledRead` 与 `XIicPs_MasterRecvPolled` 函数体进行主机 mock 编译/运行。
+场景覆盖成功、NACK、硬件 TO、仲裁丢失、普通轮询软件超时及 Zynq FIFO-full 软件超时；测试将
+宏缩至 `3U`，还覆盖同一实例长读超时后紧接 17 字节短读成功，断言 Abort 前 `UpdateTxSize=1`、
+超时返回后标志仅清为 0、`TRANS_SIZE` 序列为 `[252,17]` 且第二次接收不再触发 FIFO 分支。
+MMIO、FIFO、平台查询、
+底层 `MasterRead` 和 Abort 均由 mock 提供，不等同 Vitis/BSP 全量构建或实物验证。
+
+复验命令（运行名必须全新；证据目录存在时拒绝覆盖）：
+
+```powershell
+& 'C:\Users\22061\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
+  scripts\test_s3_iicps_sw_timeout.py --run-name iicps_sw_timeout_20261006_review1_02
+```
+
+本轮运行状态和退出码见任务报告；证据仅落在 `tmp/s3_iicps_sw_timeout/<运行名>`。

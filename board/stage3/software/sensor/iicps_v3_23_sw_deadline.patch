@@ -1,0 +1,125 @@
+diff --git a/src/xiicps_xfer.c b/src/xiicps_xfer.c
+--- a/src/xiicps_xfer.c
++++ b/src/xiicps_xfer.c
+@@ -31,8 +31,13 @@
+ #include "xiicps.h"
+ #include "xiicps_hw.h"
+ #include "xiicps_xfer.h"
++#include "sleep.h"
+ 
+ /************************** Constant Definitions *****************************/
++#ifndef XIICPS_RX_MAX_LOOPCNT
++/* 软件轮询上限沿用发送路径的 usleep(1) 计数模式，不是硬实时期限。 */
++#define XIICPS_RX_MAX_LOOPCNT 1000000U
++#endif
+ 
+ /**************************** Type Definitions *******************************/
+ 
+@@ -151,18 +156,19 @@ void MasterSendData(XIicPs *InstancePtr)
+ * @param        IsHold Hold status.
+ * @param        ByteCountVar ByteCount.
+ *
+-* @return       None.
++* @return       XST_TIMEOUT 表示软件轮询到达上限；否则返回 XST_SUCCESS。
+ *
+ *
+  ****************************************************************************/
+ 
+-void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
++s32 XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ {
+ 	u32 Platform;
+ 	u16 SlaveAddr;
+ 	UINTPTR BaseAddr;
+ 	u32 IntrStatusReg;
+ 	u32 ErrorMask;
++	u32 PollCount = 0U;
+ 
+ 	Platform = XGetPlatform_Info();
+ 	BaseAddr = InstancePtr->Config.BaseAddress;
+@@ -180,6 +186,13 @@ void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ 		if ((IntrStatusReg & ErrorMask) != 0U) {
+ 			break;
+ 		}
++		if (InstancePtr->RecvByteCount > 0) {
++			usleep(1U);
++			PollCount++;
++			if (PollCount >= (u32)XIICPS_RX_MAX_LOOPCNT) {
++				return (s32)XST_TIMEOUT;
++			}
++		}
+ 
+ 		if (Platform == (u32)XPLAT_ZYNQ) {
+ 			if ((InstancePtr->UpdateTxSize != 0) &&
+@@ -190,12 +203,17 @@ void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ 				IntrStatusReg = XIicPs_ReadReg(BaseAddr,
+ 								XIICPS_ISR_OFFSET);
+ 				if ((IntrStatusReg & ErrorMask) != 0U) {
+-					return;
++					return (s32)XST_SUCCESS;
+ 				}
++				usleep(1U);
++				PollCount++;
++				if (PollCount >= (u32)XIICPS_RX_MAX_LOOPCNT) {
++					return (s32)XST_TIMEOUT;
++				}
+ 				}
+ 			IntrStatusReg = XIicPs_ReadReg(BaseAddr, XIICPS_ISR_OFFSET);
+ 			if ((IntrStatusReg & ErrorMask) != 0U) {
+-				return;
++				return (s32)XST_SUCCESS;
+ 			}
+ 				if ((InstancePtr->RecvByteCount - XIICPS_FIFO_DEPTH) >
+ 					(s32)XIICPS_MAX_TRANSFER_SIZE) {
+@@ -247,6 +265,7 @@ void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar)
+ 
+ 		IntrStatusReg = XIicPs_ReadReg(BaseAddr, XIICPS_ISR_OFFSET);
+ 	}
++	return (s32)XST_SUCCESS;
+ }
+ 
+ /*****************************************************************************/
+diff --git a/src/xiicps_xfer.h b/src/xiicps_xfer.h
+--- a/src/xiicps_xfer.h
++++ b/src/xiicps_xfer.h
+@@ -98,7 +98,7 @@ void MasterSendData(XIicPs *InstancePtr);
+ /*
+  * This function handles polled mode receive in master mode.
+  */
+-void XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar);
++s32 XIicPs_MasterPolledRead(XIicPs *InstancePtr, s32 IsHold, s32 ByteCountVar);
+ 
+ /*
+  * This function handles interrupt-driven send in master mode.
+diff --git a/src/xiicps_master.c b/src/xiicps_master.c
+--- a/src/xiicps_master.c
++++ b/src/xiicps_master.c
+@@ -433,6 +433,7 @@ s32 XIicPs_MasterRecvPolled(XIicPs *InstancePtr, u8 *MsgPtr,
+ 	u32 Intrs;
+ 	UINTPTR BaseAddr;
+ 	s32 Result;
++	s32 ReadStatus;
+ 	s32 IsHold;
+ 	s32 ByteCountVar = ByteCount;
+ 
+@@ -499,7 +500,7 @@ s32 XIicPs_MasterRecvPolled(XIicPs *InstancePtr, u8 *MsgPtr,
+ 			(u32)XIICPS_IXR_RX_UNF_MASK | (u32)XIICPS_IXR_NACK_MASK |
+ 			(u32)XIICPS_IXR_TO_MASK;
+ 
+-	XIicPs_MasterPolledRead(InstancePtr, IsHold, ByteCountVar);
++	ReadStatus = XIicPs_MasterPolledRead(InstancePtr, IsHold, ByteCountVar);
+ 
+ 	/*
+ 	 * Poll the interrupt status register to find the errors.
+@@ -518,6 +519,11 @@ s32 XIicPs_MasterRecvPolled(XIicPs *InstancePtr, u8 *MsgPtr,
+ 		} else {
+ 			Result = (s32)XST_FAILURE;
+ 		}
++	} else if (ReadStatus == (s32)XST_TIMEOUT) {
++		/* 硬件错误已优先检查；纯软件超时时中止传输并清除 HOLD/FIFO。 */
++		XIicPs_Abort(InstancePtr);
++		InstancePtr->UpdateTxSize = 0;
++		Result = (s32)XST_TIMEOUT;
+ 	} else {
+ 		Result = (s32)XST_SUCCESS;
+ 	}

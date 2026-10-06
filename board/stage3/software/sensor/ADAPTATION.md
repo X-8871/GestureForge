@@ -84,6 +84,35 @@ ID错误、busy各阶段不结束、NULL参数、读值保留、长度边界及�
 从原始副本独立提取黄金寄存器项，逐项静态比较并验证正常初始化的实际发送字节。
 生成物及日志不入库。本次交付待独立 Reviewer，不自行声称 G2、板测或阶段验收通过。
 
+## S3-SW04 IICPS local software repository 候选包
+
+准备器 scripts/s3_prepare_iicps_repository.ps1 只读本机 Vitis 2026.1
+iicps_v3_23 安装源；先核对任务固定的六个核心源 SHA-256 和两份 overlay SHA-256，
+再将 src、data 复制到调用者指定的项目 tmp 新目录下：
+XilinxProcessorIPLib/drivers/iicps_v3_24/{src,data}。它只在输出副本中把
+data/iicps.mdd 的 driver NAME=iicps 保持不变，并将 VERSION 从 3.23 改为 3.24；
+然后依次对硬件 TO overlay、软件轮询期限 overlay 执行 git apply --check 和应用。
+任一输入哈希、目录安全条件、补丁目标集合或复制源差异不符合固定约束时均失败关闭。
+
+候选包根生成 source_manifest.json，列明复制源与输出逐文件长度/SHA-256、两补丁哈希及应用顺序、
+PowerShell/Git 版本、处理步骤与限制；manifest 不递归记录自身哈希。厂商原件只作为只读输入，
+不加入 Git，也不写入 Vitis 安装目录。输出目标必须是项目 tmp 下尚不存在的新目录，且其父目录
+预先存在；目标已存在、位于 tmp 外或包含重解析点时拒绝，准备器不做递归清理。
+
+PowerShell 5.1 离线验证命令（每次创建新的唯一 tmp/s3_iicps_repository_*，证据与包均保留）：
+
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\test_s3_prepare_iicps_repository.ps1
+
+AMD [UG1400 2026.1「Modifying the Domain Sources」](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Modifying-the-Domain-Sources-Driver-and-Library-Code)
+说明驱动组件包含 src 与 data 中的 .mdd/.mld 元数据，并要求提升版本后将自建仓库加入 Vitis；
+[「Creating a Software Repository」](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Creating-a-Software-Repository)
+说明软件仓库按驱动/服务/BSP/应用等组件目录组织，[「Adding the Software Repository」](https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Adding-the-Software-Repository)
+说明可将仓库添加为当前 workspace 的 local repository。当前文档没有明确说明本候选中任务指定的
+XilinxProcessorIPLib/ 额外前缀会被 Vitis 2026.1 扫描器接受；因此该包只是离线候选，不推断 Vitis
+如何发现或选择其中的 driver。尚未在 Vitis 2026.1 中添加/扫描/选中此仓库，未生成或编译 XA7Z020/-1
+BSP，也未板测。后续需在获准的 Vitis workspace 中实测 repository discovery、所选 driver 版本、
+BSP regeneration 和目标编译；本节不构成该验证已通过的证据。
+
 ## S3-SW03 IICPS 接收软件轮询上限 overlay
 
 软件补丁 `iicps_v3_23_sw_deadline.patch` 必须在前述硬件 TO overlay 后应用，顺序固定为：

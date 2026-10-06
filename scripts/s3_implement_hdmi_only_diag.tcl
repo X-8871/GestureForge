@@ -260,8 +260,8 @@ proc s3_sha256_read_mode {path} {
     set output_root $::s3_state(output)
     if {[file pathtype $output_root] ne "absolute" || [s3_path_has_traversal $output_root]} {return Read}
     if {[file pathtype $path] ne "absolute" || [s3_path_has_traversal $path]} {return Read}
-    set output_key [s3_normalized_key [file normalize $output_root]]
-    set path_key [s3_normalized_key [file normalize $path]]
+    set output_key [s3_normalized_key $output_root]
+    set path_key [s3_normalized_key $path]
     if {[string first "${output_key}/" $path_key] == 0} {return ReadWrite}
     return Read
 }
@@ -338,6 +338,57 @@ proc s3_format_tree_sha256_manifest {root hashes} {
     return "[join $lines \n]\n"
 }
 
+proc s3_validate_tree_sha256_manifest {text expected_root} {
+    if {[string length $text] < 1 || [string index $text end] ne "\n" || [string first "\r" $text] >= 0} {
+        error "SECURE_TREE_MANIFEST_LINE_ENDING_INVALID"
+    }
+    set lines [split [string range $text 0 end-1] "\n"]
+    if {[llength $lines] < 3 || ![string match "ROOT=*" [lindex $lines 0]]} {
+        error "SECURE_TREE_MANIFEST_HEADER_INVALID"
+    }
+    set actual_root [string range [lindex $lines 0] 5 end]
+    if {[s3_normalized_key $actual_root] ne [s3_normalized_key $expected_root]} {
+        error "SECURE_TREE_MANIFEST_ROOT_MISMATCH"
+    }
+    if {![regexp {^FILE_COUNT=([1-9][0-9]*)$} [lindex $lines 1] -> declared_count]} {
+        error "SECURE_TREE_MANIFEST_COUNT_INVALID"
+    }
+    if {$declared_count != [llength $lines] - 2} {error "SECURE_TREE_MANIFEST_CARDINALITY_MISMATCH"}
+    set seen [dict create]
+    foreach line [lrange $lines 2 end] {
+        if {![regexp {^([A-Fa-f0-9]{64})  (.+)$} $line -> digest relative]} {
+            error "SECURE_TREE_MANIFEST_RECORD_INVALID"
+        }
+        if {[string first "\\" $relative] >= 0 || [string first "\t" $relative] >= 0 ||
+            [string first ":" $relative] >= 0 || [string match {/*} $relative] ||
+            [string match {*/} $relative] || [string first "//" $relative] >= 0 ||
+            [regexp {(^|/)\.\.?(/|$)} $relative]} {
+            error "SECURE_TREE_MANIFEST_RELATIVE_PATH_INVALID: $relative"
+        }
+        if {[dict exists $seen $relative]} {error "SECURE_TREE_MANIFEST_DUPLICATE_PATH: $relative"}
+        dict set seen $relative [string toupper $digest]
+    }
+    return $declared_count
+}
+
+proc s3_validate_preparation_result {text expected_run_id expected_metadata_tree_sha256} {
+    if {[string first "S3_TCL_RESULT=PASS:PREPARED\n" $text] < 0 ||
+        [string first "RUN_ID=$expected_run_id\n" $text] < 0} {
+        error "PREPARATION_RESULT_OR_RUN_ID_MISMATCH"
+    }
+    if {![regexp -line {^METADATA_COUNT=([1-9][0-9]*)$} $text -> prepared_metadata_count]} {
+        error "PREPARATION_METADATA_COPY_FILE_COUNT_MISSING_OR_INVALID"
+    }
+    if {![regexp -line {^METADATA_TREE_SHA256=([A-Fa-f0-9]{64})$} $text -> prepared_metadata_tree_sha256]} {
+        error "PREPARATION_METADATA_TREE_SHA256_MISSING_OR_INVALID"
+    }
+    if {![regexp -nocase {^[A-F0-9]{64}$} $expected_metadata_tree_sha256] ||
+        [string toupper $prepared_metadata_tree_sha256] ne [string toupper $expected_metadata_tree_sha256]} {
+        error "PREPARED_METADATA_TREE_SHA256_MISMATCH"
+    }
+    return [list $prepared_metadata_count [string toupper $prepared_metadata_tree_sha256]]
+}
+
 proc s3_load_existing_guard {repo_root} {
     set validator [file join $repo_root scripts s3_validate_hdmi_only_bd.tcl]
     if {![file isfile $validator]} {error "EXISTING_PATH_GUARD_SCRIPT_MISSING"}
@@ -402,8 +453,48 @@ proc s3_extend_guard_api {} {
         guarded-child-create-and-run-open]
     set body [s3_replace_guard_body_once $body \
         {return "RESULT=PASS_PATH_GUARD_PREPARATION\nOUTPUT=" + OutputFinal + "\nPROJECT=" + project + "\nMETADATA=" + metadataPath + "\nMETADATA_COUNT=" + copied + "\nTARGET_FILES_WRITTEN=" + copied;} \
-        {return "RESULT=PASS_PATH_GUARD_PREPARATION\nOUTPUT=" + OutputFinal + "\nPROJECT=" + project + "\nMETADATA=" + metadataPath + "\nMETADATA_COUNT=" + copied + "\nREPORTS=" + reportsPath + "\nCHECKPOINTS=" + checkpointsPath + "\nSENTINELS=" + sentinelsPath + "\nINPUTS=" + inputsPath + "\nTARGET_FILES_WRITTEN=" + copied;} \
+        {return "RESULT=PASS_PATH_GUARD_PREPARATION\nOUTPUT=" + OutputFinal + "\nPROJECT=" + project + "\nMETADATA=" + metadataPath + "\nMETADATA_COUNT=" + copied + "\nMETADATA_TREE_SHA256=" + MetadataTreeSha256(metadataPath, manifest) + "\nREPORTS=" + reportsPath + "\nCHECKPOINTS=" + checkpointsPath + "\nSENTINELS=" + sentinelsPath + "\nINPUTS=" + inputsPath + "\nTARGET_FILES_WRITTEN=" + copied;} \
         guarded-child-status]
+    set body [s3_replace_guard_body_once $body \
+        {private static int Count(string value, string expression) @L@ return System.Text.RegularExpressions.Regex.Matches(value, expression).Count; @R@} \
+        {private static int Count(string value, string expression) @L@ return System.Text.RegularExpressions.Regex.Matches(value, expression).Count; @R@
+    private static string HashMetadataFile(string path) @L@
+        string full = Normalize(Path.GetFullPath(path));
+        SafeFileHandle handle = CreateFileW(full, GenericRead | ReadAttributes, ShareRead | ShareWrite, IntPtr.Zero, OpenExisting, OpenReparse, IntPtr.Zero);
+        if (handle == null || handle.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error(), "METADATA_HASH_OPEN_FAILED");
+        try @L@
+            AttributeTagInfo info = Info(handle);
+            if ((info.Attributes & (AttrReparse | AttrDirectory)) != 0 || !String.Equals(FinalPath(handle), full, StringComparison.OrdinalIgnoreCase)) throw new IOException("METADATA_HASH_PATH_OR_TYPE_MISMATCH");
+            byte[] digest;
+            using (FileStream stream = new FileStream(handle, FileAccess.Read)) @L@
+                handle = null;
+                using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) digest = sha.ComputeHash(stream);
+            @R@
+            return BitConverter.ToString(digest).Replace("-", "");
+        @R@ finally @L@ if (handle != null) handle.Dispose(); @R@
+    @R@
+    private static string MetadataTreeSha256(string metadataPath, string[] manifest) @L@
+        string root = Normalize(Path.GetFullPath(metadataPath)).TrimEnd('\\');
+        SortedDictionary<string, string> hashes = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (string entry in manifest) @L@
+            string[] parts = entry.Replace('\\', '/').Split('/');
+            if (parts.Length < 2 || parts[0] != "my_ip") throw new IOException("METADATA_HASH_SOURCE_PATH_INVALID");
+            foreach (string part in parts) if (String.IsNullOrWhiteSpace(part) || part == "." || part == ".." || part.IndexOfAny(new char[] {'\\', '/', ':'}) >= 0) throw new IOException("METADATA_HASH_PATH_COMPONENT_INVALID");
+            string relative = String.Join("/", parts, 1, parts.Length - 1);
+            string full = root;
+            for (int index = 1; index < parts.Length; index++) full = Join(full, parts[index]);
+            if (!Under(root, full)) throw new IOException("METADATA_HASH_PATH_ESCAPED_ROOT");
+            hashes.Add(relative, HashMetadataFile(full));
+        @R@
+        if (hashes.Count < 1 || hashes.Count != manifest.Length) throw new IOException("METADATA_HASH_CARDINALITY_MISMATCH");
+        StringBuilder canonical = new StringBuilder();
+        canonical.Append("FILE_COUNT=").Append(hashes.Count).Append('\n');
+        foreach (KeyValuePair<string, string> entry in hashes) canonical.Append(entry.Value.ToUpperInvariant()).Append("  ").Append(entry.Key).Append('\n');
+        using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create()) @L@
+            return BitConverter.ToString(sha.ComputeHash(new UTF8Encoding(false).GetBytes(canonical.ToString()))).Replace("-", "");
+        @R@
+    @R@} \
+        metadata-copy-snapshot-digest]
     set body [s3_replace_guard_body_once $body \
         {string project = CreateDirectoryChild(OutputFinal, "project"), metadataPath = "";} \
         {string project = phase == "hdl_precreated" ? AcquireSubtree(OutputFinal, Join(OutputFinal, "project")) : CreateDirectoryChild(OutputFinal, "project"), metadataPath = "";} \
@@ -499,6 +590,9 @@ proc s3_status_text {} {
         "EXECUTION_TCL_PATH=$::s3_state(execution_tcl_path)" \
         "EXECUTION_TCL_SHA256=$::s3_state(execution_tcl_sha256)" \
         "METADATA_COPY_MANIFEST=$::s3_state(metadata_copy_manifest)" \
+        "METADATA_COPY_FILE_COUNT=$::s3_state(metadata_copy_count)" \
+        "METADATA_TREE_SHA256=$::s3_state(metadata_tree_sha256)" \
+        "METADATA_COPY_MANIFEST_SHA256=$::s3_state(metadata_copy_manifest_sha256)" \
         "VIVADO_LOG=$::s3_state(vivado_log)" \
         "VIVADO_JOURNAL=$::s3_state(vivado_journal)" \
         "SYNTH_STATE=$::s3_state(synth_state)" \
@@ -540,6 +634,48 @@ proc s3_persist_status {} {
 proc s3_emit_tcl_result {result_code} {
     puts "S3_TCL_RESULT=$result_code"
     flush stdout
+}
+
+proc s3_prepare_metadata_digest_line {run_id process_id file_count tree_sha256} {
+    if {![regexp {^[A-Za-z0-9_-]{1,80}$} $run_id] ||
+        ![string is integer -strict $process_id] || $process_id < 1 ||
+        ![string is integer -strict $file_count] || $file_count < 1 ||
+        ![regexp -nocase {^[A-F0-9]{64}$} $tree_sha256]} {
+        error "PREPARE_METADATA_DIGEST_CHANNEL_ARGUMENTS_INVALID"
+    }
+    return "S3_PREP_METADATA_DIGEST=$run_id|$process_id|$file_count|[string toupper $tree_sha256]"
+}
+
+proc s3_open_named_pipe_with_retry {pipe_path access} {
+    set started_ms [clock milliseconds]
+    set last_error ""
+    set last_error_code "UNKNOWN"
+    while {1} {
+        if {![catch {open $pipe_path $access} channel open_options]} {return $channel}
+        set last_error $channel
+        if {[dict exists $open_options -errorcode]} {set last_error_code [dict get $open_options -errorcode]}
+        if {[clock milliseconds] - $started_ms >= 5000} {
+            error "PREPARE_METADATA_PIPE_OPEN_TIMEOUT access=$access error=$last_error errorcode=$last_error_code"
+        }
+        after 50
+    }
+}
+
+proc s3_emit_prepare_metadata_digest {pipe_name run_id file_count tree_sha256} {
+    if {![regexp {^[A-Za-z0-9_]{1,80}$} $pipe_name]} {
+        error "PREPARE_METADATA_DIGEST_PIPE_NAME_INVALID"
+    }
+    set line [s3_prepare_metadata_digest_line $run_id [pid] $file_count $tree_sha256]
+    set pipe_path [format {\\.\pipe\%s} $pipe_name]
+    set channel [s3_open_named_pipe_with_retry $pipe_path w]
+    try {
+        fconfigure $channel -encoding ascii -translation lf -buffering none
+        after 250
+        puts $channel $line
+        flush $channel
+    } finally {
+        close $channel
+    }
 }
 
 proc s3_validate_hdmi_ports_before_xdc {expected_ports} {
@@ -599,13 +735,14 @@ proc s3_all_output_ports {} {
     return [lsort -dictionary -unique $names]
 }
 
-proc s3_exec_main {vendor_root output_dir action run_id} {
+proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manifest_sha256 expected_metadata_tree_sha256 prepare_digest_pipe_name} {
     set ::s3_action $action
     set ::s3_status_created 1
     array set ::s3_state [list \
         output "" project "" run_id $run_id tcl_result NONE stage ARGUMENTS result STARTING error NONE \
         started_ms [clock milliseconds] elapsed_seconds 0 input_sha256_file NOT_READY board_xdc_sha256 NOT_READY \
         execution_tcl_path $::s3_script_path execution_tcl_sha256 NOT_READY metadata_copy_manifest NOT_READY \
+        metadata_copy_count NOT_READY metadata_tree_sha256 NOT_READY metadata_copy_manifest_sha256 NOT_READY \
         vivado_log NOT_STARTED vivado_journal NOT_STARTED \
         timing_report NOT_STARTED clock_report NOT_STARTED drc_report NOT_STARTED \
         vivado_version UNKNOWN vendor_commit UNKNOWN max_threads UNKNOWN \
@@ -615,6 +752,18 @@ proc s3_exec_main {vendor_root output_dir action run_id} {
         clock_model_limitation {Static implementation uses generated default clock constraints; runtime axi_dynclk DRP reprogramming is not modeled.}]
 
     lassign [s3_validate_arguments $vendor_root $output_dir $::s3_repo_root $action] vendor_root output_dir
+    if {$action eq "run"} {
+        if {![regexp -nocase {^[A-F0-9]{64}$} $expected_metadata_manifest_sha256]} {
+            error "EXPECTED_METADATA_MANIFEST_SHA256_INVALID"
+        }
+        if {![regexp -nocase {^[A-F0-9]{64}$} $expected_metadata_tree_sha256]} {
+            error "EXPECTED_METADATA_TREE_SHA256_INVALID"
+        }
+        if {$prepare_digest_pipe_name ne ""} {error "RUN_PHASE_MUST_NOT_RECEIVE_PREPARE_DIGEST_PIPE"}
+    } elseif {$expected_metadata_manifest_sha256 ne "" || $expected_metadata_tree_sha256 ne "" ||
+              ![regexp {^[A-Za-z0-9_]{1,80}$} $prepare_digest_pipe_name]} {
+        error "PREPARE_PHASE_MUST_NOT_RECEIVE_METADATA_SHA256_ARGUMENTS"
+    }
     set guard [s3_guarded_output $vendor_root $output_dir $action]
     set ::s3_state(output) [dict get $guard output]
     set ::s3_state(project) [dict get $guard project]
@@ -623,15 +772,23 @@ proc s3_exec_main {vendor_root output_dir action run_id} {
     set ::s3_state(vivado_journal) [file join $::s3_state(output) vivado.jou]
     if {$action eq "prepare-only"} {
         if {[file size [file join $::s3_state(output) prepare.result]] != 0} {error "PREPARATION_RESULT_NOT_EMPTY_AT_PREPARE_START"}
+        set prepared_metadata_count [dict get $guard_data METADATA_COUNT]
+        if {![string is integer -strict $prepared_metadata_count] || $prepared_metadata_count < 1} {
+            error "GUARDED_METADATA_COPY_FILE_COUNT_INVALID"
+        }
+        set prepared_metadata_tree_sha256 [dict get $guard_data METADATA_TREE_SHA256]
+        if {![regexp -nocase {^[A-F0-9]{64}$} $prepared_metadata_tree_sha256]} {
+            error "GUARDED_METADATA_TREE_SHA256_INVALID"
+        }
+        set prepared_metadata_tree_sha256 [string toupper $prepared_metadata_tree_sha256]
     } else {
         set prepare_result [file join $::s3_state(output) prepare.result]
         if {![file isfile $prepare_result]} {error "PREPARATION_RESULT_MISSING"}
         set prepare_text [s3_read_utf8_secure $prepare_result]
-        if {[string first "S3_TCL_RESULT=PASS:PREPARED\n" $prepare_text] < 0 ||
-            [string first "RUN_ID=$run_id\n" $prepare_text] < 0} {
-            error "PREPARATION_RESULT_OR_RUN_ID_MISMATCH"
-        }
+        lassign [s3_validate_preparation_result $prepare_text $run_id $expected_metadata_tree_sha256] \
+            prepared_metadata_count prepared_metadata_tree_sha256
     }
+    set ::s3_state(metadata_tree_sha256) $prepared_metadata_tree_sha256
     s3_persist_status
 
     set source_root [file join $vendor_root {*}$::s3_source_relative]
@@ -661,17 +818,22 @@ proc s3_exec_main {vendor_root output_dir action run_id} {
     s3_write_utf8_secure [file join $::s3_state(output) reports hdmi_xdc_audit.txt] \
         "SOURCE=$board_xdc\nSHA256=$observed_board_xdc_sha256\nLINE_COUNT=$xdc_line_count\nACTIVE_HDMI_PORTS=$xdc_ports\nCLOCK_CONSTRAINT_COUNT=0\nSET_OUTPUT_DELAY_COUNT=0\nSCOPE=HDMI_PINS_AND_IOSTANDARD_CANDIDATE_ONLY\nBOARD_REVISION_BINDING=UNVERIFIED_CANDIDATE_ONLY\n"
     set metadata_manifest_path [file join $::s3_state(output) reports metadata_copy_sha256.txt]
-    set metadata_hashes [s3_tree_sha256_manifest [dict get $guard metadata]]
     if {$action eq "prepare-only"} {
-        if {[dict size $metadata_hashes] != [dict get $guard_data METADATA_COUNT]} {
-            error "GUARDED_METADATA_COPY_FILE_COUNT_MISMATCH"
-        }
-        set metadata_manifest [s3_format_tree_sha256_manifest [dict get $guard metadata] $metadata_hashes]
-        s3_write_utf8_secure $metadata_manifest_path $metadata_manifest
+        set ::s3_state(metadata_copy_count) $prepared_metadata_count
+        set ::s3_state(metadata_copy_manifest_sha256) NOT_READY
     } else {
         if {![file isfile $metadata_manifest_path]} {error "METADATA_COPY_HASH_MANIFEST_MISSING"}
-        set metadata_manifest [s3_format_tree_sha256_manifest [dict get $guard metadata] $metadata_hashes]
-        if {[s3_read_utf8_secure $metadata_manifest_path] ne $metadata_manifest} {error "GUARDED_METADATA_COPY_HASH_MISMATCH"}
+        set metadata_manifest [s3_read_utf8_secure $metadata_manifest_path]
+        set observed_manifest_sha256 [dict get [s3_sha256_manifest [list $metadata_manifest_path]] $metadata_manifest_path]
+        if {$observed_manifest_sha256 ne [string toupper $expected_metadata_manifest_sha256]} {
+            error "METADATA_COPY_MANIFEST_SHA256_MISMATCH"
+        }
+        set observed_metadata_count [s3_validate_tree_sha256_manifest $metadata_manifest [dict get $guard metadata]]
+        if {$observed_metadata_count != $prepared_metadata_count} {
+            error "PREPARED_METADATA_COPY_FILE_COUNT_MISMATCH"
+        }
+        set ::s3_state(metadata_copy_count) $observed_metadata_count
+        set ::s3_state(metadata_copy_manifest_sha256) $observed_manifest_sha256
     }
     set ::s3_state(metadata_copy_manifest) $metadata_manifest_path
     if {$action eq "prepare-only"} {
@@ -680,7 +842,8 @@ proc s3_exec_main {vendor_root output_dir action run_id} {
         set ::s3_state(tcl_result) PASS:PREPARED
         s3_write_sentinel [file join $::s3_state(output) sentinels preflight.complete] "RUN_ID=$run_id\nCOMPLETED_LOCAL=[s3_timestamp]\n"
         s3_persist_status
-        s3_write_sentinel [file join $::s3_state(output) prepare.result] "S3_TCL_RESULT=PASS:PREPARED\nRUN_ID=$run_id\nEXECUTION_TCL_SHA256=$::s3_state(execution_tcl_sha256)\n"
+        s3_write_sentinel [file join $::s3_state(output) prepare.result] "S3_TCL_RESULT=PASS:PREPARED\nRUN_ID=$run_id\nEXECUTION_TCL_SHA256=$::s3_state(execution_tcl_sha256)\nMETADATA_COUNT=$prepared_metadata_count\nMETADATA_TREE_SHA256=$prepared_metadata_tree_sha256\n"
+        s3_emit_prepare_metadata_digest $prepare_digest_pipe_name $run_id $prepared_metadata_count $prepared_metadata_tree_sha256
         s3_emit_tcl_result PASS:PREPARED
         s3_persist_status
         puts [s3_status_text]
@@ -903,6 +1066,55 @@ proc s3_run_selftest {} {
         lappend failures "fixed official HDMI port set must contain eleven unique ports"
     }
     incr checks
+    set synthetic_tree_manifest [format "ROOT=C:/repo/tmp/out/vendor_ip_metadata\nFILE_COUNT=2\n%s  axi_dynclk_v1_0/component.xml\n%s  rgb2dvi_v1_3/component.xml\n" \
+        [string repeat A 64] [string repeat B 64]]
+    if {[catch {set synthetic_tree_count [s3_validate_tree_sha256_manifest $synthetic_tree_manifest {C:/repo/tmp/out/vendor_ip_metadata}]}] ||
+        $synthetic_tree_count != 2} {
+        lappend failures "valid runner metadata tree manifest was rejected"
+    }
+    incr checks
+    set bad_tree_manifest [string map [list "FILE_COUNT=2" "FILE_COUNT=3"] $synthetic_tree_manifest]
+    if {![catch {s3_validate_tree_sha256_manifest $bad_tree_manifest {C:/repo/tmp/out/vendor_ip_metadata}}]} {
+        lappend failures "metadata tree manifest cardinality mismatch was accepted"
+    }
+    incr checks
+    set synthetic_prepare_result "S3_TCL_RESULT=PASS:PREPARED\nRUN_ID=selftest\nMETADATA_COUNT=2\nMETADATA_TREE_SHA256=[string repeat C 64]\n"
+    if {[catch {set prepared_pair [s3_validate_preparation_result $synthetic_prepare_result selftest [string repeat C 64]]}] ||
+        [lindex $prepared_pair 0] != 2 || [lindex $prepared_pair 1] ne [string repeat C 64]} {
+        lappend failures "valid prepare-time metadata digest was rejected"
+    }
+    incr checks
+    if {![catch {s3_validate_preparation_result $synthetic_prepare_result selftest [string repeat D 64]}]} {
+        lappend failures "prepare-time metadata digest mismatch was accepted"
+    }
+    incr checks
+    set bad_prepare_result [string map [list "METADATA_TREE_SHA256=[string repeat C 64]" ""] $synthetic_prepare_result]
+    if {![catch {s3_validate_preparation_result $bad_prepare_result selftest [string repeat C 64]}]} {
+        lappend failures "missing prepare-time metadata digest was accepted"
+    }
+    incr checks
+    if {[catch {set synthetic_digest_line [s3_prepare_metadata_digest_line selftest 1234 2 [string repeat C 64]]} emit_error] ||
+        $synthetic_digest_line ne "S3_PREP_METADATA_DIGEST=selftest|1234|2|[string repeat C 64]"} {
+        lappend failures "valid trusted prepare digest payload was rejected: $emit_error"
+    }
+    incr checks
+    if {![catch {s3_prepare_metadata_digest_line selftest 0 2 [string repeat C 64]}]} {
+        lappend failures "invalid trusted prepare digest process ID was accepted"
+    }
+    incr checks
+    if {![catch {s3_prepare_metadata_digest_line selftest 1234 0 [string repeat C 64]}]} {
+        lappend failures "invalid trusted prepare digest file count was accepted"
+    }
+    incr checks
+    set bad_tree_manifest [string map [list "axi_dynclk_v1_0/component.xml" "../outside.xml"] $synthetic_tree_manifest]
+    if {![catch {s3_validate_tree_sha256_manifest $bad_tree_manifest {C:/repo/tmp/out/vendor_ip_metadata}}]} {
+        lappend failures "metadata tree manifest traversal path was accepted"
+    }
+    incr checks
+    if {![catch {s3_validate_tree_sha256_manifest $synthetic_tree_manifest {C:/repo/tmp/other}}]} {
+        lappend failures "metadata tree manifest root mismatch was accepted"
+    }
+    incr checks
     set saved_output_exists [info exists ::s3_state(output)]
     if {$saved_output_exists} {set saved_output $::s3_state(output)}
     set ::s3_state(output) {C:/repo/tmp/out}
@@ -922,7 +1134,7 @@ proc s3_run_selftest {} {
         lappend failures "verified path-guard API extension failed: $guard_error [dict get $guard_options -errorinfo]"
     } else {
         set extended_guard_body [info body s3_launch_secure_guardian]
-        foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));} {string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));} {string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));} {string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));} {string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));} {string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
+        foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));} {string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));} {string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));} {string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));} {string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));} {string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));} {MetadataTreeSha256(metadataPath, manifest)} {METADATA_TREE_SHA256=} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
             if {[string first $required_snippet $extended_guard_body] < 0} {
                 lappend failures "secure guard extension missing required operation: $required_snippet"
             }
@@ -1056,8 +1268,38 @@ if {$argc == 1 && [lindex $argv 0] eq "--selftest"} {
     set selftest_status [s3_run_selftest]
     exit $selftest_status
 }
-if {$argc < 3 || $argc > 4} {
-    puts stderr "用法：vivado -mode batch -source scripts/s3_implement_hdmi_only_diag.tcl -tclargs <固定官方源码根目录> <tmp下唯一输出目录> <prepare-only|run> <run-id>"
+if {$argc == 5 && [lindex $argv 0] eq "--selftest-launch-same-image-sibling"} {
+    set sibling_pipe_name [lindex $argv 1]
+    set sibling_log [lindex $argv 2]
+    set sibling_journal [lindex $argv 3]
+    set sibling_script [lindex $argv 4]
+    if {![regexp {^[A-Za-z0-9_]{1,80}$} $sibling_pipe_name]} {
+        puts stderr "SELFTEST_SAME_IMAGE_SIBLING=FAIL:PIPE_NAME_INVALID"
+        exit 2
+    }
+    set sibling_command [list [info nameofexecutable] -mode batch -log $sibling_log -journal $sibling_journal \
+        -source $sibling_script -tclargs --selftest-digest-pipe $sibling_pipe_name]
+    puts "SELFTEST_SAME_IMAGE_SIBLING_EXE=[info nameofexecutable]"
+    puts "SELFTEST_SAME_IMAGE_SIBLING_COMMAND=$sibling_command"
+    if {[catch {exec {*}$sibling_command} sibling_error]} {
+        puts stderr "SELFTEST_SAME_IMAGE_SIBLING_RESULT=$sibling_error"
+    } else {
+        puts "SELFTEST_SAME_IMAGE_SIBLING_RESULT=EXITED_ZERO"
+    }
+    exit 0
+}
+if {$argc == 2 && [lindex $argv 0] eq "--selftest-digest-pipe"} {
+    if {[catch {s3_emit_prepare_metadata_digest [lindex $argv 1] SELFTEST_DIGEST_PIPE 1 [string repeat C 64]} selftest_pipe_error]} {
+        puts stderr "SELFTEST_DIGEST_PIPE=FAIL:$selftest_pipe_error"
+        s3_emit_tcl_result FAIL:SELFTEST_DIGEST_PIPE
+        exit 1
+    }
+    puts "SELFTEST_DIGEST_PIPE=PASS"
+    s3_emit_tcl_result PASS:SELFTEST_DIGEST_PIPE
+    exit 0
+}
+if {$argc < 3 || $argc > 6} {
+    puts stderr "用法：vivado -mode batch -source scripts/s3_implement_hdmi_only_diag.tcl -tclargs <固定官方源码根目录> <tmp下唯一输出目录> prepare-only <run-id> <摘要管道名>；run阶段使用 <run-id> <metadata manifest SHA-256> <prepare metadata tree SHA-256>"
     puts stderr "纯Tcl自测：xtclsh s3_implement_hdmi_only_diag.tcl --selftest"
     s3_emit_tcl_result FAIL:ARGUMENTS
     exit 2
@@ -1065,9 +1307,17 @@ if {$argc < 3 || $argc > 4} {
 set s3_vendor_root [lindex $argv 0]
 set s3_output_dir [lindex $argv 1]
 set s3_action [lindex $argv 2]
-set s3_run_id [expr {$argc == 4 ? [lindex $argv 3] : "S3T03_[pid]_[clock clicks]"}]
+set s3_run_id [expr {$argc >= 4 ? [lindex $argv 3] : "S3T03_[pid]_[clock clicks]"}]
+set s3_expected_metadata_manifest_sha256 [expr {$s3_action eq "run" && $argc == 6 ? [lindex $argv 4] : ""}]
+set s3_expected_metadata_tree_sha256 [expr {$s3_action eq "run" && $argc == 6 ? [lindex $argv 5] : ""}]
+set s3_prepare_digest_pipe_name [expr {$s3_action eq "prepare-only" && $argc == 5 ? [lindex $argv 4] : ""}]
 if {$s3_action ni {run prepare-only}} {
     puts stderr "INVALID_ACTION: $s3_action"
+    s3_emit_tcl_result FAIL:ARGUMENTS
+    exit 2
+}
+if {($s3_action eq "run" && $argc != 6) || ($s3_action eq "prepare-only" && $argc != 5)} {
+    puts stderr "INVALID_METADATA_MANIFEST_ARGUMENT_COUNT"
     s3_emit_tcl_result FAIL:ARGUMENTS
     exit 2
 }
@@ -1085,7 +1335,7 @@ if {[catch {
     s3_emit_tcl_result FAIL:LOCATION_PREFLIGHT
     exit 2
 }
-if {[catch {s3_exec_main $s3_vendor_root $s3_output_dir $s3_action $s3_run_id} s3_error s3_error_options]} {
+if {[catch {s3_exec_main $s3_vendor_root $s3_output_dir $s3_action $s3_run_id $s3_expected_metadata_manifest_sha256 $s3_expected_metadata_tree_sha256 $s3_prepare_digest_pipe_name} s3_error s3_error_options]} {
     puts stderr "S3_DIAGNOSTIC_FAILED: $s3_error"
     if {[dict exists $s3_error_options -errorinfo]} {puts stderr [dict get $s3_error_options -errorinfo]}
     if {[info exists ::s3_state(output)] && $::s3_state(output) ne "" && [file isdirectory $::s3_state(output)]} {

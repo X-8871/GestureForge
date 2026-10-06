@@ -26,10 +26,17 @@ $pollIntervalMs = 1000
 
 $nativeSource = @'
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.IO.Pipes;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using Microsoft.Win32.SafeHandles;
 
 public sealed class S3T03DeadlineExceededException : Exception
 {
@@ -59,10 +66,36 @@ public sealed class S3T03RunnerProcess : IDisposable
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    private struct STARTUPINFOEX
+    {
+        public STARTUPINFO StartupInfo;
+        public IntPtr lpAttributeList;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     private struct PROCESS_INFORMATION
     {
         public IntPtr hProcess, hThread;
         public uint dwProcessId, dwThreadId;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct PROCESSENTRY32W
+    {
+        public uint dwSize, cntUsage, th32ProcessID;
+        public UIntPtr th32DefaultHeapID;
+        public uint th32ModuleID, cntThreads, th32ParentProcessID;
+        public int pcPriClassBase;
+        public uint dwFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] public string szExeFile;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SECURITY_ATTRIBUTES
+    {
+        public int nLength;
+        public IntPtr lpSecurityDescriptor;
+        [MarshalAs(UnmanagedType.Bool)] public bool bInheritHandle;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -104,10 +137,39 @@ public sealed class S3T03RunnerProcess : IDisposable
     private static extern bool SetInformationJobObject(IntPtr job, int infoClass, ref EXTENDED_LIMIT_INFORMATION info, uint length);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool QueryInformationJobObject(IntPtr job, int infoClass, out BASIC_ACCOUNTING_INFORMATION info, uint length, out uint returnLength);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool CreatePipe(out IntPtr readPipe, out IntPtr writePipe, ref SECURITY_ATTRIBUTES attributes, uint size);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool SetHandleInformation(IntPtr handle, uint mask, uint flags);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern bool CreateProcessW(string applicationName, StringBuilder commandLine, IntPtr processAttributes, IntPtr threadAttributes, bool inheritHandles, uint creationFlags, IntPtr environment, string currentDirectory, ref STARTUPINFO startupInfo, out PROCESS_INFORMATION processInformation);
+    private static extern SafeFileHandle CreateFileW(string path, uint access, uint share, ref SECURITY_ATTRIBUTES attributes, uint creation, uint flags, IntPtr template);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool CreateProcessW(string applicationName, StringBuilder commandLine, IntPtr processAttributes, IntPtr threadAttributes, bool inheritHandles, uint creationFlags, IntPtr environment, string currentDirectory, ref STARTUPINFOEX startupInfo, out PROCESS_INFORMATION processInformation);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool InitializeProcThreadAttributeList(IntPtr attributeList, int attributeCount, uint flags, ref IntPtr size);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool UpdateProcThreadAttribute(IntPtr attributeList, uint flags, IntPtr attribute, IntPtr value, UIntPtr size, IntPtr previousValue, IntPtr returnSize);
+    [DllImport("kernel32.dll")]
+    private static extern void DeleteProcThreadAttributeList(IntPtr attributeList);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool AssignProcessToJobObject(IntPtr job, IntPtr process);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint desiredAccess, bool inheritHandle, uint processId);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool DuplicateHandle(IntPtr sourceProcess, IntPtr sourceHandle, IntPtr targetProcess,
+        out IntPtr targetHandle, uint desiredAccess, bool inheritHandle, uint options);
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern uint GetProcessId(IntPtr process);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool IsProcessInJob(IntPtr process, IntPtr job, out bool result);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern bool QueryFullProcessImageNameW(IntPtr process, uint flags, StringBuilder imageName, ref uint size);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr CreateEventW(ref SECURITY_ATTRIBUTES attributes, bool manualReset, bool initialState, string name);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool SetEvent(IntPtr handle);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern uint ResumeThread(IntPtr thread);
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -120,18 +182,58 @@ public sealed class S3T03RunnerProcess : IDisposable
     private static extern bool TerminateProcess(IntPtr process, uint exitCode);
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool CloseHandle(IntPtr handle);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetNamedPipeClientProcessId(SafePipeHandle namedPipe, out uint clientProcessId);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr CreateToolhelp32Snapshot(uint flags, uint processId);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "Process32FirstW", SetLastError = true)]
+    private static extern bool Process32FirstW(IntPtr snapshot, ref PROCESSENTRY32W entry);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "Process32NextW", SetLastError = true)]
+    private static extern bool Process32NextW(IntPtr snapshot, ref PROCESSENTRY32W entry);
 
     private IntPtr jobHandle, processHandle, threadHandle;
+    private IntPtr outputReadHandle;
+    private Thread outputReaderThread;
+    private NamedPipeServerStream prepareDigestPipe;
+    private IAsyncResult prepareDigestPipeWait;
+    private Thread prepareDigestPipeReaderThread;
+    private readonly object prepareDigestSync = new object();
+    private readonly string expectedPrepareRunId;
+    private readonly string expectedPrepareTclExecutable;
+    private string prepareDigestRunId, prepareDigestSha256, prepareDigestError;
+    private uint prepareDigestTclProcessId, observedPrepareDigestClientProcessId;
+    private uint observedPrepareDigestClientParentProcessId;
+    private uint boundPrepareTclProcessId, boundPrepareTclParentProcessId;
+    private IntPtr boundPrepareTclProcessHandle;
+    private int prepareDigestFileCount, prepareDigestMessageCount;
     public uint ProcessId { get; private set; }
     public string CommandLine { get; private set; }
 
-    private S3T03RunnerProcess(IntPtr job, PROCESS_INFORMATION process, string commandLine)
+    private S3T03RunnerProcess(IntPtr job, PROCESS_INFORMATION process, string commandLine,
+        IntPtr childOutputReadHandle, string digestRunId, string expectedTclExecutable,
+        NamedPipeServerStream digestPipe, IAsyncResult digestPipeWait)
     {
         jobHandle = job;
         processHandle = process.hProcess;
         threadHandle = process.hThread;
+        outputReadHandle = childOutputReadHandle;
+        expectedPrepareRunId = digestRunId;
+        expectedPrepareTclExecutable = expectedTclExecutable;
+        prepareDigestPipe = digestPipe;
+        prepareDigestPipeWait = digestPipeWait;
         ProcessId = process.dwProcessId;
         CommandLine = commandLine;
+        if (prepareDigestPipe != null)
+        {
+            prepareDigestPipeReaderThread = new Thread(ReadPrepareDigestPipe);
+            prepareDigestPipeReaderThread.IsBackground = true;
+            prepareDigestPipeReaderThread.Name = "S3T03 authenticated prepare digest reader";
+            prepareDigestPipeReaderThread.Start();
+        }
+        outputReaderThread = new Thread(ReadChildOutput);
+        outputReaderThread.IsBackground = true;
+        outputReaderThread.Name = "S3T03 supervised output reader";
+        outputReaderThread.Start();
     }
 
     private static DateTime ReadUtcNow(Func<DateTime> clock)
@@ -154,6 +256,110 @@ public sealed class S3T03RunnerProcess : IDisposable
     public static S3T03RunnerProcess Start(string applicationName, string commandLine, string currentDirectory,
         DateTime deadlineUtc, Func<DateTime> clock)
     {
+        return StartInternal(applicationName, commandLine, currentDirectory, deadlineUtc, clock, null, null, null, null);
+    }
+
+    public static S3T03RunnerProcess StartForPrepare(string applicationName, string commandLine,
+        string currentDirectory, string expectedRunId, string expectedTclExecutable, string digestPipeName)
+    {
+        if (String.IsNullOrWhiteSpace(expectedRunId) || !System.Text.RegularExpressions.Regex.IsMatch(expectedRunId, "^[A-Za-z0-9_-]{1,80}$"))
+            throw new ArgumentException("PREPARE_DIGEST_RUN_ID_INVALID", "expectedRunId");
+        if (String.IsNullOrWhiteSpace(expectedTclExecutable) || !Path.IsPathRooted(expectedTclExecutable))
+            throw new ArgumentException("PREPARE_TCL_EXECUTABLE_MUST_BE_ABSOLUTE", "expectedTclExecutable");
+        if (String.IsNullOrWhiteSpace(digestPipeName) || !System.Text.RegularExpressions.Regex.IsMatch(digestPipeName, "^[A-Za-z0-9_]{1,80}$"))
+            throw new ArgumentException("PREPARE_DIGEST_PIPE_NAME_INVALID", "digestPipeName");
+        NamedPipeServerStream digestPipe = CreateCurrentUserOnlyPipeServer(digestPipeName);
+        try
+        {
+            IAsyncResult digestPipeWait = digestPipe.BeginWaitForConnection(null, null);
+            return StartInternal(applicationName, commandLine, currentDirectory, DateTime.MaxValue, null,
+                expectedRunId, Path.GetFullPath(expectedTclExecutable), digestPipe, digestPipeWait);
+        }
+        catch
+        {
+            digestPipe.Dispose();
+            throw;
+        }
+    }
+
+    private static NamedPipeServerStream CreateCurrentUserOnlyPipeServer(string pipeName)
+    {
+        FieldInfo currentUserOnlyField = typeof(PipeOptions).GetField("CurrentUserOnly");
+        if (currentUserOnlyField != null)
+        {
+            PipeOptions currentUserOnly = (PipeOptions)currentUserOnlyField.GetValue(null);
+            return new NamedPipeServerStream(pipeName, PipeDirection.In, 1, PipeTransmissionMode.Byte,
+                PipeOptions.Asynchronous | currentUserOnly);
+        }
+
+        object security = CreateCurrentUserPipeSecurity();
+        Type securityType = security.GetType();
+        Type[] constructorTypes = new Type[] { typeof(string), typeof(PipeDirection), typeof(int),
+            typeof(PipeTransmissionMode), typeof(PipeOptions), typeof(int), typeof(int), securityType };
+        ConstructorInfo secureConstructor = typeof(NamedPipeServerStream).GetConstructor(constructorTypes);
+        if (secureConstructor == null)
+            throw new InvalidOperationException("PREPARE_DIGEST_SECURE_PIPE_CONSTRUCTOR_UNAVAILABLE");
+        return (NamedPipeServerStream)secureConstructor.Invoke(new object[] { pipeName, PipeDirection.In, 1,
+            PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 0, 0, security });
+    }
+
+    private static object CreateCurrentUserPipeSecurity()
+    {
+        SecurityIdentifier currentUser = WindowsIdentity.GetCurrent().User;
+        if (currentUser == null) throw new InvalidOperationException("PREPARE_DIGEST_CURRENT_USER_SID_MISSING");
+        Type securityType = typeof(NamedPipeServerStream).Assembly.GetType("System.IO.Pipes.PipeSecurity", false);
+        if (securityType == null) securityType = Type.GetType("System.IO.Pipes.PipeSecurity, System.Core", false);
+        if (securityType == null) securityType = Type.GetType("System.IO.Pipes.PipeSecurity, System.IO.Pipes", false);
+        if (securityType == null) throw new InvalidOperationException("PREPARE_DIGEST_PIPE_SECURITY_TYPE_UNAVAILABLE");
+        object security = Activator.CreateInstance(securityType);
+        securityType.GetMethod("SetAccessRuleProtection", new Type[] { typeof(bool), typeof(bool) })
+            .Invoke(security, new object[] { true, false });
+        securityType.GetMethod("SetOwner", new Type[] { typeof(IdentityReference) })
+            .Invoke(security, new object[] { currentUser });
+        Type ruleType = securityType.Assembly.GetType("System.IO.Pipes.PipeAccessRule", false);
+        Type rightsType = securityType.Assembly.GetType("System.IO.Pipes.PipeAccessRights", false);
+        if (ruleType == null || rightsType == null)
+            throw new InvalidOperationException("PREPARE_DIGEST_PIPE_ACCESS_TYPES_UNAVAILABLE");
+        object fullControl = Enum.Parse(rightsType, "FullControl");
+        ConstructorInfo ruleConstructor = ruleType.GetConstructor(new Type[] { typeof(IdentityReference), rightsType,
+            typeof(System.Security.AccessControl.AccessControlType) });
+        if (ruleConstructor == null) throw new InvalidOperationException("PREPARE_DIGEST_PIPE_ACCESS_RULE_CONSTRUCTOR_UNAVAILABLE");
+        object rule = ruleConstructor.Invoke(new object[] { currentUser, fullControl,
+            System.Security.AccessControl.AccessControlType.Allow });
+        securityType.GetMethod("AddAccessRule", new Type[] { ruleType }).Invoke(security, new object[] { rule });
+        return security;
+    }
+
+    public static bool VerifyCurrentUserPipeAclForSelfTest()
+    {
+        object security = CreateCurrentUserPipeSecurity();
+        Type securityType = security.GetType();
+        SecurityIdentifier currentUser = WindowsIdentity.GetCurrent().User;
+        bool protectedRules = (bool)securityType.GetProperty("AreAccessRulesProtected").GetValue(security, null);
+        object rules = securityType.GetMethod("GetAccessRules", new Type[] { typeof(bool), typeof(bool), typeof(Type) })
+            .Invoke(security, new object[] { true, true, typeof(SecurityIdentifier) });
+        PropertyInfo countProperty = rules.GetType().GetProperty("Count");
+        PropertyInfo itemProperty = rules.GetType().GetProperty("Item");
+        if (!protectedRules || currentUser == null || (int)countProperty.GetValue(rules, null) != 1) return false;
+        object rule = itemProperty.GetValue(rules, new object[] { 0 });
+        Type ruleType = rule.GetType();
+        bool inherited = (bool)ruleType.GetProperty("IsInherited").GetValue(rule, null);
+        System.Security.AccessControl.AccessControlType accessType =
+            (System.Security.AccessControl.AccessControlType)ruleType.GetProperty("AccessControlType").GetValue(rule, null);
+        string rights = ruleType.GetProperty("PipeAccessRights").GetValue(rule, null).ToString();
+        IdentityReference identity = (IdentityReference)ruleType.GetProperty("IdentityReference").GetValue(rule, null);
+        IdentityReference owner = (IdentityReference)securityType.GetMethod("GetOwner", new Type[] { typeof(Type) })
+            .Invoke(security, new object[] { typeof(SecurityIdentifier) });
+        return !inherited && accessType == System.Security.AccessControl.AccessControlType.Allow && rights == "FullControl" &&
+            identity != null && owner != null &&
+            String.Equals(identity.Value, currentUser.Value, StringComparison.OrdinalIgnoreCase) &&
+            String.Equals(owner.Value, currentUser.Value, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static S3T03RunnerProcess StartInternal(string applicationName, string commandLine,
+        string currentDirectory, DateTime deadlineUtc, Func<DateTime> clock, string expectedPrepareRunId,
+        string expectedPrepareTclExecutable, NamedPipeServerStream digestPipe, IAsyncResult digestPipeWait)
+    {
         if (deadlineUtc != DateTime.MaxValue && deadlineUtc.Kind != DateTimeKind.Utc)
             throw new ArgumentException("SUPERVISED_DEADLINE_MUST_BE_UTC", "deadlineUtc");
         if (deadlineUtc != DateTime.MaxValue && ReadUtcNow(clock) >= deadlineUtc)
@@ -162,6 +368,10 @@ public sealed class S3T03RunnerProcess : IDisposable
         IntPtr job = CreateJobObjectW(IntPtr.Zero, null);
         if (job == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error(), "CREATE_JOB_OBJECT_FAILED");
         PROCESS_INFORMATION process = new PROCESS_INFORMATION();
+        IntPtr outputRead = IntPtr.Zero, outputWrite = IntPtr.Zero;
+        IntPtr attributeListMemory = IntPtr.Zero, inheritedHandleList = IntPtr.Zero;
+        bool attributeListInitialized = false;
+        SafeFileHandle nullInput = null;
         try
         {
             EXTENDED_LIMIT_INFORMATION limits = new EXTENDED_LIMIT_INFORMATION();
@@ -169,18 +379,60 @@ public sealed class S3T03RunnerProcess : IDisposable
             if (!SetInformationJobObject(job, 9, ref limits, (uint)Marshal.SizeOf(typeof(EXTENDED_LIMIT_INFORMATION))))
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "SET_JOB_KILL_ON_CLOSE_FAILED");
 
-            STARTUPINFO startup = new STARTUPINFO();
-            startup.cb = Marshal.SizeOf(typeof(STARTUPINFO));
-            startup.dwFlags = 0x00000001;
-            startup.wShowWindow = 0;
+            SECURITY_ATTRIBUTES pipeAttributes = new SECURITY_ATTRIBUTES();
+            pipeAttributes.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+            pipeAttributes.bInheritHandle = true;
+            if (!CreatePipe(out outputRead, out outputWrite, ref pipeAttributes, 65536))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "CREATE_SUPERVISED_OUTPUT_PIPE_FAILED");
+            if (!SetHandleInformation(outputRead, 0x00000001, 0))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "MAKE_SUPERVISED_OUTPUT_READ_HANDLE_PRIVATE_FAILED");
+            nullInput = CreateFileW("NUL", 0x80000000, 0x00000003, ref pipeAttributes, 3, 0x00000080, IntPtr.Zero);
+            if (nullInput == null || nullInput.IsInvalid)
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "OPEN_SUPERVISED_NULL_INPUT_FAILED");
+
+            IntPtr attributeListSize = IntPtr.Zero;
+            bool initialAttributeQuery = InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref attributeListSize);
+            int initialAttributeError = Marshal.GetLastWin32Error();
+            if (initialAttributeQuery || attributeListSize == IntPtr.Zero ||
+                (initialAttributeError != 122 && initialAttributeError != 0))
+                throw new Win32Exception(initialAttributeError, "QUERY_PROCESS_ATTRIBUTE_LIST_SIZE_FAILED");
+            if (attributeListSize.ToInt64() > Int32.MaxValue)
+                throw new InvalidOperationException("PROCESS_ATTRIBUTE_LIST_SIZE_OUT_OF_RANGE");
+            attributeListMemory = Marshal.AllocHGlobal(attributeListSize.ToInt32());
+            if (!InitializeProcThreadAttributeList(attributeListMemory, 1, 0, ref attributeListSize))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "INITIALIZE_PROCESS_ATTRIBUTE_LIST_FAILED");
+            attributeListInitialized = true;
+
+            inheritedHandleList = Marshal.AllocHGlobal(IntPtr.Size * 2);
+            Marshal.WriteIntPtr(inheritedHandleList, 0, nullInput.DangerousGetHandle());
+            Marshal.WriteIntPtr(inheritedHandleList, IntPtr.Size, outputWrite);
+            IntPtr handleListAttribute = new IntPtr(unchecked((int)0x00020002));
+            if (!UpdateProcThreadAttribute(attributeListMemory, 0, handleListAttribute,
+                inheritedHandleList, new UIntPtr((uint)(IntPtr.Size * 2)), IntPtr.Zero, IntPtr.Zero))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "SET_INHERITED_HANDLE_WHITELIST_FAILED");
+
+            STARTUPINFOEX startup = new STARTUPINFOEX();
+            startup.StartupInfo.cb = Marshal.SizeOf(typeof(STARTUPINFOEX));
+            startup.StartupInfo.dwFlags = 0x00000101;
+            startup.StartupInfo.wShowWindow = 0;
+            startup.StartupInfo.hStdInput = nullInput.DangerousGetHandle();
+            startup.StartupInfo.hStdOutput = outputWrite;
+            startup.StartupInfo.hStdError = outputWrite;
+            startup.lpAttributeList = attributeListMemory;
             StringBuilder mutableCommandLine = new StringBuilder(commandLine);
             const uint CREATE_SUSPENDED = 0x00000004;
             const uint CREATE_NO_WINDOW = 0x08000000;
             const uint CREATE_UNICODE_ENVIRONMENT = 0x00000400;
-            if (!CreateProcessW(applicationName, mutableCommandLine, IntPtr.Zero, IntPtr.Zero, false,
-                CREATE_SUSPENDED | CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+            const uint EXTENDED_STARTUPINFO_PRESENT = 0x00080000;
+            if (!CreateProcessW(applicationName, mutableCommandLine, IntPtr.Zero, IntPtr.Zero, true,
+                CREATE_SUSPENDED | CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT,
                 IntPtr.Zero, currentDirectory, ref startup, out process))
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "CREATE_SUSPENDED_PROCESS_FAILED");
+
+            CloseHandle(outputWrite);
+            outputWrite = IntPtr.Zero;
+            nullInput.Dispose();
+            nullInput = null;
 
             if (!AssignProcessToJobObject(job, process.hProcess))
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "ASSIGN_PROCESS_TO_PRIVATE_JOB_FAILED");
@@ -195,16 +447,458 @@ public sealed class S3T03RunnerProcess : IDisposable
             }
             if (ResumeThread(process.hThread) == 0xFFFFFFFF)
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "RESUME_SUPERVISED_PROCESS_FAILED");
-            return new S3T03RunnerProcess(job, process, commandLine);
+            S3T03RunnerProcess supervised = new S3T03RunnerProcess(job, process, commandLine, outputRead,
+                expectedPrepareRunId, expectedPrepareTclExecutable, digestPipe, digestPipeWait);
+            outputRead = IntPtr.Zero;
+            return supervised;
         }
         catch
         {
             if (process.hProcess != IntPtr.Zero) TerminateProcess(process.hProcess, 1);
             if (process.hThread != IntPtr.Zero) CloseHandle(process.hThread);
             if (process.hProcess != IntPtr.Zero) CloseHandle(process.hProcess);
+            if (nullInput != null) nullInput.Dispose();
+            if (outputWrite != IntPtr.Zero) CloseHandle(outputWrite);
+            if (outputRead != IntPtr.Zero) CloseHandle(outputRead);
+            if (digestPipe != null) digestPipe.Dispose();
             CloseHandle(job);
             throw;
         }
+        finally
+        {
+            if (attributeListInitialized && attributeListMemory != IntPtr.Zero)
+                DeleteProcThreadAttributeList(attributeListMemory);
+            if (attributeListMemory != IntPtr.Zero) Marshal.FreeHGlobal(attributeListMemory);
+            if (inheritedHandleList != IntPtr.Zero) Marshal.FreeHGlobal(inheritedHandleList);
+        }
+    }
+
+    private void ReadChildOutput()
+    {
+        IntPtr readHandle = Interlocked.Exchange(ref outputReadHandle, IntPtr.Zero);
+        try
+        {
+            using (SafeFileHandle handle = new SafeFileHandle(readHandle, true))
+            using (FileStream stream = new FileStream(handle, FileAccess.Read))
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8, true, 4096, false))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.StartsWith("S3_PREP_METADATA_DIGEST=", StringComparison.Ordinal))
+                    {
+                        lock (prepareDigestSync) prepareDigestError = "PREPARE_DIGEST_UNTRUSTED_STDOUT_MARKER";
+                    }
+                }
+            }
+        }
+        catch (Exception error)
+        {
+            lock (prepareDigestSync)
+                if (expectedPrepareRunId != null && String.IsNullOrEmpty(prepareDigestError))
+                    prepareDigestError = "PREPARE_DIGEST_OUTPUT_CHANNEL_FAILED:" + error.GetType().Name + ":" + error.Message;
+        }
+    }
+
+    private void ReadPrepareDigestPipe()
+    {
+        try
+        {
+            prepareDigestPipe.EndWaitForConnection(prepareDigestPipeWait);
+            uint digestClientProcessId;
+            if (!GetNamedPipeClientProcessId(prepareDigestPipe.SafePipeHandle, out digestClientProcessId) || digestClientProcessId == 0)
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PIPE_CLIENT_PID_QUERY_FAILED");
+            uint digestClientParentProcessId = GetParentProcessIdFromSnapshot(digestClientProcessId);
+            lock (prepareDigestSync)
+            {
+                observedPrepareDigestClientProcessId = digestClientProcessId;
+                observedPrepareDigestClientParentProcessId = digestClientParentProcessId;
+            }
+            try { ValidatePrepareTclProcessIdentity(digestClientProcessId); }
+            catch (Exception error)
+            {
+                lock (prepareDigestSync)
+                    prepareDigestError = "PREPARE_DIGEST_TCL_PROCESS_IDENTITY_REJECTED:" + error.Message;
+                try { prepareDigestPipe.Dispose(); } catch { }
+                return;
+            }
+
+            using (MemoryStream message = new MemoryStream())
+            {
+                byte[] buffer = new byte[128];
+                int read;
+                while ((read = prepareDigestPipe.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    if (message.Length + read > 256) throw new InvalidDataException("PREPARE_DIGEST_PIPE_MESSAGE_TOO_LARGE");
+                    message.Write(buffer, 0, read);
+                }
+                byte[] bytes = message.ToArray();
+                for (int index = 0; index < bytes.Length; index++)
+                    if (bytes[index] > 0x7F) throw new InvalidDataException("PREPARE_DIGEST_PIPE_MESSAGE_NOT_ASCII");
+                string payload = Encoding.ASCII.GetString(bytes);
+                if (!payload.EndsWith("\n", StringComparison.Ordinal) || payload.IndexOf('\n') != payload.Length - 1)
+                    throw new InvalidDataException("PREPARE_DIGEST_PIPE_MESSAGE_LINE_FORMAT_INVALID");
+                string line = payload.Substring(0, payload.Length - 1);
+                if (line.EndsWith("\r", StringComparison.Ordinal)) line = line.Substring(0, line.Length - 1);
+                if (line.IndexOf('\r') >= 0) throw new InvalidDataException("PREPARE_DIGEST_PIPE_MESSAGE_LINE_FORMAT_INVALID");
+                RecordPrepareDigestLine(line, digestClientProcessId);
+                bool rejectConnection;
+                lock (prepareDigestSync) rejectConnection = !String.IsNullOrEmpty(prepareDigestError);
+                if (rejectConnection) prepareDigestPipe.Dispose();
+            }
+        }
+        catch (Exception error)
+        {
+            lock (prepareDigestSync)
+                if (expectedPrepareRunId != null && String.IsNullOrEmpty(prepareDigestError))
+                    prepareDigestError = "PREPARE_DIGEST_PIPE_FAILED:" + error.GetType().Name + ":" + error.Message;
+            try { prepareDigestPipe.Dispose(); } catch { }
+        }
+    }
+
+    private void RecordPrepareDigestLine(string line, uint actualClientProcessId)
+    {
+        const string prefix = "S3_PREP_METADATA_DIGEST=";
+        if (!line.StartsWith(prefix, StringComparison.Ordinal)) return;
+        lock (prepareDigestSync)
+        {
+            prepareDigestMessageCount++;
+            if (expectedPrepareRunId == null)
+            {
+                prepareDigestError = "UNEXPECTED_PREPARE_DIGEST_ON_NON_PREPARE_PROCESS";
+                return;
+            }
+            if (prepareDigestMessageCount != 1)
+            {
+                prepareDigestError = "PREPARE_DIGEST_MESSAGE_DUPLICATED";
+                return;
+            }
+            string[] fields = line.Substring(prefix.Length).Split('|');
+            uint processId;
+            int fileCount;
+            if (fields.Length != 4 || fields[0] != expectedPrepareRunId ||
+                !UInt32.TryParse(fields[1], out processId) || processId == 0 ||
+                !Int32.TryParse(fields[2], out fileCount) || fileCount < 1 ||
+                !System.Text.RegularExpressions.Regex.IsMatch(fields[3], "^[A-Fa-f0-9]{64}$"))
+            {
+                prepareDigestError = "PREPARE_DIGEST_MESSAGE_FORMAT_OR_RUN_ID_INVALID";
+                return;
+            }
+            if (processId != actualClientProcessId)
+            {
+                prepareDigestError = "PREPARE_DIGEST_PIPE_CLIENT_PID_MISMATCH";
+                return;
+            }
+            prepareDigestRunId = fields[0];
+            prepareDigestTclProcessId = processId;
+            prepareDigestFileCount = fileCount;
+            prepareDigestSha256 = fields[3].ToUpperInvariant();
+        }
+    }
+
+    private void ValidatePrepareTclProcessIdentity(uint processId)
+    {
+        if (jobHandle == IntPtr.Zero || String.IsNullOrWhiteSpace(expectedPrepareTclExecutable))
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_IDENTITY_CONTEXT_MISSING");
+        const uint WAIT_TIMEOUT = 0x00000102;
+        BindExpectedPrepareTclProcess();
+        IntPtr process = boundPrepareTclProcessHandle;
+        if (process == IntPtr.Zero || boundPrepareTclProcessId == 0)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_BOUND_PROCESS_HANDLE_MISSING");
+        if (processId != boundPrepareTclProcessId)
+            throw new InvalidOperationException("PREPARE_DIGEST_PIPE_CLIENT_PID_NOT_EXACT_LAUNCH_TARGET");
+        if (GetProcessId(process) != boundPrepareTclProcessId)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_BOUND_HANDLE_PID_MISMATCH");
+        if (WaitForSingleObject(process, 0) != WAIT_TIMEOUT)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_EXITED_AFTER_BIND");
+        bool belongsToPrivateJob;
+        if (!IsProcessInJob(process, jobHandle, out belongsToPrivateJob))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_TCL_JOB_MEMBERSHIP_QUERY_FAILED");
+        if (!belongsToPrivateJob)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_PROCESS_NOT_IN_JOB");
+        string actualImage = NormalizeImagePath(QueryImagePath(process));
+        string expectedImage = NormalizeImagePath(expectedPrepareTclExecutable);
+        if (!String.Equals(actualImage, expectedImage, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_IMAGE_PATH_MISMATCH");
+        uint actualParent = processId == ProcessId ? 0 : GetParentProcessIdFromSnapshot(boundPrepareTclProcessId);
+        if (actualParent != boundPrepareTclParentProcessId)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_PARENT_PROCESS_ID_MISMATCH");
+        if (GetProcessId(process) != boundPrepareTclProcessId || WaitForSingleObject(process, 0) != WAIT_TIMEOUT)
+            throw new InvalidOperationException("PREPARE_DIGEST_TCL_PROCESS_EXITED_DURING_IDENTITY_QUERY");
+    }
+
+    public string ValidateBoundPrepareTclProcessForSelfTest(uint reportedProcessId)
+    {
+        try
+        {
+            ValidatePrepareTclProcessIdentity(reportedProcessId);
+            return "PASS";
+        }
+        catch (Exception error) { return error.Message; }
+    }
+
+    private void BindExpectedPrepareTclProcess()
+    {
+        const uint WAIT_TIMEOUT = 0x00000102;
+        if (boundPrepareTclProcessId != 0)
+        {
+            if (boundPrepareTclProcessHandle == IntPtr.Zero ||
+                WaitForSingleObject(boundPrepareTclProcessHandle, 0) != WAIT_TIMEOUT)
+                throw new InvalidOperationException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_EXITED_AFTER_BIND");
+            return;
+        }
+        const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x00001000;
+        const uint SYNCHRONIZE = 0x00100000;
+        string launcherImage = QueryImagePath(processHandle);
+        string expectedImage = NormalizeImagePath(expectedPrepareTclExecutable);
+        if (String.Equals(NormalizeImagePath(launcherImage), expectedImage, StringComparison.OrdinalIgnoreCase))
+        {
+            bool launcherInJob;
+            if (!IsProcessInJob(processHandle, jobHandle, out launcherInJob) || !launcherInJob)
+                throw new InvalidOperationException("PREPARE_DIGEST_LAUNCHED_PROCESS_NOT_IN_PRIVATE_JOB");
+            IntPtr exactLauncher;
+            if (!DuplicateHandle(GetCurrentProcess(), processHandle, GetCurrentProcess(), out exactLauncher,
+                PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, false, 0))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_LAUNCHED_PROCESS_HANDLE_DUPLICATION_FAILED");
+            if (GetProcessId(exactLauncher) != ProcessId || WaitForSingleObject(exactLauncher, 0) != WAIT_TIMEOUT)
+            {
+                CloseHandle(exactLauncher);
+                throw new InvalidOperationException("PREPARE_DIGEST_LAUNCHED_PROCESS_EXITED_BEFORE_BIND");
+            }
+            boundPrepareTclProcessId = ProcessId;
+            boundPrepareTclParentProcessId = 0;
+            boundPrepareTclProcessHandle = exactLauncher;
+            return;
+        }
+
+        DateTime deadline = DateTime.UtcNow.AddSeconds(30);
+        while (DateTime.UtcNow < deadline)
+        {
+            uint candidateProcessId;
+            uint candidateParentProcessId;
+            IntPtr candidateHandle;
+            if (TryFindUniqueDirectJobChild(expectedImage, out candidateProcessId,
+                out candidateParentProcessId, out candidateHandle))
+            {
+                uint confirmProcessId = 0;
+                uint confirmParentProcessId = 0;
+                IntPtr confirmHandle = IntPtr.Zero;
+                try
+                {
+                    if (!TryFindUniqueDirectJobChild(expectedImage, out confirmProcessId,
+                        out confirmParentProcessId, out confirmHandle) ||
+                        confirmProcessId != candidateProcessId || confirmParentProcessId != ProcessId)
+                        throw new InvalidOperationException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_AMBIGUOUS_OR_CHANGED");
+                }
+                finally { if (confirmHandle != IntPtr.Zero) CloseHandle(confirmHandle); }
+                if (candidateParentProcessId != ProcessId || WaitForSingleObject(candidateHandle, 0) != WAIT_TIMEOUT)
+                {
+                    CloseHandle(candidateHandle);
+                    throw new InvalidOperationException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_PARENT_OR_LIFETIME_INVALID");
+                }
+                boundPrepareTclProcessId = candidateProcessId;
+                boundPrepareTclParentProcessId = candidateParentProcessId;
+                boundPrepareTclProcessHandle = candidateHandle;
+                return;
+            }
+            if (WaitForSingleObject(processHandle, 0) != WAIT_TIMEOUT)
+                throw new InvalidOperationException("PREPARE_DIGEST_LAUNCHER_EXITED_BEFORE_TCL_PROCESS_DISCOVERY");
+            Thread.Sleep(25);
+        }
+        throw new TimeoutException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_NOT_FOUND_UNDER_CONTROLLED_CMD");
+    }
+
+    private bool TryFindUniqueDirectJobChild(string expectedImage, out uint processId,
+        out uint parentProcessId, out IntPtr processHandleForTarget)
+    {
+        const uint TH32CS_SNAPPROCESS = 0x00000002;
+        const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x00001000;
+        const uint SYNCHRONIZE = 0x00100000;
+        const uint WAIT_TIMEOUT = 0x00000102;
+        IntPtr snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PROCESS_SNAPSHOT_FAILED");
+        processId = 0;
+        parentProcessId = 0;
+        processHandleForTarget = IntPtr.Zero;
+        try
+        {
+            PROCESSENTRY32W entry = new PROCESSENTRY32W();
+            entry.dwSize = (uint)Marshal.SizeOf(typeof(PROCESSENTRY32W));
+            if (!Process32FirstW(snapshot, ref entry))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PROCESS_SNAPSHOT_ENUMERATION_FAILED");
+            do
+            {
+                if (entry.th32ParentProcessID != ProcessId || entry.th32ProcessID == 0) continue;
+                IntPtr candidate = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, false, entry.th32ProcessID);
+                if (candidate == IntPtr.Zero)
+                {
+                    int openError = Marshal.GetLastWin32Error();
+                    if (openError == 87) continue;
+                    throw new Win32Exception(openError, "PREPARE_DIGEST_DIRECT_CHILD_OPEN_FAILED");
+                }
+                bool keepCandidate = false;
+                try
+                {
+                    if (WaitForSingleObject(candidate, 0) != WAIT_TIMEOUT) continue;
+                    if (GetProcessId(candidate) != entry.th32ProcessID) continue;
+                    string candidateImage = NormalizeImagePath(QueryImagePath(candidate));
+                    if (!String.Equals(candidateImage, expectedImage, StringComparison.OrdinalIgnoreCase)) continue;
+                    bool candidateInJob;
+                    if (!IsProcessInJob(candidate, jobHandle, out candidateInJob))
+                        throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_DIRECT_CHILD_JOB_QUERY_FAILED");
+                    if (!candidateInJob)
+                        throw new InvalidOperationException("PREPARE_DIGEST_TCL_DIRECT_CHILD_NOT_IN_PRIVATE_JOB");
+                    uint verifiedParentProcessId = GetParentProcessIdFromSnapshot(GetProcessId(candidate));
+                    if (verifiedParentProcessId != entry.th32ParentProcessID || verifiedParentProcessId != ProcessId ||
+                        WaitForSingleObject(processHandle, 0) != WAIT_TIMEOUT)
+                        throw new InvalidOperationException("PREPARE_DIGEST_TCL_DIRECT_CHILD_PARENT_IDENTITY_CHANGED");
+                    if (processHandleForTarget != IntPtr.Zero)
+                        throw new InvalidOperationException("PREPARE_DIGEST_TCL_LAUNCH_TARGET_MULTIPLE_MATCHES");
+                    processId = entry.th32ProcessID;
+                    parentProcessId = entry.th32ParentProcessID;
+                    processHandleForTarget = candidate;
+                    keepCandidate = true;
+                }
+                finally { if (!keepCandidate) CloseHandle(candidate); }
+            }
+            while (Process32NextW(snapshot, ref entry));
+            int enumerationError = Marshal.GetLastWin32Error();
+            if (enumerationError != 18)
+                throw new Win32Exception(enumerationError, "PREPARE_DIGEST_PROCESS_SNAPSHOT_ENUMERATION_FAILED");
+            return processHandleForTarget != IntPtr.Zero;
+        }
+        catch
+        {
+            if (processHandleForTarget != IntPtr.Zero)
+            {
+                CloseHandle(processHandleForTarget);
+                processHandleForTarget = IntPtr.Zero;
+            }
+            throw;
+        }
+        finally { CloseHandle(snapshot); }
+    }
+
+    private static string QueryImagePath(IntPtr process)
+    {
+        StringBuilder imageName = new StringBuilder(32768);
+        uint imageNameLength = (uint)imageName.Capacity;
+        if (!QueryFullProcessImageNameW(process, 0, imageName, ref imageNameLength) || imageNameLength == 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PROCESS_IMAGE_QUERY_FAILED");
+        return imageName.ToString();
+    }
+
+    private static uint GetParentProcessIdFromSnapshot(uint childProcessId)
+    {
+        const uint TH32CS_SNAPPROCESS = 0x00000002;
+        IntPtr snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snapshot == IntPtr.Zero || snapshot == new IntPtr(-1))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PARENT_SNAPSHOT_FAILED");
+        try
+        {
+            PROCESSENTRY32W entry = new PROCESSENTRY32W();
+            entry.dwSize = (uint)Marshal.SizeOf(typeof(PROCESSENTRY32W));
+            if (!Process32FirstW(snapshot, ref entry))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "PREPARE_DIGEST_PARENT_ENUMERATION_FAILED");
+            do
+            {
+                if (entry.th32ProcessID == childProcessId) return entry.th32ParentProcessID;
+            }
+            while (Process32NextW(snapshot, ref entry));
+            throw new InvalidOperationException("PREPARE_DIGEST_CLIENT_PROCESS_NOT_IN_SNAPSHOT");
+        }
+        finally { CloseHandle(snapshot); }
+    }
+
+    private static string NormalizeImagePath(string path)
+    {
+        string value = path;
+        if (value.StartsWith("\\\\?\\UNC\\", StringComparison.OrdinalIgnoreCase)) value = "\\\\" + value.Substring(8);
+        else if (value.StartsWith("\\\\?\\", StringComparison.OrdinalIgnoreCase)) value = value.Substring(4);
+        return Path.GetFullPath(value);
+    }
+
+    public static IntPtr CreateInheritableEventForSelfTest()
+    {
+        SECURITY_ATTRIBUTES attributes = new SECURITY_ATTRIBUTES();
+        attributes.nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES));
+        attributes.bInheritHandle = true;
+        IntPtr handle = CreateEventW(ref attributes, false, false, null);
+        if (handle == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error(), "SELFTEST_CREATE_INHERITABLE_EVENT_FAILED");
+        return handle;
+    }
+
+    public static void CloseSelfTestHandle(IntPtr handle)
+    {
+        if (handle != IntPtr.Zero && !CloseHandle(handle))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "SELFTEST_CLOSE_INHERITABLE_EVENT_FAILED");
+    }
+
+    public static bool IsSelfTestEventSignaled(IntPtr handle)
+    {
+        uint result = WaitForSingleObject(handle, 0);
+        if (result == 0) return true;
+        if (result == 0x00000102) return false;
+        throw new Win32Exception(Marshal.GetLastWin32Error(), "SELFTEST_EVENT_STATE_QUERY_FAILED");
+    }
+
+    public static void SignalSelfTestHandle(IntPtr handle)
+    {
+        if (!SetEvent(handle)) throw new Win32Exception(Marshal.GetLastWin32Error(), "SELFTEST_CHILD_EVENT_SIGNAL_FAILED");
+    }
+
+    public void RequirePreparedMetadataDigest(string expectedRunId)
+    {
+        if (expectedPrepareRunId == null || expectedRunId != expectedPrepareRunId)
+            throw new InvalidOperationException("PREPARE_DIGEST_EXPECTED_RUN_ID_MISMATCH");
+        Thread pipeReader = prepareDigestPipeReaderThread;
+        if (pipeReader == null || !pipeReader.Join(10000)) throw new TimeoutException("PREPARE_DIGEST_PIPE_READ_TIMEOUT");
+        Thread reader = outputReaderThread;
+        if (reader != null && !reader.Join(10000)) throw new TimeoutException("PREPARE_DIGEST_OUTPUT_DRAIN_TIMEOUT");
+        lock (prepareDigestSync)
+        {
+            if (!String.IsNullOrEmpty(prepareDigestError)) throw new InvalidOperationException(prepareDigestError);
+            if (prepareDigestMessageCount != 1 || prepareDigestRunId != expectedRunId ||
+                prepareDigestTclProcessId == 0 || prepareDigestFileCount < 1 ||
+                !System.Text.RegularExpressions.Regex.IsMatch(prepareDigestSha256 ?? "", "^[A-F0-9]{64}$"))
+                throw new InvalidOperationException("PREPARE_DIGEST_TRUSTED_CHANNEL_MESSAGE_MISSING_OR_INVALID");
+        }
+    }
+
+    public int PreparedMetadataFileCount
+    {
+        get { lock (prepareDigestSync) return prepareDigestFileCount; }
+    }
+
+    public string PreparedMetadataTreeSha256
+    {
+        get { lock (prepareDigestSync) return prepareDigestSha256; }
+    }
+
+    public uint PreparedMetadataTclProcessId
+    {
+        get { lock (prepareDigestSync) return prepareDigestTclProcessId; }
+    }
+
+    public uint PreparedMetadataTclParentProcessId
+    {
+        get { lock (prepareDigestSync) return boundPrepareTclParentProcessId; }
+    }
+
+    public uint BoundPrepareTclProcessId
+    {
+        get { lock (prepareDigestSync) return boundPrepareTclProcessId; }
+    }
+
+    public uint ObservedPrepareDigestClientProcessId
+    {
+        get { lock (prepareDigestSync) return observedPrepareDigestClientProcessId; }
+    }
+
+    public uint ObservedPrepareDigestClientParentProcessId
+    {
+        get { lock (prepareDigestSync) return observedPrepareDigestClientParentProcessId; }
     }
 
     public bool HasExited
@@ -253,8 +947,21 @@ public sealed class S3T03RunnerProcess : IDisposable
     public void Dispose()
     {
         if (jobHandle != IntPtr.Zero) { CloseHandle(jobHandle); jobHandle = IntPtr.Zero; }
+        if (prepareDigestPipe != null) { prepareDigestPipe.Dispose(); prepareDigestPipe = null; }
+        if (prepareDigestPipeReaderThread != null) prepareDigestPipeReaderThread.Join(5000);
+        if (outputReaderThread != null) outputReaderThread.Join(5000);
+        if (outputReadHandle != IntPtr.Zero)
+        {
+            IntPtr readHandle = Interlocked.Exchange(ref outputReadHandle, IntPtr.Zero);
+            if (readHandle != IntPtr.Zero) CloseHandle(readHandle);
+        }
         if (threadHandle != IntPtr.Zero) { CloseHandle(threadHandle); threadHandle = IntPtr.Zero; }
         if (processHandle != IntPtr.Zero) { CloseHandle(processHandle); processHandle = IntPtr.Zero; }
+        if (boundPrepareTclProcessHandle != IntPtr.Zero)
+        {
+            CloseHandle(boundPrepareTclProcessHandle);
+            boundPrepareTclProcessHandle = IntPtr.Zero;
+        }
     }
 }
 '@
@@ -626,6 +1333,28 @@ public sealed class S3T03OutputLeaseSet : IDisposable
         return full;
     }
     public void LockDirectory(string path) { string p=Check(path); if (!dirs.ContainsKey(p)) dirs.Add(p, S3T03SafeFile.OpenDirectory(p)); }
+    public bool HasDirectoryLease(string path)
+    {
+        string p=Check(path); SafeFileHandle h;
+        return dirs.TryGetValue(p, out h) && h != null && !h.IsClosed && !h.IsInvalid;
+    }
+    public bool HasFileLease(string path)
+    {
+        string p=Check(path); SafeFileHandle h;
+        return files.TryGetValue(p, out h) && h != null && !h.IsClosed && !h.IsInvalid;
+    }
+    public void ReleaseLeasesUnder(string path)
+    {
+        string boundary=Check(path), prefix=boundary + Path.DirectorySeparatorChar;
+        List<string> fileKeys=new List<string>();
+        foreach(string key in files.Keys)
+            if(String.Equals(key,boundary,StringComparison.OrdinalIgnoreCase) || key.StartsWith(prefix,StringComparison.OrdinalIgnoreCase)) fileKeys.Add(key);
+        foreach(string key in fileKeys) { files[key].Dispose(); files.Remove(key); }
+        List<string> directoryKeys=new List<string>();
+        foreach(string key in dirs.Keys)
+            if(String.Equals(key,boundary,StringComparison.OrdinalIgnoreCase) || key.StartsWith(prefix,StringComparison.OrdinalIgnoreCase)) directoryKeys.Add(key);
+        foreach(string key in directoryKeys) { dirs[key].Dispose(); dirs.Remove(key); }
+    }
     public void AdoptDirectory(string path, SafeFileHandle handle)
     {
         string p = Check(path);
@@ -663,6 +1392,16 @@ public sealed class S3T03OutputLeaseSet : IDisposable
     }
     public void LockExisting(string path) { string p=Check(path); if (files.ContainsKey(p)) throw new IOException("DUPLICATE_OUTPUT_LEASE: " + p); files.Add(p, S3T03SafeFile.OpenLeaf(p, false)); }
     public void LockExistingReadOnly(string path) { string p=Check(path); if (files.ContainsKey(p)) throw new IOException("DUPLICATE_OUTPUT_LEASE: " + p); files.Add(p, S3T03SafeFile.OpenReadLease(p)); }
+    public void SealExistingReadOnly(string path)
+    {
+        string p=Check(path); SafeFileHandle previous;
+        if (!files.TryGetValue(p, out previous) || previous.IsClosed || previous.IsInvalid) throw new IOException("OUTPUT_LEASE_MISSING_FOR_SEAL: " + p);
+        files.Remove(p);
+        previous.Dispose();
+        SafeFileHandle sealedHandle = null;
+        try { sealedHandle = S3T03SafeFile.OpenReadLease(p); files.Add(p, sealedHandle); }
+        catch { if (sealedHandle != null) sealedHandle.Dispose(); throw; }
+    }
     public void ReserveNew(string path) { string p=Check(path); if (files.ContainsKey(p)) throw new IOException("DUPLICATE_OUTPUT_LEASE: " + p); files.Add(p, S3T03SafeFile.OpenLeaf(p, true)); }
     public void WriteHeld(string path, byte[] bytes) { string p=Check(path); SafeFileHandle h; if(!files.TryGetValue(p,out h)) throw new IOException("OUTPUT_LEASE_MISSING: " + p); S3T03SafeFile.WriteHeldInternal(h,bytes); }
     public byte[] ReadHeld(string path) { string p=Check(path); SafeFileHandle h; if(!files.TryGetValue(p,out h)) throw new IOException("OUTPUT_LEASE_MISSING: " + p); return S3T03SafeFile.ReadHandle(h); }
@@ -693,13 +1432,68 @@ public sealed class S3T03OutputLeaseSet : IDisposable
     }
     public void Dispose() { foreach(SafeFileHandle h in files.Values) h.Dispose(); foreach(SafeFileHandle h in dirs.Values) h.Dispose(); files.Clear(); dirs.Clear(); }
 }
+
+public sealed class S3T03TreeMonitor : IDisposable
+{
+    private FileSystemWatcher watcher;
+    private int changeCount;
+    private int errorCount;
+    private string lastError = "";
+
+    public S3T03TreeMonitor(string root)
+    {
+        watcher = new FileSystemWatcher(Path.GetFullPath(root));
+        watcher.IncludeSubdirectories = true;
+        watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName | NotifyFilters.LastWrite |
+            NotifyFilters.Size | NotifyFilters.Attributes | NotifyFilters.CreationTime | NotifyFilters.Security;
+        watcher.InternalBufferSize = 65536;
+        watcher.Changed += OnChanged;
+        watcher.Created += OnChanged;
+        watcher.Deleted += OnChanged;
+        watcher.Renamed += OnRenamed;
+        watcher.Error += OnError;
+        watcher.EnableRaisingEvents = true;
+    }
+
+    private void OnChanged(object sender, FileSystemEventArgs args) { System.Threading.Interlocked.Increment(ref changeCount); }
+    private void OnRenamed(object sender, RenamedEventArgs args) { System.Threading.Interlocked.Increment(ref changeCount); }
+    private void OnError(object sender, ErrorEventArgs args)
+    {
+        System.Threading.Interlocked.Increment(ref errorCount);
+        Exception error = args.GetException();
+        lastError = error == null ? "UNKNOWN" : error.GetType().Name + ":" + error.Message.Replace("\r", "_").Replace("\n", "_");
+    }
+
+    public string Status()
+    {
+        int changes = System.Threading.Interlocked.CompareExchange(ref changeCount, 0, 0);
+        int errors = System.Threading.Interlocked.CompareExchange(ref errorCount, 0, 0);
+        return "EVENT_COUNT=" + changes + ";ERROR_COUNT=" + errors + ";ERROR=" + lastError;
+    }
+
+    public void StopAndDrain()
+    {
+        if (watcher == null) return;
+        System.Threading.Thread.Sleep(1000);
+        watcher.EnableRaisingEvents = false;
+        System.Threading.Thread.Sleep(100);
+    }
+
+    public void Dispose()
+    {
+        if (watcher == null) return;
+        watcher.EnableRaisingEvents = false;
+        watcher.Dispose();
+        watcher = null;
+    }
+}
 '@
 
 if (-not ('S3T03SafeFile' -as [type])) {
     Add-Type -TypeDefinition $safeFileSource -Language CSharp
 }
 
-function Get-SecureTreeSha256Manifest([string]$Root) {
+function Get-SecureTreeSha256Manifest([string]$Root, [object]$LeaseSet = $null) {
     if ([string]::IsNullOrWhiteSpace($Root) -or -not [IO.Path]::IsPathRooted($Root) -or $Root -match '(^|[\\/])\.\.([\\/]|$)') {
         throw 'SECURE_TREE_ROOT_NOT_ABSOLUTE_OR_TRAVERSAL_FREE'
     }
@@ -710,9 +1504,14 @@ function Get-SecureTreeSha256Manifest([string]$Root) {
     $treeRecords = New-Object 'System.Collections.Generic.List[object]'
     while ($treePendingDirectories.Count -gt 0) {
         $treeDirectory = $treePendingDirectories.Pop()
-        $treeDirectoryHandle = [S3T03SafeFile]::OpenDirectory($treeDirectory)
-        try { $treeEntries = [IO.Directory]::GetFileSystemEntries($treeDirectory) }
-        finally { $treeDirectoryHandle.Dispose() }
+        if ($null -ne $LeaseSet) {
+            if (-not $LeaseSet.HasDirectoryLease($treeDirectory)) { $LeaseSet.LockDirectory($treeDirectory) }
+            $treeEntries = [IO.Directory]::GetFileSystemEntries($treeDirectory)
+        } else {
+            $treeDirectoryHandle = [S3T03SafeFile]::OpenDirectory($treeDirectory)
+            try { $treeEntries = [IO.Directory]::GetFileSystemEntries($treeDirectory) }
+            finally { $treeDirectoryHandle.Dispose() }
+        }
         foreach ($treeEntry in $treeEntries) {
             $treeEntryFull = [IO.Path]::GetFullPath($treeEntry)
             if (-not $treeEntryFull.StartsWith($treeRelativePrefix, [StringComparison]::OrdinalIgnoreCase)) {
@@ -723,18 +1522,26 @@ function Get-SecureTreeSha256Manifest([string]$Root) {
                 throw ('SECURE_TREE_REPARSE_POINT_REJECTED:' + $treeEntryFull)
             }
             if (($treeAttributes -band [IO.FileAttributes]::Directory) -ne 0) {
-                $treeChildHandle = [S3T03SafeFile]::OpenDirectory($treeEntryFull)
-                $treeChildHandle.Dispose()
+                if ($null -ne $LeaseSet) {
+                    if (-not $LeaseSet.HasDirectoryLease($treeEntryFull)) { $LeaseSet.LockDirectory($treeEntryFull) }
+                } else {
+                    $treeChildHandle = [S3T03SafeFile]::OpenDirectory($treeEntryFull)
+                    $treeChildHandle.Dispose()
+                }
                 $treePendingDirectories.Push($treeEntryFull)
                 continue
             }
-            $treeFileHandle = [S3T03SafeFile]::OpenReadLease($treeEntryFull)
-            try {
-                $treeBytes = [S3T03SafeFile]::ReadHandle($treeFileHandle)
-                $treeSha = [Security.Cryptography.SHA256]::Create()
-                try { $treeDigest = [BitConverter]::ToString($treeSha.ComputeHash($treeBytes)).Replace('-','') }
-                finally { $treeSha.Dispose() }
-            } finally { $treeFileHandle.Dispose() }
+            if ($null -ne $LeaseSet) {
+                if (-not $LeaseSet.HasFileLease($treeEntryFull)) { $LeaseSet.LockExistingReadOnly($treeEntryFull) }
+                $treeBytes = $LeaseSet.ReadHeld($treeEntryFull)
+            } else {
+                $treeFileHandle = [S3T03SafeFile]::OpenReadLease($treeEntryFull)
+                try { $treeBytes = [S3T03SafeFile]::ReadHandle($treeFileHandle) }
+                finally { $treeFileHandle.Dispose() }
+            }
+            $treeSha = [Security.Cryptography.SHA256]::Create()
+            try { $treeDigest = [BitConverter]::ToString($treeSha.ComputeHash($treeBytes)).Replace('-','') }
+            finally { $treeSha.Dispose() }
             $treeRelativePath = $treeEntryFull.Substring($treeRelativePrefix.Length).Replace('\','/')
             if ([string]::IsNullOrWhiteSpace($treeRelativePath)) { throw 'SECURE_TREE_RELATIVE_PATH_EMPTY' }
             $treeRecords.Add([pscustomobject]@{ RelativePath=$treeRelativePath; Digest=$treeDigest })
@@ -743,6 +1550,208 @@ function Get-SecureTreeSha256Manifest([string]$Root) {
     if ($treeRecords.Count -eq 0) { throw 'SECURE_TREE_EMPTY' }
     foreach ($treeRecord in ($treeRecords | Sort-Object -Property RelativePath)) {
         Write-Output ($treeRecord.Digest + [char]9 + $treeRecord.RelativePath)
+    }
+}
+
+function Format-SecureTreeSha256Manifest([string]$Root, [string[]]$Records) {
+    if ($null -eq $Records -or $Records.Count -eq 0) { throw 'SECURE_TREE_FORMAT_EMPTY_RECORDS' }
+    $treeRootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@([char]92,[char]47))
+    $treeLines = New-Object 'System.Collections.Generic.List[string]'
+    $treeLines.Add('ROOT=' + $treeRootFull)
+    $treeLines.Add('FILE_COUNT=' + $Records.Count)
+    foreach ($treeRecord in $Records) {
+        if ($treeRecord -notmatch '^([A-Fa-f0-9]{64})\t(.+)$') { throw 'SECURE_TREE_FORMAT_INVALID_RECORD' }
+        $treeLines.Add($Matches[1].ToUpperInvariant() + '  ' + $Matches[2])
+    }
+    return ($treeLines -join "`n") + "`n"
+}
+
+function Get-SecureTreeRecordsSha256([string[]]$Records) {
+    if ($null -eq $Records -or $Records.Count -lt 1) { throw 'SECURE_TREE_RECORD_DIGEST_EMPTY' }
+    $sorted = [System.Collections.Generic.SortedDictionary[string,string]]::new([System.StringComparer]::Ordinal)
+    foreach ($record in $Records) {
+        if ($record -notmatch '^([A-Fa-f0-9]{64})\t(.+)$') { throw 'SECURE_TREE_RECORD_DIGEST_INVALID_RECORD' }
+        $digest = $Matches[1].ToUpperInvariant()
+        $relative = $Matches[2]
+        if ($relative.Contains('\') -or $relative.Contains(':') -or $relative.StartsWith('/') -or
+            $relative.EndsWith('/') -or $relative.Contains('//') -or $relative -match '(^|/)\.\.?(/|$)') {
+            throw ('SECURE_TREE_RECORD_DIGEST_INVALID_PATH:' + $relative)
+        }
+        $sorted.Add($relative, $digest)
+    }
+    $canonicalLines = New-Object 'System.Collections.Generic.List[string]'
+    $canonicalLines.Add('FILE_COUNT=' + $sorted.Count)
+    foreach ($entry in $sorted.GetEnumerator()) {
+        $canonicalLines.Add($entry.Value + '  ' + $entry.Key)
+    }
+    return Get-Sha256Hex ([Text.Encoding]::UTF8.GetBytes(($canonicalLines -join "`n") + "`n"))
+}
+
+function Assert-PreparedMetadataTreeSha256([string[]]$Records, [int]$ExpectedCount, [string]$ExpectedSha256) {
+    if ($ExpectedCount -lt 1 -or $null -eq $Records -or $Records.Count -ne $ExpectedCount) {
+        throw ('PREPARED_METADATA_FILE_COUNT_MISMATCH: EXPECTED=' + $ExpectedCount + '; ACTUAL=' + $(if ($null -eq $Records) { 0 } else { $Records.Count }))
+    }
+    if ($ExpectedSha256 -notmatch '^[A-Fa-f0-9]{64}$') { throw 'PREPARED_METADATA_TREE_SHA256_INVALID' }
+    $observedSha256 = Get-SecureTreeRecordsSha256 -Records $Records
+    if ($observedSha256 -cne $ExpectedSha256.ToUpperInvariant()) {
+        throw ('PREPARED_METADATA_TREE_SHA256_MISMATCH: EXPECTED=' + $ExpectedSha256.ToUpperInvariant() + '; ACTUAL=' + $observedSha256)
+    }
+    return $observedSha256
+}
+
+function Assert-PrepareResultMatchesTrustedDigest([string]$PrepareText, [string]$ExpectedRunId,
+    [int]$ExpectedCount, [string]$ExpectedSha256) {
+    if ($ExpectedCount -lt 1 -or $ExpectedSha256 -notmatch '^[A-Fa-f0-9]{64}$') {
+        throw 'TRUSTED_PREPARE_DIGEST_ARGUMENTS_INVALID'
+    }
+    if ([regex]::Matches($PrepareText, '(?m)^RUN_ID=' + [regex]::Escape($ExpectedRunId) + '$').Count -ne 1) {
+        throw 'PREPARATION_RESULT_OR_RUN_ID_MISMATCH'
+    }
+    if ([regex]::Matches($PrepareText, '(?m)^METADATA_COUNT=([1-9][0-9]*)$').Count -ne 1 -or
+        $PrepareText -notmatch '(?m)^METADATA_COUNT=([1-9][0-9]*)$' -or [int]$Matches[1] -ne $ExpectedCount) {
+        throw 'TRUSTED_PREPARE_METADATA_COUNT_MISMATCH'
+    }
+    if ([regex]::Matches($PrepareText, '(?m)^METADATA_TREE_SHA256=([A-Fa-f0-9]{64})$').Count -ne 1 -or
+        $PrepareText -notmatch '(?m)^METADATA_TREE_SHA256=([A-Fa-f0-9]{64})$' -or
+        $Matches[1].ToUpperInvariant() -cne $ExpectedSha256.ToUpperInvariant()) {
+        throw 'TRUSTED_PREPARE_METADATA_DIGEST_MISMATCH'
+    }
+    return [pscustomobject]@{ FileCount=$ExpectedCount; Sha256=$ExpectedSha256.ToUpperInvariant() }
+}
+
+function Get-SecureMetadataTreeNodes([string]$Root, [object]$LeaseSet = $null) {
+    if ([string]::IsNullOrWhiteSpace($Root) -or -not [IO.Path]::IsPathRooted($Root) -or $Root -match '(^|[\\/])\.\.([\\/]|$)') {
+        throw 'SECURE_METADATA_ROOT_NOT_ABSOLUTE_OR_TRAVERSAL_FREE'
+    }
+    $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@([char]92,[char]47))
+    $rootPrefix = $rootFull + [IO.Path]::DirectorySeparatorChar
+    $pending = New-Object 'System.Collections.Generic.Stack[string]'
+    $nodes = New-Object 'System.Collections.Generic.List[object]'
+    $pending.Push($rootFull)
+    while ($pending.Count -gt 0) {
+        $path = $pending.Pop()
+        $attributes = [IO.File]::GetAttributes($path)
+        $isDirectory = (($attributes -band [IO.FileAttributes]::Directory) -ne 0)
+        if (($attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw ('SECURE_METADATA_REPARSE_POINT_REJECTED:' + $path) }
+        if ($isDirectory) {
+            if ($null -ne $LeaseSet) {
+                if (-not $LeaseSet.HasDirectoryLease($path)) { $LeaseSet.LockDirectory($path) }
+            } else {
+                $directoryHandle = [S3T03SafeFile]::OpenDirectory($path)
+                $directoryHandle.Dispose()
+            }
+        } else {
+            $fileHandle = [S3T03SafeFile]::OpenReadLeaf($path)
+            $fileHandle.Dispose()
+        }
+        $nodes.Add([pscustomobject]@{ Path=$path; IsDirectory=$isDirectory })
+        if (-not $isDirectory) { continue }
+        foreach ($entry in [IO.Directory]::GetFileSystemEntries($path)) {
+            $entryFull = [IO.Path]::GetFullPath($entry)
+            if (-not $entryFull.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                throw ('SECURE_METADATA_ENTRY_OUTSIDE_ROOT:' + $entryFull)
+            }
+            $pending.Push($entryFull)
+        }
+    }
+    return $nodes.ToArray()
+}
+
+function Test-SecureMetadataDenyAce([object]$Acl, [Security.Principal.SecurityIdentifier]$Sid,
+    [Security.AccessControl.FileSystemRights]$RequiredRights, [bool]$RequireInherited) {
+    foreach ($rule in $Acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])) {
+        if ($rule.AccessControlType -ne [Security.AccessControl.AccessControlType]::Deny -or
+            $rule.IsInherited -ne $RequireInherited -or
+            -not [string]::Equals($rule.IdentityReference.Value, $Sid.Value, [StringComparison]::OrdinalIgnoreCase)) { continue }
+        $observedRights = [int64]$rule.FileSystemRights
+        $requiredMask = [int64]$RequiredRights
+        if (($observedRights -band $requiredMask) -eq $requiredMask) { return $true }
+    }
+    return $false
+}
+
+function Protect-SecureMetadataTree([string]$Root, [object]$LeaseSet,
+    [ref]$OriginalSnapshots, [ref]$OriginalRootDaclSddl) {
+    $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@([char]92,[char]47))
+    $null = $LeaseSet.HasDirectoryLease($rootFull)
+    $rootNodes = @(Get-SecureMetadataTreeNodes -Root $rootFull -LeaseSet $LeaseSet)
+    if ($rootNodes.Count -lt 1 -or -not $rootNodes[0].IsDirectory -or
+        -not [string]::Equals($rootNodes[0].Path, $rootFull, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'SECURE_METADATA_ROOT_NODE_INVALID'
+    }
+    $snapshots = @{}
+    foreach ($node in $rootNodes) {
+        $acl = Get-Acl -LiteralPath $node.Path -ErrorAction Stop
+        $sddl = $acl.GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::Access)
+        $snapshots[$node.Path] = [pscustomobject]@{ Path=$node.Path; IsDirectory=$node.IsDirectory; Acl=$acl; Sddl=$sddl }
+    }
+    $OriginalSnapshots.Value = $snapshots
+    $OriginalRootDaclSddl.Value = $snapshots[$rootFull].Sddl
+
+    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    if ($null -eq $identity.User) { throw 'SECURE_METADATA_CURRENT_USER_SID_MISSING' }
+    $sid = $identity.User
+    $denyRights = [Security.AccessControl.FileSystemRights]([int64]([Security.AccessControl.FileSystemRights]::WriteData -bor
+        [Security.AccessControl.FileSystemRights]::AppendData -bor
+        [Security.AccessControl.FileSystemRights]::WriteAttributes -bor
+        [Security.AccessControl.FileSystemRights]::WriteExtendedAttributes -bor
+        [Security.AccessControl.FileSystemRights]::Delete -bor
+        [Security.AccessControl.FileSystemRights]::DeleteSubdirectoriesAndFiles))
+    $denyRule = [Security.AccessControl.FileSystemAccessRule]::new($sid, $denyRights,
+        [Security.AccessControl.InheritanceFlags]::None, [Security.AccessControl.PropagationFlags]::None,
+        [Security.AccessControl.AccessControlType]::Deny)
+
+    $orderedNodes = @($rootNodes | Sort-Object -Property @{ Expression={ $_.Path.Split([char[]]@([char]92)).Length } }, @{ Expression={ $_.Path }; Ascending=$true })
+    foreach ($node in $orderedNodes) {
+        $acl = Get-Acl -LiteralPath $node.Path -ErrorAction Stop
+        $acl.AddAccessRule($denyRule)
+        Set-Acl -LiteralPath $node.Path -AclObject $acl -ErrorAction Stop
+        $verifiedAcl = Get-Acl -LiteralPath $node.Path -ErrorAction Stop
+        if (-not (Test-SecureMetadataDenyAce -Acl $verifiedAcl -Sid $sid -RequiredRights $denyRights -RequireInherited $false)) {
+            throw ('SECURE_METADATA_EXPLICIT_DENY_ACE_MISSING:' + $node.Path)
+        }
+        if (-not $node.IsDirectory -and -not $LeaseSet.HasFileLease($node.Path)) {
+            $LeaseSet.LockExistingReadOnly($node.Path)
+        }
+    }
+
+    $afterNodes = @(Get-SecureMetadataTreeNodes -Root $rootFull -LeaseSet $LeaseSet)
+    if ($afterNodes.Count -ne $rootNodes.Count) { throw 'SECURE_METADATA_TREE_CARDINALITY_CHANGED_DURING_FREEZE' }
+    foreach ($node in $afterNodes) {
+        if (-not $snapshots.ContainsKey($node.Path)) { throw ('SECURE_METADATA_TREE_ENTRY_ADDED_DURING_FREEZE:' + $node.Path) }
+        $acl = Get-Acl -LiteralPath $node.Path -ErrorAction Stop
+        if (-not (Test-SecureMetadataDenyAce -Acl $acl -Sid $sid -RequiredRights $denyRights -RequireInherited $false)) {
+            throw ('SECURE_METADATA_TREE_ENTRY_NOT_FROZEN:' + $node.Path)
+        }
+    }
+}
+
+function Restore-SecureMetadataTree([string]$Root, [object]$LeaseSet,
+    [hashtable]$OriginalSnapshots, [string]$OriginalRootDaclSddl) {
+    if ($null -eq $OriginalSnapshots -or $OriginalSnapshots.Count -lt 1 -or [string]::IsNullOrWhiteSpace($OriginalRootDaclSddl)) {
+        throw 'SECURE_METADATA_ACL_RESTORE_SNAPSHOT_MISSING'
+    }
+    $rootFull = [IO.Path]::GetFullPath($Root).TrimEnd([char[]]@([char]92,[char]47))
+    if (-not $OriginalSnapshots.ContainsKey($rootFull) -or
+        -not [string]::Equals($OriginalSnapshots[$rootFull].Sddl, $OriginalRootDaclSddl, [StringComparison]::Ordinal)) {
+        throw 'SECURE_METADATA_ROOT_ACL_SNAPSHOT_MISMATCH'
+    }
+    $LeaseSet.ReleaseLeasesUnder($rootFull)
+    $orderedSnapshots = @($OriginalSnapshots.Values | Sort-Object -Property @{ Expression={ $_.Path.Split([char[]]@([char]92)).Length }; Descending=$true }, @{ Expression={ $_.Path }; Descending=$true })
+    foreach ($snapshot in $orderedSnapshots) {
+        Set-Acl -LiteralPath $snapshot.Path -AclObject $snapshot.Acl -ErrorAction Stop
+    }
+    foreach ($snapshot in $OriginalSnapshots.Values) {
+        $actualAcl = Get-Acl -LiteralPath $snapshot.Path -ErrorAction Stop
+        $actualSddl = $actualAcl.GetSecurityDescriptorSddlForm([Security.AccessControl.AccessControlSections]::Access)
+        if (-not [string]::Equals($actualSddl, $snapshot.Sddl, [StringComparison]::Ordinal)) {
+            throw ('SECURE_METADATA_ACL_RESTORE_MISMATCH:' + $snapshot.Path)
+        }
+    }
+    $restoredNodes = @(Get-SecureMetadataTreeNodes -Root $rootFull)
+    if ($restoredNodes.Count -ne $OriginalSnapshots.Count) { throw 'SECURE_METADATA_TREE_SHAPE_CHANGED_AFTER_ACL_RESTORE' }
+    foreach ($node in $restoredNodes) {
+        if (-not $OriginalSnapshots.ContainsKey($node.Path)) { throw ('SECURE_METADATA_UNTRACKED_NODE_AFTER_ACL_RESTORE:' + $node.Path) }
     }
 }
 
@@ -892,6 +1901,33 @@ function New-DirectCommandLine([string]$Executable, [string[]]$Arguments) {
 
 function ConvertTo-PowerShellLiteral([string]$Value) {
     return "'" + $Value.Replace("'", "''") + "'"
+}
+
+function New-PrepareDigestPipeClientCode([string]$PipeName, [string]$RunId,
+    [string]$ClaimedProcessIdExpression, [int]$FileCount, [string]$Digest) {
+    if ($Digest -notmatch '^[A-Fa-f0-9]{64}$' -or $FileCount -lt 1) { throw 'SELFTEST_DIGEST_ARGUMENTS_INVALID' }
+    $prefix = ConvertTo-PowerShellLiteral ('S3_PREP_METADATA_DIGEST=' + $RunId + '|')
+    $suffix = ConvertTo-PowerShellLiteral ('|' + $FileCount.ToString([Globalization.CultureInfo]::InvariantCulture) + '|' + $Digest.ToUpperInvariant())
+    return '$pipeName=' + (ConvertTo-PowerShellLiteral $PipeName) +
+        ';$claimedPid=' + $ClaimedProcessIdExpression +
+        ';$pipe=[IO.Pipes.NamedPipeClientStream]::new(''.'',$pipeName,[IO.Pipes.PipeDirection]::Out);$pipe.Connect(5000);' +
+        'try{$bytes=[Text.Encoding]::ASCII.GetBytes(' + $prefix + '+[string]$claimedPid+' + $suffix + '+[char]10);' +
+        '$pipe.Write($bytes,0,$bytes.Length);$pipe.Flush()}finally{$pipe.Dispose()}'
+}
+
+function New-PrepareDigestRawPipeClientCode([string]$PipeName, [string]$PayloadText,
+    [int]$HoldSeconds = 1, [string]$StdoutMarker = '') {
+    $code = '$ErrorActionPreference=''Stop'';$pipeName=' + (ConvertTo-PowerShellLiteral $PipeName) +
+        ';$payloadText=' + (ConvertTo-PowerShellLiteral $PayloadText) +
+        ';$payloadText=$payloadText.Replace(''__PID__'',[string]$PID);' +
+        '$bytes=[Text.Encoding]::UTF8.GetBytes($payloadText);' +
+        '$pipe=[IO.Pipes.NamedPipeClientStream]::new(''.'',$pipeName,[IO.Pipes.PipeDirection]::Out);' +
+        'try{$pipe.Connect(5000);try{$pipe.Write($bytes,0,$bytes.Length);$pipe.Flush()}catch{}}finally{$pipe.Dispose()}'
+    if (-not [string]::IsNullOrEmpty($StdoutMarker)) {
+        $code += ';[Console]::Out.WriteLine(' + (ConvertTo-PowerShellLiteral $StdoutMarker) + ')'
+    }
+    if ($HoldSeconds -gt 0) { $code += ';Start-Sleep -Seconds ' + $HoldSeconds.ToString([Globalization.CultureInfo]::InvariantCulture) }
+    return $code
 }
 
 function Get-WindowsPowerShellExecutable {
@@ -1289,6 +2325,47 @@ function Invoke-CapturedFailureAndThrow([string]$Directory, [string]$RunId, $Res
     throw $FailureMessage
 }
 
+function Invoke-PrepareDigestAuthenticationGate {
+    param(
+        [S3T03RunnerProcess]$PrepareProcess,
+        [string]$ExpectedRunId,
+        [string]$Directory,
+        [string]$RunId,
+        [string]$RunnerSha,
+        $Leases,
+        [ref]$CapturedFailureStatus,
+        [TimeSpan]$Elapsed,
+        $PrepareResult
+    )
+    if (-not $PrepareProcess) { throw 'PREPARE_DIGEST_PROCESS_REQUIRED' }
+    try {
+        $PrepareProcess.RequirePreparedMetadataDigest($ExpectedRunId)
+        return [pscustomobject]@{
+            Authenticated=$true
+            FileCount=$PrepareProcess.PreparedMetadataFileCount
+            Sha256=$PrepareProcess.PreparedMetadataTreeSha256
+            ProcessId=$PrepareProcess.PreparedMetadataTclProcessId
+            ParentProcessId=$PrepareProcess.PreparedMetadataTclParentProcessId
+        }
+    } catch {
+        $failure = [pscustomobject]@{
+            Result='PREPARE_DIGEST_AUTHENTICATION_FAILED'
+            StopReason='PREPARE_DIGEST_AUTHENTICATION_FAILED'
+            ExitCode=$PrepareProcess.ExitCode
+            Marker=$null
+            PrepareMarker=$(if ($PrepareResult) { $PrepareResult.Marker } else { $null })
+            ProcessId=$PrepareProcess.ProcessId
+            Elapsed=$Elapsed
+            LinkCheckDiagnostic='NOT_RUN'
+            LinkCheckPhase='NOT_RUN'
+            TreeExitConfirmed='TRUE'
+            TreeExitDiagnostic='PREPARE_PROCESS_EXIT_CONFIRMED'
+        }
+        Invoke-CapturedFailureAndThrow $Directory $RunId $failure $RunnerSha $Leases 'prepare' `
+            $CapturedFailureStatus ('受控准备阶段摘要认证失败：' + $_.Exception.Message)
+    }
+}
+
 function Invoke-RouteStartGate {
     param(
         $PrepareResult,
@@ -1379,6 +2456,16 @@ function Invoke-GuardedVivadoStart {
 function Assert-Test([bool]$Condition, [string]$Name) {
     if (-not $Condition) { throw ('SUPERVISOR_SELFTEST_FAILED: ' + $Name) }
     [Console]::Out.WriteLine('SUPERVISOR_TEST=PASS:' + $Name)
+}
+
+function Complete-PrepareDigestSelfTestProcess([S3T03RunnerProcess]$Process, [string]$CaseName, [int]$TimeoutSeconds = 12) {
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    while (-not $Process.HasExited -and [DateTime]::UtcNow -lt $deadline) { Start-Sleep -Milliseconds 25 }
+    if (-not $Process.HasExited -or -not $Process.WaitForTreeExit(5000)) {
+        $Process.TerminateTree(124)
+        throw ('PREPARE_DIGEST_SELFTEST_CHILD_TIMEOUT:' + $CaseName)
+    }
+    return $Process.ExitCode
 }
 
 function Assert-S3T03SelfTestAttributes([uint32]$Attributes, [bool]$Directory, [string]$Path) {
@@ -1508,6 +2595,10 @@ function Invoke-SupervisorSelfTests {
     [S3T03SafeFile]::WriteSingle($ownerMarker, $true, [Text.Encoding]::UTF8.GetBytes($ownerText))
     $unrelated = $null
     $secureLeases = $null
+    $treeMonitor = $null
+    $aclTreeRoot = $null
+    $aclTreeSnapshots = $null
+    $aclTreeOriginalSddl = $null
     $testExitCode = 1
     $testFailureMessage = $null
     $cleanupFailureMessage = $null
@@ -1572,6 +2663,388 @@ function Invoke-SupervisorSelfTests {
         $secureLeases.WriteHeld($normalPath, [Text.Encoding]::UTF8.GetBytes('updated-twice'))
         $normalText = [Text.Encoding]::UTF8.GetString($secureLeases.ReadHeld($normalPath))
         Assert-Test ($normalText -eq 'updated-twice') 'secure-create-and-repeated-update'
+        $sealedManifestPath = Join-Path $secureRoot 'sealed_manifest.txt'
+        $sealedManifestBytes = [Text.Encoding]::UTF8.GetBytes("snapshot`n")
+        $secureLeases.ReserveNew($sealedManifestPath)
+        $secureLeases.WriteHeld($sealedManifestPath, $sealedManifestBytes)
+        $sealedManifestSha = Get-Sha256Hex $sealedManifestBytes
+        $secureLeases.SealExistingReadOnly($sealedManifestPath)
+        $sealedManifestReadback = $secureLeases.ReadHeld($sealedManifestPath)
+        $sealedManifestWriteRejected = $false
+        try { $secureLeases.WriteHeld($sealedManifestPath, [Text.Encoding]::UTF8.GetBytes('changed')) }
+        catch { $sealedManifestWriteRejected = $true }
+        Assert-Test ((Get-Sha256Hex $sealedManifestReadback) -ceq $sealedManifestSha -and $sealedManifestWriteRejected) `
+            'manifest-lease-seals-verified-content-read-only'
+
+        $pinnedTreeRoot = Join-Path $secureRoot 'pinned-tree'
+        $secureLeases.CreateDirectory($pinnedTreeRoot)
+        $pinnedTreeFile = Join-Path $pinnedTreeRoot 'metadata.xml'
+        [S3T03SafeFile]::WriteWithinRoot($pinnedTreeFile, $secureRoot, $true, [Text.Encoding]::UTF8.GetBytes('pinned-metadata'))
+        $pinnedTreeRecords = @(Get-SecureTreeSha256Manifest -Root $pinnedTreeRoot -LeaseSet $secureLeases)
+        $pinnedTreeManifest = Format-SecureTreeSha256Manifest -Root $pinnedTreeRoot -Records $pinnedTreeRecords
+        Assert-Test ($pinnedTreeRecords.Count -eq 1 -and
+            $pinnedTreeManifest.Contains('FILE_COUNT=1') -and
+            $pinnedTreeManifest.Contains('  metadata.xml' + "`n")) 'supervisor-pins-and-formats-metadata-tree-after-prepare'
+        $pinnedTreeSha256 = Get-SecureTreeRecordsSha256 -Records $pinnedTreeRecords
+        $prepareChannelRunId = 'S3T03_DIGEST_SELFTEST'
+        $prepareChannelPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $inheritableProbeHandle = [S3T03RunnerProcess]::CreateInheritableEventForSelfTest()
+        $prepareChannelProcess = $null
+        $staleBoundTargetFailure = ''
+        try {
+            $handleProbeSource = 'using System;using System.Runtime.InteropServices;public static class S3T03HandleProbe{[DllImport("kernel32.dll",SetLastError=true)]public static extern bool GetHandleInformation(IntPtr h,out uint f);[DllImport("kernel32.dll",SetLastError=true)]public static extern bool SetEvent(IntPtr h);}'
+            $prepareChannelCode = '$ErrorActionPreference=''Stop'';$source=' + (ConvertTo-PowerShellLiteral $handleProbeSource) +
+                ';Add-Type -TypeDefinition $source;$flags=[uint32]0;if([S3T03HandleProbe]::GetHandleInformation([IntPtr]' +
+                $inheritableProbeHandle.ToInt64().ToString([Globalization.CultureInfo]::InvariantCulture) + ',[ref]$flags)){[void][S3T03HandleProbe]::SetEvent([IntPtr]' +
+                $inheritableProbeHandle.ToInt64().ToString([Globalization.CultureInfo]::InvariantCulture) + ')};' +
+                (New-PrepareDigestPipeClientCode $prepareChannelPipeName $prepareChannelRunId '$PID' 1 $pinnedTreeSha256) +
+                ';Start-Sleep -Seconds 2'
+            $prepareChannelEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($prepareChannelCode))
+            $prepareChannelCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$prepareChannelEncoded)
+            $prepareChannelProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$prepareChannelCommand,$repoRoot,$prepareChannelRunId,$powershellExe,$prepareChannelPipeName)
+            $channelExitCode = Complete-PrepareDigestSelfTestProcess $prepareChannelProcess 'trusted-channel-and-handle-whitelist'
+            if ($channelExitCode -ne 0) { throw ('PREPARE_DIGEST_HANDLE_WHITELIST_CHILD_EXITED:' + $channelExitCode) }
+            $prepareChannelProcess.RequirePreparedMetadataDigest($prepareChannelRunId)
+            $channelReportedCount = $prepareChannelProcess.PreparedMetadataFileCount
+            $channelReportedSha256 = $prepareChannelProcess.PreparedMetadataTreeSha256
+            $staleBoundTargetFailure = $prepareChannelProcess.ValidateBoundPrepareTclProcessForSelfTest(
+                $prepareChannelProcess.BoundPrepareTclProcessId)
+            $unlistedHandleSignaledParentEvent = [S3T03RunnerProcess]::IsSelfTestEventSignaled($inheritableProbeHandle)
+        } finally {
+            if ($prepareChannelProcess) { $prepareChannelProcess.Dispose() }
+            [S3T03RunnerProcess]::CloseSelfTestHandle($inheritableProbeHandle)
+        }
+        Assert-Test ($channelReportedCount -eq 1 -and $channelReportedSha256 -ceq $pinnedTreeSha256 -and
+            -not $unlistedHandleSignaledParentEvent) `
+            'prepare-digest-authenticates-named-pipe-client-job-image-and-handle-whitelist'
+        Assert-Test ($staleBoundTargetFailure -eq 'PREPARE_DIGEST_TCL_LAUNCH_TARGET_EXITED_AFTER_BIND') `
+            ('prepare-digest-rejects-stale-bound-process-handle-with-same-reported-pid; OBSERVED=' + $staleBoundTargetFailure)
+        Assert-Test ([S3T03RunnerProcess]::VerifyCurrentUserPipeAclForSelfTest()) `
+            'prepare-digest-pipe-acl-allows-only-current-user'
+
+        $nonJobRunId = 'S3T03_NON_JOB_PID_SELFTEST'
+        $nonJobPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $nonJobCode = 'Start-Sleep -Seconds 2'
+        $nonJobEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($nonJobCode))
+        $nonJobCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$nonJobEncoded)
+        $nonJobProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$nonJobCommand,$repoRoot,$nonJobRunId,$powershellExe,$nonJobPipeName)
+        $nonJobFailure = ''
+        $nonJobWriteRejected = $false
+        try {
+            $nonJobPipeClient = [IO.Pipes.NamedPipeClientStream]::new('.',$nonJobPipeName,[IO.Pipes.PipeDirection]::Out)
+            try {
+                $nonJobPipeClient.Connect(5000)
+                $nonJobPayload = [Text.Encoding]::ASCII.GetBytes('S3_PREP_METADATA_DIGEST=' + $nonJobRunId + '|' +
+                    ([uint32]$PID).ToString([Globalization.CultureInfo]::InvariantCulture) + '|1|' + $pinnedTreeSha256 + "`n")
+                $nonJobPipeClient.Write($nonJobPayload,0,$nonJobPayload.Length)
+                $nonJobPipeClient.Flush()
+            } catch { $nonJobWriteRejected = $true
+            } finally { $nonJobPipeClient.Dispose() }
+            $nonJobExitCode = Complete-PrepareDigestSelfTestProcess $nonJobProcess 'non-job-pid-rejection'
+            if ($nonJobExitCode -ne 0) { throw ('NON_JOB_PID_SELFTEST_CHILD_EXITED:' + $nonJobExitCode) }
+            try { $nonJobProcess.RequirePreparedMetadataDigest($nonJobRunId) }
+            catch { $nonJobFailure = $_.Exception.ToString() }
+        } finally { $nonJobProcess.Dispose() }
+        Assert-Test (($nonJobFailure.Contains('PREPARE_DIGEST_PIPE_CLIENT_PID_NOT_EXACT_LAUNCH_TARGET') -or
+            $nonJobFailure.Contains('PREPARE_DIGEST_TCL_PROCESS_NOT_IN_JOB')) -and $nonJobWriteRejected) `
+            ('prepare-digest-rejects-non-job-client; WRITE_REJECTED=' + $nonJobWriteRejected + '; OBSERVED=' + $nonJobFailure)
+
+        $wrongImageRunId = 'S3T03_WRONG_IMAGE_SELFTEST'
+        $wrongImagePipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $wrongImageCode = '$ErrorActionPreference=''Stop'';try{' +
+            (New-PrepareDigestPipeClientCode $wrongImagePipeName $wrongImageRunId '$PID' 1 $pinnedTreeSha256) +
+            '}catch{};Start-Sleep -Seconds 2'
+        $wrongImageEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($wrongImageCode))
+        $wrongImageCommand = New-BatchCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$wrongImageEncoded)
+        $wrongImageProcess = [S3T03RunnerProcess]::StartForPrepare($comSpec,$wrongImageCommand,$repoRoot,$wrongImageRunId,$comSpec,$wrongImagePipeName)
+        $wrongImageFailure = ''
+        try {
+            $wrongImageExitCode = Complete-PrepareDigestSelfTestProcess $wrongImageProcess 'wrong-image-rejection'
+            if ($wrongImageExitCode -ne 0) { throw ('WRONG_IMAGE_SELFTEST_CHILD_EXITED:' + $wrongImageExitCode) }
+            try { $wrongImageProcess.RequirePreparedMetadataDigest($wrongImageRunId) }
+            catch { $wrongImageFailure = $_.Exception.ToString() }
+        } finally { $wrongImageProcess.Dispose() }
+        Assert-Test ($wrongImageFailure.Contains('PREPARE_DIGEST_PIPE_CLIENT_PID_NOT_EXACT_LAUNCH_TARGET')) `
+            'prepare-digest-rejects-wrong-image-pipe-client-not-the-fixed-launch-target'
+
+        $treeHelperRunId = 'S3T03_TREE_HELPER_PID_SELFTEST'
+        $treeHelperPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $treeHelperChildCode = New-PrepareDigestPipeClientCode $treeHelperPipeName $treeHelperRunId '$PID' 1 $pinnedTreeSha256
+        $treeHelperChildEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($treeHelperChildCode))
+        $treeHelperChildArguments = (@('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$treeHelperChildEncoded) |
+            ForEach-Object { ConvertTo-WindowsArgument $_ }) -join ' '
+        $jobMembershipProbeSource = 'using System;using System.Runtime.InteropServices;public static class S3T03JobMembershipProbe{[DllImport("kernel32.dll",SetLastError=true)]public static extern bool IsProcessInJob(IntPtr process,IntPtr job,out bool result);}'
+        $treeHelperParentCode = '$ErrorActionPreference=''Stop'';$source=' + (ConvertTo-PowerShellLiteral $jobMembershipProbeSource) +
+            ';Add-Type -TypeDefinition $source;$psi=New-Object Diagnostics.ProcessStartInfo;' +
+            '$psi.FileName=' + (ConvertTo-PowerShellLiteral $powershellExe) +
+            ';$psi.Arguments=' + (ConvertTo-PowerShellLiteral $treeHelperChildArguments) +
+            ';$psi.UseShellExecute=$false;$psi.CreateNoWindow=$true;$helper=[Diagnostics.Process]::Start($psi);' +
+            '$inJob=$false;if(-not [S3T03JobMembershipProbe]::IsProcessInJob($helper.Handle,[IntPtr]::Zero,[ref]$inJob)-or-not $inJob){exit 91};' +
+            'if(-not $helper.WaitForExit(10000)){exit 92};Write-Output (''SELFTEST_SIBLING_REAL_PID='' + $helper.Id + '';EXIT='' + $helper.ExitCode);Start-Sleep -Seconds 2'
+        $treeHelperParentEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($treeHelperParentCode))
+        $treeHelperCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$treeHelperParentEncoded)
+        $treeHelperProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$treeHelperCommand,$repoRoot,$treeHelperRunId,$powershellExe,$treeHelperPipeName)
+        $treeHelperFailure = ''
+        try {
+            $treeHelperExitCode = Complete-PrepareDigestSelfTestProcess $treeHelperProcess 'tree-helper-pid-rejection'
+            if ($treeHelperExitCode -ne 0) { throw ('TREE_HELPER_PID_SELFTEST_CHILD_EXITED:' + $treeHelperExitCode) }
+            try { $treeHelperProcess.RequirePreparedMetadataDigest($treeHelperRunId) }
+            catch { $treeHelperFailure = $_.Exception.ToString() }
+        } finally { $treeHelperProcess.Dispose() }
+        Assert-Test ($treeHelperFailure.Contains('PREPARE_DIGEST_PIPE_CLIENT_PID_NOT_EXACT_LAUNCH_TARGET') -and
+            $treeHelperProcess.ObservedPrepareDigestClientProcessId -gt 0 -and
+            $treeHelperProcess.ObservedPrepareDigestClientProcessId -ne $treeHelperProcess.BoundPrepareTclProcessId) `
+            ('prepare-digest-rejects-same-job-same-image-sibling-using-real-pid; LAUNCH_PID=' + $treeHelperProcess.ProcessId +
+                '; BOUND_PID=' + $treeHelperProcess.BoundPrepareTclProcessId +
+                '; PIPE_CLIENT_PID=' + $treeHelperProcess.ObservedPrepareDigestClientProcessId + '; OBSERVED=' + $treeHelperFailure)
+
+        $negativeRunId = 'S3T03_PIPE_NEGATIVE_SELFTEST'
+        $negativeDigestLine = 'S3_PREP_METADATA_DIGEST=' + $negativeRunId + '|__PID__|1|' + $pinnedTreeSha256 + "`n"
+        $negativePipeCases = @(
+            @{ Name='non-ascii'; Payload=($negativeDigestLine + '非ASCII'); Expected='PREPARE_DIGEST_PIPE_MESSAGE_NOT_ASCII' },
+            @{ Name='oversized'; Payload=($negativeDigestLine + ('X' * 300)); Expected='PREPARE_DIGEST_PIPE_MESSAGE_TOO_LARGE' },
+            @{ Name='multiline'; Payload=($negativeDigestLine + 'EXTRA=1' + "`n"); Expected='PREPARE_DIGEST_PIPE_MESSAGE_LINE_FORMAT_INVALID' },
+            @{ Name='duplicate-lines'; Payload=($negativeDigestLine + $negativeDigestLine); Expected='PREPARE_DIGEST_PIPE_MESSAGE_LINE_FORMAT_INVALID' },
+            @{ Name='wrong-run-id'; Payload=('S3_PREP_METADATA_DIGEST=OTHER_RUN|__PID__|1|' + $pinnedTreeSha256 + "`n"); Expected='PREPARE_DIGEST_MESSAGE_FORMAT_OR_RUN_ID_INVALID' }
+        )
+        foreach ($negativePipeCase in $negativePipeCases) {
+            $negativePipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+            $negativePipeCode = New-PrepareDigestRawPipeClientCode $negativePipeName $negativePipeCase.Payload
+            $negativePipeEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($negativePipeCode))
+            $negativePipeCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$negativePipeEncoded)
+            $negativePipeProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$negativePipeCommand,$repoRoot,
+                $negativeRunId,$powershellExe,$negativePipeName)
+            $negativePipeFailure = ''
+            try {
+                $negativePipeExitCode = Complete-PrepareDigestSelfTestProcess $negativePipeProcess ('pipe-' + $negativePipeCase.Name)
+                if ($negativePipeExitCode -ne 0) { throw ('NEGATIVE_PIPE_SELFTEST_CHILD_EXITED:' + $negativePipeCase.Name + ':' + $negativePipeExitCode) }
+                try { $negativePipeProcess.RequirePreparedMetadataDigest($negativeRunId) }
+                catch { $negativePipeFailure = $_.Exception.ToString() }
+            } finally { $negativePipeProcess.Dispose() }
+            Assert-Test ($negativePipeFailure.Contains($negativePipeCase.Expected)) `
+                ('prepare-digest-fails-closed-' + $negativePipeCase.Name + '; OBSERVED=' + $negativePipeFailure)
+        }
+
+        $stdoutForgeryRunId = 'S3T03_STDOUT_FORGERY_SELFTEST'
+        $stdoutForgeryPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $stdoutForgeryPayload = 'S3_PREP_METADATA_DIGEST=' + $stdoutForgeryRunId + '|__PID__|1|' + $pinnedTreeSha256 + "`n"
+        $stdoutForgeryMarker = 'S3_PREP_METADATA_DIGEST=' + $stdoutForgeryRunId + '|999999|1|' + $pinnedTreeSha256
+        $stdoutForgeryCode = New-PrepareDigestRawPipeClientCode $stdoutForgeryPipeName $stdoutForgeryPayload 1 $stdoutForgeryMarker
+        $stdoutForgeryEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($stdoutForgeryCode))
+        $stdoutForgeryCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$stdoutForgeryEncoded)
+        $stdoutForgeryProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$stdoutForgeryCommand,$repoRoot,
+            $stdoutForgeryRunId,$powershellExe,$stdoutForgeryPipeName)
+        $stdoutForgeryFailure = ''
+        try {
+            $stdoutForgeryExitCode = Complete-PrepareDigestSelfTestProcess $stdoutForgeryProcess 'pipe-with-stdout-forgery'
+            if ($stdoutForgeryExitCode -ne 0) { throw ('STDOUT_FORGERY_SELFTEST_CHILD_EXITED:' + $stdoutForgeryExitCode) }
+            try { $stdoutForgeryProcess.RequirePreparedMetadataDigest($stdoutForgeryRunId) }
+            catch { $stdoutForgeryFailure = $_.Exception.ToString() }
+        } finally { $stdoutForgeryProcess.Dispose() }
+        Assert-Test ($stdoutForgeryFailure.Contains('PREPARE_DIGEST_UNTRUSTED_STDOUT_MARKER')) `
+            ('valid-pipe-digest-plus-stdout-forgery-fails-as-a-whole; OBSERVED=' + $stdoutForgeryFailure)
+
+        $noClientRunId = 'S3T03_NO_PIPE_CLIENT_SELFTEST'
+        $noClientPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $noClientCode = 'Start-Sleep -Seconds 1'
+        $noClientEncoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($noClientCode))
+        $noClientCommand = New-DirectCommandLine $powershellExe @('-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',$noClientEncoded)
+        $noClientProcess = [S3T03RunnerProcess]::StartForPrepare($powershellExe,$noClientCommand,$repoRoot,
+            $noClientRunId,$powershellExe,$noClientPipeName)
+        $noClientFailure = ''
+        try {
+            $noClientExitCode = Complete-PrepareDigestSelfTestProcess $noClientProcess 'pipe-no-client-timeout'
+            if ($noClientExitCode -ne 0) { throw ('NO_CLIENT_SELFTEST_CHILD_EXITED:' + $noClientExitCode) }
+            try { $noClientProcess.RequirePreparedMetadataDigest($noClientRunId) }
+            catch { $noClientFailure = $_.Exception.ToString() }
+        } finally { $noClientProcess.Dispose() }
+        Assert-Test ($noClientFailure.Contains('PREPARE_DIGEST_PIPE_READ_TIMEOUT')) `
+            ('prepare-digest-no-client-times-out-fail-closed; OBSERVED=' + $noClientFailure)
+
+        $realVivadoPipeRunId = 'SELFTEST_DIGEST_PIPE'
+        $realVivadoSiblingPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $realVivadoSiblingLog = Join-Path $testRoot 'vivado_digest_sibling_selftest.log'
+        $realVivadoSiblingJournal = Join-Path $testRoot 'vivado_digest_sibling_selftest.jou'
+        $realVivadoTclScript = Join-Path $repoRoot 'scripts\s3_implement_hdmi_only_diag.tcl'
+        $realVivadoSiblingArgs = @('-mode','batch','-log',(Join-Path $testRoot 'vivado_digest_sibling_parent.log'),
+            '-journal',(Join-Path $testRoot 'vivado_digest_sibling_parent.jou'),'-source','scripts/s3_implement_hdmi_only_diag.tcl',
+            '-tclargs','--selftest-launch-same-image-sibling',$realVivadoSiblingPipeName,
+            $realVivadoSiblingLog,$realVivadoSiblingJournal,$realVivadoTclScript)
+        $realVivadoSiblingCommand = New-BatchCommandLine $vivadoBat $realVivadoSiblingArgs
+        $realVivadoSiblingProcess = Invoke-GuardedVivadoStart -ProcessStartAction {
+            [S3T03RunnerProcess]::StartForPrepare($comSpec,$realVivadoSiblingCommand,$repoRoot,
+                $realVivadoPipeRunId,$vivadoInstall.ExecutablePath,$realVivadoSiblingPipeName)
+        }
+        $realVivadoSiblingFailure = ''
+        $realVivadoSiblingE2eRoot = Join-Path $testRoot 'real-vivado-sibling-prepare-e2e'
+        $realVivadoSiblingE2eLeases = Initialize-SafeOutputLeases $realVivadoSiblingE2eRoot
+        $realVivadoSiblingE2eCaptured = $null
+        $realVivadoSiblingE2eCatchAction = ''
+        $realVivadoSiblingE2eRouteActionState = [pscustomobject]@{ Count=0 }
+        $realVivadoSiblingE2eStatus = ''
+        try {
+            $realVivadoSiblingExitCode = Complete-PrepareDigestSelfTestProcess $realVivadoSiblingProcess 'real-vivado-same-image-sibling' 120
+            if ($realVivadoSiblingExitCode -ne 0) {
+                $siblingLogTail = if (Test-Path -LiteralPath (Join-Path $testRoot 'vivado_digest_sibling_parent.log') -PathType Leaf) {
+                    (Get-Content -LiteralPath (Join-Path $testRoot 'vivado_digest_sibling_parent.log') -Tail 30 -ErrorAction SilentlyContinue) -join ' | '
+                } else { 'VIVADO_SIBLING_PARENT_LOG_MISSING' }
+                throw ('REAL_VIVADO_SIBLING_SELFTEST_PARENT_EXITED:' + $realVivadoSiblingExitCode + '; LOG=' + $siblingLogTail)
+            }
+            $realVivadoSiblingE2ePrepareResult = [pscustomobject]@{
+                Result='SUCCESS'; StopReason='PROCESS_EXITED'; ExitCode=$realVivadoSiblingExitCode
+                Marker=[pscustomobject]@{ Kind='PASS'; Code='PREPARED'; Line='S3_TCL_RESULT=PASS:PREPARED' }
+                ProcessId=$realVivadoSiblingProcess.ProcessId; Elapsed=[TimeSpan]::FromSeconds(1)
+            }
+            try {
+                $realVivadoSiblingAuthorization = Invoke-PrepareDigestAuthenticationGate `
+                    $realVivadoSiblingProcess $realVivadoPipeRunId $realVivadoSiblingE2eRoot $realVivadoPipeRunId `
+                    'selftest-runner-sha' $realVivadoSiblingE2eLeases ([ref]$realVivadoSiblingE2eCaptured) `
+                    ([TimeSpan]::FromSeconds(1)) $realVivadoSiblingE2ePrepareResult
+                $realVivadoSiblingRouteAction = {
+                    param([DateTime]$RouteDeadlineUtc)
+                    $realVivadoSiblingE2eRouteActionState.Count++
+                    'ROUTE_ACTION_INVOKED'
+                }.GetNewClosure()
+                [void](Invoke-RouteStartGate -PrepareResult $realVivadoSiblingE2ePrepareResult `
+                    -StartedAt ([DateTime]::UtcNow) -MaxRuntime ([TimeSpan]::FromMinutes(1)) `
+                    -Directory $realVivadoSiblingE2eRoot -RunId $realVivadoPipeRunId `
+                    -RunnerSha 'selftest-runner-sha' -Leases $realVivadoSiblingE2eLeases `
+                    -CapturedFailureStatus ([ref]$realVivadoSiblingE2eCaptured) `
+                    -FailureMessage 'SELFTEST_SIBLING_AUTHENTICATION_FAILURE' -RouteStartAction $realVivadoSiblingRouteAction)
+            } catch {
+                $realVivadoSiblingFailure = $_.Exception.ToString()
+                $realVivadoSiblingE2eCatchAction = Invoke-RunnerCatchStatusHandler `
+                    $realVivadoSiblingE2eRoot $realVivadoPipeRunId 'selftest-runner-sha' `
+                    ([TimeSpan]::FromSeconds(1)) $realVivadoSiblingE2eLeases $realVivadoSiblingE2eCaptured
+            }
+            $realVivadoSiblingE2eStatus = [Text.Encoding]::UTF8.GetString(
+                $realVivadoSiblingE2eLeases.ReadHeld((Join-Path $realVivadoSiblingE2eRoot 'runner_status.txt')))
+        } finally {
+            $realVivadoSiblingProcess.Dispose()
+            $realVivadoSiblingE2eLeases.Dispose()
+        }
+        $realVivadoSiblingLogTail = if (Test-Path -LiteralPath $realVivadoSiblingLog -PathType Leaf) {
+            (Get-Content -LiteralPath $realVivadoSiblingLog -Tail 30 -ErrorAction SilentlyContinue) -join ' | '
+        } else { 'VIVADO_SIBLING_LOG_MISSING' }
+        $realVivadoSiblingParentLog = Join-Path $testRoot 'vivado_digest_sibling_parent.log'
+        $realVivadoSiblingParentLogTail = if (Test-Path -LiteralPath $realVivadoSiblingParentLog -PathType Leaf) {
+            (Get-Content -LiteralPath $realVivadoSiblingParentLog -Tail 30 -ErrorAction SilentlyContinue) -join ' | '
+        } else { 'VIVADO_SIBLING_PARENT_LOG_MISSING' }
+        Assert-Test ($realVivadoSiblingFailure.Contains('PREPARE_DIGEST_PIPE_CLIENT_PID_NOT_EXACT_LAUNCH_TARGET') -and
+            $realVivadoSiblingProcess.BoundPrepareTclProcessId -gt 0 -and
+            $realVivadoSiblingProcess.PreparedMetadataTclParentProcessId -eq $realVivadoSiblingProcess.ProcessId -and
+            $realVivadoSiblingProcess.ObservedPrepareDigestClientProcessId -gt 0 -and
+            $realVivadoSiblingProcess.ObservedPrepareDigestClientParentProcessId -eq $realVivadoSiblingProcess.BoundPrepareTclProcessId -and
+            $realVivadoSiblingProcess.ObservedPrepareDigestClientProcessId -ne $realVivadoSiblingProcess.BoundPrepareTclProcessId -and
+            $realVivadoSiblingE2eCaptured.Written -and
+            $realVivadoSiblingE2eStatus.Contains('S3_RUNNER_RESULT=PREPARE_DIGEST_AUTHENTICATION_FAILED') -and
+            -not $realVivadoSiblingE2eStatus.Contains('S3_RUNNER_RESULT=SUCCESS') -and
+            $realVivadoSiblingE2eRouteActionState.Count -eq 0 -and
+            $realVivadoSiblingE2eCatchAction -eq 'CAPTURED_FAILURE_PRESERVED') `
+            ('real-vivado-same-image-sibling-fails-prepare-terminal-and-route-is-not-started; CMD_PID=' + $realVivadoSiblingProcess.ProcessId +
+                '; BOUND_VIVADO_PID=' + $realVivadoSiblingProcess.BoundPrepareTclProcessId +
+                '; PIPE_CLIENT_PID=' + $realVivadoSiblingProcess.ObservedPrepareDigestClientProcessId +
+                '; PIPE_CLIENT_PARENT_PID=' + $realVivadoSiblingProcess.ObservedPrepareDigestClientParentProcessId +
+                '; CAPTURED=' + $realVivadoSiblingE2eCaptured.Result +
+                '; ROUTE_START_COUNT=' + $realVivadoSiblingE2eRouteActionState.Count +
+                '; STATUS=' + $realVivadoSiblingE2eStatus.Replace("`n",'|') +
+                '; OBSERVED=' + $realVivadoSiblingFailure +
+                '; PARENT_LOG=' + $realVivadoSiblingParentLogTail + '; SIBLING_LOG=' + $realVivadoSiblingLogTail)
+
+        $realVivadoPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
+        $realVivadoLog = Join-Path $testRoot 'vivado_digest_pipe_selftest.log'
+        $realVivadoJournal = Join-Path $testRoot 'vivado_digest_pipe_selftest.jou'
+        $realVivadoArgs = @('-mode','batch','-log',$realVivadoLog,'-journal',$realVivadoJournal,
+            '-source','scripts/s3_implement_hdmi_only_diag.tcl','-tclargs','--selftest-digest-pipe',$realVivadoPipeName)
+        $realVivadoCommand = New-BatchCommandLine $vivadoBat $realVivadoArgs
+        $realVivadoPipeProcess = Invoke-GuardedVivadoStart -ProcessStartAction {
+            [S3T03RunnerProcess]::StartForPrepare($comSpec,$realVivadoCommand,$repoRoot,
+                $realVivadoPipeRunId,$vivadoInstall.ExecutablePath,$realVivadoPipeName)
+        }
+        $realVivadoClientPid = [uint32]0
+        try {
+            $realVivadoExitCode = Complete-PrepareDigestSelfTestProcess $realVivadoPipeProcess 'real-vivado-digest-pipe' 120
+            if ($realVivadoExitCode -ne 0) {
+                $realVivadoLogTail = if (Test-Path -LiteralPath $realVivadoLog -PathType Leaf) { (Get-Content -LiteralPath $realVivadoLog -Tail 30 -ErrorAction SilentlyContinue) -join ' | ' } else { 'VIVADO_LOG_MISSING' }
+                throw ('REAL_VIVADO_DIGEST_PIPE_CHILD_EXITED:' + $realVivadoExitCode + '; LOG=' + $realVivadoLogTail)
+            }
+            $realVivadoPipeProcess.RequirePreparedMetadataDigest($realVivadoPipeRunId)
+            $realVivadoClientPid = $realVivadoPipeProcess.PreparedMetadataTclProcessId
+        } finally { $realVivadoPipeProcess.Dispose() }
+        Assert-Test ($realVivadoClientPid -gt 0) ('real-vivado-tcl-authenticated-named-pipe-client-pid=' + $realVivadoClientPid)
+
+        $verifiedPreparedTreeSha256 = Assert-PreparedMetadataTreeSha256 -Records $pinnedTreeRecords `
+            -ExpectedCount 1 -ExpectedSha256 $pinnedTreeSha256
+        $tamperedTreeRecords = @(('A' * 64) + [char]9 + 'metadata.xml')
+        $tamperedTreeRejected = $false
+        try { Assert-PreparedMetadataTreeSha256 -Records $tamperedTreeRecords -ExpectedCount 1 -ExpectedSha256 $pinnedTreeSha256 }
+        catch { $tamperedTreeRejected = $_.Exception.Message.Contains('PREPARED_METADATA_TREE_SHA256_MISMATCH') }
+        $forgedTreeSha256 = Get-SecureTreeRecordsSha256 -Records $tamperedTreeRecords
+        $forgedPrepareText = "S3_TCL_RESULT=PASS:PREPARED`nRUN_ID=$prepareChannelRunId`nMETADATA_COUNT=1`nMETADATA_TREE_SHA256=$forgedTreeSha256`n"
+        $forgedMarkerRejected = $false
+        try {
+            Assert-PrepareResultMatchesTrustedDigest -PrepareText $forgedPrepareText -ExpectedRunId $prepareChannelRunId `
+                -ExpectedCount $channelReportedCount -ExpectedSha256 $channelReportedSha256
+        } catch { $forgedMarkerRejected = $_.Exception.Message.Contains('TRUSTED_PREPARE_METADATA_DIGEST_MISMATCH') }
+        Assert-Test ($verifiedPreparedTreeSha256 -ceq $pinnedTreeSha256 -and $tamperedTreeRejected -and $forgedMarkerRejected) `
+            'trusted-prepare-channel-rejects-same-count-metadata-and-marker-forgery'
+        $treeMonitor = New-Object S3T03TreeMonitor($pinnedTreeRoot)
+        $stableTreeStatus = $treeMonitor.Status()
+        Assert-Test ($stableTreeStatus -eq 'EVENT_COUNT=0;ERROR_COUNT=0;ERROR=') 'metadata-tree-monitor-starts-clean'
+        $pinnedTreeWriter = $null
+        $pinnedTreeWriterRejected = $false
+        try { $pinnedTreeWriter = [IO.File]::Open($pinnedTreeFile, [IO.FileMode]::Open, [IO.FileAccess]::Write, [IO.FileShare]::ReadWrite) }
+        catch { $pinnedTreeWriterRejected = $true }
+        finally { if ($pinnedTreeWriter) { $pinnedTreeWriter.Dispose() } }
+        Assert-Test $pinnedTreeWriterRejected 'pinned-metadata-file-blocks-concurrent-writer'
+        $lateMetadataPath = Join-Path $pinnedTreeRoot 'late-added.xml'
+        [S3T03SafeFile]::WriteWithinRoot($lateMetadataPath, $secureRoot, $true, [Text.Encoding]::UTF8.GetBytes('late-metadata'))
+        $lateTreeRecords = @(Get-SecureTreeSha256Manifest -Root $pinnedTreeRoot)
+        $lateTreeManifest = Format-SecureTreeSha256Manifest -Root $pinnedTreeRoot -Records $lateTreeRecords
+        Assert-Test (-not [string]::Equals($lateTreeManifest, $pinnedTreeManifest, [StringComparison]::Ordinal)) `
+            'post-run-tree-recheck-detects-new-metadata-entry'
+        [S3T03SafeFile]::DeleteRegularFile($lateMetadataPath)
+        $treeMonitor.StopAndDrain()
+        $changedTreeStatus = $treeMonitor.Status()
+        $treeMonitor.Dispose()
+        Assert-Test ($changedTreeStatus -match '^EVENT_COUNT=[1-9][0-9]*;ERROR_COUNT=0;ERROR=$') `
+            'metadata-tree-monitor-detects-transient-create-and-delete'
+
+        $aclTreeRoot = Join-Path $secureRoot 'acl-tree'
+        $secureLeases.CreateDirectory($aclTreeRoot)
+        $secureLeases.LockDirectoryChain($aclTreeRoot)
+        $aclTreeNested = Join-Path $aclTreeRoot 'nested'
+        $secureLeases.CreateDirectory($aclTreeNested)
+        $aclTreeFile = Join-Path $aclTreeNested 'metadata.xml'
+        [S3T03SafeFile]::WriteWithinRoot($aclTreeFile, $secureRoot, $true, [Text.Encoding]::UTF8.GetBytes('acl-original'))
+        $aclTreeOriginalText = [Text.Encoding]::UTF8.GetString([IO.File]::ReadAllBytes($aclTreeFile))
+        Protect-SecureMetadataTree -Root $aclTreeRoot -LeaseSet $secureLeases `
+            -OriginalSnapshots ([ref]$aclTreeSnapshots) -OriginalRootDaclSddl ([ref]$aclTreeOriginalSddl)
+        $aclWriteRejected = $false
+        try { [IO.File]::WriteAllText($aclTreeFile, 'acl-mutated', [Text.Encoding]::UTF8) }
+        catch { $aclWriteRejected = $true }
+        $aclRootCreateRejected = $false
+        $aclRootCreatePath = Join-Path $aclTreeRoot 'late.xml'
+        try { [IO.File]::WriteAllText($aclRootCreatePath, 'late', [Text.Encoding]::UTF8) }
+        catch { $aclRootCreateRejected = $true }
+        $aclNestedCreateRejected = $false
+        $aclNestedCreatePath = Join-Path $aclTreeNested 'late.xml'
+        try { [IO.File]::WriteAllText($aclNestedCreatePath, 'late', [Text.Encoding]::UTF8) }
+        catch { $aclNestedCreateRejected = $true }
+        Assert-Test ($aclWriteRejected -and $aclRootCreateRejected -and $aclNestedCreateRejected -and
+            -not [IO.File]::Exists($aclRootCreatePath) -and -not [IO.File]::Exists($aclNestedCreatePath)) `
+            'metadata-acl-freeze-blocks-file-write-and-create-at-each-depth'
+        Assert-Test ([string]::Equals([IO.File]::ReadAllText($aclTreeFile, [Text.Encoding]::UTF8), $aclTreeOriginalText, [StringComparison]::Ordinal)) `
+            'metadata-acl-freeze-preserves-existing-read-access-and-content'
+        Restore-SecureMetadataTree -Root $aclTreeRoot -LeaseSet $secureLeases `
+            -OriginalSnapshots $aclTreeSnapshots -OriginalRootDaclSddl $aclTreeOriginalSddl
+        $aclTreeSnapshots = $null
+        $aclTreeOriginalSddl = $null
+        $aclRestoreCreatePath = Join-Path $aclTreeRoot 'restored-write-probe.txt'
+        [IO.File]::WriteAllText($aclRestoreCreatePath, 'restored', [Text.Encoding]::UTF8)
+        $aclRestoreWriteSucceeded = [string]::Equals([IO.File]::ReadAllText($aclRestoreCreatePath, [Text.Encoding]::UTF8), 'restored', [StringComparison]::Ordinal)
+        [IO.File]::Delete($aclRestoreCreatePath)
+        Assert-Test $aclRestoreWriteSucceeded 'metadata-acl-restore-matches-snapshot-and-reenables-write'
 
         $openCheck = [S3T03SafeFile]::OpenLeaf($normalPath, $false)
         $openCheck.Dispose()
@@ -2364,6 +3837,22 @@ Start-Sleep -Seconds 30
             try { $unrelated.Dispose() }
             catch { $cleanupFailureMessage = 'SELFTEST_UNRELATED_PROCESS_DISPOSE_FAILED:' + $_.Exception.Message; $testExitCode = 1 }
         }
+        if ($treeMonitor) {
+            try { $treeMonitor.Dispose() }
+            catch { $cleanupFailureMessage = 'SELFTEST_TREE_MONITOR_DISPOSE_FAILED:' + $_.Exception.Message; $testExitCode = 1 }
+        }
+        if ($aclTreeSnapshots -and $aclTreeRoot -and $secureLeases) {
+            try {
+                Restore-SecureMetadataTree -Root $aclTreeRoot -LeaseSet $secureLeases `
+                    -OriginalSnapshots $aclTreeSnapshots -OriginalRootDaclSddl $aclTreeOriginalSddl
+                $aclTreeSnapshots = $null
+                $aclTreeOriginalSddl = $null
+            } catch {
+                $aclRestoreFailure = 'SELFTEST_METADATA_ACL_RESTORE_FAILED:' + $_.Exception.Message
+                if ($cleanupFailureMessage) { $cleanupFailureMessage += ' | ' + $aclRestoreFailure } else { $cleanupFailureMessage = $aclRestoreFailure }
+                $testExitCode = 1
+            }
+        }
         if ($secureLeases) {
             try { $secureLeases.Dispose() }
             catch {
@@ -2467,7 +3956,11 @@ if ($SupervisorSelfTest) {
 }
 
 $outputLeases = $null
+$metadataTreeMonitor = $null
+$metadataRootAclSnapshots = $null
+$metadataRootDaclSddl = $null
 $outputFull = $null
+$metadataRoot = $null
 $runId = $null
 $runnerSha = $null
 $capturedFailureStatus = $null
@@ -2493,27 +3986,76 @@ try {
 
     $prepareLogPath = Join-Path $outputFull 'vivado.log'
     $prepareJournalPath = Join-Path $outputFull 'vivado.jou'
+    $prepareDigestPipeName = 's3t03_' + [Guid]::NewGuid().ToString('N')
     $prepareArgs = @('-mode','batch','-log',$prepareLogPath,'-journal',$prepareJournalPath,
         '-source','scripts/s3_implement_hdmi_only_diag.tcl',
-        '-tclargs',$vendorFull,$outputFull,'prepare-only',$runId)
+        '-tclargs',$vendorFull,$outputFull,'prepare-only',$runId,$prepareDigestPipeName)
     $prepareCommand = New-BatchCommandLine $vivadoBat $prepareArgs
-    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::Start($comSpec,$prepareCommand,$repoRoot) }
+    $prepareTrustedFileCount = 0
+    $prepareTrustedTreeSha256 = $null
+    $prepareDigestAuthorization = $null
+    $prepareProcess = Invoke-GuardedVivadoStart -ProcessStartAction { [S3T03RunnerProcess]::StartForPrepare($comSpec,$prepareCommand,$repoRoot,$runId,$vivadoExe,$prepareDigestPipeName) }
     try {
         $prepareResult = Resolve-SupervisedResult $prepareProcess $outputFull 'prepare' $supervisionStartedAt $defaultMaxRuntime $defaultNoProgress $pollIntervalMs $null $outputLeases
+        if ($prepareResult.Result -eq 'SUCCESS') {
+            $prepareDigestAuthorization = Invoke-PrepareDigestAuthenticationGate `
+                $prepareProcess $runId $outputFull $runId $runnerSha $outputLeases `
+                ([ref]$capturedFailureStatus) $prepareResult.Elapsed $prepareResult
+            $prepareTrustedFileCount = $prepareDigestAuthorization.FileCount
+            $prepareTrustedTreeSha256 = $prepareDigestAuthorization.Sha256
+        }
     } finally { $prepareProcess.Dispose() }
     if ($prepareResult.Result -ne 'SUCCESS') {
         Invoke-CapturedFailureAndThrow $outputFull $runId $prepareResult $runnerSha $outputLeases 'prepare' ([ref]$capturedFailureStatus) ('受控准备阶段失败：' + $prepareResult.Result + '; STOP_REASON=' + $prepareResult.StopReason + '; EXIT=' + $prepareResult.ExitCode)
     }
-    $prepareText = [Text.Encoding]::UTF8.GetString($outputLeases.ReadHeld((Join-Path $outputFull 'prepare.result')))
-    if ($prepareText -notmatch ('(?m)^RUN_ID=' + [regex]::Escape($runId) + '$')) { throw '准备阶段 RUN_ID 不匹配。' }
+    $prepareResultPath = Join-Path $outputFull 'prepare.result'
+    $outputLeases.SealExistingReadOnly($prepareResultPath)
+    $prepareText = [Text.Encoding]::UTF8.GetString($outputLeases.ReadHeld($prepareResultPath))
+    $trustedPrepareResult = Assert-PrepareResultMatchesTrustedDigest -PrepareText $prepareText `
+        -ExpectedRunId $runId -ExpectedCount $prepareTrustedFileCount -ExpectedSha256 $prepareTrustedTreeSha256
+    $preparedMetadataCount = $trustedPrepareResult.FileCount
+    $preparedMetadataTreeSha256 = $trustedPrepareResult.Sha256
     foreach ($relative in @('project','vendor_ip_metadata')) {
         $outputLeases.LockDirectoryChain((Join-Path $outputFull $relative))
+    }
+    $metadataRoot = Join-Path $outputFull 'vendor_ip_metadata'
+    Protect-SecureMetadataTree -Root $metadataRoot -LeaseSet $outputLeases `
+        -OriginalSnapshots ([ref]$metadataRootAclSnapshots) -OriginalRootDaclSddl ([ref]$metadataRootDaclSddl)
+    $metadataTreeMonitor = New-Object S3T03TreeMonitor($metadataRoot)
+    $metadataRecords = @(Get-SecureTreeSha256Manifest -Root $metadataRoot -LeaseSet $outputLeases)
+    if ($metadataRecords.Count -ne $preparedMetadataCount) {
+        throw ('GUARDED_METADATA_COPY_FILE_COUNT_MISMATCH: EXPECTED=' + $preparedMetadataCount + '; ACTUAL=' + $metadataRecords.Count)
+    }
+    [void](Assert-PreparedMetadataTreeSha256 -Records $metadataRecords `
+        -ExpectedCount $preparedMetadataCount -ExpectedSha256 $preparedMetadataTreeSha256)
+    $metadataSnapshotStatus = $metadataTreeMonitor.Status()
+    if ($metadataSnapshotStatus -ne 'EVENT_COUNT=0;ERROR_COUNT=0;ERROR=') {
+        throw ('METADATA_TREE_CHANGED_DURING_SNAPSHOT: ' + $metadataSnapshotStatus)
+    }
+    $metadataManifestText = Format-SecureTreeSha256Manifest -Root $metadataRoot -Records $metadataRecords
+    $metadataManifestPath = Join-Path $outputFull 'reports\metadata_copy_sha256.txt'
+    $metadataManifestBytes = [Text.Encoding]::UTF8.GetBytes($metadataManifestText)
+    $metadataManifestSha256 = Get-Sha256Hex $metadataManifestBytes
+    $outputLeases.WriteHeld($metadataManifestPath, $metadataManifestBytes)
+    if ((Get-Sha256Hex ($outputLeases.ReadHeld($metadataManifestPath))) -cne $metadataManifestSha256) {
+        throw 'METADATA_COPY_MANIFEST_WRITEBACK_HASH_MISMATCH'
+    }
+    $outputLeases.SealExistingReadOnly($metadataManifestPath)
+    if ((Get-Sha256Hex ($outputLeases.ReadHeld($metadataManifestPath))) -cne $metadataManifestSha256) {
+        throw 'METADATA_COPY_MANIFEST_SEAL_HASH_MISMATCH'
+    }
+    $metadataBeforeRouteStatus = $metadataTreeMonitor.Status()
+    if ($metadataBeforeRouteStatus -ne 'EVENT_COUNT=0;ERROR_COUNT=0;ERROR=') {
+        throw ('METADATA_TREE_CHANGED_BEFORE_ROUTE: ' + $metadataBeforeRouteStatus)
+    }
+    if (-not $prepareDigestAuthorization -or -not $prepareDigestAuthorization.Authenticated) {
+        throw 'PREPARE_DIGEST_AUTHORIZATION_REQUIRED_BEFORE_ROUTE'
     }
 
     $logPath = Join-Path $outputFull 'vivado.log'
     $journalPath = Join-Path $outputFull 'vivado.jou'
     $runArgs = @('-mode','batch','-log',$logPath,'-journal',$journalPath,
-        '-source','scripts/s3_implement_hdmi_only_diag.tcl','-tclargs',$vendorFull,$outputFull,'run',$runId)
+        '-source','scripts/s3_implement_hdmi_only_diag.tcl','-tclargs',$vendorFull,$outputFull,'run',$runId,$metadataManifestSha256,$preparedMetadataTreeSha256)
     $runCommand = New-BatchCommandLine $vivadoBat $runArgs
     $xdcBroker = New-GeneratedClockXdcBrokerState
     $process = Invoke-RouteStartGate -PrepareResult $prepareResult -StartedAt $supervisionStartedAt `
@@ -2530,6 +4072,23 @@ try {
     if ($result.Result -ne 'SUCCESS') {
         Invoke-CapturedFailureAndThrow $outputFull $runId $result $runnerSha $outputLeases 'run' ([ref]$capturedFailureStatus) ('诊断失败：' + $result.Result + '; STOP_REASON=' + $result.StopReason + '; EXIT=' + $result.ExitCode)
     }
+    $finalMetadataRecords = @(Get-SecureTreeSha256Manifest -Root $metadataRoot -LeaseSet $outputLeases)
+    $finalMetadataManifestText = Format-SecureTreeSha256Manifest -Root $metadataRoot -Records $finalMetadataRecords
+    if ((Get-Sha256Hex ($outputLeases.ReadHeld($metadataManifestPath))) -cne $metadataManifestSha256) {
+        throw 'METADATA_COPY_MANIFEST_CHANGED_DURING_IMPLEMENTATION'
+    }
+    $metadataTreeMonitor.StopAndDrain()
+    $metadataAfterRouteStatus = $metadataTreeMonitor.Status()
+    if ($metadataAfterRouteStatus -ne 'EVENT_COUNT=0;ERROR_COUNT=0;ERROR=') {
+        throw ('METADATA_TREE_CHANGED_DURING_IMPLEMENTATION: ' + $metadataAfterRouteStatus)
+    }
+    if (-not [string]::Equals($finalMetadataManifestText, $metadataManifestText, [StringComparison]::Ordinal)) {
+        throw 'METADATA_TREE_CHANGED_DURING_IMPLEMENTATION'
+    }
+    Restore-SecureMetadataTree -Root $metadataRoot -LeaseSet $outputLeases `
+        -OriginalSnapshots $metadataRootAclSnapshots -OriginalRootDaclSddl $metadataRootDaclSddl
+    $metadataRootAclSnapshots = $null
+    $metadataRootDaclSddl = $null
     Write-RunnerStatus $outputFull $runId $result $runnerSha $outputLeases
     foreach ($requiredLog in @($logPath,$journalPath)) { [void]$outputLeases.ReadHeld($requiredLog) }
     $stdoutMarker = Get-ResultMarker $outputFull 'run'
@@ -2544,6 +4103,16 @@ try {
     exit 0
 } catch {
     $runnerError = $_
+    if ($metadataRootAclSnapshots -and $metadataRoot -and $outputLeases) {
+        try {
+            Restore-SecureMetadataTree -Root $metadataRoot -LeaseSet $outputLeases `
+                -OriginalSnapshots $metadataRootAclSnapshots -OriginalRootDaclSddl $metadataRootDaclSddl
+            $metadataRootAclSnapshots = $null
+            $metadataRootDaclSddl = $null
+        } catch {
+            [Console]::Error.WriteLine('SECURE_METADATA_ACL_RESTORE_FAILED=' + $_.Exception.Message)
+        }
+    }
     if ($outputLeases -and $runId -and $runnerSha) {
         try {
             $brokerForFailure = $null
@@ -2555,5 +4124,16 @@ try {
     Write-Output 'S3_RUNNER_RESULT=FAIL'
     exit 2
 } finally {
+    if ($metadataRootAclSnapshots -and $metadataRoot -and $outputLeases) {
+        try {
+            Restore-SecureMetadataTree -Root $metadataRoot -LeaseSet $outputLeases `
+                -OriginalSnapshots $metadataRootAclSnapshots -OriginalRootDaclSddl $metadataRootDaclSddl
+            $metadataRootAclSnapshots = $null
+            $metadataRootDaclSddl = $null
+        } catch {
+            [Console]::Error.WriteLine('SECURE_METADATA_ACL_RESTORE_FAILED_IN_FINALLY=' + $_.Exception.Message)
+        }
+    }
+    if ($metadataTreeMonitor) { $metadataTreeMonitor.Dispose() }
     if ($outputLeases) { $outputLeases.Dispose() }
 }

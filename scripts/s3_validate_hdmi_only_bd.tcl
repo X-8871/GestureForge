@@ -524,7 +524,7 @@ proc s3_guard_status_dict {status} {
     set parsed {}
     foreach line [split [string trim $status "\r\n"] "\n"] {
         if {$line eq ""} {continue}
-        if {![regexp {^([A-Z_]+)=(.*)$} $line -> key value]} {
+        if {![regexp {^([A-Z0-9_]+)=(.*)$} $line -> key value]} {
             error "INVALID_GUARD_STATUS_LINE: $line"
         }
         if {[dict exists $parsed $key]} {error "DUPLICATE_GUARD_STATUS_KEY: $key"}

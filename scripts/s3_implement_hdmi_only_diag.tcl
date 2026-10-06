@@ -5,7 +5,7 @@ set ::s3_repo_root [file dirname [file dirname $::s3_script_path]]
 set ::s3_expected_commit fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327
 set ::s3_source_relative course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project
 set ::s3_expected_device xa7z020clg400-1I
-set ::s3_guard_script_sha256 B56FCAC3A5087D693DD53EFF71E9364FBDA881942B77F6E0296C23E919094318
+set ::s3_guard_script_sha256 30031404FB7617B3B05CAA131099E201E2741A15134B302FA5EE5FB8AD1A6450
 set ::s3_expected_board_xdc_sha256 D8FD1B1AD450BC44C25AECB0EF2AE3ECE67EB1F718B60D564EA5BBB803665058
 set ::s3_classification DIAGNOSTIC_ONLY_NO_BITSTREAM_NO_BOARD_NO_TIMING_SIGNOFF
 
@@ -1133,6 +1133,29 @@ proc s3_run_selftest {} {
     if {[catch {s3_load_existing_guard .; s3_extend_guard_api} guard_error guard_options]} {
         lappend failures "verified path-guard API extension failed: $guard_error [dict get $guard_options -errorinfo]"
     } else {
+        set expected_guard_metadata_digest [string repeat C 64]
+        set synthetic_guard_status "RESULT=PASS_PATH_GUARD_PREPARATION\nMETADATA_TREE_SHA256=$expected_guard_metadata_digest\n"
+        if {[catch {set parsed_guard_status [s3_guard_status_dict $synthetic_guard_status]} guard_status_error] ||
+            [dict get $parsed_guard_status RESULT] ne "PASS_PATH_GUARD_PREPARATION" ||
+            [dict get $parsed_guard_status METADATA_TREE_SHA256] ne $expected_guard_metadata_digest} {
+            lappend failures "secure guard status rejected numeric digest key or changed its value: $guard_status_error"
+        }
+        incr checks
+        if {![catch {s3_guard_status_dict "RESULT=PASS\nBAD-KEY=value\n"} bad_key_error] ||
+            [string first "INVALID_GUARD_STATUS_LINE:" $bad_key_error] != 0} {
+            lappend failures "secure guard status accepted a key containing a disallowed character"
+        }
+        incr checks
+        if {![catch {s3_guard_status_dict "RESULT=PASS\nRESULT=FAIL\n"} duplicate_key_error] ||
+            $duplicate_key_error ne "DUPLICATE_GUARD_STATUS_KEY: RESULT"} {
+            lappend failures "secure guard status did not reject duplicate keys"
+        }
+        incr checks
+        if {![catch {s3_guard_status_dict "METADATA_TREE_SHA256=$expected_guard_metadata_digest\n"} missing_result_error] ||
+            $missing_result_error ne "GUARD_STATUS_MISSING_RESULT"} {
+            lappend failures "secure guard status did not require RESULT"
+        }
+        incr checks
         set extended_guard_body [info body s3_launch_secure_guardian]
         foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));} {string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));} {string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));} {string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));} {string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));} {string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));} {MetadataTreeSha256(metadataPath, manifest)} {METADATA_TREE_SHA256=} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
             if {[string first $required_snippet $extended_guard_body] < 0} {

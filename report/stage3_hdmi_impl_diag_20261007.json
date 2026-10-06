@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task": "S3-T03 HDMI-only Vivado implementation diagnostic",
+  "run": {
+    "run_id": "S3T03_78b042238efd4c76a347f5375439842e",
+    "directory": "tmp/s3r04/t03_hdmi_impl_20261007_014520_52ec68bd",
+    "local_updated_at": "2026-10-07 01:49:57 +0800",
+    "classification": "DIAGNOSTIC_ONLY_NO_BITSTREAM_NO_BOARD_NO_TIMING_SIGNOFF",
+    "vivado_version": "2026.1",
+    "device": "xa7z020clg400-1I",
+    "vendor_commit_expected": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "vendor_commit_actual": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "elapsed_seconds_tcl": 184,
+    "elapsed_seconds_runner": 210.819
+  },
+  "result": {
+    "block_design_preparation": "PASS:PREPARED",
+    "block_design_preparation_evidence": "prepare.result",
+    "synthesis": "FAILED_AT_SYNTHESIS_RUN_WAIT",
+    "failure": "Project-mode synthesis failed while waiting for synthesis runs (wait_on_runs). Vivado emitted: ERROR: [Common 17-345] A valid license was not found for feature 'Synthesis' and/or device 'xa7z020'.",
+    "failure_scope": "This records what Vivado reported; it does not establish that the license itself was expired.",
+    "runner_exit_code": 2,
+    "runner_stop_reason": "PROCESS_EXITED",
+    "process_tree_exit_confirmed": true,
+    "process_tree_exit_diagnostic": "TREE_EMPTY",
+    "place_route_timing_reports": "NOT_REACHED; no implementation or timing signoff reports were produced. Timing-related .rpt files in the run directory are zero-byte placeholders.",
+    "bitstream_file_count": 0,
+    "board_operation": false,
+    "batch109_interaction": false
+  },
+  "metadata_copy": {
+    "file_count": 22,
+    "tree_sha256": "0B47F19C52CBA638BD997BA3668C3BB85128BE1665CB92BDF817C11B664B81F2",
+    "manifest": "reports/metadata_copy_sha256.txt",
+    "manifest_sha256": "42CF95D78BD960FF3A5D8A2C70888022F10C41383B30489F88DA132476B212E6"
+  },
+  "artifacts": {
+    "run_status": {
+      "path": "run_status.txt",
+      "sha256": "8DFF95DAED994CBB5474BCE2CA7F7CB1D624A2B7898044546DE35B55FE5C94F0",
+      "note": "Contains run ID, local update time, stage, tool/device/vendor commit, Tcl hash, and metadata-copy count/tree hash."
+    },
+    "runner_status": {
+      "path": "runner_status.txt",
+      "sha256": "57C067300763DD85DA4F5333CC5EF10442435DC77C045801320F4D25E17CB2EA"
+    },
+    "vivado_log": {
+      "path": "vivado.log",
+      "sha256": "60FA7DA3615EF8491FE0C103CA84A2495CBE10DDC4F67607633CDF0C01C7DE23"
+    },
+    "vivado_journal": {
+      "path": "vivado.jou",
+      "sha256": "700967ABDDA04564561ECF0ACEB094616E101A25E6F0E92ECFA4D56CE3F13DCC"
+    },
+    "execution_tcl": {
+      "path": "scripts/s3_implement_hdmi_only_diag.tcl",
+      "sha256": "34AD40A4818385DBEFC6561BFFD6EDABCF08C7BBF104005D00255DC848BCF643"
+    },
+    "runner_script": {
+      "path": "scripts/run_s3_implement_hdmi_only_diag.ps1",
+      "sha256": "0584EE6B3C0F7E1DFC3553FDEECE721179818C7584A01549E31DD3EE94ECFF56"
+    }
+  },
+  "limitations": [
+    "Synthesis did not complete, so place, route, implementation timing analysis, timing reports, and bitstream generation were not reached.",
+    "The run's own status records HDMI I/O signoff as blocked because output-delay constraints and the board-revision timing budget are incomplete.",
+    "The 1920x1080@60Hz clock model is a software-selected static candidate; runtime axi_dynclk DRP programming and lock were not validated.",
+    "This diagnostic provides no hardware or display validation."
+  ]
+}

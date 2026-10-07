@@ -1,0 +1,91 @@
+{
+  "schema": "stage3_vitis_compile_current_patch_recheck_v1",
+  "task_id": "S3-HOST-ARM-COMPILE-RECHECK-02",
+  "date_local": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "status": "CURRENT_PATCH_THREE_TRANSLATION_UNITS_COMPILE_PASS_NOT_LINKED",
+  "baseline": {
+    "project_head": "c21f394ad0175dedaf3710d07e5ee99a9a83ac41",
+    "branch": "codex/stage3-video",
+    "preexisting_user_changes_preserved": [
+      ".codex/STATE.md",
+      "board/stage3/README.md",
+      "board/stage3/hardware_photo_evidence.md",
+      "board/stage3/prepower_check.md",
+      "NA/",
+      "clockInfo.txt"
+    ]
+  },
+  "source_binding": {
+    "patch_path": "board/stage3/software/hdmi_test/hdmi_display_bringup.patch",
+    "patch_sha256": "f03aad77aeef0c36defa5f832eb93bd92f8c038bc40c6c9260c28835cb843dc1",
+    "compile_tree": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi",
+    "translation_units": [
+      {
+        "path": "main.c",
+        "sha256": "be68e88d06a8609be6cc585dabdc26e8a8bb3a86f7d6f78c3aae809b91034ef2",
+        "object": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_objects_reverified/main.o",
+        "object_sha256": "8d19a77c213e3c93501009ff5d923579e058ff8f7e80ecf444ebd13be901cb36"
+      },
+      {
+        "path": "display_ctrl/display_ctrl.c",
+        "sha256": "1aa1a927384f2f528a2c8d46ad28697c79d3b9866196834461bdc5418cd6b709",
+        "object": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_objects_reverified/display_ctrl.o",
+        "object_sha256": "2e425b09ba5523560b7a5c021378171d3623e93da2874ebc7b8f48667f8fe140"
+      },
+      {
+        "path": "dynclk/dynclk.c",
+        "sha256": "a5f53d549d71cefa1c3a6a65412eddbf34bf7d810ba9a051537a5451b92991df",
+        "object": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_objects_reverified/dynclk.o",
+        "object_sha256": "5684b95aa19d9169872b2ae96518fabc314a0c02aa832755328d51eb75a61cf2"
+      }
+    ]
+  },
+  "compile": {
+    "compiler": {
+      "path": "D:/Xilinx/2026.1/gnu/aarch32/nt/gcc-arm-none-eabi/bin/arm-none-eabi-gcc.exe",
+      "reported_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0"
+    },
+    "flags": [
+      "-std=gnu11",
+      "-Wall",
+      "-Wextra",
+      "-mcpu=cortex-a9",
+      "-mfpu=neon-vfpv3",
+      "-mfloat-abi=hard"
+    ],
+    "result": "PASS",
+    "translation_units_passed": 3,
+    "warnings_observed": 0,
+    "per_translation_unit_exit_code": 0,
+    "overall_exit_code": 0,
+    "command_log": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_objects_reverified/compile_reverify.log",
+    "command_log_sha256": "82906c688c7262d70292ae5ca3c7cd9227214787598a5d959475832ac39a31c0",
+    "fixture_headers": {
+      "xparameters_h": {
+        "path": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_fixture/xparameters.h",
+        "sha256": "13e9d4016d693a31550ad4af6a3a872b2ca3eda50b2c7c038f64f0c8e809df61",
+        "meaning": "仅用于编译探针的临时宏；AXI-Dynclk 基地址取自厂商旧 XSA 的 HWH，其余设备 ID/时钟宏为占位值。"
+      },
+      "bspconfig_h": {
+        "path": "tmp/s3r05/vitis_hdmi_compileonly_official_xc7z020_minus2_20261007/compile_only_fixture/bspconfig.h",
+        "sha256": "e3bfca6c36c1e941759214ed8856fd91bff27a755540dc38e6ebcd7792f44821",
+        "meaning": "仅用于编译探针的空配置占位，不是生成的 BSP。"
+      }
+    },
+    "classification": "目标文件编译检查；没有链接 libxil、BSP 或应用，没有生成 ELF。"
+  },
+  "scope_and_safety": {
+    "vivado_started": false,
+    "vitis_started": false,
+    "bitstream_generated": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false,
+    "source_files_modified": false
+  },
+  "limitations": [
+    "临时 xparameters.h/bspconfig.h 不能替代匹配 XA7Z020CLG400-1I 的硬件导出和真实 Standalone BSP；编译成功不能证明 BSP/API 完整兼容。",
+    "本结果不是应用链接、可启动 ELF、时序签核、HDMI 电气/显示器兼容性或板上验证证据。",
+    "形成安全上板步骤仍需核对官方 AX7020 V3.0 手册与实物修订，并在有效许可及重新授权后完成适用的硬件工程验证。"
+  ]
+}

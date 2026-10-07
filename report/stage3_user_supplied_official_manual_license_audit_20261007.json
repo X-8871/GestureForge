@@ -1,0 +1,191 @@
+{
+  "schema": "stage3_user_supplied_official_manual_license_audit_v1",
+  "task_id": "S3-DOC-BOARD-LICENSE-02",
+  "date_local": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "classification": "OFFICIAL_AX7020_V3_MANUAL_RECEIVED;_BASIC_LICENSE_EVIDENCE_PRESENT;VIVADO_RETRY_NOT_RUN",
+  "baseline": {
+    "project_head": "c177fdab931154700e184aae86303f62e2b9167c",
+    "branch": "codex/stage3-video"
+  },
+  "source_materials": {
+    "manual": {
+      "path": "D:\\FPGA_Competition\\摄像头资料\\Wong搜集的资料\\AX7020_User Manual_V3.0.pdf",
+      "filename": "AX7020_User Manual_V3.0.pdf",
+      "size_bytes": 1996370,
+      "sha256": "2c17f708ecbc01c9c870d9bfdfed3b7706dbe86cf6dec08f75c9a710e5ce13ee",
+      "pdf_title_page_text": "AX7020 Development Board User Manual",
+      "pdf_page_count": 33,
+      "revision_evidence": "PDF page 2 lists V3.0 and says the changes correct the PMOD pin assignment and modify the DDR3 model.",
+      "official_listing": {
+        "url": "https://www.en.alinx.com/Product/SoC-development-Boards/Zynq-7000-SoC/AX7020.html",
+        "listed_name": "AX7020_V3.0_User Manual",
+        "listed_date": "2026-08-04"
+      },
+      "parser": {
+        "tool": "read-pdf-reliably",
+        "docling_version": "2.115.0",
+        "mode": "text",
+        "ocr_enabled": false,
+        "status": "success",
+        "warnings": [],
+        "render_dpi": 180
+      }
+    },
+    "license_screenshots": {
+      "source_directory": "D:\\FPGA_Competition\\摄像头资料\\Wong搜集的资料",
+      "files": [
+        {
+          "filename": "许可.png",
+          "size_bytes": 176305,
+          "sha256": "7a36adb8c8e0399026af722c3a34844fa687c660d1277ec3629c085f10164de9",
+          "modified_at_local": "2026-10-07T17:59:15.4916555+08:00"
+        },
+        {
+          "filename": "许可2.png",
+          "size_bytes": 177873,
+          "sha256": "bd69a9a9665177fe1fdc5bc5dcbfda65c708a9dc7c1f134725c16edea027fb2f",
+          "modified_at_local": "2026-10-07T17:59:37.6430259+08:00"
+        },
+        {
+          "filename": "许可3.png",
+          "size_bytes": 181500,
+          "sha256": "7f372b788727f1a48824dd5ac0dd731b46ad209c2902afcbadb7cca40ad41324",
+          "modified_at_local": "2026-10-07T17:59:54.3332638+08:00"
+        }
+      ],
+      "sensitive_values_recorded": false,
+      "note": "原图含机器标识、许可证位置等信息；本报告不保存截图副本、Host ID、邮箱或本机授权路径。"
+    }
+  },
+  "manual_findings": [
+    {
+      "pdf_pages": [2],
+      "finding": "AX7020 手册修订记录列有 V3.0；修订内容包括更正 PMOD 引脚定义、修改 DDR3 型号。"
+    },
+    {
+      "pdf_pages": [4, 5, 8],
+      "finding": "手册正文把 AX7020 列为 XC7Z020-2CLG400I；项目实物目标记录为 xa7z020clg400-1I。板卡型号匹配，但器件系列/速度等级字符串不一致，不能据手册替换实际 part 或时序基线。"
+    },
+    {
+      "pdf_pages": [24, 25],
+      "finding": "AX7020 有一个可作 HDMI 输入或输出的接口，手册称最高支持 1080P@60Hz；信号连到 PL BANK34。HDMI OUT 需要向显示设备提供 +5V，并通过 IIC 读取 EDID；手册说明 FPGA 侧为 3.3V，HDMI 侧经 GTL2002D 电平转换。"
+    },
+    {
+      "pdf_page": 25,
+      "hdmi_pin_table": {
+        "HDMI_CLK_P": "N18",
+        "HDMI_CLK_N": "P19",
+        "HDMI_D0_P": "V20",
+        "HDMI_D0_N": "W20",
+        "HDMI_D1_P": "T20",
+        "HDMI_D1_N": "U20",
+        "HDMI_D2_P": "N20",
+        "HDMI_D2_N": "P20",
+        "HDMI_SCL": "R18",
+        "HDMI_SDA": "R16",
+        "HDMI_CEC": "Y18",
+        "HDMI_HPD": "Y19",
+        "HDMI_OUT_EN": "V16"
+      }
+    },
+    {
+      "pdf_pages": [27, 29, 30],
+      "finding": "J10、J11 均为 40 针、2.54 mm 扩展口；两表均将 PIN1 定义为 GND、PIN2 定义为 +5V。扩展 I/O 默认 3.3V，禁止将 5V I/O 直接接入 FPGA。手册称 J10/J11 可接 ALINX 双目摄像头模块；现有 AN5642 官方例程静态映射仍使用 J10，故摄像头路线沿用 J10，不因该泛化描述改接 J11。"
+    }
+  ],
+  "board_applicability": {
+    "manual_board_model": "AX7020",
+    "manual_fpga_part": "XC7Z020-2CLG400I",
+    "project_fpga_part": "xa7z020clg400-1I",
+    "manual_revision_is_not_pcb_revision_proof": true,
+    "use": "以本手册作为 AX7020 V3.0 的官方接口候选依据；涉及最终约束和时序前仍须与固定官方原理图/XDC及实物器件型号交叉核对。",
+    "camera_reference_xdc": {
+      "source_repository_url": "https://github.com/alinxalinx/AX7020_2023.1",
+      "fixed_vendor_source_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+      "commit_resolved_in_separate_clean_cache": true,
+      "cache_root": "tmp/stage3_reference/AX7020_2023.1",
+      "repository_relative_path": "course_s2_vitis/23_ov5640_dual/Vivado/auto_create_project/src/constraints/an5642.xdc",
+      "git_blob_oid": "0b278ec4c061a43d8df08e534a3c33bcf1b6c16e",
+      "sha256_git_blob_bytes": "B0B9600A333D59617482DEE28357D9DC67B79BBF0D676B94A14E437849C1C655",
+      "sha256_windows_worktree_bytes": "3B57CF39B9E78FEEF8E76B1BA4EB1F63C0A3AD979768589EB807CCF946719E64",
+      "line_endings": "CRLF in clean cache; git core.autocrlf=true",
+      "crosscheck_pages": [27, 28, 29],
+      "claim_scope": "固定官方双目示例中的 AN5642 信号映射与 AX7020 V3.0 J10 表逐项静态匹配；只证明源表之间的静态对应，不代表本工程已加载该 XDC、PCB/触点方向已确认或实物已验证。"
+    },
+    "hdmi_source_xdc_crosscheck": {
+      "fixed_vendor_source_xdc": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/src/constraints/hdmi_out.xdc",
+      "sha256": "D8FD1B1AD450BC44C25AECB0EF2AE3ECE67EB1F718B60D564EA5BBB803665058",
+      "matches_manual": [
+        "TMDS_clk_p=N18",
+        "TMDS_data_p[0]=V20",
+        "TMDS_data_p[1]=T20",
+        "TMDS_data_p[2]=N20",
+        "hdmi_ddc_scl_io=R18",
+        "hdmi_ddc_sda_io=R16",
+        "hdmi_oen=V16"
+      ],
+      "open_check": "该 XDC 将 TMDS_33 设到 clk_n/data_n 端口，但没有为这些负端口显式设置 PACKAGE_PIN；手册 p.25 列有 P19/W20/U20/P20。不能只根据源 XDC 假定最终封装脚映射已签核，需在获批的后续实现中核对实际 LOC/placement 报告。"
+    }
+  },
+  "license_snapshot": {
+    "loaded_license_tiers_banner": ["ENTERPRISE", "BASIC"],
+    "current_tool_version_limit": "2026.06",
+    "entries": [
+      {
+        "feature": "Vivado_Basic_Package",
+        "expiration_date": "2027-08-07",
+        "version_limit": "2027.08",
+        "license_crc": "Okay",
+        "host_match": "Yes"
+      },
+      {
+        "feature": "Vivado_Synthesis",
+        "expiration_date": "2027-08-07",
+        "version_limit": "2027.08",
+        "license_crc": "Okay",
+        "host_match": "Yes"
+      },
+      {
+        "feature": "Vivado_Implementation",
+        "expiration_date": "2027-08-07",
+        "version_limit": "2027.08",
+        "license_crc": "Okay",
+        "host_match": "Yes"
+      },
+      {
+        "feature": "Vivado_Enterprise 60-day evaluation entry",
+        "expiration_date": "2026-10-06",
+        "interpretation_as_of": "2026-10-07",
+        "status": "expired"
+      }
+    ],
+    "interpretation": "三张截图文件的本机修改时间均为 2026-10-07 17:59（UTC+8），晚于此前失败的 T03 运行。它显示 BASIC 的 package、synthesis、implementation 条目到期日为 2027-08-07；顶部同时出现 ENTERPRISE 不能证明已过期的 EVAL 仍可用。AMD 2026.1 官方资料列明 BASIC 支持 7 Series（含 Zynq-7000），而标准 Synthesis/Implementation 不属于 BASIC 限制表中的禁用特性。因此新截图使此前无许可证错误有望排除，但截图本身不能证明 Vivado 进程实际成功检出许可证。",
+    "official_references": [
+      "https://docs.amd.com/r/en-US/ug973-vivado-release-notes-install-license/Supported-Devices-and-Features",
+      "https://docs.amd.com/r/en-US/ug973-vivado-release-notes-install-license/Device-Availability-by-Subscription-Tier",
+      "https://docs.amd.com/r/en-US/ug973-vivado-release-notes-install-license/Feature-Availability-by-Subscription-Tier",
+      "https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/licensing-faq.html"
+    ],
+    "previous_run": {
+      "report": "report/stage3_hdmi_impl_diag_20261007.json",
+      "result": "Vivado 2026.1 failed during synthesis license checkout before implementation; no bitstream was generated.",
+      "relation_to_new_screenshots": "new screenshots were saved later on the same local date; they do not retroactively change the prior run result."
+    }
+  },
+  "scope_and_boundary": {
+    "manual_and_screenshots_modified": false,
+    "vivado_or_vitis_started_this_audit": false,
+    "bitstream_generated": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false,
+    "previous_single_run_authorization_consumed": true,
+    "new_vivado_run_requires_fresh_authorization": true,
+    "user_git_changes_preserved": true
+  },
+  "next_steps": [
+    "Keep the current target xa7z020clg400-1I; compare the manual's AX7020 V3.0 HDMI pin table against the fixed-source constraints and final output timing model.",
+    "Before a new Vivado attempt, resolve the user instruction to use Git Bash for file/process control: the existing T03 Tcl/PowerShell runner invokes powershell.exe for guarded file writes and process supervision, so it must not be silently reused under the new preference.",
+    "If a Git-Bash-compatible runner is approved and the refreshed license is visible to Vivado, execute one newly authorized isolated HDMI-only diagnostic. Do not generate a bitstream or access the board until remaining timing/DRC gates are resolved."
+  ]
+}

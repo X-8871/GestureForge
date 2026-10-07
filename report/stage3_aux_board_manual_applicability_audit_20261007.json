@@ -1,0 +1,86 @@
+{
+  "schema": "stage3_aux_board_manual_applicability_v1",
+  "task_id": "S3-DOC-AUX-MANUAL-01",
+  "date_local": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "classification": "SECONDARY_AX7Z020_MANUAL_NOT_APPLICABLE_AS_AX7020_V3_BOARD_AUTHORITY",
+  "baseline": {
+    "project_head": "c177fdab931154700e184aae86303f62e2b9167c",
+    "branch": "codex/stage3-video"
+  },
+  "source_document": {
+    "path": "D:\\FPGA_Competition\\摄像头资料\\AI搜寻的资料\\06_板卡接口核对\\AX7Z020开发板用户手册.pdf",
+    "source_class": "AI-collected secondary material; not in the user-designated official资料 folder",
+    "sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+    "size_bytes": 2535861,
+    "page_count": 50,
+    "parser": {
+      "tool": "read-pdf-reliably",
+      "output_directory": "C:\\Users\\22061\\AppData\\Local\\Temp\\s3_board_manual_sqhqUU",
+      "manifest_sha256": "af989bb7140bdb6d28d97fe936704dd20efe4799cb1b63236bc838cb8f70e1be",
+      "parsed_document_sha256": "8f04e1b11cb30194534c21dbe6a7c16cd491c25ad3d45e4b20c4f6a22365c967",
+      "status": "success",
+      "effective_mode": "text",
+      "ocr_enabled": false,
+      "pages_with_zero_replacement_chars": [1, 2, 5, 6, 36, 37, 38]
+    }
+  },
+  "page_evidence": [
+    {
+      "pdf_page": 1,
+      "fact": "封面标题为《ZYNQ7000开发平台用户手册 AX7Z020开发板》。"
+    },
+    {
+      "pdf_page": 2,
+      "fact": "文档版本控制仅列 REV1.0；未见 AX7020 V3.0 修订标识。"
+    },
+    {
+      "pdf_page": 5,
+      "fact": "正文称该产品为 2019 款 AX7Z020，采用核心板加扩展板结构，并描述一组 HDMI 输出。"
+    },
+    {
+      "pdf_page": 6,
+      "fact": "该手册列出的器件为 XC7Z020-2CLG400I；与项目当前目标 XA7Z020CLG400-1I 的器件系列/速度等级字符串不一致。"
+    },
+    {
+      "pdf_page": 35,
+      "fact": "HDMI 章节属于 AX7Z020 底板，称支持最高 1080p@60Hz；该规格不证明当前 AX7020 V3.0 板的端口能力或 pinout。"
+    },
+    {
+      "pdf_page": 36,
+      "fact": "AX7Z020 HDMI 引脚表从本页开始，后续旧板 HDMI pinout 不能据此用于当前 AX7020 V3.0 板。"
+    },
+    {
+      "pdf_pages": [37, 38],
+      "fact": "摄像头章节描述 AX7Z020 底板上的 MIPI OV5640 接口；不能据此认定 AN5642 双目 DVP 接口的针脚、方向或电平。"
+    }
+  ],
+  "target_comparison": {
+    "project_board": "AX7020 V3.0",
+    "project_fpga_part": "xa7z020clg400-1I",
+    "manual_board": "AX7Z020 2019",
+    "manual_fpga_part": "XC7Z020-2CLG400I",
+    "applicability": "NOT_ESTABLISHED_AND_NOT_SAFE_TO_USE_FOR_CONNECTOR_OR_PIN_BINDING"
+  },
+  "official_materials_directory_check": {
+    "exact_directory": "D:\\FPGA_Competition\\摄像头资料\\官方资料",
+    "separate_files_observed": [
+      "AN5642/AN5642_CD.rar"
+    ],
+    "standalone_ax7020_v3_user_manual_observed": false,
+    "archive_contents_inspected": false,
+    "manual_presence_inside_archive": "UNKNOWN_NOT_ASSERTED"
+  },
+  "conclusion": "该 2019 年 AX7Z020 手册只能作为旧版/相近产品的辅助背景，不能替代 AX7020 V3.0 官方手册，也不能用于当前板 HDMI 或 AN5642 DVP 的针脚、电压、连接器方向与上电步骤。官方资料目录的只读清单仅观察到独立文件 AN5642/AN5642_CD.rar；本审计未检查该 RAR 内部成员，因此不判断压缩包内是否包含 AX7020 手册。无需再次索要用户已提供的板卡照片。",
+  "work_performed": {
+    "read_only": true,
+    "user_material_modified": false,
+    "vivado_or_vitis_run": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false
+  },
+  "next_required": [
+    "确认用户指定的官方资料目录中是否已有 AX7020 V3.0 User Manual（单独文件或压缩包成员）；按文档原文修订号与板卡型号核对。",
+    "在正式核对前，不从本辅助手册推定当前板卡 HDMI 引脚、摄像头连接器针脚/方向或电平。"
+  ]
+}

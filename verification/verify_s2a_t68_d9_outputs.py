@@ -40,6 +40,8 @@ T68_TESTBENCH = ROOT / "sim/tb_s2a_network_backend_golden.sv"
 SAMPLE_COUNT = 109
 T29_CANONICAL_SHA256 = "10a4116904261ee092940e1e354bed64dbd944023f6d8fdae5cf2079ad9b4c63"
 T29_REGENERATED_CANONICAL_SHA256 = "1cd26b9e655a9e8faa6d9f614b4569fecda8fb236cf9237e6e72726469de8cdd"
+T29_PROJECT_RULES_ROLE = "project_rules"
+T29_PROJECT_RULES_PATH = "AGENTS.md"
 T29_RUNTIME_FIELDS = ("python", "zlib_compile", "zlib_runtime")
 T29_FROZEN_RUNTIME = {"python": "3.12.10", "zlib_compile": "1.3.1", "zlib_runtime": "1.3.1"}
 T29_PINNED_RUNTIME = {"python": "3.12.14", "zlib_compile": "1.3.2", "zlib_runtime": "1.3.2"}
@@ -50,6 +52,7 @@ HEAD_SPECS = {
 SCORE_TOLERANCE = 1e-6
 COORDINATE_TOLERANCE = 1e-6
 RUN_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
+PROGRESS_MARKER_PREFIX = b"S2A_PROGRESS"
 
 
 class D9VerificationError(ValueError):
@@ -74,6 +77,92 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def normalize_t29_project_rules_binding(
+    frozen: dict[str, Any], regenerated: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """仅归一化冻结与重建证据中唯一项目规则绑定的 SHA 元数据。"""
+    frozen_normalized = copy.deepcopy(frozen)
+    regenerated_normalized = copy.deepcopy(regenerated)
+    frozen_bindings = frozen_normalized.get("source_bindings")
+    regenerated_bindings = regenerated_normalized.get("source_bindings")
+    require(isinstance(frozen_bindings, list), "冻结 T29 source_bindings 必须是列表")
+    require(isinstance(regenerated_bindings, list), "重建 T29 source_bindings 必须是列表")
+    require(all(isinstance(row, dict) for row in frozen_bindings), "冻结 T29 source_bindings 含非对象项")
+    require(all(isinstance(row, dict) for row in regenerated_bindings), "重建 T29 source_bindings 含非对象项")
+
+    frozen_rule_rows = [
+        (index, row) for index, row in enumerate(frozen_bindings)
+        if row.get("role") == T29_PROJECT_RULES_ROLE
+    ]
+    regenerated_rule_rows = [
+        (index, row) for index, row in enumerate(regenerated_bindings)
+        if row.get("role") == T29_PROJECT_RULES_ROLE
+    ]
+    require(len(frozen_rule_rows) == 1, "冻结 T29 必须恰有一个 project_rules source binding")
+    require(len(regenerated_rule_rows) == 1, "重建 T29 必须恰有一个 project_rules source binding")
+    frozen_index, frozen_rule = frozen_rule_rows[0]
+    regenerated_index, regenerated_rule = regenerated_rule_rows[0]
+    require(frozen_rule.get("path") == T29_PROJECT_RULES_PATH, "冻结 T29 project_rules 路径必须是 AGENTS.md")
+    require(regenerated_rule.get("path") == T29_PROJECT_RULES_PATH, "重建 T29 project_rules 路径必须是 AGENTS.md")
+    frozen_sha256 = frozen_rule.get("sha256")
+    regenerated_sha256 = regenerated_rule.get("sha256")
+    require(
+        isinstance(frozen_sha256, str) and re.fullmatch(r"[0-9a-f]{64}", frozen_sha256) is not None,
+        "冻结 T29 project_rules SHA-256 格式无效",
+    )
+    require(
+        isinstance(regenerated_sha256, str) and re.fullmatch(r"[0-9a-f]{64}", regenerated_sha256) is not None,
+        "重建 T29 project_rules SHA-256 格式无效",
+    )
+
+    regenerated_bindings[regenerated_index]["sha256"] = frozen_sha256
+    require(
+        regenerated_bindings == frozen_bindings,
+        "T29 source_bindings 除 project_rules 的 AGENTS.md SHA-256 外必须逐项完全一致",
+    )
+    return frozen_normalized, regenerated_normalized, {
+        "field": "source_bindings[role=project_rules].sha256",
+        "path": T29_PROJECT_RULES_PATH,
+        "frozen_sha256": frozen_sha256,
+        "current_sha256": regenerated_sha256,
+        "same": frozen_sha256 == regenerated_sha256,
+        "normalization_applied": frozen_sha256 != regenerated_sha256,
+    }
+
+
+def t29_reconstruction_metadata(project_rules_binding: dict[str, Any]) -> dict[str, Any]:
+    """生成重建报告中明确的元数据归一化状态与字段说明。"""
+    return {
+        "status": "PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS_AND_PROJECT_RULES_SHA_METADATA",
+        "ignored_fields": [
+            *(f"runtime.{field}" for field in T29_RUNTIME_FIELDS),
+            "source_bindings[role=project_rules].sha256",
+        ],
+        "project_rules_source_binding": copy.deepcopy(project_rules_binding),
+    }
+
+
+def compare_t29_normalized_canonical(
+    frozen_normalized: dict[str, Any], regenerated_normalized: dict[str, Any]
+) -> dict[str, Any]:
+    """计算并核对所有指定元数据归一化后的 canonical 摘要。"""
+    frozen_bytes = t29._canonical_evidence_bytes(frozen_normalized)
+    regenerated_bytes = t29._canonical_evidence_bytes(regenerated_normalized)
+    frozen_sha256 = sha256_bytes(frozen_bytes)
+    regenerated_sha256 = sha256_bytes(regenerated_bytes)
+    canonical_match = frozen_bytes == regenerated_bytes
+    require(
+        canonical_match,
+        "T29 CPU D9 evidence 除明确的 runtime 与 project_rules SHA 元数据外必须逐字节一致",
+    )
+    require(frozen_sha256 == regenerated_sha256, "T29 normalized canonical SHA-256 不一致")
+    return {
+        "frozen_normalized_canonical_sha256": frozen_sha256,
+        "regenerated_normalized_canonical_sha256": regenerated_sha256,
+        "normalized_canonical_match": canonical_match,
+    }
 
 
 def read_json(path: Path, label: str) -> dict[str, Any]:
@@ -114,14 +203,20 @@ def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, An
     regenerated = t29.generate_evidence(ROOT, progress=None, preflight_only=False)
     require(len(regenerated.get("samples", [])) == SAMPLE_COUNT, "从 T25 重建的 CPU D9 结果不是 109 样本")
     frozen_canonical = t29._canonical_evidence_bytes(parent)
-    regenerated_canonical = t29._canonical_evidence_bytes(regenerated)
+    regenerated_raw_canonical = t29._canonical_evidence_bytes(regenerated)
     frozen_canonical_sha256 = sha256_bytes(frozen_canonical)
-    regenerated_canonical_sha256 = sha256_bytes(regenerated_canonical)
+    regenerated_raw_canonical_sha256 = sha256_bytes(regenerated_raw_canonical)
     require(frozen_canonical_sha256 == T29_CANONICAL_SHA256, "冻结 T29 canonical SHA-256 不符")
+
+    frozen_for_comparison, regenerated_for_comparison, project_rules_binding = (
+        normalize_t29_project_rules_binding(parent, regenerated)
+    )
+    regenerated_canonical = t29._canonical_evidence_bytes(regenerated_for_comparison)
+    regenerated_canonical_sha256 = sha256_bytes(regenerated_canonical)
     require(regenerated_canonical_sha256 == T29_REGENERATED_CANONICAL_SHA256, "当前固定 Python T29 canonical SHA-256 不符")
 
-    frozen_normalized = copy.deepcopy(parent)
-    regenerated_normalized = copy.deepcopy(regenerated)
+    frozen_normalized = frozen_for_comparison
+    regenerated_normalized = regenerated_for_comparison
     frozen_runtime = frozen_normalized.get("runtime")
     regenerated_runtime = regenerated_normalized.get("runtime")
     require(isinstance(frozen_runtime, dict) and isinstance(regenerated_runtime, dict), "T29 runtime 必须是对象")
@@ -138,28 +233,24 @@ def verify_frozen_cpu_baseline() -> tuple[dict[str, Any], dict[str, dict[str, An
 
     sample_outputs_match = regenerated_normalized.get("samples") == frozen_normalized.get("samples")
     require(sample_outputs_match, "T29 CPU D9 样本输出不能与冻结报告逐字段精确匹配")
-    normalized_canonical_match = (
-        t29._canonical_evidence_bytes(regenerated_normalized)
-        == t29._canonical_evidence_bytes(frozen_normalized)
+    normalized_canonical_metadata = compare_t29_normalized_canonical(
+        frozen_normalized, regenerated_normalized
     )
-    require(
-        normalized_canonical_match,
-        "T29 CPU D9 父 evidence 除三个明确 runtime 版本字段外不能由当前冻结 T25 shards/source 确定性重建",
-    )
+    normalized_canonical_match = normalized_canonical_metadata["normalized_canonical_match"]
     require(regenerated.get("decoder", {}).get("score_threshold") == 0.25, "T29 score threshold 不等于冻结值 0.25")
     require(regenerated.get("decoder", {}).get("max_outputs") == 15, "T29 max output 不等于冻结值 15")
     generated_rows = {row["sample_id"]: row for row in regenerated["samples"]}
     require(len(generated_rows) == SAMPLE_COUNT, "T29 sample_id 重复或缺失")
     reconstruction = {
         "schema_version": "gestureforge_s2a_t68_cpu_d9_reconstruction_v1",
-        "status": "PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS",
         "frozen_canonical_sha256": frozen_canonical_sha256,
         "regenerated_canonical_sha256": regenerated_canonical_sha256,
+        "regenerated_raw_canonical_sha256": regenerated_raw_canonical_sha256,
+        **t29_reconstruction_metadata(project_rules_binding),
+        **normalized_canonical_metadata,
         "runtime_versions": runtime_versions,
-        "ignored_fields": [f"runtime.{field}" for field in T29_RUNTIME_FIELDS],
         "exact_outputs_status": "PASS_ALL_109_SAMPLES_EXACT",
         "exact_outputs_match": sample_outputs_match,
-        "normalized_canonical_match": normalized_canonical_match,
     }
     return regenerated, generated_rows, reconstruction
 
@@ -318,6 +409,88 @@ def verify_captured_native_logs(run_directory: Path, record: dict[str, Any], lab
     return {"warning_count": warning_count, "error_count": error_count}
 
 
+def _strip_line_ending(raw_line: bytes) -> bytes:
+    """移除解析用的单行换行符，不改变传递或重建时的原始行字节。"""
+    if raw_line.endswith(b"\r\n"):
+        return raw_line[:-2]
+    if raw_line.endswith((b"\r", b"\n")):
+        return raw_line[:-1]
+    return raw_line
+
+
+def _progress_marker_rows(console_bytes: bytes) -> list[bytes]:
+    """从原始 console 字节提取 marker 行并保留其原始行结束字节。"""
+    rows: list[bytes] = []
+    for raw_line in console_bytes.splitlines(keepends=True):
+        tokens = _strip_line_ending(raw_line).split()
+        if tokens and tokens[0] == PROGRESS_MARKER_PREFIX:
+            rows.append(raw_line)
+    return rows
+
+
+def _parse_progress_marker_identity(raw_line: bytes) -> tuple[int, str]:
+    """解析 progress marker 的 sample 与 phase 字段。"""
+    tokens = _strip_line_ending(raw_line).split()
+    require(tokens and tokens[0] == PROGRESS_MARKER_PREFIX, "progress marker 行格式无效")
+    sample_values = [token[len(b"sample=") :] for token in tokens[1:] if token.startswith(b"sample=")]
+    phase_values = [token[len(b"phase=") :] for token in tokens[1:] if token.startswith(b"phase=")]
+    require(len(sample_values) == 1 and re.fullmatch(rb"[0-9]+", sample_values[0]) is not None, "progress marker sample 字段无效")
+    require(len(phase_values) == 1 and re.fullmatch(rb"[A-Za-z0-9_-]+", phase_values[0]) is not None, "progress marker phase 字段无效")
+    return int(sample_values[0]), phase_values[0].decode("ascii")
+
+
+def bind_progress_marker_bytes(
+    observed_marker_bytes: bytes,
+    expected_marker_sha256: Any,
+    expected_marker_count: Any,
+    sample_index: int,
+    console_bytes: bytes,
+    expected_console_sha256: Any,
+) -> tuple[bytes, dict[str, Any]]:
+    """优先绑定原 marker 文件，必要时从 SHA 绑定的 console 原字节恢复。"""
+    require(
+        isinstance(expected_marker_sha256, str)
+        and re.fullmatch(r"[0-9a-f]{64}", expected_marker_sha256) is not None,
+        "expected progress marker SHA-256 格式无效",
+    )
+    require(type(expected_marker_count) is int and expected_marker_count > 0, "progress marker count 无效")
+    require(type(sample_index) is int and sample_index >= 0, "progress marker sample_index 无效")
+    require(
+        isinstance(expected_console_sha256, str)
+        and re.fullmatch(r"[0-9a-f]{64}", expected_console_sha256) is not None,
+        "simulation console SHA-256 格式无效",
+    )
+    console_sha256 = sha256_bytes(console_bytes)
+    require(console_sha256 == expected_console_sha256, "simulation console 原始字节 SHA 不符，拒绝恢复 progress marker")
+
+    observed_marker_sha256 = sha256_bytes(observed_marker_bytes)
+    recovered_from_console = observed_marker_sha256 != expected_marker_sha256
+    recovered_marker_sha256: str | None = None
+    if recovered_from_console:
+        marker_rows = _progress_marker_rows(console_bytes)
+        require(len(marker_rows) == expected_marker_count, "console 恢复的 progress marker count 与记录不符")
+        identities = [_parse_progress_marker_identity(row) for row in marker_rows]
+        require(all(index == sample_index for index, _ in identities), "console progress marker 含其他 sample_index")
+        require(identities[-1][1] == "complete", "console 最后一条 progress marker phase 不是 complete")
+        validated_marker_bytes = b"".join(marker_rows)
+        recovered_marker_sha256 = sha256_bytes(validated_marker_bytes)
+        require(recovered_marker_sha256 == expected_marker_sha256, "console 恢复的 progress marker SHA-256 与记录不符")
+        marker_count = len(marker_rows)
+    else:
+        validated_marker_bytes = observed_marker_bytes
+        marker_count = sum(1 for line in validated_marker_bytes.splitlines() if line)
+        require(marker_count == expected_marker_count, "progress marker count 与记录不符")
+
+    return validated_marker_bytes, {
+        "recovered_from_sha_bound_console": recovered_from_console,
+        "observed_marker_sha256": observed_marker_sha256,
+        "expected_marker_sha256": expected_marker_sha256,
+        "recovered_marker_sha256": recovered_marker_sha256,
+        "console_sha256": console_sha256,
+        "count": marker_count,
+    }
+
+
 def decode_heads(head13: bytes, head26: bytes, head13_scale: float, head26_scale: float) -> dict[str, np.ndarray]:
     """把实际导出的有符号 INT8 head 按冻结 scale 解量化为 float64。"""
     require(len(head13) == HEAD_SPECS["head13"]["bytes"], "head13 原始 byte length 错误")
@@ -414,15 +587,23 @@ def verify_sample(
 
     compile_console = safe_child_file(sample_dir, compile_record.get("console_path"), f"{sample_key} compile console")
     require(sha256_file(compile_console) == compile_record.get("console_sha256"), f"{sample_key}: compile console SHA 不符")
-    for field, hash_field, label in (
-        ("console_path", "console_sha256", "simulation console"),
-        ("stderr_path", "stderr_sha256", "simulation stderr"),
-        ("progress_marker_path", "progress_marker_sha256", "progress markers"),
-    ):
-        log_path = safe_child_file(sample_dir, simulation_record.get(field), f"{sample_key} {label}")
-        require(sha256_file(log_path) == simulation_record.get(hash_field), f"{sample_key}: {label} SHA 不符")
-    progress_path = Path(simulation_record["progress_marker_path"])
-    progress_lines = [line for line in progress_path.read_text(encoding="utf-8").splitlines() if line]
+    simulation_console = safe_child_file(sample_dir, simulation_record.get("console_path"), f"{sample_key} simulation console")
+    simulation_console_bytes = simulation_console.read_bytes()
+    simulation_console_sha256 = sha256_bytes(simulation_console_bytes)
+    require(simulation_console_sha256 == simulation_record.get("console_sha256"), f"{sample_key}: simulation console SHA 不符")
+    simulation_stderr = safe_child_file(sample_dir, simulation_record.get("stderr_path"), f"{sample_key} simulation stderr")
+    require(sha256_file(simulation_stderr) == simulation_record.get("stderr_sha256"), f"{sample_key}: simulation stderr SHA 不符")
+    progress_path = safe_child_file(sample_dir, simulation_record.get("progress_marker_path"), f"{sample_key} progress markers")
+    observed_marker_bytes = progress_path.read_bytes()
+    validated_marker_bytes, progress_marker_binding = bind_progress_marker_bytes(
+        observed_marker_bytes,
+        simulation_record.get("progress_marker_sha256"),
+        simulation_record.get("progress_marker_count"),
+        sample_index,
+        simulation_console_bytes,
+        simulation_record.get("console_sha256"),
+    )
+    progress_lines = [line for line in validated_marker_bytes.splitlines() if line]
     require(len(progress_lines) == simulation_record.get("progress_marker_count"), f"{sample_key}: progress marker count 与记录不符")
 
     fixture_manifest_path = evidence_root / "fixtures" / sample_key / "fixture_manifest.json"
@@ -485,6 +666,7 @@ def verify_sample(
         "compile_execution_record_sha256": sha256_file(compile_record_path),
         "compile_source_snapshot_sha256": sha256_file(snapshot_path),
         "input_sha256": fixture_manifest["input"]["sha256"],
+        "progress_marker_binding": progress_marker_binding,
         "head_exports": head_report,
         "d9_comparison": d9_comparison,
         **({

@@ -1,0 +1,127 @@
+{
+  "task_id": "S3-HDMI-CLOCK-RELATION-CANDIDATE-01",
+  "status": "CANDIDATE_ONLY_NOT_SIGNOFF",
+  "date": "2026-10-07",
+  "baseline": {
+    "requested_head": "5d5ed72c8b9b683bcbc33a1283d2894d95eb1cf4",
+    "head_verified_at_task_start": "5d5ed72c8b9b683bcbc33a1283d2894d95eb1cf4",
+    "head_at_report_creation": "4492f1157b8635a8eb8e7f783d334def2fa55424",
+    "concurrent_head_advance": "4492f11 docs(stage3): audit OV5640 DVP timing evidence; the only committed path after the requested baseline is report/stage3_ov5640_dvp_timing_audit_20261007.json, unrelated to this candidate. This task did not create that commit.",
+    "unrelated_untracked_files_observed_during_final_audit": [
+      "report/stage3_hdmi_frame_pattern_host_test_20261007.json",
+      "scripts/test_s3_hdmi_frame_pattern.py"
+    ],
+    "unrelated_untracked_files_touched_by_this_task": false
+  },
+  "scope": {
+    "added_files": [
+      "board/stage3/hardware/hdmi_clock_relation_candidate.patch",
+      "report/stage3_hdmi_clock_relation_candidate_20261007.json"
+    ],
+    "official_cache_modified": false,
+    "vivado_or_vitis_run": false,
+    "bitstream_generated": false,
+    "board_or_jtag_operated": false,
+    "batch109_interfered_with": false,
+    "project_signoff_or_fix_claimed": false,
+    "committed": false
+  },
+  "reference": {
+    "cache_path": "tmp/stage3_reference/AX7020_2023.1",
+    "cache_commit_expected_and_observed": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "cache_worktree_status": "clean",
+    "source_project": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project"
+  },
+  "source_integrity": {
+    "xdc_path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/rgb2dvi_v1_3/src/rgb2dvi_clocks.xdc",
+    "xdc_sha256_expected": "e6ceadc3fcfcf59fe1f5eaf13f8f94d862e9513ad6cd2e850a035c312c8d2002",
+    "xdc_sha256_observed": "e6ceadc3fcfcf59fe1f5eaf13f8f94d862e9513ad6cd2e850a035c312c8d2002",
+    "rtl_path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/axi_dynclk_v1_0/src/axi_dynclk.vhd",
+    "rtl_sha256_expected": "334a8c8bf5fe3baefb4e44fb0de36a5b37248b08c3786bb7308d012810d837df",
+    "rtl_sha256_observed": "334a8c8bf5fe3baefb4e44fb0de36a5b37248b08c3786bb7308d012810d837df"
+  },
+  "static_clock_analysis": {
+    "xdc_declaration": "create_generated_clock -source [get_ports PixelClk] -multiply_by 5 [get_ports SerialClk]",
+    "xdc_line": 2,
+    "bd_connections": {
+      "pl_config_tcl_line_118": "axi_dynclk_0/PXL_CLK_5X_O -> rgb2dvi_0/SerialClk",
+      "pl_config_tcl_line_119": "axi_dynclk_0/PXL_CLK_O -> rgb2dvi_0/PixelClk"
+    },
+    "rtl_topology": {
+      "axi_dynclk_vhd_lines_198_202": "BUFIO drives PXL_CLK_5X_O directly from bufio_in.",
+      "axi_dynclk_vhd_lines_204_214": "BUFR is configured with BUFR_DIVIDE=5 and is driven from the same bufio_in.",
+      "axi_dynclk_vhd_line_242": "PXL_CLK_O is assigned from the BUFR output pxl_clk."
+    },
+    "assessment": "The XDC declares PixelClk as the master and SerialClk as a x5 descendant, while the reference BD connects these signals to distinct dynamic-clock outputs and the RTL shows two branches from the common bufio_in: BUFIO directly to the 5x output and BUFR divide-by-5 to the pixel output. Available static evidence does not show a logical PixelClk-to-SerialClk path. Removing the unsupported direction is preferred over inventing the reverse sibling-clock hierarchy; this does not establish the complete or correct timing model for the design."
+  },
+  "candidate_patch": {
+    "path": "board/stage3/hardware/hdmi_clock_relation_candidate.patch",
+    "sha256": "15453adcdcddad2195224239ef84d70d712cab786b9a22fec81bfa58c2fcb06a",
+    "change": "Remove only the single create_generated_clock declaration from the copied RGB2DVI clock XDC; retain the header and add no reverse generated-clock declaration.",
+    "official_source_changed": false
+  },
+  "isolated_validation": {
+    "temporary_copy": "tmp/s3clockrel_git2_20261007_960nKi",
+    "method": "A temporary nested Git repository tracked a byte-for-byte copy of the CRLF source XDC. Git apply was run with --ignore-space-change to account for CRLF while retaining the untouched header bytes. The source's final constraint line has no trailing newline.",
+    "commands": [
+      {
+        "command": "git -C tmp/s3clockrel_git2_20261007_960nKi init -q",
+        "exit_code": 0
+      },
+      {
+        "command": "git -C tmp/s3clockrel_git2_20261007_960nKi config core.autocrlf false",
+        "exit_code": 0
+      },
+      {
+        "command": "git -C tmp/s3clockrel_git2_20261007_960nKi add my_ip/rgb2dvi_v1_3/src/rgb2dvi_clocks.xdc",
+        "exit_code": 0
+      },
+      {
+        "command": "cd tmp/s3clockrel_git2_20261007_960nKi && git apply --check --ignore-space-change /c/Users/22061/.codex/worktrees/dbdf/FPGA_Competition/board/stage3/hardware/hdmi_clock_relation_candidate.patch",
+        "exit_code": 0
+      },
+      {
+        "command": "cd tmp/s3clockrel_git2_20261007_960nKi && git apply --ignore-space-change /c/Users/22061/.codex/worktrees/dbdf/FPGA_Competition/board/stage3/hardware/hdmi_clock_relation_candidate.patch",
+        "exit_code": 0
+      },
+      {
+        "command": "git -C tmp/s3clockrel_git2_20261007_960nKi -c core.autocrlf=false diff --check",
+        "exit_code": 0
+      },
+      {
+        "command": "cd tmp/s3clockrel_git2_20261007_960nKi && git apply --reverse --check --ignore-space-change /c/Users/22061/.codex/worktrees/dbdf/FPGA_Competition/board/stage3/hardware/hdmi_clock_relation_candidate.patch",
+        "exit_code": 0
+      }
+    ],
+    "source_copy_sha256": "e6ceadc3fcfcf59fe1f5eaf13f8f94d862e9513ad6cd2e850a035c312c8d2002",
+    "patched_copy_sha256": "a8a46ceac24c4ba73d64d9066f6be09d20e02207d20b49963022c06eb088ecd1",
+    "diff_numstat": "0 additions, 1 deletion; only the declared create_generated_clock line is removed.",
+    "result": "PASS_STATIC_PATCH_APPLICATION_ONLY"
+  },
+  "prior_diagnostic_evidence": [
+    {
+      "path": "report/stage3_hdmi_only_synth_diag_20261004.json",
+      "sha256": "45979aa8ad0a5689fd6eb4735382653879928eb426b37cb0e2849ca3869fbe01",
+      "relevant_evidence": "Records Timing 38-249 for the original generated-clock declaration and a matched single-variable scratch run where removing only that line suppressed the warning. It also records remaining hold failures and TMDS outputs without output delays; it explicitly does not accept a project fix or sign off timing."
+    },
+    {
+      "path": "report/stage3_hdmi_only_route_diag_20261006.json",
+      "sha256": "f340668c67cec69aefd0bb8c3628b3dfdfb76ba133450971cf96987926293719",
+      "relevant_evidence": "Records that the prior isolated route diagnostic was not HDMI I/O signoff: output delays, clock exceptions/CDC review, methodology review, and bus-skew review remained incomplete; runtime dynamic-clock programming was not modeled."
+    }
+  ],
+  "required_follow_up_before_acceptance": [
+    "Only after separate explicit authorization, rerun synthesis and the full opt/place/route flow against the intended project snapshot and target part.",
+    "Review generated and primary clocks, clock interaction and exceptions, unconstrained paths, and the final timing/constraint reports.",
+    "Complete CDC review and justify each clock relationship or asynchronous grouping from the implemented clock topology.",
+    "Add and validate board-appropriate HDMI output-delay constraints and required I/O standards/pin bindings.",
+    "Run and review methodology and bus-skew reports, along with DRC and all critical warnings.",
+    "Do not treat this candidate or prior isolated diagnostics as authorization for bitstream generation or board programming."
+  ],
+  "limitations": [
+    "This is a static candidate patch and isolated application test only; no Vivado synthesis, implementation, timing analysis, or HDMI I/O signoff was run in this task.",
+    "The static sibling-clock observation does not prove the final timing exception or clock-group strategy; that requires the implemented design and full clock/constraint reports.",
+    "The temporary-copy result does not modify or validate the formal Vivado project, the official cache, the target-board XDC, runtime DRP clock settings, or physical HDMI output.",
+    "The workspace HEAD advanced during this task from the specified baseline to 4492f1157b8635a8eb8e7f783d334def2fa55424 via an unrelated commit; no task changes were committed."
+  ]
+}

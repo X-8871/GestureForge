@@ -34,11 +34,87 @@ $script:ActiveOutputMode = $null
 $script:ActiveStdoutPath = $null
 $script:ActiveStderrPath = $null
 $script:LastProgressUtcTicks = [DateTime]::UtcNow.Ticks
+$script:CompileTimeoutMilliseconds = 1800000
+$script:CleanupTimeoutMilliseconds = 10000
+$script:DrainTimeoutMilliseconds = 10000
+$script:CleanupDiagnostics = $null
+
+function Initialize-BoundedProcessSupport {
+    # 在无 PowerShell runspace 的线程执行系统调用，调用及退出等待共享截止时间。
+    if (-not ('T66BoundedProcessStop' -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+public static class T66BoundedProcessStop {
+    public static bool CloseWriter(System.IO.StreamWriter writer, int milliseconds) {
+        var task = Task.Run(() => writer.Dispose());
+        if (!task.Wait(milliseconds)) return false;
+        task.GetAwaiter().GetResult();
+        return true;
+    }
+    public static bool Stop(Process process, int milliseconds) {
+        var watch = Stopwatch.StartNew();
+        var task = Task.Run(() => { if (!process.HasExited) process.Kill(true); });
+        if (!task.Wait(milliseconds)) return false;
+        task.GetAwaiter().GetResult();
+        int remaining = Math.Max(0, milliseconds - (int)watch.ElapsedMilliseconds);
+        return process.WaitForExit(remaining);
+    }
+}
+'@
+    }
+}
+
+function Stop-ProcessTreeBounded {
+    param([Parameter(Mandatory = $true)][System.Diagnostics.Process]$Process,
+          [int]$BudgetMilliseconds = 10000)
+    Initialize-BoundedProcessSupport
+    if ($BudgetMilliseconds -le 0) { throw '终止预算必须为正。' }
+    return [T66BoundedProcessStop]::Stop($Process, $BudgetMilliseconds)
+}
+
+function Assert-UniqueMarkerSet {
+    param([string]$Text, [string]$Prefix, [string]$Field, [int[]]$Expected)
+    # 所有以该 marker 开头的行均纳入检查，非法值及重复不能隐藏在计数之外。
+    $rows = @($Text -split '\r?\n' | Where-Object { $_ -match ('^' + [regex]::Escape($Prefix) + '\b') })
+    $observed = [System.Collections.Generic.HashSet[int]]::new()
+    foreach ($row in $rows) {
+        $pattern = '^' + [regex]::Escape($Prefix) + ' ' + [regex]::Escape($Field) + '=([0-9]+) '
+        $match = [regex]::Match($row, $pattern)
+        if (-not $match.Success) { throw "T66_MARKER_INVALID: $row" }
+        $value = 0
+        if (-not [int]::TryParse($match.Groups[1].Value, [ref]$value) -or $value -notin $Expected -or
+            $match.Groups[1].Value -cne $value.ToString()) {
+            throw "T66_MARKER_INVALID: $row"
+        }
+        if (-not $observed.Add($value)) { throw "T66_MARKER_DUPLICATE: $row" }
+    }
+    if ($observed.Count -ne $Expected.Count) { throw "T66_MARKER_MISSING: $Prefix" }
+    return $rows.Count
+}
+
+function Save-FailureEvidence {
+    param([string]$RecordPath, [string]$StatusPath, [object]$Record, [object]$Status)
+    $result = [ordered]@{ record_saved = $false; status_saved = $false; errors = @() }
+    try {
+        Write-NewJson -Path $RecordPath -Value $Record
+        $Status.failure_record_sha256 = Get-Sha256 -Path $RecordPath
+        $result.record_saved = $true
+    } catch { $result.errors += "record: $($_.Exception.Message)" }
+    $Status.failure_record_saved = $result.record_saved
+    try {
+        Write-NewJson -Path $StatusPath -Value $Status
+        $result.status_saved = $true
+    } catch { $result.errors += "status: $($_.Exception.Message)" }
+    [Console]::Error.WriteLine(('T66_FAILURE_PERSISTENCE: ' + ($result | ConvertTo-Json -Compress)))
+    return [pscustomobject]$result
+}
 
 function Write-NewText {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
-        [Parameter(Mandatory = $true)][string]$Text
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Text
     )
     $encoding = [System.Text.UTF8Encoding]::new($false)
     $bytes = $encoding.GetBytes($Text)
@@ -77,39 +153,46 @@ function New-CreateNewWriter {
 }
 
 function Stop-ActiveProcessAndCapture {
+    $script:CleanupDiagnostics = [ordered]@{ process_exited = $null; output_complete = $true; errors = @() }
     if ($null -ne $script:ActiveProcess) {
         try {
-            if (-not $script:ActiveProcess.HasExited) {
-                try { $script:ActiveProcess.Kill($true) } catch { try { $script:ActiveProcess.Kill() } catch {} }
-            }
-            try { $script:ActiveProcess.WaitForExit() } catch {}
+            $script:CleanupDiagnostics.process_exited = Stop-ProcessTreeBounded -Process $script:ActiveProcess -BudgetMilliseconds $script:CleanupTimeoutMilliseconds
             if ($script:ActiveProcess.HasExited) { $script:ActiveExitCode = [int]$script:ActiveProcess.ExitCode }
         }
-        catch {}
+        catch { $script:CleanupDiagnostics.process_exited = $false; $script:CleanupDiagnostics.errors += $_.Exception.Message }
     }
-
+    $drainWatch = [System.Diagnostics.Stopwatch]::StartNew()
     if ($script:ActiveOutputMode -eq 'read_all') {
         foreach ($taskName in @('ActiveStdoutTask', 'ActiveStderrTask')) {
             $task = Get-Variable -Name $taskName -Scope Script -ValueOnly -ErrorAction SilentlyContinue
             if ($null -eq $task) { continue }
             try {
-                if (-not $task.IsCompleted) { [void]$task.Wait(10000) }
+                $remaining = [Math]::Max(0, $script:DrainTimeoutMilliseconds - [int]$drainWatch.ElapsedMilliseconds)
+                if (-not $task.IsCompleted) { [void]$task.Wait($remaining) }
                 if ($task.IsCompleted -and -not $task.IsFaulted) {
                     $text = $task.GetAwaiter().GetResult()
                     $pathVariable = if ($taskName -eq 'ActiveStdoutTask') { 'ActiveStdoutPath' } else { 'ActiveStderrPath' }
                     $path = Get-Variable -Name $pathVariable -Scope Script -ValueOnly
                     if ($path -and -not (Test-Path -LiteralPath $path)) { Write-NewText -Path $path -Text ([string]$text) }
                 }
+                else { $script:CleanupDiagnostics.output_complete = $false }
             }
-            catch {}
+            catch { $script:CleanupDiagnostics.output_complete = $false; $script:CleanupDiagnostics.errors += $_.Exception.Message }
         }
     }
     elseif ($script:ActiveOutputMode -eq 'lines' -and $null -ne $script:ActiveProcess) {
         while ($null -ne $script:ActiveStdoutTask -or $null -ne $script:ActiveStderrTask) {
+            if ($drainWatch.ElapsedMilliseconds -ge $script:DrainTimeoutMilliseconds) {
+                $script:CleanupDiagnostics.output_complete = $false
+                break
+            }
             $pending = @()
             if ($null -ne $script:ActiveStdoutTask) { $pending += $script:ActiveStdoutTask }
             if ($null -ne $script:ActiveStderrTask) { $pending += $script:ActiveStderrTask }
-            if ($pending.Count -gt 0) { [void][System.Threading.Tasks.Task]::WaitAny($pending, 250) }
+            if ($pending.Count -gt 0) {
+                try { [void][System.Threading.Tasks.Task]::WaitAny([System.Threading.Tasks.Task[]]$pending, 250) }
+                catch { $script:CleanupDiagnostics.output_complete = $false; $script:CleanupDiagnostics.errors += $_.Exception.Message; break }
+            }
             foreach ($streamName in @('stdout', 'stderr')) {
                 $taskName = if ($streamName -eq 'stdout') { 'ActiveStdoutTask' } else { 'ActiveStderrTask' }
                 $readerName = if ($streamName -eq 'stdout') { 'StandardOutput' } else { 'StandardError' }
@@ -127,21 +210,30 @@ function Stop-ActiveProcessAndCapture {
                         Set-Variable -Name $taskName -Scope Script -Value $next
                     }
                 }
-                catch { Set-Variable -Name $taskName -Scope Script -Value $null }
+                catch {
+                    $script:CleanupDiagnostics.output_complete = $false
+                    $script:CleanupDiagnostics.errors += $_.Exception.Message
+                    Set-Variable -Name $taskName -Scope Script -Value $null
+                }
             }
         }
     }
 
     if ($null -ne $script:ActiveStdoutWriter) {
-        try { $script:ActiveStdoutWriter.Flush() } catch {}
-        try { $script:ActiveStdoutWriter.Dispose() } catch {}
+        Initialize-BoundedProcessSupport
+        try {
+            if (-not [T66BoundedProcessStop]::CloseWriter($script:ActiveStdoutWriter, $script:DrainTimeoutMilliseconds)) { throw 'stdout writer 收尾超时。' }
+        } catch { $script:CleanupDiagnostics.output_complete = $false; $script:CleanupDiagnostics.errors += $_.Exception.Message }
         $script:ActiveStdoutWriter = $null
     }
     if ($null -ne $script:ActiveStderrWriter) {
-        try { $script:ActiveStderrWriter.Flush() } catch {}
-        try { $script:ActiveStderrWriter.Dispose() } catch {}
+        Initialize-BoundedProcessSupport
+        try {
+            if (-not [T66BoundedProcessStop]::CloseWriter($script:ActiveStderrWriter, $script:DrainTimeoutMilliseconds)) { throw 'stderr writer 收尾超时。' }
+        } catch { $script:CleanupDiagnostics.output_complete = $false; $script:CleanupDiagnostics.errors += $_.Exception.Message }
         $script:ActiveStderrWriter = $null
     }
+    [Console]::Error.WriteLine(('T66_CLEANUP: ' + ($script:CleanupDiagnostics | ConvertTo-Json -Compress)))
 }
 
 function Release-EvidenceMutex {
@@ -228,23 +320,6 @@ function Get-AllowedProcessSnapshot {
     }
 }
 
-function Invoke-NativeCapture {
-    param(
-        [Parameter(Mandatory = $true)][string]$Executable,
-        [Parameter(Mandatory = $true)][string[]]$Arguments
-    )
-    $previous = $ErrorActionPreference
-    try {
-        $ErrorActionPreference = 'Continue'
-        $output = @(& $Executable @Arguments 2>&1 | ForEach-Object { [string]$_ })
-        $exitCode = [int]$LASTEXITCODE
-    }
-    finally {
-        $ErrorActionPreference = $previous
-    }
-    return [pscustomobject]@{ output = $output; exit_code = $exitCode }
-}
-
 function Invoke-CapturedChild {
     param(
         [Parameter(Mandatory = $true)][string]$FileName,
@@ -275,18 +350,28 @@ function Invoke-CapturedChild {
     $script:ActiveStdoutPath = $StdoutPath
     $script:ActiveStderrPath = $StderrPath
     $script:ActiveOutputMode = 'read_all'
+    $captureSucceeded = $false
     try {
         if (-not $process.Start()) { throw 'T66_CANDIDATE_CHILD_START_FAILED: Native child did not start.' }
         $script:ActiveProcessId = [int]$process.Id
         $script:ActiveStdoutTask = $process.StandardOutput.ReadToEndAsync()
         $script:ActiveStderrTask = $process.StandardError.ReadToEndAsync()
-        while (-not $process.WaitForExit(1000)) { }
-        $process.WaitForExit()
+        while (-not $process.WaitForExit(1000)) {
+            if ($watch.ElapsedMilliseconds -ge $script:CompileTimeoutMilliseconds) {
+                throw 'T66_CANDIDATE_COMPILE_TIMEOUT: 编译子进程超过有限预算。'
+            }
+        }
+        $drain = [System.Diagnostics.Stopwatch]::StartNew()
+        foreach ($task in @($script:ActiveStdoutTask, $script:ActiveStderrTask)) {
+            $remaining = [Math]::Max(0, $script:DrainTimeoutMilliseconds - [int]$drain.ElapsedMilliseconds)
+            if (-not $task.Wait($remaining)) { throw 'T66_CANDIDATE_CAPTURE_TIMEOUT: 子进程已退出但输出未完整收尾。' }
+        }
         $stdoutText = $script:ActiveStdoutTask.GetAwaiter().GetResult()
         $stderrText = $script:ActiveStderrTask.GetAwaiter().GetResult()
         $script:ActiveExitCode = [int]$process.ExitCode
         Write-NewText -Path $StdoutPath -Text ([string]$stdoutText)
         Write-NewText -Path $StderrPath -Text ([string]$stderrText)
+        $captureSucceeded = $true
         $watch.Stop()
         return [pscustomobject]@{
             output = @(([string]$stdoutText + [Environment]::NewLine + [string]$stderrText) -split '\r?\n')
@@ -297,9 +382,15 @@ function Invoke-CapturedChild {
             duration_seconds = [Math]::Round($watch.Elapsed.TotalSeconds, 3)
         }
     }
+    catch {
+        Stop-ActiveProcessAndCapture
+        throw
+    }
     finally {
         $watch.Stop()
-        if ($null -ne $script:ActiveProcess -and $script:ActiveProcess.HasExited) {
+        if ($captureSucceeded -and $null -ne $script:ActiveProcessId -and $null -ne $script:ActiveProcess -and $script:ActiveProcess.HasExited -and
+            $null -ne $script:ActiveStdoutTask -and $null -ne $script:ActiveStderrTask -and
+            $script:ActiveStdoutTask.IsCompleted -and $script:ActiveStderrTask.IsCompleted) {
             $script:ActiveExitCode = [int]$script:ActiveProcess.ExitCode
             $script:ActiveProcess = $null
             $script:ActiveStdoutTask = $null
@@ -807,6 +898,7 @@ try {
     $watchdogFailure = $null
     $stdoutLines = [System.Collections.Generic.List[string]]::new()
     $stderrLines = [System.Collections.Generic.List[string]]::new()
+    $exitDrainStarted = $null
     if (-not $process.Start()) { throw 'T66_CANDIDATE_SIM_START_FAILED: 无法启动仿真程序。' }
     $script:SimulatorStarted = $true
     $script:ActiveProcessId = [int]$process.Id
@@ -815,6 +907,12 @@ try {
     $script:ActiveStdoutTask = $stdoutTask
     $script:ActiveStderrTask = $stderrTask
     while ($true) {
+            if ($process.HasExited) {
+                if ($null -eq $exitDrainStarted) { $exitDrainStarted = [System.Diagnostics.Stopwatch]::StartNew() }
+                if ($exitDrainStarted.ElapsedMilliseconds -ge $script:DrainTimeoutMilliseconds) {
+                    throw 'T66_CANDIDATE_CAPTURE_TIMEOUT: 仿真退出后输出管道未收尾。'
+                }
+            }
             $pendingTasks = @()
             if ($null -ne $stdoutTask) { $pendingTasks += $stdoutTask }
             if ($null -ne $stderrTask) { $pendingTasks += $stderrTask }
@@ -851,11 +949,11 @@ try {
 
             if ($simulationWatch.Elapsed -ge [TimeSpan]::FromMinutes(30)) {
                 $watchdogFailure = 'T66_CANDIDATE_WALL_TIMEOUT: 仿真超过30分钟。'
-                if (-not $process.HasExited) { $process.Kill() }
+                throw $watchdogFailure
             } elseif ((([DateTime]::UtcNow - $lastProgress).TotalSeconds) -ge 180 -and
                       -not $process.HasExited) {
                 $watchdogFailure = 'T66_CANDIDATE_NO_PROGRESS_TIMEOUT: 连续180秒没有仿真进度标记。'
-                $process.Kill()
+                throw $watchdogFailure
             }
 
             if ($null -eq $guardFailure -and -not $process.HasExited -and
@@ -869,19 +967,20 @@ try {
                 }
                 catch {
                     $guardFailure = $_.Exception.Message
-                    if (-not $process.HasExited) { $process.Kill() }
+                    throw
                 }
             }
             if ($process.HasExited -and $null -eq $stdoutTask -and $null -eq $stderrTask) { break }
     }
-    $process.WaitForExit()
+    if (-not $process.WaitForExit($script:CleanupTimeoutMilliseconds)) { throw 'T66_CANDIDATE_EXIT_TIMEOUT: 仿真进程未退出。' }
     $simulationWatch.Stop()
     $simulationExitCode = [int]$process.ExitCode
     $script:ActiveExitCode = $simulationExitCode
-    $stdoutWriter.Flush()
-    $stderrWriter.Flush()
-    $stdoutWriter.Dispose()
-    $stderrWriter.Dispose()
+    Initialize-BoundedProcessSupport
+    if (-not [T66BoundedProcessStop]::CloseWriter($stdoutWriter, $script:DrainTimeoutMilliseconds) -or
+        -not [T66BoundedProcessStop]::CloseWriter($stderrWriter, $script:DrainTimeoutMilliseconds)) {
+        throw 'T66_CANDIDATE_WRITER_TIMEOUT: 输出 writer 收尾超时。'
+    }
     $script:ActiveStdoutWriter = $null
     $script:ActiveStderrWriter = $null
     $script:ActiveOutputMode = $null
@@ -901,8 +1000,8 @@ try {
     $outputText = $stdoutLines -join [Environment]::NewLine
     $passRegex = '(?m)^PASS: T66 candidate blackbox sample0 layer0 full tensor matched T25; bytes=1384448 mismatches=0 input_reads=583443 weight_reads=584064 output_writes=1384448 requests=2551955 responses=2551955 request_stalls=6635073 response_stalls=6635073 cycles=[0-9]+\r?$'
     $passObserved = [bool]($outputText -match $passRegex)
-    $lanePassCount = [regex]::Matches($outputText, '(?m)^T66_READ_LANE_PASS lane=[0-3] ').Count
-    $stallClassCount = [regex]::Matches($outputText, '(?m)^T66_CLASS_STALL class=[0-2] ').Count
+    $lanePassCount = Assert-UniqueMarkerSet -Text $outputText -Prefix 'T66_READ_LANE_PASS' -Field 'lane' -Expected @(0,1,2,3)
+    $stallClassCount = Assert-UniqueMarkerSet -Text $outputText -Prefix 'T66_CLASS_STALL' -Field 'class' -Expected @(0,1,2)
     $fixtureMarkerObserved = [bool]($outputText -match '(?m)^T66_FIXTURES input=519168 weight=864 expected=1384448 shape=\[1,32,208,208\] layout=NCHW\r?$')
     $memoryMarkerObserved = [bool]($outputText -match '(?m)^T66_MEMORY byte-strobes=one-hot aligned=32-bit outstanding=1 stall-pattern=\[0,1,2,7,3\]\r?$')
     $cycleLimitMarkerObserved = [bool]($outputText -match '(?m)^T66_PLAN cycle_limit=75000000 lanes=8 waveforms=disabled mq_bias=normal_descriptor_prefetch\r?$')
@@ -961,8 +1060,9 @@ try {
     return
 }
 catch {
+    $originalFailure = $_
     Stop-ActiveProcessAndCapture
-    $errorText = $_.Exception.Message
+    $errorText = $originalFailure.Exception.Message
     if ($script:FailureDirectoryCreatedByInvocation -and
         $null -ne $script:FailureDirectoryPath -and
         (Test-Path -LiteralPath $script:FailureDirectoryPath -PathType Container)) {
@@ -971,7 +1071,7 @@ catch {
         $failureRecord = [ordered]@{
             schema_version = 'gestureforge_s2a_t66_candidate_runner_failure_v1'
             stage = $script:RunnerStage
-            error_category = $_.Exception.GetType().FullName
+            error_category = $originalFailure.Exception.GetType().FullName
             error_message = $errorText
             exit_code = $script:ActiveExitCode
             process_id = $script:ActiveProcessId
@@ -980,18 +1080,19 @@ catch {
             partial_stdout_path = $script:ActiveStdoutPath
             partial_stderr_path = $script:ActiveStderrPath
             timestamp_utc = [DateTime]::UtcNow.ToString('o')
+            cleanup = $script:CleanupDiagnostics
         }
-        try { Write-NewJson -Path $failureRecordPath -Value $failureRecord } catch {}
         $failureStatus = [ordered]@{
             schema_version = 'gestureforge_s2a_t66_candidate_runner_failure_status_v1'
             status = 'FAILED'
             stage = $script:RunnerStage
             candidate_dut_sha256 = $expectedCandidateSha256
             failure_record_path = $failureRecordPath
-            failure_record_sha256 = if (Test-Path -LiteralPath $failureRecordPath -PathType Leaf) { Get-Sha256 -Path $failureRecordPath } else { $null }
+            failure_record_sha256 = $null
         }
-        try { Write-NewJson -Path $failureStatusPath -Value $failureStatus } catch {}
+        $null = Save-FailureEvidence -RecordPath $failureRecordPath -StatusPath $failureStatusPath -Record $failureRecord -Status $failureStatus
     }
+    else { [Console]::Error.WriteLine('T66_FAILURE_PERSISTENCE: record_saved=false status_saved=false; invocation 未创建可写证据目录。') }
     Release-EvidenceMutex
     [Console]::Error.WriteLine($errorText)
     exit 1

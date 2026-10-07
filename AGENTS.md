@@ -4,7 +4,7 @@
 
 ## 基本约定与授权边界
 
-- Windows 本机项目文件和目录的命令行操作（枚举、读取、创建、复制、移动、删除、路径核验等）必须通过 Git Bash 执行；Bash 程序路径为 `C:\Program Files\Git\bin\bash.exe`，Git Bash 启动器路径为 `C:\Program Files\Git\git-bash.exe`。不得使用 PowerShell 执行此类文件操作；按更高优先级的文件编辑规范使用 `apply_patch` 修改文件。
+- Windows 本机项目文件和目录的命令行操作（枚举、读取、创建、复制、移动、删除、路径核验等）优先使用 Git Bash；Bash 程序路径为 `C:\Program Files\Git\bin\bash.exe`，Git Bash 启动器路径为 `C:\Program Files\Git\git-bash.exe`。尽量避免使用 PowerShell 执行此类操作；只有 Git Bash 不适用或无法完成时才例外使用 PowerShell。文本文件编辑仍按更高优先级的文件编辑规范使用 `apply_patch`。
 
 - 每次回复用户的第一句严格为 `Hello Wong.`。默认简体中文；文本读写使用 UTF-8；时间使用 UTC+8；代码注释和文档字符串使用中文。
 - 用户管理项目目标、阶段方向和重大决策。范围内拆任务、开发、验证、审查、修复与相关 Git 提交自主完成，不要求用户复制 Agent 消息。

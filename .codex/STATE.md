@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-07（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-08（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
@@ -14,7 +14,7 @@
 - 候选代码提交 `999238284157bed77cdb3a37e3e6eea52daeefc4`，tree `b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`；包含 8×8 tile/8-lane 引擎、T66 黑盒 testbench 与 runner。T66 layer0 运行记录报告 1,384,448 bytes、mismatch=0；同名并发锁争用记录 PASS。独立静态 runner 复审发现超时/异常清理和 marker 唯一性阻断（见 Git 与下一步），因此这些结果不单独作为阶段签收依据。
 - 原始 T68 RunId `candidate8x8_109_20261006_130252` 于 2026-10-06 13:02（UTC+8）启动，证据根 `report/evidence/S2A-T68/candidate8x8_109_20261006_130252/`。原批次异常停止：样本 0–24 有完整 38 层 PASS；sample030 事件失败，sample025–032 只留部分记录；没有批次 summary。旧进度最新完整 marker 是 sample025、layer26、cycle690,000,000（2026-10-06 23:32:18），原协调器和仿真进程已退出。原日志、事件、部分运行目录和 marker 均保留。
 - 恢复修复提交 `d767a93`、`81db0f0`、`f21fd2d` 分别处理共享 progress marker 读取、跨 RunId 安全续跑/证据绑定，以及 harness verifier 格式耦合；恢复实现和最后一项修复均已独立审查 PASS。sample033 由现有 fixture-only runner 单独生成；sample034–108 共 75 份由同一 runner 从冻结 T01/T25 输入生成并验证，记录在 `fixture_prep_resume_20261007_022841/fixture_prep_progress.json`。109 份 fixture 通过只读恢复预检。首次 coordinator 尝试在样本启动前被 fail-closed 进程门拦截（观察用 PowerShell 自匹配），没有仿真或样本输出；记录为 `recovery_launch_outcome_20261007_022502.json`，未覆盖。
-- 当前恢复 RunId `candidate8x8_109_resume_20261007_023531` 仅运行尚未通过的 25–108，最多 8 workers；旧组 0–24 绑定原 commit/tree `999238284157bed77cdb3a37e3e6eea52daeefc4`/`b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`，新组绑定 `f21fd2d4237445772f30b901975676455a5766e7`/`25cb9b19282ff110e95448e0edf0c4e1b6976122`。截至 2026-10-07 21:14（UTC+8），协调器 PID17232、当前 8 个 runner 和 8 个仿真器存活；新组 25–96 的 72 个 dispatch 事件均为 `PASS_RUNNER_AND_RECORDS`、runner exit 0，逐项 stdout/stderr 与六类样本记录 SHA-256 复核通过，result summary 均为 `PASS_LAYERWISE_EXACT_GOLDEN` 且 `mismatches=0`。连同原组 0–24，当前 97/109 样本通过；样本 97–104 正在运行，8 个完整 marker 均为 `phase=running`，进度处于 `layer=2–4/cycle=120,000,000–180,000,000`。目前还没有最终 batch summary 或 recovery manifest。启动核验记录为 `recovery_startup_check_20261007_023531.json`；现有 4 小时 heartbeat 监控此恢复 RunId。
+- 当前恢复 RunId `candidate8x8_109_resume_20261007_023531` 仅运行尚未通过的 25–108，最多 8 workers；旧组 0–24 绑定原 commit/tree `999238284157bed77cdb3a37e3e6eea52daeefc4`/`b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`，新组绑定 `f21fd2d4237445772f30b901975676455a5766e7`/`25cb9b19282ff110e95448e0edf0c4e1b6976122`。截至 2026-10-08 00:41（UTC+8），协调器 PID17232、当前 4 个 runner 和 4 个仿真器存活；新组 25–104 的 80 个 dispatch 事件均为 `PASS_RUNNER_AND_RECORDS`、runner exit 0，逐项 stdout/stderr 与六类样本记录 SHA-256 复核通过，result summary 均为 `PASS_LAYERWISE_EXACT_GOLDEN` 且 `mismatches=0`。连同原组 0–24，当前 105/109 样本通过；样本 105–108 正在运行，4 个完整 marker 均为 `phase=running`，进度在 layer12/cycle390,000,000 左右。目前还没有最终 batch summary 或 recovery manifest。启动核验记录为 `recovery_startup_check_20261007_023531.json`；现有 4 小时 heartbeat 监控此恢复 RunId。
 - 旧 RunId `repair109_20261003_194620` 属于旧源码基线，已完成并保持不变；恢复批次全部通过后，先验证 recovery manifest 的 109 个跨 RunId 记录，再运行冻结 CPU D9 对比和 `verify_s2a_t68_snapshot_git_binding.py`/相关 Git-tree 核验。禁止只凭进程视为通过。
 
 ## 阶段2A 已验证事实

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 import subprocess
 import tempfile
 import time
@@ -497,6 +499,46 @@ def _run_tool(tool: Path, arguments: list[str], cwd: Path,
     return process.returncode, output
 
 
+def _vivado_diagnostic_lines(output: str) -> list[str]:
+    """提取 Vivado 输出中的 warning、error 和 fatal 诊断行。"""
+    return [
+        line for line in output.splitlines()
+        if re.match(r"^\s*(?:WARNING|ERROR|FATAL(?:_ERROR)?)(?:\s*:|\s*\[)", line, re.IGNORECASE)
+    ]
+
+
+def _xsim_gate_failures(output: str, pass_marker: str) -> list[str]:
+    """拒绝 XSim 失败标记与 fatal 输出，并要求唯一成功标记。"""
+    failures = []
+    if "FAIL:" in output:
+        failures.append("xsim 输出包含 FAIL:")
+    if re.search(r"\$fatal\b|\bFATAL(?:_ERROR)?\s*:", output, re.IGNORECASE):
+        failures.append("xsim 输出包含 fatal 错误")
+    marker_count = output.count(pass_marker)
+    if marker_count != 1:
+        failures.append(f"PASS marker 出现 {marker_count} 次，要求恰好一次")
+    return failures
+
+
+def _write_json(path: Path, value: dict) -> None:
+    """以 UTF-8 格式写入 JSON 运行记录。"""
+    path.write_bytes((json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+
+
+def _write_json_new(path: Path, value: dict) -> None:
+    """仅创建新 JSON 文件，拒绝覆盖已有证据。"""
+    payload = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    with path.open("xb") as stream:
+        stream.write(payload)
+
+
+def _reject_existing_outputs(paths: tuple[Path, ...]) -> None:
+    """按完整路径逐一拒绝已存在的本轮输出文件。"""
+    existing = [str(path) for path in paths if path.exists()]
+    if existing:
+        raise FileExistsError("拒绝覆盖已存在的输出文件：" + ", ".join(existing))
+
+
 class TestS2AUpsampleQueryRtl(unittest.TestCase):
     """验证 layer33 nearest-repeat 查询、值复制和地址边界。"""
 
@@ -508,8 +550,18 @@ class TestS2AUpsampleQueryRtl(unittest.TestCase):
         self.assertEqual(manifest_sha, _MANIFEST_SHA256,
                          "G0 manifest 原始字节 SHA 变化，按停止条件中止")
         manifest = json.loads(manifest_bytes.decode("utf-8"))
-        evidence_directory = repository / "report/evidence/S2A-T05"
+        evidence_directory = Path(
+            os.environ.get(
+                "S2A_T05_UPSAMPLE_EVIDENCE_DIR",
+                str(repository / "report/evidence/S2A-T05"),
+            )
+        ).resolve()
         evidence_path = evidence_directory / "upsample_query_simulation.json"
+        run_record_path = evidence_directory / "vivado_run_record.json"
+        output_paths = (evidence_path, run_record_path)
+        _reject_existing_outputs(output_paths)
+        evidence_directory.mkdir(parents=True, exist_ok=True)
+        _reject_existing_outputs(output_paths)
         rtl_path = repository / "src/int8_upsample_query.sv"
         bench_path = repository / "sim/tb_s2a_upsample_query.sv"
         script_path = Path(__file__).resolve()
@@ -525,11 +577,33 @@ class TestS2AUpsampleQueryRtl(unittest.TestCase):
             "runner_sha256": _sha256_file(script_path),
         }
         phase_codes: list[dict] = []
-        with tempfile.TemporaryDirectory(prefix="s2a_t05_upsample_query_") as temporary:
-            work = Path(temporary)
+        work = Path(tempfile.mkdtemp(prefix="vivado_", dir=evidence_directory))
+        run_started = time.monotonic()
+        run_record = {
+            "schema_version": "gestureforge_s2a_t05_upsample_vivado_run_v1",
+            "result": "RUNNING",
+            "repository": str(repository),
+            "evidence_directory": str(evidence_directory),
+            "work_directory": str(work),
+            "manifest_path": str(manifest_path),
+            "manifest_sha256": manifest_sha,
+            "source_paths": {
+                "rtl": str(rtl_path),
+                "testbench": str(bench_path),
+                "runner": str(script_path),
+            },
+            "source_hashes": source_hashes_before,
+            "phase_records": phase_codes,
+        }
+        _write_json_new(run_record_path, run_record)
+        try:
             vectors_path = work / "vectors.dat"
             vector_result = _materialize_vectors(manifest, vectors_path)
             self.assertGreater(vector_result["vector_file_bytes"], 0)
+            run_record["vector_file"] = str(vectors_path)
+            run_record["vector_sha256"] = vector_result["vector_sha256"]
+            run_record["vector_file_bytes"] = vector_result["vector_file_bytes"]
+            _write_json(run_record_path, run_record)
 
             phases = [
                 ("xvlog", ["-sv", str(rtl_path), str(bench_path)]),
@@ -539,68 +613,107 @@ class TestS2AUpsampleQueryRtl(unittest.TestCase):
             ]
             deadline = time.monotonic() + 600.0
             for name, arguments in phases:
+                phase_started = time.monotonic()
+                log_path = work / f"{name}.log"
                 code, output = _run_tool(
-                    tools[name], arguments, work, work / f"{name}.log", deadline
+                    tools[name], arguments, work, log_path, deadline
                 )
-                phase_codes.append({"phase": name, "exit_code": code})
+                phase_record = {
+                    "phase": name,
+                    "exit_code": code,
+                    "command": [str(tools[name]), *arguments],
+                    "launcher": "cmd.exe /d /s /c",
+                    "elapsed_seconds": round(time.monotonic() - phase_started, 6),
+                    "log_path": str(log_path),
+                    "log_sha256": _sha256_file(log_path),
+                    "log_bytes": log_path.stat().st_size,
+                }
+                phase_codes.append(phase_record)
+                run_record["phase_records"] = phase_codes
+                _write_json(run_record_path, run_record)
                 self.assertEqual(code, 0,
                                  f"{name} 退出码 {code}；临时日志尾部：\n{output[-5000:]}")
+                diagnostics = _vivado_diagnostic_lines(output)
+                self.assertEqual(
+                    diagnostics, [],
+                    f"{name} 输出包含 Vivado warning/error/fatal：\n" + "\n".join(diagnostics),
+                )
                 if name == "xsim":
-                    self.assertIn(
-                        "PASS: queries=1034 model_random=1000 model_directed_cases=16 model_directed_queries=18 fixture_queries=16 bad_argument=9 bad_range=2 boundary=1",
-                        output,
+                    pass_marker = (
+                        "PASS: queries=1034 model_random=1000 model_directed_cases=16 "
+                        "model_directed_queries=18 fixture_queries=16 bad_argument=9 "
+                        "bad_range=2 boundary=1"
                     )
+                    gate_failures = _xsim_gate_failures(output, pass_marker)
+                    self.assertEqual(gate_failures, [], "; ".join(gate_failures))
 
-        self.assertEqual([phase["exit_code"] for phase in phase_codes], [0, 0, 0])
-        source_hashes_after = {
-            "rtl_sha256": _sha256_file(rtl_path),
-            "testbench_sha256": _sha256_file(bench_path),
-            "runner_sha256": _sha256_file(script_path),
-        }
-        self.assertEqual(source_hashes_before, source_hashes_after,
-                         "仿真过程中源文件发生变化")
-        self.assertEqual(_sha256_file(manifest_path), _MANIFEST_SHA256,
-                         "仿真过程中 G0 manifest 原始字节发生变化")
+            self.assertEqual([phase["exit_code"] for phase in phase_codes], [0, 0, 0])
+            source_hashes_after = {
+                "rtl_sha256": _sha256_file(rtl_path),
+                "testbench_sha256": _sha256_file(bench_path),
+                "runner_sha256": _sha256_file(script_path),
+            }
+            self.assertEqual(source_hashes_before, source_hashes_after,
+                             "仿真过程中源文件发生变化")
+            self.assertEqual(_sha256_file(manifest_path), _MANIFEST_SHA256,
+                             "仿真过程中 G0 manifest 原始字节发生变化")
 
-        evidence = {
-            "schema_version": "gestureforge_s2a_t05_upsample_query_simulation_v1",
-            "result": "PASS",
-            "scope": "tiny416 layer33 nearest-repeat 单查询映射、NCHW INT8 byte address 和精确值复制",
-            "bindings": {
-                "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
-                "manifest_sha256": manifest_sha,
-                **source_hashes_after,
-                "vector_sha256": vector_result["vector_sha256"],
-                "golden_output_sha256": vector_result["golden_output_sha256"],
-                "input_tensor_producer_layer": 32,
-                "input_base_address": 27598336,
-                "input_tensor_length_bytes": 21632,
-            },
-            "random_vectors": vector_result["prng"],
-            "counts": vector_result["counts"],
-            "vector_file_bytes": vector_result["vector_file_bytes"],
-            "directed_cases": vector_result["directed_cases"],
-            "invalid_assertions": {
-                "BAD_ARGUMENT_code_1": 9,
-                "BAD_RANGE_code_2": 2,
-                "maximum_uint32_boundary_success": 1,
-            },
-            "vivado": {
-                "bin": str(_XILINX_BIN),
-                "phases": phase_codes,
-                "command_template": "python -B -m unittest verification.test_s2a_upsample_rtl -v",
-            },
-            "fixture_address_semantics": vector_result["fixture_address_semantics"],
-            "limitations": [
-                "仅实现一个查询点和单个通道的紧凑来源平面，不发起 memory bus 事务。",
-                "输入平面最大支持 13x13；实测模型 layer33 13x13 与独立 2x2 stride2 fixture。",
-                "不代表完整 upsample layer engine、整网逐层黄金比对、综合、资源或时序通过。",
-            ],
-        }
-        evidence_directory.mkdir(parents=True, exist_ok=True)
-        evidence_path.write_bytes(
-            (json.dumps(evidence, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-        )
+            evidence = {
+                "schema_version": "gestureforge_s2a_t05_upsample_query_simulation_v1",
+                "result": "PASS",
+                "scope": "tiny416 layer33 nearest-repeat 单查询映射、NCHW INT8 byte address 和精确值复制",
+                "bindings": {
+                    "repository": str(repository),
+                    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+                    "manifest_sha256": manifest_sha,
+                    **source_hashes_after,
+                    "source_paths": {
+                        "rtl": str(rtl_path),
+                        "testbench": str(bench_path),
+                        "runner": str(script_path),
+                    },
+                    "vector_sha256": vector_result["vector_sha256"],
+                    "golden_output_sha256": vector_result["golden_output_sha256"],
+                    "input_tensor_producer_layer": 32,
+                    "input_base_address": 27598336,
+                    "input_tensor_length_bytes": 21632,
+                },
+                "random_vectors": vector_result["prng"],
+                "counts": vector_result["counts"],
+                "vector_file_bytes": vector_result["vector_file_bytes"],
+                "directed_cases": vector_result["directed_cases"],
+                "invalid_assertions": {
+                    "BAD_ARGUMENT_code_1": 9,
+                    "BAD_RANGE_code_2": 2,
+                    "maximum_uint32_boundary_success": 1,
+                },
+                "vivado": {
+                    "bin": str(_XILINX_BIN),
+                    "work_directory": str(work),
+                    "run_record_path": str(run_record_path),
+                    "total_elapsed_seconds": round(time.monotonic() - run_started, 6),
+                    "phases": phase_codes,
+                    "command_template": "python -B -m unittest verification.test_s2a_upsample_rtl -v",
+                },
+                "fixture_address_semantics": vector_result["fixture_address_semantics"],
+                "limitations": [
+                    "仅实现一个查询点和单个通道的紧凑来源平面，不发起 memory bus 事务。",
+                    "输入平面最大支持 13x13；实测模型 layer33 13x13 与独立 2x2 stride2 fixture。",
+                    "不代表完整 upsample layer engine、整网逐层黄金比对、综合、资源或时序通过。",
+                ],
+            }
+            _write_json_new(evidence_path, evidence)
+            run_record["result"] = "PASS"
+            run_record["total_elapsed_seconds"] = round(time.monotonic() - run_started, 6)
+            run_record["source_hashes_after"] = source_hashes_after
+            _write_json(run_record_path, run_record)
+        except Exception as error:
+            run_record["result"] = "FAIL"
+            run_record["failure"] = f"{type(error).__name__}: {error}"
+            run_record["total_elapsed_seconds"] = round(time.monotonic() - run_started, 6)
+            _write_json(run_record_path, run_record)
+            raise
+
         print(
             "S2A-T05 manifest_sha256={} vector_sha256={} golden_sha256={} "
             "counts={} prng_before_upsample={} prng_after_upsample={} vivado={}".format(

@@ -5,11 +5,13 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
+import re
 import struct
 import subprocess
-import tempfile
 import time
 import unittest
+from contextlib import nullcontext
 from pathlib import Path
 
 
@@ -621,6 +623,30 @@ def _run_tool(tool: Path, arguments: list[str], cwd: Path,
     return process.returncode, output
 
 
+def _xsim_gate_errors(output: str, expected_pass: str) -> list[str]:
+    """拒绝仿真失败/致命错误，并要求唯一的冻结 PASS 行。"""
+    errors: list[str] = []
+    pass_lines = [line.strip() for line in output.splitlines()
+                  if re.match(r"^\s*PASS\s*:", line, re.IGNORECASE)]
+    if pass_lines != [expected_pass]:
+        errors.append(
+            f"PASS 标记必须且只能出现一次并与预期完全一致，实际为 {pass_lines!r}"
+        )
+    for line_number, line in enumerate(output.splitlines(), start=1):
+        if re.search(r"\b(?:FAIL|FATAL(?:[\s_]+ERROR)?|ERROR)\s*:",
+                     line, re.IGNORECASE):
+            errors.append(f"第 {line_number} 行包含失败/致命错误：{line.strip()}")
+        elif re.search(r"\bfatal\s+error\b", line, re.IGNORECASE):
+            errors.append(f"第 {line_number} 行包含致命错误：{line.strip()}")
+    return errors
+
+
+def _write_json(path: Path, value: dict) -> None:
+    """以 UTF-8/LF 写入本次 Vivado 运行记录。"""
+    encoded = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+    path.write_bytes(encoded)
+
+
 class TestS2ARouteQueryRtl(unittest.TestCase):
     """验证 tiny416 route 单输出来源映射、地址和重定标。"""
 
@@ -634,7 +660,21 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
             "G0 manifest 原始字节 SHA 变化，按停止条件中止",
         )
         manifest = json.loads(manifest_bytes.decode("utf-8"))
-        evidence_path = repository / "report/evidence/S2A-T06/route_query_simulation.json"
+        evidence_override = os.environ.get("S2A_ROUTE_QUERY_EVIDENCE_PATH")
+        evidence_path = (
+            Path(evidence_override)
+            if evidence_override
+            else repository / "report/evidence/S2A-T68/helper_vectors_fixed_candidate_20261008_t15_r1/route_query_simulation.json"
+        )
+        if not evidence_path.is_absolute():
+            evidence_path = repository / evidence_path
+        run_directory = evidence_path.parent / "vivado_run"
+        run_manifest_path = evidence_path.parent / "run_manifest.json"
+        console_path = evidence_path.parent / "vivado_console.log"
+        self.assertFalse(evidence_path.exists(), f"拒绝覆盖既有证据：{evidence_path}")
+        self.assertFalse(run_directory.exists(), f"拒绝覆盖既有运行目录：{run_directory}")
+        self.assertFalse(run_manifest_path.exists(), f"拒绝覆盖既有运行清单：{run_manifest_path}")
+        self.assertFalse(console_path.exists(), f"拒绝覆盖既有控制台日志：{console_path}")
         rtl_path = repository / "src/int8_route_query.sv"
         bench_path = repository / "sim/tb_s2a_route_query.sv"
         script_path = Path(__file__).resolve()
@@ -649,8 +689,9 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
             "testbench_sha256": _sha256_file(bench_path),
             "runner_sha256": _sha256_file(script_path),
         }
-        with tempfile.TemporaryDirectory(prefix="s2a_t06_route_query_") as temporary:
-            work = Path(temporary)
+        run_directory.mkdir(parents=True)
+        started_at = time.monotonic()
+        with nullcontext(run_directory) as work:
             vectors_path = work / "vectors.dat"
             expected_path = work / "expected.dat"
             vector_result = _materialize_vectors(manifest, vectors_path, expected_path)
@@ -664,24 +705,58 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
                 ("xsim", ["-R", "s2a_route_query_snapshot"]),
             ]
             phase_codes: list[dict] = []
+            console_sections: list[str] = []
             deadline = time.monotonic() + 600.0
             for name, arguments in phases:
+                phase_started = time.monotonic()
+                command = [str(tools[name]), *arguments]
                 code, output = _run_tool(
                     tools[name], arguments, work, work / f"{name}.log", deadline
                 )
-                phase_codes.append({"phase": name, "exit_code": code})
-                self.assertEqual(
-                    code, 0,
-                    f"{name} 退出码 {code}；临时日志尾部：\n{output[-5000:]}",
+                phase_record = {
+                    "phase": name,
+                    "command": command,
+                    "working_directory": str(work),
+                    "duration_seconds": round(time.monotonic() - phase_started, 3),
+                    "exit_code": code,
+                    "log_path": str((work / f"{name}.log").relative_to(evidence_path.parent)),
+                    "log_sha256": _sha256_file(work / f"{name}.log"),
+                }
+                phase_codes.append(phase_record)
+                console_sections.append(f"=== {name} ===\n{output}")
+                console_path.write_text(
+                    "\n".join(console_sections), encoding="utf-8", newline="\n"
                 )
-                if name == "xsim":
-                    expected_pass = (
+                current_gate_errors = (
+                    _xsim_gate_errors(
+                        output,
                         "PASS: route_queries="
                         f"{vector_result['counts']['model_random_output_queries'] + vector_result['counts']['model_directed_output_queries'] + vector_result['counts']['route_half_away_fixture_values']} "
                         "random_cases=11000 directed_cases=176 fixture_values=12 "
-                        "bad_argument=23 bad_range=4 boundary=1"
+                        "bad_argument=23 bad_range=4 boundary=1",
                     )
-                    self.assertIn(expected_pass, output)
+                    if name == "xsim" else []
+                )
+                _write_json(run_manifest_path, {
+                    "schema_version": "gestureforge_s2a_t15_route_query_run_v1",
+                    "result": "FAIL" if code != 0 or current_gate_errors else "RUNNING",
+                    "evidence_path": str(evidence_path),
+                    "source_bindings": source_hashes_before,
+                    "phase_records": phase_codes,
+                    "console_log": str(console_path),
+                    "console_log_sha256": _sha256_file(console_path),
+                    "gate_errors": current_gate_errors,
+                    "elapsed_seconds": round(time.monotonic() - started_at, 3),
+                })
+                self.assertEqual(
+                    code, 0,
+                    f"{name} 退出码 {code}；日志尾部：\n{output[-5000:]}",
+                )
+                if name == "xsim":
+                    self.assertEqual(
+                        current_gate_errors, [],
+                        "xsim 输出未通过严格门禁：\n" + "\n".join(current_gate_errors),
+                    )
 
         self.assertEqual([item["exit_code"] for item in phase_codes], [0, 0, 0])
         source_hashes_after = {
@@ -694,9 +769,23 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
         self.assertEqual(_sha256_file(manifest_path), _MANIFEST_SHA256,
                          "仿真过程中 G0 manifest 原始字节发生变化")
 
-        evidence = {
-            "schema_version": "gestureforge_s2a_t06_route_query_simulation_v1",
+        elapsed_seconds = round(time.monotonic() - started_at, 3)
+        _write_json(run_manifest_path, {
+            "schema_version": "gestureforge_s2a_t15_route_query_run_v1",
             "result": "PASS",
+            "evidence_path": str(evidence_path),
+            "source_bindings": source_hashes_after,
+            "phase_records": phase_codes,
+            "console_log": str(console_path),
+            "console_log_sha256": _sha256_file(console_path),
+            "elapsed_seconds": elapsed_seconds,
+        })
+
+        evidence = {
+            "schema_version": "gestureforge_s2a_t15_route_query_simulation_v1",
+            "result": "PASS",
+            "test_exit_code": 0,
+            "report_path": str(evidence_path),
             "scope": "tiny416 route 单输出元素的 cfg 来源映射、groups 切片、NCHW INT8 byte address 与 Q31/half-away 重标定",
             "bindings": {
                 "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
@@ -705,6 +794,8 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
                 "vector_sha256": vector_result["vector_sha256"],
                 "expected_stream_sha256": vector_result["expected_stream_sha256"],
                 "golden_output_sha256": vector_result["golden_output_sha256"],
+                "run_manifest_sha256": _sha256_file(run_manifest_path),
+                "console_log_sha256": _sha256_file(console_path),
             },
             "randomness": vector_result["randomness"],
             "counts": vector_result["counts"],
@@ -724,6 +815,12 @@ class TestS2ARouteQueryRtl(unittest.TestCase):
                 "tool_directory": str(_XILINX_BIN),
                 "phase_exit_codes": phase_codes,
                 "test_command": "python -B -m unittest verification.test_s2a_route_rtl -v",
+                "evidence_path": str(evidence_path),
+                "run_directory": str(run_directory),
+                "console_log": str(console_path),
+                "run_manifest": str(run_manifest_path),
+                "elapsed_seconds": elapsed_seconds,
+                "strict_xsim_gate": "唯一预期 PASS 行，拒绝 FAIL/FATAL/ERROR 行",
             },
             "limitations": [
                 "仅实现单输出元素组合查询，不发起访存事务，不是完整 route layer engine。",

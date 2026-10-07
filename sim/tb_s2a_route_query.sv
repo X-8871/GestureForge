@@ -485,6 +485,7 @@ module tb_s2a_route_query;
         assert_error(2, "source0-object-crosses-uint32-address-space");
         set_default_valid();
         set_second_source();
+        source1_length_bytes = 32'd4;
         source1_base_address = 32'hffff_fffd;
         assert_error(2, "source1-object-crosses-uint32-address-space");
         set_default_valid();

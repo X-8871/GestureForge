@@ -140,7 +140,28 @@ module tb_s2a_conv_tile_unit;
                 if (idx >= 51200) $fatal(1,"patch 索引超限");
                 dut.feature_patch[idx] = $signed(activations[i]);
             end
-            for (i = 0; i < lanes*k; i = i + 1) dut.weight_group[i] = $signed(weights[i]);
+            for (l = 0; l < lanes; l = l + 1) begin
+                for (i = 0; i < k; i = i + 1) begin
+                    case (l)
+                        0: dut.gen_weight_lane_bank[0].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        1: dut.gen_weight_lane_bank[1].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        2: dut.gen_weight_lane_bank[2].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        3: dut.gen_weight_lane_bank[3].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        4: dut.gen_weight_lane_bank[4].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        5: dut.gen_weight_lane_bank[5].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        6: dut.gen_weight_lane_bank[6].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                        7: dut.gen_weight_lane_bank[7].lane_weight_memory[i] = $signed(weights[l*k+i]);
+                    endcase
+                end
+            end
+            for (l = 0; l < lanes; l = l + 1) begin
+                idx = S2A_T23_MQ_BASE[layer_id] + group_base + l;
+                dut.lane_bias[l] = $signed(S2A_CONV_BIAS_ACCUMULATOR_INT32[idx]);
+                dut.lane_mq_parameter[l] = S2A_T23_MQ_ROM[idx];
+            end
+            // 白盒只计算选定 tile 点，扫描坐标须与已装载 patch 偏移一致。
+            dut.compute_point_scan_y = y - ty;
+            dut.compute_point_scan_x = x - tx;
             dut.state = dut.ST_COMPUTE_PREP;
             @(negedge clk);
             dut.compute_point_index = point;
@@ -153,7 +174,13 @@ module tb_s2a_conv_tile_unit;
                 if ($signed(dut.lane_accumulator[l]) != expected_acc[l])
                     $fatal(1,"累加不符 layer=%0d ordinal=%0d lane=%0d",layer_id,ordinal,l);
             end
-            @(negedge clk);
+            cycles = 0;
+            while (dut.state == dut.ST_COMPUTE_REQUANT) begin
+                if (cycles > lanes + 1)
+                    $fatal(1,"重定量输出等待超时 layer=%0d ordinal=%0d",layer_id,ordinal);
+                @(negedge clk);
+                cycles = cycles + 1;
+            end
             for (l = 0; l < lanes; l = l + 1) begin
                 if ((dut.output_block[l*64+point] & 255) != expected_byte[l])
                     $fatal(1,"INT8 不符 layer=%0d ordinal=%0d lane=%0d",layer_id,ordinal,l);

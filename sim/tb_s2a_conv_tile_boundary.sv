@@ -1,4 +1,4 @@
-// 真实检测头黑盒遍历与独立异常测试；仅 overflow 用例注入首 tap 原语状态。
+// 真实检测头黑盒遍历与独立异常测试；mode3 在首个输出点的归约索引 4（输入通道 4）白盒注入 INT32_MAX + 1*1，不代表真实 GF8 权重溢出。
 `timescale 1ns/1ps
 module tb_s2a_conv_tile_boundary;
     import s2a_network_descriptor_pkg::*;
@@ -110,12 +110,14 @@ module tb_s2a_conv_tile_boundary;
         end
     end
 
-    // 不改变生产遍历状态；仅 overflow 独立用例在第一个真实 compute tap 注入原语。
+    // 不改变生产遍历状态；mode3 在首个输出点的归约索引 4（输入通道 4）白盒注入 INT32_MAX + 1*1，不代表真实 GF8 权重溢出。
     always @(negedge clk) begin
-        if(mode==3 && !injected && dut.state==dut.ST_COMPUTE && dut.compute_reduction_index==0) begin
+        if(mode==3 && !injected && dut.state==dut.ST_COMPUTE && dut.compute_reduction_index==4) begin
+            if(!dut.feature_read_in_bounds) $fatal(1,"overflow注入tap不在输入边界内");
             dut.lane_accumulator[0]=32'sh7fffffff;
-            dut.feature_patch[0]=8'sd1;
-            dut.weight_group[0]=8'sd1;
+            dut.feature_read_data=8'sd1;
+            dut.gen_weight_lane_bank[0].lane_weight_memory[4]=8'sd1;
+            dut.weight_read_byte[0]=8'sd1;
             injected=1;
         end
     end

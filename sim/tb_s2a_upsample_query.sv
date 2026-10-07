@@ -45,7 +45,7 @@ module tb_s2a_upsample_query;
     integer expected_source_channel;
     integer expected_source_y;
     integer expected_source_x;
-    integer expected_offset;
+    longint unsigned expected_offset;
     integer expected_address;
     integer expected_output_value;
     integer expected_error;

@@ -107,7 +107,7 @@ def prepare(work: Path) -> dict:
         shutil.copyfile(src, dst)
         sources.append({"path": rel, "sha256": sha(dst)})
     return {"schema": "s2a_tile_whitebox_arithmetic_v1", "status": "PREPARED_NOT_RTL_PASS",
-            "scope": "真实模型描述符与 8-lane 算术；白盒预装所选点 patch/真实 GF8 组，跳过 memory、tile/group/point 遍历，所选点 requant 后 abort",
+            "scope": "真实模型描述符与 8-lane 算术；白盒预装所选点 patch、真实 GF8 组及 descriptor-bound bias/MQ，跳过 memory、tile/group/point 遍历，所选点 requant 后 abort",
             "not_covered": ["memory stall/error/cancel", "cache loading/reuse", "full tensor", "G4/G5"],
             "seed": 20260922, "queries": query_count, "lane_checks": lane_count,
             "u32_draws": stream.draws, "final_random_state": stream.state,

@@ -18,7 +18,7 @@ import test_s2a_conv_engine_rtl as oracle
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ("src/s2a_network_descriptor_pkg.sv", "src/s2a_conv_tile_engine.sv", "sim/tb_s2a_conv_tile_boundary.sv")
-TILE_SHA = "be3106daa3dc2adea13894d03bf21cd5ec693ce667cb610ec8d9511364112e66"
+TILE_SHA = "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300"
 
 
 def sha(path: Path) -> str:
@@ -78,7 +78,7 @@ def prepare(work: Path) -> dict:
             "sources": sources, "runner_sha256": sha(Path(__file__)), "oracle_sha256": sha(Path(oracle.__file__)),
             "manifest_sha256": sha(oracle._MANIFEST), "gf8_path": str(package), "gf8_sha256": sha(package),
             "blackbox_scope": "真实 layer29/36 形状，零特征验证cache计数，空间/channel非零模式验证跨tile/group缓存数据；真实完整GF8，从start到全部输出，无state/起点注入",
-            "exception_scope": "mode3仅在首个真实compute tap白盒注入INT32最大值与1*1，明确不代表真实GF8溢出；其他异常通过输入端口/响应字节",
+            "exception_scope": "mode3在第一个输出点的reduction index 4（input channel 4）白盒注入INT32_MAX + 1*1，不模拟真实GF8权重溢出；其他异常通过输入端口/响应字节",
             "pattern": "feature(ic,y,x)=(ic*3+y*5+x*7)%255-127；INT64独立点积+D2 binary64量化",
             "not_covered": ["109整网", "每层1000随机+16定向", "3x3缓存完整遍历", "G4/G5"],
             "request_stall_pattern": [0, 1, 2, 7, 3], "response_stall": "一拍响应，无response stall覆盖", "simulations": []}

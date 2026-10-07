@@ -1,0 +1,163 @@
+{
+  "task_id": "S3-CAMERA-720P30-AUDIT-01",
+  "schema_version": 1,
+  "status": "READ_ONLY_AUDIT_COMPLETE",
+  "conclusion": {
+    "candidate": "1280x720 RGB565 at 30 fps",
+    "assessment": "ARITHMETIC_CANDIDATE_ONLY_NOT_VALIDATED",
+    "decision": "G0 remains open; this audit does not freeze 30 fps or make it the default mode.",
+    "summary": "With the AX7020 dual-sample timing values and an assumed 84 MHz PCLK, doubling VTS from 740 to 1480 gives 29.9982858122 fps by the timing formula. This arithmetic does not validate a 720p30 OV5640 operating mode."
+  },
+  "baseline": {
+    "project_head": "deea5bc35c84f6a0fbe30363b6be08acb851a422",
+    "branch": "codex/stage3-video",
+    "official_source_cache": {
+      "path": "tmp/stage3_reference/AX7020_2023.1",
+      "commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+      "worktree_clean_before_and_after_audit": true
+    }
+  },
+  "readme_draft": {
+    "path": "board/stage3/README.md",
+    "sha256": "cdae4743eca5d31b3b10c78234adb5e8e2f9f9c5777b5b7c0748441fb6feb881",
+    "observed_candidate": "采集 1280×720、RGB565、30 fps",
+    "file_was_read_only": true
+  },
+  "authoritative_sources": {
+    "ov5640_datasheet": {
+      "path": "D:\\FPGA_Competition\\摄像头资料\\官方资料\\AN5642\\AN5642_CD\\CD\\datasheet\\camera\\OV5640_datasheet.pdf",
+      "sha256": "b7059c287dd23ab36730daf5db93f1d921bb1509fce37af1884c09dcda06ace7",
+      "size_bytes": 1711217,
+      "parser_manifest": {
+        "path": "tmp/s3_ov5640_datasheet_20261007/manifest.json",
+        "sha256": "42d01bb54b8accaffa4e00c9a625fc443ffe1084b2d86c3d4adb2e0ab3f78f01",
+        "status": "success",
+        "total_pages": 179,
+        "requested_mode": "text",
+        "effective_mode": "text",
+        "ocr_enabled": false
+      },
+      "page_evidence": [
+        {
+          "pdf_page": 22,
+          "reference": "Table 2-1, format and frame rate",
+          "visual_and_text_check": "720p is 1280x720 at 60 fps with 96/192 MHz pixel clock; 1080p is 1920x1080 at 30 fps with 96/192 MHz pixel clock.",
+          "bearing": "The datasheet's standard-mode table does not establish 720p30."
+        },
+        {
+          "pdf_page": 42,
+          "reference": "Table 4-2, image windowing registers, sheet 2 of 2",
+          "visual_and_text_check": "Registers 0x380E and 0x380F are RW TIMING VTS high and low bytes, together representing total vertical size[15:0].",
+          "bearing": "RW access establishes programmability, not validation of a particular altered timing configuration."
+        },
+        {
+          "pdf_page": 50,
+          "reference": "Section 4.6.2, manual exposure control",
+          "visual_and_text_check": "If manual exposure must exceed the predefined frame period, the maximum frame value in 0x380E/0x380F must be set first, then exposure may be set in 0x3500-0x3502.",
+          "bearing": "This describes register ordering for extended manual exposure; it does not prove 30 fps output, AEC behavior, or the proposed dual-sensor setup."
+        }
+      ]
+    },
+    "ax7020_official_dual_sample": {
+      "repository_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+      "path": "course_s2_vitis/23_ov5640_dual/Vitis/auto_create_vitis/src/an5642_dual/ov5640.c",
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec",
+      "static_source_observations": {
+        "rgb565": {
+          "source_line": 63,
+          "register": "0x4300=0x60",
+          "comment": "RGB565"
+        },
+        "pclk_comment": {
+          "source_line": 258,
+          "text": "PLL input clock =24Mhz, PCLK =84Mhz",
+          "measurement": false
+        },
+        "720p_timing": {
+          "source_lines": "273-280",
+          "width_registers": "0x3808/0x3809 = 0x0500 = 1280",
+          "height_registers": "0x380A/0x380B = 0x02D0 = 720",
+          "hts_registers": "0x380C/0x380D = 0x0764 = 1892",
+          "vts_registers": "0x380E/0x380F = 0x02E4 = 740"
+        },
+        "aec_and_banding": {
+          "source_lines": "286-295",
+          "aec_max_exposure_60hz": "0x3A02/0x3A03 = 0x02E0 = 736 lines",
+          "aec_max_exposure_50hz": "0x3A14/0x3A15 = 0x02E0 = 736 lines",
+          "band_step_50hz": "0x3A08/0x3A09 = 0x006F = 111 lines",
+          "band_step_60hz": "0x3A0A/0x3A0B = 0x005C = 92 lines",
+          "maximum_bands_50hz": 6,
+          "maximum_bands_60hz": 8
+        }
+      }
+    }
+  },
+  "clock_basis_difference": {
+    "datasheet_basis": "PDF p.22 Table 2-1 lists 720p at 96/192 MHz pixel clock and 60 fps.",
+    "sample_basis": "The dual-sample source comment at line 258 says PCLK=84 MHz for its PLL configuration.",
+    "status": "UNRESOLVED",
+    "audit_rule": "84 MHz is treated only as an unverified arithmetic assumption from a source comment; it is not treated as a measured or reconciled DVP PCLK. The datasheet and sample clock figures must be reconciled for the exact PLL/divider/output-clock semantics before adopting a frame-rate claim."
+  },
+  "arithmetic": {
+    "formula": "frame_rate_hz = PCLK_hz / (HTS * VTS)",
+    "assumptions": [
+      "PCLK is exactly 84000000 Hz, based only on the dual-sample source comment.",
+      "HTS remains 1892 pixel-clock periods.",
+      "Changing VTS alone does not change the active PCLK, HTS, output format, or other timing behavior."
+    ],
+    "line_period_ms_under_assumed_pclk": 0.0225238095,
+    "sample_register_timing": {
+      "pclk_hz_assumed": 84000000,
+      "hts": 1892,
+      "vts": 740,
+      "vts_hex": "0x02E4",
+      "calculated_fps": 59.9965716245
+    },
+    "30fps_arithmetic_candidate": {
+      "pclk_hz_assumed": 84000000,
+      "hts": 1892,
+      "vts": 1480,
+      "vts_hex": "0x05C8",
+      "calculated_fps": 29.9982858122,
+      "calculated_frame_period_ms": 33.3352380952,
+      "meaning": "Arithmetic candidate only under the 84 MHz assumption; not a validated sensor mode or selected project default."
+    },
+    "aec_banding_arithmetic_under_same_assumption": {
+      "aec_register_ceiling_lines": 736,
+      "aec_register_ceiling_ms": 16.5775238095,
+      "band_step_50hz_lines": 111,
+      "max_bands_50hz": 6,
+      "50hz_step_times_max_bands_lines": 666,
+      "band_step_60hz_lines": 92,
+      "max_bands_60hz": 8,
+      "60hz_step_times_max_bands_lines": 736,
+      "interpretation": "These are arithmetic summaries of the current source values, not proof of OV5640 AEC/banding behavior after VTS is changed to 1480."
+    }
+  },
+  "unverified_items": [
+    "Whether the 84 MHz source comment matches the actual sensor PCLK and how it relates to the datasheet's 96/192 MHz 720p pixel-clock entries.",
+    "Whether the proposed VTS=0x05C8 with the exact PLL, HTS, crop/binning, and output configuration produces the expected 720p30 DVP timing.",
+    "AEC/AGC and manual-exposure limits after VTS changes, including 0x3A02/03, 0x3A14/15, band-step and maximum-band settings, night-mode behavior, and 50/60 Hz flicker response.",
+    "DVP PCLK, HREF, VSYNC, active-pixel/line timing, and any sensor-specific constraints under the candidate settings.",
+    "Initialization and sustained frame-rate stability of both sensors together, including synchronization, frame alignment, capture buffering, and drop behavior."
+  ],
+  "work_performed": {
+    "scope": "Read-only feasibility audit of the existing README draft against the fixed OV5640 datasheet and AX7020 official dual-sample source.",
+    "operations": [
+      "Verified repository HEAD/branch, official source-cache commit and clean status, PDF SHA-256, parser-manifest SHA-256/status, and dual-sample source SHA-256.",
+      "Read the README candidate line and relevant dual-sample register sequence; visually checked rendered OV5640 PDF pages 22, 42, and 50 against extracted text.",
+      "Calculated current and candidate frame-rate arithmetic and summarized the existing AEC/banding register values under the stated 84 MHz assumption."
+    ],
+    "created_file": "report/stage3_ov5640_720p30_candidate_audit_20261007.json",
+    "other_files_modified": false,
+    "official_source_modified": false,
+    "vivado_vitis_or_fpga_toolchain_used": false,
+    "vivado_vitis_board_jtag_batch109_used": false,
+    "g0_frozen": false
+  },
+  "test_boundaries": [
+    "No Vivado/Vitis build, synthesis, timing analysis, programming, board/JTAG operation, or Batch109 access was performed.",
+    "No register sequence was implemented or changed, and no camera mode was frozen or selected.",
+    "No test in this audit validates electrical limits, actual sensor clocks, DVP timing, image quality, AEC/banding response, or dual-camera stability."
+  ]
+}

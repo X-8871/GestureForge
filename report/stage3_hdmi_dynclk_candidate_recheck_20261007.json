@@ -1,0 +1,178 @@
+{
+  "schema": "stage3_hdmi_dynclk_candidate_recheck_v2",
+  "task_id": "S3-HOST-DCLK-RECHECK-02",
+  "date_local": "2026-10-07",
+  "timezone": "Asia/Shanghai",
+  "status": "CURRENT_PATCH_HOST_REGRESSION_PASS_STATIC_CLOCK_CANDIDATE_ONLY",
+  "baseline": {
+    "project_head": "c21f394ad0175dedaf3710d07e5ee99a9a83ac41",
+    "branch": "codex/stage3-video",
+    "existing_user_changes_preserved": [
+      ".codex/STATE.md",
+      "board/stage3/README.md",
+      "board/stage3/hardware_photo_evidence.md",
+      "board/stage3/prepower_check.md",
+      "NA/",
+      "clockInfo.txt"
+    ]
+  },
+  "patch_binding": {
+    "path": "board/stage3/software/hdmi_test/hdmi_display_bringup.patch",
+    "sha256": "f03aad77aeef0c36defa5f832eb93bd92f8c038bc40c6c9260c28835cb843dc1",
+    "prior_host_report": {
+      "path": "report/stage3_hdmi_dynclk_host_test_20261007.json",
+      "prior_patch_sha256": "83dbbfa7a9c24ff6f473be39d1bc629cd60f217783da7d36bae641513e6cc583",
+      "note": "此前的 14 项结果绑定较早补丁版本；本报告以当前补丁哈希重新应用和运行，不改写旧记录。"
+    }
+  },
+  "official_source": {
+    "cache_path": "tmp/stage3_reference/AX7020_2023.1",
+    "repository_commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "worktree_clean_before_and_after": true,
+    "dynclk_c_path": "course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c",
+    "dynclk_c_original_sha256": "be827313363baad59d1693c8e7b1894ab6c0aacc569934ea85919abe73846e14",
+    "isolated_patched_dynclk_c_sha256": "a5f53d549d71cefa1c3a6a65412eddbf34bf7d810ba9a051537a5451b92991df",
+    "provenance": "核验固定提交和源缓存干净状态；仅把当前补丁应用到系统临时目录的四文件副本，超时函数从该补丁后 dynclk.c 提取。"
+  },
+  "host_test": {
+    "result": "PASS",
+    "scope": "在隔离副本应用当前 HDMI 补丁，从补丁后的 dynclk.c 提取 ClkStart/ClkStop，再与既有 mock harness 框架组合；未调用 Vivado/Vitis。",
+    "harness_template": {
+      "path": "tmp/s3_hdmi_dynclk_host_20261007_b/dynclk_timeout_harness.c",
+      "sha256": "09b7ae86761b96b45dd92848330f976f69abe695946b2aba67fb67ddebc38c7b"
+    },
+    "generated_harness_stream_sha256": "422f256ec78ee10a41843a8f3b53b2419b6a592d4ea9f6a52c5c6955e9b618a3",
+    "compiler": {
+      "path": "D:\\mingw64\\bin\\gcc.exe",
+      "version": "gcc.exe (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
+      "flags": [
+        "-std=c99",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-pedantic"
+      ],
+      "compile_exit_code": 0,
+      "test_executable_exit_code": 0,
+      "test_executable_sha256": "5f3f5cc895b3e409b14e535de27fc56fb74dd6fc59d8482cfdc2c017739cfd9a"
+    },
+    "cases": {
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "names": [
+        "start_immediate_success",
+        "stop_immediate_success",
+        "start_delayed_success",
+        "stop_delayed_success",
+        "start_timeout_single_best_effort_stop",
+        "stop_timeout",
+        "start_terminal_at_deadline_rejected",
+        "stop_terminal_at_deadline_rejected",
+        "start_terminal_after_deadline_rejected",
+        "stop_terminal_after_deadline_rejected",
+        "start_success_across_timer_wrap",
+        "stop_success_across_timer_wrap",
+        "start_timeout_across_timer_wrap",
+        "stop_timeout_across_timer_wrap"
+      ]
+    },
+    "evidence": {
+      "run_directory_windows": "C:\\Users\\22061\\AppData\\Local\\Temp\\s3_hdmi_dynclk_recheck_Z7cLM6OJ",
+      "test_results": "C:\\Users\\22061\\AppData\\Local\\Temp\\s3_hdmi_dynclk_recheck_Z7cLM6OJ\\test-results.txt",
+      "test_results_sha256": "f8156697b4e99037585a806addc5128e7f7b67fac89b26dcb015dc239afff010"
+    },
+    "limitations": [
+      "Mock harness验证的是 C 层状态轮询、截止点和回绕语义，不验证 ARM 全局计时器实时时钟或 AXI 动态时钟硬件行为。",
+      "测试不是真实 BSP 编译或应用链接，也不是 HDMI 时钟/显示器/板上验证。"
+    ]
+  },
+  "1080p60_clock_candidate_derivation": {
+    "classification": "SOURCE_CODE_DERIVED_CANDIDATE_NOT_MEASUREMENT_OR_TIMING_SIGNOFF",
+    "sources": {
+      "driver": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c",
+        "sha256": "be827313363baad59d1693c8e7b1894ab6c0aacc569934ea85919abe73846e14"
+      },
+      "mode_table": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/vga_modes.h",
+        "sha256": "8544a68f725f04001d82881bec21435f27fe39b52b54227d75d77ec75ec5f57f"
+      },
+      "clock_wiring": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/pl_config.tcl",
+        "sha256": "093f95520fb5d8ab825c2dc13e59a5dfda9f6b60aafe65ee7f762056e5885922"
+      },
+      "clock_output_rtl": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/axi_dynclk_v1_0/src/axi_dynclk.vhd",
+        "sha256": "334a8c8bf5fe3baefb4e44fb0de36a5b37248b08c3786bb7308d012810d837df"
+      },
+      "serializer_rtl": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/rgb2dvi_v1_3/src/OutputSERDES.vhd",
+        "sha256": "8145971992829bc520cd1c82dbb78a54d2ea91146417bd69cb62af1e158c76f6"
+      },
+      "rgb2dvi_rtl": {
+        "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project/my_ip/rgb2dvi_v1_3/src/rgb2dvi.vhd",
+        "sha256": "c91a4140b8618c144cf987fa8958466dfa97b5f886e471ecb8066e86e04d9b86"
+      }
+    },
+    "driver_search": {
+      "reference_clock_mhz": 100.0,
+      "target_pixel_clock_mhz": 148.5,
+      "driver_searches_mmcm_output_at_five_times_pixel_clock": true,
+      "selected_register_parameters": {
+        "divclk_divide": 7,
+        "feedback_multiplier": 52,
+        "clkout0_divide": 1
+      },
+      "derived_mmcm_clkout0_mhz": 742.8571428571429,
+      "derived_oserdes_clk_5x_mhz": 742.8571428571429,
+      "derived_pixel_clock_after_bufr_divide_by_5_mhz": 148.57142857142858,
+      "derived_tmds_data_lane_bit_rate_mbps": 1485.7142857142858,
+      "pixel_clock_error_from_148_5_mhz_percent": 0.0481000481000563,
+      "calculation": "100 MHz / 7 * 52 / 1 = 742.857142857 MHz at the 5x OSERDES clock input; BUFR divide by 5 gives 148.571428571 MHz pixel clock; DDR 1:10 serialization yields 10 bits per pixel, or 1485.714 Mb/s per TMDS data lane."
+    },
+    "video_timing": {
+      "width": 1920,
+      "height": 1080,
+      "horizontal_total": 2200,
+      "vertical_total": 1125,
+      "pixels_per_frame": 2475000,
+      "derived_refresh_hz_from_candidate_pixel_clock": 60.02886002886004,
+      "nominal_refresh_hz_from_148_5_mhz": 60.0,
+      "calculation": "(2199 + 1) * (1124 + 1) = 2,475,000 total pixel periods/frame; 148.571428571 MHz / 2,475,000 = 60.028860029 Hz."
+    },
+    "interpretation": "静态计算支持 1920x1080@60Hz 作为软件时钟候选；742.857 MHz 是 5x OSERDES 输入时钟，不是 TMDS 数据线比特率；DDR 1:10 序列化对应每条 TMDS 数据通道约 1485.714 Mb/s。实际值依赖 PS FCLK 参考、DRP 编程及 MMCM 锁定。当前路由报告仍只显示综合网表的 500 MHz/100 MHz 默认生成时钟，不能代表运行时 742.857 MHz serializer clock/148.571 MHz pixel clock，也不能据此宣称时序收敛或显示器兼容。"
+  },
+  "prior_implementation_evidence": {
+    "route_report": "report/stage3_hdmi_only_route_diag_20261006.json",
+    "route_clock_report": {
+      "path": "tmp/s3r04/reports/routed_clocks.rpt",
+      "sha256": "76c70d78381d40e64f83497e80fdcacbeb97e7c05c520a94bb5e0407ddb4b516",
+      "observed_static_generated_clocks_mhz": {
+        "mmcm_clkout0": 500.0,
+        "axi_dynclk_pixel_clock": 100.0
+      }
+    },
+    "latest_implementation_attempt": {
+      "report": "report/stage3_hdmi_impl_diag_20261007.json",
+      "result": "FAILED_AT_SYNTHESIS_RUN_WAIT",
+      "note": "Vivado 报告目标 xa7z020 的 Synthesis feature 无可用许可；未到 place/route，无 bitstream。"
+    }
+  },
+  "scope_and_safety": {
+    "official_source_modified": false,
+    "production_registers_changed": false,
+    "vivado_started": false,
+    "vitis_started": false,
+    "bitstream_generated": false,
+    "board_or_jtag_accessed": false,
+    "batch109_accessed": false,
+    "hdmi_io_timing_signed_off": false,
+    "stage3_g0_frozen": false
+  },
+  "next_required": [
+    "取得并核对有效的 Vivado Synthesis 许可后，需 Wong 对新一轮受控 Vivado 实现诊断另行授权。",
+    "对 XA7Z020/-1I 目标重跑实现，并建模运行时动态时钟候选，完成 HDMI 输出约束、时钟/CDC、methodology、bus-skew、DRC 和警告审查。",
+    "取得 AX7020 V3.0 官方手册并完成照片对应 PCB 修订绑定后，才能形成精确、安全的 HDMI/摄像头板测步骤。"
+  ]
+}

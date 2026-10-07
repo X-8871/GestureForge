@@ -9,7 +9,7 @@ diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_h
  #include "pic_800_600.h"
  #include "sleep.h"
  /*
-@@ -62,34 +63,43 @@ int main(void)
+@@ -62,34 +63,51 @@ int main(void)
  	vdmaConfig = XAxiVdma_LookupConfig(VGA_VDMA_ID);
  	if (!vdmaConfig)
  	{
@@ -41,8 +41,16 @@ diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_h
  	}
 +	xil_printf("OK: display controller initialized\r\n");
 +
++	Status = DisplaySetMode(&dispCtrl, &VMODE_1920x1080);
++	if (Status != XST_SUCCESS)
++	{
++		xil_printf("ERROR: DisplaySetMode(1920x1080@60Hz) failed: %d\r\n", Status);
++		return XST_FAILURE;
++	}
++	xil_printf("OK: selected HDMI mode 1920x1080@60Hz\r\n");
++
 +	DemoPrintTest(dispCtrl.framePtr[dispCtrl.curFrame], dispCtrl.vMode.width, dispCtrl.vMode.height, dispCtrl.stride, DEMO_PATTERN_0);
-+	xil_printf("OK: 800x600 test frame rendered and cache flushed\r\n");
++	xil_printf("OK: 1920x1080 test frame rendered and cache flushed\r\n");
 +
  	Status = DisplayStart(&dispCtrl);
  	if (Status != XST_SUCCESS)
@@ -60,6 +68,34 @@ diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_h
 -	return 0;
 +	return XST_SUCCESS;
  }
+@@ -100,21 +117,25 @@ void DemoPrintTest(u8 *frame, u32 width, u32 height, u32 stride, int pattern)
+ 	u32 xcoi, ycoi;
+ 	u32 iPixelAddr = 0;
+ 	u8 wRed, wBlue, wGreen;
+ 	u32 xInt;
+ 	u32 pic_number=0;
++	u32 sourceX, sourceY;
+ 
+ 
+ 	switch (pattern)
+ 	{
+ 	case DEMO_PATTERN_0:
+ 
+-		for(ycoi = 0; ycoi < 600; ycoi++)
++		for(ycoi = 0; ycoi < height; ycoi++)
+ 		{
+-			for(xcoi = 0; xcoi < (800 * BYTES_PIXEL); xcoi+=BYTES_PIXEL)
++			sourceY = (ycoi * 600U) / height;
++			for(xcoi = 0; xcoi < (width * BYTES_PIXEL); xcoi+=BYTES_PIXEL)
+ 			{
++				sourceX = ((xcoi / BYTES_PIXEL) * 800U) / width;
++				pic_number = ((sourceY * 800U) + sourceX) * BYTES_PIXEL;
+ 				frame[xcoi + iPixelAddr + 0] = gImage_pic_800_600[pic_number++];
+ 				frame[xcoi + iPixelAddr + 1] = gImage_pic_800_600[pic_number++];
+ 				frame[xcoi + iPixelAddr + 2] = gImage_pic_800_600[pic_number++];
+ 			}
+ 			iPixelAddr += stride;
+ 		}
 
 diff --git a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c b/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c
 --- a/course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/dynclk/dynclk.c

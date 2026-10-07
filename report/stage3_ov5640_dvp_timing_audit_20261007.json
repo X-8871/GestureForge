@@ -16,6 +16,46 @@
       "status": "SUCCESS"
     }
   },
+  "full_document_search": {
+    "scope": {
+      "page_count": 179,
+      "parsed_text_path": "tmp/s3_ov5640_datasheet_20261007/document.md",
+      "parsed_text_sha256": "cc542d2ad08be65336a14af6f8a297a86134ae9f04d428cc1a4eff08110f2bde",
+      "parser_manifest_sha256": "42d01bb54b8accaffa4e00c9a625fc443ffe1084b2d86c3d4adb2e0ab3f78f01",
+      "ocr_enabled": false,
+      "search_expressions": [
+        "DVP|PCLK|parallel port|data.{0,30}(setup|hold|delay)|output.{0,30}(delay|setup|hold)|tSU|tHD|tDV|data valid",
+        "output.{0,30}(delay|setup|hold)|setup.{0,30}(time|PCLK|clock|data)|hold.{0,30}(time|PCLK|clock|data)|data.{0,30}(setup|hold|delay)|DVP.{0,30}(timing|setup|hold|delay)|PCLK.{0,30}(setup|hold|delay)|tSU|tHD|tDV|setup time|hold time|data valid"
+      ]
+    },
+    "relevant_page_review": [
+      {
+        "pdf_page": 94,
+        "printed_page": "6-18",
+        "visual_review": true,
+        "observation": "Figure 6-7 and table 6-7 show DVP frame/line timing intervals expressed in tp; the page does not specify DVP data output setup/hold or data-to-PCLK delay."
+      },
+      {
+        "pdf_page": 95,
+        "printed_page": "6-19",
+        "visual_review": true,
+        "observation": "Table 6-7 gives 720p mode counts in tp and notes values can vary with register settings; it does not give electrical data-to-PCLK limits."
+      },
+      {
+        "pdf_page": 168,
+        "printed_page": "8-4",
+        "visual_review": true,
+        "observation": "Table 8-5 specifies XVCLK and parallel-port PCLK characteristics; tr/tf is clock-input rise/fall time, not DVP data-output timing."
+      },
+      {
+        "pdf_page": 169,
+        "printed_page": "8-5",
+        "visual_review": true,
+        "observation": "The tSU/tHD matches are from the SCCB two-wire control-interface timing figure/table 8-6, not the parallel DVP pixel bus."
+      }
+    ],
+    "conclusion": "The 179-page searchable-text pass found no additional DVP electrical timing section; the relevant DVP timing and AC-characteristics pages were visually checked. No numeric DVP data-to-PCLK setup/hold or output-delay window is established by this evidence. OCR was disabled, so the conclusion is limited to searchable text and the explicitly reviewed pages; this is not hardware characterization or timing signoff."
+  },
   "findings": [
     {
       "topic": "DVP timing diagram and mode table",
@@ -52,12 +92,14 @@
     "A board-specific end-to-end delay budget for the AN5642 module, connector, board routing and FPGA input path."
   ],
   "design_consequence": {
-    "input_delay_constraint": "BLOCKED_NO_NUMERIC_DVP_DATA_WINDOW_IN_REVIEWED_OFFICIAL_DATASHEET_PAGES",
-    "action": "Do not invent set_input_delay, input clock phase, or uncertainty values. Obtain a directly applicable guaranteed timing specification or characterize the path with an explicitly approved measurement plan before claiming camera-input timing closure.",
+    "input_delay_constraint": "BLOCKED_NO_NUMERIC_DVP_DATA_TO_PCLK_WINDOW_FOUND_IN_FULLTEXT_SEARCH_AND_RELEVANT_REVIEWED_PAGES",
+    "action": "Do not invent set_input_delay, input clock phase, or uncertainty values. Obtain a directly applicable guaranteed timing specification from the sensor/module vendor or characterize the path with an explicitly approved measurement plan before claiming camera-input timing closure.",
     "sample_relation": "The separate AX7020 dual-camera sample audit records an 84 MHz PCLK source-code comment and a 1280x720 RGB565 configuration. Table 8-5 footnote e associates its 96 MHz maximum with RAW 15 fps or YUV 7.5 fps; the reviewed table does not establish whether that limit applies to 1280x720 RGB565. Therefore this datasheet table alone cannot confirm that 84 MHz is applicable or compliant for that sample mode, and it is not an FPGA input-delay value. See report/stage3_camera_reference_audit_20261007.json."
   },
   "work_performed": {
     "read_only": true,
+    "full_document_text_search": true,
+    "rendered_pages_visually_reviewed": [94, 95, 168, 169],
     "vendor_original_modified": false,
     "vivado_or_vitis_run": false,
     "board_accessed": false,

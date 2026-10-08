@@ -170,3 +170,10 @@ verification/check_stage_delivery.py -text
 verification/test_stage_delivery.py -text
 verification/stage_delivery_template.json -text
 report/evidence/CTRL-DELIVERY/validation_20261008_2054/** -text
+
+# S2B-T01 本次资料审计证据逐字节保存，避免换行转换破坏冻结哈希
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/** -text
+
+# 解析器原始 JSON 为 CRLF，仅将 CR 视为行结束，仍检查普通尾随空白
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/reader_manifest.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/reader_status.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

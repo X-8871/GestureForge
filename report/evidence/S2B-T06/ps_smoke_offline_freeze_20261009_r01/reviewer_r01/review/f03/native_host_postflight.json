@@ -1,0 +1,22 @@
+{
+  "command": {
+    "tool": "exec_command",
+    "cmd": "$s2bAllProcesses=Get-CimInstance Win32_Process; @{own_remaining=@($s2bAllProcesses | Where-Object { $_.ProcessId -in @(13684,14672) } | Select-Object Name,ProcessId,ParentProcessId,CommandLine); relevant_processes=@($s2bAllProcesses | Where-Object { $_.Name -match '^vitis|^vivado[.]exe$|^arm-none|^hw_server|^cs_server|^xsdb|^xelab|^xsim' } | Select-Object Name,ProcessId,ParentProcessId,CommandLine); memory=(Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory); checked_at_utc8=[DateTimeOffset]::Now.ToOffset([TimeSpan]::FromHours(8)).ToString('o')} | ConvertTo-Json -Depth 6"
+  },
+  "original_result": {
+    "chunk_id": "e6b4de",
+    "wall_time_seconds": 0.5582556,
+    "exit_code": 0,
+    "original_token_count": 54,
+    "output": "{\r\n  \"relevant_processes\": [],\r\n  \"checked_at_utc8\": \"2026-10-09T02:03:00.0474345+08:00\",\r\n  \"memory\": {\r\n    \"TotalVisibleMemorySize\": 16463352,\r\n    \"FreePhysicalMemory\": 6025600\r\n  },\r\n  \"own_remaining\": []\r\n}\r\n"
+  },
+  "parsed": {
+    "relevant_processes": [],
+    "checked_at_utc8": "2026-10-09T02:03:00.0474345+08:00",
+    "memory": {
+      "TotalVisibleMemorySize": 16463352,
+      "FreePhysicalMemory": 6025600
+    },
+    "own_remaining": []
+  }
+}

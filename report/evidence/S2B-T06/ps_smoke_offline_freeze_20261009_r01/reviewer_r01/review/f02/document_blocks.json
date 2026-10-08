@@ -1,0 +1,67 @@
+[
+  {
+    "index": 0,
+    "language": "powershell",
+    "source": "$env:S2B_PS_SMOKE_MODE = 'build'\n# 此变量必须填写本次真实、已绑定的绝对配置路径。\n$env:S2B_PS_SMOKE_CONFIG = '<本次构建配置绝对路径>'\n& 'D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat' -s 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\build_s2b_ps_smoke.py'"
+  },
+  {
+    "index": 1,
+    "language": "bash",
+    "source": "python -B verification/check_s2b_ps_smoke_layout.py --manifest '<实际layout_binding.json绝对路径>' --self-test"
+  },
+  {
+    "index": 4,
+    "language": "powershell",
+    "source": "$uartPort = '<实际COM端口>'\n$uartRaw = 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\<本次人工RunId>\\uart_raw.bin'\n$serial = [System.IO.Ports.SerialPort]::new($uartPort, 115200, [System.IO.Ports.Parity]::None, 8, [System.IO.Ports.StopBits]::One)\n$serial.Handshake = [System.IO.Ports.Handshake]::None\n$serial.DtrEnable = $false\n$serial.RtsEnable = $false\n$serial.ReadTimeout = 200\n$bytes = [byte[]]::new(4096)\n$raw = [System.IO.File]::Open($uartRaw, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::Read)\n$captureClock = [System.Diagnostics.Stopwatch]::StartNew()\ntry {\n    $serial.Open()\n    while ($captureClock.Elapsed.TotalSeconds -lt 600) {\n        try { $count = $serial.Read($bytes, 0, $bytes.Length) }\n        catch [System.TimeoutException] { continue }\n        $raw.Write($bytes, 0, $count)\n        $raw.Flush()\n        [Console]::Write([System.Text.Encoding]::ASCII.GetString($bytes, 0, $count))\n    }\n} finally {\n    $serial.Close()\n    $serial.Dispose()\n    $raw.Dispose()\n}"
+  },
+  {
+    "index": 5,
+    "language": "powershell",
+    "source": "$manualRun = (Get-Item -LiteralPath 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\<本次人工RunId>').FullName\nif (@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\").Count -ne 0) { throw '已有hw_server，先核实归属' }\nif (@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue).Count -ne 0) { throw '3121已被占用' }\n$serverOut = Join-Path $manualRun 'hw_server_stdout.log'\n$serverErr = Join-Path $manualRun 'hw_server_stderr.log'\nif ((Test-Path -LiteralPath $serverOut) -or (Test-Path -LiteralPath $serverErr)) { throw '拒绝覆盖server日志' }\n$hwLauncher = Start-Process -FilePath $env:ComSpec -ArgumentList '/d', '/c', '\"D:\\Xilinx\\2026.1\\Vitis\\bin\\hw_server.bat\" -stcp::3121' -WindowStyle Hidden -PassThru -RedirectStandardOutput $serverOut -RedirectStandardError $serverErr\nGet-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId, ParentProcessId, ExecutablePath, CommandLine\nGet-NetTCPConnection -LocalPort 3121 -State Listen"
+  },
+  {
+    "index": 6,
+    "language": "powershell",
+    "source": "& 'D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat' -i"
+  },
+  {
+    "index": 7,
+    "language": "python",
+    "source": "import xsdb\nsession = xsdb.start_debug_session()\nchannel = session.connect(host='127.0.0.1', port=3121, server='hw_server')\nprint(channel)"
+  },
+  {
+    "index": 8,
+    "language": "python",
+    "source": "print(session.targets('--target_properties'))"
+  },
+  {
+    "index": 9,
+    "language": "python",
+    "source": "cpu0_id = int(input('填写当前已核实的CPU0目标ID: '))\ncpu1_id = int(input('填写当前已核实的CPU1目标ID: '))\nassert cpu0_id != cpu1_id\ncpu0 = session.targets(id=cpu0_id)\ncpu1 = session.targets(id=cpu1_id)\nprint(cpu0, cpu1)\ncpu0.stop()\ncpu1.stop()\nprint(cpu0.state(), cpu1.state())\nprint(cpu0.rrd(reg='pc'))\nprint(cpu0.mrd('--value', address=0xF800025C, size=1, word_size=4))\nprint(cpu0.mrd('--value', address=0xF8007080, size=1, word_size=4))"
+  },
+  {
+    "index": 10,
+    "language": "python",
+    "source": "cpu0.dow(file=r'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_init.elf', auto_stop=True, set_entry=True)\nprint(cpu0.rrd(reg='pc'))\nready_bp = cpu0.bpadd(addr='0x00001D08', type='hw')\nfail_bp = cpu0.bpadd(addr='0x00001D18', type='hw')\nprint(ready_bp.status(), fail_bp.status())"
+  },
+  {
+    "index": 11,
+    "language": "python",
+    "source": "try:\n    cpu0.con('--block', timeout=30)\nexcept Exception:\n    cpu0.stop()\n    print(cpu0.state(), cpu0.rrd(reg='pc'))\n    raise\nprint(cpu0.state(), cpu0.rrd(reg='pc'), cpu1.state())\nprint(cpu0.mrd('--value', address=0x00009200, size=1, word_size=4))\nprint(cpu0.mrd('--value', address=0x000039C0, size=1, word_size=4))"
+  },
+  {
+    "index": 12,
+    "language": "python",
+    "source": "ready_bp.remove()\nfail_bp.remove()\nprint(cpu1.state())\ncpu0.dow(file=r'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_smoke.elf', auto_stop=True, set_entry=True)\nprint(cpu0.rrd(reg='pc'))\nend_bp = cpu0.bpadd(addr='0x0010AD58', type='hw')\nprint(end_bp.status())"
+  },
+  {
+    "index": 13,
+    "language": "python",
+    "source": "try:\n    cpu0.con('--block', timeout=120)\nexcept Exception:\n    cpu0.stop()\n    print(cpu0.state(), cpu0.rrd(reg='pc'))\n    raise\nprint(cpu0.state(), cpu0.rrd(reg='pc'), cpu1.state())\nprint(cpu0.mrd('--value', address=0x00114140, size=1, word_size=4))"
+  },
+  {
+    "index": 14,
+    "language": "python",
+    "source": "end_bp.remove()\nsession.disconnect(chan=channel)\nxsdb.dispose()"
+  }
+]

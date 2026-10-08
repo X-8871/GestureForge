@@ -1,0 +1,41 @@
+{
+  "command": {
+    "tool": "exec_command",
+    "cmd": "$s2bDocBlocks = [System.IO.File]::ReadAllText('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\f02\\document_blocks.json', [System.Text.Encoding]::UTF8) | ConvertFrom-Json; $s2bParseRows=@(); foreach ($s2bDocBlock in $s2bDocBlocks) { if ($s2bDocBlock.language -eq 'powershell') { $s2bTokens=$null; $s2bParseErrors=$null; $null=[System.Management.Automation.Language.Parser]::ParseInput([string]$s2bDocBlock.source,[ref]$s2bTokens,[ref]$s2bParseErrors); $s2bParseRows += @{index=$s2bDocBlock.index;language=$s2bDocBlock.language;errors=@($s2bParseErrors | ForEach-Object {$_.Message})} } }; @{status='PASS_SYNTAX_ONLY';powershell_blocks=$s2bParseRows.Count;hardware_commands_executed=$false;results=$s2bParseRows} | ConvertTo-Json -Depth 6; if ($s2bParseRows.Count -ne 4 -or @($s2bParseRows | Where-Object { $_.errors.Count -ne 0 }).Count -ne 0) { exit 1 }"
+  },
+  "original_result": {
+    "chunk_id": "68ea74",
+    "wall_time_seconds": 0.2530531,
+    "exit_code": 0,
+    "original_token_count": 119,
+    "output": "{\r\n  \"hardware_commands_executed\": false,\r\n  \"results\": [\r\n    {\r\n      \"index\": 0,\r\n      \"language\": \"powershell\",\r\n      \"errors\": []\r\n    },\r\n    {\r\n      \"index\": 4,\r\n      \"language\": \"powershell\",\r\n      \"errors\": []\r\n    },\r\n    {\r\n      \"index\": 5,\r\n      \"language\": \"powershell\",\r\n      \"errors\": []\r\n    },\r\n    {\r\n      \"index\": 6,\r\n      \"language\": \"powershell\",\r\n      \"errors\": []\r\n    }\r\n  ],\r\n  \"powershell_blocks\": 4,\r\n  \"status\": \"PASS_SYNTAX_ONLY\"\r\n}\r\n"
+  },
+  "parsed": {
+    "hardware_commands_executed": false,
+    "results": [
+      {
+        "index": 0,
+        "language": "powershell",
+        "errors": []
+      },
+      {
+        "index": 4,
+        "language": "powershell",
+        "errors": []
+      },
+      {
+        "index": 5,
+        "language": "powershell",
+        "errors": []
+      },
+      {
+        "index": 6,
+        "language": "powershell",
+        "errors": []
+      }
+    ],
+    "powershell_blocks": 4,
+    "status": "PASS_SYNTAX_ONLY"
+  },
+  "output_encoding": "工具返回文本按UTF-8保存，未宣称对子进程原始输出字节做独立测量"
+}

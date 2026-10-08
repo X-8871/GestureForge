@@ -1,0 +1,185 @@
+{
+  "mode": "READ_ONLY_API_PROBE",
+  "client_created": false,
+  "vitis_version_env": "Vitis v2026.1 (64-bit)",
+  "python_version": "3.13.0 (main, Nov 19 2024, 22:38:08) [MSC v.1929 64 bit (AMD64)]",
+  "methods": [
+    {
+      "name": "create_client",
+      "signature": "(port=None, host='localhost', workspace=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\__init__.py",
+      "source_sha256": "345e97d19f1254f410172d9126e667379cc0a6f43771835a70130908a5c1222a",
+      "doc": "create_client:\n    Creates client instance\n\nPrototype:\n    :class:`client = vitis.create_client(port = <port_number>,\n    host = <host_name>,\n    workspace = <workspace_location>)`\n\nOptional Arguments:\n    workspace = <workspace_location> Current directory (default)\n    port = <port_number>\n    host = <hostname> Localhost (default)\n\nReturns:\n    client instance\n\nExamples:\n    client = vitis.create_client()\n    client = vitis.create_client(port = 50762, workspace = \"/ws1/\")"
+    },
+    {
+      "name": "dispose",
+      "signature": "()",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\__init__.py",
+      "source_sha256": "345e97d19f1254f410172d9126e667379cc0a6f43771835a70130908a5c1222a",
+      "doc": "dispose:\n    Close all the client connections and force terminate the server.\n    If there are any other clients connected to the server, they will no\n    longer be functional.\n\nPrototype:\n    :class:`dispose()`\n\nArguments:\n    None\n\nReturns:\n    None\n\nExamples:\n    vitis.dispose()"
+    },
+    {
+      "name": "Embedded.set_workspace",
+      "signature": "(self, path)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\cli_client.py",
+      "source_sha256": "1754cfec181bee482bf9457e21ec8991fa9b6e0a4de7b08dee89ece48b27320f",
+      "doc": "set_workspace:\n    Set the given workspace path.\n\nPrototype:\n    :class:`client.set_workspace(path = <workspace_location>)`\n\nRequired Arguments:\n    path = <workspace_location>\n        Path for the workspace to be set.\n\nReturns:\n    True\n        Workspace is successfully set.\n    Exception\n        Failed to set the workspace.\n\nExamples:\n    client.set_workspace(\"/home/vitis_project\")\n    client.set_workspace(r\"C:\\tmp\\ws\")\n    client.set_workspace(\"C:/tmp/ws\")"
+    },
+    {
+      "name": "Embedded.create_platform_component",
+      "signature": "(self, name, hw_design='', desc=None, os=None, cpu=None, domain_name=None, template=None, no_boot_bsp=False, fsbl_target=None, fsbl_path=None, pmufw_Elf=None, emu_design='', platform_xpfm_path='', is_pmufw_req=False, generate_dtb=True, advanced_options={}, architecture=None, compiler=None, rp_info_args=[], hw_boot_bin=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\cli_client.py",
+      "source_sha256": "1754cfec181bee482bf9457e21ec8991fa9b6e0a4de7b08dee89ece48b27320f",
+      "doc": "create_platform_component:\n    Create a new platform.\n\nPrototype:\n    :class:`platform = client.create_platform_component(name = <platform_name>,\n    hw_design = <handoff_file>,\n    desc = <description>,\n    os = <os>,\n    cpu = <processor>,\n    domain_name = <domain_name>,\n    template = <template_name>,\n    no_boot_bsp = <bool>,\n    fsbl_target = <fsbl_target>,\n    fsbl_path = <path>,\n    pmufw_Elf = <path>,\n    emu_design = <xsa_path>,\n    platform_xpfm_path = <xpfm_path>,\n    is_pmufw_req = <bool>,\n    generate_dtb = <bool>,\n    advanced_options = {},\n    architecture = <string>,\n    compiler = <compiler_type>,\n    hw_boot_bin = <hw_boot_bin file path>)`\n\nRequired Arguments:\n    name = <platform_name>\n        Name of the platform.\n    hw_design = <handoff_file>\n        Hardware description file to be used to create the\n        platform.\n    emu_design = <xsa_path>\n        Path to the emulation xsa on which the component is created.\n    platform_xpfm_path = <xpfm_path>\n        Xpfm path of existing platorm.\n\nOptional Arguments:\n    desc = <description>\n        Description of the platform.\n    os = <os>\n        The OS to be used to create the default domain.\n    cpu = <processor>\n        The processor to be used to create the default domain.\n    domain_name = <domain_name>\n        Name of the domain to be created in the platform.\n    template = <template_name>\n        Template for creating domain in case of Baremetal platform.\n        \"Empty\" (Default)\n    no_boot_bsp = <bool>\n        Mark the platform to build without generating boot components.\n    fsbl_target = <fsbl_target>\n        Processor-type for which the existing fsbl has to be generated.\n        This option is valid only for ZU+. \"psu_cortexa53_0\" (Default)\n    fsbl_path = <path>\n        Fsbl path for custom fsbl. This option is used when no_boot_bsp\n        is opted.\n    pmufw_Elf = <path>\n        Prebuilt fsbl.elf to be used as boot component. This option is\n        used when no_boot_bsp is opted.\n    is_pmufw_req = <bool>\n        Mark the platform to create PMU Firmware boot domain. This option\n        is false by default.\n    generate_dtb = <bool>\n        Enables the automatic creation of a Device Tree Blob (DTB) file.\n        True by default.\n    advanced_options = <dict>\n        Advanced options for sdt creation.\n        Use create_advanced_options_dict to create dict for advanced options.\n    architecture = <string>\n        This option is to add the architecture details to create platform component.\n    compiler = <compiler_type>\n        This option is to add the specific compiler details otherthan default\n    hw_boot_bin = <path>\n        This option is to add the hardware boot binary path to create platform component.\n\nReturns:\n    Object reference for the newly created platform.\n\nExamples:\n    platform = client.create_platform_component(name = \"platform\", hw_design = \"zcu102\",\n                                      cpu = \"psu_cortexa53_0\",\n                                      os = \"standalone\",\n                                      domain_name = \"standalone_a53\",\n                                      architecture = \"32-bit\",\n                                      compiler = \"gcc\",\n                                      hw_boot_bin = \"boot.bin\")"
+    },
+    {
+      "name": "Embedded.create_app_component",
+      "signature": "(self, name, platform, domain=None, cpu=None, os=None, template=None, sysroot_toolchain=None, use_sysroot_toolchain=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\cli_client.py",
+      "source_sha256": "1754cfec181bee482bf9457e21ec8991fa9b6e0a4de7b08dee89ece48b27320f",
+      "doc": "create_app_component:\n    Create an application component.\n\nPrototype:\n    :class:`app_comp = client.create_app_component(name = <comp_name>,\n    platform = <platform>,\n    domain = <domain>,\n    template = <template>,\n    cpu = <cpu>,\n    os = <os>,\n    sysroot_toolchain = <sysroot_path>,\n    use_sysroot_toolchain = <boolean>)`\n\nRequired Arguments:\n    name = <comp_name>\n        Application component name.\n    platform = <platform>\n        Platform for which component is to be created.\n        In case of baremetal platforms, user can specify the domain\n        along with platform.\n    \n        CPU and OS are required in case no platform is provided. \n\nOptional Argument:\n    template = <template>\n        Template for the component to be created.\n    domain = <domain>\n        Specify the domain when there is more than one domain\n        on the platform.\n    sysroot_toolchain = <systroot_path>\n        sysroot toolchain path for host component\n    use_sysroot_toolchain = <boolean>\n        use sysroot toolchain used for host component\n\nReturns:\n    App component object.\n\nExamples:\n    app_comp = client.create_app_component(name = app1,\n                                            platform = platform_xpfm,\n                                            template = 'empty',\n                                            sysroot_toolchain = sysroot_toolchain path,\n                                            use_sysroot_toolchain = True/False)"
+    },
+    {
+      "name": "Platform.get_domain",
+      "signature": "(self, name)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\platform_component.py",
+      "source_sha256": "69b9c313b0762c5fafa5dadf8dab100d8aa20aaddeeb0a8c5399b256e03fcf5b",
+      "doc": "get_domain:\n    Get the domain object from the platform.\n\nPrototype:\n    :class:`status = platform.get_domain(name = <domain_name>)`\n\nRequired Arguments:\n\n    name = <domain_name>\n        Name of the domain.\n\nReturns:\n    Domain object.\n\nExamples:\n    platform.get_domain(name = \"domain1\")"
+    },
+    {
+      "name": "Platform.build",
+      "signature": "(self)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\platform_component.py",
+      "source_sha256": "69b9c313b0762c5fafa5dadf8dab100d8aa20aaddeeb0a8c5399b256e03fcf5b",
+      "doc": "build:\n    Generate the platform.\n\nPrototype:\n    :class:`status = platform.build()`\n\nArguments:\n    None\n\nReturns:\n    True\n        Platform built successfully.\n    Exception\n        Platform could not be built.\n\nExamples:\n    platform.built()"
+    },
+    {
+      "name": "Domain.get_config",
+      "signature": "(self, option, param, lib_name=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\domain.py",
+      "source_sha256": "8ec58b6b15409d064f5796079d7758be439c380275d777251e38ced281fb88d1",
+      "doc": "get_config:\n    Get value to the configurable parameters.\n\nPrototype:\n    :class:`value = domain.get_config(option = <option>,\n    param = <param>,\n    lib_name = <lib_name>)`\n\nRequired Arguments:\n    option = <\"lib\"/\"os\"/\"proc\">\n        Valid options are \"lib\"/\"os\"/\"proc\".\n    param = <param>\n        Use list_param(\"lib\"/\"os\"/\"proc\") to get the list of\n        configurable parameters.\n\nOptional Arguments:\n    lib_name = <lib_name>\n        Library name in case 'lib' option is selected.\n\nReturns:\n    Value\n        Current value for the parameter.\n\nExamples:\n    value = domain1.get_config(option = \"os\",\n                               param = \"standalone_stdin\")"
+    },
+    {
+      "name": "Domain.set_config",
+      "signature": "(self, option, param, value, lib_name=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\domain.py",
+      "source_sha256": "8ec58b6b15409d064f5796079d7758be439c380275d777251e38ced281fb88d1",
+      "doc": "set_config:\n    Set value to the configurable parameters.\n\nPrototype:\n    :class:`status = domain.set_config(option = <option>,\n    param = <key>,\n    value = <value>,\n    lib_name = <lib_name>)`\n\nRequired Arguments:\n    option = <\"lib\"/\"os\"/\"proc\">\n        Valid options are \"lib\"/\"os\"/\"proc\".\n    param = <key>\n        Parameter for which value is to be set.\n        list_param(\"lib\"/\"os\"/\"proc\") to get the list of configurable\n        parameters.\n    value = <value>\n        Value for the parameter.\n\nOptional Arguments:\n    lib_name = <lib_name>\n        Library name in case 'lib' option is selected.\n\nReturns:\n    True\n        Configuration parameter set successfully.\n    Exception\n        Configuration parameter could not be set.\n\nExamples:\n        domain1.set_config(option = 'os', \n                           param = 'standalone_stdout, value = 'uart0')"
+    },
+    {
+      "name": "Component.import_files",
+      "signature": "(self, from_loc, files=None, files_to_exclude=None, dest_dir_in_cmp=None, is_skip_copy_sources=False)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\component.py",
+      "source_sha256": "bc2f0530bc8e9fb921e5154e3818995bdf1f74770a2cf406401d3bb46e388832",
+      "doc": "import_files:\n    Import files to the component.\n\nPrototype:\n    :class:`status = component.import_files(from_loc = <Location of src or config file(s) path>,\n    files = [\"file1\",..]**,\n    files_to_exclude = [\"file1\",..]**,\n    dest_dir_in_cmp = <Dest location or config file(s) path>,\n    is_skip_copy_sources = False)`\n\nRequired Arguments:\n\n    from_loc = <Location of src or config file(s) path>\n        From The location can be a directory/file, the path can be\n        absolute/relative.\n        \nOptional Arguments:\n\n    files = [\"file1\",..]**\n        List of files to be imported from the given from_loc path.\n        Whole folder is imported if files are not mentioned.\n\n    files_to_exclude = [\"file1\",..]**\n        List of files to be excluded from the given from_loc path.\n        \n    dest_dir_in_cmp = <Dest location or config file(s) path>\n        Destination folder name, created if directory doesn't exist. \n        Files are imported directly to the component folder if \n        destination folder is not given.\n\n    is_skip_copy_sources = <boolean>\n        Set to True to skip copying files and refer to the selected source for the component. Currently, this is only supported for the Application component. If not provided or set to False, the directory/file will be copied.\n\nReturns:\n    True\n        Files imported successfully.\n    Exception\n        File could not be imported.\n\nExamples:\n    component.import_files(from_loc = '/tmp/dir1',  \n                           files = ['file1.txt','file2.cpp'], \n                           dest_dir_in_cmp = 'src')"
+    },
+    {
+      "name": "BuildSettings.set_app_config",
+      "signature": "(self, key, values)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\component.py",
+      "source_sha256": "bc2f0530bc8e9fb921e5154e3818995bdf1f74770a2cf406401d3bb46e388832",
+      "doc": "set_app_config:\n    Set the value of the provided build setting.\n    Values can be single value or a list of values.\n\nPrototype:\n    :class:`status = component.set_app_config(key = <setting>, value = [\"value1\",..]**)`\n\nRequired arguments:\n    key = <setting>\n        Configuration parameter to be set.\n    values = [\"value1\",..]**\n        New value(s) for the configuration parameter.\n\nReturns:\n    True\n        Build configuration set successfully.\n    Exception\n        Failed to set the configuration.\n\nExamples:\n    status = component.set_app_config(\n                                key = \"USER_COMPILE_DEBUG_LEVEL\",\n                                values = \"-g1\")"
+    },
+    {
+      "name": "HostComponent.build",
+      "signature": "(self, target=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\component.py",
+      "source_sha256": "bc2f0530bc8e9fb921e5154e3818995bdf1f74770a2cf406401d3bb46e388832",
+      "doc": "build:\n    Initiates the build of a component.\n\nPrototype:\n    :class:`status = component.build(target= <target name>)`\n\nOptional arguments:\n    target = <target name>\n        One of the supported targets - x86sim,hw\n        hw (Default for baremetal application.)\n        x86sim (Default for accelerated flows.)\n\nReturns:\n    Build Status\n        SUCCESS/FAILURE\n    Exception\n        Failed to build the component.\n\nExamples:\n    status = component.build(target = \"hw\")"
+    },
+    {
+      "name": "HostComponent.get_ld_script",
+      "signature": "(self, path=None)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\component.py",
+      "source_sha256": "bc2f0530bc8e9fb921e5154e3818995bdf1f74770a2cf406401d3bb46e388832",
+      "doc": "get_ld_script:\n    Get the linker script object corresponding to the host_component.\n\nPrototype:\n    :class:`status = ldfile.get_ld_script(path = <ld_path>)`\n\nOptional Arguments:\n    path = <ld_path>\n        Linker script path to be edited.\n        lscript.ld associated with the host component will be \n        considered by default.\n\nReturns:\n    Linker script file object.\n\nExamples:\n    status = ldfile.get_ld_script()"
+    },
+    {
+      "name": "Ldfile.get_memory_regions",
+      "signature": "(self)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\ldfile.py",
+      "source_sha256": "127693791fe0ae856cd6697dfbb58e58cb2201c1a795e40398ef44ce192552cb",
+      "doc": "get_memory_region:\n    Get a memory regions in the linker script.\n\nPrototype:\n    :class:`status = ldfile.get_memory_region()`\n\nArguments:\n    None\n\nReturns:\n    List of Memory regions existing in the linker script.\n\nExamples:\n    status = ldfile.get_memory_regions()"
+    },
+    {
+      "name": "Ldfile.update_memory_region",
+      "signature": "(self, name, base_address, size)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\ldfile.py",
+      "source_sha256": "127693791fe0ae856cd6697dfbb58e58cb2201c1a795e40398ef44ce192552cb",
+      "doc": "update_memory_region:\n    Update an existing memory region in the linker script.\n\nPrototype:\n    :class:`status = ldfile.update_memory_region(name = <name>,\n    base_address = <base_addres>,\n    size = <size>)`\n\nRequired Arguments:\n\n    name = <name>\n        Name for the new memory region to be updated.\n    base_address = <base_address>\n        New base address for the memory region.\n    size = <size>\n        New size for the memory region.\n\nReturns:\n    True\n        Updated the memory region.\n    Exception\n        Memory region could not be updated.\n\nExamples:\n    status = ldfile.update_memory_region(name = <name>,\n                                         base_address = <base_addres>,\n                                         size = <size>)"
+    },
+    {
+      "name": "Ldfile.add_memory_region",
+      "signature": "(self, name, base_address, size)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\ldfile.py",
+      "source_sha256": "127693791fe0ae856cd6697dfbb58e58cb2201c1a795e40398ef44ce192552cb",
+      "doc": "add_memory_region:\n    Add a memory region in the linker script.\n\nPrototype:\n    :class:`status = ldfile.add_memory_region(name = <name>,\n    base_address = <base_addres>,\n    size = <size>)`\n\nRequired Arguments:\n\n    name = <name>\n        Name for the new memory region.\n    base_address = <base_address>\n        Base address for the memory region.\n    size = <size>\n        Size of the memory region.\n\nReturns:\n    True\n        Added a memory region.\n    Exception\n        Memory region could not be added.\n\nExamples:\n    status = ldfile.add_memory_region(name = <name>,\n                                      base_address = <base_addres>,\n                                      size = <size>)"
+    },
+    {
+      "name": "Ldfile.set_stack_size",
+      "signature": "(self, size)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\ldfile.py",
+      "source_sha256": "127693791fe0ae856cd6697dfbb58e58cb2201c1a795e40398ef44ce192552cb",
+      "doc": "set_stack_size:\n    Update the stack size in the linker script.\n\nPrototype:\n    :class:`status = ldfile.set_stack_size(size = <stack_size>)`\n\nRequired Arguments:\n    size = <stack_size>\n        New size for the memory region.\n\nReturns:\n    True\n        Updated the stack size.\n    Exception\n        Stack size could not be updated.\n\nExamples:\n    status = ldfile.set_stack_size(size = <stack_size>)"
+    },
+    {
+      "name": "Ldfile.set_heap_size",
+      "signature": "(self, size)",
+      "source_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\ldfile.py",
+      "source_sha256": "127693791fe0ae856cd6697dfbb58e58cb2201c1a795e40398ef44ce192552cb",
+      "doc": "set_heap_size:\n    Update the heap size in the linker script.\n\nPrototype:\n    :class:`status = ldfile.set_heap_size(size = <heap_size>)`\n\nRequired Arguments:\n    size = <heap_size>\n        New size for the memory region.\n\nReturns:\n    True\n        Updated the heap size.\n    Exception\n        Heap size could not be updated.\n\nExamples:\n    status = ldfile.set_heap_size(size = <heap_size>)"
+    }
+  ],
+  "response_type_enums": {
+    "build_pb2.ComponentsInfo.type": {
+      "UNKNOWN": 0,
+      "APPLICATION": 1,
+      "PACKAGE": 2,
+      "CONTAINER": 3,
+      "HLS": 4,
+      "HOST": 5,
+      "AIE": 6
+    },
+    "build_pb2.BuildRequest.type": {
+      "ALL": 0,
+      "HOST": 1,
+      "PL_KERNEL": 2,
+      "PL_LINK": 3,
+      "AIE": 4,
+      "PKG": 5
+    },
+    "build_pb2.BuildResponse.type": {
+      "SUCCESS": 0,
+      "FAILURE": 1,
+      "IN_PROGRESS": 2
+    },
+    "build_pb2.UpdateInitiatedBuildsRequest.type": {
+      "START": 0,
+      "STOP": 1
+    },
+    "platform_pb2.PlatformResponse.type": {
+      "SUCCESS": 0,
+      "FAILURE": 1,
+      "IN_PROGRESS": 2
+    }
+  },
+  "response_status_fields": {
+    "platform_pb2.SetEmbeddedRepoDataResponse.status": {
+      "protobuf_field_type": 8,
+      "enum_values": null
+    },
+    "workspace_pb2.SetWorkspaceResponse.status": {
+      "protobuf_field_type": 8,
+      "enum_values": null
+    },
+    "workspace_pb2.CheckWorkspaceResponse.status": {
+      "protobuf_field_type": 8,
+      "enum_values": null
+    },
+    "workspace_pb2.CloseWorkspaceResponse.status": {
+      "protobuf_field_type": 8,
+      "enum_values": null
+    }
+  }
+}

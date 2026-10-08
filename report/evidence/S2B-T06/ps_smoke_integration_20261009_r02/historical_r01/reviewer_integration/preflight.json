@@ -1,0 +1,12 @@
+{
+  "checked_at_utc8": "2026-10-09T02:30:09.9801029+08:00",
+  "native_tool_exit_code": 0,
+  "native_tool_chunk_id": "551e60",
+  "command": "$s2bReviewProcesses = @(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(vitis|vivado|hw_server|cs_server|xsdb|xelab|xsim|arm-none-eabi).*' -and $_.Name -notmatch '^vivado-mcp-server' } | Select-Object Name,ProcessId,ParentProcessId); @{checked_at=(Get-Date).ToString('o');heavy_processes=$s2bReviewProcesses;memory=(Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory)} | ConvertTo-Json -Depth 5",
+  "result": {
+    "heavy_processes": [],
+    "memory": {"TotalVisibleMemorySize": 16463352, "FreePhysicalMemory": 5950188}
+  },
+  "scope": "仅查进程/资源；未关闭其他会话，本轮不运行重型构建。",
+  "hardware_execution": "NOT_RUN"
+}

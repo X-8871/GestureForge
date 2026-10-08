@@ -1,0 +1,763 @@
+{
+  "decision": "PASS",
+  "task": "S2B-T06-INTEGRATION-R01",
+  "checked_at_utc8": "2026-10-09T02:34:40.595158+08:00",
+  "scope_sha256": "574b268724b37126ae5aa95e47f6f4a7eb774d4cc3608cf460b91dfd4a56d533",
+  "baseline_commit": "00f51b664fefdaf0c63e605af2427333579fa5f3",
+  "checks": [
+    {
+      "name": "31固定文件和2控制快照及4源码",
+      "status": "PASS",
+      "detail": {
+        "scope_sha256": "574b268724b37126ae5aa95e47f6f4a7eb774d4cc3608cf460b91dfd4a56d533",
+        "differences": 0
+      }
+    },
+    {
+      "name": "批准/正式冻结/STATE语义",
+      "status": "PASS",
+      "detail": {
+        "gate_status": {
+          "G1": "PASS_OFFLINE",
+          "G2": "PASS",
+          "G3": "NOT_RUN",
+          "G4": "NOT_PASSED",
+          "stage_2B_G5": "NOT_PASSED",
+          "stage_2B_G0": "NOT_PASSED"
+        },
+        "STATE_lines": 48,
+        "source_commit_basis": "旧基线提交+新源码SHA，未把新源码声称已存在于旧提交",
+        "physical_recovery": "S2B-T05未选择/未冻结"
+      }
+    },
+    {
+      "name": "ps_smoke_20261008_r01实际绑定",
+      "status": "PASS",
+      "detail": {
+        "files": 284,
+        "interfaces": 1,
+        "differences": 0
+      }
+    },
+    {
+      "name": "ps_smoke_offline_freeze_20261009_r01实际绑定",
+      "status": "PASS",
+      "detail": {
+        "files": 141,
+        "interfaces": 2,
+        "differences": 0
+      }
+    },
+    {
+      "name": "G2最小110绑定及清单自身实际复制",
+      "status": "PASS",
+      "detail": {
+        "files": 111,
+        "bytes": 4339999,
+        "byte_differences": 0
+      }
+    },
+    {
+      "name": "总控失败/修正原件保全",
+      "status": "PASS",
+      "detail": {
+        "collection_files": 11,
+        "native_tool_results": 4,
+        "initial_wrapper_exit": 1,
+        "initial_underlying_checker_exit": "NOT_RECORDED_ORIGINALLY",
+        "actual_repeat_exit_codes": [
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "name": "42空白例外精确作用域",
+      "status": "PASS",
+      "detail": {
+        "p01_failures": 42,
+        "new_exact_attribute_paths": 42,
+        "sets_equal": true,
+        "new_project_source_broad_exemption": false
+      }
+    },
+    {
+      "name": "真实轻量交付与批准脚本重测",
+      "status": "PASS",
+      "detail": {
+        "developer_inputs": 0,
+        "developer_evidence": 0,
+        "freeze_inputs": 2,
+        "freeze_evidence": 0,
+        "verify_freeze": 0,
+        "freeze_inputs_only_reason": "checks[1] NOT_RUN"
+      }
+    },
+    {
+      "name": "独立私有index与对象恢复",
+      "status": "PASS",
+      "detail": {
+        "staged_files": 413,
+        "raw_checkout_bound_files": 417,
+        "differences": 0,
+        "whitespace_exit_code": 0,
+        "writes": "仅i01/private_index和private_objects；共享Git对象仅只读借用",
+        "new_four_sources": "text unset，whitespace unspecified，无空白豁免",
+        "controls": "text unspecified，不纳入417的字节绑定"
+      }
+    },
+    {
+      "name": "补审期间共享版本/内容保持",
+      "status": "PASS",
+      "detail": {
+        "HEAD": "00f51b664fefdaf0c63e605af2427333579fa5f3",
+        "index": "empty",
+        "status_representation": "本次集成前后均NUL，未要求等于历史5项状态",
+        "fixed_files": 31,
+        "control_files": 2
+      }
+    }
+  ],
+  "commands": [
+    {
+      "name": "shared_head_before",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.0319999999992433,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_head_before.stdout.log",
+        "sha256": "4efcf453ce6e48dcd7dd2b558587014510c739a02be0704f8c7af4bb7b5a9191",
+        "raw_sha256": "4efcf453ce6e48dcd7dd2b558587014510c739a02be0704f8c7af4bb7b5a9191",
+        "raw_bytes": 41,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_head_before.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "shared_index_before",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--binary"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.014999999999417923,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_index_before.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_index_before.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "shared_status_before",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "-z"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_status_before.stdout.log",
+        "sha256": "263d1bc071266a385687d10a7c257ddf278fa1d48e3d8cd76e6833de9fe40284",
+        "raw_sha256": "263d1bc071266a385687d10a7c257ddf278fa1d48e3d8cd76e6833de9fe40284",
+        "raw_bytes": 288,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_status_before.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "attributes_diff",
+      "argv": [
+        "git",
+        "diff",
+        "--",
+        ".gitattributes"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.01599999999598367,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\attributes_diff.stdout.log",
+        "sha256": "67850fbd37dab9b21a831122ed816e8413cb4ec9e6ab113a4d773521a6df7240",
+        "raw_sha256": "67850fbd37dab9b21a831122ed816e8413cb4ec9e6ab113a4d773521a6df7240",
+        "raw_bytes": 7078,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\attributes_diff.stderr.log",
+        "sha256": "27c51123b0695a2886e7887d49f40ec1e9681190c0f62ae5e15c1e08b2c4ed22",
+        "raw_sha256": "27c51123b0695a2886e7887d49f40ec1e9681190c0f62ae5e15c1e08b2c4ed22",
+        "raw_bytes": 107,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "developer_inputs",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\inputs_manifest_r03.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.125,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\developer_inputs.stdout.log",
+        "sha256": "332069a07ad9eeab5501f018a816cd85cddf41bd6756ec7bcce4ae849fcc42b3",
+        "raw_sha256": "332069a07ad9eeab5501f018a816cd85cddf41bd6756ec7bcce4ae849fcc42b3",
+        "raw_bytes": 470,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\developer_inputs.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "developer_evidence",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\delivery_manifest.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.43699999999807915,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\developer_evidence.stdout.log",
+        "sha256": "6edb678b4e62ece1982b934bf47bd3d000012c2899dd3b09164f46009da8efaa",
+        "raw_sha256": "6edb678b4e62ece1982b934bf47bd3d000012c2899dd3b09164f46009da8efaa",
+        "raw_bytes": 1675,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\developer_evidence.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "freeze_inputs",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_offline_freeze_20261009_r01\\delivery_manifest.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "elapsed_seconds": 0.2649999999994179,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\freeze_inputs.stdout.log",
+        "sha256": "0534f47a3bfa261d26ad61616145a80f4162bf180c1075725ae4db15be083257",
+        "raw_sha256": "0534f47a3bfa261d26ad61616145a80f4162bf180c1075725ae4db15be083257",
+        "raw_bytes": 688,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\freeze_inputs.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "freeze_evidence",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_offline_freeze_20261009_r01\\delivery_manifest.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.28100000000267755,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\freeze_evidence.stdout.log",
+        "sha256": "fcd3ef9bd107248485b7bd2e95b052151bb7aff6b0f4c6d5e1006daf581438c2",
+        "raw_sha256": "fcd3ef9bd107248485b7bd2e95b052151bb7aff6b0f4c6d5e1006daf581438c2",
+        "raw_bytes": 622,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\freeze_evidence.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "original_verify_freeze",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_offline_freeze_20261009_r01\\verify_freeze.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.20300000000133878,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\original_verify_freeze.stdout.log",
+        "sha256": "8e1ba84e7954fe5657e123e62df22315f1f43238c851ab1b07b46056de18e178",
+        "raw_sha256": "8e1ba84e7954fe5657e123e62df22315f1f43238c851ab1b07b46056de18e178",
+        "raw_bytes": 263,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\original_verify_freeze.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "shared_object_path",
+      "argv": [
+        "git",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-path",
+        "objects"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.01599999999598367,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_object_path.stdout.log",
+        "sha256": "408d9a25f2e6cd366963538c5bb9ffb5f36f13ff21c5d192dcd5305c50040336",
+        "raw_sha256": "408d9a25f2e6cd366963538c5bb9ffb5f36f13ff21c5d192dcd5305c50040336",
+        "raw_bytes": 33,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_object_path.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "private_read_tree",
+      "argv": [
+        "git",
+        "read-tree",
+        "HEAD"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_read_tree.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_read_tree.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      }
+    },
+    {
+      "name": "private_git_add",
+      "argv": [
+        "git",
+        "add",
+        "-f",
+        "--pathspec-from-file=-",
+        "--pathspec-file-nul"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.14100000000325963,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_git_add.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_git_add.stderr.log",
+        "sha256": "5dd796532111fd584c83d00a47046786534035bbb6323e54aeae56ac1a1adf56",
+        "raw_sha256": "5dd796532111fd584c83d00a47046786534035bbb6323e54aeae56ac1a1adf56",
+        "raw_bytes": 215,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      },
+      "stdin": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_git_add.stdin.log",
+        "sha256": "f3f84f77f2b97d4db7ee0f8d41cceac1fa4da704a763f1e2666d3940f72689c9",
+        "raw_sha256": "f3f84f77f2b97d4db7ee0f8d41cceac1fa4da704a763f1e2666d3940f72689c9",
+        "raw_bytes": 34769,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "private_staged_paths",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.01600000000325963,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_staged_paths.stdout.log",
+        "sha256": "f3f84f77f2b97d4db7ee0f8d41cceac1fa4da704a763f1e2666d3940f72689c9",
+        "raw_sha256": "f3f84f77f2b97d4db7ee0f8d41cceac1fa4da704a763f1e2666d3940f72689c9",
+        "raw_bytes": 34769,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_staged_paths.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      }
+    },
+    {
+      "name": "private_raw_batch",
+      "argv": [
+        "git",
+        "cat-file",
+        "--batch"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.1559999999954016,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_raw_batch.stdout.gz",
+        "sha256": "d20297f9c15212c0c52aa4519004dd58f3bd4da64e4b1c0399e2d225b0999b0f",
+        "raw_sha256": "3e61eeb961763e87b7c1dadcc238ee140d9e61033b81395be80339b6f5710aea",
+        "raw_bytes": 17906991,
+        "encoding": "gzip_unmodified_stdout"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_raw_batch.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      },
+      "stdin": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_raw_batch.stdin.log",
+        "sha256": "5351e67c4c4ee7293a64586bc50245028a6f29714485e73e241340cc79180aef",
+        "raw_sha256": "5351e67c4c4ee7293a64586bc50245028a6f29714485e73e241340cc79180aef",
+        "raw_bytes": 35620,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "private_checkout_batch",
+      "argv": [
+        "git",
+        "cat-file",
+        "--batch",
+        "--filters"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.14100000000325963,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_checkout_batch.stdout.gz",
+        "sha256": "d20297f9c15212c0c52aa4519004dd58f3bd4da64e4b1c0399e2d225b0999b0f",
+        "raw_sha256": "3e61eeb961763e87b7c1dadcc238ee140d9e61033b81395be80339b6f5710aea",
+        "raw_bytes": 17906991,
+        "encoding": "gzip_unmodified_stdout"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_checkout_batch.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      },
+      "stdin": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_checkout_batch.stdin.gz",
+        "sha256": "534f2256204413f043e2f1c280e208051e1447df22a198965fee1c579c6edf85",
+        "raw_sha256": "6921a0e2b6a43ce5c740e70928c8bc927818050038cab7635fe0c4a2671e4117",
+        "raw_bytes": 70823,
+        "encoding": "gzip_unmodified_stdout"
+      }
+    },
+    {
+      "name": "private_selected_attributes",
+      "argv": [
+        "git",
+        "check-attr",
+        "--cached",
+        "-z",
+        "text",
+        "whitespace",
+        "--",
+        ".codex/STATE.md",
+        ".gitattributes",
+        "vitis/s2b_ps_smoke.c",
+        "vitis/build_s2b_ps_smoke.py",
+        "verification/check_s2b_ps_smoke_layout.py",
+        "vitis/s2b_ps_smoke.md"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.014999999999417923,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_selected_attributes.stdout.log",
+        "sha256": "05de0e2e372010076331773607f29ae60d581c9d40a2013360637fa6dddb60dd",
+        "raw_sha256": "05de0e2e372010076331773607f29ae60d581c9d40a2013360637fa6dddb60dd",
+        "raw_bytes": 504,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_selected_attributes.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      }
+    },
+    {
+      "name": "private_whitespace_check",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.11000000000058208,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_whitespace_check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_whitespace_check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "environment_overrides": {
+        "GIT_INDEX_FILE": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_index",
+        "GIT_OBJECT_DIRECTORY": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\private_objects",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": "D:\\FPGA_Competition\\.git\\objects"
+      }
+    },
+    {
+      "name": "shared_head_after",
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.014999999999417923,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_head_after.stdout.log",
+        "sha256": "4efcf453ce6e48dcd7dd2b558587014510c739a02be0704f8c7af4bb7b5a9191",
+        "raw_sha256": "4efcf453ce6e48dcd7dd2b558587014510c739a02be0704f8c7af4bb7b5a9191",
+        "raw_bytes": 41,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_head_after.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "shared_index_after",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--binary"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.01599999999598367,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_index_after.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_index_after.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    },
+    {
+      "name": "shared_status_after",
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "-z"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_status_after.stdout.log",
+        "sha256": "263d1bc071266a385687d10a7c257ddf278fa1d48e3d8cd76e6833de9fe40284",
+        "raw_sha256": "263d1bc071266a385687d10a7c257ddf278fa1d48e3d8cd76e6833de9fe40284",
+        "raw_bytes": 288,
+        "encoding": "raw_bytes"
+      },
+      "stderr": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\rv1\\review\\i01\\shared_status_after.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0,
+        "encoding": "raw_bytes"
+      }
+    }
+  ],
+  "blocking_findings": [],
+  "gate_status": {
+    "G1": "PASS_OFFLINE",
+    "G2": "PASS",
+    "G3": "NOT_RUN",
+    "G4": "NOT_PASSED",
+    "stage_2B_G5": "NOT_PASSED",
+    "stage_2B_G0": "NOT_PASSED"
+  },
+  "hardware_execution": "NOT_RUN",
+  "heavy_build_repeated": false,
+  "full_process_tree_peak_memory": "NOT_MEASURED",
+  "control_line_endings": "原始工作区控制文件与scope快照一致，既有Git换行处理保留；提交前UTF-8文本/完整差异由总控再次核对",
+  "semantic_review": "正式文档、批准和STATE仅接受PS前置候选离线G1/G2；未通过实板/2B G0/G5，T05未选择，无模型部署就绪声明。CHECKS_OK只表示包装。",
+  "source_inputs": "新4源码由固定SHA绑定；旧HEAD作为审查基线，upstream 90652b45固定。原G2源码/ELF候选未变，不重复重型Vitis。"
+}

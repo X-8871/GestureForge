@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_STARTUP_AND_MANUAL_STOP_BINDING",
+  "hardware_execution": "NOT_RUN",
+  "initializer_elf_sha256": "366ad1f4831eba9db0510c0e5343d34e3b355f72c8f8bcae419903814246024c",
+  "smoke_elf_sha256": "8b9803682c9585a8dad91daf96f3f102de948466025e0cf28ee4b96e6cfde428",
+  "init_disassembly_sha256": "5dc68ba2a274e7de2334f4bee92ffef37c6caec770d8f34db937d80ecb92abe8",
+  "smoke_disassembly_sha256": "6b7b64c2a19f4f6ca7859e7bfaa49b239112d5cfb1be8fdb2b11587cb3352510",
+  "smoke_objdump_command": [
+    "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+    "-d",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_smoke.elf"
+  ],
+  "smoke_objdump_exit_code": 0,
+  "startup_audit": {
+    "vector_0_branches_boot_0xcc": true,
+    "boot_register_targets": [
+      "SLCR/EFUSE 0xF8000000..0xF800D010",
+      "SCU 0xF8F00000..0xF8F0000C",
+      "L2 0xF8F02100..0xF8F0277C"
+    ],
+    "boot_literal_pool_range": [
+      980,
+      1112
+    ],
+    "mmu_table_ocm": [
+      16384,
+      32768
+    ],
+    "boot_cpu1_single_core_path": "EFUSE判断单核时ORR 0x22置CPU1 reset/clockstop；无释放CPU1路径。正常双核仍须人工先停止CPU1。",
+    "cpu_init_address": 4864,
+    "cpu_init_has_no_memory_or_call_instructions": true,
+    "start_address": 1212,
+    "start_before_main_calls": [
+      "__cpu_init",
+      "__libc_init_array"
+    ],
+    "constructor_names": [
+      "frame_dummy"
+    ],
+    "constructor_pointer": 1157,
+    "frame_dummy_code_address": 1156,
+    "frame_dummy_has_no_call_instruction": true,
+    "frame_dummy_ocm_literals": [
+      14788,
+      36932
+    ],
+    "raw_ps_init_read": "ps7GetSiliconVersion仅读0xF8007080，上游字节不变",
+    "cache_precondition": "冷JTAG BootROM后没有旧应用脏DDR缓存、CPU1停止、DMA与PL writer静止，OCM初始化Flush/Disable仅覆盖该启动状态"
+  },
+  "stop_binding": {
+    "init_ready": 7432,
+    "init_fail": 7448,
+    "init_result_address": 37376,
+    "init_raw_return_address": 14784,
+    "required_result": 2,
+    "required_raw_return": 0,
+    "smoke_return_stop": 1092952,
+    "smoke_return_stop_word": "eafffffe",
+    "smoke_result_address": 1130816,
+    "required_smoke_result": 2
+  },
+  "limitations": [
+    "反汇编/布局是离线检查，真实断点安装/命中与寄存器读法尚未板上执行。",
+    "初始化后不执行reset；任何reset要求停止并重新核实冷JTAG、CPU1、DDR与PL状态。"
+  ],
+  "smoke_objdump_cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+  "smoke_objdump_elapsed_seconds": 0.03137509999942267,
+  "smoke_disassembly_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\smoke_disassembly_build08_r03.log",
+  "correction": {
+    "original_path": "report/evidence/S2B-T06/ps_smoke_20261008_r01/startup_and_stop_audit_08.json",
+    "original_sha256": "e0f30bc2c96bf761512c06a78183d0311dd8615b07d3853103751388ba3d0486",
+    "reason": "原命令说明含Python字符串转义控制字符；原件保留，新argv由已核验真实路径构造并实际执行。新日志只有文件名头行从相对路径变为准确绝对参数，后续反汇编字节完全一致；ELF和断点结论不变。",
+    "original_disassembly_sha256": "cf37fbb863c9df2929bd64e832fb4c2bbff3621bc378de0b91847e5a992c37e8",
+    "different_line_indexes": [
+      1
+    ],
+    "instruction_and_data_bytes_equal": true
+  }
+}

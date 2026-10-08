@@ -32,3 +32,57 @@ S1-T02-D5 使用 `s1_t01_darknet_workflow.py train/resume --darknet-seed <0..429
 训练检查点输出严格由 `.data` 的 `backup`、`saveweights`、`savelast` 和 cfg 基名确定。`train` 必须使用新建的 `--checkpoint-output`；`resume` 只允许同一 cfg 基名的 numbered 输入（例如 `gesture_10.weights`），拒绝 `*_last.weights`/`*_final.weights`，并必须使用不同的 `--checkpoint-output`。入口会拒绝已有候选文件，运行后核对输出路径、大小、修改时间和 SHA-256，并核对 resume 输入哈希未改变。`evaluate` 对 valid 清单逐图执行带显式 filename 的官方 `detector test -out`，每图产生独立 JSON 后合并解析；只有解析出与清单一一对应的 `filename`/`objects` 记录，并证明批准 no_hand 图片 `objects=[]`，才形成 AC06 候选。类别必须在五类范围内，`class_id` 与 `name` 同时出现时必须一致。实际运行输出只作为 AC05/AC06 候选证据，梯度、优化器状态和精度结论仍需独立核对。
 
 入口在启动前对所有传给 Darknet 的路径、valid 图片、逐图 JSON 输出以及 checkpoint 的 backup/cfg 候选路径执行固定缓冲区检查：UTF-8 字节数加结尾空字符必须小于 256；train、resume、evaluate 任一超长路径均返回 2，绝不截断。运行中和进程退出后的完整日志均识别大小写不敏感的 `Cannot load image`、`Can't open label file`、`Couldn't open file`、OOM 和损坏输入标记。
+
+## S2B-T02 固定输入离线结果检查
+
+`s2b_fixed_capture_check.py` 只读取保存到 PC 的 JSON 和原始 INT8 文件，复用已冻结
+tiny416/D9/D6 规则。它不定义串口报文、AXI/DDR 地址或事务连通语义；离线 PASS
+不代表阶段2B G0/G3、实际输入传输或 1000 次连续板上任务通过。
+
+从仓库根运行（下面的 `reference.json`、`capture.json` 和新报告路径由调用者明确指定）：
+
+```bash
+python -B verification/s2b_fixed_capture_check.py --reference reference.json --capture capture.json --report result_new.json
+python -B -m unittest verification.test_s2b_fixed_capture_check -v
+```
+
+两个输入封装都要求 `schema_version=1`、冻结 `model_manifest_sha256` 和显式非空
+`samples`；`kind` 分别为 `s2b_fixed_reference`、`s2b_fixed_capture`。这是 PC 中间文件
+约定，不是板上通信冻结。每项直接复用 T29 的业务字段：
+
+- `frame_id` 是原样比较的 uint32 不透明值，不由列表索引生成；`sample_id` 原样比较。
+- `input={pl_input_sha256,geometry_wh}`，分别绑定预处理 tensor 摘要和原图宽高。
+- `head_tensors={head13,head26}`，每头恰含 `path`、`tensor_sha256`、`byte_length`。
+  必须为完整 5,070/20,280 字节、连续 NCHW 对称 INT8；head13 尾部不得补为 5,072 字节。
+- `nms_output_box_count` 与 `detections` 长度一致，最多 15；每框恰含
+  `class_id,class_name,score,xyxy,source_order`。xyxy 是有限、正面积、裁剪到 `[0,1]` 的归一化坐标。
+
+reference 另含 `golden_source={kind,path,sha256}`。这份独立来源 JSON 必须实际存在，
+两头摘要、帧身份及期望框都必须与其中的样本记录一致；黄金 raw 文件的摘要还会现场核验。
+支持两种明确来源：
+
+- `frozen_cpu_d9`：固定到阶段2A冻结提交 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`
+  中的 `report/evidence/S2A-T29/cpu_decode_nms_reference.json`，Git LF 字节摘要
+  `24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231`。
+  `sha256` 仍填写本次来源文件的实际原始字节摘要；其 Git 文本只在冻结摘要核对时将 CRLF 转 LF。
+- `synthetic_hand_computed`：来源 JSON 恰含 `schema_version=1`、
+  `kind=s2b_synthetic_hand_computed`、冻结模型摘要、`basis={path,sha256,description}`
+  和 T29 字段的 `samples`，只允许 `synthetic_` 样本。来源头至少含 `tensor_sha256,byte_length`，
+  不从捕获文件生成黄金。`test_s2b_fixed_capture_check.py::write_fixture` 提供不调用 D9 的独立
+  手算单框、空框、同分异类多框及第二头示例。来源作者与手算依据仍需独立审查。
+
+来源记录的期望框以 `1e-12` 绝对容差核对黄金 raw 头的现有 D9 解码；最终捕获框直接
+对该 D9 结果检查，防止叠加容差。先要求两头所有字节相等，再要求框数量、类别、
+source_order、输出顺序完全相同，score/每坐标绝对误差 `<=1e-6`、相对容差 0。
+不对框重新排序；不同帧按输入列表顺序比较。重复 sample/frame 身份、重复 JSON 键、
+布尔整数、缺字段、未知字段、NaN/Inf、截断/多字节和错误哈希均拒绝。
+
+JSON 内相对文件路径以该脚本所在仓库根为基准，绝对路径按平台字面使用；不展开变量、
+改写分隔符或猜测相邻文件。捕获与黄金不得指向同一文件或硬链接。报告父目录必须已存在，
+报告使用独占创建，不能覆盖输入或旧结果。退出码 0 为 `PASS_OFFLINE_CAPTURE_CHECK`，
+1 为已生成的比较失败报告，2 为格式/文件/来源/输出错误且本次无有效报告；遇到旧报告
+返回 2，明确标明旧文件不是本次结果，调用者须使用新的报告名称。
+
+专项随机验证固定 seed=`20261008`：24 个单字节故障，以及 8 帧所有 logits 为负数的随机
+空输出；只覆盖离线检查器，不计为 1000 次板上任务。验证证据见
+`report/evidence/S2B-T02/capture_check_20261008_r01/`。

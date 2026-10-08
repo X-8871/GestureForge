@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T02",
+  "run_id": "capture_check_20261008_r01",
+  "source_commit": "3375cb4d0d52854e85142851dda03de05a0291c0",
+  "evidence_dir": "report/evidence/S2B-T02/capture_check_20261008_r01",
+  "interfaces": [
+    {
+      "name": "tiny416模型与两头布局及PS解码数值比对",
+      "version": "2026-09-23",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "verification/s2b_fixed_capture_check.py",
+      "sha256": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_fixed_capture_check.py",
+      "sha256": "bad0066231ebfbb5741a3c0e9c47cd9e238bfc3dfed6adb029422ddcc423a7a9",
+      "role": "source"
+    },
+    {
+      "path": "verification/README.md",
+      "sha256": "124220959cb0d71927358255b8bcc69e036e37880c20a421dbb10bf88f258107",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d9_yolo_decode.py",
+      "sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d6_detection_metrics.py",
+      "sha256": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/boundary_report.json",
+      "sha256": "56fd441a7ea9c41077e09f3ae3d400fc2bf0731ecfc1553fe6a4c74afe457882",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_boundary.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_boundary.stdout.log",
+      "sha256": "779146ffec1dcef99fc497aa9f48f8421e70531a3e7ca51e41477851583361a2",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_duplicate_keys.stderr.log",
+      "sha256": "7c15752f5e74cf05469596c39cee8320b01e160145b13eab0629aa90a5cae9f0",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_duplicate_keys.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_exact.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_exact.stdout.log",
+      "sha256": "e04f27fd2fdfe9a346d28e7b67225c04a7e1ccd6f244102f745d5573b35e96fa",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_existing_report.stderr.log",
+      "sha256": "b4168002eb88bafb3bfad4ecded75e1f58aa4a5a1151487619e41b6b1f7ea7d3",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_existing_report.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_metrics.json",
+      "sha256": "ebd54101e59a2ecc28239c4a4f8e6d0d958edc2ddf8561d3802cbcab5250e309",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_missing_head.stderr.log",
+      "sha256": "faf78d42bb16585526a76e7fb9dd6cc8b439ede31ea5fdd5f1b4b51258fe1725",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_missing_head.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_over_tolerance.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_over_tolerance.stdout.log",
+      "sha256": "0e5156b7c64be03523db6347b7685c68bd5919f937c1b29e3c920f61992f7bbe",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_tail_byte.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_tail_byte.stdout.log",
+      "sha256": "41afb48eba9d08a916d7079b709b48586c919f9d93c6ca51a64502cb81ee04d0",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_word_padding.stderr.log",
+      "sha256": "50d210bb36da5b1fff5f07d769b892e6b1c66d1431ee49c04ebab99280fb20c3",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_word_padding.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_wrong_order.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/cli_wrong_order.stdout.log",
+      "sha256": "2668af0067284b58af1ab06dbd583afc6bf0a224a4e1114269d3285480924b66",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/exact_report.json",
+      "sha256": "e4c736104e01a4ff2b6ba9e3fdea715aeb1b37a732c38ca7df5101317fd58074",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head13_capture.bin",
+      "sha256": "afa479eb866eacaef43ffcecdd1974414776e271b272ae1b8b4c0d510ddd139a",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head13_capture_tail_changed.bin",
+      "sha256": "413e34ae00ee78a2be2e2882d63656bd63cbea815293d7418384d09b58d7dfdb",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head13_capture_word_padded.bin",
+      "sha256": "b105748303e06cbaf87f7438f91cd4940dbe2a470c0a458c0d1cb35e6fb28879",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head13_golden.bin",
+      "sha256": "afa479eb866eacaef43ffcecdd1974414776e271b272ae1b8b4c0d510ddd139a",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head26_capture.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head13_capture.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head13_golden.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head26_capture.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head13_capture.bin",
+      "sha256": "0a381f2a23b47c4cdf170b0364dfed10e59099e04726c71f6df0d32c7308aa02",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head13_golden.bin",
+      "sha256": "0a381f2a23b47c4cdf170b0364dfed10e59099e04726c71f6df0d32c7308aa02",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head26_capture.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head13_capture.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head13_golden.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head26_capture.bin",
+      "sha256": "938fd3b542bb9a12068bf8e6bb2f2347b6e3809a8b5eae8b3cd5ef66b60f0429",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head26_golden.bin",
+      "sha256": "938fd3b542bb9a12068bf8e6bb2f2347b6e3809a8b5eae8b3cd5ef66b60f0429",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture.json",
+      "sha256": "672185c3df22aaf4a1ac98d33397dc724d0cf92880beee5aed5d93c27bf5616d",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_boundary.json",
+      "sha256": "7ae204e1c483b8352fd9f415ce120e1e83eb2e299570122225b4596858339e99",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_duplicate_keys.json",
+      "sha256": "01619de8aeb9fab316fbe306fe8678347e20624dbeec49168a358facb5a570b9",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_missing_head.json",
+      "sha256": "1972c01a67e74065feaf73a251eaa92d859f7fed716eff95ffd68733f860e28e",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_over_tolerance.json",
+      "sha256": "e64f4d46a1ec42aee541c86281dc5eecc3827741dcead647f89d13434f67c442",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_tail_changed.json",
+      "sha256": "0b021a29c7d26100ad2c61266dd0d21266cf23693200de5efc6b707d0f848149",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_word_padded.json",
+      "sha256": "524ce6540dfc632094a5bd35aa7a42e1b556a0d8e3d9917dceb0678c2c6498b5",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/capture_wrong_order.json",
+      "sha256": "487718a3617de611d25f6312a1a117d62d46eb8f6fb2a8789257eabd939937b2",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/golden_source.json",
+      "sha256": "6ce584ada9fc4f91bd99f0f5133e4aba73059c548c0bdf3b96e31e6341d4b586",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/reference.json",
+      "sha256": "eebce2d13ad09e37bf1c721abeba971606c1759deb118768fb75aea60cedf24b",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/synthetic_zero_input_chw_int8.bin",
+      "sha256": "9ba3c3abe62d70c07a6c910efd20d18a7eef671ca547a9f91ee86eec32f797ca",
+      "role": "input",
+      "keep_reason": "本次独立手算合成头、输入身份及故障输入，保留完整字节以便复现；不含真实图片或板上数据。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/over_tolerance_report.json",
+      "sha256": "175f1a3ced90af4c4104072f22c53313b46a1710cc6059ac43b0272634327b44",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/syntax.attempt02.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/syntax.attempt02.stdout.log",
+      "sha256": "c3ec84fa02604a4bbecfa4beb775a89cbc04dc5c4fb7e97b8361e1ba7d521a1e",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/syntax.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/syntax.stdout.log",
+      "sha256": "c3ec84fa02604a4bbecfa4beb775a89cbc04dc5c4fb7e97b8361e1ba7d521a1e",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/tail_byte_report.json",
+      "sha256": "4b8e9f37a9143f3c4cd75bbc5427749a41baed96375ce6cc7959d8dec5d1ee3f",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/unittest.attempt02.stderr.log",
+      "sha256": "d731478b32a98cbde9cd7d660ad9a0a80b18ecdb4f3659f73f3beabcc2f26fb4",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/unittest.attempt02.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/unittest.stderr.log",
+      "sha256": "63c0c48f4467e5953c5f8a3d5c8c8488d50ab8bee417dedffc5ebed29545527e",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/unittest.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "原始轻量检查或真实CLI stdout/stderr；非零退出是定向拒绝用例，逐项期望见cli_metrics.json。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/validation_metrics.json",
+      "sha256": "f31c1ad9a9a6d79d4d1facf1bcf208b0355fd4591d64abe301e89638b8c3858f",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/validation_metrics_attempt02.json",
+      "sha256": "f393f200f5b6143f1aa57aff2ee877083526a480f43906637c480603294c721d",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/validation_source_snapshot_attempt01.json",
+      "sha256": "78dc6a584fb6d758c7614701c0fd5b5479a5f67a6db2f1bac4b2dea2d7efa0fe",
+      "role": "result",
+      "keep_reason": "保留首轮31项测试的实际源码哈希；之后修订性能与并发身份检查，最终验收使用attempt02的32项结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/wrong_order_report.json",
+      "sha256": "37cdc860ff71914b67cf96b256839fce553358b59c99d7e3ce27e8dc78e368ba",
+      "role": "result",
+      "keep_reason": "保留本次离线结果、退出码、命令、耗时、种子和作用范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/inputs_manifest.json",
+      "sha256": "0d2364ebcbd133d1d5ce323988fe818d82f7deb44287cc19d56e20bbdc22b713",
+      "role": "input",
+      "keep_reason": "仅声明本工具的已冻结上游及本地手算黄金依赖，不用完整交付的待审G2状态循环阻断G0输入核查。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_full_delivery_inputs_not_ready.stdout.log",
+      "sha256": "4f0b2f278d1811d085abea750ab3446fbfab71850f1cd869ccc17eb51dc13914",
+      "role": "log",
+      "keep_reason": "保留对完整delivery清单运行inputs时因Reviewer NOT_RUN而阻断的原始输出；上游就绪检查改用inputs_manifest，不伪称该失败通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_full_delivery_inputs_not_ready.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "保留对完整delivery清单运行inputs时因Reviewer NOT_RUN而阻断的原始输出；上游就绪检查改用inputs_manifest，不伪称该失败通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/newline_normalization.json",
+      "sha256": "309027234609924c3d64d87b5b14088569923baa9978bb4f08cc2bf33901e629",
+      "role": "result",
+      "keep_reason": "绑定README仅换行修订及两个Python源码LF/SHA未变，原始测试日志保留且不重复测试。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_after_lf_metrics.json",
+      "sha256": "6025308a22a69d74a878cf5d8542a76ed5fa5d0bd1fe470397f0f46fa44ae58a",
+      "role": "result",
+      "keep_reason": "记录README换行修订后重做包装的实际argv、退出码和耗时；原始测试未重复。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_inputs_after_lf.stdout.log",
+      "sha256": "db4e20a2ccee01b4bc2711ea8fb01d79a8feb34a018b80059e0f70b9ed6ccb8a",
+      "role": "log",
+      "keep_reason": "换行修订后依赖包装检查的实际原始stdout，保留旧日志。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_inputs_after_lf.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "换行修订后依赖包装检查的实际原始stderr，保留旧日志。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_evidence_after_lf.stdout.log",
+      "sha256": "dca128e90e182d864b37735ec9e54423b4b32955bedca18ef2fb2051d30da345",
+      "role": "log",
+      "keep_reason": "换行修订后交付包装检查的实际原始stdout；日志入清单后再核对相同结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/pack_evidence_after_lf.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "换行修订后交付包装检查的实际原始stderr，保留旧日志。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "git": "git version 2.56.0.windows.2",
+    "d9": "冻结源码Git-LF SHA-256 0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6",
+    "d6": "冻结源码Git-LF SHA-256 5ff91ffbbaa82935811f2ddc335434a3c70afa58eaa980e353e64b057803bea2"
+  },
+  "checks": [
+    {
+      "name": "最终UTF8源码编译检查",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T02/capture_check_20261008_r01/run_validation.py (syntax argv见validation_metrics_attempt02.json)",
+      "exit_code": 0,
+      "reason": "compile()检查两个源码，无pyc产物；最终源码哈希见attempt02。"
+    },
+    {
+      "name": "最终32项离线专项回归",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_fixed_capture_check -v",
+      "exit_code": 0,
+      "reason": "32 tests PASS；seed=20261008，24个随机单字节故障和8帧随机负logit空输出，原始日志与统计均保留。"
+    },
+    {
+      "name": "9次真实CLI正例及预期拒绝",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T02/capture_check_20261008_r01/run_cli_evidence.py",
+      "exit_code": 0,
+      "reason": "批量验证器真实exit0；每个checker实际argv、exit0/1/2与期望见cli_metrics.json，含旧PASS报告不变、尾word多字节拒绝。"
+    },
+    {
+      "name": "独立Reviewer",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Developer交付待总控固定差异后由独立Reviewer只读核查，测试不替代G2。"
+    },
+    {
+      "name": "本工具实物G3",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本任务只处理已保存到PC的文件并执行合成验证，没有板卡或传输驱动；阶段2B实物G3仍未执行。"
+    }
+  ],
+  "limitations": [
+    "仅PC离线固定输入结果比对，不冻结UART wire格式、物理AXI/DDR/cache/地址或事务语义；阶段2B G0/G3与1000次连续任务均未因此通过。",
+    "真实D9记录只在一个定向测试中核对已冻671f9cf提交的LF字节与109项元数据；未访问真实原图、CPU shards或重跑整网。实际CLI使用独立手算raw头。",
+    "输入tensor为519168字节合成零值，仅用于身份绑定；手算头未由卷积网络生成，不证明该输入的模型推理结果或传输。",
+    "首轮31项验证已保存且不覆盖；最终修订后32项验证与9次CLI均通过，总轻量执行时间约26.1秒，两轮次数及准确秒数分别见metrics。峰值内存及总工具调用量未测。",
+    "source_commit是任务开始时的干净基线；新增/待审源码由files实际SHA-256和最终metrics绑定，不能仅用历史提交恢复这次待审差异。",
+    "D9/D6与T29工作树由Git转换为CRLF，files绑定本次实际字节；冻结源码及T29记录在工具中额外核对CRLF转LF的固定Git摘要，raw头无转换。",
+    "批量验证临时驱动在tmp目录，不是冻结依赖；完整输入、最终实现、测试和逐个真实CLI argv已保存，复现应使用新输出名称。",
+    "对完整交付清单直接运行inputs曾因Reviewer NOT_RUN返回CHECKS_FAILED（外层shell退出1）；原始日志保留。上游核查使用仅声明依赖的inputs_manifest，完整待审状态保持真实。",
+    "总控添加精确-text属性后，仅以apply_patch将verification/README.md保留原文转为UTF-8/LF；两个Python源码原本全部LF且SHA未变，不重复32项回归。早期源码快照中的README SHA仍绑定当时混合换行的真实字节。",
+    "输入错误exit2不生成本次报告；已有PASS报告保留原字节但明确不是本次结果。CLI负例exit1/2是预期拒绝，不表示通过数据、硬件或阶段验收。",
+    "CHECKS_OK仅说明包装/哈希绑定，不能代替需求覆盖、独立审查、物理协议、实物或阶段验收。"
+  ]
+}

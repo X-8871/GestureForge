@@ -41,4 +41,5 @@
 - 历史 T68 源映射修复基线为 `65dd1c310e7686d50685d2f83b9b2b623e6cf3ad`。候选实现提交 `999238284157bed77cdb3a37e3e6eea52daeefc4` 包含 tile engine、T66 testbench 与 runner；2026-10-06 G4 acceptance/OOC 综合证据提交为 `a232bc7c815a1e9bb18c675b0e9f31bccd857c62`。均未推送；保持其他阶段改动、运行目录、shards、模型数据、密钥和构建产物不入提交。
 - S2B-T01 资料核查入口：`report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/audit.md` 与同目录 delivery manifest；保留解析状态、六页渲染图及外部 XPR 的只读差异。包装通过不代表阶段2B G0或实物通过。
 - S2B-T03 最新依据：`board/README.md` 及 `report/evidence/S2B-T03/target_resolution_20261008_r02/`；新手册PDF10/12页含XC/-2完整型号，照片XA冲突保留部署前核实。r01被替代，原始日志和旧候选源码快照保留。当前Goal持续推进全部可离线工作，到必要实物交接或无法自主消除的阻碍停止；不把预上板包称为阶段2B通过。
+- S2B-T02 离线采集比对工具已独立G2 PASS，源码 `verification/s2b_fixed_capture_check.py`；32项测试、9次真实CLI期望及独立手算均通过，两头全字节与框顺序/1e-6绝对容差检查可用。证据 `report/evidence/S2B-T02/capture_check_20261008_r01/`，inputs依赖与delivery包装均通过；原始失败/拒绝日志保留。这是PC文件检查器，不冻结UART/AXI传输，不计为109整网或1000次板上任务。
 - 下一步：从已确认资料逐字段建立PS平台，核定物理PS/PL接口并推导安全DDR窗口；离线采集比对工具独立推进。UART参数由软件与终端配置一致确定，实物操作仍须明确授权；保持阶段3和原目录已有改动不动。

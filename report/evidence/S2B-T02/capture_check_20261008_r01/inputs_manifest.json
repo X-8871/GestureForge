@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T02",
+  "run_id": "capture_check_20261008_r01",
+  "source_commit": "3375cb4d0d52854e85142851dda03de05a0291c0",
+  "evidence_dir": "report/evidence/S2B-T02/capture_check_20261008_r01",
+  "interfaces": [
+    {
+      "name": "tiny416模型与两头布局及PS解码数值比对",
+      "version": "2026-09-23",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "verification/s2b_fixed_capture_check.py",
+      "sha256": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_fixed_capture_check.py",
+      "sha256": "bad0066231ebfbb5741a3c0e9c47cd9e238bfc3dfed6adb029422ddcc423a7a9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head13_golden.bin",
+      "sha256": "afa479eb866eacaef43ffcecdd1974414776e271b272ae1b8b4c0d510ddd139a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/0_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head13_golden.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/1_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head13_golden.bin",
+      "sha256": "0a381f2a23b47c4cdf170b0364dfed10e59099e04726c71f6df0d32c7308aa02",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/2_head26_golden.bin",
+      "sha256": "dab891121c3cacabb512659996cf701715e968671b7c76d8634f7adee8642092",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head13_golden.bin",
+      "sha256": "50fb600fe9a4a44f5d6cfaa0df9ef18e930c6419711a016b2342f4b60a19f05f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/3_head26_golden.bin",
+      "sha256": "938fd3b542bb9a12068bf8e6bb2f2347b6e3809a8b5eae8b3cd5ef66b60f0429",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/golden_source.json",
+      "sha256": "6ce584ada9fc4f91bd99f0f5133e4aba73059c548c0bdf3b96e31e6341d4b586",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/reference.json",
+      "sha256": "eebce2d13ad09e37bf1c721abeba971606c1759deb118768fb75aea60cedf24b",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T02/capture_check_20261008_r01/fixture/synthetic_zero_input_chw_int8.bin",
+      "sha256": "9ba3c3abe62d70c07a6c910efd20d18a7eef671ca547a9f91ee86eec32f797ca",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "已冻结tiny416与独立手算黄金的本地依赖验证",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_fixed_capture_check -v",
+      "exit_code": 0,
+      "reason": "最终32项测试实测检查冻结规格/模型/D9/D6、671f9cf的CPU D9记录与手算raw头的独立期望；不声明物理接口冻结或Reviewer通过。"
+    }
+  ],
+  "limitations": [
+    "此清单仅声明本工具G0的已冻模型和本地手算输入依赖；完整交付/待审状态仍在delivery_manifest。",
+    "只在定向测试读取T29的109项摘要元数据，不读取真实图片、不恢复CPU shards、不执行整网。",
+    "合成输入tensor仅为身份绑定，手算头不是该输入的卷积结果；不能据此接受实物或1000连续任务。",
+    "Reviewer在Developer交付时尚未执行，不能把本清单的CHECKS_OK当作G2、阶段G0/G4/G5或G3。"
+  ]
+}

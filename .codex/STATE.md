@@ -42,4 +42,5 @@
 - S2B-T01 资料核查入口：`report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/audit.md` 与同目录 delivery manifest；保留解析状态、六页渲染图及外部 XPR 的只读差异。包装通过不代表阶段2B G0或实物通过。
 - S2B-T03 最新依据：`board/README.md` 及 `report/evidence/S2B-T03/target_resolution_20261008_r02/`；新手册PDF10/12页含XC/-2完整型号，照片XA冲突保留部署前核实。r01被替代，原始日志和旧候选源码快照保留。当前Goal持续推进全部可离线工作，到必要实物交接或无法自主消除的阻碍停止；不把预上板包称为阶段2B通过。
 - S2B-T02 离线采集比对工具已独立G2 PASS，源码 `verification/s2b_fixed_capture_check.py`；32项测试、9次真实CLI期望及独立手算均通过，两头全字节与框顺序/1e-6绝对容差检查可用。证据 `report/evidence/S2B-T02/capture_check_20261008_r01/`，inputs依赖与delivery包装均通过；原始失败/拒绝日志保留。这是PC文件检查器，不冻结UART/AXI传输，不计为109整网或1000次板上任务。
-- 下一步：从已确认资料逐字段建立PS平台，核定物理PS/PL接口并推导安全DDR窗口；离线采集比对工具独立推进。UART参数由软件与终端配置一致确定，实物操作仍须明确授权；保持阶段3和原目录已有改动不动。
+- S2B-T05 在《系统设计》准备物理恢复候选 `S2B-AXI-RECOVERY-20261008`：2A内部超时事件保留，2B停止计算并排空已发AXI事务后归还buffer，未排空持续隔离；控制门禁不能阻止CPU绕过驱动访问DDR。当前待Wong选择、未冻结，不修改2A原契约；候选快照/协议反例在 `report/evidence/S2B-T05/axi_abort_contract_20261008_r01/`。
+- 下一步：独立建立PS-only UART/DDR离线平台与专属DDR检查软件，实际XSA先审查冻结，再构建Vitis软件；物理PS/PL恢复接口等待Wong决定，地址映射及缓存可见性随后核定。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。

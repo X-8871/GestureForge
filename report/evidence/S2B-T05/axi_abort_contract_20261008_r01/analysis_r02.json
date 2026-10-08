@@ -1,0 +1,22 @@
+{
+  "proposal_id": "S2B-AXI-RECOVERY-20261008",
+  "status": "PROPOSED_PENDING_WONG",
+  "kind": "候选文档复审修补，未执行RTL或实物测试",
+  "source_commit": "f68dbf11618c4b9b38ab7993a5c033537c90a88b",
+  "source_document": "docs/obsidian-project/02-方案设计/系统设计.md",
+  "source_snapshot": "report/evidence/S2B-T05/axi_abort_contract_20261008_r01/system_design_candidate_r02.md",
+  "source_document_sha256": "0b320141727767f0b976ef6a1049e39ebfc23ecedab8daa86a4d4855255d3230",
+  "previous_snapshot_sha256": "8cf4476d343d62403e321da0f95951d41672f9b8daf7c8b94c3e4a6433a6d166",
+  "review_r01": "CHANGES_REQUIRED：ACK与物理终态关系、恢复期间不能解除隔离及STATE入口需要写明。反例和恢复方向经独立源码及原始协议资料核查成立。",
+  "clarifications": [
+    "外层门禁只拦截控制入口，不能阻止CPU绕过驱动直接DDR访问；软件必须遵守物理归还条件。",
+    "2A内部ACK只清逻辑状态，不代表物理终态确认；RECOVERING及未排空的不可恢复状态中，内部ACK或再次soft_reset不能解除隔离、归还buffer或允许新start。",
+    "安全归还后才接受物理终态确认及合法start，寄存器编码留待用户决定后冻结。",
+    "状态从仓库STATE恢复，正式验收和证据沿用docs与report/evidence。"
+  ],
+  "limitations": [
+    "这是技术上可审阅的候选，Wong尚未选择物理异常恢复接口变更。",
+    "未修改2A冻结RTL、周期契约或原验收记录。",
+    "未实现或验证物理adapter、MMIO、PS HP可见性、缓存策略与板上恢复。"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "proposal_id": "S2B-AXI-RECOVERY-20261008",
+  "status": "PROPOSED_PENDING_WONG",
+  "kind": "文档和已知协议语义分析，未执行RTL/AXI仿真或硬件",
+  "source_commit": "f68dbf11618c4b9b38ab7993a5c033537c90a88b",
+  "source_document": "docs/obsidian-project/02-方案设计/系统设计.md",
+  "source_document_sha256": "8cf4476d343d62403e321da0f95951d41672f9b8daf7c8b94c3e4a6433a6d166",
+  "counterexample": [
+    {
+      "event": "A",
+      "axi": "AW/W已被DDR通路接受，B尚未返回",
+      "logical": "等待逻辑mem_ready，尚未逻辑握手"
+    },
+    {
+      "event": "B",
+      "axi": "已发写事务仍在进行",
+      "logical": "第N沿TIMEOUT或busy soft_reset使原master撤销请求，owner回到PS"
+    },
+    {
+      "event": "C",
+      "axi": "旧事务仍可在DDR侧完成写入",
+      "logical": "若软件按原owner位立即重用buffer，新数据可能被旧写破坏"
+    }
+  ],
+  "proposed_policy": [
+    "保留2A内部第N沿事件，2B外层进入RECOVERING。",
+    "停止新事务，完成已声明/已接受事务所需的通道并消费旧B/R，丢弃旧epoch响应。",
+    "确认排空和非Bufferable/PS通路可见性条件，再发布安全归还，允许ACK/start；PS驱动遵守此物理owner。",
+    "事务不结束则保持隔离并报告不可恢复，不强制清outstanding；冷启动系统复位独立。"
+  ],
+  "validation_not_claimed": [
+    "未证明新RTL正确",
+    "未冻结物理MMIO",
+    "未决定PS HP可见性/缓存/地址映射",
+    "未进行板上恢复或1000次任务",
+    "Wong尚未选择物理接口变更"
+  ]
+}

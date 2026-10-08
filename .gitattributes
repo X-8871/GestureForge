@@ -218,3 +218,40 @@ report/evidence/S2B-T02/capture_check_20261008_r01/pack_evidence_after_lf.stdout
 
 # S2B-T05 保留恢复候选快照与协议分析的原始字节
 report/evidence/S2B-T05/axi_abort_contract_20261008_r01/** -text
+
+# S2B-T04 离线PS平台的源码及工具生成证据保留原始字节
+vivado/s2b_ps_platform.tcl -text
+board/ps_platform_fields.json -text
+board/ps_platform.md -text
+report/evidence/S2B-T04/ps_platform_20261008_r01/** -text
+
+# S2B-T04 原生Vivado日志与capture保存工具原有空白，源码另作普通空白检查
+report/evidence/S2B-T04/ps_platform_20261008_r01/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+# S2B-T04 其余原始CRLF文本保留字节，并继续检查普通尾随空白
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_document.md whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_manifest.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_status.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T04 R2 保留修复后的独立候选、历史源码快照与真实失败诊断字节
+report/evidence/S2B-T04/ps_platform_20261008_r02/** -text
+report/evidence/S2B-T04/ps_platform_20261008_r02/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T04 独立实验与离线冻结记录可按哈希恢复
+docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md -text
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol

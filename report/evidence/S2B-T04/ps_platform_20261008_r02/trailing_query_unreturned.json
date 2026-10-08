@@ -1,0 +1,12 @@
+{
+  "session_id": "vivado-20261008-234744-dafc48b0",
+  "command": "set gd {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1}; set existing [file join $gd readback.tsv]; set c1 [catch {::s2b_ps_platform::fresh_dir $gd} e1]; set c2 [catch {::s2b_ps_platform::write_new $existing invalid} e2]; set c3 [catch {::s2b_ps_platform::fresh_dir relative_path} e3]; if {$c1 != 1 || $c2 != 1 || $c3 != 1} {error {拒绝覆盖或绝对路径防护失败}}; if {[current_project -quiet] ne {}} {error {关闭后仍有项目}}; ipcfg::write_evidence [file join $gd guards.tcldict] [dict create existing_dir [list $c1 $e1] existing_file [list $c2 $e2] relative_path [list $c3 $e3] current_project [current_project -quiet]]; puts [list GUARDS OK PROJECT [current_project -quiet] VERSION [version -short] GLOBAL_HELPER [llength [info commands ::ipcfg::help]] NESTED_NAMESPACE [namespace exists ::s2b_ps_platform::ipcfg]]",
+  "mode": "proxy",
+  "capture_log": true,
+  "verbosity": "full",
+  "outcome": "MCP回执在数分钟内未返回；本地functions.wait(cell56,terminate=true)取消等待，不等同于取消服务器命令；未认定PASS或伪造退出码。",
+  "exit_code": null,
+  "wait_cancelled_at": {
+    "current_time": "2026-10-08 16:00:47 UTC"
+  }
+}

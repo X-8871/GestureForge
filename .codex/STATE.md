@@ -1,12 +1,12 @@
 # 项目状态入口
 
-更新：2026-10-08（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-09（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
 - 阶段2A「PL 推理仿真」已完成 G4/G5 独立审查并冻结。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
 - 用户已启动阶段2B，本工作树位于 `C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition`，分支 `codex/stage2b-t01-board-audit`，起点 `e433a081bc5f42a44ddec18b421f651d05e9c639`。当前完成板卡资料/基线核查及离线候选目标核验，未通过阶段2B G0，尚未建立实板平台或进行实物操作。
-- S2A-T01 已冻结 tiny416 模型、检测头布局及 PS 解码/NMS；2B G0 尚需物理 PS/PL 地址映射、AXI/DDR 传输、DMA与缓存一致性、缓冲所有权绑定。Wong 于2026-10-08最后确认「厂商已明确确认实板是XC7Z020-2」，据此离线候选使用 `xc7z020clg400-2`，优先于此前XA/-1I确认及AGENTS旧基线。Vivado2026.1精确查询通过，XPR三个Part字段与3375cb4基线一致；照片仍直接显示XA7Z020/CLG400，实物身份冲突未关闭。资料入口 `D:\FPGA\AX7Z020\AX7Z020` 已确认，不再重复询问。PS/DDR/UART继续逐字段核对，工程尚无PS Block Design、Vitis平台或板级XDC。
+- S2A-T01 已冻结 tiny416 模型、检测头布局及 PS 解码/NMS；2B G0 尚需物理 PS/PL 地址映射、AXI/DDR 传输、DMA与缓存一致性、缓冲所有权绑定。Wong 于2026-10-08最后确认「厂商已明确确认实板是XC7Z020-2」，据此离线候选使用 `xc7z020clg400-2`，优先于此前XA/-1I确认及AGENTS旧基线。Vivado2026.1精确查询通过，XPR三个Part字段与3375cb4基线一致；照片仍直接显示XA7Z020/CLG400，实物身份冲突未关闭。资料入口 `D:\FPGA\AX7Z020\AX7Z020` 已确认，不再重复询问。PS-only UART/DDR离线BD/XSA已生成并独立G2通过；Vitis软件待构建，无板级XDC或实物验证。
 - 先前的阶段3方向保持原代码和文档现状；当前请求仅处理阶段2B。阶段2B 后续任务须先冻结上述接口和器件资料；板卡下载、上电、DDR/UART 实测等实物操作须另行明确授权。
 - 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
 
@@ -43,4 +43,5 @@
 - S2B-T03 最新依据：`board/README.md` 及 `report/evidence/S2B-T03/target_resolution_20261008_r02/`；新手册PDF10/12页含XC/-2完整型号，照片XA冲突保留部署前核实。r01被替代，原始日志和旧候选源码快照保留。当前Goal持续推进全部可离线工作，到必要实物交接或无法自主消除的阻碍停止；不把预上板包称为阶段2B通过。
 - S2B-T02 离线采集比对工具已独立G2 PASS，源码 `verification/s2b_fixed_capture_check.py`；32项测试、9次真实CLI期望及独立手算均通过，两头全字节与框顺序/1e-6绝对容差检查可用。证据 `report/evidence/S2B-T02/capture_check_20261008_r01/`，inputs依赖与delivery包装均通过；原始失败/拒绝日志保留。这是PC文件检查器，不冻结UART/AXI传输，不计为109整网或1000次板上任务。
 - S2B-T05 在《系统设计》准备物理恢复候选 `S2B-AXI-RECOVERY-20261008`：2A内部超时事件保留，2B停止计算并排空已发AXI事务后归还buffer，未排空持续隔离；控制门禁不能阻止CPU绕过驱动访问DDR。当前待Wong选择、未冻结，不修改2A原契约；候选快照/协议反例在 `report/evidence/S2B-T05/axi_abort_contract_20261008_r01/`。
-- 下一步：独立建立PS-only UART/DDR离线平台与专属DDR检查软件，实际XSA先审查冻结，再构建Vitis软件；物理PS/PL恢复接口等待Wong决定，地址映射及缓存可见性随后核定。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。
+- S2B-T04 PS-only平台独立R2 G2 PASS：全新Vivado2026.1重建23.482秒、10项防覆盖、73字段/50请求及历史映射通过，R1作用域问题关闭。正式离线冻结记录为 `docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md`；唯一下游XSA位于r02/candidate_attempt1，SHA `a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58`。独立实际证据在 `report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/`；仅批准S2B-T06离线构建，原工具UNKNOWN保留，不代表实板profile或2B G0/G3/G5。
+- 下一步：基于上述固定Git版本/XSA/正式记录构建并独立审查S2B-T06专属DDR与UART检查软件，准备该版本支持的PS初始化/人工运行步骤；物理PS/PL恢复接口等待Wong决定，地址映射及缓存可见性随后核定。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。

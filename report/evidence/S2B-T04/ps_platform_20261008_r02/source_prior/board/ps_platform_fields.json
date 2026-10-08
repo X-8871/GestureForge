@@ -1,0 +1,1616 @@
+{
+  "schema_version": 1,
+  "tool_version": "s2b-ps-platform/1.0.0",
+  "stage": "2B",
+  "task_id": "S2B-T04",
+  "status": "OFFLINE_CANDIDATE",
+  "source_commit": "f68dbf11618c4b9b38ab7993a5c033537c90a88b",
+  "part": "xc7z020clg400-2",
+  "ip_vlnv_observed": "xilinx.com:ip:processing_system7:5.5",
+  "sources": {
+    "v22": {
+      "path": "C:\\Users\\22061\\Documents\\xwechat_files\\wxid_sse6usdmdzod22_6897\\temp\\RWTemp\\2026-10\\b57e2298a47a7b07f2b6938a09d38fb8\\ALINX黑金AX7020开发板用户手册V2.2.pdf",
+      "sha256": "7d944e10a5c5eb31140736aae232419fcb4bc77e94433aae976af302cbdfa563",
+      "size_bytes": 2579716,
+      "pdf_pages": 43,
+      "scope": "Wong 提供的新版手册；通过厂商字段代理核验 PDF 页图。选页原始解析与页图保留在 source_proof。"
+    },
+    "example_2017_4": {
+      "path": "D:/FPGA/AX7Z020/AX7Z020/course_s2_sdk/01_ps_uart/ps_uart.srcs/sources_1/bd/top/hw_handoff/top_bd.tcl",
+      "sha256": "a810f7e1249de9e4d9deb9f7e1c16c174080e855ac007998d68212b94459efd0",
+      "scope": "厂商 2017.4 例程；仅为映射和候选参考，不作为实板版本证明。"
+    },
+    "current_readback": {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/readback.tsv",
+      "scope": "Vivado 2026.1 的精确 XC/-2 新建 BD 实际参数，未运行硬件。"
+    },
+    "target_decision": {
+      "commit": "4b6fcfcfb41d9647d043dd62ad5329d60799a19e",
+      "scope": "Wong 最新选择 XC/-2；XA 丝印照片冲突保留部署前核实。"
+    }
+  },
+  "board_facts": {
+    "ps_clock_pin": "E7",
+    "uart_tx": {
+      "mio": 48,
+      "pin": "B12"
+    },
+    "uart_rx": {
+      "mio": 49,
+      "pin": "C12"
+    },
+    "uart_bank_voltage_v": 1.8,
+    "ddr_bank": 502,
+    "ddr_components": 2,
+    "ddr_bits_per_component": 16,
+    "ddr_capacity_bytes": 1073741824,
+    "ddr_actual_part_in_manual": "H5TQ4G63AFR-PBC",
+    "ddr_profile": "MT41J256M16 RE-125"
+  },
+  "fields": [
+    {
+      "parameter": "CONFIG.PCW_IMPORT_BOARD_PRESET",
+      "role": "requested",
+      "candidate": "None",
+      "actual": "None",
+      "baseline": "None",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "保持 None，不应用 Zedboard 或其他板级 preset",
+      "example": {
+        "line": 398,
+        "value": "None"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ",
+      "role": "requested",
+      "candidate": "33.333333",
+      "actual": "33.333333",
+      "baseline": "33.333333",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "PS 晶振与 E7；33.333333MHz 与厂商例程一致",
+      "example": {
+        "line": 227,
+        "value": "33.333333"
+      },
+      "pdf": {
+        "pages": [
+          14,
+          15
+        ],
+        "section": "5.1 PS 系统时钟源"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PRESET_BANK0_VOLTAGE",
+      "role": "requested",
+      "candidate": "LVCMOS 3.3V",
+      "actual": "LVCMOS 3.3V",
+      "baseline": "LVCMOS 3.3V",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "PS BANK500 3.3V 候选，与旧例程一致",
+      "example": {
+        "line": 719,
+        "value": "LVCMOS 3.3V"
+      },
+      "pdf": {
+        "pages": [
+          14,
+          15
+        ],
+        "section": "5.1 PS 系统时钟源"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PRESET_BANK1_VOLTAGE",
+      "role": "requested",
+      "candidate": "LVCMOS 1.8V",
+      "actual": "LVCMOS 1.8V",
+      "baseline": "LVCMOS 3.3V",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 720,
+        "value": "LVCMOS 1.8V"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART0_PERIPHERAL_ENABLE",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 836,
+        "value": "0"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART1_PERIPHERAL_ENABLE",
+      "role": "requested",
+      "candidate": "1",
+      "actual": "1",
+      "baseline": "0",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 841,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART1_UART1_IO",
+      "role": "requested",
+      "candidate": "MIO 48 .. 49",
+      "actual": "MIO 48 .. 49",
+      "baseline": "<Select>",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 842,
+        "value": "MIO 48 .. 49"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART1_GRP_FULL_ENABLE",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 839,
+        "value": "0"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART_PERIPHERAL_FREQMHZ",
+      "role": "requested",
+      "candidate": "100",
+      "actual": "100",
+      "baseline": "100",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 845,
+        "value": "100"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_MIO_48_IOTYPE",
+      "role": "requested",
+      "candidate": "LVCMOS 1.8V",
+      "actual": "LVCMOS 1.8V",
+      "baseline": "<Select>",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 574,
+        "value": "LVCMOS 1.8V"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_MIO_49_IOTYPE",
+      "role": "requested",
+      "candidate": "LVCMOS 1.8V",
+      "actual": "LVCMOS 1.8V",
+      "baseline": "<Select>",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 578,
+        "value": "LVCMOS 1.8V"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_ENABLE",
+      "role": "requested",
+      "candidate": "1",
+      "actual": "1",
+      "baseline": "1",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 904,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_PARTNO",
+      "role": "requested",
+      "candidate": "MT41J256M16 RE-125",
+      "actual": "MT41J256M16 RE-125",
+      "baseline": "MT41J128M8 JP-125",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 908,
+        "value": "MT41J256M16 RE-125"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_MEMORY_TYPE",
+      "role": "requested",
+      "candidate": "DDR 3",
+      "actual": "DDR 3",
+      "baseline": "DDR 3",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 907,
+        "value": "DDR 3"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BUS_WIDTH",
+      "role": "requested",
+      "candidate": "32 Bit",
+      "actual": "32 Bit",
+      "baseline": "32 Bit",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 856,
+        "value": "32 Bit"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DRAM_WIDTH",
+      "role": "requested",
+      "candidate": "16 Bits",
+      "actual": "16 Bits",
+      "baseline": "8 Bits",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 902,
+        "value": "16 Bits"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DEVICE_CAPACITY",
+      "role": "requested",
+      "candidate": "4096 MBits",
+      "actual": "4096 MBits",
+      "baseline": "1024 MBits",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 873,
+        "value": "4096 MBits"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_ROW_ADDR_COUNT",
+      "role": "requested",
+      "candidate": "15",
+      "actual": "15",
+      "baseline": "14",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 909,
+        "value": "15"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_COL_ADDR_COUNT",
+      "role": "requested",
+      "candidate": "10",
+      "actual": "10",
+      "baseline": "10",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 871,
+        "value": "10"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BANK_ADDR_COUNT",
+      "role": "requested",
+      "candidate": "3",
+      "actual": "3",
+      "baseline": "3",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 850,
+        "value": "3"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_FREQ_MHZ",
+      "role": "requested",
+      "candidate": "533.333333",
+      "actual": "533.333333",
+      "baseline": "533.333333",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 905,
+        "value": "533.333333"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_ECC",
+      "role": "requested",
+      "candidate": "Disabled",
+      "actual": "Disabled",
+      "baseline": "Disabled",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 903,
+        "value": "Disabled"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY0",
+      "role": "requested",
+      "candidate": "0.25",
+      "actual": "0.25",
+      "baseline": "0.25",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 852,
+        "value": "0.25"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY1",
+      "role": "requested",
+      "candidate": "0.25",
+      "actual": "0.25",
+      "baseline": "0.25",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 853,
+        "value": "0.25"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY2",
+      "role": "requested",
+      "candidate": "0.25",
+      "actual": "0.25",
+      "baseline": "0.25",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 854,
+        "value": "0.25"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY3",
+      "role": "requested",
+      "candidate": "0.25",
+      "actual": "0.25",
+      "baseline": "0.25",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 855,
+        "value": "0.25"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0",
+      "role": "requested",
+      "candidate": "0.0",
+      "actual": "0.0",
+      "baseline": "0.0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 886,
+        "value": "0.0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1",
+      "role": "requested",
+      "candidate": "0.0",
+      "actual": "0.0",
+      "baseline": "0.0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 887,
+        "value": "0.0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2",
+      "role": "requested",
+      "candidate": "0.0",
+      "actual": "0.0",
+      "baseline": "0.0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 888,
+        "value": "0.0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3",
+      "role": "requested",
+      "candidate": "0.0",
+      "actual": "0.0",
+      "baseline": "0.0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "旧例程候选延时，尚无 V2.2 实测 PCB 数据，不能声称 DDR 稳定性已通过",
+      "example": {
+        "line": 889,
+        "value": "0.0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL",
+      "role": "requested",
+      "candidate": "1",
+      "actual": "1",
+      "baseline": "1",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 913,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE",
+      "role": "requested",
+      "candidate": "1",
+      "actual": "1",
+      "baseline": "1",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 912,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE",
+      "role": "requested",
+      "candidate": "1",
+      "actual": "1",
+      "baseline": "1",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 911,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_M_AXI_GP0",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "1",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 952,
+        "value": "1"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_M_AXI_GP1",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 953,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_GP0",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 957,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_GP1",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 958,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_HP0",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 959,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_HP1",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 960,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_HP2",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 961,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_HP3",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 962,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_USE_S_AXI_ACP",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 956,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_CLK0_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "1",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 276,
+        "value": "1"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_CLK1_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 277,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_CLK2_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 278,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_CLK3_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 279,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_RST0_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "1",
+      "outcome": "applied",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 321,
+        "value": "1"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_RST1_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 322,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_RST2_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 323,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_RST3_PORT",
+      "role": "requested",
+      "candidate": "0",
+      "actual": "0",
+      "baseline": "0",
+      "outcome": "default",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "target_decision"
+      ],
+      "rationale": "PS-only 范围要求：关闭所有 PL AXI/FCLK/复位端口，避免未连接输入；旧例程 GP0/FCLK0/RST0 不照搬",
+      "example": {
+        "line": 324,
+        "value": "0"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_DDR",
+      "role": "derived",
+      "candidate": null,
+      "actual": "1",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 284,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_EN_UART1",
+      "role": "derived",
+      "candidate": null,
+      "actual": "1",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 334,
+        "value": "1"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART1_BASEADDR",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0xE0001000",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 837,
+        "value": "0xE0001000"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UART1_HIGHADDR",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0xE0001FFF",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "启用 UART1 的两线 MIO 通道；波特率/8N1 由后续软件配置和验证",
+      "example": {
+        "line": 840,
+        "value": "0xE0001FFF"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_MIO_48_DIRECTION",
+      "role": "derived",
+      "candidate": null,
+      "actual": "out",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 573,
+        "value": "out"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_MIO_49_DIRECTION",
+      "role": "derived",
+      "candidate": null,
+      "actual": "in",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "BANK501 1.8V；UART1 TX MIO48/B12，RX MIO49/C12，经 TXS0102 接 CP2102",
+      "example": {
+        "line": 577,
+        "value": "in"
+      },
+      "pdf": {
+        "pages": [
+          26
+        ],
+      "section": "串口引脚表、图6-8"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_CL",
+      "role": "derived",
+      "candidate": null,
+      "actual": "7",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 857,
+        "value": "7"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_CWL",
+      "role": "derived",
+      "candidate": null,
+      "actual": "6",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 872,
+        "value": "6"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_SPEED_BIN",
+      "role": "derived",
+      "candidate": null,
+      "actual": "DDR3_1066F",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 910,
+        "value": "DDR3_1066F"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_ACT_DDR_FREQ_MHZ",
+      "role": "derived",
+      "candidate": null,
+      "actual": "533.333374",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 847,
+        "value": "533.333374"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_T_FAW",
+      "role": "derived",
+      "candidate": null,
+      "actual": "40.0",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 914,
+        "value": "40.0"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_T_RAS_MIN",
+      "role": "derived",
+      "candidate": null,
+      "actual": "35.0",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 915,
+        "value": "35.0"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_T_RC",
+      "role": "derived",
+      "candidate": null,
+      "actual": "48.91",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 916,
+        "value": "48.91"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_T_RCD",
+      "role": "derived",
+      "candidate": null,
+      "actual": "7",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 917,
+        "value": "7"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_UIPARAM_DDR_T_RP",
+      "role": "derived",
+      "candidate": null,
+      "actual": "7",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4",
+        "v22"
+      ],
+      "rationale": "H5TQ4G63AFR-PBC、2×16bit/1GB；手册明确兼容最近 profile MT41J256M16RE-125；时序由该 profile 派生或接受",
+      "example": {
+        "line": 918,
+        "value": "7"
+      },
+      "pdf": {
+        "pages": [
+          17,
+          18
+        ],
+        "section": "6.2 DDR3 DRAM"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_BOARD_DELAY0",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0.089",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 704,
+        "value": "0.075"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_BOARD_DELAY1",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0.075",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 705,
+        "value": "0.070"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_BOARD_DELAY2",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0.085",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 706,
+        "value": "0.077"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_BOARD_DELAY3",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0.092",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 707,
+        "value": "0.094"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_DQS_TO_CLK_DELAY_0",
+      "role": "derived",
+      "candidate": null,
+      "actual": "-0.025",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 708,
+        "value": "-0.000"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_DQS_TO_CLK_DELAY_1",
+      "role": "derived",
+      "candidate": null,
+      "actual": "0.014",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 709,
+        "value": "-0.001"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_DQS_TO_CLK_DELAY_2",
+      "role": "derived",
+      "candidate": null,
+      "actual": "-0.009",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 710,
+        "value": "0.004"
+      }
+    },
+    {
+      "parameter": "CONFIG.PCW_PACKAGE_DDR_DQS_TO_CLK_DELAY_3",
+      "role": "derived",
+      "candidate": null,
+      "actual": "-0.033",
+      "baseline": null,
+      "outcome": "observed",
+      "source_ids": [
+        "current_readback",
+        "example_2017_4"
+      ],
+      "rationale": "只读当前器件派生封装延时；旧值保留比较，不能替代 PCB 走线实测",
+      "example": {
+        "line": 711,
+        "value": "-0.035"
+      }
+    }
+  ],
+  "limitations": [
+    "V2.2 PDF18 表6-1 的 micron 与 PDF17 的 SK hynix 矛盾，保存原页，不据此改写颗粒型号。",
+    "新手册 Micro-USB/J7 与旧非B底板 MINI_USB/位号不同；实际 PCB 与丝印冲突均在部署前核实。",
+    "0.25ns boarddelay 与 0ns DQS-clock 为例程候选，非实测 PCB 延时。",
+    "不定义 UART wire 协议、DDR 安全窗口、AXI/缓存一致性或网络接口；G3 不适用离线候选。",
+    "外部 DDR 接口模板 DATA_WIDTH=8/CAS=11 不能当真实 PS7 总线/时序；真实 port maps DQ[31:0]、ADDR[14:0]，PS7/HWH CL7/CWL6。"
+  ]
+}

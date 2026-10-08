@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T04",
+  "run_id": "ps_platform_20261008_r01",
+  "source_commit": "f68dbf11618c4b9b38ab7993a5c033537c90a88b",
+  "evidence_dir": "report/evidence/S2B-T04/ps_platform_20261008_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务仅生成PS7 UART/DDR离线候选硬件描述，未消费模型、PL网络或AXI传输接口；目标决策4b6fcfc和新版厂商资料作为候选来源绑定，不伪造已冻结模型接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/example_2017_4_excerpt.txt",
+      "sha256": "7093cd5c168ec091fc529feb0e2daa4876b5a42d8018256e8cf374c4a59bab40",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0014.png",
+      "sha256": "d0ee698f2c3d51dc6f2cb54a1746d187a418346a6e86b84422471248f9cda8da",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0015.png",
+      "sha256": "99b0ca484bafb21e04e9a990eef15b94dec5d1cf4045bddee090d44bae940a58",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0017.png",
+      "sha256": "d8aaaf813d9c3d6652adf8b8971c4ba1af02a4c072b684e9b0b292ab5accd5da",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0018.png",
+      "sha256": "4815e43e32147d49dca96d89822a93b59d989a94a9b46a28d0cb282172d80c4c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0026.png",
+      "sha256": "0f36bff6c54f062f13a34760bd53a6358e65e8638db668a33d9bd6350861a29f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_document.md",
+      "sha256": "7cd2750e648f1b50ded5e6d3a7bd503093b08c83f2e729c3247a7958313d0cca",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_manifest.json",
+      "sha256": "1d0665177a8c96e2cd3a37374be1b3f522e3cd29bde73bfcb9059c58cc65acee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_status.json",
+      "sha256": "345f99ac8910f426a36b3be8b52c01fecb75685f3c3af2bebe926af185dc170b",
+      "role": "input"
+    },
+    {
+      "path": "vivado/s2b_ps_platform.tcl",
+      "sha256": "898ed68fb58b9fb34569c9691e5f7810946f33823461c66fd5b92b3533407aac",
+      "role": "source"
+    },
+    {
+      "path": "board/ps_platform_fields.json",
+      "sha256": "f8199018bbd99da78e957a063464ca5612f30b1a23758c3ef991ceda9315c679",
+      "role": "source"
+    },
+    {
+      "path": "board/ps_platform.md",
+      "sha256": "5c05a365571c28acfa8989ad2ada0860cf73ad5181342a9c146865d0b0f26038",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "候选本地来源绑定",
+      "status": "PASS",
+      "command": "python -X utf8 -B -（source_copy_receipt.json记录的源缓存/厂商Tcl SHA实测复制）",
+      "exit_code": 0,
+      "reason": "厂商Tcl源SHA已实际读取核验；Wong提供V2.2手册缓存source SHA与43页/选页吻合；只绑定本地选页和候选表，不声明实物匹配。"
+    }
+  ],
+  "limitations": [
+    "独立硬件候选来源，不是板上通信/DDR窗口或模型接口冻结。",
+    "原件路径/SHA在board/ps_platform_fields.json；仅保留必要选页、原始解析记录和例程摘录。"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T03",
+  "run_id": "target_resolution_20261008_r01",
+  "source_commit": "3375cb4d0d52854e85142851dda03de05a0291c0",
+  "session": {
+    "session_id": "vivado-20261008-222218-a9409a6a",
+    "process_id": 33072,
+    "log_file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T03\\target_resolution_20261008_r01\\.vivado-ai\\vivado_69338713_9ac88614.log",
+    "mode": "tcl",
+    "gui_mode": false,
+    "status": "success"
+  },
+  "attempts": [
+    {
+      "purpose": "探索属性查询；对象不存在该属性，真实失败保留。",
+      "command": "set gf_requested_part {xa7z020clg400-1I}; set gf_parts [get_parts -quiet $gf_requested_part]; set gf_count [llength $gf_parts]; puts \"GF_REQUESTED_PART=$gf_requested_part\"; puts \"GF_PART_COUNT=$gf_count\"; if {$gf_count != 1} {error \"GF_PART_NOT_UNIQUE:$gf_count\"}; set gf_part [lindex $gf_parts 0]; puts \"GF_RESOLVED_PART=$gf_part\"; foreach gf_key {NAME FAMILY DEVICE PACKAGE SPEED TEMPERATURE_GRADE} {puts \"GF_PART_PROPERTY:$gf_key=[get_property $gf_key $gf_part]\"}; puts \"GF_VIVADO_VERSION=[version -short]\"; list GF_PART_QUERY_PASS $gf_part",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"error_type\": \"COMMAND_ERROR\",\n  \"exit_code\": 1,\n  \"output\": \"GF_REQUESTED_PART=xa7z020clg400-1I\\r\\nGF_PART_COUNT=1\\r\\nGF_RESOLVED_PART=xa7z020clg400-1I\\r\\nGF_PART_PROPERTY:NAME=xa7z020clg400-1I\\r\\nGF_PART_PROPERTY:FAMILY=azynq\\r\\nGF_PART_PROPERTY:DEVICE=xa7z020\\r\\nGF_PART_PROPERTY:PACKAGE=clg400\\r\\nGF_PART_PROPERTY:SPEED=-1I\\r\\nERROR: [Common 17-54] The object 'part' does not have a property 'TEMPERATURE_GRADE'.\",\n  \"session_id\": \"vivado-20261008-222218-a9409a6a\",\n  \"used_mode\": \"proxy\"\n}"
+          }
+        ]
+      }
+    },
+    {
+      "purpose": "仅查询已确认存在的五项属性；要求完整器件字符串逐字符相等。",
+      "command": "set gf_requested_part {xa7z020clg400-1I}; set gf_parts [get_parts -quiet $gf_requested_part]; if {[llength $gf_parts] != 1} {error \"GF_PART_NOT_UNIQUE:[llength $gf_parts]\"}; set gf_part [lindex $gf_parts 0]; if {$gf_part ne $gf_requested_part} {error \"GF_PART_LITERAL_MISMATCH:$gf_part\"}; foreach gf_key {NAME FAMILY DEVICE PACKAGE SPEED} {puts \"GF_PART_PROPERTY:$gf_key=[get_property $gf_key $gf_part]\"}; puts \"GF_VIVADO_VERSION=[version -short]\"; list GF_PART_QUERY_PASS $gf_part",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"exit_code\": 0,\n  \"output\": \"GF_PART_PROPERTY:NAME=xa7z020clg400-1I\\r\\nGF_PART_PROPERTY:FAMILY=azynq\\r\\nGF_PART_PROPERTY:DEVICE=xa7z020\\r\\nGF_PART_PROPERTY:PACKAGE=clg400\\r\\nGF_PART_PROPERTY:SPEED=-1I\\r\\nGF_VIVADO_VERSION=2026.1\\r\\nGF_PART_QUERY_PASS xa7z020clg400-1I\",\n  \"task_progress\": \"0/3 done. Next: 核验用户确认的目标器件\"\n}"
+          }
+        ]
+      }
+    }
+  ],
+  "limitations": [
+    "只有器件目录查询，没有创建PS IP、综合、实现、时序或硬件结果。",
+    "照片可证明XA7Z020/CLG400；-1I后缀来自Wong在当前会话2026-10-08的明确文本确认。"
+  ]
+}

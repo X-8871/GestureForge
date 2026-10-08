@@ -1,0 +1,28 @@
+{
+  "queries": [
+    {
+      "purpose": "XA/CLG400速度等级目录核查",
+      "command": "set gf_grade2 [get_parts -quiet {xa7z020clg400-2}]; set gf_grade2i [get_parts -quiet {xa7z020clg400-2I}]; set gf_xa_available [get_parts -quiet {xa7z020clg400-*}]; puts \"GF_XA_GRADE2_COUNT=[llength $gf_grade2]\"; puts \"GF_XA_GRADE2I_COUNT=[llength $gf_grade2i]\"; puts \"GF_XA_AVAILABLE=$gf_xa_available\"; list GF_XA_SPEED_AVAILABILITY [llength $gf_grade2] [llength $gf_grade2i] $gf_xa_available",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"exit_code\": 0,\n  \"output\": \"GF_XA_GRADE2_COUNT=0\\r\\nGF_XA_GRADE2I_COUNT=0\\r\\nGF_XA_AVAILABLE=xa7z020clg400-1I xa7z020clg400-1Q\\r\\nGF_XA_SPEED_AVAILABILITY 0 0 {xa7z020clg400-1I xa7z020clg400-1Q}\",\n  \"task_progress\": \"2/3: 独立审查与恢复验证 (active, 5m)\"\n}"
+          }
+        ]
+      }
+    },
+    {
+      "purpose": "最新请求XC7Z020/CLG400/-2精确核查",
+      "command": "set gf_requested_part {xc7z020clg400-2}; set gf_parts [get_parts -quiet $gf_requested_part]; if {[llength $gf_parts] != 1} {error \"GF_PART_NOT_UNIQUE:[llength $gf_parts]\"}; set gf_part [lindex $gf_parts 0]; if {$gf_part ne $gf_requested_part} {error \"GF_PART_LITERAL_MISMATCH:$gf_part\"}; foreach gf_key {NAME FAMILY DEVICE PACKAGE SPEED} {puts \"GF_PART_PROPERTY:$gf_key=[get_property $gf_key $gf_part]\"}; list GF_REQUESTED_XC_GRADE2_QUERY_PASS $gf_part",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"exit_code\": 0,\n  \"output\": \"GF_PART_PROPERTY:NAME=xc7z020clg400-2\\r\\nGF_PART_PROPERTY:FAMILY=zynq\\r\\nGF_PART_PROPERTY:DEVICE=xc7z020\\r\\nGF_PART_PROPERTY:PACKAGE=clg400\\r\\nGF_PART_PROPERTY:SPEED=-2\\r\\nGF_REQUESTED_XC_GRADE2_QUERY_PASS xc7z020clg400-2\",\n  \"task_progress\": \"2/3: 独立审查与恢复验证 (active, 10m46s)\"\n}"
+          }
+        ]
+      }
+    }
+  ]
+}

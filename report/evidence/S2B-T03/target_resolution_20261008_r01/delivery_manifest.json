@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T03",
+  "run_id": "target_resolution_20261008_r01",
+  "source_commit": "3375cb4d0d52854e85142851dda03de05a0291c0",
+  "evidence_dir": "report/evidence/S2B-T03/target_resolution_20261008_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务仅按用户确认校正工程器件目标，并核对身份照片及Vivado器件目录；不消费网络黄金输入、不新增或冻结AXI/PS DDR物理接口。阶段0记录只作身份历史依据，新确认及照片是本轮输入。",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "669f0fea1b4e0a259a85e5e00ef3b318af0a21958135065e3f71917b0d514367",
+      "role": "source"
+    },
+    {
+      "path": "board/README.md",
+      "sha256": "c53e166407ab478464479aa3c55ce7739d167d8e95a6bfac2f6f23282a1f0162",
+      "role": "source"
+    },
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/阶段0_硬件与环境核对验收记录.md",
+      "sha256": "090f06c13d572aa5fd8a153d7b380031390878c706eb232a2543e035ee65c0d6",
+      "role": "source"
+    },
+    {
+      "path": "report/README.md",
+      "sha256": "7a6712c34eef8b5dfe6a5236f2f524cb91d5bf8166b7485c237a7c80a55615f6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/check_project.py",
+      "sha256": "7d5b2e6edc4788107da611f30237b4098b40aa56be1c7697ce6266e9b683178f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/check_project_attempt01.py",
+      "sha256": "36b86421aa6493ff2ce0e5705e6d896e37d9e8a4c1ed94092e991a84d7a3696c",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/chip_identity.jpg",
+      "sha256": "d062f1268b5f6eaafc78eb0b66cbc21e61d2bece65812068aef6e4a2f7778549",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_attempt01_stderr.bin",
+      "sha256": "40ba7c554a51ab94f51c2aac1d7f79b091fc9b942b1c3d1eeebc72a12d65728c",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_attempt02_result.json",
+      "sha256": "9a0cce9057fd145ab3438b336af74ef2a0c09e08372cd41a5bf36d4c4c0cd397",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_attempt02_stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_result.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/target_confirmation.md",
+      "sha256": "9d261ff01d0594cf339221c8d2420573d5e83a8bcd700974e40d236e233873e8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T03/target_resolution_20261008_r01/vivado_query.json",
+      "sha256": "3db473f2647cfe182118bcbf8193c2e448609a017500fb2f1aa8018f5e7d8df1",
+      "role": "result"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr",
+      "sha256": "bc93b1423a81df8689ad2171244007e2b072acd73f2ba9c706a9350526802afc",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "首轮器件属性探索",
+      "status": "FAIL",
+      "command": "set gf_requested_part {xa7z020clg400-1I}; set gf_parts [get_parts -quiet $gf_requested_part]; set gf_count [llength $gf_parts]; puts \"GF_REQUESTED_PART=$gf_requested_part\"; puts \"GF_PART_COUNT=$gf_count\"; if {$gf_count != 1} {error \"GF_PART_NOT_UNIQUE:$gf_count\"}; set gf_part [lindex $gf_parts 0]; puts \"GF_RESOLVED_PART=$gf_part\"; foreach gf_key {NAME FAMILY DEVICE PACKAGE SPEED TEMPERATURE_GRADE} {puts \"GF_PART_PROPERTY:$gf_key=[get_property $gf_key $gf_part]\"}; puts \"GF_VIVADO_VERSION=[version -short]\"; list GF_PART_QUERY_PASS $gf_part",
+      "exit_code": 1,
+      "reason": "Vivado真实返回Common 17-54，part对象不存在TEMPERATURE_GRADE属性；原始MCP响应保留于vivado_query.json。该查询被下一轮五项已存在属性查询替代，不作为成功结论。"
+    },
+    {
+      "name": "精确器件解析与五项属性核验",
+      "status": "PASS",
+      "command": "set gf_requested_part {xa7z020clg400-1I}; set gf_parts [get_parts -quiet $gf_requested_part]; if {[llength $gf_parts] != 1} {error \"GF_PART_NOT_UNIQUE:[llength $gf_parts]\"}; set gf_part [lindex $gf_parts 0]; if {$gf_part ne $gf_requested_part} {error \"GF_PART_LITERAL_MISMATCH:$gf_part\"}; foreach gf_key {NAME FAMILY DEVICE PACKAGE SPEED} {puts \"GF_PART_PROPERTY:$gf_key=[get_property $gf_key $gf_part]\"}; puts \"GF_VIVADO_VERSION=[version -short]\"; list GF_PART_QUERY_PASS $gf_part",
+      "exit_code": 0,
+      "reason": "Vivado2026.1唯一返回与用户字面完全相同的xa7z020clg400-1I；NAME/FAMILY/DEVICE/PACKAGE/SPEED已读回。"
+    },
+    {
+      "name": "工程三字段校正与照片原始哈希",
+      "status": "PASS",
+      "command": "python -X utf8 -B report/evidence/S2B-T03/target_resolution_20261008_r01/check_project.py",
+      "exit_code": 0,
+      "reason": "第二轮真实Python退出0，actual XML与3375cb4基线仅三个Part替换后的期望XML相同；照片与用户附件SHA相同。stdout与stderr均保留。"
+    },
+    {
+      "name": "首次工程检查的独立退出码捕获",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "首次检查因XML路径误写为Options而产生真实traceback，失败源码/原始stderr/空stdout均保留；外层命令随后执行cat并返回0，没有单独捕获Python退出码，不把它填为PASS。第二轮已修正为Configuration并单独捕获exit0。"
+    },
+    {
+      "name": "PS平台整网时序与实物验收",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本任务是器件身份/项目目标校正，不涉及PS平台、整网集成、时序、位流或板卡操作；相应阶段2B关口仍未执行。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "vivado": "2026.1",
+    "ross": "2026.9.1"
+  },
+  "limitations": [
+    "第一轮属性查询FAIL已由第二轮查询更正；首次工程检查也确实失败，已保留证据而不覆盖。",
+    "用户照片可辨认XA7Z020和CLG400；-1I后缀来自Wong的明确文本确认。",
+    "仅三个器件字段改变，另将绑定XPR/board说明设为UTF-8 LF以保留可恢复字节；没有移植原目录用户DCP或仿真改动。",
+    "STATE与gitattributes另行冻结审查，不是运行证据的文件依赖。",
+    "MCP执行器件查询2次、工程检查2次；整个任务总工具调用量、完整耗时及峰值内存未测。",
+    "未创建PS IP、未执行重型综合/实现、时序或任何实物操作；此交付不代表阶段2B G0/G3/G4/G5通过。"
+  ]
+}

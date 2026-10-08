@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T04",
+  "run_id": "platform_review_20261009_r02",
+  "check": "冻结记录集成增量复核",
+  "status": "PASS",
+  "source_baseline": "5b9122e425c1499b36b09e80cffda7bf50ca2ef0",
+  "vivado_new_runs": 0,
+  "commands": [
+    {
+      "label": "independent_integration",
+      "command": "python -X utf8 -B tmp/2B/S2B-T04/platform_review_20261009_r02/integration_freeze_check.py",
+      "stdout": "tmp/2B/S2B-T04/platform_review_20261009_r02/integration_freeze_check.stdout.log",
+      "stderr": "tmp/2B/S2B-T04/platform_review_20261009_r02/integration_freeze_check.stderr.log",
+      "receipt": {
+        "chunk_id": "25aa5e",
+        "wall_time_seconds": 0.0000115,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "label": "freeze_binding_replay",
+      "command": "python -X utf8 -B report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/freeze_binding_check.py",
+      "stdout": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_binding_replay.stdout.log",
+      "stderr": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_binding_replay.stderr.log",
+      "receipt": {
+        "chunk_id": "b7a474",
+        "wall_time_seconds": 0.000013,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "label": "freeze_pack_inputs",
+      "command": "python -X utf8 -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/delivery_manifest.json",
+      "stdout": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_pack_inputs.stdout.log",
+      "stderr": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_pack_inputs.stderr.log",
+      "receipt": {
+        "chunk_id": "1302b5",
+        "wall_time_seconds": 0.2589584,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "label": "freeze_pack_evidence",
+      "command": "python -X utf8 -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/delivery_manifest.json",
+      "stdout": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_pack_evidence.stdout.log",
+      "stderr": "tmp/2B/S2B-T04/platform_review_20261009_r02/freeze_pack_evidence.stderr.log",
+      "receipt": {
+        "chunk_id": "d7fbdf",
+        "wall_time_seconds": 0.353631,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ],
+  "scope": "实际进程退出仅表示相应核验成功；人工批准由主控记录，本次只读核对其固定数据和既有授权范围。"
+}

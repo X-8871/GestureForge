@@ -1,0 +1,326 @@
+{
+  "schema_version": "s1-t02-d6-detection-metrics-v1",
+  "task": "S1-T02-D6",
+  "generated_utc8": "2026-09-22T10:13:35+08:00",
+  "status": "G0_PENDING",
+  "validation": {
+    "schema_valid": true,
+    "errors": [],
+    "warnings": [
+      "G0 指标策略快照已绑定并验证；mAP/逐类验收门槛和 robustness 数据集绑定仍未完成"
+    ],
+    "status": "G0_PENDING"
+  },
+  "code": {
+    "path": "D:\\FPGA_Competition\\verification\\s1_t02_d6_detection_metrics.py",
+    "sha256": "5ff91ffbbaa82935811f2ddc335434a3c70afa58eaa980e353e64b057803bea2",
+    "repository": {
+      "repository": "D:\\FPGA_Competition",
+      "head": "434acb2807e364388d6fbe949f368dcb23ab0a49",
+      "status": "dirty",
+      "network_access": false
+    }
+  },
+  "inputs": {
+    "manifest": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+      "sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
+    },
+    "predictions": {
+      "path": "D:\\FPGA_Competition\\tmp\\s1_t02_d6_tiny416_test_formal_clip_r1\\predictions_bound.jsonl",
+      "sha256": "9c018b9d62e71500f276c3e1e6d3a49d6009bda893580d77082c11992203500d"
+    },
+    "class_names": {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+      "sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+      "values": [
+        "fist",
+        "palm",
+        "one",
+        "two_up",
+        "three"
+      ]
+    },
+    "data_root": "D:\\FPGA_Data\\HaGRIDv2",
+    "labels_root": "D:\\FPGA_Data\\HaGRIDv2",
+    "no_hand_list": null,
+    "non_target_list": null
+  },
+  "evaluation": {
+    "split": "test",
+    "score_threshold": 0.25,
+    "threshold_selection": "test/robustness 已选择并固定 score_threshold=0.25，禁止调参；val 仍允许 0.25..0.50 评估夹具；G0 acceptance 仍 pending",
+    "nms": "class-wise greedy",
+    "nms_iou": 0.45,
+    "max_outputs": 15,
+    "coordinate_formats": [
+      "darknet_relative_coordinates",
+      "xyxy_normalized"
+    ],
+    "coordinate_policy": {
+      "name": "clip_finite_positive_xyxy_to_unit_range",
+      "decision_date": "2026-09-21",
+      "description": "有限且原始正面积的预测框逐坐标裁剪到[0,1]；裁剪后零面积或完全在图像外的框拒绝。"
+    },
+    "matching": "同图同类一对一，IoU>=阈值，score 降序稳定排序",
+    "test_and_robustness_retuning": "forbidden"
+  },
+  "counts": {
+    "image_count": 25484,
+    "ground_truth_box_count": 24990,
+    "prediction_box_count_raw": 25379,
+    "prediction_box_count_after_score_nms": 25377
+  },
+  "coordinate_diagnostics": {
+    "name": "clip_finite_positive_xyxy_to_unit_range",
+    "decision_date": "2026-09-21",
+    "raw_box_must_be_finite": true,
+    "raw_box_must_have_positive_area": true,
+    "operation": "min(max(value, 0), 1) per xyxy coordinate",
+    "clipped_box_must_have_positive_area": true,
+    "raw_out_of_range_box_count": 76,
+    "clipped_box_count": 76,
+    "clipped_box_count_after_score_nms": 75
+  },
+  "sample_policy": {
+    "decision_date": "2026-09-22",
+    "decision_document": {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+      "sha256": "a79245b577e72ecdc9c36a0e2f5dac783a67422e5a8ad414b2eb2a77f40734c0"
+    },
+    "metric_policy_evidence": {
+      "status": "BOUND_AND_VERIFIED",
+      "binding": [
+        "report/evidence/S1-T02/20260922_s1_t02_d6_metric_policy_r2.json"
+      ],
+      "required_for_splits": [
+        "test",
+        "robustness"
+      ]
+    },
+    "official_test": {
+      "approved_manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+      "required_image_count": 25484,
+      "runtime_binding_status": "BOUND",
+      "runtime_manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+      "runtime_test_image_count": 25484
+    },
+    "robustness": {
+      "minimum_unique_images_per_class": 100,
+      "target_classes": [
+        "fist",
+        "palm",
+        "one",
+        "two_up",
+        "three"
+      ],
+      "condition_bucket_minimum_unique_images": {
+        "no_hand": 100,
+        "non-target": 100,
+        "multi-hand": 100,
+        "occlusion": 100,
+        "small-target": 100
+      },
+      "unique_count_basis": "image",
+      "same_image_may_count_in_multiple_condition_buckets": true,
+      "multiple_bucket_membership_requires_evidence": true,
+      "no_hand_is_a_target_class": false,
+      "person_and_session_must_be_disjoint_from": [
+        "train",
+        "val",
+        "test"
+      ],
+      "dataset_binding_status": "PENDING",
+      "observed_counts": null,
+      "person_session_isolation_audit_status": "PENDING"
+    }
+  },
+  "g0_open_items": [
+    {
+      "id": "map_acceptance_threshold",
+      "status": "OPEN",
+      "requirement": "正式 mAP 验收门槛尚未冻结。"
+    },
+    {
+      "id": "per_class_precision_recall_thresholds",
+      "status": "OPEN",
+      "requirement": "每类 precision/recall 验收门槛尚未全部冻结。"
+    },
+    {
+      "id": "robustness_dataset_and_isolation",
+      "status": "OPEN",
+      "requirement": "robustness 实际数据集、类别/条件计数及 person/session 隔离证据尚未绑定。"
+    }
+  ],
+  "metrics": {
+    "mAP@0.5": 0.9774176564941799,
+    "mAP@0.5:0.95": 0.7700877728041977,
+    "iou_thresholds": [
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "ap_interpolation": "101-point all-point interpolation",
+    "macro_classes_with_gt_only": 5,
+    "per_class": {
+      "fist": {
+        "class_id": 0,
+        "support_gt": 4998,
+        "prediction_count_after_nms": 4995,
+        "tp": 4849,
+        "fp": 146,
+        "fn": 149,
+        "precision_at_score_threshold_iou_0_50": 0.9707707707707708,
+        "recall_at_score_threshold_iou_0_50": 0.970188075230092,
+        "ap_at_0_50": 0.9695895097365239,
+        "ap_by_iou": {
+          "0.50": 0.9695895097365239,
+          "0.55": 0.9695895097365239,
+          "0.60": 0.9596600570909892,
+          "0.65": 0.9585293344861162,
+          "0.70": 0.9470577538573978,
+          "0.75": 0.9180230183168989,
+          "0.80": 0.8195603416600973,
+          "0.85": 0.5767176091138266,
+          "0.90": 0.18102858149671422,
+          "0.95": 0.013723847672386675
+        },
+        "ap_0_50_to_0_95": 0.7313479563167474,
+        "ap_available": true
+      },
+      "palm": {
+        "class_id": 1,
+        "support_gt": 4997,
+        "prediction_count_after_nms": 5021,
+        "tp": 4960,
+        "fp": 61,
+        "fn": 37,
+        "precision_at_score_threshold_iou_0_50": 0.9878510256920932,
+        "recall_at_score_threshold_iou_0_50": 0.9925955573344006,
+        "ap_at_0_50": 0.9899734334313768,
+        "ap_by_iou": {
+          "0.50": 0.9899734334313768,
+          "0.55": 0.9897892868116699,
+          "0.60": 0.9897162150308316,
+          "0.65": 0.9796992223227396,
+          "0.70": 0.9788958459527745,
+          "0.75": 0.9670649722008117,
+          "0.80": 0.9267889613749951,
+          "0.85": 0.8026612828324658,
+          "0.90": 0.3912382141702809,
+          "0.95": 0.026200099801230437
+        },
+        "ap_0_50_to_0_95": 0.8042027533929176,
+        "ap_available": true
+      },
+      "one": {
+        "class_id": 2,
+        "support_gt": 4999,
+        "prediction_count_after_nms": 5146,
+        "tp": 4878,
+        "fp": 268,
+        "fn": 121,
+        "precision_at_score_threshold_iou_0_50": 0.9479207151185387,
+        "recall_at_score_threshold_iou_0_50": 0.9757951590318064,
+        "ap_at_0_50": 0.9684547266374378,
+        "ap_by_iou": {
+          "0.50": 0.9684547266374378,
+          "0.55": 0.9683378237236936,
+          "0.60": 0.9681420775957283,
+          "0.65": 0.9579903398338543,
+          "0.70": 0.9465683399120784,
+          "0.75": 0.9232971858836266,
+          "0.80": 0.868026830663311,
+          "0.85": 0.6710307450001992,
+          "0.90": 0.26217115890499243,
+          "0.95": 0.01710079987029623
+        },
+        "ap_0_50_to_0_95": 0.7551120028025218,
+        "ap_available": true
+      },
+      "two_up": {
+        "class_id": 3,
+        "support_gt": 4996,
+        "prediction_count_after_nms": 5161,
+        "tp": 4909,
+        "fp": 252,
+        "fn": 87,
+        "precision_at_score_threshold_iou_0_50": 0.9511722534392559,
+        "recall_at_score_threshold_iou_0_50": 0.982586068855084,
+        "ap_at_0_50": 0.9791722869298803,
+        "ap_by_iou": {
+          "0.50": 0.9791722869298803,
+          "0.55": 0.9791703508739361,
+          "0.60": 0.9791400063975773,
+          "0.65": 0.9693617218333066,
+          "0.70": 0.9686610421283274,
+          "0.75": 0.9562312457739588,
+          "0.80": 0.9166788321318816,
+          "0.85": 0.7614389492557595,
+          "0.90": 0.330483197197705,
+          "0.95": 0.01716507753117613
+        },
+        "ap_0_50_to_0_95": 0.7857502710053509,
+        "ap_available": true
+      },
+      "three": {
+        "class_id": 4,
+        "support_gt": 5000,
+        "prediction_count_after_nms": 5054,
+        "tp": 4929,
+        "fp": 125,
+        "fn": 71,
+        "precision_at_score_threshold_iou_0_50": 0.9752671151563118,
+        "recall_at_score_threshold_iou_0_50": 0.9858,
+        "ap_at_0_50": 0.9798983257356807,
+        "ap_by_iou": {
+          "0.50": 0.9798983257356807,
+          "0.55": 0.9798642766484132,
+          "0.60": 0.9798462517465257,
+          "0.65": 0.9795954320970277,
+          "0.70": 0.9685521416827594,
+          "0.75": 0.9546412660937815,
+          "0.80": 0.9017600490617297,
+          "0.85": 0.7000417829279385,
+          "0.90": 0.2796546215391608,
+          "0.95": 0.01640465750149285
+        },
+        "ap_0_50_to_0_95": 0.774025880503451,
+        "ap_available": true
+      }
+    }
+  },
+  "subsets": {
+    "no_hand": {
+      "status": "NOT_EXECUTED",
+      "reason": "未提供批准的 no_hand 图片集合",
+      "count": null,
+      "false_positive_image_count": null,
+      "false_positive_rate": null
+    },
+    "non_target": {
+      "status": "NOT_EXECUTED",
+      "reason": "未提供批准的 non_target 图片集合",
+      "count": null,
+      "false_positive_image_count": null,
+      "false_positive_rate": null
+    }
+  },
+  "outputs": {
+    "report": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260922_s1_t02_d6_tiny416_test_formal_clip_r1.json",
+    "summary": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260922_s1_t02_d6_tiny416_test_formal_clip_r1.md"
+  },
+  "limitations": [
+    "本轮未启动 Darknet 或任何正式模型推理；输入可以是夹具或外部生成的 raw JSON，但 raw JSON 不等于 mAP。",
+    "官方 test 样本口径、策略快照和 test 固定 threshold 已绑定；robustness 实际数据集及 person/session 隔离仍未构建/绑定，mAP/逐类 precision-recall 验收门槛仍未冻结，因此状态保持 G0_PENDING。",
+    "mAP 和辅助误检率不构成最终验收门槛通过；no_hand/non-target 未提供批准集合时为 NOT_EXECUTED。"
+  ],
+  "report_path": "D:\\FPGA_Competition\\report\\evidence\\S1-T02\\20260922_s1_t02_d6_tiny416_test_formal_clip_r1.json"
+}

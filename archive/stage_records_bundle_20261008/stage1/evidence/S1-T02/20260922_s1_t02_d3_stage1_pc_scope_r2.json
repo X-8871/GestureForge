@@ -1,0 +1,74 @@
+{
+  "schema_version": "s1-t02-d3-stage1-pc-scope-v2",
+  "task": "S1-T02-D3",
+  "status": "STAGE1_PC_SCOPE_FROZEN_BOARD_GATE_DEFERRED_TO_STAGE2A",
+  "decision_date": "2026-09-22",
+  "decision_source": "Wong 授权总控自行确定 D3 正式范围，并要求当前窗口只完成阶段一，不进入阶段二。",
+  "supersedes_for_stage1_scope": "本文件为阶段一当前 PC 范围；旧 D3 资源结构不纳入清理后的交付集。",
+  "hardware_baseline": {
+    "board": "AX7020",
+    "device": "XA7Z020/CLG400",
+    "timing_grade": "-1 工作基线",
+    "stage1_hardware_execution": "NOT_APPLICABLE_BEFORE_STAGE2A_RTL_AUTHORIZATION"
+  },
+  "model_roles": {
+    "tiny320": "board_candidate",
+    "tiny416": "board_candidate",
+    "full608": "pc_only_reference"
+  },
+  "stage1_pc_formal_gate": {
+    "purpose": "冻结模型、文件、数值口径和可复现 PC 观测，不声称 FPGA 资源或板上实时性能。",
+    "performance": {
+      "warmup_samples": 100,
+      "valid_samples": 1000,
+      "required_stages": ["pc_model"],
+      "required_statistics": ["mean_ms", "p50_ms", "p95_ms", "p99_ms"],
+      "failure_counts": ["timeout", "drop", "failure"],
+      "binding": ["model_id", "input_size", "cfg_sha256", "data_sha256", "names_sha256", "darknet_executable_sha256", "weights_sha256", "manifest_sha256", "runtime_data_sha256", "threshold", "nms_iou"],
+      "measurement_scope": "只统计一次加载后的 Darknet PC 模型本体 Predicted in 时间；预处理、解码/NMS、显示和端到端时间由网页冒烟单独验证，不作为本报告的 PC 模型本体百分位。",
+      "excluded_from_percentiles": ["preprocess", "pc_decode_nms", "display", "end_to_end", "process_load"],
+      "status": "MEASURED_PC_MODEL_ONLY",
+      "evidence": "report/evidence/S1-T02/20260922_s1_t02_d3_pc_benchmark_r1.json"
+    },
+    "storage_and_files": {
+      "required": ["cfg", "data", "names", "weights", "weights_sha256", "input_tensor_shape", "max_single_layer_activation"],
+      "rule": "输入、权重、激活、raw head、PS/NMS、帧缓存和 metadata 分栏记录；未证明同时存活峰值时禁止直接相加。",
+      "status": "EXISTING_ESTIMATES_AND_FILE_MEASUREMENTS_RETAINED"
+    },
+    "acceptance": {
+      "float_accuracy_reference": "由 20260922_s1_t02_d6_metric_policy_r2 冻结为 mAP@0.5>=0.90、mAP@0.5:0.95>=0.70、逐类 precision/recall>=0.90。",
+      "int8_reference": "相对浮点 mAP@0.5 和逐类 recall 下降均不超过 5 个百分点，且溢出审计满足 D2 规则。",
+      "board_resource_result": "不在阶段一 PC 门中伪造 PASS；明确标记为阶段 2A 输入。"
+    }
+  },
+  "preserved_stage2a_board_gate": {
+    "applies_to": ["tiny320", "tiny416"],
+    "full608": "NOT_APPLICABLE_PC_ONLY",
+    "utilization_max_percent": {
+      "lut": 85,
+      "ff": 85,
+      "bram": 85,
+      "dsp": 85
+    },
+    "timing": {
+      "wns_min_ns": 0,
+      "whs_min_ns": 0,
+      "tns_required_ns": 0,
+      "ths_required_ns": 0
+    },
+    "evidence": ["Vivado synthesis", "implementation timing", "target board measurement"],
+    "status": "DEFERRED_TO_STAGE2A_NOT_A_STAGE1_PASS"
+  },
+  "current_execution": {
+    "vivado_synthesis": "NOT_EXECUTED_BY_STAGE_BOUNDARY",
+    "board_performance": "NOT_EXECUTED_BY_STAGE_BOUNDARY",
+    "pc_web_smoke": "IMPLEMENTED_AND_VALIDATED_WITH_THREE_REAL_MODELS",
+    "retraining": "NOT_REQUESTED_AND_NOT_EXECUTED"
+  },
+  "rollback": {
+    "contract": "每个模型保留独立 cfg、data、weights 路径和 SHA；模型注册表切换只读版本即可回滚。",
+    "registry": "web/gestureforge_web.py",
+    "model_ids": ["tiny320", "tiny416", "full608"]
+  },
+  "stage1_status": "PC_SCOPE_FROZEN_AFTER_FINAL_DIFF_AND_GIT_FREEZE; BOARD_GATE_RETAINED_FOR_STAGE2A"
+}

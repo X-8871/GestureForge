@@ -1,0 +1,77 @@
+---
+type: acceptance_record
+domain: embedded
+status: stage2a-frozen
+created: 2026-10-05
+updated: 2026-10-08
+---
+
+# 阶段2A PL推理仿真 G4/G5验收与冻结记录
+
+> 本记录已通过最终 G4/G5 独立审查并冻结。Wong 于 2026-10-06 选择最新版阶段计划作为 2A G4 控制要求，因此综合、资源可容纳性与时钟风险报告均为必需项；这不改写 T01 冻结文本。独立 Reviewer 于 2026-10-08 对固定基线 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`、候选 tile RTL 与验收证据返回 PASS。当前 8×8/8-lane 候选的 109 样本批次、D9 比较、源码映射、T66 单层仿真、T70 tile 回归、当前候选 T68 协议回归和补齐的 T13/T14/T15 当前源专项均按各自范围通过。时序收敛未证明；当前候选未在干净副本重跑完整 109 样本 PL 网络。
+
+## 范围、架构与版本
+
+阶段范围为冻结规格 T01 的 tiny416 PL RTL 推理和 PS 后处理参考比较。网络为 38 个 cfg 层、21 个卷积层、109 个固定输入样本。Wong 已批准 8×8 空间 tile、8 路输出通道并行；CSR 语义、32-bit 单 word memory 接口、timeout 与握手协议沿用 T01 冻结定义。此记录不把仿真结论外推为 DDR/AXI 实现或 FPGA 资源结论。
+
+PL 编译源码的闭包基线为 commit fecbf1f8f37fcee8b25e6e2517b9621850912a4e，Git tree 094e1492396a6788cc33b3b5866dd304387c02da。闭包含 38 项，11 个编译 RTL/TB 源和 3 个编译工具源均按运行快照绑定；源码映射报告同时核验这 14 个当前编译文件与冻结闭包。2A 汇总代码基线为 commit 65dd1c310e7686d50685d2f83b9b2b623e6cf3ad；后续验收文档提交只增加记录，不改变被测 RTL。工作区中其他阶段的未提交改动不属于本冻结版本，未混入本轮提交。
+
+## 当前候选与本轮 G4 证据（2026-10-08）
+
+当前待冻结的 8×8/8-lane RTL 候选为 commit `999238284157bed77cdb3a37e3e6eea52daeefc4`、tree `b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`，卷积 tile 引擎 SHA-256 为 `76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300`。原始候选批次覆盖索引 0–24；安全恢复 RunId `candidate8x8_109_resume_20261007_023531` 覆盖 25–108，并分别绑定各自的 commit/tree 和工具闭包。恢复映射确认两组共用被冻结的 11 项编译 RTL；每组的 3 项工具源分别绑定到对应版本。旧 RunId `repair109_20261003_194620` 仍仅作为历史基线，不计入当前候选通过数。
+
+证据根为 `report/evidence/S2A-T68/candidate8x8_109_20261006_130252/`。原始调度异常停止后保留既有记录；恢复批次只运行未通过的 25–108，没有重跑 0–24。最终摘要 `PASS_RESUMED_84_RUNNERS`、恢复清单 `PASS_109_RECOVERY_MANIFEST`，索引 0–108 均有 PASS，所有逐样本记录哈希和恢复清单校验通过；当前没有协调器或仿真进程。
+
+候选绑定的全核心 OOC 综合已完成并通过本子项独立复核。证据目录为 `report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/`，完整顶层 `s2a_stage2a_core_ooc`、14 项 RTL 源文件、Vivado 2026.1 Build 6511674、目录可解析器件 `xa7z020clg400-1I`，综合 launcher 退出码 0。`execution_record.json` SHA-256 为 `cc177824e418769d08ed4f159efeb4caeb2afd978724a169caf30a461eb8ea53`；源清单逐项绑定到本节候选 commit/tree。
+
+最终综合报告计数为 LUT 40,550/53,200（76.22%）、寄存器 3,082/106,400（2.90%）、BRAM 32/140（22.86%）、DSP48E1 186/220（84.55%），LDCE/LDPE 锁存器清单为空，日志错误数为 0。综合网表生成阶段另出现 DSP 中间计数 363 的告警，最终利用率报告计数为 186；保留该告警供后续实现评估，不用中间阶段数代替最终计数。Vivado 还报告 67 条普通 warning 和一条 Tcl Store 本地写权限回退 critical warning；工具使用安装目录 Tcl Store 后完成 Tcl、综合、报告和 DCP 生成。OOC 静态综合资源未超器件目录容量，但不代表布局布线或系统集成余量。
+
+本次无冻结时钟目标，也未提供 XDC。Timing 风险报告给出 3,332 个无时钟寄存器/锁存器端、12,003 个未约束内部端点、79 个无输入延迟端口和 104 个无输出延迟端口；最差报告路径数据延迟 118.754 ns 且未放置。没有有效的受约束时钟 WNS/TNS，故本报告不构成时序收敛或频率达标证明。器件完整温度等级后缀仍未由实物板卡资料独立核实；2A G3 上板依范围不适用。
+
+独立 Reviewer 对上述候选全核心 OOC 综合、源清单绑定、报告输出完整性、资源计数、锁存器计数和时钟风险证据返回 `PASS`。该 PASS 仅关闭当前候选的综合/资源/时钟风险证据子项，不代表整网 109 样本、D9、快照映射或阶段 G4/G5 已通过。精简说明为 `report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/synthesis_risk_summary.md`。
+
+当前候选恢复清单 SHA-256 为 `eefe285f1c03673143d1fa0563f153626fe90d86be2d245ced59a05d8a7e65a2`，批次摘要 SHA-256 为 `c33751ef18b1d4c5734a01e97b850a8c53d0721f8dfa5bef064f9fce6d6f38ad`。完整 D9 报告 `d9_109_candidate8x8_109_resume_20261007_023531.json` 状态为 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`，109/109 通过，最大 score 与 xyxy 绝对误差均为 0，报告 SHA-256 为 `fcdf60ef68990a13ba634ee6cb2df71ad152d7f9d5a05d6625f5f3af296523ab`。D9 重建记录了冻结与重建 canonical SHA 相等，并明确披露当前 `AGENTS.md` 与冻结版本 SHA 不同；只归一化该项目规则绑定及三项 Python/zlib 版本元数据，样本输出与其他来源绑定仍严格相等。
+
+样本 0 的磁盘 progress marker 在仿真记录写入后成为 26 行截断前缀。仿真执行记录所绑定的控制台仍含 34 行完整 marker；按原始 CRLF 字节提取后与记录中的 marker SHA 精确一致。D9 报告仅对该样本标记 `recovered_from_sha_bound_console=true`。原磁盘 marker 未改写，未重跑任何 PL 样本；当前无法确认后续截断的写入者。
+
+候选 109 份源码快照映射报告 `source_snapshot_git_binding_recovery_candidate8x8_109_resume_20261007_023531.json` 状态为 `PASS_109_CROSS_RUNID_RECOVERY_SOURCE_SNAPSHOT_TO_GIT_TREE`，SHA-256 为 `61789bb7951dde06160e376761e74b4f2a408002ae81533bbb9cd86906b89ba1`。D9 修复及当前批次、D9 和源码映射摘要已提交 `8646a02`；T66 candidate runner 的有界等待、清理、marker 唯一性及失败证据写入问题已提交 `671f9cf`。其离线故障测试 35 项通过且无测试子进程残留；未在该修复后启动新的 T66 仿真。系统拒绝终止进程时 runner 会明确报告未退出/输出不完整，并以非零状态退出。
+
+当前候选 helper 回归补充证据已重新绑定工作区源码，并由独立 Reviewer 核对报告、源快照和三个 Vivado 阶段日志哈希。T13 报告 `helper_vectors_fixed_candidate_20261008_t13_r2/upsample_query_simulation.json` SHA-256 `8abd9fb90eb229f7e6d23bd39d9f004b607b8eb192ec5a5bb275e941beaacc6f`，运行记录 SHA-256 `116e6c5dd9d6015ae4822e93f57851069f1f4af117eee0b4180f778b7d429d62`；覆盖 1,000 随机、16 定向和 16 fixture 查询，零 FAIL/FATAL/ERROR，唯一预期 PASS。T14 当前源报告 `helper_vectors_current_candidate_20261008_r2/report/evidence/S2A-T04/maxpool_geometry_simulation.json` SHA-256 `cfec0af6d629212d5d7fc12e0965914e6430a65bf744266cedaa2fd4a226108b`；单任务 manifest `helper_vectors_current_candidate_20261008_r2/raw_runs/T14/run_manifest.json` SHA-256 `a4684965c1e93cc1e898e90babd89a2d8f98a02ed4eebf9e05d948a0df14b0e2`。3,000 随机、48 定向及 16 fixture 结果通过，日志无 FAIL/FATAL/ERROR。该目录的聚合 manifest `raw_runs/run_manifest.json` SHA-256 `ec6df5153893deae69562c27f2a3f1e29983e501540642edc4ec8f4cf18b3ab4` 仍保留作历史失败证据；因包含 T13/T15 失败运行，不作为 T14 单任务 manifest 或通过依据。T15 报告 `helper_vectors_fixed_candidate_20261008_t15_r1/route_query_simulation.json` SHA-256 `24ac4072a16fe55aa2cf304ae0be24d3c832e38488d771ed31412f7403bb9bfb`，run manifest SHA-256 `d669194eec67d2de64690b2cfc6f3c16dccc21f9c41d6e6de48168312a07c388`，execution record SHA-256 `1b6c78cfecaea6352d2b516d3c6e3f249c70ae53930b4c31a7396de52d81d589`；覆盖 2,208,000 随机、35,328 定向和 12 fixture 查询，日志无 FAIL/FATAL/ERROR，唯一预期 PASS。T13 testbench 改为 64 位 expected offset；T15 的越界用例改为确实超过 32 位地址空间；两个 runner 均拒绝 FAIL/FATAL/ERROR 并要求唯一 PASS。
+
+早期 `helper_vectors_current_candidate_20261008_r2` 的聚合 manifest（SHA-256 `ec6df5153893deae69562c27f2a3f1e29983e501540642edc4ec8f4cf18b3ab4`）标为 PASS，但其中 T13 和 T15 原始日志分别有 1,034 个和 2 个 FAIL；该聚合 PASS 无效。聚合 manifest、失败运行和日志均保留原样，不作为 T13/T15 或 T14 单任务通过依据。T13 r2、有效 T14 单任务 manifest 与 T15 r1 的独立证据构成当前源验收依据。历史 T13/T14/T15 engine 报告和 T06 报告均未覆盖或改写。
+
+## 验收结果
+
+| 验收项 | 实际结果 | 证据与结论 |
+|---|---|---|
+| 冻结输入与规格 | 使用 T01 tiny416 清单和固定输入清单，109 个样本索引 0–108；覆盖五类手势、每类前 20 个官方样本（100）、另 2 个官方多框样本、3 个批准的空标签样本和 4 个合成极值样本（黑、白、棋盘格、固定种子 xorshift）；其中含 1 个边界 GT。样本输入与权重由逐样本 fixture manifest、输入文件 SHA 和 common GF8 权重 SHA 绑定。 | `report/evidence/S2A-T01/fixed_test_samples.json`，SHA-256 `ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed`；T68 运行夹具及归档清单；通过。 |
+| cfg 算子与共享 MAC 专项 | 21 个卷积层各 1,000 随机输出查询 + 16 定向查询；11 个 route 层各 1,000 随机空间用例 + 16 定向用例，全部输出通道逐元素检查；maxpool layer9/17/25 各 1,000+16；upsample layer33 1,000 随机 + 16 定向用例；两 YOLO head 各 1,000 随机 + 16 定向用例。共享 MAC 另有 1,000 随机点积 + 16 定向向量和 INT64/INT32 溢出审计。 | 新 tile 卷积数值详见下一行。当前源专项：T13 报告 SHA-256 `8abd9fb90eb229f7e6d23bd39d9f004b607b8eb192ec5a5bb275e941beaacc6f`；T14 报告 SHA-256 `cfec0af6d629212d5d7fc12e0965914e6430a65bf744266cedaa2fd4a226108b`，单任务 manifest SHA-256 `a4684965c1e93cc1e898e90babd89a2d8f98a02ed4eebf9e05d948a0df14b0e2`；T15 报告 SHA-256 `24ac4072a16fe55aa2cf304ae0be24d3c832e38488d771ed31412f7403bb9bfb`，其 manifest 与 execution record SHA 分别为 `d669194eec67d2de64690b2cfc6f3c16dccc21f9c41d6e6de48168312a07c388` 和 `1b6c78cfecaea6352d2b516d3c6e3f249c70ae53930b4c31a7396de52d81d589`；报告和原始 Vivado 日志由 Reviewer 复核。聚合 manifest SHA `ec6df5153893deae69562c27f2a3f1e29983e501540642edc4ec8f4cf18b3ab4` 因 T13/T15 原始失败日志而无效，保留作历史失败证据。历史 T13/T14/T15 engine 报告（T13 `ee9c1c0cdd4500eac6398ef0eb0a893021aee3b66d4845e50930f7cfac15d04e`、T14 `2e681fb5db9037f6858c7516b4620053374d571e66d27c15ded6dfbffb8927e3`、T15 `6011c3272c05b8e428128410b0d7a25a689873a12404631f23dc707f1fa9f124`）保持原样。 |
+| 新 tile 算术 | T70 对 21 个卷积层各执行 1,000 个随机与 16 个定向输出查询，共 21,336 次查询、169,790 个 lane 检查，零差异。修正后的白盒 testbench 按 lane 权重存储和 descriptor-bound bias/MQ 装载，并等待同步 requant 输出完成；不改生产 RTL 或 oracle。 | `report/evidence/S2A-T70/candidate_9992382_t70_wb3_20261008_01/whitebox_rtl/summary.json`，SHA-256 `0d402024fbc88bd804402840729fa9d8a66ddc7b4d7fe7f9eb73e254255e79f9`；`PASS_WHITEBOX_ARITHMETIC_ONLY`。独立 Reviewer PASS。它只证明所选点算术，不代替 memory 或完整网络。 |
+| 新 tile 内存 | T70 覆盖 21 层 × 每层 16 个定向情形，共 336 项、147,896 输出字节、56,872,736 cycles，零差异。 | `report/evidence/S2A-T70/candidate_9992382_t70_20261008_01/memory_full/summary.json`，SHA-256 `7627df9add39a3c2603be78294b13aac8b421fa30e15c0e71be3435e3aa12a6a`；`PASS_SELECTED_TILE_MEMORY_ONLY`。 |
+| T66 当前候选完整 layer0 | 修复后的 runner 对当前 tile engine 完整执行 layer0 黑盒；1,384,448 输出字节写入、2,551,955 请求与响应、6,635,073 stall cycles；退出码 0，PASS marker 及各类 read/stall marker 数量符合记录。 | `report/evidence/S2A-T66/candidate999_t66_postfix_retry_20261008/simulation/simulation_execution_record.json`，SHA-256 `1b7bb9efcf4dc1f5ef0e920a28e5549888005cc2986e42158fc4adfca8e848b3`；`PASS_FULL_LAYER0_BLACKBOX`，耗时 103.869 秒。仅覆盖 layer0 的单层 memory blackbox。 |
+| 边界与异常 | T70 对实际 layer29/36 完整生产输出遍历及 8 类异常情形运行 12 次仿真，编译和仿真退出码均为 0。mode3 在 layer29 第一个输出点的归约索引 4（输入通道 4）白盒注入 `INT32_MAX + 1*1`，观察到 error=7、writes=0；该注入不代表真实 GF8 权重溢出。 | `report/evidence/S2A-T70/candidate_9992382_t70_20261008_05_boundary_cn_comment/boundary_report.json`，SHA-256 `62df03951f3d3da2745c905fea2301742bae398c210145364694460281376d04`；`PASS_FOUR_HEAD_BLACKBOX_AND_EIGHT_EXCEPTION_CASES`。独立 Reviewer PASS。 |
+| 109 样本完整 PL 网络 | 原始候选 RunId 的索引 0–24 与恢复 RunId 的索引 25–108 合并覆盖 0–108；恢复清单逐项绑定样本的 compile、simulation、source snapshot、result summary、head13/head26 与 fixture 记录。样本结果均为 `PASS_LAYERWISE_EXACT_GOLDEN`，零 mismatch；编译和仿真记录的哈希均由恢复清单校验。 | `recovery_manifest_20261007_023531.json`，SHA-256 `eefe285f1c03673143d1fa0563f153626fe90d86be2d245ced59a05d8a7e65a2`；`PASS_109_RECOVERY_MANIFEST`。 |
+| 批次与失败处理 | 原始候选批次只确认索引 0–24；恢复 RunId 只调度 25–108。续跑摘要为 `PASS_RESUMED_84_RUNNERS`，84 个事件均为 `PASS_RUNNER_AND_RECORDS`，失败/剩余索引为空；84 个事件文件 SHA-256 与摘要逐项匹配。恢复清单将原组和续跑组绑定为当前候选的 109 样本，不重跑已通过样本。 | `batch_dispatch_resume_20261007_023531/batch_summary.json`，SHA-256 `c33751ef18b1d4c5734a01e97b850a8c53d0721f8dfa5bef064f9fce6d6f38ad`；恢复清单见上一行。早期失败记录均保留在证据根目录。 |
+| 实际 PL heads 对 CPU D9 | 当前候选 109 样本全部比较通过；最大 score 绝对误差为 0，最大 xyxy 坐标绝对误差为 0。D9 报告显式标出 sample000 从 SHA 绑定的 console 原始字节恢复 marker。 | `d9_109_candidate8x8_109_resume_20261007_023531.json`，SHA-256 `fcdf60ef68990a13ba634ee6cb2df71ad152d7f9d5a05d6625f5f3af296523ab`；`PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`。 |
+| 源码版本映射 | 109/109 编译快照映射到固定的源码闭包和 Git tree；跨 RunId 清单确认两组共享冻结的 11 项编译 RTL，分别绑定各自版本的 3 项工具源。 | `source_snapshot_git_binding_recovery_candidate8x8_109_resume_20261007_023531.json`，SHA-256 `61789bb7951dde06160e376761e74b4f2a408002ae81533bbb9cd86906b89ba1`；`PASS_109_CROSS_RUNID_RECOVERY_SOURCE_SNAPSHOT_TO_GIT_TREE`。 |
+| 控制与协议回归 | 当前候选 T68 `protocol_directed24` 编译和仿真均 exit 0，warning gate 通过（61 条、均在类别限额内）；验证真实 backend error 6/7、pending output write 的 soft reset/hard reset/CSR timeout 取消、无迟到写、pending read reset 取消及恢复重试标记。波形有效。 | `report/evidence/S2A-T68/protocol_directed24/compile_execution_record.json` SHA-256 `0e52c7232a794a852659aacb4086595e1949835843c770e1f3bb85615c16620a`；`simulation_execution_record.json` SHA-256 `e93278b649b3f22ec5c33bd1390aa2d93c6bd85ce2e6141278b22de34bae6463`；`backend_fault_recovery.vcd` SHA-256 `8a5573378f767403cd37373974ff9fa8b983e5ad28a0dae98fc83e8dd48a617b`；`PASS_S2A_BACKEND_FAULT_CANCEL_RECOVERY`。既有 T02/T08/T10–T21 结果只按原报告范围复用；T17/T20 是历史串行 engine/pilot，不作为新 tile 同等证据。 |
+| 干净副本恢复 | T25 在干净 Git 副本实际恢复 109×38 CPU shard，恢复 exit 0、耗时 2,283.61 秒；CPU D9 canonical replay 109/109、exit 0、耗时 12.359 秒。固定环境 Python 3.12.10、NumPy 2.4.6、OpenCV 4.13.0。 | report/evidence/S2A-T25/clean_restore_20261002_160036/recovery_execution_record.json，SHA-256 021a11d5318ea599216aabe8cb0d065e75d735573e29a5b4a4a0fb9ad97806a7；final_evidence_integrity.json，SHA-256 af57636d75872df1c604e1e06496b600b2ccd2a3644be4ae7b99abd7d19e406a。该项证明 CPU oracle 的真实恢复与重验，不声称在干净副本再次执行了完整 109 样本 PL 仿真。 |
+| 冻结 PL 源闭包干净副本编译 | 从 commit fecbf1f8f37fcee8b25e6e2517b9621850912a4e / tree 094e1492396a6788cc33b3b5866dd304387c02da 重建 38 项源闭包并逐项验证 Git blob；T68 现有 runner 对固定 sample000 重新生成夹具并完成编译，exit 0、65 warnings、0 errors，source/tooling 未变化，simulator_started=false。 | report/evidence/S2A-T68/g4_synthesis_20261005/clean_restore_fecbf_20261006/clean_restore_execution_record.json，SHA-256 b8b7e9dea7e6d321080ebd8276728ad7093dfdd286fe8a68a906e02a1fcd05af；编译记录 SHA-256 731abc855e9ca01eb960e38d6d1ae198f4be66890d522a1206bb934b85d8496b；Verilator 5.050。此项证明冻结源副本可恢复并编译，不替代综合或完整 109 样本仿真。 |
+| 证据归档与复现 | T68 归档复制 2,416 个非构建文件、1,323,413,060 字节；T25 归档 126 文件、417,152,290 字节；tile/协议支持归档 41 文件、214,836,577 字节，所有纳入文件逐项 SHA-256 匹配。准确 archive 路径与完整文件清单在三份 archive manifest 中。 | T68 manifest SHA-256 9b4d90c7d0aad70dc89bf0e78af6f74c9d0cacd6a002f46aa18afec6ed266bdf；T25 manifest SHA-256 9249b07f004de4fba196212a8617b987088b1e85d54e761b033ef03be84a9631；support manifest SHA-256 bd32ea5f8949bb63239f6120325fa41480916704572e287ee6ad3e789cab4900。所有归档都在 D 盘同一物理卷，不是异盘备份。 |
+
+## 关口判定
+
+- G0：T01 模型、数据与接口冻结有效。
+- G1/G2：当前候选 109/109 完整 PL 网络、D9 对比、源码映射、T66 runner 离线故障处理及修复后的 layer0 黑盒、T70 tile 专项、当前候选协议回归和 T13/T14/T15 当前源专项均已按各自范围通过；阶段 Reviewer 于 2026-10-08 对固定基线及证据返回 PASS。
+- G3：不适用。2A 不含上板或实物操作；T01 未授权烧录或板卡操作。
+- 综合、资源与时钟风险：按 Wong 2026-10-06 的范围决定，这些是 2A G4 必需项。早期 7 次启动诊断及 Tcl Store 故障仍作为历史排障记录保留，不代表最新状态；本节“当前候选与本轮 G4 证据”记载的全核心 OOC 综合现已成功，并由独立 Reviewer 对该证据子项返回 PASS。最终静态计数在所选 Vivado 器件目录容量内、综合错误为 0、锁存器清单为空；DSP 中间计数 363 告警和 Tcl Store 权限回退告警均如实保留。无冻结时钟目标或 XDC，因此只能报告未约束时钟风险，不能声明时序收敛或频率达标。此子项 PASS 不替代当前候选 109 样本 PL、D9 和源码快照映射证据。
+- G4：候选全核心 OOC 综合、静态资源容量和未约束时钟风险报告已有独立 PASS；当前候选 109 样本网络、D9 和源码映射通过。T66 runner 四项故障处理发现已修复并独立 PASS；35 项离线故障回归和修复后完整 layer0 黑盒均通过。T70 whitebox、memory、boundary/exception、当前候选协议回归与 T13/T14/T15 当前源专项按各自限定范围通过；不将专项覆盖外推为整网或资源/时序结论。无 XDC 与冻结时钟，不能宣称时序收敛。G3 不适用。最终阶段 Reviewer 对固定 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`、tile RTL SHA-256 `76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300`、证据范围和版本绑定返回 PASS。
+- G5：恢复清单和逐样本记录哈希有效；T25 CPU shards 在干净副本恢复并重验，旧冻结 PL 源闭包也已在干净副本恢复并完成 sample000 编译。没有在当前候选干净副本重跑完整 109 样本 PL 网络；Reviewer 确认这不是 Stage 2A 阶段计划或 T01 冻结中的硬性门槛，因此作为限制披露，不作已验证声明。候选版本、证据、限制和本地恢复入口均记录完成；阶段 G5 通过并冻结。
+
+## 本地恢复入口与限制
+
+T68 运行证据归档目录：D:\FPGA_Competition\archive\S2A-T68\repair109_20261003_194620。CPU oracle 与恢复记录归档目录：D:\FPGA_Competition\archive\S2A-T25\clean_restore_20261002_160036。当前 tile/协议回归归档目录：D:\FPGA_Competition\archive\S2A-Support\Stage2A_20261005。三个目录及源均在 D 盘同一卷，目录之间逐文件校验通过；发生整盘故障仍需从原始输入、冻结 Git commits 和已归档输入重新恢复。
+
+109 个大编译 build 缓存以及 4 个 T68/T70 可重建 obj_dir/build 缓存已从源目录清除，合计释放 33,104,952,077 字节；归档保留了结果、日志、波形、输入、快照和重建所需材料。工具记录为 Verilator 5.050（2026-07-01 rev vUNKNOWN-built20260702）。不清理失败批次、T70 结果输入、T25 shard 或其他阶段文件。
+
+最终结论：G4/G5 独立审查 PASS，Stage 2A 冻结。审查基线 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，tile RTL SHA-256 `76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300`。保留限制：无 XDC/冻结时钟，未证明时序收敛；未在当前候选干净副本重跑完整 109 样本 PL 网络；G3 上板不属于 2A 范围。

@@ -1,0 +1,61 @@
+{
+  "schema_version": "s1-t02-d3-pc-benchmark-v1",
+  "task": "S1-T02-D3",
+  "status": "MEASURED_PC_MODEL_ONLY",
+  "observed_utc8": "2026-09-22T21:04:17.693790+08:00",
+  "model": {
+    "id": "tiny320",
+    "label": "YOLOv4-tiny 320",
+    "role": "board_candidate",
+    "input_size": "320×320",
+    "cfg": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\configs\\gesture_yolov4_tiny_320_d8_formal.cfg",
+    "cfg_sha256": "92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94",
+    "data": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\data\\gesture_tiny320_d8_formal.data",
+    "data_sha256": "ac66677decb2b8a0c374e650505e8cb4b94c772c9bfe7df9795273e58aa581f5",
+    "names": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+    "names_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368",
+    "darknet_executable": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+    "darknet_executable_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+    "manifest": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+    "manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "weights": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny320_formal_r2\\checkpoints\\gesture_yolov4_tiny_320_d8_formal_final.weights",
+    "weights_sha256": "f5bac83dc76cfe435e8f177111b81df77663968845083514ddce197291c4d901",
+    "weights_bytes": 23558276,
+    "threshold": 0.25,
+    "nms_iou": 0.45,
+    "max_outputs": 15
+  },
+  "runtime_binding": {
+    "data_filename": "gestureforge_web.data",
+    "runtime_data_sha256": "7dbb0f6b017adf7c1d60aa1c6c372370f04847090192a90d9352157b11464128",
+    "working_directory": "每次基准运行使用独立临时目录，结束后整体删除。"
+  },
+  "input": {
+    "source_manifest": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+    "source_manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "fixed_test_images": 20,
+    "image_list_sha256": "daa1a4a7694333c7f31f96ec91d3252693c104239ad01d6d98371f9a6a016ecf",
+    "sampling": "按 manifest 顺序循环固定 20 张 test 图片；性能统计不作精度结论。"
+  },
+  "samples": {
+    "warmup": 100,
+    "valid": 1000,
+    "returned_predictions": 1100,
+    "timeout": 0,
+    "drop": 0,
+    "failure": 0
+  },
+  "model_inference_ms": {
+    "mean": 17.895892,
+    "p50": 17.648,
+    "p95": 20.195,
+    "p99": 21.176,
+    "min": 15.014,
+    "max": 22.364
+  },
+  "limitations": [
+    "仅统计 Darknet 输出的模型推理时间，不含进程装载、网页传输、预处理、解码/NMS 和显示。",
+    "PC 测量不等于 AX7020 板上资源、时序或实时性能通过。",
+    "完整 YOLOv4 仍为 PC 对照，不进入阶段一板上资源门。"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": "s1-t02-d6-metric-policy-v2",
+  "task": "S1-T02-D6",
+  "status": "STAGE1_FORMAL_GATE_FROZEN_ROBUSTNESS_DIAGNOSTIC_ONLY",
+  "decision_date": "2026-09-22",
+  "decision_source": "Wong 明确授权总控自行冻结数值阈值与 D3 范围，要求阶段一在不重新训练的前提下以 90% 正式门槛快速收口，并保留模型回滚能力。",
+  "supersedes_for_stage1_acceptance": "本文件为阶段一当前冻结政策；r1 历史快照不纳入清理后的交付集。",
+  "data_source": {
+    "repository": "https://github.com/hukenovs/hagrid",
+    "manifest_path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv",
+    "manifest_sha256": "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74",
+    "test_images": 25484,
+    "source_audit": "report/evidence/S1-T02/20260922_s1_t02_d6_official_hagrid_source_audit_r1.json",
+    "no_hand_source_finding": "未找到适合当前正式 person/session 审计的同源独立 no_hand 集；不把官方 no_gesture 改写成 no_hand。"
+  },
+  "fixed_evaluation": {
+    "score_threshold": 0.25,
+    "threshold_selection_rule": "只允许在 val 的 0.25..0.50 范围内选定；test、网页人工测试和后续 robustness 诊断不得重新调参。",
+    "nms": "class-wise greedy",
+    "nms_iou": 0.45,
+    "max_outputs": 15,
+    "iou_thresholds": [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
+    "ap_interpolation_points": 101,
+    "coordinate_policy": "clip_finite_positive_xyxy_to_unit_range"
+  },
+  "formal_float_gate": {
+    "map50_min": 0.9,
+    "map50_95_min": 0.7,
+    "per_class_precision_min": 0.9,
+    "per_class_recall_min": 0.9,
+    "reason": "将 90% 作为正式五类检测门槛，同时用 mAP@0.5:0.95=0.70 防止仅靠单一 IoU 点通过。"
+  },
+  "formal_int8_gate": {
+    "map50_absolute_drop_max": 0.05,
+    "per_class_recall_absolute_drop_max": 0.05,
+    "stage1_blocking": false,
+    "stage1_role": "阶段一冻结数值规则和浮点基线；整网 INT8 检测下降门作为后续集成前的保留门，本轮未宣称已测。",
+    "overflow_requirement": "D2 已冻结的 INT64 溢出为 0、规定的 INT32 越界为 0；如整网量化发现溢出，必须回退数值规格或模型版本。",
+    "comparison_rule": "必须绑定同一输入、权重版本、预处理、阈值和 NMS；下降按浮点绝对百分点计算。"
+  },
+  "official_test_result": {
+    "model": "tiny416",
+    "report": "report/evidence/S1-T02/20260922_s1_t02_d6_tiny416_test_formal_clip_r1.json",
+    "images": 25484,
+    "map50": 0.9774176564941799,
+    "map50_95": 0.7700877728041977,
+    "per_class": {
+      "fist": {"precision": 0.9707707707707708, "recall": 0.970188075230092},
+      "palm": {"precision": 0.9878510256920932, "recall": 0.9925955573344006},
+      "one": {"precision": 0.9479207151185387, "recall": 0.9757951590318064},
+      "two_up": {"precision": 0.9511722534392559, "recall": 0.982586068855084},
+      "three": {"precision": 0.9752671151563118, "recall": 0.9858}
+    },
+    "gate_evaluation": "通过本次冻结的浮点 90% 门槛；报告原状态仍为 G0_PENDING，直到本轮范围文档、数值证据、D3 证据和总控提交一致。",
+    "status_note": "阶段一归档以总控最终差异核对、数值证据、网页验证和 Git 冻结为准。"
+  },
+  "robustness_and_no_hand": {
+    "stage1_blocking": false,
+    "status": "OPTIONAL_DIAGNOSTIC_NOT_BLOCKING",
+    "no_hand": {
+      "formal_gate": false,
+      "web_manual_test": true,
+      "interpretation": "无手样本可在网页中作为观察样本，但不计入五类准确率，不作为阶段一阻断项。"
+    },
+    "no_gesture": "保留为官方语义的自然手姿/第二只自由手候选，不重命名、不当作 no_hand。",
+    "other_condition_buckets": "可在后续作为诊断报告补充，缺少独立 person/session 数据不阻断本阶段 PC 规格收口。"
+  },
+  "rollback_contract": {
+    "model_ids": ["tiny320", "tiny416", "full608"],
+    "rule": "网页和后续阶段均通过显式 cfg/weights 路径绑定模型；替换为已验证旧版本时只需切换注册表并重新记录 SHA，不覆盖原权重、不重新训练。",
+    "web_registry": "web/gestureforge_web.py",
+    "weights_are_external_read_only": true
+  },
+  "stage_status": {
+    "d6": "FORMAL_FLOAT_GATE_PASSED_FOR_TINY416_ROBUSTNESS_DIAGNOSTIC_ONLY",
+    "d2": "INT8_NUMERIC_SPEC_FROZEN_DETECTION_DROP_GATE_RETAINED_FOR_LATER_INTEGRATION",
+    "d3": "SEE_20260922_S1_T02_D3_STAGE1_PC_SCOPE_R2",
+    "stage1_g4_g5": "PC_SCOPE_FROZEN_AFTER_REVIEW_AND_GIT_FREEZE;_BOARD_AND_FULL_INT8_INTEGRATION_GATES_RETAINED"
+  }
+}

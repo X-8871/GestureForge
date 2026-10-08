@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "execution": "MCP vivado_execute；本文件是实际已发送 Tcl 命令的源快照，不是再次执行的脚本。",
+  "commands": [
+    {
+      "attempt": 1,
+      "command": "set gf_version [version]; set gf_answer [expr {6 * 7}]; puts \"GF_TCL_SMOKE_VERSION=$gf_version\"; puts \"GF_TCL_SMOKE_RESULT=$gf_answer\"; if {$gf_answer != 42} {error \"GF_TCL_SMOKE_FAILED\"}; return \"GF_TCL_SMOKE_PASS\""
+    },
+    {
+      "attempt": 2,
+      "command": "version"
+    },
+    {
+      "attempt": 3,
+      "command": "set gf_answer [expr {6 * 7}]; if {$gf_answer != 42} {error \"GF_TCL_SMOKE_FAILED\"}; list GF_TCL_SMOKE_PASS $gf_answer [llength [get_projects -quiet]]"
+    }
+  ]
+}

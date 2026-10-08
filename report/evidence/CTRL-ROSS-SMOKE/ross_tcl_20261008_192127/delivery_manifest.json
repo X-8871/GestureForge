@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "stage": "controller",
+  "task_id": "CTRL-ROSS-SMOKE",
+  "run_id": "ross_tcl_20261008_192127",
+  "source_commit": "c203ab333aa9f82df959a1923914c9bdd5fe6c07",
+  "evidence_dir": "report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只测试隔离空工程环境下的 Vivado MCP 基础 Tcl 控制，不消费模型、PS/PL或板级接口；这些接口的冻结情况仍由阶段2B G0另行核实。",
+  "files": [
+    {
+      "path": "report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/command_snapshot.json",
+      "sha256": "dd306f63fc2aec047e6095044632c16a1cfaa2b7ec3a22749dcdd873bc5b2561",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/smoke_result.json",
+      "sha256": "8027b0b132837ecf3ab0c2551feca3bb10ee2b1641ebbc2cf53aa5d50d02948b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/vivado_smoke.log",
+      "sha256": "d91ae17d002c557a0251b8342840456884f5de16599da5b38e415f1992b9dec1",
+      "role": "log"
+    }
+  ],
+  "tool_versions": {
+    "ROSS Vivado MCP": "2026.9.1",
+    "Vivado": "2026.1 / SW Build 6511674"
+  },
+  "checks": [
+    {
+      "name": "首次命令写法失败",
+      "status": "FAIL",
+      "command": "vivado_execute: set gf_version [version]; set gf_answer [expr {6 * 7}]; puts \"GF_TCL_SMOKE_VERSION=$gf_version\"; puts \"GF_TCL_SMOKE_RESULT=$gf_answer\"; if {$gf_answer != 42} {error \"GF_TCL_SMOKE_FAILED\"}; return \"GF_TCL_SMOKE_PASS\"",
+      "exit_code": 2,
+      "reason": "顶层 return 导致 catch 返回 TCL_RETURN=2；改为普通查询后通过，原失败保留。"
+    },
+    {
+      "name": "版本查询",
+      "status": "PASS",
+      "command": "vivado_execute: version",
+      "exit_code": 0
+    },
+    {
+      "name": "Tcl 计算与无工程查询",
+      "status": "PASS",
+      "command": "vivado_execute: set gf_answer [expr {6 * 7}]; if {$gf_answer != 42} {error \"GF_TCL_SMOKE_FAILED\"}; list GF_TCL_SMOKE_PASS $gf_answer [llength [get_projects -quiet]]",
+      "exit_code": 0
+    },
+    {
+      "name": "其他 ROSS 专业设计功能",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次基础控制测试未执行 IP配置、RTL检查/仿真、综合、实现或时序。实际任务匹配时另行验证。"
+    },
+    {
+      "name": "板卡实物验证",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次测试仅涉及独立空工程 Tcl 会话，不包含 FPGA 设计或模型部署；不能替代阶段2B板上验证。"
+    }
+  ],
+  "limitations": [
+    "source_commit 为测试执行时主仓库HEAD，实际Tcl源快照另以文件哈希绑定；未声称测试来自干净源码构建或验证设计功能。",
+    "未测启动全过程耗时或峰值内存，不得据此宣称效率提升或加速比。",
+    "会话启动、健康和停止由 MCP 成功状态及查询确认，未伪造这些API没有返回的进程退出码。",
+    "会话停止后todo计划自动消失，最后todo更新失败不影响已核对的基础Tcl结果。"
+  ]
+}

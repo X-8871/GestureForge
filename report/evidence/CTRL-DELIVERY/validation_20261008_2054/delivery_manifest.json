@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "stage": "controller",
+  "task_id": "CTRL-DELIVERY",
+  "run_id": "validation_20261008_2054",
+  "source_commit": "9db8d64b8a49fdf350c76d5c94fe36b2c8939c34",
+  "evidence_dir": "report/evidence/CTRL-DELIVERY/validation_20261008_2054",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务是通用只读清单检查器与工程交付规则，不消费模型、PS/PL或板级业务接口；不能据此关闭阶段2B的上游冻结阻碍。",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "669f0fea1b4e0a259a85e5e00ef3b318af0a21958135065e3f71917b0d514367",
+      "role": "source"
+    },
+    {
+      "path": "report/README.md",
+      "sha256": "7a6712c34eef8b5dfe6a5236f2f524cb91d5bf8166b7485c237a7c80a55615f6",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_stage_delivery.py",
+      "sha256": "c55a5f68fd3019bdbfdcc2b6bdecfe8f7dd5e3b1e278ffde88635b2bf07cd2c7",
+      "role": "source"
+    },
+    {
+      "path": "verification/stage_delivery_template.json",
+      "sha256": "dceaa839f4a6bc9f4586c08cd7a683c4649b7c674e0f2d707f42610c99e2540e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-DELIVERY/validation_20261008_2054/validation_result.json",
+      "sha256": "b05f7b546563e5f5e2ec40d0eaaa3a3910e46b1ebfff386f8aef09e22c2d6893",
+      "role": "result"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "2.56.0.windows.2"
+  },
+  "checks": [
+    {
+      "name": "完整50项隔离单元回归",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_stage_delivery -q",
+      "exit_code": 0
+    },
+    {
+      "name": "代码差异空白检查",
+      "status": "PASS",
+      "command": "git diff --check -- AGENTS.md report/README.md verification/check_stage_delivery.py verification/test_stage_delivery.py verification/stage_delivery_template.json",
+      "exit_code": 0
+    },
+    {
+      "name": "实物验证",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "仅新增通用只读Python工具及文档，不改RTL、模型、约束或部署，硬件G3不适用于本任务。"
+    }
+  ],
+  "limitations": [
+    "source_commit为随后冻结的已审提交，内容与测试时实际文件SHA一致；运行时HEAD是c203ab3且待提交差异由结果文件记录，不冒称当时在干净Git副本测试。",
+    "验证结果为结构化摘要；独立Reviewer另执行50项回归及迭代异常/嵌套目录/预算边界反例并PASS，不能把机器包装检查当独立审查。",
+    "未执行真实Windows重解析点集成测试；已有mock覆盖的限制保留。未测峰值内存。",
+    "不代表任何FPGA阶段G0/G4/G5或模型精度、时序、上板验收。"
+  ]
+}

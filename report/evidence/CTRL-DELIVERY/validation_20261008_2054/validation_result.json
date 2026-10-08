@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "task_id": "CTRL-DELIVERY",
+  "run_id": "validation_20261008_2054",
+  "scope": "通用只读阶段交付检查器及新交付规则验证，不是阶段2B实施或验收。",
+  "baseline_head": "c203ab333aa9f82df959a1923914c9bdd5fe6c07",
+  "source_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "669f0fea1b4e0a259a85e5e00ef3b318af0a21958135065e3f71917b0d514367"
+    },
+    {
+      "path": "report/README.md",
+      "sha256": "7a6712c34eef8b5dfe6a5236f2f524cb91d5bf8166b7485c237a7c80a55615f6"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf"
+    },
+    {
+      "path": "verification/test_stage_delivery.py",
+      "sha256": "c55a5f68fd3019bdbfdcc2b6bdecfe8f7dd5e3b1e278ffde88635b2bf07cd2c7"
+    },
+    {
+      "path": "verification/stage_delivery_template.json",
+      "sha256": "dceaa839f4a6bc9f4586c08cd7a683c4649b7c674e0f2d707f42610c99e2540e"
+    }
+  ],
+  "controller_checks": [
+    {
+      "command": "python -B -m unittest verification.test_stage_delivery -q",
+      "exit_code": 0,
+      "tests": 50,
+      "elapsed_seconds": 16.897,
+      "result": "OK"
+    },
+    {
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest verification/stage_delivery_template.json",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "result": "CHECKS_FAILED",
+      "meaning": "未就绪模板被拒绝，不代表阶段2B输入通过。"
+    },
+    {
+      "command": "git diff --check -- AGENTS.md report/README.md verification/check_stage_delivery.py verification/test_stage_delivery.py verification/stage_delivery_template.json",
+      "exit_code": 0
+    },
+    {
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/delivery_manifest.json",
+      "exit_code": 0,
+      "result": "CHECKS_OK",
+      "meaning": "包装校验成功，仍保留首次Tcl命令FAIL、专业功能NOT_RUN，不能用作G0/G4/G5。"
+    }
+  ],
+  "limits": [
+    "本结果为实际工具输出的结构化摘要，不冒称原始控制台日志；源码待提交差异由实际文件SHA绑定。",
+    "真实Windows符号链接创建因权限不足未执行；reparse保护已有mock属性回归，但未据此宣称原生重解析点集成通过。",
+    "未测试FPGA、模型精度、DDR/UART实物或上板。纯文档/Python只读工具任务不适用硬件G3。",
+    "未测峰值内存；elapsed仅为总控完整50项回归的一次运行，不是全工作流或ROSS加速统计。"
+  ]
+}

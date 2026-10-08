@@ -3,12 +3,14 @@ type: acceptance_record
 domain: embedded
 status: stage2a-frozen
 created: 2026-10-05
-updated: 2026-10-08
+updated: 2026-10-09
 ---
 
 # 阶段2A PL推理仿真 G4/G5验收与冻结记录
 
 > 本记录已通过最终 G4/G5 独立审查并冻结。Wong 于 2026-10-06 选择最新版阶段计划作为 2A G4 控制要求，因此综合、资源可容纳性与时钟风险报告均为必需项；这不改写 T01 冻结文本。独立 Reviewer 于 2026-10-08 对固定基线 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`、候选 tile RTL 与验收证据返回 PASS。当前 8×8/8-lane 候选的 109 样本批次、D9 比较、源码映射、T66 单层仿真、T70 tile 回归、当前候选 T68 协议回归和补齐的 T13/T14/T15 当前源专项均按各自范围通过。时序收敛未证明；当前候选未在干净副本重跑完整 109 样本 PL 网络。
+
+> 2026-10-09 新增器件输入 `XC7Z020-2CLG400I` 的 r03 同源 OOC 已使用有效 BASIC 许可完成，独立审查 `S2A-XC2-R-Final PASS`，限定补验技术 G4/G5 通过，见末节及机器可读关闭记录。上文历史冻结与旧 XA/-1 综合保持原身份；新 XC 结论只消费本次实际报告。
 
 ## 范围、架构与版本
 
@@ -75,3 +77,35 @@ T68 运行证据归档目录：D:\FPGA_Competition\archive\S2A-T68\repair109_202
 109 个大编译 build 缓存以及 4 个 T68/T70 可重建 obj_dir/build 缓存已从源目录清除，合计释放 33,104,952,077 字节；归档保留了结果、日志、波形、输入、快照和重建所需材料。工具记录为 Verilator 5.050（2026-07-01 rev vUNKNOWN-built20260702）。不清理失败批次、T70 结果输入、T25 shard 或其他阶段文件。
 
 最终结论：G4/G5 独立审查 PASS，Stage 2A 冻结。审查基线 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，tile RTL SHA-256 `76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300`。保留限制：无 XDC/冻结时钟，未证明时序收敛；未在当前候选干净副本重跑完整 109 样本 PL 网络；G3 上板不属于 2A 范围。
+
+
+## 2026-10-08 新器件适用性补验（2026-10-09独立审查PASS）
+
+本节补充 Wong 确认的 `XC7Z020-2CLG400I` 器件输入，不改写上文 `xa7z020clg400-1I` 的历史冻结与实际综合结果。冻结实现仍为 commit `999238284157bed77cdb3a37e3e6eea52daeefc4` / tree `b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`；14 个综合 RTL、模型、T01 CSR/单 32-bit word memory/timeout/握手协议均未改变，已有 109 样本功能证据继续按其原范围保留，未重新运行。
+
+资料审计在 `report/evidence/S2A-T68/xc7z020_2_ooc_20261008_r01/`：`device_audit.md` SHA-256 为 `ce8da3fe85ff26ac6623d0ab970b7d4a3af906cba5174a111e9f57c34370fc40`，`device_audit_sources.json` 为 `14fcd1c2269a3ff24275fd120679fe421fba7f99e272d2d949a926576bedb475`。手册 PDF 第 11、12、17、18 页及核心板原理图第 4、6、8 页已按原件/页图绑定核查：完整 XC/-2/I 标称与用户输入一致，图示 PS BANK502 的双 x16 外部 DDR 总容量为 1 GiB。手册 U8/U9 高低 16 位与详细原理图标注相反；新实板与 PCB/BOM 的独立对应、精确 DDR 参数、有效地址窗口和实测带宽尚未知，未修改 PS、工程 `.xpr` 或 XDC。
+
+实际 Vivado 2026.1 目录查询唯一返回 `xc7z020clg400-2`（DEVICE=`xc7z020`、PACKAGE=`clg400`、SPEED=`-2`、TEMPERATURE_GRADE_LETTER 为空）。工业 `I` 仍依用户与手册标称；r03 实际执行 `set_operating_conditions -grade industrial` 并生成 `Device Grade = industrial` 环境报告，仅用于功耗环境设置，不构成工业温度时序证明。
+
+| 补验项 | 实际结果与范围 |
+|---|---|
+| 同源绑定 | r02 从 Git blobs 恢复 14 项历史 OOC 精确字节并逐项校验；13 项原样，顶层 wrapper 仅按历史 SHA 唯一恢复两处 CRLF。源码清单 SHA-256 为 `ff1a2b9084b0edbf51e180d21d7980fb3f0d203f93e80867e6730e72f51f436a`，tile SHA 仍为 `76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300`。共享 `src` 未被用于导出或改写。 |
+| r01 启动 | `xc7z020_2_ooc_20261008_r01` 返回1、STAGE=`preflight`、SYNTHESIS_COMPLETED=0。独立 Python 3.12 继承 Vivado Python 3.13 环境而发生 `SRE module mismatch`；原脚本、错误结果和日志保留。 |
+| 隔离环境修复 | r02 的指定 Python 改用 `-I -B`；实际 Vivado 子进程导入检查返回0、Python 3.12.10，14 项源码预检查通过，14 个 `read_verilog` 均已执行。新运行脚本 SHA-256 为 `890546ad4341c8397327b55de620e1c54a505a04c468f82393a90263d52ccfea`。 |
+| r02 真实综合 | `source -encoding utf-8 {D:\FPGA_Competition\report\evidence\S2A-T68\xc7z020_2_ooc_20261008_r02\run_synthesis.tcl}` 返回1；Tcl记录7秒，MCP记录6.535秒。进入 `synth_design -top s2a_stage2a_core_ooc -part xc7z020clg400-2 -mode out_of_context -flatten_hierarchy none` 后，Common 17-348/17-345 明确报 Synthesis 许可已过期，SYNTHESIS_COMPLETED=0。独立会话实际 `get_vivado_tier` 为 `ENTERPRISE`；启动时识别许可不代表本次综合可用。 |
+| r03 许可与同源输入 | 主控只读解析用户指定 `C:\Users\22061\Downloads\Xilinx.lic`，确认 BASIC/Synthesis/Implementation 条目有效至2027-08-07、Enterprise试用至2026-10-06；按 AMD 建议完整分离 BASIC 原始条目到用户私有 Temp，仅设置新子进程许可路径。实际启动与 `get_vivado_tier` 均为 BASIC，Common17-349 确认 Synthesis 检出。新源清单 SHA `5d99da0e0951f6fa10a9ebad27d32f3dc63a992a24e506ec2d079aafd96acd66`；运行脚本 SHA `cdac6a5f9caa9bcbc9e6d403d78214816b3a3f22f9f06e85883b3c9c7364e7a2`。 |
+| r03 真实综合与输出 | Vivado MCP 的两次只读调用返回审批策略不可用，保留通道错误；改用同一 Vivado 2026.1 Build6511674 的官方独立 batch/Tcl 入口。23:51:42.3689479→23:54:05.1186253（UTC+8）、launcher142.7437219秒、进程退出0；Tcl139秒、综合完成1、报告失败0，原生日志与报告/DCP均生成。只运行一次，没有覆盖或重跑r01/r02。 |
+| 新器件资源与锁存器 | 本次最终平面报告实际为 LUT40,550/53,200（76.22%）、FF3,082/106,400（2.90%）、BRAM Tile32/140（22.86%）、DSP186/220（84.55%）；0 errors、0 critical、65 warnings（其中综合阶段62）。中间DSP363告警仍保留，最终计数采用186。广义 LATCH 原语筛选和显式 LDCE/LDPE 均为0；`IS_LATCH` 属性不可用时记录-1，未将该sentinel写作零锁存器依据。 |
+| 新器件时钟风险与内存 | 无XDC/冻结时钟，no_clock=3,332、unconstrained_internal_endpoints=12,003、no_input_delay=79、no_output_delay=104，最差未放置路径97.069ns、Slack=inf，不是受约束时序通过或频率证明。Vivado报告峰值2259.402 MB；CLI记录另含一次Windows进程采样，未测整进程族峰值。本次batch自然退出，已核实对应进程不再存活。 |
+| 补验 G3 | 不适用：本轮限定离线同源 OOC 与资料核对，不含上板、烧录、DDR/UART/视频实物操作。 |
+| 补验 G4/G5 | 实际综合、最终静态容量、锁存器、风险、同源绑定和恢复要求均满足；独立审查 `S2A-XC2-R-Final PASS`，r03 `inputs` / `evidence` 均退出0。本限定离线补验技术G4/G5通过；关闭字段及提交范围须完成增量核对后一并精确提交，最终版本为包含关闭记录的Git提交。 |
+
+r02 失败时实际选用过期 Enterprise；之后 Wong 提供 Downloads 许可目录并指出 BASIC 未过期，主控按精确文件核实并在r03实际检出有效BASIC。许可选择记录仅保留等级、有效期、路径和原件未改事实，未记录密钥/HostID或把许可字节放入仓库，未登录账户、改系统时间、持久环境或其他窗口会话。因MCP调用不可用，只有本任务旧已完成会话按PID/创建时间/原log与工作目录精确确认后关闭；r03独立进程自然退出。r01/r02 的原失败包装与历史需求保留原记录，不将其状态改写为成功。AMD依据：`https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/licensing-faq.html`。
+
+本次XC/-2核心资源与历史XA/-1计数相同，但由本次独立报告分别证明。单看XC目录绝对容量还剩12,650 LUT、34 DSP、108 BRAM Tile；阶段7初始各类≤85%目标下，DSP预算仅1、LUT预算4,670，不能把34个物理剩余DSP全当作满足阶段7目标的扩展预算。该后期目标不作为本轮2A新增门槛。摄像头、HDMI、DDR/AXI桥接、缩放/量化及结果叠加尚未计入，须在后续明确配置后核算完整顶层资源、布局布线、时序和DDR带宽；1 GiB外部DDR不增加片上DSP/BRAM。
+
+本轮编辑前历史批准记录精确字节已保留为 r02 的 `historical_stage2a_approval_snapshot.txt`，SHA-256 `f7504f4f6ad4118dc821d8efaf28a4db35fbab406f0be2cf9726fa8ab5398a0e`，并记录基线 HEAD `b285ca4831be676f2f169c4d57691221ee0b9715`；r03源清单复用该明确旧输入，不将本次新增文字当作旧批准。旧综合、冻结记录及失败材料保持各自版本身份。r03本地DCP用于核查已生成的综合后网表，按SHA留存为验收产物，不作为源码提交；恢复从冻结14项Git输入与脚本重新执行，不承诺重建的带时间戳DCP二进制哈希相同。没有修改RTL/模型/接口，不再运行109个已通过样本。
+
+独立 Reviewer `/root/xc2_supplement_review` 以固定 HEAD `b285ca4831be676f2f169c4d57691221ee0b9715` 审查 A 资料审计、r01/r02 失败证据、r03 实际执行与五份正式差异，返回 `S2A-XC2-R-Final PASS`，无阻断问题。r03 `delivery_manifest.json` SHA-256 为 `75b3b945b32d32e688b0de5349fb029451ffc7077f6bd082d02c240231622719`，`execution_record.json` 为 `00ca373e60fe5370a385708bee619043325146c965cc5bd57e2bb4352bd19bae`；原始包保持综合完成待审时的快照，实际审查及关闭结论由本节和 `report/evidence/S2A-T68/xc7z020_2_supplement_acceptance_20261009.json` 补充，不覆盖旧状态。
+
+恢复时注意：r03脚本固定本次ROOT/RunId，是已执行快照，不能直接重复`prepare`。后续必须在新RunId、精确路径和namespace中派生相应脚本、重新绑定脚本/输入/结果哈希；独立审查已复核冻结14项Git blobs可精确恢复历史OOC字节。实际BASIC许可须单独选择，不纳入Git；本地DCP不是源码依赖，重建输出使用新运行身份。

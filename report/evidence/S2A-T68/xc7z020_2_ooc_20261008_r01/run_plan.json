@@ -1,0 +1,61 @@
+{
+  "schema": "s2a-xc2-ooc-run-plan-v1",
+  "run_id": "xc7z020_2_ooc_20261008_r01",
+  "created_at_local": "2026-10-08T23:01:47+08:00",
+  "stage": "2A",
+  "task_id": "S2A-T68",
+  "candidate_commit": "999238284157bed77cdb3a37e3e6eea52daeefc4",
+  "candidate_tree": "b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67",
+  "evidence_dir": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\xc7z020_2_ooc_20261008_r01",
+  "cache_dir": "D:\\FPGA_Competition\\tmp\\stage2a\\S2A-T68\\xc7z020_2_ooc_20261008_r01",
+  "source_manifest_sha256": "39319b4074d668a97ee5f9ee703f5b84bfcf5edc45a43f58a888518cb1135436",
+  "run_synthesis_tcl_sha256": "e890ca4dab584be08b9cca1e7c435ffae9b9d68e1924d6744dd5e99d18dcd18b",
+  "prepare_sources_py_sha256": "318c328b0c4afdcbab08d6f8727bca4c2299983d962b361b7c22f808235178d7",
+  "top": "s2a_stage2a_core_ooc",
+  "user_confirmed_device": "XC7Z020-2CLG400I",
+  "part_selection": "主控 get_parts 实际解析后设置 ::s2a_target_part；本脚本不猜测器件名称",
+  "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "synthesis_command": "synth_design -top s2a_stage2a_core_ooc -part $resolved_part -mode out_of_context -flatten_hierarchy none",
+  "launch_command": "set ::s2a_target_part {<target_resolution.json 的实际 resolved_part>}; source {<本目录 run_synthesis.tcl>}",
+  "vivado_max_threads": 2,
+  "clock_constraints": [],
+  "xdc_files": [],
+  "expected_duration_seconds": {
+    "minimum": 140,
+    "planning_upper": 900
+  },
+  "duration_basis": "历史同源 OOC 实际 140 秒；MCP 与本机负载可能改变耗时。",
+  "operating_conditions_command": "set_operating_conditions -grade industrial",
+  "operating_conditions_scope": "功耗与环境分析设置，不冻结温度数值，不证明工业温度时序。",
+  "reports": [
+    "utilization.rpt",
+    "utilization_hierarchical.rpt",
+    "timing_summary.rpt",
+    "clocks.rpt",
+    "worst_paths.rpt",
+    "operating_conditions.rpt"
+  ],
+  "latch_checks": [
+    "PRIMITIVE_SUBGROUP=LATCH/latch",
+    "可用时 IS_LATCH",
+    "REF_NAME=LDCE",
+    "REF_NAME=LDPE"
+  ],
+  "latch_property_basis": [
+    "https://docs.amd.com/r/en-US/ug953-vivado-7series-libraries/LDCE",
+    "https://docs.amd.com/r/en-US/ug953-vivado-7series-libraries/LDPE"
+  ],
+  "stop_conditions": [
+    "源码/器件绑定不符",
+    "OOM 或综合错误",
+    "报告生成失败",
+    "锁存器非零",
+    "主控观察到约定 10 分钟无进度超时"
+  ],
+  "no_progress_watchdog": "由主控观察 MCP/进程；脚本不能中断或关闭其他 Vivado 会话。",
+  "checkpoint_keep_reason": "保留本次所选器件综合后网表，供资源、锁存器与未约束路径独立复核。",
+  "limitations": [
+    "无 XDC/冻结时钟，不产生 timing closure 或频率达标结论。",
+    "不运行实现、板上测试或 109 样本整网回归。"
+  ]
+}

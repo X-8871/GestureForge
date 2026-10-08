@@ -1,13 +1,13 @@
 # 项目状态入口
 
-更新：2026-10-08（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-09（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
-- 阶段2A「PL 推理仿真」已完成 G4/G5 独立审查并冻结。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
-- 用户当前明确启动阶段2B，并允许使用手动启动且 ROSS 已连接的 Vivado 2026.1 Tcl 会话。本轮只完成 G0 只读核查，未通过 G0，未改动硬件工程或进行实物操作。
-- 阶段2B G0 阻碍：阶段1模型/检测头和后处理规则仍待冻结；PS/PL 地址映射、AXI/DDR传输、DMA与缓存一致性、缓冲所有权等字段未冻结；当前 AX7020 厂商手册/核心板原理图标称 XC7Z020-2，而板卡照片及用户已有 `.xpr` 改动标为 XA7Z020、CLG400、-1I，不能直接沿用厂商旧 PS/DDR 配置。当前工程无 PS Block Design、Vitis 平台或板级 XDC。
-- 先前的阶段3方向保持原代码和文档现状；当前请求仅处理阶段2B。阶段2B 后续任务须先冻结上述接口和器件资料；板卡下载、上电、DDR/UART 实测等实物操作须另行明确授权。
+- 阶段2A「PL 推理仿真」旧XA/-1目标已完成 G4/G5 独立审查并冻结；2026-10-09 新XC/-2限定同源OOC补验也经独立审查PASS并完成技术G4/G5收尾，冻结入口见下文。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
+- 用户已启动独立阶段2B总控；本窗口按其已授权任务补验阶段2A的新器件适用性。2026-10-08 Wong 确认器件输入 `XC7Z020-2CLG400I`；实际 Vivado 目录唯一解析为 `xc7z020clg400-2`。旧 XA/-1 冻结及全部功能证据保留，新器件相关验收须另行补齐；本轮未改硬件工程或进行实物操作。
+- 本主目录先前2B只读核查未通过G0，独立2B工作树的后续状态以其自身STATE/证据为准：T01 已冻结 tiny416 模型、两检测头及 D9 解码/NMS，不能继续称这些未冻结；物理 PS/PL 地址映射、AXI/DDR 传输、DMA/cache 和缓冲所有权由2B总控冻结。新器件编号依据本轮用户确认和手册，新实板与 PCB/BOM/DDR 图纸的独立对应仍未知；旧板照片及已有 `.xpr` 的 XA/-1 记录保留历史身份，不能直接沿用其 PS/DDR 配置。当前主工程无 PS Block Design、Vitis 平台或板级 XDC。
+- 本轮未改2B/3的独立工作树，仅处理2A器件适用性补验。阶段2B后续任务须先冻结物理接口和适用器件资料；板卡下载、上电、DDR/UART实测等实物操作须另行明确授权。
 - 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
 
 ## 当前候选批次（2026-10-08）
@@ -28,6 +28,7 @@
 ## 冻结限制与证据保全
 
 - 当前候选全核心 OOC Vivado 综合（`s2a_stage2a_core_ooc`，14 个 RTL）已成功：0 errors、0 latch；LUT 40,550/53,200，FF 3,082/106,400，BRAM 32/140，DSP 186/220。无 XDC/冻结时钟，不能宣称 timing closure。独立 Reviewer 对综合/资源/风险子项 PASS；证据在 `report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/`。T68/OOC、T70 与协议材料归档情况见验收记录。最终 G4/G5 独立 Reviewer 对固定 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5` 及本轮证据返回 PASS，Stage 2A 已冻结；验收记录为 `report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`。
+- 上述旧综合实际目标为 `xa7z020clg400-1I`。新补验 r01 的 Python 环境预检查失败、r02 的过期 Enterprise 试用检出失败均保留原证据。Wong 后提供的 Downloads `Xilinx.lic` 同时含有效 BASIC（至2027-08-07）；只复制完整 BASIC 条目到私有临时目录并给本次子进程设置许可路径，未改原件或持久环境。Vivado MCP 只读调用被审批配置拦住后，r03 使用相同安装版本的官方 batch/Tcl，实际 tier=BASIC、part=`xc7z020clg400-2`、14 项历史源精确匹配、进程 exit0/Tcl139秒。新实际报告为 LUT40,550/53,200、FF3,082/106,400、BRAM32/140、DSP186/220、0 errors、0 latch、65 warnings、0 critical；有报告/DCP，峰值为 Vivado 报告2259.402 MB。工业grade仅功耗环境，最差未放置路径97.069ns且无XDC/冻结时钟，不是时序收敛。独立 Reviewer `/root/xc2_supplement_review` 对固定HEAD `b285ca4831be676f2f169c4d57691221ee0b9715`、r03清单SHA `75b3b945b32d32e688b0de5349fb029451ffc7077f6bd082d02c240231622719` 及正式差异返回 `S2A-XC2-R-Final PASS`；补验G3不适用，技术G4/G5通过。证据入口 `report/evidence/S2A-T68/xc7z020_2_ooc_20261008_r03/`，关闭记录 `report/evidence/S2A-T68/xc7z020_2_supplement_acceptance_20261009.json`；提交身份以包含关闭记录的Git提交确定。
 - T68、T25 与 tile/协议支持证据已分别归档到 `archive/S2A-T68/repair109_20261003_194620/`、`archive/S2A-T25/clean_restore_20261002_160036/`、`archive/S2A-Support/Stage2A_20261005/`，逐文件 manifest 校验通过。归档和源都在 D 盘同一物理卷，不是异盘备份。
 - 在证据归档校验后，仅清理 109 个 PL `build` 与 4 个支持回归 `build/obj_dir` 缓存，释放 33,104,952,077 字节；输入、结果、日志、VCD、T25 shards 和失败记录保留。该 RunId 已完成，绝不重跑。
 - T13/T14/T15 当前 helper 源专项已有独立复核通过的新证据；早期 `helper_vectors_current_candidate_20261008_r2` 的 T13/T15 PASS manifest 被 FAIL 日志推翻，失败证据保留，新运行替代其验收地位。验收记录列出各报告、运行日志哈希及确切范围。
@@ -39,4 +40,4 @@
 - 新增交付规则见 `AGENTS.md`「产物落点、阶段对接与 ROSS 使用」及 `report/README.md`；只读检查器提交 `9db8d64` 已通过50项回归与独立审查，证据 `report/evidence/CTRL-DELIVERY/validation_20261008_2054/`。它只核对当前声明的输入/证据，不代表阶段 G0/G4/G5 或实物通过。
 - 本次 ROSS 2026.9.1 独立 Tcl 冒烟已通过：Vivado 2026.1 `version` 与 Tcl 查询完成码均为0，状态健康且仅本次会话已关闭；证据 `report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/`。未测试 IP、综合/实现或硬件，不能由此关闭上文2B G0阻碍。
 - 历史 T68 源映射修复基线为 `65dd1c310e7686d50685d2f83b9b2b623e6cf3ad`。候选实现提交 `999238284157bed77cdb3a37e3e6eea52daeefc4` 包含 tile engine、T66 testbench 与 runner；2026-10-06 G4 acceptance/OOC 综合证据提交为 `a232bc7c815a1e9bb18c675b0e9f31bccd857c62`。均未推送；保持其他阶段改动、运行目录、shards、模型数据、密钥和构建产物不入提交。
-- 下一步：Stage 2A 已通过 G4/G5 并冻结。本轮 Reviewer 固定基线为 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，验收记录含审查结论和已知限制；按项目阶段边界，后续阶段由用户开启新的总控任务。
+- 下一步：发令总控按本次补验关闭记录及其所在Git提交核对交付；r03源码/工具/报告/日志清单核验与独立审查均通过，旧目标成果、109功能证据和r01/r02失败证据保留。r03脚本是已执行快照，不能重复prepare；后续综合须新RunId、路径、namespace及重新绑定哈希，源码可从冻结14项Git blobs恢复。摄像头/HDMI等尚未计入本次核心OOC；阶段7各资源≤85%的初始目标下DSP仅余1、LUT余4,670，完整系统资源/带宽/时序仍须后续评估；不自动越过2B/3阶段边界。

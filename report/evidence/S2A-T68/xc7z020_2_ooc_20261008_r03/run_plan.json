@@ -1,0 +1,71 @@
+{
+  "schema": "s2a-xc2-ooc-run-plan-v1",
+  "run_id": "xc7z020_2_ooc_20261008_r03",
+  "created_at_local": "2026-10-08T23:48:22+08:00",
+  "stage": "2A",
+  "task_id": "S2A-T68",
+  "candidate_commit": "999238284157bed77cdb3a37e3e6eea52daeefc4",
+  "candidate_tree": "b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67",
+  "evidence_dir": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\xc7z020_2_ooc_20261008_r03",
+  "cache_dir": "D:\\FPGA_Competition\\tmp\\stage2a\\S2A-T68\\xc7z020_2_ooc_20261008_r03",
+  "source_manifest_sha256": "5d99da0e0951f6fa10a9ebad27d32f3dc63a992a24e506ec2d079aafd96acd66",
+  "run_synthesis_tcl_sha256": "cdac6a5f9caa9bcbc9e6d403d78214816b3a3f22f9f06e85883b3c9c7364e7a2",
+  "prepare_sources_py_sha256": "60df888248baabe2cd7774efa05c3b01cfde14acd6d9b98db810dac7fb754139",
+  "batch_entry_tcl_sha256": "dafebdd33fddbfaed80738355cfd082f7e49da0cdc432986f926d1dd9714b2f2",
+  "top": "s2a_stage2a_core_ooc",
+  "user_confirmed_device": "XC7Z020-2CLG400I",
+  "part_selection": "batch_entry先检查实际get_vivado_tier为BASIC，再以get_parts实际DEVICE/PACKAGE/SPEED属性唯一解析；不推断温度属性",
+  "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "python_isolated": true,
+  "synthesis_command": "synth_design -top s2a_stage2a_core_ooc -part $resolved_part -mode out_of_context -flatten_hierarchy none",
+  "launch_command": "\"D:\\Xilinx\\2026.1\\Vivado\\bin\\vivado.bat\" -mode batch -notrace -source \"D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\xc7z020_2_ooc_20261008_r03\\batch_entry.tcl\" -log \"D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\xc7z020_2_ooc_20261008_r03\\vivado.log\" -journal \"D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\xc7z020_2_ooc_20261008_r03\\vivado.jou\" -tclargs --isolated-batch-r03",
+  "required_actual_vivado_tier": "BASIC",
+  "license_scope": "许可隔离由主控处理；本脚本不读取、复制或记录许可文件/密钥/HostID",
+  "vivado_max_threads": 2,
+  "clock_constraints": [],
+  "xdc_files": [],
+  "expected_duration_seconds": {
+    "minimum": 140,
+    "planning_upper": 900
+  },
+  "duration_basis": "历史同源 OOC 实际140秒；batch启动开销与本机负载可能改变耗时。",
+  "operating_conditions_command": "set_operating_conditions -grade industrial",
+  "operating_conditions_scope": "功耗与环境分析设置，不冻结温度数值，不证明工业温度时序。",
+  "reports": [
+    "utilization.rpt",
+    "utilization_hierarchical.rpt",
+    "timing_summary.rpt",
+    "clocks.rpt",
+    "worst_paths.rpt",
+    "operating_conditions.rpt"
+  ],
+  "latch_checks": [
+    "PRIMITIVE_SUBGROUP=LATCH/latch",
+    "可用时 IS_LATCH",
+    "REF_NAME=LDCE",
+    "REF_NAME=LDPE"
+  ],
+  "latch_property_basis": [
+    "https://docs.amd.com/r/en-US/ug953-vivado-7series-libraries/LDCE",
+    "https://docs.amd.com/r/en-US/ug953-vivado-7series-libraries/LDPE"
+  ],
+  "stop_conditions": [
+    "源码/器件绑定不符",
+    "OOM 或综合错误",
+    "报告生成失败",
+    "锁存器非零",
+    "主控观察到约定 10 分钟无进度超时"
+  ],
+  "no_progress_watchdog": "由主控观察batch进程；batch入口仅退出本次独立进程，不关闭其他Vivado会话。",
+  "environment_isolation": "Python启动统一使用-I -B，忽略Vivado继承的PYTHONHOME/PYTHONPATH；Tcl source显式UTF-8。",
+  "prior_failed_run_ids": [
+    "xc7z020_2_ooc_20261008_r01",
+    "xc7z020_2_ooc_20261008_r02"
+  ],
+  "recovery_scope": "r01的Python环境污染通过-I -B修复；r02的ENTERPRISE过期阻碍由主控验证进程级BASIC选择，14RTL/接口/综合参数不变。",
+  "checkpoint_keep_reason": "保留本次所选器件综合后网表，供资源、锁存器与未约束路径独立复核。",
+  "limitations": [
+    "无 XDC/冻结时钟，不产生 timing closure 或频率达标结论。",
+    "不运行实现、板上测试或 109 样本整网回归。"
+  ]
+}

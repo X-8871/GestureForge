@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "run_id": "xc7z020_2_ooc_20261008_r02",
+  "actual_tier_tool_result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"exit_code\": 0,\n  \"output\": \"ACTUAL_LICENSE_TIER=ENTERPRISE\\r\\nTIER_COMMANDS=get_vivado_tier\\r\\nLICENSE_COMMANDS=\",\n  \"task_progress\": \"1/4: 同源全核心 OOC 综合及资源/锁存器/时钟风险报告 (active, 5m43s) | Next: 独立审查、必要修复与补充正式验收记录\"\n}"
+      }
+    ]
+  },
+  "actual_synthesis_result": "Tcl exit1; Common17-348 license feature found but expired, Common17-345 valid license not found; no synthesis output reports or DCP",
+  "actual_synthesis_not_passed": true,
+  "source_bindings_passed": 14,
+  "python_isolation_actual_exit_code": 0,
+  "initial_attempt_run_id": "xc7z020_2_ooc_20261008_r01",
+  "license_files_read": false,
+  "license_files_modified": false,
+  "private_account_accessed": false,
+  "user_reply": "尚未取得，需要申请免费 BASIC 许可",
+  "next_required_input": "用户从AMD官方账户生成有效Vivado 2026.1 BASIC许可，并提供精确文件路径或许可状态；只对本任务新建会话配置许可路径，在全新RunId执行同源OOC，不修改任何旧证据。",
+  "official_sources": [
+    {
+      "url": "https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/licensing-faq.html",
+      "verified_fact": "2026.1 BASIC需有效年度许可，可免费申请；2025.2及更早Standard无许可要求的规则不适用于2026.1。多tier选择受许可文件搜索顺序影响，官方建议按tier分开配置；本轮未改文件。"
+    },
+    {
+      "url": "https://www.amd.com/en/products/software/adaptive-socs-and-fpgas/vivado/vivado-licensing-options.html",
+      "verified_fact": "BASIC支持7系列（包括Zynq7000）。"
+    }
+  ],
+  "limitations": [
+    "Vivado startup识别ENTERPRISE且称active不能代替实际Synthesis checkout；本次实际checkout失败。",
+    "未证明现有BASIC可用；用户明确尚未取得有效BASIC许可。",
+    "不能沿用旧XA器件资源数字冒充新XC综合结果。"
+  ]
+}

@@ -170,7 +170,7 @@ int main(void)
     }
     if (send_line("UART base=0x%08lX baud=115200 data=8 parity=N stop=1 flow=NONE clock_hz=%lu\r\n",
                   (unsigned long)uart.Config.BaseAddress,
-                  (unsigned long)uart.InputClockHz) != XST_SUCCESS) {
+                  (unsigned long)uart.Config.InputClockHz) != XST_SUCCESS) {
         publish_result(0x83U);
         return XST_FAILURE;
     }

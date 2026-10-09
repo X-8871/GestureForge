@@ -1,0 +1,136 @@
+{
+  "task_id": "R-PS-SMOKE-RUNNER-07",
+  "verdict": "PASS",
+  "baseline_head": "117911e63cd7468418f11847ffedc9293dbca075",
+  "reviewed_file": "report/evidence/S2B-T06/ps_jtag_retry_20261009_165853_r02/ps_smoke_runner.py",
+  "reviewed_sha256": "5265f0989a3e69e80677b12548ffe19ebcd48a0bdafb80c270bbf1fa2833bb81",
+  "reviewed_bytes": 33454,
+  "reviewed_lines": 532,
+  "previous_source_sha256": "9bd1915bab31672fc913c2677c260234d4231129d50dfb084224a7c78cfe7962",
+  "inherited_static_review": {
+    "receipt": "tmp/2B/S2B-T06/ps_runner_review_20261009_r01/review_receipt_r02.json",
+    "sha256": "7a22431108dd3a8e181ed73646359eea506a8813f1c7a50bebb78b775a7061b0"
+  },
+  "operation_package_sha256": "c15290c48ccbc03c55418c2efa0ca2df815eacdeffb60e53363eca4fba490db5",
+  "approved_profile_sha256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55",
+  "authorization_sha256": "47158aa48a0eb6f1a8781f5e9c291b5cb0a37a63e1f777340bcd1136b70b5dac",
+  "fixed_input_sha_checks": {
+    "declared": 14,
+    "actually_matched": 14
+  },
+  "scope": [
+    "严格UTF8读取与逐字审查全部5块差异：新Run、旧读回精确路径、历史身份用途、初始当前连接停核、最后观测范围。",
+    "撤回5块实际diff可完整恢复旧SHA；初始both_stopped之后所有原始前进及异常/清理字节一致。",
+    "固定包204/205及已安装target.stop源码核对：仅在当前Running时停核并重新确认Stopped，原exactPC/完整BOOT_MODE=0/OCM门禁继续满足后才能下载。"
+  ],
+  "diff_proof": {
+    "changes": [
+      [
+        "replace",
+        18,
+        18,
+        18,
+        18
+      ],
+      [
+        "replace",
+        30,
+        30,
+        30,
+        30
+      ],
+      [
+        "insert",
+        129,
+        128,
+        129,
+        129
+      ],
+      [
+        "insert",
+        377,
+        376,
+        378,
+        379
+      ],
+      [
+        "insert",
+        400,
+        399,
+        403,
+        414
+      ]
+    ],
+    "restored_old_sha256": "9bd1915bab31672fc913c2677c260234d4231129d50dfb084224a7c78cfe7962",
+    "unchanged_tail_sha256": "91165938a14d227704939e9c518b530d28912a55f5c79e67205709e908708fc6"
+  },
+  "behavior_findings": [
+    "目标唯一性和Target对象ctx/id/name已核验后，state函数先读取两核并拒绝未知状态；只当前Running才stop，停止请求及确认读数分别记录。",
+    "CPU1新增stop仅在初始连接前检；没有CPU1resume、reset、force或新增目标写接口。两次CPU0 dow/con与BP/result/rc及异常处理保持原字节。",
+    "旧ps_state_result只绑定同线缆/目标上下文，不证明当前停止或本次冷启动。final_states/final_pc仅表示disconnect前最后观测。",
+    "新增中文注释/字符串按UTF8阅读正常，未发现替换字符；不把Developer的编码/工具诊断视为硬件结果。"
+  ],
+  "prior_r01_observed_failure": {
+    "sha256": "d8db700dad1989205bcc5c7784af244656d0411b780e7d97288d0ed3e4be1ed1",
+    "status": "PS_SMOKE_FAILED",
+    "downloads": [],
+    "initial_states": "双核Running",
+    "final_states": {
+      "cpu0": "Stopped: (Suspended)",
+      "cpu1": "Running"
+    },
+    "final_pc": {
+      "cpu0": "FFFFFF28",
+      "cpu1": "FFFFFF34"
+    },
+    "cleanup_errors": [
+      "最终核状态：RuntimeError('最终两核停止状态不成立。')"
+    ],
+    "uart_raw_bytes": 0,
+    "uart_closed_reason": "stop_flag",
+    "uart_capture_exit_code": 0,
+    "uart_capture_cleanup_errors": []
+  },
+  "commands": [
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "精确路径、包204/205、SDK stop源码及原r01结果/串口关闭日志只读核验",
+      "native_exit_code": 0
+    },
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "新旧源码完整限定diff、严格UTF8、AST/内存compile(optimize=0)、白名单AST求值14项实际SHA及profile/authorization读取",
+      "native_exit_code": 0,
+      "python_version": "3.12.10 (MSC v.1943 64 bit AMD64)"
+    },
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "首次限定diff及逆替换；随后额外硬编码异常入口字符串未匹配导致Reviewer断言失败",
+      "native_exit_code": 1,
+      "failure_class": "REVIEW_TOOL_ASSERTION",
+      "raw_tool_stdout_stderr_text": "CHANGE replace OLD 18 18 NEW 18 18\r\nCHANGE replace OLD 30 30 NEW 30 30\r\nCHANGE insert OLD 129 128 NEW 129 129\r\nCHANGE insert OLD 377 376 NEW 378 379\r\nCHANGE insert OLD 400 399 NEW 403 414\r\nRESTORED_OLD_SHA 9bd1915bab31672fc913c2677c260234d4231129d50dfb084224a7c78cfe7962\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 28, in <module>\r\nAssertionError\r\n"
+    },
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "改用实际diff位置核对全部尾段字节；恢复旧SHA、AST门禁/接口计数、内存compile；精确核验新隔离目录父路径及无大小写冲突后创建",
+      "native_exit_code": 0,
+      "raw_tool_stdout_stderr_text": "EXACT_FIVE_CHANGES [('replace', 17, 18, 17, 18), ('replace', 29, 30, 29, 30), ('insert', 128, 128, 128, 129), ('insert', 376, 376, 377, 379), ('insert', 399, 399, 402, 414)]\r\nRESTORED_OLD_SHA 9bd1915bab31672fc913c2677c260234d4231129d50dfb084224a7c78cfe7962\r\nTAIL_FROM_BOTH_STOPPED_THROUGH_ALL_FORWARD_AND_CLEANUP_BYTE_IDENTICAL 91165938a14d227704939e9c518b530d28912a55f5c79e67205709e908708fc6\r\nREVIEW_DIRECTORY C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\ps_runner_session_review_20261009_r02\r\nSTATIC_PASS_NO_DEVICE_ACCESS\r\n"
+    },
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "准确诊断首个审查断言：downloads.append有2处、operation_gate入口有1处、假定异常入口字符串实际0处；该1非源或硬件失败",
+      "native_exit_code": 0
+    }
+  ],
+  "limits": [
+    "没有执行runner/probe、导入xsdb、设备API、3121/JTAG连接或串口访问，也未启动server；仅静态解析、编译和只读证据核验。",
+    "PASS限本次冻结差异与执行范围；UART身份及envSHA、当前进程归属、两核停核/PC/BOOT_MODE/OCM、每次前进门禁仍须总控真实执行。",
+    "本收据不表示PS初始化、UART、DDR或G3/阶段验收通过；旧失败与开发/审查工具失败保留。",
+    "Reviewer不改旧Run、被审源、STATE或Git，仅在新隔离审查目录写入本收据。"
+  ]
+}

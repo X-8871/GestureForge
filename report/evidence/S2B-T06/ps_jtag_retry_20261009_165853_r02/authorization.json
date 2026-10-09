@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "user_authorization": "接下来我会把板子和UART接到电脑上，你去操作完成实板 PS 初始化、UART/DDR 检查并回传日志",
+  "user_steering": ["已经接上了，你自己去调试检查", "再试一次", "已换成JTAG模式", "照片在这", "继续"],
+  "scope": "固定PS-only包的CPU0 OCM初始化及1MiB UART/DDR检查；当前唯一目标验证后，在同一连接中对Running双核stop并重读全部初始门禁。",
+  "retry_reason": "r01在当前连接发现双核Running，下载前拒绝；对应程序/数据未执行。按照固定操作包204/205补齐当前连接双核停核，不绕过PC/BOOT_MODE/OCM及其他门禁。",
+  "previous_failure": {
+    "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ps_smoke_result.json",
+    "sha256": "d8db700dad1989205bcc5c7784af244656d0411b780e7d97288d0ed3e4be1ed1"
+  },
+  "server_reuse": {
+    "source_run": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01",
+    "native_pid": 39576,
+    "launcher_pid": 37840,
+    "native_creation_filetime_utc": "134359925214792270",
+    "native_path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+    "identity_sha256": "e8771c4e850f73531fa83cd51fb83fcc0ab9c052631d18ab348750a97918be72",
+    "note": "复用归属已确认且持续存活的本任务服务；没有启动第二个hw_server。启动日志位于source_run，最终归属核验/释放日志在本Run。"
+  },
+  "physical_profile_sha256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55",
+  "limits": ["不复位或强制写寄存器绕过门禁。", "不加载PL/旧boot image，不写非易失存储，不部署模型或推送。", "物理照片和资料仅为已审的候选工程依据，初始化/UART/DDR必须以本次真实结果判定。"]
+}

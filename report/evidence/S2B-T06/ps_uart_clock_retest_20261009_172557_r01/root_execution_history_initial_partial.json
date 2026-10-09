@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "scope": "root对新warm Run的真实准备、执行、采集、闭合和原字节核验。成功PS初始化来自旧r02；本Run仅重跑修正后的smoke。",
+  "events": [
+    {
+      "store_key": "s2b_uart_clock_retest_creation_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_receipt_copy_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_code_receipt_copy_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_inventory_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_uart_start_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_frozen_hash_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_runner_receipt_copy_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_smoke_execution_initial",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_smoke_execution_final",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_uart_stop_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_result_inspection_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_server_stop_execution",
+      "actual_saved_value": null
+    },
+    {
+      "store_key": "s2b_uart_clock_retest_analysis_execution",
+      "actual_saved_value": {
+        "command": "python -X utf8 -B report/evidence/S2B-T06/ps_uart_clock_retest_20261009_172557_r01/analyze_uart.py",
+        "result": {
+          "chunk_id": "a408e8",
+          "wall_time_seconds": 0.5491134,
+          "exit_code": 0,
+          "original_token_count": 469,
+          "output": "{\r\n  \"schema_version\": 1,\r\n  \"checked_at_utc8\": \"2026-10-09T17:49:25.133163+08:00\",\r\n  \"status\": \"PASS_UART_DDR_RETEST\",\r\n  \"ps_initialization\": \"PRIOR_SUCCESS_REUSED_NOT_RERUN\",\r\n  \"hardware_gates_ok\": true,\r\n  \"prior_initialization_binding_ok\": true,\r\n  \"capture_closure_ok\": true,\r\n  \"complete_23_line_raw_protocol_ok\": true,\r\n  \"breakpoint_install_and_one_hit_ok\": true,\r\n  \"uart_raw_sha256\": \"7c6bcaf7ff15c8e73212e261fccb903bdbd567279cf4218a08ad824e477875c2\",\r\n  \"uart_raw_bytes\": 1453,\r\n  \"ps_smoke_result_sha256\": \"c3f968f1661eb79e592689553874b551b996def8f18c3c2f289d8185b266acb0\",\r\n  \"prior_result_sha256\": \"f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8\",\r\n  \"pattern_pass_count\": 16,\r\n  \"verified_words\": 4194304,\r\n  \"mismatches\": 0,\r\n  \"reported_config_clock_hz\": 100000000,\r\n  \"clock_measurement\": \"NOT_RUN\",\r\n  \"capture_closed_record\": {\r\n    \"time\": \"2026-10-09T17:42:44.4601692+08:00\",\r\n    \"port\": \"COM4\",\r\n    \"raw_path\": \"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\uart_raw.bin\",\r\n    \"opened\": true,\r\n    \"raw_created\": true,\r\n    \"captured_bytes\": 1453,\r\n    \"reason\": \"stop_flag\",\r\n    \"limit_600s_reached\": false,\r\n    \"stop_flag_seen\": true,\r\n    \"elapsed_seconds\": 270.5159856,\r\n    \"failure_message\": null,\r\n    \"cleanup_errors\": [],\r\n    \"exit_code\": 0\r\n  },\r\n  \"limits\": [\r\n    \"本Run仅重跑修正诊断字段的smoke；真实PS初始化发生在绑定的旧r02，不是本Run重新初始化。\",\r\n    \"100MHz是BSP软件配置值，不是实测时钟频率。\",\r\n    \"只验证固定1MiB DDR区域，不是全容量扫描、长期稳定性或带宽测试。\",\r\n    \"两核停止仅为最后会话内观测，不代表断开后的持续监测。\",\r\n    \"此实板功能结果不代表阶段2B完整PS/PL/AXI接口或G4/G5验收。\"\r\n  ]\r\n}\r\n"
+        }
+      }
+    }
+  ],
+  "overall_result": "PASS_UART_DDR_RETEST",
+  "limits": [
+    "静态审查、真实下载/运行及UART原始字节分别判定；launcher0不替代业务结果。",
+    "native服务关闭记录为自有服务/父进程身份及端口实查；CPU最后状态只有disconnect前观测，不声称持续停止。",
+    "时钟字段为BSP配置，频率未用仪器测量。",
+    "固定1MiB区域，不是全DDR或阶段2B G5验收。",
+    "峰值内存与全部上层工具调用量未测。"
+  ]
+}

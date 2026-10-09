@@ -1,0 +1,42 @@
+{
+  "task_id": "R-PS-SMOKE-RUNNER-06",
+  "round": 2,
+  "verdict": "PASS",
+  "baseline_head": "117911e63cd7468418f11847ffedc9293dbca075",
+  "reviewed_file": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ps_smoke_runner.py",
+  "reviewed_sha256": "9bd1915bab31672fc913c2677c260234d4231129d50dfb084224a7c78cfe7962",
+  "reviewed_bytes": 32162,
+  "reviewed_lines": 517,
+  "inherits_static_review": {
+    "receipt": "review_receipt.json",
+    "sha256": "b0be795349bf59f0ffb24b090df15b4220ec7b72d2bfc9bb01f9cbc667f4f11d",
+    "old_source_sha256": "4a37e60e861576a324ad7a01ad6c22602eb86e8aa4eabac10c97ab0b382c9ffb",
+    "scope": "保留首轮固定14项实际SHA、操作包、已审profile、已安装SDK语义及runner完整前进/异常/清理审查结论。"
+  },
+  "closed_findings": [
+    {"id": "BOOT_EXACT_ZERO", "line": 405, "closure": "实际条件boot_mode != 0，非零完整值在首次dow前阻断。", "byte_proof": "仅将新源码这一处boot_mode != 0逆替换为原掩码表达式，全部原字节SHA恢复4a37e60e861576a324ad7a01ad6c22602eb86e8aa4eabac10c97ab0b382c9ffb。"}
+  ],
+  "commands": [
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "精确路径/大小写/reparse核验；冻结SHA及32162字节/517行核验；在内存中逆替换并核对完整旧SHA；AST确认唯一boot_mode直接比较为NotEq整数0；compile(dont_inherit=True,optimize=0)仅生成内存代码对象。",
+      "native_exit_code": 0,
+      "python_version": "3.12.10 (MSC v.1943 64 bit AMD64)"
+    },
+    {
+      "shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc",
+      "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -",
+      "stdin_scope": "精确复核隔离目录、首轮收据类型/JSON/SHA及新收据名称尚不存在。",
+      "native_exit_code": 0
+    }
+  ],
+  "success_scope": "独立静态源码/API/输入版本与已授权PS-only执行范围审查通过；允许总控进入实际现场门禁核验。",
+  "limits": [
+    "未执行runner/probe或导入xsdb；未调用设备API、连接3121/JTAG、打开COM或启动server；未运行硬件或源码测试。",
+    "UART身份文件与强制环境SHA尚未生成，必须由总控真实采集启动并由runner逐次核验；本次PASS不表示UART日志、DDR、G3或阶段验收通过。",
+    "首次重新读取状态/两核PC/BOOT_MODE/OCM及每次dow/con前实时归属、停核、PC和UART门禁仍须实际全部满足。",
+    "cold_jtag_proven=false仅说明软件不独立证明物理冷启动；本次物理依据继续由已审profile和真实寄存器/PC读数绑定。",
+    "被审文件、STATE、Git分支/index未由Reviewer修改；两轮收据保留，不覆盖首轮CHANGES_REQUIRED。"
+  ]
+}

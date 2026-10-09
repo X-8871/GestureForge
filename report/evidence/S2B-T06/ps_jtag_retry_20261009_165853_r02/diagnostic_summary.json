@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T06",
+  "run_id": "ps_jtag_retry_20261009_165853_r02",
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "timezone": "Asia/Shanghai",
+  "status": "PASS_FUNCTIONAL_WITH_CLOCK_REPORT_DEFECT",
+  "scope": "固定旧版PS-only初始化及1MiB DDR/UART实测；clock缺陷单列。",
+  "executed_runner_sha256": "5265f0989a3e69e80677b12548ffe19ebcd48a0bdafb80c270bbf1fa2833bb81",
+  "download_count": 2,
+  "ps_initialization": "PASS_HARDWARE_GATES",
+  "uart_ddr_functional": "PASS_LEGACY_VERSION",
+  "uart_capture": {
+    "time": "2026-10-09T17:10:58.2703550+08:00",
+    "port": "COM4",
+    "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\uart_raw.bin",
+    "opened": true,
+    "raw_created": true,
+    "captured_bytes": 1445,
+    "reason": "stop_flag",
+    "limit_600s_reached": false,
+    "stop_flag_seen": true,
+    "elapsed_seconds": 212.9239091,
+    "failure_message": null,
+    "cleanup_errors": [],
+    "exit_code": 0,
+    "raw_sha256": "c76cf9255c4ab4259c4eb5efa1501380af7e8397839caaa9d5fc6bf8713f7d60",
+    "capture_script_exit_code": 0,
+    "parent_process_exit_code": null
+  },
+  "final_states": {
+    "cpu0": "Stopped: (Breakpoint)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "final_pc": {
+    "cpu0": 1092952,
+    "cpu1": 4294967092
+  },
+  "final_observation_scope": "session断开前最后一次观测；断开后未持续监测。",
+  "cleanup_errors": [],
+  "performance": {
+    "runner_seconds": 14.42949929999304,
+    "runner_api_calls": 73,
+    "runner_host_queries": 12,
+    "runner_execution_count": 1,
+    "all_tool_calls": "未测",
+    "peak_memory": "未测"
+  },
+  "service_lifecycle": {
+    "path": "report/evidence/S2B-T06/ps_uart_clock_retest_20261009_172557_r01/hw_server_close.stdout.json",
+    "sha256": "f91b10f9a9722ef823c9d0654fc8f28c3e4f7031e0e9a789389a47f7cfce742c",
+    "status": "OWNED_SERVER_CLOSED",
+    "native_pid": 39576,
+    "launcher_pid": 37840,
+    "native_exited": true,
+    "launcher_exited": true,
+    "remaining_listeners": [],
+    "closed_at_utc8": "2026-10-09T17:43:28.4267257+08:00",
+    "cpu_resume_execution": "NOT_RUN"
+  },
+  "new_clock_fixed_version_hardware": {
+    "status": "PASS_SEPARATE_RUN",
+    "run_id": "ps_uart_clock_retest_20261009_172557_r01",
+    "raw_sha256": "7c6bcaf7ff15c8e73212e261fccb903bdbd567279cf4218a08ad824e477875c2",
+    "result_sha256": "c3f968f1661eb79e592689553874b551b996def8f18c3c2f289d8185b266acb0",
+    "legacy_result_not_inherited": true
+  },
+  "stage2b_g4": "BLOCKED",
+  "stage2b_g5": "BLOCKED",
+  "uart_functional": {
+    "lines": 23,
+    "pattern_pass_count": 16,
+    "verified_words": 4194304,
+    "mismatches": 0,
+    "ddr_begin": "0x01100000",
+    "ddr_end_exclusive": "0x01200000",
+    "ddr_bytes": 1048576
+  },
+  "clock_diagnostic": {
+    "status": "FAIL_DIAGNOSTIC_FIELD",
+    "reported_clock_hz": 0,
+    "generated_config_clock_hz": 100000000,
+    "physical_measurement": "NOT_RUN",
+    "cause": "旧应用打印uart.InputClockHz；实际初始化及波特率使用uart.Config.InputClockHz。",
+    "legacy_raw_unchanged": true
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T06",
+  "run_id": "ps_uart_clock_retest_20261009_172557_r01",
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "timezone": "Asia/Shanghai",
+  "status": "PASS_UART_DDR_RETEST",
+  "executed_runner_sha256": "7e9163194308503e33b8143adfd02ad46b6bcff0857a84eee29e0e471e437f15",
+  "actual_fixed_inputs": 21,
+  "environment_hashes": 2,
+  "ps_initialization": {
+    "status": "REUSED_PRIOR_SUCCESS",
+    "result_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\ps_smoke_result.json",
+    "result_sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8",
+    "init_elf_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_init.elf",
+    "init_elf_sha256": "366ad1f4831eba9db0510c0e5343d34e3b355f72c8f8bcae419903814246024c",
+    "init_result_address": 37376,
+    "init_result": 2,
+    "init_return_address": 14784,
+    "init_return_code": 0,
+    "executed_init_this_run": false,
+    "cold_boot_proven_this_run": false
+  },
+  "download_count": 1,
+  "smoke_execution": "PASS_HARDWARE_GATES_AND_UART",
+  "uart_acceptance": {
+    "schema_version": 1,
+    "checked_at_utc8": "2026-10-09T17:49:25.133163+08:00",
+    "status": "PASS_UART_DDR_RETEST",
+    "ps_initialization": "PRIOR_SUCCESS_REUSED_NOT_RERUN",
+    "hardware_gates_ok": true,
+    "prior_initialization_binding_ok": true,
+    "capture_closure_ok": true,
+    "complete_23_line_raw_protocol_ok": true,
+    "breakpoint_install_and_one_hit_ok": true,
+    "uart_raw_sha256": "7c6bcaf7ff15c8e73212e261fccb903bdbd567279cf4218a08ad824e477875c2",
+    "uart_raw_bytes": 1453,
+    "ps_smoke_result_sha256": "c3f968f1661eb79e592689553874b551b996def8f18c3c2f289d8185b266acb0",
+    "prior_result_sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8",
+    "pattern_pass_count": 16,
+    "verified_words": 4194304,
+    "mismatches": 0,
+    "reported_config_clock_hz": 100000000,
+    "clock_measurement": "NOT_RUN",
+    "capture_closed_record": {
+      "time": "2026-10-09T17:42:44.4601692+08:00",
+      "port": "COM4",
+      "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_raw.bin",
+      "opened": true,
+      "raw_created": true,
+      "captured_bytes": 1453,
+      "reason": "stop_flag",
+      "limit_600s_reached": false,
+      "stop_flag_seen": true,
+      "elapsed_seconds": 270.5159856,
+      "failure_message": null,
+      "cleanup_errors": [],
+      "exit_code": 0
+    },
+    "limits": [
+      "本Run仅重跑修正诊断字段的smoke；真实PS初始化发生在绑定的旧r02，不是本Run重新初始化。",
+      "100MHz是BSP软件配置值，不是实测时钟频率。",
+      "只验证固定1MiB DDR区域，不是全容量扫描、长期稳定性或带宽测试。",
+      "两核停止仅为最后会话内观测，不代表断开后的持续监测。",
+      "此实板功能结果不代表阶段2B完整PS/PL/AXI接口或G4/G5验收。"
+    ]
+  },
+  "final_states": {
+    "cpu0": "Stopped: (Breakpoint)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "final_pc": {
+    "cpu0": 1092952,
+    "cpu1": 4294967092
+  },
+  "final_observation_scope": "final_states/final_pc仅为本次会话内disconnect前的最后观测，不证明断开后仍保持停止。",
+  "cleanup_errors": [],
+  "service_lifecycle": {
+    "path": "report/evidence/S2B-T06/ps_uart_clock_retest_20261009_172557_r01/hw_server_close.stdout.json",
+    "sha256": "f91b10f9a9722ef823c9d0654fc8f28c3e4f7031e0e9a789389a47f7cfce742c",
+    "status": "OWNED_SERVER_CLOSED",
+    "native_pid": 39576,
+    "launcher_pid": 37840,
+    "native_exited": true,
+    "launcher_exited": true,
+    "remaining_listeners": [],
+    "closed_at_utc8": "2026-10-09T17:43:28.4267257+08:00",
+    "cpu_resume_execution": "NOT_RUN"
+  },
+  "performance": {
+    "runner_seconds": 9.267832500001532,
+    "runner_api_calls": 57,
+    "runner_host_queries": 8,
+    "wrapper_seconds": 10.8597605,
+    "wrapper_exit_code": 0,
+    "run_count": 1,
+    "peak_memory": "未测",
+    "all_tool_calls": "未测"
+  },
+  "root_history_limitation": {
+    "status": "PARTIAL_STORE_UNAVAILABLE",
+    "initial_partial_snapshot": "root_execution_history_initial_partial.json",
+    "snapshot_sha256": "d0a1c42e11ad96d18847dadc87d503ea006ddd3de0db477e5885717663e26fba",
+    "fact": "新用户消息后读取此前多项functions.store值为undefined；初次collector的null字段原字节保留。持久化SDK、UART及服务闭合证据完好，执行器调用/主机查询的完整命令及返回仍在session结果文件。",
+    "root_wrapper_source": "上面启动器时刻/退出码依据实际可见工具回传整理；不声明恢复了丢失store的完整原字节。"
+  },
+  "stage2b_physical_interface": "NOT_FROZEN",
+  "stage2b_g4": "BLOCKED",
+  "stage2b_g5": "BLOCKED",
+  "limitations": [
+    "本Run仅重跑修正诊断字段的smoke；真实PS初始化发生在绑定的旧r02，不是本Run重新初始化。",
+    "100MHz是BSP软件配置值，不是实测时钟频率。",
+    "只验证固定1MiB DDR区域，不是全容量扫描、长期稳定性或带宽测试。",
+    "两核停止仅为最后会话内观测，不代表断开后的持续监测。",
+    "此实板功能结果不代表阶段2B完整PS/PL/AXI接口或G4/G5验收。"
+  ]
+}

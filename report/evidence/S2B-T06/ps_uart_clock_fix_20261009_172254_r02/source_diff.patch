@@ -1,0 +1,26 @@
+diff --git a/vitis/s2b_ps_smoke.c b/vitis/s2b_ps_smoke.c
+index 65fcc76..cb725cc 100644
+--- a/vitis/s2b_ps_smoke.c
++++ b/vitis/s2b_ps_smoke.c
+@@ -170,7 +170,7 @@ int main(void)
+     }
+     if (send_line("UART base=0x%08lX baud=115200 data=8 parity=N stop=1 flow=NONE clock_hz=%lu\r\n",
+                   (unsigned long)uart.Config.BaseAddress,
+-                  (unsigned long)uart.InputClockHz) != XST_SUCCESS) {
++                  (unsigned long)uart.Config.InputClockHz) != XST_SUCCESS) {
+         publish_result(0x83U);
+         return XST_FAILURE;
+     }
+diff --git a/vitis/s2b_ps_smoke.md b/vitis/s2b_ps_smoke.md
+index ab8e65e..e3b29e0 100644
+--- a/vitis/s2b_ps_smoke.md
++++ b/vitis/s2b_ps_smoke.md
+@@ -8,6 +8,8 @@
+ 
+ `s2b_ps_smoke.c` 使用实际 SDT BSP 的 `XUartPs_LookupConfig(UINTPTR BaseAddress)`，UART1 基地址必须同时与 XSA、canonical BSP 宏及 BSP 的 stdin/stdout 一致。运行时配置 115200、8 数据位、无校验、1 停止位、无流控，关闭 UART 中断，并回读数据格式、工作模式及流控位。发送为每字节有界轮询；每个等待最多 10,000,000 次寄存器/驱动检查，这不是经过实测的秒数超时。
+ 
++UART 行的 `clock_hz` 输出 `uart.Config.InputClockHz`，即实际 BSP 配置表经 `XUartPs_CfgInitialize` 复制、供 `XUartPs_SetBaudRate` 计算使用的输入时钟；当前固定 XSA/BSP 值为 `100000000` Hz。此字段是软件配置值，不是运行时测量。旧 `build_08` 读取驱动未赋值的顶层 `uart.InputClockHz`，可输出 `0`；该诊断错误不改变驱动的波特率计算或 DDR 检查，旧产物及原始日志仍按原版本保留。
++
+ UART 首先输出 ASCII `BEGIN S2B-T06-1`，随后 `BUILD c_sha256=... xsa_sha256=...` 绑定本次实际C源码及固定XSA，再输出 UART 配置、buffer 起点和半开区间结束地址、字节数、word 数、对齐及缓存行及运行配置。BUILD 宏由构建时核验的文件SHA-256生成；`SMOKE_VERSION` 只标程序协议版本。BUILD 行不是运行ELF的自哈希，实际ELF仍由PC文件校验和授权下载记录绑定。UART 初始化失败返回非零并发布 `s2b_smoke_result=0x81`，UART 发送或格式化失败发布 `0x83`；UART 本身失效时不能保证发出 FAIL/END。状态对象64B对齐，每次发布都执行赋值、DSB、实际 BSP FlushRange、DSB，将状态写回 DDR，避免 DAP 物理读看到旧缓存值。状态 `2` 只在最终 PASS 和 END 全部发送成功后发布。
+ 
+ DDR 对象为 1 MiB、64 字节对齐、静态存储期的 `.s2b_smoke_buffer` 专属 NOLOAD 节。2 轮，每轮以下 8 个确定性模式，每项写入及核验 262,144 个 32-bit word。完整成功共核验 4,194,304 个 word。没有随机样本。

@@ -1,0 +1,1649 @@
+{
+  "started_at": "2026-10-09T17:41:48.877121+08:00",
+  "status": "HARDWARE_GATES_SAVED",
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "calls": [
+    {
+      "time": "2026-10-09T17:41:49.467818+08:00",
+      "host_query": "uart_capture_live",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $process=Get-CimInstance Win32_Process -Filter 'ProcessId=26332' | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $stream=[System.IO.File]::Open('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_capture_stdout.log',[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::ReadWrite); $reader=$null; try {$reader=[System.IO.StreamReader]::new($stream,[System.Text.UTF8Encoding]::new($false,$true),$false); $text=$reader.ReadToEnd()} finally {if ($null -ne $reader) {$reader.Dispose()} else {$stream.Dispose()}}; [pscustomobject]@{process=$process;log_text=$text;raw_bytes=([System.IO.FileInfo]::new('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_raw.bin')).Length}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"process\":  {\r\n                    \"ProcessId\":  26332,\r\n                    \"ParentProcessId\":  39136,\r\n                    \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\",\r\n                    \"CommandLine\":  \"\\\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\\\" -NoProfile -File \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_smoke_hw_20261009_101728_r01\\\\capture_uart.ps1\\\" -Port COM4 -RawPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\uart_raw.bin\\\" -StopFlagPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\stop_capture.flag\\\"\",\r\n                    \"CreationTimeFileTimeUtc\":  \"134360122933509170\"\r\n                },\r\n    \"log_text\":  \"CAPTURE_OPEN {\\\"time\\\":\\\"2026-10-09T17:38:13.9521193+08:00\\\",\\\"port\\\":\\\"COM4\\\",\\\"raw_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\uart_raw.bin\\\",\\\"stop_flag_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\stop_capture.flag\\\",\\\"baud\\\":115200,\\\"format\\\":\\\"8N1\\\",\\\"flow_control\\\":\\\"None\\\",\\\"dtr\\\":false,\\\"rts\\\":false,\\\"read_timeout_ms\\\":200,\\\"limit_seconds\\\":600}\\r\\n\",\r\n    \"raw_bytes\":  0\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:50.552552+08:00",
+      "host_query": "server_identity",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $launcher=Get-CimInstance Win32_Process -Filter 'ProcessId=37840' | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;launcher=$launcher;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  39576,\r\n                        \"ParentProcessId\":  37840,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359925214792270\"\r\n                    }\r\n                ],\r\n    \"launcher\":  {\r\n                     \"ProcessId\":  37840,\r\n                     \"ParentProcessId\":  23836,\r\n                     \"Name\":  \"cmd.exe\",\r\n                     \"ExecutablePath\":  \"C:\\\\WINDOWS\\\\system32\\\\cmd.exe\",\r\n                     \"CreationTimeFileTimeUtc\":  \"134359925208144680\"\r\n                 },\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  39576\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:51.148148+08:00",
+      "api": "xsdb.start_debug_session",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "<xsdb.session.Session object at 0x000002CBA4D6AE40>",
+      "return_type": "Session",
+      "finished_at": "2026-10-09T17:41:51.159476+08:00",
+      "elapsed_seconds": 0.011163400005898438,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:51.159533+08:00",
+      "api": "session.connect",
+      "args": [],
+      "kwargs": {
+        "host": "127.0.0.1",
+        "port": 3121,
+        "server": "hw_server"
+      },
+      "state": "DONE",
+      "return_repr": "'tcfchan#0'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:52.087792+08:00",
+      "elapsed_seconds": 0.9282539000123506,
+      "stdout": "tcfchan#0\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.231178+08:00",
+      "host_query": "server_identity",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $launcher=Get-CimInstance Win32_Process -Filter 'ProcessId=37840' | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;launcher=$launcher;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  39576,\r\n                        \"ParentProcessId\":  37840,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359925214792270\"\r\n                    }\r\n                ],\r\n    \"launcher\":  {\r\n                     \"ProcessId\":  37840,\r\n                     \"ParentProcessId\":  23836,\r\n                     \"Name\":  \"cmd.exe\",\r\n                     \"ExecutablePath\":  \"C:\\\\WINDOWS\\\\system32\\\\cmd.exe\",\r\n                     \"CreationTimeFileTimeUtc\":  \"134359925208144680\"\r\n                 },\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  39576\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.231319+08:00",
+      "api": "session.targets",
+      "args": [
+        "--target_properties"
+      ],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "{'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0': {'target_id': 1, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'level': 0, 'name': 'APU', 'parent_ctx': '', 'parent': '', 'state_reason': '', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0': {'target_id': 2, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0', 'level': 1, 'name': 'ARM Cortex-A9 MPCore #0', 'parent_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'parent': 'APU', 'state_reason': 'Hardware Breakpoint', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1': {'target_id': 3, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1', 'level': 1, 'name': 'ARM Cortex-A9 MPCore #1', 'parent_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'parent': 'APU', 'state_reason': 'Suspended', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-23727093-0': {'target_id': 4, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-23727093-0', 'level': 0, 'name': 'xc7z020', 'parent_ctx': '', 'parent': '', 'state_reason': '', 'is_current': 0, 'bscan': '', 'jtag_device_id': 3, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-23727093-0', 'jtag_device_index': 1, 'jtag_device_name': 'xc7z020', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}}",
+      "return_type": "dict",
+      "finished_at": "2026-10-09T17:41:53.239645+08:00",
+      "elapsed_seconds": 0.008314799997606315,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.239722+08:00",
+      "api": "session.targets",
+      "args": [],
+      "kwargs": {
+        "id": 2
+      },
+      "state": "DONE",
+      "return_repr": "<xsdb.target.Target object at 0x000002CBA4ED8A50>",
+      "return_type": "Target",
+      "finished_at": "2026-10-09T17:41:53.241328+08:00",
+      "elapsed_seconds": 0.0015968999941833317,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.241371+08:00",
+      "api": "session.targets",
+      "args": [],
+      "kwargs": {
+        "id": 3
+      },
+      "state": "DONE",
+      "return_repr": "<xsdb.target.Target object at 0x000002CBA4EC7360>",
+      "return_type": "Target",
+      "finished_at": "2026-10-09T17:41:53.242637+08:00",
+      "elapsed_seconds": 0.0012559000024339184,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.242671+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.242777+08:00",
+      "elapsed_seconds": 9.289999434258789e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.242803+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.242852+08:00",
+      "elapsed_seconds": 4.169999738223851e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.242874+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.242923+08:00",
+      "elapsed_seconds": 4.809998790733516e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.242969+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.243039+08:00",
+      "elapsed_seconds": 5.750000127591193e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.243078+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.243135+08:00",
+      "elapsed_seconds": 4.8000001697801054e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.243174+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.243230+08:00",
+      "elapsed_seconds": 4.47999918833375e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.243254+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.243309+08:00",
+      "elapsed_seconds": 4.9700000090524554e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.243348+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:53.243406+08:00",
+      "elapsed_seconds": 4.8999994760379195e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.243432+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:53.285194+08:00",
+      "elapsed_seconds": 0.041759799991268665,
+      "stdout": "pc: 0010ad58\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:53.285364+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:53.331601+08:00",
+      "elapsed_seconds": 0.04622590000508353,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.527342+08:00",
+      "host_query": "server_identity",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $launcher=Get-CimInstance Win32_Process -Filter 'ProcessId=37840' | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;launcher=$launcher;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  39576,\r\n                        \"ParentProcessId\":  37840,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359925214792270\"\r\n                    }\r\n                ],\r\n    \"launcher\":  {\r\n                     \"ProcessId\":  37840,\r\n                     \"ParentProcessId\":  23836,\r\n                     \"Name\":  \"cmd.exe\",\r\n                     \"ExecutablePath\":  \"C:\\\\WINDOWS\\\\system32\\\\cmd.exe\",\r\n                     \"CreationTimeFileTimeUtc\":  \"134359925208144680\"\r\n                 },\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  39576\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.527480+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:54.527607+08:00",
+      "elapsed_seconds": 0.00011570000788196921,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.527654+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:54.527733+08:00",
+      "elapsed_seconds": 6.940000457689166e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.527781+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:54.535864+08:00",
+      "elapsed_seconds": 0.008077299993601628,
+      "stdout": "pc: 0010ad58\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.536011+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:54.541602+08:00",
+      "elapsed_seconds": 0.005542200000490993,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.541658+08:00",
+      "api": "cpu0.mrd.BOOT_MODE_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160750172,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "0",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.543782+08:00",
+      "elapsed_seconds": 0.0021118000004207715,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.543824+08:00",
+      "api": "cpu0.mrd.OCM_CFG_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160751888,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "24",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.544899+08:00",
+      "elapsed_seconds": 0.0010677000100258738,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.544941+08:00",
+      "api": "cpu0.mrd.INIT_RESULT_REUSED_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 37376,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "2",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.546158+08:00",
+      "elapsed_seconds": 0.001206299988552928,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.546196+08:00",
+      "api": "cpu0.mrd.INIT_RETURN_CODE_REUSED_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 14784,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "0",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.547506+08:00",
+      "elapsed_seconds": 0.0013041999918641523,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.547552+08:00",
+      "api": "cpu0.mrd.PRIOR_SMOKE_RESULT_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 1130816,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "2",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.548730+08:00",
+      "elapsed_seconds": 0.001167199996416457,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.548767+08:00",
+      "api": "cpu0.mrd.PRIOR_END_INSTRUCTION_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 1092952,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "3942645758",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:54.549842+08:00",
+      "elapsed_seconds": 0.001066600001649931,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.911078+08:00",
+      "host_query": "uart_capture_live",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $process=Get-CimInstance Win32_Process -Filter 'ProcessId=26332' | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $stream=[System.IO.File]::Open('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_capture_stdout.log',[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::ReadWrite); $reader=$null; try {$reader=[System.IO.StreamReader]::new($stream,[System.Text.UTF8Encoding]::new($false,$true),$false); $text=$reader.ReadToEnd()} finally {if ($null -ne $reader) {$reader.Dispose()} else {$stream.Dispose()}}; [pscustomobject]@{process=$process;log_text=$text;raw_bytes=([System.IO.FileInfo]::new('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_raw.bin')).Length}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"process\":  {\r\n                    \"ProcessId\":  26332,\r\n                    \"ParentProcessId\":  39136,\r\n                    \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\",\r\n                    \"CommandLine\":  \"\\\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\\\" -NoProfile -File \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_smoke_hw_20261009_101728_r01\\\\capture_uart.ps1\\\" -Port COM4 -RawPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\uart_raw.bin\\\" -StopFlagPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\stop_capture.flag\\\"\",\r\n                    \"CreationTimeFileTimeUtc\":  \"134360122933509170\"\r\n                },\r\n    \"log_text\":  \"CAPTURE_OPEN {\\\"time\\\":\\\"2026-10-09T17:38:13.9521193+08:00\\\",\\\"port\\\":\\\"COM4\\\",\\\"raw_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\uart_raw.bin\\\",\\\"stop_flag_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\stop_capture.flag\\\",\\\"baud\\\":115200,\\\"format\\\":\\\"8N1\\\",\\\"flow_control\\\":\\\"None\\\",\\\"dtr\\\":false,\\\"rts\\\":false,\\\"read_timeout_ms\\\":200,\\\"limit_seconds\\\":600}\\r\\n\",\r\n    \"raw_bytes\":  0\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:54.914670+08:00",
+      "api": "cpu0.dow.smoke",
+      "args": [],
+      "kwargs": {
+        "file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\s2b_ps_smoke.elf",
+        "auto_stop": true,
+        "set_entry": true
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:55.179649+08:00",
+      "elapsed_seconds": 0.26494979999552015,
+      "stdout": "0%   0MB   0MB/s  ??:?? ETA\rDownloading Program -- C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\s2b_ps_smoke.elf \n    section, .text: 0x00100000 - 0x0010b3a3\n    section, .init: 0x0010b3a4 - 0x0010b3af\n    section, .fini: 0x0010b3b0 - 0x0010b3bb\n    section, .rodata: 0x0010b3c0 - 0x0010bcfa\n    section, .data: 0x0010bd00 - 0x0010c3f7\n    section, .eh_frame: 0x0010c3f8 - 0x0010c46b\n    section, .mmu_tbl: 0x00110000 - 0x00113fff\n    section, .ARM.exidx: 0x00114000 - 0x00114007\n    section, .init_array: 0x00114008 - 0x0011400f\n    section, .fini_array: 0x00114010 - 0x00114013\n    section, .drvcfg_sec: 0x00114014 - 0x00114053\n    section, .bss: 0x00114080 - 0x0011431c\n    section, .heap: 0x0011431d - 0x0011831f\n    section, .stack: 0x00118320 - 0x0011db1f\n    section, .s2b_smoke_buffer: 0x01100000 - 0x011fffff\n\n100%    0.05MB    0.28MB/s    00:00\r100%    0.06MB    0.24MB/s    00:00\rSuccessfully downloaded  C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\s2b_ps_smoke.elf\nSetting PC to Program Start Address 0x00100000\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.179714+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:55.179796+08:00",
+      "elapsed_seconds": 7.449999975506216e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.179840+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:55.179918+08:00",
+      "elapsed_seconds": 6.760000542271882e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.179945+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:55.186217+08:00",
+      "elapsed_seconds": 0.006261600006837398,
+      "stdout": "pc: 00100000\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.186273+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:55.192165+08:00",
+      "elapsed_seconds": 0.005885599995963275,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.192228+08:00",
+      "api": "cpu0.bpadd.end",
+      "args": [],
+      "kwargs": {
+        "addr": "0x0010AD58",
+        "type": "hw"
+      },
+      "state": "DONE",
+      "return_repr": "<xsdb._breakpoint.Breakpoint object at 0x000002CBA4EB8EC0>",
+      "return_type": "Breakpoint",
+      "finished_at": "2026-10-09T17:41:55.194673+08:00",
+      "elapsed_seconds": 0.002435200003674254,
+      "stdout": "Info: Breakpoint 0 status: \n\t target 2: {Address: 0x10ad58 Type: Hardware}\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.194724+08:00",
+      "api": "bp.status.end",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "('target 2: HitCount 0 Address 0x10ad58 Size 1 BreakpointType Hardware\\n', {2: {'HitCount': 0, 'Address': '0x10ad58', 'Size': 1, 'BreakpointType': 'Hardware'}})",
+      "return_type": "tuple",
+      "finished_at": "2026-10-09T17:41:55.195285+08:00",
+      "elapsed_seconds": 0.0005522999999811873,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:55.195405+08:00",
+      "api": "bp.status.end_before_con",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "('target 2: HitCount 0 Address 0x10ad58 Size 1 BreakpointType Hardware\\n', {2: {'HitCount': 0, 'Address': '0x10ad58', 'Size': 1, 'BreakpointType': 'Hardware'}})",
+      "return_type": "tuple",
+      "finished_at": "2026-10-09T17:41:55.195941+08:00",
+      "elapsed_seconds": 0.0005223000043770298,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.376104+08:00",
+      "host_query": "server_identity",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $launcher=Get-CimInstance Win32_Process -Filter 'ProcessId=37840' | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;launcher=$launcher;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  39576,\r\n                        \"ParentProcessId\":  37840,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359925214792270\"\r\n                    }\r\n                ],\r\n    \"launcher\":  {\r\n                     \"ProcessId\":  37840,\r\n                     \"ParentProcessId\":  23836,\r\n                     \"Name\":  \"cmd.exe\",\r\n                     \"ExecutablePath\":  \"C:\\\\WINDOWS\\\\system32\\\\cmd.exe\",\r\n                     \"CreationTimeFileTimeUtc\":  \"134359925208144680\"\r\n                 },\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  39576\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.376252+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Hardware Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:56.376433+08:00",
+      "elapsed_seconds": 0.00017079999088309705,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.376483+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:56.376563+08:00",
+      "elapsed_seconds": 7.049999840091914e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.376596+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:56.391233+08:00",
+      "elapsed_seconds": 0.01463299999886658,
+      "stdout": "pc: 00100000\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.391283+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:56.397239+08:00",
+      "elapsed_seconds": 0.005950199993094429,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.397303+08:00",
+      "api": "cpu0.mrd.BOOT_MODE_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160750172,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "0",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:56.398844+08:00",
+      "elapsed_seconds": 0.001531400004751049,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.398888+08:00",
+      "api": "cpu0.mrd.OCM_CFG_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160751888,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "24",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:56.399865+08:00",
+      "elapsed_seconds": 0.000967200001468882,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.399903+08:00",
+      "api": "cpu0.mrd.INIT_RESULT_REUSED_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 37376,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "2",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:56.401038+08:00",
+      "elapsed_seconds": 0.001124700007494539,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.401076+08:00",
+      "api": "cpu0.mrd.INIT_RETURN_CODE_REUSED_GATE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 14784,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "0",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:56.402208+08:00",
+      "elapsed_seconds": 0.0011247999937040731,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.749781+08:00",
+      "host_query": "uart_capture_live",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $process=Get-CimInstance Win32_Process -Filter 'ProcessId=26332' | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $stream=[System.IO.File]::Open('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_capture_stdout.log',[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::ReadWrite); $reader=$null; try {$reader=[System.IO.StreamReader]::new($stream,[System.Text.UTF8Encoding]::new($false,$true),$false); $text=$reader.ReadToEnd()} finally {if ($null -ne $reader) {$reader.Dispose()} else {$stream.Dispose()}}; [pscustomobject]@{process=$process;log_text=$text;raw_bytes=([System.IO.FileInfo]::new('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_raw.bin')).Length}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"process\":  {\r\n                    \"ProcessId\":  26332,\r\n                    \"ParentProcessId\":  39136,\r\n                    \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\",\r\n                    \"CommandLine\":  \"\\\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\\\" -NoProfile -File \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_smoke_hw_20261009_101728_r01\\\\capture_uart.ps1\\\" -Port COM4 -RawPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\uart_raw.bin\\\" -StopFlagPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\stop_capture.flag\\\"\",\r\n                    \"CreationTimeFileTimeUtc\":  \"134360122933509170\"\r\n                },\r\n    \"log_text\":  \"CAPTURE_OPEN {\\\"time\\\":\\\"2026-10-09T17:38:13.9521193+08:00\\\",\\\"port\\\":\\\"COM4\\\",\\\"raw_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\uart_raw.bin\\\",\\\"stop_flag_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\stop_capture.flag\\\",\\\"baud\\\":115200,\\\"format\\\":\\\"8N1\\\",\\\"flow_control\\\":\\\"None\\\",\\\"dtr\\\":false,\\\"rts\\\":false,\\\"read_timeout_ms\\\":200,\\\"limit_seconds\\\":600}\\r\\n\",\r\n    \"raw_bytes\":  0\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:56.753166+08:00",
+      "api": "cpu0.con.smoke",
+      "args": [
+        "--block"
+      ],
+      "kwargs": {
+        "timeout": 120
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:57.761384+08:00",
+      "elapsed_seconds": 1.0081831999996211,
+      "stdout": "Info: ARM Cortex-A9 MPCore #0 (target 2) Running\nInfo: ARM Cortex-A9 MPCore #0 (target 2) Stopped at 0x10ad58 (Breakpoint)\n_exit() at _exit.c: 16\n16: ;\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.761590+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:57.761697+08:00",
+      "elapsed_seconds": 6.78000069456175e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.761736+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:57.761791+08:00",
+      "elapsed_seconds": 4.490000719670206e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.761816+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:57.770516+08:00",
+      "elapsed_seconds": 0.008685699998750351,
+      "stdout": "pc: 0010ad58\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.770572+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:57.776165+08:00",
+      "elapsed_seconds": 0.005585399994743057,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.776211+08:00",
+      "api": "cpu0.mrd.SMOKE_RESULT",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 1130816,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "2",
+      "return_type": "int",
+      "finished_at": "2026-10-09T17:41:57.778208+08:00",
+      "elapsed_seconds": 0.0019748000049730763,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.778246+08:00",
+      "api": "bp.status.end_after_con",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "('target 2: HitCount 1 Address 0x10ad58 Size 1 BreakpointType Hardware\\n', {2: {'HitCount': 1, 'Address': '0x10ad58', 'Size': 1, 'BreakpointType': 'Hardware'}})",
+      "return_type": "tuple",
+      "finished_at": "2026-10-09T17:41:57.778963+08:00",
+      "elapsed_seconds": 0.0007072000007610768,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:57.778999+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:57.785950+08:00",
+      "elapsed_seconds": 0.006943400003365241,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.120848+08:00",
+      "host_query": "uart_capture_live",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $process=Get-CimInstance Win32_Process -Filter 'ProcessId=26332' | Select-Object ProcessId,ParentProcessId,ExecutablePath,CommandLine,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}; $stream=[System.IO.File]::Open('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_capture_stdout.log',[System.IO.FileMode]::Open,[System.IO.FileAccess]::Read,[System.IO.FileShare]::ReadWrite); $reader=$null; try {$reader=[System.IO.StreamReader]::new($stream,[System.Text.UTF8Encoding]::new($false,$true),$false); $text=$reader.ReadToEnd()} finally {if ($null -ne $reader) {$reader.Dispose()} else {$stream.Dispose()}}; [pscustomobject]@{process=$process;log_text=$text;raw_bytes=([System.IO.FileInfo]::new('C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\uart_raw.bin')).Length}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"process\":  {\r\n                    \"ProcessId\":  26332,\r\n                    \"ParentProcessId\":  39136,\r\n                    \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\",\r\n                    \"CommandLine\":  \"\\\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\native\\\\powershell\\\\pwsh.exe\\\" -NoProfile -File \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_smoke_hw_20261009_101728_r01\\\\capture_uart.ps1\\\" -Port COM4 -RawPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\uart_raw.bin\\\" -StopFlagPath \\\"C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2B-T06\\\\ps_uart_clock_retest_20261009_172557_r01\\\\stop_capture.flag\\\"\",\r\n                    \"CreationTimeFileTimeUtc\":  \"134360122933509170\"\r\n                },\r\n    \"log_text\":  \"CAPTURE_OPEN {\\\"time\\\":\\\"2026-10-09T17:38:13.9521193+08:00\\\",\\\"port\\\":\\\"COM4\\\",\\\"raw_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\uart_raw.bin\\\",\\\"stop_flag_path\\\":\\\"C:\\\\\\\\Users\\\\\\\\22061\\\\\\\\.codex\\\\\\\\worktrees\\\\\\\\96a3\\\\\\\\FPGA_Competition\\\\\\\\report\\\\\\\\evidence\\\\\\\\S2B-T06\\\\\\\\ps_uart_clock_retest_20261009_172557_r01\\\\\\\\stop_capture.flag\\\",\\\"baud\\\":115200,\\\"format\\\":\\\"8N1\\\",\\\"flow_control\\\":\\\"None\\\",\\\"dtr\\\":false,\\\"rts\\\":false,\\\"read_timeout_ms\\\":200,\\\"limit_seconds\\\":600}\\r\\nBEGIN S2B-T06-1\\r\\nBUILD c_sha256=8b4bfcf517c821a7c345ec7af61ebf1eb5120a32cc827c22b2be25887c8edef5 xsa_sha256=a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58\\r\\nUART base=0xE0001000 baud=115200 data=8 parity=N stop=1 flow=NONE clock_hz=100000000\\r\\nBUFFER begin=0x01100000 end_exclusive=0x01200000 bytes=1048576 words=262144 align=64 cacheline=32\\r\\nCONFIG cpu=0 passes=2 patterns=8 words_per_pattern=262144 order=WRITE_DSB_FLUSH_DSB_INVALIDATE_DSB_READ\\r\\nPATTERN_PASS pass=0 pattern=0 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=1 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=2 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=3 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=4 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=5 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=6 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=0 pattern=7 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=0 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=1 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=2 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=3 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=4 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=5 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=6 words=262144 mismatches=0\\r\\nPATTERN_PASS pass=1 pattern=7 words=262144 mismatches=0\\r\\nPASS passes=2 patterns=8 verified_words=4194304 mismatches=0\\r\\nEND S2B-T06-1\\r\\n\",\r\n    \"raw_bytes\":  1453\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.124049+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:58.124184+08:00",
+      "elapsed_seconds": 9.359999967273325e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.124218+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Breakpoint)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:58.124285+08:00",
+      "elapsed_seconds": 5.740000051446259e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.124307+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T17:41:58.124363+08:00",
+      "elapsed_seconds": 4.769999941345304e-05,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.124382+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:58.132428+08:00",
+      "elapsed_seconds": 0.008044499991228804,
+      "stdout": "pc: 0010ad58\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.132476+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:58.143602+08:00",
+      "elapsed_seconds": 0.011121500006993301,
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.143665+08:00",
+      "api": "bp.remove",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:58.144160+08:00",
+      "elapsed_seconds": 0.00048570000217296183,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.144194+08:00",
+      "api": "session.disconnect",
+      "args": [],
+      "kwargs": {
+        "chan": "tcfchan#0"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:58.144824+08:00",
+      "elapsed_seconds": 0.0006192000000737607,
+      "stdout": "Info: tcfchan#0 closed.\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T17:41:58.144880+08:00",
+      "api": "xsdb.dispose",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T17:41:58.144919+08:00",
+      "elapsed_seconds": 1.4000004739500582e-05,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "observations": [
+    {
+      "time": "2026-10-09T17:41:49.471355+08:00",
+      "gate": "UART_LIVE",
+      "age_seconds": 215.515862,
+      "required_seconds": 150,
+      "raw_bytes": 0,
+      "pid": 26332
+    },
+    {
+      "time": "2026-10-09T17:41:51.159525+08:00",
+      "gate": "SESSION_DOWNLOAD_OPTIONS",
+      "force_type": "int",
+      "force_repr": "0",
+      "profile_type": "dict",
+      "profile_repr": "{}",
+      "gprof_type": "NoneType",
+      "gprof_repr": "None"
+    },
+    {
+      "time": "2026-10-09T17:41:53.242798+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.242869+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.242964+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.243073+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.243170+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.243249+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.243343+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.243423+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:53.285357+08:00",
+      "core": "cpu0",
+      "pc": 1092952,
+      "pc_hex": "0x0010AD58"
+    },
+    {
+      "time": "2026-10-09T17:41:53.331654+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:54.527468+08:00",
+      "gate": "SESSION_DOWNLOAD_OPTIONS",
+      "force_type": "int",
+      "force_repr": "0",
+      "profile_type": "dict",
+      "profile_repr": "{}",
+      "gprof_type": "NoneType",
+      "gprof_repr": "None"
+    },
+    {
+      "time": "2026-10-09T17:41:54.527648+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:54.527770+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:54.535990+08:00",
+      "core": "cpu0",
+      "pc": 1092952,
+      "pc_hex": "0x0010AD58"
+    },
+    {
+      "time": "2026-10-09T17:41:54.541650+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:54.914646+08:00",
+      "gate": "UART_LIVE",
+      "age_seconds": 220.959115,
+      "required_seconds": 120,
+      "raw_bytes": 0,
+      "pid": 26332
+    },
+    {
+      "time": "2026-10-09T17:41:54.914660+08:00",
+      "gate": "WARM_OPERATION",
+      "pc": {
+        "cpu0": 1092952,
+        "cpu1": 4294967092
+      },
+      "readbacks": {
+        "BOOT_MODE": 0,
+        "OCM_CFG": 24,
+        "INIT_RESULT": 2,
+        "INIT_RETURN_CODE": 0,
+        "PRIOR_SMOKE_RESULT": 2,
+        "PRIOR_END_INSTRUCTION": 3942645758
+      },
+      "require_prior_smoke": true
+    },
+    {
+      "time": "2026-10-09T17:41:55.179835+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:55.179938+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:55.186266+08:00",
+      "core": "cpu0",
+      "pc": 1048576,
+      "pc_hex": "0x00100000"
+    },
+    {
+      "time": "2026-10-09T17:41:55.192218+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:56.376242+08:00",
+      "gate": "SESSION_DOWNLOAD_OPTIONS",
+      "force_type": "int",
+      "force_repr": "0",
+      "profile_type": "dict",
+      "profile_repr": "{}",
+      "gprof_type": "NoneType",
+      "gprof_repr": "None"
+    },
+    {
+      "time": "2026-10-09T17:41:56.376477+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Hardware Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:56.376588+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:56.391277+08:00",
+      "core": "cpu0",
+      "pc": 1048576,
+      "pc_hex": "0x00100000"
+    },
+    {
+      "time": "2026-10-09T17:41:56.397294+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:56.753144+08:00",
+      "gate": "UART_LIVE",
+      "age_seconds": 222.79782,
+      "required_seconds": 120,
+      "raw_bytes": 0,
+      "pid": 26332
+    },
+    {
+      "time": "2026-10-09T17:41:56.753161+08:00",
+      "gate": "WARM_OPERATION",
+      "pc": {
+        "cpu0": 1048576,
+        "cpu1": 4294967092
+      },
+      "readbacks": {
+        "BOOT_MODE": 0,
+        "OCM_CFG": 24,
+        "INIT_RESULT": 2,
+        "INIT_RETURN_CODE": 0
+      },
+      "require_prior_smoke": false
+    },
+    {
+      "time": "2026-10-09T17:41:57.761732+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:57.761808+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:57.770566+08:00",
+      "core": "cpu0",
+      "pc": 1092952,
+      "pc_hex": "0x0010AD58"
+    },
+    {
+      "time": "2026-10-09T17:41:57.776205+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:57.785987+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    },
+    {
+      "time": "2026-10-09T17:41:58.124033+08:00",
+      "gate": "UART_LIVE",
+      "age_seconds": 224.168916,
+      "required_seconds": 0,
+      "raw_bytes": 1453,
+      "pid": 26332
+    },
+    {
+      "time": "2026-10-09T17:41:58.124213+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:58.124303+08:00",
+      "core": "cpu0",
+      "state": "Stopped: (Breakpoint)"
+    },
+    {
+      "time": "2026-10-09T17:41:58.124378+08:00",
+      "core": "cpu1",
+      "state": "Stopped: (Suspended)"
+    },
+    {
+      "time": "2026-10-09T17:41:58.132470+08:00",
+      "core": "cpu0",
+      "pc": 1092952,
+      "pc_hex": "0x0010AD58"
+    },
+    {
+      "time": "2026-10-09T17:41:58.143651+08:00",
+      "core": "cpu1",
+      "pc": 4294967092,
+      "pc_hex": "0xFFFFFF34"
+    }
+  ],
+  "downloads": [
+    {
+      "time": "2026-10-09T17:41:54.914664+08:00",
+      "phase": "smoke",
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\s2b_ps_smoke.elf",
+      "sha256": "9be608b847da26988f42105e2ab856c454d6dd7090c87b7dc95064f4cc05e847"
+    }
+  ],
+  "cleanup_errors": [],
+  "ps_initialization": "REUSED_PRIOR_SUCCESS",
+  "smoke_execution": "HARDWARE_GATES_SAVED",
+  "uart_acceptance": "NOT_RUN",
+  "overall_uart_ddr_acceptance": "NOT_RUN",
+  "cold_jtag_proven": false,
+  "final_observation_scope": "final_states/final_pc仅为本次会话内disconnect前的最后观测，不证明断开后仍保持停止。",
+  "limitations": [
+    "物理资料及照片真实性由总控和独立审查核实；schema核验本身不能证明实物事实。",
+    "CPU1只在门禁前后观测，不是持续采样；本脚本不恢复CPU1。",
+    "硬件PC及结果门禁保存不代表完整UART/DDR验收通过。",
+    "峰值内存及全部上层工具调用量未测。"
+  ],
+  "input_hash_environment": {
+    "S2B_PHYSICAL_PROFILE_SHA256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55",
+    "S2B_UART_IDENTITY_SHA256": "ea79c78bf3a2088aa455ee7eedef32bdcce2564ad991f01829ff05de12d0e2d2"
+  },
+  "executed_source_sha256": "7e9163194308503e33b8143adfd02ad46b6bcff0857a84eee29e0e471e437f15",
+  "fixed_inputs": {
+    "operation_package": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\s2b_ps_smoke.md",
+      "sha256": "d6cf1e83e0871c3a43cc8f5f107eb4f0635641efd72191724259d889b61e75d1"
+    },
+    "prior_init_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_init.elf",
+      "sha256": "366ad1f4831eba9db0510c0e5343d34e3b355f72c8f8bcae419903814246024c"
+    },
+    "prior_smoke_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_smoke.elf",
+      "sha256": "8b9803682c9585a8dad91daf96f3f102de948466025e0cf28ee4b96e6cfde428"
+    },
+    "smoke_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\s2b_ps_smoke.elf",
+      "sha256": "9be608b847da26988f42105e2ab856c454d6dd7090c87b7dc95064f4cc05e847"
+    },
+    "layout_binding": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\layout_binding.json",
+      "sha256": "886e5d3945e5c93012fbcd021bf1dc3a23c711b4404d4e5d58b07cc715d44911"
+    },
+    "build_details": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_fix_20261009_172254_r02\\build\\build_details.json",
+      "sha256": "ccfd286e048e5ed45994be26b0887da54c84d8f0d5fd2757835ac82eae2f172d"
+    },
+    "prior_result": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\ps_smoke_result.json",
+      "sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8"
+    },
+    "prior_runner": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\ps_smoke_runner.py",
+      "sha256": "5265f0989a3e69e80677b12548ffe19ebcd48a0bdafb80c270bbf1fa2833bb81"
+    },
+    "authorization": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\authorization.json",
+      "sha256": "fb862e7c6d7491d22bbc4bf075df33d6214fbbc10b17c8a9eedd781fb0202bff"
+    },
+    "warm_basis": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\old_and_warm_review_receipt.json",
+      "sha256": "e3a3480a7fbe2417e9302aa886db70d0bfc4a1dd0790fc6e3cc842de94162930"
+    },
+    "xsa": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T04\\ps_platform_20261008_r02\\candidate_attempt1\\s2b_ps_only.xsa",
+      "sha256": "a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58"
+    },
+    "c_source": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\s2b_ps_smoke.c",
+      "sha256": "8b4bfcf517c821a7c345ec7af61ebf1eb5120a32cc827c22b2be25887c8edef5"
+    },
+    "state_result": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\ps_state_result.json",
+      "sha256": "072b9f65d10da992300532f2873c3a8b843e2f24cf270b4789e00155d0b014e6"
+    },
+    "server_identity": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_uart_clock_retest_20261009_172557_r01\\hw_server_identity.json",
+      "sha256": "e8771c4e850f73531fa83cd51fb83fcc0ab9c052631d18ab348750a97918be72"
+    },
+    "capture_source": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\capture_uart.ps1",
+      "sha256": "3b78f5b54dc7413821400e2c5df3bc1c73a93375b9b71ede9bec42a99e16605d"
+    },
+    "native_server": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+      "sha256": "e1c90dae3564a7d63b48796a8ed9373a4a00e5e70f2312651cff77c48a6399f3"
+    },
+    "sdk_session": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\session.py",
+      "sha256": "e1c85985ada7176182de0b59ddbbc44ecf7cd0047adcc42d94563dbb85da7b7b"
+    },
+    "sdk_target": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+      "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"
+    },
+    "sdk_breakpoint": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_breakpoint.py",
+      "sha256": "22b86a6e877a29ce3329846a90a46f3fae21dca44cfd5646403625f02984eb3b"
+    },
+    "frontend": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+      "sha256": "9a305c248c966207c3e785d38fe92f01b51aeb1f3450896e8617c10a1a8a56f7"
+    },
+    "api_basis": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\xsdb_operating_basis_r03.json",
+      "sha256": "7964b0a15ee7dc17d30ebb4a16c8cfb5faa71ecd50f4901e1d9239168e38355f"
+    }
+  },
+  "target_identity_baseline": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\ps_state_result.json",
+    "sha256": "072b9f65d10da992300532f2873c3a8b843e2f24cf270b4789e00155d0b014e6",
+    "purpose": "旧r01成功读回仅核对同线缆/目标ctx身份，不证明当前停止状态或本次物理冷启动。"
+  },
+  "prior_initialization_provenance": {
+    "status": "REUSED_PRIOR_SUCCESS",
+    "result_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\ps_smoke_result.json",
+    "result_sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8",
+    "init_elf_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\build_08\\s2b_ps_init.elf",
+    "init_elf_sha256": "366ad1f4831eba9db0510c0e5343d34e3b355f72c8f8bcae419903814246024c",
+    "init_result_address": 37376,
+    "init_result": 2,
+    "init_return_address": 14784,
+    "init_return_code": 0,
+    "executed_init_this_run": false,
+    "cold_boot_proven_this_run": false
+  },
+  "physical_profile": {
+    "schema_version": 1,
+    "status": "PROFILE_CONFIRMED",
+    "scope": "仅确认本次固定 PS-only 初始化和 1 MiB UART/DDR 检查采用的板级配置依据，功能结果由后续实测判定。",
+    "board_version": "AX701020.3.0",
+    "board_label": "AX7020",
+    "board_serial_photo": "006266",
+    "confirmed_ddr": true,
+    "confirmed_ps_clk": true,
+    "confirmed_uart_mio": true,
+    "confirmed_voltage": true,
+    "confirmed_cold_boot": true,
+    "confirmed_exclusive_writers": true,
+    "source_documents": [
+      {
+        "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ax7020_v22_source.pdf",
+        "sha256": "7d944e10a5c5eb31140736aae232419fcb4bc77e94433aae976af302cbdfa563",
+        "pages": [
+          14,
+          15,
+          17,
+          18,
+          26
+        ]
+      },
+      {
+        "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0014.png",
+        "sha256": "d0ee698f2c3d51dc6f2cb54a1746d187a418346a6e86b84422471248f9cda8da",
+        "pages": [
+          14
+        ]
+      },
+      {
+        "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0015.png",
+        "sha256": "99b0ca484bafb21e04e9a990eef15b94dec5d1cf4045bddee090d44bae940a58",
+        "pages": [
+          15
+        ]
+      },
+      {
+        "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0017.png",
+        "sha256": "d8aaaf813d9c3d6652adf8b8971c4ba1af02a4c072b684e9b0b292ab5accd5da",
+        "pages": [
+          17
+        ]
+      },
+      {
+        "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0018.png",
+        "sha256": "4815e43e32147d49dca96d89822a93b59d989a94a9b46a28d0cb282172d80c4c",
+        "pages": [
+          18
+        ]
+      },
+      {
+        "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0026.png",
+        "sha256": "0f36bff6c54f062f13a34760bd53a6358e65e8638db668a33d9bd6350861a29f",
+        "pages": [
+          26
+        ]
+      }
+    ],
+    "user_photos": [
+      {
+        "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\codex-clipboard-a15ed8a7-4632-4ba5-b0a0-71675762a6d5.jpg",
+        "sha256": "378cc1c78f3b975b3dc86662264c317a26fec5cacc8461f27defbf131b984f1d",
+        "retained_path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/full_board_original.jpg",
+        "use": "用户提供的板卡布局/器件位号照片。照片未接线且 J13 显示旧位置，不用它证明当前现场启动模式或接线。"
+      }
+    ],
+    "accepted_board_identity": {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/阶段0_硬件与环境核对验收记录.md",
+      "sha256": "090f06c13d572aa5fd8a153d7b380031390878c706eb232a2543e035ee65c0d6",
+      "line": 19,
+      "basis": "沿用用户已验收的 AX701020.3.0 板卡身份；本次照片不能重新读取该 PCB 版本丝印。"
+    },
+    "configuration_basis": {
+      "ddr": "V2.2 第17-18页规定 U8/U9 为两个 4 Gbit x16 DDR3，合计 1 GiB/32 bit，H5TQ4G63AFR-PBC 兼容 MT41J256M16RE-125；固定 XSA 实际使用 MT41J256M16 RE-125、533.333333 MHz、15 row/10 column/3 bank。照片的 U8/U9 位置和尺寸对应，完整器件丝印被贴纸遮挡，未声称逐字读取实际 DDR 料号。",
+      "ps_clk": "V2.2 第14-15页的 X1、R20、C25、E7 与照片位号/布局对应，采用厂商指定 33.333333 MHz PS_CLK；频率未用仪器实测。",
+      "uart_and_voltage": "V2.2 第26页的 J7 UART Micro-USB、U16 CP2102-GM、U27 TXS0102 与照片一致；MIO48 TX/B12、MIO49 RX/C12、BANK501 1.8 V 经转换器接桥的 3.3 V，与固定 XSA 一致。当前 COM4 为 CP210x USB VID10C4/PIDEA60，PNP 实例与前次相同。使用板载 USB 桥，不向裸 MIO 接入外部 TTL。电压未用仪器实测。",
+      "cold_jtag": "用户明确表示已换成 JTAG 模式；本次真实读回 BootMode=0，CPU0/1 起初在 BootROM 停驻区运行，停核后 PC 分别为 FFFFFF28/FFFFFF34，OCM_CFG=0x18。前次 BootMode=1 且 CPU0=00102030，本次锁存启动模式及 PC 均变化；据此判断已经重新启动到 JTAG BootROM 停驻状态。具体断电/上电时刻未测。照片旧跳帽不替代本次实物寄存器。",
+      "exclusive_writers": "本次 JTAG BootROM 停驻期间未下载任何应用/位流，两个 ARM 核已停止；本任务服务 PID39576/父37840 独占本机3121。本机进程清单未发现其他 Vivado/Vitis/XSDB/XSCT 控制者；清单中临时 pwsh 为清单采集本身。本轮 root 为唯一硬件控制者，子代理只读静态文件。按该启动状态判断没有启动旧 Linux/FSBL/PL/DMA writer，后续仍须再次检查目标/停核及服务/串口身份。"
+    },
+    "live_state_binding": {
+      "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ps_state_result.json",
+      "sha256": "072b9f65d10da992300532f2873c3a8b843e2f24cf270b4789e00155d0b014e6",
+      "readback_at_utc8": "2026-10-09T12:13:26.513349+08:00"
+    },
+    "reason": "用户提供完整 AX7020 照片后，root 核对已验收板卡身份、厂商 V2.2 的器件布局及14/15/17/18/26页，确认固定 PS-only 候选与本板资料对应，适用于当前受控检查；六项确认只覆盖上述有来源的工程判断，不能当成仪器测量、实际 DDR 丝印证明或功能通过。冷 JTAG 和独占条件采用用户当前操作及真实读回证据，执行前由 runner 再核验。本次不改写用户已明确确认的 XC7Z020-2 目标决策。"
+  },
+  "target_properties": {
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0": {
+      "target_id": 1,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "level": 0,
+      "name": "APU",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0": {
+      "target_id": 2,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #0",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Hardware Breakpoint",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1": {
+      "target_id": 3,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #1",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Suspended",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-23727093-0": {
+      "target_id": 4,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-23727093-0",
+      "level": 0,
+      "name": "xc7z020",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 3,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-23727093-0",
+      "jtag_device_index": 1,
+      "jtag_device_name": "xc7z020",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    }
+  },
+  "states_on_selection": {
+    "cpu0": "Stopped: (Hardware Breakpoint)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "initial_stop_requested": [],
+  "initial_states_after": {
+    "cpu0": "Stopped: (Hardware Breakpoint)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "initial_gate": {
+    "pc": {
+      "cpu0": 1092952,
+      "cpu1": 4294967092
+    },
+    "initialization": "REUSED_PRIOR_SUCCESS"
+  },
+  "readbacks": [
+    {
+      "time": "2026-10-09T17:41:54.543818+08:00",
+      "name": "BOOT_MODE_GATE",
+      "address": 4160750172,
+      "value": 0,
+      "value_hex": "0x00000000"
+    },
+    {
+      "time": "2026-10-09T17:41:54.544935+08:00",
+      "name": "OCM_CFG_GATE",
+      "address": 4160751888,
+      "value": 24,
+      "value_hex": "0x00000018"
+    },
+    {
+      "time": "2026-10-09T17:41:54.546191+08:00",
+      "name": "INIT_RESULT_REUSED_GATE",
+      "address": 37376,
+      "value": 2,
+      "value_hex": "0x00000002"
+    },
+    {
+      "time": "2026-10-09T17:41:54.547544+08:00",
+      "name": "INIT_RETURN_CODE_REUSED_GATE",
+      "address": 14784,
+      "value": 0,
+      "value_hex": "0x00000000"
+    },
+    {
+      "time": "2026-10-09T17:41:54.548762+08:00",
+      "name": "PRIOR_SMOKE_RESULT_GATE",
+      "address": 1130816,
+      "value": 2,
+      "value_hex": "0x00000002"
+    },
+    {
+      "time": "2026-10-09T17:41:54.549877+08:00",
+      "name": "PRIOR_END_INSTRUCTION_GATE",
+      "address": 1092952,
+      "value": 3942645758,
+      "value_hex": "0xEAFFFFFE"
+    },
+    {
+      "time": "2026-10-09T17:41:56.398882+08:00",
+      "name": "BOOT_MODE_GATE",
+      "address": 4160750172,
+      "value": 0,
+      "value_hex": "0x00000000"
+    },
+    {
+      "time": "2026-10-09T17:41:56.399898+08:00",
+      "name": "OCM_CFG_GATE",
+      "address": 4160751888,
+      "value": 24,
+      "value_hex": "0x00000018"
+    },
+    {
+      "time": "2026-10-09T17:41:56.401071+08:00",
+      "name": "INIT_RESULT_REUSED_GATE",
+      "address": 37376,
+      "value": 2,
+      "value_hex": "0x00000002"
+    },
+    {
+      "time": "2026-10-09T17:41:56.402254+08:00",
+      "name": "INIT_RETURN_CODE_REUSED_GATE",
+      "address": 14784,
+      "value": 0,
+      "value_hex": "0x00000000"
+    },
+    {
+      "time": "2026-10-09T17:41:57.778240+08:00",
+      "name": "SMOKE_RESULT",
+      "address": 1130816,
+      "value": 2,
+      "value_hex": "0x00000002"
+    }
+  ],
+  "breakpoint_status": [
+    {
+      "time": "2026-10-09T17:41:55.195399+08:00",
+      "name": "end",
+      "text": "target 2: HitCount 0 Address 0x10ad58 Size 1 BreakpointType Hardware\n",
+      "status": {
+        "2": {
+          "HitCount": 0,
+          "Address": "0x10ad58",
+          "Size": 1,
+          "BreakpointType": "Hardware"
+        }
+      }
+    },
+    {
+      "time": "2026-10-09T17:41:55.195977+08:00",
+      "name": "end_before_con",
+      "text": "target 2: HitCount 0 Address 0x10ad58 Size 1 BreakpointType Hardware\n",
+      "status": {
+        "2": {
+          "HitCount": 0,
+          "Address": "0x10ad58",
+          "Size": 1,
+          "BreakpointType": "Hardware"
+        }
+      }
+    },
+    {
+      "time": "2026-10-09T17:41:57.778995+08:00",
+      "name": "end_after_con",
+      "text": "target 2: HitCount 1 Address 0x10ad58 Size 1 BreakpointType Hardware\n",
+      "status": {
+        "2": {
+          "HitCount": 1,
+          "Address": "0x10ad58",
+          "Size": 1,
+          "BreakpointType": "Hardware"
+        }
+      }
+    }
+  ],
+  "final_states": {
+    "cpu0": "Stopped: (Breakpoint)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "final_pc": {
+    "cpu0": 1092952,
+    "cpu1": 4294967092
+  },
+  "finished_at": "2026-10-09T17:41:58.144946+08:00",
+  "elapsed_seconds": 9.267832500001532,
+  "api_call_count": 57,
+  "host_query_count": 8
+}

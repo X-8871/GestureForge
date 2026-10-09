@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "task_id": "R-PS-PROFILE-05",
+  "reviewer": "/root/s2b_hardware_preflight_review",
+  "reviewed_at": "2026-10-09T12:38:38+08:00",
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "verdict": "PASS",
+  "scope": "仅认可physical_profile六布尔在其reason/配置依据/限制下足以支持本次固定PS-only初始化及1MiB UART/DDR候选试验；不是器件丝印或仪器测量认证、功能通过或G3验收。",
+  "bound_files": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\physical_profile.json",
+      "sha256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\full_board_original.jpg",
+      "sha256": "378cc1c78f3b975b3dc86662264c317a26fec5cacc8461f27defbf131b984f1d"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\ps_state_result.json",
+      "sha256": "072b9f65d10da992300532f2873c3a8b843e2f24cf270b4789e00155d0b014e6"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\host_inventory_photo.stdout.json",
+      "sha256": "93f76b5f49abab7ee628092ec2f2c86194bb96ab4985f86f48a6f576dffcec6b"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_120653_r01\\ax7020_v22_source.pdf",
+      "sha256": "7d944e10a5c5eb31140736aae232419fcb4bc77e94433aae976af302cbdfa563"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\阶段0_硬件与环境核对验收记录.md",
+      "sha256": "090f06c13d572aa5fd8a153d7b380031390878c706eb232a2543e035ee65c0d6"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T04\\ps_platform_20261008_r02\\candidate_attempt1\\s2b_ps_only.xsa",
+      "sha256": "a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58"
+    }
+  ],
+  "validation": [
+    {
+      "command": "python -B -（完整精确路径/类型/非reparse与profile/照片SHA、原照片保留副本逐字节相同；git rev-parse HEAD、有限rg --files）",
+      "native_exit_code": 0
+    },
+    {
+      "command": "python -B -（profile全部手册页/PDF/Stage0/现场读回绑定SHA；读取Stage0第19行、新probe真实calls和既存host inventory）",
+      "native_exit_code": 0
+    },
+    {
+      "command": "view_image detail=original：保留原板照片及既有V2.2渲染第14/15/17/18/26页",
+      "result": "六张图像实际查看，无编辑或设备访问"
+    },
+    {
+      "command": "python -B -（只读XSA ZIP内HWH/XML硬件配置；新旧BOOT_MODE/PC和停核状态/宿主独占记录对比；新隔离目录核验创建）",
+      "native_exit_code": 0
+    },
+    {
+      "command": "python -B -（最终profile SHA未变、所有收据绑定文件SHA及receipt精确新名称核验）",
+      "native_exit_code": 0
+    }
+  ],
+  "checked": [
+    "照片可见AX7020标签/序列006266、U8/U9与X1/R20/C25及J7/U16/U27对应布局；照片无现场接线且J13为旧位置，profile未用它证明当前启动模式或接线。",
+    "板版本AX701020.3.0仅沿用已验收Stage0第19行，照片不能重新读取版本；当前用户XC7Z020-2决策未被旧XA照片/Stage0速度基线替代。",
+    "V2.2第17-18页的2x4Gbit/x16/32bit及兼容MT41J256M16RE-125支持固定XSA几何/时序候选；DDR完整丝印被贴纸遮挡的不确定性仍保留，第18页厂商栏与第17页文本差异不作实物料号证明。",
+    "XSA实读MT41J256M16 RE-125、32 Bit、15/10/3、533.333333MHz、PS_CLK33.333333、UART1 MIO48..49和LVCMOS1.8V，与相应手册依据一致；并非实测频率/电压或1GiB完整容量测试。",
+    "真实BOOT_MODE由前Run1变为本Run0，同板CPU0由00102030变为FFFFFF28，CPU1FFFFFF34，双核已停止；结合官方RO/POR采样规则支持重新进入JTAG启动停驻状态的工程推断，具体断电/上电时刻未测。",
+    "官方System Reset Effects表明POR会重采样启动脚并重置PL；当前BootROM停驻、无本Run下载/位流、两个核已停及保存宿主清单支持当前无旧应用/PL/DMA writer判断，不作持续监控承诺。",
+    "PROFILE_CONFIRMED/六true依据始终受profile.scope/reason限制；runner执行前仍须再核验目标、停核、BOOT_MODE/MCTRL/OCM布局、服务及串口身份，后续功能/G3标准保持原冻结要求。"
+  ],
+  "official_basis": [
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-BOOT_MODE-Details",
+      "version": "UG585 1.15",
+      "basis": "BOOT_MODE[3:0]为RO，POR释放时采样。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Boot-Mode-Pin-Settings",
+      "version": "UG585 1.15",
+      "basis": "JTAG BOOT_MODE低3位为0，启动strap在PS_POR_B释放后采样。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/System-Reset-Effects",
+      "version": "UG585 1.15",
+      "basis": "表System Reset Effects：POR采样straps、不保留先前boot mode、重置PL。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/APU-and-OCM-State-after-BootROM",
+      "version": "UG585 1.15",
+      "basis": "CPU1启动后WFE代码位于0xFFFF_FE00至0xFFFF_FFF0，OCM低192KiB/高64KiB映射。"
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "未访问硬件、未import xsdb、未连接3121/JTAG/串口、未启动server、未运行runner或测试。",
+    "PASS仅支持已授权固定候选试验。实际DDR料号完整丝印、仪器电压/频率、最新现场接线及具体上电时刻没有由本审查新增实证；功能结论需真实固定程序/日志/状态。",
+    "本次配置推断不得扩展到PL/模型部署、其他PCB、外接裸MIO TTL或非易失存储操作。",
+    "仅写本隔离review_receipt.json，未改被审profile/STATE、其他源码、Git分支/index或提交。"
+  ]
+}

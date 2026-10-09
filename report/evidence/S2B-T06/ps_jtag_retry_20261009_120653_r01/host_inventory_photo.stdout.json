@@ -1,0 +1,36 @@
+{
+  "checked_at_utc8": "2026-10-09T12:32:09.9116355+08:00",
+  "debug_processes": [
+    {
+      "ProcessId": 39576,
+      "ParentProcessId": 37840,
+      "Name": "hw_server.exe",
+      "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+      "CommandLine": "\"D:/Xilinx/2026.1/Vitis/bin/unwrapped/win64.o/hw_server.exe\"   -stcp::3121",
+      "CreationTimeFileTimeUtc": "134359925214792270"
+    },
+    {
+      "ProcessId": 26072,
+      "ParentProcessId": 2404,
+      "Name": "pwsh.exe",
+      "ExecutablePath": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+      "CommandLine": "\"C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe\" -Command \"try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n$ErrorActionPreference='Stop'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(hw_server|cs_server|xsdb|xsct|vivado|vitis|pwsh)\\.exe$' -and ($_.Name -ne 'pwsh.exe' -or $_.CommandLine -match 'capture_uart') } | Select-Object ProcessId,ParentProcessId,Name,ExecutablePath,CommandLine,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$ports=@(Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,PNPDeviceID,Status)\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n[pscustomobject]@{checked_at_utc8=[DateTimeOffset]::UtcNow.ToOffset([TimeSpan]::FromHours(8)).ToString('o');debug_processes=$servers;serial_ports=$ports;listeners=$listeners} | ConvertTo-Json -Depth 6\"",
+      "CreationTimeFileTimeUtc": "134359939279949190"
+    }
+  ],
+  "serial_ports": [
+    {
+      "DeviceID": "COM4",
+      "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+      "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+      "Status": "OK"
+    }
+  ],
+  "listeners": [
+    {
+      "LocalAddress": "0.0.0.0",
+      "LocalPort": 3121,
+      "OwningProcess": 39576
+    }
+  ]
+}

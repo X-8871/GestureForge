@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "user_authorization": "接下来我会把板子和UART接到电脑上，你去操作完成实板 PS 初始化、UART/DDR 检查并回传日志",
+  "user_steering": [
+    "自己判断，别老让我允许",
+    "已经接上了，你自己去调试检查",
+    "已换成JTAG模式",
+    "继续"
+  ],
+  "scope": "在同一板卡已经成功完成PS初始化及旧smoke的终点状态，仅重跑修正UART诊断字段的新CPU0 smoke；不再次运行cold-only OCM初始化。",
+  "prior_hardware_result": {
+    "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_165853_r02/ps_smoke_result.json",
+    "sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8",
+    "init_result": 2,
+    "init_return_code": 0,
+    "smoke_result": 2,
+    "end_pc": "0x0010AD58",
+    "cpu1_pc": "0xFFFFFF34"
+  },
+  "prior_functional_log": {
+    "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_165853_r02/uart_raw.bin",
+    "sha256": "c76cf9255c4ab4259c4eb5efa1501380af7e8397839caaa9d5fc6bf8713f7d60",
+    "known_defect": "clock_hz错误读取未赋值实例字段；原始日志保留。"
+  },
+  "new_offline_candidate": {
+    "run": "report/evidence/S2B-T06/ps_uart_clock_fix_20261009_172254_r02",
+    "source_sha256": "8b4bfcf517c821a7c345ec7af61ebf1eb5120a32cc827c22b2be25887c8edef5",
+    "smoke_elf_sha256": "9be608b847da26988f42105e2ab856c454d6dd7090c87b7dc95064f4cc05e847",
+    "layout_binding_sha256": "886e5d3945e5c93012fbcd021bf1dc3a23c711b4404d4e5d58b07cc715d44911",
+    "build_details_sha256": "ccfd286e048e5ed45994be26b0887da54c84d8f0d5fd2757835ac82eae2f172d",
+    "acceptance": "离线重建已通过；代码及runner须独立审查后才能由root执行。本授权记录不代表上板结果。"
+  },
+  "server_reuse": {
+    "source_run": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01",
+    "native_pid": 39576,
+    "launcher_pid": 37840,
+    "identity_sha256": "e8771c4e850f73531fa83cd51fb83fcc0ab9c052631d18ab348750a97918be72"
+  },
+  "profile_sha256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55",
+  "warm_download_basis": {
+    "review_receipt": "old_and_warm_review_receipt.json",
+    "sha256": "e3a3480a7fbe2417e9302aa886db70d0bfc4a1dd0790fc6e3cc842de94162930",
+    "sdk_target_sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+    "source_lines": "3599–3602和3649–3653明确默认缓存同步；不传bypass_cache_synq。",
+    "official_document": "https://docs.amd.com/r/en-US/ug1725-xsdb-reference-guide/dow",
+    "old_end_instruction": "0xEAFFFFFE"
+  },
+  "limits": [
+    "仅root为硬件写入方，子代理只访问静态证据。",
+    "全新采集原始UART；不能把旧版结果继承成新版通过。",
+    "每次dow/con前核实当前双核、PC、原初始化状态、唯一目标、输入哈希、profile、服务和串口身份。",
+    "默认下载缓存同步；session force必须0/False、profile空dict、gprof None，不能通过改变属性绕过。",
+    "不reset/force/rwr/mwr/PL/旧boot image/flash/模型部署/推送。",
+    "不声称本次warm重跑为新冷启动PS初始化或阶段2B完整验收。"
+  ]
+}

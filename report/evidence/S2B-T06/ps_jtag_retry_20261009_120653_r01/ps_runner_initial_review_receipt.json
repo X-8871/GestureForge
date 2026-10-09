@@ -1,0 +1,43 @@
+{
+  "task_id": "R-PS-SMOKE-RUNNER-06",
+  "round": 1,
+  "verdict": "CHANGES_REQUIRED",
+  "baseline_head": "117911e63cd7468418f11847ffedc9293dbca075",
+  "reviewed_file": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ps_smoke_runner.py",
+  "reviewed_sha256": "4a37e60e861576a324ad7a01ad6c22602eb86e8aa4eabac10c97ab0b382c9ffb",
+  "reviewed_lines": 517,
+  "operation_package_sha256": "c15290c48ccbc03c55418c2efa0ca2df815eacdeffb60e53363eca4fba490db5",
+  "approved_profile_sha256": "d916bca7e70b9ad7e4444b64a7e52cfef1cd89b3edc5462372d0c4c3b232dd55",
+  "fixed_input_sha_checks": {"declared": 14, "actually_matched": 14},
+  "python_version": "3.12.10 (MSC v.1943 64 bit AMD64)",
+  "sdk_launch_source_sha256": "694122da32d26af20e6d5e9207a49b70540412c4df63a967b0c91d7edd8bf92f",
+  "scope": [
+    "逐字读取517行与固定操作包步骤2至6，核对固定路径、身份、环境哈希、串口采集门禁和异常清理。",
+    "核对已安装SDK的dow、con、rrd、mrd、bpadd、Breakpoint.status/remove及target_id映射源码，不导入SDK。",
+    "确认仅两次CPU0 dow及两次con；ready/fail/end地址、结果字和原初始化返回码门禁一致。",
+    "确认断点安装/命中状态、每次dow/con前输入/归属/停核/PC/UART门禁、部分bpadd失败追踪及各项独立清理。"
+  ],
+  "commands": [
+    {"shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc", "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -", "stdin_scope": "只读AST定位并打印已安装SDK方法及runner源码；不执行被审模块", "native_exit_code": 0},
+    {"shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc", "native_command": "rg -n 'def get_context_target_map|_ctx_tgt_map|ctx_target_map|context_target_map|_target_id' /d/Xilinx/2026.1/Vitis/cli/xsdb/_tcf_model.py /d/Xilinx/2026.1/Vitis/cli/xsdb/_tcf_node.py /d/Xilinx/2026.1/Vitis/cli/xsdb --glob '*model*' --glob '*node*'", "native_exit_code": 0},
+    {"shell": "C:\\Program Files\\Git\\bin\\bash.exe -lc", "native_command": "PYTHONIOENCODING=utf-8 PYTHONUTF8=1 python -B -", "stdin_scope": "精确路径/大小写/reparse核对；AST解析与compile(optimize=0)仅生成内存代码对象；用白名单AST求值只读取14个FIXED路径并核对SHA；profile SHA及SDK映射源码读取", "native_exit_code": 0},
+    {"native_command": "git rev-parse HEAD", "native_exit_code": 0, "observed_head": "117911e63cd7468418f11847ffedc9293dbca075"}
+  ],
+  "api_findings": {
+    "bp_status": "返回二元tuple(文本,dict)，Address由SDK转hex字符串，HitCount保留服务原值；runner严格拒绝非int、负值、Error与非唯一CPU0映射。",
+    "bp_target_id": "session.py:1197转launch映射；_tcf_node_launch.py:125/129/134/135以整数0起始、递增并保存ctx到target_id，因此映射键为int。",
+    "bp_partial_add": "_breakpoint.py:392至398先登记本会话_bptable再调用服务；runner的finally追踪本次新增对象供独立清理。",
+    "rrd": "默认打印PC并返回None；runner同时核验None、无stderr及唯一8位PC文本。",
+    "mrd": "--value、size=1、word_size=4返回单个无符号整数；runner拒绝bool及越界值。",
+    "cold_jtag_proven": "false表示软件不独立证明物理冷启动；现场依据由已审profile与本次重新读取的状态/PC/BOOT_MODE/OCM绑定。"
+  },
+  "findings": [
+    {"id": "BOOT_EXACT_ZERO", "line": 405, "impact": "低4位掩码检查会放行BOOT_MODE=0x10，即PLL_BYPASS=1，超出本次固定初始完整值0条件。", "closure": "改为boot_mode != 0即阻断；冻结新SHA并确认仅此差异后静态复审。"}
+  ],
+  "limits": [
+    "未执行runner或probe，未导入xsdb，未调用任何设备API、连接3121/JTAG、打开COM或启动server。",
+    "静态compile不等于硬件执行或功能测试。串口尚未启动，未核验未来uart_capture_identity.json及其环境SHA。",
+    "实际forward前的当前进程归属、停核/PC/寄存器与串口存活必须由runner真实门禁确认；本收据不表示UART/DDR、G3或阶段通过。",
+    "未修改被审源、STATE、Git分支或index；仅在已精确核验的新隔离审查目录写入收据。"
+  ]
+}

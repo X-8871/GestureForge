@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T06",
+  "run_id": "ps_uart_clock_fix_20261009_171959_r01",
+  "source_commit": "117911e63cd7468418f11847ffedc9293dbca075",
+  "evidence_dir": "report/evidence/S2B-T06/ps_uart_clock_fix_20261009_171959_r01",
+  "interfaces": [
+    {
+      "name": "PS-only CPU0 UART与DDR及必要官方PS初始化产物离线构建输入",
+      "version": "s2b-ps-platform/1.0.1",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md",
+      "sha256": "89512d94859abf083e958a2e53139d8f4ab0c0a61989c76eb8794eba9c9db6c1"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/s2b_ps_only.xsa",
+      "sha256": "a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/acceptance.json",
+      "sha256": "49abdb359951a4af64c9fd08c7a0942154c66a8025789ad9c2ef3d6bdbac8927",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/delivery_manifest.json",
+      "sha256": "f07c16f6b3ede117f300707dfffee6615af12a08517a165f9d0fd9f80dd81eb3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/reviewer/review_evidence_bindings.json",
+      "sha256": "b4290cff78f423e6395203dec267e11c981df77ebc930bb6ff91d9aaa8309d00",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "固定上游提交存在",
+      "status": "PASS",
+      "command": "git cat-file -e 90652b45ef31e763bd3e6f7527e2fd080ece61a8^{commit}",
+      "exit_code": 0,
+      "reason": "此命令仅证明真实提交对象存在。总控对固定XSA和离线输入的批准由上列正式冻结文档、acceptance及独立Reviewer记录单独绑定。"
+    }
+  ],
+  "limitations": [
+    "此清单仅复用已批准的同一PS平台离线输入。",
+    "新版软件尚未独立审查或上板，不沿用旧版实测。",
+    "不修改正式冻结，不执行任何硬件连接或初始化。"
+  ]
+}

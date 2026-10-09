@@ -1,0 +1,18 @@
+{
+  "command": [
+    "python",
+    "-X",
+    "utf8",
+    "-B",
+    "-c",
+    "from pathlib import Path; import json,hashlib; p=Path(__import__('sys').argv[1]); s=json.loads((p/'ps_smoke_result.json').read_text(encoding='utf-8')); assert hashlib.sha256((p/'ps_smoke_runner.py').read_bytes()).hexdigest()==s['executed_source_sha256']; assert hashlib.sha256((p/'source_snapshot/s2b_ps_smoke.c').read_bytes()).hexdigest()=='d2bb6f0941c2e3765c5a71f889d2e7e1e0428429237f5443510e81cedd16786b'; assert hashlib.sha256((p/'source_snapshot/s2b_ps_smoke.md').read_bytes()).hexdigest()=='c15290c48ccbc03c55418c2efa0ca2df815eacdeffb60e53363eca4fba490db5'; print(json.dumps({'status':'ORIGINAL_BINDINGS_OK','run_id':p.name,'actual_runner_sha256':s['executed_source_sha256'],'download_count':len(s['downloads']),'hardware_status':s['status']},ensure_ascii=False))",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02"
+  ],
+  "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+  "started_at_utc8": "2026-10-09T17:35:15.542479+08:00",
+  "elapsed_seconds": 0.07412730000214651,
+  "exit_code": 0,
+  "stdout_sha256": "2fe3bc1753c40bc3e487ad598443838264c4d00e878207831acbc58b5408656f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "只读核验runner原字节及旧C/md精确快照，不连接硬件。"
+}

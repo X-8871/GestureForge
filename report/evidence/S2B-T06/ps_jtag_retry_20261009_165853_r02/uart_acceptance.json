@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "checked_at_utc8": "2026-10-09T17:21:29.043127+08:00",
+  "status": "PASS_FUNCTIONAL_WITH_CLOCK_REPORT_DEFECT",
+  "overall_corrected_version_acceptance": "NOT_RUN",
+  "hardware_gates_ok": true,
+  "capture_closure_ok": true,
+  "raw_matches_23_line_legacy_protocol": true,
+  "uart_raw_sha256": "c76cf9255c4ab4259c4eb5efa1501380af7e8397839caaa9d5fc6bf8713f7d60",
+  "uart_raw_bytes": 1445,
+  "ps_smoke_result_sha256": "f02143baec914d6436d2fbb672831ea8a9d4aa3c2fda27de37836989809fa8f8",
+  "expected_line_count": 23,
+  "pattern_pass_count": 16,
+  "verified_words": 4194304,
+  "mismatches": 0,
+  "clock_diagnostic": {
+    "status": "FAIL_DIAGNOSTIC_FIELD",
+    "reported_clock_hz": 0,
+    "generated_driver_config_clock_hz": 100000000,
+    "physical_clock_measurement": "NOT_RUN",
+    "cause": "旧应用读取 uart.InputClockHz；实际驱动初始化和波特率计算使用 uart.Config.InputClockHz。",
+    "effect": "诊断字段错误；不影响本版本实际 UART 配置或 DDR 检查。原始字节保持不变。"
+  },
+  "capture_closed_record": {
+    "time": "2026-10-09T17:10:58.2703550+08:00",
+    "port": "COM4",
+    "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_jtag_retry_20261009_165853_r02\\uart_raw.bin",
+    "opened": true,
+    "raw_created": true,
+    "captured_bytes": 1445,
+    "reason": "stop_flag",
+    "limit_600s_reached": false,
+    "stop_flag_seen": true,
+    "elapsed_seconds": 212.9239091,
+    "failure_message": null,
+    "cleanup_errors": [],
+    "exit_code": 0
+  },
+  "limits": [
+    "本结果绑定旧源码与旧 ELF；修正版本上板验收另行记录，不能继承该结果。",
+    "只验证 1 MiB DDR 区域，不是全容量扫描、长期稳定性或带宽测试。",
+    "最后核状态只为会话断开前观测，不是断开后的持续监测。",
+    "本项功能结果不代表阶段2B的PS/PL/AXI接口冻结或G4/G5通过。"
+  ]
+}

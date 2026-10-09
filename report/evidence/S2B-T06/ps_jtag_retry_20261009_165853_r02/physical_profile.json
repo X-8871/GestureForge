@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "PROFILE_CONFIRMED",
+  "scope": "仅确认本次固定 PS-only 初始化和 1 MiB UART/DDR 检查采用的板级配置依据，功能结果由后续实测判定。",
+  "board_version": "AX701020.3.0",
+  "board_label": "AX7020",
+  "board_serial_photo": "006266",
+  "confirmed_ddr": true,
+  "confirmed_ps_clk": true,
+  "confirmed_uart_mio": true,
+  "confirmed_voltage": true,
+  "confirmed_cold_boot": true,
+  "confirmed_exclusive_writers": true,
+  "source_documents": [
+    {
+      "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ax7020_v22_source.pdf",
+      "sha256": "7d944e10a5c5eb31140736aae232419fcb4bc77e94433aae976af302cbdfa563",
+      "pages": [14, 15, 17, 18, 26]
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0014.png",
+      "sha256": "d0ee698f2c3d51dc6f2cb54a1746d187a418346a6e86b84422471248f9cda8da",
+      "pages": [14]
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0015.png",
+      "sha256": "99b0ca484bafb21e04e9a990eef15b94dec5d1cf4045bddee090d44bae940a58",
+      "pages": [15]
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0017.png",
+      "sha256": "d8aaaf813d9c3d6652adf8b8971c4ba1af02a4c072b684e9b0b292ab5accd5da",
+      "pages": [17]
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0018.png",
+      "sha256": "4815e43e32147d49dca96d89822a93b59d989a94a9b46a28d0cb282172d80c4c",
+      "pages": [18]
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0026.png",
+      "sha256": "0f36bff6c54f062f13a34760bd53a6358e65e8638db668a33d9bd6350861a29f",
+      "pages": [26]
+    }
+  ],
+  "user_photos": [
+    {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Temp\\codex-clipboard-a15ed8a7-4632-4ba5-b0a0-71675762a6d5.jpg",
+      "sha256": "378cc1c78f3b975b3dc86662264c317a26fec5cacc8461f27defbf131b984f1d",
+      "retained_path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/full_board_original.jpg",
+      "use": "用户提供的板卡布局/器件位号照片。照片未接线且 J13 显示旧位置，不用它证明当前现场启动模式或接线。"
+    }
+  ],
+  "accepted_board_identity": {
+    "path": "docs/obsidian-project/04-提交材料/阶段验收/阶段0_硬件与环境核对验收记录.md",
+    "sha256": "090f06c13d572aa5fd8a153d7b380031390878c706eb232a2543e035ee65c0d6",
+    "line": 19,
+    "basis": "沿用用户已验收的 AX701020.3.0 板卡身份；本次照片不能重新读取该 PCB 版本丝印。"
+  },
+  "configuration_basis": {
+    "ddr": "V2.2 第17-18页规定 U8/U9 为两个 4 Gbit x16 DDR3，合计 1 GiB/32 bit，H5TQ4G63AFR-PBC 兼容 MT41J256M16RE-125；固定 XSA 实际使用 MT41J256M16 RE-125、533.333333 MHz、15 row/10 column/3 bank。照片的 U8/U9 位置和尺寸对应，完整器件丝印被贴纸遮挡，未声称逐字读取实际 DDR 料号。",
+    "ps_clk": "V2.2 第14-15页的 X1、R20、C25、E7 与照片位号/布局对应，采用厂商指定 33.333333 MHz PS_CLK；频率未用仪器实测。",
+    "uart_and_voltage": "V2.2 第26页的 J7 UART Micro-USB、U16 CP2102-GM、U27 TXS0102 与照片一致；MIO48 TX/B12、MIO49 RX/C12、BANK501 1.8 V 经转换器接桥的 3.3 V，与固定 XSA 一致。当前 COM4 为 CP210x USB VID10C4/PIDEA60，PNP 实例与前次相同。使用板载 USB 桥，不向裸 MIO 接入外部 TTL。电压未用仪器实测。",
+    "cold_jtag": "用户明确表示已换成 JTAG 模式；本次真实读回 BootMode=0，CPU0/1 起初在 BootROM 停驻区运行，停核后 PC 分别为 FFFFFF28/FFFFFF34，OCM_CFG=0x18。前次 BootMode=1 且 CPU0=00102030，本次锁存启动模式及 PC 均变化；据此判断已经重新启动到 JTAG BootROM 停驻状态。具体断电/上电时刻未测。照片旧跳帽不替代本次实物寄存器。",
+    "exclusive_writers": "本次 JTAG BootROM 停驻期间未下载任何应用/位流，两个 ARM 核已停止；本任务服务 PID39576/父37840 独占本机3121。本机进程清单未发现其他 Vivado/Vitis/XSDB/XSCT 控制者；清单中临时 pwsh 为清单采集本身。本轮 root 为唯一硬件控制者，子代理只读静态文件。按该启动状态判断没有启动旧 Linux/FSBL/PL/DMA writer，后续仍须再次检查目标/停核及服务/串口身份。"
+  },
+  "live_state_binding": {
+    "path": "report/evidence/S2B-T06/ps_jtag_retry_20261009_120653_r01/ps_state_result.json",
+    "sha256": "072b9f65d10da992300532f2873c3a8b843e2f24cf270b4789e00155d0b014e6",
+    "readback_at_utc8": "2026-10-09T12:13:26.513349+08:00"
+  },
+  "reason": "用户提供完整 AX7020 照片后，root 核对已验收板卡身份、厂商 V2.2 的器件布局及14/15/17/18/26页，确认固定 PS-only 候选与本板资料对应，适用于当前受控检查；六项确认只覆盖上述有来源的工程判断，不能当成仪器测量、实际 DDR 丝印证明或功能通过。冷 JTAG 和独占条件采用用户当前操作及真实读回证据，执行前由 runner 再核验。本次不改写用户已明确确认的 XC7Z020-2 目标决策。"
+}

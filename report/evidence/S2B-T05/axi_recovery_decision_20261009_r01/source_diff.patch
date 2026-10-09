@@ -1,0 +1,70 @@
+diff --git a/.codex/STATE.md b/.codex/STATE.md
+index e3611e9..71cc4b3 100644
+--- a/.codex/STATE.md
++++ b/.codex/STATE.md
+@@ -42,7 +42,7 @@
+ - S2B-T01 资料核查入口：`report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/audit.md` 与同目录 delivery manifest；保留解析状态、六页渲染图及外部 XPR 的只读差异。包装通过不代表阶段2B G0或实物通过。
+ - S2B-T03 最新依据：`board/README.md` 及 `report/evidence/S2B-T03/target_resolution_20261008_r02/`；新手册PDF10/12页含XC/-2完整型号，照片XA冲突保留部署前核实。r01被替代，原始日志和旧候选源码快照保留。当前Goal持续推进全部可离线工作，到必要实物交接或无法自主消除的阻碍停止；不把预上板包称为阶段2B通过。
+ - S2B-T02 离线采集比对工具已独立G2 PASS，源码 `verification/s2b_fixed_capture_check.py`；32项测试、9次真实CLI期望及独立手算均通过，两头全字节与框顺序/1e-6绝对容差检查可用。证据 `report/evidence/S2B-T02/capture_check_20261008_r01/`，inputs依赖与delivery包装均通过；原始失败/拒绝日志保留。这是PC文件检查器，不冻结UART/AXI传输，不计为109整网或1000次板上任务。
+-- S2B-T05 在《系统设计》准备物理恢复候选 `S2B-AXI-RECOVERY-20261008`：2A内部超时事件保留，2B停止计算并排空已发AXI事务后归还buffer，未排空持续隔离；控制门禁不能阻止CPU绕过驱动访问DDR。当前待Wong选择、未冻结，不修改2A原契约；候选快照/协议反例在 `report/evidence/S2B-T05/axi_abort_contract_20261008_r01/`。
++- S2B-T05：Wong于2026-10-09回复「可以采用这个方案」，已批准采用《系统设计》候选 `S2B-AXI-RECOVERY-20261008` 的恢复原则 `s2b-axi-recovery-principles/1.0.0`：2A内部超时事件保留，2B停止计算并排空已发AXI事务后归还buffer，未排空持续隔离；控制门禁不能阻止CPU绕过驱动访问DDR。仅冻结恢复原则，完整物理接口待设计验证；物理实现/实板验收未执行，2B G0/G3/G4/G5未通过。2A原契约不变；候选快照/协议反例保留于 `report/evidence/S2B-T05/axi_abort_contract_20261008_r01/`。
+ - S2B-T04 PS-only平台独立R2 G2 PASS：全新Vivado2026.1重建23.482秒、10项防覆盖、73字段/50请求及历史映射通过，R1作用域问题关闭。正式离线冻结记录为 `docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md`；唯一下游XSA位于r02/candidate_attempt1，SHA `a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58`。独立实际证据在 `report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/`；仅批准S2B-T06离线构建，原工具UNKNOWN保留，不代表实板profile或2B G0/G3/G5。
+ - S2B-T06离线候选`s2b-ps-smoke/1.0.0`独立G2 PASS：Developer真实构建43.564秒，干净隔离副本48.032秒，36项核查/9CLI/14布局反例及3实际ELF反例通过。两轮均启用DCache、每模式写回/失效后读回；专属1MiB DDR `[0x01100000,0x01200000)`，最小OCM初始化不加载旧boot image或PL。正式记录`docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_smoke_offline_freeze_20261009.md`；完整操作入口`vitis/s2b_ps_smoke.md`；开发、独立及集成实际证据在`report/evidence/S2B-T06/`，旧FAIL保留。冻结包evidence检查0，inputs检查2，仅因实板项NOT_RUN阻断依赖；此批准不等于实板安全窗口/初始化、G3/G4或2B G5通过。
+-- 下一必要步骤是按固定操作包取得实板PS初始化、完整UART及DDR零不匹配结果；先核实实际板卡/PCB、接线/电平/时钟、冷JTAG及CPU0独占条件，不能跳到依赖它们的整网上板任务。离线实物交接入口已备妥，阶段2B仍未通过。物理PS/PL恢复接口待Wong决定，地址映射及缓存可见性随后核定。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。
++- 下一必要步骤是按固定操作包取得实板PS初始化、完整UART及DDR零不匹配结果；先核实实际板卡/PCB、接线/电平/时钟、冷JTAG及CPU0独占条件，不能跳到依赖它们的整网上板任务。离线实物交接入口已备妥，阶段2B仍未通过。按已批准原则细化并验证物理PS/PL恢复接口、地址映射及缓存可见性。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。
+diff --git a/.gitattributes b/.gitattributes
+index e6007a6..ff64c59 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -219,6 +219,9 @@ report/evidence/S2B-T02/capture_check_20261008_r01/pack_evidence_after_lf.stdout
+ # S2B-T05 保留恢复候选快照与协议分析的原始字节
+ report/evidence/S2B-T05/axi_abort_contract_20261008_r01/** -text
+ 
++# S2B-T05 方案批准及独立审查证据按SHA保持原字节
++report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
++
+ # S2B-T04 离线PS平台的源码及工具生成证据保留原始字节
+ vivado/s2b_ps_platform.tcl -text
+ board/ps_platform_fields.json -text
+diff --git "a/docs/obsidian-project/02-\346\226\271\346\241\210\350\256\276\350\256\241/\347\263\273\347\273\237\350\256\276\350\256\241.md" "b/docs/obsidian-project/02-\346\226\271\346\241\210\350\256\276\350\256\241/\347\263\273\347\273\237\350\256\276\350\256\241.md"
+index b76f695..e20cad6 100644
+--- "a/docs/obsidian-project/02-\346\226\271\346\241\210\350\256\276\350\256\241/\347\263\273\347\273\237\350\256\276\350\256\241.md"
++++ "b/docs/obsidian-project/02-\346\226\271\346\241\210\350\256\276\350\256\241/\347\263\273\347\273\237\350\256\276\350\256\241.md"
+@@ -68,25 +68,29 @@ BN 折叠、激活近似及定点化须有独立比较依据。最终算子列
+ 
+ 类别编码、score 定义、anchors、阈值、NMS IoU、类别内/跨类别抑制、最大候选/输出数以及同分排序在阶段1冻结。score 不宣称为经过校准的可靠概率。无检测必须返回数量0和有效帧号，不能重复沿用旧类别。
+ 
+-### 阶段2B物理异常恢复候选（待Wong决定，未冻结）
++### 阶段2B物理异常恢复原则（Wong已批准采用）
+ 
+ 候选编号：`S2B-AXI-RECOVERY-20261008`。2A冻结规格第65、71行要求第N沿超时/复位归还PS所有权，撤销未握手请求且无后续写副作用。当前控制器第244–251行立即清busy/owner，memory master取消时清pending。若物理adapter等B响应才返回逻辑mem_ready，已经被DDR通路接受的AW/W仍可能在该取消之后完成写入。直接丢掉请求或只复位PL不能满足原保证；错误B响应也不能独立证明该写没有副作用。
+ 
+-建议为2B新增「停止计算→排空→归还」物理契约：
++采用记录：2026-10-09（UTC+8），Wong在当前阶段2B总控会话回复「可以采用这个方案」，批准采用候选 `S2B-AXI-RECOVERY-20261008` 的「停止计算→排空→归还」恢复原则。原则版本为 `s2b-axi-recovery-principles/1.0.0`；本次冻结恢复原则，完整物理PS/PL接口仍须后续设计与验证。
+ 
+-| 事件/状态 | 建议的物理行为 |
++已批准采用的恢复原则如下：
++
++| 事件/状态 | 已批准采用的物理恢复原则 |
+ |---|---|
+ | timeout第N沿或busy期间soft_reset | 保留2A内部事件时点，立即停止新计算及新事务；进入物理RECOVERING，旧检测头无效 |
+-| 已发AXI事务 | adapter保留事务状态，完成已声明或已接受事务所需的通道并消费B/R响应；按旧epoch丢弃返回数据，不将旧响应送给新任务 |
+-| PS观察与buffer访问 | 外层门禁发布物理状态/归还条件并拦截RECOVERING期间的新start；门禁只约束控制入口，不能阻止CPU绕过驱动直接访问DDR。PS驱动等安全归还后才访问buffer；内部CSR的owner位单独读到0不能证明DDR可访问 |
++| 已发AXI事务 | adapter保留事务状态，完成已声明或已接受事务所需的通道并消费B/R响应；旧epoch响应只消费并丢弃结果，不将旧响应送给新任务 |
++| PS观察与buffer访问 | 外层门禁发布物理状态/归还条件并拦截RECOVERING期间的新start；门禁只约束控制入口，不能阻止CPU绕过驱动直接访问DDR。PS驱动等安全归还后才访问或重用buffer；内部CSR的owner位单独读到0不能证明DDR可访问 |
+ | 安全归还 | 全部旧事务及通路可见性条件满足后发布物理终态并归还buffer，之后才接受物理终态确认及合法start；非Bufferable属性及PS HP端口可见性须另有依据并验证 |
+-| ACK与soft_reset | 2A内部ACK只清逻辑完成/错误状态，不代表物理终态确认；RECOVERING及尚未排空的不可恢复状态中，内部ACK或再次soft_reset均不能解除外层隔离、归还buffer或允许新start。物理终态确认的寄存器编码在决定后冻结 |
++| ACK与soft_reset | 2A内部ACK只清逻辑完成/错误状态，不代表物理终态确认；RECOVERING及尚未排空的不可恢复状态中，内部ACK或再次soft_reset均不能解除外层隔离、归还buffer或允许新start。物理终态确认的寄存器编码在后续设计中冻结 |
+ | 事务始终未结束 | 保持隔离并报告不可恢复状态，不强行清outstanding或归还buffer；系统复位/重新上电属于单独恢复流程 |
+ | 冷启动硬复位 | 启动前统一初始化PS/互连/adapter；运行中只复位PL不能替代已发事务的排空 |
+ 
+-这项候选改变2B对软件可见的所有权归还和恢复条件：旧写允许在RECOVERING期间结束，软件安全重用必须等排空；不能继续声称物理层严格即时取消。2A冻结源码、原周期契约和验收记录保留。物理MMIO寄存器、门禁边界、读写可见性、错误副作用、排空失败诊断及回归用例在决定后细化；当前不把候选当作已批准接口。
++已批准采用的原则改变2B对软件可见的所有权归还和恢复条件：旧写允许在RECOVERING期间结束，软件安全重用必须等排空；不能继续声称物理层严格即时取消。恢复完成仅表示安全归还，不把超时或异常失败的任务改判成功。2A冻结源码、原周期契约、验收记录和历史候选证据保留。
++
++后续仍须设计并验证物理MMIO寄存器及ACK编码、门禁边界、PS/PL地址映射、HP通路非Bufferable属性与读写可见性、cache一致性、错误副作用、排空失败诊断、数值期限及回归用例。物理实现和实板验收尚未执行，阶段2B G0/G3/G4/G5尚未通过；恢复原则的采用不代表上述物理接口或验收已冻结通过。
+ 
+-依据：[AMD UG585 PS-PL AXI接口](https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/PS-PL-AXI-Interfaces)、[AMD PG293恢复流程](https://docs.amd.com/r/en-US/pg293-axi-firewall/Recovery)、[AMD PG293事务排空与安全复位](https://docs.amd.com/r/en-US/pg293-axi-firewall/MI-Side-Mode-Block-Condition)。PG293用于说明AXI事务和复位边界，不意味着本候选已选择或验证该IP。PS-only UART/DDR离线平台可独立推进。
++依据：[AMD UG585 PS-PL AXI接口](https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/PS-PL-AXI-Interfaces)、[AMD PG293恢复流程](https://docs.amd.com/r/en-US/pg293-axi-firewall/Recovery)、[AMD PG293事务排空与安全复位](https://docs.amd.com/r/en-US/pg293-axi-firewall/MI-Side-Mode-Block-Condition)。PG293用于说明AXI事务和复位边界；本次原则采用未选择或验证AXI Firewall IP。PS-only UART/DDR离线平台可独立推进。
+ 
+ ## 模型和数据验证
+ 

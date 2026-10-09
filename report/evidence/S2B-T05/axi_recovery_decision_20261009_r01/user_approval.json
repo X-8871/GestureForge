@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T05",
+  "proposal_id": "S2B-AXI-RECOVERY-20261008",
+  "decision": "ADOPT_RECOVERY_PRINCIPLES",
+  "decision_version": "s2b-axi-recovery-principles/1.0.0",
+  "authority": {
+    "actor": "Wong",
+    "source": "当前主聊天的直接用户消息",
+    "quote": "可以采用这个方案",
+    "context": "指已解释的AXI超时后停止新增工作、排空已发事务再归还缓冲区方案"
+  },
+  "recorded_at": "2026-10-09T09:58:35+08:00",
+  "recorded_timezone": "Asia/Shanghai",
+  "timestamp_note": "记录时读取工具当前UTC并转换UTC+8；并非伪造用户消息发送时间",
+  "baseline_commit": "5ae71a74bd08aabf2bde57a849990b3ad82200ba",
+  "approved_scope": "采纳并冻结恢复原则；具体物理寄存器/地址映射/事务属性/缓存及可见性证明/诊断数值后续设计验证。",
+  "principles": [
+    "超时及时停止新增计算及事务，失败帧结果无效",
+    "已声明或接受的旧AXI事务完成必要通道握手并接收B/R响应，旧响应不进入新任务",
+    "RECOVERING及未排空故障期间隔离缓冲区和阻止新start，驱动遵守安全归还条件",
+    "全部旧事务及通路可见性条件满足才发布物理终态并安全归还",
+    "ACK/再次soft_reset不能提前归还；旧事务不结束时持续隔离并报告不可恢复"
+  ],
+  "limits": [
+    "批准不等于物理adapter已经实现或验证，不宣称具体HP通路/属性/缓存策略已正确",
+    "未冻结完整物理PS/PL接口或阶段2B G0；实板恢复G3/G4及阶段2B G5未通过",
+    "保留2A冻结逻辑契约和历史候选证据，不授权本轮实物操作"
+  ]
+}

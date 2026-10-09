@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T05",
+  "run_id": "axi_recovery_decision_20261009_r01",
+  "source_commit": "5ae71a74bd08aabf2bde57a849990b3ad82200ba",
+  "evidence_dir": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01",
+  "interfaces": [
+    {
+      "name": "2A已冻结逻辑CSR、单word memory与取消契约；不代表2B物理接口批准",
+      "version": "2026-09-23",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/approved_attributes_snapshot.txt",
+      "sha256": "1a3a4e567e4311a47bcae955c133649ae256569013852ed9d5228edc32266fa7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/approved_STATE_snapshot.md",
+      "sha256": "7ed5874e1115b93ebbc9f7d04eadbeb63be88f9fa9a10cc6e4990585a7f03932",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/approved_system_design_snapshot.md",
+      "sha256": "a7ba351263cc62da3b53d1b45165e7f15597ee43690b4a52f1e197dae1d16431",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/collect_adoption_evidence.py",
+      "sha256": "269a406de107193c6adf0faa69fa408cafc409730a96ed981ad6d26ab5c04be6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/document_binding_check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/document_binding_check.stdout.json",
+      "sha256": "b9a0c0480a7a9ff082398b8cac7864cbcd78df1efb169e6d6008c3e78ac92664",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/document_binding_execution.json",
+      "sha256": "acce197eab9f375776cd91f5714fa39be10ac9d569ae12e99b6a914796e133e7",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/prior_candidate_snapshot.md",
+      "sha256": "0b320141727767f0b976ef6a1049e39ebfc23ecedab8daa86a4d4855255d3230",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/prior_STATE_git_snapshot.md",
+      "sha256": "45a778d79599fc971c4b678d2261bdccc5a3f2106a5b252e6d5b30ceb199100f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/source_diff.patch",
+      "sha256": "1525f6d687f1581331892e26a59f4a7e47e76119a97fed8fa3030223ff89ff9e",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/user_approval.json",
+      "sha256": "6777d08e9b01ad9d653b7e2c40c0397c435b5aa24b354e85d8d89561735c5ec4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_abort_contract_20261008_r01/delivery_manifest.json",
+      "sha256": "7e476b21b0dbcbc8d80317b9c7fb9c81f88ef8083f18733dfec024b51ce45985",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/review_receipt.json",
+      "sha256": "c654444ec94e1629c3a28f1dcfb01128e0683b9639e07962ba19bdfca1be5dde",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "用户采用记录、文档范围及历史绑定核验",
+      "status": "PASS",
+      "command": "python -X utf8 -B report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/collect_adoption_evidence.py",
+      "exit_code": 0,
+      "reason": "实际执行0；批准原话/日期/版本一致，七行行为、恢复节外内容、STATE范围及旧接口/七文件SHA独立核对，结果和真实argv已保存。"
+    },
+    {
+      "name": "独立内容审查及被审版本绑定核验",
+      "status": "PASS",
+      "command": "python -X utf8 -B -",
+      "exit_code": 0,
+      "reason": "实际独立只读命令退出0，argv/git命令和内容PASS结论见review_receipt.json；复制后总控再次核对三源及批准SHA。该结论仅覆盖本轮文档原则采用记录。"
+    },
+    {
+      "name": "物理adapter、驱动实现及实板恢复验收",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次交付仅登记已获用户批准的恢复原则，不是物理实现；业务层的RTL/驱动和实板恢复仍未执行，阶段2B G0/G3/G4/G5未通过。"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "批准版本s2b-axi-recovery-principles/1.0.0只冻结停止新增工作、排空旧事务及安全归还原则，不能作为完整物理PS/PL接口已冻结的依据。",
+    "物理MMIO、地址映射、HP事务属性与读写可见性、cache一致性、错误及诊断数值、期限和回归仍须设计验证。",
+    "旧2A取消契约与旧候选证据原样保留；旧manifest中的待审批状态是历史交付记录，本次用户采用决定在新Run生效。",
+    "被审文档实际工作区原字节保存在快照及source_diff.patch；source_commit记录修改前基线，不能冒充包含本轮改动的提交。",
+    "外层门禁约束控制入口，PS驱动必须遵守缓冲区隔离，不能阻止CPU绕过驱动直接访问DDR。",
+    "未执行RTL/Vivado/AXI仿真或实板操作；包装CHECKS_OK不代表物理接口、阶段2B G0/G3/G4/G5通过。",
+    "核验耗时与实际单次执行记录在document_binding_execution.json，峰值内存未测。",
+    "独立Reviewer对固定三源及批准记录为PASS，收据逐字节复制；Windows启动器曾失败3次并已记录，不是设计失败或测试通过。"
+  ]
+}

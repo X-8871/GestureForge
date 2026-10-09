@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "review_id": "R-T05-APPROVE-01",
+  "verdict": "PASS",
+  "review_date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "baseline_commit": "5ae71a74bd08aabf2bde57a849990b3ad82200ba",
+  "proposal_id": "S2B-AXI-RECOVERY-20261008",
+  "decision_version": "s2b-axi-recovery-principles/1.0.0",
+  "scope": "仅审查批准记录及恢复原则冻结；不验收RTL、驱动、完整物理接口或阶段2B。",
+  "source_files": {
+    "docs/obsidian-project/02-方案设计/系统设计.md": "a7ba351263cc62da3b53d1b45165e7f15597ee43690b4a52f1e197dae1d16431",
+    ".codex/STATE.md": "7ed5874e1115b93ebbc9f7d04eadbeb63be88f9fa9a10cc6e4990585a7f03932",
+    ".gitattributes": "1a3a4e567e4311a47bcae955c133649ae256569013852ed9d5228edc32266fa7"
+  },
+  "user_approval": {
+    "path": "report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/user_approval.json",
+    "sha256": "6777d08e9b01ad9d653b7e2c40c0397c435b5aa24b354e85d8d89561735c5ec4",
+    "quote": "可以采用这个方案",
+    "adoption_date": "2026-10-09",
+    "authority_basis": "总控转交的主聊天直接用户消息，与批准原件及正式文档一致；记录时间不冒充消息发送时间。"
+  },
+  "binding_evidence": {
+    "historical_manifest_sha256": "7e476b21b0dbcbc8d80317b9c7fb9c81f88ef8083f18733dfec024b51ce45985",
+    "historical_files_unchanged": 7,
+    "historical_interfaces_unchanged": 1,
+    "recovery_rows": 7,
+    "STATE_lines": 48,
+    "STATE_changed_lines": [
+      45,
+      48
+    ],
+    "outside_recovery_section": "UNCHANGED",
+    "source_snapshots_match": true,
+    "RTL_diff": "NONE",
+    "attributes_diff": "仅新增本批准Run的原字节规则",
+    "document_binding_stdout_sha256": "b9a0c0480a7a9ff082398b8cac7864cbcd78df1efb169e6d6008c3e78ac92664",
+    "document_binding_execution_sha256": "acce197eab9f375776cd91f5714fa39be10ac9d569ae12e99b6a914796e133e7"
+  },
+  "semantic_checks": [
+    {
+      "lines": [
+        75
+      ],
+      "result": "PASS",
+      "basis": "原话、日期、候选编号与原则版本一致；完整物理接口明确待设计验证。"
+    },
+    {
+      "lines": [
+        81,
+        82
+      ],
+      "result": "PASS",
+      "basis": "保留七行行为及2A事件时点；已声明或已接受事务仍须完成必要通道并消费B/R，已声明VALID不能因timeout随意撤销。"
+    },
+    {
+      "lines": [
+        82,
+        89
+      ],
+      "result": "PASS",
+      "basis": "旧epoch仅丢弃结果；旧写允许在RECOVERING期间结束，不声称撤销内存副作用。"
+    },
+    {
+      "lines": [
+        73,
+        84,
+        91
+      ],
+      "result": "PASS",
+      "basis": "B响应未被宣称无条件证明DDR可见或无写副作用；HP属性、可见性及cache仍待依据和验证。"
+    },
+    {
+      "lines": [
+        83,
+        85
+      ],
+      "result": "PASS",
+      "basis": "驱动等待安全归还才访问或重用buffer，RECOVERING拦截start；owner=0、ACK及再次soft_reset不能解锁隔离；CPU直接DDR访问仍须软件约束。"
+    },
+    {
+      "lines": [
+        86,
+        87
+      ],
+      "result": "PASS",
+      "basis": "永久未结束事务保持隔离且不清outstanding；冷启动统一初始化PS/互连/adapter，PL单独复位不能代替排空。"
+    },
+    {
+      "lines": [
+        81,
+        89
+      ],
+      "result": "PASS",
+      "basis": "旧检测头无效，恢复完成仅表示安全归还，失败任务不改判成功。"
+    },
+    {
+      "lines": [
+        91
+      ],
+      "result": "PASS",
+      "basis": "MMIO、ACK编码、地址、门禁、HP属性、visibility/cache、诊断及数值期限仍待设计验证；2B G0/G3/G4/G5未通过。"
+    }
+  ],
+  "readonly_execution": {
+    "argv": [
+      "python",
+      "-X",
+      "utf8",
+      "-B",
+      "-"
+    ],
+    "exit_code": 0,
+    "wall_time_seconds": 0.5015869,
+    "result": "PASS_INDEPENDENT_READ_ONLY_DOCUMENT_BINDINGS",
+    "purpose": "独立读取并核对原字节哈希、历史绑定、批准字段、正文边界、STATE行差、快照及执行原件；不运行总控写入型脚本。",
+    "git_commands": [
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "5ae71a74bd08aabf2bde57a849990b3ad82200ba:docs/obsidian-project/02-方案设计/系统设计.md"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "5ae71a74bd08aabf2bde57a849990b3ad82200ba:.codex/STATE.md"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--name-only",
+          "-z"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--cached",
+          "--name-only"
+        ],
+        "exit_code": 0
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "docs/obsidian-project/02-方案设计/系统设计.md",
+          ".codex/STATE.md",
+          ".gitattributes"
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "launch_environment": {
+    "initial_launcher_failures": 3,
+    "cause": "Windows执行器的shell调用方式不匹配及缺少PowerShell调用运算符，退出码均为1。",
+    "resolved": "使用PowerShell调用运算符启动精确Git Bash路径后只读审查正常完成。"
+  },
+  "findings": [],
+  "limitations": [
+    "未修改共享源码、Git分支或index；仅在独立tmp目录写本收据。",
+    "未运行实现测试、Vivado、仿真、硬件或外部访问；无物理正确性证明。",
+    "本收据为内容G2结论；新封口清单的包装检查由总控随后执行，不能外推为2B G0/G3/G4/G5。"
+  ]
+}

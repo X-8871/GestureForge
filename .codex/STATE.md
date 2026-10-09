@@ -7,7 +7,7 @@
 - 阶段2A「PL 推理仿真」已完成 G4/G5 独立审查并冻结。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
 - 用户已启动阶段2B，本工作树位于 `C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition`，分支 `codex/stage2b-t01-board-audit`，起点 `e433a081bc5f42a44ddec18b421f651d05e9c639`。当前完成资料/目标核验、PS-only平台及UART/DDR软件离线G1/G2，未通过阶段2B G0，尚未建立实板平台或进行实物操作。
 - S2A-T01 已冻结 tiny416 模型、检测头布局及 PS 解码/NMS；2B G0 尚需物理 PS/PL 地址映射、AXI/DDR 传输、DMA与缓存一致性、缓冲所有权绑定。Wong 于2026-10-08最后确认「厂商已明确确认实板是XC7Z020-2」，据此离线候选使用 `xc7z020clg400-2`，优先于此前XA/-1I确认及AGENTS旧基线。Vivado2026.1精确查询通过，XPR三个Part字段与3375cb4基线一致；照片仍直接显示XA7Z020/CLG400，实物身份冲突未关闭。资料入口 `D:\FPGA\AX7Z020\AX7Z020` 已确认，不再重复询问。PS-only UART/DDR离线BD/XSA及Vitis软件均独立G2通过；无板级XDC或实物验证。
-- 先前的阶段3方向保持原代码和文档现状；当前请求仅处理阶段2B。阶段2B 后续任务须先冻结上述接口和器件资料；板卡下载、上电、DDR/UART 实测等实物操作须另行明确授权。
+- 先前的阶段3方向保持原代码和文档现状；当前请求仅处理阶段2B。Wong于2026-10-09已授权连接后执行固定PS-only OCM初始化、CPU0 UART/DDR检查及回传日志；对应范围无需重复授权。实际PCB/profile、接线/电平/供电、冷JTAG和独占条件仍须核实；模型/PL部署及非易失存储烧写不在此次检查范围。
 - 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
 
 ## 当前候选批次（2026-10-08）
@@ -45,4 +45,4 @@
 - S2B-T05：Wong于2026-10-09回复「可以采用这个方案」，已批准采用《系统设计》候选 `S2B-AXI-RECOVERY-20261008` 的恢复原则 `s2b-axi-recovery-principles/1.0.0`：2A内部超时事件保留，2B停止计算并排空已发AXI事务后归还buffer，未排空持续隔离；控制门禁不能阻止CPU绕过驱动访问DDR。仅冻结恢复原则，完整物理接口待设计验证；物理实现/实板验收未执行，2B G0/G3/G4/G5未通过。2A原契约不变；候选快照/协议反例保留于 `report/evidence/S2B-T05/axi_abort_contract_20261008_r01/`。
 - S2B-T04 PS-only平台独立R2 G2 PASS：全新Vivado2026.1重建23.482秒、10项防覆盖、73字段/50请求及历史映射通过，R1作用域问题关闭。正式离线冻结记录为 `docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md`；唯一下游XSA位于r02/candidate_attempt1，SHA `a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58`。独立实际证据在 `report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/`；仅批准S2B-T06离线构建，原工具UNKNOWN保留，不代表实板profile或2B G0/G3/G5。
 - S2B-T06离线候选`s2b-ps-smoke/1.0.0`独立G2 PASS：Developer真实构建43.564秒，干净隔离副本48.032秒，36项核查/9CLI/14布局反例及3实际ELF反例通过。两轮均启用DCache、每模式写回/失效后读回；专属1MiB DDR `[0x01100000,0x01200000)`，最小OCM初始化不加载旧boot image或PL。正式记录`docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_smoke_offline_freeze_20261009.md`；完整操作入口`vitis/s2b_ps_smoke.md`；开发、独立及集成实际证据在`report/evidence/S2B-T06/`，旧FAIL保留。冻结包evidence检查0，inputs检查2，仅因实板项NOT_RUN阻断依赖；此批准不等于实板安全窗口/初始化、G3/G4或2B G5通过。
-- 下一必要步骤是按固定操作包取得实板PS初始化、完整UART及DDR零不匹配结果；先核实实际板卡/PCB、接线/电平/时钟、冷JTAG及CPU0独占条件，不能跳到依赖它们的整网上板任务。离线实物交接入口已备妥，阶段2B仍未通过。按已批准原则细化并验证物理PS/PL恢复接口、地址映射及缓存可见性。实物操作仍须明确授权；保持阶段3和原目录已有改动不动。
+- 下一必要步骤是按固定操作包取得实板PS初始化、完整UART及DDR零不匹配结果；本次实物授权已获，待设备接入及实际PCB/profile、接线/电平/时钟、冷JTAG和CPU0独占条件确认后执行，不跳到整网上板。2026-10-09本地前置核验中固定输入/布局/证据通过，尚未识别COM或常见USB调试桥；日志入口 `report/evidence/S2B-T06/ps_smoke_hw_20261009_101728_r01/`，实板执行仍NOT_RUN。阶段2B仍未通过；按已批准原则细化物理恢复接口、地址映射及缓存可见性，保持阶段3和原目录不动。

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_CONNECTION_CHECKS_ONLY",
+  "hardware_execution": "NOT_RUN",
+  "source_commit": "ccd384925b56ae5b9bbc534d2bd698e5c2ae006d",
+  "independent_preflight": {
+    "agent": "/root/s2b_hardware_preflight_review",
+    "source": "只读子代理已完成的审查消息；本摘要由总控登记",
+    "verdict": "PASS_READY_TO_CHECK_CONNECTIONS_CONDITIONAL",
+    "fixed_artifact_hashes": "XSA、两个ELF、layout及源码匹配，layout_binding中35项文件匹配",
+    "implementation_runner": "现有固定操作包，无既有实板runner"
+  },
+  "connection_snapshot": "2026-10-09T10:22:27+08:00时.NET/Win32均无COM，0403/03FD/1443/10C4/1A86 USB桥未出现，无相关调试进程或3121监听。",
+  "pending_physical_facts": [
+    "实际核心板/底板PCB与固定profile对应",
+    "供电、UART使用板载J7/CP2102还是外接TTL及实际电平/共地",
+    "33.333333MHz PS_CLK及DDR颗粒与固定profile适用性",
+    "冷启动进入JTAG/cascade，未运行旧程序，无其他调试/串口和DDR writer"
+  ],
+  "additional_readonly_gates": [
+    {
+      "register": "BOOT_MODE",
+      "address": "0xF800025C",
+      "predicate": "低3位为0且bit3为0；记录bit4，不写寄存器修补",
+      "basis": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Boot-Mode-Pin-Settings"
+    },
+    {
+      "register": "OCM_CFG",
+      "address": "0xF8000910",
+      "predicate": "(value & 0xF)==8，匹配固定ELF低192KiB/高64KiB映射",
+      "basis": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-OCM_CFG-Details",
+      "note": "官方0x18是OCM_CFG例值，不是BOOT_MODE值。"
+    },
+    {
+      "register": "CPU0/CPU1 PC/state及MCTRL",
+      "address": "MCTRL=0xF8007080",
+      "predicate": "同一已核验APU链，两核静止；联合实际冷启动事实和硅版本核实，不把Stopped单独当冷启动证明"
+    }
+  ],
+  "stop_conditions": "设备/资料/目标链不符、读拒绝、只读谓词不符、串口Open失败、意外reset、CPU1变化、初始化fail/超时、smoke状态或完整UART不符均停止，不用force/mwr修补。",
+  "initialization_success": "CPU0 PC=0x1D08且OCM结果0x9200=2、原返回0x39C0=0、CPU1仍停止；随后不reset下载smoke。",
+  "smoke_success": "PC=0x0010AD58、smoke结果0x00114140=2、CPU1仍停止及同一次原始UART完整BEGIN/BUILD/UART/BUFFER/16模式/PASS/END，4194304 words、mismatches=0。",
+  "limits": "这些是拟执行前置核查与成功谓词，不是已读寄存器、已初始化或DDR实测结果。"
+}

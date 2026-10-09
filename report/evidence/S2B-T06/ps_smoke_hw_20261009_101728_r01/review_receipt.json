@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "R-HW-T06-CAPTURE-PREP-01",
+  "reviewer": "/root/s2b_hardware_preflight_review",
+  "reviewed_at": "2026-10-09T10:31:19+08:00",
+  "verdict": "PASS",
+  "status": "PASS_STATIC_PREPARATION_REVIEW",
+  "source_commit": "ccd384925b56ae5b9bbc534d2bd698e5c2ae006d",
+  "bound_files": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\capture_uart.ps1",
+      "sha256": "3b78f5b54dc7413821400e2c5df3bc1c73a93375b9b71ede9bec42a99e16605d",
+      "bytes": 9363,
+      "encoding": "UTF-8 BOM",
+      "lines": 223
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\capture_uart.ps1",
+      "sha256": "3b78f5b54dc7413821400e2c5df3bc1c73a93375b9b71ede9bec42a99e16605d",
+      "copy_bytes_equal": true
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\.codex\\STATE.md",
+      "sha256": "42876e71bed5655a36cb09b6b7b1241d5e10168ae6acc885c9b74710ef70a2a7",
+      "lines": 48,
+      "changed_lines_from_head": [
+        10,
+        48
+      ]
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\authorized_STATE_snapshot.md",
+      "sha256": "42876e71bed5655a36cb09b6b7b1241d5e10168ae6acc885c9b74710ef70a2a7",
+      "copy_bytes_equal": true
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\authorization.json",
+      "sha256": "a71824be9f6cab94a136a5fadb860ed88249b4a9dc045034e13d25c9edf084eb"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\preflight.json",
+      "sha256": "23d9e8a5683555c8810a3ebfe5093a4d1bf68dea4f2e0fb6fc52d68e726b515c"
+    }
+  ],
+  "review_checks": {
+    "serial_configuration": "115200/8N1，无流控，DTR/RTS=false，ReadTimeout=200ms，4096字节缓冲。",
+    "raw_capture": "CreateNew拒绝覆盖；Read返回的原字节Write后Flush；控制台标记不进入原始文件。",
+    "startup_failure": "Open失败被捕获；已创建raw保留；Close/Dispose与raw Flush/Dispose各自独立清理。",
+    "readiness": "CAPTURE_OPEN仅在SerialPort.Open成功后输出。",
+    "stop_policy": "600秒保护以退出码2报告；可选停止文件必须全新、名为stop_capture.flag、与raw同父目录；正常停止退出0，清理错误改为1。",
+    "path_policy": "逐分量核对实际字符和大小写，拒绝父目录重解析点、冲突、已有目标、无效路径分量及COM占位值；停止文件再次核对名称和普通文件类型。",
+    "authorization_and_state": "直接用户授权限定固定PS-only OCM初始化及CPU0 UART/DDR检查；STATE仅变更10/48行，保留现场事实待确认及实板NOT_RUN，未扩大为PL/镜像/非易失存储操作。",
+    "source_copies": "采集脚本源码与证据复制件逐字节一致；STATE与授权快照逐字节一致。"
+  },
+  "static_validation": {
+    "mode": "Parser.ParseFile，仅解析语法",
+    "command": "$reviewScript = 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\capture_uart.ps1'\n$reviewTokens = $null\n$reviewErrors = $null\n$reviewAst = [System.Management.Automation.Language.Parser]::ParseFile($reviewScript, [ref]$reviewTokens, [ref]$reviewErrors)",
+    "exit_code": 0,
+    "error_count": 0,
+    "powershell_version": "7.6.5",
+    "powershell_edition": "Core"
+  },
+  "execution_conditions": [
+    "总控实际调用RawPath必须绑定本次人工Run下的uart_raw.bin，StopFlagPath绑定同Run的stop_capture.flag；脚本是参数化采集工具，不自行选择输出目录或证明COM身份。",
+    "总控在完整END已写入raw、CPU停止及状态保存后创建停止标记；采集退出0仅表示正常停止，硬件成功仍须固定操作包的UART/PC/诊断状态联合判据。"
+  ],
+  "findings": [],
+  "limitations": [
+    "未调用采集脚本、打开COM、枚举JTAG、创建调试会话、启动server或执行实板；未做运行测试。",
+    "静态PASS不证明SerialPort运行行为或G3/G4；当前NO_DEVICE记录属于预期前置状态，不是软件失败。"
+  ],
+  "reviewer_written_artifact": "仅本隔离目录的review_receipt.json；未修改被审文件、Git分支或index。"
+}

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "source_commit": "ccd384925b56ae5b9bbc534d2bd698e5c2ae006d",
+  "task_id": "S2B-T06",
+  "hardware_execution": "NOT_RUN",
+  "executions": [
+    {
+      "name": "初次Windows连接/服务库存",
+      "command": "$ErrorActionPreference = 'Stop'\n$ports = @(Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name, PNPDeviceID, Status)\n$usb = @(Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPDeviceID -match '^USB\\\\VID_(0403|10C4|1A86)' } | Select-Object Name, PNPDeviceID, Status)\n$procs = @(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(hw_server|cs_server|xsdb|xsct|vivado|vitis|putty|ttermpro)\\.exe$' } | Select-Object ProcessId, ParentProcessId, Name, ExecutablePath, CommandLine)\n$listener = @(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress, LocalPort, OwningProcess)\n$os = Get-CimInstance Win32_OperatingSystem\n[pscustomobject]@{ serial_ports=$ports; relevant_usb=$usb; fpga_processes=$procs; listener_3121=$listener; free_physical_memory_kib=$os.FreePhysicalMemory } | ConvertTo-Json -Depth 7",
+      "exit_code": 0,
+      "wall_time_seconds": 2.7501493999999997,
+      "output": "host_inventory_01.stdout.json"
+    },
+    {
+      "name": "固定输入绑定核验",
+      "command": "python -X utf8 -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T06/ps_smoke_20261008_r01/inputs_manifest_r03.json",
+      "exit_code": 0,
+      "wall_time_seconds": 0.5044083,
+      "output": "fixed_inputs_check.stdout.json"
+    },
+    {
+      "name": "首次布局校验参数拒绝",
+      "command": "python -X utf8 -B verification/check_s2b_ps_smoke_layout.py --manifest report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/layout_binding.json",
+      "exit_code": 1,
+      "wall_time_seconds": 0.4674687,
+      "status": "FAIL_COMMAND_ARGUMENT",
+      "reason": "布局校验器要求绝对manifest路径；相对路径被拒绝，未执行硬件，随后使用已核验绝对路径校验通过。",
+      "output": "layout_check_01_failed.stdout.json"
+    },
+    {
+      "name": "离线冻结证据包装",
+      "command": "python -X utf8 -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "wall_time_seconds": 1.208606,
+      "output": "offline_evidence_check.stdout.json"
+    },
+    {
+      "name": "第二次Windows连接/服务库存",
+      "command": "$ErrorActionPreference = 'Stop'\n[pscustomobject]@{ checked_at_utc8=[DateTimeOffset]::UtcNow.ToOffset([TimeSpan]::FromHours(8)).ToString('o'); dotnet_com_ports=@([System.IO.Ports.SerialPort]::GetPortNames()); serial_ports=@(Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name, PNPDeviceID, Status); relevant_usb=@(Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPDeviceID -match '^USB\\\\VID_(0403|03FD|1443|10C4|1A86)' } | Select-Object Name, PNPDeviceID, Status); fpga_processes=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(hw_server|cs_server|xsdb|xsct|vivado|vitis|putty|ttermpro)\\.exe$' } | Select-Object ProcessId, ParentProcessId, Name, ExecutablePath); listener_3121=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress, LocalPort, OwningProcess) } | ConvertTo-Json -Depth 7",
+      "exit_code": 0,
+      "wall_time_seconds": 1.3959882000000001,
+      "output": "host_inventory_02.stdout.json"
+    },
+    {
+      "name": "串口采集脚本静态解析",
+      "command": "$ErrorActionPreference = 'Stop'\n$captureSource = Get-Item -LiteralPath 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_hw_20261009_101728_r01\\capture_uart.ps1'\n$parseTokens = $null\n$parseErrors = $null\n$parsedAst = [System.Management.Automation.Language.Parser]::ParseFile($captureSource.FullName, [ref]$parseTokens, [ref]$parseErrors)\n$decodedSource = [System.IO.File]::ReadAllText($captureSource.FullName, [System.Text.UTF8Encoding]::new($false, $true))\nif (@($parseErrors).Count -ne 0) { $parseErrors | ConvertTo-Json -Depth 5; exit 1 }\n[pscustomobject]@{ status='STATIC_PARSE_OK'; source=$captureSource.FullName; source_sha256=(Get-FileHash -LiteralPath $captureSource.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); powershell_version=$PSVersionTable.PSVersion.ToString(); utf8_strict_read='PASS'; errors=@(); hardware_execution='NOT_RUN'; script_executed=$false } | ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "wall_time_seconds": 0.2204753,
+      "output": "capture_static_parse.stdout.json"
+    }
+  ],
+  "corrected_layout_execution": "layout_check_02.execution.json",
+  "output_note": "宿主工具返回的文本使用UTF8存档；当前没有设备UART原始字节或目标寄存器/执行日志。",
+  "peak_memory": "未测",
+  "host_free_physical_memory_kib_at_first_inventory": 3402540,
+  "limits": [
+    "本轮只进行只读宿主检查、冻结输入/布局核验及静态采集准备。",
+    "没有启动hw_server或创建XSDB会话，没有停止/复位/下载/运行任何CPU或设备程序。",
+    "旧离线记录原样保留，本授权仅覆盖固定PS-only前置检查。"
+  ]
+}

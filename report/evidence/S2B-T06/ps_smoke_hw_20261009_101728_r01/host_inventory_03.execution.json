@@ -1,0 +1,6 @@
+{
+  "command": "$ErrorActionPreference = 'Stop'\n[pscustomobject]@{ checked_at_utc8=[DateTimeOffset]::UtcNow.ToOffset([TimeSpan]::FromHours(8)).ToString('o'); dotnet_com_ports=@([System.IO.Ports.SerialPort]::GetPortNames()); serial_ports=@(Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Name, PNPDeviceID, Status); relevant_usb=@(Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPDeviceID -match '^USB\\\\VID_(0403|03FD|1443|10C4|1A86)' } | Select-Object Name, PNPDeviceID, Status); fpga_processes=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(hw_server|cs_server|xsdb|xsct|vivado|vitis|putty|ttermpro)\\.exe$' } | Select-Object ProcessId, ParentProcessId, Name, ExecutablePath); listener_3121=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress, LocalPort, OwningProcess) } | ConvertTo-Json -Depth 7",
+  "exit_code": 0,
+  "wall_time_seconds": 1.3949715,
+  "hardware_execution": "NOT_RUN"
+}

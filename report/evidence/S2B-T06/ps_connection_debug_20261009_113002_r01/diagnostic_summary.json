@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T06",
+  "run_id": "ps_connection_debug_20261009_113002_r01",
+  "source_commit": "aae7fb6e54f10729fa93429cfc81546cf2a736b5",
+  "prepared_at_utc8": "2026-10-09T11:53:44.986972+08:00",
+  "status": "BLOCKED_COLD_JTAG",
+  "authorization": "既有固定PS-only实物检查授权有效；用户已确认连接并要求继续诊断。",
+  "outcomes": {
+    "connection": {
+      "status": "PASS",
+      "com_port": "COM4",
+      "host_inventory": {
+        "checked_at_utc8": "2026-10-09T11:34:09.1093290+08:00",
+        "com_ports": [
+          "COM4"
+        ],
+        "serial_ports": [
+          {
+            "DeviceID": "COM4",
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "Status": "OK"
+          }
+        ],
+        "usb_bridges": [
+          {
+            "Class": "USB",
+            "FriendlyName": "USB Serial Converter",
+            "InstanceId": "USB\\VID_0403&PID_6014\\210512180081",
+            "Status": "OK",
+            "Problem": 0
+          },
+          {
+            "Class": "Ports",
+            "FriendlyName": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "InstanceId": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "Status": "OK",
+            "Problem": 0
+          }
+        ],
+        "hw_server": [
+          {
+            "ProcessId": 23120,
+            "ParentProcessId": 34568,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe"
+          }
+        ],
+        "listener": [
+          {
+            "OwningProcess": 23120
+          }
+        ]
+      },
+      "jtag_target_count": 4,
+      "jtag_status": "TARGETS_ENUMERATED",
+      "cable": "Digilent JTAG-HS1 210512180081",
+      "same_apu_cpu_pair": true,
+      "evidence": [
+        "host_inventory_retry.stdout.json",
+        "jtag_targets_result.json"
+      ]
+    },
+    "serial_open_close": {
+      "status": "PASS",
+      "capture_open": {
+        "time": "2026-10-09T11:36:48.1997284+08:00",
+        "port": "COM4",
+        "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\uart_raw.bin",
+        "stop_flag_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\stop_capture.flag",
+        "baud": 115200,
+        "format": "8N1",
+        "flow_control": "None",
+        "dtr": false,
+        "rts": false,
+        "read_timeout_ms": 200,
+        "limit_seconds": 600
+      },
+      "capture_closed": {
+        "time": "2026-10-09T11:45:33.2033714+08:00",
+        "port": "COM4",
+        "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\uart_raw.bin",
+        "opened": true,
+        "raw_created": true,
+        "captured_bytes": 0,
+        "reason": "stop_flag",
+        "limit_600s_reached": false,
+        "stop_flag_seen": true,
+        "elapsed_seconds": 525.0109092,
+        "failure_message": null,
+        "cleanup_errors": [],
+        "exit_code": 0
+      },
+      "raw_file": {
+        "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/uart_raw.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "parent_process_exit_code": null,
+      "parent_exit_code_meaning": "null为不可获得，不当成0；CAPTURE_CLOSED脚本字段为0。",
+      "evidence": [
+        "uart_capture_identity.json",
+        "uart_capture_stdout.log",
+        "ps_state_and_cleanup_execution.json"
+      ]
+    },
+    "board_uart_function": {
+      "status": "NOT_RUN",
+      "reason": "未运行smoke，原始串口0字节，无BEGIN/END。"
+    },
+    "halt_readback": {
+      "status": "PASS",
+      "probe_status": "PS_STATE_READBACK_SAVED",
+      "states_before": {
+        "cpu0": "Running",
+        "cpu1": "Running"
+      },
+      "states_after": {
+        "cpu0": "Stopped: (Suspended)",
+        "cpu1": "Stopped: (Suspended)"
+      },
+      "stop_requested": [
+        "cpu0",
+        "cpu1"
+      ],
+      "halted_confirmed": [
+        "cpu0",
+        "cpu1"
+      ],
+      "pcs": {
+        "cpu0": {
+          "api_stdout": "pc: 00102030\n\n",
+          "return_repr": "None",
+          "return_type": "NoneType"
+        },
+        "cpu1": {
+          "api_stdout": "pc: ffffff34\n\n",
+          "return_repr": "None",
+          "return_type": "NoneType"
+        }
+      },
+      "registers": {
+        "BOOT_MODE": {
+          "address_hex": "0xF800025C",
+          "value_decimal": 1,
+          "value_hex": "0x00000001",
+          "api_return_repr": "1",
+          "api_stdout": ""
+        },
+        "MCTRL": {
+          "address_hex": "0xF8007080",
+          "value_decimal": 813695232,
+          "value_hex": "0x30800100",
+          "api_return_repr": "813695232",
+          "api_stdout": ""
+        },
+        "OCM_CFG": {
+          "address_hex": "0xF8000910",
+          "value_decimal": 24,
+          "value_hex": "0x00000018",
+          "api_return_repr": "24",
+          "api_stdout": ""
+        }
+      },
+      "cleanup_errors": [],
+      "evidence": [
+        "ps_state_result.json"
+      ]
+    },
+    "cold_jtag": {
+      "status": "BLOCKED",
+      "boot_mode_low3": 1,
+      "required_boot_mode_low3": 0,
+      "reason": "实际BOOT_MODE低3位1，CPU0 PC在已有应用地址范围；冷JTAG前提不成立，停止初始化。",
+      "mctrl_note": "仅记录0x30800100原值，不猜硅版本。",
+      "ocm_cfg_low4": 8,
+      "ocm_cfg_note": "低4位8与离线候选一致，不能据此证明初始化安全。"
+    },
+    "ps_initialization": {
+      "status": "NOT_RUN",
+      "reason": "冷JTAG前置条件BLOCKED，未下载OCM初始化ELF。"
+    },
+    "ddr_smoke": {
+      "status": "NOT_RUN",
+      "reason": "未下载或执行smoke，没有PATTERN_PASS/最终状态或DDR核验结果。"
+    },
+    "stage2b_G0_G3_G4_G5": {
+      "status": "BLOCKED",
+      "reason": "物理接口和冷JTAG/板级条件未完成；本次连接、采集开关及停核读回PASS不代替阶段验收。"
+    }
+  },
+  "actual_hardware_actions": {
+    "download_count": 0,
+    "stop_count": 2,
+    "pc_read_count": 2,
+    "single_word_memory_read_count": 3,
+    "reset_count": 0,
+    "resume_count": 0,
+    "memory_write_count": 0,
+    "breakpoint_count": 0,
+    "arm_program_execution": "NOT_RUN"
+  },
+  "cleanup": {
+    "probe_session_cleanup_errors": [],
+    "jtag_probe_cleanup_errors": [],
+    "cpu_resume_execution": "NOT_RUN",
+    "last_observed_cpu_states": {
+      "cpu0": "Stopped: (Suspended)",
+      "cpu1": "Stopped: (Suspended)"
+    },
+    "serial_capture_closed": {
+      "time": "2026-10-09T11:45:33.2033714+08:00",
+      "port": "COM4",
+      "raw_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\uart_raw.bin",
+      "opened": true,
+      "raw_created": true,
+      "captured_bytes": 0,
+      "reason": "stop_flag",
+      "limit_600s_reached": false,
+      "stop_flag_seen": true,
+      "elapsed_seconds": 525.0109092,
+      "failure_message": null,
+      "cleanup_errors": [],
+      "exit_code": 0
+    },
+    "owned_server_close": {
+      "status": "OWNED_SERVER_CLOSED",
+      "native_pid": 23120,
+      "launcher_pid": 34568,
+      "native_exited": true,
+      "launcher_exited": true,
+      "remaining_listeners": [],
+      "closed_at_utc8": "2026-10-09T11:46:48.5414897+08:00",
+      "cpu_resume_execution": "NOT_RUN"
+    },
+    "owned_server_close_command_exit_code": 0,
+    "last_observed_cpu_states_at_utc8": "2026-10-09T11:44:53.579566+08:00",
+    "observation_limit": "总控此后未resume/reset，未持续观测板卡；用户后续断电上电须重新核验。"
+  },
+  "source_bindings": [
+    {
+      "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/jtag_targets_probe.py",
+      "sha256": "201dc67de8427662fdf1852309c270eda24f2a9bf70cc2670802b152208c3dc6",
+      "bytes": 5066
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/ps_state_probe.py",
+      "sha256": "cd3c8dfd24baa9c6b65563152dcde750e730d001077649a7e39e08c436c0a8bf",
+      "bytes": 11451
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_smoke_hw_20261009_101728_r01/capture_uart.ps1",
+      "sha256": "3b78f5b54dc7413821400e2c5df3bc1c73a93375b9b71ede9bec42a99e16605d",
+      "bytes": 9363
+    }
+  ],
+  "independent_probe_review_bindings": [
+    {
+      "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/jtag_probe_review_receipt.json",
+      "sha256": "84af3cfc82c75420ad580f091f3bc3dcf22564c072c11f8ad523dc2127086359",
+      "bytes": 3865
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/ps_state_review_receipt.json",
+      "sha256": "ce12ef068ee70ab78a430f2fdde5272cda36db7135bde0d769a01e6f7f0400ec",
+      "bytes": 2989
+    }
+  ],
+  "fixed_offline_input_bindings": [
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/s2b_ps_only.xsa",
+      "sha256": "a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58",
+      "bytes": 246021
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/s2b_ps_init.elf",
+      "sha256": "366ad1f4831eba9db0510c0e5343d34e3b355f72c8f8bcae419903814246024c",
+      "bytes": 170752
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/s2b_ps_smoke.elf",
+      "sha256": "8b9803682c9585a8dad91daf96f3f102de948466025e0cf28ee4b96e6cfde428",
+      "bytes": 308228
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/layout_binding.json",
+      "sha256": "e18449c721fcfe4113cf31acaa31c82f7c65d5b274bc8ef6043869199a11d1b1",
+      "bytes": 10448
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_smoke_20261008_r01/inputs_manifest_r03.json",
+      "sha256": "9b35050163c2cc47306e2b5f5fc4ed0e5d9835afa1fd158ff68a3959ef123778",
+      "bytes": 2317
+    },
+    {
+      "path": "vitis/s2b_ps_smoke.md",
+      "sha256": "c15290c48ccbc03c55418c2efa0ca2df815eacdeffb60e53363eca4fba490db5",
+      "bytes": 26440
+    }
+  ],
+  "interface_references": [
+    {
+      "name": "仅G1/G2离线前置候选，不是实板profile验收",
+      "version": "s2b-ps-platform/1.0.1",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md",
+      "sha256": "89512d94859abf083e958a2e53139d8f4ab0c0a61989c76eb8794eba9c9db6c1"
+    },
+    {
+      "name": "仅G1/G2离线前置候选，不是实板profile验收",
+      "version": "s2b-ps-smoke/1.0.0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_smoke_offline_freeze_20261009.md",
+      "sha256": "8ad988a011ea93c024df64a55a047b494422839ef8cb2fe886886267bfda032f"
+    }
+  ],
+  "state_snapshot": {
+    "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/authorized_STATE_snapshot.md",
+    "sha256": "664d901e38e42f5e3e5de1e9e91c13f172af240c4bfb0038fe0f276553f8ece1",
+    "bytes": 13354
+  },
+  "retained_failures_and_recoveries": [
+    {
+      "name": "第一次读取枚举原log时UTF8拒绝",
+      "exit_code": 1,
+      "execution_record": "connection_execution_record.json",
+      "recorded_error": "jtag_targets_result.json\r\n{\r\n  \"started_at\": \"2026-10-09T11:34:45.862093+08:00\",\r\n  \"scope\": \"只连接本次本地hw_server并枚举目标，不读写目标寄存器或内存，不停止/复位/下载/运行目标。\",\r\n  \"hardware_program_execution\": \"NOT_RUN\",\r\n  \"status\": \"TARGETS_ENUMERATED\",\r\n  \"expected_hw_server_pid\": 23120,\r\n  \"calls\": [\r\n    {\r\n      \"command\": \"$ErrorActionPreference='Stop'; $servers=@(Get-CimInstance Win32_Process -Filter \\\"Name='hw_server.exe'\\\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5\",\r\n      \"exit_code\": 0,\r\n      \"server_snapshot\": {\r\n        \"servers\": [\r\n          {\r\n            \"ProcessId\": 23120,\r\n            \"ParentProcessId\": 34568,\r\n            \"ExecutablePath\": \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n            \"CreationTimeFileTimeUtc\": \"134359904267627860\"\r\n          }\r\n        ],\r\n        \"listeners\": [\r\n          {\r\n            \"LocalAddress\": \"0.0.0.0\",\r\n            \"LocalPort\": 3121,\r\n            \"OwningProcess\": 23120\r\n          }\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"api\": \"xsdb.start_debug_session\",\r\n      \"state\": \"CALLING\"\r\n    },\r\n    {\r\n      \"api\": \"session.connect(host='127.0.0.1', port=3121, server='hw_server')\",\r\n      \"state\": \"CALLING\"\r\n    },\r\n    {\r\n      \"command\": \"$ErrorActionPreference='Stop'; $servers=@(Get-CimInstance Win32_Process -Filter \\\"Name='hw_server.exe'\\\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5\",\r\n      \"exit_code\": 0,\r\n      \"server_snapshot\": {\r\n        \"servers\": [\r\n          {\r\n            \"ProcessId\": 23120,\r\n            \"ParentProcessId\": 34568,\r\n            \"ExecutablePath\": \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n            \"CreationTimeFileTimeUtc\": \"134359904267627860\"\r\n          }\r\n        ],\r\n        \"listeners\": [\r\n          {\r\n            \"LocalAddress\": \"0.0.0.0\",\r\n            \"LocalPort\": 3121,\r\n            \"OwningProcess\": 23120\r\n          }\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      \"api\": \"session.targets('--target_properties')\",\r\n      \"state\": \"CALLING\"\r\n    },\r\n    {\r\n      \"api\": \"session.disconnect(chan=channel)\",\r\n      \"state\": \"DONE\"\r\n    },\r\n    {\r\n      \"api\": \"xsdb.dispose()\",\r\n      \"state\": \"DONE\"\r\n    }\r\n  ],\r\n  \"cleanup_errors\": [],\r\n  \"channel\": \"tcfchan#0\",\r\n  \"targets\": {\r\n    \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\": {\r\n      \"target_id\": 1,\r\n      \"target_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"level\": 0,\r\n      \"name\": \"APU\",\r\n      \"parent_ctx\": \"\",\r\n      \"parent\": \"\",\r\n      \"state_reason\": \"\",\r\n      \"is_current\": 0,\r\n      \"bscan\": \"\",\r\n      \"jtag_device_id\": 2,\r\n      \"jtag_device_ctx\": \"jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"jtag_device_index\": 0,\r\n      \"jtag_device_name\": \"arm_dap\",\r\n      \"jtag_cable_id\": 1,\r\n      \"jtag_cable_ctx\": \"jsn-JTAG-HS1-210512180081\",\r\n      \"jtag_cable_name\": \"Digilent JTAG-HS1 210512180081\",\r\n      \"jtag_cable_manufacturer\": \"Digilent\",\r\n      \"jtag_cable_product\": \"JTAG-HS1\",\r\n      \"jtag_cable_serial\": \"210512180081\"\r\n    },\r\n    \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0\": {\r\n      \"target_id\": 2,\r\n      \"target_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0\",\r\n      \"level\": 1,\r\n      \"name\": \"ARM Cortex-A9 MPCore #0\",\r\n      \"parent_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"parent\": \"APU\",\r\n      \"state_reason\": \"Running\",\r\n      \"is_current\": 0,\r\n      \"bscan\": \"\",\r\n      \"jtag_device_id\": 2,\r\n      \"jtag_device_ctx\": \"jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"jtag_device_index\": 0,\r\n      \"jtag_device_name\": \"arm_dap\",\r\n      \"jtag_cable_id\": 1,\r\n      \"jtag_cable_ctx\": \"jsn-JTAG-HS1-210512180081\",\r\n      \"jtag_cable_name\": \"Digilent JTAG-HS1 210512180081\",\r\n      \"jtag_cable_manufacturer\": \"Digilent\",\r\n      \"jtag_cable_product\": \"JTAG-HS1\",\r\n      \"jtag_cable_serial\": \"210512180081\"\r\n    },\r\n    \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1\": {\r\n      \"target_id\": 3,\r\n      \"target_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1\",\r\n      \"level\": 1,\r\n      \"name\": \"ARM Cortex-A9 MPCore #1\",\r\n      \"parent_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"parent\": \"APU\",\r\n      \"state_reason\": \"Running\",\r\n      \"is_current\": 0,\r\n      \"bscan\": \"\",\r\n      \"jtag_device_id\": 2,\r\n      \"jtag_device_ctx\": \"jsn-JTAG-HS1-210512180081-4ba00477-0\",\r\n      \"jtag_device_index\": 0,\r\n      \"jtag_device_name\": \"arm_dap\",\r\n      \"jtag_cable_id\": 1,\r\n      \"jtag_cable_ctx\": \"jsn-JTAG-HS1-210512180081\",\r\n      \"jtag_cable_name\": \"Digilent JTAG-HS1 210512180081\",\r\n      \"jtag_cable_manufacturer\": \"Digilent\",\r\n      \"jtag_cable_product\": \"JTAG-HS1\",\r\n      \"jtag_cable_serial\": \"210512180081\"\r\n    },\r\n    \"JTAG-jsn-JTAG-HS1-210512180081-23727093-0\": {\r\n      \"target_id\": 4,\r\n      \"target_ctx\": \"JTAG-jsn-JTAG-HS1-210512180081-23727093-0\",\r\n      \"level\": 0,\r\n      \"name\": \"xc7z020\",\r\n      \"parent_ctx\": \"\",\r\n      \"parent\": \"\",\r\n      \"state_reason\": \"\",\r\n      \"is_current\": 0,\r\n      \"bscan\": \"\",\r\n      \"jtag_device_id\": 3,\r\n      \"jtag_device_ctx\": \"jsn-JTAG-HS1-210512180081-23727093-0\",\r\n      \"jtag_device_index\": 1,\r\n      \"jtag_device_name\": \"xc7z020\",\r\n      \"jtag_cable_id\": 1,\r\n      \"jtag_cable_ctx\": \"jsn-JTAG-HS1-210512180081\",\r\n      \"jtag_cable_name\": \"Digilent JTAG-HS1 210512180081\",\r\n      \"jtag_cable_manufacturer\": \"Digilent\",\r\n      \"jtag_cable_product\": \"JTAG-HS1\",\r\n      \"jtag_cable_serial\": \"210512180081\"\r\n    }\r\n  },\r\n  \"finished_at\": \"2026-10-09T11:34:51.943959+08:00\"\r\n}\r\n\r\njtag_probe_stdout.log\r\nTraceback (most recent call last):\r\n  File \"<stdin>\", line 9, in <module>\r\n  File \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pathlib.py\", line 1028, in read_text\r\n    return f.read()\r\n           ^^^^^^^^\r\n  File \"<frozen codecs>\", line 322, in decode\r\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xc1 in position 2943: invalid start byte\r\n",
+      "recovery": "枚举JSON本身已成功，错误是外层展示读取编码；原log不改，随后strict CP936解码并单独派生UTF8视图。"
+    },
+    {
+      "name": "启动本次COM4采集及首次Ready观察",
+      "exit_code": 1,
+      "execution_record": "connection_execution_record.json",
+      "recorded_error": "ParentContainsErrorRecordException: \r\nLine |\r\n  22 |          $outText=[IO.File]::ReadAllText($captureOut,[Text.UTF8Encodin …\r\n     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n     | Exception calling \"ReadAllText\" with \"2\" argument(s): \"The process cannot access the file 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\uart_capture_stdout.log' because it is being used by another process.\"\r\n",
+      "recovery": "进程已启动，ReadAllText因正在写入的stdout共享模式拒绝；禁止重复启动，后续读同一进程CAPTURE_OPEN并绑定。"
+    }
+  ],
+  "log_encodings": {
+    "jtag_probe_stdout.log": {
+      "encoding": "CP936原始字节",
+      "utf8_strict_decode": "FAIL",
+      "utf8_failure": {
+        "start_byte": 2943,
+        "end_byte": 2944,
+        "reason": "invalid start byte"
+      },
+      "cp936_strict_decode": "PASS",
+      "binding": {
+        "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/jtag_probe_stdout.log",
+        "sha256": "35c3f66ed704893fbd65165a862b10c9ef9ec44e7dff48f982df9f63cb0205e0",
+        "bytes": 7763
+      }
+    },
+    "jtag_probe_stdout_utf8.txt": {
+      "encoding": "CP936严格解码再UTF-8编码的派生视图",
+      "exact_conversion_binding": "PASS",
+      "binding": {
+        "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/jtag_probe_stdout_utf8.txt",
+        "sha256": "e1dca64a850cc7f48d9aca3bdb731fec1cb8f29d1d299911d945019fc1d01244",
+        "bytes": 7800
+      }
+    },
+    "ps_state_stdout.log": {
+      "encoding": "UTF-8",
+      "binding": {
+        "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/ps_state_stdout.log",
+        "sha256": "1fba9df6480f04ad6195f46a83188236bd18c04a2e9cdef462d869e78db26213",
+        "bytes": 27614
+      }
+    },
+    "uart_capture_stdout.log": {
+      "encoding": "UTF-8控制文本",
+      "binding": {
+        "path": "report/evidence/S2B-T06/ps_connection_debug_20261009_113002_r01/uart_capture_stdout.log",
+        "sha256": "89efefce482db1fdcc5e7b67ba2609cfcf3230a1eb52d16072d6e156d1189100",
+        "bytes": 952
+      }
+    },
+    "uart_raw.bin": {
+      "encoding": "原字节，不转码",
+      "ascii_display_is_raw": false
+    }
+  },
+  "measured_execution": {
+    "probes": {
+      "jtag": {
+        "run_count": 1,
+        "recorded_call_entries": 7,
+        "xsdb_api_count": 5,
+        "host_server_gate_count": 2,
+        "api_counts": {
+          "xsdb.start_debug_session": 1,
+          "session.connect(host='127.0.0.1', port=3121, server='hw_server')": 1,
+          "session.targets('--target_properties')": 1,
+          "session.disconnect(chan=channel)": 1,
+          "xsdb.dispose()": 1
+        },
+        "started_at": "2026-10-09T11:34:45.862093+08:00",
+        "finished_at": "2026-10-09T11:34:51.943959+08:00",
+        "probe_elapsed_seconds": 6.081866,
+        "wrapper_elapsed_seconds": 9.0518974
+      },
+      "ps_state": {
+        "run_count": 1,
+        "recorded_call_entries": 22,
+        "xsdb_api_count": 20,
+        "host_server_gate_count": 2,
+        "api_counts": {
+          "xsdb.start_debug_session": 1,
+          "session.connect": 1,
+          "session.targets": 3,
+          "cpu0.state": 3,
+          "cpu1.state": 3,
+          "cpu0.stop": 1,
+          "cpu1.stop": 1,
+          "cpu0.rrd": 1,
+          "cpu1.rrd": 1,
+          "cpu0.mrd.BOOT_MODE": 1,
+          "cpu0.mrd.MCTRL": 1,
+          "cpu0.mrd.OCM_CFG": 1,
+          "session.disconnect": 1,
+          "xsdb.dispose": 1
+        },
+        "started_at": "2026-10-09T11:44:49.576979+08:00",
+        "finished_at": "2026-10-09T11:44:53.579566+08:00",
+        "probe_elapsed_seconds": 4.002587,
+        "wrapper_elapsed_seconds": 5.5089146
+      }
+    },
+    "total_recorded_xsdb_api_count": 25,
+    "total_recorded_host_server_gate_count": 4,
+    "capture_run_count": 1,
+    "capture_elapsed_seconds": 525.0109092,
+    "server_ready_seconds": 1.7565332,
+    "server_close_tool_wall_seconds": 1.1479728,
+    "peak_memory": "未测",
+    "all_tool_call_count": "未测",
+    "scope": "仅现有真实记录的API和耗时，未计SDK内部调用，不制造整体工具总量。"
+  },
+  "next_action": {
+    "status": "WAITING_USER_PHYSICAL_ACTION",
+    "authorization_remains_valid": true,
+    "instruction": "断电后按V2.2第14页表4-1和实际PCB丝印将J13置JTAG，重新上电核对冷JTAG/独占、PCB/接线/电平/时钟；另立新Run，不续用raw。",
+    "user_async_request": "总控已发出，尚无回复。",
+    "manual_page": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/page-0014.png",
+    "manual_text": "report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_document.md"
+  },
+  "limitations": [
+    "本包整理没有设备操作或新测试；实际硬件操作仅来自总控保存记录。",
+    "只读evidence CHECKS_OK不代表UART/DDR功能、冷JTAG或阶段验收。",
+    "源基线与实际源码、离线接口、原始结果、失败日志及STATE快照分别用SHA绑定。",
+    "准备时一次只读汇总误用events字段读取entries型记录而返回1，未修改文件；按真实entries字段恢复后退出0。",
+    "实际PCB/profile、供电接线及冷启动/独占还需核实；不重复询问既有XC/-2确认。"
+  ]
+}

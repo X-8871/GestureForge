@@ -1,0 +1,160 @@
+{
+  "started_at": "2026-10-09T11:34:45.862093+08:00",
+  "scope": "只连接本次本地hw_server并枚举目标，不读写目标寄存器或内存，不停止/复位/下载/运行目标。",
+  "hardware_program_execution": "NOT_RUN",
+  "status": "TARGETS_ENUMERATED",
+  "expected_hw_server_pid": 23120,
+  "calls": [
+    {
+      "command": "$ErrorActionPreference='Stop'; $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "server_snapshot": {
+        "servers": [
+          {
+            "ProcessId": 23120,
+            "ParentProcessId": 34568,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134359904267627860"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 23120
+          }
+        ]
+      }
+    },
+    {
+      "api": "xsdb.start_debug_session",
+      "state": "CALLING"
+    },
+    {
+      "api": "session.connect(host='127.0.0.1', port=3121, server='hw_server')",
+      "state": "CALLING"
+    },
+    {
+      "command": "$ErrorActionPreference='Stop'; $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "server_snapshot": {
+        "servers": [
+          {
+            "ProcessId": 23120,
+            "ParentProcessId": 34568,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134359904267627860"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 23120
+          }
+        ]
+      }
+    },
+    {
+      "api": "session.targets('--target_properties')",
+      "state": "CALLING"
+    },
+    {
+      "api": "session.disconnect(chan=channel)",
+      "state": "DONE"
+    },
+    {
+      "api": "xsdb.dispose()",
+      "state": "DONE"
+    }
+  ],
+  "cleanup_errors": [],
+  "channel": "tcfchan#0",
+  "targets": {
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0": {
+      "target_id": 1,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "level": 0,
+      "name": "APU",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0": {
+      "target_id": 2,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #0",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Running",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1": {
+      "target_id": 3,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #1",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Running",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-23727093-0": {
+      "target_id": 4,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-23727093-0",
+      "level": 0,
+      "name": "xc7z020",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 3,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-23727093-0",
+      "jtag_device_index": 1,
+      "jtag_device_name": "xc7z020",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    }
+  },
+  "finished_at": "2026-10-09T11:34:51.943959+08:00"
+}

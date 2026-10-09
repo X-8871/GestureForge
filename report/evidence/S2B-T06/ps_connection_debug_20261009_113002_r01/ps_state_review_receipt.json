@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "task_id": "R-PS-STATE-PROBE-01",
+  "reviewer": "/root/s2b_hardware_preflight_review",
+  "reviewed_at": "2026-10-09T11:42:03+08:00",
+  "verdict": "PASS",
+  "scope": "仅审查本次唯一APU两核停核和状态/PC/三个寄存器读回探针，不表示冷JTAG、PS初始化、UART/DDR或G3通过。",
+  "source_commit": "aae7fb6e54f10729fa93429cfc81546cf2a736b5",
+  "bound_files": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\ps_state_probe.py",
+      "sha256": "cd3c8dfd24baa9c6b65563152dcde750e730d001077649a7e39e08c436c0a8bf",
+      "lines": 186
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\hw_server_identity.json",
+      "sha256": "4e981e9940aa4dea9f66929a5b704c74e1dd5876d1e33439ec3610c2edf01bcb"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\jtag_targets_result.json",
+      "sha256": "49d579836ecd1287f7de7422fb2e2be1b2af7fb186c0a38542858475c825ae45"
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+      "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"
+    }
+  ],
+  "static_validation": {
+    "command": "python -B，读取源码并仅compile(source, filename, 'exec')；读取AST及已安装Target.__init__/state/stop源码，不import xsdb或执行代码对象。",
+    "python_version": "3.12.10",
+    "exit_code": 0,
+    "script_invoked": false,
+    "hardware_api_called": false
+  },
+  "findings": [],
+  "checked": [
+    "本Run身份、native PID23120/父34568/创建时间134359904267627860及3121在connect前后显式核验。",
+    "重新枚举4个目标并绑定唯一Digilent JTAG-HS1序列号210512180081、APU和同parent两核；动态目标ID及Target实际_ctx/_id/_name验证与SDK一致。",
+    "先检查两核状态，未知先阻断；仅Running调用stop，随后确认Stopped，再读两核PC及CPU0 BOOT_MODE/MCTRL/OCM_CFG单word。",
+    "逐API记录真实stdout/stderr和return_repr；stop_requested/halted_confirmed记录部分动作；无reset/force/mwr/dow/con/BP及程序执行。",
+    "结果x模式预留拒绝覆盖，清理disconnect/dispose独立捕获异常，不恢复CPU；成功状态仅为PS_STATE_READBACK_SAVED。"
+  ],
+  "limitations": [
+    "只完成静态审查和静态compile，未执行探针、硬件API、COM或server操作；未做测试。",
+    "实际停核/读回结果及冷启动、PCB、电平/profile仍须真实证据；不得据本PASS进入初始化。",
+    "SDK connect失败可能自动启动server，后置身份不符必须阻断；dispose不证明hw_server已退出。"
+  ],
+  "reviewer_written_artifact": "仅本隔离目录review_receipt.json；不改被审文件、Git分支/index。"
+}

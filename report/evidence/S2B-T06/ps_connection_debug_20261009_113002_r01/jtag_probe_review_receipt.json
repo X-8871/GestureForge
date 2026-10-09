@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "task_id": "R-CONNECTION-JTAG-PROBE-01",
+  "reviewer": "/root/s2b_hardware_preflight_review",
+  "reviewed_at": "2026-10-09T11:34:10+08:00",
+  "verdict": "PASS",
+  "status": "PASS_STATIC_CONNECTION_ENUMERATION_REVIEW_ONLY",
+  "source_commit": "aae7fb6e54f10729fa93429cfc81546cf2a736b5",
+  "bound_files": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\jtag_targets_probe.py",
+      "sha256": "201dc67de8427662fdf1852309c270eda24f2a9bf70cc2670802b152208c3dc6",
+      "bytes": 5066,
+      "lines": 99
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_connection_debug_20261009_113002_r01\\authorization.json",
+      "sha256": "166b26d6d0fe0c52788def7226547be854f15b1fa5a520d0e4988a3c9ab08075"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T06\\ps_smoke_20261008_r01\\xsdb_operating_basis_r03.json",
+      "sha256": "7964b0a15ee7dc17d30ebb4a16c8cfb5faa71ecd50f4901e1d9239168e38355f"
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\session.py",
+      "sha256": "e1c85985ada7176182de0b59ddbbc44ecf7cd0047adcc42d94563dbb85da7b7b"
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\__init__.py",
+      "sha256": "d790a9aa731c0f79fea3d9143e6aa435014d1d428a30f82289ca446d35dbf0be"
+    }
+  ],
+  "static_validation": {
+    "command": "python -B（只用compile(source, filename, 'exec')和ast.parse读取源码，不执行所得代码对象、不import xsdb）",
+    "python_version": "3.12.10",
+    "exit_code": 0,
+    "syntax_errors": 0,
+    "script_invoked": false,
+    "hardware_api_called": false
+  },
+  "review_checks": [
+    "授权为主聊天直接用户指令继续调试已接入设备，处于既有PS-only检查范围。",
+    "精确本Run读取hw_server_identity.json，连接前后核对唯一native PID、固定可执行路径、CreationTimeFileTimeUtc和全部3121监听PID。",
+    "SDK connect/targets/disconnect和start/dispose用法与当前已安装源码SHA及固定API依据相符；--target_properties为实际下划线选项。",
+    "脚本无stop/reset/rrd/mrd/dow/con/bp/mwr/force和CPU/PL/非易失存储写入操作。",
+    "主流程异常保存repr及traceback；disconnect与dispose独立捕获清理错误并改为PROBE_FAILED；结果文件x模式拒绝覆盖。",
+    "空目标显式NO_JTAG_TARGETS；枚举退出0不宣称板卡检查成功。"
+  ],
+  "execution_conditions": [
+    "先由总控生成本Run的hw_server_identity.json并证明native进程/父链归属及固定native SHA；本脚本不自行证明launcher父链或二进制哈希。",
+    "使用正常非优化Python执行；身份门禁使用assert，不能以-O或PYTHONOPTIMIZE非零运行。",
+    "SDK本地3121 connect失败分支可能自动启动server；后置身份核验失败必须停止后续目标操作，保留实际server库存并由总控按归属处置。",
+    "结果仅作为连接/目标诊断；PS初始化、UART、DDR和G3均仍需后续真实执行。"
+  ],
+  "findings": [],
+  "limitations": [
+    "静态审查未运行探针、连接JTAG、启动server或COM、调用任何硬件API或测试。",
+    "已安装SDK connect可能在函数内部取得目标列表，后置身份检查不能被表述为SDK内部第一次枚举前的原子身份锁。",
+    "预检输入失败发生于主try之前时不会生成结果JSON，必须保留外层真实CLI日志；已存在结果拒绝覆盖。",
+    "清理dispose不证明hw_server退出；只读OS无设备是前置诊断状态，不能当G3通过或软件失败。"
+  ],
+  "reviewer_written_artifact": "仅隔离tmp目录的review_receipt.json；未改被审文件、分支或Git index。"
+}

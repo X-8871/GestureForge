@@ -1,0 +1,403 @@
+{
+  "started_at": "2026-10-09T11:44:49.576979+08:00",
+  "status": "PS_STATE_READBACK_SAVED",
+  "scope": "仅对本次唯一APU的两核按Running状态停止，读取两核PC及CPU0三个寄存器。",
+  "hardware_program_execution": "NOT_RUN",
+  "cold_jtag_proven": false,
+  "ps_initialization_execution": "NOT_RUN",
+  "cpu_resume_execution": "NOT_RUN",
+  "calls": [
+    {
+      "time": "2026-10-09T11:44:50.545894+08:00",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  23120,\r\n                        \"ParentProcessId\":  34568,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359904267627860\"\r\n                    }\r\n                ],\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  23120\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:51.118290+08:00",
+      "api": "xsdb.start_debug_session",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "<xsdb.session.Session object at 0x0000025D494B2A50>",
+      "return_type": "Session",
+      "finished_at": "2026-10-09T11:44:51.128351+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:51.128397+08:00",
+      "api": "session.connect",
+      "args": [],
+      "kwargs": {
+        "host": "127.0.0.1",
+        "port": 3121,
+        "server": "hw_server"
+      },
+      "state": "DONE",
+      "return_repr": "'tcfchan#0'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:52.067811+08:00",
+      "stdout": "tcfchan#0\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.060217+08:00",
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ParentProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}}); $listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{servers=$servers;listeners=$listeners}|ConvertTo-Json -Depth 5",
+      "exit_code": 0,
+      "stdout": "{\r\n    \"servers\":  [\r\n                    {\r\n                        \"ProcessId\":  23120,\r\n                        \"ParentProcessId\":  34568,\r\n                        \"ExecutablePath\":  \"D:\\\\Xilinx\\\\2026.1\\\\Vitis\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe\",\r\n                        \"CreationTimeFileTimeUtc\":  \"134359904267627860\"\r\n                    }\r\n                ],\r\n    \"listeners\":  [\r\n                      {\r\n                          \"LocalAddress\":  \"0.0.0.0\",\r\n                          \"LocalPort\":  3121,\r\n                          \"OwningProcess\":  23120\r\n                      }\r\n                  ]\r\n}\r\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.060321+08:00",
+      "api": "session.targets",
+      "args": [
+        "--target_properties"
+      ],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "{'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0': {'target_id': 1, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'level': 0, 'name': 'APU', 'parent_ctx': '', 'parent': '', 'state_reason': '', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0': {'target_id': 2, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0', 'level': 1, 'name': 'ARM Cortex-A9 MPCore #0', 'parent_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'parent': 'APU', 'state_reason': 'Running', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1': {'target_id': 3, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1', 'level': 1, 'name': 'ARM Cortex-A9 MPCore #1', 'parent_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0', 'parent': 'APU', 'state_reason': 'Running', 'is_current': 0, 'bscan': '', 'jtag_device_id': 2, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-4ba00477-0', 'jtag_device_index': 0, 'jtag_device_name': 'arm_dap', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}, 'JTAG-jsn-JTAG-HS1-210512180081-23727093-0': {'target_id': 4, 'target_ctx': 'JTAG-jsn-JTAG-HS1-210512180081-23727093-0', 'level': 0, 'name': 'xc7z020', 'parent_ctx': '', 'parent': '', 'state_reason': '', 'is_current': 0, 'bscan': '', 'jtag_device_id': 3, 'jtag_device_ctx': 'jsn-JTAG-HS1-210512180081-23727093-0', 'jtag_device_index': 1, 'jtag_device_name': 'xc7z020', 'jtag_cable_id': 1, 'jtag_cable_ctx': 'jsn-JTAG-HS1-210512180081', 'jtag_cable_name': 'Digilent JTAG-HS1 210512180081', 'jtag_cable_manufacturer': 'Digilent', 'jtag_cable_product': 'JTAG-HS1', 'jtag_cable_serial': '210512180081'}}",
+      "return_type": "dict",
+      "finished_at": "2026-10-09T11:44:53.077285+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.077350+08:00",
+      "api": "session.targets",
+      "args": [],
+      "kwargs": {
+        "id": 2
+      },
+      "state": "DONE",
+      "return_repr": "<xsdb.target.Target object at 0x0000025D482A01A0>",
+      "return_type": "Target",
+      "finished_at": "2026-10-09T11:44:53.078553+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.078586+08:00",
+      "api": "session.targets",
+      "args": [],
+      "kwargs": {
+        "id": 3
+      },
+      "state": "DONE",
+      "return_repr": "<xsdb.target.Target object at 0x0000025D4828FB10>",
+      "return_type": "Target",
+      "finished_at": "2026-10-09T11:44:53.079690+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.079721+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Running'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.079769+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.079787+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Running'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.079828+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.079851+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Running'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.079908+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.079923+08:00",
+      "api": "cpu0.stop",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.285278+08:00",
+      "stdout": "Info: ARM Cortex-A9 MPCore #0 (target 2) Stopped at 0x102030 (Suspended)\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.285420+08:00",
+      "api": "cpu0.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.285553+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.285589+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Running'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.285660+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.285679+08:00",
+      "api": "cpu1.stop",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.486808+08:00",
+      "stdout": "Info: ARM Cortex-A9 MPCore #1 (target 3) Stopped at 0xffffff34 (Suspended)\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.486880+08:00",
+      "api": "cpu1.state",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "'Stopped: (Suspended)'",
+      "return_type": "str",
+      "finished_at": "2026-10-09T11:44:53.486999+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.487025+08:00",
+      "api": "cpu0.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.537473+08:00",
+      "stdout": "pc: 00102030\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.537521+08:00",
+      "api": "cpu1.rrd",
+      "args": [],
+      "kwargs": {
+        "reg": "pc"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.574412+08:00",
+      "stdout": "pc: ffffff34\n\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.574469+08:00",
+      "api": "cpu0.mrd.BOOT_MODE",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160750172,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "1",
+      "return_type": "int",
+      "finished_at": "2026-10-09T11:44:53.577013+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.577050+08:00",
+      "api": "cpu0.mrd.MCTRL",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160778368,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "813695232",
+      "return_type": "int",
+      "finished_at": "2026-10-09T11:44:53.577985+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.578017+08:00",
+      "api": "cpu0.mrd.OCM_CFG",
+      "args": [
+        "--value"
+      ],
+      "kwargs": {
+        "address": 4160751888,
+        "size": 1,
+        "word_size": 4
+      },
+      "state": "DONE",
+      "return_repr": "24",
+      "return_type": "int",
+      "finished_at": "2026-10-09T11:44:53.578869+08:00",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.578899+08:00",
+      "api": "session.disconnect",
+      "args": [],
+      "kwargs": {
+        "chan": "tcfchan#0"
+      },
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.579437+08:00",
+      "stdout": "Info: tcfchan#0 closed.\n",
+      "stderr": ""
+    },
+    {
+      "time": "2026-10-09T11:44:53.579500+08:00",
+      "api": "xsdb.dispose",
+      "args": [],
+      "kwargs": {},
+      "state": "DONE",
+      "return_repr": "None",
+      "return_type": "NoneType",
+      "finished_at": "2026-10-09T11:44:53.579547+08:00",
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "stop_requested": [
+    "cpu0",
+    "cpu1"
+  ],
+  "halted_confirmed": [
+    "cpu0",
+    "cpu1"
+  ],
+  "cleanup_errors": [],
+  "target_properties": {
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0": {
+      "target_id": 1,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "level": 0,
+      "name": "APU",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0": {
+      "target_id": 2,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #0",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Running",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1": {
+      "target_id": 3,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1",
+      "level": 1,
+      "name": "ARM Cortex-A9 MPCore #1",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "state_reason": "Running",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 2,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "jtag_device_index": 0,
+      "jtag_device_name": "arm_dap",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    },
+    "JTAG-jsn-JTAG-HS1-210512180081-23727093-0": {
+      "target_id": 4,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-23727093-0",
+      "level": 0,
+      "name": "xc7z020",
+      "parent_ctx": "",
+      "parent": "",
+      "state_reason": "",
+      "is_current": 0,
+      "bscan": "",
+      "jtag_device_id": 3,
+      "jtag_device_ctx": "jsn-JTAG-HS1-210512180081-23727093-0",
+      "jtag_device_index": 1,
+      "jtag_device_name": "xc7z020",
+      "jtag_cable_id": 1,
+      "jtag_cable_ctx": "jsn-JTAG-HS1-210512180081",
+      "jtag_cable_name": "Digilent JTAG-HS1 210512180081",
+      "jtag_cable_manufacturer": "Digilent",
+      "jtag_cable_product": "JTAG-HS1",
+      "jtag_cable_serial": "210512180081"
+    }
+  },
+  "states_before": {
+    "cpu0": "Running",
+    "cpu1": "Running"
+  },
+  "states_after": {
+    "cpu0": "Stopped: (Suspended)",
+    "cpu1": "Stopped: (Suspended)"
+  },
+  "finished_at": "2026-10-09T11:44:53.579566+08:00"
+}

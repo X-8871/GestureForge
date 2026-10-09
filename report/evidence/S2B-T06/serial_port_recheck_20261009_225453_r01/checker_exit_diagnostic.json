@@ -1,0 +1,25 @@
+{
+  "status": "CHECKER_NATIVE_EXIT_CONFIRMED",
+  "original_root_tool_observation": {
+    "tool_chunk_id": "d1a448",
+    "command": "python -X utf8 -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json",
+    "invocation_boundary": "exec_command 经 PowerShell 调用 Git Bash -lc；此处为外层工具观测，不是直接捕获 Python 子进程状态",
+    "outer_tool_exit_code": 1,
+    "checker_json_status": "CHECKS_FAILED"
+  },
+  "native_recheck": {
+    "tool_chunk_id": "599cca",
+    "argv": [
+      "python", "-X", "utf8", "-B", "verification/check_stage_delivery.py",
+      "--mode", "inputs", "--manifest",
+      "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json"
+    ],
+    "invocation_boundary": "Python subprocess.run(capture_output=True) 直接捕获原生子进程返回值",
+    "native_exit_code": 2,
+    "parent_exit_code": 0,
+    "checker_json_status": "CHECKS_FAILED",
+    "errors": ["checks[1] 依赖检查状态为 FAIL，阻断 inputs 核验"]
+  },
+  "independent_confirmation": "独立 R1 Reviewer 的同一原生检查也返回2，详见 S2B-T07 审查收据；checker 失败返回2，与串口归档器原生退出1分开记录。",
+  "limitation": "仅只读交付检查；没有串口打开、设备操作或新的功能测试。"
+}

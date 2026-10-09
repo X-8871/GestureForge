@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T06",
+  "run_id": "serial_port_recheck_20261009_225453_r01",
+  "source_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "evidence_dir": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅检查Windows设备枚举及此前同一USB设备身份，不消费模型或PS/PL业务接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/checker_exit_diagnostic.json",
+      "sha256": "4f672f55ba71f0e5e086bca733edc03743c5c181f7543404024c5c7e098556c9",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S2B-T06/ps_uart_clock_retest_20261009_172557_r01/uart_capture_identity.json",
+      "sha256": "ea79c78bf3a2088aa455ee7eedef32bdcce2564ad991f01829ff05de12d0e2d2",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/enumerate_serial.py",
+      "sha256": "467109daf9a0ec66af35c54331f8a38249d141bd0762f8034294e00602cd5cdb",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/enumeration.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/enumeration.stdout.log",
+      "sha256": "76467585cd0ae23e602c542464b51c56502ba2d943cfb9d6b2b3e0ea2157fe7c",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/execution.json",
+      "sha256": "116da3e8df9035a1f2c24fd12763db481fde6fbb447a186c976f7c68fde95ff8",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/collector_failure.json",
+      "sha256": "ac8af5fd97eb01b349f76c747340dc34add49a3a49c517030c885bb83791d081",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/port_result.json",
+      "sha256": "668c04036bec0741b26fda2b4a9f42f4b0259f536f1e2030b09fa484b4c14d5a",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "COM4及既有CP210x身份枚举",
+      "status": "PASS",
+      "command": "[\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"-NoProfile\",\"-Command\",\"[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $ErrorActionPreference='Stop'; $serialDevices=@(Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,PNPDeviceID,Status); $usbSerialDevices=@(Get-CimInstance Win32_PnPEntity | Where-Object { $_.Name -match '\\\\(COM[0-9]+\\\\)' } | Select-Object Name,PNPDeviceID,Status,ConfigManagerErrorCode); [pscustomobject]@{observed_at=(Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy-MM-ddTHH:mm:ss.fffffff')+'+08:00';serial_devices=$serialDevices;com_devices=$usbSerialDevices}|ConvertTo-Json -Depth 5\"]",
+      "exit_code": 0,
+      "reason": "实际serial及PNP双重枚举与此前uart_capture_identity.json匹配；不打开串口。"
+    },
+    {
+      "name": "归档器初次结束校验",
+      "status": "FAIL",
+      "command": "python -X utf8 -B tmp/2B/S2B-T06/serial_recheck_20261009.py",
+      "exit_code": 1,
+      "reason": "归档器引用错了身份文件名，native枚举已经完成；实际目录枚举确认原名后补齐元数据，原native结果、失败源码保留，未重新硬件操作。"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Windows_PowerShell": "系统内置Windows PowerShell，完整可执行路径及argv见execution.json"
+  },
+  "limitations": [
+    "只读快照、不持续监控；未打开COM4、改变DTR/RTS、复位或旧日志。",
+    "设备枚举和前次功能通过分开判定；后续实物操作须核对当前独占条件。",
+    "归档器原生退出1、native枚举成功0分别保留；inputs检查器直接捕获的原生退出码为2，因保留FAIL状态阻断。根首次外层工具返回1不是检查器原生码，差异见checker_exit_diagnostic.json；包装CHECKS_OK不覆盖失败。"
+  ]
+}

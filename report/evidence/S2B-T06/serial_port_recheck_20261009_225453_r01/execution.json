@@ -1,0 +1,11 @@
+{
+  "source_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "argv": [
+    "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "-NoProfile",
+    "-Command",
+    "[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $ErrorActionPreference='Stop'; $serialDevices=@(Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,PNPDeviceID,Status); $usbSerialDevices=@(Get-CimInstance Win32_PnPEntity | Where-Object { $_.Name -match '\\(COM[0-9]+\\)' } | Select-Object Name,PNPDeviceID,Status,ConfigManagerErrorCode); [pscustomobject]@{observed_at=(Get-Date).ToUniversalTime().AddHours(8).ToString('yyyy-MM-ddTHH:mm:ss.fffffff')+'+08:00';serial_devices=$serialDevices;com_devices=$usbSerialDevices}|ConvertTo-Json -Depth 5"
+  ],
+  "exit_code": 0,
+  "scope": "只读设备枚举，无串口打开或实物修改"
+}

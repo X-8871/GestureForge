@@ -1,0 +1,146 @@
+{
+  "status": "READ_ONLY_SOURCE_AND_FORMULA_ANALYSIS_COMPLETE_NOT_RTL_VERIFICATION",
+  "source_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "candidate_version": "s2b-physical-candidate/0.1.1",
+  "created_utc8": "2026-10-09T23:28:21.544936+08:00",
+  "review_receipt_sha256": "ecc1b9fba11399ebf1b1f23fdd7855d6c44cda21f3378576e9a4ceb602f20878",
+  "closed_in_candidate_pending_review": [
+    {
+      "finding_id": "R1-F01",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 127,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "AXI3写B不继承AXI4新增的AW接受依赖"
+    },
+    {
+      "finding_id": "R1-F02",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 80,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "### 4.1 既有端口、常驻CSR监视与停止确认"
+    },
+    {
+      "finding_id": "R1-F03",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 101,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "### 4.2 首次观察、同沿优先与终态保持"
+    },
+    {
+      "finding_id": "R1-F04",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 37,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "single beat是驱动与GP0转换配置的输入前提"
+    },
+    {
+      "finding_id": "R1-F05",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 129,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "01/EXOKAY"
+    },
+    {
+      "finding_id": "R1-F06",
+      "candidate_path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "line": 176,
+      "developer_status": "IMPLEMENTED_IN_CANDIDATE_PENDING_INDEPENDENT_R2",
+      "locating_text": "132页仅为元数据"
+    }
+  ],
+  "source_facts": {
+    "core_public_interface": "CSR与memory，busy/done/error/backend_abort为内部私有logic",
+    "csr_ready_is_not_hard_reset": true,
+    "soft_reset_clears_diagnostics_and_registers_abort": true,
+    "memory_cancel_same_edge": true,
+    "backend_consumes_registered_abort_next_edge": true,
+    "public_mem_valid_withdraws_on_cancel_or_owner_clear": true
+  },
+  "csr_phase_formula": {
+    "schedule": {
+      "0": "STATUS",
+      "1": "ERROR_CODE",
+      "2": "CONTROL_OR_ONE_DEBUG",
+      "3": "STATUS"
+    },
+    "producer_consumer_rows": [
+      {
+        "producer_edge_phase": 0,
+        "status_sample_E_plus": 3,
+        "associated_error_code_sample_E_plus": 5,
+        "same_edge_read_is_old": true
+      },
+      {
+        "producer_edge_phase": 1,
+        "status_sample_E_plus": 2,
+        "associated_error_code_sample_E_plus": 4,
+        "same_edge_read_is_old": true
+      },
+      {
+        "producer_edge_phase": 2,
+        "status_sample_E_plus": 1,
+        "associated_error_code_sample_E_plus": 3,
+        "same_edge_read_is_old": true
+      },
+      {
+        "producer_edge_phase": 3,
+        "status_sample_E_plus": 1,
+        "associated_error_code_sample_E_plus": 2,
+        "same_edge_read_is_old": true
+      }
+    ],
+    "status_bound_cycles": 3,
+    "associated_error_code_bound_cycles": 5,
+    "first_observed_error_source_reserved_before_code": true,
+    "first_error_pending_blocks_terminal_and_safe": true,
+    "arming_components": {
+      "first_idle_status_max_cycles": 3,
+      "one_preaccepted_debug_max_cycles": 4,
+      "seven_control_writes_four_cycle_slots_max_cycles": 28
+    },
+    "arming_conservative_sum_cycles": 35,
+    "candidate_arming_limit_cycles": 40,
+    "arming_sum_within_candidate_limit": true,
+    "soft_reset_edge": "S=phase2真实CMD握手；control诊断清零/backend_abort NBA置1",
+    "backend_abort_consumption_edge": "S+1=phase3，后端与算子在该沿消费abort，STATUS读虽见CSR零仍不能据此提前确认后端已经停止",
+    "earliest_eligible_stop_confirmation_edge": "S+2=phase0：此时后端S+1的NBA已完成，真实CSR STATUS四状态位0且mem_valid0",
+    "conservative_reset_to_confirmation_bound_cycles": 5,
+    "not_hardware_measurement": true
+  },
+  "protocol_decisions": {
+    "axi3_early_matching_B": "已声明写且W完成、BID匹配即可保存B；AW未完成单独不报错，AW/W/B完整闭合才交付或清账",
+    "first_error_same_edge_priority": [
+      "AXI_PROTOCOL",
+      "AXI_SLVERR_OR_DECERR",
+      "EXTERNAL_ABORT",
+      "OBSERVED_CORE_ERROR",
+      "OBSERVED_SUCCESS"
+    ],
+    "cancel_edge_OKAY": "握手仍入账，只消费丢弃，不mem_ready/done/HEAD_VALID或新子读",
+    "new_write_declaration": "初次同沿置AWVALID/WVALID，握手独立；已有VALID不能被取消撤销",
+    "GP0_single_beat": "驱动输入前提；Lite没有AxLEN，不能宣称原burst被拒绝或零副作用",
+    "nonexclusive_EXOKAY": "协议隔离；保存响应/继续已声明通道，不能误成功或凭空清ledger"
+  },
+  "reused_layout": [
+    {
+      "source": "report/evidence/S2B-T07/physical_contract_20261009_r01/layout_result.json",
+      "destination": "report/evidence/S2B-T07/physical_contract_20261009_r02/layout_result.json",
+      "sha256": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f",
+      "bytes": 32175,
+      "reason": "只修物理候选语义，冻结模型和地址尺寸不变；原结果按SHA复用，不重跑历史计算"
+    },
+    {
+      "source": "report/evidence/S2B-T07/physical_contract_20261009_r01/manifest_layout_projection.json",
+      "destination": "report/evidence/S2B-T07/physical_contract_20261009_r02/manifest_layout_projection.json",
+      "sha256": "71852572fd08638daad9de1a933876e8cd3376ccb097fd8afef429fc8d523525",
+      "bytes": 28374,
+      "reason": "只修物理候选语义，冻结模型和地址尺寸不变；原结果按SHA复用，不重跑历史计算"
+    }
+  ],
+  "limitations": [
+    "没有RTL/软件测试、构建、综合或硬件动作",
+    "源标记与相位公式仅证明给定候选可静态实现，不是实现结果",
+    "完整物理G0、独立R2、实际deadline/GP0配置/可见性仍未完成",
+    "保留109冻结样本及正式100/1000板上标准，不降低指标"
+  ]
+}

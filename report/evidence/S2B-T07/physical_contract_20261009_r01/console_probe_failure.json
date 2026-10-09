@@ -1,0 +1,15 @@
+{
+  "status": "FAIL_ENCODING_ASSUMPTION_THEN_RECOVERED_BY_STRICT_UTF8_PROBE",
+  "command": "python -B tmp/2B/S2B-T07/physical_contract_packaging_20261009_r01/normalize_console.py",
+  "exit_code": 1,
+  "actual_failure": "UnicodeDecodeError: 'gbk' codec can't decode byte 0xaf in position 196: illegal multibyte sequence",
+  "cause": "把终端二次显示乱码误认为原始控制台字节是GBK，首次强制GBK解码失败。原txt没有被改写，刚生成的raw备份保持原字节。",
+  "subsequent_packaging_check": {
+    "command": "PYTHONIOENCODING=utf-8 python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T07/physical_contract_20261009_r01/delivery_manifest.json",
+    "status": "CHECKS_FAILED",
+    "exit_code": 2,
+    "error": "运行目录文件未列入 files：report/evidence/S2B-T07/physical_contract_20261009_r01/packaging_initial_console_raw.bin",
+    "reason": "首次日志探测中断后新增raw尚未刷新到清单；这是包装失败，不是设计或硬件失败。"
+  },
+  "recovery": "修正为先严格UTF-8读取原始字节，再验证JSON；保留raw并刷新完整清单。后续实际结果见console_encoding_record.json和utf8_packaging_execution.json。"
+}

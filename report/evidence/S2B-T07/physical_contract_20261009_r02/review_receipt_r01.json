@@ -1,0 +1,153 @@
+{
+  "task_id": "S2B-T07-R1",
+  "reviewer_role": "独立只读Reviewer",
+  "decision": "CHANGES_REQUIRED",
+  "baseline_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "fixed_reviewed_hashes": {
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "e14ea46239d987336ea0ee53afb962b77733626294447c47b7f06f158dc06242",
+    "docs/obsidian-project/02-方案设计/系统设计.md": "2e2589afc37defbd48b023635f3755fe1a267c4613375559518951e5dc78408e",
+    ".codex/STATE.md": "4d5f425d2f87ef09a43fc7ddfc6c91f80b494016c19acff1a193b9b820226276",
+    ".gitattributes": "6c9162bcb5672e8c97ade6836dc210e4c61cce90dea3e30c91a160003c68470c",
+    "report/evidence/S2B-T07/physical_contract_20261009_r01/delivery_manifest.json": "635c148b8e653c78aeec6ac6122f5c22e966f24d7777d9bf44ebe9945b024d3d",
+    "report/evidence/S2B-T07/physical_contract_20261009_r01/layout_result.json": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f",
+    "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json": "478df7054e4cdabe079f67e6b58ef859b1529db8bdac7929d5414a04b899ff67"
+  },
+  "scope": [
+    "候选完整物理控制、字节布局、AXI3窄传输、取消/排空、cache/可见性、所有权/epoch",
+    "实际2A core/CSR/memory/descriptor/算子源码和被冻结模型manifest",
+    "系统设计已批准恢复原则与late-drain编码的兼容性",
+    "串口枚举包原字节/旧身份/失败采集器源码及退出码分层",
+    "STATE范围陈述、gitattributes原字节保护与两包清单"
+  ],
+  "findings": [
+    {
+      "id": "R1-F01",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [96, 100],
+      "title": "AXI3写响应不能直接继承AXI4的AW接受依赖",
+      "impact": "把W已完成但AW尚未握手的B直接判协议故障，会错误隔离AXI3合法响应；若B先到即关闭账本，又可能遗漏仍声明的AW。",
+      "basis": "Arm IHI0022C §3.3 PDF36仅规定W握手后B；§13.4 PDF90将AW接受后B列为AXI4新增依赖。§5.1非Bufferable最终目的地响应和UG585 HP slave响应提供本工程更强路径条件，不能冒称一般AXI3规则。",
+      "close_condition": "匹配ID、已声明写且W完成的早到B保存seen/响应，不因AW未接受单独报协议故障；继续完成AW，AW/W/B全部结束才关闭ledger、交付mem_ready或考虑SAFE。错误B仍触发恢复而保留AW。另一可接受方案必须明确绑定本工程更强HP条件并证明，不能使用AXI4规则替代。"
+    },
+    {
+      "id": "R1-F02",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [68, 78, 80, 86],
+      "title": "外层状态观察路径未对应既有core外部端口",
+      "impact": "包装s2a_stage2a_core_ooc的外层没有公开busy/done/error/backend_abort引脚，当前即时事件表述不能由给定端口直接实现；错误soft_reset可能先抹除内部诊断。",
+      "basis": "src/s2a_stage2a_core_ooc.sv:11–30只导出CSR/memory；busy/done/error在50–61为私有信号。src/s2a_control_csr.sv:132–149 soft_reset清状态/配置并注册backend_abort；核心后端在后续沿消费该abort。",
+      "close_condition": "保持冻结源码不改，明确CSR STATUS/ERROR常驻监视、debug仲裁及有界观察延迟；真实读握手确认done/error，先保存code再soft_reset；错误接收立即关闭外层新声明并在每次新子读声明前复核mem_valid；明确soft_reset接受、后端abort传播及计算已停止的确认条件，不能将私有层级信号当既有外部端口。"
+    },
+    {
+      "id": "R1-F03",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [45, 68, 80, 82, 98],
+      "title": "首错在同沿多事件下缺少完整确定优先序",
+      "impact": "ABORT、AXI错误与被观察到的内部错误同沿时，ERROR_CODE/故障地址可能依实现语句次序变化；取消同沿的正常response是否送core也需要确定。",
+      "basis": "候选仅明确ABORT优先done、内部完成优先timeout，未覆盖上述同沿错误组合；首错字段承诺对软件稳定。",
+      "close_condition": "定义首次被外层真实观察/接收的事件、同沿固定优先序、取消沿response消费及禁止mem_ready/HEAD_VALID、晚到错误诊断与首错不覆盖规则；协议故障即使不是首错仍锁存隔离条件。2A内部完成/错误/timeout优先保持原源码。"
+    },
+    {
+      "id": "R1-F04",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [11, 37, 129],
+      "title": "Lite前端无法自行拒绝原GP0 burst",
+      "impact": "标准转换器可拆分上游burst为多次Lite访问，Lite端已经没有AxLEN，不能保证所述burst拒绝或整体零控制副作用。",
+      "basis": "Arm IHI0022C §14.2 Lite没有LEN；§14.4.1 PDF127明确Full AXI burst转为多次single beat。",
+      "close_condition": "明确single beat约束在GP0 AXI3哪一层核查及违例完整B/R响应/零副作用；或者明确single beat是软件与转换配置的准入前提，Lite本身不能辨认原burst，并保留实际转换配置验证阻碍。"
+    },
+    {
+      "id": "R1-F05",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [92, 96, 98],
+      "title": "非exclusive事务的EXOKAY响应未定义",
+      "impact": "RRESP/BRESP=01既未覆盖为成功也未覆盖为错误，可能造成挂起或误判成功。",
+      "basis": "Arm IHI0022C §7.1表7-1/§7.2.2 PDF57–58，EXOKAY对应exclusive成功；本候选AxLOCK=00且无exclusive。",
+      "close_condition": "明确01为本候选非法响应/协议诊断，保存响应、停止新声明、HEAD无效并隔离未能证明的事务；不得当正常OKAY或静默丢弃。"
+    },
+    {
+      "id": "R1-F06",
+      "priority": "P2",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [137, 143],
+      "title": "官方PDF读取范围归属表述不准确",
+      "impact": "总控成功打开132页PDF元数据被写成已读取132页，可能把未完成的AXI3核查当成全文依据。",
+      "basis": "根消息确认其只成功open、后续find/lineopen超时；Reviewer本次原URL也超时，随后从web搜索返回的官方带token URL实际核查局部§3.3、§5.1、§7、§9、§13.4、§14.2/14.4。",
+      "close_condition": "准确区分元数据打开、实际局部章节读取、来源主体与失败；可使用本次Reviewer已读取章节收据补充依据，不冒称任何一方完整逐页全文读取。"
+    },
+    {
+      "id": "R1-F07",
+      "priority": "P2",
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json",
+      "lines": [70],
+      "title": "inputs原生checker退出码与外层工具码混淆",
+      "impact": "当前称inputs因FAIL返回1，但原生checker CHECKS_FAILED固定返回2，妨碍可复核执行归属。",
+      "basis": "verification/check_stage_delivery.py的main()末尾返回0或2；Reviewer subprocess两次直接核查T06 inputs JSON为CHECKS_FAILED，完整r02收据原生exit2。根说明历史外层exec_command chunk d1a448观测1。collector原失败1另有真实证据。",
+      "close_condition": "保留原collector1、根外层观测1及其命令/chunk，并把本次原生checker2来源绑定到审查日志；修正limitations措辞。原FAIL不删，evidence0不覆盖FAIL。"
+    }
+  ],
+  "independent_confirmations": [
+    "固定7项被审哈希及两份manifest共62项文件哈希全部匹配；绑定源码快照与实际源码一致",
+    "冻结manifest有38层、36独立feature和2YOLO别名、21GF8记录；feature有效11382150、跨度11382200、间隙50、完整GF8 5903100字节、有效对象17804418字节",
+    "head13尾mask0011、head26尾mask1111；物理平移和64bit低/高word lane公式一致，byte读不额外读取尾外字节",
+    "32bit timeout最大值在50MHz为85.8993459秒；完整HP请求/背压和部署值仍未知，未编造周期或上限可达证明",
+    "合法late-drain全部旧事务结束、计算停止和可见性完整后ERROR_SAFE归还与系统设计81–89已批准原则一致；无永久锁死新审批要求",
+    "cache源码实际为32byte行、L1/L2维护及DSB/L2Sync，USE_AMP分支会跳过L2；feature维护包络64byte外取整可避免InvalidateRange边界flush旧脏行",
+    "完整网表/属性/HP配置和CPU跨master读回仍NOT_RUN，SAFE为条件性论证，G0/G3/G4/G5未通过",
+    "UART raw枚举JSON与port_result一致，COM4/CP210x旧PNP身份相同，native exit0、outercollector误名exit1、原失败源码保留；未打开设备，无新UART/DDR功能通过",
+    "STATE未继承串口枚举为功能PASS且保持2B未冻结；gitattributes实际对两包text=unset，保留原字节",
+    "git diff --check退出0，只有gitattributes CRLF提示；只读审查不暂存不提交"
+  ],
+  "primary_sources_actually_read": [
+    {
+      "url": "https://documentation-service.arm.com/static/64256e84314e245d086bc88f%3Ftoken%3D",
+      "document": "Arm IHI0022C (ID030610)",
+      "scope": "局部§3.2/3.3、§5.1、§7.1/7.2、§9.2/9.3、§13.4、§14.2/14.4；PDF132页为元数据，未逐页全文读取",
+      "note": "原无token URL本次open失败Timeout；带token URL由web search实际返回后open/find成功"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/PS-PL-AXI-Interfaces",
+      "scope": "UG585 1.15 AXI3类型与GP0/HP角色，实际页面4289起"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Address-Map?contentId=YyWiRDziY_R5p9ZPDZc1cg",
+      "scope": "UG585 CPU/HP共享DDR范围与GP0 PL窗口"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Transaction-Types?contentId=q9YGCp2PD_HFpH1Xmk9I8g",
+      "scope": "UG585 64bit窄read/write支持且无upsizing，低效率边界"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Performance-Optimization-Summary?contentId=SQ4F87dw95hi9lj_8vK6QQ",
+      "scope": "UG585第23行HP全路径至DDR/OCM slave回应及后续提交顺序，不能单独代表cache一致性或持久化"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/pg021_axi_dma/Core-Overview?contentId=_Z2xHyugj8rFONIeaHuSqw",
+      "scope": "PG021 memory AXI4/AXI4-Stream MM2S/S2MM边界"
+    }
+  ],
+  "execution_evidence": {
+    "facts_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T07\\review_r01_20261009\\independent_facts.json",
+    "successful_formula_command": "PYTHONIOENCODING=utf-8 python -B tmp/2B/S2B-T07/review_r01_20261009/read_only_review.py",
+    "successful_formula_tool_chunk": "9e82a8",
+    "successful_formula_exit_code": 0,
+    "native_checker_exit_codes_in_order": [0, 2, 0, 2],
+    "native_checker_order": ["T07 evidence", "T07 inputs", "T06 evidence", "T06 inputs"],
+    "first_review_calculation_exit_code": 1,
+    "first_review_calculation_tool_chunk": "7ba7e2",
+    "first_review_calculation_failure": "按任务卡预期T06 inputs=1，但原生实测2；四份初次日志原样保留。仅修隔离审查脚本预期值，第二次使用_r02日志不覆盖初次记录。",
+    "initial_shell_entry_failure": "exec_command直接shell指定Git Bash未正确启动，chunk6b4b2c exit2；后续通过PowerShell调用精确Git Bash程序成功，文件检查仍由Git Bash执行。"
+  },
+  "limitations": [
+    "无RTL/软件测试、综合、BD/XSA构建、硬件打开或设备动作",
+    "只审固定候选文档与静态证据，不冻结物理接口或批准部署",
+    "未访问外部原始模型/图像、Vault或厂商原件",
+    "等待修复后的新哈希/绑定进行独立复审；原R1内容已停止写入",
+    "峰值内存及全部工具调用未测；收据由根归档并提交，Reviewer不提交"
+  ]
+}

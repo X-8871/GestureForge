@@ -1,0 +1,1225 @@
+{
+  "status": "PASS_READ_ONLY_LAYOUT_ANALYSIS",
+  "source_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "created_utc8": "2026-10-09T22:59:59.169507+08:00",
+  "source_manifest": {
+    "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+  },
+  "candidate_not_frozen": true,
+  "translation": 268435456,
+  "arena_bytes": 33554432,
+  "objects": [
+    {
+      "name": "input",
+      "logical_address": 0,
+      "length_bytes": 519168,
+      "logical_end_exclusive": 519168,
+      "physical_address": 268435456,
+      "physical_end_exclusive": 268954624,
+      "pl_access": "read_only"
+    },
+    {
+      "name": "weight_package",
+      "logical_address": 1048576,
+      "length_bytes": 5903100,
+      "logical_end_exclusive": 6951676,
+      "physical_address": 269484032,
+      "physical_end_exclusive": 275387132,
+      "pl_access": "read_only"
+    }
+  ],
+  "layers": [
+    {
+      "layer_index": 0,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        "network_input"
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        208,
+        208
+      ],
+      "tensor_address": 16777216,
+      "tensor_length_bytes": 1384448,
+      "logical_end_exclusive": 18161664,
+      "physical_address": 285212672,
+      "physical_end_exclusive": 286597120,
+      "allocated": true
+    },
+    {
+      "layer_index": 1,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        0
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "tensor_address": 18161664,
+      "tensor_length_bytes": 692224,
+      "logical_end_exclusive": 18853888,
+      "physical_address": 286597120,
+      "physical_end_exclusive": 287289344,
+      "allocated": true
+    },
+    {
+      "layer_index": 2,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        1
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "tensor_address": 18853888,
+      "tensor_length_bytes": 692224,
+      "logical_end_exclusive": 19546112,
+      "physical_address": 287289344,
+      "physical_end_exclusive": 287981568,
+      "allocated": true
+    },
+    {
+      "layer_index": 3,
+      "op": "route",
+      "input_tensor_indices": [
+        2
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "tensor_address": 19546112,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 19892224,
+      "physical_address": 287981568,
+      "physical_end_exclusive": 288327680,
+      "allocated": true
+    },
+    {
+      "layer_index": 4,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        3
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "tensor_address": 19892224,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 20238336,
+      "physical_address": 288327680,
+      "physical_end_exclusive": 288673792,
+      "allocated": true
+    },
+    {
+      "layer_index": 5,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        4
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "tensor_address": 20238336,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 20584448,
+      "physical_address": 288673792,
+      "physical_end_exclusive": 289019904,
+      "allocated": true
+    },
+    {
+      "layer_index": 6,
+      "op": "route",
+      "input_tensor_indices": [
+        5,
+        4
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "tensor_address": 20584448,
+      "tensor_length_bytes": 692224,
+      "logical_end_exclusive": 21276672,
+      "physical_address": 289019904,
+      "physical_end_exclusive": 289712128,
+      "allocated": true
+    },
+    {
+      "layer_index": 7,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        6
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "tensor_address": 21276672,
+      "tensor_length_bytes": 692224,
+      "logical_end_exclusive": 21968896,
+      "physical_address": 289712128,
+      "physical_end_exclusive": 290404352,
+      "allocated": true
+    },
+    {
+      "layer_index": 8,
+      "op": "route",
+      "input_tensor_indices": [
+        2,
+        7
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        104,
+        104
+      ],
+      "tensor_address": 21968896,
+      "tensor_length_bytes": 1384448,
+      "logical_end_exclusive": 23353344,
+      "physical_address": 290404352,
+      "physical_end_exclusive": 291788800,
+      "allocated": true
+    },
+    {
+      "layer_index": 9,
+      "op": "maxpool",
+      "input_tensor_indices": [
+        8
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "tensor_address": 23353344,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 23699456,
+      "physical_address": 291788800,
+      "physical_end_exclusive": 292134912,
+      "allocated": true
+    },
+    {
+      "layer_index": 10,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        9
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "tensor_address": 23699456,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 24045568,
+      "physical_address": 292134912,
+      "physical_end_exclusive": 292481024,
+      "allocated": true
+    },
+    {
+      "layer_index": 11,
+      "op": "route",
+      "input_tensor_indices": [
+        10
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "tensor_address": 24045568,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 24218624,
+      "physical_address": 292481024,
+      "physical_end_exclusive": 292654080,
+      "allocated": true
+    },
+    {
+      "layer_index": 12,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        11
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "tensor_address": 24218624,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 24391680,
+      "physical_address": 292654080,
+      "physical_end_exclusive": 292827136,
+      "allocated": true
+    },
+    {
+      "layer_index": 13,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        12
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "tensor_address": 24391680,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 24564736,
+      "physical_address": 292827136,
+      "physical_end_exclusive": 293000192,
+      "allocated": true
+    },
+    {
+      "layer_index": 14,
+      "op": "route",
+      "input_tensor_indices": [
+        13,
+        12
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "tensor_address": 24564736,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 24910848,
+      "physical_address": 293000192,
+      "physical_end_exclusive": 293346304,
+      "allocated": true
+    },
+    {
+      "layer_index": 15,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        14
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "tensor_address": 24910848,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 25256960,
+      "physical_address": 293346304,
+      "physical_end_exclusive": 293692416,
+      "allocated": true
+    },
+    {
+      "layer_index": 16,
+      "op": "route",
+      "input_tensor_indices": [
+        10,
+        15
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        52,
+        52
+      ],
+      "tensor_address": 25256960,
+      "tensor_length_bytes": 692224,
+      "logical_end_exclusive": 25949184,
+      "physical_address": 293692416,
+      "physical_end_exclusive": 294384640,
+      "allocated": true
+    },
+    {
+      "layer_index": 17,
+      "op": "maxpool",
+      "input_tensor_indices": [
+        16
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "tensor_address": 25949184,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 26122240,
+      "physical_address": 294384640,
+      "physical_end_exclusive": 294557696,
+      "allocated": true
+    },
+    {
+      "layer_index": 18,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        17
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "tensor_address": 26122240,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 26295296,
+      "physical_address": 294557696,
+      "physical_end_exclusive": 294730752,
+      "allocated": true
+    },
+    {
+      "layer_index": 19,
+      "op": "route",
+      "input_tensor_indices": [
+        18
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "tensor_address": 26295296,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 26381824,
+      "physical_address": 294730752,
+      "physical_end_exclusive": 294817280,
+      "allocated": true
+    },
+    {
+      "layer_index": 20,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        19
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "tensor_address": 26381824,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 26468352,
+      "physical_address": 294817280,
+      "physical_end_exclusive": 294903808,
+      "allocated": true
+    },
+    {
+      "layer_index": 21,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        20
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "tensor_address": 26468352,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 26554880,
+      "physical_address": 294903808,
+      "physical_end_exclusive": 294990336,
+      "allocated": true
+    },
+    {
+      "layer_index": 22,
+      "op": "route",
+      "input_tensor_indices": [
+        21,
+        20
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "tensor_address": 26554880,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 26727936,
+      "physical_address": 294990336,
+      "physical_end_exclusive": 295163392,
+      "allocated": true
+    },
+    {
+      "layer_index": 23,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        22
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "tensor_address": 26727936,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 26900992,
+      "physical_address": 295163392,
+      "physical_end_exclusive": 295336448,
+      "allocated": true
+    },
+    {
+      "layer_index": 24,
+      "op": "route",
+      "input_tensor_indices": [
+        18,
+        23
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        26,
+        26
+      ],
+      "tensor_address": 26900992,
+      "tensor_length_bytes": 346112,
+      "logical_end_exclusive": 27247104,
+      "physical_address": 295336448,
+      "physical_end_exclusive": 295682560,
+      "allocated": true
+    },
+    {
+      "layer_index": 25,
+      "op": "maxpool",
+      "input_tensor_indices": [
+        24
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "tensor_address": 27247104,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 27333632,
+      "physical_address": 295682560,
+      "physical_end_exclusive": 295769088,
+      "allocated": true
+    },
+    {
+      "layer_index": 26,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        25
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "tensor_address": 27333632,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 27420160,
+      "physical_address": 295769088,
+      "physical_end_exclusive": 295855616,
+      "allocated": true
+    },
+    {
+      "layer_index": 27,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        26
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "tensor_address": 27420160,
+      "tensor_length_bytes": 43264,
+      "logical_end_exclusive": 27463424,
+      "physical_address": 295855616,
+      "physical_end_exclusive": 295898880,
+      "allocated": true
+    },
+    {
+      "layer_index": 28,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        27
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "tensor_address": 27463424,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 27549952,
+      "physical_address": 295898880,
+      "physical_end_exclusive": 295985408,
+      "allocated": true
+    },
+    {
+      "layer_index": 29,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        28
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "tensor_address": 27549952,
+      "tensor_length_bytes": 5070,
+      "logical_end_exclusive": 27555022,
+      "physical_address": 295985408,
+      "physical_end_exclusive": 295990478,
+      "allocated": true
+    },
+    {
+      "layer_index": 30,
+      "op": "yolo",
+      "input_tensor_indices": [
+        29
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "tensor_address": 27549952,
+      "tensor_length_bytes": 5070,
+      "logical_end_exclusive": 27555022,
+      "physical_address": 295985408,
+      "physical_end_exclusive": 295990478,
+      "allocated": false,
+      "alias_source_layer": 29
+    },
+    {
+      "layer_index": 31,
+      "op": "route",
+      "input_tensor_indices": [
+        27
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "tensor_address": 27555072,
+      "tensor_length_bytes": 43264,
+      "logical_end_exclusive": 27598336,
+      "physical_address": 295990528,
+      "physical_end_exclusive": 296033792,
+      "allocated": true
+    },
+    {
+      "layer_index": 32,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        31
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        13,
+        13
+      ],
+      "tensor_address": 27598336,
+      "tensor_length_bytes": 21632,
+      "logical_end_exclusive": 27619968,
+      "physical_address": 296033792,
+      "physical_end_exclusive": 296055424,
+      "allocated": true
+    },
+    {
+      "layer_index": 33,
+      "op": "upsample",
+      "input_tensor_indices": [
+        32
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "tensor_address": 27619968,
+      "tensor_length_bytes": 86528,
+      "logical_end_exclusive": 27706496,
+      "physical_address": 296055424,
+      "physical_end_exclusive": 296141952,
+      "allocated": true
+    },
+    {
+      "layer_index": 34,
+      "op": "route",
+      "input_tensor_indices": [
+        33,
+        23
+      ],
+      "output_shape_nchw": [
+        1,
+        384,
+        26,
+        26
+      ],
+      "tensor_address": 27706496,
+      "tensor_length_bytes": 259584,
+      "logical_end_exclusive": 27966080,
+      "physical_address": 296141952,
+      "physical_end_exclusive": 296401536,
+      "allocated": true
+    },
+    {
+      "layer_index": 35,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        34
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "tensor_address": 27966080,
+      "tensor_length_bytes": 173056,
+      "logical_end_exclusive": 28139136,
+      "physical_address": 296401536,
+      "physical_end_exclusive": 296574592,
+      "allocated": true
+    },
+    {
+      "layer_index": 36,
+      "op": "convolutional",
+      "input_tensor_indices": [
+        35
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "tensor_address": 28139136,
+      "tensor_length_bytes": 20280,
+      "logical_end_exclusive": 28159416,
+      "physical_address": 296574592,
+      "physical_end_exclusive": 296594872,
+      "allocated": true
+    },
+    {
+      "layer_index": 37,
+      "op": "yolo",
+      "input_tensor_indices": [
+        36
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "tensor_address": 28139136,
+      "tensor_length_bytes": 20280,
+      "logical_end_exclusive": 28159416,
+      "physical_address": 296574592,
+      "physical_end_exclusive": 296594872,
+      "allocated": false,
+      "alias_source_layer": 36
+    }
+  ],
+  "heads": [
+    {
+      "name": "head13",
+      "yolo_layer_index": 30,
+      "source_convolution_layer_index": 29,
+      "stride": 32,
+      "shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "layout_view": "[anchor=3, entry=10, row, col] over contiguous NCHW channels; channel=anchor*10+entry",
+      "int8_scale": 0.24267549589862975,
+      "address": 27549952,
+      "length_bytes": 5070,
+      "logical_end_exclusive": 27555022,
+      "physical_address": 295985408,
+      "physical_end_exclusive": 295990478,
+      "last_aligned_word": 27555020,
+      "last_word_legal_mask": 3,
+      "cache_start_64": 295985408,
+      "cache_end_exclusive_64": 295990528
+    },
+    {
+      "name": "head26",
+      "yolo_layer_index": 37,
+      "source_convolution_layer_index": 36,
+      "stride": 16,
+      "shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "layout_view": "[anchor=3, entry=10, row, col] over contiguous NCHW channels; channel=anchor*10+entry",
+      "int8_scale": 0.30223452951025775,
+      "address": 28139136,
+      "length_bytes": 20280,
+      "logical_end_exclusive": 28159416,
+      "physical_address": 296574592,
+      "physical_end_exclusive": 296594872,
+      "last_aligned_word": 28159412,
+      "last_word_legal_mask": 15,
+      "cache_start_64": 296574592,
+      "cache_end_exclusive_64": 296594880
+    }
+  ],
+  "feature_gaps": [
+    {
+      "logical_start": 27555022,
+      "logical_end_exclusive": 27555072,
+      "bytes": 50
+    }
+  ],
+  "gf8_records": [
+    {
+      "layer_index": 0,
+      "output_channels": 32,
+      "gf8_parameter_offsets": {
+        "record_offset": 28,
+        "weight_scale_offset": 60,
+        "fused_bias_offset": 188,
+        "quantized_weight_offset": 316,
+        "quantized_weight_bytes": 864
+      },
+      "quantized_weight_end_offset": 1180,
+      "scale_bytes": 128,
+      "float32_bias_bytes": 128,
+      "shape_weight_bytes": 864
+    },
+    {
+      "layer_index": 1,
+      "output_channels": 64,
+      "gf8_parameter_offsets": {
+        "record_offset": 1180,
+        "weight_scale_offset": 1212,
+        "fused_bias_offset": 1468,
+        "quantized_weight_offset": 1724,
+        "quantized_weight_bytes": 18432
+      },
+      "quantized_weight_end_offset": 20156,
+      "scale_bytes": 256,
+      "float32_bias_bytes": 256,
+      "shape_weight_bytes": 18432
+    },
+    {
+      "layer_index": 2,
+      "output_channels": 64,
+      "gf8_parameter_offsets": {
+        "record_offset": 20156,
+        "weight_scale_offset": 20188,
+        "fused_bias_offset": 20444,
+        "quantized_weight_offset": 20700,
+        "quantized_weight_bytes": 36864
+      },
+      "quantized_weight_end_offset": 57564,
+      "scale_bytes": 256,
+      "float32_bias_bytes": 256,
+      "shape_weight_bytes": 36864
+    },
+    {
+      "layer_index": 4,
+      "output_channels": 32,
+      "gf8_parameter_offsets": {
+        "record_offset": 57564,
+        "weight_scale_offset": 57596,
+        "fused_bias_offset": 57724,
+        "quantized_weight_offset": 57852,
+        "quantized_weight_bytes": 9216
+      },
+      "quantized_weight_end_offset": 67068,
+      "scale_bytes": 128,
+      "float32_bias_bytes": 128,
+      "shape_weight_bytes": 9216
+    },
+    {
+      "layer_index": 5,
+      "output_channels": 32,
+      "gf8_parameter_offsets": {
+        "record_offset": 67068,
+        "weight_scale_offset": 67100,
+        "fused_bias_offset": 67228,
+        "quantized_weight_offset": 67356,
+        "quantized_weight_bytes": 9216
+      },
+      "quantized_weight_end_offset": 76572,
+      "scale_bytes": 128,
+      "float32_bias_bytes": 128,
+      "shape_weight_bytes": 9216
+    },
+    {
+      "layer_index": 7,
+      "output_channels": 64,
+      "gf8_parameter_offsets": {
+        "record_offset": 76572,
+        "weight_scale_offset": 76604,
+        "fused_bias_offset": 76860,
+        "quantized_weight_offset": 77116,
+        "quantized_weight_bytes": 4096
+      },
+      "quantized_weight_end_offset": 81212,
+      "scale_bytes": 256,
+      "float32_bias_bytes": 256,
+      "shape_weight_bytes": 4096
+    },
+    {
+      "layer_index": 10,
+      "output_channels": 128,
+      "gf8_parameter_offsets": {
+        "record_offset": 81212,
+        "weight_scale_offset": 81244,
+        "fused_bias_offset": 81756,
+        "quantized_weight_offset": 82268,
+        "quantized_weight_bytes": 147456
+      },
+      "quantized_weight_end_offset": 229724,
+      "scale_bytes": 512,
+      "float32_bias_bytes": 512,
+      "shape_weight_bytes": 147456
+    },
+    {
+      "layer_index": 12,
+      "output_channels": 64,
+      "gf8_parameter_offsets": {
+        "record_offset": 229724,
+        "weight_scale_offset": 229756,
+        "fused_bias_offset": 230012,
+        "quantized_weight_offset": 230268,
+        "quantized_weight_bytes": 36864
+      },
+      "quantized_weight_end_offset": 267132,
+      "scale_bytes": 256,
+      "float32_bias_bytes": 256,
+      "shape_weight_bytes": 36864
+    },
+    {
+      "layer_index": 13,
+      "output_channels": 64,
+      "gf8_parameter_offsets": {
+        "record_offset": 267132,
+        "weight_scale_offset": 267164,
+        "fused_bias_offset": 267420,
+        "quantized_weight_offset": 267676,
+        "quantized_weight_bytes": 36864
+      },
+      "quantized_weight_end_offset": 304540,
+      "scale_bytes": 256,
+      "float32_bias_bytes": 256,
+      "shape_weight_bytes": 36864
+    },
+    {
+      "layer_index": 15,
+      "output_channels": 128,
+      "gf8_parameter_offsets": {
+        "record_offset": 304540,
+        "weight_scale_offset": 304572,
+        "fused_bias_offset": 305084,
+        "quantized_weight_offset": 305596,
+        "quantized_weight_bytes": 16384
+      },
+      "quantized_weight_end_offset": 321980,
+      "scale_bytes": 512,
+      "float32_bias_bytes": 512,
+      "shape_weight_bytes": 16384
+    },
+    {
+      "layer_index": 18,
+      "output_channels": 256,
+      "gf8_parameter_offsets": {
+        "record_offset": 321980,
+        "weight_scale_offset": 322012,
+        "fused_bias_offset": 323036,
+        "quantized_weight_offset": 324060,
+        "quantized_weight_bytes": 589824
+      },
+      "quantized_weight_end_offset": 913884,
+      "scale_bytes": 1024,
+      "float32_bias_bytes": 1024,
+      "shape_weight_bytes": 589824
+    },
+    {
+      "layer_index": 20,
+      "output_channels": 128,
+      "gf8_parameter_offsets": {
+        "record_offset": 913884,
+        "weight_scale_offset": 913916,
+        "fused_bias_offset": 914428,
+        "quantized_weight_offset": 914940,
+        "quantized_weight_bytes": 147456
+      },
+      "quantized_weight_end_offset": 1062396,
+      "scale_bytes": 512,
+      "float32_bias_bytes": 512,
+      "shape_weight_bytes": 147456
+    },
+    {
+      "layer_index": 21,
+      "output_channels": 128,
+      "gf8_parameter_offsets": {
+        "record_offset": 1062396,
+        "weight_scale_offset": 1062428,
+        "fused_bias_offset": 1062940,
+        "quantized_weight_offset": 1063452,
+        "quantized_weight_bytes": 147456
+      },
+      "quantized_weight_end_offset": 1210908,
+      "scale_bytes": 512,
+      "float32_bias_bytes": 512,
+      "shape_weight_bytes": 147456
+    },
+    {
+      "layer_index": 23,
+      "output_channels": 256,
+      "gf8_parameter_offsets": {
+        "record_offset": 1210908,
+        "weight_scale_offset": 1210940,
+        "fused_bias_offset": 1211964,
+        "quantized_weight_offset": 1212988,
+        "quantized_weight_bytes": 65536
+      },
+      "quantized_weight_end_offset": 1278524,
+      "scale_bytes": 1024,
+      "float32_bias_bytes": 1024,
+      "shape_weight_bytes": 65536
+    },
+    {
+      "layer_index": 26,
+      "output_channels": 512,
+      "gf8_parameter_offsets": {
+        "record_offset": 1278524,
+        "weight_scale_offset": 1278556,
+        "fused_bias_offset": 1280604,
+        "quantized_weight_offset": 1282652,
+        "quantized_weight_bytes": 2359296
+      },
+      "quantized_weight_end_offset": 3641948,
+      "scale_bytes": 2048,
+      "float32_bias_bytes": 2048,
+      "shape_weight_bytes": 2359296
+    },
+    {
+      "layer_index": 27,
+      "output_channels": 256,
+      "gf8_parameter_offsets": {
+        "record_offset": 3641948,
+        "weight_scale_offset": 3641980,
+        "fused_bias_offset": 3643004,
+        "quantized_weight_offset": 3644028,
+        "quantized_weight_bytes": 131072
+      },
+      "quantized_weight_end_offset": 3775100,
+      "scale_bytes": 1024,
+      "float32_bias_bytes": 1024,
+      "shape_weight_bytes": 131072
+    },
+    {
+      "layer_index": 28,
+      "output_channels": 512,
+      "gf8_parameter_offsets": {
+        "record_offset": 3775100,
+        "weight_scale_offset": 3775132,
+        "fused_bias_offset": 3777180,
+        "quantized_weight_offset": 3779228,
+        "quantized_weight_bytes": 1179648
+      },
+      "quantized_weight_end_offset": 4958876,
+      "scale_bytes": 2048,
+      "float32_bias_bytes": 2048,
+      "shape_weight_bytes": 1179648
+    },
+    {
+      "layer_index": 29,
+      "output_channels": 30,
+      "gf8_parameter_offsets": {
+        "record_offset": 4958876,
+        "weight_scale_offset": 4958908,
+        "fused_bias_offset": 4959028,
+        "quantized_weight_offset": 4959148,
+        "quantized_weight_bytes": 15360
+      },
+      "quantized_weight_end_offset": 4974508,
+      "scale_bytes": 120,
+      "float32_bias_bytes": 120,
+      "shape_weight_bytes": 15360
+    },
+    {
+      "layer_index": 32,
+      "output_channels": 128,
+      "gf8_parameter_offsets": {
+        "record_offset": 4974508,
+        "weight_scale_offset": 4974540,
+        "fused_bias_offset": 4975052,
+        "quantized_weight_offset": 4975564,
+        "quantized_weight_bytes": 32768
+      },
+      "quantized_weight_end_offset": 5008332,
+      "scale_bytes": 512,
+      "float32_bias_bytes": 512,
+      "shape_weight_bytes": 32768
+    },
+    {
+      "layer_index": 35,
+      "output_channels": 256,
+      "gf8_parameter_offsets": {
+        "record_offset": 5008332,
+        "weight_scale_offset": 5008364,
+        "fused_bias_offset": 5009388,
+        "quantized_weight_offset": 5010412,
+        "quantized_weight_bytes": 884736
+      },
+      "quantized_weight_end_offset": 5895148,
+      "scale_bytes": 1024,
+      "float32_bias_bytes": 1024,
+      "shape_weight_bytes": 884736
+    },
+    {
+      "layer_index": 36,
+      "output_channels": 30,
+      "gf8_parameter_offsets": {
+        "record_offset": 5895148,
+        "weight_scale_offset": 5895180,
+        "fused_bias_offset": 5895300,
+        "quantized_weight_offset": 5895420,
+        "quantized_weight_bytes": 7680
+      },
+      "quantized_weight_end_offset": 5903100,
+      "scale_bytes": 120,
+      "float32_bias_bytes": 120,
+      "shape_weight_bytes": 7680
+    }
+  ],
+  "totals": {
+    "layer_count": 38,
+    "allocated_feature_count": 36,
+    "yolo_alias_count": 2,
+    "convolution_count": 21,
+    "conv_channel_count": 3164,
+    "feature_effective_bytes": 11382150,
+    "feature_span_bytes": 11382200,
+    "feature_gap_bytes": 50,
+    "gf8_package_bytes": 5903100,
+    "gf8_weight_payload_bytes": 5877088,
+    "gf8_header_record_scale_bias_bytes": 26012,
+    "input_gf8_feature_effective_bytes": 17804418,
+    "translated_used_span_bytes": 28159416,
+    "translated_used_span_MiB": 26.85491180419922,
+    "arena_unused_tail_bytes": 5395016,
+    "feature_cache_start": 285212672,
+    "feature_cache_end_exclusive": 296594880,
+    "feature_cache_length": 11382208
+  },
+  "deadline": {
+    "counter_width_bits": 32,
+    "zero_illegal": true,
+    "maximum_cycles": 4294967295,
+    "candidate_clock_hz": 50000000,
+    "maximum_seconds": 85.8993459,
+    "core_deployment_cycles": null,
+    "drain_deployment_cycles": null,
+    "actual_full_network_requests": null,
+    "actual_hp_latency_cycles": null,
+    "reason": "未测完整38层请求/HP往返/计算与背压，不能凭下界确定部署deadline"
+  },
+  "writes_only_lower_bound": {
+    "logical_write_requests": 11382150,
+    "axi_write_beats": 11382150,
+    "basis": "conv_tile/route/maxpool/upsample源码均逐输出INT8 one-hot写；YOLO不另分配",
+    "ignores": [
+      "所有读取",
+      "控制和计算周期",
+      "握手背压",
+      "PS解码/UART"
+    ],
+    "serial_service_sensitivity": [
+      {
+        "assumed_cycles_per_write": 1,
+        "minimum_cycles": 11382150,
+        "minimum_seconds_at_50MHz": 0.227643,
+        "exceeds_32bit_deadline_from_writes_alone": false
+      },
+      {
+        "assumed_cycles_per_write": 10,
+        "minimum_cycles": 113821500,
+        "minimum_seconds_at_50MHz": 2.27643,
+        "exceeds_32bit_deadline_from_writes_alone": false
+      },
+      {
+        "assumed_cycles_per_write": 100,
+        "minimum_cycles": 1138215000,
+        "minimum_seconds_at_50MHz": 22.7643,
+        "exceeds_32bit_deadline_from_writes_alone": false
+      },
+      {
+        "assumed_cycles_per_write": 500,
+        "minimum_cycles": 5691075000,
+        "minimum_seconds_at_50MHz": 113.8215,
+        "exceeds_32bit_deadline_from_writes_alone": true
+      },
+      {
+        "assumed_cycles_per_write": 1000,
+        "minimum_cycles": 11382150000,
+        "minimum_seconds_at_50MHz": 227.643,
+        "exceeds_32bit_deadline_from_writes_alone": true
+      }
+    ],
+    "largest_integer_service_cycles_per_write_within_maximum": 377,
+    "not_a_performance_prediction": true
+  },
+  "source_findings": {
+    "timeout_source": "src/s2a_control_csr.sv: timeout_cycles/elapsed_cycles为logic[31:0]，零非法",
+    "global_timeout_source": "src/s2a_network_descriptor_pkg.sv: S2A_TIMEOUT_SCOPE_GLOBAL=1，PER_LAYER_TIMEOUT_RESTART=0",
+    "byte_packing_source": "src/s2a_conv_tile_engine.sv: 地址向下4byte对齐，strobe按原byte低2bit one-hot"
+  },
+  "elapsed_seconds": 0.17949889999999868,
+  "limitations": [
+    "仅尺寸/地址/源码静态分析，不是RTL测试、吞吐实测或G0冻结",
+    "未访问外部图像/模型参数文件",
+    "峰值内存与本会话全部工具调用未测"
+  ]
+}

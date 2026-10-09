@@ -1,0 +1,30 @@
+{
+  "status": "PASS_CANDIDATE_STATIC_DESIGN_REVIEW",
+  "candidate_version": "s2b-physical-candidate/0.1.1",
+  "source_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "r1_decision": "CHANGES_REQUIRED",
+  "r2_decision": "PASS",
+  "r1_closed_findings": 7,
+  "r2_receipt_sha256": "0363c925f0a4cfeb30e858e7ef91cd8cb00b9e1a3bb92b0a5792c8ddfd004570",
+  "fixed_live_hashes": {
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+    "docs/obsidian-project/02-方案设计/系统设计.md": "7aea2ed8a47423f80cda74aea98064f971b7da290509931387b33a2d28b8c33a",
+    ".codex/STATE.md": "5348fc5a38c1687b4795ad6e324ff364fe0e390312d82a59b93786f8e8a1cca2",
+    ".gitattributes": "6c9162bcb5672e8c97ade6836dc210e4c61cce90dea3e30c91a160003c68470c",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/delivery_manifest.json": "6be1e8cde3de1875054126893e8865d026e5e3106d3cc843ef8e197e0367c8cf",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/layout_result.json": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/candidate_revision_result.json": "ef483418c13bf0fbdd9d78f47c8e143f10b766ca092c7014cc92d3520322be0b",
+    "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json": "ede0b5090943b7c8e7bad04f3ac0acf83587b5fee7d0b03ba5d9b9bba15803ec"
+  },
+  "selected_serial_port": "COM4",
+  "serial_scope": "只读设备枚举，原生成功0；原归档器失败1保留；不构成新UART/DDR功能测试",
+  "limitations": [
+    "PASS只表示文档候选静态可实现与R1七项关闭；四相位和ARMING数值是设计公式，未由RTL验证",
+    "GP0配置/AxLEN、实际HP属性与跨master cache可见性、linker arena/DDR绑定、CSR/adapter实现和集成时序未验证",
+    "32bit timeout在50MHz最多85.8993459秒；完整请求与HP延迟/背压、CORE/DRAIN部署期限仍未知，候选没有制造部署值",
+    "100样本/1000连续实板指标未降低，完整物理G0/G3/G4/G5仍未通过",
+    "未运行RTL或软件功能测试、构建、综合、打开设备、复位/烧录、Git暂存或提交",
+    "原r01 live文档绑定随新候选改变不要求改写旧证据；原快照/哈希/R1问题完整保留",
+    "峰值内存和全部工具调用未测；本隔离审查产物由根归档和提交"
+  ]
+}

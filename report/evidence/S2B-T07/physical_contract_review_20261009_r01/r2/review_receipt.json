@@ -1,0 +1,122 @@
+{
+  "task_id": "S2B-T07-R2",
+  "reviewer_role": "独立只读Reviewer，与R1同一Reviewer继续复审",
+  "decision": "PASS",
+  "decision_scope": "0.1.1物理接口候选设计的R1七项关闭及修订相关静态回归；不表示接口冻结、RTL/软件实现通过或完整2B G0/G3/G4/G5通过",
+  "baseline_commit": "3f6e327a0ff9adc04ed6c98c1578862b8c2fae64",
+  "fixed_reviewed_hashes": {
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+    "docs/obsidian-project/02-方案设计/系统设计.md": "7aea2ed8a47423f80cda74aea98064f971b7da290509931387b33a2d28b8c33a",
+    ".codex/STATE.md": "5348fc5a38c1687b4795ad6e324ff364fe0e390312d82a59b93786f8e8a1cca2",
+    ".gitattributes": "6c9162bcb5672e8c97ade6836dc210e4c61cce90dea3e30c91a160003c68470c",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/delivery_manifest.json": "6be1e8cde3de1875054126893e8865d026e5e3106d3cc843ef8e197e0367c8cf",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/layout_result.json": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f",
+    "report/evidence/S2B-T07/physical_contract_20261009_r02/candidate_revision_result.json": "ef483418c13bf0fbdd9d78f47c8e143f10b766ca092c7014cc92d3520322be0b",
+    "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json": "ede0b5090943b7c8e7bad04f3ac0acf83587b5fee7d0b03ba5d9b9bba15803ec"
+  },
+  "prior_review_receipt": {
+    "path": "report/evidence/S2B-T07/physical_contract_20261009_r02/review_receipt_r01.json",
+    "sha256": "ecc1b9fba11399ebf1b1f23fdd7855d6c44cda21f3378576e9a4ceb602f20878",
+    "decision": "CHANGES_REQUIRED",
+    "preserved": true
+  },
+  "closed_findings": [
+    {
+      "id": "R1-F01",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [59, 119, 125, 127, 129, 131],
+      "basis": "AW/W首次同沿声明，各自独立接受；已声明写、W此前完成、BID正确的早到B保存B_SEEN/BRESP而不误判AW依赖，AW仍保持至握手。仅AW/W/匹配B全部结束才清ledger或交付。错误早B进入恢复但不撤AW。异常或重复B另记协议隔离。与R1实际核查Arm IHI0022C §3.3/§13.4区别一致。"
+    },
+    {
+      "id": "R1-F02",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [78, 82, 84, 86, 88, 95, 97, 99, 107, 119],
+      "basis": "明确既有core只有CSR/memory公开端口，经真实STATUS/ERROR读握手观察；四相位监视与控制/debug预留有界且不会因GP0 R/B背压阻塞。内部error先观察并保存关联code再reset；外部取消先关闭新声明并保存可观察诊断，未读到的并发内部事件不冒称已保存。soft_reset S组合取消、S注册abort、S+1后端消费、S+2以后真实STATUS0与mem_valid0确认停止；不清物理账本。每次新声明或子读前复核公开请求，内部撤销不必等CSR观察才关门禁。独立相位公式和实际源码支持该候选时序。"
+    },
+    {
+      "id": "R1-F03",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [44, 45, 68, 103, 105, 107, 131],
+      "basis": "以实际接收/观察定义首错，首次STATUS.error即占用CORE首错槽并置pending，之后phase1补code，后到ABORT/AXI错不覆盖；pending时code0不代表成功，阻止TERMINAL/SAFE及提前reset。固定同沿优先为协议>AXI响应错误>ABORT>观察内层error>观察成功，并发响应先R后B。晚到协议风险独立置隔离flag，不受首错锁存抑制。取消同沿握手入账但不mem_ready/HEAD_VALID或启动子读。2A完成/timeout优先由既有core保持。"
+    },
+    {
+      "id": "R1-F04",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [37, 162],
+      "basis": "明确32bit aligned Device/Strongly-ordered LDR/STR及GP0 AxLEN0为驱动/转换配置输入前提；Lite无AxLEN，转换可拆burst，未实现burst gate且不保证上游非法burst零副作用。实际GP0输入和转换配置仍属部署G0未关闭项。未增加虚构硬件保证，与R1 Arm §14.2/14.4依据一致。"
+    },
+    {
+      "id": "R1-F05",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [103, 121, 129, 131],
+      "basis": "AxLOCK00无exclusive时RRESP/BRESP01一律协议错误、HEAD无效、停止新声明并保留隔离flag。可消费合法ID/时序的物理响应继续剩余AW，但不能当OKAY、静默丢弃或凭计数0发布SAFE。与R1 Arm §7.1/7.2响应码核查一致。"
+    },
+    {
+      "id": "R1-F06",
+      "status": "CLOSED_IN_CANDIDATE_DESIGN",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "lines": [170, 176],
+      "basis": "准确区分总控元数据open、R1 Reviewer实际局部章节读取、D1失败和D2继承依据；明确132页不等于逐页全文读。R1原字节收据经SHA绑定进入r02。不冒称本轮重新联网读成功。"
+    },
+    {
+      "id": "R1-F07",
+      "status": "CLOSED_IN_EVIDENCE_METADATA",
+      "path": "report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/delivery_manifest.json",
+      "lines": [75],
+      "basis": "原collector1和native枚举0保留，新的diagnostic明确原根外层工具1及原生checker2边界。本次独立subprocess再次得到inputs2并绑定原始JSON/log。six原串口源码/原始stdout/stderr/原执行/失败/结果hash与R1完全一致；FAIL仍保留，evidence0不覆盖失败。"
+    }
+  ],
+  "new_blocking_findings": [],
+  "independent_regression_facts": {
+    "fixed_hash_count": 8,
+    "manifest_bound_file_count": 54,
+    "core_source_snapshot_bindings_verified": true,
+    "r01_doc_snapshot_and_receipt_preserved": true,
+    "r01_layout_and_projection_byte_identical_reuse": true,
+    "historical_layout_recalculation_count": 0,
+    "approved_recovery_section_71_to_93_unchanged": true,
+    "late_drain_returns_ERROR_SAFE_only_after_legal_closure_stop_visibility": true,
+    "csr_status_delta_by_producer_phase": [3, 2, 1, 1],
+    "associated_code_delta_by_producer_phase": [5, 4, 3, 2],
+    "arming_formula": "3+4+7*4=35<=40，正常ready且至多一个已接受debug预留",
+    "stop_formula": "S为phase2 reset握手，S+1 phase3消费注册abort且读到的CSR零不能先确认，S+2 phase0最早允许真实STATUS零和mem_valid零确认",
+    "first_error_pending_prevents_code_zero_success_or_safe": true,
+    "same_edge_old_csr_read_not_used_as_new_event": true,
+    "source_locations": [
+      "src/s2a_control_csr.sv:74–99组合读前态、132–149 reset清诊断并注册abort、216–254内部错误/完成/timeout顺序",
+      "src/s2a_runtime_shell.sv:49–55 soft_reset_now即时取消",
+      "src/s2a_memory_master.sv:36–57 owner/cancel门禁和pending清零",
+      "src/s2a_network_backend.sv:377–380结果ready、564–579注册abort分支",
+      "src/s2a_conv_tile_engine.sv:717–750 abort停止",
+      "src/s2a_route_engine.sv:262及393、src/s2a_maxpool_engine.sv:252及378、src/s2a_upsample_engine.sv:156及237 active abort/RESULT握手"
+    ],
+    "state_candidate_not_frozen_and_no_new_uart_function_pass": true,
+    "gitattributes_unchanged_from_R1": true
+  },
+  "execution": {
+    "independent_command": "PYTHONIOENCODING=utf-8 python -B tmp/2B/S2B-T07/review_r02_20261009/read_only_review.py",
+    "tool_chunk_id": "759065",
+    "exit_code": 0,
+    "facts_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T07\\review_r02_20261009\\independent_facts.json",
+    "checker_native_codes_in_order": [0, 2, 0, 2],
+    "checker_order": ["r02 T07 evidence", "r02 T07 inputs", "serial T06 evidence", "serial T06 inputs"],
+    "command_argv_log_hashes_and_elapsed": "详见independent_facts.json；每个checker直接subprocess.run捕获，不把外层工具成功码覆盖原生失败码。",
+    "read_only_calculation_elapsed_seconds": "详见independent_facts.json",
+    "new_network_calls_this_revision": 0,
+    "primary_document_basis": "继承本会话R1实际核查的主源章节，精确URL/章节与失败见R1已SHA绑定收据。"
+  },
+  "limitations": [
+    "PASS只表示文档候选静态可实现与R1七项关闭；四相位和ARMING数值是设计公式，未由RTL验证",
+    "GP0配置/AxLEN、实际HP属性与跨master cache可见性、linker arena/DDR绑定、CSR/adapter实现和集成时序未验证",
+    "32bit timeout在50MHz最多85.8993459秒；完整请求与HP延迟/背压、CORE/DRAIN部署期限仍未知，候选没有制造部署值",
+    "100样本/1000连续实板指标未降低，完整物理G0/G3/G4/G5仍未通过",
+    "未运行RTL或软件功能测试、构建、综合、打开设备、复位/烧录、Git暂存或提交",
+    "原r01 live文档绑定随新候选改变不要求改写旧证据；原快照/哈希/R1问题完整保留",
+    "峰值内存和全部工具调用未测；本隔离审查产物由根归档和提交"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "status": "FAIL",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "runs": [],
+  "limitations": [
+    "物理接口0.1.1未冻结；不构成完整2B G0/G4/G5或SAFE_TO_REUSE证明。",
+    "未修改冻结2A或guard；未做HP/DDR/cache/完整CSR集成、综合、时序、实物测试。",
+    "cancel只模拟外层已决定取消，不包含CSR监视、STOP确认或drain timeout控制器。",
+    "所有输入VALID模拟在采样沿前稳定；异常R/B仍消费但隔离只允许统一冷恢复清除。",
+    "峰值内存未测；每Run单编译job和单仿真线程，无波形；重跑次数见独立RunId目录。"
+  ],
+  "sources": [
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "0f959235fb153e11960e0f511e638516187c62111a1fc509cc175c0ed1e63683"
+    },
+    {
+      "path": "sim/tb_s2b_hp0_word_adapter.sv",
+      "sha256": "bf6c603e73c92faeabc5b1f6d014c157f537c79600e87fc300f1d484ab54ed9d"
+    },
+    {
+      "path": "verification/test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "3699f32f166123632906e27854286d2279400175e94071f8bd6987114f508331"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "error": "手算夹具不一致：[173, 112]",
+  "elapsed_seconds": 0.235
+}

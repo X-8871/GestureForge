@@ -12,6 +12,14 @@ src/s2b_request_guard.sv -text
 sim/tb_s2b_request_guard.sv -text
 verification/test_s2b_request_guard_rtl.py -text
 
+# S2B-T10 AXI3 桥接模块与原始验证证据保留被审字节。
+report/evidence/S2B-T10/** -text
+report/evidence/S2B-T10/** whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T10/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_hp0_word_adapter.sv -text
+sim/tb_s2b_hp0_word_adapter.sv -text
+verification/test_s2b_hp0_word_adapter_rtl.py -text
+
 # G0 SHA-256 绑定文件保持原始字节，避免自动 CRLF 转换
 report/evidence/S2A-T01/** -text
 verification/s2a_model_delivery.py -text

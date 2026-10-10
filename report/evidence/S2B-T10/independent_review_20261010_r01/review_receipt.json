@@ -1,0 +1,435 @@
+{
+  "decision": "PASS",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "interface": "s2b-physical-candidate/0.1.1 CANDIDATE_NOT_FROZEN",
+  "sources": [
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "640043c98ce1e80a973e836d62c57a2b9ed2e91e268186ce63a55dc8e5ae3ff7"
+    },
+    {
+      "path": "sim/tb_s2b_hp0_word_adapter.sv",
+      "sha256": "7df2e97125d6fbe37adfc85b2f3828e531a21df0d918a029c183a704c89b863e"
+    },
+    {
+      "path": "verification/test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "44d9cc440898abea6fe16504688bc7c8df6518c5249cb0c06185b96f0be6cacd"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "scope": [
+    "HP0原生AXI3单word候选RTL、公开端口测试台和runner",
+    "guard唯一lane无符号兼容修复及独立70736条回归",
+    "取消/故障同沿账本、持久VALID、合法早B、非法response与EXOKAY隔离、首错优先、guard错误RESP时序",
+    "D1/D2/D3差异、r01-r09原始证据绑定、最终Vivado lint原件"
+  ],
+  "findings": [],
+  "redundancy_review": "物理地址统一消费guard核验值；无双重平移或独立业务白名单。逐通道声明/accepted/等待与逻辑RESP字段均有恢复用途，未发现需删除的冗余实现。",
+  "coverage": {
+    "seed": 722472976,
+    "random_requests": 1000,
+    "total_vectors": 8544,
+    "categories": {
+      "all_object_masks_and_boundaries": 7232,
+      "unaligned": 76,
+      "direction_conflict": 76,
+      "arena_and_overflow": 160,
+      "random_requests": 1000
+    },
+    "expected_errors": {
+      "1": 678,
+      "0": 7369,
+      "2": 497
+    },
+    "legal_mask_counts": {
+      "R:0001": 251,
+      "R:0010": 254,
+      "R:0011": 256,
+      "R:0100": 247,
+      "R:0101": 250,
+      "R:0110": 266,
+      "R:0111": 251,
+      "R:1000": 246,
+      "R:1001": 242,
+      "R:1010": 252,
+      "R:1011": 259,
+      "R:1100": 253,
+      "R:1101": 250,
+      "R:1110": 247,
+      "R:1111": 242,
+      "W:0001": 240,
+      "W:0010": 232,
+      "W:0011": 237,
+      "W:0100": 247,
+      "W:0101": 244,
+      "W:0110": 237,
+      "W:0111": 236,
+      "W:1000": 238,
+      "W:1001": 243,
+      "W:1010": 237,
+      "W:1011": 240,
+      "W:1100": 241,
+      "W:1101": 243,
+      "W:1110": 243,
+      "W:1111": 245
+    },
+    "word_position_counts": {
+      "0": 3702,
+      "1": 3667
+    },
+    "bus_stall_seed": 722472976,
+    "per_stall_cycles": "固定xorshift32产生0..3周期",
+    "directed_expected": 179,
+    "random_cancel_histories": 128,
+    "directed_categories": {
+      "predeclaration_cancel_withdraw_runclose": 3,
+      "cancel_write_accept_sets": 4,
+      "cancel_read_declared_or_accepted": 2,
+      "cancel_early_B_before_AW": 1,
+      "cancel_response_or_RESP_slot": 4,
+      "byte_withdraw_or_cancel": 2,
+      "all_payload_fields_changed": 5,
+      "epoch_change_with_RUN_high_or_low": 2,
+      "read_wdata_changed": 1,
+      "byte_between_payload_changed": 1,
+      "R_response_errors_and_protocol": 7,
+      "B_response_errors_and_protocol": 7,
+      "duplicate_R_in_RESP": 1,
+      "unexpected_R_or_B_in_RESP": 2,
+      "unexpected_B_before_declaration": 1,
+      "cancel_guard_error_RESP": 2,
+      "late_protocol_after_first_error": 1,
+      "permanent_AR_or_AW_W_stall_256cycles": 2,
+      "idle_RUN_and_cancel_clear": 1,
+      "clear_with_unexpected_response": 1,
+      "three_same_epoch_successes": 1,
+      "random_cancel_histories": 128
+    },
+    "reference_basis": "冻结manifest对象集合包含关系；总线字节函数与lane按字节独立求值，不读取RTL状态。",
+    "hand_calculated": {
+      "logical_addr": "0x01A474CC",
+      "mask": "0011",
+      "bytes": [
+        173,
+        112
+      ],
+      "expected_word": "0x000070AD",
+      "outside_mask": "0100 -> BAD_RANGE"
+    }
+  },
+  "simulation_counts": {
+    "vectors": 8544,
+    "directed": 179,
+    "cycles": 104877,
+    "logical": 8547,
+    "AR": 7379,
+    "AW": 3692,
+    "W": 3692,
+    "R": 7385,
+    "B": 3700
+  },
+  "independent_runs": {
+    "T10": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "--timescale",
+          "1ns/1ps",
+          "-Wall",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--top-module",
+          "tb_s2b_hp0_word_adapter",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0",
+          "source/s2b_request_guard.sv",
+          "source/s2b_hp0_word_adapter.sv",
+          "source/tb_s2b_hp0_word_adapter.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 29.609,
+        "log_sha256": "ff59e554a02d75bd9ed5308e65063b31d714f683d38372d30ed152d43b39992d",
+        "timed_out": false
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_cache\\obj_dir\\Vtb_s2b_hp0_word_adapter.exe",
+          "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\vectors.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 0.312,
+        "log_sha256": "b68b1ed3a9ce779865ae021364108717629c3e73f1ff192d297ec66afba43dad",
+        "timed_out": false
+      }
+    ],
+    "guard": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "-Wall",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--top-module",
+          "tb_s2b_request_guard",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0",
+          "source/s2b_request_guard.sv",
+          "source/tb_s2b_request_guard.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 8.25,
+        "log_sha256": "19d6e44d3684fc1e24b0c83c4e45d0288e7df43fccdd57ba2f1e6b1a76d162a2"
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_cache\\obj_dir\\Vtb_s2b_request_guard.exe",
+          "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\vectors.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 0.297,
+        "log_sha256": "76acdc2e080a819472d778836ae91b767893332bab9fb28df162891af73479c1"
+      }
+    ],
+    "extra": {
+      "status": "PASS_INDEPENDENT_HAND_AND_CROSSING_CASES",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--top-module",
+            "tb_s2b_hp0_word_adapter",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0",
+            "source/s2b_request_guard.sv",
+            "source/s2b_hp0_word_adapter.sv",
+            "source/tb_s2b_hp0_word_adapter.sv"
+          ],
+          "native_exit_code": 0,
+          "seconds": 35.312,
+          "log_sha256": "a0174c0dbf851b9c9b06cc79df2ed19bf90cd62987ebb65f6a7b1a4af502a2aa"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_cache\\obj_dir\\Vtb_s2b_hp0_word_adapter.exe",
+            "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\vectors.txt"
+          ],
+          "native_exit_code": 0,
+          "seconds": 0.328,
+          "log_sha256": "d930f2424d56791687c38c66dcf70556b0322277560909392fe4092cf42008e1"
+        }
+      ],
+      "cases": 11,
+      "hand_words": 3,
+      "crossing_histories": 8,
+      "tb_sha256": "a3573317f1972d239d32ffe1ffc54e3bbc43e7d6a6a23fd64f1bae5541fb9e8e"
+    },
+    "elapsed_seconds": 75.219
+  },
+  "packaging": [
+    {
+      "mode": "evidence",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T10\\hp0_adapter_20261010_r09\\delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.172
+    },
+    {
+      "mode": "inputs",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T10\\hp0_adapter_20261010_r09\\delivery_manifest.json"
+      ],
+      "native_exit_code": 2,
+      "seconds": 0.172
+    }
+  ],
+  "lint": {
+    "source_manifest_sha256": "50321024ca3329378b78b432b6d32256c0d868893d36461049b3f7f0cf2c6877",
+    "csv_bytes": 0,
+    "native_exit_code": 0,
+    "seconds": 5.456,
+    "tool_report_peak_MB": 1331.348,
+    "final_evidence_check": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T10\\vivado_lint_20261010_r03\\delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.141
+    }
+  },
+  "closed_lint_items": [
+    "r01 ASSIGN-1截宽地址加法：guard实际physical_addr捕获与对齐lane替换",
+    "r01 ASSIGN-6 unused guard地址：实际消费核验后的物理addr",
+    "r01 guard ASSIGN-2符号混用：33bit显式无符号lane拼接，独立70736回归",
+    "r01/r02 ASSIGN-5 helper赋值：完整组合next_lane选择，r03无诊断、无waiver"
+  ],
+  "historical_failures": [
+    "D1 r01运行前FAIL；r02编译native1；r03/r04编译0仿真1；r05-r09各版本结果按snapshot区分",
+    "独立D2额外TB实际compile0/sim0及11场景PASS，但D3编辑发生在运行中，SHA保护driver1/FAIL；原件未覆盖，不作为稳定D3通过",
+    "lint r03首次包装checks[1] PASS却command/exit_code空；实测CHECKS_FAILED原文已反馈总控，最终包装修复后独立原生0，不改lint源码或诊断"
+  ],
+  "artifacts": [
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\compile.log",
+      "sha256": "ff59e554a02d75bd9ed5308e65063b31d714f683d38372d30ed152d43b39992d"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\simulation.log",
+      "sha256": "b68b1ed3a9ce779865ae021364108717629c3e73f1ff192d297ec66afba43dad"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\source_snapshot\\s2b_hp0_word_adapter.sv",
+      "sha256": "640043c98ce1e80a973e836d62c57a2b9ed2e91e268186ce63a55dc8e5ae3ff7"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\source_snapshot\\s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\source_snapshot\\tb_s2b_hp0_word_adapter.sv",
+      "sha256": "7df2e97125d6fbe37adfc85b2f3828e531a21df0d918a029c183a704c89b863e"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\source_snapshot\\test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "44d9cc440898abea6fe16504688bc7c8df6518c5249cb0c06185b96f0be6cacd"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\adapter_evidence\\vectors.txt",
+      "sha256": "c4e6153c9a0995ce4fcbfbb55437e7642f4cb557754c9ffa3f78c09c8b81c112"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\evidence_check.log",
+      "sha256": "7c0c4db638ce11bc992433666627d4ee8655b50508f205f16566f7df13706a97"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_evidence\\compile.log",
+      "sha256": "a0174c0dbf851b9c9b06cc79df2ed19bf90cd62987ebb65f6a7b1a4af502a2aa"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_evidence\\independent_tb.sv",
+      "sha256": "a3573317f1972d239d32ffe1ffc54e3bbc43e7d6a6a23fd64f1bae5541fb9e8e"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_evidence\\s2b_hp0_word_adapter.sv",
+      "sha256": "640043c98ce1e80a973e836d62c57a2b9ed2e91e268186ce63a55dc8e5ae3ff7"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_evidence\\s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\extra_evidence\\simulation.log",
+      "sha256": "d930f2424d56791687c38c66dcf70556b0322277560909392fe4092cf42008e1"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\compile.log",
+      "sha256": "19d6e44d3684fc1e24b0c83c4e45d0288e7df43fccdd57ba2f1e6b1a76d162a2"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\simulation.log",
+      "sha256": "76acdc2e080a819472d778836ae91b767893332bab9fb28df162891af73479c1"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\source_snapshot\\s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\source_snapshot\\tb_s2b_request_guard.sv",
+      "sha256": "7c29ba87ab769b2cc600acf11340c7b717544f29f114ba109046777e3440b7d8"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\source_snapshot\\test_s2b_request_guard_rtl.py",
+      "sha256": "6c2b891543b33c975bdcc38ab40ad6eeab0e5a3b5995959f80a7567420934310"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\guard_evidence\\vectors.txt",
+      "sha256": "a89c541a85df6a88b7e0c901a88b992a6323197bf99f1426452ac54845aa1624"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\historical_audit.json",
+      "sha256": "224448d111eb4aaa5b21e1e9a29dedf18951cc94485acca92d4ddb7d434f54da"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\inputs_check.log",
+      "sha256": "d418da2358c92a00bf7d98bc8e30ec582cbb5aa0e56bf84d9b6b9de5a9222159"
+    },
+    {
+      "path": "tmp\\2B\\S2B-T10\\independent_review_20261010_r01\\final_d3\\result.json",
+      "sha256": "ecacd1d0a6b94f4544e753ec768c39e0add73b75a414120b4ad1d26c43d51589"
+    }
+  ],
+  "limitations": [
+    "只审候选leaf及guard等价修复；无outerCSR、STOP、drain timer、cache、owner或实物验证。",
+    "候选0.1.1未冻结，inputs预期2；evidence包装通过不等于完整2B通过。",
+    "固定ID不能识别新合法窗口中无归属标志的虚假旧同ID响应；旧事务必须先合法排空。",
+    "峰值工作集未测；原生Verilator日志中的分配量并非进程峰值工作集。",
+    "PASS仅为本候选leaf的独立G2审查；不构成完整2B、物理接口冻结、G3/G4/G5、SAFE_TO_REUSE或实板通过。",
+    "审查未修改项目源码、STATE、被审原件或Git；由总控核对被审内容一致后统一提交。"
+  ]
+}

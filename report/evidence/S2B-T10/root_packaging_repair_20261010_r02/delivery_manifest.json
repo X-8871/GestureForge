@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T10",
+  "run_id": "root_packaging_repair_20261010_r02",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "evidence_dir": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02/actual_repair_checks.json",
+      "sha256": "4ee36bd09c9126c345d4e1ec888f8b2930d498bc556a7d856f64dc00c0966057",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02/original_independent_review_20261010_r01_manifest.json",
+      "sha256": "9a107f7dc191e8bc18408129e1121692b623240fa7b4744621249ce485f99d77",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02/original_root_packaging_repair_20261010_r01_manifest.json",
+      "sha256": "7170ec0909436798ad76545c1b41ffcacae7c1d3956b1e07640b6e77f3adfc2d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02/repair_archive_manifests.py",
+      "sha256": "76e9a53704548608379493cb4a16b3d95ef96e3528d902a581f5dd3598ceba9b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r02/repair_summary.md",
+      "sha256": "bb35e8ebf17c69f006bea446d1a955c661e8b1c0564f1b58941994891405c11e",
+      "role": "result"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "工具与原件核验",
+      "status": "PASS",
+      "command": "Vivado MCP synth_design -lint 或独立 Verilator driver，精确命令和退出码见绑定原件",
+      "exit_code": 0,
+      "reason": "仅核验指定工具执行及原件，未运行完整平台综合或实物。"
+    },
+    {
+      "name": "独立范围判定",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T10/repair_archive_manifests.py",
+      "exit_code": 0,
+      "reason": "总控逐项核对原件：lint实际消息数量或独立场景统计 2；命令和退出码必须已有真实绑定原件。"
+    },
+    {
+      "name": "完整物理接口部署",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "候选0.1.1未冻结，完整控制/cache/时序/实物验收未执行。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Python": "3.12.10",
+    "Verilator": "5.050（仅独立审查实际使用，lint Run不使用）"
+  },
+  "limitations": [
+    "每个Run只绑定自身快照，不把历史失败当成修正版结果；未执行完整PS/PL集成、时序或实物。",
+    "机器CHECKS_OK仅证明包装完整，不证明接口冻结、语义正确或SAFE。",
+    "lint内存与耗时以工具原件为准；其他峰值内存未测，未宣称全部工具调用统计完整。"
+  ]
+}

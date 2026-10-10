@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T10",
+  "run_id": "hp0_adapter_20261010_r06",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "evidence_dir": "report/evidence/S2B-T10/hp0_adapter_20261010_r06",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "28ceafe8412c6ea368056819c706531b9d8f8ed11ef5f6e05edbc0456be6b001",
+      "role": "source"
+    },
+    {
+      "path": "sim/tb_s2b_hp0_word_adapter.sv",
+      "sha256": "7df2e97125d6fbe37adfc85b2f3828e531a21df0d918a029c183a704c89b863e",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "4083f0f1a90e97bfc8544338098fbed6a56733bd4bd98935c59a566e68421846",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/compile.log",
+      "sha256": "fe6d4ef4c86a0d3488b7a6dc92b106684ee031ef98e8729e6c63ced5fe72cda3",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/result.json",
+      "sha256": "a63d96fd7f7595b825763e2fb72ac689f8be8bfbc3cea55b7aaf5ebd84ca6047",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/simulation.log",
+      "sha256": "6ff689305b8ad10231e83bd7a2e144a9e1059d12fcbc62a8a7e80260b3840e31",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/source_snapshot/s2b_hp0_word_adapter.sv",
+      "sha256": "28ceafe8412c6ea368056819c706531b9d8f8ed11ef5f6e05edbc0456be6b001",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/source_snapshot/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/source_snapshot/tb_s2b_hp0_word_adapter.sv",
+      "sha256": "7df2e97125d6fbe37adfc85b2f3828e531a21df0d918a029c183a704c89b863e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/source_snapshot/test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "4083f0f1a90e97bfc8544338098fbed6a56733bd4bd98935c59a566e68421846",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/hp0_adapter_20261010_r06/vectors.txt",
+      "sha256": "c4e6153c9a0995ce4fcbfbb55437e7642f4cb557754c9ffa3f78c09c8b81c112",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -j 1 --threads 1 --top-module tb_s2b_hp0_word_adapter --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0 source/s2b_request_guard.sv source/s2b_hp0_word_adapter.sv source/tb_s2b_hp0_word_adapter.sv",
+      "exit_code": 0,
+      "reason": "隔离Verilator实际RTL验证；单job/单线程、180秒观察上限。"
+    },
+    {
+      "name": "simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T10\\hp0_adapter_20261010_r06\\obj_dir\\Vtb_s2b_hp0_word_adapter.exe +VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T10\\hp0_adapter_20261010_r06\\vectors.txt",
+      "exit_code": 0,
+      "reason": "隔离Verilator实际RTL验证；单job/单线程、180秒观察上限。"
+    },
+    {
+      "name": "独立向量与定向验证",
+      "status": "PASS",
+      "command": "python -B verification/test_s2b_hp0_word_adapter_rtl.py --run-id hp0_adapter_20261010_r06",
+      "exit_code": 0,
+      "reason": "精确计数PASS标记与源码前后哈希核对；无覆盖重跑。"
+    },
+    {
+      "name": "完整2B部署与实物",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "候选接口未冻结；本leaf不含CSR停止确认、排空timer、缓存与所有权。"
+    }
+  ],
+  "limitations": [
+    "物理接口0.1.1未冻结；不构成完整2B G0/G4/G5或SAFE_TO_REUSE证明。",
+    "未修改冻结2A或guard；未做HP/DDR/cache/完整CSR集成、综合、时序、实物测试。",
+    "cancel只模拟外层已决定取消，不包含CSR监视、STOP确认或drain timeout控制器。",
+    "所有输入VALID模拟在采样沿前稳定；异常R/B仍消费但隔离只允许统一冷恢复清除。",
+    "峰值内存未测；每Run单编译job和单仿真线程，无波形；重跑次数见独立RunId目录。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  }
+}

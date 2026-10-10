@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T10",
+  "run_id": "root_packaging_repair_20261010_r01",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "evidence_dir": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/actual_repair_checks.json",
+      "sha256": "b45059fe7e055107fe7d3be70cd4d7a23ec6f669a3d49dec82b40b6547d6a19a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/check_root_packages.py",
+      "sha256": "b44a4116ff57906c2aa4684ff321c67909d087eea7f49f17c9f2b83a7b4c5eec",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/original_r01_manifest.json",
+      "sha256": "be67c6d2f314a906a0b6266b010f5e387112fcc54a73163a4b7ee1b5a7189f0a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/original_r02_manifest.json",
+      "sha256": "41066009492757de45130bc5acb5eaf08ea21c9575d7f278d4c76d6510e0ae61",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/original_r03_manifest.json",
+      "sha256": "354aff6821006589808252dbc91660270fdd40dc1aa281a4c774ff846011b617",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/package_root_evidence.py",
+      "sha256": "ef331877539367ab70340126e5bd509af5da64a06402f578f3fa940cf4b6acf4",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/repair_root_packages.py",
+      "sha256": "7442976865d2ab6686d1d65e93877ee24b1e7abe263fcd97755fd3e8e94797b5",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/repair_summary.md",
+      "sha256": "f2ea1f5b536f7f413f269c4e5955f66446d1ba072a5895a8a9dba20fcad6a561",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/root_packaging_repair_20261010_r01/root_package_checks.json",
+      "sha256": "249e45d66d9975557e56e387c337862dda473bfbb533ee764255729574abde6d",
+      "role": "result"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "工具与原件核验",
+      "status": "PASS",
+      "command": "Vivado MCP synth_design -lint 或独立 Verilator driver，精确命令和退出码见绑定原件",
+      "exit_code": 0,
+      "reason": "仅核验指定工具执行及原件，未运行完整平台综合或实物。"
+    },
+    {
+      "name": "独立范围判定",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T10/check_root_packages.py",
+      "exit_code": 0,
+      "reason": "实际原生driver0，四包共八次检查符合evidence0/inputs2。"
+    },
+    {
+      "name": "完整物理接口部署",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "候选0.1.1未冻结，完整控制/cache/时序/实物验收未执行。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Python": "3.12.10",
+    "Verilator": "5.050（仅独立审查实际使用，lint Run不使用）"
+  },
+  "limitations": [
+    "每个Run只绑定自身快照，不把历史失败当成修正版结果；未执行完整PS/PL集成、时序或实物。",
+    "机器CHECKS_OK仅证明包装完整，不证明接口冻结、语义正确或SAFE。",
+    "lint内存与耗时以工具原件为准；其他峰值内存未测，未宣称全部工具调用统计完整。"
+  ]
+}

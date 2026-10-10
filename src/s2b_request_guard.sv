@@ -54,7 +54,7 @@ module s2b_request_guard (
         for (int object_index = 0; object_index < 38; object_index++) begin
             object_matches = !mem_write || (object_index >= 2);
             for (int lane = 0; lane < 4; lane++) begin
-                lane_addr = {1'b0, mem_addr} + 33'(lane);
+                lane_addr = {1'b0, mem_addr} + {31'd0, lane[1:0]};
                 if (selected[lane] &&
                     ((lane_addr < {1'b0, OBJECT_BEGIN[object_index]}) ||
                      (lane_addr >= {1'b0, OBJECT_END[object_index]})))

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T10",
+  "run_id": "vivado_lint_20261010_r01",
+  "source_commit": "08a21a6900433a7b9e6b00d53db26c256f113a81",
+  "evidence_dir": "report/evidence/S2B-T10/vivado_lint_20261010_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/execute_calls.json",
+      "sha256": "984c478f6b22463e7170f93748509a91ede234aec876537fabca0ae322995163",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/linter.csv",
+      "sha256": "8cb5e445c2fc56f1b16df20af1842482d4c02cbe3961f6197bcd05a815ce0413",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/mcp_history.json",
+      "sha256": "f7e2abe3c053fe2d3504cc2e56fc149f4bd58bd45a7f88214f7d46d47baf3066",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/rtl_lint_report.md",
+      "sha256": "c15acb191536aff842e18240955b418b6a8f70c8cf7f69cf6bfa37da1775f2d8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/session_stop.json",
+      "sha256": "f2296913fc6d8f7c5593300b270319c298c54c766a7e0acd7217a99635091ae1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/source_snapshot/s2b_hp0_word_adapter.sv",
+      "sha256": "28ceafe8412c6ea368056819c706531b9d8f8ed11ef5f6e05edbc0456be6b001",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/source_snapshot/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/vivado_lint_20261010_r01/vivado_native.log",
+      "sha256": "642ee6950e2c63d0e1493179dec4a4f6cc351f12ec8571974c5bfe3eb95967e8",
+      "role": "log"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "工具与原件核验",
+      "status": "PASS",
+      "command": "Vivado MCP synth_design -lint 或独立 Verilator driver，精确命令和退出码见绑定原件",
+      "exit_code": 0,
+      "reason": "仅核验指定工具执行及原件，未运行完整平台综合或实物。"
+    },
+    {
+      "name": "独立范围判定",
+      "status": "FAIL",
+      "command": null,
+      "exit_code": null,
+      "reason": "总控逐项核对原件：lint实际消息数量或独立场景统计 4；详细范围见同Run绑定报告。"
+    },
+    {
+      "name": "完整物理接口部署",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "候选0.1.1未冻结，完整控制/cache/时序/实物验收未执行。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Python": "3.12.10",
+    "Verilator": "5.050（仅独立审查实际使用，lint Run不使用）"
+  },
+  "limitations": [
+    "每个Run只绑定自身快照，不把历史失败当成修正版结果；未执行完整PS/PL集成、时序或实物。",
+    "机器CHECKS_OK仅证明包装完整，不证明接口冻结、语义正确或SAFE。",
+    "lint内存与耗时以工具原件为准；其他峰值内存未测，未宣称全部工具调用统计完整。"
+  ]
+}

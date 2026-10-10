@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T10",
+  "run_id": "integration_close_20261010_r02",
+  "source_commit": "f1bc1fc189cf127c905b9fbdded09cb05c03c9d9",
+  "evidence_dir": "report/evidence/S2B-T10/integration_close_20261010_r02",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T10/integration_close_20261010_r02/git_object_binding.json",
+      "sha256": "e6c32c3afeea086414129cb0031ca653250ffc268fb2b37f481225470d74e46c",
+      "role": "result"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T10/integration_close_20261010_r02/force_stage_evidence.py",
+      "sha256": "feceb55b65f1097ee2da54470b57b54b6ec32b06d765f58d21e38223fa21d787",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T10/integration_close_20261010_r02/original_packaging_manifest.json",
+      "sha256": "86450fae9386f0d78214e5e1bac5aeefeec8a85eaa63b3cb2789b26119d1fcaf",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T10/integration_close_20261010_r02/packaging_failure.json",
+      "sha256": "671e596cd4827113b15f19145ee122fac13142d7a957eb3f3e45584664b92769",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "工具与原件核验",
+      "status": "PASS",
+      "command": "Vivado MCP synth_design -lint 或独立 Verilator driver，精确命令和退出码见绑定原件",
+      "exit_code": 0,
+      "reason": "仅核验指定工具执行及原件，未运行完整平台综合或实物。"
+    },
+    {
+      "name": "独立范围判定",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T10/force_stage_evidence.py",
+      "exit_code": 0,
+      "reason": "实测198份原件与Git index字节一致，42份日志补入；统计取实际绑定JSON，不采用初始人工笔误248。"
+    },
+    {
+      "name": "完整物理接口部署",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "候选0.1.1未冻结，完整控制/cache/时序/实物验收未执行。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Python": "3.12.10",
+    "Verilator": "5.050（仅独立审查实际使用，lint Run不使用）"
+  },
+  "limitations": [
+    "每个Run只绑定自身快照，不把历史失败当成修正版结果；未执行完整PS/PL集成、时序或实物。",
+    "机器CHECKS_OK仅证明包装完整，不证明接口冻结、语义正确或SAFE。",
+    "lint内存与耗时以工具原件为准；其他峰值内存未测，未宣称全部工具调用统计完整。"
+  ]
+}

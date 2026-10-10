@@ -1,0 +1,69 @@
+%Warning-TIMESCALEMOD: source\s2b_request_guard.sv:2:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    2 | module s2b_request_guard (
+      |        ^~~~~~~~~~~~~~~~~
+                       source\s2b_hp0_word_adapter.sv:3:8: ... Location of module with timescale
+    3 | module s2b_hp0_word_adapter (
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:58:20: Operator ASSIGN expects 59 bits on the Assign RHS, but Assign RHS's REPLICATE generates 60 bits.
+                                                            : ... note: In instance 'tb_s2b_hp0_word_adapter'
+   58 |         ar_payload = {m_axi_arid,m_axi_araddr,m_axi_arlen,m_axi_arsize,m_axi_arburst,
+      |                    ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:60:20: Operator ASSIGN expects 59 bits on the Assign RHS, but Assign RHS's REPLICATE generates 60 bits.
+                                                            : ... note: In instance 'tb_s2b_hp0_word_adapter'
+   60 |         aw_payload = {m_axi_awid,m_axi_awaddr,m_axi_awlen,m_axi_awsize,m_axi_awburst,
+      |                    ^
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:234:13: Logical operator IF expects 1 bit on the If, but If's VARREF 'accepted' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  234 |             if (accepted) accept_ar();
+      |             ^~
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:243:17: Logical operator IF expects 1 bit on the If, but If's VARREF 'wr' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  243 |                 if (wr) begin m_axi_awready=1; m_axi_wready=1; step(); m_axi_awready=0; m_axi_wready=0; end
+      |                 ^~
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:245:21: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's VARREF 'at_slot' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  245 |                 if (!at_slot) cancel=1;
+      |                     ^
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:246:17: Logical operator IF expects 1 bit on the If, but If's VARREF 'wr' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  246 |                 if (wr) return_b(0,0); else return_r(0,0,1);
+      |                 ^~
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:247:17: Logical operator IF expects 1 bit on the If, but If's VARREF 'at_slot' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  247 |                 if (at_slot) begin must(mem_ready && !ledger_empty, "RESP                           "); cancel=1; end
+      |                 ^~
+%Warning-WIDTHTRUNC: source\tb_s2b_hp0_word_adapter.sv:331:22: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'wr' generates 32 bits.
+                                                             : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  331 |                  (wr ? (m_axi_awvalid && m_axi_wvalid) : m_axi_arvalid), "      stall      /VALID      ");
+      |                      ^
+%Warning-UNUSEDSIGNAL: source\tb_s2b_hp0_word_adapter.sv:26:39: Signal is not used: 'fault_event_address'
+                                                              : ... note: In instance 'tb_s2b_hp0_word_adapter'
+   26 |     logic [31:0] first_fault_address, fault_event_address;
+      |                                       ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: source\tb_s2b_hp0_word_adapter.sv:347:34: Bits of signal are not used: 'wr'[31:1]
+                                                               : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  347 |         int descriptor, scanned, wr, allowed, error_code;
+      |                                  ^~
+%Warning-UNUSEDSIGNAL: source\tb_s2b_hp0_word_adapter.sv:347:38: Bits of signal are not used: 'allowed'[31:1]
+                                                               : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  347 |         int descriptor, scanned, wr, allowed, error_code;
+      |                                      ^~~~~~~
+%Warning-UNUSEDSIGNAL: source\tb_s2b_hp0_word_adapter.sv:347:47: Bits of signal are not used: 'error_code'[31:3]
+                                                               : ... note: In instance 'tb_s2b_hp0_word_adapter'
+  347 |         int descriptor, scanned, wr, allowed, error_code;
+      |                                               ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_hp0_word_adapter.sv:66:18: Bits of signal are not used: 'shifted_read'[63:32]
+                                                           : ... note: In instance 'tb_s2b_hp0_word_adapter.dut'
+   66 |     logic [63:0] shifted_read;
+      |                  ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_hp0_word_adapter.sv:74:66: Bits of function variable are not used: 'mask'[3]
+                                                           : ... note: In instance 'tb_s2b_hp0_word_adapter.dut'
+   74 |     function automatic logic [1:0] lowest_lane(input logic [3:0] mask);
+      |                                                                  ^~~~
+%Error: Exiting due to 15 warning(s)

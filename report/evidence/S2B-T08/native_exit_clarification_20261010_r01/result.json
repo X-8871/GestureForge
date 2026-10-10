@@ -1,0 +1,64 @@
+{
+  "status": "PASS_NATIVE_EXIT_CLARIFICATION",
+  "checks": [
+    {
+      "manifest": "report/evidence/S2B-T08/request_budget_20261009_r01/delivery_manifest.json",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T08/request_budget_20261009_r01/delivery_manifest.json"
+      ],
+      "python_process_exit_code": 2,
+      "status": "CHECKS_FAILED",
+      "errors": [
+        "interfaces[2] 接口未冻结，阻断 inputs 核验",
+        "checks[1] 依赖检查状态为 BLOCKED，阻断 inputs 核验",
+        "checks[3] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+        "checks[5] 依赖检查状态为 FAIL，阻断 inputs 核验"
+      ]
+    },
+    {
+      "manifest": "report/evidence/S2B-T08/ip_probe_20261009_r01/delivery_manifest.json",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T08/ip_probe_20261009_r01/delivery_manifest.json"
+      ],
+      "python_process_exit_code": 2,
+      "status": "CHECKS_FAILED",
+      "errors": [
+        "interfaces[2] 接口未冻结，阻断 inputs 核验",
+        "checks[1] 依赖检查状态为 BLOCKED，阻断 inputs 核验",
+        "checks[2] 依赖检查状态为 NOT_RUN，阻断 inputs 核验"
+      ]
+    },
+    {
+      "manifest": "report/evidence/S2B-T09/request_guard_20261010_r03/delivery_manifest.json",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T09/request_guard_20261010_r03/delivery_manifest.json"
+      ],
+      "python_process_exit_code": 2,
+      "status": "CHECKS_FAILED",
+      "errors": [
+        "interfaces[0] 接口未冻结，阻断 inputs 核验",
+        "checks[3] 依赖检查状态为 BLOCKED，阻断 inputs 核验"
+      ]
+    }
+  ],
+  "clarification": "此前工具exec_command的exit_code=1来自PowerShell宿主对Git Bash非零结果的归一化；check_stage_delivery.py实际Python失败码为2。旧T08文字中的退出1应解释为宿主退出码，不是Python退出码。旧日志/清单SHA及语义阻断保留，不覆盖历史。",
+  "source_commit": "48747c2d9603c39f1b2835b38b8ed2d022ae28f9"
+}

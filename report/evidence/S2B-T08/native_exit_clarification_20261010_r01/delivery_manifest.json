@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T08",
+  "run_id": "native_exit_clarification_20261010_r01",
+  "source_commit": "48747c2d9603c39f1b2835b38b8ed2d022ae28f9",
+  "evidence_dir": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只澄清现有检查器的原生退出码，不定义或冻结任何模型/硬件接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01/ip_probe_20261009_r01.log",
+      "sha256": "3d9182c2c544ef135c85d92b24ed64c83d3657959014da895ef539f417a6a6bb",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01/native_exit_clarification.py",
+      "sha256": "172cdb80d8b433c6e66187464c425e7f8ff52c2e612c3315be1a0909f3298b4a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01/request_budget_20261009_r01.log",
+      "sha256": "35806c4124853e10a0d4febbf5be39b0cc9878fb04a55267c859b9421c5067e6",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01/request_guard_20261010_r03.log",
+      "sha256": "0fa3b189115fd8029b44ff006b1f973543803707fcabef6908e54507e8dc00dd",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T08/native_exit_clarification_20261010_r01/result.json",
+      "sha256": "73124816175c0162daf58501e64baeb1366364107e5d9f52541b9898f1e601df",
+      "role": "result"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T08/request_budget_20261009_r01/delivery_manifest.json",
+      "sha256": "cb504e12a99f4d63e34b3d07515a0a358bc9bf20b327f477c7f26404401b964f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T08/ip_probe_20261009_r01/delivery_manifest.json",
+      "sha256": "dc58758b78b3a4f14d89ff11773bd02e9043efdb63c169bb59805d9ba92aa0be",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r03/delivery_manifest.json",
+      "sha256": "33463dcef82cdf3114b5d078037f7680dbbfda0080ff764f42f012da007f9fba",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "三个现有清单原生退出码及阻断结果一致",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T08/native_exit_clarification.py",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "退出码澄清不改变接口未冻结、部署BLOCKED及实物未验证事实。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10"
+  }
+}

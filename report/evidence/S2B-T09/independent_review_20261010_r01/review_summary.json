@@ -1,0 +1,69 @@
+{
+  "verdict": "PASS",
+  "source_commit": "48747c2d9603c39f1b2835b38b8ed2d022ae28f9",
+  "sources": [
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20"
+    },
+    {
+      "path": "sim/tb_s2b_request_guard.sv",
+      "sha256": "7c29ba87ab769b2cc600acf11340c7b717544f29f114ba109046777e3440b7d8"
+    },
+    {
+      "path": "verification/test_s2b_request_guard_rtl.py",
+      "sha256": "6c2b891543b33c975bdcc38ab40ad6eeab0e5a3b5995959f80a7567420934310"
+    }
+  ],
+  "checker": [
+    {
+      "mode": "evidence",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "report/evidence/S2B-T09/request_guard_20261010_r03/delivery_manifest.json"
+      ],
+      "exit_code": 0,
+      "status": "CHECKS_OK",
+      "errors": []
+    },
+    {
+      "mode": "inputs",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T09/request_guard_20261010_r03/delivery_manifest.json"
+      ],
+      "exit_code": 2,
+      "status": "CHECKS_FAILED",
+      "errors": [
+        "interfaces[0] 接口未冻结，阻断 inputs 核验",
+        "checks[3] 依赖检查状态为 BLOCKED，阻断 inputs 核验"
+      ]
+    }
+  ],
+  "rebuild_samples": 70736,
+  "rebuild_seconds": 9.203,
+  "independent_samples": 214065,
+  "seed": 269036407,
+  "random_samples": 20000,
+  "review_driver_failure": {
+    "exit_code": 1,
+    "log": "driver.log",
+    "reason": "任务卡误给 inputs 失败退出码1；实际检查器944行统一返回2，初次断言失败保留。"
+  },
+  "limitations": [
+    "仅组合候选模块G2；物理候选0.1.1未冻结，部署依赖继续BLOCKED。",
+    "未执行综合、时序、AXI集成、所有权、cache/DDR或实物验收。",
+    "模块没有valid，不能据此证明物理AXI VALID零副作用。",
+    "峰值内存未测；编译一job、仿真一线程；原重建1次，新增仿真1次。"
+  ]
+}

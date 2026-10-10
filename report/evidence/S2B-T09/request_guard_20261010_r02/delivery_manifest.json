@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T09",
+  "run_id": "request_guard_20261010_r02",
+  "source_commit": "48747c2d9603c39f1b2835b38b8ed2d022ae28f9",
+  "evidence_dir": "report/evidence/S2B-T09/request_guard_20261010_r02",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/compile.log",
+      "sha256": "b12037d6a3a16111ec089579eb7b9ce32e4fd167693cc52b853e9db0bb9885ed",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/result.json",
+      "sha256": "045e5a5584149af8159b2313449b8fc2da64b6bd813e1e137e29dc8be8f8ddd8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/simulation.log",
+      "sha256": "2600639834b6c2ba6bd526f55a9591abc9ae3406457b093feff3808e6b893b9e",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/vectors.txt",
+      "sha256": "5b6bbaeee651298672ebd2aa62b50aba4df9abbbbd20f87751b411e85b35ebff",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/source_snapshot/s2b_request_guard.sv",
+      "sha256": "ed24fd24def07cbdd4c315009251aa84aec5c25dbd73cbe2a47a54c7d71b8d20",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/source_snapshot/tb_s2b_request_guard.sv",
+      "sha256": "7c29ba87ab769b2cc600acf11340c7b717544f29f114ba109046777e3440b7d8",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T09/request_guard_20261010_r02/source_snapshot/test_s2b_request_guard_rtl.py",
+      "sha256": "c7c563d594ab0ac8c0f292de399c1718d838c0431a686d64d08b933e724dedd5",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing -Wall -j 1 --threads 1 --top-module tb_s2b_request_guard --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS -D_GLIBCXX_USE_CXX11_ABI=0 source/s2b_request_guard.sv source/tb_s2b_request_guard.sv",
+      "exit_code": 0,
+      "reason": "隔离Verilator组合模块验证，180秒超时。"
+    },
+    {
+      "name": "simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T09\\request_guard_20261010_r02\\obj_dir\\Vtb_s2b_request_guard.exe +VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T09\\request_guard_20261010_r02\\vectors.txt",
+      "exit_code": 0,
+      "reason": "隔离Verilator组合模块验证，180秒超时。"
+    },
+    {
+      "name": "物理接口部署冻结",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "物理接口候选尚未冻结，当前仅验证独立组合准入模块。"
+    },
+    {
+      "name": "AXI集成与实物",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本任务模块无时钟、AXI或实物接口；请求门禁调用及AXI VALID行为属于后续集成验收。"
+    }
+  ],
+  "limitations": [
+    "物理接口未冻结；未修改冻结2A源码。",
+    "未执行综合、资源/时序、AXI集成、DDR/cache或实物验证。",
+    "组合模块调用者只在mem_valid时使用结果；本模块不包含valid、epoch或逐层owner。",
+    "峰值内存未测；单编译job、单模拟线程，无波形。",
+    "此已结束Run源码已绑定source_snapshot；result原始sources保留运行时文件名及SHA，失败原始日志不改写。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  }
+}

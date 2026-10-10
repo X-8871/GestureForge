@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-09（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-10（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
@@ -54,3 +54,6 @@
 - 新版root执行记录的初次collector部分store值丢失，原null元数据保留；最终history透明说明来源，SDK57 API/8 hostquery命令与返回、UART原字节及服务闭合原件完整，不伪称恢复全部store。后续推进2B物理地址/AXI传输/缓存一致性/缓冲所有权设计与冻结；无需重复此次物理动作请求，不自动越过阶段方向。
 - 2026-10-09 22:54:55（UTC+8）只读复查：COM4为正常CP210x，PNP与前次采集相同，ConfigManagerErrorCode=0；未打开串口或修改板卡。证据 `report/evidence/S2B-T06/serial_port_recheck_20261009_225453_r01/`；归档器误用身份文件名导致结束校验exit1，native枚举exit0及失败原件保留，依据实际名称补齐身份比对；不继承为新的UART/DDR功能结果。
 - S2B-T07物理接口候选 `s2b-physical-candidate/0.1.1`：`docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md`；GP0控制、HP0 64-bit原生AXI3数据、50MHz目标、32MiB DDR arena及单任务所有权，保留2A packed INT8/逻辑契约。超时观察期过后仍排空；合法事务全部结束且可见性成立后ERROR_SAFE归还，未证明排空持续隔离。修正早到B、CSR状态监视和错误优先等候选边界，设计计算及源码绑定在 `report/evidence/S2B-T07/physical_contract_20261009_r02/`；r01及R1问题保留，审查结果见同任务独立审查证据。未实现RTL/BD、未执行PS/PL板上验证，完整2B G0/G4/G5仍未通过。
+- S2B-T08静态预算：38层96,135,961请求（读84,753,811/写11,382,150），非服务周期严格下界623,242,289；32-bit全局deadline对应平均逻辑服务周期必要上界约38.1930441825，均值39即超限。独立坐标枚举与14项源码绑定审查PASS，原件 `report/evidence/S2B-T08/request_budget_20261009_r01/`；尚无HP实测或可部署deadline。
+- S2B-T08隔离IPI探针：GP0 AXI3 32/ID12→AXI4-Lite32，HP0 AXI3 64/ID6，FCLK0同域50MHz，CSR 0x43C00000/64KiB、HP外部可寻址1GiB（不是请求白名单）。proc_sys_reset补齐同步释放后真实validate无ERROR/CRITICAL，未打印WARNING增量保留；归档路径错误已修复，最终归档exit0但验证调用跳过已验证状态。BD/Tcl、历史失败日志/错误capture均保留于 `report/evidence/S2B-T08/ip_probe_20261009_r01/`；MCP恢复故障与设计失败区分，converter r2 capture错绑native路径已披露。仅最小连接，未综合/实现/下载、未验证完整控制/HP0/cache/安全归还/整网；物理候选仍未冻结，下一步候选word adapter及异常排空实现验证。
+- S2B-T08独立审查：预算PASS、最小IPI及可恢复性PASS；新隔离工程重建及两次真实validate无ERROR/CRITICAL，每次7个未打印WARNING。审查脚本RANGE同值不同字符串导致exit1，补充地址/reset断言exit0关闭该脚本问题；失败保留。汇总及原件 `report/evidence/S2B-T08/independent_review_20261010_r01/`。下一项S2B-T09是候选组合请求准入模块，先验证36个feature对象及input/GF8地址/strobe，不修改冻结2A代码；不自动批准完整平台部署。

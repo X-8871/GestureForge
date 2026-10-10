@@ -1,0 +1,37 @@
+{
+  "task": "S2B-T08-R2",
+  "reviewer": "/root/s2b_t08_ip_review",
+  "status": "PASS",
+  "scope": "最小 IPI 配置及证据可恢复性；不代表完整物理接口冻结",
+  "source_commit": "3d424b9cc207e85375ef4f703ee193806c73bd34",
+  "reviewed_sha256": {
+    "delivery_manifest.json": "dc58758b78b3a4f14d89ff11773bd02e9043efdb63c169bb59805d9ba92aa0be",
+    "validated_probe.bd": "1e4dc0106449a9fdfca04d13a76fec158b0d269c14a42316ec2f49d02e9dc0aa",
+    "validated_probe_bd.tcl": "1addcd500523c5727cb010f7dadd97ad40d45f188a83cf31098c4f1d5445a98e"
+  },
+  "observed": {
+    "file_bindings_verified": 106,
+    "interface_bindings_verified": 3,
+    "clean_project_part": "xc7z020clg400-2",
+    "clean_rebuild_batch_exit_code": 1,
+    "readback_remainder_batch_exit_code": 0,
+    "real_validate_calls": 2,
+    "validate_error_count": 0,
+    "validate_critical_count": 0,
+    "unprinted_warning_increment_per_validate": 7,
+    "gp0": "AXI3 32-bit ID12 -> AXI4-Lite 32-bit",
+    "hp0": "AXI3 64-bit ID6",
+    "clock_metadata_hz": 50000000,
+    "csr_offset": "0x43C00000",
+    "csr_range": "0x00010000",
+    "hp_offset": "0x00000000",
+    "hp_range": "0x40000000"
+  },
+  "failed_review_attempt": "重建及真实验证已执行；审查断言将64KiB字面量写成64K，而读回为0x00010000，导致batch exit1；补充只读核查地址/reset exit0，原失败日志保留",
+  "limitations": [
+    "无综合/实现/硬件验证",
+    "50MHz是IPI元数据，非时序收敛或实物测量",
+    "不证明实板器件等级、adapter排空、缓存可见性或阶段冻结",
+    "不称零WARNING；原archive验证跳过和converter r2 native错绑保留披露"
+  ]
+}

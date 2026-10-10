@@ -1,0 +1,31 @@
+{
+  "task": "S2B-T08-R1",
+  "reviewer": "/root/s2b_t08_budget_review",
+  "status": "PASS",
+  "scope": "静态请求预算、非服务严格下界和证据绑定；不代表完整部署或实物验收",
+  "source_commit": "3d424b9cc207e85375ef4f703ee193806c73bd34",
+  "reviewed_sha256": {
+    "delivery_manifest.json": "cb504e12a99f4d63e34b3d07515a0a358bc9bf20b327f477c7f26404401b964f",
+    "request_budget_result.json": "68379c3ff920da8b2ba561431fcc713d07a38bc5f15cc5961b07f68b2d4599f6",
+    "calculate_budget.py": "dde411d8cdf13fd0cb26190c0c2bf9adde1a6b91b6b9471daab6b7b1af9d915b",
+    "request_budget.md": "6f71402abac64b27a8e567ea335f3b6c6d8f9371b6fafd022ac1b479d509f74e"
+  },
+  "observed": {
+    "layers_independently_enumerated": 38,
+    "source_snapshots_bound": 14,
+    "total_requests": 96135961,
+    "reads": 84753811,
+    "writes": 11382150,
+    "nonservice_cycle_lower_bound": 623242289,
+    "average_service_necessary_upper_bound": 38.1930441825,
+    "cycles_lower_bound_at_service_39": 4372544768,
+    "evidence_exit_code": 0,
+    "inputs_exit_code": 1
+  },
+  "failed_review_attempt": "独立脚本初次route输入shape格式处理失败，修正后重算通过；原失败日志保留",
+  "limitations": [
+    "实际HP服务界、完整非服务成本、部署deadline未测",
+    "候选未冻结、部署BLOCKED及实物NOT_RUN导致inputs阻断",
+    "本审查不关闭阶段2B G0/G3/G4/G5"
+  ]
+}

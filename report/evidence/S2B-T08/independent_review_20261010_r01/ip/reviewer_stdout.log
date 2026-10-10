@@ -1,0 +1,58 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Sat Oct 10 10:16:55 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source rebuild_validate.tcl -notrace
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T08/review_ip_20261010_r01/project'
+create_project: Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 612.113 ; gain = 271.375
+REVIEW_SOURCE_VALIDATE_BEGIN warning_count=0
+INFO: [BD::TCL 103-2003] Currently there is no design <s2b_ps_only> in project, so creating one...
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T08\review_ip_20261010_r01\project\review_ip.srcs\sources_1\bd\s2b_ps_only\s2b_ps_only.bd> 
+INFO: [BD::TCL 103-2004] Making design <s2b_ps_only> as current_bd_design.
+INFO: [BD::TCL 103-2005] Currently the variable <design_name> is equal to "s2b_ps_only".
+INFO: [BD::TCL 103-2011] Checking if the following IPs exist in the project's IP catalog:  
+xilinx.com:ip:processing_system7:5.5 xilinx.com:ip:axi_protocol_converter:2.1 xilinx.com:ip:proc_sys_reset:5.0 xilinx.com:ip:xlconstant:1.1  .
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+Slave segment '/M_AXI_0/Reg' is being assigned into address space '/ps7/Data' at <0x43C0_0000 [ 64K ]>.
+Slave segment '/ps7/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/S_AXI_HP0_0' at <0x0000_0000 [ 1G ]>.
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T08\review_ip_20261010_r01\project\review_ip.srcs\sources_1\bd\s2b_ps_only\s2b_ps_only.bd> 
+REVIEW_SOURCE_VALIDATE_END warning_count=7
+REVIEW_FORCE_VALIDATE_BEGIN
+REVIEW_FORCE_VALIDATE_END warning_count=14 critical_count=0 error_count=0
+REVIEW_ASSERT:part=xc7z020clg400-2
+REVIEW_ASSERT:ps7/M_AXI_GP0.protocol=AXI3
+REVIEW_ASSERT:ps7/M_AXI_GP0.width=32
+REVIEW_ASSERT:ps7/M_AXI_GP0.id=12
+REVIEW_ASSERT:ps7/M_AXI_GP0.freq=50000000
+REVIEW_ASSERT:ps7/S_AXI_HP0.protocol=AXI3
+REVIEW_ASSERT:ps7/S_AXI_HP0.width=64
+REVIEW_ASSERT:ps7/S_AXI_HP0.id=6
+REVIEW_ASSERT:ps7/S_AXI_HP0.freq=50000000
+REVIEW_ASSERT:axi_gp0_lite/S_AXI.protocol=AXI3
+REVIEW_ASSERT:axi_gp0_lite/S_AXI.width=32
+REVIEW_ASSERT:axi_gp0_lite/S_AXI.id=12
+REVIEW_ASSERT:axi_gp0_lite/S_AXI.freq=50000000
+REVIEW_ASSERT:axi_gp0_lite/M_AXI.protocol=AXI4LITE
+REVIEW_ASSERT:axi_gp0_lite/M_AXI.width=32
+REVIEW_ASSERT:axi_gp0_lite/M_AXI.id=0
+REVIEW_ASSERT:axi_gp0_lite/M_AXI.freq=50000000
+REVIEW_ASSERT:csr_offset=0x43C00000
+csr_range actual=0x00010000 expected=64K
+    while executing
+"error "$label actual=$actual expected=$expected""
+    (procedure "require_equal" line 2)
+    invoked from within
+"require_equal csr_range [get_property RANGE [get_bd_addr_segs ps7/Data/SEG_M_AXI_0_Reg]] 64K"
+    (file "rebuild_validate.tcl" line 29)
+INFO: [Common 17-206] Exiting Vivado at Sat Oct 10 10:17:11 2026...

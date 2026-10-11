@@ -1,0 +1,16 @@
+{
+  "input": {
+    "session_id": "vivado-20261012-025457-5d89e2be",
+    "command": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {[get_property STATUS [get_runs synth_1]] ne {synth_design Complete!}} {error SYNTH_NOT_COMPLETE}; if {[get_property NEEDS_REFRESH [get_runs synth_1]]} {error SOURCE_REFRESH_REQUIRED}; if {[get_property STATUS [get_runs impl_1]] ne {Not started}} {error IMPL_ALREADY_STARTED}; set_property STRATEGY Performance_ExplorePostRoutePhysOpt [get_runs impl_1]; dict create part [get_property PART [current_project]] top [get_property TOP [current_fileset]] synth_status [get_property STATUS [get_runs synth_1]] needs_refresh [get_property NEEDS_REFRESH [get_runs synth_1]] impl_status [get_property STATUS [get_runs impl_1]] impl_strategy [get_property STRATEGY [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]] impl_directory [get_property DIRECTORY [get_runs impl_1]] threads [get_param general.maxThreads] thread_hook_properties [lsearch -all -inline -glob [list_property [get_runs impl_1]] *TCL.PRE]",
+    "capture_log": true,
+    "verbosity": "digest"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"exit_code\": 0,\n  \"output\": \"part xc7z020clg400-2 top s2b_inference_wrapper synth_status {synth_design Complete!} needs_refresh 0 impl_status {Not started} impl_strategy Performance_ExplorePostRoutePhysOpt post_route_physopt 1 impl_directory C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11p1/s2b_inference_candidate.runs/impl_1 threads 1 thread_hook_properties {STEPS.INIT_DESIGN.TCL.PRE STEPS.OPT_DESIGN.TCL.PRE STEPS.POWER_OPT_DESIGN.TCL.PRE STEPS.PLACE_DESIGN.TCL.PRE STEPS.POST_PLACE_POWER_OPT_DESIGN.TCL.PRE STEPS.PHYS_OPT_DESIGN.TCL.PRE STEPS.ROUTE_DESIGN.TCL.PRE STEPS.POST_ROUTE_PHYS_OPT_DESIGN.TCL.PRE STEPS.WRITE_BITSTREAM.TCL.PRE}\",\n  \"task_progress\": \"0/5 done. Next: 核验冻结来源和已综合工程\"\n}"
+      }
+    ]
+  }
+}

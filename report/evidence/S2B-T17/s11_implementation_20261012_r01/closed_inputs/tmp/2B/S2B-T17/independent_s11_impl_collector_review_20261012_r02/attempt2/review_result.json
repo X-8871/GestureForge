@@ -1,0 +1,455 @@
+{
+  "status": "PASS",
+  "scope": "S11 PNR collector修复及source-after adapter工具准备独立G2；不批准实际STA/预算/G3",
+  "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "reviewed_source_hashes": {
+    "collector.py": "63def20a125a983a86a374bc7bc1eef8e375cb232a5222822c6f886f6a10cbe9",
+    "source_after_check.py": "15edba9468b8dd3c99dc55135913cbc98d2f625220d94a10f76b18601346b3a8",
+    "native_source_after.py": "8e9a12ce58f5ec045cd6c454d62936d918b6f6a47fa15d096243591855d57ddd"
+  },
+  "reviewer_stop": "STOP_READONLY_PNR_COLLECTOR_REPAIR_REVIEW",
+  "checks_count": 51,
+  "checks": [
+    {
+      "name": "固定SHA：collector.py",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：source_after_check.py",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：native_source_after.py",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：prepared_receipt_r03.json",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：tool_receipt_r03.json",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：raw_manifest_r03.jsonl",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "固定SHA：source_diff_r03.patch",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "82原件逐项SHA/字段",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "依赖和adapter绑定",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "旧r02源精确保留",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "diff精确对应实际源",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "关键旧语义不变：timing",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "关键旧语义不变：save",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "关键旧语义不变：validate_binding",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "关键旧语义不变：permanent",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "冻结43/33/18/8/14",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "当前43源实际SHA",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "完整六history接受",
+      "status": "PASS",
+      "evidence": {
+        "case": "完整六history接受",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": false,
+        "actual_reject": false,
+        "reason": null
+      }
+    },
+    {
+      "name": "原P1重复waitid遗漏open_run拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "原P1重复waitid遗漏open_run拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('声明history id必须唯一且与真实history形成双射')"
+      }
+    },
+    {
+      "name": "未知id拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "未知id拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('声明history id必须唯一且与真实history形成双射')"
+      }
+    },
+    {
+      "name": "缺历史拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "缺历史拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('必须保留完整原生history闭包')"
+      }
+    },
+    {
+      "name": "重复原生id拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "重复原生id拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('必须保留完整原生history闭包')"
+      }
+    },
+    {
+      "name": "标签错配拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "标签错配拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('必需PNR标签缺失或重复')"
+      }
+    },
+    {
+      "name": "唯一标签open/reports交换拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "唯一标签open/reports交换拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('PNR标签与原生命令类型不同：reports')"
+      }
+    },
+    {
+      "name": "真实client命令不符拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "真实client命令不符拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('命令输入/history不同')"
+      }
+    },
+    {
+      "name": "client/native码不同拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "client/native码不同拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('客户端/原生返回码不同')"
+      }
+    },
+    {
+      "name": "根未关闭拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "根未关闭拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('ROOT关闭门禁未成立')"
+      }
+    },
+    {
+      "name": "额外真实失败history精确绑定接受",
+      "status": "PASS",
+      "evidence": {
+        "case": "额外真实失败history精确绑定接受",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": false,
+        "actual_reject": false,
+        "reason": null
+      }
+    },
+    {
+      "name": "额外history遗漏拒绝",
+      "status": "PASS",
+      "evidence": {
+        "case": "额外history遗漏拒绝",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": true,
+        "actual_reject": true,
+        "reason": "ValueError('必须保留完整原生history闭包')"
+      }
+    },
+    {
+      "name": "provider错误与native分列接受",
+      "status": "PASS",
+      "evidence": {
+        "case": "provider错误与native分列接受",
+        "SIMULATED_NOT_ACTUAL_PNR": true,
+        "expected_reject": false,
+        "actual_reject": false,
+        "reason": null
+      }
+    },
+    {
+      "name": "独立字节比较：raw",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立字节比较：eol",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立字节比较：mixed",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立字节比较：missing_final",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立字节比较：bareCR",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立字节比较：semantic",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "adapter独立模拟：normal",
+      "status": "PASS",
+      "evidence": {
+        "case": "normal",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 45,
+        "error": null,
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：head_before",
+      "status": "PASS",
+      "evidence": {
+        "case": "head_before",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 1,
+        "error": "实际HEAD不同，不能伪造或跳过",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：head_after",
+      "status": "PASS",
+      "evidence": {
+        "case": "head_after",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 45,
+        "error": "核验期间真实HEAD变化",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：raw_before_drift",
+      "status": "PASS",
+      "evidence": {
+        "case": "raw_before_drift",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 1,
+        "error": "本轮RAW漂移：source/0.sv",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：raw_after_drift",
+      "status": "PASS",
+      "evidence": {
+        "case": "raw_after_drift",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 44,
+        "error": "核验期间RAW变化：source/0.sv",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：blob_drift",
+      "status": "PASS",
+      "evidence": {
+        "case": "blob_drift",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 2,
+        "error": "Git blob与RAW既不相同也不是精确LF到RAWCRLF",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：git_fail",
+      "status": "PASS",
+      "evidence": {
+        "case": "git_fail",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 3,
+        "error": "真实Git命令失败，原字节保留",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：bad_count",
+      "status": "PASS",
+      "evidence": {
+        "case": "bad_count",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 1,
+        "error": "实际43/33/18/8闭包不同",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter独立模拟：overwrite",
+      "status": "PASS",
+      "evidence": {
+        "case": "overwrite",
+        "SIMULATED_IN_MEMORY_NOT_GIT": true,
+        "mock_git_calls": 0,
+        "error": "输出已存在或非原生包装新目录",
+        "passed": true
+      }
+    },
+    {
+      "name": "adapter进入正式闭包且校验preparedr03",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "预算/失败保留不改变",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "nativewrapper仅自有child与日志",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立help：collector.py",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立help：source_after_check.py",
+      "status": "PASS",
+      "evidence": ""
+    },
+    {
+      "name": "独立help：native_source_after.py",
+      "status": "PASS",
+      "evidence": ""
+    }
+  ],
+  "findings": [],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "--help"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.21899999999732245
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\source_after_check.py",
+        "--help"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.15600000000267755
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\native_source_after.py",
+        "--help"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.20300000000133878
+    }
+  ],
+  "elapsed_seconds": 0.7810000000026776,
+  "sampled_self_rss_bytes": 28368896,
+  "absolute_peak_memory_bytes": null,
+  "actual_git_queries": 0,
+  "actual_source_after_or_collect_executed": false,
+  "history_mock_count": 13,
+  "adapter_mock_count": 9,
+  "limitations": [
+    "adapter内存模型执行原AST的main/compare_raw，43源/33static/18RTL/8派生/14集合为独立模拟；HEAD与Git全部mock，未执行真实source-after。",
+    "源码提交a710与实际HEAD字段分列；真实时点、45个Git返回及RAW关系只能ROOT实际运行后核验。",
+    "原P1独立复现现被拒绝；额外history及client错误保持精确绑定。",
+    "nativewrapper只静态核自有child/超限及日志语义，未运行真实adapter或查询真实任务PID。",
+    "预算仍BLOCKED待实际独立coverage审查；当前PNR WNS及STA/部署/G3不属工具准备批准。",
+    "原旧collector/首轮失败/旧Reviewer CHANGES_REQUIRED保留；本审查不修改生产、正式证据、Git/STATE或硬件。"
+  ]
+}

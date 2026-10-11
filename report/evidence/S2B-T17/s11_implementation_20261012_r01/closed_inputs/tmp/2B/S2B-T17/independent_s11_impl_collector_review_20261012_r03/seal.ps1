@@ -1,0 +1,17 @@
+$ErrorActionPreference='Stop'
+# 只冻结本轮独立只读结果，不写ROOT关闭包或候选源码。
+$directory=Get-Item -LiteralPath $PSScriptRoot
+$workspace=Get-Item -LiteralPath 'C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition'
+if(-not $directory.PSIsContainer -or $directory.Name -cne 'independent_s11_impl_collector_review_20261012_r03'){throw '目录不匹配'}
+$result=Get-Content -LiteralPath (Join-Path $directory.FullName 'review_result.json') -Raw -Encoding utf8|ConvertFrom-Json
+if($result.status -ne 'PASS' -or $result.checks_count -ne 47){throw '审查未通过'}
+$receipt=Join-Path $directory.FullName 'final_review_receipt.json';$raw=Join-Path $directory.FullName 'raw_manifest.jsonl'
+if((Test-Path -LiteralPath $receipt) -or (Test-Path -LiteralPath $raw)){throw '拒绝覆盖'}
+$record=@{status='PASS';scope=$result.scope;source_commit=$result.source_commit;evidence_head_at_preparation=$result.evidence_head_at_preparation;reviewer_stop='STOP_READONLY_S11_COLLECTOR_R04_REVIEW';reviewed_source_hashes=$result.reviewed_source_hashes;checks_count=47;findings=@();commands=$result.commands;review_native_exit_code=0;isolated_actual_classifier_component_return_code=2;author_actual_classifier_native_exit_code=2;elapsed_seconds=$result.elapsed_seconds;sampled_self_rss_bytes=$result.sampled_self_rss_bytes;absolute_peak_memory_bytes=$null;final_gate_sha256=$result.final_gate_sha256;original_gate_r02_sha256='ef02e12d3afe016464acb21cbfdac2fc938920dff29e96528bf3a1f1e83ca917';actual_gate_r02=@{binding_rows=277;unique_binding_paths=260};actual_gate_r03=@{binding_rows=287;unique_binding_paths=270};actual_history_count=13;candidate_raw_manifest_bindings=55;candidate_raw_manifest_sha256='b70fb90b81c2fa3f7a550c090a7b88ea8fe9b2aa69750636e6ba39797c67e47a';prepared_receipt_sha256='3288fd2d1b07d565fd3fdeb1fda779d99e0ad9607158d7652fe9223f6174d6cc';tool_receipt_sha256='d6003621449c0e6fb9ef10f7caf1f62c41a2fbe0780b8b2321c8bfe51166b103';actual_git_queries=0;actual_collect_or_source_after_executed=$false;real_task_process_query_performed=$false;hardware_or_heavy_executed=$false;limitations=$result.limitations}
+$encoding=New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($receipt,($record|ConvertTo-Json -Depth 30)+"`n",$encoding)
+$rows=@{};foreach($x in (Get-Content -LiteralPath (Join-Path $directory.FullName 'review_inputs.json') -Raw -Encoding utf8|ConvertFrom-Json)){$p=Get-Item -LiteralPath (Join-Path $workspace.FullName $x.path);if((Get-FileHash -LiteralPath $p.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -cne $x.sha256){throw "输入漂移 $($x.path)"};$rows[$x.path]=@{path=$x.path;sha256=$x.sha256;role=$x.role}}
+foreach($p in Get-ChildItem -LiteralPath $directory.FullName -Recurse -File){$path=$p.FullName.Substring($workspace.FullName.Length+1).Replace('\','/');$role='result';if($p.Extension -in @('.py','.ps1')){$role='source'}elseif($p.Extension -eq '.log'){$role='log'}elseif($p.Name -like '*.native.json'){$role='diagnostic'};$rows[$path]=@{path=$path;sha256=(Get-FileHash -LiteralPath $p.FullName -Algorithm SHA256).Hash.ToLowerInvariant();role=$role}}
+$lines=@();foreach($k in ($rows.Keys|Sort-Object)){$lines+=($rows[$k]|ConvertTo-Json -Compress)}
+[System.IO.File]::WriteAllText($raw,($lines -join "`n")+"`n",$encoding)
+Write-Output (@{status='PASS';STOP=$true;receipt_sha256=(Get-FileHash -LiteralPath $receipt -Algorithm SHA256).Hash.ToLowerInvariant();raw_sha256=(Get-FileHash -LiteralPath $raw -Algorithm SHA256).Hash.ToLowerInvariant();raw_lines=$lines.Count;checks=47}|ConvertTo-Json -Compress)

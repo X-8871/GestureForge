@@ -1,0 +1,3065 @@
+{
+  "status": "PASS_G1_REPAIR_AND_SOURCE_AFTER_PREPARATION_ONLY",
+  "developer_stop": true,
+  "review_input": {
+    "receipt_sha256": "f2bd6de5cd2cfdaf285d0a4142b510ff3bafff8e57d8b189150f9349200b2fb7",
+    "raw_manifest_sha256": "31ac3fa82da3fdcf575ae1ace80ea398c13971416d730a6d13d0f1d96947b17b"
+  },
+  "history_test": {
+    "status": "PASS_SIMULATED_HISTORY_CLOSURE",
+    "cases": [
+      {
+        "name": "reviewer_duplicate_wait_id_omits_open",
+        "outcome": "REJECT",
+        "reason": "声明history id必须唯一且与真实history形成双射",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "open_run",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "valid_six",
+        "outcome": "ACCEPT",
+        "reason": null,
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "valid_reordered_declarations",
+        "outcome": "ACCEPT",
+        "reason": null,
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "valid_extra_history",
+        "outcome": "ACCEPT",
+        "reason": null,
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 7,
+              "label": "extra",
+              "path": "fixture/call7",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          },
+          {
+            "id": 7,
+            "command": "puts MOCK_EXTRA",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "missing_declaration",
+        "outcome": "REJECT",
+        "reason": "必需PNR标签缺失或重复",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "unique_id_set_mismatch",
+        "outcome": "REJECT",
+        "reason": "声明history id必须唯一且与真实history形成双射",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 42,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "duplicate_native_history_id",
+        "outcome": "REJECT",
+        "reason": "必须保留完整原生history闭包",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "missing_extra_declaration",
+        "outcome": "REJECT",
+        "reason": "必须保留完整原生history闭包",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          },
+          {
+            "id": 7,
+            "command": "puts MOCK_EXTRA",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "extra_duplicate_id",
+        "outcome": "REJECT",
+        "reason": "声明history id必须唯一且与真实history形成双射",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "extra",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          },
+          {
+            "id": 7,
+            "command": "puts MOCK_EXTRA",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "swapped_open_reports_labels",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：reports",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "reports",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "open_run",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_launch_invalid",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：launch_invalid",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "wait_on_run impl_1 -to_step invalid",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_launch",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：launch",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_10 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_wait",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：wait",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_open_run",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：open_run",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_reports",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：reports",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "wrong_command_close",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：close",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "puts {close_project}",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "reports_word_inside_puts",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：reports",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "puts {report_timing_summary}",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "open_wrong_run",
+        "outcome": "REJECT",
+        "reason": "PNR标签与原生命令类型不同：open_run",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_2",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "actual_call_command_diff",
+        "outcome": "REJECT",
+        "reason": "命令输入/history不同",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          }
+        ]
+      },
+      {
+        "name": "extra_actual_command_diff",
+        "outcome": "REJECT",
+        "reason": "命令输入/history不同",
+        "simulated_gate": {
+          "root_explicit_signal": "CLOSED_PNR_INPUTS_READY",
+          "project_closed": true,
+          "owned_root_exited": true,
+          "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+          "root_declared_implementation_execution_count": 1,
+          "additional_closed_files": [],
+          "native_files": [],
+          "source_before": {
+            "path": "fixture/source_before",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after": {
+            "path": "fixture/source_after",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_before_native": {
+            "path": "fixture/source_before_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "source_after_native": {
+            "path": "fixture/source_after_native",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "mcp_history": {
+            "path": "fixture/mcp_history",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "immutable_session_log": {
+            "path": "fixture/immutable_session_log",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "guard_receipt": {
+            "path": "fixture/guard_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "supervisor_receipt": {
+            "path": "fixture/supervisor_receipt",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "owned_root_exit_proof": {
+            "path": "fixture/owned_root_exit_proof",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "resource_admission": {
+            "path": "fixture/resource_admission",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "bytes": 1
+          },
+          "design_mcp_records": [
+            {
+              "id": 1,
+              "label": "launch_invalid",
+              "path": "fixture/call1",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 2,
+              "label": "launch",
+              "path": "fixture/call2",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 3,
+              "label": "wait",
+              "path": "fixture/call3",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 4,
+              "label": "open_run",
+              "path": "fixture/call4",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 5,
+              "label": "reports",
+              "path": "fixture/call5",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 6,
+              "label": "close",
+              "path": "fixture/call6",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            },
+            {
+              "id": 7,
+              "label": "extra",
+              "path": "fixture/call7",
+              "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+              "bytes": 1
+            }
+          ]
+        },
+        "simulated_history": [
+          {
+            "id": 1,
+            "command": "launch_runs impl_1 -to_step invalid -jobs 1",
+            "code": 1
+          },
+          {
+            "id": 2,
+            "command": "launch_runs impl_1 -jobs 1",
+            "code": 0
+          },
+          {
+            "id": 3,
+            "command": "wait_on_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 4,
+            "command": "open_run impl_1",
+            "code": 0
+          },
+          {
+            "id": 5,
+            "command": "report_timing_summary -file {MOCK.rpt}; report_route_status",
+            "code": 0
+          },
+          {
+            "id": 6,
+            "command": "close_project",
+            "code": 0
+          },
+          {
+            "id": 7,
+            "command": "puts MOCK_EXTRA",
+            "code": 0
+          }
+        ]
+      }
+    ],
+    "count": 20,
+    "old_review_bug_reproduced": true,
+    "new_bug_rejected": true,
+    "simulated_not_actual_pnr": true,
+    "actual_pnr_or_process_access": false
+  },
+  "source_adapter_compare_cases": [
+    {
+      "case": "RAW",
+      "expected": "RAW_IDENTICAL",
+      "actual": "RAW_IDENTICAL",
+      "simulated_not_git": true
+    },
+    {
+      "case": "LF_CRLF",
+      "expected": "GIT_LF_TO_RAW_CRLF",
+      "actual": "GIT_LF_TO_RAW_CRLF",
+      "simulated_not_git": true
+    },
+    {
+      "case": "already_CRLF",
+      "expected": "RAW_IDENTICAL",
+      "actual": "RAW_IDENTICAL",
+      "simulated_not_git": true
+    },
+    {
+      "case": "mixed_EOL",
+      "expected": null,
+      "actual": null,
+      "simulated_not_git": true
+    },
+    {
+      "case": "semantic_diff",
+      "expected": null,
+      "actual": null,
+      "simulated_not_git": true
+    },
+    {
+      "case": "missing_final_newline",
+      "expected": null,
+      "actual": null,
+      "simulated_not_git": true
+    }
+  ],
+  "commands": {
+    "history_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\history_tests_r03.py"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\history_tests_r03.py",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.2819999999992433,
+      "sampled_owned_child_rss_peak_bytes": 21684224,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "ae8e162872a020348631c60cf5da528d57d9fadc1b67785859d5959068897059",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collector_help_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "--help"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py --help",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.23399999999674037,
+      "sampled_owned_child_rss_peak_bytes": 20922368,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "0ac75e07b5497865ed8c6961c06d653e29ee3a732825ff1c31570300e92b7560",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collector_missing_gate_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "collect"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py collect",
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.25,
+      "sampled_owned_child_rss_peak_bytes": 20852736,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "763d29090fece203d8cdc6e78d5b1f6bdda29d4bf50374b0873298f6ec141397"
+    },
+    "adapter_help_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\source_after_check.py",
+        "--help"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\source_after_check.py --help",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.17199999999866122,
+      "sampled_owned_child_rss_peak_bytes": 17465344,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "f0a8aa46b58021221cd4f41ab110f1199967f1f130fb0c0bbca252e30c925721",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_adapter_help_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\native_source_after.py",
+        "--help"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\native_source_after.py --help",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.21899999999732245,
+      "sampled_owned_child_rss_peak_bytes": 19759104,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "d25134c13c0af8ee0bc6a219eb9aa102b7336bd5a628f2ad62856f2b480e38e3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_adapter_outside_refusal_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\native_source_after.py",
+        "--expected-head",
+        "0000000000000000000000000000000000000000",
+        "--output-dir",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\mock_forbidden_output"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\native_source_after.py --expected-head 0000000000000000000000000000000000000000 --output-dir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\mock_forbidden_output",
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.20300000000133878,
+      "sampled_owned_child_rss_peak_bytes": 20504576,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c8afa7b435e3ba03b7e0e126040199f7df708d5662ad84cdb4c3307211087e20"
+    },
+    "adapter_missing_head_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\source_after_check.py",
+        "--output-dir",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\mock_forbidden_output"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\source_after_check.py --output-dir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\mock_forbidden_output",
+      "native_exit_code": 2,
+      "elapsed_seconds": 0.17199999999866122,
+      "sampled_owned_child_rss_peak_bytes": 17838080,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8308b27fcfe2ab5a1e342b378bc0ebb7de76edf504d15770d009fee52a68df45"
+    },
+    "prepare_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "prepare"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py prepare",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.5469999999986612,
+      "sampled_owned_child_rss_peak_bytes": 22933504,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "ecb587c05558d3da6f7a360d2b542510604ed2734fb31501485beb589dfd913d",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "prepare_overwrite_r03": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "prepare"
+      ],
+      "windows_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py prepare",
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.6399999999994179,
+      "sampled_owned_child_rss_peak_bytes": 22732800,
+      "absolute_peak_bytes": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "6f966d4052a86f6bac823789d8f00c5d04a7059beec06305c4ae9ce3f180b22a"
+    }
+  },
+  "source_after_actual_executed": false,
+  "git_head_queried_or_mocked": false,
+  "live_pnr_or_external_process_access": false,
+  "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "source_hashes": {
+    "collector.py": "63def20a125a983a86a374bc7bc1eef8e375cb232a5222822c6f886f6a10cbe9",
+    "source_after_check.py": "15edba9468b8dd3c99dc55135913cbc98d2f625220d94a10f76b18601346b3a8",
+    "native_source_after.py": "8e9a12ce58f5ec045cd6c454d62936d918b6f6a47fa15d096243591855d57ddd"
+  },
+  "prepared_receipt_sha256": "dc9d17810fcbbabbf51e14545b3fabe5fa3a29724fd6320bbc13fa2bd8443c04",
+  "source_diff_sha256": "0def9534adaf6f9bad98cb56cfcd14867c07b4512baadb28c4a69192ebab9ce4",
+  "limitations": [
+    "本轮history为纯mock，mock code不是实际PNR原生码；真实Python原生码及stderr逐项保留。",
+    "作者未运行Git HEAD/source-after实际检查，也未monkeypatch Git/HEAD；源码adapter只有6个字节比较样例和真实help/参数/越界拒绝。",
+    "实际source-after由ROOT用新输出目录亲自运行，逐项核a710 Git blob/当前RAW、真实HEAD前后与43/33/18/原14；证据HEAD与源码基线分列。",
+    "准备G1不等于独立G2、PNR时序/预算/整树闭合或G3批准；旧r02及Reviewer CHANGES_REQUIRED原件保留。"
+  ]
+}

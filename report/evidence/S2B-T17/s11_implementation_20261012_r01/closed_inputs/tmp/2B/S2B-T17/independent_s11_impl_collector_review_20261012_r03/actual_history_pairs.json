@@ -1,0 +1,197 @@
+[
+  {
+    "id": 1,
+    "label": "open_project",
+    "command": "open_project {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11p1/s2b_inference_candidate.xpr}",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_open_project.tool.json",
+      "sha256": "1f969c9fbd11779b7c1165e9cf0a5d7c3ef2e711687ea6a17beafdee7437961c",
+      "bytes": 1732,
+      "id": 1,
+      "label": "open_project"
+    }
+  },
+  {
+    "id": 2,
+    "label": "setup_probe",
+    "command": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {[get_property STATUS [get_runs synth_1]] ne {synth_design Complete!}} {error SYNTH_NOT_COMPLETE}; if {[get_property NEEDS_REFRESH [get_runs synth_1]]} {error SOURCE_REFRESH_REQUIRED}; if {[get_property STATUS [get_runs impl_1]] ne {Not started}} {error IMPL_ALREADY_STARTED}; set_property STRATEGY Performance_ExplorePostRoutePhysOpt [get_runs impl_1]; dict create part [get_property PART [current_project]] top [get_property TOP [current_fileset]] synth_status [get_property STATUS [get_runs synth_1]] needs_refresh [get_property NEEDS_REFRESH [get_runs synth_1]] impl_status [get_property STATUS [get_runs impl_1]] impl_strategy [get_property STRATEGY [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]] impl_directory [get_property DIRECTORY [get_runs impl_1]] threads [get_param general.maxThreads] thread_hook_properties [lsearch -all -inline -glob [list_property [get_runs impl_1]] *TCL.PRE]",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_setup_probe.tool.json",
+      "sha256": "2b427a4bc82b7ca32eea8d0c9d18fd3542144008722b50d7b827993c2c01d928",
+      "bytes": 2181,
+      "id": 2,
+      "label": "setup_probe"
+    }
+  },
+  {
+    "id": 3,
+    "label": "thread_hook",
+    "command": "set_property STEPS.INIT_DESIGN.TCL.PRE {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/threads_one.tcl} [get_runs impl_1]; dict create strategy [get_property STRATEGY [get_runs impl_1]] native_thread_hook [get_property STEPS.INIT_DESIGN.TCL.PRE [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]]",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_thread_hook.tool.json",
+      "sha256": "0a86a1e00d50a749dd668ae3d46ea0a8e2fa4e7823e878698dbf18fe8d9d4bfe",
+      "bytes": 1325,
+      "id": 3,
+      "label": "thread_hook"
+    }
+  },
+  {
+    "id": 4,
+    "label": "launch_invalid",
+    "command": "launch_runs impl_1 -to_step post_route_phys_opt_design -jobs 1",
+    "history_code": 1,
+    "client_error": false,
+    "client_exit_code": 1,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_launch_invalid_attempt.tool.json",
+      "sha256": "63f7c96167627c50fa28c62e45112059ae8c217e8134c7c53b1c07d40faf20cb",
+      "bytes": 833,
+      "id": 4,
+      "label": "launch_invalid"
+    }
+  },
+  {
+    "id": 5,
+    "label": "after_invalid",
+    "command": "dict create status [get_property STATUS [get_runs impl_1]] progress [get_property PROGRESS [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]]",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_after_invalid_step.tool.json",
+      "sha256": "ecb03491b84bcc17ad7f8b6294bad3255786db97aec569f88c82ef1eb390a496",
+      "bytes": 690,
+      "id": 5,
+      "label": "after_invalid"
+    }
+  },
+  {
+    "id": 6,
+    "label": "launch",
+    "command": "launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_launch_corrected.tool.json",
+      "sha256": "b68fbf1255a79ccd5f345e56c171d1e8be11050d033c597d6fc1d33b2f1e2d49",
+      "bytes": 735,
+      "id": 6,
+      "label": "launch"
+    }
+  },
+  {
+    "id": 7,
+    "label": "wait",
+    "command": "wait_on_run impl_1",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_wait_actual.tool.json",
+      "sha256": "386ea7239c1c9041b2d9254d8e16a8e156dcf65f5394e608844ebba8b3cb3a1b",
+      "bytes": 8770,
+      "id": 7,
+      "label": "wait"
+    }
+  },
+  {
+    "id": 8,
+    "label": "open_run",
+    "command": "open_run impl_1",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_open_run_actual.tool.json",
+      "sha256": "10b8735c42ef24dea20501e77fa0591ba75a0ad0a55a3251ff9e6ba8333cebdd",
+      "bytes": 2919,
+      "id": 8,
+      "label": "open_run"
+    }
+  },
+  {
+    "id": 9,
+    "label": "reports",
+    "command": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/timing_summary_postroute.rpt}; report_timing -delay_type max -max_paths 30 -sort_by group -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/timing_worst_postroute.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/utilization_postroute.rpt}; report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/utilization_flat_postroute.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/clocks_postroute.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/exceptions_postroute.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/methodology_postroute.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/drc_postroute.rpt}; report_route_status -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/route_status_postroute.rpt}",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_reports_actual.tool.json",
+      "sha256": "0a3d50a35150d1c9736dc6656a264e262dbc402ee6f7e255d6552913a1ed6324",
+      "bytes": 3909,
+      "id": 9,
+      "label": "reports"
+    }
+  },
+  {
+    "id": 10,
+    "label": "dsp_broad_query",
+    "command": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/constraints_postroute.xdc}; set s11_dsps [get_cells -hierarchical -filter {REF_NAME == DSP48E1 && NAME =~ *u_maxpool_engine*}]; set s11_graph [dict create]; foreach cell $s11_dsps {set props [dict create]; foreach prop [list_property $cell] {if {[regexp {AREG|BREG|CREG|MREG|PREG|REF_NAME|ORIG} $prop]} {dict set props $prop [get_property $prop $cell]}}; set operands [dict create]; foreach group {A B C PCIN} {set pins [get_pins -quiet \"${cell}/${group}*\"]; if {[llength $pins] > 0} {dict set operands $group [all_fanin -flat -startpoints_only -to $pins]; dict set operands ${group}_net_names [get_nets -of_objects $pins]}}; dict set s11_graph $cell [dict create properties $props operands $operands]}; set s11_q [dict create part [get_property PART [current_project]] top [get_property TOP [current_fileset]] period [get_property PERIOD [get_clocks clk_fpga_0]] run_status [get_property STATUS [get_runs impl_1]] needs_refresh [get_property NEEDS_REFRESH [get_runs impl_1]] dsp_count [llength $s11_dsps] dsps $s11_graph]; set s11_qpath {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/maxpool_dsp_operands_postroute.tcldict}; if {[file exists $s11_qpath]} {error QUERY_OVERWRITE}; set s11_f [open $s11_qpath w]; puts $s11_f $s11_q; close $s11_f; dict create part [dict get $s11_q part] period [dict get $s11_q period] run_status [dict get $s11_q run_status] dsp_count [llength $s11_dsps] graph_file $s11_qpath",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_query_dsp_actual.tool.json",
+      "sha256": "312e7d356059672512d12002d7890a1952edefc7bfb42395fbad8506cf54d954",
+      "bytes": 6119,
+      "id": 10,
+      "label": "dsp_broad_query"
+    }
+  },
+  {
+    "id": 11,
+    "label": "dsp_selected_query",
+    "command": "set s11_short [dict create]; foreach cell [dict keys $s11_graph] {if {[regexp {/(state7|state5__0|state5__1)$} $cell]} {set s11_ports [dict create]; foreach group {A B PCIN} {set starts [dict get $s11_graph $cell operands $group]; dict set s11_ports $group [dict create start_count [llength $starts] first_startpoints [lrange $starts 0 5] first_nets [lrange [dict get $s11_graph $cell operands ${group}_net_names] 0 5]]}; dict set s11_short $cell [dict create properties [dict get $s11_graph $cell properties] ports $s11_ports]}}; set s11_spath {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/maxpool_dsp_selected_postroute.tcldict}; if {[file exists $s11_spath]} {error SELECTED_QUERY_OVERWRITE}; set s11_f [open $s11_spath w];puts $s11_f $s11_short;close $s11_f;set s11_short",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_query_selected_actual.tool.json",
+      "sha256": "ceb7cfd4935384ad1fa357cf941aee7533b6190b67651f90ca379929d1c9bfb5",
+      "bytes": 9271,
+      "id": 11,
+      "label": "dsp_selected_query"
+    }
+  },
+  {
+    "id": 12,
+    "label": "dsp_exact_query",
+    "command": "set s11_exact [dict create]; foreach cell [dict keys $s11_graph] {if {[regexp {/(state7|state5__0|state5__1)$} $cell]} {set buses [dict create]; foreach pin [get_pins -of_objects $cell -filter {DIRECTION == IN}] {if {[regexp {/(A|B|C|PCIN)\\[[0-9]+\\]$} [get_property NAME $pin] whole bus]} {dict lappend buses $bus $pin}}; set operands [dict create]; foreach bus [dict keys $buses] {set pins [dict get $buses $bus]; set nets [get_nets -of_objects $pins]; dict set operands $bus [dict create pins $pins nets $nets drivers [get_pins -of_objects $nets -filter {DIRECTION == OUT}] startpoints [all_fanin -flat -startpoints_only -to $pins]]}; dict set s11_exact $cell [dict create properties [dict get $s11_graph $cell properties] operands $operands]}}; set s11_epath {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/maxpool_dsp_exact_inputs_postroute.tcldict}; if {[file exists $s11_epath]} {error EXACT_QUERY_OVERWRITE}; set s11_f [open $s11_epath w];puts $s11_f $s11_exact;close $s11_f; set short [dict create];foreach cell [dict keys $s11_exact] {foreach bus {A B} {set starts [dict get $s11_exact $cell operands $bus startpoints];dict set short $cell $bus [dict create count [llength $starts] first [lrange $starts 0 4]]}};set short",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_query_exact_actual.tool.json",
+      "sha256": "24cf05ff483d0154559e6666fa032ec835b0ab82939b85a1cf722d8fff53bf21",
+      "bytes": 5155,
+      "id": 12,
+      "label": "dsp_exact_query"
+    }
+  },
+  {
+    "id": 13,
+    "label": "close",
+    "command": "close_project",
+    "history_code": 0,
+    "client_error": false,
+    "client_exit_code": 0,
+    "raw_binding": {
+      "path": "tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_close_actual.tool.json",
+      "sha256": "a95633a6815ff9cac40e6b2921e25c8b2bcb79e49bb486488f8be933da57f5db",
+      "bytes": 423,
+      "id": 13,
+      "label": "close"
+    }
+  }
+]

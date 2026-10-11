@@ -1,0 +1,67 @@
+{
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "--help"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.2190000000045984
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+        "collect"
+      ],
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.23399999999674037
+    }
+  ],
+  "simulated_not_actual_pnr": true,
+  "elapsed_seconds": 3.2969999999986612,
+  "git_write_performed": false,
+  "reviewed_source_hashes": {
+    "tmp/2B/S2B-T17/s11_impl_collection_20261012_r01/collector.py": "91bf09794a25e7135a047c1f1cece16f08f0945b1b625ff59fe2e8c1e135cebc"
+  },
+  "sampled_self_rss_bytes": 24272896,
+  "real_task_process_query_performed": false,
+  "candidate_raw_manifest_path": "tmp/2B/S2B-T17/s11_impl_collection_20261012_r01/raw_manifest_r02.jsonl",
+  "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "status": "CHANGES_REQUIRED",
+  "actual_collect_executed": false,
+  "first_review_limit": "首轮误用保留的旧raw_manifest.jsonl20行，原native2及结果保留；精确r02清单43行已核SHA，最终仅history双射缺陷仍阻断。",
+  "limits": [
+    "仅AST函数本体与纯模拟门禁/报告解析、真实help及缺gate入口；没有实际collect/prepare/classify正式写入。",
+    "当前PNR/真实进程/ROSS/Vivado/设备/端口未访问；用户拔板约束保持。",
+    "预算只证明工具记录BLOCKED语义；未消费真实终态、samples或5秒ROOT监督，不能判全程覆盖。",
+    "分类器原生日志保留路径存在；脚本不运行stage checker，后续真实封包checker失败仍须ROOT另存并绑定，不由准备通过替代。",
+    "旧正式依赖和43候选源实际SHA核验，不复制历史包；未重跑RTL/综合/实现。"
+  ],
+  "findings": [
+    {
+      "priority": "P1",
+      "file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_impl_collection_20261012_r01\\collector.py",
+      "start": 83,
+      "end": 96,
+      "problem": "design_mcp_records未要求id唯一及与原history形成双射；数量相等和标签唯一不足。",
+      "reproduction": "独立模拟6条history，open_run映射改为id3/call3（wait），保留reports/close等。collector接受；history id4真实open_run未被任何client映射。",
+      "impact": "可能封包遗漏实际MCP返回/失败记录，并将错误命令赋给stage标签，不能证明完整history闭包。",
+      "closure": "在任何归档写入前要求record id唯一、其集合与history id完全相同；验证open_run/reports等标签的实际命令对应，并新增重复id/遗漏id/阶段错配负向测试。"
+    }
+  ],
+  "scope": "S11 PNR collector准备工具独立只读G2；无实际PNR终态消费或时序批准",
+  "candidate_raw_manifest_sha256": "7830a57681b8234cb9aa4baa39edf225c4d3276b02a95db737d12178e559a86f",
+  "checks_count": 65,
+  "reviewer_stop": "STOP_READONLY_S11_PNR_COLLECTOR_PRECHECK",
+  "review_native_exit_code": 2,
+  "absolute_peak_memory_bytes": null,
+  "prepared_receipt_sha256": "b8bde0c7cb5a321dcaf29b1f6fd1383234a3e72a8a0046dbd81ce1364f4a885b"
+}

@@ -1,0 +1,54 @@
+--- collector_before_r04.py
++++ collector.py
+@@ -6,6 +6,7 @@
+ PROJECT=ROOT/'tmp/2B/S2B-T17/s11p1'
+ REPORT=ROOT/'report/evidence/S2B-T17/s11_implementation_20261012_r01'
+ COMMIT='a710ec431474841a81912a6055f861e811a151e3'
++APPROVED_LAUNCH='launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1'
+ EVIDENCE_HEAD_AT_PREPARATION='932051cdacdf02f729d6a7554b07118d05e96aa4'
+ COMMON=ROOT/'tmp/2B/S2B-T17/s11_collection_20261012_r01/collector.py'
+ COMMON_SHA='8bb59a7485a2f03adb6d71d5923913d724952077a961af208fff18f76b8c6cc9'
+@@ -64,7 +65,7 @@
+  for key in ('no_clock','constant_clock','pulse_width_clock','unconstrained_internal_endpoints','no_input_delay','no_output_delay','multiple_clock','generated_clocks','loops','partial_input_delay','partial_output_delay','latch_loops'):
+   found=set(re.findall('checking '+key+r' \((\d+)\)',text)); c.require(len(found)==1,'缺失/冲突时序检查：'+key); checks[key]=int(next(iter(found)))
+  state=re.findall(r'^\| Design State\s*:\s*(.+)$',text,re.M); c.require(len(state)==1,'设计状态缺失/冲突')
+- c.require(state[0].strip() in ('Routed','Fully Routed'),'不是已路由设计状态；不推断缺失状态')
++ c.require(state[0].strip() in ('Routed','Fully Routed','Physopt postRoute'),'不是已路由设计状态；不推断缺失状态')
+  failing=any(v<0 for k,v in values.items() if k.endswith('_ns')) or any(values[k]>0 for k in ('setup_failing_endpoints','hold_failing_endpoints','pulse_failing_endpoints')) or any(checks.values())
+  c.require(('Timing constraints are not met.' in text)==failing,'时序文字数值冲突')
+  return dict(status='FAIL_TIMING' if failing else 'NUMERIC_TIMING_MET_PENDING_REVIEW',timing=values,clock=dict(period_ns=period,frequency_mhz=hz,rise_ns=rise,fall_ns=fall),check_timing=checks,design_state=state[0].strip(),independent_pnr_review='NOT_RUN',hardware='NOT_RUN')
+@@ -95,14 +96,14 @@
+   paired.append(dict(label=row['label'],history=item,client_timeout_or_error=timeout,client_exit_code=client_code,raw_binding=row))
+  tags={r['label']:r['history'] for r in paired}
+  c.require(tags['launch_invalid']['code']==1 and '-to_step' in tags['launch_invalid']['command'],'非法to_step失败原件不同')
+- c.require(tags['launch']['code']==0 and tags['launch']['command'].startswith('launch_runs impl_1') and '-to_step' not in tags['launch']['command'],'合法launch不同')
++ c.require(tags['launch']['code']==0 and tags['launch']['command']==APPROVED_LAUNCH,'合法launch不是本轮精确批准的Post-Route终点')
+  c.require(sum(r['command'].startswith('launch_runs impl_1') and r['code']==0 for r in history)==1,'合法impl启动不是一次')
+  c.require(tags['wait']['command']=='wait_on_run impl_1','wait不是独立原生命令')
+  c.require(tags['close']['command']=='close_project' and tags['close']['code']==0,'工程关闭失败')
+  return gate,paired
+ def collect(gate_path):
+  """仅真实关闭后单次归档；不改原件，不复制DCP/bit或cache。"""
+- gate,paired=closed_gate(gate_path); prepared=c.read(WORK/'prepared_receipt_r03.json')
++ gate,paired=closed_gate(gate_path); prepared=c.read(WORK/'prepared_receipt_r04.json')
+  for row in prepared['dependencies']: validate_binding(row)
+  for row in prepared['source_after_scripts']: validate_binding(row)
+  c.require(c.binding(Path(__file__))==prepared['collector'] and c.binding(COMMON)==prepared['common'],'收集器准备后漂移')
+@@ -133,7 +134,7 @@
+   target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+   mapping.append(dict(original=row,saved=c.binding(target)))
+- for p in (Path(__file__),COMMON,WORK/'prepared_receipt_r03.json',gate_path,WORK/'source_after_check.py',WORK/'native_source_after.py'):
++ for p in (Path(__file__),COMMON,WORK/'prepared_receipt_r04.json',gate_path,WORK/'source_after_check.py',WORK/'native_source_after.py'):
+   target=REPORT/'collector_code'/('s11_synthesis_collector_common.py' if p==COMMON else p.name); target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+  timing_binding=gate.get('timing_summary'); sta=dict(status='BLOCKED_MISSING_ACTUAL_TIMING',timing=None,design_state=None); classifier=None
+@@ -163,7 +164,7 @@
+  save(REPORT/'delivery_manifest.json',manifest); print(json.dumps(dict(status='COLLECTED_PNR_PENDING_INDEPENDENT_REVIEW',manifest=c.binding(REPORT/'delivery_manifest.json')),ensure_ascii=False))
+ def main():
+  """prepare与collect分离，未释放关闭门禁时不触碰报告目录。"""
+- parser=argparse.ArgumentParser(); parser.add_argument('mode',choices=('prepare','collect','classify')); parser.add_argument('--gate',type=Path); parser.add_argument('--report',type=Path); parser.add_argument('--result',type=Path); parser.add_argument('--receipt',default='prepared_receipt_r03.json')
++ parser=argparse.ArgumentParser(); parser.add_argument('mode',choices=('prepare','collect','classify')); parser.add_argument('--gate',type=Path); parser.add_argument('--report',type=Path); parser.add_argument('--result',type=Path); parser.add_argument('--receipt',default='prepared_receipt_r04.json')
+  args=parser.parse_args()
+  if args.mode=='prepare': return prepare(args.receipt)
+  if args.mode=='classify':

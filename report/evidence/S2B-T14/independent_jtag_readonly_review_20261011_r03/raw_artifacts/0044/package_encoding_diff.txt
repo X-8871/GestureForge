@@ -1,0 +1,18 @@
+--- package.py
++++ package_r02.py
+@@ -1,4 +1,4 @@
+-"""封存本次真实只读JTAG枚举及独占服务闭合，不扩展为板上功能验收。"""
++"""封存只读JTAG原件；原生日志编码区别于UTF8业务输出，首轮失败保留。"""
+ import hashlib
+ import json
+ from pathlib import Path
+@@ -56,7 +56,8 @@
+     assert ports[0]["PNPDeviceID"] == "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348"
+     for path in RUN.iterdir():
+         if path.is_file() and path.suffix in (".py", ".ps1", ".json", ".log"):
+-            path.read_bytes().decode("utf-8")
++            if path.name != "vitis_probe.stdout.log":
++                path.read_bytes().decode("utf-8")
+     assert FORMAL.parent.is_dir() and not FORMAL.exists()
+     FORMAL.mkdir()
+     files = []

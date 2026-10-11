@@ -1,0 +1,38 @@
+test_c_cache_probe_phase_order_identity_and_actual_readback (verification.test_s2b_board_transport.NativeTests.test_c_cache_probe_phase_order_identity_and_actual_readback) ... ERROR
+test_c_illegal_parameter_start_error_safe_then_matching_ack (verification.test_s2b_board_transport.NativeTests.test_c_illegal_parameter_start_error_safe_then_matching_ack) ... ok
+test_c_payload_crc_never_copies_arena_or_starts (verification.test_s2b_board_transport.NativeTests.test_c_payload_crc_never_copies_arena_or_starts) ... ok
+test_c_reject_header_crc_length_sequence_without_start (verification.test_s2b_board_transport.NativeTests.test_c_reject_header_crc_length_sequence_without_start) ... ok
+test_frozen_native_c_decoder_against_all_109 (verification.test_s2b_board_transport.NativeTests.test_frozen_native_c_decoder_against_all_109) ... ERROR
+
+======================================================================
+ERROR: test_c_cache_probe_phase_order_identity_and_actual_readback (verification.test_s2b_board_transport.NativeTests.test_c_cache_probe_phase_order_identity_and_actual_readback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_board_transport.py", line 305, in test_c_cache_probe_phase_order_identity_and_actual_readback
+    meta, _, _ = wire.receive(request, 0)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 238, in receive
+    meta, heads, detections = decode_response(raw_header, payload, request, index, self.epoch)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 133, in decode_response
+    require(zlib.crc32(payload) == head.payload_crc, "响应payload CRC错误")
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 40, in require
+    raise TransportError(message)
+verification.s2b_board_transport.TransportError: 响应payload CRC错误
+
+======================================================================
+ERROR: test_frozen_native_c_decoder_against_all_109 (verification.test_s2b_board_transport.NativeTests.test_frozen_native_c_decoder_against_all_109)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_board_transport.py", line 342, in test_frozen_native_c_decoder_against_all_109
+    actual, raw_count = frozen.c_decode(library, heads, *row["input"]["geometry_wh"], .25)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2a_ps_decode_nms_c.py", line 188, in c_decode
+    head13 = np.ascontiguousarray(heads["13x13"], dtype=np.float64).reshape(-1)
+                                  ~~~~~^^^^^^^^^
+KeyError: '13x13'
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.952s
+
+FAILED (errors=2)

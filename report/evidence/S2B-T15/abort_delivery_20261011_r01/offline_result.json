@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_T15_SOFTWARE_ONLY",
+  "hardware_execution": "NOT_RUN",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "source_sha256": {
+    "vitis/s2b_inference_app.c": {
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "bytes": 23212,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\s2b_inference_app.c"
+    },
+    "vitis/build_s2b_inference.py": {
+      "sha256": "0259af39128d003c5548ca04c8c51c1652e27c546b5ae2bb709bc92efd879b97",
+      "bytes": 25887,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\build_s2b_inference.py"
+    },
+    "verification/s2b_board_transport.py": {
+      "sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+      "bytes": 29960,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\s2b_board_transport.py"
+    },
+    "verification/test_s2b_board_transport.py": {
+      "sha256": "a9ac5392d08499778af05b06cdcdf080ae122ebcc3f14fb16fad7617f7e8059b",
+      "bytes": 41134,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\test_s2b_board_transport.py"
+    },
+    "docs/obsidian-project/02-方案设计/s2b_board_transport.md": {
+      "sha256": "8239191df5938e1d8c02c55a55bbf23ebe20c40fc53c9ae6b46641fc6254d1e5",
+      "bytes": 13261,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\s2b_board_transport.md"
+    },
+    "verification/s2a_ps_decode_nms_reference.c": {
+      "sha256": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845",
+      "bytes": 11675,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\s2a_ps_decode_nms_reference.c"
+    },
+    "verification/s2a_ps_decode_nms_reference.h": {
+      "sha256": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47",
+      "bytes": 1135,
+      "snapshot": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\abort_delivery_20261011_r01\\source_snapshot\\s2a_ps_decode_nms_reference.h"
+    }
+  },
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-m",
+    "unittest",
+    "verification.test_s2b_board_transport",
+    "-v"
+  ],
+  "attempts": 1,
+  "peak_memory_bytes": null,
+  "peak_memory_reason": "未测量整个离线测试进程树峰值内存",
+  "limitations": [
+    "完整XSA0为visibility0候选，ELF须独立G2审查及部署兼容检查。",
+    "24项软件测试及109黄金C解码不等于硬件运行。",
+    "本任务未打开串口、停核、MMIO、配置PL或操作板卡。"
+  ],
+  "tests": {
+    "run": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_cache_directory": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\s2b_t15_3ilw5rap",
+  "full_build": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\build_details.json",
+    "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+    "status": "PASS_OFFLINE_FULL_XSA_BUILD",
+    "elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\infer.elf",
+      "sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b"
+    },
+    "initializer_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\init.elf",
+      "sha256": "7314f7eca8df3ea3dc53725219369011827bc108b66a066622c2bb6509ce59cd",
+      "official_linker_sha256": "508b0c05a5dc0258613e3985c179d24f1ed1f3be571d7c6ad564939113766f4a"
+    }
+  },
+  "r1_fix": {
+    "cause": "mode2 CPU读取后ABORT STR可能终态SLVERR",
+    "candidate_version": "s2bu-candidate/1.1",
+    "solution": "DAP辅助ABORT、code10中间响应、真实final、mode3显式同epoch ACK",
+    "board": "NOT_RUN"
+  },
+  "elapsed_seconds": 23.82800000000134,
+  "exit_code": 0
+}

@@ -1,0 +1,129 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "scope": "S2B-T15 G2 software review; no G3/G4/G5",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "fixed_source_sha256": {
+    "vitis/s2b_inference_app.c": "3b2579d1bc7a956aa35adeb515f9e67d1cc0d2ae99b71f693f4d8a6f855387c9",
+    "vitis/build_s2b_inference.py": "4d77a0295ece69100d703872f4cb8976c6dd115df0b121e0188033ebbc02be2b",
+    "verification/s2b_board_transport.py": "6e14861b7ba83b7d4f4299293602a38e5b39ed402357db345f738601c03337d4",
+    "verification/test_s2b_board_transport.py": "963eb5f53086c9dc3606b8baa795ee31957662fdf79c6aca989427b2c8f82b68",
+    "docs/obsidian-project/02-方案设计/s2b_board_transport.md": "a20a03a965fe2fadd5da619b2665f322da630f92ccc92aa401c2bb17869ed208"
+  },
+  "independent_tests": {
+    "status": "PASS",
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 19.0,
+    "native_directory": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r01\\s2b_t15_jkis885t",
+    "log_sha256": "874b652310f4b832b5cdeea25a42fb58faf6881b7f12502e0cb6d7c30a5b0564"
+  },
+  "abort_boundary": {
+    "compile_command": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\gcc.exe",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r01",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r01\\abort_boundary.c",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2a_ps_decode_nms_reference.c",
+      "-o",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r01\\abort_boundary.exe",
+      "-lm"
+    ],
+    "compile_exit_code": 0,
+    "run_exit_code": 86,
+    "reproduced": true,
+    "stderr": "FLUSH 00000000 519168\r\nFLUSH 00100000 5903104\r\nFLUSH 01000000 11382208\r\nINVALIDATE 01000000 11382208\r\nSLVERR_ABORT_AFTER_TERMINAL state=c05\r\n",
+    "stdout_bytes": 0,
+    "stderr_sha256": "aca852930d544053e04535a5acfc908a105b72c6602ed3d8271432ecb8903f71",
+    "limitations": "此为软件边界注入，SLVERR状态规则来自RTL；不证明实物DataAbort已执行。"
+  },
+  "original_build_verified": {
+    "status": "PASS_UNIT_ONLY_PS_XSA_BUILD",
+    "build_details_sha256": "cbd684442ae5efaa73fd2756ba487ddb030b4df85cf1af3cb295de5bc573a912",
+    "file_bindings_verified": 20,
+    "commands_verified": 5,
+    "build_api_results": [
+      {
+        "name": "platform.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 3.746892299999672
+      },
+      {
+        "name": "app.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 2.844037999999273
+      },
+      {
+        "name": "init.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 2.575372999999672
+      }
+    ],
+    "elf_sha256": "0cbe9ad8c07d2e8bdbfa5cb290f9b192d07a119d96ea9aafa51e31d3014f9afe",
+    "raw_console_sha256": "bca7b90410e8e876654ece58752c525871b0eaed7f8071fbc649adedae5ccc07",
+    "independent_elf_layout_check": "PASS",
+    "actual_bsp_cache_contract_check": "PASS"
+  },
+  "findings": [
+    {
+      "id": "T15-R1-01",
+      "priority": "P1",
+      "file": "vitis/s2b_inference_app.c",
+      "lines": [
+        341,
+        344
+      ],
+      "description": "诊断mode2状态读与ABORT提交存在终态交错；RTL在终态拒绝ABORT并返回SLVERR，CPU未安装恢复处理，可能DataAbort且没有二进制响应。",
+      "basis": "src/s2b_control_csr.sv:112-114,259,344-347；public mode2接受任意非零core/drain，包括1；原hostmock csr_write(value2)无准入检查。",
+      "closure": "防止或受控处理状态读后终态变化导致的SLVERR，保留所有权与原始错误；补mode2成功/终态交错/短deadline回归，禁止把额外状态重读作为原子性证明。"
+    }
+  ],
+  "commands": [
+    {
+      "command": "python run_independent.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python boundary_probe.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python make_receipt.py",
+      "exit_code": 0
+    }
+  ],
+  "artifact_sha256": {
+    "abort_boundary.c": "9cd157cc7a932fdda041d6ad5447e1b83d9ca8074de37d45ff5cfa6d28f77ce0",
+    "abort_boundary_result.json": "0d9851c1dea534a260862560c3fc24a26ba353b211cd94bddb022e74c1a988a6",
+    "abort_boundary_stderr.log": "aca852930d544053e04535a5acfc908a105b72c6602ed3d8271432ecb8903f71",
+    "abort_boundary_stdout.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "boundary_probe.py": "75e229ed00524afad643775ee258b529fad6b7d08451de9becabb6702e15afea",
+    "make_receipt.py": "3c6ff7a15146e9f8c00eb15d62ad2fe3b18099c9e9353df1ac4c78306ae60050",
+    "run_independent.py": "e35b4a03f05b7c9f2441a8062ab6bd59c5cd4435ba712320946ab0e507b1483c",
+    "s2b_host_mock.h": "77cd20135155e6e90a5cc8d612b260057b04423f258b96164182ea99c5c0e27d",
+    "test_result.json": "92925bbea9e017bedc321dafb9efc44b9b399a64c8bc0ce8eeb6ae526a068c95",
+    "unittest.log": "874b652310f4b832b5cdeea25a42fb58faf6881b7f12502e0cb6d7c30a5b0564"
+  },
+  "limits": [
+    "未运行Vitis server或硬件；复用实际ARM构建原件并独立检查绑定/ELF/BSP。",
+    "边界注入遵守RTL终态拒绝语义，但不代表真实DataAbort已经发生。",
+    "CPU1停核、同ELF cacheprobe、HP可见性、100样本、1000连续和完整50MHz timing仍须真实独立证据。",
+    "本代理不提交；待审五文件未修改；工具调用量与峰值内存未测。"
+  ]
+}

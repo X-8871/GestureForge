@@ -1,0 +1,302 @@
+{
+  "status": "PASS",
+  "scope": "S2B-T15 independent G2 software R2",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "review_head": "f260880aa68c3aeb45405bb2dcd92d0b32bb9b16",
+  "fixed_source_sha256": {
+    "vitis/s2b_inference_app.c": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+    "vitis/build_s2b_inference.py": "0259af39128d003c5548ca04c8c51c1652e27c546b5ae2bb709bc92efd879b97",
+    "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+    "verification/test_s2b_board_transport.py": "a9ac5392d08499778af05b06cdcdf080ae122ebcc3f14fb16fad7617f7e8059b",
+    "docs/obsidian-project/02-方案设计/s2b_board_transport.md": "8239191df5938e1d8c02c55a55bbf23ebe20c40fc53c9ae6b46641fc6254d1e5"
+  },
+  "closed_findings": [
+    "T15-R1-01: CPU不再执行ABORT STR；六种终态交错失败锁存、原错误与所有权保留且无ACK；DAP后显式ACK另行核验。"
+  ],
+  "test_result": {
+    "status": "PASS",
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 24.389999999999418,
+    "native_directory": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r02\\s2b_t15_leu2uv5q",
+    "independent_boundary_cases": [
+      {
+        "scenario": 0,
+        "exit_code": 2,
+        "meta": [
+          1,
+          3077,
+          5,
+          0,
+          0,
+          0,
+          0,
+          1,
+          7
+        ],
+        "stderr_sha256": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+        "stdout_sha256": "454015bcc461da4469a11ce59710d30b56599f8afa91a15c74f2b78210adc8a9"
+      },
+      {
+        "scenario": 1,
+        "exit_code": 2,
+        "meta": [
+          1,
+          3077,
+          5,
+          0,
+          0,
+          0,
+          0,
+          1,
+          7
+        ],
+        "stderr_sha256": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+        "stdout_sha256": "454015bcc461da4469a11ce59710d30b56599f8afa91a15c74f2b78210adc8a9"
+      },
+      {
+        "scenario": 2,
+        "exit_code": 2,
+        "meta": [
+          1,
+          3077,
+          5,
+          4,
+          0,
+          0,
+          0,
+          1,
+          7
+        ],
+        "stderr_sha256": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+        "stdout_sha256": "2f31122e95a157c855d7131a900804e169dc47d875d4ed65fba67f6542af0bc0"
+      },
+      {
+        "scenario": 3,
+        "exit_code": 2,
+        "meta": [
+          1,
+          3588,
+          0,
+          4,
+          0,
+          0,
+          0,
+          1,
+          7
+        ],
+        "stderr_sha256": "1333e58cfb57f3225d282120a9f1adb1ef96c677e5d87627306e62d126c3e50f",
+        "stdout_sha256": "7ff620db8d44bb01f9dc8e92fdc9fd1b9adc0933899c045c8066e81d02e8efb9"
+      },
+      {
+        "scenario": 4,
+        "exit_code": 2,
+        "meta": [
+          1,
+          3077,
+          4,
+          0,
+          0,
+          0,
+          0,
+          1,
+          7
+        ],
+        "stderr_sha256": "2aab76cafaeffca55cbcb907ec58400a4f1fedbb4acdad1c8060f8c3b2136b69",
+        "stdout_sha256": "b8969704b706000efabc3ccca11938a96a23dd7030377fcb5f6d74a40bb1e70b"
+      },
+      {
+        "scenario": 5,
+        "exit_code": 2,
+        "meta": [
+          1,
+          262,
+          8,
+          0,
+          0,
+          0,
+          0,
+          1,
+          8
+        ],
+        "stderr_sha256": "e13584d09b296a3c6b85b6653d48e4978e4c314474dad4a6a7b0df9dadc89721",
+        "stdout_sha256": "cdc26b19441998a88db1812e0f7d5bdd8154d2793a939ff1ec74004b86018823"
+      },
+      {
+        "ack_case": "correct",
+        "exit_code": 0,
+        "stderr_sha256": "d1c52320b944f39e8b9a3261cf127a7dbb2c027a2b680009f023986e40adab36",
+        "stdout_sha256": "077cfc1298397e937c1c49eeecae280b6cdad34aea2cc79c91b3a1de238936fd"
+      },
+      {
+        "ack_case": "wrong_epoch",
+        "exit_code": 2,
+        "stderr_sha256": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+        "stdout_sha256": "d48f60baae70e1072a1485fed4a1dc0b211d3968649e71e4e34d230d58b6ed66"
+      },
+      {
+        "ack_case": "wrong_frame",
+        "exit_code": 2,
+        "stderr_sha256": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+        "stdout_sha256": "fdf1f5f5c7f249c32990d04d3a18d57d214a55455d614fad08012fa69404d18a"
+      },
+      {
+        "ack_case": "wrong_phase",
+        "exit_code": 2,
+        "stderr_sha256": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+        "stdout_sha256": "d48f60baae70e1072a1485fed4a1dc0b211d3968649e71e4e34d230d58b6ed66"
+      },
+      {
+        "ack_case": "old_sequence",
+        "exit_code": 2,
+        "stderr_sha256": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+        "stdout_sha256": "d8809e27f0c2cd2ffb8e29453a1800d1982e8f8f1760a6fbca43dbeb2b9c43c5"
+      },
+      {
+        "ack_case": "pending_run",
+        "exit_code": 2,
+        "stderr_sha256": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+        "stdout_sha256": "14c7b9575522ae9a3bb98a21228f06b0e482250e4ba5820abd599955aa17ac22"
+      }
+    ],
+    "compile_command": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\gcc.exe",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r02",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis",
+      "-IC:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r02\\independent_boundary.c",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2a_ps_decode_nms_reference.c",
+      "-o",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T15\\independent_review_20261011_r02\\independent_boundary.exe",
+      "-lm"
+    ],
+    "compile_exit_code": 0
+  },
+  "additional_ack_cases": [
+    {
+      "case": "no_pending",
+      "exit_code": 2,
+      "stderr_sha256": "bb7a06ff5da2f6341812effbc3fd69ff136e212949098faa995544c1c1286e99",
+      "stdout_sha256": "19e0929d3b335a01868075f0b7e5d2cd7e00caa3892db15ec368a54a386d0cc4"
+    },
+    {
+      "case": "corrupt_crc",
+      "exit_code": 2,
+      "stderr_sha256": "bb7a06ff5da2f6341812effbc3fd69ff136e212949098faa995544c1c1286e99",
+      "stdout_sha256": "46b8f7264c664b661df24373ad1059b68f0df4985e450d5e6489eeeeb915e2ff"
+    }
+  ],
+  "actual_build_checks": {
+    "build_details_sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+    "files_verified": 23,
+    "commands_verified": 5,
+    "build_api_results": [
+      {
+        "name": "platform.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 4.058447800000067
+      },
+      {
+        "name": "app.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 3.144817399999738
+      },
+      {
+        "name": "init.build",
+        "args": [],
+        "kwargs": {},
+        "return_type": "int",
+        "return_repr": "0",
+        "elapsed_seconds": 2.6971412999992026
+      }
+    ],
+    "full_xsa_contract": {
+      "hwh_member": "s2b_inference.hwh",
+      "ddr_begin": 1048576,
+      "ddr_end": 1073741824,
+      "uart1_base": 3758100480,
+      "hardware_mode": "FULL_PLATFORM_BOUND",
+      "ps_instance": "ps7",
+      "parameters": {
+        "PCW_USE_M_AXI_GP0": "1",
+        "PCW_USE_S_AXI_HP0": "1",
+        "PCW_FPGA0_PERIPHERAL_FREQMHZ": "50"
+      }
+    },
+    "app_elf_sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b",
+    "init_elf_sha256": "7314f7eca8df3ea3dc53725219369011827bc108b66a066622c2bb6509ce59cd",
+    "elf_layout_check": "PASS",
+    "bsp_cache_contract": "PASS",
+    "actual_timer_enable": "PASS",
+    "CPU_command_values": [
+      "4U",
+      "1U"
+    ],
+    "raw_console_sha256": "cfe26fd71119e4af108ce940f5d77321bb123645e9c8e9c867db4dfc051a01d2"
+  },
+  "commands": [
+    {
+      "command": "python run_review.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python finish_review.py",
+      "exit_code": 0
+    }
+  ],
+  "artifact_sha256": {
+    "ack_correct.bin": "077cfc1298397e937c1c49eeecae280b6cdad34aea2cc79c91b3a1de238936fd",
+    "ack_correct.log": "d1c52320b944f39e8b9a3261cf127a7dbb2c027a2b680009f023986e40adab36",
+    "ack_corrupt_crc.bin": "46b8f7264c664b661df24373ad1059b68f0df4985e450d5e6489eeeeb915e2ff",
+    "ack_corrupt_crc.log": "bb7a06ff5da2f6341812effbc3fd69ff136e212949098faa995544c1c1286e99",
+    "ack_no_pending.bin": "19e0929d3b335a01868075f0b7e5d2cd7e00caa3892db15ec368a54a386d0cc4",
+    "ack_no_pending.log": "bb7a06ff5da2f6341812effbc3fd69ff136e212949098faa995544c1c1286e99",
+    "ack_old_sequence.bin": "d8809e27f0c2cd2ffb8e29453a1800d1982e8f8f1760a6fbca43dbeb2b9c43c5",
+    "ack_old_sequence.log": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+    "ack_pending_run.bin": "14c7b9575522ae9a3bb98a21228f06b0e482250e4ba5820abd599955aa17ac22",
+    "ack_pending_run.log": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+    "ack_wrong_epoch.bin": "d48f60baae70e1072a1485fed4a1dc0b211d3968649e71e4e34d230d58b6ed66",
+    "ack_wrong_epoch.log": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+    "ack_wrong_frame.bin": "fdf1f5f5c7f249c32990d04d3a18d57d214a55455d614fad08012fa69404d18a",
+    "ack_wrong_frame.log": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+    "ack_wrong_phase.bin": "d48f60baae70e1072a1485fed4a1dc0b211d3968649e71e4e34d230d58b6ed66",
+    "ack_wrong_phase.log": "84b5cb0a7977b0becb1dd42a833c3c96d030dd622c61db4337140efe499f9e2b",
+    "boundary_0.bin": "454015bcc461da4469a11ce59710d30b56599f8afa91a15c74f2b78210adc8a9",
+    "boundary_0.log": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+    "boundary_1.bin": "454015bcc461da4469a11ce59710d30b56599f8afa91a15c74f2b78210adc8a9",
+    "boundary_1.log": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+    "boundary_2.bin": "2f31122e95a157c855d7131a900804e169dc47d875d4ed65fba67f6542af0bc0",
+    "boundary_2.log": "bdaa8195a17f64036f4d0231f3caa8d64029a921e45c543418da49850942dee6",
+    "boundary_3.bin": "7ff620db8d44bb01f9dc8e92fdc9fd1b9adc0933899c045c8066e81d02e8efb9",
+    "boundary_3.log": "1333e58cfb57f3225d282120a9f1adb1ef96c677e5d87627306e62d126c3e50f",
+    "boundary_4.bin": "b8969704b706000efabc3ccca11938a96a23dd7030377fcb5f6d74a40bb1e70b",
+    "boundary_4.log": "2aab76cafaeffca55cbcb907ec58400a4f1fedbb4acdad1c8060f8c3b2136b69",
+    "boundary_5.bin": "cdc26b19441998a88db1812e0f7d5bdd8154d2793a939ff1ec74004b86018823",
+    "boundary_5.log": "e13584d09b296a3c6b85b6653d48e4978e4c314474dad4a6a7b0df9dadc89721",
+    "finish_review.py": "7f3bf93ccd8bc03cd6939f99a85f39a6fbedaf18fdb17878c680ac55662e4c79",
+    "independent_boundary.c": "76f8987f7d7f71674f3ad3d046f7bfdc9de7ae6bb442454472a854a3d9c6f04b",
+    "run_review.py": "55e001bf22a6ca67eac4889a805e196b5f0b0098c7be5ecd47fdc8d79652e4da",
+    "s2b_host_mock.h": "77cd20135155e6e90a5cc8d612b260057b04423f258b96164182ea99c5c0e27d",
+    "test_result.json": "a4793dc10d06c82fbdb0fa574dc88d3720951fe30f14ab014644f20a759daea7",
+    "unittest.log": "01560c918d9706a5a7579c22b93ca3ea22f248da7cd3c12f7fe62460332c7dcf"
+  },
+  "limits": [
+    "未启动Vitis server、硬件或MCP；真实ARM构建来自原件并独立核对。",
+    "独立模型不代表RTL或真实DAP操作通过；T16外部协同需独立审查。",
+    "CPU1停核、cacheprobe、HP可见性、100样本、1000连续和50MHz完整timing仍须真实证据，G2不等于G3/G4/G5。",
+    "固定待审五文件未修改；无提交；峰值内存及工具调用总量未测。"
+  ]
+}

@@ -1,0 +1,1545 @@
+diff --git a/board/s2b_inference_platform.json b/board/s2b_inference_platform.json
+index 830041e..5ba5b36 100644
+--- a/board/s2b_inference_platform.json
++++ b/board/s2b_inference_platform.json
+@@ -1,6 +1,6 @@
+ {
+   "schema_version": 1,
+-  "version": "s2b-inference-platform/0.1.2",
++  "version": "s2b-inference-platform/0.1.3",
+   "status": "BUILD_CANDIDATE",
+   "physical_interface": "s2b-physical-candidate/0.1.1",
+   "requested_part_literal": "XC7Z020-2CLG400I",
+@@ -53,11 +53,11 @@
+     "src/s2a_network_descriptor_pkg.sv",
+     "src/int8_maxpool_geometry.sv",
+     "src/int8_maxpool_window.sv",
+-    "src/int8_route_query.sv",
++    "src/s2b_route_query.sv",
+     "src/int8_upsample_query.sv",
+     "src/s2a_conv_tile_engine.sv",
+     "src/s2b_maxpool_engine.sv",
+-    "src/s2a_route_engine.sv",
++    "src/s2b_route_engine.sv",
+     "src/s2b_upsample_engine.sv",
+     "src/s2b_network_backend.sv",
+     "src/s2a_memory_master.sv",
+@@ -82,9 +82,9 @@
+     "HP路径按实际全网与AXI3非Bufferable规范独立证明；HP写结果到CPU的完整模型golden仍由G3关闭。"
+   ],
+   "source_derivation": {
+-    "policy": "s2b-constant-geometry-and-coordinates/1.0.0",
++    "policy": "s2b-constant-geometry-coordinates-and-route/1.0.0",
+     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
+-    "derivation_baseline_commit": "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
++    "derivation_baseline_commit": "5a676b700af4c27297977379417b1694dd64840e",
+     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+     "upstream_sources": [
+       {
+@@ -194,7 +194,7 @@
+       {
+         "source": "src/s2a_network_backend.sv",
+         "path": "src/s2b_network_backend.sv",
+-        "sha256": "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a",
++        "sha256": "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27",
+         "replacements": [
+           [
+             "module s2a_network_backend (",
+@@ -239,6 +239,10 @@
+           [
+             "                            output_element_index <= output_element_index + 32'd1;",
+             "                            output_element_index <= output_element_index + 32'd1;\n                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。\n                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin\n                                output_x_cursor <= 8'd0;\n                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin\n                                    output_y_cursor <= 8'd0;\n                                    output_channel_cursor <= output_channel_cursor + 9'd1;\n                                end else begin\n                                    output_y_cursor <= output_y_cursor + 8'd1;\n                                end\n                            end else begin\n                                output_x_cursor <= output_x_cursor + 8'd1;\n                            end"
++          ],
++          [
++            "s2a_route_engine u_route_engine",
++            "s2b_route_engine u_route_engine"
+           ]
+         ]
+       },
+@@ -256,6 +260,36 @@
+             "s2b_network_backend u_network_backend"
+           ]
+         ]
++      },
++      {
++        "source": "src/int8_route_query.sv",
++        "path": "src/s2b_route_query.sv",
++        "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
++        "replacements": [
++          [
++            "module int8_route_query (",
++            "module s2b_route_query ("
++          ],
++          [
++            "        end else if (groups > 32'd2) begin\n            if ((source_count != 32'd1) ||\n                ((source0_channels % groups) != 32'd0)) begin\n                bad_argument = 1'b1;\n            end else begin\n                expected_group_start =\n                    {32'd0, group_id} * (source0_channels / groups);\n                expected_group_end = expected_group_start +\n                                     (source0_channels / groups);\n                if ((source0_channel_start != expected_group_start[31:0]) ||\n                    (source0_channel_end != expected_group_end[31:0])) begin\n                    bad_argument = 1'b1;\n                end\n            end\n        end\n",
++            "        end else if (groups > 32'd2) begin\n            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。\n            bad_argument = 1'b1;\n        end"
++          ]
++        ]
++      },
++      {
++        "source": "src/s2a_route_engine.sv",
++        "path": "src/s2b_route_engine.sv",
++        "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
++        "replacements": [
++          [
++            "module s2a_route_engine (",
++            "module s2b_route_engine ("
++          ],
++          [
++            "int8_route_query u_query",
++            "s2b_route_query u_query"
++          ]
++        ]
+       }
+     ]
+   }
+diff --git a/board/s2b_inference_platform.md b/board/s2b_inference_platform.md
+index bee9473..6920352 100644
+--- a/board/s2b_inference_platform.md
++++ b/board/s2b_inference_platform.md
+@@ -1,18 +1,20 @@
+ # 阶段 2B 全模型平台构建候选
+ 
+-版本 `s2b-inference-platform/0.1.2`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
++版本 `s2b-inference-platform/0.1.3`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+ 
+ 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
+ 
+ ## 模块、地址和物理端口
+ 
+-JSON 声明 18 个实际编译 RTL 文件：10 个原冻结 2A 模块、4 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为已审 S1 提交 `6d00ff2d05e92fa6cff05243fb620f8a0232b9f1`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
++JSON 声明 18 个实际编译 RTL 文件：8 个原冻结 2A 模块、6 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为已审 S2 提交 `5a676b700af4c27297977379417b1694dd64840e`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+ 
+-派生策略 `s2b-constant-geometry-and-coordinates/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
++派生策略 `s2b-constant-geometry-coordinates-and-route/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
+ 
+-S2 仅在派生 backend 加入 C/Y/X 三个坐标寄存器，共25位，并替换原组合坐标除模。38层冻结输出均 N=1、C≤512、H/W≤208；保留原32位 index及64位 count。在原复位、abort、启动、alias换层、结果换层的5个 index归零分支把坐标同步归零，在唯一成功非conv且index+1<count分支按X→Y→C进位。其他分支保持，WAIT 已形成的结果在owner掉低时仍按原条件推进，错误优先于进位，不能额外加入owner门禁。合法索引不变量 `i=c*H*W+y*W+x` 及界限保证原含 `%C` 的 decode与寄存器一致，最后元素的原count条件排除通道wrap；卷积层backend index=0，卷积内部tile坐标不变。所有状态、请求/响应、结果周期、未知状态及descriptor错误门禁保持。`s2b_stage2b_core` 仍只改模块名和backend引用；route、conv、GF8、INT8与输出布局不变，没有新增周期或时序例外。
++S2 仅在派生 backend 加入 C/Y/X 三个坐标寄存器，共25位，并替换原组合坐标除模。38层冻结输出均 N=1、C≤512、H/W≤208；保留原32位 index及64位 count。在原复位、abort、启动、alias换层、结果换层的5个 index归零分支把坐标同步归零，在唯一成功非conv且index+1<count分支按X→Y→C进位。其他分支保持，WAIT 已形成的结果在owner掉低时仍按原条件推进，错误优先于进位，不能额外加入owner门禁。合法索引不变量 `i=c*H*W+y*W+x` 及界限保证原含 `%C` 的 decode与寄存器一致，最后元素的原count条件排除通道wrap；卷积层backend index=0，卷积内部tile坐标不变。所有状态、请求/响应、结果周期、未知状态及descriptor错误门禁保持。`s2b_stage2b_core` 仍只改模块名和backend引用；conv、GF8、INT8与输出布局不变，没有新增周期或时序例外。
+ 
+-`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为10+4+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
++S3 新增 `s2b_route_engine` 与 `s2b_route_query`，引擎仅替换模块名和query引用，backend仅更换route引擎引用。11个冻结ROUTE层为3/6/8/11/14/16/19/22/24/31/34；3/11/19为groups=2、group_id=1，其余为groups=1、group_id=0。原query的groups=2已用通道低位及右移验证；派生仅删除groups>2的动态除法/余数分支并按BAD_ARGUMENT拒绝。公开CSR没有groups字段，backend唯一来源为原冻结descriptor ROM；START、inputbase、owner、abort和reset均无法改变ROM组数。实际profile可达域及groups=0、groups=1/2的非法shape/channel/id/index/地址错误优先保持；通用合法groups≥3的直接query输入明确不等价且不适用本profile，其通用实现保留在原2A源。独立验证必须绑定ROM原SHA、逐层枚举及真实backend请求trace，不能靠派生声明证明不可达。
++
++`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为8+6+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1/0.1.2的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
+ 
+ PS GP0 为 AXI3、32 位数据、12 位 ID，经 `axi_protocol_converter` 到 AXI4-Lite、32 位数据与完整 32 位地址，再到控制器；地址分配 `0x43C00000` / 64 KiB。控制器自行校验完整地址，不截断到低 16 位后盲目接受。HP0 为原生 AXI3、64 位数据、6 位 ID，直接连接 adapter；保留 AXI3 WID、2 位 LOCK 和 4 位 LEN，不套用 AXI4 的早 B 依赖规则。HP 可寻址 1 GiB 是 PS address segment；PL 许可仍由 guard 逐对象限制，完整模型专属 DDR arena 为 `[0x10000000,0x12000000)`。
+ 
+@@ -32,7 +34,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接
+ 
+ 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
+ 
+-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.2`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的4个原上游源，共22个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
++证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.3`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的6个原上游源，共24个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+ 
+ 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
+ 
+diff --git a/src/s2b_network_backend.sv b/src/s2b_network_backend.sv
+index 325d400..7feb32c 100644
+--- a/src/s2b_network_backend.sv
++++ b/src/s2b_network_backend.sv
+@@ -509,7 +509,7 @@ module s2b_network_backend (
+         .result_error_code(maxpool_result_error)
+     );
+ 
+-    s2a_route_engine u_route_engine (
++    s2b_route_engine u_route_engine (
+         .clk(clk), .hard_reset(hard_reset), .abort(abort),
+         .start_valid(route_start_valid), .start_ready(route_start_ready),
+         .source_count({30'd0, current_input_count}),
+diff --git a/verification/check_s2b_inference_platform.py b/verification/check_s2b_inference_platform.py
+index 695c656..68ff15c 100644
+--- a/verification/check_s2b_inference_platform.py
++++ b/verification/check_s2b_inference_platform.py
+@@ -11,7 +11,7 @@ import stat
+ import sys
+ from pathlib import Path, PurePosixPath
+ 
+-PROFILE_VERSION = "s2b-inference-platform/0.1.2"
++PROFILE_VERSION = "s2b-inference-platform/0.1.3"
+ # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
+ FROZEN_CORE_SHA256 = {
+     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+@@ -87,6 +87,16 @@ COORDINATE_REPLACEMENTS.append([
+ ])
+ DERIVATION_RULES["src/s2a_network_backend.sv"][1].extend(COORDINATE_REPLACEMENTS)
+ 
++# ROUTE仅派生固定ROM的1/2组；通用2A多组分支和原14字节完整保留。
++DERIVATION_RULES["src/int8_route_query.sv"] = ("src/s2b_route_query.sv", [
++    ["module int8_route_query (", "module s2b_route_query ("],
++    ["        end else if (groups > 32'd2) begin\n            if ((source_count != 32'd1) ||\n                ((source0_channels % groups) != 32'd0)) begin\n                bad_argument = 1'b1;\n            end else begin\n                expected_group_start =\n                    {32'd0, group_id} * (source0_channels / groups);\n                expected_group_end = expected_group_start +\n                                     (source0_channels / groups);\n                if ((source0_channel_start != expected_group_start[31:0]) ||\n                    (source0_channel_end != expected_group_end[31:0])) begin\n                    bad_argument = 1'b1;\n                end\n            end\n        end\n", "        end else if (groups > 32'd2) begin\n            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。\n            bad_argument = 1'b1;\n        end"]])
++DERIVATION_RULES["src/s2a_route_engine.sv"] = ("src/s2b_route_engine.sv", [
++    ["module s2a_route_engine (", "module s2b_route_engine ("],
++    ["int8_route_query u_query", "s2b_route_query u_query"]])
++DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
++    ["s2a_route_engine u_route_engine", "s2b_route_engine u_route_engine"])
++
+ 
+ def sha256(path: Path) -> str:
+     """返回实际文件字节的哈希。"""
+@@ -144,9 +154,9 @@ def check_derivation(root: Path, profile: dict) -> None:
+     item = profile["source_derivation"]
+     require(set(item) == {"policy", "upstream_freeze_commit", "derivation_baseline_commit",
+         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
+-    require(item["policy"] == "s2b-constant-geometry-and-coordinates/1.0.0" and
++    require(item["policy"] == "s2b-constant-geometry-coordinates-and-route/1.0.0" and
+         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
+-        item["derivation_baseline_commit"] == "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
++        item["derivation_baseline_commit"] == "5a676b700af4c27297977379417b1694dd64840e",
+         "派生上游或基线不符")
+     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+         "换行政策不符")
+@@ -154,8 +164,8 @@ def check_derivation(root: Path, profile: dict) -> None:
+         for path, digest in FROZEN_CORE_SHA256.items()], "原14源绑定不符")
+     for path, digest in FROZEN_CORE_SHA256.items():
+         require(sha256(relative_file(root, path)) == digest, f"冻结2A原件字节变化：{path}")
+-    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 4,
+-        "派生源必须恰为4项")
++    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 6,
++        "派生源必须恰为6项")
+     for declared, (source, (path, replacements)) in zip(item["derived_sources"], DERIVATION_RULES.items()):
+         require(set(declared) == {"source", "path", "sha256", "replacements"} and
+             declared["source"] == source and declared["path"] == path and
+@@ -193,9 +203,9 @@ def check_static(root: Path) -> dict:
+     check_derivation(root, profile)
+     expected_sources = [DERIVATION_RULES[path][0] if path in DERIVATION_RULES else path
+                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
+-    require(sources == expected_sources, "闭包必须精确为10个冻结2A、4个派生及4个原2B模块")
++    require(sources == expected_sources, "闭包必须精确为8个冻结2A、6个派生及4个原2B模块")
+     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
+-    require("variable version 0.1.2" in script, "Tcl平台版本不符")
++    require("variable version 0.1.3" in script, "Tcl平台版本不符")
+     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
+         "Vivado 属性枚举必须使用官方 list_property 命令")
+     require("make_wrapper -files $bd_file -top -import" in script and
+diff --git a/verification/test_s2b_backend_coordinates_rtl.py b/verification/test_s2b_backend_coordinates_rtl.py
+index 08cd01f..21a4375 100644
+--- a/verification/test_s2b_backend_coordinates_rtl.py
++++ b/verification/test_s2b_backend_coordinates_rtl.py
+@@ -20,15 +20,15 @@ import time
+ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1"
+-OLD_BACKEND_SHA = "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49"
++BASELINE = "5a676b700af4c27297977379417b1694dd64840e"
++OLD_BACKEND_SHA = "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+ RUNNER = "verification/test_s2b_backend_coordinates_rtl.py"
+ RTL = ("src/s2a_network_descriptor_pkg.sv", "src/int8_maxpool_geometry.sv",
+        "src/int8_maxpool_window.sv", "src/int8_route_query.sv", "src/int8_upsample_query.sv",
+        "src/s2b_maxpool_engine.sv", "src/s2a_route_engine.sv", "src/s2b_upsample_engine.sv",
+-       "src/s2b_network_backend.sv")
++       "src/s2b_network_backend.sv", "src/s2b_route_query.sv", "src/s2b_route_engine.sv")
+ OPS = {"convolutional": 0, "maxpool": 1, "route": 2, "upsample": 3, "yolo": 4}
+ 
+ 
+@@ -142,7 +142,7 @@ endmodule
+ 
+ def generate_tb(model: dict) -> str:
+     """真实新旧backend与三个nonconv引擎；每个请求独立核对且全输出逐周期比较。"""
+-    parts = ["// 基线backend为Git原始S1源码，除模块名外未改；候选为实际S2源。",
++    parts = ["// 基线backend为Git原始S2源码，除模块名外未改；候选为实际S3源。",
+              "module tb_s2b_backend_coordinates;", golden_constants(model),
+              "logic clk=0, hard_reset=1, abort=0, backend_start=0, buffer_owner_pl=1;",
+              "logic [31:0] input_base_address=0, input_length_bytes=519168;",
+@@ -150,6 +150,7 @@ def generate_tb(model: dict) -> str:
+              "logic mem_ready=1; logic [31:0] mem_rdata=0; logic [2:0] mem_error_code=0;",
+              "longint unsigned cycles=0, boundary_cases=0, trace_requests=0, trace_outputs=0, trace_digest, owner_drop_results=0;",
+              "integer active_layer=0, gold_step=0, trace_layers=0; longint unsigned gold_index=0;",
++             "longint unsigned public_route_mask=0; integer public_start_trials=0; logic public_tracking=0;",
+              "logic trace_enabled=0; logic inj_result=0, inj_ready=1, inj_fault=0, inj_alias=1; logic [2:0] inj_error=0;"]
+     declarations = re.findall(r"^\s*(input|output)\s+logic\s*(\[[^\]]+\])?\s*(\w+)\s*[,)]?",
+         (ROOT / "src/s2b_network_backend.sv").read_text(encoding="utf-8").split(");", 1)[0], re.M)
+@@ -167,6 +168,10 @@ begin
+ COMPARISONS
+   if(old.state !== new.state || old.layer_cursor !== new.layer_cursor || old.output_element_index !== new.output_element_index)
+     $fatal(1,"状态或指针逐周期不同 cycle=%0d",cycles);
++  if(old.route_start_valid && !(old.u_route_engine.groups == 1 || old.u_route_engine.groups == 2))
++    $fatal(1,"原冻结ROM产生非法ROUTE组数");
++  if(dut_new.route_start_valid && !(dut_new.u_route_engine.groups == 1 || dut_new.u_route_engine.groups == 2))
++    $fatal(1,"派生backend产生非法ROUTE组数");
+   if(old.layer_cursor<38 && old.decoded_channel !== new.decoded_channel)
+     $fatal(1,"通道不等价 cycle=%0d layer=%0d index=%0d old=%0d new=%0d",cycles,old.layer_cursor,old.output_element_index,old.decoded_channel,new.decoded_channel);
+   if(old.layer_cursor<38 && (old.decoded_y !== new.decoded_y || old.decoded_x !== new.decoded_x))
+@@ -228,6 +233,7 @@ end endtask
+ task automatic tick;
+ begin
+   #1; compare;
++  if(public_tracking && old.route_start_valid) public_route_mask |= 64'd1 << old.layer_cursor;
+   if(trace_enabled && !buffer_owner_pl && old.selected_result_valid && old.selected_result_error==0) owner_drop_results++;
+   if(trace_enabled && old_mem_valid && mem_ready) golden_request;
+   clk=1; #1; cycles++; compare; clk=0; #1;
+@@ -243,9 +249,12 @@ begin
+   old.layer_cursor=6'(layer); new.layer_cursor=6'(layer); old.output_element_index=32'(index); new.output_element_index=32'(index);
+   old.state=type(old.state)'(state_number); new.state=type(new.state)'(state_number);
+   if(layer<38) begin
++    old.output_channel_cursor=9'((index/(gh[layer]*gw[layer]))%gc[layer]);
++    old.output_y_cursor=8'((index/gw[layer])%gh[layer]); old.output_x_cursor=8'(index%gw[layer]);
+     new.output_channel_cursor=9'((index/(gh[layer]*gw[layer]))%gc[layer]);
+     new.output_y_cursor=8'((index/gw[layer])%gh[layer]); new.output_x_cursor=8'(index%gw[layer]);
+-  end else begin new.output_channel_cursor=0; new.output_y_cursor=0; new.output_x_cursor=0; end
++  end else begin old.output_channel_cursor=0; old.output_y_cursor=0; old.output_x_cursor=0;
++    new.output_channel_cursor=0; new.output_y_cursor=0; new.output_x_cursor=0; end
+   #1; compare;
+ end endtask
+ task automatic boundary;
+@@ -327,8 +336,48 @@ begin
+       $fatal(1,"真实WAIT abort没有复位");
+   end
+ end endtask
++task automatic public_entries;
++longint unsigned begin_cycle;
++begin
++  // 公共START真实走38层；只隔离卷积数值，不注入任何backend内部状态。
++  reset_all; public_tracking=1; backend_start=1; tick; backend_start=0; begin_cycle=cycles;
++  while(old.state!=old.ST_IDLE && cycles-begin_cycle<150000000) begin
++    mem_ready=(cycles%11)!=0; buffer_owner_pl=(cycles%29)!=0;
++    mem_rdata=memory_word(old_mem_addr); tick;
++    if(old_operator_result_valid && old_operator_error_code!=0) $fatal(1,"公共完整路径错误");
++  end
++  public_tracking=0;
++  if(old.state!=old.ST_IDLE || public_route_mask!=64'h0000000481494948)
++    $fatal(1,"公共START未遍历冻结11个ROUTE layer mask=%h",public_route_mask);
++  // 非法长度/base、启动时owner为低、重复START及abort/reset只改变控制输入。
++  for(integer mode=0;mode<12;mode++) begin
++    reset_all; public_tracking=1;
++    case(mode)
++      0: input_length_bytes=0;
++      1: input_base_address=32'hffffffff;
++      2: weight_package_length_bytes=0;
++      3: weight_package_base_address=32'hffffffff;
++      4: buffer_owner_pl=0;
++      5: input_length_bytes=32'hffffffff;
++      6: weight_package_length_bytes=32'hffffffff;
++      default: begin end
++    endcase
++    backend_start=1; tick;
++    for(integer n=0;n<256;n++) begin
++      if(mode!=7) backend_start=0;
++      if(mode==8 && n==13) abort=1;
++      if(mode==9 && n==13) hard_reset=1;
++      if(mode==10) buffer_owner_pl=n%3!=0;
++      if(mode==11) mem_error_code=3'(n%8);
++      mem_rdata=memory_word(old_mem_addr); tick;
++    end
++    public_start_trials++;
++    public_tracking=0;
++  end
++  $display("PUBLIC_ENTRY trials=%0d route_mask=%h",public_start_trials,public_route_mask);
++end endtask
+ initial begin
+-  reset_all; boundary; invalid_layer; actual_errors; full_traces;
++  reset_all; boundary; invalid_layer; actual_errors; full_traces; public_entries;
+   if(owner_drop_results==0) $fatal(1,"真实owner掉低成功结果沿未覆盖");
+   $display("PASS BACKEND_COORDINATES boundary=%0d layers=%0d outputs=%0d requests=%0d cycles=%0d owner_drop_results=%0d",boundary_cases,trace_layers,trace_outputs,trace_requests,cycles,owner_drop_results);
+   $finish;
+@@ -395,7 +444,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
+         return [path]
+     for version in ("0.1.0","0.1.1"):
+         reject("旧profile"+version,lambda p,v=version:p.update(version="s2b-inference-platform/"+v))
+-    reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry/1.0.0"))
++    reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry-and-coordinates/1.0.0"))
+     reject("旧派生基线",lambda p:p["source_derivation"].update(derivation_baseline_commit="18c0c34f9da885b5f35869c282dc0c2ed50d720e"))
+     for name,before,after in (("通道宽度自报SHA","logic [8:0] output_channel_cursor","logic [7:0] output_channel_cursor"),
+         ("carry自报SHA","output_channel_cursor + 9'd1","output_channel_cursor + 9'd2"),
+@@ -408,7 +457,11 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
+     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
+     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
+     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
+-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.2","variable version 0.1.1"))
++    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.3","variable version 0.1.1"))
++    reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
++    reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
++    reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
++    reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
+     return records
+ 
+ 
+@@ -424,7 +477,7 @@ def main() -> int:
+         if not parent.is_dir() or parent.is_symlink(): parser.error("精确父目录不可用")
+     if work.exists() or evidence.exists(): parser.error("RunId已存在，不覆盖")
+     work.mkdir(); evidence.mkdir(); started=time.monotonic()
+-    report={"schema_version":1,"task_id":"S2B-T17-S2","run_id":args.run_id,"task_baseline_commit":BASELINE,
++    report={"schema_version":1,"task_id":"S2B-T17-S3","run_id":args.run_id,"task_baseline_commit":BASELINE,
+             "status":"FAIL","runs":[],"g3":"NOT_RUN","sta":"NOT_RUN",
+             "limitations":["卷积计算使用与原端口一致的共享stub，仅验证backend控制；未声称CONV数值或整网功能回归。",
+                 "非conv每层独立复位并注入合法DISPATCH层入口，真实pool/route/up与两个真实backend全周期执行；不执行前置卷积。",
+@@ -441,8 +494,8 @@ def main() -> int:
+         report["source_commit"]=actual; report["source_sha256_pre"]={**bindings,RUNNER:sha(ROOT/RUNNER)}
+         report["frozen14_sha256_pre"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
+         old=subprocess.check_output(["git","show",BASELINE+":src/s2b_network_backend.sv"],cwd=ROOT)
+-        if hashlib.sha256(old).hexdigest()!=OLD_BACKEND_SHA: raise ValueError("S1 raw来源不符")
+-        (evidence/"s1_network_backend.sv").write_bytes(old)
++        if hashlib.sha256(old).hexdigest()!=OLD_BACKEND_SHA: raise ValueError("S2 raw来源不符")
++        (evidence/"s2_network_backend.sv").write_bytes(old)
+         report["original_backend"]={"commit":BASELINE,"git_path":"src/s2b_network_backend.sv","raw_sha256":OLD_BACKEND_SHA,
+                                     "compile_transformation":"仅将唯一module名称替换为s2b_network_backend_original"}
+         if sha(ROOT/MODEL)!=MODEL_SHA: raise ValueError("模型SHA变化")
+@@ -452,7 +505,7 @@ def main() -> int:
+         source=work/"source"; source.mkdir()
+         for relative in RTL: shutil.copyfile(ROOT/relative,source/Path(relative).name)
+         compiled_old=old.decode("utf-8").replace("module s2b_network_backend (","module s2b_network_backend_original (")
+-        (source/"s1_network_backend.sv").write_text(compiled_old,encoding="utf-8",newline="\n")
++        (source/"s2_network_backend.sv").write_text(compiled_old,encoding="utf-8",newline="\n")
+         for name,payload in (("convolution_stub.sv",convolution_stub()),("tb_s2b_backend_coordinates.sv",generate_tb(model))):
+             for directory in (work,evidence): (directory/name).write_text(payload,encoding="utf-8",newline="\n")
+         nonconv=[row for row in model["layers"] if row["op"] in ("maxpool","route","upsample")]
+@@ -467,14 +520,14 @@ def main() -> int:
+         for path in (verilator,bin_dir/"g++.exe",make_dir/"make.exe"): checker.exact_file(path)
+         report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,
+             "running_vivado":[{"pid":p.pid,"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower()=="vivado.exe"],
+-            "heavy_slot":"总控已明确S1退出且保留唯一heavy槽；job1/thread1。"}
++            "heavy_slot":"总控已明确S2退出且保留唯一heavy槽；job1/thread1。"}
+         if report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:
+             raise ValueError("资源不足，未编译")
+         report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],env=env,cwd=work,text=True,timeout=30).strip()}
+         command=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1",
+             "--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_backend_coordinates","--Mdir","obj_dir",
+             "-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+-            *["source/"+Path(path).name for path in RTL],"source/s1_network_backend.sv","convolution_stub.sv","tb_s2b_backend_coordinates.sv"]
++            *["source/"+Path(path).name for path in RTL],"source/s2_network_backend.sv","convolution_stub.sv","tb_s2b_backend_coordinates.sv"]
+         report["prepared_compile_command"]=command
+         if args.prepare_only:
+             report["status"]="PREPARED_NOT_COMPILED"
+@@ -490,6 +543,11 @@ def main() -> int:
+             report["simulation_counts"]=actual_counts
+             report["trace_summaries"]=re.findall(r"TRACE layer=(\d+) op=(\d+) outputs=(\d+) requests=(\d+) cycles=(\d+) digest=([0-9a-fA-F]+)",text)
+             if len(report["trace_summaries"])!=len(nonconv): raise ValueError("trace层数不完整")
++            public=re.findall(r"PUBLIC_ENTRY trials=(\d+) route_mask=([0-9a-fA-F]+)",text)
++            if len(public)!=1 or int(public[0][0])!=12 or int(public[0][1],16)!=sum(1<<i for i in (3,6,8,11,14,16,19,22,24,31,34)):
++                raise ValueError("真实公共START可达路径覆盖不足")
++            report["public_entries"]={"trials":12,"route_layer_mask":public[0][1],
++                "method":"一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"}
+             report["status"]="PASS_BACKEND_COORDINATES_G1"
+         report["source_sha256_post"]={p:sha(ROOT/p) for p in report["source_sha256_pre"]}
+         report["frozen14_sha256_post"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
+diff --git a/verification/test_s2b_geometry_specialization_rtl.py b/verification/test_s2b_geometry_specialization_rtl.py
+index 47eecb1..f02dfde 100644
+--- a/verification/test_s2b_geometry_specialization_rtl.py
++++ b/verification/test_s2b_geometry_specialization_rtl.py
+@@ -20,7 +20,7 @@ import time
+ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "18c0c34f9da885b5f35869c282dc0c2ed50d720e"
++BASELINE = "5a676b700af4c27297977379417b1694dd64840e"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+ SEED = 0x2B171011
+@@ -371,7 +371,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
+     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
+     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
+     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
+-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.1", "variable version 0.1.0"))
++    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.3", "variable version 0.1.2"))
+     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
+     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
+     reject("可见性默认启用", lambda p: p.update(visibility_default=1))
+diff --git a/vivado/s2b_inference_platform.tcl b/vivado/s2b_inference_platform.tcl
+index ad85b73..8f72d11 100644
+--- a/vivado/s2b_inference_platform.tcl
++++ b/vivado/s2b_inference_platform.tcl
+@@ -1,17 +1,17 @@
+ # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
+ namespace eval ::s2b_inference_platform {
+-    variable version 0.1.2
++    variable version 0.1.3
+     variable part xc7z020clg400-2
+     variable bd_name s2b_inference
+     variable rtl_sources {
+         src/s2a_network_descriptor_pkg.sv
+         src/int8_maxpool_geometry.sv
+         src/int8_maxpool_window.sv
+-        src/int8_route_query.sv
++        src/s2b_route_query.sv
+         src/int8_upsample_query.sv
+         src/s2a_conv_tile_engine.sv
+         src/s2b_maxpool_engine.sv
+-        src/s2a_route_engine.sv
++        src/s2b_route_engine.sv
+         src/s2b_upsample_engine.sv
+         src/s2b_network_backend.sv
+         src/s2a_memory_master.sv
+--- /dev/null
++++ b/src/s2b_route_query.sv
+@@ -0,0 +1,280 @@
++// G0 tiny416 route 单输出元素：group 通道映射、NCHW 地址与 scale 重标定。
++module s2b_route_query (
++    input  logic [31:0] source_count,
++    input  logic [31:0] groups,
++    input  logic [31:0] group_id,
++    input  logic [31:0] output_channel,
++    input  logic [31:0] output_y,
++    input  logic [31:0] output_x,
++
++    input  logic [31:0] source0_base_address,
++    input  logic [31:0] source0_length_bytes,
++    input  logic [31:0] source0_channels,
++    input  logic [31:0] source0_height,
++    input  logic [31:0] source0_width,
++    input  logic [31:0] source0_channel_start,
++    input  logic [31:0] source0_channel_end,
++    input  logic [31:0] source0_multiplier_q31,
++    input  logic signed [7:0] source0_value,
++
++    input  logic [31:0] source1_base_address,
++    input  logic [31:0] source1_length_bytes,
++    input  logic [31:0] source1_channels,
++    input  logic [31:0] source1_height,
++    input  logic [31:0] source1_width,
++    input  logic [31:0] source1_channel_start,
++    input  logic [31:0] source1_channel_end,
++    input  logic [31:0] source1_multiplier_q31,
++    input  logic signed [7:0] source1_value,
++
++    output logic [31:0] output_channels,
++    output logic [31:0] output_height,
++    output logic [31:0] output_width,
++    output logic [31:0] source_index,
++    output logic [31:0] source_channel,
++    output logic [31:0] source_address,
++    output logic signed [7:0] output_value,
++    output logic [2:0] error_code
++);
++    localparam logic [2:0] OK = 3'd0;
++    localparam logic [2:0] BAD_ARGUMENT = 3'd1;
++    localparam logic [2:0] BAD_RANGE = 3'd2;
++
++    logic bad_argument;
++    logic bad_range;
++    logic [63:0] source0_shape_bytes;
++    logic [63:0] source1_shape_bytes;
++    logic [63:0] source0_plane_elements;
++    logic [63:0] source1_plane_elements;
++    logic [63:0] source0_object_end;
++    logic [63:0] source1_object_end;
++    logic [63:0] output_channels_wide;
++    logic [63:0] expected_group_start;
++    logic [63:0] expected_group_end;
++    logic [63:0] selected_offset;
++    logic [63:0] selected_address_wide;
++    logic [31:0] source0_selected_count;
++    logic [31:0] source1_selected_count;
++    logic [31:0] selected_multiplier;
++    logic [31:0] selected_base_address;
++    logic [31:0] selected_length_bytes;
++    logic signed [7:0] selected_value;
++    // 成功路径已排除 -128 并限制倍率，绝对值为 7 位，乘积可精确落在 39 位。
++    logic [6:0] selected_magnitude;
++    logic [38:0] scaled_product;
++    logic [39:0] rounded_product;
++    logic [8:0] rounded_magnitude;
++    logic signed [8:0] scaled_signed;
++    logic [31:0] selected_source_index;
++    logic [31:0] selected_source_channel;
++
++    always_comb begin
++        // 组合默认值保证非法输入无副作用，也避免推断锁存器。
++        output_channels = 32'd0;
++        output_height = 32'd0;
++        output_width = 32'd0;
++        source_index = 32'd0;
++        source_channel = 32'd0;
++        source_address = 32'd0;
++        output_value = 8'sd0;
++        error_code = OK;
++
++        bad_argument = 1'b0;
++        bad_range = 1'b0;
++        source0_shape_bytes = 64'd0;
++        source1_shape_bytes = 64'd0;
++        source0_plane_elements = 64'd0;
++        source1_plane_elements = 64'd0;
++        source0_object_end = 64'd0;
++        source1_object_end = 64'd0;
++        output_channels_wide = 64'd0;
++        expected_group_start = 64'd0;
++        expected_group_end = 64'd0;
++        selected_offset = 64'd0;
++        selected_address_wide = 64'd0;
++        source0_selected_count = 32'd0;
++        source1_selected_count = 32'd0;
++        selected_multiplier = 32'd0;
++        selected_base_address = 32'd0;
++        selected_length_bytes = 32'd0;
++        selected_value = 8'sd0;
++        selected_magnitude = 7'd0;
++        scaled_product = 39'd0;
++        rounded_product = 40'd0;
++        rounded_magnitude = 9'd0;
++        scaled_signed = 9'sd0;
++        selected_source_index = 32'd0;
++        selected_source_channel = 32'd0;
++
++        if (!((source_count == 32'd1) || (source_count == 32'd2)) ||
++            (groups == 32'd0) || (group_id >= groups) ||
++            (source0_channels == 32'd0) || (source0_height == 32'd0) ||
++            (source0_width == 32'd0) ||
++            (source0_channel_start >= source0_channel_end) ||
++            (source0_channel_end > source0_channels) ||
++            (source0_multiplier_q31 == 32'd0) ||
++            (source0_multiplier_q31 > 32'h8000_0000)) begin
++            bad_argument = 1'b1;
++        end
++
++        if (source_count == 32'd2) begin
++            if ((source1_channels == 32'd0) ||
++                (source1_height == 32'd0) || (source1_width == 32'd0) ||
++                (source1_height != source0_height) ||
++                (source1_width != source0_width) ||
++                (source1_channel_start >= source1_channel_end) ||
++                (source1_channel_end > source1_channels) ||
++                (source1_multiplier_q31 == 32'd0) ||
++                (source1_multiplier_q31 > 32'h8000_0000)) begin
++                bad_argument = 1'b1;
++            end
++        end
++
++        if ((groups == 32'd1) &&
++            ((source0_channel_start != 32'd0) ||
++             (source0_channel_end != source0_channels))) begin
++            bad_argument = 1'b1;
++        end else if (groups == 32'd2) begin
++            if ((source_count != 32'd1) || source0_channels[0]) begin
++                bad_argument = 1'b1;
++            end else begin
++                expected_group_start = (group_id == 32'd1) ?
++                    {32'd0, source0_channels[31:1]} : 64'd0;
++                expected_group_end = expected_group_start +
++                                     {33'd0, source0_channels[31:1]};
++                if ((source0_channel_start != expected_group_start[31:0]) ||
++                    (source0_channel_end != expected_group_end[31:0])) begin
++                    bad_argument = 1'b1;
++                end
++            end
++        end else if (groups > 32'd2) begin
++            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。
++            bad_argument = 1'b1;
++        end
++        if ((source_count == 32'd2) &&
++            ((source1_channel_start != 32'd0) ||
++             (source1_channel_end != source1_channels) ||
++             (groups != 32'd1))) begin
++            bad_argument = 1'b1;
++        end
++
++        source0_selected_count = source0_channel_end - source0_channel_start;
++        if (source_count == 32'd2) begin
++            source1_selected_count = source1_channel_end - source1_channel_start;
++        end
++        output_channels_wide = {32'd0, source0_selected_count} +
++                               {32'd0, source1_selected_count};
++        if (output_channels_wide > 64'h0000_0000_FFFF_FFFF) begin
++            bad_range = 1'b1;
++        end
++        if ((output_y >= source0_height) || (output_x >= source0_width) ||
++            ({32'd0, output_channel} >= output_channels_wide)) begin
++            bad_argument = 1'b1;
++        end
++
++        source0_plane_elements = {32'd0, source0_channels} *
++                                 {32'd0, source0_height};
++        if (source0_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
++            bad_range = 1'b1;
++        end else begin
++            source0_shape_bytes = source0_plane_elements *
++                                  {32'd0, source0_width};
++            if (source0_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
++                bad_range = 1'b1;
++            end
++        end
++        source0_object_end = {32'd0, source0_base_address} +
++                             {32'd0, source0_length_bytes};
++        if ((source0_length_bytes == 32'd0) ||
++            ({32'd0, source0_length_bytes} < source0_shape_bytes) ||
++            (source0_object_end > 64'h0000_0001_0000_0000)) begin
++            bad_range = 1'b1;
++        end
++
++        if (source_count == 32'd2) begin
++            source1_plane_elements = {32'd0, source1_channels} *
++                                     {32'd0, source1_height};
++            if (source1_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
++                bad_range = 1'b1;
++            end else begin
++                source1_shape_bytes = source1_plane_elements *
++                                      {32'd0, source1_width};
++                if (source1_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
++                    bad_range = 1'b1;
++                end
++            end
++            source1_object_end = {32'd0, source1_base_address} +
++                                 {32'd0, source1_length_bytes};
++            if ((source1_length_bytes == 32'd0) ||
++                ({32'd0, source1_length_bytes} < source1_shape_bytes) ||
++                (source1_object_end > 64'h0000_0001_0000_0000)) begin
++                bad_range = 1'b1;
++            end
++        end
++
++        if (output_channel < source0_selected_count) begin
++            selected_source_index = 32'd0;
++            selected_source_channel = source0_channel_start + output_channel;
++            selected_value = source0_value;
++            selected_multiplier = source0_multiplier_q31;
++            selected_base_address = source0_base_address;
++            selected_length_bytes = source0_length_bytes;
++        end else if (source_count == 32'd2) begin
++            selected_source_index = 32'd1;
++            selected_source_channel = source1_channel_start +
++                                     (output_channel - source0_selected_count);
++            selected_value = source1_value;
++            selected_multiplier = source1_multiplier_q31;
++            selected_base_address = source1_base_address;
++            selected_length_bytes = source1_length_bytes;
++        end
++
++        if (selected_value == -8'sd128) begin
++            bad_argument = 1'b1;
++        end
++
++        selected_offset =
++            (({32'd0, selected_source_channel} * {32'd0, source0_height}) +
++             {32'd0, output_y}) * {32'd0, source0_width} +
++            {32'd0, output_x};
++        selected_address_wide = {32'd0, selected_base_address} + selected_offset;
++        if ((selected_offset >= {32'd0, selected_length_bytes}) ||
++            (selected_address_wide > 64'h0000_0000_FFFF_FFFF)) begin
++            bad_range = 1'b1;
++        end
++
++        if (bad_argument) begin
++            error_code = BAD_ARGUMENT;
++        end else if (bad_range) begin
++            error_code = BAD_RANGE;
++        end else begin
++            if (selected_value < 8'sd0) begin
++                selected_magnitude = $unsigned(-selected_value);
++            end else begin
++                selected_magnitude = $unsigned(selected_value);
++            end
++            scaled_product = {32'd0, selected_magnitude} *
++                             {7'd0, selected_multiplier};
++            rounded_product = {1'b0, scaled_product} + 40'd1_073_741_824;
++            rounded_magnitude = rounded_product[39:31];
++            if (selected_value < 8'sd0) begin
++                scaled_signed = -$signed(rounded_magnitude);
++            end else begin
++                scaled_signed = $signed(rounded_magnitude);
++            end
++            if (scaled_signed > 9'sd127) begin
++                scaled_signed = 9'sd127;
++            end else if (scaled_signed < -9'sd127) begin
++                scaled_signed = -9'sd127;
++            end
++
++            output_channels = output_channels_wide[31:0];
++            output_height = source0_height;
++            output_width = source0_width;
++            source_index = selected_source_index;
++            source_channel = selected_source_channel;
++            source_address = selected_address_wide[31:0];
++            output_value = scaled_signed[7:0];
++        end
++    end
++endmodule
+--- /dev/null
++++ b/src/s2b_route_engine.sv
+@@ -0,0 +1,406 @@
++// S2A-T15：tiny416 route 单输出元素 INT8 memory datapath。
++module s2b_route_engine (
++    input  logic        clk,
++    input  logic        hard_reset,
++    input  logic        abort,
++
++    input  logic        start_valid,
++    output logic        start_ready,
++    input  logic [31:0] source_count,
++    input  logic [31:0] groups,
++    input  logic [31:0] group_id,
++    input  logic [31:0] output_channel,
++    input  logic [31:0] output_y,
++    input  logic [31:0] output_x,
++
++    input  logic [31:0] source0_base_address,
++    input  logic [31:0] source0_length_bytes,
++    input  logic [31:0] source0_channels,
++    input  logic [31:0] source0_height,
++    input  logic [31:0] source0_width,
++    input  logic [31:0] source0_channel_start,
++    input  logic [31:0] source0_channel_end,
++    input  logic [31:0] source0_multiplier_q31,
++
++    input  logic [31:0] source1_base_address,
++    input  logic [31:0] source1_length_bytes,
++    input  logic [31:0] source1_channels,
++    input  logic [31:0] source1_height,
++    input  logic [31:0] source1_width,
++    input  logic [31:0] source1_channel_start,
++    input  logic [31:0] source1_channel_end,
++    input  logic [31:0] source1_multiplier_q31,
++
++    input  logic [31:0] output_base_address,
++    input  logic [31:0] output_length_bytes,
++    input  logic [31:0] output_channels,
++    input  logic [31:0] output_height,
++    input  logic [31:0] output_width,
++
++    output logic        backend_cancel,
++    output logic        backend_req_valid,
++    input  logic        backend_req_ready,
++    output logic        backend_req_write,
++    output logic [31:0] backend_req_addr,
++    output logic [31:0] backend_req_wdata,
++    output logic [3:0]  backend_req_rstrb,
++    output logic [3:0]  backend_req_wstrb,
++    input  logic        backend_rsp_valid,
++    input  logic [31:0] backend_rsp_rdata,
++    input  logic [2:0]  backend_rsp_error,
++
++    output logic        result_valid,
++    input  logic        result_ready,
++    output logic [31:0] result_source_index,
++    output logic [31:0] result_source_address,
++    output logic [31:0] result_output_address,
++    output logic [7:0]  result_value,
++    output logic [2:0]  result_error_code
++);
++    localparam logic [2:0] NONE = 3'd0;
++    localparam logic [2:0] BAD_ARGUMENT = 3'd1;
++    localparam logic [2:0] BAD_RANGE = 3'd2;
++    localparam logic [2:0] BAD_LENGTH = 3'd3;
++    localparam logic [2:0] INTERNAL = 3'd6;
++
++    typedef enum logic [3:0] {
++        IDLE,
++        VALIDATE,
++        READ_REQUEST,
++        READ_RESPONSE,
++        CHECK_VALUE,
++        WRITE_REQUEST,
++        WRITE_RESPONSE,
++        RESULT
++    } state_t;
++
++    state_t state;
++
++    logic [31:0] source_count_latched;
++    logic [31:0] groups_latched;
++    logic [31:0] group_id_latched;
++    logic [31:0] output_channel_latched;
++    logic [31:0] output_y_latched;
++    logic [31:0] output_x_latched;
++
++    logic [31:0] source0_base_latched;
++    logic [31:0] source0_length_latched;
++    logic [31:0] source0_channels_latched;
++    logic [31:0] source0_height_latched;
++    logic [31:0] source0_width_latched;
++    logic [31:0] source0_start_latched;
++    logic [31:0] source0_end_latched;
++    logic [31:0] source0_multiplier_latched;
++    logic signed [7:0] source0_value_latched;
++
++    logic [31:0] source1_base_latched;
++    logic [31:0] source1_length_latched;
++    logic [31:0] source1_channels_latched;
++    logic [31:0] source1_height_latched;
++    logic [31:0] source1_width_latched;
++    logic [31:0] source1_start_latched;
++    logic [31:0] source1_end_latched;
++    logic [31:0] source1_multiplier_latched;
++    logic signed [7:0] source1_value_latched;
++
++    logic [31:0] output_base_latched;
++    logic [31:0] output_length_latched;
++    logic [31:0] output_channels_latched;
++    logic [31:0] output_height_latched;
++    logic [31:0] output_width_latched;
++
++    logic [31:0] source_index_latched;
++    logic [31:0] source_address_latched;
++    logic [31:0] output_address_latched;
++    logic [7:0] result_value_latched;
++    logic [2:0] result_error_latched;
++
++    logic [31:0] query_output_channels;
++    logic [31:0] query_output_height;
++    logic [31:0] query_output_width;
++    logic [31:0] query_source_index;
++    logic [31:0] query_source_channel;
++    logic [31:0] query_source_address;
++    logic signed [7:0] query_output_value;
++    logic [2:0] query_error_code;
++
++    logic [64:0] output_elements_work;
++    logic [64:0] output_offset_work;
++    logic [64:0] output_end_work;
++    logic [31:0] selected_word_address;
++    logic [3:0] selected_read_lane;
++    logic [31:0] selected_byte_shift;
++    logic [2:0] mapped_response_error;
++
++    s2b_route_query u_query (
++        .source_count(source_count_latched),
++        .groups(groups_latched),
++        .group_id(group_id_latched),
++        .output_channel(output_channel_latched),
++        .output_y(output_y_latched),
++        .output_x(output_x_latched),
++        .source0_base_address(source0_base_latched),
++        .source0_length_bytes(source0_length_latched),
++        .source0_channels(source0_channels_latched),
++        .source0_height(source0_height_latched),
++        .source0_width(source0_width_latched),
++        .source0_channel_start(source0_start_latched),
++        .source0_channel_end(source0_end_latched),
++        .source0_multiplier_q31(source0_multiplier_latched),
++        .source0_value(source0_value_latched),
++        .source1_base_address(source1_base_latched),
++        .source1_length_bytes(source1_length_latched),
++        .source1_channels(source1_channels_latched),
++        .source1_height(source1_height_latched),
++        .source1_width(source1_width_latched),
++        .source1_channel_start(source1_start_latched),
++        .source1_channel_end(source1_end_latched),
++        .source1_multiplier_q31(source1_multiplier_latched),
++        .source1_value(source1_value_latched),
++        .output_channels(query_output_channels),
++        .output_height(query_output_height),
++        .output_width(query_output_width),
++        .source_index(query_source_index),
++        .source_channel(query_source_channel),
++        .source_address(query_source_address),
++        .output_value(query_output_value),
++        .error_code(query_error_code)
++    );
++
++    always_comb begin
++        output_elements_work = {33'd0, output_channels_latched} *
++                               {33'd0, output_height_latched} *
++                               {33'd0, output_width_latched};
++        output_offset_work =
++            (({33'd0, output_channel_latched} * {33'd0, output_height_latched}) +
++             {33'd0, output_y_latched}) * {33'd0, output_width_latched} +
++            {33'd0, output_x_latched};
++        output_end_work = {33'd0, output_base_latched} +
++                          {33'd0, output_length_latched};
++
++        selected_word_address = {source_address_latched[31:2], 2'b00};
++        selected_read_lane = 4'b0001 << source_address_latched[1:0];
++        selected_byte_shift = {30'd0, source_address_latched[1:0]} * 32'd8;
++
++        mapped_response_error = INTERNAL;
++        if ((backend_rsp_error == BAD_ARGUMENT) ||
++            (backend_rsp_error == BAD_RANGE) ||
++            (backend_rsp_error == INTERNAL)) begin
++            mapped_response_error = backend_rsp_error;
++        end else if (backend_rsp_error == NONE) begin
++            mapped_response_error = NONE;
++        end
++
++        start_ready = (state == IDLE) && !hard_reset && !abort;
++        backend_cancel = hard_reset || abort;
++        backend_req_valid = 1'b0;
++        backend_req_write = 1'b0;
++        backend_req_addr = 32'd0;
++        backend_req_wdata = 32'd0;
++        backend_req_rstrb = 4'd0;
++        backend_req_wstrb = 4'd0;
++        if (!hard_reset && !abort) begin
++            if (state == READ_REQUEST) begin
++                backend_req_valid = 1'b1;
++                backend_req_addr = selected_word_address;
++                backend_req_rstrb = selected_read_lane;
++            end else if (state == WRITE_REQUEST) begin
++                backend_req_valid = 1'b1;
++                backend_req_write = 1'b1;
++                backend_req_addr = {output_address_latched[31:2], 2'b00};
++                backend_req_wdata = {24'd0, result_value_latched} <<
++                                    (output_address_latched[1:0] * 8);
++                backend_req_wstrb = 4'b0001 << output_address_latched[1:0];
++            end
++        end
++
++        result_valid = (state == RESULT);
++        result_source_index = source_index_latched;
++        result_source_address = source_address_latched;
++        result_output_address = output_address_latched;
++        result_value = result_value_latched;
++        result_error_code = result_error_latched;
++    end
++
++    always_ff @(posedge clk) begin
++        if (hard_reset) begin
++            state <= IDLE;
++            source_count_latched <= 32'd0;
++            groups_latched <= 32'd0;
++            group_id_latched <= 32'd0;
++            output_channel_latched <= 32'd0;
++            output_y_latched <= 32'd0;
++            output_x_latched <= 32'd0;
++            source0_base_latched <= 32'd0;
++            source0_length_latched <= 32'd0;
++            source0_channels_latched <= 32'd0;
++            source0_height_latched <= 32'd0;
++            source0_width_latched <= 32'd0;
++            source0_start_latched <= 32'd0;
++            source0_end_latched <= 32'd0;
++            source0_multiplier_latched <= 32'd0;
++            source0_value_latched <= 8'sd0;
++            source1_base_latched <= 32'd0;
++            source1_length_latched <= 32'd0;
++            source1_channels_latched <= 32'd0;
++            source1_height_latched <= 32'd0;
++            source1_width_latched <= 32'd0;
++            source1_start_latched <= 32'd0;
++            source1_end_latched <= 32'd0;
++            source1_multiplier_latched <= 32'd0;
++            source1_value_latched <= 8'sd0;
++            output_base_latched <= 32'd0;
++            output_length_latched <= 32'd0;
++            output_channels_latched <= 32'd0;
++            output_height_latched <= 32'd0;
++            output_width_latched <= 32'd0;
++            source_index_latched <= 32'd0;
++            source_address_latched <= 32'd0;
++            output_address_latched <= 32'd0;
++            result_value_latched <= 8'd0;
++            result_error_latched <= NONE;
++        end else if (abort && (state != IDLE) && (state != RESULT)) begin
++            state <= IDLE;
++            source_index_latched <= 32'd0;
++            source_address_latched <= 32'd0;
++            output_address_latched <= 32'd0;
++            result_value_latched <= 8'd0;
++            result_error_latched <= NONE;
++            source0_value_latched <= 8'sd0;
++            source1_value_latched <= 8'sd0;
++        end else begin
++            case (state)
++                IDLE: begin
++                    if (start_valid && start_ready) begin
++                        source_count_latched <= source_count;
++                        groups_latched <= groups;
++                        group_id_latched <= group_id;
++                        output_channel_latched <= output_channel;
++                        output_y_latched <= output_y;
++                        output_x_latched <= output_x;
++                        source0_base_latched <= source0_base_address;
++                        source0_length_latched <= source0_length_bytes;
++                        source0_channels_latched <= source0_channels;
++                        source0_height_latched <= source0_height;
++                        source0_width_latched <= source0_width;
++                        source0_start_latched <= source0_channel_start;
++                        source0_end_latched <= source0_channel_end;
++                        source0_multiplier_latched <= source0_multiplier_q31;
++                        source0_value_latched <= 8'sd0;
++                        source1_base_latched <= source1_base_address;
++                        source1_length_latched <= source1_length_bytes;
++                        source1_channels_latched <= source1_channels;
++                        source1_height_latched <= source1_height;
++                        source1_width_latched <= source1_width;
++                        source1_start_latched <= source1_channel_start;
++                        source1_end_latched <= source1_channel_end;
++                        source1_multiplier_latched <= source1_multiplier_q31;
++                        source1_value_latched <= 8'sd0;
++                        output_base_latched <= output_base_address;
++                        output_length_latched <= output_length_bytes;
++                        output_channels_latched <= output_channels;
++                        output_height_latched <= output_height;
++                        output_width_latched <= output_width;
++                        source_index_latched <= 32'd0;
++                        source_address_latched <= 32'd0;
++                        output_address_latched <= 32'd0;
++                        result_value_latched <= 8'd0;
++                        result_error_latched <= NONE;
++                        state <= VALIDATE;
++                    end
++                end
++                VALIDATE: begin
++                    if ((query_error_code != NONE) ||
++                        (query_output_channels != output_channels_latched) ||
++                        (query_output_height != output_height_latched) ||
++                        (query_output_width != output_width_latched) ||
++                        (output_channels_latched == 32'd0) ||
++                        (output_height_latched == 32'd0) ||
++                        (output_width_latched == 32'd0) ||
++                        (output_length_latched == 32'd0) ||
++                        (output_elements_work > {33'd0, output_length_latched})) begin
++                        result_error_latched <=
++                            (query_error_code == BAD_RANGE) ? BAD_RANGE :
++                            ((query_error_code == BAD_ARGUMENT) ? BAD_ARGUMENT : BAD_LENGTH);
++                        state <= RESULT;
++                    end else if (output_end_work > 65'h0000_0001_0000_0000) begin
++                        result_error_latched <= BAD_RANGE;
++                        state <= RESULT;
++                    end else if ((output_offset_work >= {33'd0, output_length_latched}) ||
++                                 (output_base_latched + output_offset_work[31:0] < output_base_latched)) begin
++                        result_error_latched <= BAD_RANGE;
++                        state <= RESULT;
++                    end else begin
++                        source_index_latched <= query_source_index;
++                        source_address_latched <= query_source_address;
++                        output_address_latched <=
++                            output_base_latched + output_offset_work[31:0];
++                        state <= READ_REQUEST;
++                    end
++                end
++                READ_REQUEST: begin
++                    if (backend_req_valid && backend_req_ready) begin
++                        state <= READ_RESPONSE;
++                    end
++                end
++                READ_RESPONSE: begin
++                    if (backend_rsp_valid) begin
++                        if (mapped_response_error != NONE) begin
++                            result_value_latched <= 8'd0;
++                            result_error_latched <= mapped_response_error;
++                            state <= RESULT;
++                        end else if (source_index_latched == 32'd0) begin
++                            source0_value_latched <=
++                                $signed(backend_rsp_rdata >> selected_byte_shift);
++                            state <= CHECK_VALUE;
++                        end else if (source_index_latched == 32'd1) begin
++                            source1_value_latched <=
++                                $signed(backend_rsp_rdata >> selected_byte_shift);
++                            state <= CHECK_VALUE;
++                        end else begin
++                            result_value_latched <= 8'd0;
++                            result_error_latched <= INTERNAL;
++                            state <= RESULT;
++                        end
++                    end
++                end
++                CHECK_VALUE: begin
++                    if (query_error_code != NONE) begin
++                        result_value_latched <= 8'd0;
++                        result_error_latched <= query_error_code;
++                        state <= RESULT;
++                    end else begin
++                        result_value_latched <= query_output_value;
++                        result_error_latched <= NONE;
++                        state <= WRITE_REQUEST;
++                    end
++                end
++                WRITE_REQUEST: begin
++                    if (backend_req_valid && backend_req_ready) begin
++                        state <= WRITE_RESPONSE;
++                    end
++                end
++                WRITE_RESPONSE: begin
++                    if (backend_rsp_valid) begin
++                        result_error_latched <= mapped_response_error;
++                        if (mapped_response_error != NONE) begin
++                            result_value_latched <= 8'd0;
++                        end
++                        state <= RESULT;
++                    end
++                end
++                RESULT: begin
++                    if (result_valid && result_ready) begin
++                        state <= IDLE;
++                        result_error_latched <= NONE;
++                    end
++                end
++                default: begin
++                    state <= IDLE;
++                    result_value_latched <= 8'd0;
++                    result_error_latched <= INTERNAL;
++                end
++            endcase
++        end
++    end
++endmodule
+--- /dev/null
++++ b/verification/test_s2b_route_specialization_rtl.py
+@@ -0,0 +1,388 @@
++#!/usr/bin/env python3
++"""验证冻结ROUTE可达域、独立数学、原/派生query和engine全公开周期。"""
++from __future__ import annotations
++
++import argparse
++from collections import Counter
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import random
++import re
++import shutil
++import subprocess
++import sys
++import time
++
++import psutil
++import test_s2b_backend_coordinates_rtl as backend
++import test_s2b_geometry_specialization_rtl as geometry
++
++ROOT = Path(__file__).resolve().parents[1]
++BASELINE = "5a676b700af4c27297977379417b1694dd64840e"
++RUNNER = "verification/test_s2b_route_specialization_rtl.py"
++SEED = 0x2B173011
++RTL = ("src/int8_route_query.sv", "src/s2b_route_query.sv",
++       "src/s2a_route_engine.sv", "src/s2b_route_engine.sv")
++
++
++def route_math(model, package):
++    """逐字段对照冻结manifest/ROM，独立枚举每个ROUTE源通道和完整空间。"""
++    def array(name):
++        match = re.search(r"\b" + name + r"\s+\[0:37\](?:\[0:1\])?\s*=\s*'\{(.*?)\};", package, re.S)
++        if not match:
++            raise ValueError("ROM字段缺失：" + name)
++        return [int(v, 16) for v in re.findall(r"\d+'h([0-9A-Fa-f]+)", match[1])]
++    groups, ids = array("S2A_GROUP_COUNT"), array("S2A_ROUTE_GROUP_ID")
++    starts, ends = array("S2A_ROUTE_CHANNEL_START"), array("S2A_ROUTE_CHANNEL_END")
++    rows = []
++    for i, layer in enumerate(model["layers"]):
++        if layer["op"] != "route":
++            continue
++        g, gid = layer["route_groups"], layer["route_group_id"]
++        if groups[i] != g or ids[i] != gid or g not in (1, 2):
++            raise ValueError("冻结组数/组号不符")
++        ranges = layer["route_source_channel_ranges"]
++        for slot, (begin, end) in enumerate(ranges):
++            source = model["layers"][layer["input_tensor_indices"][slot]]
++            c, h, w = source["output_shape_nchw"][1:]
++            if starts[i*2+slot] != begin or ends[i*2+slot] != end:
++                raise ValueError("ROM通道切片不符")
++            if c % g or begin != gid*(c//g) or end != (gid+1)*(c//g):
++                raise ValueError("独立group切片关系失败")
++            for channel in range(begin, end):
++                for y in range(h):
++                    for x in range(w):
++                        offset = (channel*h+y)*w+x
++                        if not (0 <= offset < source["tensor_length_bytes"]):
++                            raise ValueError("源空间超界")
++        count = math.prod(layer["output_shape_nchw"])
++        rows.append({"layer": i, "groups": g, "group_id": gid, "ranges": ranges,
++                     "outputs": count, "status": "PASS"})
++    if [r["layer"] for r in rows] != [3,6,8,11,14,16,19,22,24,31,34]:
++        raise ValueError("ROUTE层集合改变")
++    source = (ROOT/"src/s2b_network_backend.sv").read_text(encoding="utf-8")
++    if source.count(".groups({16'd0, S2A_GROUP_COUNT[layer_cursor]})") != 2:
++        raise ValueError("组数不是唯一冻结ROM来源")
++    return {"status": "PASS", "layers": rows, "outputs": sum(r["outputs"] for r in rows),
++            "unreachable_generic_groups": {"status": "NOT_APPLICABLE", "groups": "3..2^32-1",
++                "reason": "原2A通用合法多组与派生拒绝不等价；公开CSR无groups字段，原冻结ROM每个ROUTE仅1/2，START/inputbase/owner/abort/reset不改变该ROM。"}}
++
++
++def layer_values(model, index):
++    """只从冻结manifest生成公开输入，不依赖候选内部组合运算。"""
++    row = model["layers"][index]
++    c,h,w = row["output_shape_nchw"][1:]
++    values = {"source_count": len(row["input_tensor_indices"]), "groups": row["route_groups"],
++              "group_id": row["route_group_id"], "output_channel": 0, "output_y": 0, "output_x": 0,
++              "output_base_address": row["tensor_address"], "output_length_bytes": row["tensor_length_bytes"],
++              "output_channels": c, "output_height": h, "output_width": w}
++    for slot in (0,1):
++        src = model["layers"][row["input_tensor_indices"][slot]] if slot < values["source_count"] else None
++        shape = src["output_shape_nchw"][1:] if src else (0,0,0)
++        begin,end = row["route_source_channel_ranges"][slot] if src else (0,0)
++        mul = round(row["input_scales"][slot]/row["output_scale"]*2**31) if src else 0
++        for key,val in (("base_address",src["tensor_address"] if src else 0),
++                        ("length_bytes",src["tensor_length_bytes"] if src else 0),
++                        ("channels",shape[0]),("height",shape[1]),("width",shape[2]),
++                        ("channel_start",begin),("channel_end",end),("multiplier_q31",mul)):
++            values[f"source{slot}_{key}"] = val
++    return values
++
++
++def oracle(v, raw):
++    """按数学整数和公开错误优先手算单元素；样例值不超过RTL宽度。"""
++    g, gid, n = v["groups"],v["group_id"],v["source_count"]
++    bad = n not in (1,2) or g == 0 or gid >= g
++    rng = False
++    selected = []
++    for slot in range(2 if n == 2 else 1):
++        p = f"source{slot}_"
++        c,h,w,begin,end,mul = [v[p+k] for k in ("channels","height","width","channel_start","channel_end","multiplier_q31")]
++        bad |= c == 0 or h == 0 or w == 0 or begin >= end or end > c or mul == 0 or mul > 2**31
++        if slot == 1:
++            bad |= h != v["source0_height"] or w != v["source0_width"] or begin != 0 or end != c or g != 1
++        if slot == 0 and g == 1:
++            bad |= begin != 0 or end != c
++        if slot == 0 and g == 2:
++            bad |= n != 1 or c % 2 != 0 or begin != gid*(c//2) or end != (gid+1)*(c//2)
++        size = c*h*w if c*h <= 0xFFFFFFFF else 0
++        rng |= c*h > 0xFFFFFFFF or size > 0xFFFFFFFF
++        length,base = v[p+"length_bytes"],v[p+"base_address"]
++        rng |= length == 0 or length < size or base+length > 2**32
++        selected.append((end-begin)&0xFFFFFFFF)
++    oc = sum(selected)
++    ch,y,x = [v[k] for k in ("output_channel","output_y","output_x")]
++    bad |= y >= v["source0_height"] or x >= v["source0_width"] or ch >= oc
++    rng |= oc > 0xFFFFFFFF
++    slot = 0 if ch < selected[0] else 1 if n == 2 else 0
++    p = f"source{slot}_"
++    sch = v[p+"channel_start"] + ch - (selected[0] if slot else 0)
++    addr = v[p+"base_address"] + (sch*v["source0_height"]+y)*v["source0_width"]+x
++    rng |= addr > 0xFFFFFFFF or addr-v[p+"base_address"] >= v[p+"length_bytes"]
++    initial = 1 if bad else 2 if rng else 0
++    if initial == 0:
++        outcount = v["output_channels"]*v["output_height"]*v["output_width"]
++        if (oc,v["source0_height"],v["source0_width"]) != (v["output_channels"],v["output_height"],v["output_width"]) or 0 in (v["output_channels"],v["output_height"],v["output_width"],v["output_length_bytes"]) or outcount > v["output_length_bytes"]:
++            initial = 3
++        elif v["output_base_address"]+v["output_length_bytes"] > 2**32:
++            initial = 2
++    outaddr = v["output_base_address"]+(ch*v["output_height"]+y)*v["output_width"]+x
++    if initial == 0 and (outaddr > 0xFFFFFFFF or outaddr-v["output_base_address"] >= v["output_length_bytes"]):
++        initial = 2
++    mag = min(127,(abs(raw)*v[p+"multiplier_q31"]+2**30)//2**31)
++    return initial,slot,addr&0xFFFFFFFF,outaddr&0xFFFFFFFF,(-mag if raw < 0 else mag)&255
++
++
++def vectors(model, ports):
++    """全部通道/四packed lane和INT8值，定向非法、响应、八态abort/reset及长stall。"""
++    names = [n for d,w,n in ports if d == "input" and n not in geometry.PORT_SKIP]
++    rows=[]; categories=Counter()
++    def add(cat,v,raw=23,error=0,target=0,control=0,state=255,stall=1):
++        expected,slot,addr,outaddr,value = oracle(v,raw)
++        requests = 0 if expected else 1 if raw == -128 or (error and target == 1) else 2
++        if not expected:
++            expected = (error if error in (1,2,6) else 6) if error and target in (1,2) else 1 if raw == -128 else 0
++        extras = [raw&255,error,target,control,state,stall,expected,slot,addr,outaddr,value,requests]
++        rows.append(" ".join(f"{v[n]&0xFFFFFFFF:x}" for n in names)+" "+" ".join(f"{x:x}" for x in extras)); categories[cat]+=1
++    for i,row in enumerate(model["layers"]):
++        if row["op"] != "route": continue
++        v=layer_values(model,i); c,h,w=row["output_shape_nchw"][1:]
++        for ch in range(c):
++            for lane in range(4):
++                add("all_channels_packed_lanes",dict(v,output_channel=ch,output_x=lane),raw=((ch+lane)%255)-127)
++        for raw in range(-128,128):
++            for ch in {0,c-1}:
++                add("all_int8_values_both_sources",dict(v,output_channel=ch),raw=raw)
++        for key in names:
++            if key.startswith("source1_") and v["source_count"] != 2: continue
++            for val in (0,1,3,0xFFFFFFFF):
++                if val != v[key] and key != "groups": add("field_boundary",dict(v,**{key:val}))
++        add("groups_zero",dict(v,groups=0))
++        add("group2_odd_channels",dict(v,groups=2,source_count=1,source0_channels=3))
++        add("argument_before_range",dict(v,groups=0,source0_base_address=0xFFFFFFFF,output_length_bytes=0))
++        add("source_range_before_output_length",dict(v,source0_length_bytes=0,output_length_bytes=0))
++        for error in range(1,8):
++            for target in (1,2): add("response_error",v,error=error,target=target)
++        for control in (1,2):
++            for state in range(8): add("abort_each_state" if control == 1 else "reset_each_state",v,control=control,state=state)
++        add("long_stall_abort",v,control=3,stall=2)
++        add("no_stall",v,stall=0)
++        if v["groups"] == 2:
++            add("group2_lower_half_generic_preserved",dict(v,group_id=0,source0_channel_start=0,
++                source0_channel_end=v["source0_channels"]//2))
++    return "\n".join(rows)+"\n",{"vectors":len(rows),"categories":dict(categories),"parameter_order":names,"seed":SEED}
++
++
++def testbench(model, ports):
++    """同一真实memory响应口驱动双引擎，比较全部公开输出并独立核对结果。"""
++    parts=["module tb_s2b_route_specialization; logic clk=0, hard_reset=1; integer cycles=0,cases=0,query_cases=0,abort_mask=0,reset_mask=0;",
++           "integer pending=0,delay_count=0,requests=0,raw=0,response_error=0,error_target=0,stall=0; logic [31:0] rsp_data; logic [2:0] rsp_error;"]
++    for d,w,n in ports:
++        if n in ("clk","hard_reset"): continue
++        parts.append(f"logic {w} {n};" if d == "input" else f"logic {w} old_{n}, new_{n};")
++    for variant,module in (("old","s2a_route_engine"),("new","s2b_route_engine")):
++        parts.append(module+" dut_"+variant+" ("+",".join(f".{n}({variant+'_'+n if d=='output' else n})" for d,w,n in ports)+");")
++    outputs=[n for d,w,n in ports if d == "output"]
++    comparisons="\n".join(f'if(old_{n} !== new_{n}) $fatal(1,"route公开输出差异 {n} case=%0d cycle=%0d",cases,cycles);' for n in outputs)
++    parts.append("task automatic compare; begin "+comparisons+" end endtask\ntask automatic tick; begin clk=0; #2;compare;clk=1;#2;compare;clk=0;#1;cycles++;end endtask")
++    assignments=" ".join(n+"=0;" for d,w,n in ports if d == "input" and n not in ("clk","hard_reset"))
++    parts.append("task automatic clear;begin "+assignments+" pending=0;requests=0;hard_reset=1;tick;hard_reset=0;tick;end endtask")
++    parts.append("""
++task automatic service;
++logic accept_request,responding;
++begin
++ backend_req_ready = stall == 2 ? 0 : stall == 0 || cycles%5!=0;
++ backend_rsp_valid = pending && delay_count==0;
++ backend_rsp_rdata=rsp_data;backend_rsp_error=rsp_error;
++ #1;accept_request=old_backend_req_valid&&backend_req_ready;responding=backend_rsp_valid;
++ tick;
++ if(responding) pending=0;
++ else if(pending&&delay_count>0) delay_count--;
++ if(accept_request) begin
++  if(pending) $fatal(1,"重复请求");
++  requests++; pending=1;delay_count=stall==0 ? 0 : cycles%4;
++  rsp_data={4{8'(raw)}};
++  rsp_error=requests==error_target ? 3'(response_error) : 0;
++ end
++end endtask
++""")
++    names=[n for d,w,n in ports if d == "input" and n not in geometry.PORT_SKIP]
++    extras=["raw","response_error","error_target","control","target_state","stall","expected_error","expected_slot","expected_addr","expected_outaddr","expected_value","expected_requests"]
++    fmt=" ".join("%h" for _ in names+extras)+"\\n"
++    parts.append("integer fh,scanned,control,target_state,expected_error,expected_slot,expected_addr,expected_outaddr,expected_value,expected_requests,elapsed,injected;")
++    parts.append('initial begin clear;fh=$fopen("route_vectors.dat","r");if(!fh)$fatal(1,"缺向量");while(!$feof(fh)) begin\nclear;scanned=$fscanf(fh,"'+fmt+'",'+",".join(names+extras)+");")
++    parts.append(f"""
++if(scanned=={len(names)+len(extras)}) begin
++ start_valid=1;result_ready=0;injected=0;
++ if(control && target_state==0) begin
++  if(control==1) begin abort=1;abort_mask|=1;end
++  else begin hard_reset=1;reset_mask|=1;end
++ end
++ tick;start_valid=0;
++ if(control && target_state==0) begin
++  abort=0;hard_reset=0;tick;
++ end else begin
++  elapsed=0;
++  while(!old_result_valid&&elapsed<300) begin
++   if((control==1||control==2)&&integer'(dut_old.state)==target_state) begin
++    if(control==1) begin abort=1;abort_mask|=1<<target_state;end
++    else begin hard_reset=1;reset_mask|=1<<target_state;end
++    tick;injected=1;break;
++   end
++   service;elapsed++;
++   if(control==3&&elapsed==200) begin
++    if(old_result_valid||requests!=0) $fatal(1,"无限请求背压提前完成");
++    abort=1;tick;injected=1;break;
++   end
++  end
++  if(injected) begin
++   if(old_result_valid||old_backend_req_valid) $fatal(1,"活动状态取消失败");
++   pending=0;abort=0;hard_reset=0;tick;
++  end else begin
++   if(!old_result_valid||old_result_error_code!==3'(expected_error)||requests!=expected_requests)
++    $fatal(1,"结果/请求oracle不同 case=%0d code=%0d expected=%0d requests=%0d expectedrequests=%0d",cases,old_result_error_code,expected_error,requests,expected_requests);
++   if(!expected_error && (old_result_source_index!==32'(expected_slot)||old_result_source_address!==32'(expected_addr)||old_result_output_address!==32'(expected_outaddr)||old_result_value!==8'(expected_value)))
++    $fatal(1,"独立数学结果不同");
++   if(control&&target_state==7) begin
++    if(control==1) begin abort=1;abort_mask|=128;tick;if(!old_result_valid)$fatal(1,"RESULT abort未保持");abort=0;end
++    else begin hard_reset=1;reset_mask|=128;tick;if(old_result_valid)$fatal(1,"RESULT reset未清空");hard_reset=0;end
++   end
++   repeat(3) service;
++   result_ready=1;tick;result_ready=0;
++  end
++ end
++ cases++;
++end else if(scanned!=-1) $fatal(1,"向量列数错误");
++end
++$fclose(fh);clear;
++QUERY_RUN
++if(abort_mask!=255||reset_mask!=255)$fatal(1,"取消状态覆盖缺失");
++$display("PASS ROUTE_SPECIALIZATION cases=%0d queries=%0d cycles=%0d abort=%0d reset=%0d",cases,query_cases,cycles,abort_mask,reset_mask);$finish;end
++endmodule
++""")
++    # 直接query把engine的配置端口复用，数值端口单独定义；默认检查实际可达1/2组域。
++    query_ports = re.findall(r"^\s*(input|output)\s+logic\s*(?:signed\s*)?(\[[^\]]+\])?\s*(\w+)",
++        (ROOT/RTL[0]).read_text(encoding="utf-8").split(");",1)[0],re.M)
++    declarations=["logic signed [7:0] source0_value=0,source1_value=0;"]
++    qoutputs=[n for d,w,n in query_ports if d == "output"]
++    for d,w,n in query_ports:
++        if d == "output": declarations.append(f"logic {w} qo_{n},qn_{n};")
++    for variant,module in (("qo","int8_route_query"),("qn","s2b_route_query")):
++        declarations.append(module+" q_"+variant+" ("+",".join(f".{n}({variant+'_'+n if d=='output' else n})" for d,w,n in query_ports)+");")
++    declarations.append("task automatic query_compare;begin #1;"+" ".join(f'if(qo_{n}!==qn_{n})$fatal(1,"query差异 {n}");' for n in qoutputs)+"query_cases++;end endtask")
++    qrun=[]
++    for index,row in enumerate(model["layers"]):
++        if row["op"] != "route": continue
++        v=layer_values(model,index);c,h,w=row["output_shape_nchw"][1:]
++        qrun.append(" ".join(f"{k}=32'd{x};" for k,x in v.items())+"source0_value=23;source1_value=-31;")
++        qrun.append(f"for(integer c=0;c<{c};c++) for(integer y=0;y<{h};y++) for(integer x=0;x<{w};x++) begin output_channel=32'(c);output_y=32'(y);output_x=32'(x);query_compare;")
++        selected0=v["source0_channel_end"]-v["source0_channel_start"]
++        for slot in range(v["source_count"]):
++            p=f"source{slot}_"
++            value=23 if slot==0 else -31
++            magnitude=(abs(value)*v[p+"multiplier_q31"]+2**30)//2**31
++            scaled=(-magnitude if value<0 else magnitude)&255
++            channel=f"c+{v[p+'channel_start']}" if slot==0 else f"c-{selected0}+{v[p+'channel_start']}"
++            condition=f"c<{selected0}" if slot==0 else f"c>={selected0}"
++            qrun.append(f"if({condition} && (qo_error_code!=0 || qo_source_index!={slot} || qo_source_channel!=32'({channel}) || qo_source_address!=32'({v[p+'base_address']}+(({channel})*{h}+y)*{w}+x) || qo_output_channels!={c} || qo_output_height!={h} || qo_output_width!={w} || qo_output_value!==8'd{scaled})) $fatal(1,\"完整空间独立query数学不同layer={index}\");")
++        qrun.append("end")
++    # 随机宽度/非法值采用固定种子，差分比较包括错误时全部默认输出。
++    qrun.append(f"begin integer seed={SEED};integer r; for(integer n=0;n<50000;n++) begin")
++    for d,w,n in query_ports:
++        if d == "input":
++            expression = "$unsigned($random(seed))" if n not in ("groups","source_count") else "32'($unsigned($random(seed))%3)" if n == "groups" else "32'($unsigned($random(seed))%4)"
++            qrun.append(f"{n}={expression};")
++    qrun.append("query_compare;end end")
++    # 原通用合法group3明确非等价，只验证派生拒绝而不冒充全域差分。
++    for group,channels,start,end in ((3,6,2,4),(4,8,2,4),(0x80000000,0x80000000,1,2),(0xFFFFFFFF,0xFFFFFFFF,1,2)):
++        qrun.append(f"source_count=1;groups=32'd{group};group_id=1;source0_channels=32'd{channels};source0_height=1;source0_width=1;source0_channel_start=32'd{start};source0_channel_end=32'd{end};source0_length_bytes=32'd{channels};source0_base_address=0;source0_multiplier_q31=32'h80000000;output_channel=0;output_y=0;output_x=0;source0_value=23;#1;if(qo_error_code!=0||qn_error_code!=1)$fatal(1,\"通用多组不等价边界未明确\");")
++    body="\n".join(parts).replace("QUERY_RUN","\n".join(qrun))
++    return body.replace("integer fh,scanned", "\n".join(declarations)+"\ninteger fh,scanned")+"\n"
++
++
++def main():
++    """单job隔离编译；所有源码前后哈希一致才可报告G1范围通过。"""
++    parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True)
++    parser.add_argument("--toolchain",type=Path,default=Path(r"D:\FPGA_S2A_MSYS2_20261001\env"));args=parser.parse_args()
++    if not re.fullmatch(r"[A-Za-z0-9_-]+",args.run_id):parser.error("RunId非法")
++    work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
++    for p in (work.parent,evidence.parent):
++        if not p.is_dir() or p.is_symlink():parser.error("精确父目录不存在")
++    if work.exists() or evidence.exists():parser.error("RunId不可覆盖")
++    work.mkdir();evidence.mkdir();started=time.monotonic()
++    report={"schema_version":1,"task_id":"S2B-T17-S3","run_id":args.run_id,"source_commit":BASELINE,
++            "status":"FAIL","runs":[],"g3":"NOT_RUN","sta":"NOT_RUN",
++            "resource_budget":{"jobs":1,"threads":1,"rss_limit_bytes":1610612736,"cache_limit_bytes":314572800},
++            "limitations":["通用合法groups>=3与派生不等价，明确不适用固定tiny416；原2A通用源码保留。",
++                "engine本身无timeout计数器；200周期请求背压后abort，以及原响应错误码1..7验证取消与映射。",
++                "完整ROUTE memory序列/owner由另一个真实15nonconv backend runner执行；本runner为directquery完整空间及engine边界。",
++                "未执行新闭包综合/时序、109整网、bit或实物，禁止继承旧通过结果。"]}
++    try:
++        checker=backend.load_checker();bindings=checker.check_static(ROOT)
++        bindings.update({RUNNER:backend.sha(ROOT/RUNNER),backend.RUNNER:backend.sha(ROOT/backend.RUNNER),
++                         geometry.RUNNER:backend.sha(ROOT/geometry.RUNNER),backend.MODEL:backend.sha(ROOT/backend.MODEL)})
++        report["source_sha256_pre"]=bindings.copy()
++        report["frozen14_sha256_pre"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
++        actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
++        committed=subprocess.check_output(["git","diff","--name-only",BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
++        if committed:raise ValueError("任务输入源码闭包的提交来源改变")
++        report["source_commit"]=actual;report["task_baseline_commit"]=BASELINE
++        report["committed_source_changes_since_task_baseline"]=committed
++        if backend.sha(ROOT/backend.MODEL)!=backend.MODEL_SHA:raise ValueError("冻结模型改变")
++        model=json.loads((ROOT/backend.MODEL).read_text(encoding="utf-8"))
++        report["math_proof"]=route_math(model,(ROOT/"src/s2a_network_descriptor_pkg.sv").read_text(encoding="utf-8"))
++        report["checker_negatives"]=backend.checker_negatives(checker,work,bindings)
++        ports=geometry.ports(ROOT/"src/s2a_route_engine.sv")
++        data,report["coverage"]=vectors(model,ports)
++        for directory in (work,evidence):
++            (directory/"route_vectors.dat").write_text(data,encoding="utf-8",newline="\n")
++            (directory/"tb_s2b_route_specialization.sv").write_text(testbench(model,ports),encoding="utf-8",newline="\n")
++        source=work/"source";source.mkdir();snapshot=evidence/"source_snapshot";snapshot.mkdir()
++        for path in bindings:shutil.copyfile(ROOT/path,snapshot/Path(path).name)
++        for path in RTL:shutil.copyfile(ROOT/path,source/Path(path).name)
++        for path in RTL[:1]+RTL[2:3]:
++            gitraw=subprocess.check_output(["git","show",BASELINE+":"+path],cwd=ROOT)
++            if gitraw.decode("utf-8").replace("\r\n","\n")!=(ROOT/path).read_text(encoding="utf-8"):raise ValueError("原ROUTE Git来源变化")
++        env=os.environ.copy();bin_dir=args.toolchain/"mingw64/bin";make_dir=args.toolchain/"usr/bin"
++        env["PATH"]=str(make_dir)+os.pathsep+str(bin_dir)+os.pathsep+env.get("PATH","")
++        env["VERILATOR_ROOT"]=str(args.toolchain/"mingw64/share/verilator");env["PYTHONUTF8"]="1"
++        verilator=bin_dir/"verilator_bin.exe"
++        for path in (verilator,bin_dir/"g++.exe",make_dir/"make.exe"):checker.exact_file(path)
++        report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,
++            "running_tools":[{"pid":p.pid,"name":p.info["name"],"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower() in ("vivado.exe","verilator_bin.exe","cc1plus.exe")],
++            "heavy_slot":"总控确认S2结束并授权本次单job独占。"}
++        if report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:raise ValueError("资源不足")
++        report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],env=env,text=True,timeout=30).strip()}
++        command=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1",
++            "--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_route_specialization","--Mdir","obj_dir",
++            "-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
++            *["source/"+Path(p).name for p in RTL],"tb_s2b_route_specialization.sv"]
++        backend.execute("compile",command,work,evidence,env,report,600)
++        backend.execute("simulation",[str(work/"obj_dir/Vtb_s2b_route_specialization.exe")],work,evidence,env,report,600)
++        text=(evidence/"simulation.log").read_text(encoding="utf-8")
++        match=re.findall(r"PASS ROUTE_SPECIALIZATION cases=(\d+) queries=(\d+) cycles=(\d+) abort=(\d+) reset=(\d+)",text)
++        if len(match)!=1:raise ValueError("唯一PASS缺失")
++        counts=dict(zip(("cases","queries","cycles","abort","reset"),map(int,match[0])))
++        if counts["cases"]!=report["coverage"]["vectors"] or counts["queries"]!=report["math_proof"]["outputs"]+50000 or counts["abort"]!=255 or counts["reset"]!=255:raise ValueError("覆盖数不同")
++        report["simulation_counts"]=counts
++        report["outside_profile_witnesses"]={"status":"NOT_APPLICABLE","cases":4,
++            "groups":[3,4,2147483648,4294967295],"original_error":0,"specialized_error":1,
++            "reason":"这些原通用合法输入与派生不等价，不计入等价query数；实际公开2B不可选择组数。"}
++        report["source_sha256_post"]={p:backend.sha(ROOT/p) for p in bindings}
++        report["frozen14_sha256_post"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
++        if report["source_sha256_pre"]!=report["source_sha256_post"] or report["frozen14_sha256_pre"]!=report["frozen14_sha256_post"]:raise ValueError("运行期间源码改变")
++        report["status"]="PASS_ROUTE_SPECIALIZATION_DIRECT_G1"
++    except Exception as exc:
++        report["failure"]=repr(exc)
++    report["seconds"]=round(time.monotonic()-started,3)
++    report["artifacts"]=[{"path":p.relative_to(ROOT).as_posix(),"sha256":backend.sha(p),"bytes":p.stat().st_size} for p in evidence.rglob("*") if p.is_file()]
++    (evidence/"validation.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8",newline="\n")
++    print(json.dumps({k:report.get(k) for k in ("status","seconds","simulation_counts","failure")},ensure_ascii=False),flush=True)
++    return 0 if report["status"]=="PASS_ROUTE_SPECIALIZATION_DIRECT_G1" else 1
++
++
++if __name__=="__main__":
++    raise SystemExit(main())

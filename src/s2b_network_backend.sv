@@ -509,7 +509,7 @@ module s2b_network_backend (
         .result_error_code(maxpool_result_error)
     );
 
-    s2a_route_engine u_route_engine (
+    s2b_route_engine u_route_engine (
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .start_valid(route_start_valid), .start_ready(route_start_ready),
         .source_count({30'd0, current_input_count}),

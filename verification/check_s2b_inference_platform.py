@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.2"
+PROFILE_VERSION = "s2b-inference-platform/0.1.3"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -87,6 +87,16 @@ COORDINATE_REPLACEMENTS.append([
 ])
 DERIVATION_RULES["src/s2a_network_backend.sv"][1].extend(COORDINATE_REPLACEMENTS)
 
+# ROUTE仅派生固定ROM的1/2组；通用2A多组分支和原14字节完整保留。
+DERIVATION_RULES["src/int8_route_query.sv"] = ("src/s2b_route_query.sv", [
+    ["module int8_route_query (", "module s2b_route_query ("],
+    ["        end else if (groups > 32'd2) begin\n            if ((source_count != 32'd1) ||\n                ((source0_channels % groups) != 32'd0)) begin\n                bad_argument = 1'b1;\n            end else begin\n                expected_group_start =\n                    {32'd0, group_id} * (source0_channels / groups);\n                expected_group_end = expected_group_start +\n                                     (source0_channels / groups);\n                if ((source0_channel_start != expected_group_start[31:0]) ||\n                    (source0_channel_end != expected_group_end[31:0])) begin\n                    bad_argument = 1'b1;\n                end\n            end\n        end\n", "        end else if (groups > 32'd2) begin\n            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。\n            bad_argument = 1'b1;\n        end"]])
+DERIVATION_RULES["src/s2a_route_engine.sv"] = ("src/s2b_route_engine.sv", [
+    ["module s2a_route_engine (", "module s2b_route_engine ("],
+    ["int8_route_query u_query", "s2b_route_query u_query"]])
+DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
+    ["s2a_route_engine u_route_engine", "s2b_route_engine u_route_engine"])
+
 
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
@@ -144,9 +154,9 @@ def check_derivation(root: Path, profile: dict) -> None:
     item = profile["source_derivation"]
     require(set(item) == {"policy", "upstream_freeze_commit", "derivation_baseline_commit",
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
-    require(item["policy"] == "s2b-constant-geometry-and-coordinates/1.0.0" and
+    require(item["policy"] == "s2b-constant-geometry-coordinates-and-route/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
+        item["derivation_baseline_commit"] == "5a676b700af4c27297977379417b1694dd64840e",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -154,8 +164,8 @@ def check_derivation(root: Path, profile: dict) -> None:
         for path, digest in FROZEN_CORE_SHA256.items()], "原14源绑定不符")
     for path, digest in FROZEN_CORE_SHA256.items():
         require(sha256(relative_file(root, path)) == digest, f"冻结2A原件字节变化：{path}")
-    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 4,
-        "派生源必须恰为4项")
+    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 6,
+        "派生源必须恰为6项")
     for declared, (source, (path, replacements)) in zip(item["derived_sources"], DERIVATION_RULES.items()):
         require(set(declared) == {"source", "path", "sha256", "replacements"} and
             declared["source"] == source and declared["path"] == path and
@@ -193,9 +203,9 @@ def check_static(root: Path) -> dict:
     check_derivation(root, profile)
     expected_sources = [DERIVATION_RULES[path][0] if path in DERIVATION_RULES else path
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
-    require(sources == expected_sources, "闭包必须精确为10个冻结2A、4个派生及4个原2B模块")
+    require(sources == expected_sources, "闭包必须精确为8个冻结2A、6个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.2" in script, "Tcl平台版本不符")
+    require("variable version 0.1.3" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

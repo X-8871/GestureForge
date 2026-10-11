@@ -1,0 +1,179 @@
+{
+  "status": "PASS_ARCHIVE_RAW_INTEGRITY_ONLY",
+  "review_scope": "PASS_G2_ONLY",
+  "original_receipt_status": "PASS",
+  "review_checks": 412,
+  "independent_query_cases": 408,
+  "source_freeze_path": "report/evidence/S2B-T17/route_specialization_20261011_r07/source_freeze.json",
+  "source_freeze_sha256": "b550628ca96fd193e571e7144efcc3bc1ad0f5c9123ff2ba40899edee6b52231",
+  "developer_manifest_path": "report/evidence/S2B-T17/route_specialization_20261011_r07/delivery_manifest.json",
+  "developer_manifest_sha256": "b6fa0a51eecd332635f5f189f1b80d18480a144fb7edde4cba515c802bbcf330",
+  "changed_files": [
+    "src/s2b_route_query.sv",
+    "src/s2b_route_engine.sv",
+    "src/s2b_network_backend.sv",
+    "board/s2b_inference_platform.json",
+    "board/s2b_inference_platform.md",
+    "vivado/s2b_inference_platform.tcl",
+    "verification/check_s2b_inference_platform.py",
+    "verification/test_s2b_backend_coordinates_rtl.py",
+    "verification/test_s2b_geometry_specialization_rtl.py",
+    "verification/test_s2b_route_specialization_rtl.py"
+  ],
+  "original_commands": [
+    {
+      "name": "static",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "verification/check_s2b_inference_platform.py"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.219,
+      "peak_tree_rss_bytes": 18423808,
+      "log": "static.log",
+      "sha256": "0b617fab052cf0fa92b5826702a4e13473b76c3e2747b3638f54b57baf0e1187"
+    },
+    {
+      "name": "evidence",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\route_specialization_20261011_r07\\delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.438,
+      "peak_tree_rss_bytes": 23908352,
+      "log": "evidence.log",
+      "sha256": "eb3f6663c7590dc17d8c7378f98cdbb94eb6c9c8b79a085af3333fd7fd3ea8e6"
+    },
+    {
+      "name": "inputs",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\route_specialization_20261011_r07\\delivery_manifest.json"
+      ],
+      "native_exit_code": 2,
+      "seconds": 0.328,
+      "peak_tree_rss_bytes": 28008448,
+      "log": "inputs.log",
+      "sha256": "575909c31643046230e55de684d0fdba0f68af1125fbf6ae5e8be9e1ccf46ebc"
+    },
+    {
+      "name": "diff",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.11,
+      "peak_tree_rss_bytes": 6758400,
+      "log": "diff.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--top-module",
+        "tb_independent",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\src\\int8_route_query.sv",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\src\\s2b_route_query.sv",
+        "tb_independent.sv"
+      ],
+      "native_exit_code": 0,
+      "seconds": 31.594,
+      "peak_tree_rss_bytes": 957407232,
+      "log": "compile.log",
+      "sha256": "27c0e1e5e6de138585a03541dbf243c2142078f522e1224ce51a621a1388e932"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_review_20261011_r01\\obj_dir\\Vtb_independent.exe"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.265,
+      "peak_tree_rss_bytes": 0,
+      "log": "simulation.log",
+      "sha256": "a497817a5ac09a1f8b930185627ceac8f0e9dec7435a2c62c87a1a67e1b6fbf1"
+    }
+  ],
+  "original_reviewer_diagnostics": [
+    {
+      "status": "CLOSED",
+      "artifact": "audit_results_initial_git_raw_assumption.json",
+      "reason": "Reviewer误把历史Git LF blob与raw CRLF冻结SHA直接比较；独立核对仅换行不同后改用raw SHA保全和归一化内容来源，失败保留。"
+    },
+    {
+      "status": "CLOSED",
+      "artifact": "initial_windows_path_diagnostic/audit_results.json",
+      "reason": "psutil.disk_usage Windows下要求str，Path参数失败；原件保留，改str后完成资源评估与独立compile。"
+    },
+    {
+      "status": "CLOSED",
+      "reason": "初次Python -c跨PowerShell/Bash引用失败，native1；未更改工程，改用自身UTF8脚本。初次摘要未用-Xutf8终端中文显示错码，后续原文件UTF8完整。"
+    }
+  ],
+  "original_resource": {
+    "compile_seconds": 31.594,
+    "simulation_seconds": 0.265,
+    "final_driver_seconds": 33.437,
+    "peak_tree_rss_bytes": 957407232,
+    "cache_bytes": 299773315,
+    "compile_count": 1,
+    "heavy_slot_released": true,
+    "ram_system_peak": "NOT_MEASURED"
+  },
+  "original_limitations": [
+    "新18闭包50MHz综合/实现及资源/STA NOT_RUN；原S2 STA FAIL未关闭，不能由逻辑移除除法推断收敛或资源已改进。",
+    "109真实CONV整网、新bit、实际CSR timeout/core联调、G3/G4/G5 NOT_RUN。公共backend START夹具不等于全physical CSR/HP链路验证。",
+    "物理接口0.1.1未冻结；Developer包evidence native0，仅包装完整，inputs native2包含未冻及NOT_RUN阻断。",
+    "独立仿真是2state，未覆盖X/Z注入；没有声称未知输入硬件行为定义。",
+    "独立轻量query追加不覆盖新的engine或全15层干净RTL重建；engine继承精确差异证明和已绑定开发完整运行。",
+    "独立仿真进程过短，轮询未采到RSS；记录0仅为采样结果，不宣称真实峰为0。工具调用总量未全量测量，最终driver6子命令，Git对象14次。"
+  ],
+  "copies": 21,
+  "raw_copy_bytes": 1561685,
+  "cache_excluded": {
+    "path": "tmp/2B/S2B-T17/independent_route_review_20261011_r01/obj_dir",
+    "bytes_as_recorded_by_reviewer": 299773315,
+    "inspected_or_copied": false
+  },
+  "new_sta": "NOT_RUN",
+  "full_109_model": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "collector_peak_memory": "NOT_MEASURED"
+}

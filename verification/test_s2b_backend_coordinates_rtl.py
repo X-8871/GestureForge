@@ -20,15 +20,15 @@ import time
 import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1"
-OLD_BACKEND_SHA = "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49"
+BASELINE = "5a676b700af4c27297977379417b1694dd64840e"
+OLD_BACKEND_SHA = "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
 RUNNER = "verification/test_s2b_backend_coordinates_rtl.py"
 RTL = ("src/s2a_network_descriptor_pkg.sv", "src/int8_maxpool_geometry.sv",
        "src/int8_maxpool_window.sv", "src/int8_route_query.sv", "src/int8_upsample_query.sv",
        "src/s2b_maxpool_engine.sv", "src/s2a_route_engine.sv", "src/s2b_upsample_engine.sv",
-       "src/s2b_network_backend.sv")
+       "src/s2b_network_backend.sv", "src/s2b_route_query.sv", "src/s2b_route_engine.sv")
 OPS = {"convolutional": 0, "maxpool": 1, "route": 2, "upsample": 3, "yolo": 4}
 
 
@@ -142,7 +142,7 @@ endmodule
 
 def generate_tb(model: dict) -> str:
     """真实新旧backend与三个nonconv引擎；每个请求独立核对且全输出逐周期比较。"""
-    parts = ["// 基线backend为Git原始S1源码，除模块名外未改；候选为实际S2源。",
+    parts = ["// 基线backend为Git原始S2源码，除模块名外未改；候选为实际S3源。",
              "module tb_s2b_backend_coordinates;", golden_constants(model),
              "logic clk=0, hard_reset=1, abort=0, backend_start=0, buffer_owner_pl=1;",
              "logic [31:0] input_base_address=0, input_length_bytes=519168;",
@@ -150,6 +150,7 @@ def generate_tb(model: dict) -> str:
              "logic mem_ready=1; logic [31:0] mem_rdata=0; logic [2:0] mem_error_code=0;",
              "longint unsigned cycles=0, boundary_cases=0, trace_requests=0, trace_outputs=0, trace_digest, owner_drop_results=0;",
              "integer active_layer=0, gold_step=0, trace_layers=0; longint unsigned gold_index=0;",
+             "longint unsigned public_route_mask=0; integer public_start_trials=0; logic public_tracking=0;",
              "logic trace_enabled=0; logic inj_result=0, inj_ready=1, inj_fault=0, inj_alias=1; logic [2:0] inj_error=0;"]
     declarations = re.findall(r"^\s*(input|output)\s+logic\s*(\[[^\]]+\])?\s*(\w+)\s*[,)]?",
         (ROOT / "src/s2b_network_backend.sv").read_text(encoding="utf-8").split(");", 1)[0], re.M)
@@ -167,6 +168,10 @@ begin
 COMPARISONS
   if(old.state !== new.state || old.layer_cursor !== new.layer_cursor || old.output_element_index !== new.output_element_index)
     $fatal(1,"状态或指针逐周期不同 cycle=%0d",cycles);
+  if(old.route_start_valid && !(old.u_route_engine.groups == 1 || old.u_route_engine.groups == 2))
+    $fatal(1,"原冻结ROM产生非法ROUTE组数");
+  if(dut_new.route_start_valid && !(dut_new.u_route_engine.groups == 1 || dut_new.u_route_engine.groups == 2))
+    $fatal(1,"派生backend产生非法ROUTE组数");
   if(old.layer_cursor<38 && old.decoded_channel !== new.decoded_channel)
     $fatal(1,"通道不等价 cycle=%0d layer=%0d index=%0d old=%0d new=%0d",cycles,old.layer_cursor,old.output_element_index,old.decoded_channel,new.decoded_channel);
   if(old.layer_cursor<38 && (old.decoded_y !== new.decoded_y || old.decoded_x !== new.decoded_x))
@@ -228,6 +233,7 @@ end endtask
 task automatic tick;
 begin
   #1; compare;
+  if(public_tracking && old.route_start_valid) public_route_mask |= 64'd1 << old.layer_cursor;
   if(trace_enabled && !buffer_owner_pl && old.selected_result_valid && old.selected_result_error==0) owner_drop_results++;
   if(trace_enabled && old_mem_valid && mem_ready) golden_request;
   clk=1; #1; cycles++; compare; clk=0; #1;
@@ -243,9 +249,12 @@ begin
   old.layer_cursor=6'(layer); new.layer_cursor=6'(layer); old.output_element_index=32'(index); new.output_element_index=32'(index);
   old.state=type(old.state)'(state_number); new.state=type(new.state)'(state_number);
   if(layer<38) begin
+    old.output_channel_cursor=9'((index/(gh[layer]*gw[layer]))%gc[layer]);
+    old.output_y_cursor=8'((index/gw[layer])%gh[layer]); old.output_x_cursor=8'(index%gw[layer]);
     new.output_channel_cursor=9'((index/(gh[layer]*gw[layer]))%gc[layer]);
     new.output_y_cursor=8'((index/gw[layer])%gh[layer]); new.output_x_cursor=8'(index%gw[layer]);
-  end else begin new.output_channel_cursor=0; new.output_y_cursor=0; new.output_x_cursor=0; end
+  end else begin old.output_channel_cursor=0; old.output_y_cursor=0; old.output_x_cursor=0;
+    new.output_channel_cursor=0; new.output_y_cursor=0; new.output_x_cursor=0; end
   #1; compare;
 end endtask
 task automatic boundary;
@@ -327,8 +336,48 @@ begin
       $fatal(1,"真实WAIT abort没有复位");
   end
 end endtask
+task automatic public_entries;
+longint unsigned begin_cycle;
+begin
+  // 公共START真实走38层；只隔离卷积数值，不注入任何backend内部状态。
+  reset_all; public_tracking=1; backend_start=1; tick; backend_start=0; begin_cycle=cycles;
+  while(old.state!=old.ST_IDLE && cycles-begin_cycle<150000000) begin
+    mem_ready=(cycles%11)!=0; buffer_owner_pl=(cycles%29)!=0;
+    mem_rdata=memory_word(old_mem_addr); tick;
+    if(old_operator_result_valid && old_operator_error_code!=0) $fatal(1,"公共完整路径错误");
+  end
+  public_tracking=0;
+  if(old.state!=old.ST_IDLE || public_route_mask!=64'h0000000481494948)
+    $fatal(1,"公共START未遍历冻结11个ROUTE layer mask=%h",public_route_mask);
+  // 非法长度/base、启动时owner为低、重复START及abort/reset只改变控制输入。
+  for(integer mode=0;mode<12;mode++) begin
+    reset_all; public_tracking=1;
+    case(mode)
+      0: input_length_bytes=0;
+      1: input_base_address=32'hffffffff;
+      2: weight_package_length_bytes=0;
+      3: weight_package_base_address=32'hffffffff;
+      4: buffer_owner_pl=0;
+      5: input_length_bytes=32'hffffffff;
+      6: weight_package_length_bytes=32'hffffffff;
+      default: begin end
+    endcase
+    backend_start=1; tick;
+    for(integer n=0;n<256;n++) begin
+      if(mode!=7) backend_start=0;
+      if(mode==8 && n==13) abort=1;
+      if(mode==9 && n==13) hard_reset=1;
+      if(mode==10) buffer_owner_pl=n%3!=0;
+      if(mode==11) mem_error_code=3'(n%8);
+      mem_rdata=memory_word(old_mem_addr); tick;
+    end
+    public_start_trials++;
+    public_tracking=0;
+  end
+  $display("PUBLIC_ENTRY trials=%0d route_mask=%h",public_start_trials,public_route_mask);
+end endtask
 initial begin
-  reset_all; boundary; invalid_layer; actual_errors; full_traces;
+  reset_all; boundary; invalid_layer; actual_errors; full_traces; public_entries;
   if(owner_drop_results==0) $fatal(1,"真实owner掉低成功结果沿未覆盖");
   $display("PASS BACKEND_COORDINATES boundary=%0d layers=%0d outputs=%0d requests=%0d cycles=%0d owner_drop_results=%0d",boundary_cases,trace_layers,trace_outputs,trace_requests,cycles,owner_drop_results);
   $finish;
@@ -395,7 +444,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
         return [path]
     for version in ("0.1.0","0.1.1"):
         reject("旧profile"+version,lambda p,v=version:p.update(version="s2b-inference-platform/"+v))
-    reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry/1.0.0"))
+    reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry-and-coordinates/1.0.0"))
     reject("旧派生基线",lambda p:p["source_derivation"].update(derivation_baseline_commit="18c0c34f9da885b5f35869c282dc0c2ed50d720e"))
     for name,before,after in (("通道宽度自报SHA","logic [8:0] output_channel_cursor","logic [7:0] output_channel_cursor"),
         ("carry自报SHA","output_channel_cursor + 9'd1","output_channel_cursor + 9'd2"),
@@ -408,7 +457,11 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.2","variable version 0.1.1"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.3","variable version 0.1.1"))
+    reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
+    reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
+    reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
+    reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
     return records
 
 
@@ -424,7 +477,7 @@ def main() -> int:
         if not parent.is_dir() or parent.is_symlink(): parser.error("精确父目录不可用")
     if work.exists() or evidence.exists(): parser.error("RunId已存在，不覆盖")
     work.mkdir(); evidence.mkdir(); started=time.monotonic()
-    report={"schema_version":1,"task_id":"S2B-T17-S2","run_id":args.run_id,"task_baseline_commit":BASELINE,
+    report={"schema_version":1,"task_id":"S2B-T17-S3","run_id":args.run_id,"task_baseline_commit":BASELINE,
             "status":"FAIL","runs":[],"g3":"NOT_RUN","sta":"NOT_RUN",
             "limitations":["卷积计算使用与原端口一致的共享stub，仅验证backend控制；未声称CONV数值或整网功能回归。",
                 "非conv每层独立复位并注入合法DISPATCH层入口，真实pool/route/up与两个真实backend全周期执行；不执行前置卷积。",
@@ -441,8 +494,8 @@ def main() -> int:
         report["source_commit"]=actual; report["source_sha256_pre"]={**bindings,RUNNER:sha(ROOT/RUNNER)}
         report["frozen14_sha256_pre"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
         old=subprocess.check_output(["git","show",BASELINE+":src/s2b_network_backend.sv"],cwd=ROOT)
-        if hashlib.sha256(old).hexdigest()!=OLD_BACKEND_SHA: raise ValueError("S1 raw来源不符")
-        (evidence/"s1_network_backend.sv").write_bytes(old)
+        if hashlib.sha256(old).hexdigest()!=OLD_BACKEND_SHA: raise ValueError("S2 raw来源不符")
+        (evidence/"s2_network_backend.sv").write_bytes(old)
         report["original_backend"]={"commit":BASELINE,"git_path":"src/s2b_network_backend.sv","raw_sha256":OLD_BACKEND_SHA,
                                     "compile_transformation":"仅将唯一module名称替换为s2b_network_backend_original"}
         if sha(ROOT/MODEL)!=MODEL_SHA: raise ValueError("模型SHA变化")
@@ -452,7 +505,7 @@ def main() -> int:
         source=work/"source"; source.mkdir()
         for relative in RTL: shutil.copyfile(ROOT/relative,source/Path(relative).name)
         compiled_old=old.decode("utf-8").replace("module s2b_network_backend (","module s2b_network_backend_original (")
-        (source/"s1_network_backend.sv").write_text(compiled_old,encoding="utf-8",newline="\n")
+        (source/"s2_network_backend.sv").write_text(compiled_old,encoding="utf-8",newline="\n")
         for name,payload in (("convolution_stub.sv",convolution_stub()),("tb_s2b_backend_coordinates.sv",generate_tb(model))):
             for directory in (work,evidence): (directory/name).write_text(payload,encoding="utf-8",newline="\n")
         nonconv=[row for row in model["layers"] if row["op"] in ("maxpool","route","upsample")]
@@ -467,14 +520,14 @@ def main() -> int:
         for path in (verilator,bin_dir/"g++.exe",make_dir/"make.exe"): checker.exact_file(path)
         report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,
             "running_vivado":[{"pid":p.pid,"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower()=="vivado.exe"],
-            "heavy_slot":"总控已明确S1退出且保留唯一heavy槽；job1/thread1。"}
+            "heavy_slot":"总控已明确S2退出且保留唯一heavy槽；job1/thread1。"}
         if report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:
             raise ValueError("资源不足，未编译")
         report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],env=env,cwd=work,text=True,timeout=30).strip()}
         command=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1",
             "--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_backend_coordinates","--Mdir","obj_dir",
             "-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
-            *["source/"+Path(path).name for path in RTL],"source/s1_network_backend.sv","convolution_stub.sv","tb_s2b_backend_coordinates.sv"]
+            *["source/"+Path(path).name for path in RTL],"source/s2_network_backend.sv","convolution_stub.sv","tb_s2b_backend_coordinates.sv"]
         report["prepared_compile_command"]=command
         if args.prepare_only:
             report["status"]="PREPARED_NOT_COMPILED"
@@ -490,6 +543,11 @@ def main() -> int:
             report["simulation_counts"]=actual_counts
             report["trace_summaries"]=re.findall(r"TRACE layer=(\d+) op=(\d+) outputs=(\d+) requests=(\d+) cycles=(\d+) digest=([0-9a-fA-F]+)",text)
             if len(report["trace_summaries"])!=len(nonconv): raise ValueError("trace层数不完整")
+            public=re.findall(r"PUBLIC_ENTRY trials=(\d+) route_mask=([0-9a-fA-F]+)",text)
+            if len(public)!=1 or int(public[0][0])!=12 or int(public[0][1],16)!=sum(1<<i for i in (3,6,8,11,14,16,19,22,24,31,34)):
+                raise ValueError("真实公共START可达路径覆盖不足")
+            report["public_entries"]={"trials":12,"route_layer_mask":public[0][1],
+                "method":"一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"}
             report["status"]="PASS_BACKEND_COORDINATES_G1"
         report["source_sha256_post"]={p:sha(ROOT/p) for p in report["source_sha256_pre"]}
         report["frozen14_sha256_post"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}

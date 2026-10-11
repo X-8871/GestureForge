@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.2",
+  "version": "s2b-inference-platform/0.1.3",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -53,11 +53,11 @@
     "src/s2a_network_descriptor_pkg.sv",
     "src/int8_maxpool_geometry.sv",
     "src/int8_maxpool_window.sv",
-    "src/int8_route_query.sv",
+    "src/s2b_route_query.sv",
     "src/int8_upsample_query.sv",
     "src/s2a_conv_tile_engine.sv",
     "src/s2b_maxpool_engine.sv",
-    "src/s2a_route_engine.sv",
+    "src/s2b_route_engine.sv",
     "src/s2b_upsample_engine.sv",
     "src/s2b_network_backend.sv",
     "src/s2a_memory_master.sv",
@@ -82,9 +82,9 @@
     "HP路径按实际全网与AXI3非Bufferable规范独立证明；HP写结果到CPU的完整模型golden仍由G3关闭。"
   ],
   "source_derivation": {
-    "policy": "s2b-constant-geometry-and-coordinates/1.0.0",
+    "policy": "s2b-constant-geometry-coordinates-and-route/1.0.0",
     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
-    "derivation_baseline_commit": "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
+    "derivation_baseline_commit": "5a676b700af4c27297977379417b1694dd64840e",
     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
     "upstream_sources": [
       {
@@ -194,7 +194,7 @@
       {
         "source": "src/s2a_network_backend.sv",
         "path": "src/s2b_network_backend.sv",
-        "sha256": "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a",
+        "sha256": "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27",
         "replacements": [
           [
             "module s2a_network_backend (",
@@ -239,6 +239,10 @@
           [
             "                            output_element_index <= output_element_index + 32'd1;",
             "                            output_element_index <= output_element_index + 32'd1;\n                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。\n                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin\n                                output_x_cursor <= 8'd0;\n                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin\n                                    output_y_cursor <= 8'd0;\n                                    output_channel_cursor <= output_channel_cursor + 9'd1;\n                                end else begin\n                                    output_y_cursor <= output_y_cursor + 8'd1;\n                                end\n                            end else begin\n                                output_x_cursor <= output_x_cursor + 8'd1;\n                            end"
+          ],
+          [
+            "s2a_route_engine u_route_engine",
+            "s2b_route_engine u_route_engine"
           ]
         ]
       },
@@ -254,6 +258,36 @@
           [
             "s2a_network_backend u_network_backend",
             "s2b_network_backend u_network_backend"
+          ]
+        ]
+      },
+      {
+        "source": "src/int8_route_query.sv",
+        "path": "src/s2b_route_query.sv",
+        "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+        "replacements": [
+          [
+            "module int8_route_query (",
+            "module s2b_route_query ("
+          ],
+          [
+            "        end else if (groups > 32'd2) begin\n            if ((source_count != 32'd1) ||\n                ((source0_channels % groups) != 32'd0)) begin\n                bad_argument = 1'b1;\n            end else begin\n                expected_group_start =\n                    {32'd0, group_id} * (source0_channels / groups);\n                expected_group_end = expected_group_start +\n                                     (source0_channels / groups);\n                if ((source0_channel_start != expected_group_start[31:0]) ||\n                    (source0_channel_end != expected_group_end[31:0])) begin\n                    bad_argument = 1'b1;\n                end\n            end\n        end\n",
+            "        end else if (groups > 32'd2) begin\n            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。\n            bad_argument = 1'b1;\n        end"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_route_engine.sv",
+        "path": "src/s2b_route_engine.sv",
+        "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+        "replacements": [
+          [
+            "module s2a_route_engine (",
+            "module s2b_route_engine ("
+          ],
+          [
+            "int8_route_query u_query",
+            "s2b_route_query u_query"
           ]
         ]
       }

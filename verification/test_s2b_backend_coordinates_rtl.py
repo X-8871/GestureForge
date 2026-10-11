@@ -20,8 +20,8 @@ import time
 import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "5a676b700af4c27297977379417b1694dd64840e"
-OLD_BACKEND_SHA = "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a"
+BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
+OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
 RUNNER = "verification/test_s2b_backend_coordinates_rtl.py"
@@ -118,7 +118,7 @@ def convolution_stub() -> str:
     """仅为backend控制隔离提供原卷积端口，非conv实际引擎保持真实源码。"""
     source = (ROOT / "src/s2a_conv_tile_engine.sv").read_text(encoding="utf-8")
     header = source[source.index("module s2a_conv_tile_engine ("):source.index(");")+2]
-    return "// 卷积计算未改；此stub仅隔离backend控制验证，不声明卷积数值回归。\n" + header + """
+    stub = "// 卷积计算未改；此stub仅隔离backend控制验证，不声明卷积数值回归。\n" + header + """
 logic pending;
 assign start_ready = !pending;
 assign backend_cancel = abort;
@@ -138,6 +138,8 @@ always_ff @(posedge clk) begin
 end
 endmodule
 """
+
+    return stub + stub.replace("module s2a_conv_tile_engine (", "module s2b_conv_tile_engine (")
 
 
 def generate_tb(model: dict) -> str:
@@ -457,11 +459,15 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.3","variable version 0.1.1"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.4","variable version 0.1.1"))
     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
     reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
+    reject("CONV引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_conv_tile_engine u_conv_engine","s2a_conv_tile_engine u_conv_engine"))
+    reject("CONV校验新增batch语义自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_batch_count_latched != 32'd1)","(input_batch_count_latched != 32'd2)"))
+    reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","input_elements_wide = {96'd0, input_channels_latched} *","input_elements_wide = {96'd0, input_batch_count_latched} * {96'd0, input_channels_latched} *"))
+    reject("CONV额外周期自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","state <= ST_VALIDATE;","state <= ST_IDLE;"))
     return records
 
 

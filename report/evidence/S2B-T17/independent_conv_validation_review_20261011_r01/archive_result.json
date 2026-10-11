@@ -1,0 +1,141 @@
+{
+  "status": "PASS_ARCHIVE_RAW_INTEGRITY_ONLY",
+  "review_status": "PASS_G2_ONLY",
+  "created_utc8": "2026-10-11T17:13:52.667912+08:00",
+  "source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+  "review_receipt": {
+    "path": "tmp/2B/S2B-T17/independent_conv_validation_review_20261011_r02/review_receipt.json",
+    "sha256": "83a9004a56bfe86089e6e7557715fb3f0e5cb3516f11e97eb947c4ad37a2beda",
+    "bytes": 10575
+  },
+  "source_files": 37,
+  "developer_files": 197,
+  "raw_files": 36,
+  "raw_bytes": 474943,
+  "raw_copies_with_manifest": 37,
+  "raw_bytes_with_manifest": 483102,
+  "review_evidence_checks": {
+    "independent_binding_checks": 481,
+    "independent_checker_negatives": 10,
+    "source_files": 37,
+    "developer_files": 197,
+    "frozen2a_files": 14,
+    "independent_full_layer0_cpu_bytes": 1384448,
+    "independent_cpu_mismatches": 0,
+    "r10_real_rtl_bytes": 1384448,
+    "r10_real_rtl_cycles": 27235743,
+    "r10_evaluation": "审阅实际TB所有写请求选中字节!==T25对应字节即fatal、禁止重复、末尾全部seen覆盖及req/rsp等计数；源/TB/夹具/日志绑定准确，成功标记只能在所有检查之后。非仅digest或Developer文字自报。",
+    "r06_mapping": "r06 runner实际SHA=保存的r07 runner副本，7个相关函数源码全文、生成TB、向量文本与当前一致；r06/r10实向量raw相同。CPU环境/采样变更不影响边界仿真。",
+    "nonconv": "r11 pool19645/up3456、r12 direct15816/query4592720、r13 15层5234944输出/12286976请求已核对实际源码与原始日志；r13逐层cycles/count/digest与S3原日志一致。"
+  },
+  "independent_rtl": {
+    "status": "PASS",
+    "hand_cases": 36,
+    "nonzero_synthetic_output_bytes": 512,
+    "requests": 560,
+    "cycles": 21256,
+    "all_public_output_comparison_cycles": 21256,
+    "response_errors": 21,
+    "raw80": 1,
+    "abort_states": 20,
+    "reset_states": 20,
+    "command_receipts": [
+      "independent_compile_native.json",
+      "independent_simulation_native.json"
+    ],
+    "peak_tree_rss_bytes": 659759104,
+    "cache_bytes": 296113204
+  },
+  "original_compile_native": {
+    "command": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "--binary",
+      "--timing",
+      "--timescale",
+      "1ns/1ps",
+      "-Wall",
+      "-Wno-fatal",
+      "-j",
+      "1",
+      "--threads",
+      "1",
+      "--output-split",
+      "10000",
+      "--output-split-cfuncs",
+      "100",
+      "--top-module",
+      "tb_independent_s4",
+      "--Mdir",
+      "obj_dir",
+      "-MAKEFLAGS",
+      "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+      "-CFLAGS",
+      "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\src\\s2a_network_descriptor_pkg.sv",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\src\\s2a_conv_tile_engine.sv",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\src\\s2b_conv_tile_engine.sv",
+      "tb_independent_s4.sv"
+    ],
+    "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_validation_review_20261011_r02",
+    "exit_code": 0,
+    "seconds": 23.485,
+    "peak_tree_rss_bytes": 659759104,
+    "cache_bytes": 296113204,
+    "stop_reason": null,
+    "log": "independent_compile.log",
+    "log_sha256": "e8f061d6705b06166beda121a2f48b2e1e48293b37e4c0033fa92b761dc08115"
+  },
+  "original_simulation_native": {
+    "command": [
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_validation_review_20261011_r02\\obj_dir\\Vtb_independent_s4.exe"
+    ],
+    "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_validation_review_20261011_r02",
+    "exit_code": 0,
+    "seconds": 0.437,
+    "peak_tree_rss_bytes": 5644288,
+    "cache_bytes": 297490447,
+    "stop_reason": null,
+    "log": "independent_simulation.log",
+    "log_sha256": "dbc7ca2c3dc93f1d3267c0f86b8f1a3be54b70f30c520c8ac61092086043e618"
+  },
+  "maximum_cache_bytes_from_original_native_records": 297490447,
+  "preserved_review_failure": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_validation_review_20261011_r01\\audit_failure.json",
+    "reason": "审查脚本错误地要求r11状态等于普通PASS；原为精确PASS_GEOMETRY_SPECIALIZATION_G1。r01原脚本和失败JSON保留，r02/r03使用各run精确状态值后核验通过；与生产设计无关。",
+    "initial_native_exit_capture": "首轮工具输出含真实Python异常，但未将退出码字段持久化；不补造该码。"
+  },
+  "original_limitations": [
+    "仅S4软件等价G2；未证明50MHz时序收敛，S3 WNS -18.745ns失败保持，S4综合/STA由总控后续执行。",
+    "未重跑109新闭包整网、CSR/runtime计时器整core、postroute、bit、板上模型或G3/G4/G5。按修改影响，精确三替换及全API归纳证明配合边界/整layer0/非conv回归足以支持此G2范围。",
+    "继承S3 ROUTE通用合法groups>=3与原2A非等价限制；该范围不适用tiny416冻结ROM可达profile，不能扩大为ROUTE全域等价。",
+    "physical0.1.1仍未冻结、clock50MHz及visibility0保持；不审批实物身份、cache或部署。",
+    "Developer r02预算/r03oracle宽度/r04单点夹具/r08换行门禁/r09线程门禁/r14包装/r15首次未声明文件失败保留且未判成设计失败；r07CPU线程限制证据不足不取代r10实际getter和线程计时。",
+    "未保存完整layer0逐周期波形/输出dump；r10实际逐写字节断言、seen完整性、固定输入输出原文件和日志可重放。独立本轮保存小型数学黄金与TB，未复制大T25shard或构建缓存。",
+    "工具调用量及全系统峰值内存未测；RTL树RSS以0.1秒采样、CPU进程OS峰为保守上界。"
+  ],
+  "reviewer_r01_native_exit_code": null,
+  "reviewer_r01_native_exit_limitation": "原回执明确未持久化该码；不推断或补造。原失败JSON和脚本逐字节保留。",
+  "collector_bootstrap_diagnostics": [
+    {
+      "step": "首次shell参数未获得Git Bash",
+      "tool_exit_code": 1,
+      "native_child_exit_code": null,
+      "effect": "pwd命令未识别，只读启动失败，未写文件。"
+    },
+    {
+      "step": "PowerShell调用Bash缺少调用运算符",
+      "tool_exit_code": 1,
+      "native_child_exit_code": null,
+      "effect": "ParserError，仅命令解析失败，未启动Bash或写文件。"
+    }
+  ],
+  "s4_sta": "NOT_RUN",
+  "new_109_full_network": "NOT_RUN",
+  "csr_runtime_timer_whole_core": "NOT_RUN",
+  "postroute_bit_hardware": "NOT_RUN",
+  "g3_g4_g5": "NOT_RUN",
+  "s3_sta_prior_result": "FAIL_TIMING_WNS_MINUS_18.745_NS",
+  "collector_peak_memory": "NOT_MEASURED",
+  "scratch_scanned": false,
+  "review_or_model_rerun": false
+}

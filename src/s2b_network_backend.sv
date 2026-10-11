@@ -443,7 +443,7 @@ module s2b_network_backend (
         end
     end
 
-    s2a_conv_tile_engine u_conv_engine (
+    s2b_conv_tile_engine u_conv_engine (
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .buffer_owner_pl(buffer_owner_pl),
         .start_valid(conv_start_valid), .start_ready(conv_start_ready),

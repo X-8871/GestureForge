@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.3"
+PROFILE_VERSION = "s2b-inference-platform/0.1.4"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -98,6 +98,11 @@ DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
     ["s2a_route_engine u_route_engine", "s2b_route_engine u_route_engine"])
 
 
+# batch非1在原首个校验分支拒绝；只有校验通过的轨迹使用输出元素数。
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"] = ("src/s2b_conv_tile_engine.sv", [["module s2a_conv_tile_engine (","module s2b_conv_tile_engine ("],["input_elements_wide = {96'd0, input_batch_count_latched} *\n                              {96'd0, input_channels_latched} *","input_elements_wide = {96'd0, input_channels_latched} *"],["output_elements_wide = {96'd0, output_batch_count_latched} *\n                               {96'd0, output_channels_latched} *","output_elements_wide = {96'd0, output_channels_latched} *"]])
+DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
+    ["s2a_conv_tile_engine u_conv_engine", "s2b_conv_tile_engine u_conv_engine"])
+
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -154,9 +159,9 @@ def check_derivation(root: Path, profile: dict) -> None:
     item = profile["source_derivation"]
     require(set(item) == {"policy", "upstream_freeze_commit", "derivation_baseline_commit",
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
-    require(item["policy"] == "s2b-constant-geometry-coordinates-and-route/1.0.0" and
+    require(item["policy"] == "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "5a676b700af4c27297977379417b1694dd64840e",
+        item["derivation_baseline_commit"] == "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -164,8 +169,8 @@ def check_derivation(root: Path, profile: dict) -> None:
         for path, digest in FROZEN_CORE_SHA256.items()], "原14源绑定不符")
     for path, digest in FROZEN_CORE_SHA256.items():
         require(sha256(relative_file(root, path)) == digest, f"冻结2A原件字节变化：{path}")
-    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 6,
-        "派生源必须恰为6项")
+    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 7,
+        "派生源必须恰为7项")
     for declared, (source, (path, replacements)) in zip(item["derived_sources"], DERIVATION_RULES.items()):
         require(set(declared) == {"source", "path", "sha256", "replacements"} and
             declared["source"] == source and declared["path"] == path and
@@ -203,9 +208,9 @@ def check_static(root: Path) -> dict:
     check_derivation(root, profile)
     expected_sources = [DERIVATION_RULES[path][0] if path in DERIVATION_RULES else path
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
-    require(sources == expected_sources, "闭包必须精确为8个冻结2A、6个派生及4个原2B模块")
+    require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.3" in script, "Tcl平台版本不符")
+    require("variable version 0.1.4" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "scope": "证据采集器自身；不是T16/T19设计或测试失败",
+  "command": "python -B tmp/2B/S2B-T16/postconfig_20261011_r02/consumer_binding.py",
+  "shell_native_exit_code": 0,
+  "python_native_exit_code": null,
+  "reason": "首次采集器错误把SDK实现定义数量解释成文件闭包数量，assert len(sdk) == 19失败；原Python退出码未单独采集，shell随后tail成功为0。",
+  "original_tool_traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\postconfig_20261011_r02\\consumer_binding.py\", line 27, in <module>\n    assert len(sdk) == 19\n           ^^^^^^^^^^^^^^\nAssertionError\n",
+  "recovery": "保留失败采集器原件及已复制源码；修正版只复核同SHA快照并记录实际文件闭包，五个SDK来源门禁函数与140e5f6 AST严格一致。"
+}

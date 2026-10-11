@@ -1,0 +1,693 @@
+diff --git a/verification/s2b_board_jtag.py b/verification/s2b_board_jtag.py
+index 72a3cdd..b9557c2 100644
+--- a/verification/s2b_board_jtag.py
++++ b/verification/s2b_board_jtag.py
+@@ -12,6 +12,8 @@ import struct
+ import sys
+ import time
+ import traceback
++import xml.etree.ElementTree as ET
++import zipfile
+ 
+ TZ = timezone(timedelta(hours=8))
+ CABLE = ("Digilent", "JTAG-HS1", "210512180081")
+@@ -20,6 +22,9 @@ PROBE_ADDRESS, PROBE_WORDS = 0x10000000, 64
+ CSR_BASE = 0x43C00000
+ DDRC_MODE_STATUS = 0xF8006054
+ EOS_NAME = "END OF STARTUP (EOS) STATUS"
++SLCR_LOCK, SLCR_UNLOCK, SLCR_LOCKSTA = 0xF8000004, 0xF8000008, 0xF800000C
++PS_VERSION, LEVEL_SHIFTER, FPGA_RESET = 0xF8007080, 0xF8000900, 0xF8000240
++FPGA0_CLOCK, PLL_STATUS = 0xF8000170, 0xF800010C
+ CSR_SNAPSHOT = tuple(range(0x00C, 0x030, 4)) + (0x050, 0x054, 0x058, 0x05C, 0x060, 0x068, 0x06C, 0x070, 0x074)
+ IDENTITY_KEYS = ("name", "target_ctx", "target_id", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
+                  "jtag_device_name", "jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")
+@@ -141,6 +146,82 @@ def bound_bytes(binding):
+     return raw
+ 
+ 
++def postconfig_basis(raw):
++    """只消费固定XSA的生成表及HWH；不执行生成C/Tcl或SDK私有初始化。"""
++    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
++        names = archive.namelist()
++        hwh = [name for name in names if name.endswith(".hwh")]
++        require(len(hwh) == 1 and names.count("ps7_init.c") == names.count("ps7_init.h") == 1,
++                "XSA生成成员缺失或歧义")
++        members = {}
++        for name in ("ps7_init.c", "ps7_init.h", hwh[0]):
++            require(archive.getinfo(name).file_size <= 4 * 1024 * 1024, "XSA生成成员超出预算")
++            members[name] = archive.read(name)
++    source = re.sub(r"/\*.*?\*/|//[^\r\n]*", "", members["ps7_init.c"].decode("utf-8"), flags=re.S)
++    header = members["ps7_init.h"].decode("utf-8")
++    for name, value in (("PCW_SILICON_VERSION_1", 0), ("PCW_SILICON_VERSION_2", 1), ("FPGA0_FREQ", 50000000)):
++        require(re.findall(r"^\s*#define\s+" + name + r"\s+([0-9]+)\s*$", header, re.M) == [str(value)],
++                "生成silicon/FPGA0定义变化：" + name)
++    def table(name):
++        rows = re.findall(r"unsigned\s+long\s+" + name + r"\[\]\s*=\s*\{(.*?)\};", source, re.S)
++        require(len(rows) == 1, "生成表缺失或歧义：" + name)
++        operations = []
++        def consume(match):
++            operation, args = match.groups()
++            parts = [] if not args.strip() else [part.strip() for part in args.split(",")]
++            require(all(re.fullmatch(r"0[xX][0-9A-Fa-f]+U?", part) for part in parts), "生成表参数未知")
++            operations.append((operation, *[int(part.rstrip("U"), 16) for part in parts]))
++            return ""
++        residue = re.sub(r"EMIT_([A-Z]+)\(([^()]*)\)\s*,", consume, rows[0])
++        require(not residue.strip() and operations and operations[-1] == ("EXIT",), "生成表含未支持内容")
++        return operations
++    expected = [("WRITE", SLCR_UNLOCK, 0xDF0D), ("MASKWRITE", LEVEL_SHIFTER, 0xF, 0xF),
++                ("MASKWRITE", FPGA_RESET, 0xFFFFFFFF, 0), ("WRITE", SLCR_LOCK, 0x767B), ("EXIT",)]
++    tables = {}
++    for revision in ("1_0", "2_0", "3_0"):
++        operations = table("ps7_post_config_" + revision)
++        require(operations == expected, "生成postconfig动作与已批准四动作不同")
++        clock = [row for row in table("ps7_clock_init_data_" + revision) if row[1:2] == (FPGA0_CLOCK,)]
++        require(clock == [("MASKWRITE", FPGA0_CLOCK, 0x03F03F30, 0x00600600)], "生成FPGA0 clock不符")
++        pll = [row for row in table("ps7_pll_init_data_" + revision) if row[0] == "MASKPOLL" and row[1] == PLL_STATUS]
++        require(pll == [("MASKPOLL", PLL_STATUS, 1), ("MASKPOLL", PLL_STATUS, 2), ("MASKPOLL", PLL_STATUS, 4)],
++                "生成PLL锁定位依据不符")
++        tables[revision] = {"operations": operations, "clock": clock[0], "pll_masks": [row[2] for row in pll]}
++    # 精确核对生成函数的版本读取与分支语义；else仍为3.0而非拒绝未知nibble。
++    compact = re.sub(r"\s+", "", source)
++    require("unsignedlongmask=0xF0000000;unsignedlong*addr=(unsignedlong*)0XF8007080;unsignedlongps_version=(*addr&mask)>>28;returnps_version;" in compact,
++            "生成silicon读取语义不同")
++    require("if(si_ver==PCW_SILICON_VERSION_1){ret=ps7_config(ps7_post_config_1_0);if(ret!=PS7_INIT_SUCCESS)returnret;}elseif(si_ver==PCW_SILICON_VERSION_2){ret=ps7_config(ps7_post_config_2_0);if(ret!=PS7_INIT_SUCCESS)returnret;}else{ret=ps7_config(ps7_post_config_3_0);if(ret!=PS7_INIT_SUCCESS)returnret;}" in compact,
++            "生成postconfig版本分支不同")
++    root = ET.fromstring(members[hwh[0]])
++    def port(instance, name):
++        ports = root.findall(f".//MODULE[@INSTANCE='{instance}']/PORTS/PORT[@NAME='{name}']")
++        require(len(ports) == 1, "HWH端口缺失或歧义")
++        return ports[0]
++    def connections(node):
++        return {(item.get("INSTANCE"), item.get("PORT")) for item in node.findall("./CONNECTIONS/CONNECTION")}
++    consumers = {("ps7", "M_AXI_GP0_ACLK"), ("ps7", "S_AXI_HP0_ACLK"), ("axi_gp0_lite", "aclk"),
++                 ("rst_fclk0", "slowest_sync_clk"), ("infer", "clk")}
++    clock_port = port("ps7", "FCLK_CLK0")
++    require(clock_port.get("CLKFREQUENCY") == "50000000" and connections(clock_port) == consumers,
++            "HWH FCLK0时钟连接/频率不同")
++    for instance, name in consumers:
++        node = port(instance, name)
++        require(node.get("CLKFREQUENCY") == "50000000" and connections(node) == {("ps7", "FCLK_CLK0")},
++                "HWH消费时钟不同")
++    require(connections(port("ps7", "FCLK_RESET0_N")) == {("rst_fclk0", "ext_reset_in")} and
++            connections(port("rst_fclk0", "ext_reset_in")) == {("ps7", "FCLK_RESET0_N")} and
++            connections(port("rst_fclk0", "peripheral_aresetn")) == {("axi_gp0_lite", "aresetn"), ("infer", "cold_resetn")},
++            "HWH cold reset连接不同")
++    require(all(port(instance, name).get("POLARITY") == "ACTIVE_LOW" for instance, name in
++                (("ps7", "FCLK_RESET0_N"), ("rst_fclk0", "ext_reset_in"), ("rst_fclk0", "peripheral_aresetn"))) and
++            [item.get("VALUE") for item in root.findall(".//MODULE[@INSTANCE='rst_fclk0']/PARAMETERS/PARAMETER[@NAME='C_EXT_RESET_HIGH']")] == ["0"],
++            "HWH cold reset极性不同")
++    return {"member_sha256": {name: hashlib.sha256(value).hexdigest() for name, value in members.items()},
++            "tables": tables, "hwh_clock_hz": 50000000, "hwh_clock_consumers": sorted(consumers),
++            "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"}
++
++
+ def validate_targets(properties):
+     """动态 ID 选择唯一同链 APU、双核和 FPGA；不硬编码历史目标ID。"""
+     require(type(properties) is dict and len(properties) == 4, "目标数量或类型错误")
+@@ -222,6 +303,7 @@ class JtagController:
+         self.log = (self.run / "jtag_calls.jsonl").open("x", encoding="utf-8", newline="\n")
+         self.failed, self.targets, self.selected, self.owned_bps = False, {}, {}, []
+         self.initialized, self.configured, self.app_running, self.cpu0_touched = False, False, False, False
++        self.postconfigured = False
+         self.record = {"schema_version": 1, "status": "IN_PROGRESS", "cold_lifecycle_proven": False,
+                        "hardware_execution": "REQUESTED_BY_CALLER", "bindings": self.bindings, "calls": [], "cleanup_errors": [],
+                        "limitations": ["调试system复位不证明物理POR或旧AXI生命周期结束。", "CPU1门禁为离散观测。",
+@@ -413,14 +495,108 @@ class JtagController:
+                 self.record["cleanup_errors"].append(repr(error))
+         self.remove_owned()
+ 
++    def _postconfig(self, basis):
++        """EOS1后、app前复现已绑定生成表；失败只允许同身份下已解锁SLCR重锁。"""
++        observation = {"status": "IN_PROGRESS", "basis": basis, "steps": [], "cleanup": []}
++        self.record["postconfiguration"] = observation
++        unlock_attempted = False
++        def write(label, address, value):
++            self.verify_bindings(); self.gate()
++            self.call("apu.mwr.postconfig." + label, self.targets["apu"].mwr, "--bypass_cache_synq",
++                      address=address, size=1, word_size=4, words=[value])
++        def clock_snapshot(label, table):
++            clock, pll = self.words(FPGA0_CLOCK, 1)[0], self.words(PLL_STATUS, 1)[0]
++            snapshot = {"label": label, "clock_word": clock, "pll_word": pll,
++                        "clock_mask": table["clock"][2], "clock_expected": table["clock"][3],
++                        "pll_masks": table["pll_masks"]}
++            observation.setdefault("clock_observations", []).append(snapshot)
++            require(clock & snapshot["clock_mask"] == snapshot["clock_expected"], "FPGA0 clock生成参数读回不符")
++            require(all(pll & mask == mask for mask in table["pll_masks"]), "PLL锁定位读回不符")
++        try:
++            require(self.initialized and self.configured and not self.postconfigured and not self.app_running and
++                    self.record["configuration_observations"][-1]["phase"] == "after_full_bit" and
++                    self.record["configuration_observations"][-1]["status"] == "PASS" and
++                    self.record["configuration_observations"][-1]["eos"] == 1, "postconfig缺少本次EOS1前置事实")
++            self.verify_bindings(); self.gate()
++            revision = self.words(PS_VERSION, 1)[0]
++            nibble = (revision >> 28) & 0xF
++            branch = "1_0" if nibble == 0 else "2_0" if nibble == 1 else "3_0"
++            table = basis["tables"][branch]
++            observation["silicon"] = {"address": PS_VERSION, "word": revision, "nibble": nibble, "branch": branch}
++            before = {"locksta": self.words(SLCR_LOCKSTA, 1)[0], "level_shifter": self.words(LEVEL_SHIFTER, 1)[0],
++                      "fpga_reset": self.words(FPGA_RESET, 1)[0]}
++            observation["before"] = before
++            clock_snapshot("before_unlock", table)
++            require(before["locksta"] & 1 == 1, "postconfig前SLCR未锁定，不能取得解锁所有权")
++            # 不读取write-only LOCK/UNLOCK；实际状态由LOCKSTA bit0核验。
++            self.verify_bindings(); self.gate(); unlock_attempted = True
++            write("unlock", SLCR_UNLOCK, table["operations"][0][2])
++            self.verify_bindings(); self.gate()
++            unlocked = self.words(SLCR_LOCKSTA, 1)[0]
++            observation["steps"].append({"operation": "unlock", "locksta": unlocked})
++            require(unlocked & 1 == 0, "SLCR解锁LOCKSTA读回不符")
++            for operation, address, mask, value in table["operations"][1:3]:
++                self.verify_bindings(); self.gate()
++                old = self.words(address, 1)[0]
++                expected = (old & (~mask & 0xFFFFFFFF)) | (value & mask)
++                step = {"operation": operation, "address": address, "mask": mask, "value": value,
++                        "before": old, "expected": expected, "status": "IN_PROGRESS"}
++                observation["steps"].append(step)
++                write("level_shifter" if address == LEVEL_SHIFTER else "fpga_reset", address, expected)
++                self.verify_bindings(); self.gate()
++                actual = self.words(address, 1)[0]
++                step.update(after=actual, status="PASS" if actual == expected else "FAILED")
++                require(actual == expected, "postconfig完整RMW读回不符")
++            write("lock", SLCR_LOCK, table["operations"][3][2])
++            self.verify_bindings(); self.gate()
++            locked = self.words(SLCR_LOCKSTA, 1)[0]
++            observation["steps"].append({"operation": "lock", "locksta": locked})
++            require(locked & 1 == 1, "SLCR重锁LOCKSTA读回不符")
++            self.verify_bindings(); self.gate()
++            clock_snapshot("after_lock", table)
++            observation["cold_csr"] = self.cold_idle("postconfig_before_app")
++            # 核对T11真实cold reset默认；已有cache/异常命令的门禁语义不由此扩展。
++            defaults = {0x014: 0, 0x018: 0, 0x01C: transport.INPUT_BYTES, 0x020: 0x00100000,
++                        0x024: transport.WEIGHT_BYTES, 0x028: 0, 0x02C: 0, 0x05C: 0, 0x060: 0,
++                        0x064: 0, 0x06C: 0, 0x070: 0, 0x074: 0}
++            observation["cold_reset_defaults"] = {"expected": defaults,
++                "actual": {address: observation["cold_csr"][address] for address in defaults}}
++            require(observation["cold_reset_defaults"]["actual"] == defaults, "app前CSR不是本次cold reset默认")
++            self.gate()
++            self.postconfigured = True
++            observation["status"] = "PASS"
++        except BaseException as error:
++            observation.update(status="FAILED", error=repr(error), traceback=traceback.format_exc())
++            if unlock_attempted:
++                cleanup = {"status": "IN_PROGRESS"}
++                observation["cleanup"].append(cleanup)
++                try:
++                    # 原门禁仍必须成立；不强制访问、不重新解锁，不以清理覆盖原异常。
++                    self.verify_bindings(); self.gate()
++                    locksta = self.words(SLCR_LOCKSTA, 1)[0]
++                    cleanup["before_locksta"] = locksta
++                    if locksta & 1 == 0:
++                        write("cleanup_lock", SLCR_LOCK, 0x767B)
++                        cleanup["after_locksta"] = self.words(SLCR_LOCKSTA, 1)[0]
++                        require(cleanup["after_locksta"] & 1 == 1, "失败清理SLCR未重锁")
++                        cleanup["status"] = "RELOCKED"
++                    else:
++                        cleanup["status"] = "ALREADY_LOCKED"
++                except BaseException as cleanup_error:
++                    cleanup.update(status="FAILED", error=repr(cleanup_error), traceback=traceback.format_exc())
++                    self.record["cleanup_errors"].append(repr(cleanup_error))
++            raise
++
+     def deploy(self):
+-        """OCM init实际成功后全量PL配置，再DDR app下载并仅继续CPU0。"""
++        """OCM init→EOS1→生成postconfig及冷CSR→DDR app，CPU1始终不继续。"""
+         def action():
+             require(not self.initialized and not self.configured and not self.app_running, "禁止重复部署")
+             require("system_reset" in self.record and any(row["phase"] == "after_system_reset" and
+                     row["status"] == "PASS" and row.get("eos") == 0
+                     for row in self.record.get("configuration_observations", [])),
+                     "部署前必须保存本控制器system-stop及实际EOS0观测")
++            basis = postconfig_basis(bound_bytes(self.bindings["xsa"]))
++            self.record["postconfig_basis"] = basis
+             entry, symbols = init_layout(bound_bytes(self.bindings["init_elf"]))
+             try:
+                 from .check_s2b_ps_smoke_layout import parse_elf
+@@ -462,7 +638,9 @@ class JtagController:
+             self.call("fpga.full.compatibility_default", self.targets["fpga"].fpga, file=self.bindings["bit"]["path"])
+             self.observe_config_status("after_full_bit", 1)
+             self.configured = True
++            self._postconfig(basis)
+             self.verify_bindings(); self.gate()
++            require(self.postconfigured and self.record["postconfiguration"]["status"] == "PASS", "postconfig未完成，禁止app")
+             self.call("cpu0.dow.app", self.targets["cpu0"].dow, file=self.bindings["app_elf"]["path"], auto_stop=True, set_entry=True)
+             self.gate()
+             require(0x100000 <= app["entry"] < 0x1100000 and self.pc() == app["entry"], "app DDR入口PC不符")
+diff --git a/verification/test_s2b_board_jtag.py b/verification/test_s2b_board_jtag.py
+index 433007b..4481bfc 100644
+--- a/verification/test_s2b_board_jtag.py
++++ b/verification/test_s2b_board_jtag.py
+@@ -9,6 +9,7 @@ import json
+ import struct
+ import tempfile
+ from types import SimpleNamespace
++import zipfile
+ import unittest
+ 
+ try:
+@@ -60,6 +61,35 @@ def target_rows():
+     return rows
+ 
+ 
++def xsa_bytes():
++    """独立最小生成依据fixture；不引用被测常量，不冒充实际XSA。"""
++    generated = "unsigned long ps7GetSiliconVersion(){unsigned long mask=0xF0000000;unsigned long *addr=(unsigned long*)0XF8007080;unsigned long ps_version=(*addr & mask)>>28;return ps_version;}\n"
++    for revision in ("1_0", "2_0", "3_0"):
++        generated += f"unsigned long ps7_post_config_{revision}[]={{EMIT_WRITE(0XF8000008,0xDF0DU),EMIT_MASKWRITE(0XF8000900,0xFU,0xFU),EMIT_MASKWRITE(0XF8000240,0xFFFFFFFFU,0x0U),EMIT_WRITE(0XF8000004,0x767BU),EMIT_EXIT(),}};\n"
++        generated += f"unsigned long ps7_clock_init_data_{revision}[]={{EMIT_MASKWRITE(0XF8000170,0x03F03F30U,0x00600600U),EMIT_EXIT(),}};\n"
++        generated += f"unsigned long ps7_pll_init_data_{revision}[]={{EMIT_MASKPOLL(0XF800010C,0x1U),EMIT_MASKPOLL(0XF800010C,0x2U),EMIT_MASKPOLL(0XF800010C,0x4U),EMIT_EXIT(),}};\n"
++    generated += "int ps7_post_config(){if(si_ver==PCW_SILICON_VERSION_1){ret=ps7_config(ps7_post_config_1_0);if(ret!=PS7_INIT_SUCCESS)return ret;}else if(si_ver==PCW_SILICON_VERSION_2){ret=ps7_config(ps7_post_config_2_0);if(ret!=PS7_INIT_SUCCESS)return ret;}else{ret=ps7_config(ps7_post_config_3_0);if(ret!=PS7_INIT_SUCCESS)return ret;}}"
++    consumers = (("ps7", "M_AXI_GP0_ACLK"), ("ps7", "S_AXI_HP0_ACLK"), ("axi_gp0_lite", "aclk"), ("rst_fclk0", "slowest_sync_clk"), ("infer", "clk"))
++    def port(name, connections, clock=False):
++        frequency = ' CLKFREQUENCY="50000000"' if clock else ""
++        frequency += ' POLARITY="ACTIVE_LOW"' if not clock else ""
++        return f'<PORT NAME="{name}"{frequency}><CONNECTIONS>' + "".join(f'<CONNECTION INSTANCE="{instance}" PORT="{pin}"/>' for instance, pin in connections) + '</CONNECTIONS></PORT>'
++    modules = {instance: [] for instance in ("ps7", "axi_gp0_lite", "rst_fclk0", "infer")}
++    modules["ps7"].append(port("FCLK_CLK0", consumers, True))
++    for instance, pin in consumers:
++        modules[instance].append(port(pin, (("ps7", "FCLK_CLK0"),), True))
++    modules["ps7"].append(port("FCLK_RESET0_N", (("rst_fclk0", "ext_reset_in"),)))
++    modules["rst_fclk0"].append(port("ext_reset_in", (("ps7", "FCLK_RESET0_N"),)))
++    modules["rst_fclk0"].append(port("peripheral_aresetn", (("axi_gp0_lite", "aresetn"), ("infer", "cold_resetn"))))
++    hwh = "<SYSTEM>" + "".join(f'<MODULE INSTANCE="{instance}">' + ('<PARAMETERS><PARAMETER NAME="C_EXT_RESET_HIGH" VALUE="0"/></PARAMETERS>' if instance == "rst_fclk0" else "") + '<PORTS>' + "".join(ports) + '</PORTS></MODULE>' for instance, ports in modules.items()) + "</SYSTEM>"
++    raw = io.BytesIO()
++    with zipfile.ZipFile(raw, "w") as archive:
++        archive.writestr("ps7_init.c", generated)
++        archive.writestr("ps7_init.h", "#define PCW_SILICON_VERSION_1 0\n#define PCW_SILICON_VERSION_2 1\n#define FPGA0_FREQ 50000000\n")
++        archive.writestr("unit.hwh", hwh)
++    return raw.getvalue()
++
++
+ class FakeBp:
+     """原生二元tuple状态及按对象移除行为。"""
+     def __init__(self, core, address, key):
+@@ -98,9 +128,13 @@ class FakeTarget:
+         return values[0] if size == 1 else values
+ 
+     def mwr(self, *args, address, size, word_size, words):
+-        self.session.operations.append(("mwr", args, address, size, word_size, words))
++        postconfig = address in (0xF8000004, 0xF8000008, 0xF8000900, 0xF8000240)
++        self.session.operations.append(("postconfig_mwr" if postconfig else "mwr", args, address, size, word_size, words))
+         if args != ("--bypass_cache_synq",):
+             raise AssertionError("缺少防止cache造假的原生选项")
++        if address in (0xF8000004, 0xF8000008):
++            self.session.memory[0xF800000C] = 1 if address == 0xF8000004 else 0
++            return None
+         if address == j.CSR_BASE + 8:
+             self.session.memory[j.CSR_BASE + 0x064] = 0 if words == [2] else (5 if words == [3] else 1)
+             if self.session.side_effect:
+@@ -167,7 +201,10 @@ class FakeSession:
+         self.objects = {r["target_id"]: FakeTarget(self, r) for r in self.rows.values()}
+         self._bptable = {1: object()}
+         self.memory = {0xF800025C: 0, j.DDRC_MODE_STATUS: 1, j.CSR_BASE: 0x53324250, j.CSR_BASE + 4: 0x100,
+-                       j.CSR_BASE + 0x00C: 0x400, j.CSR_BASE + 0x050: 0}
++                       j.CSR_BASE + 0x00C: 0x400, j.CSR_BASE + 0x050: 0,
++                       0xF800000C: 1, 0xF8007080: 0x21234567, 0xF8000900: 0x12340000,
++                       0xF8000240: 0xFFFFFFFF, 0xF8000170: 0x00600600, 0xF800010C: 7}
++        self.memory.update({j.CSR_BASE + 0x01C: 519168, j.CSR_BASE + 0x020: 0x00100000, j.CSR_BASE + 0x024: 5903100})
+         self.operations = []
+         self.fail_init = self.fail_bp = self.fail_dow = self.drop_write = self.side_effect = False
+         self.bus_error = "SLVERR"
+@@ -215,7 +252,7 @@ class JtagTests(unittest.TestCase):
+         self.bindings = {}
+         for name in ("init_elf", "app_elf", "xsa", "bit", "csr_source", "interface", "sdk_target"):
+             path = self.directory / name
+-            path.write_bytes(elf_bytes(app=name == "app_elf") if name.endswith("elf") else name.encode())
++            path.write_bytes(elf_bytes(app=name == "app_elf") if name.endswith("elf") else xsa_bytes() if name == "xsa" else name.encode())
+             self.bindings[name] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+         self.bindings["tool_source"] = {"path": str(Path(j.__file__).absolute()), "sha256": hashlib.sha256(Path(j.__file__).read_bytes()).hexdigest()}
+         for key, name in (("elf_parser", "check_s2b_ps_smoke_layout.py"), ("delivery_parser", "check_stage_delivery.py")):
+@@ -320,7 +357,7 @@ class JtagTests(unittest.TestCase):
+     def test_deploy_native_order_and_only_cpu0_continue(self):
+         self.ready(); self.controller.deploy()
+         ops = [r[0] for r in self.session.operations]
+-        self.assertEqual(ops, ["rst", "fpga", "dow", "con", "fpga", "fpga", "dow", "con"])
++        self.assertEqual(ops, ["rst", "fpga", "dow", "con", "fpga", "fpga"] + ["postconfig_mwr"] * 4 + ["dow", "con"])
+         self.assertEqual(self.session.operations[4][1], ())
+         self.assertEqual(set(self.session.operations[4][2]), {"file"})
+         self.assertEqual(set(self.session._bptable), {1})
+diff --git a/verification/test_s2b_cold_observation.py b/verification/test_s2b_cold_observation.py
+index be4fc92..1c5a7c7 100644
+--- a/verification/test_s2b_cold_observation.py
++++ b/verification/test_s2b_cold_observation.py
+@@ -1,11 +1,15 @@
+ """统一初始化观测的独立离线反例；不导入SDK或打开串口。"""
+ 
+ import ast
++import copy
++import hashlib
++import io
+ import json
+ from pathlib import Path
+ import subprocess
+ import sys
+ import unittest
++import zipfile
+ 
+ from verification import s2b_board_jtag as j
+ from verification import test_s2b_board_jtag as fixture
+@@ -113,7 +117,7 @@ class ColdObservationTests(unittest.TestCase):
+         self.session.memory[j.DDRC_MODE_STATUS] = 0x12345001
+         self.controller.deploy()
+         self.assertEqual([row[0] for row in self.session.operations],
+-                         ["rst", "fpga", "dow", "con", "ddrc_read", "fpga", "fpga", "dow", "con"])
++                         ["rst", "fpga", "dow", "con", "ddrc_read", "fpga", "fpga"] + ["postconfig_mwr"] * 4 + ["dow", "con"])
+         self.assertEqual(self.controller.record["ddrc_observation"]["word_hex"], "0x12345001")
+         self.assertEqual([row["eos"] for row in self.controller.record["configuration_observations"]], [0, 1])
+         self.assertTrue(self.controller.initialized and self.controller.configured and self.controller.app_running)
+@@ -250,5 +254,236 @@ class ColdObservationTests(unittest.TestCase):
+         self.assertFalse(any(isinstance(node, ast.Constant) and node.value == "--state" for node in ast.walk(tree)))
+ 
+ 
++class PostconfigTests(unittest.TestCase):
++    """独立手算四动作、原生异常及清理边界；不导入SDK、不操作板卡。"""
++    def setUp(self):
++        fixture.JtagTests.setUp(self)
++
++    def tearDown(self):
++        fixture.JtagTests.tearDown(self)
++
++    def ready(self):
++        fixture.JtagTests.ready(self)
++
++    def fresh(self):
++        self.tearDown(); self.setUp(); self.ready()
++
++    def assert_blocked(self):
++        self.assertTrue(self.controller.failed)
++        self.assertFalse(self.controller.postconfigured or self.controller.app_running)
++        self.assertFalse(self.session.objects[11].running or self.session.objects[12].running)
++        self.assertEqual(set(self.session._bptable), {1})
++        self.assertFalse(any(row[0] == "dow" and Path(row[2]).name == "app_elf" for row in self.session.operations))
++        self.assertFalse(any(row[0] == "con" and not row[2] for row in self.session.operations))
++        before = copy.deepcopy(self.session.operations)
++        with self.assertRaises(j.JtagError): self.controller.deploy()
++        self.assertEqual(before, self.session.operations)
++        self.assertFalse(self.controller.record["cold_lifecycle_proven"])
++
++    def test_four_actual_writes_full_reset_and_preserved_upper_level_bits(self):
++        self.ready(); self.controller.deploy()
++        operations = [row for row in self.session.operations if row[0] == "postconfig_mwr"]
++        self.assertEqual([(row[2], row[5]) for row in operations],
++                         [(0xF8000008, [0xDF0D]), (0xF8000900, [0x1234000F]), (0xF8000240, [0]), (0xF8000004, [0x767B])])
++        self.assertTrue(all(row[1] == ("--bypass_cache_synq",) and row[3:5] == (1, 4) for row in operations))
++        observation = self.controller.record["postconfiguration"]
++        self.assertEqual(observation["before"], {"locksta": 1, "level_shifter": 0x12340000, "fpga_reset": 0xFFFFFFFF})
++        self.assertEqual(observation["silicon"], {"address": 0xF8007080, "word": 0x21234567, "nibble": 2, "branch": "3_0"})
++        self.assertEqual([row["label"] for row in observation["clock_observations"]], ["before_unlock", "after_lock"])
++        self.assertEqual(observation["status"], "PASS")
++        calls = self.controller.record["calls"]
++        eos = next(i for i, row in enumerate(calls) if row["api"] == "fpga.config_status.after_full_bit")
++        writes = [i for i, row in enumerate(calls) if row["api"].startswith("apu.mwr.postconfig.")]
++        app = next(i for i, row in enumerate(calls) if row["api"] == "cpu0.dow.app")
++        csr = [i for i, row in enumerate(calls) if row["api"] == "apu.mrd" and row["kwargs"]["address"] == 0x43C0000C]
++        self.assertTrue(eos < min(writes) < max(writes) < min(csr) < max(csr) < app)
++        self.assertEqual(len(csr), 2)
++        self.assertFalse(any(row["kwargs"].get("address") in (0xF8000004, 0xF8000008) for row in calls if row["api"] == "apu.mrd"))
++
++    def test_revision_all_generated_branches_and_raw_low_bits(self):
++        self.ready()
++        for index, (nibble, branch) in enumerate(((0, "1_0"), (1, "2_0"), (2, "3_0"), (15, "3_0"))):
++            with self.subTest(nibble=nibble):
++                if index: self.fresh()
++                raw = (nibble << 28) | 0x1234567
++                self.session.memory[0xF8007080] = raw
++                self.controller.deploy()
++                self.assertEqual(self.controller.record["postconfiguration"]["silicon"],
++                                 {"address": 0xF8007080, "word": raw, "nibble": nibble, "branch": branch})
++
++    def test_initial_lock_clock_pll_and_revision_type_fail_before_unlock(self):
++        self.ready()
++        cases = ((0xF800000C, 0), (0xF8000170, 0x00600610), (0xF8000170, 0x00700600),
++                 (0xF800010C, 0), (0xF800010C, 1), (0xF800010C, 3), (0xF800010C, 6),
++                 (0xF8007080, True), (0xF8007080, "0x2"), (0xF8007080, -1), (0xF8007080, 1 << 32))
++        for index, (address, raw) in enumerate(cases):
++            with self.subTest(address=address, raw=raw):
++                if index: self.fresh()
++                self.session.memory[address] = raw
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_blocked()
++                self.assertFalse(any(row[0] == "postconfig_mwr" for row in self.session.operations))
++
++    def test_locksta_and_complete_rmw_readbacks_reject_and_relock(self):
++        self.ready()
++        for index, fault in enumerate(("unlock", "level", "reset", "lock")):
++            with self.subTest(fault=fault):
++                if index: self.fresh()
++                apu = self.session.objects[10]; original = apu.mwr
++                def wrong(*args, **kwargs):
++                    address = kwargs["address"]
++                    original(*args, **kwargs)
++                    if address == {"unlock": 0xF8000008, "level": 0xF8000900, "reset": 0xF8000240, "lock": 0xF8000004}[fault]:
++                        self.session.memory[0xF800000C if fault in ("unlock", "lock") else address] = (1 if fault == "unlock" else 0 if fault == "lock" else 0x1235000F if fault == "level" else 0x100)
++                apu.mwr = wrong
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_blocked()
++                cleanup = self.controller.record["postconfiguration"]["cleanup"][0]
++                self.assertEqual(cleanup["status"], "ALREADY_LOCKED" if fault == "unlock" else "FAILED" if fault == "lock" else "RELOCKED")
++                writes = [row for row in self.session.operations if row[0] == "postconfig_mwr"]
++                self.assertEqual(sum(row[2] == 0xF8000008 for row in writes), 1)
++
++    def test_cold_csr_identity_abi_state_ledger_and_stability(self):
++        self.ready()
++        for index, (offset, value) in enumerate(((0, 0), (4, 0x101), (0xC, 0x102), (0x10, 1), (0x50, 1), (0x54, 1), (0x58, 1), (0x68, 1))):
++            with self.subTest(offset=offset):
++                if index: self.fresh()
++                self.session.memory[0x43C00000 + offset] = value
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_blocked()
++                self.assertEqual(self.session.memory[0xF800000C], 1)
++                self.assertEqual(self.controller.record["postconfiguration"]["cleanup"][0]["status"], "ALREADY_LOCKED")
++        self.fresh()
++        original = self.session.objects[10].mrd
++        def unstable(*args, **kwargs):
++            value = original(*args, **kwargs)
++            if kwargs["address"] == 0x43C0000C:
++                self.session.memory[0x43C00074] += 1
++            return value
++        self.session.memory[0x43C00074] = 0
++        self.session.objects[10].mrd = unstable
++        with self.assertRaisesRegex(j.JtagError, "正在变化"): self.controller.deploy()
++        self.assert_blocked()
++
++    def test_all_cold_reset_default_fields_and_post_lock_clock_drift(self):
++        self.ready()
++        offsets = (0x14, 0x18, 0x1C, 0x20, 0x24, 0x28, 0x2C, 0x5C, 0x60, 0x64, 0x6C, 0x70, 0x74)
++        for index, offset in enumerate(offsets):
++            with self.subTest(offset=offset):
++                if index: self.fresh()
++                self.session.memory[0x43C00000 + offset] = self.session.memory.get(0x43C00000 + offset, 0) ^ 1
++                with self.assertRaisesRegex(j.JtagError, "cold reset默认"): self.controller.deploy()
++                self.assert_blocked()
++        for address in (0xF8000170, 0xF800010C):
++            with self.subTest(address=address):
++                self.fresh()
++                original = self.session.objects[10].mwr
++                def clock_drift(*args, **kwargs):
++                    original(*args, **kwargs)
++                    if kwargs["address"] == 0xF8000004: self.session.memory[address] = 0
++                self.session.objects[10].mwr = clock_drift
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_blocked()
++                self.assertEqual(self.controller.record["postconfiguration"]["clock_observations"][-1]["label"], "after_lock")
++
++    def test_every_postconfig_native_call_exception_locks_and_keeps_original(self):
++        self.ready(); self.controller.deploy()
++        calls = self.controller.record["calls"]
++        begin = next(i for i, row in enumerate(calls) if row["api"] == "fpga.config_status.after_full_bit") + 1
++        end = next(i for i, row in enumerate(calls) if row["api"] == "cpu0.dow.app") - 4
++        # 覆盖所有动态身份/状态/BOOT/寄存器/四写/两CSR调用，不采样跳过中间步骤。
++        for offset in range(end - begin):
++            with self.subTest(offset=offset, api=calls[begin + offset]["api"]):
++                self.fresh()
++                original = self.controller.call; count = 0
++                def throwing(name, function, *args, **kwargs):
++                    nonlocal count
++                    if "postconfiguration" in self.controller.record and self.controller.record["postconfiguration"]["status"] == "IN_PROGRESS":
++                        current = count; count += 1
++                        if current == offset:
++                            def native_failure(*args, **kwargs):
++                                raise RuntimeError("独立逐调用异常 " + str(offset))
++                            return original(name, native_failure, *args, **kwargs)
++                    return original(name, function, *args, **kwargs)
++                self.controller.call = throwing
++                with self.assertRaisesRegex(RuntimeError, "独立逐调用异常"): self.controller.deploy()
++                self.assert_blocked()
++                self.assertIn("独立逐调用异常", self.controller.record["error"])
++                self.assertLessEqual(sum(row[0] == "postconfig_mwr" and row[2] == 0xF8000008 for row in self.session.operations), 1)
++
++    def test_midsequence_peer_target_boot_cpu_or_file_drift_blocks_cleanup_write(self):
++        self.ready()
++        for index, fault in enumerate(("peer", "target", "boot", "cpu0", "cpu1", "file")):
++            with self.subTest(fault=fault):
++                if index: self.fresh()
++                apu = self.session.objects[10]; original = apu.mwr
++                def mutate(*args, **kwargs):
++                    original(*args, **kwargs)
++                    if kwargs["address"] == 0xF8000008:
++                        if fault == "peer": self.session._curchan_obj.remote_peer.attrs["Port"] = "3122"
++                        if fault == "target": self.session.rows["cpu0"]["target_ctx"] = "changed"
++                        if fault == "boot": self.session.memory[0xF800025C] = 1
++                        if fault in ("cpu0", "cpu1"): self.session.objects[11 if fault == "cpu0" else 12].running = True
++                        if fault == "file": Path(self.bindings["bit"]["path"]).write_bytes("独立漂移".encode("utf-8"))
++                apu.mwr = mutate
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assertTrue(self.controller.failed)
++                self.assertFalse(self.controller.app_running)
++                writes = [row for row in self.session.operations if row[0] == "postconfig_mwr"]
++                self.assertEqual([(row[2], row[5]) for row in writes], [(0xF8000008, [0xDF0D])])
++                self.assertEqual(self.controller.record["postconfiguration"]["cleanup"][0]["status"], "FAILED")
++                self.assertTrue(self.controller.record["cleanup_errors"])
++                self.assertFalse(any(row[0] == "con" and not row[2] for row in self.session.operations))
++
++    def test_exception_after_unlock_side_effect_relocks_but_preserves_original_and_cleanup_failure(self):
++        self.ready()
++        for index, cleanup_fail in enumerate((False, True)):
++            with self.subTest(cleanup_fail=cleanup_fail):
++                if index: self.fresh()
++                apu = self.session.objects[10]; original = apu.mwr
++                def throws(*args, **kwargs):
++                    address = kwargs["address"]
++                    original(*args, **kwargs)
++                    if address == 0xF8000008: raise RuntimeError("原解锁部分成功异常")
++                    if cleanup_fail and address == 0xF8000004: raise RuntimeError("重锁清理异常")
++                apu.mwr = throws
++                with self.assertRaisesRegex(RuntimeError, "原解锁部分成功异常"): self.controller.deploy()
++                self.assert_blocked()
++                cleanup = self.controller.record["postconfiguration"]["cleanup"][0]
++                self.assertEqual(cleanup["status"], "FAILED" if cleanup_fail else "RELOCKED")
++                self.assertIn("原解锁部分成功异常", self.controller.record["error"])
++                if cleanup_fail: self.assertIn("重锁清理异常", self.controller.record["cleanup_errors"][0])
++
++    def test_generated_xsa_tables_header_and_hwh_drift_rejected_before_init(self):
++        raw = fixture.xsa_bytes()
++        self.assertEqual(j.postconfig_basis(raw)["tables"]["1_0"]["clock"][2:], (0x03F03F30, 0x00600600))
++        for member, before, after in (("ps7_init.c", b"0xFFFFFFFFU", b"0x0000000FU"),
++                                       ("ps7_init.c", b"0xDF0DU", b"0xDF0CU"),
++                                       ("ps7_init.c", b"0x00600600U", b"0x00600500U"),
++                                       ("ps7_init.c", b"ps7_post_config_2_0[]", b"ps7_post_config_1_0[]"),
++                                       ("ps7_init.c", b"0xF0000000", b"0xE0000000"),
++                                       ("ps7_init.h", b"VERSION_2 1", b"VERSION_2 2"),
++                                       ("unit.hwh", b'50000000', b'100000000'),
++                                       ("unit.hwh", b'cold_resetn', b'resetn'),
++                                       ("unit.hwh", b'ACTIVE_LOW', b'ACTIVE_HIGH'),
++                                       ("unit.hwh", b'C_EXT_RESET_HIGH" VALUE="0', b'C_EXT_RESET_HIGH" VALUE="1')):
++            with self.subTest(member=member, before=before):
++                self.fresh()
++                output = io.BytesIO()
++                with zipfile.ZipFile(io.BytesIO(raw)) as source, zipfile.ZipFile(output, "w") as changed:
++                    for name in source.namelist():
++                        data = source.read(name)
++                        changed.writestr(name, data.replace(before, after) if name == member else data)
++                path = Path(self.bindings["xsa"]["path"])
++                path.write_bytes(output.getvalue())
++                # 固定新fixture字节后重建控制器，使错误来自生成语义而非SHA漂移。
++                self.controller.close(); self.run = self.directory / ("run_" + hashlib.sha256(output.getvalue()).hexdigest()[:8]); self.run.mkdir()
++                self.bindings["xsa"]["sha256"] = hashlib.sha256(output.getvalue()).hexdigest()
++                self.controller = j.JtagController(self.session, self.bindings, self.run); self.ready()
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_blocked()
++                self.assertFalse(any(row[0] == "dow" for row in self.session.operations))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/verification/test_s2b_visibility_probe.py b/verification/test_s2b_visibility_probe.py
+index 48b93f9..db8a42d 100644
+--- a/verification/test_s2b_visibility_probe.py
++++ b/verification/test_s2b_visibility_probe.py
+@@ -63,7 +63,7 @@ class LifecycleTests(unittest.TestCase):
+         for key in (11,12):self.session.objects[key].running=True
+         self.bindings={}
+         for name in ("init_elf","app_elf","xsa","bit","csr_source","interface","sdk_target"):
+-            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else name.encode());self.bindings[name]=bind(file)
++            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else fixture.xsa_bytes() if name=="xsa" else name.encode());self.bindings[name]=bind(file)
+         for key,file in [("tool_source",Path(j.__file__)),("transport_source",Path(j.transport.__file__)),("elf_parser",REAL_ROOT/"verification/check_s2b_ps_smoke_layout.py"),("delivery_parser",REAL_ROOT/"verification/check_stage_delivery.py")]:self.bindings[key]=bind(file)
+         self.build={"source_sha256":{"vitis/s2b_inference_app.c":"a"*64},"xsa_sha256":"b"*64}
+         self.expected={"native":{"ProcessId":123,"ExecutablePath":"D:\\root-owned\\hw_server.exe","CreationTimeFileTimeUtc":"123456"}}
+@@ -100,6 +100,9 @@ class LifecycleTests(unittest.TestCase):
+             self.session.objects[11].dow=fail_app
+         if scenario=="fpga":self.session.objects[13].fpga=lambda **kwargs:(_ for _ in ()).throw(RuntimeError("mock FPGA failure"))
+         if scenario=="boot":self.session.memory[0xF800025C]=1
++        if scenario=="postconfig_lock":self.session.memory[0xF800000C]=0
++        if scenario=="postconfig_clock":self.session.memory[0xF8000170]=0
++        if scenario=="postconfig_csr":self.session.memory[0x43C00074]=1
+         if scenario=="chain":self.session.rows["cpu1"]["jtag_cable_serial"]="wrong"
+         if scenario=="cpu0_stop":self.session.objects[11].stop=lambda **kwargs:(_ for _ in ()).throw(RuntimeError("mock CPU0 stop failure"))
+         if scenario=="breakpoint_cleanup":
+@@ -130,6 +133,8 @@ class LifecycleTests(unittest.TestCase):
+         open_index=self.session.operations.index(("serial.open",));con_app=next(i for i,x in enumerate(self.session.operations) if x[0]=="con" and not x[2])
+         self.assertLess(open_index,con_app)
+         self.assertFalse(self.ports[0].is_open)
++        self.assertEqual(result["postconfiguration"]["status"],"PASS")
++        self.assertEqual(result["postconfiguration"]["cold_reset_defaults"]["actual"][0x01C],519168)
+         self.assertIn(("connect",{"url":"TCP:localhost:3121","server":"hw_server"}),self.session.operations)
+         self.assertEqual(result["cache_probe"]["phase0_raw_hex"][:8],"78563412")
+         self.assertEqual(len(Path(self.config["run_dir"]).joinpath("uart_rx_raw.bin").read_bytes()),result["banner"]["bytes"]+2*(40+40+256))
+@@ -140,6 +145,17 @@ class LifecycleTests(unittest.TestCase):
+                 self.assertTrue((Path(self.config["run_dir"])/"entry_calls.jsonl").is_file())
+                 if scenario=="connect":self.assertIn(("disconnect",{}),self.session.operations)
+                 if scenario in ("serial_close","disconnect","dispose","breakpoint_cleanup"):self.assertTrue(result["cleanup_errors"] or json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))["cleanup_errors"])
++    def test_postconfig_failure_locks_wire_before_app_load_or_uart_request(self):
++        for scenario in ("postconfig_lock","postconfig_clock","postconfig_csr"):
++            with self.subTest(scenario=scenario):
++                self.setUp();result=self.execute(scenario)
++                self.assertEqual(result["native_exit_code"],2)
++                self.assertTrue(result["uart_failed"])
++                self.assertFalse(result["uart_events"])
++                self.assertFalse(any(row[0]=="con" and not row[2] for row in self.session.operations))
++                self.assertFalse(any(row[0]=="dow" and Path(row[2]).name=="app_elf" for row in self.session.operations))
++                raw=json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))
++                self.assertEqual(raw["postconfiguration"]["status"],"FAILED")
+     def test_identity_failure_prevents_sdk_import(self):
+         for field,value in [("ProcessId",124),("CreationTimeFileTimeUtc","999"),("ExecutablePath","wrong")]:
+             with self.subTest(field=field):
+@@ -176,7 +192,7 @@ class PreflightTests(unittest.TestCase):
+         self.directory=Path(tempfile.mkdtemp(prefix="unit_preflight_",dir=parent))
+         self.bindings={}
+         for name in ("init_elf","app_elf","xsa","bit","csr_source","interface"):
+-            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else name.encode());self.bindings[name]=bind(file)
++            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else fixture.xsa_bytes() if name=="xsa" else name.encode());self.bindings[name]=bind(file)
+         paths={"entry_source":Path(p.__file__),"tool_source":Path(j.__file__),"transport_source":Path(j.transport.__file__),"platform_checker":REAL_ROOT/"verification/check_s2b_inference_platform.py","elf_parser":REAL_ROOT/"verification/check_s2b_ps_smoke_layout.py","delivery_parser":REAL_ROOT/"verification/check_stage_delivery.py","sdk_init":p.SDK_INIT,"sdk_target":p.SDK_INIT.parent/"target.py",
+                "csr_source":REAL_ROOT/"src/s2b_control_csr.sv","interface":REAL_ROOT/"docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"}
+         serial=Path(sys.executable).parent/"Lib/site-packages/serial/__init__.py"
+diff --git a/vitis/run_s2b_visibility_probe.py b/vitis/run_s2b_visibility_probe.py
+index 82362ff..495fbaf 100644
+--- a/vitis/run_s2b_visibility_probe.py
++++ b/vitis/run_s2b_visibility_probe.py
+@@ -24,8 +24,8 @@ import traceback
+ ROOT=Path(__file__).absolute().parents[1]
+ TZ=timezone(timedelta(hours=8))
+ SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
+-# 固定T16完整字段观测候选；此绑定不替代总控核验独立G2及实板兼容批准。
+-JTAG_SHA="1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b"
++# 固定T16 EOS→生成postconfig→冷CSR候选；此绑定不替代独立G2及实板兼容批准。
++JTAG_SHA="06c1f46d9906d39e76f9befddcdb50eaf20cf485ddb5e5d48145ab0553143432"
+ CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
+              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
+ ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
+@@ -315,6 +315,7 @@ def _preflight(config,record,log):
+         require(j.exact_path(item["path"]).stat().st_size<=32*1024*1024,"绑定文件超出轻量入口预算")
+         j.bound_bytes(item)
+     require(bindings["tool_source"]["sha256"]==JTAG_SHA,"必须使用固定T16候选精确版本")
++    postconfig=j.postconfig_basis(j.bound_bytes(bindings["xsa"]))
+     serial_files=verify_serial_files(config)
+     for key,path in [("entry_source",Path(__file__).absolute()),("tool_source",Path(j.__file__).absolute()),("transport_source",Path(t.__file__).absolute()),
+                      ("platform_checker",ROOT/"verification/check_s2b_inference_platform.py"),("elf_parser",ROOT/"verification/check_s2b_ps_smoke_layout.py"),
+@@ -357,7 +358,7 @@ def _preflight(config,record,log):
+     native=server["native"]
+     require(type(native.get("ProcessId")) is int and native["ProcessId"]>0 and re.fullmatch(r"[0-9]+",str(native.get("CreationTimeFileTimeUtc",""))),"服务PID/creation格式错误")
+     require(j.exact_path(native["ExecutablePath"]).name=="hw_server.exe" and digest(j.exact_path(native["ExecutablePath"]))==server["native_sha256"],"服务原生可执行文件绑定错误")
+-    record["verified_inputs"]={"build_details":config["build_details"],"compat_review":config["compat_review"],"compat_artifacts":artifacts,"source_sha256":actual_sources,"cold_basis":config["cold_basis"],"compiled_build_status":build["status"],"pyserial_files":serial_files,"sdk_files":sdk_files,"sdk_init":bindings["sdk_init"],"sdk_target":bindings["sdk_target"]}
++    record["verified_inputs"]={"build_details":config["build_details"],"compat_review":config["compat_review"],"compat_artifacts":artifacts,"source_sha256":actual_sources,"cold_basis":config["cold_basis"],"compiled_build_status":build["status"],"pyserial_files":serial_files,"sdk_files":sdk_files,"sdk_init":bindings["sdk_init"],"sdk_target":bindings["sdk_target"],"postconfig_basis":postconfig}
+     return j,t,build,server
+ 
+ def _runtime(config):
+@@ -448,6 +449,8 @@ def run(config):
+         with (folder/"uart_rx_raw.bin").open("xb") as rx,(folder/"uart_tx_headers.bin").open("xb") as tx:
+             wire=j.JtagWireSession(port,rx,tx,response_timeout=cfg["response_timeout_seconds"])
+             controller.deploy()
++            require(controller.postconfigured and controller.record["postconfiguration"]["status"]=="PASS","T16 postconfig及app前冷CSR未通过")
++            record["postconfiguration"]=controller.record["postconfiguration"]
+             log.call("runtime.verify_after_deploy",verify_runtime_sources,cfg,session)
+             record["banner"]=log.call("wire.banner",wire.banner,build["source_sha256"]["vitis/s2b_inference_app.c"],build["xsa_sha256"])
+             identity("before_cache")

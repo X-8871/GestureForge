@@ -9,6 +9,7 @@ import json
 import struct
 import tempfile
 from types import SimpleNamespace
+import zipfile
 import unittest
 
 try:
@@ -60,6 +61,35 @@ def target_rows():
     return rows
 
 
+def xsa_bytes():
+    """独立最小生成依据fixture；不引用被测常量，不冒充实际XSA。"""
+    generated = "unsigned long ps7GetSiliconVersion(){unsigned long mask=0xF0000000;unsigned long *addr=(unsigned long*)0XF8007080;unsigned long ps_version=(*addr & mask)>>28;return ps_version;}\n"
+    for revision in ("1_0", "2_0", "3_0"):
+        generated += f"unsigned long ps7_post_config_{revision}[]={{EMIT_WRITE(0XF8000008,0xDF0DU),EMIT_MASKWRITE(0XF8000900,0xFU,0xFU),EMIT_MASKWRITE(0XF8000240,0xFFFFFFFFU,0x0U),EMIT_WRITE(0XF8000004,0x767BU),EMIT_EXIT(),}};\n"
+        generated += f"unsigned long ps7_clock_init_data_{revision}[]={{EMIT_MASKWRITE(0XF8000170,0x03F03F30U,0x00600600U),EMIT_EXIT(),}};\n"
+        generated += f"unsigned long ps7_pll_init_data_{revision}[]={{EMIT_MASKPOLL(0XF800010C,0x1U),EMIT_MASKPOLL(0XF800010C,0x2U),EMIT_MASKPOLL(0XF800010C,0x4U),EMIT_EXIT(),}};\n"
+    generated += "int ps7_post_config(){if(si_ver==PCW_SILICON_VERSION_1){ret=ps7_config(ps7_post_config_1_0);if(ret!=PS7_INIT_SUCCESS)return ret;}else if(si_ver==PCW_SILICON_VERSION_2){ret=ps7_config(ps7_post_config_2_0);if(ret!=PS7_INIT_SUCCESS)return ret;}else{ret=ps7_config(ps7_post_config_3_0);if(ret!=PS7_INIT_SUCCESS)return ret;}}"
+    consumers = (("ps7", "M_AXI_GP0_ACLK"), ("ps7", "S_AXI_HP0_ACLK"), ("axi_gp0_lite", "aclk"), ("rst_fclk0", "slowest_sync_clk"), ("infer", "clk"))
+    def port(name, connections, clock=False):
+        frequency = ' CLKFREQUENCY="50000000"' if clock else ""
+        frequency += ' POLARITY="ACTIVE_LOW"' if not clock else ""
+        return f'<PORT NAME="{name}"{frequency}><CONNECTIONS>' + "".join(f'<CONNECTION INSTANCE="{instance}" PORT="{pin}"/>' for instance, pin in connections) + '</CONNECTIONS></PORT>'
+    modules = {instance: [] for instance in ("ps7", "axi_gp0_lite", "rst_fclk0", "infer")}
+    modules["ps7"].append(port("FCLK_CLK0", consumers, True))
+    for instance, pin in consumers:
+        modules[instance].append(port(pin, (("ps7", "FCLK_CLK0"),), True))
+    modules["ps7"].append(port("FCLK_RESET0_N", (("rst_fclk0", "ext_reset_in"),)))
+    modules["rst_fclk0"].append(port("ext_reset_in", (("ps7", "FCLK_RESET0_N"),)))
+    modules["rst_fclk0"].append(port("peripheral_aresetn", (("axi_gp0_lite", "aresetn"), ("infer", "cold_resetn"))))
+    hwh = "<SYSTEM>" + "".join(f'<MODULE INSTANCE="{instance}">' + ('<PARAMETERS><PARAMETER NAME="C_EXT_RESET_HIGH" VALUE="0"/></PARAMETERS>' if instance == "rst_fclk0" else "") + '<PORTS>' + "".join(ports) + '</PORTS></MODULE>' for instance, ports in modules.items()) + "</SYSTEM>"
+    raw = io.BytesIO()
+    with zipfile.ZipFile(raw, "w") as archive:
+        archive.writestr("ps7_init.c", generated)
+        archive.writestr("ps7_init.h", "#define PCW_SILICON_VERSION_1 0\n#define PCW_SILICON_VERSION_2 1\n#define FPGA0_FREQ 50000000\n")
+        archive.writestr("unit.hwh", hwh)
+    return raw.getvalue()
+
+
 class FakeBp:
     """原生二元tuple状态及按对象移除行为。"""
     def __init__(self, core, address, key):
@@ -98,9 +128,13 @@ class FakeTarget:
         return values[0] if size == 1 else values
 
     def mwr(self, *args, address, size, word_size, words):
-        self.session.operations.append(("mwr", args, address, size, word_size, words))
+        postconfig = address in (0xF8000004, 0xF8000008, 0xF8000900, 0xF8000240)
+        self.session.operations.append(("postconfig_mwr" if postconfig else "mwr", args, address, size, word_size, words))
         if args != ("--bypass_cache_synq",):
             raise AssertionError("缺少防止cache造假的原生选项")
+        if address in (0xF8000004, 0xF8000008):
+            self.session.memory[0xF800000C] = 1 if address == 0xF8000004 else 0
+            return None
         if address == j.CSR_BASE + 8:
             self.session.memory[j.CSR_BASE + 0x064] = 0 if words == [2] else (5 if words == [3] else 1)
             if self.session.side_effect:
@@ -167,7 +201,10 @@ class FakeSession:
         self.objects = {r["target_id"]: FakeTarget(self, r) for r in self.rows.values()}
         self._bptable = {1: object()}
         self.memory = {0xF800025C: 0, j.DDRC_MODE_STATUS: 1, j.CSR_BASE: 0x53324250, j.CSR_BASE + 4: 0x100,
-                       j.CSR_BASE + 0x00C: 0x400, j.CSR_BASE + 0x050: 0}
+                       j.CSR_BASE + 0x00C: 0x400, j.CSR_BASE + 0x050: 0,
+                       0xF800000C: 1, 0xF8007080: 0x21234567, 0xF8000900: 0x12340000,
+                       0xF8000240: 0xFFFFFFFF, 0xF8000170: 0x00600600, 0xF800010C: 7}
+        self.memory.update({j.CSR_BASE + 0x01C: 519168, j.CSR_BASE + 0x020: 0x00100000, j.CSR_BASE + 0x024: 5903100})
         self.operations = []
         self.fail_init = self.fail_bp = self.fail_dow = self.drop_write = self.side_effect = False
         self.bus_error = "SLVERR"
@@ -215,7 +252,7 @@ class JtagTests(unittest.TestCase):
         self.bindings = {}
         for name in ("init_elf", "app_elf", "xsa", "bit", "csr_source", "interface", "sdk_target"):
             path = self.directory / name
-            path.write_bytes(elf_bytes(app=name == "app_elf") if name.endswith("elf") else name.encode())
+            path.write_bytes(elf_bytes(app=name == "app_elf") if name.endswith("elf") else xsa_bytes() if name == "xsa" else name.encode())
             self.bindings[name] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
         self.bindings["tool_source"] = {"path": str(Path(j.__file__).absolute()), "sha256": hashlib.sha256(Path(j.__file__).read_bytes()).hexdigest()}
         for key, name in (("elf_parser", "check_s2b_ps_smoke_layout.py"), ("delivery_parser", "check_stage_delivery.py")):
@@ -320,7 +357,7 @@ class JtagTests(unittest.TestCase):
     def test_deploy_native_order_and_only_cpu0_continue(self):
         self.ready(); self.controller.deploy()
         ops = [r[0] for r in self.session.operations]
-        self.assertEqual(ops, ["rst", "fpga", "dow", "con", "fpga", "fpga", "dow", "con"])
+        self.assertEqual(ops, ["rst", "fpga", "dow", "con", "fpga", "fpga"] + ["postconfig_mwr"] * 4 + ["dow", "con"])
         self.assertEqual(self.session.operations[4][1], ())
         self.assertEqual(set(self.session.operations[4][2]), {"file"})
         self.assertEqual(set(self.session._bptable), {1})

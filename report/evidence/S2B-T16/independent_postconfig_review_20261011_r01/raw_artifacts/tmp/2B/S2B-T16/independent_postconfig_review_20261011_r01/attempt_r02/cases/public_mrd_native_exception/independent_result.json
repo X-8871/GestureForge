@@ -1,0 +1,226 @@
+{
+  "scenario": "public_mrd_native_exception",
+  "scope": "MOCK_ONLY_NOT_HARDWARE",
+  "raised": "RuntimeError('独立mrd原生异常')",
+  "controller_failed": true,
+  "postconfigured": false,
+  "app_running": false,
+  "cold_lifecycle_proven": false,
+  "api_calls": 77,
+  "operations": [
+    [
+      "rst",
+      [
+        "--stop"
+      ],
+      {
+        "type": "system"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ],
+    [
+      "dow",
+      "ARM Cortex-A9 MPCore #0",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\public_mrd_native_exception\\init_elf"
+    ],
+    [
+      "con",
+      "ARM Cortex-A9 MPCore #0",
+      [
+        "--block"
+      ],
+      {
+        "timeout": 30
+      }
+    ],
+    [
+      "fpga",
+      [],
+      {
+        "file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\public_mrd_native_exception\\bit"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ]
+  ],
+  "postconfiguration": {
+    "status": "FAILED",
+    "basis": {
+      "member_sha256": {
+        "ps7_init.c": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+        "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+        "s2b_inference.hwh": "36f9cd08c5c7d93b66da3561f0fb1598978b0ec756b8056eb1d112ed37532d48"
+      },
+      "tables": {
+        "1_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "2_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "3_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        }
+      },
+      "hwh_clock_hz": 50000000,
+      "hwh_clock_consumers": [
+        [
+          "axi_gp0_lite",
+          "aclk"
+        ],
+        [
+          "infer",
+          "clk"
+        ],
+        [
+          "ps7",
+          "M_AXI_GP0_ACLK"
+        ],
+        [
+          "ps7",
+          "S_AXI_HP0_ACLK"
+        ],
+        [
+          "rst_fclk0",
+          "slowest_sync_clk"
+        ]
+      ],
+      "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"
+    },
+    "steps": [],
+    "cleanup": [],
+    "silicon": {
+      "address": 4160778368,
+      "word": 555959655,
+      "nibble": 2,
+      "branch": "3_0"
+    },
+    "error": "RuntimeError('独立mrd原生异常')",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 526, in _postconfig\n    before = {\"locksta\": self.words(SLCR_LOCKSTA, 1)[0], \"level_shifter\": self.words(LEVEL_SHIFTER, 1)[0],\n                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 402, in words\n    value = self.call(\"apu.mrd\", self.targets[\"apu\"].mrd, \"--value\", address=address, size=count, word_size=4)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 340, in call\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\review_cases_r02.py\", line 304, in read\n    raise RuntimeError(\"独立mrd原生异常\")\nRuntimeError: 独立mrd原生异常\n"
+  },
+  "elapsed_seconds": 0.1569999999992433,
+  "real_sdk_calls": 0,
+  "status": "PASS"
+}

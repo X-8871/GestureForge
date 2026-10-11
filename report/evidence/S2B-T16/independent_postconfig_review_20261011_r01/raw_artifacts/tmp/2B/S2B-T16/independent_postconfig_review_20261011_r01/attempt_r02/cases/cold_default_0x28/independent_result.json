@@ -1,0 +1,402 @@
+{
+  "scenario": "cold_default_0x28",
+  "scope": "MOCK_ONLY_NOT_HARDWARE",
+  "raised": "JtagError('app前CSR不是本次cold reset默认')",
+  "controller_failed": true,
+  "postconfigured": false,
+  "app_running": false,
+  "cold_lifecycle_proven": false,
+  "api_calls": 154,
+  "operations": [
+    [
+      "rst",
+      [
+        "--stop"
+      ],
+      {
+        "type": "system"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ],
+    [
+      "dow",
+      "ARM Cortex-A9 MPCore #0",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\cold_default_0x28\\init_elf"
+    ],
+    [
+      "con",
+      "ARM Cortex-A9 MPCore #0",
+      [
+        "--block"
+      ],
+      {
+        "timeout": 30
+      }
+    ],
+    [
+      "fpga",
+      [],
+      {
+        "file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\cold_default_0x28\\bit"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ],
+    [
+      "postconfig_mwr",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160749576,
+      1,
+      4,
+      [
+        57101
+      ]
+    ],
+    [
+      "postconfig_mwr",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160751872,
+      1,
+      4,
+      [
+        2779054095
+      ]
+    ],
+    [
+      "postconfig_mwr",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160750144,
+      1,
+      4,
+      [
+        0
+      ]
+    ],
+    [
+      "postconfig_mwr",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160749572,
+      1,
+      4,
+      [
+        30331
+      ]
+    ]
+  ],
+  "postconfiguration": {
+    "status": "FAILED",
+    "basis": {
+      "member_sha256": {
+        "ps7_init.c": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+        "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+        "s2b_inference.hwh": "36f9cd08c5c7d93b66da3561f0fb1598978b0ec756b8056eb1d112ed37532d48"
+      },
+      "tables": {
+        "1_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "2_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "3_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        }
+      },
+      "hwh_clock_hz": 50000000,
+      "hwh_clock_consumers": [
+        [
+          "axi_gp0_lite",
+          "aclk"
+        ],
+        [
+          "infer",
+          "clk"
+        ],
+        [
+          "ps7",
+          "M_AXI_GP0_ACLK"
+        ],
+        [
+          "ps7",
+          "S_AXI_HP0_ACLK"
+        ],
+        [
+          "rst_fclk0",
+          "slowest_sync_clk"
+        ]
+      ],
+      "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"
+    },
+    "steps": [
+      {
+        "operation": "unlock",
+        "locksta": 0
+      },
+      {
+        "operation": "MASKWRITE",
+        "address": 4160751872,
+        "mask": 15,
+        "value": 15,
+        "before": 2779054082,
+        "expected": 2779054095,
+        "status": "PASS",
+        "after": 2779054095
+      },
+      {
+        "operation": "MASKWRITE",
+        "address": 4160750144,
+        "mask": 4294967295,
+        "value": 0,
+        "before": 3236958772,
+        "expected": 0,
+        "status": "PASS",
+        "after": 0
+      },
+      {
+        "operation": "lock",
+        "locksta": 1
+      }
+    ],
+    "cleanup": [
+      {
+        "status": "ALREADY_LOCKED",
+        "before_locksta": 1
+      }
+    ],
+    "silicon": {
+      "address": 4160778368,
+      "word": 555959655,
+      "nibble": 2,
+      "branch": "3_0"
+    },
+    "before": {
+      "locksta": 1,
+      "level_shifter": 2779054082,
+      "fpga_reset": 3236958772
+    },
+    "clock_observations": [
+      {
+        "label": "before_unlock",
+        "clock_word": 6292992,
+        "pll_word": 7,
+        "clock_mask": 66076464,
+        "clock_expected": 6292992,
+        "pll_masks": [
+          1,
+          2,
+          4
+        ]
+      },
+      {
+        "label": "after_lock",
+        "clock_word": 6292992,
+        "pll_word": 7,
+        "clock_mask": 66076464,
+        "clock_expected": 6292992,
+        "pll_masks": [
+          1,
+          2,
+          4
+        ]
+      }
+    ],
+    "cold_csr": {
+      "0": 1395802704,
+      "4": 256,
+      "12": 1024,
+      "16": 0,
+      "20": 0,
+      "24": 0,
+      "28": 519168,
+      "32": 1048576,
+      "36": 5903100,
+      "40": 1,
+      "44": 0,
+      "48": 0,
+      "52": 0,
+      "56": 0,
+      "60": 0,
+      "64": 0,
+      "68": 0,
+      "72": 0,
+      "76": 0,
+      "80": 0,
+      "84": 0,
+      "88": 0,
+      "92": 0,
+      "96": 0,
+      "100": 0,
+      "104": 0,
+      "108": 0,
+      "112": 0,
+      "116": 0
+    },
+    "cold_reset_defaults": {
+      "expected": {
+        "20": 0,
+        "24": 0,
+        "28": 519168,
+        "32": 1048576,
+        "36": 5903100,
+        "40": 0,
+        "44": 0,
+        "92": 0,
+        "96": 0,
+        "100": 0,
+        "108": 0,
+        "112": 0,
+        "116": 0
+      },
+      "actual": {
+        "20": 0,
+        "24": 0,
+        "28": 519168,
+        "32": 1048576,
+        "36": 5903100,
+        "40": 1,
+        "44": 0,
+        "92": 0,
+        "96": 0,
+        "100": 0,
+        "108": 0,
+        "112": 0,
+        "116": 0
+      }
+    },
+    "error": "JtagError('app前CSR不是本次cold reset默认')",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 564, in _postconfig\n    require(observation[\"cold_reset_defaults\"][\"actual\"] == defaults, \"app前CSR不是本次cold reset默认\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 85, in require\n    raise JtagError(message)\nverification.s2b_board_jtag.JtagError: app前CSR不是本次cold reset默认\n"
+  },
+  "elapsed_seconds": 0.6100000000005821,
+  "real_sdk_calls": 0,
+  "status": "PASS"
+}

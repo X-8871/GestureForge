@@ -1,0 +1,275 @@
+{
+  "scenario": "unlock_partial_cleanup_ignored",
+  "scope": "MOCK_ONLY_NOT_HARDWARE",
+  "raised": "RuntimeError('独立原解锁部分成功异常')",
+  "controller_failed": true,
+  "postconfigured": false,
+  "app_running": false,
+  "cold_lifecycle_proven": false,
+  "api_calls": 100,
+  "operations": [
+    [
+      "rst",
+      [
+        "--stop"
+      ],
+      {
+        "type": "system"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ],
+    [
+      "dow",
+      "ARM Cortex-A9 MPCore #0",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\unlock_partial_cleanup_ignored\\init_elf"
+    ],
+    [
+      "con",
+      "ARM Cortex-A9 MPCore #0",
+      [
+        "--block"
+      ],
+      {
+        "timeout": 30
+      }
+    ],
+    [
+      "fpga",
+      [],
+      {
+        "file": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\attempt_r02\\cases\\unlock_partial_cleanup_ignored\\bit"
+      }
+    ],
+    [
+      "fpga",
+      [
+        "--config_status"
+      ],
+      {}
+    ],
+    [
+      "postconfig_mwr",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160749576,
+      1,
+      4,
+      [
+        57101
+      ]
+    ],
+    [
+      "ignored_lock_mock",
+      [
+        "--bypass_cache_synq"
+      ],
+      4160749572,
+      [
+        30331
+      ]
+    ]
+  ],
+  "postconfiguration": {
+    "status": "FAILED",
+    "basis": {
+      "member_sha256": {
+        "ps7_init.c": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+        "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+        "s2b_inference.hwh": "36f9cd08c5c7d93b66da3561f0fb1598978b0ec756b8056eb1d112ed37532d48"
+      },
+      "tables": {
+        "1_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "2_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        },
+        "3_0": {
+          "operations": [
+            [
+              "WRITE",
+              4160749576,
+              57101
+            ],
+            [
+              "MASKWRITE",
+              4160751872,
+              15,
+              15
+            ],
+            [
+              "MASKWRITE",
+              4160750144,
+              4294967295,
+              0
+            ],
+            [
+              "WRITE",
+              4160749572,
+              30331
+            ],
+            [
+              "EXIT"
+            ]
+          ],
+          "clock": [
+            "MASKWRITE",
+            4160749936,
+            66076464,
+            6292992
+          ],
+          "pll_masks": [
+            1,
+            2,
+            4
+          ]
+        }
+      },
+      "hwh_clock_hz": 50000000,
+      "hwh_clock_consumers": [
+        [
+          "axi_gp0_lite",
+          "aclk"
+        ],
+        [
+          "infer",
+          "clk"
+        ],
+        [
+          "ps7",
+          "M_AXI_GP0_ACLK"
+        ],
+        [
+          "ps7",
+          "S_AXI_HP0_ACLK"
+        ],
+        [
+          "rst_fclk0",
+          "slowest_sync_clk"
+        ]
+      ],
+      "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"
+    },
+    "steps": [],
+    "cleanup": [
+      {
+        "status": "FAILED",
+        "before_locksta": 0,
+        "after_locksta": 0,
+        "error": "JtagError('失败清理SLCR未重锁')",
+        "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 533, in _postconfig\n    write(\"unlock\", SLCR_UNLOCK, table[\"operations\"][0][2])\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 505, in write\n    self.call(\"apu.mwr.postconfig.\" + label, self.targets[\"apu\"].mwr, \"--bypass_cache_synq\",\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 340, in call\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\review_cases_r02.py\", line 266, in mutate\n    raise RuntimeError(\"独立原解锁部分成功异常\")\nRuntimeError: 独立原解锁部分成功异常\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 581, in _postconfig\n    require(cleanup[\"after_locksta\"] & 1 == 1, \"失败清理SLCR未重锁\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 85, in require\n    raise JtagError(message)\nverification.s2b_board_jtag.JtagError: 失败清理SLCR未重锁\n"
+      }
+    ],
+    "silicon": {
+      "address": 4160778368,
+      "word": 555959655,
+      "nibble": 2,
+      "branch": "3_0"
+    },
+    "before": {
+      "locksta": 1,
+      "level_shifter": 2779054082,
+      "fpga_reset": 3236958772
+    },
+    "clock_observations": [
+      {
+        "label": "before_unlock",
+        "clock_word": 6292992,
+        "pll_word": 7,
+        "clock_mask": 66076464,
+        "clock_expected": 6292992,
+        "pll_masks": [
+          1,
+          2,
+          4
+        ]
+      }
+    ],
+    "error": "RuntimeError('独立原解锁部分成功异常')",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 533, in _postconfig\n    write(\"unlock\", SLCR_UNLOCK, table[\"operations\"][0][2])\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 505, in write\n    self.call(\"apu.mwr.postconfig.\" + label, self.targets[\"apu\"].mwr, \"--bypass_cache_synq\",\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_jtag.py\", line 340, in call\n    result = function(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T16\\independent_postconfig_review_20261011_r01\\review_cases_r02.py\", line 266, in mutate\n    raise RuntimeError(\"独立原解锁部分成功异常\")\nRuntimeError: 独立原解锁部分成功异常\n"
+  },
+  "elapsed_seconds": 0.3440000000009604,
+  "real_sdk_calls": 0,
+  "status": "PASS"
+}

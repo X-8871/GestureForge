@@ -24,8 +24,8 @@ import traceback
 ROOT=Path(__file__).absolute().parents[1]
 TZ=timezone(timedelta(hours=8))
 SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
-# 固定T16完整字段观测候选；此绑定不替代总控核验独立G2及实板兼容批准。
-JTAG_SHA="1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b"
+# 固定T16 EOS→生成postconfig→冷CSR候选；此绑定不替代独立G2及实板兼容批准。
+JTAG_SHA="06c1f46d9906d39e76f9befddcdb50eaf20cf485ddb5e5d48145ab0553143432"
 CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
 ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
@@ -315,6 +315,7 @@ def _preflight(config,record,log):
         require(j.exact_path(item["path"]).stat().st_size<=32*1024*1024,"绑定文件超出轻量入口预算")
         j.bound_bytes(item)
     require(bindings["tool_source"]["sha256"]==JTAG_SHA,"必须使用固定T16候选精确版本")
+    postconfig=j.postconfig_basis(j.bound_bytes(bindings["xsa"]))
     serial_files=verify_serial_files(config)
     for key,path in [("entry_source",Path(__file__).absolute()),("tool_source",Path(j.__file__).absolute()),("transport_source",Path(t.__file__).absolute()),
                      ("platform_checker",ROOT/"verification/check_s2b_inference_platform.py"),("elf_parser",ROOT/"verification/check_s2b_ps_smoke_layout.py"),
@@ -357,7 +358,7 @@ def _preflight(config,record,log):
     native=server["native"]
     require(type(native.get("ProcessId")) is int and native["ProcessId"]>0 and re.fullmatch(r"[0-9]+",str(native.get("CreationTimeFileTimeUtc",""))),"服务PID/creation格式错误")
     require(j.exact_path(native["ExecutablePath"]).name=="hw_server.exe" and digest(j.exact_path(native["ExecutablePath"]))==server["native_sha256"],"服务原生可执行文件绑定错误")
-    record["verified_inputs"]={"build_details":config["build_details"],"compat_review":config["compat_review"],"compat_artifacts":artifacts,"source_sha256":actual_sources,"cold_basis":config["cold_basis"],"compiled_build_status":build["status"],"pyserial_files":serial_files,"sdk_files":sdk_files,"sdk_init":bindings["sdk_init"],"sdk_target":bindings["sdk_target"]}
+    record["verified_inputs"]={"build_details":config["build_details"],"compat_review":config["compat_review"],"compat_artifacts":artifacts,"source_sha256":actual_sources,"cold_basis":config["cold_basis"],"compiled_build_status":build["status"],"pyserial_files":serial_files,"sdk_files":sdk_files,"sdk_init":bindings["sdk_init"],"sdk_target":bindings["sdk_target"],"postconfig_basis":postconfig}
     return j,t,build,server
 
 def _runtime(config):
@@ -448,6 +449,8 @@ def run(config):
         with (folder/"uart_rx_raw.bin").open("xb") as rx,(folder/"uart_tx_headers.bin").open("xb") as tx:
             wire=j.JtagWireSession(port,rx,tx,response_timeout=cfg["response_timeout_seconds"])
             controller.deploy()
+            require(controller.postconfigured and controller.record["postconfiguration"]["status"]=="PASS","T16 postconfig及app前冷CSR未通过")
+            record["postconfiguration"]=controller.record["postconfiguration"]
             log.call("runtime.verify_after_deploy",verify_runtime_sources,cfg,session)
             record["banner"]=log.call("wire.banner",wire.banner,build["source_sha256"]["vitis/s2b_inference_app.c"],build["xsa_sha256"])
             identity("before_cache")

@@ -63,7 +63,7 @@ class LifecycleTests(unittest.TestCase):
         for key in (11,12):self.session.objects[key].running=True
         self.bindings={}
         for name in ("init_elf","app_elf","xsa","bit","csr_source","interface","sdk_target"):
-            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else name.encode());self.bindings[name]=bind(file)
+            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else fixture.xsa_bytes() if name=="xsa" else name.encode());self.bindings[name]=bind(file)
         for key,file in [("tool_source",Path(j.__file__)),("transport_source",Path(j.transport.__file__)),("elf_parser",REAL_ROOT/"verification/check_s2b_ps_smoke_layout.py"),("delivery_parser",REAL_ROOT/"verification/check_stage_delivery.py")]:self.bindings[key]=bind(file)
         self.build={"source_sha256":{"vitis/s2b_inference_app.c":"a"*64},"xsa_sha256":"b"*64}
         self.expected={"native":{"ProcessId":123,"ExecutablePath":"D:\\root-owned\\hw_server.exe","CreationTimeFileTimeUtc":"123456"}}
@@ -100,6 +100,9 @@ class LifecycleTests(unittest.TestCase):
             self.session.objects[11].dow=fail_app
         if scenario=="fpga":self.session.objects[13].fpga=lambda **kwargs:(_ for _ in ()).throw(RuntimeError("mock FPGA failure"))
         if scenario=="boot":self.session.memory[0xF800025C]=1
+        if scenario=="postconfig_lock":self.session.memory[0xF800000C]=0
+        if scenario=="postconfig_clock":self.session.memory[0xF8000170]=0
+        if scenario=="postconfig_csr":self.session.memory[0x43C00074]=1
         if scenario=="chain":self.session.rows["cpu1"]["jtag_cable_serial"]="wrong"
         if scenario=="cpu0_stop":self.session.objects[11].stop=lambda **kwargs:(_ for _ in ()).throw(RuntimeError("mock CPU0 stop failure"))
         if scenario=="breakpoint_cleanup":
@@ -130,6 +133,8 @@ class LifecycleTests(unittest.TestCase):
         open_index=self.session.operations.index(("serial.open",));con_app=next(i for i,x in enumerate(self.session.operations) if x[0]=="con" and not x[2])
         self.assertLess(open_index,con_app)
         self.assertFalse(self.ports[0].is_open)
+        self.assertEqual(result["postconfiguration"]["status"],"PASS")
+        self.assertEqual(result["postconfiguration"]["cold_reset_defaults"]["actual"][0x01C],519168)
         self.assertIn(("connect",{"url":"TCP:localhost:3121","server":"hw_server"}),self.session.operations)
         self.assertEqual(result["cache_probe"]["phase0_raw_hex"][:8],"78563412")
         self.assertEqual(len(Path(self.config["run_dir"]).joinpath("uart_rx_raw.bin").read_bytes()),result["banner"]["bytes"]+2*(40+40+256))
@@ -140,6 +145,17 @@ class LifecycleTests(unittest.TestCase):
                 self.assertTrue((Path(self.config["run_dir"])/"entry_calls.jsonl").is_file())
                 if scenario=="connect":self.assertIn(("disconnect",{}),self.session.operations)
                 if scenario in ("serial_close","disconnect","dispose","breakpoint_cleanup"):self.assertTrue(result["cleanup_errors"] or json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))["cleanup_errors"])
+    def test_postconfig_failure_locks_wire_before_app_load_or_uart_request(self):
+        for scenario in ("postconfig_lock","postconfig_clock","postconfig_csr"):
+            with self.subTest(scenario=scenario):
+                self.setUp();result=self.execute(scenario)
+                self.assertEqual(result["native_exit_code"],2)
+                self.assertTrue(result["uart_failed"])
+                self.assertFalse(result["uart_events"])
+                self.assertFalse(any(row[0]=="con" and not row[2] for row in self.session.operations))
+                self.assertFalse(any(row[0]=="dow" and Path(row[2]).name=="app_elf" for row in self.session.operations))
+                raw=json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))
+                self.assertEqual(raw["postconfiguration"]["status"],"FAILED")
     def test_identity_failure_prevents_sdk_import(self):
         for field,value in [("ProcessId",124),("CreationTimeFileTimeUtc","999"),("ExecutablePath","wrong")]:
             with self.subTest(field=field):
@@ -176,7 +192,7 @@ class PreflightTests(unittest.TestCase):
         self.directory=Path(tempfile.mkdtemp(prefix="unit_preflight_",dir=parent))
         self.bindings={}
         for name in ("init_elf","app_elf","xsa","bit","csr_source","interface"):
-            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else name.encode());self.bindings[name]=bind(file)
+            file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else fixture.xsa_bytes() if name=="xsa" else name.encode());self.bindings[name]=bind(file)
         paths={"entry_source":Path(p.__file__),"tool_source":Path(j.__file__),"transport_source":Path(j.transport.__file__),"platform_checker":REAL_ROOT/"verification/check_s2b_inference_platform.py","elf_parser":REAL_ROOT/"verification/check_s2b_ps_smoke_layout.py","delivery_parser":REAL_ROOT/"verification/check_stage_delivery.py","sdk_init":p.SDK_INIT,"sdk_target":p.SDK_INIT.parent/"target.py",
                "csr_source":REAL_ROOT/"src/s2b_control_csr.sv","interface":REAL_ROOT/"docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"}
         serial=Path(sys.executable).parent/"Lib/site-packages/serial/__init__.py"

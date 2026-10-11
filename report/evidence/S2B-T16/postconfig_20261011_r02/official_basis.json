@@ -1,0 +1,47 @@
+{
+  "document": "UG585 v1.15 / 2026-02-06",
+  "retrieved_utc8": "2026-10-11",
+  "sources": [
+    {
+      "title": "SLCR_LOCKSTA Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-SLCR_LOCKSTA-Details?contentId=0quLiBIv~vnI8GvNlY3btw",
+      "excerpt": "0: Registers are writeable. 1: Registers are not writeable.",
+      "fact": "LOCKSTA bit0是实际写保护状态；解锁后0、重锁后1。"
+    },
+    {
+      "title": "SLCR_LOCK Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-SLCR_LOCK-Details?contentId=HYXceB0Lob2m_cY6qM4Qeg",
+      "excerpt": "A read of this register returns zero.",
+      "fact": "LOCK_KEY=0x767B；write-only地址不做键值读回。"
+    },
+    {
+      "title": "SLCR_UNLOCK Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-SLCR_UNLOCK-Details?contentId=EIgvT0h0onkO3L5eBYaiKw",
+      "excerpt": "A read of this register returns zero.",
+      "fact": "UNLOCK_KEY=0xDF0D；write-only地址不做键值读回。"
+    },
+    {
+      "title": "PS–PL Voltage Level Shifter Enables",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/PS-PL-Voltage-Level-Shifter-Enables",
+      "excerpt": "enable the level shifters after the PL is powered up and before the signals are used.",
+      "fact": "PS/PL跨电压边界通信前需开启电平转换器。"
+    },
+    {
+      "title": "FPGA_RST_CTRL",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-slcr-FPGA_RST_CTRL",
+      "fact": "地址0xF8000240，32-bit读写，FPGA软件reset控制；本轮完整零动作来自绑定生成表。"
+    },
+    {
+      "title": "Resets",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Resets?contentId=8VJt_7GapP9S1lMozBY0Cg",
+      "fact": "四路PL reset由FPGA_RST_CTRL的FPGA[3:0]_OUT_RST独立控制；PL输出信号为FCLKRESETN[3:0]。"
+    }
+  ],
+  "sdk_scope": "未启动或导入XSDB/serial；公开Target.mrd/mwr API仅在mock上执行，实际Target来源门禁保持T19原有19定义闭包。",
+  "generated_scope": "六生成原件及HWH逐字节来自固定XSA；执行四动作来自三个ps7_post_config分支，clock/PLL来自同分支clock/pll表。",
+  "limitations": [
+    "FCLK寄存器和HWH不等于实际频率测量。",
+    "FPGA0_THR_STA的RUNNING位没有被当作频率计或门禁。",
+    "implemented平台连接仍需T19独立compatibility批准；本轮不批准真实runtime。"
+  ]
+}

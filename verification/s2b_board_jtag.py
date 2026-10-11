@@ -12,6 +12,8 @@ import struct
 import sys
 import time
 import traceback
+import xml.etree.ElementTree as ET
+import zipfile
 
 TZ = timezone(timedelta(hours=8))
 CABLE = ("Digilent", "JTAG-HS1", "210512180081")
@@ -20,6 +22,9 @@ PROBE_ADDRESS, PROBE_WORDS = 0x10000000, 64
 CSR_BASE = 0x43C00000
 DDRC_MODE_STATUS = 0xF8006054
 EOS_NAME = "END OF STARTUP (EOS) STATUS"
+SLCR_LOCK, SLCR_UNLOCK, SLCR_LOCKSTA = 0xF8000004, 0xF8000008, 0xF800000C
+PS_VERSION, LEVEL_SHIFTER, FPGA_RESET = 0xF8007080, 0xF8000900, 0xF8000240
+FPGA0_CLOCK, PLL_STATUS = 0xF8000170, 0xF800010C
 CSR_SNAPSHOT = tuple(range(0x00C, 0x030, 4)) + (0x050, 0x054, 0x058, 0x05C, 0x060, 0x068, 0x06C, 0x070, 0x074)
 IDENTITY_KEYS = ("name", "target_ctx", "target_id", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
                  "jtag_device_name", "jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")
@@ -141,6 +146,82 @@ def bound_bytes(binding):
     return raw
 
 
+def postconfig_basis(raw):
+    """只消费固定XSA的生成表及HWH；不执行生成C/Tcl或SDK私有初始化。"""
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        names = archive.namelist()
+        hwh = [name for name in names if name.endswith(".hwh")]
+        require(len(hwh) == 1 and names.count("ps7_init.c") == names.count("ps7_init.h") == 1,
+                "XSA生成成员缺失或歧义")
+        members = {}
+        for name in ("ps7_init.c", "ps7_init.h", hwh[0]):
+            require(archive.getinfo(name).file_size <= 4 * 1024 * 1024, "XSA生成成员超出预算")
+            members[name] = archive.read(name)
+    source = re.sub(r"/\*.*?\*/|//[^\r\n]*", "", members["ps7_init.c"].decode("utf-8"), flags=re.S)
+    header = members["ps7_init.h"].decode("utf-8")
+    for name, value in (("PCW_SILICON_VERSION_1", 0), ("PCW_SILICON_VERSION_2", 1), ("FPGA0_FREQ", 50000000)):
+        require(re.findall(r"^\s*#define\s+" + name + r"\s+([0-9]+)\s*$", header, re.M) == [str(value)],
+                "生成silicon/FPGA0定义变化：" + name)
+    def table(name):
+        rows = re.findall(r"unsigned\s+long\s+" + name + r"\[\]\s*=\s*\{(.*?)\};", source, re.S)
+        require(len(rows) == 1, "生成表缺失或歧义：" + name)
+        operations = []
+        def consume(match):
+            operation, args = match.groups()
+            parts = [] if not args.strip() else [part.strip() for part in args.split(",")]
+            require(all(re.fullmatch(r"0[xX][0-9A-Fa-f]+U?", part) for part in parts), "生成表参数未知")
+            operations.append((operation, *[int(part.rstrip("U"), 16) for part in parts]))
+            return ""
+        residue = re.sub(r"EMIT_([A-Z]+)\(([^()]*)\)\s*,", consume, rows[0])
+        require(not residue.strip() and operations and operations[-1] == ("EXIT",), "生成表含未支持内容")
+        return operations
+    expected = [("WRITE", SLCR_UNLOCK, 0xDF0D), ("MASKWRITE", LEVEL_SHIFTER, 0xF, 0xF),
+                ("MASKWRITE", FPGA_RESET, 0xFFFFFFFF, 0), ("WRITE", SLCR_LOCK, 0x767B), ("EXIT",)]
+    tables = {}
+    for revision in ("1_0", "2_0", "3_0"):
+        operations = table("ps7_post_config_" + revision)
+        require(operations == expected, "生成postconfig动作与已批准四动作不同")
+        clock = [row for row in table("ps7_clock_init_data_" + revision) if row[1:2] == (FPGA0_CLOCK,)]
+        require(clock == [("MASKWRITE", FPGA0_CLOCK, 0x03F03F30, 0x00600600)], "生成FPGA0 clock不符")
+        pll = [row for row in table("ps7_pll_init_data_" + revision) if row[0] == "MASKPOLL" and row[1] == PLL_STATUS]
+        require(pll == [("MASKPOLL", PLL_STATUS, 1), ("MASKPOLL", PLL_STATUS, 2), ("MASKPOLL", PLL_STATUS, 4)],
+                "生成PLL锁定位依据不符")
+        tables[revision] = {"operations": operations, "clock": clock[0], "pll_masks": [row[2] for row in pll]}
+    # 精确核对生成函数的版本读取与分支语义；else仍为3.0而非拒绝未知nibble。
+    compact = re.sub(r"\s+", "", source)
+    require("unsignedlongmask=0xF0000000;unsignedlong*addr=(unsignedlong*)0XF8007080;unsignedlongps_version=(*addr&mask)>>28;returnps_version;" in compact,
+            "生成silicon读取语义不同")
+    require("if(si_ver==PCW_SILICON_VERSION_1){ret=ps7_config(ps7_post_config_1_0);if(ret!=PS7_INIT_SUCCESS)returnret;}elseif(si_ver==PCW_SILICON_VERSION_2){ret=ps7_config(ps7_post_config_2_0);if(ret!=PS7_INIT_SUCCESS)returnret;}else{ret=ps7_config(ps7_post_config_3_0);if(ret!=PS7_INIT_SUCCESS)returnret;}" in compact,
+            "生成postconfig版本分支不同")
+    root = ET.fromstring(members[hwh[0]])
+    def port(instance, name):
+        ports = root.findall(f".//MODULE[@INSTANCE='{instance}']/PORTS/PORT[@NAME='{name}']")
+        require(len(ports) == 1, "HWH端口缺失或歧义")
+        return ports[0]
+    def connections(node):
+        return {(item.get("INSTANCE"), item.get("PORT")) for item in node.findall("./CONNECTIONS/CONNECTION")}
+    consumers = {("ps7", "M_AXI_GP0_ACLK"), ("ps7", "S_AXI_HP0_ACLK"), ("axi_gp0_lite", "aclk"),
+                 ("rst_fclk0", "slowest_sync_clk"), ("infer", "clk")}
+    clock_port = port("ps7", "FCLK_CLK0")
+    require(clock_port.get("CLKFREQUENCY") == "50000000" and connections(clock_port) == consumers,
+            "HWH FCLK0时钟连接/频率不同")
+    for instance, name in consumers:
+        node = port(instance, name)
+        require(node.get("CLKFREQUENCY") == "50000000" and connections(node) == {("ps7", "FCLK_CLK0")},
+                "HWH消费时钟不同")
+    require(connections(port("ps7", "FCLK_RESET0_N")) == {("rst_fclk0", "ext_reset_in")} and
+            connections(port("rst_fclk0", "ext_reset_in")) == {("ps7", "FCLK_RESET0_N")} and
+            connections(port("rst_fclk0", "peripheral_aresetn")) == {("axi_gp0_lite", "aresetn"), ("infer", "cold_resetn")},
+            "HWH cold reset连接不同")
+    require(all(port(instance, name).get("POLARITY") == "ACTIVE_LOW" for instance, name in
+                (("ps7", "FCLK_RESET0_N"), ("rst_fclk0", "ext_reset_in"), ("rst_fclk0", "peripheral_aresetn"))) and
+            [item.get("VALUE") for item in root.findall(".//MODULE[@INSTANCE='rst_fclk0']/PARAMETERS/PARAMETER[@NAME='C_EXT_RESET_HIGH']")] == ["0"],
+            "HWH cold reset极性不同")
+    return {"member_sha256": {name: hashlib.sha256(value).hexdigest() for name, value in members.items()},
+            "tables": tables, "hwh_clock_hz": 50000000, "hwh_clock_consumers": sorted(consumers),
+            "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"}
+
+
 def validate_targets(properties):
     """动态 ID 选择唯一同链 APU、双核和 FPGA；不硬编码历史目标ID。"""
     require(type(properties) is dict and len(properties) == 4, "目标数量或类型错误")
@@ -222,6 +303,7 @@ class JtagController:
         self.log = (self.run / "jtag_calls.jsonl").open("x", encoding="utf-8", newline="\n")
         self.failed, self.targets, self.selected, self.owned_bps = False, {}, {}, []
         self.initialized, self.configured, self.app_running, self.cpu0_touched = False, False, False, False
+        self.postconfigured = False
         self.record = {"schema_version": 1, "status": "IN_PROGRESS", "cold_lifecycle_proven": False,
                        "hardware_execution": "REQUESTED_BY_CALLER", "bindings": self.bindings, "calls": [], "cleanup_errors": [],
                        "limitations": ["调试system复位不证明物理POR或旧AXI生命周期结束。", "CPU1门禁为离散观测。",
@@ -413,14 +495,108 @@ class JtagController:
                 self.record["cleanup_errors"].append(repr(error))
         self.remove_owned()
 
+    def _postconfig(self, basis):
+        """EOS1后、app前复现已绑定生成表；失败只允许同身份下已解锁SLCR重锁。"""
+        observation = {"status": "IN_PROGRESS", "basis": basis, "steps": [], "cleanup": []}
+        self.record["postconfiguration"] = observation
+        unlock_attempted = False
+        def write(label, address, value):
+            self.verify_bindings(); self.gate()
+            self.call("apu.mwr.postconfig." + label, self.targets["apu"].mwr, "--bypass_cache_synq",
+                      address=address, size=1, word_size=4, words=[value])
+        def clock_snapshot(label, table):
+            clock, pll = self.words(FPGA0_CLOCK, 1)[0], self.words(PLL_STATUS, 1)[0]
+            snapshot = {"label": label, "clock_word": clock, "pll_word": pll,
+                        "clock_mask": table["clock"][2], "clock_expected": table["clock"][3],
+                        "pll_masks": table["pll_masks"]}
+            observation.setdefault("clock_observations", []).append(snapshot)
+            require(clock & snapshot["clock_mask"] == snapshot["clock_expected"], "FPGA0 clock生成参数读回不符")
+            require(all(pll & mask == mask for mask in table["pll_masks"]), "PLL锁定位读回不符")
+        try:
+            require(self.initialized and self.configured and not self.postconfigured and not self.app_running and
+                    self.record["configuration_observations"][-1]["phase"] == "after_full_bit" and
+                    self.record["configuration_observations"][-1]["status"] == "PASS" and
+                    self.record["configuration_observations"][-1]["eos"] == 1, "postconfig缺少本次EOS1前置事实")
+            self.verify_bindings(); self.gate()
+            revision = self.words(PS_VERSION, 1)[0]
+            nibble = (revision >> 28) & 0xF
+            branch = "1_0" if nibble == 0 else "2_0" if nibble == 1 else "3_0"
+            table = basis["tables"][branch]
+            observation["silicon"] = {"address": PS_VERSION, "word": revision, "nibble": nibble, "branch": branch}
+            before = {"locksta": self.words(SLCR_LOCKSTA, 1)[0], "level_shifter": self.words(LEVEL_SHIFTER, 1)[0],
+                      "fpga_reset": self.words(FPGA_RESET, 1)[0]}
+            observation["before"] = before
+            clock_snapshot("before_unlock", table)
+            require(before["locksta"] & 1 == 1, "postconfig前SLCR未锁定，不能取得解锁所有权")
+            # 不读取write-only LOCK/UNLOCK；实际状态由LOCKSTA bit0核验。
+            self.verify_bindings(); self.gate(); unlock_attempted = True
+            write("unlock", SLCR_UNLOCK, table["operations"][0][2])
+            self.verify_bindings(); self.gate()
+            unlocked = self.words(SLCR_LOCKSTA, 1)[0]
+            observation["steps"].append({"operation": "unlock", "locksta": unlocked})
+            require(unlocked & 1 == 0, "SLCR解锁LOCKSTA读回不符")
+            for operation, address, mask, value in table["operations"][1:3]:
+                self.verify_bindings(); self.gate()
+                old = self.words(address, 1)[0]
+                expected = (old & (~mask & 0xFFFFFFFF)) | (value & mask)
+                step = {"operation": operation, "address": address, "mask": mask, "value": value,
+                        "before": old, "expected": expected, "status": "IN_PROGRESS"}
+                observation["steps"].append(step)
+                write("level_shifter" if address == LEVEL_SHIFTER else "fpga_reset", address, expected)
+                self.verify_bindings(); self.gate()
+                actual = self.words(address, 1)[0]
+                step.update(after=actual, status="PASS" if actual == expected else "FAILED")
+                require(actual == expected, "postconfig完整RMW读回不符")
+            write("lock", SLCR_LOCK, table["operations"][3][2])
+            self.verify_bindings(); self.gate()
+            locked = self.words(SLCR_LOCKSTA, 1)[0]
+            observation["steps"].append({"operation": "lock", "locksta": locked})
+            require(locked & 1 == 1, "SLCR重锁LOCKSTA读回不符")
+            self.verify_bindings(); self.gate()
+            clock_snapshot("after_lock", table)
+            observation["cold_csr"] = self.cold_idle("postconfig_before_app")
+            # 核对T11真实cold reset默认；已有cache/异常命令的门禁语义不由此扩展。
+            defaults = {0x014: 0, 0x018: 0, 0x01C: transport.INPUT_BYTES, 0x020: 0x00100000,
+                        0x024: transport.WEIGHT_BYTES, 0x028: 0, 0x02C: 0, 0x05C: 0, 0x060: 0,
+                        0x064: 0, 0x06C: 0, 0x070: 0, 0x074: 0}
+            observation["cold_reset_defaults"] = {"expected": defaults,
+                "actual": {address: observation["cold_csr"][address] for address in defaults}}
+            require(observation["cold_reset_defaults"]["actual"] == defaults, "app前CSR不是本次cold reset默认")
+            self.gate()
+            self.postconfigured = True
+            observation["status"] = "PASS"
+        except BaseException as error:
+            observation.update(status="FAILED", error=repr(error), traceback=traceback.format_exc())
+            if unlock_attempted:
+                cleanup = {"status": "IN_PROGRESS"}
+                observation["cleanup"].append(cleanup)
+                try:
+                    # 原门禁仍必须成立；不强制访问、不重新解锁，不以清理覆盖原异常。
+                    self.verify_bindings(); self.gate()
+                    locksta = self.words(SLCR_LOCKSTA, 1)[0]
+                    cleanup["before_locksta"] = locksta
+                    if locksta & 1 == 0:
+                        write("cleanup_lock", SLCR_LOCK, 0x767B)
+                        cleanup["after_locksta"] = self.words(SLCR_LOCKSTA, 1)[0]
+                        require(cleanup["after_locksta"] & 1 == 1, "失败清理SLCR未重锁")
+                        cleanup["status"] = "RELOCKED"
+                    else:
+                        cleanup["status"] = "ALREADY_LOCKED"
+                except BaseException as cleanup_error:
+                    cleanup.update(status="FAILED", error=repr(cleanup_error), traceback=traceback.format_exc())
+                    self.record["cleanup_errors"].append(repr(cleanup_error))
+            raise
+
     def deploy(self):
-        """OCM init实际成功后全量PL配置，再DDR app下载并仅继续CPU0。"""
+        """OCM init→EOS1→生成postconfig及冷CSR→DDR app，CPU1始终不继续。"""
         def action():
             require(not self.initialized and not self.configured and not self.app_running, "禁止重复部署")
             require("system_reset" in self.record and any(row["phase"] == "after_system_reset" and
                     row["status"] == "PASS" and row.get("eos") == 0
                     for row in self.record.get("configuration_observations", [])),
                     "部署前必须保存本控制器system-stop及实际EOS0观测")
+            basis = postconfig_basis(bound_bytes(self.bindings["xsa"]))
+            self.record["postconfig_basis"] = basis
             entry, symbols = init_layout(bound_bytes(self.bindings["init_elf"]))
             try:
                 from .check_s2b_ps_smoke_layout import parse_elf
@@ -462,7 +638,9 @@ class JtagController:
             self.call("fpga.full.compatibility_default", self.targets["fpga"].fpga, file=self.bindings["bit"]["path"])
             self.observe_config_status("after_full_bit", 1)
             self.configured = True
+            self._postconfig(basis)
             self.verify_bindings(); self.gate()
+            require(self.postconfigured and self.record["postconfiguration"]["status"] == "PASS", "postconfig未完成，禁止app")
             self.call("cpu0.dow.app", self.targets["cpu0"].dow, file=self.bindings["app_elf"]["path"], auto_stop=True, set_entry=True)
             self.gate()
             require(0x100000 <= app["entry"] < 0x1100000 and self.pc() == app["entry"], "app DDR入口PC不符")

@@ -1,0 +1,444 @@
+{
+  "status": "LOGICAL_G1_PREPARED_PHYSICAL_ADMISSION_BLOCKED",
+  "source_commit": "09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf",
+  "source_freeze": {
+    "path": "tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/source_freeze.json",
+    "sha256": "0de84aeabee7b87c5246bba57624e108b8fe32cb0aa5b49a8eb55af7ced3d2a4",
+    "bytes": 59873
+  },
+  "unique_run_ids": {
+    "synth_cache": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_physical_final_prepare_20261012_r02\\synth_cache",
+    "pnr_cache": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_physical_final_prepare_20261012_r02\\pnr_cache",
+    "project": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_physical_final_prepare_20261012_r02\\project",
+    "synth_report": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_platform_20261012_r01",
+    "pnr_report": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_implementation_20261012_r01",
+    "source_pre": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_source_preflight_20261012_r02"
+  },
+  "source_before": "本轮真实source-before准备捕获；实际准入/launch前ROOT必须重新核43源与冻结及索引一致",
+  "source_after": null,
+  "required_frozen_contract": {
+    "source_count": 43,
+    "static_count": 33,
+    "active_rtl_count": 18,
+    "derived_count": 8,
+    "original_frozen_count": 14,
+    "profile": "s2b-inference-platform/0.1.12",
+    "clock_hz": 50000000,
+    "part": "xc7z020clg400-2",
+    "visibility": 0
+  },
+  "origin_speed_grade": "用户已明确厂商确认XC7Z020-2，按xc7z020clg400-2离线候选；不是凭JTAG型号证明等级。",
+  "resources": {
+    "launch_jobs": 1,
+    "general_maxThreads": 1,
+    "simultaneous_heavy": 1,
+    "tree_rss_limit_bytes": 6442450944,
+    "minimum_available_ram_before_owned_session_bytes": 4831838208,
+    "available_ram_stop_bytes": 536870912,
+    "c_disk_free_stop_and_admission_bytes": 8589934592,
+    "guard_interval_seconds": 1,
+    "no_log_progress_stop_seconds": 900,
+    "supervisor_live_interval_seconds": 5,
+    "absolute_tree_peak_bytes": null
+  },
+  "tool_pins": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/guard.py",
+      "absolute_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r02\\guard.py",
+      "sha256": "a2f5c581b79a40116bf59c240a7b8c0fe35bac4db7b26a79ce5ba14c451a18ac",
+      "bytes": 39465
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/supervisor.py",
+      "absolute_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r02\\supervisor.py",
+      "sha256": "193416f869463c38065e257545720032438ab12c7bbe30beec6bc8c53d8f9ca0",
+      "bytes": 7652
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01/delivery_manifest_r02.json",
+      "absolute_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_resource_guard_delivery_20261012_r01\\delivery_manifest_r02.json",
+      "sha256": "139d5b72f9faa0bb58943b0dcff0d5e70ebcd8d189246e061a4df6013f8c3dce",
+      "bytes": 47182
+    }
+  ],
+  "supervisor_command_template": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r02\\supervisor.py",
+    "--plan",
+    "<实际新Run资源plan绝对路径>",
+    "--binding",
+    "<实际新owned根完整身份binding绝对路径>",
+    "--output-dir",
+    "<全新该Run监督输出绝对路径>"
+  ],
+  "supervisor_protocol": [
+    "4.5GiB RAM与C盘8GiB准入实际测量后，才允许ROOT创建归属明确的新Vivado session；不复用S11 PID22796/birth/会话或工作目录。",
+    "ROOT创建本轮资源plan与真实pid/create_time/exe/cwd/cmdline/ppid绑定，真实log progress_files和stop_flag只指该Run自有路径。",
+    "fixed supervisor native保持可并行消费，首条READY绑定index0/root身份且alerts和uncertain空之后才发builder/launch；重型launch前再次检查latest LIVE/无TERMINAL与实际RAM/disk/tree。",
+    "ROOT每约5秒保存实际监督journal/nativestdout消费与身份检查结果，不让单个阻塞wait工具调用遮蔽消费；长wait超时只是client状态，保留原生history结果。",
+    "任何监督终态一律native2，guard子码原样保存；READY之前终态禁止启动，launch后终态禁止后续Tcl派发，读取停止/留存身份原件并仅关闭自有session。",
+    "root/guard身份漂移、live UNKNOWN、未闭合重扫、资源阈值或900秒无日志进度都failclosed；UNKNOWN与外部进程无停止授权；owned根退出后历史孤儿可监测而不可追杀。",
+    "计划source_before在实际launch之前逐字节+commit+43/33/18/8/14捕获；source_after及static_closed在实际完成/自有关闭后捕获，实际不一致则阻断。",
+    "真实资源budget必须另审：只有规定节拍离散监测执行可能通过，连续OS原子绝对树峰/短命未采对象未知；旧S11 budget BLOCKED保留。"
+  ],
+  "synth": {
+    "estimate_reference_seconds": 569.942,
+    "estimate_is_promise": false,
+    "execution": "NOT_RUN",
+    "commands": [
+      {
+        "command_template": "source -encoding utf-8 -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}",
+        "executable": false,
+        "original_history_id": 1,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "set_param general.maxThreads 1; ::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/project} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_physical_final_prepare_20261012_r02/synth_cache\\.vivado-ai\\__ROOT_ACTUAL_OWNED_SESSION_LOG__}",
+        "executable": false,
+        "original_history_id": 2,
+        "original_native_code": 1,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_platform_20261012_r01",
+            "new": "<S12_SYNTH_EVIDENCE_RUN_ID>"
+          },
+          {
+            "old": "s11_root_run_20261012_r01",
+            "new": "<S12_SYNTH_CACHE_RUN_ID>"
+          },
+          {
+            "old": "s11p1",
+            "new": "<S12_UNIQUE_PROJECT_DIR_NAME>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION",
+        "pending_actual_session_log": true
+      },
+      {
+        "command_template": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {$::s2b_inference_platform::version ne {0.1.12}} {error PROFILE_MISMATCH}; if {[get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]] != 0} {error VISIBILITY_MISMATCH}; if {[llength $::s2b_inference_platform::rtl_sources] != 18} {error RTL_COUNT}; set s11_sources {}; foreach relative $::s2b_inference_platform::rtl_sources {set matches [get_files -quiet [file join {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} $relative]]; if {[llength $matches] != 1} {error SOURCE_REGISTRATION}; lappend s11_sources [list $relative [lindex $matches 0]]}; set s11_wrapper [get_files -quiet */s2b_inference_wrapper.v]; if {[llength $s11_wrapper] != 1} {error WRAPPER_COUNT}; set s11_setup_path {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/setup_synthesis.tcldict}; if {[file exists $s11_setup_path]} {error SETUP_OVERWRITE}; set s11_f [open $s11_setup_path w]; puts $s11_f [dict create status READY_SINGLE_HEAVY source_count 18 registered_sources $s11_sources wrapper $s11_wrapper top [get_property TOP [current_fileset]] part [get_property PART [current_project]] threads [get_param general.maxThreads] jobs 1 profile $::s2b_inference_platform::version visibility 0 clock_hz 50000000 synth_strategy [get_property STRATEGY [get_runs synth_1]]]; close $s11_f; puts S11_READY_SINGLE_HEAVY",
+        "executable": false,
+        "original_history_id": 3,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_platform_20261012_r01",
+            "new": "<S12_SYNTH_EVIDENCE_RUN_ID>"
+          },
+          {
+            "old": "0.1.11",
+            "new": "0.1.12"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "launch_runs synth_1 -jobs 1",
+        "executable": false,
+        "original_history_id": 4,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "wait_on_run synth_1",
+        "executable": false,
+        "original_history_id": 5,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "open_run synth_1",
+        "executable": false,
+        "original_history_id": 6,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/timing_summary_synth.rpt}; report_timing -delay_type max -max_paths 30 -sort_by group -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/timing_worst_synth.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/utilization_synth.rpt}; report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/utilization_flat_synth.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/clocks_synth.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/exceptions_synth.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/methodology_synth.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/drc_synth.rpt}",
+        "executable": false,
+        "original_history_id": 7,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_platform_20261012_r01",
+            "new": "<S12_SYNTH_EVIDENCE_RUN_ID>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s12_platform_20261012_r01/constraints_synth.xdc}; set s11_run_states [dict create]; foreach s11_run [get_runs] {dict set s11_run_states [get_property NAME $s11_run] [dict create status [get_property STATUS $s11_run] progress [get_property PROGRESS $s11_run]]}; dict create project [get_property NAME [current_project]] part [get_property PART [current_project]] top [get_property TOP [current_fileset]] clock_period [get_property PERIOD [get_clocks clk_fpga_0]] runs $s11_run_states impl_strategies [list_property_value STRATEGY [get_runs impl_1]]",
+        "executable": false,
+        "original_history_id": 8,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_platform_20261012_r01",
+            "new": "<S12_SYNTH_EVIDENCE_RUN_ID>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      },
+      {
+        "command_template": "close_project",
+        "executable": false,
+        "original_history_id": 9,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/mcp_closed/s11_history_closed.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION"
+      }
+    ],
+    "commands_note": "builder行原S11 native1代表实际capture失败，不是S12预期退出码；新builder使用现有run默认空proof/review，要求实际产品与capture分别留证。所有模板占位和0.1.12差异须ROOT冻结/独审。",
+    "evidence": [
+      "实际source_before/after/native与freeze/Git raw或明确LF→CRLF关系",
+      "18RTL编译闭包/5个实际native任务日志/marker、OS退出码未采null",
+      "timing_summary/worst/utilization/clocks/exceptions/methodology/drc/XDC/setup/platform_readback/BD/HWH/PSinit",
+      "全部MCP输入/history/客户端超时/原生结果/immutable log",
+      "guard/supervisor/ROOT5秒消费/资源准入/owned关闭退出证明",
+      "现有schema manifest+evidence包装检查0仅格式绑定，不代表STA或G2"
+    ]
+  },
+  "pnr": {
+    "estimate_reference_seconds": 2040,
+    "estimate_reason": "S11约34min参考，不承诺且无900秒无进度豁免",
+    "execution": "NOT_RUN",
+    "commands": [
+      {
+        "command_template": "open_project {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/project/s2b_inference_candidate.xpr}",
+        "executable": false,
+        "original_history_id": 1,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [
+          {
+            "old": "s11p1",
+            "new": "<S12_UNIQUE_PROJECT_DIR_NAME>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {[get_property STATUS [get_runs synth_1]] ne {synth_design Complete!}} {error SYNTH_NOT_COMPLETE}; if {[get_property NEEDS_REFRESH [get_runs synth_1]]} {error SOURCE_REFRESH_REQUIRED}; if {[get_property STATUS [get_runs impl_1]] ne {Not started}} {error IMPL_ALREADY_STARTED}; set_property STRATEGY Performance_ExplorePostRoutePhysOpt [get_runs impl_1]; dict create part [get_property PART [current_project]] top [get_property TOP [current_fileset]] synth_status [get_property STATUS [get_runs synth_1]] needs_refresh [get_property NEEDS_REFRESH [get_runs synth_1]] impl_status [get_property STATUS [get_runs impl_1]] impl_strategy [get_property STRATEGY [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]] impl_directory [get_property DIRECTORY [get_runs impl_1]] threads [get_param general.maxThreads] thread_hook_properties [lsearch -all -inline -glob [list_property [get_runs impl_1]] *TCL.PRE]",
+        "executable": false,
+        "original_history_id": 2,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "set_property STEPS.INIT_DESIGN.TCL.PRE {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/threads_one.tcl} [get_runs impl_1]; dict create strategy [get_property STRATEGY [get_runs impl_1]] native_thread_hook [get_property STEPS.INIT_DESIGN.TCL.PRE [get_runs impl_1]] post_route_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]]",
+        "executable": false,
+        "original_history_id": 3,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_impl_root_run_20261012_r01",
+            "new": "<S12_PNR_CACHE_RUN_ID>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1",
+        "executable": false,
+        "original_history_id": 6,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "wait_on_run impl_1",
+        "executable": false,
+        "original_history_id": 7,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "open_run impl_1",
+        "executable": false,
+        "original_history_id": 8,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/timing_summary_postroute.rpt}; report_timing -delay_type max -max_paths 30 -sort_by group -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/timing_worst_postroute.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/utilization_postroute.rpt}; report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/utilization_flat_postroute.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/clocks_postroute.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/exceptions_postroute.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/methodology_postroute.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/drc_postroute.rpt}; report_route_status -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02/pnr_cache/reports/route_status_postroute.rpt}",
+        "executable": false,
+        "original_history_id": 9,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [
+          {
+            "old": "s11_impl_root_run_20261012_r01",
+            "new": "<S12_PNR_CACHE_RUN_ID>"
+          }
+        ],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      },
+      {
+        "command_template": "close_project",
+        "executable": false,
+        "original_history_id": 13,
+        "original_native_code": 0,
+        "source_path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "substitutions": [],
+        "execution_status": "NOT_RUN_PENDING_SYNTH_G2"
+      }
+    ],
+    "excluded_history": [
+      {
+        "original_history_id": 4,
+        "command": "launch_runs impl_1 -to_step post_route_phys_opt_design -jobs 1",
+        "original_native_code": 1,
+        "retained_source": "report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/s11_impl_history_actual.tool.json",
+        "repeat_in_s12": false
+      }
+    ],
+    "required_dependency": "同一S12冻结源码的真实综合结束及独审通过，PNR新准入/新owned根绑定/guard READY；不能沿用S11已综合工程",
+    "evidence": [
+      "真实synth状态Complete/NEEDS_REFRESH=false/impl Not started/策略及本轮threads_one hook原字节",
+      "实际Post-Route timing summary/worst/hold/check_timing/design state/route status/DRC/utilization/clocks/methodology/power",
+      "完整history含实际发生的额外query与错误，不为满足标签主动造错",
+      "真实source前后43/33/18/8/14+闭合资源/监督证据",
+      "时序数值分类与独立PNR G2、独立实际budget分列；未知OS workerexit与绝对peak null"
+    ]
+  },
+  "subsequent_dispatch": "综合与PNR按实际G2/准入ROOT串行执行；只有实际时序PASS且独审通过后才评估bit/fullbitXSA/Vitis。板卡断开，硬件NOT_RUN。",
+  "freeze_items": [
+    "功能G2最终receipt及完整raw入口/SHA",
+    "ROOT实际新commit及source_freeze路径/SHA/43source/33static/18RTL/8derived/原14逐项字节",
+    "综合/PNR每项新的唯一cache/project/evidence/collector RunId及精确不存在路径",
+    "两份最终collector/common/source_after/native脚本与SHA和独立G2",
+    "当前guard/supervisor G2固定路径/SHA及正式恢复入口",
+    "真实新owned session/admission/rootbinding/日志进度路径/source_before与after",
+    "真实S12综合G2原件供PNR依赖与后续独审实际预算"
+  ],
+  "physical_g0": "BLOCKED_PENDING_TOOL_G2_AND_ACTUAL_RESOURCE_ADMISSION",
+  "sta": "NOT_RUN",
+  "g3": "NOT_RUN",
+  "g5": "NOT_RUN",
+  "synth_dependencies": "FUNCTIONAL真实G2已绑定；工具最终pins须独审G2及实际4.5GiB/C8GiB准入后ROOT执行",
+  "pnr_dependencies": "SYNTH_MANIFEST/SYNTH_G2仍None/PENDING；pnr=True必须拒绝，不虚构未来综合结果。",
+  "session_log_path": "新session创建后ROOT填实际路径；历史41908776_431e3243.log只能表示历史來源，不是新log",
+  "actual_session_created": false,
+  "actual_budget": "NOT_RUN",
+  "old_s11_budget": "BLOCKED",
+  "light_capture_budget": {
+    "tree_rss_limit_bytes": 268435456,
+    "timeout_seconds": 120,
+    "git_child_concurrency": 1,
+    "authorization": "ROOT仅调整轻量capture新计划；不改固定guard或4.5GiB/C8GiB物理准入"
+  },
+  "first_generation_capture": {
+    "status": "FAIL_GT_128MiB",
+    "child_native_exit_code": null,
+    "source_pre": "report/evidence/S2B-T17/s12_source_preflight_20261012_r01",
+    "original_pins_kept": true
+  },
+  "final_tool_pins": [
+    {
+      "path": "collector.py",
+      "sha256": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad",
+      "bytes": 32522,
+      "baseline_sha256": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad",
+      "diff": "collector.py.diff",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false,
+      "first_generation_sha256": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad"
+    },
+    {
+      "path": "impl_collector.py",
+      "sha256": "303ff4299874f5d57c1b8f7a7eb636e9c9675061db27858e9403951792f23d1f",
+      "bytes": 20259,
+      "baseline_sha256": "303ff4299874f5d57c1b8f7a7eb636e9c9675061db27858e9403951792f23d1f",
+      "diff": "impl_collector.py.diff",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false,
+      "first_generation_sha256": "303ff4299874f5d57c1b8f7a7eb636e9c9675061db27858e9403951792f23d1f"
+    },
+    {
+      "path": "source_after_check.py",
+      "sha256": "33ffd73c0a90441c767925e3c7070fa6e5cddf0f49e258bc1900b8ddcf798311",
+      "bytes": 5654,
+      "baseline_sha256": "33ffd73c0a90441c767925e3c7070fa6e5cddf0f49e258bc1900b8ddcf798311",
+      "diff": "source_after_check.py.diff",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false,
+      "first_generation_sha256": "33ffd73c0a90441c767925e3c7070fa6e5cddf0f49e258bc1900b8ddcf798311"
+    },
+    {
+      "path": "native_source_after.py",
+      "sha256": "2599d7b0f00349d1e5419bce513de8e1c0eaef7489eda108adb6b57fa678907e",
+      "bytes": 2332,
+      "baseline_sha256": "2599d7b0f00349d1e5419bce513de8e1c0eaef7489eda108adb6b57fa678907e",
+      "diff": "native_source_after.py.diff",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false,
+      "first_generation_sha256": "2599d7b0f00349d1e5419bce513de8e1c0eaef7489eda108adb6b57fa678907e"
+    },
+    {
+      "path": "native.py",
+      "sha256": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+      "bytes": 2561,
+      "baseline_sha256": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+      "diff": "native.py.diff",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changed": false,
+      "first_generation_sha256": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc"
+    },
+    {
+      "path": "compat_pins.py",
+      "sha256": "bd854d22bce6bafe97ed8ed73415abe46d63b34e3c7a160793e78fc9ae9b0353",
+      "bytes": 6504,
+      "baseline_sha256": "77aa045a6a76d8d36126285a9ad12e63d3cfbc186c5676e4bcc2121cea1e1c77",
+      "diff": "compat_pins.py.diff",
+      "diff_sha256": "f3367a0f2e67ef8da047129066f32ecf6bafd234331616ad6c89684654365473",
+      "changed": true,
+      "first_generation_sha256": "2ed6678bff6c2e565f3c120f46f97d8d037b10dba83e2fdc2c71a45f6abadc41"
+    }
+  ],
+  "common_sha": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad",
+  "source_before_actual": {
+    "path": "report/evidence/S2B-T17/s12_source_preflight_20261012_r02/source_before.json",
+    "sha256": "1a70511ecc4587424294458f6073eda6bca81dbae1051d4c2f5806631c597360",
+    "native_exit_code": 0,
+    "elapsed_seconds": 6.030999999988126,
+    "sampled_owned_tree_peak_bytes": 128966656,
+    "unknown_samples": 1,
+    "absolute_tree_peak_bytes": null,
+    "scope": "此时刻实际before；实际资源准入/launch前ROOT必须重核43字节及Git对象，不代替未来source-after"
+  },
+  "resource_admission_actual_sample": {
+    "available_ram_bytes": 3994320896,
+    "c_disk_free_bytes": 11886927872,
+    "ram_minimum_bytes": 4831838208,
+    "c_disk_minimum_bytes": 8589934592,
+    "status": "BLOCKED_RESOURCE_ADMISSION",
+    "sample_source": "真实psutil只读样本；不会创建session或派发heavy，即使样本满足也须ROOT重测及独审"
+  },
+  "source_commit_vs_metadata_head": "SOURCE_COMMIT固定09b4代码对象；后续归档metadata HEAD另列并非源码变更，但不弱化综合source的CLI==SOURCE_COMMIT==实际HEAD检查。PNR已有独立expected-head/实际43Git对象角色保持原逻辑。",
+  "root_current_head_policy": "ROOT已明确保持实际HEAD09b4直至本轮综合source-after/实验闭合，不在中间做证据metadata提交；不弱化source CLI/HEAD/SOURCE_COMMIT严格相等。",
+  "restore_entry": "report/evidence/S2B-T17/s12_source_preflight_20261012_r02/recovery_entry.json"
+}

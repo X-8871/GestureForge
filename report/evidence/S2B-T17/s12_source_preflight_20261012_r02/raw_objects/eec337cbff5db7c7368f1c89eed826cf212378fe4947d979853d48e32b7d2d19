@@ -1,0 +1,105 @@
+"""最终pins轻量正负验证；模拟只改变内存，不写生产。"""
+import ast
+import hashlib
+import json
+import pathlib
+import sys
+from unittest.mock import patch
+import psutil
+import compat_pins as p
+import collector as c
+import source_after_check as after
+
+HERE = pathlib.Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+cases = []
+
+def record(name, action, reject=False):
+    try:
+        detail = action()
+    except (ValueError, AssertionError) as error:
+        assert reject, name + ": " + str(error)
+        cases.append({"name": name, "outcome": "REJECTED_EXPECTED", "exception": str(error), "fixture_only": True})
+    else:
+        assert not reject, name + "误接受"
+        cases.append({"name": name, "outcome": "ACCEPTED", "detail": detail})
+
+def main():
+    record("最终真实pins/G1/G2/guard恢复", lambda: p.require_ready())
+    freeze, hashes, static, profile = c.load_freeze()
+    assert len(hashes) == 43 and len(static) == 33 and len(profile["rtl_sources"]) == 18
+    assert len(profile["source_derivation"]["derived_sources"]) == 8 and len(freeze["frozen14"]) == 14
+    cases.append({"name": "真实43/33/18/8/14实际冻结", "outcome": "ACCEPTED", "fixture_only": False})
+    record("PNR综合依赖PENDING", lambda: p.require_ready(pnr=True), True)
+    fixture = HERE / "pin_fixtures"
+    fixture.mkdir()
+    blocked_pre = fixture / "must_not_create_pre"
+    blocked_report = fixture / "must_not_create_report"
+    different = "891f750045ce141a8152c96025da559ff1d3a321"
+    with patch.object(c, "PRE", blocked_pre), patch.object(c, "REPORT", blocked_report):
+        record("同43RAW但source CLI异commit", lambda: c.source(different, "before"), True)
+        record("collect异commit不能绕入口", lambda: c.collect(different, fixture / "missing_gate.json"), True)
+        record("seal异commit不能绕入口", lambda: c.seal(different, fixture / "missing_gate.json"), True)
+        with patch.object(c, "git", return_value=(different.encode("ascii"), {"fixture": True})):
+            record("实际HEAD异commit早拒绝", lambda: c.source(p.SOURCE_COMMIT, "before"), True)
+    assert not blocked_pre.exists() and not blocked_report.exists()
+    bad = dict(freeze, source_commit=different)
+    bad_freeze = fixture / "different_commit_same_raw.json"
+    bad_freeze.write_text(json.dumps(bad, ensure_ascii=False), encoding="utf-8")
+    expected = hashlib.sha256(bad_freeze.read_bytes()).hexdigest()
+    with patch.object(p, "SOURCE_FREEZE", bad_freeze), patch.object(p, "SOURCE_FREEZE_SHA", expected), patch.object(c, "FREEZE", bad_freeze), patch.object(c, "FREEZE_SHA", expected):
+        record("freeze异commit即使43RAW相同拒绝", c.load_freeze, True)
+    original_sha = c.sha
+    first_path = ROOT / next(iter(hashes))
+    with patch.object(c, "sha", side_effect=lambda path: "f" * 64 if pathlib.Path(path) == first_path else original_sha(path)):
+        record("源SHA漂移内存模拟拒绝", c.load_freeze, True)
+    record("freeze入口SHA漂移拒绝", lambda: p.pinned(p.SOURCE_FREEZE, "0" * 64), True)
+    record("guard固定正式恢复映射", lambda: p.resolve_permanent(p.GUARD, p.GUARD_SHA))
+    record("supervisor固定正式恢复映射", lambda: p.resolve_permanent(p.SUP, p.SUP_SHA))
+    record("fixed guard错SHA拒绝", lambda: p.resolve_permanent(p.GUARD, "0" * 64), True)
+    record("RAW完全一致接受", lambda: after.compare_raw(b"A\n", b"A\n"))
+    record("全文件精确LF到CRLF接受", lambda: after.compare_raw(b"A\nB\n", b"A\r\nB\r\n"))
+    record("非EOL漂移拒绝", lambda: after.compare_raw(b"A\n", b"B\r\n"), True)
+    record("部分EOL漂移拒绝", lambda: after.compare_raw(b"A\nB\n", b"A\r\nB\n"), True)
+    binding = json.loads((HERE / "tool_binding.json").read_text(encoding="utf-8"))
+    assert binding["changed_files"] == ["compat_pins.py"]
+    for row in binding["tools"]:
+        actual = (HERE / row["path"]).read_bytes()
+        assert hashlib.sha256(actual).hexdigest() == row["sha256"]
+        ast.parse(actual.decode("utf-8"))
+        if row["path"] != "compat_pins.py":
+            assert row["sha256"] == row["baseline_sha256"]
+    old = (ROOT / "tmp/2B/S2B-T17/s12_physical_compat_prepare_20261012_r02/compat_pins.py").read_text(encoding="utf-8")
+    new = (HERE / "compat_pins.py").read_text(encoding="utf-8")
+    old_tree, new_tree = ast.parse(old), ast.parse(new)
+    old_functions = [ast.dump(n, include_attributes=False) for n in old_tree.body if isinstance(n, ast.FunctionDef)]
+    new_functions = [ast.dump(n, include_attributes=False) for n in new_tree.body if isinstance(n, ast.FunctionDef)]
+    assert old_functions == new_functions
+    assert c.sha(HERE / "collector.py") == after.COMMON_SHA == binding["common_sha"]
+    cases.append({"name": "六源AST及最小常量diff/COMMON闭合", "outcome": "ACCEPTED", "changed": ["compat_pins.py"], "function_logic_changed": False})
+    before_path = c.PRE / "source_before.json"
+    before = c.read(before_path)
+    assert before["source_commit"] == p.SOURCE_COMMIT and {r["path"]: r["sha256"] for r in before["source_files"]} == hashes
+    assert sum(r["git_relation"] == "RAW_IDENTICAL" for r in before["source_files"]) == 37
+    assert sum(r["git_relation"] == "GIT_LF_TO_RAW_CRLF" for r in before["source_files"]) == 6
+    for row in before["source_files"]:
+        assert c.sha(ROOT / row["snapshot"]) == row["sha256"]
+    source_native = json.loads((HERE / "source_before.native.json").read_text(encoding="utf-8"))
+    assert type(source_native["native_exit_code"]) is int and source_native["native_exit_code"] == 0
+    assert source_native["sampled_owned_tree_peak_bytes"] <= 268435456
+    cases.append({"name": "r02真实before43快照/37RAW+6EOL", "outcome": "ACCEPTED_BYTES_AND_ACTUAL_NATIVE", "child_native_code": 0,
+        "wrapper_budget": "ROOT_NEW_CAPTURE_256MiB", "first_generation_capture": "r01 budget FAIL/child native null保持原件不追认"})
+    ram = psutil.virtual_memory().available
+    disk = psutil.disk_usage("C:\\").free
+    admission = {"available_ram_bytes": ram, "c_disk_free_bytes": disk, "ram_minimum_bytes": 4831838208,
+        "c_disk_minimum_bytes": 8589934592, "status": "PASS_RESOURCE_SAMPLE_ONLY" if ram >= 4831838208 and disk >= 8589934592 else "BLOCKED_RESOURCE_ADMISSION",
+        "sample_source": "真实psutil只读样本；不会创建session或派发heavy，即使样本满足也须ROOT重测及独审"}
+    result = {"status": "PASS_FINAL_PINS_LOGIC_G1_ONLY", "source_commit": p.SOURCE_COMMIT, "cases": cases,
+        "case_count": len(cases), "actual_git_tcl_vivado_hardware_calls_in_harness": 0, "resource_admission": admission,
+        "physical_g0": "BLOCKED_PENDING_G2_AND_ACTUAL_ADMISSION", "actual_new_budget_sta_g3_g5": "NOT_RUN", "old_s11_budget": "BLOCKED"}
+    with (HERE / "final_pins_test_receipt.json").open("x", encoding="utf-8", newline="\n") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2); f.write("\n")
+    print(json.dumps({"status": result["status"], "cases": len(cases), "admission": admission}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

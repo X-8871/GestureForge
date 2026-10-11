@@ -1,0 +1,138 @@
+{
+  "status": "PASS_FINAL_PINS_LOGIC_G1_ONLY",
+  "source_commit": "09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf",
+  "cases": [
+    {
+      "name": "最终真实pins/G1/G2/guard恢复",
+      "outcome": "ACCEPTED",
+      "detail": null
+    },
+    {
+      "name": "真实43/33/18/8/14实际冻结",
+      "outcome": "ACCEPTED",
+      "fixture_only": false
+    },
+    {
+      "name": "PNR综合依赖PENDING",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "BLOCKED_PENDING_S12_PINS：缺实际输入SHA",
+      "fixture_only": true
+    },
+    {
+      "name": "同43RAW但source CLI异commit",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "collect异commit不能绕入口",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "seal异commit不能绕入口",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "实际HEAD异commit早拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "HEAD与实际提交不同",
+      "fixture_only": true
+    },
+    {
+      "name": "freeze异commit即使43RAW相同拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "源SHA漂移内存模拟拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "已审源漂移：src/s2a_network_descriptor_pkg.sv",
+      "fixture_only": true
+    },
+    {
+      "name": "freeze入口SHA漂移拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "冻结输入漂移",
+      "fixture_only": true
+    },
+    {
+      "name": "guard固定正式恢复映射",
+      "outcome": "ACCEPTED",
+      "detail": {
+        "path": "report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01/raw_artifacts/0047/guard.py",
+        "sha256": "a2f5c581b79a40116bf59c240a7b8c0fe35bac4db7b26a79ce5ba14c451a18ac",
+        "bytes": 39465
+      }
+    },
+    {
+      "name": "supervisor固定正式恢复映射",
+      "outcome": "ACCEPTED",
+      "detail": {
+        "path": "report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01/raw_artifacts/0085/supervisor.py",
+        "sha256": "193416f869463c38065e257545720032438ab12c7bbe30beec6bc8c53d8f9ca0",
+        "bytes": 7652
+      }
+    },
+    {
+      "name": "fixed guard错SHA拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "固定工具输入漂移",
+      "fixture_only": true
+    },
+    {
+      "name": "RAW完全一致接受",
+      "outcome": "ACCEPTED",
+      "detail": "RAW_IDENTICAL"
+    },
+    {
+      "name": "全文件精确LF到CRLF接受",
+      "outcome": "ACCEPTED",
+      "detail": "GIT_LF_TO_RAW_CRLF"
+    },
+    {
+      "name": "非EOL漂移拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "Git blob与RAW既不相同也不是精确LF到RAWCRLF",
+      "fixture_only": true
+    },
+    {
+      "name": "部分EOL漂移拒绝",
+      "outcome": "REJECTED_EXPECTED",
+      "exception": "Git blob与RAW既不相同也不是精确LF到RAWCRLF",
+      "fixture_only": true
+    },
+    {
+      "name": "六源AST及最小常量diff/COMMON闭合",
+      "outcome": "ACCEPTED",
+      "changed": [
+        "compat_pins.py"
+      ],
+      "function_logic_changed": false
+    },
+    {
+      "name": "r02真实before43快照/37RAW+6EOL",
+      "outcome": "ACCEPTED_BYTES_AND_ACTUAL_NATIVE",
+      "child_native_code": 0,
+      "wrapper_budget": "ROOT_NEW_CAPTURE_256MiB",
+      "first_generation_capture": "r01 budget FAIL/child native null保持原件不追认"
+    }
+  ],
+  "case_count": 19,
+  "actual_git_tcl_vivado_hardware_calls_in_harness": 0,
+  "resource_admission": {
+    "available_ram_bytes": 3994320896,
+    "c_disk_free_bytes": 11886927872,
+    "ram_minimum_bytes": 4831838208,
+    "c_disk_minimum_bytes": 8589934592,
+    "status": "BLOCKED_RESOURCE_ADMISSION",
+    "sample_source": "真实psutil只读样本；不会创建session或派发heavy，即使样本满足也须ROOT重测及独审"
+  },
+  "physical_g0": "BLOCKED_PENDING_G2_AND_ACTUAL_ADMISSION",
+  "actual_new_budget_sta_g3_g5": "NOT_RUN",
+  "old_s11_budget": "BLOCKED"
+}

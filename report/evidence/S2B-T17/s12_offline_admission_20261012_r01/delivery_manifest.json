@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "s12_offline_admission_20261012_r01",
+  "source_commit": "09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf",
+  "evidence_dir": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "此包仅记录本机离线重型任务资源准入，未消费或新增模型/总线接口；已审功能和工具候选另有正式冻结证据，实物与阶段验收不由此批准。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/offline_admission.py",
+      "sha256": "454fa0daf9cc0a19a73adc55b3d7bf3e7760bc82c9918e8dd4e71df6653114f4",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/offline_admission_before_final_prepare_r01.json",
+      "sha256": "9c540a94afb0af5cc771b4994d4a2676391cd046e0f22d85a6584167e9b6e673",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/offline_admission_after_final_pins_g2_r01.json",
+      "sha256": "71ff72f64621d9fd8495458cbd9d88d63d1a32c3117d5cd73d431b07ba87e8be",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/offline_admission_after_final_pins_g2_r01.tool.json",
+      "sha256": "d48970e195c689c99cde74c3b41de47336f9a0b9dc56f6c63654d368f8824b8c",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/offline_admission_before_close_r01.json",
+      "sha256": "69a2ab73f613cc4ceca1117b541ece01f88b8a38a8349f8bc531c2b9836a62c4",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/admission_final.tool.json",
+      "sha256": "f2c90921142dc78d3fe924cca64272150c434e550db98333de53a5136ab59ba1",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_offline_admission_20261012_r01/admission_close.json",
+      "sha256": "679f537928cf3c424969321dcf5302ae3a97df766e9443de9133a9d37cc2202f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_source_preflight_20261012_r02/delivery_manifest.json",
+      "sha256": "e312b08f61bc1b0a3afe6a52a8a3b80df804b72434c15a498508a03edaff70be",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/independent_s12_final_pins_review_20261012_r01/delivery_manifest_r02.json",
+      "sha256": "782802ea81752a0a1eb85e83f5a8b68a2ab3cc11a8e26e534a0f38f5138280bf",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/independent_s12_final_pins_review_20261012_r01/raw/final_review_receipt.json",
+      "sha256": "3e50f8ed70c54066d0cfb11a05780e3861ea6b4a7d043ec2f11d5859692ae38b",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "新owned Vivado启动前实际RAM及磁盘准入",
+      "status": "FAIL",
+      "command": "$pythonFile = Get-Item -LiteralPath 'C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe' -ErrorAction Stop\n$scriptFile = Get-Item -LiteralPath 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_root_run_20261012_r01\\offline_admission.py' -ErrorAction Stop\n& $pythonFile.FullName -X utf8 -B $scriptFile.FullName 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_root_run_20261012_r01\\offline_admission_before_close_r01.json'\nexit $LASTEXITCODE",
+      "exit_code": 2,
+      "reason": "RAM3642023936低于4831838208，实际native2；磁盘满足，未发现候选heavy或未知身份；没有创建session。"
+    },
+    {
+      "name": "新综合/实现/STA",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "实际RAM准入失败，未启动重型。"
+    },
+    {
+      "name": "硬件/G3/G5",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "板卡由Wong报告断开；直到JTAG包就绪和确认重连前不访问硬件。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "psutil": "7.2.2"
+  },
+  "limitations": [
+    "只读资源快照，不证明以后资源情况或完整不同名称进程枚举。",
+    "此包准确记录阻断，evidence包装通过不能代表资源通过或任务完成。",
+    "未测连续绝对峰；未启动任务不能伪填执行耗时/RSS/STA。"
+  ]
+}

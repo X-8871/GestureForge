@@ -1,0 +1,80 @@
+"""保留第一代pins，新增第二代SOURCE_PRE与唯一cache路径。"""
+import ast
+import difflib
+import hashlib
+import json
+import pathlib
+
+HERE = pathlib.Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+FIRST = ROOT / "tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r01"
+BASELINE = ROOT / "tmp/2B/S2B-T17/s12_physical_compat_prepare_20261012_r02"
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def exact(path, directory=False):
+    current = pathlib.Path(path.anchor)
+    for name in path.parts[1:]:
+        hits = [p for p in current.iterdir() if p.name == name]
+        assert len(hits) == 1
+        current = hits[0]
+        assert not current.is_symlink() and not current.is_junction()
+    assert current.is_dir() if directory else current.is_file()
+    return current
+
+def raw(path, value):
+    with path.open("xb") as f:
+        f.write(value)
+
+def write(path, value):
+    raw(path, (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+
+def main():
+    first = json.loads(exact(FIRST / "tool_binding.json").read_text(encoding="utf-8"))
+    assert first["source_commit"] == "09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf"
+    source = exact(FIRST / "source_freeze.json").read_bytes()
+    assert sha(source) == first["source_freeze"]["sha256"]
+    raw(HERE / "source_freeze.json", source)
+    rows = []
+    for item in first["tools"]:
+        name = item["path"]
+        content = exact(FIRST / name).read_bytes()
+        assert sha(content) == item["sha256"]
+        if name == "compat_pins.py":
+            old = b'SOURCE_PRE = ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r01"'
+            new = b'SOURCE_PRE = ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r02"'
+            assert content.count(old) == 1
+            content = content.replace(old, new)
+        ast.parse(content.decode("utf-8"))
+        raw(HERE / name, content)
+        original = exact(BASELINE / name).read_bytes()
+        diff = "".join(difflib.unified_diff(original.decode("utf-8").splitlines(True), content.decode("utf-8").splitlines(True), fromfile="compat_r02/"+name, tofile="final_r02/"+name)).encode("utf-8")
+        raw(HERE / (name + ".diff"), diff)
+        raw(HERE / (name + ".from_final_r01.diff"), "".join(difflib.unified_diff((FIRST/name).read_text(encoding="utf-8").splitlines(True), content.decode("utf-8").splitlines(True), fromfile="final_r01/"+name, tofile="final_r02/"+name)).encode("utf-8"))
+        rows.append(dict(item, sha256=sha(content), bytes=len(content), changed=sha(content)!=item["baseline_sha256"], diff_sha256=sha(diff), first_generation_sha256=item["sha256"]))
+    for folder in ("synth_cache", "pnr_cache"):
+        assert not (HERE/folder).exists(); (HERE/folder).mkdir()
+    pre = ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r02"
+    exact(pre.parent, True); assert not pre.exists()
+    assert not (HERE/"project").exists()
+    plan_text = exact(FIRST / "execution_plan.json").read_text(encoding="utf-8")
+    plan_text = plan_text.replace("s12_physical_final_prepare_20261012_r01", "s12_physical_final_prepare_20261012_r02")
+    plan_text = plan_text.replace("s12_source_preflight_20261012_r01", "s12_source_preflight_20261012_r02")
+    plan = json.loads(plan_text)
+    plan["source_freeze"] = {"path": (HERE/"source_freeze.json").relative_to(ROOT).as_posix(), "sha256": sha(source), "bytes": len(source)}
+    plan["light_capture_budget"] = {"tree_rss_limit_bytes": 268435456, "timeout_seconds": 120, "git_child_concurrency": 1,
+        "authorization": "ROOT仅调整轻量capture新计划；不改固定guard或4.5GiB/C8GiB物理准入"}
+    plan["first_generation_capture"] = {"status": "FAIL_GT_128MiB", "child_native_exit_code": None,
+        "source_pre": "report/evidence/S2B-T17/s12_source_preflight_20261012_r01", "original_pins_kept": True}
+    write(HERE / "execution_plan.json", plan)
+    first["tools"] = rows
+    first["source_freeze"] = plan["source_freeze"]
+    first["first_generation_binding"] = {"path": (FIRST/"tool_binding.json").relative_to(ROOT).as_posix(), "sha256": sha((FIRST/"tool_binding.json").read_bytes())}
+    first["source_pre"] = str(pre)
+    first["light_capture_budget"] = plan["light_capture_budget"]
+    write(HERE / "tool_binding.json", first)
+    print(json.dumps({"status": "FINAL_R02_PINS_ONLY_DERIVED", "helper_sha256": next(r["sha256"] for r in rows if r["path"]=="compat_pins.py"), "source_freeze_sha256": sha(source)}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

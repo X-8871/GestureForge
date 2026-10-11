@@ -1,0 +1,149 @@
+"""逐字节封存最终物理输入与两代pins，保存所有失败，不运行物理任务。"""
+import hashlib
+import json
+import pathlib
+import sys
+import compat_pins as p
+
+HERE = pathlib.Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+FIRST = ROOT / "tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r01"
+FIRST_PRE = ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r01"
+OUT = p.SOURCE_PRE
+
+def digest(path):
+    h = hashlib.sha256()
+    size = 0
+    with path.open("rb") as f:
+        while block := f.read(65536):
+            h.update(block); size += len(block)
+    return h.hexdigest(), size
+
+def write(path, value):
+    with path.open("x", encoding="utf-8", newline="\n") as f:
+        json.dump(value, f, ensure_ascii=False, indent=2); f.write("\n")
+
+def copy(source, dest):
+    source = p.exact(source)
+    before = digest(source)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    with source.open("rb") as src, dest.open("xb") as dst:
+        while block := src.read(65536): dst.write(block)
+    assert digest(source) == digest(dest) == before
+
+def source_files(base):
+    p.exact(base, True)
+    for directory, dirs, files in __import__("os").walk(base, followlinks=False):
+        current = pathlib.Path(directory)
+        for name in dirs:
+            target = current / name
+            assert not target.is_symlink() and not target.is_junction()
+        for name in files:
+            yield p.exact(current / name)
+
+def pack():
+    p.require_ready()
+    assert (HERE / "post_head.stdout.bin").read_text(encoding="utf-8").strip() == p.SOURCE_COMMIT
+    source_native = json.loads((HERE / "source_before.native.json").read_text(encoding="utf-8"))
+    tests = json.loads((HERE / "final_pins_test_receipt.json").read_text(encoding="utf-8"))
+    assert source_native["native_exit_code"] == 0 and tests["case_count"] == 19
+    assert tests["resource_admission"]["status"] == "BLOCKED_RESOURCE_ADMISSION"
+    index = []
+    canonical = {digest(path): path for path in source_files(OUT / "source_snapshot")}
+    originals = sorted(set(source_files(FIRST)) | set(source_files(FIRST_PRE)) | set(source_files(HERE)))
+    # 不将仍在写的外层包装流作为冻结原件；关闭后由下一步追加。
+    originals = [q for q in originals if not q.name.startswith(("pack.", "seal.", "final_evidence.", "final_inputs."))]
+    for source in originals:
+        sha, size = digest(source)
+        key = (sha, size)
+        if key not in canonical:
+            dest = OUT / "raw_objects" / sha
+            copy(source, dest)
+            canonical[key] = dest
+        dest = canonical[key]
+        assert digest(source) == digest(dest) == key
+        index.append({"original_repo_path": source.relative_to(ROOT).as_posix(), "original_absolute_path": str(source),
+            "archived_repo_path": dest.relative_to(ROOT).as_posix(), "sha256": sha, "bytes": size,
+            "source_role": "r01失败或第一代pins" if source.is_relative_to(FIRST) or source.is_relative_to(FIRST_PRE) else "r02实际最终pins与轻量原件"})
+    with (OUT / "raw_manifest.jsonl").open("x", encoding="utf-8", newline="\n") as f:
+        for row in index: f.write(json.dumps(row, ensure_ascii=False) + "\n")
+    for name in ("source_freeze.json", "tool_binding.json", "final_pins_test_receipt.json"):
+        copy(HERE / name, OUT / name)
+    tools = json.loads((HERE / "tool_binding.json").read_text(encoding="utf-8"))
+    for row in tools["tools"]:
+        for suffix in ("", ".diff", ".from_final_r01.diff"):
+            copy(HERE / (row["path"] + suffix), OUT / "tools" / (row["path"] + suffix))
+    plan = json.loads((HERE / "execution_plan.json").read_text(encoding="utf-8"))
+    plan["final_tool_pins"] = tools["tools"]
+    plan["common_sha"] = tools["common_sha"]
+    plan["source_before_actual"] = {"path": (OUT / "source_before.json").relative_to(ROOT).as_posix(), "sha256": digest(OUT / "source_before.json")[0],
+        "native_exit_code": source_native["native_exit_code"], "elapsed_seconds": source_native["elapsed_seconds"],
+        "sampled_owned_tree_peak_bytes": source_native["sampled_owned_tree_peak_bytes"], "unknown_samples": source_native["unknown_samples"],
+        "absolute_tree_peak_bytes": None, "scope": "此时刻实际before；实际资源准入/launch前ROOT必须重核43字节及Git对象，不代替未来source-after"}
+    plan["resource_admission_actual_sample"] = tests["resource_admission"]
+    plan["source_commit_vs_metadata_head"] = "SOURCE_COMMIT固定09b4代码对象；后续归档metadata HEAD另列并非源码变更，但不弱化综合source的CLI==SOURCE_COMMIT==实际HEAD检查。PNR已有独立expected-head/实际43Git对象角色保持原逻辑。"
+    plan["root_current_head_policy"] = "ROOT已明确保持实际HEAD09b4直至本轮综合source-after/实验闭合，不在中间做证据metadata提交；不弱化source CLI/HEAD/SOURCE_COMMIT严格相等。"
+    plan["restore_entry"] = (OUT / "recovery_entry.json").relative_to(ROOT).as_posix()
+    write(OUT / "execution_plan_final.json", plan)
+    recovery = {"status": "RECOVERABLE_FINAL_PREP_ONLY_NOT_PHYSICAL_APPROVAL", "fixed_project_root": str(ROOT),
+        "source_commit": p.SOURCE_COMMIT, "tools": [{"destination_absolute_path": str(HERE / row["path"]), "artifact_repo_path": (OUT / "tools" / row["path"]).relative_to(ROOT).as_posix(), "sha256": row["sha256"], "bytes": row["bytes"]} for row in tools["tools"]],
+        "source_freeze": {"destination_absolute_path": str(HERE / "source_freeze.json"), "artifact_repo_path": (OUT / "source_freeze.json").relative_to(ROOT).as_posix(), "sha256": digest(OUT / "source_freeze.json")[0]},
+        "raw_manifest": {"path": (OUT / "raw_manifest.jsonl").relative_to(ROOT).as_posix(), "sha256": digest(OUT / "raw_manifest.jsonl")[0], "rows": len(index)},
+        "restore_performed": False, "restore_instruction": "本轮未恢复或覆盖旧固定工具；未来恢复须逐项核原绝对目标缺失及授权，再按原路径映射恢复实际SHA/bytes。不得直接执行formal tools副本，因为其ROOT层级与原tmp不同。",
+        "guard_recovery_reference": {"path": "report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01/recovery_entry.json", "sha256": p.RECOVERY_SHA,
+            "archive_mapping_sha256": p.MAPPING_SHA, "fixed_guard_sha256": p.GUARD_SHA, "fixed_supervisor_sha256": p.SUP_SHA},
+        "input_frozen_helpers": {"r01_sha256": digest(FIRST / "compat_pins.py")[0], "r02_sha256": digest(HERE / "compat_pins.py")[0], "changed_from_r01": "仅SOURCE_PRE到新r02；其它路径WORK同层实际改变，函数逻辑不变"},
+        "first_capture": "r01>128MiB/宿主1/child native null原件保留，不能追认PASS或0", "pnr_dependencies": "SYNTH_MANIFEST/SYNTH_G2 None/PENDING，实际PNR prepare native1", "physical_g0": "BLOCKED", "new_budget_sta_g3_g5": "NOT_RUN", "old_s11_budget": "BLOCKED"}
+    write(OUT / "recovery_entry.json", recovery)
+    native = [json.loads(q.read_text(encoding="utf-8")) for q in sorted(HERE.glob("*.native.json"))]
+    entry = {"status": "STOP_FINAL_INPUT_PINS_LOGIC_G1_PENDING_INDEPENDENT_G2", "source_commit": p.SOURCE_COMMIT,
+        "source_freeze_sha256": digest(OUT / "source_freeze.json")[0], "source_before_sha256": digest(OUT / "source_before.json")[0],
+        "tool_binding_sha256": digest(OUT / "tool_binding.json")[0], "execution_plan_sha256": digest(OUT / "execution_plan_final.json")[0],
+        "recovery_entry_sha256": digest(OUT / "recovery_entry.json")[0], "raw_manifest_sha256": digest(OUT / "raw_manifest.jsonl")[0],
+        "raw_original_bindings": len(index), "unique_saved_objects_including_source_snapshots": len(canonical),
+        "source_count": 43, "static_count": 33, "rtl_count": 18, "derived_count": 8, "frozen14_count": 14,
+        "git_raw_identical": 37, "git_eol_exact": 6, "logic_cases": tests["case_count"], "native_records": native,
+        "first_capture_failure": "真实>128MiB；包装宿主1/child null；原件均逐字节归档", "new_capture_budget_bytes": 268435456,
+        "max_r02_sampled_owned_tree_peak_bytes": max(r["sampled_owned_tree_peak_bytes"] for r in native), "absolute_tree_peak_bytes": None,
+        "resource_admission": tests["resource_admission"], "actual_after": "NOT_RUN", "final_tools_g2": "NOT_RUN", "physical_g0": "BLOCKED", "actual_new_budget_sta_g3_g5": "NOT_RUN", "old_s11_budget": "BLOCKED"}
+    write(OUT / "author_receipt.json", entry)
+    manifest("delivery_manifest_precheck.json")
+    print(json.dumps({"status": entry["status"], "raw_original_bindings": len(index), "unique_saved_objects": len(canonical), "raw_manifest_sha256": entry["raw_manifest_sha256"], "author_receipt_sha256": digest(OUT / "author_receipt.json")[0]}, ensure_ascii=False))
+
+def manifest(name):
+    records = []
+    for q in sorted(source_files(OUT)):
+        role = "source" if q.suffix in (".py", ".sv") else "result" if q.name.endswith(("receipt.json", "before.json")) else "artifact"
+        records.append({"path": q.relative_to(ROOT).as_posix(), "sha256": digest(q)[0], "role": role, "keep_reason": "可恢复真实最终源输入/pins及原生证据，包含首失败和未知码，不填补物理未执行"})
+    for rel, sha in ((p.FUNCTIONAL_G1.relative_to(ROOT).as_posix(), p.FUNCTIONAL_G1_SHA), (p.FUNCTIONAL_G2.relative_to(ROOT).as_posix(), p.FUNCTIONAL_G2_SHA)):
+        records.append({"path": rel, "sha256": sha, "role": "input", "keep_reason": "既有功能G1/G2真实冻结原件，precommit角色分列，不用新逻辑自报功能批准"})
+    source = json.loads((HERE / "source_before.native.json").read_text(encoding="utf-8"))
+    logic = json.loads((HERE / "logic_tests.native.json").read_text(encoding="utf-8"))
+    checks = [{"name": "source_before_actual", "status": "PASS", "command": " ".join(source["command"]), "exit_code": 0},
+        {"name": "final_pins_logic", "status": "PASS", "command": " ".join(logic["command"]), "exit_code": 0},
+        {"name": "final_tools_g2", "status": "NOT_RUN", "command": None, "exit_code": None, "reason": "最终实际pins须独立Reviewer复审，本作者不能自报G2"},
+        {"name": "resource_admission", "status": "BLOCKED", "command": None, "exit_code": None, "reason": "真实RAM样本小于4.5GiB，ROOT须actual准入重测；本轮不创建Vivado或硬件session"},
+        {"name": "synth_pnr_budget_sta_g3_g5", "status": "NOT_RUN", "command": None, "exit_code": None, "reason": "本轮仅最终轻量输入准备，综合/PNR/新budget/STA/板级G3/阶段G5均未执行"},
+        {"name": "old_s11_budget", "status": "BLOCKED", "command": None, "exit_code": None, "reason": "旧S11预算未閉合，不能追认"}]
+    for label in ("precheck_evidence", "precheck_inputs"):
+        path = HERE / (label + ".native.json")
+        if path.exists():
+            r = json.loads(path.read_text(encoding="utf-8"))
+            assert type(r["native_exit_code"]) is int
+            checks.append({"name": label, "status": "PASS" if r["native_exit_code"] == 0 else "FAIL", "command": " ".join(r["command"]), "exit_code": r["native_exit_code"], "reason": "结构与字节包装另判；inputs保留真实BLOCKED/NOT_RUN因此2，不是物理G0通过"})
+    value = {"schema_version": 1, "stage": "2B", "task_id": "S2B-T17", "run_id": OUT.name, "source_commit": p.SOURCE_COMMIT,
+        "evidence_dir": OUT.relative_to(ROOT).as_posix(), "interfaces": [],
+        "interfaces_not_applicable_reason": "此包为最终离线工具pins和源码预检，复用已审功能G1/G2业务清单作为输入，不新增模型或总线接口冻结；实际物理G0由ROOT另判。",
+        "files": records, "checks": checks, "tool_versions": {"python": sys.version, "psutil": "7.2.2", "git": "实际只读命令及原生码见RAW绑定"},
+        "limitations": ["仅最终pins/source preflight逻辑G1，独立最终G2未执行", "SOURCE_COMMIT09b4实际代码对象，旧891功能freeze仅precommit RAW角色", "r01 capture预算失败且child码null不追认；ROOT另授权新r02 256MiB/120s轻量捕获", "规定节拍离散采样峰不是OS原子连续绝对峰；一个短暂UNKNOWN样本保留", "RAM准入4.5GiB、固定guard树6GiB/512MiB RAM stop/C8GiB/1s/sup5s不降低", "PNR SYNTH依赖None/PENDING，actualafter/newbudget/STA/G3/G5 NOT_RUN，旧S11budget BLOCKED", "未恢复旧固定工具目标；不写生产或Git、不启动Vivado/ROSS/硬件"]}
+    write(OUT / name, value)
+
+def seal():
+    for label in ("pack", "precheck_evidence", "precheck_inputs"):
+        for suffix in (".stdout.bin", ".stderr.bin", ".native.json"):
+            copy(HERE / (label + suffix), OUT / "closed_packaging" / (label + suffix))
+    manifest("delivery_manifest.json")
+    print(json.dumps({"manifest_sha256": digest(OUT / "delivery_manifest.json")[0], "source_freeze_sha256": digest(OUT / "source_freeze.json")[0], "source_before_sha256": digest(OUT / "source_before.json")[0], "receipt_sha256": digest(OUT / "author_receipt.json")[0], "raw_manifest_sha256": digest(OUT / "raw_manifest.jsonl")[0]}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    {"pack": pack, "seal": seal}[sys.argv[1]]()

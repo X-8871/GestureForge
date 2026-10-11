@@ -1,0 +1,184 @@
+"""绑定ROOT真实最终提交，准备新源码与六工具；不启动物理任务。"""
+import ast
+import difflib
+import hashlib
+import importlib.util
+import json
+import pathlib
+import subprocess
+import sys
+from datetime import datetime, timezone, timedelta
+
+HERE = pathlib.Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+COMMIT = "09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf"
+OLD = ROOT / "tmp/2B/S2B-T17/s12_physical_compat_prepare_20261012_r02"
+PRE = ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r01"
+HASHES = {"collector.py": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad",
+    "impl_collector.py": "303ff4299874f5d57c1b8f7a7eb636e9c9675061db27858e9403951792f23d1f",
+    "source_after_check.py": "33ffd73c0a90441c767925e3c7070fa6e5cddf0f49e258bc1900b8ddcf798311",
+    "native_source_after.py": "2599d7b0f00349d1e5419bce513de8e1c0eaef7489eda108adb6b57fa678907e",
+    "native.py": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+    "compat_pins.py": "77aa045a6a76d8d36126285a9ad12e63d3cfbc186c5676e4bcc2121cea1e1c77"}
+INPUTS = {"report/evidence/S2B-T17/s12_timing_cones_20261012_r01/source_freeze.json": "eadf373c59420aa234a5e6394c9ca08066b480bdde6263f91600cf21bbbe02c7",
+    "report/evidence/S2B-T17/s12_timing_cones_20261012_r01/delivery_manifest_r02.json": "2c8e3bd56c1c288333f168a767aadf8b7067f2450e97c25709f271553772ed54",
+    "report/evidence/S2B-T17/independent_s12_functional_review_20261012_r01/raw/final_review_receipt.json": "e6e4dd2b77a31b55d12b4fe4c1cc1ab1d4905fd3fbf9b4e045dffb38dbf79129",
+    "report/evidence/S2B-T17/independent_s12_functional_review_20261012_r01/delivery_manifest.json": "54c278e530fa9f80ccb3c9fa94ff645583dfa7832b4974a3e225547fafe14d8a",
+    "tmp/2B/S2B-T17/s12_physical_prepare_20261012_r01/execution_plan.json": "9163d0d6369f0bece4af19911099cd600f9890e3de359c11eb3dcb7d472119c7"}
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def exact(path, directory=False):
+    """逐组件核精确名称和类型；不接收链接路径。"""
+    path = pathlib.Path(path)
+    assert path.is_absolute()
+    current = pathlib.Path(path.anchor)
+    for name in path.parts[1:]:
+        matches = [p for p in current.iterdir() if p.name == name]
+        assert len(matches) == 1, str(path)
+        current = matches[0]
+        assert not current.is_symlink() and not current.is_junction()
+    assert current.is_dir() if directory else current.is_file()
+    return current
+
+def write(path, value):
+    with path.open("x", encoding="utf-8", newline="\n") as f:
+        json.dump(value, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
+def raw(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("xb") as f:
+        f.write(data)
+
+def bound(path):
+    data = exact(path).read_bytes()
+    return {"path": path.relative_to(ROOT).as_posix(), "sha256": sha(data), "bytes": len(data)}
+
+calls = []
+def git(*args):
+    """每条真实只读Git命令单独保留原字节及原生码。"""
+    cmd = ["git", "-C", str(ROOT), *args]
+    r = subprocess.run(cmd, capture_output=True, timeout=30)
+    index = len(calls)
+    base = HERE / "generation_git" / ("git_" + str(index).zfill(2))
+    stdout, stderr = base.with_suffix(".stdout.bin"), base.with_suffix(".stderr.bin")
+    raw(stdout, r.stdout); raw(stderr, r.stderr)
+    record = {"command": cmd, "native_exit_code": r.returncode, "stdout": bound(stdout), "stderr": bound(stderr)}
+    write(base.with_suffix(".native.json"), record)
+    calls.append(record)
+    assert r.returncode == 0, "真实Git只读调用失败"
+    return r.stdout
+
+def main():
+    assert git("rev-parse", "HEAD").decode("ascii").strip() == COMMIT
+    assert not git("diff", "--cached", "--name-only").strip()
+    exact(PRE.parent, True); assert not PRE.exists()
+    for rel, expected in INPUTS.items():
+        assert sha(exact(ROOT / rel).read_bytes()) == expected, rel
+    old = json.loads((ROOT / next(iter(INPUTS))).read_text(encoding="utf-8"))
+    review = json.loads((ROOT / list(INPUTS)[2]).read_text(encoding="utf-8"))
+    assert review["status"] == "PASS" and review["source_freeze_sha256"] == INPUTS[next(iter(INPUTS))]
+    rows = old["source_files"]
+    assert len(rows) == len({r["path"] for r in rows}) == 43
+    checker_path = exact(ROOT / "verification/check_s2b_inference_platform.py")
+    assert sha(checker_path.read_bytes()) == next(r["sha256"] for r in rows if r["path"] == checker_path.relative_to(ROOT).as_posix())
+    spec = importlib.util.spec_from_file_location("platform", checker_path)
+    checker = importlib.util.module_from_spec(spec); spec.loader.exec_module(checker)
+    static = checker.check_static(ROOT)
+    assert len(static) == 33 and old["frozen14"] == checker.FROZEN_CORE_SHA256
+    sources = []
+    for row in rows:
+        source = exact(ROOT / row["path"])
+        content = source.read_bytes()
+        assert sha(content) == row["sha256"] and len(content) == row["bytes"]
+        blob = git("show", COMMIT + ":" + row["path"])
+        identical = blob == content
+        eol = not identical and b"\r\n" not in blob and blob.replace(b"\n", b"\r\n") == content
+        assert identical or eol, row["path"]
+        saved = HERE / "freeze_snapshots" / row["path"]
+        raw(saved, content)
+        sources.append({"path": row["path"], "sha256": sha(content), "bytes": len(content),
+            "snapshot": saved.relative_to(ROOT).as_posix(), "git_blob_sha256": sha(blob),
+            "git_relation": "RAW_IDENTICAL" if identical else "GIT_LF_TO_RAW_CRLF", "git_native": calls[-1]})
+    profile = json.loads(exact(ROOT / "board/s2b_inference_platform.json").read_text(encoding="utf-8"))
+    assert profile["version"] == "0.1.12" and profile["clock_hz"] == 50000000 and profile["visibility_default"] == 0
+    assert len(profile["rtl_sources"]) == 18 and len(profile["source_derivation"]["derived_sources"]) == 8
+    assert git("rev-parse", "HEAD").decode("ascii").strip() == COMMIT
+    freeze = {"schema_version": 1, "source_commit": COMMIT, "profile": old["profile"], "source_files": sources,
+        "active_rtl_sources": profile["rtl_sources"], "frozen14": old["frozen14"], "platform_static_source_count": 33,
+        "static_source_sha256": static, "created_at_utc8": datetime.now(timezone(timedelta(hours=8))).isoformat(),
+        "functional_precommit_freeze": {"path": next(iter(INPUTS)), "sha256": INPUTS[next(iter(INPUTS))],
+            "source_commit": old["source_commit"], "role": "旧功能候选precommit RAW角色；新物理SOURCE_COMMIT另以实际09b4及逐项Git对象绑定"},
+        "functional_g1": {"path": list(INPUTS)[1], "sha256": INPUTS[list(INPUTS)[1]]},
+        "functional_g2": {"path": list(INPUTS)[2], "sha256": INPUTS[list(INPUTS)[2]], "status": review["status"]}}
+    write(HERE / "source_freeze.json", freeze)
+    substitutions = {"SOURCE_COMMIT": repr(COMMIT), "SOURCE_FREEZE": 'WORK / "source_freeze.json"',
+        "SOURCE_FREEZE_SHA": repr(sha((HERE / "source_freeze.json").read_bytes())),
+        "FUNCTIONAL_G1": 'ROOT / "' + list(INPUTS)[1] + '"', "FUNCTIONAL_G1_SHA": repr(INPUTS[list(INPUTS)[1]]),
+        "FUNCTIONAL_G2": 'ROOT / "' + list(INPUTS)[2] + '"', "FUNCTIONAL_G2_SHA": repr(INPUTS[list(INPUTS)[2]]),
+        "FUNCTIONAL_G2_EXPECTED_STATUS": '"PASS"', "SYNTH_CACHE": 'WORK / "synth_cache"', "PNR_CACHE": 'WORK / "pnr_cache"',
+        "PROJECT": 'WORK / "project"', "SYNTH_REPORT": 'ROOT / "report/evidence/S2B-T17/s12_platform_20261012_r01"',
+        "PNR_REPORT": 'ROOT / "report/evidence/S2B-T17/s12_implementation_20261012_r01"',
+        "SOURCE_PRE": 'ROOT / "report/evidence/S2B-T17/s12_source_preflight_20261012_r01"'}
+    tools = []
+    for name, expected in HASHES.items():
+        original = exact(OLD / name).read_bytes(); assert sha(original) == expected
+        content = original
+        if name == "compat_pins.py":
+            lines = original.decode("utf-8").splitlines(keepends=True)
+            for key, expression in substitutions.items():
+                indices = [i for i, line in enumerate(lines) if line.startswith(key + " = ")]
+                assert len(indices) == 1
+                lines[indices[0]] = key + " = " + expression + "\n"
+            content = "".join(lines).encode("utf-8")
+        ast.parse(content.decode("utf-8"))
+        raw(HERE / name, content)
+        difference = "".join(difflib.unified_diff(original.decode("utf-8").splitlines(True), content.decode("utf-8").splitlines(True), fromfile="compat_r02/" + name, tofile="final_r01/" + name))
+        raw(HERE / (name + ".diff"), difference.encode("utf-8"))
+        tools.append({"path": name, "sha256": sha(content), "bytes": len(content), "baseline_sha256": expected,
+            "diff": name + ".diff", "diff_sha256": sha(difference.encode("utf-8")), "changed": content != original})
+    for folder in ("synth_cache", "pnr_cache"):
+        target = HERE / folder; assert not target.exists(); target.mkdir()
+    for future in (HERE / "project", ROOT / "report/evidence/S2B-T17/s12_platform_20261012_r01", ROOT / "report/evidence/S2B-T17/s12_implementation_20261012_r01"):
+        exact(future.parent, True); assert not future.exists()
+    plan = json.loads((ROOT / list(INPUTS)[4]).read_text(encoding="utf-8"))
+    replacements = {"<S12_UNIQUE_PROJECT_DIR_NAME>": HERE.name + "/project", "<S12_SYNTH_CACHE_RUN_ID>": HERE.name + "/synth_cache",
+        "<S12_PNR_CACHE_RUN_ID>": HERE.name + "/pnr_cache", "<S12_SYNTH_EVIDENCE_RUN_ID>": "s12_platform_20261012_r01",
+        "<S12_PNR_EVIDENCE_RUN_ID>": "s12_implementation_20261012_r01"}
+    for phase in ("synth", "pnr"):
+        for entry in plan[phase]["commands"]:
+            text = entry["command_template"]
+            for token, replacement in replacements.items(): text = text.replace(token, replacement)
+            entry["command_template"] = text
+            entry["executable"] = False
+            entry["execution_status"] = "NOT_RUN_PENDING_G2_AND_RESOURCE_ADMISSION" if phase == "synth" else "NOT_RUN_PENDING_SYNTH_G2"
+    plan.update(source_commit=COMMIT, source_freeze=bound(HERE / "source_freeze.json"),
+        status="LOGICAL_G1_PREPARED_PHYSICAL_ADMISSION_BLOCKED", physical_g0="BLOCKED_PENDING_TOOL_G2_AND_ACTUAL_RESOURCE_ADMISSION",
+        origin_speed_grade="用户已明确厂商确认XC7Z020-2，按xc7z020clg400-2离线候选；不是凭JTAG型号证明等级。",
+        unique_run_ids={"synth_cache": str(HERE / "synth_cache"), "pnr_cache": str(HERE / "pnr_cache"), "project": str(HERE / "project"),
+            "synth_report": str(ROOT / "report/evidence/S2B-T17/s12_platform_20261012_r01"), "pnr_report": str(ROOT / "report/evidence/S2B-T17/s12_implementation_20261012_r01"), "source_pre": str(PRE)},
+        source_before="本轮真实source-before准备捕获；实际准入/launch前ROOT必须重新核43源与冻结及索引一致", source_after=None,
+        synth_dependencies="FUNCTIONAL真实G2已绑定；工具最终pins须独审G2及实际4.5GiB/C8GiB准入后ROOT执行",
+        pnr_dependencies="SYNTH_MANIFEST/SYNTH_G2仍None/PENDING；pnr=True必须拒绝，不虚构未来综合结果。",
+        session_log_path="新session创建后ROOT填实际路径；历史41908776_431e3243.log只能表示历史來源，不是新log",
+        actual_session_created=False, actual_budget="NOT_RUN", old_s11_budget="BLOCKED")
+    # 历史builder日志参数必须由ROOT真实新session路径替换，禁止当作本轮log启动。
+    for e in plan["synth"]["commands"]:
+        if "vivado_41908776_431e3243.log" in e["command_template"]:
+            e["command_template"] = e["command_template"].replace("vivado_41908776_431e3243.log", "__ROOT_ACTUAL_OWNED_SESSION_LOG__")
+            e["pending_actual_session_log"] = True
+    write(HERE / "execution_plan.json", plan)
+    write(HERE / "tool_binding.json", {"status": "STOP_FINAL_PINS_G1_PENDING_INDEPENDENT_G2", "source_commit": COMMIT,
+        "tools": tools, "changed_files": [t["path"] for t in tools if t["changed"]],
+        "common_sha": HASHES["collector.py"], "common_sha_reason": "collector原字节未改；impl与source_after原COMMON_SHA仍精确匹配，不制造多余逻辑差异",
+        "source_freeze": bound(HERE / "source_freeze.json"), "inputs": INPUTS,
+        "pnr_synth_dependencies": "None/PENDING；pnr=True拒绝", "evidence_head_at_pnr_preparation": None,
+        "actual_git_native_calls": len(calls), "source_count": 43, "static_count": 33,
+        "git_raw_identical": sum(r["git_relation"] == "RAW_IDENTICAL" for r in sources),
+        "git_eol_exact": sum(r["git_relation"] == "GIT_LF_TO_RAW_CRLF" for r in sources), "heavy_or_hardware": False})
+    print(json.dumps({"status": "GENERATED_FINAL_PINS_ONLY", "source_commit": COMMIT, "source_freeze": bound(HERE / "source_freeze.json"), "tools": tools}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

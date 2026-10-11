@@ -1,0 +1,86 @@
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:59:10: Instance pin connected by name with empty reference: 'backend_start'
+   59 |         .backend_start(), .backend_abort(), .busy(), .done(), .error(),
+      |          ^~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:59:28: Instance pin connected by name with empty reference: 'backend_abort'
+   59 |         .backend_start(), .backend_abort(), .busy(), .done(), .error(),
+      |                            ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:59:46: Instance pin connected by name with empty reference: 'busy'
+   59 |         .backend_start(), .backend_abort(), .busy(), .done(), .error(),
+      |                                              ^~~~
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:59:55: Instance pin connected by name with empty reference: 'done'
+   59 |         .backend_start(), .backend_abort(), .busy(), .done(), .error(),
+      |                                                       ^~~~
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:59:64: Instance pin connected by name with empty reference: 'error'
+   59 |         .backend_start(), .backend_abort(), .busy(), .done(), .error(),
+      |                                                                ^~~~~
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:60:10: Instance pin connected by name with empty reference: 'pl_owns_buffers'
+   60 |         .pl_owns_buffers(), .head_output_valid(),
+      |          ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: source\tb_s2b_control_csr.sv:60:30: Instance pin connected by name with empty reference: 'head_output_valid'
+   60 |         .pl_owns_buffers(), .head_output_valid(),
+      |                              ^~~~~~~~~~~~~~~~~
+%Warning-WIDTHTRUNC: source\s2b_control_csr.sv:192:10: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's SEL generates 2 bits.
+                                                     : ... note: In instance 'tb_s2b_control_csr.dut'
+  192 |          !q.status_shadow[2:1] && ledger_empty && !q.isolated && !protocol_isolated &&
+      |          ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:361:13: Logical operator IF expects 1 bit on the If, but If's VARREF 'explained' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  361 |             if(explained) begin mock_status=4; mock_error=5; end
+      |             ^~
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:363:83: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'explained' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  363 |             visibility_confirmed=1; await_safe(); read_reg(32'h43c00010,explained ? 5 : 6); directed++;
+      |                                                                                   ^
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:388:45: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'err' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  388 |             m_axi_bvalid=1; m_axi_bresp=err ? 2 : 0; tick(); m_axi_bvalid=0;
+      |                                             ^
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:390:16: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's VARREF 'err' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  390 |             if(!err) write_reg(32'h43c00008,2,0);
+      |                ^
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:392:39: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'err' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  392 |             read_reg(32'h43c00010,err ? 9 : 8); read_reg(32'h43c00074,err ? 14 : 8); integration_count++;
+      |                                       ^
+%Warning-WIDTHTRUNC: source\tb_s2b_control_csr.sv:392:75: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'err' generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+  392 |             read_reg(32'h43c00010,err ? 9 : 8); read_reg(32'h43c00074,err ? 14 : 8); integration_count++;
+      |                                                                           ^
+%Warning-UNUSEDSIGNAL: source\tb_s2b_control_csr.sv:7:11: Signal is not used: 's_axi_awready'
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+    7 |     logic s_axi_awready, s_axi_wready, s_axi_bvalid, s_axi_arready, s_axi_rvalid;
+      |           ^~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: source\tb_s2b_control_csr.sv:7:26: Signal is not used: 's_axi_wready'
+                                                        : ... note: In instance 'tb_s2b_control_csr'
+    7 |     logic s_axi_awready, s_axi_wready, s_axi_bvalid, s_axi_arready, s_axi_rvalid;
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_control_csr.sv:83:59: Bits of function variable are not used: 'address'[15:2]
+                                                      : ... note: In instance 'tb_s2b_control_csr.dut'
+   83 |     function automatic logic in_window(input logic [31:0] address);
+      |                                                           ^~~~~~~
+%Warning-UNOPTFLAT: source\tb_s2b_control_csr.sv:16:11: Signal unoptimizable: Circular combinational logic: 'tb_s2b_control_csr.fault_event_valid'
+   16 |     logic fault_event_valid;
+      |           ^~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.050
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    source\tb_s2b_control_csr.sv:16:11:      Example path: tb_s2b_control_csr.fault_event_valid
+                    source\tb_s2b_control_csr.sv:10:27:      Example path: ASSIGNW
+                    source\tb_s2b_control_csr.sv:10:27:      Example path: tb_s2b_control_csr.core_csr_write
+                    source\s2a_runtime_shell.sv:47:11:      Example path: ASSIGNW
+                    source\s2a_runtime_shell.sv:47:11:      Example path: tb_s2b_control_csr.runtime.cancel_master
+                    source\tb_s2b_control_csr.sv:45:11:      Example path: ASSIGNW
+                    source\tb_s2b_control_csr.sv:45:11:      Example path: __VdfgSynthAssign_tb_s2b_control_csr.mem_valid_h6e95ff9d_0_0
+                    source\s2b_hp0_word_adapter.sv:66:53:      Example path: ASSIGNW
+                    source\s2b_hp0_word_adapter.sv:66:53:      Example path: tb_s2b_control_csr.adapter.logical_protocol
+                    source\tb_s2b_control_csr.sv:79:32:      Example path: ASSIGNW
+                    source\tb_s2b_control_csr.sv:79:32:      Example path: __VdfgSynthJoin_tb_s2b_control_csr.adapter_fault_valid_h6e95ff9d_0_8
+                    source\tb_s2b_control_csr.sv:16:11:      Example path: ASSIGNW
+                    source\tb_s2b_control_csr.sv:16:11:      Example path: tb_s2b_control_csr.fault_event_valid
+%Error: Exiting due to 18 warning(s)

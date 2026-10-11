@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "vivado_lint_20261011_r01",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "evidence_dir": "report/evidence/S2B-T11/vivado_lint_20261011_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/control_linter.csv",
+      "sha256": "f0cb98438ace1885f4fcdea980be3435994415f441be37134ec1634088d4ae3f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/execute_calls.json",
+      "sha256": "ae214840ce327264ccec734426f1af6877bfdcb54566113ac9b1f016d081aab0",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/result.json",
+      "sha256": "2db584994fc045c7fb13da819a62c36453907a5fd61669126cfda443ed7fce88",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv",
+      "sha256": "4c9f8cf4c5e6825a162ef32a48886e04a7d5f2f38056ed19fcf5a3f646d00f7b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv",
+      "sha256": "e52fdefaa5b179381ffce548b84c39b9a1399c581b127f70b142659058f25a14",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r01/vivado_native.log",
+      "sha256": "ac16b0c97f244ad93672f68df99cee0439ff457183d2a58059722f85860fc54a",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Vivado control lint执行",
+      "status": "PASS",
+      "command": "synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file",
+      "exit_code": 0
+    },
+    {
+      "name": "零诊断验收",
+      "status": "BLOCKED",
+      "command": [],
+      "exit_code": null,
+      "reason": "真实5条ASSIGN-5及1条unused寄存器警告尚待修复。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1"
+  },
+  "limitations": [
+    "无waiver，保持5条实际诊断；不是整平台/时序/物理验收。"
+  ]
+}

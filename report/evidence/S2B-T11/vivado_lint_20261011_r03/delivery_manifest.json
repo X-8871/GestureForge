@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "vivado_lint_20261011_r03",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "evidence_dir": "report/evidence/S2B-T11/vivado_lint_20261011_r03",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv",
+      "sha256": "9217a13cd079039803afa76a442f743c4e0f8b18ea052d5b3df3797d14453754",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/execute_calls.json",
+      "sha256": "6193183e43eae24c8bb9231e06b44e8d1c3560e3474195f597ac2986caa72b7b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/root_result.json",
+      "sha256": "31536043a00eedc8bf2b12020f93e64309d79143d49174b0575c1ad08dce008f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv",
+      "sha256": "034311b1f7a77ae718d21736cfe57b111c2d1c8d75920ecbd56e25964531ae53",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T11/vivado_lint_20261011_r03/vivado_native.log",
+      "sha256": "11cf3915c4607c74b48580d8f96f09b43212a4cbe81b804bcc44c82a6dbed129",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "MCP返回0",
+      "status": "PASS",
+      "command": "if {[current_project -quiet] ne \"\"} {error \"OWNED_LINT_PROJECT_NOT_CLOSED\"}; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [get_files]; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}",
+      "exit_code": 0
+    },
+    {
+      "name": "MCP返回1",
+      "status": "PASS",
+      "command": "synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file",
+      "exit_code": 0
+    },
+    {
+      "name": "MCP返回2",
+      "status": "PASS",
+      "command": "synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}",
+      "exit_code": 0
+    },
+    {
+      "name": "MCP返回3",
+      "status": "PASS",
+      "command": "synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv}",
+      "exit_code": 0
+    },
+    {
+      "name": "RTL诊断关闭",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "干净单版本真实control5ASSIGN-5无waiver，adapter0诊断；显式return仍触发function返回名诊断，改组合条件后复检。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1"
+  },
+  "limitations": [
+    "干净单版本真实control5ASSIGN-5无waiver，adapter0诊断；显式return仍触发function返回名诊断，改组合条件后复检。",
+    "无完整平台/时序/板上验收。"
+  ]
+}

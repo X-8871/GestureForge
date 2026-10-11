@@ -1,0 +1,364 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct 11 12:52:12 2026
+# Process ID         : 23188
+# Current directory  : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01
+# Command line       : vivado.exe -mode tcl -log .vivado-ai\vivado_94331856_49ab2ff7.log -journal .vivado-ai\vivado_94331856_49ab2ff7.jou -notrace -source .vivado-ai\init_94331856_49ab2ff7.tcl
+# Log file           : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log
+# Journal file       : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01\.vivado-ai\vivado_94331856_49ab2ff7.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 21168 MB
+#-----------------------------------------------------------
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {.vivado-ai\init_94331856_49ab2ff7.tcl} -notrace
+INFO: [Common 17-1674] Started webserver at http://localhost:8088
+set_param -quiet messaging.defaultLimit 10000000
+puts "MCPPROBE:xvofo8zioz6j:[get_param messaging.defaultLimit]"
+MCPPROBE:xvofo8zioz6j:10000000
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:8h0terfnr01c===}
+INFO: [MCP 00-100] ===MCP_CMD_START:8h0terfnr01c===
+puts "VSCSTART" ; set exitCode [catch {puts [version -short]; puts [get_parts -quiet xc7z020clg400-2]; puts [get_parts -quiet xc7z020clg400-2I]; puts [get_parts -quiet XC7Z020-2CLG400I]; foreach p [get_parts -quiet xc7z020clg400-2] {puts [list NAME [get_property NAME $p] FAMILY [get_property FAMILY $p] DEVICE [get_property DEVICE $p] PACKAGE [get_property PACKAGE $p] SPEED [get_property SPEED $p]]}; puts [get_parts -quiet xc7z020*clg400*-2*]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+2026.1
+xc7z020clg400-2
+
+
+NAME xc7z020clg400-2 FAMILY zynq DEVICE xc7z020 PACKAGE clg400 SPEED -2
+xc7z020clg400-2
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:8h0terfnr01c:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:8h0terfnr01c:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:4g6v98alhvkp===}
+INFO: [MCP 00-100] ===MCP_CMD_START:4g6v98alhvkp===
+puts "VSCSTART" ; set exitCode [catch {puts "SESSION:[pid] PROJECT:[current_project -quiet] CWD:[pwd] VERSION:[version -short]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+SESSION:23188 PROJECT: CWD:C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01 VERSION:2026.1
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:4g6v98alhvkp:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:4g6v98alhvkp:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:6s5uc55fydtg===}
+INFO: [MCP 00-100] ===MCP_CMD_START:6s5uc55fydtg===
+puts "VSCSTART" ; set exitCode [catch {puts [version -short]; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [find_top]; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/control_linter.csv}; set_param synth.elaboration.rodinMoreOptions {rt::set_parameter linterCsvFile true}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+2026.1
+read_verilog: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 613.707 ; gain = 264.949
+s2b_hp0_word_adapter s2b_control_csr
+rt::set_parameter linterCsvFile true
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:6s5uc55fydtg:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:6s5uc55fydtg:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:3cdr6yo15ct3===}
+INFO: [MCP 00-100] ===MCP_CMD_START:3cdr6yo15ct3===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 12156
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1194.418 ; gain = 573.773
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:145]
+WARNING: [Synth 8-6014] Unused sequential element q_reg[error_shadow] was removed.  [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:407]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 713.480
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:03:27 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 84.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 92.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 100.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 97.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 87.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 713.480
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+10 Infos, 6 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 720.418
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:3cdr6yo15ct3:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:3cdr6yo15ct3:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pevdtwp72gpd===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pevdtwp72gpd===
+puts "VSCSTART" ; set exitCode [catch {read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pevdtwp72gpd:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pevdtwp72gpd:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ssfo2336bhdm===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ssfo2336bhdm===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1334.125 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:413]
+INFO: [Synth 8-13127] previous definition of module 's2b_control_csr' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv:411]
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_request_guard' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv:76]
+INFO: [Synth 8-13127] previous definition of module 's2b_request_guard' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv:76]
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_hp0_word_adapter' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv:334]
+INFO: [Synth 8-13127] previous definition of module 's2b_hp0_word_adapter' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv:329]
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:145]
+WARNING: [Synth 8-6014] Unused sequential element q_reg[error_shadow] was removed.  [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:407]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:06:40 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 84.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 92.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 100.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 97.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 87.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+11 Infos, 6 Warnings, 3 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ssfo2336bhdm:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ssfo2336bhdm:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:2q1cakohddxw===}
+INFO: [MCP 00-100] ===MCP_CMD_START:2q1cakohddxw===
+puts "VSCSTART" ; set exitCode [catch {puts "CURRENT_PROJECT:[current_project -quiet]"; puts [get_files]; puts "CURRENT_DESIGN:[current_design -quiet]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+CURRENT_PROJECT:New Project
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv
+CURRENT_DESIGN:
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:2q1cakohddxw:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:2q1cakohddxw:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pe19gmxml0e1===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pe19gmxml0e1===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pe19gmxml0e1:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pe19gmxml0e1:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:07a0fz1us5xk===}
+INFO: [MCP 00-100] ===MCP_CMD_START:07a0fz1us5xk===
+puts "VSCSTART" ; set exitCode [catch {if {[current_project -quiet] ne ""} {error "OWNED_LINT_PROJECT_NOT_CLOSED"}; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [get_files]; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:07a0fz1us5xk:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:07a0fz1us5xk:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:7fhsv9qkh8oj===}
+INFO: [MCP 00-100] ===MCP_CMD_START:7fhsv9qkh8oj===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1353.145 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:144]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:07:26 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 83.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 91.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 99.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 96.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 86.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+8 Infos, 5 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:7fhsv9qkh8oj:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:7fhsv9qkh8oj:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pldvc0amfto8===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pldvc0amfto8===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1357.480 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_hp0_word_adapter' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv:3]
+INFO: [Synth 8-6157] synthesizing module 's2b_request_guard' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_request_guard' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_hp0_word_adapter' (2#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:08:39 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++---------+----------+--------------+----------+
+| Rule ID | Severity | # Violations | # Waived |
++---------+----------+--------------+----------+
+
+
+INFO: [Synth 37-85] Total of 0 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+9 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pldvc0amfto8:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pldvc0amfto8:0===

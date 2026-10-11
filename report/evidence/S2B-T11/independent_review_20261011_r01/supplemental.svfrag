@@ -1,0 +1,35 @@
+    initial begin
+        // 独立断言：四种相位的START提交沿读取，必须立即取得所有权及ARMING状态。
+        for (int p=0;p<4;p++) begin
+            initialize(0); configure(); while(phase!=p) tick();
+            s_axi_awaddr=32'h43c00008; s_axi_wdata=1; s_axi_wstrb=15;
+            s_axi_awvalid=1; s_axi_wvalid=1; tick();
+            s_axi_awvalid=0; s_axi_wvalid=0;
+            s_axi_araddr=32'h43c0000c; s_axi_arvalid=1; tick(); s_axi_arvalid=0;
+            must(s_axi_bvalid && s_axi_bresp==0 && s_axi_rvalid && s_axi_rresp==0 &&
+                s_axi_rdata==32'h101 && run_epoch==1,"独立START提交沿快照");
+            s_axi_bready=1; tick(); s_axi_bready=0;
+            idle_ticks(35); must(run_enable,"独立R背压时ARMING仍有界");
+            s_axi_rready=1; tick(); s_axi_rready=0;
+            read_reg(32'h43c00050,1); read_reg(32'h43c00054,0);
+            directed++;
+        end
+        // 独立手算：逻辑word0的lane2窄读，错误关联物理地址必须为0x10000002。
+        initialize(0); configure(); start_run(); launch_memory(0,4);
+        must(m_axi_araddr==32'h10000002 && m_axi_arsize==0,"独立lane2窄读地址");
+        m_axi_arready=1; tick(); m_axi_arready=0;
+        m_axi_rvalid=1; m_axi_rresp=3; tick(); m_axi_rvalid=0;
+        await_safe(); read_reg(32'h43c00010,10); read_reg(32'h43c0006c,0);
+        read_reg(32'h43c00070,32'h10000002); read_reg(32'h43c00074,3);
+        directed++;
+        // 独立连续任务：匹配ACK后epoch递增；高32位不匹配不能解除终态。
+        acknowledge(); start_run(); must(run_epoch==2,"独立连续epoch递增");
+        operator_result_valid=1; tick(); operator_result_valid=0; idle_ticks(8); read_state(4);
+        write_reg(32'h43c0005c,2,0); write_reg(32'h43c00060,1,0);
+        write_reg(32'h43c00008,4,2); read_state(4); read_reg(32'h43c00064,4);
+        write_reg(32'h43c00060,0,0); write_reg(32'h43c00008,4,0); read_state(0);
+        read_reg(32'h43c00050,2); directed++;
+        $display("PASS_INDEPENDENT_CONTROL cases=%0d cycles=%0d",directed,cycles);
+        $finish;
+    end
+endmodule

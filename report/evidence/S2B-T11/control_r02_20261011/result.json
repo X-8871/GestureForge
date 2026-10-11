@@ -1,0 +1,115 @@
+{
+  "status": "FAIL",
+  "source_commit": "df379f9ae6e899247b3f099a2cf2bc1fb526abe6",
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--top-module",
+        "tb_s2b_control_csr",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0",
+        "source/s2b_control_csr.sv",
+        "source/s2b_hp0_word_adapter.sv",
+        "source/s2b_request_guard.sv",
+        "source/s2a_control_csr.sv",
+        "source/s2a_memory_master.sv",
+        "source/s2a_runtime_shell.sv",
+        "source/tb_s2b_control_csr.sv"
+      ],
+      "exit_code": 1,
+      "seconds": 3.282,
+      "timed_out": false,
+      "log_sha256": "411df7d35e6731170b7361442b43a6d1c88ca8eeba0d2d2c822c8aa015f7cd07"
+    }
+  ],
+  "coverage": {
+    "random_seed": "0x2b111010",
+    "random_transactions": 128,
+    "reference_basis": "契约0.1.1常量及独立公开CSR模型；8组真实runtime_shell/word_adapter集成，不窥busy/owner/backend_abort。",
+    "bindings": [
+      "零W1P不改变LAST_REJECT；非法编码BAD_ENCODING。",
+      "START安全终态NEED_ACK、FAULT NOT_SAFE、运行BUSY；ABORT idle NOT_SAFE、安全终态NEED_ACK、恢复BUSY、FAULT NOT_SAFE；ACK非安全NOT_SAFE。",
+      "epoch耗尽仅TB白盒force corner；正常cold硬件epoch为零。"
+    ]
+  },
+  "limitations": [
+    "候选物理接口未冻结；不构成完整2B G0/G4/G5与实板验收。",
+    "visibility_confirmed低时真实任务禁止归还；实际HP/DDR属性、缓存路径与实物验证未执行。",
+    "峰值内存未测；单job/单线程；各次RunId保留重跑次数；未采集波形。"
+  ],
+  "sources": [
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "ba889689697e0cc69d21d73e7147f11da5b9f0ca411281cb5da4b5cc541dea8b"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "e52fdefaa5b179381ffce548b84c39b9a1399c581b127f70b142659058f25a14"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+    },
+    {
+      "path": "sim/tb_s2b_control_csr.sv",
+      "sha256": "89119afa04733d1177f266ce725f3871a5ad3b786c3ae02ab552a1f4f4c4030c"
+    },
+    {
+      "path": "verification/test_s2b_control_csr_rtl.py",
+      "sha256": "bb9c8c8f1697fd148ac765ef4652b42f928e358928162efe6572f0889408e01c"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "tool_files": [
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+      "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+      "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+    }
+  ],
+  "error": "compile失败",
+  "elapsed_seconds": 3.875
+}

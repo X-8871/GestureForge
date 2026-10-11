@@ -1,0 +1,196 @@
+{
+  "status": "PASS_CANDIDATE_HP0_WORD_ADAPTER",
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--top-module",
+        "tb_s2b_hp0_word_adapter",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0",
+        "source/s2b_request_guard.sv",
+        "source/s2b_hp0_word_adapter.sv",
+        "source/tb_s2b_hp0_word_adapter.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 45.953,
+      "log_sha256": "a15371e07c755151434915a3ea8961cc151f6c232019e6fce322cfe0c17ad80b",
+      "timed_out": false
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T11\\independent_review_20261011_r01\\adapter_work\\obj_dir\\Vtb_s2b_hp0_word_adapter.exe",
+        "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T11\\independent_review_20261011_r01\\adapter_evidence\\vectors.txt"
+      ],
+      "exit_code": 0,
+      "seconds": 0.375,
+      "log_sha256": "c0fa56385e8549618a83956647d8aaada92c2126f6327b9e7629853351124606",
+      "timed_out": false
+    }
+  ],
+  "sources": [
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+    },
+    {
+      "path": "sim/tb_s2b_hp0_word_adapter.sv",
+      "sha256": "4ebf8d9402765b82e9d5501e75dbca92f5bb864297309931a069fe49c4ca7591"
+    },
+    {
+      "path": "verification/test_s2b_hp0_word_adapter_rtl.py",
+      "sha256": "44d9cc440898abea6fe16504688bc7c8df6518c5249cb0c06185b96f0be6cacd"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "coverage": {
+    "seed": 722472976,
+    "random_requests": 1000,
+    "total_vectors": 8544,
+    "categories": {
+      "all_object_masks_and_boundaries": 7232,
+      "unaligned": 76,
+      "direction_conflict": 76,
+      "arena_and_overflow": 160,
+      "random_requests": 1000
+    },
+    "expected_errors": {
+      "1": 678,
+      "0": 7369,
+      "2": 497
+    },
+    "legal_mask_counts": {
+      "R:0001": 251,
+      "R:0010": 254,
+      "R:0011": 256,
+      "R:0100": 247,
+      "R:0101": 250,
+      "R:0110": 266,
+      "R:0111": 251,
+      "R:1000": 246,
+      "R:1001": 242,
+      "R:1010": 252,
+      "R:1011": 259,
+      "R:1100": 253,
+      "R:1101": 250,
+      "R:1110": 247,
+      "R:1111": 242,
+      "W:0001": 240,
+      "W:0010": 232,
+      "W:0011": 237,
+      "W:0100": 247,
+      "W:0101": 244,
+      "W:0110": 237,
+      "W:0111": 236,
+      "W:1000": 238,
+      "W:1001": 243,
+      "W:1010": 237,
+      "W:1011": 240,
+      "W:1100": 241,
+      "W:1101": 243,
+      "W:1110": 243,
+      "W:1111": 245
+    },
+    "word_position_counts": {
+      "0": 3702,
+      "1": 3667
+    },
+    "bus_stall_seed": 722472976,
+    "per_stall_cycles": "固定xorshift32产生0..3周期",
+    "directed_expected": 179,
+    "random_cancel_histories": 128,
+    "directed_categories": {
+      "predeclaration_cancel_withdraw_runclose": 3,
+      "cancel_write_accept_sets": 4,
+      "cancel_read_declared_or_accepted": 2,
+      "cancel_early_B_before_AW": 1,
+      "cancel_response_or_RESP_slot": 4,
+      "byte_withdraw_or_cancel": 2,
+      "all_payload_fields_changed": 5,
+      "epoch_change_with_RUN_high_or_low": 2,
+      "read_wdata_changed": 1,
+      "byte_between_payload_changed": 1,
+      "R_response_errors_and_protocol": 7,
+      "B_response_errors_and_protocol": 7,
+      "duplicate_R_in_RESP": 1,
+      "unexpected_R_or_B_in_RESP": 2,
+      "unexpected_B_before_declaration": 1,
+      "cancel_guard_error_RESP": 2,
+      "late_protocol_after_first_error": 1,
+      "permanent_AR_or_AW_W_stall_256cycles": 2,
+      "idle_RUN_and_cancel_clear": 1,
+      "clear_with_unexpected_response": 1,
+      "three_same_epoch_successes": 1,
+      "random_cancel_histories": 128
+    },
+    "reference_basis": "冻结manifest对象集合包含关系；总线字节函数与lane按字节独立求值，不读取RTL状态。",
+    "hand_calculated": {
+      "logical_addr": "0x01A474CC",
+      "mask": "0011",
+      "bytes": [
+        173,
+        112
+      ],
+      "expected_word": "0x000070AD",
+      "outside_mask": "0100 -> BAD_RANGE"
+    }
+  },
+  "tool_versions": {
+    "python": "3.12.10",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "tool_files": [
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+      "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+      "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+    }
+  ],
+  "simulation_counts": {
+    "vectors": 8544,
+    "directed": 179,
+    "cycles": 104877,
+    "logical": 8547,
+    "AR": 7379,
+    "AW": 3692,
+    "W": 3692,
+    "R": 7385,
+    "B": 3700
+  },
+  "elapsed_seconds": 46.64
+}

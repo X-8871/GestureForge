@@ -34,7 +34,13 @@ module s2b_hp0_word_adapter (
     output logic fault_event_valid,
     output logic [7:0] fault_event_code,
     output logic [31:0] fault_event_address,
-    output logic req_withdrawn, clear_rejected
+    output logic req_withdrawn, clear_rejected,
+    output logic [9:0] axi_progress,
+    output logic [9:0] axi_progress_next,
+    output logic ledger_empty_next,
+    output logic [1:0] fault_event_resp,
+    output logic fault_event_write, fault_event_protocol, fault_event_address_valid,
+    output logic [31:0] fault_event_physical_address
 );
     typedef struct packed {
         logic held, response_pending, bad_response;
@@ -85,8 +91,19 @@ module s2b_hp0_word_adapter (
     assign first_fault_code = q.first_code;
     assign first_fault_address = q.first_address;
     assign req_withdrawn = q.held && !mem_valid;
+    assign axi_progress = {q.b_seen, q.response_pending, (q.write_active && !q.b_seen),
+        q.w_accepted, (q.write_active && (q.wvalid || q.w_accepted)), q.aw_accepted,
+        (q.write_active && (q.awvalid || q.aw_accepted)), q.read_active && q.ar_accepted,
+        q.ar_accepted, (q.read_active && (q.arvalid || q.ar_accepted))};
     assign capture_request = ledger_empty && run_enable && mem_valid && !cancel &&
                              !q.recover && !q.isolated;
+    // 仅作AR沿诊断快照，控制取消与SAFE门禁仍使用注册账本，避免组合反馈。
+    assign ledger_empty_next = !(d.held || d.response_pending || d.read_active || d.arvalid ||
+        d.ar_accepted || d.write_active || d.awvalid || d.wvalid || d.aw_accepted || d.w_accepted || d.b_seen);
+    assign axi_progress_next = {d.b_seen, d.response_pending, (d.write_active && !d.b_seen),
+        d.w_accepted, (d.write_active && (d.wvalid || d.w_accepted)), d.aw_accepted,
+        (d.write_active && (d.awvalid || d.aw_accepted)), d.read_active && d.ar_accepted,
+        d.ar_accepted, (d.read_active && (d.arvalid || d.ar_accepted))};
 
     // 匹配依赖此前沿的接受状态；非法响应被消费但不能证明原等待结束。
     assign r_match = q.read_active && q.ar_accepted && (m_axi_rid == 6'd0) && m_axi_rlast;
@@ -103,6 +120,11 @@ module s2b_hp0_word_adapter (
         fault_event_code = 8'd0;
         fault_event_address = 32'd0;
         event_is_protocol = 1'b0;
+        fault_event_resp = 0;
+        fault_event_write = 0;
+        fault_event_protocol = 0;
+        fault_event_address_valid = 0;
+        fault_event_physical_address = 0;
         if (r_protocol || b_protocol) begin
             fault_event_valid = 1'b1;
             fault_event_code = 8'd11;
@@ -121,6 +143,28 @@ module s2b_hp0_word_adapter (
             fault_event_valid = 1'b1;
             fault_event_code = m_axi_bresp[0] ? 8'd10 : 8'd9;
             fault_event_address = q.addr;
+        end
+        // 元数据来自与事件码同一个优先分支；无请求关联时不编造地址。
+        fault_event_protocol = event_is_protocol;
+        if (fault_event_valid) begin
+            if (r_protocol || (!b_protocol && !logical_protocol && m_axi_rvalid && r_match && m_axi_rresp[1])) begin
+                fault_event_resp = m_axi_rresp;
+                fault_event_write = 0;
+                // 非读任务的unexpected R不能借用写账本或未赋值的AR地址。
+                fault_event_address_valid = q.read_active ||
+                    (!q.write_req && q.response_pending && !q.bad_response);
+                if (fault_event_address_valid) fault_event_physical_address = q.araddr;
+            end else if (b_protocol || (!logical_protocol && m_axi_bvalid && b_match && m_axi_bresp[1])) begin
+                fault_event_resp = m_axi_bresp;
+                fault_event_write = 1;
+                fault_event_address_valid = q.write_active ||
+                    (q.write_req && q.response_pending && !q.bad_response);
+                if (fault_event_address_valid) fault_event_physical_address = q.physical_addr;
+            end else begin
+                fault_event_write = q.write_req;
+                fault_event_address_valid = q.held && (q.logical_error == 0);
+                if (fault_event_address_valid) fault_event_physical_address = q.physical_addr;
+            end
         end
     end
 

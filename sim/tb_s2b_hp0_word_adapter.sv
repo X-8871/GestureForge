@@ -25,6 +25,12 @@ module tb_s2b_hp0_word_adapter;
     logic [7:0] first_fault_code, fault_event_code;
     logic [31:0] first_fault_address, fault_event_address;
     logic fault_event_valid, req_withdrawn, clear_rejected;
+    logic [9:0] axi_progress;
+    logic [9:0] axi_progress_next;
+    logic ledger_empty_next;
+    logic [1:0] fault_event_resp;
+    logic fault_event_write, fault_event_protocol, fault_event_address_valid;
+    logic [31:0] fault_event_physical_address;
     s2b_hp0_word_adapter dut (.*);
     int cycles=0, logical_count=0, ar_count=0, aw_count=0, w_count=0, r_count=0, b_count=0;
     int vector_count=0, directed_count=0;
@@ -54,6 +60,8 @@ module tb_s2b_hp0_word_adapter;
     task automatic step();
         logic [59:0] ar_payload, aw_payload;
         logic [78:0] w_payload;
+        logic [9:0] saved_progress_next;
+        logic saved_empty_next;
         #1;
         ar_payload = {m_axi_arid,m_axi_araddr,m_axi_arlen,m_axi_arsize,m_axi_arburst,
                       m_axi_arlock,m_axi_arcache,m_axi_arprot,m_axi_arqos};
@@ -69,6 +77,19 @@ module tb_s2b_hp0_word_adapter;
                  m_axi_arcache==0 && m_axi_awcache==0 && m_axi_arprot==0 && m_axi_awprot==0 &&
                  m_axi_arqos==0 && m_axi_awqos==0 && m_axi_awsize==2 && m_axi_wlast &&
                  m_axi_rready && m_axi_bready, "固定AXI3属性或恢复READY错误");
+            must(axi_progress[0] == (m_axi_arvalid || axi_progress[1]) &&
+                 axi_progress[3] == (m_axi_awvalid || axi_progress[4]) &&
+                 axi_progress[5] == (m_axi_wvalid || axi_progress[6]), "公开progress声明状态");
+            if (fault_event_valid) begin
+                must(fault_event_protocol == (fault_event_code == 11 || fault_event_code == 6), "公开protocol元数据");
+                if (fault_event_address_valid) begin
+                    must(fault_event_physical_address >= 32'h10000000 &&
+                         fault_event_physical_address < 32'h12000000, "公开物理故障地址");
+                end else must(fault_event_physical_address == 0, "无关联响应地址必须为零");
+                if (fault_event_code == 9 || fault_event_code == 10)
+                    must(fault_event_resp == (fault_event_code == 9 ? 2'b10 : 2'b11) &&
+                         fault_event_write == m_axi_bvalid, "公开响应错误元数据");
+            end
             if (mem_ready) begin
                 must(run_enable && !cancel && !protocol_isolated && !fault_event_valid, "取消/隔离/同沿故障仍交付");
                 logical_count++;
@@ -83,7 +104,10 @@ module tb_s2b_hp0_word_adapter;
         old_aw_stall = !cold_reset && m_axi_awvalid && !m_axi_awready;
         old_w_stall = !cold_reset && m_axi_wvalid && !m_axi_wready;
         old_ar_payload=ar_payload; old_aw_payload=aw_payload; old_w_payload=w_payload;
+        saved_progress_next=axi_progress_next; saved_empty_next=ledger_empty_next;
         #4; clk=1; #1; clk=0; #4;
+        if (!cold_reset) must(axi_progress==saved_progress_next && ledger_empty==saved_empty_next,
+            "公开next快照与本沿注册账本一致");
         cycles++;
     endtask
     task automatic initialize();

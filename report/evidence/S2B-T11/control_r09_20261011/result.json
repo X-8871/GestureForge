@@ -1,0 +1,672 @@
+{
+  "status": "PASS_CANDIDATE_CONTROL_CSR",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--top-module",
+        "tb_s2b_control_csr",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+        "source/s2b_control_csr.sv",
+        "source/s2b_hp0_word_adapter.sv",
+        "source/s2b_request_guard.sv",
+        "source/s2a_control_csr.sv",
+        "source/s2a_memory_master.sv",
+        "source/s2a_runtime_shell.sv",
+        "source/tb_s2b_control_csr.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 90.25,
+      "timed_out": false,
+      "log_sha256": "d4a4a8ec691f0b2671ddf2f9a199e5b870608c6233ec268da9e5c22df17caeda"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T11\\control_r09_20261011\\obj_dir\\Vtb_s2b_control_csr.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 0.188,
+      "timed_out": false,
+      "log_sha256": "79963e7b9441d1351bb7cd853922dc8a3474110d79f8314bceb3957e437b7dbb"
+    }
+  ],
+  "coverage": {
+    "random_seed": "0x2b111010",
+    "random_transactions": 128,
+    "reference_basis": "契约0.1.1常量及独立公开CSR模型；15组真实runtime_shell/word_adapter集成，四种sticky产生相位，不窥busy/owner/backend_abort。",
+    "bindings": [
+      "零W1P不改变LAST_REJECT；非法编码BAD_ENCODING。",
+      "START安全终态NEED_ACK、FAULT NOT_SAFE、运行BUSY；ABORT idle NOT_SAFE、安全终态NEED_ACK、恢复BUSY、FAULT NOT_SAFE；ACK非安全NOT_SAFE。",
+      "epoch耗尽仅TB白盒force corner；正常cold硬件epoch为零。"
+    ]
+  },
+  "limitations": [
+    "候选物理接口未冻结；不构成完整2B G0/G4/G5与实板验收。",
+    "visibility_confirmed低时真实任务禁止归还；实际HP/DDR属性、缓存路径与实物验证未执行。",
+    "峰值内存未测；单job/单线程；各次RunId保留重跑次数；未采集波形。"
+  ],
+  "sources": [
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "034311b1f7a77ae718d21736cfe57b111c2d1c8d75920ecbd56e25964531ae53"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+    },
+    {
+      "path": "sim/tb_s2b_control_csr.sv",
+      "sha256": "8fb1d72753be15be68e83624f9414e08121fd06ccc40ec0f53464076907c16b3"
+    },
+    {
+      "path": "verification/test_s2b_control_csr_rtl.py",
+      "sha256": "a7647f30e8b6dd44bb30d3be343947a570de31344ac61dc88e4085114fcb292e"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "tool_files": [
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+      "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+      "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+    }
+  ],
+  "simulation_counts": {
+    "directed": 132,
+    "random": 128,
+    "integration": 15,
+    "cycles": 4509,
+    "status": 2211,
+    "error": 1104,
+    "debug": 17,
+    "starts": 38,
+    "resets": 36,
+    "acks": 4
+  },
+  "phase_coverage": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "logical_responses": 2,
+  "adapter_regression": {
+    "status": "PASS_CANDIDATE_HP0_WORD_ADAPTER",
+    "runs": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "--timescale",
+          "1ns/1ps",
+          "-Wall",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--top-module",
+          "tb_s2b_hp0_word_adapter",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0",
+          "source/s2b_request_guard.sv",
+          "source/s2b_hp0_word_adapter.sv",
+          "source/tb_s2b_hp0_word_adapter.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 43.312,
+        "log_sha256": "8e43514f3061a66526119ea4cf16dbc30c871b7968d01c3e06471ac2384f4d3c",
+        "timed_out": false
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T11\\control_r09_20261011\\adapter\\obj_dir\\Vtb_s2b_hp0_word_adapter.exe",
+          "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T11\\control_r09_20261011\\adapter\\vectors.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 0.344,
+        "log_sha256": "bcb6003a14a8eec5344652c6c967823ef11349dc4a888c6e918f9c271eae6c78",
+        "timed_out": false
+      }
+    ],
+    "sources": [
+      {
+        "path": "src/s2b_request_guard.sv",
+        "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+      },
+      {
+        "path": "src/s2b_hp0_word_adapter.sv",
+        "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+      },
+      {
+        "path": "sim/tb_s2b_hp0_word_adapter.sv",
+        "sha256": "4ebf8d9402765b82e9d5501e75dbca92f5bb864297309931a069fe49c4ca7591"
+      },
+      {
+        "path": "verification/test_s2b_hp0_word_adapter_rtl.py",
+        "sha256": "44d9cc440898abea6fe16504688bc7c8df6518c5249cb0c06185b96f0be6cacd"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+        "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+      },
+      {
+        "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+        "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+      }
+    ],
+    "coverage": {
+      "seed": 722472976,
+      "random_requests": 1000,
+      "total_vectors": 8544,
+      "categories": {
+        "all_object_masks_and_boundaries": 7232,
+        "unaligned": 76,
+        "direction_conflict": 76,
+        "arena_and_overflow": 160,
+        "random_requests": 1000
+      },
+      "expected_errors": {
+        "1": 678,
+        "0": 7369,
+        "2": 497
+      },
+      "legal_mask_counts": {
+        "R:0001": 251,
+        "R:0010": 254,
+        "R:0011": 256,
+        "R:0100": 247,
+        "R:0101": 250,
+        "R:0110": 266,
+        "R:0111": 251,
+        "R:1000": 246,
+        "R:1001": 242,
+        "R:1010": 252,
+        "R:1011": 259,
+        "R:1100": 253,
+        "R:1101": 250,
+        "R:1110": 247,
+        "R:1111": 242,
+        "W:0001": 240,
+        "W:0010": 232,
+        "W:0011": 237,
+        "W:0100": 247,
+        "W:0101": 244,
+        "W:0110": 237,
+        "W:0111": 236,
+        "W:1000": 238,
+        "W:1001": 243,
+        "W:1010": 237,
+        "W:1011": 240,
+        "W:1100": 241,
+        "W:1101": 243,
+        "W:1110": 243,
+        "W:1111": 245
+      },
+      "word_position_counts": {
+        "0": 3702,
+        "1": 3667
+      },
+      "bus_stall_seed": 722472976,
+      "per_stall_cycles": "固定xorshift32产生0..3周期",
+      "directed_expected": 179,
+      "random_cancel_histories": 128,
+      "directed_categories": {
+        "predeclaration_cancel_withdraw_runclose": 3,
+        "cancel_write_accept_sets": 4,
+        "cancel_read_declared_or_accepted": 2,
+        "cancel_early_B_before_AW": 1,
+        "cancel_response_or_RESP_slot": 4,
+        "byte_withdraw_or_cancel": 2,
+        "all_payload_fields_changed": 5,
+        "epoch_change_with_RUN_high_or_low": 2,
+        "read_wdata_changed": 1,
+        "byte_between_payload_changed": 1,
+        "R_response_errors_and_protocol": 7,
+        "B_response_errors_and_protocol": 7,
+        "duplicate_R_in_RESP": 1,
+        "unexpected_R_or_B_in_RESP": 2,
+        "unexpected_B_before_declaration": 1,
+        "cancel_guard_error_RESP": 2,
+        "late_protocol_after_first_error": 1,
+        "permanent_AR_or_AW_W_stall_256cycles": 2,
+        "idle_RUN_and_cancel_clear": 1,
+        "clear_with_unexpected_response": 1,
+        "three_same_epoch_successes": 1,
+        "random_cancel_histories": 128
+      },
+      "reference_basis": "冻结manifest对象集合包含关系；总线字节函数与lane按字节独立求值，不读取RTL状态。",
+      "hand_calculated": {
+        "logical_addr": "0x01A474CC",
+        "mask": "0011",
+        "bytes": [
+          173,
+          112
+        ],
+        "expected_word": "0x000070AD",
+        "outside_mask": "0100 -> BAD_RANGE"
+      }
+    },
+    "tool_versions": {
+      "python": "3.12.10",
+      "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+    },
+    "tool_files": [
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+        "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+        "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+      }
+    ],
+    "simulation_counts": {
+      "vectors": 8544,
+      "directed": 179,
+      "cycles": 104877,
+      "logical": 8547,
+      "AR": 7379,
+      "AW": 3692,
+      "W": 3692,
+      "R": 7385,
+      "B": 3700
+    }
+  },
+  "guard_regression": {
+    "status": "PASS_COMBINATIONAL_REQUEST_GUARD",
+    "runs": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "-Wall",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--top-module",
+          "tb_s2b_request_guard",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0",
+          "source/s2b_request_guard.sv",
+          "source/tb_s2b_request_guard.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 8.516,
+        "log_sha256": "3d457f472c989770dbe1ca257a752c64cb184ea526a6d88f64b7d22f81bbf32b"
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T11\\control_r09_20261011\\guard\\obj_dir\\Vtb_s2b_request_guard.exe",
+          "+VECTORS=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T11\\control_r09_20261011\\guard\\vectors.txt"
+        ],
+        "exit_code": 0,
+        "seconds": 0.234,
+        "log_sha256": "6e7dea2af94aa9b3d6e8d6cb920e03ba1298ccbc1f13723237d9c973d6771c87"
+      }
+    ],
+    "coverage": {
+      "seed": 722014224,
+      "random_samples": 10000,
+      "total_samples": 70736,
+      "categories": {
+        "object_boundary_masks": 35136,
+        "direction_conflicts": 19456,
+        "object_gap_or_adjacent": 2432,
+        "head13_tail_all_masks": 32,
+        "arena_and_uint32_overflow": 192,
+        "complete_gf8_sections_read_only": 3488,
+        "random": 10000
+      },
+      "expected_error_counts": {
+        "1": 51075,
+        "0": 17021,
+        "2": 2640
+      },
+      "objects": [
+        {
+          "name": "input",
+          "start": 0,
+          "end": 519168,
+          "writable": false
+        },
+        {
+          "name": "weight_package",
+          "start": 1048576,
+          "end": 6951676,
+          "writable": false
+        },
+        {
+          "name": "layer0",
+          "start": 16777216,
+          "end": 18161664,
+          "writable": true
+        },
+        {
+          "name": "layer1",
+          "start": 18161664,
+          "end": 18853888,
+          "writable": true
+        },
+        {
+          "name": "layer2",
+          "start": 18853888,
+          "end": 19546112,
+          "writable": true
+        },
+        {
+          "name": "layer3",
+          "start": 19546112,
+          "end": 19892224,
+          "writable": true
+        },
+        {
+          "name": "layer4",
+          "start": 19892224,
+          "end": 20238336,
+          "writable": true
+        },
+        {
+          "name": "layer5",
+          "start": 20238336,
+          "end": 20584448,
+          "writable": true
+        },
+        {
+          "name": "layer6",
+          "start": 20584448,
+          "end": 21276672,
+          "writable": true
+        },
+        {
+          "name": "layer7",
+          "start": 21276672,
+          "end": 21968896,
+          "writable": true
+        },
+        {
+          "name": "layer8",
+          "start": 21968896,
+          "end": 23353344,
+          "writable": true
+        },
+        {
+          "name": "layer9",
+          "start": 23353344,
+          "end": 23699456,
+          "writable": true
+        },
+        {
+          "name": "layer10",
+          "start": 23699456,
+          "end": 24045568,
+          "writable": true
+        },
+        {
+          "name": "layer11",
+          "start": 24045568,
+          "end": 24218624,
+          "writable": true
+        },
+        {
+          "name": "layer12",
+          "start": 24218624,
+          "end": 24391680,
+          "writable": true
+        },
+        {
+          "name": "layer13",
+          "start": 24391680,
+          "end": 24564736,
+          "writable": true
+        },
+        {
+          "name": "layer14",
+          "start": 24564736,
+          "end": 24910848,
+          "writable": true
+        },
+        {
+          "name": "layer15",
+          "start": 24910848,
+          "end": 25256960,
+          "writable": true
+        },
+        {
+          "name": "layer16",
+          "start": 25256960,
+          "end": 25949184,
+          "writable": true
+        },
+        {
+          "name": "layer17",
+          "start": 25949184,
+          "end": 26122240,
+          "writable": true
+        },
+        {
+          "name": "layer18",
+          "start": 26122240,
+          "end": 26295296,
+          "writable": true
+        },
+        {
+          "name": "layer19",
+          "start": 26295296,
+          "end": 26381824,
+          "writable": true
+        },
+        {
+          "name": "layer20",
+          "start": 26381824,
+          "end": 26468352,
+          "writable": true
+        },
+        {
+          "name": "layer21",
+          "start": 26468352,
+          "end": 26554880,
+          "writable": true
+        },
+        {
+          "name": "layer22",
+          "start": 26554880,
+          "end": 26727936,
+          "writable": true
+        },
+        {
+          "name": "layer23",
+          "start": 26727936,
+          "end": 26900992,
+          "writable": true
+        },
+        {
+          "name": "layer24",
+          "start": 26900992,
+          "end": 27247104,
+          "writable": true
+        },
+        {
+          "name": "layer25",
+          "start": 27247104,
+          "end": 27333632,
+          "writable": true
+        },
+        {
+          "name": "layer26",
+          "start": 27333632,
+          "end": 27420160,
+          "writable": true
+        },
+        {
+          "name": "layer27",
+          "start": 27420160,
+          "end": 27463424,
+          "writable": true
+        },
+        {
+          "name": "layer28",
+          "start": 27463424,
+          "end": 27549952,
+          "writable": true
+        },
+        {
+          "name": "layer29",
+          "start": 27549952,
+          "end": 27555022,
+          "writable": true
+        },
+        {
+          "name": "layer31",
+          "start": 27555072,
+          "end": 27598336,
+          "writable": true
+        },
+        {
+          "name": "layer32",
+          "start": 27598336,
+          "end": 27619968,
+          "writable": true
+        },
+        {
+          "name": "layer33",
+          "start": 27619968,
+          "end": 27706496,
+          "writable": true
+        },
+        {
+          "name": "layer34",
+          "start": 27706496,
+          "end": 27966080,
+          "writable": true
+        },
+        {
+          "name": "layer35",
+          "start": 27966080,
+          "end": 28139136,
+          "writable": true
+        },
+        {
+          "name": "layer36",
+          "start": 28139136,
+          "end": 28159416,
+          "writable": true
+        }
+      ],
+      "reference_basis": "直接读取冻结manifest对象，选中byte集合属于同一对象；不读取RTL常量。",
+      "adjacent_boundary_note": "冻结所有对象起点4B对齐；相邻对象边界不会被合法对齐单word跨越，未对齐跨界用BAD_ARGUMENT拒绝。"
+    },
+    "sources": [
+      {
+        "path": "src/s2b_request_guard.sv",
+        "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+      },
+      {
+        "path": "sim/tb_s2b_request_guard.sv",
+        "sha256": "7c29ba87ab769b2cc600acf11340c7b717544f29f114ba109046777e3440b7d8"
+      },
+      {
+        "path": "verification/test_s2b_request_guard_rtl.py",
+        "sha256": "6c2b891543b33c975bdcc38ab40ad6eeab0e5a3b5995959f80a7567420934310"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+        "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+      },
+      {
+        "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+        "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+      }
+    ],
+    "tool_versions": {
+      "python": "3.12.10",
+      "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+    },
+    "tool_files": [
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+        "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+        "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+      }
+    ]
+  },
+  "elapsed_seconds": 143.687
+}

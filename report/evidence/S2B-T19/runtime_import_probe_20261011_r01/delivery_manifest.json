@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "runtime_import_probe_20261011_r01",
+  "source_commit": "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
+  "evidence_dir": "report/evidence/S2B-T19/runtime_import_probe_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅验证真实Vitis解释器导入官方SDK与串口模块，未消费模型/CSR/物理接口，也未连接任何设备；接口与整网G3不适用于此导入子项。",
+  "tool_versions": {
+    "Vitis": "2026.1",
+    "Python": "3.13.0",
+    "pyserial": "3.5"
+  },
+  "files": [
+    {
+      "path": "native_console.log",
+      "sha256": "b1909ac0d0b98bf41df67c69bc98daf0d1aeb2c24cbc0bd63fac8faac328e236",
+      "role": "log",
+      "keep_reason": "保留实际Vitis导入探针源码、原始输出及原生退出绑定；不作为硬件批准"
+    },
+    {
+      "path": "native_execution.json",
+      "sha256": "39c911f880c160b7112ce92311b2f8a2abaa1289c55a755ddf062785b3abb2a1",
+      "role": "result",
+      "keep_reason": "保留实际Vitis导入探针源码、原始输出及原生退出绑定；不作为硬件批准"
+    },
+    {
+      "path": "probe_imports.py",
+      "sha256": "e65ed2ddbbc24364fdde70901fa0f745e2c8d74ea5cebd1b92d7a49abc321bd8",
+      "role": "source",
+      "keep_reason": "保留实际Vitis导入探针源码、原始输出及原生退出绑定；不作为硬件批准"
+    },
+    {
+      "path": "runtime_result.json",
+      "sha256": "0dadb0670450295349677b2a98126dcad71c6480492f91136f55d77d69cca532",
+      "role": "result",
+      "keep_reason": "保留实际Vitis导入探针源码、原始输出及原生退出绑定；不作为硬件批准"
+    }
+  ],
+  "checks": [
+    {
+      "name": "真实Vitis解释器导入XSDB和pyserial",
+      "status": "PASS",
+      "command": "& 'D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat' -s 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\runtime_import_probe_20261011_r01\\probe_imports.py'",
+      "exit_code": 0,
+      "reason": "原生退出0、3.8267712秒；101项实际加载模块路径/SHA见runtime_result.json，未创建SDK会话或打开串口。"
+    },
+    {
+      "name": "实物连接/初始化/缓存/模型",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "导入子项不执行任何硬件动作。"
+    }
+  ],
+  "limitations": [
+    "导入成功只证明实际Vitis解释器中SDK与串口库可加载，不能证明连接、缓存、初始化或模型部署通过。",
+    "没有测量整棵进程树峰值内存；runtime_result.json仅绑定本次实际已加载的模块，不代表后续调试操作的完整动态依赖。"
+  ]
+}

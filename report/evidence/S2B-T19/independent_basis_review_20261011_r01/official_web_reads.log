@@ -1,0 +1,352 @@
+Debug Resets - Debug Resets - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Debug-Resets?contentId=rSOuZ0O15rO20LInbS~Klg)
+citeturn124view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view0","lineno":null}); Total lines: 19
+--------------------------------------------------------------------------------
+Reset Effects - Reset Effects - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Reset-Effects?contentId=d6CWHR7maZOvS3hOCnvc1g)
+citeturn124view1 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view1","lineno":null}); Total lines: 26
+--------------------------------------------------------------------------------
+System Reset Effects - System Reset Effects - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/System-Reset-Effects?contentId=SaBGSAmQfqT_AwC4YRdHcQ)
+citeturn124view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view2","lineno":null}); Total lines: 28
+--------------------------------------------------------------------------------
+APU State After Reset - APU State After Reset - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/APU-State-After-Reset?contentId=2yGHfreGQldCc7Mc1IKCxw)
+citeturn124view3 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view3","lineno":null}); Total lines: 21
+--------------------------------------------------------------------------------
+Non-POR Resets - Non-POR Resets - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Non-POR-Resets?contentId=dFbCsviKKEh5ZEnctY5sYQ)
+citeturn124view4 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view4","lineno":null}); Total lines: 18
+--------------------------------------------------------------------------------
+Reset Signal Sequencing - Reset Signal Sequencing - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Reset-Signal-Sequencing?contentId=xl2vw2G_zwGctagRzbrK6g)
+citeturn124view5 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn119view5","lineno":null}); Total lines: 15
+--------------------------------------------------------------------------------
+Performance Optimization Summary - Performance Optimization Summary - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Performance-Optimization-Summary?contentId=SQ4F87dw95hi9lj_8vK6QQ)
+citeturn124view6 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn120view0","lineno":null}); Total lines: 26
+--------------------------------------------------------------------------------
+DDR Controller Core and Transaction Scheduler - DDR Controller Core and Transaction Scheduler - 1.15 English - UG585 (https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/DDR-Controller-Core-and-Transaction-Scheduler?contentId=cRIWG_semoMzBCa0v1Wvrw)
+citeturn124view7 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn120view1","lineno":null}); Total lines: 16
+--------------------------------------------------------------------------------
+AMBA AXI and ACE Protocol Specification (https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/IHI0022H_amba_axi_protocol_spec.pdf)
+citeturn124view8 [wordlim: 200] Crawled: today; Content type: application/pdf; Number of pages: 500; Source: open({"ref_id":"turn120view2","lineno":2368}); Total lines: 15048
+L2261@P71: The required behavior for the Write-Back Read and Write-Allocate memory type is the same as for Write-Back
+L2262@P71: No-Allocate memory. But in this case the allocation hint is that, for performance reasons:
+L2263@P71: • Allocation of read transactions is recommended.
+L2264@P71-72: • Allocation of write transactions is recommended.A4 Transaction Attributes
+L2265@P72: A4.5 Mismatched memory attributes
+L2266@P72: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A4-73
+L2267@P72: ID040120 Non-Confidential
+L2268@P72: A4.5 Mismatched memory attributes
+L2269@P72: Multiple agents that are accessing the same area of memory, can use mismatched memory attributes. However, for
+L2270@P72: functional correctness, the following rules must be obeyed:
+L2271@P72: • All masters accessing the same area of memory must have a consistent view of the cacheability of that area
+L2272@P72: of memory at any level of hierarchy. The rules to be applied are:
+L2273@P72: Address region not Cacheable
+L2274@P72: All masters must use transactions with both AxCACHE[3:2] deasserted.
+L2275@P72: Address region Cacheable
+L2276@P72: All masters must use transactions with either of AxCACHE[3:2] asserted.
+L2277@P72: • Different masters can use different allocation hints.
+L2278@P72: • If an addressed region is Normal Non-cacheable, any master can access it using a Device memory
+L2279@P72: transaction.
+L2280@P72: • If an addressed region has the Bufferable attribute, any master can access it using transactions that do not
+L2281@P72: permit bufferable behavior.
+L2282@P72: Note
+L2283@P72:  For example, a transaction that requires the response from the final destination does not permit bufferable
+L2284@P72: behavior.
+L2285@P72: A4.5.1 Changing memory attributes
+L2286@P72: The attributes for a particular memory region can be changed from one type to another incompatible type. For
+L2287@P72: example, the attribute can be changed from Write-Through Cacheable to Normal Non-cacheable. This change
+L2288@P72: requires a suitable process to perform the change. Typically, the following process is performed:
+L2289@P72: 1. All masters stop accessing the region.
+L2290@P72: 2. A single master performs any required cache maintenance operations.
+L2291@P72-73: 3. All masters restart accessing the memory region, using the new attributes.A4 Transaction Attributes
+L2292@P73: A4.6 Transaction buffering
+L2293@P73: A4-74 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2294@P73: Non-Confidential ID040120
+L2295@P73: A4.6 Transaction buffering
+L2296@P73: Write access to the following memory types do not require a transaction response from the final destination, but do
+L2297@P73: require that write transactions are made visible at the final destination in a timely manner:
+L2298@P73: • Device Bufferable
+L2299@P73: • Normal Non-cacheable Bufferable
+L2300@P73: • Write-Through
+L2301@P73: For write transactions, all three memory types require the same behavior. For read transactions, the required
+L2302@P73: behavior is as follows:
+L2303@P73: • For Device Bufferable memory, read data must be obtained from the final destination.
+L2304@P73: • For Normal Non-cacheable Bufferable memory, read data must be obtained either from the final destination
+L2305@P73: or from a write transaction that is progressing to its final destination.
+L2306@P73: • For Write-Through memory, read data can be obtained from an intermediate cached copy.
+L2307@P73: In addition to ensuring that write transactions progress towards their final destination in a timely manner,
+L2308@P73: intermediate buffers must behave as follows:
+L2309@P73: • An intermediate buffer that can respond to a transaction must ensure that, over time, any read transaction to
+L2310@P73: Normal Non-cacheable Bufferable propagates towards its destination. This propagation means that, when
+L2311@P73: forwarding a read transaction, the attempted forwarding must not continue indefinitely, and any data that is
+L2312@P73: used for forwarding must not persist indefinitely. The protocol does not define any mechanism for
+L2313@P73: determining how long data that is used for forwarding a read transaction can persist. However, in such a
+L2314@P73: mechanism, the act of reading the data must not reset the data timeout period.
+L2315@P73: Note
+L2316@P73:  Without this requirement, continued polling of the same location can prevent the timeout of a read that is held
+L2317@P73: in the buffer, preventing the read progressing towards its destination.
+L2318@P73: • An intermediate buffer that can hold and merge write transactions must ensure that transactions do not remain
+L2319@P73: in its buffer indefinitely. For example, merging write transactions must not reset the mechanism that
+L2320@P73: determines when a write is drained towards its final destination.
+L2321@P73: Note
+L2322@P73:  Without this requirement, continued writes to the same location can prevent the timeout of a write held in the
+L2323@P73: buffer, preventing the write progressing towards its destination.
+L2324@P73: For information about the required behavior of read accesses to these memory types, see:
+L2325@P73: • Device Bufferable on page A4-70
+L2326@P73: • Normal Non-cacheable Bufferable on page A4-70
+L2327@P73-74: • Write-Through No-Allocate on page A4-71A4 Transaction Attributes
+L2328@P74: A4.7 Access permissions
+L2329@P74: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A4-75
+L2330@P74: ID040120 Non-Confidential
+L2331@P74: A4.7 Access permissions
+L2332@P74: AXI provides access permissions signals that can be used to protect against illegal transactions:
+L2333@P74: • ARPROT[2:0] defines the access permissions for read accesses.
+L2334@P74: • AWPROT[2:0] defines the access permissions for write accesses.
+L2335@P74: The term AxPROT refers collectively to the ARPROT and AWPROT signals.
+L2336@P74: Table A4-6 shows the AxPROT[2:0] encoding.
+L2337@P74: The protection attributes are:
+L2338@P74: Unprivileged or privileged
+L2339@P74: An AXI master might support more than one level of operating privilege, and extend this concept
+L2340@P74: of privilege to memory access. AxPROT[0] identifies an access as unprivileged or privileged.
+L2341@P74: Note
+L2342@P74:  Some processors support multiple levels of privilege, see the documentation for the selected
+L2343@P74: processor to determine the mapping to AXI privilege levels. The only distinction AXI can provide
+L2344@P74: is between privileged and unprivileged access.
+L2345@P74: Secure or Non-secure
+L2346@P74: An AXI master might support Secure and Non-secure operating states, and extend this concept of
+L2347@P74: security to memory access. AxPROT[1] identifies an access as Secure or Non-secure. AxPROT[1]
+L2348@P74: can be considered as defining two address spaces, a Secure address space and a Non-secure address
+L2349@P74: space. This signal can be treated as an additional address bit. Any aliasing between the Secure and
+L2350@P74: Non-secure address spaces must be handled correctly.
+L2351@P74: Note
+L2352@P74:  This bit is defined so that when it is asserted the transaction is identified as Non-secure. This
+L2353@P74: definition is consistent with other signaling in implementations of the Arm Security Extensions.
+L2354@P74: Instruction or data
+L2355@P74: This bit indicates that the transaction is an instruction access or a data access.
+L2356@P74: The AXI protocol defines this indication as a hint. It is not accurate in all cases, for example, where
+L2357@P74: a transaction contains a mix of instruction and data items. This specification recommends that a
+L2358@P74: master sets AxPROT[2] LOW, to indicate a data access unless the access is known to be an
+L2359@P74: instruction access.
+L2360@P74: Table A4-6 Protection encoding
+L2361@P74: AxPROT Value Function
+L2362@P74: [0] 0 Unprivileged access
+L2363@P74: 1 Privileged access
+L2364@P74: [1] 0 Secure access
+L2365@P74: 1 Non-secure access
+L2366@P74: [2] 0 Data access
+L2367@P74-75: 1 Instruction accessA4 Transaction Attributes
+L2368@P75: A4.8 Legacy considerations
+L2369@P75: A4-76 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2370@P75: Non-Confidential ID040120
+L2371@P75: A4.8 Legacy considerations
+L2372@P75: AXI4 introduces additional requirements for the handling of some of the AxCACHE memory attributes.
+L2373@P75: In AXI4, all Device transactions using the same ID to the same slave must be ordered with respect to each other.
+L2374@P75: Note
+L2375@P75:  • This ordering is not an explicit requirement of AXI3. Any AXI4 component that relies on this behavior
+L2376@P75: cannot be connected to an AXI3 interconnect that does not exhibit this behavior.
+L2377@P75: • Arm believes that most implemented AXI3 interconnects support the required AXI4 behavior.
+L2378@P75: This specification strongly recommends that any new AXI3 design implements the AXI4 requirement.
+L2379@P75: For AxCACHE bits names and memory type names, it is required that AXI4 uses the new terms. AXI3 components
+L2380@P75-76: can use either the AXI3 or AXI4 names.A4 Transaction Attributes
+L2381@P76: A4.9 Usage examples
+L2382@P76: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A4-77
+L2383@P76: ID040120 Non-Confidential
+L2384@P76: A4.9 Usage examples
+L2385@P76: This section gives examples of memory type usage.
+L2386@P76: A4.9.1 Use of Device memory types
+L2387@P76: The specification supports the combined use of Device Non-bufferable and Device Bufferable memory types to
+L2388@P76: force write transactions to reach their final destination and ensure that the issuing master knows when the
+L2389@P76: transaction is visible to all other masters.
+L2390@P76: A write transaction that is marked as Device Bufferable is required to reach its final destination in a timely manner.
+L2391@P76: However, the write response for the transaction can be signaled by an intermediate buffer. Therefore, the issuing
+L2392@P76: master cannot know when the write is visible to all other masters.
+L2393@P76: If a master issues a Device Bufferable write transaction, or stream of write transactions, followed by a Device
+L2394@P76: Non-bufferable write transaction, and all transactions use the same AXI ID, the AXI ordering requirements force
+L2395@P76: all of the Device Bufferable write transactions to reach the final destination before a response is given to the Device
+L2396@P76: Non-bufferable transaction. Therefore, the response to the Device Non-bufferable transaction indicates that all the
+L2397@P76: transactions are visible to all masters.
+L2398@P76: Note
+L2399@P76:  A Device Non-bufferable transaction can only guarantee the completion of Device Bufferable transactions that are
+L2400@P76-77: issued with the same ID, and are to the same slave device.A4 Transaction Attributes
+L2401@P77: A4.9 Usage examples
+L2402@P77: A4-78 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2403@P77-78: Non-Confidential ID040120ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A5-79
+L2404@P78: ID040120 Non-Confidential
+L2405@P78: Chapter A5
+L2406@P78: Transaction Identifiers
+L2407@P78: This chapter describes the mechanism that enables out-of-order transaction completion and the issuing of multiple
+L2408@P78: outstanding addresses. It contains the following sections:
+L2409@P78: • AXI transaction identifiers on page A5-80
+L2410@P78-79: • ID signals on page A5-81A5 Transaction Identifiers
+L2411@P79: A5.1 AXI transaction identifiers
+L2412@P79: A5-80 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2413@P79: Non-Confidential ID040120
+L2414@P79: A5.1 AXI transaction identifiers
+L2415@P79: The AXI protocol includes AXI ID transaction identifiers. A master can use these to identify separate transactions
+L2416@P79: that must be returned in order.
+L2417@P79: All transactions with a given AXI ID value must remain ordered, but there is no restriction on the ordering of
+L2418@P79: transactions with different ID values. A single physical port can support out-of-order transactions by acting as a
+L2419@P79: number of logical ports, each handling its transactions in order.
+L2420@P79: By using AXI IDs, a master can issue transactions without waiting for earlier transactions to complete. This can
+L2421@P79: improve system performance, because it enables parallel processing of transactions.
+L2422@P79: Note
+L2423@P79:  There is no requirement for slaves or masters to use AXI transaction IDs. Masters and slaves can process one
+L2424@P79: transaction at a time. Transactions are processed in the order they are issued.
+L2425@P79-80: Slaves are required to reflect on the appropriate BID or RID response an AXI ID received from a master.A5 Transaction Identifiers
+L2426@P80: A5.2 ID signals
+L2427@P80: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A5-81
+L2428@P80: ID040120 Non-Confidential
+L2429@P80: A5.2 ID signals
+L2430@P80: Each transaction channel has its own transaction ID. Table A5-1 shows these designated signals.
+L2431@P80: Note
+L2432@P80:  The AXI4 protocol supports an extended ordering model based on the use of the AXI ID transaction identifier. See
+L2433@P80: Chapter A6 AXI Ordering Model.
+L2434@P80: A5.2.1 Read data ordering
+L2435@P80: The slave must ensure that the RID value of any returned data matches the ARID value of the address that it is
+L2436@P80: responding to.
+L2437@P80: The interconnect must ensure that the read data from a sequence of transactions with the same ARID value targeting
+L2438@P80: different slaves is received by the master in the order that it issued the addresses.
+L2439@P80: The read data reordering depth is the number of addresses pending in the slave that can be reordered. A slave that
+L2440@P80: processes all transactions in order has a read data reordering depth of one. The read data reordering depth is a static
+L2441@P80: value that must be specified by the designer of the slave.
+L2442@P80: There is no mechanism that a master can use to determine the read data reordering depth of a slave.
+L2443@P80: A5.2.2 Write data ordering
+L2444@P80: A master must issue write data in the same order that it issues the transaction addresses.
+L2445@P80: An interconnect that combines write transactions from different masters must ensure that it forwards the write data
+L2446@P80: in address order.
+L2447@P80: The interleaving of write data with different IDs was permitted in AXI3, but is deprecated in AXI4 and later. See
+L2448@P80: the AMBA AXI and ACE Protocol Specification issue F specification for more details on write data interleaving.
+L2449@P80: A5.2.3 Interconnect use of transaction identifiers
+L2450@P80: When a master is connected to an interconnect, the interconnect appends additional bits to the ARID, AWID and
+L2451@P80: WID identifiers that are unique to that master port. This has two effects:
+L2452@P80: • Masters do not have to know what ID values are used by other masters because the interconnect makes the
+L2453@P80: ID values used by each master unique by appending the master number to the original identifier.
+L2454@P80: • The ID identifier at a slave interface is wider than the ID identifier at a master interface.
+L2455@P80: For read data, the interconnect uses the additional bits of the RID identifier to determine which master port the read
+L2456@P80: data is destined for. The interconnect removes these bits of the RID identifier before passing the RID value to the
+L2457@P80: correct master port.
+L2458@P80: Table A5-1 Channel transaction ID
+L2459@P80: Transaction channel Transaction ID
+L2460@P80: Write address channel AWID
+L2461@P80: Write data channel, AXI3 only WIDa
+L2462@P80: a. The WID signal is implemented only in AXI3.
+L2463@P80: Write response channel BID
+L2464@P80: Read address channel ARID
+L2465@P80-81: Read data channel RIDA5 Transaction Identifiers
+L2466@P81: A5.2 ID signals
+L2467@P81: A5-82 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2468@P81: Non-Confidential ID040120
+L2469@P81: For write response, the interconnect uses the additional bits of the BID identifier to determine which master port the
+L2470@P81: write response is destined for. The interconnect removes these bits of the BID identifier before passing the BID
+L2471@P81-82: value to the correct master port.ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A6-83
+L2472@P82: ID040120 Non-Confidential
+L2473@P82: Chapter A6
+L2474@P82: AXI Ordering Model
+L2475@P82: This chapter specifies:
+L2476@P82: • AXI ordering model overview on page A6-84
+L2477@P82: • Memory locations and Peripheral regions on page A6-85
+L2478@P82: • Transactions and ordering on page A6-86
+L2479@P82: • Observation and completion definitions on page A6-87
+L2480@P82: • Master ordering guarantees on page A6-88
+L2481@P82: • Ordering requirements on page A6-89
+L2482@P82: • Response before the endpoint on page A6-90
+L2483@P82-83: • Ordered write observation on page A6-91A6 AXI Ordering Model
+L2484@P83: A6.1 AXI ordering model overview
+L2485@P83: A6-84 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2486@P83: Non-Confidential ID040120
+L2487@P83: A6.1 AXI ordering model overview
+L2488@P83: The AXI ordering model is based on the use of the transaction identifier, which is signaled on ARID or AWID.
+L2489@P83: Transaction requests on the same channel, with the same ID and destination are guaranteed to remain in order.
+L2490@P83: Transaction responses with the same ID are returned in the same order as the requests were issued.
+L2491@P83: The ordering model does not give any ordering guarantees between:
+L2492@P83: • Transactions from different masters
+L2493@P83: • Read and write transactions
+L2494@P83: • Transactions with different IDs
+L2495@P83: • Transactions to different Peripheral regions
+L2496@P83: • Transactions to different Memory locations
+L2497@P83: If a master requires ordering between transactions that have no ordering guarantee, the master must wait to receive
+L2498@P83-84: a response to the first transaction before issuing the second transaction.A6 AXI Ordering Model
+L2499@P84: A6.2 Memory locations and Peripheral regions
+L2500@P84: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A6-85
+L2501@P84: ID040120 Non-Confidential
+L2502@P84: A6.2 Memory locations and Peripheral regions
+L2503@P84: The address map in AMBA is made up of Memory locations and Peripheral regions.
+L2504@P84: A Memory location has all of the following properties:
+L2505@P84: • A read of a byte from a Memory location returns the last value that was written to that byte location.
+L2506@P84: • A write to a byte of a Memory location updates the value at that location to a new value that is obtained by
+L2507@P84: a subsequent read of that location.
+L2508@P84: • Reading or writing to a Memory location has no side-effects on any other Memory location.
+L2509@P84: • Observation guarantees for Memory are given for each location.
+L2510@P84: • The size of a Memory location is equal to the single-copy atomicity size for that component.
+L2511@P84: A Peripheral region has all of the following properties:
+L2512@P84: • A read from an address in a Peripheral region does not necessarily return the last value that is written to that
+L2513@P84: address.
+L2514@P84: • A write to a byte address in a Peripheral region does not necessarily update the value at that address to a new
+L2515@P84: value that is obtained by subsequent reads.
+L2516@P84: • Accessing an address within a Peripheral region might have side-effects on other addresses within that
+L2517@P84: region.
+L2518@P84: • Observation guarantees for Peripherals are given per region.
+L2519@P84: • The size of a Peripheral region is IMPLEMENTATION DEFINED, but it must be contained within a single slave
+L2520@P84-85: component.A6 AXI Ordering Model
+L2521@P85: A6.3 Transactions and ordering
+L2522@P85: A6-86 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2523@P85: Non-Confidential ID040120
+L2524@P85: A6.3 Transactions and ordering
+L2525@P85: A transaction is a read or a write to one or more address locations. The locations are determined by AxADDR and
+L2526@P85: any relevant qualifiers such as the Non-secure bit in AxPROT.
+L2527@P85: • Ordering guarantees are given only between accesses to the same Memory location or Peripheral region.
+L2528@P85: • A transaction to a Peripheral region must be entirely contained within that region.
+L2529@P85: • A transaction that spans multiple Memory locations has multiple ordering guarantees.
+L2530@P85: Transactions can be either of type Device or Normal:
+L2531@P85: Device A read or write where the request has AxCACHE[1] deasserted.
+L2532@P85: Device transactions can be used to access Peripheral regions or Memory locations.
+L2533@P85: Normal A read or write where the request has AxCACHE[1] asserted.
+L2534@P85: Normal transactions are used to access Memory locations and are not expected to be used to access
+L2535@P85: Peripheral regions.
+L2536@P85: A Normal access to a Peripheral region must complete in a protocol-compliant manner, but the
+L2537@P85: result is IMPLEMENTATION DEFINED.
+L2538@P85: A write transaction can be either Non-bufferable or Bufferable. It is possible to send an early response to Bufferable
+L2539@P85: writes.
+L2540@P85: • A Non-bufferable write has AWCACHE[0] deasserted.
+L2541@P85-86: • A Bufferable write has AWCACHE[0] asserted.A6 AXI Ordering Model
+L2542@P86: A6.4 Observation and completion definitions
+L2543@P86: ARM IHI 0022H Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. A6-87
+L2544@P86: ID040120 Non-Confidential
+L2545@P86: A6.4 Observation and completion definitions
+L2546@P86: For accesses to Peripheral regions, a Device read or write access DRW1 is observed by a Device read or write access
+L2547@P86: DRW2, when DRW1 arrives at the slave component before DRW2.
+L2548@P86: For accesses to Memory locations, all of the following apply:
+L2549@P86: • A write W1 is observed by a write W2, if W2 takes effect after W1.
+L2550@P86: • A read R1 is observed by a write W2, if R1 returns data from a write W3, when W2 is after W3.
+L2551@P86: • A write W1 is observed by a read R2, if R2 returns data from either W1 or from write W3, when W3 is after
+L2552@P86: W1.
+L2553@P86: Read R1 or write W1 can be of type Device or Normal.
+L2554@P86: The definitions of write and read completions are:
+L2555@P86: Write completion response
+L2556@P86: The cycle when the associated BRESP handshake is given, when BVALID and BREADY are
+L2557@P86: asserted.
+L2558@P86: Read completion response
+L2559@P86: The cycle when the last associated RDATA handshake is given, when RVALID, RLAST and
+L2560@P86-87: RREADY are asserted.A6 AXI Ordering Model
+L2561@P87: A6.5 Master ordering guarantees
+L2562@P87: A6-88 Copyright © 2003-2020 Arm Limited or its affiliates. All rights reserved. ARM IHI 0022H
+L2563@P87: Non-Confidential ID040120
+L2564@P87: A6.5 Master ordering guarantees
+L2565@P87: There are three types of ordering model guarantees:
+L2566@P87: • Observability guarantees before a completion response is received.
+L2567@P87: • Observability guarantees from a completion response.
+L2568@P87: • Response ordering guarantees.
+L2569@P87: A6.5.1 Guarantees before a completion response is received
+L2570@P87: All of the following guarantees apply to transactions from the same master, using the same ID:
+L2571@P87: • A Device write DW1 is guaranteed to arrive at the destination before Device write DW2, where DW2 is
+L2572@P87: issued after DW1 and to the same Peripheral region.
+L2573@P87: • A Device read DR1 is guaranteed to arrive at the destination before Device read DR2, where DR2 is issued
+L2574@P87: after DR1 and to the same Peripheral region.
+L2575@P87: • A write W1 is guaranteed to be observed by a write W2, where W2 is issued after W1 and to the same
+L2576@P87: Memory location.
+L2577@P87: • A write W1 that has been observed by a read R2 is guaranteed to be observed by a read R3, where R3 is issued
+L2578@P87: after R2 and to the same Memory location.
+L2579@P87: The guarantees imply that there are ordering guarantees between Device and Normal accesses to the same Memory
+L2580@P87: location.
+L2581@P87: A6.5.2 Guarantees from a completion response
+L2582@P87: A completion response guarantees all of the following:
+L2583@P87: • A completion response to a read request guarantees that it is observable to a subsequent read or write request
+L2584@P87: from any master.
+L2585@P87: • A completion response to a write request guarantees that it is observable to a subsequent read or write request
+

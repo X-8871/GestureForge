@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-hp0-write-visibility-basis/1.0.0",
+  "status": "CANDIDATE_REQUIRES_ACTUAL_NETLIST_AND_BOARD_REVIEW",
+  "sources": [
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Performance-Optimization-Summary?contentId=SQ4F87dw95hi9lj_8vK6QQ",
+      "document": "UG585 1.15 / 2026-02-06",
+      "section": "AXI_HP Interfaces / Performance Optimization Summary",
+      "basis_zh_cn": "HP写命令和数据到达DDR或OCM从设备，再由该从设备返回写响应。收到写响应后才发出的事务，其从设备提交顺序晚于该写事务。该说明提供HP路径依据，不代表DDR引脚完成或断电持久性。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/DDR-Controller-Core-and-Transaction-Scheduler?contentId=cRIWG_semoMzBCa0v1Wvrw",
+      "document": "UG585 1.15 / 2026-02-06",
+      "section": "DDR Controller Core and Transaction Scheduler",
+      "basis_zh_cn": "DDR调度器遵循AXI顺序约束，并对写读同址冲突执行写缓冲排空。"
+    },
+    {
+      "url": "https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/IHI0022H_amba_axi_protocol_spec.pdf",
+      "document": "ARM IHI 0022H / ID040120",
+      "section": "Part A适用声明PDF第15页；A4.2及Table A4-1印刷A4-63；A4.4及Table A4-5印刷A4-69；A4.8印刷A4-76",
+      "basis_zh_cn": "Part A明确描述AXI3/AXI4；AXI3 AxCACHE四位编码缓存、缓冲及分配属性。0000为Device Non-bufferable，写响应和读数据来自最终目的地，禁止预取读和合并写。A4.8另行指出AXI4同ID同slave设备事务排序是额外要求，不能冒充AXI3固有要求；本桥每次仅一个事务且HP的具体提交顺序还需UG585依据。"
+    }
+  ],
+  "required_actual_checks": [
+    "当前SHA绑定的adapter所有读写均AxCACHE=0000；实际完整网表至HP0直接连接，不经过改变该属性或提前应答的PL桥。",
+    "实际PS7配置启用HP0，数据宽度64，AXI3 ID宽6，PS/PL时钟与复位按同版本readback和XSA核对。",
+    "物理终态只在计算停止、账本为空、全部旧读R与写B消费且可见性前提成立后发布；GP0 STATUS读不被用作HP0写屏障。",
+    "在同一固定ELF及BSP缓存配置下保存CPU到DAP和DAP到CPU原字节、完整稳定CSR和所有权；visibility0仅用于先验，不宣布模型计算完成。",
+    "最终visibility1位流须独立核对仅授权参数变化及实际postroute时序通过，并保存同生命周期模型全head/box读回及恢复证据。"
+  ],
+  "limitations": [
+    "本文件仅整理已读官方依据，不是实际网表属性证明或板上PASS。",
+    "Arm Issue C官方下载超时的原失败记录保留；本补充明确引用实际成功读取的Issue H，不冒称已重新读取Issue C。",
+    "Device Non-bufferable属性不把GP0读变成HP0屏障；跨master真实cache维护及读回不可省略。"
+  ],
+  "hardware_execution": "NOT_RUN",
+  "visibility_proven": false
+}

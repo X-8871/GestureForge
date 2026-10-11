@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-unified-cold-debug-reset-basis/1.0.0",
+  "status": "CANDIDATE_REQUIRES_ACTUAL_OBSERVATIONS_AND_INDEPENDENT_REVIEW",
+  "observed_at_utc8": "2026-10-11T14:45:36+08:00",
+  "official_document": {"id": "UG585", "version": "1.15", "release_date": "2026-02-06"},
+  "sources": [
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Debug-Resets?contentId=rSOuZ0O15rO20LInbS~Klg",
+      "section": "Debug Resets",
+      "basis_zh_cn": "DAP发起的调试系统复位产生与外部系统复位相同的系统复位作用；仅复位调试逻辑的debug reset是另一个操作。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Reset-Effects?contentId=d6CWHR7maZOvS3hOCnvc1g",
+      "section": "Reset Effects / Table 1",
+      "basis_zh_cn": "系统调试复位由JTAG发起，表格规定系统范围、RAM清除和DBG_RST原因标志；外部系统复位范围排除调试及持久寄存器，并要求重新配置PL。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/System-Reset-Effects?contentId=SaBGSAmQfqT_AwC4YRdHcQ",
+      "section": "System Reset Effects / Table 1",
+      "basis_zh_cn": "非POR系统复位清除PS FIFO及缓冲RAM、复位PL、停用IOP时钟并重新执行BootROM；BootROM初始化PS PLL。引脚模式不重新采样，旧boot mode和持久寄存器仍保留。外部DDR内容的清零不由此表保证。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Non-POR-Resets?contentId=dFbCsviKKEh5ZEnctY5sYQ",
+      "section": "Non-POR Resets",
+      "basis_zh_cn": "非POR包含外部PS_SRST_B和内部系统复位；复位原因记录在REBOOT_STATUS，BootROM执行时保留前次安全级别。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/APU-State-After-Reset?contentId=2yGHfreGQldCc7Mc1IKCxw",
+      "section": "APU State After Reset / Table 1",
+      "basis_zh_cn": "系统调试复位同时作用于SCU与L2；复位后的L1/L2有效性未知，启用缓存前需要失效处理。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Reset-Signal-Sequencing?contentId=xl2vw2G_zwGctagRzbrK6g",
+      "section": "Reset Signal Sequencing",
+      "basis_zh_cn": "BootROM运行期间断言PS_SRST_B会进入无错误码的系统锁定；执行使用受支持的调试系统复位API及停核选项，不另行盲目操纵外部复位引脚。"
+    }
+  ],
+  "required_actual_sequence": [
+    "核对root拥有的唯一hw_server进程身份与3121监听、唯一HS1序列号210512180081、动态目标上下文及双核身份；记录真实初始核状态。",
+    "按当前用户板上调试授权停止CPU0/CPU1，逐核真实读取Stopped；不在未知链上停核。",
+    "已审T16控制器执行APU.rst('--stop', type='system')；保存实际调用、原输出、异常、前后BOOT_MODE/REBOOT_STATUS/OCM_CFG/PC，核对仍为JTAG boot mode和双核Stopped。",
+    "下载固定OCM初始化ELF并执行；真实INIT_RESULT=2、返回码0、ready断点命中且fail断点未命中，保留PC及原输出。",
+    "使用原生兼容检查完整配置明确SHA绑定的visibility0位流；不使用force或旧PL镜像。",
+    "UART先打开，再下载并运行固定full-platform应用ELF；实际banner源码及编译XSA哈希必须相符，缓存初始化依据由同版本BSP与应用原件核对。",
+    "在epoch0、IDLE_PS、PS所有权、HEAD无效、全部账本为0的完整稳定CSR观察下完成CPU到DAP及DAP到CPU两phase缓存先验；无LOAD和START。",
+    "保存最终完整CSR与UART原字节，停止本次CPU0并真实复读Stopped，关闭本次串口、断点与会话；服务按root独占身份管理。"
+  ],
+  "limitations": [
+    "这是一份官方范围依据候选，不是已执行记录，也不是独立Reviewer批准。",
+    "system-stop的API返回成功本身不足以证明旧AXI生命周期已结束；必须结合系统复位范围、完整PL重配置、初始化和实际稳定读回，由独立审查核对。",
+    "不声称物理POR、引脚重采样、DDR全清零或电源循环；复位前后DBG_RST可能已置位，不能将积累位读回伪称独立上升沿证据。",
+    "若实际目标、BOOT_MODE、初始化、缓存或CSR异常，停止本次流程并保留失败原件；入口cold_lifecycle_proven始终为false，后续独立验收才可判断。"
+  ],
+  "hardware_execution": "NOT_RUN",
+  "cold_lifecycle_proven": false
+}

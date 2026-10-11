@@ -1,0 +1,113 @@
+{
+  "status": "PASS",
+  "scope": "S9实际失败证据准确性与可恢复性独立审查，不批准STA收敛或部署/G3-G5",
+  "source_commit": "38c5bc02f42920d4203aa6752530d09c80fc4c57",
+  "reviewed_manifest_hash": "8c66275d2452ac3f538be019e3f77470264fe18fd9d21ffa7fa47f5f0c39d5ea",
+  "reviewer_stop": "STOP_READONLY_S9_REVIEW_FROZEN",
+  "limitations": [
+    "50MHz综合STA仍FAIL_TIMING，WNS-4.527/TNS-1840.705/757端点；不批准部署",
+    "资源单次样本4900474880B超过原4GiB；后续回落不取消BLOCKED，不提高预算",
+    "两个child历史归属有限，五officialjob串行不能推出进程树内从无重叠",
+    "nativewait0/336.601s与client300s错误分列；OS子任务退出码未捕获null",
+    "六PSinit同T13而HWH不同，不继承ELF/BSP兼容或PSinit/模型实物批准",
+    "厂商非UTF8原日志逐字节保存，只作ASCII定位，不猜测完整编码或覆盖字节",
+    "未执行RTL/综合/实现/ROSS/硬件；未改共享Git/STATE/生产源或被审证据"
+  ],
+  "findings": [],
+  "review_elapsed_seconds": 3.1569999999992433,
+  "reviewer_peak_memory_bytes": null,
+  "review_native": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s9_synthesis_review_20261011_r01\\review_s9.py"
+    ],
+    "native_exit_code": 0,
+    "elapsed_seconds": 3.25
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--name-only",
+        "c3a53da3",
+        "38c5bc02f42920d4203aa6752530d09c80fc4c57",
+        "--",
+        "src",
+        "verification",
+        "board",
+        "vivado"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552
+    },
+    {
+      "command": [
+        "git",
+        "show",
+        "38c5bc02f42920d4203aa6752530d09c80fc4c57:verification/check_stage_delivery.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s9_synthesis_review_20261011_r01\\check_stage_delivery_snapshot.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s9_platform_20261011_r01\\s9_delivery_manifest_r02.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.6719999999986612
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s9_synthesis_review_20261011_r01\\check_stage_delivery_snapshot.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s9_platform_20261011_r01\\s9_delivery_manifest_r02.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "native_exit_code": 2,
+      "elapsed_seconds": 0.6399999999994179
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s9_platform_20261011_r01\\collector_code\\classify_s7_sta.py",
+        "--report",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s9_platform_20261011_r01\\timing_summary_synth.rpt",
+        "--result",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s9_synthesis_review_20261011_r01\\classifier_result.json"
+      ],
+      "native_exit_code": 2,
+      "elapsed_seconds": 0.09399999999732245
+    }
+  ],
+  "checks": 89,
+  "raw_manifest_path": "tmp/2B/S2B-T17/independent_s9_synthesis_review_20261011_r01/raw_manifest.jsonl",
+  "raw_manifest_sha256": "71ec76f9b8d8b2f5d06f136223e8e6862e430097869c2b69a889e4209936bb99",
+  "raw_manifest_lines": 533,
+  "actual_sta_status": "FAIL_TIMING",
+  "resource_budget_status": "BLOCKED",
+  "git_commit": "NOT_RUN_REVIEWER_NO_SOURCE_CHANGES"
+}

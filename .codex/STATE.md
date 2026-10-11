@@ -35,6 +35,9 @@
 
 ## Git 与下一步
 
+- T17完整原平台综合成功但50MHz STA失败：WNS -76.685ns/TNS -117866.523ns、2639setup失败、最差239级逻辑；LUT42820/FF4003/BRAM32/DSP186，THS0，无内部漏约束。`report/evidence/S2B-T17/full_synthesis_20261011_r01/`原件独立22项准确性审查PASS，receipt`7372bda0a800d5c730b2aff11e68a0fdc796f0426b0e8cebe09f29042ef8a0dc`；来源f260的24快照中4份只含明确Git LF→RAW CRLF差异。MCP wait客户端300s超时与native实际0/311.587s分别保留；未实现/下载，失败未关闭。
+- T17-S1等价派生独立G2 PASS：profile0.1.1、18闭包=10冻结2A+4派生+4outer；原14rawSHA不变。pool内部kernel2/stride2/padding1、up内部stride2，原非法输入/错误优先不改，backend/core仅改引用，坐标除法/route/conv仍原逻辑。独立19828pool/3517up/1539219周期/allstate abort127/63通过，26checker反例拒绝；receipt`5ebe2fba5ca6a6af127406d2c93e02874366a273c6f5099aba4bc4c9da8a426c`。证据`report/evidence/S2B-T17/specialization_20261011_r04/`及`independent_review_20261011_r01/`；仅等价G2，不继承为新闭包STA/109整网/G3。下一步新建干净S1完整工程综合定位剩余路径。
+
 - T18固定模型验收runner独立R2离线G2 PASS：源码`5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867`；22回归/14独立检查，109真实资产SHA及1000帧MOCK原UART重解析通过，模型实板计算次数仍0。R1相对proof路径与绝对ELF路径字典比较阻断已关闭，原件保留；归档`report/evidence/S2B-T18/independent_review_20261011_r02/delivery_manifest_r03.json` SHA`2c446f495d29c25aa869c1072dc7708767e6852fabb5a78876248f2979d2d9bd`，独审receipt`447a5580d2cd4ec6f12835480ec09b420dce796b2752c797af2bd4828dbc365b`。evidence0/inputs2因候选未冻结及板上NOT_RUN；不审批并行平台、visibility1或最终bit。当前继续时序等价修复、实际cache先验与完整模型部署。
 
 - 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。

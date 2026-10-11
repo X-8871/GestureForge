@@ -154,7 +154,7 @@ module s2b_inference_top #(
     // PROT 和旧诊断保留公开口/实现兼容，当前控制层不消费它们。
     assign unused_axi_prot = {s_axi_awprot, s_axi_arprot};
 
-    s2a_stage2a_core_ooc core (
+    s2b_stage2b_core core (
         .clk(clk), .hard_reset(cold_reset),
         .csr_valid(core_csr_valid), .csr_ready(core_csr_ready),
         .csr_write(core_csr_write), .csr_addr(core_csr_addr),

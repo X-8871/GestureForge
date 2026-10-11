@@ -11,6 +11,33 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
+PROFILE_VERSION = "s2b-inference-platform/0.1.1"
+# 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
+FROZEN_CORE_SHA256 = {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+}
+DERIVATION_RULES = {
+    "src/s2a_maxpool_engine.sv": ("src/s2b_maxpool_engine.sv", [["module s2a_maxpool_engine (","module s2b_maxpool_engine ("],[".kernel_height(kernel_height)",".kernel_height(32'd2)"],[".kernel_width(kernel_width)",".kernel_width(32'd2)"],[".stride_y(stride_y)",".stride_y(32'd2)"],[".stride_x(stride_x)",".stride_x(32'd2)"],[".darknet_padding_parameter(darknet_padding_parameter)",".darknet_padding_parameter(32'd1)"]]),
+    "src/s2a_upsample_engine.sv": ("src/s2b_upsample_engine.sv", [["module s2a_upsample_engine (","module s2b_upsample_engine ("],[".stride(stride)",".stride(32'd2)"]]),
+    "src/s2a_network_backend.sv": ("src/s2b_network_backend.sv", [["module s2a_network_backend (","module s2b_network_backend ("],["s2a_maxpool_engine u_maxpool_engine","s2b_maxpool_engine u_maxpool_engine"],["s2a_upsample_engine u_upsample_engine","s2b_upsample_engine u_upsample_engine"]]),
+    "src/s2a_stage2a_core_ooc.sv": ("src/s2b_stage2b_core.sv", [["module s2a_stage2a_core_ooc #(","module s2b_stage2b_core #("],["s2a_network_backend u_network_backend","s2b_network_backend u_network_backend"]]),
+}
+LEGACY_2B_SOURCES = ("src/s2b_request_guard.sv", "src/s2b_hp0_word_adapter.sv",
+                     "src/s2b_control_csr.sv", "src/s2b_inference_top.sv")
+
 
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
@@ -63,10 +90,40 @@ def read_json(path: Path) -> dict:
     return data
 
 
+def check_derivation(root: Path, profile: dict) -> None:
+    """核对原14源字节和仅有的模块引用、几何参数常量派生关系。"""
+    item = profile["source_derivation"]
+    require(set(item) == {"policy", "upstream_freeze_commit", "derivation_baseline_commit",
+        "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
+    require(item["policy"] == "s2b-constant-geometry/1.0.0" and
+        item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
+        item["derivation_baseline_commit"] == "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+        "派生上游或基线不符")
+    require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+        "换行政策不符")
+    require(item["upstream_sources"] == [{"path": path, "sha256": digest}
+        for path, digest in FROZEN_CORE_SHA256.items()], "原14源绑定不符")
+    for path, digest in FROZEN_CORE_SHA256.items():
+        require(sha256(relative_file(root, path)) == digest, f"冻结2A原件字节变化：{path}")
+    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 4,
+        "派生源必须恰为4项")
+    for declared, (source, (path, replacements)) in zip(item["derived_sources"], DERIVATION_RULES.items()):
+        require(set(declared) == {"source", "path", "sha256", "replacements"} and
+            declared["source"] == source and declared["path"] == path and
+            declared["replacements"] == replacements, "派生映射或允许差异不符")
+        expected = relative_file(root, source).read_bytes().decode("utf-8").replace("\r\n", "\n")
+        for before, after in replacements:
+            require(expected.count(before) == 1, f"派生替换不是唯一命中：{source}:{before}")
+            expected = expected.replace(before, after)
+        raw = relative_file(root, path).read_bytes()
+        require(raw == expected.encode("utf-8"), f"派生源存在未授权的额外差异：{path}")
+        require(declared["sha256"] == hashlib.sha256(raw).hexdigest(), f"派生SHA不符：{path}")
+
+
 def check_static(root: Path) -> dict:
     """仅确认可恢复输入和公开口约束，不替代 IPI/RTL 审查。"""
     profile = read_json(root / "board/s2b_inference_platform.json")
-    require(profile["version"] == "s2b-inference-platform/0.1.0", "平台版本不符")
+    require(profile["version"] == PROFILE_VERSION, "平台版本不符")
     require(profile["requested_part_literal"] == "XC7Z020-2CLG400I", "原始型号被改变")
     require(profile["vivado_part"] == "xc7z020clg400-2", "工具器件不符")
     require(profile["clock_hz"] == 50_000_000 and profile["visibility_default"] == 0, "时钟或默认门控不符")
@@ -83,8 +140,12 @@ def check_static(root: Path) -> dict:
         "arena_base": "0x10000000", "arena_end_exclusive": "0x12000000",
         "axcache": "0000", "direct_hp0": True}, "HP/全模型 arena 不符")
     sources = profile["rtl_sources"]
-    require(len(sources) == 18 and len(set(sources)) == 18, "闭包应为14个冻结2A模块与4个2B模块")
+    check_derivation(root, profile)
+    expected_sources = [DERIVATION_RULES[path][0] if path in DERIVATION_RULES else path
+                        for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
+    require(sources == expected_sources, "闭包必须精确为10个冻结2A、4个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
+    require("variable version 0.1.1" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and
@@ -94,6 +155,8 @@ def check_static(root: Path) -> dict:
     block = re.search(r"variable rtl_sources \{(.*?)\n    \}", script, re.S)
     require(block is not None and block.group(1).split() == sources, "Tcl/JSON源码闭包不一致")
     wrapper = relative_file(root, "src/s2b_inference_top.sv").read_text(encoding="utf-8")
+    require("s2b_stage2b_core core (" in wrapper and "s2a_stage2a_core_ooc core (" not in wrapper,
+            "公开顶层未实例化受绑定的2B派生核心")
     require("parameter bit PROFILE_VISIBILITY_PROVEN = 1'b0" in wrapper, "RTL默认可见性必须关闭")
     for expected in (".visibility_confirmed(PROFILE_VISIBILITY_PROVEN)",
         ".ledger_empty_next(ledger_empty_next)", ".axi_progress_next(axi_progress_next)",
@@ -106,8 +169,11 @@ def check_static(root: Path) -> dict:
     for name in ("m_axi_awcache", "m_axi_arcache"):
         require(re.search(r"assign\s+" + name + r"\s*=\s*4'(?:b0000|d0|h0)\s*;", adapter) is not None,
             f"{name}必须固定非Bufferable 0000")
-    files = sources + profile["build_scripts"] + ["board/s2b_inference_platform.json",
-        "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py"]
+    require(profile["build_scripts"] == ["vivado/s2b_inference_platform.tcl", "vivado/s2b_ps_platform.tcl"],
+            "构建脚本集合不符")
+    files = list(dict.fromkeys(sources + list(FROZEN_CORE_SHA256) + profile["build_scripts"] +
+        ["board/s2b_inference_platform.json", "board/s2b_inference_platform.md",
+         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py"]))
     return {path: sha256(relative_file(root, path)) for path in files}
 
 
@@ -119,7 +185,7 @@ def check_visibility(root: Path, proof_path: Path, review_path: Path, sources: d
         "需要总控从独立 Reviewer 真来源冻结的审查原件 SHA-256")
     require(sha256(exact_file(review_path)) == review_sha256, "审查原件与固定哈希不符")
     require(proof.get("schema_version") == 1 and proof.get("status") == "PASS", "可见性证明未通过")
-    require(proof.get("profile_version") == "s2b-inference-platform/0.1.0", "证明平台版本不符")
+    require(proof.get("profile_version") == PROFILE_VERSION, "证明平台版本不符")
     require(proof.get("source_sha256") == sources, "证明源码/构建脚本与当前文件不一致")
     require(review.get("status") == "PASS" and review.get("role") == "INDEPENDENT_REVIEWER",
         "独立审查未通过")

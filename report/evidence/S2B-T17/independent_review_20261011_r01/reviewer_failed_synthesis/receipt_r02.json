@@ -1,0 +1,546 @@
+{
+  "schema_version": 1,
+  "status": "PASS_EVIDENCE_INTEGRITY",
+  "scope": "S2B-T17 原失败综合证据保全，只读核验准确性；不代表STA或2B通过",
+  "reviewed_baseline": "b8d5e5238fd01c460aa3155144785d65e06fc16e",
+  "manifest_sha256": "0f9febad96973109ccaba7877665ac0cfaa9f1f2bad9526d2f6293176bf51136",
+  "sta_sha256": "e41b01e24be3fbefd38780a0516ef98d47ff1fdf7378ec42d033ee28cec7bee5",
+  "source_origin_commit": "f260880aa68c3aeb45405bb2dcd92d0b32bb9b16",
+  "current_S1_source_consumed": false,
+  "time_utc8": "2026-10-11T14:21:05.469832+08:00",
+  "elapsed_seconds": 1.125,
+  "commands": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "native_exit_code": 0,
+      "log": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_failed_synthesis_review_20261011_r01\\baseline.log",
+      "sha256": "1206b55b02a4d62675c11093ec6ee3b25958431ffae3d4ca276489993fa0a1a1"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01\\delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "log": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_failed_synthesis_review_20261011_r01\\delivery_evidence.log",
+      "sha256": "adc93d3e01151ab78617fbc2de47ba66d0e72306bb572ba51185ed5e4ddb3edf"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01\\delivery_manifest.json"
+      ],
+      "native_exit_code": 2,
+      "log": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_failed_synthesis_review_20261011_r01\\delivery_inputs.log",
+      "sha256": "ec687ab97dcfe5b46e72984ab72e2661520478dad4a9b880031edf46b6d36a47"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01\\classify_sta.py",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_failed_synthesis_review_20261011_r01\\sta_reparsed_r02.json"
+      ],
+      "native_exit_code": 2,
+      "log": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_failed_synthesis_review_20261011_r01\\sta_reparse_r02.log",
+      "sha256": "cf0a8363002494adc2cde75a5b12b744f917020e252ed395a6dece88da7848e8"
+    }
+  ],
+  "checks": [
+    {
+      "name": "审查基线",
+      "pass": true,
+      "detail": "b8d5e5238fd01c460aa3155144785d65e06fc16e"
+    },
+    {
+      "name": "固定清单",
+      "pass": true,
+      "detail": "0f9febad96973109ccaba7877665ac0cfaa9f1f2bad9526d2f6293176bf51136"
+    },
+    {
+      "name": "固定STA分类",
+      "pass": true,
+      "detail": "e41b01e24be3fbefd38780a0516ef98d47ff1fdf7378ec42d033ee28cec7bee5"
+    },
+    {
+      "name": "源码提交字段",
+      "pass": true,
+      "detail": "f260880aa68c3aeb45405bb2dcd92d0b32bb9b16"
+    },
+    {
+      "name": "original_inventory.json",
+      "pass": true,
+      "detail": {
+        "count": 34
+      }
+    },
+    {
+      "name": "original_inventory_r02.json",
+      "pass": true,
+      "detail": {
+        "count": 36
+      }
+    },
+    {
+      "name": "24份RAW快照与声明",
+      "pass": true,
+      "detail": [
+        {
+          "path": "verification/check_s2b_inference_platform.py",
+          "declared_sha256": "1f5034f68074da18576912934e228c71ea6c4bf4478b868e85f4ea78c4419d9f",
+          "actual_sha256": "1f5034f68074da18576912934e228c71ea6c4bf4478b868e85f4ea78c4419d9f",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "1f5034f68074da18576912934e228c71ea6c4bf4478b868e85f4ea78c4419d9f"
+        },
+        {
+          "path": "src/int8_maxpool_geometry.sv",
+          "declared_sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "actual_sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5"
+        },
+        {
+          "path": "src/int8_maxpool_window.sv",
+          "declared_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "actual_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653"
+        },
+        {
+          "path": "src/int8_route_query.sv",
+          "declared_sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "actual_sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba"
+        },
+        {
+          "path": "src/int8_upsample_query.sv",
+          "declared_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "actual_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7"
+        },
+        {
+          "path": "board/ps_platform_fields.json",
+          "declared_sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+          "actual_sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b"
+        },
+        {
+          "path": "src/s2a_control_csr.sv",
+          "declared_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "actual_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+        },
+        {
+          "path": "src/s2a_conv_tile_engine.sv",
+          "declared_sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+          "actual_sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+          "git_raw_same": false,
+          "exact_git_lf_to_snapshot_crlf": true,
+          "git_exit_code": 0,
+          "git_blob_sha256": "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300"
+        },
+        {
+          "path": "src/s2a_maxpool_engine.sv",
+          "declared_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "actual_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7"
+        },
+        {
+          "path": "src/s2a_memory_master.sv",
+          "declared_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "actual_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+        },
+        {
+          "path": "src/s2a_network_backend.sv",
+          "declared_sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+          "actual_sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+          "git_raw_same": false,
+          "exact_git_lf_to_snapshot_crlf": true,
+          "git_exit_code": 0,
+          "git_blob_sha256": "3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154"
+        },
+        {
+          "path": "src/s2a_network_descriptor_pkg.sv",
+          "declared_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "actual_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "git_raw_same": false,
+          "exact_git_lf_to_snapshot_crlf": true,
+          "git_exit_code": 0,
+          "git_blob_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14"
+        },
+        {
+          "path": "src/s2a_route_engine.sv",
+          "declared_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "actual_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44"
+        },
+        {
+          "path": "src/s2a_runtime_shell.sv",
+          "declared_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "actual_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+        },
+        {
+          "path": "src/s2a_stage2a_core_ooc.sv",
+          "declared_sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+          "actual_sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+          "git_raw_same": false,
+          "exact_git_lf_to_snapshot_crlf": true,
+          "git_exit_code": 0,
+          "git_blob_sha256": "41f2c7403f6e1fcd2f4837d2118cb8b6af8468e6229554bcd5947adb2d9bb555"
+        },
+        {
+          "path": "src/s2a_upsample_engine.sv",
+          "declared_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "actual_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b"
+        },
+        {
+          "path": "src/s2b_control_csr.sv",
+          "declared_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "actual_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629"
+        },
+        {
+          "path": "src/s2b_hp0_word_adapter.sv",
+          "declared_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "actual_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+        },
+        {
+          "path": "board/s2b_inference_platform.json",
+          "declared_sha256": "dec71becc7052b3db6578ad24c5aecf585c4b9fb746da10fc5e590d013f15ea4",
+          "actual_sha256": "dec71becc7052b3db6578ad24c5aecf585c4b9fb746da10fc5e590d013f15ea4",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "dec71becc7052b3db6578ad24c5aecf585c4b9fb746da10fc5e590d013f15ea4"
+        },
+        {
+          "path": "board/s2b_inference_platform.md",
+          "declared_sha256": "36800858c8ccdfd4a75063f935e465bcbc9e671920a259f28da9176052275c96",
+          "actual_sha256": "36800858c8ccdfd4a75063f935e465bcbc9e671920a259f28da9176052275c96",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "36800858c8ccdfd4a75063f935e465bcbc9e671920a259f28da9176052275c96"
+        },
+        {
+          "path": "vivado/s2b_inference_platform.tcl",
+          "declared_sha256": "a4566c10f8130d6e169cfe7ebd9cb3e486bc113d4e78287eab989cc2b9577867",
+          "actual_sha256": "a4566c10f8130d6e169cfe7ebd9cb3e486bc113d4e78287eab989cc2b9577867",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "a4566c10f8130d6e169cfe7ebd9cb3e486bc113d4e78287eab989cc2b9577867"
+        },
+        {
+          "path": "src/s2b_inference_top.sv",
+          "declared_sha256": "15c04bcd21585a30cc81a6209f43f20ae1ebf879aa359c8e254dff11bc9dc96a",
+          "actual_sha256": "15c04bcd21585a30cc81a6209f43f20ae1ebf879aa359c8e254dff11bc9dc96a",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "15c04bcd21585a30cc81a6209f43f20ae1ebf879aa359c8e254dff11bc9dc96a"
+        },
+        {
+          "path": "vivado/s2b_ps_platform.tcl",
+          "declared_sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+          "actual_sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9"
+        },
+        {
+          "path": "src/s2b_request_guard.sv",
+          "declared_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "actual_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "git_raw_same": true,
+          "exact_git_lf_to_snapshot_crlf": false,
+          "git_exit_code": 0,
+          "git_blob_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+        }
+      ]
+    },
+    {
+      "name": "20份Git RAW相同与4份精确EOL转换",
+      "pass": true,
+      "detail": [
+        "src/s2a_conv_tile_engine.sv",
+        "src/s2a_network_backend.sv",
+        "src/s2a_network_descriptor_pkg.sv",
+        "src/s2a_stage2a_core_ooc.sv"
+      ]
+    },
+    {
+      "name": "原native综合Tcl的18RTL与快照闭包对应",
+      "pass": true,
+      "detail": [
+        "src/int8_maxpool_geometry.sv",
+        "src/int8_maxpool_window.sv",
+        "src/int8_route_query.sv",
+        "src/int8_upsample_query.sv",
+        "src/s2a_control_csr.sv",
+        "src/s2a_network_descriptor_pkg.sv",
+        "src/s2a_conv_tile_engine.sv",
+        "src/s2a_maxpool_engine.sv",
+        "src/s2a_memory_master.sv",
+        "src/s2a_network_backend.sv",
+        "src/s2a_route_engine.sv",
+        "src/s2a_runtime_shell.sv",
+        "src/s2a_stage2a_core_ooc.sv",
+        "src/s2a_upsample_engine.sv",
+        "src/s2b_control_csr.sv",
+        "src/s2b_hp0_word_adapter.sv",
+        "src/s2b_request_guard.sv",
+        "src/s2b_inference_top.sv"
+      ]
+    },
+    {
+      "name": "native归档精确迁移与SHA",
+      "pass": true,
+      "detail": {
+        "files": 30,
+        "relocated": 6
+      }
+    },
+    {
+      "name": "5个job原始日志资源耗时和完成记录",
+      "pass": true,
+      "detail": [
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "pass": true,
+          "elapsed_seconds": 148,
+          "single_process_peak_mb": 2305.652,
+          "pid": 29232
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "pass": true,
+          "elapsed_seconds": 26,
+          "single_process_peak_mb": 2218.504,
+          "pid": 27736
+        },
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "pass": true,
+          "elapsed_seconds": 29,
+          "single_process_peak_mb": 2092.809,
+          "pid": 16964
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "pass": true,
+          "elapsed_seconds": 25,
+          "single_process_peak_mb": 2068.113,
+          "pid": 7532
+        },
+        {
+          "run": "synth_1",
+          "pass": true,
+          "elapsed_seconds": 27,
+          "single_process_peak_mb": 2071.293,
+          "pid": 22968
+        }
+      ]
+    },
+    {
+      "name": "禁止混加内存与耗时",
+      "pass": true,
+      "detail": "各job单进程峰值不等于总进程树峰值"
+    },
+    {
+      "name": "客户端timeout和native完成分开",
+      "pass": true,
+      "detail": {
+        "client": "FAIL_TIMEOUT_300S",
+        "native_code": 0,
+        "native_elapsed": 311.587
+      }
+    },
+    {
+      "name": "原采集失败保留",
+      "pass": true,
+      "detail": "原始Git RAW相同断言失败不改写"
+    },
+    {
+      "name": "原归档目录包装失败保留",
+      "pass": true,
+      "detail": "{\"status\":\"CHECKS_FAILED\",\"mode\":\"evidence\",\"task_id\":\"S2B-T17\",\"run_id\":\"full_synthesis_20261011_r01\",\"interfaces_not_applicable\":null,\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"24原快照声明SHA与Git来源核验\",\"reason\":\"24份RAW与source_before相同；20份与Gitblob RAW相同，4份精确LF转CRLF可重现。不是把不同RAW声明相同，原快照为实际综合字节。\"},{\"status\":\"FAIL\",\"name\":\"初次Git RAW全相同断言\",\"reason\":\"4份checkout EOL差异导致原断言失败；原collection_result及comparison完整保留，r02只补充来源证明。\"},{\"status\":\"BLOCKED\",\"name\":\"MCP客户端wait_on_run\",\"reason\":\"客户端真实tool isError、300s超时，无native整数退出码；保留故障，不改成成功。\"},{\"status\":\"PASS\",\"name\":\"原native综合完成\",\"reason\":\"真实ROSS history code0/311.587s，5job日志完成、0Critical/0Errors及end marker；不伪造未观察的各子进程OS退出码。\"},{\"status\":\"FAIL\",\"name\":\"50MHz综合STA分类\",\"reason\":\"实际分类程序native2/FAIL_TIMING：WNS-76.685、TNS-117866.523、2639 setup failing endpoints；综合成功不代表时序成功。\"},{\"status\":\"NOT_RUN\",\"name\":\"postroute及实板模型验收\",\"reason\":\"当前仅Synthesized，时序失败阻断部署；未执行实现、postroute、位流生成或硬件操作。\"}],\"errors\":[\"files[36].path 路径包含生成缓存/工程目录：synth_1\",\"files[36].path 路径包含生成缓存/工程目录：synth_1\",\"files[37].path 路径包含生成缓存/工程目录：synth_1\",\"files[37].path 路径包含生成缓存/工程目录：synth_1\",\"files[38].path 路径包含生成缓存/工程目录：synth_1\",\"files[38].path 路径包含生成缓存/工程目录：synth_1\",\"files[39].path 路径包含生成缓存/工程目录：synth_1\",\"files[39].path 路径包含生成缓存/工程目录：synth_1\",\"files[40].path 路径包含生成缓存/工程目录：synth_1\",\"files[40].path 路径包含生成缓存/工程目录：synth_1\",\"files[41].path 路径包含生成缓存/工程目录：synth_1\",\"files[41].path 路径包含生成缓存/工程目录：synth_1\",\"运行目录发现生成缓存/工程目录，枚举未完成：report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/synth_1（路径包含生成缓存/工程目录：synth_1）\"],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}\n"
+    },
+    {
+      "name": "当前清单evidence",
+      "pass": true,
+      "detail": {
+        "native_exit_code": 0,
+        "expected": 0
+      }
+    },
+    {
+      "name": "当前清单inputs",
+      "pass": true,
+      "detail": {
+        "native_exit_code": 2,
+        "expected": 2
+      }
+    },
+    {
+      "name": "STA重解析",
+      "pass": true,
+      "detail": {
+        "native_exit_code": 2
+      }
+    },
+    {
+      "name": "失败时序及资源值",
+      "pass": true,
+      "detail": {
+        "schema_version": 1,
+        "status": "FAIL_TIMING",
+        "hardware_execution": "NOT_RUN",
+        "post_route": "NOT_RUN",
+        "timing": {
+          "wns_ns": -76.685,
+          "tns_ns": -117866.523,
+          "setup_failing_endpoints": 2639,
+          "setup_total_endpoints": 14644,
+          "whs_ns": 0.037,
+          "ths_ns": 0.0,
+          "hold_failing_endpoints": 0,
+          "hold_total_endpoints": 14644,
+          "wpws_ns": 8.87,
+          "tpws_ns": 0.0,
+          "pulse_failing_endpoints": 0,
+          "pulse_total_endpoints": 4167
+        },
+        "clock": {
+          "name": "clk_fpga_0",
+          "period_ns": 20.0,
+          "frequency_mhz": 50.0
+        },
+        "check_timing": {
+          "no_clock": 0,
+          "constant_clock": 0,
+          "pulse_width_clock": 0,
+          "unconstrained_internal_endpoints": 0,
+          "no_input_delay": 0,
+          "no_output_delay": 0,
+          "multiple_clock": 0,
+          "generated_clocks": 0,
+          "loops": 0,
+          "partial_input_delay": 0,
+          "partial_output_delay": 0,
+          "latch_loops": 0
+        },
+        "worst_setup_path": {
+          "logic_levels": 239,
+          "source": "s2b_inference_i/infer/inst/core/u_network_backend/layer_cursor_reg[0]_rep__0/C",
+          "destination": "s2b_inference_i/infer/inst/core/u_network_backend/u_maxpool_engine/FSM_sequential_state_reg[0]/D",
+          "data_path_delay_ns": 96.281
+        },
+        "resources": {
+          "lut": 42820,
+          "ff": 4003,
+          "bram_tiles": 32,
+          "dsp": 186
+        },
+        "inputs": [
+          {
+            "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01\\timing_synth.rpt",
+            "sha256": "f58bf13b1dda0439a3828ca8346002046dae00d2207b6d97d4bf4c87236e0175"
+          },
+          {
+            "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\full_synthesis_20261011_r01\\utilization_full_synth.rpt",
+            "sha256": "dcc198b8519eb962ea8acd72fa5a9200bbeeda66a8d3d1b14a70fe81507a0316"
+          }
+        ],
+        "design_state": "Synthesized",
+        "native_exit_code": 2
+      }
+    },
+    {
+      "name": "后实现与实物未运行",
+      "pass": true,
+      "detail": "仅综合报告，STA失败"
+    },
+    {
+      "name": "被审全部文件前后不变",
+      "pass": true,
+      "detail": {
+        "file_count": 87
+      }
+    },
+    {
+      "name": "轻量审查内存预算",
+      "pass": true,
+      "detail": {
+        "single_process_peak_working_set_bytes": 22343680,
+        "child_peak_not_measured": true
+      }
+    }
+  ],
+  "findings": [],
+  "limitations": [
+    "未执行Vivado/MCP/硬件/大型仿真，未复制模型或DCP，未修改源和证据，未提交。",
+    "仅审查此次已保存字节，未声称复现综合或时序收敛。",
+    "历史进程树峰值未测；本审查仅测自身单进程峰值，子进程峰值未测；最大证据单文件1302748字节。",
+    "receipt.json的初版限制误称最大单文件小于1MB，现已精确纠正，初版保留。"
+  ]
+}

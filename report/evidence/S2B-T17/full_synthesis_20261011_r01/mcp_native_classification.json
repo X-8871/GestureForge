@@ -1,0 +1,66 @@
+{
+  "raw_path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/root_mcp_calls_and_history.json",
+  "raw_sha256": "d71a04b68f3163ef5d774418566b6923f7e4493a86d64de2dd0c7029e02dd5b5",
+  "calls": 7,
+  "wait_client_status": "FAIL_TIMEOUT_300S",
+  "wait_native_code": 0,
+  "wait_native_elapsed_seconds": 311.587,
+  "history_summary": [
+    {
+      "id": 47,
+      "command": "set_param general.maxThreads 2; if {[get_property NAME [current_project]] ne {s2b_inference_candidate}} {error WRONG_PROJECT}; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error WRONG_PART}; if {[llength [get_files -all *s2b_inference_wrapper.v]] != 1} {error WRAPPER_AMBIGUOUS}; puts [list T17_PREPARED [get_property NAME [current_project]] [get_property PART [current_project]] [get_property top [current_fileset]] [get_param general.maxThreads]]",
+      "code": 0,
+      "elapsed": 0.124,
+      "timestamp": "2026-10-11T13:46:40.3247222+08:00"
+    },
+    {
+      "id": 48,
+      "command": "launch_runs synth_1 -jobs 1",
+      "code": 0,
+      "elapsed": 1.234,
+      "timestamp": "2026-10-11T13:46:51.9360709+08:00"
+    },
+    {
+      "id": 49,
+      "command": "wait_on_run synth_1",
+      "code": 0,
+      "elapsed": 311.587,
+      "timestamp": "2026-10-11T13:52:15.9137455+08:00"
+    },
+    {
+      "id": 50,
+      "command": "open_run synth_1",
+      "code": 0,
+      "elapsed": 19.88,
+      "timestamp": "2026-10-11T13:53:08.5316909+08:00"
+    },
+    {
+      "id": 51,
+      "command": "report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/utilization_full_synth.rpt}; report_methodology -json {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/methodology_synth.json}; write_xdc -force -exclude_physical {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/constraints_synth.xdc}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/clocks_synth.rpt}; report_timing_summary -delay_type min_max -max_paths 10 -check_timing_verbose -report_unconstrained -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/timing_synth.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/drc_synth.rpt}; puts [list T17_FULL_SYNTH_REPORTS [get_property STATUS [get_runs synth_1]] [get_property PERIOD [get_clocks]]]",
+      "code": 0,
+      "elapsed": 22.363,
+      "timestamp": "2026-10-11T13:53:39.9024189+08:00"
+    },
+    {
+      "id": 52,
+      "command": "report_clock_interaction -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/clock_interaction_synth.rpt}; report_timing -from [get_pins {s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/feature_patch_reg_0_2/CLKBWRCLK}] -to [get_pins {s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/feature_patch_reg_0_0/ADDRBWRADDR[2]}] -delay_type max -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/full_synthesis_20261011_r01/timing16_critical_synth.rpt}; set s2b_t17_paths [get_timing_paths -max_paths 1 -delay_type max]; puts [list LOGIC_LEVELS [get_property LOGIC_LEVELS $s2b_t17_paths] REQUIREMENT [get_property REQUIREMENT $s2b_t17_paths] SLACK [get_property SLACK $s2b_t17_paths]]; set_property strategy Performance_Explore [get_runs impl_1]; puts [list IMPLEMENTATION_STRATEGY [get_property strategy [get_runs impl_1]]]",
+      "code": 0,
+      "elapsed": 0.496,
+      "timestamp": "2026-10-11T13:54:32.9362725+08:00"
+    },
+    {
+      "id": 53,
+      "command": "close_design",
+      "code": 0,
+      "elapsed": 0.972,
+      "timestamp": "2026-10-11T14:00:03.8850323+08:00"
+    }
+  ],
+  "root_session_reported_cumulative_peak_mb": 2453.121,
+  "process_tree_peak_bytes": null,
+  "limitations": [
+    "保留客户端失败，不把native成功改写成客户端SUCCESS。",
+    "根会话2453.121MB为累计报表峰，不是本次全进程树峰。",
+    "Python quoting SyntaxError、Windows206命令长及chunk截断由总控报告；此整理不重跑或改写其旧失败记录。"
+  ]
+}

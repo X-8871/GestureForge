@@ -1,0 +1,94 @@
+{
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_geometry_specialization",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+        "source/int8_maxpool_geometry.sv",
+        "source/int8_maxpool_window.sv",
+        "source/int8_upsample_query.sv",
+        "source/s2a_maxpool_engine.sv",
+        "source/s2a_upsample_engine.sv",
+        "source/s2b_maxpool_engine.sv",
+        "source/s2b_upsample_engine.sv",
+        "tb_s2b_geometry_specialization.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 15.578,
+      "peak_tree_rss_bytes": 621207552,
+      "failure": null,
+      "log": "tmp/2B/S2B-T17/independent_review_specialization_20261011_r01/compile.log",
+      "log_sha256": "3c6c6fa752d18462cc60c73d261f102345db56f914daaee7388be7170c370263"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_review_specialization_20261011_r01\\obj_dir\\Vtb_s2b_geometry_specialization.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 30.39,
+      "peak_tree_rss_bytes": 5136384,
+      "failure": null,
+      "log": "tmp/2B/S2B-T17/independent_review_specialization_20261011_r01/simulation.log",
+      "log_sha256": "49e0c96f1af1ed54a7599e66b8ad441f8fd6e37a40b8721d91fe747965539ed5"
+    }
+  ],
+  "hardware_execution": "NOT_RUN",
+  "resources": {
+    "available_bytes": 6694539264,
+    "disk_free": 17039532032,
+    "processes": [
+      {
+        "pid": 15124,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "rss": 9867264
+      },
+      {
+        "pid": 20360,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "rss": 20119552
+      },
+      {
+        "pid": 23188,
+        "name": "vivado.exe",
+        "rss": 791711744
+      },
+      {
+        "pid": 26468,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "rss": 16707584
+      }
+    ],
+    "slot_authorization": "root明确分配唯一重型槽，Vivado保持idle"
+  },
+  "simulation_counts": {
+    "pool": 19828,
+    "upsample": 3517,
+    "cycles": 1539219,
+    "pool_abort": 127,
+    "upsample_abort": 63
+  },
+  "status": "PASS_INDEPENDENT_G2_S1"
+}

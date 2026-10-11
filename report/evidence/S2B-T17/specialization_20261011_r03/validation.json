@@ -1,0 +1,588 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17-S1",
+  "run_id": "specialization_20261011_r03",
+  "status": "PASS_GEOMETRY_SPECIALIZATION_G1",
+  "source_commit": "b8d5e5238fd01c460aa3155144785d65e06fc16e",
+  "task_baseline_commit": "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_geometry_specialization",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+        "source/int8_maxpool_geometry.sv",
+        "source/int8_maxpool_window.sv",
+        "source/int8_upsample_query.sv",
+        "source/s2a_maxpool_engine.sv",
+        "source/s2a_upsample_engine.sv",
+        "source/s2b_maxpool_engine.sv",
+        "source/s2b_upsample_engine.sv",
+        "tb_s2b_geometry_specialization.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 19.531,
+      "peak_tree_rss_bytes": 621645824,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/specialization_20261011_r03/compile.log",
+      "log_sha256": "bc0ccb8336a9f471db41f15ab8368b5af0bf72625ff42b7b2cf83b5982b85a14"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\specialization_20261011_r03\\obj_dir\\Vtb_s2b_geometry_specialization.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 11.719,
+      "peak_tree_rss_bytes": 5152768,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/specialization_20261011_r03/simulation.log",
+      "log_sha256": "25533a26a8494b0e2c40c39a71a774fe9e1f3e020ad503e6fcf24b7c8bd2f7b6"
+    }
+  ],
+  "g3": "NOT_RUN",
+  "limitations": [
+    "仅组合参数连接专化；不证明50MHz闭合、完整整网或实板验收。",
+    "差分oracle为冻结旧RTL；另以独立地址与signed最大值/nearest复制手算检查合法结果。",
+    "空间采用明确分层采样；未枚举全部通道与空间组合。",
+    "Verilator继承的原RTL宽度/未使用诊断保留日志，允许非fatal诊断；无静默waiver。"
+  ],
+  "resource_budget": {
+    "job": 1,
+    "threads": 1,
+    "rss_limit_bytes": 1610612736
+  },
+  "committed_source_changes_since_task_baseline": [],
+  "source_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "6e825f7a7a0424615f0ff24f5a86ddfb4814207067e13be2c546a457f1850b29",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "a2075cb34909b27f523e32c8f513b0957d871377ee4d3c5469ee45e36024fdd4",
+    "board/s2b_inference_platform.md": "bdeafd214c26e1f413919d1d9d5fa1f603bc10f3dd22194de5e0c68ba9dd6819",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "2e6db37dbe2bf9292a06ece9a23ba17925994f2a17cc0e6edf9d4cc71c3734ed",
+    "verification/test_s2b_geometry_specialization_rtl.py": "c498d2f00648ef9954b9f83182142336a90568affe99a683068c0141e02ec496"
+  },
+  "frozen14_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "checker_negatives": [
+    {
+      "name": "旧profile版本",
+      "result": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包重复",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包换序",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包遗漏",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包额外源",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "错误freeze提交",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生基线",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生策略",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "换行政策缺失",
+      "result": "REJECTED",
+      "reason": "派生绑定字段不符"
+    },
+    {
+      "name": "上游记录遗漏",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "上游自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "派生记录遗漏",
+      "result": "REJECTED",
+      "reason": "派生源必须恰为4项"
+    },
+    {
+      "name": "派生记录换序",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "允许替换被篡改",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "派生哈希错误",
+      "result": "REJECTED",
+      "reason": "派生SHA不符：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "派生路径越界",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "原冻结源变化及自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "常量化错误及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "额外backend逻辑及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "Tcl闭包变化",
+      "result": "REJECTED",
+      "reason": "Tcl/JSON源码闭包不一致"
+    },
+    {
+      "name": "Tcl版本变化",
+      "result": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "顶层引用旧core",
+      "result": "REJECTED",
+      "reason": "公开顶层未实例化受绑定的2B派生核心"
+    },
+    {
+      "name": "物理时钟变化",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "可见性默认启用",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "构建脚本遗漏",
+      "result": "REJECTED",
+      "reason": "构建脚本集合不符"
+    },
+    {
+      "name": "旧可见性证明",
+      "result": "REJECTED",
+      "reason": "证明平台版本不符"
+    }
+  ],
+  "coverage": {
+    "pool": {
+      "vectors": 19645,
+      "categories": {
+        "legal_spatial_channel_sampling": 19372,
+        "parameter_field_rejection": 141,
+        "length_field_rejection": 18,
+        "address_field_rejection": 12,
+        "length_before_address": 3,
+        "argument_before_length_address": 3,
+        "extreme_coordinate_rejection": 27,
+        "read_response_error": 21,
+        "write_response_error": 21,
+        "raw_0x80_policy": 3,
+        "abort_each_state": 21,
+        "no_memory_stall": 3
+      },
+      "legal_coordinates_per_layer": {
+        "9": 9483,
+        "17": 4557,
+        "25": 5332
+      },
+      "all_channel_indices_sampled": {
+        "9": 128,
+        "17": 256,
+        "25": 512
+      },
+      "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+      "seed": 722931729,
+      "parameter_order": [
+        "layer_index",
+        "input_base_address",
+        "input_length_bytes",
+        "input_channels",
+        "input_height",
+        "input_width",
+        "output_base_address",
+        "output_length_bytes",
+        "output_channels",
+        "output_height",
+        "output_width",
+        "kernel_height",
+        "kernel_width",
+        "stride_y",
+        "stride_x",
+        "darknet_padding_parameter",
+        "output_channel",
+        "output_y",
+        "output_x"
+      ]
+    },
+    "upsample": {
+      "vectors": 3456,
+      "categories": {
+        "legal_spatial_channel_sampling": 3397,
+        "parameter_field_rejection": 16,
+        "length_field_rejection": 6,
+        "address_field_rejection": 4,
+        "length_before_address": 1,
+        "argument_before_length_address": 1,
+        "extreme_coordinate_rejection": 9,
+        "read_response_error": 7,
+        "write_response_error": 7,
+        "raw_0x80_policy": 1,
+        "abort_each_state": 6,
+        "no_memory_stall": 1
+      },
+      "legal_coordinates_per_layer": {
+        "33": 3397
+      },
+      "all_channel_indices_sampled": {
+        "33": 128
+      },
+      "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+      "seed": 722931730,
+      "parameter_order": [
+        "input_base_address",
+        "input_length_bytes",
+        "output_base_address",
+        "output_length_bytes",
+        "input_channels",
+        "input_height",
+        "input_width",
+        "stride",
+        "output_channel",
+        "output_y",
+        "output_x"
+      ]
+    }
+  },
+  "resource_preflight": {
+    "available_ram_bytes": 6703968256,
+    "disk_free_bytes": 17741000704,
+    "running_vivado": [
+      {
+        "pid": 23188,
+        "rss_bytes": 791969792
+      }
+    ],
+    "vivado_ownership": "总控确认现有PID23188为idle并close_design；本次独占单job差分编译窗口。"
+  },
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "simulation_counts": {
+    "pool": 19645,
+    "upsample": 3456,
+    "cycles": 590601,
+    "pool_abort": 127,
+    "upsample_abort": 63
+  },
+  "source_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "6e825f7a7a0424615f0ff24f5a86ddfb4814207067e13be2c546a457f1850b29",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "a2075cb34909b27f523e32c8f513b0957d871377ee4d3c5469ee45e36024fdd4",
+    "board/s2b_inference_platform.md": "bdeafd214c26e1f413919d1d9d5fa1f603bc10f3dd22194de5e0c68ba9dd6819",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "2e6db37dbe2bf9292a06ece9a23ba17925994f2a17cc0e6edf9d4cc71c3734ed",
+    "verification/test_s2b_geometry_specialization_rtl.py": "c498d2f00648ef9954b9f83182142336a90568affe99a683068c0141e02ec496"
+  },
+  "frozen14_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "seconds": 33.219,
+  "artifacts": [
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/compile.log",
+      "sha256": "bc0ccb8336a9f471db41f15ab8368b5af0bf72625ff42b7b2cf83b5982b85a14",
+      "bytes": 26171
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/pool_vectors.dat",
+      "sha256": "6bf7dabcc5fce92341ae8907a7e4f376847ed1ab09fbccbfdf28f759ed2a8468",
+      "bytes": 1576312
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/simulation.log",
+      "sha256": "25533a26a8494b0e2c40c39a71a774fe9e1f3e020ad503e6fcf24b7c8bd2f7b6",
+      "bytes": 348
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/tb_s2b_geometry_specialization.sv",
+      "sha256": "c488a3e7d2e083de1fceb022dd4a0690b4e07002a17d18834564312a9acf88ea",
+      "bytes": 22681
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/upsample_vectors.dat",
+      "sha256": "e71669fcc6f832daffa6e15d81594ff7d9ded1e8a6c74d86a0a4555f81044886",
+      "bytes": 195193
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/check_s2b_inference_platform.py",
+      "sha256": "2e6db37dbe2bf9292a06ece9a23ba17925994f2a17cc0e6edf9d4cc71c3734ed",
+      "bytes": 17297
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/int8_maxpool_geometry.sv",
+      "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "bytes": 10982
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "bytes": 1692
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/int8_route_query.sv",
+      "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "bytes": 12058
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "bytes": 4633
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/ps_platform_fields.json",
+      "sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "bytes": 44193
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "bytes": 11284
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_conv_tile_engine.sv",
+      "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "bytes": 58259
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_maxpool_engine.sv",
+      "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "bytes": 17395
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "bytes": 2414
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_network_backend.sv",
+      "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "bytes": 33108
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "bytes": 374316
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "bytes": 17616
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "bytes": 3696
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_stage2a_core_ooc.sv",
+      "sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "bytes": 5568
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "bytes": 10536
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "bytes": 21320
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "bytes": 15073
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_inference_platform.json",
+      "sha256": "a2075cb34909b27f523e32c8f513b0957d871377ee4d3c5469ee45e36024fdd4",
+      "bytes": 7820
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_inference_platform.md",
+      "sha256": "bdeafd214c26e1f413919d1d9d5fa1f603bc10f3dd22194de5e0c68ba9dd6819",
+      "bytes": 11044
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_inference_platform.tcl",
+      "sha256": "6e825f7a7a0424615f0ff24f5a86ddfb4814207067e13be2c546a457f1850b29",
+      "bytes": 19158
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "bytes": 13808
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_maxpool_engine.sv",
+      "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+      "bytes": 17354
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_network_backend.sv",
+      "sha256": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+      "bytes": 32459
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_ps_platform.tcl",
+      "sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+      "bytes": 12717
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "bytes": 3530
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "bytes": 5427
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "bytes": 10535
+    },
+    {
+      "path": "report/evidence/S2B-T17/specialization_20261011_r03/source_snapshot/test_s2b_geometry_specialization_rtl.py",
+      "sha256": "c498d2f00648ef9954b9f83182142336a90568affe99a683068c0141e02ec496",
+      "bytes": 31632
+    }
+  ]
+}

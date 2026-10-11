@@ -1,0 +1,41 @@
+{
+  "native_exit_code": 0,
+  "scope": "WINDOWS_API_MOCK_ONLY",
+  "hardware_execution": "NOT_RUN",
+  "rows": [
+    {
+      "case": "positive",
+      "status": "ACCEPTED",
+      "images": {
+        "xv_pycommontasks": {
+          "handle": 1,
+          "path": "D:\\review_only\\xv_pycommontasks.pyd"
+        },
+        "xv_hsmpytasks": {
+          "handle": 2,
+          "path": "D:\\review_only\\xv_hsmpytasks.pyd"
+        }
+      }
+    },
+    {
+      "case": "missing",
+      "status": "REJECTED",
+      "error": "VisibilityProbeError('本进程未加载必需原生映像：xv_pycommontasks')"
+    },
+    {
+      "case": "duplicate_handle",
+      "status": "REJECTED",
+      "error": "VisibilityProbeError('两个官方原生文件必须为不同已加载映像')"
+    },
+    {
+      "case": "empty_path",
+      "status": "REJECTED",
+      "error": "VisibilityProbeError('原生映像路径查询失败或截断：xv_pycommontasks')"
+    },
+    {
+      "case": "truncated_path",
+      "status": "REJECTED",
+      "error": "VisibilityProbeError('原生映像路径查询失败或截断：xv_pycommontasks')"
+    }
+  ]
+}

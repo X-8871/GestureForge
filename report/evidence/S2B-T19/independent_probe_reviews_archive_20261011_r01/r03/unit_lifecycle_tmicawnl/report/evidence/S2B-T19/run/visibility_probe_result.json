@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "hardware_execution": "REQUESTED_BY_ROOT_CALL",
+  "cold_lifecycle_proven": false,
+  "config_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r03\\unit_lifecycle_tmicawnl\\unit_config.json",
+  "config_sha256": "bde9b5cbd673a28be78ac2858dc3b92f09139d07389e625ce7905978039db1f0",
+  "source_sha256": "96e923c49ef7c1bdcbbecfb8b3f0cba4eb51af7212a3a64f5aefe256c2856f2c",
+  "calls": [
+    {
+      "time_utc8": "2026-10-11T15:40:36.384705+08:00",
+      "api": "identity.before_sdk",
+      "args": "()",
+      "kwargs": "{}",
+      "status": "RETURNED",
+      "return_type": "dict",
+      "return_repr": "{'snapshot': {'servers': [{'ProcessId': 123, 'ExecutablePath': 'D:\\\\root-owned\\\\hw_server.exe', 'CreationTimeFileTimeUtc': '999'}], 'listeners': [{'LocalPort': 3121, 'OwningProcess': 123}], 'ports': [{'Name': 'CP210x (COM4)', 'PNPDeviceID': 'USB\\\\UNIT_FIXTURE', 'ConfigManagerErrorCode': 0}]}}",
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 0.0
+    }
+  ],
+  "identity_snapshots": [
+    {
+      "label": "before_sdk",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 123,
+            "ExecutablePath": "D:\\root-owned\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "999"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalPort": 3121,
+            "OwningProcess": 123
+          }
+        ],
+        "ports": [
+          {
+            "Name": "CP210x (COM4)",
+            "PNPDeviceID": "USB\\UNIT_FIXTURE",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup_errors": [],
+  "raw_input_dir": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r03\\unit_lifecycle_tmicawnl\\report\\evidence\\S2B-T19\\run",
+  "peak_process_tree_memory_bytes": null,
+  "started_at_utc8": "2026-10-11T15:40:36.383705+08:00",
+  "limitations": [
+    "compat role/PASS字符串不创造独立来源，root固定SHA的真实Reviewer来源需独立核查。",
+    "system-stop不等于物理POR或旧AXI生命周期结束，cold flag始终false。",
+    "本入口只执行visibility0缓存先验，不LOAD、不START、不发布visibility PASS。",
+    "核状态为离散观测，进程树峰值内存未测。"
+  ],
+  "error": "VisibilityProbeError('hw_server身份不匹配：CreationTimeFileTimeUtc')",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 412, in run\n    identity(\"before_sdk\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 404, in identity\n    validate_identity(actual,server,cfg[\"uart_identity\"])\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 287, in validate_identity\n    require(server.get(key)==native[key],\"hw_server身份不匹配：\"+key)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 38, in require\n    if not condition:raise VisibilityProbeError(message)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ns2b_visibility_entry.VisibilityProbeError: hw_server身份不匹配：CreationTimeFileTimeUtc\n",
+  "finished_at_utc8": "2026-10-11T15:40:36.384705+08:00",
+  "elapsed_seconds": 0.0,
+  "native_exit_code": 2,
+  "owned_hw_server_released": false
+}

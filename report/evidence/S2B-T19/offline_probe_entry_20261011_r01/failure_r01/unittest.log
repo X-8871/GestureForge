@@ -1,0 +1,145 @@
+test_help_and_import_without_hardware_modules (verification.test_s2b_visibility_probe.ImportTests.test_help_and_import_without_hardware_modules) ... ok
+test_existing_run_rejected_without_overwrite (verification.test_s2b_visibility_probe.LifecycleTests.test_existing_run_rejected_without_overwrite) ... ok
+test_full_mock_lifecycle_actual_wire_and_owned_cleanup (verification.test_s2b_visibility_probe.LifecycleTests.test_full_mock_lifecycle_actual_wire_and_owned_cleanup) ... ok
+test_identity_failure_prevents_sdk_import (verification.test_s2b_visibility_probe.LifecycleTests.test_identity_failure_prevents_sdk_import) ... ok
+test_sdk_uart_and_cleanup_failures_preserve_originals (verification.test_s2b_visibility_probe.LifecycleTests.test_sdk_uart_and_cleanup_failures_preserve_originals) ... 
+  test_sdk_uart_and_cleanup_failures_preserve_originals (verification.test_s2b_visibility_probe.LifecycleTests.test_sdk_uart_and_cleanup_failures_preserve_originals) (scenario='chain') ... FAIL
+test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) ... 
+  test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='bit') ... ERROR
+  test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='app_elf') ... ERROR
+  test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='init_elf') ... ERROR
+  test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='xsa') ... ERROR
+test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) ... ERROR
+test_bound_schema_fixture_positive_without_runtime (verification.test_s2b_visibility_probe.PreflightTests.test_bound_schema_fixture_positive_without_runtime) ... ok
+test_checks_and_pyserial_closure_required (verification.test_s2b_visibility_probe.PreflightTests.test_checks_and_pyserial_closure_required) ... ok
+test_unit_build_and_unapproved_receipt_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_unit_build_and_unapproved_receipt_rejected) ... ERROR
+
+======================================================================
+ERROR: test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='bit')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 189, in test_artifact_sha_drift_rejected
+    with self.assertRaises((p.VisibilityProbeError,j.JtagError,j.transport.TransportError)):self.check()
+                                                                                            ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 111, in _preflight
+    for item in bindings.values():j.bound_bytes(item)
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 103, in bound_bytes
+    require(hashlib.sha256(raw).hexdigest() == expected, "绑定文件发生漂移：" + binding["path"])
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 78, in require
+    raise JtagError(message)
+s2b_board_jtag.JtagError: 绑定文件发生漂移：C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T19\unit_preflight_x29lwa8s\bit
+
+======================================================================
+ERROR: test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='app_elf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 189, in test_artifact_sha_drift_rejected
+    with self.assertRaises((p.VisibilityProbeError,j.JtagError,j.transport.TransportError)):self.check()
+                                                                                            ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 111, in _preflight
+    for item in bindings.values():j.bound_bytes(item)
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 103, in bound_bytes
+    require(hashlib.sha256(raw).hexdigest() == expected, "绑定文件发生漂移：" + binding["path"])
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 78, in require
+    raise JtagError(message)
+s2b_board_jtag.JtagError: 绑定文件发生漂移：C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T19\unit_preflight_x29lwa8s\app_elf
+
+======================================================================
+ERROR: test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='init_elf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 189, in test_artifact_sha_drift_rejected
+    with self.assertRaises((p.VisibilityProbeError,j.JtagError,j.transport.TransportError)):self.check()
+                                                                                            ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 111, in _preflight
+    for item in bindings.values():j.bound_bytes(item)
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 103, in bound_bytes
+    require(hashlib.sha256(raw).hexdigest() == expected, "绑定文件发生漂移：" + binding["path"])
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 78, in require
+    raise JtagError(message)
+s2b_board_jtag.JtagError: 绑定文件发生漂移：C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T19\unit_preflight_x29lwa8s\init_elf
+
+======================================================================
+ERROR: test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected) (key='xsa')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 189, in test_artifact_sha_drift_rejected
+    with self.assertRaises((p.VisibilityProbeError,j.JtagError,j.transport.TransportError)):self.check()
+                                                                                            ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 111, in _preflight
+    for item in bindings.values():j.bound_bytes(item)
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 103, in bound_bytes
+    require(hashlib.sha256(raw).hexdigest() == expected, "绑定文件发生漂移：" + binding["path"])
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 78, in require
+    raise JtagError(message)
+s2b_board_jtag.JtagError: 绑定文件发生漂移：C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T19\unit_preflight_x29lwa8s\init_elf
+
+======================================================================
+ERROR: test_artifact_sha_drift_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_artifact_sha_drift_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 193, in test_artifact_sha_drift_rejected
+    with self.assertRaises((p.VisibilityProbeError,j.JtagError,j.transport.TransportError)):self.check()
+                                                                                            ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 111, in _preflight
+    for item in bindings.values():j.bound_bytes(item)
+                                  ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 103, in bound_bytes
+    require(hashlib.sha256(raw).hexdigest() == expected, "绑定文件发生漂移：" + binding["path"])
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 78, in require
+    raise JtagError(message)
+s2b_board_jtag.JtagError: 绑定文件发生漂移：C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T19\unit_preflight_x29lwa8s\init_elf
+
+======================================================================
+ERROR: test_unit_build_and_unapproved_receipt_rejected (verification.test_s2b_visibility_probe.PreflightTests.test_unit_build_and_unapproved_receipt_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 202, in test_unit_build_and_unapproved_receipt_rejected
+    with self.assertRaises(j.transport.TransportError):self.check()
+                                                       ^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 181, in check
+    with patch.object(platform,"check_static",return_value=self.sources),patch.object(p.subprocess,"run",side_effect=checked):return p._preflight(self.cfg,self.record,self.log)
+                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\vitis\run_s2b_visibility_probe.py", line 126, in _preflight
+    build_raw=j.bound_bytes(config["build_details"]);build_path,build=t.verify_build(config["build_details"]["path"])
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 351, in verify_build
+    require(build.get("status") == "PASS_OFFLINE_FULL_XSA_BUILD" and build.get("hardware_mode") == "FULL_PLATFORM_BOUND",
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 40, in require
+    raise TransportError(message)
+s2b_board_transport.TransportError: 必须新整网XSA绑定并重建ELF，拒绝PS-only产物
+
+======================================================================
+FAIL: test_sdk_uart_and_cleanup_failures_preserve_originals (verification.test_s2b_visibility_probe.LifecycleTests.test_sdk_uart_and_cleanup_failures_preserve_originals) (scenario='chain')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 125, in test_sdk_uart_and_cleanup_failures_preserve_originals
+    self.setUp();result=self.execute(scenario);self.assertEqual(result["native_exit_code"],2)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_visibility_probe.py", line 109, in execute
+    self.assertFalse(self.session.objects[11].running)
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 9 tests in 12.639s
+
+FAILED (failures=1, errors=6)

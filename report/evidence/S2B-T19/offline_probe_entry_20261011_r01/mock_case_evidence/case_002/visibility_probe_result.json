@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "hardware_execution": "REQUESTED_BY_ROOT_CALL",
+  "cold_lifecycle_proven": false,
+  "config_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\unit_lifecycle_22sphlqr\\unit_config.json",
+  "config_sha256": "573a396fab4adc9681073448de421bd00f2c0b1b805605570e8af31a54610b65",
+  "source_sha256": "1b545a4eb1ab5ccd2795611f4c2d3e2eb2db3ce070790a06f680c74954ba64f7",
+  "calls": [
+    {
+      "time_utc8": "2026-10-11T14:34:36.429872+08:00",
+      "api": "identity.before_sdk",
+      "args": "()",
+      "kwargs": "{}",
+      "status": "RETURNED",
+      "return_type": "dict",
+      "return_repr": "{'snapshot': {'servers': [{'ProcessId': 123, 'ExecutablePath': 'wrong', 'CreationTimeFileTimeUtc': '123456'}], 'listeners': [{'LocalPort': 3121, 'OwningProcess': 123}], 'ports': [{'Name': 'CP210x (COM4)', 'PNPDeviceID': 'USB\\\\UNIT_FIXTURE', 'ConfigManagerErrorCode': 0}]}}",
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 0.0
+    }
+  ],
+  "identity_snapshots": [
+    {
+      "label": "before_sdk",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 123,
+            "ExecutablePath": "wrong",
+            "CreationTimeFileTimeUtc": "123456"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalPort": 3121,
+            "OwningProcess": 123
+          }
+        ],
+        "ports": [
+          {
+            "Name": "CP210x (COM4)",
+            "PNPDeviceID": "USB\\UNIT_FIXTURE",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup_errors": [],
+  "peak_process_tree_memory_bytes": null,
+  "started_at_utc8": "2026-10-11T14:34:36.429872+08:00",
+  "limitations": [
+    "compat role/PASS字符串不创造独立来源，root固定SHA的真实Reviewer来源需独立核查。",
+    "system-stop不等于物理POR或旧AXI生命周期结束，cold flag始终false。",
+    "本入口只执行visibility0缓存先验，不LOAD、不START、不发布visibility PASS。",
+    "核状态为离散观测，进程树峰值内存未测。"
+  ],
+  "error": "VisibilityProbeError('hw_server身份不匹配：ExecutablePath')",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 214, in run\n    identity(\"before_sdk\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 206, in identity\n    validate_identity(actual,server,cfg[\"uart_identity\"])\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 90, in validate_identity\n    require(server.get(key)==native[key],\"hw_server身份不匹配：\"+key)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py\", line 36, in require\n    if not condition:raise VisibilityProbeError(message)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ns2b_visibility_entry.VisibilityProbeError: hw_server身份不匹配：ExecutablePath\n",
+  "finished_at_utc8": "2026-10-11T14:34:36.430884+08:00",
+  "elapsed_seconds": 0.0,
+  "native_exit_code": 2,
+  "owned_hw_server_released": false
+}

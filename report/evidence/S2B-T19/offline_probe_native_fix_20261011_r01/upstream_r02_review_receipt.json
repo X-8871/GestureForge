@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19-R2",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "CHANGES_REQUIRED",
+  "reviewed_at_utc8": "2026-10-11T15:27:21.015432+08:00",
+  "baseline_commit": "0c2f5b58f40f70de974a48582eb7729cf76c0b8e",
+  "observed_head_at_close": "0c2f5b58f40f70de974a48582eb7729cf76c0b8e",
+  "source_and_evidence_sha256": {
+    "vitis/run_s2b_visibility_probe.py": "b02000940144536cde87e05da6220c6fe82d3342ab27f7448b226b993f01aa76",
+    "verification/test_s2b_visibility_probe.py": "40f633b0a34b2a914476cb862c879bc214da31c7afac8426f3c7439a386d7d4a",
+    "verification/check_s2b_inference_platform.py": "1f8d4d4d099f32713ceec04ad4661e110b331394761f83f6efe02d1098f39901",
+    "verification/s2b_board_jtag.py": "91bbf5bc8ac5ef9bee37ce6491627a6ac8f38a53b7bba113d1b83447b2ecddf0",
+    "report/evidence/S2B-T19/offline_probe_fix_20261011_r01/delivery_manifest.json": "e1d221ca16678f6058a694aae63c033d82675eb11e729d47df77ae8e93ef2828",
+    "report/evidence/S2B-T19/runtime_import_probe_20261011_r01/delivery_manifest_r02.json": "796f3a3e0f7fb8d9fe8f705d58af9b40413d3e4ee460a6fa79ee0bbd9f3df376",
+    "tmp/2B/S2B-T19/independent_review_20261011_r01/review_receipt.json": "637d985d16d32ceac32c997e6f7d6f8c3cd31ddddceb3d236a41aa9bfe5b4bb9"
+  },
+  "scope": [
+    "官方connect失败/身份后服务消失分支，无隐式server launch",
+    "全部bound JSON严格解析及深层数组反例",
+    "SDK真实磁盘AST闭包/33动态TCF代理",
+    "真实Vitis3.13+SDK2026.1+pyserial3.5纯import/helper gate",
+    "SDK native别名实际模块规格与已加载Windows二进制来源",
+    "Session/Target真实方法code与fake错误Class来源反例",
+    "早期UART主错误和secondary cleanup错误共存"
+  ],
+  "checks": {
+    "offline_suite": {
+      "status": "PASS_MOCK_ONLY",
+      "methods": 17,
+      "subcases": 53,
+      "native_exit_code": 0,
+      "elapsed_seconds": 69.60900000000038
+    },
+    "final_manifest_raw_binding_check": {
+      "status": "PASS",
+      "files": 159,
+      "interfaces": 2,
+      "total_bindings": 161
+    },
+    "runtime_gate_as_delivered": {
+      "status": "FAIL",
+      "script_record_native_exit_code": 1,
+      "vitis_wrapper_exit_code": 0,
+      "reason": "官方两个native key共享模块对象且metadata被第二个pyd覆盖，交付来源门禁误拒绝xv_pycommontasks"
+    },
+    "runtime_gate_diagnostic_only": {
+      "status": "PASS_IMPORT_ONLY_WITH_IN_MEMORY_PYD_BINDING_CHANGE",
+      "reason": "仅诊断后续官方方法门禁可运行，不是交付配置或_preflight通过，不是硬件通过"
+    },
+    "strict_json_adversarial": {
+      "status": "PASS_REJECTION",
+      "documents": [
+        "compat_review",
+        "build_details",
+        "owned_hw_server_identity",
+        "platform_manifest"
+      ]
+    },
+    "connection_failure_ast_mock": {
+      "status": "PASS",
+      "safe_launches": 0,
+      "127_positive_control_launches": 1
+    },
+    "early_uart_cleanup": {
+      "status": "PASS",
+      "primary_error_preserved": true,
+      "secondary_dispose_error_preserved": true
+    },
+    "class_origin_adversarial": {
+      "status": "UNEXPECTED_ACCEPTANCE",
+      "mock_only": true
+    },
+    "hardware": {
+      "status": "NOT_RUN",
+      "session_created": false,
+      "connection_attempted": false,
+      "serial_opened": false
+    }
+  },
+  "r1_findings": [
+    {
+      "id": "R1-P1-autolaunch",
+      "status": "CLOSED",
+      "basis": "官方connect AST纯mock正/反控及编排race路径无launch"
+    },
+    {
+      "id": "R1-P2-json",
+      "status": "CLOSED",
+      "basis": "所有文档递归duplicate/nonstandard/schema类型拒绝"
+    },
+    {
+      "id": "R1-P2-sdk-source",
+      "status": "PARTIALLY_CLOSED",
+      "basis": "方法code比较已实现，但新增native实际运行误拒绝与Class provenance遗漏仍阻断"
+    }
+  ],
+  "findings": [
+    {
+      "id": "T19-R2-P1-NATIVE_ALIAS",
+      "priority": 1,
+      "file": "vitis/run_s2b_visibility_probe.py",
+      "lines": [
+        73,
+        124,
+        268
+      ],
+      "title": "官方native模块别名被当成独立__file__来源，导致真实入口无法运行",
+      "impact": "官方Vitis解释器纯import后_runtime必然在xv_pycommontasks来源检查失败，尚不能进入自有session创建与授权visibility0流程。简单重复path配置又与_preflight路径唯一性冲突。",
+      "basis": "native_origins.json：sys.modules两个key是同一对象/__name__='vivado'/spec及loader均指向xv_hsmpytasks.pyd；两个GetModuleHandleW均成功，GetModuleFileNameW分别返回真实pyd路径，rawSHA为d49d8961e1c5a5809f8dae247fbab75dbab9e994faae297f81940d7d8fa26aa6及e897cefd76d64ee5cc8435b6cce217978d853bf275cacc48f44a4283a71e136c。",
+      "close_when": "建立只适用于这组官方native别名的明确门禁，真实绑定两个已加载原生映像handle/path/rawSHA与官方共享module身份/metadata；保留两个供应文件独立binding与普通模块来源检查。官方解释器纯import必须通过交付配置_runtime/verify_runtime_sources，两个原生路径/哈希/别名关系漂移反例必须拒绝；不得仅放宽file/spec或把所有native统一跳过。",
+      "evidence": [
+        "actual_runtime_gate.json",
+        "runtime_diagnostics.json",
+        "native_origins.json"
+      ]
+    },
+    {
+      "id": "T19-R2-P2-CLASS_ORIGIN",
+      "priority": 2,
+      "file": "vitis/run_s2b_visibility_probe.py",
+      "lines": [
+        145,
+        151,
+        156
+      ],
+      "title": "接收器Class定义模块及实际dispatch Class别名未绑定",
+      "impact": "将Session或Target替换为带官方方法code但来自错误定义模块的fake Class，当前门禁开始前及自有fake receiver验证均接受。只比较type(obj)与当前模块中已替换Class，不能证明真实SDKClass来源。",
+      "basis": "class_origin_counterexample.json：Session.__module__='review_wrong_receiver_source'与Target.__module__='review_wrong_target_source'都被接受；所有函数保持未执行的官方源码code object，证据为mock，不是实际SDK对象。",
+      "close_when": "在开始前检查Session/Target Class定义模块/名称及真实dispatch.Session使用的Class身份与官方模块Class一致，并在receiver阶段复核；错误Class定义模块/名称、dispatch别名以及替换接收器独立反例必须被拒绝，正常真实官方纯import门禁通过。",
+      "evidence": [
+        "class_origin_counterexample.py",
+        "class_origin_counterexample.json"
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\offline_suite.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 69.73500000000058
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+        "-s",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\runtime_gate.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 3.3909999999996217
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+        "-s",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\runtime_diagnostics.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 4.547000000002299
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+        "-s",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\native_origins.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 2.375
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\adversarial.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 14.875
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tmp\\2B\\S2B-T19\\independent_probe_review_20261011_r02\\class_origin_counterexample.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 1.2179999999971187
+    }
+  ],
+  "artifact_files": [
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/actual_runtime_gate.json",
+      "sha256": "108dbb050f2df30dc0b695b5b29589b8e24580a6686e7fedb272994814a75443",
+      "bytes": 1692
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/adversarial.py",
+      "sha256": "8b41b836cb24750b279374e82f2070b566f95d096b76299e52b4e5f7b474820a",
+      "bytes": 6306
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/adversarial_native.json",
+      "sha256": "1dd9023de62726d3678a3de042e99996358a7410df67d3d5492fa534df4de286",
+      "bytes": 277
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/adversarial_result.json",
+      "sha256": "07e862121eada2aaf073e65db936498679d6bcd6b572660ad173e87fbc0947d7",
+      "bytes": 3227
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/adversarial_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/adversarial_stdout.log",
+      "sha256": "cc1bf827205583bfec32c4c06051c64833640ad349f7060a489dd6eb22a0820c",
+      "bytes": 2623
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/class_origin_counterexample.json",
+      "sha256": "38c8a5eefefb898945ed86042caeeb8af5155fac398ec3a5cbc96d636464c613",
+      "bytes": 736
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/class_origin_counterexample.py",
+      "sha256": "5ad72f1b5b8b28c5433294e20303dcf92462388659e697e46755003b9abfa6e5",
+      "bytes": 3757
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/class_origin_native.json",
+      "sha256": "9029f9ce967284f81ca24d2b13b8cf8b39640a7d6779d9f54728d30845935f8f",
+      "bytes": 305
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/class_origin_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/class_origin_stdout.log",
+      "sha256": "a4252820dae8a3b99153f7fbb93cac4cb967b4d03294e0edc81de40c9424abdf",
+      "bytes": 593
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/diagnostic_native.json",
+      "sha256": "852e0660ee9580c2d92bcc43c6c5db6f103166b6e0a0ab4c8d082b28d4df04da",
+      "bytes": 301
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/diagnostic_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/diagnostic_stdout.log",
+      "sha256": "4f776131c50183fa502b599fe256ccb9c7a792aef14f3d9622d3b25c2e27b01a",
+      "bytes": 29764
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/finalize_receipt.py",
+      "sha256": "c77b64d11a78a3c32e6bd6be8206d353d467fb65a059864e39ac6d40e98db0c7",
+      "bytes": 8905
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/native_origins.json",
+      "sha256": "a7ab7254302938e570dfad942d0dde37e7d3b1bd3a8df754778259544f31a138",
+      "bytes": 1537
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/native_origins.py",
+      "sha256": "6b87e436a18ac89d9515553fa235cbe9175e2c73dce2ac38555e68e9e858ee76",
+      "bytes": 1803
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/native_origins_native.json",
+      "sha256": "c253de9b5721bf64ce64168883b1f280bc4527085c10d92a63bf1d9258ecee84",
+      "bytes": 284
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/native_origins_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/native_origins_stdout.log",
+      "sha256": "82088a4e32b6cb862466476b37e6a9ae288750d3376ad48d3aae543aded1f789",
+      "bytes": 1631
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/offline_native.json",
+      "sha256": "e0a428a6e977f5fda96604e1a9d2533851a6c9e850e76320fc0d0e7cde84f2fe",
+      "bytes": 290
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/offline_stderr.log",
+      "sha256": "ed9bc1ed8500e88789bfea8422c4739047e3e3a98ac9999f4e7e26736481e8ca",
+      "bytes": 2846
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/offline_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/offline_suite.py",
+      "sha256": "06eeb1e9451f07364e75b12818c9bd71106587d1736a14c25d09e104197aa208",
+      "bytes": 1460
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/offline_suite_result.json",
+      "sha256": "1f7e4abdb91080c5afa83f3b282cf71bd5b4963571285ecc941f5136db988dbb",
+      "bytes": 19855
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_diagnostics.json",
+      "sha256": "03b19d6a6952a5e1461843018c316f8774c1a46d494210f5454d8788ae8231e7",
+      "bytes": 34797
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_diagnostics.py",
+      "sha256": "b66e8aeebcba56a0848fc1c948990a13ca4dbb0853d5e81e4aa9bc8747ee5a57",
+      "bytes": 2565
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_gate.py",
+      "sha256": "524619149e3f2549bdfb22bd0fecb745f423ffb43494068eab89f35611a38410",
+      "bytes": 2094
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_native.json",
+      "sha256": "e0ca92b4e6b2296dbfa3ffb718bd3b4566943a2fcb1967033de6f717379f1a5d",
+      "bytes": 295
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/runtime_stdout.log",
+      "sha256": "93b927d80a91f71dee7341960a3145c0d953809b360f79aa477d11cc72d9f069",
+      "bytes": 1899
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/app_elf",
+      "sha256": "883e3a65c7c183fa5067082d0f5d93faffae8c1835ac872f01857dfdbd8546bf",
+      "bytes": 900
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/bit",
+      "sha256": "d0013c2e0a387e4c6e6962c5f4b0c9481d60fbb9eb425ae5cda2f8ceb2c0064f",
+      "bytes": 3
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/csr_source",
+      "sha256": "3276d223d32d6f0c3db389696e259980d4a4cb83805d05db8ddb4ab19e3910dc",
+      "bytes": 10
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/init_elf",
+      "sha256": "ba4fe0f40ee5bb2440624d0abc872362ee61fb8f8fcfaafb545a7338cc93d6fe",
+      "bytes": 900
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/interface",
+      "sha256": "c796d37c6d491e8f0c6e9b83eed34c15c0f377f9f0f3cbb3216fbbf776da6325",
+      "bytes": 9
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/report/evidence/S2B-T19/run/entry_calls.jsonl",
+      "sha256": "3672f0e198299b826092986f1f10019d3a2a802572c9023966fd94c96c479b7d",
+      "bytes": 53668
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/report/evidence/S2B-T19/run/input_config.json",
+      "sha256": "64558b46bace073f33fc2b06803f18e23bd3e70083f132b88d2c136f18bf601b",
+      "bytes": 3271
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/report/evidence/S2B-T19/run/jtag_calls.jsonl",
+      "sha256": "9bf4d2e73cecc50fbf8ac5e993045a190f47efbac7434cf1a84b94aba6d5b986",
+      "bytes": 12732
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/report/evidence/S2B-T19/run/jtag_result.json",
+      "sha256": "20f063b1201c503ebdc140a538145c9f57e9a2260199257e220abde74683e552",
+      "bytes": 22319
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/report/evidence/S2B-T19/run/visibility_probe_result.json",
+      "sha256": "3df21976246828d3e5e666b3576772b23c88bdfc4047d59d9e7e502611157dc6",
+      "bytes": 62530
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/sdk_target",
+      "sha256": "aa8a2d7f7a0508d0a947b2a0e71709f33e99a58270459b844a11a50db7d6a9d4",
+      "bytes": 10
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/unit_config.json",
+      "sha256": "64558b46bace073f33fc2b06803f18e23bd3e70083f132b88d2c136f18bf601b",
+      "bytes": 3271
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_lifecycle_ei5rttcq/xsa",
+      "sha256": "2394f8b8ad01eb788edc28b25f308c588ef81324efea410020e66a0b8b649a88",
+      "bytes": 3
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/app_elf",
+      "sha256": "883e3a65c7c183fa5067082d0f5d93faffae8c1835ac872f01857dfdbd8546bf",
+      "bytes": 900
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/bit",
+      "sha256": "d0013c2e0a387e4c6e6962c5f4b0c9481d60fbb9eb425ae5cda2f8ceb2c0064f",
+      "bytes": 3
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/build_details_independent_0.json",
+      "sha256": "1f354579d26c4861955fc49b636c56801899f51bd0990d791f9e7329b25b4add",
+      "bytes": 56
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/build_details_independent_1.json",
+      "sha256": "bfb61e797951f066a793274009f525e09aad1db17015a550abe07f87924978a3",
+      "bytes": 38
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/build_details_independent_2.json",
+      "sha256": "d30dbc9dd209fe5c3cd977e566494dd2a4d3c8680357d4bb2c8a7eb4034f0896",
+      "bytes": 34
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/compat_review_independent_0.json",
+      "sha256": "1f354579d26c4861955fc49b636c56801899f51bd0990d791f9e7329b25b4add",
+      "bytes": 56
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/compat_review_independent_1.json",
+      "sha256": "bfb61e797951f066a793274009f525e09aad1db17015a550abe07f87924978a3",
+      "bytes": 38
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/compat_review_independent_2.json",
+      "sha256": "d30dbc9dd209fe5c3cd977e566494dd2a4d3c8680357d4bb2c8a7eb4034f0896",
+      "bytes": 34
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/csr_source",
+      "sha256": "3276d223d32d6f0c3db389696e259980d4a4cb83805d05db8ddb4ab19e3910dc",
+      "bytes": 10
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/init_elf",
+      "sha256": "ba4fe0f40ee5bb2440624d0abc872362ee61fb8f8fcfaafb545a7338cc93d6fe",
+      "bytes": 900
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/interface",
+      "sha256": "c796d37c6d491e8f0c6e9b83eed34c15c0f377f9f0f3cbb3216fbbf776da6325",
+      "bytes": 9
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/manifest_independent_nested.json",
+      "sha256": "168e37d03fa965bc29c49f9cd664d30729b953e42ccad6d94448b59800605542",
+      "bytes": 74
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/owned_hw_server_identity_independent_0.json",
+      "sha256": "1f354579d26c4861955fc49b636c56801899f51bd0990d791f9e7329b25b4add",
+      "bytes": 56
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/owned_hw_server_identity_independent_1.json",
+      "sha256": "bfb61e797951f066a793274009f525e09aad1db17015a550abe07f87924978a3",
+      "bytes": 38
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/owned_hw_server_identity_independent_2.json",
+      "sha256": "d30dbc9dd209fe5c3cd977e566494dd2a4d3c8680357d4bb2c8a7eb4034f0896",
+      "bytes": 34
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/preflight_calls.jsonl",
+      "sha256": "d2df6fe8be326691f5a54d0b1d17b8c48f2589fd64430dce6bb37205616ef4aa",
+      "bytes": 5561
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/receipt_independent_nested.json",
+      "sha256": "31b72dd0bdc33b17ac58ff215427f4b36033f62337a162206d7831a07ad3d2ad",
+      "bytes": 2351
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/unit_build_details.json",
+      "sha256": "4aa2202c10edef1c3768c367a86a0fce1b6748512940602533eac112cd5915fa",
+      "bytes": 1440
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/unit_fixture_receipt_not_approval.json",
+      "sha256": "b6d19463f6f514b557192236cbdcade5c5f5dc4f0dcdbb33d1cd14f7f7072004",
+      "bytes": 2346
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/unit_implemented_xsa",
+      "sha256": "ac3581a9250c428081f21047439cd9aaece561dd8a1d4da0ef696b750fe37459",
+      "bytes": 33
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/unit_platform_manifest.json",
+      "sha256": "1993c3d039256c9649e0410d3c4f2874148fe8e60e48cb0d4d1b95a7ca7fac2b",
+      "bytes": 54
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/unit_server_identity.json",
+      "sha256": "4cce03cf2af2da77ae488e7603067cf196d5745936c4696fb0012b384e893a6d",
+      "bytes": 269
+    },
+    {
+      "path": "tmp/2B/S2B-T19/independent_probe_review_20261011_r02/unit_preflight_81k55xka/xsa",
+      "sha256": "2394f8b8ad01eb788edc28b25f308c588ef81324efea410020e66a0b8b649a88",
+      "bytes": 3
+    }
+  ],
+  "limits": [
+    "G2 CHANGES_REQUIRED，G3/G4/G5未通过；未创建真实SDK会话/连接/serialopen/stop/reset/download，未操作root服务器或硬件。",
+    "原G1、原R1失败证据、源文件、STATE与Git提交未改；本代理未提交。",
+    "第一次17/53重放既有fixture明确指定ROOT/tmp/2B/S2B-T19父目录，因此tempfile.tempdir未重定位unit_*输出；已向root报告保留，后续独立fixture用mkdtemp覆盖均隔离到本目录。",
+    "Vitis包装器外层退出0不能代表脚本内部成功；本审查同时保存脚本状态与外层原生命令码。",
+    "完整运行依赖真实compat receipt和root批准仍未到；没有伪造实际PASS或visibility/cold事实。",
+    "SDK供应源码来自实机只读检查；底层OS/DLL依赖未做完整源码冻结，峰值内存未测。"
+  ]
+}

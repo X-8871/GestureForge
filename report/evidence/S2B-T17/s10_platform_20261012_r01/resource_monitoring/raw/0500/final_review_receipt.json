@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "task_id": "S10-RG2-R2",
+  "decision": "PASS",
+  "reviewer_stop": true,
+  "scope": "仅修复版资源guard工具G2；实际ROOT集成/真实运行预算尚未执行，不声明预算PASS。",
+  "current_project_commit": "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8",
+  "guard_developer_baseline": "3f24c94564d10103aaa00db07356f666b085f687",
+  "guard_sha256": "be8d51ba18cf331458e1d747578f332c4e5cc4b72604a3fb6d09e15030abb4d4",
+  "tool_receipt_sha256": "a1be1dd5c53bebf8bdc82a63e1d7710301c5012eed8ca7d9d33a898d874ce893",
+  "reviewed_raw_manifest_sha256": "b24802ea14b5791dcea4177bfb7b4ca1ea328f5069c6a65422585776634dfadc",
+  "resource_plan_sha256": "0f1cf5fb7382bb4e014cd3c4f8210e05d2d7d6f9b72a539abaaa4112d3b2c3f6",
+  "findings": [],
+  "closed_findings": [
+    {
+      "id": "RG2-1",
+      "closure": "collect253–264对候选独立读回，已确认ABSENT/原PID复用仅记缺测事件并继续；本次短命helper后第2样本真实RSS，第3样本真实1B自测阈值STOPPED，3次样本/已核根停止。",
+      "evidence": "attempt_r01/race/guard/guard_receipt.json"
+    },
+    {
+      "id": "RG2-2",
+      "closure": "初始及每次采样保存pid/birth成员；root_terminal117–124只读此前对象，活/未知子对象ROOT_EXITED_WITH_REMAINING非零且retained；本次3样本根退出，活child保留、retained1，未追杀。",
+      "evidence": "attempt_r01/orphan/guard/guard_receipt.json"
+    }
+  ],
+  "ancestor_no_such": "真实中间父对象自然退出，而已采grandchild仍活。collect归类CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN，stop_one332–338读回候选并BLOCKED，候选和根均不动。新对象复用只读birth差异后ORIGINAL_PID_REUSED并明确untouched，未声称实际OS发生PID复用。",
+  "independent_cases": [
+    {
+      "name": "helper_exit_continue_then_real_limit_stop",
+      "guard_status": "STOPPED",
+      "samples": 3,
+      "fixture_tree_threshold_last_bytes": 1,
+      "measured_rss_last_bytes": 14540800,
+      "root_after_stop_alive": false,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py race C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\race\\pid.json",
+      "evidence": "race/guard/guard_receipt.json",
+      "determinism": "首次注入真实已退出枚举列表，随后使用真实树；第三次fixture阈值1B比较真实RSS。",
+      "guard_run_return_code": 2
+    },
+    {
+      "name": "wrong_birth_and_cwd_rejected",
+      "root_untouched": true,
+      "status": "PASS"
+    },
+    {
+      "name": "normal_root_exit_child_remains",
+      "guard_status": "ROOT_EXITED_WITH_REMAINING",
+      "owned_child_still_alive": true,
+      "retained_count": 1,
+      "samples": 3,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py orphan C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\orphan\\pid.json",
+      "evidence": "orphan/guard/guard_receipt.json",
+      "guard_run_return_code": 3
+    },
+    {
+      "name": "real_parent_missing_candidate_alive",
+      "candidate_still_alive": true,
+      "stop_status": "BLOCKED",
+      "collect_classification": "CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN",
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py ancestor C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\ancestor\\pid.json",
+      "scope": "祖先真实自然退出，候选真实存活；仅以已采到候选列表确定性重现枚举竞态。"
+    },
+    {
+      "name": "stop_request_and_no_overwrite",
+      "event_order": [
+        "START",
+        "ROOT_BOUND",
+        "ALERT",
+        "PRE_STOP_VERIFIED",
+        "TERMINATE_SENT",
+        "POST_STOP_READBACK",
+        "STOP_TREE_RESULT",
+        "GUARD_TERMINAL"
+      ],
+      "overwrite": "REJECTED",
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py leaf C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\stop_request\\pid.json",
+      "guard_run_return_code": 2
+    }
+  ],
+  "commands": [
+    {
+      "name": "review.py",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\review.py",
+      "native_exit_code": 0,
+      "script_sha256": "6adffec6f44f3ed4e5f4428b6702d4193f072176e7b2aa16599b0b7c87181f1d",
+      "seconds": 7.969
+    },
+    {
+      "name": "cli_probe.py",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\cli_probe.py",
+      "native_exit_code": 0,
+      "script_sha256": "85d7c850ae5222d927ec59e04720bc6039118a0c07def89de1d584132159ba3a",
+      "seconds": 0.5
+    },
+    {
+      "name": "seal.py",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\seal.py",
+      "native_exit_code": 0,
+      "script_sha256": "6080bac50c5f0af74d8138ea50a21214e63b0564c22ba52892640eafa27f5854"
+    },
+    {
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\guard.py --plan C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_root_run_20261012_r01\\resource_plan.json --binding C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\cli_fixture\\binding.json --output-dir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\cli_fixture\\guard --fixture-tree-limit-bytes 1",
+      "native_exit_code": 2,
+      "seconds": 0.5,
+      "root_absent_after": true,
+      "guard_receipt_sha256": "a2a2f6facb6ba769f84776b5ecac9bc228544e7d67c640678aff23d5af833423"
+    }
+  ],
+  "return_code_scope": "review.py中guard_native_exit_code为直接Guard.run函数的CLI等价返回值，非独立guard OS进程码；本receipt统一guard_run_return_code。cli_probe实际guard子程序OS native2另列，审查driver及probe自身OS native0。",
+  "safety_review": {
+    "identity": "root_match与same_identity仍逐字段验证，action前重建当前真实祖先链/exe/cwd/birth/cmdline/ppid；身份未知保留。",
+    "persistence": "PRE_STOP_VERIFIED事件flush/fsync后重复核验才terminate；PRE_KILL_VERIFIED后同理kill。独立STOP_REQUEST事件先后顺序与输出覆盖拒绝再次通过。",
+    "unobserved_members": "root_terminal事件和receipt明确仅已知采样成员，未采到的新生对象未知，不声称整树闭合。",
+    "budget": "原计划6GiB树/512MiB可用RAM/8GiB C盘/1秒不变，1B只为已标记fixture阈值；不能修改S9旧4GiB BLOCKED。"
+  },
+  "resources": {
+    "seconds": 7.969,
+    "os_peak_self_working_set_bytes": 25952256,
+    "peak_scope": "审查Python自身生命周期峰，不是子树或系统峰。",
+    "cleanup": [
+      {
+        "pid": 30024,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 26896,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 31732,
+        "native_exit_code": 15,
+        "status": "OWNED_CLEANUP"
+      },
+      {
+        "pid": 27472,
+        "native_exit_code": 15,
+        "status": "OWNED_CLEANUP"
+      },
+      {
+        "pid": 2796,
+        "native_exit_code": 15,
+        "status": "OWNED_CLEANUP"
+      },
+      {
+        "pid": 29652,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 20136,
+        "native_exit_code": 15,
+        "status": "OWNED_CLEANUP"
+      },
+      {
+        "pid": 14716,
+        "status": "ABSENT"
+      },
+      {
+        "pid": 17604,
+        "status": "ABSENT"
+      }
+    ]
+  },
+  "limitations": [
+    "只运行自有轻量Python夹具，没有真实Vivado或低RAM/低磁盘压力测试。",
+    "helper竞态用真实退出子对象+保存枚举列表作确定性调度；OS未声称实际PID复用。",
+    "未复跑Developer248份历史原件，当前三主输入SHA及计划SHA逐字绑定。",
+    "ROOT首样本/guard PID门禁和长wait每5秒终态消费是待实际执行集成，工具G2不能批准实际运行预算。",
+    "ROOT拟定首样本+native PID确认门禁以及长MCP wait每5秒并行消费guard进程/终态，异常关闭后续派发、owned身份闭合；本轮未执行该集成，工具PASS不批准busy Tcl处置或实际预算保护。",
+    "未触及r01工具/旧CHANGES_REQUIRED或S10产品G2原件，未修改生产/Git/STATE，不操作Vivado/硬件/其他窗口对象。",
+    "使用未来新Run时必须绑定实际source commit和所有允许目录/进度日志；当前1eed产品提交不把旧guard baseline或prepared plan字段伪称已实际运行。"
+  ]
+}

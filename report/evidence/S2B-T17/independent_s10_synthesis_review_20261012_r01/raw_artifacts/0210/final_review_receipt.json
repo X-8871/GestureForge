@@ -1,0 +1,91 @@
+{
+  "status": "PASS",
+  "scope": "S10实际失败证据准确性与可恢复性；不批准STA/资源全覆盖/部署",
+  "source_commit": "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8",
+  "reviewed_manifest_hash": "85f10b671fb6a43fb69cb4a947f2fd2abea5fd00707281d4cc2d1ed7cbaf5abf",
+  "findings": [],
+  "reviewer_stop": "STOP_READONLY_S10_REVIEW_FROZEN",
+  "elapsed_seconds": 5.1560000000026776,
+  "peak_memory_bytes": null,
+  "limitations": [
+    "50MHz/-2综合STA FAIL，WNS−4.405/TNS−1759.757/758端点；实现/postroute/bit/硬件/G3-G5未批准",
+    "r02资源182样本仅窗口；全覆盖BLOCKED，r03重新监测不追填缺测",
+    "启动整批5.015GB与综合前3.680GB分别保存；后者未达到4.5GiB",
+    "r03根缺失只覆盖已知成员，关闭七PID/heavy快照不代表未采对象历史全覆盖",
+    "native/client/capture/OS分列；五job日志成功不补造OS返回0",
+    "六PSinit同T13而HWH不同，不继承runtime/BSP兼容",
+    "未执行仿真/综合/ROSS/Vivado/硬件/进程操作；未修改源/正式原件/Git/STATE",
+    "1000/674绑定读取核SHA，本次raw仅绑定主入口、关键原件与轻量命令，不复制历史包"
+  ],
+  "encoding_notes": [],
+  "checks": 95,
+  "supplemental_checks": [
+    "原14与S7实际冻结SHA逐字一致",
+    "旧r02schema失败原生2和BLOCKED退出码应null错误正文一致，原件保留"
+  ],
+  "review_native": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_synthesis_review_20261012_r01\\review.py"
+    ],
+    "native_exit_code": 0,
+    "elapsed_seconds": 5.25
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.031000000002677552
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s10_platform_20261012_r01\\s10_delivery_manifest_r03.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 1.6869999999980791
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s10_platform_20261012_r01\\s10_delivery_manifest_r03.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "native_exit_code": 2,
+      "elapsed_seconds": 1.5780000000013388
+    }
+  ],
+  "actual_sta_status": "FAIL_TIMING",
+  "resource_full_coverage_status": "BLOCKED",
+  "raw_manifest_sha256": "9567c569501414da8941eb00b1e8ef535f49272d781cd77e83b9a97b4095a0d1",
+  "raw_manifest_lines": 210,
+  "reviewer_seal_initial_failure": {
+    "native_exit_code": 1,
+    "evidence": "seal_initial_failure.json",
+    "scope": "审查辅助脚本路径引用错误，原始综合证据不受影响"
+  }
+}

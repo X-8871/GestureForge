@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "task": "S10-RG1-R2",
+  "status": "PASS_TOOL_SELFTEST_ONLY_PENDING_INDEPENDENT_REVIEW",
+  "developer_stop": "STOP_NO_ACTIVE_GUARD_OR_FIXTURE",
+  "source_commit": "3f24c94564d10103aaa00db07356f666b085f687",
+  "guard_sha256": "be8d51ba18cf331458e1d747578f332c4e5cc4b72604a3fb6d09e15030abb4d4",
+  "guard_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\guard.py",
+  "actual_commands": {
+    "base_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 5.375
+    },
+    "supplement_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\supplement_selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 3.2969999999986612
+    },
+    "target_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\target_selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 7.562000000005355
+    },
+    "final_base_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 5.9689999999973224
+    },
+    "final_supplement_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\supplement_selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 3.297000000005937
+    },
+    "final_target_selftest": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r02\\target_selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 7.436999999998079
+    }
+  },
+  "closed_findings": [
+    {
+      "id": "RG2-1",
+      "fix": "NoSuch后全新候选PID/出生只读读回；确认缺失/复用原对象才记录HELPER_EXIT_CONFIRMED_CONTINUE。缺测样本RSS为null，继续下次采样；活候选父链未知仍BLOCKED。停止路径NoSuch同样读回候选，不假报已退出。",
+      "evidence": "p1_final_race/monitor与p1_final_parent_nosuch/monitor"
+    },
+    {
+      "id": "RG2-2",
+      "fix": "每轮持续保存已核(pid,birth)成员及完整身份；根缺失/复用时只读已知成员。活/未知孤儿retained，ROOT_EXITED_WITH_REMAINING/native3或BLOCKED，不追杀。全部已知缺失也不证明未采新生对象或完整树闭合。",
+      "evidence": "p1_final_orphan/monitor；实际child活且retained/非0，清理由自测另外核身份完成。"
+    }
+  ],
+  "cases": [
+    {
+      "name": "identity_mismatch",
+      "pass": true,
+      "native_exit_code": 3
+    },
+    {
+      "name": "pid_reuse_simulation",
+      "pass": true,
+      "native_exit_code": 3
+    },
+    {
+      "name": "normal_exit",
+      "pass": true,
+      "native_exit_code": 0
+    },
+    {
+      "name": "rss_stop_tree",
+      "pass": true,
+      "native_exit_code": 2
+    },
+    {
+      "name": "external_unknown",
+      "pass": true,
+      "native_exit_code": 3
+    },
+    {
+      "name": "race",
+      "pass": true,
+      "native_exit_code": 2
+    },
+    {
+      "name": "orphan",
+      "pass": true,
+      "native_exit_code": 3
+    },
+    {
+      "name": "parent_nosuch",
+      "pass": true,
+      "native_exit_code": 3
+    }
+  ],
+  "stop_and_output": {
+    "status": "PASS",
+    "guard_native_exit_code": 2,
+    "no_overwrite_native_exit_code": 1,
+    "samples": 3,
+    "objects_after": [
+      null,
+      null
+    ],
+    "elapsed_seconds": 3.1719999999986612,
+    "source_sha256": "be8d51ba18cf331458e1d747578f332c4e5cc4b72604a3fb6d09e15030abb4d4"
+  },
+  "limits": {
+    "interval_seconds": 1,
+    "tree_rss_limit_bytes": 6442450944,
+    "available_ram_stop_bytes": 536870912,
+    "c_disk_free_stop_bytes": 8589934592
+  },
+  "preserved_inputs": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r01\\guard.py",
+      "sha256": "a6135186733a07b3257ad4f6a36d6ee57b8799b70c0d5fbc6c04abfc51035416"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r01\\tool_receipt.json",
+      "sha256": "936fad74fc5f3c0f9184238afef8d1563e6458fa7e9fcce667fda4cded1b4c00"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_resource_guard_20261012_r01\\raw_manifest.jsonl",
+      "sha256": "a1cf069cbce778af949d148173102ec705dacd413723225cb9fdf0a36aa093be"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\final_review_receipt.json",
+      "sha256": "d05272a5785583c020b4faec6f9947eec26abf2fe33de7691d09bb72e0d7066a"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\raw_manifest.jsonl",
+      "sha256": "50eca11439736a669f263cf84b6cfe6ca27ddf6713336f0ead0d5f7f60dd72bc"
+    }
+  ],
+  "old_r01_raw_lines": 191,
+  "raw_manifest_sha256": "b24802ea14b5791dcea4177bfb7b4ca1ea328f5069c6a65422585776634dfadc",
+  "raw_manifest_lines": 248,
+  "usage_gate_NOT_RUN": [
+    "ROOT必须确认守卫native PID身份及首个有效样本后才派发heavy",
+    "MCP长wait期间ROOT每5秒并行读取guard进程与终态，不向同Tcl排入命令；异常终态立即notify并关闭后续派发",
+    "ROOT按实际owned SID/进程读回处置；闭合必须消费guard记录并核所有owned身份无活残留",
+    "此ROOT集成协议由ROOT执行，本工具开发自测未执行或批准集成/真实Vivado准入"
+  ],
+  "limitations": [
+    "1秒离散采样与短命helper峰值缺测；null不伪造零",
+    "根终态只读已知成员，未采到的新生对象未知，不能凭ROOT_EXITED/native0认定整树闭合",
+    "真实根先退出/child仍活已复现并非0；父NoSuch异常出口及旧枚举调度部分mock，实际候选/资源/停止真实",
+    "PID复用用真实PID错误出生值模拟，未声称OS实际复用；OS无跨树原子身份/停止事务",
+    "仅低RSS阈值fixture，不分配GiB或真实压低RAM/C盘；900秒日志观察未等待自测",
+    "守卫异常BLOCKED/STOP_PARTIAL后不持续保护，ROOT必须执行使用前门禁及实时终态消费",
+    "r01首轮native1及两P1/Reviewer CHANGES_REQUIRED原件保持SHA；r02不复制191历史原件",
+    "未改正式源/STATE/Git/证据、旧S9预算；未启动Vivado/ROSS/硬件，不批准功能/STA/部署/109/1000/G3-G5",
+    "子代理不提交；ROOT独审后消费"
+  ],
+  "elapsed_seconds": {
+    "final_base": 5.85899999999674,
+    "final_supplement": 3.1719999999986612,
+    "final_targeted": 7.343000000000757
+  },
+  "peak_memory_bytes": null
+}

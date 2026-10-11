@@ -1,0 +1,16 @@
+{
+  "input": {
+    "cmd": "$ErrorActionPreference='Stop'\n$memory=Get-CimInstance Win32_OperatingSystem\n$disk=Get-CimInstance Win32_LogicalDisk -Filter \"DeviceID='C:'\"\n$heavy=@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(vivado|verilator_bin|Vtb_s2b.*)\\.exe$' } | Select-Object ProcessId,ParentProcessId,Name,CreationDate,ExecutablePath)\n[pscustomobject]@{at=[DateTimeOffset]::Now.ToOffset([TimeSpan]::FromHours(8)).ToString('o');free_ram_bytes=[int64]$memory.FreePhysicalMemory*1024;c_disk_free_bytes=[int64]$disk.FreeSpace;heavy=$heavy} | ConvertTo-Json -Depth 4",
+    "workdir": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+    "sandbox_permissions": "require_escalated",
+    "justification": "在综合启动前只读核验可用内存、磁盘及真实重型进程，遵守单任务资源限制。",
+    "max_output_tokens": 500
+  },
+  "result": {
+    "chunk_id": "edce81",
+    "wall_time_seconds": 0.4821923,
+    "exit_code": 0,
+    "original_token_count": 35,
+    "output": "{\r\n  \"at\": \"2026-10-12T00:44:25.0783206+08:00\",\r\n  \"free_ram_bytes\": 5015552000,\r\n  \"c_disk_free_bytes\": 17440841728,\r\n  \"heavy\": []\r\n}\r\n"
+  }
+}

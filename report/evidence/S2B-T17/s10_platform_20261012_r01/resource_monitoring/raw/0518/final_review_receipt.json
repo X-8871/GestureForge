@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "task_id": "S10-SUP",
+  "decision": "PASS",
+  "reviewer_stop": true,
+  "source_commit": "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8",
+  "supervisor_sha256": "d8c6e2e53b4b3012a139a2ab33969d0c308dc2a42e49976cad205b02ba8b578c",
+  "fixed_guard_sha256": "be8d51ba18cf331458e1d747578f332c4e5cc4b72604a3fb6d09e15030abb4d4",
+  "reviewed_native_receipt_sha256": "df11940812469f2a239ca9ea2dfbbd7f5f08e0c43a393c018ad2a3ae7245f1ed",
+  "reviewed_selftest_result_sha256": "b5fff90c2b324f68ce0001d1a3d67bc2c98efeb364a04e5fd15650cee1af1b9c",
+  "findings": [],
+  "checks": [
+    {
+      "name": "independent_stub_audit",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\review.py",
+      "native_exit_code": 0,
+      "seconds": 6.563,
+      "evidence": "validation.json"
+    },
+    {
+      "name": "seal",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\seal.py",
+      "native_exit_code": 0
+    },
+    {
+      "mode": "valid",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\shim.py C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\valid\\config.json",
+      "native_supervisor_exit_code": 2,
+      "child_native_exit_code": 0,
+      "ready": true,
+      "seconds": 5.469,
+      "receipt_sha256": "a0224fd2ce5adbcd18e937e870dd62ca447a8c3e7e8ec481c937e38234a2f9c1"
+    },
+    {
+      "mode": "mismatch",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\shim.py C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\mismatch\\config.json",
+      "native_supervisor_exit_code": 2,
+      "child_native_exit_code": 7,
+      "ready": false,
+      "seconds": 0.453,
+      "receipt_sha256": "d0ef8fa2e7d54153bf1b9454fc45e122848d01dd0f20474596c87fcd4d919c26"
+    },
+    {
+      "mode": "alert",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\shim.py C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\alert\\config.json",
+      "native_supervisor_exit_code": 2,
+      "child_native_exit_code": 2,
+      "ready": false,
+      "seconds": 0.453,
+      "receipt_sha256": "8b9cfc4e5d692789cb80e6e43f7dc9d608ca16baefa3a9b27ab1711828cf2098"
+    },
+    {
+      "mode": "input_drift",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\shim.py C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_supervisor_review_20261012_r01\\input_drift\\config.json",
+      "native_supervisor_exit_code": 2,
+      "child_native_exit_code": null,
+      "ready": false,
+      "seconds": 0.141,
+      "receipt_sha256": "c50899df96fd55d648e8819fb7f9a4f73837372eee7452e1f1e8ac66655d1d94"
+    }
+  ],
+  "code_review": {
+    "fixed_entry": "main固定r02 guard路径/SHA，不提供生产guard替换参数；拒绝fixture绑定。",
+    "snapshots": "ROOT须独立核对计划/绑定snapshot SHA；main将当前输入SHA组成绑定，supervise47–49启动前逐项复核，独立漂移样例无child、READY false、supervisor native2。没有新增外部批准机制。",
+    "ready": "67–78只读取完整首行/index0，首个根pid/birth/exe/cwd及可选cmdline/ppid匹配，alerts/uncertain为空；READY前再次读guard活身份/出生/exe/cwd/cmdline并确认无终态。",
+    "watch": "60–66默认5秒重新读取自有guard身份并比较；任何退出/终态/身份失效进入终态。有效替身实际5秒跨度产生至少2条LIVE；身份失效路径为源码审读及绑定Developer自测，未声称OS真PID复用。",
+    "native": "guard真实原生0独立保留为child_native_exit_code0；supervisor终态始终native2关闭后续派发，子码7/2及未启动null同样独立保留。原stdout/stderr为二进制文件，中文CRLF原字节已独立验证。",
+    "closure": "ROOT_EXITED只覆盖guard已知成员，不声明整树安全。监督器不终止任何对象，异常guard可能仍活/未知，ROOT须消费终态及owned身份读回。"
+  },
+  "resources": {
+    "seconds": 6.563,
+    "peak_self_working_set_bytes": 22634496,
+    "peak_scope": "OS审查Python自身生命周期峰；非子树/系统峰。"
+  },
+  "limits": [
+    "没有启动真实guard，没有探测/停止PID11112或任何目标PID，替身仅读写本目录。",
+    "实测保持生产5秒身份复核周期，ROOT/MCP消费集成仍未执行。",
+    "READY只按守护当前存活及首样本绑定匹配判断，不将guard正常0或已知成员口径推为整树安全。",
+    "PASS仅supervisor工具代码/替身门禁行为；ROOT首样本门禁与长MCP wait消费/实际资源预算保护尚未执行。",
+    "所有替身均已由真实子退出码确认终态；无真实guard进程、PID11112探测、Vivado/硬件或其它窗口停止操作。",
+    "不修改生产/STATE/Git/被审文件或此前审查原件，无子代理提交。"
+  ]
+}

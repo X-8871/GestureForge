@@ -1,0 +1,76 @@
+{
+  "status": "PASS_TARGETED_REPRODUCTIONS",
+  "cases": [
+    {
+      "name": "real_helper_exits_after_enumeration",
+      "guard_native_exit_code": 3,
+      "guard_status": "BLOCKED",
+      "heavy_root_still_alive": true,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\fixture.py race C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\attempt_r02\\race\\pid.json",
+      "evidence": "race/guard/guard_receipt.json",
+      "determinism": "注入真实旧枚举列表；子对象已自然退出，其余身份/预算/guard run不模拟。"
+    },
+    {
+      "name": "wrong_birth_and_cwd_rejected",
+      "root_untouched": true,
+      "status": "PASS"
+    },
+    {
+      "name": "normal_root_exit_child_remains",
+      "guard_native_exit_code": 0,
+      "guard_status": "ROOT_EXITED",
+      "owned_child_still_alive": true,
+      "retained_count": 0,
+      "samples": 3,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\fixture.py orphan C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\attempt_r02\\orphan\\pid.json",
+      "evidence": "orphan/guard/guard_receipt.json"
+    },
+    {
+      "name": "stop_request_and_no_overwrite",
+      "guard_native_exit_code": 2,
+      "event_order": [
+        "START",
+        "ROOT_BOUND",
+        "ALERT",
+        "PRE_STOP_VERIFIED",
+        "TERMINATE_SENT",
+        "POST_STOP_READBACK",
+        "STOP_TREE_RESULT",
+        "GUARD_TERMINAL"
+      ],
+      "overwrite": "REJECTED",
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\fixture.py leaf C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r01\\attempt_r02\\stop_request\\pid.json"
+    }
+  ],
+  "seconds": 4.687,
+  "peak_self_working_set_bytes": 25186304,
+  "limitations": [
+    "只运行自有轻量Python夹具，没有真实Vivado或低RAM/低磁盘压力测试。",
+    "helper竞态用真实退出子对象+保存枚举列表作确定性调度；OS未声称实际PID复用。",
+    "未复跑Developer191份历史原件，当前三主输入SHA及计划SHA逐字绑定。"
+  ],
+  "cleanup": [
+    {
+      "pid": 24640,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 36208,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    },
+    {
+      "pid": 18908,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 28624,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 8680,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    }
+  ]
+}

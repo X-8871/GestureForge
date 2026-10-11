@@ -1,0 +1,106 @@
+{
+  "status": "PASS_TARGETED_REPRODUCTIONS",
+  "cases": [
+    {
+      "name": "helper_exit_continue_then_real_limit_stop",
+      "guard_native_exit_code": 2,
+      "guard_status": "STOPPED",
+      "samples": 3,
+      "fixture_tree_threshold_last_bytes": 1,
+      "measured_rss_last_bytes": 14540800,
+      "root_after_stop_alive": false,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py race C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\race\\pid.json",
+      "evidence": "race/guard/guard_receipt.json",
+      "determinism": "首次注入真实已退出枚举列表，随后使用真实树；第三次fixture阈值1B比较真实RSS。"
+    },
+    {
+      "name": "wrong_birth_and_cwd_rejected",
+      "root_untouched": true,
+      "status": "PASS"
+    },
+    {
+      "name": "normal_root_exit_child_remains",
+      "guard_native_exit_code": 3,
+      "guard_status": "ROOT_EXITED_WITH_REMAINING",
+      "owned_child_still_alive": true,
+      "retained_count": 1,
+      "samples": 3,
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py orphan C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\orphan\\pid.json",
+      "evidence": "orphan/guard/guard_receipt.json"
+    },
+    {
+      "name": "real_parent_missing_candidate_alive",
+      "candidate_still_alive": true,
+      "stop_status": "BLOCKED",
+      "collect_classification": "CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN",
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py ancestor C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\ancestor\\pid.json",
+      "scope": "祖先真实自然退出，候选真实存活；仅以已采到候选列表确定性重现枚举竞态。"
+    },
+    {
+      "name": "stop_request_and_no_overwrite",
+      "guard_native_exit_code": 2,
+      "event_order": [
+        "START",
+        "ROOT_BOUND",
+        "ALERT",
+        "PRE_STOP_VERIFIED",
+        "TERMINATE_SENT",
+        "POST_STOP_READBACK",
+        "STOP_TREE_RESULT",
+        "GUARD_TERMINAL"
+      ],
+      "overwrite": "REJECTED",
+      "fixture_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\fixture.py leaf C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s10_resource_guard_review_20261012_r02\\attempt_r01\\stop_request\\pid.json"
+    }
+  ],
+  "seconds": 7.969,
+  "peak_self_working_set_bytes": 25952256,
+  "limitations": [
+    "只运行自有轻量Python夹具，没有真实Vivado或低RAM/低磁盘压力测试。",
+    "helper竞态用真实退出子对象+保存枚举列表作确定性调度；OS未声称实际PID复用。",
+    "未复跑Developer248份历史原件，当前三主输入SHA及计划SHA逐字绑定。",
+    "ROOT首样本/guard PID门禁和长wait每5秒终态消费是待实际执行集成，工具G2不能批准实际运行预算。"
+  ],
+  "cleanup": [
+    {
+      "pid": 30024,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 26896,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 31732,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    },
+    {
+      "pid": 27472,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    },
+    {
+      "pid": 2796,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    },
+    {
+      "pid": 29652,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 20136,
+      "native_exit_code": 15,
+      "status": "OWNED_CLEANUP"
+    },
+    {
+      "pid": 14716,
+      "status": "ABSENT"
+    },
+    {
+      "pid": 17604,
+      "status": "ABSENT"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "status": "PASS",
+  "scope": "S10 collector r02增量：首次setup失败原件/十history/新旧工具与source_before绑定/原生包装和缺gate拒绝",
+  "source_commit": "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8",
+  "checks": [
+    {
+      "name": "固定输入SHA：collector.py",
+      "status": "PASS",
+      "evidence": "212c435081d15347d0353351f9bd893e85869173e8c5ce338ab8492ed1ce4e32"
+    },
+    {
+      "name": "固定输入SHA：native.py",
+      "status": "PASS",
+      "evidence": "ca5f2b0a2b670d0ac73068480d8f7dd1f50921172ceaa44f3773dad627b1c2fd"
+    },
+    {
+      "name": "固定输入SHA：prepared_receipt.json",
+      "status": "PASS",
+      "evidence": "7449541264cc74262a471c13b35f63af8dd5dbc42d74120960586c4508483a0a"
+    },
+    {
+      "name": "原生wrapper字节未变且只调用r02collector",
+      "status": "PASS",
+      "evidence": "r01 source包装保持，未来r02 collector由WORK限定"
+    },
+    {
+      "name": "差异仅准备/关闭标签/收集失败保留",
+      "status": "PASS",
+      "evidence": {
+        "changed": [
+          "prepare",
+          "closed_gate",
+          "collect"
+        ],
+        "added": [
+          "check_failed_setup",
+          "failed_setup_expected"
+        ]
+      }
+    },
+    {
+      "name": "准备绑定旧r01/新r02/十标签",
+      "status": "PASS",
+      "evidence": "43/33/18/8，准备不自报source/collect已执行"
+    },
+    {
+      "name": "真实source_before基线/profile/闭包",
+      "status": "PASS",
+      "evidence": "仅声明依赖，不读43源码或当前综合"
+    },
+    {
+      "name": "真实before/prepare包装0分列",
+      "status": "PASS",
+      "evidence": "旧source_before实际0；新prepare实际0，不冒充当前collect0"
+    },
+    {
+      "name": "首次setup失败1与成功0分列",
+      "status": "PASS",
+      "evidence": "错20261011路径原件完整，成功使用20261012；未执行任何MCP"
+    },
+    {
+      "name": "合成十history失败行/客户端超时不混码",
+      "status": "PASS",
+      "evidence": "数据全部合成，仅setup_failed字段复用实际关闭原件"
+    },
+    {
+      "name": "失败code/command/output改写均拒绝",
+      "status": "PASS",
+      "evidence": [
+        {
+          "field": "code",
+          "reason": "首次setup history与实际原件不同"
+        },
+        {
+          "field": "command",
+          "reason": "首次setup history与实际原件不同"
+        },
+        {
+          "field": "output",
+          "reason": "首次setup history与实际原件不同"
+        }
+      ]
+    },
+    {
+      "name": "丢失败行history数量拒绝",
+      "status": "PASS",
+      "evidence": "9不能充作10"
+    },
+    {
+      "name": "独立缺gate原生1且未进collect",
+      "status": "PASS",
+      "evidence": "仅main参数拒绝，未执行实际collect"
+    },
+    {
+      "name": "OS/capture/native分列仍保留",
+      "status": "PASS",
+      "evidence": "OS未捕获null；products native/capture及client/nativewait分别绑定"
+    }
+  ],
+  "findings": [],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s10_collection_20261012_r02\\collector.py",
+        "collect",
+        "--commit",
+        "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8"
+      ],
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.10899999999674037
+    }
+  ],
+  "reviewer_stop": "STOP_READONLY_COLLECTOR_REVIEW",
+  "elapsed_seconds": 0.3280000000013388,
+  "peak_memory_bytes": null,
+  "limitations": [
+    "合成history不是S10实际综合结果；仅首次失败原件和已关闭setup返回读取",
+    "未执行prepare/collect函数/source/seal、STA、ROSS、Vivado、硬件或owned进程查询/停止",
+    "正式S10输入闭合及输出收集仍由ROOT在关闭后执行；此PASS不批准实际证据包、STA或部署",
+    "未重复读全43源码或191历史文件；当前重型任务未触碰"
+  ]
+}

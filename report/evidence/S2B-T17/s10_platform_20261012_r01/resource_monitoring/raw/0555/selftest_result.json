@@ -1,0 +1,76 @@
+{
+  "status": "PASS_FIXTURE_ONLY",
+  "cases": [
+    {
+      "case": "valid",
+      "fixture": true,
+      "native_child_code": 0,
+      "supervisor_code": 2,
+      "ready": true,
+      "receipt_sha256": "2ee59f7d8d8e228c86181444e597d7f84002cde6857a45cc08e525ba3e1592f3"
+    },
+    {
+      "case": "missing",
+      "fixture": true,
+      "native_child_code": 7,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "f17bcc3aa6bc1b2fa860bf1bf221f600183a71d1e7460f97dc946a097d95d8ee"
+    },
+    {
+      "case": "mismatch",
+      "fixture": true,
+      "native_child_code": 9,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "bc00fbb7f6ab9511651ce7d70e2791a46b8ca0d905ae005a86e04d9e6b812064"
+    },
+    {
+      "case": "alert",
+      "fixture": true,
+      "native_child_code": 2,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "95fb3359f3d356429924089f85d151e61bc9fcb9557924efb68dba7559fb754e"
+    },
+    {
+      "case": "invalid",
+      "fixture": true,
+      "native_child_code": 11,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "c41b4ffd66d4a6e6219cbe4dac5d952cdc1bb620761e67a5d9694375e0ced379"
+    },
+    {
+      "case": "empty",
+      "fixture": true,
+      "native_child_code": 4,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "f46acfab4846d02f1a7506971bbd5863dd9842187993e9dac59bf8a74f8c2a4a"
+    },
+    {
+      "case": "identity_loss",
+      "fixture": true,
+      "native_child_code": 6,
+      "supervisor_code": 2,
+      "ready": false,
+      "receipt_sha256": "08bc55038ac04b7da66a86a518b576e074b15e6fd8ed9c1df09cd9249ba81fd3"
+    },
+    {
+      "case": "bad_terminal",
+      "fixture": true,
+      "native_child_code": 8,
+      "supervisor_code": 2,
+      "ready": true,
+      "receipt_sha256": "64330aacd35783ea8ab02371aa33531701ff19fb6fa8c727078ad3dd61cb9dac"
+    }
+  ],
+  "production_guard_executed": false,
+  "real_target_sampled_or_stopped": false,
+  "limitations": [
+    "身份漂移是导入函数注入，不代表真实PID复用实验。",
+    "正常guard0使supervisor2，仅终态阻止派发，不把子码改成2。",
+    "ROOT/MCP每5秒消费集成未执行。"
+  ]
+}

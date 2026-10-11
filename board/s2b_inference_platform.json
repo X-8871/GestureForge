@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.5",
+  "version": "s2b-inference-platform/0.1.6",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -84,7 +84,7 @@
   "source_derivation": {
     "policy": "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0",
     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
-    "derivation_baseline_commit": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+    "derivation_baseline_commit": "5cb092dcce3631f310e67228738a674a6a82ce41",
     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
     "upstream_sources": [
       {
@@ -298,7 +298,7 @@
       {
         "source": "src/s2a_conv_tile_engine.sv",
         "path": "src/s2b_conv_tile_engine.sv",
-        "sha256": "4963d03654a5b10dc512df3edeec30daeaed0fa308ff8bc0183e199704311d0c",
+        "sha256": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
         "replacements": [
           [
             "module s2a_conv_tile_engine (",
@@ -323,6 +323,30 @@
           [
             "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
             "                     full_tile_patch_bad) begin"
+          ],
+          [
+            "    logic [127:0] reduction_count_wide;\n",
+            "    logic [127:0] reduction_count_wide;\n    logic [63:0] input_element_plane;\n    logic [63:0] output_element_plane;\n    logic [63:0] input_element_product;\n    logic [63:0] output_element_product;\n    logic [25:0] reduction_plane_narrow;\n    logic [25:0] reduction_count_narrow;\n    logic [44:0] expected_weight_bytes_narrow;\n    logic reduction_count_bad;\n"
+          ],
+          [
+            "        input_elements_wide = {96'd0, input_channels_latched} *\n                              {96'd0, input_height_latched} *\n                              {96'd0, input_width_latched};\n        output_elements_wide = {96'd0, output_channels_latched} *\n                               {96'd0, output_height_latched} *\n                               {96'd0, output_width_latched};\n        expected_weight_bytes_wide = {96'd0, output_channels_latched} *\n                                     {96'd0, input_channels_latched} *\n                                     {96'd0, kernel_height_latched} *\n                                     {96'd0, kernel_width_latched};\n        reduction_count_wide = {96'd0, input_channels_latched} *\n                               {96'd0, kernel_height_latched} *\n                               {96'd0, kernel_width_latched};\n",
+            "        // 首分支已逐因子拒绝零；长度分支只消费正数乘积。\n        // 前两因子精确64位，高32位非零必超UINT32；否则再精确乘第三因子。\n        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};\n        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};\n        input_element_product = {32'd0, input_element_plane[31:0]} * {32'd0, input_width_latched};\n        output_element_product = {32'd0, output_element_plane[31:0]} * {32'd0, output_width_latched};\n        input_elements_wide = {64'd0, input_element_product};\n        output_elements_wide = {64'd0, output_element_product};\n\n        // 正C/KH/KW的R<=4608蕴含每个因子及C*KH均<=4608；低位截断另有拒绝保护。\n        reduction_plane_narrow = {13'd0, input_channels_latched[12:0]} *\n                                 {13'd0, kernel_height_latched[12:0]};\n        reduction_count_narrow = {13'd0, reduction_plane_narrow[12:0]} *\n                                 {13'd0, kernel_width_latched[12:0]};\n        reduction_count_bad = (input_channels_latched > 32'd4608) ||\n            (kernel_height_latched > 32'd4608) || (kernel_width_latched > 32'd4608) ||\n            (reduction_plane_narrow > 26'd4608) || (reduction_count_narrow > 26'd4608);\n        reduction_count_wide = {102'd0, reduction_count_narrow};\n        // 长度分支已保证R<=4608，故OC32*R13的45位结果精确；不提前消费MQ限制。\n        expected_weight_bytes_narrow = {13'd0, output_channels_latched} *\n                                       {32'd0, reduction_count_narrow[12:0]};\n        expected_weight_bytes_wide = {83'd0, expected_weight_bytes_narrow};\n"
+          ],
+          [
+            "            (reduction_count_wide == 128'd0) ||\n            (reduction_count_wide > 128'd4608) ||\n",
+            "            reduction_count_bad ||\n"
+          ],
+          [
+            "        end else if ((input_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "        end else if ((input_element_plane[63:32] != 32'd0) ||\n                     (input_element_product[63:32] != 32'd0) ||\n"
+          ],
+          [
+            "                     (output_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "                     (output_element_plane[63:32] != 32'd0) ||\n                     (output_element_product[63:32] != 32'd0) ||\n"
+          ],
+          [
+            "                     (expected_weight_bytes_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "                     (expected_weight_bytes_narrow[44:32] != 13'd0) ||\n"
           ]
         ]
       }

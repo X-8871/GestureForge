@@ -1,0 +1,319 @@
+{
+  "status": "PASS_G2_ONLY",
+  "reviewed_manifest_sha256": "748cd7d42bf8d3b641aa5d7b606b203ec008b3683c8b5f390185545c423d5bfb",
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r08\\delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 1.016,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/r08_evidence.log",
+      "sha256": "b8e3788c110a800c7339cebd6853705aee95988b026b950795e2cf982a67102a"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r08\\delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 2,
+      "expected_native_exit_code": 2,
+      "elapsed_seconds": 1.046,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/r08_inputs.log",
+      "sha256": "0e34502319d1d702b79a0872dc23aef7e90f07dadd612be3842b82cbdd85f891"
+    }
+  ],
+  "reviewed_source_commit": "d5ad0e0ad13cc12e870d72434c2eb43b74e44330",
+  "source_sha256": {
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "board/s2b_inference_platform.json": "7e917378851febd4cf6c100fb56a3dd04b2dc21bbe427666b142ab6e25eaa4f3",
+    "board/s2b_inference_platform.md": "865a75fb953ebccae35a6be3e109fe9d8e4ecc737ff9c45fcac30d63f1606374",
+    "vivado/s2b_inference_platform.tcl": "bacd489f904a3f74bc35fb08f8edc540cc0507f4bddb4593a000da364dbd4629",
+    "verification/check_s2b_inference_platform.py": "2a1aab62be5114dd96dd9ffdb2b1137fc7da66fbb5230ea4a8fe0354f12bc651",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "9549de87642fdad5c642a886de848f0ac4ce823cc2c4d79ff1739da0161942e0",
+    "verification/test_s2b_geometry_specialization_rtl.py": "6ee3ac879ba8c97c3a0fad0097852c18ec617cd29b93a1b3ac9769f84b0b72a9",
+    "verification/test_s2b_route_specialization_rtl.py": "566bd1d8b9d1cadcc08d234bec4a59fed45a8db27850a35b8e28046ca6ce2dd0"
+  },
+  "g1_bindings": 564,
+  "source_freeze_sha256": "37ed95bb84166a406589ebcba4a23c262e6d390dd1551c446988bcd222ea832b",
+  "observed_root_head": "034e8b41a6a8caa21ed194920e7959bfc5fc4cff",
+  "closed_finding": {
+    "priority": "P2",
+    "status": "CLOSED",
+    "binding": "report/evidence/S2B-T17/length_guard_20261011_r08/r01_native_exit_correction.json",
+    "sha256": "6f8939908dff0107b2bbacb1a9520a332b9245b1fd795c772269c6c893931eef",
+    "basis": "r01失败事实、宿主1、未捕获native/null与源码推导2分别记录；r03/r04原生capture准确归属；旧r07原件保留。"
+  },
+  "independent_static_negatives": [
+    {
+      "case": "zero_factor_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "e64e19cd8036fa21127ad15dee257c9f483a24361a92965b4b86985057c3018d",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "input_plane_high_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "7293d3702074a4b99db8e908a80e1cd632e45837e53fbd9b68d6b09c75ad326a",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "output_plane_high_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "4d535bfbd937115d40eb157ebbf9130924d86dc177e306ebb5d1a2089e233b98",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "reduction_factor_truncated",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "c528324e86ebe7e7905e008de288c43a6b102e3217c90560d6f38cb67df7ed93",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "reduction_plane_threshold_changed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "827bc454249b6058dd95c9b7f78e558906203570c890d84bf44867f717665575",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "weight_high_bits_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "2ee64d701e6983af72f905343d98c267de4d1236dc53a4041ff61da8833263a3",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "state_gate_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "2df8f23de10f4dd1b33b96faa600aad8535386fda0f65b5b7fa78c97a77c2252",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "generic_kernel_frozen",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "fbdb3215c1f24a499b5fcf4194c675fcd6e285804973ed084a06f5a2d3eff406",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "extra_owner_condition",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "734040533b0f11124061bb8b1e0bd8b5bccdeba5cae60168c4e6ea661abd8e07",
+      "self_reported_sha_updated": true
+    }
+  ],
+  "nonconv_binding": [
+    {
+      "run_id": "patch_guard_20261011_r04",
+      "status": "PASS_GEOMETRY_SPECIALIZATION_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_maxpool_geometry.sv",
+          "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_maxpool_window.sv",
+          "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_upsample_query.sv",
+          "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2a_maxpool_engine.sv",
+          "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2a_upsample_engine.sv",
+          "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2b_maxpool_engine.sv",
+          "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2b_upsample_engine.sv",
+          "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "role": "unchanged_real_nonconv_source"
+        }
+      ],
+      "simulation_sha256": "68b86ee14dfd65abe9b27cc22e42f22db547957a3995cb3d9fdecc6c1676b7de",
+      "coverage": {
+        "pool": 19645,
+        "upsample": 3456,
+        "cycles": 590601,
+        "pool_abort": 127,
+        "upsample_abort": 63
+      },
+      "trace_lines": [],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    },
+    {
+      "run_id": "patch_guard_20261011_r05",
+      "status": "PASS_ROUTE_SPECIALIZATION_DIRECT_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\int8_route_query.sv",
+          "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2b_route_query.sv",
+          "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2a_route_engine.sv",
+          "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2b_route_engine.sv",
+          "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+          "role": "unchanged_real_nonconv_source"
+        }
+      ],
+      "simulation_sha256": "994de8efba005895c11a27d3c9fb3189fb43b493adfb4fdeeb48394b74d50209",
+      "coverage": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "trace_lines": [],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    },
+    {
+      "run_id": "patch_guard_20261011_r06",
+      "status": "PASS_BACKEND_COORDINATES_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2a_network_descriptor_pkg.sv",
+          "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_maxpool_geometry.sv",
+          "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_maxpool_window.sv",
+          "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_route_query.sv",
+          "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_upsample_query.sv",
+          "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_maxpool_engine.sv",
+          "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2a_route_engine.sv",
+          "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_upsample_engine.sv",
+          "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_network_backend.sv",
+          "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_route_query.sv",
+          "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_route_engine.sv",
+          "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2_network_backend.sv",
+          "sha256": "6aefa2472a7dc6b142ab2cc8bece7319181b2724c48407db7f0a25812561e82a",
+          "role": "original_S2_control_baseline"
+        }
+      ],
+      "simulation_sha256": "aeddaf6d655b9ece61a4e39d742f8580f1bfe80756d576ab790805c5088a2c18",
+      "coverage": {
+        "boundary_cases": 4980736,
+        "nonconv_layers": 15,
+        "nonconv_outputs": 5234944,
+        "nonconv_requests": 12286976,
+        "cycles": 102468267,
+        "owner_drop_results": 120942
+      },
+      "trace_lines": [
+        "TRACE layer=3 op=2 outputs=346112 requests=692224 cycles=2855426 digest=d3d57ec25e170da5",
+        "TRACE layer=6 op=2 outputs=692224 requests=1384448 cycles=5710850 digest=112f62561ab82c41",
+        "TRACE layer=8 op=2 outputs=1384448 requests=2768896 cycles=11421697 digest=f452e06606323ce5",
+        "TRACE layer=9 op=1 outputs=346112 requests=1730560 cycles=4698286 digest=e5904ee4e7398477",
+        "TRACE layer=11 op=2 outputs=173056 requests=346112 cycles=1427714 digest=81893e9b94f4436c",
+        "TRACE layer=14 op=2 outputs=346112 requests=692224 cycles=2855426 digest=27bed66ef35fbac1",
+        "TRACE layer=16 op=2 outputs=692224 requests=1384448 cycles=5710850 digest=e49c73ad7e8f678d",
+        "TRACE layer=17 op=1 outputs=173056 requests=865280 cycles=2349142 digest=f6cabd25f7a01249",
+        "TRACE layer=19 op=2 outputs=86528 requests=173056 cycles=713855 digest=d0903d8b46f446c5",
+        "TRACE layer=22 op=2 outputs=173056 requests=346112 cycles=1427711 digest=dcb213c5e1bd7136",
+        "TRACE layer=24 op=2 outputs=346112 requests=692224 cycles=2855426 digest=baf69909dc7ceaac",
+        "TRACE layer=25 op=1 outputs=86528 requests=432640 cycles=1174573 digest=7840f56f8c4e36db",
+        "TRACE layer=31 op=2 outputs=43264 requests=86528 cycles=356927 digest=18827f2c3a3d5de5",
+        "TRACE layer=33 op=3 outputs=86528 requests=173056 cycles=552049 digest=8b99f67a9428a2d0",
+        "TRACE layer=34 op=2 outputs=259584 requests=519168 cycles=2141568 digest=81cf63227948b0be"
+      ],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    }
+  ],
+  "lint_warning_audit": {
+    "status": "PASS",
+    "new_numeric_warning_messages": [],
+    "note": "候选数值宽度警告均在旧2A存在；新增三个128位名字的高位UNUSEDSIGNAL源于兼容原时序块，非未赋值或锁存。"
+  },
+  "elapsed_seconds": 4.0,
+  "peak_self_working_set_bytes": 91127808,
+  "limitations": [
+    "数学和RTL保持审查范围；源码哈希绑定r08；无综合/STA/板卡动作。",
+    "S5几何/ROUTE/nonconv与完整非零layer0只绑定未复跑；109整网及1000次实物未执行。",
+    "原生子进程捕获2不覆盖r01未捕获/null；本Reviewer初次EOL断言FAIL另保留。"
+  ]
+}

@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.5"
+PROFILE_VERSION = "s2b-inference-platform/0.1.6"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -120,6 +120,35 @@ PATCH_GUARD_REPLACEMENTS = [
 ]
 DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(PATCH_GUARD_REPLACEMENTS)
 
+# 正因子和首分支保护长度化简；精确替换仍禁止时序块、接口及错误优先漂移。
+LENGTH_GUARD_REPLACEMENTS = [
+    [
+        "    logic [127:0] reduction_count_wide;\n",
+        "    logic [127:0] reduction_count_wide;\n    logic [63:0] input_element_plane;\n    logic [63:0] output_element_plane;\n    logic [63:0] input_element_product;\n    logic [63:0] output_element_product;\n    logic [25:0] reduction_plane_narrow;\n    logic [25:0] reduction_count_narrow;\n    logic [44:0] expected_weight_bytes_narrow;\n    logic reduction_count_bad;\n"
+    ],
+    [
+        "        input_elements_wide = {96'd0, input_channels_latched} *\n                              {96'd0, input_height_latched} *\n                              {96'd0, input_width_latched};\n        output_elements_wide = {96'd0, output_channels_latched} *\n                               {96'd0, output_height_latched} *\n                               {96'd0, output_width_latched};\n        expected_weight_bytes_wide = {96'd0, output_channels_latched} *\n                                     {96'd0, input_channels_latched} *\n                                     {96'd0, kernel_height_latched} *\n                                     {96'd0, kernel_width_latched};\n        reduction_count_wide = {96'd0, input_channels_latched} *\n                               {96'd0, kernel_height_latched} *\n                               {96'd0, kernel_width_latched};\n",
+        "        // 首分支已逐因子拒绝零；长度分支只消费正数乘积。\n        // 前两因子精确64位，高32位非零必超UINT32；否则再精确乘第三因子。\n        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};\n        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};\n        input_element_product = {32'd0, input_element_plane[31:0]} * {32'd0, input_width_latched};\n        output_element_product = {32'd0, output_element_plane[31:0]} * {32'd0, output_width_latched};\n        input_elements_wide = {64'd0, input_element_product};\n        output_elements_wide = {64'd0, output_element_product};\n\n        // 正C/KH/KW的R<=4608蕴含每个因子及C*KH均<=4608；低位截断另有拒绝保护。\n        reduction_plane_narrow = {13'd0, input_channels_latched[12:0]} *\n                                 {13'd0, kernel_height_latched[12:0]};\n        reduction_count_narrow = {13'd0, reduction_plane_narrow[12:0]} *\n                                 {13'd0, kernel_width_latched[12:0]};\n        reduction_count_bad = (input_channels_latched > 32'd4608) ||\n            (kernel_height_latched > 32'd4608) || (kernel_width_latched > 32'd4608) ||\n            (reduction_plane_narrow > 26'd4608) || (reduction_count_narrow > 26'd4608);\n        reduction_count_wide = {102'd0, reduction_count_narrow};\n        // 长度分支已保证R<=4608，故OC32*R13的45位结果精确；不提前消费MQ限制。\n        expected_weight_bytes_narrow = {13'd0, output_channels_latched} *\n                                       {32'd0, reduction_count_narrow[12:0]};\n        expected_weight_bytes_wide = {83'd0, expected_weight_bytes_narrow};\n"
+    ],
+    [
+        "            (reduction_count_wide == 128'd0) ||\n            (reduction_count_wide > 128'd4608) ||\n",
+        "            reduction_count_bad ||\n"
+    ],
+    [
+        "        end else if ((input_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+        "        end else if ((input_element_plane[63:32] != 32'd0) ||\n                     (input_element_product[63:32] != 32'd0) ||\n"
+    ],
+    [
+        "                     (output_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+        "                     (output_element_plane[63:32] != 32'd0) ||\n                     (output_element_product[63:32] != 32'd0) ||\n"
+    ],
+    [
+        "                     (expected_weight_bytes_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+        "                     (expected_weight_bytes_narrow[44:32] != 13'd0) ||\n"
+    ]
+]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(LENGTH_GUARD_REPLACEMENTS)
+
 
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
@@ -179,7 +208,7 @@ def check_derivation(root: Path, profile: dict) -> None:
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
     require(item["policy"] == "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+        item["derivation_baseline_commit"] == "5cb092dcce3631f310e67228738a674a6a82ce41",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -228,7 +257,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.5" in script, "Tcl平台版本不符")
+    require("variable version 0.1.6" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

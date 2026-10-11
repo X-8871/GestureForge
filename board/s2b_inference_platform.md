@@ -1,12 +1,12 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.5`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.6`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：7 个原冻结 2A 模块、7 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为包含已审S4源码的 `f96d3e225fd6d92fd33c0407e20c9585c997c870`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：7 个原冻结 2A 模块、7 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为包含已审S4源码的 `5cb092dcce3631f310e67228738a674a6a82ce41`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
@@ -34,7 +34,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接 
 
 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
 
-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.5`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的7个原上游源，共25个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.6`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的7个原上游源，共25个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
 
 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
 
@@ -66,4 +66,12 @@ S5 保留S4的两个batch乘子删除，并将patch容量比较替换为同周�
 
 每轴D=min(O,8)-1属于0至7。用19位精确计算D×stride低16位+kernel低13位；D非零且stride高16位非零、结果高3位非零或低16位超过51200时标记轴越界。D为0时任意UINT32非零stride均不影响patch，不额外拒绝。轴未越界时，32位P=H低16位×W低16位精确；P高16位非零必越界。否则29位Q=P低16位×C低13位精确，Q超过51200必越界。所有中间值均显式扩展宽度；每个截断都保留独立溢出拒绝条件。在前置条件成立时，该判据与原128位H×W×C>51200严格等价，覆盖通用公开CONV参数域。
 
-原权重组容量判据min(OC,8)×R>36864由R≤4608蕴含永远为假，因此只删除该乘积和判据。输入、输出及权重长度、地址端点、MQ容量、shape、错误优先、全部状态与请求、owner、abort/reset和结果保持原逻辑；不增加寄存器、状态、周期或时序例外。0.1.5须重新完成独立G2及综合/STA，旧版本通过记录不能继承。
+原权重组容量判据min(OC,8)×R>36864由R≤4608蕴含永远为假，因此只删除该乘积和判据。输入、输出及权重长度、地址端点、MQ容量、shape、错误优先、全部状态与请求、owner、abort/reset和结果保持原逻辑；不增加寄存器、状态、周期或时序例外。0.1.6须重新完成独立G2及综合/STA，旧版本通过记录不能继承。
+
+## CONV reduction与长度校验派生
+
+S6依据S5已提交基线`5cb092dcce3631f310e67228738a674a6a82ce41`的真实50MHz综合失败路径，化简首分支R=C×KH×KW及其后的三个长度乘积。首分支仍逐项拒绝所有零因子；layer越界或weight_layer不一致仍把本分支错误覆盖为BAD_RANGE，其他首分支错误仍为BAD_ARGUMENT。对正C、KH、KW，R≤4608等价于各因子≤4608、C×KH≤4608且(C×KH)×KW≤4608。先用13×13的26位精确乘积P，再用P低13位与KW低13位的26位精确乘积Q；任一原32位因子>4608、P>4608或Q>4608均拒绝。P已越界时Q的截断结果不参与成功路径，因此不存在低位别名放行。R锁存仍只在原ST_VALIDATE成功分支赋值，此时Q=原R；保留原变量名及128位零扩展，使两个always_ff全文保持不变。
+
+在首分支通过后，输入/输出长度各有三个正UINT32因子A、B、C。P=A×B用64位精确计算；P高32位非零时P×C必超过UINT32。P≤UINT32时，Q=P低32位×C用64位精确计算；Q高32位非零等价于最终长度超UINT32，否则Q低32位即原长度。长度分支同时检查P和Q高位及原低32位长度一致性。成功路径的output_elements_wide仍是原完整值，后续OUTPUT_SCAN消费它时保持等价；非法描述符不会进入该状态。所有零因子已由更早首分支拒绝，不能将本证明套用到零因子而改变错误优先。
+
+权重长度只在R≤4608后消费，因此OC32×R13只需45位精确结果；高13位非零等价于原权重乘积>UINT32，低32位保持原长度判断。未将MQ的OC限制提前，故长度错误仍优先于地址、MQ及patch范围错误。地址端点、shape交叉乘法、S5 patch判据、请求和结果接口、全部时序状态、owner、abort/reset与周期均未改动；不增加时序例外。0.1.6需新的独立G2与综合/STA，S5失败或旧通过均不能继承为本轮时序通过。

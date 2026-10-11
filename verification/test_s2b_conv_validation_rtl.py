@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""核对CONV前置约束下的patch范围派生及双完整模块逐周期公开行为。"""
+"""核对CONV长度和容量位宽派生及双完整模块逐周期公开行为。"""
 from __future__ import annotations
 import argparse
 import copy
+import itertools
 import hashlib
 import json
 import math
@@ -22,7 +23,7 @@ import numpy as np
 import test_s2b_backend_coordinates_rtl as support
 
 ROOT=Path(__file__).resolve().parents[1]
-BASELINE="71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+BASELINE="5cb092dcce3631f310e67228738a674a6a82ce41"
 RUNNER="verification/test_s2b_conv_validation_rtl.py"
 RTL=("src/s2a_network_descriptor_pkg.sv","src/s2a_conv_tile_engine.sv","src/s2b_conv_tile_engine.sv")
 FIXTURE=Path("D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture")
@@ -80,6 +81,57 @@ def cpu_layer0(model,evidence,checker):
       "bytes":len(actual),"mismatches":mismatches,"sha256":hashlib.sha256(actual).hexdigest(),"int32_absolute_bounds":bounds.tolist(),"numpy_version":np.__version__,
       "bindings":[{"path":str(p),"sha256":support.sha(p)} for p in (shard,gf8,ROOT/"verification/s1_t02_d2_int8_forward.py")],"restored_network_bytes":len(raw),"scope":"仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"}
 SKIP={"clk","hard_reset","abort","buffer_owner_pl","start_valid","backend_req_ready","backend_rsp_valid","backend_rsp_rdata","backend_rsp_error","result_ready"}
+
+def length_proof(text,math_report,checker):
+    """独立数学判据和精确源结构核验；无限精度黄金不采用RTL截断结果。"""
+    seed=0x2B171160;rng=random.Random(seed);u=(1<<32)-1
+    edge=(0,1,2,3,4608,4609,8191,8192,8193,65535,65536,65537,0x7fffffff,0x80000000,0xfffffffe,u)
+    triples=list(itertools.product(edge,repeat=3))+[tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(20000)]
+    triples += [tuple(rng.randrange(1,4609) for _ in range(3)) for _ in range(20000)]
+    triples += [(value,1,1) for value in range(1,4610)]
+    for _ in range(10000):
+        b=rng.randrange(1,65);c=rng.randrange(1,65);a=rng.randrange(1,4608//(b*c)+1)
+        triples.append((a,b,c))
+    valid_reduction=0;positive_lengths=0
+    for a,b,c in triples:
+        p=(a&8191)*(b&8191);q=(p&8191)*(c&8191)
+        rejected=a==0 or b==0 or c==0 or a>4608 or b>4608 or c>4608 or p>4608 or q>4608
+        if rejected!=(a*b*c==0 or a*b*c>4608):raise ValueError("reduction窄判据数学不同")
+        if not rejected:
+            valid_reduction+=1
+            if q!=a*b*c:raise ValueError("成功reduction值不同")
+            for oc in edge:
+                weight=oc*q
+                if weight>=1<<45 or (weight>u)!=(weight>>32!=0):raise ValueError("45位权重长度证明失败")
+        if a and b and c:
+            positive_lengths+=1;p=a*b;q=(p&u)*c
+            bad=(p>>32)!=0 or (q>>32)!=0
+            if p>=1<<64 or q>=1<<64 or bad!=(a*b*c>u):raise ValueError("两阶段64位长度证明失败")
+            if not bad and q!=a*b*c:raise ValueError("成功长度值不同")
+    reference=checker.exact_file(ROOT/"report/evidence/S2B-T17/patch_guard_20261011_r02/validation_vectors.txt")
+    reference_sha="cb3d8250250db36d575433b08c17e6f5d2bc9980090b30ae7f3fd358d51c6356"
+    if support.sha(reference)!=reference_sha:raise ValueError("S5冻结刺激字节漂移")
+    prefix="\n".join(text.splitlines()[:math_report["s5_baseline_vectors"]])+"\n"
+    if math_report["s5_baseline_vectors"]!=3924 or prefix!=reference.read_text(encoding="utf-8"):
+        raise ValueError("S5全部3924条前缀不同")
+    baseline=subprocess.check_output(["git","show",BASELINE+":src/s2b_conv_tile_engine.sv"],cwd=ROOT).decode("utf-8").replace("\r\n","\n")
+    current=(ROOT/"src/s2b_conv_tile_engine.sv").read_text(encoding="utf-8")
+    start="    always_ff @(posedge clk) begin"
+    if baseline.count("always_ff")!=2 or current.count("always_ff")!=2 or baseline[baseline.index(start):]!=current[current.index(start):]:
+        raise ValueError("两个时序块或其后声明不同")
+    header_old=baseline.split(");",1)[0].replace("s2b_conv_tile_engine","s2a_conv_tile_engine")
+    header_new=(ROOT/"src/s2a_conv_tile_engine.sv").read_text(encoding="utf-8").split(");",1)[0]
+    if header_old!=header_new:raise ValueError("原2A公共接口与S5接口不同")
+    if current.split(");",1)[0]!=baseline.split(");",1)[0]:raise ValueError("本轮公共接口不同")
+    if current.count("reduction_count_wide")!=3:raise ValueError("reduction有新消费者")
+    if current.count("output_elements_wide")!=4:raise ValueError("输出长度消费者漂移")
+    return {"status":"PASS","seed":seed,"triples":len(triples),"positive_length_cases":positive_lengths,
+        "valid_reduction_cases":valid_reduction,"s5_prefix_vectors":3924,"s4_prefix_vectors":math_report["s4_baseline_vectors"],
+        "s5_vectors":{"path":reference.relative_to(ROOT).as_posix(),"sha256":reference_sha},
+        "two_always_ff_and_suffix_unchanged":True,"public_header_unchanged":True,
+        "sequential_suffix_sha256":hashlib.sha256(current[current.index(start):].encode("utf-8")).hexdigest(),
+        "width_bounds":{"reduction_plane_bits":26,"reduction_product_bits":26,"valid_reduction_bits":13,"weight_bits":45,"length_plane_bits":64,"length_product_bits":64},
+        "reason":"正因子才进入长度分支；R首分支保持，ST_VALIDATE仅成功时锁存R，OUTPUT_SCAN仅校验通过可达。"}
 
 def ports():
     """读取实际端口声明，保留signed及宽度；不读内部算法生成黄金。"""
@@ -210,9 +262,65 @@ def vectors(model):
         v.update(input_channels=c,kernel_height=kh,kernel_width=kw,input_height=ih,input_width=iw,output_height=oh,output_width=ow,
             stride_y=sy,stride_x=sx,input_length_bytes=(c*ih*iw)&0xffffffff,output_length_bytes=32*oh*ow,quantized_weight_bytes=32*c*kh*kw)
         add("patch_targeted_random",v)
+    s5_vectors=len(rows)
+    length_manual=[]
+    def length_hand(label,expected,**changes):
+        v=dict(layer0);v.update(input_channels=1,input_height=1,input_width=1,output_height=1,output_width=1,
+            kernel_height=1,kernel_width=1);v.update(changes)
+        v.update(input_length_bytes=(v["input_channels"]*v["input_height"]*v["input_width"])&0xffffffff,
+            output_length_bytes=(v["output_channels"]*v["output_height"]*v["output_width"])&0xffffffff,
+            quantized_weight_bytes=(v["output_channels"]*v["input_channels"]*v["kernel_height"]*v["kernel_width"])&0xffffffff)
+        if add("length_manual_"+label,v)!=expected:raise ValueError("长度手算错误优先不符："+label)
+        length_manual.append({"label":label,"inputs":v,"expected_error":expected,
+            "input_product":v["input_channels"]*v["input_height"]*v["input_width"],
+            "output_product":v["output_channels"]*v["output_height"]*v["output_width"],
+            "reduction":v["input_channels"]*v["kernel_height"]*v["kernel_width"],
+            "weight_product":v["output_channels"]*v["input_channels"]*v["kernel_height"]*v["kernel_width"]})
+    length_hand("input_2pow32_minus1",1,input_height=65535,input_width=65537)
+    length_hand("input_2pow32",3,input_height=65536,input_width=65536)
+    length_hand("input_2pow32_plus1",3,input_height=641,input_width=6700417)
+    length_hand("input_plane_high32_low0",3,input_channels=2,input_height=0x80000000)
+    length_hand("input_3factor_above2pow64",3,input_channels=4608,input_height=0xffffffff,input_width=0xffffffff)
+    length_hand("input_exact2pow64",3,input_channels=4,input_height=0x80000000,input_width=0x80000000)
+    length_hand("output_2pow32_minus1_before_mq",2,output_channels=1,output_height=65535,output_width=65537)
+    length_hand("output_2pow32",3,output_height=0x8000000)
+    length_hand("output_plane_high32_low0",3,output_channels=2,output_height=0x80000000)
+    length_hand("output_above2pow64",3,output_channels=0xffffffff,output_height=0xffffffff,output_width=0xffffffff)
+    length_hand("weight_2pow32_minus1_before_mq",2,output_channels=0xffffffff)
+    length_hand("weight_2pow32",3,output_channels=0x80000000,input_channels=2)
+    length_hand("weight_2pow32_plus1",3,output_channels=6700417,input_channels=641)
+    length_hand("weight_45bit_maxvalidR",3,output_channels=0xffffffff,input_channels=4608)
+    length_hand("reduction_4608",0,input_channels=4608)
+    length_hand("reduction_4609",1,input_channels=4609)
+    length_hand("reduction_plane_8192_alias",1,input_channels=4096,kernel_height=2)
+    length_hand("reduction_3factor_large",1,input_channels=0xffffffff,kernel_height=0xffffffff,kernel_width=0xffffffff)
+    length_hand("weight_4factor_large",1,output_channels=0xffffffff,input_channels=0xffffffff,kernel_height=0xffffffff,kernel_width=0xffffffff)
+    length_hand("zero_factor_before_large_length",1,input_channels=0,input_height=0xffffffff,input_width=0xffffffff)
+    length_hand("layer_override_zero_and_length",2,layer_index=38,input_channels=0,input_height=0xffffffff)
+    length_hand("layer_mismatch_override_reduction_and_length",2,weight_layer_index=1,input_channels=0xffffffff)
+    length_hand("bad_length_before_range",3,input_height=65536,input_width=65536,input_base_address=0xffffffff)
+    length_hand("shape_extreme_after_length",1,input_height=0xffffffff,pad_top=0xffffffff,pad_bottom=0xffffffff,stride_y=0xffffffff)
+    # 新种子只用于S6后缀；原3924条刺激与原S4前缀保持逐字节不变。
+    length_seed=0x2B171106;length_rng=random.Random(length_seed)
+    edge=(0,1,2,3,7,8,4608,4609,8191,8192,8193,65535,65536,65537,0x7fffffff,0x80000000,0xfffffffe,0xffffffff)
+    fields=("input_channels","input_height","input_width","output_channels","output_height","output_width","kernel_height","kernel_width")
+    for j in range(2048):
+        v=dict(layer0)
+        for field in length_rng.sample(fields,length_rng.randint(2,8)):
+            v[field]=length_rng.choice(edge) if j%2 else length_rng.getrandbits(32)
+        if j%4==0:v["kernel_height"]=v["kernel_width"]=1;v["input_channels"]=length_rng.choice((1,2,4608))
+        if j%4==0:v["output_channels"]=32
+        v.update(input_length_bytes=(v["input_channels"]*v["input_height"]*v["input_width"])&0xffffffff,
+            output_length_bytes=(v["output_channels"]*v["output_height"]*v["output_width"])&0xffffffff,
+            quantized_weight_bytes=(v["output_channels"]*v["input_channels"]*v["kernel_height"]*v["kernel_width"])&0xffffffff)
+        if j%8==0:v["weight_layer_index"]=1
+        if j%16==0:v["layer_index"]=0xffffffff
+        if j%3==0:v["input_base_address"]=v["output_base_address"]=0xffffffff
+        add("length_targeted_random",v)
     text="\n".join(" ".join(f"{v[n]&0xffffffff:x}" for n in names+["buffer_owner_pl"])+f" {e:x}" for v,e in rows)+"\n"
     return names,text,layer0,{"vectors":len(rows),"categories":categories,"seed":0x2B171004,"frozen_conv_layers":frozen,
-      "s4_baseline_vectors":baseline_vectors,"manual_patch_cases":manual,
+      "s4_baseline_vectors":baseline_vectors,"s5_baseline_vectors":s5_vectors,"manual_patch_cases":manual,
+      "length_seed":length_seed,"manual_length_cases":length_manual,
       "independent_math":"黄金仍采用原完整Python整数H×W×C、min(OC,8)×R与原分支顺序，不采用窄判据；形状64bit减法/加法显式取模。"}
 
 def pair(header,instance="u_dut"):
@@ -309,16 +417,16 @@ def main():
     """独占新Run，冻结全部实际源码后单job构建；失败原件保留。"""
     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True);parser.add_argument("--mode",choices=("boundary","layer0"),required=True)
     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));parser.add_argument("--prepare-only",action="store_true");args=parser.parse_args()
-    if not re.fullmatch(r"patch_guard_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
+    if not re.fullmatch(r"length_guard_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
     work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
     for p in (work,evidence):
         if not p.parent.is_dir() or p.exists():raise ValueError("父目录缺失或Run已存在")
         p.mkdir()
-    report={"schema_version":1,"task_id":"S2B-T17-S5","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
+    report={"schema_version":1,"task_id":"S2B-T17-S6","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
     begin=time.monotonic()
     try:
         checker=support.load_checker();bindings=checker.check_static(ROOT)
-        bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,"verification/test_s2b_backend_coordinates_rtl.py","sim/tb_s2a_t66_candidate_blackbox.sv","verification/s1_t02_d2_int8_forward.py",support.MODEL)})
+        bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,"verification/test_s2b_backend_coordinates_rtl.py","verification/test_s2b_geometry_specialization_rtl.py","verification/test_s2b_route_specialization_rtl.py","sim/tb_s2a_t66_candidate_blackbox.sv","verification/s1_t02_d2_int8_forward.py",support.MODEL)})
         report["source_sha256_pre"]=bindings;report["frozen14_sha256"]={p:support.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
         snapshot=evidence/"source_snapshot";snapshot.mkdir()
         for p in bindings:
@@ -331,6 +439,7 @@ def main():
         d2raw=(ROOT/"verification/s1_t02_d2_int8_forward.py").read_bytes()
         if hashlib.sha256(d2raw.replace(b"\r\n",b"\n")).hexdigest()!="5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393":raise ValueError("D2规范源内容漂移")
         model=json.loads((ROOT/support.MODEL).read_text(encoding="utf-8")); names,text,small,math_report=vectors(model)
+        report["length_proof"]=length_proof(text,math_report,checker)
         report["math_oracle"]=math_report
         (evidence/"math_oracle.json").write_text(json.dumps(math_report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         for directory in (work,evidence):(directory/"validation_vectors.txt").write_text(text,encoding="utf-8")

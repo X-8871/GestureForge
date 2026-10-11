@@ -165,6 +165,14 @@ module s2b_conv_tile_engine (
     logic [127:0] output_elements_wide;
     logic [127:0] expected_weight_bytes_wide;
     logic [127:0] reduction_count_wide;
+    logic [63:0] input_element_plane;
+    logic [63:0] output_element_plane;
+    logic [63:0] input_element_product;
+    logic [63:0] output_element_product;
+    logic [25:0] reduction_plane_narrow;
+    logic [25:0] reduction_count_narrow;
+    logic [44:0] expected_weight_bytes_narrow;
+    logic reduction_count_bad;
     logic [127:0] input_end_wide;
     logic [127:0] output_end_wide;
     logic [127:0] weight_package_end_wide;
@@ -262,19 +270,28 @@ module s2b_conv_tile_engine (
     integer seq_lane;
 
     always_comb begin
-        input_elements_wide = {96'd0, input_channels_latched} *
-                              {96'd0, input_height_latched} *
-                              {96'd0, input_width_latched};
-        output_elements_wide = {96'd0, output_channels_latched} *
-                               {96'd0, output_height_latched} *
-                               {96'd0, output_width_latched};
-        expected_weight_bytes_wide = {96'd0, output_channels_latched} *
-                                     {96'd0, input_channels_latched} *
-                                     {96'd0, kernel_height_latched} *
-                                     {96'd0, kernel_width_latched};
-        reduction_count_wide = {96'd0, input_channels_latched} *
-                               {96'd0, kernel_height_latched} *
-                               {96'd0, kernel_width_latched};
+        // 首分支已逐因子拒绝零；长度分支只消费正数乘积。
+        // 前两因子精确64位，高32位非零必超UINT32；否则再精确乘第三因子。
+        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};
+        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};
+        input_element_product = {32'd0, input_element_plane[31:0]} * {32'd0, input_width_latched};
+        output_element_product = {32'd0, output_element_plane[31:0]} * {32'd0, output_width_latched};
+        input_elements_wide = {64'd0, input_element_product};
+        output_elements_wide = {64'd0, output_element_product};
+
+        // 正C/KH/KW的R<=4608蕴含每个因子及C*KH均<=4608；低位截断另有拒绝保护。
+        reduction_plane_narrow = {13'd0, input_channels_latched[12:0]} *
+                                 {13'd0, kernel_height_latched[12:0]};
+        reduction_count_narrow = {13'd0, reduction_plane_narrow[12:0]} *
+                                 {13'd0, kernel_width_latched[12:0]};
+        reduction_count_bad = (input_channels_latched > 32'd4608) ||
+            (kernel_height_latched > 32'd4608) || (kernel_width_latched > 32'd4608) ||
+            (reduction_plane_narrow > 26'd4608) || (reduction_count_narrow > 26'd4608);
+        reduction_count_wide = {102'd0, reduction_count_narrow};
+        // 长度分支已保证R<=4608，故OC32*R13的45位结果精确；不提前消费MQ限制。
+        expected_weight_bytes_narrow = {13'd0, output_channels_latched} *
+                                       {32'd0, reduction_count_narrow[12:0]};
+        expected_weight_bytes_wide = {83'd0, expected_weight_bytes_narrow};
         input_end_wide = {96'd0, input_base_latched} + {96'd0, input_length_latched};
         output_end_wide = {96'd0, output_base_latched} + {96'd0, output_length_latched};
         weight_package_end_wide = {96'd0, weight_package_base_latched} +
@@ -341,8 +358,7 @@ module s2b_conv_tile_engine (
             (stride_x_latched == 32'd0) ||
             (groups_latched != 32'd1) ||
             (padding_latched != 32'sd0) ||
-            (reduction_count_wide == 128'd0) ||
-            (reduction_count_wide > 128'd4608) ||
+            reduction_count_bad ||
             (layer_index_latched >= S2A_LAYER_COUNT) ||
             ((layer_index_latched < S2A_LAYER_COUNT) &&
              (S2A_OP[layer_index_latched] != S2A_OP_CONV)) ||
@@ -353,11 +369,13 @@ module s2b_conv_tile_engine (
             end else begin
                 validation_error = BAD_ARGUMENT;
             end
-        end else if ((input_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||
+        end else if ((input_element_plane[63:32] != 32'd0) ||
+                     (input_element_product[63:32] != 32'd0) ||
                      (input_length_latched != input_elements_wide[31:0]) ||
-                     (output_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||
+                     (output_element_plane[63:32] != 32'd0) ||
+                     (output_element_product[63:32] != 32'd0) ||
                      (output_length_latched != output_elements_wide[31:0]) ||
-                     (expected_weight_bytes_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||
+                     (expected_weight_bytes_narrow[44:32] != 13'd0) ||
                      (quantized_weight_bytes_latched != expected_weight_bytes_wide[31:0])) begin
             validation_error = BAD_LENGTH;
         end else if ((input_end_wide > 128'h0000_0000_0000_0001_0000_0000) ||

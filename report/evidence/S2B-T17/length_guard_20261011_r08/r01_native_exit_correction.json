@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17-S6",
+  "scope": "只纠正证据口径，不改变实现、G1结果或原始失败事实",
+  "r01": {
+    "business_status": "FAIL_RESOURCE_PREFLIGHT",
+    "validation_binding": {
+      "path": "report/evidence/S2B-T17/length_guard_20261011_r01/validation.json",
+      "sha256": "f417c85961fb17f6229dd6a7e03bd9695056016adf96c3350bbcbc62a491abde"
+    },
+    "observed_error": "ValueError('可用内存不足')",
+    "compile_or_simulation_runs": [],
+    "replayed": false,
+    "native_exit_code": null,
+    "native_exit_capture_status": "NOT_CAPTURED",
+    "host_exit_code": 1,
+    "host_exit_source": {
+      "kind": "本会话exec_command返回元数据的明确转录，不是原生capture",
+      "chunk_id": "4acff6",
+      "exit_code": 1,
+      "wall_time_seconds": 3.3090612
+    },
+    "expected_or_inferred_native_exit_code": 2,
+    "inference_source": {
+      "snapshot": {
+        "path": "report/evidence/S2B-T17/length_guard_20261011_r01/source_snapshot/verification/test_s2b_conv_validation_rtl.py",
+        "sha256": "9fa2d94003831c47bc0ebabc81ea8243ecafef42811f5da4063504a190ce85c7"
+      },
+      "return_expression": "return 0 if report[\"status\"] in (\"PASS\",\"PREPARED_NOT_RUN\") else 2",
+      "basis": "已保存status=FAIL，源码末尾对应return2；未直接捕获原生退出，不能升级为实测native2"
+    }
+  },
+  "separate_captures": {
+    "boundary_native": {
+      "path": "report/evidence/S2B-T17/length_guard_20261011_r02/boundary_native.json",
+      "sha256": "0c1dddf6b60a5092ab8714e4e80deeeb86a86b1f0b5214f1c7fe00070f4d232e",
+      "actual_run_id": "length_guard_20261011_r03",
+      "native_exit_code": 0,
+      "relation": "此捕获属于r03，不属于r01"
+    },
+    "layer0_native": {
+      "path": "report/evidence/S2B-T17/length_guard_20261011_r02/layer0_native.json",
+      "sha256": "948071886cdafbfef7c38eeadb6ffa64fafd22756c5663669014c32742d087cf",
+      "actual_run_id": "length_guard_20261011_r04",
+      "native_exit_code": 2,
+      "relation": "r04有直接捕获，不能覆盖r01未知值"
+    }
+  },
+  "format_basis": {
+    "checker": {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf"
+    },
+    "function": "_check_check",
+    "rules": "FAIL要求真实非零整数exit_code；NOT_RUN要求exit_code=null。r01原生捕获未执行，因此仅捕获条目用NOT_RUN/null；运行失败事实另行明确保存。"
+  },
+  "superseded_claims": [
+    {
+      "file": {
+        "path": "report/evidence/S2B-T17/length_guard_20261011_r07/delivery_manifest_r02.json",
+        "sha256": "9a672647c2c4dbb7171e27372ff295a326f1cae835545fb4d947add2d22c2746"
+      },
+      "location": "checks/name=historical_ram_preflight_r01",
+      "incorrect": "status=FAIL/exit_code=2及真实脚本返回2误称实际捕获"
+    },
+    {
+      "file": {
+        "path": "report/evidence/S2B-T17/length_guard_20261011_r07/g1_summary.json",
+        "sha256": "960398bdf717a8bdf99afda33bbefc5ce276919964cc121d5c7f1b1120f5c6cb"
+      },
+      "location": "checks/name=historical_ram_preflight_r01",
+      "incorrect": "同上"
+    },
+    {
+      "file": {
+        "path": "report/evidence/S2B-T17/length_guard_20261011_r07/tools/pack_delivery.py",
+        "sha256": "c6d38af7bfefaa6bc036e8083a1bf8ae213974b854e4cb8798f9ca3e358b41b5"
+      },
+      "location": "硬编码历史r01 checks条目",
+      "incorrect": "把源码推断2写入native退出码字段"
+    }
+  ],
+  "original_artifacts_unchanged": true,
+  "nine_project_sources_unchanged": true
+}

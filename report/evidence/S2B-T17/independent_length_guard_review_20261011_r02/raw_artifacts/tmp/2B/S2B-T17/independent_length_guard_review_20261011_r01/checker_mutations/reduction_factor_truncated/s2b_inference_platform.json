@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "version": "s2b-inference-platform/0.1.6",
+  "status": "BUILD_CANDIDATE",
+  "physical_interface": "s2b-physical-candidate/0.1.1",
+  "requested_part_literal": "XC7Z020-2CLG400I",
+  "vivado_part": "xc7z020clg400-2",
+  "industrial_grade": "I 为用户指定实物温度等级；工具器件名称不含 I，须记录实际可获得的器件温度属性，不据 canonical 名称声称已核实工业等级。",
+  "ps_profile": "board/ps_platform_fields.json",
+  "ps_profile_script": "vivado/s2b_ps_platform.tcl",
+  "clock_hz": 50000000,
+  "control": {
+    "base": "0x43C00000",
+    "length_bytes": 65536,
+    "gp_protocol": "AXI3",
+    "gp_data_width": 32,
+    "gp_id_width": 12,
+    "slave_protocol": "AXI4LITE",
+    "slave_addr_width": 32
+  },
+  "memory": {
+    "protocol": "AXI3",
+    "data_width": 64,
+    "id_width": 6,
+    "arena_base": "0x10000000",
+    "arena_end_exclusive": "0x12000000",
+    "axcache": "0000",
+    "direct_hp0": true
+  },
+  "visibility_default": 0,
+  "visibility_binding_only": true,
+  "prior_cache_probe": {
+    "visibility_parameter": 0,
+    "physical_state": "IDLE_PS",
+    "epoch": 0,
+    "start_count": 0,
+    "load_count": 0,
+    "abi": "S2BU/1",
+    "operation": 4,
+    "header_bytes": 40,
+    "payload_bytes": 12,
+    "physical_address": "0x10000000",
+    "length_bytes": 256,
+    "word_count": 64,
+    "phase0": "FLUSH_DSB_WAIT_DAP",
+    "phase1": "INVALIDATE_DSB_COMPARE"
+  },
+  "physical_ports": [
+    "DDR",
+    "FIXED_IO"
+  ],
+  "rtl_sources": [
+    "src/s2a_network_descriptor_pkg.sv",
+    "src/int8_maxpool_geometry.sv",
+    "src/int8_maxpool_window.sv",
+    "src/s2b_route_query.sv",
+    "src/int8_upsample_query.sv",
+    "src/s2b_conv_tile_engine.sv",
+    "src/s2b_maxpool_engine.sv",
+    "src/s2b_route_engine.sv",
+    "src/s2b_upsample_engine.sv",
+    "src/s2b_network_backend.sv",
+    "src/s2a_memory_master.sv",
+    "src/s2a_runtime_shell.sv",
+    "src/s2b_stage2b_core.sv",
+    "src/s2a_control_csr.sv",
+    "src/s2b_request_guard.sv",
+    "src/s2b_hp0_word_adapter.sv",
+    "src/s2b_control_csr.sv",
+    "src/s2b_inference_top.sv"
+  ],
+  "build_scripts": [
+    "vivado/s2b_inference_platform.tcl",
+    "vivado/s2b_ps_platform.tcl"
+  ],
+  "limitations": [
+    "构建候选尚未执行完整 BD 重建、综合、实现或实板验收。",
+    "AXI3 到 Lite 转换器不能替下游控制器拒绝原始 burst；软件必须仅用对齐 32-bit 单 beat Device MMIO。",
+    "单独 PL/FCLK reset 会丢弃账本，运行期禁止，故障未闭合只能统一 PS/DDR/PL 冷恢复。",
+    "默认可见性门控为 0；初次先验仅允许IDLE_PS/epoch0/从未START且未LOAD的CPU/DAP缓存探针。",
+    "机器只验证文件绑定；总控须从真实独立Reviewer来源冻结审查原件哈希，自填role/PASS不等于批准。",
+    "HP路径按实际全网与AXI3非Bufferable规范独立证明；HP写结果到CPU的完整模型golden仍由G3关闭。"
+  ],
+  "source_derivation": {
+    "policy": "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0",
+    "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
+    "derivation_baseline_commit": "5cb092dcce3631f310e67228738a674a6a82ce41",
+    "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+    "upstream_sources": [
+      {
+        "path": "src/s2a_network_descriptor_pkg.sv",
+        "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+      },
+      {
+        "path": "src/int8_maxpool_geometry.sv",
+        "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5"
+      },
+      {
+        "path": "src/int8_maxpool_window.sv",
+        "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653"
+      },
+      {
+        "path": "src/int8_route_query.sv",
+        "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba"
+      },
+      {
+        "path": "src/int8_upsample_query.sv",
+        "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7"
+      },
+      {
+        "path": "src/s2a_conv_tile_engine.sv",
+        "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa"
+      },
+      {
+        "path": "src/s2a_maxpool_engine.sv",
+        "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7"
+      },
+      {
+        "path": "src/s2a_route_engine.sv",
+        "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44"
+      },
+      {
+        "path": "src/s2a_upsample_engine.sv",
+        "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b"
+      },
+      {
+        "path": "src/s2a_network_backend.sv",
+        "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55"
+      },
+      {
+        "path": "src/s2a_memory_master.sv",
+        "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+      },
+      {
+        "path": "src/s2a_runtime_shell.sv",
+        "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+      },
+      {
+        "path": "src/s2a_stage2a_core_ooc.sv",
+        "sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c"
+      },
+      {
+        "path": "src/s2a_control_csr.sv",
+        "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+      }
+    ],
+    "derived_sources": [
+      {
+        "source": "src/s2a_maxpool_engine.sv",
+        "path": "src/s2b_maxpool_engine.sv",
+        "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+        "replacements": [
+          [
+            "module s2a_maxpool_engine (",
+            "module s2b_maxpool_engine ("
+          ],
+          [
+            ".kernel_height(kernel_height)",
+            ".kernel_height(32'd2)"
+          ],
+          [
+            ".kernel_width(kernel_width)",
+            ".kernel_width(32'd2)"
+          ],
+          [
+            ".stride_y(stride_y)",
+            ".stride_y(32'd2)"
+          ],
+          [
+            ".stride_x(stride_x)",
+            ".stride_x(32'd2)"
+          ],
+          [
+            ".darknet_padding_parameter(darknet_padding_parameter)",
+            ".darknet_padding_parameter(32'd1)"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_upsample_engine.sv",
+        "path": "src/s2b_upsample_engine.sv",
+        "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+        "replacements": [
+          [
+            "module s2a_upsample_engine (",
+            "module s2b_upsample_engine ("
+          ],
+          [
+            ".stride(stride)",
+            ".stride(32'd2)"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_network_backend.sv",
+        "path": "src/s2b_network_backend.sv",
+        "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+        "replacements": [
+          [
+            "module s2a_network_backend (",
+            "module s2b_network_backend ("
+          ],
+          [
+            "s2a_maxpool_engine u_maxpool_engine",
+            "s2b_maxpool_engine u_maxpool_engine"
+          ],
+          [
+            "s2a_upsample_engine u_upsample_engine",
+            "s2b_upsample_engine u_upsample_engine"
+          ],
+          [
+            "    logic [31:0] output_element_index;",
+            "    logic [31:0] output_element_index;\n    // 冻结38层均为单批次；坐标只沿原索引赋值分支更新。\n    logic [8:0] output_channel_cursor;\n    logic [7:0] output_y_cursor;\n    logic [7:0] output_x_cursor;"
+          ],
+          [
+            "            decoded_channel = (output_element_index / output_plane_elements) % output_c;\n            decoded_y = (output_element_index / {48'd0, output_w}) % output_h;\n            decoded_x = output_element_index % output_w;",
+            "            decoded_channel = {23'd0, output_channel_cursor};\n            decoded_y = {24'd0, output_y_cursor};\n            decoded_x = {24'd0, output_x_cursor};"
+          ],
+          [
+            "        if (hard_reset) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;",
+            "        if (hard_reset) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;\n            output_channel_cursor <= 9'd0;\n            output_y_cursor <= 8'd0;\n            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;",
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;\n            output_channel_cursor <= 9'd0;\n            output_y_cursor <= 8'd0;\n            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "                    if (backend_start && buffer_owner_pl) begin\n                        layer_cursor <= 6'd0;\n                        output_element_index <= 32'd0;",
+            "                    if (backend_start && buffer_owner_pl) begin\n                        layer_cursor <= 6'd0;\n                        output_element_index <= 32'd0;\n                        output_channel_cursor <= 9'd0;\n                        output_y_cursor <= 8'd0;\n                        output_x_cursor <= 8'd0;"
+          ],
+          [
+            "\n                                output_element_index <= 32'd0;",
+            "\n                                output_element_index <= 32'd0;\n                                output_channel_cursor <= 9'd0;\n                                output_y_cursor <= 8'd0;\n                                output_x_cursor <= 8'd0;"
+          ],
+          [
+            "\n                            output_element_index <= 32'd0;",
+            "\n                            output_element_index <= 32'd0;\n                            output_channel_cursor <= 9'd0;\n                            output_y_cursor <= 8'd0;\n                            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "                            output_element_index <= output_element_index + 32'd1;",
+            "                            output_element_index <= output_element_index + 32'd1;\n                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。\n                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin\n                                output_x_cursor <= 8'd0;\n                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin\n                                    output_y_cursor <= 8'd0;\n                                    output_channel_cursor <= output_channel_cursor + 9'd1;\n                                end else begin\n                                    output_y_cursor <= output_y_cursor + 8'd1;\n                                end\n                            end else begin\n                                output_x_cursor <= output_x_cursor + 8'd1;\n                            end"
+          ],
+          [
+            "s2a_route_engine u_route_engine",
+            "s2b_route_engine u_route_engine"
+          ],
+          [
+            "s2a_conv_tile_engine u_conv_engine",
+            "s2b_conv_tile_engine u_conv_engine"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_stage2a_core_ooc.sv",
+        "path": "src/s2b_stage2b_core.sv",
+        "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+        "replacements": [
+          [
+            "module s2a_stage2a_core_ooc #(",
+            "module s2b_stage2b_core #("
+          ],
+          [
+            "s2a_network_backend u_network_backend",
+            "s2b_network_backend u_network_backend"
+          ]
+        ]
+      },
+      {
+        "source": "src/int8_route_query.sv",
+        "path": "src/s2b_route_query.sv",
+        "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+        "replacements": [
+          [
+            "module int8_route_query (",
+            "module s2b_route_query ("
+          ],
+          [
+            "        end else if (groups > 32'd2) begin\n            if ((source_count != 32'd1) ||\n                ((source0_channels % groups) != 32'd0)) begin\n                bad_argument = 1'b1;\n            end else begin\n                expected_group_start =\n                    {32'd0, group_id} * (source0_channels / groups);\n                expected_group_end = expected_group_start +\n                                     (source0_channels / groups);\n                if ((source0_channel_start != expected_group_start[31:0]) ||\n                    (source0_channel_end != expected_group_end[31:0])) begin\n                    bad_argument = 1'b1;\n                end\n            end\n        end\n",
+            "        end else if (groups > 32'd2) begin\n            // 冻结tiny416的ROUTE只会产生1或2；通用多组语义保留在2A原件。\n            bad_argument = 1'b1;\n        end"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_route_engine.sv",
+        "path": "src/s2b_route_engine.sv",
+        "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+        "replacements": [
+          [
+            "module s2a_route_engine (",
+            "module s2b_route_engine ("
+          ],
+          [
+            "int8_route_query u_query",
+            "s2b_route_query u_query"
+          ]
+        ]
+      },
+      {
+        "source": "src/s2a_conv_tile_engine.sv",
+        "path": "src/s2b_conv_tile_engine.sv",
+        "sha256": "c528324e86ebe7e7905e008de288c43a6b102e3217c90560d6f38cb67df7ed93",
+        "replacements": [
+          [
+            "module s2a_conv_tile_engine (",
+            "module s2b_conv_tile_engine ("
+          ],
+          [
+            "input_elements_wide = {96'd0, input_batch_count_latched} *\n                              {96'd0, input_channels_latched} *",
+            "input_elements_wide = {96'd0, input_channels_latched} *"
+          ],
+          [
+            "output_elements_wide = {96'd0, output_batch_count_latched} *\n                               {96'd0, output_channels_latched} *",
+            "output_elements_wide = {96'd0, output_channels_latched} *"
+          ],
+          [
+            "    logic [127:0] full_tile_patch_height_wide;\n    logic [127:0] full_tile_patch_width_wide;\n    logic [127:0] full_tile_patch_bytes_wide;\n    logic [127:0] full_weight_group_bytes_wide;\n",
+            "    logic [2:0] full_tile_patch_delta_y;\n    logic [2:0] full_tile_patch_delta_x;\n    logic [18:0] full_tile_patch_height_narrow;\n    logic [18:0] full_tile_patch_width_narrow;\n    logic [31:0] full_tile_patch_plane_narrow;\n    logic [28:0] full_tile_patch_bytes_narrow;\n    logic full_tile_patch_height_bad;\n    logic full_tile_patch_width_bad;\n    logic full_tile_patch_bad;\n"
+          ],
+          [
+            "        full_tile_patch_height_wide = 128'd0;\n        full_tile_patch_width_wide = 128'd0;\n        full_tile_patch_bytes_wide = 128'd0;\n        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin\n            full_tile_patch_height_wide =\n                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};\n            full_tile_patch_width_wide =\n                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};\n            full_tile_patch_bytes_wide = full_tile_patch_height_wide *\n                                         full_tile_patch_width_wide *\n                                         {96'd0, input_channels_latched};\n        end\n        full_weight_group_bytes_wide =\n            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *\n            reduction_count_wide;\n\n",
+            "        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。\n        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。\n        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :\n            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :\n            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_height_narrow =\n            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +\n            {6'd0, kernel_height_latched[12:0]};\n        full_tile_patch_width_narrow =\n            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +\n            {6'd0, kernel_width_latched[12:0]};\n        full_tile_patch_height_bad =\n            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_height_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_height_narrow[15:0] > 16'd51200);\n        full_tile_patch_width_bad =\n            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_width_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_width_narrow[15:0] > 16'd51200);\n        full_tile_patch_plane_narrow =\n            {16'd0, full_tile_patch_height_narrow[15:0]} *\n            {16'd0, full_tile_patch_width_narrow[15:0]};\n        full_tile_patch_bytes_narrow =\n            {13'd0, full_tile_patch_plane_narrow[15:0]} *\n            {16'd0, input_channels_latched[12:0]};\n        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||\n            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||\n            (full_tile_patch_bytes_narrow > 29'd51200);\n\n"
+          ],
+          [
+            "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
+            "                     full_tile_patch_bad) begin"
+          ],
+          [
+            "    logic [127:0] reduction_count_wide;\n",
+            "    logic [127:0] reduction_count_wide;\n    logic [63:0] input_element_plane;\n    logic [63:0] output_element_plane;\n    logic [63:0] input_element_product;\n    logic [63:0] output_element_product;\n    logic [25:0] reduction_plane_narrow;\n    logic [25:0] reduction_count_narrow;\n    logic [44:0] expected_weight_bytes_narrow;\n    logic reduction_count_bad;\n"
+          ],
+          [
+            "        input_elements_wide = {96'd0, input_channels_latched} *\n                              {96'd0, input_height_latched} *\n                              {96'd0, input_width_latched};\n        output_elements_wide = {96'd0, output_channels_latched} *\n                               {96'd0, output_height_latched} *\n                               {96'd0, output_width_latched};\n        expected_weight_bytes_wide = {96'd0, output_channels_latched} *\n                                     {96'd0, input_channels_latched} *\n                                     {96'd0, kernel_height_latched} *\n                                     {96'd0, kernel_width_latched};\n        reduction_count_wide = {96'd0, input_channels_latched} *\n                               {96'd0, kernel_height_latched} *\n                               {96'd0, kernel_width_latched};\n",
+            "        // 首分支已逐因子拒绝零；长度分支只消费正数乘积。\n        // 前两因子精确64位，高32位非零必超UINT32；否则再精确乘第三因子。\n        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};\n        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};\n        input_element_product = {32'd0, input_element_plane[31:0]} * {32'd0, input_width_latched};\n        output_element_product = {32'd0, output_element_plane[31:0]} * {32'd0, output_width_latched};\n        input_elements_wide = {64'd0, input_element_product};\n        output_elements_wide = {64'd0, output_element_product};\n\n        // 正C/KH/KW的R<=4608蕴含每个因子及C*KH均<=4608；低位截断另有拒绝保护。\n        reduction_plane_narrow = {13'd0, input_channels_latched[12:0]} *\n                                 {13'd0, kernel_height_latched[12:0]};\n        reduction_count_narrow = {13'd0, reduction_plane_narrow[12:0]} *\n                                 {13'd0, kernel_width_latched[12:0]};\n        reduction_count_bad = (input_channels_latched > 32'd4608) ||\n            (kernel_height_latched > 32'd4608) || (kernel_width_latched > 32'd4608) ||\n            (reduction_plane_narrow > 26'd4608) || (reduction_count_narrow > 26'd4608);\n        reduction_count_wide = {102'd0, reduction_count_narrow};\n        // 长度分支已保证R<=4608，故OC32*R13的45位结果精确；不提前消费MQ限制。\n        expected_weight_bytes_narrow = {13'd0, output_channels_latched} *\n                                       {32'd0, reduction_count_narrow[12:0]};\n        expected_weight_bytes_wide = {83'd0, expected_weight_bytes_narrow};\n"
+          ],
+          [
+            "            (reduction_count_wide == 128'd0) ||\n            (reduction_count_wide > 128'd4608) ||\n",
+            "            reduction_count_bad ||\n"
+          ],
+          [
+            "        end else if ((input_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "        end else if ((input_element_plane[63:32] != 32'd0) ||\n                     (input_element_product[63:32] != 32'd0) ||\n"
+          ],
+          [
+            "                     (output_elements_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "                     (output_element_plane[63:32] != 32'd0) ||\n                     (output_element_product[63:32] != 32'd0) ||\n"
+          ],
+          [
+            "                     (expected_weight_bytes_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
+            "                     (expected_weight_bytes_narrow[44:32] != 13'd0) ||\n"
+          ]
+        ]
+      }
+    ]
+  }
+}

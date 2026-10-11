@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "REVIEW_VALIDATION_FAILED",
+  "reviewed_source_commit": "d5ad0e0ad13cc12e870d72434c2eb43b74e44330",
+  "source_baseline_commit": "5cb092dcce3631f310e67228738a674a6a82ce41",
+  "reviewed_manifest_sha256": "9a672647c2c4dbb7171e27372ff295a326f1cae835545fb4d947add2d22c2746",
+  "started_utc8": "2026-10-11T19:05:40.403760+08:00",
+  "runs": [],
+  "findings": [],
+  "source_sha256": {
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "board/s2b_inference_platform.json": "7e917378851febd4cf6c100fb56a3dd04b2dc21bbe427666b142ab6e25eaa4f3",
+    "board/s2b_inference_platform.md": "865a75fb953ebccae35a6be3e109fe9d8e4ecc737ff9c45fcac30d63f1606374",
+    "vivado/s2b_inference_platform.tcl": "bacd489f904a3f74bc35fb08f8edc540cc0507f4bddb4593a000da364dbd4629",
+    "verification/check_s2b_inference_platform.py": "2a1aab62be5114dd96dd9ffdb2b1137fc7da66fbb5230ea4a8fe0354f12bc651",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "9549de87642fdad5c642a886de848f0ac4ce823cc2c4d79ff1739da0161942e0",
+    "verification/test_s2b_geometry_specialization_rtl.py": "6ee3ac879ba8c97c3a0fad0097852c18ec617cd29b93a1b3ac9769f84b0b72a9",
+    "verification/test_s2b_route_specialization_rtl.py": "566bd1d8b9d1cadcc08d234bec4a59fed45a8db27850a35b8e28046ca6ce2dd0"
+  },
+  "math": {
+    "status": "PASS",
+    "seed": 291510059,
+    "valid_r": 195028,
+    "positive_length": 351647,
+    "triples": 352806,
+    "exhaustive_all_valid_r_triples": 194806,
+    "zero_masked": 1159,
+    "weight_pairs": 101372,
+    "coverage": "全部正整数C*KH*KW<=4608三因子穷举；U32宽随机100000；0..8193随机50000；20值笛卡尔；每个合法R的OC端点及U32阈值两侧。",
+    "proof": [
+      "零因子由第一分支拒绝，层越界/weight层失配在该分支仍覆盖BAD_RANGE。",
+      "正a,b,c且abc<=U32：ab<=U32，故plane高位检查充分；合法plane32*c32精确64。",
+      "R<=4608蕴含三个正因子和CKH均<=4608；factor32门禁及plane26门禁先保证低13位截取等价。",
+      "非法R不进入长度分支，合法R13*OC32精确45；无需提前MQ容量限制。"
+    ]
+  },
+  "error": "AssertionError()",
+  "elapsed_seconds": 1.328,
+  "runner_peak_self_working_set_bytes": 103559168,
+  "limitations": [
+    "只读九源；只写本Run；Git未暂存/提交/切分支；ROSS/SDK/串口/板卡调用0。",
+    "新验证是独立数学、结构和公开逐周期；完整layer0仅绑定未复跑；109整网/1000次/STA/G3未执行。",
+    "G1 r01历史真实原生退出尚未捕获；后次r04 native2不覆盖r01。",
+    "峰RSS为0.05秒进程树采样，非全系统峰；宿主线程及工具调用总体未测。"
+  ]
+}

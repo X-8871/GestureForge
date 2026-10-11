@@ -21,7 +21,7 @@ import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
-SOURCE_BASELINE = "71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+SOURCE_BASELINE = "5cb092dcce3631f310e67228738a674a6a82ce41"
 OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
@@ -460,15 +460,17 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.5","variable version 0.1.1"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.6","variable version 0.1.1"))
     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
     reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
     reject("CONV引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_conv_tile_engine u_conv_engine","s2a_conv_tile_engine u_conv_engine"))
     reject("CONV校验新增batch语义自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_batch_count_latched != 32'd1)","(input_batch_count_latched != 32'd2)"))
-    reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","input_elements_wide = {96'd0, input_channels_latched} *","input_elements_wide = {96'd0, input_batch_count_latched} * {96'd0, input_channels_latched} *"))
+    reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched}","input_element_plane = {32'd0, input_batch_count_latched} * {32'd0, input_channels_latched} * {32'd0, input_height_latched}"))
     reject("CONV额外周期自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","state <= ST_VALIDATE;","state <= ST_IDLE;"))
+    reject("CONV丢失plane高位拒绝自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_element_plane[63:32] != 32'd0)","(input_element_plane[63:32] != 32'd0 && 1'b0)"))
+    reject("CONV放宽reduction阈值自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(reduction_plane_narrow > 26'd4608)","(reduction_plane_narrow > 26'd4609)"))
     return records
 
 

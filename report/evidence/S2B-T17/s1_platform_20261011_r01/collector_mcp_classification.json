@@ -1,0 +1,130 @@
+{
+  "raw_path": "report/evidence/S2B-T17/s1_platform_20261011_r01/root_mcp_calls.json",
+  "raw_sha256": "ef4b446ad61340859d9253b78da475bededa63ad9c69d2bb5e45a0db327953e1",
+  "raw_history_ids": [
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64
+  ],
+  "old_raw_array_unchanged": true,
+  "calls": 11,
+  "history": [
+    {
+      "id": 55,
+      "command": "source {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}",
+      "code": 0,
+      "elapsed": 0.007,
+      "timestamp": "2026-10-11T14:26:22.2860769+08:00"
+    },
+    {
+      "id": 56,
+      "command": "source -encoding utf-8 -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}",
+      "code": 0,
+      "elapsed": 0.003,
+      "timestamp": "2026-10-11T14:26:47.6267098+08:00"
+    },
+    {
+      "id": 57,
+      "command": "encoding system utf-8; set_param general.maxThreads 2; puts [list S1_ENVIRONMENT [encoding system] [get_param general.maxThreads] $::s2b_inference_platform::version]",
+      "code": 0,
+      "elapsed": 0.003,
+      "timestamp": "2026-10-11T14:27:06.8715697+08:00"
+    },
+    {
+      "id": 58,
+      "command": "::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s1p1} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}",
+      "code": 1,
+      "elapsed": 22.499,
+      "timestamp": "2026-10-11T14:28:13.6993176+08:00"
+    },
+    {
+      "id": 59,
+      "command": "if {[get_property NAME [current_project]] ne {s2b_inference_candidate}} {error WRONG_PROJECT}; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error WRONG_PART}; set s1_wrappers [get_files -all *s2b_inference_wrapper.v]; if {[llength $s1_wrappers] != 1} {error WRAPPER_AMBIGUOUS}; if {[get_property top [current_fileset]] ne {s2b_inference_wrapper}} {error WRONG_TOP}; if {$::s2b_inference_platform::version ne {0.1.1}} {error WRONG_PLATFORM}; puts [list S1_INVARIANTS_OK [get_property DIRECTORY [current_project]] [get_property PART [current_project]] [get_property top [current_fileset]] $s1_wrappers [llength $::s2b_inference_platform::rtl_sources] [get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]]]; foreach s1_name $::s2b_inference_platform::rtl_sources {puts [list S1_COMPILED_SOURCE $s1_name [get_files -all */[file tail $s1_name]]]}",
+      "code": 0,
+      "elapsed": 0.011,
+      "timestamp": "2026-10-11T14:29:29.6279753+08:00"
+    },
+    {
+      "id": 60,
+      "command": "launch_runs synth_1 -jobs 1",
+      "code": 0,
+      "elapsed": 0.54,
+      "timestamp": "2026-10-11T14:29:48.8054536+08:00"
+    },
+    {
+      "id": 61,
+      "command": "foreach r [get_runs] {puts [list S1_NATIVE_RUN [get_property NAME $r] [get_property STATUS $r] [get_property PROGRESS $r] [get_property DIRECTORY $r]]}",
+      "code": 0,
+      "elapsed": 0.139,
+      "timestamp": "2026-10-11T14:36:45.2176048+08:00"
+    },
+    {
+      "id": 62,
+      "command": "wait_on_run synth_1",
+      "code": 0,
+      "elapsed": 0.046,
+      "timestamp": "2026-10-11T14:37:06.7854631+08:00"
+    },
+    {
+      "id": 63,
+      "command": "open_run synth_1",
+      "code": 0,
+      "elapsed": 17.675,
+      "timestamp": "2026-10-11T14:37:37.2264184+08:00"
+    },
+    {
+      "id": 64,
+      "command": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01/timing_summary_synth.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01/utilization_synth.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01/clocks_synth.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01/methodology_synth.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s1_platform_20261011_r01/exceptions_synth.rpt}; puts S1_SYNTH_REPORTS_DONE",
+      "code": 0,
+      "elapsed": 18.257,
+      "timestamp": "2026-10-11T14:38:27.8194456+08:00"
+    }
+  ],
+  "additional_report_capture": {
+    "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/root_additional_reports_call.json",
+    "sha256": "c8fdcd7680e7ff4762b4d48f073aaa767aa6dc7bd8ba509d09391424b059b736",
+    "native_exit_code": 0,
+    "elapsed_seconds": 5.033,
+    "history_id": null,
+    "history_id_reason": "独立capture不携带id，root声明对应65；旧history实际止于64，不捏造补写。"
+  },
+  "products_native_exit_code": 0,
+  "products_capture_exit_code": 1,
+  "products_capture_status": "FAIL_PRESERVED",
+  "warning_counter_before": 9,
+  "warning_counter_after": 1,
+  "wait_native_exit_code": 0,
+  "wait_native_elapsed_seconds": 0.046,
+  "wait_timestamp": "2026-10-11T14:37:06.7854631+08:00",
+  "wait_is_not_synthesis_wall_runtime": true,
+  "root_session_log": {
+    "original_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T14\\jtag_readonly_20261011_r01\\.vivado-ai\\vivado_94331856_49ab2ff7.log",
+    "snapshot_path": "report/evidence/S2B-T17/s1_platform_20261011_r01/collector_root_session_log_snapshot.log",
+    "snapshot_sha256": "df21968bcdaf70c414977810531d089fe4de31a1b1eb54299f353fdcbf89b4a9",
+    "snapshot_bytes": 268522,
+    "snapshot_time_utc8": "2026-10-11T14:46:32.712703+08:00",
+    "byte_window": [
+      0,
+      268522
+    ],
+    "s1_history_time_window": [
+      "2026-10-11T14:26:22.2860769+08:00",
+      "2026-10-11T14:38:27.8194456+08:00"
+    ],
+    "scope": "追加日志在采集时保存全部前缀；含本会话此前记录，S1归属依据55至64history和独立additional capture。后续追加不改变此快照。"
+  },
+  "root_session_reported_cumulative_peak_mb": 2580.367,
+  "process_tree_peak_memory": "NOT_MEASURED",
+  "limitations": [
+    "此前UTF8重载/globalUTF8与unique imported wrapper以实际原history绑定，不重跑products。",
+    "root追加日志含非UTF8旧字节，原RAW不改写；仅以ASCII字节正则提取数值。",
+    "root累计峰值不是此次全进程树峰值，未测总墙钟时间。"
+  ]
+}

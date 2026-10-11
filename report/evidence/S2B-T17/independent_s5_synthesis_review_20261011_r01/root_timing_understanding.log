@@ -1,0 +1,17 @@
+TIMING-16 最坏路径诊断（2026-10-11，UTC+8）
+
+| 项目 | 结论 | 置信度 |
+| --- | --- | --- |
+| 问题 | S5 CONV validation_ok6__5/CLK 至 result_error_latched_reg[0]/D，setup −12.623 ns；747 TIMING-16。 | 高 |
+| 时钟意图 | 同一个 clk_fpga_0，50 MHz、周期与要求均20.000 ns；不是跨时钟需求歧义。 | 高 |
+| 根因 | 62逻辑层（38 CARRY4、1 DSP48E1），数据32.219 ns，逻辑19.492 ns、布线12.727 ns；长度及reduction校验仍含宽乘法串联。 | 高 |
+| 时钟因素 | skew −0.145 ns，uncertainty 0.302 ns，PE0；本报告没有显示足以解释12.623 ns失败的时钟关系错误。 | 高 |
+| 已有约束 | 没有漏约束端点；原两条reset CDC false_path保留，不能用新例外隐藏有效校验路径。 | 高 |
+| 处理 | S6在同一组合校验周期内按既有正数、R≤4608及UINT32边界证明缩小乘法宽度；公开接口、错误优先与两个always_ff必须保持。 | 高 |
+| 授权与分类 | 已授权当前阶段内等价RTL修复、验证及Git提交。无需更改频率或产品接口，不涉及时序豁免或重大架构决定。 | 高 |
+| 其他方案 | 若新RTL仍失败，依据新路径决定物理优化或进一步等价表达；流水化需要另核语义与接口，不在本次S6改动内。 | 高 |
+| 后果检查 | 非法输入截断必须先被拒绝；内部近似值不得进入合法状态。独立数学、逐周期边界与完整layer0绑定核查后才综合。 | 高 |
+| 验证关口 | S5仍FAIL_TIMING。S6独立G2后在新Run重新综合、report_timing及methodology；最终必须postroute达标才能运行模型验收。 | 高 |
+
+依据：s5_platform_20261011_r01/timing_worst_synth.rpt、clocks_synth.rpt、timing_summary_synth.rpt、methodology_synth.rpt；均为已经关闭的实际S5报告。
+ROSS skill：vivado-timing-methodology-checks，已读取TIMING-16.md、GENERAL_GUIDELINES.md及SUPPORTED_IDS.md。记录本次理解与处置边界，不表示时序问题已关闭。

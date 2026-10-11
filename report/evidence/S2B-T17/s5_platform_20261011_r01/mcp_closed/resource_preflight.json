@@ -1,0 +1,85 @@
+{
+  "command": [
+    "powershell.exe",
+    "-NoProfile",
+    "-Command",
+    "$os=Get-CimInstance Win32_OperatingSystem; $ps=Get-CimInstance Win32_Process | Where-Object {$_.Name -match 'vivado|xsim|verilator|cc1plus|hw_server|vitis|python'}; [pscustomobject]@{TotalVisibleMemorySizeKiB=$os.TotalVisibleMemorySize; FreePhysicalMemoryKiB=$os.FreePhysicalMemory; Processes=@($ps | Select-Object Name,ProcessId,ParentProcessId,CreationDate,ExecutablePath,CommandLine)} | ConvertTo-Json -Depth 5 -Compress"
+  ],
+  "native_exit_code": 0,
+  "elapsed_seconds": 0.4676811999997881,
+  "machine": {
+    "TotalVisibleMemorySizeKiB": 16463352,
+    "FreePhysicalMemoryKiB": 3843392,
+    "Processes": [
+      {
+        "Name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "ProcessId": 20360,
+        "ParentProcessId": 14012,
+        "CreationDate": "/Date(1791693532746)/",
+        "ExecutablePath": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "CommandLine": "\"C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe\" --stdio"
+      },
+      {
+        "Name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "ProcessId": 26468,
+        "ParentProcessId": 14012,
+        "CreationDate": "/Date(1791693732306)/",
+        "ExecutablePath": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "CommandLine": "\"C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe\" --stdio"
+      },
+      {
+        "Name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "ProcessId": 15124,
+        "ParentProcessId": 20360,
+        "CreationDate": "/Date(1791694331858)/",
+        "ExecutablePath": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "CommandLine": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe --proxy-mode --logdir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T14\\jtag_readonly_20261011_r01\\.vivado-ai --cmd-argv [\\\"D:\\\\Xilinx\\\\2026.1\\\\Vivado\\\\bin\\\\vivado.bat\\\",\\\"-mode\\\",\\\"tcl\\\",\\\"-log\\\",\\\".vivado-ai\\\\vivado_94331856_49ab2ff7.log\\\",\\\"-journal\\\",\\\".vivado-ai\\\\vivado_94331856_49ab2ff7.jou\\\",\\\"-notrace\\\",\\\"-source\\\",\\\".vivado-ai\\\\init_94331856_49ab2ff7.tcl\\\"] --workdir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T14\\jtag_readonly_20261011_r01"
+      },
+      {
+        "Name": "vivado.exe",
+        "ProcessId": 23188,
+        "ParentProcessId": 27836,
+        "CreationDate": "/Date(1791694332545)/",
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+        "CommandLine": "\"D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe\"   -mode tcl -log .vivado-ai\\vivado_94331856_49ab2ff7.log -journal .vivado-ai\\vivado_94331856_49ab2ff7.jou -notrace -source .vivado-ai\\init_94331856_49ab2ff7.tcl"
+      },
+      {
+        "Name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "ProcessId": 21220,
+        "ParentProcessId": 14012,
+        "CreationDate": "/Date(1791704008325)/",
+        "ExecutablePath": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "CommandLine": "\"C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe\" --stdio"
+      },
+      {
+        "Name": "vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "ProcessId": 11564,
+        "ParentProcessId": 14012,
+        "CreationDate": "/Date(1791713220634)/",
+        "ExecutablePath": "C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe",
+        "CommandLine": "\"C:\\Users\\22061\\.codex\\tools\\ross-2026.9.1\\vivado-mcp-server-windows-amd64-2026.9.1.exe\" --stdio"
+      },
+      {
+        "Name": "python.exe",
+        "ProcessId": 27092,
+        "ParentProcessId": 26336,
+        "CreationDate": "/Date(1791714220413)/",
+        "ExecutablePath": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "CommandLine": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -"
+      }
+    ]
+  },
+  "disk_C": {
+    "total": 318396952576,
+    "used": 289230254080,
+    "free": 29166698496
+  },
+  "heavy_stop_policy": {
+    "threads": 1,
+    "jobs": 1,
+    "maximum_no_progress_seconds": 1200,
+    "source_drift": "STOP",
+    "tool_error": "STOP",
+    "memory_error": "STOP"
+  }
+}

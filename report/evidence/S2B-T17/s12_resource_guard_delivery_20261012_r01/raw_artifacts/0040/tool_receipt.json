@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17",
+  "version": "S12_guard_r03",
+  "developer_status": "PASS_G1_ONLY",
+  "developer_stop": "STOP_NO_FURTHER_WRITES",
+  "source_commit_at_start": "932051cdacdf02f729d6a7554b07118d05e96aa4",
+  "source_bindings": {
+    "tmp/2B/S2B-T17/s11_resource_guard_20261012_r02/guard.py": "eca5338aeb738b86dbf77a0ae881c8dec5068b89bb4553719e8deba2423cb700",
+    "tmp/2B/S2B-T17/s11_guard_supervisor_20261012_r02/supervisor.py": "bbe74e023603ee686a746b92d7dc5c2cb8066b3554eb5e65176bb1f6af88b9f9",
+    "tmp/2B/S2B-T17/s12_guard_g0_review_20261012_r01/g0_analysis.json": "8648ea702296063a2190a4f871625f89bfb5cc5a88e9cc4409995c1e67f2a56d"
+  },
+  "guard_sha256": "17d0d101b1946d2c47a48ce2e9050dea8822c5983b1c497c4ce5e799e159ec78",
+  "source_diff_sha256": "9e8ea21ff0f1860d9ddffc9a0bfb2b4edb7027c155a7e597b8ae471db8684417",
+  "selftest_cases": 22,
+  "supplement_cases": 8,
+  "real_owned_canaries": 2,
+  "total_cases": 32,
+  "native_receipts": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r01\\selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 6.219000000004598,
+      "maximum_sampled_owned_tree_rss_bytes": 97583104,
+      "sample_interval_seconds": 0.02,
+      "continuous_absolute_peak_bytes": null,
+      "resource_limit_reason": null,
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil_version": "7.2.2"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r01\\supplement.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.43800000000192085,
+      "maximum_sampled_process_rss_bytes": 30314496,
+      "continuous_absolute_peak_bytes": null
+    }
+  ],
+  "monitoring_declaration": "规定节拍离散监测执行通过",
+  "absolute_tree_peak_bytes": null,
+  "old_s11_budget_pass": false,
+  "supervisor_unchanged": true,
+  "git_commit_performed": false,
+  "thresholds": {
+    "sample_interval_seconds": 1,
+    "tree_rss_bytes": 6442450944,
+    "available_ram_bytes": 536870912,
+    "c_disk_free_bytes": 8589934592,
+    "progress_no_change_seconds": 900,
+    "external_supervision_seconds": 5
+  },
+  "scope_notes": [
+    "仅新指定tmp目录：实现、mock、轻量自有canary及原件清单。",
+    "最多三轮枚举/读回，连续两轮活身份集合相同且末轮无新增退出才闭合。",
+    "confirmed_exits只记旧身份退出；无UNKNOWN时终轮真实live RSS求和，不填RSS零/旧值。",
+    "ROOT授权最小加强verified_chain保存parent及首次完整祖先身份校验；stop_one实际terminate/kill机制原字节保持。"
+  ],
+  "limitations": [
+    "仅G1；ROOT独立审查前不能用于Vivado重型任务。",
+    "未运行UART/JTAG/hw_server/Vivado重型任务；未访问板卡。",
+    "连续绝对峰和枚举前后未曾采到短命对象未知；闭合是离散非原子观察语义。",
+    "历史成员仅monitorable，未知/复用父链/字段漂移/AccessDenied/重扫不闭合保持null/BLOCKED。",
+    "动作前身份重查减少可检测复用窗口，OS没有整树原子采样或原子停止事务。",
+    "5秒supervisor保持原件，S12未执行heavy监督集成；不能继承旧S11预算PASS。",
+    "真实轻量测试自己的父子由守卫停止；无关自有同目录兄弟保持活，测试结束才按保存birth清理。",
+    "监测峰为20ms采样自身及子树RSS，连续OS绝对峰未测；工具调用总量未完整计数。"
+  ]
+}

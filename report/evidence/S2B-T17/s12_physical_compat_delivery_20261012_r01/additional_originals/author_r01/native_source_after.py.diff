@@ -1,0 +1,15 @@
+--- 原件:native_source_after.py
++++ S12隔离草稿:native_source_after.py
+@@ -2,9 +2,10 @@
+ import argparse,hashlib,json,os,re,subprocess,sys,time
+ from pathlib import Path
+ import psutil
+-ROOT=Path(__file__).parents[4]; WORK=Path(__file__).parent; CACHE=ROOT/'tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01'
++import compat_pins
++ROOT=Path(__file__).parents[4]; WORK=Path(__file__).parent; CACHE=compat_pins.PNR_CACHE
+ parser=argparse.ArgumentParser(); parser.add_argument('--expected-head',required=True); parser.add_argument('--output-dir',required=True,type=Path)
+-args=parser.parse_args(); out=args.output_dir
++args=parser.parse_args(); compat_pins.require_ready(pnr=True); out=args.output_dir
+ assert out.is_absolute() and out.parent.parts==CACHE.parts and CACHE.is_dir() and not out.exists() and re.fullmatch('source_after_check_r[0-9]+',out.name)
+ assert re.fullmatch('[0-9a-f]{40}',args.expected_head)
+ out.mkdir()

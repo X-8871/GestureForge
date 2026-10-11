@@ -21,7 +21,7 @@ import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
-SOURCE_BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+SOURCE_BASELINE = "891f750045ce141a8152c96025da559ff1d3a321"
 OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
@@ -140,7 +140,7 @@ end
 endmodule
 """
 
-    return stub + stub.replace("module s2a_conv_tile_engine (", "module s2b_conv_tile_engine (")
+    return stub + stub.replace("module s2a_conv_tile_engine (", "module s2b_conv_tile_engine #(parameter bit FROZEN_CONV_DESCRIPTOR=1\'b0) (")
 
 
 def generate_tb(model: dict) -> str:
@@ -395,6 +395,7 @@ def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict
     """只监视本次子进程树；RSS/时间/目录预算超限则终止并保存失败原件。"""
     log = evidence / (name + ".log")
     peak = 0; failure = None; started = time.monotonic(); progress = started
+    timeout = min(timeout,600)
     with log.open("x", encoding="utf-8") as stream:
         process = subprocess.Popen(command, cwd=work, env=env, stdout=stream, stderr=subprocess.STDOUT)
         while process.poll() is None:
@@ -410,8 +411,8 @@ def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict
             sizes = None
             if int(time.monotonic()-started)%5==0:
                 sizes = [sum(p.stat().st_size for p in directory.rglob("*") if p.is_file()) for directory in (work,evidence)]
-            if peak>1610612736 or time.monotonic()-started>timeout or (sizes and (sizes[0]>314572800 or sizes[1]>104857600)):
-                failure="RSS_LIMIT" if peak>1610612736 else "DISK_LIMIT" if sizes and (sizes[0]>314572800 or sizes[1]>104857600) else "TIMEOUT"
+            if peak>1073741824 or time.monotonic()-started>timeout or (sizes and (sizes[0]>671088640 or sizes[1]>104857600)):
+                failure="RSS_LIMIT" if peak>1073741824 else "DISK_LIMIT" if sizes and (sizes[0]>671088640 or sizes[1]>104857600) else "TIMEOUT"
                 subprocess.run(["taskkill","/PID",str(process.pid),"/T","/F"],stdout=stream,stderr=subprocess.STDOUT,timeout=30)
                 process.wait(timeout=30); break
             time.sleep(0.1)
@@ -445,7 +446,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
         for item in profile["source_derivation"]["derived_sources"]+profile["source_derivation"]["upstream_sources"]:
             if item["path"]==path: item["sha256"]=sha(target)
         return [path]
-    for version in ("0.1.0","0.1.1"):
+    for version in ("0.1.0","0.1.1","0.1.11"):
         reject("旧profile"+version,lambda p,v=version:p.update(version="s2b-inference-platform/"+v))
     reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry-and-coordinates/1.0.0"))
     reject("旧派生基线",lambda p:p["source_derivation"].update(derivation_baseline_commit="18c0c34f9da885b5f35869c282dc0c2ed50d720e"))
@@ -460,12 +461,12 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.11","variable version 0.1.1"))
-    reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.12","variable version 0.1.1"))
+    reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine #(.FROZEN_ROUTE_SHAPES(1'b1)) u_route_engine","s2a_route_engine u_route_engine"))
     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
     reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
-    reject("CONV引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_conv_tile_engine u_conv_engine","s2a_conv_tile_engine u_conv_engine"))
+    reject("CONV引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_conv_tile_engine #(.FROZEN_CONV_DESCRIPTOR(1'b1)) u_conv_engine","s2a_conv_tile_engine u_conv_engine"))
     reject("CONV校验新增batch语义自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_batch_count_latched != 32'd1)","(input_batch_count_latched != 32'd2)"))
     reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched}","input_element_plane = {32'd0, input_batch_count_latched} * {32'd0, input_channels_latched} * {32'd0, input_height_latched}"))
     reject("CONV额外周期自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","state <= ST_VALIDATE;","state <= ST_IDLE;"))
@@ -493,16 +494,16 @@ def main() -> int:
                 "完整非conv trace采用独立manifest黄金逐请求核对和流式digest，不保存巨量逐笔文本；可从固定来源重放。",
                 "boundary使用relational寄存器初态及双方相同控制注入，验证实际FF分支；完整trace不注入内部控制。",
                 "Verilator继承诊断保留-Wall/-Wno-fatal日志，不抑制原WIDTH/UNUSED警告；50MHz需独立新综合/STA。"],
-            "resource_budget":{"jobs":1,"threads":1,"rss_limit_bytes":1610612736,"cache_limit_bytes":314572800,"evidence_limit_bytes":104857600}}
+            "resource_budget":{"jobs":1,"threads":1,"rss_limit_bytes":1073741824,"cache_limit_bytes":671088640,"evidence_limit_bytes":104857600}}
     try:
         checker=load_checker(); bindings=checker.check_static(ROOT)
-        actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
-        committed_changes=subprocess.check_output(["git","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
+        actual=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+        committed_changes=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
         if committed_changes: raise ValueError("任务源码闭包的提交来源改变")
         report["committed_source_changes_since_task_baseline"]=committed_changes
         report["source_commit"]=actual; report["source_sha256_pre"]={**bindings,RUNNER:sha(ROOT/RUNNER)}
         report["frozen14_sha256_pre"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
-        old=subprocess.check_output(["git","show",BASELINE+":src/s2b_network_backend.sv"],cwd=ROOT)
+        old=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","show",BASELINE+":src/s2b_network_backend.sv"],cwd=ROOT)
         if hashlib.sha256(old).hexdigest()!=OLD_BACKEND_SHA: raise ValueError("S2 raw来源不符")
         (evidence/"s2_network_backend.sv").write_bytes(old)
         report["original_backend"]={"commit":BASELINE,"git_path":"src/s2b_network_backend.sv","raw_sha256":OLD_BACKEND_SHA,

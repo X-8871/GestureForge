@@ -1,0 +1,63 @@
+--- 冻结r01:compatibility_tests.py
++++ S12-PH-COMPAT2-R2:compatibility_tests.py
+@@ -45,6 +45,7 @@
+ case('增加末尾字节拒绝',lambda:after.compare_raw(b'a\n',b'a\n\n'),'Git blob与RAW')
+ 
+ original_ready=p.require_ready
++original_pin=p.SOURCE_COMMIT;p.SOURCE_COMMIT='0'*40
+ p.require_ready=lambda pnr=False:None
+ try:
+  def schema_test(name,mutate=None,expected=None):
+@@ -55,7 +56,7 @@
+   files={name:(json.dumps(profile).encode('utf-8') if name.startswith('board/') else ('SYNTHETIC '+name+'\n').encode('utf-8')) for name in names}
+   hashes={name:hashlib.sha256(raw).hexdigest() for name,raw in files.items()}
+   frozen14={name:hashes[name] for name in names[1:15]}; static={name:hashes[name] for name in names[:33]}
+-  freeze=dict(profile='s2b-inference-platform/0.1.12',source_files=[dict(path=name,sha256=hashes[name]) for name in names],active_rtl_sources=profile['rtl_sources'][:],frozen14=frozen14.copy(),fixture_test=True)
++  freeze=dict(source_commit='0'*40,profile='s2b-inference-platform/0.1.12',source_files=[dict(path=name,sha256=hashes[name]) for name in names],active_rtl_sources=profile['rtl_sources'][:],frozen14=frozen14.copy(),fixture_test=True)
+   if mutate: mutate(freeze,profile,files,static)
+   files['board/s2b_inference_platform.json']=json.dumps(profile).encode('utf-8')
+   board_hash=hashlib.sha256(files['board/s2b_inference_platform.json']).hexdigest()
+@@ -115,7 +116,7 @@
+    path=base/('call_'+str(i)+'.json'); save(path,call)
+    row=common.binding(path); row.update(id=history[i-1]['id'],label=label); gate['design_mcp_records'].append(row)
+   history_path=base/'history.json'; save(history_path,dict(content=[dict(type='text',text=json.dumps(dict(history=history)))]))
+-  log=base/'synthetic_log.json'; save(log,dict(fixture_test=True,not_real_result=True))
++  log=base/'synthetic_log.json'; save(log,dict(fixture_test=True,not_real_result=True,source_commit=commit))
+   keys=('source_before','source_after','source_before_native','source_after_native','mcp_history','immutable_session_log','guard_receipt','supervisor_receipt','owned_root_exit_proof','resource_admission') if pnr else ('preparation_receipt','source_before','source_after','static_source_closed','immutable_session_log','mcp_history')
+   for key in keys: gate[key]=common.binding(history_path if key=='mcp_history' else log)
+   if extra.get('hash_drift'): gate['design_mcp_records'][0]['sha256']='0'*64
+@@ -123,12 +124,15 @@
+   if extra.get('declared_duplicate_id'): gate['design_mcp_records'][1]['id']=gate['design_mcp_records'][0]['id']
+   gate_path=base/'gate.json'; save(gate_path,gate)
+   old_commit=impl.COMMIT; impl.COMMIT=commit
++  old_freeze,old_freeze_sha=c.FREEZE,c.FREEZE_SHA
++  if not pnr:
++   c.FREEZE=base/'freeze.json';save(c.FREEZE,dict(source_commit=commit,fixture_test=True));c.FREEZE_SHA=hashlib.sha256(c.FREEZE.read_bytes()).hexdigest()
+   try:
+    def action():
+     value=impl.closed_gate(gate_path) if pnr else c.closed_gate(gate_path,commit)
+     return dict(scope='SYNTHETIC_HISTORY_ONLY',actual_hashes_checked=True,accepted=True,paired=len(value[1]) if pnr else None)
+    case(('PNR ' if pnr else 'synth ')+name,action,expected)
+-  finally: impl.COMMIT=old_commit
++  finally: impl.COMMIT=old_commit;c.FREEZE,c.FREEZE_SHA=old_freeze,old_freeze_sha
+  history_test('valid_no_invalid')
+  history_test('actual_invalid_nonzero',invalid_code=1)
+  history_test('actual_invalid_other_nonzero',invalid_code=2)
+@@ -153,7 +157,7 @@
+  history_test('second_success_launch',mutate=launch_twice,expected='合法impl启动不是一次')
+  def close_fail(g,h,c,l,e):
+   h[-1]['code']=1;c[-1]['result']['content'][0]['text']=json.dumps(dict(exit_code=1))
+- history_test('close_native_failure',mutate=close_fail,expected='工程关闭失败')
++ history_test('close_native_failure',mutate=close_fail,expected='五必需PNR命令原生码')
+  history_test('actual_client_timeout_distinct',mutate=lambda g,h,c,l,e:c[0]['result'].update(isError=True),expected=None)
+  history_test('nine_labels_real_hash_schema',pnr=False)
+  history_test('source_hash_drift',pnr=False,mutate=lambda g,h,c,l,e:e.update(hash_drift=True),expected='声明原件漂移')
+@@ -161,7 +165,7 @@
+  history_test('source_closed_false',pnr=False,mutate=lambda g,h,c,l,e:g.update(project_closed=False),expected='ROOT关闭门禁')
+  history_test('source_wrong_nine_labels',pnr=False,mutate=lambda g,h,c,l,e:l.reverse(),expected='实际九design命令')
+ finally:
+- p.require_ready=original_ready
++ p.require_ready=original_ready;p.SOURCE_COMMIT=original_pin
+ 
+ def recovery_negative(name,mutate,expected):
+  """复制最小映射/入口和两个工具对象用于负向核查，不执行恢复。"""

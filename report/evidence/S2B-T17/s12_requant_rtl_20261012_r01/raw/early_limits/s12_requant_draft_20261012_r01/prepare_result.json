@@ -1,0 +1,60 @@
+{
+  "status": "DRAFT_PREPARED_ONLY_G0_MATH_BASIS",
+  "baseline_head": "932051cdacdf02f729d6a7554b07118d05e96aa4",
+  "production_source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "source_path": "src/s2b_conv_tile_engine.sv",
+  "source_raw_sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+  "proposed_source_raw_sha256": "1030fef362ef1c0c2717d19c262d1735eb2c1e80e8d4eca7dde4a68a872e3aea",
+  "patch_sha256": "e62410363151396a7fa92408c2963bde52a3832990cb1b0b6d54d9b463eee38b",
+  "prepare_native_exit_code": 0,
+  "invariants": {
+    "interface_ports_parameters_exact_text_unchanged": true,
+    "all_always_ff_and_following_text_exact_unchanged": true,
+    "parameter_selection_magnitude_product_rounding_shift_exact_unchanged": true,
+    "upstream_combinational_validation_address_compute_exact_unchanged": true,
+    "response_mapping_handshake_sequential_text_exact_unchanged": true,
+    "production_raw_unchanged": true,
+    "draft_untouched_original_eol_preserved": true,
+    "signed64_value_declaration_default_and_clamp_only_modified": true
+  },
+  "other_frozen_patch": {
+    "path": "tmp/2B/S2B-T17/s12_conv_address_draft_20261012_r01/draft.patch",
+    "sha256": "f9b3149d9c072dea9377469717ab2287b7403fd0adf4b4454262702498441a64",
+    "read_only": true
+  },
+  "prior_prepare_failure": {
+    "native_exit_code": 1,
+    "reason": "首次草稿脚本错误假设全文件为CRLF；断言在任何输出写入前拒绝，现改为局部保留原始换行",
+    "production_written": false
+  },
+  "integration": [
+    "两个patch均按局部上下文应用到当前生产文本，禁止以任意whole-file草稿覆盖已合并的另一改动",
+    "先核原基线与两patch哈希，按不重叠组合段应用，再对合并后生产SHA重新冻结并审查",
+    "ROOT生产writer统一更新实际适用的派生checker、profile版本、闭包SHA与现有清单；本草稿没有虚构注册",
+    "保持50MHz、-2、visibility0与全部FF/状态机/公开接口"
+  ],
+  "g1_pending": [
+    "实际RTL编译检查signed8 unary-minus的位宽及符号",
+    "原→拟实际RTL并行对照与全部公开请求/响应/结果周期trace，覆盖随机背压",
+    "绑定原CPU黄金，使用独立手算样例与原始requant RTL参考，不能只比较两个同源算法",
+    "accumulator全域代表边界、-2^31、零、正负半舍入、±126/127/128、合法M/q边界与非对称正负MQ参数",
+    "白盒补充全部unsigned32乘数及q=0/1/47/63/64/65/255；非法MQ仍按原优先返回",
+    "ARG/RANGE/LENGTH与compute非法字节/overflow优先组合、错误不消费输出、全部状态abort/reset与恢复",
+    "重跑两patch合并影响的CONV功能、地址、参数选择及公共周期回归，再独立冻结G2审查",
+    "独立G2后才开展全平台STA；当前没有新增STA结果"
+  ],
+  "mutants_not_executed": [
+    "删除rounding：A=1,M=1,q=1原应1，错误0",
+    "负饱和改-128：A=-128,M=1,q=0原应-127",
+    "检测[63:8]漏bit7：A=128,M=1,q=0原应127，错误-128",
+    "product截32：A=65536,M=65536,q=0原应127，错误0",
+    "rounded[63]恢复符号：A=-1,M=1,q=0原应-1，错误+1",
+    "shift低6位回绕：A=-2^31,M=0xFFFFFFFF,q=64原应0，错误-127",
+    "负数错误选择正参数：A=-2，正M=1/q0、负M=2/q0原应-4，错误-2"
+  ],
+  "limits": [
+    "G0数学结论仅适用二值整数；未证明任意X/Z或被强制的不合法64位rounded值",
+    "未运行实际RTL/编译、CPU黄金、公开trace、mutants、STA、实板或G1/G2",
+    "没有生产写入、Git提交、ROSS或进程/硬件操作"
+  ]
+}

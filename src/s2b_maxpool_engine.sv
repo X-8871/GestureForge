@@ -90,6 +90,18 @@ module s2b_maxpool_engine (
     logic [31:0] query_tap_source_channel [0:8];
     logic signed [63:0] query_tap_source_y [0:8];
     logic signed [63:0] query_tap_source_x [0:8];
+    // 三个冻结POOL层分别使用常量尺寸；未匹配层仍由原首个参数分支拒绝。
+    logic [1:0] geometry_shape_select;
+    integer geometry_tap_index;
+    logic [32:0] fixed_query_output_height [0:2];
+    logic [32:0] fixed_query_output_width [0:2];
+    logic [3:0] fixed_query_tap_count [0:2];
+    logic [8:0] fixed_query_tap_valid_mask [0:2];
+    logic [31:0] fixed_query_tap_address [0:2][0:8];
+    logic [31:0] fixed_query_tap_source_channel [0:2][0:8];
+    logic signed [63:0] fixed_query_tap_source_y [0:2][0:8];
+    logic signed [63:0] fixed_query_tap_source_x [0:2][0:8];
+    logic [2:0] fixed_query_error_code [0:2];
     logic [2:0] query_error_code;
     logic query_inputs_valid;
     logic query_outputs_valid;
@@ -103,11 +115,11 @@ module s2b_maxpool_engine (
     logic [2:0] window_error_code;
     integer tap_index;
 
-    s2b_maxpool_geometry u_geometry (
+    s2b_maxpool_geometry u_geometry_l9 (
         .input_base_address(input_base_address),
-        .input_channels(input_channels),
-        .input_height(input_height),
-        .input_width(input_width),
+        .input_channels(32'd128),
+        .input_height(32'd104),
+        .input_width(32'd104),
         .kernel_height(32'd2),
         .kernel_width(32'd2),
         .stride_y(32'd2),
@@ -116,15 +128,63 @@ module s2b_maxpool_engine (
         .input_channel(output_channel),
         .output_y(output_y),
         .output_x(output_x),
-        .output_height(query_output_height),
-        .output_width(query_output_width),
-        .tap_count(query_tap_count),
-        .tap_valid_mask(query_tap_valid_mask),
-        .tap_address(query_tap_address),
-        .tap_source_channel(query_tap_source_channel),
-        .tap_source_y(query_tap_source_y),
-        .tap_source_x(query_tap_source_x),
-        .error_code(query_error_code)
+        .output_height(fixed_query_output_height[0]),
+        .output_width(fixed_query_output_width[0]),
+        .tap_count(fixed_query_tap_count[0]),
+        .tap_valid_mask(fixed_query_tap_valid_mask[0]),
+        .tap_address(fixed_query_tap_address[0]),
+        .tap_source_channel(fixed_query_tap_source_channel[0]),
+        .tap_source_y(fixed_query_tap_source_y[0]),
+        .tap_source_x(fixed_query_tap_source_x[0]),
+        .error_code(fixed_query_error_code[0])
+    );
+
+    s2b_maxpool_geometry u_geometry_l17 (
+        .input_base_address(input_base_address),
+        .input_channels(32'd256),
+        .input_height(32'd52),
+        .input_width(32'd52),
+        .kernel_height(32'd2),
+        .kernel_width(32'd2),
+        .stride_y(32'd2),
+        .stride_x(32'd2),
+        .darknet_padding_parameter(32'd1),
+        .input_channel(output_channel),
+        .output_y(output_y),
+        .output_x(output_x),
+        .output_height(fixed_query_output_height[1]),
+        .output_width(fixed_query_output_width[1]),
+        .tap_count(fixed_query_tap_count[1]),
+        .tap_valid_mask(fixed_query_tap_valid_mask[1]),
+        .tap_address(fixed_query_tap_address[1]),
+        .tap_source_channel(fixed_query_tap_source_channel[1]),
+        .tap_source_y(fixed_query_tap_source_y[1]),
+        .tap_source_x(fixed_query_tap_source_x[1]),
+        .error_code(fixed_query_error_code[1])
+    );
+
+    s2b_maxpool_geometry u_geometry_l25 (
+        .input_base_address(input_base_address),
+        .input_channels(32'd512),
+        .input_height(32'd26),
+        .input_width(32'd26),
+        .kernel_height(32'd2),
+        .kernel_width(32'd2),
+        .stride_y(32'd2),
+        .stride_x(32'd2),
+        .darknet_padding_parameter(32'd1),
+        .input_channel(output_channel),
+        .output_y(output_y),
+        .output_x(output_x),
+        .output_height(fixed_query_output_height[2]),
+        .output_width(fixed_query_output_width[2]),
+        .tap_count(fixed_query_tap_count[2]),
+        .tap_valid_mask(fixed_query_tap_valid_mask[2]),
+        .tap_address(fixed_query_tap_address[2]),
+        .tap_source_channel(fixed_query_tap_source_channel[2]),
+        .tap_source_y(fixed_query_tap_source_y[2]),
+        .tap_source_x(fixed_query_tap_source_x[2]),
+        .error_code(fixed_query_error_code[2])
     );
 
     int8_maxpool_window u_window (
@@ -135,6 +195,24 @@ module s2b_maxpool_engine (
     );
 
     always_comb begin
+        geometry_shape_select = 2'd0;
+        case (layer_index)
+            32'd9: geometry_shape_select = 2'd0;
+            32'd17: geometry_shape_select = 2'd1;
+            32'd25: geometry_shape_select = 2'd2;
+            default: geometry_shape_select = 2'd0;
+        endcase
+        query_output_height = fixed_query_output_height[geometry_shape_select];
+        query_output_width = fixed_query_output_width[geometry_shape_select];
+        query_tap_count = fixed_query_tap_count[geometry_shape_select];
+        query_tap_valid_mask = fixed_query_tap_valid_mask[geometry_shape_select];
+        query_error_code = fixed_query_error_code[geometry_shape_select];
+        for (geometry_tap_index = 0; geometry_tap_index < 9; geometry_tap_index = geometry_tap_index + 1) begin
+            query_tap_address[geometry_tap_index] = fixed_query_tap_address[geometry_shape_select][geometry_tap_index];
+            query_tap_source_channel[geometry_tap_index] = fixed_query_tap_source_channel[geometry_shape_select][geometry_tap_index];
+            query_tap_source_y[geometry_tap_index] = fixed_query_tap_source_y[geometry_shape_select][geometry_tap_index];
+            query_tap_source_x[geometry_tap_index] = fixed_query_tap_source_x[geometry_shape_select][geometry_tap_index];
+        end
         query_inputs_valid = 1'b0;
         case (layer_index)
             32'd9: begin
@@ -220,10 +298,17 @@ module s2b_maxpool_engine (
         result_value = result_value_latched;
         result_error_code = result_error_latched;
 
-        output_offset_work =
-            ((({32'd0, output_channel} * {32'd0, output_height}) +
-              {32'd0, output_y}) * {32'd0, output_width}) +
-            {32'd0, output_x};
+        // 原前置字段校验只接受三个冻结形状；坐标仍保留完整U32及64位偏移。
+        output_offset_work = 64'd0;
+        case (layer_index)
+            32'd9: output_offset_work = {32'd0, output_channel} * 64'd2704 +
+                ({32'd0, output_y} * 64'd52) + {32'd0, output_x};
+            32'd17: output_offset_work = {32'd0, output_channel} * 64'd676 +
+                ({32'd0, output_y} * 64'd26) + {32'd0, output_x};
+            32'd25: output_offset_work = {32'd0, output_channel} * 64'd169 +
+                ({32'd0, output_y} * 64'd13) + {32'd0, output_x};
+            default: output_offset_work = 64'd0;
+        endcase
         output_address_work = {33'd0, output_base_address} +
                               {1'b0, output_offset_work};
 

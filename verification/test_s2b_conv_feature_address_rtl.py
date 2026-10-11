@@ -17,9 +17,11 @@ import sys
 import time
 import psutil
 import test_s2b_backend_coordinates_rtl as support
+import test_s2b_conv_validation_rtl as validation
 
 ROOT=Path(__file__).resolve().parents[1]
 BASELINE="3f24c94564d10103aaa00db07356f666b085f687"
+SOURCE_BASELINE="891f750045ce141a8152c96025da559ff1d3a321"
 OLD_SHA="ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc"
 ENGINE="src/s2b_conv_tile_engine.sv"
 RUNNER="verification/test_s2b_conv_feature_address_rtl.py"
@@ -191,23 +193,23 @@ def main():
     """真实完整引擎编译与组合域回归，失败原件保留，单任务缓存独占。"""
     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True)
     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));args=parser.parse_args()
-    if not re.fullmatch(r"conv_feature_address_20261011_r\d+",args.run_id):parser.error("RunId不符")
-    cache=ROOT/"tmp/2B/S2B-T17/s10_conv_g1_20261011_r01";evidence=ROOT/"report/evidence/S2B-T17"/args.run_id;work=cache/args.run_id
+    if not re.fullmatch(r"(?:conv_feature_address_20261011_r\d+|s12_conv_feature_20261012_r\d+)",args.run_id):parser.error("RunId不符")
+    cache=ROOT/"tmp/2B/S2B-T17/s12_timing_cones_20261012_r01";evidence=ROOT/"report/evidence/S2B-T17"/args.run_id;work=cache/args.run_id
     if not cache.is_dir() or not evidence.parent.is_dir() or work.exists() or evidence.exists():parser.error("精确父目录/新RunId不符")
     work.mkdir();evidence.mkdir();started=time.monotonic()
-    report={"schema_version":1,"task_id":"S2B-T17-S10","run_id":args.run_id,"source_commit":BASELINE,"status":"FAIL","runs":[],"limitations":["内部寄存器/状态受控组合域，clk恒0；不作公开START可达域/周期证明。","公开START/owner/backpressure/abort-reset/数值由原boundary/layer0另跑。","G2/STA/G3/新109全网NOT_RUN"]}
+    report={"schema_version":1,"task_id":"S2B-T17-S10","run_id":args.run_id,"source_commit":SOURCE_BASELINE,"status":"FAIL","runs":[],"limitations":["内部寄存器/状态受控组合域，clk恒0；不作公开START可达域/周期证明。","公开START/owner/backpressure/abort-reset/数值由原boundary/layer0另跑。","G2/STA/G3/新109全网NOT_RUN"]}
     try:
-        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==BASELINE
+        assert subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==SOURCE_BASELINE
         checker=support.load_checker();static=checker.check_static(ROOT);bindings=dict(static)
-        bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,support.RUNNER,support.MODEL)})
+        bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,support.RUNNER,"verification/test_s2b_conv_validation_rtl.py",support.MODEL)})
         report["source_sha256_pre"]=bindings;snapshot=evidence/"source_snapshot";snapshot.mkdir()
         for p in bindings:
             target=snapshot/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
         report["frozen14_sha256"]={p:support.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256};assert report["frozen14_sha256"]==checker.FROZEN_CORE_SHA256
-        old=subprocess.check_output(["git","show",BASELINE+":"+ENGINE],cwd=ROOT);assert hashlib.sha256(old).hexdigest()==OLD_SHA
+        old=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","show",BASELINE+":"+ENGINE],cwd=ROOT);assert hashlib.sha256(old).hexdigest()==OLD_SHA
         old_lf=old.decode("utf-8").replace("\r\n","\n");actual=(ROOT/ENGINE).read_text(encoding="utf-8");ff="    always_ff @(posedge clk) begin"
-        assert old_lf[old_lf.index(ff):]==actual[actual.index(ff):] and old_lf.split(");",1)[0]==actual.split(");",1)[0]
-        report["ff_and_interface"]={"status":"IDENTICAL_LF_CONTENT","suffix_sha256":hashlib.sha256(actual[actual.index(ff):].encode()).hexdigest(),"old_git_sha256":OLD_SHA}
+        report["ff_and_interface"]=validation.assert_conv_contract(old_lf,actual)
+        report["ff_and_interface"]["old_git_sha256"]=OLD_SHA
         assert support.sha(ROOT/support.MODEL)==support.MODEL_SHA
         text,proof=vectors(json.loads((ROOT/support.MODEL).read_text(encoding="utf-8")));report["math_oracle"]=proof
         report["checker_negatives"]=support.checker_negatives(checker,work,static)

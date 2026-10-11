@@ -1,5 +1,8 @@
 // S2A-T15：tiny416 route 单输出元素 INT8 memory datapath。
-module s2b_route_engine (
+module s2b_route_engine #(
+    // 私有参数仅从冻结network实例透传；默认保留通用U32域。
+    parameter bit FROZEN_ROUTE_SHAPES = 1'b0
+) (
     input  logic        clk,
     input  logic        hard_reset,
     input  logic        abort,
@@ -132,7 +135,7 @@ module s2b_route_engine (
     logic [31:0] selected_byte_shift;
     logic [2:0] mapped_response_error;
 
-    s2b_route_query u_query (
+    s2b_route_query #(.FROZEN_ROUTE_SHAPES(FROZEN_ROUTE_SHAPES)) u_query (
         .source_count(source_count_latched),
         .groups(groups_latched),
         .group_id(group_id_latched),

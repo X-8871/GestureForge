@@ -1,0 +1,189 @@
+%Warning-WIDTHEXPAND: source\s2b_maxpool_geometry.sv:149:59: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'row_index' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2b_geometry_specialization.p_new.u_geometry_l25'
+  149 |                     row_y_work[row_index] = source_y_work + row_index;
+      |                                                           ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: source\s2b_maxpool_geometry.sv:182:65: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'kernel_y_work' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2b_geometry_specialization.p_new.u_geometry_l25'
+  182 |                         tap_source_y[tap_index] = source_y_work + kernel_y_work;
+      |                                                                 ^
+%Warning-WIDTHEXPAND: source\s2b_maxpool_geometry.sv:183:65: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'kernel_x_work' generates 32 bits.
+                                                           : ... note: In instance 'tb_s2b_geometry_specialization.p_new.u_geometry_l25'
+  183 |                         tap_source_x[tap_index] = source_x_work + kernel_x_work;
+      |                                                                 ^
+%Warning-WIDTHEXPAND: source\int8_maxpool_geometry.sv:138:59: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'row_index' generates 32 bits.
+                                                            : ... note: In instance 'tb_s2b_geometry_specialization.p_old.u_geometry'
+  138 |                     row_y_work[row_index] = source_y_work + row_index;
+      |                                                           ^
+%Warning-WIDTHEXPAND: source\int8_maxpool_geometry.sv:173:65: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'kernel_y_work' generates 32 bits.
+                                                            : ... note: In instance 'tb_s2b_geometry_specialization.p_old.u_geometry'
+  173 |                         tap_source_y[tap_index] = source_y_work + kernel_y_work;
+      |                                                                 ^
+%Warning-WIDTHEXPAND: source\int8_maxpool_geometry.sv:174:65: Operator ADD expects 64 bits on the RHS, but RHS's VARREF 'kernel_x_work' generates 32 bits.
+                                                            : ... note: In instance 'tb_s2b_geometry_specialization.p_old.u_geometry'
+  174 |                         tap_source_x[tap_index] = source_x_work + kernel_x_work;
+      |                                                                 ^
+%Warning-WIDTHEXPAND: source\s2b_upsample_engine.sv:137:60: Operator ADD expects 97 bits on the LHS, but LHS's REPLICATE generates 65 bits.
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+  137 |         output_address_work = {33'd0, output_base_address} +
+      |                                                            ^
+%Warning-WIDTHTRUNC: source\s2b_upsample_engine.sv:137:29: Operator ASSIGN expects 65 bits on the Assign RHS, but Assign RHS's ADD generates 97 bits.
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+  137 |         output_address_work = {33'd0, output_base_address} +
+      |                             ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: source\s2b_upsample_engine.sv:216:50: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 32 bits.
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+  216 |                             copied_value_latched <=
+      |                                                  ^~
+%Warning-WIDTHTRUNC: source\s2b_maxpool_engine.sv:271:37: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+  271 |                 {tap_address_latched[read_tap_index][31:2], 2'b00};
+      |                                     ^
+%Warning-WIDTHTRUNC: source\s2b_maxpool_engine.sv:272:65: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+  272 |             selected_input_lane = 4'b0001 << tap_address_latched[read_tap_index][1:0];
+      |                                                                 ^
+%Warning-WIDTHTRUNC: source\s2b_maxpool_engine.sv:274:44: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+  274 |                 {30'd0, tap_address_latched[read_tap_index][1:0]} * 32'd8;
+      |                                            ^
+%Warning-WIDTHTRUNC: source\s2b_maxpool_engine.sv:427:79: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+  427 |                             candidate_values_latched[read_tap_index * 8 +: 8] <=
+      |                                                                               ^~
+%Warning-WIDTHEXPAND: source\s2a_upsample_engine.sv:137:60: Operator ADD expects 97 bits on the LHS, but LHS's REPLICATE generates 65 bits.
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+  137 |         output_address_work = {33'd0, output_base_address} +
+      |                                                            ^
+%Warning-WIDTHTRUNC: source\s2a_upsample_engine.sv:137:29: Operator ASSIGN expects 65 bits on the Assign RHS, but Assign RHS's ADD generates 97 bits.
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+  137 |         output_address_work = {33'd0, output_base_address} +
+      |                             ^
+%Warning-WIDTHTRUNC: source\s2a_upsample_engine.sv:216:50: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 32 bits.
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+  216 |                             copied_value_latched <=
+      |                                                  ^~
+%Warning-WIDTHTRUNC: source\s2a_maxpool_engine.sv:193:37: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+  193 |                 {tap_address_latched[read_tap_index][31:2], 2'b00};
+      |                                     ^
+%Warning-WIDTHTRUNC: source\s2a_maxpool_engine.sv:194:65: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+  194 |             selected_input_lane = 4'b0001 << tap_address_latched[read_tap_index][1:0];
+      |                                                                 ^
+%Warning-WIDTHTRUNC: source\s2a_maxpool_engine.sv:196:44: Bit extraction of array[3:0] requires 2 bit index, not 3 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+  196 |                 {30'd0, tap_address_latched[read_tap_index][1:0]} * 32'd8;
+      |                                            ^
+%Warning-WIDTHTRUNC: source\s2a_maxpool_engine.sv:342:79: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SHIFTR generates 32 bits.
+                                                        : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+  342 |                             candidate_values_latched[read_tap_index * 8 +: 8] <=
+      |                                                                               ^~
+%Warning-UNUSEDSIGNAL: source\s2a_maxpool_engine.sv:88:17: Bits of signal are not used: 'query_tap_valid_mask'[8:4]
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+   88 |     logic [8:0] query_tap_valid_mask;
+      |                 ^~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: source\s2a_maxpool_engine.sv:90:18: Signal is not used: 'query_tap_source_channel'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+   90 |     logic [31:0] query_tap_source_channel [0:8];
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_maxpool_engine.sv:91:25: Signal is not used: 'query_tap_source_y'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+   91 |     logic signed [63:0] query_tap_source_y [0:8];
+      |                         ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_maxpool_engine.sv:92:25: Signal is not used: 'query_tap_source_x'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_old'
+   92 |     logic signed [63:0] query_tap_source_x [0:8];
+      |                         ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_upsample_engine.sv:69:18: Signal is not used: 'query_output_height'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+   69 |     logic [63:0] query_output_height;
+      |                  ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_upsample_engine.sv:70:18: Signal is not used: 'query_output_width'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+   70 |     logic [63:0] query_output_width;
+      |                  ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_upsample_engine.sv:72:18: Signal is not used: 'query_source_y'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+   72 |     logic [31:0] query_source_y;
+      |                  ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2a_upsample_engine.sv:73:18: Signal is not used: 'query_source_x'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_old'
+   73 |     logic [31:0] query_source_x;
+      |                  ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_maxpool_engine.sv:88:17: Bits of signal are not used: 'query_tap_valid_mask'[8:4]
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+   88 |     logic [8:0] query_tap_valid_mask;
+      |                 ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_maxpool_engine.sv:90:18: Signal is not used: 'query_tap_source_channel'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+   90 |     logic [31:0] query_tap_source_channel [0:8];
+      |                  ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_maxpool_engine.sv:91:25: Signal is not used: 'query_tap_source_y'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+   91 |     logic signed [63:0] query_tap_source_y [0:8];
+      |                         ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_maxpool_engine.sv:92:25: Signal is not used: 'query_tap_source_x'
+                                                         : ... note: In instance 'tb_s2b_geometry_specialization.p_new'
+   92 |     logic signed [63:0] query_tap_source_x [0:8];
+      |                         ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_upsample_engine.sv:69:18: Signal is not used: 'query_output_height'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+   69 |     logic [63:0] query_output_height;
+      |                  ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_upsample_engine.sv:70:18: Signal is not used: 'query_output_width'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+   70 |     logic [63:0] query_output_width;
+      |                  ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_upsample_engine.sv:72:18: Signal is not used: 'query_source_y'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+   72 |     logic [31:0] query_source_y;
+      |                  ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: source\s2b_upsample_engine.sv:73:18: Signal is not used: 'query_source_x'
+                                                          : ... note: In instance 'tb_s2b_geometry_specialization.u_new'
+   73 |     logic [31:0] query_source_x;
+      |                  ^~~~~~~~~~~~~~
+make: Entering directory '/c/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_pool_timing_20261012_r01/rtl_run/obj_engine'
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated.cpp
+D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:78:10: warning: 'STDOUT_FILENO' redefined
+   78 | # define STDOUT_FILENO _fileno(stdout)
+      |          ^~~~~~~~~~~~~
+In file included from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/locale.h:12,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/clocale:47,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/x86_64-w64-mingw32/bits/c++locale.h:41,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/bits/localefwd.h:42,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/string:48,
+                 from D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilatedos.h:653,
+                 from D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:51:
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:56:9: note: this is the location of the previous definition
+   56 | #define STDOUT_FILENO   1
+      |         ^~~~~~~~~~~~~
+D:\FPGA_S2A_MSYS2_20261001\env\mingw64\share\verilator/include/verilated.cpp:79:10: warning: 'STDERR_FILENO' redefined
+   79 | # define STDERR_FILENO _fileno(stderr)
+      |          ^~~~~~~~~~~~~
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:57:9: note: this is the location of the previous definition
+   57 | #define STDERR_FILENO   2
+      |         ^~~~~~~~~~~~~
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_s2b_geometry_specialization__pch.h -o Vtb_s2b_geometry_specialization__pch.h.fast.gch
+g++ -Os  -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.fast -c Vtb_s2b_geometry_specialization_vm_classes_0.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vtb_s2b_geometry_specialization__pch.h -o Vtb_s2b_geometry_specialization__pch.h.slow.gch
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization___024root__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization_s2b_maxpool_geometry__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization_s2b_maxpool_geometry__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization__Syms__ctor__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization__Syms__dtor__0__Slow.cpp
+g++   -I.  -MMD -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include -ID:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -D_GLIBCXX_USE_CXX11_ABI=0 -O1 -DVL_TIME_CONTEXT   -fcoroutines -include Vtb_s2b_geometry_specialization__pch.h.slow -c Vtb_s2b_geometry_specialization__Syms__Slow.cpp
+g++    verilated.o verilated_timing.o verilated_threads.o Vtb_s2b_geometry_specialization__ALL.a    -pthread -lpthread -latomic   -o Vtb_s2b_geometry_specialization
+rm Vtb_s2b_geometry_specialization__ALL.verilator_deplist.tmp
+make: Leaving directory '/c/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s12_pool_timing_20261012_r01/rtl_run/obj_engine'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702
+- Verilator: Built from 0.614 MB sources in 10 modules, into 3.624 MB in 17 C++ files needing 0.018 MB
+- Verilator: Walltime 35.095 s (elab=0.019, cvt=0.276, bld=34.579); cpu 0.000 s on 1 threads; allocated 45.352 MB

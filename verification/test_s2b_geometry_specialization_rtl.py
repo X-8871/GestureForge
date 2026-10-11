@@ -20,7 +20,7 @@ import time
 import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+BASELINE = "891f750045ce141a8152c96025da559ff1d3a321"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
 SEED = 0x2B171011
@@ -284,11 +284,13 @@ end endtask
 
 
 def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict, report: dict, timeout=300) -> None:
-    """单job进程树监测；超过1.5GiB或超时仅终止本次子进程并保留失败日志。"""
+    """单job监测；1GiB、640MiB缓存或100MiB证据越限时保留失败原件。"""
     started = time.monotonic()
     log = evidence / (name + ".log")
     peak = 0
     failure = None
+    directory_sample = 0.0
+    timeout = min(timeout, 600)
     with log.open("x", encoding="utf-8") as stream:
         process = subprocess.Popen(command, cwd=work, env=env, stdout=stream, stderr=subprocess.STDOUT)
         while process.poll() is None:
@@ -299,8 +301,12 @@ def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict
                 peak = max(peak, rss)
             except psutil.Error:
                 pass
-            if peak > 1610612736 or time.monotonic() - started > timeout:
-                failure = "RSS_LIMIT" if peak > 1610612736 else "TIMEOUT"
+            sizes = None
+            if time.monotonic()-directory_sample >= 5:
+                directory_sample = time.monotonic()
+                sizes = [sum(p.stat().st_size for p in directory.rglob("*") if p.is_file()) for directory in (work,evidence)]
+            if peak > 1073741824 or time.monotonic() - started > timeout or (sizes and (sizes[0] > 671088640 or sizes[1] > 104857600)):
+                failure = "RSS_LIMIT" if peak > 1073741824 else "DISK_LIMIT" if sizes and (sizes[0] > 671088640 or sizes[1] > 104857600) else "TIMEOUT"
                 subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
                                stdout=stream, stderr=subprocess.STDOUT, timeout=30)
                 process.wait(timeout=30)
@@ -371,7 +377,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.11", "variable version 0.1.2"))
+    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.12", "variable version 0.1.2"))
     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
     reject("可见性默认启用", lambda p: p.update(visibility_default=1))
@@ -414,13 +420,13 @@ def main() -> int:
             "差分oracle为冻结旧RTL；另以独立地址与signed最大值/nearest复制手算检查合法结果。",
             "空间采用明确分层采样；未枚举全部通道与空间组合。",
             "Verilator继承的原RTL宽度/未使用诊断保留日志，允许非fatal诊断；无静默waiver。"],
-        "resource_budget": {"job": 1, "threads": 1, "rss_limit_bytes": 1610612736}}
+        "resource_budget": {"job": 1, "threads": 1, "rss_limit_bytes": 1073741824}}
     started = time.monotonic()
     try:
-        actual = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        actual = subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
         checker = load_checker()
         bindings = checker.check_static(ROOT)
-        changes = subprocess.check_output(["git", "diff", "--name-only", BASELINE, actual, "--", *bindings],
+        changes = subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false", "diff", "--name-only", BASELINE, actual, "--", *bindings],
                                           cwd=ROOT, text=True).splitlines()
         report["source_commit"] = actual
         report["committed_source_changes_since_task_baseline"] = changes

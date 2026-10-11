@@ -1,0 +1,165 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "priority": "P1",
+  "reviewer_stop": "STOP_NO_HEAVY_PERMISSION",
+  "scope": "S12_guard_r03首次观测祖先PID复用补充G2反例；原PASS原件保留但当前版本不得用于heavy。",
+  "source_commit": "932051cdacdf02f729d6a7554b07118d05e96aa4",
+  "reviewed_source_hashes": {
+    "tmp/2B/S2B-T17/s12_resource_guard_20261012_r01/guard.py": "17d0d101b1946d2c47a48ce2e9050dea8822c5983b1c497c4ce5e799e159ec78"
+  },
+  "cases": [
+    {
+      "name": "首次观测旧child沿复用owned父PID",
+      "known_lineage_before": 0,
+      "verified_chain_accepted": true,
+      "collected_stoppable": true,
+      "unknown": [],
+      "chain": [
+        {
+          "pid": 30,
+          "create_time": 120,
+          "ppid": 20
+        },
+        {
+          "pid": 20,
+          "create_time": 150,
+          "ppid": 10
+        },
+        {
+          "pid": 10,
+          "create_time": 100,
+          "ppid": 0
+        }
+      ],
+      "invalid_edges": [
+        {
+          "child_pid": 30,
+          "child_birth": 120,
+          "parent_pid": 20,
+          "parent_birth": 150
+        }
+      ],
+      "mock_only": true
+    },
+    {
+      "name": "首次观测二级祖先晚于其child",
+      "known_lineage_before": 0,
+      "verified_chain_accepted": true,
+      "collected_stoppable": true,
+      "unknown": [],
+      "chain": [
+        {
+          "pid": 30,
+          "create_time": 160,
+          "ppid": 40
+        },
+        {
+          "pid": 40,
+          "create_time": 120,
+          "ppid": 20
+        },
+        {
+          "pid": 20,
+          "create_time": 150,
+          "ppid": 10
+        },
+        {
+          "pid": 10,
+          "create_time": 100,
+          "ppid": 0
+        }
+      ],
+      "invalid_edges": [
+        {
+          "child_pid": 40,
+          "child_birth": 120,
+          "parent_pid": 20,
+          "parent_birth": 150
+        }
+      ],
+      "mock_only": true
+    },
+    {
+      "name": "真实合法时间顺序稳定边界替身",
+      "known_lineage_before": 0,
+      "verified_chain_accepted": true,
+      "collected_stoppable": true,
+      "unknown": [],
+      "chain": [
+        {
+          "pid": 30,
+          "create_time": 150,
+          "ppid": 20
+        },
+        {
+          "pid": 20,
+          "create_time": 120,
+          "ppid": 10
+        },
+        {
+          "pid": 10,
+          "create_time": 100,
+          "ppid": 0
+        }
+      ],
+      "invalid_edges": [],
+      "mock_only": true
+    },
+    {
+      "name": "相等出生时间精度边界替身",
+      "known_lineage_before": 0,
+      "verified_chain_accepted": true,
+      "collected_stoppable": true,
+      "unknown": [],
+      "chain": [
+        {
+          "pid": 30,
+          "create_time": 120,
+          "ppid": 20
+        },
+        {
+          "pid": 20,
+          "create_time": 120,
+          "ppid": 10
+        },
+        {
+          "pid": 10,
+          "create_time": 100,
+          "ppid": 0
+        }
+      ],
+      "invalid_edges": [],
+      "mock_only": true
+    }
+  ],
+  "psutil": {
+    "version": "7.2.2",
+    "source_path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\__init__.py",
+    "source_sha256": "7b6a0675824eb1fa2ff0cb1eb36e358dc454703e51dfa4e9a0e6ccd26a159f0c",
+    "children_source_sha256": "3f979f3351a565ae31ad7769ff2854f81fd4bd02cda2a1254d077be8581ae0ed",
+    "finding": "recursive分支比较每个候选create_time与最初self.create_time(root birth)，没有逐边比较实际parent/child birth；因此ROOT100<P150但C120仍可通过根出生时间过滤。直接verified_chain独立反例不依赖children假设。"
+  },
+  "location": "guard.py:56–65、230–267（首次parent来自当前PID，无逐级birth先后）；collect_round:354–360授予首次完整链与stoppable。",
+  "impact": "首次观测旧child的不可变ppid可指向当前owned新父身份；保存parent与known_lineage均不能证明真实祖先归属，错误授予监测及停止权限。",
+  "close_conditions": [
+    "在identity/verified_chain每条候选至本轮ROOT的实际边检查parent.create_time<=child.create_time；仅到ROOT停止，根以上launcher不纳入本轮链。",
+    "首次登记、停止动作前两次复核、kill前两次复核都经同一逐边出生时间门禁；父晚于child failclosed，不导入known_lineage、不授予stoppable。",
+    "补测首次直接父晚于child、二级祖先晚于child、动作前复用及事件fsync后第二窗口；稳定正常顺序、同birth精度边界通过；AccessDenied/未知/缺失按既有保留规则。",
+    "不沿复用父PID追新对象，不修改r03/原PASS/旧S11预算；新候选冻结哈希后独立复审。"
+  ],
+  "actual_command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "-X",
+    "utf8",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_resource_guard_first_observation_review_20261012_r01\\check.py"
+  ],
+  "native_exit_semantics": "0表示反例验证执行成功；候选结论CHANGES_REQUIRED，不把执行0当工具通过。",
+  "elapsed_seconds": 0.01599999999598367,
+  "peak_memory_bytes": null,
+  "limitations": [
+    "全部PID/身份为独立mock，不声称真实OS复用；没有真实进程查询或停止。",
+    "本次读取本机psutil7.2.2源码，不运行它的真实children查询。",
+    "原独审PASS漏掉首次观测birth先后域，此补充阻断覆盖该遗漏，不覆盖原件。"
+  ]
+}

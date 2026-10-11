@@ -443,7 +443,8 @@ module s2b_network_backend (
         end
     end
 
-    s2b_conv_tile_engine u_conv_engine (
+    // 私有稳定descriptor模式只绑定冻结ROM的CONV派发。
+    s2b_conv_tile_engine #(.FROZEN_CONV_DESCRIPTOR(1'b1)) u_conv_engine (
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .buffer_owner_pl(buffer_owner_pl),
         .start_valid(conv_start_valid), .start_ready(conv_start_ready),
@@ -509,7 +510,8 @@ module s2b_network_backend (
         .result_error_code(maxpool_result_error)
     );
 
-    s2b_route_engine u_route_engine (
+    // 冻结ROM所有ROUTE source tuple已完整绑定，CSR不提供shape覆盖。
+    s2b_route_engine #(.FROZEN_ROUTE_SHAPES(1'b1)) u_route_engine (
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .start_valid(route_start_valid), .start_ready(route_start_ready),
         .source_count({30'd0, current_input_count}),

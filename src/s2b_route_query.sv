@@ -1,5 +1,8 @@
 // G0 tiny416 route 单输出元素：group 通道映射、NCHW 地址与 scale 重标定。
-module s2b_route_query (
+module s2b_route_query #(
+    // 仅冻结network实例启用；默认保持原任意U32组合查询。
+    parameter bit FROZEN_ROUTE_SHAPES = 1'b0
+) (
     input  logic [31:0] source_count,
     input  logic [31:0] groups,
     input  logic [31:0] group_id,
@@ -67,6 +70,26 @@ module s2b_route_query (
     logic [31:0] selected_source_index;
     logic [31:0] selected_source_channel;
 
+    // 完整96位tuple匹配，避免低位别名；固定值分别为C乘H与C乘H乘W。
+    function automatic logic [128:0] frozen_shape_lookup(input logic [95:0] shape_key);
+        begin
+            frozen_shape_lookup = 129'd0;
+            case (shape_key)
+                96'h000000200000006800000068: frozen_shape_lookup = {1'b1, 64'd3328, 64'd346112};
+                96'h000000400000003400000034: frozen_shape_lookup = {1'b1, 64'd3328, 64'd173056};
+                96'h000000400000006800000068: frozen_shape_lookup = {1'b1, 64'd6656, 64'd692224};
+                96'h000000800000001A0000001A: frozen_shape_lookup = {1'b1, 64'd3328, 64'd86528};
+                96'h000000800000003400000034: frozen_shape_lookup = {1'b1, 64'd6656, 64'd346112};
+                96'h000001000000000D0000000D: frozen_shape_lookup = {1'b1, 64'd3328, 64'd43264};
+                96'h000001000000001A0000001A: frozen_shape_lookup = {1'b1, 64'd6656, 64'd173056};
+                default: frozen_shape_lookup = 129'd0;
+            endcase
+        end
+    endfunction
+
+    logic [128:0] source0_frozen_shape;
+    logic [128:0] source1_frozen_shape;
+
     always_comb begin
         // 组合默认值保证非法输入无副作用，也避免推断锁存器。
         output_channels = 32'd0;
@@ -80,6 +103,8 @@ module s2b_route_query (
 
         bad_argument = 1'b0;
         bad_range = 1'b0;
+        source0_frozen_shape = 129'd0;
+        source1_frozen_shape = 129'd0;
         source0_shape_bytes = 64'd0;
         source1_shape_bytes = 64'd0;
         source0_plane_elements = 64'd0;
@@ -170,15 +195,25 @@ module s2b_route_query (
             bad_argument = 1'b1;
         end
 
-        source0_plane_elements = {32'd0, source0_channels} *
-                                 {32'd0, source0_height};
-        if (source0_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
-            bad_range = 1'b1;
+        if (FROZEN_ROUTE_SHAPES) begin
+            source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});
+            source0_plane_elements = source0_frozen_shape[127:64];
+            source0_shape_bytes = source0_frozen_shape[63:0];
+            if (!source0_frozen_shape[128]) begin
+                // 私有非冻结tuple拒绝；公开backend可达性由独立G0/G1证明。
+                bad_argument = 1'b1;
+            end
         end else begin
-            source0_shape_bytes = source0_plane_elements *
-                                  {32'd0, source0_width};
-            if (source0_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
+            source0_plane_elements = {32'd0, source0_channels} *
+                                     {32'd0, source0_height};
+            if (source0_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
                 bad_range = 1'b1;
+            end else begin
+                source0_shape_bytes = source0_plane_elements *
+                                      {32'd0, source0_width};
+                if (source0_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
+                    bad_range = 1'b1;
+                end
             end
         end
         source0_object_end = {32'd0, source0_base_address} +
@@ -190,15 +225,25 @@ module s2b_route_query (
         end
 
         if (source_count == 32'd2) begin
-            source1_plane_elements = {32'd0, source1_channels} *
-                                     {32'd0, source1_height};
-            if (source1_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
-                bad_range = 1'b1;
+            if (FROZEN_ROUTE_SHAPES) begin
+                source1_frozen_shape = frozen_shape_lookup({source1_channels, source1_height, source1_width});
+                source1_plane_elements = source1_frozen_shape[127:64];
+                source1_shape_bytes = source1_frozen_shape[63:0];
+                if (!source1_frozen_shape[128]) begin
+                    // 私有非冻结tuple拒绝；公开backend可达性由独立G0/G1证明。
+                    bad_argument = 1'b1;
+                end
             end else begin
-                source1_shape_bytes = source1_plane_elements *
-                                      {32'd0, source1_width};
-                if (source1_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
+                source1_plane_elements = {32'd0, source1_channels} *
+                                         {32'd0, source1_height};
+                if (source1_plane_elements > 64'h0000_0000_FFFF_FFFF) begin
                     bad_range = 1'b1;
+                end else begin
+                    source1_shape_bytes = source1_plane_elements *
+                                          {32'd0, source1_width};
+                    if (source1_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin
+                        bad_range = 1'b1;
+                    end
                 end
             end
             source1_object_end = {32'd0, source1_base_address} +

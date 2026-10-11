@@ -1,0 +1,17 @@
+--- r01/tb_s12_conv_cones.sv
++++ r02/tb_s12_conv_cones.sv
+@@ -1977,10 +1977,10 @@
+ for(integer lane=0;lane<8;lane++)begin u_generic.weight_read_byte[lane]=v_weight_byte[7:0];u_generic.lane_accumulator[lane]=v_accumulator;end
+ for(integer lane=0;lane<8;lane++)begin u_private.weight_read_byte[lane]=v_weight_byte[7:0];u_private.lane_accumulator[lane]=v_accumulator;end
+ for(integer lane=0;lane<8;lane++)begin u_next_mutant.weight_read_byte[lane]=v_weight_byte[7:0];u_next_mutant.lane_accumulator[lane]=v_accumulator;end
+-case(v_state)0:u_old.state=u_old.ST_IDLE;1:u_old.state=u_old.ST_COMPUTE_PREP;2:u_old.state=u_old.ST_COMPUTE_POINT_PREP;3:u_old.state=u_old.ST_COMPUTE;default:u_old.state=u_old.ST_REQUANT;endcase
+-case(v_state)0:u_generic.state=u_generic.ST_IDLE;1:u_generic.state=u_generic.ST_COMPUTE_PREP;2:u_generic.state=u_generic.ST_COMPUTE_POINT_PREP;3:u_generic.state=u_generic.ST_COMPUTE;default:u_generic.state=u_generic.ST_REQUANT;endcase
+-case(v_state)0:u_private.state=u_private.ST_IDLE;1:u_private.state=u_private.ST_COMPUTE_PREP;2:u_private.state=u_private.ST_COMPUTE_POINT_PREP;3:u_private.state=u_private.ST_COMPUTE;default:u_private.state=u_private.ST_REQUANT;endcase
+-case(v_state)0:u_next_mutant.state=u_next_mutant.ST_IDLE;1:u_next_mutant.state=u_next_mutant.ST_COMPUTE_PREP;2:u_next_mutant.state=u_next_mutant.ST_COMPUTE_POINT_PREP;3:u_next_mutant.state=u_next_mutant.ST_COMPUTE;default:u_next_mutant.state=u_next_mutant.ST_REQUANT;endcase
++case(v_state)0:u_old.state=u_old.ST_IDLE;1:u_old.state=u_old.ST_COMPUTE_PREP;2:u_old.state=u_old.ST_COMPUTE_POINT_PREP;3:u_old.state=u_old.ST_COMPUTE;default:u_old.state=u_old.ST_WEIGHT_SCAN;endcase
++case(v_state)0:u_generic.state=u_generic.ST_IDLE;1:u_generic.state=u_generic.ST_COMPUTE_PREP;2:u_generic.state=u_generic.ST_COMPUTE_POINT_PREP;3:u_generic.state=u_generic.ST_COMPUTE;default:u_generic.state=u_generic.ST_WEIGHT_SCAN;endcase
++case(v_state)0:u_private.state=u_private.ST_IDLE;1:u_private.state=u_private.ST_COMPUTE_PREP;2:u_private.state=u_private.ST_COMPUTE_POINT_PREP;3:u_private.state=u_private.ST_COMPUTE;default:u_private.state=u_private.ST_WEIGHT_SCAN;endcase
++case(v_state)0:u_next_mutant.state=u_next_mutant.ST_IDLE;1:u_next_mutant.state=u_next_mutant.ST_COMPUTE_PREP;2:u_next_mutant.state=u_next_mutant.ST_COMPUTE_POINT_PREP;3:u_next_mutant.state=u_next_mutant.ST_COMPUTE;default:u_next_mutant.state=u_next_mutant.ST_WEIGHT_SCAN;endcase
+ #1;
+ if((u_old.full_tile_patch_height_narrow!==gold_fh))$fatal(1,"全tile u_old.full_tile_patch_height_narrow case=%0d",count);
+ if((u_old.full_tile_patch_width_narrow!==gold_fw))$fatal(1,"全tile u_old.full_tile_patch_width_narrow case=%0d",count);

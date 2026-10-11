@@ -1,0 +1,51 @@
+"""隔离归档原生包装；不停止任何外部进程。"""
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+import time
+import psutil
+
+HERE = pathlib.Path(__file__).absolute().parent
+
+def main():
+    label, *command = sys.argv[1:]
+    assert label.isidentifier() and command
+    outputs = [HERE / (label + suffix) for suffix in (".stdout.bin", ".stderr.bin", ".native.json")]
+    assert not any(p.exists() for p in outputs)
+    start = time.monotonic()
+    peak = 0
+    unknown = 0
+    with outputs[0].open("xb") as stdout, outputs[1].open("xb") as stderr:
+        child = subprocess.Popen(command, stdout=stdout, stderr=stderr, cwd=HERE.parents[3])
+        while True:
+            try:
+                root = psutil.Process()
+                owned = [root] + root.children(recursive=True)
+                value = sum(p.memory_info().rss for p in owned)
+                peak = max(peak, value)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                unknown += 1
+            if peak > 128 * 1024 * 1024:
+                # 仅阻断归档派发；不终止未经确认的树对象。
+                raise RuntimeError("自有轻量树离散RSS超过128MiB")
+            code = child.poll()
+            if code is not None:
+                break
+            if time.monotonic() - start > 180:
+                raise RuntimeError("自有归档子命令超过180秒，未对任何外部对象执行stop")
+            time.sleep(0.05)
+    result = {"command": command, "wrapper_command": sys.orig_argv, "cwd": str(HERE.parents[3]),
+              "native_exit_code": code, "elapsed_seconds": time.monotonic() - start,
+              "python": sys.executable, "python_version": sys.version, "psutil_version": psutil.__version__,
+              "sampled_owned_tree_peak_bytes": peak, "sample_interval_seconds": 0.05,
+              "unknown_samples": unknown, "absolute_tree_peak_bytes": None,
+              "stdout": {"path": str(outputs[0]), "sha256": hashlib.sha256(outputs[0].read_bytes()).hexdigest()},
+              "stderr": {"path": str(outputs[1]), "sha256": hashlib.sha256(outputs[1].read_bytes()).hexdigest()}}
+    outputs[2].write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(result, ensure_ascii=False))
+    return code
+
+if __name__ == "__main__":
+    sys.exit(main())

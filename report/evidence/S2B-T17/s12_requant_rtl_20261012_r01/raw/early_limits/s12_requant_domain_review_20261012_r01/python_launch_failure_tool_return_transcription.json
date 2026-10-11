@@ -1,0 +1,20 @@
+{
+  "evidence_kind": "tool_return_transcription",
+  "raw_stderr_bytes_preserved": false,
+  "transcription_scope": "从本聊天中实际exec_command返回逐字转录output；不是原进程stdout或stderr文件，也不能证明原始编码字节",
+  "original_command_text": "& 'C:\\Program Files\\Git\\bin\\bash.exe' -lc 'python tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/independent_integer_check.py; sha256sum tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/independent_integer_check.py tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/integer_check_result.json src/s2b_conv_tile_engine.sv; sed -n \"145,163p\" tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01/reports/timing_worst_postroute.rpt'",
+  "original_exec_arguments": {"shell": "powershell", "login": false, "max_output_tokens": 3400},
+  "reported_tool_result": {
+    "chunk_id": "424f35",
+    "wall_time_seconds": 0.8054557,
+    "exit_code": 0,
+    "original_token_count": 512,
+    "output": "Unable to create process using '\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/independent_integer_check.py'\r\n2fd6c2e409d1aec461f2e896d1cd413b1896e5bbfa5559597d8f32922bba9f36 *tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/independent_integer_check.py\nsha256sum: tmp/2B/S2B-T17/s12_requant_domain_review_20261012_r01/integer_check_result.json: No such file or directory\n51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555 *src/s2b_conv_tile_engine.sv\n  -------------------------------------------------------------------\n                         required time                         22.006    <hidden>\n                         arrival time                         -25.207    <hidden>\n  -------------------------------------------------------------------\n                         slack                                 -3.201    <hidden>\n\nSlack (VIOLATED) :        -3.197ns  (required time - arrival time)\n  Source:                 s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/lane_accumulator_reg[0][0]/C\n                            (rising edge-triggered cell FDRE clocked by clk_fpga_0  {rise@0.000ns fall@10.000ns period=20.000ns})\n  Destination:            s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/output_block_reg_448_511_6_7/RAMA/I\n                            (rising edge-triggered cell RAMD64E clocked by clk_fpga_0  {rise@0.000ns fall@10.000ns period=20.000ns})\n  Path Group:             clk_fpga_0\n  Path Type:              Setup (Max at Slow Process Corner)\n  Requirement:            20.000ns  (clk_fpga_0 rise@20.000ns - clk_fpga_0 rise@0.000ns)\n  Data Path Delay:        22.448ns  (logic 12.866ns (57.313%)  route 9.582ns (42.687%))\n  Logic Levels:           46  (CARRY4=32 DSP48E1=2 LUT1=1 LUT2=1 LUT3=1 LUT5=1 LUT6=7 MUXF7=1)\n  Clock Path Skew:        -0.177ns (DCD - SCD + CPR)\n    Destination Clock Delay (DCD):    2.650ns = ( 22.650 - 20.000 ) \n    Source Clock Delay      (SCD):    2.961ns\n"
+  },
+  "failed_python_launcher_native_exit_code": null,
+  "exit_code_limitation": "工具返回0是整个复合Bash命令的结束状态，最后的sed成功；没有捕获失败Python启动器自身的退出码，不可把0称为其原生退出码",
+  "source_script_sha256_at_attempt": "2fd6c2e409d1aec461f2e896d1cd413b1896e5bbfa5559597d8f32922bba9f36",
+  "bound_by_original_integer_receipt": false,
+  "original_stderr_file_path": null,
+  "rerun": false
+}

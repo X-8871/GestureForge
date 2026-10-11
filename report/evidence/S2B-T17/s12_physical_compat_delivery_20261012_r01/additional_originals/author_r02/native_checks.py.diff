@@ -1,0 +1,11 @@
+--- 冻结r01:native_checks.py
++++ S12-PH-COMPAT2-R2:native_checks.py
+@@ -35,7 +35,7 @@
+    try:
+     if proc.create_time()==birth: peak=max(peak or 0,proc.memory_info().rss+psutil.Process().memory_info().rss)
+    except psutil.NoSuchProcess: pass
+-   if (peak or 0)>256*1024**2 or time.monotonic()-started>180:
++   if (peak or 0)>128*1024**2 or time.monotonic()-started>180:
+     failure='OWNED_NATIVE_BUDGET'
+     if child.poll() is None and psutil.Process(child.pid).create_time()==birth: child.terminate()
+     break

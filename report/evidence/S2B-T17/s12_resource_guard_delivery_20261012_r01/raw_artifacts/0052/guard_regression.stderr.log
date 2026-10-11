@@ -1,0 +1,42 @@
+test_action_after_collect_parent_reuse_rejected (__main__.Semantics.test_action_after_collect_parent_reuse_rejected) ... ok
+test_action_between_first_and_second_check_reuse_rejected (__main__.Semantics.test_action_between_first_and_second_check_reuse_rejected) ... ok
+test_action_saved_grandparent_reuse_rejected (__main__.Semantics.test_action_saved_grandparent_reuse_rejected) ... FAIL
+test_action_stable_ancestor_chain_allowed (__main__.Semantics.test_action_stable_ancestor_chain_allowed) ... ok
+test_alive_access_denied (__main__.Semantics.test_alive_access_denied) ... ok
+test_ancestor_alive_denied_blocked (__main__.Semantics.test_ancestor_alive_denied_blocked) ... ok
+test_confirmed_exit_and_next_sample (__main__.Semantics.test_confirmed_exit_and_next_sample) ... ok
+test_continuous_churn_blocked (__main__.Semantics.test_continuous_churn_blocked) ... ok
+test_exit_during_candidate_read (__main__.Semantics.test_exit_during_candidate_read) ... ok
+test_fields_drift (__main__.Semantics.test_fields_drift) ... ok
+test_independently_owned_new_pid (__main__.Semantics.test_independently_owned_new_pid) ... ok
+test_known_alive_unknown (__main__.Semantics.test_known_alive_unknown) ... ok
+test_known_orphan_historical_rss (__main__.Semantics.test_known_orphan_historical_rss) ... ok
+test_new_child_after_first_enumeration (__main__.Semantics.test_new_child_after_first_enumeration) ... ok
+test_new_unknown_orphan_blocked (__main__.Semantics.test_new_unknown_orphan_blocked) ... ok
+test_old_pid_reused_not_enumerated (__main__.Semantics.test_old_pid_reused_not_enumerated) ... ok
+test_owned_root_upstream_not_bound (__main__.Semantics.test_owned_root_upstream_not_bound) ... ok
+test_parent_nosuch_alive_candidate_not_retired (__main__.Semantics.test_parent_nosuch_alive_candidate_not_retired) ... ok
+test_ppid_drift (__main__.Semantics.test_ppid_drift) ... ok
+test_reused_parent_blocked (__main__.Semantics.test_reused_parent_blocked) ... ok
+test_root_exit_orphan_retained (__main__.Semantics.test_root_exit_orphan_retained) ... ok
+test_stable_live (__main__.Semantics.test_stable_live) ... ok
+
+======================================================================
+FAIL: test_action_saved_grandparent_reuse_rejected (__main__.Semantics.test_action_saved_grandparent_reuse_rejected)
+----------------------------------------------------------------------
+RuntimeError: 父出生时间晚于子对象，拒绝复用父PID链
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\selftest.py", line 93, in run
+    function(self, w, m, root)
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\selftest.py", line 287, in test_action_saved_grandparent_reuse_rejected
+    with self.assertRaisesRegex(RuntimeError, "祖先链身份变化"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "祖先链身份变化" does not match "父出生时间晚于子对象，拒绝复用父PID链"
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.019s
+
+FAILED (failures=1)

@@ -24,7 +24,7 @@ import test_s2b_backend_coordinates_rtl as support
 
 ROOT=Path(__file__).resolve().parents[1]
 BASELINE="5cb092dcce3631f310e67228738a674a6a82ce41"
-SOURCE_BASELINE="3f24c94564d10103aaa00db07356f666b085f687"
+SOURCE_BASELINE="891f750045ce141a8152c96025da559ff1d3a321"
 RUNNER="verification/test_s2b_conv_validation_rtl.py"
 RTL=("src/s2a_network_descriptor_pkg.sv","src/s2a_conv_tile_engine.sv","src/s2b_conv_tile_engine.sv")
 FIXTURE=Path("D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture")
@@ -83,6 +83,29 @@ def cpu_layer0(model,evidence,checker):
       "bindings":[{"path":str(p),"sha256":support.sha(p)} for p in (shard,gf8,ROOT/"verification/s1_t02_d2_int8_forward.py")],"restored_network_bytes":len(raw),"scope":"仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"}
 SKIP={"clk","hard_reset","abort","buffer_owner_pl","start_valid","backend_req_ready","backend_rsp_valid","backend_rsp_rdata","backend_rsp_error","result_ready"}
 
+
+FF_TILE_PREP_RHS = ('                    patch_height <=\n                        (((output_height_latched - tile_start_y >= TILE_EDGE) ? TILE_EDGE :\n                          output_height_latched - tile_start_y) - 1) * stride_y_latched +\n                        kernel_height_latched;\n                    patch_width <=\n                        (((output_width_latched - tile_start_x >= TILE_EDGE) ? TILE_EDGE :\n                          output_width_latched - tile_start_x) - 1) * stride_x_latched +\n                        kernel_width_latched;\n                    patch_byte_count <=\n                        ((((output_height_latched - tile_start_y >= TILE_EDGE) ? TILE_EDGE :\n                           output_height_latched - tile_start_y) - 1) * stride_y_latched +\n                         kernel_height_latched) *\n                        ((((output_width_latched - tile_start_x >= TILE_EDGE) ? TILE_EDGE :\n                           output_width_latched - tile_start_x) - 1) * stride_x_latched +\n                         kernel_width_latched) * input_channels_latched;\n', '                    patch_height <= tile_prep_patch_height;\n                    patch_width <= tile_prep_patch_width;\n                    patch_byte_count <= tile_prep_patch_bytes;\n')
+
+def assert_conv_contract(reference, current):
+    """仅允许获准三个RHS；其余完整FF和带默认关闭参数的公共接口精确一致。"""
+    reference = reference.replace("\r\n", "\n")
+    current = current.replace("\r\n", "\n")
+    marker = "    always_ff @(posedge clk) begin"
+    if reference.count("always_ff") != 2 or current.count("always_ff") != 2:
+        raise ValueError("时序块数量不同")
+    old = reference[reference.index(marker):]
+    before, after = FF_TILE_PREP_RHS
+    if old.count(before) != 1 or old.replace(before, after) != current[current.index(marker):]:
+        raise ValueError("FF存在三个RHS之外的差异")
+    header = reference.split(");", 1)[0]
+    allowed_header = header.replace("module s2b_conv_tile_engine (", "module s2b_conv_tile_engine #(\n    // 仅冻结network实例启用；默认保留原通用参数域和错误判据。\n    parameter bit FROZEN_CONV_DESCRIPTOR = 1'b0\n) (")
+    if current.split(");",1)[0] != allowed_header:
+        raise ValueError("公共接口或私有默认参数不同")
+    return {"status":"EXACT_THREE_RHS_EXCEPTION", "other_ff_equal":True,
+            "allowed_rhs_sha256":hashlib.sha256((before+after).encode()).hexdigest(),
+            "suffix_sha256":hashlib.sha256(current[current.index(marker):].encode()).hexdigest(),
+            "public_ports_equal":True,"private_parameter_default":0}
+
 def length_proof(text,math_report,checker):
     """独立数学判据和精确源结构核验；无限精度黄金不采用RTL截断结果。"""
     seed=0x2B171160;rng=random.Random(seed);u=(1<<32)-1
@@ -115,21 +138,20 @@ def length_proof(text,math_report,checker):
     prefix="\n".join(text.splitlines()[:math_report["s5_baseline_vectors"]])+"\n"
     if math_report["s5_baseline_vectors"]!=3924 or prefix!=reference.read_text(encoding="utf-8"):
         raise ValueError("S5全部3924条前缀不同")
-    baseline=subprocess.check_output(["git","show",BASELINE+":src/s2b_conv_tile_engine.sv"],cwd=ROOT).decode("utf-8").replace("\r\n","\n")
+    baseline=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","show",BASELINE+":src/s2b_conv_tile_engine.sv"],cwd=ROOT).decode("utf-8").replace("\r\n","\n")
     current=(ROOT/"src/s2b_conv_tile_engine.sv").read_text(encoding="utf-8")
     start="    always_ff @(posedge clk) begin"
-    if baseline.count("always_ff")!=2 or current.count("always_ff")!=2 or baseline[baseline.index(start):]!=current[current.index(start):]:
-        raise ValueError("两个时序块或其后声明不同")
+    contract=assert_conv_contract(baseline,current)
     header_old=baseline.split(");",1)[0].replace("s2b_conv_tile_engine","s2a_conv_tile_engine")
     header_new=(ROOT/"src/s2a_conv_tile_engine.sv").read_text(encoding="utf-8").split(");",1)[0]
     if header_old!=header_new:raise ValueError("原2A公共接口与S5接口不同")
-    if current.split(");",1)[0]!=baseline.split(");",1)[0]:raise ValueError("本轮公共接口不同")
-    if current.count("reduction_count_wide")!=3:raise ValueError("reduction有新消费者")
+    if current.count("reduction_count_wide")!=4 or current.count("reduction_count_latched <= reduction_count_wide[31:0]")!=1:
+        raise ValueError("reduction消费者漂移；仅多出互斥私有算术赋值")
     if current.count("output_elements_wide")!=4:raise ValueError("输出长度消费者漂移")
     return {"status":"PASS","seed":seed,"triples":len(triples),"positive_length_cases":positive_lengths,
         "valid_reduction_cases":valid_reduction,"s5_prefix_vectors":3924,"s4_prefix_vectors":math_report["s4_baseline_vectors"],
         "s5_vectors":{"path":reference.relative_to(ROOT).as_posix(),"sha256":reference_sha},
-        "two_always_ff_and_suffix_unchanged":True,"public_header_unchanged":True,
+        "two_always_ff_with_exact_rhs_exception":contract,"public_ports_unchanged":True,
         "sequential_suffix_sha256":hashlib.sha256(current[current.index(start):].encode("utf-8")).hexdigest(),
         "width_bounds":{"reduction_plane_bits":26,"reduction_product_bits":26,"valid_reduction_bits":13,"weight_bits":45,"length_plane_bits":64,"length_product_bits":64},
         "reason":"正因子才进入长度分支；R首分支保持，ST_VALIDATE仅成功时锁存R，OUTPUT_SCAN仅校验通过可达。"}
@@ -324,12 +346,13 @@ def vectors(model):
       "length_seed":length_seed,"manual_length_cases":length_manual,
       "independent_math":"黄金仍采用原完整Python整数H×W×C、min(OC,8)×R与原分支顺序，不采用窄判据；形状64bit减法/加法显式取模。"}
 
-def pair(header,instance="u_dut"):
+def pair(header,instance="u_dut",frozen=False):
     """公开端口同刺激双实例；比较全部输出，包括无效周期保留值。"""
     ports_here=ports(); outputs=[(w,n) for d,w,n in ports_here if d=="output"]
     declarations="\n".join(f"logic {w} candidate_{n};" for w,n in outputs)
     connections=re.sub(r"\.(\w+)\((\w+)\)",lambda m:f".{m[1]}(candidate_{m[2]})" if m[1] in [n for w,n in outputs] else m[0],header)
-    connections=connections.replace("s2a_conv_tile_engine "+instance,"s2b_conv_tile_engine u_candidate")
+    candidate="s2b_conv_tile_engine"+(" #(.FROZEN_CONV_DESCRIPTOR(1'b1))" if frozen else "")+" u_candidate"
+    connections=connections.replace("s2a_conv_tile_engine "+instance,candidate)
     compare=" || ".join(f"({n} !== candidate_{n})" for w,n in outputs)
     return declarations+"\n"+connections+f"\ninteger compare_cycles=0; always @(negedge clk) begin if ({compare}) $fatal(1,\"CONV公开输出逐周期不同 cycle=%0d\",compare_cycles); compare_cycles++; end\n"
 
@@ -408,22 +431,22 @@ endmodule
 """
 
 def layer0_tb():
-    """精确复用冻结T66公开端口黑盒，另加双完整模块全输出比较。"""
+    """复用冻结T66公开黑盒；候选启用平台私有域，原参考保留通用域。"""
     text=(ROOT/"sim/tb_s2a_t66_candidate_blackbox.sv").read_text(encoding="utf-8")
     m=re.search(r"    s2a_conv_tile_engine u_dut \(.*?\n    \);",text,re.S)
     if not m:raise ValueError("T66唯一实例缺失")
-    return text.replace(m[0],m[0]+"\n"+pair(m[0])).replace("tb_s2a_t66_candidate_blackbox","tb_s2b_conv_layer0")
+    return text.replace(m[0],m[0]+"\n"+pair(m[0],frozen=True)).replace("tb_s2a_t66_candidate_blackbox","tb_s2b_conv_layer0")
 
 def main():
     """独占新Run，冻结全部实际源码后单job构建；失败原件保留。"""
     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True);parser.add_argument("--mode",choices=("boundary","layer0"),required=True)
     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));parser.add_argument("--prepare-only",action="store_true");args=parser.parse_args()
-    if not re.fullmatch(r"(?:length_guard_20261011_r\d+|conv_(?:output|feature)_address_(?:boundary|layer0)_20261011_r\d+)",args.run_id):raise ValueError("RunId不符")
+    if not re.fullmatch(r"(?:length_guard_20261011_r\d+|conv_(?:output|feature)_address_(?:boundary|layer0)_20261011_r\d+|s12_conv_(?:boundary|layer0)_20261012_r\d+)",args.run_id):raise ValueError("RunId不符")
     work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
     for p in (work,evidence):
         if not p.parent.is_dir() or p.exists():raise ValueError("父目录缺失或Run已存在")
         p.mkdir()
-    report={"schema_version":1,"task_id":"S2B-T17-S10","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":SOURCE_BASELINE,"status":"FAIL","runs":[]}
+    report={"schema_version":1,"task_id":"S2B-T17-S12","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":SOURCE_BASELINE,"candidate_frozen_conv_descriptor":int(args.mode=="layer0"),"reference_frozen_conv_descriptor":0,"status":"FAIL","runs":[]}
     begin=time.monotonic()
     try:
         checker=support.load_checker();bindings=checker.check_static(ROOT)
@@ -432,10 +455,10 @@ def main():
         snapshot=evidence/"source_snapshot";snapshot.mkdir()
         for p in bindings:
             target=snapshot/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
-        actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip();report["source_commit"]=actual
+        actual=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","rev-parse","HEAD"],cwd=ROOT,text=True).strip();report["source_commit"]=actual
         report["legacy_ff_baseline"]=BASELINE
         report["source_baseline"]=SOURCE_BASELINE
-        if subprocess.check_output(["git","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).strip():raise ValueError("相关已提交源码偏离基线")
+        if subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).strip():raise ValueError("相关已提交源码偏离基线")
         report["checker_negatives"]=support.checker_negatives(checker,work,checker.check_static(ROOT))
         if support.sha(ROOT/support.MODEL)!=support.MODEL_SHA:raise ValueError("冻结manifest SHA漂移")
         # D2原件为CRLF；冻结Git blob为LF，只有关系核验规范换行，仍另绑实际rawSHA。
@@ -447,7 +470,7 @@ def main():
         (evidence/"math_oracle.json").write_text(json.dumps(math_report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         for directory in (work,evidence):(directory/"validation_vectors.txt").write_text(text,encoding="utf-8")
         report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,
-          "running_tools":[{"pid":p.pid,"name":p.info["name"],"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower() in ("vivado.exe","verilator_bin.exe","cc1plus.exe","vtb_s2b_conv_layer0.exe","vtb_s2b_conv_validation.exe")],"rss_limit_bytes":1610612736,"cache_limit_bytes":314572800,"heavy_slot":"root已授权唯一槽；job1/thread1"}
+          "running_tools":[{"pid":p.pid,"name":p.info["name"],"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower() in ("vivado.exe","verilator_bin.exe","cc1plus.exe","vtb_s2b_conv_layer0.exe","vtb_s2b_conv_validation.exe")],"rss_limit_bytes":1073741824,"cache_limit_bytes":671088640,"heavy_slot":"仅收到ROOT本次唯一槽准入后执行；job1/thread1"}
         if report["resource_preflight"]["available_ram_bytes"]<2147483648:raise ValueError("可用内存不足")
         source=work/"source";source.mkdir()
         for p in RTL:shutil.copyfile(ROOT/p,source/Path(p).name)

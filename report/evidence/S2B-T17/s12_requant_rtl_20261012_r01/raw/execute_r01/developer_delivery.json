@@ -1,0 +1,407 @@
+{
+  "schema": "s12_requant_whitebox_developer_delivery_v1",
+  "status": "PASS_G1_REQUANT_WHITEBOX_SUBCHECK_ONLY",
+  "source_evidence_head": "891f750045ce141a8152c96025da559ff1d3a321",
+  "original_full_engine_raw_sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+  "candidate_full_engine_raw_sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+  "full_engine_mode": "候选FROZEN_CONV_DESCRIPTOR=0；完整原模块/完整合并候选仅更名和LF转换",
+  "vectors": 138791,
+  "both_mq_branches_range_legal_vectors": 19026,
+  "random_seed": 20261012012,
+  "random_vectors": 20000,
+  "old_vs_sv_oracle_mismatches": 0,
+  "candidate_vs_sv_oracle_mismatches": 0,
+  "sv_oracle_vs_python_expectation_mismatches": 0,
+  "semantic_mutants": [
+    {
+      "id": 0,
+      "name": "noround",
+      "actual_rtl_mismatch_count": 2080,
+      "first_witness": {
+        "case": 0,
+        "acc_hex": "00000001",
+        "mq_hex": "00000001010000000200",
+        "actual_hex": "00",
+        "oracle_hex": "01"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 1,
+      "name": "minus128sat",
+      "actual_rtl_mismatch_count": 10649,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "80",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 2,
+      "name": "ignorebit7",
+      "actual_rtl_mismatch_count": 490,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "80",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 3,
+      "name": "product32",
+      "actual_rtl_mismatch_count": 11210,
+      "first_witness": {
+        "case": 3,
+        "acc_hex": "00010000",
+        "mq_hex": "00010000000000000900",
+        "actual_hex": "00",
+        "oracle_hex": "7f"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 4,
+      "name": "signwrong",
+      "actual_rtl_mismatch_count": 12378,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "7f",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 5,
+      "name": "shiftwrap6",
+      "actual_rtl_mismatch_count": 44710,
+      "first_witness": {
+        "case": 5,
+        "acc_hex": "80000000",
+        "mq_hex": "0000000100ffffffff40",
+        "actual_hex": "81",
+        "oracle_hex": "00"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 6,
+      "name": "negativeusespositive",
+      "actual_rtl_mismatch_count": 9914,
+      "first_witness": {
+        "case": 4,
+        "acc_hex": "ffffffff",
+        "mq_hex": "00000003000000000100",
+        "actual_hex": "fd",
+        "oracle_hex": "ff"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    }
+  ],
+  "compile": {
+    "command": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "--binary",
+      "--timing",
+      "--timescale",
+      "1ns/1ps",
+      "-Wall",
+      "-Wno-fatal",
+      "-Wno-BLKANDNBLK",
+      "-j",
+      "1",
+      "--threads",
+      "1",
+      "--output-split",
+      "10000",
+      "--output-split-cfuncs",
+      "100",
+      "--top-module",
+      "tb_s12_requant",
+      "--Mdir",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\obj_dir",
+      "-MAKEFLAGS",
+      "PYTHON3=\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"",
+      "-CFLAGS",
+      "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+      "s2a_network_descriptor_pkg.sv",
+      "rq_original_engine.sv",
+      "rq_candidate_engine.sv",
+      "requant_mutants.sv",
+      "tb_s12_requant.sv"
+    ],
+    "native_exit_code": 0,
+    "elapsed_seconds": 30.17105289999745,
+    "stdout": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.stdout.log",
+      "sha256": "69102145e8bd6388f0d7a323af84290d6e8e17b80b725d72d29edc415202d126"
+    },
+    "stderr": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.stderr.log",
+      "sha256": "f14b354195913d3137981e35c6a8f1a692e42d77d53036b1c339354217e307ad"
+    },
+    "budget_breach": null,
+    "sampled_tree_rss_peak_bytes": 680644608,
+    "absolute_tree_peak_bytes": null,
+    "scope": "包装器与其recursive自有子树离散采样；不查询现有重型或实物进程"
+  },
+  "simulation": {
+    "command": [
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\obj_dir\\Vtb_s12_requant.exe"
+    ],
+    "native_exit_code": 0,
+    "elapsed_seconds": 3.094703999995545,
+    "stdout": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.stdout.log",
+      "sha256": "f6b8a841e0f8cdb2837d728711d934499b04bf2273e3ba26e4fc095079d7ac25"
+    },
+    "stderr": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "budget_breach": null,
+    "sampled_tree_rss_peak_bytes": 680644608,
+    "absolute_tree_peak_bytes": null,
+    "scope": "包装器与其recursive自有子树离散采样；不查询现有重型或实物进程"
+  },
+  "inner_wrapper_native_exit_code": 0,
+  "outer_guard_exec_native_exit_code": 0,
+  "outer_guard_exec_basis": "exec_command affed1/session21958最终b17708 exit0并打印REQUANT_GUARD_NATIVE_EXIT=0",
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "psutil": "7.2.2",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "elapsed_seconds": 33.587946899999224,
+  "sampled_guard_and_owned_tree_rss_peak_bytes": 700121088,
+  "absolute_tree_peak_bytes": null,
+  "minimum_sampled_available_ram_bytes": 3768889344,
+  "minimum_sampled_c_disk_free_bytes": 14134251520,
+  "outer_samples": 367,
+  "scope_disk_bytes_at_collection": 297587291,
+  "budget_breach": null,
+  "root_admission": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_root_run_20261012_r01\\offline_admission_before_requant_r01.json",
+    "sha256": "2403aa3bf916ccda7e29e8346f0db1e62c05fcd1a658f8fffd605e3838b26a0f"
+  },
+  "heavy_runs": 1,
+  "repeat_runs": 0,
+  "bindings": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/native_wrapper.py",
+      "sha256": "3521d3c7d240d48808c571a2f99736398c9198be5e773b92c0d1c25dcdab5419",
+      "bytes": 9413,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/prepare.py",
+      "sha256": "a16ebd7125aa602480982a7b82942aecc608997b38b4fefc402999633e401278",
+      "bytes": 15493,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/requant_mutants.sv",
+      "sha256": "3c7d853b9ec784bcddbf87d302bbfd7bb4e56f9c580ca03eb1e66dbb60c937b2",
+      "bytes": 20002,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/rq_candidate_engine.sv",
+      "sha256": "516e55be8ba42f2fb0dfefe64185968e4fd9d6c956cd484c11ae16aa69b95b19",
+      "bytes": 213747,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/rq_original_engine.sv",
+      "sha256": "19ee7de2fe206dd7dc8375c4567432e36776b0a9b810bbdcdfaa31225b78e609",
+      "bytes": 60009,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "bytes": 374316,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/tb_s12_requant.sv",
+      "sha256": "883c5672b3771633135abe8171771c5072c50e82f14a7858828d094b13559c55",
+      "bytes": 8329,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/vectors.txt",
+      "sha256": "27d4369e4e338cd3c2accc2c810b67a384ce256fe8e2b33f4c425fe2dbc9014d",
+      "bytes": 5440530,
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_source_preflight_20261012_r01/source_snapshot/src/s2b_conv_tile_engine.sv",
+      "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "bytes": 60011,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_combined_prepare_20261012_r01/candidate/src/s2b_conv_tile_engine.sv",
+      "sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+      "bytes": 213748,
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+      "bytes": 213748,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/prepare_manifest.json",
+      "sha256": "300667b4874605630f3dc5bcf301ac63a0f011591d897638366c6dd1ae69527a",
+      "bytes": 4375,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execution_plan.json",
+      "sha256": "5c54ec6a5ee8d80edda3000dbdaaebc22d360643b247666a238c11e1b0116226",
+      "bytes": 4867,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/prepare_native_results.json",
+      "sha256": "277cacb770276941a01b4f720f7dac83e7910042767dbef3b861597bde1f26a5",
+      "bytes": 2570,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_guard.py",
+      "sha256": "92bdc36c6073a66fb9843ed641d9f58264da9cbefa799f1037627924daf0f041",
+      "bytes": 7164,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/collect_delivery.py",
+      "sha256": "20cd14b2d889fc218bfd534e82f144f727c8db9d9d1956b12ad4be9a9c5334ee",
+      "bytes": 8146,
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_guard.stdout.log",
+      "sha256": "18fe62d51e446339b01fc299dd46c90a1701c5feb359d4f684990608e2ca0b97",
+      "bytes": 379,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_guard.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_r01.outer.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_r01.outer.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_r01.outer.samples.jsonl",
+      "sha256": "6d2827ded554c5cb829918d995fcc775d2d15bb43edfc6e93f3930e20c1d1956",
+      "bytes": 77989,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/execute_r01.outer.native.json",
+      "sha256": "959e0a244f05e7d2d0081ff12eadad4ccba4a21aced78a5b2c19e561e0a036a4",
+      "bytes": 2355,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/execution_plan.json",
+      "sha256": "12a9ef2c196c1d3db88a808d2684b76b3cedceb7f3454cfd1970d8549983782d",
+      "bytes": 4870,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/compile.stdout.log",
+      "sha256": "69102145e8bd6388f0d7a323af84290d6e8e17b80b725d72d29edc415202d126",
+      "bytes": 12377,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/compile.stderr.log",
+      "sha256": "f14b354195913d3137981e35c6a8f1a692e42d77d53036b1c339354217e307ad",
+      "bytes": 59247,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/compile.native.json",
+      "sha256": "21fc5e6118ae749afda90d6b5efcda93ecc69429f06fe305e613ce08de735f01",
+      "bytes": 1712,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/compile.samples.jsonl",
+      "sha256": "3b79b1163819fa4ec0259cc836cd3cdc9e25d5632a75c366b1ec55bb87501598",
+      "bytes": 36950,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/simulation.stdout.log",
+      "sha256": "f6b8a841e0f8cdb2837d728711d934499b04bf2273e3ba26e4fc095079d7ac25",
+      "bytes": 1236,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/simulation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/simulation.native.json",
+      "sha256": "fc06a6386432e6e0c06b6f46ff8ba0201fdf23b88d861e722eaf806838df1712",
+      "bytes": 1031,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/simulation.samples.jsonl",
+      "sha256": "6bc2a04dbf1a9c7748f9ab118c1320bb50b5ad5f46a8668b1217141c30805bc0",
+      "bytes": 3298,
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/result.json",
+      "sha256": "f6b0a246819b1c31de3181f2fd9f2218e1106c1836263575986b68ce923ee391",
+      "bytes": 3994,
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/obj_dir/Vtb_s12_requant.exe",
+      "sha256": "10560476885e71de681ca6cae317d550f279a2e4ac10dba4bae0957c789af103",
+      "bytes": 1691058,
+      "role": "artifact"
+    }
+  ],
+  "stale_prepare_limitations_in_original_result": "result.json原样继承prepare_manifest的限制文本，其中mutants尚NOT_RUN等是准备时描述；本delivery记录真实执行结果并明确替代这些过期执行状态，不改写原件。",
+  "limits_and_scope": [
+    "仅二态白盒内部寄存器装载，非法M/q不声称公共FSM可达；X/Z未测",
+    "BLKANDNBLK关闭只用于clk恒0的bench；不代表生产lint或公共FSM通过",
+    "7 mutants由实际RTL输出与oracle差异击杀；不是SHA mismatch或全核心变异",
+    "公共全trace、ARG/overflow/abort/reset与private=1数值由其他整体回归覆盖",
+    "单job/threads1/640MiB/1GiB/600s；RAM512MiB、C盘8GiB运行停止线无触发",
+    "离散自有树采样不证明连续绝对峰；缺测退出身份保留于原samples",
+    "没有第二heavy、生产修改、Git、ROSS、设备探测或实板操作；本代理不提供自己的独立G2"
+  ],
+  "completion": "STOP_HEAVY_SLOT_RELEASED"
+}

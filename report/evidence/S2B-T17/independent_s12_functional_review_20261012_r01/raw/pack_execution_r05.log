@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\independent_s12_functional_review_20261012_r01\review_pack.py", line 65, in <module>
+    check(stage=='cones' and inst=='u_private' and sig=='state' and int(line)==1981 and 'u_generic.state=' in actual,'仅工具private state来源定位错配',dict(stage=stage,instance=inst,signal=sig,line=line,actual=actual,raw=block[:900]))
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\independent_s12_functional_review_20261012_r01\review_pack.py", line 13, in check
+    assert ok,(name,detail)
+           ^^
+AssertionError: ('仅工具private state来源定位错配', {'stage': 'cones', 'instance': 'u_private', 'signal': 'layer_index_latched', 'line': '1886', 'actual': 'u_generic.layer_index_latched=v_layer_index_latched;', 'raw': "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:2533:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'layer_index_latched'\n                                                            : ... note: In instance 'tb_s12_conv_cones.u_private'\n                      source\\s2b_conv_tile_engine.sv:2533:13: \n 2533 |             layer_index_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s12_conv_cones.sv:1886:11: ... Location of other write\n 1886 | u_generic.layer_index_latched=v_layer_index_latched;\n      |           ^~~~~~~~~~~~~~~~~~~\n"})

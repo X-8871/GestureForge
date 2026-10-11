@@ -1,0 +1,43 @@
+--- a/src/s2b_conv_tile_engine.sv
++++ b/src/s2b_conv_tile_engine.sv
+@@ -257,7 +257,6 @@
+     logic [63:0] requant_product;
+     logic [63:0] requant_rounding_add;
+     logic [63:0] requant_rounded_magnitude;
+-    logic signed [63:0] requant_signed_value;
+     logic signed [7:0] requantized_value;
+ 
+     logic [31:0] output_global_y;
+@@ -591,7 +590,6 @@
+         requant_product = 64'd0;
+         requant_rounding_add = 64'd0;
+         requant_rounded_magnitude = 64'd0;
+-        requant_signed_value = 64'sd0;
+         requantized_value = 8'sd0;
+         if ((requant_lane_index < LANE_COUNT) &&
+             (requant_lane_index < group_lane_count)) begin
+@@ -613,19 +611,12 @@
+             end
+             requant_rounded_magnitude =
+                 (requant_product + requant_rounding_add) >> requant_q_shift;
+-            if (requant_accumulator[31]) begin
+-                requant_signed_value =
+-                    -$signed({1'b0, requant_rounded_magnitude});
++            if (|requant_rounded_magnitude[63:7]) begin
++                requantized_value = requant_accumulator[31] ? -8'sd127 : 8'sd127;
++            end else if (requant_accumulator[31]) begin
++                requantized_value = -$signed(requant_rounded_magnitude[7:0]);
+             end else begin
+-                requant_signed_value =
+-                    $signed({1'b0, requant_rounded_magnitude});
+-            end
+-            if (requant_signed_value > 64'sd127) begin
+-                requantized_value = 8'sd127;
+-            end else if (requant_signed_value < -64'sd127) begin
+-                requantized_value = -8'sd127;
+-            end else begin
+-                requantized_value = requant_signed_value[7:0];
++                requantized_value = $signed(requant_rounded_magnitude[7:0]);
+             end
+         end
+ 

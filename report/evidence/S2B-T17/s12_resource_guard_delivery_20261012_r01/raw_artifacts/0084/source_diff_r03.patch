@@ -1,0 +1,11 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r01\guard.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\guard.py
+@@ -264,6 +264,8 @@
+             parent = identity(psutil.Process(current["ppid"]))
+             if current["parent"] is None or not same_identity(parent, current["parent"]):
+                 raise RuntimeError("祖先身份变化")
++            if parent["create_time"] > current["create_time"]:
++                raise RuntimeError("父出生时间晚于子对象，拒绝复用父PID链")
+             current = parent
+ 
+     def collect(self, root):

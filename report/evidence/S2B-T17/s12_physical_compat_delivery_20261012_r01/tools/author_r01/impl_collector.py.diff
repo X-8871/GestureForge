@@ -1,0 +1,156 @@
+--- 原件:impl_collector.py
++++ S12隔离草稿:impl_collector.py
+@@ -1,27 +1,28 @@
+-"""仅准备及关闭后归档S11单次PNR；不调用Vivado、硬件或真实进程查询。"""
++"""仅准备及关闭后归档S12单次PNR；不调用Vivado、硬件或真实进程查询。"""
+ import argparse,hashlib,importlib.util,json,math,re,sys,subprocess,time
+ from pathlib import Path
++import compat_pins
+ ROOT=Path(__file__).parents[4]; WORK=Path(__file__).parent
+-CACHE=ROOT/'tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01'
+-PROJECT=ROOT/'tmp/2B/S2B-T17/s11p1'
+-REPORT=ROOT/'report/evidence/S2B-T17/s11_implementation_20261012_r01'
+-COMMIT='a710ec431474841a81912a6055f861e811a151e3'
++CACHE=compat_pins.PNR_CACHE
++PROJECT=compat_pins.PROJECT
++REPORT=compat_pins.PNR_REPORT
++COMMIT=compat_pins.SOURCE_COMMIT
+ APPROVED_LAUNCH='launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1'
+-EVIDENCE_HEAD_AT_PREPARATION='932051cdacdf02f729d6a7554b07118d05e96aa4'
+-COMMON=ROOT/'tmp/2B/S2B-T17/s11_collection_20261012_r01/collector.py'
+-COMMON_SHA='8bb59a7485a2f03adb6d71d5923913d724952077a961af208fff18f76b8c6cc9'
++EVIDENCE_HEAD_AT_PREPARATION=None
++COMMON=WORK/'collector.py'
++COMMON_SHA='7770b7e8b41ee6afee9a87cf4d341a9d83d0e5ae1106ec1b1378e518be23e5f2'
+ assert hashlib.sha256(COMMON.read_bytes()).hexdigest()==COMMON_SHA
+ spec=importlib.util.spec_from_file_location('common',COMMON); c=importlib.util.module_from_spec(spec); spec.loader.exec_module(c)
+-FREEZE=ROOT/'report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_freeze.json'
+-FREEZE_SHA='54fdd3e18d6e897bfb8c9df9ccd30699bb15e52ad807a327cf1ea37ad27093dc'
+-SYNTH=ROOT/'report/evidence/S2B-T17/s11_platform_20261012_r01/s11_delivery_manifest_r05.json'
+-SYNTH_SHA='723cd835363a44d7aa9c7f27897204bf36f04e2d545ee1a463d6c998664dc98b'
+-REVIEW=ROOT/'tmp/2B/S2B-T17/independent_s11_guard_race2_review_20261012_r01/final_review_receipt.json'
+-REVIEW_SHA='050969a3f50315ef55f15fe00253bf8ca071ffbc2e6924e3974a3b22dfe40cd6'
+-GUARD=ROOT/'tmp/2B/S2B-T17/s11_resource_guard_20261012_r02/guard.py'
+-GUARD_SHA='eca5338aeb738b86dbf77a0ae881c8dec5068b89bb4553719e8deba2423cb700'
+-SUP=ROOT/'tmp/2B/S2B-T17/s11_guard_supervisor_20261012_r02/supervisor.py'
+-SUP_SHA='bbe74e023603ee686a746b92d7dc5c2cb8066b3554eb5e65176bb1f6af88b9f9'
++FREEZE=compat_pins.SOURCE_FREEZE
++FREEZE_SHA=compat_pins.SOURCE_FREEZE_SHA
++SYNTH=compat_pins.SYNTH_MANIFEST
++SYNTH_SHA=compat_pins.SYNTH_MANIFEST_SHA
++REVIEW=ROOT/'tmp/2B/S2B-T17/independent_s12_resource_guard_r04_review_20261012_r01/final_review_receipt.json'
++REVIEW_SHA='f528d50934d7e5c4c4cadbc0ae6db2d9708806d992cc222499de06e3ad83d350'
++GUARD=compat_pins.GUARD
++GUARD_SHA=compat_pins.GUARD_SHA
++SUP=compat_pins.SUP
++SUP_SHA=compat_pins.SUP_SHA
+ def save(path,value):
+  """只允许授权隔离目录或明确交接后的新正式文件，不覆盖。"""
+  c.require(path.is_relative_to(WORK) or path.is_relative_to(REPORT),'写入越界')
+@@ -31,24 +32,21 @@
+  """声明输入必须同时绑定路径、原字节SHA和长度。"""
+  actual=c.binding(ROOT/row['path']); c.require(all(actual[k]==row[k] for k in actual),'输入漂移：'+row['path']); return ROOT/actual['path']
+ def permanent(path):
+- """复用正式S11/S10保存的相同原字节，不再复制旧证据树。"""
++ """正式原件直接绑定；临时工具只从S12正式映射核原恢复路径/SHA。"""
+  if path.is_relative_to(ROOT/'report'): return c.binding(path)
+- maps=c.read(ROOT/'report/evidence/S2B-T17/s11_platform_20261012_r01/resource_monitoring/resource_index.json')['mapping']
+- for row in maps:
+-  if row['original']['path']==c.rel(path) and row['original']['sha256']==c.sha(path):
+-   validate_binding(row['saved']); return row['saved']
+- raise ValueError('缺少永久恢复来源：'+str(path))
++ return compat_pins.resolve_permanent(path)
+ def prepare(receipt):
+  """只冻结依赖及关闭后所需输入，不读取live工程日志或宣称就绪终态。"""
++ compat_pins.require_ready(pnr=True)
+  for p,digest in ((FREEZE,FREEZE_SHA),(SYNTH,SYNTH_SHA),(REVIEW,REVIEW_SHA),(GUARD,GUARD_SHA),(SUP,SUP_SHA)):
+   c.require(c.sha(p)==digest,'准备依赖SHA不同')
+  freeze=c.read(FREEZE); c.require(len(freeze['source_files'])==43 and len(freeze['active_rtl_sources'])==18 and len(freeze['frozen14'])==14,'冻结来源集合不同')
+  for p in (PROJECT,CACHE,REPORT): c.exact(p,'directory')
+- source_binding=ROOT/'report/evidence/S2B-T17/s11_platform_20261012_r01/s11_source_binding.json'; bound=c.read(source_binding)
++ source_binding=SYNTH.parent/'s12_source_binding.json'; bound=c.read(source_binding)
+  c.require(bound['source_count']==43 and bound['static_count']==33 and set(bound['compiled_rtl'])==set(freeze['active_rtl_sources']),'继承综合编译闭包不符')
+- deps=[c.binding(FREEZE),c.binding(SYNTH),c.binding(source_binding),c.binding(ROOT/'report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/delivery_manifest.json'),c.binding(ROOT/'report/evidence/S2B-T17/independent_maxpool_geometry_factor_review_20261012_r01/delivery_manifest_r02.json'),c.binding(ROOT/'report/evidence/S2B-T17/independent_s11_synthesis_review_20261012_r01/delivery_manifest_r02.json'),permanent(REVIEW),permanent(REVIEW.with_name('raw_manifest.jsonl')),permanent(GUARD),permanent(SUP)]
++ deps=[c.binding(FREEZE),c.binding(SYNTH),c.binding(source_binding),c.binding(compat_pins.FUNCTIONAL_G1),c.binding(compat_pins.FUNCTIONAL_G2),c.binding(compat_pins.SYNTH_G2),c.binding(WORK/'compat_pins.py'),permanent(REVIEW),permanent(REVIEW.with_name('raw_manifest.jsonl')),permanent(GUARD),permanent(SUP)]
+  # 收集公共函数源也必须在正式包中可恢复；准备阶段只核对，关闭后才复制。
+- result=dict(status='PREPARED_NOT_EXECUTED_NOT_CLOSED',source_commit=COMMIT,evidence_head_at_preparation=EVIDENCE_HEAD_AT_PREPARATION,source_count=43,active_rtl_count=18,frozen14_count=14,profile='s2b-inference-platform/0.1.11',clock_hz=50000000,visibility=0,dependencies=deps,collector=c.binding(Path(__file__)),common=c.binding(COMMON),source_after_scripts=[c.binding(WORK/name) for name in ('source_after_check.py','native_source_after.py')],required_gate_fields=['root_explicit_signal=CLOSED_PNR_INPUTS_READY','project_closed=true','owned_root_exited=true','root_declared_implementation_execution_count=1','source_commit='+COMMIT,'source_before/source_after/source_before_native/source_after_native/mcp_history/immutable_session_log/guard_receipt/supervisor_receipt/owned_root_exit_proof/resource_admission bindings','design_mcp_records：每条原生history的id、label、path、sha256、bytes；声明id唯一且与history双射','additional_closed_files：入口拒绝、ROOT5秒监督消费、最终监测原件、必要恢复输入','native_files：实际impl_1原生日志/命令/marker逐项原字节绑定'],required_design_labels=['launch_invalid','launch','wait','open_run','reports','close'],limits='6GiB树/512MiB可用RAM/8GiB磁盘/1秒；工具准备不批准实际预算',heavy_ross_hardware_or_process_query=False)
++ result=dict(status='PREPARED_NOT_EXECUTED_NOT_CLOSED',source_commit=COMMIT,evidence_head_at_preparation=EVIDENCE_HEAD_AT_PREPARATION,source_count=43,active_rtl_count=18,frozen14_count=14,profile='s2b-inference-platform/0.1.12',clock_hz=50000000,visibility=0,dependencies=deps,collector=c.binding(Path(__file__)),common=c.binding(COMMON),source_after_scripts=[c.binding(WORK/name) for name in ('source_after_check.py','native_source_after.py')],required_gate_fields=['root_explicit_signal=CLOSED_PNR_INPUTS_READY','project_closed=true','owned_root_exited=true','root_declared_implementation_execution_count=1','source_commit='+COMMIT,'source_before/source_after/source_before_native/source_after_native/mcp_history/immutable_session_log/guard_receipt/supervisor_receipt/owned_root_exit_proof/resource_admission bindings','design_mcp_records：每条原生history的id、label、path、sha256、bytes；声明id唯一且与history双射','additional_closed_files：入口拒绝、ROOT5秒监督消费、最终监测原件、必要恢复输入','native_files：实际impl_1原生日志/命令/marker逐项原字节绑定'],required_design_labels=['launch','wait','open_run','reports','close'],limits='6GiB树/512MiB可用RAM/8GiB磁盘/1秒；工具准备不批准实际预算',heavy_ross_hardware_or_process_query=False)
+  c.require(re.fullmatch(r'prepared_receipt(?:_r\d+)?\.json',receipt) is not None,'准备记录名不合法')
+  save(WORK/receipt,result); print(json.dumps(result,ensure_ascii=False))
+ def timing(text):
+@@ -71,6 +69,7 @@
+  return dict(status='FAIL_TIMING' if failing else 'NUMERIC_TIMING_MET_PENDING_REVIEW',timing=values,clock=dict(period_ns=period,frequency_mhz=hz,rise_ns=rise,fall_ns=fall),check_timing=checks,design_state=state[0].strip(),independent_pnr_review='NOT_RUN',hardware='NOT_RUN')
+ def closed_gate(path):
+  """缺门禁时在任何正式写入前拒绝；终态必须由ROOT真实关闭证据支持。"""
++ compat_pins.require_ready(pnr=True)
+  gate=c.read(path)
+  c.require(gate.get('root_explicit_signal')=='CLOSED_PNR_INPUTS_READY' and gate.get('project_closed') is True and gate.get('owned_root_exited') is True and gate.get('source_commit')==COMMIT and gate.get('root_declared_implementation_execution_count')==1,'ROOT关闭门禁未成立')
+  keys=('source_before','source_after','source_before_native','source_after_native','mcp_history','immutable_session_log','guard_receipt','supervisor_receipt','owned_root_exit_proof','resource_admission')
+@@ -79,7 +78,7 @@
+   for row in gate[key]: validate_binding(row)
+  if gate.get('timing_summary'): validate_binding(gate['timing_summary'])
+  labels=[r['label'] for r in gate['design_mcp_records']]
+- c.require(all(labels.count(k)==1 for k in ('launch_invalid','launch','wait','open_run','reports','close')),'必需PNR标签缺失或重复')
++ c.require(all(labels.count(k)==1 for k in ('launch','wait','open_run','reports','close')),'必需PNR标签缺失或重复')
+  history=c.mcp_json(c.read(ROOT/gate['mcp_history']['path']))['history']; byid={r['id']:r for r in history}
+  c.require(len(byid)==len(history)==len(gate['design_mcp_records']),'必须保留完整原生history闭包')
+  declared_ids=[r['id'] for r in gate['design_mcp_records']]
+@@ -95,7 +94,10 @@
+   c.require(timeout or client_code==item['code'],'客户端/原生返回码不同')
+   paired.append(dict(label=row['label'],history=item,client_timeout_or_error=timeout,client_exit_code=client_code,raw_binding=row))
+  tags={r['label']:r['history'] for r in paired}
+- c.require(tags['launch_invalid']['code']==1 and '-to_step' in tags['launch_invalid']['command'],'非法to_step失败原件不同')
++ c.require(labels.count('launch_invalid')<=1,'实际invalid失败记录重复')
++ if 'launch_invalid' in tags:
++  invalid=tags['launch_invalid']
++  c.require(isinstance(invalid['code'],int) and not isinstance(invalid['code'],bool) and invalid['code']!=0 and invalid['command']=='launch_runs impl_1 -to_step post_route_phys_opt_design -jobs 1','可选历史invalid必须是真实非0精确失败原件')
+  c.require(tags['launch']['code']==0 and tags['launch']['command']==APPROVED_LAUNCH,'合法launch不是本轮精确批准的Post-Route终点')
+  c.require(sum(r['command'].startswith('launch_runs impl_1') and r['code']==0 for r in history)==1,'合法impl启动不是一次')
+  c.require(tags['wait']['command']=='wait_on_run impl_1','wait不是独立原生命令')
+@@ -103,7 +105,8 @@
+  return gate,paired
+ def collect(gate_path):
+  """仅真实关闭后单次归档；不改原件，不复制DCP/bit或cache。"""
+- gate,paired=closed_gate(gate_path); prepared=c.read(WORK/'prepared_receipt_r04.json')
++ compat_pins.require_ready(pnr=True)
++ gate,paired=closed_gate(gate_path); prepared=c.read(WORK/'prepared_receipt.json')
+  for row in prepared['dependencies']: validate_binding(row)
+  for row in prepared['source_after_scripts']: validate_binding(row)
+  c.require(c.binding(Path(__file__))==prepared['collector'] and c.binding(COMMON)==prepared['common'],'收集器准备后漂移')
+@@ -129,13 +132,13 @@
+   p=validate_binding(row); c.require(p.suffix.lower() not in ('.exe','.dcp','.bit','.pb','.wdf','.o','.obj','.a','.lib','.dll','.pdb','.wdb','.pdi','.elf','.bin','.pyc') and '__pycache__' not in p.parts,'缓存/二进制不能归档')
+   original.append(c.binding(p))
+   if p.is_relative_to(REPORT): mapping.append(dict(original=row,saved=c.binding(p))); continue
+-  target=REPORT/'native_jobs'/'impl_native_s11_r01'/p.name if p.is_relative_to(PROJECT) else REPORT/'closed_inputs'/Path(row['path'])
++  target=REPORT/'native_jobs'/'impl_native_s12_r01'/p.name if p.is_relative_to(PROJECT) else REPORT/'closed_inputs'/Path(row['path'])
+   if target.exists(): c.require(c.sha(target)==row['sha256'],'重复输入不同'); continue
+   target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+   mapping.append(dict(original=row,saved=c.binding(target)))
+- for p in (Path(__file__),COMMON,WORK/'prepared_receipt_r04.json',gate_path,WORK/'source_after_check.py',WORK/'native_source_after.py'):
+-  target=REPORT/'collector_code'/('s11_synthesis_collector_common.py' if p==COMMON else p.name); target.parent.mkdir(parents=True,exist_ok=True)
++ for p in (Path(__file__),COMMON,WORK/'prepared_receipt.json',gate_path,WORK/'source_after_check.py',WORK/'native_source_after.py',WORK/'compat_pins.py'):
++  target=REPORT/'collector_code'/('s12_synthesis_collector_common.py' if p==COMMON else p.name); target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+  timing_binding=gate.get('timing_summary'); sta=dict(status='BLOCKED_MISSING_ACTUAL_TIMING',timing=None,design_state=None); classifier=None
+  if timing_binding:
+@@ -155,16 +158,16 @@
+    if (ROOT/r['snapshot']).is_relative_to(ROOT/'report') and r['snapshot'] not in {f['path'] for f in files}: files.append(dict(path=r['snapshot'],sha256=r['sha256'],role='source'))
+  checks=[dict(name='原生PNR：'+r['label'],status='PASS' if r['history']['code']==0 else 'FAIL',command=r['history']['command'],exit_code=r['history']['code'],reason='真实history码；不代表STA或独立G2批准。') for r in paired]
+  inherited=next(r for r in c.read(SYNTH)['checks'] if r['name']=='50MHz综合态STA分类')
+- checks += [dict(name='实际全程预算覆盖',status='BLOCKED',command=None,exit_code=None,reason='需独立Reviewer核对ROOT监督消费、样本/缺测与归属。'),dict(name='继承S11综合STA',status=inherited['status'],command=inherited['command'],exit_code=inherited['exit_code'],reason='继承综合FAIL，不由包装0关闭。')]
++ checks += [dict(name='实际全程预算覆盖',status='BLOCKED',command=None,exit_code=None,reason='需独立Reviewer核对ROOT监督消费、样本/缺测与归属。'),dict(name='继承S12综合STA',status=inherited['status'],command=inherited['command'],exit_code=inherited['exit_code'],reason='继承本轮真实综合STA状态，不由包装0关闭。')]
+  if classifier: checks.append(dict(name='实际PNR STA数值分类',status='PASS' if classifier['native_exit_code']==0 else 'FAIL',command=classifier['windows_command'],exit_code=classifier['native_exit_code'],reason=sta['status']+'；原生分类不替代独立时序关闭审查。'))
+  else: checks.append(dict(name='实际PNR STA',status='BLOCKED',command=None,exit_code=None,reason='没有实际报告，不补综合旧值。'))
+  for name in ('独立PNR证据审查','bit/runtime/G3/109/1000'): checks.append(dict(name=name,status='NOT_RUN',command=None,exit_code=None,reason='整理器不授予批准。'))
+- manifest=dict(schema_version=1,stage='2B',task_id='S2B-T17',run_id=REPORT.name,source_commit=COMMIT,evidence_dir=c.rel(REPORT),interfaces=interfaces,files=files,checks=checks,tool_versions=dict(python=sys.version,profile=freeze['profile'],Vivado='实际原件保留，不执行新查询'),limitations=['实际PNR时序只在pnr_closed_binding中从实际报告解析；独立审查前不宣称关闭。','源码基线与证据提交分别记录；不将932051证据HEAD改作被测RTL基线。'])
++ manifest=dict(schema_version=1,stage='2B',task_id='S2B-T17',run_id=REPORT.name,source_commit=COMMIT,evidence_dir=c.rel(REPORT),interfaces=interfaces,files=files,checks=checks,tool_versions=dict(python=sys.version,profile=freeze['profile'],Vivado='实际原件保留，不执行新查询'),limitations=['实际PNR时序只在pnr_closed_binding中从实际报告解析；独立审查前不宣称关闭。','源码基线与证据提交分别记录；准备期HEAD未冻结，不用旧证据HEAD替代本轮源码基线。'])
+  for r in initial: c.require(c.binding(ROOT/r['path'])==r,'ROOT初始原件在整理时漂移')
+  save(REPORT/'delivery_manifest.json',manifest); print(json.dumps(dict(status='COLLECTED_PNR_PENDING_INDEPENDENT_REVIEW',manifest=c.binding(REPORT/'delivery_manifest.json')),ensure_ascii=False))
+ def main():
+  """prepare与collect分离，未释放关闭门禁时不触碰报告目录。"""
+- parser=argparse.ArgumentParser(); parser.add_argument('mode',choices=('prepare','collect','classify')); parser.add_argument('--gate',type=Path); parser.add_argument('--report',type=Path); parser.add_argument('--result',type=Path); parser.add_argument('--receipt',default='prepared_receipt_r04.json')
++ parser=argparse.ArgumentParser(); parser.add_argument('mode',choices=('prepare','collect','classify')); parser.add_argument('--gate',type=Path); parser.add_argument('--report',type=Path); parser.add_argument('--result',type=Path); parser.add_argument('--receipt',default='prepared_receipt.json')
+  args=parser.parse_args()
+  if args.mode=='prepare': return prepare(args.receipt)
+  if args.mode=='classify':

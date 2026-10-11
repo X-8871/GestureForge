@@ -1,6 +1,6 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.11`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.12`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
@@ -105,3 +105,14 @@ S9实际综合WNS−4.527ns/TNS−1840.705ns仍FAIL。S10功能G1、独立G2、�
 ## S11 池化几何通道与行偏移分配
 
 开发基线 `4288795b1e8c75b98cbbeb69ac33709172e97c66`。令 M=2^32、P=H×W=qM+r，通道完整偏移为 CqM+C×r；低32位取 C×r，高位条件为 `(C!=0 && q!=0) || (C×r 的高32位非零)`，因此 C=0 不会误拒绝高平面。有效行由原 signed64 bounds 保证 Y 高32位为零，Y×W 使用精确64位乘积。通道加行、加列、加base分别保留33位进位；全部高位仅在原有效tap分支消费。padding窗口及kernel2未消费第三行保持原结果，ARG/RANGE全部公开字段仍清零。engine 原字节、端口、FF、FSM和周期保持。完整独立无限精度几何黄金、原14 RTL全字段差分、公开POOL/UP周期及backend非CONV trace用于功能G1；S10真实50MHz STA仍FAIL（WNS−4.405ns），本组合结构的时序收益尚未执行综合证明。
+
+
+## S12 组合路径候选
+
+来源源码提交为 `a710ec431474841a81912a6055f861e811a151e3`，本轮开发基线为 S11实际PNR失败证据提交 `891f750045ce141a8152c96025da559ff1d3a321`。三个geometry实例分别使用L9/L17/L25冻结C/H/W，原参数、长度、base及坐标错误先后顺序保持。输出偏移用完整64位C×plane+Y×W+X，原65位base加法和高位判断保留；不匹配层仍由原首个ARG分支拒绝。POOL端口、全部always_ff、FSM和公开周期保持，通用geometry及原14未改。
+
+CONV下一tap坐标选择与MAC错误信号解耦，原compute_read_enable仍用相同错误条件禁止读取；仅enable为真时消费的坐标和地址要求等价。量化保留原64位乘积、加半舍入、shift与正负MQ选择，仅将最终signed64恢复/饱和改为高位判定和signed8结果。私有冻结descriptor参数默认0；backend启用时，完整480位layer/输入输出C/H/W/kernel/stride/pad命中才替换reduction、weight及full-tile稳定算术，所有原比较、长度/base/owner/MQ/范围检查和错误优先保留。ST_TILE_PREP仅patch_height、patch_width、patch_byte_count三个FF RHS改为等价组合值，寄存器、状态、复位、abort、使能和周期不变；generic模式按完整U32模域处理extent0..8，私有模式覆盖全部1701对。
+
+ROUTE私有shape参数默认0，backend启用；仅完整96位C/H/W命中固定tuple时返回原64位plane/shape_bytes。source1仅原source_count2分支消费。私有未匹配域明确拒绝，不宣称任意U32 mode1全域等价；generic模式保留原式。CONV和ROUTE的冻结字段及独立ROM/manifest可达性是私有模式依据，不允许仅按layer绕过通用guard。
+
+本版RTL编译/仿真、独立审查和STA在实际执行前均为NOT_RUN。每run缓存640MiB仅为内部验证预算，子树RSS1GiB、各子任务600秒、证据100MiB；不改变50MHz、deadline、模型、109/1000及其他功能验收指标。S11实际postroute WNS−3.201ns仍FAIL，旧失败与预算失败原件保留。

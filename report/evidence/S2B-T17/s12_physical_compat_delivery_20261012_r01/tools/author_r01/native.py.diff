@@ -1,0 +1,19 @@
+--- 原件:native.py
++++ S12隔离草稿:native.py
+@@ -9,13 +9,15 @@
+ import time
+ import psutil
+ 
++import compat_pins
+ from collector import CACHE,ROOT,WORK,binding,exact,fresh,save,require
+ 
+ parser=argparse.ArgumentParser()
+ parser.add_argument("--prefix",required=True)
+ parser.add_argument("arguments",nargs=argparse.REMAINDER)
+ args=parser.parse_args()
+-require(re.fullmatch(r"s11_[A-Za-z0-9_-]+",args.prefix),"prefix必须是安全s11_名称")
++compat_pins.require_ready()
++require(re.fullmatch(r"s12_[A-Za-z0-9_-]+",args.prefix),"prefix必须是安全s12_名称")
+ arguments=args.arguments[1:] if args.arguments and args.arguments[0]=="--" else args.arguments
+ require(arguments and arguments[0] in ("prepare","source","collect","seal"),"只能包装本collector轻量模式")
+ mode=arguments[0]; directory=WORK if mode=="prepare" else exact(CACHE,"directory")

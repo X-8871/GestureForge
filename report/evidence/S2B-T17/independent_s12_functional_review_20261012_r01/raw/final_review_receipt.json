@@ -1,0 +1,1733 @@
+{
+  "status": "PASS",
+  "task_id": "S2B-T17-S12-G2",
+  "scope": "仅43冻结RAW/16候选修改的S12功能G2；可作为进入独立新综合实现实验的功能候选依据，物理G0/资源准入另判。",
+  "reviewer_stop": "STOP_NO_FURTHER_WRITES",
+  "source_baseline": "891f750045ce141a8152c96025da559ff1d3a321",
+  "source_role": "实际HEAD/precommit基线；16修改尚未提交，候选不等于Git891 tree。",
+  "source_freeze_sha256": "eadf373c59420aa234a5e6394c9ca08066b480bdde6263f91600cf21bbbe02c7",
+  "source_diff_sha256": "6be9a040c20520403532aec5a2626292f93b8b91845b21d883b69dae2ceb0a5d",
+  "g1_summary_sha256": "0674603c86f92762d172085323fdd0328d7a364735a87b45e389f0ede9d19549",
+  "reviewed_manifest_sha256": "2c8e3bd56c1c288333f168a767aadf8b7067f2450e97c25709f271553772ed54",
+  "source43_rechecked_before_stop": true,
+  "modified_files": {
+    "board/s2b_inference_platform.json": "821c14dddec1f016fe8e301e6d3491ee4c72810a4a37ef49ffe489464dc5c962",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "src/s2b_conv_tile_engine.sv": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_route_query.sv": "48a3c7fe7a92d5b89b53c256d74cbc9e074b0408e88b4e08ec68334c9ad53905",
+    "verification/check_s2b_inference_platform.py": "36f42454ba13c50a1a54fa0449a04872c69f4a49cba3e2c9c66f55d26fc2cda1",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_conv_feature_address_rtl.py": "0402e00ca5c5bc9e40f2aeb46b1051c01ba9664c3773b45f1a631c4d5ecf36a1",
+    "verification/test_s2b_conv_output_address_rtl.py": "e51f66c2382ae3308c2fdb864e468d8684dc107076d9e75dd7d38625a6326b74",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_maxpool_address_guard_rtl.py": "54fa551164bbcbefb112fa365b096f1e1f1d9fa7d04bcd0ac68271c3baee13e5",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5"
+  },
+  "blocking_findings": [],
+  "checks": {
+    "independent_math_source": 173,
+    "package_raw_driver": 3466,
+    "public_static": 31,
+    "manifest_bindings": 731,
+    "restore_original_relationships": 119,
+    "requant_bindings": 65,
+    "controlled_multidriven": 262,
+    "math_peak_self_bytes": 87490560,
+    "static_peak_self_bytes": 20951040
+  },
+  "mathematical_results": [
+    "直接从冻结tiny416模型逐层生成15×U32键，独立核21个480bit字面键/reduction plane26/reduction26/weight45，完整高16别名315拒绝。",
+    "直接按旧ST_TILE_PREP unsigned32模运算重算21×81=1701项表及21项fulltile容量；通用extent0..8 shift/add与乘法独立90000随机seed0x1210A7吻合。",
+    "完整FF除CONV三个获准RHS外逐字节同Git891；POOL/ROUTE/backend全部FF不变，五生产模块公开端口不变，私有默认0且backend固定1。",
+    "POOL固定地址(CH+Y)W+X与C(HW)+YW+X无限精度恒等，任意U32坐标64bit上界无溢出，65bitbase加法与原拒绝优先保留。",
+    "冻结模型11个ROUTE来源精确覆盖7个完整96bit CHW，查值等于C×H和C×H×W；count1仅消费source0，未用source1不影响。",
+    "CONV下一坐标可先计算，但feature/weight实际FF读仍由同一compute_read_enable控制，错误/溢出阻止读；所有公开handshake/reset/abort组合输出一致。",
+    "REQUANT当前c46ed3...来源与独立已STOP数值子G2相同；复核独立256bit商余数方法、全byte q及64bit界限、138791向量/七实际numeric mutant原生0，不重编大型RTL。"
+  ],
+  "g1_actual_runs": [
+    {
+      "stage": "pool",
+      "native_returncode": 0,
+      "inner": 37,
+      "outer": 43,
+      "elapsed": 81.34399999999732,
+      "peak": 746930176
+    },
+    {
+      "stage": "boundary",
+      "native_returncode": 0,
+      "inner": 40,
+      "outer": 43,
+      "elapsed": 39.26600000000326,
+      "peak": 730128384
+    },
+    {
+      "stage": "layer0",
+      "native_returncode": 0,
+      "inner": 40,
+      "outer": 43,
+      "elapsed": 298.1880000000019,
+      "peak": 727633920
+    },
+    {
+      "stage": "cones",
+      "native_returncode": 0,
+      "inner": 43,
+      "outer": 43,
+      "elapsed": 40.375,
+      "peak": 697163776
+    },
+    {
+      "stage": "private_route",
+      "native_returncode": 0,
+      "inner": 43,
+      "outer": 43,
+      "elapsed": 19.171999999991385,
+      "peak": 649555968
+    },
+    {
+      "stage": "feature",
+      "native_returncode": 0,
+      "inner": 36,
+      "outer": 43,
+      "elapsed": 46.28199999999197,
+      "peak": 735981568
+    },
+    {
+      "stage": "output",
+      "native_returncode": 0,
+      "inner": 37,
+      "outer": 43,
+      "elapsed": 43.687999999994645,
+      "peak": 744288256
+    },
+    {
+      "stage": "backend",
+      "native_returncode": 0,
+      "inner": 34,
+      "outer": 43,
+      "elapsed": 537.531999999992,
+      "peak": 722206720
+    },
+    {
+      "stage": "generic_route",
+      "native_returncode": 0,
+      "inner": 37,
+      "outer": 43,
+      "elapsed": 43.046999999991385,
+      "peak": 691355648
+    }
+  ],
+  "g1_coverage": [
+    {
+      "stage": "pool",
+      "coverage": {
+        "geometry_coverage": {
+          "vectors": 82591,
+          "categories": {
+            "small_all_coordinates_and_outside": 62565,
+            "wide_u32_random": 20000,
+            "huge_shape_small_window": 1,
+            "unused_row2_overflow": 1,
+            "all_padding_high_row": 1,
+            "last_address_u32": 1,
+            "base_add_carry": 1,
+            "channel_product_high": 1,
+            "row_sum_carry": 1,
+            "row_width_high": 1,
+            "column_add_carry": 1,
+            "c0_high_plane": 1,
+            "c1_plane_m": 1,
+            "c2_plane_half_m": 1,
+            "channel_row_carry": 1,
+            "row_x_carry": 1,
+            "signed_padding_u32": 1,
+            "zero_required_field": 5,
+            "invalid_kernel_pair": 6
+          },
+          "errors": {
+            "1": 64093,
+            "0": 13586,
+            "2": 4912
+          },
+          "all_padding_success": 4206,
+          "seed": 5771281,
+          "manual": [
+            {
+              "name": "huge_shape_small_window",
+              "input": [
+                0,
+                4294967295,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 0
+            },
+            {
+              "name": "unused_row2_overflow",
+              "input": [
+                0,
+                1,
+                3,
+                2147483648,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 0
+            },
+            {
+              "name": "all_padding_high_row",
+              "input": [
+                0,
+                2,
+                3,
+                2147483648,
+                2,
+                2,
+                1,
+                1,
+                100,
+                1,
+                50,
+                0
+              ],
+              "expected_error": 0
+            },
+            {
+              "name": "last_address_u32",
+              "input": [
+                4294967292,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 0
+            },
+            {
+              "name": "base_add_carry",
+              "input": [
+                4294967293,
+                1,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "channel_product_high",
+              "input": [
+                0,
+                3,
+                2147483648,
+                2,
+                2,
+                2,
+                2,
+                2,
+                1,
+                2,
+                0,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "row_sum_carry",
+              "input": [
+                0,
+                2,
+                4294967295,
+                1,
+                2,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "row_width_high",
+              "input": [
+                0,
+                1,
+                3,
+                4294967295,
+                2,
+                2,
+                1,
+                1,
+                1,
+                0,
+                1,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "column_add_carry",
+              "input": [
+                0,
+                1,
+                3,
+                4294967294,
+                2,
+                2,
+                1,
+                1,
+                1,
+                0,
+                1,
+                2
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "c0_high_plane",
+              "input": [
+                0,
+                1,
+                3,
+                2147483648,
+                2,
+                2,
+                2,
+                2,
+                1,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 0
+            },
+            {
+              "name": "c1_plane_m",
+              "input": [
+                0,
+                2,
+                2,
+                2147483648,
+                2,
+                2,
+                2,
+                2,
+                1,
+                1,
+                0,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "c2_plane_half_m",
+              "input": [
+                0,
+                3,
+                1,
+                2147483648,
+                2,
+                2,
+                1,
+                1,
+                1,
+                2,
+                0,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "channel_row_carry",
+              "input": [
+                0,
+                2,
+                3,
+                1431655765,
+                2,
+                2,
+                1,
+                1,
+                1,
+                1,
+                1,
+                0
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "row_x_carry",
+              "input": [
+                0,
+                1,
+                2,
+                4294967295,
+                2,
+                2,
+                1,
+                1,
+                1,
+                0,
+                1,
+                1
+              ],
+              "expected_error": 2
+            },
+            {
+              "name": "signed_padding_u32",
+              "input": [
+                0,
+                1,
+                2,
+                2,
+                3,
+                3,
+                1,
+                1,
+                4294967295,
+                0,
+                0,
+                0
+              ],
+              "expected_error": 0
+            }
+          ]
+        },
+        "engine_simulation_counts": {
+          "pool": 19645,
+          "upsample": 3456,
+          "cycles": 590723,
+          "pool_abort": 127,
+          "upsample_abort": 63
+        }
+      }
+    },
+    {
+      "stage": "boundary",
+      "coverage": {
+        "actual_coverage": {
+          "vectors": 5996,
+          "cycles": 100697,
+          "abort_mask": "000fffff",
+          "reset_mask": "000fffff",
+          "response_cases": 24,
+          "raw80": 1
+        }
+      }
+    },
+    {
+      "stage": "layer0",
+      "coverage": {
+        "actual_coverage": {
+          "bytes": 1384448,
+          "input_reads": 583443,
+          "weight_reads": 584064,
+          "output_writes": 1384448,
+          "requests": 2551955,
+          "responses": 2551955,
+          "request_stalls": 6635073,
+          "response_stalls": 6635073,
+          "cycles": 27235743
+        }
+      }
+    },
+    {
+      "stage": "cones",
+      "coverage": {
+        "actual_counts": {
+          "vectors": 122020,
+          "alias_mutant_mismatches": 315,
+          "tile_mutant_mismatches": 1,
+          "full_mutant_mismatches": 81,
+          "extent_mutant_mismatches": 190,
+          "next_mutant_mismatches": 1566
+        }
+      }
+    },
+    {
+      "stage": "private_route",
+      "coverage": {
+        "actual_counts": {
+          "vectors": 55397,
+          "hits": 5890,
+          "misses": 49507,
+          "alias_mutant_mismatches": 23,
+          "unused_source1_mutant_mismatches": 2116
+        }
+      }
+    },
+    {
+      "stage": "feature",
+      "coverage": {
+        "actual_coverage": {
+          "vectors": 120361,
+          "end": 29981,
+          "padding": 48100,
+          "range": 40124,
+          "request": 2156
+        }
+      }
+    },
+    {
+      "stage": "output",
+      "coverage": {
+        "actual_coverage": {
+          "vectors": 120361,
+          "advance": 42698,
+          "next_lane": 20793,
+          "range": 52388,
+          "request": 4482
+        }
+      }
+    },
+    {
+      "stage": "backend",
+      "coverage": {
+        "simulation_counts": {
+          "boundary_cases": 4980736,
+          "nonconv_layers": 15,
+          "nonconv_outputs": 5234944,
+          "nonconv_requests": 12286976,
+          "cycles": 102468267,
+          "owner_drop_results": 120942
+        },
+        "public_entries": {
+          "trials": 12,
+          "route_layer_mask": "0000000481494948",
+          "method": "一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"
+        }
+      }
+    },
+    {
+      "stage": "generic_route",
+      "coverage": {
+        "simulation_counts": {
+          "cases": 15816,
+          "queries": 4592720,
+          "cycles": 256784,
+          "abort": 255,
+          "reset": 255
+        }
+      }
+    }
+  ],
+  "diagnostic_correction": {
+    "status": "INDEPENDENT_RAW_SUPPLEMENT_CLOSED",
+    "raw_reported_location_retained": true,
+    "old_registry_retained": true,
+    "entries": 62,
+    "unique_private_signals": 31,
+    "signals": [
+      "compute_input_channel",
+      "compute_kernel_x",
+      "compute_kernel_y",
+      "compute_point_scan_x",
+      "compute_point_scan_y",
+      "compute_reduction_index",
+      "feature_read_data",
+      "feature_read_in_bounds",
+      "group_lane_count",
+      "input_channels_latched",
+      "input_height_latched",
+      "input_width_latched",
+      "kernel_height_latched",
+      "kernel_width_latched",
+      "layer_index_latched",
+      "output_channels_latched",
+      "output_height_latched",
+      "output_width_latched",
+      "pad_bottom_latched",
+      "pad_left_latched",
+      "pad_right_latched",
+      "pad_top_latched",
+      "patch_height",
+      "patch_width",
+      "reduction_count_latched",
+      "state",
+      "stride_x_latched",
+      "stride_y_latched",
+      "tile_start_x",
+      "tile_start_y",
+      "tile_width"
+    ],
+    "actual_mappings": [
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "state",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1981,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1985,
+          1989,
+          1993,
+          1997,
+          2001
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "layer_index_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1886,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1916
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "input_channels_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1887,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1917
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "input_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1888,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1918
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "input_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1889,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1919
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "output_channels_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1890,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1920
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "output_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1891,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1921
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "output_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1892,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1922
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "kernel_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1893,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1923
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "kernel_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1894,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1924
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "stride_y_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1895,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1925
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "stride_x_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1896,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1926
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "pad_left_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1897,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1927
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "pad_right_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1898,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1928
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "pad_top_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1899,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1929
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "pad_bottom_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1900,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1930
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "reduction_count_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1907,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1937
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "tile_start_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1901,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1931
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "tile_start_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1902,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1932
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "tile_width",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1915,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1945
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "patch_height",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1913,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1943
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "patch_width",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1914,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1944
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "group_lane_count",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1903,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1933
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "feature_read_data",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1905,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1935
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "feature_read_in_bounds",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1904,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1934
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_point_scan_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1911,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1941
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_point_scan_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1912,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1942
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_reduction_index",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1906,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1936
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_input_channel",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1908,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1938
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_kernel_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1909,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1939
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "lint",
+        "signal": "compute_kernel_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1910,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1940
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "state",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1981,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1985,
+          1989,
+          1993,
+          1997,
+          2001
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "layer_index_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1886,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1916
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "input_channels_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1887,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1917
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "input_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1888,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1918
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "input_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1889,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1919
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "output_channels_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1890,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1920
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "output_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1891,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1921
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "output_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1892,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1922
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "kernel_height_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1893,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1923
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "kernel_width_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1894,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1924
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "stride_y_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1895,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1925
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "stride_x_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1896,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1926
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "pad_left_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1897,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1927
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "pad_right_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1898,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1928
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "pad_top_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1899,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1929
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "pad_bottom_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1900,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1930
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "reduction_count_latched",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1907,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1937
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "tile_start_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1901,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1931
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "tile_start_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1902,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1932
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "tile_width",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1915,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1945
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "patch_height",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1913,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1943
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "patch_width",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1914,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1944
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "group_lane_count",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1903,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1933
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "feature_read_data",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1905,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1935
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "feature_read_in_bounds",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1904,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1934
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_point_scan_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1911,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1941
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_point_scan_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1912,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1942
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_reduction_index",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1906,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1936
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_input_channel",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1908,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1938
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_kernel_y",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1909,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1939
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      },
+      {
+        "stage": "cones",
+        "execution": "compile",
+        "signal": "compute_kernel_x",
+        "raw_reported_instance": "u_private",
+        "raw_reported_otherwrite_line": 1910,
+        "raw_reported_otherwrite_instance": "u_generic",
+        "actual_instance": "u_private",
+        "actual_write_lines": [
+          1940
+        ],
+        "scope": "仅二态组合域TB；生产源未豁免，原工具及原登记错配保存。"
+      }
+    ],
+    "explanation": "cones原lint/compile对u_private的other-write及原registry指向u_generic同signal。独审逐项核原始source行/signal、实际private赋值；state核TB1985/1989/1993/1997/2001五cast及5bit/enum断言，clk恒0。原reported_location与实际写入均保留，不声称原登记instance/行精确；不是生产多驱动豁免。",
+    "closure": "本独审pack_raw_receipt逐信号真实driver/source映射作为下游纠正依据，G1原件不改。"
+  },
+  "native_packaging_checker": {
+    "status": "PASS_EXPECTED_READONLY_CHECKER_CODES",
+    "runs": [
+      {
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "verification/check_stage_delivery.py",
+          "--mode",
+          "evidence",
+          "--manifest",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_timing_cones_20261012_r01\\delivery_manifest_r02.json",
+          "--project-root",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+        ],
+        "native_exit_code": 0,
+        "expected_exit_code": 0,
+        "status": "CHECKS_OK",
+        "seconds": 2.9839999999967404,
+        "stdout_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stdout.log",
+        "stdout_sha256": "6939fb6ad18fee493ff743ca9e37b07de70900e4a2f8661894e238e4b2cb33e1",
+        "stderr_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "verification/check_stage_delivery.py",
+          "--mode",
+          "inputs",
+          "--manifest",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_timing_cones_20261012_r01\\delivery_manifest_r02.json",
+          "--project-root",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+        ],
+        "native_exit_code": 2,
+        "expected_exit_code": 2,
+        "status": "CHECKS_FAILED",
+        "seconds": 2.937999999994645,
+        "stdout_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stdout.log",
+        "stdout_sha256": "00f8386a58860aace4fd70d0c3fabb810b50ac8d11f6d2bd2883325b27fee527",
+        "stderr_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "interpreter": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "limitations": [
+      "expected inputs2未冻结/历史FAIL/本Run前G2状态，不能解释为接口冻结或STA/G3批准。",
+      "原始sandbox枚举拒绝另存，原生授权解释器真实输出不覆盖该失败。",
+      "子进程绝对峰未测；只读清单检查，无RTL或Vivado。"
+    ]
+  },
+  "own_driver_failures": {
+    "math_r01": "原生1：bundled Python无psutil，后采用Windows ctypes读取；原失败日志保留。",
+    "math_r02": "数学核通过但peak=0系ctypes默认HANDLE宽度导致无效读数；原receipt保留，实际r03 API成功/87490560B替代。",
+    "pack_r01_to_r07": "审查driver过窄的TB语法/工具定位假设以及源原件落点假设导致原生1；全部trace保留，r08实际262逐信号核验原生0。",
+    "finalchecks_r01": "原生1：Reviewer误读profile.version内容，已按实际schema改为完整版本标识。",
+    "finalchecks_r02": "bundled Python fresh evidence checker祖先枚举WinError5/native2，Reviewer断言使driver1，fresh inputs未执行；原始stdout/stderr保持，已核原生解释器授权只读重跑实际0/2。",
+    "script_revision_limit": "中间Reviewer辅助脚本版本未单独快照；原失败trace/stdout原件仍保留，最终脚本及重核结果固定，不冒称每个旧script可复现。"
+  },
+  "commands_and_resources": {
+    "math_seconds": 0.7660000000032596,
+    "pack_seconds": 2.9689999999973224,
+    "static_seconds": 0.34300000000803266,
+    "native_checker_runs": [
+      {
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "verification/check_stage_delivery.py",
+          "--mode",
+          "evidence",
+          "--manifest",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_timing_cones_20261012_r01\\delivery_manifest_r02.json",
+          "--project-root",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+        ],
+        "native_exit_code": 0,
+        "expected_exit_code": 0,
+        "status": "CHECKS_OK",
+        "seconds": 2.9839999999967404,
+        "stdout_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stdout.log",
+        "stdout_sha256": "6939fb6ad18fee493ff743ca9e37b07de70900e4a2f8661894e238e4b2cb33e1",
+        "stderr_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "verification/check_stage_delivery.py",
+          "--mode",
+          "inputs",
+          "--manifest",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_timing_cones_20261012_r01\\delivery_manifest_r02.json",
+          "--project-root",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+        ],
+        "native_exit_code": 2,
+        "expected_exit_code": 2,
+        "status": "CHECKS_FAILED",
+        "seconds": 2.937999999994645,
+        "stdout_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stdout.log",
+        "stdout_sha256": "00f8386a58860aace4fd70d0c3fabb810b50ac8d11f6d2bd2883325b27fee527",
+        "stderr_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stderr.log",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "seed": 1183911,
+    "heavy_rtl_runs": 0,
+    "vivado_calls": 0,
+    "hardware_calls": 0,
+    "git_mutations": 0,
+    "only_write_directory": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01",
+    "tool_call_total": "未测",
+    "pack_peak_absolute": "未测",
+    "checker_child_peak_absolute": "未测"
+  },
+  "limitations": [
+    "原冻结G1 main中整S12G2 NOT_RUN保持原件；批准由本独审回执表达，不改原时间点。",
+    "POOL外43中未消费CONVrunner跨run d8→cdf唯一漂移已逐项核，run内来源稳定；不是全部run来源都相同。",
+    "backend完整15非CONV 5234944输出/12286976请求及公开START38层用共享CONV控制stub，不能声称21CONV数值或109整网。",
+    "CONV仅layer0公开START完整1384448输出+独立CPU/T25冻结黄金；其余20层固定表数学/派发证据，不是20层完整数值重跑。",
+    "受控组合夹具二态，未验证X/Z或全U32组合形式穷举。",
+    "原S11 postroute WNS−3.201/TNS−2123.755仍FAIL；S12 STA未执行，不批准50MHz时序闭合。",
+    "阶段2B≥100样本、≥1000连续任务、实际setup/hold及TNS/THS0尚未满足；物理接口/pins未冻结，板卡拔掉，G3/G4/G5未批准。",
+    "实际内execute为min(timeout,600)，1200只是请求参数；genericROUTE旧300MiB metadata与实际640MiB缓存分列。",
+    "requant早期缺原stderr/失败脚本仍按既有子G2限制保留；formal子检查不扩大成整核公开FSM证明。",
+    "Reviewer从当前工作树/冻结原件独立核查与轻量Python数学；没有新RTL大型编译、CPU卷积或真实Vivado/硬件测试。"
+  ],
+  "not_approved": [
+    "physicalG0",
+    "STA",
+    "109整网",
+    "21CONV完整数值",
+    "1000次实板",
+    "pins冻结",
+    "G3",
+    "G4",
+    "G5",
+    "bit部署"
+  ],
+  "own_evidence": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_checker.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_checker.stdout.log",
+      "sha256": "8a8f8f0a63f90639dabfc7c3a1e843b9748d8296315d00a322ef21537fd40cf2",
+      "bytes": 333
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\evidence_native_checker.stdout.log",
+      "sha256": "6939fb6ad18fee493ff743ca9e37b07de70900e4a2f8661894e238e4b2cb33e1",
+      "bytes": 4613
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\finalchecks_execution_r01.log",
+      "sha256": "c3543cdd5ca23a630887e1e6419cb5aa06d73790ab9f57721187e6b16b8e953a",
+      "bytes": 1206
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\finalchecks_execution_r02.log",
+      "sha256": "01396ce395308624f674af819c1d66a24fb4534f83b6bbaffe8eab5ebe1d7755",
+      "bytes": 1281
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\finalchecks_execution_r03.log",
+      "sha256": "d048f4a85ec54f4d85b93b75cfb96e8265369112b511bf4ea2ea1a7f19febdda",
+      "bytes": 491
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\finalchecks_raw_receipt.json",
+      "sha256": "ded5bb75ad392fc6a7ec5ff72c94d72d8adb07c145735d4b2a9e55ab5a0a66a3",
+      "bytes": 5082
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inputs_native_checker.stdout.log",
+      "sha256": "00f8386a58860aace4fd70d0c3fabb810b50ac8d11f6d2bd2883325b27fee527",
+      "bytes": 4993
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inspect.py",
+      "sha256": "2ef42f037ed1e7efba8a928da5be32a15624f16755c9f9611766e7e6c331f803",
+      "bytes": 601
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inspect_evidence.py",
+      "sha256": "55d27ab60af2097aeb51fb8020d1df05a0df412ddcabb587095e25e1f4a921cd",
+      "bytes": 1003
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inspect_small.py",
+      "sha256": "548f90146957dcdf35ed260462dfaf13c024211d5eea9186cefc02fec068eef5",
+      "bytes": 1032
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\inspect_warning.py",
+      "sha256": "59ba261f2173f71f2f16e4df3aed5d74fa9d5a6465a896a1b068e05b748b1548",
+      "bytes": 470
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\math_execution.log",
+      "sha256": "ef6ccde779029a3b6b71f636b203a81a39ec45ada4bee9ff7d97e1810d6a219f",
+      "bytes": 264
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\math_execution_r02.log",
+      "sha256": "9da744bab2082ef7acf796e375f57af7e21d013a76a59e7f0f043bad09cefdc8",
+      "bytes": 132
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\math_execution_r03.log",
+      "sha256": "341e9e3fa8fc4798740c4d2a98c53d45a74593ed6bbb4f0eff8395987c18ef22",
+      "bytes": 139
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\math_raw_receipt.json",
+      "sha256": "4404ecf34ba7c5fa10946fabc19896d787f55d4da2a6998a8ef2c54cf01795bd",
+      "bytes": 38369
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\math_raw_receipt_r03.json",
+      "sha256": "f98e132eda1adcae431c4d75868565618cd01293c3ce90fc46c70885c8993d40",
+      "bytes": 38496
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\native_checker_receipt.json",
+      "sha256": "8b557980a64840a3a85aff7ff3bb9af366a9504f827557fe0947e6fb097a686c",
+      "bytes": 3041
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r01.log",
+      "sha256": "4906a921152bd826ec8c285f24794679f41747997083e3199dadf7a05e7372b3",
+      "bytes": 662
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r02.log",
+      "sha256": "7e7170283e11c19e999a6aed9487f8a733ad5207cfafc9cc9bc6120d9517c7b6",
+      "bytes": 594
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r03.log",
+      "sha256": "15100482e05c91a9d60b8b409488b4cb60f4259a44b441a2780eb5da9bbfd8e0",
+      "bytes": 1020
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r04.log",
+      "sha256": "8caa03d7d74aa54505854e1b9f9db27f474c4db9b07441d00b5a0418a3f1491b",
+      "bytes": 633
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r05.log",
+      "sha256": "9d856ff37d06295c43a615c22e687dbf120569b34f95b019f470b037a84ccd42",
+      "bytes": 1510
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r06.log",
+      "sha256": "b9a395376957245f7401fe65bb361c3e88537d5d5013f9ee88334128f41bc63c",
+      "bytes": 825
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r07.log",
+      "sha256": "e2c7f2102742fdc573bb51712db1091d5270d15f1ab27f6227a55217135b2bdd",
+      "bytes": 696
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_execution_r08.log",
+      "sha256": "c8ee4cb83c51b8c3871fb674a17ee9fc5e216cdfa7ddfb062b55964d71024f91",
+      "bytes": 9353
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\pack_raw_receipt.json",
+      "sha256": "633d40ba32707413e96a411305fbdceb131fdb7a743c5edbb82b471c4413a842",
+      "bytes": 1033071
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\review_finalchecks.py",
+      "sha256": "2297dc6768069e45983f9cc373bc8a4322e6226db3cf1bf00da77c1997ca94cf",
+      "bytes": 6589
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\review_math.py",
+      "sha256": "2506fe2659708aee8fbc90a351957022afcbe041c4c1e74c7bdbb32b63a8c429",
+      "bytes": 8437
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\review_pack.py",
+      "sha256": "3ce2397d273127adc4be45cfe214a9b58043d16cace6569013d21e56222a885a",
+      "bytes": 9858
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\run_native_checker.py",
+      "sha256": "3fa3b59034f09f07ae4fde3ff77fe2abf0fa046a33984e5b546b6c2e1f11b43e",
+      "bytes": 1829
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_functional_review_20261012_r01\\seal_review.py",
+      "sha256": "71a0fb39855843bc8595bcdf7f2d48070bd025aa0fd5bad784511363b6272795",
+      "bytes": 7849
+    }
+  ]
+}

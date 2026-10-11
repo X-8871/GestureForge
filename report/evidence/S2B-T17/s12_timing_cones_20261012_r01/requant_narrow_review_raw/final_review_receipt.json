@@ -1,0 +1,277 @@
+{
+  "status": "PASS",
+  "scope": "仅S12 requant二态signed32/U32/byte q数值子检查G2；publicFSM/private1/XZ/STA/109/实物未在本Run验证。",
+  "source_commit": "891f750045ce141a8152c96025da559ff1d3a321",
+  "source_commit_role": "ROOT指定891为当前源码基线角色；候选未提交内容按实际RAW SHA固定，本审未调用Git观测HEAD。",
+  "reviewer_stop": "STOP_NO_FURTHER_WRITES",
+  "reviewed_manifest_hash": "00358f98fe4d2584b5a0d2275fc3f9249b7caeb8d06229145234dc53392fca2d",
+  "reviewed_source_hashes": {
+    "report/evidence/S2B-T17/s12_requant_rtl_20261012_r01/raw/full_source/original.sv": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+    "report/evidence/S2B-T17/s12_requant_rtl_20261012_r01/raw/full_source/candidate.sv": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+    "src/s2b_conv_tile_engine.sv": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454"
+  },
+  "checks_count": 29,
+  "checks": [
+    {
+      "name": "主manifest冻结",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "当前主清单全部SHA",
+      "passed": true,
+      "detail": 65
+    },
+    {
+      "name": "57 RAW恢复映射/65总绑定",
+      "passed": true,
+      "detail": "首轮本独审把总绑定数误当映射行数；57实际保存映射全部SHA/长度通过，首轮native2与原件保留。"
+    },
+    {
+      "name": "actual交付/结果冻结",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "完整旧新CONV/当前生产SHA",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "完整模块仅更名/LF rq_original_engine",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "完整模块仅更名/LF rq_candidate_engine",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "两態白盒/参数0/不声明公开可达",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立SV256bit除法余数oracle",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Python商余数参考不调用RTL模型",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "全域64bit界限",
+      "passed": true,
+      "detail": {
+        "max_product": 9223372034707292160,
+        "proof": [
+          "signed32绝对值范围0..2^31，32bit二补数求幅值含INT_MIN精确；U32乘积P≤2^63−2^31<2^63。",
+          "q=0不加半，R=P；q=1..63时半值≤2^62，P+half<2^64且R<2^63，旧signed64恢复正负没有截断溢出。",
+          "q=64半值2^63，P+half<2^64；64bit右移64为0。无限精度商余数也因P<2^63而舍入0。",
+          "q=65..255时64bit半值左移超过宽度得到0，右移超过宽度0；无限精度P/2^q<1/2同为0。",
+          "二态R≥128当且仅当|R[63:7]为1；否则R0..127，低byte及恢复符号精确。两版均对称饱和到−127..127，不产生−128。",
+          "正/负MQ按acc符号独立选择32bit M及完整byte q；acc=0选择正支但结果0。SV256bit分母2^q在q255仍可表示，余数<2^63，翻倍不溢出256bit。"
+        ]
+      }
+    },
+    {
+      "name": "独立手算半值/INT_MIN/64边界",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "实际138791向量独立oracle与定宽模型",
+      "passed": true,
+      "detail": {
+        "count": 138791,
+        "mismatches": 0,
+        "selected_q_count": 256,
+        "legal_both_mq_vectors": 19026
+      }
+    },
+    {
+      "name": "实际20000随机种子/两支合法统计",
+      "passed": true,
+      "detail": {
+        "seed": 20261012012,
+        "random_count": 20000,
+        "random_reproduction_mismatch": 0
+      }
+    },
+    {
+      "name": "独立七变异数学预期与实际RTL计数一致",
+      "passed": true,
+      "detail": [
+        2080,
+        10649,
+        490,
+        11210,
+        12378,
+        44710,
+        9914
+      ]
+    },
+    {
+      "name": "实际RTL输出击杀而非hash拒绝",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 noround",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 minus128sat",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 ignorebit7",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 product32",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 signwrong",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 shiftwrap6",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "独立击杀首个见证 negativeusespositive",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "实际原生命令 compile",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "实际原生命令 simulation",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "只关闭白盒BLKANDNBLK且诊断保留",
+      "passed": true,
+      "detail": {
+        "retained_warning_classes": [
+          "DECLFILENAME",
+          "MULTIDRIVEN",
+          "PINCONNECTEMPTY",
+          "UNUSEDPARAM",
+          "UNUSEDSIGNAL",
+          "WIDTHEXPAND",
+          "WIDTHTRUNC"
+        ],
+        "warning_fatality_disabled_for_fixture": true,
+        "production_lint_approval": false
+      }
+    },
+    {
+      "name": "native一次执行范围",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "早期缺raw与过期NOT_RUN澄清透明",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "七变异源绑定提取组合块精确匹配",
+      "passed": true
+    }
+  ],
+  "manifest_bindings": 65,
+  "raw_restore_mappings": 57,
+  "independent_integer_vectors": 138791,
+  "independent_random_seed": 20261012012,
+  "random_vectors": 20000,
+  "math_proof": [
+    "signed32绝对值范围0..2^31，32bit二补数求幅值含INT_MIN精确；U32乘积P≤2^63−2^31<2^63。",
+    "q=0不加半，R=P；q=1..63时半值≤2^62，P+half<2^64且R<2^63，旧signed64恢复正负没有截断溢出。",
+    "q=64半值2^63，P+half<2^64；64bit右移64为0。无限精度商余数也因P<2^63而舍入0。",
+    "q=65..255时64bit半值左移超过宽度得到0，右移超过宽度0；无限精度P/2^q<1/2同为0。",
+    "二态R≥128当且仅当|R[63:7]为1；否则R0..127，低byte及恢复符号精确。两版均对称饱和到−127..127，不产生−128。",
+    "正/负MQ按acc符号独立选择32bit M及完整byte q；acc=0选择正支但结果0。SV256bit分母2^q在q255仍可表示，余数<2^63，翻倍不溢出256bit。"
+  ],
+  "actual_developer_delivery_sha": "8fdd983af602674da44734d34adec66c600ac3fc0ba65f5987c6b51c1ceef173",
+  "actual_rtl_result_sha": "f6b0a246819b1c31de3181f2fd9f2218e1106c1836263575986b68ce923ee391",
+  "actual_rtl_compile_native_exit_code": 0,
+  "actual_rtl_simulation_native_exit_code": 0,
+  "semantic_rtl_mutant_counts": [
+    2080,
+    10649,
+    490,
+    11210,
+    12378,
+    44710,
+    9914
+  ],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_requant_rtl_review_20261012_r01\\review.py"
+      ],
+      "native_exit_code": 2,
+      "elapsed_seconds": 1.75,
+      "absolute_peak_memory_bytes": null
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s12_requant_rtl_review_20261012_r01\\seal.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.07799999999406282,
+      "scope": "只读恢复映射补核和变异源码逐块对照；无RTL执行"
+    }
+  ],
+  "own_sampled_self_rss_bytes": 23670784,
+  "own_absolute_peak_memory_bytes": null,
+  "elapsed_seconds": 1.8279999999940628,
+  "limitations": [
+    "独立只读Python数学，不编译RTL、不调用Git/Vivado/硬件或真实任务PID。",
+    "完整引擎实际运行只候选参数0，七mutant为源绑定提取组合块，不批准全核心变异覆盖。",
+    "BLKANDNBLK仅白盒内部赋值豁免；-Wno-fatal允许fixture警告继续，原诊断完整保留，不构成生产lint通过。",
+    "早期原stderr/失败脚本缺失仍未闭合，保存转录不冒充原字节。",
+    "891为本次记录源码基线角色；未重新调用Git观测当前HEAD。",
+    "采样峰是离散观测，绝对峰未测。",
+    "首轮独审native2只是映射行数假设错误，全部数值/实际RTL事实检查通过；首轮结果和原始stdout/stderr/native2保存，不归为设计失败。",
+    "模型界限是数学全域论证；138791样本不是枚举signed32×MQ全域；不以样本数代替证明。",
+    "完整模块仅更名/LF转换，实际候选参数0；本审未新增RTL运行。"
+  ],
+  "not_approved": [
+    "整S12 G2",
+    "publicFSM",
+    "private1",
+    "X/Z",
+    "STA",
+    "109",
+    "G3",
+    "G4",
+    "G5",
+    "实板"
+  ]
+}

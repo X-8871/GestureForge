@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""验证S11通道行偏移分配、全域几何守卫及真实引擎每周期等价。"""
+"""验证S12冻结POOL常量实例、全域几何守卫及真实引擎每周期等价。"""
 from __future__ import annotations
 
 import argparse
@@ -23,7 +23,7 @@ import test_s2b_backend_coordinates_rtl as backend
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "2257a450239ea19ef4e2ddf7b2833d44020f95e3"
-SOURCE_BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+SOURCE_BASELINE = "891f750045ce141a8152c96025da559ff1d3a321"
 RUNNER = "verification/test_s2b_maxpool_address_guard_rtl.py"
 SEED = 0x581011
 U32 = (1 << 32)-1
@@ -178,7 +178,12 @@ def mutants(checker, work, bindings):
         ("删除base进位", "src/s2b_maxpool_geometry.sv", "logical_offset_work[32] || address_work[32]", "logical_offset_work[32] || 1'b0"),
         ("更改RANGE清零", "src/s2b_maxpool_geometry.sv", "if (tap_range_error) begin", "if (1'b0) begin"),
         ("更改ARG清零", "src/s2b_maxpool_geometry.sv", "if (error_code == BAD_ARGUMENT) begin", "if (1'b0) begin"),
-        ("engine引用回退", "src/s2b_maxpool_engine.sv", "s2b_maxpool_geometry u_geometry", "int8_maxpool_geometry u_geometry"),
+        ("POOL错层选择及自报SHA", "src/s2b_maxpool_engine.sv", "32'd17: geometry_shape_select = 2'd1;", "32'd17: geometry_shape_select = 2'd0;"),
+        ("POOL错plane及自报SHA", "src/s2b_maxpool_engine.sv", "64'd2704", "64'd2705"),
+        ("POOL漏row及自报SHA", "src/s2b_maxpool_engine.sv", "({32'd0, output_y} * 64'd52)", "64'd0"),
+        ("POOL漏X及自报SHA", "src/s2b_maxpool_engine.sv", "({32'd0, output_y} * 64'd52) + {32'd0, output_x}", "({32'd0, output_y} * 64'd52) + 64'd0"),
+        ("POOL截通道高位及自报SHA", "src/s2b_maxpool_engine.sv", "{32'd0, output_channel} * 64'd2704", "{32'd0, (output_channel * 32'd2704)}"),
+        ("engine引用回退", "src/s2b_maxpool_engine.sv", "s2b_maxpool_geometry u_geometry_l9", "int8_maxpool_geometry u_geometry_l9"),
     ):
         target=fixture/path; raw=(ROOT/path).read_bytes(); assert raw.count(before.encode())==1
         target.write_bytes(raw.replace(before.encode(),after.encode()))
@@ -204,19 +209,23 @@ def main():
         if not p.is_dir() or p.is_symlink(): ap.error("精确父目录不可用")
     if work.exists() or evidence.exists(): ap.error("RunId已存在")
     work.mkdir(); evidence.mkdir(); start=time.monotonic()
-    report=dict(task_id="S2B-T17-S11",status="FAIL",source_commit=SOURCE_BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1610612736),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
+    report=dict(task_id="S2B-T17-S12",status="FAIL",source_commit=SOURCE_BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1073741824),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
     try:
-        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==SOURCE_BASELINE
+        assert subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==SOURCE_BASELINE
         checker=backend.load_checker(); bindings=checker.check_static(ROOT)
         for p in (RUNNER,engine.RUNNER,backend.RUNNER,backend.MODEL): bindings[p]=backend.sha(ROOT/p)
         report["source_sha256_pre"]=dict(bindings)
         report["frozen14_sha256_pre"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
-        assert backend.sha(ROOT/"src/s2b_maxpool_engine.sv")=="8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70"
-        old=subprocess.check_output(["git","show",BASELINE+":src/s2b_maxpool_engine.sv"],cwd=ROOT).decode("utf-8")
+        assert backend.sha(ROOT/"src/s2b_maxpool_engine.sv")=="5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48"
+        old=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","show",BASELINE+":src/s2b_maxpool_engine.sv"],cwd=ROOT).decode("utf-8")
         current=(ROOT/"src/s2b_maxpool_engine.sv").read_text(encoding="utf-8")
-        assert current==old.replace("int8_maxpool_geometry u_geometry","s2b_maxpool_geometry u_geometry")
+        expected=old.replace("int8_maxpool_geometry u_geometry","s2b_maxpool_geometry u_geometry")
+        for before,after in checker.POOL_FIXED_GEOMETRY_REPLACEMENTS:
+            assert expected.count(before)==1
+            expected=expected.replace(before,after)
+        assert current==expected
         assert current.split("    always_ff",1)[1]==old.split("    always_ff",1)[1]
-        report["engine_structure"]=dict(only_change="geometry模块引用",always_ff_sha256=hashlib.sha256(current.split("    always_ff",1)[1].encode()).hexdigest())
+        report["engine_structure"]=dict(only_change="geometry常量实例/选择及64位输出偏移；全部always_ff不变",always_ff_sha256=hashlib.sha256(current.split("    always_ff",1)[1].encode()).hexdigest())
         report["resource_preflight"]=dict(available_ram_bytes=psutil.virtual_memory().available,disk_free_bytes=shutil.disk_usage(work).free,running_tools=[dict(pid=p.pid,name=p.info["name"]) for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower() in ("vivado.exe","verilator_bin.exe","cc1plus.exe","xsim.exe")])
         assert report["resource_preflight"]["available_ram_bytes"]>=2147483648 and report["resource_preflight"]["disk_free_bytes"]>=1073741824
         assert not report["resource_preflight"]["running_tools"]

@@ -1,0 +1,154 @@
+{
+  "schema": "s12_requant_archive_summary_v1",
+  "status": "PASS_G1_REQUANT_WHITEBOX_SUBCHECK_ONLY",
+  "evidence_head": "891f750045ce141a8152c96025da559ff1d3a321",
+  "original_functional_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "prepare_reported_head": "891f750045ce141a8152c96025da559ff1d3a321",
+  "candidate_production_raw_sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+  "source_transformations": [
+    {
+      "input_sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "prepared_sha256": "19ee7de2fe206dd7dc8375c4567432e36776b0a9b810bbdcdfaa31225b78e609",
+      "operation": "UTF8解码、CRLF转LF、唯一模块名替换；完整文本逐字符等同",
+      "verified": true
+    },
+    {
+      "input_sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+      "prepared_sha256": "516e55be8ba42f2fb0dfefe64185968e4fd9d6c956cd484c11ae16aa69b95b19",
+      "operation": "UTF8解码、CRLF转LF、唯一模块名替换；完整文本逐字符等同",
+      "verified": true
+    }
+  ],
+  "vectors": 138791,
+  "seed": 20261012012,
+  "random_vectors": 20000,
+  "semantic_mutants": [
+    {
+      "id": 0,
+      "name": "noround",
+      "actual_rtl_mismatch_count": 2080,
+      "first_witness": {
+        "case": 0,
+        "acc_hex": "00000001",
+        "mq_hex": "00000001010000000200",
+        "actual_hex": "00",
+        "oracle_hex": "01"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 1,
+      "name": "minus128sat",
+      "actual_rtl_mismatch_count": 10649,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "80",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 2,
+      "name": "ignorebit7",
+      "actual_rtl_mismatch_count": 490,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "80",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 3,
+      "name": "product32",
+      "actual_rtl_mismatch_count": 11210,
+      "first_witness": {
+        "case": 3,
+        "acc_hex": "00010000",
+        "mq_hex": "00010000000000000900",
+        "actual_hex": "00",
+        "oracle_hex": "7f"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 4,
+      "name": "signwrong",
+      "actual_rtl_mismatch_count": 12378,
+      "first_witness": {
+        "case": 1,
+        "acc_hex": "ffffff80",
+        "mq_hex": "00000003010000000100",
+        "actual_hex": "7f",
+        "oracle_hex": "81"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 5,
+      "name": "shiftwrap6",
+      "actual_rtl_mismatch_count": 44710,
+      "first_witness": {
+        "case": 5,
+        "acc_hex": "80000000",
+        "mq_hex": "0000000100ffffffff40",
+        "actual_hex": "81",
+        "oracle_hex": "00"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    },
+    {
+      "id": 6,
+      "name": "negativeusespositive",
+      "actual_rtl_mismatch_count": 9914,
+      "first_witness": {
+        "case": 4,
+        "acc_hex": "ffffffff",
+        "mq_hex": "00000003000000000100",
+        "actual_hex": "fd",
+        "oracle_hex": "ff"
+      },
+      "scope": "源绑定提取requant组合块，非全核心变异"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "psutil": "7.2.2",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "original_result_clarification": "result.json原样继承prepare_manifest的限制文本，其中mutants尚NOT_RUN等是准备时描述；本delivery记录真实执行结果并明确替代这些过期执行状态，不改写原件。",
+  "oracle_location": "raw/prepare/prepare.py内divmod；raw/prepare/tb_s12_requant.sv内256bit除法及余数；原vectors.txt完整保留",
+  "fixture_query_location": "tb_s12_requant.sv内部寄存器装载/输出读取；没有独立query文件",
+  "not_run": [
+    "G2",
+    "STA",
+    "G3",
+    "public_FSM",
+    "private1",
+    "X/Z"
+  ],
+  "binary_not_copied": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_requant_rtl_prepare_20261012_r01/runs/execute_r01/obj_dir/Vtb_s12_requant.exe",
+      "sha256": "10560476885e71de681ca6cae317d550f279a2e4ac10dba4bae0957c789af103",
+      "bytes": 1691058,
+      "role": "artifact"
+    }
+  ],
+  "limitations": [
+    "仅G1两态白盒requant子检查PASS；本Developer不提供自己代码的G2结论。",
+    "X/Z、G2、STA、G3、公开FSM完整trace、ARG/overflow/abort/reset、private=1均未在本Run执行。",
+    "7个mutants为精确源绑定提取组合块；真实RTL输出与oracle差异击杀，不是全核心变异。",
+    "clk恒0并内部装载；BLKANDNBLK仅fixture豁免；非法参数向量不声明公开FSM可达。",
+    "原prepare/result中的NOT_RUN准备期文案原字节保留；developer_delivery原件明确澄清真实执行结果。",
+    "早期Python启动失败native未知、组合工具码0；草稿CRLF失败native1；只有tool_return_transcription，缺原始stderr及失败脚本字节，不称闭合。",
+    "不复制obj_dir、exe、编译缓存；原binary仅哈希绑定，可从完整源码重建。",
+    "模型既有冻结只作上游背景，不表示本候选平台或物理0.1.1被冻结；历史候选profile0.1.11不注册。",
+    "source_commit为证据HEAD891；原功能来源a710；准备原件自己记载HEAD891；候选未提交源码以RAW SHA绑定。",
+    "采样峰不是连续绝对峰；编译警告与原失败事实保留；不执行重型或设备探测。"
+  ]
+}

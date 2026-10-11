@@ -1,0 +1,83 @@
+{
+  "status": "PASS_SOURCE_AFTER_HARNESS_FIXTURES_ONLY",
+  "cases": [
+    {
+      "name": "valid_complete_main",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "accepted_synthetic",
+      "source_count": 43,
+      "static_count": 33,
+      "synthetic_git_calls": 45,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "wrong_initial_HEAD",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('实际HEAD不同，不能伪造或跳过')",
+      "synthetic_git_calls": 1,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "changed_final_HEAD",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('核验期间真实HEAD变化')",
+      "synthetic_git_calls": 45,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "git_native_failure_preserved",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('真实Git命令失败，原字节保留')",
+      "synthetic_git_calls": 1,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "wrong_before_commit",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('继承本轮before/commit/43/原14不符')",
+      "synthetic_git_calls": 1,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "Git_RAW_blob_drift",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('Git blob与RAW既不相同也不是精确LF到RAWCRLF')",
+      "synthetic_git_calls": 2,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "RAW_changed_during_check",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('核验期间RAW变化：src/FIXTURE_0.sv')",
+      "synthetic_git_calls": 44,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "output_outside_cache",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('输出必须为本PNR ROOTcache的新source-after目录')",
+      "synthetic_git_calls": 0,
+      "actual_git_calls": 0
+    },
+    {
+      "name": "existing_output_kept",
+      "status": "PASS_FIXTURE_ONLY",
+      "outcome": "rejected",
+      "exception": "ValueError('输出已存在或非原生包装新目录')",
+      "synthetic_git_calls": 0,
+      "actual_git_calls": 0
+    }
+  ],
+  "count": 9,
+  "actual_git_calls": 0,
+  "synthetic_exit_codes": true,
+  "actual_STA": "NOT_RUN",
+  "source_commit": null
+}

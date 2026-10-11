@@ -1,0 +1,146 @@
+{
+  "status": "PASS_G0_MATH",
+  "source_raw_sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+  "head": "932051cdacdf02f729d6a7554b07118d05e96aa4",
+  "original_s2a_requant_block_exact_text_equal": true,
+  "checks": 218784,
+  "legal_domain_checks": 66119,
+  "random_seed": 20261012012,
+  "random_samples": 100000,
+  "full_shift_grid": "0..255",
+  "max_product": 9223372034707292160,
+  "max_rounding_add": 9223372036854775808,
+  "max_sum_before_shift": 18446744071562067968,
+  "max_rounded": 9223372034707292160,
+  "manual": [
+    {
+      "acc": 0,
+      "multiplier": 1073741823,
+      "shift": 0,
+      "expected": 0
+    },
+    {
+      "acc": -1,
+      "multiplier": 1,
+      "shift": 1,
+      "expected": -1
+    },
+    {
+      "acc": 1,
+      "multiplier": 1,
+      "shift": 1,
+      "expected": 1
+    },
+    {
+      "acc": -127,
+      "multiplier": 1,
+      "shift": 0,
+      "expected": -127
+    },
+    {
+      "acc": -128,
+      "multiplier": 1,
+      "shift": 0,
+      "expected": -127
+    },
+    {
+      "acc": 128,
+      "multiplier": 1,
+      "shift": 0,
+      "expected": 127
+    },
+    {
+      "acc": -2147483648,
+      "multiplier": 4294967295,
+      "shift": 0,
+      "expected": -127
+    },
+    {
+      "acc": -2147483648,
+      "multiplier": 4294967295,
+      "shift": 63,
+      "expected": -1
+    },
+    {
+      "acc": -2147483648,
+      "multiplier": 4294967295,
+      "shift": 64,
+      "expected": 0
+    },
+    {
+      "acc": -2147483648,
+      "multiplier": 4294967295,
+      "shift": 65,
+      "expected": 0
+    }
+  ],
+  "mutant_witnesses": [
+    {
+      "mutant": "删除rounding",
+      "input": [
+        1,
+        1,
+        1
+      ],
+      "expected": 1,
+      "mutated": 0
+    },
+    {
+      "mutant": "负饱和改为-128",
+      "input": [
+        -128,
+        1,
+        0
+      ],
+      "expected": -127,
+      "mutated": -128
+    },
+    {
+      "mutant": "高位检测从bit8开始",
+      "input": [
+        128,
+        1,
+        0
+      ],
+      "expected": 127,
+      "mutated": -128
+    },
+    {
+      "mutant": "product截为32位",
+      "input": [
+        65536,
+        65536,
+        0
+      ],
+      "expected": 127,
+      "mutated": 0
+    },
+    {
+      "mutant": "由rounded[63]恢复符号",
+      "input": [
+        -1,
+        1,
+        0
+      ],
+      "expected": -1,
+      "mutated": 1
+    },
+    {
+      "mutant": "按shift低6位回绕",
+      "input": [
+        -2147483648,
+        4294967295,
+        64
+      ],
+      "expected": 0,
+      "mutated": -127
+    }
+  ],
+  "elapsed_seconds": 1.0525420999983908,
+  "limits": [
+    "仅二值整数域数学审查；没有编译或RTL仿真",
+    "没有STA、完整网络、实板或G1/G2验收",
+    "mutants记录为手算反例，未执行RTL变异测试",
+    "峰值内存未测"
+  ]
+}

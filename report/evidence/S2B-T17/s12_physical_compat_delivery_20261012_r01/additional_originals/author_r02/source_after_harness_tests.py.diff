@@ -1,0 +1,11 @@
+--- 冻结r01:source_after_harness_tests.py
++++ S12-PH-COMPAT2-R2:source_after_harness_tests.py
+@@ -37,7 +37,7 @@
+   with target.open('xb') as stream:stream.write(data)
+  hashes={path:hashlib.sha256(data).hexdigest() for path,data in raw.items()}
+  frozen14={path:hashes[path] for path in names[:14]};static={path:hashes[path] for path in names[:33]}
+- freeze=dict(profile='s2b-inference-platform/0.1.12',source_files=[dict(path=path,sha256=digest) for path,digest in hashes.items()],frozen14=frozen14,fixture_test=True)
++ freeze=dict(source_commit='0'*40,profile='s2b-inference-platform/0.1.12',source_files=[dict(path=path,sha256=digest) for path,digest in hashes.items()],frozen14=frozen14,fixture_test=True)
+  freeze_path=base/'freeze.json'
+  with freeze_path.open('x',encoding='utf-8') as stream:original_dump(freeze,stream)
+  before=dict(source_commit='0'*40,source_files=freeze['source_files'],frozen14_sha256=frozen14,fixture_test=True)

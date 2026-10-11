@@ -1,0 +1,31 @@
+--- 冻结r01:impl_collector.py
++++ S12-PH-COMPAT2-R2:impl_collector.py
+@@ -10,7 +10,7 @@
+ APPROVED_LAUNCH='launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1'
+ EVIDENCE_HEAD_AT_PREPARATION=None
+ COMMON=WORK/'collector.py'
+-COMMON_SHA='7770b7e8b41ee6afee9a87cf4d341a9d83d0e5ae1106ec1b1378e518be23e5f2'
++COMMON_SHA='61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad'
+ assert hashlib.sha256(COMMON.read_bytes()).hexdigest()==COMMON_SHA
+ spec=importlib.util.spec_from_file_location('common',COMMON); c=importlib.util.module_from_spec(spec); spec.loader.exec_module(c)
+ FREEZE=compat_pins.SOURCE_FREEZE
+@@ -91,15 +91,16 @@
+   if row['label'] in command_patterns: c.require(re.fullmatch(command_patterns[row['label']],item['command']) is not None,'PNR标签与原生命令类型不同：'+row['label'])
+   timeout=result.get('isError') is True
+   client_code=None if timeout else c.mcp_json(call)['exit_code']
+-  c.require(timeout or client_code==item['code'],'客户端/原生返回码不同')
++  c.require(timeout or (type(client_code) is type(item['code']) and client_code==item['code']),'客户端/原生返回码类型或值不同')
+   paired.append(dict(label=row['label'],history=item,client_timeout_or_error=timeout,client_exit_code=client_code,raw_binding=row))
+  tags={r['label']:r['history'] for r in paired}
++ c.require(all(type(tags[label]['code']) is int and tags[label]['code']==0 for label in ('launch','wait','open_run','reports','close')),'五必需PNR命令原生码必须严格int0')
+  c.require(labels.count('launch_invalid')<=1,'实际invalid失败记录重复')
+  if 'launch_invalid' in tags:
+   invalid=tags['launch_invalid']
+-  c.require(isinstance(invalid['code'],int) and not isinstance(invalid['code'],bool) and invalid['code']!=0 and invalid['command']=='launch_runs impl_1 -to_step post_route_phys_opt_design -jobs 1','可选历史invalid必须是真实非0精确失败原件')
++  c.require(type(invalid['code']) is int and invalid['code']!=0 and invalid['command']=='launch_runs impl_1 -to_step post_route_phys_opt_design -jobs 1','可选历史invalid必须是真实非0精确失败原件')
+  c.require(tags['launch']['code']==0 and tags['launch']['command']==APPROVED_LAUNCH,'合法launch不是本轮精确批准的Post-Route终点')
+- c.require(sum(r['command'].startswith('launch_runs impl_1') and r['code']==0 for r in history)==1,'合法impl启动不是一次')
++ c.require(sum(r['command'].startswith('launch_runs impl_1') and type(r['code']) is int and r['code']==0 for r in history)==1,'合法impl启动不是一次')
+  c.require(tags['wait']['command']=='wait_on_run impl_1','wait不是独立原生命令')
+  c.require(tags['close']['command']=='close_project' and tags['close']['code']==0,'工程关闭失败')
+  return gate,paired

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "affected_receipts": [
+    {
+      "path": "r04_native_receipt.json",
+      "sha256": "03e4715a7db639837a9a2d223cd6c94d688696d7ec9d0cfd3e6b54b46421212d"
+    },
+    {
+      "path": "r04_native_receipt_r02.json",
+      "sha256": "fe907feb82ef6e2cf6683b0a0f272c3470506d4d10b682a020b3eb9370771ec5"
+    }
+  ],
+  "issue": "outer command字段来自sys.argv，未包含解释器-B/-X utf8；各executions子命令已完整记录。原件不改写。",
+  "actual_outer_commands_from_tool_invocations": [
+    [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r02\\r04_run.py"
+    ],
+    [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_resource_guard_20261012_r02\\r04_run_r02.py"
+    ]
+  ],
+  "actual_outer_exit_codes": [
+    1,
+    0
+  ],
+  "evidence_source": "本会话exec_command实际调用参数及返回，非执行时sys.orig_argv采集",
+  "child_native_codes_preserved": true,
+  "corrects_prior_clarification_sha256": "c6ff33bb27c5ed44730b4d1b90b9c2c0d3c9e052ce604abb2ee2c893b40e1e45",
+  "literal_correction": {
+    "previous": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "actual": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "reason": "第一次转录Python解释器字符串多转义反斜杠；本次复用executions中sys.executable真实返回值，不重新拼写路径。原命令执行不受影响，原件保留。"
+  }
+}

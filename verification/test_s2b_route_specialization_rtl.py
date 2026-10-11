@@ -22,6 +22,7 @@ import test_s2b_geometry_specialization_rtl as geometry
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "f53e067ba91abc02ed60cf7f9063884d9ddb79f1"
+SOURCE_BASELINE="891f750045ce141a8152c96025da559ff1d3a321"
 RUNNER = "verification/test_s2b_route_specialization_rtl.py"
 SEED = 0x2B173011
 RTL = ("src/int8_route_query.sv", "src/s2b_route_query.sv",
@@ -315,7 +316,7 @@ def main():
     work.mkdir();evidence.mkdir();started=time.monotonic()
     report={"schema_version":1,"task_id":"S2B-T17-S3","run_id":args.run_id,"source_commit":BASELINE,
             "status":"FAIL","runs":[],"g3":"NOT_RUN","sta":"NOT_RUN",
-            "resource_budget":{"jobs":1,"threads":1,"rss_limit_bytes":1610612736,"cache_limit_bytes":314572800},
+            "resource_budget":{"jobs":1,"threads":1,"rss_limit_bytes":1073741824,"cache_limit_bytes":314572800},
             "limitations":["通用合法groups>=3与派生不等价，明确不适用固定tiny416；原2A通用源码保留。",
                 "engine本身无timeout计数器；200周期请求背压后abort，以及原响应错误码1..7验证取消与映射。",
                 "完整ROUTE memory序列/owner由另一个真实15nonconv backend runner执行；本runner为directquery完整空间及engine边界。",
@@ -326,10 +327,10 @@ def main():
                          geometry.RUNNER:backend.sha(ROOT/geometry.RUNNER),backend.MODEL:backend.sha(ROOT/backend.MODEL)})
         report["source_sha256_pre"]=bindings.copy()
         report["frozen14_sha256_pre"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
-        actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
-        committed=subprocess.check_output(["git","diff","--name-only",BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
+        actual=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+        committed=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
         if committed:raise ValueError("任务输入源码闭包的提交来源改变")
-        report["source_commit"]=actual;report["task_baseline_commit"]=BASELINE
+        report["source_commit"]=actual;report["task_baseline_commit"]=BASELINE;report["source_baseline_commit"]=SOURCE_BASELINE
         report["committed_source_changes_since_task_baseline"]=committed
         if backend.sha(ROOT/backend.MODEL)!=backend.MODEL_SHA:raise ValueError("冻结模型改变")
         model=json.loads((ROOT/backend.MODEL).read_text(encoding="utf-8"))
@@ -344,7 +345,7 @@ def main():
         for path in bindings:shutil.copyfile(ROOT/path,snapshot/Path(path).name)
         for path in RTL:shutil.copyfile(ROOT/path,source/Path(path).name)
         for path in RTL[:1]+RTL[2:3]:
-            gitraw=subprocess.check_output(["git","show",BASELINE+":"+path],cwd=ROOT)
+            gitraw=subprocess.check_output(["git","-c","core.longpaths=true","-c","maintenance.auto=false","show",BASELINE+":"+path],cwd=ROOT)
             if gitraw.decode("utf-8").replace("\r\n","\n")!=(ROOT/path).read_text(encoding="utf-8"):raise ValueError("原ROUTE Git来源变化")
         env=os.environ.copy();bin_dir=args.toolchain/"mingw64/bin";make_dir=args.toolchain/"usr/bin"
         env["PATH"]=str(make_dir)+os.pathsep+str(bin_dir)+os.pathsep+env.get("PATH","")

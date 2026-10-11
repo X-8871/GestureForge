@@ -1,0 +1,223 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s11_resource_guard_20261012_r02\guard.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\guard.py
+@@ -96,6 +96,7 @@
+         self.retired_members = set()
+         self.input_bindings = []
+         self.confirmed_sample_exits = []
++        self.collection_observation = {}
+ 
+     def readback_member(self, expected):
+         # NoSuch可能来自父节点；只以全新候选PID读回认定候选缺失或复用。
+@@ -233,6 +234,11 @@
+         current = identity(process)
+         if not same_identity(current, candidate):
+             raise RuntimeError("PID复用或身份变化")
++        if candidate["pid"] != root["pid"] and candidate.get("parent") is not None:
++            if current["parent"] is None or not same_identity(current["parent"], candidate["parent"]):
++                raise RuntimeError("候选已保存的直接父身份变化")
++        proof = self.known_lineage.get((candidate["pid"], candidate["create_time"]))
++        expected_chain = None if proof is None else proof["ancestor_chain"]
+         leaf = current
+         visited = set()
+         while True:
+@@ -241,39 +247,78 @@
+             visited.add(current["pid"])
+             if not in_allowed(current["cwd"], self.binding["allowed_run_dirs"]):
+                 raise RuntimeError("对象cwd超出本轮范围")
++            # 动作前逐级比较本次首次完整链；禁止旧child沿复用父PID获得停止权。
++            if expected_chain is not None:
++                if len(chain) >= len(expected_chain) or not same_identity(current, expected_chain[len(chain)]):
++                    raise RuntimeError("本次已保存祖先链身份变化")
+             chain.append(current)
+             if current["pid"] == root["pid"]:
+                 status, actual_root = self.get_root()
+                 if status != "MATCH" or not same_identity(current, actual_root):
+                     raise RuntimeError("父进程身份失效：" + status)
++                if expected_chain is not None and len(chain) != len(expected_chain):
++                    raise RuntimeError("本次已保存祖先链长度变化")
+                 return process, leaf, chain
+             if not current["ppid"]:
+                 raise RuntimeError("无法到达本轮根PID")
+             parent = identity(psutil.Process(current["ppid"]))
+             if current["parent"] is None or not same_identity(parent, current["parent"]):
+                 raise RuntimeError("祖先身份变化")
++            if parent["create_time"] > current["create_time"]:
++                raise RuntimeError("父出生时间晚于子对象，拒绝复用父PID链")
+             current = parent
+ 
+     def collect(self, root):
++        # 最多三轮独立枚举及读回；两次连续活身份集合一致才声明离散集合闭合。
++        started = time.monotonic()
++        started_at = now()
++        previous = None
++        all_exited = []
++        observed = dict(self.last_members)
++        members, uncertain = [], []
++        closed = False
++        for scan in range(1, 4):
++            members, uncertain, exited = self.collect_round(root, observed)
++            all_exited.extend(exited)
++            observed.update({(x["pid"], x["create_time"]): x for x in members})
++            current = {(x["pid"], x["create_time"]) for x in members}
++            if uncertain:
++                break
++            if previous == current and not exited:
++                closed = True
++                break
++            previous = current
++        if not closed and not uncertain:
++            uncertain.append({"reason": "TREE_RESCAN_NOT_CLOSED", "maximum_scans": 3})
++        self.collection_observation = {"started_at_utc8": started_at, "ended_at_utc8": now(),
++                                       "elapsed_seconds": time.monotonic() - started,
++                                       "scans": scan, "maximum_scans": 3, "closed": closed}
++        return members, uncertain, all_exited
++
++    def collect_round(self, root, observed):
+         # 历史证明只由本次执行的完整现时父链建立，绝不导入旧日志。
+-        members = { (root["pid"], root["create_time"]): dict(root, monitorable=True, stoppable=True,
+-                    lineage_mode="CURRENT_CHAIN") }
++        members = {}
+         uncertain = []
+         exited = []
+         visited = set()
+         queue = []
+         try:
+-            queue.extend(psutil.Process(root["pid"]).children(recursive=True))
+-        except psutil.Error as error:
++            state, current_root = self.get_root()
++            if state != "MATCH" or not same_identity(root, current_root):
++                raise RuntimeError("重扫ROOT完整身份失效：" + state)
++            members[(root["pid"], root["create_time"])] = dict(current_root, monitorable=True,
++                    stoppable=True, lineage_mode="CURRENT_CHAIN")
++            queue.extend((p, None) for p in psutil.Process(root["pid"]).children(recursive=True))
++        except (psutil.Error, RuntimeError) as error:
+             return list(members.values()), [{"reason": "TREE_ENUMERATION_FAILED", "error": repr(error)}], exited
+         # ROOT枚举可能已看不到孤儿；每轮仍逐个读回曾完整证明的成员。
+-        for known in self.last_members.values():
++        for known in observed.values():
+             if known["pid"] == root["pid"] or (known["pid"], known["create_time"]) in self.retired_members:
+                 continue
+             result = self.readback_member(known)
+             if result["status"] == "ALIVE":
+                 try:
+-                    queue.append(psutil.Process(known["pid"]))
++                    queue.append((psutil.Process(known["pid"]), known))
+                     continue
+                 except psutil.NoSuchProcess:
+                     # 构造句柄期间退出仍须新的候选PID读回，不推断RSS零。
+@@ -285,17 +330,29 @@
+                 uncertain.append({"pid": known["pid"], "reason": "KNOWN_MEMBER_READBACK_UNKNOWN", "readback": result})
+         cursor = 0
+         while cursor < len(queue):
+-            process = queue[cursor]
++            process, queued_expected = queue[cursor]
+             cursor += 1
+             item = None
+             candidate_birth = None
+             try:
+                 candidate_birth = process.create_time()
++                if queued_expected is not None and candidate_birth != queued_expected["create_time"]:
++                    result = self.readback_member(queued_expected)
++                    if result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
++                        self.record_sample_exit(result, exited)
++                    else:
++                        uncertain.append({"pid": process.pid, "reason": "KNOWN_HANDLE_CHANGED", "readback": result})
++                    continue
+                 key = (process.pid, candidate_birth)
+                 if key in visited:
+                     continue
+                 visited.add(key)
+                 item = identity(process)
++                expected = observed.get(key)
++                if expected is not None and not same_identity(item, expected):
++                    raise RuntimeError("已核成员六字段变化")
++                # 旧成员不能沿已经复用的父PID重新获得当前停止权限。
++                self.reject_reused_ancestor(key)
+                 _, current, chain = self.verified_chain(item, root)
+                 if key not in self.known_lineage:
+                     proof = {"first_verified_sample": self.sample_count,
+@@ -304,7 +361,7 @@
+                     self.event("LINEAGE_FIRST_VERIFIED", **proof)
+                 members[key] = dict(current, monitorable=True, stoppable=True, lineage_mode="CURRENT_CHAIN")
+             except psutil.NoSuchProcess as error:
+-                expected = self.last_members.get((process.pid, candidate_birth)) or item or {"pid": process.pid, "create_time": candidate_birth}
++                expected = observed.get((process.pid, candidate_birth)) or item or {"pid": process.pid, "create_time": candidate_birth}
+                 result = self.readback_member(expected)
+                 result["original_error"] = repr(error)
+                 if result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
+@@ -314,9 +371,10 @@
+                         if result["status"] != "ALIVE":
+                             raise RuntimeError("候选读回没有完整确认存活身份")
+                         current = self.historical_member(result["actual"], root)
++                        self.reject_reused_ancestor((current["pid"], current["create_time"]))
+                         members[(current["pid"], current["create_time"])] = current
+                         # 新孤儿子对象仍需现时完整ROOT链；历史链不能用于收编新成员。
+-                        queue.extend(psutil.Process(current["pid"]).children(recursive=True))
++                        queue.extend((p, None) for p in psutil.Process(current["pid"]).children(recursive=True))
+                     except (psutil.Error, RuntimeError) as fallback_error:
+                         retry = self.readback_member(expected)
+                         if retry["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
+@@ -326,6 +384,16 @@
+             except (psutil.Error, RuntimeError) as error:
+                 uncertain.append({"pid": process.pid, "reason": "UNVERIFIED_MEMBER", "identity": item, "error": repr(error)})
+         return list(members.values()), uncertain, exited
++
++    def reject_reused_ancestor(self, key):
++        # 历史祖先的复用与未知都阻断；不读取新对象字段或枚举其子树。
++        proof = self.known_lineage.get(key)
++        if proof is None:
++            return
++        for ancestor in proof["ancestor_chain"][1:-1]:
++            result = self.readback_member(ancestor)
++            if result["status"] not in {"ALIVE", "ABSENT"}:
++                raise RuntimeError("历史祖先复用、漂移或未知：" + result["status"])
+ 
+     def record_sample_exit(self, result, exited):
+         key = (result["expected"]["pid"], result["expected"].get("create_time"))
+@@ -462,6 +530,7 @@
+                    "source_commit": self.binding.get("source_commit"), "run_id": self.binding.get("run_id"),
+                    "binding": self.binding, "limits": self.limits(), "sample_interval_seconds": 1,
+                    "samples": self.sample_count, "sampled_peak_tree_rss_bytes": self.sample_peak,
++                   "monitoring_semantics": "规定节拍离散监测执行；仅闭合活身份集合的非原子实测RSS合计",
+                    "minimum_sampled_available_ram_bytes": self.minimum_ram, "minimum_sampled_c_disk_free_bytes": self.minimum_disk,
+                    "initial_root_identity": self.initial_root, "stopped": stopped or [], "retained": retained or [],
+                    "input_bindings": self.input_bindings,
+@@ -495,7 +564,10 @@
+                 self.last_members[(root["pid"], root["create_time"])] = root
+                 self.event("ROOT_BOUND", identity=root)
+                 next_sample = time.monotonic()
++                previous_sample_start = None
+                 while True:
++                    sample_start = time.monotonic()
++                    sample_started_at = now()
+                     state, root = self.get_root()
+                     if state != "MATCH":
+                         self.event("ROOT_TERMINAL_IDENTITY", state=state, actual=root)
+@@ -521,17 +593,24 @@
+                             return self.finish("BLOCKED", "INVALID_STOP_REQUEST_TYPE")
+                         alerts.append("STOP_REQUEST")
+                     sample = {"index": self.sample_count, "at_utc8": now(), "elapsed_seconds": time.monotonic() - self.started,
+-                              "tree_rss_bytes": rss if not uncertain and not exited else None, "verified_subset_rss_bytes": rss,
++                              "tree_rss_bytes": rss if not uncertain else None, "verified_subset_rss_bytes": rss,
++                              "live_measured_rss_sum": rss if not uncertain else None,
++                              "sample_started_at_utc8": sample_started_at, "sample_ended_at_utc8": now(),
++                              "sample_elapsed_seconds": time.monotonic() - sample_start,
++                              "actual_start_gap_seconds": None if previous_sample_start is None else sample_start - previous_sample_start,
++                              "schedule_delay_seconds": max(0, sample_start - next_sample),
++                              "collection_observation": self.collection_observation,
+                               "available_ram_bytes": ram, "c_disk_free_bytes": disk, "members": members,
+                               "uncertain": uncertain, "confirmed_exits": exited, "limits": limits, "alerts": alerts}
+                     sample["current_chain_rss_bytes"] = sum(x["rss_bytes"] for x in members if x.get("stoppable", True))
+                     sample["historical_chain_rss_bytes"] = sum(x["rss_bytes"] for x in members if not x.get("stoppable", True))
+-                    sample["coverage"] = "本次已核成员实测合计；ROOT及已知孤儿子树枚举，新未知阻断；不是连续绝对峰"
++                    sample["coverage"] = "有界重扫闭合活身份集合的非原子实测合计；退出单列，短命未采对象未知；不是连续绝对峰"
+                     self.samples.write(encode(sample) + "\n")
+                     self.samples.flush()
+                     os.fsync(self.samples.fileno())
+                     self.sample_count += 1
+-                    if not uncertain and not exited:
++                    previous_sample_start = sample_start
++                    if not uncertain:
+                         self.sample_peak = max(self.sample_peak or 0, rss)
+                     self.minimum_ram = min(ram, self.minimum_ram if self.minimum_ram is not None else ram)
+                     self.minimum_disk = min(disk, self.minimum_disk if self.minimum_disk is not None else disk)

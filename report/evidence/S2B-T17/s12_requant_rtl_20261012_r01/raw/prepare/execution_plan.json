@@ -1,0 +1,92 @@
+{
+  "mode": "plan",
+  "compile": [
+    "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+    "--binary",
+    "--timing",
+    "--timescale",
+    "1ns/1ps",
+    "-Wall",
+    "-Wno-fatal",
+    "-Wno-BLKANDNBLK",
+    "-j",
+    "1",
+    "--threads",
+    "1",
+    "--output-split",
+    "10000",
+    "--output-split-cfuncs",
+    "100",
+    "--top-module",
+    "tb_s12_requant",
+    "--Mdir",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\obj_dir",
+    "-MAKEFLAGS",
+    "PYTHON3=\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"",
+    "-CFLAGS",
+    "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+    "s2a_network_descriptor_pkg.sv",
+    "rq_original_engine.sv",
+    "rq_candidate_engine.sv",
+    "requant_mutants.sv",
+    "tb_s12_requant.sv"
+  ],
+  "simulation": [
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\obj_dir\\Vtb_s12_requant.exe"
+  ],
+  "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "psutil": "7.2.2",
+  "full_module_inputs": [
+    {
+      "input": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s11_source_preflight_20261012_r01\\source_snapshot\\src\\s2b_conv_tile_engine.sv",
+      "input_raw_sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "prepared_file": "rq_original_engine.sv",
+      "prepared_sha256": "19ee7de2fe206dd7dc8375c4567432e36776b0a9b810bbdcdfaa31225b78e609",
+      "transformation": "完整模块仅更名；UTF-8/LF；不删减逻辑、不替换生产引擎"
+    },
+    {
+      "input": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_combined_prepare_20261012_r01\\candidate\\src\\s2b_conv_tile_engine.sv",
+      "input_raw_sha256": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+      "prepared_file": "rq_candidate_engine.sv",
+      "prepared_sha256": "516e55be8ba42f2fb0dfefe64185968e4fd9d6c956cd484c11ae16aa69b95b19",
+      "transformation": "完整模块仅更名；UTF-8/LF；不删减逻辑、不替换生产引擎"
+    }
+  ],
+  "vectors": 138791,
+  "mutants": [
+    "noround",
+    "minus128sat",
+    "ignorebit7",
+    "product32",
+    "signwrong",
+    "shiftwrap6",
+    "negativeusespositive"
+  ],
+  "logs": [
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.stdout.log",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.stderr.log",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.native.json",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\compile.samples.jsonl",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.stdout.log",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.stderr.log",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.native.json",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_requant_rtl_prepare_20261012_r01\\runs\\execute_r01\\simulation.samples.jsonl"
+  ],
+  "budgets": {
+    "scope_bytes": 671088640,
+    "owned_tree_bytes": 1073741824,
+    "overall_seconds": 600
+  },
+  "compile_status": "NOT_RUN",
+  "simulation_status": "NOT_RUN",
+  "root_heavy_slot_required": true,
+  "warnings_scope": "白盒用bench装载内部寄存器，clk恒0；仅关闭BLKANDNBLK诊断允许bench与原always_ff共存，未改生产FF或RTL逻辑。实际编译与全部oracle比较仍必须通过。",
+  "limitations": [
+    "二态白盒内部寄存器装载；非法M/q样例不声称公共FSM可达",
+    "完整原模块与完整合并候选源绑定构建，候选仅FROZEN_CONV_DESCRIPTOR=0",
+    "7个mutants仅提取requant组合块，语义击杀尚NOT_RUN；SHA不同不是击杀",
+    "X/Z未测；公共全trace、ARG/overflow/abort/reset由Pool整体回归",
+    "本准备没有RTL编译、仿真、STA、独审或实板结论"
+  ]
+}

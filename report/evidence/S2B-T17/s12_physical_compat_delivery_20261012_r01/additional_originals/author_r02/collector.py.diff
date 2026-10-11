@@ -1,0 +1,70 @@
+--- 冻结r01:collector.py
++++ S12-PH-COMPAT2-R2:collector.py
+@@ -104,11 +104,16 @@
+     return result.stdout,command
+ 
+ 
++def require_pinned_commit(commit):
++    """综合实际源码提交必须严格等于本轮ROOT冻结pin，不能仅比较HEAD或RAW。"""
++    require(type(commit) is str and re.fullmatch(r"[0-9a-f]{40}",commit) and commit==compat_pins.SOURCE_COMMIT,"源码提交与ROOT冻结SOURCE_COMMIT不同")
++
++
+ def load_freeze():
+     """消费本轮G1新schema，不预设历史static/extra/RAW数量。"""
+     compat_pins.require_ready()
+     require(sha(FREEZE)==FREEZE_SHA,"G1 freeze原字节不同")
+-    freeze=read(FREEZE); rows=freeze["source_files"]
++    freeze=read(FREEZE); require_pinned_commit(freeze.get("source_commit")); rows=freeze["source_files"]
+     require(freeze["profile"]=="s2b-inference-platform/0.1.12" and len(rows)==len({r["path"] for r in rows}),"freeze版本或路径重复")
+     hashes={r["path"]:r["sha256"] for r in rows}
+     require(len(hashes)==43,"本轮冻结43源闭包不同")
+@@ -144,6 +149,7 @@
+ def source(commit,phase):
+     """实际提交/全部源码已校验后才创建本轮前或后快照。"""
+     compat_pins.require_ready()
++    require_pinned_commit(commit)
+     require(re.fullmatch(r"[0-9a-f]{40}",commit),"缺少ROOT提供的完整提交")
+     head,_=git("rev-parse","HEAD"); require(head.decode("ascii").strip()==commit,"HEAD与实际提交不同")
+     freeze,hashes,static,profile=load_freeze(); files=[]
+@@ -180,6 +186,7 @@
+ def closed_gate(path,commit):
+     """ROOT显式关闭声明与全部被声明原件按字节核验。"""
+     compat_pins.require_ready()
++    require_pinned_commit(commit)
+     gate=read(path)
+     require(gate.get("root_explicit_signal")=="CLOSED_INPUTS_READY" and gate.get("project_closed") is True and gate.get("source_commit")==commit,"ROOT关闭门禁不成立")
+     require(gate.get("root_declared_products_execution_count")==1 and gate.get("root_declared_synthesis_execution_count")==1,"未确认products/synth只执行一次")
+@@ -189,6 +196,10 @@
+         for row in gate.get(key,[]):
+             actual=binding(ROOT/row["path"])
+             require(all(actual[k]==row[k] for k in actual),"声明原件漂移："+row["path"])
++    require(sha(FREEZE)==FREEZE_SHA,"freeze漂移")
++    require_pinned_commit(read(FREEZE).get("source_commit"))
++    for key in ("source_before","source_after"):
++        require_pinned_commit(read(ROOT/gate[key]["path"]).get("source_commit"))
+     require([r["label"] for r in gate["design_mcp_records"]]==list(LABELS),"实际九design命令声明不同")
+     return gate
+ 
+@@ -202,12 +213,14 @@
+ def collect(commit,gate_path):
+     """关闭后收集本轮实际原件，状态和资源均从本轮读取。"""
+     compat_pins.require_ready()
++    require_pinned_commit(commit)
+     gate=closed_gate(gate_path,commit); exact(REPORT,"directory")
+     preparation=read(ROOT/gate["preparation_receipt"]["path"])
+     for row in preparation["prepared_scripts"]: require(binding(ROOT/row["path"])==row,"实际收集脚本不是最终准备版本")
+     require(sha(FREEZE)==FREEZE_SHA,"freeze漂移")
+     before,after=read(ROOT/gate["source_before"]["path"]),read(ROOT/gate["source_after"]["path"])
+     static=read(ROOT/gate["static_source_closed"]["path"]); freeze=read(FREEZE)
++    require_pinned_commit(freeze.get("source_commit"))
+     hashes={r["path"]:r["sha256"] for r in freeze["source_files"]}
+     require(before["source_commit"]==after["source_commit"]==static["source_commit"]==commit,"关闭源码提交不同")
+     require(before["source_freeze_sha256"]==after["source_freeze_sha256"]==FREEZE_SHA,"前后冻结入口不同")
+@@ -323,6 +336,7 @@
+ def seal(commit,gate_path):
+     """只封包已闭合结果；不伪造当前collector或审查成功码。"""
+     compat_pins.require_ready()
++    require_pinned_commit(commit)
+     gate=closed_gate(gate_path,commit); summary=read(REPORT/"s12_collection_summary.json")
+     require(summary["source_commit"]==commit,"封包基线不同")
+     native_dir=fresh(REPORT/"native_closed",directory=True); native_records=[]

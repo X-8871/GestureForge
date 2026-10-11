@@ -1,0 +1,48 @@
+--- 原件:source_after_check.py
++++ S12隔离草稿:source_after_check.py
+@@ -2,11 +2,12 @@
+ import argparse,hashlib,importlib.util,json,re,subprocess,sys
+ from datetime import datetime,timedelta,timezone
+ from pathlib import Path
++import compat_pins
+ ROOT=Path(__file__).parents[4]; WORK=Path(__file__).parent
+-COMMIT='a710ec431474841a81912a6055f861e811a151e3'
+-CACHE=ROOT/'tmp/2B/S2B-T17/s11_impl_root_run_20261012_r01'
+-COMMON=ROOT/'tmp/2B/S2B-T17/s11_collection_20261012_r01/collector.py'
+-COMMON_SHA='8bb59a7485a2f03adb6d71d5923913d724952077a961af208fff18f76b8c6cc9'
++COMMIT=compat_pins.SOURCE_COMMIT
++CACHE=compat_pins.PNR_CACHE
++COMMON=WORK/'collector.py'
++COMMON_SHA='7770b7e8b41ee6afee9a87cf4d341a9d83d0e5ae1106ec1b1378e518be23e5f2'
+ def compare_raw(blob,raw):
+  """只接受全文件RAW相同或精确LF到RAWCRLF变换，其他差异拒绝。"""
+  if blob==raw: return 'RAW_IDENTICAL'
+@@ -15,7 +16,7 @@
+ def main():
+  """缺少明确实际HEAD或新输出目录时拒绝，绝不覆盖旧PRE。"""
+  parser=argparse.ArgumentParser(); parser.add_argument('--expected-head',required=True); parser.add_argument('--output-dir',required=True,type=Path)
+- args=parser.parse_args(); assert re.fullmatch('[0-9a-f]{40}',args.expected_head)
++ args=parser.parse_args(); compat_pins.require_ready(pnr=True); assert re.fullmatch('[0-9a-f]{40}',args.expected_head)
+  assert hashlib.sha256(COMMON.read_bytes()).hexdigest()==COMMON_SHA
+  spec=importlib.util.spec_from_file_location('common',COMMON); c=importlib.util.module_from_spec(spec); spec.loader.exec_module(c)
+  out=args.output_dir; c.require(out.is_absolute() and out.parent.parts==CACHE.parts and re.fullmatch('source_after_check_r[0-9]+',out.name),'输出必须为本PNR ROOTcache的新source-after目录')
+@@ -38,8 +39,8 @@
+  head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(head==args.expected_head,'实际HEAD不同，不能伪造或跳过')
+  freeze,hashes,static,profile=c.load_freeze()
+  c.require(len(hashes)==43 and len(static)==33 and len(profile['rtl_sources'])==18 and len(profile['source_derivation']['derived_sources'])==8,'实际43/33/18/8闭包不同')
+- before_path=ROOT/'report/evidence/S2B-T17/s11_source_preflight_20261012_r01/source_before.json'; before=c.read(before_path)
+- c.require(before['source_commit']==COMMIT and {r['path']:r['sha256'] for r in before['source_files']}==hashes and before['frozen14_sha256']==freeze['frozen14'],'继承before/a710/43/原14不符')
++ before_path=compat_pins.SOURCE_PRE/'source_before.json'; before=c.read(before_path)
++ c.require(before['source_commit']==COMMIT and {r['path']:r['sha256'] for r in before['source_files']}==hashes and before['frozen14_sha256']==freeze['frozen14'],'继承本轮before/commit/43/原14不符')
+  snapshots=out/'source_snapshot_after'; snapshots.mkdir(); files=[]
+  for name,expected in hashes.items():
+   raw=c.exact(ROOT/name).read_bytes(); c.require(hashlib.sha256(raw).hexdigest()==expected,'本轮RAW漂移：'+name)
+@@ -50,7 +51,7 @@
+  for name,expected in hashes.items(): c.require(c.sha(ROOT/name)==expected,'核验期间RAW变化：'+name)
+  end_head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(end_head==head,'核验期间真实HEAD变化')
+  save(out/'git_commands.json',dict(commands=commands))
+- record=dict(schema_version=1,status='PASS_SOURCE_AFTER_ONLY',created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_commit=COMMIT,actual_head_at_check=head,actual_head_after_check=end_head,source_freeze=c.rel(c.FREEZE),source_freeze_sha256=c.FREEZE_SHA,source_files=files,source_count=43,platform_static_source_count=33,source_sha256=hashes,static_source_sha256=static,frozen14_sha256=freeze['frozen14'],profile_version=profile['version'],clock_hz=50000000,visibility_parameter=0,inherited_before=c.binding(before_path),before_scope='已归档综合before，另由ROOT绑定PNR运行中/launch前真实源码检查；不伪称本脚本生成新before。',project_dir=str(ROOT/'tmp/2B/S2B-T17/s11p1'),evidence_dir=str(ROOT/'report/evidence/S2B-T17/s11_implementation_20261012_r01'),limitations=['只有ROOT于适用关闭时点运行才是该时点source-after；源码核验不证明PNR、时序、预算或实板通过。','HEAD读取两次实际Git命令，43份Git blob逐项按a710核对；证据HEAD不代替源码基线。'])
++ record=dict(schema_version=1,status='PASS_SOURCE_AFTER_ONLY',created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_commit=COMMIT,actual_head_at_check=head,actual_head_after_check=end_head,source_freeze=c.rel(c.FREEZE),source_freeze_sha256=c.FREEZE_SHA,source_files=files,source_count=43,platform_static_source_count=33,source_sha256=hashes,static_source_sha256=static,frozen14_sha256=freeze['frozen14'],profile_version=profile['version'],clock_hz=50000000,visibility_parameter=0,inherited_before=c.binding(before_path),before_scope='已归档综合before，另由ROOT绑定PNR运行中/launch前真实源码检查；不伪称本脚本生成新before。',project_dir=str(compat_pins.PROJECT),evidence_dir=str(compat_pins.PNR_REPORT),limitations=['只有ROOT于适用关闭时点运行才是该时点source-after；源码核验不证明PNR、时序、预算或实板通过。','HEAD读取两次实际Git命令，43份Git blob逐项按本轮COMMIT核对；证据HEAD不代替源码基线。'])
+  save(out/'source_after.json',record)
+  print(json.dumps(dict(status=record['status'],source_count=43,static_count=33,source_commit=COMMIT,actual_head_at_check=head,git_native_calls=len(commands),source_record=c.binding(out/'source_after.json')),ensure_ascii=False))
+ if __name__=='__main__': main()

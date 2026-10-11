@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T16",
+  "run_id": "jtag_offline_20261011_r02",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "evidence_dir": "report/evidence/S2B-T16/jtag_offline_20261011_r02",
+  "interfaces": [
+    {
+      "name": "PS/PL候选CSR与缓存所有权接口",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/native_sdk_basis.json",
+      "sha256": "991c5ac7395e869d345d434fd45fdaa1673860634036a0aa70950481448477a4",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/package_evidence.py",
+      "sha256": "f37b9d6dce7f111fe85a70571aabfe16b3a4a20db4e72a95eb311fd8002bef62",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/run_validation.py",
+      "sha256": "61819675ebd3f384072cfa6822e767a189f657086b73375b8ce7f4082ce40b89",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/unittest_stderr.log",
+      "sha256": "6ab33f56bf0998c3412e3627e04e1ea88b49d08b80ead2351a634e31f3a2ee9f",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/unittest_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/validation_notes.json",
+      "sha256": "efde3ba26ba390223a523a8529513e87b8c588cc8dec53b9519cf12a9a0a7492",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/validation_result.json",
+      "sha256": "0950c4588dc8cfd2ac818d3e8a5f73a45513728b78b53a14d4ebfb933e2cb42b",
+      "role": "result"
+    },
+    {
+      "path": "verification/s2b_board_jtag.py",
+      "sha256": "bb0cdff1fcffb5683ff2d4d0d4eeae620067f59eb75f2c5672de057a91271a9e",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_board_jtag.py",
+      "sha256": "a03e03419c3d31775919bffc1d98d9ebae38b8cf7290c31182d257107ae48b72",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_s2b_ps_smoke_layout.py",
+      "sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "input"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "XSDB-source": "Vitis 2026.1 local SDK source inspection"
+  },
+  "checks": [
+    {
+      "name": "离线mock SDK回归44项",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_board_jtag -v",
+      "exit_code": 0
+    },
+    {
+      "name": "实板部署缓存与CSR验证",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本Developer任务禁止操作硬件，由总控固定独立G2后执行。"
+    },
+    {
+      "name": "独立审查",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Developer已交付本轮源码与44项证据，独立Reviewer尚未执行。"
+    }
+  ],
+  "limitations": [
+    "只交付可审查API，不声称G2/G3/G4/G5完成。",
+    "候选接口未冻结，inputs模式仍受阻。",
+    "初次33项失败未保存独立完整原生日志，本轮保留会话工具输出的明确摘要；r01原件保留。",
+    "SDK通用DAP异常无法证明SLVERR；峰值内存未测。"
+  ]
+}

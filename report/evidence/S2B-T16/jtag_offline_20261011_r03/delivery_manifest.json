@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T16",
+  "run_id": "jtag_offline_20261011_r03",
+  "source_commit": "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+  "evidence_dir": "report/evidence/S2B-T16/jtag_offline_20261011_r03",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r03/api_contract.json",
+      "sha256": "1b15e87be0c41ff0289142455f350f2157b4cc9de1b7ad57af425bdf90ec4d7f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r03/run_validation.py",
+      "sha256": "2031d7a044f9c6853af5a7243b52aeedbeda27a8e685268c1c64123766bef9a6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r03/unittest_stderr.log",
+      "sha256": "afc3d04bb11885d0e2ca63d789042390d39ea40a104646484a31366d0ed1798a",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r03/unittest_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r03/validation_result.json",
+      "sha256": "65abeab082cb9f7cf453c1d5ce618b97e8c0bb2ee42ce7bad4b8272a1b3269da",
+      "role": "result"
+    },
+    {
+      "path": "verification/s2b_board_jtag.py",
+      "sha256": "91bbf5bc8ac5ef9bee37ce6491627a6ac8f38a53b7bba113d1b83447b2ecddf0",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_board_jtag.py",
+      "sha256": "86fe634d3b63dc5bcfd7d570f731d2ee2ed64d1ada5bdee40f758d89321ecaf2",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_s2b_ps_smoke_layout.py",
+      "sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "input"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "role": "input"
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "PS/PL候选CSR与缓存所有权接口",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "XSDB-source": "Vitis 2026.1 Python SDK只读依据"
+  },
+  "checks": [
+    {
+      "name": "R1修复离线mock回归56项",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_board_jtag -v",
+      "exit_code": 0
+    },
+    {
+      "name": "实板验证",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "仅root固定G2后允许操作硬件。"
+    },
+    {
+      "name": "独立复审",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Developer交付停止写入版，等待root独立Reviewer。"
+    }
+  ],
+  "limitations": [
+    "G1离线工具交付不代表G2/G3/G4/G5；未提交，由总控统一提交。",
+    "旧r01/r02失败及独立R1失败原件保留；候选未冻结，inputs检查预期仍阻断。"
+  ]
+}

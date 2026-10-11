@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "hardware_execution": "NOT_RUN",
+  "api": {
+    "wire": "JtagWireSession(stream, rx_file, tx_header_file, response_timeout=...)；复用T15真实WireSession，rx_file保存包括失败在内的实际收到字节。",
+    "cache_probe": "controller.cache_probe(wire,cpu_seed,dap_seed) 自行发送OP4两phase；只能本次deploy后、同wire尚未发送LOAD/START时调用。",
+    "dap_abort": "root先wire.send真实OP3 mode2请求<III>(2,core_timeout,drain_timeout)，再controller.dap_abort(wire,request)。工具自身消费WAIT_DAP_ABORT→实际同epoch ARMING/RUN→合法DAP ABORT→真实final，不接收批准callback。",
+    "ack": "只有dap_abort返回ACTUAL_ERROR_SAFE_ABORTED_SAVED后，root可显式wire.acknowledge_abort(next_sequence)。T16不隐式ACK。",
+    "source_binding": "controller bindings必须增加transport_source={path:实际s2b_board_transport.py绝对路径,sha256:实际完整SHA256}；原init/app/XSA/bit/CSR/interface/SDK/tool/ELF及delivery解析器绑定仍必需。"
+  },
+  "cache_record": {
+    "status": "CROSS_MASTER_256_BYTES_MATCHED",
+    "address": 268435456,
+    "cpu_seed": "实际CPU种子整数",
+    "dap_seed": "实际不同DAP种子整数",
+    "phase0_raw_hex": "实际UART 256B，512个hex字符；cpu_seed模式",
+    "phase1_raw_hex": "实际UART 256B，512个hex字符；dap_seed模式",
+    "wire_session_identity": {
+      "python_object_id": "运行期id(wire)，T18须与消费模型的同一对象比较",
+      "transport_source_sha256": "实际T15解析器绑定SHA",
+      "rx_file": "实际stream原字节日志文件名",
+      "tx_header_file": "实际TX头日志文件名"
+    },
+    "phase0_receipt_and_phase1_receipt": "各含request_header_hex、request_payload_hex、header_hex、payload_hex和T15严格解析meta。meta.probe_bytes在内存为bytes；持久结果另存无歧义phase_raw_hex。",
+    "full_csr": "controller.record.stable_csr保存每动作标签和两份完整一致快照，包括0/4及0x00C至0x074实际可读CSR；IDLE必须status0x400/epoch0/error0/activeframe0/progress0。"
+  },
+  "limitations": [
+    "工具只记录native system-stop实际操作与前后BOOT_MODE/REBOOT_STATUS/OCM/PC；统一PS/PL/DDR恢复由root依据官方non-POR范围及实际观测独立判断。",
+    "SDK通用总线异常是UNKNOWN/SLVERR_UNPROVEN；绝不能伪造期待SLVERR通过。",
+    "原R1审查失败证据与r01/r02原件不修改。"
+  ]
+}

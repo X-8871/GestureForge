@@ -1,0 +1,12 @@
+{
+  "hardware_execution": "NOT_RUN",
+  "actual_unittest_runs_in_conversation": 4,
+  "metadata_correction": "r02复用的driver中repeated_runs_in_conversation硬编码3；该字段不准确。实际依次33项失败、33项通过、r01的41项通过、r02的44项通过。本补充说明保留原件而不改写原始输出。",
+  "run01_scope": "r01为已被本轮取代的41项离线候选结果。仅保留原件，不把旧源码SHA通过结果继承到r02。",
+  "review_scope": "当前44项覆盖动态两器件JTAG链、Running核拒绝、BOOT_MODE拒绝、实际ELF符号解析、owned断点清理、原生cache绕过选项、全64word读回、seed错、SLVERR/DECERR/未知错误区分、CSR拒绝零额外副作用、合法DAP ABORT实际ERROR_SAFE/code8及race失败、source/绑定/peer漂移、关闭后禁止SDK。",
+  "accepted_root_reset_basis": "总控已查UG585 non-POR系统复位范围；本子任务只核查本地SDK的system命令与TCF传递，不推断hw_server内部实现、物理POR或DRAM清零。",
+  "deployment_gate": "deploy之前必须实际调用本控制器system_reset_stop(cold_basis)，保存两核PC、BOOT_MODE、REBOOT_STATUS、OCM_CFG前后观测。cold_lifecycle_proven始终false，统一生命周期G3由总控结合官方依据与真实硬件观测判断。",
+  "uart_contract": "cache_probe回调exchange_phase(phase,cpu_seed,dap_seed)返回OP4经T15严格解析后的实际256B。dap_abort(epoch,wait_final=callback)由T15的WAIT_DAP_ABORT元数据取得真实epoch，callback消费真实final但不自动ACK，随后DAP观察ERROR_SAFE/code8；仅由host另发显式诊断ACK。",
+  "slverr_limit": "SDK源没有SLVERR专门枚举。仅原生明确SLVERR格式可归类；通用DAP错误保留UNKNOWN与原异常，LAST_REJECT正确也不算SLVERR通过。",
+  "input_binding_scope": "总控选择独立审查过的实际XSA、full bit、init/app ELF及源码SHA；本模块逐次核验实际文件并固定本实例输入，不采用role或PASS声明代替真实字节核验。完整构建与平台映射审查仍由T13/T15及总控承担。"
+}

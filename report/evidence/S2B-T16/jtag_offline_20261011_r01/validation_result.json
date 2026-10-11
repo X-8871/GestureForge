@@ -1,0 +1,50 @@
+{
+  "status": "PASS_OFFLINE_MOCK",
+  "hardware_execution": "NOT_RUN",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "source_sha256": {
+    "verification/s2b_board_jtag.py": "f835656dfa8627deefe4126eb8d01a7edae9f2306de5c0397da8f20f4f2d7fe0",
+    "verification/test_s2b_board_jtag.py": "5e87f7fa48854c5faf47ff2e7f0d06ee7392704715d0b0fdae102899daf7f8f7",
+    "verification/check_s2b_ps_smoke_layout.py": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+    "verification/check_stage_delivery.py": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+  },
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "verification.test_s2b_board_jtag",
+    "-v"
+  ],
+  "native_exit_code": 0,
+  "elapsed_seconds": 27.375,
+  "time_utc8": "2026-10-11T13:33:37.302991+08:00",
+  "python_version": "3.12.10",
+  "test_count": 41,
+  "peak_memory": "未测",
+  "hardware_api_call_count": 0,
+  "repeated_runs_in_conversation": 3,
+  "earlier_runs": [
+    {
+      "native_exit_code": 1,
+      "tests": 33,
+      "errors": 15,
+      "elapsed_seconds": 11.883,
+      "failure": "ModuleNotFoundError: No module named 'check_stage_delivery'；既有ELF解析器同目录绝对导入与python -m入口冲突。",
+      "full_native_log": "初次未落本目录，完整工具输出在当前会话；本文件仅保存已观测摘要，不冒充完整原件。"
+    },
+    {
+      "native_exit_code": 0,
+      "tests": 33,
+      "elapsed_seconds": 34.695,
+      "scope": "修复导入后实际通过；后续ABORT及reset门禁需本轮新测试。"
+    }
+  ],
+  "limitations": [
+    "mock SDK只证明工具逻辑；实板、冷生命周期、CSR SLVERR、cache/整网均NOT_RUN。",
+    "未创建hw_server或XSDB会话。"
+  ]
+}

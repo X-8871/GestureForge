@@ -1,0 +1,44 @@
+{
+  "sdk": {
+    "target.py": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+      "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"
+    },
+    "session.py": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\session.py",
+      "sha256": "e1c85985ada7176182de0b59ddbbc44ecf7cd0047adcc42d94563dbb85da7b7b"
+    },
+    "_tcf_reset.py": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_tcf_reset.py",
+      "sha256": "c299fc357838431972fcae6b6900485cd91309ab64e1f248980e1635bcea8912"
+    },
+    "_tcf_node_memory.py": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_tcf_node_memory.py",
+      "sha256": "3cf74332223a4128fe03c1bd20c77167069a48a34660134f838322ddba871ab6"
+    },
+    "_breakpoint.py": {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_breakpoint.py",
+      "sha256": "22b86a6e877a29ce3329846a90a46f3fae21dca44cfd5646403625f02984eb3b"
+    }
+  },
+  "version": "Vitis 2026.1 Python XSDB",
+  "hardware": "NOT_RUN",
+  "observed_source_rules": [
+    "target.mrd选中APU node.id后__get_memory_tgt，不选CPU。",
+    "target.mwr的--bypass_cache_synq设置MODE_BYPASS_CACHE_SYNC。",
+    "system重置保留rst_type=system，processor/cores映射core/cpu；XilinxReset能力校验后调用TCF reset。",
+    "system默认resume；必须显式--stop。ps分支要求MicroBlaze PMU，por要求线缆POR引脚能力。",
+    "fpga(file=...)保留默认兼容性检查，未用partial/no_revision/skip兼容检查。",
+    "SDK没有明确SLVERR错误枚举；通用DAP异常不能当作已证明SLVERR。"
+  ],
+  "official_non_por_basis_from_root": [
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/System-Reset-Effects",
+      "scope": "总控已浏览non-POR系统复位效果，本子任务未独立浏览。"
+    },
+    {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Internal-Resets",
+      "scope": "总控已浏览SOFT_RST与JTAG/debug非POR来源，本子任务仅核对SDKTCF请求。"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T16",
+  "run_id": "jtag_packaging_20261011_r01",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "evidence_dir": "report/evidence/S2B-T16/jtag_packaging_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只对已生成的主交付清单记录包装检查器真实退出码，不消费新业务接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/check_native.py",
+      "sha256": "f93d7dd84fa76719e44becaa2881fdb06376d5d78456899a28b6da8e5d29a5fb",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/evidence_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/evidence_stdout.log",
+      "sha256": "fabb7518c1363d457156790f1e5a0bce39939a4e2d962e7fac073a94358bdded",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/inputs_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/inputs_stdout.log",
+      "sha256": "80597a4a6efc6d041e70a6b3dda57431411684b09b9bd237ed40377952f4098a",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_packaging_20261011_r01/native_packaging_result.json",
+      "sha256": "117f4d73940bea89021fbad3865ccfe7380d05ab72d978ffaac0d4baaadfe002",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T16/jtag_offline_20261011_r02/delivery_manifest.json",
+      "sha256": "c77993b61d6455747c741a685db7280a774dfe4ab4bd91eaece2b59731e6fae6",
+      "role": "input"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "input"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10"
+  },
+  "checks": [
+    {
+      "name": "主交付evidence包装",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T16/jtag_offline_20261011_r02/delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "主交付inputs依赖",
+      "status": "BLOCKED",
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T16/jtag_offline_20261011_r02/delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "主清单候选接口未冻结，实板与独立审查均NOT_RUN；不宣称部署就绪。"
+    }
+  ],
+  "limitations": [
+    "仅包装检查原生结果，不代表G2/G3或完整2B通过。",
+    "Windows宿主先前显示1；此处明确保存子进程真实退出码。"
+  ]
+}

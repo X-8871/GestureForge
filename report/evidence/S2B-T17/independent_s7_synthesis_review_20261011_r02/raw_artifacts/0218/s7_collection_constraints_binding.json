@@ -1,0 +1,42 @@
+{
+  "clock": {
+    "name": "clk_fpga_0",
+    "period_ns": 20.0,
+    "frequency_mhz": 50.0,
+    "rise_ns": 0.0,
+    "fall_ns": 10.0
+  },
+  "input_jitter_ns": 0.6,
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "no_output_delay": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "exported_reset_cdc_false_paths": [
+    {
+      "scope": "s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_HIGH_AUX.ACT_HI_AUX",
+      "command": "set_false_path -to [get_cells {syncstages_ff_reg[0]}]"
+    },
+    {
+      "scope": "s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_LOW_EXT.ACT_LO_EXT",
+      "command": "set_false_path -to [get_cells {syncstages_ff_reg[0]}]"
+    }
+  ],
+  "exported_false_path_count": 2,
+  "report_exceptions_no_valid_statement_present": true,
+  "report_exceptions": {
+    "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/exceptions_synth.rpt",
+    "sha256": "ee83dc1214b99a2f87b8f8732119578e2fed802d5ecde2812e5ff027f7f16d30",
+    "bytes": 1028
+  },
+  "interpretation": "实际check_timing计数与两个resetCDC false_path分别记录；不以report_exceptions文字抹去write_xdc中的例外。"
+}

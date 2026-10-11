@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T13",
+  "run_id": "products_recheck_20261011_r01",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "evidence_dir": "report/evidence/S2B-T13/products_recheck_20261011_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/delivery_manifest.before_packaging_correction.json",
+      "sha256": "958ffb71de20d32cf8dcf067e786698159161bca0461b0e2710052cb39cd577b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/mcp_history_calls.json",
+      "sha256": "b002ab1b8357ca1c370fd991e095899cc735906a14327fd3f9aca628f3866e1b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict",
+      "sha256": "520db45d0073bbc9ea031d1c542f85714e5c9284978965cd3d406c87fdede64a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.after.log",
+      "sha256": "fb8381d86af23f9999be48bf4fd40c6458db906f43a3f1ebb03d37110f2229bf",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.before.log",
+      "sha256": "570b52fdbc84dd2e8bc7b8a4b928665fa21f9f5e5e1b5eaf5244ca4190d6a00e",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.native.log",
+      "sha256": "b2add2f0d8aaf707f06ae29449db4c7a6c0fbf089b207018d1f78542c5ca3864",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/root_mcp_calls.json",
+      "sha256": "d019c6afa73e14be3960968c5016d31a27b0bfc0941d857307d54e52395e3e80",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/root_result.json",
+      "sha256": "950a005a4151e423be36bc1c521e9ab3308d93855a4511f25748e58e27e7368d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/vivado_session_cumulative.log",
+      "sha256": "ccdad0fd9b3439c04e39f9a117f50dc5bffb87a0259f41fc885b14ed607a9520",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/platform_api_audit_20261011_r08/source_snapshot/s2b_inference_platform.tcl",
+      "sha256": "a4566c10f8130d6e169cfe7ebd9cb3e486bc113d4e78287eab989cc2b9577867",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "真实MCP返回0",
+      "status": "PASS",
+      "command": "close_project",
+      "exit_code": 0
+    },
+    {
+      "name": "真实MCP返回1",
+      "status": "PASS",
+      "command": "open_project {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.xpr}",
+      "exit_code": 0
+    },
+    {
+      "name": "真实MCP返回2",
+      "status": "FAIL",
+      "command": "open_bd_design [get_files */s2b_inference.bd]; puts [dict create before [ipcfg::native_message_counts] project [current_project]]",
+      "exit_code": 1,
+      "reason": "Reading block design file <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd>...\r\nAdding component instance block -- xilinx.com:ip:processing_system7:5.5 - ps7\r\nAdding component instance block -- xilinx.com:ip:axi_protocol_converter:2.1 - axi_gp0_lite\r\nAdding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_fclk0\r\nAdding component instance block -- xilinx.com:ip:xlconstant:1.1 - const_zero\r\nAdding component instance block -- xilinx.com:ip:xlconstant:1.1 - const_one\r\nAdding component instance block -- xilinx.com:module_ref:s2b_inference_top:1.0 - infer\r\nSuccessfully read diagram <s2b_inference> from block design file <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd>\r\ninvalid command name \"ipcfg::native_message_counts\""
+    },
+    {
+      "name": "真实MCP返回3",
+      "status": "PASS",
+      "command": "ipcfg::capture {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict} {::s2b_inference_platform::products {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01}} {PRODUCTS:OK}",
+      "exit_code": 0
+    },
+    {
+      "name": "真实MCP返回4",
+      "status": "PASS",
+      "command": "puts [dict create wrappers [get_files */s2b_inference_wrapper.v] source_wrappers [get_files -of_objects [get_filesets sources_1] -filter {NAME =~ */s2b_inference_wrapper.v}] top [get_property TOP [get_filesets sources_1]]]; foreach p [get_files */s2b_inference_wrapper.v] {puts [list FILE $p USED [get_property USED_IN $p] FILESET [get_property FILESET_NAME $p] GENERATED [get_property IS_GENERATED $p]]}",
+      "exit_code": 0
+    },
+    {
+      "name": "原入口正常完成",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "总控重新调用非幂等products，重复make_wrapper/import引入第二个wrapper；函数对象断言FAIL。另错误调用不存在的native_message_counts，原件保留。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1"
+  },
+  "limitations": [
+    "总控重新调用非幂等products，重复make_wrapper/import引入第二个wrapper；函数对象断言FAIL。另错误调用不存在的native_message_counts，原件保留。",
+    "不代表模型、visibility1、综合/实现、G3/G4/G5通过。"
+  ]
+}

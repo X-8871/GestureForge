@@ -1,0 +1,1129 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct 11 12:52:12 2026
+# Process ID         : 23188
+# Current directory  : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01
+# Command line       : vivado.exe -mode tcl -log .vivado-ai\vivado_94331856_49ab2ff7.log -journal .vivado-ai\vivado_94331856_49ab2ff7.jou -notrace -source .vivado-ai\init_94331856_49ab2ff7.tcl
+# Log file           : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log
+# Journal file       : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01\.vivado-ai\vivado_94331856_49ab2ff7.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 21168 MB
+#-----------------------------------------------------------
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {.vivado-ai\init_94331856_49ab2ff7.tcl} -notrace
+INFO: [Common 17-1674] Started webserver at http://localhost:8088
+set_param -quiet messaging.defaultLimit 10000000
+puts "MCPPROBE:xvofo8zioz6j:[get_param messaging.defaultLimit]"
+MCPPROBE:xvofo8zioz6j:10000000
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:8h0terfnr01c===}
+INFO: [MCP 00-100] ===MCP_CMD_START:8h0terfnr01c===
+puts "VSCSTART" ; set exitCode [catch {puts [version -short]; puts [get_parts -quiet xc7z020clg400-2]; puts [get_parts -quiet xc7z020clg400-2I]; puts [get_parts -quiet XC7Z020-2CLG400I]; foreach p [get_parts -quiet xc7z020clg400-2] {puts [list NAME [get_property NAME $p] FAMILY [get_property FAMILY $p] DEVICE [get_property DEVICE $p] PACKAGE [get_property PACKAGE $p] SPEED [get_property SPEED $p]]}; puts [get_parts -quiet xc7z020*clg400*-2*]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+2026.1
+xc7z020clg400-2
+
+
+NAME xc7z020clg400-2 FAMILY zynq DEVICE xc7z020 PACKAGE clg400 SPEED -2
+xc7z020clg400-2
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:8h0terfnr01c:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:8h0terfnr01c:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:4g6v98alhvkp===}
+INFO: [MCP 00-100] ===MCP_CMD_START:4g6v98alhvkp===
+puts "VSCSTART" ; set exitCode [catch {puts "SESSION:[pid] PROJECT:[current_project -quiet] CWD:[pwd] VERSION:[version -short]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+SESSION:23188 PROJECT: CWD:C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01 VERSION:2026.1
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:4g6v98alhvkp:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:4g6v98alhvkp:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:6s5uc55fydtg===}
+INFO: [MCP 00-100] ===MCP_CMD_START:6s5uc55fydtg===
+puts "VSCSTART" ; set exitCode [catch {puts [version -short]; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [find_top]; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/control_linter.csv}; set_param synth.elaboration.rodinMoreOptions {rt::set_parameter linterCsvFile true}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+2026.1
+read_verilog: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 613.707 ; gain = 264.949
+s2b_hp0_word_adapter s2b_control_csr
+rt::set_parameter linterCsvFile true
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:6s5uc55fydtg:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:6s5uc55fydtg:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:3cdr6yo15ct3===}
+INFO: [MCP 00-100] ===MCP_CMD_START:3cdr6yo15ct3===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 12156
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:05 . Memory (MB): peak = 1194.418 ; gain = 573.773
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:145]
+WARNING: [Synth 8-6014] Unused sequential element q_reg[error_shadow] was removed.  [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:407]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 713.480
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:03:27 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 84.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 92.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 100.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 97.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 87.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 713.480
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+10 Infos, 6 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1334.125 ; gain = 720.418
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:3cdr6yo15ct3:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:3cdr6yo15ct3:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pevdtwp72gpd===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pevdtwp72gpd===
+puts "VSCSTART" ; set exitCode [catch {read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pevdtwp72gpd:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pevdtwp72gpd:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ssfo2336bhdm===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ssfo2336bhdm===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file $lint_report_file} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1334.125 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:413]
+INFO: [Synth 8-13127] previous definition of module 's2b_control_csr' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv:411]
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_request_guard' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv:76]
+INFO: [Synth 8-13127] previous definition of module 's2b_request_guard' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv:76]
+CRITICAL WARNING: [Synth 8-9873] overwriting previous definition of module 's2b_hp0_word_adapter' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv:334]
+INFO: [Synth 8-13127] previous definition of module 's2b_hp0_word_adapter' is here [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv:329]
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:145]
+WARNING: [Synth 8-6014] Unused sequential element q_reg[error_shadow] was removed.  [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:407]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:06:40 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 84.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 92.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 100.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 97.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv', Line 87.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+11 Infos, 6 Warnings, 3 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1353.145 ; gain = 19.020
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ssfo2336bhdm:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ssfo2336bhdm:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:2q1cakohddxw===}
+INFO: [MCP 00-100] ===MCP_CMD_START:2q1cakohddxw===
+puts "VSCSTART" ; set exitCode [catch {puts "CURRENT_PROJECT:[current_project -quiet]"; puts [get_files]; puts "CURRENT_DESIGN:[current_design -quiet]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+CURRENT_PROJECT:New Project
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r01/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r02/source_snapshot/s2b_hp0_word_adapter.sv
+CURRENT_DESIGN:
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:2q1cakohddxw:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:2q1cakohddxw:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pe19gmxml0e1===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pe19gmxml0e1===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pe19gmxml0e1:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pe19gmxml0e1:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:07a0fz1us5xk===}
+INFO: [MCP 00-100] ===MCP_CMD_START:07a0fz1us5xk===
+puts "VSCSTART" ; set exitCode [catch {if {[current_project -quiet] ne ""} {error "OWNED_LINT_PROJECT_NOT_CLOSED"}; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [get_files]; set lint_report_file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:07a0fz1us5xk:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:07a0fz1us5xk:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:7fhsv9qkh8oj===}
+INFO: [MCP 00-100] ===MCP_CMD_START:7fhsv9qkh8oj===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1353.145 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:144]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:07:26 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++----------+----------+--------------+----------+
+| Rule ID  | Severity | # Violations | # Waived |
++----------+----------+--------------+----------+
+| ASSIGN-5 | WARNING  | 5            | 0        |
++----------+----------+--------------+----------+
+
+
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'in_window' declared and are not set.
+RTL Name 'in_window', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 83.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'readable' declared and are not set.
+RTL Name 'readable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 91.
+WARNING: [Synth 37-124] [ASSIGN-5]Some bits in 'rejection' are not set. First unset bit index is 0. 
+RTL Name 'rejection', Hierarchy 's2b_control_csr', File 's2b_control_csr.sv', Line 99.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'safe_terminal' declared and are not set.
+RTL Name 'safe_terminal', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 96.
+WARNING: [Synth 37-95] [ASSIGN-5]Found scalar variable(s) 'writable' declared and are not set.
+RTL Name 'writable', Hierarchy 's2b_control_csr', File 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_control_csr.sv', Line 86.
+INFO: [Synth 37-85] Total of 5 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+8 Infos, 5 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1357.480 ; gain = 4.336
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:7fhsv9qkh8oj:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:7fhsv9qkh8oj:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:pldvc0amfto8===}
+INFO: [MCP 00-100] ===MCP_CMD_START:pldvc0amfto8===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/adapter_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1357.480 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_hp0_word_adapter' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv:3]
+INFO: [Synth 8-6157] synthesizing module 's2b_request_guard' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_request_guard' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_hp0_word_adapter' (2#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r03/source_snapshot/s2b_hp0_word_adapter.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:08:39 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++---------+----------+--------------+----------+
+| Rule ID | Severity | # Violations | # Waived |
++---------+----------+--------------+----------+
+
+
+INFO: [Synth 37-85] Total of 0 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+9 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1359.902 ; gain = 2.422
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:pldvc0amfto8:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:pldvc0amfto8:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:tt27smmcu8ey===}
+INFO: [MCP 00-100] ===MCP_CMD_START:tt27smmcu8ey===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:tt27smmcu8ey:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:tt27smmcu8ey:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:d97th4qrciru===}
+INFO: [MCP 00-100] ===MCP_CMD_START:d97th4qrciru===
+puts "VSCSTART" ; set exitCode [catch {source -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:d97th4qrciru:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:d97th4qrciru:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:c31jqzrnhx1n===}
+INFO: [MCP 00-100] ===MCP_CMD_START:c31jqzrnhx1n===
+puts "VSCSTART" ; set exitCode [catch {::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/ipi_full_20261011_r01} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PATH_PREFLIGHT:OK
+LIBRARY:OK ipcfg
+PYTHON:OK source=vivado version=3.13.0 executable=D:/Xilinx/2026.1/Vivado/tps/win64/python-3.13.0/python.exe
+PYTHON_IMPORTS:OK
+PLATFORM_STATIC:OK visibility=0 rtl_sources=18; 未证明BD/时序/实板通过
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/ipi_full_20261011_r01'
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\ipi_full_20261011_r01\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+ATTEMPT:/ps7 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/ps7_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/ps7_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/ps7_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/ps7_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {33959 34010} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 2284 excerpt {}
+ATTEMPT:/axi_gp0_lite count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/axi_gp0_lite_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/axi_gp0_lite_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/axi_gp0_lite_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/axi_gp0_lite_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {35020 35080} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 239 excerpt {}
+ATTEMPT:/rst_fclk0 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/rst_fclk0_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/rst_fclk0_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/rst_fclk0_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/rst_fclk0_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {36125 36182} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 116 excerpt {}
+ATTEMPT:/const_zero count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_zero_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_zero_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_zero_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_zero_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {37215 37609} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 125 excerpt {}
+ATTEMPT:/const_one count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_one_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_one_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_one_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/const_one_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {38646 39039} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 72 excerpt {}
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-4821] For module 's2b_inference_top', parameter 'PROFILE_VISIBILITY_PROVEN' is inferred to be bitString format.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'cold_resetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'cold_resetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'PROTOCOL' with value 'AXI3'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ID_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_LOCK' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_CACHE' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_QOS' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+status FAIL code 1 warning_count 1 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/connect.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/connect.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/connect.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 1 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/connect.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {40071 44452} unprinted_warning_count 0 expected CONNECT:OK expect_miss {result does not match expected {CONNECT:OK}: got 'ERROR: [Common 17-161] Invalid option value '' specified for 'objects'.
+'} elapsed_ms 296 excerpt {result does not match expected {CONNECT:OK}: got 'ERROR: [Common 17-161] Invalid option value '' specified for 'objects'. ' WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.}
+PLATFORM_CAPTURE_FAIL:connect
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:c31jqzrnhx1n:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:c31jqzrnhx1n:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ywwbq8idt7gc===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ywwbq8idt7gc===
+puts "VSCSTART" ; set exitCode [catch {puts "CELLS:[get_bd_cells]"; puts "INTFS:[get_bd_intf_pins]"; puts "INFER:[get_bd_cells infer]"; puts "CLK:[get_bd_pins infer/clk]"; puts "ERRINFO:$errorInfo"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+CELLS:/axi_gp0_lite /const_one /const_zero /infer /ps7 /rst_fclk0
+WARNING: [BD 5-232] No interface pins matched 'get_bd_intf_pins'
+INTFS:
+INFER:/infer
+CLK:/infer/clk
+ERRINFO:PLATFORM_CAPTURE_FAIL:connect
+    while executing
+"error "PLATFORM_CAPTURE_FAIL:$name""
+    (procedure "capture" line 4)
+    invoked from within
+"capture $evidence_dir connect [list ::s2b_inference_platform::connect $visibility] {CONNECT:OK}"
+    (procedure "construct" line 9)
+    invoked from within
+"construct $evidence_dir $visibility"
+    (procedure "::s2b_inference_platform::run" line 36)
+    invoked from within
+"::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2..."
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ywwbq8idt7gc:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ywwbq8idt7gc:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:4eci329d8vrf===}
+INFO: [MCP 00-100] ===MCP_CMD_START:4eci329d8vrf===
+puts "VSCSTART" ; set exitCode [catch {puts "EXT:[get_bd_intf_ports]"; puts "DDR:[get_bd_intf_pins ps7/DDR]"; puts "HP:[get_bd_intf_pins ps7/S_AXI_HP0]"; puts "INF:[get_bd_intf_pins infer/M_AXI]"; puts "PARAM:[get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]]"; puts "SEGS:[get_bd_addr_segs -of_objects [get_bd_intf_pins infer/S_AXI]]"; puts "CLOCK:[get_property CONFIG.FREQ_HZ [get_bd_pins ps7/FCLK_CLK0]]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+EXT:/DDR_0 /FIXED_IO_0
+DDR:/ps7/DDR
+HP:/ps7/S_AXI_HP0
+INF:/infer/M_AXI
+PARAM:0
+SEGS:/infer/S_AXI/reg0
+CLOCK:50000000
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:4eci329d8vrf:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:4eci329d8vrf:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:uhnnfti4ozly===}
+INFO: [MCP 00-100] ===MCP_CMD_START:uhnnfti4ozly===
+puts "VSCSTART" ; set exitCode [catch {save_bd_design; write_bd_tcl {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/partial_failed_bd.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\ipi_full_20261011_r01\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+WARNING: [BD 41-2925] The design that will be created by this Tcl script contains the following module references: s2b_inference_top.
+Please add the sources of those modules before sourcing this Tcl script or use write_project_tcl.
+INFO: [BD 5-148] Tcl file written out <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/partial_failed_bd.tcl>.
+
+CRITICAL WARNING: [BD 5-339] The block design <s2b_inference> has not been validated, therefore, a block design created using this Tcl file
+<C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r01/partial_failed_bd.tcl> may result in errors during validation.
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:uhnnfti4ozly:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:uhnnfti4ozly:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:rvg6f8ka2qox===}
+INFO: [MCP 00-100] ===MCP_CMD_START:rvg6f8ka2qox===
+puts "VSCSTART" ; set exitCode [catch {puts "ASSOCIATED_BUSIF:[get_property CONFIG.ASSOCIATED_BUSIF [get_bd_pins infer/clk]]"; puts "HPFREQ:[get_property CONFIG.FREQ_HZ [get_bd_intf_pins infer/M_AXI]]"; puts "CLKINTF:[get_bd_intf_pins infer/clk]"; puts "HPCLK:[get_property CONFIG.ASSOCIATED_BUSIF [get_bd_pins ps7/S_AXI_HP0_ACLK]]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+ASSOCIATED_BUSIF:S_AXI:M_AXI
+HPFREQ:50000000
+WARNING: [BD 5-232] No interface pins matched 'get_bd_intf_pins infer/clk'
+CLKINTF:
+HPCLK:S_AXI_HP0
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:rvg6f8ka2qox:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:rvg6f8ka2qox:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:15atbn3vgii7===}
+INFO: [MCP 00-100] ===MCP_CMD_START:15atbn3vgii7===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:15atbn3vgii7:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:15atbn3vgii7:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:gym4wmo8bmv2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:gym4wmo8bmv2===
+puts "VSCSTART" ; set exitCode [catch {if {[current_project -quiet] ne ""} {error "OWNED_LINT_PROJECT_NOT_CLOSED"}; read_verilog -sv {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_control_csr.sv}; set_property top s2b_control_csr [current_fileset]; update_compile_order -fileset sources_1; puts [get_files]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_hp0_word_adapter.sv
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:gym4wmo8bmv2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:gym4wmo8bmv2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:jacac0cqw15n===}
+INFO: [MCP 00-100] ===MCP_CMD_START:jacac0cqw15n===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/control_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_control_csr -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/control_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1359.902 ; gain = 0.000
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_control_csr' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_control_csr.sv:3]
+INFO: [Synth 8-226] default block is never used [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_control_csr.sv:134]
+INFO: [Synth 8-6155] done synthesizing module 's2b_control_csr' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_control_csr.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1432.691 ; gain = 72.789
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:12:45 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++---------+----------+--------------+----------+
+| Rule ID | Severity | # Violations | # Waived |
++---------+----------+--------------+----------+
+
+
+INFO: [Synth 37-85] Total of 0 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1432.691 ; gain = 72.789
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+8 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1432.691 ; gain = 72.789
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:jacac0cqw15n:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:jacac0cqw15n:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:axjo63t2xgf2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:axjo63t2xgf2===
+puts "VSCSTART" ; set exitCode [catch {synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/adapter_linter.csv}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Command: synth_design -top s2b_hp0_word_adapter -part xc7z020clg400-2 -lint -file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/adapter_linter.csv
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1439.957 ; gain = 7.266
+---------------------------------------------------------------------------------
+Clean up Linter database...
+INFO: [Synth 8-6157] synthesizing module 's2b_hp0_word_adapter' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_hp0_word_adapter.sv:3]
+INFO: [Synth 8-6157] synthesizing module 's2b_request_guard' [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_request_guard' (1#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_request_guard.sv:2]
+INFO: [Synth 8-6155] done synthesizing module 's2b_hp0_word_adapter' (2#1) [C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T11/vivado_lint_20261011_r04/source_snapshot/s2b_hp0_word_adapter.sv:3]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1442.207 ; gain = 9.516
+---------------------------------------------------------------------------------
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Sun Oct 11 13:13:03 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+RTL Linter Report
+
+Table of Contents
+-----------------
+1. Summary
+
+1. Summary
+----------
+
++---------+----------+--------------+----------+
+| Rule ID | Severity | # Violations | # Waived |
++---------+----------+--------------+----------+
+
+
+INFO: [Synth 37-85] Total of 0 linter message(s) generated.
+INFO: [Synth 37-45] Linter Run Finished!
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 1442.207 ; gain = 9.516
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+9 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1442.207 ; gain = 9.516
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:axjo63t2xgf2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:axjo63t2xgf2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:fieaedzqe56v===}
+INFO: [MCP 00-100] ===MCP_CMD_START:fieaedzqe56v===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:fieaedzqe56v:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:fieaedzqe56v:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:y5dr6fddo63y===}
+INFO: [MCP 00-100] ===MCP_CMD_START:y5dr6fddo63y===
+puts "VSCSTART" ; set exitCode [catch {source -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:y5dr6fddo63y:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:y5dr6fddo63y:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:e90mlp2r70lv===}
+INFO: [MCP 00-100] ===MCP_CMD_START:e90mlp2r70lv===
+puts "VSCSTART" ; set exitCode [catch {::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/ipi_full_20261011_r02} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PATH_PREFLIGHT:OK
+PYTHON:OK source=vivado version=3.13.0 executable=D:/Xilinx/2026.1/Vivado/tps/win64/python-3.13.0/python.exe
+PYTHON_IMPORTS:OK
+PLATFORM_STATIC:OK visibility=0 rtl_sources=18; 未证明BD/时序/实板通过
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/ipi_full_20261011_r02'
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\ipi_full_20261011_r02\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+ATTEMPT:/ps7 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/ps7_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/ps7_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/ps7_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/ps7_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {62968 63019} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 1764 excerpt {}
+ATTEMPT:/axi_gp0_lite count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/axi_gp0_lite_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/axi_gp0_lite_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/axi_gp0_lite_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/axi_gp0_lite_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {64029 64089} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 173 excerpt {}
+ATTEMPT:/rst_fclk0 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/rst_fclk0_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/rst_fclk0_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/rst_fclk0_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/rst_fclk0_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {65134 65191} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 100 excerpt {}
+ATTEMPT:/const_zero count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_zero_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_zero_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_zero_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_zero_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {66224 66618} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 82 excerpt {}
+ATTEMPT:/const_one count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_one_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_one_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_one_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/const_one_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {67654 68047} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 58 excerpt {}
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-4821] For module 's2b_inference_top', parameter 'PROFILE_VISIBILITY_PROVEN' is inferred to be bitString format.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'cold_resetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'cold_resetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'PROTOCOL' with value 'AXI3'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ID_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_LOCK' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_CACHE' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_QOS' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'
+Slave segment '/infer/S_AXI/reg0' is being assigned into address space '/ps7/Data' at <0x43C0_0000 [ 64K ]>.
+Slave segment '/ps7/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/infer/M_AXI' at <0x0000_0000 [ 1G ]>.
+status OK code 0 warning_count 2 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/connect.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/connect.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/connect.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/connect.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {69079 73759} unprinted_warning_count 0 expected CONNECT:OK elapsed_ms 296 excerpt {WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.; WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'}
+CONSTRUCT:OK
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\ipi_full_20261011_r02\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validate.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validate.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validate.tcldict.after.log native_counts_before {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} history_reordered 1 native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validate.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {74988 75164} unprinted_warning_count 7 expected VALIDATE:OK elapsed_ms 306 excerpt {}
+status FAIL code 1 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/audit.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/audit.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/audit.tcldict.after.log native_counts_before {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/audit.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {76176 76176} unprinted_warning_count 0 expected AUDIT:OK expect_miss {result does not match expected {AUDIT:OK}: got 'PHYSICAL_PORT_AUDIT_FAIL:DDR FIXED_IO'} elapsed_ms 37 excerpt {result does not match expected {AUDIT:OK}: got 'PHYSICAL_PORT_AUDIT_FAIL:DDR FIXED_IO' }
+PLATFORM_CAPTURE_FAIL:audit
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:e90mlp2r70lv:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:e90mlp2r70lv:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:yibs5kdwjqcv===}
+INFO: [MCP 00-100] ===MCP_CMD_START:yibs5kdwjqcv===
+puts "VSCSTART" ; set exitCode [catch {puts [dict create project [current_project] ports [get_bd_ports] intf_ports [get_bd_intf_ports] all_intf_pins [get_bd_intf_pins -of_objects [get_bd_cells]]]; foreach p [get_bd_ports] {puts [list PORT $p DIRECTION [get_property DIR $p] TYPE [get_property TYPE $p]]}; foreach p [get_bd_intf_ports] {puts [list INTERFACE $p PHYSICAL_PORTS [get_bd_ports -of_objects $p]]}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+project s2b_inference_candidate ports {/DDR_addr /DDR_ba /DDR_cas_n /DDR_ck_n /DDR_ck_p /DDR_cke /DDR_cs_n /DDR_dm /DDR_dq /DDR_dqs_n /DDR_dqs_p /DDR_odt /DDR_ras_n /DDR_reset_n /DDR_we_n /FIXED_IO_ddr_vrn /FIXED_IO_ddr_vrp /FIXED_IO_mio /FIXED_IO_ps_clk /FIXED_IO_ps_porb /FIXED_IO_ps_srstb} intf_ports {/DDR /FIXED_IO} all_intf_pins {/axi_gp0_lite/M_AXI /axi_gp0_lite/S_AXI /infer/M_AXI /infer/S_AXI /ps7/DDR /ps7/FIXED_IO /ps7/M_AXI_GP0 /ps7/S_AXI_HP0 /ps7/S_AXI_HP0_FIFO_CTRL}
+PORT /DDR_addr DIRECTION IO TYPE undef
+PORT /DDR_ba DIRECTION IO TYPE undef
+PORT /DDR_cas_n DIRECTION IO TYPE undef
+PORT /DDR_ck_n DIRECTION IO TYPE clk
+PORT /DDR_ck_p DIRECTION IO TYPE clk
+PORT /DDR_cke DIRECTION IO TYPE undef
+PORT /DDR_cs_n DIRECTION IO TYPE undef
+PORT /DDR_dm DIRECTION IO TYPE undef
+PORT /DDR_dq DIRECTION IO TYPE undef
+PORT /DDR_dqs_n DIRECTION IO TYPE undef
+PORT /DDR_dqs_p DIRECTION IO TYPE undef
+PORT /DDR_odt DIRECTION IO TYPE undef
+PORT /DDR_ras_n DIRECTION IO TYPE undef
+PORT /DDR_reset_n DIRECTION IO TYPE rst
+PORT /DDR_we_n DIRECTION IO TYPE undef
+PORT /FIXED_IO_ddr_vrn DIRECTION IO TYPE undef
+PORT /FIXED_IO_ddr_vrp DIRECTION IO TYPE undef
+PORT /FIXED_IO_mio DIRECTION IO TYPE undef
+PORT /FIXED_IO_ps_clk DIRECTION IO TYPE undef
+PORT /FIXED_IO_ps_porb DIRECTION IO TYPE undef
+PORT /FIXED_IO_ps_srstb DIRECTION IO TYPE undef
+INTERFACE /DDR PHYSICAL_PORTS {/DDR_cas_n /DDR_cke /DDR_ck_n /DDR_ck_p /DDR_cs_n /DDR_reset_n /DDR_odt /DDR_ras_n /DDR_we_n /DDR_ba /DDR_addr /DDR_dm /DDR_dq /DDR_dqs_n /DDR_dqs_p}
+INTERFACE /FIXED_IO PHYSICAL_PORTS {/FIXED_IO_mio /FIXED_IO_ddr_vrn /FIXED_IO_ddr_vrp /FIXED_IO_ps_srstb /FIXED_IO_ps_clk /FIXED_IO_ps_porb}
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:yibs5kdwjqcv:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:yibs5kdwjqcv:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:shmjajo6944y===}
+INFO: [MCP 00-100] ===MCP_CMD_START:shmjajo6944y===
+puts "VSCSTART" ; set exitCode [catch {save_bd_design; write_bd_tcl -force {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validated_before_audit_failure.tcl}; puts [dict create project [current_project] source_files [get_files -filter {FILE_TYPE == SystemVerilog}] status validated_only]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+WARNING: [BD 41-2925] The design that will be created by this Tcl script contains the following module references: s2b_inference_top.
+Please add the sources of those modules before sourcing this Tcl script or use write_project_tcl.
+INFO: [BD 5-148] Tcl file written out <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r02/validated_before_audit_failure.tcl>.
+
+project s2b_inference_candidate source_files {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_maxpool_geometry.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_maxpool_window.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_route_query.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_upsample_query.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_network_descriptor_pkg.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_conv_tile_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_maxpool_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_memory_master.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_network_backend.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_route_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_runtime_shell.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_stage2a_core_ooc.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_upsample_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_inference_top.sv} status validated_only
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:shmjajo6944y:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:shmjajo6944y:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:3rue2yfjf5g6===}
+INFO: [MCP 00-100] ===MCP_CMD_START:3rue2yfjf5g6===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:3rue2yfjf5g6:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:3rue2yfjf5g6:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:4jqwyidluiaz===}
+INFO: [MCP 00-100] ===MCP_CMD_START:4jqwyidluiaz===
+puts "VSCSTART" ; set exitCode [catch {source -notrace vivado/s2b_inference_platform.tcl} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+couldn't read file "vivado/s2b_inference_platform.tcl": no such file or directory
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:4jqwyidluiaz:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:4jqwyidluiaz:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:cwnumkyvjdt0===}
+INFO: [MCP 00-100] ===MCP_CMD_START:cwnumkyvjdt0===
+puts "VSCSTART" ; set exitCode [catch {source -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:cwnumkyvjdt0:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:cwnumkyvjdt0:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:1lppyew1kivi===}
+INFO: [MCP 00-100] ===MCP_CMD_START:1lppyew1kivi===
+puts "VSCSTART" ; set exitCode [catch {::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i3} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r03} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PATH_ALREADY_EXISTS:C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r03
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:1lppyew1kivi:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:1lppyew1kivi:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:8g343bdq2o6n===}
+INFO: [MCP 00-100] ===MCP_CMD_START:8g343bdq2o6n===
+puts "VSCSTART" ; set exitCode [catch {::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i4} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PATH_PREFLIGHT:OK
+PYTHON:OK source=vivado version=3.13.0 executable=D:/Xilinx/2026.1/Vivado/tps/win64/python-3.13.0/python.exe
+PYTHON_IMPORTS:OK
+PLATFORM_STATIC:OK visibility=0 rtl_sources=18; 未证明BD/时序/实板通过
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\i4\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+ATTEMPT:/ps7 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/ps7_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/ps7_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/ps7_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/ps7_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {86584 86635} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 1955 excerpt {}
+ATTEMPT:/axi_gp0_lite count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/axi_gp0_lite_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/axi_gp0_lite_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/axi_gp0_lite_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/axi_gp0_lite_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {87645 87705} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 160 excerpt {}
+ATTEMPT:/rst_fclk0 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/rst_fclk0_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/rst_fclk0_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/rst_fclk0_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/rst_fclk0_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {88750 88807} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 100 excerpt {}
+ATTEMPT:/const_zero count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_zero_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_zero_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_zero_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_zero_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {89840 90234} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 82 excerpt {}
+ATTEMPT:/const_one count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_one_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_one_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_one_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/const_one_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {91270 91663} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 57 excerpt {}
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-4821] For module 's2b_inference_top', parameter 'PROFILE_VISIBILITY_PROVEN' is inferred to be bitString format.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'cold_resetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'cold_resetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'PROTOCOL' with value 'AXI3'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ID_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_LOCK' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_CACHE' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_QOS' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'
+Slave segment '/infer/S_AXI/reg0' is being assigned into address space '/ps7/Data' at <0x43C0_0000 [ 64K ]>.
+Slave segment '/ps7/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/infer/M_AXI' at <0x0000_0000 [ 1G ]>.
+status OK code 0 warning_count 2 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/connect.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/connect.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/connect.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/connect.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {92695 97375} unprinted_warning_count 0 expected CONNECT:OK elapsed_ms 295 excerpt {WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.; WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'}
+CONSTRUCT:OK
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\i4\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/validate.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/validate.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/validate.tcldict.after.log native_counts_before {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} history_reordered 1 native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/validate.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {98604 98761} unprinted_warning_count 7 expected VALIDATE:OK elapsed_ms 300 excerpt {}
+status FAIL code 1 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/audit.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/audit.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/audit.tcldict.after.log native_counts_before {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r04/audit.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {99773 99773} unprinted_warning_count 0 expected AUDIT:OK expect_miss {result does not match expected {AUDIT:OK}: got 'invalid command name "list_properties"'} elapsed_ms 77 excerpt {result does not match expected {AUDIT:OK}: got 'invalid command name "list_properties"' }
+PLATFORM_CAPTURE_FAIL:audit
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:8g343bdq2o6n:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:8g343bdq2o6n:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:83y1eq2hzid2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:83y1eq2hzid2===
+puts "VSCSTART" ; set exitCode [catch {puts [dict create list_property [info commands list_property] list_properties [info commands list_properties] report_property [info commands report_property] get_bd_intf_pins [info commands get_bd_intf_pins]]; help list_property; puts [list ACTUAL_PROPERTIES [list_property [get_bd_intf_pins infer/M_AXI]]]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+list_property list_property list_properties {} report_property report_property get_bd_intf_pins get_bd_intf_pins
+ACTUAL_PROPERTIES {APERTURES BRIDGES CLASS CONFIG.ADDR_WIDTH CONFIG.ARUSER_WIDTH CONFIG.AWUSER_WIDTH CONFIG.BUSER_WIDTH CONFIG.CLK_DOMAIN CONFIG.DATA_WIDTH CONFIG.FREQ_HZ CONFIG.HAS_BRESP CONFIG.HAS_BURST CONFIG.HAS_CACHE CONFIG.HAS_LOCK CONFIG.HAS_PROT CONFIG.HAS_QOS CONFIG.HAS_REGION CONFIG.HAS_RRESP CONFIG.HAS_WSTRB CONFIG.ID_WIDTH CONFIG.INSERT_VIP CONFIG.MAX_BURST_LENGTH CONFIG.NUM_READ_OUTSTANDING CONFIG.NUM_READ_THREADS CONFIG.NUM_WRITE_OUTSTANDING CONFIG.NUM_WRITE_THREADS CONFIG.PHASE CONFIG.PROTOCOL CONFIG.READ_WRITE_MODE CONFIG.RUSER_BITS_PER_BYTE CONFIG.RUSER_WIDTH CONFIG.SUPPORTS_NARROW_BURST CONFIG.WUSER_BITS_PER_BYTE CONFIG.WUSER_WIDTH LOCATION MODE NAME PATH TYPE VLNV}
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:83y1eq2hzid2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:83y1eq2hzid2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:3wg56r669uy7===}
+INFO: [MCP 00-100] ===MCP_CMD_START:3wg56r669uy7===
+puts "VSCSTART" ; set exitCode [catch {help make_wrapper; puts [dict create make_wrapper [info commands make_wrapper] generate_target [info commands generate_target] write_hw_platform [info commands write_hw_platform] all_tcl_functions [info procs ::s2b_inference_platform::*]]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+make_wrapper make_wrapper generate_target generate_target write_hw_platform write_hw_platform all_tcl_functions {::s2b_inference_platform::get_usrclk_freq ::s2b_inference_platform::get_GT_settings ::s2b_inference_platform::default_GTSubcoreValues ::s2b_inference_platform::round_float_decimal ::s2b_inference_platform::INT_PROC_NO_OF_LR ::s2b_inference_platform::uniquify_list ::s2b_inference_platform::update_RXSETTINGS ::s2b_inference_platform::get_decoding_dict ::s2b_inference_platform::get_config_val_with_supported_mcs ::s2b_inference_platform::get_encoding_dict ::s2b_inference_platform::externalize_unique ::s2b_inference_platform::get_lane_direction_dict ::s2b_inference_platform::connect ::s2b_inference_platform::OUTCLK_to_USRCLK_divider_cal ::s2b_inference_platform::check_if_half_density ::s2b_inference_platform::exact_existing ::s2b_inference_platform::evaluate_bd_properties ::s2b_inference_platform::filter_list ::s2b_inference_platform::create_bd_fun ::s2b_inference_platform::get_enum_data_encoding ::s2b_inference_platform::cal_sim_version ::s2b_inference_platform::reject_reparse ::s2b_inference_platform::update_TXSETTINGS ::s2b_inference_platform::get_GT_string ::s2b_inference_platform::INT_create_QUAD_SETTINGS ::s2b_inference_platform::INT_PROC_NO_OF_LR_string ::s2b_inference_platform::literal_absolute ::s2b_inference_platform::run ::s2b_inference_platform::construct ::s2b_inference_platform::check_if_scd_support ::s2b_inference_platform::path_preflight ::s2b_inference_platform::get_create_util_ds_buf ::s2b_inference_platform::gen_preset_string ::s2b_inference_platform::create_dicts_transciver_type_actual_refclk ::s2b_inference_platform::rdi_approot_source ::s2b_inference_platform::create_ip ::s2b_inference_platform::assert_property ::s2b_inference_platform::check_if_max_line_rate_extendend_for_gtm_fd ::s2b_inference_platform::getSortedQuads ::s2b_inference_platform::get_connected_ip ::s2b_inference_platform::gt_quad_base_header_text ::s2b_inference_platform::capture ::s2b_inference_platform::get_other_ip_quads ::s2b_inference_platform::gt_quad_base_header_text_xdc ::s2b_inference_platform::cal_max_line_rate_on_each_lane ::s2b_inference_platform::get_same_config_with_first_mc ::s2b_inference_platform::INT_ret_noerror ::s2b_inference_platform::find_free_clk_pin_on_cell ::s2b_inference_platform::products ::s2b_inference_platform::find_max_of_list ::s2b_inference_platform::KSB_input_to_rule_engine ::s2b_inference_platform::toBinaryString ::s2b_inference_platform::IS_multiplication_factor ::s2b_inference_platform::_replace_bd_cell ::s2b_inference_platform::audit ::s2b_inference_platform::cal_pcie_enable_on_each_lane ::s2b_inference_platform::create_dicts_transciver_type ::s2b_inference_platform::physical_port_members ::s2b_inference_platform::areConseutive ::s2b_inference_platform::OUTCLK_to_USRCLK_divider ::s2b_inference_platform::reject_overlap ::s2b_inference_platform::new_directory ::s2b_inference_platform::INT_PROC_TYPE_SETTINGS}
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:3wg56r669uy7:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:3wg56r669uy7:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:joo14s1oh1p2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:joo14s1oh1p2===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:joo14s1oh1p2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:joo14s1oh1p2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:o78ozrib1ni9===}
+INFO: [MCP 00-100] ===MCP_CMD_START:o78ozrib1ni9===
+puts "VSCSTART" ; set exitCode [catch {source -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}; # R13-05 actual source a4566c10} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:o78ozrib1ni9:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:o78ozrib1ni9:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:w9rtyo12clle===}
+INFO: [MCP 00-100] ===MCP_CMD_START:w9rtyo12clle===
+puts "VSCSTART" ; set exitCode [catch {::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PATH_PREFLIGHT:OK
+PYTHON:OK source=vivado version=3.13.0 executable=D:/Xilinx/2026.1/Vivado/tps/win64/python-3.13.0/python.exe
+PYTHON_IMPORTS:OK
+PLATFORM_STATIC:OK visibility=0 rtl_sources=18; 未证明BD/时序/实板通过
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\i5\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+ATTEMPT:/ps7 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/ps7_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/ps7_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/ps7_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/ps7_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {108613 108664} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 3701 excerpt {}
+ATTEMPT:/axi_gp0_lite count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/axi_gp0_lite_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/axi_gp0_lite_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/axi_gp0_lite_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/axi_gp0_lite_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {109676 109736} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 319 excerpt {}
+ATTEMPT:/rst_fclk0 count=1/10 operation=create_configure
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/rst_fclk0_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/rst_fclk0_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/rst_fclk0_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/rst_fclk0_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {110783 110840} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 174 excerpt {}
+ATTEMPT:/const_zero count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_zero_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_zero_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_zero_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_zero_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {111875 112269} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 161 excerpt {}
+ATTEMPT:/const_one count=1/10 operation=create_configure
+INFO: [BD 5-1043] It is recommended to use inline hdl version xilinx.com:inline_hdl:ilconstant:1.0 for the IP type xilinx.com:ip:xlconstant:1.1 for improved performance and reduced disk space. IPs with VLNV xilinx.com:ip:xlconstant:1.1 will not be supported from release 2025.2. More information on inline hdl IP is available in UG994 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_one_configure.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_one_configure.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_one_configure.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/const_one_configure.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {113308 113701} unprinted_warning_count 0 expected SUCCESS: elapsed_ms 125 excerpt {}
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-4821] For module 's2b_inference_top', parameter 'PROFILE_VISIBILITY_PROVEN' is inferred to be bitString format.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'cold_resetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'cold_resetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'PROTOCOL' with value 'AXI3'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ID_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_LOCK' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_CACHE' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_QOS' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'
+Slave segment '/infer/S_AXI/reg0' is being assigned into address space '/ps7/Data' at <0x43C0_0000 [ 64K ]>.
+Slave segment '/ps7/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/infer/M_AXI' at <0x0000_0000 [ 1G ]>.
+status OK code 0 warning_count 2 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/connect.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/connect.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/connect.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/connect.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {114736 119416} unprinted_warning_count 0 expected CONNECT:OK elapsed_ms 558 excerpt {WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.; WARNING: [BD 5-233] No interface ports matched 'get_bd_intf_ports'}
+CONSTRUCT:OK
+Wrote  : <C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T13\i5\s2b_inference_candidate.srcs\sources_1\bd\s2b_inference\s2b_inference.bd> 
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/validate.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/validate.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/validate.tcldict.after.log native_counts_before {WARNING 2 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} history_reordered 1 native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/validate.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {120647 120804} unprinted_warning_count 7 expected VALIDATE:OK elapsed_ms 637 excerpt {}
+INFO: [Device 21-403] Loading part xc7z020clg400-2
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/audit.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/audit.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/audit.tcldict.after.log native_counts_before {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/audit.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {121818 121869} unprinted_warning_count 0 expected AUDIT:OK elapsed_ms 16113 excerpt {}
+INFO: [BD 41-1662] The design 's2b_inference.bd' is already validated. Therefore parameter propagation will not be re-run.
+Verilog Output written to : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/synth/s2b_inference.v
+Verilog Output written to : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/sim/s2b_inference.v
+Verilog Output written to : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'M_AXI_GP0'. A default connection has been created.
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'S_AXI_HP0'. A default connection has been created.
+INFO: [BD 41-1029] Generation completed for the IP Integrator block ps7 .
+WARNING: [IP_Flow 19-4994] Overwriting existing constraint file 'c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/ip/s2b_inference_axi_gp0_lite_0/s2b_inference_axi_gp0_lite_0_ooc.xdc'
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_gp0_lite .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_fclk0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block const_zero .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block const_one .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block infer .
+Exporting to file C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hw_handoff/s2b_inference.hwh
+Generated Hardware Definition File C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/synth/s2b_inference.hwdef
+INFO: [BD 41-3262] Generated VHDL Instantiation Template file c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/s2b_inference.vho
+INFO: [BD 41-3262] Generated Verilog Instantiation Template file c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/s2b_inference.veo
+INFO: [BD 41-3262] Generated System Verilog Instantiation Template file c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/s2b_inference_sv.sveo
+generate_target: Time (s): cpu = 00:00:20 ; elapsed = 00:00:23 . Memory (MB): peak = 1518.180 ; gain = 34.512
+WARNING: [BD 41-2925] The design that will be created by this Tcl script contains the following module references: s2b_inference_top.
+Please add the sources of those modules before sourcing this Tcl script or use write_project_tcl.
+INFO: [BD 5-148] Tcl file written out <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/s2b_inference_bd.tcl>.
+
+INFO: [Project 1-1918] Creating Hardware Platform: C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/s2b_inference_no_bit.xsa ...
+INFO: [Project 1-1943] The Hardware Platform can be used for Hardware
+INFO: [Project 1-1941] Successfully created Hardware Platform: C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/s2b_inference_no_bit.xsa
+INFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vivado/data/embeddedsw) loading 1 seconds
+status FAIL code 0 warning_count 2 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/products.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/products.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/products.tcldict.after.log native_counts_before {WARNING 9 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 1 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/ipi_full_20261011_r05/products.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {122850 126563} capture_error {CAPTURE_FAIL:native message export incomplete or counters changed: WARNING emitted=-8 exported=2} elapsed_ms 28522 excerpt {WARNING: [IP_Flow 19-4994] Overwriting existing constraint file 'c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/ip/s2b_inference_axi_gp0_lite_0/s2b_inference_axi_gp0_lite_0_ooc.xdc'; WARNING: [BD 41-2925] The design that}
+PLATFORM_CAPTURE_FAIL:products
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:w9rtyo12clle:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:w9rtyo12clle:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:8n85gzv530l8===}
+INFO: [MCP 00-100] ===MCP_CMD_START:8n85gzv530l8===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:8n85gzv530l8:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:8n85gzv530l8:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:vx30jlnpysyi===}
+INFO: [MCP 00-100] ===MCP_CMD_START:vx30jlnpysyi===
+puts "VSCSTART" ; set exitCode [catch {open_project {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.xpr}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Scanning sources...
+Finished scanning sources
+WARNING: [Project 1-5713] Board part '' set for the project  is not found. BoardPart property will be unset. Please select board from latest repo build 
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/2026.1/Vivado/data/ip'.
+INFO: [Project 1-5698] Found the below utility IPs instantiated in block design C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd which have equivalent inline hdl with improved performance and reduced diskspace.
+It is recommended to migrate these utility IPs to inline hdl  using the command upgrade_project -migrate_to_inline_hdl.  The utility IPs may be deprecated in future releases.
+More information on inline hdl is available in UG994.
+Utility IP Component Instances:
+ s2b_inference_const_zero_0
+s2b_inference_const_one_0
+s2b_inference_candidate
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:vx30jlnpysyi:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:vx30jlnpysyi:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ycxfxve2stjj===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ycxfxve2stjj===
+puts "VSCSTART" ; set exitCode [catch {open_bd_design [get_files */s2b_inference.bd]; puts [dict create before [ipcfg::native_message_counts] project [current_project]]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+Reading block design file <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd>...
+Adding component instance block -- xilinx.com:ip:processing_system7:5.5 - ps7
+Adding component instance block -- xilinx.com:ip:axi_protocol_converter:2.1 - axi_gp0_lite
+Adding component instance block -- xilinx.com:ip:proc_sys_reset:5.0 - rst_fclk0
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - const_zero
+Adding component instance block -- xilinx.com:ip:xlconstant:1.1 - const_one
+Adding component instance block -- xilinx.com:module_ref:s2b_inference_top:1.0 - infer
+Successfully read diagram <s2b_inference> from block design file <C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd>
+invalid command name "ipcfg::native_message_counts"
+VSCEND:1
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ycxfxve2stjj:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ycxfxve2stjj:1===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:u2o1q76o19fd===}
+INFO: [MCP 00-100] ===MCP_CMD_START:u2o1q76o19fd===
+puts "VSCSTART" ; set exitCode [catch {ipcfg::capture {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict} {::s2b_inference_platform::products {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01}} {PRODUCTS:OK}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+INFO: [BD 41-1637] Generated targets are already up-to-date for block design 's2b_inference' - hence not re-generating.
+WARNING: [filemgmt 20-354] The following file(s) were not imported. Local copy of file(s) already exists:
+c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v
+Hint: use the '-force' option to overwrite the local copies.
+status FAIL code 1 warning_count 1 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 1 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {132266 132708} unprinted_warning_count 0 expected PRODUCTS:OK expect_miss {result does not match expected {PRODUCTS:OK}: got 'PRODUCTS_WRAPPER_OBJECT_COUNT_FAIL:C:/Users/22061/.codex/worktrees/96a3/FPGA_Comp'} elapsed_ms 124 excerpt {result does not match expected {PRODUCTS:OK}: got 'PRODUCTS_WRAPPER_OBJECT_COUNT_FAIL:C:/Users/22061/.codex/worktrees/96a3/FPGA_Comp' WARNING: [filemgmt 20-354] The following file(s) were not imported. Local copy of file(s) already exists:}
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:u2o1q76o19fd:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:u2o1q76o19fd:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:tey0uvgdcp2h===}
+INFO: [MCP 00-100] ===MCP_CMD_START:tey0uvgdcp2h===
+puts "VSCSTART" ; set exitCode [catch {puts [dict create wrappers [get_files */s2b_inference_wrapper.v] source_wrappers [get_files -of_objects [get_filesets sources_1] -filter {NAME =~ */s2b_inference_wrapper.v}] top [get_property TOP [get_filesets sources_1]]]; foreach p [get_files */s2b_inference_wrapper.v] {puts [list FILE $p USED [get_property USED_IN $p] FILESET [get_property FILESET_NAME $p] GENERATED [get_property IS_GENERATED $p]]}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+wrappers {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v} source_wrappers {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v} top s2b_inference_wrapper
+FILE C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v USED {synthesis implementation simulation} FILESET sources_1 GENERATED 0
+FILE c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v USED {synthesis implementation simulation} FILESET sources_1 GENERATED 0
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:tey0uvgdcp2h:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:tey0uvgdcp2h:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:9shhtjefzle2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:9shhtjefzle2===
+puts "VSCSTART" ; set exitCode [catch {set accidental_wrapper [get_files {c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/hdl/s2b_inference_wrapper.v}]; if {[llength $accidental_wrapper] != 1} {error {ROOT_RECHECK_ACCIDENTAL_WRAPPER_NOT_UNIQUE}}; remove_files $accidental_wrapper; update_compile_order -fileset sources_1; puts [dict create remaining_wrappers [get_files */s2b_inference_wrapper.v] top [get_property TOP [current_fileset]] compile_order [get_files -compile_order sources -used_in synthesis]]} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+remaining_wrappers C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v top s2b_inference_wrapper compile_order {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_maxpool_geometry.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_maxpool_window.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_route_query.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/int8_upsample_query.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_network_descriptor_pkg.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_conv_tile_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_maxpool_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_memory_master.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_network_backend.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_route_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_runtime_shell.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_stage2a_core_ooc.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2a_upsample_engine.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_control_csr.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_hp0_word_adapter.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_request_guard.sv C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_inference_top.sv c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/ipshared/ff42/hdl/xlconstant_v1_1_rfs.v c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/ip/s2b_inference_const_zero_0/synth/s2b_inference_const_zero_0.v c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/ip/s2b_inference_const_one_0/synth/s2b_inference_const_one_0.v c:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.gen/sources_1/bd/s2b_inference/synth/s2b_inference.v C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v}
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:9shhtjefzle2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:9shhtjefzle2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:6nlgiw7tab3v===}
+INFO: [MCP 00-100] ===MCP_CMD_START:6nlgiw7tab3v===
+puts "VSCSTART" ; set exitCode [catch {ipcfg::capture {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01/audit.tcldict} {::s2b_inference_platform::audit {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01} 0} {AUDIT:OK}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+status OK code 0 warning_count 0 critical_count 0 error_count 0 evidence_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01/audit.tcldict before_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01/audit.tcldict.before.log log_path C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01/audit.tcldict.after.log native_counts_before {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_counts_after {WARNING 0 {CRITICAL WARNING} 0 ERROR 0} native_log C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T13/artifact_recheck_20261011_r01/audit.tcldict.native.log native_log_source C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T14/jtag_readonly_20261011_r01/.vivado-ai/vivado_94331856_49ab2ff7.log native_log_offsets {140322 140322} unprinted_warning_count 0 expected AUDIT:OK elapsed_ms 4220 excerpt {}
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:6nlgiw7tab3v:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:6nlgiw7tab3v:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:y04tv9f2bu7l===}
+INFO: [MCP 00-100] ===MCP_CMD_START:y04tv9f2bu7l===
+puts "VSCSTART" ; set exitCode [catch {puts [dict create project [current_project] runs [get_runs] source_file_count [llength [get_files -filter {FILE_TYPE == SystemVerilog}]] wrappers [get_files */s2b_inference_wrapper.v] bd [get_files */s2b_inference.bd]]; foreach r [get_runs] {puts [list RUN $r STATUS [get_property STATUS $r] PART [get_property PART $r]]}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+project s2b_inference_candidate runs {synth_1 impl_1} source_file_count 22 wrappers C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v bd C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T13/i5/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/s2b_inference.bd
+RUN synth_1 STATUS {Not started} PART xc7z020clg400-2
+RUN impl_1 STATUS {Not started} PART xc7z020clg400-2
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:y04tv9f2bu7l:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:y04tv9f2bu7l:0===

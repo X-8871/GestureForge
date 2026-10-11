@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T13",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "CHANGES_REQUIRED",
+  "base_commit_at_start": "9aa5c2e827b020de597626a513583611804e884c",
+  "head_at_review_end": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "scope": "只审平台5文件；T11仅读取公开端口ABI，不审未冻结功能。仅静态平台审查，不代表实际IPI、综合、位流、时序、G3/G4/G5。",
+  "reviewed_source_sha256": {
+    "src/s2b_inference_top.sv": "15c04bcd21585a30cc81a6209f43f20ae1ebf879aa359c8e254dff11bc9dc96a",
+    "vivado/s2b_inference_platform.tcl": "5c2527152272802d726a74537f359426f93a1b72d3f3c62decdb486eecd8893d",
+    "board/s2b_inference_platform.json": "d098d79fd2a7d07acecea6a1f01a0e3e3fc49e56d387420006b7bcde80246230",
+    "board/s2b_inference_platform.md": "0457e0500024ac8ded30237cfd471fd0b6e44d791bc0d19f8890fef8a5f693b6",
+    "verification/check_s2b_inference_platform.py": "4470c377831df2b3b96ded2eabbf47abdecdca7de2f8e9eac18b36e80be49de3"
+  },
+  "findings": [
+    {
+      "id": "R13-01",
+      "priority": 1,
+      "file": "vivado/s2b_inference_platform.tcl",
+      "lines": [188, 197],
+      "problem": "新目录仅核验file isdirectory/exists，没有逐组件精确名称及链接核验；工程与证据路径也未要求不同/不重叠。",
+      "evidence": "path_probe.stdout.log：S2B-T13被改为s2b-t13仍到达create_project，目标目录已实际创建；project_dir=evidence_dir同样通过并创建。仅Tcl文件前置桩，不声称执行真实Vivado。",
+      "impact": "违反AGENTS精确路径规则，并可能把缓存工程写入证据目录；调用者参数错误无法在任何写入前被拒绝。",
+      "closure": "在创建或source前验证所有既有路径逐组件精确字面名称/类型、拒绝链接/重解析；核对新名称及绝对路径，拒绝project/evidence相同或嵌套；保存大小写错误、链接、同目录、嵌套、已存在路径负例及有效入口检查。"
+    },
+    {
+      "id": "R13-02",
+      "priority": 2,
+      "file": "board/s2b_inference_platform.md",
+      "lines": [21, 27],
+      "problem": "首次启用必须已有真实跨master读回，但文档没有定义visibility0且合法owner条件下的先验探针入口。visibility0能START，随后无法SAFE/ACK归还，不能让CPU据此读取arena。",
+      "evidence": "checker118-120要求cpu_cross_master_readback；控制公开ABI下visibility_confirmed仅安全归还/ACK条件，START不因此被拒绝。正式物理候选规定运行或恢复期间CPU禁止访问arena。",
+      "impact": "部署者可能陷入首次启用循环或使用尚未安全归还的arena执行CPU验证。",
+      "closure": "明确visibility0完整平台上全程IDLE_PS/从未START、CPU合法独占arena、CPU0↔JTAG DAP第二master先验BSP/cache探针；绑定同BSP/MMU/宏、冷生命周期及CPU1/writer静止原件。HP路径另由实际全网+AXI3/UG585非Bufferable原始依据独立证明；该先验不等于HP模型结果，启用1后HP→CPU真实golden仍必须G3关闭。"
+    }
+  ],
+  "checks": [
+    {"name": "static_and_eight_visibility_negative_cases", "status": "PASS", "native_codes": "static0；缺配对/错误role/审批hash/visibility0/cold_reset=false/stale source/proof status/path escape/artifact hash均1", "evidence": "probe_results.json"},
+    {"name": "public_abi", "status": "PASS", "evidence": "public_abi.json", "reason": "core/control/adapter端口集合完整、无重复named connection；未审T11功能。"},
+    {"name": "18_rtl_lint", "status": "PASS", "native_exit_code": 0, "warnings": 162, "evidence": "lint.stderr.log", "reason": "Wno-fatal完整warning保留；不是无诊断clean。"},
+    {"name": "lint_first_environment_attempt", "status": "FAIL", "native_exit_code": 1, "evidence": "lint_environment_failure.stderr.log", "reason": "缺VERILATOR_ROOT使built-in文件找不到；补精确环境路径后通过，失败原件保留。"},
+    {"name": "synthetic_payload_binding_boundary", "status": "OBSERVED", "native_exit_code": 0, "evidence": "synthetic_payload_acceptance.stdout.log", "reason": "完全虚构raw与自填role可通过机器绑定；不能据此启用实际平台。总控须核对独立Reviewer实际来源与冻结审批原件。"},
+    {"name": "tcl_path_precondition_probe", "status": "FAIL", "native_exit_code": 0, "evidence": "path_probe.stdout.log", "reason": "桩driver正常完成并复现R13-01。"}
+  ],
+  "limitations": [
+    "未修改被审5文件，没有Git提交。",
+    "没有使用root独占Vivado会话或任何实物动作。",
+    "真实IPI/api参数/BD/XSA生成待root执行后独立核验。",
+    "仅临时隔离目录保留审查产物；由root决定正式归档绑定。",
+    "机器门禁只验证文件绑定，不是独立批准来源认证；自填PASS绝不构成审批。"
+  ],
+  "runtime": {"tool_versions": {"python": "3.12.10", "verilator": "5.050"}, "peak_memory": "未测", "heavy_vivado_runs": 0, "hardware_actions": 0}
+}

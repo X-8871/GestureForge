@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T13",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "PASS",
+  "scope": "候选visibility0平台生成与精确产物恢复G2；五被审源固定；不批准visibility1，不代表G3/G4/G5或综合/实现/时序通过。",
+  "source_commit": "3700b9a61de41375138ad8c9633788fd73b3960f",
+  "reviewed_source_sha256": {
+    "src/s2b_inference_top.sv": "15c04bcd21585a30cc81a6209f43f20ae1ebf879aa359c8e254dff11bc9dc96a",
+    "vivado/s2b_inference_platform.tcl": "a4566c10f8130d6e169cfe7ebd9cb3e486bc113d4e78287eab989cc2b9577867",
+    "board/s2b_inference_platform.json": "dec71becc7052b3db6578ad24c5aecf585c4b9fb746da10fc5e590d013f15ea4",
+    "board/s2b_inference_platform.md": "36800858c8ccdfd4a75063f935e465bcbc9e671920a259f28da9176052275c96",
+    "verification/check_s2b_inference_platform.py": "1f5034f68074da18576912934e228c71ea6c4bf4478b868e85f4ea78c4419d9f"
+  },
+  "closed_findings": [
+    {
+      "id": "R13-01",
+      "status": "CLOSED",
+      "basis": "R2真实junction/精确名称/重叠入口负例通过；本轮path函数不变。"
+    },
+    {
+      "id": "R13-02",
+      "status": "CLOSED",
+      "basis": "IDLE未START未LOAD的CPU↔DAP先验与HP实际路径分开绑定，参数1须真实Reviewer原件及来源核查；模型golden仍G3。"
+    },
+    {
+      "id": "R13-03",
+      "status": "CLOSED",
+      "basis": "外口voidAPI改真实网查唯一新增端点；独立void成功/六负例通过；真实IPIconnect0、DDR/FIXED_IO21成员、validate0/audit0闭合。"
+    },
+    {
+      "id": "R13-API-ENUM-WRAPPER",
+      "status": "CLOSED",
+      "basis": "官方list_property、全部cell intf枚举、wrapper-import后get_files查询；真实BD/HWH/uniqueimportwrapper和完整18源码compileorder闭合。"
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "r3_static": "PASS",
+    "independent_external_cases": 7,
+    "independent_API_regression_negative_cases": 3,
+    "developer_r08_file_hash_binding": "PASS",
+    "actual_interface_bd_hwh_and_ps_profile": "PASS",
+    "actual_capture_recovery_and_source_freeze": "PASS",
+    "xsa_zip_crc_and_no_bit": "PASS",
+    "18_source_compile_order": "PASS",
+    "rtl_lint": "R2_REUSED_0_WITH_162_WARNINGS_NO_RERUN",
+    "synthesis": "NOT_RUN",
+    "implementation_timing": "NOT_RUN",
+    "hardware": "NOT_RUN"
+  },
+  "delivery": {
+    "xsa_sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7",
+    "bd_sha256": "98efb54169d4c9f7c0c237a3fc8fbd72df3646329da6ba05bbdfe4280b5bb397",
+    "wrapper_sha256": "57fa5e3417ad5c492513d3f3ba0a32a723dc7427d775d08211ddfeefe851dd43",
+    "recovery_manifest_sha256": "4893b94d19cc81919164d3c8b49c435d90daca771fbbe0557c3f4e8493e15e79"
+  },
+  "bootstrap_compatibility": "编译XSA0上形成的同一ELF可供最终XSA1仅visibility变更时复用，但必须另行实际核验PS配置/软件ABI/BSP/MMU/初始化与运行参数兼容、分别绑定两XSA；当前机器checker不要求编译XSA等于最终XSA，本收据不声称兼容实证或参数1已批准。",
+  "limitations": [
+    "原ipi_full_r05入口仍FAIL_CAPTURE_COUNTER_RESET；products原生code0/PRODUCTS:OK且产物完整，恢复后独立原件核验通过，未重写FAIL。",
+    "root重复调用非幂等products引入双wrapper失败完整保留；仅撤销其额外generated文件对象，未删除磁盘，恢复后唯一importwrapper与源码闭包真实查询。",
+    "validate存在7条未打印普通WARNING，原capture记录保留；不能称零warning。恢复audit0/零warning/critical/error。",
+    "工业I及板卡身份不由canonicalpart证明；未操作实物。",
+    "不承诺一条::run命令无需包装恢复就正常返回；提供冻结恢复recipe。",
+    "未修改被审源、未提交、没有MCP/重型作业；原native/store失败和历史版本均保留。"
+  ],
+  "evidence_files": [
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/actual_artifact_result.json",
+      "sha256": "4770f7d579b05c6bd6fa4e5ae17f4e385d248e374eed9f4406aa7d5956893c8e"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/external_probe.tcl",
+      "sha256": "20cc77f7599308006e17d9963396591566511f93338a876c051bb5b29fa68895"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/external_void_and_negative.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/external_void_and_negative.stdout.log",
+      "sha256": "7389ef0ff40dfd64d77b2986a233290074f3cd50e60ce3d2867deb46ac072839"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/finish_review.py",
+      "sha256": "c00728e46fec9508a3ad18da7612c7311676e1fdc6eee71e191a1a34f75c7fbe"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/invented_list_properties.tcl",
+      "sha256": "7fbd76efe0b26b7dad2788d764708060d0f366090cffb4e24ac0c046c3477d38"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/missing_wrapper_query.tcl",
+      "sha256": "865b63f7f561b795a48664503be29af4305fca476b176e9126e84c377f422af5"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/ps_requested.stdout.log",
+      "sha256": "07b9f2f2acdd34b8c82b3e726570b363423770e1cb9ac1ac09ab98b12532bd72"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/recovery_result.json",
+      "sha256": "b2133630ea665cfe32769571f4e265f4673e41d7cc16587530db0f5a9e242777"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/review_artifacts.py",
+      "sha256": "508de0b8b1d433676a6f061d2ad78a7a3f6cfdde3dce811d731e5f746bf04e09"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/review_static.py",
+      "sha256": "cfd733e4262e6242b5c64edd9332d1c43b3f5294ddd1dfec8a6363d50af5f383"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/static.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/static.stdout.log",
+      "sha256": "67a7cb6c0d21c01982f5cac28332fe0375eadae7e2e4aab03924400d0ef584c0"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/static_result.json",
+      "sha256": "ccc6669422603605feead72da2d121e1717f3ed0a51954b0cc16d1937aa7bd1a"
+    },
+    {
+      "path": "tmp/2B/S2B-T13/independent_review_20261011_r03/wrapper_return_object.tcl",
+      "sha256": "a7c174620684f74bd598988414dfd393f54facf783286c49af5edcec524802f9"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T13",
+  "run_id": "products_recheck_20261011_r01",
+  "source_commit": "09d2115dfe1fe5f1f1499c1b8082348bbdfa2ce3",
+  "evidence_dir": "report/evidence/S2B-T13/products_recheck_20261011_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict",
+      "sha256": "520db45d0073bbc9ea031d1c542f85714e5c9284978965cd3d406c87fdede64a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.after.log",
+      "sha256": "fb8381d86af23f9999be48bf4fd40c6458db906f43a3f1ebb03d37110f2229bf",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.before.log",
+      "sha256": "570b52fdbc84dd2e8bc7b8a4b928665fa21f9f5e5e1b5eaf5244ca4190d6a00e",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/products.tcldict.native.log",
+      "sha256": "b2add2f0d8aaf707f06ae29449db4c7a6c0fbf089b207018d1f78542c5ca3864",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/root_mcp_calls.json",
+      "sha256": "d019c6afa73e14be3960968c5016d31a27b0bfc0941d857307d54e52395e3e80",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/root_result.json",
+      "sha256": "950a005a4151e423be36bc1c521e9ab3308d93855a4511f25748e58e27e7368d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T13/products_recheck_20261011_r01/vivado_session_cumulative.log",
+      "sha256": "ccdad0fd9b3439c04e39f9a117f50dc5bffb87a0259f41fc885b14ed607a9520",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "真实MCP返回0",
+      "status": "PASS",
+      "command": "close_project",
+      "exit_code": 0
+    },
+    {
+      "name": "原入口正常完成",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "总控重新调用非幂等products，重复make_wrapper/import引入第二个wrapper；函数对象断言FAIL。另错误调用不存在的native_message_counts，原件保留。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1"
+  },
+  "limitations": [
+    "总控重新调用非幂等products，重复make_wrapper/import引入第二个wrapper；函数对象断言FAIL。另错误调用不存在的native_message_counts，原件保留。",
+    "不代表模型、visibility1、综合/实现、G3/G4/G5通过。"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "BOARD_NOT_RUN",
+  "inputs": {
+    "config_keys": [
+      "schema_version",
+      "source_commit",
+      "bindings",
+      "build_details",
+      "visibility_proof",
+      "visibility_review",
+      "visibility_review_sha256",
+      "final_platform_manifest",
+      "final_review",
+      "final_review_sha256",
+      "scene"
+    ],
+    "config_binding": "绝对path及实际原字节sha256；bindings必须与controller.bindings完全相等，source_commit为实际当前HEAD。",
+    "scene": "schema_version=1、kind=s2b-csr-static-scene/1.0.0（或s2b-csr-uart-scene/1.0.0）、expected_snapshot；寄存器offset用str(int)键，完整0/4和0x00c..0x074。",
+    "artifact_gate": "复用T18 admit；必须真实visibility1、final manifest和独立review来源绑定，不允许visibility0 START。",
+    "preparation": "T18 prepare的preparation.json绑定；short/abort需同wire已成功LOAD及最后sample000完整RUN，root须用JtagWireSession.receipt消费两前置响应。"
+  },
+  "entrypoints": {
+    "execute_static_matrix": "(controller,wire,config_binding,run_dir,*,frame_base,core_timeout,drain_timeout)；CPU0/1已停，安全IDLE。",
+    "execute_short_deadline": "(controller,wire,config_binding,preparation,run_dir,*,frame,core_timeout,drain_timeout,observation_seconds)；CPU0/1已停，同模型前置成功；core1..10000、观察0..120秒。",
+    "execute_abort_recovery": "(controller,wire,config_binding,preparation,run_dir,*,frame,core_timeout,drain_timeout)；CPU0 Running、CPU1 Stopped；mode2→原T16 dap_abort→mode3 ACK→sample000完整heads/boxes。"
+  },
+  "limitations": [
+    "没有任何独立Session/server/connect/Serial创建或自动硬件行为。",
+    "自然推进busy START的零额外副作用当前BLOCKED；建议独立真实AXI-Lite命令/B与epoch/owner/START接受脉冲最小观测，不暂停clock/reset。",
+    "直接DAP START改变epoch后，不修改wire epoch。短deadline匹配ACK后同旧UART热恢复BLOCKED；总控另行核实统一冷恢复→新部署→sample000路径，不能称同生命周期热恢复。",
+    "结果状态SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE不表示G3/G4/G5。",
+    "每个生产run必须T20新RunId；原DAP调用、逐字CSR和原UART绑定保留，FAIL锁存不自动恢复。"
+  ]
+}

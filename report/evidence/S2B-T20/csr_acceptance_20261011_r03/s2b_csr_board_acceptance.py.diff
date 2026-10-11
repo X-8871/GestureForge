@@ -1,0 +1,95 @@
+diff --git "a/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\csr_acceptance_20261011_r01\\source_snapshot\\s2b_csr_board_acceptance.py" "b/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_csr_board_acceptance.py"
+index f8f83c6..d0c6462 100644
+--- "a/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\csr_acceptance_20261011_r01\\source_snapshot\\s2b_csr_board_acceptance.py"
++++ "b/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_csr_board_acceptance.py"
+@@ -145,7 +145,7 @@ def preflight(controller, wire, config_binding, *, static):
+ 
+ 
+ def prior_model_success(wire, plan):
+-    """根调度方须用receipt消费已有LOAD及sample000成功，原UART重新解析。"""
++    """按实际发送与消费顺序重放，最后有效权重及最后完整RUN绑定sample000。"""
+     require(not wire.failed and wire.abort_pending is None and wire.epoch > 0, "缺少正常模型会话")
+     wire.rx_file.flush()
+     raw_path = transport.exact_path(wire.rx_file.name)
+@@ -153,25 +153,66 @@ def prior_model_success(wire, plan):
+     require(actual == b"".join(wire.rx_chunks), "UART磁盘原字节与实际读取记录不同")
+     _, weights = model.read_bound(plan["weights"])
+     _, input_raw = model.read_bound(plan["rows"][0]["input"])
+-    accepted_weights, accepted_input = False, False
+-    for attempt in wire.receipt_attempts:
+-        if attempt.get("abort_ready") is not False:
+-            continue
++    sent_rows = list(wire.sent_requests.items())
++    require(sent_rows and [key for key, _ in sent_rows] == list(range(1, wire.last_sequence + 1)),
++            "前置发送sequence缺失或乱序")
++    require(len(wire.receipt_attempts) == len(sent_rows) and len(wire.events) == 2 * len(sent_rows),
++            "前置存在未消费、重复、失败或未登记receipt")
++    wire.tx_header_file.flush()
++    require(transport.exact_path(wire.tx_header_file.name).read_bytes() ==
++            b"".join(row[1][1] for row in sent_rows), "前置TX磁盘header与发送记录不同")
++    response_bytes, current_weights, previous_epoch = [], None, 0
++    last_request, last_payload = None, None
++    for index, ((sequence, sent_row), attempt) in enumerate(zip(sent_rows, wire.receipt_attempts)):
++        require(attempt.get("abort_ready") is False, "前置中间ABORT阶段不能充当完整成功receipt")
+         raw = bytes.fromhex(attempt["raw_received_hex"])
+-        require(raw and raw in actual, "前置响应不在实际UART原件中")
++        require(len(raw) >= transport.HEADER.size + transport.META.size, "前置receipt截断或失败")
+         request = transport.Header.unpack(bytes.fromhex(attempt["request_header_hex"]))
+-        require(request.sequence in wire.sent_requests, "前置响应没有实际发送记录")
+-        sent, header, payload = wire.sent_requests[request.sequence]
+-        require(sent == request and header == request.pack() and payload.hex() == attempt["request_payload_hex"],
++        sent, header, payload = sent_row
++        checked, checked_header = transport.make_request(request.op, request.sequence, request.frame, payload,
++            width=request.width, height=request.height, repeat=request.repeat)
++        require(sequence == request.sequence and sent == request == checked and
++                header == request.pack() == checked_header and payload.hex() == attempt["request_payload_hex"],
+                 "前置发送记录与receipt不一致")
++        require(request.repeat == 1, "前置重复RUN缺少逐帧receipt绑定")
++        tx, rx = wire.events[2 * index:2 * index + 2]
++        require(tx.get("direction") == "TX" and tx.get("status") == "SENT_TO_SERIAL_DRIVER" and
++                tx.get("sequence") == sequence and tx.get("frame") == request.frame and tx.get("op") == request.op and
++                tx.get("header_sha256") == transport.digest(header) and
++                tx.get("payload_sha256") == transport.digest(payload) and
++                tx.get("payload_crc32") == request.payload_crc and
++                tx.get("sent_bytes") == len(header) + len(payload) and
++                tx.get("sent_sha256") == transport.digest(header + payload), "前置TX实际发送事件不一致或交错")
++        response_header = transport.Header.unpack(raw[:40])
++        require(rx.get("direction") == "RX" and rx.get("header") == response_header.__dict__ and
++                rx.get("header_sha256") == transport.digest(raw[:40]) and
++                rx.get("payload_sha256") == transport.digest(raw[40:]) and rx.get("bytes") == len(raw) and
++                rx.get("raw_meta") == list(transport.META.unpack_from(raw, 40)), "前置RX实际消费事件不一致或交错")
++        meta, _, _ = transport.decode_response(raw[:40], raw[40:], request, 0, previous_epoch)
++        require(meta["response_code"] == 0, "前置receipt不是完整成功")
+         if request.op == transport.OP_WEIGHTS:
+-            meta, _, _ = transport.decode_response(raw[:40], raw[40:], request, 0,
+-                                                    transport.META.unpack_from(raw, 40)[0])
+-            accepted_weights |= payload == weights and meta["response_code"] == 0
+-        elif request.op == transport.OP_RUN and raw == actual[-len(raw):]:
+-            meta, _, _ = transport.decode_response(raw[:40], raw[40:], request, 0, wire.epoch - 1)
+-            accepted_input |= payload[8:] == input_raw and request.repeat == 1 and meta["epoch"] == wire.epoch
+-    require(accepted_weights and accepted_input, "缺少同会话实际LOAD和最后sample000完整成功receipt")
++            current_weights = payload
++        if request.op in (transport.OP_RUN, transport.OP_DIAG):
++            previous_epoch = meta["epoch"]
++        response_bytes.append(raw)
++        last_request, last_payload = request, payload
++    responses = b"".join(response_bytes)
++    require(actual.endswith(responses), "前置receipt与UART磁盘连续原字节不一致")
++    prefix = actual[:len(actual) - len(responses)]
++    if prefix:
++        # 唯一允许的响应前缀是既有启动banner，禁止将任意多余接收字节当作历史噪声。
++        parts = prefix.decode("ascii").strip().split(" ")
++        require(len(parts) == 5 and parts[:2] == ["S2B-INFERENCE/1", "READY"] and
++                parts[2].startswith("SOURCE=") and parts[3].startswith("XSA=") and
++                all(len(part.split("=", 1)[1]) == 64 and
++                    all(char in "0123456789abcdef" for char in part.split("=", 1)[1]) for part in parts[2:4]) and
++                prefix == (" ".join(parts[:4]) + " MODEL=" + transport.MODEL_SHA + "\r\n").encode("ascii"),
++                "前置UART含未绑定的额外字节或错误启动banner")
++    transport.require(previous_epoch == wire.epoch, "前置重放epoch与实际wire不同")
++    require(current_weights == weights and last_request.op == transport.OP_RUN and last_request.frame == 0 and
++            (last_request.width, last_request.height, last_request.repeat) == (640, 480, 1) and
++            last_payload[8:] == input_raw,
++            "最后有效LOAD或最终完整消费RUN不是冻结权重与sample000")
+ 
+ 
+ class _Runner:

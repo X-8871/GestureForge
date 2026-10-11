@@ -1,0 +1,140 @@
+diff --git "a/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\csr_acceptance_20261011_r01\\source_snapshot\\test_s2b_csr_board_acceptance.py" "b/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_csr_board_acceptance.py"
+index c86e561..a1e4383 100644
+--- "a/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\csr_acceptance_20261011_r01\\source_snapshot\\test_s2b_csr_board_acceptance.py"
++++ "b/C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_csr_board_acceptance.py"
+@@ -14,8 +14,8 @@ try:
+ except ImportError:
+     import s2b_csr_board_acceptance as csr
+ 
+-TEST_PARENT = csr.ROOT / "tmp/2B/S2B-T20/csr_acceptance_20261011_r01"
+-HEAD = "5a676b700af4c27297977379417b1694dd64840e"
++TEST_PARENT = csr.ROOT / "tmp/2B/S2B-T20/csr_acceptance_20261011_r03"
++HEAD = "2a20b1d9b53c9cc49fafdb49b09d78c5ab4f4674"
+ 
+ 
+ def snapshot():
+@@ -404,6 +404,124 @@ class RawWireTests(unittest.TestCase):
+     def test_prior_complete_raw_receipts(self):
+         self.seed(); self.prior()
+ 
++    def test_replaced_successful_weights_rejects_historical_load(self):
++        self.send_receive(1, 1, self.weights, epoch=0)
++        self.send_receive(1, 2, b"R" * len(self.weights), epoch=0)
++        self.send_receive(2, 3, struct.pack("<II", 1000, 2000) + self.input_raw, epoch=1, run=True)
++        with self.assertRaises(csr.CsrAcceptanceError):
++            self.prior()
++
++    def test_later_unconsumed_actual_load_is_rejected(self):
++        self.seed()
++        payload = b"R" * len(self.weights)
++        request, header = csr.transport.make_request(1, 3, 0, payload)
++        self.wire.send(request, header, payload, {"kind": "MOCK_ONLY"})
++        with self.assertRaisesRegex(csr.CsrAcceptanceError, "未消费"):
++            self.prior()
++
++    def test_restored_weights_then_new_seed_is_accepted(self):
++        self.send_receive(1, 1, b"R" * len(self.weights), epoch=0)
++        self.send_receive(1, 2, self.weights, epoch=0)
++        self.send_receive(2, 3, struct.pack("<II", 1000, 2000) + b"X" * len(self.input_raw), epoch=1, run=True)
++        self.send_receive(2, 4, struct.pack("<II", 1000, 2000) + self.input_raw, epoch=2, run=True)
++        self.prior()
++
++    def test_last_consumed_input_or_load_after_seed_is_rejected(self):
++        self.seed()
++        self.send_receive(2, 3, struct.pack("<II", 1000, 2000) + b"X" * len(self.input_raw), epoch=2, run=True)
++        with self.assertRaises(csr.CsrAcceptanceError):
++            self.prior()
++        self.send_receive(1, 4, self.weights, epoch=2)
++        with self.assertRaises(csr.CsrAcceptanceError):
++            self.prior()
++
++    def test_receipt_order_duplicate_and_interleaved_events_are_rejected(self):
++        self.seed()
++        attempts, events = list(self.wire.receipt_attempts), list(self.wire.events)
++        for changed in (list(reversed(attempts)), attempts + attempts[:1]):
++            with self.subTest(receipt_count=len(changed)):
++                self.wire.receipt_attempts = changed
++                with self.assertRaises((csr.CsrAcceptanceError, csr.transport.TransportError)):
++                    self.prior()
++        self.wire.receipt_attempts = attempts
++        self.wire.events = [events[0], events[2], events[1], events[3]]
++        with self.assertRaisesRegex(csr.CsrAcceptanceError, "事件"):
++            self.prior()
++
++    def test_actual_pipelined_sends_before_receipts_are_rejected(self):
++        for seq in (1, 2):
++            request, header = csr.transport.make_request(1, seq, 0, self.weights)
++            self.wire.send(request, header, self.weights, {"kind": "MOCK_ONLY"})
++            self.serial.raw.extend(raw_response(request, 0))
++        for seq in (1, 2):
++            self.wire.receipt(self.wire.sent_requests[seq][0])
++        self.send_receive(2, 3, struct.pack("<II", 1000, 2000) + self.input_raw, epoch=1, run=True)
++        with self.assertRaisesRegex(csr.CsrAcceptanceError, "事件"):
++            self.prior()
++
++    def test_existing_cache_probe_before_model_load_is_supported(self):
++        payload = struct.pack("<III", 1, 0x13579BDF, 0x2468ACE0)
++        request, header = csr.transport.make_request(4, 1, 0, payload)
++        self.wire.send(request, header, payload, {"kind": "MOCK_ONLY"})
++        body = struct.pack("<Q8I", 0, 0x400, 0, 0, 0, 0, 0, 1, 0) + bytes(range(256))
++        response = csr.transport.Header(0x8004, 1, 0, 0, 0, 1, len(body), zlib.crc32(body))
++        self.serial.raw.extend(response.pack() + body); self.wire.receipt(request)
++        self.send_receive(1, 2, self.weights, epoch=0)
++        self.send_receive(2, 3, struct.pack("<II", 1000, 2000) + self.input_raw, epoch=1, run=True)
++        self.prior()
++
++    def test_receipt_payload_header_and_raw_substitutions_are_rejected(self):
++        self.seed()
++        original = dict(self.wire.receipt_attempts[-1])
++        request = csr.transport.Header.unpack(bytes.fromhex(original["request_header_hex"]))
++        for key, value in (("request_payload_hex", "00"),
++                           ("request_header_hex", csr.transport.Header(request.op, request.sequence,
++                            1, request.width, request.height, request.repeat, request.length, request.payload_crc).pack().hex()),
++                           ("raw_received_hex", self.wire.receipt_attempts[0]["raw_received_hex"]),
++                           ("abort_ready", True)):
++            with self.subTest(field=key):
++                self.wire.receipt_attempts[-1] = {**original, key: value}
++                with self.assertRaises((csr.CsrAcceptanceError, csr.transport.TransportError)):
++                    self.prior()
++        self.wire.receipt_attempts[-1] = original
++
++    def test_failed_native_receipt_cannot_become_success_by_clearing_latch(self):
++        self.seed()
++        payload = struct.pack("<II", 1000, 2000) + self.input_raw
++        request, header = csr.transport.make_request(2, 3, 0, payload, width=640, height=480)
++        self.wire.send(request, header, payload, {"kind": "MOCK_ONLY"})
++        self.serial.raw.extend(raw_response(request, 1, code=2))
++        with self.assertRaises(csr.transport.TransportError):
++            self.wire.receipt(request)
++        self.wire.failed = False
++        with self.assertRaises(csr.transport.TransportError):
++            self.prior()
++
++    def test_native_tx_event_and_disk_identity_are_required(self):
++        self.seed()
++        original = dict(self.wire.events[0])
++        for key, value in (("sent_bytes", 40), ("sent_sha256", "0" * 64), ("status", "FAILED"),
++                           ("payload_sha256", "0" * 64), ("frame", 1)):
++            with self.subTest(field=key):
++                self.wire.events[0] = {**original, key: value}
++                with self.assertRaises(csr.CsrAcceptanceError):
++                    self.prior()
++        self.wire.events[0] = original
++        self.tx.write(b"extra")
++        with self.assertRaisesRegex(csr.CsrAcceptanceError, "TX磁盘"):
++            self.prior()
++
++    def test_unbound_rx_prefix_is_rejected_but_real_banner_is_accepted(self):
++        prefix = ("S2B-INFERENCE/1 READY SOURCE=" + "1" * 64 + " XSA=" + "2" * 64 +
++                  " MODEL=" + csr.transport.MODEL_SHA + "\r\n").encode("ascii")
++        self.rx.write(prefix); self.wire.rx_chunks.append(prefix)
++        self.seed(); self.prior()
++        actual = self.rx.tell()
++        self.rx.seek(0); self.rx.write(b"X" + prefix[1:]); self.rx.seek(actual)
++        self.wire.rx_chunks[0] = b"X" + prefix[1:]
++        with self.assertRaisesRegex(csr.CsrAcceptanceError, "banner"):
++            self.prior()
++
+     def test_sent_requests_without_receipt_are_rejected(self):
+         self.seed(); self.wire.receipt_attempts.clear()
+         with self.assertRaises(csr.CsrAcceptanceError):

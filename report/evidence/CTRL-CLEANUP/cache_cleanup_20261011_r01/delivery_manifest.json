@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "stage": "CTRL",
+  "task_id": "CTRL-CLEANUP",
+  "run_id": "cache_cleanup_20261011_r01",
+  "source_commit": "3f2bda40dc82d8d50a563ce8862ce7d667bdac2b",
+  "evidence_dir": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务仅按既有冻结记录清理已结束运行的可重建缓存，不改变或消费新的模型和硬件接口；恢复依赖保留核验见清理结果记录。",
+  "files": [
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/c_cleanup.sh",
+      "sha256": "7698a0c980e6e08849f641cc8ebe87c3f5f4ac2a10a2ce0ae6f919bb04432dbf",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/d_cleanup.sh",
+      "sha256": "20ae3a17b71162ba9559afa94ec01022bb56cb11f5739ab3c01ca86a4d6e638f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/cleanup_record.json",
+      "sha256": "0ba1bf7a2e64ec69befaee2dc82f70cfb900b138ad432a39283edd60e19a842d",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "C_download_cache_cleanup",
+      "status": "PASS",
+      "command": "Git Bash --noprofile --norc -s，经UTF-8 base64 stdin执行c_cleanup.sh中的精确命令快照",
+      "exit_code": 0
+    },
+    {
+      "name": "D_completed_run_PCH_cleanup",
+      "status": "PASS",
+      "command": "Git Bash --noprofile --norc -s，经UTF-8 base64 stdin执行d_cleanup.sh中的精确命令快照",
+      "exit_code": 0
+    },
+    {
+      "name": "command_snapshot_syntax",
+      "status": "PASS",
+      "command": "bash -n c_cleanup.sh；bash -n d_cleanup.sh（不再次执行清理）",
+      "exit_code": 0
+    },
+    {
+      "name": "scoped_diff_check",
+      "status": "PASS",
+      "command": "git diff --check -- .codex/STATE.md report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01",
+      "exit_code": 0
+    },
+    {
+      "name": "inputs_mode",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "无新的模型或硬件输入交付；本任务保留并核验历史恢复清单与现有文件，按G0仅执行新增证据包装核验。"
+    },
+    {
+      "name": "RTL_and_board_regression",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "未修改实现、模型、工具链或板上产物；缓存清理不要求重跑RTL或板测，所有原始验收和失败材料哈希保留。"
+    }
+  ],
+  "tool_versions": {
+    "Git": "2.56.0.windows.2",
+    "Bash": "5.3.15(2)-release",
+    "Python": "3.12.10",
+    "Node_REPL": "Codex persistent runtime，版本未另测"
+  },
+  "limitations": [
+    "空间释放记录采用操作前后df净变化；活动2B等进程同时写盘可能影响最终余量。",
+    "命令文件是已执行快照，保留用于审计，不应再次执行。",
+    "本次清理仅下载缓存和成功运行PCH白名单，非全盘缓存清空；波形、失败缓存与活动工作树保留。",
+    "缓存删除后不保留本体；可重新下载或按保留源/工具链重建。",
+    "包装核验不代表原工程G0/G4/G5或实物验收。"
+  ]
+}

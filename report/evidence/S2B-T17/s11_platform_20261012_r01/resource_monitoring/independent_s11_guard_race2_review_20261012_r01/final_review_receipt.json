@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "scope": "S11-G-RACE2二次确认最小工具修复及可恢复性；不批准旧运行覆盖/预算、STA、产品或G3",
+  "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+  "reviewed_source_hashes": {
+    "guard.py": "eca5338aeb738b86dbf77a0ae881c8dec5068b89bb4553719e8deba2423cb700",
+    "supervisor.py": "bbe74e023603ee686a746b92d7dc5c2cb8066b3554eb5e65176bb1f6af88b9f9"
+  },
+  "reviewed_manifest_hash": "30bfd70dca1236c52645f3365858d8445cc016eaca1db85a79e0962dcb316ada",
+  "reviewer_stop": "STOP_READONLY_S11_G_RACE2_REVIEW_FROZEN",
+  "checks": [
+    "精确SHA guard.py",
+    "精确SHA supervisor.py",
+    "精确SHA tool_receipt.json",
+    "精确SHA raw_manifest.jsonl",
+    "精确SHA guard_receipt.json",
+    "75绑定三字段",
+    "75原件逐项SHA",
+    "除readback_member其余全部原字节一致",
+    "readback最小仅新增NoSuch确认分支",
+    "supervisor仅path/SHA两个字段",
+    "旧真实运行150samples仍BLOCKED",
+    "36612同原样本ABSENT及UNKNOWN原件保留",
+    "固定基线",
+    "初始PID缺失",
+    "初始birth缺失",
+    "初始AccessDenied",
+    "初次birth不符",
+    "初次birth不符新对象不动",
+    "首次birth成功后确认构造缺失",
+    "首次birth成功后确认birth缺失",
+    "首次birth成功后确认复用",
+    "首次birth成功后确认复用新对象不动",
+    "同birth不推断消失",
+    "确认AccessDenied仍UNKNOWN",
+    "确认birth AccessDenied仍UNKNOWN",
+    "普通base AccessDenied仍UNKNOWN",
+    "普通base RuntimeError仍UNKNOWN",
+    "完整六字段一致ALIVE",
+    "字段漂移 pid",
+    "字段漂移 create_time",
+    "字段漂移 exe",
+    "字段漂移 cwd",
+    "字段漂移 cmdline",
+    "字段漂移 ppid",
+    "collect确认缺失不补RSS",
+    "collect下一样本继续实际监控语义",
+    "collect无停止调用",
+    "自身轻量RSS≤128MiB",
+    "候选收尾SHA未变"
+  ],
+  "findings": [],
+  "elapsed_seconds": 0.15600000000267755,
+  "own_sampled_rss_bytes": 28114944,
+  "absolute_peak_bytes": null,
+  "independent_readback_cases": 19,
+  "mock_controlflow_component_return_code": 3,
+  "limitations": [
+    "本审查所有进程/竞态为独立mock，不访问4256、36612或任意实际任务PID；自身RSS为实际单点读回而非峰",
+    "旧150样本ABSENT+UNKNOWN/BLOCKED/缺测保持原字节，不用新工具追填或改判全程PASS",
+    "仅guard二次确认及supervisor固定绑定准备G2；生产ROOT首样本/5秒监督/真实关闭仍需实际执行",
+    "阈值、stop_one、verified_chain、root_terminal及fsync完全原字节；不增加停止权限",
+    "只核75原件SHA，不复制重复包；未执行Vivado/ROSS/硬件/生产改动/Git写入"
+  ],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01\\review.py"
+      ],
+      "native_exit_code": 1,
+      "elapsed_seconds": 0.3280000000013388
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01\\review.py",
+        "attempt2"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.35899999999674037
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "native_exit_code": 0
+    }
+  ],
+  "reviewer_auxiliary_failure": {
+    "native_exit_code": 1,
+    "cause": "首轮独立mock命名空间缺少psutil.__version__；仅修正审查包装，在新attempt2执行",
+    "evidence": "review.stderr.log",
+    "candidate_changed": false
+  },
+  "approval_timeouts": [
+    {
+      "evidence": "launch_initial_timeout.json",
+      "execution_started": false,
+      "native_exit_code": null
+    },
+    {
+      "evidence": "launch_attempt2_timeout.json",
+      "execution_started": false,
+      "native_exit_code": null
+    }
+  ],
+  "raw_manifest_sha256": "cf5e8622dfea6214176c709228b334d7873e2030f0f6f4106fe48cc3ca9dadfb",
+  "raw_manifest_lines": 37
+}

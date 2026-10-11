@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "checks": 32,
+  "findings": [],
+  "scope": "S11资源guard本次历史链只监控语义、未知/身份漂移/根退出与停止闭合门禁；supervisor固定绑定与新资源计划只读审查",
+  "source_commit": "4288795b1e8c75b98cbbeb69ac33709172e97c66",
+  "reviewed_source_hashes": {
+    "guard": "9cad1ddf5f1b2d48b99c6d10451756536b25c4abf613f0af8b16e0ffd629f86c",
+    "supervisor": "b6e8d612551cb5c3df3111075eb680505799b96288253a221df3eb2935a56184",
+    "resource_plan": "aec3e818e6e20653fbe55ed89fd4f5a9c3a8e55a41bb8b417eb4bb93fcee6784"
+  },
+  "reviewer_stop": "STOP_READONLY_S11_TOOL_G2_ONLY",
+  "elapsed_seconds": 3.438000000001921,
+  "sampled_owned_fixture_rss_peak_bytes": 53395456,
+  "absolute_peak_bytes": null,
+  "fixture_results": [
+    {
+      "case": "A_known",
+      "status": "PASS"
+    },
+    {
+      "case": "B_unknown",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "仅工具G2语义，不批准真实预算达标/STA/产品/实板；S10缺测与4.5GiB未达仍原状",
+    "代表性自有夹具A/B串行；未重跑Developer13全套。C出生与ppid差异/DUNKNOWN/B孤儿候选均显式注入，不声称OS真实复用",
+    "测试直接调用候选collect/stop_one/stop_tree/root_terminal，未启动生产guard CLI/supervisor/ROOT集成；未查询或停止其它任务PID",
+    "所有RSS是离散读回，仅自有轻量测试；128MiB本轮工具预算，正式6GiB/512MiB/8GiB/1秒不变",
+    "810原件只核SHA不复制；实际资源计划PREPARED_NOT_EXECUTED；ROOT启动首样本/身份与5秒监督集成仍须实际执行"
+  ],
+  "supplemental_checks": [
+    "监督器八个冻结fixture终态均supervisor2且child原生码逐项不改写",
+    "审查首轮三个自有夹具此时PID真实缺失；未采完整出生身份的限制保留"
+  ],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_review_20261012_r01\\review.py"
+      ],
+      "native_exit_code": 1,
+      "elapsed_seconds": 3.4210000000020955
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_review_20261012_r01\\review.py",
+        "attempt2"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 3.561999999998079
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "native_exit_code": 0
+    }
+  ],
+  "reviewer_auxiliary_failure": {
+    "native_exit_code": 1,
+    "cause": "独立夹具将psutil.Process替换为函数，内部isinstance失效；改为仅候选模块命名空间包装",
+    "evidence": "review.stderr.log",
+    "cleanup": "第一轮fixture25秒自然退出后只读确认三PID缺失；第二轮自有对象六字段核对清理",
+    "production_impact": "无；未修改候选或原件"
+  },
+  "raw_manifest_sha256": "b5de6b337be3e63497c4f6d917dae57b3a10c128a86fe98a6f3b733028916775",
+  "raw_manifest_lines": 70
+}

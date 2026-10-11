@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "task": "S11-G-RACE2",
+  "status": "PASS_G1_SIMULATED_TOOL_ONLY",
+  "developer_stop": true,
+  "at_utc8": "2026-10-12T02:27:19.063969+08:00",
+  "task_baseline": "a710ec431474841a81912a6055f861e811a151e3",
+  "git_read_or_written": false,
+  "sources": {
+    "guard.py": "eca5338aeb738b86dbf77a0ae881c8dec5068b89bb4553719e8deba2423cb700",
+    "supervisor.py": "bbe74e023603ee686a746b92d7dc5c2cb8066b3554eb5e65176bb1f6af88b9f9"
+  },
+  "source_diff_sha256": "b2ac839590f7701e7a87e86c87c6ee87fe20ca7abdd64a2a00d4d5ecec246ed7",
+  "supervisor_diff_sha256": "305e163efeea54550781f1c8abc9e798770324f08e5fd6b4ffadfbc978ad64b0",
+  "only_readback_member_changed": true,
+  "all_other_guard_bytes_unchanged": true,
+  "supervisor_only_fixed_path_and_sha_changed": true,
+  "checks": {
+    "guard_native": {
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02\\selftest.py",
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.2649999999994179,
+      "stdout_sha256": "666028d7a6c8dd2834eb048bb1814274e26fa6b2ba06043979a6b9309f8ee995",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "supervisor_native": {
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_guard_supervisor_20261012_r02\\selftest.py",
+      "argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_guard_supervisor_20261012_r02\\selftest.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 4.375,
+      "sampled_peak_tree_rss_bytes": 37429248,
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil_version": "7.2.2",
+      "source_hashes": {
+        "supervisor.py": "bbe74e023603ee686a746b92d7dc5c2cb8066b3554eb5e65176bb1f6af88b9f9",
+        "selftest.py": "ee9aec77aad5a56343228db513139ef76c20daab93c2708039e8f92104321bac",
+        "fake_guard.py": "1673b0fab9e7ffb0a1196f34d4dbd5084d6ba17eea58d1f922b7315fea910e07",
+        "native_test.py": "65ec0492e4042a1ec40cc2c12ff352b054aeecc9f99450114eabfd91e49cc173"
+      },
+      "logs": {
+        "selftest.stdout.log": "6358498207794f02cb69d215d583dbd29b528a539abb7ea4789aef71cdb899cd",
+        "selftest.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "real_guard_or_target_started": false,
+      "supervisor_source_lines": 106
+    }
+  },
+  "readback_case_count": 16,
+  "collect_case_count": 2,
+  "supervisor_fixture_case_count": 8,
+  "seed": 20261012,
+  "own_test_os_peak_working_set_bytes": 31592448,
+  "test_budget_bytes": 134217728,
+  "actual_failure_diagnosis": {
+    "path": "tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02\\actual_failure_diagnosis.json",
+    "sha256": "87aaeb0276df578429b78d1081f60ea3db22bfd90edb1b1dcb46470ad5912e8e"
+  },
+  "input_bindings": [
+    {
+      "path": "tmp/2B/S2B-T17/s11_resource_guard_20261012_r01/guard.py",
+      "sha256": "9cad1ddf5f1b2d48b99c6d10451756536b25c4abf613f0af8b16e0ffd629f86c"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s11_guard_supervisor_20261012_r01/supervisor.py",
+      "sha256": "b6e8d612551cb5c3df3111075eb680505799b96288253a221df3eb2935a56184"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s11_guard_actual_20261012_r01/guard/guard_receipt.json",
+      "sha256": "bdf128df3c4776c3d72b8907b6978a395cf84413ff2684327a929e629f60dcc6"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s11_guard_actual_20261012_r01/guard/samples.jsonl",
+      "sha256": "77679bec80d80d6806d683fcce2d095f0f655d5a4ca77a661582d8745af0a038"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s11_guard_actual_20261012_r01/guard/events.jsonl",
+      "sha256": "96295f459145a41f471d714c77cfc24764d35397798f1f8b028e1153f0031b56"
+    }
+  ],
+  "limitations": [
+    "等ROOT另安排独立review；工具G1不审批实际运行预算、综合/STA或硬件。",
+    "除自有supervisor假guard进程外，Process与读取竞态均内存模拟，不访问实际4256/36612或任何其它窗口对象。",
+    "自测内存31,592,448B为自身OS峰，不伪称进程树/整机峰；supervisor另记录自有替身离散树采样峰。",
+    "首birth成功后base_identity NoSuch必须独立新Process读回；仅ABSENT或birth变化才确认原对象消失，同birth/确认AccessDenied保留UNKNOWN，身份字段变化仍IDENTITY_CHANGED。",
+    "实际旧150样本BLOCKED/缺测原件保持，只绑定其HASH；不补测、不重新分类为预算PASS。",
+    "STOP_ONE/verified_chain/root_terminal及所有其它方法/生产阈值原字节不变；新增确认不产生停止权限。",
+    "不读写Git/STATE/生产源、不调用ROSS/UART/JTAG/Vivado或重型任务，不复制旧810文件。"
+  ],
+  "raw_manifest_path": "raw_manifest.jsonl"
+}

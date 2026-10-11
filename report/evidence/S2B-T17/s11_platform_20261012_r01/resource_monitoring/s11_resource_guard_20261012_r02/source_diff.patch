@@ -1,0 +1,27 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s11_resource_guard_20261012_r01\guard.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s11_resource_guard_20261012_r02\guard.py
+@@ -113,6 +113,24 @@
+             known_keys = [k for k in IDENTITY_KEYS if k in expected]
+             state = "ALIVE" if all(current[k] == expected[k] for k in known_keys) else "IDENTITY_CHANGED"
+             return {"expected": expected, "status": state, "actual": current}
++        except psutil.NoSuchProcess as error:
++            # 初次birth成功后读取字段仍可能自然退出；只凭独立新PID读回确认。
++            try:
++                confirmed_birth = psutil.Process(expected["pid"]).create_time()
++            except psutil.NoSuchProcess as confirmation_error:
++                return {"expected": expected, "status": "ABSENT", "first_read_create_time": birth,
++                        "error": repr(error), "confirmation_error": repr(confirmation_error),
++                        "confirmation": "FRESH_PID_READBACK_ABSENT"}
++            except psutil.Error as confirmation_error:
++                return {"expected": expected, "status": "UNKNOWN", "actual_create_time": birth,
++                        "error": repr(error), "confirmation_error": repr(confirmation_error)}
++            if confirmed_birth != birth:
++                return {"expected": expected, "status": "ORIGINAL_PID_REUSED",
++                        "first_read_create_time": birth, "actual_create_time": confirmed_birth,
++                        "error": repr(error), "new_object_untouched": True,
++                        "confirmation": "FRESH_PID_READBACK_REUSED"}
++            return {"expected": expected, "status": "UNKNOWN", "actual_create_time": confirmed_birth,
++                    "error": repr(error), "confirmation": "FRESH_PID_STILL_SAME_BIRTH"}
+         except (psutil.Error, RuntimeError) as error:
+             return {"expected": expected, "status": "UNKNOWN", "actual_create_time": birth, "error": repr(error)}
+ 

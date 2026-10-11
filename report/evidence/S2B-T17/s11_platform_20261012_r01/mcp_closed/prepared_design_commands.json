@@ -1,0 +1,69 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "source_basis": "已审S10九命令精确路径和版本替换，builder原始log必须由新会话实际返回填写",
+  "commands": [
+    {
+      "label": "source",
+      "command": "source -encoding utf-8 -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "builder",
+      "command": "set_param general.maxThreads 1; ::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s11p1} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {ACTUAL_NEW_SESSION_LOG_REQUIRED}",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "setup",
+      "command": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {$::s2b_inference_platform::version ne {0.1.11}} {error PROFILE_MISMATCH}; if {[get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]] != 0} {error VISIBILITY_MISMATCH}; if {[llength $::s2b_inference_platform::rtl_sources] != 18} {error RTL_COUNT}; set s11_sources {}; foreach relative $::s2b_inference_platform::rtl_sources {set matches [get_files -quiet [file join {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} $relative]]; if {[llength $matches] != 1} {error SOURCE_REGISTRATION}; lappend s11_sources [list $relative [lindex $matches 0]]}; set s11_wrapper [get_files -quiet */s2b_inference_wrapper.v]; if {[llength $s11_wrapper] != 1} {error WRAPPER_COUNT}; set s11_setup_path {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/setup_synthesis.tcldict}; if {[file exists $s11_setup_path]} {error SETUP_OVERWRITE}; set s11_f [open $s11_setup_path w]; puts $s11_f [dict create status READY_SINGLE_HEAVY source_count 18 registered_sources $s11_sources wrapper $s11_wrapper top [get_property TOP [current_fileset]] part [get_property PART [current_project]] threads [get_param general.maxThreads] jobs 1 profile $::s2b_inference_platform::version visibility 0 clock_hz 50000000 synth_strategy [get_property STRATEGY [get_runs synth_1]]]; close $s11_f; puts S11_READY_SINGLE_HEAVY",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "launch",
+      "command": "launch_runs synth_1 -jobs 1",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "wait",
+      "command": "wait_on_run synth_1",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "open_run",
+      "command": "open_run synth_1",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "reports",
+      "command": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/timing_summary_synth.rpt}; report_timing -delay_type max -max_paths 30 -sort_by group -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/timing_worst_synth.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/utilization_synth.rpt}; report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/utilization_flat_synth.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/clocks_synth.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/exceptions_synth.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/methodology_synth.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/drc_synth.rpt}",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "query_xdc",
+      "command": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s11_platform_20261012_r01/constraints_synth.xdc}; set s11_run_states [dict create]; foreach s11_run [get_runs] {dict set s11_run_states [get_property NAME $s11_run] [dict create status [get_property STATUS $s11_run] progress [get_property PROGRESS $s11_run]]}; dict create project [get_property NAME [current_project]] part [get_property PART [current_project]] top [get_property TOP [current_fileset]] clock_period [get_property PERIOD [get_clocks clk_fpga_0]] runs $s11_run_states impl_strategies [list_property_value STRATEGY [get_runs impl_1]]",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    },
+    {
+      "label": "close",
+      "command": "close_project",
+      "capture_log": true,
+      "verbosity": "digest",
+      "session_id": "ACTUAL_NEW_SESSION_REQUIRED"
+    }
+  ]
+}

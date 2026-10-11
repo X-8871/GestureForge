@@ -1,0 +1,182 @@
+--- tmp\2B\S2B-T17\s10_resource_guard_20261012_r02\guard.py
++++ tmp\2B\S2B-T17\s11_resource_guard_20261012_r01\guard.py
+@@ -92,6 +92,8 @@
+         self.no_progress_signature = None
+         self.no_progress_since = self.started
+         self.last_members = {}
++        self.known_lineage = {}
++        self.retired_members = set()
+         self.input_bindings = []
+         self.confirmed_sample_exits = []
+ 
+@@ -235,33 +237,112 @@
+             current = parent
+ 
+     def collect(self, root):
+-        members = [root]
++        # 历史证明只由本次执行的完整现时父链建立，绝不导入旧日志。
++        members = { (root["pid"], root["create_time"]): dict(root, monitorable=True, stoppable=True,
++                    lineage_mode="CURRENT_CHAIN") }
+         uncertain = []
+         exited = []
++        visited = set()
++        queue = []
+         try:
+-            children = psutil.Process(root["pid"]).children(recursive=True)
++            queue.extend(psutil.Process(root["pid"]).children(recursive=True))
+         except psutil.Error as error:
+-            return members, [{"reason": "TREE_ENUMERATION_FAILED", "error": repr(error)}], exited
+-        for process in children:
++            return list(members.values()), [{"reason": "TREE_ENUMERATION_FAILED", "error": repr(error)}], exited
++        # ROOT枚举可能已看不到孤儿；每轮仍逐个读回曾完整证明的成员。
++        for known in self.last_members.values():
++            if known["pid"] == root["pid"] or (known["pid"], known["create_time"]) in self.retired_members:
++                continue
++            result = self.readback_member(known)
++            if result["status"] == "ALIVE":
++                try:
++                    queue.append(psutil.Process(known["pid"]))
++                    continue
++                except psutil.NoSuchProcess:
++                    # 构造句柄期间退出仍须新的候选PID读回，不推断RSS零。
++                    pass
++                result = self.readback_member(known)
++            if result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
++                self.record_sample_exit(result, exited)
++            else:
++                uncertain.append({"pid": known["pid"], "reason": "KNOWN_MEMBER_READBACK_UNKNOWN", "readback": result})
++        cursor = 0
++        while cursor < len(queue):
++            process = queue[cursor]
++            cursor += 1
+             item = None
+             candidate_birth = None
+             try:
+                 candidate_birth = process.create_time()
++                key = (process.pid, candidate_birth)
++                if key in visited:
++                    continue
++                visited.add(key)
+                 item = identity(process)
+-                self.verified_chain(item, root)
+-                members.append(item)
++                _, current, chain = self.verified_chain(item, root)
++                if key not in self.known_lineage:
++                    proof = {"first_verified_sample": self.sample_count,
++                             "ancestor_chain": [{k: x[k] for k in IDENTITY_KEYS} for x in chain]}
++                    self.known_lineage[key] = proof
++                    self.event("LINEAGE_FIRST_VERIFIED", **proof)
++                members[key] = dict(current, monitorable=True, stoppable=True, lineage_mode="CURRENT_CHAIN")
+             except psutil.NoSuchProcess as error:
+-                result = self.readback_member(item or {"pid": process.pid, "create_time": candidate_birth})
++                expected = self.last_members.get((process.pid, candidate_birth)) or item or {"pid": process.pid, "create_time": candidate_birth}
++                result = self.readback_member(expected)
+                 result["original_error"] = repr(error)
+                 if result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
+-                    exited.append(result)
+-                    self.confirmed_sample_exits.append(result)
+-                    self.event("HELPER_EXIT_CONFIRMED_CONTINUE", readback=result, limitation="短命对象RSS/峰值缺测，不伪造零；继续后续采样")
++                    self.record_sample_exit(result, exited)
+                 else:
+-                    uncertain.append({"pid": process.pid, "reason": "CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN", "readback": result})
++                    try:
++                        if result["status"] != "ALIVE":
++                            raise RuntimeError("候选读回没有完整确认存活身份")
++                        current = self.historical_member(result["actual"], root)
++                        members[(current["pid"], current["create_time"])] = current
++                        # 新孤儿子对象仍需现时完整ROOT链；历史链不能用于收编新成员。
++                        queue.extend(psutil.Process(current["pid"]).children(recursive=True))
++                    except (psutil.Error, RuntimeError) as fallback_error:
++                        retry = self.readback_member(expected)
++                        if retry["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
++                            self.record_sample_exit(retry, exited)
++                        else:
++                            uncertain.append({"pid": process.pid, "reason": "CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN", "readback": retry, "historical_rejection": repr(fallback_error)})
+             except (psutil.Error, RuntimeError) as error:
+                 uncertain.append({"pid": process.pid, "reason": "UNVERIFIED_MEMBER", "identity": item, "error": repr(error)})
+-        return members, uncertain, exited
++        return list(members.values()), uncertain, exited
++
++    def record_sample_exit(self, result, exited):
++        key = (result["expected"]["pid"], result["expected"].get("create_time"))
++        if key in self.retired_members:
++            return
++        self.retired_members.add(key)
++        exited.append(result)
++        self.confirmed_sample_exits.append(result)
++        self.event("HELPER_EXIT_CONFIRMED_CONTINUE", readback=result, limitation="短命对象RSS/峰值缺测，不伪造零；继续后续采样")
++
++    def historical_member(self, current, root):
++        key = (current["pid"], current["create_time"])
++        proof = self.known_lineage.get(key)
++        if proof is None or not same_identity(current, proof["ancestor_chain"][0]):
++            raise RuntimeError("没有本次完整历史证明或成员六字段已变化")
++        if not in_allowed(current["cwd"], self.binding["allowed_run_dirs"]):
++            raise RuntimeError("已知成员cwd超出允许目录")
++        if not same_identity(root, proof["ancestor_chain"][-1]):
++            raise RuntimeError("本次ROOT完整身份已失效")
++        missing = []
++        for ancestor in proof["ancestor_chain"][1:-1]:
++            result = self.readback_member(ancestor)
++            if result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"}:
++                missing.append(result)
++            elif result["status"] != "ALIVE":
++                raise RuntimeError("历史祖先读回未知或身份变化")
++        if not missing:
++            raise RuntimeError("未确认旧祖先缺失，不能使用历史链例外")
++        reread = self.readback_member(proof["ancestor_chain"][0])
++        if reread["status"] != "ALIVE":
++            raise RuntimeError("历史核验期间候选退出或身份未知/变化")
++        current = reread["actual"]
++        self.event("KNOWN_LINEAGE_MONITOR_ONLY", identity=current, missing_ancestors=missing,
++                   first_verified_sample=proof["first_verified_sample"], limitation="仅本次已核归属的真实RSS；没有当前停止权限")
++        return dict(current, monitorable=True, stoppable=False, lineage_mode="HISTORICAL_CHAIN")
+ 
+     def stop_tree(self, root, initial_members, initial_uncertain, reason):
+         stopped = []
+@@ -270,6 +351,13 @@
+         members, uncertain, exited = self.collect(root)
+         retained.extend(uncertain)
+         self.last_members.update({(x["pid"], x["create_time"]): x for x in initial_members + members})
++        # 现时ROOT枚举之外的历史孤儿也必须出现在闭合读回中，不能漏掉。
++        for known in self.last_members.values():
++            if known["pid"] == root["pid"]:
++                continue
++            result = self.readback_member(known)
++            if result["status"] not in {"ABSENT", "ORIGINAL_PID_REUSED"} and not any(same_identity(known, x) for x in members):
++                retained.append({"pid": known["pid"], "reason": "KNOWN_MEMBER_NOT_IN_CURRENT_COLLECTION", "readback": result})
+         candidates = []
+         for item in members:
+             if item["pid"] == root["pid"]:
+@@ -361,6 +449,8 @@
+                    "input_bindings": self.input_bindings,
+                    "guard_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                    "known_members_count": len(self.last_members), "confirmed_sample_exits": self.confirmed_sample_exits,
++                   "known_lineage_count": len(self.known_lineage),
++                   "historical_lineage_limitations": ["历史完整链只支持本次执行已核成员的真实RSS，缺失当前祖先链不授予停止权限", "已知孤儿仍逐项读回并枚举其新子对象；未曾完整核验的新对象、真实UNKNOWN或字段变化继续阻断", "PID复用的新对象不动，不沿复用父PID连接新祖先；缺测不补零或旧RSS"],
+                    "absolute_peak_memory_bytes": None, "guard_peak_memory_bytes": None,
+                    "limitations": ["1秒离散采样不是连续绝对峰，短命helper已确认退出仅记录缺测，不伪造RSS零并继续监控", "根退出/复用时只读此前已核成员；新生未采对象未知，不能证明整树闭合；活/未知孤儿保留并非零", "创建时间及实际祖先链每次动作前重查；OS没有跨整树原子身份/停止事务", "不确定对象不动；保留根并STOP_PARTIAL/BLOCKED，ROOT需读原件后处置", "ROOT缺失/复用终态，不重启或扫描其它窗口", "900秒进度可选口径仅指定日志size/mtime变化，不证明设计进展或收敛", "使用前ROOT必须首个样本/守卫PID确认后才派发heavy，并在MCP长wait中每5秒并行消费guard进程与终态；异常阻止后续派发，闭合读回所有owned身份；此集成未由本工具执行", "新6GiB计划不修改旧S9预算，也不批准功能/时序/实板"]}
+         self.event("GUARD_TERMINAL", status=status, reason=reason)
+@@ -416,6 +506,9 @@
+                               "tree_rss_bytes": rss if not uncertain and not exited else None, "verified_subset_rss_bytes": rss,
+                               "available_ram_bytes": ram, "c_disk_free_bytes": disk, "members": members,
+                               "uncertain": uncertain, "confirmed_exits": exited, "limits": limits, "alerts": alerts}
++                    sample["current_chain_rss_bytes"] = sum(x["rss_bytes"] for x in members if x.get("stoppable", True))
++                    sample["historical_chain_rss_bytes"] = sum(x["rss_bytes"] for x in members if not x.get("stoppable", True))
++                    sample["coverage"] = "本次已核成员实测合计；ROOT及已知孤儿子树枚举，新未知阻断；不是连续绝对峰"
+                     self.samples.write(encode(sample) + "\n")
+                     self.samples.flush()
+                     os.fsync(self.samples.fileno())
+--- tmp\2B\S2B-T17\s10_guard_supervisor_20261012_r01\supervisor.py
++++ tmp\2B\S2B-T17\s11_guard_supervisor_20261012_r01\supervisor.py
+@@ -10,8 +10,8 @@
+ import psutil
+ 
+ ROOT=Path(__file__).resolve().parents[4]
+-GUARD=ROOT/"tmp/2B/S2B-T17/s10_resource_guard_20261012_r02/guard.py"
+-GUARD_SHA="be8d51ba18cf331458e1d747578f332c4e5cc4b72604a3fb6d09e15030abb4d4"
++GUARD=ROOT/"tmp/2B/S2B-T17/s11_resource_guard_20261012_r01/guard.py"
++GUARD_SHA="9cad1ddf5f1b2d48b99c6d10451756536b25c4abf613f0af8b16e0ffd629f86c"
+ KEYS=("pid","create_time","exe","cwd","cmdline")
+ 
+ def exact(value,directory=False):

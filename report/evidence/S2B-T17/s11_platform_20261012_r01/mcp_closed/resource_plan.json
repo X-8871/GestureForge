@@ -1,0 +1,37 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "created_at_utc8": "2026-10-12T01:37:03.299+08:00",
+  "task": "S2B-T17-S11-platform",
+  "source_commit": "待S11功能G1/G2后ROOT实际提交绑定",
+  "clock_hz": 50000000,
+  "visibility": 0,
+  "launch_jobs": 1,
+  "general_maxThreads": 1,
+  "simultaneous_heavy_tasks": 1,
+  "new_run_tree_rss_limit_bytes": 6442450944,
+  "new_run_available_ram_stop_bytes": 536870912,
+  "minimum_available_ram_before_dispatch_bytes": 4831838208,
+  "minimum_c_disk_free_before_dispatch_bytes": 8589934592,
+  "resource_sample_interval_seconds": 1,
+  "native_command_no_progress_stop_seconds": 900,
+  "scope": "仅S11新RunId资源执行预算；旧S9/S10失败和BLOCKED不改，50MHz/功能/模型/109与1000实板验收指标不变。",
+  "diagnostic_basis": [
+    {
+      "path": "tmp/2B/S2B-T17/s9_resource_watch_20261011_r01/sampler_receipt.json",
+      "sha256": "604a9bf63342c35d334b6bdf41081d7bf0eb7e5bfb3e1c4322c68f580dfbb86b",
+      "observed_tree_rss_bytes": 4900474880,
+      "old_limit_bytes": 4294967296,
+      "old_budget_status": "BLOCKED"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s9_resource_watch_20261011_r02/analysis_receipt.json",
+      "sha256": "cbf3d69a33762b33c560c8ec79358a8a648b77e01fb26c7821e7d56a2b4eddeb",
+      "official_jobs_serial": true,
+      "helper_historical_parent_chain": "未完整捕获，不能冒充已证实"
+    }
+  ],
+  "decision_reason": "S10实际原生综合成功但50MHz STA失败；资源r02发生父进程退出后链不可追溯而停止，历史缺测不补写。新S11仅在经独立审查的当前运行lineage监控守卫就绪后开始新批次；完整身份当前读取但当前链已断的已知成员可监测真实RSS、无停止授权。",
+  "automatic_stop_scope": "仅该RunId已核验PID/创建时间/exe/工作目录的owned进程树；先保存真实资源/原始日志，停止后复核所有身份，不能终止其他窗口进程。",
+  "admission_operation": "start_owned_vivado_session",
+  "admission_reason": "4.5GiB可用RAM准入明确检查于新owned Vivado批次启动前；综合启动前另存真实资源，已启动ROOT内存计入本批6GiB实际树RSS，守卫512MiB可用RAM/8GiB磁盘停止线全过程有效。此范围澄清仅新S11，不追认S10综合前3.680GB为4.5GiB通过。"
+}

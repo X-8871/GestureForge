@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "checks": [
+    "候选guard精确SHA",
+    "候选supervisor精确SHA",
+    "旧guard未变",
+    "旧supervisor未变",
+    "stop_one完整块与旧版一致",
+    "verified_chain完整块与旧版一致",
+    "base_identity完整块与旧版一致",
+    "identity完整块与旧版一致",
+    "stop_one冻结块SHA",
+    "supervisor仅固定路径SHA更新",
+    "Developer receipt冻结SHA",
+    "Developer raw冻结SHA",
+    "810原件绑定格式",
+    "810原件逐项SHA只读核验",
+    "旧80MiB超限透明保留",
+    "ROOT新资源计划SHA",
+    "正式阈值未扩大",
+    "4.5GiB仅新owned启动准入",
+    "固定HEAD",
+    "A 首次完整实时六字段链登记",
+    "A 祖先真实缺失持续采样1",
+    "A 祖先真实缺失持续采样2",
+    "A 历史身份绝不授予停止权",
+    "A stop闭合保留历史孤儿与root",
+    "C 注入ppid漂移拒绝历史监控",
+    "D 注入真实读回UNKNOWN语义阻断",
+    "C 注入出生身份不符拒绝并保留新对象",
+    "D ROOT真实退出活孤儿明确非零保留",
+    "B 未登记孤儿候选阻断且不收编",
+    "B 未知对象实际仍活未停止"
+  ],
+  "findings": [],
+  "scope": "S11资源guard本次历史链只监控语义、未知/身份漂移/根退出与停止闭合门禁；supervisor固定绑定与新资源计划只读审查",
+  "source_commit": "4288795b1e8c75b98cbbeb69ac33709172e97c66",
+  "reviewed_source_hashes": {
+    "guard": "9cad1ddf5f1b2d48b99c6d10451756536b25c4abf613f0af8b16e0ffd629f86c",
+    "supervisor": "b6e8d612551cb5c3df3111075eb680505799b96288253a221df3eb2935a56184",
+    "resource_plan": "aec3e818e6e20653fbe55ed89fd4f5a9c3a8e55a41bb8b417eb4bb93fcee6784"
+  },
+  "reviewer_stop": "STOP_READONLY_REVIEW",
+  "elapsed_seconds": 3.438000000001921,
+  "sampled_owned_fixture_rss_peak_bytes": 53395456,
+  "absolute_peak_bytes": null,
+  "fixture_results": [
+    {
+      "case": "A_known",
+      "status": "PASS"
+    },
+    {
+      "case": "B_unknown",
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "仅工具G2语义，不批准真实预算达标/STA/产品/实板；S10缺测与4.5GiB未达仍原状",
+    "代表性自有夹具A/B串行；未重跑Developer13全套。C出生与ppid差异/DUNKNOWN/B孤儿候选均显式注入，不声称OS真实复用",
+    "测试直接调用候选collect/stop_one/stop_tree/root_terminal，未启动生产guard CLI/supervisor/ROOT集成；未查询或停止其它任务PID",
+    "所有RSS是离散读回，仅自有轻量测试；128MiB本轮工具预算，正式6GiB/512MiB/8GiB/1秒不变",
+    "810原件只核SHA不复制；实际资源计划PREPARED_NOT_EXECUTED；ROOT启动首样本/身份与5秒监督集成仍须实际执行"
+  ]
+}

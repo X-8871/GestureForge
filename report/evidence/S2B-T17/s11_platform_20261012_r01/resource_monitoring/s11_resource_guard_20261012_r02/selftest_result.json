@@ -1,0 +1,530 @@
+{
+  "status": "PASS_SIMULATED_G1_ONLY",
+  "cases": [
+    {
+      "case": "old_birth_then_exit_reproduces_unknown",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "UNKNOWN",
+        "actual_create_time": 17.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')"
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "fresh_readback_confirms_absent",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "ABSENT",
+        "first_read_create_time": 17.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')",
+        "confirmation_error": "psutil.NoSuchProcess(pid=700001, msg='模拟独立新PID读回缺失')",
+        "confirmation": "FRESH_PID_READBACK_ABSENT"
+      },
+      "simulated_process_ctor_calls": 2,
+      "pass": true
+    },
+    {
+      "case": "fresh_readback_confirms_reused",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "ORIGINAL_PID_REUSED",
+        "first_read_create_time": 17.0,
+        "actual_create_time": 18.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')",
+        "new_object_untouched": true,
+        "confirmation": "FRESH_PID_READBACK_REUSED"
+      },
+      "simulated_process_ctor_calls": 2,
+      "pass": true
+    },
+    {
+      "case": "fresh_readback_same_birth_stays_unknown",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "UNKNOWN",
+        "actual_create_time": 17.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')",
+        "confirmation": "FRESH_PID_STILL_SAME_BIRTH"
+      },
+      "simulated_process_ctor_calls": 2,
+      "pass": true
+    },
+    {
+      "case": "fresh_readback_denied_stays_unknown",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "UNKNOWN",
+        "actual_create_time": 17.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')",
+        "confirmation_error": "psutil.AccessDenied(pid=700001)"
+      },
+      "simulated_process_ctor_calls": 2,
+      "pass": true
+    },
+    {
+      "case": "initial_access_denied_stays_unknown",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "UNKNOWN",
+        "actual_create_time": 17.0,
+        "error": "psutil.AccessDenied(pid=700001)"
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "runtime_identity_instability_stays_unknown",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "UNKNOWN",
+        "actual_create_time": 17.0,
+        "error": "RuntimeError('模拟身份不稳定')"
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "initial_birth_reused_no_field_reads",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "ORIGINAL_PID_REUSED",
+        "actual_create_time": 18.0,
+        "new_object_untouched": true
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "normal_full_identity_alive",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "ALIVE",
+        "actual": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "minimal_expected_uses_first_observed_birth",
+      "result": {
+        "expected": {
+          "pid": 700001
+        },
+        "status": "ORIGINAL_PID_REUSED",
+        "first_read_create_time": 17.0,
+        "actual_create_time": 18.0,
+        "error": "psutil.NoSuchProcess(pid=700001, msg='模拟birth成功后字段读取期间退出')",
+        "new_object_untouched": true,
+        "confirmation": "FRESH_PID_READBACK_REUSED"
+      },
+      "simulated_process_ctor_calls": 2,
+      "pass": true
+    },
+    {
+      "case": "field_drift_pid",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": -1,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "field_drift_create_time",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": 700001,
+          "create_time": -1,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "field_drift_exe",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "漂移",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "field_drift_cwd",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "漂移",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "field_drift_cmdline",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "漂移"
+          ],
+          "ppid": 700000,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    },
+    {
+      "case": "field_drift_ppid",
+      "result": {
+        "expected": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": 700000
+        },
+        "status": "IDENTITY_CHANGED",
+        "actual": {
+          "pid": 700001,
+          "create_time": 17.0,
+          "exe": "模拟.exe",
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+          "cmdline": [
+            "模拟"
+          ],
+          "ppid": -1,
+          "rss_bytes": 8,
+          "status": "running"
+        }
+      },
+      "simulated_process_ctor_calls": 1,
+      "pass": true
+    }
+  ],
+  "collect_race": [
+    {
+      "old_version": true,
+      "uncertain": [
+        {
+          "pid": 700001,
+          "reason": "KNOWN_MEMBER_READBACK_UNKNOWN",
+          "readback": {
+            "expected": {
+              "pid": 700001,
+              "create_time": 17.0,
+              "exe": "模拟.exe",
+              "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+              "cmdline": [
+                "模拟"
+              ],
+              "ppid": 700000,
+              "rss_bytes": 8,
+              "status": "running"
+            },
+            "status": "UNKNOWN",
+            "actual_create_time": 17.0,
+            "error": "psutil.NoSuchProcess(pid=700001, msg='模拟读取竞态')"
+          }
+        }
+      ],
+      "confirmed_exits": [
+        {
+          "expected": {
+            "pid": 700001,
+            "create_time": 17.0,
+            "exe": "模拟.exe",
+            "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+            "cmdline": [
+              "模拟"
+            ],
+            "ppid": 700000,
+            "rss_bytes": 8,
+            "status": "running"
+          },
+          "status": "ABSENT",
+          "original_error": "psutil.NoSuchProcess(pid=700001, msg='模拟读取竞态')"
+        }
+      ],
+      "events": [
+        {
+          "kind": "HELPER_EXIT_CONFIRMED_CONTINUE",
+          "readback": {
+            "expected": {
+              "pid": 700001,
+              "create_time": 17.0,
+              "exe": "模拟.exe",
+              "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+              "cmdline": [
+                "模拟"
+              ],
+              "ppid": 700000,
+              "rss_bytes": 8,
+              "status": "running"
+            },
+            "status": "ABSENT",
+            "original_error": "psutil.NoSuchProcess(pid=700001, msg='模拟读取竞态')"
+          },
+          "limitation": "短命对象RSS/峰值缺测，不伪造零；继续后续采样"
+        }
+      ],
+      "simulated_scope": true
+    },
+    {
+      "old_version": false,
+      "uncertain": [],
+      "confirmed_exits": [
+        {
+          "expected": {
+            "pid": 700001,
+            "create_time": 17.0,
+            "exe": "模拟.exe",
+            "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+            "cmdline": [
+              "模拟"
+            ],
+            "ppid": 700000,
+            "rss_bytes": 8,
+            "status": "running"
+          },
+          "status": "ABSENT",
+          "first_read_create_time": 17.0,
+          "error": "psutil.NoSuchProcess(pid=700001, msg='模拟读取竞态')",
+          "confirmation_error": "psutil.NoSuchProcess(pid=700001, msg='模拟第二次及后续候选确已缺失')",
+          "confirmation": "FRESH_PID_READBACK_ABSENT"
+        }
+      ],
+      "events": [
+        {
+          "kind": "HELPER_EXIT_CONFIRMED_CONTINUE",
+          "readback": {
+            "expected": {
+              "pid": 700001,
+              "create_time": 17.0,
+              "exe": "模拟.exe",
+              "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s11_resource_guard_20261012_r02",
+              "cmdline": [
+                "模拟"
+              ],
+              "ppid": 700000,
+              "rss_bytes": 8,
+              "status": "running"
+            },
+            "status": "ABSENT",
+            "first_read_create_time": 17.0,
+            "error": "psutil.NoSuchProcess(pid=700001, msg='模拟读取竞态')",
+            "confirmation_error": "psutil.NoSuchProcess(pid=700001, msg='模拟第二次及后续候选确已缺失')",
+            "confirmation": "FRESH_PID_READBACK_ABSENT"
+          },
+          "limitation": "短命对象RSS/峰值缺测，不伪造零；继续后续采样"
+        }
+      ],
+      "simulated_scope": true
+    }
+  ],
+  "seed": 20261012,
+  "own_os_peak_working_set_bytes": 31592448,
+  "guard_sha256": "eca5338aeb738b86dbf77a0ae881c8dec5068b89bb4553719e8deba2423cb700",
+  "outside_readback_member_raw_unchanged": true,
+  "actual_targets_accessed_or_stopped": false,
+  "heavy_ross_hardware_executed": false,
+  "limitations": [
+    "Process/字段读取全为内存模拟，700000/700001没有真实OS查询；内存只读自身GetCurrentProcess。",
+    "新旧collect对照复现同样本UNKNOWN与ABSENT冲突，新版确认缺失后下一轮不重复缺测；未运行真实guard绑定。",
+    "只修复readback_member出生时间成功后的NoSuch路径，其它方法与预算原字节不变。",
+    "实际S11旧BLOCKED/缺测原件只绑定，不补预算PASS或继承STA批准。"
+  ]
+}

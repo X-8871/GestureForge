@@ -1,0 +1,42 @@
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\independent_s11_guard_review_20261012_r01\review.py", line 122, in <module>
+    identities = [guard.identity(limited_process(pid)) for pid in ids]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s11_resource_guard_20261012_r01\guard.py", line 59, in identity
+    value = base_identity(process)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s11_resource_guard_20261012_r01\guard.py", line 51, in base_identity
+    "cwd": process.cwd(), "cmdline": process.cmdline(), "ppid": process.ppid(),
+                                                                ^^^^^^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\_common.py", line 377, in wrapper
+    raise err from None
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\_common.py", line 375, in wrapper
+    return fun(self)
+           ^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\__init__.py", line 666, in ppid
+    self._raise_if_pid_reused()
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\__init__.py", line 461, in _raise_if_pid_reused
+    if self._pid_reused or (not self.is_running() and self._pid_reused):
+                                ^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\__init__.py", line 639, in is_running
+    self._pid_reused = self != Process(self.pid)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\__init__.py", line 452, in __ne__
+    return not self == other
+               ^^^^^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\site-packages\psutil\__init__.py", line 433, in __eq__
+    if not isinstance(other, Process):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: isinstance() arg 2 must be a type, a tuple of types, or a union
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\independent_s11_guard_review_20261012_r01\review.py", line 188, in <module>
+    child.wait(timeout=3)
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\AppData\Local\Programs\Python\Python312\Lib\subprocess.py", line 1593, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-S', '-B', 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_review_20261012_r01\\fixture.py', 'root']' timed out after 3 seconds

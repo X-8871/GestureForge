@@ -1,0 +1,426 @@
+[
+  {
+    "name": "初始PID缺失",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ABSENT"
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "初始birth缺失",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ABSENT"
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "初始AccessDenied",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "error": "psutil.AccessDenied(pid=90000001, msg='独立模拟AccessDenied')"
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "初次birth不符",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ORIGINAL_PID_REUSED",
+      "actual_create_time": 13.5,
+      "new_object_untouched": true
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "首次birth成功后确认构造缺失",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ABSENT",
+      "first_read_create_time": 12.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation_error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation": "FRESH_PID_READBACK_ABSENT"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "首次birth成功后确认birth缺失",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ABSENT",
+      "first_read_create_time": 12.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation_error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation": "FRESH_PID_READBACK_ABSENT"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "首次birth成功后确认复用",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ORIGINAL_PID_REUSED",
+      "first_read_create_time": 12.5,
+      "actual_create_time": 14.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "new_object_untouched": true,
+      "confirmation": "FRESH_PID_READBACK_REUSED"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "同birth不推断消失",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "actual_create_time": 12.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation": "FRESH_PID_STILL_SAME_BIRTH"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "确认AccessDenied仍UNKNOWN",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "actual_create_time": 12.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation_error": "psutil.AccessDenied(pid=90000001, msg='独立模拟AccessDenied')"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "确认birth AccessDenied仍UNKNOWN",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "actual_create_time": 12.5,
+      "error": "psutil.NoSuchProcess(pid=90000001, msg='独立模拟NoSuch')",
+      "confirmation_error": "psutil.AccessDenied(pid=90000001, msg='独立模拟AccessDenied')"
+    },
+    "fresh_process_call_count": 2
+  },
+  {
+    "name": "普通base AccessDenied仍UNKNOWN",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "actual_create_time": 12.5,
+      "error": "psutil.AccessDenied(pid=90000001, msg='独立模拟AccessDenied')"
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "普通base RuntimeError仍UNKNOWN",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "UNKNOWN",
+      "actual_create_time": 12.5,
+      "error": "RuntimeError('模拟字段变化')"
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "完整六字段一致ALIVE",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "ALIVE",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002,
+        "rss_bytes": 321,
+        "status": "running"
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 pid",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000002,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 create_time",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 13.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 exe",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "变化",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 cwd",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "变化",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 cmdline",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "变化"
+        ],
+        "ppid": 90000002
+      }
+    },
+    "fresh_process_call_count": 1
+  },
+  {
+    "name": "字段漂移 ppid",
+    "result": {
+      "expected": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000002
+      },
+      "status": "IDENTITY_CHANGED",
+      "actual": {
+        "pid": 90000001,
+        "create_time": 12.5,
+        "exe": "fixture.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s11_guard_race2_review_20261012_r01",
+        "cmdline": [
+          "fixture.exe"
+        ],
+        "ppid": 90000003
+      }
+    },
+    "fresh_process_call_count": 1
+  }
+]

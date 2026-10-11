@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_ROOT_PREFLIGHT_EXPECTED_COUNT",
+  "command": "python -X utf8 -B tmp/2B/S2B-T17/s4_root_run_20261011_r01/source_preflight.py before",
+  "exec_command_exit_code": 1,
+  "inner_exit_code_separately_measured": false,
+  "failure": "AssertionError: assert len(static) == 33 and set(static).issubset(freeze[\"source_sha256\"])",
+  "actual_static_source_count": 34,
+  "expected_count_in_initial_root_driver": 33,
+  "reason": "S4新增派生CONV并保留原CONV冻结绑定，静态闭包计数比S3多一；总控脚本仍沿用了S3计数。",
+  "reported_following_mcp_call": "source -encoding utf-8 -notrace vivado/s2b_inference_platform.tcl",
+  "following_mcp_exit_code": 0,
+  "following_mcp_effect": "仅装载Tcl定义，尚未创建项目、综合或操作硬件。",
+  "raw_driver": "source_preflight_r01.py",
+  "replacement_run": "s4_source_preflight_20261011_r02",
+  "limitations": ["这是总控前置脚本期望错误，不能改写为设计失败或设计通过；原记录和原脚本保留。"]
+}

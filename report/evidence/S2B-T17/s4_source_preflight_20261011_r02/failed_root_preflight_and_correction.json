@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_ROOT_PREFLIGHT_EXPECTED_COUNT",
+  "command": "python -X utf8 -B tmp/2B/S2B-T17/s4_root_run_20261011_r01/source_preflight.py before",
+  "exec_command_exit_code": 1,
+  "inner_exit_code_separately_measured": false,
+  "failure": "AssertionError: assert len(static) == 34 and set(static).issubset(freeze[\"source_sha256\"])",
+  "actual_static_source_count": 31,
+  "actual_frozen_source_count": 37,
+  "expected_count_in_second_root_driver": 34,
+  "first_record_correction": "r01 failed_root_preflight.json误写actual_static_source_count=34，其依据为总控推测；实际只读查询已输出31，但总控随后误用了推测数。该错误记录保留，现由本纠正记录明确取代其计数事实。",
+  "diagnostic_native_exit_code": 0,
+  "diagnostic_result": "ACTUAL_STATIC 31 FROZEN 37 STATIC_SUBSET True; 所有31项实读SHA与37源冻结子集一致。",
+  "extra_frozen_sources": [
+    "sim/tb_s2a_t66_candidate_blackbox.sv",
+    "verification/s1_t02_d2_int8_forward.py",
+    "verification/test_s2b_backend_coordinates_rtl.py",
+    "verification/test_s2b_conv_validation_rtl.py",
+    "verification/test_s2b_geometry_specialization_rtl.py",
+    "verification/test_s2b_route_specialization_rtl.py"
+  ],
+  "raw_driver": "source_preflight_r02.py",
+  "replacement_run": "s4_source_preflight_20261011_r03",
+  "limits": ["两轮失败均为总控计数错误；尚未创建Vivado项目、执行综合或操作硬件。"]
+}

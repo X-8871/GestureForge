@@ -1,0 +1,40 @@
+{
+  "clock": {
+    "name": "clk_fpga_0",
+    "period_ns": 20.0,
+    "frequency_mhz": 50,
+    "input_jitter_ns": 0.6
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "no_output_delay": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "exported_reset_cdc_false_paths": [
+    {
+      "scope": "s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_HIGH_AUX.ACT_HI_AUX",
+      "command": "set_false_path -to [get_cells {syncstages_ff_reg[0]}]"
+    },
+    {
+      "scope": "s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_LOW_EXT.ACT_LO_EXT",
+      "command": "set_false_path -to [get_cells {syncstages_ff_reg[0]}]"
+    }
+  ],
+  "exported_false_path_count": 2,
+  "report_exceptions_raw_statement": "No valid timing exceptions found.",
+  "interpretation": "report_exceptions本次文字与write_xdc两个scoped reset同步器false_path分别保留；不能据报告文字宣称零例外。无内部漏约束仅指本次check_timing计数为0。",
+  "constraint_artifact": {
+    "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/constraints_synth.xdc",
+    "sha256": "04a0d67ad541b0f7397e4992b9fb3d0e602ec05945674e90ae2e1cf5eb08eff6",
+    "bytes": 1464
+  }
+}

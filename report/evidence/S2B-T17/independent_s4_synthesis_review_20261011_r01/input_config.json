@@ -1,0 +1,67 @@
+{
+  "review_status": "PASS_EVIDENCE_INTEGRITY_ONLY",
+  "raw_manifest": {
+    "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/raw_delivery_manifest.json",
+    "sha256": "e7d3410e0a078af7b3bda3da0a8a3848c92c5300ad070e576aed5e539e7889e8"
+  },
+  "receipt": {
+    "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/receipt.json",
+    "sha256": "36c002f6169e53e815e4c01e3ecfe7ee010aa123aff4cf18a5fb928a315ea742"
+  },
+  "reviewed_manifest": {
+    "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/s4_collection_delivery_manifest_r02.json",
+    "sha256": "cc638501782ed0bf95a63e97cf0128b91fcb629754095201d0feb4e26979a535"
+  },
+  "evidence_dir": "report/evidence/S2B-T17/independent_s4_synthesis_review_20261011_r01",
+  "native_checks": [
+    {
+      "name": "独立审查首轮脚本及路径核验失败",
+      "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r01/review.native.json",
+      "expected_exit_code": 2,
+      "reason": "Reviewer自身Match对象切片及猜测final文件名问题，原件保留；不是原S4包发现的证据缺陷。"
+    },
+    {
+      "name": "独立S4失败综合证据准确性审查R2",
+      "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/review.native.json",
+      "expected_exit_code": 0,
+      "reason": "九组独立核验及九项metadata反例通过；PASS仅限证据完整性，不将FAIL_TIMING改判PASS。"
+    },
+    {
+      "name": "原S4封装最终证据检查",
+      "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/upstream_s4_final_evidence.native.json",
+      "expected_exit_code": 0,
+      "reason": "Collector已关闭原生0；只证明包装和绑定。"
+    },
+    {
+      "name": "原S4封装最终inputs真实失败",
+      "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/upstream_s4_final_inputs.native.json",
+      "expected_exit_code": 2,
+      "reason": "物理候选未冻结，STA失败及未执行事项保持阻断；原生2按FAIL记录。"
+    },
+    {
+      "name": "原S4Collector修复封装执行",
+      "path": "tmp/2B/S2B-T17/independent_s4_synthesis_review_20261011_r02/upstream_s4_finalization_recovery_r02.native.json",
+      "expected_exit_code": 0,
+      "reason": "精确.v路径不存在后按只读枚举的.sv补充原件，未重跑综合或覆盖原失败。"
+    }
+  ],
+  "include_reviewed_checks": [
+    "50MHz综合态STA分类",
+    "builder和products capture原失败",
+    "实现及postroute",
+    "bitstream生成",
+    "板上模型及109样本",
+    "1000次板上任务",
+    "BOARD及G3验收"
+  ],
+  "limitations": [
+    "仅精确归档已停止写入的独立审查原件；不重跑业务综合、仿真或审查。",
+    "实际源基线f96，37快照对应31Git RAW和6精确LF→CRLF；当前S5源变更不用于核对历史S4。",
+    "独审只批准证据准确性；50MHz WNS−21.981/TNS−5506.339、759setup失败保持FAIL_TIMING。",
+    "本次MCP wait无timeout；root累计2691.660MB与核心单进程2240.094MB、未知tree峰分别记录。",
+    "九组核查及九项独立metadata反例由原Reviewer执行；两轮Reviewer自身脚本失败及修复原件保留。",
+    "原40精确raw及清单自身均原字节保全；未归档缓存或重复源码副本。",
+    "physical0.1.1未冻结；postroute、bit、runtime/cache/model/BOARD与G3/G4/G5未通过。",
+    "另只读部署核查发现EOS1后PS→PL postconfig缺口，独立Developer正在补齐，现有cold mock G2不替代真实冷生命周期批准。"
+  ]
+}

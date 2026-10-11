@@ -1,0 +1,116 @@
+{
+  "status": "COLLECTED_S4_FAIL_TIMING_PENDING_INDEPENDENT_EVIDENCE_REVIEW",
+  "source_commit": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+  "source_count": 37,
+  "platform_static_source_count": 31,
+  "extra_test_oracle_count": 6,
+  "compiled_rtl_count": 18,
+  "profile_version": "s2b-inference-platform/0.1.4",
+  "visibility": 0,
+  "original_raw_file_count": 142,
+  "original_directory_counts": {
+    "report/evidence/S2B-T17/s4_platform_20261011_r01": 55,
+    "report/evidence/S2B-T17/s4_source_preflight_20261011_r01": 2,
+    "report/evidence/S2B-T17/s4_source_preflight_20261011_r02": 2,
+    "report/evidence/S2B-T17/s4_source_preflight_20261011_r03": 83
+  },
+  "original_raw_unchanged": true,
+  "native_raw_copy_count": 89,
+  "native_job_count": 5,
+  "native_wait_exit_code": 0,
+  "native_wait_elapsed_seconds": 271.383,
+  "mcp_wait_timeout": false,
+  "launch_to_finished_wall_seconds": 375,
+  "native_report_exit_code": 0,
+  "native_report_elapsed_seconds": 29.896,
+  "native_classifier_exit_code": 2,
+  "timing": {
+    "wns_ns": -21.981,
+    "tns_ns": -5506.339,
+    "setup_failing_endpoints": 759,
+    "setup_total_endpoints": 14655,
+    "whs_ns": 0.037,
+    "ths_ns": 0.0,
+    "hold_failing_endpoints": 0,
+    "hold_total_endpoints": 14655,
+    "wpws_ns": 8.87,
+    "tpws_ns": 0.0,
+    "pulse_failing_endpoints": 0,
+    "pulse_total_endpoints": 4170
+  },
+  "check_timing": {
+    "no_clock": 0,
+    "constant_clock": 0,
+    "pulse_width_clock": 0,
+    "unconstrained_internal_endpoints": 0,
+    "no_input_delay": 0,
+    "no_output_delay": 0,
+    "multiple_clock": 0,
+    "generated_clocks": 0,
+    "loops": 0,
+    "partial_input_delay": 0,
+    "partial_output_delay": 0,
+    "latch_loops": 0
+  },
+  "resources": {
+    "lut": 29904,
+    "ff": 4006,
+    "bram": 32,
+    "dsp": 166,
+    "latch": 0
+  },
+  "worst_path": {
+    "source": "s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/output_width_latched_reg[7]/C",
+    "destination": "s2b_inference_i/infer/inst/core/u_network_backend/u_conv_engine/result_error_latched_reg[0]/D",
+    "logic_levels": 74,
+    "carry4": 43,
+    "dsp48e1": 2,
+    "data_path_delay_ns": 41.577,
+    "logic_delay_ns": 24.053,
+    "route_delay_ns": 17.524,
+    "reported_logic_resource": "full_tile_patch_bytes_wide3"
+  },
+  "exported_reset_cdc_false_path_count": 2,
+  "external_inputs": [
+    {
+      "path": "report/evidence/S2B-T17/conv_validation_20261011_r15/source_freeze.json",
+      "sha256": "d8f2af3f6ac243267c12d9a8ca1b8559b0ff1e69054492b4eab50dcdee62a846",
+      "bytes": 27950
+    },
+    {
+      "path": "report/evidence/S2B-T13/artifact_recheck_20261011_r01/s2b_inference_no_bit.xsa",
+      "sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7",
+      "bytes": 253595
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_delivery_manifest_r03.json",
+      "sha256": "86d9aff8dcda7161bc5027b5906824a59748e1439ed6e87e76637d086409bcd0",
+      "bytes": 62054
+    }
+  ],
+  "preflight_r01_reported_exit": 1,
+  "preflight_r02_reported_exit": 1,
+  "preflight_inner_exit_separately_measured": false,
+  "preflight_r01_actual34_metadata_superseded_by_r02_actual31": true,
+  "preflight_before_after_script_reported_exit_code": 0,
+  "preflight_r03_exit_note": "前后实际0为总控传回执行事实；原r03未独立保存native进程receipt，快照JSON及原driver仍保留，未在Collector重跑。",
+  "mcp_calls_in_closed_s4_segment": 9,
+  "process_tree_peak_memory_bytes": null,
+  "collector_peak_memory_bytes": null,
+  "limitations": [
+    "本项仅封装S4实际综合失败证据；STA真实FAIL_TIMING，独立准确性审查由总控另行执行，G3/G4/G5未通过。",
+    "f96源码37项before/after快照相同，static31+6测试/oracle；31Git RAW相同、6精确LF→CRLF关系，实际编译18且原14冻结源不变。live S5源码不消费。",
+    "整builder原生1/24.06秒，products原生0但WARNING9→1/capture1；原FAIL保留且不重跑products。",
+    "同次wait原生0/271.383秒，MCP本次没有timeout；launch17:22:06到finished17:28:21约375秒，与wait耗时分别记录。",
+    "五job实际Vivado PID与begin.rst launcher PID分开，子进程OS退出码未直接测量；infer183秒/单进程峰2240.094MB/118warning，root累计2691.660MB不当本run峰，全tree峰未测。",
+    "50MHz综合态WNS−21.981/TNS−5506.339，759/14655setup失败；74逻辑层/43CARRY4/2DSP路径位于CONV full_tile_patch_bytes宽校验。",
+    "无内部漏约束仅指check_timing计数；保留两个scoped resetCDC false_path与report_exceptions本次No valid文字，不声明零例外。",
+    "前置r01期望33/r02期望34失败原件保留；r01元数据误报actual34由r02明确纠正actual31，37冻结闭包不能混写static计数。两次记录1且inner码未单独测量，r03真正前后快照及哈希保留。",
+    "未复制DCP/VDS/PB/WDF、未搬全工程；source路径仅历史标识，快照和Git对象构成来源绑定。",
+    "六PSinit成员相同而HWH变化不批准旧BSP/ELF整体兼容；无bit的XSA不等于部署包；物理接口候选0.1.1未冻结。",
+    "实现策略只有实际查询列表，五impl均Not started；impl/postroute/bit/cache/model/109/1000次/BOARD均NOT_RUN。",
+    "只知封闭段9次MCP执行，全部host/tool调用数、Collector峰及全进程树峰未测；包装CHECKS_OK不表示时序或阶段通过。"
+  ],
+  "created_at_utc8": "2026-10-11T17:45:43.124414+08:00",
+  "collector_elapsed_so_far_seconds": 1.2809999999990396
+}

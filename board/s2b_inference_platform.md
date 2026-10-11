@@ -1,12 +1,12 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.10`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.11`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S10开发基线为已保存S9实际综合失败证据的提交 `3f24c94564d10103aaa00db07356f666b085f687`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S11开发基线为已保存S10实际综合失败证据的提交 `4288795b1e8c75b98cbbeb69ac33709172e97c66`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
@@ -101,3 +101,7 @@ S9的组合全域诊断与公开START可达回归分别记录。S8真实综合ST
 原signed64坐标生成及bounds比较保持；在bounds内0≤Y<H≤UINT32严格蕴含Y高32位为零。仅此消费分支将原嵌套offset改为C×(H×W)+Y×W+X，plane使用精确64位，channel和base加法仍原unsigned64回绕，row使用零扩展Y低32×W的精确64结果。新三个组合信号完整默认零；未bounds的offset/address仍零。扫描结束→padding→range→read优先、所有端口/FSM/always_ff/owner/错误语义及逐周期请求保持，输出侧S9坐标截断不变。
 
 S9实际综合WNS−4.527ns/TNS−1840.705ns仍FAIL。S10功能G1、独立G2、真实STA与G3分别判断；本组合结构不声明时序改善或50MHz闭合，不增加流水或33/65位拒绝。100黄金样本、109正式样本及1000次实板指标不变。
+
+## S11 池化几何通道与行偏移分配
+
+开发基线 `4288795b1e8c75b98cbbeb69ac33709172e97c66`。令 M=2^32、P=H×W=qM+r，通道完整偏移为 CqM+C×r；低32位取 C×r，高位条件为 `(C!=0 && q!=0) || (C×r 的高32位非零)`，因此 C=0 不会误拒绝高平面。有效行由原 signed64 bounds 保证 Y 高32位为零，Y×W 使用精确64位乘积。通道加行、加列、加base分别保留33位进位；全部高位仅在原有效tap分支消费。padding窗口及kernel2未消费第三行保持原结果，ARG/RANGE全部公开字段仍清零。engine 原字节、端口、FF、FSM和周期保持。完整独立无限精度几何黄金、原14 RTL全字段差分、公开POOL/UP周期及backend非CONV trace用于功能G1；S10真实50MHz STA仍FAIL（WNS−4.405ns），本组合结构的时序收益尚未执行综合证明。

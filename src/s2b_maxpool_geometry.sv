@@ -36,11 +36,12 @@ module s2b_maxpool_geometry (
     logic [32:0] output_x_step;
     logic signed [63:0] source_y_work;
     logic signed [63:0] source_x_work;
-    logic [63:0] channel_row_work;
+    logic [63:0] plane_work;
+    logic [63:0] channel_offset_work;
+    logic channel_offset_high;
     logic signed [63:0] row_y_work [0:2];
-    logic [32:0] row_index_work [0:2];
-    logic row_index_high [0:2];
     logic [63:0] row_offset_work [0:2];
+    logic [32:0] channel_row_sum_work;
     logic [32:0] logical_offset_work;
     logic [32:0] address_work;
     logic selected_row_high;
@@ -60,7 +61,10 @@ module s2b_maxpool_geometry (
         output_x_step = 33'd0;
         source_y_work = 64'sd0;
         source_x_work = 64'sd0;
-        channel_row_work = 64'd0;
+        plane_work = 64'd0;
+        channel_offset_work = 64'd0;
+        channel_offset_high = 1'b0;
+        channel_row_sum_work = 33'd0;
         logical_offset_work = 33'd0;
         address_work = 33'd0;
         selected_row_high = 1'b0;
@@ -78,8 +82,6 @@ module s2b_maxpool_geometry (
         origin_x = 64'sd0;
         for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
             row_y_work[row_index] = 64'sd0;
-            row_index_work[row_index] = 33'd0;
-            row_index_high[row_index] = 1'b0;
             row_offset_work[row_index] = 64'd0;
         end
         for (tap_index = 0; tap_index < 9; tap_index = tap_index + 1) begin
@@ -137,20 +139,18 @@ module s2b_maxpool_geometry (
                 end
                 source_y_work = origin_y + $signed({31'd0, output_y_step});
                 source_x_work = origin_x + $signed({31'd0, output_x_step});
-                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。
-                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};
-                // 每行低32位和进位分别保留；高位只由实际有效tap消费。
-                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。
+                // 通道平面与行偏移分配计算；通道为零时高平面不会产生地址高位。
+                plane_work = {32'd0, input_height} * {32'd0, input_width};
+                channel_offset_work = {32'd0, input_channel} * {32'd0, plane_work[31:0]};
+                channel_offset_high = ((input_channel != 32'd0) && (plane_work[63:32] != 32'd0)) ||
+                    (channel_offset_work[63:32] != 32'd0);
+                // 每行乘积精确保留64位；高位只由实际有效tap消费，padding不提前拒绝。
                 for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
                     row_y_work[row_index] = source_y_work + row_index;
                     if ((row_y_work[row_index] >= 64'sd0) &&
                         (row_y_work[row_index] < $signed({32'd0, input_height}))) begin
-                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +
-                            {1'b0, row_y_work[row_index][31:0]};
-                        row_index_high[row_index] =
-                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];
                         row_offset_work[row_index] =
-                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};
+                            {32'd0, row_y_work[row_index][31:0]} * {32'd0, input_width};
                     end
                 end
 
@@ -187,15 +187,17 @@ module s2b_maxpool_geometry (
                             (tap_source_x[tap_index] >= 64'sd0) &&
                             (tap_source_x[tap_index] < $signed({32'd0, input_width}))) begin
                             tap_valid_mask[tap_index] = 1'b1;
-                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。
-                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +
+                            // 通道加行、再加列、再加base分别保留33位进位，避免三项相加漏进位。
+                            channel_row_sum_work = {1'b0, channel_offset_work[31:0]} +
+                                {1'b0, row_offset_work[kernel_y_work][31:0]};
+                            logical_offset_work = {1'b0, channel_row_sum_work[31:0]} +
                                 {1'b0, tap_source_x[tap_index][31:0]};
-                            selected_row_high = row_index_high[kernel_y_work];
+                            selected_row_high = channel_offset_high;
                             selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;
                             address_work = {1'b0, input_base_address} +
                                 {1'b0, logical_offset_work[31:0]};
                             if (selected_row_high || selected_offset_high ||
-                                logical_offset_work[32] || address_work[32]) begin
+                                channel_row_sum_work[32] || logical_offset_work[32] || address_work[32]) begin
                                 tap_range_error = 1'b1;
                             end else begin
                                 tap_address[tap_index] = address_work[31:0];

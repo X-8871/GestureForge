@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""验证S8全域几何地址分段守卫及真实引擎每周期等价；不运行STA或设备。"""
+"""验证S11通道行偏移分配、全域几何守卫及真实引擎每周期等价。"""
 from __future__ import annotations
 
 import argparse
@@ -23,6 +23,7 @@ import test_s2b_backend_coordinates_rtl as backend
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "2257a450239ea19ef4e2ddf7b2833d44020f95e3"
+SOURCE_BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
 RUNNER = "verification/test_s2b_maxpool_address_guard_rtl.py"
 SEED = 0x581011
 U32 = (1 << 32)-1
@@ -99,6 +100,11 @@ def cases():
         ("row_sum_carry", (0,2,U32,1,2,2,1,1,1,1,1,0),2),
         ("row_width_high", (0,1,3,U32,2,2,1,1,1,0,1,0),2),
         ("column_add_carry", (0,1,3,U32-1,2,2,1,1,1,0,1,2),2),
+        ("c0_high_plane", (0,1,3,0x80000000,2,2,2,2,1,0,0,0),0),
+        ("c1_plane_m", (0,2,2,0x80000000,2,2,2,2,1,1,0,0),2),
+        ("c2_plane_half_m", (0,3,1,0x80000000,2,2,1,1,1,2,0,0),2),
+        ("channel_row_carry", (0,2,3,0x55555555,2,2,1,1,1,1,1,0),2),
+        ("row_x_carry", (0,1,2,U32,2,2,1,1,1,0,1,1),2),
         ("signed_padding_u32", (0,1,2,2,3,3,1,1,U32,0,0,0),0),
     ]
     for name, v, error in manual:
@@ -114,7 +120,7 @@ def cases():
 
 def geometry_tb():
     """全部公开字段同时对照原RTL与独立黄金，含九组signed坐标。"""
-    p = ["module tb_s8_geometry;", "integer count=0; integer scanned; integer f;", "logic [2:0] gold_error; logic [32:0] gold_h,gold_w; logic [3:0] gold_count; logic [8:0] gold_mask;"]
+    p = ["module tb_s8_geometry;", "integer count=0; integer scanned; integer f; string vector_path;", "logic [2:0] gold_error; logic [32:0] gold_h,gold_w; logic [3:0] gold_count; logic [8:0] gold_mask;"]
     p += [f"logic [31:0] {n};" for n in INPUTS]
     for variant in ("old","new","gold"):
         if variant != "gold": p += [f"logic [2:0] {variant}_error; logic [32:0] {variant}_h,{variant}_w; logic [3:0] {variant}_count; logic [8:0] {variant}_mask;"]
@@ -124,7 +130,7 @@ def geometry_tb():
         p += [f"{module} {variant}_dut("+",".join(ports)+");"]
     fields = list(INPUTS)+["gold_error","gold_h","gold_w","gold_count","gold_mask"]
     fields += [f"gold_{n}[{tap}]" for tap in range(9) for n in ("address","channel","y","x")]
-    p += ["initial begin f=$fopen(\"geometry_vectors.dat\",\"r\"); if(!f) $fatal(1,\"缺少向量\"); while(!$feof(f)) begin", 'scanned=$fscanf(f,"'+" ".join("%h" for _ in fields)+'\\n",'+",".join(fields)+");", f"if(scanned=={len(fields)}) begin #1;"]
+    p += ["initial begin if(!$value$plusargs(\"VECTOR_PATH=%s\",vector_path)) $fatal(1,\"缺少VECTOR_PATH\"); f=$fopen(vector_path,\"r\"); if(!f) $fatal(1,\"缺少向量\"); while(!$feof(f)) begin", 'scanned=$fscanf(f,"'+" ".join("%h" for _ in fields)+'\\n",'+",".join(fields)+");", f"if(scanned=={len(fields)}) begin #1;"]
     for variant in ("old","new"):
         p += [f"if({{{variant}_error,{variant}_h,{variant}_w,{variant}_count,{variant}_mask}} !== {{gold_error,gold_h,gold_w,gold_count,gold_mask}}) $fatal(1,\"几何头字段不等价 {variant} case=%0d\",count);",
               f"for(integer t=0;t<9;t++) if({{{variant}_address[t],{variant}_channel[t],{variant}_y[t],{variant}_x[t]}} !== {{gold_address[t],gold_channel[t],gold_y[t],gold_x[t]}}) $fatal(1,\"几何tap字段不等价 {variant} case=%0d tap=%0d\",count,t);"]
@@ -161,8 +167,12 @@ def mutants(checker, work, bindings):
         target=fixture/p; target.parent.mkdir(parents=True,exist_ok=True); shutil.copyfile(ROOT/p,target)
     profile_path=fixture/"board/s2b_inference_platform.json"; original=profile_path.read_bytes(); records=[]
     for name,path,before,after in (
-        ("删除channel行高位", "src/s2b_maxpool_geometry.sv", "(channel_row_work[63:32] != 32'd0)", "1'b0"),
-        ("删除行加法进位", "src/s2b_maxpool_geometry.sv", "|| row_index_work[row_index][32]", "|| 1'b0"),
+        ("删除高plane守卫", "src/s2b_maxpool_geometry.sv", "(plane_work[63:32] != 32'd0)", "1'b0"),
+        ("C0错误拒绝高plane", "src/s2b_maxpool_geometry.sv", "(input_channel != 32'd0)", "1'b1"),
+        ("删除通道低plane乘积高位", "src/s2b_maxpool_geometry.sv", "(channel_offset_work[63:32] != 32'd0)", "1'b0"),
+        ("删除通道行加法进位", "src/s2b_maxpool_geometry.sv", "channel_row_sum_work[32] ||", "1'b0 ||"),
+        ("提前拒绝全padding高通道", "src/s2b_maxpool_geometry.sv", "if (tap_range_error) begin", "if (tap_range_error || channel_offset_high) begin"),
+        ("提前拒绝未消费第三行", "src/s2b_maxpool_geometry.sv", "if (tap_range_error) begin", "if (tap_range_error || row_offset_work[2][63:32] != 0) begin"),
         ("删除宽度乘积高位", "src/s2b_maxpool_geometry.sv", "selected_row_high || selected_offset_high ||", "selected_row_high || 1'b0 ||"),
         ("删除列加法进位", "src/s2b_maxpool_geometry.sv", "logical_offset_work[32] || address_work[32]", "1'b0 || address_work[32]"),
         ("删除base进位", "src/s2b_maxpool_geometry.sv", "logical_offset_work[32] || address_work[32]", "logical_offset_work[32] || 1'b0"),
@@ -188,19 +198,20 @@ def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--run-id",required=True)
     ap.add_argument("--toolchain",type=Path,default=Path(r"D:\FPGA_S2A_MSYS2_20261001\env")); args=ap.parse_args()
     if not re.fullmatch(r"[A-Za-z0-9_-]+",args.run_id): ap.error("RunId非法")
-    work=ROOT/"tmp/2B/S2B-T17/s8_pool_g1_20261011_r01"/args.run_id
-    evidence=ROOT/"report/evidence/S2B-T17"/("maxpool_address_guard_"+args.run_id)
+    work=ROOT/"tmp/2B/S2B-T17"/args.run_id/"rtl_run"
+    evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
     for p in (work.parent,evidence.parent):
         if not p.is_dir() or p.is_symlink(): ap.error("精确父目录不可用")
     if work.exists() or evidence.exists(): ap.error("RunId已存在")
     work.mkdir(); evidence.mkdir(); start=time.monotonic()
-    report=dict(task_id="S2B-T17-S8",status="FAIL",source_commit=BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1610612736),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
+    report=dict(task_id="S2B-T17-S11",status="FAIL",source_commit=SOURCE_BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1610612736),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
     try:
-        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==BASELINE
+        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==SOURCE_BASELINE
         checker=backend.load_checker(); bindings=checker.check_static(ROOT)
         for p in (RUNNER,engine.RUNNER,backend.RUNNER,backend.MODEL): bindings[p]=backend.sha(ROOT/p)
         report["source_sha256_pre"]=dict(bindings)
         report["frozen14_sha256_pre"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
+        assert backend.sha(ROOT/"src/s2b_maxpool_engine.sv")=="8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70"
         old=subprocess.check_output(["git","show",BASELINE+":src/s2b_maxpool_engine.sv"],cwd=ROOT).decode("utf-8")
         current=(ROOT/"src/s2b_maxpool_engine.sv").read_text(encoding="utf-8")
         assert current==old.replace("int8_maxpool_geometry u_geometry","s2b_maxpool_geometry u_geometry")
@@ -213,8 +224,8 @@ def main():
         report["checker_public_negatives"]=engine.checker_negatives(checker,work,checker.check_static(ROOT))
         rows,report["geometry_coverage"]=cases()
         data="\n".join(" ".join(f"{n:x}" for n in (*v,*expected)) for v,expected in rows)+"\n"
+        (evidence/"geometry_vectors.dat").write_text(data,encoding="utf-8",newline="\n")
         for directory in (work,evidence):
-            (directory/"geometry_vectors.dat").write_text(data,encoding="utf-8",newline="\n")
             (directory/"tb_s8_geometry.sv").write_text(geometry_tb(),encoding="utf-8",newline="\n")
         model=json.loads((ROOT/backend.MODEL).read_text(encoding="utf-8")); assert backend.sha(ROOT/backend.MODEL)==backend.MODEL_SHA
         declarations={"pool":engine.ports(ROOT/"src/s2a_maxpool_engine.sv"),"upsample":engine.ports(ROOT/"src/s2a_upsample_engine.sv")}
@@ -236,7 +247,7 @@ def main():
         for label,top,files in (("geometry","tb_s8_geometry",["source/int8_maxpool_geometry.sv","source/s2b_maxpool_geometry.sv","tb_s8_geometry.sv"]),("engine","tb_s2b_geometry_specialization",["source/"+Path(p).name for p in engine.RTL]+["tb_s2b_geometry_specialization.sv"])):
             command=common+["--top-module",top,"--Mdir","obj_"+label,*files]
             engine.execute(label+"_compile",command,work,evidence,env,report,600)
-            engine.execute(label+"_simulation",[str(work/("obj_"+label)/("V"+top+".exe"))],work,evidence,env,report,600)
+            engine.execute(label+"_simulation",[str(work/("obj_"+label)/("V"+top+".exe")),*(["+VECTOR_PATH="+str(evidence/"geometry_vectors.dat")] if label=="geometry" else [])],work,evidence,env,report,600)
             warnings=re.findall(r"%Warning-(?:LATCH|UNOPTFLAT|MULTIDRIVEN).*",(evidence/(label+"_compile.log")).read_text(encoding="utf-8"))
             assert not warnings, warnings
         geometry_log=(evidence/"geometry_simulation.log").read_text(encoding="utf-8")

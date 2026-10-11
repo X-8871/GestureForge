@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.10"
+PROFILE_VERSION = "s2b-inference-platform/0.1.11"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -266,6 +266,53 @@ MAXPOOL_GEOMETRY_REPLACEMENTS = [
         "                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n                            address_work = {1'b0, input_base_address} +\n                                {1'b0, logical_offset_work[31:0]};\n                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin"
     ]
 ]
+# S11按非负分配律独立计算通道平面和行偏移，全部进位仅由有效tap消费。
+MAXPOOL_GEOMETRY_REPLACEMENTS.extend([
+    [
+        "    logic signed [63:0] source_x_work;\n    logic [63:0] channel_row_work;\n    logic signed [63:0] row_y_work [0:2];\n",
+        "    logic signed [63:0] source_x_work;\n    logic [63:0] plane_work;\n    logic [63:0] channel_offset_work;\n    logic channel_offset_high;\n    logic signed [63:0] row_y_work [0:2];\n"
+    ],
+    [
+        "    logic signed [63:0] row_y_work [0:2];\n    logic [32:0] row_index_work [0:2];\n    logic row_index_high [0:2];\n    logic [63:0] row_offset_work [0:2];\n",
+        "    logic signed [63:0] row_y_work [0:2];\n    logic [63:0] row_offset_work [0:2];\n"
+    ],
+    [
+        "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] logical_offset_work;\n",
+        "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] channel_row_sum_work;\n    logic [32:0] logical_offset_work;\n"
+    ],
+    [
+        "        source_x_work = 64'sd0;\n        channel_row_work = 64'd0;\n        logical_offset_work = 33'd0;\n",
+        "        source_x_work = 64'sd0;\n        plane_work = 64'd0;\n        channel_offset_work = 64'd0;\n        channel_offset_high = 1'b0;\n        channel_row_sum_work = 33'd0;\n        logical_offset_work = 33'd0;\n"
+    ],
+    [
+        "            row_y_work[row_index] = 64'sd0;\n            row_index_work[row_index] = 33'd0;\n            row_index_high[row_index] = 1'b0;\n            row_offset_work[row_index] = 64'd0;\n",
+        "            row_y_work[row_index] = 64'sd0;\n            row_offset_work[row_index] = 64'd0;\n"
+    ],
+    [
+        "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。\n                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};\n                // 每行低32位和进位分别保留；高位只由实际有效tap消费。\n                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n",
+        "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 通道平面与行偏移分配计算；通道为零时高平面不会产生地址高位。\n                plane_work = {32'd0, input_height} * {32'd0, input_width};\n                channel_offset_work = {32'd0, input_channel} * {32'd0, plane_work[31:0]};\n                channel_offset_high = ((input_channel != 32'd0) && (plane_work[63:32] != 32'd0)) ||\n                    (channel_offset_work[63:32] != 32'd0);\n                // 每行乘积精确保留64位；高位只由实际有效tap消费，padding不提前拒绝。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n"
+    ],
+    [
+        "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +\n                            {1'b0, row_y_work[row_index][31:0]};\n                        row_index_high[row_index] =\n                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];\n                        row_offset_work[row_index] =\n",
+        "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_offset_work[row_index] =\n"
+    ],
+    [
+        "                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n",
+        "                        row_offset_work[row_index] =\n                            {32'd0, row_y_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n"
+    ],
+    [
+        "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n",
+        "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 通道加行、再加列、再加base分别保留33位进位，避免三项相加漏进位。\n                            channel_row_sum_work = {1'b0, channel_offset_work[31:0]} +\n                                {1'b0, row_offset_work[kernel_y_work][31:0]};\n                            logical_offset_work = {1'b0, channel_row_sum_work[31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n"
+    ],
+    [
+        "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n",
+        "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = channel_offset_high;\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n"
+    ],
+    [
+        "                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n",
+        "                            if (selected_row_high || selected_offset_high ||\n                                channel_row_sum_work[32] || logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n"
+    ]
+])
 DERIVATION_RULES["src/int8_maxpool_geometry.sv"] = ("src/s2b_maxpool_geometry.sv", MAXPOOL_GEOMETRY_REPLACEMENTS)
 DERIVATION_RULES["src/s2a_maxpool_engine.sv"][1].append(["int8_maxpool_geometry u_geometry", "s2b_maxpool_geometry u_geometry"])
 
@@ -376,7 +423,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.10" in script, "Tcl平台版本不符")
+    require("variable version 0.1.11" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

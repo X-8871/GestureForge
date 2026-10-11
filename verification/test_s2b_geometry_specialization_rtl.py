@@ -20,7 +20,7 @@ import time
 import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
+BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
 SEED = 0x2B171011
@@ -371,7 +371,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.10", "variable version 0.1.2"))
+    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.11", "variable version 0.1.2"))
     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
     reject("可见性默认启用", lambda p: p.update(visibility_default=1))

@@ -1,0 +1,430 @@
+diff --git a/board/s2b_inference_platform.json b/board/s2b_inference_platform.json
+index 5e42d1e..f9e62b6 100644
+--- a/board/s2b_inference_platform.json
++++ b/board/s2b_inference_platform.json
+@@ -1,6 +1,6 @@
+ {
+   "schema_version": 1,
+-  "version": "s2b-inference-platform/0.1.10",
++  "version": "s2b-inference-platform/0.1.11",
+   "status": "BUILD_CANDIDATE",
+   "physical_interface": "s2b-physical-candidate/0.1.1",
+   "requested_part_literal": "XC7Z020-2CLG400I",
+@@ -429,7 +429,7 @@
+       {
+         "source": "src/int8_maxpool_geometry.sv",
+         "path": "src/s2b_maxpool_geometry.sv",
+-        "sha256": "f8c3901722e159c5a8d71e29acdb960f610daaa80c750b818948e555050ef6ee",
++        "sha256": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+         "replacements": [
+           [
+             "module int8_maxpool_geometry (",
+@@ -458,6 +458,50 @@
+           [
+             "                            case (kernel_y_work)\n                                0: logical_offset_work = row_offset_work[0] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                1: logical_offset_work = row_offset_work[1] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                2: logical_offset_work = row_offset_work[2] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                default: logical_offset_work = 96'd0;\n                            endcase\n                            address_work = {65'd0, input_base_address} +\n                                {1'b0, logical_offset_work};\n                            if (address_work[96:32] != 65'd0) begin",
+             "                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n                            address_work = {1'b0, input_base_address} +\n                                {1'b0, logical_offset_work[31:0]};\n                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin"
++          ],
++          [
++            "    logic signed [63:0] source_x_work;\n    logic [63:0] channel_row_work;\n    logic signed [63:0] row_y_work [0:2];\n",
++            "    logic signed [63:0] source_x_work;\n    logic [63:0] plane_work;\n    logic [63:0] channel_offset_work;\n    logic channel_offset_high;\n    logic signed [63:0] row_y_work [0:2];\n"
++          ],
++          [
++            "    logic signed [63:0] row_y_work [0:2];\n    logic [32:0] row_index_work [0:2];\n    logic row_index_high [0:2];\n    logic [63:0] row_offset_work [0:2];\n",
++            "    logic signed [63:0] row_y_work [0:2];\n    logic [63:0] row_offset_work [0:2];\n"
++          ],
++          [
++            "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] logical_offset_work;\n",
++            "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] channel_row_sum_work;\n    logic [32:0] logical_offset_work;\n"
++          ],
++          [
++            "        source_x_work = 64'sd0;\n        channel_row_work = 64'd0;\n        logical_offset_work = 33'd0;\n",
++            "        source_x_work = 64'sd0;\n        plane_work = 64'd0;\n        channel_offset_work = 64'd0;\n        channel_offset_high = 1'b0;\n        channel_row_sum_work = 33'd0;\n        logical_offset_work = 33'd0;\n"
++          ],
++          [
++            "            row_y_work[row_index] = 64'sd0;\n            row_index_work[row_index] = 33'd0;\n            row_index_high[row_index] = 1'b0;\n            row_offset_work[row_index] = 64'd0;\n",
++            "            row_y_work[row_index] = 64'sd0;\n            row_offset_work[row_index] = 64'd0;\n"
++          ],
++          [
++            "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。\n                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};\n                // 每行低32位和进位分别保留；高位只由实际有效tap消费。\n                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n",
++            "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 通道平面与行偏移分配计算；通道为零时高平面不会产生地址高位。\n                plane_work = {32'd0, input_height} * {32'd0, input_width};\n                channel_offset_work = {32'd0, input_channel} * {32'd0, plane_work[31:0]};\n                channel_offset_high = ((input_channel != 32'd0) && (plane_work[63:32] != 32'd0)) ||\n                    (channel_offset_work[63:32] != 32'd0);\n                // 每行乘积精确保留64位；高位只由实际有效tap消费，padding不提前拒绝。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n"
++          ],
++          [
++            "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +\n                            {1'b0, row_y_work[row_index][31:0]};\n                        row_index_high[row_index] =\n                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];\n                        row_offset_work[row_index] =\n",
++            "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_offset_work[row_index] =\n"
++          ],
++          [
++            "                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n",
++            "                        row_offset_work[row_index] =\n                            {32'd0, row_y_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n"
++          ],
++          [
++            "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n",
++            "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 通道加行、再加列、再加base分别保留33位进位，避免三项相加漏进位。\n                            channel_row_sum_work = {1'b0, channel_offset_work[31:0]} +\n                                {1'b0, row_offset_work[kernel_y_work][31:0]};\n                            logical_offset_work = {1'b0, channel_row_sum_work[31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n"
++          ],
++          [
++            "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n",
++            "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = channel_offset_high;\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n"
++          ],
++          [
++            "                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n",
++            "                            if (selected_row_high || selected_offset_high ||\n                                channel_row_sum_work[32] || logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n"
+           ]
+         ]
+       }
+diff --git a/board/s2b_inference_platform.md b/board/s2b_inference_platform.md
+index 1afdefe..4b17540 100644
+--- a/board/s2b_inference_platform.md
++++ b/board/s2b_inference_platform.md
+@@ -1,12 +1,12 @@
+ # 阶段 2B 全模型平台构建候选
+ 
+-版本 `s2b-inference-platform/0.1.10`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
++版本 `s2b-inference-platform/0.1.11`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+ 
+ 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
+ 
+ ## 模块、地址和物理端口
+ 
+-JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S10开发基线为已保存S9实际综合失败证据的提交 `3f24c94564d10103aaa00db07356f666b085f687`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
++JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S11开发基线为已保存S10实际综合失败证据的提交 `4288795b1e8c75b98cbbeb69ac33709172e97c66`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+ 
+ 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
+ 
+@@ -101,3 +101,7 @@ S9的组合全域诊断与公开START可达回归分别记录。S8真实综合ST
+ 原signed64坐标生成及bounds比较保持；在bounds内0≤Y<H≤UINT32严格蕴含Y高32位为零。仅此消费分支将原嵌套offset改为C×(H×W)+Y×W+X，plane使用精确64位，channel和base加法仍原unsigned64回绕，row使用零扩展Y低32×W的精确64结果。新三个组合信号完整默认零；未bounds的offset/address仍零。扫描结束→padding→range→read优先、所有端口/FSM/always_ff/owner/错误语义及逐周期请求保持，输出侧S9坐标截断不变。
+ 
+ S9实际综合WNS−4.527ns/TNS−1840.705ns仍FAIL。S10功能G1、独立G2、真实STA与G3分别判断；本组合结构不声明时序改善或50MHz闭合，不增加流水或33/65位拒绝。100黄金样本、109正式样本及1000次实板指标不变。
++
++## S11 池化几何通道与行偏移分配
++
++开发基线 `4288795b1e8c75b98cbbeb69ac33709172e97c66`。令 M=2^32、P=H×W=qM+r，通道完整偏移为 CqM+C×r；低32位取 C×r，高位条件为 `(C!=0 && q!=0) || (C×r 的高32位非零)`，因此 C=0 不会误拒绝高平面。有效行由原 signed64 bounds 保证 Y 高32位为零，Y×W 使用精确64位乘积。通道加行、加列、加base分别保留33位进位；全部高位仅在原有效tap分支消费。padding窗口及kernel2未消费第三行保持原结果，ARG/RANGE全部公开字段仍清零。engine 原字节、端口、FF、FSM和周期保持。完整独立无限精度几何黄金、原14 RTL全字段差分、公开POOL/UP周期及backend非CONV trace用于功能G1；S10真实50MHz STA仍FAIL（WNS−4.405ns），本组合结构的时序收益尚未执行综合证明。
+diff --git a/src/s2b_maxpool_geometry.sv b/src/s2b_maxpool_geometry.sv
+index e96a9ec..be04015 100644
+--- a/src/s2b_maxpool_geometry.sv
++++ b/src/s2b_maxpool_geometry.sv
+@@ -36,11 +36,12 @@ module s2b_maxpool_geometry (
+     logic [32:0] output_x_step;
+     logic signed [63:0] source_y_work;
+     logic signed [63:0] source_x_work;
+-    logic [63:0] channel_row_work;
++    logic [63:0] plane_work;
++    logic [63:0] channel_offset_work;
++    logic channel_offset_high;
+     logic signed [63:0] row_y_work [0:2];
+-    logic [32:0] row_index_work [0:2];
+-    logic row_index_high [0:2];
+     logic [63:0] row_offset_work [0:2];
++    logic [32:0] channel_row_sum_work;
+     logic [32:0] logical_offset_work;
+     logic [32:0] address_work;
+     logic selected_row_high;
+@@ -60,7 +61,10 @@ module s2b_maxpool_geometry (
+         output_x_step = 33'd0;
+         source_y_work = 64'sd0;
+         source_x_work = 64'sd0;
+-        channel_row_work = 64'd0;
++        plane_work = 64'd0;
++        channel_offset_work = 64'd0;
++        channel_offset_high = 1'b0;
++        channel_row_sum_work = 33'd0;
+         logical_offset_work = 33'd0;
+         address_work = 33'd0;
+         selected_row_high = 1'b0;
+@@ -78,8 +82,6 @@ module s2b_maxpool_geometry (
+         origin_x = 64'sd0;
+         for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
+             row_y_work[row_index] = 64'sd0;
+-            row_index_work[row_index] = 33'd0;
+-            row_index_high[row_index] = 1'b0;
+             row_offset_work[row_index] = 64'd0;
+         end
+         for (tap_index = 0; tap_index < 9; tap_index = tap_index + 1) begin
+@@ -137,20 +139,18 @@ module s2b_maxpool_geometry (
+                 end
+                 source_y_work = origin_y + $signed({31'd0, output_y_step});
+                 source_x_work = origin_x + $signed({31'd0, output_x_step});
+-                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。
+-                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};
+-                // 每行低32位和进位分别保留；高位只由实际有效tap消费。
+-                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。
++                // 通道平面与行偏移分配计算；通道为零时高平面不会产生地址高位。
++                plane_work = {32'd0, input_height} * {32'd0, input_width};
++                channel_offset_work = {32'd0, input_channel} * {32'd0, plane_work[31:0]};
++                channel_offset_high = ((input_channel != 32'd0) && (plane_work[63:32] != 32'd0)) ||
++                    (channel_offset_work[63:32] != 32'd0);
++                // 每行乘积精确保留64位；高位只由实际有效tap消费，padding不提前拒绝。
+                 for (row_index = 0; row_index < 3; row_index = row_index + 1) begin
+                     row_y_work[row_index] = source_y_work + row_index;
+                     if ((row_y_work[row_index] >= 64'sd0) &&
+                         (row_y_work[row_index] < $signed({32'd0, input_height}))) begin
+-                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +
+-                            {1'b0, row_y_work[row_index][31:0]};
+-                        row_index_high[row_index] =
+-                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];
+                         row_offset_work[row_index] =
+-                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};
++                            {32'd0, row_y_work[row_index][31:0]} * {32'd0, input_width};
+                     end
+                 end
+ 
+@@ -187,15 +187,17 @@ module s2b_maxpool_geometry (
+                             (tap_source_x[tap_index] >= 64'sd0) &&
+                             (tap_source_x[tap_index] < $signed({32'd0, input_width}))) begin
+                             tap_valid_mask[tap_index] = 1'b1;
+-                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。
+-                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +
++                            // 通道加行、再加列、再加base分别保留33位进位，避免三项相加漏进位。
++                            channel_row_sum_work = {1'b0, channel_offset_work[31:0]} +
++                                {1'b0, row_offset_work[kernel_y_work][31:0]};
++                            logical_offset_work = {1'b0, channel_row_sum_work[31:0]} +
+                                 {1'b0, tap_source_x[tap_index][31:0]};
+-                            selected_row_high = row_index_high[kernel_y_work];
++                            selected_row_high = channel_offset_high;
+                             selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;
+                             address_work = {1'b0, input_base_address} +
+                                 {1'b0, logical_offset_work[31:0]};
+                             if (selected_row_high || selected_offset_high ||
+-                                logical_offset_work[32] || address_work[32]) begin
++                                channel_row_sum_work[32] || logical_offset_work[32] || address_work[32]) begin
+                                 tap_range_error = 1'b1;
+                             end else begin
+                                 tap_address[tap_index] = address_work[31:0];
+diff --git a/verification/check_s2b_inference_platform.py b/verification/check_s2b_inference_platform.py
+index 0ba7d63..387e203 100644
+--- a/verification/check_s2b_inference_platform.py
++++ b/verification/check_s2b_inference_platform.py
+@@ -11,7 +11,7 @@ import stat
+ import sys
+ from pathlib import Path, PurePosixPath
+ 
+-PROFILE_VERSION = "s2b-inference-platform/0.1.10"
++PROFILE_VERSION = "s2b-inference-platform/0.1.11"
+ # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
+ FROZEN_CORE_SHA256 = {
+     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+@@ -266,6 +266,53 @@ MAXPOOL_GEOMETRY_REPLACEMENTS = [
+         "                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n                            address_work = {1'b0, input_base_address} +\n                                {1'b0, logical_offset_work[31:0]};\n                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin"
+     ]
+ ]
++# S11按非负分配律独立计算通道平面和行偏移，全部进位仅由有效tap消费。
++MAXPOOL_GEOMETRY_REPLACEMENTS.extend([
++    [
++        "    logic signed [63:0] source_x_work;\n    logic [63:0] channel_row_work;\n    logic signed [63:0] row_y_work [0:2];\n",
++        "    logic signed [63:0] source_x_work;\n    logic [63:0] plane_work;\n    logic [63:0] channel_offset_work;\n    logic channel_offset_high;\n    logic signed [63:0] row_y_work [0:2];\n"
++    ],
++    [
++        "    logic signed [63:0] row_y_work [0:2];\n    logic [32:0] row_index_work [0:2];\n    logic row_index_high [0:2];\n    logic [63:0] row_offset_work [0:2];\n",
++        "    logic signed [63:0] row_y_work [0:2];\n    logic [63:0] row_offset_work [0:2];\n"
++    ],
++    [
++        "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] logical_offset_work;\n",
++        "    logic [63:0] row_offset_work [0:2];\n    logic [32:0] channel_row_sum_work;\n    logic [32:0] logical_offset_work;\n"
++    ],
++    [
++        "        source_x_work = 64'sd0;\n        channel_row_work = 64'd0;\n        logical_offset_work = 33'd0;\n",
++        "        source_x_work = 64'sd0;\n        plane_work = 64'd0;\n        channel_offset_work = 64'd0;\n        channel_offset_high = 1'b0;\n        channel_row_sum_work = 33'd0;\n        logical_offset_work = 33'd0;\n"
++    ],
++    [
++        "            row_y_work[row_index] = 64'sd0;\n            row_index_work[row_index] = 33'd0;\n            row_index_high[row_index] = 1'b0;\n            row_offset_work[row_index] = 64'd0;\n",
++        "            row_y_work[row_index] = 64'sd0;\n            row_offset_work[row_index] = 64'd0;\n"
++    ],
++    [
++        "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 合法通道和行坐标保证 channel*height+source_y 小于 2^64。\n                channel_row_work = {32'd0, input_channel} * {32'd0, input_height};\n                // 每行低32位和进位分别保留；高位只由实际有效tap消费。\n                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n",
++        "                source_x_work = origin_x + $signed({31'd0, output_x_step});\n                // 通道平面与行偏移分配计算；通道为零时高平面不会产生地址高位。\n                plane_work = {32'd0, input_height} * {32'd0, input_width};\n                channel_offset_work = {32'd0, input_channel} * {32'd0, plane_work[31:0]};\n                channel_offset_high = ((input_channel != 32'd0) && (plane_work[63:32] != 32'd0)) ||\n                    (channel_offset_work[63:32] != 32'd0);\n                // 每行乘积精确保留64位；高位只由实际有效tap消费，padding不提前拒绝。\n                for (row_index = 0; row_index < 3; row_index = row_index + 1) begin\n"
++    ],
++    [
++        "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +\n                            {1'b0, row_y_work[row_index][31:0]};\n                        row_index_high[row_index] =\n                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];\n                        row_offset_work[row_index] =\n",
++        "                        (row_y_work[row_index] < $signed({32'd0, input_height}))) begin\n                        row_offset_work[row_index] =\n"
++    ],
++    [
++        "                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n",
++        "                        row_offset_work[row_index] =\n                            {32'd0, row_y_work[row_index][31:0]} * {32'd0, input_width};\n                    end\n"
++    ],
++    [
++        "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n",
++        "                            tap_valid_mask[tap_index] = 1'b1;\n                            // 通道加行、再加列、再加base分别保留33位进位，避免三项相加漏进位。\n                            channel_row_sum_work = {1'b0, channel_offset_work[31:0]} +\n                                {1'b0, row_offset_work[kernel_y_work][31:0]};\n                            logical_offset_work = {1'b0, channel_row_sum_work[31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n"
++    ],
++    [
++        "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n",
++        "                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = channel_offset_high;\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n"
++    ],
++    [
++        "                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n",
++        "                            if (selected_row_high || selected_offset_high ||\n                                channel_row_sum_work[32] || logical_offset_work[32] || address_work[32]) begin\n                                tap_range_error = 1'b1;\n"
++    ]
++])
+ DERIVATION_RULES["src/int8_maxpool_geometry.sv"] = ("src/s2b_maxpool_geometry.sv", MAXPOOL_GEOMETRY_REPLACEMENTS)
+ DERIVATION_RULES["src/s2a_maxpool_engine.sv"][1].append(["int8_maxpool_geometry u_geometry", "s2b_maxpool_geometry u_geometry"])
+ 
+@@ -376,7 +423,7 @@ def check_static(root: Path) -> dict:
+                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
+     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
+     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
+-    require("variable version 0.1.10" in script, "Tcl平台版本不符")
++    require("variable version 0.1.11" in script, "Tcl平台版本不符")
+     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
+         "Vivado 属性枚举必须使用官方 list_property 命令")
+     require("make_wrapper -files $bd_file -top -import" in script and
+diff --git a/verification/test_s2b_backend_coordinates_rtl.py b/verification/test_s2b_backend_coordinates_rtl.py
+index 49477a1..dc99095 100644
+--- a/verification/test_s2b_backend_coordinates_rtl.py
++++ b/verification/test_s2b_backend_coordinates_rtl.py
+@@ -21,7 +21,7 @@ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
+-SOURCE_BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
++SOURCE_BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+ OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+@@ -460,7 +460,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
+     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
+     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
+     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
+-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.10","variable version 0.1.1"))
++    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.11","variable version 0.1.1"))
+     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
+     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
+     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
+diff --git a/verification/test_s2b_geometry_specialization_rtl.py b/verification/test_s2b_geometry_specialization_rtl.py
+index d9f1f3c..881a92b 100644
+--- a/verification/test_s2b_geometry_specialization_rtl.py
++++ b/verification/test_s2b_geometry_specialization_rtl.py
+@@ -20,7 +20,7 @@ import time
+ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
++BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+ SEED = 0x2B171011
+@@ -371,7 +371,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
+     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
+     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
+     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
+-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.10", "variable version 0.1.2"))
++    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.11", "variable version 0.1.2"))
+     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
+     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
+     reject("可见性默认启用", lambda p: p.update(visibility_default=1))
+diff --git a/verification/test_s2b_maxpool_address_guard_rtl.py b/verification/test_s2b_maxpool_address_guard_rtl.py
+index 7f0e93c..bba196c 100644
+--- a/verification/test_s2b_maxpool_address_guard_rtl.py
++++ b/verification/test_s2b_maxpool_address_guard_rtl.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""验证S8全域几何地址分段守卫及真实引擎每周期等价；不运行STA或设备。"""
++"""验证S11通道行偏移分配、全域几何守卫及真实引擎每周期等价。"""
+ from __future__ import annotations
+ 
+ import argparse
+@@ -23,6 +23,7 @@ import test_s2b_backend_coordinates_rtl as backend
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ BASELINE = "2257a450239ea19ef4e2ddf7b2833d44020f95e3"
++SOURCE_BASELINE = "4288795b1e8c75b98cbbeb69ac33709172e97c66"
+ RUNNER = "verification/test_s2b_maxpool_address_guard_rtl.py"
+ SEED = 0x581011
+ U32 = (1 << 32)-1
+@@ -99,6 +100,11 @@ def cases():
+         ("row_sum_carry", (0,2,U32,1,2,2,1,1,1,1,1,0),2),
+         ("row_width_high", (0,1,3,U32,2,2,1,1,1,0,1,0),2),
+         ("column_add_carry", (0,1,3,U32-1,2,2,1,1,1,0,1,2),2),
++        ("c0_high_plane", (0,1,3,0x80000000,2,2,2,2,1,0,0,0),0),
++        ("c1_plane_m", (0,2,2,0x80000000,2,2,2,2,1,1,0,0),2),
++        ("c2_plane_half_m", (0,3,1,0x80000000,2,2,1,1,1,2,0,0),2),
++        ("channel_row_carry", (0,2,3,0x55555555,2,2,1,1,1,1,1,0),2),
++        ("row_x_carry", (0,1,2,U32,2,2,1,1,1,0,1,1),2),
+         ("signed_padding_u32", (0,1,2,2,3,3,1,1,U32,0,0,0),0),
+     ]
+     for name, v, error in manual:
+@@ -114,7 +120,7 @@ def cases():
+ 
+ def geometry_tb():
+     """全部公开字段同时对照原RTL与独立黄金，含九组signed坐标。"""
+-    p = ["module tb_s8_geometry;", "integer count=0; integer scanned; integer f;", "logic [2:0] gold_error; logic [32:0] gold_h,gold_w; logic [3:0] gold_count; logic [8:0] gold_mask;"]
++    p = ["module tb_s8_geometry;", "integer count=0; integer scanned; integer f; string vector_path;", "logic [2:0] gold_error; logic [32:0] gold_h,gold_w; logic [3:0] gold_count; logic [8:0] gold_mask;"]
+     p += [f"logic [31:0] {n};" for n in INPUTS]
+     for variant in ("old","new","gold"):
+         if variant != "gold": p += [f"logic [2:0] {variant}_error; logic [32:0] {variant}_h,{variant}_w; logic [3:0] {variant}_count; logic [8:0] {variant}_mask;"]
+@@ -124,7 +130,7 @@ def geometry_tb():
+         p += [f"{module} {variant}_dut("+",".join(ports)+");"]
+     fields = list(INPUTS)+["gold_error","gold_h","gold_w","gold_count","gold_mask"]
+     fields += [f"gold_{n}[{tap}]" for tap in range(9) for n in ("address","channel","y","x")]
+-    p += ["initial begin f=$fopen(\"geometry_vectors.dat\",\"r\"); if(!f) $fatal(1,\"缺少向量\"); while(!$feof(f)) begin", 'scanned=$fscanf(f,"'+" ".join("%h" for _ in fields)+'\\n",'+",".join(fields)+");", f"if(scanned=={len(fields)}) begin #1;"]
++    p += ["initial begin if(!$value$plusargs(\"VECTOR_PATH=%s\",vector_path)) $fatal(1,\"缺少VECTOR_PATH\"); f=$fopen(vector_path,\"r\"); if(!f) $fatal(1,\"缺少向量\"); while(!$feof(f)) begin", 'scanned=$fscanf(f,"'+" ".join("%h" for _ in fields)+'\\n",'+",".join(fields)+");", f"if(scanned=={len(fields)}) begin #1;"]
+     for variant in ("old","new"):
+         p += [f"if({{{variant}_error,{variant}_h,{variant}_w,{variant}_count,{variant}_mask}} !== {{gold_error,gold_h,gold_w,gold_count,gold_mask}}) $fatal(1,\"几何头字段不等价 {variant} case=%0d\",count);",
+               f"for(integer t=0;t<9;t++) if({{{variant}_address[t],{variant}_channel[t],{variant}_y[t],{variant}_x[t]}} !== {{gold_address[t],gold_channel[t],gold_y[t],gold_x[t]}}) $fatal(1,\"几何tap字段不等价 {variant} case=%0d tap=%0d\",count,t);"]
+@@ -161,8 +167,12 @@ def mutants(checker, work, bindings):
+         target=fixture/p; target.parent.mkdir(parents=True,exist_ok=True); shutil.copyfile(ROOT/p,target)
+     profile_path=fixture/"board/s2b_inference_platform.json"; original=profile_path.read_bytes(); records=[]
+     for name,path,before,after in (
+-        ("删除channel行高位", "src/s2b_maxpool_geometry.sv", "(channel_row_work[63:32] != 32'd0)", "1'b0"),
+-        ("删除行加法进位", "src/s2b_maxpool_geometry.sv", "|| row_index_work[row_index][32]", "|| 1'b0"),
++        ("删除高plane守卫", "src/s2b_maxpool_geometry.sv", "(plane_work[63:32] != 32'd0)", "1'b0"),
++        ("C0错误拒绝高plane", "src/s2b_maxpool_geometry.sv", "(input_channel != 32'd0)", "1'b1"),
++        ("删除通道低plane乘积高位", "src/s2b_maxpool_geometry.sv", "(channel_offset_work[63:32] != 32'd0)", "1'b0"),
++        ("删除通道行加法进位", "src/s2b_maxpool_geometry.sv", "channel_row_sum_work[32] ||", "1'b0 ||"),
++        ("提前拒绝全padding高通道", "src/s2b_maxpool_geometry.sv", "if (tap_range_error) begin", "if (tap_range_error || channel_offset_high) begin"),
++        ("提前拒绝未消费第三行", "src/s2b_maxpool_geometry.sv", "if (tap_range_error) begin", "if (tap_range_error || row_offset_work[2][63:32] != 0) begin"),
+         ("删除宽度乘积高位", "src/s2b_maxpool_geometry.sv", "selected_row_high || selected_offset_high ||", "selected_row_high || 1'b0 ||"),
+         ("删除列加法进位", "src/s2b_maxpool_geometry.sv", "logical_offset_work[32] || address_work[32]", "1'b0 || address_work[32]"),
+         ("删除base进位", "src/s2b_maxpool_geometry.sv", "logical_offset_work[32] || address_work[32]", "logical_offset_work[32] || 1'b0"),
+@@ -188,19 +198,20 @@ def main():
+     ap=argparse.ArgumentParser(); ap.add_argument("--run-id",required=True)
+     ap.add_argument("--toolchain",type=Path,default=Path(r"D:\FPGA_S2A_MSYS2_20261001\env")); args=ap.parse_args()
+     if not re.fullmatch(r"[A-Za-z0-9_-]+",args.run_id): ap.error("RunId非法")
+-    work=ROOT/"tmp/2B/S2B-T17/s8_pool_g1_20261011_r01"/args.run_id
+-    evidence=ROOT/"report/evidence/S2B-T17"/("maxpool_address_guard_"+args.run_id)
++    work=ROOT/"tmp/2B/S2B-T17"/args.run_id/"rtl_run"
++    evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
+     for p in (work.parent,evidence.parent):
+         if not p.is_dir() or p.is_symlink(): ap.error("精确父目录不可用")
+     if work.exists() or evidence.exists(): ap.error("RunId已存在")
+     work.mkdir(); evidence.mkdir(); start=time.monotonic()
+-    report=dict(task_id="S2B-T17-S8",status="FAIL",source_commit=BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1610612736),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
++    report=dict(task_id="S2B-T17-S11",status="FAIL",source_commit=SOURCE_BASELINE,seed=SEED,runs=[],sta="NOT_RUN",g3="NOT_RUN",independent_review="NOT_RUN",resource_budget=dict(jobs=1,threads=1,rss_limit_bytes=1610612736),limitations=["不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。","真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。","原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"])
+     try:
+-        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==BASELINE
++        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==SOURCE_BASELINE
+         checker=backend.load_checker(); bindings=checker.check_static(ROOT)
+         for p in (RUNNER,engine.RUNNER,backend.RUNNER,backend.MODEL): bindings[p]=backend.sha(ROOT/p)
+         report["source_sha256_pre"]=dict(bindings)
+         report["frozen14_sha256_pre"]={p:backend.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
++        assert backend.sha(ROOT/"src/s2b_maxpool_engine.sv")=="8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70"
+         old=subprocess.check_output(["git","show",BASELINE+":src/s2b_maxpool_engine.sv"],cwd=ROOT).decode("utf-8")
+         current=(ROOT/"src/s2b_maxpool_engine.sv").read_text(encoding="utf-8")
+         assert current==old.replace("int8_maxpool_geometry u_geometry","s2b_maxpool_geometry u_geometry")
+@@ -213,8 +224,8 @@ def main():
+         report["checker_public_negatives"]=engine.checker_negatives(checker,work,checker.check_static(ROOT))
+         rows,report["geometry_coverage"]=cases()
+         data="\n".join(" ".join(f"{n:x}" for n in (*v,*expected)) for v,expected in rows)+"\n"
++        (evidence/"geometry_vectors.dat").write_text(data,encoding="utf-8",newline="\n")
+         for directory in (work,evidence):
+-            (directory/"geometry_vectors.dat").write_text(data,encoding="utf-8",newline="\n")
+             (directory/"tb_s8_geometry.sv").write_text(geometry_tb(),encoding="utf-8",newline="\n")
+         model=json.loads((ROOT/backend.MODEL).read_text(encoding="utf-8")); assert backend.sha(ROOT/backend.MODEL)==backend.MODEL_SHA
+         declarations={"pool":engine.ports(ROOT/"src/s2a_maxpool_engine.sv"),"upsample":engine.ports(ROOT/"src/s2a_upsample_engine.sv")}
+@@ -236,7 +247,7 @@ def main():
+         for label,top,files in (("geometry","tb_s8_geometry",["source/int8_maxpool_geometry.sv","source/s2b_maxpool_geometry.sv","tb_s8_geometry.sv"]),("engine","tb_s2b_geometry_specialization",["source/"+Path(p).name for p in engine.RTL]+["tb_s2b_geometry_specialization.sv"])):
+             command=common+["--top-module",top,"--Mdir","obj_"+label,*files]
+             engine.execute(label+"_compile",command,work,evidence,env,report,600)
+-            engine.execute(label+"_simulation",[str(work/("obj_"+label)/("V"+top+".exe"))],work,evidence,env,report,600)
++            engine.execute(label+"_simulation",[str(work/("obj_"+label)/("V"+top+".exe")),*(["+VECTOR_PATH="+str(evidence/"geometry_vectors.dat")] if label=="geometry" else [])],work,evidence,env,report,600)
+             warnings=re.findall(r"%Warning-(?:LATCH|UNOPTFLAT|MULTIDRIVEN).*",(evidence/(label+"_compile.log")).read_text(encoding="utf-8"))
+             assert not warnings, warnings
+         geometry_log=(evidence/"geometry_simulation.log").read_text(encoding="utf-8")
+diff --git a/vivado/s2b_inference_platform.tcl b/vivado/s2b_inference_platform.tcl
+index 44a1b2b..dadff8b 100644
+--- a/vivado/s2b_inference_platform.tcl
++++ b/vivado/s2b_inference_platform.tcl
+@@ -1,6 +1,6 @@
+ # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
+ namespace eval ::s2b_inference_platform {
+-    variable version 0.1.10
++    variable version 0.1.11
+     variable part xc7z020clg400-2
+     variable bd_name s2b_inference
+     variable rtl_sources {

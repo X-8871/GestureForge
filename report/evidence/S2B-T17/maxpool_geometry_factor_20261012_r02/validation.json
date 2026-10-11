@@ -1,0 +1,844 @@
+{
+  "task_id": "S2B-T17-S11",
+  "status": "PASS_MAXPOOL_ADDRESS_GUARD_G1",
+  "source_commit": "4288795b1e8c75b98cbbeb69ac33709172e97c66",
+  "seed": 5771281,
+  "runs": [
+    {
+      "name": "geometry_compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "--top-module",
+        "tb_s8_geometry",
+        "--Mdir",
+        "obj_geometry",
+        "source/int8_maxpool_geometry.sv",
+        "source/s2b_maxpool_geometry.sv",
+        "tb_s8_geometry.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 15.672,
+      "peak_tree_rss_bytes": 636784640,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/geometry_compile.log",
+      "log_sha256": "3eaa85d59929c78917b6c8931fb1e507d0ffa1953d2140bea9dcca8e6619011b"
+    },
+    {
+      "name": "geometry_simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\rtl_run\\obj_geometry\\Vtb_s8_geometry.exe",
+        "+VECTOR_PATH=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\geometry_vectors.dat"
+      ],
+      "exit_code": 0,
+      "seconds": 1.312,
+      "peak_tree_rss_bytes": 4747264,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/geometry_simulation.log",
+      "log_sha256": "6f012e7d8a94ada9246722c882c7020db76cc6e373f9df60fd3c66a57b362f2e"
+    },
+    {
+      "name": "engine_compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "--top-module",
+        "tb_s2b_geometry_specialization",
+        "--Mdir",
+        "obj_engine",
+        "source/int8_maxpool_geometry.sv",
+        "source/s2b_maxpool_geometry.sv",
+        "source/int8_maxpool_window.sv",
+        "source/int8_upsample_query.sv",
+        "source/s2a_maxpool_engine.sv",
+        "source/s2a_upsample_engine.sv",
+        "source/s2b_maxpool_engine.sv",
+        "source/s2b_upsample_engine.sv",
+        "tb_s2b_geometry_specialization.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 17.516,
+      "peak_tree_rss_bytes": 640827392,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/engine_compile.log",
+      "log_sha256": "467115b78f233c397e0ce1f2e1c069bd61937afeb053f1a15324749db8e1a795"
+    },
+    {
+      "name": "engine_simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\rtl_run\\obj_engine\\Vtb_s2b_geometry_specialization.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 1.172,
+      "peak_tree_rss_bytes": 4927488,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/engine_simulation.log",
+      "log_sha256": "8fc67b741eb11ee14097a15a9ef4eea63f45de37a63070e38438d05caf95aba4"
+    }
+  ],
+  "sta": "NOT_RUN",
+  "g3": "NOT_RUN",
+  "independent_review": "NOT_RUN",
+  "resource_budget": {
+    "jobs": 1,
+    "threads": 1,
+    "rss_limit_bytes": 1610612736
+  },
+  "limitations": [
+    "不是U32全组合穷举；无限精度恒等证明及有限有种子RTL样本共同验证。",
+    "真实geometry和engine全公开输出比较；CONV数值、109新整网、STA、实板均未执行。",
+    "原继承WIDTH/UNUSED诊断保留-Wall/-Wno-fatal，不接受LATCH/UNOPTFLAT/MULTIDRIVEN。"
+  ],
+  "source_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+    "src/s2b_maxpool_engine.sv": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "35740123b59e2b741ad6b175297cf44fb338a4d6b70939fc07f5978da23ac4c6",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "7e6fc4b0f354a5d9047805b4d1f1688954862c774fe49f9be2c8e467da2c5d32",
+    "board/s2b_inference_platform.md": "a50f6e9d03293e08c0340b96bdb01d2a9a02be4b96ab21bec2c949c22a48fcf3",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "43d597797be81a98e966a55c4f1f6a2fe864d6cb2d9fb82f2fa4c0aef35dca8d",
+    "verification/test_s2b_conv_feature_address_rtl.py": "789cee61697dbf5759728a63075e760e07eb4f3a3fa6ab22355fb58c46f1b513",
+    "verification/test_s2b_maxpool_address_guard_rtl.py": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+    "verification/test_s2b_geometry_specialization_rtl.py": "e35cb07e92ee333742a0deb2d2b8ca377f8f80dfdcd2a3573a221d4116224493",
+    "verification/test_s2b_backend_coordinates_rtl.py": "958ea4dda5e2b8c03202e56d72d74deb116b6382b7790af5139058e210f49954",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+  },
+  "frozen14_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "engine_structure": {
+    "only_change": "geometry模块引用",
+    "always_ff_sha256": "123bf5c3e715152efd638d1a7b21520b8a46c54921f804fa57b55e647c7015d5"
+  },
+  "resource_preflight": {
+    "available_ram_bytes": 5341028352,
+    "disk_free_bytes": 16606236672,
+    "running_tools": []
+  },
+  "checker_semantic_mutants": [
+    {
+      "name": "删除高plane守卫",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "C0错误拒绝高plane",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "删除通道低plane乘积高位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "删除通道行加法进位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "提前拒绝全padding高通道",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "提前拒绝未消费第三行",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "删除宽度乘积高位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "删除列加法进位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "删除base进位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "更改RANGE清零",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "更改ARG清零",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_geometry.sv"
+    },
+    {
+      "name": "engine引用回退",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_engine.sv"
+    }
+  ],
+  "checker_public_negatives": [
+    {
+      "name": "旧profile版本",
+      "result": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包重复",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包换序",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包遗漏",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包额外源",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "错误freeze提交",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生基线",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生策略",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "换行政策缺失",
+      "result": "REJECTED",
+      "reason": "派生绑定字段不符"
+    },
+    {
+      "name": "上游记录遗漏",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "上游自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "派生记录遗漏",
+      "result": "REJECTED",
+      "reason": "派生源必须恰为8项"
+    },
+    {
+      "name": "派生记录换序",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "允许替换被篡改",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "派生哈希错误",
+      "result": "REJECTED",
+      "reason": "派生SHA不符：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "派生路径越界",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "原冻结源变化及自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "常量化错误及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "额外backend逻辑及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "Tcl闭包变化",
+      "result": "REJECTED",
+      "reason": "Tcl/JSON源码闭包不一致"
+    },
+    {
+      "name": "Tcl版本变化",
+      "result": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "顶层引用旧core",
+      "result": "REJECTED",
+      "reason": "公开顶层未实例化受绑定的2B派生核心"
+    },
+    {
+      "name": "物理时钟变化",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "可见性默认启用",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "构建脚本遗漏",
+      "result": "REJECTED",
+      "reason": "构建脚本集合不符"
+    },
+    {
+      "name": "旧可见性证明",
+      "result": "REJECTED",
+      "reason": "证明平台版本不符"
+    }
+  ],
+  "geometry_coverage": {
+    "vectors": 82591,
+    "categories": {
+      "small_all_coordinates_and_outside": 62565,
+      "wide_u32_random": 20000,
+      "huge_shape_small_window": 1,
+      "unused_row2_overflow": 1,
+      "all_padding_high_row": 1,
+      "last_address_u32": 1,
+      "base_add_carry": 1,
+      "channel_product_high": 1,
+      "row_sum_carry": 1,
+      "row_width_high": 1,
+      "column_add_carry": 1,
+      "c0_high_plane": 1,
+      "c1_plane_m": 1,
+      "c2_plane_half_m": 1,
+      "channel_row_carry": 1,
+      "row_x_carry": 1,
+      "signed_padding_u32": 1,
+      "zero_required_field": 5,
+      "invalid_kernel_pair": 6
+    },
+    "errors": {
+      "1": 64093,
+      "0": 13586,
+      "2": 4912
+    },
+    "all_padding_success": 4206,
+    "seed": 5771281,
+    "manual": [
+      {
+        "name": "huge_shape_small_window",
+        "input": [
+          0,
+          4294967295,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "unused_row2_overflow",
+        "input": [
+          0,
+          1,
+          3,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "all_padding_high_row",
+        "input": [
+          0,
+          2,
+          3,
+          2147483648,
+          2,
+          2,
+          1,
+          1,
+          100,
+          1,
+          50,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "last_address_u32",
+        "input": [
+          4294967292,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "base_add_carry",
+        "input": [
+          4294967293,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "channel_product_high",
+        "input": [
+          0,
+          3,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          2,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "row_sum_carry",
+        "input": [
+          0,
+          2,
+          4294967295,
+          1,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "row_width_high",
+        "input": [
+          0,
+          1,
+          3,
+          4294967295,
+          2,
+          2,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "column_add_carry",
+        "input": [
+          0,
+          1,
+          3,
+          4294967294,
+          2,
+          2,
+          1,
+          1,
+          1,
+          0,
+          1,
+          2
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "c0_high_plane",
+        "input": [
+          0,
+          1,
+          3,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "c1_plane_m",
+        "input": [
+          0,
+          2,
+          2,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          1,
+          1,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "c2_plane_half_m",
+        "input": [
+          0,
+          3,
+          1,
+          2147483648,
+          2,
+          2,
+          1,
+          1,
+          1,
+          2,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "channel_row_carry",
+        "input": [
+          0,
+          2,
+          3,
+          1431655765,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "row_x_carry",
+        "input": [
+          0,
+          1,
+          2,
+          4294967295,
+          2,
+          2,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "signed_padding_u32",
+        "input": [
+          0,
+          1,
+          2,
+          2,
+          3,
+          3,
+          1,
+          1,
+          4294967295,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      }
+    ]
+  },
+  "engine_coverage": {
+    "pool": {
+      "vectors": 19645,
+      "categories": {
+        "legal_spatial_channel_sampling": 19372,
+        "parameter_field_rejection": 141,
+        "length_field_rejection": 18,
+        "address_field_rejection": 12,
+        "length_before_address": 3,
+        "argument_before_length_address": 3,
+        "extreme_coordinate_rejection": 27,
+        "read_response_error": 21,
+        "write_response_error": 21,
+        "raw_0x80_policy": 3,
+        "abort_each_state": 21,
+        "no_memory_stall": 3
+      },
+      "legal_coordinates_per_layer": {
+        "9": 9483,
+        "17": 4557,
+        "25": 5332
+      },
+      "all_channel_indices_sampled": {
+        "9": 128,
+        "17": 256,
+        "25": 512
+      },
+      "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+      "seed": 722931729,
+      "parameter_order": [
+        "layer_index",
+        "input_base_address",
+        "input_length_bytes",
+        "input_channels",
+        "input_height",
+        "input_width",
+        "output_base_address",
+        "output_length_bytes",
+        "output_channels",
+        "output_height",
+        "output_width",
+        "kernel_height",
+        "kernel_width",
+        "stride_y",
+        "stride_x",
+        "darknet_padding_parameter",
+        "output_channel",
+        "output_y",
+        "output_x"
+      ]
+    },
+    "upsample": {
+      "vectors": 3456,
+      "categories": {
+        "legal_spatial_channel_sampling": 3397,
+        "parameter_field_rejection": 16,
+        "length_field_rejection": 6,
+        "address_field_rejection": 4,
+        "length_before_address": 1,
+        "argument_before_length_address": 1,
+        "extreme_coordinate_rejection": 9,
+        "read_response_error": 7,
+        "write_response_error": 7,
+        "raw_0x80_policy": 1,
+        "abort_each_state": 6,
+        "no_memory_stall": 1
+      },
+      "legal_coordinates_per_layer": {
+        "33": 3397
+      },
+      "all_channel_indices_sampled": {
+        "33": 128
+      },
+      "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+      "seed": 722931730,
+      "parameter_order": [
+        "input_base_address",
+        "input_length_bytes",
+        "output_base_address",
+        "output_length_bytes",
+        "input_channels",
+        "input_height",
+        "input_width",
+        "stride",
+        "output_channel",
+        "output_y",
+        "output_x"
+      ]
+    }
+  },
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "engine_simulation_counts": {
+    "pool": 19645,
+    "upsample": 3456,
+    "cycles": 590723,
+    "pool_abort": 127,
+    "upsample_abort": 63
+  },
+  "source_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+    "src/s2b_maxpool_engine.sv": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "35740123b59e2b741ad6b175297cf44fb338a4d6b70939fc07f5978da23ac4c6",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "7e6fc4b0f354a5d9047805b4d1f1688954862c774fe49f9be2c8e467da2c5d32",
+    "board/s2b_inference_platform.md": "a50f6e9d03293e08c0340b96bdb01d2a9a02be4b96ab21bec2c949c22a48fcf3",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "43d597797be81a98e966a55c4f1f6a2fe864d6cb2d9fb82f2fa4c0aef35dca8d",
+    "verification/test_s2b_conv_feature_address_rtl.py": "789cee61697dbf5759728a63075e760e07eb4f3a3fa6ab22355fb58c46f1b513",
+    "verification/test_s2b_maxpool_address_guard_rtl.py": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+    "verification/test_s2b_geometry_specialization_rtl.py": "e35cb07e92ee333742a0deb2d2b8ca377f8f80dfdcd2a3573a221d4116224493",
+    "verification/test_s2b_backend_coordinates_rtl.py": "958ea4dda5e2b8c03202e56d72d74deb116b6382b7790af5139058e210f49954",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+  },
+  "frozen14_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "seconds": 39.828
+}

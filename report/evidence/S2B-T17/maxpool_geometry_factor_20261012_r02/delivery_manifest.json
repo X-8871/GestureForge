@@ -1,0 +1,951 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "maxpool_geometry_factor_20261012_r02",
+  "source_commit": "4288795b1e8c75b98cbbeb69ac33709172e97c66",
+  "evidence_dir": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02",
+  "interfaces": [
+    {
+      "name": "tiny416冻结模型数值及逻辑接口",
+      "version": "S2A-T01/G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "files": [
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "role": "source"
+    },
+    {
+      "path": "src/int8_maxpool_geometry.sv",
+      "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "role": "source"
+    },
+    {
+      "path": "src/int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_route_query.sv",
+      "sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+      "role": "source"
+    },
+    {
+      "path": "src/int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_maxpool_engine.sv",
+      "sha256": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_route_engine.sv",
+      "sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_network_backend.sv",
+      "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "role": "source"
+    },
+    {
+      "path": "src/int8_route_query.sv",
+      "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_conv_tile_engine.sv",
+      "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_maxpool_engine.sv",
+      "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_network_backend.sv",
+      "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_stage2a_core_ooc.sv",
+      "sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "role": "source"
+    },
+    {
+      "path": "vivado/s2b_inference_platform.tcl",
+      "sha256": "35740123b59e2b741ad6b175297cf44fb338a4d6b70939fc07f5978da23ac4c6",
+      "role": "source"
+    },
+    {
+      "path": "vivado/s2b_ps_platform.tcl",
+      "sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+      "role": "source"
+    },
+    {
+      "path": "board/s2b_inference_platform.json",
+      "sha256": "7e6fc4b0f354a5d9047805b4d1f1688954862c774fe49f9be2c8e467da2c5d32",
+      "role": "source"
+    },
+    {
+      "path": "board/s2b_inference_platform.md",
+      "sha256": "a50f6e9d03293e08c0340b96bdb01d2a9a02be4b96ab21bec2c949c22a48fcf3",
+      "role": "source"
+    },
+    {
+      "path": "board/ps_platform_fields.json",
+      "sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_s2b_inference_platform.py",
+      "sha256": "43d597797be81a98e966a55c4f1f6a2fe864d6cb2d9fb82f2fa4c0aef35dca8d",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_conv_validation_rtl.py",
+      "sha256": "90b0e9d16ff9acc89e4584b3c5a22681a834df8933da0620920cfe84ca313f80",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_backend_coordinates_rtl.py",
+      "sha256": "958ea4dda5e2b8c03202e56d72d74deb116b6382b7790af5139058e210f49954",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_geometry_specialization_rtl.py",
+      "sha256": "e35cb07e92ee333742a0deb2d2b8ca377f8f80dfdcd2a3573a221d4116224493",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_route_specialization_rtl.py",
+      "sha256": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+      "role": "source"
+    },
+    {
+      "path": "sim/tb_s2a_t66_candidate_blackbox.sv",
+      "sha256": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_route_address_guard_rtl.py",
+      "sha256": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_maxpool_geometry.sv",
+      "sha256": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_maxpool_address_guard_rtl.py",
+      "sha256": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_conv_output_address_rtl.py",
+      "sha256": "f027f36572583aed056721a5682043ed94636168c1170a95984025633578e6fb",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_conv_feature_address_rtl.py",
+      "sha256": "789cee61697dbf5759728a63075e760e07eb4f3a3fa6ab22355fb58c46f1b513",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/diagnostic_scope.json",
+      "sha256": "9cf7a1804d753cce40ba0d97fb3e0d3b2378f50570c0974d99f49a39ec41bfe4",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/engine_compile.log",
+      "sha256": "467115b78f233c397e0ce1f2e1c069bd61937afeb053f1a15324749db8e1a795",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/engine_simulation.log",
+      "sha256": "8fc67b741eb11ee14097a15a9ef4eea63f45de37a63070e38438d05caf95aba4",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/backend_adapter.json",
+      "sha256": "efe4ffde0ae26c2974112cf5d2532f8b727f3d5abe5af3a3e9e30dd59da5a7b9",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/backend_native.json",
+      "sha256": "f51db880c36a87284af6730307125be814bbb9a4c4921efc289a074d5b5fe6b8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/backend_runtime.py",
+      "sha256": "b8b9274626eb8b253cd77e2fc4b233f60a458941e2f9ffa650e8928f4cc75c6d",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/backend_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/backend_stdout.log",
+      "sha256": "d3dd4d4679e366fda95c7b1df5e80fbd97f7bdc546b9c7f541d1239a705dd3d9",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/budget_repair_receipt.json",
+      "sha256": "f3df704673b402367d526f84fe945b43cafb17f5476fc6ba71f225164ec86df6",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/capture_finalize.py",
+      "sha256": "84f8d726106202a7092bb7392aa9a795ba57dbfdb3274a1c72724c4ba6c8b2e9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/finalize.py",
+      "sha256": "e8cb56e659e361338cf7bea5022077437083cfad36efafc3040b2a2be2011e9e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/guard_adapter.json",
+      "sha256": "64053c7145c21bc4aace2c434a2729bb471f5c56b56b45bccab28363a75fc0ad",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/guard_native.json",
+      "sha256": "46dd8c795c2c9225c2cf2f252eb48443cbe082b1bc40a0ae5329ceae925aaaec",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/guard_runtime.py",
+      "sha256": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/guard_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/guard_stdout.log",
+      "sha256": "1283c13d1fbc676ff40d0515ba2feb1f0534f050b2f82642358ad6e483ca9b49",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/initial_source.json",
+      "sha256": "f5b6cc69f8e0c28a4d7bfc7f49a0fc207341ffc5b638927cfb533f0ac6ae1b35",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/preflight_native.json",
+      "sha256": "095e3392e3bda44226b29697a86e5c3ea3e7fe438484a5597685eb985ecc225d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/preflight_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/preflight_stdout.log",
+      "sha256": "245144910bc04d4f7b5014ef6722da1e6ff4696e97bd67a9ce02f8709aa38e07",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/prepare.py",
+      "sha256": "8a3a889b3aac0d9cef420e3c7e8f352bdb56d7c9c7e4c8e493ca1c8a16bc53c3",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/resource_preflight.json",
+      "sha256": "a5b3abb85504be9a6a38dbcef76be405ff19fd881fe7bb380ad1c1366ea56707",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/run_stage.py",
+      "sha256": "a188a8fe6c57646976b42f042d9ebe33f0b92f4a9404f89468ea95f433c5ac1d",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/execution_raw/static_native.json",
+      "sha256": "4609dd85e4b2e6a123fab5efac5a901042c5603529624bf9529372687475eb08",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/board/ps_platform_fields.json",
+      "sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/board/s2b_inference_platform.json",
+      "sha256": "7e6fc4b0f354a5d9047805b4d1f1688954862c774fe49f9be2c8e467da2c5d32",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/board/s2b_inference_platform.md",
+      "sha256": "a50f6e9d03293e08c0340b96bdb01d2a9a02be4b96ab21bec2c949c22a48fcf3",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/sim/tb_s2a_t66_candidate_blackbox.sv",
+      "sha256": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/int8_maxpool_geometry.sv",
+      "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/int8_route_query.sv",
+      "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_conv_tile_engine.sv",
+      "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_maxpool_engine.sv",
+      "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_network_backend.sv",
+      "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_stage2a_core_ooc.sv",
+      "sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_conv_tile_engine.sv",
+      "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_maxpool_engine.sv",
+      "sha256": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_maxpool_geometry.sv",
+      "sha256": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_network_backend.sv",
+      "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_route_engine.sv",
+      "sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_route_query.sv",
+      "sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/check_s2b_inference_platform.py",
+      "sha256": "43d597797be81a98e966a55c4f1f6a2fe864d6cb2d9fb82f2fa4c0aef35dca8d",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/s1_t02_d2_int8_forward.py",
+      "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_backend_coordinates_rtl.py",
+      "sha256": "958ea4dda5e2b8c03202e56d72d74deb116b6382b7790af5139058e210f49954",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_conv_feature_address_rtl.py",
+      "sha256": "789cee61697dbf5759728a63075e760e07eb4f3a3fa6ab22355fb58c46f1b513",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_conv_output_address_rtl.py",
+      "sha256": "f027f36572583aed056721a5682043ed94636168c1170a95984025633578e6fb",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_conv_validation_rtl.py",
+      "sha256": "90b0e9d16ff9acc89e4584b3c5a22681a834df8933da0620920cfe84ca313f80",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_geometry_specialization_rtl.py",
+      "sha256": "e35cb07e92ee333742a0deb2d2b8ca377f8f80dfdcd2a3573a221d4116224493",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_maxpool_address_guard_rtl.py",
+      "sha256": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_route_address_guard_rtl.py",
+      "sha256": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/verification/test_s2b_route_specialization_rtl.py",
+      "sha256": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/vivado/s2b_inference_platform.tcl",
+      "sha256": "35740123b59e2b741ad6b175297cf44fb338a4d6b70939fc07f5978da23ac4c6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/final_source_snapshot/vivado/s2b_ps_platform.tcl",
+      "sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/g1_summary.json",
+      "sha256": "646db5e44767a7ee22aa6c7f667dcfeb02c1176edf5fc28f94e8a9064a297d4e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/geometry_compile.log",
+      "sha256": "3eaa85d59929c78917b6c8931fb1e507d0ffa1953d2140bea9dcca8e6619011b",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/geometry_simulation.log",
+      "sha256": "6f012e7d8a94ada9246722c882c7020db76cc6e373f9df60fd3c66a57b362f2e",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/geometry_vectors.dat",
+      "sha256": "c38fe41a208ae36685fbba8eb66062cd700693e7ad3451cdef3b5cd6dc80bf23",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/pool_vectors.dat",
+      "sha256": "6bf7dabcc5fce92341ae8907a7e4f376847ed1ab09fbccbfdf28f759ed2a8468",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/budget_repair_receipt.json",
+      "sha256": "f3df704673b402367d526f84fe945b43cafb17f5476fc6ba71f225164ec86df6",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/engine_compile.log",
+      "sha256": "1358e14197c2bb445d7af16c8247e79882063a0ff1e0965ea65b7cad75f0f4e1",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/geometry_compile.log",
+      "sha256": "0afde80e548d94d264b4bf87c4a925b827a6a81d30e98d7745ca79f2c2257b23",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/geometry_simulation.log",
+      "sha256": "43068da3b7c938002a00e4eb6498cf349a46a92ecc868ec770be2c036acf133f",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/guard_adapter.json",
+      "sha256": "09a87fff26126ea163d5f6f1a19d09a58bf4e934cd998bc36530b909c2ed702c",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/guard_native.json",
+      "sha256": "939da6f7cf259c1fca1c598c200c17cf0acc983eba336805545f3cd0815a17fe",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/guard_stderr.log",
+      "sha256": "3579f82abe7c1548c5f59e4e64c7ee6095c0b51ff078ceb92134b32e6e025e44",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/guard_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/initial_source.json",
+      "sha256": "f882b63bfba00b3eb26efc453256559b2491087601be555fdc134a98b9750fd7",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/run_stage.py",
+      "sha256": "ea16f693f5df64e2dc7ba0cf65ef29555b05762dc8caeb87948c2c74f1d99f8f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/r01_failed_raw/source_metadata/board/s2b_inference_platform.md",
+      "sha256": "9f89687d570604c0f226ccef615fad6ab735c420bc190f9fa31442d79b1266f9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_diff.patch",
+      "sha256": "7071b8dbf53e0d4e0c4cefa1cc307a71d06fd9031a4d3a2ba6580e6adf90f9e9",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_freeze.json",
+      "sha256": "54fdd3e18d6e897bfb8c9df9ccd30699bb15e52ad807a327cf1ea37ad27093dc",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/board/ps_platform_fields.json",
+      "sha256": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/board/s2b_inference_platform.json",
+      "sha256": "7e6fc4b0f354a5d9047805b4d1f1688954862c774fe49f9be2c8e467da2c5d32",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/board/s2b_inference_platform.md",
+      "sha256": "a50f6e9d03293e08c0340b96bdb01d2a9a02be4b96ab21bec2c949c22a48fcf3",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/int8_maxpool_geometry.sv",
+      "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/int8_route_query.sv",
+      "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_conv_tile_engine.sv",
+      "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_maxpool_engine.sv",
+      "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_network_backend.sv",
+      "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_stage2a_core_ooc.sv",
+      "sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_conv_tile_engine.sv",
+      "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_maxpool_engine.sv",
+      "sha256": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_maxpool_geometry.sv",
+      "sha256": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_network_backend.sv",
+      "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_route_engine.sv",
+      "sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_route_query.sv",
+      "sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/verification/check_s2b_inference_platform.py",
+      "sha256": "43d597797be81a98e966a55c4f1f6a2fe864d6cb2d9fb82f2fa4c0aef35dca8d",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/verification/test_s2b_backend_coordinates_rtl.py",
+      "sha256": "958ea4dda5e2b8c03202e56d72d74deb116b6382b7790af5139058e210f49954",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/verification/test_s2b_conv_feature_address_rtl.py",
+      "sha256": "789cee61697dbf5759728a63075e760e07eb4f3a3fa6ab22355fb58c46f1b513",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/verification/test_s2b_geometry_specialization_rtl.py",
+      "sha256": "e35cb07e92ee333742a0deb2d2b8ca377f8f80dfdcd2a3573a221d4116224493",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/verification/test_s2b_maxpool_address_guard_rtl.py",
+      "sha256": "df94be7c12f23a73819bfbbad464ae315b0b41bd266ad14845103b085e70c5b4",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/vivado/s2b_inference_platform.tcl",
+      "sha256": "35740123b59e2b741ad6b175297cf44fb338a4d6b70939fc07f5978da23ac4c6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_snapshot/vivado/s2b_ps_platform.tcl",
+      "sha256": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/tb_s2b_geometry_specialization.sv",
+      "sha256": "da1d38f26da0ec18a99598f507778bc80563f59c20f85b101dbdab9533a31d5a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/tb_s8_geometry.sv",
+      "sha256": "8292d0fbf2464005bd52451cf429809813c99addbef8f5d71539bba321f232c7",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/upsample_vectors.dat",
+      "sha256": "e71669fcc6f832daffa6e15d81594ff7d9ded1e8a6c74d86a0a4555f81044886",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/validation.json",
+      "sha256": "fcfd57a155c404e637ad09b1f95b94616a58dc89f51efaebad08ac86bf9916f8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/conv_feature_address_20261011_r01/source_freeze.json",
+      "sha256": "8fcbb7313ced5b8046e4ff74bd274ed4b7d47c3d00a776bc50a4b0d73bb96360",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/timing_worst_synth.rpt",
+      "sha256": "a9850c69ec243538e3549bc74b9b6ed8bbade8aeff1570009ccfa1dd8a88d421",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "真实原生runner",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\run_stage.py guard --child",
+      "exit_code": 0,
+      "reason": "实际原生执行，单job/thread1及外层1GiB/guard合计640MiB、backend300MiB守卫。"
+    },
+    {
+      "name": "geometry_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" --top-module tb_s8_geometry --Mdir obj_geometry source/int8_maxpool_geometry.sv source/s2b_maxpool_geometry.sv tb_s8_geometry.sv",
+      "exit_code": 0,
+      "reason": "真实编译/仿真命令与原生退出码；原始日志绑定。"
+    },
+    {
+      "name": "geometry_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\rtl_run\\obj_geometry\\Vtb_s8_geometry.exe +VECTOR_PATH=C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\geometry_vectors.dat",
+      "exit_code": 0,
+      "reason": "真实编译/仿真命令与原生退出码；原始日志绑定。"
+    },
+    {
+      "name": "engine_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" --top-module tb_s2b_geometry_specialization --Mdir obj_engine source/int8_maxpool_geometry.sv source/s2b_maxpool_geometry.sv source/int8_maxpool_window.sv source/int8_upsample_query.sv source/s2a_maxpool_engine.sv source/s2a_upsample_engine.sv source/s2b_maxpool_engine.sv source/s2b_upsample_engine.sv tb_s2b_geometry_specialization.sv",
+      "exit_code": 0,
+      "reason": "真实编译/仿真命令与原生退出码；原始日志绑定。"
+    },
+    {
+      "name": "engine_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\maxpool_geometry_factor_20261012_r02\\rtl_run\\obj_engine\\Vtb_s2b_geometry_specialization.exe",
+      "exit_code": 0,
+      "reason": "真实编译/仿真命令与原生退出码；原始日志绑定。"
+    },
+    {
+      "name": "独立G2",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "ROOT随后独立审查。"
+    },
+    {
+      "name": "S11真实STA与实现",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "仅功能G1，S10实际STA仍FAIL。"
+    },
+    {
+      "name": "G3实板",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "未操作设备。"
+    }
+  ],
+  "limitations": [
+    "功能G1与独立G2/STA/实板分别判断；S10真实WNS−4.405ns仍FAIL且resource coverage BLOCKED，未继承通过。本轮没有Vivado/硬件。",
+    "原14/engine原字节、全部端口/FF/FSM/错误优先/周期、50MHz/physical0.1.1/visibility0及正式109/100gold/1000实板指标保持。",
+    "fullfield黄金仍旧无限精度嵌套地址；保留全部82586旧刺激并增加5项手算，seed0x581011。有限样本不是U32穷举。",
+    "几何和公开POOL/UP包含全部状态abort/reset、backpressure/RESULT hold；backend15非CONV完整trace/38控制stub/12负向；CONV数值/层0/新109整网未重跑。",
+    "backend16既有TB MULTIDRIVEN逐条同S10，非新生产警告；本轮geometry/engine LATCH/UNOPTFLAT/MULTIDRIVEN为零。",
+    "峰RSS是0.2秒离散采样树峰，非连续绝对峰；单job/thread1，外层1GiB/guard合计640MiB、backend300MiB预算。"
+  ]
+}

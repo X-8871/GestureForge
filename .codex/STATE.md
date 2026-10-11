@@ -35,6 +35,8 @@
 
 ## Git 与下一步
 
+- T18固定模型验收runner独立R2离线G2 PASS：源码`5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867`；22回归/14独立检查，109真实资产SHA及1000帧MOCK原UART重解析通过，模型实板计算次数仍0。R1相对proof路径与绝对ELF路径字典比较阻断已关闭，原件保留；归档`report/evidence/S2B-T18/independent_review_20261011_r02/delivery_manifest_r03.json` SHA`2c446f495d29c25aa869c1072dc7708767e6852fabb5a78876248f2979d2d9bd`，独审receipt`447a5580d2cd4ec6f12835480ec09b420dce796b2752c797af2bd4828dbc365b`。evidence0/inputs2因候选未冻结及板上NOT_RUN；不审批并行平台、visibility1或最终bit。当前继续时序等价修复、实际cache先验与完整模型部署。
+
 - 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。
 - 新增交付规则见 `AGENTS.md`「产物落点、阶段对接与 ROSS 使用」及 `report/README.md`；只读检查器提交 `9db8d64` 已通过50项回归与独立审查，证据 `report/evidence/CTRL-DELIVERY/validation_20261008_2054/`。它只核对当前声明的输入/证据，不代表阶段 G0/G4/G5 或实物通过。
 - 本次 ROSS 2026.9.1 独立 Tcl 冒烟已通过：Vivado 2026.1 `version` 与 Tcl 查询完成码均为0，状态健康且仅本次会话已关闭；证据 `report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/`。未测试 IP、综合/实现或硬件，不能由此关闭上文2B G0阻碍。

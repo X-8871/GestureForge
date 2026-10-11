@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_G1_CHECKS",
+  "hardware_execution": "NOT_RUN",
+  "sample_count": 109,
+  "stress_hardware_count": 0,
+  "unit_tests": 15,
+  "test_command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "verification.test_s2b_board_acceptance",
+    "-v"
+  ],
+  "test_exit_code": 0,
+  "prepared_assets": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T18\\offline_prepare_20261011_r02\\preparation.json",
+    "sha256": "c85aacb475877054d816491e0f88c9c9f289758fb2744f5a24707ef6a63d7031"
+  },
+  "coverage_tags": [
+    "boundary_ground_truth_box",
+    "class:fist",
+    "class:one",
+    "class:palm",
+    "class:three",
+    "class:two_up",
+    "empty_ground_truth",
+    "input_extreme_max",
+    "input_extreme_min",
+    "input_extreme_transition",
+    "input_seeded_random",
+    "multi_ground_truth_boxes",
+    "no_hand_negative",
+    "small_ground_truth_box"
+  ],
+  "mutations": [
+    {
+      "case": "duplicate_sample",
+      "status": "PASS_REJECTED",
+      "error": "TransportError('准备条目与冻结索引不符')"
+    },
+    {
+      "case": "wrong_golden_sha",
+      "status": "PASS_REJECTED",
+      "error": "TransportError('绑定文件发生漂移：C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T29\\\\cpu_decode_nms_reference.json')"
+    },
+    {
+      "case": "wrong_weights_sha",
+      "status": "PASS_REJECTED",
+      "error": "TransportError('权重不是冻结GF8')"
+    }
+  ],
+  "elapsed_seconds": 5.171999999998661,
+  "source_baseline": "f260880aa68c3aeb45405bb2dcd92d0b32bb9b16",
+  "source_bindings": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_acceptance.py",
+      "sha256": "9c24c3b676904bfec8d5d51506bddc81cd34d9d9baa0592f2b081cebeae37844"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_board_acceptance.py",
+      "sha256": "a77abe3a2c5d7c40fea90f958beb4b91502fc0e71fd2e94923fd0af630cb5e82"
+    }
+  ],
+  "resources": {
+    "peak_memory": "NOT_MEASURED",
+    "scope": "标准库轻量测试；最大单个mock payload为5,903,100B，无CPU重算。"
+  },
+  "run_estimate": {
+    "uart_weights_seconds": 513,
+    "uart109_inputs_seconds": 4913,
+    "stress_compute_hours": [
+      6,
+      24
+    ],
+    "actual_hp_service_mean": "NOT_MEASURED",
+    "core_deadline_limit": "uint32; root需实测确认均值<=38.193再选择期限。"
+  },
+  "limitations": [
+    "MOCK_ONLY测试不计入板上样本或压力任务。",
+    "真实visibility1/cache及最终PL独审尚未就绪，execute会BLOCKED。",
+    "T15 new_directory的已存在RunId负例触发已有scandir ResourceWarning，未修改T15文件。"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "repair_validation_20261011_r01",
+  "source_commit": "b8d5e5238fd01c460aa3155144785d65e06fc16e",
+  "evidence_dir": "report/evidence/S2B-T18/repair_validation_20261011_r01",
+  "interfaces": [
+    {
+      "name": "UART候选",
+      "version": "s2bu-candidate/1.1",
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "8239191df5938e1d8c02c55a55bbf23ebe20c40fc53c9ae6b46641fc6254d1e5",
+      "frozen": false
+    },
+    {
+      "name": "PS/PL物理候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad",
+      "frozen": false
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/initial_failure.json",
+      "sha256": "503e7cc92d93748c9dedc9b2f30aa453c3cb16bc4c1ca3616e8c620aa04ae565",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/initial_failure_test_snapshot.py",
+      "sha256": "89082a05e982ed9c89670ddebeb979aee87c4b5299a430ce5268356bc5cc55a5",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/source_snapshot/s2b_board_acceptance.py",
+      "sha256": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/source_snapshot/test_s2b_board_acceptance.py",
+      "sha256": "1f5fd820b7ac738c97c6f0d7f0a3fea9e2896581f41b5047e7bd86812f954bd0",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/unittest.log",
+      "sha256": "cf23e0ea93ae1c5f670787c9f6f77558416f4b0bf980452358af31796ce94635",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/repair_validation_20261011_r01/validation_result.json",
+      "sha256": "8e3fed6e1324d7088a9bc440d5d1016dd9f2bb8ded697a5612bf29983f4a6c0a",
+      "role": "result"
+    },
+    {
+      "path": "verification/s2b_board_acceptance.py",
+      "sha256": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_fixed_capture_check.py",
+      "sha256": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_s2b_inference_platform.py",
+      "sha256": "2e6db37dbe2bf9292a06ece9a23ba17925994f2a17cc0e6edf9d4cc71c3734ed",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_board_acceptance.py",
+      "sha256": "1f5fd820b7ac738c97c6f0d7f0a3fea9e2896581f41b5047e7bd86812f954bd0",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T15/full_build_20261011_r01/build_details.json",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T01/fixed_test_samples.json",
+      "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "R1修复离线验证",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_board_acceptance -v",
+      "exit_code": 0,
+      "reason": "22项测试和109离线准备核验通过；仅mock/offline。"
+    },
+    {
+      "name": "正式板上109+1000",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "尚无真实先验/visibility1/最终PL产物独审，实物G3仍受阻。"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10"
+  },
+  "limitations": [
+    "接口候选尚未由本runner冻结；inputs核验可受阻。",
+    "本任务不完成CSR负向/复位/恢复及阶段G5。"
+  ]
+}

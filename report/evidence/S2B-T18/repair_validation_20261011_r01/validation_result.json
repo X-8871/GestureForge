@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "status": "PASS_R1_REPAIR_OFFLINE",
+  "hardware_execution": "NOT_RUN",
+  "fix": "保留proof相对POSIX/controller绝对路径契约，精确解析后比较samefile及双方完整SHA。",
+  "test_count": 22,
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "verification.test_s2b_board_acceptance",
+    "-v"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 11.796999999998661,
+  "artifact_bindings": {
+    "actual_build_details": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\build_details.json",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64"
+    },
+    "actual_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\infer.elf",
+      "sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b"
+    },
+    "actual_xsa0": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T13\\artifact_recheck_20261011_r01\\s2b_inference_no_bit.xsa",
+      "sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7"
+    },
+    "actual_initializer_elf": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\init.elf",
+      "sha256": "7314f7eca8df3ea3dc53725219369011827bc108b66a066622c2bb6509ce59cd",
+      "official_linker_sha256": "508b0c05a5dc0258613e3985c179d24f1ed1f3be571d7c6ad564939113766f4a"
+    }
+  },
+  "repair_admission_cases": [
+    "同一实际ELF相对/绝对路径PASS",
+    "不同ELF同SHA拒绝",
+    "错误SHA拒绝",
+    "实际漂移拒绝",
+    "fake receipt role拒绝",
+    "收据固定SHA不匹配拒绝",
+    "proof非法绝对路径拒绝"
+  ],
+  "preparation": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T18\\offline_prepare_20261011_r03\\preparation.json",
+    "sha256": "1639798131e96174427f44bd5a6682d692a7176c2b1d5de6134aaedf8e296d03"
+  },
+  "sample_count": 109,
+  "peak_memory": "NOT_MEASURED",
+  "independent_R1_receipt": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T18\\independent_review_20261011_r01\\review_receipt.json",
+    "sha256": "530968d0c9b41b2624e1c3af2e228e0998725bfba449072eedb9af2fa172640a"
+  },
+  "source_bindings": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_acceptance.py",
+      "sha256": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_board_acceptance.py",
+      "sha256": "1f5fd820b7ac738c97c6f0d7f0a3fea9e2896581f41b5047e7bd86812f954bd0"
+    }
+  ],
+  "limitations": [
+    "AdmissionTests MOCK_ONLY替代静态环境、build元数据入口和目录包装；T16 verify_bindings/文件身份/SHA/visibility解析/admit其余分支真实执行。",
+    "收据fixture仅格式测试，不证明真实cache/visibility1/独审；模型板上计数0，实际门禁仍BLOCKED。",
+    "轻量复制实际ELF/init ELF/XSA，不编译decoder，不复制模型/输入库/shards，不调用SDK/MCP/串口。",
+    "首轮新增fixture路径错误7项setup失败已保存initial_failure与当时测试快照；修复后22项PASS。",
+    "T15已有scandir ResourceWarning仅在已存在RunId负例出现，未修改T15。"
+  ]
+}

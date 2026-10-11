@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T18",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "PASS",
+  "scope": "冻结两文件的离线G2源码/协议/证据绑定复审；不批准visibility1、final bit或实物验收。",
+  "baseline_commit": "b8d5e5238fd01c460aa3155144785d65e06fc16e",
+  "reviewed_sources": {
+    "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+    "verification/test_s2b_board_acceptance.py": "1f5fd820b7ac738c97c6f0d7f0a3fea9e2896581f41b5047e7bd86812f954bd0"
+  },
+  "reviewed_delivery_manifest_sha256": "fdf6c1ca1a0067a95cc306416e8138daa4602bd3342049c9bee565a38703c92d",
+  "result_sha256": "51b7393d2453f318a75dfc4327f11f12de943c0c3eb94623f46580f224fdb53d",
+  "independent_probe_sha256": "656a4dbcb4b096b89db684c1d14eb23522159b34946754619853d278dd638da6",
+  "independent_unittest_log_sha256": "28c4259e1f6523b8d44a332eb39ea169ac6d714ea3cb831afcbd9412dfbea8a1",
+  "closed_findings": [
+    {
+      "id": "R1-01",
+      "status": "CLOSED",
+      "basis": "proof相对POSIX路径与controller绝对路径分别精确核验，samefile并完整核对双方声明及实际SHA；同ELF正向、不同文件相同SHA、错误SHA、漂移和绝对proof路径负向独立测试通过。"
+    }
+  ],
+  "findings": [],
+  "validation": [
+    {
+      "command": "python -B -m unittest verification.test_s2b_board_acceptance -v",
+      "exit_code": 0,
+      "tests": 22,
+      "elapsed_seconds": 10.079,
+      "limitations": "admit正向使用明确MOCK fixture；真实文件核验/visibility解析仍执行，build入口/静态环境/包装入口mock。既有T15 scandir ResourceWarning仅触发于已存在RunId负例。"
+    },
+    {
+      "command": "python -B tmp/2B/S2B-T18/independent_review_20261011_r02/probes.py",
+      "exit_code": 0,
+      "checks": 14,
+      "elapsed_seconds": 3.422,
+      "coverage": "109真实input/GF8及双头SHA只读核验；validate_plan及完整receive/models/execute与R1被审版精确相同；R1保留1000MOCK原UART逐帧重解析；9项额外门禁拒绝；evidence CHECKS_OK，inputs CHECKS_FAILED符合未冻结/NOT_RUN状态。"
+    }
+  ],
+  "limitations": [
+    "当前platform profile/checker处于并行开发，本收据不固定或批准其语义；模型运行仍需实际proof及final bit独立批准。",
+    "1000次原字节来自R1 MOCK，模型硬件任务数0，未访问硬件/SDK/串口/MCP/Vivado。",
+    "真实Reviewer来源由总控冻结实际收据SHA并确认，JSON角色和PASS字段只用于机器绑定。",
+    "正式G3/G4/G5及当前时序阻碍均未由本收据关闭。",
+    "只写隔离tmp目录，未改源文件或共享分支，未提交；峰值内存未测。"
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "hardware_execution": "NOT_RUN",
+  "checks": [
+    {
+      "name": "109冻结真实输入/GF8/双头原字节",
+      "status": "PASS",
+      "sample_count": 109,
+      "preparation": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T18\\offline_prepare_20261011_r02\\preparation.json",
+        "sha256": "c85aacb475877054d816491e0f88c9c9f289758fb2744f5a24707ef6a63d7031"
+      }
+    },
+    {
+      "name": "R1同ELF路径门禁矛盾",
+      "status": "CONFIRMED_BLOCKER",
+      "proof_elf": {
+        "path": "report/evidence/S2B-T15/full_build_20261011_r01/infer.elf",
+        "sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b"
+      },
+      "controller_elf": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\infer.elf",
+        "sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b"
+      },
+      "same_exact_file_and_sha": true,
+      "cause": "现有proof只接受相对路径，controller只接受绝对路径，admit却比较原字典。"
+    },
+    {
+      "name": "真实冻结golden经MOCK_UART",
+      "status": "PASS",
+      "index": 102,
+      "boxes": 0,
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "真实冻结golden经MOCK_UART",
+      "status": "PASS",
+      "index": 100,
+      "boxes": 1,
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "真实冻结golden经MOCK_UART",
+      "status": "PASS",
+      "index": 60,
+      "boxes": 1,
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "1000连续MOCK_epoch/frame/seq",
+      "status": "PASS",
+      "frames": 1000,
+      "model_checked": false
+    },
+    {
+      "name": "包装_evidence",
+      "status": "CHECKS_OK",
+      "result": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T18",
+        "run_id": "offline_delivery_20261011_r01",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "T18离线开发验证",
+            "reason": "15项测试和109准备/3项篡改检查通过；仅mock/offline。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "板上109+1000实物验收",
+            "reason": "真实cache/visibility1/最终PL独审证据尚未产生。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    },
+    {
+      "name": "包装_inputs",
+      "status": "CHECKS_FAILED",
+      "result": {
+        "status": "CHECKS_FAILED",
+        "mode": "inputs",
+        "task_id": "S2B-T18",
+        "run_id": "offline_delivery_20261011_r01",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "T18离线开发验证",
+            "reason": "15项测试和109准备/3项篡改检查通过；仅mock/offline。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "板上109+1000实物验收",
+            "reason": "真实cache/visibility1/最终PL独审证据尚未产生。"
+          }
+        ],
+        "errors": [
+          "interfaces[0] 接口未冻结，阻断 inputs 核验",
+          "interfaces[1] 接口未冻结，阻断 inputs 核验",
+          "checks[1] 依赖检查状态为 NOT_RUN，阻断 inputs 核验"
+        ],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    }
+  ],
+  "status": "CHANGES_REQUIRED",
+  "elapsed_seconds": 20.04699999999866,
+  "source_bindings": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_acceptance.py",
+      "sha256": "9c24c3b676904bfec8d5d51506bddc81cd34d9d9baa0592f2b081cebeae37844"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_board_acceptance.py",
+      "sha256": "a77abe3a2c5d7c40fea90f958beb4b91502fc0e71fd2e94923fd0af630cb5e82"
+    }
+  ],
+  "limitations": [
+    "UART结果为MOCK，不计入G3/G4。",
+    "未访问SDK/串口/MCP/硬件。",
+    "峰值内存未测。"
+  ]
+}

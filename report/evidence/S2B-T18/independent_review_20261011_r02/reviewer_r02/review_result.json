@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_G2_R2",
+  "hardware_execution": "NOT_RUN",
+  "checks": [
+    {
+      "name": "109实际input/GF8/双head只读SHA",
+      "status": "PASS",
+      "preparation": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T18\\offline_prepare_20261011_r03\\preparation.json",
+        "sha256": "1639798131e96174427f44bd5a6682d692a7176c2b1d5de6134aaedf8e296d03"
+      }
+    },
+    {
+      "name": "validate_plan及完整RAW/models/1000消费与R1被审版精确相同",
+      "status": "PASS",
+      "old": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T18\\offline_delivery_20261011_r01\\source_snapshot\\s2b_board_acceptance.py",
+        "sha256": "9c24c3b676904bfec8d5d51506bddc81cd34d9d9baa0592f2b081cebeae37844"
+      }
+    },
+    {
+      "name": "1000既存MOCK原UART独立重解析",
+      "status": "PASS",
+      "epoch": 1000,
+      "hardware_execution": "NOT_RUN"
+    },
+    {
+      "name": "profile_receipt_sha",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "ValueError('审查未绑定精确证明内容')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "final_manifest_binding",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('最终PL独审未绑定visibility1、唯一参数变化或同ELF/BSP兼容性')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "final_profile_binding",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('最终PL独审未绑定visibility1、唯一参数变化或同ELF/BSP兼容性')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "visibility_parameter",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('最终PL独审未绑定visibility1、唯一参数变化或同ELF/BSP兼容性')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "bsp_flag",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('最终PL独审未绑定visibility1、唯一参数变化或同ELF/BSP兼容性')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "only_parameter_flag",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('最终PL独审未绑定visibility1、唯一参数变化或同ELF/BSP兼容性')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "failed_controller",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('控制器未部署/已失败/已关闭')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "failed_wire",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('UART失败或仍有诊断pending')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "missing_proof",
+      "status": "PASS_REJECTED_BEFORE_TX",
+      "error": "TransportError('BLOCKED：缺少真实visibility1及最终PL独审绑定')",
+      "scope": "MOCK_ONLY"
+    },
+    {
+      "name": "包装_evidence",
+      "result": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T18",
+        "run_id": "repair_validation_20261011_r01",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "R1修复离线验证",
+            "reason": "22项测试和109离线准备核验通过；仅mock/offline。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "正式板上109+1000",
+            "reason": "尚无真实先验/visibility1/最终PL产物独审，实物G3仍受阻。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    },
+    {
+      "name": "包装_inputs",
+      "result": {
+        "status": "CHECKS_FAILED",
+        "mode": "inputs",
+        "task_id": "S2B-T18",
+        "run_id": "repair_validation_20261011_r01",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "R1修复离线验证",
+            "reason": "22项测试和109离线准备核验通过；仅mock/offline。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "正式板上109+1000",
+            "reason": "尚无真实先验/visibility1/最终PL产物独审，实物G3仍受阻。"
+          }
+        ],
+        "errors": [
+          "interfaces[0] 接口未冻结，阻断 inputs 核验",
+          "interfaces[1] 接口未冻结，阻断 inputs 核验",
+          "checks[1] 依赖检查状态为 NOT_RUN，阻断 inputs 核验"
+        ],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    }
+  ],
+  "elapsed_seconds": 3.4219999999986612,
+  "source_bindings": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s2b_board_acceptance.py",
+      "sha256": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s2b_board_acceptance.py",
+      "sha256": "1f5fd820b7ac738c97c6f0d7f0a3fea9e2896581f41b5047e7bd86812f954bd0"
+    }
+  ],
+  "limitations": [
+    "当前profile并行开发，未固定其语义或批准visibility1。",
+    "所有UART为MOCK，G3/G4/G5未通过。",
+    "峰值内存未测，单文件最大5.9MB。"
+  ]
+}

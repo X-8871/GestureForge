@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T18",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "CHANGES_REQUIRED",
+  "baseline_commit": "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+  "reviewed_sources": {
+    "verification/s2b_board_acceptance.py": "9c24c3b676904bfec8d5d51506bddc81cd34d9d9baa0592f2b081cebeae37844",
+    "verification/test_s2b_board_acceptance.py": "a77abe3a2c5d7c40fea90f958beb4b91502fc0e71fd2e94923fd0af630cb5e82"
+  },
+  "result_sha256": "24a469c456540fe593d9b4cf0899c77ed53bec490c40e106ae9aa13ef0e1610d",
+  "independent_probe_sha256": "e4b369624c64ab3f854f543b216335f845f68ca71256cc4d83c5815a49543f8e",
+  "independent_unittest_log_sha256": "3fba1c54c68c7b8bfe2fdf508497465cec44af00d4b5d81b0c5be883cca09d3c",
+  "findings": [
+    {
+      "id": "R1-01",
+      "priority": "P1",
+      "file": "verification/s2b_board_acceptance.py",
+      "line": 148,
+      "problem": "直接比较相对ELF绑定与绝对ELF绑定，合法同一实际ELF也被拒绝。",
+      "evidence": "平台relative_file仅接受仓库内POSIX相对路径；T16 exact_path要求绝对路径。独立反例用真实T15 infer.elf证明两绑定均合法且同一精确文件/SHA，但原字典不相等。",
+      "closure": "保留两处路径契约，分别经过现有精确路径核验后比较实际目标与SHA；补充admit同ELF相对/绝对路径通过，以及不同ELF/SHA、漂移和伪造receipt拒绝的门禁回归。"
+    }
+  ],
+  "validation": [
+    {"command": "python -B -m unittest verification.test_s2b_board_acceptance -v", "exit_code": 0, "count": 15},
+    {"command": "python -B tmp/2B/S2B-T18/independent_review_20261011_r01/probes.py", "exit_code": 0, "elapsed_seconds": 20.047, "checks": "109真实input/GF8/双head只读核验；空/多/边界3个真实golden通过MOCK UART与真实checker；1000连续MOCK协议；evidence CHECKS_OK、inputs BLOCKED"}
+  ],
+  "limitations": [
+    "本收据仅适用于离线G2审查；实际模型计算、cache、visibility1、G3/G4/G5均未执行或未通过。",
+    "未修改项目源、共享分支或提交，未操作硬件/SDK/串口/MCP。",
+    "隔离验证目录95MiB；峰值内存未测。",
+    "当前整网实测时序失败属于root集成阻碍，不能由mock协议通过关闭。"
+  ]
+}

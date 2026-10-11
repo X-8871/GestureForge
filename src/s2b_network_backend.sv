@@ -42,6 +42,10 @@ module s2b_network_backend (
     state_t state;
     logic [5:0] layer_cursor;
     logic [31:0] output_element_index;
+    // 冻结38层均为单批次；坐标只沿原索引赋值分支更新。
+    logic [8:0] output_channel_cursor;
+    logic [7:0] output_y_cursor;
+    logic [7:0] output_x_cursor;
     logic response_pending;
     logic [31:0] response_data_latched;
     logic [2:0] response_error_latched;
@@ -167,9 +171,9 @@ module s2b_network_backend (
         decoded_x = 32'd0;
         if ((output_plane_elements != 64'd0) &&
             (output_batch_elements != 64'd0) && (output_w != 16'd0)) begin
-            decoded_channel = (output_element_index / output_plane_elements) % output_c;
-            decoded_y = (output_element_index / {48'd0, output_w}) % output_h;
-            decoded_x = output_element_index % output_w;
+            decoded_channel = {23'd0, output_channel_cursor};
+            decoded_y = {24'd0, output_y_cursor};
+            decoded_x = {24'd0, output_x_cursor};
         end
 
         for (integer source_slot = 0; source_slot < 2; source_slot = source_slot + 1) begin
@@ -565,6 +569,9 @@ module s2b_network_backend (
             state <= ST_IDLE;
             layer_cursor <= 6'd0;
             output_element_index <= 32'd0;
+            output_channel_cursor <= 9'd0;
+            output_y_cursor <= 8'd0;
+            output_x_cursor <= 8'd0;
             response_pending <= 1'b0;
             response_data_latched <= 32'd0;
             response_error_latched <= NONE;
@@ -573,6 +580,9 @@ module s2b_network_backend (
             state <= ST_IDLE;
             layer_cursor <= 6'd0;
             output_element_index <= 32'd0;
+            output_channel_cursor <= 9'd0;
+            output_y_cursor <= 8'd0;
+            output_x_cursor <= 8'd0;
             response_pending <= 1'b0;
             response_data_latched <= 32'd0;
             response_error_latched <= NONE;
@@ -591,6 +601,9 @@ module s2b_network_backend (
                     if (backend_start && buffer_owner_pl) begin
                         layer_cursor <= 6'd0;
                         output_element_index <= 32'd0;
+                        output_channel_cursor <= 9'd0;
+                        output_y_cursor <= 8'd0;
+                        output_x_cursor <= 8'd0;
                         state <= ST_DISPATCH;
                     end
                 end
@@ -606,6 +619,9 @@ module s2b_network_backend (
                             end else begin
                                 layer_cursor <= layer_cursor + 6'd1;
                                 output_element_index <= 32'd0;
+                                output_channel_cursor <= 9'd0;
+                                output_y_cursor <= 8'd0;
+                                output_x_cursor <= 8'd0;
                             end
                         end else if (!selected_start_ready) begin
                             state <= ST_IDLE;
@@ -630,12 +646,27 @@ module s2b_network_backend (
                                      (({32'd0, output_element_index} + 64'd1) <
                                       output_element_count)) begin
                             output_element_index <= output_element_index + 32'd1;
+                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。
+                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin
+                                output_x_cursor <= 8'd0;
+                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin
+                                    output_y_cursor <= 8'd0;
+                                    output_channel_cursor <= output_channel_cursor + 9'd1;
+                                end else begin
+                                    output_y_cursor <= output_y_cursor + 8'd1;
+                                end
+                            end else begin
+                                output_x_cursor <= output_x_cursor + 8'd1;
+                            end
                             state <= ST_DISPATCH;
                         end else if ((layer_cursor + 6'd1) >= S2A_LAYER_COUNT) begin
                             state <= ST_IDLE;
                         end else begin
                             layer_cursor <= layer_cursor + 6'd1;
                             output_element_index <= 32'd0;
+                            output_channel_cursor <= 9'd0;
+                            output_y_cursor <= 8'd0;
+                            output_x_cursor <= 8'd0;
                             state <= ST_DISPATCH;
                         end
                     end

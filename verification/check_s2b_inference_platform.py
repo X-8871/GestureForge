@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.1"
+PROFILE_VERSION = "s2b-inference-platform/0.1.2"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -37,6 +37,55 @@ DERIVATION_RULES = {
 }
 LEGACY_2B_SOURCES = ("src/s2b_request_guard.sv", "src/s2b_hp0_word_adapter.sv",
                      "src/s2b_control_csr.sv", "src/s2b_inference_top.sv")
+
+# 只授权原六个索引更新分支中的坐标寄存器；全部文字独立固定。
+COORDINATE_REPLACEMENTS = [
+    ["    logic [31:0] output_element_index;",
+     "    logic [31:0] output_element_index;\n"
+     "    // 冻结38层均为单批次；坐标只沿原索引赋值分支更新。\n"
+     "    logic [8:0] output_channel_cursor;\n"
+     "    logic [7:0] output_y_cursor;\n"
+     "    logic [7:0] output_x_cursor;"],
+    ["            decoded_channel = (output_element_index / output_plane_elements) % output_c;\n"
+     "            decoded_y = (output_element_index / {48'd0, output_w}) % output_h;\n"
+     "            decoded_x = output_element_index % output_w;",
+     "            decoded_channel = {23'd0, output_channel_cursor};\n"
+     "            decoded_y = {24'd0, output_y_cursor};\n"
+     "            decoded_x = {24'd0, output_x_cursor};"],
+]
+for prefix, indent in (("        if (hard_reset) begin\n", 12),
+                       ("        end else if (abort) begin\n", 12),
+                       ("                    if (backend_start && buffer_owner_pl) begin\n", 24)):
+    gap = " " * indent
+    # 复位分支含state赋值；启动分支由layer赋值开始。
+    before = prefix + (gap + "state <= ST_IDLE;\n" if indent == 12 else "")
+    before += gap + "layer_cursor <= 6'd0;\n" + gap + "output_element_index <= 32'd0;"
+    after = before + "\n" + gap + "output_channel_cursor <= 9'd0;\n"
+    after += gap + "output_y_cursor <= 8'd0;\n" + gap + "output_x_cursor <= 8'd0;"
+    COORDINATE_REPLACEMENTS.append([before, after])
+for indent in (32, 28):
+    gap = " " * indent
+    before = "\n" + gap + "output_element_index <= 32'd0;"
+    after = before + "\n" + gap + "output_channel_cursor <= 9'd0;\n"
+    after += gap + "output_y_cursor <= 8'd0;\n" + gap + "output_x_cursor <= 8'd0;"
+    COORDINATE_REPLACEMENTS.append([before, after])
+COORDINATE_REPLACEMENTS.append([
+    "                            output_element_index <= output_element_index + 32'd1;",
+    "                            output_element_index <= output_element_index + 32'd1;\n"
+    "                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。\n"
+    "                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin\n"
+    "                                output_x_cursor <= 8'd0;\n"
+    "                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin\n"
+    "                                    output_y_cursor <= 8'd0;\n"
+    "                                    output_channel_cursor <= output_channel_cursor + 9'd1;\n"
+    "                                end else begin\n"
+    "                                    output_y_cursor <= output_y_cursor + 8'd1;\n"
+    "                                end\n"
+    "                            end else begin\n"
+    "                                output_x_cursor <= output_x_cursor + 8'd1;\n"
+    "                            end"
+])
+DERIVATION_RULES["src/s2a_network_backend.sv"][1].extend(COORDINATE_REPLACEMENTS)
 
 
 def sha256(path: Path) -> str:
@@ -91,13 +140,13 @@ def read_json(path: Path) -> dict:
 
 
 def check_derivation(root: Path, profile: dict) -> None:
-    """核对原14源字节和仅有的模块引用、几何参数常量派生关系。"""
+    """核对原14源字节、几何常量和同沿坐标寄存器的精确派生关系。"""
     item = profile["source_derivation"]
     require(set(item) == {"policy", "upstream_freeze_commit", "derivation_baseline_commit",
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
-    require(item["policy"] == "s2b-constant-geometry/1.0.0" and
+    require(item["policy"] == "s2b-constant-geometry-and-coordinates/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+        item["derivation_baseline_commit"] == "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -124,6 +173,7 @@ def check_static(root: Path) -> dict:
     """仅确认可恢复输入和公开口约束，不替代 IPI/RTL 审查。"""
     profile = read_json(root / "board/s2b_inference_platform.json")
     require(profile["version"] == PROFILE_VERSION, "平台版本不符")
+    require(profile.get("physical_interface") == "s2b-physical-candidate/0.1.1", "物理候选版本不符")
     require(profile["requested_part_literal"] == "XC7Z020-2CLG400I", "原始型号被改变")
     require(profile["vivado_part"] == "xc7z020clg400-2", "工具器件不符")
     require(profile["clock_hz"] == 50_000_000 and profile["visibility_default"] == 0, "时钟或默认门控不符")
@@ -145,7 +195,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为10个冻结2A、4个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.1" in script, "Tcl平台版本不符")
+    require("variable version 0.1.2" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

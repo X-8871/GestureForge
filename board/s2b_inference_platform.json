@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.1",
+  "version": "s2b-inference-platform/0.1.2",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -82,9 +82,9 @@
     "HP路径按实际全网与AXI3非Bufferable规范独立证明；HP写结果到CPU的完整模型golden仍由G3关闭。"
   ],
   "source_derivation": {
-    "policy": "s2b-constant-geometry/1.0.0",
+    "policy": "s2b-constant-geometry-and-coordinates/1.0.0",
     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
-    "derivation_baseline_commit": "18c0c34f9da885b5f35869c282dc0c2ed50d720e",
+    "derivation_baseline_commit": "6d00ff2d05e92fa6cff05243fb620f8a0232b9f1",
     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
     "upstream_sources": [
       {
@@ -194,7 +194,7 @@
       {
         "source": "src/s2a_network_backend.sv",
         "path": "src/s2b_network_backend.sv",
-        "sha256": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+        "sha256": "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a",
         "replacements": [
           [
             "module s2a_network_backend (",
@@ -207,6 +207,38 @@
           [
             "s2a_upsample_engine u_upsample_engine",
             "s2b_upsample_engine u_upsample_engine"
+          ],
+          [
+            "    logic [31:0] output_element_index;",
+            "    logic [31:0] output_element_index;\n    // 冻结38层均为单批次；坐标只沿原索引赋值分支更新。\n    logic [8:0] output_channel_cursor;\n    logic [7:0] output_y_cursor;\n    logic [7:0] output_x_cursor;"
+          ],
+          [
+            "            decoded_channel = (output_element_index / output_plane_elements) % output_c;\n            decoded_y = (output_element_index / {48'd0, output_w}) % output_h;\n            decoded_x = output_element_index % output_w;",
+            "            decoded_channel = {23'd0, output_channel_cursor};\n            decoded_y = {24'd0, output_y_cursor};\n            decoded_x = {24'd0, output_x_cursor};"
+          ],
+          [
+            "        if (hard_reset) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;",
+            "        if (hard_reset) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;\n            output_channel_cursor <= 9'd0;\n            output_y_cursor <= 8'd0;\n            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;",
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            layer_cursor <= 6'd0;\n            output_element_index <= 32'd0;\n            output_channel_cursor <= 9'd0;\n            output_y_cursor <= 8'd0;\n            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "                    if (backend_start && buffer_owner_pl) begin\n                        layer_cursor <= 6'd0;\n                        output_element_index <= 32'd0;",
+            "                    if (backend_start && buffer_owner_pl) begin\n                        layer_cursor <= 6'd0;\n                        output_element_index <= 32'd0;\n                        output_channel_cursor <= 9'd0;\n                        output_y_cursor <= 8'd0;\n                        output_x_cursor <= 8'd0;"
+          ],
+          [
+            "\n                                output_element_index <= 32'd0;",
+            "\n                                output_element_index <= 32'd0;\n                                output_channel_cursor <= 9'd0;\n                                output_y_cursor <= 8'd0;\n                                output_x_cursor <= 8'd0;"
+          ],
+          [
+            "\n                            output_element_index <= 32'd0;",
+            "\n                            output_element_index <= 32'd0;\n                            output_channel_cursor <= 9'd0;\n                            output_y_cursor <= 8'd0;\n                            output_x_cursor <= 8'd0;"
+          ],
+          [
+            "                            output_element_index <= output_element_index + 32'd1;",
+            "                            output_element_index <= output_element_index + 32'd1;\n                            // 原末元素条件排除通道溢出，不增加owner或结果门禁。\n                            if ({8'd0, output_x_cursor} == (output_w - 16'd1)) begin\n                                output_x_cursor <= 8'd0;\n                                if ({8'd0, output_y_cursor} == (output_h - 16'd1)) begin\n                                    output_y_cursor <= 8'd0;\n                                    output_channel_cursor <= output_channel_cursor + 9'd1;\n                                end else begin\n                                    output_y_cursor <= output_y_cursor + 8'd1;\n                                end\n                            end else begin\n                                output_x_cursor <= output_x_cursor + 8'd1;\n                            end"
           ]
         ]
       },

@@ -1,16 +1,18 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.1`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.2`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：10 个原冻结 2A 模块、4 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，派生基线为 `18c0c34f9da885b5f35869c282dc0c2ed50d720e`。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：10 个原冻结 2A 模块、4 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为已审 S1 提交 `6d00ff2d05e92fa6cff05243fb620f8a0232b9f1`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
-派生策略 `s2b-constant-geometry/1.0.0` 只允许如下差异：`s2b_maxpool_engine` 的内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 的内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。`s2b_network_backend` 只改模块名和两种引擎引用，`s2b_stage2b_core` 只改模块名和backend引用；backend坐标除/模、route、conv、GF8、INT8与输出布局均沿用上游。没有新增周期或时序例外。
+派生策略 `s2b-constant-geometry-and-coordinates/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
-`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为10+4+4，并要求Tcl/JSON版本和闭包一致。该版本尚未证明50MHz收敛；旧0.1.0的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
+S2 仅在派生 backend 加入 C/Y/X 三个坐标寄存器，共25位，并替换原组合坐标除模。38层冻结输出均 N=1、C≤512、H/W≤208；保留原32位 index及64位 count。在原复位、abort、启动、alias换层、结果换层的5个 index归零分支把坐标同步归零，在唯一成功非conv且index+1<count分支按X→Y→C进位。其他分支保持，WAIT 已形成的结果在owner掉低时仍按原条件推进，错误优先于进位，不能额外加入owner门禁。合法索引不变量 `i=c*H*W+y*W+x` 及界限保证原含 `%C` 的 decode与寄存器一致，最后元素的原count条件排除通道wrap；卷积层backend index=0，卷积内部tile坐标不变。所有状态、请求/响应、结果周期、未知状态及descriptor错误门禁保持。`s2b_stage2b_core` 仍只改模块名和backend引用；route、conv、GF8、INT8与输出布局不变，没有新增周期或时序例外。
+
+`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为10+4+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
 
 PS GP0 为 AXI3、32 位数据、12 位 ID，经 `axi_protocol_converter` 到 AXI4-Lite、32 位数据与完整 32 位地址，再到控制器；地址分配 `0x43C00000` / 64 KiB。控制器自行校验完整地址，不截断到低 16 位后盲目接受。HP0 为原生 AXI3、64 位数据、6 位 ID，直接连接 adapter；保留 AXI3 WID、2 位 LOCK 和 4 位 LEN，不套用 AXI4 的早 B 依赖规则。HP 可寻址 1 GiB 是 PS address segment；PL 许可仍由 guard 逐对象限制，完整模型专属 DDR arena 为 `[0x10000000,0x12000000)`。
 
@@ -30,7 +32,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接 
 
 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
 
-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.1`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的4个原上游源，共22个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.2`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的4个原上游源，共22个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
 
 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
 

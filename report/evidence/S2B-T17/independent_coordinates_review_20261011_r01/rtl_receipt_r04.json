@@ -1,0 +1,1678 @@
+{
+  "status": "PASS_INDEPENDENT_RTL_EXPERIMENT",
+  "baseline_head": "1f2f9b964135ae6b92ccf557fd3f1de9639c3f46",
+  "runs": [
+    {
+      "name": "compile_r04",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_backend_coordinates",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "source/s2a_network_descriptor_pkg.sv",
+        "source/int8_maxpool_geometry.sv",
+        "source/int8_maxpool_window.sv",
+        "source/int8_route_query.sv",
+        "source/int8_upsample_query.sv",
+        "source/s2b_maxpool_engine.sv",
+        "source/s2a_route_engine.sv",
+        "source/s2b_upsample_engine.sv",
+        "source/s2b_network_backend.sv",
+        "source/s1_network_backend.sv",
+        "convolution_stub.sv",
+        "tb_s2b_backend_coordinates.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 10.437,
+      "peak_tree_rss_bytes": 644583424,
+      "failure": null,
+      "log": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/r04_logs/compile_r04.log",
+      "log_sha256": "36c17fe2e9b03933247e6dd1677e2277a669e31a7cb6f0f5d8b80a52c65b9d1c"
+    },
+    {
+      "name": "simulation_r04",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_coordinates_review_20261011_r01\\obj_dir\\Vtb_s2b_backend_coordinates.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 104.485,
+      "peak_tree_rss_bytes": 5074944,
+      "failure": null,
+      "log": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/r04_logs/simulation_r04.log",
+      "log_sha256": "789eafb461fbd0c91ecc1c94f2b1c7cffdfcd059ccb5a26cc3bcdc1c569b10eb"
+    }
+  ],
+  "limitations": [
+    "复用已审阅的Developer TB生成函数；独立改变响应数据和背压/owner周期，独立检查请求oracle来源及边界数学。",
+    "原backend仅更名，实际pool/route/up；共享conv stub仅控制，CONV数值/109整网/STA/G3 NOT_RUN。",
+    "每个非conv层从合法DISPATCH入口独立启动；不执行前置卷积；边界内部控制对双方同注入。"
+  ],
+  "resource_budget": {
+    "jobs": 1,
+    "threads": 1,
+    "rss_limit_bytes": 1610612736,
+    "cache_limit_bytes": 314572800,
+    "evidence_limit_bytes": 104857600
+  },
+  "source_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "bef430284805a7a760784835ed47cadae86ffc54ab75abe48014b45df5aead4a",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "ad93a6e9947f7f0a5962eada74e6456bd71de9699925188c032b48466ff71228",
+    "board/s2b_inference_platform.md": "6c5c4221deb3729e8afc20b0f839a58c277da7d1f94f6c9a8bd1d4f7be44b74c",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "1f8d4d4d099f32713ceec04ad4661e110b331394761f83f6efe02d1098f39901",
+    "verification/test_s2b_backend_coordinates_rtl.py": "db26414348ea08b0f142b9e0322d2de84b4ce0dfabaa5058eb5ef51a982f4f9b"
+  },
+  "frozen14_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "model_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+  "independent_coordinate_proof": {
+    "checks": 11407500,
+    "layers": [
+      {
+        "layer": 0,
+        "shape": [
+          1,
+          32,
+          208,
+          208
+        ],
+        "coordinates": 1384448
+      },
+      {
+        "layer": 1,
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "coordinates": 692224
+      },
+      {
+        "layer": 2,
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "coordinates": 692224
+      },
+      {
+        "layer": 3,
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 4,
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 5,
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 6,
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "coordinates": 692224
+      },
+      {
+        "layer": 7,
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "coordinates": 692224
+      },
+      {
+        "layer": 8,
+        "shape": [
+          1,
+          128,
+          104,
+          104
+        ],
+        "coordinates": 1384448
+      },
+      {
+        "layer": 9,
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 10,
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 11,
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 12,
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 13,
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 14,
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 15,
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 16,
+        "shape": [
+          1,
+          256,
+          52,
+          52
+        ],
+        "coordinates": 692224
+      },
+      {
+        "layer": 17,
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 18,
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 19,
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 20,
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 21,
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 22,
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 23,
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 24,
+        "shape": [
+          1,
+          512,
+          26,
+          26
+        ],
+        "coordinates": 346112
+      },
+      {
+        "layer": 25,
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 26,
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 27,
+        "shape": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "coordinates": 43264
+      },
+      {
+        "layer": 28,
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 29,
+        "shape": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "coordinates": 5070
+      },
+      {
+        "layer": 30,
+        "shape": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "coordinates": 5070
+      },
+      {
+        "layer": 31,
+        "shape": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "coordinates": 43264
+      },
+      {
+        "layer": 32,
+        "shape": [
+          1,
+          128,
+          13,
+          13
+        ],
+        "coordinates": 21632
+      },
+      {
+        "layer": 33,
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "coordinates": 86528
+      },
+      {
+        "layer": 34,
+        "shape": [
+          1,
+          384,
+          26,
+          26
+        ],
+        "coordinates": 259584
+      },
+      {
+        "layer": 35,
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "coordinates": 173056
+      },
+      {
+        "layer": 36,
+        "shape": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "coordinates": 20280
+      },
+      {
+        "layer": 37,
+        "shape": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "coordinates": 20280
+      }
+    ]
+  },
+  "rom_manifest_checks": {
+    "status": "PASS",
+    "all_38_layers": [
+      {
+        "layer": 0,
+        "op": "convolutional",
+        "shape": [
+          1,
+          32,
+          208,
+          208
+        ],
+        "indices": 1384448,
+        "last_coordinate": [
+          31,
+          207,
+          207
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 1,
+        "op": "convolutional",
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "indices": 692224,
+        "last_coordinate": [
+          63,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 2,
+        "op": "convolutional",
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "indices": 692224,
+        "last_coordinate": [
+          63,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 3,
+        "op": "route",
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          31,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 4,
+        "op": "convolutional",
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          31,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 5,
+        "op": "convolutional",
+        "shape": [
+          1,
+          32,
+          104,
+          104
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          31,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 6,
+        "op": "route",
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "indices": 692224,
+        "last_coordinate": [
+          63,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 7,
+        "op": "convolutional",
+        "shape": [
+          1,
+          64,
+          104,
+          104
+        ],
+        "indices": 692224,
+        "last_coordinate": [
+          63,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 8,
+        "op": "route",
+        "shape": [
+          1,
+          128,
+          104,
+          104
+        ],
+        "indices": 1384448,
+        "last_coordinate": [
+          127,
+          103,
+          103
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 9,
+        "op": "maxpool",
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          127,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 10,
+        "op": "convolutional",
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          127,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 11,
+        "op": "route",
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          63,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 12,
+        "op": "convolutional",
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          63,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 13,
+        "op": "convolutional",
+        "shape": [
+          1,
+          64,
+          52,
+          52
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          63,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 14,
+        "op": "route",
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          127,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 15,
+        "op": "convolutional",
+        "shape": [
+          1,
+          128,
+          52,
+          52
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          127,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 16,
+        "op": "route",
+        "shape": [
+          1,
+          256,
+          52,
+          52
+        ],
+        "indices": 692224,
+        "last_coordinate": [
+          255,
+          51,
+          51
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 17,
+        "op": "maxpool",
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          255,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 18,
+        "op": "convolutional",
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          255,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 19,
+        "op": "route",
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          127,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 20,
+        "op": "convolutional",
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          127,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 21,
+        "op": "convolutional",
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          127,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 22,
+        "op": "route",
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          255,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 23,
+        "op": "convolutional",
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          255,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 24,
+        "op": "route",
+        "shape": [
+          1,
+          512,
+          26,
+          26
+        ],
+        "indices": 346112,
+        "last_coordinate": [
+          511,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 25,
+        "op": "maxpool",
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          511,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 26,
+        "op": "convolutional",
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          511,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 27,
+        "op": "convolutional",
+        "shape": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "indices": 43264,
+        "last_coordinate": [
+          255,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 28,
+        "op": "convolutional",
+        "shape": [
+          1,
+          512,
+          13,
+          13
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          511,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 29,
+        "op": "convolutional",
+        "shape": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "indices": 5070,
+        "last_coordinate": [
+          29,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 30,
+        "op": "yolo",
+        "shape": [
+          1,
+          30,
+          13,
+          13
+        ],
+        "indices": 5070,
+        "last_coordinate": [
+          29,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 31,
+        "op": "route",
+        "shape": [
+          1,
+          256,
+          13,
+          13
+        ],
+        "indices": 43264,
+        "last_coordinate": [
+          255,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 32,
+        "op": "convolutional",
+        "shape": [
+          1,
+          128,
+          13,
+          13
+        ],
+        "indices": 21632,
+        "last_coordinate": [
+          127,
+          12,
+          12
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 33,
+        "op": "upsample",
+        "shape": [
+          1,
+          128,
+          26,
+          26
+        ],
+        "indices": 86528,
+        "last_coordinate": [
+          127,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 34,
+        "op": "route",
+        "shape": [
+          1,
+          384,
+          26,
+          26
+        ],
+        "indices": 259584,
+        "last_coordinate": [
+          383,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 35,
+        "op": "convolutional",
+        "shape": [
+          1,
+          256,
+          26,
+          26
+        ],
+        "indices": 173056,
+        "last_coordinate": [
+          255,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 36,
+        "op": "convolutional",
+        "shape": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "indices": 20280,
+        "last_coordinate": [
+          29,
+          25,
+          25
+        ],
+        "status": "PASS"
+      },
+      {
+        "layer": 37,
+        "op": "yolo",
+        "shape": [
+          1,
+          30,
+          26,
+          26
+        ],
+        "indices": 20280,
+        "last_coordinate": [
+          29,
+          25,
+          25
+        ],
+        "status": "PASS"
+      }
+    ],
+    "indices": 11407500,
+    "channel_modulo_identity": true,
+    "index_wrap_excluded": true,
+    "method": "独立C/Y/X三重枚举对比原含%C整数decode，不调用RTL或候选carry。"
+  },
+  "checker_negatives": [
+    {
+      "name": "旧profile0.1.0",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.1",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧派生policy",
+      "status": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "旧派生基线",
+      "status": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "通道宽度自报SHA",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "carry自报SHA",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "保持分支额外复位",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "WAIT额外owner门禁",
+      "status": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "允许替换自报",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结源自报SHA",
+      "status": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "闭包遗漏",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包重复",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为10个冻结2A、4个派生及4个原2B模块"
+    },
+    {
+      "name": "时钟降低",
+      "status": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "physical版本改变",
+      "status": "REJECTED",
+      "reason": "物理候选版本不符"
+    },
+    {
+      "name": "旧Tcl版本",
+      "status": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    }
+  ],
+  "independent_stimulus_changes": [
+    [
+      "address ^ (address>>8) ^ 32'ha5",
+      "(address*32'd37) ^ (address>>7) ^ 32'h3c"
+    ],
+    [
+      "(cycles%11)!=0",
+      "(cycles%17)!=0"
+    ],
+    [
+      "(cycles%29)!=0",
+      "(cycles%31)!=0"
+    ]
+  ],
+  "preflight": {
+    "available_ram_bytes": 5791887360,
+    "disk_free_bytes": 16213614592,
+    "heavy_processes": [
+      {
+        "pid": 15124,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe"
+      },
+      {
+        "pid": 20360,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe"
+      },
+      {
+        "pid": 22468,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe"
+      },
+      {
+        "pid": 23188,
+        "name": "vivado.exe"
+      },
+      {
+        "pid": 26468,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe"
+      },
+      {
+        "pid": 27784,
+        "name": "vivado-mcp-server-windows-amd64-2026.9.1.exe"
+      }
+    ]
+  },
+  "seconds": 6.344,
+  "files": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/convolution_stub.sv",
+      "sha256": "326576b246b4bb048da445312752909c8a3bb43cb1e5e568c7c6be967c6c647b",
+      "bytes": 2709
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/review_coordinates.py",
+      "sha256": "7a4d6e365655473ee985013fccf8cea8dd7c9adcebd142d91e42d39fa8d9bfe8",
+      "bytes": 7226
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/review_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/s1_backend_raw.sv",
+      "sha256": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+      "bytes": 32459
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/tb_s2b_backend_coordinates.sv",
+      "sha256": "225285b0299fddbcc4a04a46420704a9cce6cb42c98aedf10cff1bf1402def5f",
+      "bytes": 21635
+    }
+  ],
+  "first_attempt_receipt_sha256": "362ac56b05450909e0b8effe021e60896ed2ef5257694144fbcac3fc2f45770c",
+  "recovery_preflight": {
+    "available_ram_bytes": 4960825344,
+    "disk_free_bytes": 16062259200,
+    "actual_heavy_processes": [
+      {
+        "pid": 23188,
+        "name": "vivado.exe"
+      }
+    ],
+    "first_failure_reason": "首轮模糊vivado子串误把vivado-mcp-server进程当作重型任务；未启动编译。"
+  },
+  "idle_vivado_basis": {
+    "rows": [
+      {
+        "pid": 23188,
+        "name": "vivado.exe",
+        "command": [
+          "D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe",
+          "-mode",
+          "tcl",
+          "-log",
+          ".vivado-ai\\vivado_94331856_49ab2ff7.log",
+          "-journal",
+          ".vivado-ai\\vivado_94331856_49ab2ff7.jou",
+          "-notrace",
+          "-source",
+          ".vivado-ai\\init_94331856_49ab2ff7.tcl"
+        ],
+        "rss_bytes": 1578840064,
+        "cpu_seconds_delta_2s": 0.015625
+      }
+    ],
+    "sample_seconds": 2
+  },
+  "budget_recovery": "前轮把cache和evidence同目录导致100MB证据阈值误适用于编译缓存；本轮独立日志子目录，缓存仍300MB，原件全保留。",
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "simulation_counts": {
+    "boundary_cases": 4980736,
+    "nonconv_layers": 15,
+    "nonconv_outputs": 5234944,
+    "nonconv_requests": 12286976,
+    "cycles": 57296365,
+    "owner_drop_results": 156715
+  },
+  "trace_summaries": [
+    [
+      "3",
+      "2",
+      "346112",
+      "692224",
+      "2941950",
+      "beee3bf55e3dd485"
+    ],
+    [
+      "6",
+      "2",
+      "692224",
+      "1384448",
+      "5883903",
+      "b94b400348427cee"
+    ],
+    [
+      "8",
+      "2",
+      "1384448",
+      "2768896",
+      "11767807",
+      "aba82da3d60cd3ec"
+    ],
+    [
+      "9",
+      "1",
+      "346112",
+      "1730560",
+      "4676948",
+      "a3059a0b20edcff9"
+    ],
+    [
+      "11",
+      "2",
+      "173056",
+      "346112",
+      "1470975",
+      "4c257d0a77e1ac25"
+    ],
+    [
+      "14",
+      "2",
+      "346112",
+      "692224",
+      "2941951",
+      "2ae550099c90453c"
+    ],
+    [
+      "16",
+      "2",
+      "692224",
+      "1384448",
+      "5883903",
+      "f514a44ace2da870"
+    ],
+    [
+      "17",
+      "1",
+      "173056",
+      "865280",
+      "2338466",
+      "7b3575a4761896a2"
+    ],
+    [
+      "19",
+      "2",
+      "86528",
+      "173056",
+      "735486",
+      "e03358363292f9cc"
+    ],
+    [
+      "22",
+      "2",
+      "173056",
+      "346112",
+      "1470975",
+      "e007cecfbe203b21"
+    ],
+    [
+      "24",
+      "2",
+      "346112",
+      "692224",
+      "2941951",
+      "58c4bca38d1ca11d"
+    ],
+    [
+      "25",
+      "1",
+      "86528",
+      "432640",
+      "1169234",
+      "b4f98277a91310cc"
+    ],
+    [
+      "31",
+      "2",
+      "43264",
+      "86528",
+      "367743",
+      "58eae1c9c1f822e5"
+    ],
+    [
+      "33",
+      "3",
+      "86528",
+      "173056",
+      "536472",
+      "3899e254c176f7b5"
+    ],
+    [
+      "34",
+      "2",
+      "259584",
+      "519168",
+      "2206462",
+      "0cb10925441fe395"
+    ]
+  ],
+  "source_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "32cf883d40abe94a0bb2287586eb52dff1c305a48da21d3762db775679b0422a",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "bef430284805a7a760784835ed47cadae86ffc54ab75abe48014b45df5aead4a",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "ad93a6e9947f7f0a5962eada74e6456bd71de9699925188c032b48466ff71228",
+    "board/s2b_inference_platform.md": "6c5c4221deb3729e8afc20b0f839a58c277da7d1f94f6c9a8bd1d4f7be44b74c",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "1f8d4d4d099f32713ceec04ad4661e110b331394761f83f6efe02d1098f39901",
+    "verification/test_s2b_backend_coordinates_rtl.py": "db26414348ea08b0f142b9e0322d2de84b4ce0dfabaa5058eb5ef51a982f4f9b"
+  },
+  "frozen14_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "recovery_seconds": 114.968,
+  "files_r02": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/audit_delivery.py",
+      "sha256": "7a617aa81e9901596292c0d6695d1bb0de64f05c7e2192a1c23f200a6a7d105d",
+      "bytes": 5244
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/audit_stdout.log",
+      "sha256": "1d472cc82bf44b90180c791a1088a685d423d4e56502241f8218370c38af33f7",
+      "bytes": 2300
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/checker_native_receipt.json",
+      "sha256": "94eaf2beb43d982bf7359483417b09e4d237b96c2cadea775fe3313fb64b7f1b",
+      "bytes": 1725
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/checker_native_receipt.py",
+      "sha256": "665f6c5fb164a13ce58b445fc9847c6957ff014b60e0db9543d84bf0cc07f974",
+      "bytes": 1240
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/checker_native_stdout.log",
+      "sha256": "81a0ca197606dfb5a95771fdaa13868555e6e919dd27e535de9a509cd6eaeecb",
+      "bytes": 1455
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/compile_r03.log",
+      "sha256": "155a0954b1ea56e8d03ee3c4a62e10a675615c6f20f31c397861f455a3d2a8bc",
+      "bytes": 86226
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/convolution_stub.sv",
+      "sha256": "326576b246b4bb048da445312752909c8a3bb43cb1e5e568c7c6be967c6c647b",
+      "bytes": 2709
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/delivery_audit.json",
+      "sha256": "3ef1b1ba4a8553268406c3b2f0ce293408d5607d5a74f70c956d3b80fda74565",
+      "bytes": 31840
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/evidence_checker.log",
+      "sha256": "b66cb3c0007653073a42a46e11cea16d74dbbeb828dfe8fbf633deb341966c42",
+      "bytes": 1262
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/evidence_native.log",
+      "sha256": "b66cb3c0007653073a42a46e11cea16d74dbbeb828dfe8fbf633deb341966c42",
+      "bytes": 1262
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/inputs_checker.log",
+      "sha256": "67ce821da70df720827f5df463c7f0096b8de06251089ed2953a7f77a4bd8d88",
+      "bytes": 1578
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/inputs_native.log",
+      "sha256": "67ce821da70df720827f5df463c7f0096b8de06251089ed2953a7f77a4bd8d88",
+      "bytes": 1578
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/process_preflight.json",
+      "sha256": "ad1c45e814a6e3bca5868549449357fb687c72baac197e08127b95673258a2fb",
+      "bytes": 550
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/process_preflight.py",
+      "sha256": "5761683b85d9d776d1ccb1ff752be9d6b13691d99bae0c2bd644b815a4b6f587",
+      "bytes": 657
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recovery_r03_stdout.log",
+      "sha256": "2fea87dea1af29b75428fb5b2ba89056e2d0e8999ed42a97dae7e626e1a61c3d",
+      "bytes": 1513
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recovery_r04_stdout.log",
+      "sha256": "d4c0182108ef11955b6002804bbd37eff8dbd277f105d00d8288f9c56ff4d461",
+      "bytes": 219
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recovery_stdout.log",
+      "sha256": "28088092ed7e3f43ade3fc51bc31479ee5a75a0d5dda0ecf3d52cca45d2672d8",
+      "bytes": 85
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recover_rtl.py",
+      "sha256": "9d3bd57e8227ec73db557c11216922ca4a7a7a1205908a41eedf5272183cfae5",
+      "bytes": 4294
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recover_rtl_r03.py",
+      "sha256": "4e2c825a2f612178f96a4407e1d99bc77141a68e1e7f3d6025dd7abeb2a10bdc",
+      "bytes": 916
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/recover_rtl_r04.py",
+      "sha256": "8fea685e5018f01c26e3ffe8a5c42e9d57bda10fbe2b32c5f0bc29d83049ca07",
+      "bytes": 1325
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/review_coordinates.py",
+      "sha256": "7a4d6e365655473ee985013fccf8cea8dd7c9adcebd142d91e42d39fa8d9bfe8",
+      "bytes": 7226
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/review_stdout.log",
+      "sha256": "8898c68a4ab05876149a4c3334f680b05690129ab6e0d16a62d2b1e32b510395",
+      "bytes": 85
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/rtl_receipt.json",
+      "sha256": "362ac56b05450909e0b8effe021e60896ed2ef5257694144fbcac3fc2f45770c",
+      "bytes": 27629
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/rtl_receipt_r02.json",
+      "sha256": "feb7c7dd3af39a76fef37831d7e59e3a86cc0538de31525f4e3ae7de27336189",
+      "bytes": 29873
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/rtl_receipt_r03.json",
+      "sha256": "b01991559e5cc31eccce2bccb7e05e0446a8ec3890ff5bc505ec8156c5dc015b",
+      "bytes": 34961
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/s1_backend_raw.sv",
+      "sha256": "02d0af9bb2f8101973b109b7957267ad94127c90cc865a25659370593db3af49",
+      "bytes": 32459
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/static_checker.log",
+      "sha256": "67a7cb6c0d21c01982f5cac28332fe0375eadae7e2e4aab03924400d0ef584c0",
+      "bytes": 72
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/static_native.log",
+      "sha256": "67a7cb6c0d21c01982f5cac28332fe0375eadae7e2e4aab03924400d0ef584c0",
+      "bytes": 72
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_coordinates_review_20261011_r01/tb_s2b_backend_coordinates.sv",
+      "sha256": "225285b0299fddbcc4a04a46420704a9cce6cb42c98aedf10cff1bf1402def5f",
+      "bytes": 21635
+    }
+  ]
+}

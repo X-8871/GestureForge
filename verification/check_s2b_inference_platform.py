@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.8"
+PROFILE_VERSION = "s2b-inference-platform/0.1.9"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -148,6 +148,26 @@ LENGTH_GUARD_REPLACEMENTS = [
     ]
 ]
 DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(LENGTH_GUARD_REPLACEMENTS)
+
+# S9仅在原unsigned64模域中重排输出地址乘加；C/Y/X赋值、守卫及全部FF不变。
+CONV_OUTPUT_ADDRESS_REPLACEMENTS = [
+    ["    logic [31:0] output_channel_current;\n",
+     "    logic [31:0] output_channel_current;\n"
+     "    logic [63:0] output_geometry_plane;\n"
+     "    logic [63:0] output_channel_plane_offset;\n"
+     "    logic [63:0] output_row_offset;\n"],
+    ["        output_byte_offset_wide =\n"
+     "            (({32'd0, output_channel_current} * {32'd0, output_height_latched} +\n"
+     "              {32'd0, output_global_y}) * {32'd0, output_width_latched}) +\n"
+     "            {32'd0, output_global_x};\n",
+     "        // 保留C/Y/X原32位截断；全部乘加在原unsigned64模域内因式分解。\n"
+     "        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};\n"
+     "        output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;\n"
+     "        output_row_offset = {32'd0, output_global_y} * {32'd0, output_width_latched};\n"
+     "        output_byte_offset_wide = output_channel_plane_offset + output_row_offset +\n"
+     "                                  {32'd0, output_global_x};\n"]
+]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(CONV_OUTPUT_ADDRESS_REPLACEMENTS)
 
 # S7只删除前置校验蕴含的地址守卫并缩短组合地址；其余严格派生链不变。
 ROUTE_QUERY_ADDRESS_REPLACEMENTS = [
@@ -352,7 +372,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.8" in script, "Tcl平台版本不符")
+    require("variable version 0.1.9" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

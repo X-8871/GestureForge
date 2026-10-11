@@ -262,6 +262,9 @@ module s2b_conv_tile_engine (
     logic [31:0] output_point_scan_y;
     logic [31:0] output_point_scan_x;
     logic [31:0] output_channel_current;
+    logic [63:0] output_geometry_plane;
+    logic [63:0] output_channel_plane_offset;
+    logic [63:0] output_row_offset;
     logic [63:0] output_byte_offset_wide;
     logic [63:0] output_address_wide;
     logic [2:0] mapped_response_error;
@@ -532,10 +535,12 @@ module s2b_conv_tile_engine (
         output_global_y = tile_start_y + output_point_scan_y;
         output_global_x = tile_start_x + output_point_scan_x;
         output_channel_current = output_group_base + output_lane_index;
-        output_byte_offset_wide =
-            (({32'd0, output_channel_current} * {32'd0, output_height_latched} +
-              {32'd0, output_global_y}) * {32'd0, output_width_latched}) +
-            {32'd0, output_global_x};
+        // 保留C/Y/X原32位截断；全部乘加在原unsigned64模域内因式分解。
+        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};
+        output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;
+        output_row_offset = {32'd0, output_global_y} * {32'd0, output_width_latched};
+        output_byte_offset_wide = output_channel_plane_offset + output_row_offset +
+                                  {32'd0, output_global_x};
         output_address_wide = {32'd0, output_base_latched} + output_byte_offset_wide;
 
         mq_prefetch_index = 32'd0;

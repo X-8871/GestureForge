@@ -1,12 +1,12 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.8`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.9`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S8开发基线为已保存S7实际综合失败证据的提交 `2257a450239ea19ef4e2ddf7b2833d44020f95e3`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S9开发基线为已保存S8实际综合失败证据的提交 `5ea54b441bd885e10eac4794cbad5ad48c510a49`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
@@ -89,3 +89,9 @@ engine保留原65位output_elements_work及output_end_work、VALIDATE前两分�
 对于有效tap，r=channel×height+source_y严格小于channels×height且小于2^64；channel×height使用64位精确结果。r低32位由33位加法获得，乘积高32位或该加法进位独立保留。正width意味着r高位非零时完整地址必超UINT32；否则q=r低32位×width的64位结果精确。依次检查q高32位、q低32位+source_x的33位进位、逻辑偏移低32位+base的33位进位；任一为真等价于完整非负地址超过UINT32。高位守卫只在实际有效tap消费，不从kernel2未使用第三行或全padding窗口传播，不能增加全shape CHW范围拒绝。合法地址保持原低32位，任一实际tap越界仍清零全部公开字段。
 
 组合整数证明和RTL差分仅验证功能与每周期控制等价。S8需独立G2和新的综合/STA；旧S7失败记录、50MHz目标、100黄金样本及1000次实板标准保留，本轮未执行STA或G3。
+
+## S9：CONV输出地址的组合因式分解
+
+保留原C/Y/X加法赋值的32位截断，将原输出偏移 `(C×H+Y)×W+X` 改写为 `C×(H×W)+Y×W+X`。H×W使用精确64位结果；channel项、row项及全部加法在原unsigned64模域内计算，base加offset仍保留原64位回绕。该恒等式适用于通用32位输入域，不把冻结descriptor的H/W上界引入端口拒绝条件。未增加33/65位进位拒绝、寄存器、状态或流水；全部公开端口、always_ff后缀、地址范围比较、错误优先和owner语义保持。
+
+S9的组合全域诊断与公开START可达回归分别记录。S8真实综合STA仍FAIL（WNS−6.749ns/TNS−2135.540ns）；本轮功能回归不证明50MHz闭合。H/W→plane→channel可能成为新的关键路径，必须由后续实际综合/STA判断；100黄金样本及1000次实板标准不变。

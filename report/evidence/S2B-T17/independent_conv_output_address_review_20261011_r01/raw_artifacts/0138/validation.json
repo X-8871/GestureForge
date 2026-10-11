@@ -1,0 +1,211 @@
+{
+  "status": "FAIL",
+  "runs": [
+    {
+      "name": "evidence",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B verification/check_stage_delivery.py --mode evidence --manifest C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\conv_output_address_20261011_r03\\delivery_manifest_r02.json",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 0.672,
+      "peak_tree_rss_bytes": 21815296,
+      "observed_review_directory_bytes": 1922169,
+      "failure": null,
+      "log_sha256": "07cec9c66efd97cfb3c44c98105917daf408c41fd1cc146976cae585e6457ad0"
+    },
+    {
+      "name": "inputs",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B verification/check_stage_delivery.py --mode inputs --manifest C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\conv_output_address_20261011_r03\\delivery_manifest_r02.json",
+      "native_exit_code": 2,
+      "expected_exit_code": 2,
+      "seconds": 0.656,
+      "peak_tree_rss_bytes": 23252992,
+      "observed_review_directory_bytes": 1923876,
+      "failure": null,
+      "log_sha256": "8089d6cbf88221e50a40957a46444b123d41919d6de7f6779e73bf0471210e89"
+    }
+  ],
+  "ff_sha256": "ee877a55977f50bf27418b40227dd6e8a96e73321f065429ef57a93fd215d8e8",
+  "mutants": [
+    {
+      "name": "丢offset高位",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "2ba2dd2b0a0555e4ac84c90503fc41d8dc0e82f9af8b1b7e9958988c152b914f"
+    },
+    {
+      "name": "错误33位通道carry",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "1fabbaa092c87c7dfb50b43a8f01c2b18f87186a1c40c3d9f3ad88878bc9f3af"
+    },
+    {
+      "name": "错误65位addresscarry拒绝",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "e3179b9dafe7232c8c54dc614a54f8be734ccc374e7f34b346ce7a5917d95da7"
+    },
+    {
+      "name": "丢row",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "1d26f9c1a0f5320d9989946dae6abb1645ffcc0f1820f53d1ab6909d201c4550"
+    },
+    {
+      "name": "丢x",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "4c9bdf2e2ad1e38580f308b0e936f6249f4f97a188d7b1723f6cbafd4956e61a"
+    },
+    {
+      "name": "错误plane",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "7112798fc68bd756373da752355aef9b15f312c6815f7debd7b0b832b1c3a3c8"
+    },
+    {
+      "name": "错误signed扩展",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "cb0e63c08fee33fcd16b9606a0770aff7ee600c561634bba2c65af41df27297e"
+    },
+    {
+      "name": "非法低32alias",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "723e4dd87a893c47096233472009d732d82259bf23c832df68411a075403e15c"
+    }
+  ],
+  "negative_checks": [
+    {
+      "name": "旧profile版本",
+      "result": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包重复",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包换序",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包遗漏",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包额外源",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "错误freeze提交",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生基线",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生策略",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "换行政策缺失",
+      "result": "REJECTED",
+      "reason": "派生绑定字段不符"
+    },
+    {
+      "name": "上游记录遗漏",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "上游自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "派生记录遗漏",
+      "result": "REJECTED",
+      "reason": "派生源必须恰为8项"
+    },
+    {
+      "name": "派生记录换序",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "允许替换被篡改",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "派生哈希错误",
+      "result": "REJECTED",
+      "reason": "派生SHA不符：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "派生路径越界",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "原冻结源变化及自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "常量化错误及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "额外backend逻辑及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "Tcl闭包变化",
+      "result": "REJECTED",
+      "reason": "Tcl/JSON源码闭包不一致"
+    },
+    {
+      "name": "Tcl版本变化",
+      "result": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "顶层引用旧core",
+      "result": "REJECTED",
+      "reason": "公开顶层未实例化受绑定的2B派生核心"
+    },
+    {
+      "name": "物理时钟变化",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "可见性默认启用",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "构建脚本遗漏",
+      "result": "REJECTED",
+      "reason": "构建脚本集合不符"
+    },
+    {
+      "name": "旧可见性证明",
+      "result": "REJECTED",
+      "reason": "证明平台版本不符"
+    }
+  ],
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_output_address_review_20261011_r01\\review.py\", line 129, in <module>\n    try: main()\n         ^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_output_address_review_20261011_r01\\review.py\", line 79, in main\n    assert row['raw_diagnostic'] in log\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

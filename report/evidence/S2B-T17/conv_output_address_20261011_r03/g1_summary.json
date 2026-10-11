@@ -1,0 +1,508 @@
+{
+  "status": "PASS_S9_G1_FUNCTIONAL_ONLY",
+  "source_commit": "5ea54b441bd885e10eac4794cbad5ad48c510a49",
+  "profile": "s2b-inference-platform/0.1.9",
+  "source_closure_count": 42,
+  "static_source_count": 32,
+  "active_rtl_count": 18,
+  "derived_rtl_count": 8,
+  "frozen_active_rtl_count": 6,
+  "outer_rtl_count": 4,
+  "direct": {
+    "vectors": 120361,
+    "advance": 42698,
+    "next_lane": 20793,
+    "range": 52388,
+    "request": 4482
+  },
+  "boundary": {
+    "vectors": 5996,
+    "cycles": 100697,
+    "abort_mask": "000fffff",
+    "reset_mask": "000fffff",
+    "response_cases": 24,
+    "raw80": 1
+  },
+  "layer0": {
+    "bytes": 1384448,
+    "input_reads": 583443,
+    "weight_reads": 584064,
+    "output_writes": 1384448,
+    "requests": 2551955,
+    "responses": 2551955,
+    "request_stalls": 6635073,
+    "response_stalls": 6635073,
+    "cycles": 27235743
+  },
+  "cpu_layer0": {
+    "status": "PASS",
+    "cpu_seconds": 0.234,
+    "thread_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "blas_threads_before_after": [
+      1,
+      1
+    ],
+    "blas_dll": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-63c857e738469261263c764a36be9436.dll",
+      "sha256": "63c857e738469261263c764a36be9436ebdeaa272e340a828f42047a97131080",
+      "getter": "scipy_openblas_get_num_threads64_"
+    },
+    "host_threads_before": 4,
+    "host_threads_after": 4,
+    "main_thread_id": 29396,
+    "thread_cpu_deltas": [
+      {
+        "id": 29396,
+        "main": true,
+        "user_seconds": 0.09375,
+        "system_seconds": 0.09375
+      },
+      {
+        "id": 34252,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 32752,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 5928,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      }
+    ],
+    "thread_scope": "数学库实际getter=1；Python/Windows已有宿主辅助线程另列，INT64点积、逐元素量化均由主线程调用，前后CPU计时分辨率由OS限定。",
+    "self_rss_bytes_cpu_end": 104030208,
+    "peak_self_working_set_bytes_upto_cpu_end": 111550464,
+    "peak_scope": "OS进程生命周期峰截至CPU结束；包含导入/前置静态核验，作为CPU内存上界，非全系统峰。",
+    "method": "INT64 im2col矩阵点积+manifest fused bias；D2 binary64分别乘/除，负值leaky0.1，半远离零，[-127,127]饱和；未读取生产MQROM或派生引擎。",
+    "bytes": 1384448,
+    "mismatches": 0,
+    "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "int32_absolute_bounds": [
+      81333,
+      126097,
+      107351,
+      167611,
+      151142,
+      168267,
+      176959,
+      84367,
+      157879,
+      162910,
+      135711,
+      166441,
+      191146,
+      83407,
+      206854,
+      150680,
+      167024,
+      138712,
+      159988,
+      166705,
+      280478,
+      169356,
+      146007,
+      168288,
+      149626,
+      158801,
+      247308,
+      158293,
+      101642,
+      182227,
+      130942,
+      115253
+    ],
+    "numpy_version": "2.4.6",
+    "bindings": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+        "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+        "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      }
+    ],
+    "restored_network_bytes": 11382150,
+    "scope": "仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"
+  },
+  "backend": {
+    "boundary_cases": 4980736,
+    "nonconv_layers": 15,
+    "nonconv_outputs": 5234944,
+    "nonconv_requests": 12286976,
+    "cycles": 102468267,
+    "owner_drop_results": 120942
+  },
+  "public_entries": {
+    "trials": 12,
+    "route_layer_mask": "0000000481494948",
+    "method": "一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"
+  },
+  "geometry": {
+    "pool": 19645,
+    "upsample": 3456,
+    "cycles": 590601,
+    "pool_abort": 127,
+    "upsample_abort": 63
+  },
+  "platform_negatives": 26,
+  "original_platform_negatives": 25,
+  "added_old_s8_profile_negative": 1,
+  "offset_mutants": 8,
+  "execution": [
+    {
+      "stage": "direct_r03",
+      "run_id": "conv_output_address_20261011_r03",
+      "native_exit_code": 0,
+      "seconds": 23.344,
+      "peak_tree_rss_bytes": 713916416,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_output_address",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s8_conv_tile_engine_original.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_output_address.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 17.64,
+          "peak_tree_rss_bytes": 668418048,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_20261011_r03/compile.log",
+          "log_sha256": "4805260629285c50c1b693f4422334d64438a2a2e7d1fba13daabae7b900eaed"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_conv_g1_20261011_r01\\conv_output_address_20261011_r03\\obj_dir\\Vtb_s2b_conv_output_address.exe",
+            "+VECTOR_PATH=C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/conv_output_address_20261011_r03/address_vectors.txt"
+          ],
+          "exit_code": 0,
+          "seconds": 1.813,
+          "peak_tree_rss_bytes": 4964352,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_20261011_r03/simulation.log",
+          "log_sha256": "d3092e4f3547339a92dd5d1033360985dc828dca27afadd677fb83d4bec6072a"
+        }
+      ]
+    },
+    {
+      "stage": "boundary",
+      "run_id": "conv_output_address_boundary_20261011_r01",
+      "native_exit_code": 0,
+      "seconds": 21.047,
+      "peak_tree_rss_bytes": 719765504,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_validation",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_validation.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 17.265,
+          "peak_tree_rss_bytes": 673181696,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_boundary_20261011_r01/compile.log",
+          "log_sha256": "833e9d560fec96a990ec2ec23abf8d733be0c0c1f2f6bf08f3dd5b0570afcd52"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_conv_g1_20261011_r01\\conv_output_address_boundary_20261011_r01\\obj_dir\\Vtb_s2b_conv_validation.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 0.875,
+          "peak_tree_rss_bytes": 5038080,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_boundary_20261011_r01/simulation.log",
+          "log_sha256": "5cb8eadc77a0f47d538a7ae69b6d3ac2b092b8177a2d2813ba5c1c4e00ccacb2"
+        }
+      ]
+    },
+    {
+      "stage": "layer0",
+      "run_id": "conv_output_address_layer0_20261011_r01",
+      "native_exit_code": 0,
+      "seconds": 143.985,
+      "peak_tree_rss_bytes": 731713536,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_layer0",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_layer0.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 19.5,
+          "peak_tree_rss_bytes": 661577728,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_layer0_20261011_r01/compile.log",
+          "log_sha256": "1b0a3df785a5a1ca5efbdfb037c85c2765a506aff4d0285ec8faffb1d198ff01"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_conv_g1_20261011_r01\\conv_output_address_layer0_20261011_r01\\obj_dir\\Vtb_s2b_conv_layer0.exe",
+            "+T66_INPUT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin",
+            "+T66_WEIGHT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin",
+            "+T66_GOLDEN_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin"
+          ],
+          "exit_code": 0,
+          "seconds": 121.156,
+          "peak_tree_rss_bytes": 8392704,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_layer0_20261011_r01/simulation.log",
+          "log_sha256": "5caf7f70ffd3812532d923fe2301b9cf187c0587c3b460be65f81cc18ac450c7"
+        }
+      ]
+    },
+    {
+      "stage": "backend",
+      "run_id": "conv_output_address_trace_20261011_r01",
+      "native_exit_code": 0,
+      "seconds": 162.719,
+      "peak_tree_rss_bytes": 702828544,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_backend_coordinates",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "source/int8_maxpool_window.sv",
+            "source/int8_route_query.sv",
+            "source/int8_upsample_query.sv",
+            "source/s2b_maxpool_engine.sv",
+            "source/s2a_route_engine.sv",
+            "source/s2b_upsample_engine.sv",
+            "source/s2b_network_backend.sv",
+            "source/s2b_route_query.sv",
+            "source/s2b_route_engine.sv",
+            "source/s2_network_backend.sv",
+            "convolution_stub.sv",
+            "tb_s2b_backend_coordinates.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 20.937,
+          "peak_tree_rss_bytes": 664453120,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_trace_20261011_r01/compile.log",
+          "log_sha256": "38243f357709e3581599ebab7cf3416efc8386044b2c0840fb22fa77535dbcfa"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_conv_g1_20261011_r01\\conv_output_address_trace_20261011_r01\\obj_dir\\Vtb_s2b_backend_coordinates.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 137.781,
+          "peak_tree_rss_bytes": 5087232,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_trace_20261011_r01/simulation.log",
+          "log_sha256": "7ef4ecef69853cbfd3abde3d54037742208bfe407ad180ee3a56b467c81afd55"
+        }
+      ]
+    },
+    {
+      "stage": "geometry",
+      "run_id": "conv_output_address_geometry_20261011_r01",
+      "native_exit_code": 0,
+      "seconds": 26.453,
+      "peak_tree_rss_bytes": 667557888,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_geometry_specialization",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "source/int8_maxpool_window.sv",
+            "source/int8_upsample_query.sv",
+            "source/s2a_maxpool_engine.sv",
+            "source/s2a_upsample_engine.sv",
+            "source/s2b_maxpool_engine.sv",
+            "source/s2b_upsample_engine.sv",
+            "tb_s2b_geometry_specialization.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 15.282,
+          "peak_tree_rss_bytes": 621150208,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_geometry_20261011_r01/compile.log",
+          "log_sha256": "0537a06936a2e4d4316ca25cd00539826825291bfd132dfc9ab7b4f379ba2d04"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_conv_g1_20261011_r01\\conv_output_address_geometry_20261011_r01\\obj_dir\\Vtb_s2b_geometry_specialization.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 8.61,
+          "peak_tree_rss_bytes": 5140480,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/conv_output_address_geometry_20261011_r01/simulation.log",
+          "log_sha256": "93b32655548cef3e74867565325839737fbbd0df37cd3e83dd1116f510c3eeb9"
+        }
+      ]
+    }
+  ],
+  "failed_attempts": [
+    {
+      "run_id": "conv_output_address_20261011_r01",
+      "native_exit_code": 2,
+      "reason": "DISK_LIMIT：完整编译PCH加两个重复模型夹具/向量触发300MiB守卫"
+    },
+    {
+      "run_id": "conv_output_address_20261011_r02",
+      "native_exit_code": 2,
+      "reason": "DISK_LIMIT：夹具已缩至静态闭包，但PCH加20MiB重复向量略超300MiB；r03用相同原件VECTOR_PATH消除缓存副本"
+    }
+  ],
+  "independent_review": "NOT_RUN",
+  "sta": "NOT_RUN",
+  "implementation": "NOT_RUN",
+  "g3": "NOT_RUN",
+  "tool_calls": "只统计本包真实native记录和runner子命令；完整会话工具调用量未测。",
+  "limitations": [
+    "direct内部组合输入非公开START可达域，受控寄存器驱动的26条MULTIDRIVEN按diagnostic_scope逐条绑定；CONV公开START三类异常诊断为空；backend16既有bench驱动诊断逐条同S8。",
+    "原S8 unsigned64域、C/Y/X低32截断、所有FF/FSM/端口/guard原样；不增33/65进位拒绝。",
+    "layer0为真实CONV完整数值/周期；backend15非CONV完整trace的CONV仍是共享控制stub，未声称21CONV全数值或新109全网。",
+    "50MHz/100黄金样本/1000实板标准未降低；G1功能通过不代表实际S9 STA或G2/G3。"
+  ]
+}

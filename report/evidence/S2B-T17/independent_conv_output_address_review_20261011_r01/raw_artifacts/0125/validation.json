@@ -1,0 +1,627 @@
+{
+  "status": "PASS_S9_FUNCTIONAL_G2_ONLY",
+  "runs": [
+    {
+      "name": "evidence",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B verification/check_stage_delivery.py --mode evidence --manifest C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\conv_output_address_20261011_r03\\delivery_manifest_r02.json",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 0.656,
+      "peak_tree_rss_bytes": 24989696,
+      "observed_review_directory_bytes": 1908575,
+      "failure": null,
+      "log_sha256": "07cec9c66efd97cfb3c44c98105917daf408c41fd1cc146976cae585e6457ad0"
+    },
+    {
+      "name": "inputs",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B verification/check_stage_delivery.py --mode inputs --manifest C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\conv_output_address_20261011_r03\\delivery_manifest_r02.json",
+      "native_exit_code": 2,
+      "expected_exit_code": 2,
+      "seconds": 0.656,
+      "peak_tree_rss_bytes": 23851008,
+      "observed_review_directory_bytes": 1910282,
+      "failure": null,
+      "log_sha256": "8089d6cbf88221e50a40957a46444b123d41919d6de7f6779e73bf0471210e89"
+    },
+    {
+      "name": "direct_compile",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" --top-module tb_s2b_conv_output_address --Mdir build_direct source/s2a_network_descriptor_pkg.sv source/s8_conv_tile_engine_original.sv source/s2b_conv_tile_engine.sv tb_s2b_conv_output_address.sv",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 18.016,
+      "peak_tree_rss_bytes": 667131904,
+      "observed_review_directory_bytes": 299503036,
+      "failure": null,
+      "log_sha256": "d9b21181c3718a263b9423c70bebe4a0c604d693c09a94feac17efced08a587b"
+    },
+    {
+      "name": "direct_simulation",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_output_address_review_20261011_r01\\attempt_r02\\build_direct\\Vtb_s2b_conv_output_address.exe +VECTOR_PATH=C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/independent_conv_output_address_review_20261011_r01/attempt_r02/address_vectors.txt",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 0.547,
+      "peak_tree_rss_bytes": 4952064,
+      "observed_review_directory_bytes": 299503371,
+      "failure": null,
+      "log_sha256": "61cf017a6c448a6d2b5b0cd05852530436089ffb4f3d7f7303ddfcc09674c243"
+    },
+    {
+      "name": "public_compile",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" --top-module tb_s2b_conv_validation --Mdir build_public source/s2a_network_descriptor_pkg.sv source/s2a_conv_tile_engine.sv source/s2b_conv_tile_engine.sv tb_s2b_conv_validation.sv",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 17.25,
+      "peak_tree_rss_bytes": 658206720,
+      "observed_review_directory_bytes": 592940997,
+      "failure": null,
+      "log_sha256": "b02d3d47c68e1defd0d5d1cc74e02142932244eb37ab597664c731ac880a43b9"
+    },
+    {
+      "name": "public_simulation",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_conv_output_address_review_20261011_r01\\attempt_r02\\build_public\\Vtb_s2b_conv_validation.exe",
+      "native_exit_code": 0,
+      "expected_exit_code": 0,
+      "seconds": 0.906,
+      "peak_tree_rss_bytes": 5046272,
+      "observed_review_directory_bytes": 592941347,
+      "failure": null,
+      "log_sha256": "0330543a3b3d678619264ba65eed82b7d65e7212eb12168c83b98da0651bf24f"
+    }
+  ],
+  "ff_sha256": "ee877a55977f50bf27418b40227dd6e8a96e73321f065429ef57a93fd215d8e8",
+  "mutants": [
+    {
+      "name": "丢offset高位",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "2ba2dd2b0a0555e4ac84c90503fc41d8dc0e82f9af8b1b7e9958988c152b914f"
+    },
+    {
+      "name": "错误33位通道carry",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "1fabbaa092c87c7dfb50b43a8f01c2b18f87186a1c40c3d9f3ad88878bc9f3af"
+    },
+    {
+      "name": "错误65位addresscarry拒绝",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "e3179b9dafe7232c8c54dc614a54f8be734ccc374e7f34b346ce7a5917d95da7"
+    },
+    {
+      "name": "丢row",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "1d26f9c1a0f5320d9989946dae6abb1645ffcc0f1820f53d1ab6909d201c4550"
+    },
+    {
+      "name": "丢x",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "4c9bdf2e2ad1e38580f308b0e936f6249f4f97a188d7b1723f6cbafd4956e61a"
+    },
+    {
+      "name": "错误plane",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "7112798fc68bd756373da752355aef9b15f312c6815f7debd7b0b832b1c3a3c8"
+    },
+    {
+      "name": "错误signed扩展",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "cb0e63c08fee33fcd16b9606a0770aff7ee600c561634bba2c65af41df27297e"
+    },
+    {
+      "name": "非法低32alias",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "723e4dd87a893c47096233472009d732d82259bf23c832df68411a075403e15c"
+    }
+  ],
+  "negative_checks": [
+    {
+      "name": "旧profile版本",
+      "result": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包重复",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包换序",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包遗漏",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包额外源",
+      "result": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "错误freeze提交",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生基线",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "错误派生策略",
+      "result": "REJECTED",
+      "reason": "派生上游或基线不符"
+    },
+    {
+      "name": "换行政策缺失",
+      "result": "REJECTED",
+      "reason": "派生绑定字段不符"
+    },
+    {
+      "name": "上游记录遗漏",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "上游自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "派生记录遗漏",
+      "result": "REJECTED",
+      "reason": "派生源必须恰为8项"
+    },
+    {
+      "name": "派生记录换序",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "允许替换被篡改",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "派生哈希错误",
+      "result": "REJECTED",
+      "reason": "派生SHA不符：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "派生路径越界",
+      "result": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "原冻结源变化及自报SHA",
+      "result": "REJECTED",
+      "reason": "原14源绑定不符"
+    },
+    {
+      "name": "常量化错误及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_maxpool_engine.sv"
+    },
+    {
+      "name": "额外backend逻辑及自报SHA",
+      "result": "REJECTED",
+      "reason": "派生源存在未授权的额外差异：src/s2b_network_backend.sv"
+    },
+    {
+      "name": "Tcl闭包变化",
+      "result": "REJECTED",
+      "reason": "Tcl/JSON源码闭包不一致"
+    },
+    {
+      "name": "Tcl版本变化",
+      "result": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "顶层引用旧core",
+      "result": "REJECTED",
+      "reason": "公开顶层未实例化受绑定的2B派生核心"
+    },
+    {
+      "name": "物理时钟变化",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "可见性默认启用",
+      "result": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "构建脚本遗漏",
+      "result": "REJECTED",
+      "reason": "构建脚本集合不符"
+    },
+    {
+      "name": "旧可见性证明",
+      "result": "REJECTED",
+      "reason": "证明平台版本不符"
+    }
+  ],
+  "g1_evidence_counts": {
+    "direct": {
+      "vectors": 120361,
+      "advance": 42698,
+      "next_lane": 20793,
+      "range": 52388,
+      "request": 4482
+    },
+    "boundary": {
+      "vectors": 5996,
+      "cycles": 100697,
+      "abort_mask": "000fffff",
+      "reset_mask": "000fffff",
+      "response_cases": 24,
+      "raw80": 1
+    },
+    "layer0": {
+      "bytes": 1384448,
+      "input_reads": 583443,
+      "weight_reads": 584064,
+      "output_writes": 1384448,
+      "requests": 2551955,
+      "responses": 2551955,
+      "request_stalls": 6635073,
+      "response_stalls": 6635073,
+      "cycles": 27235743
+    },
+    "backend": {
+      "boundary_cases": 4980736,
+      "nonconv_layers": 15,
+      "nonconv_outputs": 5234944,
+      "nonconv_requests": 12286976,
+      "cycles": 102468267,
+      "owner_drop_results": 120942
+    },
+    "geometry": {
+      "pool": 19645,
+      "upsample": 3456,
+      "cycles": 590601,
+      "pool_abort": 127,
+      "upsample_abort": 63
+    }
+  },
+  "independent_math": {
+    "seed": 420483749,
+    "vectors": 24009,
+    "branch_counts": {
+      "3": 260,
+      "2": 11610,
+      "0": 8158,
+      "1": 3981
+    },
+    "manual": [
+      {
+        "name": "normal",
+        "input": [
+          8,
+          3,
+          13,
+          13,
+          8,
+          4,
+          8,
+          4,
+          100,
+          32,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          11,
+          12,
+          12,
+          2027,
+          2127,
+          0,
+          3,
+          5408
+        ]
+      },
+      {
+        "name": "channel32_wrap",
+        "input": [
+          4294967295,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          1
+        ]
+      },
+      {
+        "name": "coordinate32_wrap",
+        "input": [
+          0,
+          0,
+          1,
+          1,
+          4294967295,
+          1,
+          4294967295,
+          1,
+          0,
+          1,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          1
+        ]
+      },
+      {
+        "name": "offset64_wrap",
+        "input": [
+          2147483648,
+          0,
+          65536,
+          131072,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          2147483648,
+          0,
+          0,
+          0,
+          0,
+          0,
+          3,
+          8589934592
+        ]
+      },
+      {
+        "name": "address64_wrap",
+        "input": [
+          2,
+          0,
+          2147483648,
+          4294967295,
+          0,
+          0,
+          4294967295,
+          0,
+          1,
+          1,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          2,
+          0,
+          4294967295,
+          18446744073709551615,
+          0,
+          1,
+          2,
+          9223372034707292160
+        ]
+      },
+      {
+        "name": "low32_alias",
+        "input": [
+          1,
+          0,
+          65536,
+          65536,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          1,
+          0,
+          0,
+          4294967296,
+          4294967296,
+          1,
+          2,
+          8589934592
+        ]
+      },
+      {
+        "name": "base33carry",
+        "input": [
+          0,
+          0,
+          1,
+          2,
+          0,
+          0,
+          1,
+          0,
+          4294967295,
+          1,
+          8,
+          0,
+          64
+        ],
+        "expected": [
+          0,
+          0,
+          1,
+          1,
+          4294967296,
+          1,
+          2,
+          2
+        ]
+      },
+      {
+        "name": "unconsumed_lane",
+        "input": [
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          4294967295,
+          0,
+          0,
+          64
+        ],
+        "expected": [
+          4294967294,
+          4294967294,
+          4294967294,
+          12884901886,
+          17179869181,
+          1,
+          0,
+          4294967295
+        ]
+      },
+      {
+        "name": "unconsumed_point",
+        "input": [
+          0,
+          0,
+          4294967295,
+          4294967295,
+          0,
+          0,
+          0,
+          0,
+          4294967295,
+          4294967295,
+          8,
+          64,
+          64
+        ],
+        "expected": [
+          0,
+          0,
+          0,
+          0,
+          4294967295,
+          0,
+          1,
+          4294967295
+        ]
+      }
+    ]
+  },
+  "public_boundary_vectors": 5996,
+  "preflight": {
+    "heavy": [],
+    "ram_available": 4528218112,
+    "disk_free": 20795072512,
+    "rss_limit": 1610612736,
+    "disk_budget": 1073741824
+  },
+  "source_freeze_sha256": "d32a4017d8bb51632c7437c484db25ec34d77b42a93a6404c5c14c620f0377a9",
+  "modified_files": {
+    "src/s2b_conv_tile_engine.sv": "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc",
+    "verification/check_s2b_inference_platform.py": "90bea09d34780788b0c53b8dc4327c1959270922c606a0849e94f2e797362ead",
+    "board/s2b_inference_platform.json": "a06a87ef385a25e1c74a51e8545eb0fae0b6160f44579af50752ee2b8a8febbc",
+    "board/s2b_inference_platform.md": "cb9261052dd5ec426083cc77d8ed97babd18157afa77958cb31e28d013b52ad0",
+    "vivado/s2b_inference_platform.tcl": "1769316ea2ebaa03501ea0fd7551a10afcbd961c534e8a0cf2d3e23a15e1a6a7",
+    "verification/test_s2b_geometry_specialization_rtl.py": "4e447138a732ef795070f3eab6bd9632e9d169f53eda3768b15c19db19d32b14",
+    "verification/test_s2b_backend_coordinates_rtl.py": "dfceaccaf398e244fed609005329161a39abbe348d7d547b4e102fb34f9bdacd",
+    "verification/test_s2b_conv_validation_rtl.py": "06ecd050a75ea650a8324f4e75c6ea288ad693aed47ee3f2d774e40faa9b3e13",
+    "verification/test_s2b_conv_output_address_rtl.py": "b9c927353803c73bb6709fc6abacb7edff9c13786bf0edde530291b4692b7347"
+  },
+  "source_sha256": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc",
+    "src/s2b_maxpool_engine.sv": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "1769316ea2ebaa03501ea0fd7551a10afcbd961c534e8a0cf2d3e23a15e1a6a7",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "a06a87ef385a25e1c74a51e8545eb0fae0b6160f44579af50752ee2b8a8febbc",
+    "board/s2b_inference_platform.md": "cb9261052dd5ec426083cc77d8ed97babd18157afa77958cb31e28d013b52ad0",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "90bea09d34780788b0c53b8dc4327c1959270922c606a0849e94f2e797362ead",
+    "verification/test_s2b_conv_validation_rtl.py": "06ecd050a75ea650a8324f4e75c6ea288ad693aed47ee3f2d774e40faa9b3e13",
+    "verification/test_s2b_backend_coordinates_rtl.py": "dfceaccaf398e244fed609005329161a39abbe348d7d547b4e102fb34f9bdacd",
+    "verification/test_s2b_geometry_specialization_rtl.py": "4e447138a732ef795070f3eab6bd9632e9d169f53eda3768b15c19db19d32b14",
+    "verification/test_s2b_route_specialization_rtl.py": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e",
+    "src/s2b_maxpool_geometry.sv": "f8c3901722e159c5a8d71e29acdb960f610daaa80c750b818948e555050ef6ee",
+    "verification/test_s2b_maxpool_address_guard_rtl.py": "89d3f4f6b9d0782e1e5f6d886dad386940b77adfc625c745802ac4cd072c09f1",
+    "verification/test_s2b_conv_output_address_rtl.py": "b9c927353803c73bb6709fc6abacb7edff9c13786bf0edde530291b4692b7347"
+  },
+  "elapsed_seconds": 41.406,
+  "diagnostic_scope": "26 direct TB only; 16 inherited backend; zero of those classes public boundary/layer0/geometry"
+}

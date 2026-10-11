@@ -1,0 +1,405 @@
+{
+  "status": "PASS_ARCHIVE_RAW_INTEGRITY_ONLY",
+  "source_commit": "f3a0b0514c90983c41c8729b93f18d627bfc1bb5",
+  "rounds": [
+    {
+      "round": "r01",
+      "receipt_status": "CHANGES_REQUIRED",
+      "business_status": "FAIL_TIMING",
+      "review_check_count": 1714,
+      "failed_checks": [
+        {
+          "name": "wait客户端timeout/原生0/351.6s",
+          "status": "FAIL",
+          "evidence": "report/evidence/S2B-T17/s3_source_preflight_20261011_r01/root_mcp_calls_closed.json",
+          "detail": null
+        }
+      ],
+      "review_native": {
+        "command": [
+          "python",
+          "-B",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s3_synthesis_review_20261011_r01\\review_s3.py"
+        ],
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "native_exit_code": 1,
+        "observation_source": "functions.exec tools.exec_command Git Bash调用返回的实际exit_code",
+        "stdout": {
+          "path": "tmp/2B/S2B-T17/independent_s3_synthesis_review_20261011_r01/review.stdout.log",
+          "sha256": "4fb82f95d81e95d48c208933e297368e34666448cf97274fb69775d34ab7fda3",
+          "bytes": 137,
+          "role": "result"
+        },
+        "stderr": {
+          "path": "tmp/2B/S2B-T17/independent_s3_synthesis_review_20261011_r01/review.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "result"
+        },
+        "business_status": "FAIL_TIMING",
+        "scope": "原生码为Reviewer审查脚本码，不是综合/业务成功码。"
+      },
+      "original_receipt_sha256": "1d4ce154b8ac4ef5ca7a02fdc93a612f4569d18b9b26930af0ff9999a7cf112c",
+      "original_raw_manifest_sha256": "c6643e33a86d8b41a3f04d245f0452ec2307f94c540428a60da0375a5c57fe57",
+      "copied_file_count": 163,
+      "findings": {
+        "job_results": [
+          {
+            "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+            "actual_vivado_pid": 33612,
+            "launcher_marker_pid": 14052,
+            "synth_seconds": 29,
+            "single_process_peak_mb": 2074.484,
+            "diagnostics": {
+              "infos": 198,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_infer_0_synth_1",
+            "actual_vivado_pid": 31212,
+            "launcher_marker_pid": 29232,
+            "synth_seconds": 180,
+            "single_process_peak_mb": 2265.18,
+            "diagnostics": {
+              "infos": 326,
+              "warnings": 118,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_ps7_0_synth_1",
+            "actual_vivado_pid": 23644,
+            "launcher_marker_pid": 30296,
+            "synth_seconds": 25,
+            "single_process_peak_mb": 2211.254,
+            "diagnostics": {
+              "infos": 197,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_rst_fclk0_0_synth_1",
+            "actual_vivado_pid": 30952,
+            "launcher_marker_pid": 24040,
+            "synth_seconds": 24,
+            "single_process_peak_mb": 2057.715,
+            "diagnostics": {
+              "infos": 45,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "synth_1",
+            "actual_vivado_pid": 33152,
+            "launcher_marker_pid": 27412,
+            "synth_seconds": 27,
+            "single_process_peak_mb": 2056.477,
+            "diagnostics": {
+              "infos": 37,
+              "warnings": 10,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          }
+        ],
+        "resources": {
+          "lut": 32790,
+          "ff": 4017,
+          "bram": 32,
+          "dsp": 160
+        },
+        "timing_numbers": [
+          "-18.745",
+          "-6349.595",
+          "806",
+          "14653",
+          "0.037",
+          "0.000",
+          "0",
+          "14653",
+          "8.870",
+          "0.000",
+          "0",
+          "4181"
+        ],
+        "timing_checks": {
+          "no_clock": 0,
+          "constant_clock": 0,
+          "pulse_width_clock": 0,
+          "unconstrained_internal_endpoints": 0,
+          "no_input_delay": 0,
+          "no_output_delay": 0,
+          "multiple_clock": 0,
+          "generated_clocks": 0,
+          "loops": 0,
+          "partial_input_delay": 0,
+          "partial_output_delay": 0,
+          "latch_loops": 0
+        },
+        "source_raw_same": 29,
+        "source_exact_eol": 4,
+        "compiled_sources": [
+          "src/int8_maxpool_geometry.sv",
+          "src/int8_maxpool_window.sv",
+          "src/int8_upsample_query.sv",
+          "src/s2a_control_csr.sv",
+          "src/s2a_network_descriptor_pkg.sv",
+          "src/s2a_conv_tile_engine.sv",
+          "src/s2a_memory_master.sv",
+          "src/s2a_runtime_shell.sv",
+          "src/s2b_control_csr.sv",
+          "src/s2b_hp0_word_adapter.sv",
+          "src/s2b_maxpool_engine.sv",
+          "src/s2b_network_backend.sv",
+          "src/s2b_request_guard.sv",
+          "src/s2b_route_engine.sv",
+          "src/s2b_route_query.sv",
+          "src/s2b_stage2b_core.sv",
+          "src/s2b_upsample_engine.sv",
+          "src/s2b_inference_top.sv"
+        ],
+        "active_constraints": [
+          "current_instance s2b_inference_i/ps7/inst",
+          "create_clock -period 20.000 -name clk_fpga_0 [get_pins {PS7_i/FCLKCLK[0]}]",
+          "set_input_jitter clk_fpga_0 0.600",
+          "current_instance -quiet",
+          "current_instance s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_HIGH_AUX.ACT_HI_AUX",
+          "set_false_path -to [get_cells {syncstages_ff_reg[0]}]",
+          "current_instance -quiet",
+          "current_instance s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_LOW_EXT.ACT_LO_EXT",
+          "set_false_path -to [get_cells {syncstages_ff_reg[0]}]",
+          "current_instance -quiet"
+        ]
+      },
+      "limitations": [
+        "当前S4工作源码未用于S3判断；33前后快照与固定Git f3使用。",
+        "原生OS子进程退出码未直接观测保持null，成功依据原生日志/markers/wait0。",
+        "root session源文件可继续追加，核查仅395086B副本SHA，不依赖源未来字节。",
+        "总wall/treepeak/Collector峰未测；9次MCP历史不是本Reviewer的新调用。",
+        "初次inlinePython完整命令未捕获，未伪造rawscript；只核对既有SyntaxError预检记录。",
+        "原有编译产生的两条reset CDC false_path原样列明；report_exceptions无有效例外，核心内部路径未漏约束。",
+        "六PSinit成员相同不批准旧BSP/ELF runtime兼容；visibility1/实现/bit/下载/G3未执行。",
+        "审查角色仅写隔离目录不提交；总控负责归档和相关提交。"
+      ]
+    },
+    {
+      "round": "r02",
+      "receipt_status": "PASS_EVIDENCE_INTEGRITY",
+      "business_status": "FAIL_TIMING",
+      "review_check_count": 1714,
+      "failed_checks": [],
+      "review_native": {
+        "command": [
+          "python",
+          "-B",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s3_synthesis_review_20261011_r02\\review_s3.py"
+        ],
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "native_exit_code": 0,
+        "observation_source": "functions.exec tools.exec_command Git Bash调用返回的实际exit_code",
+        "stdout": {
+          "path": "tmp/2B/S2B-T17/independent_s3_synthesis_review_20261011_r02/review.stdout.log",
+          "sha256": "758f922a8ae45c78bb1ed8e70c4dbbeaec8163dc01823488390d1a90e41df4ed",
+          "bytes": 102,
+          "role": "result"
+        },
+        "stderr": {
+          "path": "tmp/2B/S2B-T17/independent_s3_synthesis_review_20261011_r02/review.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "role": "result"
+        },
+        "business_status": "FAIL_TIMING",
+        "scope": "原生码为Reviewer审查脚本码，不是综合/业务成功码。"
+      },
+      "original_receipt_sha256": "0d534e6ab6a22bfac6f8a8b5183c9e2fe16ee871e6c5938f3583768d4cfe97b3",
+      "original_raw_manifest_sha256": "c214f0b90a277db530ff918aa96942d7fda6af53e5bea498fddd558d80ad1834",
+      "copied_file_count": 162,
+      "findings": {
+        "job_results": [
+          {
+            "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+            "actual_vivado_pid": 33612,
+            "launcher_marker_pid": 14052,
+            "synth_seconds": 29,
+            "single_process_peak_mb": 2074.484,
+            "diagnostics": {
+              "infos": 198,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_infer_0_synth_1",
+            "actual_vivado_pid": 31212,
+            "launcher_marker_pid": 29232,
+            "synth_seconds": 180,
+            "single_process_peak_mb": 2265.18,
+            "diagnostics": {
+              "infos": 326,
+              "warnings": 118,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_ps7_0_synth_1",
+            "actual_vivado_pid": 23644,
+            "launcher_marker_pid": 30296,
+            "synth_seconds": 25,
+            "single_process_peak_mb": 2211.254,
+            "diagnostics": {
+              "infos": 197,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "s2b_inference_rst_fclk0_0_synth_1",
+            "actual_vivado_pid": 30952,
+            "launcher_marker_pid": 24040,
+            "synth_seconds": 24,
+            "single_process_peak_mb": 2057.715,
+            "diagnostics": {
+              "infos": 45,
+              "warnings": 0,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          },
+          {
+            "run": "synth_1",
+            "actual_vivado_pid": 33152,
+            "launcher_marker_pid": 27412,
+            "synth_seconds": 27,
+            "single_process_peak_mb": 2056.477,
+            "diagnostics": {
+              "infos": 37,
+              "warnings": 10,
+              "critical_warnings": 0,
+              "errors": 0
+            },
+            "raw_os_exit_code": null
+          }
+        ],
+        "resources": {
+          "lut": 32790,
+          "ff": 4017,
+          "bram": 32,
+          "dsp": 160
+        },
+        "timing_numbers": [
+          "-18.745",
+          "-6349.595",
+          "806",
+          "14653",
+          "0.037",
+          "0.000",
+          "0",
+          "14653",
+          "8.870",
+          "0.000",
+          "0",
+          "4181"
+        ],
+        "timing_checks": {
+          "no_clock": 0,
+          "constant_clock": 0,
+          "pulse_width_clock": 0,
+          "unconstrained_internal_endpoints": 0,
+          "no_input_delay": 0,
+          "no_output_delay": 0,
+          "multiple_clock": 0,
+          "generated_clocks": 0,
+          "loops": 0,
+          "partial_input_delay": 0,
+          "partial_output_delay": 0,
+          "latch_loops": 0
+        },
+        "source_raw_same": 29,
+        "source_exact_eol": 4,
+        "compiled_sources": [
+          "src/int8_maxpool_geometry.sv",
+          "src/int8_maxpool_window.sv",
+          "src/int8_upsample_query.sv",
+          "src/s2a_control_csr.sv",
+          "src/s2a_network_descriptor_pkg.sv",
+          "src/s2a_conv_tile_engine.sv",
+          "src/s2a_memory_master.sv",
+          "src/s2a_runtime_shell.sv",
+          "src/s2b_control_csr.sv",
+          "src/s2b_hp0_word_adapter.sv",
+          "src/s2b_maxpool_engine.sv",
+          "src/s2b_network_backend.sv",
+          "src/s2b_request_guard.sv",
+          "src/s2b_route_engine.sv",
+          "src/s2b_route_query.sv",
+          "src/s2b_stage2b_core.sv",
+          "src/s2b_upsample_engine.sv",
+          "src/s2b_inference_top.sv"
+        ],
+        "active_constraints": [
+          "current_instance s2b_inference_i/ps7/inst",
+          "create_clock -period 20.000 -name clk_fpga_0 [get_pins {PS7_i/FCLKCLK[0]}]",
+          "set_input_jitter clk_fpga_0 0.600",
+          "current_instance -quiet",
+          "current_instance s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_HIGH_AUX.ACT_HI_AUX",
+          "set_false_path -to [get_cells {syncstages_ff_reg[0]}]",
+          "current_instance -quiet",
+          "current_instance s2b_inference_i/rst_fclk0/U0/EXT_LPF/ACTIVE_LOW_EXT.ACT_LO_EXT",
+          "set_false_path -to [get_cells {syncstages_ff_reg[0]}]",
+          "current_instance -quiet"
+        ]
+      },
+      "limitations": [
+        "当前S4工作源码未用于S3判断；33前后快照与固定Git f3使用。",
+        "原生OS子进程退出码未直接观测保持null，成功依据原生日志/markers/wait0。",
+        "root session源文件可继续追加，核查仅395086B副本SHA，不依赖源未来字节。",
+        "总wall/treepeak/Collector峰未测；9次MCP历史不是本Reviewer的新调用。",
+        "初次inlinePython完整命令未捕获，未伪造rawscript；只核对既有SyntaxError预检记录。",
+        "原有编译产生的两条reset CDC false_path原样列明；report_exceptions无有效例外，核心内部路径未漏约束。",
+        "六PSinit成员相同不批准旧BSP/ELF runtime兼容；visibility1/实现/bit/下载/G3未执行。",
+        "审查角色仅写隔离目录不提交；总控负责归档和相关提交。"
+      ]
+    }
+  ],
+  "raw_copy_count": 325,
+  "approved_main_manifest": {
+    "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_delivery_manifest_r03.json",
+    "sha256": "86d9aff8dcda7161bc5027b5906824a59748e1439ed6e87e76637d086409bcd0",
+    "role": "input"
+  },
+  "main_file_bindings": 224,
+  "main_interface_bindings": 2,
+  "elapsed_seconds_before_packaging": 2.553049900001497,
+  "peak_memory": "NOT_MEASURED",
+  "hardware": "NOT_RUN",
+  "synthesis": "NOT_RUN",
+  "runtime_compatibility": "NOT_APPROVED",
+  "limitations": [
+    "R01为1713PASS/1FAIL的Reviewer超时文本误断言，原CHANGES_REQUIRED/native1保持；R02实际1714PASS/native0，范围仅完整性。",
+    "STA仍WNS−18.745/TNS−6349.595、806/14653 setup失败，不授予设计G2/部署/G3/G4/G5。",
+    "主证据/33前后快照只作精确input，不重复复制；当前S4工作树source未消费。",
+    "第一tmp名称检查遇到此前S3软件归档缓存同名，test原生1且未创建/修改；改用独占新名称，本事实不是业务失败。",
+    "不执行原审查/STA分类/综合/业务测试；只复制其已绑定raw日志与Git输出。"
+  ]
+}

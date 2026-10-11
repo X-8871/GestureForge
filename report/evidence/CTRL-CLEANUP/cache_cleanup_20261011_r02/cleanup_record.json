@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "task_id": "CTRL-CLEANUP",
+  "run_id": "cache_cleanup_20261011_r02",
+  "status": "COMPLETE_SCOPED_CACHE_CLEANUP",
+  "completed_at": "2026-10-11T17:40:51+08:00",
+  "source_commit": "9f3eaedd3e65d715b40215bf4587ae6c46f7d960",
+  "authorization": "Wong于2026-10-11明确授权继续清理C盘可重建缓存；不得影响Codex及活动2B，必须保留模型、原始数据、验收证据与失败记录。",
+  "frozen_plan": {
+    "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02/cleanup_plan.json",
+    "sha256": "2e16a15420464886718773f5556f5ab62447a9f9a50e0a10573f79bddd0f332a",
+    "meaning": "保留删除前的冻结计划；其中PLANNED为原始计划状态，执行结果以本文件为准"
+  },
+  "executed_source": {
+    "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02/c_cleanup.sh",
+    "sha256": "085553eba1d193b58a0fb09d18f813a4fc25cfca74c1a69f0b6e86be03ffdc83",
+    "command": "Git Bash：GESTUREFORGE_CACHE_PLAN_SHA256=<冻结计划SHA> bash c_cleanup.sh cleanup_plan.json execute-once",
+    "exit_code": 0,
+    "warning": "仅供审计的已执行命令快照，不再次执行"
+  },
+  "categories": [
+    {
+      "name": "ESP工具下载归档",
+      "files": 22,
+      "logical_bytes": 3329447535,
+      "keep": "tools/python_env/配置及实际IDF全部保留"
+    },
+    {
+      "name": "Conda压缩下载包",
+      "files": 279,
+      "logical_bytes": 693971328,
+      "keep": "279个同名解压包/info及安装环境保留"
+    },
+    {
+      "name": "WorkBuddy更新下载",
+      "files": 1,
+      "logical_bytes": 435859832,
+      "keep": "仅删除精确更新exe，保留父目录/其他Temp和诊断记录"
+    },
+    {
+      "name": "非活动应用网络与代码缓存",
+      "directories": 5,
+      "allocated_bytes_before": 47893504,
+      "keep": "全部项目/素材/会话/模型/配置和失败日志保留"
+    }
+  ],
+  "measurement": {
+    "method": "Git Bash df -B1 /c，删除操作前后同卷净可用空间差；并发写盘可能影响净值",
+    "c_free_before_bytes": 27300741120,
+    "c_free_after_bytes": 31808339968,
+    "c_net_released_bytes": 4507598848,
+    "c_net_released_gib": 4.198029,
+    "postcheck_c_free_bytes": 31808053248,
+    "files_logical_deleted_bytes": 4459278695,
+    "directory_allocated_bytes_before": 47893504,
+    "d_cache_deletion": "NOT_APPLICABLE，未删除D盘数据"
+  },
+  "guards": {
+    "syntax_and_verify_only": {
+      "status": "PASS",
+      "exit_code": 0,
+      "targets_verified": 307,
+      "deleted": 0
+    },
+    "windows_api_immediate_preexecution": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ancestors_reparse": 0,
+      "internal_reparse": 0,
+      "active_cache_owners": 0,
+      "active_install_transactions": 0,
+      "command_line_scope_checked": true,
+      "vivado_processes_observed": [
+        23188
+      ]
+    },
+    "workbuddy_installer_identity": {
+      "status": "PASS",
+      "authenticode": "Valid",
+      "publisher": "Tencent Technology (Shenzhen) Company Limited",
+      "file_bytes": 435859832
+    }
+  },
+  "postcheck": {
+    "status": "PASS",
+    "exit_code": 0,
+    "files_absent": 302,
+    "cache_directories_absent": 5,
+    "all_279_conda_package_infos_present": true,
+    "sdk_codex_worktrees_and_huggingface_present": true,
+    "preexisting_git_diff_sha256": "fd147ff54ffdf8ddeebe88712c3cee9e25f51c50b858ef1e7287a7bcdd2ef297",
+    "post_git_diff_sha256": "fd147ff54ffdf8ddeebe88712c3cee9e25f51c50b858ef1e7287a7bcdd2ef297",
+    "pre_and_post_tracked_status_sha256": "f7d81fa046194592ea7d02e436864ff2da017bd1d9fb007fc82518496f8f09e5"
+  },
+  "independent_review": {
+    "agent_id": "01a12a4d-8f71-7773-b2e4-605d664fbdb7",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "cache_semantics_and_dependencies": "PASS",
+    "frozen_plan_and_script": "PASS",
+    "did_not_execute_cleanup": true
+  },
+  "stage2b": {
+    "thread_id": "01a11b77-e429-7760-bc86-0b1d5ff1e084",
+    "observed_before_cleanup": "active/inProgress，整平台综合成功但50MHz时序失败，2B继续修复并保留失败证据",
+    "not_stopped_or_messaged": true,
+    "worktree_not_modified_by_cleanup": true
+  },
+  "kept": [
+    "全部 .codex、Codex 安装及运行依赖、阶段2B与阶段3工作树、项目源码/证据/模型/原始数据/失败记录",
+    "C:\\Espressif\\tools、python_env、releases及安装配置；C:\\Users\\22061\\esp\\v5.5.2 实际 IDF",
+    "C:\\Users\\22061\\anaconda3 内安装环境与所有解压包/info/urls/cache等非下载归档",
+    "WorkBuddy 会话、app/data、expert 清单、日志与更新目录中非白名单文件",
+    "Antigravity 历史/工作成果/浏览器配置与全部模型；剪映项目、素材、普通Cache、日志",
+    "全部 _npx、ms-playwright、.cache/codex-runtimes、huggingface、NVIDIA缓存、活动 Edge 缓存",
+    "Temp/cache_dir中的.mdl模型、来源未确认的HYUpdate、活动Temp内核以及浏览器配置"
+  ],
+  "not_applicable": {
+    "RTL_model_and_board_tests": "未改变实现/模型/实物；本任务只验收缓存范围及依赖保全，不构成工程阶段G4/G5"
+  },
+  "limitations": [
+    "浏览器/SDK重新使用时可能重新生成缓存或重新下载归档",
+    "不读取或删除会话及失败日志；不进行RTL/模型/板上验证",
+    "不是全盘扫描或清空；未确认可重建的对象保留",
+    "删除缓存本体未进回收站；可以按保留工具/环境重新生成或重新下载。",
+    "从此前Claude清理到本轮执行，活动2B等后台任务继续写盘；本轮释放值不含此前Claude/npm/pip清理。",
+    "不是全盘扫描；大型SDK、浏览器模型、Codex会话与历史、系统目录均非垃圾，未清理。"
+  ],
+  "evidence_packaging": {
+    "attempts": [
+      {
+        "status": "ENVIRONMENT_FAILED",
+        "command": "默认沙箱内Git Bash通过Windows字面路径调用Python312/python.exe执行证据核验",
+        "exit_code": 126,
+        "checker_executed": false,
+        "error": "Python进程未启动；Bash报告 Is a directory。只读核实后该路径实际为文件。"
+      },
+      {
+        "status": "CHECKS_OK",
+        "command": "经允许的运行，Git Bash用command -v python返回的已有Python3.12.10，-B verification/check_stage_delivery.py --mode evidence --manifest delivery_manifest.json",
+        "exit_code": 0,
+        "checker_executed": true
+      }
+    ],
+    "interpretation": "首轮是启动环境失败，不是缓存清理失败；后续实际包装核验通过，不代表工程阶段G4/G5。"
+  }
+}

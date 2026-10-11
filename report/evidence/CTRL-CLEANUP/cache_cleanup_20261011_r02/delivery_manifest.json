@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "stage": "CTRL",
+  "task_id": "CTRL-CLEANUP",
+  "run_id": "cache_cleanup_20261011_r02",
+  "source_commit": "9f3eaedd3e65d715b40215bf4587ae6c46f7d960",
+  "evidence_dir": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅清理已核验且非活动的C盘下载/网络/代码缓存；不消费或变更模型、PS/PL接口或板上产物。",
+  "files": [
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02/cleanup_plan.json",
+      "sha256": "2e16a15420464886718773f5556f5ab62447a9f9a50e0a10573f79bddd0f332a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02/c_cleanup.sh",
+      "sha256": "085553eba1d193b58a0fb09d18f813a4fc25cfca74c1a69f0b6e86be03ffdc83",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r02/cleanup_record.json",
+      "sha256": "40908eced36a7f80712efa5c6e1e1a2c88f7fcea377ae95a8320ab5e7866e299",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "syntax_and_readonly_preflight",
+      "status": "PASS",
+      "command": "bash -n c_cleanup.sh；以冻结计划SHA绑定运行 verify-only",
+      "exit_code": 0
+    },
+    {
+      "name": "windows_scope_guard",
+      "status": "PASS",
+      "command": "Windows只读API核对祖先/内部重解析点、应用/下载/安装进程及命令行目标引用；删除前即时执行",
+      "exit_code": 0
+    },
+    {
+      "name": "scoped_C_cache_cleanup",
+      "status": "PASS",
+      "command": "按精确SHA绑定 c_cleanup.sh cleanup_plan.json execute-once，302个文件及5个叶目录",
+      "exit_code": 0
+    },
+    {
+      "name": "absence_and_dependency_postcheck",
+      "status": "PASS",
+      "command": "307目标不存在、279个解压包info保留、SDK/Codex/工作树/模型根存在；Git原差异SHA一致",
+      "exit_code": 0
+    },
+    {
+      "name": "inputs_mode",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "无模型/硬件输入交付或变更；缓存依赖保全见本次精确清单和结果。"
+    },
+    {
+      "name": "RTL_model_board_regression",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "未改变实现、模型、数据、失败或验收证据，也未操作板卡；不重复启动重型验证影响活动2B。"
+    },
+    {
+      "name": "evidence_packaging_after_environment_retry",
+      "status": "PASS",
+      "command": "已有Python3.12.10 -B verification/check_stage_delivery.py --mode evidence --manifest delivery_manifest.json",
+      "exit_code": 0
+    }
+  ],
+  "tool_versions": {
+    "Git": "2.56.0.windows.2",
+    "Bash": "5.3.15(2)-release",
+    "Node": "25.8.0",
+    "Python": "3.12.10"
+  },
+  "limitations": [
+    "机器包装核验不构成工程阶段G4/G5。",
+    "空间为同卷df操作前后净变化，后台2B等写盘会改变最终余量。",
+    "清理脚本是已执行快照，不重复执行；缓存可重新下载/生成。",
+    "大型SDK/安装环境、全部模型/数据/历史/失败证据及活动Codex依赖保留。"
+  ]
+}

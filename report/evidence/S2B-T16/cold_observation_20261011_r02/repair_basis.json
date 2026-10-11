@@ -1,0 +1,45 @@
+{
+  "source_baseline": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "observed_head": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+  "r1_manifest": {
+    "path": "report/evidence/S2B-T16/cold_observation_20261011_r01/delivery_manifest.json",
+    "sha256": "b6122a97f7a3594b9524e1e45cdeb9a0afe25c67034aa51d441e30bac997d827"
+  },
+  "r1_review_receipt_sha256": "e5ea9e4b9c86c0207a103ed0ac6d42270acf1e7351bf0a67fbd3f2705d910d77",
+  "r1_finding": "P1：EOS-only和缺bit3字段被接受；R2增加occupied==set(range(32))。",
+  "old_source_sha256": {
+    "verification/s2b_board_jtag.py": "b48533d9ea42eb779e7db55816539efc2a15a9249595b754f67d28394bcf59cf",
+    "verification/test_s2b_board_jtag.py": "35af463f87c1d1323bb10672b4e913bef940162b1de8ac10a40a10c9e9d8eeba",
+    "verification/test_s2b_cold_observation.py": "f892158d264f926589389ce2465a7e00f4e7cd49b8a05d2df15792bb59aca786"
+  },
+  "coverage": [
+    "完整0..31、无重叠、每个字段值与32位原字一致，EOS名称精确且唯一位4。",
+    "允许非EOS未知字段名称；覆盖全部32位的独立手算边界0/0xFFFFFFFF/0x80000008。",
+    "EOS-only两态、缺bit3、缺bit31、重叠和矛盾拒绝；reset前/bit后缺位均阻断后续下载并保存raw。",
+    "T19固定新SHA，旧Git源码91bb及改字节明确拒绝；原假类/alias/code/SDK门禁回归保留。",
+    "DDRC低3位1、OCM ready/result2/rc0、CPU0自有清理、CPU1Stopped及failure锁仍由原回归覆盖。"
+  ],
+  "facts": {
+    "mock_methods": {
+      "T16_existing": 56,
+      "T16_cold": 17,
+      "T19": 19,
+      "T20": 33
+    },
+    "hardware_calls": 0,
+    "cold_lifecycle_proven": false,
+    "r2_g2": "NOT_RUN",
+    "g3": "NOT_RUN"
+  },
+  "temporary_redirection": "T16标准TemporaryDirectory、T20 TEST_PARENT及T19两个parent表达式仅重定向到本轮tmp；未修改断言/门禁。",
+  "sdk_source_inventory": "sdk_source_inventory.json",
+  "platform_checker": {
+    "snapshot_sha256": "08e6ca6343947f218d156f26eed9012c9c5e7c5db77002397053c61fa35b4e79",
+    "after_sha256": "08e6ca6343947f218d156f26eed9012c9c5e7c5db77002397053c61fa35b4e79",
+    "note": "S4维护的只读快照；T19 fixture沿用既有mock check_static，不证明真实平台通过。"
+  },
+  "limitations": [
+    "本轮候选待独立G2；BOARD及完整runtime兼容和真实cache均未执行。",
+    "cold_lifecycle_proven始终false；没有修改epoch、失败锁或控制器标志绕过门禁。"
+  ]
+}

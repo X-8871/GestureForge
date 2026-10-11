@@ -1,0 +1,48 @@
+{
+  "baseline_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "prior_tool_sha256": "91bbf5bc8ac5ef9bee37ce6491627a6ac8f38a53b7bba113d1b83447b2ecddf0",
+  "sdk_path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+  "sdk_sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+  "sdk_lines": [
+    4597,
+    4671
+  ],
+  "sdk_interface": "Target.fpga('--config_status')返回None；stdout原字及metadata字段，无底层TCF替代。",
+  "official_sources": [
+    {
+      "title": "UG470 v1.17，表5-29，印刷页107 / PDF页索引106",
+      "url": "https://docs.amd.com/api/khub/documents/FOs3lXmlcWxBhTIFxVKyGA/content",
+      "fact": "EOS位4：0代表启动序列未结束，1代表启动序列结束。"
+    },
+    {
+      "title": "UG585 v1.15 Register (ddrc) mode_sts_reg",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-ddrc-mode_sts_reg",
+      "fact": "状态地址0xF8006054。"
+    },
+    {
+      "title": "UG585 v1.15 Register mode_sts_reg Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-mode_sts_reg-Details",
+      "fact": "operating_mode[2:0]仅1为normal；0是初始化，2是powerdown，3是self-refresh，4以上是deep powerdown。"
+    }
+  ],
+  "ps7_init_path": "report/evidence/S2B-T15/full_build_20261011_r01/ps7_init.c",
+  "ps7_init_sha256": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+  "ps7_init_lines": [
+    1518,
+    1524,
+    7201,
+    7214
+  ],
+  "ps7_init_observation": "现有生成代码注释指定mode1，EMIT_MASKPOLL mask7实际仅等任何掩码位非零；新增DAP校验拒绝2..7。",
+  "sequence": [
+    "system-reset-stop",
+    "actual_config_status_EOS0",
+    "OCM_init_ready_result2_return0",
+    "DAP_DDRC_mode1",
+    "full_bit",
+    "actual_config_status_EOS1",
+    "mark_configured",
+    "DDR_app"
+  ],
+  "lifecycle": "冷生命周期判断继续交由总控和独立Reviewer，工具始终保留cold_lifecycle_proven=false。"
+}

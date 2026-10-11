@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "mode": "evidence",
+      "command_argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "report/evidence/S2B-T16/cold_observation_20261011_r01/delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "expected": 0,
+      "matches_expected": true
+    },
+    {
+      "mode": "inputs",
+      "command_argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T16/cold_observation_20261011_r01/delivery_manifest.json"
+      ],
+      "native_exit_code": 2,
+      "expected": 2,
+      "matches_expected": true
+    }
+  ],
+  "meaning": "evidence只证明包装；inputs2是候选未冻结/NOT_RUN预期阻断，不能称G3通过。"
+}

@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "role": "INDEPENDENT_REVIEWER",
+  "task_id": "S2B-T16-COLD-G2",
+  "status": "CHANGES_REQUIRED",
+  "source_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "source_sha256": {
+    "verification/s2b_board_jtag.py": "b48533d9ea42eb779e7db55816539efc2a15a9249595b754f67d28394bcf59cf",
+    "verification/test_s2b_board_jtag.py": "35af463f87c1d1323bb10672b4e913bef940162b1de8ac10a40a10c9e9d8eeba",
+    "verification/test_s2b_cold_observation.py": "f892158d264f926589389ce2465a7e00f4e7cd49b8a05d2df15792bb59aca786"
+  },
+  "g1_manifest_sha256": "b6122a97f7a3594b9524e1e45cdeb9a0afe25c67034aa51d441e30bac997d827",
+  "execution_receipt_sha256": "e95ca24bcd497f779d1a743577174eb76ad59d302547c0e3f5a36bbc97da3ced",
+  "scope": "仅离线观测门禁软件G2；全部冻结源、G1 RAW绑定、SDK原生输出形状、官方EOS/DDRC依据、正式冷生命周期与cache接口、独立反例及受影响T19/T20",
+  "findings": [
+    {
+      "priority": "P1",
+      "file": "verification/s2b_board_jtag.py",
+      "line": 112,
+      "title": "截断CONFIG_STATUS metadata被接受",
+      "impact": "只含EOS位4或遗漏位3的输出仍可PASS；system-stop后及full-bit后门禁接受缺失字段证据，无法满足要求的完整native原字/metadata绑定。",
+      "countercases": [
+        "CONFIG_STATUS: 0 + EOS[4]:0",
+        "CONFIG_STATUS: 16 + EOS[4]:1",
+        "CONFIG_STATUS: 16 + LOW[2:0]:0 + EOS[4]:1 + UPPER[31:5]:0（缺bit3）"
+      ],
+      "evidence": "tests_stderr.log：test_truncated_metadata_must_not_be_accepted两subcase及test_hole_in_metadata_must_not_be_accepted共3 FAIL",
+      "basis": "root任务卡及2026-10-11澄清：SDK字段必须不重叠且完整覆盖0..31；EOS名称精确唯一bit4；其它字段无需硬白名单，但值/位宽/原字完整一致。",
+      "close_when": "在解析返回前验证occupied == set(range(32))；保留现有语法/位宽/重叠/原字/EOS校验；修订所有有效mock为完整metadata，新增缺位/截断负例，并独立复审冻结新SHA。"
+    }
+  ],
+  "test_results": {
+    "total_methods": 127,
+    "native_exit_code": 1,
+    "original_T16": {
+      "methods": 56,
+      "status": "PASS"
+    },
+    "developer_cold": {
+      "methods": 10,
+      "status": "PASS"
+    },
+    "T20_CSR": {
+      "methods": 33,
+      "status": "PASS"
+    },
+    "T19_visibility": {
+      "methods": 18,
+      "pass": 14,
+      "error": 4,
+      "status": "FAIL",
+      "explanation": "vitis/run_s2b_visibility_probe.py:27/316固定已审91bb…源码SHA，当前候选被正确拒绝；未调整JTAG_SHA或降低runtimecompat门禁。该项仍BLOCKED，不能作为候选T19兼容通过。"
+    },
+    "independent": {
+      "methods": 10,
+      "pass_methods": 8,
+      "failed_methods": 2,
+      "failed_subcases": 3,
+      "status": "FAIL"
+    }
+  },
+  "native_checks": [
+    {
+      "mode": "evidence",
+      "command_argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T16\\cold_observation_20261011_r01\\delivery_manifest.json"
+      ],
+      "native_exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "mode": "inputs",
+      "command_argv": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T16\\cold_observation_20261011_r01\\delivery_manifest.json"
+      ],
+      "native_exit_code": 2,
+      "status": "FAIL"
+    },
+    {
+      "name": "限定三源diff-check",
+      "command_argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "verification/s2b_board_jtag.py",
+        "verification/test_s2b_board_jtag.py",
+        "verification/test_s2b_cold_observation.py"
+      ],
+      "status": "PASS",
+      "native_exit_code": 0
+    }
+  ],
+  "verified_behaviors": [
+    "非canonical整数/超大值/符号/位宽/重叠/错EOS位/raw不一致/非None/stderr均拒绝",
+    "DDRC0与2..7均阻止bit/app，已执行init事实保持True",
+    "post-bit失败不下载app；app下载失败保留已确认configured事实",
+    "调用顺序system-stop→EOS0→OCM ready/result2/return0→DDRCmode1→full-bit→EOS1→dow/conCPU0",
+    "失败锁存、仅自有BP移除和CPU0停止、CPU1未resume/reset、cold_lifecycle_proven=False"
+  ],
+  "official_sources": [
+    {
+      "title": "UG470 v1.17表5-29（印刷107页）",
+      "url": "https://docs.amd.com/api/khub/documents/FOs3lXmlcWxBhTIFxVKyGA/content",
+      "verified_fact": "EOS位4仅表示Startup序列是否结束，不证明旧AXI、cache、arena生命周期结束。"
+    },
+    {
+      "title": "UG585 v1.15 Register (ddrc) mode_sts_reg",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-ddrc-mode_sts_reg",
+      "verified_fact": "Absolute Address=0xF8006054；真实DAP读取32位原字保存。"
+    },
+    {
+      "title": "UG585 v1.15 Register mode_sts_reg Details",
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/Register-mode_sts_reg-Details",
+      "verified_fact": "operating_mode[2:0]中1=Normal，0=Init，2=Powerdown，3=Self-refresh，4以上Deep powerdown。"
+    }
+  ],
+  "resource": {
+    "peak_working_set_bytes": 248897536,
+    "samples": 768,
+    "query_errors": 0,
+    "sample_interval_seconds": 0.05,
+    "budget_bytes": 314572800,
+    "descendant_peak": "新导入子进程峰值未独立测量"
+  },
+  "elapsed_seconds": 38.70400000000154,
+  "limitations": [
+    "G2尚未通过，本Run必须保留FAIL原件；未运行G3。",
+    "未导入真实XSDB/serial或创建Session，hardware_calls=0。",
+    "EOS和DDRC结果不批准官方reset候选、旧AXI生命周期、cache清空、arena重新初始化或visibility1。",
+    "T19真实runtimecompat与actualcache仍BLOCKED。",
+    "T19/T20及T16轻量mock仅临时落点重定向，本轮不提交，由root统一归档和Git。",
+    "新导入子进程峰值未单独测量，其余原生测试子进程峰值低于300MiB。"
+  ],
+  "stop": "全部命令已结束；本Reviewer停止写入。"
+}

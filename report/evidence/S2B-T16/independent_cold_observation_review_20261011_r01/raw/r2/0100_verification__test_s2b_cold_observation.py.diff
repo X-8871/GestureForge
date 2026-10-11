@@ -1,0 +1,257 @@
+--- Git_baseline_absent_new_file/verification/test_s2b_cold_observation.py
++++ R2/verification/test_s2b_cold_observation.py
+@@ -0,0 +1,254 @@
++"""统一初始化观测的独立离线反例；不导入SDK或打开串口。"""
++
++import ast
++import json
++from pathlib import Path
++import subprocess
++import sys
++import unittest
++
++from verification import s2b_board_jtag as j
++from verification import test_s2b_board_jtag as fixture
++
++
++class ObservedTarget(fixture.FakeTarget):
++    """使用实际SDK None/stdout接口形状，单独控制前后两次观测。"""
++    def fpga(self, *args, **kwargs):
++        if args == ("--config_status",):
++            self.session.operations.append(("fpga", args, kwargs))
++            phase = "bit" if self.session.bit_attempted else "reset"
++            out, err, value = self.session.outputs[phase]
++            print(out, end="")
++            print(err, end="", file=sys.stderr)
++            if isinstance(value, BaseException):
++                raise value
++            return value
++        self.session.bit_attempted = True
++        return super().fpga(*args, **kwargs)
++
++    def mrd(self, *args, **kwargs):
++        if kwargs["address"] == j.DDRC_MODE_STATUS:
++            self.session.operations.append(("ddrc_read", kwargs["address"]))
++        return super().mrd(*args, **kwargs)
++
++
++class ColdObservationTests(unittest.TestCase):
++    """只借用ELF及会话夹具，每个场景独立验证门禁与失败锁止。"""
++    def setUp(self):
++        fixture.JtagTests.setUp(self)
++        self.session.objects = {row["target_id"]: ObservedTarget(self.session, row) for row in self.session.rows.values()}
++        self.session.outputs = {
++            "reset": ("CONFIG_STATUS: 0\nMOCK_LOWER(Bits [3:0]):0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nMOCK_UPPER(Bits [31:5]):0\n", "", None),
++            "bit": ("CONFIG_STATUS: 16\nMOCK_LOWER(Bits [3:0]):0\nEND OF STARTUP (EOS) STATUS(Bits [4]):1\nMOCK_UPPER(Bits [31:5]):0\n", "", None)}
++        self.session.bit_attempted = False
++
++    def tearDown(self):
++        fixture.JtagTests.tearDown(self)
++
++    def ready(self):
++        fixture.JtagTests.ready(self)
++
++    def assert_failed_locked(self, initialized=False):
++        self.assertTrue(self.controller.failed)
++        self.assertEqual(self.controller.initialized, initialized)
++        self.assertFalse(self.controller.configured)
++        self.assertFalse(self.controller.app_running)
++        self.assertFalse(self.session.objects[11].running)
++        self.assertEqual(set(self.session._bptable), {1})
++        before = list(self.session.operations)
++        with self.assertRaises(j.JtagError):
++            self.controller.deploy()
++        self.assertEqual(before, self.session.operations)
++        self.assertFalse(self.controller.record["cold_lifecycle_proven"])
++
++    def test_reset_eos1_blocks_all_downloads(self):
++        self.session.outputs["reset"] = self.session.outputs["bit"]
++        with self.assertRaises(j.JtagError): self.ready()
++        self.assert_failed_locked()
++        self.assertFalse(any(row[0] == "dow" for row in self.session.operations))
++        self.assertIn("system_reset", self.controller.record)
++        self.assertEqual(self.controller.record["configuration_observations"][0]["eos"], 1)
++
++    def test_reset_unknown_metadata_blocks_all_downloads(self):
++        self.session.outputs["reset"] = (self.session.outputs["reset"][0].replace(j.EOS_NAME, "MOCK_UNKNOWN"), "", None)
++        with self.assertRaises(j.JtagError): self.ready()
++        self.assert_failed_locked()
++        self.assertFalse(self.session.bit_attempted)
++        self.assertFalse(any(row[0] == "dow" for row in self.session.operations))
++
++    def test_post_bit_eos0_blocks_app_and_preserves_init(self):
++        self.ready()
++        self.session.outputs["bit"] = self.session.outputs["reset"]
++        with self.assertRaises(j.JtagError): self.controller.deploy()
++        self.assert_failed_locked(initialized=True)
++        self.assertTrue(self.session.bit_attempted)
++        self.assertEqual(len([row for row in self.session.operations if row[0] == "dow"]), 1)
++        self.assertEqual(self.controller.record["initialization"]["return_code"], 0)
++        self.assertEqual(self.controller.record["ddrc_observation"]["operating_mode"], 1)
++
++    def test_post_bit_native_exception_retained_and_blocks_app(self):
++        self.ready()
++        self.session.outputs["bit"] = ("partial output\n", "native diagnostic\n", RuntimeError("native status failure"))
++        with self.assertRaises(RuntimeError): self.controller.deploy()
++        self.assert_failed_locked(initialized=True)
++        call = next(row for row in self.controller.record["calls"] if row["api"] == "fpga.config_status.after_full_bit")
++        self.assertEqual((call["stdout"], call["stderr"], call["status"]), ("partial output\n", "native diagnostic\n", "RAISED"))
++
++    def test_ddrc_each_nonnormal_mode_blocks_bit_app_and_cleans_bps(self):
++        self.ready()
++        # 每个子场景重新构造控制器，防止复用已失败对象。
++        for mode in (0, 2, 3, 4, 5, 6, 7):
++            with self.subTest(mode=mode):
++                if mode != 0:
++                    self.tearDown(); self.setUp(); self.ready()
++                self.session.memory[j.DDRC_MODE_STATUS] = 0x12345000 | mode
++                with self.assertRaises(j.JtagError): self.controller.deploy()
++                self.assert_failed_locked(initialized=True)
++                self.assertFalse(self.session.bit_attempted)
++                self.assertEqual(self.controller.record["ddrc_observation"]["word"], 0x12345000 | mode)
++                self.assertEqual(self.controller.record["ddrc_observation"]["status"], "FAILED")
++
++    def test_normal_fullword_and_exact_native_order(self):
++        self.ready()
++        self.session.memory[j.DDRC_MODE_STATUS] = 0x12345001
++        self.controller.deploy()
++        self.assertEqual([row[0] for row in self.session.operations],
++                         ["rst", "fpga", "dow", "con", "ddrc_read", "fpga", "fpga", "dow", "con"])
++        self.assertEqual(self.controller.record["ddrc_observation"]["word_hex"], "0x12345001")
++        self.assertEqual([row["eos"] for row in self.controller.record["configuration_observations"]], [0, 1])
++        self.assertTrue(self.controller.initialized and self.controller.configured and self.controller.app_running)
++        self.assertFalse(self.controller.record["cold_lifecycle_proven"])
++        self.controller.close()
++        calls = [json.loads(row) for row in (self.run / "jtag_calls.jsonl").read_text(encoding="utf-8").splitlines()]
++        eos_calls = [row for row in calls if row["api"].startswith("fpga.config_status.")]
++        self.assertEqual(len(eos_calls), 2)
++        self.assertTrue(all(row["return_type"] == "NoneType" and row["stdout"] for row in eos_calls))
++
++    def test_parse_independent_complete_sdk_shape(self):
++        text = ("CONFIG_STATUS: 439041040\n"  # 独立十六进制原字0x1A2B3C10。
++                "         MOCK_LOWER(Bits [3:0]):0\nEND OF STARTUP (EOS) STATUS(Bits [4]):1\n"
++                "         MOCK_UPPER(Bits [31:5]):13720032\n")
++        result = j.parse_config_status(None, text, "")
++        self.assertEqual(result["status_word_hex"], "0x1A2B3C10")
++        self.assertEqual(result["eos"], 1)
++
++    def test_parse_rejects_eos_only_metadata(self):
++        for word, eos in ((0, 0), (16, 1)):
++            text = f"CONFIG_STATUS: {word}\nEND OF STARTUP (EOS) STATUS(Bits [4]):{eos}\n"
++            with self.subTest(word=word), self.assertRaisesRegex(j.JtagError, "未完整覆盖"):
++                j.parse_config_status(None, text, "")
++
++    def test_parse_rejects_missing_bit3_or_high31(self):
++        for phase in ("reset", "bit"):
++            complete = self.session.outputs[phase][0]
++            for original, missing in (("[3:0]", "[2:0]"), ("[31:5]", "[30:5]")):
++                with self.subTest(phase=phase, missing=missing), self.assertRaisesRegex(j.JtagError, "未完整覆盖"):
++                    j.parse_config_status(None, complete.replace(original, missing), "")
++
++    def test_parse_rejects_complete_overlapping_or_conflicting_metadata(self):
++        text = self.session.outputs["bit"][0]
++        invalid = (
++            (text + "MOCK_DUPLICATE(Bits [3]):0\n", "重叠"),
++            (text.replace("[31:5]):0", "[31:4]):1"), "重叠"),
++            (text.replace("[3:0]):0", "[3:0]):1"), "原字不一致"),
++            (text.replace("[31:5]):0", "[31:5]):1"), "原字不一致"),
++            (text.replace("[4]):1", "[4]):0"), "原字不一致"),
++            (text.replace("[3:0]):0", "[3:0]):16"), "位宽"))
++        for raw, reason in invalid:
++            with self.subTest(raw=raw), self.assertRaisesRegex(j.JtagError, reason):
++                j.parse_config_status(None, raw, "")
++
++    def test_parse_accepts_fullword_bounds_and_unknown_non_eos_fields(self):
++        # 独立手算低四位、EOS和高27位，未知非EOS字段允许改名和重排。
++        for word, low, eos, high in ((0, 0, 0, 0), (4294967295, 15, 1, 134217727),
++                                     (2147483656, 8, 0, 67108864)):
++            raw = (f"CONFIG_STATUS: {word}\nMOCK_FUTURE_FIELD(Bits [31:5]):{high}\n"
++                   f"END OF STARTUP (EOS) STATUS(Bits [4]):{eos}\nMOCK_OTHER_FIELD(Bits [3:0]):{low}\n")
++            with self.subTest(word=word):
++                result = j.parse_config_status(None, raw, "")
++                self.assertEqual((result["status_word"], result["eos"]), (word, eos))
++                self.assertEqual(len(result["fields"]), 3)
++
++    def test_parse_rejects_replacement_eos_name_with_complete_metadata(self):
++        for name in ("EOS", "END OF STARTUP (EOS)", "end of startup (eos) status", "MOCK_UNKNOWN"):
++            with self.subTest(name=name), self.assertRaisesRegex(j.JtagError, "唯一EOS"):
++                j.parse_config_status(None, self.session.outputs["reset"][0].replace(j.EOS_NAME, name), "")
++
++    def test_truncated_or_hole_metadata_blocks_reset_downloads(self):
++        for index, kind in enumerate(("eos_only", "bit3", "bit31")):
++            with self.subTest(kind=kind):
++                if index:
++                    self.tearDown(); self.setUp()
++                raw = self.session.outputs["reset"][0]
++                raw = ("CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\n" if kind == "eos_only"
++                       else raw.replace("[3:0]", "[2:0]") if kind == "bit3" else raw.replace("[31:5]", "[30:5]"))
++                self.session.outputs["reset"] = (raw, "", None)
++                with self.assertRaisesRegex(j.JtagError, "未完整覆盖"):
++                    self.ready()
++                self.assert_failed_locked()
++                self.assertFalse(self.session.objects[12].running)
++                self.assertFalse(any(row[0] == "dow" for row in self.session.operations))
++                call = next(row for row in self.controller.record["calls"] if row["api"] == "fpga.config_status.after_system_reset")
++                self.assertEqual((call["stdout"], call["stderr"], call["return_type"]), (raw, "", "NoneType"))
++
++    def test_truncated_or_hole_metadata_blocks_post_bit_app(self):
++        for index, kind in enumerate(("eos_only", "bit3", "bit31")):
++            with self.subTest(kind=kind):
++                if index:
++                    self.tearDown(); self.setUp()
++                self.ready()
++                raw = self.session.outputs["bit"][0]
++                raw = ("CONFIG_STATUS: 16\nEND OF STARTUP (EOS) STATUS(Bits [4]):1\n" if kind == "eos_only"
++                       else raw.replace("[3:0]", "[2:0]") if kind == "bit3" else raw.replace("[31:5]", "[30:5]"))
++                self.session.outputs["bit"] = (raw, "", None)
++                with self.assertRaisesRegex(j.JtagError, "未完整覆盖"):
++                    self.controller.deploy()
++                self.assert_failed_locked(initialized=True)
++                self.assertFalse(self.session.objects[12].running)
++                self.assertTrue(self.session.bit_attempted)
++                self.assertEqual(len([row for row in self.session.operations if row[0] == "dow"]), 1)
++                self.assertEqual(self.controller.record["initialization"]["return_code"], 0)
++                self.assertEqual(self.controller.record["ddrc_observation"]["operating_mode"], 1)
++                call = next(row for row in self.controller.record["calls"] if row["api"] == "fpga.config_status.after_full_bit")
++                self.assertEqual((call["stdout"], call["stderr"], call["return_type"]), (raw, "", "NoneType"))
++
++    def test_parse_rejects_missing_duplicate_wrong_bit_width_raw_mismatch_and_unknown(self):
++        invalid = (
++            "CONFIG_STATUS: 0\n", "FPGA is not configured.\n",
++            "CONFIG_STATUS: 0\nOTHER(Bits [4]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [5]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [5:4]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):2\n",
++            "CONFIG_STATUS: 16\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):1\n",
++            "CONFIG_STATUS: -1\nEND OF STARTUP (EOS) STATUS(Bits [4]):1\n",
++            "CONFIG_STATUS: 4294967296\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\n",
++            "CONFIG_STATUS: 0x0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nunknown warning\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nOTHER(Bits [5:3]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nOTHER(Bits [32]):0\n",
++            "CONFIG_STATUS: 0\nEND OF STARTUP (EOS) STATUS(Bits [4]):0\nOTHER(Bits [2:3]):0\n")
++        for text in invalid:
++            with self.subTest(text=text), self.assertRaises(j.JtagError):
++                j.parse_config_status(None, text, "")
++
++    def test_parse_rejects_return_and_stderr_type_errors(self):
++        text = self.session.outputs["reset"][0]
++        for value, stdout, stderr in ((False, text, ""), (0, text, ""), ({}, text, ""),
++                                      (None, text, "warning"), (None, text.encode(), ""), (None, text, None)):
++            with self.subTest(value=value, stderr=stderr), self.assertRaises(j.JtagError):
++                j.parse_config_status(value, stdout, stderr)
++
++    def test_fresh_import_has_no_sdk_or_serial_dependency(self):
++        script = ("import sys; import verification.s2b_board_jtag; "
++                  "assert not any(name == 'serial' or name.startswith(('xsdb', 'vitis', 'tcf')) for name in sys.modules)")
++        completed = subprocess.run([sys.executable, "-B", "-c", script], cwd=Path(j.__file__).resolve().parents[1],
++                                   capture_output=True, text=True, timeout=10)
++        self.assertEqual(completed.returncode, 0, completed.stderr)
++        tree = ast.parse(Path(j.__file__).read_text(encoding="utf-8"))
++        self.assertFalse(any(isinstance(node, ast.Constant) and node.value == "--state" for node in ast.walk(tree)))
++
++
++if __name__ == "__main__":
++    unittest.main()

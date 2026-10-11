@@ -1,0 +1,21 @@
+--- Git_baseline/vitis/run_s2b_visibility_probe.py
++++ R2/vitis/run_s2b_visibility_probe.py
+@@ -24,7 +24,8 @@
+ ROOT=Path(__file__).absolute().parents[1]
+ TZ=timezone(timedelta(hours=8))
+ SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
+-JTAG_SHA="91bbf5bc8ac5ef9bee37ce6491627a6ac8f38a53b7bba113d1b83447b2ecddf0"
++# 固定T16完整字段观测候选；此绑定不替代总控核验独立G2及实板兼容批准。
++JTAG_SHA="1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b"
+ CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
+              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
+ ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
+@@ -313,7 +314,7 @@
+         require(type(item) is dict and set(item)=={"path","sha256"},"绑定格式错误")
+         require(j.exact_path(item["path"]).stat().st_size<=32*1024*1024,"绑定文件超出轻量入口预算")
+         j.bound_bytes(item)
+-    require(bindings["tool_source"]["sha256"]==JTAG_SHA,"必须使用已审T16 G2精确版本")
++    require(bindings["tool_source"]["sha256"]==JTAG_SHA,"必须使用固定T16候选精确版本")
+     serial_files=verify_serial_files(config)
+     for key,path in [("entry_source",Path(__file__).absolute()),("tool_source",Path(j.__file__).absolute()),("transport_source",Path(t.__file__).absolute()),
+                      ("platform_checker",ROOT/"verification/check_s2b_inference_platform.py"),("elf_parser",ROOT/"verification/check_s2b_ps_smoke_layout.py"),

@@ -143,9 +143,20 @@ class FakeTarget:
 
     def fpga(self, *args, **kwargs):
         self.session.operations.append(("fpga", args, kwargs))
+        if args == ("--config_status",):
+            status = self.session.config_status_word
+            print(f"CONFIG_STATUS: {status}")
+            print(f"MOCK_LOWER(Bits [3:0]):{status & 15}")
+            print(f"END OF STARTUP (EOS) STATUS(Bits [4]):{(status >> 4) & 1}")
+            print(f"MOCK_UPPER(Bits [31:5]):{status >> 5}")
+        elif not args and set(kwargs) == {"file"}:
+            self.session.config_status_word = 16
+        else:
+            raise AssertionError("非预期FPGA API参数")
 
     def rst(self, *args, **kwargs):
         self.session.operations.append(("rst", args, kwargs))
+        self.session.config_status_word = 0
 
 
 class FakeSession:
@@ -155,13 +166,14 @@ class FakeSession:
         self.rows = target_rows()
         self.objects = {r["target_id"]: FakeTarget(self, r) for r in self.rows.values()}
         self._bptable = {1: object()}
-        self.memory = {0xF800025C: 0, j.CSR_BASE: 0x53324250, j.CSR_BASE + 4: 0x100,
+        self.memory = {0xF800025C: 0, j.DDRC_MODE_STATUS: 1, j.CSR_BASE: 0x53324250, j.CSR_BASE + 4: 0x100,
                        j.CSR_BASE + 0x00C: 0x400, j.CSR_BASE + 0x050: 0}
         self.operations = []
         self.fail_init = self.fail_bp = self.fail_dow = self.drop_write = self.side_effect = False
         self.bus_error = "SLVERR"
         self.abort_transition = None
         self.flip_final_error = False
+        self.config_status_word = 0
 
     def targets(self, *args, **kwargs):
         return copy.deepcopy(self.rows) if args else self.objects[kwargs["id"]]
@@ -308,9 +320,9 @@ class JtagTests(unittest.TestCase):
     def test_deploy_native_order_and_only_cpu0_continue(self):
         self.ready(); self.controller.deploy()
         ops = [r[0] for r in self.session.operations]
-        self.assertEqual(ops, ["rst", "dow", "con", "fpga", "dow", "con"])
-        self.assertEqual(self.session.operations[3][1], ())
-        self.assertEqual(set(self.session.operations[3][2]), {"file"})
+        self.assertEqual(ops, ["rst", "fpga", "dow", "con", "fpga", "fpga", "dow", "con"])
+        self.assertEqual(self.session.operations[4][1], ())
+        self.assertEqual(set(self.session.operations[4][2]), {"file"})
         self.assertEqual(set(self.session._bptable), {1})
         self.assertFalse(self.controller.record["cold_lifecycle_proven"])
 
@@ -321,7 +333,7 @@ class JtagTests(unittest.TestCase):
         Path(self.bindings["init_elf"]["path"]).write_bytes(raw)
         self.bindings["init_elf"]["sha256"] = hashlib.sha256(raw).hexdigest()
         with self.assertRaises(RuntimeError): self.controller.deploy()
-        self.assertEqual([r[0] for r in self.session.operations], ["rst"])
+        self.assertEqual([r[0] for r in self.session.operations], ["rst", "fpga"])
 
     def test_actual_symbol_addresses(self):
         entry, symbols = j.init_layout(elf_bytes())
@@ -331,7 +343,7 @@ class JtagTests(unittest.TestCase):
     def test_init_failed_blocks_bit_and_app(self):
         self.ready(); self.session.fail_init = True
         with self.assertRaises(j.JtagError): self.controller.deploy()
-        self.assertFalse(any(r[0] == "fpga" for r in self.session.operations))
+        self.assertFalse(any(r[0] == "fpga" and not r[1] for r in self.session.operations))
         self.assertEqual(set(self.session._bptable), {1})
 
     def test_partial_bp_failure_owned_cleanup(self):
@@ -444,7 +456,7 @@ class JtagTests(unittest.TestCase):
     def test_peer_redirection_blocks_write(self):
         self.ready(); self.session._curchan_obj.remote_peer.attrs["Port"] = "9999"
         with self.assertRaises(j.JtagError): self.controller.deploy()
-        self.assertEqual([r[0] for r in self.session.operations], ["rst"])
+        self.assertEqual([r[0] for r in self.session.operations], ["rst", "fpga"])
 
     def test_deploy_without_current_system_reset_refuses(self):
         self.controller.select_and_gate()

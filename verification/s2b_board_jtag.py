@@ -18,6 +18,8 @@ CABLE = ("Digilent", "JTAG-HS1", "210512180081")
 NAMES = ("APU", "ARM Cortex-A9 MPCore #0", "ARM Cortex-A9 MPCore #1", "xc7z020")
 PROBE_ADDRESS, PROBE_WORDS = 0x10000000, 64
 CSR_BASE = 0x43C00000
+DDRC_MODE_STATUS = 0xF8006054
+EOS_NAME = "END OF STARTUP (EOS) STATUS"
 CSR_SNAPSHOT = tuple(range(0x00C, 0x030, 4)) + (0x050, 0x054, 0x058, 0x05C, 0x060, 0x068, 0x06C, 0x070, 0x074)
 IDENTITY_KEYS = ("name", "target_ctx", "target_id", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
                  "jtag_device_name", "jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")
@@ -76,6 +78,41 @@ def require(condition, message):
     """不受 Python 优化选项影响的门禁。"""
     if not condition:
         raise JtagError(message)
+
+
+def parse_config_status(value, stdout, stderr):
+    """严格消费SDK config_status原始输出；UG470表5-29规定EOS位4。"""
+    require(value is None and type(stdout) is str and type(stderr) is str and not stderr,
+            "CONFIG_STATUS返回类型或stderr错误")
+    lines = stdout.splitlines()
+    require(len(lines) >= 2, "CONFIG_STATUS缺少字段metadata")
+    header = re.fullmatch(r"CONFIG_STATUS: (0|[1-9][0-9]*)", lines[0])
+    require(header is not None, "CONFIG_STATUS原字格式未知")
+    status = int(header.group(1))
+    require(0 <= status <= 0xFFFFFFFF, "CONFIG_STATUS原字越界")
+    fields, occupied, eos = [], set(), []
+    for line in lines[1:]:
+        match = re.fullmatch(r" *([^\r\n]+?)\(Bits \[(0|[1-9][0-9]*)(?::(0|[1-9][0-9]*))?\]\):(0|[1-9][0-9]*)", line)
+        require(match is not None, "CONFIG_STATUS字段格式未知")
+        name, high, low, field_value = match.groups()
+        require(name == name.strip() and bool(name), "CONFIG_STATUS字段名称为空或不规范")
+        high, low = int(high), int(low) if low is not None else int(high)
+        field_value = int(field_value)
+        require(0 <= low <= high < 32, "CONFIG_STATUS位号越界或倒置")
+        bits = set(range(low, high + 1))
+        require(not bits & occupied, "CONFIG_STATUS重复或重叠字段")
+        occupied.update(bits)
+        mask = (1 << (high - low + 1)) - 1
+        require(field_value <= mask and field_value == (status >> low) & mask,
+                "CONFIG_STATUS字段位宽或原字不一致")
+        field = {"name": name, "high": high, "low": low, "value": field_value}
+        fields.append(field)
+        if name == EOS_NAME:
+            eos.append(field)
+    require(len(eos) == 1 and eos[0]["high"] == eos[0]["low"] == 4,
+            "CONFIG_STATUS缺少唯一EOS位4 metadata")
+    require(occupied == set(range(32)), "CONFIG_STATUS字段metadata未完整覆盖位0..31")
+    return {"status_word": status, "status_word_hex": f"0x{status:08X}", "fields": fields, "eos": eos[0]["value"]}
 
 
 def exact_path(path, directory=False):
@@ -303,7 +340,23 @@ class JtagController:
             self.record["system_reset"] = {"basis": cold_basis, "cold_lifecycle_proven": False,
                                             "before": before, "after": after,
                                             "meaning": "TCF XilinxReset system-stop实际执行；总控结合官方non-POR范围与实测另行判断统一冷生命周期。"}
+            self.observe_config_status("after_system_reset", 0)
         return self.guarded(action)
+
+    def observe_config_status(self, phase, expected_eos):
+        """只调用已绑定Target方法；原始输出始终由call保存，拒绝state推断。"""
+        observation = {"phase": phase, "expected_eos": expected_eos, "status": "IN_PROGRESS",
+                       "call_index": len(self.record["calls"])}
+        self.record.setdefault("configuration_observations", []).append(observation)
+        try:
+            value = self.call("fpga.config_status." + phase, self.targets["fpga"].fpga, "--config_status")
+            row = self.record["calls"][-1]
+            observation.update(parse_config_status(value, row["stdout"], row["stderr"]))
+            require(observation["eos"] == expected_eos, "CONFIG_STATUS EOS实际观测不符：" + phase)
+            observation["status"] = "PASS"
+        except BaseException as error:
+            observation.update(status="FAILED", error=repr(error))
+            raise
 
     def pc(self, label="cpu0"):
         """按真实rrd标准输出取得PC，不猜返回结构。"""
@@ -364,7 +417,10 @@ class JtagController:
         """OCM init实际成功后全量PL配置，再DDR app下载并仅继续CPU0。"""
         def action():
             require(not self.initialized and not self.configured and not self.app_running, "禁止重复部署")
-            require("system_reset" in self.record, "部署前必须保存本控制器system-stop统一恢复观测及来源依据")
+            require("system_reset" in self.record and any(row["phase"] == "after_system_reset" and
+                    row["status"] == "PASS" and row.get("eos") == 0
+                    for row in self.record.get("configuration_observations", [])),
+                    "部署前必须保存本控制器system-stop及实际EOS0观测")
             entry, symbols = init_layout(bound_bytes(self.bindings["init_elf"]))
             try:
                 from .check_s2b_ps_smoke_layout import parse_elf
@@ -394,9 +450,17 @@ class JtagController:
             require(self.words(symbols["s2b_ps_init_result"], 1) == [2] and self.words(symbols["s2b_ps_init_return"], 1) == [0],
                     "INIT_RESULT/原返回码不符")
             self.initialized = True
+            self.record["initialization"] = {"status": "READY_RESULT2_RETURN0", "ready_address": ready_address,
+                                              "result": 2, "return_code": 0}
+            mode_word = self.words(DDRC_MODE_STATUS, 1)[0]
+            self.record["ddrc_observation"] = {"address": DDRC_MODE_STATUS, "word": mode_word,
+                                               "word_hex": f"0x{mode_word:08X}", "operating_mode": mode_word & 7,
+                                               "status": "PASS" if mode_word & 7 == 1 else "FAILED"}
+            require(mode_word & 7 == 1, "DDRC operating_mode不是normal=1，禁止PL/app下载")
             self.remove_owned(); require(not self.owned_bps and not self.record["cleanup_errors"], "自有断点清理失败")
             self.verify_bindings(); self.gate()
             self.call("fpga.full.compatibility_default", self.targets["fpga"].fpga, file=self.bindings["bit"]["path"])
+            self.observe_config_status("after_full_bit", 1)
             self.configured = True
             self.verify_bindings(); self.gate()
             self.call("cpu0.dow.app", self.targets["cpu0"].dow, file=self.bindings["app_elf"]["path"], auto_stop=True, set_entry=True)

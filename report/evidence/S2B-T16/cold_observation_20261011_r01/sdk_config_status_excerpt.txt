@@ -1,0 +1,75 @@
+4597:             config_status = exec_in_dispatch_thread(tcf_xicom.xicom_get_config_status, jtag_ctx)
+4598:             try:
+4599:                 index = config_status[2].split(',').index('END OF STARTUP (EOS) STATUS')
+4600:             except Exception:
+4601:                 print('FPGA is not configured.')
+4602:                 return
+4603:             if config_status[1] & (1 << index) != 0:
+4604:                 print('FPGA is configured.')
+4605:             else:
+4606:                 print('FPGA is not configured.')
+4607:             return
+4608: 
+4609:         if optcnt:
+4610:             if parsed_args.config_status is True:
+4611:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_config_status, jtag_ctx)
+4612:                 reg_name = 'CONFIG_STATUS'
+4613:             elif parsed_args.ir_status is True:
+4614:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_ir_status, jtag_ctx)
+4615:                 reg_name = 'IR_STATUS'
+4616:             elif parsed_args.boot_status is True:
+4617:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_boot_status, jtag_ctx)
+4618:                 reg_name = 'BOOT_STATUS'
+4619:             elif parsed_args.timer_status is True:
+4620:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_timer_status, jtag_ctx)
+4621:                 reg_name = 'TIMER_STATUS'
+4622:             elif parsed_args.cor0_status is True:
+4623:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_cor0_status, jtag_ctx)
+4624:                 reg_name = 'COR0_STATUS'
+4625:             elif parsed_args.cor1_status is True:
+4626:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_cor1_status, jtag_ctx)
+4627:                 reg_name = 'COR1_STATUS'
+4628:             elif parsed_args.wbstar_status is True:
+4629:                 data = exec_in_dispatch_thread(tcf_xicom.xicom_get_wbstar_status, jtag_ctx)
+4630:                 reg_name = 'WBSTAR_STATUS'
+4631:             else:
+4632:                 raise Exception('Invalid option provided.') from None
+4633: 
+4634:             bits, status, names = data[0], data[1], data[2].split(',')
+4635:             props = {}
+4636:             bitno, mask, value = 0, 1, 0
+4637:             startbit = bitno
+4638:             last_name = ''
+4639:             res = reg_name + ': ' + str(status)
+4640: 
+4641:             for name in names:
+4642:                 name = name.strip()
+4643:                 if mask > 1 and last_name != name:
+4644:                     endbit = bitno - 1
+4645:                     if startbit == endbit:
+4646:                         props[last_name + '(Bits [' + str(startbit) + '])'] = value
+4647:                     else:
+4648:                         props[last_name + '(Bits [' + str(endbit) + ':' + str(startbit) + '])'] = value
+4649:                     mask, value, startbit = 1, 0, bitno
+4650:                 if status & 1:
+4651:                     value = value | mask
+4652:                 bitno += 1
+4653:                 status = status >> 1
+4654:                 mask = mask * 2
+4655:                 last_name = name
+4656:             if mask > 1:
+4657:                 endbit = bitno - 1
+4658:                 if startbit == endbit:
+4659:                     props[last_name + '(Bits [' + str(startbit) + '])'] = value
+4660:                 else:
+4661:                     props[last_name + '(Bits [' + str(endbit) + ':' + str(startbit) + '])'] = value
+4662:             max_len = 0
+4663:             for name, value in props.items():
+4664:                 if max_len < len(name):
+4665:                     max_len = len(name)
+4666:             for name, value in props.items():
+4667:                 if res != '':
+4668:                     res += '\n'
+4669:                 res += '{0}{1}{2}{3}'.format(' ' * (max_len - len(name)), name, ':', value)
+4670:             print(res)
+4671:             return

@@ -210,6 +210,19 @@ class PreflightTests(unittest.TestCase):
     def test_bound_schema_fixture_positive_without_runtime(self):
         self.check();self.assertEqual(self.record["verified_inputs"]["compiled_build_status"],"PASS_OFFLINE_FULL_XSA_BUILD")
         self.assertNotIn("xsdb",sys.modules)
+    def test_prior_jtag_source_and_changed_bytes_rejected(self):
+        # 真实历史Git原字节用于反例，临时文件不冒充当前已批准实现。
+        prior=subprocess.check_output(["git","show","6d3fd8567b579a51d4042667d47af7d94f2f5a97:verification/s2b_board_jtag.py"],cwd=REAL_ROOT)
+        self.assertEqual(hashlib.sha256(prior).hexdigest(),"91bbf5bc8ac5ef9bee37ce6491627a6ac8f38a53b7bba113d1b83447b2ecddf0")
+        current=Path(j.__file__).read_bytes()
+        self.assertEqual(hashlib.sha256(current).hexdigest(),p.JTAG_SHA)
+        for label,raw in (("prior_frozen",prior),("changed_bytes",current+"\n# MOCK字节漂移\n".encode("utf-8"))):
+            with self.subTest(label=label):
+                file=self.directory/("mock_"+label+".py");file.write_bytes(raw)
+                self.cfg["bindings"]["tool_source"]=bind(file)
+                with self.assertRaisesRegex(p.VisibilityProbeError,"固定T16候选精确版本"):self.check()
+                self.assertNotIn("xsdb",sys.modules)
+                self.assertNotIn("serial",sys.modules)
     def test_source_head_drift_rejected_before_sdk_inputs(self):
         self.cfg["source_commit"]="6d00ff2d05e92fa6cff05243fb620f8a0232b9f1"
         self.observed_head="1f2f9b964135ae6b92ccf557fd3f1de9639c3f46"

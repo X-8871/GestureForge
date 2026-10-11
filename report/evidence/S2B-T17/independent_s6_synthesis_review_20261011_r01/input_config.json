@@ -1,0 +1,59 @@
+{
+  "task_id": "S2B-T17",
+  "raw_manifest": {
+    "path": "tmp/2B/S2B-T17/independent_s6_synthesis_review_20261011_r01/raw_delivery_manifest.json",
+    "sha256": "634d9b0eef65392d0e465ea45dba0027ffae3708e398dc4fbd6d851c9e669041"
+  },
+  "receipt": {
+    "path": "tmp/2B/S2B-T17/independent_s6_synthesis_review_20261011_r01/r03/receipt.json",
+    "sha256": "fe5b16ec323381fb81f889fd420b2677626803a141c61eb2375e217cb829efb7"
+  },
+  "reviewed_manifest": {
+    "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/s6_collection_delivery_manifest_r02.json",
+    "sha256": "c898be1d13a5f2beed3bfcacd3f2f18cb0c4220ef38bbf747d3ce80e5952ce13"
+  },
+  "review_status": "PASS_EVIDENCE_INTEGRITY_ONLY",
+  "native_checks": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_s6_synthesis_review_20261011_r01/review.native.json",
+      "expected_exit_code": 1,
+      "name": "独审实际原生_review.native.json",
+      "reason": "原码与失败保留；最终0仅证据准确性批准，STA仍失败。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s6_synthesis_review_20261011_r01/r02/review.native.json",
+      "expected_exit_code": 2,
+      "name": "独审实际原生_r02/review.native.json",
+      "reason": "原码与失败保留；最终0仅证据准确性批准，STA仍失败。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s6_synthesis_review_20261011_r01/r03/review.native.json",
+      "expected_exit_code": 0,
+      "name": "独审实际原生_r03/review.native.json",
+      "reason": "原码与失败保留；最终0仅证据准确性批准，STA仍失败。"
+    }
+  ],
+  "include_reviewed_checks": [
+    "S6实际38快照及Gitb0核验",
+    "五个原生综合完成",
+    "实际综合态STA报告生成",
+    "50MHz综合态STA分类",
+    "builder与products捕获原失败",
+    "首版Collector原失败",
+    "实现及postroute",
+    "bitstream生成",
+    "板上cache probe",
+    "板上模型及109样本",
+    "1000次板上任务",
+    "BOARD及G3验收",
+    "S6失败证据r02Collector执行",
+    "已关闭evidence包装检查",
+    "已关闭inputs依赖检查"
+  ],
+  "evidence_dir": "report/evidence/S2B-T17/independent_s6_synthesis_review_20261011_r01",
+  "limitations": [
+    "只证明S6失败证据准确性；STAFAIL及物理unfrozen/NOT_RUN不改判通过。",
+    "r01脚本native1；r02八组真实执行但整体native2，r03闭合四FAIL假设并重核绑定，未复跑已通过八组。",
+    "独审G2不代表STA、postroute、bit、BOARD、G3/G4/G5。"
+  ]
+}

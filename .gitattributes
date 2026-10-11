@@ -20,6 +20,28 @@ src/s2b_hp0_word_adapter.sv -text
 sim/tb_s2b_hp0_word_adapter.sv -text
 verification/test_s2b_hp0_word_adapter_rtl.py -text
 
+# S2B-T11 外层控制与恢复证据保持被审原始字节。
+report/evidence/S2B-T11/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T11/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_control_csr.sv -text
+src/s2b_control_adapter.sv -text
+sim/tb_s2b_control_csr.sv -text
+sim/tb_s2b_control_integration.sv -text
+verification/test_s2b_control_csr_rtl.py -text
+
+# S2B 部署工具链、完整平台和实物连接证据保留原始字节。
+report/evidence/S2B-T12/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T12/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T13/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T14/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T14/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_inference_top.sv -text
+vivado/s2b_inference_platform.tcl -text
+board/s2b_inference_platform.json -text
+board/s2b_inference_platform.md -text
+verification/check_s2b_inference_platform.py -text
+
 # G0 SHA-256 绑定文件保持原始字节，避免自动 CRLF 转换
 report/evidence/S2A-T01/** -text
 verification/s2a_model_delivery.py -text

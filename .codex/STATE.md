@@ -1,13 +1,13 @@
 # 项目状态入口
 
-更新：2026-10-10（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-11（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
 - 阶段2A「PL 推理仿真」已完成 G4/G5 独立审查并冻结。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
 - 用户已启动阶段2B，本工作树位于 `C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition`，分支 `codex/stage2b-t01-board-audit`，起点 `e433a081bc5f42a44ddec18b421f651d05e9c639`。PS-only平台及UART/DDR软件离线G1/G2已完成；2026-10-09固定OCM PS初始化、旧版及clock修正版UART/1MiB DDR smoke已实板功能通过。阶段2B PS/PL物理接口未冻结，G0/G4/G5未通过，不能称完整2B完成。
 - S2A-T01 已冻结 tiny416 模型、检测头布局及 PS 解码/NMS；2B G0 尚需物理 PS/PL 地址映射、AXI/DDR 传输、DMA与缓存一致性、缓冲所有权绑定。Wong 于2026-10-08最后确认「厂商已明确确认实板是XC7Z020-2」，据此离线候选使用 `xc7z020clg400-2`，优先于此前XA/-1I确认及AGENTS旧基线。Vivado2026.1精确查询通过，XPR三个Part字段与3375cb4基线一致；照片仍直接显示XA7Z020/CLG400，实物身份冲突未关闭。资料入口 `D:\FPGA\AX7Z020\AX7Z020` 已确认，不再重复询问。PS-only UART/DDR离线BD/XSA及Vitis软件均独立G2通过；无板级XDC；实板PS初始化与1MiB UART/DDR功能结果见本轮新Run，实物身份冲突仍不由JTAG名称或功能通过消除。
-- 先前的阶段3方向保持原代码和文档现状；当前请求仅处理阶段2B。Wong于2026-10-09已授权连接后执行固定PS-only OCM初始化、CPU0 UART/DDR检查及回传日志；对应范围无需重复授权。实际PCB/profile、接线/电平/供电、冷JTAG和独占条件仍须核实；模型/PL部署及非易失存储烧写不在此次检查范围。
+- Wong于2026-10-11明确要求持续工作直到模型部署板卡并验收2B，授权自行搭建Vitis工具链及使用ROSS/subagent，指定项目芯片`XC7Z020-2CLG400I`。该授权包含本阶段必要的易失PL/PS下载、模型DDR装载与板上验证；不包含非易失存储烧写、推送或阶段3。实际PCB/profile、接线/电平/供电、统一冷JTAG和独占条件仍需按证据核实，不重复索取已给授权。
 - 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
 
 ## 当前候选批次（2026-10-08）
@@ -60,3 +60,4 @@
 - S2B-T09候选组合请求准入模块 `src/s2b_request_guard.sv` 独立G2 PASS：38对象与冻结manifest逐项相符，input/完整GF8只读、36个feature读写；按选中字节拒绝间隙/越界，head13末word仅低两byte可选，33-bit固定平移及方向/strobe错误保留2A码。D1最终70,736条PASS（10,000随机seed0x2B091010）；独立干净重建70,736条及额外214,065条PASS（20,000随机seed269036407/17手算）。证据 `report/evidence/S2B-T09/request_guard_20261010_r03/` 与 `independent_review_20261010_r01/`；r01 warning编译FAIL及r02 PASS原源码/日志保留。无AXI/epoch/owner，未综合/时序/实板，不证明VALID零副作用或物理freeze；下一步word adapter及超时排空实现。
 - 退出码澄清：检查器原生失败码为2，早前T08及部分T09消息中的1是PowerShell宿主归一化结果；独立审查driver因此错误断言而失败，原件保留，补充核对通过。三份实际inputs原生rc2及阻断原件在 `report/evidence/S2B-T08/native_exit_clarification_20261010_r01/`，该补充证据独立只读复核PASS；不改旧绑定SHA，不改变部署BLOCKED。
 - S2B-T10候选HP0 AXI3单word桥 `src/s2b_hp0_word_adapter.sv` 独立G2 PASS：完整/byte读、64-bit写lane、独立AW/W及合法早B、取消同沿记账和持久VALID、异常响应/EXOKAY隔离、首错及epoch门禁已实现；不发布SAFE/owner。最终r09 8,544向量/179场景/104,877cycles，guard兼容修复后70,736条PASS；独立最终重建及额外11手算/交叉场景PASS，原生driver0/75.219秒。Vivado2026.1最终lint r03原生0/零诊断/无waiver，峰1331.348MB；adapter SHA `640043c98ce1e80a973e836d62c57a2b9ed2e91e268186ce63a55dc8e5ae3ff7`。原件 `report/evidence/S2B-T10/hp0_adapter_20261010_r09/`、`independent_review_20261010_r01/`、`vivado_lint_20261010_r03/`；旧r01-r04失败、两轮lint问题、独立D2版本漂移FAIL及包装修复原件均保留。evidence0/inputs2仍为候选未冻结；未完成outer CSR/STOP/drain timer/cache/完整集成/时序/实物，下一步外层控制与恢复状态机。
+- 2026-10-11恢复：T11初稿及r01严格编译FAIL留在工作区，尚未验收或提交。当前推进T11修复与独立审查、T12工具链/黄金样本核验、T13完整平台。12:49只读JTAG复核同线缆`210512180081`枚举APU/CPU0/CPU1/xc7z020，两核Running；COM4正常。原probe与已审版SHA完全相同，本次未stop/reset/write/download，owned hw_server24876/launcher27428于12:50闭合、3121无监听；证据`report/evidence/S2B-T14/jtag_readonly_20261011_r01/`包装0，不是部署或G3通过。

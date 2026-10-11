@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T14",
+  "run_id": "jtag_readonly_20261011_r01",
+  "source_commit": "df379f9ae6e899247b3f099a2cf2bc1fb526abe6",
+  "evidence_dir": "report/evidence/S2B-T14/jtag_readonly_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只枚举JTAG目标与服务生命周期，不访问业务CSR/memory接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/authorization_and_scope.json",
+      "sha256": "5ecf93fadc434d64499d7da95312d9e81620197976108319ed06c7a9bef63ee3",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/hw_server_identity.json",
+      "sha256": "23c4911b42c4e6fbac7567b9b12e1d6e45a3256aef459e5cd9c7c8a6fd6c85f7",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/hw_server_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/hw_server_stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/jtag_targets_probe.py",
+      "sha256": "201dc67de8427662fdf1852309c270eda24f2a9bf70cc2670802b152208c3dc6",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/jtag_targets_result.json",
+      "sha256": "c7e6e46dcfcbbfe61a4444daddaa56dee17894392ce9ed066b7756e819633cba",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/launcher_identity.json",
+      "sha256": "5fc1b033f863aaa3ab52e0571c7fee5162a15459dff44a6800fd807c5b0550f3",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/server_close.json",
+      "sha256": "0b09b141db1e9b736e8f43338ef1aa6796eb319b9cddf96a295cd94b76950fef",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T14/jtag_readonly_20261011_r01/vitis_probe.log",
+      "sha256": "5419d2db0b579e233bf6dbdc8897ab29493a2ebf9679c940a22aef5887f85fbf",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "只读目标枚举",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "\"D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat\" -s \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T14\\jtag_readonly_20261011_r01\\jtag_targets_probe.py\"",
+      "reason": "wrapper0且探针业务TARGETS_ENUMERATED、无cleanup错误；原probe SHA与已审版一致。"
+    },
+    {
+      "name": "本次服务闭合",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "PowerShell核对native PID24876/父27428/路径/创建时间后Stop-Process；完整实际快照见hw_server_identity.json及server_close.json",
+      "reason": "仅停止本次服务，launcher已退出，3121无监听。"
+    },
+    {
+      "name": "模型部署及2B板上验收",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "command": null,
+      "reason": "本Run只有只读目标枚举，部署依赖RTL/平台/软件构建及审查。"
+    }
+  ],
+  "tool_versions": {
+    "Vitis": "2026.1",
+    "XSDB": "Vitis2026.1 Python SDK"
+  },
+  "limitations": [
+    "CPU状态仅为枚举时快照，不持续监视。",
+    "JTAG不能识别XC/XA系列、速度或温度等级；器件目标按用户最新指定。",
+    "未測峰值内存，未计为UART/DDR/PL功能验收。"
+  ]
+}

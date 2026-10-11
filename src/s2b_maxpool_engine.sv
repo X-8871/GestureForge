@@ -103,7 +103,7 @@ module s2b_maxpool_engine (
     logic [2:0] window_error_code;
     integer tap_index;
 
-    int8_maxpool_geometry u_geometry (
+    s2b_maxpool_geometry u_geometry (
         .input_base_address(input_base_address),
         .input_channels(input_channels),
         .input_height(input_height),

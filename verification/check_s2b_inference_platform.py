@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.7"
+PROFILE_VERSION = "s2b-inference-platform/0.1.8"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -211,6 +211,40 @@ DERIVATION_RULES["src/s2a_route_engine.sv"][1].extend(ROUTE_ENGINE_ADDRESS_REPLA
 
 
 
+# S8保留原geometry全域语义，仅将非负地址乘加拆成低位精确值及有效tap高位守卫。
+MAXPOOL_GEOMETRY_REPLACEMENTS = [
+    [
+        "module int8_maxpool_geometry (",
+        "module s2b_maxpool_geometry ("
+    ],
+    [
+        "    logic [63:0] row_index_work [0:2];\n    logic [95:0] row_offset_work [0:2];\n    logic [95:0] logical_offset_work;\n    logic [96:0] address_work;",
+        "    logic [32:0] row_index_work [0:2];\n    logic row_index_high [0:2];\n    logic [63:0] row_offset_work [0:2];\n    logic [32:0] logical_offset_work;\n    logic [32:0] address_work;\n    logic selected_row_high;\n    logic selected_offset_high;"
+    ],
+    [
+        "        logical_offset_work = 96'd0;\n        address_work = 97'd0;",
+        "        logical_offset_work = 33'd0;\n        address_work = 33'd0;\n        selected_row_high = 1'b0;\n        selected_offset_high = 1'b0;"
+    ],
+    [
+        "            row_index_work[row_index] = 64'd0;\n            row_offset_work[row_index] = 96'd0;",
+        "            row_index_work[row_index] = 33'd0;\n            row_index_high[row_index] = 1'b0;\n            row_offset_work[row_index] = 64'd0;"
+    ],
+    [
+        "                // 各行独立预计算，避免 tap 的行内地址重复执行宽乘法。",
+        "                // 每行低32位和进位分别保留；高位只由实际有效tap消费。\n                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。"
+    ],
+    [
+        "                        row_index_work[row_index] = channel_row_work +\n                            {32'd0, row_y_work[row_index][31:0]};\n                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index]} * {64'd0, input_width};",
+        "                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +\n                            {1'b0, row_y_work[row_index][31:0]};\n                        row_index_high[row_index] =\n                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];\n                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};"
+    ],
+    [
+        "                            case (kernel_y_work)\n                                0: logical_offset_work = row_offset_work[0] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                1: logical_offset_work = row_offset_work[1] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                2: logical_offset_work = row_offset_work[2] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                default: logical_offset_work = 96'd0;\n                            endcase\n                            address_work = {65'd0, input_base_address} +\n                                {1'b0, logical_offset_work};\n                            if (address_work[96:32] != 65'd0) begin",
+        "                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n                            address_work = {1'b0, input_base_address} +\n                                {1'b0, logical_offset_work[31:0]};\n                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin"
+    ]
+]
+DERIVATION_RULES["src/int8_maxpool_geometry.sv"] = ("src/s2b_maxpool_geometry.sv", MAXPOOL_GEOMETRY_REPLACEMENTS)
+DERIVATION_RULES["src/s2a_maxpool_engine.sv"][1].append(["int8_maxpool_geometry u_geometry", "s2b_maxpool_geometry u_geometry"])
+
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -277,8 +311,8 @@ def check_derivation(root: Path, profile: dict) -> None:
         for path, digest in FROZEN_CORE_SHA256.items()], "原14源绑定不符")
     for path, digest in FROZEN_CORE_SHA256.items():
         require(sha256(relative_file(root, path)) == digest, f"冻结2A原件字节变化：{path}")
-    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 7,
-        "派生源必须恰为7项")
+    require(isinstance(item["derived_sources"], list) and len(item["derived_sources"]) == 8,
+        "派生源必须恰为8项")
     for declared, (source, (path, replacements)) in zip(item["derived_sources"], DERIVATION_RULES.items()):
         require(set(declared) == {"source", "path", "sha256", "replacements"} and
             declared["source"] == source and declared["path"] == path and
@@ -316,9 +350,9 @@ def check_static(root: Path) -> dict:
     check_derivation(root, profile)
     expected_sources = [DERIVATION_RULES[path][0] if path in DERIVATION_RULES else path
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
-    require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
+    require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.7" in script, "Tcl平台版本不符")
+    require("variable version 0.1.8" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

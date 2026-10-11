@@ -1,0 +1,562 @@
+{
+  "status": "PASS_S8_G1_ONLY",
+  "source_commit": "2257a450239ea19ef4e2ddf7b2833d44020f95e3",
+  "profile": "s2b-inference-platform/0.1.8",
+  "active_rtl_count": 18,
+  "derived_rtl_count": 8,
+  "frozen_active_rtl_count": 6,
+  "outer_rtl_count": 4,
+  "source_closure_count": 41,
+  "original_s7_39_count": 39,
+  "geometry": {
+    "vectors": 82586,
+    "categories": {
+      "small_all_coordinates_and_outside": 62565,
+      "wide_u32_random": 20000,
+      "huge_shape_small_window": 1,
+      "unused_row2_overflow": 1,
+      "all_padding_high_row": 1,
+      "last_address_u32": 1,
+      "base_add_carry": 1,
+      "channel_product_high": 1,
+      "row_sum_carry": 1,
+      "row_width_high": 1,
+      "column_add_carry": 1,
+      "signed_padding_u32": 1,
+      "zero_required_field": 5,
+      "invalid_kernel_pair": 6
+    },
+    "errors": {
+      "1": 64093,
+      "0": 13585,
+      "2": 4908
+    },
+    "all_padding_success": 4206,
+    "seed": 5771281,
+    "manual": [
+      {
+        "name": "huge_shape_small_window",
+        "input": [
+          0,
+          4294967295,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "unused_row2_overflow",
+        "input": [
+          0,
+          1,
+          3,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "all_padding_high_row",
+        "input": [
+          0,
+          2,
+          3,
+          2147483648,
+          2,
+          2,
+          1,
+          1,
+          100,
+          1,
+          50,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "last_address_u32",
+        "input": [
+          4294967292,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      },
+      {
+        "name": "base_add_carry",
+        "input": [
+          4294967293,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "channel_product_high",
+        "input": [
+          0,
+          3,
+          2147483648,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1,
+          2,
+          0,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "row_sum_carry",
+        "input": [
+          0,
+          2,
+          4294967295,
+          1,
+          2,
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "row_width_high",
+        "input": [
+          0,
+          1,
+          3,
+          4294967295,
+          2,
+          2,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "column_add_carry",
+        "input": [
+          0,
+          1,
+          3,
+          4294967294,
+          2,
+          2,
+          1,
+          1,
+          1,
+          0,
+          1,
+          2
+        ],
+        "expected_error": 2
+      },
+      {
+        "name": "signed_padding_u32",
+        "input": [
+          0,
+          1,
+          2,
+          2,
+          3,
+          3,
+          1,
+          1,
+          4294967295,
+          0,
+          0,
+          0
+        ],
+        "expected_error": 0
+      }
+    ]
+  },
+  "engine": {
+    "pool": 19645,
+    "upsample": 3456,
+    "cycles": 590723,
+    "pool_abort": 127,
+    "upsample_abort": 63
+  },
+  "backend": {
+    "boundary_cases": 4980736,
+    "nonconv_layers": 15,
+    "nonconv_outputs": 5234944,
+    "nonconv_requests": 12286976,
+    "cycles": 102468267,
+    "owner_drop_results": 120942
+  },
+  "traces": [
+    [
+      "3",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "d3d57ec25e170da5"
+    ],
+    [
+      "6",
+      "2",
+      "692224",
+      "1384448",
+      "5710850",
+      "112f62561ab82c41"
+    ],
+    [
+      "8",
+      "2",
+      "1384448",
+      "2768896",
+      "11421697",
+      "f452e06606323ce5"
+    ],
+    [
+      "9",
+      "1",
+      "346112",
+      "1730560",
+      "4698286",
+      "e5904ee4e7398477"
+    ],
+    [
+      "11",
+      "2",
+      "173056",
+      "346112",
+      "1427714",
+      "81893e9b94f4436c"
+    ],
+    [
+      "14",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "27bed66ef35fbac1"
+    ],
+    [
+      "16",
+      "2",
+      "692224",
+      "1384448",
+      "5710850",
+      "e49c73ad7e8f678d"
+    ],
+    [
+      "17",
+      "1",
+      "173056",
+      "865280",
+      "2349142",
+      "f6cabd25f7a01249"
+    ],
+    [
+      "19",
+      "2",
+      "86528",
+      "173056",
+      "713855",
+      "d0903d8b46f446c5"
+    ],
+    [
+      "22",
+      "2",
+      "173056",
+      "346112",
+      "1427711",
+      "dcb213c5e1bd7136"
+    ],
+    [
+      "24",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "baf69909dc7ceaac"
+    ],
+    [
+      "25",
+      "1",
+      "86528",
+      "432640",
+      "1174573",
+      "7840f56f8c4e36db"
+    ],
+    [
+      "31",
+      "2",
+      "43264",
+      "86528",
+      "356927",
+      "18827f2c3a3d5de5"
+    ],
+    [
+      "33",
+      "3",
+      "86528",
+      "173056",
+      "552049",
+      "8b99f67a9428a2d0"
+    ],
+    [
+      "34",
+      "2",
+      "259584",
+      "519168",
+      "2141568",
+      "81cf63227948b0be"
+    ]
+  ],
+  "public": {
+    "trials": 12,
+    "route_layer_mask": "0000000481494948",
+    "method": "一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"
+  },
+  "execution": [
+    {
+      "run_id": "maxpool_address_guard_20261011_r01",
+      "runs": [
+        {
+          "name": "geometry_compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "--top-module",
+            "tb_s8_geometry",
+            "--Mdir",
+            "obj_geometry",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "tb_s8_geometry.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 16.703,
+          "peak_tree_rss_bytes": 636514304,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_20261011_r01/geometry_compile.log",
+          "log_sha256": "45843e02a14806f6e265668aa272918c6e64b15dd96dfa6d9bfc9fcf24404486"
+        },
+        {
+          "name": "geometry_simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s8_pool_g1_20261011_r01\\20261011_r01\\obj_geometry\\Vtb_s8_geometry.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 1.25,
+          "peak_tree_rss_bytes": 4759552,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_20261011_r01/geometry_simulation.log",
+          "log_sha256": "b8c01c3591a9c2e41a699ae918014cb85d3a60ad25202a12f09a4614a7aac946"
+        },
+        {
+          "name": "engine_compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "--top-module",
+            "tb_s2b_geometry_specialization",
+            "--Mdir",
+            "obj_engine",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "source/int8_maxpool_window.sv",
+            "source/int8_upsample_query.sv",
+            "source/s2a_maxpool_engine.sv",
+            "source/s2a_upsample_engine.sv",
+            "source/s2b_maxpool_engine.sv",
+            "source/s2b_upsample_engine.sv",
+            "tb_s2b_geometry_specialization.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 18.0,
+          "peak_tree_rss_bytes": 640843776,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_20261011_r01/engine_compile.log",
+          "log_sha256": "69e932a4341ff13295cdf2b8435afc8a3255bbb88c53f6aa0b3f43ccf7a16542"
+        },
+        {
+          "name": "engine_simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s8_pool_g1_20261011_r01\\20261011_r01\\obj_engine\\Vtb_s2b_geometry_specialization.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 1.047,
+          "peak_tree_rss_bytes": 4853760,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_20261011_r01/engine_simulation.log",
+          "log_sha256": "85d46e48eea3ce6218a4e31fec30b2ce2493d2aacce4d020c8b6c064f2576eb3"
+        }
+      ],
+      "seconds": 40.782
+    },
+    {
+      "run_id": "maxpool_address_guard_trace_20261011_r01",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_backend_coordinates",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "source/int8_maxpool_window.sv",
+            "source/int8_route_query.sv",
+            "source/int8_upsample_query.sv",
+            "source/s2b_maxpool_engine.sv",
+            "source/s2a_route_engine.sv",
+            "source/s2b_upsample_engine.sv",
+            "source/s2b_network_backend.sv",
+            "source/s2b_route_query.sv",
+            "source/s2b_route_engine.sv",
+            "source/s2_network_backend.sv",
+            "convolution_stub.sv",
+            "tb_s2b_backend_coordinates.sv"
+          ],
+          "exit_code": 0,
+          "seconds": 20.469,
+          "peak_tree_rss_bytes": 658964480,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_trace_20261011_r01/compile.log",
+          "log_sha256": "129e3902ae9058aa583e6793b67257722ff16c22021bcc1c96705f73976cb960"
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s8_pool_g1_20261011_r01\\maxpool_address_guard_trace_20261011_r01\\obj_dir\\Vtb_s2b_backend_coordinates.exe"
+          ],
+          "exit_code": 0,
+          "seconds": 136.671,
+          "peak_tree_rss_bytes": 5087232,
+          "failure": null,
+          "log": "report/evidence/S2B-T17/maxpool_address_guard_trace_20261011_r01/simulation.log",
+          "log_sha256": "ee729bda081d595154c3c91e1dd8284854f74cf08cfc8969a65e397e8ed47690"
+        }
+      ],
+      "seconds": 160.828
+    }
+  ],
+  "independent_review": "NOT_RUN",
+  "sta": "NOT_RUN",
+  "g3": "NOT_RUN",
+  "tool_calls": "未测完整会话调用量；只记录runner内部执行与实际命令",
+  "failed_preparations": [
+    {
+      "operation": "首次Python启动",
+      "native_exit_code": 1,
+      "reason": "sandbox拒绝精确Python路径启动；scoped require_escalated获批后执行。"
+    },
+    {
+      "operation": "首次补丁只读生成",
+      "native_exit_code": 1,
+      "reason": "默认GBK stdout不能编码既有说明中的↔；增加-X utf8后成功。该失败尚未写生产补丁。"
+    }
+  ],
+  "limitations": [
+    "82,586RTL几何样本是明确定义有限空间及种子20,000宽输入，并非U32全部组合穷举。",
+    "15非CONV完整数值输出、请求和公共38层控制使用既有CONV控制stub；不证明CONV数值或109新全网。",
+    "50MHz、100黄金样本及1000次实板标准未降低，本轮STA/实板未执行。",
+    "所有编译缓存、EXE和obj只在tmp，证据不包含可重建缓存。"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.7",
+  "version": "s2b-inference-platform/0.1.8",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -51,7 +51,7 @@
   ],
   "rtl_sources": [
     "src/s2a_network_descriptor_pkg.sv",
-    "src/int8_maxpool_geometry.sv",
+    "src/s2b_maxpool_geometry.sv",
     "src/int8_maxpool_window.sv",
     "src/s2b_route_query.sv",
     "src/int8_upsample_query.sv",
@@ -148,7 +148,7 @@
       {
         "source": "src/s2a_maxpool_engine.sv",
         "path": "src/s2b_maxpool_engine.sv",
-        "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+        "sha256": "8908ec272fa47db816f110ccf7483d359733bf0e4f1dbea4b29d2b543af18f70",
         "replacements": [
           [
             "module s2a_maxpool_engine (",
@@ -173,6 +173,10 @@
           [
             ".darknet_padding_parameter(darknet_padding_parameter)",
             ".darknet_padding_parameter(32'd1)"
+          ],
+          [
+            "int8_maxpool_geometry u_geometry",
+            "s2b_maxpool_geometry u_geometry"
           ]
         ]
       },
@@ -399,6 +403,41 @@
           [
             "                     (expected_weight_bytes_wide > 128'h0000_0000_0000_0000_FFFF_FFFF) ||\n",
             "                     (expected_weight_bytes_narrow[44:32] != 13'd0) ||\n"
+          ]
+        ]
+      },
+      {
+        "source": "src/int8_maxpool_geometry.sv",
+        "path": "src/s2b_maxpool_geometry.sv",
+        "sha256": "f8c3901722e159c5a8d71e29acdb960f610daaa80c750b818948e555050ef6ee",
+        "replacements": [
+          [
+            "module int8_maxpool_geometry (",
+            "module s2b_maxpool_geometry ("
+          ],
+          [
+            "    logic [63:0] row_index_work [0:2];\n    logic [95:0] row_offset_work [0:2];\n    logic [95:0] logical_offset_work;\n    logic [96:0] address_work;",
+            "    logic [32:0] row_index_work [0:2];\n    logic row_index_high [0:2];\n    logic [63:0] row_offset_work [0:2];\n    logic [32:0] logical_offset_work;\n    logic [32:0] address_work;\n    logic selected_row_high;\n    logic selected_offset_high;"
+          ],
+          [
+            "        logical_offset_work = 96'd0;\n        address_work = 97'd0;",
+            "        logical_offset_work = 33'd0;\n        address_work = 33'd0;\n        selected_row_high = 1'b0;\n        selected_offset_high = 1'b0;"
+          ],
+          [
+            "            row_index_work[row_index] = 64'd0;\n            row_offset_work[row_index] = 96'd0;",
+            "            row_index_work[row_index] = 33'd0;\n            row_index_high[row_index] = 1'b0;\n            row_offset_work[row_index] = 64'd0;"
+          ],
+          [
+            "                // 各行独立预计算，避免 tap 的行内地址重复执行宽乘法。",
+            "                // 每行低32位和进位分别保留；高位只由实际有效tap消费。\n                // 正width保证行高位非零时完整地址必超UINT32，不能提前拒绝padding行。"
+          ],
+          [
+            "                        row_index_work[row_index] = channel_row_work +\n                            {32'd0, row_y_work[row_index][31:0]};\n                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index]} * {64'd0, input_width};",
+            "                        row_index_work[row_index] = {1'b0, channel_row_work[31:0]} +\n                            {1'b0, row_y_work[row_index][31:0]};\n                        row_index_high[row_index] =\n                            (channel_row_work[63:32] != 32'd0) || row_index_work[row_index][32];\n                        row_offset_work[row_index] =\n                            {32'd0, row_index_work[row_index][31:0]} * {32'd0, input_width};"
+          ],
+          [
+            "                            case (kernel_y_work)\n                                0: logical_offset_work = row_offset_work[0] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                1: logical_offset_work = row_offset_work[1] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                2: logical_offset_work = row_offset_work[2] +\n                                    {64'd0, tap_source_x[tap_index][31:0]};\n                                default: logical_offset_work = 96'd0;\n                            endcase\n                            address_work = {65'd0, input_base_address} +\n                                {1'b0, logical_offset_work};\n                            if (address_work[96:32] != 65'd0) begin",
+            "                            // 行偏移、列和base均非负；每段高位或进位保留完整越界语义。\n                            logical_offset_work = {1'b0, row_offset_work[kernel_y_work][31:0]} +\n                                {1'b0, tap_source_x[tap_index][31:0]};\n                            selected_row_high = row_index_high[kernel_y_work];\n                            selected_offset_high = row_offset_work[kernel_y_work][63:32] != 32'd0;\n                            address_work = {1'b0, input_base_address} +\n                                {1'b0, logical_offset_work[31:0]};\n                            if (selected_row_high || selected_offset_high ||\n                                logical_offset_work[32] || address_work[32]) begin"
           ]
         ]
       }

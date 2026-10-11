@@ -1,11 +1,11 @@
 # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
 namespace eval ::s2b_inference_platform {
-    variable version 0.1.7
+    variable version 0.1.8
     variable part xc7z020clg400-2
     variable bd_name s2b_inference
     variable rtl_sources {
         src/s2a_network_descriptor_pkg.sv
-        src/int8_maxpool_geometry.sv
+        src/s2b_maxpool_geometry.sv
         src/int8_maxpool_window.sv
         src/s2b_route_query.sv
         src/int8_upsample_query.sv

@@ -1,12 +1,12 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.7`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.8`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：7 个原冻结 2A 模块、7 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮S7依据已审S6源码及实际S6综合，源码基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`，其生产闭包与S6实际综合基线 `b0dbf0dcde758e15046cda36bf2c7424f179b5ae` 相同。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S8开发基线为已保存S7实际综合失败证据的提交 `2257a450239ea19ef4e2ddf7b2833d44020f95e3`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
@@ -34,7 +34,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接 
 
 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
 
-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.7`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的7个原上游源，共25个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.8`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的8个原上游源，共26个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
 
 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
 
@@ -58,7 +58,7 @@ python -B verification/check_s2b_inference_platform.py
 
 ## CONV batch校验派生
 
-继承几何、坐标和固定tiny416 ROUTE政策；CONV仅模块改名并从两个128-bit元素数乘积删除batch因子。原首个校验分支仍拒绝input/output batch非1，错误优先不变。input元素数只用于其后的长度校验；output元素数另用于OUTPUT_SCAN，但该状态仅能从batch均为1的校验成功轨迹到达。输入端口在运行中变化不改锁存字段，abort/reset返回原状态。因此CONV公开API全域的状态、请求、结果与每周期行为等价；这不扩展ROUTE通用多组覆盖。原14源码原字节保留；生产18闭包为7原2A、7派生及4outer。
+继承几何、坐标和固定tiny416 ROUTE政策；CONV仅模块改名并从两个128-bit元素数乘积删除batch因子。原首个校验分支仍拒绝input/output batch非1，错误优先不变。input元素数只用于其后的长度校验；output元素数另用于OUTPUT_SCAN，但该状态仅能从batch均为1的校验成功轨迹到达。输入端口在运行中变化不改锁存字段，abort/reset返回原状态。因此CONV公开API全域的状态、请求、结果与每周期行为等价；这不扩展ROUTE通用多组覆盖。原14源码原字节保留；生产18闭包为6原2A、8派生及4outer。
 
 ## CONV patch范围校验派生
 
@@ -81,3 +81,11 @@ S6依据S5已提交基线`5cb092dcce3631f310e67228738a674a6a82ce41`的真实50MH
 0.1.7相对S6只缩短两个ROUTE组合地址算式并删除冗余地址末项校验。query保持全部参数、坐标、组、完整源shape/长度和对象端点检查；成功路径中选中通道小于源通道数且坐标在shape内，因此offset小于shape、不大于长度减一；base+length不超过2^32又保证base+offset不超过UINT32。两条末项地址判据由前置条件蕴含，非法输入仍按BAD_ARGUMENT优先于BAD_RANGE返回且所有结果字段为零。source_count=1继续忽略source1，S6的groups>=3拒绝域保持。
 
 engine保留原65位output_elements_work及output_end_work、VALIDATE前两分支；query成功且shape相符时，输出元素数不超过两个源有效shape之和，严格小于2^33，因此原65位乘积在被消费路径精确；长度和端点校验通过后，合法query坐标蕴含offset小于输出长度且输出地址不超过UINT32。时序块唯一差异为删除已证明恒假的四行地址分支；其余寄存器、FSM、请求响应、结果保持、owner、abort和reset逻辑逐字不变，不增加周期或时序例外。S7需要独立G2及新的综合/STA，证据包装通过不代表时序关闭或G3。
+
+## S8 MAXPOOL几何地址分段守卫
+
+0.1.8基于S7提交`2257a450239ea19ef4e2ddf7b2833d44020f95e3`和真实50MHz综合失败路径，新增`s2b_maxpool_geometry`精确派生。全部原14文件原字节保留；生产18RTL为6原2A、8派生及4outer。一般kernel/stride/padding接口、9tap、33位输出维度、64位有符号源坐标、BAD_ARGUMENT/BAD_RANGE全部字段清零行为保持。maxpool engine只更换geometry模块引用，所有时序块及输出64/65位偏移链原字节不变，上采样实现不变。
+
+对于有效tap，r=channel×height+source_y严格小于channels×height且小于2^64；channel×height使用64位精确结果。r低32位由33位加法获得，乘积高32位或该加法进位独立保留。正width意味着r高位非零时完整地址必超UINT32；否则q=r低32位×width的64位结果精确。依次检查q高32位、q低32位+source_x的33位进位、逻辑偏移低32位+base的33位进位；任一为真等价于完整非负地址超过UINT32。高位守卫只在实际有效tap消费，不从kernel2未使用第三行或全padding窗口传播，不能增加全shape CHW范围拒绝。合法地址保持原低32位，任一实际tap越界仍清零全部公开字段。
+
+组合整数证明和RTL差分仅验证功能与每周期控制等价。S8需独立G2和新的综合/STA；旧S7失败记录、50MHz目标、100黄金样本及1000次实板标准保留，本轮未执行STA或G3。

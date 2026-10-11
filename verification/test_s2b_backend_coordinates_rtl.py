@@ -21,12 +21,12 @@ import psutil
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
-SOURCE_BASELINE = "f53e067ba91abc02ed60cf7f9063884d9ddb79f1"
+SOURCE_BASELINE = "2257a450239ea19ef4e2ddf7b2833d44020f95e3"
 OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
 MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
 RUNNER = "verification/test_s2b_backend_coordinates_rtl.py"
-RTL = ("src/s2a_network_descriptor_pkg.sv", "src/int8_maxpool_geometry.sv",
+RTL = ("src/s2a_network_descriptor_pkg.sv", "src/int8_maxpool_geometry.sv", "src/s2b_maxpool_geometry.sv",
        "src/int8_maxpool_window.sv", "src/int8_route_query.sv", "src/int8_upsample_query.sv",
        "src/s2b_maxpool_engine.sv", "src/s2a_route_engine.sv", "src/s2b_upsample_engine.sv",
        "src/s2b_network_backend.sv", "src/s2b_route_query.sv", "src/s2b_route_engine.sv")
@@ -460,7 +460,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.7","variable version 0.1.1"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.8","variable version 0.1.1"))
     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))

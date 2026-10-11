@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T12",
+  "run_id": "toolchain_audit_20261011_r01",
+  "source_commit": "df379f9ae6e899247b3f099a2cf2bc1fb526abe6",
+  "evidence_dir": "report/evidence/S2B-T12/toolchain_audit_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只读环境及既有资产审计，不形成PS/PL接口或部署批准。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T12/toolchain_audit_20261011_r01/attempt2/audit_result.json",
+      "sha256": "806cf7b501f1992e96bc38608f64dd3b16b5a1f9f0a4bcb2f404c3337a24e00d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/toolchain_audit_20261011_r01/attempt2/delivery_manifest.json",
+      "sha256": "3c6fffa43835894569d18ec8f528002e1f99e52f9d9290c936731d36a0460921",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/toolchain_audit_20261011_r01/audit_failure.json",
+      "sha256": "e6d68da84df2162b1e0f17cf2d0a0d628a413d51780a439845d5b43484e0edf4",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/toolchain_audit_20261011_r01/packaging_attempt2_failure.json",
+      "sha256": "5f475f8ee1b85424ccee898ba08aea3ead827974112dc8813906627f60c6aa54",
+      "role": "result"
+    },
+    {
+      "path": "vitis/build_s2b_ps_smoke.py",
+      "sha256": "addff3a419609ac8203c8838edfd6fd56fb53baccf40efc403fca4eb36b50d76",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T01/fixed_test_samples.json",
+      "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "role": "input"
+    }
+  ],
+  "tool_versions": {
+    "gcc": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "cmake": "cmake version 4.0.1",
+    "python": "Python 3.13.0",
+    "vitis": "Vitis v2026.1 (64-bit)，已成功构建原件绑定"
+  },
+  "checks": [
+    {
+      "name": "read_only_asset_audit",
+      "status": "PASS",
+      "command": "python -B tmp/2B/S2B-T12/toolchain_audit_20261011_r01/audit_assets.py",
+      "exit_code": 0
+    },
+    {
+      "name": "initial_frozen_sha_gate",
+      "status": "FAIL",
+      "command": "python -B tmp/2B/S2B-T12/toolchain_audit_20261011_r01/audit_assets.py",
+      "exit_code": 1,
+      "reason": "初次遇到工作树CRLF变化；原件保留，补充改用已核验主目录原字节冻结材料，未绕过SHA门禁。"
+    },
+    {
+      "name": "initial_packaging",
+      "status": "FAIL",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T12/toolchain_audit_20261011_r01/attempt2/delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "已记录原始失败，当前顶层清单修正目录与command类型。"
+    },
+    {
+      "name": "board_deployment",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本子任务为只读审计"
+    }
+  ],
+  "limitations": [
+    "本工作树缺少大数据；实际输入、GF8和CPU shards从已核验D盘主仓库指定入口读取。",
+    "只读取CPU golden_unique的两个head切片并比较冻结SHA，不重算整网。",
+    "只读工具版本查询；未构建完整PS/PL平台、应用或位流。",
+    "109板上样本、1000连续任务及布局后时序未执行。",
+    "历史JSON中的路径字段原样保留；实际操作路径另按磁盘名称核验。",
+    "本工作树4份冻结JSON为CRLF且SHA不符；本次使用D盘LF原件并核对固定Git blob，未修改工作树旧文件。"
+  ]
+}

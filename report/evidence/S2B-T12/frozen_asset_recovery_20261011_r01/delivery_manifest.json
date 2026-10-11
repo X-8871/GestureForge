@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T12",
+  "run_id": "frozen_asset_recovery_20261011_r01",
+  "source_commit": "df379f9ae6e899247b3f099a2cf2bc1fb526abe6",
+  "evidence_dir": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "按已冻结Git对象恢复检出字节，不修改业务接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2A-T25/cpu_layer_golden_index.json",
+      "sha256": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T68/candidate8x8_109_20261006_130252/d9_109_candidate8x8_109_resume_20261007_023531.json",
+      "sha256": "fcdf60ef68990a13ba634ee6cb2df71ad152d7f9d5a05d6625f5f3af296523ab",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2A-T68/candidate8x8_109_20261006_130252/recovery_manifest_20261007_023531.json",
+      "sha256": "eefe285f1c03673143d1fa0563f153626fe90d86be2d245ced59a05d8a7e65a2",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/original_checkout_bytes/cpu_decode_nms_reference.json",
+      "sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/original_checkout_bytes/cpu_layer_golden_index.json",
+      "sha256": "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/original_checkout_bytes/d9_109_candidate8x8_109_resume_20261007_023531.json",
+      "sha256": "268958192a66efaaa6faaecc94267e22d4c4a4e53928037031a5ad5de2a48a40",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/original_checkout_bytes/recovery_manifest_20261007_023531.json",
+      "sha256": "f80cf9f9832687b254fc1aa7fec2521199e47eb417750e57e1e98a9a52143ce2",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/recover_source.py",
+      "sha256": "24c1c0f9e8e73f7afd7e44905abb08a26cc8af5719905de5fc518ddded85c40f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T12/frozen_asset_recovery_20261011_r01/recovery_result.json",
+      "sha256": "c783457ee99369082539b2750f05c2cf487b44739d11f70d4e8fe88ce1a0b6b3",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "冻结字节恢复",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "python -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T12\\frozen_asset_recovery_20261011_r01\\recover.py",
+      "reason": "每个Git show原生0，恢复前原始字节保存；SHA与CRLF差异断言逐项通过。"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "未执行PL模型或板上测试，不计为2B G3/G5。"
+  ]
+}

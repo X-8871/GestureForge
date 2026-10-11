@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T13",
+  "run_id": "target_query_20261011_r01",
+  "source_commit": "9aa5c2e827b020de597626a513583611804e884c",
+  "evidence_dir": "report/evidence/S2B-T13/target_query_20261011_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅核对器件目录及用户订购型号映射，不形成PS/PL接口或部署批准。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T13/target_query_20261011_r01/query.json",
+      "sha256": "071fcb49c124e7ba0887204450c15f42194bba6b18681260764512a91a98d2b7",
+      "role": "result"
+    },
+    {
+      "path": "vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr",
+      "sha256": "42eb3b4883d51c0352fe05b5042b6582d50ef99fd81b262cdb1e3de8486d7243",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "器件精确查询",
+      "status": "PASS",
+      "command": "puts [version -short]; puts [get_parts -quiet xc7z020clg400-2]; puts [get_parts -quiet xc7z020clg400-2I]; puts [get_parts -quiet XC7Z020-2CLG400I]; foreach p [get_parts -quiet xc7z020clg400-2] {puts [list NAME [get_property NAME $p] FAMILY [get_property FAMILY $p] DEVICE [get_property DEVICE $p] PACKAGE [get_property PACKAGE $p] SPEED [get_property SPEED $p]]}; puts [get_parts -quiet xc7z020*clg400*-2*]",
+      "exit_code": 0,
+      "reason": "MCP返回原生Tcl0，唯一Vivado器件xc7z020clg400-2及DEVICE/PACKAGE/SPEED与用户指定对应。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1"
+  },
+  "limitations": [
+    "I温度后缀保留用户资料事实，工具目录及JTAG不能证明实物速度/温度。",
+    "未运行综合/时序/配置下载或推理验收。"
+  ]
+}

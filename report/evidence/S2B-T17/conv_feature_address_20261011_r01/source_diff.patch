@@ -1,0 +1,540 @@
+diff --git a/board/s2b_inference_platform.json b/board/s2b_inference_platform.json
+index cdb0636..5e42d1e 100644
+--- a/board/s2b_inference_platform.json
++++ b/board/s2b_inference_platform.json
+@@ -1,6 +1,6 @@
+ {
+   "schema_version": 1,
+-  "version": "s2b-inference-platform/0.1.9",
++  "version": "s2b-inference-platform/0.1.10",
+   "status": "BUILD_CANDIDATE",
+   "physical_interface": "s2b-physical-candidate/0.1.1",
+   "requested_part_literal": "XC7Z020-2CLG400I",
+@@ -354,7 +354,7 @@
+       {
+         "source": "src/s2a_conv_tile_engine.sv",
+         "path": "src/s2b_conv_tile_engine.sv",
+-        "sha256": "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc",
++        "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
+         "replacements": [
+           [
+             "module s2a_conv_tile_engine (",
+@@ -411,6 +411,18 @@
+           [
+             "        output_byte_offset_wide =\n            (({32'd0, output_channel_current} * {32'd0, output_height_latched} +\n              {32'd0, output_global_y}) * {32'd0, output_width_latched}) +\n            {32'd0, output_global_x};\n",
+             "        // 保留C/Y/X原32位截断；全部乘加在原unsigned64模域内因式分解。\n        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};\n        output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;\n        output_row_offset = {32'd0, output_global_y} * {32'd0, output_width_latched};\n        output_byte_offset_wide = output_channel_plane_offset + output_row_offset +\n                                  {32'd0, output_global_x};\n"
++          ],
++          [
++            "    logic [63:0] feature_source_offset;\n",
++            "    logic [63:0] feature_geometry_plane;\n    logic [63:0] feature_channel_plane_offset;\n    logic [63:0] feature_row_offset;\n    logic [63:0] feature_source_offset;\n"
++          ],
++          [
++            "        feature_source_offset = 64'd0;\n",
++            "        feature_geometry_plane = 64'd0;\n        feature_channel_plane_offset = 64'd0;\n        feature_row_offset = 64'd0;\n        feature_source_offset = 64'd0;\n"
++          ],
++          [
++            "                feature_source_offset =\n                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +\n                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +\n                    feature_input_x[63:0];\n",
++            "                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。\n                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;\n                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};\n                feature_source_offset = feature_channel_plane_offset + feature_row_offset +\n                                        feature_input_x[63:0];\n"
+           ]
+         ]
+       },
+diff --git a/board/s2b_inference_platform.md b/board/s2b_inference_platform.md
+index 1576ef4..1afdefe 100644
+--- a/board/s2b_inference_platform.md
++++ b/board/s2b_inference_platform.md
+@@ -1,12 +1,12 @@
+ # 阶段 2B 全模型平台构建候选
+ 
+-版本 `s2b-inference-platform/0.1.9`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
++版本 `s2b-inference-platform/0.1.10`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+ 
+ 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
+ 
+ ## 模块、地址和物理端口
+ 
+-JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S9开发基线为已保存S8实际综合失败证据的提交 `5ea54b441bd885e10eac4794cbad5ad48c510a49`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
++JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S10开发基线为已保存S9实际综合失败证据的提交 `3f24c94564d10103aaa00db07356f666b085f687`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+ 
+ 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
+ 
+@@ -14,7 +14,7 @@ S2 仅在派生 backend 加入 C/Y/X 三个坐标寄存器，共25位，并替
+ 
+ S3 新增 `s2b_route_engine` 与 `s2b_route_query`，引擎仅替换模块名和query引用，backend仅更换route引擎引用。11个冻结ROUTE层为3/6/8/11/14/16/19/22/24/31/34；3/11/19为groups=2、group_id=1，其余为groups=1、group_id=0。原query的groups=2已用通道低位及右移验证；派生仅删除groups>2的动态除法/余数分支并按BAD_ARGUMENT拒绝。公开CSR没有groups字段，backend唯一来源为原冻结descriptor ROM；START、inputbase、owner、abort和reset均无法改变ROM组数。实际profile可达域及groups=0、groups=1/2的非法shape/channel/id/index/地址错误优先保持；通用合法groups≥3的直接query输入明确不等价且不适用本profile，其通用实现保留在原2A源。独立验证必须绑定ROM原SHA、逐层枚举及真实backend请求trace，不能靠派生声明证明不可达。
+ 
+-`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为7+7+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1/0.1.2/0.1.3的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
++`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为6+8+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1/0.1.2/0.1.3的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
+ 
+ PS GP0 为 AXI3、32 位数据、12 位 ID，经 `axi_protocol_converter` 到 AXI4-Lite、32 位数据与完整 32 位地址，再到控制器；地址分配 `0x43C00000` / 64 KiB。控制器自行校验完整地址，不截断到低 16 位后盲目接受。HP0 为原生 AXI3、64 位数据、6 位 ID，直接连接 adapter；保留 AXI3 WID、2 位 LOCK 和 4 位 LEN，不套用 AXI4 的早 B 依赖规则。HP 可寻址 1 GiB 是 PS address segment；PL 许可仍由 guard 逐对象限制，完整模型专属 DDR arena 为 `[0x10000000,0x12000000)`。
+ 
+@@ -95,3 +95,9 @@ engine保留原65位output_elements_work及output_end_work、VALIDATE前两分
+ 保留原C/Y/X加法赋值的32位截断，将原输出偏移 `(C×H+Y)×W+X` 改写为 `C×(H×W)+Y×W+X`。H×W使用精确64位结果；channel项、row项及全部加法在原unsigned64模域内计算，base加offset仍保留原64位回绕。该恒等式适用于通用32位输入域，不把冻结descriptor的H/W上界引入端口拒绝条件。未增加33/65位进位拒绝、寄存器、状态或流水；全部公开端口、always_ff后缀、地址范围比较、错误优先和owner语义保持。
+ 
+ S9的组合全域诊断与公开START可达回归分别记录。S8真实综合STA仍FAIL（WNS−6.749ns/TNS−2135.540ns）；本轮功能回归不证明50MHz闭合。H/W→plane→channel可能成为新的关键路径，必须由后续实际综合/STA判断；100黄金样本及1000次实板标准不变。
++
++## S10：CONV feature地址组合因式分解
++
++原signed64坐标生成及bounds比较保持；在bounds内0≤Y<H≤UINT32严格蕴含Y高32位为零。仅此消费分支将原嵌套offset改为C×(H×W)+Y×W+X，plane使用精确64位，channel和base加法仍原unsigned64回绕，row使用零扩展Y低32×W的精确64结果。新三个组合信号完整默认零；未bounds的offset/address仍零。扫描结束→padding→range→read优先、所有端口/FSM/always_ff/owner/错误语义及逐周期请求保持，输出侧S9坐标截断不变。
++
++S9实际综合WNS−4.527ns/TNS−1840.705ns仍FAIL。S10功能G1、独立G2、真实STA与G3分别判断；本组合结构不声明时序改善或50MHz闭合，不增加流水或33/65位拒绝。100黄金样本、109正式样本及1000次实板指标不变。
+diff --git a/src/s2b_conv_tile_engine.sv b/src/s2b_conv_tile_engine.sv
+index ac9f42c..8e5a3bf 100644
+--- a/src/s2b_conv_tile_engine.sv
++++ b/src/s2b_conv_tile_engine.sv
+@@ -205,6 +205,9 @@ module s2b_conv_tile_engine (
+     logic signed [63:0] feature_input_y;
+     logic signed [63:0] feature_input_x;
+     logic feature_scan_in_bounds;
++    logic [63:0] feature_geometry_plane;
++    logic [63:0] feature_channel_plane_offset;
++    logic [63:0] feature_row_offset;
+     logic [63:0] feature_source_offset;
+     logic [63:0] feature_source_address_wide;
+ 
+@@ -408,6 +411,9 @@ module s2b_conv_tile_engine (
+         feature_input_x = 64'sd0;
+         feature_scan_in_bounds = 1'b0;
+         feature_scan_advance = 1'b0;
++        feature_geometry_plane = 64'd0;
++        feature_channel_plane_offset = 64'd0;
++        feature_row_offset = 64'd0;
+         feature_source_offset = 64'd0;
+         feature_source_address_wide = 64'd0;
+         if ((patch_plane_bytes != 64'd0) && (patch_width != 32'd0)) begin
+@@ -423,10 +429,12 @@ module s2b_conv_tile_engine (
+                 (feature_input_x >= 64'sd0) &&
+                 (feature_input_x < $signed({32'd0, input_width_latched}));
+             if (feature_scan_in_bounds) begin
+-                feature_source_offset =
+-                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +
+-                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +
+-                    feature_input_x[63:0];
++                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。
++                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};
++                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;
++                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};
++                feature_source_offset = feature_channel_plane_offset + feature_row_offset +
++                                        feature_input_x[63:0];
+                 feature_source_address_wide = {32'd0, input_base_latched} + feature_source_offset;
+             end
+         end
+diff --git a/verification/check_s2b_inference_platform.py b/verification/check_s2b_inference_platform.py
+index d58d0a9..0ba7d63 100644
+--- a/verification/check_s2b_inference_platform.py
++++ b/verification/check_s2b_inference_platform.py
+@@ -11,7 +11,7 @@ import stat
+ import sys
+ from pathlib import Path, PurePosixPath
+ 
+-PROFILE_VERSION = "s2b-inference-platform/0.1.9"
++PROFILE_VERSION = "s2b-inference-platform/0.1.10"
+ # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
+ FROZEN_CORE_SHA256 = {
+     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+@@ -169,6 +169,10 @@ CONV_OUTPUT_ADDRESS_REPLACEMENTS = [
+ ]
+ DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(CONV_OUTPUT_ADDRESS_REPLACEMENTS)
+ 
++# S10仅重排feature地址，行截位只在原signed bounds内消费。
++CONV_FEATURE_ADDRESS_REPLACEMENTS = [['    logic [63:0] feature_source_offset;\n', '    logic [63:0] feature_geometry_plane;\n    logic [63:0] feature_channel_plane_offset;\n    logic [63:0] feature_row_offset;\n    logic [63:0] feature_source_offset;\n'], ["        feature_source_offset = 64'd0;\n", "        feature_geometry_plane = 64'd0;\n        feature_channel_plane_offset = 64'd0;\n        feature_row_offset = 64'd0;\n        feature_source_offset = 64'd0;\n"], ["                feature_source_offset =\n                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +\n                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +\n                    feature_input_x[63:0];\n", "                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。\n                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;\n                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};\n                feature_source_offset = feature_channel_plane_offset + feature_row_offset +\n                                        feature_input_x[63:0];\n"]]
++DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(CONV_FEATURE_ADDRESS_REPLACEMENTS)
++
+ # S7只删除前置校验蕴含的地址守卫并缩短组合地址；其余严格派生链不变。
+ ROUTE_QUERY_ADDRESS_REPLACEMENTS = [
+     [
+@@ -372,7 +376,7 @@ def check_static(root: Path) -> dict:
+                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
+     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
+     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
+-    require("variable version 0.1.9" in script, "Tcl平台版本不符")
++    require("variable version 0.1.10" in script, "Tcl平台版本不符")
+     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
+         "Vivado 属性枚举必须使用官方 list_property 命令")
+     require("make_wrapper -files $bd_file -top -import" in script and
+@@ -400,7 +404,8 @@ def check_static(root: Path) -> dict:
+             "构建脚本集合不符")
+     files = list(dict.fromkeys(sources + list(FROZEN_CORE_SHA256) + profile["build_scripts"] +
+         ["board/s2b_inference_platform.json", "board/s2b_inference_platform.md",
+-         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py"]))
++         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py",
++         "verification/test_s2b_conv_feature_address_rtl.py"]))
+     return {path: sha256(relative_file(root, path)) for path in files}
+ 
+ 
+diff --git a/verification/test_s2b_backend_coordinates_rtl.py b/verification/test_s2b_backend_coordinates_rtl.py
+index 341d4a2..49477a1 100644
+--- a/verification/test_s2b_backend_coordinates_rtl.py
++++ b/verification/test_s2b_backend_coordinates_rtl.py
+@@ -21,7 +21,7 @@ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
+-SOURCE_BASELINE = "5ea54b441bd885e10eac4794cbad5ad48c510a49"
++SOURCE_BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
+ OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+@@ -460,7 +460,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
+     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
+     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
+     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
+-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.9","variable version 0.1.1"))
++    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.10","variable version 0.1.1"))
+     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
+     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
+     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
+diff --git a/verification/test_s2b_conv_output_address_rtl.py b/verification/test_s2b_conv_output_address_rtl.py
+index 68c2734..4b21277 100644
+--- a/verification/test_s2b_conv_output_address_rtl.py
++++ b/verification/test_s2b_conv_output_address_rtl.py
+@@ -21,8 +21,8 @@ import psutil
+ import test_s2b_backend_coordinates_rtl as support
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "5ea54b441bd885e10eac4794cbad5ad48c510a49"
+-OLD_SHA = "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8"
++BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
++OLD_SHA = "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc"
+ ENGINE = "src/s2b_conv_tile_engine.sv"
+ RUNNER = "verification/test_s2b_conv_output_address_rtl.py"
+ SEED = 0x591117
+@@ -198,7 +198,7 @@ def main():
+     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True)
+     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));args=parser.parse_args()
+     if not re.fullmatch(r"conv_output_address_20261011_r\d+",args.run_id):parser.error("RunId不符")
+-    cache=ROOT/"tmp/2B/S2B-T17/s9_conv_g1_20261011_r01"
++    cache=ROOT/"tmp/2B/S2B-T17/s10_conv_g1_20261011_r01"
+     evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
+     if not cache.is_dir() or not evidence.parent.is_dir():parser.error("精确父目录缺失")
+     work=cache/args.run_id
+@@ -236,7 +236,7 @@ def main():
+         source=work/"source";source.mkdir()
+         for p in ("src/s2a_network_descriptor_pkg.sv",ENGINE):shutil.copyfile(ROOT/p,source/Path(p).name)
+         original_module=old_lf.replace("module s2b_conv_tile_engine (","module s2b_conv_tile_engine_original (")
+-        for directory in (source,evidence):(directory/"s8_conv_tile_engine_original.sv").write_text(original_module,encoding="utf-8",newline="\n")
++        for directory in (source,evidence):(directory/"s9_conv_tile_engine_original.sv").write_text(original_module,encoding="utf-8",newline="\n")
+         tb=bench()
+         # 正式输入只有一份；仿真通过明确plusarg消费同一原始字节，避免缓存重复占用。
+         (evidence/"address_vectors.txt").write_text(text,encoding="utf-8",newline="\n")
+@@ -251,7 +251,7 @@ def main():
+             "jobs":1,"threads":1,"rss_limit_bytes":1610612736,"compile_timeout_seconds":600,"simulation_timeout_seconds":180}
+         if report["resource_preflight"]["heavy_processes"] or report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:raise ValueError("实际重型槽或资源不可用")
+         report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],cwd=work,env=env,text=True).strip()}
+-        cmd=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_conv_output_address","--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1","source/s2a_network_descriptor_pkg.sv","source/s8_conv_tile_engine_original.sv","source/s2b_conv_tile_engine.sv","tb_s2b_conv_output_address.sv"]
++        cmd=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_conv_output_address","--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1","source/s2a_network_descriptor_pkg.sv","source/s9_conv_tile_engine_original.sv","source/s2b_conv_tile_engine.sv","tb_s2b_conv_output_address.sv"]
+         support.execute("compile",cmd,work,evidence,env,report,600)
+         support.execute("simulation",[str(work/"obj_dir/Vtb_s2b_conv_output_address.exe"),"+VECTOR_PATH="+str(evidence/"address_vectors.txt").replace("\\","/")],work,evidence,env,report,180)
+         log=(evidence/"simulation.log").read_text(encoding="utf-8")
+diff --git a/verification/test_s2b_conv_validation_rtl.py b/verification/test_s2b_conv_validation_rtl.py
+index c901d42..42f3523 100644
+--- a/verification/test_s2b_conv_validation_rtl.py
++++ b/verification/test_s2b_conv_validation_rtl.py
+@@ -24,7 +24,7 @@ import test_s2b_backend_coordinates_rtl as support
+ 
+ ROOT=Path(__file__).resolve().parents[1]
+ BASELINE="5cb092dcce3631f310e67228738a674a6a82ce41"
+-SOURCE_BASELINE="5ea54b441bd885e10eac4794cbad5ad48c510a49"
++SOURCE_BASELINE="3f24c94564d10103aaa00db07356f666b085f687"
+ RUNNER="verification/test_s2b_conv_validation_rtl.py"
+ RTL=("src/s2a_network_descriptor_pkg.sv","src/s2a_conv_tile_engine.sv","src/s2b_conv_tile_engine.sv")
+ FIXTURE=Path("D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture")
+@@ -418,12 +418,12 @@ def main():
+     """独占新Run，冻结全部实际源码后单job构建；失败原件保留。"""
+     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True);parser.add_argument("--mode",choices=("boundary","layer0"),required=True)
+     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));parser.add_argument("--prepare-only",action="store_true");args=parser.parse_args()
+-    if not re.fullmatch(r"(?:length_guard_20261011_r\d+|conv_output_address_(?:boundary|layer0)_20261011_r\d+)",args.run_id):raise ValueError("RunId不符")
++    if not re.fullmatch(r"(?:length_guard_20261011_r\d+|conv_(?:output|feature)_address_(?:boundary|layer0)_20261011_r\d+)",args.run_id):raise ValueError("RunId不符")
+     work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
+     for p in (work,evidence):
+         if not p.parent.is_dir() or p.exists():raise ValueError("父目录缺失或Run已存在")
+         p.mkdir()
+-    report={"schema_version":1,"task_id":"S2B-T17-S9","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":SOURCE_BASELINE,"status":"FAIL","runs":[]}
++    report={"schema_version":1,"task_id":"S2B-T17-S10","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":SOURCE_BASELINE,"status":"FAIL","runs":[]}
+     begin=time.monotonic()
+     try:
+         checker=support.load_checker();bindings=checker.check_static(ROOT)
+diff --git a/verification/test_s2b_geometry_specialization_rtl.py b/verification/test_s2b_geometry_specialization_rtl.py
+index 572b6d6..d9f1f3c 100644
+--- a/verification/test_s2b_geometry_specialization_rtl.py
++++ b/verification/test_s2b_geometry_specialization_rtl.py
+@@ -20,7 +20,7 @@ import time
+ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "5ea54b441bd885e10eac4794cbad5ad48c510a49"
++BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+ SEED = 0x2B171011
+@@ -371,7 +371,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
+     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
+     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
+     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
+-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.9", "variable version 0.1.2"))
++    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.10", "variable version 0.1.2"))
+     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
+     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
+     reject("可见性默认启用", lambda p: p.update(visibility_default=1))
+diff --git a/vivado/s2b_inference_platform.tcl b/vivado/s2b_inference_platform.tcl
+index dfdce3e..44a1b2b 100644
+--- a/vivado/s2b_inference_platform.tcl
++++ b/vivado/s2b_inference_platform.tcl
+@@ -1,6 +1,6 @@
+ # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
+ namespace eval ::s2b_inference_platform {
+-    variable version 0.1.9
++    variable version 0.1.10
+     variable part xc7z020clg400-2
+     variable bd_name s2b_inference
+     variable rtl_sources {
+diff --git a/verification/test_s2b_conv_feature_address_rtl.py b/verification/test_s2b_conv_feature_address_rtl.py
+new file mode 100644
+index 0000000..a482492
+--- /dev/null
++++ b/verification/test_s2b_conv_feature_address_rtl.py
+@@ -0,0 +1,246 @@
++#!/usr/bin/env python3
++"""S10完整旧新CONV组合地址差分；内部受控域不冒充公开START覆盖。"""
++from __future__ import annotations
++import argparse
++from collections import Counter
++import copy
++import hashlib
++import itertools
++import json
++import os
++from pathlib import Path
++import random
++import re
++import shutil
++import subprocess
++import sys
++import time
++import psutil
++import test_s2b_backend_coordinates_rtl as support
++
++ROOT=Path(__file__).resolve().parents[1]
++BASELINE="3f24c94564d10103aaa00db07356f666b085f687"
++OLD_SHA="ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc"
++ENGINE="src/s2b_conv_tile_engine.sv"
++RUNNER="verification/test_s2b_conv_feature_address_rtl.py"
++SEED=0x5A1710
++U32=(1<<32)-1
++U64=(1<<64)-1
++INPUTS=("feature_scan_channel","input_height_latched","input_width_latched","tile_start_y",
++        "stride_y_latched","feature_scan_y","pad_top_latched","tile_start_x","stride_x_latched",
++        "feature_scan_x","pad_left_latched","input_base_latched","patch_height","patch_width",
++        "feature_scan_index","patch_byte_count")
++GOLD=("plane","y","x","bounds","offset","address","range","action","advance","aligned","strobe","row")
++
++
++def signed64(value):
++    """保持原64位二补码signed解释。"""
++    value&=U64
++    return value-(1<<64) if value&(1<<63) else value
++
++
++def oracle(v):
++    """独立旧嵌套NCHW整数定义；只在原节点取模，不引用候选plane表达式。"""
++    c,h,w,ty,sy,fy,py,tx,sx,fx,px,base,ph,pw,index,count,state,rsp_valid,rsp_error=v
++    plane=ph*pw
++    y=signed64(ty*sy+fy-py) if plane and pw else 0
++    x=signed64(tx*sx+fx-px) if plane and pw else 0
++    bounds=int(bool(plane and pw and 0<=y<h and 0<=x<w))
++    offset=(((c*h+(y&U64))&U64)*w+(x&U64))&U64 if bounds else 0
++    address=(base+offset)&U64 if bounds else 0
++    bad=int(address>U32)
++    action=0 if index>=count else 1 if not bounds else 2 if bad else 3
++    mapped=rsp_error if rsp_error in (0,1,2,6) else 6
++    advance=int((state==1 and index<count and not bounds) or (state==2 and rsp_valid and mapped==0))
++    row=(y*w)&U64 if bounds else 0
++    return plane,y&U64,x&U64,bounds,offset,address,bad,action,advance,address&0xfffffffc,1<<(address&3),row
++
++
++def vectors(model):
++    """固定总量与独立种子，多域/手算/冻结21CONV代表窗口均明确计数。"""
++    rows=[];categories=Counter();branches=Counter();manual={}
++    def add(kind,v):
++        gold=oracle(v);rows.append((v,gold));categories[kind]+=1;branches[str(gold[7])]+=1;return gold
++    cases={
++        "ordinary":(3,13,13,8,1,4,1,8,1,4,1,100,2,2,0,4,1,0,0),
++        "negative_padding":(0,1,1,0,1,0,1,0,1,0,0,U32,1,1,0,1,1,0,0),
++        "bit63_negative_low32_alias":(0,1,1,U32,U32,0,1,0,0,0,0,0,1,1,0,1,1,0,0),
++        "bit32_positive_low32_alias":(0,1,1,65536,65536,0,0,0,0,0,0,0,1,1,0,1,1,0,0),
++        "Y_equal_H":(0,U32,1,0,0,U32,0,0,0,0,0,0,1,1,0,1,1,0,0),
++        "H_zero":(0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,0),
++        "W_zero":(0,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,0),
++        "max_valid_Y_exact_row64":(0,U32,U32,0,0,U32-1,0,0,0,U32-1,0,0,1,1,0,1,1,0,0),
++        "channel_terms_mod64_offset_zero":(1<<31,2,U32,0,0,1,0,0,0,1,0,0,1,1,0,1,1,0,0),
++        "base_mod64_address_zero":(1<<31,2,U32,0,0,1,0,0,0,0,0,1,1,1,0,1,1,0,0),
++        "low32_offset_alias_range":(1,65536,65536,0,0,0,0,0,0,0,0,0,1,1,0,1,1,0,0),
++        "base33_range":(0,1,2,0,0,0,0,0,0,1,0,U32,1,1,0,1,1,0,0),
++        "patch_gate_zero":(1,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,0,1,0,1,1,0,0),
++        "END_before_RANGE":(1,65536,65536,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0),
++        "END_before_PADDING":(0,1,1,0,1,0,1,0,1,0,0,U32,1,1,1,1,1,0,0),
++    }
++    for name,v in cases.items():manual[name]={"input":v,"expected":add("manual",v)}
++    assert manual["channel_terms_mod64_offset_zero"]["expected"][4]==0
++    assert manual["base_mod64_address_zero"]["expected"][4]==U64
++    assert manual["base_mod64_address_zero"]["expected"][5]==0
++    assert manual["bit63_negative_low32_alias"]["expected"][1]==(1<<64)-(1<<33)
++    assert manual["bit32_positive_low32_alias"]["expected"][1]==1<<32
++    assert manual["max_valid_Y_exact_row64"]["expected"][11]==(U32-1)*U32
++    for c,h,w in itertools.product((0,1,2,65536,1<<31,U32),repeat=3):
++        add("C_H_W_boundaries",(c,h,w,0,0,0,0,0,0,0,0,U32,1,1,0,1,1,0,0))
++    rng=random.Random(SEED)
++    for _ in range(60000):add("random_full_u32",tuple([rng.getrandbits(32) for _ in INPUTS]+[rng.randrange(4),rng.randrange(2),rng.randrange(8)]))
++    for _ in range(40000):
++        c,h,w,base=[rng.getrandbits(32) for _ in range(4)]
++        add("random_inbounds",(c,h,w,0,0,rng.randrange(h) if h else 0,0,0,0,rng.randrange(w) if w else 0,0,base,1,1,0,1,rng.randrange(4),rng.randrange(2),rng.randrange(8)))
++    for _ in range(18000):
++        v=[rng.getrandbits(32) for _ in INPUTS];v[3]=0;v[4]=0;v[5]=0;v[6]=rng.randrange(1,U32);v[12]=1;v[13]=1
++        v[14]=0;v[15]=1;add("random_negative_padding",tuple(v+[rng.randrange(4),rng.randrange(2),rng.randrange(8)]))
++    shapes=[]
++    for layer in model["layers"]:
++        if layer["op"]!="convolutional":continue
++        _,c,h,w=layer["input_shape_nchw"];shapes.append({"layer_index":layer["layer_index"],"input_shape":layer["input_shape_nchw"]})
++        for _ in range(100):add("frozen_model_coordinate",(rng.randrange(c),h,w,0,0,rng.randrange(h),0,0,0,rng.randrange(w),0,U32-c*h*w+1,1,1,0,1,1,0,0))
++    for state,error in itertools.product(range(3),range(8)):
++        v=list(cases["ordinary"]);v[-3:]=[state,1,error];add("advance_response_mapping",tuple(v))
++    for state,gate in itertools.product(range(3),range(2)):
++        v=list(cases["negative_padding"]);v[12]=gate;v[-3:]=[state,1,0];add("advance_patch_gate",tuple(v))
++    assert len(rows)==120361 and len(shapes)==21
++    text="\n".join(" ".join(f"{n:x}" for n in (*v,*gold)) for v,gold in rows)+"\n"
++    return text,{"seed":SEED,"seed_hex":hex(SEED),"vectors":len(rows),"categories":dict(categories),"branch_counts":dict(branches),"manual":manual,"frozen_conv_shapes":shapes,"scope":"原内部寄存器/状态受控组合域，clk恒0；不是公开START可达轨迹或周期覆盖。","oracle":"独立旧嵌套式；不读取候选factorization。新row仅bounds内消费，未bounds默认0。"}
++
++
++def bench():
++    """完整引擎组合字段观测；内部驱动范围逐条登记，公开回归不得注入。"""
++    header=(ROOT/ENGINE).read_text(encoding="utf-8").split(");",1)[0]
++    ports=re.findall(r"\b(input|output)\s+logic\s*((?:signed\s*)?(?:\[[^\]]+\])?)\s*(\w+)",header)
++    conn=",".join(f".{n}({'clk' if n=='clk' else 'v_rsp_valid' if n=='backend_rsp_valid' else 'v_rsp_error' if n=='backend_rsp_error' else chr(39)+'0' if d=='input' else ''})" for d,w,n in ports)
++    decl="\n".join(f"logic [31:0] v_{n};" for n in INPUTS)
++    widths={"bounds":1,"range":1,"action":2,"advance":1,"aligned":32,"strobe":4}
++    gold="\n".join(f"logic [{widths.get(n,64)-1}:0] gold_{n};" for n in GOLD)
++    assigns="\n".join(f"{inst}.{n}=v_{n};" for inst in ("u_old","u_dut") for n in INPUTS)
++    states="\n".join(f"case(v_state) 0:{inst}.state={inst}.ST_IDLE;1:{inst}.state={inst}.ST_FEATURE_SCAN;2:{inst}.state={inst}.ST_FEATURE_RESPONSE;default:{inst}.state={inst}.ST_WEIGHT_SCAN;endcase" for inst in ("u_old","u_dut"))
++    checks=[]
++    for inst in ("u_old","u_dut"):
++        for signal,key in (("patch_plane_bytes","plane"),("feature_input_y","y"),("feature_input_x","x"),("feature_scan_in_bounds","bounds"),("feature_source_offset","offset"),("feature_source_address_wide","address"),("feature_scan_advance","advance")):
++            checks.append(f'if({inst}.{signal}!==gold_{key})$fatal(1,"组合字段{inst}.{signal} case=%0d",count);')
++        checks.append(f'if(({inst}.feature_source_address_wide>64\'hFFFFFFFF)!==gold_range)$fatal(1,"原范围判据 case=%0d",count);')
++        checks.append(f'if(action({inst}.feature_scan_index,{inst}.patch_byte_count,{inst}.feature_scan_in_bounds,({inst}.feature_source_address_wide>64\'hFFFFFFFF))!==gold_action)$fatal(1,"消费顺序 case=%0d",count);')
++        checks.append(f'if(gold_action==3 && v_state==1)begin if({{{inst}.feature_source_address_wide[31:2],2\'b00}}!==gold_aligned || (4\'b0001<<{inst}.feature_source_address_wide[1:0])!==gold_strobe)$fatal(1,"请求对齐/strobe case=%0d",count);end')
++    checks.append('if(u_dut.feature_row_offset!==gold_row)$fatal(1,"消费行精确64/未bounds默认0 case=%0d",count);')
++    fmt=" ".join("%h" for _ in range(len(INPUTS)+3+len(GOLD)))+"\\n"
++    args=",".join(["v_"+n for n in INPUTS]+["v_state","v_rsp_valid","v_rsp_error"]+["gold_"+n for n in GOLD])
++    return f'''// 仅受控组合域：完整旧新模块、时钟恒0、无posedge；不属于公开事务覆盖。
++`timescale 1ns/1ps
++module tb_s2b_conv_feature_address;
++logic clk=0;logic[1:0]v_state;logic v_rsp_valid;logic[2:0]v_rsp_error;
++{decl}
++{gold}
++s2b_conv_tile_engine_original u_old ({conn});
++s2b_conv_tile_engine u_dut ({conn});
++function automatic logic[1:0]action(input logic[31:0]index,count,input logic bounds,bad);
++begin if(index>=count)action=0;else if(!bounds)action=1;else if(bad)action=2;else action=3;end
++endfunction
++integer fd,scanned,count=0;integer branch_count[0:3]='{{default:0}};string vector_path;
++initial begin
++if(!$value$plusargs("VECTOR_PATH=%s",vector_path))$fatal(1,"精确向量路径缺失");
++fd=$fopen(vector_path,"r");if(fd==0)$fatal(1,"向量缺失");
++while(!$feof(fd))begin
++scanned=$fscanf(fd,"{fmt}",{args});
++if(scanned=={len(INPUTS)+3+len(GOLD)})begin
++{assigns}
++{states}
++#1;
++{"\n".join(checks)}
++branch_count[gold_action]++;count++;
++end else if(scanned!=-1)$fatal(1,"向量字段不足");
++end
++$fclose(fd);$display("PASS S10_CONV_FEATURE_ADDRESS vectors=%0d end=%0d padding=%0d range=%0d request=%0d",count,branch_count[0],branch_count[1],branch_count[2],branch_count[3]);$finish;
++end
++endmodule
++'''
++
++
++def mutants(checker,work,bindings):
++    """自报SHA和替换仍须被独立固定规则真实拒绝。"""
++    fixture=work/"feature_mutants";fixture.mkdir()
++    for p in bindings:
++        target=fixture/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
++    profile_path=fixture/"board/s2b_inference_platform.json";profile_original=json.loads(profile_path.read_text(encoding="utf-8"))
++    original=(ROOT/ENGINE).read_text(encoding="utf-8")
++    cases=(("bit63负坐标被误放行","(feature_input_y >= 64'sd0)","1'b1"),
++           ("bit32坐标低位别名","(feature_input_y < $signed({32'd0, input_height_latched}))","(feature_input_y[31:0] < input_height_latched)"),
++           ("plane错误加法","feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};","feature_geometry_plane = {32'd0, input_height_latched} + {32'd0, input_width_latched};"),
++           ("channel丢高位","feature_source_offset = feature_channel_plane_offset + feature_row_offset +","feature_source_offset = {32'd0, feature_channel_plane_offset[31:0]} + feature_row_offset +"),
++           ("row丢高位","logic [63:0] feature_row_offset;","logic [31:0] feature_row_offset;"),
++           ("丢row","feature_source_offset = feature_channel_plane_offset + feature_row_offset +","feature_source_offset = feature_channel_plane_offset + 64'd0 +"),
++           ("丢X","                                        feature_input_x[63:0];","                                        64'd0;"),
++           ("错误65位carry拒绝","(feature_source_address_wide > 64'h0000_0000_FFFF_FFFF)","(({1'b0, feature_source_offset} + {33'd0, input_base_latched}) > 65'h0000_0000_FFFF_FFFF)"))
++    records=[]
++    for name,before,after in cases:
++        assert original.count(before)==1,name
++        target=fixture/ENGINE;target.write_text(original.replace(before,after),encoding="utf-8",newline="\n")
++        profile=copy.deepcopy(profile_original);item=next(i for i in profile["source_derivation"]["derived_sources"] if i["path"]==ENGINE)
++        item["sha256"]=support.sha(target);item["replacements"].append([before,after]);profile_path.write_text(json.dumps(profile,ensure_ascii=False,indent=2),encoding="utf-8")
++        try:checker.check_static(fixture)
++        except (ValueError,KeyError,TypeError,OSError) as exc:records.append({"name":name,"status":"REJECTED","reason":str(exc),"mutant_sha256":support.sha(target)})
++        else:raise ValueError("语义反例未拒绝："+name)
++    return records
++
++
++def main():
++    """真实完整引擎编译与组合域回归，失败原件保留，单任务缓存独占。"""
++    parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True)
++    parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));args=parser.parse_args()
++    if not re.fullmatch(r"conv_feature_address_20261011_r\d+",args.run_id):parser.error("RunId不符")
++    cache=ROOT/"tmp/2B/S2B-T17/s10_conv_g1_20261011_r01";evidence=ROOT/"report/evidence/S2B-T17"/args.run_id;work=cache/args.run_id
++    if not cache.is_dir() or not evidence.parent.is_dir() or work.exists() or evidence.exists():parser.error("精确父目录/新RunId不符")
++    work.mkdir();evidence.mkdir();started=time.monotonic()
++    report={"schema_version":1,"task_id":"S2B-T17-S10","run_id":args.run_id,"source_commit":BASELINE,"status":"FAIL","runs":[],"limitations":["内部寄存器/状态受控组合域，clk恒0；不作公开START可达域/周期证明。","公开START/owner/backpressure/abort-reset/数值由原boundary/layer0另跑。","G2/STA/G3/新109全网NOT_RUN"]}
++    try:
++        assert subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()==BASELINE
++        checker=support.load_checker();static=checker.check_static(ROOT);bindings=dict(static)
++        bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,support.RUNNER,support.MODEL)})
++        report["source_sha256_pre"]=bindings;snapshot=evidence/"source_snapshot";snapshot.mkdir()
++        for p in bindings:
++            target=snapshot/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
++        report["frozen14_sha256"]={p:support.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256};assert report["frozen14_sha256"]==checker.FROZEN_CORE_SHA256
++        old=subprocess.check_output(["git","show",BASELINE+":"+ENGINE],cwd=ROOT);assert hashlib.sha256(old).hexdigest()==OLD_SHA
++        old_lf=old.decode("utf-8").replace("\r\n","\n");actual=(ROOT/ENGINE).read_text(encoding="utf-8");ff="    always_ff @(posedge clk) begin"
++        assert old_lf[old_lf.index(ff):]==actual[actual.index(ff):] and old_lf.split(");",1)[0]==actual.split(");",1)[0]
++        report["ff_and_interface"]={"status":"IDENTICAL_LF_CONTENT","suffix_sha256":hashlib.sha256(actual[actual.index(ff):].encode()).hexdigest(),"old_git_sha256":OLD_SHA}
++        assert support.sha(ROOT/support.MODEL)==support.MODEL_SHA
++        text,proof=vectors(json.loads((ROOT/support.MODEL).read_text(encoding="utf-8")));report["math_oracle"]=proof
++        report["checker_negatives"]=support.checker_negatives(checker,work,static)
++        fixture=work/"checker_fixture";profile_path=fixture/"board/s2b_inference_platform.json";profile=json.loads(profile_path.read_text(encoding="utf-8"));profile["version"]="s2b-inference-platform/0.1.9";profile_path.write_text(json.dumps(profile,ensure_ascii=False),encoding="utf-8")
++        try:checker.check_static(fixture)
++        except ValueError as exc:report["checker_negatives"].append({"name":"旧profile0.1.9","status":"REJECTED","reason":str(exc)})
++        else:raise ValueError("旧S9 profile未拒绝")
++        report["feature_mutants"]=mutants(checker,work,static)
++        source=work/"source";source.mkdir()
++        for p in ("src/s2a_network_descriptor_pkg.sv",ENGINE):shutil.copyfile(ROOT/p,source/Path(p).name)
++        original=old_lf.replace("module s2b_conv_tile_engine (","module s2b_conv_tile_engine_original (")
++        for directory in (source,evidence):(directory/"s9_conv_tile_engine_original.sv").write_text(original,encoding="utf-8",newline="\n")
++        tb=bench();(evidence/"address_vectors.txt").write_text(text,encoding="utf-8",newline="\n")
++        for directory in (work,evidence):(directory/"tb_s2b_conv_feature_address.sv").write_text(tb,encoding="utf-8",newline="\n")
++        env=os.environ.copy();tools=args.toolchain/"mingw64/bin";make=args.toolchain/"usr/bin";verilator=checker.exact_file(tools/"verilator_bin.exe")
++        env["PATH"]=str(make)+os.pathsep+str(tools)+os.pathsep+env.get("PATH","");env["VERILATOR_ROOT"]=str(args.toolchain/"mingw64/share/verilator");env["PYTHONUTF8"]="1"
++        heavy=[{"pid":p.pid,"name":p.info["name"]} for p in psutil.process_iter(["name"]) if p.info["name"] and re.fullmatch(r"(?:vivado|verilator_bin|cc1plus|Vtb_.*)\.exe",p.info["name"],re.I)]
++        report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,"heavy_processes":heavy,"jobs":1,"threads":1,"outer_rss_limit_bytes":1073741824,"cache_limit_bytes":314572800}
++        assert not heavy and report["resource_preflight"]["available_ram_bytes"]>2147483648 and report["resource_preflight"]["disk_free_bytes"]>1073741824
++        report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],cwd=work,env=env,text=True).strip()}
++        cmd=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_conv_feature_address","--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1","source/s2a_network_descriptor_pkg.sv","source/s9_conv_tile_engine_original.sv","source/s2b_conv_tile_engine.sv","tb_s2b_conv_feature_address.sv"]
++        support.execute("compile",cmd,work,evidence,env,report,600)
++        support.execute("simulation",[str(work/"obj_dir/Vtb_s2b_conv_feature_address.exe"),"+VECTOR_PATH="+str(evidence/"address_vectors.txt").replace("\\","/")],work,evidence,env,report,180)
++        log=(evidence/"simulation.log").read_text(encoding="utf-8");marker=re.findall(r"PASS S10_CONV_FEATURE_ADDRESS vectors=(\d+) end=(\d+) padding=(\d+) range=(\d+) request=(\d+)",log)
++        assert len(marker)==1 and int(marker[0][0])==proof["vectors"] and [int(n) for n in marker[0][1:]]==[proof["branch_counts"].get(str(i),0) for i in range(4)]
++        report["actual_coverage"]=dict(zip(("vectors","end","padding","range","request"),map(int,marker[0])))
++        report["source_sha256_post"]={p:support.sha(ROOT/p) for p in bindings};assert report["source_sha256_post"]==bindings
++        report["status"]="PASS_CONV_FEATURE_ADDRESS_COMBINATIONAL_G1"
++    except Exception as exc:report["error"]=repr(exc)
++    finally:
++        report["elapsed_seconds"]=round(time.monotonic()-started,3);(evidence/"validation.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8",newline="\n")
++    print(json.dumps({"status":report["status"],"seconds":report["elapsed_seconds"],"coverage":report.get("actual_coverage"),"error":report.get("error")},ensure_ascii=False))
++    return 0 if report["status"]=="PASS_CONV_FEATURE_ADDRESS_COMBINATIONAL_G1" else 2
++
++
++if __name__=="__main__":raise SystemExit(main())

@@ -205,6 +205,9 @@ module s2b_conv_tile_engine (
     logic signed [63:0] feature_input_y;
     logic signed [63:0] feature_input_x;
     logic feature_scan_in_bounds;
+    logic [63:0] feature_geometry_plane;
+    logic [63:0] feature_channel_plane_offset;
+    logic [63:0] feature_row_offset;
     logic [63:0] feature_source_offset;
     logic [63:0] feature_source_address_wide;
 
@@ -408,6 +411,9 @@ module s2b_conv_tile_engine (
         feature_input_x = 64'sd0;
         feature_scan_in_bounds = 1'b0;
         feature_scan_advance = 1'b0;
+        feature_geometry_plane = 64'd0;
+        feature_channel_plane_offset = 64'd0;
+        feature_row_offset = 64'd0;
         feature_source_offset = 64'd0;
         feature_source_address_wide = 64'd0;
         if ((patch_plane_bytes != 64'd0) && (patch_width != 32'd0)) begin
@@ -423,10 +429,12 @@ module s2b_conv_tile_engine (
                 (feature_input_x >= 64'sd0) &&
                 (feature_input_x < $signed({32'd0, input_width_latched}));
             if (feature_scan_in_bounds) begin
-                feature_source_offset =
-                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +
-                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +
-                    feature_input_x[63:0];
+                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。
+                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};
+                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;
+                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};
+                feature_source_offset = feature_channel_plane_offset + feature_row_offset +
+                                        feature_input_x[63:0];
                 feature_source_address_wide = {32'd0, input_base_latched} + feature_source_offset;
             end
         end

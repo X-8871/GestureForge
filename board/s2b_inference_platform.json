@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.9",
+  "version": "s2b-inference-platform/0.1.10",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -354,7 +354,7 @@
       {
         "source": "src/s2a_conv_tile_engine.sv",
         "path": "src/s2b_conv_tile_engine.sv",
-        "sha256": "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc",
+        "sha256": "51b76623b29a852ebf66cb818ef947d932c14055e4acbb20bd8fe811bb32d555",
         "replacements": [
           [
             "module s2a_conv_tile_engine (",
@@ -411,6 +411,18 @@
           [
             "        output_byte_offset_wide =\n            (({32'd0, output_channel_current} * {32'd0, output_height_latched} +\n              {32'd0, output_global_y}) * {32'd0, output_width_latched}) +\n            {32'd0, output_global_x};\n",
             "        // 保留C/Y/X原32位截断；全部乘加在原unsigned64模域内因式分解。\n        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};\n        output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;\n        output_row_offset = {32'd0, output_global_y} * {32'd0, output_width_latched};\n        output_byte_offset_wide = output_channel_plane_offset + output_row_offset +\n                                  {32'd0, output_global_x};\n"
+          ],
+          [
+            "    logic [63:0] feature_source_offset;\n",
+            "    logic [63:0] feature_geometry_plane;\n    logic [63:0] feature_channel_plane_offset;\n    logic [63:0] feature_row_offset;\n    logic [63:0] feature_source_offset;\n"
+          ],
+          [
+            "        feature_source_offset = 64'd0;\n",
+            "        feature_geometry_plane = 64'd0;\n        feature_channel_plane_offset = 64'd0;\n        feature_row_offset = 64'd0;\n        feature_source_offset = 64'd0;\n"
+          ],
+          [
+            "                feature_source_offset =\n                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +\n                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +\n                    feature_input_x[63:0];\n",
+            "                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。\n                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;\n                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};\n                feature_source_offset = feature_channel_plane_offset + feature_row_offset +\n                                        feature_input_x[63:0];\n"
           ]
         ]
       },

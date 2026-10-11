@@ -21,8 +21,8 @@ import psutil
 import test_s2b_backend_coordinates_rtl as support
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "5ea54b441bd885e10eac4794cbad5ad48c510a49"
-OLD_SHA = "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8"
+BASELINE = "3f24c94564d10103aaa00db07356f666b085f687"
+OLD_SHA = "ea3e123327827a2d090a705bb7e364af29cf7e1088bc86c7bd54bf55e36df5fc"
 ENGINE = "src/s2b_conv_tile_engine.sv"
 RUNNER = "verification/test_s2b_conv_output_address_rtl.py"
 SEED = 0x591117
@@ -198,7 +198,7 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True)
     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));args=parser.parse_args()
     if not re.fullmatch(r"conv_output_address_20261011_r\d+",args.run_id):parser.error("RunId不符")
-    cache=ROOT/"tmp/2B/S2B-T17/s9_conv_g1_20261011_r01"
+    cache=ROOT/"tmp/2B/S2B-T17/s10_conv_g1_20261011_r01"
     evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
     if not cache.is_dir() or not evidence.parent.is_dir():parser.error("精确父目录缺失")
     work=cache/args.run_id
@@ -236,7 +236,7 @@ def main():
         source=work/"source";source.mkdir()
         for p in ("src/s2a_network_descriptor_pkg.sv",ENGINE):shutil.copyfile(ROOT/p,source/Path(p).name)
         original_module=old_lf.replace("module s2b_conv_tile_engine (","module s2b_conv_tile_engine_original (")
-        for directory in (source,evidence):(directory/"s8_conv_tile_engine_original.sv").write_text(original_module,encoding="utf-8",newline="\n")
+        for directory in (source,evidence):(directory/"s9_conv_tile_engine_original.sv").write_text(original_module,encoding="utf-8",newline="\n")
         tb=bench()
         # 正式输入只有一份；仿真通过明确plusarg消费同一原始字节，避免缓存重复占用。
         (evidence/"address_vectors.txt").write_text(text,encoding="utf-8",newline="\n")
@@ -251,7 +251,7 @@ def main():
             "jobs":1,"threads":1,"rss_limit_bytes":1610612736,"compile_timeout_seconds":600,"simulation_timeout_seconds":180}
         if report["resource_preflight"]["heavy_processes"] or report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:raise ValueError("实际重型槽或资源不可用")
         report["tool_versions"]={"python":sys.version,"verilator":subprocess.check_output([str(verilator),"--version"],cwd=work,env=env,text=True).strip()}
-        cmd=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_conv_output_address","--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1","source/s2a_network_descriptor_pkg.sv","source/s8_conv_tile_engine_original.sv","source/s2b_conv_tile_engine.sv","tb_s2b_conv_output_address.sv"]
+        cmd=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module","tb_s2b_conv_output_address","--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1","source/s2a_network_descriptor_pkg.sv","source/s9_conv_tile_engine_original.sv","source/s2b_conv_tile_engine.sv","tb_s2b_conv_output_address.sv"]
         support.execute("compile",cmd,work,evidence,env,report,600)
         support.execute("simulation",[str(work/"obj_dir/Vtb_s2b_conv_output_address.exe"),"+VECTOR_PATH="+str(evidence/"address_vectors.txt").replace("\\","/")],work,evidence,env,report,180)
         log=(evidence/"simulation.log").read_text(encoding="utf-8")

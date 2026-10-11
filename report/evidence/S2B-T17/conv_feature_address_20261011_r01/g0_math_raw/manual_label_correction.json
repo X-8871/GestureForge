@@ -1,0 +1,10 @@
+{
+  "scope": "只修正首轮一条手算类别名称；所有输入、计算、判据不变，首轮原生0和结果原件保留。",
+  "first_label": "coordinate_mod64_wrap_to_zero",
+  "correct_label": "negative_large_signed_padding",
+  "actual_y": -8589934590,
+  "actual_branch": "PADDING",
+  "current_math_receipt": "math_r02/result.json",
+  "coordinate_bound_proof": "TY/SY/FY/PY均U32：TY*SY+FY<=U32^2+U32=2^64-2^32，因此unsigned乘积加scan不会向上溢出64位；但$ signed重解释的bit63与后续减padding的signed64结果仍必须原样。不能称此样例回绕到零。",
+  "prohibited_shortcut": "例如TY=SY=U32,FY=0,PY=1时signedY=-8589934592且low32=0；H=1时原padding，截low32会误成有效坐标。"
+}

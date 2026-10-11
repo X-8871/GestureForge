@@ -1,12 +1,12 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.9`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.10`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
 ## 模块、地址和物理端口
 
-JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S9开发基线为已保存S8实际综合失败证据的提交 `5ea54b441bd885e10eac4794cbad5ad48c510a49`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+JSON 声明 18 个实际编译 RTL 文件：6 个原冻结 2A 模块、8 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`。派生链历史基线为 `f53e067ba91abc02ed60cf7f9063884d9ddb79f1`；本轮S10开发基线为已保存S9实际综合失败证据的提交 `3f24c94564d10103aaa00db07356f666b085f687`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
 
 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
 
@@ -14,7 +14,7 @@ S2 仅在派生 backend 加入 C/Y/X 三个坐标寄存器，共25位，并替�
 
 S3 新增 `s2b_route_engine` 与 `s2b_route_query`，引擎仅替换模块名和query引用，backend仅更换route引擎引用。11个冻结ROUTE层为3/6/8/11/14/16/19/22/24/31/34；3/11/19为groups=2、group_id=1，其余为groups=1、group_id=0。原query的groups=2已用通道低位及右移验证；派生仅删除groups>2的动态除法/余数分支并按BAD_ARGUMENT拒绝。公开CSR没有groups字段，backend唯一来源为原冻结descriptor ROM；START、inputbase、owner、abort和reset均无法改变ROM组数。实际profile可达域及groups=0、groups=1/2的非法shape/channel/id/index/地址错误优先保持；通用合法groups≥3的直接query输入明确不等价且不适用本profile，其通用实现保留在原2A源。独立验证必须绑定ROM原SHA、逐层枚举及真实backend请求trace，不能靠派生声明证明不可达。
 
-`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为7+7+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1/0.1.2/0.1.3的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
+`derived_sources` 每项绑定源/派生路径、派生SHA和逐项允许的字符替换。派生文件按UTF-8/LF创建；仅验证派生关系时将上游CRLF转换为LF，原14源的SHA仍绑定原始字节。检查器独立固定上游14源SHA及允许替换，核对派生源除此之外逐字符一致、实际编译闭包精确为6+8+4，并要求Tcl/JSON版本和闭包一致。S2 坐标来源、全38层数学枚举与实际RTL逐周期/全部nonconv请求trace由独立证据绑定，不由profile字段自证。该版本尚未证明50MHz收敛；旧0.1.0/0.1.1/0.1.2/0.1.3的BD/XSA、综合和可见性证明不能继承为新实现的通过结果。
 
 PS GP0 为 AXI3、32 位数据、12 位 ID，经 `axi_protocol_converter` 到 AXI4-Lite、32 位数据与完整 32 位地址，再到控制器；地址分配 `0x43C00000` / 64 KiB。控制器自行校验完整地址，不截断到低 16 位后盲目接受。HP0 为原生 AXI3、64 位数据、6 位 ID，直接连接 adapter；保留 AXI3 WID、2 位 LOCK 和 4 位 LEN，不套用 AXI4 的早 B 依赖规则。HP 可寻址 1 GiB 是 PS address segment；PL 许可仍由 guard 逐对象限制，完整模型专属 DDR arena 为 `[0x10000000,0x12000000)`。
 
@@ -95,3 +95,9 @@ engine保留原65位output_elements_work及output_end_work、VALIDATE前两分�
 保留原C/Y/X加法赋值的32位截断，将原输出偏移 `(C×H+Y)×W+X` 改写为 `C×(H×W)+Y×W+X`。H×W使用精确64位结果；channel项、row项及全部加法在原unsigned64模域内计算，base加offset仍保留原64位回绕。该恒等式适用于通用32位输入域，不把冻结descriptor的H/W上界引入端口拒绝条件。未增加33/65位进位拒绝、寄存器、状态或流水；全部公开端口、always_ff后缀、地址范围比较、错误优先和owner语义保持。
 
 S9的组合全域诊断与公开START可达回归分别记录。S8真实综合STA仍FAIL（WNS−6.749ns/TNS−2135.540ns）；本轮功能回归不证明50MHz闭合。H/W→plane→channel可能成为新的关键路径，必须由后续实际综合/STA判断；100黄金样本及1000次实板标准不变。
+
+## S10：CONV feature地址组合因式分解
+
+原signed64坐标生成及bounds比较保持；在bounds内0≤Y<H≤UINT32严格蕴含Y高32位为零。仅此消费分支将原嵌套offset改为C×(H×W)+Y×W+X，plane使用精确64位，channel和base加法仍原unsigned64回绕，row使用零扩展Y低32×W的精确64结果。新三个组合信号完整默认零；未bounds的offset/address仍零。扫描结束→padding→range→read优先、所有端口/FSM/always_ff/owner/错误语义及逐周期请求保持，输出侧S9坐标截断不变。
+
+S9实际综合WNS−4.527ns/TNS−1840.705ns仍FAIL。S10功能G1、独立G2、真实STA与G3分别判断；本组合结构不声明时序改善或50MHz闭合，不增加流水或33/65位拒绝。100黄金样本、109正式样本及1000次实板指标不变。

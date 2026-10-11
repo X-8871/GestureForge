@@ -1,0 +1,684 @@
+{
+  "direct_scopes": [
+    {
+      "stage": "feature",
+      "scope": "TB主动驱动的旧新完整引擎内部组合依赖，clk恒0/FF未执行；feature包含受控enum状态。不是公开START覆盖。",
+      "tb": {
+        "path": "report/evidence/S2B-T17/conv_feature_address_20261011_r01/tb_s2b_conv_feature_address.sv",
+        "sha256": "d800965c881bd1f86fd9a4230277c760a3111931865545c976eb89d98a263ac1"
+      },
+      "log": {
+        "path": "report/evidence/S2B-T17/conv_feature_address_20261011_r01/compile.log",
+        "sha256": "c1a6c4b4001f8c4c85f2aa08b151e00dff9f6bd9ed100dcfa1a25ed7249d148e"
+      },
+      "records": [
+        {
+          "module_instance": "u_old",
+          "signal": "state",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 680,
+          "source_column": 13,
+          "testbench_line": 77,
+          "compile_log_line": 90,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:680:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'state'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:680:13: \n  680 |             state <= ST_IDLE;\n      |             ^~~~~\n                      tb_s2b_conv_feature_address.sv:77:133: ... Location of other write\n   77 | case(v_state) 0:u_old.state=u_old.ST_IDLE;1:u_old.state=u_old.ST_FEATURE_SCAN;2:u_old.state=u_old.ST_FEATURE_RESPONSE;default:u_old.state=u_old.ST_WEIGHT_SCAN;endcase\n      |                                                                                                                                     ^~~~~\n                      ... For warning description see https://verilator.org/warn/MULTIDRIVEN?v=5.050\n                      ... Use \"/* verilator lint_off MULTIDRIVEN */\" and lint_on around source to disable this message."
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "input_base_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 683,
+          "source_column": 13,
+          "testbench_line": 56,
+          "compile_log_line": 100,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:683:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_base_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:683:13: \n  683 |             input_base_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:56:7: ... Location of other write\n   56 | u_old.input_base_latched=v_input_base_latched;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "input_height_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 687,
+          "source_column": 13,
+          "testbench_line": 46,
+          "compile_log_line": 108,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:687:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_height_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:687:13: \n  687 |             input_height_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:46:7: ... Location of other write\n   46 | u_old.input_height_latched=v_input_height_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "input_width_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 688,
+          "source_column": 13,
+          "testbench_line": 47,
+          "compile_log_line": 116,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:688:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_width_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:688:13: \n  688 |             input_width_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:47:7: ... Location of other write\n   47 | u_old.input_width_latched=v_input_width_latched;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "stride_y_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 697,
+          "source_column": 13,
+          "testbench_line": 49,
+          "compile_log_line": 124,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:697:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'stride_y_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:697:13: \n  697 |             stride_y_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:49:7: ... Location of other write\n   49 | u_old.stride_y_latched=v_stride_y_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "stride_x_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 698,
+          "source_column": 13,
+          "testbench_line": 53,
+          "compile_log_line": 132,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:698:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'stride_x_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:698:13: \n  698 |             stride_x_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:53:7: ... Location of other write\n   53 | u_old.stride_x_latched=v_stride_x_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "pad_left_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 699,
+          "source_column": 13,
+          "testbench_line": 55,
+          "compile_log_line": 140,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:699:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'pad_left_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:699:13: \n  699 |             pad_left_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:55:7: ... Location of other write\n   55 | u_old.pad_left_latched=v_pad_left_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "pad_top_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 701,
+          "source_column": 13,
+          "testbench_line": 51,
+          "compile_log_line": 148,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:701:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'pad_top_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:701:13: \n  701 |             pad_top_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:51:7: ... Location of other write\n   51 | u_old.pad_top_latched=v_pad_top_latched;\n      |       ^~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "tile_start_y",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 713,
+          "source_column": 13,
+          "testbench_line": 48,
+          "compile_log_line": 156,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:713:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_y'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:713:13: \n  713 |             tile_start_y <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:48:7: ... Location of other write\n   48 | u_old.tile_start_y=v_tile_start_y;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "tile_start_x",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 714,
+          "source_column": 13,
+          "testbench_line": 52,
+          "compile_log_line": 164,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:714:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_x'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:714:13: \n  714 |             tile_start_x <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:52:7: ... Location of other write\n   52 | u_old.tile_start_x=v_tile_start_x;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "patch_height",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 717,
+          "source_column": 13,
+          "testbench_line": 57,
+          "compile_log_line": 172,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:717:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_height'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:717:13: \n  717 |             patch_height <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:57:7: ... Location of other write\n   57 | u_old.patch_height=v_patch_height;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "patch_width",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 718,
+          "source_column": 13,
+          "testbench_line": 58,
+          "compile_log_line": 180,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:718:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_width'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:718:13: \n  718 |             patch_width <= 32'd0;\n      |             ^~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:58:7: ... Location of other write\n   58 | u_old.patch_width=v_patch_width;\n      |       ^~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "patch_byte_count",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 719,
+          "source_column": 13,
+          "testbench_line": 60,
+          "compile_log_line": 188,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:719:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_byte_count'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:719:13: \n  719 |             patch_byte_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:60:7: ... Location of other write\n   60 | u_old.patch_byte_count=v_patch_byte_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "feature_scan_index",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 722,
+          "source_column": 13,
+          "testbench_line": 59,
+          "compile_log_line": 196,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:722:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_index'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:722:13: \n  722 |             feature_scan_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:59:7: ... Location of other write\n   59 | u_old.feature_scan_index=v_feature_scan_index;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "feature_scan_channel",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 723,
+          "source_column": 13,
+          "testbench_line": 45,
+          "compile_log_line": 204,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:723:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_channel'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:723:13: \n  723 |             feature_scan_channel <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:45:7: ... Location of other write\n   45 | u_old.feature_scan_channel=v_feature_scan_channel;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "feature_scan_y",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 724,
+          "source_column": 13,
+          "testbench_line": 50,
+          "compile_log_line": 212,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:724:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_y'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:724:13: \n  724 |             feature_scan_y <= 32'd0;\n      |             ^~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:50:7: ... Location of other write\n   50 | u_old.feature_scan_y=v_feature_scan_y;\n      |       ^~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "feature_scan_x",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 725,
+          "source_column": 13,
+          "testbench_line": 54,
+          "compile_log_line": 220,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:725:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_x'\n                                                                   : ... note: In instance 'tb_s2b_conv_feature_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:725:13: \n  725 |             feature_scan_x <= 32'd0;\n      |             ^~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:54:7: ... Location of other write\n   54 | u_old.feature_scan_x=v_feature_scan_x;\n      |       ^~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "state",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 688,
+          "source_column": 13,
+          "testbench_line": 78,
+          "compile_log_line": 228,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:688:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'state'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:688:13: \n  688 |             state <= ST_IDLE;\n      |             ^~~~~\n                      tb_s2b_conv_feature_address.sv:78:133: ... Location of other write\n   78 | case(v_state) 0:u_dut.state=u_dut.ST_IDLE;1:u_dut.state=u_dut.ST_FEATURE_SCAN;2:u_dut.state=u_dut.ST_FEATURE_RESPONSE;default:u_dut.state=u_dut.ST_WEIGHT_SCAN;endcase\n      |                                                                                                                                     ^~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "input_base_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 691,
+          "source_column": 13,
+          "testbench_line": 72,
+          "compile_log_line": 236,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:691:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_base_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:691:13: \n  691 |             input_base_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:72:7: ... Location of other write\n   72 | u_dut.input_base_latched=v_input_base_latched;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "input_height_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 695,
+          "source_column": 13,
+          "testbench_line": 62,
+          "compile_log_line": 244,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:695:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_height_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:695:13: \n  695 |             input_height_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:62:7: ... Location of other write\n   62 | u_dut.input_height_latched=v_input_height_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "input_width_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 696,
+          "source_column": 13,
+          "testbench_line": 63,
+          "compile_log_line": 252,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:696:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'input_width_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:696:13: \n  696 |             input_width_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:63:7: ... Location of other write\n   63 | u_dut.input_width_latched=v_input_width_latched;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "stride_y_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 705,
+          "source_column": 13,
+          "testbench_line": 65,
+          "compile_log_line": 260,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:705:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'stride_y_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:705:13: \n  705 |             stride_y_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:65:7: ... Location of other write\n   65 | u_dut.stride_y_latched=v_stride_y_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "stride_x_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 706,
+          "source_column": 13,
+          "testbench_line": 69,
+          "compile_log_line": 268,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:706:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'stride_x_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:706:13: \n  706 |             stride_x_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:69:7: ... Location of other write\n   69 | u_dut.stride_x_latched=v_stride_x_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "pad_left_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 707,
+          "source_column": 13,
+          "testbench_line": 71,
+          "compile_log_line": 276,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:707:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'pad_left_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:707:13: \n  707 |             pad_left_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:71:7: ... Location of other write\n   71 | u_dut.pad_left_latched=v_pad_left_latched;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "pad_top_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 709,
+          "source_column": 13,
+          "testbench_line": 67,
+          "compile_log_line": 284,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:709:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'pad_top_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:709:13: \n  709 |             pad_top_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:67:7: ... Location of other write\n   67 | u_dut.pad_top_latched=v_pad_top_latched;\n      |       ^~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "tile_start_y",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 721,
+          "source_column": 13,
+          "testbench_line": 64,
+          "compile_log_line": 292,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:721:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_y'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:721:13: \n  721 |             tile_start_y <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:64:7: ... Location of other write\n   64 | u_dut.tile_start_y=v_tile_start_y;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "tile_start_x",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 722,
+          "source_column": 13,
+          "testbench_line": 68,
+          "compile_log_line": 300,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:722:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_x'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:722:13: \n  722 |             tile_start_x <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:68:7: ... Location of other write\n   68 | u_dut.tile_start_x=v_tile_start_x;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "patch_height",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 725,
+          "source_column": 13,
+          "testbench_line": 73,
+          "compile_log_line": 308,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:725:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_height'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:725:13: \n  725 |             patch_height <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:73:7: ... Location of other write\n   73 | u_dut.patch_height=v_patch_height;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "patch_width",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 726,
+          "source_column": 13,
+          "testbench_line": 74,
+          "compile_log_line": 316,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:726:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_width'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:726:13: \n  726 |             patch_width <= 32'd0;\n      |             ^~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:74:7: ... Location of other write\n   74 | u_dut.patch_width=v_patch_width;\n      |       ^~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "patch_byte_count",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 727,
+          "source_column": 13,
+          "testbench_line": 76,
+          "compile_log_line": 324,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:727:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'patch_byte_count'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:727:13: \n  727 |             patch_byte_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:76:7: ... Location of other write\n   76 | u_dut.patch_byte_count=v_patch_byte_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "feature_scan_index",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 730,
+          "source_column": 13,
+          "testbench_line": 75,
+          "compile_log_line": 332,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:730:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_index'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:730:13: \n  730 |             feature_scan_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:75:7: ... Location of other write\n   75 | u_dut.feature_scan_index=v_feature_scan_index;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "feature_scan_channel",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 731,
+          "source_column": 13,
+          "testbench_line": 61,
+          "compile_log_line": 340,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:731:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_channel'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:731:13: \n  731 |             feature_scan_channel <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:61:7: ... Location of other write\n   61 | u_dut.feature_scan_channel=v_feature_scan_channel;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "feature_scan_y",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 732,
+          "source_column": 13,
+          "testbench_line": 66,
+          "compile_log_line": 348,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:732:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_y'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:732:13: \n  732 |             feature_scan_y <= 32'd0;\n      |             ^~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:66:7: ... Location of other write\n   66 | u_dut.feature_scan_y=v_feature_scan_y;\n      |       ^~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "feature_scan_x",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 733,
+          "source_column": 13,
+          "testbench_line": 70,
+          "compile_log_line": 356,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:733:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'feature_scan_x'\n                                                           : ... note: In instance 'tb_s2b_conv_feature_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:733:13: \n  733 |             feature_scan_x <= 32'd0;\n      |             ^~~~~~~~~~~~~~\n                      tb_s2b_conv_feature_address.sv:70:7: ... Location of other write\n   70 | u_dut.feature_scan_x=v_feature_scan_x;\n      |       ^~~~~~~~~~~~~~"
+        }
+      ]
+    },
+    {
+      "stage": "output",
+      "scope": "TB主动驱动的旧新完整引擎内部组合依赖，clk恒0/FF未执行；feature包含受控enum状态。不是公开START覆盖。",
+      "tb": {
+        "path": "report/evidence/S2B-T17/conv_output_address_20261011_r04/tb_s2b_conv_output_address.sv",
+        "sha256": "53f1fb7aa8f73f5e9761fd2164d5d541dd39ea85264580d13d86d13f76d86d0e"
+      },
+      "log": {
+        "path": "report/evidence/S2B-T17/conv_output_address_20261011_r04/compile.log",
+        "sha256": "8800684e5b4bf434822ea3e094d1be367c16cee3207faa1ecf85092e55651007"
+      },
+      "records": [
+        {
+          "module_instance": "u_old",
+          "signal": "output_base_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 689,
+          "source_column": 13,
+          "testbench_line": 46,
+          "compile_log_line": 106,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:689:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_base_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:689:13: \n  689 |             output_base_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:46:7: ... Location of other write\n   46 | u_old.output_base_latched=v_output_base_latched;\n      |       ^~~~~~~~~~~~~~~~~~~\n                      ... For warning description see https://verilator.org/warn/MULTIDRIVEN?v=5.050\n                      ... Use \"/* verilator lint_off MULTIDRIVEN */\" and lint_on around source to disable this message."
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_channels_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 692,
+          "source_column": 13,
+          "testbench_line": 47,
+          "compile_log_line": 116,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:692:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_channels_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:692:13: \n  692 |             output_channels_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:47:7: ... Location of other write\n   47 | u_old.output_channels_latched=v_output_channels_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_height_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 693,
+          "source_column": 13,
+          "testbench_line": 40,
+          "compile_log_line": 124,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:693:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_height_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:693:13: \n  693 |             output_height_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:40:7: ... Location of other write\n   40 | u_old.output_height_latched=v_output_height_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_width_latched",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 694,
+          "source_column": 13,
+          "testbench_line": 41,
+          "compile_log_line": 132,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:694:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_width_latched'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:694:13: \n  694 |             output_width_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:41:7: ... Location of other write\n   41 | u_old.output_width_latched=v_output_width_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_group_base",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 712,
+          "source_column": 13,
+          "testbench_line": 38,
+          "compile_log_line": 140,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:712:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_group_base'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:712:13: \n  712 |             output_group_base <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:38:10: ... Location of other write\n   38 |    u_old.output_group_base=v_output_group_base;\n      |          ^~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "tile_start_y",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 713,
+          "source_column": 13,
+          "testbench_line": 42,
+          "compile_log_line": 148,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:713:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_y'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:713:13: \n  713 |             tile_start_y <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:42:7: ... Location of other write\n   42 | u_old.tile_start_y=v_tile_start_y;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "tile_start_x",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 714,
+          "source_column": 13,
+          "testbench_line": 44,
+          "compile_log_line": 156,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:714:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_x'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:714:13: \n  714 |             tile_start_x <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:44:7: ... Location of other write\n   44 | u_old.tile_start_x=v_tile_start_x;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "tile_point_count",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 720,
+          "source_column": 13,
+          "testbench_line": 50,
+          "compile_log_line": 164,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:720:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_point_count'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:720:13: \n  720 |             tile_point_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:50:7: ... Location of other write\n   50 | u_old.tile_point_count=v_tile_point_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "group_lane_count",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 721,
+          "source_column": 13,
+          "testbench_line": 48,
+          "compile_log_line": 172,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:721:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'group_lane_count'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:721:13: \n  721 |             group_lane_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:48:7: ... Location of other write\n   48 | u_old.group_lane_count=v_group_lane_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_lane_index",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 737,
+          "source_column": 13,
+          "testbench_line": 39,
+          "compile_log_line": 180,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:737:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_lane_index'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:737:13: \n  737 |             output_lane_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:39:7: ... Location of other write\n   39 | u_old.output_lane_index=v_output_lane_index;\n      |       ^~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_point_index",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 738,
+          "source_column": 13,
+          "testbench_line": 49,
+          "compile_log_line": 188,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:738:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_index'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:738:13: \n  738 |             output_point_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:49:7: ... Location of other write\n   49 | u_old.output_point_index=v_output_point_index;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_point_scan_y",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 739,
+          "source_column": 13,
+          "testbench_line": 43,
+          "compile_log_line": 196,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:739:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_scan_y'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:739:13: \n  739 |             output_point_scan_y <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:43:7: ... Location of other write\n   43 | u_old.output_point_scan_y=v_output_point_scan_y;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_old",
+          "signal": "output_point_scan_x",
+          "production_source": "source\\s9_conv_tile_engine_original.sv",
+          "source_line": 740,
+          "source_column": 13,
+          "testbench_line": 45,
+          "compile_log_line": 204,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s9_conv_tile_engine_original.sv:740:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_scan_x'\n                                                                   : ... note: In instance 'tb_s2b_conv_output_address.u_old'\n                      source\\s9_conv_tile_engine_original.sv:740:13: \n  740 |             output_point_scan_x <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:45:7: ... Location of other write\n   45 | u_old.output_point_scan_x=v_output_point_scan_x;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_base_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 697,
+          "source_column": 13,
+          "testbench_line": 59,
+          "compile_log_line": 212,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:697:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_base_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:697:13: \n  697 |             output_base_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:59:7: ... Location of other write\n   59 | u_dut.output_base_latched=v_output_base_latched;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_channels_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 700,
+          "source_column": 13,
+          "testbench_line": 60,
+          "compile_log_line": 220,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:700:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_channels_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:700:13: \n  700 |             output_channels_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:60:7: ... Location of other write\n   60 | u_dut.output_channels_latched=v_output_channels_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_height_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 701,
+          "source_column": 13,
+          "testbench_line": 53,
+          "compile_log_line": 228,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:701:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_height_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:701:13: \n  701 |             output_height_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:53:7: ... Location of other write\n   53 | u_dut.output_height_latched=v_output_height_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_width_latched",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 702,
+          "source_column": 13,
+          "testbench_line": 54,
+          "compile_log_line": 236,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:702:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_width_latched'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:702:13: \n  702 |             output_width_latched <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:54:7: ... Location of other write\n   54 | u_dut.output_width_latched=v_output_width_latched;\n      |       ^~~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_group_base",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 720,
+          "source_column": 13,
+          "testbench_line": 51,
+          "compile_log_line": 244,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:720:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_group_base'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:720:13: \n  720 |             output_group_base <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:51:7: ... Location of other write\n   51 | u_dut.output_group_base=v_output_group_base;\n      |       ^~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "tile_start_y",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 721,
+          "source_column": 13,
+          "testbench_line": 55,
+          "compile_log_line": 252,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:721:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_y'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:721:13: \n  721 |             tile_start_y <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:55:7: ... Location of other write\n   55 | u_dut.tile_start_y=v_tile_start_y;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "tile_start_x",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 722,
+          "source_column": 13,
+          "testbench_line": 57,
+          "compile_log_line": 260,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:722:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_start_x'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:722:13: \n  722 |             tile_start_x <= 32'd0;\n      |             ^~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:57:7: ... Location of other write\n   57 | u_dut.tile_start_x=v_tile_start_x;\n      |       ^~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "tile_point_count",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 728,
+          "source_column": 13,
+          "testbench_line": 63,
+          "compile_log_line": 268,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:728:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'tile_point_count'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:728:13: \n  728 |             tile_point_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:63:7: ... Location of other write\n   63 | u_dut.tile_point_count=v_tile_point_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "group_lane_count",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 729,
+          "source_column": 13,
+          "testbench_line": 61,
+          "compile_log_line": 276,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:729:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'group_lane_count'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:729:13: \n  729 |             group_lane_count <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:61:7: ... Location of other write\n   61 | u_dut.group_lane_count=v_group_lane_count;\n      |       ^~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_lane_index",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 745,
+          "source_column": 13,
+          "testbench_line": 52,
+          "compile_log_line": 284,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:745:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_lane_index'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:745:13: \n  745 |             output_lane_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:52:7: ... Location of other write\n   52 | u_dut.output_lane_index=v_output_lane_index;\n      |       ^~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_point_index",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 746,
+          "source_column": 13,
+          "testbench_line": 62,
+          "compile_log_line": 292,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:746:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_index'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:746:13: \n  746 |             output_point_index <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:62:7: ... Location of other write\n   62 | u_dut.output_point_index=v_output_point_index;\n      |       ^~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_point_scan_y",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 747,
+          "source_column": 13,
+          "testbench_line": 56,
+          "compile_log_line": 300,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:747:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_scan_y'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:747:13: \n  747 |             output_point_scan_y <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:56:7: ... Location of other write\n   56 | u_dut.output_point_scan_y=v_output_point_scan_y;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        },
+        {
+          "module_instance": "u_dut",
+          "signal": "output_point_scan_x",
+          "production_source": "source\\s2b_conv_tile_engine.sv",
+          "source_line": 748,
+          "source_column": 13,
+          "testbench_line": 58,
+          "compile_log_line": 308,
+          "raw_diagnostic": "%Warning-MULTIDRIVEN: source\\s2b_conv_tile_engine.sv:748:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_point_scan_x'\n                                                           : ... note: In instance 'tb_s2b_conv_output_address.u_dut'\n                      source\\s2b_conv_tile_engine.sv:748:13: \n  748 |             output_point_scan_x <= 32'd0;\n      |             ^~~~~~~~~~~~~~~~~~~\n                      tb_s2b_conv_output_address.sv:58:7: ... Location of other write\n   58 | u_dut.output_point_scan_x=v_output_point_scan_x;\n      |       ^~~~~~~~~~~~~~~~~~~"
+        }
+      ]
+    }
+  ],
+  "public_compile_checks": [
+    {
+      "stage": "boundary",
+      "path": "report/evidence/S2B-T17/conv_feature_address_boundary_20261011_r01/compile.log",
+      "sha256": "30560e1d80efab10e900d983d409280417325133a22012e2c8f52b0b61455b62",
+      "three_abnormal_diagnostics": []
+    },
+    {
+      "stage": "layer0",
+      "path": "report/evidence/S2B-T17/conv_feature_address_layer0_20261011_r01/compile.log",
+      "sha256": "8aa2c29b9d34428fb9b8ca7954115589a663aa553d12f3a5b4b1e8edd8e69237",
+      "three_abnormal_diagnostics": []
+    },
+    {
+      "stage": "geometry",
+      "path": "report/evidence/S2B-T17/conv_feature_address_geometry_20261011_r01/compile.log",
+      "sha256": "ecbe04103028d146c97cf39c8a8f18117a5a7fcebd150f3b540b5054508fc367",
+      "three_abnormal_diagnostics": []
+    }
+  ],
+  "backend_inherited": {
+    "count": 16,
+    "headers": [
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:209:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'alias_valid'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:286:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'descriptor_fault'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:296:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_start_ready'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:379:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_result_valid'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:380:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_result_error'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:572:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_channel_cursor'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:573:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_y_cursor'",
+      "%Warning-MULTIDRIVEN: source\\s2b_network_backend.sv:574:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_x_cursor'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:209:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'alias_valid'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:286:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'descriptor_fault'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:296:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_start_ready'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:379:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_result_valid'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:380:9: Variable written to in always_comb also written by other process (IEEE 1800-2023 9.2.2.2): 'selected_result_error'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:572:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_channel_cursor'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:573:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_y_cursor'",
+      "%Warning-MULTIDRIVEN: source\\s2_network_backend.sv:574:13: Variable written to in always_ff also written by other process (IEEE 1800-2023 9.2.2.4): 'output_x_cursor'"
+    ],
+    "prior_log": {
+      "path": "report/evidence/S2B-T17/conv_output_address_trace_20261011_r01/compile.log",
+      "sha256": "38243f357709e3581599ebab7cf3416efc8386044b2c0840fb22fa77535dbcfa"
+    },
+    "actual_log": {
+      "path": "report/evidence/S2B-T17/conv_feature_address_trace_20261011_r01/compile.log",
+      "sha256": "a9dc695be7f8e9e87b8a9b359f73aabf7552afc328511b9c8136d0bbba94d083"
+    },
+    "testbench_sha256": "b489597c0f7b1913f0b5a8cb0dbc82221edcad989bd3c2800a02c93873e7a211",
+    "prior_testbench_sha256": "b489597c0f7b1913f0b5a8cb0dbc82221edcad989bd3c2800a02c93873e7a211",
+    "scope": "既有relational段force/release/初态注入；完整trace和公开入口释放注入。仅承认同S9既有TB诊断，未全局豁免新增生产。"
+  }
+}

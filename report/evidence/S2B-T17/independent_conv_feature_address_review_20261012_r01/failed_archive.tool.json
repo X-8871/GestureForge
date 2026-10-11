@@ -1,0 +1,25 @@
+{
+  "status": "BLOCKED_ARCHIVE_HELPER_SCHEMA",
+  "native_child_exit_code": null,
+  "tool_record": {
+    "input": {
+      "cmd": "& 'C:\\Program Files\\Git\\bin\\bash.exe' -lc @'\nset -e\n'/c/Users/22061/AppData/Local/Programs/Python/Python312/python.exe' -X utf8 -B 'tmp/2B/S2B-T17/s9_root_run_20261011_r01/archive_review_r03.py' 'tmp/2B/S2B-T17/s10_root_run_20261012_r01/archive_s10_feature_config.json'\n'@",
+      "workdir": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "sandbox_permissions": "require_escalated",
+      "justification": "归档已经停止写入且独立通过的 S10 仿真证据，并执行现有只读清单核验。",
+      "max_output_tokens": 1700
+    },
+    "result": {
+      "chunk_id": "644476",
+      "wall_time_seconds": 1.9810476000000001,
+      "exit_code": 1,
+      "original_token_count": 132,
+      "output": "Traceback (most recent call last):\r\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_root_run_20261011_r01\\archive_review_r03.py\", line 146, in <module>\r\n    main()\r\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s9_root_run_20261011_r01\\archive_review_r03.py\", line 91, in main\r\n    save(archive_path, dict(status=\"PASS_EXACT_COPY_ONLY\", scope=receipt[\"scope\"],\r\n                                                                 ~~~~~~~^^^^^^^^^\r\nKeyError: 'scope'\r\n"
+    }
+  },
+  "reason": "旧归档工具读取回执不存在的scope字段，复制后抛出KeyError；候选功能G2回执不改写。",
+  "limitations": [
+    "宿主退出码1真实保留；此调用未直接捕获Python子进程原生码。",
+    "此RunId部分复制文件和失败原件保持，未生成成功清单。"
+  ]
+}

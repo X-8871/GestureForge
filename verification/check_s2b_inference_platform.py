@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.9"
+PROFILE_VERSION = "s2b-inference-platform/0.1.10"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -168,6 +168,10 @@ CONV_OUTPUT_ADDRESS_REPLACEMENTS = [
      "                                  {32'd0, output_global_x};\n"]
 ]
 DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(CONV_OUTPUT_ADDRESS_REPLACEMENTS)
+
+# S10仅重排feature地址，行截位只在原signed bounds内消费。
+CONV_FEATURE_ADDRESS_REPLACEMENTS = [['    logic [63:0] feature_source_offset;\n', '    logic [63:0] feature_geometry_plane;\n    logic [63:0] feature_channel_plane_offset;\n    logic [63:0] feature_row_offset;\n    logic [63:0] feature_source_offset;\n'], ["        feature_source_offset = 64'd0;\n", "        feature_geometry_plane = 64'd0;\n        feature_channel_plane_offset = 64'd0;\n        feature_row_offset = 64'd0;\n        feature_source_offset = 64'd0;\n"], ["                feature_source_offset =\n                    ((({32'd0, feature_scan_channel} * {32'd0, input_height_latched}) +\n                      feature_input_y[63:0]) * {32'd0, input_width_latched}) +\n                    feature_input_x[63:0];\n", "                // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。\n                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n                feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;\n                feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};\n                feature_source_offset = feature_channel_plane_offset + feature_row_offset +\n                                        feature_input_x[63:0];\n"]]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(CONV_FEATURE_ADDRESS_REPLACEMENTS)
 
 # S7只删除前置校验蕴含的地址守卫并缩短组合地址；其余严格派生链不变。
 ROUTE_QUERY_ADDRESS_REPLACEMENTS = [
@@ -372,7 +376,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.9" in script, "Tcl平台版本不符")
+    require("variable version 0.1.10" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and
@@ -400,7 +404,8 @@ def check_static(root: Path) -> dict:
             "构建脚本集合不符")
     files = list(dict.fromkeys(sources + list(FROZEN_CORE_SHA256) + profile["build_scripts"] +
         ["board/s2b_inference_platform.json", "board/s2b_inference_platform.md",
-         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py"]))
+         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py",
+         "verification/test_s2b_conv_feature_address_rtl.py"]))
     return {path: sha256(relative_file(root, path)) for path in files}
 
 

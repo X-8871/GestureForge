@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "status": "PASS_DECLARED_G1_SCOPE",
+  "task_id": "S2B-T17-S5",
+  "source_freeze_sha256": "4d9540a77c9c15e796609ba54040090556b577f3a9851434166859aba19090f6",
+  "checks": [
+    {
+      "name": "static_checker",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_s2b_inference_platform.py",
+      "exit_code": 0,
+      "seconds": 0.188,
+      "log": "report/evidence/S2B-T17/patch_guard_20261011_r07/static_checker.log",
+      "log_sha256": "0b617fab052cf0fa92b5826702a4e13473b76c3e2747b3638f54b57baf0e1187"
+    },
+    {
+      "name": "diff_check",
+      "status": "PASS",
+      "command": "git diff --check -- src/s2b_conv_tile_engine.sv board/s2b_inference_platform.json board/s2b_inference_platform.md vivado/s2b_inference_platform.tcl verification/check_s2b_inference_platform.py verification/test_s2b_conv_validation_rtl.py verification/test_s2b_backend_coordinates_rtl.py verification/test_s2b_geometry_specialization_rtl.py verification/test_s2b_route_specialization_rtl.py",
+      "exit_code": 0,
+      "seconds": 0.031,
+      "log": "report/evidence/S2B-T17/patch_guard_20261011_r07/diff_check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "patch_guard_20261011_r02_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_conv_validation --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/s2a_network_descriptor_pkg.sv source/s2a_conv_tile_engine.sv source/s2b_conv_tile_engine.sv tb_s2b_conv_validation.sv",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r02_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\patch_guard_20261011_r02\\obj_dir\\Vtb_s2b_conv_validation.exe",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r03_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_conv_layer0 --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/s2a_network_descriptor_pkg.sv source/s2a_conv_tile_engine.sv source/s2b_conv_tile_engine.sv tb_s2b_conv_layer0.sv",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r03_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\patch_guard_20261011_r03\\obj_dir\\Vtb_s2b_conv_layer0.exe +T66_INPUT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin +T66_WEIGHT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin +T66_GOLDEN_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r04_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_geometry_specialization --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O0\" source/int8_maxpool_geometry.sv source/int8_maxpool_window.sv source/int8_upsample_query.sv source/s2a_maxpool_engine.sv source/s2a_upsample_engine.sv source/s2b_maxpool_engine.sv source/s2b_upsample_engine.sv tb_s2b_geometry_specialization.sv",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r04_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\obj_dir\\Vtb_s2b_geometry_specialization.exe",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r05_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_route_specialization --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/int8_route_query.sv source/s2b_route_query.sv source/s2a_route_engine.sv source/s2b_route_engine.sv tb_s2b_route_specialization.sv",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r05_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\obj_dir\\Vtb_s2b_route_specialization.exe",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r06_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_backend_coordinates --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/s2a_network_descriptor_pkg.sv source/int8_maxpool_geometry.sv source/int8_maxpool_window.sv source/int8_route_query.sv source/int8_upsample_query.sv source/s2b_maxpool_engine.sv source/s2a_route_engine.sv source/s2b_upsample_engine.sv source/s2b_network_backend.sv source/s2b_route_query.sv source/s2b_route_engine.sv source/s2_network_backend.sv convolution_stub.sv tb_s2b_backend_coordinates.sv",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    },
+    {
+      "name": "patch_guard_20261011_r06_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\obj_dir\\Vtb_s2b_backend_coordinates.exe",
+      "exit_code": 0,
+      "reason": "真实原生日志、耗时和0.1秒采样进程树RSS已绑定。"
+    }
+  ],
+  "coverage": [
+    {
+      "run_id": "patch_guard_20261011_r02",
+      "status": "PASS",
+      "counts": {
+        "vectors": 3924,
+        "cycles": 90337,
+        "abort_mask": "000fffff",
+        "reset_mask": "000fffff",
+        "response_cases": 24,
+        "raw80": 1
+      },
+      "elapsed_seconds": 22.125,
+      "runs": [
+        {
+          "name": "compile",
+          "exit_code": 0,
+          "seconds": 18.672,
+          "peak_tree_rss_bytes": 659587072
+        },
+        {
+          "name": "simulation",
+          "exit_code": 0,
+          "seconds": 1.016,
+          "peak_tree_rss_bytes": 5074944
+        }
+      ]
+    },
+    {
+      "run_id": "patch_guard_20261011_r03",
+      "status": "PASS",
+      "counts": {
+        "bytes": 1384448,
+        "input_reads": 583443,
+        "weight_reads": 584064,
+        "output_writes": 1384448,
+        "requests": 2551955,
+        "responses": 2551955,
+        "request_stalls": 6635073,
+        "response_stalls": 6635073,
+        "cycles": 27235743
+      },
+      "elapsed_seconds": 179.406,
+      "runs": [
+        {
+          "name": "compile",
+          "exit_code": 0,
+          "seconds": 19.531,
+          "peak_tree_rss_bytes": 679305216
+        },
+        {
+          "name": "simulation",
+          "exit_code": 0,
+          "seconds": 157.547,
+          "peak_tree_rss_bytes": 8404992
+        }
+      ]
+    },
+    {
+      "run_id": "patch_guard_20261011_r04",
+      "status": "PASS_GEOMETRY_SPECIALIZATION_G1",
+      "counts": {
+        "pool": 19645,
+        "upsample": 3456,
+        "cycles": 590601,
+        "pool_abort": 127,
+        "upsample_abort": 63
+      },
+      "elapsed_seconds": 29.985,
+      "runs": [
+        {
+          "name": "compile",
+          "exit_code": 0,
+          "seconds": 16.219,
+          "peak_tree_rss_bytes": 629862400
+        },
+        {
+          "name": "simulation",
+          "exit_code": 0,
+          "seconds": 11.86,
+          "peak_tree_rss_bytes": 5165056
+        }
+      ]
+    },
+    {
+      "run_id": "patch_guard_20261011_r05",
+      "status": "PASS_ROUTE_SPECIALIZATION_DIRECT_G1",
+      "counts": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "elapsed_seconds": 22.219,
+      "runs": [
+        {
+          "name": "compile",
+          "exit_code": 0,
+          "seconds": 18.5,
+          "peak_tree_rss_bytes": 649740288
+        },
+        {
+          "name": "simulation",
+          "exit_code": 0,
+          "seconds": 1.328,
+          "peak_tree_rss_bytes": 5058560
+        }
+      ]
+    },
+    {
+      "run_id": "patch_guard_20261011_r06",
+      "status": "PASS_BACKEND_COORDINATES_G1",
+      "counts": {
+        "boundary_cases": 4980736,
+        "nonconv_layers": 15,
+        "nonconv_outputs": 5234944,
+        "nonconv_requests": 12286976,
+        "cycles": 102468267,
+        "owner_drop_results": 120942
+      },
+      "elapsed_seconds": 204.188,
+      "runs": [
+        {
+          "name": "compile",
+          "exit_code": 0,
+          "seconds": 20.89,
+          "peak_tree_rss_bytes": 659595264
+        },
+        {
+          "name": "simulation",
+          "exit_code": 0,
+          "seconds": 179.828,
+          "peak_tree_rss_bytes": 5107712
+        }
+      ]
+    }
+  ],
+  "cpu_layer0": {
+    "status": "PASS",
+    "cpu_seconds": 0.219,
+    "thread_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "blas_threads_before_after": [
+      1,
+      1
+    ],
+    "blas_dll": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-63c857e738469261263c764a36be9436.dll",
+      "sha256": "63c857e738469261263c764a36be9436ebdeaa272e340a828f42047a97131080",
+      "getter": "scipy_openblas_get_num_threads64_"
+    },
+    "host_threads_before": 4,
+    "host_threads_after": 4,
+    "main_thread_id": 16432,
+    "thread_cpu_deltas": [
+      {
+        "id": 16432,
+        "main": true,
+        "user_seconds": 0.125,
+        "system_seconds": 0.03125
+      },
+      {
+        "id": 31024,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 492,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 28964,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      }
+    ],
+    "thread_scope": "数学库实际getter=1；Python/Windows已有宿主辅助线程另列，INT64点积、逐元素量化均由主线程调用，前后CPU计时分辨率由OS限定。",
+    "self_rss_bytes_cpu_end": 103849984,
+    "peak_self_working_set_bytes_upto_cpu_end": 111112192,
+    "peak_scope": "OS进程生命周期峰截至CPU结束；包含导入/前置静态核验，作为CPU内存上界，非全系统峰。",
+    "method": "INT64 im2col矩阵点积+manifest fused bias；D2 binary64分别乘/除，负值leaky0.1，半远离零，[-127,127]饱和；未读取生产MQROM或派生引擎。",
+    "bytes": 1384448,
+    "mismatches": 0,
+    "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "int32_absolute_bounds": [
+      81333,
+      126097,
+      107351,
+      167611,
+      151142,
+      168267,
+      176959,
+      84367,
+      157879,
+      162910,
+      135711,
+      166441,
+      191146,
+      83407,
+      206854,
+      150680,
+      167024,
+      138712,
+      159988,
+      166705,
+      280478,
+      169356,
+      146007,
+      168288,
+      149626,
+      158801,
+      247308,
+      158293,
+      101642,
+      182227,
+      130942,
+      115253
+    ],
+    "numpy_version": "2.4.6",
+    "bindings": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+        "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+        "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      }
+    ],
+    "restored_network_bytes": 11382150,
+    "scope": "仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"
+  },
+  "heavy_compile_and_simulation_commands": 10,
+  "repeats": {
+    "compile": 5,
+    "simulation": 5,
+    "scope": "五个独立测试top各一次；没有失败重跑或109整网重跑。"
+  },
+  "limitations": [
+    "独立G2、S5综合/STA、postroute、bit、G3未执行；不继承旧50MHz通过。",
+    "物理候选未冻结，visibility为0；没有ROSS、SDK、串口、板卡操作或Git修改。",
+    "CONV数值仅完整sample000 layer0；backend卷积使用控制stub，非卷积15层全部真实engine。",
+    "ROUTE合法通用groups>=3仍与固定tiny416派生不等价，保持既有不可达限制。",
+    "首replacement生成的Windows stdout解码损坏已修，原static native1日志保留；首结构检查错误假定always_ff数量1，真实原/新均2且全部时序文本一致，诊断保留。",
+    "首长inline封包命令超过宿主命令长度而Python语法截断，原工具native1返回保留在对话；未执行文件写入，改用此UTF8缓存脚本，没有改写旧Run。",
+    "全Agent工具调用量及系统峰内存未测；重型命令数、每命令耗时与0.1秒采样RSS可获得。"
+  ]
+}

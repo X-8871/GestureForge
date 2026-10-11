@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.4"
+PROFILE_VERSION = "s2b-inference-platform/0.1.5"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -103,6 +103,24 @@ DERIVATION_RULES["src/s2a_conv_tile_engine.sv"] = ("src/s2b_conv_tile_engine.sv"
 DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
     ["s2a_conv_tile_engine u_conv_engine", "s2b_conv_tile_engine u_conv_engine"])
 
+# 前置非零和R<=4608保护窄位宽；溢出独立拒绝，保持原错误分支顺序。
+PATCH_GUARD_REPLACEMENTS = [
+    [
+        "    logic [127:0] full_tile_patch_height_wide;\n    logic [127:0] full_tile_patch_width_wide;\n    logic [127:0] full_tile_patch_bytes_wide;\n    logic [127:0] full_weight_group_bytes_wide;\n",
+        "    logic [2:0] full_tile_patch_delta_y;\n    logic [2:0] full_tile_patch_delta_x;\n    logic [18:0] full_tile_patch_height_narrow;\n    logic [18:0] full_tile_patch_width_narrow;\n    logic [31:0] full_tile_patch_plane_narrow;\n    logic [28:0] full_tile_patch_bytes_narrow;\n    logic full_tile_patch_height_bad;\n    logic full_tile_patch_width_bad;\n    logic full_tile_patch_bad;\n"
+    ],
+    [
+        "        full_tile_patch_height_wide = 128'd0;\n        full_tile_patch_width_wide = 128'd0;\n        full_tile_patch_bytes_wide = 128'd0;\n        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin\n            full_tile_patch_height_wide =\n                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};\n            full_tile_patch_width_wide =\n                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};\n            full_tile_patch_bytes_wide = full_tile_patch_height_wide *\n                                         full_tile_patch_width_wide *\n                                         {96'd0, input_channels_latched};\n        end\n        full_weight_group_bytes_wide =\n            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *\n            reduction_count_wide;\n\n",
+        "        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。\n        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。\n        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :\n            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :\n            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_height_narrow =\n            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +\n            {6'd0, kernel_height_latched[12:0]};\n        full_tile_patch_width_narrow =\n            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +\n            {6'd0, kernel_width_latched[12:0]};\n        full_tile_patch_height_bad =\n            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_height_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_height_narrow[15:0] > 16'd51200);\n        full_tile_patch_width_bad =\n            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_width_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_width_narrow[15:0] > 16'd51200);\n        full_tile_patch_plane_narrow =\n            {16'd0, full_tile_patch_height_narrow[15:0]} *\n            {16'd0, full_tile_patch_width_narrow[15:0]};\n        full_tile_patch_bytes_narrow =\n            {13'd0, full_tile_patch_plane_narrow[15:0]} *\n            {16'd0, input_channels_latched[12:0]};\n        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||\n            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||\n            (full_tile_patch_bytes_narrow > 29'd51200);\n\n"
+    ],
+    [
+        "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
+        "                     full_tile_patch_bad) begin"
+    ]
+]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(PATCH_GUARD_REPLACEMENTS)
+
+
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -161,7 +179,7 @@ def check_derivation(root: Path, profile: dict) -> None:
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
     require(item["policy"] == "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+        item["derivation_baseline_commit"] == "f96d3e225fd6d92fd33c0407e20c9585c997c870",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -210,7 +228,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.4" in script, "Tcl平台版本不符")
+    require("variable version 0.1.5" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

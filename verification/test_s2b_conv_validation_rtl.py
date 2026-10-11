@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""核对CONV batch恒1校验的精确派生及双完整模块逐周期公开行为。"""
+"""核对CONV前置约束下的patch范围派生及双完整模块逐周期公开行为。"""
 from __future__ import annotations
 import argparse
 import copy
@@ -22,7 +22,7 @@ import numpy as np
 import test_s2b_backend_coordinates_rtl as support
 
 ROOT=Path(__file__).resolve().parents[1]
-BASELINE="6d3fd8567b579a51d4042667d47af7d94f2f5a97"
+BASELINE="71983d70cbfcacbbf90dfa032568f8c68a5c0162"
 RUNNER="verification/test_s2b_conv_validation_rtl.py"
 RTL=("src/s2a_network_descriptor_pkg.sv","src/s2a_conv_tile_engine.sv","src/s2b_conv_tile_engine.sv")
 FIXTURE=Path("D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture")
@@ -161,9 +161,59 @@ def vectors(model):
         v=dict(layer0)
         for field in rng.sample(names,rng.randint(1,5)):v[field]=rng.getrandbits(32) & (3 if field=="activation_mode" else 0xffffffff)
         add("wide_random",v)
+    baseline_vectors=len(rows)
+    # 这些值先以完整整数手算，不采用派生RTL的低位或溢出判据生成错误黄金。
+    manual=[]
+    def hand(label,expected,patch_bytes,reduction,**changes):
+        v=dict(layer0);v.update(input_channels=1,input_height=1,input_width=1,output_height=1,output_width=1,
+            kernel_height=1,kernel_width=1,stride_y=1,stride_x=1);v.update(changes)
+        v.update(input_length_bytes=(v["input_channels"]*v["input_height"]*v["input_width"])&0xffffffff,
+            output_length_bytes=(32*v["output_height"]*v["output_width"])&0xffffffff,
+            quantized_weight_bytes=(32*v["input_channels"]*v["kernel_height"]*v["kernel_width"])&0xffffffff)
+        ph=(min(v["output_height"],8)-1)*v["stride_y"]+v["kernel_height"]
+        pw=(min(v["output_width"],8)-1)*v["stride_x"]+v["kernel_width"]
+        if ph*pw*v["input_channels"]!=patch_bytes or v["input_channels"]*v["kernel_height"]*v["kernel_width"]!=reduction:
+            raise ValueError("手算输入不符："+label)
+        if add("patch_manual_"+label,v)!=expected:raise ValueError("手算错误优先不符："+label)
+        manual.append({"label":label,"inputs":v,"expected_error":expected,"reduction":reduction,"patch_height":ph,"patch_width":pw,"patch_bytes":patch_bytes})
+        return v
+    hand("reduction_4608",0,4608,4608,input_channels=512,input_height=3,input_width=3,kernel_height=3,kernel_width=3)
+    hand("reduction_4609",1,4609,4609,input_channels=4609)
+    hand("patch_51200_plane",0,51200,1,input_height=200,input_width=256,output_height=2,output_width=4,stride_y=199,stride_x=85)
+    hand("patch_51201_channel_product",2,51201,27,input_channels=3,input_height=3,input_width=5690,output_width=2,
+        kernel_height=3,kernel_width=3,stride_x=5686)
+    p65536=hand("patch_65536_plane_overflow",2,65536,1,input_height=256,input_width=256,output_height=4,output_width=4,stride_y=85,stride_x=85)
+    hand("channel_product_high_bits",2,131072,512,input_channels=512,input_height=256,output_height=4,stride_y=85)
+    hand("d0_huge_both_strides",0,1,1,stride_y=0xffffffff,stride_x=0xffffffff)
+    hand("d0_huge_y_stride",0,2,1,input_width=2,output_width=2,stride_y=0xffffffff)
+    hand("d0_huge_x_stride",0,2,1,input_height=2,output_height=2,stride_x=0xffffffff)
+    hand("d1_huge_y_stride_rollover",2,4294967297,2,input_height=0xffffffff,output_height=2,
+        kernel_height=2,stride_y=0xffffffff,pad_top=1,pad_bottom=1)
+    hand("d1_huge_x_stride_rollover",2,4294967297,2,input_width=0xffffffff,output_width=2,
+        kernel_width=2,stride_x=0xffffffff,pad_left=1,pad_right=1)
+    for axis in ("y","x"):
+        dimension="height" if axis=="y" else "width"
+        for stride,height,expected in ((51199,51200,0),(51200,51201,2),(65535,65536,2),(65536,65537,2),(65537,65538,2),(0x80000000,2147483649,2)):
+            hand(f"{axis}_d1_stride_{stride}",expected,height,1,**{"input_"+dimension:height,"output_"+dimension:2,"stride_"+axis:stride})
+        hand(axis+"_d7_height_19bit_overflow_guard",2,458746,1,**{"input_"+dimension:458746,"output_"+dimension:8,"stride_"+axis:65535})
+    for field in ("input_channels","kernel_height","kernel_width"):
+        hand(field+"_high13_alias",1,8193,8193,**{field:8193,"input_height":8193 if field=="kernel_height" else 1,"input_width":8193 if field=="kernel_width" else 1})
+    v=dict(p65536,input_length_bytes=0)
+    if add("patch_bad_length_before_bad_range",v)!=3:raise ValueError("长度优先手算失败")
+    manual.append({"label":"bad_length_before_patch_bad_range","inputs":v,"expected_error":3,"patch_bytes":65536})
+    # 固定种子集中覆盖前置参数正确而patch/长度接近容量的通用API输入。
+    for j in range(1024):
+        v=dict(layer0);c=rng.choice((1,2,3,8,64,512));kh=rng.choice((1,2,3));kw=rng.choice((1,2,3))
+        oh=rng.randint(1,12);ow=rng.randint(1,12);sy=rng.choice((1,2,85,199,51199,51200,65535,65536,0xffffffff));sx=rng.choice((1,2,85,199,51199,51200,65535,65536,0xffffffff))
+        ih=(oh-1)*sy+kh;iw=(ow-1)*sx+kw
+        if ih>0xffffffff or iw>0xffffffff:oh=ow=1;ih=kh;iw=kw
+        v.update(input_channels=c,kernel_height=kh,kernel_width=kw,input_height=ih,input_width=iw,output_height=oh,output_width=ow,
+            stride_y=sy,stride_x=sx,input_length_bytes=(c*ih*iw)&0xffffffff,output_length_bytes=32*oh*ow,quantized_weight_bytes=32*c*kh*kw)
+        add("patch_targeted_random",v)
     text="\n".join(" ".join(f"{v[n]&0xffffffff:x}" for n in names+["buffer_owner_pl"])+f" {e:x}" for v,e in rows)+"\n"
     return names,text,layer0,{"vectors":len(rows),"categories":categories,"seed":0x2B171004,"frozen_conv_layers":frozen,
-      "independent_math":"Python无限精度128bit可容纳4个UINT32因子，形状64bit减法/加法显式取模；两batch为1时乘积全值恒等，非1必在首分支拒绝。"}
+      "s4_baseline_vectors":baseline_vectors,"manual_patch_cases":manual,
+      "independent_math":"黄金仍采用原完整Python整数H×W×C、min(OC,8)×R与原分支顺序，不采用窄判据；形状64bit减法/加法显式取模。"}
 
 def pair(header,instance="u_dut"):
     """公开端口同刺激双实例；比较全部输出，包括无效周期保留值。"""
@@ -259,17 +309,20 @@ def main():
     """独占新Run，冻结全部实际源码后单job构建；失败原件保留。"""
     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True);parser.add_argument("--mode",choices=("boundary","layer0"),required=True)
     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));parser.add_argument("--prepare-only",action="store_true");args=parser.parse_args()
-    if not re.fullmatch(r"conv_validation_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
+    if not re.fullmatch(r"patch_guard_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
     work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
     for p in (work,evidence):
         if not p.parent.is_dir() or p.exists():raise ValueError("父目录缺失或Run已存在")
         p.mkdir()
-    report={"schema_version":1,"task_id":"S2B-T17-S4","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
+    report={"schema_version":1,"task_id":"S2B-T17-S5","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
     begin=time.monotonic()
     try:
         checker=support.load_checker();bindings=checker.check_static(ROOT)
         bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,"verification/test_s2b_backend_coordinates_rtl.py","sim/tb_s2a_t66_candidate_blackbox.sv","verification/s1_t02_d2_int8_forward.py",support.MODEL)})
         report["source_sha256_pre"]=bindings;report["frozen14_sha256"]={p:support.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
+        snapshot=evidence/"source_snapshot";snapshot.mkdir()
+        for p in bindings:
+            target=snapshot/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
         actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip();report["source_commit"]=actual
         if subprocess.check_output(["git","diff","--name-only",BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).strip():raise ValueError("相关已提交源码偏离基线")
         report["checker_negatives"]=support.checker_negatives(checker,work,checker.check_static(ROOT))

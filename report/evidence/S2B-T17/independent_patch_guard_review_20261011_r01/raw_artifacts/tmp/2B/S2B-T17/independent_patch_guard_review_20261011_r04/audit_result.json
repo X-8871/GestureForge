@@ -1,0 +1,129 @@
+{
+  "bindings_streamed": 344,
+  "sources": 38,
+  "static_sources": 31,
+  "extra_sources": 7,
+  "changed_paths": [
+    "board/s2b_inference_platform.json",
+    "board/s2b_inference_platform.md",
+    "src/s2b_conv_tile_engine.sv",
+    "verification/check_s2b_inference_platform.py",
+    "verification/test_s2b_backend_coordinates_rtl.py",
+    "verification/test_s2b_conv_validation_rtl.py",
+    "verification/test_s2b_geometry_specialization_rtl.py",
+    "verification/test_s2b_route_specialization_rtl.py",
+    "vivado/s2b_inference_platform.tcl"
+  ],
+  "frozen14_unchanged": true,
+  "header_identical": true,
+  "always_ff_before_after": [
+    2,
+    2
+  ],
+  "sequential_suffix_identical": true,
+  "replacement_character_counts": {
+    "board/s2b_inference_platform.json": 0,
+    "board/s2b_inference_platform.md": 0,
+    "src/s2b_conv_tile_engine.sv": 0,
+    "verification/check_s2b_inference_platform.py": 0,
+    "verification/test_s2b_backend_coordinates_rtl.py": 0,
+    "verification/test_s2b_conv_validation_rtl.py": 0,
+    "verification/test_s2b_geometry_specialization_rtl.py": 0,
+    "verification/test_s2b_route_specialization_rtl.py": 0,
+    "vivado/s2b_inference_platform.tcl": 0
+  },
+  "g1": [
+    {
+      "run": 2,
+      "status": "PASS",
+      "coverage": {
+        "vectors": 3924,
+        "cycles": 90337,
+        "abort_mask": "000fffff",
+        "reset_mask": "000fffff",
+        "response_cases": 24,
+        "raw80": 1
+      }
+    },
+    {
+      "run": 3,
+      "status": "PASS",
+      "coverage": {
+        "bytes": 1384448,
+        "input_reads": 583443,
+        "weight_reads": 584064,
+        "output_writes": 1384448,
+        "requests": 2551955,
+        "responses": 2551955,
+        "request_stalls": 6635073,
+        "response_stalls": 6635073,
+        "cycles": 27235743
+      }
+    },
+    {
+      "run": 4,
+      "status": "PASS_GEOMETRY_SPECIALIZATION_G1",
+      "coverage": {
+        "pool": 19645,
+        "upsample": 3456,
+        "cycles": 590601,
+        "pool_abort": 127,
+        "upsample_abort": 63
+      }
+    },
+    {
+      "run": 5,
+      "status": "PASS_ROUTE_SPECIALIZATION_DIRECT_G1",
+      "coverage": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      }
+    },
+    {
+      "run": 6,
+      "status": "PASS_BACKEND_COORDINATES_G1",
+      "coverage": {
+        "boundary_cases": 4980736,
+        "nonconv_layers": 15,
+        "nonconv_outputs": 5234944,
+        "nonconv_requests": 12286976,
+        "cycles": 102468267,
+        "owner_drop_results": 120942
+      }
+    }
+  ],
+  "g1_vectors_preserved_from_s4": 2871,
+  "layer0_bytes": 1384448,
+  "layer0_gold_sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+  "layer0_equals_t25_slice": true,
+  "prior_independent_cpu_result": {
+    "bytes": 1384448,
+    "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "mismatches": 0,
+    "seconds": 0.0930000000007567,
+    "method": "逐输出通道、逐27tap的INT64切片累加；D2 binary64两步scale/除法、负值0.1、半远离零、[-127,127]；不读取生产MQROM",
+    "peak_self_bytes": 104964096,
+    "bindings": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+        "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+        "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\conv_validation_20261011_r10\\cpu_layer0_expected.bin",
+        "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8"
+      }
+    ]
+  },
+  "scope": "原G1完整layer0数值与独立S4/T25黄金同源且原字节相同；本轮不重跑109或整layer0。"
+}

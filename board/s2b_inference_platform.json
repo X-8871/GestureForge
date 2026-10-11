@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.4",
+  "version": "s2b-inference-platform/0.1.5",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -84,7 +84,7 @@
   "source_derivation": {
     "policy": "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0",
     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
-    "derivation_baseline_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+    "derivation_baseline_commit": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
     "upstream_sources": [
       {
@@ -298,7 +298,7 @@
       {
         "source": "src/s2a_conv_tile_engine.sv",
         "path": "src/s2b_conv_tile_engine.sv",
-        "sha256": "58310baf69021502e6629fe80e16929d2de285fed96cce0640c18b9f5c9f0b4e",
+        "sha256": "4963d03654a5b10dc512df3edeec30daeaed0fa308ff8bc0183e199704311d0c",
         "replacements": [
           [
             "module s2a_conv_tile_engine (",
@@ -311,6 +311,18 @@
           [
             "output_elements_wide = {96'd0, output_batch_count_latched} *\n                               {96'd0, output_channels_latched} *",
             "output_elements_wide = {96'd0, output_channels_latched} *"
+          ],
+          [
+            "    logic [127:0] full_tile_patch_height_wide;\n    logic [127:0] full_tile_patch_width_wide;\n    logic [127:0] full_tile_patch_bytes_wide;\n    logic [127:0] full_weight_group_bytes_wide;\n",
+            "    logic [2:0] full_tile_patch_delta_y;\n    logic [2:0] full_tile_patch_delta_x;\n    logic [18:0] full_tile_patch_height_narrow;\n    logic [18:0] full_tile_patch_width_narrow;\n    logic [31:0] full_tile_patch_plane_narrow;\n    logic [28:0] full_tile_patch_bytes_narrow;\n    logic full_tile_patch_height_bad;\n    logic full_tile_patch_width_bad;\n    logic full_tile_patch_bad;\n"
+          ],
+          [
+            "        full_tile_patch_height_wide = 128'd0;\n        full_tile_patch_width_wide = 128'd0;\n        full_tile_patch_bytes_wide = 128'd0;\n        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin\n            full_tile_patch_height_wide =\n                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};\n            full_tile_patch_width_wide =\n                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};\n            full_tile_patch_bytes_wide = full_tile_patch_height_wide *\n                                         full_tile_patch_width_wide *\n                                         {96'd0, input_channels_latched};\n        end\n        full_weight_group_bytes_wide =\n            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *\n            reduction_count_wide;\n\n",
+            "        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。\n        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。\n        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :\n            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :\n            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_height_narrow =\n            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +\n            {6'd0, kernel_height_latched[12:0]};\n        full_tile_patch_width_narrow =\n            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +\n            {6'd0, kernel_width_latched[12:0]};\n        full_tile_patch_height_bad =\n            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_height_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_height_narrow[15:0] > 16'd51200);\n        full_tile_patch_width_bad =\n            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_width_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_width_narrow[15:0] > 16'd51200);\n        full_tile_patch_plane_narrow =\n            {16'd0, full_tile_patch_height_narrow[15:0]} *\n            {16'd0, full_tile_patch_width_narrow[15:0]};\n        full_tile_patch_bytes_narrow =\n            {13'd0, full_tile_patch_plane_narrow[15:0]} *\n            {16'd0, input_channels_latched[12:0]};\n        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||\n            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||\n            (full_tile_patch_bytes_narrow > 29'd51200);\n\n"
+          ],
+          [
+            "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
+            "                     full_tile_patch_bad) begin"
           ]
         ]
       }

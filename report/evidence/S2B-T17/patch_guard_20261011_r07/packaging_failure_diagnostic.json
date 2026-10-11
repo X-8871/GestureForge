@@ -1,0 +1,16 @@
+{
+  "status": "FAIL_PACKAGING_ONLY",
+  "first_wrapper_exit_code": 1,
+  "recheck_native_exit_code": 2,
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "verification/check_stage_delivery.py",
+    "--mode",
+    "evidence",
+    "--manifest",
+    "report/evidence/S2B-T17/patch_guard_20261011_r07/delivery_manifest_r01.json"
+  ],
+  "reason": "初始manifest的static/diff checks含seconds/log/log_sha256这三个格式不允许字段；业务G1成功不变。原始r01与两份真实失败日志不改写。",
+  "correction": "r02只给checks保留name/status/command/exit_code/reason；完整耗时与日志绑定仍在g1_summary及各runner原report。"
+}

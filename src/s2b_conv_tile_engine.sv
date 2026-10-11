@@ -177,10 +177,15 @@ module s2b_conv_tile_engine (
     logic [63:0] output_width_shape_product;
     logic [63:0] output_height_span_plus_stride;
     logic [63:0] output_width_span_plus_stride;
-    logic [127:0] full_tile_patch_height_wide;
-    logic [127:0] full_tile_patch_width_wide;
-    logic [127:0] full_tile_patch_bytes_wide;
-    logic [127:0] full_weight_group_bytes_wide;
+    logic [2:0] full_tile_patch_delta_y;
+    logic [2:0] full_tile_patch_delta_x;
+    logic [18:0] full_tile_patch_height_narrow;
+    logic [18:0] full_tile_patch_width_narrow;
+    logic [31:0] full_tile_patch_plane_narrow;
+    logic [28:0] full_tile_patch_bytes_narrow;
+    logic full_tile_patch_height_bad;
+    logic full_tile_patch_width_bad;
+    logic full_tile_patch_bad;
     logic validation_ok;
     logic [2:0] validation_error;
 
@@ -287,23 +292,35 @@ module s2b_conv_tile_engine (
         output_height_span_plus_stride = output_height_shape_span + {32'd0, stride_y_latched};
         output_width_span_plus_stride = output_width_shape_span + {32'd0, stride_x_latched};
 
-        full_tile_patch_height_wide = 128'd0;
-        full_tile_patch_width_wide = 128'd0;
-        full_tile_patch_bytes_wide = 128'd0;
-        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin
-            full_tile_patch_height_wide =
-                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *
-                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};
-            full_tile_patch_width_wide =
-                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *
-                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};
-            full_tile_patch_bytes_wide = full_tile_patch_height_wide *
-                                         full_tile_patch_width_wide *
-                                         {96'd0, input_channels_latched};
-        end
-        full_weight_group_bytes_wide =
-            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *
-            reduction_count_wide;
+        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。
+        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。
+        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :
+            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);
+        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :
+            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);
+        full_tile_patch_height_narrow =
+            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +
+            {6'd0, kernel_height_latched[12:0]};
+        full_tile_patch_width_narrow =
+            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +
+            {6'd0, kernel_width_latched[12:0]};
+        full_tile_patch_height_bad =
+            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||
+            (full_tile_patch_height_narrow[18:16] != 3'd0) ||
+            (full_tile_patch_height_narrow[15:0] > 16'd51200);
+        full_tile_patch_width_bad =
+            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||
+            (full_tile_patch_width_narrow[18:16] != 3'd0) ||
+            (full_tile_patch_width_narrow[15:0] > 16'd51200);
+        full_tile_patch_plane_narrow =
+            {16'd0, full_tile_patch_height_narrow[15:0]} *
+            {16'd0, full_tile_patch_width_narrow[15:0]};
+        full_tile_patch_bytes_narrow =
+            {13'd0, full_tile_patch_plane_narrow[15:0]} *
+            {16'd0, input_channels_latched[12:0]};
+        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||
+            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||
+            (full_tile_patch_bytes_narrow > 29'd51200);
 
         validation_ok = 1'b0;
         validation_error = BAD_ARGUMENT;
@@ -351,8 +368,7 @@ module s2b_conv_tile_engine (
                      (S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched] != output_channels_latched) ||
                      ({16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
                       {96'd0, output_channels_latched} > 128'd3164) ||
-                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||
-                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin
+                     full_tile_patch_bad) begin
             validation_error = BAD_RANGE;
         end else if ((output_height_numerator < {32'd0, kernel_height_latched}) ||
                      (output_width_numerator < {32'd0, kernel_width_latched}) ||

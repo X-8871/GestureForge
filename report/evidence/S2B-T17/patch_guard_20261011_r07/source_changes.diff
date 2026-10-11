@@ -1,0 +1,413 @@
+diff --git a/board/s2b_inference_platform.json b/board/s2b_inference_platform.json
+index 5966236..a96a336 100644
+--- a/board/s2b_inference_platform.json
++++ b/board/s2b_inference_platform.json
+@@ -1,6 +1,6 @@
+ {
+   "schema_version": 1,
+-  "version": "s2b-inference-platform/0.1.4",
++  "version": "s2b-inference-platform/0.1.5",
+   "status": "BUILD_CANDIDATE",
+   "physical_interface": "s2b-physical-candidate/0.1.1",
+   "requested_part_literal": "XC7Z020-2CLG400I",
+@@ -84,7 +84,7 @@
+   "source_derivation": {
+     "policy": "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0",
+     "upstream_freeze_commit": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
+-    "derivation_baseline_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
++    "derivation_baseline_commit": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+     "newline_policy": "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+     "upstream_sources": [
+       {
+@@ -298,7 +298,7 @@
+       {
+         "source": "src/s2a_conv_tile_engine.sv",
+         "path": "src/s2b_conv_tile_engine.sv",
+-        "sha256": "58310baf69021502e6629fe80e16929d2de285fed96cce0640c18b9f5c9f0b4e",
++        "sha256": "4963d03654a5b10dc512df3edeec30daeaed0fa308ff8bc0183e199704311d0c",
+         "replacements": [
+           [
+             "module s2a_conv_tile_engine (",
+@@ -311,6 +311,18 @@
+           [
+             "output_elements_wide = {96'd0, output_batch_count_latched} *\n                               {96'd0, output_channels_latched} *",
+             "output_elements_wide = {96'd0, output_channels_latched} *"
++          ],
++          [
++            "    logic [127:0] full_tile_patch_height_wide;\n    logic [127:0] full_tile_patch_width_wide;\n    logic [127:0] full_tile_patch_bytes_wide;\n    logic [127:0] full_weight_group_bytes_wide;\n",
++            "    logic [2:0] full_tile_patch_delta_y;\n    logic [2:0] full_tile_patch_delta_x;\n    logic [18:0] full_tile_patch_height_narrow;\n    logic [18:0] full_tile_patch_width_narrow;\n    logic [31:0] full_tile_patch_plane_narrow;\n    logic [28:0] full_tile_patch_bytes_narrow;\n    logic full_tile_patch_height_bad;\n    logic full_tile_patch_width_bad;\n    logic full_tile_patch_bad;\n"
++          ],
++          [
++            "        full_tile_patch_height_wide = 128'd0;\n        full_tile_patch_width_wide = 128'd0;\n        full_tile_patch_bytes_wide = 128'd0;\n        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin\n            full_tile_patch_height_wide =\n                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};\n            full_tile_patch_width_wide =\n                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};\n            full_tile_patch_bytes_wide = full_tile_patch_height_wide *\n                                         full_tile_patch_width_wide *\n                                         {96'd0, input_channels_latched};\n        end\n        full_weight_group_bytes_wide =\n            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *\n            reduction_count_wide;\n\n",
++            "        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。\n        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。\n        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :\n            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :\n            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_height_narrow =\n            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +\n            {6'd0, kernel_height_latched[12:0]};\n        full_tile_patch_width_narrow =\n            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +\n            {6'd0, kernel_width_latched[12:0]};\n        full_tile_patch_height_bad =\n            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_height_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_height_narrow[15:0] > 16'd51200);\n        full_tile_patch_width_bad =\n            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_width_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_width_narrow[15:0] > 16'd51200);\n        full_tile_patch_plane_narrow =\n            {16'd0, full_tile_patch_height_narrow[15:0]} *\n            {16'd0, full_tile_patch_width_narrow[15:0]};\n        full_tile_patch_bytes_narrow =\n            {13'd0, full_tile_patch_plane_narrow[15:0]} *\n            {16'd0, input_channels_latched[12:0]};\n        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||\n            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||\n            (full_tile_patch_bytes_narrow > 29'd51200);\n\n"
++          ],
++          [
++            "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
++            "                     full_tile_patch_bad) begin"
+           ]
+         ]
+       }
+diff --git a/board/s2b_inference_platform.md b/board/s2b_inference_platform.md
+index 3972a56..dbaf435 100644
+--- a/board/s2b_inference_platform.md
++++ b/board/s2b_inference_platform.md
+@@ -1,12 +1,12 @@
+ # 阶段 2B 全模型平台构建候选
+ 
+-版本 `s2b-inference-platform/0.1.4`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
++版本 `s2b-inference-platform/0.1.5`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+ 
+ 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
+ 
+ ## 模块、地址和物理端口
+ 
+-JSON 声明 18 个实际编译 RTL 文件：7 个原冻结 2A 模块、7 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为包含已审S3源码的 `6d3fd8567b579a51d4042667d47af7d94f2f5a97`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
++JSON 声明 18 个实际编译 RTL 文件：7 个原冻结 2A 模块、7 个 2B 派生模块，以及原有 guard、word adapter、控制器和 `s2b_inference_top`。原冻结 2A 全核心14源保持原字节，以 `source_derivation.upstream_sources` 显式绑定路径和SHA；上游冻结提交为 `671f9cf494b92ce182b3f1542fefd0cfd4b209f5`，本轮派生基线为包含已审S4源码的 `f96d3e225fd6d92fd33c0407e20c9585c997c870`。S1 几何常量化的原始开发基线 `18c0c34f9da885b5f35869c282dc0c2ed50d720e` 和旧证据保留。顶层通过原公共 CSR/memory 口连接派生核心，不读取内部状态。adapter 内已有 guard 实例，不重复串接第二套 guard。
+ 
+ 派生策略 `s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0` 保留 S1 的严格几何常量化：`s2b_maxpool_engine` 内部 geometry kernel为2×2、stride为2×2、Darknet padding参数为1；`s2b_upsample_engine` 内部 query stride为2。原外部参数、参数/长度/地址拒绝判断、错误优先、全部状态、握手、abort和数据通路均保留。池化三个合法层及上采样层33在消费query之前已严格验证这些参数，因此常量连接在成功分支与原输入完全相同；非法输入仍按原先的前置分支拒绝。
+ 
+@@ -34,7 +34,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接
+ 
+ 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
+ 
+-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.4`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的7个原上游源，共25个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
++证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.5`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的7个原上游源，共25个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+ 
+ 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
+ 
+@@ -59,3 +59,11 @@ python -B verification/check_s2b_inference_platform.py
+ ## CONV batch校验派生
+ 
+ 继承几何、坐标和固定tiny416 ROUTE政策；CONV仅模块改名并从两个128-bit元素数乘积删除batch因子。原首个校验分支仍拒绝input/output batch非1，错误优先不变。input元素数只用于其后的长度校验；output元素数另用于OUTPUT_SCAN，但该状态仅能从batch均为1的校验成功轨迹到达。输入端口在运行中变化不改锁存字段，abort/reset返回原状态。因此CONV公开API全域的状态、请求、结果与每周期行为等价；这不扩展ROUTE通用多组覆盖。原14源码原字节保留；生产18闭包为7原2A、7派生及4outer。
++
++## CONV patch范围校验派生
++
++S5 保留S4的两个batch乘子删除，并将patch容量比较替换为同周期窄位宽判据。原首分支保证输入通道C、核KH/KW非零且精确乘积R不超过4608，因此三者均不超过4608；原BAD_LENGTH仍在patch范围BAD_RANGE之前。未通过前置条件时，窄判据不改变首分支错误及layer索引覆盖规则。
++
++每轴D=min(O,8)-1属于0至7。用19位精确计算D×stride低16位+kernel低13位；D非零且stride高16位非零、结果高3位非零或低16位超过51200时标记轴越界。D为0时任意UINT32非零stride均不影响patch，不额外拒绝。轴未越界时，32位P=H低16位×W低16位精确；P高16位非零必越界。否则29位Q=P低16位×C低13位精确，Q超过51200必越界。所有中间值均显式扩展宽度；每个截断都保留独立溢出拒绝条件。在前置条件成立时，该判据与原128位H×W×C>51200严格等价，覆盖通用公开CONV参数域。
++
++原权重组容量判据min(OC,8)×R>36864由R≤4608蕴含永远为假，因此只删除该乘积和判据。输入、输出及权重长度、地址端点、MQ容量、shape、错误优先、全部状态与请求、owner、abort/reset和结果保持原逻辑；不增加寄存器、状态、周期或时序例外。0.1.5须重新完成独立G2及综合/STA，旧版本通过记录不能继承。
+diff --git a/src/s2b_conv_tile_engine.sv b/src/s2b_conv_tile_engine.sv
+index 73f4ca9..60b6bab 100644
+--- a/src/s2b_conv_tile_engine.sv
++++ b/src/s2b_conv_tile_engine.sv
+@@ -177,10 +177,15 @@ module s2b_conv_tile_engine (
+     logic [63:0] output_width_shape_product;
+     logic [63:0] output_height_span_plus_stride;
+     logic [63:0] output_width_span_plus_stride;
+-    logic [127:0] full_tile_patch_height_wide;
+-    logic [127:0] full_tile_patch_width_wide;
+-    logic [127:0] full_tile_patch_bytes_wide;
+-    logic [127:0] full_weight_group_bytes_wide;
++    logic [2:0] full_tile_patch_delta_y;
++    logic [2:0] full_tile_patch_delta_x;
++    logic [18:0] full_tile_patch_height_narrow;
++    logic [18:0] full_tile_patch_width_narrow;
++    logic [31:0] full_tile_patch_plane_narrow;
++    logic [28:0] full_tile_patch_bytes_narrow;
++    logic full_tile_patch_height_bad;
++    logic full_tile_patch_width_bad;
++    logic full_tile_patch_bad;
+     logic validation_ok;
+     logic [2:0] validation_error;
+ 
+@@ -287,23 +292,35 @@ module s2b_conv_tile_engine (
+         output_height_span_plus_stride = output_height_shape_span + {32'd0, stride_y_latched};
+         output_width_span_plus_stride = output_width_shape_span + {32'd0, stride_x_latched};
+ 
+-        full_tile_patch_height_wide = 128'd0;
+-        full_tile_patch_width_wide = 128'd0;
+-        full_tile_patch_bytes_wide = 128'd0;
+-        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin
+-            full_tile_patch_height_wide =
+-                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *
+-                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};
+-            full_tile_patch_width_wide =
+-                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *
+-                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};
+-            full_tile_patch_bytes_wide = full_tile_patch_height_wide *
+-                                         full_tile_patch_width_wide *
+-                                         {96'd0, input_channels_latched};
+-        end
+-        full_weight_group_bytes_wide =
+-            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *
+-            reduction_count_wide;
++        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。
++        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。
++        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :
++            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);
++        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :
++            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);
++        full_tile_patch_height_narrow =
++            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +
++            {6'd0, kernel_height_latched[12:0]};
++        full_tile_patch_width_narrow =
++            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +
++            {6'd0, kernel_width_latched[12:0]};
++        full_tile_patch_height_bad =
++            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||
++            (full_tile_patch_height_narrow[18:16] != 3'd0) ||
++            (full_tile_patch_height_narrow[15:0] > 16'd51200);
++        full_tile_patch_width_bad =
++            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||
++            (full_tile_patch_width_narrow[18:16] != 3'd0) ||
++            (full_tile_patch_width_narrow[15:0] > 16'd51200);
++        full_tile_patch_plane_narrow =
++            {16'd0, full_tile_patch_height_narrow[15:0]} *
++            {16'd0, full_tile_patch_width_narrow[15:0]};
++        full_tile_patch_bytes_narrow =
++            {13'd0, full_tile_patch_plane_narrow[15:0]} *
++            {16'd0, input_channels_latched[12:0]};
++        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||
++            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||
++            (full_tile_patch_bytes_narrow > 29'd51200);
+ 
+         validation_ok = 1'b0;
+         validation_error = BAD_ARGUMENT;
+@@ -351,8 +368,7 @@ module s2b_conv_tile_engine (
+                      (S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched] != output_channels_latched) ||
+                      ({16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+                       {96'd0, output_channels_latched} > 128'd3164) ||
+-                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||
+-                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin
++                     full_tile_patch_bad) begin
+             validation_error = BAD_RANGE;
+         end else if ((output_height_numerator < {32'd0, kernel_height_latched}) ||
+                      (output_width_numerator < {32'd0, kernel_width_latched}) ||
+diff --git a/verification/check_s2b_inference_platform.py b/verification/check_s2b_inference_platform.py
+index 7e75a4f..952fb52 100644
+--- a/verification/check_s2b_inference_platform.py
++++ b/verification/check_s2b_inference_platform.py
+@@ -11,7 +11,7 @@ import stat
+ import sys
+ from pathlib import Path, PurePosixPath
+ 
+-PROFILE_VERSION = "s2b-inference-platform/0.1.4"
++PROFILE_VERSION = "s2b-inference-platform/0.1.5"
+ # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
+ FROZEN_CORE_SHA256 = {
+     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+@@ -103,6 +103,24 @@ DERIVATION_RULES["src/s2a_conv_tile_engine.sv"] = ("src/s2b_conv_tile_engine.sv"
+ DERIVATION_RULES["src/s2a_network_backend.sv"][1].append(
+     ["s2a_conv_tile_engine u_conv_engine", "s2b_conv_tile_engine u_conv_engine"])
+ 
++# 前置非零和R<=4608保护窄位宽；溢出独立拒绝，保持原错误分支顺序。
++PATCH_GUARD_REPLACEMENTS = [
++    [
++        "    logic [127:0] full_tile_patch_height_wide;\n    logic [127:0] full_tile_patch_width_wide;\n    logic [127:0] full_tile_patch_bytes_wide;\n    logic [127:0] full_weight_group_bytes_wide;\n",
++        "    logic [2:0] full_tile_patch_delta_y;\n    logic [2:0] full_tile_patch_delta_x;\n    logic [18:0] full_tile_patch_height_narrow;\n    logic [18:0] full_tile_patch_width_narrow;\n    logic [31:0] full_tile_patch_plane_narrow;\n    logic [28:0] full_tile_patch_bytes_narrow;\n    logic full_tile_patch_height_bad;\n    logic full_tile_patch_width_bad;\n    logic full_tile_patch_bad;\n"
++    ],
++    [
++        "        full_tile_patch_height_wide = 128'd0;\n        full_tile_patch_width_wide = 128'd0;\n        full_tile_patch_bytes_wide = 128'd0;\n        if ((output_height_latched != 32'd0) && (output_width_latched != 32'd0)) begin\n            full_tile_patch_height_wide =\n                ({96'd0, (output_height_latched < TILE_EDGE ? output_height_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_y_latched}) + {96'd0, kernel_height_latched};\n            full_tile_patch_width_wide =\n                ({96'd0, (output_width_latched < TILE_EDGE ? output_width_latched : TILE_EDGE) - 32'd1} *\n                 {96'd0, stride_x_latched}) + {96'd0, kernel_width_latched};\n            full_tile_patch_bytes_wide = full_tile_patch_height_wide *\n                                         full_tile_patch_width_wide *\n                                         {96'd0, input_channels_latched};\n        end\n        full_weight_group_bytes_wide =\n            {96'd0, (output_channels_latched < LANE_COUNT ? output_channels_latched : LANE_COUNT)} *\n            reduction_count_wide;\n\n",
++        "        // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。\n        // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。\n        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :\n            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :\n            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);\n        full_tile_patch_height_narrow =\n            ({16'd0, full_tile_patch_delta_y} * {3'd0, stride_y_latched[15:0]}) +\n            {6'd0, kernel_height_latched[12:0]};\n        full_tile_patch_width_narrow =\n            ({16'd0, full_tile_patch_delta_x} * {3'd0, stride_x_latched[15:0]}) +\n            {6'd0, kernel_width_latched[12:0]};\n        full_tile_patch_height_bad =\n            ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_height_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_height_narrow[15:0] > 16'd51200);\n        full_tile_patch_width_bad =\n            ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||\n            (full_tile_patch_width_narrow[18:16] != 3'd0) ||\n            (full_tile_patch_width_narrow[15:0] > 16'd51200);\n        full_tile_patch_plane_narrow =\n            {16'd0, full_tile_patch_height_narrow[15:0]} *\n            {16'd0, full_tile_patch_width_narrow[15:0]};\n        full_tile_patch_bytes_narrow =\n            {13'd0, full_tile_patch_plane_narrow[15:0]} *\n            {16'd0, input_channels_latched[12:0]};\n        full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||\n            (full_tile_patch_plane_narrow[31:16] != 16'd0) ||\n            (full_tile_patch_bytes_narrow > 29'd51200);\n\n"
++    ],
++    [
++        "                     (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||\n                     (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin",
++        "                     full_tile_patch_bad) begin"
++    ]
++]
++DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(PATCH_GUARD_REPLACEMENTS)
++
++
+ def sha256(path: Path) -> str:
+     """返回实际文件字节的哈希。"""
+     return hashlib.sha256(path.read_bytes()).hexdigest()
+@@ -161,7 +179,7 @@ def check_derivation(root: Path, profile: dict) -> None:
+         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
+     require(item["policy"] == "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0" and
+         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
+-        item["derivation_baseline_commit"] == "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
++        item["derivation_baseline_commit"] == "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+         "派生上游或基线不符")
+     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
+         "换行政策不符")
+@@ -210,7 +228,7 @@ def check_static(root: Path) -> dict:
+                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
+     require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
+     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
+-    require("variable version 0.1.4" in script, "Tcl平台版本不符")
++    require("variable version 0.1.5" in script, "Tcl平台版本不符")
+     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
+         "Vivado 属性枚举必须使用官方 list_property 命令")
+     require("make_wrapper -files $bd_file -top -import" in script and
+diff --git a/verification/test_s2b_backend_coordinates_rtl.py b/verification/test_s2b_backend_coordinates_rtl.py
+index 709a528..951f7e7 100644
+--- a/verification/test_s2b_backend_coordinates_rtl.py
++++ b/verification/test_s2b_backend_coordinates_rtl.py
+@@ -21,6 +21,7 @@ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
++SOURCE_BASELINE = "71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+ OLD_BACKEND_SHA = "7c6defe3438aa1b2afcedcfc1714d9993c773373dcdd814450d96a2b38778a27"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+@@ -459,7 +460,7 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
+     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
+     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
+     reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
+-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.4","variable version 0.1.1"))
++    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.5","variable version 0.1.1"))
+     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine u_route_engine","s2a_route_engine u_route_engine"))
+     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
+     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
+@@ -494,7 +495,7 @@ def main() -> int:
+     try:
+         checker=load_checker(); bindings=checker.check_static(ROOT)
+         actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+-        committed_changes=subprocess.check_output(["git","diff","--name-only",BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
++        committed_changes=subprocess.check_output(["git","diff","--name-only",SOURCE_BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).splitlines()
+         if committed_changes: raise ValueError("任务源码闭包的提交来源改变")
+         report["committed_source_changes_since_task_baseline"]=committed_changes
+         report["source_commit"]=actual; report["source_sha256_pre"]={**bindings,RUNNER:sha(ROOT/RUNNER)}
+diff --git a/verification/test_s2b_conv_validation_rtl.py b/verification/test_s2b_conv_validation_rtl.py
+index 702e303..3975ea4 100644
+--- a/verification/test_s2b_conv_validation_rtl.py
++++ b/verification/test_s2b_conv_validation_rtl.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""核对CONV batch恒1校验的精确派生及双完整模块逐周期公开行为。"""
++"""核对CONV前置约束下的patch范围派生及双完整模块逐周期公开行为。"""
+ from __future__ import annotations
+ import argparse
+ import copy
+@@ -22,7 +22,7 @@ import numpy as np
+ import test_s2b_backend_coordinates_rtl as support
+ 
+ ROOT=Path(__file__).resolve().parents[1]
+-BASELINE="6d3fd8567b579a51d4042667d47af7d94f2f5a97"
++BASELINE="71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+ RUNNER="verification/test_s2b_conv_validation_rtl.py"
+ RTL=("src/s2a_network_descriptor_pkg.sv","src/s2a_conv_tile_engine.sv","src/s2b_conv_tile_engine.sv")
+ FIXTURE=Path("D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture")
+@@ -161,9 +161,59 @@ def vectors(model):
+         v=dict(layer0)
+         for field in rng.sample(names,rng.randint(1,5)):v[field]=rng.getrandbits(32) & (3 if field=="activation_mode" else 0xffffffff)
+         add("wide_random",v)
++    baseline_vectors=len(rows)
++    # 这些值先以完整整数手算，不采用派生RTL的低位或溢出判据生成错误黄金。
++    manual=[]
++    def hand(label,expected,patch_bytes,reduction,**changes):
++        v=dict(layer0);v.update(input_channels=1,input_height=1,input_width=1,output_height=1,output_width=1,
++            kernel_height=1,kernel_width=1,stride_y=1,stride_x=1);v.update(changes)
++        v.update(input_length_bytes=(v["input_channels"]*v["input_height"]*v["input_width"])&0xffffffff,
++            output_length_bytes=(32*v["output_height"]*v["output_width"])&0xffffffff,
++            quantized_weight_bytes=(32*v["input_channels"]*v["kernel_height"]*v["kernel_width"])&0xffffffff)
++        ph=(min(v["output_height"],8)-1)*v["stride_y"]+v["kernel_height"]
++        pw=(min(v["output_width"],8)-1)*v["stride_x"]+v["kernel_width"]
++        if ph*pw*v["input_channels"]!=patch_bytes or v["input_channels"]*v["kernel_height"]*v["kernel_width"]!=reduction:
++            raise ValueError("手算输入不符："+label)
++        if add("patch_manual_"+label,v)!=expected:raise ValueError("手算错误优先不符："+label)
++        manual.append({"label":label,"inputs":v,"expected_error":expected,"reduction":reduction,"patch_height":ph,"patch_width":pw,"patch_bytes":patch_bytes})
++        return v
++    hand("reduction_4608",0,4608,4608,input_channels=512,input_height=3,input_width=3,kernel_height=3,kernel_width=3)
++    hand("reduction_4609",1,4609,4609,input_channels=4609)
++    hand("patch_51200_plane",0,51200,1,input_height=200,input_width=256,output_height=2,output_width=4,stride_y=199,stride_x=85)
++    hand("patch_51201_channel_product",2,51201,27,input_channels=3,input_height=3,input_width=5690,output_width=2,
++        kernel_height=3,kernel_width=3,stride_x=5686)
++    p65536=hand("patch_65536_plane_overflow",2,65536,1,input_height=256,input_width=256,output_height=4,output_width=4,stride_y=85,stride_x=85)
++    hand("channel_product_high_bits",2,131072,512,input_channels=512,input_height=256,output_height=4,stride_y=85)
++    hand("d0_huge_both_strides",0,1,1,stride_y=0xffffffff,stride_x=0xffffffff)
++    hand("d0_huge_y_stride",0,2,1,input_width=2,output_width=2,stride_y=0xffffffff)
++    hand("d0_huge_x_stride",0,2,1,input_height=2,output_height=2,stride_x=0xffffffff)
++    hand("d1_huge_y_stride_rollover",2,4294967297,2,input_height=0xffffffff,output_height=2,
++        kernel_height=2,stride_y=0xffffffff,pad_top=1,pad_bottom=1)
++    hand("d1_huge_x_stride_rollover",2,4294967297,2,input_width=0xffffffff,output_width=2,
++        kernel_width=2,stride_x=0xffffffff,pad_left=1,pad_right=1)
++    for axis in ("y","x"):
++        dimension="height" if axis=="y" else "width"
++        for stride,height,expected in ((51199,51200,0),(51200,51201,2),(65535,65536,2),(65536,65537,2),(65537,65538,2),(0x80000000,2147483649,2)):
++            hand(f"{axis}_d1_stride_{stride}",expected,height,1,**{"input_"+dimension:height,"output_"+dimension:2,"stride_"+axis:stride})
++        hand(axis+"_d7_height_19bit_overflow_guard",2,458746,1,**{"input_"+dimension:458746,"output_"+dimension:8,"stride_"+axis:65535})
++    for field in ("input_channels","kernel_height","kernel_width"):
++        hand(field+"_high13_alias",1,8193,8193,**{field:8193,"input_height":8193 if field=="kernel_height" else 1,"input_width":8193 if field=="kernel_width" else 1})
++    v=dict(p65536,input_length_bytes=0)
++    if add("patch_bad_length_before_bad_range",v)!=3:raise ValueError("长度优先手算失败")
++    manual.append({"label":"bad_length_before_patch_bad_range","inputs":v,"expected_error":3,"patch_bytes":65536})
++    # 固定种子集中覆盖前置参数正确而patch/长度接近容量的通用API输入。
++    for j in range(1024):
++        v=dict(layer0);c=rng.choice((1,2,3,8,64,512));kh=rng.choice((1,2,3));kw=rng.choice((1,2,3))
++        oh=rng.randint(1,12);ow=rng.randint(1,12);sy=rng.choice((1,2,85,199,51199,51200,65535,65536,0xffffffff));sx=rng.choice((1,2,85,199,51199,51200,65535,65536,0xffffffff))
++        ih=(oh-1)*sy+kh;iw=(ow-1)*sx+kw
++        if ih>0xffffffff or iw>0xffffffff:oh=ow=1;ih=kh;iw=kw
++        v.update(input_channels=c,kernel_height=kh,kernel_width=kw,input_height=ih,input_width=iw,output_height=oh,output_width=ow,
++            stride_y=sy,stride_x=sx,input_length_bytes=(c*ih*iw)&0xffffffff,output_length_bytes=32*oh*ow,quantized_weight_bytes=32*c*kh*kw)
++        add("patch_targeted_random",v)
+     text="\n".join(" ".join(f"{v[n]&0xffffffff:x}" for n in names+["buffer_owner_pl"])+f" {e:x}" for v,e in rows)+"\n"
+     return names,text,layer0,{"vectors":len(rows),"categories":categories,"seed":0x2B171004,"frozen_conv_layers":frozen,
+-      "independent_math":"Python无限精度128bit可容纳4个UINT32因子，形状64bit减法/加法显式取模；两batch为1时乘积全值恒等，非1必在首分支拒绝。"}
++      "s4_baseline_vectors":baseline_vectors,"manual_patch_cases":manual,
++      "independent_math":"黄金仍采用原完整Python整数H×W×C、min(OC,8)×R与原分支顺序，不采用窄判据；形状64bit减法/加法显式取模。"}
+ 
+ def pair(header,instance="u_dut"):
+     """公开端口同刺激双实例；比较全部输出，包括无效周期保留值。"""
+@@ -259,17 +309,20 @@ def main():
+     """独占新Run，冻结全部实际源码后单job构建；失败原件保留。"""
+     parser=argparse.ArgumentParser();parser.add_argument("--run-id",required=True);parser.add_argument("--mode",choices=("boundary","layer0"),required=True)
+     parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"));parser.add_argument("--prepare-only",action="store_true");args=parser.parse_args()
+-    if not re.fullmatch(r"conv_validation_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
++    if not re.fullmatch(r"patch_guard_20261011_r\d+",args.run_id):raise ValueError("RunId不符")
+     work=ROOT/"tmp/2B/S2B-T17"/args.run_id;evidence=ROOT/"report/evidence/S2B-T17"/args.run_id
+     for p in (work,evidence):
+         if not p.parent.is_dir() or p.exists():raise ValueError("父目录缺失或Run已存在")
+         p.mkdir()
+-    report={"schema_version":1,"task_id":"S2B-T17-S4","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
++    report={"schema_version":1,"task_id":"S2B-T17-S5","run_id":args.run_id,"mode":args.mode,"source_baseline_commit":BASELINE,"status":"FAIL","runs":[]}
+     begin=time.monotonic()
+     try:
+         checker=support.load_checker();bindings=checker.check_static(ROOT)
+         bindings.update({p:support.sha(ROOT/p) for p in (RUNNER,"verification/test_s2b_backend_coordinates_rtl.py","sim/tb_s2a_t66_candidate_blackbox.sv","verification/s1_t02_d2_int8_forward.py",support.MODEL)})
+         report["source_sha256_pre"]=bindings;report["frozen14_sha256"]={p:support.sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
++        snapshot=evidence/"source_snapshot";snapshot.mkdir()
++        for p in bindings:
++            target=snapshot/p;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/p,target)
+         actual=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip();report["source_commit"]=actual
+         if subprocess.check_output(["git","diff","--name-only",BASELINE,actual,"--",*bindings],cwd=ROOT,text=True).strip():raise ValueError("相关已提交源码偏离基线")
+         report["checker_negatives"]=support.checker_negatives(checker,work,checker.check_static(ROOT))
+diff --git a/verification/test_s2b_geometry_specialization_rtl.py b/verification/test_s2b_geometry_specialization_rtl.py
+index 77286de..52c72db 100644
+--- a/verification/test_s2b_geometry_specialization_rtl.py
++++ b/verification/test_s2b_geometry_specialization_rtl.py
+@@ -20,7 +20,7 @@ import time
+ import psutil
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
++BASELINE = "71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+ MODEL = "report/evidence/S2A-T01/tiny416_model_manifest.json"
+ MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+ SEED = 0x2B171011
+@@ -371,7 +371,7 @@ def checker_negatives(checker, work: Path, sources: dict) -> list[dict]:
+     reject("常量化错误及自报SHA", lambda p: change_source(p, "src/s2b_maxpool_engine.sv", ".stride_y(32'd2)", ".stride_y(32'd3)", True))
+     reject("额外backend逻辑及自报SHA", lambda p: change_source(p, "src/s2b_network_backend.sv", "decoded_x = 32'd0", "decoded_x = 32'd1", True))
+     reject("Tcl闭包变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "src/s2b_maxpool_engine.sv", "src/s2a_maxpool_engine.sv"))
+-    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.4", "variable version 0.1.2"))
++    reject("Tcl版本变化", lambda p: change_source(p, "vivado/s2b_inference_platform.tcl", "variable version 0.1.5", "variable version 0.1.2"))
+     reject("顶层引用旧core", lambda p: change_source(p, "src/s2b_inference_top.sv", "s2b_stage2b_core core (", "s2a_stage2a_core_ooc core ("))
+     reject("物理时钟变化", lambda p: p.update(clock_hz=25000000))
+     reject("可见性默认启用", lambda p: p.update(visibility_default=1))
+diff --git a/verification/test_s2b_route_specialization_rtl.py b/verification/test_s2b_route_specialization_rtl.py
+index 759e4a0..47ae61d 100644
+--- a/verification/test_s2b_route_specialization_rtl.py
++++ b/verification/test_s2b_route_specialization_rtl.py
+@@ -21,7 +21,7 @@ import test_s2b_backend_coordinates_rtl as backend
+ import test_s2b_geometry_specialization_rtl as geometry
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+-BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
++BASELINE = "71983d70cbfcacbbf90dfa032568f8c68a5c0162"
+ RUNNER = "verification/test_s2b_route_specialization_rtl.py"
+ SEED = 0x2B173011
+ RTL = ("src/int8_route_query.sv", "src/s2b_route_query.sv",
+diff --git a/vivado/s2b_inference_platform.tcl b/vivado/s2b_inference_platform.tcl
+index e43a40e..75c0783 100644
+--- a/vivado/s2b_inference_platform.tcl
++++ b/vivado/s2b_inference_platform.tcl
+@@ -1,6 +1,6 @@
+ # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
+ namespace eval ::s2b_inference_platform {
+-    variable version 0.1.4
++    variable version 0.1.5
+     variable part xc7z020clg400-2
+     variable bd_name s2b_inference
+     variable rtl_sources {

@@ -1,0 +1,102 @@
+{
+  "raw_manifest": {
+    "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/final_raw_delivery_manifest.json",
+    "sha256": "8fa0fcdc072da08def4fd4c84d1eed1ebfa0c14394bf4a9bbf5f50de6b45541a"
+  },
+  "receipt": {
+    "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/final_review_receipt.json",
+    "sha256": "54eed94ef4a301d97f04f446850caa90062685b4cb6141031d3e27125b40eb1b"
+  },
+  "reviewed_manifest": {
+    "path": "report/evidence/S2B-T17/patch_guard_20261011_r07/delivery_manifest_r04.json",
+    "sha256": "9f6bf727745f28e363cf8877a0ec35216f01ea9e2a6fcdc59b7b5dba0c6d8a42"
+  },
+  "source_freeze": {
+    "path": "report/evidence/S2B-T17/patch_guard_20261011_r07/source_freeze.json",
+    "sha256": "4d9540a77c9c15e796609ba54040090556b577f3a9851434166859aba19090f6"
+  },
+  "review_script": {
+    "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/review.py",
+    "sha256": "b921e812ba3afa0fa9b1a0cf1a88647a76292dab33064580760241199cdd1b92"
+  },
+  "review_status": "PASS_G2_ONLY",
+  "native_checks": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/tool_version.native.json",
+      "expected_exit_code": 0,
+      "name": "独审r04_tool_version",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/host.native.json",
+      "expected_exit_code": 0,
+      "name": "独审r04_host",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/independent_compile.native.json",
+      "expected_exit_code": 0,
+      "name": "独审r04_independent_compile",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/independent_simulation.native.json",
+      "expected_exit_code": 0,
+      "name": "独审r04_independent_simulation",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/expected_gold_mismatch.native.json",
+      "expected_exit_code": 1,
+      "name": "独审r04_expected_gold_mismatch",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r04/expected_public_mismatch.native.json",
+      "expected_exit_code": 1,
+      "name": "独审r04_expected_public_mismatch",
+      "reason": "实际原生结果；失配注入native1是故意fatal，不改为0，不作为STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r02/host.native.json",
+      "expected_exit_code": 2,
+      "name": "独审前置脚本r02_FAIL",
+      "reason": "审查脚本字段或资源匹配错误；原始失败保留，之后新Run修正，无业务源码修改。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_patch_guard_review_20261011_r03/host.native.json",
+      "expected_exit_code": 2,
+      "name": "独审前置脚本r03_FAIL",
+      "reason": "审查脚本字段或资源匹配错误；原始失败保留，之后新Run修正，无业务源码修改。"
+    }
+  ],
+  "include_reviewed_checks": [
+    "static_checker",
+    "diff_check",
+    "patch_guard_20261011_r02_compile",
+    "patch_guard_20261011_r02_simulation",
+    "patch_guard_20261011_r03_compile",
+    "patch_guard_20261011_r03_simulation",
+    "patch_guard_20261011_r04_compile",
+    "patch_guard_20261011_r04_simulation",
+    "patch_guard_20261011_r05_compile",
+    "patch_guard_20261011_r05_simulation",
+    "patch_guard_20261011_r06_compile",
+    "patch_guard_20261011_r06_simulation",
+    "historical_initial_static_encoding_failure",
+    "G2独立审查",
+    "S5_50MHz_STA_postroute_bit",
+    "G3及109新闭包",
+    "historical_packaging_r01_schema_failure",
+    "delivery_corrected_evidence",
+    "delivery_corrected_inputs",
+    "historical_packaging_r03_status_failure"
+  ],
+  "evidence_dir": "report/evidence/S2B-T17/independent_patch_guard_review_20261011_r01",
+  "limitations": [
+    "只精确归档已STOP独立G2及开发原件；不扩展STA、109整网或G3/G4/G5批准。",
+    "57独审原件及清单自身共58件；r01前置失败未有独立host native元数据，保留其receipt/脚本而不臆造退出码。",
+    "G1历史G2 NOT_RUN仍是原件当时状态；独立审查r04原生host0单独记录。",
+    "源冻结38实际/31static/7extra、14原件不变；当前visibility0/50MHz，S4时序FAIL不继承。"
+  ]
+}

@@ -21,7 +21,7 @@ import test_s2b_backend_coordinates_rtl as backend
 import test_s2b_geometry_specialization_rtl as geometry
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "5cb092dcce3631f310e67228738a674a6a82ce41"
+BASELINE = "f53e067ba91abc02ed60cf7f9063884d9ddb79f1"
 RUNNER = "verification/test_s2b_route_specialization_rtl.py"
 SEED = 0x2B173011
 RTL = ("src/int8_route_query.sv", "src/s2b_route_query.sv",

@@ -125,7 +125,7 @@ module s2b_route_engine (
     logic [2:0] query_error_code;
 
     logic [64:0] output_elements_work;
-    logic [64:0] output_offset_work;
+    logic [31:0] output_offset_work;
     logic [64:0] output_end_work;
     logic [31:0] selected_word_address;
     logic [3:0] selected_read_lane;
@@ -171,10 +171,10 @@ module s2b_route_engine (
         output_elements_work = {33'd0, output_channels_latched} *
                                {33'd0, output_height_latched} *
                                {33'd0, output_width_latched};
+        // VALIDATE前两分支通过时，query坐标和对象范围保证偏移精确落在32位。
         output_offset_work =
-            (({33'd0, output_channel_latched} * {33'd0, output_height_latched}) +
-             {33'd0, output_y_latched}) * {33'd0, output_width_latched} +
-            {33'd0, output_x_latched};
+            ((output_channel_latched * output_height_latched) + output_y_latched) *
+            output_width_latched + output_x_latched;
         output_end_work = {33'd0, output_base_latched} +
                           {33'd0, output_length_latched};
 
@@ -324,10 +324,6 @@ module s2b_route_engine (
                             ((query_error_code == BAD_ARGUMENT) ? BAD_ARGUMENT : BAD_LENGTH);
                         state <= RESULT;
                     end else if (output_end_work > 65'h0000_0001_0000_0000) begin
-                        result_error_latched <= BAD_RANGE;
-                        state <= RESULT;
-                    end else if ((output_offset_work >= {33'd0, output_length_latched}) ||
-                                 (output_base_latched + output_offset_work[31:0] < output_base_latched)) begin
                         result_error_latched <= BAD_RANGE;
                         state <= RESULT;
                     end else begin

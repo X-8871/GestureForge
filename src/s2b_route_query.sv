@@ -51,13 +51,12 @@ module s2b_route_query (
     logic [63:0] output_channels_wide;
     logic [63:0] expected_group_start;
     logic [63:0] expected_group_end;
-    logic [63:0] selected_offset;
-    logic [63:0] selected_address_wide;
+    logic [31:0] selected_offset;
+    logic [31:0] selected_address;
     logic [31:0] source0_selected_count;
     logic [31:0] source1_selected_count;
     logic [31:0] selected_multiplier;
     logic [31:0] selected_base_address;
-    logic [31:0] selected_length_bytes;
     logic signed [7:0] selected_value;
     // 成功路径已排除 -128 并限制倍率，绝对值为 7 位，乘积可精确落在 39 位。
     logic [6:0] selected_magnitude;
@@ -90,13 +89,12 @@ module s2b_route_query (
         output_channels_wide = 64'd0;
         expected_group_start = 64'd0;
         expected_group_end = 64'd0;
-        selected_offset = 64'd0;
-        selected_address_wide = 64'd0;
+        selected_offset = 32'd0;
+        selected_address = 32'd0;
         source0_selected_count = 32'd0;
         source1_selected_count = 32'd0;
         selected_multiplier = 32'd0;
         selected_base_address = 32'd0;
-        selected_length_bytes = 32'd0;
         selected_value = 8'sd0;
         selected_magnitude = 7'd0;
         scaled_product = 39'd0;
@@ -218,7 +216,6 @@ module s2b_route_query (
             selected_value = source0_value;
             selected_multiplier = source0_multiplier_q31;
             selected_base_address = source0_base_address;
-            selected_length_bytes = source0_length_bytes;
         end else if (source_count == 32'd2) begin
             selected_source_index = 32'd1;
             selected_source_channel = source1_channel_start +
@@ -226,22 +223,17 @@ module s2b_route_query (
             selected_value = source1_value;
             selected_multiplier = source1_multiplier_q31;
             selected_base_address = source1_base_address;
-            selected_length_bytes = source1_length_bytes;
         end
 
         if (selected_value == -8'sd128) begin
             bad_argument = 1'b1;
         end
 
+        // 前置shape、坐标、长度及对象端点检查保证成功路径地址精确落在32位。
         selected_offset =
-            (({32'd0, selected_source_channel} * {32'd0, source0_height}) +
-             {32'd0, output_y}) * {32'd0, source0_width} +
-            {32'd0, output_x};
-        selected_address_wide = {32'd0, selected_base_address} + selected_offset;
-        if ((selected_offset >= {32'd0, selected_length_bytes}) ||
-            (selected_address_wide > 64'h0000_0000_FFFF_FFFF)) begin
-            bad_range = 1'b1;
-        end
+            ((selected_source_channel * source0_height) + output_y) *
+            source0_width + output_x;
+        selected_address = selected_base_address + selected_offset;
 
         if (bad_argument) begin
             error_code = BAD_ARGUMENT;
@@ -273,7 +265,7 @@ module s2b_route_query (
             output_width = source0_width;
             source_index = selected_source_index;
             source_channel = selected_source_channel;
-            source_address = selected_address_wide[31:0];
+            source_address = selected_address;
             output_value = scaled_signed[7:0];
         end
     end

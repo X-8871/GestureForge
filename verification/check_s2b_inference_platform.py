@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.6"
+PROFILE_VERSION = "s2b-inference-platform/0.1.7"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -149,6 +149,67 @@ LENGTH_GUARD_REPLACEMENTS = [
 ]
 DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(LENGTH_GUARD_REPLACEMENTS)
 
+# S7只删除前置校验蕴含的地址守卫并缩短组合地址；其余严格派生链不变。
+ROUTE_QUERY_ADDRESS_REPLACEMENTS = [
+    [
+        "    logic [63:0] selected_offset;\n    logic [63:0] selected_address_wide;\n",
+        "    logic [31:0] selected_offset;\n    logic [31:0] selected_address;\n"
+    ],
+    [
+        "    logic [31:0] selected_length_bytes;\n",
+        ""
+    ],
+    [
+        "        selected_offset = 64'd0;\n        selected_address_wide = 64'd0;\n",
+        "        selected_offset = 32'd0;\n        selected_address = 32'd0;\n"
+    ],
+    [
+        "        selected_length_bytes = 32'd0;\n",
+        ""
+    ],
+    [
+        "            selected_length_bytes = source0_length_bytes;\n",
+        ""
+    ],
+    [
+        "            selected_length_bytes = source1_length_bytes;\n",
+        ""
+    ],
+    [
+        "        if (selected_value == -8'sd128) begin\n            bad_argument = 1'b1;\n        end\n\n",
+        "        if (selected_value == -8'sd128) begin\n            bad_argument = 1'b1;\n        end\n\n        // 前置shape、坐标、长度及对象端点检查保证成功路径地址精确落在32位。\n"
+    ],
+    [
+        "            (({32'd0, selected_source_channel} * {32'd0, source0_height}) +\n             {32'd0, output_y}) * {32'd0, source0_width} +\n            {32'd0, output_x};\n        selected_address_wide = {32'd0, selected_base_address} + selected_offset;\n        if ((selected_offset >= {32'd0, selected_length_bytes}) ||\n            (selected_address_wide > 64'h0000_0000_FFFF_FFFF)) begin\n            bad_range = 1'b1;\n        end\n",
+        "            ((selected_source_channel * source0_height) + output_y) *\n            source0_width + output_x;\n        selected_address = selected_base_address + selected_offset;\n"
+    ],
+    [
+        "            source_address = selected_address_wide[31:0];\n",
+        "            source_address = selected_address;\n"
+    ]
+]
+DERIVATION_RULES["src/int8_route_query.sv"][1].extend(ROUTE_QUERY_ADDRESS_REPLACEMENTS)
+ROUTE_ENGINE_ADDRESS_REPLACEMENTS = [
+    [
+        "    logic [64:0] output_offset_work;\n",
+        "    logic [31:0] output_offset_work;\n"
+    ],
+    [
+        "                               {33'd0, output_width_latched};\n",
+        "                               {33'd0, output_width_latched};\n        // VALIDATE前两分支通过时，query坐标和对象范围保证偏移精确落在32位。\n"
+    ],
+    [
+        "            (({33'd0, output_channel_latched} * {33'd0, output_height_latched}) +\n             {33'd0, output_y_latched}) * {33'd0, output_width_latched} +\n            {33'd0, output_x_latched};\n",
+        "            ((output_channel_latched * output_height_latched) + output_y_latched) *\n            output_width_latched + output_x_latched;\n"
+    ],
+    [
+        "                    end else if ((output_offset_work >= {33'd0, output_length_latched}) ||\n                                 (output_base_latched + output_offset_work[31:0] < output_base_latched)) begin\n                        result_error_latched <= BAD_RANGE;\n                        state <= RESULT;\n",
+        ""
+    ]
+]
+DERIVATION_RULES["src/s2a_route_engine.sv"][1].extend(ROUTE_ENGINE_ADDRESS_REPLACEMENTS)
+
+
 
 def sha256(path: Path) -> str:
     """返回实际文件字节的哈希。"""
@@ -208,7 +269,7 @@ def check_derivation(root: Path, profile: dict) -> None:
         "newline_policy", "upstream_sources", "derived_sources"}, "派生绑定字段不符")
     require(item["policy"] == "s2b-constant-geometry-coordinates-route-and-conv-validation/1.0.0" and
         item["upstream_freeze_commit"] == "671f9cf494b92ce182b3f1542fefd0cfd4b209f5" and
-        item["derivation_baseline_commit"] == "5cb092dcce3631f310e67228738a674a6a82ce41",
+        item["derivation_baseline_commit"] == "f53e067ba91abc02ed60cf7f9063884d9ddb79f1",
         "派生上游或基线不符")
     require(item["newline_policy"] == "派生源按UTF-8/LF创建；仅比较派生关系时将上游CRLF转为LF；冻结上游SHA始终绑定原字节。",
         "换行政策不符")
@@ -257,7 +318,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为7个冻结2A、7个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.6" in script, "Tcl平台版本不符")
+    require("variable version 0.1.7" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and

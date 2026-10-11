@@ -1,0 +1,13 @@
+{
+  "timezone": "UTC+8",
+  "provenance": "以下为本轮exec_command返回的CIM JSON原字段转录；无拒绝访问，非空进程失败误判",
+  "queries": [
+    {"tool_chunk": "d27464", "tool_exit_code": 0, "utc8": "2026-10-11 20:19:34", "freeKiB": 4446484, "totalKiB": 16463352, "processes": [], "disks": [{"DeviceID": "C:", "FreeSpace": 26675535872}, {"DeviceID": "D:", "FreeSpace": 102951215104}]},
+    {"tool_chunk": "7ef563", "tool_exit_code": 0, "utc8": "2026-10-11 20:21:11", "freeKiB": 4530156, "totalKiB": 16463352, "processes": [], "disks": [{"DeviceID": "C:", "FreeSpace": 26359123968}, {"DeviceID": "D:", "FreeSpace": 102951215104}]}
+  ],
+  "process_filter": "^(vivado|xsim|xelab|xvlog|verilator_bin|cc1plus|g\\+\\+|make|python|java)\\.exe$",
+  "command": "$ErrorActionPreference='Stop'; Get-CimInstance Win32_OperatingSystem; Get-CimInstance Win32_Process; Get-CimInstance Win32_LogicalDisk",
+  "heavy_jobs": 1,
+  "threads": 1,
+  "notes": "每次编译前重新检查实际进程及资源；不按vivado-mcp服务器名字判断heavy。当前进程树峰另由runner以0.1秒采样测得，全系统峰未知。"
+}

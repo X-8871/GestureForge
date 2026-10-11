@@ -1,0 +1,11 @@
+{
+  "status": "PREPARATION_FAILURES_PRESERVED",
+  "source_change_scope": "仅新增本轮证据；不修改既有失败原件",
+  "observations": [
+    {"tool_chunk": "1d5e71", "tool_exit_code": 1, "native_exit_code": null, "native_capture": "NOT_CAPTURED", "phase": "生成严格白名单patch", "observed_stdout": "Traceback (most recent call last):\n  File <string>, line 15, in <module>\nAssertionError\n", "cause": "插入注释前的空行不是唯一锚点；生成器改为向前扩展到唯一上下文。未apply此失败输出、未启动编译。"},
+    {"tool_chunk": "350198", "tool_exit_code": 1, "native_exit_code": null, "native_capture": "NOT_CAPTURED", "phase": "cheap负例原因口径断言", "isolate": "tmp/2B/S2B-T17/s7_cheap_63h6r8gm", "observed_error": "ValueError: 派生源存在未授权的额外差异：src/s2b_route_query.sv\nAssertionError: 派生源存在未授权的额外差异：src/s2b_route_query.sv", "cause": "checker已正确拒绝篡改，但测试断言检查了错误的中文原因短语。修为检查器原文后，在新tmp s7_cheap_ifhyhjv3完成30负例通过，未复跑或覆盖失败fixture。"}
+  ],
+  "transcription": "工具返回的宿主状态与所显示文本转录；未保存独立子进程returncode，因此native保持null，不把宿主1或推断1冒充native实测。",
+  "additional_correction": "便宜准备检查发现signed query端口须专门解析，已在首次真正编译前修复；生产RTL未因此改变。",
+  "successful_native_captures": "r01及r02的native_capture.json为subprocess.run.returncode直接记录；分别0。"
+}

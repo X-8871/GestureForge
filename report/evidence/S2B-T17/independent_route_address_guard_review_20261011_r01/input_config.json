@@ -1,0 +1,67 @@
+{
+  "task_id": "S2B-T17",
+  "raw_manifest": {
+    "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/raw_manifest_r02.json",
+    "sha256": "0df8a22885a091f6c62469dbeb4b91fc4ec6cfc4f4dc0392e34ce5b92889023d"
+  },
+  "receipt": {
+    "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/receipt.json",
+    "sha256": "6915839643e8644c89ec4fe88287c5b4c83fce27e717de2d1ed47212b0050e7b"
+  },
+  "reviewed_manifest": {
+    "path": "report/evidence/S2B-T17/route_address_guard_20261011_r04/delivery_manifest_r03.json",
+    "sha256": "fe96ff60ecf84bdc7f592c1cbd9a30374105b2f9a6efa51a9d982482c252f0ad"
+  },
+  "review_status": "PASS_G2_ONLY",
+  "native_checks": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/review_native_capture.json",
+      "expected_exit_code": 2,
+      "name": "独审首轮原生失败保留",
+      "reason": "Reviewer脚本误把Git LF与工作树RAW要求全等；未编译，原件不覆盖。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/review_r02_native_capture.json",
+      "expected_exit_code": 0,
+      "name": "独立ROUTE数学及公开口RTL审查",
+      "reason": "修正明确EOL映射后独立9077 query、4912 engine和57695周期通过；结论仅G2。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/audit_native_capture.json",
+      "expected_exit_code": 0,
+      "name": "独立证据绑定与封存",
+      "reason": "只核对原件绑定，不代表STA或实物通过。"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/metadata_repair_native_capture.json",
+      "expected_exit_code": 0,
+      "name": "独审RAW角色分类修复",
+      "reason": "旧RAW与receipt不覆盖；新清单仅修正25项角色并绑定原件，没有重跑RTL。"
+    }
+  ],
+  "include_reviewed_checks": [
+    "static_checker",
+    "diff_check",
+    "direct_s6_s7_compile",
+    "direct_s6_s7_simulation",
+    "direct_s6_s7_runner",
+    "backend_nonconv_compile",
+    "backend_nonconv_simulation",
+    "backend_nonconv_runner",
+    "S7_STA_bit_BOARD",
+    "new_CONV_layer0",
+    "new_109_network_G3",
+    "historical_r03_package_failure",
+    "packaging_evidence_r01",
+    "packaging_inputs_r01",
+    "r03_package_build"
+  ],
+  "evidence_dir": "report/evidence/S2B-T17/independent_route_address_guard_review_20261011_r01",
+  "limitations": [
+    "仅批准S6/S7二态公开域等价及G2；四态X/Z、STA、物理冻结、bit、BOARD、G3/G4/G5未批准。",
+    "G1完整15非CONV回归和不变CONV layer0仅核查绑定，未在独审中复跑。",
+    "16条backend MULTIDRIVEN来自既有测试注入，全文和行号与S5同一；直接ROUTE三类告警为0，不抑制新告警。",
+    "首独审脚本native2、G1 r03封包native1及早期nativeNULL/host1保留；最终通过不改写原失败。",
+    "25项RAW角色修复只改变新清单元数据，旧RAW及receipt原字节保留。"
+  ]
+}

@@ -1,0 +1,1091 @@
+{
+  "status": "PASS_G2_ONLY",
+  "reviewed_source_commit": "f53e067ba91abc02ed60cf7f9063884d9ddb79f1",
+  "reviewed_manifest_sha256": "fe96ff60ecf84bdc7f592c1cbd9a30374105b2f9a6efa51a9d982482c252f0ad",
+  "runs": [
+    {
+      "name": "verilator_version",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--version"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.063,
+      "peak_tree_rss_bytes": null,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 0,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/verilator_version.log",
+      "log_sha256": "be5b1e877077b1688976ea6bfdf740df568ddd4d21c17603aae1c7dabaa3ec5a"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_route_specialization",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "source/s2b_route_engine.sv",
+        "source/s2b_route_query.sv",
+        "source/s6_s2b_route_engine.sv",
+        "source/s6_s2b_route_query.sv",
+        "tb_s2b_route_specialization.sv"
+      ],
+      "native_exit_code": 0,
+      "seconds": 17.578,
+      "peak_tree_rss_bytes": 656093184,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 299,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/compile.log",
+      "log_sha256": "452849c918b46b488d15bcbd43d3652f1e32c5e06841acb9737ca5460b3092bc"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\obj_dir\\Vtb_s2b_route_specialization.exe"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.437,
+      "peak_tree_rss_bytes": 4943872,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 5,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/simulation.log",
+      "log_sha256": "2cc82c579b3e2e0c5302fd93b0b199be6db8fd0aeee4ab601a1d0bc547426b1c"
+    },
+    {
+      "name": "static_checker",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_s2b_inference_platform.py"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.234,
+      "peak_tree_rss_bytes": 18571264,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 4,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/static_checker.log",
+      "log_sha256": "0b617fab052cf0fa92b5826702a4e13473b76c3e2747b3638f54b57baf0e1187"
+    },
+    {
+      "name": "diff_check",
+      "command": [
+        "git",
+        "-c",
+        "core.longpaths=true",
+        "diff",
+        "--check",
+        "--",
+        "src/s2b_route_query.sv",
+        "src/s2b_route_engine.sv",
+        "board/s2b_inference_platform.json",
+        "board/s2b_inference_platform.md",
+        "vivado/s2b_inference_platform.tcl",
+        "verification/check_s2b_inference_platform.py",
+        "verification/test_s2b_backend_coordinates_rtl.py",
+        "verification/test_s2b_geometry_specialization_rtl.py",
+        "verification/test_s2b_route_specialization_rtl.py",
+        "verification/test_s2b_route_address_guard_rtl.py"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.062,
+      "peak_tree_rss_bytes": 6742016,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 1,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/diff_check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "evidence_checker",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "report/evidence/S2B-T17/route_address_guard_20261011_r04/delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 0,
+      "seconds": 0.36,
+      "peak_tree_rss_bytes": 29171712,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 6,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/evidence_checker.log",
+      "log_sha256": "dbf39b0d50533b9bbe9fb44842d15afb5024911101b7628ce801b6abc5616e7e"
+    },
+    {
+      "name": "inputs_checker",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T17/route_address_guard_20261011_r04/delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 2,
+      "seconds": 0.297,
+      "peak_tree_rss_bytes": 22245376,
+      "rss_sampling_interval_seconds": 0.05,
+      "rss_samples": 5,
+      "log": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/inputs_checker.log",
+      "log_sha256": "845947e620810a885888c3225100852645ce0eed3320a1940e5cffbe704038d2"
+    }
+  ],
+  "seed": 2047937633,
+  "scope": "S7 ROUTE地址守卫数学、固定源码、独立公开口RTL和G1证据；不授予STA/G3/G4/G5",
+  "started_at": "2026-10-11T20:37:05.022555+08:00",
+  "frozen14_git_classes": {
+    "src/s2a_network_descriptor_pkg.sv": "EXACT_CRLF_TO_LF",
+    "src/int8_maxpool_geometry.sv": "RAW",
+    "src/int8_maxpool_window.sv": "RAW",
+    "src/int8_route_query.sv": "RAW",
+    "src/int8_upsample_query.sv": "RAW",
+    "src/s2a_conv_tile_engine.sv": "EXACT_CRLF_TO_LF",
+    "src/s2a_maxpool_engine.sv": "RAW",
+    "src/s2a_route_engine.sv": "RAW",
+    "src/s2a_upsample_engine.sv": "RAW",
+    "src/s2a_network_backend.sv": "EXACT_CRLF_TO_LF",
+    "src/s2a_memory_master.sv": "RAW",
+    "src/s2a_runtime_shell.sv": "RAW",
+    "src/s2a_stage2a_core_ooc.sv": "EXACT_CRLF_TO_LF",
+    "src/s2a_control_csr.sv": "RAW"
+  },
+  "source_sha256_before": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "bff6433c31d81c65d92ad1d6c65dc0b83ea667f2e3e859a59ea605d8ef07d6c5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "d17c06ea6711f5facc49b080a4240eb579e9da42f190de78d6b24024e832db1f",
+    "board/s2b_inference_platform.md": "a23899c4b304e932a1969c7f819a7d590e683a48282218007942b5622ed16aa1",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "4cf33b11c0dca887694c32d0bbeccc98389f0c46ad12706144823a5597a6e9fb",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "14a7d8164e1aa56e6497b3237265ae2e891a280edcbb061e08c211b153436227",
+    "verification/test_s2b_geometry_specialization_rtl.py": "da4b54b4cf2b39d8c2a014a36d3fd8d59ed81d02b9219dee44b5b7da020563d7",
+    "verification/test_s2b_route_specialization_rtl.py": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e"
+  },
+  "changed_source_sha256": {
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "board/s2b_inference_platform.json": "d17c06ea6711f5facc49b080a4240eb579e9da42f190de78d6b24024e832db1f",
+    "board/s2b_inference_platform.md": "a23899c4b304e932a1969c7f819a7d590e683a48282218007942b5622ed16aa1",
+    "vivado/s2b_inference_platform.tcl": "bff6433c31d81c65d92ad1d6c65dc0b83ea667f2e3e859a59ea605d8ef07d6c5",
+    "verification/check_s2b_inference_platform.py": "4cf33b11c0dca887694c32d0bbeccc98389f0c46ad12706144823a5597a6e9fb",
+    "verification/test_s2b_backend_coordinates_rtl.py": "14a7d8164e1aa56e6497b3237265ae2e891a280edcbb061e08c211b153436227",
+    "verification/test_s2b_geometry_specialization_rtl.py": "da4b54b4cf2b39d8c2a014a36d3fd8d59ed81d02b9219dee44b5b7da020563d7",
+    "verification/test_s2b_route_specialization_rtl.py": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e"
+  },
+  "source_closure": {
+    "static": 31,
+    "extra": 8,
+    "total": 39,
+    "active_rtl": 18,
+    "frozen14": 14,
+    "conv_unchanged": true,
+    "s6_baseline_sha256": {
+      "src/s2b_route_query.sv": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+      "src/s2b_route_engine.sv": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36"
+    },
+    "structure": {
+      "src/s2b_route_query.sv": {
+        "header_equal": true,
+        "combinational_only": true
+      },
+      "src/s2b_route_engine.sv": {
+        "header_equal": true,
+        "ff_only_removed_four_lines": true,
+        "remaining_ff_sha256": "e73081b55cba12dc9c85ce425f1079c0583d2fbbcdded70964f6ccb1f151e8fb"
+      }
+    }
+  },
+  "formal_closure": {
+    "files": 136,
+    "bytes": 40770117,
+    "role_counts": {
+      "source": 38,
+      "input": 80,
+      "artifact": 12,
+      "log": 5,
+      "diagnostic": 1
+    },
+    "all_raw_hashes_equal": true,
+    "self_reference": false
+  },
+  "checker_mutations": [
+    {
+      "name": "query_31bit",
+      "path": "src/s2b_route_query.sv",
+      "before": "logic [31:0] selected_offset;",
+      "after": "logic [30:0] selected_offset;",
+      "self_reported_sha256": "d20f5e3a3357d2291137ff3cfc371417c18e25221fd6f9232c01c801b01a3502",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_query.sv"
+    },
+    {
+      "name": "engine_31bit",
+      "path": "src/s2b_route_engine.sv",
+      "before": "logic [31:0] output_offset_work;",
+      "after": "logic [30:0] output_offset_work;",
+      "self_reported_sha256": "9fabf347db0ebafa0ed60c214222c778688d0eeb6a0a1e3b8a242c615962f1a7",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_engine.sv"
+    },
+    {
+      "name": "wrong_priority",
+      "path": "src/s2b_route_query.sv",
+      "before": "        if (bad_argument) begin",
+      "after": "        if (bad_argument && !bad_range) begin",
+      "self_reported_sha256": "d6bee74f9629aafb71a77892cd17dc44110384c8238ff6252c72ad4a61fa67b1",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_query.sv"
+    },
+    {
+      "name": "result_gating",
+      "path": "src/s2b_route_engine.sv",
+      "before": "result_valid = (state == RESULT);",
+      "after": "result_valid = (state == RESULT) && !abort;",
+      "self_reported_sha256": "56391e9c0c36ea60ffd8d6c693a25f1702c5c98dafba68eb646ef40083e8bba2",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_engine.sv"
+    },
+    {
+      "name": "pre_shape",
+      "path": "src/s2b_route_query.sv",
+      "before": "if (source0_plane_elements > 64'h0000_0000_FFFF_FFFF)",
+      "after": "if (source0_plane_elements > 64'h0000_0001_FFFF_FFFF)",
+      "self_reported_sha256": "1b19290b9d125508fa124a1df67bbc24858cb08ec85dfffb32553f85e4dda4f9",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_query.sv"
+    },
+    {
+      "name": "output_endpoint",
+      "path": "src/s2b_route_engine.sv",
+      "before": "output_end_work > 65'h0000_0001_0000_0000",
+      "after": "output_end_work > 65'h0000_0001_0000_0001",
+      "self_reported_sha256": "0de7a39f0f5ccc199fcdc01ed40944f1b6a430b479c3a8e81d7f677e7ce8c473",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_engine.sv"
+    },
+    {
+      "name": "recovery_state",
+      "path": "src/s2b_route_engine.sv",
+      "before": "state <= IDLE;\n                        result_error_latched <= NONE;",
+      "after": "state <= VALIDATE;\n                        result_error_latched <= NONE;",
+      "self_reported_sha256": "0a31bde6ed6728bc1759cc243692b3da6f5eeb17441534bd6f75a9a0227c42c6",
+      "self_hash_updated": true,
+      "accepted": false,
+      "rejection": "派生源存在未授权的额外差异：src/s2b_route_engine.sv"
+    }
+  ],
+  "independent_coverage": {
+    "seed": 2047937633,
+    "query_vectors": 9077,
+    "query_categories": {
+      "hand_u32_end_product": 13,
+      "seeded_valid_large": 2500,
+      "coord_and_range": 250,
+      "argument_and_range": 250,
+      "short_source": 250,
+      "source_end_overflow": 250,
+      "int8_all_multiplier_bounds": 1536,
+      "groups_all_domain_rejection": 28,
+      "seeded_full_u32": 4000
+    },
+    "query_errors": {
+      "0": 3275,
+      "2": 504,
+      "1": 5298
+    },
+    "engine_vectors": 4912,
+    "engine_categories": {
+      "hand_u32_end_product": 13,
+      "seeded_valid_large": 2500,
+      "coord_and_range": 250,
+      "argument_and_range": 250,
+      "short_source": 250,
+      "source_end_overflow": 250,
+      "output_length": 250,
+      "output_end": 250,
+      "output_shape_and_end": 250,
+      "groups_all_domain_rejection": 28,
+      "seeded_full_u32": 500,
+      "response24": 24,
+      "raw80": 80,
+      "abort8": 8,
+      "reset8": 8,
+      "infinite_backpressure_abort": 1
+    },
+    "query_outputs": 8,
+    "engine_outputs_compared": 14,
+    "reuse": "只复用公开口驱动与逐周期比较框架；黄金函数、种子和全部向量独立新建；未调用G1 oracle/cases/vectors"
+  },
+  "resource_preflight": {
+    "available_ram_bytes": 4406386688,
+    "disk_free_bytes": 26050048000,
+    "running_heavy": [],
+    "jobs": 1,
+    "threads": 1,
+    "rss_limit_bytes": 1610612736,
+    "timeout_seconds": 600
+  },
+  "simulation_counts": {
+    "engine": 4912,
+    "query": 9077,
+    "cycles": 57695,
+    "abort_mask": 255,
+    "reset_mask": 255
+  },
+  "source_sha256_after": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "bff6433c31d81c65d92ad1d6c65dc0b83ea667f2e3e859a59ea605d8ef07d6c5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "d17c06ea6711f5facc49b080a4240eb579e9da42f190de78d6b24024e832db1f",
+    "board/s2b_inference_platform.md": "a23899c4b304e932a1969c7f819a7d590e683a48282218007942b5622ed16aa1",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "4cf33b11c0dca887694c32d0bbeccc98389f0c46ad12706144823a5597a6e9fb",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "14a7d8164e1aa56e6497b3237265ae2e891a280edcbb061e08c211b153436227",
+    "verification/test_s2b_geometry_specialization_rtl.py": "da4b54b4cf2b39d8c2a014a36d3fd8d59ed81d02b9219dee44b5b7da020563d7",
+    "verification/test_s2b_route_specialization_rtl.py": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e"
+  },
+  "seconds": 20.343,
+  "bound_g1": {
+    "rerun": false,
+    "r01_native": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/test_s2b_route_address_guard_rtl.py",
+        "--run-id",
+        "route_address_guard_20261011_r01"
+      ],
+      "native_exit_code": 0,
+      "seconds": 25.516,
+      "capture_method": "subprocess.run.returncode直接捕获，不使用宿主exec状态推断"
+    },
+    "r02_native": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/test_s2b_backend_coordinates_rtl.py",
+        "--run-id",
+        "route_address_guard_20261011_r02"
+      ],
+      "native_exit_code": 0,
+      "seconds": 190.828,
+      "capture_method": "subprocess.run.returncode直接捕获，不使用宿主exec状态推断"
+    },
+    "r01_compile_simulation": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "--timescale",
+          "1ns/1ps",
+          "-Wall",
+          "-Wno-fatal",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--output-split",
+          "10000",
+          "--output-split-cfuncs",
+          "100",
+          "--top-module",
+          "tb_s2b_route_specialization",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+          "source/s2b_route_engine.sv",
+          "source/s2b_route_query.sv",
+          "source/s6_s2b_route_engine.sv",
+          "source/s6_s2b_route_query.sv",
+          "tb_s2b_route_specialization.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 19.188,
+        "peak_tree_rss_bytes": 640159744,
+        "failure": null,
+        "log": "report/evidence/S2B-T17/route_address_guard_20261011_r01/compile.log",
+        "log_sha256": "8b64d6316964146256eacb7f2deaa8152cc58fdeafea72ee719bad7c0ba58d1f"
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r01\\obj_dir\\Vtb_s2b_route_specialization.exe"
+        ],
+        "exit_code": 0,
+        "seconds": 2.172,
+        "peak_tree_rss_bytes": 5070848,
+        "failure": null,
+        "log": "report/evidence/S2B-T17/route_address_guard_20261011_r01/simulation.log",
+        "log_sha256": "deffa87a6000e6d313bff1a0ff13ec157d87a8ac58cd8441f008aa212a8811ce"
+      }
+    ],
+    "r02_compile_simulation": [
+      {
+        "name": "compile",
+        "command": [
+          "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+          "--binary",
+          "--timing",
+          "--timescale",
+          "1ns/1ps",
+          "-Wall",
+          "-Wno-fatal",
+          "-j",
+          "1",
+          "--threads",
+          "1",
+          "--output-split",
+          "10000",
+          "--output-split-cfuncs",
+          "100",
+          "--top-module",
+          "tb_s2b_backend_coordinates",
+          "--Mdir",
+          "obj_dir",
+          "-MAKEFLAGS",
+          "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+          "-CFLAGS",
+          "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+          "source/s2a_network_descriptor_pkg.sv",
+          "source/int8_maxpool_geometry.sv",
+          "source/int8_maxpool_window.sv",
+          "source/int8_route_query.sv",
+          "source/int8_upsample_query.sv",
+          "source/s2b_maxpool_engine.sv",
+          "source/s2a_route_engine.sv",
+          "source/s2b_upsample_engine.sv",
+          "source/s2b_network_backend.sv",
+          "source/s2b_route_query.sv",
+          "source/s2b_route_engine.sv",
+          "source/s2_network_backend.sv",
+          "convolution_stub.sv",
+          "tb_s2b_backend_coordinates.sv"
+        ],
+        "exit_code": 0,
+        "seconds": 20.609,
+        "peak_tree_rss_bytes": 667791360,
+        "failure": null,
+        "log": "report/evidence/S2B-T17/route_address_guard_20261011_r02/compile.log",
+        "log_sha256": "5a3dd4b3e016403040b85caf5a1629e4acf94498a0ca946f096e3973868e516f"
+      },
+      {
+        "name": "simulation",
+        "command": [
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r02\\obj_dir\\Vtb_s2b_backend_coordinates.exe"
+        ],
+        "exit_code": 0,
+        "seconds": 166.453,
+        "peak_tree_rss_bytes": 5120000,
+        "failure": null,
+        "log": "report/evidence/S2B-T17/route_address_guard_20261011_r02/simulation.log",
+        "log_sha256": "89c5465b960b231f452e46cef8a228dde36859f2ac92d2a85374c2ab59585ef7"
+      }
+    ],
+    "r01_integer": {
+      "samples": 49449,
+      "legal": 20669
+    },
+    "r01_counts": {
+      "cases": 25018,
+      "queries": 4642169,
+      "cycles": 344751,
+      "abort": 255,
+      "reset": 255
+    },
+    "r02_counts": {
+      "boundary_cases": 4980736,
+      "nonconv_layers": 15,
+      "nonconv_outputs": 5234944,
+      "nonconv_requests": 12286976,
+      "cycles": 102468267,
+      "owner_drop_results": 120942
+    },
+    "trace_summaries": [
+      [
+        "3",
+        "2",
+        "346112",
+        "692224",
+        "2855426",
+        "d3d57ec25e170da5"
+      ],
+      [
+        "6",
+        "2",
+        "692224",
+        "1384448",
+        "5710850",
+        "112f62561ab82c41"
+      ],
+      [
+        "8",
+        "2",
+        "1384448",
+        "2768896",
+        "11421697",
+        "f452e06606323ce5"
+      ],
+      [
+        "9",
+        "1",
+        "346112",
+        "1730560",
+        "4698286",
+        "e5904ee4e7398477"
+      ],
+      [
+        "11",
+        "2",
+        "173056",
+        "346112",
+        "1427714",
+        "81893e9b94f4436c"
+      ],
+      [
+        "14",
+        "2",
+        "346112",
+        "692224",
+        "2855426",
+        "27bed66ef35fbac1"
+      ],
+      [
+        "16",
+        "2",
+        "692224",
+        "1384448",
+        "5710850",
+        "e49c73ad7e8f678d"
+      ],
+      [
+        "17",
+        "1",
+        "173056",
+        "865280",
+        "2349142",
+        "f6cabd25f7a01249"
+      ],
+      [
+        "19",
+        "2",
+        "86528",
+        "173056",
+        "713855",
+        "d0903d8b46f446c5"
+      ],
+      [
+        "22",
+        "2",
+        "173056",
+        "346112",
+        "1427711",
+        "dcb213c5e1bd7136"
+      ],
+      [
+        "24",
+        "2",
+        "346112",
+        "692224",
+        "2855426",
+        "baf69909dc7ceaac"
+      ],
+      [
+        "25",
+        "1",
+        "86528",
+        "432640",
+        "1174573",
+        "7840f56f8c4e36db"
+      ],
+      [
+        "31",
+        "2",
+        "43264",
+        "86528",
+        "356927",
+        "18827f2c3a3d5de5"
+      ],
+      [
+        "33",
+        "3",
+        "86528",
+        "173056",
+        "552049",
+        "8b99f67a9428a2d0"
+      ],
+      [
+        "34",
+        "2",
+        "259584",
+        "519168",
+        "2141568",
+        "81cf63227948b0be"
+      ]
+    ],
+    "public_entries": [
+      [
+        "12",
+        "0000000481494948"
+      ]
+    ],
+    "compiled_sources_actual": [
+      {
+        "run_id": "route_address_guard_20261011_r01",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r01/source/s2b_route_engine.sv",
+        "sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r01",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r01/source/s2b_route_query.sv",
+        "sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r01",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r01/source/s6_s2b_route_engine.sv",
+        "sha256": "680054332e93bf3c9fc4bd6593d114a338e852fc2142902c80f18650cd870c87"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r01",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r01/source/s6_s2b_route_query.sv",
+        "sha256": "3e1bae93fa2322f6939b94159a9df293498235f629dc2c596041d3c71790aeb4"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r01",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r01/tb_s2b_route_specialization.sv",
+        "sha256": "c9bc3c6e170d6da1a55a5fff4e3ddd8eb67df6a25a83965430f7201e51fa7934"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2a_network_descriptor_pkg.sv",
+        "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/int8_maxpool_geometry.sv",
+        "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/int8_maxpool_window.sv",
+        "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/int8_route_query.sv",
+        "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/int8_upsample_query.sv",
+        "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2b_maxpool_engine.sv",
+        "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2a_route_engine.sv",
+        "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2b_upsample_engine.sv",
+        "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2b_network_backend.sv",
+        "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2b_route_query.sv",
+        "sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2b_route_engine.sv",
+        "sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/source/s2_network_backend.sv",
+        "sha256": "6aefa2472a7dc6b142ab2cc8bece7319181b2724c48407db7f0a25812561e82a"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/convolution_stub.sv",
+        "sha256": "3e3bd783bca4267310ea71ef8bab82abaa10f0ebb1dede253aa3ec1160fd7d30"
+      },
+      {
+        "run_id": "route_address_guard_20261011_r02",
+        "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r02/tb_s2b_backend_coordinates.sv",
+        "sha256": "b489597c0f7b1913f0b5a8cb0dbc82221edcad989bd3c2800a02c93873e7a211"
+      }
+    ],
+    "snapshot_raw_count": 35,
+    "simulation_old_md_sha256": "fb5944c7b546f0dc4ccefc273e8a979f672e1214f49246a711715a611c1f87bd",
+    "final_md_sha256": "a23899c4b304e932a1969c7f819a7d590e683a48282218007942b5622ed16aa1",
+    "oracle_audit": "逐请求Golden常量从固定模型NCHW/输入引用/张量地址/route范围/scale独立建立；真实pool/route/up，CONV共享控制stub。非conv逐层合法DISPATCH注入；公共12项另无内部状态注入。未复跑15层或不变CONV layer0。"
+  },
+  "warnings": {
+    "backend_multidriven_inherited": 16,
+    "new_multidriven": 0,
+    "latch": 0,
+    "unoptflat": 0,
+    "pure_route_all_three": 0,
+    "full_warning_blocks_bound": "inherited_warning_blocks.json",
+    "warnings_suppressed": false
+  },
+  "derivation_chain": {
+    "modules": [
+      {
+        "upstream": "src/s2a_maxpool_engine.sv",
+        "upstream_raw_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+        "target": "src/s2b_maxpool_engine.sv",
+        "target_sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+        "replacements": 6,
+        "s7_added": 0
+      },
+      {
+        "upstream": "src/s2a_upsample_engine.sv",
+        "upstream_raw_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+        "target": "src/s2b_upsample_engine.sv",
+        "target_sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+        "replacements": 2,
+        "s7_added": 0
+      },
+      {
+        "upstream": "src/s2a_network_backend.sv",
+        "upstream_raw_sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+        "target": "src/s2b_network_backend.sv",
+        "target_sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+        "replacements": 13,
+        "s7_added": 0
+      },
+      {
+        "upstream": "src/s2a_stage2a_core_ooc.sv",
+        "upstream_raw_sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+        "target": "src/s2b_stage2b_core.sv",
+        "target_sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+        "replacements": 2,
+        "s7_added": 0
+      },
+      {
+        "upstream": "src/int8_route_query.sv",
+        "upstream_raw_sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+        "target": "src/s2b_route_query.sv",
+        "target_sha256": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+        "replacements": 11,
+        "s7_added": 9
+      },
+      {
+        "upstream": "src/s2a_route_engine.sv",
+        "upstream_raw_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+        "target": "src/s2b_route_engine.sv",
+        "target_sha256": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+        "replacements": 6,
+        "s7_added": 4
+      },
+      {
+        "upstream": "src/s2a_conv_tile_engine.sv",
+        "upstream_raw_sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+        "target": "src/s2b_conv_tile_engine.sv",
+        "target_sha256": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+        "replacements": 12,
+        "s7_added": 0
+      }
+    ],
+    "original14_raw_exact": true,
+    "static31_exact": true,
+    "stages": [
+      "S1几何常量",
+      "S2同沿坐标carry",
+      "S3 ROUTE 1/2组",
+      "S4单batch CONV",
+      "S5 patch容量",
+      "S6长度/reduction",
+      "S7 ROUTE地址守卫"
+    ],
+    "policy": "全部从固定原14经唯一精确替换得到；除query/engine追加允许替换外原S1..S6规则原样保留"
+  },
+  "git_source_classes": {
+    "counts": {
+      "EXACT_CRLF_TO_LF": 6,
+      "RAW": 23,
+      "AUTHORIZED_MODIFICATION": 9,
+      "NEW_SOURCE": 1
+    },
+    "files": {
+      "src/s2a_network_descriptor_pkg.sv": "EXACT_CRLF_TO_LF",
+      "src/int8_maxpool_geometry.sv": "RAW",
+      "src/int8_maxpool_window.sv": "RAW",
+      "src/s2b_route_query.sv": "AUTHORIZED_MODIFICATION",
+      "src/int8_upsample_query.sv": "RAW",
+      "src/s2b_conv_tile_engine.sv": "RAW",
+      "src/s2b_maxpool_engine.sv": "RAW",
+      "src/s2b_route_engine.sv": "AUTHORIZED_MODIFICATION",
+      "src/s2b_upsample_engine.sv": "RAW",
+      "src/s2b_network_backend.sv": "RAW",
+      "src/s2a_memory_master.sv": "RAW",
+      "src/s2a_runtime_shell.sv": "RAW",
+      "src/s2b_stage2b_core.sv": "RAW",
+      "src/s2a_control_csr.sv": "RAW",
+      "src/s2b_request_guard.sv": "RAW",
+      "src/s2b_hp0_word_adapter.sv": "RAW",
+      "src/s2b_control_csr.sv": "RAW",
+      "src/s2b_inference_top.sv": "RAW",
+      "src/int8_route_query.sv": "RAW",
+      "src/s2a_conv_tile_engine.sv": "EXACT_CRLF_TO_LF",
+      "src/s2a_maxpool_engine.sv": "RAW",
+      "src/s2a_route_engine.sv": "RAW",
+      "src/s2a_upsample_engine.sv": "RAW",
+      "src/s2a_network_backend.sv": "EXACT_CRLF_TO_LF",
+      "src/s2a_stage2a_core_ooc.sv": "EXACT_CRLF_TO_LF",
+      "vivado/s2b_inference_platform.tcl": "AUTHORIZED_MODIFICATION",
+      "vivado/s2b_ps_platform.tcl": "RAW",
+      "board/s2b_inference_platform.json": "AUTHORIZED_MODIFICATION",
+      "board/s2b_inference_platform.md": "AUTHORIZED_MODIFICATION",
+      "board/ps_platform_fields.json": "RAW",
+      "verification/check_s2b_inference_platform.py": "AUTHORIZED_MODIFICATION",
+      "verification/test_s2b_conv_validation_rtl.py": "RAW",
+      "verification/test_s2b_backend_coordinates_rtl.py": "AUTHORIZED_MODIFICATION",
+      "verification/test_s2b_geometry_specialization_rtl.py": "AUTHORIZED_MODIFICATION",
+      "verification/test_s2b_route_specialization_rtl.py": "AUTHORIZED_MODIFICATION",
+      "sim/tb_s2a_t66_candidate_blackbox.sv": "EXACT_CRLF_TO_LF",
+      "verification/s1_t02_d2_int8_forward.py": "EXACT_CRLF_TO_LF",
+      "report/evidence/S2A-T01/tiny416_model_manifest.json": "RAW",
+      "verification/test_s2b_route_address_guard_rtl.py": "NEW_SOURCE"
+    },
+    "raw_snapshot_eol_transformations": 0
+  },
+  "preserved_failures": {
+    "r03_pack_native": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r03\\pack_delivery.py"
+      ],
+      "native_exit_code": 1,
+      "seconds": 1.641,
+      "peak_tree_rss_bytes": null,
+      "capture_method": "subprocess.run.returncode"
+    },
+    "early_native_null_host1": [
+      {
+        "tool_chunk": "1d5e71",
+        "tool_exit_code": 1,
+        "native_exit_code": null,
+        "native_capture": "NOT_CAPTURED",
+        "phase": "生成严格白名单patch",
+        "observed_stdout": "Traceback (most recent call last):\n  File <string>, line 15, in <module>\nAssertionError\n",
+        "cause": "插入注释前的空行不是唯一锚点；生成器改为向前扩展到唯一上下文。未apply此失败输出、未启动编译。"
+      },
+      {
+        "tool_chunk": "350198",
+        "tool_exit_code": 1,
+        "native_exit_code": null,
+        "native_capture": "NOT_CAPTURED",
+        "phase": "cheap负例原因口径断言",
+        "isolate": "tmp/2B/S2B-T17/s7_cheap_63h6r8gm",
+        "observed_error": "ValueError: 派生源存在未授权的额外差异：src/s2b_route_query.sv\nAssertionError: 派生源存在未授权的额外差异：src/s2b_route_query.sv",
+        "cause": "checker已正确拒绝篡改，但测试断言检查了错误的中文原因短语。修为检查器原文后，在新tmp s7_cheap_ifhyhjv3完成30负例通过，未复跑或覆盖失败fixture。"
+      }
+    ],
+    "g1_final_receipt": {
+      "path": "tmp/2B/S2B-T17/route_address_guard_20261011_r04/final_receipt.json",
+      "sha256": "67a1556fc6bd8ae1e9915bebc0db41ab37fa9f7d014f0c61a9ba942c4f7713d0"
+    },
+    "own_r01_native": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\review.py"
+      ],
+      "native_exit_code": 2,
+      "seconds": 0.39,
+      "peak_tree_rss_bytes": null
+    },
+    "own_r01_failure": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\review.py\", line 353, in <module>\n    try:main()\n        ^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\review.py\", line 316, in main\n    freeze,profile=reference_audit(checker)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\review.py\", line 99, in reference_audit\n    assert digest(R/p)==h==hashlib.sha256(git('show',BASE+':'+p)).hexdigest()\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+    "own_r01_cause": "独审脚本把Git LF与工作树RAW错误要求完全相同；修改为仅Git比较可用精确CRLF到LF，工作树/冻结快照始终RAW完全匹配。没有编译、没有生产设计失败。",
+    "own_r02_native": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\review_r02.py"
+      ],
+      "native_exit_code": 0,
+      "seconds": 20.469,
+      "peak_tree_rss_bytes": null
+    },
+    "all_previous_failures_kept": true
+  },
+  "limits": [
+    "有限向量不穷举全部二态组合；全域结论依赖独立无界整数蕴含证明和结构核查。",
+    "未证明四态X/Z语义。",
+    "G1两次编译/长回归原件只绑定，未本轮复跑15层或不变CONV layer0；owner覆盖来自已核G1真实backend。",
+    "采样RSS是约50ms进程树采样下界；全Agent/宿主系统峰值和所有工具调用数未知。",
+    "profile0.1.7物理候选0.1.1未冻结、visibility0、50MHz；新STA/bit/BOARD/G3/G4/G5未执行，inputs2保持失败。",
+    "只写独立tmp目录，无生产源码/STATE/Git/既有报告写入，无提交，无设备/ROSS操作。"
+  ],
+  "audit_native_capture": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_route_address_guard_review_20261011_r01\\audit_and_seal.py",
+      "--audit-only"
+    ],
+    "native_exit_code": 0,
+    "seconds": 2.14,
+    "peak_tree_rss_bytes": null
+  },
+  "stop": true,
+  "findings": [],
+  "reviewed_manifest": "report/evidence/S2B-T17/route_address_guard_20261011_r04/delivery_manifest_r03.json",
+  "reviewed_source_freeze_sha256": "a4cc9d6696bc73545c231cf236b5f82d0845423196acacd44c66851904124df7",
+  "independent_proof": {
+    "path": "tmp/2B/S2B-T17/independent_route_address_guard_review_20261011_r01/independent_math_proof.md",
+    "sha256": "0fb73af7d6b58cca1361cc18a7224bba311d44a1cff20ac07b383819833a9e5f"
+  },
+  "source_sha256_after_seal": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "5953287f838c91a0e342c98c39d2ff43aa0bbf17fd7bc98e89767bce09305a8e",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "src/s2b_maxpool_engine.sv": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+    "src/s2b_route_engine.sv": "aa4e297fbcaf84873554115b6ab441f8aa55f946c024548fb8eb19bb593a4a57",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "bff6433c31d81c65d92ad1d6c65dc0b83ea667f2e3e859a59ea605d8ef07d6c5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "d17c06ea6711f5facc49b080a4240eb579e9da42f190de78d6b24024e832db1f",
+    "board/s2b_inference_platform.md": "a23899c4b304e932a1969c7f819a7d590e683a48282218007942b5622ed16aa1",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "4cf33b11c0dca887694c32d0bbeccc98389f0c46ad12706144823a5597a6e9fb",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "14a7d8164e1aa56e6497b3237265ae2e891a280edcbb061e08c211b153436227",
+    "verification/test_s2b_geometry_specialization_rtl.py": "da4b54b4cf2b39d8c2a014a36d3fd8d59ed81d02b9219dee44b5b7da020563d7",
+    "verification/test_s2b_route_specialization_rtl.py": "48d2c64527c02ec7cbdf48816b55ed9debee12c69f801179ddb467b8ec843124",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e"
+  }
+}

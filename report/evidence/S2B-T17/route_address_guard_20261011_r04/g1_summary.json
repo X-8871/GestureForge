@@ -1,0 +1,494 @@
+{
+  "status": "PASS_G1_ONLY",
+  "checks": [
+    {
+      "name": "static_checker",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_s2b_inference_platform.py",
+      "exit_code": 0,
+      "reason": "原生直接捕获；inputs2因物理候选未冻结以及明确未完成检查，包装不替代G1/G2/G3"
+    },
+    {
+      "name": "diff_check",
+      "status": "PASS",
+      "command": "git diff --check -- src/s2b_route_query.sv src/s2b_route_engine.sv board/s2b_inference_platform.json board/s2b_inference_platform.md vivado/s2b_inference_platform.tcl verification/check_s2b_inference_platform.py verification/test_s2b_backend_coordinates_rtl.py verification/test_s2b_geometry_specialization_rtl.py verification/test_s2b_route_specialization_rtl.py verification/test_s2b_route_address_guard_rtl.py",
+      "exit_code": 0,
+      "reason": "原生直接捕获；inputs2因物理候选未冻结以及明确未完成检查，包装不替代G1/G2/G3"
+    },
+    {
+      "name": "direct_s6_s7_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_route_specialization --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/s2b_route_engine.sv source/s2b_route_query.sv source/s6_s2b_route_engine.sv source/s6_s2b_route_query.sv tb_s2b_route_specialization.sv",
+      "exit_code": 0
+    },
+    {
+      "name": "direct_s6_s7_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r01\\obj_dir\\Vtb_s2b_route_specialization.exe",
+      "exit_code": 0
+    },
+    {
+      "name": "direct_s6_s7_runner",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/test_s2b_route_address_guard_rtl.py --run-id route_address_guard_20261011_r01",
+      "exit_code": 0
+    },
+    {
+      "name": "backend_nonconv_compile",
+      "status": "PASS",
+      "command": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe --binary --timing --timescale 1ns/1ps -Wall -Wno-fatal -j 1 --threads 1 --output-split 10000 --output-split-cfuncs 100 --top-module tb_s2b_backend_coordinates --Mdir obj_dir -MAKEFLAGS PYTHON3='\\\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\\\"' -CFLAGS \"-D_GLIBCXX_USE_CXX11_ABI=0 -O1\" source/s2a_network_descriptor_pkg.sv source/int8_maxpool_geometry.sv source/int8_maxpool_window.sv source/int8_route_query.sv source/int8_upsample_query.sv source/s2b_maxpool_engine.sv source/s2a_route_engine.sv source/s2b_upsample_engine.sv source/s2b_network_backend.sv source/s2b_route_query.sv source/s2b_route_engine.sv source/s2_network_backend.sv convolution_stub.sv tb_s2b_backend_coordinates.sv",
+      "exit_code": 0
+    },
+    {
+      "name": "backend_nonconv_simulation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r02\\obj_dir\\Vtb_s2b_backend_coordinates.exe",
+      "exit_code": 0
+    },
+    {
+      "name": "backend_nonconv_runner",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/test_s2b_backend_coordinates_rtl.py --run-id route_address_guard_20261011_r02",
+      "exit_code": 0
+    },
+    {
+      "name": "S7_G2",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "源码停止写入，等待总控独立Reviewer"
+    },
+    {
+      "name": "S7_STA_bit_BOARD",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "总控后续执行实际STA；本轮未使用Vivado/设备"
+    },
+    {
+      "name": "new_CONV_layer0",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "CONV源字节未改，复用S6冻结实际完整layer0数值原件，未新执行"
+    },
+    {
+      "name": "new_109_network_G3",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "非CONV实际trace及38层控制stub不属于卷积数值整网或实板G3"
+    }
+  ],
+  "query": {
+    "seed": 5705895,
+    "vectors": 49449,
+    "categories": {
+      "exhaustive_small_valid": 9900,
+      "wide_valid_with_padding_and_endpoints": 10000,
+      "argument_and_range": 2000,
+      "coordinate_and_range": 2000,
+      "short_length": 2000,
+      "source_end_overflow": 2000,
+      "manual_u32_products_and_end": 8,
+      "groups_s6_rejection": 5,
+      "all_int8_multiplier_boundary": 1536,
+      "full_u32_invalid_random": 20000
+    },
+    "query_error_histogram": {
+      "0": 20669,
+      "1": 24776,
+      "2": 4004
+    }
+  },
+  "engine": {
+    "vectors": 25018,
+    "categories": {
+      "all_channels_packed_lanes": 8832,
+      "all_int8_values_both_sources": 5632,
+      "field_boundary": 953,
+      "groups_zero": 11,
+      "group2_odd_channels": 11,
+      "argument_before_range": 11,
+      "source_range_before_output_length": 11,
+      "response_error": 154,
+      "abort_each_state": 88,
+      "reset_each_state": 88,
+      "long_stall_abort": 11,
+      "no_stall": 11,
+      "group2_lower_half_generic_preserved": 3
+    },
+    "parameter_order": [
+      "source_count",
+      "groups",
+      "group_id",
+      "output_channel",
+      "output_y",
+      "output_x",
+      "source0_base_address",
+      "source0_length_bytes",
+      "source0_channels",
+      "source0_height",
+      "source0_width",
+      "source0_channel_start",
+      "source0_channel_end",
+      "source0_multiplier_q31",
+      "source1_base_address",
+      "source1_length_bytes",
+      "source1_channels",
+      "source1_height",
+      "source1_width",
+      "source1_channel_start",
+      "source1_channel_end",
+      "source1_multiplier_q31",
+      "output_base_address",
+      "output_length_bytes",
+      "output_channels",
+      "output_height",
+      "output_width"
+    ],
+    "seed": 722939921,
+    "s3_original_vectors": 15816,
+    "s7_categories": {
+      "s6_public_u32_domain": 4121,
+      "output_short": 1659,
+      "output_end_overflow": 1659,
+      "output_shape_and_end": 1659,
+      "response24": 24,
+      "raw80": 80
+    }
+  },
+  "direct_counts": {
+    "cases": 25018,
+    "queries": 4642169,
+    "cycles": 344751,
+    "abort": 255,
+    "reset": 255
+  },
+  "integer_proof": {
+    "status": "PASS",
+    "integer_samples": 49449,
+    "engine_valid_guard_samples": 20669,
+    "query_steps": [
+      "BAD_ARGUMENT=0保证正CHW、合法源/组选区、坐标和倍率；C0/C1选区之和用64位检查。",
+      "先用64位精确计算C*H；超过UINT32即BAD_RANGE，否则低32域再乘W，64位精确，无恶意回绕。",
+      "前置BAD_RANGE=0给出C*H*W<=length<=UINT32且base+length<=2^32，两个源分别检查。",
+      "选区合法及坐标界限给出0<=selected_channel<C、0<=(channel*H+y)<C*H及offset<C*H*W<=length。",
+      "base+offset<base+length<=2^32，所以地址<=UINT32，两个32位组合乘法中间值均不超UINT32。",
+      "若前置任一错误为真，旧末项守卫仅可能再置BAD_RANGE；错误优先和全零公开输出不改变。source_count=1未消费source1。"
+    ],
+    "engine_steps": [
+      "query NONE且shape匹配给出E=Cout*H*W<=shape0+shape1<=2*UINT32<2^33，原65位乘法在消费域精确。",
+      "首分支通过再给出E<=output_length<=UINT32；第二分支给出base+length<=2^32。",
+      "query合法坐标意味着offset<E，前缀和32位运算均精确，base+offset<=UINT32；原第三分支恒假。",
+      "query错误或shape不匹配时仍由原第一分支决定错误；输出长度错误优先于输出端点，未改变拒绝域或周期。"
+    ],
+    "manual": [
+      {
+        "input": {
+          "C": 1,
+          "H": 1,
+          "W": 1,
+          "base": 4294967295,
+          "length": 1
+        },
+        "end": 4294967296,
+        "address": 4294967295,
+        "error": 0
+      },
+      {
+        "input": {
+          "C": 4294967295,
+          "H": 1,
+          "W": 1,
+          "base": 0,
+          "length": 4294967295
+        },
+        "last_offset": 4294967294,
+        "error": 0
+      },
+      {
+        "input": {
+          "C": 2,
+          "H": 65536,
+          "W": 32768
+        },
+        "shape": 4294967296,
+        "error": 2
+      },
+      {
+        "input": {
+          "C": 65536,
+          "H": 65536,
+          "W": 1
+        },
+        "plane": 4294967296,
+        "error": 2
+      },
+      {
+        "input": {
+          "C0": 4294967295,
+          "C1": 1,
+          "H": 1,
+          "W": 1
+        },
+        "output_channels": 4294967296,
+        "error": 2
+      }
+    ]
+  },
+  "negative_count": 30,
+  "backend_counts": {
+    "boundary_cases": 4980736,
+    "nonconv_layers": 15,
+    "nonconv_outputs": 5234944,
+    "nonconv_requests": 12286976,
+    "cycles": 102468267,
+    "owner_drop_results": 120942
+  },
+  "public_entries": {
+    "trials": 12,
+    "route_layer_mask": "0000000481494948",
+    "method": "一次合法公共START完整38层及12类公共非法/owner/重复START/abort/reset输入；无内部状态注入，卷积只使用共享控制stub。"
+  },
+  "trace_summaries": [
+    [
+      "3",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "d3d57ec25e170da5"
+    ],
+    [
+      "6",
+      "2",
+      "692224",
+      "1384448",
+      "5710850",
+      "112f62561ab82c41"
+    ],
+    [
+      "8",
+      "2",
+      "1384448",
+      "2768896",
+      "11421697",
+      "f452e06606323ce5"
+    ],
+    [
+      "9",
+      "1",
+      "346112",
+      "1730560",
+      "4698286",
+      "e5904ee4e7398477"
+    ],
+    [
+      "11",
+      "2",
+      "173056",
+      "346112",
+      "1427714",
+      "81893e9b94f4436c"
+    ],
+    [
+      "14",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "27bed66ef35fbac1"
+    ],
+    [
+      "16",
+      "2",
+      "692224",
+      "1384448",
+      "5710850",
+      "e49c73ad7e8f678d"
+    ],
+    [
+      "17",
+      "1",
+      "173056",
+      "865280",
+      "2349142",
+      "f6cabd25f7a01249"
+    ],
+    [
+      "19",
+      "2",
+      "86528",
+      "173056",
+      "713855",
+      "d0903d8b46f446c5"
+    ],
+    [
+      "22",
+      "2",
+      "173056",
+      "346112",
+      "1427711",
+      "dcb213c5e1bd7136"
+    ],
+    [
+      "24",
+      "2",
+      "346112",
+      "692224",
+      "2855426",
+      "baf69909dc7ceaac"
+    ],
+    [
+      "25",
+      "1",
+      "86528",
+      "432640",
+      "1174573",
+      "7840f56f8c4e36db"
+    ],
+    [
+      "31",
+      "2",
+      "43264",
+      "86528",
+      "356927",
+      "18827f2c3a3d5de5"
+    ],
+    [
+      "33",
+      "3",
+      "86528",
+      "173056",
+      "552049",
+      "8b99f67a9428a2d0"
+    ],
+    [
+      "34",
+      "2",
+      "259584",
+      "519168",
+      "2141568",
+      "81cf63227948b0be"
+    ]
+  ],
+  "native_runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_route_specialization",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "source/s2b_route_engine.sv",
+        "source/s2b_route_query.sv",
+        "source/s6_s2b_route_engine.sv",
+        "source/s6_s2b_route_query.sv",
+        "tb_s2b_route_specialization.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 19.188,
+      "peak_tree_rss_bytes": 640159744,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/route_address_guard_20261011_r01/compile.log",
+      "log_sha256": "8b64d6316964146256eacb7f2deaa8152cc58fdeafea72ee719bad7c0ba58d1f"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r01\\obj_dir\\Vtb_s2b_route_specialization.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 2.172,
+      "peak_tree_rss_bytes": 5070848,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/route_address_guard_20261011_r01/simulation.log",
+      "log_sha256": "deffa87a6000e6d313bff1a0ff13ec157d87a8ac58cd8441f008aa212a8811ce"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_backend_coordinates",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "source/s2a_network_descriptor_pkg.sv",
+        "source/int8_maxpool_geometry.sv",
+        "source/int8_maxpool_window.sv",
+        "source/int8_route_query.sv",
+        "source/int8_upsample_query.sv",
+        "source/s2b_maxpool_engine.sv",
+        "source/s2a_route_engine.sv",
+        "source/s2b_upsample_engine.sv",
+        "source/s2b_network_backend.sv",
+        "source/s2b_route_query.sv",
+        "source/s2b_route_engine.sv",
+        "source/s2_network_backend.sv",
+        "convolution_stub.sv",
+        "tb_s2b_backend_coordinates.sv"
+      ],
+      "exit_code": 0,
+      "seconds": 20.609,
+      "peak_tree_rss_bytes": 667791360,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/route_address_guard_20261011_r02/compile.log",
+      "log_sha256": "5a3dd4b3e016403040b85caf5a1629e4acf94498a0ca946f096e3973868e516f"
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\route_address_guard_20261011_r02\\obj_dir\\Vtb_s2b_backend_coordinates.exe"
+      ],
+      "exit_code": 0,
+      "seconds": 166.453,
+      "peak_tree_rss_bytes": 5120000,
+      "failure": null,
+      "log": "report/evidence/S2B-T17/route_address_guard_20261011_r02/simulation.log",
+      "log_sha256": "89c5465b960b231f452e46cef8a228dde36859f2ac92d2a85374c2ab59585ef7"
+    }
+  ],
+  "new_simulation_repetitions": 2,
+  "new_compilation_repetitions": 2,
+  "agent_tool_calls": null,
+  "global_system_peak_memory": null,
+  "package_process_peak_memory": null
+}

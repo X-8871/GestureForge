@@ -1,0 +1,169 @@
+{
+  "status": "PASS",
+  "count": 6,
+  "cases": [
+    {
+      "name": "hand_nonempty_dynamic",
+      "status": "PASS",
+      "expected_success": true,
+      "error": null,
+      "actual_status": "PASS_BUSY_START_REJECTION_AND_GOLD",
+      "operations": [
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ],
+        [
+          "mwr",
+          "APU",
+          1136656392,
+          [
+            1
+          ]
+        ],
+        [
+          "con",
+          "ARM Cortex-A9 MPCore #0",
+          [],
+          {}
+        ]
+      ],
+      "controller_failed": false,
+      "wire_failed": false,
+      "cpu0_running": true,
+      "cpu1_untouched": true
+    },
+    {
+      "name": "unknown",
+      "status": "PASS",
+      "expected_success": false,
+      "error": "CsrAcceptanceError('原生响应不能证明SLVERR：UNKNOWN')",
+      "actual_status": "FAIL_LATCHED",
+      "operations": [
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ],
+        [
+          "mwr",
+          "APU",
+          1136656392,
+          [
+            1
+          ]
+        ]
+      ],
+      "controller_failed": true,
+      "wire_failed": true,
+      "cpu0_running": false,
+      "cpu1_untouched": true
+    },
+    {
+      "name": "stop_no_effect",
+      "status": "PASS",
+      "expected_success": false,
+      "error": "CsrAcceptanceError('CPU0 stop未生效')",
+      "actual_status": "FAIL_LATCHED",
+      "operations": [
+        [
+          "stop_no_effect",
+          "ARM Cortex-A9 MPCore #0"
+        ],
+        [
+          "stop_no_effect",
+          "ARM Cortex-A9 MPCore #0"
+        ]
+      ],
+      "controller_failed": true,
+      "wire_failed": true,
+      "cpu0_running": true,
+      "cpu1_untouched": true
+    },
+    {
+      "name": "partial_header",
+      "status": "PASS",
+      "expected_success": false,
+      "error": "TransportError('UART读超时：13/40')",
+      "actual_status": "FAIL_LATCHED",
+      "operations": [
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ],
+        [
+          "mwr",
+          "APU",
+          1136656392,
+          [
+            1
+          ]
+        ],
+        [
+          "con",
+          "ARM Cortex-A9 MPCore #0",
+          [],
+          {}
+        ],
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ]
+      ],
+      "controller_failed": true,
+      "wire_failed": true,
+      "cpu0_running": false,
+      "cpu1_untouched": true
+    },
+    {
+      "name": "rx_disk_extra",
+      "status": "PASS",
+      "expected_success": false,
+      "error": "CsrAcceptanceError('同RUN receipt与实际UART磁盘字节不同')",
+      "actual_status": "FAIL_LATCHED",
+      "operations": [
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ],
+        [
+          "mwr",
+          "APU",
+          1136656392,
+          [
+            1
+          ]
+        ],
+        [
+          "con",
+          "ARM Cortex-A9 MPCore #0",
+          [],
+          {}
+        ],
+        [
+          "stop",
+          "ARM Cortex-A9 MPCore #0"
+        ]
+      ],
+      "controller_failed": true,
+      "wire_failed": true,
+      "cpu0_running": false,
+      "cpu1_untouched": true
+    },
+    {
+      "name": "replaced_load",
+      "status": "PASS",
+      "expected_success": false,
+      "error": "CsrAcceptanceError('最后有效LOAD或最终完整消费RUN不是冻结权重与sample000')",
+      "actual_status": "BLOCKED_BEFORE_REQUEST",
+      "operations": [],
+      "controller_failed": false,
+      "wire_failed": false,
+      "cpu0_running": true,
+      "cpu1_untouched": true
+    }
+  ],
+  "scope": "MOCK_ONLY_SOFTWARE，实际控制器/运输器及T18完整checker；不等于公开准入或实板通过",
+  "production_monkeypatches": [],
+  "admission_replacements": [],
+  "manual_controller_latch_or_epoch_changes": []
+}

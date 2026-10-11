@@ -1,0 +1,70 @@
+test_arming_to_run_is_legal (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_arming_to_run_is_legal) ... ok
+test_changed_load_history_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_changed_load_history_blocks_request) ... ERROR
+test_configuration_mutation_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_configuration_mutation_fails) ... ok
+test_decerr_is_not_slverr (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_decerr_is_not_slverr) ... ok
+test_epoch_mutation_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_epoch_mutation_fails) ... ok
+test_fault_address_is_not_dynamic_progress (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_fault_address_is_not_dynamic_progress) ... ok
+test_first_error_pending_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_first_error_pending_fails) ... ok
+test_frame_mutation_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_frame_mutation_fails) ... ok
+test_header_crc_failure_retains_uart (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_header_crc_failure_retains_uart) ... ok
+test_incomplete_plan_is_not_accepted (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_incomplete_plan_is_not_accepted) ... ok
+test_invalid_seconds_are_rejected (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_invalid_seconds_are_rejected) ... ok
+test_missing_box_rejected (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_missing_box_rejected) ... ok
+test_okay_is_not_rejection (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_okay_is_not_rejection) ... ok
+test_owner_mutation_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_owner_mutation_fails) ... ok
+test_payload_crc_failure_retains_uart (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_payload_crc_failure_retains_uart) ... ok
+test_progress_change_nonempty_gold_success (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_progress_change_nonempty_gold_success) ... ok
+test_real_public_type_gate_rejects_bool_or_dict (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_real_public_type_gate_rejects_bool_or_dict) ... ok
+test_receipt_history_crc_drift_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_receipt_history_crc_drift_blocks_request) ... ok
+test_response_epoch_is_bound (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_response_epoch_is_bound) ... ok
+test_response_reject_must_still_be_one (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_response_reject_must_still_be_one) ... ok
+test_resume_failure_stops_running_cpu0 (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_resume_failure_stops_running_cpu0) ... ok
+test_stale_reject_one_cannot_pass (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_stale_reject_one_cannot_pass) ... ok
+test_stop_failure_never_resumes (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_stop_failure_never_resumes) ... ok
+test_terminal_after_stop_is_not_executed_busy (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_terminal_after_stop_is_not_executed_busy) ... ok
+test_terminal_before_stop_is_not_executed_busy (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_terminal_before_stop_is_not_executed_busy) ... ok
+test_torn_epoch_fails (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_torn_epoch_fails) ... ok
+test_tx_disk_drift_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_tx_disk_drift_blocks_request) ... ok
+test_unconsumed_request_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_unconsumed_request_blocks_request) ... ERROR
+test_unknown_native_response_blocks (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_unknown_native_response_blocks) ... ok
+test_wrong_head_retained_and_rejected (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_wrong_head_retained_and_rejected) ... ok
+test_wrong_last_box_retained_and_rejected (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_wrong_last_box_retained_and_rejected) ... ok
+test_wrong_seed_geometry_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_wrong_seed_geometry_blocks_request) ... ok
+
+======================================================================
+ERROR: test_changed_load_history_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_changed_load_history_blocks_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_csr_busy_observer.py", line 379, in test_changed_load_history_blocks_request
+    self.send_receipt(1, 3, b"R" * 5903100)
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_csr_busy_observer.py", line 240, in send_receipt
+    return self.wire.receipt(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_jtag.py", line 60, in receipt
+    result = self.receive_abort_ready(request) if abort_ready else self.receive(request, 0)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 272, in receive
+    result = self._receive(request, index)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 317, in _receive
+    meta, heads, detections = decode_response(raw_header, payload, request, index, self.epoch, abort_ready=abort_ready)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 167, in decode_response
+    require(idle and epoch == previous_epoch, "IDLEÏìÓ¦×´Ì¬/epoch´íÎó")
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\s2b_board_transport.py", line 40, in require
+    raise TransportError(message)
+verification.s2b_board_transport.TransportError: IDLEÏìÓ¦×´Ì¬/epoch´íÎó
+
+======================================================================
+ERROR: test_unconsumed_request_blocks_request (verification.test_s2b_csr_busy_observer.BusyObserverTests.test_unconsumed_request_blocks_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\verification\test_s2b_csr_busy_observer.py", line 385, in test_unconsumed_request_blocks_request
+    request, header = transport.make_request(1, 3, b"W" * 5903100)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: make_request() missing 1 required positional argument: 'payload'
+
+----------------------------------------------------------------------
+Ran 32 tests in 12.828s
+
+FAILED (errors=2)

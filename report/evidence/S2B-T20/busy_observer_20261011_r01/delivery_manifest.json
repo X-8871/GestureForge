@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T20",
+  "run_id": "busy_observer_20261011_r01",
+  "source_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "evidence_dir": "report/evidence/S2B-T20/busy_observer_20261011_r01",
+  "interfaces": [
+    {
+      "name": "PS/PL物理候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    },
+    {
+      "name": "UART候选",
+      "version": "s2bu-candidate/1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "8239191df5938e1d8c02c55a55bbf23ebe20c40fc53c9ae6b46641fc6254d1e5"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/delivery_manifest_first_attempt.json",
+      "sha256": "b476540a47f2328d25ca58939ee8b3450c491c3b4031cfff1720bae95218a6e1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/evidence_check.json",
+      "sha256": "7e0725df0ffad2d9894afa49483a94bf2c32f537f3c7497486bbe41bda7a0cc5",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/evidence_check_final.json",
+      "sha256": "e2e340176c855ff21733d145c178693b2888fc88623d4ca1f11ed0451aa0a180",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/execution.json",
+      "sha256": "5dceb91e1ac2d315e7552a9ec5b75d94cf93e78f23a69ea22277c634a94e1186",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/inputs_check.json",
+      "sha256": "a7f7efe9046ec9edb8f1418d7cb992b684aafbb873d0b095ef6ab00628b6945a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/inputs_check_final.json",
+      "sha256": "7b1b5b81725f34bb418bf40978c14049d39f2c135fd8a44de0827eaa40efe7f8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/inventory_first_attempt.json",
+      "sha256": "800f82bfcd19a99efa186570e7983cbed0904f59614a7117c728a5a0363566be",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/packaging_failure.json",
+      "sha256": "cc5ec200af267c516851d85b510c0dd7ad3266af58d3fdc992a9def4c046151e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/source_snapshot/s2b_csr_busy_observer.py",
+      "sha256": "bc7879f397812843a798c775483eb9e5d1e51b67868c941ad98a47e88f424687",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/source_snapshot/test_s2b_csr_busy_observer.py",
+      "sha256": "99f6b5977f6372b8befede3b5048bf42d212621568ed166b9d839c3d7b7392dc",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/unittest.log",
+      "sha256": "ac31c18b5b7a81479d3d3af254c06848d48a575609918c15dc4c3fad57b56e37",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T20/busy_observer_20261011_r01/inventory.json",
+      "sha256": "a61dfce3fe63fa13f619d0e66356f13bf6b57b206163ced839947f5bb279838a",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "实际离线回归",
+      "status": "FAIL",
+      "command": "python -B -m unittest verification.test_s2b_csr_busy_observer -v",
+      "exit_code": 1,
+      "reason": "r01为32项中2个夹具错误；r02为65项通过；r03为35新增+33既有共68项通过。"
+    },
+    {
+      "name": "独立G2审查",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Developer停止写入后由总控派独立Reviewer。"
+    },
+    {
+      "name": "实板busy拒绝及同RUN黄金",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "BOARD NOT_RUN；只使用内存设备，没有创建SDK或串口会话。"
+    },
+    {
+      "name": "首版包装inputs",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode inputs --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r01\\delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "原生检查失败：checks.command为数组，schema要求字符串；保留原错误，不改称BLOCKED。"
+    },
+    {
+      "name": "首版包装evidence",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r01\\delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "原生检查失败：checks.command为数组，schema要求字符串；保留原错误，不改称BLOCKED。"
+    },
+    {
+      "name": "最终inputs检查",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode inputs --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r01\\delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "候选物理/UART接口未冻结，实际inputs返回2。"
+    },
+    {
+      "name": "最终evidence检查",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r01\\delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "仅证明文件与包装，不代表测试或板上通过。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "memory_monitor": "psutil 7.2.2，50ms RSS轮询；r01未测"
+  },
+  "limitations": [
+    "G1离线开发证据；独立G2待执行，BOARD NOT_RUN。",
+    "候选接口未冻结，inputs拒绝是实际FAIL/2，包装通过不代表G0。",
+    "PASS_BUSY_START_REJECTION_AND_GOLD只发生于MOCK_ONLY夹具，不代表实板通过。",
+    "离散DAP不能排除不可观察账本瞬态，不关闭ILA缺口。",
+    "r01源码由精确编辑反向重建，执行HEAD未单独采集，清单source_commit是初始开发基线；详见execution.json。"
+  ]
+}

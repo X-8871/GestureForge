@@ -1,0 +1,320 @@
+{
+  "status": "PASS_BINDINGS_AND_LEGACY_GATE",
+  "source_and_manifest_sha256": {
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+    "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+    "report/evidence/S2B-T20/busy_observer_20261011_r03/delivery_manifest.json": "adbfceaebfc2856a9b21afe8fb031184bd245fdb7723d057e7635624247786b4"
+  },
+  "actual_head": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+  "supplied_baseline": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "g1_source_sha256": {
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+    "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+    "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+    "verification/s2b_board_jtag.py": "1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b",
+    "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+    "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+    "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+    "verification/test_s2b_csr_board_acceptance.py": "ba273b2c0dd86d22de20685ab51a2ec065bfd7d9c345b2c70fcbed86f6569126"
+  },
+  "developer_runs": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\busy_observer_20261011_r01\\delivery_manifest.json",
+      "sha256": "8d8a8845a97fa3f45182ed025a63e869b2fcc5c7d673797d459438ed534308eb",
+      "files_verified": 13,
+      "packaging": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T20",
+        "run_id": "busy_observer_20261011_r01",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "FAIL",
+            "name": "实际离线回归",
+            "reason": "r01为32项中2个夹具错误；r02为65项通过；r03为35新增+33既有共68项通过。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "独立G2审查",
+            "reason": "Developer停止写入后由总控派独立Reviewer。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "实板busy拒绝及同RUN黄金",
+            "reason": "BOARD NOT_RUN；只使用内存设备，没有创建SDK或串口会话。"
+          },
+          {
+            "status": "FAIL",
+            "name": "首版包装inputs",
+            "reason": "原生检查失败：checks.command为数组，schema要求字符串；保留原错误，不改称BLOCKED。"
+          },
+          {
+            "status": "FAIL",
+            "name": "首版包装evidence",
+            "reason": "原生检查失败：checks.command为数组，schema要求字符串；保留原错误，不改称BLOCKED。"
+          },
+          {
+            "status": "FAIL",
+            "name": "最终inputs检查",
+            "reason": "候选物理/UART接口未冻结，实际inputs返回2。"
+          },
+          {
+            "status": "PASS",
+            "name": "最终evidence检查",
+            "reason": "仅证明文件与包装，不代表测试或板上通过。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      },
+      "execution": {
+        "hardware_execution": "NOT_RUN",
+        "source_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+        "source_commit_scope": "任务初始只读git核对的开发基线；首轮执行时HEAD未另行采集，不能宣称为当时HEAD。",
+        "command": [
+          "python",
+          "-B",
+          "-m",
+          "unittest",
+          "verification.test_s2b_csr_busy_observer",
+          "-v"
+        ],
+        "exit_code": 1,
+        "test_count": 32,
+        "errors": 2,
+        "unittest_elapsed_seconds": 12.828,
+        "peak_rss_bytes": null,
+        "source_snapshot_provenance": "由r02快照及本会话精确编辑反向重建，未冒充执行前采集。",
+        "source_sha256": {
+          "verification/s2b_csr_busy_observer.py": "bc7879f397812843a798c775483eb9e5d1e51b67868c941ad98a47e88f424687",
+          "verification/test_s2b_csr_busy_observer.py": "99f6b5977f6372b8befede3b5048bf42d212621568ed166b9d839c3d7b7392dc"
+        },
+        "failure_reason": "后续LOAD夹具响应错误地使用epoch0；未消费LOAD反例漏传frame参数。",
+        "raw_log_encoding": "原生Windows默认输出原字节保留，不改写为伪UTF-8原件。"
+      }
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\busy_observer_20261011_r02\\delivery_manifest.json",
+      "sha256": "a330765173d78f72d1e0e3e03faa21b2c751777c9472e034b570dc14dc621cbd",
+      "files_verified": 37,
+      "packaging": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T20",
+        "run_id": "busy_observer_20261011_r02",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "实际离线回归",
+            "reason": "r01为32项中2个夹具错误；r02为65项通过；r03为35新增+33既有共68项通过。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "独立G2审查",
+            "reason": "Developer停止写入后由总控派独立Reviewer。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "实板busy拒绝及同RUN黄金",
+            "reason": "BOARD NOT_RUN；只使用内存设备，没有创建SDK或串口会话。"
+          },
+          {
+            "status": "FAIL",
+            "name": "最终inputs检查",
+            "reason": "候选物理/UART接口未冻结，实际inputs返回2。"
+          },
+          {
+            "status": "PASS",
+            "name": "最终evidence检查",
+            "reason": "仅证明文件与包装，不代表测试或板上通过。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      },
+      "execution": {
+        "hardware_execution": "NOT_RUN",
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-B",
+          "-m",
+          "unittest",
+          "verification.test_s2b_csr_busy_observer",
+          "verification.test_s2b_csr_board_acceptance",
+          "-v"
+        ],
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "exit_code": 0,
+        "elapsed_seconds": 14.7029999999977,
+        "peak_rss_bytes": 220160000,
+        "resource_budget_bytes": 314572800,
+        "budget_exceeded": false,
+        "source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+        "source_sha256": {
+          "verification/s2b_csr_busy_observer.py": "745129c54cc1654677f343b4b147f40d6cff967884b6b7b05379995fe17af78c",
+          "verification/test_s2b_csr_busy_observer.py": "945a63d7490524f91f09bb971737c13a5811183b7233cd55433e40253dbf2919",
+          "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+          "verification/s2b_board_jtag.py": "1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b",
+          "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+          "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+          "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+          "verification/test_s2b_csr_board_acceptance.py": "ba273b2c0dd86d22de20685ab51a2ec065bfd7d9c345b2c70fcbed86f6569126"
+        },
+        "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+        "psutil": "7.2.2",
+        "environment": {
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "S2B_BUSY_FIXTURE_OUTPUT": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\busy_observer_20261011_r02\\fixtures"
+        },
+        "limitations": [
+          "MOCK_ONLY；没有SDK/Serial硬件连接；峰值为50ms轮询，未测瞬时最大值。"
+        ]
+      }
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\busy_observer_20261011_r03\\delivery_manifest.json",
+      "sha256": "adbfceaebfc2856a9b21afe8fb031184bd245fdb7723d057e7635624247786b4",
+      "files_verified": 49,
+      "packaging": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T20",
+        "run_id": "busy_observer_20261011_r03",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "实际离线回归",
+            "reason": "r01为32项中2个夹具错误；r02为65项通过；r03为35新增+33既有共68项通过。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "独立G2审查",
+            "reason": "Developer停止写入后由总控派独立Reviewer。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "实板busy拒绝及同RUN黄金",
+            "reason": "BOARD NOT_RUN；只使用内存设备，没有创建SDK或串口会话。"
+          },
+          {
+            "status": "FAIL",
+            "name": "最终inputs检查",
+            "reason": "候选物理/UART接口未冻结，实际inputs返回2。"
+          },
+          {
+            "status": "PASS",
+            "name": "最终evidence检查",
+            "reason": "仅证明文件与包装，不代表测试或板上通过。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      },
+      "execution": {
+        "hardware_execution": "NOT_RUN",
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-B",
+          "-m",
+          "unittest",
+          "verification.test_s2b_csr_busy_observer",
+          "verification.test_s2b_csr_board_acceptance",
+          "-v"
+        ],
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "exit_code": 0,
+        "elapsed_seconds": 16.031999999999243,
+        "peak_rss_bytes": 266825728,
+        "resource_budget_bytes": 314572800,
+        "budget_exceeded": false,
+        "source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+        "source_sha256": {
+          "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+          "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+          "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+          "verification/s2b_board_jtag.py": "1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b",
+          "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+          "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+          "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+          "verification/test_s2b_csr_board_acceptance.py": "ba273b2c0dd86d22de20685ab51a2ec065bfd7d9c345b2c70fcbed86f6569126"
+        },
+        "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+        "psutil": "7.2.2",
+        "environment": {
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "S2B_BUSY_FIXTURE_OUTPUT": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T20\\busy_observer_20261011_r03\\fixtures"
+        },
+        "limitations": [
+          "MOCK_ONLY；没有SDK/Serial硬件连接；峰值为50ms轮询，未测瞬时最大值。"
+        ]
+      }
+    }
+  ],
+  "legacy_negative_start_and_stable_csr_ast_unchanged": true,
+  "interfaces": [
+    {
+      "name": "PS/PL物理候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    },
+    {
+      "name": "UART候选",
+      "version": "s2bu-candidate/1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "8239191df5938e1d8c02c55a55bbf23ebe20c40fc53c9ae6b46641fc6254d1e5"
+    }
+  ],
+  "checks": [
+    {
+      "name": "实际离线回归",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -m unittest verification.test_s2b_csr_busy_observer verification.test_s2b_csr_board_acceptance -v",
+      "exit_code": 0,
+      "reason": "r01为32项中2个夹具错误；r02为65项通过；r03为35新增+33既有共68项通过。"
+    },
+    {
+      "name": "独立G2审查",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Developer停止写入后由总控派独立Reviewer。"
+    },
+    {
+      "name": "实板busy拒绝及同RUN黄金",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "BOARD NOT_RUN；只使用内存设备，没有创建SDK或串口会话。"
+    },
+    {
+      "name": "最终inputs检查",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode inputs --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r03\\delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "候选物理/UART接口未冻结，实际inputs返回2。"
+    },
+    {
+      "name": "最终evidence检查",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report\\evidence\\S2B-T20\\busy_observer_20261011_r03\\delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "仅证明文件与包装，不代表测试或板上通过。"
+    }
+  ],
+  "notes": [
+    "r01原生单元失败和包装失败原件保留；源码逆patch重建在原execution明确披露，非现场采样。",
+    "r02 65项回归通过、首包装失败原件仍保留；r03 68项及真实源码快照完整。",
+    "CHECKS_OK只说明包装与绑定，不能代替测试、独立审查或实板。"
+  ]
+}

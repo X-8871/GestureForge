@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "status": "PASS_ARCHIVE_BYTE_BINDINGS",
+  "created_utc8": "2026-10-11T17:23:03.066796+08:00",
+  "observed_collection_head": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+  "reviewer_original_head": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+  "raw_manifest_sha256": "5f54b2fe2ac52e9187adea50c37feb7759726f18eae6480cc428757ce0dc8c5e",
+  "review_receipt_sha256": "bc982e697b430cb75735668e13efd56bd41da2aff2d52474414a8519d956da3e",
+  "checker_sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+  "archive_copy_count": 119,
+  "archive_copy_bytes": 28749458,
+  "g1_groups": {
+    "r01": {
+      "listed": 13,
+      "owned_including_manifest": 13,
+      "manifest_sha256": "8d8a8845a97fa3f45182ed025a63e869b2fcc5c7d673797d459438ed534308eb",
+      "original_source_commit": "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
+    },
+    "r02": {
+      "listed": 37,
+      "owned_including_manifest": 37,
+      "manifest_sha256": "a330765173d78f72d1e0e3e03faa21b2c751777c9472e034b570dc14dc621cbd",
+      "original_source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa"
+    },
+    "r03": {
+      "listed": 49,
+      "owned_including_manifest": 41,
+      "manifest_sha256": "adbfceaebfc2856a9b21afe8fb031184bd245fdb7723d057e7635624247786b4",
+      "original_source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa"
+    }
+  },
+  "current_dependency_sha256": {
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+    "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+    "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+    "verification/s2b_board_jtag.py": "1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b",
+    "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+    "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+    "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+    "verification/test_s2b_csr_board_acceptance.py": "ba273b2c0dd86d22de20685ab51a2ec065bfd7d9c345b2c70fcbed86f6569126"
+  },
+  "software_g2": {
+    "status": "PASS",
+    "scope": "仅本软件helper及冻结测试"
+  },
+  "coverage_counts": {
+    "frozen_regression_tests": 68,
+    "independent_native_cases": 50,
+    "public_and_plan_checks": 18,
+    "selected_raw_reruns": 6,
+    "developer_file_bindings": 99,
+    "dependency_source_bindings": 8
+  },
+  "reviewer_resources": {
+    "sampled_peak_rss_bytes": 219930624,
+    "native_elapsed_seconds_sum": 52.34400000000096,
+    "native_process_runs": 9,
+    "tool_call_count": null,
+    "tool_call_count_reason": "未单独计量全部编排/阅读调用；原生命令与进程轮数已逐项记录。"
+  },
+  "hardware_calls": 0,
+  "tests_rerun": 0,
+  "ross_calls": 0,
+  "elapsed_before_packaging_seconds": 0.6800927999975102,
+  "collector_peak_rss_bytes": null,
+  "limitations": [
+    "正式物理/UART接口未冻结；软件G2不批准最终bit、缓存、统一冷恢复、真实SDK/串口或板上验收。",
+    "离散DAP只证明规定可观察不变量，不能排除任意读间账本/状态瞬态，未新增ILA证据。",
+    "CPU1状态为离散观察，PL时钟仅保证没有暂停命令；未测板卡真实时钟。",
+    "68与50项均是离线模拟，额外6次仅为原始证据保留重复，不是新增独立覆盖或实板次数。",
+    "r01批量50场景完整原始记录保留tmp但不永久归档；脚本/逐项断言结果/原生日志归档，r04六代表实际TX/RX/原生调用永久归档。",
+    "25ms RSS采样不等于瞬时峰值，不包含监督器自身；工具调用总数未测。",
+    "Collector 仅复制与封装已有软件 G2；不复审、不重跑测试、不操作实物。",
+    "归档记录采集时实际 HEAD；原 Reviewer/G1 原件保留当时 source_commit，不改写旧版本。",
+    "r01 开发源是明示反向补丁重建件，首轮执行 HEAD 未独立采集，不能冒充执行前快照。",
+    "Reviewer r01 的五十场景完整批量 raw 只留原 tmp；本次仅复制冻结的 118 项及清单自身。",
+    "公开负向仅重定向输出 ROOT 到隔离 tmp，所有生产 gate 为原实现；真实公开正向批准仍 NOT_RUN。",
+    "现有接口 frozen=false；inputs 实际 FAIL/2，不代表 G0/G3/G4/G5。",
+    "Collector 峰值内存和全部工具调用量未测；Reviewer 原九次进程耗时与 RSS 仅引用原件。",
+    "归档中的原始 Windows 日志保留原编码字节；新增 JSON 与脚本均为 UTF-8。",
+    "Collector 首次唯一文件数量断言失败于正式目录创建前，原脚本及原始输出已归档；仅修正数量断言。"
+  ]
+}

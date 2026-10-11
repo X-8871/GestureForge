@@ -1,0 +1,21 @@
+{
+  "scope": "尚待独立G2；实板BOARD NOT_RUN",
+  "entry": "s2b_csr_busy_observer.execute_busy_start(controller, wire, config_binding, new_run_dir, preparation=preparation_binding, observation_seconds=5.0, poll_seconds=0.01)",
+  "caller": "实际持有已审核会话的总控；不打开SDK/串口，不创建回调，不隐式下载或冷复位。",
+  "preconditions": [
+    "controller和wire必须分别是实际JtagController/JtagWireSession精确类型。",
+    "T20既有UART scene schema：完整真实IDLE快照、wire同epoch、CPU0 Running/CPU1 Stopped。",
+    "config.source_commit为调用时HEAD；现有T18 visibility1/同ELF/BSP/最终PL审查和文件绑定门禁全部通过。",
+    "preparation_binding为完整109准备JSON的path/sha256；逐项实际validate_plan成功。",
+    "实际原UART/TX磁盘、事件及receipt历史最终LOAD和sample000 frame0 RUN成功；不能由布尔或字典替代。"
+  ],
+  "request": "沿用seed实际core/drain非零32bit期限、冻结sample000输入、640×480、repeat1、seq+1/frame1/epoch+1。",
+  "busy_observation": "STATUS→HI/LO/HI→frame/error→完整CSR→STATUS；允许ARMING→RUN及AXI_PROGRESS/AXI_PENDING逐次变化。0x06C/70/74为首故障字段，保持0。",
+  "rejection": "真实CPU0 stop及PC留证；前后包围仍忙、严格身份/配置/首错不变量、LAST_REJECT 0→1、原生已审精确SLVERR同时成立。",
+  "completion": "只resume本次自有CPU0；消费同一RUN实际receipt，匹配CRC/seq/frame/epoch/reject1并完整保存UART、两个头和全部框；T18独立checker全量通过。",
+  "failure": "UNKNOWN/OKAY/DECERR、身份变化、错误黄金均失败锁存与fail_stop；终态/过快为NOT_EXECUTED_IN_BUSY。失败后不resume/清锁/操作CPU1。",
+  "limitations": [
+    "不证明读间不可观察账本或状态瞬态，不关闭ILA缺口。",
+    "mock PASS及清单CHECKS_OK均不等于板上G3/G4/G5。"
+  ]
+}

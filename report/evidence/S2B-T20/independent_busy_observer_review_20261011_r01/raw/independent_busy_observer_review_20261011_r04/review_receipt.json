@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T20-BUSY-OBS",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "PASS_SOFTWARE_G2_ONLY",
+  "reviewed_at_utc8": "2026-10-11T17:13:44.508681+08:00",
+  "source_commit": "90c87b773fe06684797f6bb3cca2da078a4d49aa",
+  "supplied_baseline": "6d3fd8567b579a51d4042667d47af7d94f2f5a97",
+  "approved_source_sha256": {
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+    "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+    "report/evidence/S2B-T20/busy_observer_20261011_r03/delivery_manifest.json": "adbfceaebfc2856a9b21afe8fb031184bd245fdb7723d057e7635624247786b4"
+  },
+  "dependency_source_sha256": {
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+    "verification/test_s2b_csr_busy_observer.py": "13d33dbbe33986ef0e8d1dc90587552b50504fb9734a6b34b95ed12a82fdcc12",
+    "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+    "verification/s2b_board_jtag.py": "1ce01c810715e6c20f2952d3488ebb6ce8f7792861075e1a25bbc1f91db7651b",
+    "verification/s2b_board_transport.py": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+    "verification/s2b_board_acceptance.py": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+    "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+    "verification/test_s2b_csr_board_acceptance.py": "ba273b2c0dd86d22de20685ab51a2ec065bfd7d9c345b2c70fcbed86f6569126"
+  },
+  "approved_manifest_path": "report/evidence/S2B-T20/busy_observer_20261011_r03/delivery_manifest.json",
+  "approved_manifest_sha256": "adbfceaebfc2856a9b21afe8fb031184bd245fdb7723d057e7635624247786b4",
+  "findings": [],
+  "coverage": [
+    {
+      "requirement": "正式物理接口64行拒绝无副作用、70行逐次AXI_PROGRESS诊断",
+      "source": "verification/s2b_csr_busy_observer.py:76-119,224-255",
+      "evidence": "原68项 + 独立50项；动态0x068原读7→0→7、LAST_REJECT实际0→0→1；首错地址0x06C/70/74严守0。"
+    },
+    {
+      "requirement": "公开入口真实类型与全部实际准入、109准备及有序真实LOAD/seed重放",
+      "source": "verification/s2b_csr_busy_observer.py:31-47,287-309; verification/s2b_csr_board_acceptance.py:117-215",
+      "evidence": "13个公开负向实际进入原preflight/admit拒绝；真实109准备与真实build核验，4个计划反例；旧/未消费LOAD和TX/RX漂移均拒绝。"
+    },
+    {
+      "requirement": "CPU0 stop所有权、CPU1静止门禁、异常保持失败锁和原始清理错误",
+      "source": "verification/s2b_csr_busy_observer.py:142-168,256-284",
+      "evidence": "stop/continue异常和无效、CPU1意外Running、过快/终态等反例；CPU1无stop/con/reset。停止无效时如实保留仍Running和cleanup_errors。"
+    },
+    {
+      "requirement": "同RUN真实UART身份、全部双头和非空全框黄金",
+      "source": "verification/s2b_csr_busy_observer.py:170-222",
+      "evidence": "独立手算两框，完整5070+20280字节；错头/末框/缺框/CRC/seq/frame/epoch/reject、13字节partial和磁盘额外字节全部失败。"
+    },
+    {
+      "requirement": "旧T16 negative_start与stable_csr严格门禁不变",
+      "evidence": "对6d3fd856基线的两个函数AST逐项相同，未以新动态观察放松旧门禁。"
+    }
+  ],
+  "counts": {
+    "frozen_regression_tests": 68,
+    "independent_native_cases": 50,
+    "public_and_plan_checks": 18,
+    "selected_raw_reruns": 6,
+    "developer_file_bindings": 99,
+    "dependency_source_bindings": 8
+  },
+  "executions": [
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r01\\suite_native.json",
+      "sha256": "7844915a18d0ddc528cfbdbfc5f3b5e59bbf3b057fa281b599bcb6cb1acaeade",
+      "purpose": "原68项离线回归",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r01/offline_suite.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 16.3279999999977,
+      "sampled_peak_rss_bytes": 219930624,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r01\\probes_native.json",
+      "sha256": "4ccdc5c1de72ca17c36bcd1c2b6748275fb7f154acecd9d7020126f1b0a9e930",
+      "purpose": "独立50项原生mock反例",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r01/independent_probe.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 23.875,
+      "sampled_peak_rss_bytes": 137695232,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r01\\public_native.json",
+      "sha256": "b347122c3bdde3ccd86c31d9d2b9c022d550679d6e7f11f0ef3a3d08c989da2a",
+      "purpose": "首轮审查夹具目录不符合公开入口限制，原失败保留",
+      "status": "FAIL",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r01/public_gate_probe.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 1,
+      "elapsed_seconds": 1.0780000000013388,
+      "sampled_peak_rss_bytes": 112201728,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r02\\public_native.json",
+      "sha256": "b6870883ef4bcc0775208780cd0af7297377f013ee538368c45d7f7d40272bb0",
+      "purpose": "第二轮审查夹具错误文本期待不符，实际拒绝有效",
+      "status": "FAIL",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r02/public_gate_probe.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 1,
+      "elapsed_seconds": 2.735000000000582,
+      "sampled_peak_rss_bytes": 110059520,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r03\\public_native.json",
+      "sha256": "745f12e57f8dc01e03c0872453844c24d2fddf11d9b7bcd7630314b336b38a18",
+      "purpose": "13个公开负向、实际109计划/构建核验及4个计划反例",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r03/public_gate_probe.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 4.125,
+      "sampled_peak_rss_bytes": 113209344,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r03\\bindings_native.json",
+      "sha256": "88db702afc49bb6a94fc3187c9956fbff176fe9e6b2011f3e44c798f18669bdb",
+      "purpose": "开发三轮99文件与8依赖绑定及旧T16门禁",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r03/binding_audit.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 0.4209999999984575,
+      "sampled_peak_rss_bytes": 26923008,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r03\\g1_evidence_native.json",
+      "sha256": "31da3892b4e95bbbc309e5d5494ccb29d9e2e652a1b435d9162662a5c262a6a1",
+      "purpose": "开发最终清单包装核验",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "report/evidence/S2B-T20/busy_observer_20261011_r03/delivery_manifest.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 0.20300000000133878,
+      "sampled_peak_rss_bytes": 20979712,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r03\\g1_inputs_native.json",
+      "sha256": "b3c6067da0050058e76e51f6fe3586e475cb6e609c8d21b74693957532acbb3f",
+      "purpose": "实际未冻结依赖核验失败，不视为板上批准",
+      "status": "FAIL",
+      "command": [
+        "python",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "report/evidence/S2B-T20/busy_observer_20261011_r03/delivery_manifest.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 2,
+      "elapsed_seconds": 0.18800000000192085,
+      "sampled_peak_rss_bytes": 21135360,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    },
+    {
+      "record": "tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r04\\raw_selected_native.json",
+      "sha256": "da28630460cde9de6eff8d530acaaa2224e39c04311d3b65b661fad12deff381",
+      "purpose": "重跑六代表场景保留实际TX/RX/原生原件",
+      "status": "PASS",
+      "command": [
+        "python",
+        "-B",
+        "tmp/2B/S2B-T20/independent_busy_observer_review_20261011_r04/independent_probe.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "exit_code": 0,
+      "elapsed_seconds": 3.3909999999996217,
+      "sampled_peak_rss_bytes": 158490624,
+      "rss_limit_bytes": 314572800,
+      "stopped": null,
+      "poll_seconds": 0.025,
+      "hardware_execution": "NOT_RUN",
+      "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+      "psutil": "7.2.2",
+      "limitations": [
+        "25ms采样并非瞬时精确峰值；不含监督器自身。"
+      ]
+    }
+  ],
+  "resources": {
+    "sampled_peak_rss_bytes": 219930624,
+    "native_elapsed_seconds_sum": 52.34400000000096,
+    "native_process_runs": 9,
+    "tool_call_count": null,
+    "tool_call_count_reason": "未单独计量全部编排/阅读调用；原生命令与进程轮数已逐项记录。"
+  },
+  "test_isolation": {
+    "production_function_replacements": [],
+    "manual_latch_or_epoch_changes_in_extra_tests": [],
+    "native_mock": "沿用Developer原生夹具，扩展测试设备的stop/con/read实际返回；生产类型/门禁/receipt均未替换。",
+    "fixture_start_state": "Developer fixture按显式MOCK_ONLY设置已部署初始状态，仅用于离线；绝不构成实际部署事实。",
+    "public_output_root": {
+      "original": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "isolated": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T20\\independent_busy_observer_review_20261011_r03\\public_output_root",
+      "git_head_after_override": "90c87b773fe06684797f6bb3cca2da078a4d49aa"
+    },
+    "public_output_root_approval": "总控明确允许仅重定向输出ROOT到隔离tmp，保留全部原门禁及同Git HEAD。",
+    "created_visibility_or_final_review_receipts": []
+  },
+  "preserved_reviewer_failures": [
+    {
+      "run": "independent_busy_observer_review_20261011_r01",
+      "label": "public",
+      "exit_code": 1,
+      "cause": "公开_new_run要求固定证据父目录，初次临时子目录被正确拒绝；未执行新UART。"
+    },
+    {
+      "run": "independent_busy_observer_review_20261011_r02",
+      "label": "public",
+      "exit_code": 1,
+      "cause": "预期错误文本包含SHA，而真实文本为绑定文件发生漂移；实际拒绝正确，r03修正审查断言。"
+    }
+  ],
+  "hardware_execution": "NOT_RUN",
+  "public_positive_hardware_admission": {
+    "status": "NOT_RUN",
+    "exit_code": null,
+    "reason": "尚无真实visibility1/cache/最终bit独立批准；公开负向与静态链不能证明已获真实正向批准。"
+  },
+  "G2": {
+    "status": "PASS",
+    "scope": "仅本软件helper及冻结测试"
+  },
+  "G3": {
+    "status": "NOT_RUN",
+    "exit_code": null
+  },
+  "G4_G5": {
+    "status": "BLOCKED",
+    "exit_code": null
+  },
+  "inputs_check": {
+    "status": "FAIL",
+    "exit_code": 2
+  },
+  "limitations": [
+    "正式物理/UART接口未冻结；软件G2不批准最终bit、缓存、统一冷恢复、真实SDK/串口或板上验收。",
+    "离散DAP只证明规定可观察不变量，不能排除任意读间账本/状态瞬态，未新增ILA证据。",
+    "CPU1状态为离散观察，PL时钟仅保证没有暂停命令；未测板卡真实时钟。",
+    "68与50项均是离线模拟，额外6次仅为原始证据保留重复，不是新增独立覆盖或实板次数。",
+    "r01批量50场景完整原始记录保留tmp但不永久归档；脚本/逐项断言结果/原生日志归档，r04六代表实际TX/RX/原生调用永久归档。",
+    "25ms RSS采样不等于瞬时峰值，不包含监督器自身；工具调用总数未测。"
+  ]
+}

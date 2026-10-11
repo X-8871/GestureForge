@@ -1,0 +1,17 @@
+"""只读摘取本轮证据结构，避免全量打印。"""
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).parents[4]
+BASE = ROOT / 'report/evidence/S2B-T17/s12_resume_source_preflight_20261012_r01'
+for name in ('source_freeze.json', 'source_object_equivalence.json', 'source_before.json', 'delivery_manifest_r05.json', 'execution_plan.json', 'recovery_entry.json'):
+    value = json.loads((BASE/name).read_text(encoding='utf-8'))
+    result = {}
+    for key, child in value.items():
+        if isinstance(child, list):
+            result[key] = {'count': len(child), 'first': child[0] if child else None}
+        elif isinstance(child, dict) and len(str(child)) > 1500:
+            result[key] = {'keys': list(child)}
+        else:
+            result[key] = child
+    print(name, json.dumps(result, ensure_ascii=False))

@@ -1,0 +1,10 @@
+{
+  "cmd": "$pythonFile = Get-Item -LiteralPath 'C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe' -ErrorAction Stop\n$checkerFile = Get-Item -LiteralPath 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py' -ErrorAction Stop\n$manifestFile = Get-Item -LiteralPath 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_resume_offline_admission_20261012_r01\\delivery_manifest.json' -ErrorAction Stop\n& $pythonFile.FullName -X utf8 -B $checkerFile.FullName --mode evidence --manifest $manifestFile.FullName --project-root 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition'\nexit $LASTEXITCODE",
+  "result": {
+    "chunk_id": "ed8a1f",
+    "wall_time_seconds": 0.8370642,
+    "exit_code": 2,
+    "original_token_count": 223,
+    "output": "{\"status\":\"CHECKS_FAILED\",\"mode\":\"evidence\",\"task_id\":\"S2B-T17\",\"run_id\":\"s12_resume_offline_admission_20261012_r01\",\"interfaces_not_applicable\":{\"status\":\"NOT_APPLICABLE\",\"reason\":\"仅记录本机资源准入失败与离线准备关闭；不新增或消费模型/总线接口，不批准物理或阶段验收。\",\"review_note\":\"其适用性仍须正式G0/Reviewer确认\"},\"check_statuses\":[{\"status\":\"FAIL\",\"name\":\"实际重型RAM/磁盘启动准入\",\"reason\":\"实际RAM3991506944B低于4831838208B，磁盘满足；未创建session或启动重型。\"},{\"status\":\"NOT_RUN\",\"name\":\"综合/实现/STA/bit/fullXSA/Vitis/cache/模型/板上109与1000/G3-G5\",\"reason\":\"资源准入失败；板卡保持断开，任务未完成。\"}],\"errors\":[\"evidence 模式至少需要一个 role=source 的源码绑定\"],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}\r\n"
+  }
+}

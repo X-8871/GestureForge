@@ -1,0 +1,149 @@
+"""只在本轮隔离目录绑定实际HEAD；逐源保留两提交的Git原字节。"""
+import ast
+from datetime import datetime, timezone, timedelta
+import difflib
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+HERE = Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+BASE = ROOT / 'tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02'
+PRE = ROOT / 'report/evidence/S2B-T17/s12_resume_source_preflight_20261012_r01'
+NEW = '09e0135234ed257d1f878b80bf63eeefcdc6143f'
+OLD = '09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf'
+GIT = Path('C:/Program Files/Git/bin/git.exe')
+INPUTS = {
+ 'report/evidence/S2B-T17/s12_source_preflight_20261012_r02/delivery_manifest.json': 'e312b08f61bc1b0a3afe6a52a8a3b80df804b72434c15a498508a03edaff70be',
+ 'report/evidence/S2B-T17/s12_source_preflight_20261012_r02/source_freeze.json': '0de84aeabee7b87c5246bba57624e108b8fe32cb0aa5b49a8eb55af7ced3d2a4',
+ 'report/evidence/S2B-T17/independent_s12_final_pins_review_20261012_r01/delivery_manifest_r02.json': '782802ea81752a0a1eb85e83f5a8b68a2ab3cc11a8e26e534a0f38f5138280bf',
+ 'report/evidence/S2B-T17/independent_s12_final_pins_review_20261012_r01/raw/final_review_receipt.json': '3e50f8ed70c54066d0cfb11a05780e3861ea6b4a7d043ec2f11d5859692ae38b',
+ 'report/evidence/S2B-T17/s12_physical_compat_delivery_20261012_r01/delivery_manifest.json': '94814f466521cc62cde8fc5e54c958e6f674c8b9fc84ec5540255907e840c22f'}
+
+def sha(value):
+    return hashlib.sha256(value).hexdigest()
+
+def exact(path, directory=False):
+    current = Path(path.anchor)
+    for name in path.parts[1:]:
+        hits = [item for item in current.iterdir() if item.name == name]
+        assert len(hits) == 1, str(path)
+        current = hits[0]
+        assert not current.is_symlink() and not current.is_junction()
+    assert current.is_dir() if directory else current.is_file()
+    return current
+
+def raw(path, data):
+    assert path.is_relative_to(HERE)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as stream:
+        stream.write(data)
+
+def write(path, data):
+    raw(path, (json.dumps(data, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
+
+def git(label, *args):
+    command = [str(exact(GIT)), '-c', 'core.longpaths=true', '-c', 'maintenance.auto=false', *args]
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, timeout=30)
+    out = HERE / 'git_raw' / (label + '.stdout.bin')
+    err = HERE / 'git_raw' / (label + '.stderr.bin')
+    raw(out, result.stdout)
+    raw(err, result.stderr)
+    record = {'command': command, 'cwd': str(ROOT), 'native_exit_code': result.returncode,
+              'stdout': {'path': out.relative_to(ROOT).as_posix(), 'sha256': sha(result.stdout), 'bytes': len(result.stdout)},
+              'stderr': {'path': err.relative_to(ROOT).as_posix(), 'sha256': sha(result.stderr), 'bytes': len(result.stderr)}}
+    write(HERE / 'git_raw' / (label + '.native.json'), record)
+    assert result.returncode == 0, record
+    return result.stdout, record
+
+def main():
+    exact(ROOT, True); exact(BASE, True); exact(PRE.parent, True)
+    for target in (PRE, ROOT/'report/evidence/S2B-T17/s12_platform_20261012_r02', ROOT/'report/evidence/S2B-T17/s12_implementation_20261012_r02'):
+        exact(target.parent, True); assert not target.exists(), str(target)
+    for path, expected in INPUTS.items():
+        assert sha(exact(ROOT/path).read_bytes()) == expected, path
+    old_binding = json.loads(exact(BASE/'tool_binding.json').read_text(encoding='utf-8'))
+    freeze_raw = exact(BASE/'source_freeze.json').read_bytes()
+    assert sha(freeze_raw) == INPUTS['report/evidence/S2B-T17/s12_source_preflight_20261012_r02/source_freeze.json']
+    freeze = json.loads(freeze_raw)
+    assert freeze['source_commit'] == OLD and len(freeze['source_files']) == 43
+    head, head_native = git('head_before', 'rev-parse', 'HEAD')
+    assert head.decode('ascii').strip() == NEW
+    staged, _ = git('staged_before', 'diff', '--cached', '--name-only')
+    assert not staged.strip()
+    object_rows = []
+    rows = []
+    for index, item in enumerate(freeze['source_files']):
+        path = exact(ROOT/item['path'])
+        source = path.read_bytes()
+        assert sha(source) == item['sha256'] and len(source) == item['bytes']
+        old_blob, old_native = git(f'source_{index:02d}_old', 'show', OLD+':'+item['path'])
+        new_blob, new_native = git(f'source_{index:02d}_head', 'show', NEW+':'+item['path'])
+        assert old_blob == new_blob
+        same = source == new_blob
+        eol = not same and b'\r\n' not in new_blob and new_blob.replace(b'\n', b'\r\n') == source
+        assert same or eol, item['path']
+        relation = 'RAW_IDENTICAL' if same else 'GIT_LF_TO_RAW_CRLF'
+        assert relation == item['git_relation']
+        snapshot = HERE/'freeze_snapshots'/item['path']
+        raw(snapshot, source)
+        rows.append(dict(item, snapshot=snapshot.relative_to(ROOT).as_posix(), git_native=new_native, git_blob_sha256=sha(new_blob), git_relation=relation))
+        object_rows.append({'path': item['path'], 'raw_sha256': sha(source), 'raw_bytes': len(source), 'git_blob_sha256': sha(new_blob), 'git_relation': relation,
+                            'code_commit': OLD, 'actual_head': NEW, 'git_objects_byte_identical': True, 'code_commit_native': old_native, 'actual_head_native': new_native})
+    assert sum(row['git_relation']=='RAW_IDENTICAL' for row in rows) == 37
+    assert sum(row['git_relation']=='GIT_LF_TO_RAW_CRLF' for row in rows) == 6
+    freeze['source_commit'] = NEW
+    freeze['source_files'] = rows
+    freeze['created_at_utc8'] = datetime.now(timezone(timedelta(hours=8))).isoformat()
+    freeze['code_commit_unchanged_objects'] = {'source_commit': OLD, 'actual_head': NEW, 'source_count': 43, 'raw_identical': 37, 'exact_eol': 6,
+        'object_equivalence_path': (HERE/'source_object_equivalence.json').relative_to(ROOT).as_posix(), 'scope': '两提交43个Git blob逐字节相同；不改变严格CLI=SOURCE_COMMIT=actualHEAD门禁'}
+    freeze['functional_precommit_freeze']['role'] = '旧功能候选precommit RAW角色；本轮实际HEAD逐项Git对象绑定，功能G1/G2保持既有证据角色'
+    write(HERE/'source_object_equivalence.json', {'status': 'PASS_43_GIT_OBJECTS_BYTE_IDENTICAL', 'source_commit': NEW, 'code_commit': OLD, 'source_count': 43, 'rows': object_rows, 'head_native': head_native})
+    write(HERE/'source_freeze.json', freeze)
+    source_sha = sha((HERE/'source_freeze.json').read_bytes())
+    tools = []
+    for item in old_binding['tools']:
+        name = item['path']
+        old = exact(BASE/name).read_bytes()
+        assert sha(old) == item['sha256']
+        content = old
+        if name == 'compat_pins.py':
+            substitutions = {
+                "SOURCE_COMMIT = '"+OLD+"'": "SOURCE_COMMIT = '"+NEW+"'",
+                "SOURCE_FREEZE_SHA = '0de84aeabee7b87c5246bba57624e108b8fe32cb0aa5b49a8eb55af7ced3d2a4'": "SOURCE_FREEZE_SHA = '"+source_sha+"'",
+                's12_platform_20261012_r01': 's12_platform_20261012_r02',
+                's12_implementation_20261012_r01': 's12_implementation_20261012_r02',
+                's12_source_preflight_20261012_r02': PRE.name}
+            for before, after in substitutions.items():
+                assert content.count(before.encode('utf-8')) == 1
+                content = content.replace(before.encode('utf-8'), after.encode('utf-8'))
+        old_tree, new_tree = ast.parse(old.decode('utf-8')), ast.parse(content.decode('utf-8'))
+        assert [ast.dump(node, include_attributes=False) for node in old_tree.body if isinstance(node, ast.FunctionDef)] == [ast.dump(node, include_attributes=False) for node in new_tree.body if isinstance(node, ast.FunctionDef)]
+        raw(HERE/name, content)
+        diff = ''.join(difflib.unified_diff(old.decode('utf-8').splitlines(True), content.decode('utf-8').splitlines(True), fromfile='final_r02/'+name, tofile='resume_r01/'+name)).encode('utf-8')
+        raw(HERE/(name+'.diff'), diff)
+        tools.append({'path': name, 'sha256': sha(content), 'bytes': len(content), 'baseline_sha256': sha(old), 'changed': content != old, 'diff_sha256': sha(diff)})
+    assert [row['path'] for row in tools if row['changed']] == ['compat_pins.py']
+    for folder in ('synth_cache', 'pnr_cache'):
+        assert not (HERE/folder).exists(); (HERE/folder).mkdir()
+    binding = {'status': 'STOP_RESUME_PINS_G1_PENDING_INDEPENDENT_G2', 'source_commit': NEW, 'code_commit': OLD, 'tools': tools,
+        'changed_files': ['compat_pins.py'], 'function_logic_changed': False, 'common_sha': old_binding['common_sha'],
+        'source_freeze': {'path': (HERE/'source_freeze.json').relative_to(ROOT).as_posix(), 'sha256': source_sha, 'bytes': (HERE/'source_freeze.json').stat().st_size},
+        'inputs': dict(INPUTS, **{freeze['functional_g1']['path']: freeze['functional_g1']['sha256'], freeze['functional_g2']['path']: freeze['functional_g2']['sha256']}),
+        'source_count': 43, 'static_count': 33, 'git_raw_identical': 37, 'git_eol_exact': 6,
+        'actual_git_native_calls': 88, 'pnr_synth_dependencies': 'None/PENDING', 'evidence_head_at_pnr_preparation': None, 'heavy_or_hardware': False,
+        'source_pre': str(PRE), 'light_capture_budget': {'tree_rss_limit_bytes': 268435456, 'timeout_seconds': 120, 'git_child_concurrency': 1}}
+    write(HERE/'tool_binding.json', binding)
+    plan = json.loads(exact(BASE/'execution_plan.json').read_text(encoding='utf-8').replace(BASE.name, HERE.name).replace('s12_source_preflight_20261012_r02', PRE.name).replace('s12_platform_20261012_r01', 's12_platform_20261012_r02').replace('s12_implementation_20261012_r01', 's12_implementation_20261012_r02').replace(OLD, NEW))
+    plan.update(source_commit=NEW, code_commit=OLD, source_freeze=binding['source_freeze'], status='LOGICAL_RESUME_PREPARATION_ONLY_PHYSICAL_BLOCKED',
+        session_log_path='PENDING', owned_session_id='PENDING', owned_root_pid='PENDING', actual_session_created=False,
+        actual_budget='NOT_RUN', root_current_head_policy='实际SOURCE_COMMIT=HEAD09e；后续metadata提交不得插入本轮综合source-before/after闭环，ROOT统一决定提交时点',
+        source_commit_vs_metadata_head='09e为实际HEAD且43源码Git对象同09b4；严格CLI=SOURCE_COMMIT=HEAD不变。',
+        resume_previous_final_pins=INPUTS, final_tool_pins=tools, common_sha=binding['common_sha'])
+    write(HERE/'execution_plan.json', plan)
+    print(json.dumps({'status': binding['status'], 'source_freeze_sha256': source_sha, 'helper_sha256': tools[-1]['sha256'], 'git_native_calls': 88}, ensure_ascii=False))
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,140 @@
+"""封存本轮必要原字节与恢复映射；旧包只引用，实际物理状态保持阻断。"""
+import hashlib
+import json
+from pathlib import Path
+import sys
+import compat_pins as p
+
+HERE = Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+OUT = p.SOURCE_PRE
+
+def digest(path):
+    return hashlib.sha256(p.exact(path).read_bytes()).hexdigest()
+
+def write(path, value):
+    with path.open('x', encoding='utf-8', newline='\n') as stream:
+        json.dump(value, stream, ensure_ascii=False, indent=2); stream.write('\n')
+
+def copy(source, target):
+    expected = digest(source)
+    p.exact(target.parent, True)
+    with target.open('xb') as stream:
+        stream.write(p.exact(source).read_bytes())
+    assert digest(source) == digest(target) == expected
+
+def scan(base):
+    p.exact(base, True)
+    return sorted(p.exact(path) for path in base.rglob('*') if path.is_file())
+
+def manifest(name):
+    files = []
+    for path in scan(OUT):
+        files.append({'path': path.relative_to(ROOT).as_posix(), 'sha256': digest(path),
+            'role': 'source' if path.suffix in ('.py', '.sv') else 'result' if path.name.endswith(('receipt.json', 'before.json')) else 'artifact',
+            'keep_reason': '本轮43源、六工具、Git真实原字节和原生运行证据；保留首环境启动失败与真实UNKNOWN，不代替物理批准'})
+    binding = json.loads((HERE/'tool_binding.json').read_text(encoding='utf-8'))
+    for rel, expected in binding['inputs'].items():
+        assert digest(ROOT/rel) == expected
+        files.append({'path': rel, 'sha256': expected, 'role': 'input', 'keep_reason': '已提交旧冻结/功能G1及独审G2来源；原件只读，不复制庞大历史raw'})
+    checks = []
+    for label in ('derive', 'configure', 'source_before', 'logic_tests', 'prepared', 'help_collector', 'help_impl_collector', 'help_source_after_check', 'help_native_source_after', 'help_native', 'post_head', 'status_corrected'):
+        record = json.loads((HERE/(label+'.native.json')).read_text(encoding='utf-8'))
+        assert record['native_exit_code'] == 0
+        checks.append({'name': label, 'status': 'PASS', 'command': ' '.join(record['command']), 'exit_code': 0})
+    pending = json.loads((HERE/'pnr_pending.native.json').read_text(encoding='utf-8'))
+    assert pending['native_exit_code'] == 1
+    checks.append({'name': 'pnr_pending_negative_gate', 'status': 'PASS', 'command': ' '.join(pending['command']), 'exit_code': 1,
+        'reason': '预期依赖None/PENDING早拒绝；不是PNR结果或依赖PASS'})
+    checks.extend([
+        {'name': 'resume_tools_g2', 'status': 'NOT_RUN', 'command': None, 'exit_code': None, 'reason': '本轮最小最终pins需ROOT独立Reviewer复审，作者不能自报G2'},
+        {'name': 'resource_admission', 'status': 'BLOCKED', 'command': None, 'exit_code': None, 'reason': '实际RAM3777892352B低于4.5GiB；ROOT未来须重新实测准入，不派发重型任务'},
+        {'name': 'physical_source_after_synth_pnr_budget_sta_bit_xsa_vitis_cache_model_g3_g5', 'status': 'NOT_RUN', 'command': None, 'exit_code': None, 'reason': '本轮离线轻量准备，无owned session/root PID/日志，无综合或PNR依赖，板卡已拔掉'},
+        {'name': 'old_s11_budget', 'status': 'BLOCKED', 'command': None, 'exit_code': None, 'reason': '旧预算未通过，不追认'}])
+    for label in ('precheck_evidence', 'precheck_inputs', 'final_evidence', 'final_inputs'):
+        path = HERE/(label+'.native.json')
+        if path.exists():
+            record = json.loads(path.read_text(encoding='utf-8'))
+            checks.append({'name': label, 'status': 'PASS' if record['native_exit_code']==0 else 'FAIL',
+                'command': ' '.join(record['command']), 'exit_code': record['native_exit_code'],
+                'reason': '包装evidence0；inputs2因NOT_RUN/BLOCKED，不能解释为物理或冻结通过'})
+    value = {'schema_version': 1, 'stage': '2B', 'task_id': 'S2B-T17', 'run_id': OUT.name,
+        'source_commit': p.SOURCE_COMMIT, 'evidence_dir': OUT.relative_to(ROOT).as_posix(), 'interfaces': [],
+        'interfaces_not_applicable_reason': '本轮只恢复最终源码HEAD和离线工具pins，模型/总线业务语义复用既有功能G1/G2；没有新增接口冻结或物理批准。',
+        'files': files, 'checks': checks, 'tool_versions': {'python': sys.version, 'psutil': '7.2.2', 'git': '精确命令/退出码/raw流见git_raw归档映射'},
+        'limitations': ['本轮轻量逻辑G1_ONLY，resume独审G2尚未执行', 'SOURCE_COMMIT=CLI=实际HEAD09e严格不变；43Git对象字节同09b4不等于允许旧SOURCE启动',
+            '首sandbox拒绝访问只记录host1/childnull；require_escalated后真实原生结果另列', '离散RSS非绝对连续峰；derive UNKNOWN样本1明确保留，绝对峰null',
+            '4.5GiB RAM、C8GiB、固定6GiB guard树/512MiB RAM stop/1s与sup5s不降低',
+            'owned session/log/rootPID PENDING；PNR synth manifest/G2 None/PENDING；actualafter/newbudget/STA/G3-G5 NOT_RUN',
+            '板卡拔掉，本轮未访问串口/JTAG/hw_server或启动Vivado/ROSS；未修改生产/STATE/旧Run，未提交Git',
+            'final闭合清单包含先前实际包装检查的关闭流；最后seal工具的关闭原流在同一tmp隔离目录保留，ROOT独审须复核最终清单']}
+    write(OUT/name, value)
+
+def pack():
+    p.require_ready()
+    p.exact(OUT, True)
+    assert (HERE/'post_head.stdout.bin').read_text(encoding='utf-8').strip() == p.SOURCE_COMMIT
+    test = json.loads((HERE/'final_pins_test_receipt.json').read_text(encoding='utf-8'))
+    assert test['case_count'] == 20 and test['resource_admission']['status']=='BLOCKED_RESOURCE_ADMISSION'
+    assert not p.PROJECT.exists() and not p.SYNTH_REPORT.exists() and not p.PNR_REPORT.exists()
+    for folder in ('raw_objects', 'tools'):
+        assert not (OUT/folder).exists(); (OUT/folder).mkdir()
+    canonical = {digest(path): path for path in scan(OUT/'source_snapshot')}
+    mapping = []
+    for source in scan(HERE):
+        if source.name.startswith(('pack.', 'seal.', 'final_evidence.', 'final_inputs.', 'append.')):
+            continue
+        expected = digest(source)
+        if expected not in canonical:
+            dest = OUT/'raw_objects'/expected
+            copy(source, dest); canonical[expected] = dest
+        mapping.append({'original_repo_path': source.relative_to(ROOT).as_posix(), 'original_absolute_path': str(source),
+            'archived_repo_path': canonical[expected].relative_to(ROOT).as_posix(), 'sha256': expected, 'bytes': source.stat().st_size})
+    with (OUT/'raw_manifest.jsonl').open('x', encoding='utf-8', newline='\n') as stream:
+        for row in mapping:
+            stream.write(json.dumps(row, ensure_ascii=False)+'\n')
+    for name in ('source_freeze.json', 'tool_binding.json', 'source_object_equivalence.json', 'execution_plan.json', 'final_pins_test_receipt.json', 'prepared_receipt.json'):
+        copy(HERE/name, OUT/name)
+    binding = json.loads((HERE/'tool_binding.json').read_text(encoding='utf-8'))
+    for row in binding['tools']:
+        for suffix in ('', '.diff'):
+            copy(HERE/(row['path']+suffix), OUT/'tools'/(row['path']+suffix))
+    recovery = {'status': 'RECOVERABLE_RESUME_INPUTS_ONLY_PENDING_G2_AND_RESOURCE_ADMISSION', 'fixed_project_root': str(ROOT), 'source_commit': p.SOURCE_COMMIT,
+        'source_freeze': {'destination_absolute_path': str(HERE/'source_freeze.json'), 'artifact_repo_path': (OUT/'source_freeze.json').relative_to(ROOT).as_posix(), 'sha256': digest(OUT/'source_freeze.json')},
+        'tools': [{'destination_absolute_path': str(HERE/row['path']), 'artifact_repo_path': (OUT/'tools'/row['path']).relative_to(ROOT).as_posix(), 'sha256': row['sha256'], 'bytes': row['bytes']} for row in binding['tools']],
+        'tool_binding_sha256': digest(OUT/'tool_binding.json'), 'raw_manifest_sha256': digest(OUT/'raw_manifest.jsonl'), 'raw_rows': len(mapping),
+        'restore_performed': False, 'restore_instruction': '仅在原固定完整路径缺失及ROOT确认恢复范围后逐项SHA/bytes恢复；formal tools层级不同，禁止直接执行正式副本；旧r02不覆盖。',
+        'guard_recovery_reference': {'path': 'report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01/recovery_entry.json', 'sha256': p.RECOVERY_SHA, 'mapping_sha256': p.MAPPING_SHA},
+        'future_targets': {'project': str(p.PROJECT), 'synth_report': str(p.SYNTH_REPORT), 'pnr_report': str(p.PNR_REPORT), 'actual_created': False},
+        'owned_session_id': 'PENDING', 'owned_root_pid': 'PENDING', 'owned_log': 'PENDING', 'pnr_synth_manifest_sha256': None, 'pnr_synth_g2_sha256': None,
+        'physical_g0': 'BLOCKED', 'actual_after': 'NOT_RUN', 'actual_budget_sta_g3_g5': 'NOT_RUN', 'old_s11_budget': 'BLOCKED'}
+    write(OUT/'recovery_entry.json', recovery)
+    natives = [json.loads(path.read_text(encoding='utf-8')) for path in HERE.glob('*.native.json')]
+    author = {'status': 'STOP_RESUME_PINS_LOGIC_G1_PENDING_INDEPENDENT_G2', 'source_commit': p.SOURCE_COMMIT, 'code_commit': '09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf',
+        'source_count': 43, 'static_count': 33, 'rtl_count': 18, 'derived_count': 8, 'frozen14_count': 14, 'git_raw_identical': 37, 'git_eol_exact': 6, 'logic_case_count': 20,
+        'changed_files': ['compat_pins.py'], 'changed_top_level_constants': ['SOURCE_COMMIT', 'SOURCE_FREEZE_SHA', 'SYNTH_REPORT', 'PNR_REPORT', 'SOURCE_PRE'], 'function_ast_changed': False,
+        'source_freeze_sha256': digest(OUT/'source_freeze.json'), 'helper_sha256': digest(OUT/'tools/compat_pins.py'), 'tool_binding_sha256': digest(OUT/'tool_binding.json'),
+        'source_before_sha256': digest(OUT/'source_before.json'), 'object_equivalence_sha256': digest(OUT/'source_object_equivalence.json'), 'recovery_entry_sha256': digest(OUT/'recovery_entry.json'),
+        'resource_admission': test['resource_admission'], 'light_capture_budget_bytes': 268435456, 'light_timeout_seconds': 120, 'git_child_concurrency': 1,
+        'sampled_owned_tree_peak_bytes': max(row['sampled_owned_tree_peak_bytes'] for row in natives), 'unknown_samples': sum(row['unknown_samples'] for row in natives), 'absolute_tree_peak_bytes': None,
+        'initial_git_observation_correction': '首命令未配置core.longpaths=true出现误报D；修正实际原生status仅两个既有独审untracked及本轮preflight，无tracked deletion；未操作误报路径。',
+        'git_status_raw': {'path': (HERE/'status_corrected.stdout.bin').relative_to(ROOT).as_posix(), 'sha256': digest(HERE/'status_corrected.stdout.bin')},
+        'first_launcher_failure': {'path': (HERE/'first_launcher_failure.json').relative_to(ROOT).as_posix(), 'sha256': digest(HERE/'first_launcher_failure.json'), 'host_exit_code': 1, 'child_native_exit_code': None},
+        'actual_session_created': False, 'resume_tools_g2': 'NOT_RUN', 'physical_g0': 'BLOCKED', 'actual_after_new_budget_sta_g3_g5': 'NOT_RUN', 'old_s11_budget': 'BLOCKED'}
+    write(OUT/'author_receipt.json', author)
+    manifest('delivery_manifest_precheck.json')
+    print(json.dumps({'status': author['status'], 'raw_rows': len(mapping), 'source_freeze_sha256': author['source_freeze_sha256'], 'helper_sha256': author['helper_sha256']}, ensure_ascii=False))
+
+def close(labels, name):
+    folder = OUT/'closed_packaging'
+    if not folder.exists(): folder.mkdir()
+    for label in labels:
+        for suffix in ('.stdout.bin', '.stderr.bin', '.native.json'):
+            copy(HERE/(label+suffix), folder/(label+suffix))
+    manifest(name)
+    print(json.dumps({'manifest': (OUT/name).relative_to(ROOT).as_posix(), 'sha256': digest(OUT/name)}, ensure_ascii=False))
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'pack': pack()
+    elif sys.argv[1] == 'seal': close(('pack', 'precheck_evidence', 'precheck_inputs'), 'delivery_manifest_r01.json')
+    elif sys.argv[1] == 'append': close(('seal', 'final_evidence', 'final_inputs'), 'delivery_manifest.json')

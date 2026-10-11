@@ -1,0 +1,74 @@
+"""审查完成后只绑定已关闭原流；不修改被审文件或Git。"""
+from datetime import datetime, timezone, timedelta
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import psutil
+
+HERE=Path(__file__).absolute().parent
+ROOT=HERE.parents[3]
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+def read(path):
+    return json.loads(path.read_text(encoding='utf-8'))
+def save(name,value):
+    with (HERE/name).open('x',encoding='utf-8',newline='\n') as stream:
+        json.dump(value,stream,ensure_ascii=False,indent=2);stream.write('\n')
+review=read(HERE/'r03_review_receipt.json')
+closed=[]
+native=[]
+for path in sorted(HERE.glob('*.native.json')):
+    value=read(path)
+    native.append({'path':str(path),'sha256':sha(path),'native_exit_code':value['native_exit_code']})
+    for row in value.get('known_children_closed',[]):
+        try:
+            same=psutil.Process(row['pid']).create_time()==row['create_time']
+        except psutil.NoSuchProcess:
+            same=False
+        closed.append(dict(row,same_identity_exists_at_seal=same))
+assert not any(r['same_identity_exists_at_seal'] for r in closed)
+root_receipt=ROOT/'tmp/2B/S2B-T17/s12_root_run_20261012_r01/goal_continuation_20261012_r01/developer_process_identity_clarification.json'
+assert root_receipt.is_file()
+external={'path':str(root_receipt),'sha256':sha(root_receipt)}
+git=[r'C:\Program Files\Git\bin\git.exe','-c','core.longpaths=true','-c','maintenance.auto=false']
+git_terminal=[]
+for label,args in [('seal_r03_head',['rev-parse','HEAD']),('seal_r03_stage',['diff','--cached','--name-only'])]:
+    result=subprocess.run(git+args,cwd=ROOT,capture_output=True,timeout=30)
+    assert result.returncode==0
+    for kind,data in [('stdout',result.stdout),('stderr',result.stderr)]:
+        with (HERE/(label+'.'+kind+'.bin')).open('xb') as stream:stream.write(data)
+    git_terminal.append({'argv':git+args,'native_exit_code':result.returncode,'stdout_sha256':sha(HERE/(label+'.stdout.bin')),'stderr_sha256':sha(HERE/(label+'.stderr.bin'))})
+    if label=='seal_r03_head':assert result.stdout.decode('ascii').strip()==review['source_commit']
+    else:assert not result.stdout.strip()
+save('seal_git_terminal_r03.json',git_terminal)
+files=[]
+for path in sorted(HERE.rglob('*')):
+    # 末尾包装流正在写入，必须从本轮索引排除，交由ROOT关闭后另归档。
+    if path.is_file() and not path.name.startswith(('seal_closed.','seal_r02.','seal_r03.')):
+        files.append({'path':path.relative_to(ROOT).as_posix(),'sha256':sha(path),'bytes':path.stat().st_size})
+with (HERE/'raw_manifest_r02.jsonl').open('x',encoding='utf-8',newline='\n') as stream:
+    for row in files:stream.write(json.dumps(row,ensure_ascii=False)+'\n')
+result={'status':'PASS_RESUME_PINS_G2_ONLY','created_at_utc8':datetime.now(timezone(timedelta(hours=8))).isoformat(),
+    'source_commit':review['source_commit'],'code_commit':review['code_commit'],'head_before_after_and_seal_same':True,'staged_empty':True,
+    'review_receipt':{'path':str(HERE/'r03_review_receipt.json'),'sha256':sha(HERE/'r03_review_receipt.json')},
+    'raw_manifest':{'path':str(HERE/'raw_manifest_r02.jsonl'),'sha256':sha(HERE/'raw_manifest_r02.jsonl'),'rows':len(files)},
+    'binding_observations':{'path':str(HERE/'r03_binding_observations.json'),'sha256':sha(HERE/'r03_binding_observations.json')},
+    'review_r03_native':{'path':str(HERE/'review_r03.native.json'),'sha256':sha(HERE/'review_r03.native.json')},
+    'developer_identity_clarification':external,'native_records':native,'known_reviewer_identities_rechecked':closed,
+    'public_cycle_contract':'43源码RAW及HEAD/CODE各blob一致，既有publicFSM/周期契约无本轮变更；未复跑全功能仿真。',
+    'known_reviewer_children_closed':True,'historical_developer_tree_closed':'UNKNOWN','historical_developer_UNKNOWN_object':'UNKNOWN',
+    'unknown_semantics':'历史derive UNKNOWN1不能恢复PID/create_time；独审r02/r03采样均记录NoSuchProcess PID，但无出生时间的瞬逝对象不追认为已知身份。只批准逻辑pins。',
+    'original_capture_metrics':{'sampled_peak_bytes':146337792,'longest_seconds':15.578999999997905,'unknown_count':1,'continuous_peak':None},
+    'review_metrics':{'r02_elapsed_seconds':read(HERE/'review_r02.native.json')['elapsed_seconds'],'r02_peak_bytes':read(HERE/'review_r02.native.json')['sampled_owned_tree_peak_bytes'],
+       'r03_elapsed_seconds':read(HERE/'review_r03.native.json')['elapsed_seconds'],'r03_peak_bytes':read(HERE/'review_r03.native.json')['sampled_owned_tree_peak_bytes'],'continuous_peak':None},
+    'checks':32,'binding_observations_count':2085,'source_count':43,'static_count':33,'rtl_count':18,'derived_count':8,'frozen14_count':14,
+    'actual_key_gates':'真实CLI source正确09e成功，错CLI/错SOURCE/错SHA/错HEAD及PNR PENDING均拒绝。',
+    'manifest_evidence_native_code':0,'manifest_inputs_native_code':2,'inputs_role':'未冻结依赖/NOT_RUN/历史FAIL的真实阻断；evidence包装不批准资源或物理G0。',
+    'limits':['资源准入、完整tree闭合、G0、STA、bit、fullXSA、Vitis、板上109/1000、G3/G5未批准。',
+       '原两处关闭流措辞仅指直接命令返回与原流已关闭；必须连同本独审PID/UNKNOWN澄清消费，不释为全树闭合。',
+       '最后seal进程自身结束流不自指入raw索引，由ROOT另行封存。','首次两个夹具源码快照不完整；失败原流与转录保留。'],
+    'superseded_own_index':{'raw_manifest.jsonl':'首seal索引误包含当时正在写入的seal_closed两流；旧索引/receipt保留为Reviewer自指包装失败，不作消费入口。','final_review_receipt.json':'由本r02替代，状态不能单独消费；本r02排除seal_closed及seal_r02闭合流，由ROOT另绑定。'},
+    'changed_files_reviewed':['compat_pins.py五个顶层常量'], 'production_modified':False,'git_committed':False,'hardware_calls':0,'vivado_calls':0,'STOP':True}
+save('final_review_receipt_r02.json',result)
+print(json.dumps({'status':result['status'],'raw_rows':len(files),'receipt_sha256':sha(HERE/'final_review_receipt_r02.json'),'raw_manifest_sha256':sha(HERE/'raw_manifest_r02.jsonl')},ensure_ascii=False))

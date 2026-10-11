@@ -1,0 +1,309 @@
+"""独立只读审查恢复绑定；所有输出仅写入本轮独占临时目录。"""
+import ast
+import hashlib
+import importlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+from unittest.mock import patch
+import psutil
+
+HERE = Path(__file__).absolute().parent
+ROOT = HERE.parents[3]
+DEV = ROOT/'tmp/2B/S2B-T17/s12_physical_resume_prepare_20261012_r01'
+FORMAL = ROOT/'report/evidence/S2B-T17/s12_resume_source_preflight_20261012_r01'
+OLD = ROOT/'tmp/2B/S2B-T17/s12_physical_final_prepare_20261012_r02'
+HEAD = '09e0135234ed257d1f878b80bf63eeefcdc6143f'
+CODE = '09b4c6f60fb74c2fda1b56d2f316ca374dfae7cf'
+GIT = r'C:\Program Files\Git\bin\git.exe'
+checks = []
+calls = []
+read_bindings = []
+start = time.monotonic()
+PREFIX = 'r03_'
+
+def digest(path):
+    """只核原字节。"""
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def read(path):
+    """UTF-8精确读取。"""
+    return json.loads(Path(path).read_text(encoding='utf-8'))
+
+def write(name, value):
+    """新证据拒绝覆盖。"""
+    with (HERE/(PREFIX+name)).open('x', encoding='utf-8', newline='\n') as stream:
+        json.dump(value, stream, ensure_ascii=False, indent=2)
+        stream.write('\n')
+
+def check(name, condition, detail=None):
+    """独立断言失败即停止。"""
+    assert condition, name
+    checks.append({'name': name, 'status': 'PASS', 'detail': detail})
+
+def command(label, argv, expected=0):
+    """逐子命令捕获真实PID、出生时间、等待退出、离散内存及原始流。"""
+    if label.startswith('source_'):
+        # 复用本轮r02已完成的真实单Git核验，避免因审查夹具字段错误重复派发。
+        previous=read(HERE/('r02_'+label+'.native.json'))
+        assert previous['argv']==argv and previous['native_exit_code']==expected
+        assert not any(row['same_identity_exists'] for row in previous['known_children_closed'])
+        for kind in ('stdout','stderr'):
+            binding(previous[kind]['path'],previous[kind]['sha256'])
+        calls.append(dict(previous,reused_from='r02_'+label+'.native.json'))
+        return Path(previous['stdout']['path']).read_bytes()
+    output = HERE/(PREFIX+label+'.stdout.bin')
+    error = HERE/(PREFIX+label+'.stderr.bin')
+    began = time.monotonic()
+    unknown = []
+    peak = 0
+    with output.open('xb') as stdout, error.open('xb') as stderr:
+        child = subprocess.Popen(argv, cwd=ROOT, stdout=stdout, stderr=stderr)
+        identity = psutil.Process(child.pid)
+        birth = identity.create_time()
+        identities = {child.pid: birth}
+        while child.poll() is None:
+            try:
+                tree = [psutil.Process()] + psutil.Process().children(recursive=True)
+                total = 0
+                for process in tree:
+                    try:
+                        total += process.memory_info().rss
+                        identities[process.pid] = process.create_time()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied) as exc:
+                        unknown.append({'pid': process.pid, 'exception': type(exc).__name__})
+                peak = max(peak, total)
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as exc:
+                unknown.append({'pid': None, 'exception': type(exc).__name__})
+            assert peak <= 268435456, '独占轻量进程树超过256MiB'
+            assert time.monotonic()-began < 120, '单子命令超120秒'
+            time.sleep(.02)
+        code = child.wait()
+    closed = []
+    for pid, created in identities.items():
+        if pid == os.getpid():
+            continue
+        try:
+            process = psutil.Process(pid)
+            exists_same = process.create_time() == created
+            closed.append({'pid': pid, 'create_time': created, 'same_identity_exists': exists_same})
+        except psutil.NoSuchProcess:
+            closed.append({'pid': pid, 'create_time': created, 'same_identity_exists': False})
+    assert not any(row['same_identity_exists'] for row in closed), label+'尚存本次已知子进程'
+    value = {'label': label, 'argv': argv, 'cwd': str(ROOT), 'native_exit_code': code,
+             'elapsed_seconds': time.monotonic()-began, 'child_pid': child.pid,
+             'child_create_time': birth, 'wait_returned': True, 'known_children_closed': closed,
+             'sampled_tree_peak_bytes': peak, 'unknown_samples': unknown, 'absolute_tree_peak_bytes': None,
+             'stdout': {'path': str(output), 'sha256': digest(output)},
+             'stderr': {'path': str(error), 'sha256': digest(error)}}
+    write(label+'.native.json', value)
+    calls.append(value)
+    assert code == expected, (label, code, error.read_text(encoding='utf-8', errors='replace'))
+    return output.read_bytes()
+
+def git(label, *args):
+    """单Git子进程、长路径及禁自动维护。"""
+    return command(label, [GIT, '-c', 'core.longpaths=true', '-c', 'maintenance.auto=false', *args])
+
+def binding(path, expected, length=None):
+    """已存在目标逐组件核验精确名称与类型。"""
+    path = Path(path)
+    if not path.is_absolute():
+        # 工具清单的六个短名称明确定义为WORK相对路径。
+        short_tools = {'collector.py','impl_collector.py','source_after_check.py','native_source_after.py','native.py','compat_pins.py'}
+        path = (DEV if str(path) in short_tools else ROOT)/path
+    current = Path(path.anchor)
+    for part in path.parts[1:]:
+        assert part in {item.name for item in current.iterdir()}, str(path)
+        current = current/part
+        assert not current.is_symlink() and not current.is_junction(), str(path)
+    assert current.is_file(), str(path)
+    actual = digest(current)
+    assert actual == expected, str(path)
+    if length is not None:
+        assert current.stat().st_size == length, str(path)
+    read_bindings.append({'path': str(current), 'sha256': actual, 'bytes': current.stat().st_size})
+    return current
+
+def walk_bindings(value):
+    """递归核验声明的文件绑定，不执行输入命令。"""
+    if isinstance(value, dict):
+        if isinstance(value.get('sha256'), str):
+            for key in ('path', 'artifact_repo_path'):
+                if key in value:
+                    binding(value[key], value['sha256'], value.get('bytes'))
+        for child in value.values():
+            walk_bindings(child)
+    elif isinstance(value, list):
+        for child in value:
+            walk_bindings(child)
+
+def negative(name, action):
+    """仅内存反例，不能接触被审路径。"""
+    try:
+        action()
+    except (ValueError, AssertionError) as exc:
+        checks.append({'name': name, 'status': 'REJECTED_EXPECTED', 'exception': str(exc)})
+    else:
+        raise AssertionError(name+'误接受')
+
+def main():
+    check('HEAD_before', git('head_before','rev-parse','HEAD').decode().strip()==HEAD)
+    check('staged_before_empty', not git('staged_before','diff','--cached','--name-only').strip())
+    command('status_before', [GIT,'-c','core.longpaths=true','-c','maintenance.auto=false','status','--short'])
+    expected = {'delivery_manifest_r05.json':'5d8e1316caf593f417645fd4f05c7db26784fcadb15b85a5f55e4e74bf9216ff',
+        'source_freeze.json':'f8cbae8ce77e6caa7945d2e6485c28bc93a12ef0226d59c2abd8f42e38b01b77',
+        'tool_binding.json':'5b771d731e93c9f8349daf5d8116aa67c1e7bca7f91f40edff5385ddec50243b',
+        'author_receipt.json':'b30f8e3ad07be7c3c4cf86b972d7fded056f8b2b4d364fd58e0cb8cfc81b4521',
+        'final_resume_receipt.json':'b45f546a479cf19d2ac02271cc873106e595b7dd0bb38dd86665fa0ce1e1a602',
+        'raw_manifest.jsonl':'7db7c98a739e1dcfa7df6b72377ec54ddb2f2a38590f389a19a2657500a9ec0a',
+        'closed_native_mapping.json':'a7128e897f113255d63eab0e6dc33d500aa45e2735b647fb7f999598d691a566'}
+    for name, sha in expected.items():
+        binding(FORMAL/name, sha)
+    manifest = read(FORMAL/'delivery_manifest_r05.json')
+    for name in ('source_freeze.json','tool_binding.json','author_receipt.json','final_resume_receipt.json',
+                 'source_object_equivalence.json','source_before.json','execution_plan.json','recovery_entry.json'):
+        walk_bindings(read(FORMAL/name))
+    walk_bindings(manifest)
+    check('manifest_305_files_bound',len(manifest['files'])==305)
+    raw = [json.loads(line) for line in (FORMAL/'raw_manifest.jsonl').read_text(encoding='utf-8').splitlines()]
+    for row in raw:
+        original = binding(row['original_absolute_path'],row['sha256'],row['bytes'])
+        assert original == ROOT/row['original_repo_path']
+        binding(row['archived_repo_path'],row['sha256'],row['bytes'])
+    check('371_raw_original_archive_exact',len(raw)==371 and len({r['original_absolute_path'] for r in raw})==371)
+    mapping = read(FORMAL/'closed_native_mapping.json')['rows']
+    for row in mapping:
+        binding(row['original_repo_path'],row['sha256'],row['bytes'])
+        binding(row['archived_repo_path'],row['sha256'],row['bytes'])
+    check('closed_native_mapping_bound',True,len(mapping))
+    tool = read(FORMAL/'tool_binding.json')
+    old_tool = read(ROOT/'report/evidence/S2B-T17/s12_source_preflight_20261012_r02/tool_binding.json')
+    for path, sha in tool['inputs'].items():
+        binding(path,sha)
+    for row in tool['tools']:
+        path = binding(DEV/row['path'], row['sha256'],row['bytes'])
+        binding(FORMAL/'tools'/row['path'],row['sha256'],row['bytes'])
+        prior = next(r for r in old_tool['tools'] if r['path']==row['path'])
+        assert digest(OLD/row['path']) == prior['sha256']
+        if row['path']!='compat_pins.py':
+            assert path.read_bytes()==(OLD/row['path']).read_bytes() and row['sha256']==prior['sha256']
+    check('five_tools_unchanged_and_bound', tool['changed_files']==['compat_pins.py'])
+    old_ast=ast.parse((OLD/'compat_pins.py').read_text(encoding='utf-8')).body
+    new_ast=ast.parse((DEV/'compat_pins.py').read_text(encoding='utf-8')).body
+    allowed={'SOURCE_COMMIT','SOURCE_FREEZE_SHA','SOURCE_PRE','SYNTH_REPORT','PNR_REPORT'}
+    changed=[]
+    assert len(old_ast)==len(new_ast)
+    for old,new in zip(old_ast,new_ast):
+        if ast.dump(old,include_attributes=False)!=ast.dump(new,include_attributes=False):
+            assert isinstance(old,ast.Assign) and isinstance(new,ast.Assign)
+            assert old.targets[0].id == new.targets[0].id and new.targets[0].id in allowed
+            changed.append(new.targets[0].id)
+    check('only_five_existing_assignments_functions_ast_identical',set(changed)==allowed,changed)
+    freeze=read(FORMAL/'source_freeze.json')
+    before=read(FORMAL/'source_before.json')
+    equivalence=read(FORMAL/'source_object_equivalence.json')
+    check('43_33_18_14',len(freeze['source_files'])==43 and len(freeze['static_source_sha256'])==33 and len(freeze['active_rtl_sources'])==18 and len(freeze['frozen14'])==14)
+    relations=[]
+    for index,row in enumerate(freeze['source_files']):
+        actual=binding(row['path'],row['sha256'],row['bytes']).read_bytes()
+        binding(row['snapshot'],row['sha256'],row['bytes'])
+        earlier=next(r for r in before['source_files'] if r['path']==row['path'])
+        binding(earlier['snapshot'],row['sha256'],row['bytes'])
+        current=git('source_%02d_head'%index,'show',HEAD+':'+row['path'])
+        previous=git('source_%02d_code'%index,'show',CODE+':'+row['path'])
+        assert current==previous and hashlib.sha256(current).hexdigest()==row['git_blob_sha256']
+        rel='RAW_IDENTICAL' if current==actual else 'GIT_LF_TO_RAW_CRLF'
+        if rel!='RAW_IDENTICAL':
+            assert b'\r\n' not in current and current.replace(b'\n',b'\r\n')==actual
+        assert rel==row['git_relation']==earlier['git_relation']
+        eq=next(r for r in equivalence['rows'] if r['path']==row['path'])
+        assert eq['git_objects_byte_identical'] and eq['raw_sha256']==row['sha256']
+        relations.append(rel)
+    check('43_git_blobs_equal_HEAD_CODE_37RAW_6exactEOL',relations.count('RAW_IDENTICAL')==37 and relations.count('GIT_LF_TO_RAW_CRLF')==6)
+    sys.path.insert(0,str(DEV))
+    p=importlib.import_module('compat_pins')
+    c=importlib.import_module('collector')
+    after=importlib.import_module('source_after_check')
+    impl=importlib.import_module('impl_collector')
+    p.require_ready()
+    f, hashes, static, profile=c.load_freeze()
+    check('actual_43_33_18_8_14_minus2_50MHz_visibility0',len(hashes)==43 and len(static)==33 and len(profile['rtl_sources'])==18 and len(profile['source_derivation']['derived_sources'])==8 and len(f['frozen14'])==14 and profile['clock_hz']==50000000 and profile['visibility_default']==0 and profile['vivado_part']=='xc7z020clg400-2')
+    check('relative_WORK_paths',p.WORK==DEV and p.PROJECT==DEV/'project' and p.SYNTH_CACHE==DEV/'synth_cache' and p.PNR_CACHE==DEV/'pnr_cache')
+    check('both_COMMON_bind_collector',after.COMMON_SHA==impl.COMMON_SHA==digest(DEV/'collector.py')==tool['common_sha'] and after.COMMON_SHA!=digest(DEV/'compat_pins.py'))
+    negative('PNR_pending_refused',lambda:p.require_ready(pnr=True))
+    check('PNR_None_pending_not_future_approval',p.SYNTH_MANIFEST_SHA is p.SYNTH_G2_SHA is p.SYNTH_G2_EXPECTED_STATUS is None and '__PENDING_' in str(p.SYNTH_MANIFEST) and '__PENDING_' in str(p.SYNTH_G2))
+    fixture=HERE/'source_positive'
+    with patch.object(c,'PRE',fixture),patch.object(c,'REPORT',HERE/'future_report'),patch.object(c,'PROJECT',HERE/'future_project'),patch.object(c,'WORK',HERE):
+        with patch.object(sys,'argv',[str(DEV/'collector.py'),'source','--commit',HEAD,'--phase','before']):
+            c.main()
+        positive=read(fixture/'source_before.json')
+        check('real_source_commit_argument_actual_HEAD_before',positive['source_commit']==HEAD and len(positive['source_files'])==43)
+        with patch.object(sys,'argv',[str(DEV/'collector.py'),'source','--commit',CODE,'--phase','before']):
+            negative('wrong_CLI_commit_rejected',c.main)
+        with patch.object(p,'SOURCE_COMMIT',CODE):
+            negative('wrong_SOURCE_pin_rejected',lambda:c.source(HEAD,'before'))
+        with patch.object(c,'git',return_value=(CODE.encode('ascii'),['模拟不同HEAD'])):
+            negative('wrong_actual_HEAD_rejected',lambda:c.source(HEAD,'before'))
+        with patch.object(p,'SOURCE_FREEZE_SHA','0'*64):
+            negative('wrong_freeze_SHA_rejected',lambda:c.source(HEAD,'before'))
+    check('negative_tests_did_not_create_targets',not (HERE/'future_report').exists() and not (HERE/'future_project').exists())
+    native_rows=[]
+    for path in sorted(DEV.glob('*.native.json')):
+        value=read(path)
+        walk_bindings(value)
+        native_rows.append({'name':path.name,'native_exit_code':value['native_exit_code'],
+            'unknown_samples':value.get('unknown_samples'), 'sampled_owned_tree_peak_bytes':value.get('sampled_owned_tree_peak_bytes'),
+            'elapsed_seconds':value.get('elapsed_seconds'), 'pid_identity_recorded':any('pid' in k.lower() for k in value)})
+    native={row['name']:row for row in native_rows}
+    check('source_before_native_real_values',native['source_before.native.json']['native_exit_code']==0 and native['source_before.native.json']['unknown_samples']==0 and native['source_before.native.json']['sampled_owned_tree_peak_bytes']==129105920 and abs(native['source_before.native.json']['elapsed_seconds']-6.235)<.001)
+    check('logic20_prepare_help5_native0',read(FORMAL/'final_pins_test_receipt.json')['case_count']==20 and native['logic_tests.native.json']['native_exit_code']==0 and native['prepared.native.json']['native_exit_code']==0 and all(native[n+'.native.json']['native_exit_code']==0 for n in ('help_collector','help_impl_collector','help_native','help_native_source_after','help_source_after_check')))
+    check('PNR_real_native1_reject',native['pnr_pending.native.json']['native_exit_code']==1)
+    check('r05_evidence0_inputs2',native['r05_evidence.native.json']['native_exit_code']==0 and native['r05_inputs.native.json']['native_exit_code']==2)
+    check('both_precheck_failures_native2',native['precheck_evidence.native.json']['native_exit_code']==2 and native['final_evidence.native.json']['native_exit_code']==2)
+    peaks=[r['sampled_owned_tree_peak_bytes'] for r in native_rows if r['sampled_owned_tree_peak_bytes'] is not None]
+    elapsed=[r['elapsed_seconds'] for r in native_rows if r['elapsed_seconds'] is not None]
+    check('known_aggregate_peak_elapsed_unknown',max(peaks)==146337792 and abs(max(elapsed)-15.579)<.001 and sum(r['unknown_samples'] or 0 for r in native_rows)==1)
+    check('UNKNOWN_record_is_derive',native['derive.native.json']['unknown_samples']==1, '异常是NoSuchProcess或AccessDenied采样缺口；原包装未记录异常PID/出生时间，不能事后恢复具体对象身份。')
+    for label in ('finalize','r05_evidence','r05_inputs'):
+        for suffix in ('.native.json','.stdout.bin','.stderr.bin'):
+            path=DEV/(label+suffix)
+            binding(path,digest(path))
+    check('late_raw_present_bound_for_ROOT_archive',True)
+    initial=read(DEV/'first_launcher_failure.json')
+    write('first_launcher_failure_observed.json',initial)
+    plan=read(FORMAL/'execution_plan.json')
+    recovery=read(FORMAL/'recovery_entry.json')
+    check('session_PID_log_still_pending_no_fake_approval',plan['owned_session_id']==plan['owned_root_pid']==plan['session_log_path']=='PENDING' and recovery['owned_session_id']==recovery['owned_root_pid']==recovery['owned_log']=='PENDING' and plan['actual_session_created'] is False)
+    check('heavy_thresholds_unchanged',plan['resources']['tree_rss_limit_bytes']==6442450944 and plan['resources']['available_ram_stop_bytes']==536870912 and plan['resources']['c_disk_free_stop_and_admission_bytes']==8589934592 and plan['resources']['guard_interval_seconds']==1 and plan['resources']['supervisor_live_interval_seconds']==5 and plan['resources']['no_log_progress_stop_seconds']==900)
+    for name in ('source_freeze.json','tool_binding.json','execution_plan.json'):
+        assert (DEV/name).read_bytes()==(FORMAL/name).read_bytes()
+    command('manifest_evidence',[sys.executable,'-X','utf8','-B','verification/check_stage_delivery.py','--mode','evidence','--manifest',str(FORMAL/'delivery_manifest_r05.json')])
+    command('manifest_inputs',[sys.executable,'-X','utf8','-B','verification/check_stage_delivery.py','--mode','inputs','--manifest',str(FORMAL/'delivery_manifest_r05.json')],2)
+    check('HEAD_after',git('head_after','rev-parse','HEAD').decode().strip()==HEAD)
+    check('staged_after_empty',not git('staged_after','diff','--cached','--name-only').strip())
+    for row in freeze['source_files']:
+        binding(row['path'],row['sha256'],row['bytes'])
+    for name,sha in expected.items():
+        binding(FORMAL/name,sha)
+    write('binding_observations.json',read_bindings)
+    write('native_original_observations.json',native_rows)
+    result={'status':'PASS_RESUME_PINS_G2_ONLY','source_commit':HEAD,'code_commit':CODE,'checks':checks,
+        'source_count':43,'static_count':33,'rtl_count':18,'derived_count':8,'frozen14_count':14,
+        'head_before':HEAD,'head_after':HEAD,'staged_before_after_empty':True,'all_43_actual_RAW_unchanged':True,
+        'original_native_count':len(native_rows),'original_sampled_peak_bytes':max(peaks),'original_longest_seconds':max(elapsed),
+        'original_UNKNOWN_count':1,'original_UNKNOWN_label':'derive','original_continuous_peak_bytes':None,
+        'original_direct_children_terminal_basis':'subprocess.Popen.poll()后记录实际native_exit_code；逻辑Git subprocess.run等待返回，真实原流及返回码绑定。',
+        'historical_tree_identity_limitation':'原native_capture未采样PID/create_time及异常对象；不能从已结束直接child码推定全进程树或未知对象已闭合，不能事后恢复UNKNOWN身份。ROOT确认无其历史身份原流。',
+        'review_calls':calls,'review_elapsed_seconds':time.monotonic()-start,'resource_sample_available_bytes':psutil.virtual_memory().available,
+        'limits':['仅恢复绑定G2；真实资源准入/G0/STA/bit/fullXSA/Vitis/板上109及1000/G3/G5未批准。',
+          'late finalize/r05检查原流由ROOT另外归档；避免自指循环清单。','原UNKNOWN=1透明保留，绝对连续峰未测。'],
+        'stopped':True,'production_modified':False,'git_modified':False,'hardware_calls':0,'vivado_calls':0}
+    write('review_receipt.json',result)
+    print(json.dumps({'status':result['status'],'checks':len(checks),'bindings':len(read_bindings),'commands':len(calls),'elapsed':result['review_elapsed_seconds']},ensure_ascii=False))
+
+if __name__=='__main__':
+    main()

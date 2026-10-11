@@ -1,0 +1,10 @@
+{
+  "role": "tool返回转录；不是子进程原始stdout/stderr",
+  "failures": [
+    {"tool_chunk_id": "bd08f7", "host_exit_code": 1, "reason": "exec shell=bash被Windows宿主解释为cmd，pwd未启动；后续明确PowerShell调用精确Git Bash"},
+    {"tool_chunk_id": "924347", "host_exit_code": 1, "child_native_exit_code": null, "reason": "默认沙箱拒绝Python启动；升级审核后只读inspect_schema执行0"},
+    {"tool_chunk_id": "c5d329", "native_exit_code": 1, "reason": "Reviewer夹具将工具basename误解为ROOT相对；实际schema是WORK相对；最初head/staged/status原流保留，但完整首次stdout/stderr仅tool返回转录"},
+    {"tool_session_id": 54452, "native_exit_code": 1, "raw_prefix": "review_r02", "reason": "Reviewer夹具误用profile.part，实际键是vivado_part；43×2原生Git原流已完成且保留r02，r03复用未重派发"}
+  ],
+  "source_snapshot_limitation": "首次失败期间review.py两个旧夹具版本未保存完整源码快照；失败原流及最终修正源码均保留，不能声称旧脚本快照完整。"
+}

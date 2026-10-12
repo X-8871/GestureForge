@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "s15_ross_guard_20261013_r07",
+  "source_commit": "a7e6464842d66a95dccef4b3cb108d957ec4bf39",
+  "evidence_dir": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本轮只验证ROSS会话状态捕获标记及离线回放，不改变硬件、PS/PL或软件接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/run_short_regression.py",
+      "sha256": "297BFC9382080EAD103D47D88D0979F7C475EED4C10B5EBD35BC39D42ACFDD99",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/real_ross_capture/psutil_identity_double_read.json",
+      "sha256": "007F93E70E9BFE352C216F67965AA589D2134D23BA75C0762FBD0F417234C084",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/real_ross_capture/vivado_list_sessions.invocation.json",
+      "sha256": "662E47915625FB58F4C5D2AF76D187A329034D6265A18576B2BC75DABCCE9411",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/real_ross_capture/vivado_start.invocation.json",
+      "sha256": "1E19758FFF938B9F11B7401D52355C1DAE628BC4FB0EEBBB1F1B0EF8BB2BA2F4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/real_ross_capture/vivado_status_01.invocation.json",
+      "sha256": "29634982C00FD7ED0A414181D20DDEA5153018E18B4476169AFB777725341DAF",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/real_ross_capture/vivado_status_02.invocation.json",
+      "sha256": "A99BB7DEEBAD7F076B4FC92C5EA22F727BFD67D3B0F9F1EC41882A7EF35E4DBE",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/short_regression/real_binding_result.json",
+      "sha256": "66F78DCA2AEC5119DDB2D4A0805A0023AE68B5838CACDBFD70740524F1617BCD",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s15_ross_guard_20261013_r07/short_regression/short_result.json",
+      "sha256": "54E20DD5D5DBB140FCDD60633BBE8D9469677FB1ADC93E9C887AEC7B049EBFCB",
+      "role": "result"
+    },
+    {
+      "path": "verification/s15_ross_job_guard.py",
+      "sha256": "0955F150CAE9902977EEB101433A87393B73663BD1D4CC1E1039853FB06BDC5D",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s15_ross_job_guard.py",
+      "sha256": "DDE9679BA176DEB4EB6DD7C433E70E0E4D99B301251A66330A3EC13D416D5085",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "r07离线短回归",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s15_ross_guard_20261013_r07\\run_short_regression.py",
+      "exit_code": 0,
+      "reason": "105项检查通过，耗时26.046秒；结果绑定当前adapter及测试源文件SHA-256。"
+    },
+    {
+      "name": "四次真实ROSS捕获离线绑定回放",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s15_ross_guard_20261013_r07\\run_short_regression.py",
+      "exit_code": 0,
+      "reason": "捕获start、list和两次status调用的tool身份、精确参数、完整结果封套与文件哈希；此项仍是离线回放。"
+    },
+    {
+      "name": "Vivado Tcl与bitgen",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "r07仅更正status捕获标记；真实外层MCP派发桥尚未完成独立审查。"
+    },
+    {
+      "name": "实板JTAG与2B验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本轮未生成bitstream且板卡未连接。"
+    }
+  ],
+  "limitations": [
+    "r07审查只覆盖status工具标记修正，不覆盖真实vivado_execute派发callback。",
+    "短回归离线回放了已捕获ROSS响应，不表示本轮执行了Tcl、bitgen或实板操作。",
+    "本次可用内存峰值未测；仅记录启动前available memory约4.92GiB。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "psutil": "7.2.2",
+    "vivado_capture": "2026.1"
+  }
+}

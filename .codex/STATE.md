@@ -35,6 +35,10 @@
 
 ## Git 与下一步
 
+- 2026-10-12 Wong最新边界：检查问题后仅再综合最后一次；仍失败则保存真实证据和相关提交，停止本窗口，不继续重试。板卡保持断开，离线预下载包就绪后才请求连接；启动4.5GiB门槛已豁免，运行内存/空间门禁仍有效。
+- S13实际SOURCE为`701dc55af0c53a959e84dc0c470f136918f5bd50`，五个综合任务均日志/marker完成，native control0、products native0/capture1、wait客户端300秒transport timeout与native0/625.116秒分列。实际50MHz综合态STA FAIL：WNS−2.453ns/TNS−137.746ns/102端点，LUT21732/FF4030/BRAM32/DSP144/0 latch；运行监护r01-r03 BLOCKED、r04仅报告/关闭，无连续预算PASS。SOURCE前后44/static33/原14一致；owned设计会话已关闭。正式失败封包入口`report/evidence/S2B-T17/s13_root_closure_20261012_r01/delivery_manifest_r06.json`，独立`PASS_EVIDENCE_INTEGRITY_ONLY` receipt SHAa213ff976f29c73e06956eab2384c5cf837ca0f8c9e1faa540136e04f09a1700；仅证据真实性通过，不执行PNR/bit/JTAG。
+- S14只读归因已覆盖全部102端点：CONV校验C×H→低32平面×W（22）、输出H×W→通道×平面（68）、ROUTE选channel后串联两级乘加（12）；归因入口`report/evidence/S2B-T17/s14_timing_g0_20261012_r01/final_receipt.json`。下一步在既有START登记精确乘积、冻结ROUTE分配地址算式，完成新增冻结分支和公开周期等价验证及独审后进行唯一一次综合；未声称修复或时序通过。
+
 - S13 功能修复已提交 `01d1daca614963076853c5654b79a7d596909434`。新资源工具独立 `PASS_TOOL_G2_ONLY` receipt SHA36c5e36d956f7b11c7f0e4b579530be1f99a38ac20bc6f709f9921853d886738，71项核查通过；原生后台ROOT消费5秒目标/10秒硬新鲜度、guard每轮新表/最多3扫/两连续集合及原运行阈值保留，实际重型监护尚未运行。Tcl构建器namespace仍0.1.12，JSON候选profile0.1.13，两者按实际源码分别记录；不伪称构建器已升级。已按精确18文件清单清理2,606,866,215B非冻结gch，288项开发证据前后哈希相同，exe/源/黄金/失败日志保留；清理后C盘空闲10,570,612,736B。新配置待实际提交HEAD绑定，未访问板卡。
 
 - 2026-10-12 S13 在现有 ST_TILE_PREP 登记完整 signed64 tile origin，SCAN 使用原点加扫描坐标；保持公开周期、错误优先级、原14、18RTL、−2/50MHz/visibility0，profile0.1.13。功能G1清单 `s13_tile_origin_20261012_r01/delivery_manifest.json` SHA726df3cb0045f8b2fe4f6911f6f87e0515b1a1d29a4296937b0736614fa59d42：四组来自all_r03，完整layer0来自layer0_r01，1,384,448输出字节零差异，不能称统一all成功；早期fixture及0xC0000005编译失败原因UNKNOWN原件保留。独立G2 `PASS_G2_FUNCTIONAL_ONLY` receipt SHA0b96c0362143a070fbf05ba0add1282f65d9662d6cbecdfe3b4101b928dcf359：114,641数学向量、五篡改反例及单job干净重建5,996门禁/32新连续任务/808,518周期均通过，编译与仿真原生0；原件与精确副本见 `s13_root_review_20261012_r01/functional/`。当前S13新综合、PNR、bit/fullXSA及板上未运行，S12 STA失败仍未关闭；用户豁免启动RAM门槛并要求离线推进到JTAG下载前。新资源工具尚待独立G2，不继承旧guard预算连续PASS；板卡保持断开。

@@ -1,0 +1,276 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "reviewer_state": "STOP",
+  "scope": "r02历史离散恢复准入及一次当前读回；固定10条准入正确，但此时监护已BLOCKED，不能批准现时LIVE。",
+  "historical_admission_semantics": "PASS_RECOVERY_DISCRETE_ADMISSION_ONLY：新ROOT绑定、原门槛及盘符samefile证明、旧r01终态、新guard READY首行SHA、SUP95489运行中、consumer97592直接CLI运行中无假handoff、10条LIVE及setup0/launch0真实归档，固定三流前缀均匹配。",
+  "independent_check_native_exit_code": 1,
+  "current_blocker": {
+    "guard_status": "BLOCKED",
+    "guard_reason": "INCOMPLETE_TREE_IDENTITY",
+    "guard_at_utc8": "2026-10-12T10:40:19.890278+08:00",
+    "guard_receipt_sha256": "c84a3b1a4e7f38d86d9cc964f1c46a6fc04386a61539f6867ef758f4ba9a2866",
+    "consumer_status": "BLOCKED_RUNTIME_MONITOR",
+    "consumer_reported_native_exit_code": 2,
+    "consumer_last_index": 27,
+    "consumer_last_at_utc8": "2026-10-12T10:40:21.745765+08:00",
+    "consumer_reason": "READ_OR_IDENTITY_UNKNOWN:psutil.NoSuchProcess(pid=2096, msg='process PID not found')",
+    "consumer_stop_request": "STOP_REJECTED_IDENTITY_OR_PATH",
+    "heavy_terminal": "UNKNOWN"
+  },
+  "closure_condition": "ROOT保留r01与r02真实BLOCKED/GAP，核终态缺口和当前owned成员，不凭历史准入继续派发；新的实际监护及当前准入另行独立核查。不得改旧记录或追补连续预算。",
+  "checks": [
+    {
+      "case": "config_original_sha",
+      "passed": true
+    },
+    {
+      "case": "source_root_binding",
+      "passed": true
+    },
+    {
+      "case": "old_blocked_retained",
+      "passed": true
+    },
+    {
+      "case": "old_stop_guard_absent",
+      "passed": true
+    },
+    {
+      "case": "samefile_precise_aliases",
+      "passed": true
+    },
+    {
+      "case": "limits_unchanged",
+      "passed": true
+    },
+    {
+      "case": "waiver_only_start",
+      "passed": true
+    },
+    {
+      "case": "unchanged_guard.py",
+      "passed": true
+    },
+    {
+      "case": "unchanged_supervisor.py",
+      "passed": true
+    },
+    {
+      "case": "unchanged_runtime_consumer.py",
+      "passed": true
+    },
+    {
+      "case": "unchanged_launch_monitor.py",
+      "passed": true
+    },
+    {
+      "case": "sup_real_ready_not_exit0",
+      "passed": true
+    },
+    {
+      "case": "consumer_running_no_fake_native0",
+      "passed": true
+    },
+    {
+      "case": "admission_real0_10",
+      "passed": true
+    },
+    {
+      "case": "setup_and_launch_real0",
+      "passed": true
+    },
+    {
+      "case": "launch_actual_timestamp",
+      "passed": true
+    },
+    {
+      "case": "frozen_prefix_consumption_binding",
+      "passed": true
+    },
+    {
+      "case": "frozen_prefix_supervision_binding",
+      "passed": true
+    },
+    {
+      "case": "frozen_prefix_samples_binding",
+      "passed": true
+    },
+    {
+      "case": "10_live_fixed_actual",
+      "passed": true
+    },
+    {
+      "case": "ready_actual_first_sample_sha",
+      "passed": true
+    },
+    {
+      "case": "direct_cli_identity",
+      "passed": true
+    },
+    {
+      "case": "current_six_root",
+      "passed": true
+    },
+    {
+      "case": "current_six_guard",
+      "passed": false
+    },
+    {
+      "case": "current_six_consumer",
+      "passed": false
+    },
+    {
+      "case": "current_evaluate_clear",
+      "passed": false
+    },
+    {
+      "case": "current_consumer_fresh",
+      "passed": false
+    },
+    {
+      "case": "current_terminal_absent",
+      "passed": false
+    },
+    {
+      "case": "config_unchanged_end",
+      "passed": true
+    }
+  ],
+  "fixed_bindings": {
+    "consumer_config_r02.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\consumer_config_r02.json",
+      "sha256": "b2557c3e62187c6bd556963fc80b2e1cae7cecfed239a14ece09dd012f34ca59"
+    },
+    "dispatch_admission_r02.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\dispatch_admission_r02.json",
+      "sha256": "705ebcdd028da5c439aac9f04ce134dd390d7548dbf174490992afd6a69a331b"
+    },
+    "owned_binding_r02.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\owned_binding_r02.json",
+      "sha256": "7ada22031165fb2f60f17ce13283270da2fed53ee3d407fe3f13d834070849a0"
+    },
+    "resource_plan_r02.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\resource_plan_r02.json",
+      "sha256": "bdf6c99ed9e4f7cef50ab510a2db7a6a6a28c9e71388ca9f0bbde7848edc449a"
+    },
+    "identity_admission_r02.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\identity_admission_r02.json",
+      "sha256": "72ffec3ef73c0139cee1ef18d5c83e6a3302d4e5f1793e69a3b5ee7ef64045ae"
+    },
+    "capture_recovery_r02.py": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\capture_recovery_r02.py",
+      "sha256": "74d7464bef51c18553b2f9be3f864378edda8621d53987f0398a361833f23fe0"
+    },
+    "check_ready_r02.py": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\check_ready_r02.py",
+      "sha256": "82d5a7c73e8ba05b6f0744762b35cce91885e9abbfee356cccbfc44487c1b54c"
+    },
+    "r02_start.tool.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\r02_start.tool.json",
+      "sha256": "da60ebc44a0bf57c3953f6c1648bdf95c3fd659fb9bc241c170273cbf69f5273"
+    },
+    "r02_consumer.tool.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\r02_consumer.tool.json",
+      "sha256": "99626e500d82e8f99e9f7c9d258c79bbc620684bce16d391cf1d052a22364ef6"
+    },
+    "r02_admission.tool.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\r02_admission.tool.json",
+      "sha256": "19261c3df3d9dcb024cfd017a5a7a66caa25a01759e22b0b38dc64e695c6f58a"
+    },
+    "r02_setup.tool.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\r02_setup.tool.json",
+      "sha256": "b8e958d9b39b6af6f1101537edfbe21c6b6ef291684365cc4f3e6a0829a2f0d8"
+    },
+    "r02_launch.tool.json": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\r02_launch.tool.json",
+      "sha256": "28597ed6fc88712aa204ad35899a8e12c9efbe4fe0ed98fcd27eaad6241a4a9c"
+    }
+  },
+  "current_streams": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\native_consumer_r02\\consumption.jsonl",
+      "bytes": 275089,
+      "sha256": "551fcec881c29e4d50fe77064634fa49856fea8f818102654c8a249bae65f8a1",
+      "complete_bytes": 275089,
+      "trailing_bytes": 0,
+      "mtime_age_seconds": 41.05481672286987
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\supervision_r02\\supervision.jsonl",
+      "bytes": 62448,
+      "sha256": "133cc50b49f1214acc8c05aa6c7e39ba7b33d0efdba39aca158784f027f363e0",
+      "complete_bytes": 62448,
+      "trailing_bytes": 0,
+      "mtime_age_seconds": 42.88619089126587
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01\\supervision_r02\\guard\\samples.jsonl",
+      "bytes": 934757,
+      "sha256": "ec0c6e9093868deefe31983e9723c1bd4509820dd5e1ec5f556d02a76d733fad",
+      "complete_bytes": 934757,
+      "trailing_bytes": 0,
+      "mtime_age_seconds": 42.98698139190674
+    }
+  ],
+  "current_identities": [
+    {
+      "name": "root",
+      "actual": {
+        "pid": 24504,
+        "create_time": 1791771659.354538,
+        "exe": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+        "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s13_physical_launch_root_20261012_r01",
+        "cmdline": [
+          "D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe",
+          "-mode",
+          "tcl",
+          "-log",
+          ".vivado-ai\\vivado_71658082_43fdea0e.log",
+          "-journal",
+          ".vivado-ai\\vivado_71658082_43fdea0e.jou",
+          "-notrace",
+          "-source",
+          ".vivado-ai\\init_71658082_43fdea0e.tcl"
+        ],
+        "ppid": 32328
+      },
+      "matches_all_six": true
+    },
+    {
+      "name": "guard",
+      "error": "psutil.NoSuchProcess(pid=2096, msg='process PID not found')",
+      "matches_all_six": false
+    },
+    {
+      "name": "consumer",
+      "error": "psutil.NoSuchProcess(pid=16520, msg='process PID not found')",
+      "matches_all_six": false
+    }
+  ],
+  "current_consumer_index": 27,
+  "current_guard_index": 153,
+  "current_guard_resources": {
+    "tree_rss_bytes": null,
+    "available_ram_bytes": 4693618688,
+    "c_disk_free_bytes": 10325733376
+  },
+  "current_evaluate_reasons": [
+    "NOT_READY_OR_TERMINAL",
+    "SUPERVISION_SIX_FIELD_IDENTITY_MISMATCH",
+    "STREAM_FRESHNESS_GT_10S_OR_CLOCK_CHANGE",
+    "RECORD_TIMESTAMP_UNKNOWN",
+    "GUARD_ALERT_UNCERTAIN_OR_NOT_CLOSED",
+    "RESOURCE_UNKNOWN_OR_LIMIT:tree_rss_bytes"
+  ],
+  "original_native_consumer_exit_code": null,
+  "original_native_supervisor_exit_code": null,
+  "admission_native_tool_exit_code": 0,
+  "setup_mcp_exit_code": 0,
+  "launch_mcp_exit_code": 0,
+  "limitations": [
+    "仅r02固定历史离散恢复准入与一次当下观察；r01 BLOCKED及products阶段监护GAP不回补。",
+    "原生consumer/SUP为运行中，无真实终态码或fakehandoff；本审查不结束它们。",
+    "唯一launch记录已核其实际输入与返回；全历史products/launch次数将于完整关闭history另核，不据单条记录证明没有未归档调用。",
+    "不批准STA/PNR/实际综合证据G2、硬件或连续绝对峰。下一派发仍需ROOT当前准入。"
+  ]
+}

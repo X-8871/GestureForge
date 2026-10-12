@@ -1,0 +1,45 @@
+{
+  "status": "PASS_OPERATIONAL_ADOPTION_ONLY",
+  "reviewer_state": "STOP",
+  "scope": "2026-10-12T10:28:48.218284+08:00历史离散adoption声明及归档工具实际返回；不批准现时LIVE或新的运行派发。",
+  "consumer_start": {
+    "path": "tmp/2B/S2B-T17/s13_physical_launch_root_20261012_r01/consumer_start.tool.json",
+    "sha256": "d3c54505b244b7d781284fb0fcb4ac1771ecdfbb89bf9756b9d589ea645d92de",
+    "actual_native_tool_exit_code": 2,
+    "chunk_id": "4eb618",
+    "status": "BLOCKED_BACKGROUND_STARTUP",
+    "error": "ValueError('没有完整JSONL记录')",
+    "heavy_terminal": "UNKNOWN"
+  },
+  "consumer_adoption": {
+    "path": "tmp/2B/S2B-T17/s13_physical_launch_root_20261012_r01/consumer_adoption.tool.json",
+    "sha256": "3eb5164852841b6c515aa11edeea254781c9dcc31ac8bcec375d66ebdbc83d2a",
+    "actual_native_tool_exit_code": 0,
+    "chunk_id": "01e6dc",
+    "status": "ROOT_ADOPTED_EXISTING_LIVE_READY",
+    "pid": 34840,
+    "birth": 1791772023.0808072,
+    "existing_ready_consumptions": 21,
+    "restarted": false,
+    "original_launcher_exit_code": 2
+  },
+  "historical_fixed_adoption_sha256": "d3ed6c09713a561bb48ae7b3bfd76e407f718c6f2331f34f674527c5c049bf5e",
+  "prior_independent_check": {
+    "path": "tmp/2B/S2B-T17/independent_s13_tools_review_20261012_r01/operational_adoption_addendum.json",
+    "sha256": "cca4e008f37e4353a7f48e4ef877a7c42127f5415047015bbf9f6e756101c6cf",
+    "status": "CHANGES_REQUIRED",
+    "historical_checks": "0至20共21条LIVE、同六字段、三流固定字节前缀SHA与固定first/latest记录全部独立核实一致。",
+    "current_blocker_not_retracted": "r01 guard10:29:42 BLOCKED/IDENTITY_MISMATCH，consumer/guard结束，旧adoption不再作LIVE准入。"
+  },
+  "checked": [
+    "两个精确工具归档路径实际存在，SHA与ROOT冻结值相同；直接读取原工具返回exit_code分别2与0，输出分别启动失败与同consumer恢复。",
+    "adoption不追改launcher2，不补造原direct-child handoff或wait code，不重启消费器。",
+    "历史21条准入记录与同PID/birth存在实际原流证据，仍只为当时离散证明。"
+  ],
+  "limitations": [
+    "本次不再读取动态三流/PID；不声明现时新鲜、不批准r02或任何heavy派发。",
+    "原CHANGES_REQUIRED当前监护结论与GAP原件保留；新的ROOT/guard/consumer准入须另核实际材料。",
+    "原handoff缺失及direct-child wait code仍null；归档工具实际返回不能补成不存在的直接子终态码。",
+    "不提高工具/物理G2、STA、PNR、连续预算或硬件批准范围，未修改被审文件、HEAD、工具或生产源。"
+  ]
+}

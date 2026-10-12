@@ -1,0 +1,293 @@
+{
+  "status": "PASS_EVIDENCE_INTEGRITY_ONLY",
+  "stop": "STOP_READ_ONLY_REVIEW_COMPLETE",
+  "at_utc8": "2026-10-12T11:19:29.620205+08:00",
+  "source_commit": "701dc55af0c53a959e84dc0c470f136918f5bd50",
+  "reviewed_manifest": {
+    "path": "report/evidence/S2B-T17/s13_root_closure_20261012_r01/delivery_manifest_r03.json",
+    "sha256": "3de5a79ba3395456b8c4e305f03869ac88369f007e34725104acc3e475706bb0",
+    "bytes": 99615
+  },
+  "scope": "仅S13真实失败证据的原件、快照、版本、调用与封包准确性；不批准时序、资源连续预算、PNR、bit、硬件、G3-G5或S14修复。",
+  "independent_checks": 3172,
+  "issues": [],
+  "facts": {
+    "constraint_files": [
+      "report/evidence/S2B-T17/s13_platform_20261012_r01/constraints_synth.xdc",
+      "report/evidence/S2B-T17/s13_platform_20261012_r01/exceptions_synth.rpt",
+      "report/evidence/S2B-T17/s13_platform_20261012_r01/s12_constraints_binding.json"
+    ],
+    "manifest_sha256": "3de5a79ba3395456b8c4e305f03869ac88369f007e34725104acc3e475706bb0",
+    "source_commit": "701dc55af0c53a959e84dc0c470f136918f5bd50",
+    "source_snapshots": 44,
+    "git_raw": 38,
+    "git_exact_eol": 6,
+    "archive_mappings": 33,
+    "runtime_mappings": 36,
+    "closed_mappings": 98,
+    "native_mappings": 100,
+    "guards": [
+      {
+        "round": 1,
+        "guard_status": "BLOCKED",
+        "reason": "IDENTITY_MISMATCH",
+        "at_utc8": "2026-10-12T10:29:42.690859+08:00",
+        "consumer_status": "BLOCKED_RUNTIME_MONITOR",
+        "consumer_exit_code": 2,
+        "sampled_peak_tree_rss_bytes": 688427008
+      },
+      {
+        "round": 2,
+        "guard_status": "BLOCKED",
+        "reason": "INCOMPLETE_TREE_IDENTITY",
+        "at_utc8": "2026-10-12T10:40:19.890278+08:00",
+        "consumer_status": "BLOCKED_RUNTIME_MONITOR",
+        "consumer_exit_code": 2,
+        "sampled_peak_tree_rss_bytes": 3736358912
+      },
+      {
+        "round": 3,
+        "guard_status": "BLOCKED",
+        "reason": "INCOMPLETE_TREE_IDENTITY",
+        "at_utc8": "2026-10-12T10:49:04.853896+08:00",
+        "consumer_status": "BLOCKED_RUNTIME_MONITOR",
+        "consumer_exit_code": 2,
+        "sampled_peak_tree_rss_bytes": 5447192576
+      },
+      {
+        "round": 4,
+        "guard_status": "BLOCKED",
+        "reason": "INCOMPLETE_TREE_IDENTITY",
+        "at_utc8": "2026-10-12T10:58:23.129076+08:00",
+        "consumer_status": "BLOCKED_RUNTIME_MONITOR",
+        "consumer_exit_code": 2,
+        "sampled_peak_tree_rss_bytes": 2025037824
+      }
+    ],
+    "native_codes": {
+      "s13_prepare_r01": 0,
+      "s13_source_before_r01": 0,
+      "s13_source_after_r01": 0,
+      "s13_collect_r01": 1,
+      "s13_collect_r02": 0
+    },
+    "owned_old_instance": "ABSENT",
+    "history": [
+      {
+        "id": 1,
+        "code": 0,
+        "elapsed": 0.006,
+        "command": "source -encoding utf-8 -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}"
+      },
+      {
+        "id": 2,
+        "code": 1,
+        "elapsed": 61.667,
+        "command": "set_param general.maxThreads 1; ::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA"
+      },
+      {
+        "id": 3,
+        "code": 0,
+        "elapsed": 0.016,
+        "command": "cd {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s13_physical_launch_root_20261012_r01}; set_param general.maxThreads 1; if {[get_proper"
+      },
+      {
+        "id": 4,
+        "code": 0,
+        "elapsed": 1.126,
+        "command": "launch_runs synth_1 -jobs 1"
+      },
+      {
+        "id": 5,
+        "code": 0,
+        "elapsed": 625.116,
+        "command": "wait_on_run synth_1"
+      },
+      {
+        "id": 6,
+        "code": 0,
+        "elapsed": 26.661,
+        "command": "open_run synth_1"
+      },
+      {
+        "id": 7,
+        "code": 0,
+        "elapsed": 36.906,
+        "command": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition"
+      },
+      {
+        "id": 8,
+        "code": 0,
+        "elapsed": 1.273,
+        "command": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s13_platform_20261012_r01/constraints_synth.xdc}; set s11_"
+      },
+      {
+        "id": 9,
+        "code": 0,
+        "elapsed": 1.075,
+        "command": "close_project"
+      }
+    ]
+  },
+  "sta": {
+    "status": "FAIL_TIMING",
+    "wns_ns": -2.453,
+    "tns_ns": -137.746,
+    "setup_failing_endpoints": 102,
+    "lut": 21732,
+    "ff": 4030,
+    "bram": 32,
+    "dsp": 144,
+    "latch": 0,
+    "clock_mhz": 50,
+    "speed": "-2",
+    "design_state": "Synthesized",
+    "exported_reset_false_paths": 2,
+    "actual_valid_exceptions": "No valid timing exceptions found"
+  },
+  "actual_native_results": [
+    {
+      "label": "audit_r02",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s13_actual_failure_review_20261012_r01\\audit.py"
+      ],
+      "pid": 13832,
+      "birth": 1791775120.7570553,
+      "actual_wait_return": 0,
+      "expected_return": 0,
+      "elapsed_seconds": 1.062000000005355,
+      "stdout_sha256": "dd10d7b2dc6b81bd3299a83a28f75db4dbaa1c695340f05c60a852be7de9cb16",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "internal_git_or_process_tree_identity": "UNKNOWN"
+    },
+    {
+      "label": "evidence",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s13_root_closure_20261012_r01\\delivery_manifest_r03.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "pid": 29968,
+      "birth": 1791775121.8254814,
+      "actual_wait_return": 0,
+      "expected_return": 0,
+      "elapsed_seconds": 1.5159999999887077,
+      "stdout_sha256": "3a629df03a90939915553ebd444b6260062ef2ad35fd25d76f0fcab272c00493",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "internal_git_or_process_tree_identity": "UNKNOWN"
+    },
+    {
+      "label": "inputs",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s13_root_closure_20261012_r01\\delivery_manifest_r03.json",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+      ],
+      "pid": 23808,
+      "birth": 1791775123.334848,
+      "actual_wait_return": 2,
+      "expected_return": 2,
+      "elapsed_seconds": 1.562000000005355,
+      "stdout_sha256": "55b64e0bdb8ecafe8417cde167eeb9fa44cbaae510a1151f3f791d9bc2f89c6c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "internal_git_or_process_tree_identity": "UNKNOWN"
+    }
+  ],
+  "review_evidence": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/audit.py",
+      "sha256": "7e258ea2aded99d42676032996ada0fd38cfb705f758536541d43e0f762eeac0",
+      "bytes": 13997
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/run_review.py",
+      "sha256": "9eaec97a93e8a3f6b70cbb0a16c3729170b8c7242107e7c41c0932db11e32356",
+      "bytes": 1659
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/audit_result.json",
+      "sha256": "a1dc9475fe78f1c081d43db54fb61ea7405d98164b335eeedb260c19b184d2a1",
+      "bytes": 490581
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/audit_result_r02.json",
+      "sha256": "51cb27b991647d694b6fa5866a8fa7bd904f3500b6c5bd58244aa627e46df3b1",
+      "bytes": 490920
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/native_results_r02.json",
+      "sha256": "b859f17bb96f445399bed0a748403c17c7861d36f6c8ca9540385de683528bd2",
+      "bytes": 2714
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/audit_r02.stdout.bin",
+      "sha256": "dd10d7b2dc6b81bd3299a83a28f75db4dbaa1c695340f05c60a852be7de9cb16",
+      "bytes": 3119
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/audit_r02.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/evidence.stdout.bin",
+      "sha256": "3a629df03a90939915553ebd444b6260062ef2ad35fd25d76f0fcab272c00493",
+      "bytes": 1657
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/evidence.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/inputs.stdout.bin",
+      "sha256": "55b64e0bdb8ecafe8417cde167eeb9fa44cbaae510a1151f3f791d9bc2f89c6c",
+      "bytes": 2097
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/inputs.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/git44_batch.stdout.bin",
+      "sha256": "5adbe93e7237b1cf5f751aea06943a15780e5a0e208f5b4553d967630cf53868",
+      "bytes": 23842262
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/git44_batch.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "limitations": [
+    "inputs实际2：候选接口未冻结且真实FAIL/BLOCKED/NOT_RUN阻断；evidence0仅包装完整，不代表任何工程验收通过。",
+    "WAIT客户端300s transport错误没有exit code；history native0/625.116s单独保留，九history包含products capture1。",
+    "五OS任务返回码/绝对树峰未采为UNKNOWN/null，日志和marker成功不能补造OS0；离散监护r01-r03 BLOCKED/GAP、r04仅reports/close并终态guard3/consumer2/SUP2，不追认连续预算PASS。",
+    "原collect r01 gate声明错误native1、r02 native0；旧seal前缀不匹配而NOT_RUN，ROOT canonical封包不冒充seal执行。",
+    "ROOT历史r01/r02包装失败及dot project-root拒绝、转录字段修正按manifest说明保留；本审查只验证最终r03实际400绑定。",
+    "Reviewer此前结构读取一次native1（list误用items）；审计初次native1（wrapper路径误拼）、第二次native1（tests误用）、第三次native1（package逐名日志假设）；均为Reviewer读取假设，按真实mapping/checks/已执行Tcl关闭，audit_result.json保留第三次发现，最终r02审计native0。错误命名mcp_history_closed.tool.json不存在，只读枚举确认为history.tool.json，未替换被审文件。",
+    "最终checker/audit直child PID/birth/wait与两流已采；checker内部Git子进程及全树身份UNKNOWN。",
+    "生产当前RAW未读取、被审文件及STATE/Git未修改，没有调用Vivado、重跑综合/仿真或接触板卡。"
+  ]
+}

@@ -1,0 +1,11 @@
+--- 冻结S13:monitor_fixtures.py
++++ S14工具G1:monitor_fixtures.py
+@@ -129,7 +129,7 @@
+         handles.append(child); owned.append(supervisor.identity(child.pid)); return child
+     try:
+         root_child = launch([sys.executable, "-X", "utf8", "-B", "-c", "import time; time.sleep(40)"], "root")
+-        binding = dict(owned[-1], allowed_run_dirs=[str(W)], fixture_test=True, source_commit="467463757158aed80d6f75afadff6a8458614a29", run_id="s13_native_consumer_fixture", max_seconds=35)
++        binding = dict(owned[-1], allowed_run_dirs=[str(W)], fixture_test=True, source_commit="467463757158aed80d6f75afadff6a8458614a29", run_id="s14_native_consumer_fixture", max_seconds=35)
+         write(directory/"binding.json", binding); write(directory/"plan.json", consumer.LIMITS)
+         sup_child = launch([sys.executable, "-X", "utf8", "-B", str(W/"fixture_supervision.py"), str(directory)], "supervisor")
+         deadline = time.monotonic()+8

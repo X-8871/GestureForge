@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "status": "CHANGES_REQUIRED",
+  "source_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+  "seed": 21048076,
+  "tests": [],
+  "limitations": [
+    "仅S14功能G2；STA、PNR、G3、G4、G5未执行或批准。",
+    "未重复完整layer0仿真；核验真实G1完整输出与停顿记录，并独立手算64个黄金坐标。",
+    "复用已读审查的bench生成器，新增独立刺激和算术手算；不复用G1编译缓存。",
+    "RSS为100ms进程树采样值，瞬时峰未测；工具调用总量未测。"
+  ],
+  "source_sha256_pre": {
+    "src/s2b_conv_tile_engine.sv": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "board/s2b_inference_platform.json": "3ae77a6b5162fbd405e6334ad398ec60986b9dd001e9f49275a9821af2d217db",
+    "verification/check_s2b_inference_platform.py": "9af0f355593af9bdf24689db43cbe57f1f91ccd6e42301f3a2e269107f409caf",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_s14_arithmetic_rtl.py": "a637ddbc8e9bcf839faa09d06677ea910675ba0e710faac05fbe375ffa8baaef"
+  },
+  "contract": {
+    "src/s2b_conv_tile_engine.sv": {
+      "reference_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+      "old_git_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "rules": 5,
+      "public_header_equal": true
+    },
+    "src/s2b_route_query.sv": {
+      "reference_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+      "old_git_sha256": "48a3c7fe7a92d5b89b53c256d74cbc9e074b0408e88b4e08ec68334c9ad53905",
+      "rules": 4,
+      "public_header_equal": true
+    }
+  },
+  "g1_audit": {
+    "manifest_sha256": "7317c290a38aeaef6ca952090ab39c695deea6e310802aa6246cff6ebc7c3ac3",
+    "file_hashes": 206,
+    "source_bindings": 43,
+    "frozen14": 14,
+    "direct_children_ended": 14,
+    "layer0_coverage": {
+      "bytes": 1384448,
+      "input_reads": 583443,
+      "weight_reads": 584064,
+      "output_writes": 1384448,
+      "requests": 2551955,
+      "responses": 2551955,
+      "request_stalls": 6635073,
+      "response_stalls": 6635073,
+      "cycles": 27235743
+    },
+    "old_failures_preserved": true,
+    "static_sources": 33
+  },
+  "route_frozen_reachability": {
+    "status": "PASS",
+    "layers": [
+      {
+        "layer": 3,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            32,
+            64
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 6,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            32
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "outputs": 692224,
+        "status": "PASS"
+      },
+      {
+        "layer": 8,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            64
+          ],
+          [
+            0,
+            64
+          ]
+        ],
+        "outputs": 1384448,
+        "status": "PASS"
+      },
+      {
+        "layer": 11,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            64,
+            128
+          ]
+        ],
+        "outputs": 173056,
+        "status": "PASS"
+      },
+      {
+        "layer": 14,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            64
+          ],
+          [
+            0,
+            64
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 16,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            128
+          ]
+        ],
+        "outputs": 692224,
+        "status": "PASS"
+      },
+      {
+        "layer": 19,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            128,
+            256
+          ]
+        ],
+        "outputs": 86528,
+        "status": "PASS"
+      },
+      {
+        "layer": 22,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            128
+          ]
+        ],
+        "outputs": 173056,
+        "status": "PASS"
+      },
+      {
+        "layer": 24,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            256
+          ],
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 31,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 43264,
+        "status": "PASS"
+      },
+      {
+        "layer": 34,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 259584,
+        "status": "PASS"
+      }
+    ],
+    "outputs": 4542720,
+    "unreachable_generic_groups": {
+      "status": "NOT_APPLICABLE",
+      "groups": "3..2^32-1",
+      "reason": "原2A通用合法多组与派生拒绝不等价；公开CSR无groups字段，原冻结ROM每个ROUTE仅1/2，START/inputbase/owner/abort/reset不改变该ROM。"
+    }
+  },
+  "golden_audit": {
+    "sample_count": 64,
+    "seed": 21048076,
+    "full_cpu_bytes_match": 1384448,
+    "golden_sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "t25_shard_sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+    "restored_t25_slice_equal": true
+  },
+  "independent_math": {
+    "random_vectors": 2500,
+    "seed": 21048076,
+    "unsigned64_cache_exact": true,
+    "mod64_output_and_mod32_route_equivalent": true
+  }
+}

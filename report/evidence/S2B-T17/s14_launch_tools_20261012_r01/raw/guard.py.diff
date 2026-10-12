@@ -1,0 +1,26 @@
+--- 冻结S13:guard.py
++++ S14工具G1:guard.py
+@@ -454,6 +454,23 @@
+                 current["parent"] = None
+                 if previous.get("parent") is not None:
+                     parent_result = self.readback_member(previous["parent"])
++                    if parent_result["status"] == "ABSENT" and key in members:
++                        try:
++                            # 末表窗口的已知父退出只转为历史RSS监控，绝不取得停止权限。
++                            if not same_identity(current, previous):
++                                raise RuntimeError("末表成员六字段已变化")
++                            root_state, actual_root = self.get_root()
++                            if root_state != "MATCH" or not same_identity(actual_root, root):
++                                raise RuntimeError("末表ROOT六字段已变化或未知")
++                            historical = self.historical_member(current, actual_root)
++                            self.reject_reused_ancestor(key)
++                            members[key] = historical
++                            self.record_sample_exit(parent_result, exited)
++                            continue
++                        except (psutil.Error, RuntimeError) as error:
++                            uncertain.append({"pid": previous["pid"], "reason": "ROUND_PARENT_READBACK_CHANGED",
++                                              "readback": parent_result, "historical_rejection": repr(error)})
++                            continue
+                     if parent_result["status"] != "ALIVE":
+                         uncertain.append({"pid": previous["pid"], "reason": "ROUND_PARENT_READBACK_CHANGED", "readback": parent_result})
+                     else:

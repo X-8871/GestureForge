@@ -1,0 +1,40 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "stop": "STOP_METADATA_REVIEW_COMPLETE",
+  "manifest": {
+    "path": "report/evidence/S2B-T17/s14_timing_g0_20261012_r01/delivery_manifest_r04.json",
+    "sha256": "3d7ac4b3631c689946a1704d7843fe09f79ff94d4b4c3d6fd7722f0f6a863dca"
+  },
+  "prior_semantic_review": {
+    "path": "tmp/2B/S2B-T17/independent_s13_actual_failure_review_20261012_r01/g0_metadata_addendum.json",
+    "sha256": "9c8d056a36159208db5409043a4ffdc49f2defdf4e6903721109c49bdf00edfe",
+    "actual_r03_evidence_return": 2,
+    "reason": "未绑定本轮新delivery_manifest_r04.json，原失败两流保留；102逐路径/22+68+12分组、来源范围及owned旧实例检查已通过。"
+  },
+  "native_checker": {
+    "argv": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-X",
+      "utf8",
+      "-B",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+      "--mode",
+      "evidence",
+      "--manifest",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s14_timing_g0_20261012_r01\\delivery_manifest_r04.json",
+      "--project-root",
+      "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition"
+    ],
+    "pid": 11152,
+    "birth": 1791775295.364212,
+    "actual_wait_return": 2,
+    "stdout_sha256": "fe1372bb4991fdcd3452131e4b66f4dcc5db3f70fcb4567023cdb84b9dea4b76",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "internal_child_identity": "UNKNOWN"
+  },
+  "scope": "仅准许提交S13失败证据及S14只读归因元数据；不批准S14生产修复、综合、PNR、硬件或连续预算PASS。",
+  "limitations": [
+    "r04使用实际timing_all Tcl并把未采finalize.argv置null，没有补造运行命令。",
+    "未重跑102端点或任何设计；只补本最终清单evidence包装核对，实际S13 STA仍FAIL。"
+  ]
+}

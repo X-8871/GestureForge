@@ -113,7 +113,7 @@ def vectors(model):
 
 
 def bench():
-    """解析完整原公共端口，只受控赋值组合依赖寄存器；不force状态或启动事务。"""
+    """解析完整原公共端口；时钟为零，S14登记值仅在等式条件域内注入。"""
     header=(ROOT/ENGINE).read_text(encoding="utf-8").split(");",1)[0]
     ports=re.findall(r"\b(input|output)\s+logic\s*((?:signed\s*)?(?:\[[^\]]+\])?)\s*(\w+)",header)
     conn=",".join(f".{n}({'clk' if n=='clk' else chr(39)+'0' if d=='input' else ''})" for d,w,n in ports)
@@ -121,6 +121,10 @@ def bench():
     names=("c","y","x","offset","address","bad","action","elements")
     gold="\n".join(f"logic [{31 if n in ('c','y','x') else 1 if n=='action' else 0 if n=='bad' else 63}:0] gold_{n};" for n in names)
     assigns="\n".join(f"{instance}.{n}=v_{n};" for instance in ("u_old","u_dut") for n in INPUTS)
+    # S14把这两个完整64位平面移到START；组合夹具显式满足登记等式。
+    # 这里只证明等式条件下的地址域，公开START登记由S14顺序runner独立验证。
+    assigns += "\nu_dut.output_element_plane={32'd0,v_output_channels_latched}*{32'd0,v_output_height_latched};"
+    assigns += "\nu_dut.output_geometry_plane={32'd0,v_output_height_latched}*{32'd0,v_output_width_latched};"
     checks=[]
     for inst in ("u_old","u_dut"):
         for signal,key in (("output_channel_current","c"),("output_global_y","y"),("output_global_x","x"),
@@ -175,7 +179,7 @@ def mutants(checker,work,bindings):
         ("错误65位addresscarry拒绝", "(output_address_wide > 64'h0000_0000_FFFF_FFFF)", "(({1'b0, output_byte_offset_wide} + {33'd0, output_base_latched}) > 65'h0000_0000_FFFF_FFFF)"),
         ("丢row", "output_channel_plane_offset + output_row_offset +", "output_channel_plane_offset + 64'd0 +"),
         ("丢x", "                                  {32'd0, output_global_x};", "                                  64'd0;"),
-        ("错误plane", "output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};", "output_geometry_plane = {32'd0, output_height_latched} + {32'd0, output_width_latched};"),
+        ("错误plane", "output_geometry_plane <= {32'd0, output_height} * {32'd0, output_width};", "output_geometry_plane <= {32'd0, output_height} + {32'd0, output_width};"),
         ("错误signed扩展", "output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;", "output_channel_plane_offset = $signed(output_channel_current) * $signed(output_geometry_plane);"),
         ("非法低32alias", "logic [63:0] output_byte_offset_wide;", "logic [31:0] output_byte_offset_wide;"),
     )

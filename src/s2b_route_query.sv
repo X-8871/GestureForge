@@ -70,6 +70,24 @@ module s2b_route_query #(
     logic [31:0] selected_source_index;
     logic [31:0] selected_source_channel;
 
+    // 完整tuple匹配得到H乘W空间平面；旧C乘H字段不能用作通道跨度。
+    function automatic logic [31:0] frozen_spatial_plane_lookup(input logic [95:0] shape_key);
+        begin
+            frozen_spatial_plane_lookup = 32'd0;
+            case (shape_key)
+                96'h000000200000006800000068: frozen_spatial_plane_lookup = 32'd10816;
+                96'h000000400000003400000034: frozen_spatial_plane_lookup = 32'd2704;
+                96'h000000400000006800000068: frozen_spatial_plane_lookup = 32'd10816;
+                96'h000000800000001A0000001A: frozen_spatial_plane_lookup = 32'd676;
+                96'h000000800000003400000034: frozen_spatial_plane_lookup = 32'd2704;
+                96'h000001000000000D0000000D: frozen_spatial_plane_lookup = 32'd169;
+                96'h000001000000001A0000001A: frozen_spatial_plane_lookup = 32'd676;
+                default: frozen_spatial_plane_lookup = 32'd0;
+            endcase
+        end
+    endfunction
+    logic [31:0] source0_spatial_plane;
+
     // 完整96位tuple匹配，避免低位别名；固定值分别为C乘H与C乘H乘W。
     function automatic logic [128:0] frozen_shape_lookup(input logic [95:0] shape_key);
         begin
@@ -104,6 +122,7 @@ module s2b_route_query #(
         bad_argument = 1'b0;
         bad_range = 1'b0;
         source0_frozen_shape = 129'd0;
+        source0_spatial_plane = 32'd0;
         source1_frozen_shape = 129'd0;
         source0_shape_bytes = 64'd0;
         source1_shape_bytes = 64'd0;
@@ -197,6 +216,7 @@ module s2b_route_query #(
 
         if (FROZEN_ROUTE_SHAPES) begin
             source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});
+            source0_spatial_plane = frozen_spatial_plane_lookup({source0_channels, source0_height, source0_width});
             source0_plane_elements = source0_frozen_shape[127:64];
             source0_shape_bytes = source0_frozen_shape[63:0];
             if (!source0_frozen_shape[128]) begin
@@ -275,9 +295,15 @@ module s2b_route_query #(
         end
 
         // 前置shape、坐标、长度及对象端点检查保证成功路径地址精确落在32位。
-        selected_offset =
-            ((selected_source_channel * source0_height) + output_y) *
-            source0_width + output_x;
+        if (FROZEN_ROUTE_SHAPES) begin
+            // 成功路径的完整tuple已验证；分配律在原32位模域内，不增加周期。
+            selected_offset = selected_source_channel * source0_spatial_plane +
+                              output_y * source0_width + output_x;
+        end else begin
+            selected_offset =
+                ((selected_source_channel * source0_height) + output_y) *
+                source0_width + output_x;
+        end
         selected_address = selected_base_address + selected_offset;
 
         if (bad_argument) begin

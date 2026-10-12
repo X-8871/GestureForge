@@ -1,0 +1,11 @@
+--- 冻结S13:collector_fixtures.py
++++ S14工具G1:collector_fixtures.py
+@@ -19,7 +19,7 @@
+         names = ["fixture/源"+str(i) for i in range(count-1)]+["verification/test_s2b_conv_tile_origin_rtl.py"]
+         hashes = {name: "a"*64 for name in names}; static = {name: value for name, value in list(hashes.items())[:33]}
+         original14 = dict(list(static.items())[:14]); rtl = names[:18]
+-        freeze = dict(profile="s2b-inference-platform/0.1.13", source_commit="b"*40, source_files=[dict(path=k, sha256=v) for k,v in hashes.items()], frozen14=original14, active_rtl_sources=rtl)
++        freeze = dict(profile="s2b-inference-platform/0.1.14", source_commit="b"*40, source_files=[dict(path=k, sha256=v) for k,v in hashes.items()], frozen14=original14, active_rtl_sources=rtl)
+         profile = dict(version=freeze["profile"], rtl_sources=rtl, source_derivation=dict(derived_sources=names[:8]), clock_hz=50000000, visibility_default=0)
+         if broken == "runner": freeze["source_files"] = freeze["source_files"][:-1]
+         if broken == "profile": freeze["profile"] = "s2b-inference-platform/0.1.12"

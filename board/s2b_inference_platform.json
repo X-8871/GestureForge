@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.13",
+  "version": "s2b-inference-platform/0.1.14",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -296,7 +296,7 @@
       {
         "source": "src/int8_route_query.sv",
         "path": "src/s2b_route_query.sv",
-        "sha256": "48a3c7fe7a92d5b89b53c256d74cbc9e074b0408e88b4e08ec68334c9ad53905",
+        "sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
         "replacements": [
           [
             "module int8_route_query (",
@@ -361,6 +361,22 @@
           [
             "        end\n\n        if (source_count == 32'd2) begin\n            source1_plane_elements = {32'd0, source1_channels} *\n                                     {32'd0, source1_height};\n            if (source1_plane_elements > 64'h0000_0000_FFFF_FFFF) begin\n                bad_range = 1'b1;\n            end else begin\n                source1_shape_bytes = source1_plane_elements *\n                                      {32'd0, source1_width};\n                if (source1_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin\n                    bad_range = 1'b1;\n                end\n            end\n            source1_object_end = {32'd0, source1_base_address} +\n",
             "        end\n\n        if (source_count == 32'd2) begin\n            if (FROZEN_ROUTE_SHAPES) begin\n                source1_frozen_shape = frozen_shape_lookup({source1_channels, source1_height, source1_width});\n                source1_plane_elements = source1_frozen_shape[127:64];\n                source1_shape_bytes = source1_frozen_shape[63:0];\n                if (!source1_frozen_shape[128]) begin\n                    // 私有非冻结tuple拒绝；公开backend可达性由独立G0/G1证明。\n                    bad_argument = 1'b1;\n                end\n            end else begin\n                source1_plane_elements = {32'd0, source1_channels} *\n                                         {32'd0, source1_height};\n                if (source1_plane_elements > 64'h0000_0000_FFFF_FFFF) begin\n                    bad_range = 1'b1;\n                end else begin\n                    source1_shape_bytes = source1_plane_elements *\n                                          {32'd0, source1_width};\n                    if (source1_shape_bytes > 64'h0000_0000_FFFF_FFFF) begin\n                        bad_range = 1'b1;\n                    end\n                end\n            end\n            source1_object_end = {32'd0, source1_base_address} +\n"
+          ],
+          [
+            "    logic [31:0] selected_source_channel;\n\n",
+            "    logic [31:0] selected_source_channel;\n\n    // 完整tuple匹配得到H乘W空间平面；旧C乘H字段不能用作通道跨度。\n    function automatic logic [31:0] frozen_spatial_plane_lookup(input logic [95:0] shape_key);\n        begin\n            frozen_spatial_plane_lookup = 32'd0;\n            case (shape_key)\n                96'h000000200000006800000068: frozen_spatial_plane_lookup = 32'd10816;\n                96'h000000400000003400000034: frozen_spatial_plane_lookup = 32'd2704;\n                96'h000000400000006800000068: frozen_spatial_plane_lookup = 32'd10816;\n                96'h000000800000001A0000001A: frozen_spatial_plane_lookup = 32'd676;\n                96'h000000800000003400000034: frozen_spatial_plane_lookup = 32'd2704;\n                96'h000001000000000D0000000D: frozen_spatial_plane_lookup = 32'd169;\n                96'h000001000000001A0000001A: frozen_spatial_plane_lookup = 32'd676;\n                default: frozen_spatial_plane_lookup = 32'd0;\n            endcase\n        end\n    endfunction\n    logic [31:0] source0_spatial_plane;\n\n"
+          ],
+          [
+            "        source0_frozen_shape = 129'd0;\n",
+            "        source0_frozen_shape = 129'd0;\n        source0_spatial_plane = 32'd0;\n"
+          ],
+          [
+            "            source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});\n",
+            "            source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});\n            source0_spatial_plane = frozen_spatial_plane_lookup({source0_channels, source0_height, source0_width});\n"
+          ],
+          [
+            "        selected_offset =\n            ((selected_source_channel * source0_height) + output_y) *\n            source0_width + output_x;\n",
+            "        if (FROZEN_ROUTE_SHAPES) begin\n            // 成功路径的完整tuple已验证；分配律在原32位模域内，不增加周期。\n            selected_offset = selected_source_channel * source0_spatial_plane +\n                              output_y * source0_width + output_x;\n        end else begin\n            selected_offset =\n                ((selected_source_channel * source0_height) + output_y) *\n                source0_width + output_x;\n        end\n"
           ]
         ]
       },
@@ -406,7 +422,7 @@
       {
         "source": "src/s2a_conv_tile_engine.sv",
         "path": "src/s2b_conv_tile_engine.sv",
-        "sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+        "sha256": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
         "replacements": [
           [
             "module s2a_conv_tile_engine (",
@@ -539,6 +555,26 @@
           [
             "                ST_TILE_PREP: begin\n",
             "                ST_TILE_PREP: begin\n                    // 乘积、减法均按原64位二补码；随后SCAN加法仍在同一模域。\n                    tile_origin_y <=\n                        $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) -\n                        $signed({32'd0, pad_top_latched});\n                    tile_origin_x <=\n                        $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) -\n                        $signed({32'd0, pad_left_latched});\n"
+          ],
+          [
+            "        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};\n        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};\n",
+            "        // 前两因子已在本次START登记完整unsigned64；VALIDATE只保留第三因子乘法。\n"
+          ],
+          [
+            "        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};\n",
+            "        // 空间平面在本次START登记；通道与行偏移仍保留原unsigned64模域。\n"
+          ],
+          [
+            "            input_channels_latched <= 32'd0;\n",
+            "            input_channels_latched <= 32'd0;\n            input_element_plane <= 64'd0;\n            output_element_plane <= 64'd0;\n            output_geometry_plane <= 64'd0;\n"
+          ],
+          [
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n",
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            input_element_plane <= 64'd0;\n            output_element_plane <= 64'd0;\n            output_geometry_plane <= 64'd0;\n"
+          ],
+          [
+            "                        input_channels_latched <= input_channels;\n",
+            "                        input_channels_latched <= input_channels;\n                        // 同一握手沿必须消费本拍raw端口，不能读取上一任务的latched参数。\n                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n                        output_element_plane <= {32'd0, output_channels} * {32'd0, output_height};\n                        output_geometry_plane <= {32'd0, output_height} * {32'd0, output_width};\n"
           ]
         ]
       },

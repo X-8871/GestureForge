@@ -1,0 +1,60 @@
+--- 冻结S13:impl_collector.py
++++ S14工具G1:impl_collector.py
+@@ -1,4 +1,4 @@
+-"""仅准备及关闭后归档S12单次PNR；不调用Vivado、硬件或真实进程查询。"""
++"""仅准备及关闭后归档S14单次PNR；不调用Vivado、硬件或真实进程查询。"""
+ import argparse,hashlib,importlib.util,json,math,re,sys,subprocess,time
+ from pathlib import Path
+ import compat_pins
+@@ -10,7 +10,7 @@
+ APPROVED_LAUNCH='launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1'
+ EVIDENCE_HEAD_AT_PREPARATION=None
+ COMMON=WORK/'collector.py'
+-COMMON_SHA='8daa418df39e8306f000b27dda7b140fe0a837c796226571b955a0d609baeacd'
++COMMON_SHA='4a6adb8cc11b646476544744cf06bee359e92c409425e2ec6eeb529527eae38c'
+ assert hashlib.sha256(COMMON.read_bytes()).hexdigest()==COMMON_SHA
+ spec=importlib.util.spec_from_file_location('common',COMMON); c=importlib.util.module_from_spec(spec); spec.loader.exec_module(c)
+ FREEZE=compat_pins.SOURCE_FREEZE
+@@ -32,7 +32,7 @@
+  """声明输入必须同时绑定路径、原字节SHA和长度。"""
+  actual=c.binding(ROOT/row['path']); c.require(all(actual[k]==row[k] for k in actual),'输入漂移：'+row['path']); return ROOT/actual['path']
+ def permanent(path):
+- """正式原件直接绑定；临时工具只从S12正式映射核原恢复路径/SHA。"""
++ """正式原件直接绑定；临时工具只从S14正式映射核原恢复路径/SHA。"""
+  if path.is_relative_to(ROOT/'report'): return c.binding(path)
+  return compat_pins.resolve_permanent(path)
+ def prepare(receipt):
+@@ -42,7 +42,7 @@
+   c.require(c.sha(p)==digest,'准备依赖SHA不同')
+  freeze,hashes,static,profile=c.load_freeze(); c.require(len(freeze['active_rtl_sources'])==18 and len(freeze['frozen14'])==14,'冻结来源集合不同')
+  for p in (PROJECT,CACHE,REPORT): c.exact(p,'directory')
+- source_binding=SYNTH.parent/'s12_source_binding.json'; bound=c.read(source_binding)
++ source_binding=SYNTH.parent/'s14_source_binding.json'; bound=c.read(source_binding)
+  c.require(bound['source_count']==len(hashes) and bound['static_count']==len(static) and set(bound['compiled_rtl'])==set(freeze['active_rtl_sources']),'继承综合编译闭包不符')
+  deps=[c.binding(FREEZE),c.binding(SYNTH),c.binding(source_binding),c.binding(compat_pins.FUNCTIONAL_G1),c.binding(compat_pins.FUNCTIONAL_G2),c.binding(compat_pins.SYNTH_G2),c.binding(WORK/'compat_pins.py'),compat_pins.runtime_config_binding(),permanent(REVIEW),permanent(GUARD),permanent(SUP)]
+  # 收集公共函数源也必须在正式包中可恢复；准备阶段只核对，关闭后才复制。
+@@ -133,13 +133,13 @@
+   p=validate_binding(row); c.require(p.suffix.lower() not in ('.exe','.dcp','.bit','.pb','.wdf','.o','.obj','.a','.lib','.dll','.pdb','.wdb','.pdi','.elf','.bin','.pyc') and '__pycache__' not in p.parts,'缓存/二进制不能归档')
+   original.append(c.binding(p))
+   if p.is_relative_to(REPORT): mapping.append(dict(original=row,saved=c.binding(p))); continue
+-  target=REPORT/'native_jobs'/'impl_native_s12_r01'/p.name if p.is_relative_to(PROJECT) else REPORT/'closed_inputs'/Path(row['path'])
++  target=REPORT/'native_jobs'/'impl_native_s14_r01'/p.name if p.is_relative_to(PROJECT) else REPORT/'closed_inputs'/Path(row['path'])
+   if target.exists(): c.require(c.sha(target)==row['sha256'],'重复输入不同'); continue
+   target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+   mapping.append(dict(original=row,saved=c.binding(target)))
+  for p in (Path(__file__),COMMON,WORK/'prepared_receipt.json',gate_path,WORK/'source_after_check.py',WORK/'native_source_after.py',WORK/'compat_pins.py'):
+-  target=REPORT/'collector_code'/('s12_synthesis_collector_common.py' if p==COMMON else p.name); target.parent.mkdir(parents=True,exist_ok=True)
++  target=REPORT/'collector_code'/('s14_synthesis_collector_common.py' if p==COMMON else p.name); target.parent.mkdir(parents=True,exist_ok=True)
+   with target.open('xb') as f: f.write(p.read_bytes())
+  timing_binding=gate.get('timing_summary'); sta=dict(status='BLOCKED_MISSING_ACTUAL_TIMING',timing=None,design_state=None); classifier=None
+  if timing_binding:
+@@ -159,7 +159,7 @@
+    if (ROOT/r['snapshot']).is_relative_to(ROOT/'report') and r['snapshot'] not in {f['path'] for f in files}: files.append(dict(path=r['snapshot'],sha256=r['sha256'],role='source'))
+  checks=[dict(name='原生PNR：'+r['label'],status='PASS' if r['history']['code']==0 else 'FAIL',command=r['history']['command'],exit_code=r['history']['code'],reason='真实history码；不代表STA或独立G2批准。') for r in paired]
+  inherited=next(r for r in c.read(SYNTH)['checks'] if r['name']=='50MHz综合态STA分类')
+- checks += [dict(name='实际全程预算覆盖',status='BLOCKED',command=None,exit_code=None,reason='需独立Reviewer核对ROOT监督消费、样本/缺测与归属。'),dict(name='继承S12综合STA',status=inherited['status'],command=inherited['command'],exit_code=inherited['exit_code'],reason='继承本轮真实综合STA状态，不由包装0关闭。')]
++ checks += [dict(name='实际全程预算覆盖',status='BLOCKED',command=None,exit_code=None,reason='需独立Reviewer核对ROOT监督消费、样本/缺测与归属。'),dict(name='继承S14综合STA',status=inherited['status'],command=inherited['command'],exit_code=inherited['exit_code'],reason='继承本轮真实综合STA状态，不由包装0关闭。')]
+  if classifier: checks.append(dict(name='实际PNR STA数值分类',status='PASS' if classifier['native_exit_code']==0 else 'FAIL',command=classifier['windows_command'],exit_code=classifier['native_exit_code'],reason=sta['status']+'；原生分类不替代独立时序关闭审查。'))
+  else: checks.append(dict(name='实际PNR STA',status='BLOCKED',command=None,exit_code=None,reason='没有实际报告，不补综合旧值。'))
+  for name in ('独立PNR证据审查','bit/runtime/G3/109/1000'): checks.append(dict(name=name,status='NOT_RUN',command=None,exit_code=None,reason='整理器不授予批准。'))

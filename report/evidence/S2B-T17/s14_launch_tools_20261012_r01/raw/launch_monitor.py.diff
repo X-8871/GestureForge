@@ -1,0 +1,37 @@
+--- 冻结S13:launch_monitor.py
++++ S14工具G1:launch_monitor.py
+@@ -5,6 +5,21 @@
+ from pathlib import Path
+ import time
+ import runtime_consumer as consumer
++
++
++def startup_first_consumption(path):
++    """文件创建与首次flush之间允许等待；只有完整首行JSON才交给闭合解析器。"""
++    if not path.is_file():
++        return None
++    raw = path.read_bytes()
++    newline = raw.find(b"\n")
++    if newline < 0:
++        return None
++    json.loads(raw[:newline].decode("utf-8"))
++    rows, binding = consumer.complete(str(path))
++    if not rows:
++        return None
++    return dict(row=rows[0], binding=binding)
+ 
+ 
+ def main():
+@@ -18,8 +33,10 @@
+     deadline=time.monotonic()+2
+     first=Path(config["output_dir"])/"consumption.jsonl"
+     while child.poll() is None and time.monotonic()<deadline:
+-        if first.is_file():
+-            rows,binding=consumer.complete(str(first)); handoff["startup_first_consumption"]=dict(row=rows[0],binding=binding); break
++        consumption = startup_first_consumption(first)
++        if consumption is not None:
++            handoff["startup_first_consumption"] = consumption
++            break
+         time.sleep(.05)
+     current=None; error=None
+     try: current=consumer.identity(child.pid)

@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "status": "PASS_G2_FUNCTIONAL_ONLY",
+  "source_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+  "seed": 21048076,
+  "tests": [
+    {
+      "name": "boundary",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_validation",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_validation.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\boundary",
+          "pid": 14924,
+          "create_time_unix": 1791777054.3155866,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 32.469,
+          "peak_tree_rss_bytes": 671625216,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/boundary/compile.stdout.log",
+            "sha256": "6579a493b4df1893adc557412fb966dd782ceac8a28f3fd6b00105befa2384d5"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/boundary/compile.stderr.log",
+            "sha256": "3d0b0caddb8dd9eafb1392d82aee96aaa0092f19b9598ca86e71fbc6bfb735ec"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\boundary\\obj_dir\\Vtb_s2b_conv_validation.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\boundary",
+          "pid": 18216,
+          "create_time_unix": 1791777086.8673532,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 2.219,
+          "peak_tree_rss_bytes": 5115904,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/boundary/simulation.stdout.log",
+            "sha256": "3d20b5b7b5d40e4f6d57065ac8941b3400ee059ee0e3871b5f1ed1df14e978ef"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/boundary/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "preflight": {
+        "available_ram_bytes": 4958134272,
+        "disk_free_bytes": 9859543040,
+        "heavy": [],
+        "unknown": [],
+        "jobs": 1,
+        "threads": 1
+      },
+      "pass_lines": [
+        "S13_PUBLIC_TRACE job=0 requests=2801 cycles=17483 preps=63",
+        "S13_PUBLIC_TRACE job=1 requests=4324 cycles=26738 preps=67",
+        "PASS S13_TAP_REGRESSION samples=4705",
+        "PASS S13_ORIGIN_INVARIANTS preps=67 x_tiles=4 y_tiles=4 clears=12732",
+        "PASS S14_START_CACHE starts=6095 raw_differences=6095 clears=6675 holds=132263 directed=34",
+        "PASS INDEPENDENT_S14_EXTRA owner_restore=1 clear_start_priority=8 consecutive_start_raw_mutation=64",
+        "PASS CONV_VALIDATION vectors=5996 cycles=145441 abort_mask=000fffff reset_mask=000fffff response_cases=24 raw80=1"
+      ],
+      "vector_seed": 722931716,
+      "vectors": 5996
+    },
+    {
+      "name": "route_frozen",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_route_specialization",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2b_route_query.sv",
+            "source/s2b_route_engine.sv",
+            "source/s2b_route_query_s13.sv",
+            "source/s2b_route_engine_s13.sv",
+            "tb_s2b_route_specialization.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\route_frozen",
+          "pid": 9696,
+          "create_time_unix": 1791777089.505202,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 33.468,
+          "peak_tree_rss_bytes": 643915776,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/route_frozen/compile.stdout.log",
+            "sha256": "2352be493a04fb51bab4a029f2c413c8687130ba8b5f91d902e640ba1da81272"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/route_frozen/compile.stderr.log",
+            "sha256": "8f3abb4a76d01a17898a0873a11a397dddb120ba3e102f73cee9798f9e7a194e"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\route_frozen\\obj_dir\\Vtb_s2b_route_specialization.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s14_functional_review_20261012_r01\\route_frozen",
+          "pid": 7936,
+          "create_time_unix": 1791777123.1000469,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 3.187,
+          "peak_tree_rss_bytes": 5042176,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/route_frozen/simulation.stdout.log",
+            "sha256": "0d361e1ae0d14af9a3130d2dbb7b7746fdad965f06745ac00c8aa7256c7ccc25"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s14_functional_review_20261012_r01/route_frozen/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "preflight": {
+        "available_ram_bytes": 4801458176,
+        "disk_free_bytes": 9564065792,
+        "heavy": [],
+        "unknown": [],
+        "jobs": 1,
+        "threads": 1
+      },
+      "pass_lines": [
+        "PASS ROUTE_SPECIALIZATION cases=15816 queries=4592720 cycles=256784 abort=255 reset=255"
+      ],
+      "actual_pass_fields": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "vector_seed": 722939921,
+      "explicit_frozen1_instances": 4
+    }
+  ],
+  "limitations": [
+    "仅S14功能G2；STA、PNR、G3、G4、G5未执行或批准。",
+    "未重复完整layer0仿真；核验真实G1完整输出与停顿记录，并独立手算64个黄金坐标。",
+    "复用已读审查的bench生成器，新增独立刺激和算术手算；不复用G1编译缓存。",
+    "RSS为100ms进程树采样值，瞬时峰未测；工具调用总量未测。"
+  ],
+  "source_sha256_pre": {
+    "src/s2b_conv_tile_engine.sv": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "board/s2b_inference_platform.json": "3ae77a6b5162fbd405e6334ad398ec60986b9dd001e9f49275a9821af2d217db",
+    "verification/check_s2b_inference_platform.py": "9af0f355593af9bdf24689db43cbe57f1f91ccd6e42301f3a2e269107f409caf",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_s14_arithmetic_rtl.py": "a637ddbc8e9bcf839faa09d06677ea910675ba0e710faac05fbe375ffa8baaef"
+  },
+  "contract": {
+    "src/s2b_conv_tile_engine.sv": {
+      "reference_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+      "old_git_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "rules": 5,
+      "public_header_equal": true
+    },
+    "src/s2b_route_query.sv": {
+      "reference_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+      "old_git_sha256": "48a3c7fe7a92d5b89b53c256d74cbc9e074b0408e88b4e08ec68334c9ad53905",
+      "rules": 4,
+      "public_header_equal": true
+    }
+  },
+  "g1_audit": {
+    "manifest_sha256": "7317c290a38aeaef6ca952090ab39c695deea6e310802aa6246cff6ebc7c3ac3",
+    "file_hashes": 206,
+    "source_bindings": 43,
+    "frozen14": 14,
+    "direct_children_ended": 14,
+    "layer0_coverage": {
+      "bytes": 1384448,
+      "input_reads": 583443,
+      "weight_reads": 584064,
+      "output_writes": 1384448,
+      "requests": 2551955,
+      "responses": 2551955,
+      "request_stalls": 6635073,
+      "response_stalls": 6635073,
+      "cycles": 27235743
+    },
+    "old_failures_preserved": true,
+    "static_sources": 33
+  },
+  "route_frozen_reachability": {
+    "status": "PASS",
+    "layers": [
+      {
+        "layer": 3,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            32,
+            64
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 6,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            32
+          ],
+          [
+            0,
+            32
+          ]
+        ],
+        "outputs": 692224,
+        "status": "PASS"
+      },
+      {
+        "layer": 8,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            64
+          ],
+          [
+            0,
+            64
+          ]
+        ],
+        "outputs": 1384448,
+        "status": "PASS"
+      },
+      {
+        "layer": 11,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            64,
+            128
+          ]
+        ],
+        "outputs": 173056,
+        "status": "PASS"
+      },
+      {
+        "layer": 14,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            64
+          ],
+          [
+            0,
+            64
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 16,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            128
+          ]
+        ],
+        "outputs": 692224,
+        "status": "PASS"
+      },
+      {
+        "layer": 19,
+        "groups": 2,
+        "group_id": 1,
+        "ranges": [
+          [
+            128,
+            256
+          ]
+        ],
+        "outputs": 86528,
+        "status": "PASS"
+      },
+      {
+        "layer": 22,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            128
+          ]
+        ],
+        "outputs": 173056,
+        "status": "PASS"
+      },
+      {
+        "layer": 24,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            256
+          ],
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 346112,
+        "status": "PASS"
+      },
+      {
+        "layer": 31,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 43264,
+        "status": "PASS"
+      },
+      {
+        "layer": 34,
+        "groups": 1,
+        "group_id": 0,
+        "ranges": [
+          [
+            0,
+            128
+          ],
+          [
+            0,
+            256
+          ]
+        ],
+        "outputs": 259584,
+        "status": "PASS"
+      }
+    ],
+    "outputs": 4542720,
+    "unreachable_generic_groups": {
+      "status": "NOT_APPLICABLE",
+      "groups": "3..2^32-1",
+      "reason": "原2A通用合法多组与派生拒绝不等价；公开CSR无groups字段，原冻结ROM每个ROUTE仅1/2，START/inputbase/owner/abort/reset不改变该ROM。"
+    }
+  },
+  "golden_audit": {
+    "sample_count": 64,
+    "seed": 21048076,
+    "full_cpu_bytes_match": 1384448,
+    "golden_sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "t25_shard_sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+    "restored_t25_slice_equal": true
+  },
+  "independent_math": {
+    "random_vectors": 2500,
+    "seed": 21048076,
+    "unsigned64_cache_exact": true,
+    "mod64_output_and_mod32_route_equivalent": true
+  },
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "source_sha256_post": {
+    "src/s2b_conv_tile_engine.sv": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "board/s2b_inference_platform.json": "3ae77a6b5162fbd405e6334ad398ec60986b9dd001e9f49275a9821af2d217db",
+    "verification/check_s2b_inference_platform.py": "9af0f355593af9bdf24689db43cbe57f1f91ccd6e42301f3a2e269107f409caf",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_s14_arithmetic_rtl.py": "a637ddbc8e9bcf839faa09d06677ea910675ba0e710faac05fbe375ffa8baaef"
+  },
+  "elapsed_seconds": 75.125,
+  "created_at_utc8": "2026-10-12T11:52:06.260080+08:00",
+  "reviewer_source_sha256": "9c96bff432d01683a339ce83d43910b49df7e4815781f263fd361941b8b59328"
+}

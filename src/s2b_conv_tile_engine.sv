@@ -2114,8 +2114,7 @@ module s2b_conv_tile_engine #(
 
         // 首分支已逐因子拒绝零；长度分支只消费正数乘积。
         // 前两因子精确64位，高32位非零必超UINT32；否则再精确乘第三因子。
-        input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched};
-        output_element_plane = {32'd0, output_channels_latched} * {32'd0, output_height_latched};
+        // 前两因子已在本次START登记完整unsigned64；VALIDATE只保留第三因子乘法。
         input_element_product = {32'd0, input_element_plane[31:0]} * {32'd0, input_width_latched};
         output_element_product = {32'd0, output_element_plane[31:0]} * {32'd0, output_width_latched};
         input_elements_wide = {64'd0, input_element_product};
@@ -2397,7 +2396,7 @@ module s2b_conv_tile_engine #(
         output_global_x = tile_start_x + output_point_scan_x;
         output_channel_current = output_group_base + output_lane_index;
         // 保留C/Y/X原32位截断；全部乘加在原unsigned64模域内因式分解。
-        output_geometry_plane = {32'd0, output_height_latched} * {32'd0, output_width_latched};
+        // 空间平面在本次START登记；通道与行偏移仍保留原unsigned64模域。
         output_channel_plane_offset = {32'd0, output_channel_current} * output_geometry_plane;
         output_row_offset = {32'd0, output_global_y} * {32'd0, output_width_latched};
         output_byte_offset_wide = output_channel_plane_offset + output_row_offset +
@@ -2537,6 +2536,9 @@ module s2b_conv_tile_engine #(
             input_length_latched <= 32'd0;
             input_batch_count_latched <= 32'd0;
             input_channels_latched <= 32'd0;
+            input_element_plane <= 64'd0;
+            output_element_plane <= 64'd0;
+            output_geometry_plane <= 64'd0;
             input_height_latched <= 32'd0;
             input_width_latched <= 32'd0;
             output_base_latched <= 32'd0;
@@ -2608,6 +2610,9 @@ module s2b_conv_tile_engine #(
             end
         end else if (abort) begin
             state <= ST_IDLE;
+            input_element_plane <= 64'd0;
+            output_element_plane <= 64'd0;
+            output_geometry_plane <= 64'd0;
             tile_origin_y <= 64'sd0;
             tile_origin_x <= 64'sd0;
             reduction_count_latched <= 32'd0;
@@ -2673,6 +2678,10 @@ module s2b_conv_tile_engine #(
                         input_length_latched <= input_length_bytes;
                         input_batch_count_latched <= input_batch_count;
                         input_channels_latched <= input_channels;
+                        // 同一握手沿必须消费本拍raw端口，不能读取上一任务的latched参数。
+                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};
+                        output_element_plane <= {32'd0, output_channels} * {32'd0, output_height};
+                        output_geometry_plane <= {32'd0, output_height} * {32'd0, output_width};
                         input_height_latched <= input_height;
                         input_width_latched <= input_width;
                         output_base_latched <= output_base_address;

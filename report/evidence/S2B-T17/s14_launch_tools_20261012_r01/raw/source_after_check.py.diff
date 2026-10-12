@@ -1,0 +1,20 @@
+--- 冻结S13:source_after_check.py
++++ S14工具G1:source_after_check.py
+@@ -7,7 +7,7 @@
+ COMMIT=compat_pins.SOURCE_COMMIT
+ CACHE=compat_pins.PNR_CACHE
+ COMMON=WORK/'collector.py'
+-COMMON_SHA='8daa418df39e8306f000b27dda7b140fe0a837c796226571b955a0d609baeacd'
++COMMON_SHA='4a6adb8cc11b646476544744cf06bee359e92c409425e2ec6eeb529527eae38c'
+ def compare_raw(blob,raw):
+  """只接受全文件RAW相同或精确LF到RAWCRLF变换，其他差异拒绝。"""
+  if blob==raw: return 'RAW_IDENTICAL'
+@@ -51,7 +51,7 @@
+  for name,expected in hashes.items(): c.require(c.sha(ROOT/name)==expected,'核验期间RAW变化：'+name)
+  end_head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(end_head==head,'核验期间真实HEAD变化')
+  save(out/'git_commands.json',dict(commands=commands))
+- record=dict(schema_version=1,status='PASS_SOURCE_AFTER_ONLY',created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_commit=COMMIT,actual_head_at_check=head,actual_head_after_check=end_head,source_freeze=c.rel(c.FREEZE),source_freeze_sha256=c.FREEZE_SHA,source_files=files,source_count=43,platform_static_source_count=33,source_sha256=hashes,static_source_sha256=static,frozen14_sha256=freeze['frozen14'],profile_version=profile['version'],clock_hz=50000000,visibility_parameter=0,inherited_before=c.binding(before_path),before_scope='已归档综合before，另由ROOT绑定PNR运行中/launch前真实源码检查；不伪称本脚本生成新before。',project_dir=str(compat_pins.PROJECT),evidence_dir=str(compat_pins.PNR_REPORT),limitations=['只有ROOT于适用关闭时点运行才是该时点source-after；源码核验不证明PNR、时序、预算或实板通过。','HEAD读取两次实际Git命令，43份Git blob逐项按本轮COMMIT核对；证据HEAD不代替源码基线。'])
++ record=dict(schema_version=1,status='PASS_SOURCE_AFTER_ONLY',created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_commit=COMMIT,actual_head_at_check=head,actual_head_after_check=end_head,source_freeze=c.rel(c.FREEZE),source_freeze_sha256=c.FREEZE_SHA,source_files=files,source_count=len(hashes),platform_static_source_count=len(static),source_sha256=hashes,static_source_sha256=static,frozen14_sha256=freeze['frozen14'],profile_version=profile['version'],clock_hz=50000000,visibility_parameter=0,inherited_before=c.binding(before_path),before_scope='已归档综合before，另由ROOT绑定PNR运行中/launch前真实源码检查；不伪称本脚本生成新before。',project_dir=str(compat_pins.PROJECT),evidence_dir=str(compat_pins.PNR_REPORT),limitations=['只有ROOT于适用关闭时点运行才是该时点source-after；源码核验不证明PNR、时序、预算或实板通过。','HEAD读取两次实际Git命令，本轮全部Git blob逐项按本轮COMMIT核对；证据HEAD不代替源码基线。'])
+  record.update(source_count=len(hashes),platform_static_source_count=len(static),runtime_config=compat_pins.runtime_config_binding())
+  save(out/'source_after.json',record)
+  print(json.dumps(dict(status=record['status'],source_count=len(hashes),static_count=len(static),source_commit=COMMIT,actual_head_at_check=head,git_native_calls=len(commands),source_record=c.binding(out/'source_after.json')),ensure_ascii=False))

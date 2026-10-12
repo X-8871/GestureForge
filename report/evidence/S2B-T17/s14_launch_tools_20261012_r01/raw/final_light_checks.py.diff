@@ -1,0 +1,16 @@
+--- 冻结S13:final_light_checks.py
++++ S14工具G1:final_light_checks.py
+@@ -5,10 +5,10 @@
+ import native_capture
+ 
+ W=Path(__file__).absolute().parent
+-commands=[("collector_fixture_r02",[str(W/"collector_fixtures.py")],0)]
++commands=[("s14_collector_fixture",[str(W/"collector_fixtures.py")],0)]
+ for name in ("collector.py","impl_collector.py","native.py","source_after_check.py","native_source_after.py","runtime_consumer.py","launch_monitor.py","materialize_runtime_config.py","supervisor.py","guard.py"):
+-    commands.append(("help_"+Path(name).stem,[str(W/name),"--help"],0))
+-commands.append(("pending_prepare_refusal",[str(W/"collector.py"),"prepare"],1))
++    commands.append(("s14_help_"+Path(name).stem,[str(W/name),"--help"],0))
++commands.append(("s14_pending_prepare_refusal",[str(W/"collector.py"),"prepare"],1))
+ rows=[]
+ for label,arguments,expected in commands:
+     sys.argv=[str(W/"native_capture.py"),label,sys.executable,"-X","utf8","-B",*arguments]

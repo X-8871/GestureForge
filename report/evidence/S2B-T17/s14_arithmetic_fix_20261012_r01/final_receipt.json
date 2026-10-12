@@ -1,0 +1,987 @@
+{
+  "schema_version": 1,
+  "status": "PASS_S14_G1_ONLY_STOP_SOURCE_WRITES",
+  "source_commit": "5a674888acdedaa41127c4ea354231e10140eea5",
+  "observed_head": "5a674888acdedaa41127c4ea354231e10140eea5",
+  "source_sha256": {
+    "src/s2b_conv_tile_engine.sv": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "board/s2b_inference_platform.json": "3ae77a6b5162fbd405e6334ad398ec60986b9dd001e9f49275a9821af2d217db",
+    "verification/check_s2b_inference_platform.py": "9af0f355593af9bdf24689db43cbe57f1f91ccd6e42301f3a2e269107f409caf",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_s14_arithmetic_rtl.py": "a637ddbc8e9bcf839faa09d06677ea910675ba0e710faac05fbe375ffa8baaef"
+  },
+  "final_attempt": "all_r01",
+  "final_validation_sha256": "14875da743fd1c5b4bbf56e469de33a44be7f5cfcd32c86a4c2d2ec1e5d5e9b9",
+  "static_sources": 33,
+  "frozen14": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "tests": {
+    "feature": {
+      "coverage": {
+        "vectors": 120361,
+        "end": 29981,
+        "padding": 48100,
+        "range": 40124,
+        "request": 2156
+      },
+      "pass_fields": null,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_feature_address",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "source/s9_conv_tile_engine_original.sv",
+            "tb_s2b_conv_feature_address.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\feature",
+          "pid": 32212,
+          "create_time_unix": 1791776074.791984,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 41.719,
+          "peak_tree_rss_bytes": 665862144,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/feature/compile.stdout.log",
+            "sha256": "18e9e8a933c8c370584abaaf2b68cdf3997631f24f8e62fcbc1c4b1de0dade72"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/feature/compile.stderr.log",
+            "sha256": "160c90dadffaab6cd35b57f0e680329d7cfd9413e413b5a19724aca94ac58102"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\feature\\obj_dir\\Vtb_s2b_conv_feature_address.exe",
+            "+VECTOR_PATH=C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/feature/address_vectors.txt"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\feature",
+          "pid": 37460,
+          "create_time_unix": 1791776116.6114535,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 4.281,
+          "peak_tree_rss_bytes": 4980736,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/feature/simulation.stdout.log",
+            "sha256": "4b8f4084751dcda38d42d694a0df3a3f9f7b6d8409ae24ee9348f4edd8a13995"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/feature/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "output": {
+      "coverage": {
+        "vectors": 120361,
+        "advance": 42698,
+        "next_lane": 20793,
+        "range": 52388,
+        "request": 4482
+      },
+      "pass_fields": null,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_output_address",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "source/s9_conv_tile_engine_original.sv",
+            "tb_s2b_conv_output_address.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\output",
+          "pid": 30788,
+          "create_time_unix": 1791776122.061178,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 31.438,
+          "peak_tree_rss_bytes": 671494144,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/output/compile.stdout.log",
+            "sha256": "a2a1cabbc92e1b0e5ccb83d00515d5ce8c3ab43bc8d708d459c39b15e8b209a1"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/output/compile.stderr.log",
+            "sha256": "d16f078228fa2fff07591a090fa27df45b3537579d5cd3c323e08c5d4e8746a6"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\output\\obj_dir\\Vtb_s2b_conv_output_address.exe",
+            "+VECTOR_PATH=C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/output/address_vectors.txt"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\output",
+          "pid": 31984,
+          "create_time_unix": 1791776153.5998647,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 3.562,
+          "peak_tree_rss_bytes": 4988928,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/output/simulation.stdout.log",
+            "sha256": "9c844d2e3605df926a23930f3aa27878cfe70b53b61ff26d9e7aee069fd2b6af"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/output/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "boundary": {
+      "coverage": {
+        "vectors": 5996,
+        "cycles": 145033,
+        "abort_mask": "000fffff",
+        "reset_mask": "000fffff",
+        "response_cases": 24,
+        "cache": {
+          "starts": 6095,
+          "raw_differences": 6095,
+          "clears": 6675,
+          "holds": 132263
+        },
+        "public_traces": [
+          "S13_PUBLIC_TRACE job=0 requests=2801 cycles=17483 preps=63",
+          "S13_PUBLIC_TRACE job=1 requests=4324 cycles=26738 preps=67"
+        ],
+        "origin": [
+          "PASS S13_ORIGIN_INVARIANTS preps=67 x_tiles=4 y_tiles=4 clears=12732"
+        ],
+        "tap": [
+          "PASS S13_TAP_REGRESSION samples=4705"
+        ]
+      },
+      "pass_fields": null,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_validation",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_validation.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\boundary",
+          "pid": 35816,
+          "create_time_unix": 1791776157.2690413,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 31.781,
+          "peak_tree_rss_bytes": 663683072,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/boundary/compile.stdout.log",
+            "sha256": "fd1da3f75051241272b4af7087426d3474f15122d95c1acf49a4b4d0a5dbe370"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/boundary/compile.stderr.log",
+            "sha256": "df6dc1388fe5c6ed17bc2a094fc7961cbd64ecb57bcca6ada672bfb51a72cf62"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\boundary\\obj_dir\\Vtb_s2b_conv_validation.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\boundary",
+          "pid": 18548,
+          "create_time_unix": 1791776189.1605835,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 2.187,
+          "peak_tree_rss_bytes": 5103616,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/boundary/simulation.stdout.log",
+            "sha256": "7bfb53f1a925bddbb3230575fe974e18a33e1ff68d1a2fc6b7033261feca0871"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/boundary/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "geometry": {
+      "coverage": {
+        "pool": {
+          "vectors": 19645,
+          "categories": {
+            "legal_spatial_channel_sampling": 19372,
+            "parameter_field_rejection": 141,
+            "length_field_rejection": 18,
+            "address_field_rejection": 12,
+            "length_before_address": 3,
+            "argument_before_length_address": 3,
+            "extreme_coordinate_rejection": 27,
+            "read_response_error": 21,
+            "write_response_error": 21,
+            "raw_0x80_policy": 3,
+            "abort_each_state": 21,
+            "no_memory_stall": 3
+          },
+          "legal_coordinates_per_layer": {
+            "9": 9483,
+            "17": 4557,
+            "25": 5332
+          },
+          "all_channel_indices_sampled": {
+            "9": 128,
+            "17": 256,
+            "25": 512
+          },
+          "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+          "seed": 722931729,
+          "parameter_order": [
+            "layer_index",
+            "input_base_address",
+            "input_length_bytes",
+            "input_channels",
+            "input_height",
+            "input_width",
+            "output_base_address",
+            "output_length_bytes",
+            "output_channels",
+            "output_height",
+            "output_width",
+            "kernel_height",
+            "kernel_width",
+            "stride_y",
+            "stride_x",
+            "darknet_padding_parameter",
+            "output_channel",
+            "output_y",
+            "output_x"
+          ]
+        },
+        "upsample": {
+          "vectors": 3456,
+          "categories": {
+            "legal_spatial_channel_sampling": 3397,
+            "parameter_field_rejection": 16,
+            "length_field_rejection": 6,
+            "address_field_rejection": 4,
+            "length_before_address": 1,
+            "argument_before_length_address": 1,
+            "extreme_coordinate_rejection": 9,
+            "read_response_error": 7,
+            "write_response_error": 7,
+            "raw_0x80_policy": 1,
+            "abort_each_state": 6,
+            "no_memory_stall": 1
+          },
+          "legal_coordinates_per_layer": {
+            "33": 3397
+          },
+          "all_channel_indices_sampled": {
+            "33": 128
+          },
+          "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+          "seed": 722931730,
+          "parameter_order": [
+            "input_base_address",
+            "input_length_bytes",
+            "output_base_address",
+            "output_length_bytes",
+            "input_channels",
+            "input_height",
+            "input_width",
+            "stride",
+            "output_channel",
+            "output_y",
+            "output_x"
+          ]
+        }
+      },
+      "pass_fields": null,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_geometry_specialization",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/int8_maxpool_geometry.sv",
+            "source/s2b_maxpool_geometry.sv",
+            "source/int8_maxpool_window.sv",
+            "source/int8_upsample_query.sv",
+            "source/s2a_maxpool_engine.sv",
+            "source/s2a_upsample_engine.sv",
+            "source/s2b_maxpool_engine.sv",
+            "source/s2b_upsample_engine.sv",
+            "tb_s2b_geometry_specialization.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\geometry",
+          "pid": 28600,
+          "create_time_unix": 1791776191.5231323,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 33.219,
+          "peak_tree_rss_bytes": 659640320,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/geometry/compile.stdout.log",
+            "sha256": "6647bc11e929a14ae0e1f8039f764e2d9e5748b289c1e59cec4ed3a3f8f19b0b"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/geometry/compile.stderr.log",
+            "sha256": "0f75decf5edaf47d205a76fb405355cd35597ac2de12a1bc049cfafaf25e6f69"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\geometry\\obj_dir\\Vtb_s2b_geometry_specialization.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\geometry",
+          "pid": 10200,
+          "create_time_unix": 1791776224.8393855,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 3.047,
+          "peak_tree_rss_bytes": 4947968,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/geometry/simulation.stdout.log",
+            "sha256": "42cfc00fec16b01ae10e11c2e24e7a7479d2b5c12ae56596d8a0806b607b4374"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/geometry/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "route_generic": {
+      "coverage": {
+        "vectors": 15816,
+        "categories": {
+          "all_channels_packed_lanes": 8832,
+          "all_int8_values_both_sources": 5632,
+          "field_boundary": 953,
+          "groups_zero": 11,
+          "group2_odd_channels": 11,
+          "argument_before_range": 11,
+          "source_range_before_output_length": 11,
+          "response_error": 154,
+          "abort_each_state": 88,
+          "reset_each_state": 88,
+          "long_stall_abort": 11,
+          "no_stall": 11,
+          "group2_lower_half_generic_preserved": 3
+        },
+        "parameter_order": [
+          "source_count",
+          "groups",
+          "group_id",
+          "output_channel",
+          "output_y",
+          "output_x",
+          "source0_base_address",
+          "source0_length_bytes",
+          "source0_channels",
+          "source0_height",
+          "source0_width",
+          "source0_channel_start",
+          "source0_channel_end",
+          "source0_multiplier_q31",
+          "source1_base_address",
+          "source1_length_bytes",
+          "source1_channels",
+          "source1_height",
+          "source1_width",
+          "source1_channel_start",
+          "source1_channel_end",
+          "source1_multiplier_q31",
+          "output_base_address",
+          "output_length_bytes",
+          "output_channels",
+          "output_height",
+          "output_width"
+        ],
+        "seed": 722939921
+      },
+      "pass_fields": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_route_specialization",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/int8_route_query.sv",
+            "source/s2b_route_query.sv",
+            "source/s2a_route_engine.sv",
+            "source/s2b_route_engine.sv",
+            "tb_s2b_route_specialization.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_generic",
+          "pid": 21688,
+          "create_time_unix": 1791776228.1320434,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 32.281,
+          "peak_tree_rss_bytes": 641667072,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_generic/compile.stdout.log",
+            "sha256": "23ec2c2ee4c3db399e3d1236ef42ceda1b8eac13326b30b6735d41f84cef6c47"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_generic/compile.stderr.log",
+            "sha256": "30656775690ab10bf1af6a9c8214458b39dfb1b849a55f2c05d4ebd324ff080e"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_generic\\obj_dir\\Vtb_s2b_route_specialization.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_generic",
+          "pid": 30964,
+          "create_time_unix": 1791776260.4787204,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 2.5,
+          "peak_tree_rss_bytes": 5046272,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_generic/simulation.stdout.log",
+            "sha256": "75427c275e07148ffb6aca5723b6d498f6ad83702fbd8e530e26397b845e69c3"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_generic/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "route_frozen": {
+      "coverage": {
+        "vectors": 15816,
+        "categories": {
+          "all_channels_packed_lanes": 8832,
+          "all_int8_values_both_sources": 5632,
+          "field_boundary": 953,
+          "groups_zero": 11,
+          "group2_odd_channels": 11,
+          "argument_before_range": 11,
+          "source_range_before_output_length": 11,
+          "response_error": 154,
+          "abort_each_state": 88,
+          "reset_each_state": 88,
+          "long_stall_abort": 11,
+          "no_stall": 11,
+          "group2_lower_half_generic_preserved": 3
+        },
+        "parameter_order": [
+          "source_count",
+          "groups",
+          "group_id",
+          "output_channel",
+          "output_y",
+          "output_x",
+          "source0_base_address",
+          "source0_length_bytes",
+          "source0_channels",
+          "source0_height",
+          "source0_width",
+          "source0_channel_start",
+          "source0_channel_end",
+          "source0_multiplier_q31",
+          "source1_base_address",
+          "source1_length_bytes",
+          "source1_channels",
+          "source1_height",
+          "source1_width",
+          "source1_channel_start",
+          "source1_channel_end",
+          "source1_multiplier_q31",
+          "output_base_address",
+          "output_length_bytes",
+          "output_channels",
+          "output_height",
+          "output_width"
+        ],
+        "seed": 722939921
+      },
+      "pass_fields": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_route_specialization",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2b_route_query.sv",
+            "source/s2b_route_engine.sv",
+            "source/s2b_route_query_s13.sv",
+            "source/s2b_route_engine_s13.sv",
+            "tb_s2b_route_specialization.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_frozen",
+          "pid": 21724,
+          "create_time_unix": 1791776263.401801,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 33.219,
+          "peak_tree_rss_bytes": 644157440,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_frozen/compile.stdout.log",
+            "sha256": "73386f4448a7fecbec1f5af26bf5b7c0fc4a7e77f6f0f178a250725e52ba75f4"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_frozen/compile.stderr.log",
+            "sha256": "8f3abb4a76d01a17898a0873a11a397dddb120ba3e102f73cee9798f9e7a194e"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_frozen\\obj_dir\\Vtb_s2b_route_specialization.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_frozen",
+          "pid": 35180,
+          "create_time_unix": 1791776296.7158499,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 3.171,
+          "peak_tree_rss_bytes": 5046272,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_frozen/simulation.stdout.log",
+            "sha256": "88fa7eb462f611868f5a75b36e141bdf50b8c20dbbfe50bca04fd29c1944d60a"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/route_frozen/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    "layer0": {
+      "coverage": {
+        "bytes": 1384448,
+        "input_reads": 583443,
+        "weight_reads": 584064,
+        "output_writes": 1384448,
+        "requests": 2551955,
+        "responses": 2551955,
+        "request_stalls": 6635073,
+        "response_stalls": 6635073,
+        "cycles": 27235743
+      },
+      "pass_fields": null,
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_layer0",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_layer0.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\layer0",
+          "pid": 25432,
+          "create_time_unix": 1791776300.3085043,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 30.469,
+          "peak_tree_rss_bytes": 665047040,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/layer0/compile.stdout.log",
+            "sha256": "3b6176529130e264e6d437a91031c22cbd805dd83bfa100f37e12b20c23ddf8f"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/layer0/compile.stderr.log",
+            "sha256": "a20894c77da3a8e9bb9c9dbc1b386162fd75f09b9bf77ffe9ed54acabe696d2e"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\layer0\\obj_dir\\Vtb_s2b_conv_layer0.exe",
+            "+T66_INPUT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin",
+            "+T66_WEIGHT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin",
+            "+T66_GOLDEN_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\layer0",
+          "pid": 18548,
+          "create_time_unix": 1791776330.8656788,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 255.875,
+          "peak_tree_rss_bytes": 8437760,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/layer0/simulation.stdout.log",
+            "sha256": "e8397e4a4cc777c3b70e6f6eea37b2718e7bf5caca515d0451d241483bda2b8e"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/all_r01/layer0/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    }
+  },
+  "math_proof": {
+    "status": "PASS_MATH_ONLY",
+    "seed": 5904148,
+    "register_vectors": 51331,
+    "frozen_shapes": [
+      [
+        32,
+        104,
+        104
+      ],
+      [
+        64,
+        52,
+        52
+      ],
+      [
+        64,
+        104,
+        104
+      ],
+      [
+        128,
+        26,
+        26
+      ],
+      [
+        128,
+        52,
+        52
+      ],
+      [
+        256,
+        13,
+        13
+      ],
+      [
+        256,
+        26,
+        26
+      ]
+    ],
+    "exhaustive_frozen_coordinates": 1860352,
+    "mod32_vectors": 64641
+  },
+  "all_elapsed_seconds": 519.984,
+  "peak_tree_rss_bytes": 671494144,
+  "checks": {
+    "G1": "PASS",
+    "G2": "NOT_RUN",
+    "STA": "NOT_RUN",
+    "PNR": "NOT_RUN",
+    "G3": "NOT_RUN",
+    "G4": "NOT_RUN",
+    "G5": "NOT_RUN"
+  },
+  "failures_preserved": [
+    "report/evidence/S2B-T17/s14_arithmetic_fix_20261012_r01/static_r01/validation.json"
+  ],
+  "gch_rebuildable_ended_runs": [
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\boundary\\obj_dir\\Vtb_s2b_conv_validation__pch.h.fast.gch",
+      "size": 145278488,
+      "sha256": "55f877267ae382665184c4e3e5f0992b6adc4642bf994778a22babb58f849591",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\boundary\\obj_dir\\Vtb_s2b_conv_validation__pch.h.slow.gch",
+      "size": 145278375,
+      "sha256": "699f2eb720ed538b14d886ac2a581f875da45ba254706ea54541d26942a22081",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\feature\\obj_dir\\Vtb_s2b_conv_feature_address__pch.h.fast.gch",
+      "size": 145111903,
+      "sha256": "34c8971b0b4ec62e0575e9a73570e3ac52fe3605e6969a8bae0c65be4b85b0b7",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\feature\\obj_dir\\Vtb_s2b_conv_feature_address__pch.h.slow.gch",
+      "size": 145111541,
+      "sha256": "28eb40f08a1970854b0108641d160e2de37fd92d65e746a1172dd1200e584ba8",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\geometry\\obj_dir\\Vtb_s2b_geometry_specialization__pch.h.fast.gch",
+      "size": 143460242,
+      "sha256": "c6403da72d8196c5a53aa3f7d30102f1b240168f217f521eadcae28bbc411e91",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\geometry\\obj_dir\\Vtb_s2b_geometry_specialization__pch.h.slow.gch",
+      "size": 143460156,
+      "sha256": "c5d6c63f09f2738b58b952f0f13056fe3642961407d0a8f28bb3bbac3d64d28b",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\layer0\\obj_dir\\Vtb_s2b_conv_layer0__pch.h.fast.gch",
+      "size": 146040097,
+      "sha256": "2907e1645ca8801e86a7be913955251f3c6c8e1da98c215fe3f749b7fc5a6c54",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\layer0\\obj_dir\\Vtb_s2b_conv_layer0__pch.h.slow.gch",
+      "size": 146040238,
+      "sha256": "f1ecaa22addc20dddce3bdf0d50a35777153b928723a079781694ada2a8aba63",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\output\\obj_dir\\Vtb_s2b_conv_output_address__pch.h.fast.gch",
+      "size": 145103676,
+      "sha256": "ee1402d2c7f400bbb59ae3345036e4fa064b2f988d5b420610c8dd6bbb3c4721",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\output\\obj_dir\\Vtb_s2b_conv_output_address__pch.h.slow.gch",
+      "size": 145103530,
+      "sha256": "a892ecca949cb55965d17ef24b9f34653b548458091c680d14ab2c093902f121",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_frozen\\obj_dir\\Vtb_s2b_route_specialization__pch.h.fast.gch",
+      "size": 142796261,
+      "sha256": "030b164bbefdf20457a617a5b3d5376a800016f49308b6c6e909b14b528317a9",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_frozen\\obj_dir\\Vtb_s2b_route_specialization__pch.h.slow.gch",
+      "size": 142796011,
+      "sha256": "cdf9b82de470927d92dd9c63129288746a3d85ff98aad32f51a750930999bad5",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_generic\\obj_dir\\Vtb_s2b_route_specialization__pch.h.fast.gch",
+      "size": 142770668,
+      "sha256": "32827d19685c27e1a737a2a9f3804392211aa36f597df15ba2ac46b62d8e049a",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s14_arithmetic_fix_20261012_r01\\all_r01\\route_generic\\obj_dir\\Vtb_s2b_route_specialization__pch.h.slow.gch",
+      "size": 142770838,
+      "sha256": "27538da72daa47cb37e0f152449a5a3edae47b96f327e0219d92ab048a5e74c8",
+      "status": "REBUILDABLE_PCH_ENDED_RUN_ONLY_NOT_DELETED"
+    }
+  ],
+  "gch_total_bytes": 2021122024,
+  "heavy_processes": [],
+  "disk_free_bytes": 7841349632,
+  "created_at_utc8": "2026-10-12T11:44:00.417121+08:00",
+  "limitations": [
+    "S14功能G1未完成独立G2或时序闭合；S13真实STA FAIL/监护BLOCKED未关闭。",
+    "整个G1没有启动Vivado、PNR或实物操作；下一次综合唯一由总控执行。",
+    "组合feature/output夹具仅登记等式条件域，公开START/PRE/owner/error/reset/abort由boundary及layer0另行实测。",
+    "子进程峰为100ms采样树RSS，瞬时峰可能未捕获；未知全部工具调用量未伪造。",
+    "子代理不提交；本轮源码保持STOP待Reviewer及总控提交。"
+  ]
+}

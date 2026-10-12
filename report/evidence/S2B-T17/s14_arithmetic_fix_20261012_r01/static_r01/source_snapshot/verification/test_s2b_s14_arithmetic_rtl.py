@@ -1,0 +1,280 @@
+#!/usr/bin/env python3
+"""S14：START平面登记、冻结ROUTE算术及原公开轨迹的串行G1。"""
+from __future__ import annotations
+import argparse
+from datetime import datetime, timedelta, timezone
+import hashlib
+import itertools
+import json
+import os
+from pathlib import Path
+import random
+import re
+import shutil
+import subprocess
+import sys
+import time
+import test_s2b_conv_tile_origin_rtl as previous
+import test_s2b_conv_output_address_rtl as output
+import test_s2b_conv_validation_rtl as validation
+import test_s2b_conv_feature_address_rtl as feature
+import test_s2b_backend_coordinates_rtl as support
+import test_s2b_geometry_specialization_rtl as geometry
+import test_s2b_route_specialization_rtl as route
+
+ROOT=Path(__file__).resolve().parents[1]
+BASELINE="5a674888acdedaa41127c4ea354231e10140eea5"
+RUN_ID="s14_arithmetic_fix_20261012_r01"
+RUNNER="verification/test_s2b_s14_arithmetic_rtl.py"
+ENGINE="src/s2b_conv_tile_engine.sv"
+QUERY="src/s2b_route_query.sv"
+SHAPES=((32,104,104),(64,52,52),(64,104,104),(128,26,26),(128,52,52),(256,13,13),(256,26,26))
+SEED=0x5A1714
+sha=previous.sha
+save=previous.save
+
+def contract(checker):
+    """以实际S13提交只允许S14精确替换；不改变公开端口与状态拍。"""
+    records={}
+    for path,rules in ((ENGINE,checker.S14_START_CACHE_REPLACEMENTS),(QUERY,checker.S14_FROZEN_ROUTE_PLANE_REPLACEMENTS)):
+        old=previous.git("show",BASELINE+":"+path).decode("utf-8").replace("\r\n","\n")
+        expected=old
+        for before,after in rules:
+            assert expected.count(before)==1
+            expected=expected.replace(before,after)
+        assert expected==(ROOT/path).read_text(encoding="utf-8")
+        assert old.split(");",1)[0]==expected.split(");",1)[0]
+        records[path]=dict(reference_commit=BASELINE,old_git_sha256=hashlib.sha256(old.encode()).hexdigest(),rules=len(rules),public_header_equal=True)
+    assert records[ENGINE]["rules"]==5 and records[QUERY]["rules"]==4
+    return records
+
+def math_proof():
+    """独立无限精度计算原节点模域，包含高32溢出和三因子超64位。"""
+    rng=random.Random(SEED);u32=(1<<32)-1;u64=(1<<64)-1
+    edge=(0,1,2,255,256,4608,65535,65536,(1<<31)-1,1<<31,u32)
+    values=list(itertools.product(edge,repeat=3))+[tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(50000)]
+    for c,h,w in values:
+        cached=(c*h)&u64
+        assert cached==c*h
+        assert ((c*h)&u32)*w==(cached&u32)*w
+        assert (c*h>>32!=0 or (((c*h)&u32)*w)>>32!=0)==(cached>>32!=0 or ((cached&u32)*w)>>32!=0)
+        for ch,y,x,base in ((u32,u32,u32,u32),(17,31,63,0xFFFFF000)):
+            assert (base+((ch*h+y)*w+x))&u64==(base+ch*((h*w)&u64)+y*w+x)&u64
+    count=0
+    for c,h,w in SHAPES:
+        for ch in range(c):
+            for y in range(h):
+                for x in range(w):
+                    assert (((ch*h+y)*w+x)&u32)==((ch*(h*w)+y*w+x)&u32)
+                    count+=1
+    ring=list(itertools.product(edge,repeat=4))+[tuple(rng.getrandbits(32) for _ in range(4)) for _ in range(50000)]
+    for ch,h,w,y in ring:
+        x=rng.getrandbits(32)
+        assert (((ch*h+y)*w+x)&u32)==((ch*((h*w)&u32)+y*w+x)&u32)
+    return dict(status="PASS_MATH_ONLY",seed=SEED,register_vectors=len(values),frozen_shapes=SHAPES,exhaustive_frozen_coordinates=count,mod32_vectors=len(ring))
+
+def cache_monitor():
+    """仅从真实START握手与reset/abort读候选内部寄存器，不强制内部状态。"""
+    return """
+integer s14_starts=0,s14_raw_differences=0,s14_clears=0,s14_holds=0;
+logic s14_start,s14_clear;
+logic [63:0] s14_input,s14_output,s14_geometry,s14_old_input,s14_old_output,s14_old_geometry;
+always @(posedge clk) begin
+ s14_clear=hard_reset || abort;
+ s14_start=!s14_clear && start_valid && start_ready;
+ s14_input={32'd0,input_channels}*{32'd0,input_height};
+ s14_output={32'd0,output_channels}*{32'd0,output_height};
+ s14_geometry={32'd0,output_height}*{32'd0,output_width};
+ s14_old_input=u_candidate.input_element_plane;
+ s14_old_output=u_candidate.output_element_plane;
+ s14_old_geometry=u_candidate.output_geometry_plane;
+ if(s14_start && (input_channels!=u_candidate.input_channels_latched || input_height!=u_candidate.input_height_latched || output_channels!=u_candidate.output_channels_latched || output_height!=u_candidate.output_height_latched || output_width!=u_candidate.output_width_latched))s14_raw_differences++;
+ #1;
+ if(s14_clear)begin
+  if(u_candidate.input_element_plane!==64'd0 || u_candidate.output_element_plane!==64'd0 || u_candidate.output_geometry_plane!==64'd0)$fatal(1,"S14 reset/abort缓存未清零");
+  s14_clears++;
+ end else if(s14_start)begin
+  if(u_candidate.input_element_plane!==s14_input || u_candidate.output_element_plane!==s14_output || u_candidate.output_geometry_plane!==s14_geometry)$fatal(1,"S14 START未登记本拍完整raw64位参数");
+  s14_starts++;
+ end else begin
+  if(u_candidate.input_element_plane!==s14_old_input || u_candidate.output_element_plane!==s14_old_output || u_candidate.output_geometry_plane!==s14_old_geometry)$fatal(1,"S14非START缓存保持失败");
+  s14_holds++;
+ end
+end
+"""
+
+def boundary_bench(names,small):
+    """保留原20状态、横纵tile、通道组、packed lane和响应错误公开差分。"""
+    text=previous.boundary_bench(names,small)
+    directed="""
+reset_dut;defaults;
+for(integer i=0;i<32;i++)begin
+ input_batch_count=2;
+ input_channels=32'hffffffff-32'(i);input_height=32'h80000000+32'(i);
+ output_channels=32'hfffffffe-32'(i);output_height=32'h80000001+32'(i);output_width=32'hffffffff-32'(i);
+ start_dut;tick;
+ if(!result_valid || result_error_code!==3'd1)$fatal(1,"S14连续START首分支错误优先失败");
+ result_ready=1;tick;result_ready=0;
+end
+reset_dut;defaults;start_dut;buffer_owner_pl=0;tick;
+if(!result_valid || result_error_code!==3'd1)$fatal(1,"S14 VALIDATE未实时读取owner");
+result_ready=1;tick;result_ready=0;
+reset_dut;defaults;
+input_channels=2;input_height=32'h80000000;input_width=2;kernel_height=1;kernel_width=1;
+input_length_bytes=0;input_base_address=32'hffffffff;start_dut;tick;
+if(!result_valid || result_error_code!==3'd3)$fatal(1,"S14高32溢出BAD_LENGTH优先失败");
+result_ready=1;tick;result_ready=0;
+reset_dut;defaults;
+if(s14_starts<32 || s14_raw_differences<32 || s14_clears<40 || s14_holds==0)$fatal(1,"S14登记顺序覆盖不足");
+$display("PASS S14_START_CACHE starts=%0d raw_differences=%0d clears=%0d holds=%0d directed=34",s14_starts,s14_raw_differences,s14_clears,s14_holds);
+"""
+    marker=' $display("PASS CONV_VALIDATION'
+    assert text.count(marker)==1
+    return text.replace(marker,directed+marker).replace("endmodule",cache_monitor()+"\nendmodule")
+
+def frozen_vectors(model,ports):
+    """使用旧独立数学oracle，完整96位tuple失配只提升为原BAD_ARGUMENT。"""
+    original=route.oracle
+    def oracle(v,raw):
+        """冻结先验覆盖完整C/H/W，合法坐标和动态-128仍由旧oracle核验。"""
+        result=original(v,raw)
+        mismatch=any(tuple(v[f"source{s}_{k}"] for k in ("channels","height","width")) not in SHAPES for s in range(2 if v["source_count"]==2 else 1))
+        return (1,*result[1:]) if mismatch else result
+    route.oracle=oracle
+    try:return route.vectors(model,ports)
+    finally:route.oracle=original
+
+def frozen_bench(model,ports):
+    """S13与S14均实际启用私有参数1；query全空间独立NCHW黄金照旧。"""
+    text=route.testbench(model,ports)
+    for before,after in (("s2a_route_engine dut_old","s2b_route_engine_s13 #(.FROZEN_ROUTE_SHAPES(1)) dut_old"),("s2b_route_engine dut_new","s2b_route_engine #(.FROZEN_ROUTE_SHAPES(1)) dut_new"),("int8_route_query q_qo","s2b_route_query_s13 #(.FROZEN_ROUTE_SHAPES(1)) q_qo"),("s2b_route_query q_qn","s2b_route_query #(.FROZEN_ROUTE_SHAPES(1)) q_qn"),("qo_error_code!=0||qn_error_code!=1","qo_error_code!=1||qn_error_code!=1")):
+        assert before in text
+        text=text.replace(before,after)
+    return text
+
+def main():
+    """每次attempt独占子目录；单job/单线程编译，全部失败及原生返回码保留。"""
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--mode",choices=("all","static","feature","output","boundary","regressions","frozen","layer0"),default="all")
+    parser.add_argument("--attempt",default="r01")
+    parser.add_argument("--toolchain",type=Path,default=Path("D:/FPGA_S2A_MSYS2_20261001/env"))
+    args=parser.parse_args()
+    if not re.fullmatch(r"r[0-9]{2}",args.attempt):parser.error("attempt字面值错误")
+    bases=[]
+    for parent in (ROOT/"tmp/2B/S2B-T17",ROOT/"report/evidence/S2B-T17"):
+        parent=previous.exact_directory(parent);base=parent/RUN_ID
+        if not base.exists():base.mkdir()
+        else:base=previous.exact_directory(base)
+        target=base/(args.mode+"_"+args.attempt)
+        if target.exists():parser.error("已有attempt不覆盖")
+        target.mkdir();bases.append(target)
+    work,evidence=bases;started=time.monotonic();code=1
+    report=dict(schema_version=1,task_id="S2B-T17-S14",run_id=RUN_ID,mode=args.mode,attempt=args.attempt,status="FAIL",source_commit=BASELINE,observed_head_at_start=previous.git("rev-parse","HEAD").decode().strip(),runs=[],limitations=["仅受影响功能G1；不代表G2、50MHz STA、PNR、109整网或实板。","输出地址与feature组合受控夹具只证明登记等式条件域；公开START/PRE由boundary及完整layer0另外验证。","未启动Vivado/硬件；S13的实际STA FAIL及监护BLOCKED仍保留。"])
+    try:
+        checker=support.load_checker();bindings=checker.check_static(ROOT);static=dict(bindings)
+        for path in (RUNNER,previous.RUNNER,output.RUNNER,validation.RUNNER,feature.RUNNER,support.RUNNER,geometry.RUNNER,route.RUNNER,support.MODEL,"sim/tb_s2a_t66_candidate_blackbox.sv","verification/s1_t02_d2_int8_forward.py"):
+            bindings[path]=sha(checker.exact_file(ROOT/path))
+        report["source_sha256_pre"]=bindings
+        report["frozen14_sha256"]={p:sha(ROOT/p) for p in checker.FROZEN_CORE_SHA256}
+        assert report["frozen14_sha256"]==checker.FROZEN_CORE_SHA256
+        snapshot=evidence/"source_snapshot";snapshot.mkdir()
+        for path in bindings:
+            target=snapshot/path;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/path,target)
+        report["contract"]=contract(checker);report["math_proof"]=math_proof()
+        report["checker_negatives"]=support.checker_negatives(checker,work,static)
+        report["output_mutants"]=output.mutants(checker,work,static)
+        model=json.loads((ROOT/support.MODEL).read_text(encoding="utf-8"))
+        assert sha(ROOT/support.MODEL)==support.MODEL_SHA
+        tools=previous.exact_directory(args.toolchain/"mingw64/bin");make=previous.exact_directory(args.toolchain/"usr/bin")
+        verilator=checker.exact_file(tools/"verilator_bin.exe")
+        checker.exact_file(tools/"g++.exe");checker.exact_file(make/"make.exe")
+        env=dict(os.environ,PATH=str(make)+os.pathsep+str(tools)+os.pathsep+os.environ.get("PATH",""),VERILATOR_ROOT=str(args.toolchain/"mingw64/share/verilator"),PYTHONUTF8="1")
+        report["tool_versions"]=dict(python=sys.version,verilator=subprocess.check_output([str(verilator),"--version"],cwd=work,env=env,text=True,timeout=30).strip())
+        def compile_test(name,top,rtl,bench,files=None,extra=None,timeout=1200):
+            """实际源码快照和原始刺激保留在证据；编译缓存仅在tmp。"""
+            wd=work/name;ed=evidence/name;wd.mkdir();ed.mkdir();source=wd/"source";source.mkdir()
+            record=dict(name=name,runs=[],resource_preflight=previous.resource(checker,wd));report.setdefault("tests",[]).append(record)
+            for path in rtl:shutil.copyfile(ROOT/path,source/Path(path).name)
+            for path,payload in (files or {}).items():
+                for directory in (wd,ed):(directory/path).write_text(payload,encoding="utf-8",newline="\n")
+            for name0,payload in (extra or {}).items():
+                (source/name0).write_text(payload,encoding="utf-8",newline="\n")
+                (ed/name0).write_text(payload,encoding="utf-8",newline="\n")
+            for directory in (wd,ed):(directory/(top+".sv")).write_text(bench,encoding="utf-8",newline="\n")
+            command=[str(verilator),"--binary","--timing","--timescale","1ns/1ps","-Wall","-Wno-fatal","-j","1","--threads","1","--output-split","10000","--output-split-cfuncs","100","--top-module",top,"--Mdir","obj_dir","-MAKEFLAGS","PYTHON3='\""+sys.executable+"\"'","-CFLAGS","-D_GLIBCXX_USE_CXX11_ABI=0 -O1",*["source/"+Path(p).name for p in rtl],*["source/"+p for p in (extra or {})],top+".sv"]
+            previous.execute("compile",command,wd,ed,env,record,900)
+            sim=[str(checker.exact_file(wd/("obj_dir/V"+top+".exe")))]
+            if name in ("feature","output"):sim.append("+VECTOR_PATH="+str(ed/"address_vectors.txt").replace("\\","/"))
+            if name=="layer0":sim.extend("+T66_"+kind+"_PATH="+str(validation.FIXTURE/name0).replace("\\","/") for kind,name0 in zip(("INPUT","WEIGHT","GOLDEN"),validation.FIXED))
+            return record,previous.execute("simulation",sim,wd,ed,env,record,timeout)
+        if args.mode in ("all","feature"):
+            data,proof=feature.vectors(model);report["feature_oracle"]=proof
+            bench=feature.bench()
+            inject="\n".join("u_dut.tile_origin_"+axis+" = $signed(64'(v_tile_start_"+axis+") * 64'(v_stride_"+axis+"_latched) - 64'(v_"+pad+"_latched));" for axis,pad in (("y","pad_top"),("x","pad_left")))
+            bench=bench.replace("#1;\n",inject+"\n#1;\n")
+            old=previous.git("show",feature.BASELINE+":"+ENGINE).decode("utf-8").replace("\r\n","\n").replace("module s2b_conv_tile_engine (","module s2b_conv_tile_engine_original (")
+            record,text=compile_test("feature","tb_s2b_conv_feature_address",("src/s2a_network_descriptor_pkg.sv",ENGINE),bench,{"address_vectors.txt":data},{"s9_conv_tile_engine_original.sv":old})
+            match=re.search(r"PASS S10_CONV_FEATURE_ADDRESS vectors=(\d+) end=(\d+) padding=(\d+) range=(\d+) request=(\d+)",text)
+            assert match and int(match[1])==proof["vectors"]
+            record["coverage"]=dict(zip(("vectors","end","padding","range","request"),map(int,match.groups())))
+        if args.mode in ("all","output"):
+            data,proof=output.vectors(model);report["output_oracle"]=proof
+            old=previous.git("show",output.BASELINE+":"+ENGINE)
+            assert hashlib.sha256(old).hexdigest()==output.OLD_SHA
+            original=old.decode("utf-8").replace("\r\n","\n").replace("module s2b_conv_tile_engine (","module s2b_conv_tile_engine_original (")
+            record,text=compile_test("output","tb_s2b_conv_output_address",("src/s2a_network_descriptor_pkg.sv",ENGINE),output.bench(),{"address_vectors.txt":data},{"s9_conv_tile_engine_original.sv":original})
+            match=re.search(r"PASS S9_CONV_OUTPUT_ADDRESS vectors=(\d+) advance=(\d+) next_lane=(\d+) range=(\d+) request=(\d+)",text)
+            assert match and int(match[1])==proof["vectors"]
+            record["coverage"]=dict(zip(("vectors","advance","next_lane","range","request"),map(int,match.groups())))
+        if args.mode in ("all","boundary"):
+            names,data,small,proof=validation.vectors(model);report["boundary_oracle"]=proof
+            record,text=compile_test("boundary","tb_s2b_conv_validation",validation.RTL,boundary_bench(names,small),{"validation_vectors.txt":data})
+            match=re.search(r"PASS CONV_VALIDATION vectors=(\d+) cycles=(\d+) abort_mask=([a-fA-F0-9]+) reset_mask=([a-fA-F0-9]+) response_cases=24 raw80=1",text)
+            assert match and int(match[1])==proof["vectors"] and int(match[3],16)==int(match[4],16)==0xfffff
+            cache=re.search(r"PASS S14_START_CACHE starts=(\d+) raw_differences=(\d+) clears=(\d+) holds=(\d+) directed=34",text);assert cache
+            record["coverage"]=dict(vectors=int(match[1]),cycles=int(match[2]),abort_mask=match[3],reset_mask=match[4],response_cases=24,cache=dict(zip(("starts","raw_differences","clears","holds"),map(int,cache.groups()))),public_traces=re.findall(r"S13_PUBLIC_TRACE.*",text),origin=re.findall(r"PASS S13_ORIGIN_INVARIANTS.*",text),tap=re.findall(r"PASS S13_TAP_REGRESSION.*",text))
+        if args.mode in ("all","regressions"):
+            declarations={kind:geometry.ports(ROOT/path) for kind,path in (("pool","src/s2a_maxpool_engine.sv"),("upsample","src/s2a_upsample_engine.sv"))}
+            files={};coverage={}
+            for kind in declarations:files[kind+"_vectors.dat"],coverage[kind]=geometry.vector_data(kind,declarations[kind],model)
+            record,text=compile_test("geometry","tb_s2b_geometry_specialization",geometry.RTL,geometry.generate_tb(declarations),files)
+            assert re.search(r"PASS GEOMETRY_SPECIALIZATION pool=(\d+) upsample=(\d+) cycles=(\d+) pool_abort=(\d+) upsample_abort=(\d+)",text)
+            record["coverage"]=coverage;record["pass_lines"]=re.findall(r"PASS .*",text)
+            ports=geometry.ports(ROOT/"src/s2a_route_engine.sv");data,coverage=route.vectors(model,ports)
+            record,text=compile_test("route_generic","tb_s2b_route_specialization",route.RTL,route.testbench(model,ports),{"route_vectors.dat":data})
+            match=re.search(r"PASS ROUTE_SPECIALIZATION cases=(\d+) queries=(\d+) cycles=(\d+) abort=(\d+) reset=(\d+)",text)
+            assert match and int(match[1])==coverage["vectors"] and int(match[4])==int(match[5])==255
+            record["coverage"]=coverage;record["actual_pass_fields"]=dict(zip(("cases","queries","cycles","abort","reset"),map(int,match.groups())))
+        if args.mode in ("all","frozen"):
+            ports=geometry.ports(ROOT/"src/s2a_route_engine.sv");data,coverage=frozen_vectors(model,ports)
+            extra={}
+            for path,module in ((QUERY,"s2b_route_query"),("src/s2b_route_engine.sv","s2b_route_engine")):
+                old=previous.git("show",BASELINE+":"+path).decode("utf-8").replace("\r\n","\n").replace("module "+module,"module "+module+"_s13",1)
+                if module=="s2b_route_engine":old=old.replace("s2b_route_query #","s2b_route_query_s13 #",1)
+                extra[module+"_s13.sv"]=old
+            record,text=compile_test("route_frozen","tb_s2b_route_specialization",(QUERY,"src/s2b_route_engine.sv"),frozen_bench(model,ports),{"route_vectors.dat":data},extra)
+            match=re.search(r"PASS ROUTE_SPECIALIZATION cases=(\d+) queries=(\d+) cycles=(\d+) abort=(\d+) reset=(\d+)",text)
+            assert match and int(match[1])==coverage["vectors"] and int(match[4])==int(match[5])==255
+            record["coverage"]=coverage;record["frozen_shapes"]=SHAPES;record["explicit_parameter1_instances"]=4
+            record["actual_pass_fields"]=dict(zip(("cases","queries","cycles","abort","reset"),map(int,match.groups())))
+        if args.mode in ("all","layer0"):
+            cpu=evidence/"cpu_layer0";cpu.mkdir()
+            for name,(size,digest) in validation.FIXED.items():
+                path=checker.exact_file(validation.FIXTURE/name);assert path.stat().st_size==size and sha(path)==digest
+            report["cpu_layer0"]=validation.cpu_layer0(model,cpu,checker)
+            record,text=compile_test("layer0","tb_s2b_conv_layer0",validation.RTL,validation.layer0_tb())
+            assert text.count("PASS: T66 candidate blackbox sample0 layer0 full tensor matched T25; bytes=1384448 mismatches=0")==1
+            match=re.search(r"bytes=(\d+) mismatches=0 input_reads=(\d+) weight_reads=(\d+) output_writes=(\d+) requests=(\d+) responses=(\d+) request_stalls=(\d+) response_stalls=(\d+) cycles=(\d+)",text);assert match
+            record["coverage"]=dict(zip(("bytes","input_reads","weight_reads","output_writes","requests","responses","request_stalls","response_stalls","cycles"),map(int,match.groups())))
+        report["source_sha256_post"]={p:sha(ROOT/p) for p in bindings}
+        assert report["source_sha256_pre"]==report["source_sha256_post"]
+        report["observed_head_at_end"]=previous.git("rev-parse","HEAD").decode().strip()
+        report["status"]="PASS_S14_"+args.mode.upper()+"_G1_ONLY";code=0
+    except Exception as error:report["error"]=str(error)
+    report["elapsed_seconds"]=round(time.monotonic()-started,3)
+    report["created_at_utc8"]=datetime.now(timezone(timedelta(hours=8))).isoformat()
+    save(evidence/"validation.json",report)
+    print(json.dumps(dict(status=report["status"],error=report.get("error"),evidence=str(evidence),seconds=report["elapsed_seconds"]),ensure_ascii=False),flush=True)
+    return code
+
+if __name__=="__main__":raise SystemExit(main())

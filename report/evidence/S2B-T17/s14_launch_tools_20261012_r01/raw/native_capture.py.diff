@@ -1,0 +1,24 @@
+--- 冻结S13:native_capture.py
++++ S14工具G1:native_capture.py
+@@ -27,7 +27,9 @@
+     except (psutil.AccessDenied, RuntimeError) as error:
+         return dict(row, same_identity_exists=None, observed_status='UNKNOWN_ACCESS_DENIED', exception=str(error))
+ 
+-def main():
++def main(metadata=None):
++    if metadata is not None and (type(metadata) is not dict or set(metadata) != {'mode', 'prefix'}):
++        raise ValueError('包装metadata只允许mode/prefix')
+     label, *command = sys.argv[1:]
+     assert label.isidentifier() and command
+     assert command[0] == 'C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe'
+@@ -88,6 +90,10 @@
+         'python': sys.version, 'psutil': psutil.__version__,
+         'stdout': {'path': outputs[0].relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(outputs[0].read_bytes()).hexdigest(), 'bytes': outputs[0].stat().st_size},
+         'stderr': {'path': outputs[1].relative_to(ROOT).as_posix(), 'sha256': hashlib.sha256(outputs[1].read_bytes()).hexdigest(), 'bytes': outputs[1].stat().st_size}}
++    if metadata is not None:
++        # 仅附加模式标识与已闭合原流，禁止覆盖实际命令、身份或原生退出码。
++        result.update(metadata)
++        result['closed_logs'] = [result['stdout'], result['stderr']]
+     with outputs[2].open('x', encoding='utf-8', newline='\n') as stream:
+         json.dump(result, stream, ensure_ascii=False, indent=2); stream.write('\n')
+     print(json.dumps(result, ensure_ascii=False))

@@ -5,6 +5,7 @@ import math
 import os
 import secrets
 import struct
+import subprocess
 import time
 from ctypes import wintypes
 
@@ -22,6 +23,7 @@ JOB_OBJECT_EXTENDED_LIMIT_INFORMATION = 9
 JOB_OBJECT_BASIC_ACCOUNTING_INFORMATION = 1
 JOB_OBJECT_BASIC_PROCESS_ID_LIST = 3
 PROCESS_TERMINATE = 0x0001
+PROCESS_CREATE_PROCESS = 0x0080
 PROCESS_VM_READ = 0x0010
 PROCESS_SET_QUOTA = 0x0100
 PROCESS_QUERY_INFORMATION = 0x0400
@@ -32,6 +34,13 @@ ERROR_MORE_DATA = 234
 STILL_ACTIVE = 259
 WAIT_OBJECT_0 = 0
 WAIT_TIMEOUT = 258
+CREATE_SUSPENDED = 0x00000004
+EXTENDED_STARTUPINFO_PRESENT = 0x00080000
+CREATE_UNICODE_ENVIRONMENT = 0x00000400
+STARTF_USESTDHANDLES = 0x00000100
+PROC_THREAD_ATTRIBUTE_HANDLE_LIST = 0x00020002
+ERROR_INSUFFICIENT_BUFFER = 122
+ERROR_ACCESS_DENIED = 5
 MAX_PID_LIST = 4096
 RSS_LIMIT_BYTES = 6 * 1024 * 1024 * 1024
 RAM_FLOOR_BYTES = 512 * 1024 * 1024
@@ -145,10 +154,77 @@ class PROCESSENTRY32W(ctypes.Structure):
     ]
 
 
+class SECURITY_ATTRIBUTES(ctypes.Structure):
+    _fields_ = [
+        ("nLength", wintypes.DWORD),
+        ("lpSecurityDescriptor", ctypes.c_void_p),
+        ("bInheritHandle", wintypes.BOOL),
+    ]
+
+
+class STARTUPINFOW(ctypes.Structure):
+    _fields_ = [
+        ("cb", wintypes.DWORD),
+        ("lpReserved", wintypes.LPWSTR),
+        ("lpDesktop", wintypes.LPWSTR),
+        ("lpTitle", wintypes.LPWSTR),
+        ("dwX", wintypes.DWORD),
+        ("dwY", wintypes.DWORD),
+        ("dwXSize", wintypes.DWORD),
+        ("dwYSize", wintypes.DWORD),
+        ("dwXCountChars", wintypes.DWORD),
+        ("dwYCountChars", wintypes.DWORD),
+        ("dwFillAttribute", wintypes.DWORD),
+        ("dwFlags", wintypes.DWORD),
+        ("wShowWindow", wintypes.WORD),
+        ("cbReserved2", wintypes.WORD),
+        ("lpReserved2", ctypes.POINTER(ctypes.c_ubyte)),
+        ("hStdInput", wintypes.HANDLE),
+        ("hStdOutput", wintypes.HANDLE),
+        ("hStdError", wintypes.HANDLE),
+    ]
+
+
+class STARTUPINFOEXW(ctypes.Structure):
+    _fields_ = [("StartupInfo", STARTUPINFOW), ("lpAttributeList", ctypes.c_void_p)]
+
+
+class PROCESS_INFORMATION(ctypes.Structure):
+    _fields_ = [
+        ("hProcess", wintypes.HANDLE),
+        ("hThread", wintypes.HANDLE),
+        ("dwProcessId", wintypes.DWORD),
+        ("dwThreadId", wintypes.DWORD),
+    ]
+
+
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 psapi = ctypes.WinDLL("psapi", use_last_error=True)
 kernel32.CreateJobObjectW.argtypes = [ctypes.c_void_p, wintypes.LPCWSTR]
 kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+kernel32.CreateProcessW.argtypes = [
+    wintypes.LPCWSTR,
+    wintypes.LPWSTR,
+    ctypes.c_void_p,
+    ctypes.c_void_p,
+    wintypes.BOOL,
+    wintypes.DWORD,
+    ctypes.c_void_p,
+    wintypes.LPCWSTR,
+    ctypes.c_void_p,
+    ctypes.POINTER(PROCESS_INFORMATION),
+]
+kernel32.CreateProcessW.restype = wintypes.BOOL
+kernel32.ResumeThread.argtypes = [wintypes.HANDLE]
+kernel32.ResumeThread.restype = wintypes.DWORD
+kernel32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+kernel32.TerminateProcess.restype = wintypes.BOOL
+kernel32.InitializeProcThreadAttributeList.argtypes = [ctypes.c_void_p, wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(ctypes.c_size_t)]
+kernel32.InitializeProcThreadAttributeList.restype = wintypes.BOOL
+kernel32.UpdateProcThreadAttribute.argtypes = [ctypes.c_void_p, wintypes.DWORD, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p, ctypes.c_void_p]
+kernel32.UpdateProcThreadAttribute.restype = wintypes.BOOL
+kernel32.DeleteProcThreadAttributeList.argtypes = [ctypes.c_void_p]
+kernel32.DeleteProcThreadAttributeList.restype = None
 kernel32.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
 kernel32.SetInformationJobObject.restype = wintypes.BOOL
 kernel32.QueryInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
@@ -262,6 +338,56 @@ def _api_is_process_in_job(process_handle, job_handle):
 
 def _api_close_handle(handle):
     return bool(kernel32.CloseHandle(handle))
+
+
+def _api_create_process(application, command_line, cwd, startup, startup_ex, inherited_handles, environment_block=None):
+    """直接调用CreateProcessW；此处不经过shell或subprocess。"""
+    info = PROCESS_INFORMATION()
+    if startup_ex is None:
+        startup_pointer = ctypes.cast(ctypes.byref(startup), ctypes.c_void_p)
+        flags = CREATE_SUSPENDED
+    else:
+        startup_pointer = ctypes.cast(ctypes.byref(startup_ex), ctypes.c_void_p)
+        flags = CREATE_SUSPENDED | EXTENDED_STARTUPINFO_PRESENT
+    environment_pointer = None
+    if environment_block is not None:
+        flags |= CREATE_UNICODE_ENVIRONMENT
+        environment_pointer = ctypes.cast(environment_block, ctypes.c_void_p)
+    command_buffer = ctypes.create_unicode_buffer(command_line)
+    ok = kernel32.CreateProcessW(
+        application,
+        command_buffer,
+        None,
+        None,
+        bool(inherited_handles),
+        flags,
+        environment_pointer,
+        cwd,
+        startup_pointer,
+        ctypes.byref(info),
+    )
+    if not ok:
+        raise _win_error("CreateProcessW(CREATE_SUSPENDED)")
+    return info
+
+
+def _api_resume_thread(handle):
+    return int(kernel32.ResumeThread(handle))
+
+
+def _api_terminate_process(handle, exit_code):
+    return bool(kernel32.TerminateProcess(handle, int(exit_code)))
+
+
+def _api_wait(handle, milliseconds):
+    return int(kernel32.WaitForSingleObject(handle, int(milliseconds)))
+
+
+def _api_get_exit_code(handle):
+    value = wintypes.DWORD()
+    if not kernel32.GetExitCodeProcess(handle, ctypes.byref(value)):
+        raise _win_error("GetExitCodeProcess")
+    return int(value.value)
 
 
 def _api_process_snapshot():
@@ -478,6 +604,352 @@ def _identity_equal(left, right):
     return all(left.get(key) == right.get(key) for key in ROSS_IDENTITY_FIELDS)
 
 
+def _decode_job_pid_list(buffer, pointer_size=None):
+    """按指定ULONG_PTR位宽纯解码Job PID数组并校验计数、边界和唯一性。"""
+    raw = bytes(buffer)
+    width = ctypes.sizeof(ctypes.c_size_t) if pointer_size is None else int(pointer_size)
+    if width not in (4, 8):
+        raise GateBlocked(f"Job PID列表ULONG_PTR位宽不支持：{width}")
+    if len(raw) < 8:
+        raise GateBlocked(f"Job PID列表头部被截断：{len(raw)}字节")
+    assigned, listed = struct.unpack_from("<II", raw, 0)
+    capacity = (len(raw) - 8) // width
+    if assigned > capacity or listed > capacity:
+        raise GateBlocked(
+            f"Job PID列表计数超出缓冲边界：assigned={assigned}, listed={listed}, capacity={capacity}, width={width}"
+        )
+    if assigned != listed:
+        raise GateBlocked(f"Job PID列表assigned/listed计数不一致：{assigned}/{listed}")
+    format_code = "I" if width == 4 else "Q"
+    pids = tuple(struct.unpack_from("<" + format_code, raw, 8 + index * width)[0] for index in range(listed))
+    if any(pid == 0 for pid in pids) or len(set(pids)) != len(pids):
+        raise GateBlocked("Job PID列表含零PID或重复PID")
+    return tuple(sorted(int(pid) for pid in pids))
+
+
+class SuspendedRootError(JobGuardError):
+    """CREATE_SUSPENDED启动未能闭合，已附带原始错误与逐项清理结果。"""
+
+    def __init__(self, primary_error, events, cleanup_errors):
+        self.primary_error = primary_error
+        self.events = list(events)
+        self.cleanup_errors = list(cleanup_errors)
+        super().__init__(
+            "suspended root 启动被fail-closed："
+            f"primary={primary_error!r}; cleanup_errors={self.cleanup_errors!r}; events={self.events!r}"
+        )
+
+
+class SuspendedRootProcess:
+    """保存CreateProcessW原始句柄及Job归属，且仅在门禁全过后恢复线程。"""
+
+    def __init__(self, job, process_info, identity, birth_ticks, events):
+        self.job = job
+        self.process_info = process_info
+        self.identity = dict(identity)
+        self.birth_ticks = int(birth_ticks)
+        self.events = list(events)
+        self.resumed = True
+        self.closed = False
+
+    @property
+    def pid(self):
+        return int(self.process_info.dwProcessId)
+
+    @property
+    def process_handle(self):
+        return self.process_info.hProcess
+
+    def wait_and_close(self, timeout_seconds=30.0):
+        """闭合真实root句柄、Job成员及退出码后关闭全部自有句柄。"""
+        if self.closed:
+            raise GateBlocked("suspended root句柄已关闭")
+        wait_ms = max(0, int(float(timeout_seconds) * 1000))
+        root_wait = _api_wait(self.process_handle, wait_ms)
+        if root_wait != WAIT_OBJECT_0:
+            if root_wait == WAIT_TIMEOUT:
+                raise GateBlocked("等待CreateProcessW root退出超时")
+            raise _win_error(f"WaitForSingleObject(root)={root_wait}")
+        root_exit_code = _api_get_exit_code(self.process_handle)
+        if root_exit_code == STILL_ACTIVE:
+            raise GateBlocked("root HANDLE已signal但GetExitCodeProcess仍为STILL_ACTIVE")
+        final = self.job.wait_empty_and_verify(timeout_seconds=timeout_seconds, root_must_exit=True)
+        final["root_native_handle_exit_code"] = root_exit_code
+        final["root_native_handle_pid"] = self.pid
+        final["root_native_handle_birth_ticks"] = self.birth_ticks
+        final["resume_thread_previous_suspend_count"] = 1
+        self._close_all()
+        return {"final": final, "events": list(self.events)}
+
+    def _close_all(self):
+        errors = []
+        try:
+            self.job.close()
+        except BaseException as error:
+            errors.append(f"JobObject/成员句柄关闭失败：{error!r}")
+        for name, handle in (("root thread", self.process_info.hThread), ("root process", self.process_info.hProcess)):
+            if handle:
+                try:
+                    _checked_close_handle(handle, name)
+                except BaseException as error:
+                    errors.append(f"CloseHandle({name})失败：{error!r}")
+                else:
+                    if name == "root thread":
+                        self.process_info.hThread = None
+                    else:
+                        self.process_info.hProcess = None
+        self.closed = not errors
+        if errors:
+            self.job.cleanup_errors.extend(errors)
+            raise GateBlocked("成功生命周期句柄关闭不完整：" + "；".join(errors))
+
+
+def _close_attribute_list(buffer, pointer):
+    if pointer:
+        kernel32.DeleteProcThreadAttributeList(pointer)
+
+
+def _initialize_handle_list(handles):
+    """建立STARTUPINFOEX白名单，避免向Vivado继承控制器的其他HANDLE。"""
+    if not handles:
+        return None, None
+    size = ctypes.c_size_t(0)
+    kernel32.InitializeProcThreadAttributeList(None, 1, 0, ctypes.byref(size))
+    code = ctypes.get_last_error()
+    if code != ERROR_INSUFFICIENT_BUFFER or size.value <= 0:
+        ctypes.set_last_error(code)
+        raise _win_error("InitializeProcThreadAttributeList(size)")
+    buffer = ctypes.create_string_buffer(size.value)
+    pointer = ctypes.cast(buffer, ctypes.c_void_p)
+    if not kernel32.InitializeProcThreadAttributeList(pointer, 1, 0, ctypes.byref(size)):
+        raise _win_error("InitializeProcThreadAttributeList")
+    handle_array = (wintypes.HANDLE * len(handles))(*[wintypes.HANDLE(handle) for handle in handles])
+    if not kernel32.UpdateProcThreadAttribute(
+        pointer,
+        0,
+        PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+        ctypes.cast(handle_array, ctypes.c_void_p),
+        ctypes.sizeof(handle_array),
+        None,
+        None,
+    ):
+        error = _win_error("UpdateProcThreadAttribute(HANDLE_LIST)")
+        kernel32.DeleteProcThreadAttributeList(pointer)
+        raise error
+    return buffer, pointer
+
+
+def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, environment=None):
+    """直接创建挂起子进程，先Assign并稳定核验Job成员，再唯一一次ResumeThread。"""
+    if os.name != "nt":
+        raise GateBlocked("CREATE_SUSPENDED direct launcher仅支持Windows")
+    if not isinstance(job, JobObject) or job.closed or not job.handle:
+        raise GateBlocked("direct launcher需要打开且有效的本任务JobObject")
+    if not isinstance(executable, str) or not os.path.isabs(executable):
+        raise GateBlocked("目标映像必须是精确绝对路径")
+    if not isinstance(argv, (list, tuple)) or not argv or argv[0] != executable:
+        raise GateBlocked("argv[0]必须逐字符等于CreateProcessW应用映像路径")
+    if std_handles is not None and (not isinstance(std_handles, (list, tuple)) or len(std_handles) != 3):
+        raise GateBlocked("标准句柄必须按stdin/stdout/stderr给出三个HANDLE")
+    if job.pid_list() or job.accounting()["active_processes"] != 0:
+        raise GateBlocked("CreateProcessW前本任务Job必须为空")
+
+    events = []
+    info = None
+    assigned = False
+    root_registered = False
+    attribute_buffer = None
+    attribute_pointer = None
+    try:
+        startup = STARTUPINFOW()
+        startup.cb = ctypes.sizeof(STARTUPINFOW)
+        startup_ex = None
+        inherited = ()
+        if std_handles is not None:
+            inherited = tuple(std_handles)
+            if any(not handle for handle in inherited):
+                raise GateBlocked("標準句柄包含NULL")
+            attribute_buffer, attribute_pointer = _initialize_handle_list(inherited)
+            startup_ex = STARTUPINFOEXW()
+            startup_ex.StartupInfo = startup
+            startup_ex.StartupInfo.cb = ctypes.sizeof(STARTUPINFOEXW)
+            startup_ex.StartupInfo.dwFlags = STARTF_USESTDHANDLES
+            startup_ex.StartupInfo.hStdInput = inherited[0]
+            startup_ex.StartupInfo.hStdOutput = inherited[1]
+            startup_ex.StartupInfo.hStdError = inherited[2]
+            startup_ex.lpAttributeList = attribute_pointer
+        command_line = subprocess.list2cmdline(list(argv))
+        environment_buffer = None
+        if environment is not None:
+            if not isinstance(environment, dict):
+                raise GateBlocked("direct launcher环境必须是字符串键值字典")
+            entries = []
+            for key, value in environment.items():
+                drive_key = isinstance(key, str) and len(key) == 3 and key[0] == "=" and key[1].isalpha() and key[2] == ":"
+                if not isinstance(key, str) or not isinstance(value, str) or not key or ("=" in key and not drive_key) or "\0" in key or "\0" in value:
+                    raise GateBlocked(f"direct launcher环境项格式不符：{key!r}")
+                entries.append((key, value))
+            entries.sort(key=lambda row: row[0].casefold())
+            environment_text = "\0".join(f"{key}={value}" for key, value in entries) + "\0\0"
+            environment_buffer = ctypes.create_unicode_buffer(environment_text)
+        info = _api_create_process(
+            executable,
+            command_line,
+            cwd,
+            startup,
+            startup_ex,
+            bool(inherited),
+            environment_block=environment_buffer,
+        )
+        events.append({"event": "CREATE_SUSPENDED", "pid": int(info.dwProcessId), "monotonic_seconds": time.monotonic()})
+        if int(info.dwProcessId) <= 0 or int(info.hProcess or 0) <= 0 or int(info.hThread or 0) <= 0:
+            raise GateBlocked("CreateProcessW返回空PID或HANDLE")
+        handle_pid = _api_process_id(info.hProcess)
+        birth_ticks = _api_creation_ticks(info.hProcess)
+        identity = _api_process_identity(handle_pid)
+        _assert_handle_identity(info.hProcess, info.dwProcessId, birth_ticks, identity)
+        expected_image = os.path.normcase(os.path.abspath(executable))
+        actual_image = os.path.normcase(os.path.abspath(identity["exe"]))
+        if actual_image != expected_image:
+            raise GateBlocked(f"CreateProcessW映像身份不符：expected={executable!r}, actual={identity['exe']!r}")
+        if identity.get("cmdline") != list(argv):
+            raise GateBlocked(f"CreateProcessW命令行读回不符：expected={list(argv)!r}, actual={identity.get('cmdline')!r}")
+        if identity.get("ppid") != os.getpid():
+            raise GateBlocked(f"CreateProcessW root父PID不是本控制器：expected={os.getpid()}, actual={identity.get('ppid')}")
+        if _api_is_process_in_job(info.hProcess, job.handle):
+            raise GateBlocked("Assign前root已属于本次目標Job")
+        if not _api_assign_process(job.handle, info.hProcess):
+            raise _win_error("AssignProcessToJobObject(CREATE_SUSPENDED root)")
+        assigned = True
+        events.append({"event": "ASSIGN_PROCESS_TO_JOB", "pid": int(info.dwProcessId), "monotonic_seconds": time.monotonic()})
+        _assert_handle_identity(info.hProcess, info.dwProcessId, birth_ticks, identity)
+        if not _api_is_process_in_job(info.hProcess, job.handle):
+            raise GateBlocked("Assign后原始root HANDLE的IsProcessInJob读回为false")
+
+        root = job._remember_process(
+            int(info.dwProcessId),
+            PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_SET_QUOTA | PROCESS_TERMINATE | SYNCHRONIZE,
+        )
+        root_registered = True
+        if root["birth_ticks"] != birth_ticks or not _identity_equal(root["identity"], identity):
+            raise GateBlocked("Job成员句柄与CreateProcessW原始root HANDLE身份不一致")
+        job.root_pid = int(info.dwProcessId)
+        job.root_birth_ticks = int(birth_ticks)
+        job.root_identity = dict(identity)
+        job._verify_ready_membership()
+        before_resume_pids = job.pid_list()
+        before_resume_accounting = job.accounting()
+        if before_resume_pids != (int(info.dwProcessId),) or before_resume_accounting["active_processes"] != 1:
+            raise GateBlocked(
+                "ResumeThread前Job成員未精確閉合："
+                f"pids={before_resume_pids}, accounting={before_resume_accounting}"
+            )
+        flags = job.query_limit_flags()
+        if flags != JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE or flags & (0x00000800 | 0x00001000):
+            raise GateBlocked(f"ResumeThread前Job限制读回不符：0x{flags:08x}")
+        _assert_handle_identity(info.hProcess, info.dwProcessId, birth_ticks, identity)
+        if not _api_is_process_in_job(info.hProcess, job.handle):
+            raise GateBlocked("ResumeThread前原始root HANDLE不在本次Job")
+        events.append({
+            "event": "PRE_RESUME_CLOSED",
+            "pid": int(info.dwProcessId),
+            "job_pids": list(before_resume_pids),
+            "accounting": before_resume_accounting,
+            "job_limit_flags": flags,
+            "monotonic_seconds": time.monotonic(),
+        })
+        resume_count = _api_resume_thread(info.hThread)
+        if resume_count == 0xFFFFFFFF:
+            raise _win_error("ResumeThread")
+        if resume_count != 1:
+            raise GateBlocked(f"ResumeThread先前挂起计数不是唯一预期值1：{resume_count}")
+        events.append({"event": "RESUME_THREAD", "pid": int(info.dwProcessId), "previous_suspend_count": resume_count, "monotonic_seconds": time.monotonic()})
+        _close_attribute_list(attribute_buffer, attribute_pointer)
+        attribute_buffer = attribute_pointer = None
+        return SuspendedRootProcess(job, info, identity, birth_ticks, events)
+    except BaseException as primary:
+        cleanup_errors = []
+        if attribute_pointer:
+            try:
+                _close_attribute_list(attribute_buffer, attribute_pointer)
+            except BaseException as error:
+                cleanup_errors.append(f"DeleteProcThreadAttributeList失败：{error!r}")
+        if info is not None and info.hProcess:
+            terminated_by_job = False
+            if assigned and not job.closed:
+                try:
+                    job.terminate_own_job(92)
+                    terminated_by_job = True
+                    events.append({"event": "TERMINATE_OWN_JOB", "monotonic_seconds": time.monotonic()})
+                except BaseException as error:
+                    cleanup_errors.append(f"TerminateJobObject失败：{error!r}")
+            if not terminated_by_job:
+                try:
+                    if not _api_terminate_process(info.hProcess, 92):
+                        cleanup_errors.append(f"TerminateProcess(root)返回FALSE：WinError {ctypes.get_last_error()}")
+                    else:
+                        events.append({"event": "TERMINATE_ROOT", "monotonic_seconds": time.monotonic()})
+                except BaseException as error:
+                    cleanup_errors.append(f"TerminateProcess(root)调用失败：{error!r}")
+            try:
+                wait = _api_wait(info.hProcess, 30000)
+                if wait == WAIT_TIMEOUT and terminated_by_job:
+                    events.append({"event": "JOB_TERMINATE_WAIT_TIMEOUT", "monotonic_seconds": time.monotonic()})
+                    if not _api_terminate_process(info.hProcess, 92):
+                        cleanup_errors.append(f"fallback TerminateProcess(root)返回FALSE：WinError {ctypes.get_last_error()}")
+                    else:
+                        events.append({"event": "TERMINATE_ROOT_FALLBACK", "monotonic_seconds": time.monotonic()})
+                    wait = _api_wait(info.hProcess, 30000)
+                if wait != WAIT_OBJECT_0:
+                    cleanup_errors.append(f"WaitForSingleObject(root)未闭合：{wait}")
+                else:
+                    exit_code = _api_get_exit_code(info.hProcess)
+                    if exit_code == STILL_ACTIVE:
+                        cleanup_errors.append("root HANDLE已signal但GetExitCodeProcess为STILL_ACTIVE")
+                    events.append({"event": "ROOT_REAPED", "exit_code": exit_code, "monotonic_seconds": time.monotonic()})
+            except BaseException as error:
+                cleanup_errors.append(f"root等候/退出码读回失败：{error!r}")
+            if assigned and not job.closed:
+                try:
+                    if root_registered:
+                        events.append({"event": "JOB_REAPED", "result": job.wait_empty_and_verify(timeout_seconds=30.0, root_must_exit=True), "monotonic_seconds": time.monotonic()})
+                    else:
+                        deadline = time.monotonic() + 30.0
+                        while time.monotonic() < deadline:
+                            pids = job.pid_list()
+                            accounting = job.accounting()
+                            if not pids and accounting["active_processes"] == 0:
+                                break
+                            time.sleep(0.05)
+                        else:
+                            raise GateBlocked(f"失败清理后Job仍有成员：pids={pids}, accounting={accounting}")
+                        if job.pid_list() or job.accounting()["active_processes"] != 0:
+                            raise GateBlocked("失败清理后Job成员第二次读回非空")
+                        events.append({"event": "JOB_REAPED_WITHOUT_ROOT_IDENTITY", "monotonic_seconds": time.monotonic()})
+                except BaseException as error:
+                    cleanup_errors.append(f"Job终态闭合读回失败：{error!r}")
+        if not job.closed:
+            try:
+                job.close()
+                events.append({"event": "CLOSE_OWN_JOB", "monotonic_seconds": time.monotonic()})
+            except BaseException as error:
+                cleanup_errors.append(f"CloseHandle(Job/member)失败：{error!r}")
+        if info is not None:
+            for name, handle in (("root thread", info.hThread), ("root process", info.hProcess)):
+                if handle:
+                    try:
+                        _checked_close_handle(handle, name)
+                    except BaseException as error:
+                        cleanup_errors.append(f"CloseHandle({name})失败：{error!r}")
+                    else:
+                        if name == "root thread":
+                            info.hThread = None
+                        else:
+                            info.hProcess = None
+        events.append({"event": "FAIL_CLOSED", "resume_attempted": any(row.get("event") == "RESUME_THREAD" for row in events), "monotonic_seconds": time.monotonic()})
+        raise SuspendedRootError(primary, events, cleanup_errors) from primary
+
+
 class JobObject:
     """仅持有当前候选Job；默认关闭句柄时终止本Job成员。"""
 
@@ -558,6 +1030,8 @@ class JobObject:
                 byte_count,
                 ctypes.byref(returned),
             )
+            if byte_count < 8:
+                raise GateBlocked("Job PID列表缓冲小于固定头部")
             assigned, listed = struct.unpack_from("<II", buffer.raw, 0)
             if not ok:
                 code = ctypes.get_last_error()
@@ -572,10 +1046,10 @@ class JobObject:
             if assigned != listed:
                 capacity = max(capacity * 2, int(assigned))
                 continue
-            pids = struct.unpack_from("<" + "Q" * listed, buffer.raw, 8) if listed else ()
-            if len(pids) != assigned or len(set(pids)) != len(pids):
-                raise GateBlocked("Job PID列表计数或PID唯一性不符")
-            return tuple(sorted(int(pid) for pid in pids))
+            pids = _decode_job_pid_list(buffer.raw, ctypes.sizeof(ctypes.c_size_t))
+            if len(pids) != assigned:
+                raise GateBlocked("Job PID列表解码数量与API头部不符")
+            return pids
         raise GateBlocked("Job PID列表超过4096个成员")
 
     def membership(self, pid):

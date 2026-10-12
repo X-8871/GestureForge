@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "s15_source_closure_package_fixture_r01",
+  "source_commit": "926c2fd382069e68e6c5ec533b7d3b6a87fbb363",
+  "evidence_dir": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只独立封SOURCE及既有证据，不改硬件业务接口。",
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "files": [
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/runtime_pins_synth_r1.json",
+      "sha256": "1b1468b5df0687fa1a7687956c41d2547980ebf51785a6fb51ecf7dfaaa03885",
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/s15_runtime_source_before_r1.native.json",
+      "sha256": "a0399ef32952eb63669756d020fcaf7b3b6b3dfdae25ff27d90381afc870d4d1",
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/s15_runtime_source_before_r1.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/s15_runtime_source_before_r1.stdout.bin",
+      "sha256": "9da54a314d63e6021e2de4499290f62b959e22a9a771b6a629f7f7037fae5fd2",
+      "role": "log"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_physical_launch_root_20261012_r01/supervision_r01/guard/guard_receipt.json",
+      "sha256": "6d4e92589f0e52688146722b51e848c7097537555ff45ccdc25a911021f605da",
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/regression_fixtures_r01/request_fixture.json",
+      "sha256": "73ffe0917a7ee3478f372c1475154a26fc446127a27edf0b9d6dc5f2d96e1975",
+      "role": "result"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/raw/tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/source_closure.py",
+      "sha256": "603c04ea7ea0d3fd93f780b66f6faf0ed87e266f20ad39d154f8f6366c9a3df9",
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/s15_source_closure_package_fixture_r01/source_closure_receipt.json",
+      "sha256": "2dc432c085cde9c2129e3b1688721673862baceaccc85684a6a9bd36f1efb4a1",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "SOURCE前后内容独立闭合",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_source_closure_fallback_20261012_r01\\source_closure.py --request C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_source_closure_fallback_20261012_r01\\regression_fixtures_r01\\request_fixture.json --output-dir C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_source_closure_fallback_20261012_r01\\s15_source_closure_package_fixture_r01",
+      "exit_code": 0,
+      "reason": "仅实际RAW/snapshot/Git既有directwait哈希及collector child0输出核验。"
+    },
+    {
+      "name": "tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/s15_runtime_source_before_r1.native.json",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_launch_prepare_20261012_r02\\native.py --prefix s15_runtime_source_before_r1 -- source --commit 926c2fd382069e68e6c5ec533b7d3b6a87fbb363 --phase before",
+      "exit_code": 2,
+      "reason": "原生包装原状态保留：BLOCKED_UNKNOWN_IDENTITY"
+    },
+    {
+      "name": "连续运行预算证明",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "BLOCKED原件保留；没有连续预算PASS。"
+    },
+    {
+      "name": "STA/G2/G3/G5",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本入口不授予原seal或设计/硬件/阶段批准。"
+    }
+  ],
+  "limitations": [
+    "原seal未调用也未通过；UNKNOWN27与guard BLOCKED原件保留。",
+    "既有collect的9MCP/5job/STA按additional_evidence原字节封存，不由本入口重新生成或批准。",
+    "实际Git由ROOT之前执行，本入口复核其直接wait/hash及字节关系，不执行Git。"
+  ]
+}

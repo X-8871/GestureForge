@@ -1,0 +1,16 @@
+{
+  "input": {
+    "session_id": "vivado-20261012-144256-cf6822b7",
+    "command": "set_param general.maxThreads 1; set s15_impl [get_runs impl_1]; set_property strategy Performance_ExplorePostRoutePhysOpt $s15_impl; set s15_impl_properties [dict create]; foreach s15_p [list_property $s15_impl] { if {[string match *PHYS_OPT* $s15_p] || [string match STRATEGY $s15_p]} { dict set s15_impl_properties $s15_p [get_property $s15_p $s15_impl] } }; puts [dict create part [get_property PART [current_project]] top [get_property TOP [current_fileset]] synth_status [get_property STATUS [get_runs synth_1]] impl_status [get_property STATUS $s15_impl] strategy [get_property STRATEGY $s15_impl] threads [get_param general.maxThreads] phys_opt_properties $s15_impl_properties]",
+    "mode": "proxy",
+    "verbosity": "digest"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"exit_code\": 0,\n  \"output\": \"part xc7z020clg400-2 top s2b_inference_wrapper synth_status {synth_design Complete!} impl_status {Not started} strategy Performance_ExplorePostRoutePhysOpt threads 1 phys_opt_properties {STRATEGY Performance_ExplorePostRoutePhysOpt STEPS.PHYS_OPT_DESIGN.IS_ENABLED 1 STEPS.PHYS_OPT_DESIGN.TCL.PRE {} STEPS.PHYS_OPT_DESIGN.TCL.POST {} STEPS.PHYS_OPT_DESIGN.REPORTS impl_1_phys_opt_report_timing_summary_0 STEPS.PHYS_OPT_DESIGN.ARGS.DIRECTIVE Explore {STEPS.PHYS_OPT_DESIGN.ARGS.MORE OPTIONS} {} STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED 1 STEPS.POST_ROUTE_PHYS_OPT_DESIGN.TCL.PRE {} STEPS.POST_ROUTE_PHYS_OPT_DESIGN.TCL.POST {} STEPS.POST_ROUTE_PHYS_OPT_DESIGN.REPORTS {impl_1_post_route_phys_opt_report_timing_summary_0 impl_1_post_route_phys_opt_report_bus_skew_0} STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.DIRECTIVE Explore {STEPS.POST_ROUTE_PHYS_OPT_DESIGN.ARGS.MORE OPTIONS} {}}\",\n  \"task_progress\": \"0/4: 核验固定综合G2、源码与资源，配置单任务实现 (active, 1m40s) | Next: 执行布局布线与布线后物理优化，直接wait闭合\"\n}"
+      }
+    ]
+  }
+}

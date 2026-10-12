@@ -1,0 +1,61 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "stop": true,
+  "created_at_utc8": "2026-10-12T14:18:26.189030+08:00",
+  "source_commit": "926c2fd382069e68e6c5ec533b7d3b6a87fbb363",
+  "entry": {
+    "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/source_closure.py",
+    "sha256": "7b06d51bb6dbe2a72ae0fe374ce6cfc236b02c7112fcc984d0e70422e9fa21eb",
+    "bytes": 23102
+  },
+  "g1_receipt": {
+    "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/g1_receipt.json",
+    "sha256": "dafd343ed6122a097b0650456f2be8fb05f146f80008297f8e6087fa2c8446f9",
+    "bytes": 10610
+  },
+  "frozen_inventory": {
+    "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/frozen_inventory.json",
+    "sha256": "7a13778145f944911ff22f3e51e0b293fab987b6bb2e0885e9daf316cd9fa755",
+    "bytes": 24179
+  },
+  "frozen_originals_hash_checked": 94,
+  "independent_checks": 26,
+  "passed": 22,
+  "unexpected_accepts": 4,
+  "findings": [
+    {
+      "priority": "P2",
+      "path": "tmp/2B/S2B-T17/s15_source_closure_fallback_20261012_r01/source_closure.py",
+      "start": 148,
+      "end": 183,
+      "title": "未知包装分支仍接受丢失原生metadata",
+      "impact": "在UNKNOWN27/wrapper2的原生记录逻辑反例中，删除capture_target_kind、budget_stop、known_descendant_identity_terminal_observations或known_descendants_same_identity_absent_at_observation，capture仍接受。没有升级预算PASS，但无法落实拒绝metadata丢失和完整原件结构验收，尤其after未由固定admission SHA保护时缺项可进入内容封包。",
+      "closure": "先强制完整SOURCE capture schema及字段类型：包括target kind=COLLECTOR、budget_stop显式None或有效失败字符串、known terminal列表和known absent显式布尔等。核完整wrapper/native码为int（拒bool），已知终态每行完整六字段与合法状态，未知记录保持明确。允许真实UNKNOWN27/wrapper2做SOURCE内容补证，原状态/原未知/原预算值保存；缺字段或矛盾一律拒绝，不套用原工具禁止UNKNOWN的seal契约，不追认SOURCE capture或预算PASS。补四拒绝负向及真实blocked捕获正向。"
+    }
+  ],
+  "verified_scope": [
+    "实际SOURCE/config固定SHA，46 RAW+snapshot、33 static、原14与13工具G2及r01guard actual/recovery依赖一致。",
+    "既有48 Git directwait/hash逐字段及RAW/exact LF->CRLF关系独立复核；未启动Git。",
+    "实际before child0、directwait、wrapper2/UNKNOWN27、guard BLOCKED及原流哈希保留。",
+    "child非零/布尔码、完整命令/父birth、重要identity/tool/log字段缺失、directwait缺失、假capture PASS/预算PASS均拒绝。",
+    "缺真实after立即拒绝；完整after尚未由本审查运行或生成。"
+  ],
+  "evidence": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_s15_source_closure_review_20261012_r01/probe.py",
+      "sha256": "be321e189847afa4761e152d1624831a862a1cad37b63ff7752845ca0d585ed8",
+      "bytes": 5892
+    },
+    {
+      "path": "tmp/2B/S2B-T17/independent_s15_source_closure_review_20261012_r01/probe_result.json",
+      "sha256": "c2eab29a258d98214968eabfe3a84ad7e95ad32a5052b4e806cf41569be0e77e",
+      "bytes": 3776
+    }
+  ],
+  "limitations": [
+    "该入口SOURCE内容范围不批准原seal、STA、连续预算或G3/G5；无Git/ROSS/Vivado/硬件/重编译执行。",
+    "additional_evidence当前为可选列表，显式逻辑after fixture中空列表仍可closed；该入口不能单独保证完整collect/MCP9/STA/approved_evidence已封存。若ROOT另有独立证据封包，应明确该范围并按显式闭合清单核完整性；若本入口承担完整已批准证据，需额外强制列表/清单绑定。",
+    "核查原件94项全部SHA/bytes仍符合库存；未修改入口、原13工具/config/SOURCE/ROOTclosure/分支或提交。",
+    "逻辑metadata反例通过注入独立副本隔离字段校验，未改实际固定UNKNOWN27原件或其admission SHA。"
+  ]
+}

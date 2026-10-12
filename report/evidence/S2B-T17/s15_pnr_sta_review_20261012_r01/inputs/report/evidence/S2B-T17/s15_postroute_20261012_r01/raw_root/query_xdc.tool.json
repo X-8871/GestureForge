@@ -1,0 +1,16 @@
+{
+  "input": {
+    "session_id": "vivado-20261012-144256-cf6822b7",
+    "command": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s15_postroute_20261012_r01/constraints_pnr.xdc}; set s15_run_states [dict create]; foreach s15_run [get_runs] {dict set s15_run_states [get_property NAME $s15_run] [dict create status [get_property STATUS $s15_run] progress [get_property PROGRESS $s15_run]]}; dict create project [get_property NAME [current_project]] part [get_property PART [current_project]] top [get_property TOP [current_fileset]] clock_period [get_property PERIOD [get_clocks clk_fpga_0]] runs $s15_run_states strategy [get_property STRATEGY [get_runs impl_1]] threads [get_param general.maxThreads] post_physopt [get_property STEPS.POST_ROUTE_PHYS_OPT_DESIGN.IS_ENABLED [get_runs impl_1]]",
+    "mode": "proxy",
+    "verbosity": "digest"
+  },
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"elapsed_seconds\": 1.752,\n  \"exit_code\": 0,\n  \"output\": \"INFO: [Timing 38-35] Done setting XDC timing constraints.\\r\\nproject s2b_inference_candidate part xc7z020clg400-2 top s2b_inference_wrapper clock_period 20.000 runs {synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_axi_gp0_lite_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_ps7_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_rst_fclk0_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_infer_0_synth_1 {status {synth_design Complete!} progress 100%} impl_1 {status {phys_opt_design (Post-Route) Complete!} progress 100%} s2b_inference_axi_gp0_lite_0_impl_1 {status {Not started} progress 0%} s2b_inference_ps7_0_impl_1 {status {Not started} progress 0%} s2b_inference_rst_fclk0_0_impl_1 {status {Not started} progress 0%} s2b_inference_infer_0_impl_1 {status {Not started} progress 0%}} strategy Performance_ExplorePostRoutePhysOpt threads 1 post_physopt 1\",\n  \"task_progress\": \"2/4: 保存真实布线STA、约束、DRC和资源原件 (active, 2m24s) | Next: 关闭自有会话、核验SOURCE前后并独立审查结果\"\n}"
+      }
+    ]
+  }
+}

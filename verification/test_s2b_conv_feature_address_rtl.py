@@ -151,6 +151,8 @@ scanned=$fscanf(fd,"{fmt}",{args});
 if(scanned=={len(INPUTS)+3+len(GOLD)})begin
 {assigns}
 {states}
+// 白盒组合域仅注入公开START已证明的缓存关系，不冒充真实握手轨迹。
+u_dut.input_geometry_plane = {{32'd0, v_input_height_latched}} * {{32'd0, v_input_width_latched}};
 #1;
 {"\n".join(checks)}
 branch_count[gold_action]++;count++;

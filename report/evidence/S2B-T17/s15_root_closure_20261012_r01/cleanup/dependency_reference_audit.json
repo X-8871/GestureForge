@@ -1,0 +1,28 @@
+{
+  "scoped_directories": [
+    "report/evidence/S2B-T17/independent_s12_functional_review_20261012_r01",
+    "report/evidence/S2B-T17/s13_root_review_20261012_r01/functional",
+    "report/evidence/S2B-T17/s14_independent_functional_review_20261012_r01",
+    "report/evidence/S2B-T17/s12_timing_cones_20261012_r01"
+  ],
+  "exact_candidate_reference_hits": [],
+  "gch_literal_occurrences": [
+    {
+      "path": "report/evidence/S2B-T17/s12_timing_cones_20261012_r01/execution_raw/delivery_collect_r05.py",
+      "sha256": "3617c3ac23fde1482677c35b150c3d14be2075183319f53d16e48f9dec86e32f",
+      "occurrences": [
+        {
+          "line": 114,
+          "text": "    assert not set(path.parts)&{\".runs\",\".gen\",\".srcs\",\".cache\",\"obj_dir\"} and path.suffix.lower() not in (\".exe\",\".o\",\".obj\",\".gch\",\".dcp\",\".bit\")"
+        }
+      ]
+    }
+  ],
+  "formal_manifest_required_gch_files": [],
+  "checker": {
+    "path": "verification/check_stage_delivery.py",
+    "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+    "meaning": "只枚举正式evidence_dir及清单files；.gch属于禁止混入正式证据的编译缓存，指定候选全部在tmp。"
+  },
+  "interpretation": "仅限关联运行。脚本显式排除编译缓存或说明缓存可重建不表示依赖；请总控核对literal occurrence上下文。"
+}

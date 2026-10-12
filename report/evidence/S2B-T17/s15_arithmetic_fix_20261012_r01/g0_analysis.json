@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17-S15-G0",
+  "status": "READ_ONLY_DIAGNOSIS_COMPLETE_PRODUCTION_NOT_MODIFIED",
+  "source_commit": "53772ae581ff3ccfb3a9d411cdc66fc67c3e2161",
+  "bindings": {
+    "src/s2b_conv_tile_engine.sv": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+    "report/evidence/S2B-T17/s14_platform_20261012_r01/timing_summary_synth.rpt": "26c581fbea3753666eaef5f385d519465ccbe6b8c54b3970b82d382d275d11fb"
+  },
+  "negative_setup_paths": [
+    {"line": 223, "slack_ns": -0.143, "source": "feature_source_address_wide4__1/CLK", "destination": "result_error_latched_reg[0]/D", "data_ns": 19.739},
+    {"line": 327, "slack_ns": -0.143, "source": "feature_source_address_wide4__1/CLK", "destination": "result_error_latched_reg[1]/D", "data_ns": 19.739},
+    {"line": 431, "slack_ns": -0.143, "source": "feature_source_address_wide4__1/CLK", "destination": "result_error_latched_reg[2]/D", "data_ns": 19.739}
+  ],
+  "common_cone": {
+    "levels": 20,
+    "carry4": 9,
+    "dsp48e1_reported_levels": 3,
+    "chain": ["wide4__1 CLK to PCOUT[47]", "wide4__2 PCIN[47] to P[0]", "wide3__4_i_4 / i_3 / i_2 / i_1 and wide3__3_i_4 carry chain", "wide3__4 A[16] to PCOUT[47]", "wide3__5 PCIN[47] to P[1]", "request_wdata comparison carry chain", "state and error mux"],
+    "inference": "实际RTL已是ch*(H*W)+y*W+x；H*W仍为组合并进入channel乘法。报告两个DSP乘法簇之间存在CARRY链，与这条源码依赖一致。未经网表反向查询，不声称每个重命名DSP精确对应独立RTL节点。"
+  },
+  "minimal_proposal": {
+    "private_register": "logic [63:0] input_geometry_plane",
+    "start_assignment": "input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};",
+    "reset_abort": "完整64位清零；其他拍保持",
+    "consumer_change": "只将feature_geometry_plane原H*W表达式替换为input_geometry_plane；bounds分支与默认0不动",
+    "no_start_serial_dependency": "新增START乘法只读取本拍两个raw32端口，独立于C*H、OC*OH、OH*OW缓存，无三因子乘法、加base或错误判定串联",
+    "production_files": ["src/s2b_conv_tile_engine.sv", "board/s2b_inference_platform.json", "verification/check_s2b_inference_platform.py", "vivado/s2b_inference_platform.tcl", "verification/test_s2b_s15_arithmetic_rtl.py"]
+  },
+  "equivalence_basis": [
+    "0<=H,W<=2^32-1 => H*W<2^64，START的完整unsigned64乘积对全部输入精确。",
+    "缓存与当前latched_H/W同一个START沿更新，消费前已有VALIDATE与PRE，周期不变；reset/abort完整清零，连续START必须覆盖新任务，stall拍保持。",
+    "保留signed64 tile_origin+scan和bounds；只有bounds真时消费unsigned32 Y及signed64 X的非负位模式。",
+    "channel*HW以及channel+row+X+base全部原模2^64；不得缩为32位，也不得新增65位carry拒绝。",
+    "地址32位截断只在原BAD_RANGE比较通过后发生，word对齐及byte strobe原样。",
+    "SCAN优先END、padding、BAD_RANGE、request原样；VALIDATE首分支错误优先与live buffer_owner_pl原样。"
+  ],
+  "validation_plan": {
+    "independent_golden": "复用test_s2b_conv_feature_address_rtl.py的旧嵌套NCHW Python整数oracle；原节点模64，不引用缓存表达式；完整旧S9 RTL作第二对照。",
+    "cache_relation_fixture": "feature受控组合夹具仅注入cache=H*W关系，不能冒充START公开可达性；公开boundary监视真实START握手验证cache来源、清零、保持。",
+    "directed": ["raw与旧latched不同的连续START", "H/W零与UINT32边界", "HW高32位及bit63", "signed负padding和正高32 alias", "模64 offset/base回绕到0", "END优先于RANGE/padding", "live owner在START后变化", "response映射", "20状态reset/abort", "stall与横纵tile及lane切换"],
+    "affected_tests": ["static固定替换与来源绑定反例", "完整feature组合差分", "公开boundary和cache monitor", "完整layer0 CPU独立golden", "output以及既有pool/upsample/ROUTE回归"],
+    "timing_acceptance": "功能G1/G2固定版本后ROOT进行18RTL、50MHz、visibility0的实际综合与独立STA；核对START路径、所有负setup及DSP/CARRY新链，不预先承诺WNS通过"
+  },
+  "limitations": ["未执行RTL仿真、Vivado启动、综合、PNR或硬件操作", "只读诊断不代表G1/G2/时序closure", "PATH默认python属于损坏的Espressif虚拟环境，本轮未使用该环境做验证", "无生产修改，无提交；S14已有改动与ROOT收尾保持原归属"]
+}

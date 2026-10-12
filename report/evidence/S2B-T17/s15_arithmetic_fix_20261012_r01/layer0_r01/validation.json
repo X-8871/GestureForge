@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17-S15",
+  "run_id": "s15_arithmetic_fix_20261012_r01",
+  "mode": "layer0",
+  "attempt": "r01",
+  "status": "PASS_S15_LAYER0_G1_ONLY",
+  "source_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+  "observed_head_at_start": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+  "runs": [],
+  "limitations": [
+    "仅受影响功能G1；不代表G2、50MHz STA、PNR、109整网或实板。",
+    "输出地址与feature组合受控夹具只证明登记等式条件域；公开START/PRE由boundary及完整layer0另外验证。",
+    "未启动Vivado/硬件；S13的实际STA FAIL及监护BLOCKED仍保留。"
+  ],
+  "source_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+    "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+    "verification/test_s2b_s15_arithmetic_rtl.py": "71c81e1aee2cb7b05f9ac10d9a413aa59f452432132adb14fa7f8089de93e03b",
+    "verification/test_s2b_conv_tile_origin_rtl.py": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+  },
+  "frozen14_sha256": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "contract": {
+    "src/s2b_conv_tile_engine.sv": {
+      "reference_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+      "old_git_sha256": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+      "rules": 5,
+      "public_header_equal": true
+    },
+    "src/s2b_route_query.sv": {
+      "reference_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+      "unchanged_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68"
+    }
+  },
+  "math_proof": {
+    "status": "PASS_MATH_ONLY",
+    "seed": 5904149,
+    "register_vectors": 51331,
+    "input_geometry_vectors": 51331,
+    "frozen_shapes": [
+      [
+        32,
+        104,
+        104
+      ],
+      [
+        64,
+        52,
+        52
+      ],
+      [
+        64,
+        104,
+        104
+      ],
+      [
+        128,
+        26,
+        26
+      ],
+      [
+        128,
+        52,
+        52
+      ],
+      [
+        256,
+        13,
+        13
+      ],
+      [
+        256,
+        26,
+        26
+      ]
+    ],
+    "exhaustive_frozen_coordinates": 1860352,
+    "mod32_vectors": 64641
+  },
+  "checker_negatives": [
+    {
+      "name": "旧profile0.1.0",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.11",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.13",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.14",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包遗漏",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包重复",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "时钟降低",
+      "status": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "physical漂移",
+      "status": "REJECTED",
+      "reason": "物理候选版本不符"
+    },
+    {
+      "name": "输入geometry误用旧latched",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "输入geometry丢高32",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "输入geometry错用C乘H",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "START误用旧latched",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "START丢高32",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "geometry错加",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "额外周期",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "丢高位拒绝",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结tuple低位alias",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结plane错误",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结丢row",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "旧Tcl版本",
+      "status": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "冻结原件自报SHA",
+      "status": "REJECTED",
+      "reason": "原14源绑定不符"
+    }
+  ],
+  "output_mutants": [
+    {
+      "name": "丢offset高位",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "1c900f1db51affcdbdd46bf9ae19892687c171f8981a941268c66b7cc54517c6"
+    },
+    {
+      "name": "错误33位通道carry",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "92b2e8e6feb6c5d087ba2dfd7811c5bc3145c5d9295aa55806812e1144a97342"
+    },
+    {
+      "name": "错误65位addresscarry拒绝",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "cd4982c6535e59d67e768b616291a185b230945083e636e86e4c9e769e467d2c"
+    },
+    {
+      "name": "丢row",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "01cc247ef374356ca0839bcc65f7dbe17c4296ebfec16835fb3e6c12d133bfea"
+    },
+    {
+      "name": "丢x",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "a0c5b44d6617fe11be1fed874ed4c77279ca2a5d2ae222c79e8520c97578574d"
+    },
+    {
+      "name": "错误plane",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "0a9d6712767cacf8eb40afd4c888fa7557db493066399dc758b563f36b9685c0"
+    },
+    {
+      "name": "错误signed扩展",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "6dd8d4450b6371529bbd8200b8e5e082c5a72753a1bed4d92621d2f004e1e7df"
+    },
+    {
+      "name": "非法低32alias",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符",
+      "mutant_sha256": "b7fe9077a2fc5ce42733875f369f5527ba862054e5502985b062594136efbbb3"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "cpu_layer0": {
+    "status": "PASS",
+    "cpu_seconds": 0.406,
+    "thread_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "blas_threads_before_after": [
+      1,
+      1
+    ],
+    "blas_dll": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-63c857e738469261263c764a36be9436.dll",
+      "sha256": "63c857e738469261263c764a36be9436ebdeaa272e340a828f42047a97131080",
+      "getter": "scipy_openblas_get_num_threads64_"
+    },
+    "host_threads_before": 4,
+    "host_threads_after": 4,
+    "main_thread_id": 27740,
+    "thread_cpu_deltas": [
+      {
+        "id": 27740,
+        "main": true,
+        "user_seconds": 0.171875,
+        "system_seconds": 0.171875
+      },
+      {
+        "id": 34240,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 33112,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 28416,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      }
+    ],
+    "thread_scope": "数学库实际getter=1；Python/Windows已有宿主辅助线程另列，INT64点积、逐元素量化均由主线程调用，前后CPU计时分辨率由OS限定。",
+    "self_rss_bytes_cpu_end": 101675008,
+    "peak_self_working_set_bytes_upto_cpu_end": 109932544,
+    "peak_scope": "OS进程生命周期峰截至CPU结束；包含导入/前置静态核验，作为CPU内存上界，非全系统峰。",
+    "method": "INT64 im2col矩阵点积+manifest fused bias；D2 binary64分别乘/除，负值leaky0.1，半远离零，[-127,127]饱和；未读取生产MQROM或派生引擎。",
+    "bytes": 1384448,
+    "mismatches": 0,
+    "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "int32_absolute_bounds": [
+      81333,
+      126097,
+      107351,
+      167611,
+      151142,
+      168267,
+      176959,
+      84367,
+      157879,
+      162910,
+      135711,
+      166441,
+      191146,
+      83407,
+      206854,
+      150680,
+      167024,
+      138712,
+      159988,
+      166705,
+      280478,
+      169356,
+      146007,
+      168288,
+      149626,
+      158801,
+      247308,
+      158293,
+      101642,
+      182227,
+      130942,
+      115253
+    ],
+    "numpy_version": "2.4.6",
+    "bindings": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+        "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+        "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      }
+    ],
+    "restored_network_bytes": 11382150,
+    "scope": "仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"
+  },
+  "tests": [
+    {
+      "name": "layer0",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_layer0",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_layer0.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_arithmetic_fix_20261012_r01\\layer0_r01\\layer0",
+          "pid": 29420,
+          "create_time_unix": 1791781637.266832,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 31.5,
+          "peak_tree_rss_bytes": 677773312,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s15_arithmetic_fix_20261012_r01/layer0_r01/layer0/compile.stdout.log",
+            "sha256": "8dd7fc94959c9e7fe75d217ad4690aefd6e5e81a5148da9302984524e2dc3567"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s15_arithmetic_fix_20261012_r01/layer0_r01/layer0/compile.stderr.log",
+            "sha256": "158f606a89d14fd8d4543d084ea71ae30bb9ef4820632c9377a0155b1ba10c2c"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_arithmetic_fix_20261012_r01\\layer0_r01\\layer0\\obj_dir\\Vtb_s2b_conv_layer0.exe",
+            "+T66_INPUT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin",
+            "+T66_WEIGHT_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin",
+            "+T66_GOLDEN_PATH=D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_arithmetic_fix_20261012_r01\\layer0_r01\\layer0",
+          "pid": 32612,
+          "create_time_unix": 1791781668.878929,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 257.844,
+          "peak_tree_rss_bytes": 8421376,
+          "failure": null,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/s15_arithmetic_fix_20261012_r01/layer0_r01/layer0/simulation.stdout.log",
+            "sha256": "c5ce257f285de0be1f1f70387b3628a69bd8ee403a11be50839c52d81b096049"
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/s15_arithmetic_fix_20261012_r01/layer0_r01/layer0/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "resource_preflight": {
+        "available_ram_bytes": 4785348608,
+        "disk_free_bytes": 9432166400,
+        "heavy": [],
+        "unknown": [],
+        "jobs": 1,
+        "threads": 1
+      },
+      "coverage": {
+        "bytes": 1384448,
+        "input_reads": 583443,
+        "weight_reads": 584064,
+        "output_writes": 1384448,
+        "requests": 2551955,
+        "responses": 2551955,
+        "request_stalls": 6635073,
+        "response_stalls": 6635073,
+        "cycles": 27235743
+      }
+    }
+  ],
+  "source_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+    "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+    "verification/test_s2b_s15_arithmetic_rtl.py": "71c81e1aee2cb7b05f9ac10d9a413aa59f452432132adb14fa7f8089de93e03b",
+    "verification/test_s2b_conv_tile_origin_rtl.py": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+  },
+  "observed_head_at_end": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+  "elapsed_seconds": 297.172,
+  "created_at_utc8": "2026-10-12T13:12:06.749690+08:00"
+}

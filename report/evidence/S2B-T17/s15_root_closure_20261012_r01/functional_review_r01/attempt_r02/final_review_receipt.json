@@ -1,0 +1,740 @@
+{
+  "schema_version": 1,
+  "status": "PASS_G2_FUNCTIONAL_ONLY",
+  "source_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+  "seed": 22096652,
+  "tests": [
+    {
+      "name": "boundary",
+      "runs": [
+        {
+          "name": "compile",
+          "command": [
+            "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+            "--binary",
+            "--timing",
+            "--timescale",
+            "1ns/1ps",
+            "-Wall",
+            "-Wno-fatal",
+            "-j",
+            "1",
+            "--threads",
+            "1",
+            "--output-split",
+            "10000",
+            "--output-split-cfuncs",
+            "100",
+            "--top-module",
+            "tb_s2b_conv_validation",
+            "--Mdir",
+            "obj_dir",
+            "-MAKEFLAGS",
+            "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+            "-CFLAGS",
+            "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+            "source/s2a_network_descriptor_pkg.sv",
+            "source/s2a_conv_tile_engine.sv",
+            "source/s2b_conv_tile_engine.sv",
+            "tb_s2b_conv_validation.sv"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s15_functional_review_20261012_r01\\attempt_r02\\boundary",
+          "pid": 25432,
+          "create_time_unix": 1791782452.680206,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 33.844,
+          "peak_tree_rss_bytes": 672321536,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/attempt_r02/boundary/compile.stdout.log",
+            "sha256": "948496f61a4e9f2990331faedba1e8a4b352bafc720a1dcd6092f3d73d5a935f"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/attempt_r02/boundary/compile.stderr.log",
+            "sha256": "60ffa76038c99c68a107190e25349f0f29049930c90da3056c4e9f795e73c59b"
+          }
+        },
+        {
+          "name": "simulation",
+          "command": [
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s15_functional_review_20261012_r01\\attempt_r02\\boundary\\obj_dir\\Vtb_s2b_conv_validation.exe"
+          ],
+          "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_s15_functional_review_20261012_r01\\attempt_r02\\boundary",
+          "pid": 26860,
+          "create_time_unix": 1791782486.6076982,
+          "native_exit_code": 0,
+          "direct_wait_exit_code": 0,
+          "terminal_state": "EXITED_DIRECT_CHILD_WAIT",
+          "elapsed_seconds": 2.188,
+          "peak_tree_rss_bytes": 5107712,
+          "failure": null,
+          "stdout": {
+            "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/attempt_r02/boundary/simulation.stdout.log",
+            "sha256": "e12f76a45e4225ac13af05e60be482a85abbd123c21205e4f715cde436154ab4"
+          },
+          "stderr": {
+            "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/attempt_r02/boundary/simulation.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ],
+      "preflight": {
+        "available_ram_bytes": 4678426624,
+        "disk_free_bytes": 9075433472,
+        "heavy": [],
+        "unknown": [],
+        "jobs": 1,
+        "threads": 1
+      },
+      "pass_lines": [
+        "S13_PUBLIC_TRACE job=0 requests=2801 cycles=17483 preps=63",
+        "S13_PUBLIC_TRACE job=1 requests=4324 cycles=26738 preps=67",
+        "PASS S13_TAP_REGRESSION samples=4705",
+        "PASS S13_ORIGIN_INVARIANTS preps=67 x_tiles=4 y_tiles=4 clears=12732",
+        "PASS S15_START_CACHE starts=6103 raw_differences=6103 clears=6676 holds=132280 directed=42",
+        "PASS INDEPENDENT_S15_EXTRA owner_restore=1 clear_start_priority=8 consecutive_start_raw_mutation=64",
+        "PASS CONV_VALIDATION vectors=5996 cycles=145467 abort_mask=000fffff reset_mask=000fffff response_cases=24 raw80=1"
+      ],
+      "vector_seed": 722931716,
+      "vectors": 5996
+    }
+  ],
+  "limitations": [
+    "仅S15功能G2；不是STA、PNR或G3/G4/G5。",
+    "完整layer0 RTL未重复；审计实际G1日志和绑定，独立重算CPU整层及64个标量坐标。",
+    "公开boundary使用已核读的旧RTL逐周期差分生成器，并添加独立刺激；不复用编译缓存。",
+    "ROUTE与其它几何消费者生产字节不变，审计G1实际回归原件而未重复重型ROUTE。",
+    "内存峰值为100ms进程树采样，瞬时峰及工具调用总量未测。"
+  ],
+  "source_sha256_pre": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+    "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+    "verification/test_s2b_s15_arithmetic_rtl.py": "71c81e1aee2cb7b05f9ac10d9a413aa59f452432132adb14fa7f8089de93e03b",
+    "verification/test_s2b_conv_tile_origin_rtl.py": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+  },
+  "contract": {
+    "src/s2b_conv_tile_engine.sv": {
+      "reference_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+      "old_git_sha256": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+      "rules": 5,
+      "public_header_equal": true
+    },
+    "src/s2b_route_query.sv": {
+      "reference_commit": "0700c33e6faba8861cc2e7646a8981e424a69c45",
+      "unchanged_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68"
+    }
+  },
+  "frozen14_sha256": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+  },
+  "g1_audit": {
+    "manifest_files": 491,
+    "direct_children_ended": 14,
+    "summaries": {
+      "feature": {
+        "coverage": {
+          "vectors": 120361,
+          "end": 29981,
+          "padding": 48100,
+          "range": 40124,
+          "request": 2156
+        },
+        "pass_lines": null,
+        "actual_pass_fields": null
+      },
+      "output": {
+        "coverage": {
+          "vectors": 120361,
+          "advance": 42698,
+          "next_lane": 20793,
+          "range": 52388,
+          "request": 4482
+        },
+        "pass_lines": null,
+        "actual_pass_fields": null
+      },
+      "boundary": {
+        "coverage": {
+          "vectors": 5996,
+          "cycles": 145059,
+          "abort_mask": "000fffff",
+          "reset_mask": "000fffff",
+          "response_cases": 24,
+          "cache": {
+            "starts": 6103,
+            "raw_differences": 6103,
+            "clears": 6676,
+            "holds": 132280
+          },
+          "public_traces": [
+            "S13_PUBLIC_TRACE job=0 requests=2801 cycles=17483 preps=63",
+            "S13_PUBLIC_TRACE job=1 requests=4324 cycles=26738 preps=67"
+          ],
+          "origin": [
+            "PASS S13_ORIGIN_INVARIANTS preps=67 x_tiles=4 y_tiles=4 clears=12732"
+          ],
+          "tap": [
+            "PASS S13_TAP_REGRESSION samples=4705"
+          ]
+        },
+        "pass_lines": null,
+        "actual_pass_fields": null
+      },
+      "geometry": {
+        "coverage": {
+          "pool": {
+            "vectors": 19645,
+            "categories": {
+              "legal_spatial_channel_sampling": 19372,
+              "parameter_field_rejection": 141,
+              "length_field_rejection": 18,
+              "address_field_rejection": 12,
+              "length_before_address": 3,
+              "argument_before_length_address": 3,
+              "extreme_coordinate_rejection": 27,
+              "read_response_error": 21,
+              "write_response_error": 21,
+              "raw_0x80_policy": 3,
+              "abort_each_state": 21,
+              "no_memory_stall": 3
+            },
+            "legal_coordinates_per_layer": {
+              "9": 9483,
+              "17": 4557,
+              "25": 5332
+            },
+            "all_channel_indices_sampled": {
+              "9": 128,
+              "17": 256,
+              "25": 512
+            },
+            "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+            "seed": 722931729,
+            "parameter_order": [
+              "layer_index",
+              "input_base_address",
+              "input_length_bytes",
+              "input_channels",
+              "input_height",
+              "input_width",
+              "output_base_address",
+              "output_length_bytes",
+              "output_channels",
+              "output_height",
+              "output_width",
+              "kernel_height",
+              "kernel_width",
+              "stride_y",
+              "stride_x",
+              "darknet_padding_parameter",
+              "output_channel",
+              "output_y",
+              "output_x"
+            ]
+          },
+          "upsample": {
+            "vectors": 3456,
+            "categories": {
+              "legal_spatial_channel_sampling": 3397,
+              "parameter_field_rejection": 16,
+              "length_field_rejection": 6,
+              "address_field_rejection": 4,
+              "length_before_address": 1,
+              "argument_before_length_address": 1,
+              "extreme_coordinate_rejection": 9,
+              "read_response_error": 7,
+              "write_response_error": 7,
+              "raw_0x80_policy": 1,
+              "abort_each_state": 6,
+              "no_memory_stall": 1
+            },
+            "legal_coordinates_per_layer": {
+              "33": 3397
+            },
+            "all_channel_indices_sampled": {
+              "33": 128
+            },
+            "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+            "seed": 722931730,
+            "parameter_order": [
+              "input_base_address",
+              "input_length_bytes",
+              "output_base_address",
+              "output_length_bytes",
+              "input_channels",
+              "input_height",
+              "input_width",
+              "stride",
+              "output_channel",
+              "output_y",
+              "output_x"
+            ]
+          }
+        },
+        "pass_lines": [
+          "PASS GEOMETRY_SPECIALIZATION pool=19645 upsample=3456 cycles=590601 pool_abort=127 upsample_abort=63"
+        ],
+        "actual_pass_fields": null
+      },
+      "route_generic": {
+        "coverage": {
+          "vectors": 15816,
+          "categories": {
+            "all_channels_packed_lanes": 8832,
+            "all_int8_values_both_sources": 5632,
+            "field_boundary": 953,
+            "groups_zero": 11,
+            "group2_odd_channels": 11,
+            "argument_before_range": 11,
+            "source_range_before_output_length": 11,
+            "response_error": 154,
+            "abort_each_state": 88,
+            "reset_each_state": 88,
+            "long_stall_abort": 11,
+            "no_stall": 11,
+            "group2_lower_half_generic_preserved": 3
+          },
+          "parameter_order": [
+            "source_count",
+            "groups",
+            "group_id",
+            "output_channel",
+            "output_y",
+            "output_x",
+            "source0_base_address",
+            "source0_length_bytes",
+            "source0_channels",
+            "source0_height",
+            "source0_width",
+            "source0_channel_start",
+            "source0_channel_end",
+            "source0_multiplier_q31",
+            "source1_base_address",
+            "source1_length_bytes",
+            "source1_channels",
+            "source1_height",
+            "source1_width",
+            "source1_channel_start",
+            "source1_channel_end",
+            "source1_multiplier_q31",
+            "output_base_address",
+            "output_length_bytes",
+            "output_channels",
+            "output_height",
+            "output_width"
+          ],
+          "seed": 722939921
+        },
+        "pass_lines": null,
+        "actual_pass_fields": {
+          "cases": 15816,
+          "queries": 4592720,
+          "cycles": 256784,
+          "abort": 255,
+          "reset": 255
+        }
+      },
+      "route_frozen": {
+        "coverage": {
+          "vectors": 15816,
+          "categories": {
+            "all_channels_packed_lanes": 8832,
+            "all_int8_values_both_sources": 5632,
+            "field_boundary": 953,
+            "groups_zero": 11,
+            "group2_odd_channels": 11,
+            "argument_before_range": 11,
+            "source_range_before_output_length": 11,
+            "response_error": 154,
+            "abort_each_state": 88,
+            "reset_each_state": 88,
+            "long_stall_abort": 11,
+            "no_stall": 11,
+            "group2_lower_half_generic_preserved": 3
+          },
+          "parameter_order": [
+            "source_count",
+            "groups",
+            "group_id",
+            "output_channel",
+            "output_y",
+            "output_x",
+            "source0_base_address",
+            "source0_length_bytes",
+            "source0_channels",
+            "source0_height",
+            "source0_width",
+            "source0_channel_start",
+            "source0_channel_end",
+            "source0_multiplier_q31",
+            "source1_base_address",
+            "source1_length_bytes",
+            "source1_channels",
+            "source1_height",
+            "source1_width",
+            "source1_channel_start",
+            "source1_channel_end",
+            "source1_multiplier_q31",
+            "output_base_address",
+            "output_length_bytes",
+            "output_channels",
+            "output_height",
+            "output_width"
+          ],
+          "seed": 722939921
+        },
+        "pass_lines": null,
+        "actual_pass_fields": {
+          "cases": 15816,
+          "queries": 4592720,
+          "cycles": 256784,
+          "abort": 255,
+          "reset": 255
+        }
+      },
+      "layer0": {
+        "coverage": {
+          "bytes": 1384448,
+          "input_reads": 583443,
+          "weight_reads": 584064,
+          "output_writes": 1384448,
+          "requests": 2551955,
+          "responses": 2551955,
+          "request_stalls": 6635073,
+          "response_stalls": 6635073,
+          "cycles": 27235743
+        },
+        "pass_lines": null,
+        "actual_pass_fields": null
+      }
+    },
+    "static_sources": 33
+  },
+  "checker_negatives": [
+    {
+      "name": "旧profile0.1.0",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.11",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.13",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "旧profile0.1.14",
+      "status": "REJECTED",
+      "reason": "平台版本不符"
+    },
+    {
+      "name": "闭包遗漏",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "闭包重复",
+      "status": "REJECTED",
+      "reason": "闭包必须精确为6个冻结2A、8个派生及4个原2B模块"
+    },
+    {
+      "name": "时钟降低",
+      "status": "REJECTED",
+      "reason": "时钟或默认门控不符"
+    },
+    {
+      "name": "physical漂移",
+      "status": "REJECTED",
+      "reason": "物理候选版本不符"
+    },
+    {
+      "name": "输入geometry误用旧latched",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "输入geometry丢高32",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "输入geometry错用C乘H",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "START误用旧latched",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "START丢高32",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "geometry错加",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "额外周期",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "丢高位拒绝",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结tuple低位alias",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结plane错误",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "冻结丢row",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "旧Tcl版本",
+      "status": "REJECTED",
+      "reason": "Tcl平台版本不符"
+    },
+    {
+      "name": "冻结原件自报SHA",
+      "status": "REJECTED",
+      "reason": "原14源绑定不符"
+    }
+  ],
+  "cpu_layer0": {
+    "status": "PASS",
+    "cpu_seconds": 0.375,
+    "thread_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    },
+    "blas_threads_before_after": [
+      1,
+      1
+    ],
+    "blas_dll": {
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-63c857e738469261263c764a36be9436.dll",
+      "sha256": "63c857e738469261263c764a36be9436ebdeaa272e340a828f42047a97131080",
+      "getter": "scipy_openblas_get_num_threads64_"
+    },
+    "host_threads_before": 4,
+    "host_threads_after": 4,
+    "main_thread_id": 5280,
+    "thread_cpu_deltas": [
+      {
+        "id": 5280,
+        "main": true,
+        "user_seconds": 0.296875,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 24708,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 8732,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      },
+      {
+        "id": 11992,
+        "main": false,
+        "user_seconds": 0.0,
+        "system_seconds": 0.0
+      }
+    ],
+    "thread_scope": "数学库实际getter=1；Python/Windows已有宿主辅助线程另列，INT64点积、逐元素量化均由主线程调用，前后CPU计时分辨率由OS限定。",
+    "self_rss_bytes_cpu_end": 101597184,
+    "peak_self_working_set_bytes_upto_cpu_end": 108597248,
+    "peak_scope": "OS进程生命周期峰截至CPU结束；包含导入/前置静态核验，作为CPU内存上界，非全系统峰。",
+    "method": "INT64 im2col矩阵点积+manifest fused bias；D2 binary64分别乘/除，负值leaky0.1，半远离零，[-127,127]饱和；未读取生产MQROM或派生引擎。",
+    "bytes": 1384448,
+    "mismatches": 0,
+    "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "int32_absolute_bounds": [
+      81333,
+      126097,
+      107351,
+      167611,
+      151142,
+      168267,
+      176959,
+      84367,
+      157879,
+      162910,
+      135711,
+      166441,
+      191146,
+      83407,
+      206854,
+      150680,
+      167024,
+      138712,
+      159988,
+      166705,
+      280478,
+      169356,
+      146007,
+      168288,
+      149626,
+      158801,
+      247308,
+      158293,
+      101642,
+      182227,
+      130942,
+      115253
+    ],
+    "numpy_version": "2.4.6",
+    "bindings": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+        "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+      },
+      {
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+        "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      }
+    ],
+    "restored_network_bytes": 11382150,
+    "scope": "仅layer0完整CPU重新计算；T25整网shard仅恢复以核对切片，未运行整网。"
+  },
+  "independent_math": {
+    "random_vectors": 10000,
+    "edge_pairs": 36,
+    "seed": 22096652,
+    "unsigned64_product_exact": true,
+    "original_mod64_preserved": true
+  },
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "source_sha256_post": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+    "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+    "verification/test_s2b_s15_arithmetic_rtl.py": "71c81e1aee2cb7b05f9ac10d9a413aa59f452432132adb14fa7f8089de93e03b",
+    "verification/test_s2b_conv_tile_origin_rtl.py": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147",
+    "verification/test_s2b_conv_output_address_rtl.py": "e633df6e276745d7922c9940f80fb9105db39fa24f6a2fad17cbb84984565d86",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+  },
+  "elapsed_seconds": 45.953,
+  "created_at_utc8": "2026-10-12T13:21:28.842561+08:00",
+  "reviewer_source_sha256": "5ab96f5519a8d28d5a77abdd78b27117742e8f520afb29846bab38e20072199b"
+}

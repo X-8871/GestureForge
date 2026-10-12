@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.14"
+PROFILE_VERSION = "s2b-inference-platform/0.1.15"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -420,6 +420,22 @@ S14_START_CACHE_REPLACEMENTS = [["        input_element_plane = {32'd0, input_ch
 S14_FROZEN_ROUTE_PLANE_REPLACEMENTS = [['    logic [31:0] selected_source_channel;\n\n', "    logic [31:0] selected_source_channel;\n\n    // 完整tuple匹配得到H乘W空间平面；旧C乘H字段不能用作通道跨度。\n    function automatic logic [31:0] frozen_spatial_plane_lookup(input logic [95:0] shape_key);\n        begin\n            frozen_spatial_plane_lookup = 32'd0;\n            case (shape_key)\n                96'h000000200000006800000068: frozen_spatial_plane_lookup = 32'd10816;\n                96'h000000400000003400000034: frozen_spatial_plane_lookup = 32'd2704;\n                96'h000000400000006800000068: frozen_spatial_plane_lookup = 32'd10816;\n                96'h000000800000001A0000001A: frozen_spatial_plane_lookup = 32'd676;\n                96'h000000800000003400000034: frozen_spatial_plane_lookup = 32'd2704;\n                96'h000001000000000D0000000D: frozen_spatial_plane_lookup = 32'd169;\n                96'h000001000000001A0000001A: frozen_spatial_plane_lookup = 32'd676;\n                default: frozen_spatial_plane_lookup = 32'd0;\n            endcase\n        end\n    endfunction\n    logic [31:0] source0_spatial_plane;\n\n"], ["        source0_frozen_shape = 129'd0;\n", "        source0_frozen_shape = 129'd0;\n        source0_spatial_plane = 32'd0;\n"], ['            source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});\n', '            source0_frozen_shape = frozen_shape_lookup({source0_channels, source0_height, source0_width});\n            source0_spatial_plane = frozen_spatial_plane_lookup({source0_channels, source0_height, source0_width});\n'], ['        selected_offset =\n            ((selected_source_channel * source0_height) + output_y) *\n            source0_width + output_x;\n', '        if (FROZEN_ROUTE_SHAPES) begin\n            // 成功路径的完整tuple已验证；分配律在原32位模域内，不增加周期。\n            selected_offset = selected_source_channel * source0_spatial_plane +\n                              output_y * source0_width + output_x;\n        end else begin\n            selected_offset =\n                ((selected_source_channel * source0_height) + output_y) *\n                source0_width + output_x;\n        end\n']]
 DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(S14_START_CACHE_REPLACEMENTS)
 DERIVATION_RULES["src/int8_route_query.sv"][1].extend(S14_FROZEN_ROUTE_PLANE_REPLACEMENTS)
+
+# S15仅增加输入空间平面的完整START缓存，不改变状态、周期或地址模域。
+S15_INPUT_GEOMETRY_CACHE_REPLACEMENTS = [
+    ("    logic [63:0] input_element_plane;\n",
+     "    logic [63:0] input_element_plane;\n    // 本次START登记完整输入空间平面，SCAN仅保留channel乘法。\n    logic [63:0] input_geometry_plane;\n"),
+    ("                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n",
+     "                feature_geometry_plane = input_geometry_plane;\n"),
+    ("            input_channels_latched <= 32'd0;\n            input_element_plane <= 64'd0;\n",
+     "            input_channels_latched <= 32'd0;\n            input_element_plane <= 64'd0;\n            input_geometry_plane <= 64'd0;\n"),
+    ("        end else if (abort) begin\n            state <= ST_IDLE;\n            input_element_plane <= 64'd0;\n",
+     "        end else if (abort) begin\n            state <= ST_IDLE;\n            input_element_plane <= 64'd0;\n            input_geometry_plane <= 64'd0;\n"),
+    ("                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n",
+     "                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n                        input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};\n")
+]
+S15_INPUT_GEOMETRY_CACHE_REPLACEMENTS = [list(rule) for rule in S15_INPUT_GEOMETRY_CACHE_REPLACEMENTS]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(S15_INPUT_GEOMETRY_CACHE_REPLACEMENTS)
 
 
 def require(condition: bool, message: str) -> None:

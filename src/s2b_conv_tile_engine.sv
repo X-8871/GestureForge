@@ -172,6 +172,8 @@ module s2b_conv_tile_engine #(
     logic [127:0] expected_weight_bytes_wide;
     logic [127:0] reduction_count_wide;
     logic [63:0] input_element_plane;
+    // 本次START登记完整输入空间平面，SCAN仅保留channel乘法。
+    logic [63:0] input_geometry_plane;
     logic [63:0] output_element_plane;
     logic [63:0] input_element_product;
     logic [63:0] output_element_product;
@@ -2282,7 +2284,7 @@ module s2b_conv_tile_engine #(
                 (feature_input_x < $signed({32'd0, input_width_latched}));
             if (feature_scan_in_bounds) begin
                 // 原signed bounds保证Y高32为零；只在消费分支用精确32乘32行偏移。
-                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};
+                feature_geometry_plane = input_geometry_plane;
                 feature_channel_plane_offset = {32'd0, feature_scan_channel} * feature_geometry_plane;
                 feature_row_offset = {32'd0, feature_input_y[31:0]} * {32'd0, input_width_latched};
                 feature_source_offset = feature_channel_plane_offset + feature_row_offset +
@@ -2537,6 +2539,7 @@ module s2b_conv_tile_engine #(
             input_batch_count_latched <= 32'd0;
             input_channels_latched <= 32'd0;
             input_element_plane <= 64'd0;
+            input_geometry_plane <= 64'd0;
             output_element_plane <= 64'd0;
             output_geometry_plane <= 64'd0;
             input_height_latched <= 32'd0;
@@ -2611,6 +2614,7 @@ module s2b_conv_tile_engine #(
         end else if (abort) begin
             state <= ST_IDLE;
             input_element_plane <= 64'd0;
+            input_geometry_plane <= 64'd0;
             output_element_plane <= 64'd0;
             output_geometry_plane <= 64'd0;
             tile_origin_y <= 64'sd0;
@@ -2680,6 +2684,7 @@ module s2b_conv_tile_engine #(
                         input_channels_latched <= input_channels;
                         // 同一握手沿必须消费本拍raw端口，不能读取上一任务的latched参数。
                         input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};
+                        input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};
                         output_element_plane <= {32'd0, output_channels} * {32'd0, output_height};
                         output_geometry_plane <= {32'd0, output_height} * {32'd0, output_width};
                         input_height_latched <= input_height;

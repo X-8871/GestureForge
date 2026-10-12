@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "s2b-inference-platform/0.1.14",
+  "version": "s2b-inference-platform/0.1.15",
   "status": "BUILD_CANDIDATE",
   "physical_interface": "s2b-physical-candidate/0.1.1",
   "requested_part_literal": "XC7Z020-2CLG400I",
@@ -422,7 +422,7 @@
       {
         "source": "src/s2a_conv_tile_engine.sv",
         "path": "src/s2b_conv_tile_engine.sv",
-        "sha256": "0e5d4ab38fbadea245803780b5e32c953dd3616e7d6efafe30307c6bb070862d",
+        "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
         "replacements": [
           [
             "module s2a_conv_tile_engine (",
@@ -575,6 +575,26 @@
           [
             "                        input_channels_latched <= input_channels;\n",
             "                        input_channels_latched <= input_channels;\n                        // 同一握手沿必须消费本拍raw端口，不能读取上一任务的latched参数。\n                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n                        output_element_plane <= {32'd0, output_channels} * {32'd0, output_height};\n                        output_geometry_plane <= {32'd0, output_height} * {32'd0, output_width};\n"
+          ],
+          [
+            "    logic [63:0] input_element_plane;\n",
+            "    logic [63:0] input_element_plane;\n    // 本次START登记完整输入空间平面，SCAN仅保留channel乘法。\n    logic [63:0] input_geometry_plane;\n"
+          ],
+          [
+            "                feature_geometry_plane = {32'd0, input_height_latched} * {32'd0, input_width_latched};\n",
+            "                feature_geometry_plane = input_geometry_plane;\n"
+          ],
+          [
+            "            input_channels_latched <= 32'd0;\n            input_element_plane <= 64'd0;\n",
+            "            input_channels_latched <= 32'd0;\n            input_element_plane <= 64'd0;\n            input_geometry_plane <= 64'd0;\n"
+          ],
+          [
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            input_element_plane <= 64'd0;\n",
+            "        end else if (abort) begin\n            state <= ST_IDLE;\n            input_element_plane <= 64'd0;\n            input_geometry_plane <= 64'd0;\n"
+          ],
+          [
+            "                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n",
+            "                        input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};\n                        input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};\n"
           ]
         ]
       },

@@ -1,0 +1,173 @@
+{
+  "schema": "s15_candidate_evidence_hash_summary/1",
+  "version": "r06",
+  "candidate_dir": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04",
+  "tool_code_or_pin_changed": true,
+  "change_summary": [
+    "collector.exact 与 compat_pins.exact 在构造 Path 前检查原始字符串；同时拒绝反斜杠和正斜杠路径分量中的 . 与 ..。",
+    "直接字符串回归覆盖两种分隔符的 . 与 .. 别名；规范路径通过，别名拒绝。",
+    "保留 UNC、设备命名空间、逐前缀 reparse 检查及生产准备 fail-closed。"
+  ],
+  "verification": {
+    "py_compile": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "Vitis Python 3.13: -m py_compile on every top-level *.py in r04"
+    },
+    "candidate_pin_check": {
+      "status": "PASS_CANDIDATE_TEMP_PIN_ONLY",
+      "exit_code": 0,
+      "changed_tools": 6,
+      "unchanged_tools": 7
+    },
+    "core_regression": {
+      "status": "PASS_G1_ONLY",
+      "exit_code": 0,
+      "run_id": "r04",
+      "r2_test_run_id": "r07"
+    },
+    "extra_regression": {
+      "status": "PASS_G1_ONLY",
+      "exit_code": 0,
+      "run_id": "r04"
+    },
+    "layout_regression": {
+      "status": "PASS_G1_ONLY",
+      "exit_code": 0,
+      "run_id": "r04"
+    },
+    "runtime_config_interpreter_regression": {
+      "status": "PASS_G1_CONFIG_GUARD_ONLY",
+      "exit_code": 0,
+      "cases_passed": 11,
+      "run_id": "r06"
+    },
+    "selftest": {
+      "status": "PASS_G1_ONLY",
+      "exit_code": 0,
+      "unittest_subtests": 22,
+      "recorded_cases": 24,
+      "run_id": "r04"
+    },
+    "exact_guard_smoke": {
+      "status": "PASS_G1_EXPERIMENT_ONLY",
+      "exit_code": 0,
+      "run_id": "r04",
+      "raw_aliases_rejected": 8,
+      "canonical_direct_paths_accepted": 2,
+      "junction_reparse_cases_rejected": true
+    },
+    "production_prepare_probe": {
+      "status": "PENDING_INPUTS_FAIL_CLOSED",
+      "native_exit_code": 1,
+      "outer_runner_exit_code": 0,
+      "capture_outputs_created": false,
+      "vivado_started": false
+    },
+    "strict_json_parse": {
+      "status": "PASS_WITH_PRESERVED_KNOWN_INVALID",
+      "parsed_json_count": 55,
+      "invalid_count": 1,
+      "invalid_preserved_inherited_file": {
+        "path": "native_prepare_pending_r03.result.json",
+        "error": "JSONDecodeError",
+        "detail": "Extra data: line 17 column 2 (char 1480)"
+      },
+      "new_prepare_result_valid": true,
+      "preliminary_r05_summary_valid": true
+    }
+  },
+  "r03_immutability_check": {
+    "status": "PASS",
+    "tool_pin_count": 13,
+    "candidate_tool_hash_mismatches": [],
+    "anchored_files": {
+      "candidate_tool_pins_r03.json": {
+        "bytes": 5332,
+        "sha256": "a9f8a2504e390f11ba43cf434b44f270a604ae25897da0f15543ac60035296fd"
+      },
+      "candidate_pin_check_result_r03.json": {
+        "bytes": 337,
+        "sha256": "96bec7e0fab5a38fb69efd0ceb34092c8996bf908a1f94beb8785dc3fbfebaaa"
+      },
+      "native_prepare_pending_r03.result.json": {
+        "bytes": 1530,
+        "sha256": "bfaf8b3d00572e6a0156570d859135ec2108588ce61025fc8cff5b89aac24dd3"
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_tool_pins_r04.json",
+      "bytes": 5416,
+      "sha256": "a93d499f078c02467c57abf4df1ab912824f3191264b80419d6925560eefd860"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_pin_check_result_r04.json",
+      "bytes": 337,
+      "sha256": "845423097d66da2102d2e1da43ab106e05446ea2d4a2cffe921e7c56c5328fea"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/r2_regression_result_r07.json",
+      "bytes": 8268,
+      "sha256": "bb2efa15aa04eaf1c2dfab9ce1016a42580916f23aabc817ec6d758a3ae1f091"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/r2_final_waits_r04.json",
+      "bytes": 20050,
+      "sha256": "2f478749a7970938200c88e675c6974817f39b5f35369d231af1514d7938c015"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/extra_regression_result_r04.json",
+      "bytes": 1283,
+      "sha256": "a269e82706875491bf70f2643cd6938ae1d60723fe1eccc7f997ae61a7b25877"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/runtime_config_regression_result_r06.json",
+      "bytes": 3084,
+      "sha256": "98336c457b555ebb7d006043e15a80280d2c76049f8a3039efa1074a73e2f9cf"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/selftest_result_r04.json",
+      "bytes": 3371,
+      "sha256": "99fb8c0028146ad85a369e89851ae00f6d418dbff8bc62d6693c0a3938673fb6"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/exact_guard_smoke_result_r04.json",
+      "bytes": 8510,
+      "sha256": "c605f46ad4d5c90c79ab65b494a7090694f9ddafbd91d824b5f6a0dfff420dc7"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/native_prepare_pending_r05.result.json",
+      "bytes": 1373,
+      "sha256": "4a8641d5890b355187d0de3b4db68895cde893a3d755553724aa4e88840e43f0"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/native_prepare_pending_r04.stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/native_prepare_pending_r04.stderr.bin",
+      "bytes": 1007,
+      "sha256": "144d1baecdf1e38dae511d634cb7cce76f22f0ba31e9b053ea5be9f82813f469"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_evidence_hash_summary_r04.json",
+      "bytes": 2966,
+      "sha256": "3e775eb1f6302f55bc0f9e4208ff8cbf25a635c0ff26540bbe0ee7e04e97ee83"
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_evidence_hash_summary_r05.json",
+      "bytes": 5951,
+      "sha256": "70db02700ec1146e162d84d6268ccfc26ecb47823d6f7d40cccd3d1f0889f8fc"
+    }
+  ],
+  "limitations": [
+    "独立 G2 复审尚未完成；本记录仅绑定 G1 候选验证，不代表正式工具包已批准。",
+    "符号链接创建在本机因 WinError 1314 不可用；junction reparse 场景已实测拒绝。",
+    "r04 复制保留了 r03 的无效 native_prepare_pending_r03.result.json 原字节，未修写；严格解析发现它是唯一无效 JSON。",
+    "生产 prepare 因待补 S15 pins 按预期退出 1；未启动 Vivado。",
+    "r05 哈希摘要为初始记录，解析状态由本 r06 摘要更新；r06 是最终索引。"
+  ]
+}

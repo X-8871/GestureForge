@@ -1,0 +1,92 @@
+{
+  "status": "PASS_G1_CONFIG_GUARD_ONLY",
+  "cases": [
+    {
+      "case": "fixed_vitis_executable_path_and_sha",
+      "status": "PASS",
+      "result": {
+        "path": "D:\\Xilinx\\2026.1\\tps\\win64\\python-3.13.0\\python.exe",
+        "sha256": "d289b7527fe1a1e18a64da085ab50d319bcbba92ab1d58fa0ac073a1c240fc75",
+        "bytes": 91136
+      }
+    },
+    {
+      "case": "capture_accepts_only_approved_vitis_interpreter",
+      "status": "PASS",
+      "result": [
+        {
+          "path": "D:\\Xilinx\\2026.1\\tps\\win64\\python-3.13.0\\python.exe",
+          "sha256": "d289b7527fe1a1e18a64da085ab50d319bcbba92ab1d58fa0ac073a1c240fc75",
+          "bytes": 91136
+        },
+        {
+          "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/runtime_pins_synth_r50.json",
+          "sha256": "d6a8e4ba783d1670ea80be281f89ca5cb3aeaa41bf0ea83e01a5a01e1ca3aa9a",
+          "bytes": 1598
+        }
+      ]
+    },
+    {
+      "case": "approved_interpreter_config_loads_then_source_stays_fail_closed",
+      "status": "PASS",
+      "native_exit_code": 0
+    },
+    {
+      "case": "runtime_config_rejects_unapproved_interpreter_path",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置NATIVE_PYTHON与固定Vitis路径不同"
+    },
+    {
+      "case": "runtime_config_rejects_unapproved_interpreter_sha",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置NATIVE_PYTHON_SHA256与固定Vitis散列不同"
+    },
+    {
+      "case": "runtime_config_rejects_threshold_override",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置字段缺失或超出白名单"
+    },
+    {
+      "case": "runtime_config_rejects_dotdot_path_alias",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置路径不能含点路径"
+    },
+    {
+      "case": "capture_rejects_unapproved_executable_path",
+      "status": "PASS_REJECTED",
+      "exception": "ValueError",
+      "expected": "NATIVE_PYTHON路径不在固定白名单"
+    },
+    {
+      "case": "pin_rejects_unapproved_executable_sha",
+      "status": "PASS_REJECTED",
+      "exception": "ValueError",
+      "expected": "NATIVE_PYTHON_SHA256不在固定白名单"
+    },
+    {
+      "case": "selector_rejects_raw_dot_alias",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置选择器不是本目录精确新版本文件"
+    },
+    {
+      "case": "selector_rejects_raw_dotdot_alias",
+      "status": "PASS_REJECTED",
+      "native_exit_code": 1,
+      "expected": "配置选择器不是本目录精确新版本文件"
+    }
+  ],
+  "runtime_config_path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/runtime_pins_synth_r50.json",
+  "native_python": {
+    "path": "D:\\Xilinx\\2026.1\\tps\\win64\\python-3.13.0\\python.exe",
+    "sha256": "d289b7527fe1a1e18a64da085ab50d319bcbba92ab1d58fa0ac073a1c240fc75",
+    "bytes": 91136
+  },
+  "limitations": [
+    "只验证候选配置与解释器路径守卫；SOURCE/G2仍待冻结，未启动Vivado。"
+  ]
+}

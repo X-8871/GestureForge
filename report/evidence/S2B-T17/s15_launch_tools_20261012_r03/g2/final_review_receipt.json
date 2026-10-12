@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "PASS_TOOL_G2_ONLY",
+  "created_at_utc8": "2026-10-12T20:50:20+08:00",
+  "baseline_commit": "4c650440961cb801f9c68d72eb3cdbc602aa70be",
+  "review_scope": "独立审查 r04 隔离候选能否作为新的 S15 正式工具包；不批准生产 prepare、Vivado、资源准入、bitgen 或板级验收。",
+  "independent_reviewer": "/root/exact_guard_candidate_reviewer",
+  "reviewed_candidate": {
+    "path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04",
+    "tool_manifest_path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_tool_pins_r04.json",
+    "tool_manifest_sha256": "a93d499f078c02467c57abf4df1ab912824f3191264b80419d6925560eefd860",
+    "evidence_index_path": "tmp/2B/S2B-T17/s15_exact_guard_20261012_r04/candidate_evidence_hash_summary_r06.json",
+    "evidence_index_sha256": "b0e93c9ec1e4ce8c63fba2338ac8c82347b1955379127738b5a9c278df37779f",
+    "tool_count": 13,
+    "changed_tool_count": 6,
+    "unchanged_tool_count": 7
+  },
+  "formal_copy": {
+    "path": "report/evidence/S2B-T17/s15_launch_tools_20261012_r03/tools",
+    "copy_check": "13/13 copied tool SHA256 values equal the reviewed candidate manifest"
+  },
+  "runtime_interpreter": {
+    "path": "D:\\Xilinx\\2026.1\\tps\\win64\\python-3.13.0\\python.exe",
+    "sha256": "d289b7527fe1a1e18a64da085ab50d319bcbba92ab1d58fa0ac073a1c240fc75"
+  },
+  "independent_checks": [
+    "13/13 candidate and formal baseline tool hashes match the manifest; declared change set matches.",
+    "13/13 evidence index artifact sizes and hashes match.",
+    "Both exact-path APIs reject raw dot and dot-dot components before Path normalization; canonical paths pass.",
+    "UNC, device namespace, drive-relative, root-relative, wildcard and junction reparse paths fail closed.",
+    "Win32 path API handle fallback passes an accessible canonical leaf and rejects wrong case and junctions; inaccessible C:\\Users fallback returns access denied and fails closed.",
+    "Interpreter path and SHA are fixed; config tests reject replacement and resource-threshold overrides.",
+    "DETACHED_PROCESS retains explicit stdout/stderr redirection; supervisor, guard and resource thresholds are unchanged."
+  ],
+  "g1_results": {
+    "py_compile": "PASS",
+    "core_regression": {"status": "PASS_G1_ONLY", "cases": 32},
+    "extra_regression": {"status": "PASS_G1_ONLY", "cases": 11},
+    "runtime_config_interpreter_regression": {"status": "PASS_G1_CONFIG_GUARD_ONLY", "cases": 11},
+    "selftest": {"status": "PASS_G1_ONLY", "cases": 24},
+    "exact_path_smoke": {"status": "PASS_G1_EXPERIMENT_ONLY", "cases": 30}
+  },
+  "production_prepare_probe": {
+    "status": "PENDING_INPUTS_FAIL_CLOSED",
+    "native_exit_code": 1,
+    "capture_outputs_created": false,
+    "vivado_started": false
+  },
+  "findings": [],
+  "limitations": [
+    "Windows symlink creation was unavailable with WinError 1314; junction reparse points were tested and rejected.",
+    "POSIX path behavior was not validated.",
+    "One malformed JSON inherited from the prior r03 failed experiment is preserved byte-for-byte; the replacement r04 result and final evidence index are valid and hash-bound.",
+    "Continuous OS process-tree/resource monitoring, Vivado bitgen, XSA/Vitis application package and board tests remain unrun."
+  ]
+}

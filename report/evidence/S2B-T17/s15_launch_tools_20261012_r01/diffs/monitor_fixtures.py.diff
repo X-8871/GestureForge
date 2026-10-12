@@ -1,0 +1,21 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\monitor_fixtures.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\monitor_fixtures.py
+@@ -121,15 +121,15 @@
+ 
+ 
+ def native_canary():
+-    directory = W/"native_consumer_canary_r03"; directory.mkdir()
++    directory = W/"native_consumer_canary_r05"; directory.mkdir()
+     owned = []; handles = []; logs = []
+     def launch(argv, name):
+         so = (directory/(name+".stdout.bin")).open("xb"); se = (directory/(name+".stderr.bin")).open("xb"); logs.extend([so, se])
+-        child = subprocess.Popen(argv, cwd=W, stdout=so, stderr=se)
++        child = subprocess.Popen(argv, cwd=W, stdout=so, stderr=se, creationflags=subprocess.DETACHED_PROCESS)
+         handles.append(child); owned.append(supervisor.identity(child.pid)); return child
+     try:
+         root_child = launch([sys.executable, "-X", "utf8", "-B", "-c", "import time; time.sleep(40)"], "root")
+-        binding = dict(owned[-1], allowed_run_dirs=[str(W)], fixture_test=True, source_commit="467463757158aed80d6f75afadff6a8458614a29", run_id="s14_native_consumer_fixture", max_seconds=35)
++        binding = dict(owned[-1], allowed_run_dirs=[str(W)], fixture_test=True, source_commit="467463757158aed80d6f75afadff6a8458614a29", run_id="s15_native_consumer_fixture", max_seconds=35)
+         write(directory/"binding.json", binding); write(directory/"plan.json", consumer.LIMITS)
+         sup_child = launch([sys.executable, "-X", "utf8", "-B", str(W/"fixture_supervision.py"), str(directory)], "supervisor")
+         deadline = time.monotonic()+8

@@ -1,0 +1,13 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\native.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\native.py
+@@ -8,8 +8,8 @@
+ 
+ parser = argparse.ArgumentParser(); parser.add_argument("--prefix", required=True); parser.add_argument("arguments", nargs=argparse.REMAINDER)
+ args = parser.parse_args()
+-if not re.fullmatch(r"s14_[A-Za-z0-9_]+", args.prefix):
+-    raise ValueError("prefix必须为精确安全s14_标识符")
++if not re.fullmatch(r"s15_runtime_[A-Za-z0-9_]+", args.prefix):
++    raise ValueError("prefix必须为本轮实际包装专用s15_runtime_标识符")
+ arguments = args.arguments[1:] if args.arguments and args.arguments[0] == "--" else args.arguments
+ if not arguments or arguments[0] not in ("prepare", "source", "collect", "seal"):
+     raise ValueError("只能包装轻量collector模式")

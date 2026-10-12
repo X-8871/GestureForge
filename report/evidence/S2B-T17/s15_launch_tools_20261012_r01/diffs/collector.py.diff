@@ -1,0 +1,191 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\collector.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\collector.py
+@@ -1,4 +1,4 @@
+-"""S14轻量准备、源码核验及关闭后证据收集；不调用Vivado或硬件。"""
++"""S15轻量准备、源码核验及关闭后证据收集；不调用Vivado或硬件。"""
+ from __future__ import annotations
+ 
+ import argparse
+@@ -114,11 +114,11 @@
+     compat_pins.require_ready()
+     require(sha(FREEZE)==FREEZE_SHA,"G1 freeze原字节不同")
+     freeze=read(FREEZE); require_pinned_commit(freeze.get("source_commit")); rows=freeze["source_files"]
+-    require(freeze["profile"]=="s2b-inference-platform/0.1.14" and len(rows)==len({r["path"] for r in rows}),"freeze版本或路径重复")
++    require(freeze["profile"]=="s2b-inference-platform/0.1.15" and len(rows)==len({r["path"] for r in rows}),"freeze版本或路径重复")
+     hashes={r["path"]:r["sha256"] for r in rows}
+     require(bool(hashes) and "verification/test_s2b_conv_tile_origin_rtl.py" in hashes,"本轮冻结集合为空或遗漏S13真实runner")
+     require(len(freeze["frozen14"])==14 and set(freeze["frozen14"])<=set(hashes),"原14声明错误")
+-    spec=importlib.util.spec_from_file_location("s14_platform_checker",exact(ROOT/"verification/check_s2b_inference_platform.py"))
++    spec=importlib.util.spec_from_file_location("s15_platform_checker",exact(ROOT/"verification/check_s2b_inference_platform.py"))
+     checker=importlib.util.module_from_spec(spec); spec.loader.exec_module(checker)
+     static=checker.check_static(ROOT)
+     require(bool(static),"本轮实际static闭包为空")
+@@ -126,6 +126,7 @@
+     require(freeze["frozen14"]==checker.FROZEN_CORE_SHA256,"原14固定SHA不同")
+     for name,expected in hashes.items(): require(sha(ROOT/name)==expected,"已审源漂移："+name)
+     profile=read(ROOT/"board/s2b_inference_platform.json")
++    require(profile["version"]==freeze["profile"],"实际profile与本轮冻结不同")
+     require(profile["rtl_sources"]==freeze["active_rtl_sources"] and len(profile["rtl_sources"])==18,"实际18RTL闭包不同")
+     require(len(profile["source_derivation"]["derived_sources"])==8 and profile["clock_hz"]==50000000 and profile["visibility_default"]==0,"8派生/50MHz/visibility0不同")
+     return freeze,hashes,static,profile
+@@ -202,6 +203,41 @@
+     return dict(client_timeout_or_error=False,client_running_handoff=False,client_exit_code=code)
+ 
+ 
++def manifest_identifier(row):
++    """仅转换清单相对标识符；真实文件系统路径仍由exact逐组件核验。"""
++    require(type(row) is dict and type(row.get("path")) is str,"清单绑定格式不同")
++    name=row["path"]
++    require(not name.startswith(("/", "\\")) and ":" not in name,"清单标识符不得为绝对路径")
++    parts=re.split(r"[/\\]",name)
++    require(all(p not in ("", ".", "..") for p in parts),"清单标识符含空段或相对跳转")
++    return dict(row,path="/".join(parts))
++
++
++def runtime_native_records(gate):
++    """实际包装逐项显式列举；拒绝旧G1记录混收及未知schema。"""
++    declarations=gate.get("native_wrappers")
++    require(type(declarations) is list and bool(declarations),"关闭门禁缺显式native_wrappers")
++    require(len(declarations)==len({r["path"] for r in declarations}),"实际包装声明重复")
++    result=[]
++    for row in declarations:
++        path=exact(ROOT/row["path"])
++        require(path.parent==CACHE and re.fullmatch(r"s15_runtime_[A-Za-z0-9_]+\.native\.json",path.name),"实际包装路径或prefix不同")
++        require(binding(path)==row,"实际包装原件漂移")
++        record=read(path)
++        require(type(record) is dict and record.get("mode") in ("prepare","source","collect","seal"),"实际包装缺mode或schema未知")
++        require(type(record.get("prefix")) is str and path.name==record["prefix"]+".native.json","实际包装prefix绑定不同")
++        require(type(record.get("native_exit_code")) is int and type(record.get("command")) is list,"实际包装原生命令或退出码未知")
++        require(record.get("direct_child_wait_returned") is True and type(record.get("closed_logs")) is list and len(record["closed_logs"])==2,"实际包装未直接wait闭合")
++        require(record["command"][:6]==[sys.executable,"-X","utf8","-B",str(WORK/"collector.py"),record["mode"]],"实际包装命令与mode/工具不同")
++        require(record["closed_logs"]==[record.get("stdout"),record.get("stderr")],"实际包装闭合流字段不一致")
++        for log in record["closed_logs"]:
++            log_path=exact(ROOT/log["path"])
++            require(log_path.parent==CACHE and log_path.name in (record['prefix']+'.stdout.bin',record['prefix']+'.stderr.bin'),"实际包装流路径或prefix不同")
++            require(binding(ROOT/log["path"])==log,"实际包装闭合日志漂移")
++        result.append((path,record))
++    return result
++
++
+ def closed_gate(path,commit):
+     """ROOT显式关闭声明与全部被声明原件按字节核验。"""
+     compat_pins.require_ready()
+@@ -212,7 +248,9 @@
+     for key in ("preparation_receipt","source_before","source_after","static_source_closed","immutable_session_log","mcp_history","runtime_config"):
+         row=gate[key]; require(binding(ROOT/row["path"])==row,"闭合原件漂移："+key)
+     for key in ("design_mcp_records","additional_closed_files","approved_evidence"):
+-        for row in gate.get(key,[]):
++        rows=[manifest_identifier(r) for r in gate.get(key,[])] if key=="approved_evidence" else gate.get(key,[])
++        if key=="approved_evidence": gate[key]=rows
++        for row in rows:
+             actual=binding(ROOT/row["path"])
+             require(all(actual[k]==row[k] for k in actual),"声明原件漂移："+row["path"])
+     require(sha(FREEZE)==FREEZE_SHA,"freeze漂移")
+@@ -250,12 +288,12 @@
+         require({r["path"]:r["sha256"] for r in record["source_files"]}==hashes,"前后source_files集合不同")
+         for row in record["source_files"]: require(sha(ROOT/row["snapshot"])==row["sha256"],"源码快照漂移")
+     profile=read(ROOT/next(r["snapshot"] for r in after["source_files"] if r["path"]=="board/s2b_inference_platform.json"))
+-    require(profile["version"]=="s2b-inference-platform/0.1.14" and profile["clock_hz"]==50000000 and profile["visibility_default"]==0,"实际profile不同")
++    require(profile["version"]=="s2b-inference-platform/0.1.15" and profile["clock_hz"]==50000000 and profile["visibility_default"]==0,"实际profile不同")
+     initial=[binding(p) for p in sorted(REPORT.rglob("*")) if p.is_file()]
+-    save(REPORT/"s14_original_inventory.json",dict(files=initial))
++    save(REPORT/"s15_original_inventory.json",dict(files=initial))
+     code=fresh(REPORT/"collector_code",directory=True)
+     for path in (WORK/"collector.py",WORK/"native.py",WORK/"compat_pins.py",compat_pins.RUNTIME_CONFIG,ROOT/gate["preparation_receipt"]["path"],CLASSIFIER): rawcopy(path,code/path.name)
+-    for path in sorted(WORK.glob("s14_preparation_r01.*")): rawcopy(path,code/path.name)
++    for path in sorted(WORK.glob("s15_preparation_r01.*")): rawcopy(path,code/path.name)
+     require(sha(CLASSIFIER)==CLASSIFIER_SHA,"classifier原字节漂移")
+     closed=fresh(REPORT/"mcp_closed",directory=True); copied={}
+     declarations=[gate[k] for k in ("source_before","source_after","static_source_closed","immutable_session_log","mcp_history")]+gate["design_mcp_records"]+gate.get("additional_closed_files",[])
+@@ -283,7 +321,7 @@
+     mappings=[]; jobs=[]
+     allowed=(".tcl",".log",".jou",".vds",".xdc",".rpt",".rst",".js",".sh",".bat",".xml")
+     for directory in directories:
+-        target=fresh(native/("wrapper_native_s14_r01" if directory.name=="synth_1" else directory.name),directory=True)
++        target=fresh(native/("wrapper_native_s15_r01" if directory.name=="synth_1" else directory.name),directory=True)
+         log=exact(directory/"runme.log").read_text(encoding="utf-8")
+         require("synth_design completed successfully" in log and "0 Critical Warnings and 0 Errors encountered" in log,"native日志不是成功结束")
+         require((directory/"__synthesis_is_complete__").is_file() and (directory/".vivado.end.rst").is_file() and not (directory/".vivado.error.rst").exists(),"native结束marker不同")
+@@ -305,7 +343,7 @@
+     wrapper=exact(PROJECT/"s2b_inference_candidate.srcs/sources_1/imports/hdl/s2b_inference_wrapper.v")
+     require(sha(wrapper)==sha(genroot/"hdl/s2b_inference_wrapper.v"),"唯一wrapper字节不同")
+     for p in (wrapper,genroot/"synth/s2b_inference.v",genroot/"ip/s2b_inference_infer_0/synth/s2b_inference_infer_0.sv"): mappings.append(rawcopy(p,generated/p.name))
+-    require(wrapper.as_posix() in (native/"wrapper_native_s14_r01/s2b_inference_wrapper.tcl").read_text(encoding="utf-8"),"原生wrapper不是已登记唯一import对象")
++    require(wrapper.as_posix() in (native/"wrapper_native_s15_r01/s2b_inference_wrapper.tcl").read_text(encoding="utf-8"),"原生wrapper不是已登记唯一import对象")
+     require("wrapper "+wrapper.as_posix()+" top s2b_inference_wrapper" in exact(REPORT/"setup_synthesis.tcldict").read_text(encoding="utf-8"),"setup唯一importwrapper记录不同")
+     xsa=exact(REPORT/"s2b_inference_no_bit.xsa"); oldxsa=exact(ROOT/"report/evidence/S2B-T13/artifact_recheck_20261011_r01/s2b_inference_no_bit.xsa")
+     members=[]
+@@ -326,42 +364,41 @@
+     products=exact(REPORT/"products.tcldict").read_text(encoding="utf-8")
+     products_native=int(first(r"\bcode (\d+)\b",products)); products_capture=1 if "status FAIL" in products else 0 if "status OK" in products else None
+     require(products_capture is not None,"products capture状态缺失")
+-    save(REPORT/"s14_source_binding.json",dict(source_commit=commit,source_count=len(hashes),static_count=len(static["source_sha256"]),extra_paths=sorted(set(hashes)-set(static["source_sha256"])),before=gate["source_before"],after=gate["source_after"],freeze=binding(FREEZE),frozen14=freeze["frozen14"],compiled_rtl=compiled,git_raw_count=sum(r["git_relation"]=="RAW_IDENTICAL" for r in after["source_files"]),git_exact_eol_count=sum(r["git_relation"]=="GIT_LF_TO_RAW_CRLF" for r in after["source_files"])))
+-    save(REPORT/"s14_native_mapping.json",dict(files=mappings,jobs=jobs,compiled_rtl=compiled,native_job_count=5,native_vds_count=5,generated_xdc_count=len(constraints),cache_excluded="不复制EXE/obj/DCP/PB/WDF/cache；生成目录改用generated_inputs/native_jobs。"))
+-    save(REPORT/"s14_mcp_binding.json",dict(paired_calls=paired,design_execute_calls=len(paired),products_native_exit_code=products_native,products_capture_exit_code=products_capture,products_warning_before=re.findall(r"native_counts_before \{WARNING (\d+)",products),products_warning_after=re.findall(r"native_counts_after \{WARNING (\d+)",products),products_repeated=False,all_host_tool_calls=None))
+-    save(REPORT/"s14_xsa_comparison.json",dict(old_xsa=binding(oldxsa),new_xsa=binding(xsa),members=members,six_psinit_equal=all(r["raw_equal"] for r in members[:6]),hwh_raw_equal=members[6]["raw_equal"],runtime_elf_bsp_compatibility="NOT_APPROVED",hardware="NOT_RUN"))
+-    command=[sys.executable,"-X","utf8","-B",str(CLASSIFIER),"--report",str(REPORT/"timing_summary_synth.rpt"),"--result",str(REPORT/"s14_sta_result.json")]
++    save(REPORT/"s15_source_binding.json",dict(source_commit=commit,source_count=len(hashes),static_count=len(static["source_sha256"]),extra_paths=sorted(set(hashes)-set(static["source_sha256"])),before=gate["source_before"],after=gate["source_after"],freeze=binding(FREEZE),frozen14=freeze["frozen14"],compiled_rtl=compiled,git_raw_count=sum(r["git_relation"]=="RAW_IDENTICAL" for r in after["source_files"]),git_exact_eol_count=sum(r["git_relation"]=="GIT_LF_TO_RAW_CRLF" for r in after["source_files"])))
++    save(REPORT/"s15_native_mapping.json",dict(files=mappings,jobs=jobs,compiled_rtl=compiled,native_job_count=5,native_vds_count=5,generated_xdc_count=len(constraints),cache_excluded="不复制EXE/obj/DCP/PB/WDF/cache；生成目录改用generated_inputs/native_jobs。"))
++    save(REPORT/"s15_mcp_binding.json",dict(paired_calls=paired,design_execute_calls=len(paired),products_native_exit_code=products_native,products_capture_exit_code=products_capture,products_warning_before=re.findall(r"native_counts_before \{WARNING (\d+)",products),products_warning_after=re.findall(r"native_counts_after \{WARNING (\d+)",products),products_repeated=False,all_host_tool_calls=None))
++    save(REPORT/"s15_xsa_comparison.json",dict(old_xsa=binding(oldxsa),new_xsa=binding(xsa),members=members,six_psinit_equal=all(r["raw_equal"] for r in members[:6]),hwh_raw_equal=members[6]["raw_equal"],runtime_elf_bsp_compatibility="NOT_APPROVED",hardware="NOT_RUN"))
++    command=[sys.executable,"-X","utf8","-B",str(CLASSIFIER),"--report",str(REPORT/"timing_summary_synth.rpt"),"--result",str(REPORT/"s15_sta_result.json")]
+     result=subprocess.run(command,cwd=ROOT,capture_output=True,timeout=45)
+     for suffix,data in (("stdout.log",result.stdout),("stderr.log",result.stderr)):
+-        with fresh(REPORT/("s14_sta_classifier."+suffix)).open("xb") as stream: stream.write(data)
+-    save(REPORT/"s14_sta_classifier.native.json",dict(command=command,windows_command=subprocess.list2cmdline(command),native_exit_code=result.returncode,classifier=binding(CLASSIFIER),peak_memory_bytes=None))
++        with fresh(REPORT/("s15_sta_classifier."+suffix)).open("xb") as stream: stream.write(data)
++    save(REPORT/"s15_sta_classifier.native.json",dict(command=command,windows_command=subprocess.list2cmdline(command),native_exit_code=result.returncode,classifier=binding(CLASSIFIER),peak_memory_bytes=None))
+     require(result.returncode in (0,2),"STA输入解析失败；原件保留")
+-    sta=read(REPORT/"s14_sta_result.json"); require(sta["native_exit_code"]==result.returncode,"STA原生码不同")
++    sta=read(REPORT/"s15_sta_result.json"); require(sta["native_exit_code"]==result.returncode,"STA原生码不同")
+     xdc=exact(REPORT/"constraints_synth.xdc").read_text(encoding="utf-8")
+     require("create_clock -period 20.000 -name clk_fpga_0" in xdc,"实际约束不是50MHz")
+     falsepaths=re.findall(r"current_instance ([^\r\n]+)\r?\n(set_false_path[^\r\n]+)",xdc)
+     require(len(falsepaths)==2 and all("rst_fclk0/U0/EXT_LPF/" in scope and "syncstages_ff_reg[0]" in command for scope,command in falsepaths),"实际新增或改变时序例外")
+-    save(REPORT/"s14_constraints_binding.json",dict(clock=sta["clock"],check_timing=sta["check_timing"],exported_false_paths=[dict(scope=s,command=c) for s,c in falsepaths],false_path_count=len(falsepaths),exceptions_report=binding(REPORT/"exceptions_synth.rpt")))
++    save(REPORT/"s15_constraints_binding.json",dict(clock=sta["clock"],check_timing=sta["check_timing"],exported_false_paths=[dict(scope=s,command=c) for s,c in falsepaths],false_path_count=len(falsepaths),exceptions_report=binding(REPORT/"exceptions_synth.rpt")))
+     util=exact(REPORT/"utilization_flat_synth.rpt").read_text(encoding="utf-8")
+     resources={key:float(first(r"^\|\s*"+re.escape(label)+r"\s*\|\s*(\d+(?:\.\d+)?)\s*\|",util)) for key,label in (("lut","Slice LUTs*"),("ff","Slice Registers"),("bram","Block RAM Tile"),("dsp","DSPs"),("latch","Register as Latch"))}
+     worst=exact(REPORT/"timing_worst_synth.rpt").read_text(encoding="utf-8")
+     path=dict(source=first(r"^\s*Source:\s*(\S+)",worst),destination=first(r"^\s*Destination:\s*(\S+)",worst),logic_levels=first(r"^\s*Logic Levels:\s*(.+)",worst),data_path_delay_ns=float(first(r"^\s*Data Path Delay:\s*([\d.]+)ns",worst)),speed_file=first(r"^\| Speed File\s*:\s*(.+)",worst))
+     for row in initial: require(binding(ROOT/row["path"])==row,"ROOT原件在收集时漂移")
+-    save(REPORT/"s14_collection_summary.json",dict(status="COLLECTED_S14_"+sta["status"]+"_PENDING_INDEPENDENT_REVIEW",source_commit=commit,profile=profile["version"],source_count=len(hashes),static_count=len(static["source_sha256"]),active_rtl_count=18,original_raw_inventory=initial,closed_input_mapping=list(copied.values()),timing=sta,resources=resources,worst_path=path,native_jobs=jobs,products_native_exit_code=products_native,products_capture_exit_code=products_capture,sta_native_exit_code=result.returncode,root_gate=binding(gate_path),independent_review="NOT_RUN",implementation="NOT_RUN",postroute="NOT_RUN",hardware="NOT_RUN",limitations=["仅实际综合态STA，不代表-1/postroute或G3；精确speed_file保留。","products native/capture与客户端/nativewait分开，不重跑products或重复登记wrapper。","原生五任务OS退出码未捕获为null；日志与marker不是OS返回码。","单进程日志峰不是进程树峰，未取得字段为null。","六PSinit与HWH按实际字节关系报告，不继承旧ELF/BSP兼容批准。"] ))
+-    print(json.dumps(dict(status="COLLECTED_S14",sta=sta["status"],native_classifier_exit_code=result.returncode,source_count=len(hashes),static_count=len(static["source_sha256"])),ensure_ascii=False))
++    save(REPORT/"s15_collection_summary.json",dict(status="COLLECTED_S15_"+sta["status"]+"_PENDING_INDEPENDENT_REVIEW",source_commit=commit,profile=profile["version"],source_count=len(hashes),static_count=len(static["source_sha256"]),active_rtl_count=18,original_raw_inventory=initial,closed_input_mapping=list(copied.values()),timing=sta,resources=resources,worst_path=path,native_jobs=jobs,products_native_exit_code=products_native,products_capture_exit_code=products_capture,sta_native_exit_code=result.returncode,root_gate=binding(gate_path),independent_review="NOT_RUN",implementation="NOT_RUN",postroute="NOT_RUN",hardware="NOT_RUN",limitations=["仅实际综合态STA，不代表-1/postroute或G3；精确speed_file保留。","products native/capture与客户端/nativewait分开，不重跑products或重复登记wrapper。","原生五任务OS退出码未捕获为null；日志与marker不是OS返回码。","单进程日志峰不是进程树峰，未取得字段为null。","六PSinit与HWH按实际字节关系报告，不继承旧ELF/BSP兼容批准。"] ))
++    print(json.dumps(dict(status="COLLECTED_S15",sta=sta["status"],native_classifier_exit_code=result.returncode,source_count=len(hashes),static_count=len(static["source_sha256"])),ensure_ascii=False))
+ 
+ 
+ def seal(commit,gate_path):
+     """只封包已闭合结果；不伪造当前collector或审查成功码。"""
+     compat_pins.require_ready()
+     require_pinned_commit(commit)
+-    gate=closed_gate(gate_path,commit); summary=read(REPORT/"s14_collection_summary.json")
++    gate=closed_gate(gate_path,commit); summary=read(REPORT/"s15_collection_summary.json")
+     require(summary["source_commit"]==commit,"封包基线不同")
+     profile_version=read(FREEZE)["profile"]
+-    require(profile_version=="s2b-inference-platform/0.1.14","封包实际冻结profile不同")
++    require(profile_version=="s2b-inference-platform/0.1.15","封包实际冻结profile不同")
+     native_dir=fresh(REPORT/"native_closed",directory=True); native_records=[]
+-    for path in sorted(CACHE.glob("s14_*.native.json")):
+-        record=read(path); require("native_exit_code" in record and "command" in record,"原生包装schema不同")
++    for path,record in runtime_native_records(gate):
+         native_records.append(record); rawcopy(path,native_dir/path.name)
+         for row in record.get("closed_logs",[]): rawcopy(ROOT/row["path"],native_dir/Path(row["path"]).name)
+     require(any(r.get("mode")=="collect" and r["native_exit_code"]==0 for r in native_records),"collect原生包装尚未闭合或失败")
+@@ -383,13 +420,13 @@
+     checks=[]
+     for record in native_records:
+         checks.append(dict(name="实际原生包装："+record["mode"]+":"+record["prefix"],status="PASS" if record["native_exit_code"]==0 else "FAIL",command=subprocess.list2cmdline(record["command"]),exit_code=record["native_exit_code"],reason="真实子进程返回码；不代表G2或板上批准。"))
+-    classifier=read(REPORT/"s14_sta_classifier.native.json")
++    classifier=read(REPORT/"s15_sta_classifier.native.json")
+     checks.append(dict(name="50MHz综合态STA分类",status="PASS" if classifier["native_exit_code"]==0 else "FAIL",command=classifier["windows_command"],exit_code=classifier["native_exit_code"],reason=summary["timing"]["status"]))
+     for name in ("独立实际证据审查","实现及postroute","G3板上cache/模型/109/1000任务"):
+         checks.append(dict(name=name,status="NOT_RUN",command=None,exit_code=None,reason="collector只归档原件，此项尚未执行。"))
+     manifest=dict(schema_version=1,stage="2B",task_id="S2B-T17",run_id=REPORT.name,source_commit=commit,evidence_dir=rel(REPORT),interfaces=interfaces,tool_versions=dict(python=sys.version,Vivado="实际原生日志版本；未运行新版本查询",profile=profile_version),files=files,checks=checks,limitations=summary["limitations"])
+-    save(REPORT/"s14_delivery_manifest.json",manifest)
+-    print(json.dumps(dict(status="SEALED_ONLY_NOT_APPROVED",manifest=binding(REPORT/"s14_delivery_manifest.json"),next_command=[sys.executable,"-X","utf8","-B",str(ROOT/"verification/check_stage_delivery.py"),"--mode","evidence","--manifest",str(REPORT/"s14_delivery_manifest.json")]),ensure_ascii=False))
++    save(REPORT/"s15_delivery_manifest.json",manifest)
++    print(json.dumps(dict(status="SEALED_ONLY_NOT_APPROVED",manifest=binding(REPORT/"s15_delivery_manifest.json"),next_command=[sys.executable,"-X","utf8","-B",str(ROOT/"verification/check_stage_delivery.py"),"--mode","evidence","--manifest",str(REPORT/"s15_delivery_manifest.json")]),ensure_ascii=False))
+ 
+ 
+ def main():

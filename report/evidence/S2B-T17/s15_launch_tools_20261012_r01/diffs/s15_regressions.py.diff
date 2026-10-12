@@ -1,0 +1,90 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\s14_regressions.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\s15_regressions.py
+@@ -1,4 +1,4 @@
+-"""S14三处修复的纯模拟及自有轻量原生记录回归，不读取设备或生产源。"""
++"""S15三处修复的纯模拟及自有轻量原生记录回归，不读取设备或生产源。"""
+ import contextlib
+ import copy
+ import hashlib
+@@ -17,7 +17,7 @@
+ import collector as c
+ import native_capture
+ 
+-W=Path(__file__).parent;RUN=sys.argv[1] if len(sys.argv)>1 else 'r01';F=W/('s14_fixtures_'+RUN);F.mkdir()
++W=Path(__file__).parent;RUN=sys.argv[1] if len(sys.argv)>1 else 'r01';F=W/('s15_fixtures_'+RUN);F.mkdir()
+ ROWS=[]
+ def save(path,value):
+     with path.open('x',encoding='utf-8',newline='\n') as stream:json.dump(value,stream,ensure_ascii=False,indent=2);stream.write('\n')
+@@ -121,42 +121,49 @@
+             except SystemExit as exc:self.assertEqual(exc.code,0)
+         return captured
+     def test_prefix_strict_and_mode_metadata(self):
+-        for name in ('s12_bad','s13_bad','s14-bad','s14_','S14_bad'):
++        for name in ('s12_bad','s13_bad','s14-bad','s15_','S15_bad'):
+             with self.assertRaises(ValueError):self.run_native(name)
+         for mode in ('prepare','source','collect','seal'):
+-            self.assertEqual(self.run_native('s14_positive',mode),[dict(metadata=dict(mode=mode,prefix='s14_positive'))])
++            self.assertEqual(self.run_native('s15_runtime_positive',mode),[dict(metadata=dict(mode=mode,prefix='s15_runtime_positive'))])
+     def test_cache_mismatch_before_capture(self):
+-        with self.assertRaisesRegex(ValueError,'CACHE相同'):self.run_native('s14_cache',cache=False)
++        with self.assertRaisesRegex(ValueError,'CACHE相同'):self.run_native('s15_runtime_cache',cache=False)
+     def test_metadata_cannot_override_native(self):
+         with patch.object(native_capture.subprocess,'Popen',side_effect=AssertionError('无效metadata不能启动')):
+-            with self.assertRaises(ValueError):native_capture.main(dict(mode='collect',prefix='s14_bad',native_exit_code=0))
++            with self.assertRaises(ValueError):native_capture.main(dict(mode='collect',prefix='s15_bad',native_exit_code=0))
+     def test_actual_native_metadata_canary(self):
+-        with patch.object(sys,'argv',['native_capture.py','s14_metadata_canary_'+RUN,sys.executable,'-X','utf8','-B','-c','print("仅自有轻量原生夹具")']):
+-            with contextlib.redirect_stdout(io.StringIO()):code=native_capture.main(dict(mode='collect',prefix='s14_metadata_canary'))
++        with patch.object(sys,'argv',['native_capture.py','s15_metadata_canary_'+RUN,sys.executable,'-X','utf8','-B','-c','print("仅自有轻量原生夹具")']):
++            with contextlib.redirect_stdout(io.StringIO()):code=native_capture.main(dict(mode='collect',prefix='s15_metadata_canary_'+RUN))
+         self.assertEqual(code,0)
+-        receipt=json.loads((W/('s14_metadata_canary_'+RUN+'.native.json')).read_text(encoding='utf-8'))
+-        self.assertEqual(receipt['mode'],'collect');self.assertEqual(receipt['prefix'],'s14_metadata_canary')
++        receipt=json.loads((W/('s15_metadata_canary_'+RUN+'.native.json')).read_text(encoding='utf-8'))
++        self.assertEqual(receipt['mode'],'collect');self.assertEqual(receipt['prefix'],'s15_metadata_canary_'+RUN)
+         self.assertEqual(receipt['closed_logs'],[receipt['stdout'],receipt['stderr']])
+         self.assertEqual(receipt['native_exit_code'],0)
+-    def test_mock_seal_consumes_s14_records_only(self):
++    def test_mock_seal_consumes_s15_records_only(self):
+         base=F/'seal';base.mkdir();report=base/'report';report.mkdir();cache=base/'cache';cache.mkdir()
+-        commit='b'*40;freeze=base/'freeze.json';save(freeze,dict(profile='s2b-inference-platform/0.1.14',source_commit=commit))
++        commit='b'*40;freeze=base/'freeze.json';save(freeze,dict(profile='s2b-inference-platform/0.1.15',source_commit=commit))
+         before=base/'before.json';after=base/'after.json'
+         for path in (before,after):save(path,dict(source_files=[],fixture_test=True))
+-        save(report/'s14_collection_summary.json',dict(source_commit=commit,limitations=['仅模拟收尾，不是实际执行'],timing=dict(status='SYNTHETIC_ONLY')))
+-        save(report/'s14_sta_classifier.native.json',dict(native_exit_code=0,windows_command='SYNTHETIC',fixture_test=True))
++        save(report/'s15_collection_summary.json',dict(source_commit=commit,limitations=['仅模拟收尾，不是实际执行'],timing=dict(status='SYNTHETIC_ONLY')))
++        save(report/'s15_sta_classifier.native.json',dict(native_exit_code=0,windows_command='SYNTHETIC',fixture_test=True))
++        declarations=[]
+         for label,mode,phase in [('collect','collect',None),('before','source','before'),('after','source','after')]:
+-            command=['SYNTHETIC','--commit',commit]+(['--phase',phase] if phase else [])
+-            save(cache/('s14_'+label+'.native.json'),dict(mode=mode,prefix='s14_'+label,native_exit_code=0,command=command,closed_logs=[],fixture_test=True))
++            command=[sys.executable,'-X','utf8','-B',str(W/'collector.py'),mode,'--commit',commit]+(['--phase',phase] if phase else [])
++            logs=[]
++            for suffix in ('stdout.bin','stderr.bin'):
++                log=cache/('s15_runtime_'+label+'.'+suffix);log.write_bytes(b'fixture\n');logs.append(c.binding(log))
++            path=cache/('s15_runtime_'+label+'.native.json')
++            save(path,dict(mode=mode,prefix='s15_runtime_'+label,native_exit_code=0,command=command,closed_logs=logs,stdout=logs[0],stderr=logs[1],direct_child_wait_returned=True,fixture_test=True))
++            declarations.append(c.binding(path))
+         save(cache/'s12_stale.native.json',dict(fixture_test=True,not_this_run=True))
+-        gate=dict(source_before=dict(path=before.relative_to(c.ROOT).as_posix()),source_after=dict(path=after.relative_to(c.ROOT).as_posix()),approved_evidence=[])
++        save(cache/'s15_g1_stale.native.json',dict(native_exit_code=0,command=['OLD_G1'],fixture_test=True))
++        gate=dict(source_before=dict(path=before.relative_to(c.ROOT).as_posix()),source_after=dict(path=after.relative_to(c.ROOT).as_posix()),approved_evidence=[],native_wrappers=declarations)
+         real_read=c.read
+         def read(path):
+             if path.name=='s7_collection_delivery_manifest_r03.json':return dict(interfaces=[])
+             return real_read(path)
+         with patch.object(pins,'require_ready'),patch.object(c,'require_pinned_commit'),patch.object(c,'closed_gate',return_value=gate),patch.object(c,'REPORT',report),patch.object(c,'CACHE',cache),patch.object(c,'FREEZE',freeze),patch.object(c,'read',side_effect=read),contextlib.redirect_stdout(io.StringIO()):
+             c.seal(commit,base/'NO_GATE_READ')
+-        manifest=json.loads((report/'s14_delivery_manifest.json').read_text(encoding='utf-8'))
++        manifest=json.loads((report/'s15_delivery_manifest.json').read_text(encoding='utf-8'))
+         self.assertEqual(len([r for r in manifest['checks'] if r['name'].startswith('实际原生包装：')]),3)
+         self.assertFalse((report/'native_closed/s12_stale.native.json').exists())
+         self.assertEqual(manifest['schema_version'],1)
+@@ -164,5 +171,5 @@
+ if __name__=='__main__':
+     suite=unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(cls) for cls in (FinalParent,Startup,NativeSeal)])
+     result=unittest.TextTestRunner(verbosity=2).run(suite)
+-    save(W/('s14_regression_result_'+RUN+'.json'),dict(status='PASS_G1_FIXTURE_ONLY' if result.wasSuccessful() else 'FAIL_PRESERVED',methods=result.testsRun,cases=ROWS,source_commit=None,actual_runtime='NOT_RUN',actual_source_freeze='NOT_RUN',vivado_ross_hardware=False))
++    save(W/('s15_regression_result_'+RUN+'.json'),dict(status='PASS_G1_FIXTURE_ONLY' if result.wasSuccessful() else 'FAIL_PRESERVED',methods=result.testsRun,cases=ROWS,source_commit=None,actual_runtime='NOT_RUN',actual_source_freeze='NOT_RUN',vivado_ross_hardware=False))
+     raise SystemExit(0 if result.wasSuccessful() else 1)

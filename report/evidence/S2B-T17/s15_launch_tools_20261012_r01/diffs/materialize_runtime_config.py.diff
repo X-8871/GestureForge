@@ -1,0 +1,11 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\materialize_runtime_config.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\materialize_runtime_config.py
+@@ -15,7 +15,7 @@
+     pins.exact(out.parent,True); pins.require(not out.exists(),"配置输出已存在，禁止覆盖")
+     raw=source.read_bytes(); pins.RUNTIME_CONFIG=source; pins._CONFIG_SELECTOR=None; pins.load_runtime_config(); pins.require_ready(args.pnr)
+     freeze=json.loads(pins.pinned(pins.SOURCE_FREEZE,pins.SOURCE_FREEZE_SHA).read_text(encoding="utf-8"))
+-    pins.require(freeze.get("source_commit")==pins.SOURCE_COMMIT and freeze.get("profile")=="s2b-inference-platform/0.1.14","ROOT源码冻结与配置SOURCE/profile不同")
++    pins.require(freeze.get("source_commit")==pins.SOURCE_COMMIT and freeze.get("profile")=="s2b-inference-platform/0.1.15","ROOT源码冻结与配置SOURCE/profile不同")
+     pins.require(source.read_bytes()==raw,"输入配置核验期间变化")
+     with out.open("xb") as stream: stream.write(raw)
+     pins.require(out.read_bytes()==raw,"配置写入原字节不同")

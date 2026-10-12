@@ -1,0 +1,33 @@
+{
+  "manifest_required_gch": [],
+  "exact_candidate_reference_hits": [],
+  "gch_literal_occurrences": [],
+  "checker_path": "verification/check_stage_delivery.py",
+  "checker_sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+  "scope": "只读检查当前S15 G1明确manifest文件及已STOP的独立Reviewer原件索引；不访问其他运行。",
+  "formal_manifest_required_gch_files": [],
+  "reviewer_index_required_gch_files": [],
+  "reviewer_index": {
+    "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/artifact_hash_index.json",
+    "sha256": "ce731e3ce2418ba18fcea65a006b8be72de37fc4e06fb5f14327d24784e66cdd",
+    "stop_receipt_sha256": "da99b27ad6c8628afe23f3154f43ca91e04d0bf31d06fafa982932bca7b92a34"
+  },
+  "reviewer_gch_literal_occurrences": [
+    {
+      "path": "tmp/2B/S2B-T17/independent_s15_functional_review_20261012_r01/index.py",
+      "sha256": "b38af5cf73eb0ef512f9f17f5e81bea7294d63e91e4c7a393b9d6bfa8bddd9fe",
+      "lines": [
+        {
+          "line": 24,
+          "text": "        cache.append(dict(path=path.relative_to(ROOT).as_posix(),size_bytes=path.stat().st_size,kind='GCH' if path.suffix=='.gch' else 'REBUILDABLE_COMPILE_CACHE'))"
+        }
+      ]
+    }
+  ],
+  "non_dependency_cache_inventory_references": {
+    "index_field": "preserved_unindexed_cache",
+    "gch_entries": 2,
+    "meaning": "索引在独立缓存库存字段记载两项GCH及size，未放入162项files哈希恢复原件。cache_reason及manifest_cache_dependency明确说明GCH可重建、无需恢复、待ROOT终态核验后清理。"
+  },
+  "interpretation": "exact_candidate_reference_hits只计正式files及恢复输入中的依赖引用。独立index库存字段包含两项GCH路径，属于未索引缓存观察记录，不能声称整个index没有GCH文字或路径。162项恢复原件、491项正式清单均不依赖GCH。"
+}

@@ -1,0 +1,22 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\supervisor.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\supervisor.py
+@@ -10,8 +10,8 @@
+ import psutil
+ 
+ ROOT=Path(__file__).resolve().parents[4]
+-GUARD=ROOT/"tmp/2B/S2B-T17/s14_launch_prepare_20261012_r01/guard.py"
+-GUARD_SHA="1dd9a678776d92d6042fff7c326582ebb360348732f35a6dc1939410dc867b3b"
++GUARD=ROOT/"tmp/2B/S2B-T17/s15_launch_prepare_20261012_r01/guard.py"
++GUARD_SHA="e055276318f6e215981bdceadb437ebe2bf50ec160b8d93c2d11c33bc89f886f"
+ KEYS=("pid","create_time","exe","cwd","cmdline","ppid")
+ 
+ def exact(value,directory=False):
+@@ -46,7 +46,7 @@
+         try:
+             for row in input_rows:
+                 if sha(exact(row["path"]))!=row["sha256"]: raise ValueError("启动前输入SHA漂移")
+-            child=subprocess.Popen(command,cwd=binding["cwd"],stdout=stdout,stderr=stderr)
++            child=subprocess.Popen(command,cwd=binding["cwd"],stdout=stdout,stderr=stderr,creationflags=subprocess.CREATE_NO_WINDOW)
+             next_check=0; last_check=None
+             while True:
+                 code=child.poll()

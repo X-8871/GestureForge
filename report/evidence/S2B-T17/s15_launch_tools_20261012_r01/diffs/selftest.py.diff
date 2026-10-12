@@ -1,0 +1,54 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\selftest.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\selftest.py
+@@ -17,6 +17,7 @@
+ SUP = ROOT / "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/supervisor.py"
+ sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+ ROWS = []
++RUN = sys.argv[1] if len(sys.argv)>1 else 'r01'
+ 
+ 
+ class World:
+@@ -308,13 +309,13 @@
+     commands = []
+     def launch(code):
+         argv = [sys.executable, "-B", "-X", "utf8", "-c", code]
+-        p = subprocess.Popen(argv, cwd=directory, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++        p = subprocess.Popen(argv, cwd=directory, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.DETACHED_PROCESS)
+         owned.append((p, p.pid, guard.psutil.Process(p.pid).create_time()))
+         commands.append(argv)
+         return p
+     try:
+         unrelated = launch("import time; time.sleep(30)")
+-        code = "import subprocess,sys,time,json; from pathlib import Path; p=subprocess.Popen([sys.executable,'-B','-c','import time; time.sleep(30)']); Path('ready.json').write_text(json.dumps({'pid':p.pid}),encoding='utf-8'); time.sleep(30)" if stop else "import time; time.sleep(2.5)"
++        code = "import subprocess,sys,time,json; from pathlib import Path; p=subprocess.Popen([sys.executable,'-B','-c','import time; time.sleep(30)'],creationflags=subprocess.DETACHED_PROCESS); Path('ready.json').write_text(json.dumps({'pid':p.pid}),encoding='utf-8'); time.sleep(30)" if stop else "import time; time.sleep(2.5)"
+         parent = launch(code)
+         if stop:
+             deadline = time.monotonic() + 5
+@@ -372,21 +373,21 @@
+     assert sha(SUP) == "193416f869463c38065e257545720032438ab12c7bbe30beec6bc8c53d8f9ca0"
+     import difflib
+     before, after = OLD.read_text(encoding="utf-8"), (W / "guard.py").read_text(encoding="utf-8")
+-    for name, following in [("readback_member", "root_terminal"), ("root_terminal", "event"), ("historical_member", "stop_tree"), ("stop_tree", "stop_one"), ("stop_one", "progress")]:
++    for name, following in [("readback_member", "root_terminal"), ("root_terminal", "event"), ("historical_member", "stop_tree"), ("stop_one", "progress")]:
+         part = lambda source: source.split("    def " + name + "(", 1)[1].split("    def " + following + "(", 1)[0]
+         assert part(before) == part(after), name
+-    with (W / "source_diff_fixture_r02.patch").open("x", encoding="utf-8", newline="\n") as f:
++    with (W / ("source_diff_fixture_"+RUN+".patch")).open("x", encoding="utf-8", newline="\n") as f:
+         f.write("".join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile=str(OLD),tofile=str(W / "guard.py"))))
+     result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Semantics))
+     if not result.wasSuccessful():
+         raise SystemExit(1)
+-    canary("owned_threshold_canary", True)
+-    canary("one_second_cadence_canary", False)
++    canary("owned_threshold_canary_"+RUN, True)
++    canary("one_second_cadence_canary_"+RUN, False)
+     report = dict(status="PASS_G1_ONLY", cases=ROWS, mock_tests=result.testsRun, actual_canaries=2,
+-                  guard_sha256=sha(W / "guard.py"), supervisor_sha256=sha(SUP), terminate_kill_kernel_unchanged=True,
++                  guard_sha256=sha(W / "guard.py"), supervisor_sha256=sha(W / "supervisor.py"), terminate_kill_kernel_unchanged=True,
+                   action_ancestor_identity_fail_closed_strengthened=True,
+                   declared_semantics="规定节拍离散监测执行通过", absolute_tree_peak_bytes=None,
+                   old_s11_budget_reclassified=False, hardware_or_vivado_started=False,
+                   limitations=["模拟不证明真实OS PID复用；所有canary仅为本任务自有轻量进程。", "连续绝对峰及未采短命对象未知；闭合活集合RSS是离散非原子合计。", "仅G1，未独立审查；不能用于Vivado重型派发或继承旧S11预算PASS。"])
+-    guard.write_new(W / "selftest_result.json", report)
++    guard.write_new(W / ("selftest_result_"+RUN+".json"), report)
+     print(guard.encode(dict(status=report["status"], tests=len(ROWS), guard_sha256=report["guard_sha256"])))

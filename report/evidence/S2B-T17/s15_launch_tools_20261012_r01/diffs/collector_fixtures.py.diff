@@ -1,0 +1,37 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\collector_fixtures.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\collector_fixtures.py
+@@ -19,7 +19,7 @@
+         names = ["fixture/源"+str(i) for i in range(count-1)]+["verification/test_s2b_conv_tile_origin_rtl.py"]
+         hashes = {name: "a"*64 for name in names}; static = {name: value for name, value in list(hashes.items())[:33]}
+         original14 = dict(list(static.items())[:14]); rtl = names[:18]
+-        freeze = dict(profile="s2b-inference-platform/0.1.14", source_commit="b"*40, source_files=[dict(path=k, sha256=v) for k,v in hashes.items()], frozen14=original14, active_rtl_sources=rtl)
++        freeze = dict(profile="s2b-inference-platform/0.1.15", source_commit="b"*40, source_files=[dict(path=k, sha256=v) for k,v in hashes.items()], frozen14=original14, active_rtl_sources=rtl)
+         profile = dict(version=freeze["profile"], rtl_sources=rtl, source_derivation=dict(derived_sources=names[:8]), clock_hz=50000000, visibility_default=0)
+         if broken == "runner": freeze["source_files"] = freeze["source_files"][:-1]
+         if broken == "profile": freeze["profile"] = "s2b-inference-platform/0.1.12"
+@@ -30,7 +30,7 @@
+             return c.load_freeze()
+ 
+     def test_actual_count_not_fixed43(self):
+-        for count in (43, 44): self.assertEqual(len(self.run_closure(count)[1]), count)
++        for count in (43, 44, 45, 46): self.assertEqual(len(self.run_closure(count)[1]), count)
+ 
+     def test_hard_requirements(self):
+         for broken in ("runner", "profile", "rtl", "clock"):
+@@ -67,7 +67,7 @@
+         for key in pins._CONFIG_PATHS:
+             if key not in {"SYNTH_MANIFEST", "SYNTH_G2"}: data[key]=str(W/"fixture_only_unused_target")
+         cases=[("duplicate", '{"SOURCE_COMMIT":null,"SOURCE_COMMIT":null}'), ("extra", json.dumps(dict(data, GUARD_SHA="a"*64))), ("normalized", json.dumps(dict(data, PROJECT=(W/"fixture_only_unused_target").as_posix())))]
+-        directory=W/"config_schema_fixtures_r02"; directory.mkdir()
++        directory=W/("config_schema_fixtures_"+(sys.argv[1] if len(sys.argv)>1 else 'r02')); directory.mkdir()
+         saved={key:getattr(pins,key) for key in pins._CONFIG_FIELDS}; saved_sha=pins._LOADED_CONFIG_SHA
+         for label,raw in cases:
+             path=directory/(label+".json")
+@@ -89,5 +89,5 @@
+ if __name__ == "__main__":
+     result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromTestCase(cls) for cls in (Closure,Pairing,Config)]))
+     if not result.wasSuccessful(): raise SystemExit(1)
+-    with (W/"collector_fixture_result_r02.json").open("x",encoding="utf-8",newline="\n") as stream:
+-        json.dump(dict(status="PASS_G1_FIXTURE_ONLY",methods=result.testsRun,source_count_cases=[43,44],actual_production_reads=False,production_source_commit=None,source_freeze_written=False,project_created=False,hardware_or_vivado_started=False),stream,ensure_ascii=False,indent=2); stream.write("\n")
++    with (W/("collector_fixture_result_"+(sys.argv[1] if len(sys.argv)>1 else 'r02')+".json")).open("x",encoding="utf-8",newline="\n") as stream:
++        json.dump(dict(status="PASS_G1_FIXTURE_ONLY",methods=result.testsRun,source_count_cases=[43,44,45,46],actual_production_reads=False,production_source_commit=None,source_freeze_written=False,project_created=False,hardware_or_vivado_started=False),stream,ensure_ascii=False,indent=2); stream.write("\n")

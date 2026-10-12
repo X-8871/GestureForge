@@ -1,0 +1,95 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s14_launch_prepare_20261012_r01\compat_pins.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\compat_pins.py
+@@ -1,4 +1,4 @@
+-"""S14隔离草稿的固定待冻结项；缺少真实冻结时阻断所有收集写入。"""
++"""S15隔离草稿的固定待冻结项；缺少真实冻结时阻断所有收集写入。"""
+ import hashlib
+ import json
+ import os
+@@ -8,36 +8,36 @@
+ ROOT = Path(__file__).parents[4]
+ WORK = Path(__file__).parent
+ SOURCE_COMMIT = None
+-SOURCE_FREEZE = WORK / "__PENDING_S14_SOURCE_FREEZE__"
++SOURCE_FREEZE = WORK / "__PENDING_S15_SOURCE_FREEZE__"
+ SOURCE_FREEZE_SHA = None
+-FUNCTIONAL_G1 = ROOT / "__PENDING_S14_FUNCTIONAL_G1__"
++FUNCTIONAL_G1 = ROOT / "__PENDING_S15_FUNCTIONAL_G1__"
+ FUNCTIONAL_G1_SHA = None
+-FUNCTIONAL_G2 = ROOT / "__PENDING_S14_FUNCTIONAL_G2__"
++FUNCTIONAL_G2 = ROOT / "__PENDING_S15_FUNCTIONAL_G2__"
+ FUNCTIONAL_G2_SHA = None
+ FUNCTIONAL_G2_EXPECTED_STATUS = None
+-SYNTH_MANIFEST = ROOT / "__PENDING_S14_SYNTH_MANIFEST__"
++SYNTH_MANIFEST = ROOT / "__PENDING_S15_SYNTH_MANIFEST__"
+ SYNTH_MANIFEST_SHA = None
+-SYNTH_G2 = ROOT / "__PENDING_S14_SYNTH_G2__"
++SYNTH_G2 = ROOT / "__PENDING_S15_SYNTH_G2__"
+ SYNTH_G2_SHA = None
+ SYNTH_G2_EXPECTED_STATUS = None
+-SYNTH_CACHE = WORK / "__PENDING_S14_SYNTH_CACHE__"
+-PNR_CACHE = WORK / "__PENDING_S14_PNR_CACHE__"
+-PROJECT = WORK / "__PENDING_S14_PROJECT__"
+-SYNTH_REPORT = ROOT / "__PENDING_S14_SYNTH_REPORT__"
+-PNR_REPORT = ROOT / "__PENDING_S14_PNR_REPORT__"
+-SOURCE_PRE = ROOT / "__PENDING_S14_SOURCE_PRE__"
++SYNTH_CACHE = WORK / "__PENDING_S15_SYNTH_CACHE__"
++PNR_CACHE = WORK / "__PENDING_S15_PNR_CACHE__"
++PROJECT = WORK / "__PENDING_S15_PROJECT__"
++SYNTH_REPORT = ROOT / "__PENDING_S15_SYNTH_REPORT__"
++PNR_REPORT = ROOT / "__PENDING_S15_PNR_REPORT__"
++SOURCE_PRE = ROOT / "__PENDING_S15_SOURCE_PRE__"
+ GUARD = WORK / "guard.py"
+-GUARD_SHA = "1dd9a678776d92d6042fff7c326582ebb360348732f35a6dc1939410dc867b3b"
++GUARD_SHA = "e055276318f6e215981bdceadb437ebe2bf50ec160b8d93c2d11c33bc89f886f"
+ SUP = WORK / "supervisor.py"
+-SUP_SHA = "0ad7a3855af349f288025339ac4da0e1b0c47335a184be95940217185878fe75"
+-ARCHIVE = ROOT / "report/evidence/S2B-T17/s14_launch_tools_20261012_r01"
+-MAPPING_SHA = "7a2ec12e4420665ab3fa0e9baf241545c2727aa97dba77916b40263ce72dec95"
+-RECOVERY_SHA = "53f64211a436116e5dca84511e05a414562dadf59228f7c80a784c382e9e5eba"
+-TOOLS_G2 = ROOT / "__PENDING_S14_TOOLS_G2__"
++SUP_SHA = "de7a5051687a391a7705f6bc8b54c8fb3d6a008f7423e2978d746953b6ae3968"
++ARCHIVE = ROOT / "report/evidence/S2B-T17/s15_launch_tools_20261012_r01"
++MAPPING_SHA = "c00b40171639ee6eabae103fbf64519556a30987ab7358aead3815ffa2de7172"
++RECOVERY_SHA = "e1262ba8c717c4e94c21fd8d4140fc72e69db8fd92494d091657d408f4d9d325"
++TOOLS_G2 = ROOT / "__PENDING_S15_TOOLS_G2__"
+ TOOLS_G2_SHA = None
+ TOOLS_G2_EXPECTED_STATUS = None
+ RUNTIME_CONFIG = WORK / "runtime_pins.json"
+-_CONFIG_SELECTOR = os.environ.get("S14_RUNTIME_CONFIG")
++_CONFIG_SELECTOR = os.environ.get("S15_RUNTIME_CONFIG")
+ if _CONFIG_SELECTOR is not None:
+     RUNTIME_CONFIG = Path(_CONFIG_SELECTOR)
+ _LOADED_CONFIG_SHA = None
+@@ -64,7 +64,7 @@
+ 
+ def pinned(path, digest):
+     """哈希必须由最终冻结提供且与实际原字节相同。"""
+-    require(isinstance(digest, str) and re.fullmatch("[0-9a-f]{64}", digest), "BLOCKED_PENDING_S14_PINS：缺实际输入SHA")
++    require(isinstance(digest, str) and re.fullmatch("[0-9a-f]{64}", digest), "BLOCKED_PENDING_S15_PINS：缺实际输入SHA")
+     path = exact(path)
+     require(hashlib.sha256(path.read_bytes()).hexdigest()==digest, "冻结输入漂移")
+     return path
+@@ -107,17 +107,19 @@
+ def require_ready(pnr=False):
+     """先阻断缺失commit，再核真实G1/G2与唯一路径；不创建目录。"""
+     require(hashlib.sha256(exact(Path(__file__)).read_bytes()).hexdigest()==_LOADED_HELPER_SHA, "冻结门禁代码在导入后漂移")
+-    require(isinstance(SOURCE_COMMIT, str) and re.fullmatch("[0-9a-f]{40}", SOURCE_COMMIT), "BLOCKED_PENDING_S14_PINS：缺ROOT最终commit/43源冻结/RunIds/功能G2")
++    require(isinstance(SOURCE_COMMIT, str) and re.fullmatch("[0-9a-f]{40}", SOURCE_COMMIT), "BLOCKED_PENDING_S15_PINS：缺ROOT最终commit/实际源码冻结/RunIds/功能G2")
+     runtime_config_binding()
+     for path in (SYNTH_CACHE, PNR_CACHE, PROJECT, SYNTH_REPORT, PNR_REPORT, SOURCE_PRE):
+-        require("__PENDING_" not in str(path) and path.is_absolute() and path.is_relative_to(ROOT), "BLOCKED_PENDING_S14_PINS：缺实际唯一RunId")
++        require("__PENDING_" not in str(path) and path.is_absolute() and path.is_relative_to(ROOT), "BLOCKED_PENDING_S15_PINS：缺实际唯一RunId")
+     require(len({str(path) for path in (SYNTH_CACHE, PNR_CACHE, PROJECT, SYNTH_REPORT, PNR_REPORT, SOURCE_PRE)})==6, "RunId落点重复")
+     pinned(SOURCE_FREEZE, SOURCE_FREEZE_SHA)
++    freeze=json.loads(SOURCE_FREEZE.read_text(encoding="utf-8"))
++    require(freeze.get("source_commit")==SOURCE_COMMIT and freeze.get("profile")=="s2b-inference-platform/0.1.15","本轮SOURCE/profile冻结不同")
+     pinned(FUNCTIONAL_G1, FUNCTIONAL_G1_SHA)
+     review=json.loads(pinned(FUNCTIONAL_G2, FUNCTIONAL_G2_SHA).read_text(encoding="utf-8"))
+     require(isinstance(FUNCTIONAL_G2_EXPECTED_STATUS, str) and FUNCTIONAL_G2_EXPECTED_STATUS.startswith("PASS") and review.get("status")==FUNCTIONAL_G2_EXPECTED_STATUS, "功能G2未绑定实际PASS原件")
+     review=json.loads(pinned(TOOLS_G2, TOOLS_G2_SHA).read_text(encoding="utf-8"))
+-    require(isinstance(TOOLS_G2_EXPECTED_STATUS, str) and TOOLS_G2_EXPECTED_STATUS.startswith("PASS") and review.get("status")==TOOLS_G2_EXPECTED_STATUS, "S14新guard/SUP/consumer工具G2未冻结")
++    require(isinstance(TOOLS_G2_EXPECTED_STATUS, str) and TOOLS_G2_EXPECTED_STATUS.startswith("PASS") and review.get("status")==TOOLS_G2_EXPECTED_STATUS, "S15新guard/SUP/consumer工具G2未冻结")
+     if pnr:
+         pinned(SYNTH_MANIFEST, SYNTH_MANIFEST_SHA)
+         review=json.loads(pinned(SYNTH_G2, SYNTH_G2_SHA).read_text(encoding="utf-8"))

@@ -1,0 +1,133 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r01\collector.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_launch_prepare_20261012_r02\collector.py
+@@ -18,6 +18,7 @@
+ import zlib
+ 
+ import compat_pins
++import native_contract as contract
+ ROOT=Path(__file__).parents[4]
+ WORK=Path(__file__).parent
+ CACHE=compat_pins.SYNTH_CACHE
+@@ -164,6 +165,7 @@
+         require(not PROJECT.exists() and not REPORT.exists() and not PRE.exists(),"before要求新project/evidence/preflight")
+         staged,_=git("diff","--cached","--name-only"); require(not staged.strip(),"暂存区未闭合")
+         fresh(PRE,directory=True)
++        fresh(REPORT,directory=True)
+     else:
+         exact(PROJECT,"directory"); exact(REPORT,"directory"); before=read(PRE/"source_before.json")
+         require(before["source_commit"]==commit and {r["path"]:r["sha256"] for r in before["source_files"]}==hashes,"前后基线/源码不同")
+@@ -213,11 +215,24 @@
+     return dict(row,path="/".join(parts))
+ 
+ 
+-def runtime_native_records(gate):
+-    """实际包装逐项显式列举；拒绝旧G1记录混收及未知schema。"""
++def expected_tool_bindings():
++    """实际独审receipt冻结完整生产工具闭包，不借当前文件自封批准。"""
++    review=read(compat_pins.pinned(compat_pins.TOOLS_G2,compat_pins.TOOLS_G2_SHA))
++    require(review.get('status')==compat_pins.TOOLS_G2_EXPECTED_STATUS and review['status'].startswith('PASS'),'工具独审状态不同')
++    declared=review.get('reviewed_tools');require(type(declared) is list,'工具独审缺完整reviewed_tools')
++    actual=contract.capture_tools(WORK,ROOT)
++    for row in actual:
++        matches=[item for item in declared if item.get('path')==row['path']]
++        require(matches==[row],'完整生产工具闭包未冻结或发生漂移：'+row['path'])
++    return actual
++
++
++def runtime_native_records(gate,commit=None):
++    """实际包装逐项核全身份、工具及完整命令；失败原件拒绝伪作PASS。"""
+     declarations=gate.get("native_wrappers")
+     require(type(declarations) is list and bool(declarations),"关闭门禁缺显式native_wrappers")
+     require(len(declarations)==len({r["path"] for r in declarations}),"实际包装声明重复")
++    expected_tools=expected_tool_bindings()
+     result=[]
+     for row in declarations:
+         path=exact(ROOT/row["path"])
+@@ -228,14 +243,50 @@
+         require(type(record.get("prefix")) is str and path.name==record["prefix"]+".native.json","实际包装prefix绑定不同")
+         require(type(record.get("native_exit_code")) is int and type(record.get("command")) is list,"实际包装原生命令或退出码未知")
+         require(record.get("direct_child_wait_returned") is True and type(record.get("closed_logs")) is list and len(record["closed_logs"])==2,"实际包装未直接wait闭合")
+-        require(record["command"][:6]==[sys.executable,"-X","utf8","-B",str(WORK/"collector.py"),record["mode"]],"实际包装命令与mode/工具不同")
+-        require(record["closed_logs"]==[record.get("stdout"),record.get("stderr")],"实际包装闭合流字段不一致")
+-        for log in record["closed_logs"]:
+-            log_path=exact(ROOT/log["path"])
+-            require(log_path.parent==CACHE and log_path.name in (record['prefix']+'.stdout.bin',record['prefix']+'.stderr.bin'),"实际包装流路径或prefix不同")
+-            require(binding(ROOT/log["path"])==log,"实际包装闭合日志漂移")
++        command=record['command'];require(command[:6]==[sys.executable,'-X','utf8','-B',str(WORK/'collector.py'),record['mode']],'实际包装命令与mode/工具不同')
++        parsed=contract.collector_arguments(command[5:]);options=parsed['options']
++        if record['mode']!='prepare':
++            require(options['--commit']==(commit if commit is not None else compat_pins.SOURCE_COMMIT),'实际包装完整argv commit不同')
++        prefix=record['prefix']
++        possible_wrappers=[
++            [sys.executable,'-X','utf8','-B',str(WORK/'native.py'),'--prefix',prefix,'--',*command[5:]],
++            [sys.executable,'-X','utf8','-B',str(WORK/'native_capture.py'),prefix,*command],
++        ]
++        require(record.get('wrapper_command') in possible_wrappers,'实际wrapper完整argv不同')
++        logs=[binding(exact(CACHE/(prefix+'.'+suffix))) for suffix in ('stdout.bin','stderr.bin')]
++        contract.validate_capture(record,command,record['wrapper_command'],str(ROOT),expected_tools,prefix,logs)
++        require(record.get('capture_target_kind')=='COLLECTOR','通用canary不得伪作实际collector')
++        if record['mode']=='source' and record['native_exit_code']==0:
++            source_row=gate.get('source_'+options['--phase'])
++            require(record.get('source_output')==source_row and binding(ROOT/source_row['path'])==source_row,'实际source phase输出与gate不同')
++            require(read(ROOT/source_row['path']).get('source_commit')==(commit if commit is not None else compat_pins.SOURCE_COMMIT),'实际source phase输出commit不同')
++        if record['mode']=='collect':
++            consumed=binding(exact(Path(options['--gate'])))
++            require(record.get('consumed_gate')==consumed and record.get('consumed_gate_after')==consumed,'实际collect消费gate字节不同')
++            if record['native_exit_code']==0:
++                require(record.get('collection_summary')==binding(REPORT/'s15_collection_summary.json'),'实际collect输出summary字节不同')
+         result.append((path,record))
+     return result
++
++
++def validate_collect_chain(summary,seal_gate,records,commit):
++    """collect消费不可改gate_r01，seal的新gate只扩展原生闭合列表。"""
++    successes=[record for _,record in records if record['mode']=='collect' and record['native_exit_code']==0 and record['wrapper_exit_code']==0]
++    require(len(successes)==1,'缺唯一成功的真实collect包装')
++    record=successes[0];options=contract.collector_arguments(record['command'][5:])['options']
++    consumed_path=exact(Path(options['--gate']));consumed_binding=binding(consumed_path)
++    require(summary.get('source_commit')==commit and summary.get('root_gate')==consumed_binding,'summary未绑定实际消费的SOURCE/gate字节')
++    require(record.get('consumed_gate')==consumed_binding and record.get('consumed_gate_after')==consumed_binding,'原生capture消费gate前后不同')
++    consumed_gate=closed_gate(consumed_path,commit)
++    require(summary.get('closed_gate_inputs')==consumed_gate,'summary SOURCE/config/MCP九命令/闭合文件来自其他gate')
++    original={key:value for key,value in consumed_gate.items() if key!='native_wrappers'}
++    extended={key:value for key,value in seal_gate.items() if key!='native_wrappers'}
++    require(original==extended,'新seal gate改动SOURCE/config/MCP/已闭合原件或其他字段')
++    old=consumed_gate.get('native_wrappers',[]);new=seal_gate.get('native_wrappers',[])
++    require(type(old) is list and type(new) is list and all(row in new for row in old),'seal gate仅可显式扩展native列表')
++    require(any(row==binding(next(path for path,item in records if item is record)) for row in new),'seal gate缺实际collect包装绑定')
++    require(record.get('collection_summary')==binding(REPORT/'s15_collection_summary.json'),'collect输出summary不是当前原字节')
++    return dict(consumed_gate=consumed_binding,collection_summary=record['collection_summary'],native_record=binding(next(path for path,item in records if item is record)))
+ 
+ 
+ def closed_gate(path,commit):
+@@ -385,7 +436,7 @@
+     worst=exact(REPORT/"timing_worst_synth.rpt").read_text(encoding="utf-8")
+     path=dict(source=first(r"^\s*Source:\s*(\S+)",worst),destination=first(r"^\s*Destination:\s*(\S+)",worst),logic_levels=first(r"^\s*Logic Levels:\s*(.+)",worst),data_path_delay_ns=float(first(r"^\s*Data Path Delay:\s*([\d.]+)ns",worst)),speed_file=first(r"^\| Speed File\s*:\s*(.+)",worst))
+     for row in initial: require(binding(ROOT/row["path"])==row,"ROOT原件在收集时漂移")
+-    save(REPORT/"s15_collection_summary.json",dict(status="COLLECTED_S15_"+sta["status"]+"_PENDING_INDEPENDENT_REVIEW",source_commit=commit,profile=profile["version"],source_count=len(hashes),static_count=len(static["source_sha256"]),active_rtl_count=18,original_raw_inventory=initial,closed_input_mapping=list(copied.values()),timing=sta,resources=resources,worst_path=path,native_jobs=jobs,products_native_exit_code=products_native,products_capture_exit_code=products_capture,sta_native_exit_code=result.returncode,root_gate=binding(gate_path),independent_review="NOT_RUN",implementation="NOT_RUN",postroute="NOT_RUN",hardware="NOT_RUN",limitations=["仅实际综合态STA，不代表-1/postroute或G3；精确speed_file保留。","products native/capture与客户端/nativewait分开，不重跑products或重复登记wrapper。","原生五任务OS退出码未捕获为null；日志与marker不是OS返回码。","单进程日志峰不是进程树峰，未取得字段为null。","六PSinit与HWH按实际字节关系报告，不继承旧ELF/BSP兼容批准。"] ))
++    save(REPORT/"s15_collection_summary.json",dict(status="COLLECTED_S15_"+sta["status"]+"_PENDING_INDEPENDENT_REVIEW",source_commit=commit,profile=profile["version"],source_count=len(hashes),static_count=len(static["source_sha256"]),active_rtl_count=18,original_raw_inventory=initial,closed_input_mapping=list(copied.values()),timing=sta,resources=resources,worst_path=path,native_jobs=jobs,products_native_exit_code=products_native,products_capture_exit_code=products_capture,sta_native_exit_code=result.returncode,root_gate=binding(gate_path),closed_gate_inputs=gate,independent_review="NOT_RUN",implementation="NOT_RUN",postroute="NOT_RUN",hardware="NOT_RUN",limitations=["仅实际综合态STA，不代表-1/postroute或G3；精确speed_file保留。","products native/capture与客户端/nativewait分开，不重跑products或重复登记wrapper。","原生五任务OS退出码未捕获为null；日志与marker不是OS返回码。","单进程日志峰不是进程树峰，未取得字段为null。","六PSinit与HWH按实际字节关系报告，不继承旧ELF/BSP兼容批准。"] ))
+     print(json.dumps(dict(status="COLLECTED_S15",sta=sta["status"],native_classifier_exit_code=result.returncode,source_count=len(hashes),static_count=len(static["source_sha256"])),ensure_ascii=False))
+ 
+ 
+@@ -397,8 +448,11 @@
+     require(summary["source_commit"]==commit,"封包基线不同")
+     profile_version=read(FREEZE)["profile"]
+     require(profile_version=="s2b-inference-platform/0.1.15","封包实际冻结profile不同")
++    validated_records=runtime_native_records(gate,commit)
++    chain=validate_collect_chain(summary,gate,validated_records,commit)
++    save(REPORT/'collect_gate_chain.json',chain)
+     native_dir=fresh(REPORT/"native_closed",directory=True); native_records=[]
+-    for path,record in runtime_native_records(gate):
++    for path,record in validated_records:
+         native_records.append(record); rawcopy(path,native_dir/path.name)
+         for row in record.get("closed_logs",[]): rawcopy(ROOT/row["path"],native_dir/Path(row["path"]).name)
+     require(any(r.get("mode")=="collect" and r["native_exit_code"]==0 for r in native_records),"collect原生包装尚未闭合或失败")
+@@ -419,7 +473,7 @@
+     require(len(files)==len({r["path"] for r in files}),"清单路径重复")
+     checks=[]
+     for record in native_records:
+-        checks.append(dict(name="实际原生包装："+record["mode"]+":"+record["prefix"],status="PASS" if record["native_exit_code"]==0 else "FAIL",command=subprocess.list2cmdline(record["command"]),exit_code=record["native_exit_code"],reason="真实子进程返回码；不代表G2或板上批准。"))
++        checks.append(dict(name="实际原生包装："+record["mode"]+":"+record["prefix"],status="PASS" if record["native_exit_code"]==0 and record['wrapper_exit_code']==0 else "FAIL",command=subprocess.list2cmdline(record["command"]),exit_code=record['wrapper_exit_code'],reason=record['capture_status']+"；真实wrapper和child状态均已核，非G2或板上批准。"))
+     classifier=read(REPORT/"s15_sta_classifier.native.json")
+     checks.append(dict(name="50MHz综合态STA分类",status="PASS" if classifier["native_exit_code"]==0 else "FAIL",command=classifier["windows_command"],exit_code=classifier["native_exit_code"],reason=summary["timing"]["status"]))
+     for name in ("独立实际证据审查","实现及postroute","G3板上cache/模型/109/1000任务"):

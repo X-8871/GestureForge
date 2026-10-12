@@ -6,6 +6,7 @@ import os
 import secrets
 import struct
 import sys
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -133,6 +134,311 @@ class DirectSpawnFixtureTests(unittest.TestCase):
             if not job.closed:
                 job.close()
 
+    def test_cmd_batch_fixture_preserves_arguments_exit_code_and_job_descendant_closure(self):
+        run_dir = _new_run_dir("cmd_batch_fixture")
+        batch_path = run_dir / "fixture_launcher.bat"
+        args_receipt = run_dir / "batch_args.receipt"
+        python_executable = str(Path(sys.executable).resolve())
+        batch_arguments = [
+            "-mode",
+            "batch",
+            "-log",
+            str(run_dir / "fixture.log"),
+            "-tclargs",
+            "approved-token-alpha",
+            "approved-token-beta",
+        ]
+        script = (
+            "@echo off\r\n"
+            "setlocal EnableExtensions DisableDelayedExpansion\r\n"
+            f'> "{args_receipt}" echo(%*\r\n'
+            f'"{python_executable}" -c "import time; time.sleep(0.35)"\r\n'
+            "exit /b 37\r\n"
+        )
+        batch_path.write_text(script, encoding="utf-8", newline="")
+        cmd_argv, command = controller._build_cmd_batch_argv(
+            controller.CMD_EXE,
+            str(batch_path),
+            batch_arguments,
+        )
+        source_appdata = run_dir / "fixture_source_appdata"
+        source_appdata.mkdir()
+        license_file = run_dir / "fixture_license.lic"
+        license_file.write_bytes(b"fixture license metadata only\n")
+        with mock.patch.dict(
+            os.environ,
+            {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": str(license_file)},
+            clear=False,
+        ):
+            environment, isolated_appdata, license_audit = controller._child_environment(run_dir)
+        self.assertNotEqual(str(source_appdata), isolated_appdata)
+        self.assertEqual(str(run_dir / "isolated_appdata"), environment["APPDATA"])
+        self.assertEqual(str(license_file), environment["XILINXD_LICENSE_FILE"])
+        self.assertTrue(license_audit["usable"])
+        self.assertEqual(" ".join(batch_arguments), command[len("call ") + len(str(batch_path)) + 1 :])
+        self.assertEqual([controller.CMD_EXE, "/D", "/S", "/V:OFF", "/C", command], cmd_argv)
+
+        locks = [
+            controller.InputReadLock(controller.CMD_EXE),
+            controller.InputReadLock(str(batch_path)),
+            controller.InputReadLock(python_executable),
+        ]
+        job = job_guard.JobObject(kill_on_close=True)
+        child = None
+        observed_python = {}
+        closure = None
+        try:
+            child = job_guard.launch_suspended_root(
+                job,
+                controller.CMD_EXE,
+                cmd_argv,
+                cwd=str(run_dir),
+                environment=environment,
+            )
+            self.assertEqual(
+                os.path.normcase(os.path.abspath(controller.CMD_EXE)),
+                os.path.normcase(os.path.abspath(child.identity["exe"])),
+            )
+            self.assertEqual(cmd_argv, child.identity["cmdline"])
+            self.assertTrue(any(row.get("event") == "PRE_RESUME_CLOSED" for row in child.events))
+
+            deadline = time.monotonic() + 10.0
+            while time.monotonic() < deadline:
+                sample = job.sample()
+                for member in sample["member_measurements"]:
+                    identity = member["identity"]
+                    if os.path.normcase(os.path.abspath(identity["exe"])) == os.path.normcase(os.path.abspath(python_executable)):
+                        key = (member["pid"], member["birth_ticks"])
+                        observed_python[key] = {
+                            "pid": member["pid"],
+                            "birth_ticks": member["birth_ticks"],
+                            "exe": identity["exe"],
+                            "cmdline": identity["cmdline"],
+                        }
+                root_wait = job_guard._api_wait(child.process_handle, 0)
+                pids = job.pid_list()
+                accounting = job.accounting()
+                if root_wait == job_guard.WAIT_OBJECT_0 and not pids and accounting["active_processes"] == 0:
+                    closure = child.wait_and_close(timeout_seconds=2.0)
+                    child = None
+                    break
+                time.sleep(0.04)
+            self.assertIsNotNone(closure, "cmd/bat/后代未在期限内闭合")
+            args_text = args_receipt.read_text(encoding="utf-8").strip()
+            final = closure["final"]
+            receipt = {
+                "status": "PASS_CMD_BATCH_ARGUMENTS_EXIT_AND_JOB_CLOSURE",
+                "cmd_command_line": job_guard.subprocess.list2cmdline(cmd_argv),
+                "batch_path": str(batch_path),
+                "expected_batch_arguments": batch_arguments,
+                "batch_argument_receipt": args_text,
+                "cmd_root_identity": child.identity if child is not None else None,
+                "cmd_exit_code": final["root_native_handle_exit_code"],
+                "short_descendant_observations": list(observed_python.values()),
+                "job_final_closure": final,
+            }
+            self.assertEqual(" ".join(batch_arguments), args_text)
+            self.assertEqual(37, final["root_native_handle_exit_code"])
+            self.assertTrue(observed_python, "Job采样未观察到由bat启动的Python短命后代")
+            self.assertEqual([], final["job_pids"])
+            self.assertEqual(0, final["active_processes"])
+            self.assertTrue(all(row["status"] == "EXITED" for row in final["member_readbacks"]))
+            final_member_keys = {
+                (row["pid"], row["birth_ticks"])
+                for row in final["member_readbacks"]
+            }
+            self.assertIn(
+                (final["root_native_handle_pid"], final["root_native_handle_birth_ticks"]),
+                final_member_keys,
+            )
+            self.assertTrue(set(observed_python).issubset(final_member_keys))
+            receipt["cmd_root_identity"] = {
+                "pid": final["root_native_handle_pid"],
+                "birth_ticks": final["root_native_handle_birth_ticks"],
+                "exe": controller.CMD_EXE,
+            }
+            _write_json(run_dir / "fixture_result.json", receipt)
+        finally:
+            if child is not None:
+                try:
+                    controller._kill_and_close(child, "FIXTURE_CLEANUP")
+                except BaseException:
+                    if not job.closed:
+                        job.close()
+            elif not job.closed:
+                job.close()
+            for lock in reversed(locks):
+                lock.close()
+
+    def test_rdi_verbose_is_disabled_and_sensitive_license_never_reaches_logs_or_manifest(self):
+        run_dir = _new_run_dir("rdi_verbose_redaction")
+        batch_path = run_dir / "fixture_verbose_loader.bat"
+        source_appdata = run_dir / "fixture_source_appdata"
+        source_appdata.mkdir()
+        marker = "SENSITIVE_LICENSE_" + secrets.token_hex(16)
+        license_path = run_dir / f"{marker}.lic"
+        license_path.write_bytes(b"fixture-only-license-metadata\n")
+        env_receipt = run_dir / "child_license_env_sha256.receipt"
+        python_executable = str(Path(sys.executable).resolve())
+        child_code = (
+            "import hashlib,os,pathlib,sys,time; "
+            "pathlib.Path(sys.argv[1]).write_text("
+            "hashlib.sha256(os.environ['XILINXD_LICENSE_FILE'].encode('utf-8')).hexdigest().upper(), "
+            "encoding='ascii'); time.sleep(0.25)"
+        )
+        script = (
+            "@echo off\r\n"
+            "setlocal EnableExtensions DisableDelayedExpansion\r\n"
+            f'"{python_executable}" -c "{child_code}" "{env_receipt}"\r\n'
+            'if /I "%RDI_VERBOSE%"=="True" echo XILINXD_LICENSE_FILE=%XILINXD_LICENSE_FILE%\r\n'
+            "echo CHILD_RDI_VERBOSE=%RDI_VERBOSE%\r\n"
+            "exit /b 0\r\n"
+        )
+        batch_path.write_text(script, encoding="utf-8", newline="")
+        cmd_argv, command = controller._build_cmd_batch_argv(controller.CMD_EXE, str(batch_path), [])
+        patched_environment = {
+            "APPDATA": str(source_appdata),
+            "XILINXD_LICENSE_FILE": str(license_path),
+            "RDI_VERBOSE": "True",
+        }
+        with mock.patch.dict(os.environ, patched_environment, clear=False):
+            environment, isolated_appdata, license_audit = controller._child_environment(run_dir)
+            self.assertEqual("True", os.environ["RDI_VERBOSE"])
+            self.assertEqual("False", environment["RDI_VERBOSE"])
+            self.assertEqual(str(license_path), environment["XILINXD_LICENSE_FILE"])
+            self.assertEqual("explicit_environment", license_audit["mode"])
+
+            locks = [
+                controller.InputReadLock(controller.CMD_EXE),
+                controller.InputReadLock(str(batch_path)),
+                controller.InputReadLock(python_executable),
+            ]
+            job = job_guard.JobObject(kill_on_close=True)
+            child = None
+            std_handles = None
+            std_streams = ()
+            writer = None
+            try:
+                std_handles, std_streams = controller._open_stdio_handles(run_dir)
+                child = job_guard.launch_suspended_root(
+                    job,
+                    controller.CMD_EXE,
+                    cmd_argv,
+                    cwd=str(run_dir),
+                    std_handles=std_handles,
+                    environment=environment,
+                )
+                root_identity = child.identity
+                controller._close_stdio(std_handles, std_streams)
+                std_handles, std_streams = None, ()
+                previous_sample_start = None
+                previous_accounting = None
+                previous_pids = None
+                previous_keys = set()
+                observed_child_identities = set()
+                closure = None
+                deadline = time.monotonic() + 10.0
+                while time.monotonic() < deadline:
+                    sample = job.sample(
+                        previous_sample_start=previous_sample_start,
+                        previous_accounting=previous_accounting,
+                        previous_pids=previous_pids,
+                        previous_keys=previous_keys,
+                    )
+                    previous_sample_start = sample["sample_start_monotonic"]
+                    previous_accounting = sample["accounting_after"]
+                    previous_pids = set(sample["job_pids_after"])
+                    previous_keys = {
+                        (row["pid"], row["birth_ticks"])
+                        for row in sample["member_measurements"]
+                    }
+                    observed_child_identities.update(
+                        (row["pid"], row["birth_ticks"])
+                        for row in sample["member_measurements"]
+                        if os.path.normcase(os.path.abspath(row["identity"].get("exe", "")))
+                        == os.path.normcase(os.path.abspath(python_executable))
+                    )
+                    root_wait = job_guard._api_wait(child.process_handle, 0)
+                    pids = job.pid_list()
+                    accounting = job.accounting()
+                    if root_wait == job_guard.WAIT_OBJECT_0 and not pids and accounting["active_processes"] == 0:
+                        closure = child.wait_and_close(timeout_seconds=2.0)
+                        child = None
+                        break
+                    time.sleep(0.04)
+                self.assertIsNotNone(closure, "cmd/bat/许可环境fixture的Job成员未闭合")
+                child = None
+
+                stdout = (run_dir / "stdout.log").read_text(encoding="utf-8", errors="replace")
+                stderr = (run_dir / "stderr.log").read_text(encoding="utf-8", errors="replace")
+                self.assertIn("CHILD_RDI_VERBOSE=False", stdout)
+                self.assertNotIn(marker, stdout)
+                self.assertNotIn(str(license_path), stdout)
+                self.assertNotIn(marker, stderr)
+                self.assertNotIn(str(license_path), stderr)
+                self.assertEqual(
+                    controller.hashlib.sha256(str(license_path).encode("utf-8")).hexdigest().upper(),
+                    env_receipt.read_text(encoding="ascii").strip(),
+                )
+                self.assertEqual(0, closure["final"]["root_native_handle_exit_code"])
+                self.assertEqual([], closure["final"]["job_pids"])
+                self.assertTrue(all(row["status"] == "EXITED" for row in closure["final"]["member_readbacks"]))
+                final_member_keys = {
+                    (row["pid"], row["birth_ticks"])
+                    for row in closure["final"]["member_readbacks"]
+                }
+                self.assertTrue(observed_child_identities)
+                self.assertTrue(observed_child_identities.issubset(final_member_keys))
+
+                manifest = {
+                    "schema": "s15-direct-frozen-dcp-bitgen/2.0.0",
+                    "status": "PASS_RDI_VERBOSE_SECRET_REDACTION",
+                    "input_paths_and_hashes": {"license_environment_audit": license_audit},
+                    "process_launch": {
+                        "argv": cmd_argv,
+                        "batch_command": command,
+                        "windows_command_line": job_guard.subprocess.list2cmdline(cmd_argv),
+                        "root_identity": root_identity,
+                        "lifecycle_events": closure["events"],
+                        "job_final_closure": closure["final"],
+                        "isolated_appdata_path": isolated_appdata,
+                        "rdi_verbose_forced_off": environment["RDI_VERBOSE"] == "False",
+                    },
+                    "artifacts": {
+                        "stdout": {"size_bytes": len(stdout.encode("utf-8")), "sha256": controller.hashlib.sha256(stdout.encode("utf-8")).hexdigest().upper()},
+                        "stderr": {"size_bytes": len(stderr.encode("utf-8")), "sha256": controller.hashlib.sha256(stderr.encode("utf-8")).hexdigest().upper()},
+                    },
+                }
+                writer = controller.ManifestWriter(run_dir, manifest)
+                writer.close()
+                writer = None
+                serialized_manifest = (run_dir / "manifest.json").read_text(encoding="utf-8")
+                self.assertNotIn(marker, serialized_manifest)
+                self.assertNotIn(str(license_path), serialized_manifest)
+                self.assertNotIn(marker, json.dumps(license_audit, ensure_ascii=False))
+                self.assertNotIn(str(license_path), json.dumps(license_audit, ensure_ascii=False))
+                _write_json(
+                    run_dir / "fixture_result.json",
+                    {
+                        "status": "PASS_RDI_VERBOSE_SECRET_REDACTION",
+                        "stdout_contains_secret": False,
+                        "manifest_contains_secret": False,
+                        "license_child_environment_sha256_verified": True,
+                        "native_cmd_exit_code": closure["final"]["root_native_handle_exit_code"],
+                    },
+                )
+            finally:
+                if writer is not None:
+                    writer.close()
+                if child is not None:
+                    controller._kill_and_close(child, "FIXTURE_CLEANUP")
+                elif not job.closed:
+                    job.close()
+                if std_handles is not None:
+                    controller._close_stdio(std_handles, std_streams)
+                for lock in reversed(locks):
+                    lock.close()
+
     def test_injected_assign_failure_never_resumes_and_reaps_root(self):
         run_dir = _new_run_dir("assign_failure")
         marker = run_dir / "resumed.marker"
@@ -209,6 +515,278 @@ class FrozenTclStaticTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name == "nt", "Win32输入锁测试仅支持Windows")
 class ControllerSafetyUnitTests(unittest.TestCase):
+    def test_manifest_schema_marks_batch_launcher_revision(self):
+        source = (ROOT / "verification" / "s15_direct_vivado_bitgen.py").read_text(encoding="utf-8")
+        self.assertIn('"schema": "s15-direct-frozen-dcp-bitgen/2.0.0"', source)
+
+    def test_cmd_batch_arguments_reject_cmd_metacharacters_and_whitespace(self):
+        run_dir = _new_run_dir("cmd_argument_boundaries")
+        batch_path = run_dir / "fixture_launcher.bat"
+        unsafe = (
+            "contains space",
+            "& whoami",
+            "|more",
+            "<input",
+            ">output",
+            "^escape",
+            "(group)",
+            "%PATH%",
+            "!variable!",
+            "quoted\"value",
+            "line\nbreak",
+            "semicolon;command",
+        )
+        rejected = []
+        for value in unsafe:
+            with self.subTest(value=value), self.assertRaises(controller.ControllerError):
+                controller._build_cmd_batch_argv(controller.CMD_EXE, str(batch_path), ["-tclargs", value])
+            rejected.append(value)
+        with self.assertRaises(controller.ControllerError):
+            controller._build_cmd_batch_argv("cmd.exe", str(batch_path), [])
+        with self.assertRaises(controller.ControllerError):
+            controller._build_cmd_batch_argv(controller.CMD_EXE, str(batch_path), "-mode batch")
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_CMD_ARGUMENT_BOUNDARIES", "rejected_arguments": rejected},
+        )
+
+    def test_batch_launcher_inherits_appdata_and_license_environment(self):
+        run_dir = _new_run_dir("environment_inheritance")
+        expected = {"APPDATA": str(run_dir), "XILINXD_LICENSE_FILE": "27000@fixture-license.invalid", "LM_LICENSE_FILE": "fixture-license-file.lic"}
+        with mock.patch.dict(os.environ, expected, clear=False):
+            environment, isolated_appdata, audit = controller._child_environment(run_dir)
+        self.assertNotEqual(expected["APPDATA"], isolated_appdata)
+        self.assertEqual(str(run_dir / "isolated_appdata"), environment["APPDATA"])
+        self.assertTrue(audit["usable"])
+        self.assertEqual("explicit_environment", audit["mode"])
+        for name in controller.LICENSE_ENVIRONMENT_NAMES:
+            self.assertEqual(expected[name], environment[name])
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_PRIVATE_APPDATA_AND_LICENSE_ENVIRONMENT_INHERITANCE",
+                "isolated_appdata": isolated_appdata,
+                "license_variables": list(controller.LICENSE_ENVIRONMENT_NAMES),
+                "license_audit": audit,
+            },
+        )
+
+    def test_private_appdata_excludes_user_tcl_init_scripts(self):
+        run_dir = _new_run_dir("private_appdata_user_init")
+        source_appdata = run_dir / "source_appdata"
+        version_dir = source_appdata / "Xilinx" / "Vivado" / controller.EXPECTED_VIVADO_VERSION
+        version_dir.mkdir(parents=True)
+        marker = run_dir / "user_init_executed.marker"
+        script = version_dir / "Vivado_init.tcl"
+        script.write_text(f"set handle [open {{{marker}}} w]; puts $handle executed; close $handle\n", encoding="utf-8")
+        license_file = run_dir / "fixture_license.lic"
+        license_file.write_bytes(b"fixture license metadata only\n")
+        with mock.patch.dict(
+            os.environ,
+            {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": str(license_file)},
+            clear=False,
+        ):
+            audit = controller._audit_user_init_scripts(source_appdata)
+            environment, isolated_appdata, _license_audit = controller._child_environment(run_dir)
+        self.assertTrue(audit["source_scripts"][0]["exists"])
+        self.assertFalse(audit["copied_to_child_appdata"])
+        self.assertFalse((Path(isolated_appdata) / "Xilinx" / "Vivado" / controller.EXPECTED_VIVADO_VERSION / "Vivado_init.tcl").exists())
+        self.assertEqual(isolated_appdata, environment["APPDATA"])
+        self.assertFalse(marker.exists())
+        self.assertNotIn(str(source_appdata), json.dumps(audit, ensure_ascii=False))
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_USER_TCL_EXCLUDED_BY_PRIVATE_APPDATA", "script_audit": audit, "isolated_appdata": isolated_appdata},
+        )
+
+    def test_license_audit_preserves_nonempty_values_without_network_probe(self):
+        run_dir = _new_run_dir("license_value_audit")
+        appdata = run_dir / "fixture_appdata"
+        appdata.mkdir()
+        value = "27000@fixture-license.invalid;C:\\licenses\\node_locked.lic"
+        environment = {"XILINXD_LICENSE_FILE": value}
+        with mock.patch("socket.socket", side_effect=AssertionError("不应进行网络探测")):
+            audit = controller._audit_license_configuration(environment, appdata)
+        self.assertTrue(audit["usable"])
+        self.assertEqual("explicit_environment", audit["mode"])
+        self.assertEqual(
+            controller.hashlib.sha256(value.encode("utf-8")).hexdigest().upper(),
+            audit["variables"][0]["value_sha256"],
+        )
+        serialized = json.dumps(audit, ensure_ascii=False)
+        self.assertNotIn(value, serialized)
+        self.assertNotIn("fixture-license.invalid", serialized)
+        _write_json(run_dir / "fixture_result.json", {"status": "PASS_REDACTED_LICENSE_ENV_AUDIT", "audit": audit})
+
+    def test_default_license_fallback_requires_exactly_one_file_and_redacts_parent_path(self):
+        run_dir = _new_run_dir("default_license_fallback")
+        source_appdata = run_dir / "source_appdata"
+        license_dir = source_appdata / "XilinxLicense"
+        license_dir.mkdir(parents=True)
+        license_file = license_dir / "single_fixture.lic"
+        license_file.write_bytes(b"fixture license bytes are not copied\n")
+        environment = {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": ""}
+        with mock.patch.dict(os.environ, environment, clear=False):
+            audit = controller._audit_license_configuration(environment, source_appdata)
+            child_environment, isolated_appdata, child_audit = controller._child_environment(run_dir)
+        self.assertTrue(audit["usable"])
+        self.assertTrue(audit["default_license_used"])
+        self.assertEqual(str(license_file), child_environment["XILINXD_LICENSE_FILE"])
+        self.assertEqual(str(run_dir / "isolated_appdata"), isolated_appdata)
+        self.assertEqual(audit, child_audit)
+        self.assertNotIn(str(source_appdata), json.dumps(audit, ensure_ascii=False))
+        self.assertFalse((Path(isolated_appdata) / "XilinxLicense" / license_file.name).exists())
+
+        second_license = license_dir / "second_fixture.lic"
+        second_license.write_bytes(b"second fixture license bytes\n")
+        multiple_audit = controller._audit_license_configuration(environment, source_appdata)
+        self.assertFalse(multiple_audit["usable"])
+        self.assertFalse(multiple_audit["default_license_used"])
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_SINGLE_DEFAULT_LICENSE_ONLY",
+                "single_file_audit": audit,
+                "multiple_file_audit": multiple_audit,
+                "isolated_appdata": isolated_appdata,
+            },
+        )
+
+    def test_default_license_recheck_failures_are_redacted_in_production_manifest(self):
+        run_dir = _new_run_dir("default_license_recheck_redaction")
+        source_appdata = run_dir / "source_appdata"
+        license_dir = source_appdata / "XilinxLicense"
+        license_dir.mkdir(parents=True)
+        marker = "SENSITIVE_LICENSE_PATH_" + secrets.token_hex(8)
+        license_file = license_dir / f"{marker}.lic"
+        license_file.write_bytes(b"fixture-only license metadata\n")
+        environment = {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": ""}
+        with mock.patch.dict(os.environ, environment, clear=False):
+            audit = controller._audit_license_configuration(environment, source_appdata)
+        self.assertTrue(audit["default_license_used"])
+        self.assertNotIn(marker, json.dumps(audit, ensure_ascii=False))
+        self.assertNotIn(str(source_appdata), json.dumps(audit, ensure_ascii=False))
+
+        injected_failures = []
+        for failure_kind in ("path_chain", "iterdir"):
+            failure_run = _new_run_dir(f"default_license_recheck_{failure_kind}")
+            manifest = {
+                "schema": "s15-direct-frozen-dcp-bitgen/2.0.0",
+                "status": "PREPARED_NOT_STARTED",
+                "run_id": failure_run.name,
+                "run_directory": str(failure_run),
+                "input_paths_and_hashes": {
+                    "license_environment_audit": audit,
+                },
+                "stop_reason": None,
+            }
+            writer = controller.ManifestWriter(failure_run, manifest)
+            raw_text = f"injected {failure_kind} failure {license_file} {marker}"
+            try:
+                if failure_kind == "path_chain":
+                    real_assert = controller._assert_path_chain
+
+                    def fail_license_path(path, expected_kind):
+                        if os.path.normcase(os.path.abspath(str(path))) == os.path.normcase(os.path.abspath(str(license_file))):
+                            raise OSError(raw_text)
+                        return real_assert(path, expected_kind)
+
+                    patcher = mock.patch.object(controller, "_assert_path_chain", side_effect=fail_license_path)
+                else:
+                    real_iterdir = Path.iterdir
+
+                    def fail_license_iterdir(path):
+                        if os.path.normcase(os.path.abspath(str(path))) == os.path.normcase(os.path.abspath(str(license_dir))):
+                            raise OSError(raw_text)
+                        return real_iterdir(path)
+
+                    patcher = mock.patch.object(Path, "iterdir", new=fail_license_iterdir)
+                with patcher:
+                    with self.assertRaises(controller.ControllerError) as raised:
+                        controller._resolve_single_default_license_path(source_appdata, audit)
+                self.assertIsNone(raised.exception.__cause__)
+                self.assertNotIn(marker, str(raised.exception))
+                self.assertNotIn(str(source_appdata), str(raised.exception))
+                self.assertNotIn(raw_text, str(raised.exception))
+                reason = controller._record_controller_exception(manifest, raised.exception)
+                self.assertEqual("CONTROLLER_EXCEPTION_REDACTED", reason)
+                writer.write()
+                writer.close()
+                serialized = (failure_run / "manifest.json").read_text(encoding="utf-8")
+                self.assertIn('"schema": "s15-direct-frozen-dcp-bitgen/2.0.0"', serialized)
+                self.assertEqual("FAILED_OR_INCOMPLETE", manifest["status"])
+                self.assertEqual("CONTROLLER_EXCEPTION_REDACTED", manifest["stop_reason"])
+                self.assertEqual(
+                    {
+                        "category": "CONTROLLER_EXCEPTION",
+                        "details_redacted": True,
+                        "message": "原始异常文本已省略",
+                    },
+                    manifest["controller_exception"],
+                )
+                self.assertNotIn(marker, serialized)
+                self.assertNotIn(str(source_appdata), serialized)
+                self.assertNotIn(str(license_file), serialized)
+                self.assertNotIn(raw_text, serialized)
+                injected_failures.append(failure_kind)
+            finally:
+                if not writer.stream.closed:
+                    writer.close()
+
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_DEFAULT_LICENSE_RECHECK_EXCEPTION_REDACTION",
+                "injected_failures": injected_failures,
+                "production_manifest_schema": "s15-direct-frozen-dcp-bitgen/2.0.0",
+                "license_audit_contains_path_or_marker": False,
+            },
+        )
+
+    def test_vivado_vendor_batch_call_chain_is_present_and_hashed(self):
+        run_dir = _new_run_dir("vendor_batch_chain")
+        paths = {
+            "vivado.bat": controller.VIVADO_BAT,
+            **controller.VIVADO_BATCH_SUPPORT,
+        }
+        call_chain = controller._verify_vivado_batch_chain(paths)
+        hashes = {name: controller._sha256(path) for name, path in paths.items()}
+        self.assertEqual(set(paths), set(hashes))
+        self.assertEqual({"vivado.bat", "loader.bat", "rdiArgs.bat"}, set(call_chain))
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_STATIC_VIVADO_BATCH_CHAIN", "paths": paths, "sha256": hashes, "calls": call_chain},
+        )
+
+    def test_success_requires_observed_vivado_job_member_exit_zero(self):
+        observation = {
+            "pid": 123,
+            "birth_ticks": 456,
+            "create_time": 789,
+            "exe": controller.VIVADO_EXE,
+            "cmdline": [controller.VIVADO_EXE, "-mode", "batch"],
+            "first_observed_monotonic_seconds": 1.0,
+            "last_observed_monotonic_seconds": 2.0,
+        }
+        valid_closure = {
+            "final": {
+                "member_readbacks": [
+                    {"pid": 123, "birth_ticks": 456, "status": "EXITED", "exit_code": 0}
+                ]
+            }
+        }
+        self.assertTrue(controller._vivado_member_closure([observation], valid_closure)["valid"])
+        nonzero = {
+            "final": {
+                "member_readbacks": [
+                    {"pid": 123, "birth_ticks": 456, "status": "EXITED", "exit_code": 1}
+                ]
+            }
+        }
+        self.assertFalse(controller._vivado_member_closure([observation], nonzero)["valid"])
+        self.assertFalse(controller._vivado_member_closure([], valid_closure)["valid"])
+        self.assertFalse(controller._vivado_member_closure([observation], {"final": {"member_readbacks": []}})["valid"])
+
     def test_input_copy_lock_blocks_write_replace_delete_without_launch(self):
         run_dir = _new_run_dir("input_share_lock")
         dcp_source = run_dir / "approved_source.dcp"
@@ -399,7 +977,7 @@ class ControllerSafetyUnitTests(unittest.TestCase):
             self.assertEqual(isolated_root, injected_run.parent)
         run_dir = _new_run_dir("argv_copy_paths")
         facts = {
-            "vivado_executable_path": str(ROOT / "fixture-vivado.exe"),
+            "vivado_batch_path": controller.VIVADO_BAT,
             "tcl_copy_path": str(run_dir / "inputs" / controller.TCL_COPY_NAME),
             "dcp_copy_path": str(run_dir / "inputs" / controller.DCP_COPY_NAME),
             "evidence_root": str(run_dir.parent),

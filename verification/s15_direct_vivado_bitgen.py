@@ -6,6 +6,7 @@ import hashlib
 import json
 import msvcrt
 import os
+import re
 import secrets
 import stat
 import sys
@@ -24,7 +25,15 @@ FROZEN_DCP = (
     "s2b_inference_wrapper_postroute_physopt.dcp"
 )
 EXPECTED_DCP_SHA256 = "DB2AAF706C99121EADA307FEC80B4D69B362F1232FF17FCF65F4DD5C0015AD83"
+CMD_EXE = r"C:\Windows\System32\cmd.exe"
+VIVADO_BIN = r"D:\Xilinx\2026.1\Vivado\bin"
+VIVADO_BAT = r"D:\Xilinx\2026.1\Vivado\bin\vivado.bat"
 VIVADO_EXE = r"D:\Xilinx\2026.1\Vivado\bin\unwrapped\win64.o\vivado.exe"
+VIVADO_BATCH_SUPPORT = {
+    "setupEnv.bat": r"D:\Xilinx\2026.1\Vivado\bin\setupEnv.bat",
+    "loader.bat": r"D:\Xilinx\2026.1\Vivado\bin\loader.bat",
+    "rdiArgs.bat": r"D:\Xilinx\2026.1\Vivado\bin\rdiArgs.bat",
+}
 EXPECTED_VIVADO_VERSION = "2026.1"
 EXPECTED_PART = "xc7z020clg400-2"
 EXPECTED_BIT_NAME = "s2b_inference_wrapper_postroute_physopt.bit"
@@ -45,6 +54,8 @@ FILE_ATTRIBUTE_NORMAL = 0x00000080
 FILE_ATTRIBUTE_DIRECTORY = 0x00000010
 FILE_ATTRIBUTE_TAG_INFO_CLASS = 9
 INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
+CMD_SAFE_TOKEN = re.compile(r"\A[A-Za-z0-9_:\\/.-]+\Z", re.ASCII)
+LICENSE_ENVIRONMENT_NAMES = ("XILINXD_LICENSE_FILE", "LM_LICENSE_FILE")
 
 
 class ControllerError(RuntimeError):
@@ -138,6 +149,18 @@ class ManifestWriter:
         self.stream.close()
 
 
+def _record_controller_exception(manifest, error):
+    """以固定脱敏结构记录控制器异常，不序列化异常类型或原始文本。"""
+    manifest["controller_exception"] = {
+        "category": "CONTROLLER_EXCEPTION",
+        "details_redacted": True,
+        "message": "原始异常文本已省略",
+    }
+    manifest["status"] = "FAILED_OR_INCOMPLETE"
+    manifest["stop_reason"] = "CONTROLLER_EXCEPTION_REDACTED"
+    return manifest["stop_reason"]
+
+
 def _utc_now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
@@ -213,54 +236,267 @@ def _create_unique_run_dir(evidence_root):
     raise ControllerError("未能创建唯一direct bitgen RunId目录")
 
 
+def _validate_cmd_token(token, label):
+    """只允许不含cmd展开、控制符、空白或引用符的固定安全参数。"""
+    if not isinstance(token, str) or not token or not CMD_SAFE_TOKEN.fullmatch(token):
+        raise ControllerError(f"拒绝不安全cmd.exe参数{label}：{token!r}")
+    return token
+
+
+def _build_cmd_batch_argv(cmd_executable, batch_path, batch_arguments):
+    """以无引号安全词构造cmd /D /S /C命令，避免批处理注入和转义歧义。"""
+    _validate_cmd_token(cmd_executable, "cmd映像")
+    _validate_cmd_token(batch_path, "批处理路径")
+    if not os.path.isabs(cmd_executable) or not os.path.isabs(batch_path):
+        raise ControllerError("cmd映像与批处理入口都必须是绝对路径")
+    if not isinstance(batch_arguments, (list, tuple)):
+        raise ControllerError("批处理参数必须是序列")
+    safe_arguments = [
+        _validate_cmd_token(value, f"[{index}]")
+        for index, value in enumerate(batch_arguments)
+    ]
+    command = "call " + " ".join([batch_path, *safe_arguments])
+    argv = [cmd_executable, "/D", "/S", "/V:OFF", "/C", command]
+    return argv, command
+
+
+def _verify_vivado_batch_chain(batch_paths):
+    """静态核对Vivado入口、loader、rdiArgs及setupEnv之间的厂商调用链。"""
+    contents = {}
+    for name, path in batch_paths.items():
+        contents[name] = Path(path).read_text(encoding="utf-8", errors="replace").casefold()
+    required_calls = {
+        "vivado.bat": (
+            'call "%_rdi_binroot%/setupenv.bat"',
+            'call "%rdi_binroot%/setupenv.bat" "%rdi_binroot%" xilinx_vivado',
+            'call "%rdi_binroot%/loader.bat" -exec %rdi_prog% %*',
+        ),
+        "loader.bat": ('call "%rdi_binroot%/rdiargs.bat" %*',),
+        "rdiArgs.bat": ('call "%rdi_binroot%/setupenv.bat"',),
+    }
+    for name, snippets in required_calls.items():
+        text = contents.get(name)
+        if text is None:
+            raise ControllerError(f"Vivado批处理链缺少{name}")
+        for snippet in snippets:
+            if snippet not in text:
+                raise ControllerError(f"Vivado批处理调用链与预期不符：{name} 缺少 {snippet!r}")
+    return {name: list(snippets) for name, snippets in required_calls.items()}
+
+
 def _preflight_inputs():
     _ensure_exact_repository()
     dcp = _assert_path_chain(FROZEN_DCP, "file")
-    exe = _assert_path_chain(VIVADO_EXE, "file")
+    cmd_executable = _assert_path_chain(CMD_EXE, "file")
+    vivado_batch = _assert_path_chain(VIVADO_BAT, "file")
+    vivado_executable = _assert_path_chain(VIVADO_EXE, "file")
+    support_paths = {
+        name: _assert_path_chain(path, "file")
+        for name, path in VIVADO_BATCH_SUPPORT.items()
+    }
     source = _assert_path_chain(Path(__file__).with_name(TCL_SCRIPT_NAME), "file")
     evidence = _effective_evidence_root()
     dcp_hash = _sha256(dcp)
     if dcp_hash != EXPECTED_DCP_SHA256:
         raise ControllerError(f"冻结DCP SHA256不符：expected={EXPECTED_DCP_SHA256}, actual={dcp_hash}")
-    enterprise_init_candidates = _enterprise_init_candidates()
-    for init_path in enterprise_init_candidates:
+    batch_paths = {"vivado.bat": vivado_batch, **support_paths}
+    batch_call_chain = _verify_vivado_batch_chain(batch_paths)
+    install_init_candidates = _install_vivado_init_candidates()
+    for init_path in install_init_candidates:
         scripts_dir = os.path.dirname(init_path)
         if os.path.lexists(scripts_dir):
             _assert_path_chain(scripts_dir, "directory")
         if os.path.lexists(init_path):
             _assert_path_chain(init_path, "file")
             raise ControllerError(f"检测到可能在Vivado启动时自动执行的安装级Tcl初始化脚本：{init_path!r}")
+    appdata = os.environ.get("APPDATA")
+    if not appdata:
+        raise ControllerError("APPDATA未定义，不能审计默认许可证且保留显式许可设置")
+    _assert_path_chain(appdata, "directory")
+    user_init_audit = _audit_user_init_scripts(appdata)
+    license_audit = _audit_license_configuration(os.environ, appdata)
+    if not license_audit["usable"]:
+        raise ControllerError(
+            "缺少非空显式XILINXD_LICENSE_FILE/LM_LICENSE_FILE，且APPDATA下没有唯一可核验的默认.lic"
+        )
+    toolchain_files = {
+        "cmd.exe": {"path": cmd_executable, "sha256": _sha256(cmd_executable)},
+        "vivado.bat": {"path": vivado_batch, "sha256": _sha256(vivado_batch)},
+        "vivado.exe": {"path": vivado_executable, "sha256": _sha256(vivado_executable)},
+        **{
+            name: {"path": path, "sha256": _sha256(path)}
+            for name, path in support_paths.items()
+        },
+    }
     return {
         "dcp_path": dcp,
         "dcp_sha256": dcp_hash,
-        "vivado_executable_path": exe,
-        "vivado_executable_sha256": _sha256(exe),
+        "cmd_executable_path": cmd_executable,
+        "vivado_batch_path": vivado_batch,
+        "vivado_executable_path": vivado_executable,
+        "vivado_executable_sha256": toolchain_files["vivado.exe"]["sha256"],
+        "toolchain_files": toolchain_files,
+        "batch_call_chain": batch_call_chain,
         "vivado_expected_version": EXPECTED_VIVADO_VERSION,
         "tcl_source_path": source,
         "tcl_source_sha256": _sha256(source),
         "controller_source_path": _assert_path_chain(__file__, "file"),
         "controller_source_sha256": _sha256(__file__),
         "evidence_root": evidence,
-        "enterprise_init_candidates_absent": enterprise_init_candidates,
+        "vivado_install_init_candidates_absent": install_init_candidates,
+        "user_init_script_audit": user_init_audit,
+        "parent_appdata_isolated": True,
+        "license_environment_audit": license_audit,
     }
 
 
-def _enterprise_init_candidates():
-    """列出Vivado安装根及版本目录中可能被自动source的初始化脚本。"""
+def _install_vivado_init_candidates():
+    """列出Vivado安装树中可能自动source的初始化脚本。"""
     product_root = Path(VIVADO_EXE).parents[3]
-    roots = (product_root / EXPECTED_VIVADO_VERSION / "scripts", product_root / "scripts")
     names = ("Vivado_init.tcl", "init.tcl")
-    return [str(root / name) for root in roots for name in names]
+    return [
+        str(root / name)
+        for root in (product_root / EXPECTED_VIVADO_VERSION / "scripts", product_root / "scripts")
+        for name in names
+    ]
+
+
+def _audit_user_init_scripts(appdata):
+    """只记录用户Tcl初始化脚本的相对位置和哈希，不读取或执行脚本内容。"""
+    appdata = _assert_path_chain(appdata, "directory")
+    user_root = Path(appdata) / "Xilinx" / "Vivado"
+    candidates = (
+        ("versioned/Vivado_init.tcl", user_root / EXPECTED_VIVADO_VERSION / "Vivado_init.tcl"),
+        ("versioned/init.tcl", user_root / EXPECTED_VIVADO_VERSION / "init.tcl"),
+        ("general/Vivado_init.tcl", user_root / "Vivado_init.tcl"),
+        ("general/init.tcl", user_root / "init.tcl"),
+    )
+    records = []
+    for relative_name, candidate in candidates:
+        if not os.path.lexists(candidate):
+            records.append({"relative_name": relative_name, "exists": False, "sha256": None})
+            continue
+        _assert_path_chain(candidate, "file")
+        records.append(
+            {
+                "relative_name": relative_name,
+                "exists": True,
+                "size_bytes": os.path.getsize(candidate),
+                "sha256": _sha256(candidate),
+            }
+        )
+    return {"source_scripts": records, "copied_to_child_appdata": False}
+
+
+def _probe_default_license_directory(appdata):
+    """只审计APPDATA默认许可证文件的存在、长度和哈希，不记录路径或内容。"""
+    license_dir = Path(appdata) / "XilinxLicense"
+    result = {"directory_exists": False, "license_file_count": 0, "files": [], "uninspectable_entries": 0}
+    if not os.path.lexists(license_dir):
+        return result
+    try:
+        _assert_path_chain(license_dir, "directory")
+        entries = list(license_dir.iterdir())
+    except BaseException:
+        result["directory_exists"] = True
+        result["uninspectable_entries"] = 1
+        return result
+    result["directory_exists"] = True
+    for entry in entries:
+        if entry.suffix.casefold() != ".lic":
+            continue
+        try:
+            _assert_path_chain(entry, "file")
+            size = os.path.getsize(entry)
+            digest = _sha256(entry)
+        except BaseException:
+            result["uninspectable_entries"] += 1
+            continue
+        result["files"].append({"size_bytes": size, "sha256": digest})
+    result["license_file_count"] = len(result["files"])
+    return result
+
+
+def _resolve_single_default_license_path(appdata, license_audit):
+    """在私有APPDATA启动前重核唯一默认许可证，仅返回实际传给Vivado的路径。"""
+    if not license_audit.get("default_license_used"):
+        return None
+    try:
+        license_dir = Path(appdata) / "XilinxLicense"
+        selected = [entry for entry in license_dir.iterdir() if entry.suffix.casefold() == ".lic"]
+        recorded = license_audit["default_appdata_license_probe"]["files"]
+        if len(selected) != 1 or len(recorded) != 1:
+            raise OSError("default license file set changed")
+        path = _assert_path_chain(selected[0], "file")
+        record = {"size_bytes": os.path.getsize(path), "sha256": _sha256(path)}
+        if record != recorded[0]:
+            raise OSError("default license metadata changed")
+        return path
+    except BaseException:
+        raise ControllerError("默认许可证路径重核失败；原始异常与路径已隐藏") from None
+
+
+def _audit_license_configuration(environment, appdata):
+    """只核对显式许可变量是否非空，或唯一默认许可证文件的元数据。"""
+    variables = []
+    any_explicit_value = False
+    for name in LICENSE_ENVIRONMENT_NAMES:
+        raw_value = environment.get(name)
+        present = raw_value is not None and bool(raw_value.strip())
+        any_explicit_value = any_explicit_value or present
+        variables.append(
+            {
+                "name": name,
+                "set": raw_value is not None,
+                "nonempty": present,
+                "value_sha256": hashlib.sha256(raw_value.encode("utf-8")).hexdigest().upper()
+                if raw_value is not None
+                else None,
+            }
+        )
+    default_probe = _probe_default_license_directory(appdata)
+    default_files = default_probe["files"]
+    default_usable = (
+        not any_explicit_value
+        and default_probe["uninspectable_entries"] == 0
+        and len(default_files) == 1
+        and default_files[0]["size_bytes"] > 0
+    )
+    return {
+        "usable": any_explicit_value or default_usable,
+        "mode": "explicit_environment" if any_explicit_value else "single_default_file" if default_usable else "unavailable",
+        "fallback_license_path": default_probe.get("single_file_path") if default_usable else None,
+        "fallback_license_sha256": default_files[0]["sha256"] if default_usable else None,
+        "fallback_license_size_bytes": default_files[0]["size_bytes"] if default_usable else None,
+        "variables": variables,
+        "default_appdata_license_probe": default_probe,
+        "default_license_used": default_usable,
+    }
 
 
 def _child_environment(run_dir):
-    """保留Vivado运行所需环境，同时将用户级Tcl初始化搜索根隔离到本Run。"""
-    appdata = Path(run_dir) / "isolated_appdata"
-    appdata.mkdir()
-    _assert_path_chain(appdata, "directory")
+    """创建私有APPDATA并原样保留显式许可环境变量或唯一默认许可证。"""
+    _assert_path_chain(run_dir, "directory")
+    source_appdata = os.environ.get("APPDATA")
+    if not source_appdata:
+        raise ControllerError("APPDATA未定义，拒绝启动Vivado批处理入口")
+    license_audit = _audit_license_configuration(os.environ, source_appdata)
+    if not license_audit["usable"]:
+        raise ControllerError("创建隔离APPDATA前未找到非空显式许可变量或唯一可核验默认许可证文件")
+    isolated_appdata = Path(run_dir) / "isolated_appdata"
+    if os.path.lexists(isolated_appdata):
+        raise ControllerError(f"拒绝复用已有私有APPDATA目录：{str(isolated_appdata)!r}")
+    isolated_appdata.mkdir()
+    _assert_path_chain(isolated_appdata, "directory")
     environment = dict(os.environ)
-    environment["APPDATA"] = str(appdata)
-    return environment, str(appdata)
+    environment["APPDATA"] = str(isolated_appdata)
+    environment["RDI_VERBOSE"] = "False"
+    for name in LICENSE_ENVIRONMENT_NAMES:
+        if os.environ.get(name) is not None and environment.get(name) != os.environ[name]:
+            raise ControllerError(f"显式许可变量未完整继承：{name}")
+    if license_audit["default_license_used"]:
+        environment["XILINXD_LICENSE_FILE"] = _resolve_single_default_license_path(source_appdata, license_audit)
+    return environment, str(isolated_appdata), license_audit
 
 
 def _copy_verified_input(source_path, destination_path, expected_sha256, label):
@@ -334,6 +570,31 @@ def _prepare_run_inputs(run_dir, input_facts):
                 cleanup_errors.append(repr(error))
         if cleanup_errors:
             raise ControllerError(f"输入副本准备失败且只读锁清理不闭合：primary={primary!r}; cleanup={cleanup_errors!r}") from primary
+        raise
+
+
+def _lock_verified_toolchain(facts):
+    """只读锁住cmd、Vivado批处理链及目标Vivado映像并复核预检哈希。"""
+    locks = []
+    locked_hashes = {}
+    try:
+        for name, record in facts["toolchain_files"].items():
+            lock = InputReadLock(record["path"])
+            locks.append(lock)
+            digest = _sha256(record["path"])
+            if digest != record["sha256"]:
+                raise ControllerError(f"锁定后的工具链文件SHA256不符：{name}")
+            locked_hashes[name] = digest
+        return locks, locked_hashes
+    except BaseException as primary:
+        cleanup_errors = []
+        for lock in reversed(locks):
+            try:
+                lock.close()
+            except BaseException as error:
+                cleanup_errors.append(repr(error))
+        if cleanup_errors:
+            raise ControllerError(f"工具链锁定失败且只读锁清理不闭合：primary={primary!r}; cleanup={cleanup_errors!r}") from primary
         raise
 
 
@@ -411,7 +672,7 @@ def _expected_argv(run_dir, inputs):
     bit_path = os.path.join(run_dir, EXPECTED_BIT_NAME)
     progress_path = os.path.join(run_dir, TCL_PROGRESS_NAME)
     argv = [
-        inputs["vivado_executable_path"],
+        inputs["vivado_batch_path"],
         "-mode",
         "batch",
         "-log",
@@ -537,6 +798,59 @@ def _has_real_log_progress(appended):
     return any(appended.get(name, {}).get("appended_bytes", 0) > 0 for name in ("vivado_log", "vivado_journal"))
 
 
+def _record_vivado_job_members(seen, sample, vivado_executable_path, monotonic_seconds):
+    """只从已读回身份的Job成员中登记精确Vivado映像。"""
+    expected = os.path.normcase(os.path.abspath(vivado_executable_path))
+    for member in sample.get("member_measurements", []):
+        identity = member.get("identity")
+        if not isinstance(identity, dict) or not identity.get("exe"):
+            continue
+        actual = os.path.normcase(os.path.abspath(identity["exe"]))
+        if actual != expected:
+            continue
+        key = (int(member["pid"]), int(member["birth_ticks"]))
+        record = seen.get(key)
+        if record is None:
+            record = {
+                "pid": key[0],
+                "birth_ticks": key[1],
+                "create_time": identity["create_time"],
+                "exe": identity["exe"],
+                "cmdline": identity["cmdline"],
+                "first_observed_monotonic_seconds": monotonic_seconds,
+                "last_observed_monotonic_seconds": monotonic_seconds,
+            }
+            seen[key] = record
+        else:
+            record["last_observed_monotonic_seconds"] = monotonic_seconds
+    return [seen[key] for key in sorted(seen)]
+
+
+def _vivado_member_closure(observations, closure):
+    """将Vivado Job成员身份观察绑定到最终Job退出码读回。"""
+    final_rows = closure.get("final", {}).get("member_readbacks", []) if isinstance(closure, dict) else []
+    by_key = {
+        (int(row.get("pid", -1)), int(row.get("birth_ticks", -1))): row
+        for row in final_rows
+        if isinstance(row, dict)
+    }
+    members = []
+    for observation in observations:
+        key = (int(observation["pid"]), int(observation["birth_ticks"]))
+        final = by_key.get(key)
+        members.append(
+            {
+                **observation,
+                "final_status": final.get("status") if final else "NOT_IN_FINAL_JOB_CLOSURE",
+                "native_exit_code": final.get("exit_code") if final else None,
+            }
+        )
+    valid = bool(members) and all(
+        row["final_status"] == "EXITED" and row["native_exit_code"] == 0 for row in members
+    )
+    return {"valid": valid, "observed_count": len(members), "members": members}
+
+
 def _sha256_if_present(path):
     if not os.path.lexists(path):
         return None
@@ -602,10 +916,17 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
     manifest = writer.manifest
     manifest["finish_utc"] = _utc_now()
     manifest["finish_monotonic_seconds"] = time.monotonic()
-    manifest["native_root_exit_code"] = result_code
-    manifest["stop_reason"] = stop_reason
+    manifest["native_cmd_root_exit_code"] = result_code
+    launch = manifest["process_launch"]
+    launch["native_cmd_root_exit_code"] = result_code
     manifest["job_final_closure"] = closure
     manifest["resource_peaks_and_floors"] = peaks
+    vivado_closure = _vivado_member_closure(launch.get("vivado_member_observations", []), closure)
+    launch["vivado_member_closure"] = vivado_closure
+    manifest["native_vivado_exit_codes"] = [row["native_exit_code"] for row in vivado_closure["members"]]
+    if not vivado_closure["valid"] and not stop_reason:
+        stop_reason = "TARGET_VIVADO_NOT_OBSERVED_AS_CLOSED_ZERO_EXIT_JOB_MEMBER"
+    manifest["stop_reason"] = stop_reason
     manifest["vivado_tcl_progress"] = _read_progress(outputs["tcl_progress"])
     monitor_rows = _read_monitor(outputs["monitor"])
     manifest["monitor_record_count"] = len(monitor_rows)
@@ -621,6 +942,7 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
         and not stop_reason
         and closure is not None
         and closure.get("final", {}).get("root_native_handle_exit_code") == 0
+        and vivado_closure["valid"]
         and len(version_events) == 1
         and version_events[0].get("detail") == EXPECTED_VIVADO_VERSION
         and len(part_events) == 1
@@ -640,6 +962,10 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
         "tcl_source_original_sha256": _sha256_if_present(input_facts["tcl_source_path"]),
         "tcl_source_copy_sha256": _sha256_if_present(input_facts["tcl_copy_path"]),
         "vivado_executable_sha256": _sha256_if_present(input_facts["vivado_executable_path"]),
+        "toolchain_file_sha256": {
+            name: _sha256_if_present(record["path"])
+            for name, record in input_facts["toolchain_files"].items()
+        },
         "controller_source_sha256": _sha256_if_present(input_facts["controller_source_path"]),
     }
     manifest["input_hashes_match_preflight"] = (
@@ -648,6 +974,10 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
         and manifest["input_hashes_after_run"]["tcl_source_original_sha256"] == input_facts["tcl_source_sha256"]
         and manifest["input_hashes_after_run"]["tcl_source_copy_sha256"] == input_facts["tcl_source_sha256"]
         and manifest["input_hashes_after_run"]["vivado_executable_sha256"] == input_facts["vivado_executable_sha256"]
+        and all(
+            manifest["input_hashes_after_run"]["toolchain_file_sha256"].get(name) == record["sha256"]
+            for name, record in input_facts["toolchain_files"].items()
+        )
         and manifest["input_hashes_after_run"]["controller_source_sha256"] == input_facts["controller_source_sha256"]
     )
     bit_record = manifest["artifacts"]["bitstream"]
@@ -668,7 +998,7 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
         manifest["stop_reason"] = "成功所需日志、监护、Tcl回执或bitstream缺失或无效"
     if not manifest["input_hashes_match_preflight"]:
         manifest["status"] = "FAILED_INPUT_CHANGED"
-        manifest["stop_reason"] = "原始或Run输入副本、Vivado可执行文件、Tcl脚本或控制器运行后SHA256变化"
+        manifest["stop_reason"] = "原始/Run输入、cmd/Vivado批处理链、Vivado映像或控制器运行后SHA256变化"
     elif manifest["status"] == "BITGEN_COMPLETE_SOFTWARE_ONLY" and not bit_length_matches:
         manifest["status"] = "FAILED_OR_INCOMPLETE"
         manifest["stop_reason"] = "bitstream大小与Tcl完成回执不一致"
@@ -676,7 +1006,7 @@ def _finalize_manifest(writer, run_dir, input_facts, outputs, peaks, result_code
     return manifest
 
 
-def _finish_controller_cleanup(writer, manifest, input_locks, run_exit_code):
+def _finish_controller_cleanup(writer, manifest, input_locks, run_exit_code, toolchain_locks=()):
     """释放输入只读锁并持久化最终清单，任何收尾失败都返回非零。"""
     lock_close_errors = []
     for input_lock in reversed(input_locks):
@@ -684,13 +1014,27 @@ def _finish_controller_cleanup(writer, manifest, input_locks, run_exit_code):
             input_lock.close()
         except BaseException as lock_error:
             lock_close_errors.append(repr(lock_error))
+    toolchain_lock_errors = []
+    for toolchain_lock in reversed(toolchain_locks):
+        try:
+            toolchain_lock.close()
+        except BaseException as lock_error:
+            toolchain_lock_errors.append(repr(lock_error))
     manifest["input_copy_locks_released_utc"] = _utc_now() if not lock_close_errors else None
     manifest["input_copy_lock_release_errors"] = lock_close_errors
-    if lock_close_errors:
+    manifest["toolchain_read_locks_released_utc"] = _utc_now() if not toolchain_lock_errors else None
+    manifest["toolchain_read_lock_release_errors"] = toolchain_lock_errors
+    if lock_close_errors or toolchain_lock_errors:
         manifest["status"] = "FAILED_OR_INCOMPLETE"
         prior_reason = manifest.get("stop_reason") or ""
         manifest["stop_reason"] = ";".join(
-            part for part in (prior_reason, "INPUT_COPY_LOCK_RELEASE_FAILED") if part
+            part
+            for part in (
+                prior_reason,
+                "INPUT_COPY_LOCK_RELEASE_FAILED" if lock_close_errors else None,
+                "TOOLCHAIN_READ_LOCK_RELEASE_FAILED" if toolchain_lock_errors else None,
+            )
+            if part
         )
         run_exit_code = 1
     try:
@@ -731,9 +1075,12 @@ def run_frozen_bitgen():
     facts["run_inputs_directory"] = str(run_dir / "inputs")
     facts["dcp_copy_path"] = str(run_dir / "inputs" / DCP_COPY_NAME)
     facts["tcl_copy_path"] = str(run_dir / "inputs" / TCL_COPY_NAME)
-    argv, output_paths = _expected_argv(run_dir, facts)
+    batch_argv, output_paths = _expected_argv(run_dir, facts)
+    argv, cmd_command = _build_cmd_batch_argv(
+        facts["cmd_executable_path"], facts["vivado_batch_path"], batch_argv[1:]
+    )
     manifest = {
-        "schema": "s15-direct-frozen-dcp-bitgen/1.0.0",
+        "schema": "s15-direct-frozen-dcp-bitgen/2.0.0",
         "status": "PREPARED_NOT_STARTED",
         "run_id": run_id,
         "run_directory": str(run_dir),
@@ -746,6 +1093,8 @@ def run_frozen_bitgen():
             "frozen_dcp_run_copy_sha256": None,
             "vivado_executable_path": facts["vivado_executable_path"],
             "vivado_executable_sha256": facts["vivado_executable_sha256"],
+            "toolchain_files": facts["toolchain_files"],
+            "vivado_batch_call_chain": facts["batch_call_chain"],
             "vivado_expected_version": facts["vivado_expected_version"],
             "vivado_actual_version": None,
             "tcl_source_path": facts["tcl_source_path"],
@@ -756,18 +1105,34 @@ def run_frozen_bitgen():
             "controller_source_sha256": facts["controller_source_sha256"],
             "evidence_root": facts["evidence_root"],
             "evidence_root_override_environment": EVIDENCE_ROOT_ENV,
-            "enterprise_init_candidates_absent": facts["enterprise_init_candidates_absent"],
+            "vivado_install_init_candidates_absent": facts["vivado_install_init_candidates_absent"],
+            "user_init_script_audit": facts["user_init_script_audit"],
+            "parent_appdata_isolated": facts["parent_appdata_isolated"],
+            "license_environment_audit": facts["license_environment_audit"],
         },
         "input_run_copies": [],
         "input_copy_locks_released_utc": None,
         "input_copy_lock_release_errors": [],
+        "toolchain_read_locks_released_utc": None,
+        "toolchain_read_lock_release_errors": [],
         "expected_part": EXPECTED_PART,
         "process_launch": {
-            "api": "Win32 CreateProcessW(CREATE_SUSPENDED), then AssignProcessToJobObject, identity/member closure, ResumeThread",
+            "api": "Win32 CreateProcessW(CREATE_SUSPENDED) cmd.exe /D /S /V:OFF /C call vivado.bat; AssignProcessToJobObject, identity/member closure, ResumeThread",
+            "root_process_role": "cmd.exe batch environment root",
+            "cmd_executable_path": facts["cmd_executable_path"],
+            "vivado_batch_path": facts["vivado_batch_path"],
+            "vivado_target_executable_path": facts["vivado_executable_path"],
+            "cmd_auto_run_disabled": True,
+            "rdi_verbose_forced_off": True,
+            "batch_command": cmd_command,
+            "batch_argv": batch_argv,
             "argv": argv,
             "windows_command_line": job_guard.subprocess.list2cmdline(argv),
             "working_directory": str(run_dir),
+            "isolated_appdata_path": str(run_dir / "isolated_appdata"),
             "root_identity": None,
+            "vivado_member_observations": [],
+            "vivado_member_closure": None,
             "pre_resume_receipt": None,
             "lifecycle_events": [],
         },
@@ -787,7 +1152,8 @@ def run_frozen_bitgen():
         "finish_monotonic_seconds": None,
         "resource_samples": [],
         "resource_peaks_and_floors": None,
-        "native_root_exit_code": None,
+        "native_cmd_root_exit_code": None,
+        "native_vivado_exit_codes": [],
         "stop_reason": None,
         "job_final_closure": None,
         "artifacts": {},
@@ -799,6 +1165,8 @@ def run_frozen_bitgen():
     std_streams = ()
     child_environment = None
     input_locks = []
+    toolchain_locks = []
+    vivado_member_observations = {}
     closure = None
     stop_reason = None
     native_root_exit_code = None
@@ -819,14 +1187,16 @@ def run_frozen_bitgen():
             if os.path.lexists(output_path):
                 raise ControllerError(f"拒绝覆盖已有目标产物：{output_path!r}")
         input_locks = _prepare_run_inputs(run_dir, facts)
+        toolchain_locks, locked_toolchain_hashes = _lock_verified_toolchain(facts)
         manifest["input_paths_and_hashes"]["frozen_dcp_run_copy_sha256"] = facts["locked_copy_hashes"]["dcp_copy_sha256"]
         manifest["input_paths_and_hashes"]["tcl_run_copy_sha256"] = facts["locked_copy_hashes"]["tcl_copy_sha256"]
+        manifest["input_paths_and_hashes"]["toolchain_locked_sha256"] = locked_toolchain_hashes
         manifest["input_run_copies"] = facts["run_input_copies"]
         writer.write()
         std_handles, std_streams = _open_stdio_handles(run_dir)
-        child_environment, isolated_appdata = _child_environment(run_dir)
-        manifest["process_launch"]["isolated_appdata"] = isolated_appdata
-        manifest["input_paths_and_hashes"]["enterprise_init_candidates_absent"] = facts["enterprise_init_candidates_absent"]
+        child_environment, isolated_appdata, license_audit = _child_environment(run_dir)
+        manifest["process_launch"]["isolated_appdata_path"] = isolated_appdata
+        manifest["input_paths_and_hashes"]["license_environment_audit"] = license_audit
         job = job_guard.JobObject(kill_on_close=True)
         if job.flags != job_guard.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE:
             raise ControllerError(f"新JobObject限制标志不符：0x{job.flags:08x}")
@@ -836,7 +1206,7 @@ def run_frozen_bitgen():
         writer.write()
         child = job_guard.launch_suspended_root(
             job,
-            facts["vivado_executable_path"],
+            facts["cmd_executable_path"],
             argv,
             cwd=str(run_dir),
             std_handles=std_handles,
@@ -875,6 +1245,12 @@ def run_frozen_bitgen():
                 previous_accounting=previous_accounting,
                 previous_pids=previous_pids,
                 previous_keys=previous_keys,
+            )
+            manifest["process_launch"]["vivado_member_observations"] = _record_vivado_job_members(
+                vivado_member_observations,
+                sample,
+                facts["vivado_executable_path"],
+                time.monotonic(),
             )
             previous_sample_start = sample["sample_start_monotonic"]
             previous_accounting = sample["accounting_after"]
@@ -947,6 +1323,9 @@ def run_frozen_bitgen():
             manifest["hard_stop_cleanup"] = cleanup_record
         if closure is not None and native_root_exit_code is None:
             native_root_exit_code = closure["final"].get("root_native_handle_exit_code")
+        manifest["process_launch"]["vivado_member_observations"] = [
+            vivado_member_observations[key] for key in sorted(vivado_member_observations)
+        ]
         final = _finalize_manifest(
             writer,
             run_dir,
@@ -960,9 +1339,7 @@ def run_frozen_bitgen():
         )
         run_exit_code = 0 if final["status"] == "BITGEN_COMPLETE_SOFTWARE_ONLY" else 1
     except BaseException as error:
-        stop_reason = stop_reason or f"CONTROLLER_EXCEPTION:{type(error).__name__}:{error}"
-        manifest["stop_reason"] = stop_reason
-        manifest["controller_exception"] = repr(error)
+        stop_reason = _record_controller_exception(manifest, error)
         manifest["resource_peaks_and_floors"] = peaks
         if child is not None:
             cleanup_record = _kill_and_close(child, stop_reason)
@@ -1000,7 +1377,13 @@ def run_frozen_bitgen():
                 pass
         run_exit_code = 1
     finally:
-        run_exit_code = _finish_controller_cleanup(writer, manifest, input_locks, run_exit_code)
+        run_exit_code = _finish_controller_cleanup(
+            writer,
+            manifest,
+            input_locks,
+            run_exit_code,
+            toolchain_locks,
+        )
     return run_exit_code
 
 

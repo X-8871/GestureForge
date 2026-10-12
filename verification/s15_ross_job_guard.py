@@ -29,7 +29,58 @@ DCP_RELATIVE = (
     "s2b_inference_candidate.runs/impl_1/s2b_inference_wrapper_postroute_physopt.dcp"
 )
 DCP_SHA256 = "DB2AAF706C99121EADA307FEC80B4D69B362F1232FF17FCF65F4DD5C0015AD83"
+EXPECTED_REAL_SESSION_ID = "vivado-20261013-045714-ffc758d4"
+EXPECTED_REAL_PROCESS_ID = 25468
+EXPECTED_REAL_WORKING_DIR = r"C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s15_ross_bitgen_20261013_r01"
+EXPECTED_REAL_VIVADO_VERSION = "2026.1"
+EXPECTED_REAL_VIVADO_EXE = r"D:\Xilinx\2026.1\Vivado\bin\unwrapped\win64.o\vivado.exe"
+EXPECTED_REAL_LOG_FILE = EXPECTED_REAL_WORKING_DIR + r"\.vivado-ai\vivado_38634180_babcd0b6.log"
+EXPECTED_REAL_WEBSERVER_URL = "http://localhost:8088"
 IDENTITY_FIELDS = tuple(job_guard.ROSS_IDENTITY_FIELDS)
+START_TOOL_INPUT_FIELDS = frozenset({"working_dir", "session_type", "gui_mode", "link_todos"})
+START_RESPONSE_FIELDS = frozenset(
+    {"log_file", "message", "mode", "process_id", "session_id", "status", "webserver_url", "working_dir"}
+)
+LIST_SESSION_FIELDS = frozenset(
+    {
+        "deployment_type",
+        "gui_surface",
+        "hostname",
+        "log_file",
+        "process_id",
+        "process_running",
+        "proxy_addr",
+        "session_id",
+        "session_type",
+        "uptime_seconds",
+        "vivado_version",
+        "webserver_healthy",
+        "webserver_url",
+        "working_dir",
+    }
+)
+LIST_RESPONSE_FIELDS = frozenset({"non_recoverable_sessions", "sessions"})
+STATUS_RESPONSE_FIELDS = frozenset(
+    {
+        "deployment_type",
+        "hostname",
+        "is_command_running",
+        "last_completed_code",
+        "last_completed_elapsed",
+        "last_completed_seconds_ago",
+        "log_file",
+        "process_id",
+        "process_running",
+        "queue_length",
+        "server_log",
+        "session_type",
+        "status_summary",
+        "webserver_healthy",
+        "webserver_url",
+        "working_dir",
+    }
+)
+ROSS_TEXT_OPTIONAL_FIELDS = frozenset({"task_progress"})
 OBSERVATION_FIELDS = frozenset(
     {
         "schema",
@@ -406,9 +457,280 @@ class StrictCanonicalAdapter:
         return dict(record, root_identity=identity, age_seconds=age, handoff_age_seconds=handoff_age)
 
     def decode_raw_mcp_result(self, tool_name: str, tool_input: object, result: object) -> dict:
-        """当前MCP声明没有身份返回schema，禁止猜字段并fail closed。"""
+        """保留单响应旧入口；单个ROSS响应不能绑定会话和本机进程身份。"""
         del tool_name, tool_input, result
-        raise SchemaUnbound("ROSS MCP响应的PID/creation time/exe/cwd/cmdline/ppid字段映射未冻结")
+        raise SchemaUnbound("单个ROSS响应不能联合绑定会话与本机六字段；请使用decode_vivado_idle_observation")
+
+    def decode_vivado_idle_observation(
+        self,
+        start_tool_input: object,
+        start_result: object,
+        list_tool_input: object,
+        list_result: object,
+        status_tool_input: object,
+        status_result: object,
+        status_tool_input_second: object,
+        status_result_second: object,
+        *,
+        identity_reader=None,
+    ) -> dict:
+        """按已捕获的ROSS JSON schema，把唯一idle会话绑定到本机psutil身份。"""
+        if (
+            type(start_tool_input) is not dict
+            or set(start_tool_input) != START_TOOL_INPUT_FIELDS
+            or type(start_tool_input.get("working_dir")) is not str
+            or start_tool_input.get("working_dir") != EXPECTED_REAL_WORKING_DIR
+            or type(start_tool_input.get("session_type")) is not str
+            or start_tool_input.get("session_type") != "general"
+            or start_tool_input.get("gui_mode") is not False
+            or start_tool_input.get("link_todos") is not True
+        ):
+            raise RossGuardError("vivado_start的tool_input必须精确匹配本次本地general TCL启动参数")
+        if type(list_tool_input) is not dict or list_tool_input != {}:
+            raise RossGuardError("vivado_list_sessions的tool_input必须精确为空对象")
+        if (
+            type(status_tool_input) is not dict
+            or set(status_tool_input) != {"session_id", "action"}
+            or type(status_tool_input.get("session_id")) is not str
+            or status_tool_input.get("session_id") != EXPECTED_REAL_SESSION_ID
+            or type(status_tool_input.get("action")) is not str
+            or status_tool_input.get("action") != "session"
+        ):
+            raise RossGuardError("vivado_status的tool_input必须精确绑定本次session_id及session动作")
+        if (
+            type(status_tool_input_second) is not dict
+            or status_tool_input_second != status_tool_input
+        ):
+            raise RossGuardError("第二次vivado_status的tool_input必须与第一次精确一致")
+
+        started = _decode_ross_text_json(start_result, "vivado_start")
+        listed = _decode_ross_text_json(list_result, "vivado_list_sessions")
+        status = _decode_ross_text_json(status_result, "vivado_status")
+        status_second = _decode_ross_text_json(status_result_second, "vivado_status(second)")
+        _validate_ross_response_keys(started, START_RESPONSE_FIELDS, "vivado_start")
+        _validate_ross_response_keys(listed, LIST_RESPONSE_FIELDS, "vivado_list_sessions")
+        _validate_ross_response_keys(status, STATUS_RESPONSE_FIELDS, "vivado_status")
+        _validate_ross_response_keys(status_second, STATUS_RESPONSE_FIELDS, "vivado_status(second)")
+        _validate_ross_start(started)
+
+        if listed["non_recoverable_sessions"] is not None:
+            raise RossGuardError("非可恢复ROSS会话字段必须为null")
+        sessions = listed["sessions"]
+        if type(sessions) is not dict or set(sessions) != {EXPECTED_REAL_SESSION_ID}:
+            raise RossGuardError("ROSS必须只返回本次唯一session_id对应的一个会话")
+        session = sessions[EXPECTED_REAL_SESSION_ID]
+        if type(session) is not dict or set(session) != LIST_SESSION_FIELDS:
+            raise RossGuardError("vivado_list_sessions会话字段集合缺失或多余")
+        _validate_ross_common_session(session, "vivado_list_sessions")
+        if session["session_id"] != EXPECTED_REAL_SESSION_ID:
+            raise RossGuardError("ROSS会话对象session_id与列表键/调用目标不符")
+        if session["vivado_version"] != EXPECTED_REAL_VIVADO_VERSION:
+            raise RossGuardError("Vivado版本与本次已观测版本不符")
+        if session["gui_surface"] != "none":
+            raise RossGuardError("本次会话必须是TCL模式且无GUI surface")
+        _validate_optional_progress(listed, "vivado_list_sessions")
+        _validate_ross_status(status)
+        _validate_optional_progress(status, "vivado_status")
+        _validate_ross_status(status_second)
+        _validate_optional_progress(status_second, "vivado_status(second)")
+        if {key: value for key, value in status.items() if key != "task_progress"} != {
+            key: value for key, value in status_second.items() if key != "task_progress"
+        }:
+            raise RossGuardError("两次vivado_status除task_progress元数据外的字段不稳定")
+
+        if status["process_id"] != session["process_id"]:
+            raise RossGuardError("vivado_status与vivado_list_sessions的process_id不符")
+        if status["working_dir"] != session["working_dir"]:
+            raise RossGuardError("vivado_status与vivado_list_sessions的working_dir不符")
+        for field in ("deployment_type", "hostname", "log_file", "session_type", "webserver_url"):
+            if status[field] != session[field]:
+                raise RossGuardError(f"vivado_status与vivado_list_sessions的{field}不符")
+        if status["working_dir"] != EXPECTED_REAL_WORKING_DIR:
+            raise RossGuardError("ROSS工作目录与本次已观测目录不符")
+        if started["session_id"] != session["session_id"]:
+            raise RossGuardError("vivado_start与vivado_list_sessions的session_id不符")
+        for field in ("process_id", "working_dir", "log_file", "webserver_url"):
+            if started[field] != session[field]:
+                raise RossGuardError(f"vivado_start与vivado_list_sessions的{field}不符")
+        if session["process_id"] != EXPECTED_REAL_PROCESS_ID:
+            raise RossGuardError("ROSS process_id与本次已观测PID不符")
+        if session["log_file"] != EXPECTED_REAL_LOG_FILE or session["webserver_url"] != EXPECTED_REAL_WEBSERVER_URL:
+            raise RossGuardError("ROSS log_file或webserver_url与本次已观测启动响应不符")
+
+        reader = identity_reader or _read_psutil_identity
+        try:
+            first_identity = reader(session["process_id"])
+            second_identity = reader(session["process_id"])
+        except Exception as error:
+            raise RossGuardError(f"无法读取ROSS PID的psutil身份：{error!r}") from error
+        first_identity = _validate_identity(first_identity)
+        identity = _validate_identity(second_identity)
+        if not _same_identity(first_identity, identity):
+            raise RossGuardError("psutil六字段双读结果不一致")
+        if identity["pid"] != session["process_id"]:
+            raise RossGuardError("psutil身份PID与ROSS返回process_id不符")
+        if identity["exe"] != EXPECTED_REAL_VIVADO_EXE:
+            raise RossGuardError("本机进程exe与本次Vivado可执行文件不符")
+        if identity["cwd"] != EXPECTED_REAL_WORKING_DIR:
+            raise RossGuardError("本机进程cwd与本次ROSS工作目录不符")
+        if not identity["cmdline"] or identity["ppid"] <= 0:
+            raise RossGuardError("psutil cmdline或ppid不满足本次Vivado进程身份约束")
+        try:
+            mode_index = identity["cmdline"].index("-mode")
+        except ValueError as error:
+            raise RossGuardError("psutil cmdline未包含TCL mode标记") from error
+        if identity["cmdline"].count("-mode") != 1 or mode_index + 1 >= len(identity["cmdline"]) or identity["cmdline"][mode_index + 1] != "tcl":
+            raise RossGuardError("psutil cmdline不是唯一TCL mode")
+
+        now = time.monotonic()
+        canonical = {
+            "schema": SCHEMA,
+            "session_id": EXPECTED_REAL_SESSION_ID,
+            "deployment_type": "local",
+            "clock_domain": "host_monotonic",
+            "event": "HEARTBEAT",
+            "session_state": "idle",
+            "active_command_sha256": None,
+            "completed_command_sha256": None,
+            "completed_exit_code": None,
+            "root_identity": identity,
+            "heartbeat_sequence": 0,
+            "observed_monotonic": now,
+            "published_monotonic": now,
+            "progress_counter": 0,
+            "progress_monotonic": now,
+        }
+        self.decode(canonical, EXPECTED_REAL_SESSION_ID, now)
+        return canonical
+
+
+def _decode_ross_text_json(result: object, tool_name: str) -> dict:
+    """只读取真实CallToolResult的单个text block，并拒绝重复键或非JSON。"""
+    if type(result) is not dict or set(result) != {"content"}:
+        raise RossGuardError(f"{tool_name} CallToolResult外层字段无效")
+    blocks = result.get("content")
+    if type(blocks) is not list or len(blocks) != 1:
+        raise RossGuardError(f"{tool_name} CallToolResult必须恰含一个content block")
+    block = blocks[0]
+    if (
+        type(block) is not dict
+        or set(block) != {"type", "text"}
+        or block["type"] != "text"
+        or type(block["text"]) is not str
+    ):
+        raise RossGuardError(f"{tool_name} CallToolResult content[0]必须是仅含type/text的text block")
+
+    def reject_duplicate_keys(pairs):
+        decoded = {}
+        for key, value in pairs:
+            if key in decoded:
+                raise ValueError(f"重复JSON字段：{key}")
+            decoded[key] = value
+        return decoded
+
+    def reject_nonfinite(value):
+        raise ValueError(f"JSON非有限数不受支持：{value}")
+
+    try:
+        payload = json.loads(block["text"], object_pairs_hook=reject_duplicate_keys, parse_constant=reject_nonfinite)
+    except (ValueError, json.JSONDecodeError) as error:
+        raise RossGuardError(f"{tool_name} content[0].text不是严格JSON：{error}") from error
+    if type(payload) is not dict:
+        raise RossGuardError(f"{tool_name} content[0].text顶层必须是JSON对象")
+    return payload
+
+
+def _validate_ross_response_keys(payload: dict, required: frozenset[str], tool_name: str) -> None:
+    keys = set(payload)
+    if not required.issubset(keys) or keys - required - ROSS_TEXT_OPTIONAL_FIELDS:
+        raise RossGuardError(f"{tool_name}响应字段集合缺失或多余")
+
+
+def _validate_optional_progress(payload: dict, tool_name: str) -> None:
+    if "task_progress" in payload and (type(payload["task_progress"]) is not str or not payload["task_progress"]):
+        raise RossGuardError(f"{tool_name} task_progress元数据格式无效")
+
+
+def _validate_ross_start(value: dict) -> None:
+    _validate_optional_progress(value, "vivado_start")
+    for field in ("log_file", "message", "webserver_url", "working_dir"):
+        if type(value[field]) is not str or not value[field]:
+            raise RossGuardError(f"vivado_start {field}必须是非空字符串")
+    if value["status"] != "success" or value["mode"] != "tcl":
+        raise RossGuardError("vivado_start必须是成功的TCL模式启动响应")
+    if type(value["session_id"]) is not str or value["session_id"] != EXPECTED_REAL_SESSION_ID:
+        raise RossGuardError("vivado_start session_id与本次已观测会话不符")
+    if type(value["process_id"]) is not int or value["process_id"] != EXPECTED_REAL_PROCESS_ID:
+        raise RossGuardError("vivado_start process_id与本次已观测PID不符")
+    if value["working_dir"] != EXPECTED_REAL_WORKING_DIR:
+        raise RossGuardError("vivado_start working_dir与本次已观测目录不符")
+    if value["log_file"] != EXPECTED_REAL_LOG_FILE or value["webserver_url"] != EXPECTED_REAL_WEBSERVER_URL:
+        raise RossGuardError("vivado_start log_file或webserver_url与本次已观测值不符")
+
+
+def _validate_ross_common_session(value: dict, source: str) -> None:
+    if value["deployment_type"] != "local" or value["session_type"] != "general":
+        raise RossGuardError(f"{source}只接受本地general Vivado会话")
+    if type(value["hostname"]) is not str or not value["hostname"]:
+        raise RossGuardError(f"{source} hostname必须是非空字符串")
+    if type(value["log_file"]) is not str or not value["log_file"]:
+        raise RossGuardError(f"{source} log_file必须是非空字符串")
+    if type(value["proxy_addr"]) is not str or not value["proxy_addr"]:
+        raise RossGuardError(f"{source} proxy_addr必须是非空字符串")
+    if type(value["process_id"]) is not int or value["process_id"] <= 0:
+        raise RossGuardError(f"{source} process_id无效")
+    if value["process_running"] is not True or type(value["process_running"]) is not bool:
+        raise RossGuardError(f"{source} Vivado进程未确认运行")
+    if type(value["working_dir"]) is not str or not value["working_dir"]:
+        raise RossGuardError(f"{source} working_dir必须是非空原样字符串")
+    if type(value["webserver_healthy"]) is not bool or value["webserver_healthy"] is not True:
+        raise RossGuardError(f"{source} webserver未确认健康")
+    if type(value["webserver_url"]) is not str or not value["webserver_url"]:
+        raise RossGuardError(f"{source} webserver_url必须是非空字符串")
+    uptime = value["uptime_seconds"]
+    if type(uptime) not in (int, float) or not math.isfinite(float(uptime)) or uptime < 0:
+        raise RossGuardError(f"{source} uptime_seconds必须是有限非负数")
+
+
+def _validate_ross_status(value: dict) -> None:
+    if value["deployment_type"] != "local" or value["session_type"] != "general":
+        raise RossGuardError("vivado_status只接受本地general Vivado会话")
+    for field in ("hostname", "log_file", "server_log", "webserver_url", "working_dir"):
+        if type(value[field]) is not str or not value[field]:
+            raise RossGuardError(f"vivado_status {field}必须是非空字符串")
+    if type(value["process_id"]) is not int or value["process_id"] <= 0:
+        raise RossGuardError("vivado_status process_id无效")
+    if value["process_running"] is not True or type(value["process_running"]) is not bool:
+        raise RossGuardError("vivado_status未确认Vivado进程运行")
+    if value["webserver_healthy"] is not True or type(value["webserver_healthy"]) is not bool:
+        raise RossGuardError("vivado_status未确认webserver健康")
+    if value["is_command_running"] is not False or type(value["is_command_running"]) is not bool:
+        raise RossGuardError("Vivado命令仍在运行或状态格式无效")
+    if type(value["queue_length"]) is not int or value["queue_length"] != 0:
+        raise RossGuardError("Vivado命令队列非空或状态格式无效")
+    if value["status_summary"] != "Idle":
+        raise RossGuardError("Vivado状态摘要不是Idle")
+    for field in ("last_completed_code", "last_completed_elapsed", "last_completed_seconds_ago"):
+        if value[field] is not None:
+            raise RossGuardError(f"vivado_status {field}包含未绑定到本次permit的历史完成信息")
+
+
+def _read_psutil_identity(pid: int) -> dict:
+    """使用psutil读取六个身份字段，不对ROSS会话字段作推断。"""
+    import psutil
+
+    process = psutil.Process(pid)
+    if not process.is_running():
+        raise RossGuardError("psutil报告Vivado进程不在运行")
+    with process.oneshot():
+        return {
+            "pid": process.pid,
+            "create_time": process.create_time(),
+            "exe": process.exe(),
+            "cwd": process.cwd(),
+            "cmdline": process.cmdline(),
+            "ppid": process.ppid(),
+        }
 
 
 def _finite_time(value: object, field: str) -> float:

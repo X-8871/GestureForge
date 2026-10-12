@@ -1046,6 +1046,365 @@ def _test_adapter_negatives(checks: list[str]) -> None:
     )
 
 
+def _mcp_text_result(payload: object) -> dict:
+    return {"content": [{"type": "text", "text": json.dumps(payload, ensure_ascii=False, separators=(",", ":"))}]}
+
+
+def _real_mcp_fixture() -> tuple[dict, dict, dict, dict, dict, dict, dict, dict, dict]:
+    """使用2026-10-13原始ROSS文本schema构造隔离夹具。"""
+    session_id = ross_guard.EXPECTED_REAL_SESSION_ID
+    process_id = ross_guard.EXPECTED_REAL_PROCESS_ID
+    working_dir = ross_guard.EXPECTED_REAL_WORKING_DIR
+    log_file = ross_guard.EXPECTED_REAL_LOG_FILE
+    webserver_url = ross_guard.EXPECTED_REAL_WEBSERVER_URL
+    start = {
+        "log_file": log_file,
+        "message": (
+            "Vivado started successfully in TCL mode (no GUI) with webserver at http://localhost:8088.\n\n"
+            f"Process ID: {process_id}\nWorking directory: {working_dir}\n"
+            f"Log file: {log_file} (unique per session)\n\n"
+            "Use vivado_execute to run commands. Use vivado_stop to close Vivado."
+        ),
+        "mode": "tcl",
+        "process_id": process_id,
+        "session_id": session_id,
+        "status": "success",
+        "webserver_url": webserver_url,
+        "working_dir": working_dir,
+    }
+    session = {
+        "deployment_type": "local",
+        "gui_surface": "none",
+        "hostname": "HAO",
+        "log_file": log_file,
+        "process_id": process_id,
+        "process_running": True,
+        "proxy_addr": "127.0.0.1:7763",
+        "session_id": session_id,
+        "session_type": "general",
+        "uptime_seconds": 5,
+        "vivado_version": "2026.1",
+        "webserver_healthy": True,
+        "webserver_url": webserver_url,
+        "working_dir": working_dir,
+    }
+    listed = {
+        "non_recoverable_sessions": None,
+        "sessions": {session_id: session},
+    }
+    status = {
+        "deployment_type": "local",
+        "hostname": "HAO",
+        "is_command_running": False,
+        "last_completed_code": None,
+        "last_completed_elapsed": None,
+        "last_completed_seconds_ago": None,
+        "log_file": log_file,
+        "process_id": process_id,
+        "process_running": True,
+        "queue_length": 0,
+        "server_log": r"C:\Users\22061\.vivado-ai\server_HAO.log",
+        "session_type": "general",
+        "status_summary": "Idle",
+        "webserver_healthy": True,
+        "webserver_url": webserver_url,
+        "working_dir": working_dir,
+    }
+    status_second = dict(status)
+    status_second["task_progress"] = "1/5: 受控生成bitstream与离线部署包 (active)"
+    identity = {
+        "pid": process_id,
+        "create_time": 1791838635.5140712,
+        "exe": ross_guard.EXPECTED_REAL_VIVADO_EXE,
+        "cwd": working_dir,
+        "cmdline": [
+            "D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe",
+            "-mode",
+            "tcl",
+            "-log",
+            r".vivado-ai\vivado_38634180_babcd0b6.log",
+            "-journal",
+            r".vivado-ai\vivado_38634180_babcd0b6.jou",
+            "-notrace",
+            "-source",
+            r".vivado-ai\init_38634180_babcd0b6.tcl",
+        ],
+        "ppid": 24864,
+    }
+    start_input = {
+        "working_dir": working_dir,
+        "session_type": "general",
+        "gui_mode": False,
+        "link_todos": True,
+    }
+    status_input = {"session_id": session_id, "action": "session"}
+    return (
+        start_input,
+        _mcp_text_result(start),
+        {},
+        _mcp_text_result(listed),
+        status_input,
+        _mcp_text_result(status),
+        dict(status_input),
+        _mcp_text_result(status_second),
+        identity,
+    )
+
+
+def _test_real_mcp_schema_binding(run_root: Path, checks: list[str]) -> None:
+    adapter = ross_guard.StrictCanonicalAdapter()
+    start_input, start_result, list_input, list_result, status_input, status_result, status_input_second, status_result_second, identity = _real_mcp_fixture()
+    identity_calls = []
+
+    def read_identity(pid: int) -> dict:
+        if pid != identity["pid"]:
+            raise AssertionError(f"身份读取器收到非预期PID：{pid}")
+        identity_calls.append(pid)
+        return dict(identity, cmdline=list(identity["cmdline"]))
+
+    canonical = adapter.decode_vivado_idle_observation(
+        start_input,
+        start_result,
+        list_input,
+        list_result,
+        status_input,
+        status_result,
+        status_input_second,
+        status_result_second,
+        identity_reader=read_identity,
+    )
+    if set(canonical) != ross_guard.OBSERVATION_FIELDS:
+        raise AssertionError("真实ROSS回执未生成字段精确的canonical观察")
+    if canonical["session_id"] != ross_guard.EXPECTED_REAL_SESSION_ID or canonical["session_state"] != "idle":
+        raise AssertionError("真实ROSS回执未绑定预期session或idle状态")
+    if canonical["root_identity"] != identity or identity_calls != [identity["pid"], identity["pid"]]:
+        raise AssertionError("真实ROSS PID的psutil六字段双读没有完全一致")
+    malformed_start_inputs = (
+        None,
+        {key: value for key, value in start_input.items() if key != "link_todos"},
+        dict(start_input, unexpected=True),
+        dict(start_input, working_dir=r"C:\\other\\path"),
+        dict(start_input, session_type="project"),
+        dict(start_input, gui_mode=True),
+        dict(start_input, link_todos=False),
+    )
+    for bad_start_input in malformed_start_inputs:
+        try:
+            adapter.decode_vivado_idle_observation(
+                bad_start_input,
+                start_result,
+                list_input,
+                list_result,
+                status_input,
+                status_result,
+                status_input_second,
+                status_result_second,
+                identity_reader=read_identity,
+            )
+        except ross_guard.RossGuardError:
+            continue
+        else:
+            raise AssertionError("vivado_start的缺失或合成tool_input没有fail closed")
+    try:
+        adapter.decode_vivado_idle_observation(
+            start_result,
+            list_input,
+            list_result,
+            status_input,
+            status_result,
+            status_input_second,
+            status_result_second,
+            identity_reader=read_identity,
+        )
+    except TypeError:
+        pass
+    else:
+        raise AssertionError("缺少vivado_start tool_input时接口未拒绝调用")
+    checks.append("real-start-input-list-two-idle-statuses-double-psutil-identity-binding")
+
+    def reject(label: str, *, st=None, li=None, lr=None, si=None, sr=None, si2=None, sr2=None, reader=read_identity) -> None:
+        _expect_rejection(
+            f"real-mcp-{label}",
+            lambda: adapter.decode_vivado_idle_observation(
+                start_input,
+                start_result if st is None else st,
+                list_input if li is None else li,
+                list_result if lr is None else lr,
+                status_input if si is None else si,
+                status_result if sr is None else sr,
+                status_input_second if si2 is None else si2,
+                status_result_second if sr2 is None else sr2,
+                identity_reader=reader,
+            ),
+            checks,
+        )
+
+    listed = json.loads(list_result["content"][0]["text"])
+    status = json.loads(status_result["content"][0]["text"])
+    started = json.loads(start_result["content"][0]["text"])
+    session_id = ross_guard.EXPECTED_REAL_SESSION_ID
+
+    fixture = FixtureSession(run_root)
+    try:
+        history_values = (
+            ("last_completed_code", 0),
+            ("last_completed_elapsed", 0.25),
+            ("last_completed_seconds_ago", 1.0),
+        )
+        status_second = json.loads(status_result_second["content"][0]["text"])
+        for status_index in ("first", "second"):
+            for field, value in history_values:
+                first_observation = dict(status)
+                second_observation = dict(status_second)
+                if status_index == "first":
+                    first_observation[field] = value
+                else:
+                    second_observation[field] = value
+                first_result = _mcp_text_result(first_observation)
+                second_result = _mcp_text_result(second_observation)
+
+                def decode_then_start() -> dict:
+                    canonical = adapter.decode_vivado_idle_observation(
+                        start_input,
+                        start_result,
+                        list_input,
+                        list_result,
+                        status_input,
+                        first_result,
+                        status_input_second,
+                        second_result,
+                        identity_reader=read_identity,
+                    )
+                    return fixture.controller.start(canonical)
+
+                _expect_rejection(
+                    f"real-mcp-ready-rejects-{status_index}-idle-history-{field}",
+                    decode_then_start,
+                    checks,
+                )
+                if fixture.controller.state != "NEW" or fixture.controller.ready_receipt is not None:
+                    raise AssertionError(f"非空历史字段 {status_index}.{field} 被canonical化并产生READY")
+                if fixture.job.pid_list():
+                    raise AssertionError(f"非空历史字段 {status_index}.{field} 在拒绝前已加入Job")
+    finally:
+        fixture.cleanup()
+    checks.append("real-mcp-idle-history-rejected-before-ready")
+
+    multi = json.loads(json.dumps(listed))
+    multi["sessions"]["other-session"] = dict(multi["sessions"][session_id])
+    reject("multiple-sessions", lr=_mcp_text_result(multi))
+
+    for label, field, bad_value in (
+        ("start-not-success", "status", "failed"),
+        ("start-not-tcl", "mode", "gui"),
+        ("start-wrong-session", "session_id", "other-session"),
+        ("start-wrong-pid", "process_id", ross_guard.EXPECTED_REAL_PROCESS_ID + 1),
+        ("start-wrong-working-dir", "working_dir", r"C:\other\path"),
+    ):
+        candidate = dict(started)
+        candidate[field] = bad_value
+        reject(label, st=_mcp_text_result(candidate))
+    candidate = dict(started, unexpected=True)
+    reject("start-extra-field", st=_mcp_text_result(candidate))
+    candidate = dict(started)
+    candidate.pop("mode")
+    reject("start-missing-field", st=_mcp_text_result(candidate))
+
+    for label, field, bad_value in (
+        ("remote-deployment", "deployment_type", "ssh"),
+        ("wrong-session-key", "session_id", "other-session"),
+        ("wrong-version", "vivado_version", "2026.2"),
+        ("wrong-working-dir", "working_dir", r"C:\other\path"),
+        ("wrong-gui-surface", "gui_surface", "on-screen"),
+        ("not-running", "process_running", False),
+    ):
+        candidate = json.loads(json.dumps(listed))
+        candidate["sessions"][session_id][field] = bad_value
+        reject(label, lr=_mcp_text_result(candidate))
+
+    for label, field, bad_value in (
+        ("command-running", "is_command_running", True),
+        ("queue-not-empty", "queue_length", 1),
+        ("status-not-idle", "status_summary", "Busy"),
+        ("status-wrong-pid", "process_id", ross_guard.EXPECTED_REAL_PROCESS_ID + 1),
+        ("status-wrong-working-dir", "working_dir", r"C:\other\path"),
+    ):
+        candidate = dict(status)
+        candidate[field] = bad_value
+        reject(label, sr=_mcp_text_result(candidate))
+
+    for label, bad_input in (
+        ("list-input-extra", {"unexpected": True}),
+        ("status-input-session-mismatch", {"session_id": "other-session", "action": "session"}),
+        ("status-input-action-mismatch", {"session_id": session_id, "action": "health"}),
+        ("status-input-extra", {"session_id": session_id, "action": "session", "extra": 1}),
+    ):
+        if label == "list-input-extra":
+            reject(label, li=bad_input)
+        else:
+            reject(label, si=bad_input)
+
+    def wrong_identity(field: str, value: object) -> None:
+        candidate = dict(identity, cmdline=list(identity["cmdline"]))
+        candidate[field] = value
+
+        def reader(pid: int) -> dict:
+            return candidate
+
+        reject(f"psutil-{field}-mismatch", reader=reader)
+
+    wrong_identity("pid", ross_guard.EXPECTED_REAL_PROCESS_ID + 1)
+    wrong_identity("exe", r"D:\other\vivado.exe")
+    wrong_identity("cwd", r"C:\other\path")
+    wrong_identity("cmdline", [identity["cmdline"][0], "-mode", "gui"])
+
+    unstable_reads = [dict(identity, cmdline=list(identity["cmdline"])), dict(identity, cmdline=list(identity["cmdline"]))]
+    unstable_reads[1]["create_time"] += 0.001
+
+    def unstable_reader(pid: int) -> dict:
+        if not unstable_reads:
+            raise AssertionError("测试读取次数超过双读范围")
+        return unstable_reads.pop(0)
+
+    reject("psutil-double-read-drift", reader=unstable_reader)
+
+    for label, mutate in (
+        ("list-root-extra", lambda value: value.update(extra=True)),
+        ("list-root-missing", lambda value: value.pop("sessions")),
+    ):
+        candidate = json.loads(json.dumps(listed))
+        mutate(candidate)
+        reject(label, lr=_mcp_text_result(candidate))
+
+    candidate = json.loads(json.dumps(listed))
+    candidate["sessions"][session_id]["unexpected"] = True
+    reject("session-extra-field", lr=_mcp_text_result(candidate))
+    candidate = json.loads(json.dumps(listed))
+    candidate["sessions"][session_id].pop("proxy_addr")
+    reject("session-missing-field", lr=_mcp_text_result(candidate))
+    candidate = dict(status, unexpected=True)
+    reject("status-extra-field", sr=_mcp_text_result(candidate))
+    candidate = dict(status)
+    candidate.pop("queue_length")
+    reject("status-missing-field", sr=_mcp_text_result(candidate))
+    candidate = dict(status, task_progress=None)
+    reject("status-progress-invalid", sr=_mcp_text_result(candidate))
+    candidate = dict(status, hostname="OTHER")
+    reject("status-session-cross-mismatch", sr=_mcp_text_result(candidate))
+    candidate = json.loads(status_result_second["content"][0]["text"])
+    candidate["queue_length"] = 1
+    reject("second-status-busy", sr2=_mcp_text_result(candidate))
+    reject("second-status-input-mismatch", si2={"session_id": session_id, "action": "health"})
+    reject("malformed-json", lr={"content": [{"type": "text", "text": "{"}]})
+    reject("missing-content", lr={})
+    reject("multiple-content-blocks", lr={"content": [{"type": "text", "text": "{}"}, {"type": "text", "text": "{}"}]})
+    reject("wrong-content-type", lr={"content": [{"type": "image", "text": "{}"}]})
+    reject("outer-extra-field", lr={"content": [{"type": "text", "text": "{}"}], "isError": False})
+    reject("content-block-extra-field", lr={"content": [{"type": "text", "text": "{}", "annotations": {}}]})
+    duplicate_json = '{"non_recoverable_sessions":null,"sessions":{},"sessions":{}}'
+    reject("duplicate-json-key", lr={"content": [{"type": "text", "text": duplicate_json}]})
+
+
 def _test_initial_record_failures(run_root: Path, checks: list[str]) -> None:
     cases = (
         ("wrong-session", {"session_id": "different-session"}),
@@ -1230,6 +1589,7 @@ def _test_success_flow(run_root: Path, checks: list[str]) -> dict:
 def run_short(run_root: Path) -> dict:
     checks: list[str] = []
     _test_adapter_negatives(checks)
+    _test_real_mcp_schema_binding(run_root, checks)
     _test_handle_pid_reuse(run_root, checks)
     _test_initial_record_failures(run_root, checks)
     _test_command_failure(run_root, checks)

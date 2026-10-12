@@ -1,0 +1,3019 @@
+{
+  "schema_version": 1,
+  "status": "READONLY_HISTORY_AUDIT_COMPLETED",
+  "scope": "原平台 full_synthesis_20261011_r01 与 S1–S14 已保存的实际2B平台综合批次；有限核对相关未启动/只读异常，未全量审计全项目历史",
+  "source_head_last": "53772ae581ff3ccfb3a9d411cdc66fc67c3e2161",
+  "time_zone": "UTC+8",
+  "counts": {
+    "verified_platform_synthesis_launches": 15,
+    "verified_platform_synthesis_completed_batches": 15,
+    "verified_native_synthesis_jobs": 75,
+    "verified_native_markers": 225,
+    "verified_sta_failed_batches": 15,
+    "verified_sta_pass_batches": 0,
+    "total_project_lifetime_synthesis_launches": null,
+    "other_aborted_or_oom_platform_launches_in_reviewed_scope": 0,
+    "global_history_exhaustively_audited": false
+  },
+  "counting_rule": "一条实际launch_runs synth_1为一批，包含4个IP及wrapper共5个原生synth任务；history重复引入、产品导出、报告收集、预检查、仿真、只读分析与实现均不作为新的综合批次。",
+  "rows": [
+    {
+      "order": 1,
+      "label": "原平台",
+      "run_id": "full_synthesis_20261011_r01",
+      "source_commit": "f260880aa68c3aeb45405bb2dcd92d0b32bb9b16",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 48,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T13:46:51.9360709+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "PASS_LOG_AND_DONE_MARKER",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "PASS_LOG_AND_DONE_MARKER",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "PASS_LOG_AND_DONE_MARKER",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "PASS_LOG_AND_DONE_MARKER",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "PASS_LOG_AND_DONE_MARKER",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -76.685,
+      "tns_ns": -117866.523,
+      "setup_failing_endpoints": 2639,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 42820,
+        "ff": 4003,
+        "bram_tiles": 32,
+        "dsp": 186
+      },
+      "report_time_local": "Sun Oct 11 13:53:35 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/full_synthesis_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/timing_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -76.685  -117866.523                   2639                14644        0.037        0.000                      0                14644        8.870        0.000                       0                  4167  ",
+        ""
+      ]
+    },
+    {
+      "order": 2,
+      "label": "S1",
+      "run_id": "s1_platform_20261011_r01",
+      "source_commit": null,
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 60,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T14:29:48.8054536+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -75.099,
+      "tns_ns": -117550.977,
+      "setup_failing_endpoints": 2636,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 38427,
+        "ff": 4000,
+        "bram_tiles": 32,
+        "dsp": 173
+      },
+      "report_time_local": "Sun Oct 11 14:38:18 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s1_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s1_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -75.099  -117550.977                   2636                14635        0.037        0.000                      0                14635        8.870        0.000                       0                  4164  ",
+        ""
+      ]
+    },
+    {
+      "order": 3,
+      "label": "S2",
+      "run_id": "s2_platform_20261011_r01",
+      "source_commit": "5a676b700af4c27297977379417b1694dd64840e",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 71,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T15:35:01.7310299+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -62.174,
+      "tns_ns": -12041.195,
+      "setup_failing_endpoints": 811,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 35058,
+        "ff": 4027,
+        "bram": 32,
+        "dsp": 173
+      },
+      "report_time_local": "Sun Oct 11 15:43:29 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s2_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s2_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -62.174   -12041.195                    811                14720        0.037        0.000                      0                14720        8.870        0.000                       0                  4191  ",
+        ""
+      ]
+    },
+    {
+      "order": 4,
+      "label": "S3",
+      "run_id": "s3_platform_20261011_r01",
+      "source_commit": "f3a0b0514c90983c41c8729b93f18d627bfc1bb5",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 80,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T16:18:39.366367+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -18.745,
+      "tns_ns": -6349.595,
+      "setup_failing_endpoints": 806,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 32790,
+        "ff": 4017,
+        "bram": 32,
+        "dsp": 160
+      },
+      "report_time_local": "Sun Oct 11 16:26:54 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s3_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s3_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -18.745    -6349.595                    806                14653        0.037        0.000                      0                14653        8.870        0.000                       0                  4181  ",
+        ""
+      ]
+    },
+    {
+      "order": 5,
+      "label": "S4",
+      "run_id": "s4_platform_20261011_r01",
+      "source_commit": "f96d3e225fd6d92fd33c0407e20c9585c997c870",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 89,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T17:22:06.6240149+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -21.981,
+      "tns_ns": -5506.339,
+      "setup_failing_endpoints": 759,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 29904,
+        "ff": 4006,
+        "bram": 32,
+        "dsp": 166,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 17:30:27 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s4_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s4_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -21.981    -5506.339                    759                14655        0.037        0.000                      0                14655        8.870        0.000                       0                  4170  ",
+        ""
+      ]
+    },
+    {
+      "order": 6,
+      "label": "S5",
+      "run_id": "s5_platform_20261011_r01",
+      "source_commit": "5cb092dcce3631f310e67228738a674a6a82ce41",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 98,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T18:26:44.5169786+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -12.623,
+      "tns_ns": -4759.345,
+      "setup_failing_endpoints": 763,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 24470,
+        "ff": 4028,
+        "bram": 32,
+        "dsp": 156,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 18:34:09 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s5_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s5_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -12.623    -4759.345                    763                14804        0.037        0.000                      0                14804        8.870        0.000                       0                  4191  ",
+        ""
+      ]
+    },
+    {
+      "order": 7,
+      "label": "S6",
+      "run_id": "s6_platform_20261011_r01",
+      "source_commit": "b0dbf0dcde758e15046cda36bf2c7424f179b5ae",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T19:31:44.935253+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -11.799,
+      "tns_ns": -3819.396,
+      "setup_failing_endpoints": 736,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 20078,
+        "ff": 3973,
+        "bram": 32,
+        "dsp": 145,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 19:39:44 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s6_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s6_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "    -11.799    -3819.396                    736                14767        0.037        0.000                      0                14767        8.870        0.000                       0                  4138  ",
+        ""
+      ]
+    },
+    {
+      "order": 8,
+      "label": "S7",
+      "run_id": "s7_platform_20261011_r01",
+      "source_commit": "a5caefba952a08f365d57193696b08c0e1aff2a5",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T21:04:04.5061043+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -7.986,
+      "tns_ns": -2818.766,
+      "setup_failing_endpoints": 784,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 18840,
+        "ff": 3969,
+        "bram": 32,
+        "dsp": 145,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 21:15:57 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s7_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s7_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -7.986    -2818.766                    784                14784        0.037        0.000                      0                14784        8.870        0.000                       0                  4134  ",
+        ""
+      ]
+    },
+    {
+      "order": 9,
+      "label": "S8",
+      "run_id": "s8_platform_20261011_r01",
+      "source_commit": "c9f423cddc74ea45071fdbb6a68e4505316babb1",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T22:11:36.4366943+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -6.749,
+      "tns_ns": -2135.54,
+      "setup_failing_endpoints": 754,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 17502,
+        "ff": 3972,
+        "bram": 32,
+        "dsp": 146,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 22:19:00 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s8_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s8_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -6.749    -2135.540                    754                14886        0.037        0.000                      0                14886        8.870        0.000                       0                  4137  ",
+        ""
+      ]
+    },
+    {
+      "order": 10,
+      "label": "S9",
+      "run_id": "s9_platform_20261011_r01",
+      "source_commit": "38c5bc02f42920d4203aa6752530d09c80fc4c57",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-11T23:20:31.557291+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -4.527,
+      "tns_ns": -1840.705,
+      "setup_failing_endpoints": 757,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 17840,
+        "ff": 3992,
+        "bram": 32,
+        "dsp": 143,
+        "latch": 0
+      },
+      "report_time_local": "Sun Oct 11 23:29:42 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s9_platform_20261011_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s9_platform_20261011_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -4.527    -1840.705                    757                14925        0.037        0.000                      0                14925        8.870        0.000                       0                  4156  ",
+        ""
+      ]
+    },
+    {
+      "order": 11,
+      "label": "S10",
+      "run_id": "s10_platform_20261012_r01",
+      "source_commit": "1eed350c43aae4cdee1f8179a93ce87d75d9f2a8",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 5,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-12T01:02:36.7297311+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -4.405,
+      "tns_ns": -1759.757,
+      "setup_failing_endpoints": 758,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 18471,
+        "ff": 3987,
+        "bram": 32,
+        "dsp": 144,
+        "latch": 0
+      },
+      "report_time_local": "Mon Oct 12 01:09:46 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s10_platform_20261012_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s10_platform_20261012_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -4.405    -1759.757                    758                14872        0.037        0.000                      0                14872        8.870        0.000                       0                  4151  ",
+        ""
+      ]
+    },
+    {
+      "order": 12,
+      "label": "S11",
+      "run_id": "s11_platform_20261012_r01",
+      "source_commit": "a710ec431474841a81912a6055f861e811a151e3",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-12T02:11:23.6406374+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -4.404,
+      "tns_ns": -1939.802,
+      "setup_failing_endpoints": 787,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 18955,
+        "ff": 3987,
+        "bram": 32,
+        "dsp": 145,
+        "latch": 0
+      },
+      "report_time_local": "Mon Oct 12 02:39:52 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s11_platform_20261012_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s11_platform_20261012_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -4.404    -1939.802                    787                14873        0.037        0.000                      0                14873        8.870        0.000                       0                  4151  ",
+        ""
+      ]
+    },
+    {
+      "order": 13,
+      "label": "S12",
+      "run_id": "s12_platform_20261012_r03",
+      "source_commit": "467463757158aed80d6f75afadff6a8458614a29",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-12T09:14:49.8670893+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -2.402,
+      "tns_ns": -159.356,
+      "setup_failing_endpoints": 91,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 21414,
+        "ff": 3885,
+        "bram": 32,
+        "dsp": 143,
+        "latch": 0
+      },
+      "report_time_local": "Mon Oct 12 09:30:30 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s12_platform_20261012_r03",
+      "sta_evidence_path": "report/evidence/S2B-T17/s12_platform_20261012_r03/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -2.402     -159.356                     91                14176        0.037        0.000                      0                14176        8.870        0.000                       0                  4047  ",
+        ""
+      ]
+    },
+    {
+      "order": 14,
+      "label": "S13",
+      "run_id": "s13_platform_20261012_r01",
+      "source_commit": "701dc55af0c53a959e84dc0c470f136918f5bd50",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-12T10:39:01.3709723+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -2.453,
+      "tns_ns": -137.746,
+      "setup_failing_endpoints": 102,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 21732,
+        "ff": 4030,
+        "bram": 32,
+        "dsp": 144,
+        "latch": 0
+      },
+      "report_time_local": "Mon Oct 12 10:54:50 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s13_platform_20261012_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s13_platform_20261012_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -2.453     -137.746                    102                14702        0.037        0.000                      0                14702        8.870        0.000                       0                  4193  ",
+        ""
+      ]
+    },
+    {
+      "order": 15,
+      "label": "S14",
+      "run_id": "s14_platform_20261012_r01",
+      "source_commit": "53772ae581ff3ccfb3a9d411cdc66fc67c3e2161",
+      "synthesis_started": true,
+      "synthesis_completed": true,
+      "launch": {
+        "id": 4,
+        "command": "launch_runs synth_1 -jobs 1",
+        "code": 0,
+        "timestamp": "2026-10-12T12:04:21.5326556+08:00"
+      },
+      "native_synthesis_job_count": 5,
+      "native_jobs": [
+        {
+          "run": "s2b_inference_axi_gp0_lite_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_infer_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_ps7_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "s2b_inference_rst_fclk0_0_synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        },
+        {
+          "run": "synth_1",
+          "status": "NATIVE_SYNTH_COMPLETED_LOG_AND_MARKERS",
+          "raw_os_exit_code": null
+        }
+      ],
+      "sta_status": "FAIL_TIMING",
+      "wns_ns": -0.143,
+      "tns_ns": -0.428,
+      "setup_failing_endpoints": 3,
+      "whs_ns": 0.037,
+      "hold_failing_endpoints": 0,
+      "resources": {
+        "lut": 21530,
+        "ff": 4157,
+        "bram": 32,
+        "dsp": 145,
+        "latch": 0
+      },
+      "report_time_local": "Mon Oct 12 12:18:03 2026",
+      "timezone": "UTC+8",
+      "design_state": "Synthesized",
+      "failure_reason": "50MHz建立时序失败",
+      "evidence_dir": "report/evidence/S2B-T17/s14_platform_20261012_r01",
+      "sta_evidence_path": "report/evidence/S2B-T17/s14_platform_20261012_r01/timing_summary_synth.rpt",
+      "original_report_table": [
+        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  ",
+        "    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  ",
+        "     -0.143       -0.428                      3                14898        0.037        0.000                      0                14898        8.870        0.000                       0                  4322  ",
+        ""
+      ]
+    }
+  ],
+  "best": {
+    "label": "S14",
+    "criteria": [
+      "最高WNS",
+      "最高TNS",
+      "最少setup失败端点"
+    ],
+    "best_of_verified_15": true,
+    "wns_ns": -0.143,
+    "tns_ns": -0.428,
+    "setup_failing_endpoints": 3,
+    "still_fails_timing": true
+  },
+  "exceptions": [
+    {
+      "label": "S8资源预检查",
+      "synthesis_started": false,
+      "wns_ns": null,
+      "tns_ns": null,
+      "setup_failing_endpoints": null,
+      "reason": "CIM拒绝访问不是实际综合失败或重试",
+      "evidence": "report/evidence/S2B-T17/s8_platform_20261011_r01/mcp_closed/resource_preflight_denied.json"
+    },
+    {
+      "label": "S9资源超预算",
+      "synthesis_started": true,
+      "additional_launch_count": 0,
+      "reason": "23:23:04进程树RSS 4,900,474,880B超4GiB；收到警报后核验时综合已完成，未停止或重跑。r02是只读资源分析",
+      "evidence": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_delivery_manifest_r02.json"
+    },
+    {
+      "label": "S10首次setup失败",
+      "synthesis_started": false,
+      "wns_ns": null,
+      "tns_ns": null,
+      "setup_failing_endpoints": null,
+      "reason": "错误日期20261011目录不存在；发生在launch前",
+      "evidence": "report/evidence/S2B-T17/s10_platform_20261012_r01/mcp_closed/s10_setup_failed_actual.tool.json"
+    },
+    {
+      "label": "S11实现",
+      "counts_as_platform_synthesis": false,
+      "design_state": "Physopt postRoute",
+      "wns_ns": -3.201,
+      "tns_ns": -2123.755,
+      "setup_failing_endpoints": 908,
+      "budget_status": "BLOCKED_PENDING_INDEPENDENT_ACTUAL_COVERAGE_REVIEW",
+      "evidence": "report/evidence/S2B-T17/s11_implementation_20261012_r01/pnr_sta_result.json"
+    },
+    {
+      "label": "S12/S13/S14监护批次",
+      "additional_synthesis_launch_count": 0,
+      "reason": "各平台binding各一条实际launch；guard重启、报告和封包不是综合重跑"
+    }
+  ],
+  "stage2a_ooc": {
+    "verified_runs": 1,
+    "counts_in_2b_platform_total": false,
+    "run_id": "candidate8x8_core_ooc_run01_20261006",
+    "source_commit": "999238284157bed77cdb3a37e3e6eea52daeefc4",
+    "part": "xa7z020clg400-1I",
+    "synthesis_completed": true,
+    "wns_ns": null,
+    "tns_ns": null,
+    "setup_failing_endpoints": null,
+    "reason": "无XDC及冻结时钟，不能和2B 50MHz综合STA比较",
+    "resources": {
+      "lut": 40550,
+      "ff": 3082,
+      "bram": 32,
+      "dsp": 186,
+      "latch": 0
+    },
+    "evidence": "report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/execution_record.json"
+  },
+  "timing_acceptance_explanation": "建立时序要求WNS>=0、TNS=0和失败端点=0；WNS可为正数，并非必须恰好0。还须核对hold、pulse、约束覆盖与实际postroute，综合完成不等于时序通过。",
+  "limitations": [
+    "该范围已核实15次实际launch，各有75任务标记。全项目终身总数及此前2B平台debug/OOC未全量审计，相关总数保持null；不据目录编号猜测。",
+    "S13摘要仍沿用s12文件名及status标签，以实际SOURCE、原始报告时间、native任务路径确认属于S13，不静默改写原件。",
+    "完成标记与日志不等于直接捕获OS子进程退出码；原始缺失码保持null。",
+    "未启动任何综合、实现、ROSS会话、硬件或新实验；不修改生产、STATE或正式证据；不提交。"
+  ],
+  "sources": [
+    {
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/collection_result_r02.json",
+      "sha256": "09cdca35313da70d9b695eb911a911c65c0a2a1988af50d98bc1afc2fab09e98"
+    },
+    {
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/sta_classification.json",
+      "sha256": "e41b01e24be3fbefd38780a0516ef98d47ff1fdf7378ec42d033ee28cec7bee5"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/collector_sta_classification.json",
+      "sha256": "4c187a347bbf1a1b987b2df42101ea14b5aff1cd14e0eab73ec8bb8ce18a1ff1"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/collection_fix_summary_r02.json",
+      "sha256": "4712e61f7db245f22665d4ec710374c71fd5535fe26da1db1e541e546a90e725"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/collection_fix_sta_result_r02.json",
+      "sha256": "2be46fce3c3da7035fd99132f17bf8b37ed8a0b765b06b28c95dcba0d86be838"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_summary_final.json",
+      "sha256": "22396c66b903fd301ac2dabf6284011393e258eca62285dc474cef8ac5671369"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_sta_result.json",
+      "sha256": "793fd846466820913c4dd11dce5dc3e9339aa4e36d17b9caeea7b075bc6d7e09"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/s4_collection_summary_final.json",
+      "sha256": "8e7f58946f3a16349229a30db39a9ed8fd344a8f4fc6c4af87a1e54c6c152873"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/s4_collection_sta_result.json",
+      "sha256": "41290adc2a06f0ec842bfcc4d0aaece7ea628655134e7406a7bb768ab1fc40d6"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/s5_collection_summary_final.json",
+      "sha256": "ec82b5bbdd73a6eb2886fdb00d309122a33509664a8c309597cef2add697fa8a"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/s5_collection_sta_result.json",
+      "sha256": "d06ac89b3b23367204c2f45c48a82049b47083c5f93ce6903fc50112880c1cc9"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/s6_collection_summary_final.json",
+      "sha256": "ac4a5a2e10f7bb47a95b9d08b7571c25278f0a5c6114ce93629cd181b3eee34b"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/s6_collection_sta_result.json",
+      "sha256": "18498213640d0b84e3ee0e745ed8688931b6dbd7273d2e95ec84898b0de374bd"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/s7_collection_summary_final_r03.json",
+      "sha256": "5cb79b639a1b1185f8b47788ed4b65519a5af6a04cbec2f578633a4322ae713e"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/s7_collection_sta_result.json",
+      "sha256": "3cfedb3d8f81c5e8903100d68441ed1294c0513e3a12bdce6e2c8dc2e4e82642"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/s8_collection_summary.json",
+      "sha256": "a4af770f6e95cbe409cced750d33bfb468d2f08cdcc2ac204a33ea29d1e92ce6"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/s8_sta_result.json",
+      "sha256": "0d194c4194dd41decb6ac92af9d81f0abc270983874bce5e670231a2e8cdec73"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_collection_summary.json",
+      "sha256": "7bd57f0a3b21cb7a48214ba11ff46ff536d9f63f1a5d45a991b3b471bad5238c"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_sta_result.json",
+      "sha256": "5cf837220fb8a88c85ec7cff770ba3000dd48325835febc839a1f17a19bd1a25"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/s10_collection_summary.json",
+      "sha256": "eff0599d5a790711d279dcd1c93265df2427acfb48899defe700b5d7538ab346"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/s10_sta_result.json",
+      "sha256": "b43ff87e68a3ad4dfd5768aa27bc77601698d3336420e098458017e65ea9d830"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/s11_collection_summary.json",
+      "sha256": "4365ecf6ccde04ce03896f7ca4c1cdb2fa4e027eadd4fc37b9bc304be998ee80"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/s11_sta_result.json",
+      "sha256": "5ae057d12f8279f2682f2a85ad26e574a39f95c4c7601e9aa62b38e15b453145"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/s12_collection_summary.json",
+      "sha256": "8d301949a1e5dc67f079751488f66cce5abadc81871c0de8ee2171e9a89c4b39"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/s12_sta_result.json",
+      "sha256": "5065519ac1963403eaec736ab69111ce2cc438e2edb5fc06fcccb11aa07864d5"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/s12_collection_summary.json",
+      "sha256": "7a7a8fef753b0f093b8fd6673fc7394f97f41ced9c328ae204d0effc3931cf2e"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/s12_sta_result.json",
+      "sha256": "36aa5f62e710f97e4f30ad8f2dd0a993e9b5686acfb4c9c49425037dd10279e8"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/s14_collection_summary.json",
+      "sha256": "ed8ab18912882c22ef04e2b949c3abe5d190e7b43e296a70d2da65754d1ea3c7"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/s14_sta_result.json",
+      "sha256": "c2730e1a5119ec30e4be868aa3f9e31f952e5e3ead87bfceef42e3dac3f7016e"
+    },
+    {
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/timing_synth.rpt",
+      "sha256": "f58bf13b1dda0439a3828ca8346002046dae00d2207b6d97d4bf4c87236e0175"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "ffced34163a659ae72cfe516d3eaee5207b4a7f66784493676d878d1a4d5d985"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "5229163056ff9dfbef68008b713c24919516d2f071663e7dc6d39cb9b0899ef1"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "dc6056c7533bb07067b005a81e12f5d89ebf32d3f11f70b0c5bc101b1984426e"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "42f5aa815641ce94ac9ff5acac8330742a24f13908cd4983150e1abe32a61ac4"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "c1f7dcd0aad45b08500656532101c58f6db933b960d603187f0351d4ca0d3cae"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "a2703b69e00624f2368609b2d04ad4de2ec0792bce54260fb02a74aebf809a45"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "ca8653f999a7de8a21237d2f55aa3477f4ed7955fa814a6c5e9e6fdbe1ed4124"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "3ceb2b7aa781cea765fb268ec5e2287dc0f56256b4947443d5148677d3665931"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/timing_summary_synth.rpt",
+      "sha256": "a3e1469f40a5f1988e84b2b6d57c3371e274c4c9340c25add467a3c646fb5eb5"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/timing_summary_synth.rpt",
+      "sha256": "2d71929891bc0c28836df655ee232fdcd5f424955a40ce0f5ba8487d48763426"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/timing_summary_synth.rpt",
+      "sha256": "d98b02fb3986eafce55e20895e2d2d802d21693ebb339294ffb6d1ff97954080"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/timing_summary_synth.rpt",
+      "sha256": "6f40af54ae29d164e61ed2efb635452eec958912d561fe683a05cfc3b4c5fab7"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/timing_summary_synth.rpt",
+      "sha256": "8a381cbf45a56719bd960c30be8e2d94ddecf67f4132ea988340759c877ea38b"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/timing_summary_synth.rpt",
+      "sha256": "26c581fbea3753666eaef5f385d519465ccbe6b8c54b3970b82d382d275d11fb"
+    },
+    {
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_archive_mapping.json",
+      "sha256": "5ba064b6dec6b5db98952c608fc25b5566370ef8ba4e6112e42db26b4d7692d2"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/collector_native_archive_mapping.json",
+      "sha256": "2d2bba90a5cd20d9e4cbf152ddb91084222d5400df8db9851c6696c9a0386777"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/collector_native_mapping.json",
+      "sha256": "ca3900796439ac4615afdb568e50aee6be9dd03f23ebc0a7ad934a7340519cea"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_native_mapping.json",
+      "sha256": "29334368f3158aefd438fa58db19a70855c0a798cb5ac11c6c81a563b5ac8774"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/s4_collection_native_mapping.json",
+      "sha256": "e048b391600558baf5a4356e24ccef3604cdda93bcffc21e3c736eb315f83ccb"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/s5_collection_native_mapping.json",
+      "sha256": "325fa6a98ffc382a3ce36561821d1689988b42fda74bf3eec68b8f26f852af66"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/s6_collection_native_mapping.json",
+      "sha256": "f586e8c8c59aa1b1f5d6b1590f8a61dce8b11b3cd0cc380a4e916381e2a94239"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/s7_collection_native_mapping.json",
+      "sha256": "e96606d18ba7f7374d07bea4d6c8b437039ca99006eabe18b288b066acab508f"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/s8_native_mapping.json",
+      "sha256": "d593a80d5a3497c465fd5b1877266f8a095762ecc5409b9758ea1c1e8b495ea8"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_native_mapping.json",
+      "sha256": "8b9068ab3eda0cd761cc0a7679b6585711f045c9f1516a2ce1a02c7ec5add3aa"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/s10_native_mapping.json",
+      "sha256": "baeb1dbf91cf72c833cc7fff88a0762bee7f69f47136925e506c3aedd433cc60"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/s11_native_mapping.json",
+      "sha256": "ed1d46dc23c89aa6ffd29b77a513c6c89645260765a2333a9507e095686d09f9"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/s12_native_mapping.json",
+      "sha256": "e0e5befd0b6b8435c21022457a9ad75543deb911bbd5dd20f4182dbdc5c8bd60"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/s12_native_mapping.json",
+      "sha256": "e9b9455b3cabb5f580dd45aa9f26a8e87dde08b4390b4045f0e39746786d6f19"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/s14_native_mapping.json",
+      "sha256": "3d399eae798b0873f1388eee2d8823e8490ed1a7a40adaa465544299b8327a25"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/root_mcp_calls_final.json",
+      "sha256": "cf883399cfedbef177ae97e5cb8065392c318925d64fb764aa76c2869dc048a5"
+    },
+    {
+      "path": "report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/execution_record.json",
+      "sha256": "cc177824e418769d08ed4f159efeb4caeb2afd978724a169caf30a461eb8ea53"
+    },
+    {
+      "path": "report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/synthesis_summary.txt",
+      "sha256": "caad9f5172684c554781d176962588374e927e1844308e20bd71e362569ce68d"
+    },
+    {
+      "path": "report/evidence/S2A-T68/g4_synthesis_20261005/clean_restore_fecbf_20261006/clean_restore_execution_record.json",
+      "sha256": "b8b7e9dea7e6d321080ebd8276728ad7093dfdd286fe8a68a906e02a1fcd05af"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/mcp_closed/resource_preflight_denied.json",
+      "sha256": "c1f8827b49801db2797bd1c040b76a841c5e7ee8591f709ce7de605b56cf062e"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/mcp_closed/s9_resource_binding.json",
+      "sha256": "25c264e9cdc0855c8eaf545213e4643948252c8dcda61e1bac78c05b55ca34ae"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_delivery_manifest_r02.json",
+      "sha256": "8c66275d2452ac3f538be019e3f77470264fe18fd9d21ffa7fa47f5f0c39d5ea"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/mcp_closed/s10_setup_failed_actual.tool.json",
+      "sha256": "3488b37a1e4dbd9d874166cf5d45ab116cf1a3448f7df50c0009c5a49731e987"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/pnr_sta_result.json",
+      "sha256": "0eef9dd617cdefc829ce92a0d4a107b9ed33220150a9b1b05a717071827f2062"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_implementation_20261012_r01/pnr_closed_binding.json",
+      "sha256": "df278ccca650f648a3382f80e1db265497e96ecaaa3279a437484672e7060df7"
+    },
+    {
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/mcp_native_classification.json",
+      "sha256": "2b2479e5e048692a14b9c1bbbe0a600d029b5fde28d7ea8e330dd682afe67635"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/collector_mcp_classification.json",
+      "sha256": "1409a8763354b6444ae4ba1079974c9381a6e4375188f3e5d098a1959ff6c1b2"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/collector_mcp_classification.json",
+      "sha256": "8f54e3b065d78389cf15a60b41af3cf1254aacfe43c9030f3731b64e0bcbf37b"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/s3_collection_mcp_history_binding.json",
+      "sha256": "cb70b0f81d0b38b8b0c239a89d54ccdfbcafe2a1807367359c55f1030293b306"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/s4_collection_mcp_history_binding.json",
+      "sha256": "fa82d52a237d19bb6d8331f606a4face02cf521ab08ef0e2a4949107aa3f02e0"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/s5_collection_mcp_history_binding.json",
+      "sha256": "fea7976394ef091a180faf6456e8f488370fce6d411f09b5e01edd069ef57a76"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/s6_collection_mcp_history_binding.json",
+      "sha256": "c9bc714d847770fc3d655d26a98d6ed317158c2453760b40005ad57932d08e8b"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/s7_collection_mcp_history_binding.json",
+      "sha256": "40a6467d2928ec3363b39da54b062f35a468528fe5deaa29dcb9a0711b96a91b"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/s8_mcp_binding.json",
+      "sha256": "07e41f18b93dc74d3f669406454bc2cb92d67305a5da90dc117d0911e17992e9"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/s9_mcp_binding.json",
+      "sha256": "087f8621764f58301fa913c439df179ace43017da39179ca7cb93d2216f68cdd"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/s10_mcp_binding.json",
+      "sha256": "11f3e78b807fe6616f2a8626fc9ddf6e918740545c38d35c73227cb04413f7a1"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/s11_mcp_binding.json",
+      "sha256": "5ef7fd2136d1770fc598431c3defaddda3b5af4a43fa893e1edec4d2b171bd45"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/s12_mcp_binding.json",
+      "sha256": "e980f978312a4b98b080ccdb3d222b98adf789e10330059dc4e9caf7d13a91ad"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/s12_mcp_binding.json",
+      "sha256": "9bc549f82db6478ffc4a7620df63ef6319588d7bb96146276c2de68b055696e1"
+    },
+    {
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/s14_mcp_binding.json",
+      "sha256": "0bc0e7fb7d9160d24c4bebd3f689720d4a497635f61b57a7fb7420cd6dc0fb27"
+    }
+  ],
+  "native_marker_sources": [
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "68843cf8125943005e451ba066fdf8baca3faf3514ced341b9d2c5243b115c6e"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "90982b9d1dae4a7df232ca19cc98e3960b66da39298d2018764baf8b4f90e845"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "7c6a232e00af29a9cf0a080074f66aa4dacad2319db436d87a6a34f1654a3436"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "cc6b458b7a8981f2b41292a2ea063cc423c566e40c193f78aeac6d0349b312d7"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/wrapper_native_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "411a3167dac7db8b528fa93fa509ce03f079c616b5bc09d814c7379b290b041e"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/wrapper_native_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "full_synthesis_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/wrapper_native_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "2d8126dd85f50675f4942ec8ca342f842c28535551d702981a2d92bd0a7b6e94"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "a528b0fb468aec3adb8b692ea70f752feabe092819b6af7150f5bb1aa8a67500"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "c5a6b6b7c812429d84e8b46e3cc5ce3917428eb5218f54f0f2a84f94ef6e4c37"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "4e8fc765c1f330eaf2f759c97de3727bf8f3bfcf5b14f1da3ae4465c7d08c588"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/wrapper_native_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "b14cdcff08b6ca751404d864a0cff37a546346463658b6e883e7b88f8ce57c25"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/wrapper_native_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s1_platform_20261011_r01",
+      "job_directory": "wrapper_native_r01",
+      "path": "report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/wrapper_native_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "1affd77669559b417698c214401d37ab5e51f4f424891454375f448b6882cf5b"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "6b8cfc155747ba1d5858ce8f433c880ab38d82c5db0d3dfd6a3c16e097458a1e"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "da153e867ed778d9e85b872b35033c6ce77e380c61c76447183a9812afacfe82"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "7aa022271b3c7e5243d01f1a049dce026a062218e266794ad671039ae62c6f48"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "wrapper_native_s2_r01",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/wrapper_native_s2_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "f3afd36e963bc8f982202ab5ab335b65bfa4651d7f9474f216bcc01f35754ab7"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "wrapper_native_s2_r01",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/wrapper_native_s2_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s2_platform_20261011_r01",
+      "job_directory": "wrapper_native_s2_r01",
+      "path": "report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/wrapper_native_s2_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "0a6b60e59c45fa7a383ca00d77f9b911bdf1864d18697a298ae5d5d028fb5a0e"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "6da5826032dd4e4bcd09990c5211a3d8f9756ad4207ad303cdb186f813e90d76"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "3ca5e5250439f758a7a523ec965401b7bc4478b0e9f71d4b05ee3185362cc885"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "d5309f30df21ac9dcc980b3f3573d0f37fbf3d099084b3d6c128cf4bbfe0c0a3"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "wrapper_native_s3_r01",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/wrapper_native_s3_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "a31a2f4d11490b27bc928df29a4c4e49f481f512551aaee8ff984ce42354129c"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "wrapper_native_s3_r01",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/wrapper_native_s3_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s3_platform_20261011_r01",
+      "job_directory": "wrapper_native_s3_r01",
+      "path": "report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/wrapper_native_s3_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "f4c3e80d586819f470c581c5c8af7bc9cf68011b9296273008b3829df5492640"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "b0e53e911478cd99c1cc71497d79487a1293c71e72d21124be7fb0662a7ce13b"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "f24ad0eccbbcb8bb28429c1c7b7284d503e5e58f31b2fb62a059b3182160ee39"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "af80be8eeb9adee394c314362d8aadc999d39cd18c3af1e53663a0ea8b0b69c9"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "wrapper_native_s4_r01",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/wrapper_native_s4_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "05141cd8b7e29e2b175580acafa5647bb0c19d347820f28ddf9a72c7fbf4c943"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "wrapper_native_s4_r01",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/wrapper_native_s4_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s4_platform_20261011_r01",
+      "job_directory": "wrapper_native_s4_r01",
+      "path": "report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/wrapper_native_s4_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "a07e18473217672cf7bca1329d069a1919f75cd5b0eeb5a811969126858b1873"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "4074fb5df728dda16d799ed77c0a2f3735c073a9d77728133bdbe5e3b0e4237e"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "6d94559b91f2a5728c680e56c6414b84f0b203b0f99bb603c2379e9210a4c6c0"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "f8c59aa336e674e160d4f51b093814264c21560b31d4762daaca16242b33aef7"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "wrapper_native_s5_r01",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "e4ce68d14701bb27c733370937c8681d6fb4b5557a329ca5497897e3f7d4c811"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "wrapper_native_s5_r01",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s5_platform_20261011_r01",
+      "job_directory": "wrapper_native_s5_r01",
+      "path": "report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "2c8f778c9f5765ce128a305d31f5534ffa45120c9743a8ca4ecb3930708752c9"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "ed528a85b705323a077c7677208c48529ab190f205b6b22873c23927adc754fc"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "9fc33415764a639d57fdac3bc8be8ae6fb63ab9cba6c7e5af1ff0de5ba5224c3"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "1483d930ff4aa3f094715e98766e008372858259d977a95c0caf90cc03668287"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "wrapper_native_s6_r01",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "d8100e6d28e789510512f14f231c5e225fae8e85929fcfc57a3e3cdb57008322"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "wrapper_native_s6_r01",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s6_platform_20261011_r01",
+      "job_directory": "wrapper_native_s6_r01",
+      "path": "report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "e2c11382623b3970813556924063b8f21172c94399e14f375624b7ab7e0b973f"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "9ffdea42cb53f72c139b07cfeb7f9a46b66f5b3754558e57a19f153daf99041a"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "ec403ba063bfaa1fd7125da0387c9dd0cf9de3868304c288b8b6230f299230d3"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "827b4049084e481524dfd5625702e05a03adbe5968d4f3fdc601d9c003a49d47"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "wrapper_native_s7_r01",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/wrapper_native_s7_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "635cc0d783a1164c835c3086a1d46c4d815593428bd34b8ad50026751ccee073"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "wrapper_native_s7_r01",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/wrapper_native_s7_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s7_platform_20261011_r01",
+      "job_directory": "wrapper_native_s7_r01",
+      "path": "report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/wrapper_native_s7_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "c5b973bd95a317f33a6c27d6d6189b1a8c49eb940429a337dd909d6290389e44"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "cf7b660250f90abd860c6ea528143078e3d1b8c8804aa0163712d2b133ba505d"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "d8f7a71d95d91f21beeb07892160d5df40c8980f57567e205723f5e4a0ad19d5"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "40e1970de88d969833bade8756477c1d9ec5255f32bd61a62ce6b3000b456502"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "wrapper_native_s8_r01",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/wrapper_native_s8_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "06afa97401396a7e4c7583445a6da4ea9549fb3f861dc19ccd96f890218dc93a"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "wrapper_native_s8_r01",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/wrapper_native_s8_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s8_platform_20261011_r01",
+      "job_directory": "wrapper_native_s8_r01",
+      "path": "report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/wrapper_native_s8_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "0ca07c0c0ede2d7d97ba3fb2037bb991de273039df634a6aca0d4cbe2b1553e2"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "6f8b958920eb467dad9ee1fb899b483ef31ea80dda8212aed1599bb1c164c6fb"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "23ceab636bd665dfb4842d7d8b8f8596009c240f1f8f2e89c414afee47de2072"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "03fa7814487794860ebb7ca65e5a29a27b08f9c9f6cf0a2497613cfde09ed21a"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "wrapper_native_s9_r01",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/wrapper_native_s9_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "8c3513fa16f90e53814a7d0dd580dc1a36c204ff8c215480416fb7aa34f78969"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "wrapper_native_s9_r01",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/wrapper_native_s9_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s9_platform_20261011_r01",
+      "job_directory": "wrapper_native_s9_r01",
+      "path": "report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/wrapper_native_s9_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "a68a8118b8fe84a186ee4e6c0452b0c5cd00a331f522cf92bb9e1e5117ac636d"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "af3ac62f17f3e177e419adb53fffa7258ee072d735257d20fa6281fdc7fa11ce"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "3a21e6e659d09873302f6b9ba796e80f4246697048baec74a4a4cc4cd166cacc"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "ab6a12ab69de9a290fc1220695b6a6587dbcbce67238791164d62fdf6c970a85"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "wrapper_native_s10_r01",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/wrapper_native_s10_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "31111a1a4a50f88efd637329465d38aeff9d82094677d4322dbc7c7fe9efa3b4"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "wrapper_native_s10_r01",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/wrapper_native_s10_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s10_platform_20261012_r01",
+      "job_directory": "wrapper_native_s10_r01",
+      "path": "report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/wrapper_native_s10_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "7db250881a9b715e2d7608058c9b2b0384a4797f25fb2d29baf44eeb0cecd502"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "391e1c095d9d49b07bab59a509433d329211c9cf4e9a644fb66032c181b7047c"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "655cd3db5990b4f36e5a2b46b1f6a880897c7df17bc5080e44daabed6f92936d"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "53defd6e2d05079e6857426c7faadda5843cc3840797bcf1000ccabe4aa98b2c"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "wrapper_native_s11_r01",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/wrapper_native_s11_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "3416a80fd1eb1a4a8306fa26b89db99b809e90ef69ae1e6833546baf5e71945a"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "wrapper_native_s11_r01",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/wrapper_native_s11_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s11_platform_20261012_r01",
+      "job_directory": "wrapper_native_s11_r01",
+      "path": "report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/wrapper_native_s11_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "2577035c9a7bcdef6150a8042d7c97cc1c16b1764415754be4142b2b04857497"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "a872274901c0876687a7ed7d7e5f23f04ed12b41e93995b659384980a61f136f"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "913abad1d39ec518679a721b2d543f320cf1e01a64b33d1588db43eed2dd5ab8"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "74e5b6e0facad22e98899dfed83098fa2814b5a418e585807aa827a8ecf4c995"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/wrapper_native_s12_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "adf1fbcf3a3475c1b190d170ccc5185855f18e81945b43dc67289d157d1cecc9"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/wrapper_native_s12_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s12_platform_20261012_r03",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s12_platform_20261012_r03/native_jobs/wrapper_native_s12_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "35c367770c4b385eccd0055fe73514f110d0cbb937b1758b7ba8ef56afc3cd22"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "b39b21369e1c017b6f06f97f77ed73df94bb31087c4d17b370f8edc407e6c633"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "3f1683a56d9d914784f8c4378d1a0fc140dff6eef4830566a59211660d71ff87"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "05460fecad567261df15e0a7fa293332cd93f61710a72555bee4d42ec7390948"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/wrapper_native_s12_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "c4dbe4b880fb65108c5048ffe189954c2202cdd077fe1a32c4b655db934069fe"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/wrapper_native_s12_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s13_platform_20261012_r01",
+      "job_directory": "wrapper_native_s12_r01",
+      "path": "report/evidence/S2B-T17/s13_platform_20261012_r01/native_jobs/wrapper_native_s12_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "027aaa8e00465d777d6c81f9fcd33bb197e7740924cc5757da093ca1ea54da27"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_axi_gp0_lite_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "ba3425462ec9db8dc112d608e44f459993edb4e2c583d84cbf2582da43242972"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_infer_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_infer_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "e9b70827f32a1697c6fecb5d93567df4f27d14e8cf698d768460549fa8c8da32"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_ps7_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_ps7_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "5bfbaf5b7f738a4ee5d4ea7792fb4ca4532ae4b379a424d202e5ced354c873e9"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "s2b_inference_rst_fclk0_0_synth_1",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "wrapper_native_s14_r01",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/wrapper_native_s14_r01/.vivado.begin.rst",
+      "exists": true,
+      "sha256": "6310515f0d09411c9d18964307969a415c03beea6a94ab60d9c239c5f3cc2957"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "wrapper_native_s14_r01",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/wrapper_native_s14_r01/.vivado.end.rst",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "dir": "s14_platform_20261012_r01",
+      "job_directory": "wrapper_native_s14_r01",
+      "path": "report/evidence/S2B-T17/s14_platform_20261012_r01/native_jobs/wrapper_native_s14_r01/__synthesis_is_complete__",
+      "exists": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "status": "PASS_TOOL_G2_ONLY",
+  "source_commit": "467463757158aed80d6f75afadff6a8458614a29",
+  "reviewed_at_utc8": "2026-10-12T09:31:44.944392+08:00",
+  "reviewed_inputs": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/collector.py",
+      "sha256": "fc7371e3fef0a3385bf34750b5222988469d629e32948366207fd2841d833c2c",
+      "bytes": 36423
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native.py",
+      "sha256": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+      "bytes": 2561
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/compat_pins.py",
+      "sha256": "be1805dfa74678252a2ecf35d7e428c5ef9c72037b8a12cda99105a985e51e7e",
+      "bytes": 6545
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/g1_receipt.json",
+      "sha256": "bbc2e13399196f39de23e46692abef36065e2877b05a4b3acba6b1fe67ef57f5",
+      "bytes": 17607
+    }
+  ],
+  "ast_changed_functions": [
+    "collect",
+    "seal"
+  ],
+  "ast_added_functions": [
+    "prepared_source_before",
+    "wait_client_handoff"
+  ],
+  "helper_change": "WORK only",
+  "actual_wait": {
+    "path": "tmp/2B/S2B-T17/s12_physical_launch_root_20261012_r01/wait.tool.json",
+    "sha256": "34090e95fd43b33a2151d990e88cad1a0909708191932118de36f452f44e2d2f",
+    "bytes": 3334
+  },
+  "before_original": {
+    "path": "tmp/2B/S2B-T17/s12_launch_prepare_20261012_r01/source_before.native.json",
+    "sha256": "5e4da933819d3484801028f2ba78c6ffcda250fea39de9640c1a6ee485e5643b",
+    "bytes": 1138
+  },
+  "cases": [
+    {
+      "name": "真实running客户端+明确fixture终态正例",
+      "status": "PASS",
+      "fixture_only": true
+    },
+    {
+      "name": "history未完成",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交缺少成功原生终态",
+      "fixture_only": true
+    },
+    {
+      "name": "history失败",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交缺少成功原生终态",
+      "fixture_only": true
+    },
+    {
+      "name": "history bool伪零",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交缺少成功原生终态",
+      "fixture_only": true
+    },
+    {
+      "name": "客户端终态码污染",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交客户端不能带终态码",
+      "fixture_only": true
+    },
+    {
+      "name": "移交客户端错误污染",
+      "status": "REJECTED_EXPECTED",
+      "message": "非WAIT或错误不能作为移交",
+      "fixture_only": true
+    },
+    {
+      "name": "客户端session错源",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交session不同",
+      "fixture_only": true
+    },
+    {
+      "name": "输入命令错源",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交命令不同",
+      "fixture_only": true
+    },
+    {
+      "name": "history命令错源",
+      "status": "REJECTED_EXPECTED",
+      "message": "移交命令不同",
+      "fixture_only": true
+    },
+    {
+      "name": "非WAIT移交source",
+      "status": "REJECTED_EXPECTED",
+      "message": "非WAIT或错误不能作为移交",
+      "fixture_only": true
+    },
+    {
+      "name": "非WAIT移交builder",
+      "status": "REJECTED_EXPECTED",
+      "message": "非WAIT或错误不能作为移交",
+      "fixture_only": true
+    },
+    {
+      "name": "非WAIT移交launch",
+      "status": "REJECTED_EXPECTED",
+      "message": "非WAIT或错误不能作为移交",
+      "fixture_only": true
+    },
+    {
+      "name": "非WAIT移交close",
+      "status": "REJECTED_EXPECTED",
+      "message": "非WAIT或错误不能作为移交",
+      "fixture_only": true
+    },
+    {
+      "name": "before错误来源/状态command",
+      "status": "REJECTED_EXPECTED",
+      "message": "准备before命令或根目录不同",
+      "fixture_only": true
+    },
+    {
+      "name": "before错误来源/状态direct_wait_exit_code",
+      "status": "REJECTED_EXPECTED",
+      "message": "准备before未真实成功闭合",
+      "fixture_only": true
+    },
+    {
+      "name": "before错误来源/状态terminal_state",
+      "status": "REJECTED_EXPECTED",
+      "message": "准备before未真实成功闭合",
+      "fixture_only": true
+    },
+    {
+      "name": "before错误来源/状态pid",
+      "status": "REJECTED_EXPECTED",
+      "message": "准备before进程身份缺失",
+      "fixture_only": true
+    },
+    {
+      "name": "before错误commit",
+      "status": "REJECTED_EXPECTED",
+      "message": "准备before命令或根目录不同",
+      "fixture_only": true
+    },
+    {
+      "name": "before原件SHA漂移",
+      "status": "REJECTED_EXPECTED",
+      "message": "真实准备before原件漂移",
+      "fixture_only": true
+    }
+  ],
+  "native_runs": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "-c",
+        "import sys,runpy;from pathlib import Path;sys.path.insert(0,'C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s12_handoff_collection_20261012_r01');import collector;collector.CACHE=Path('C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\independent_s12_handoff_review_20261012_r01\\\\native_cache');sys.argv=['native.py','--prefix','s12_independent_badcommit','--','source','--commit','0000000000000000000000000000000000000000','--phase','after'];runpy.run_path('C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s12_handoff_collection_20261012_r01\\\\native.py',run_name='__main__')"
+      ],
+      "pid": 312,
+      "create_time": 1791768704.134154,
+      "native_exit_code": 1,
+      "direct_wait_exit_code": 1,
+      "elapsed_seconds": 0.6870000000053551,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/independent_s12_handoff_review_20261012_r01/new_native_rejection.stdout.bin",
+        "sha256": "ccb46c19d8f9abf83180c4f298bf9a5f3c2695fd1ea5fc5c4c02926ddd4ecbfb",
+        "bytes": 1319
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/independent_s12_handoff_review_20261012_r01/new_native_rejection.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "C:/Program Files/Git/bin/git.exe",
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "maintenance.auto=false",
+        "rev-parse",
+        "HEAD"
+      ],
+      "pid": 22512,
+      "create_time": 1791768704.88319,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.10900000001129229,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/independent_s12_handoff_review_20261012_r01/head.stdout.bin",
+        "sha256": "6b07c897d1fcc718216f6ada434d14d29c0a3e8ee6cfaf4f1138a3ad7912fb06",
+        "bytes": 41
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/independent_s12_handoff_review_20261012_r01/head.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "new_native_wrapper": {
+    "path": "tmp/2B/S2B-T17/independent_s12_handoff_review_20261012_r01/native_cache/s12_independent_badcommit.native.json",
+    "sha256": "a599432054d1c9e0844d18d8b0e762f727c2751ec8e9faeb5b5e41f5ea20c1f4",
+    "bytes": 1446
+  },
+  "limitations": [
+    "正例history0明确fixture，仅审接口，不宣称真实九条history或综合/STA通过。",
+    "未执行collect/seal/source-after，仅隔离badcommit实际新native调用，拒绝native1符合预期。",
+    "完整旧绑定G2沿用固定原件，本轮43RAW轻量只读重新核验。",
+    "不改生产/HEAD/PRE/被审文件，不调用Vivado或硬件；旧资源GAP保留。"
+  ]
+}

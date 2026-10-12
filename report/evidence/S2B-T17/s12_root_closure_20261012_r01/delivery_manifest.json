@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "s12_root_closure_20261012_r01",
+  "source_commit": "467463757158aed80d6f75afadff6a8458614a29",
+  "evidence_dir": "report/evidence/S2B-T17/s12_root_closure_20261012_r01",
+  "interfaces": [
+    {
+      "name": "tiny416冻结模型数值及逻辑接口",
+      "version": "S2A-T01/G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "Vivado": "实际原生日志版本；未运行新版本查询",
+    "profile": "s2b-inference-platform/0.1.12"
+  },
+  "files": [],
+  "checks": [
+    {
+      "name": "实际原生包装：collect:s12_handoff_collect_r01",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_handoff_collection_20261012_r01\\collector.py collect --commit 467463757158aed80d6f75afadff6a8458614a29 --gate C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_physical_launch_root_20261012_r01\\closed_inputs_gate.json",
+      "exit_code": 0,
+      "reason": "真实子进程返回码；不代表G2或板上批准。"
+    },
+    {
+      "name": "实际原生包装：source:s12_handoff_source_after_r01",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_handoff_collection_20261012_r01\\collector.py source --phase after --commit 467463757158aed80d6f75afadff6a8458614a29",
+      "exit_code": 0,
+      "reason": "真实子进程返回码；不代表G2或板上批准。"
+    },
+    {
+      "name": "准备阶段真实source-before直接等待",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_launch_prepare_20261012_r01\\collector.py source --commit 467463757158aed80d6f75afadff6a8458614a29 --phase before",
+      "exit_code": 0,
+      "reason": "固定原件SHA及真实direct_wait0；使用原collector619，不追认本次新工具执行。"
+    },
+    {
+      "name": "50MHz综合态STA分类",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s7_platform_20261011_r01\\collector_code\\classify_s7_sta.py --report C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_platform_20261012_r03\\timing_summary_synth.rpt --result C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s12_platform_20261012_r03\\s12_sta_result.json",
+      "exit_code": 2,
+      "reason": "FAIL_TIMING"
+    },
+    {
+      "name": "独立实际证据审查",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "collector只归档原件，此项尚未执行。"
+    },
+    {
+      "name": "实现及postroute",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "collector只归档原件，此项尚未执行。"
+    },
+    {
+      "name": "G3板上cache/模型/109/1000任务",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "collector只归档原件，此项尚未执行。"
+    },
+    {
+      "name": "独立PASS_EVIDENCE_INTEGRITY_ONLY原件、归档映射及自有根退出只读核验",
+      "status": "PASS",
+      "command": "Python312 -X utf8 -B tmp/2B/S2B-T17/s12_physical_launch_root_20261012_r01/root_closure_audit.py",
+      "exit_code": 0,
+      "reason": "ROOT实际audit0；精确argv与exec result已绑定，不是Reviewer宿主码、STA/资源全过程/PNR通过。"
+    },
+    {
+      "name": "r01-r03全过程资源监护",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "动态helper身份三扫未闭合，三guard BLOCKED、SUP2和ROOT消费GAP原件保留，不补造budget PASS。"
+    }
+  ],
+  "limitations": [
+    "仅实际综合态STA，不代表-1/postroute或G3；精确speed_file保留。",
+    "products native/capture与客户端/nativewait分开，不重跑products或重复登记wrapper。",
+    "原生五任务OS退出码未捕获为null；日志与marker不是OS返回码。",
+    "单进程日志峰不是进程树峰，未取得字段为null。",
+    "六PSinit与HWH按实际字节关系报告，不继承旧ELF/BSP兼容批准。",
+    "50MHz综合态STA FAIL，WNS−2.402ns/TNS−159.356ns/91端点；不能准入PNR。",
+    "r01-r03 guard因helper变化无法闭合身份，BLOCKED且不自动停设计；监护有真实GAP，不能证明完整物理资源预算通过。",
+    "r04仅open_run/reports/query/close期间正常监护，ROOT退出并非阶段验收。",
+    "WAIT客户端是running移交，不是客户端成功或timeout；native history0单独保存。",
+    "旧PRE清单在source-after前冻结，仅代表其历史准备范围；现时evidence2由44份新增后快照未列入引起，本ROOT清单逐文件覆盖当前PRE。",
+    "本清单归档和独立准确性审查不能批准失败STA或进入PNR；下一次需新代码/新SOURCE/新时序。",
+    "档案映射给出原tmp与可恢复report副本；旧清单自身及其原路径引用不改写。",
+    "ROOT只读audit实际执行两次均0；首次只留工具上下文，第二次tool原件绑定。Reviewer宿主退出码未独立捕获，独立语义PASS仅据其绑定receipt。"
+  ]
+}

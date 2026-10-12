@@ -1,0 +1,46 @@
+{
+  "status": "PASS_LAUNCH_PINS_G1_ONLY",
+  "cases": [
+    {
+      "name": "真实launch pins与43源码",
+      "status": "PASS"
+    },
+    {
+      "name": "PNR仍缺实际综合G1/G2",
+      "status": "REJECTED_EXPECTED",
+      "exception": "BLOCKED_PENDING_S12_PINS：缺实际输入SHA",
+      "fixture_only": true
+    },
+    {
+      "name": "source CLI异commit",
+      "status": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "HEAD异commit",
+      "status": "REJECTED_EXPECTED",
+      "exception": "HEAD与实际提交不同",
+      "fixture_only": true
+    },
+    {
+      "name": "freeze异commit",
+      "status": "REJECTED_EXPECTED",
+      "exception": "源码提交与ROOT冻结SOURCE_COMMIT不同",
+      "fixture_only": true
+    },
+    {
+      "name": "freeze SHA漂移",
+      "status": "REJECTED_EXPECTED",
+      "exception": "冻结输入漂移",
+      "fixture_only": true
+    },
+    {
+      "name": "真实source-before43快照与生产RAW稳定",
+      "status": "PASS",
+      "inner_git_pid_create_time": "UNKNOWN"
+    }
+  ],
+  "actual_hardware_or_vivado": "NOT_RUN",
+  "scope": "只重查本次五常量绑定和HEAD/freeze/PNR门禁，既有完整门禁回归按原SHA复用"
+}

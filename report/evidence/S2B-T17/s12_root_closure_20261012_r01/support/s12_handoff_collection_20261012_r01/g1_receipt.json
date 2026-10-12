@@ -1,0 +1,436 @@
+{
+  "status": "PASS_G1_HANDOFF_INTERFACE_ONLY_STOP",
+  "created_at_utc8": "2026-10-12T09:29:43.835300+08:00",
+  "source_commit": "467463757158aed80d6f75afadff6a8458614a29",
+  "actual_wait_original": {
+    "path": "tmp/2B/S2B-T17/s12_physical_launch_root_20261012_r01/wait.tool.json",
+    "sha256": "34090e95fd43b33a2151d990e88cad1a0909708191932118de36f452f44e2d2f",
+    "bytes": 3334
+  },
+  "positive_fixture": {
+    "native_history": {
+      "command": "wait_on_run synth_1",
+      "code": 0,
+      "output": "FIXTURE_ONLY_NOT_NATIVE_HISTORY"
+    },
+    "accepted": {
+      "client_pending_handoff": true,
+      "client_status": "running",
+      "client_elapsed_seconds": 300,
+      "limitations": [
+        "客户端running移交不是完成或timeout；成功终态仅由独立关闭history证明。"
+      ]
+    },
+    "client_exit_code": null,
+    "client_timeout": false
+  },
+  "negative_cases": [
+    {
+      "name": "非WAIT running：source",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：builder",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：setup",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：launch",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：open_run",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：reports",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：query_xdc",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT running：close",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：source",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：builder",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：setup",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：launch",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：open_run",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：reports",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：query_xdc",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "非WAIT error：close",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    },
+    {
+      "name": "running非字符串true",
+      "status": "REJECTED",
+      "reason": "缺少真实running状态"
+    },
+    {
+      "name": "running缺失",
+      "status": "REJECTED",
+      "reason": "缺少真实running状态"
+    },
+    {
+      "name": "running不是终态",
+      "status": "REJECTED",
+      "reason": "缺少真实running状态"
+    },
+    {
+      "name": "客户端session不同",
+      "status": "REJECTED",
+      "reason": "移交session不同"
+    },
+    {
+      "name": "客户端session缺失",
+      "status": "REJECTED",
+      "reason": "移交session不同"
+    },
+    {
+      "name": "input session不同",
+      "status": "REJECTED",
+      "reason": "移交session不同"
+    },
+    {
+      "name": "input缺失",
+      "status": "REJECTED",
+      "reason": "移交缺少实际调用输入"
+    },
+    {
+      "name": "client command不同",
+      "status": "REJECTED",
+      "reason": "移交命令不同"
+    },
+    {
+      "name": "input command不同",
+      "status": "REJECTED",
+      "reason": "移交命令不同"
+    },
+    {
+      "name": "history command不同",
+      "status": "REJECTED",
+      "reason": "移交命令不同"
+    },
+    {
+      "name": "history未完成",
+      "status": "REJECTED",
+      "reason": "移交缺少成功原生终态"
+    },
+    {
+      "name": "history失败",
+      "status": "REJECTED",
+      "reason": "移交缺少成功原生终态"
+    },
+    {
+      "name": "history bool假0",
+      "status": "REJECTED",
+      "reason": "移交缺少成功原生终态"
+    },
+    {
+      "name": "history缺码",
+      "status": "REJECTED",
+      "reason": "移交缺少成功原生终态"
+    },
+    {
+      "name": "client带码",
+      "status": "REJECTED",
+      "reason": "移交客户端不能带终态码"
+    },
+    {
+      "name": "错误不能移交",
+      "status": "REJECTED",
+      "reason": "非WAIT或错误不能作为移交"
+    }
+  ],
+  "ast_changed_functions": {
+    "collector.py": [
+      "collect",
+      "seal"
+    ],
+    "compat_pins.py": []
+  },
+  "ast_added_functions": [
+    "wait_client_handoff",
+    "prepared_source_before"
+  ],
+  "native_bytes_unchanged": true,
+  "old_tools_unchanged": {
+    "collector.py": "61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad",
+    "native.py": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+    "compat_pins.py": "6f0584248d4380f7750575a80b14abeb16305cb2a30eaba8a97193ad4f45a4bf",
+    "source_freeze.json": "887440ebb81fbec718670aacbf1cb3bfaa9e6e5641199e92d15ee37ca16dd8f0",
+    "prepared_receipt.json": "c9e7485aed111c7ba18a64466869b5655ad65ece1fc7dc8b2af0447dc102c30b",
+    "source_before.native.json": "5e4da933819d3484801028f2ba78c6ffcda250fea39de9640c1a6ee485e5643b"
+  },
+  "source43_unchanged": {
+    "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+    "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+    "src/s2b_route_query.sv": "48a3c7fe7a92d5b89b53c256d74cbc9e074b0408e88b4e08ec68334c9ad53905",
+    "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+    "src/s2b_conv_tile_engine.sv": "c46ed3e1e8af0089b2a78434c0b34869a2b1f5cf11071688345828f4a9c28454",
+    "src/s2b_maxpool_engine.sv": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+    "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+    "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+    "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+    "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+    "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+    "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+    "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+    "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+    "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+    "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+    "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+    "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+    "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+    "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+    "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+    "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+    "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+    "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+    "vivado/s2b_inference_platform.tcl": "dea2485faa232d89585ffaa54919dbfe6749b6eb7e3a3d06ab7722acbc3b84f5",
+    "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+    "board/s2b_inference_platform.json": "821c14dddec1f016fe8e301e6d3491ee4c72810a4a37ef49ffe489464dc5c962",
+    "board/s2b_inference_platform.md": "31316a213629a2afd508afc052890fb32043463ff2b2ff8e57ad6ac8942bad9a",
+    "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+    "verification/check_s2b_inference_platform.py": "36f42454ba13c50a1a54fa0449a04872c69f4a49cba3e2c9c66f55d26fc2cda1",
+    "verification/test_s2b_conv_validation_rtl.py": "cdf680a67d7bf08407ee3a3993d62032ff33b1aa468d483600861fa217965c2d",
+    "verification/test_s2b_backend_coordinates_rtl.py": "318f5812dbe37693725c691fbd87ea31862969b41979681c0b8a77156d78fdda",
+    "verification/test_s2b_geometry_specialization_rtl.py": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+    "verification/test_s2b_route_specialization_rtl.py": "4e46cdcc110502acc4b47c9500dca09b42199bae48a6cad944068ad1b1e55f6a",
+    "sim/tb_s2a_t66_candidate_blackbox.sv": "4dc79e0b4ce038b5a41969c7318b722af132e5e4a656d3b3436a0657ddd35b29",
+    "verification/s1_t02_d2_int8_forward.py": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+    "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "verification/test_s2b_route_address_guard_rtl.py": "3e793719d26146dec3523dcffcd518af0c9a460f7119aa9dd3f6d8a9e2e9759e",
+    "src/s2b_maxpool_geometry.sv": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+    "verification/test_s2b_maxpool_address_guard_rtl.py": "54fa551164bbcbefb112fa365b096f1e1f1d9fa7d04bcd0ac68271c3baee13e5",
+    "verification/test_s2b_conv_output_address_rtl.py": "e51f66c2382ae3308c2fdb864e468d8684dc107076d9e75dd7d38625a6326b74",
+    "verification/test_s2b_conv_feature_address_rtl.py": "0402e00ca5c5bc9e40f2aeb46b1051c01ba9664c3773b45f1a631c4d5ecf36a1"
+  },
+  "source_before_original": {
+    "path": "tmp/2B/S2B-T17/s12_launch_prepare_20261012_r01/source_before.native.json",
+    "sha256": "5e4da933819d3484801028f2ba78c6ffcda250fea39de9640c1a6ee485e5643b",
+    "bytes": 1138
+  },
+  "commands": [
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "maintenance.auto=false",
+        "status",
+        "--short"
+      ],
+      "pid": 37096,
+      "create_time_unix": 1791768581.6520743,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.23500000000058208,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/git_before.stdout.bin",
+        "sha256": "123ce37a70ea0c00b1369d08db81b2d9c6f53697b98454216aff42db1c1eba9a",
+        "bytes": 269
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/git_before.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "maintenance.auto=false",
+        "rev-parse",
+        "HEAD"
+      ],
+      "pid": 32228,
+      "create_time_unix": 1791768581.9100947,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.06199999999080319,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/head.stdout.bin",
+        "sha256": "6b07c897d1fcc718216f6ada434d14d29c0a3e8ee6cfaf4f1138a3ad7912fb06",
+        "bytes": 41
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/head.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_handoff_collection_20261012_r01\\collector.py",
+        "--help"
+      ],
+      "pid": 27052,
+      "create_time_unix": 1791768582.101015,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.21900000001187436,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/collector_help.stdout.bin",
+        "sha256": "85d496411f4a98ce1389697c9ac703ddc3aecdfa14f2ba9726e03be06d1b3b58",
+        "bytes": 383
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/collector_help.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s12_handoff_collection_20261012_r01\\native.py",
+        "--help"
+      ],
+      "pid": 36868,
+      "create_time_unix": 1791768582.3348925,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.25,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native_help.stdout.bin",
+        "sha256": "4600805c533a1b2511eadb52fb2fc7e933f2c446c637263089db056df2f5414b",
+        "bytes": 164
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native_help.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "-c",
+        "import sys,runpy;from pathlib import Path;sys.path.insert(0,'C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s12_handoff_collection_20261012_r01');import collector;collector.CACHE=Path('C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s12_handoff_collection_20261012_r01\\\\isolated_native_cache');sys.argv=['native.py','--prefix','s12_handoff_g1_rejected','--','source','--commit','0000000000000000000000000000000000000000','--phase','after'];runpy.run_path('C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s12_handoff_collection_20261012_r01\\\\native.py',run_name='__main__')"
+      ],
+      "pid": 12756,
+      "create_time_unix": 1791768582.6039827,
+      "native_exit_code": 1,
+      "direct_wait_exit_code": 1,
+      "elapsed_seconds": 0.7820000000065193,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native_isolated_rejection.stdout.bin",
+        "sha256": "5bed5afe35d3c33890a9b960fc8f812f723040941c944a776a2f5804162e18b1",
+        "bytes": 1302
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native_isolated_rejection.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "core.longpaths=true",
+        "-c",
+        "maintenance.auto=false",
+        "status",
+        "--short"
+      ],
+      "pid": 8176,
+      "create_time_unix": 1791768583.5999024,
+      "native_exit_code": 0,
+      "direct_wait_exit_code": 0,
+      "elapsed_seconds": 0.21900000001187436,
+      "stdout": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/git_after.stdout.bin",
+        "sha256": "123ce37a70ea0c00b1369d08db81b2d9c6f53697b98454216aff42db1c1eba9a",
+        "bytes": 269
+      },
+      "stderr": {
+        "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/git_after.stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "new_tools": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/collector.py",
+      "sha256": "fc7371e3fef0a3385bf34750b5222988469d629e32948366207fd2841d833c2c",
+      "bytes": 36423
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/native.py",
+      "sha256": "b2c80abb52d14a636dc8d28f0f9a9f5f917b915553ee9fdcfff8616be715fdbc",
+      "bytes": 2561
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_handoff_collection_20261012_r01/compat_pins.py",
+      "sha256": "be1805dfa74678252a2ecf35d7e428c5ef9c72037b8a12cda99105a985e51e7e",
+      "bytes": 6545
+    }
+  ],
+  "limitations": [
+    "纯接口正例history code0为明确fixture，不是实际native history；尚未运行collect/seal。",
+    "真实包装隔离到自有cache，拒绝badcommit返回1证明调用新collector；未执行source-after/prepare/source-before。",
+    "原products监测GAP保留，接口G1不代表STA、资源连续监测、G2或G3通过。"
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "source_commit": "467463757158aed80d6f75afadff6a8458614a29",
+  "frozen_inputs": [
+    {
+      "path": "tmp/2B/S2B-T17/s12_guard_diag_20261012_r01/owned_binding_current.json",
+      "sha256": "e78e1245be71bfceec3f4f367d011831ba1d1c32e02b143bbed2915260e9c627",
+      "bytes": 1712
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_guard_diag_20261012_r01/recovery_receipt.json",
+      "sha256": "97a707dc37a8bf983a8a2425d9d442859615baa0fb71ac8fd56b097f3c5e56a4",
+      "bytes": 8962
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_physical_launch_root_20261012_r01/runtime_consumer.mjs",
+      "sha256": "687da3a29e8e8679da2bc2580360f5f93c3c6a9b115610df734c548d1b13275c",
+      "bytes": 3140
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/guard.py",
+      "sha256": "a2f5c581b79a40116bf59c240a7b8c0fe35bac4db7b26a79ce5ba14c451a18ac",
+      "bytes": 39465
+    },
+    {
+      "path": "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/supervisor.py",
+      "sha256": "193416f869463c38065e257545720032438ab12c7bbe30beec6bc8c53d8f9ca0",
+      "bytes": 7652
+    }
+  ],
+  "reviewed_at_utc8": "2026-10-12T09:12:26.305952+08:00",
+  "recovery_semantics": "PASS_BINDING_RECOVERY_ONLY",
+  "cases": {
+    "results": [
+      {
+        "name": "good",
+        "expected": "CONSUMED_LIVE_READY",
+        "actual": "CONSUMED_LIVE_READY"
+      },
+      {
+        "name": "missing_alerts",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "CONSUMED_LIVE_READY"
+      },
+      {
+        "name": "missing_uncertain",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "CONSUMED_LIVE_READY"
+      },
+      {
+        "name": "wrong_alerts_type",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "CONSUMED_LIVE_READY"
+      },
+      {
+        "name": "wrong_uncertain_type",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "CONSUMED_LIVE_READY"
+      },
+      {
+        "name": "has_alert",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "has_uncertain",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "not_closed",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "terminal",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "root_identity_mismatch",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "guard_identity_mismatch",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      },
+      {
+        "name": "stale",
+        "expected": "BLOCKED_RUNTIME_MONITOR",
+        "actual": "BLOCKED_RUNTIME_MONITOR"
+      }
+    ],
+    "pass": false
+  },
+  "old_gap": "NOT_RECOVERED",
+  "current_ready": "VERIFIED_READONLY_SNAPSHOT",
+  "finding": {
+    "priority": 1,
+    "file": {
+      "path": "tmp/2B/S2B-T17/s12_physical_launch_root_20261012_r01/runtime_consumer.mjs",
+      "sha256": "687da3a29e8e8679da2bc2580360f5f93c3c6a9b115610df734c548d1b13275c",
+      "bytes": 3140
+    },
+    "line": 32,
+    "problem": "缺少alerts/uncertain或类型错误时 !field?.length 为true，使未知监测状态错误CONSUMED_LIVE_READY。",
+    "closure": "要求两个字段明确为数组且长度为0，并以四个独立反例证明拒绝。"
+  },
+  "native_node_exit_code": 0,
+  "node_assertion_semantics": "四个反例结果证明实现拒绝条件失败；Node执行本身原生0。",
+  "head_native": {
+    "command": [
+      "C:/Program Files/Git/bin/git.exe",
+      "-c",
+      "core.longpaths=true",
+      "-c",
+      "maintenance.auto=false",
+      "rev-parse",
+      "HEAD"
+    ],
+    "pid": 6224,
+    "create_time": 1791767546.2441225,
+    "direct_wait_exit_code": 0
+  },
+  "limits": [
+    "保护恢复绑定及现时READY成立；仍须ROOT在实际launch前重新消费。",
+    "旧失败、GAP及未知旧SUP身份保留，不验收整products资源监控或G3。",
+    "只创建本隔离目录，不改生产/被审文件/HEAD，不调用Vivado或硬件。"
+  ]
+}

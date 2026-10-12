@@ -1,0 +1,105 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_launch_prepare_20261012_r01\collector.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\collector.py
+@@ -114,14 +114,14 @@
+     compat_pins.require_ready()
+     require(sha(FREEZE)==FREEZE_SHA,"G1 freeze原字节不同")
+     freeze=read(FREEZE); require_pinned_commit(freeze.get("source_commit")); rows=freeze["source_files"]
+-    require(freeze["profile"]=="s2b-inference-platform/0.1.12" and len(rows)==len({r["path"] for r in rows}),"freeze版本或路径重复")
++    require(freeze["profile"]=="s2b-inference-platform/0.1.13" and len(rows)==len({r["path"] for r in rows}),"freeze版本或路径重复")
+     hashes={r["path"]:r["sha256"] for r in rows}
+-    require(len(hashes)==43,"本轮冻结43源闭包不同")
++    require(bool(hashes) and "verification/test_s2b_conv_tile_origin_rtl.py" in hashes,"本轮冻结集合为空或遗漏S13真实runner")
+     require(len(freeze["frozen14"])==14 and set(freeze["frozen14"])<=set(hashes),"原14声明错误")
+     spec=importlib.util.spec_from_file_location("s12_platform_checker",exact(ROOT/"verification/check_s2b_inference_platform.py"))
+     checker=importlib.util.module_from_spec(spec); spec.loader.exec_module(checker)
+     static=checker.check_static(ROOT)
+-    require(len(static)==33,"本轮实际static33闭包不同")
++    require(bool(static),"本轮实际static闭包为空")
+     require(set(static)<=set(hashes),"static闭包不是freeze子集")
+     require(freeze["frozen14"]==checker.FROZEN_CORE_SHA256,"原14固定SHA不同")
+     for name,expected in hashes.items(): require(sha(ROOT/name)==expected,"已审源漂移："+name)
+@@ -141,6 +141,7 @@
+     for name in ("collector.py","native.py","compat_pins.py"):
+         path=exact(WORK/name); ast.parse(path.read_text(encoding="utf-8")); scripts.append(binding(path))
+     receipt=dict(status="STOP_PREPARED_ONLY",created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_freeze=binding(FREEZE),source_count=len(hashes),static_count=len(static),extra_paths=sorted(set(hashes)-set(static)),active_rtl_count=18,derived_count=8,original_active_count=6,outer_count=4,prepared_scripts=scripts,sta_classifier=binding(CLASSIFIER),targets=dict(project=str(PROJECT),rootrun=str(CACHE),evidence=str(REPORT),preflight=str(PRE)),actual_commit="ROOT审查并提交后必须作为--commit传入，准备期不声明新提交。",source_before_written=False,formal_report_written=False,heavy_or_ross_or_hardware_executed=False,tool_versions=dict(python=sys.version),assumptions=["ROOT仅一次products与一次synth；products native0/capture1只保留失败，不重跑。","collect须显式CLOSED_INPUTS_READY/project_closed门禁及已封存history/log/source_after。","五任务OS退出码未捕获时为null；MCP客户端、capture和native码分别记录。","六PSinit/HWH按实际字节比较，不预设相同或兼容。","seal必须在collector原生包装完成之后执行；G1/G2只绑定已有原件，不自报审查0。"])
++    receipt["runtime_config"]=compat_pins.runtime_config_binding()
+     require(re.fullmatch(r"prepared_receipt(?:_r\d+)?\.json",receipt_name),"准备receipt名称非法")
+     save(WORK/receipt_name,receipt)
+     print(json.dumps(receipt,ensure_ascii=False))
+@@ -183,6 +184,24 @@
+     return json.loads(blocks[0])
+ 
+ 
++def client_pair(item,label,call,allow_error=False):
++    """client仍running只绑定移交，终态码来自实际关闭history；不补造客户端0。"""
++    result=call.get("result",call)
++    error=result.get("isError") is True
++    if error:
++        require(label=="wait" or allow_error,"非wait的MCP错误尚未关闭")
++        return dict(client_timeout_or_error=True,client_running_handoff=False,client_exit_code=None)
++    payload=mcp_json(call)
++    if payload.get("status")=="running":
++        require(label=="wait" and payload.get("command")==item["command"],"running移交只能对应同一真实wait")
++        require(payload.get("session_id")==call.get("input",{}).get("session_id") and type(payload.get("session_id")) is str,"running移交session不同或未知")
++        require(payload.get("exit_code") is None and type(item.get("code")) is int,"running client不得伪造终态；必须存在关闭history码")
++        return dict(client_timeout_or_error=False,client_running_handoff=True,client_exit_code=None,client_running_payload=payload)
++    code=payload.get("exit_code")
++    require(type(code) is int and type(item.get("code")) is int and code==item["code"],"client/native码类型或值不同")
++    return dict(client_timeout_or_error=False,client_running_handoff=False,client_exit_code=code)
++
++
+ def closed_gate(path,commit):
+     """ROOT显式关闭声明与全部被声明原件按字节核验。"""
+     compat_pins.require_ready()
+@@ -190,13 +209,14 @@
+     gate=read(path)
+     require(gate.get("root_explicit_signal")=="CLOSED_INPUTS_READY" and gate.get("project_closed") is True and gate.get("source_commit")==commit,"ROOT关闭门禁不成立")
+     require(gate.get("root_declared_products_execution_count")==1 and gate.get("root_declared_synthesis_execution_count")==1,"未确认products/synth只执行一次")
+-    for key in ("preparation_receipt","source_before","source_after","static_source_closed","immutable_session_log","mcp_history"):
++    for key in ("preparation_receipt","source_before","source_after","static_source_closed","immutable_session_log","mcp_history","runtime_config"):
+         row=gate[key]; require(binding(ROOT/row["path"])==row,"闭合原件漂移："+key)
+     for key in ("design_mcp_records","additional_closed_files","approved_evidence"):
+         for row in gate.get(key,[]):
+             actual=binding(ROOT/row["path"])
+             require(all(actual[k]==row[k] for k in actual),"声明原件漂移："+row["path"])
+     require(sha(FREEZE)==FREEZE_SHA,"freeze漂移")
++    require(gate["runtime_config"]==compat_pins.runtime_config_binding(),"ROOT关闭配置与当前原字节不同")
+     require_pinned_commit(read(FREEZE).get("source_commit"))
+     for key in ("source_before","source_after"):
+         require_pinned_commit(read(ROOT/gate[key]["path"]).get("source_commit"))
+@@ -230,11 +250,11 @@
+         require({r["path"]:r["sha256"] for r in record["source_files"]}==hashes,"前后source_files集合不同")
+         for row in record["source_files"]: require(sha(ROOT/row["snapshot"])==row["sha256"],"源码快照漂移")
+     profile=read(ROOT/next(r["snapshot"] for r in after["source_files"] if r["path"]=="board/s2b_inference_platform.json"))
+-    require(profile["version"]=="s2b-inference-platform/0.1.12" and profile["clock_hz"]==50000000 and profile["visibility_default"]==0,"实际profile不同")
++    require(profile["version"]=="s2b-inference-platform/0.1.13" and profile["clock_hz"]==50000000 and profile["visibility_default"]==0,"实际profile不同")
+     initial=[binding(p) for p in sorted(REPORT.rglob("*")) if p.is_file()]
+     save(REPORT/"s12_original_inventory.json",dict(files=initial))
+     code=fresh(REPORT/"collector_code",directory=True)
+-    for path in (WORK/"collector.py",WORK/"native.py",WORK/"compat_pins.py",ROOT/gate["preparation_receipt"]["path"],CLASSIFIER): rawcopy(path,code/path.name)
++    for path in (WORK/"collector.py",WORK/"native.py",WORK/"compat_pins.py",compat_pins.RUNTIME_CONFIG,ROOT/gate["preparation_receipt"]["path"],CLASSIFIER): rawcopy(path,code/path.name)
+     for path in sorted(WORK.glob("s12_preparation_r01.*")): rawcopy(path,code/path.name)
+     require(sha(CLASSIFIER)==CLASSIFIER_SHA,"classifier原字节漂移")
+     closed=fresh(REPORT/"mcp_closed",directory=True); copied={}
+@@ -249,10 +269,8 @@
+     for item,row in zip(history,gate["design_mcp_records"]):
+         call=read(ROOT/row["path"]); result=call.get("result",call)
+         if "input" in call: require(call["input"]["command"]==item["command"],"client/history命令不同")
+-        timeout=result.get("isError") is True
+-        if timeout: require(row["label"]=="wait","非wait的MCP错误尚未关闭"); client_code=None
+-        else: client_code=mcp_json(call)["exit_code"]; require(client_code==item["code"],"client/native码不同")
+-        paired.append(dict(label=row["label"],client_record=row,client_timeout=timeout,client_exit_code=client_code,native_history=item,client_input_captured="input" in call))
++        client=client_pair(item,row["label"],call)
++        paired.append(dict(label=row["label"],client_record=row,client_timeout=client["client_timeout_or_error"],native_history=item,client_input_captured="input" in call,**client))
+     require(paired[-1]["native_history"]["command"]=="close_project" and paired[-1]["native_history"]["code"]==0,"原生工程尚未关闭")
+     by_label={row["label"]:row["native_history"] for row in paired}
+     for label in ("source","setup","launch","wait","open_run","reports","query_xdc","close"):
+@@ -367,7 +385,7 @@
+     checks.append(dict(name="50MHz综合态STA分类",status="PASS" if classifier["native_exit_code"]==0 else "FAIL",command=classifier["windows_command"],exit_code=classifier["native_exit_code"],reason=summary["timing"]["status"]))
+     for name in ("独立实际证据审查","实现及postroute","G3板上cache/模型/109/1000任务"):
+         checks.append(dict(name=name,status="NOT_RUN",command=None,exit_code=None,reason="collector只归档原件，此项尚未执行。"))
+-    manifest=dict(schema_version=1,stage="2B",task_id="S2B-T17",run_id=REPORT.name,source_commit=commit,evidence_dir=rel(REPORT),interfaces=interfaces,tool_versions=dict(python=sys.version,Vivado="实际原生日志版本；未运行新版本查询",profile="s2b-inference-platform/0.1.12"),files=files,checks=checks,limitations=summary["limitations"])
++    manifest=dict(schema_version=1,stage="2B",task_id="S2B-T17",run_id=REPORT.name,source_commit=commit,evidence_dir=rel(REPORT),interfaces=interfaces,tool_versions=dict(python=sys.version,Vivado="实际原生日志版本；未运行新版本查询",profile=profile["version"]),files=files,checks=checks,limitations=summary["limitations"])
+     save(REPORT/"s12_delivery_manifest.json",manifest)
+     print(json.dumps(dict(status="SEALED_ONLY_NOT_APPROVED",manifest=binding(REPORT/"s12_delivery_manifest.json"),next_command=[sys.executable,"-X","utf8","-B",str(ROOT/"verification/check_stage_delivery.py"),"--mode","evidence","--manifest",str(REPORT/"s12_delivery_manifest.json")]),ensure_ascii=False))
+ 

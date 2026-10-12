@@ -1,0 +1,47 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_launch_prepare_20261012_r01\native_source_after.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\native_source_after.py
+@@ -1,27 +1,19 @@
+-"""只捕获ROOT授权运行的新source-after子进程，不查询live Vivado身份。"""
+-import argparse,hashlib,json,os,re,subprocess,sys,time
++"""ROOT明确授权后的轻量source-after包装；直接子身份/返回和未知分列。"""
++import argparse
+ from pathlib import Path
+-import psutil
++import re
++import sys
+ import compat_pins
+-ROOT=Path(__file__).parents[4]; WORK=Path(__file__).parent; CACHE=compat_pins.PNR_CACHE
+-parser=argparse.ArgumentParser(); parser.add_argument('--expected-head',required=True); parser.add_argument('--output-dir',required=True,type=Path)
+-args=parser.parse_args(); compat_pins.require_ready(pnr=True); out=args.output_dir
+-assert out.is_absolute() and out.parent.parts==CACHE.parts and CACHE.is_dir() and not out.exists() and re.fullmatch('source_after_check_r[0-9]+',out.name)
+-assert re.fullmatch('[0-9a-f]{40}',args.expected_head)
+-out.mkdir()
+-command=[sys.executable,'-X','utf8','-B',str(WORK/'source_after_check.py'),'--expected-head',args.expected_head,'--output-dir',str(out)]
+-start=time.monotonic(); peak=0; failure=None
+-with (out/'stdout.log').open('xb') as stdout,(out/'stderr.log').open('xb') as stderr:
+- child=subprocess.Popen(command,cwd=ROOT,stdout=stdout,stderr=stderr,env=dict(os.environ,PYTHONUTF8='1',PYTHONIOENCODING='utf-8'))
+- while child.poll() is None:
+-  try:
+-   process=psutil.Process(child.pid); peak=max(peak,sum(p.memory_info().rss for p in [process]+process.children(recursive=True)))
+-  except psutil.Error: pass
+-  if time.monotonic()-start>90 or peak>134217728:
+-   failure='TIMEOUT' if time.monotonic()-start>90 else 'OWNED_TEST_RSS_LIMIT'
+-   child.terminate(); child.wait(timeout=15); break
+-  time.sleep(.03)
+-def binding(p): return dict(path=p.relative_to(ROOT).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),bytes=p.stat().st_size)
+-record=dict(command=command,windows_command=subprocess.list2cmdline(command),native_exit_code=child.returncode,wrapper_exit_code=child.returncode if failure is None else 3,host_shell_exit_code=None,elapsed_seconds=time.monotonic()-start,sampled_owned_tree_rss_peak_bytes=peak,absolute_peak_bytes=None,failure=failure,closed_logs=[binding(out/'stdout.log'),binding(out/'stderr.log')],actual_vivado_or_hardware_started=False)
+-with (out/'native_receipt.json').open('x',encoding='utf-8',newline='\n') as f: json.dump(record,f,ensure_ascii=False,indent=2); f.write('\n')
+-print(json.dumps(record,ensure_ascii=False)); raise SystemExit(record['wrapper_exit_code'])
++import native_capture
++
++parser = argparse.ArgumentParser(); parser.add_argument("--expected-head", required=True); parser.add_argument("--output-dir", required=True, type=Path)
++args = parser.parse_args(); compat_pins.require_ready(pnr=True)
++if not re.fullmatch(r"[0-9a-f]{40}", args.expected_head) or args.expected_head != compat_pins.SOURCE_COMMIT:
++    raise ValueError("CLI必须等于SOURCE")
++out = args.output_dir
++if not out.is_absolute() or out.parent.parts != compat_pins.PNR_CACHE.parts or out.exists() or not re.fullmatch(r"source_after_check_r[0-9]+", out.name):
++    raise ValueError("输出不是本轮PNR cache精确新目录")
++compat_pins.exact(out.parent, True)
++script = compat_pins.exact(Path(__file__).parent/"source_after_check.py")
++sys.argv = [str(Path(__file__)), "s13_"+out.name, sys.executable, "-X", "utf8", "-B", str(script), "--expected-head", args.expected_head, "--output-dir", str(out)]
++raise SystemExit(native_capture.main())

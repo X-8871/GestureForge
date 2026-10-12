@@ -1,0 +1,52 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\supervisor.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\supervisor.py
+@@ -10,9 +10,9 @@
+ import psutil
+ 
+ ROOT=Path(__file__).resolve().parents[4]
+-GUARD=ROOT/"tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/guard.py"
+-GUARD_SHA="a2f5c581b79a40116bf59c240a7b8c0fe35bac4db7b26a79ce5ba14c451a18ac"
+-KEYS=("pid","create_time","exe","cwd","cmdline")
++GUARD=ROOT/"tmp/2B/S2B-T17/s13_launch_prepare_20261012_r01/guard.py"
++GUARD_SHA="056cbd06289490589f17f70076046eb2811a4a256edb0ccd8d2b19b2537bff07"
++KEYS=("pid","create_time","exe","cwd","cmdline","ppid")
+ 
+ def exact(value,directory=False):
+     """逐组件核验精确名称和类型，不接受链接或路径别名。"""
+@@ -31,7 +31,7 @@
+ def identity(pid):
+     """直接重查存活与创建时间，拒绝复用身份。"""
+     p=psutil.Process(pid); birth=p.create_time()
+-    row=dict(pid=pid,create_time=birth,exe=p.exe(),cwd=p.cwd(),cmdline=p.cmdline())
++    row=dict(pid=pid,create_time=birth,exe=p.exe(),cwd=p.cwd(),cmdline=p.cmdline(),ppid=p.ppid())
+     if not p.is_running() or psutil.Process(pid).create_time()!=birth: raise RuntimeError("身份漂移")
+     return row
+ 
+@@ -47,7 +47,7 @@
+             for row in input_rows:
+                 if sha(exact(row["path"]))!=row["sha256"]: raise ValueError("启动前输入SHA漂移")
+             child=subprocess.Popen(command,cwd=binding["cwd"],stdout=stdout,stderr=stderr)
+-            next_check=0
++            next_check=0; last_check=None
+             while True:
+                 code=child.poll()
+                 if code is not None: reason="GUARD_EXITED"; break
+@@ -63,7 +63,8 @@
+                         expected=actual
+                         if actual["exe"]!=command[0] or actual["cwd"]!=binding["cwd"] or actual["cmdline"]!=command: raise RuntimeError("guard启动身份不符")
+                     if any(actual[k]!=expected[k] for k in KEYS): raise RuntimeError("guard身份失效")
+-                    append(journal,dict(kind="LIVE",elapsed_seconds=time.monotonic()-started,identity=actual)); next_check=time.monotonic()+interval
++                    checked=time.monotonic(); gap=None if last_check is None else checked-last_check
++                    append(journal,dict(kind="LIVE",elapsed_seconds=checked-started,monotonic_seconds=checked,actual_gap_seconds=gap,target_interval_seconds=interval,target_deadline_missed=gap is not None and gap>interval,identity=actual)); last_check=checked; next_check=checked+interval
+                 sample=out/"guard"/"samples.jsonl"
+                 if not ready and sample.is_file():
+                     with sample.open("rb") as stream: first=stream.readline()
+@@ -74,7 +75,7 @@
+                         if match and not row.get("alerts") and not row.get("uncertain"):
+                             live=identity(child.pid)
+                             if child.poll() is None and all(live[k]==expected[k] for k in KEYS) and not receipt.exists():
+-                                ready=True; value=dict(kind="READY",guard_identity=live,root_identity=members[0],first_sample_sha256=hashlib.sha256(first).hexdigest())
++                                ready=True; value=dict(kind="READY",monotonic_seconds=time.monotonic(),guard_identity=live,root_identity=members[0],first_sample_sha256=hashlib.sha256(first).hexdigest())
+                                 append(journal,value); emit(value)
+                 time.sleep(0.05)
+         except (OSError,ValueError,KeyError,TypeError,RuntimeError,psutil.Error) as error:

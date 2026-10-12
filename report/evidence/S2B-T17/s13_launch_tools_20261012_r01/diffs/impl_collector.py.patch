@@ -1,0 +1,83 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_launch_prepare_20261012_r01\impl_collector.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\impl_collector.py
+@@ -10,15 +10,15 @@
+ APPROVED_LAUNCH='launch_runs impl_1 -to_step {phys_opt_design (Post-Route)} -jobs 1'
+ EVIDENCE_HEAD_AT_PREPARATION=None
+ COMMON=WORK/'collector.py'
+-COMMON_SHA='61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad'
++COMMON_SHA='8daa418df39e8306f000b27dda7b140fe0a837c796226571b955a0d609baeacd'
+ assert hashlib.sha256(COMMON.read_bytes()).hexdigest()==COMMON_SHA
+ spec=importlib.util.spec_from_file_location('common',COMMON); c=importlib.util.module_from_spec(spec); spec.loader.exec_module(c)
+ FREEZE=compat_pins.SOURCE_FREEZE
+ FREEZE_SHA=compat_pins.SOURCE_FREEZE_SHA
+ SYNTH=compat_pins.SYNTH_MANIFEST
+ SYNTH_SHA=compat_pins.SYNTH_MANIFEST_SHA
+-REVIEW=ROOT/'tmp/2B/S2B-T17/independent_s12_resource_guard_r04_review_20261012_r01/final_review_receipt.json'
+-REVIEW_SHA='f528d50934d7e5c4c4cadbc0ae6db2d9708806d992cc222499de06e3ad83d350'
++REVIEW=compat_pins.TOOLS_G2
++REVIEW_SHA=compat_pins.TOOLS_G2_SHA
+ GUARD=compat_pins.GUARD
+ GUARD_SHA=compat_pins.GUARD_SHA
+ SUP=compat_pins.SUP
+@@ -40,13 +40,14 @@
+  compat_pins.require_ready(pnr=True)
+  for p,digest in ((FREEZE,FREEZE_SHA),(SYNTH,SYNTH_SHA),(REVIEW,REVIEW_SHA),(GUARD,GUARD_SHA),(SUP,SUP_SHA)):
+   c.require(c.sha(p)==digest,'准备依赖SHA不同')
+- freeze=c.read(FREEZE); c.require(len(freeze['source_files'])==43 and len(freeze['active_rtl_sources'])==18 and len(freeze['frozen14'])==14,'冻结来源集合不同')
++ freeze,hashes,static,profile=c.load_freeze(); c.require(len(freeze['active_rtl_sources'])==18 and len(freeze['frozen14'])==14,'冻结来源集合不同')
+  for p in (PROJECT,CACHE,REPORT): c.exact(p,'directory')
+  source_binding=SYNTH.parent/'s12_source_binding.json'; bound=c.read(source_binding)
+- c.require(bound['source_count']==43 and bound['static_count']==33 and set(bound['compiled_rtl'])==set(freeze['active_rtl_sources']),'继承综合编译闭包不符')
+- deps=[c.binding(FREEZE),c.binding(SYNTH),c.binding(source_binding),c.binding(compat_pins.FUNCTIONAL_G1),c.binding(compat_pins.FUNCTIONAL_G2),c.binding(compat_pins.SYNTH_G2),c.binding(WORK/'compat_pins.py'),permanent(REVIEW),permanent(REVIEW.with_name('raw_manifest.jsonl')),permanent(GUARD),permanent(SUP)]
++ c.require(bound['source_count']==len(hashes) and bound['static_count']==len(static) and set(bound['compiled_rtl'])==set(freeze['active_rtl_sources']),'继承综合编译闭包不符')
++ deps=[c.binding(FREEZE),c.binding(SYNTH),c.binding(source_binding),c.binding(compat_pins.FUNCTIONAL_G1),c.binding(compat_pins.FUNCTIONAL_G2),c.binding(compat_pins.SYNTH_G2),c.binding(WORK/'compat_pins.py'),compat_pins.runtime_config_binding(),permanent(REVIEW),permanent(GUARD),permanent(SUP)]
+  # 收集公共函数源也必须在正式包中可恢复；准备阶段只核对，关闭后才复制。
+  result=dict(status='PREPARED_NOT_EXECUTED_NOT_CLOSED',source_commit=COMMIT,evidence_head_at_preparation=EVIDENCE_HEAD_AT_PREPARATION,source_count=43,active_rtl_count=18,frozen14_count=14,profile='s2b-inference-platform/0.1.12',clock_hz=50000000,visibility=0,dependencies=deps,collector=c.binding(Path(__file__)),common=c.binding(COMMON),source_after_scripts=[c.binding(WORK/name) for name in ('source_after_check.py','native_source_after.py')],required_gate_fields=['root_explicit_signal=CLOSED_PNR_INPUTS_READY','project_closed=true','owned_root_exited=true','root_declared_implementation_execution_count=1','source_commit='+COMMIT,'source_before/source_after/source_before_native/source_after_native/mcp_history/immutable_session_log/guard_receipt/supervisor_receipt/owned_root_exit_proof/resource_admission bindings','design_mcp_records：每条原生history的id、label、path、sha256、bytes；声明id唯一且与history双射','additional_closed_files：入口拒绝、ROOT5秒监督消费、最终监测原件、必要恢复输入','native_files：实际impl_1原生日志/命令/marker逐项原字节绑定'],required_design_labels=['launch','wait','open_run','reports','close'],limits='6GiB树/512MiB可用RAM/8GiB磁盘/1秒；工具准备不批准实际预算',heavy_ross_hardware_or_process_query=False)
++ result.update(source_count=len(hashes),static_count=len(static),profile=profile['version'])
+  c.require(re.fullmatch(r'prepared_receipt(?:_r\d+)?\.json',receipt) is not None,'准备记录名不合法')
+  save(WORK/receipt,result); print(json.dumps(result,ensure_ascii=False))
+ def timing(text):
+@@ -72,8 +73,9 @@
+  compat_pins.require_ready(pnr=True)
+  gate=c.read(path)
+  c.require(gate.get('root_explicit_signal')=='CLOSED_PNR_INPUTS_READY' and gate.get('project_closed') is True and gate.get('owned_root_exited') is True and gate.get('source_commit')==COMMIT and gate.get('root_declared_implementation_execution_count')==1,'ROOT关闭门禁未成立')
+- keys=('source_before','source_after','source_before_native','source_after_native','mcp_history','immutable_session_log','guard_receipt','supervisor_receipt','owned_root_exit_proof','resource_admission')
++ keys=('source_before','source_after','source_before_native','source_after_native','mcp_history','immutable_session_log','guard_receipt','supervisor_receipt','owned_root_exit_proof','resource_admission','runtime_config')
+  for key in keys: validate_binding(gate[key])
++ c.require(gate['runtime_config']==compat_pins.runtime_config_binding(),'ROOT关闭配置与当前原字节不同')
+  for key in ('design_mcp_records','additional_closed_files','native_files'):
+   for row in gate[key]: validate_binding(row)
+  if gate.get('timing_summary'): validate_binding(gate['timing_summary'])
+@@ -89,10 +91,8 @@
+   item=byid[row['id']]; call=c.read(ROOT/row['path']); result=call.get('result',call)
+   c.require(call['input']['command']==item['command'],'命令输入/history不同')
+   if row['label'] in command_patterns: c.require(re.fullmatch(command_patterns[row['label']],item['command']) is not None,'PNR标签与原生命令类型不同：'+row['label'])
+-  timeout=result.get('isError') is True
+-  client_code=None if timeout else c.mcp_json(call)['exit_code']
+-  c.require(timeout or (type(client_code) is type(item['code']) and client_code==item['code']),'客户端/原生返回码类型或值不同')
+-  paired.append(dict(label=row['label'],history=item,client_timeout_or_error=timeout,client_exit_code=client_code,raw_binding=row))
++  client=c.client_pair(item,row['label'],call,allow_error=True)
++  paired.append(dict(label=row['label'],history=item,raw_binding=row,**client))
+  tags={r['label']:r['history'] for r in paired}
+  c.require(all(type(tags[label]['code']) is int and tags[label]['code']==0 for label in ('launch','wait','open_run','reports','close')),'五必需PNR命令原生码必须严格int0')
+  c.require(labels.count('launch_invalid')<=1,'实际invalid失败记录重复')
+@@ -114,8 +114,8 @@
+  before=c.read(ROOT/gate['source_before']['path']); after=c.read(ROOT/gate['source_after']['path']); freeze=c.read(FREEZE)
+  frozen={r['path']:r['sha256'] for r in freeze['source_files']}
+  for record,key in ((before,'source_before_native'),(after,'source_after_native')):
+-  c.require(record['source_commit']==COMMIT and {r['path']:r['sha256'] for r in record['source_files']}==frozen,'43实际源前后漂移')
+-  c.require(record['frozen14_sha256']==freeze['frozen14'] and len(record['static_source_sha256'])==33,'原14/static33实际绑定不同')
++  c.require(record['source_commit']==COMMIT and {r['path']:r['sha256'] for r in record['source_files']}==frozen,'实际源前后漂移')
++  c.require(record['frozen14_sha256']==freeze['frozen14'] and record['static_source_sha256']==c.read(SYNTH.parent/'mcp_closed'/'static_actual_closed.json')['source_sha256'],'原14/static实际绑定不同')
+   c.require(all(r['git_relation'] in ('RAW_IDENTICAL','GIT_LF_TO_RAW_CRLF') for r in record['source_files']),'实际Git RAW/EOL关系缺失或漂移')
+   native=c.read(ROOT/gate[key]['path']); c.require(native['native_exit_code']==0 and bool(native['command']),'源码原生核验不是0')
+   for r in record['source_files']: c.require(c.sha(ROOT/r['snapshot'])==r['sha256'],'实际源码快照漂移')
+@@ -149,7 +149,7 @@
+    with (REPORT/('pnr_classifier.'+name+'.log')).open('xb') as f: f.write(data)
+   classifier=dict(command=command,windows_command=subprocess.list2cmdline(command),native_exit_code=process.returncode,elapsed_seconds=time.monotonic()-start,peak_memory_bytes=None)
+   save(REPORT/'pnr_classifier.native.json',classifier); sta=c.read(REPORT/'pnr_sta_result.json')
+- save(REPORT/'pnr_closed_binding.json',dict(source_commit=COMMIT,source_count=43,profile=freeze['profile'],paired_calls=paired,mapping=mapping,original_bindings=original,timing=sta,guard_status=guard['status'],guard_native_exit_code=sup['child_native_exit_code'],supervisor_native_exit_code=sup['supervisor_exit_code'],sampled_tree_peak_bytes=guard.get('sampled_peak_tree_rss_bytes'),absolute_tree_peak_bytes=None,raw_native_job_os_exit_code=None,budget_status='BLOCKED_PENDING_INDEPENDENT_ACTUAL_COVERAGE_REVIEW',limitations=['原生worker日志/marker不伪作OS返回码。','ROOT_EXITED只已知成员；新旧预算缺测不追补。','非法to_step native1与入口MCP/auto-review失败原件保留；未知字段null。','只读PNR证据，独立PNR审查/bit/硬件/G3仍NOT_RUN。']))
++ save(REPORT/'pnr_closed_binding.json',dict(source_commit=COMMIT,source_count=len(frozen),profile=freeze['profile'],paired_calls=paired,mapping=mapping,original_bindings=original,timing=sta,guard_status=guard['status'],guard_native_exit_code=sup['child_native_exit_code'],supervisor_native_exit_code=sup['supervisor_exit_code'],sampled_tree_peak_bytes=guard.get('sampled_peak_tree_rss_bytes'),absolute_tree_peak_bytes=None,raw_native_job_os_exit_code=None,budget_status='BLOCKED_PENDING_INDEPENDENT_ACTUAL_COVERAGE_REVIEW',limitations=['原生worker日志/marker不伪作OS返回码。','ROOT_EXITED只已知成员；新旧预算缺测不追补。','非法to_step native1与入口MCP/auto-review失败原件保留；未知字段null。','只读PNR证据，独立PNR审查/bit/硬件/G3仍NOT_RUN。']))
+  interfaces=c.read(SYNTH)['interfaces']; files=[]
+  for p in sorted(REPORT.rglob('*')):
+   if p.is_file(): files.append(dict(path=c.rel(p),sha256=c.sha(p),role='source' if p.suffix in ('.py','.tcl','.sv','.v','.xdc') else 'log' if p.suffix in ('.log','.rpt','.vds','.jou') else 'result'))

@@ -1,0 +1,40 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_launch_prepare_20261012_r01\source_after_check.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\source_after_check.py
+@@ -7,7 +7,7 @@
+ COMMIT=compat_pins.SOURCE_COMMIT
+ CACHE=compat_pins.PNR_CACHE
+ COMMON=WORK/'collector.py'
+-COMMON_SHA='61916205c4993ae856e6ba9afbb198f2cfee1f36b76aff27743e916880beeaad'
++COMMON_SHA='8daa418df39e8306f000b27dda7b140fe0a837c796226571b955a0d609baeacd'
+ def compare_raw(blob,raw):
+  """只接受全文件RAW相同或精确LF到RAWCRLF变换，其他差异拒绝。"""
+  if blob==raw: return 'RAW_IDENTICAL'
+@@ -29,16 +29,16 @@
+   with path.open('x',encoding='utf-8',newline='\n') as f: json.dump(obj,f,ensure_ascii=False,indent=2); f.write('\n')
+  native=out/'git_native'; native.mkdir(); commands=[]
+  def git(*arguments):
+-  command=['git','-C',str(ROOT),*arguments]; proc=subprocess.run(command,capture_output=True,timeout=30)
++  command=['git','-c','core.longpaths=true','-c','maintenance.auto=false','-C',str(ROOT),*arguments]; proc=subprocess.run(command,capture_output=True,timeout=30)
+   index=len(commands); prefix=native/('git_'+str(index).zfill(2))
+   for suffix,data in (('stdout.log',proc.stdout),('stderr.log',proc.stderr)):
+    with prefix.with_suffix('.'+suffix).open('xb') as f: f.write(data)
+   commands.append(dict(command=command,windows_command=subprocess.list2cmdline(command),native_exit_code=proc.returncode,stdout=c.binding(prefix.with_suffix('.stdout.log')),stderr=c.binding(prefix.with_suffix('.stderr.log'))))
+   save(prefix.with_suffix('.native.json'),commands[-1])
+   c.require(proc.returncode==0,'真实Git命令失败，原字节保留'); return proc.stdout
+- head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(head==args.expected_head,'实际HEAD不同，不能伪造或跳过')
++ head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(head==args.expected_head==COMMIT,'实际HEAD/CLI/SOURCE不同，不能伪造或跳过')
+  freeze,hashes,static,profile=c.load_freeze()
+- c.require(len(hashes)==43 and len(static)==33 and len(profile['rtl_sources'])==18 and len(profile['source_derivation']['derived_sources'])==8,'实际43/33/18/8闭包不同')
++ c.require(len(profile['rtl_sources'])==18 and len(profile['source_derivation']['derived_sources'])==8,'实际18/8闭包不同')
+  before_path=compat_pins.SOURCE_PRE/'source_before.json'; before=c.read(before_path)
+  c.require(before['source_commit']==COMMIT and {r['path']:r['sha256'] for r in before['source_files']}==hashes and before['frozen14_sha256']==freeze['frozen14'],'继承本轮before/commit/43/原14不符')
+  snapshots=out/'source_snapshot_after'; snapshots.mkdir(); files=[]
+@@ -52,6 +52,7 @@
+  end_head=git('rev-parse','HEAD').decode('ascii').strip(); c.require(end_head==head,'核验期间真实HEAD变化')
+  save(out/'git_commands.json',dict(commands=commands))
+  record=dict(schema_version=1,status='PASS_SOURCE_AFTER_ONLY',created_at_utc8=datetime.now(timezone(timedelta(hours=8))).isoformat(),source_commit=COMMIT,actual_head_at_check=head,actual_head_after_check=end_head,source_freeze=c.rel(c.FREEZE),source_freeze_sha256=c.FREEZE_SHA,source_files=files,source_count=43,platform_static_source_count=33,source_sha256=hashes,static_source_sha256=static,frozen14_sha256=freeze['frozen14'],profile_version=profile['version'],clock_hz=50000000,visibility_parameter=0,inherited_before=c.binding(before_path),before_scope='已归档综合before，另由ROOT绑定PNR运行中/launch前真实源码检查；不伪称本脚本生成新before。',project_dir=str(compat_pins.PROJECT),evidence_dir=str(compat_pins.PNR_REPORT),limitations=['只有ROOT于适用关闭时点运行才是该时点source-after；源码核验不证明PNR、时序、预算或实板通过。','HEAD读取两次实际Git命令，43份Git blob逐项按本轮COMMIT核对；证据HEAD不代替源码基线。'])
++ record.update(source_count=len(hashes),platform_static_source_count=len(static),runtime_config=compat_pins.runtime_config_binding())
+  save(out/'source_after.json',record)
+- print(json.dumps(dict(status=record['status'],source_count=43,static_count=33,source_commit=COMMIT,actual_head_at_check=head,git_native_calls=len(commands),source_record=c.binding(out/'source_after.json')),ensure_ascii=False))
++ print(json.dumps(dict(status=record['status'],source_count=len(hashes),static_count=len(static),source_commit=COMMIT,actual_head_at_check=head,git_native_calls=len(commands),source_record=c.binding(out/'source_after.json')),ensure_ascii=False))
+ if __name__=='__main__': main()

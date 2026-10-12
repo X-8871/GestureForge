@@ -1,0 +1,137 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_launch_prepare_20261012_r01\compat_pins.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\compat_pins.py
+@@ -1,37 +1,48 @@
+ """S12隔离草稿的固定待冻结项；缺少真实冻结时阻断所有收集写入。"""
+ import hashlib
+ import json
++import os
+ from pathlib import Path
+ import re
+ 
+ ROOT = Path(__file__).parents[4]
+ WORK = Path(__file__).parent
+-SOURCE_COMMIT = '467463757158aed80d6f75afadff6a8458614a29'
+-SOURCE_FREEZE = WORK / "source_freeze.json"
+-SOURCE_FREEZE_SHA = '887440ebb81fbec718670aacbf1cb3bfaa9e6e5641199e92d15ee37ca16dd8f0'
+-FUNCTIONAL_G1 = ROOT / "report/evidence/S2B-T17/s12_timing_cones_20261012_r01/delivery_manifest_r02.json"
+-FUNCTIONAL_G1_SHA = '2c8e3bd56c1c288333f168a767aadf8b7067f2450e97c25709f271553772ed54'
+-FUNCTIONAL_G2 = ROOT / "report/evidence/S2B-T17/independent_s12_functional_review_20261012_r01/raw/final_review_receipt.json"
+-FUNCTIONAL_G2_SHA = 'e6e4dd2b77a31b55d12b4fe4c1cc1ab1d4905fd3fbf9b4e045dffb38dbf79129'
+-FUNCTIONAL_G2_EXPECTED_STATUS = "PASS"
+-SYNTH_MANIFEST = ROOT / "__PENDING_S12_SYNTH_MANIFEST__"
++SOURCE_COMMIT = None
++SOURCE_FREEZE = WORK / "__PENDING_S13_SOURCE_FREEZE__"
++SOURCE_FREEZE_SHA = None
++FUNCTIONAL_G1 = ROOT / "__PENDING_S13_FUNCTIONAL_G1__"
++FUNCTIONAL_G1_SHA = None
++FUNCTIONAL_G2 = ROOT / "__PENDING_S13_FUNCTIONAL_G2__"
++FUNCTIONAL_G2_SHA = None
++FUNCTIONAL_G2_EXPECTED_STATUS = None
++SYNTH_MANIFEST = ROOT / "__PENDING_S13_SYNTH_MANIFEST__"
+ SYNTH_MANIFEST_SHA = None
+-SYNTH_G2 = ROOT / "__PENDING_S12_SYNTH_G2__"
++SYNTH_G2 = ROOT / "__PENDING_S13_SYNTH_G2__"
+ SYNTH_G2_SHA = None
+ SYNTH_G2_EXPECTED_STATUS = None
+-SYNTH_CACHE = WORK / "synth_cache"
+-PNR_CACHE = WORK / "pnr_cache"
+-PROJECT = WORK / "project"
+-SYNTH_REPORT = ROOT / "report/evidence/S2B-T17/s12_platform_20261012_r03"
+-PNR_REPORT = ROOT / "report/evidence/S2B-T17/s12_implementation_20261012_r03"
+-SOURCE_PRE = ROOT / "report/evidence/S2B-T17/s12_launch_source_preflight_20261012_r01"
+-GUARD = ROOT / "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/guard.py"
+-GUARD_SHA = "a2f5c581b79a40116bf59c240a7b8c0fe35bac4db7b26a79ce5ba14c451a18ac"
+-SUP = ROOT / "tmp/2B/S2B-T17/s12_resource_guard_20261012_r02/supervisor.py"
+-SUP_SHA = "193416f869463c38065e257545720032438ab12c7bbe30beec6bc8c53d8f9ca0"
+-ARCHIVE = ROOT / "report/evidence/S2B-T17/s12_resource_guard_delivery_20261012_r01"
+-MAPPING_SHA = "52c8fcb9e6a829eafb3e6de2394b543d01feaa055eb34a2d507cf1ab2ba71103"
+-RECOVERY_SHA = "28bff3069ccecb4a8d801f3e6e8feddd1473119f542dabf50152493b2cc82568"
++SYNTH_CACHE = WORK / "__PENDING_S13_SYNTH_CACHE__"
++PNR_CACHE = WORK / "__PENDING_S13_PNR_CACHE__"
++PROJECT = WORK / "__PENDING_S13_PROJECT__"
++SYNTH_REPORT = ROOT / "__PENDING_S13_SYNTH_REPORT__"
++PNR_REPORT = ROOT / "__PENDING_S13_PNR_REPORT__"
++SOURCE_PRE = ROOT / "__PENDING_S13_SOURCE_PRE__"
++GUARD = WORK / "guard.py"
++GUARD_SHA = "056cbd06289490589f17f70076046eb2811a4a256edb0ccd8d2b19b2537bff07"
++SUP = WORK / "supervisor.py"
++SUP_SHA = "7438201f3fa38fe84daaa3203634ec532f3f4069f6a13bfb155db9d055fe6325"
++ARCHIVE = ROOT / "report/evidence/S2B-T17/s13_launch_tools_20261012_r01"
++MAPPING_SHA = "8145418aee1328176f7d488320a9605ce07deaab101fe4119437bf1d9ff535a7"
++RECOVERY_SHA = "dac56d7e6f67fccf5f0dea27c470e89e6b66b47a0444e7d17b6ae5c859ec34f6"
++TOOLS_G2 = ROOT / "__PENDING_S13_TOOLS_G2__"
++TOOLS_G2_SHA = None
++TOOLS_G2_EXPECTED_STATUS = None
++RUNTIME_CONFIG = WORK / "runtime_pins.json"
++_CONFIG_SELECTOR = os.environ.get("S13_RUNTIME_CONFIG")
++if _CONFIG_SELECTOR is not None:
++    RUNTIME_CONFIG = Path(_CONFIG_SELECTOR)
++_LOADED_CONFIG_SHA = None
++_CONFIG_FIELDS = ("SOURCE_COMMIT", "SOURCE_FREEZE", "SOURCE_FREEZE_SHA", "FUNCTIONAL_G1", "FUNCTIONAL_G1_SHA", "FUNCTIONAL_G2", "FUNCTIONAL_G2_SHA", "FUNCTIONAL_G2_EXPECTED_STATUS", "SYNTH_MANIFEST", "SYNTH_MANIFEST_SHA", "SYNTH_G2", "SYNTH_G2_SHA", "SYNTH_G2_EXPECTED_STATUS", "SYNTH_CACHE", "PNR_CACHE", "PROJECT", "SYNTH_REPORT", "PNR_REPORT", "SOURCE_PRE", "TOOLS_G2", "TOOLS_G2_SHA", "TOOLS_G2_EXPECTED_STATUS")
++_CONFIG_PATHS = {"SOURCE_FREEZE", "FUNCTIONAL_G1", "FUNCTIONAL_G2", "SYNTH_MANIFEST", "SYNTH_G2", "SYNTH_CACHE", "PNR_CACHE", "PROJECT", "SYNTH_REPORT", "PNR_REPORT", "SOURCE_PRE", "TOOLS_G2"}
+ _LOADED_HELPER_SHA = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+ 
+ def require(condition, message):
+@@ -58,10 +69,46 @@
+     require(hashlib.sha256(path.read_bytes()).hexdigest()==digest, "冻结输入漂移")
+     return path
+ 
++
++def load_runtime_config():
++    """只读严格JSON数据；缺文件继续待冻结，禁止借配置改guard/SUP或资源门槛。"""
++    global _LOADED_CONFIG_SHA
++    if _CONFIG_SELECTOR is not None:
++        require(str(RUNTIME_CONFIG)==_CONFIG_SELECTOR and RUNTIME_CONFIG.parent==WORK and re.fullmatch(r"runtime_pins_(?:synth|pnr)_r[0-9]+\.json", RUNTIME_CONFIG.name), "配置选择器不是本目录精确新版本文件")
++        exact(RUNTIME_CONFIG)
++    if not RUNTIME_CONFIG.exists():
++        return
++    def unique(pairs):
++        result = {}
++        for key, value in pairs:
++            require(key not in result, "配置重复键")
++            result[key] = value
++        return result
++    raw = exact(RUNTIME_CONFIG).read_bytes()
++    data = json.loads(raw.decode("utf-8"), object_pairs_hook=unique)
++    require(type(data) is dict and set(data)==set(_CONFIG_FIELDS), "配置字段缺失或超出白名单")
++    for key, value in data.items():
++        if key in _CONFIG_PATHS:
++            if value is None and key in {"SYNTH_MANIFEST", "SYNTH_G2"}:
++                continue
++            require(type(value) is str and str(Path(value))==value and Path(value).is_absolute() and Path(value).is_relative_to(ROOT), "配置路径不能规范化、越界或非绝对："+key)
++            globals()[key] = Path(value)
++        else:
++            require(value is None or type(value) is str, "配置标量类型错误："+key)
++            globals()[key] = value
++    _LOADED_CONFIG_SHA = hashlib.sha256(raw).hexdigest()
++
++
++def runtime_config_binding():
++    """实际配置原字节与本进程导入时必须一致，另由ROOT/清单绑定该SHA。"""
++    require(_LOADED_CONFIG_SHA is not None and hashlib.sha256(exact(RUNTIME_CONFIG).read_bytes()).hexdigest()==_LOADED_CONFIG_SHA, "运行配置未冻结或导入后漂移")
++    return dict(path=RUNTIME_CONFIG.relative_to(ROOT).as_posix(), sha256=_LOADED_CONFIG_SHA, bytes=RUNTIME_CONFIG.stat().st_size)
++
+ def require_ready(pnr=False):
+     """先阻断缺失commit，再核真实G1/G2与唯一路径；不创建目录。"""
+     require(hashlib.sha256(exact(Path(__file__)).read_bytes()).hexdigest()==_LOADED_HELPER_SHA, "冻结门禁代码在导入后漂移")
+     require(isinstance(SOURCE_COMMIT, str) and re.fullmatch("[0-9a-f]{40}", SOURCE_COMMIT), "BLOCKED_PENDING_S12_PINS：缺ROOT最终commit/43源冻结/RunIds/功能G2")
++    runtime_config_binding()
+     for path in (SYNTH_CACHE, PNR_CACHE, PROJECT, SYNTH_REPORT, PNR_REPORT, SOURCE_PRE):
+         require("__PENDING_" not in str(path) and path.is_absolute() and path.is_relative_to(ROOT), "BLOCKED_PENDING_S12_PINS：缺实际唯一RunId")
+     require(len({str(path) for path in (SYNTH_CACHE, PNR_CACHE, PROJECT, SYNTH_REPORT, PNR_REPORT, SOURCE_PRE)})==6, "RunId落点重复")
+@@ -69,6 +116,8 @@
+     pinned(FUNCTIONAL_G1, FUNCTIONAL_G1_SHA)
+     review=json.loads(pinned(FUNCTIONAL_G2, FUNCTIONAL_G2_SHA).read_text(encoding="utf-8"))
+     require(isinstance(FUNCTIONAL_G2_EXPECTED_STATUS, str) and FUNCTIONAL_G2_EXPECTED_STATUS.startswith("PASS") and review.get("status")==FUNCTIONAL_G2_EXPECTED_STATUS, "功能G2未绑定实际PASS原件")
++    review=json.loads(pinned(TOOLS_G2, TOOLS_G2_SHA).read_text(encoding="utf-8"))
++    require(isinstance(TOOLS_G2_EXPECTED_STATUS, str) and TOOLS_G2_EXPECTED_STATUS.startswith("PASS") and review.get("status")==TOOLS_G2_EXPECTED_STATUS, "S13新guard/SUP/consumer工具G2未冻结")
+     if pnr:
+         pinned(SYNTH_MANIFEST, SYNTH_MANIFEST_SHA)
+         review=json.loads(pinned(SYNTH_G2, SYNTH_G2_SHA).read_text(encoding="utf-8"))
+@@ -100,3 +149,6 @@
+     if original in (GUARD, SUP):
+         require(tools[0]["artifact_repo_path"]==artifact.relative_to(ROOT).as_posix(), "恢复入口与映射对象不同")
+     return dict(path=artifact.relative_to(ROOT).as_posix(), sha256=digest, bytes=artifact.stat().st_size)
++
++
++load_runtime_config()

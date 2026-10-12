@@ -1,0 +1,128 @@
+--- C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s12_resource_guard_20261012_r02\guard.py
++++ C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\tmp\2B\S2B-T17\s13_launch_prepare_20261012_r01\guard.py
+@@ -295,6 +295,66 @@
+                                        "scans": scan, "maximum_scans": 3, "closed": closed}
+         return members, uncertain, all_exited
+ 
++    def round_identity(self, process, table):
++        # 表只在这一轮存在；读取所有六字段，不使用跨轮或psutil缓存。
++        if process.pid not in table:
++            table[process.pid] = base_identity(process)
++        item = table[process.pid]
++        if "parent" not in item:
++            parent_pid = item["ppid"]
++            if parent_pid and parent_pid not in table:
++                table[parent_pid] = base_identity(psutil.Process(parent_pid))
++            item["parent"] = None if not parent_pid else table[parent_pid]
++            if base_identity(process)["ppid"] != parent_pid:
++                raise RuntimeError("当前轮直接父PID变化")
++        return item
++
++    def round_chain(self, candidate, root, table):
++        # 当前轮祖先证明复用新鲜表；停止动作仍使用原verified_chain完整重查。
++        leaf = candidate
++        current = candidate
++        chain, visited = [], set()
++        proof = self.known_lineage.get((candidate["pid"], candidate["create_time"]))
++        expected = None if proof is None else proof["ancestor_chain"]
++        while True:
++            if current["pid"] in visited:
++                raise RuntimeError("父链循环")
++            visited.add(current["pid"])
++            if not in_allowed(current["cwd"], self.binding["allowed_run_dirs"]):
++                raise RuntimeError("对象cwd超出本轮范围")
++            if expected is not None and (len(chain) >= len(expected) or not same_identity(current, expected[len(chain)])):
++                raise RuntimeError("本次已保存祖先链身份变化")
++            chain.append(current)
++            if current["pid"] == root["pid"]:
++                if not same_identity(current, root) or (expected is not None and len(chain) != len(expected)):
++                    raise RuntimeError("当前轮ROOT身份或祖先链长度变化")
++                return None, leaf, chain
++            if not current["ppid"]:
++                raise RuntimeError("无法到达本轮根PID")
++            parent = self.round_identity(psutil.Process(current["ppid"]), table)
++            if current["parent"] is None or not same_identity(parent, current["parent"]):
++                raise RuntimeError("祖先身份变化")
++            if parent["create_time"] > current["create_time"]:
++                raise RuntimeError("父出生时间晚于子对象，拒绝复用父PID链")
++            current = parent
++
++    def round_ancestor_readback(self, key, table):
++        # 已有祖先若不在当前表仍用原独立读回，保留缺失与复用判定。
++        proof = self.known_lineage.get(key)
++        if proof is None:
++            return
++        for ancestor in proof["ancestor_chain"][1:-1]:
++            current = table.get(ancestor["pid"])
++            if current is not None:
++                if not same_identity(current, ancestor):
++                    raise RuntimeError("历史祖先复用或六字段漂移")
++            else:
++                result = self.readback_member(ancestor)
++                if result["status"] not in {"ALIVE", "ABSENT"}:
++                    raise RuntimeError("历史祖先复用、漂移或未知：" + result["status"])
++                if result["status"] == "ALIVE":
++                    table[ancestor["pid"]] = result["actual"]
++
+     def collect_round(self, root, observed):
+         # 历史证明只由本次执行的完整现时父链建立，绝不导入旧日志。
+         members = {}
+@@ -302,12 +362,14 @@
+         exited = []
+         visited = set()
+         queue = []
++        table = {}
+         try:
+             state, current_root = self.get_root()
+             if state != "MATCH" or not same_identity(root, current_root):
+                 raise RuntimeError("重扫ROOT完整身份失效：" + state)
+             members[(root["pid"], root["create_time"])] = dict(current_root, monitorable=True,
+                     stoppable=True, lineage_mode="CURRENT_CHAIN")
++            table[root["pid"]] = current_root
+             queue.extend((p, None) for p in psutil.Process(root["pid"]).children(recursive=True))
+         except (psutil.Error, RuntimeError) as error:
+             return list(members.values()), [{"reason": "TREE_ENUMERATION_FAILED", "error": repr(error)}], exited
+@@ -347,13 +409,13 @@
+                 if key in visited:
+                     continue
+                 visited.add(key)
+-                item = identity(process)
++                item = self.round_identity(process, table)
+                 expected = observed.get(key)
+                 if expected is not None and not same_identity(item, expected):
+                     raise RuntimeError("已核成员六字段变化")
+                 # 旧成员不能沿已经复用的父PID重新获得当前停止权限。
+-                self.reject_reused_ancestor(key)
+-                _, current, chain = self.verified_chain(item, root)
++                self.round_ancestor_readback(key, table)
++                _, current, chain = self.round_chain(item, root, table)
+                 if key not in self.known_lineage:
+                     proof = {"first_verified_sample": self.sample_count,
+                              "ancestor_chain": [{k: x[k] for k in IDENTITY_KEYS} for x in chain]}
+@@ -383,6 +445,26 @@
+                             uncertain.append({"pid": process.pid, "reason": "CANDIDATE_ALIVE_OR_UNKNOWN_PARENT_CHAIN", "readback": retry, "historical_rejection": repr(fallback_error)})
+             except (psutil.Error, RuntimeError) as error:
+                 uncertain.append({"pid": process.pid, "reason": "UNVERIFIED_MEMBER", "identity": item, "error": repr(error)})
++        # 发布前每个表项均重新完整读回；任何漂移或未知不能形成闭合集合。
++        for previous in list(table.values()):
++            result = self.readback_member(previous)
++            key = (previous["pid"], previous["create_time"])
++            if result["status"] == "ALIVE":
++                current = result["actual"]
++                current["parent"] = None
++                if previous.get("parent") is not None:
++                    parent_result = self.readback_member(previous["parent"])
++                    if parent_result["status"] != "ALIVE":
++                        uncertain.append({"pid": previous["pid"], "reason": "ROUND_PARENT_READBACK_CHANGED", "readback": parent_result})
++                    else:
++                        current["parent"] = parent_result["actual"]
++                if key in members:
++                    members[key] = dict(current, monitorable=members[key]["monitorable"], stoppable=members[key]["stoppable"], lineage_mode=members[key]["lineage_mode"])
++            elif result["status"] in {"ABSENT", "ORIGINAL_PID_REUSED"} and previous["pid"] != root["pid"]:
++                self.record_sample_exit(result, exited)
++                members.pop(key, None)
++            else:
++                uncertain.append({"pid": previous["pid"], "reason": "ROUND_FINAL_READBACK_UNKNOWN", "readback": result})
+         return list(members.values()), uncertain, exited
+ 
+     def reject_reused_ancestor(self, key):

@@ -140,6 +140,9 @@ module s2b_conv_tile_engine #(
     logic [31:0] output_group_base;
     logic [31:0] tile_start_y;
     logic [31:0] tile_start_x;
+    // 现有PRE拍登记完整模64坐标原点；SCAN不增加周期或缩减signed域。
+    logic signed [63:0] tile_origin_y;
+    logic signed [63:0] tile_origin_x;
     logic [31:0] tile_height;
     logic [31:0] tile_width;
     logic [31:0] patch_height;
@@ -2270,11 +2273,9 @@ module s2b_conv_tile_engine #(
         feature_source_address_wide = 64'd0;
         if ((patch_plane_bytes != 64'd0) && (patch_width != 32'd0)) begin
             feature_input_y =
-                $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) +
-                $signed({32'd0, feature_scan_y}) - $signed({32'd0, pad_top_latched});
+                tile_origin_y + $signed({32'd0, feature_scan_y});
             feature_input_x =
-                $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) +
-                $signed({32'd0, feature_scan_x}) - $signed({32'd0, pad_left_latched});
+                tile_origin_x + $signed({32'd0, feature_scan_x});
             feature_scan_in_bounds =
                 (feature_input_y >= 64'sd0) &&
                 (feature_input_y < $signed({32'd0, input_height_latched})) &&
@@ -2564,6 +2565,8 @@ module s2b_conv_tile_engine #(
             output_group_base <= 32'd0;
             tile_start_y <= 32'd0;
             tile_start_x <= 32'd0;
+            tile_origin_y <= 64'sd0;
+            tile_origin_x <= 64'sd0;
             tile_height <= 32'd0;
             tile_width <= 32'd0;
             patch_height <= 32'd0;
@@ -2605,6 +2608,8 @@ module s2b_conv_tile_engine #(
             end
         end else if (abort) begin
             state <= ST_IDLE;
+            tile_origin_y <= 64'sd0;
+            tile_origin_x <= 64'sd0;
             reduction_count_latched <= 32'd0;
             feature_scan_index <= 32'd0;
             feature_scan_channel <= 32'd0;
@@ -2696,6 +2701,8 @@ module s2b_conv_tile_engine #(
                         output_group_base <= 32'd0;
                         tile_start_y <= 32'd0;
                         tile_start_x <= 32'd0;
+                        tile_origin_y <= 64'sd0;
+                        tile_origin_x <= 64'sd0;
                         feature_scan_index <= 32'd0;
                         feature_scan_channel <= 32'd0;
                         feature_scan_y <= 32'd0;
@@ -2727,6 +2734,13 @@ module s2b_conv_tile_engine #(
                     end
                 end
                 ST_TILE_PREP: begin
+                    // 乘积、减法均按原64位二补码；随后SCAN加法仍在同一模域。
+                    tile_origin_y <=
+                        $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) -
+                        $signed({32'd0, pad_top_latched});
+                    tile_origin_x <=
+                        $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) -
+                        $signed({32'd0, pad_left_latched});
                     tile_height <= (output_height_latched - tile_start_y >= TILE_EDGE) ?
                                    TILE_EDGE : output_height_latched - tile_start_y;
                     tile_width <= (output_width_latched - tile_start_x >= TILE_EDGE) ?

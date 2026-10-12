@@ -11,7 +11,7 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.12"
+PROFILE_VERSION = "s2b-inference-platform/0.1.13"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -402,6 +402,17 @@ def relative_file(root: Path, value: str) -> Path:
     if not value or "\\" in value or pure.is_absolute() or ".." in pure.parts:
         raise ValueError(f"仓库相对路径非法：{value}")
     return exact_file(root / value)
+
+
+S13_TILE_ORIGIN_REPLACEMENTS = [
+    ["    logic [31:0] tile_start_y;\n    logic [31:0] tile_start_x;\n", "    logic [31:0] tile_start_y;\n    logic [31:0] tile_start_x;\n    // 现有PRE拍登记完整模64坐标原点；SCAN不增加周期或缩减signed域。\n    logic signed [63:0] tile_origin_y;\n    logic signed [63:0] tile_origin_x;\n"],
+    ["            feature_input_y =\n                $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) +\n                $signed({32'd0, feature_scan_y}) - $signed({32'd0, pad_top_latched});\n            feature_input_x =\n                $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) +\n                $signed({32'd0, feature_scan_x}) - $signed({32'd0, pad_left_latched});\n", "            feature_input_y =\n                tile_origin_y + $signed({32'd0, feature_scan_y});\n            feature_input_x =\n                tile_origin_x + $signed({32'd0, feature_scan_x});\n"],
+    ["            tile_start_y <= 32'd0;\n            tile_start_x <= 32'd0;\n            tile_height <= 32'd0;\n", "            tile_start_y <= 32'd0;\n            tile_start_x <= 32'd0;\n            tile_origin_y <= 64'sd0;\n            tile_origin_x <= 64'sd0;\n            tile_height <= 32'd0;\n"],
+    ["        end else if (abort) begin\n            state <= ST_IDLE;\n", "        end else if (abort) begin\n            state <= ST_IDLE;\n            tile_origin_y <= 64'sd0;\n            tile_origin_x <= 64'sd0;\n"],
+    ["                        tile_start_y <= 32'd0;\n                        tile_start_x <= 32'd0;\n", "                        tile_start_y <= 32'd0;\n                        tile_start_x <= 32'd0;\n                        tile_origin_y <= 64'sd0;\n                        tile_origin_x <= 64'sd0;\n"],
+    ["                ST_TILE_PREP: begin\n", "                ST_TILE_PREP: begin\n                    // 乘积、减法均按原64位二补码；随后SCAN加法仍在同一模域。\n                    tile_origin_y <=\n                        $signed({32'd0, tile_start_y} * {32'd0, stride_y_latched}) -\n                        $signed({32'd0, pad_top_latched});\n                    tile_origin_x <=\n                        $signed({32'd0, tile_start_x} * {32'd0, stride_x_latched}) -\n                        $signed({32'd0, pad_left_latched});\n"],
+]
+DERIVATION_RULES["src/s2a_conv_tile_engine.sv"][1].extend(S13_TILE_ORIGIN_REPLACEMENTS)
 
 
 def require(condition: bool, message: str) -> None:

@@ -1,0 +1,364 @@
+{
+  "frozen_sha256": {
+    "src/s2b_conv_tile_engine.sv": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+    "board/s2b_inference_platform.json": "b340d858a6659d05036cb584ef6ad7f44ad8f1d3ba1d46a53ef4e265e53ad056",
+    "verification/check_s2b_inference_platform.py": "f94bf529529b095442a53df86574fc10df258f95e5259357ab51433b036201c3",
+    "verification/test_s2b_conv_tile_origin_rtl.py": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147"
+  },
+  "rtl_sources": 18,
+  "frozen_sources": 14,
+  "static": "PASS",
+  "exact_delta": "仅固定六项新增；原状态转移与公开端口相等",
+  "algebra": {
+    "seed": 722669586,
+    "vectors": 114641,
+    "negative": 18279,
+    "above_u64": 0,
+    "manual": [
+      {
+        "tile": 0,
+        "stride": 4294967295,
+        "scan": 0,
+        "pad": 1,
+        "signed": -1
+      },
+      {
+        "tile": 4294967295,
+        "stride": 4294967295,
+        "scan": 4294967295,
+        "pad": 0,
+        "signed": -4294967296
+      },
+      {
+        "tile": 2147483648,
+        "stride": 4294967295,
+        "scan": 0,
+        "pad": 0,
+        "signed": 9223372034707292160
+      }
+    ]
+  },
+  "counterexamples": [
+    {
+      "name": "origin窄化",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "SCAN加1",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "PRE乘积窄化",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "abort保留原点",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    },
+    {
+      "name": "原点登记延迟",
+      "status": "REJECTED",
+      "reason": "派生映射或允许差异不符"
+    }
+  ],
+  "attempts": {
+    "all_r01": {
+      "status": "FAIL",
+      "error": "原生任务失败：{'name': 'simulation', 'command': ['C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s13_tile_origin_20261012_r01\\\\all_r01\\\\boundary\\\\obj_dir\\\\Vtb_s2b_conv_validation.exe'], 'cwd': 'C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s13_tile_origin_20261012_r01\\\\all_r01\\\\boundary', 'pid': 37616, 'create_time_unix': 1791769583.9331288, 'native_exit_code': 1, 'direct_wait_exit_code': 1, 'terminal_state': 'EXITED_DIRECT_CHILD_WAIT', 'elapsed_seconds': 1.719, 'peak_tree_rss_bytes': 5083136, 'failure': None, 'stdout': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r01/boundary/simulation.stdout.log', 'sha256': '5bb78ee3dcb382a058f46124c3ef6d91f0299e7e33300a8cf7f4587e45576f4b'}, 'stderr': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r01/boundary/simulation.stderr.log', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}}",
+      "engine_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "runner_sha256": "245432a41b94c120832ef9847e2798ee7ccc252a5798d3f21e77a247091680c0",
+      "tests": [
+        {
+          "name": "feature",
+          "coverage": {
+            "vectors": 120361,
+            "end": 29981,
+            "padding": 48100,
+            "range": 40124,
+            "request": 2156
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "boundary",
+          "coverage": null,
+          "codes": [
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "all_r02": {
+      "status": "FAIL",
+      "error": "原生任务失败：{'name': 'simulation', 'command': ['C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s13_tile_origin_20261012_r01\\\\all_r02\\\\boundary\\\\obj_dir\\\\Vtb_s2b_conv_validation.exe'], 'cwd': 'C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s13_tile_origin_20261012_r01\\\\all_r02\\\\boundary', 'pid': 18160, 'create_time_unix': 1791769692.07967, 'native_exit_code': 1, 'direct_wait_exit_code': 1, 'terminal_state': 'EXITED_DIRECT_CHILD_WAIT', 'elapsed_seconds': 1.594, 'peak_tree_rss_bytes': 5062656, 'failure': None, 'stdout': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r02/boundary/simulation.stdout.log', 'sha256': 'cc043075271ba58ef7ba0cdf70c4282b0b34944d490afc54a490f5d0b33781b2'}, 'stderr': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r02/boundary/simulation.stderr.log', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}}",
+      "engine_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "runner_sha256": "fd005090a9ae70aec2f4a7cccf6eefd3c7eba13771d89a90b61b6b628467c825",
+      "tests": [
+        {
+          "name": "feature",
+          "coverage": {
+            "vectors": 120361,
+            "end": 29981,
+            "padding": 48100,
+            "range": 40124,
+            "request": 2156
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "boundary",
+          "coverage": null,
+          "codes": [
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    "all_r03": {
+      "status": "FAIL",
+      "error": "原生任务失败：{'name': 'compile', 'command': ['D:\\\\FPGA_S2A_MSYS2_20261001\\\\env\\\\mingw64\\\\bin\\\\verilator_bin.exe', '--binary', '--timing', '--timescale', '1ns/1ps', '-Wall', '-Wno-fatal', '-j', '1', '--threads', '1', '--output-split', '10000', '--output-split-cfuncs', '100', '--top-module', 'tb_s2b_conv_layer0', '--Mdir', 'obj_dir', '-MAKEFLAGS', 'PYTHON3=\\'\"C:\\\\Users\\\\22061\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe\"\\'', '-CFLAGS', '-D_GLIBCXX_USE_CXX11_ABI=0 -O1', 'source/s2a_network_descriptor_pkg.sv', 'source/s2a_conv_tile_engine.sv', 'source/s2b_conv_tile_engine.sv', 'tb_s2b_conv_layer0.sv'], 'cwd': 'C:\\\\Users\\\\22061\\\\.codex\\\\worktrees\\\\96a3\\\\FPGA_Competition\\\\tmp\\\\2B\\\\S2B-T17\\\\s13_tile_origin_20261012_r01\\\\all_r03\\\\layer0', 'pid': 2364, 'create_time_unix': 1791769919.5342753, 'native_exit_code': 3221225477, 'direct_wait_exit_code': 3221225477, 'terminal_state': 'EXITED_DIRECT_CHILD_WAIT', 'elapsed_seconds': 0.344, 'peak_tree_rss_bytes': 38846464, 'failure': None, 'stdout': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r03/layer0/compile.stdout.log', 'sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}, 'stderr': {'path': 'report/evidence/S2B-T17/s13_tile_origin_20261012_r01/all_r03/layer0/compile.stderr.log', 'sha256': '5898a4347dd26f701787b56ab631f5af24e889ec1dc8b6ad3bb2a0864d5f51c4'}}",
+      "engine_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "runner_sha256": "312157cd2e00be7315e3ccb595cbcb8d8dc70731ccc661ffe36cedad5f8d68f2",
+      "tests": [
+        {
+          "name": "feature",
+          "coverage": {
+            "vectors": 120361,
+            "end": 29981,
+            "padding": 48100,
+            "range": 40124,
+            "request": 2156
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "boundary",
+          "coverage": {
+            "vectors": 5996,
+            "cycles": 144923,
+            "abort_mask": "000fffff",
+            "reset_mask": "000fffff",
+            "response_cases": 24,
+            "tap_samples": 4705,
+            "origin": {
+              "preps": 67,
+              "x_tiles": 4,
+              "y_tiles": 4,
+              "clears": 12732
+            },
+            "public_traces": [
+              "S13_PUBLIC_TRACE job=0 requests=2801 cycles=17483 preps=63",
+              "S13_PUBLIC_TRACE job=1 requests=4324 cycles=26738 preps=67"
+            ]
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "geometry",
+          "coverage": {
+            "pool": {
+              "vectors": 19645,
+              "categories": {
+                "legal_spatial_channel_sampling": 19372,
+                "parameter_field_rejection": 141,
+                "length_field_rejection": 18,
+                "address_field_rejection": 12,
+                "length_before_address": 3,
+                "argument_before_length_address": 3,
+                "extreme_coordinate_rejection": 27,
+                "read_response_error": 21,
+                "write_response_error": 21,
+                "raw_0x80_policy": 3,
+                "abort_each_state": 21,
+                "no_memory_stall": 3
+              },
+              "legal_coordinates_per_layer": {
+                "9": 9483,
+                "17": 4557,
+                "25": 5332
+              },
+              "all_channel_indices_sampled": {
+                "9": 128,
+                "17": 256,
+                "25": 512
+              },
+              "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+              "seed": 722931729,
+              "parameter_order": [
+                "layer_index",
+                "input_base_address",
+                "input_length_bytes",
+                "input_channels",
+                "input_height",
+                "input_width",
+                "output_base_address",
+                "output_length_bytes",
+                "output_channels",
+                "output_height",
+                "output_width",
+                "kernel_height",
+                "kernel_width",
+                "stride_y",
+                "stride_x",
+                "darknet_padding_parameter",
+                "output_channel",
+                "output_y",
+                "output_x"
+              ]
+            },
+            "upsample": {
+              "vectors": 3456,
+              "categories": {
+                "legal_spatial_channel_sampling": 3397,
+                "parameter_field_rejection": 16,
+                "length_field_rejection": 6,
+                "address_field_rejection": 4,
+                "length_before_address": 1,
+                "argument_before_length_address": 1,
+                "extreme_coordinate_rejection": 9,
+                "read_response_error": 7,
+                "write_response_error": 7,
+                "raw_0x80_policy": 1,
+                "abort_each_state": 6,
+                "no_memory_stall": 1
+              },
+              "legal_coordinates_per_layer": {
+                "33": 3397
+              },
+              "all_channel_indices_sampled": {
+                "33": 128
+              },
+              "sampling": "通道0/中间/末尾完整空间；所有通道3×3空间位置；每层256固定种子坐标去重。非完整全通道全空间枚举。",
+              "seed": 722931730,
+              "parameter_order": [
+                "input_base_address",
+                "input_length_bytes",
+                "output_base_address",
+                "output_length_bytes",
+                "input_channels",
+                "input_height",
+                "input_width",
+                "stride",
+                "output_channel",
+                "output_y",
+                "output_x"
+              ]
+            }
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "route",
+          "coverage": {
+            "vectors": 15816,
+            "categories": {
+              "all_channels_packed_lanes": 8832,
+              "all_int8_values_both_sources": 5632,
+              "field_boundary": 953,
+              "groups_zero": 11,
+              "group2_odd_channels": 11,
+              "argument_before_range": 11,
+              "source_range_before_output_length": 11,
+              "response_error": 154,
+              "abort_each_state": 88,
+              "reset_each_state": 88,
+              "long_stall_abort": 11,
+              "no_stall": 11,
+              "group2_lower_half_generic_preserved": 3
+            },
+            "parameter_order": [
+              "source_count",
+              "groups",
+              "group_id",
+              "output_channel",
+              "output_y",
+              "output_x",
+              "source0_base_address",
+              "source0_length_bytes",
+              "source0_channels",
+              "source0_height",
+              "source0_width",
+              "source0_channel_start",
+              "source0_channel_end",
+              "source0_multiplier_q31",
+              "source1_base_address",
+              "source1_length_bytes",
+              "source1_channels",
+              "source1_height",
+              "source1_width",
+              "source1_channel_start",
+              "source1_channel_end",
+              "source1_multiplier_q31",
+              "output_base_address",
+              "output_length_bytes",
+              "output_channels",
+              "output_height",
+              "output_width"
+            ],
+            "seed": 722939921
+          },
+          "codes": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "layer0",
+          "coverage": null,
+          "codes": [
+            3221225477
+          ]
+        }
+      ]
+    },
+    "layer0_r01": {
+      "status": "PASS_S13_LAYER0_G1_ONLY",
+      "error": null,
+      "engine_sha256": "5e02dbc77b5dcab0142275ffc358af231748d05cd25137d8f9385cf23c975da1",
+      "runner_sha256": "5b61f808e17c5559de45ab30de94c41525320aabf6e757ef905584f0c1364147",
+      "tests": [
+        {
+          "name": "layer0",
+          "coverage": {
+            "bytes": 1384448,
+            "input_reads": 583443,
+            "weight_reads": 584064,
+            "output_writes": 1384448,
+            "requests": 2551955,
+            "responses": 2551955,
+            "request_stalls": 6635073,
+            "response_stalls": 6635073,
+            "cycles": 27235743
+          },
+          "codes": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "cross_attempt_final_sources": "all_r03及layer0_r01除runner完全相同；runner唯一差异移除layer0附加monitor，boundary与layer0最终生成bench逐字节一致；all_r03没有post，不能伪称有",
+  "head": "9030df5ec7e29bc3779c1254d485f709c2539cc7"
+}

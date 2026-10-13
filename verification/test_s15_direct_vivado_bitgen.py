@@ -1,6 +1,7 @@
 """验证冻结DCP direct bitgen runner的本机Win32生命周期门禁。"""
 import ctypes
 import datetime
+import inspect
 import json
 import os
 import secrets
@@ -721,6 +722,103 @@ class ControllerSafetyUnitTests(unittest.TestCase):
             },
         )
 
+    def test_inherited_setup_environment_overrides_are_rejected_before_any_vivado_job(self):
+        run_dir = _new_run_dir("setup_env_hook_rejected")
+        rejected = []
+        rejection_reasons = {}
+        for name in controller.VIVADO_SETUP_ENVIRONMENT_VARIABLES:
+            with mock.patch.dict(os.environ, {name: "PARENT_INJECTED_VALUE"}, clear=False):
+                with mock.patch.object(controller.job_guard, "JobObject") as job_factory:
+                    with mock.patch.object(controller.job_guard, "launch_suspended_root") as launch_root:
+                        with mock.patch.object(controller, "_run_prelaunch_check") as redist_precheck:
+                            with mock.patch.object(controller, "_create_unique_run_dir") as create_run_dir:
+                                with self.assertRaisesRegex(
+                                    controller.ControllerError,
+                                    rf"Vivado setupEnv环境覆盖拒绝：.*{name}",
+                                ) as raised:
+                                    controller.run_frozen_bitgen()
+                                self.assertIn(name, str(raised.exception))
+                                rejection_reasons[name] = str(raised.exception)
+                                job_factory.assert_not_called()
+                                launch_root.assert_not_called()
+                                redist_precheck.assert_not_called()
+                                create_run_dir.assert_not_called()
+                                rejected.append(name)
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_SETUP_ENVIRONMENT_OVERRIDES_REJECTED_BEFORE_ANY_PROCESS_LAUNCH",
+                "injected_environment_variables": rejected,
+                "preflight_rejections": rejection_reasons,
+                "vivado_job_object_calls": 0,
+                "vivado_root_launch_calls": 0,
+                "redist_precheck_calls": 0,
+                "run_directory_creation_calls": 0,
+            },
+        )
+
+    def test_child_environment_scrubs_setupenv_path_and_hook_overrides(self):
+        run_dir = _new_run_dir("setup_env_overrides_scrubbed")
+        source_appdata = run_dir / "source_appdata"
+        source_appdata.mkdir()
+        license_file = run_dir / "fixture_license.lic"
+        license_file.write_bytes(b"fixture-only license metadata\n")
+        injected = {
+            "APPDATA": str(source_appdata),
+            "XILINXD_LICENSE_FILE": str(license_file),
+            "RDI_SETUP_ENV_FUNCTION": "PARENT_INJECTED_LABEL",
+            "RDI_BINROOT": r"D:\\attacker\\bin",
+            "RDI_APPROOT": r"D:\\attacker",
+        }
+        with mock.patch.dict(os.environ, injected, clear=False):
+            environment, _isolated_appdata, _license_audit = controller._child_environment(run_dir)
+        for name in controller.VIVADO_SETUP_ENVIRONMENT_VARIABLES:
+            self.assertNotIn(name, environment)
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_SETUP_ENVIRONMENT_OVERRIDES_REMOVED_FROM_CHILD",
+                "injected_variables": ["RDI_SETUP_ENV_FUNCTION", "RDI_BINROOT", "RDI_APPROOT"],
+                "child_override_variables_absent": list(controller.VIVADO_SETUP_ENVIRONMENT_VARIABLES),
+            },
+        )
+
+    def test_xvcredist_link_validator_accepts_only_exact_relative_target(self):
+        run_dir = _new_run_dir("xvcredist_link_target_guard")
+        link_directory = Path(controller.XVCREDIST_LINK_DIRECTORY)
+        resolved_target = Path(controller.XVCREDIST_RESOLVED_ROOT)
+        with self.assertRaisesRegex(controller.ControllerError, "链接文本目标"):
+            controller._validate_xvcredist_link_observation(link_directory, r"..\other", resolved_target)
+        with self.assertRaisesRegex(controller.ControllerError, "严格解析目标"):
+            controller._validate_xvcredist_link_observation(link_directory, r"..\tps", resolved_target / "elsewhere")
+        accepted = controller._validate_xvcredist_link_observation(
+            link_directory,
+            r"..\tps",
+            resolved_target,
+        )
+        self.assertEqual(r"..\tps", accepted["link_target"])
+        self.assertEqual(
+            os.path.normcase(os.path.abspath(controller.XVCREDIST_RESOLVED_ROOT)),
+            os.path.normcase(os.path.abspath(accepted["resolved_target_path"])),
+        )
+        actual_executable, actual_link = controller._resolve_xvcredist_executable()
+        self.assertEqual(controller.XVCREDIST_LINK_TARGET, actual_link["link_target"])
+        self.assertEqual(controller.XVCREDIST_RESOLVED_ROOT, actual_link["resolved_target_path"])
+        self.assertEqual(
+            os.path.normcase(os.path.abspath(controller.XVCREDIST_RESOLVED_ROOT)),
+            os.path.normcase(os.path.abspath(Path(actual_executable).parents[1])),
+        )
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_XVCREDIST_LINK_TARGET_GUARD",
+                "rejected_link_target": r"..\other",
+                "rejected_resolved_target": str(resolved_target / "elsewhere"),
+                "accepted_link_target": accepted["link_target"],
+                "accepted_resolved_target": accepted["resolved_target_path"],
+            },
+        )
+
     def test_private_appdata_excludes_user_tcl_init_scripts(self):
         run_dir = _new_run_dir("private_appdata_user_init")
         source_appdata = run_dir / "source_appdata"
@@ -902,7 +1000,7 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         call_chain = controller._verify_vivado_batch_chain(paths)
         hashes = {name: controller._sha256(path) for name, path in paths.items()}
         self.assertEqual(set(paths), set(hashes))
-        self.assertEqual({"vivado.bat", "loader.bat", "rdiArgs.bat"}, set(call_chain))
+        self.assertEqual({"vivado.bat", "loader.bat", "rdiArgs.bat", "setupEnv.bat"}, set(call_chain))
         _write_json(
             run_dir / "fixture_result.json",
             {"status": "PASS_STATIC_VIVADO_BATCH_CHAIN", "paths": paths, "sha256": hashes, "calls": call_chain},
@@ -1137,10 +1235,16 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         tclargs = argv.index("-tclargs") + 1
         self.assertEqual(facts["dcp_copy_path"], argv[tclargs])
         self.assertEqual(facts["evidence_root"], argv[tclargs + 3])
-        source = (ROOT / "verification" / "s15_direct_vivado_bitgen.py").read_text(encoding="utf-8")
-        prepare_index = source.index("input_locks = _prepare_run_inputs(run_dir, facts)")
-        launch_index = source.index("child = job_guard.launch_suspended_root(")
+        runner_source = inspect.getsource(controller.run_frozen_bitgen)
+        precheck_source = inspect.getsource(controller._run_prelaunch_check)
+        prepare_index = runner_source.index("input_locks = _prepare_run_inputs(run_dir, facts)")
+        precheck_index = runner_source.index("redist_check = _run_prelaunch_check(")
+        launch_index = runner_source.index("child = job_guard.launch_suspended_root(")
         self.assertLess(prepare_index, launch_index)
+        self.assertLess(prepare_index, precheck_index)
+        self.assertLess(precheck_index, launch_index)
+        self.assertEqual(1, runner_source.count("child = job_guard.launch_suspended_root("))
+        self.assertIn("job_guard.launch_suspended_root(", precheck_source)
 
     def test_production_working_directory_is_verified_vivado_batch_parent(self):
         run_dir = _new_run_dir("working_directory_binding")

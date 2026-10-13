@@ -29,6 +29,23 @@ CMD_EXE = r"C:\Windows\System32\cmd.exe"
 VIVADO_BIN = r"D:\Xilinx\2026.1\Vivado\bin"
 VIVADO_BAT = r"D:\Xilinx\2026.1\Vivado\bin\vivado.bat"
 VIVADO_EXE = r"D:\Xilinx\2026.1\Vivado\bin\unwrapped\win64.o\vivado.exe"
+XVCREDIST_EXE = r"D:\Xilinx\2026.1\Vivado\tps\win64\xvcredist.exe"
+XVCREDIST_LINK_DIRECTORY = r"D:\Xilinx\2026.1\Vivado\tps"
+XVCREDIST_LINK_TARGET = r"..\tps"
+XVCREDIST_RESOLVED_ROOT = r"D:\Xilinx\2026.1\tps"
+EXPECTED_XVCREDIST_SHA256 = "9AF2EDB12A74BE5F1F2B9FD7D0BA888EE36CF87A8F9F4CD131EC59B66BD12019"
+REDIST_CHECK_SKIP_ENV = "XIL_PA_NO_REDIST_CHECK"
+VIVADO_SETUP_ENVIRONMENT_VARIABLES = (
+    "RDI_SETUP_ENV_FUNCTION",
+    "RDI_BINROOT",
+    "RDI_APPROOT",
+    "RDI_BASEROOT",
+    "RDI_INSTALLROOT",
+    "_RDI_SETENV_RUN",
+    "RDI_BASELINE",
+    "XILINX_PATH",
+    "MYVIVADO",
+)
 VIVADO_BATCH_SUPPORT = {
     "setupEnv.bat": r"D:\Xilinx\2026.1\Vivado\bin\setupEnv.bat",
     "loader.bat": r"D:\Xilinx\2026.1\Vivado\bin\loader.bat",
@@ -278,8 +295,27 @@ def _verify_vivado_batch_chain(batch_paths):
             'call "%rdi_binroot%/setupenv.bat" "%rdi_binroot%" xilinx_vivado',
             'call "%rdi_binroot%/loader.bat" -exec %rdi_prog% %*',
         ),
-        "loader.bat": ('call "%rdi_binroot%/rdiargs.bat" %*',),
-        "rdiArgs.bat": ('call "%rdi_binroot%/setupenv.bat"',),
+        "loader.bat": (
+            'call "%rdi_binroot%/rdiargs.bat" %*',
+            r"set xvredist=%rdi_approot%\tps\%rdi_platform%\xvcredist.exe",
+            "if not [%xil_pa_no_redist_check%] == [1] (",
+            '"%xvredist%" -check',
+            "if [!errorlevel!] == [1] (",
+            "if not defined _rdi_setenv_run (",
+        ),
+        "rdiArgs.bat": (
+            'call "%rdi_binroot%/setupenv.bat"',
+            "set rdi_platform=win64",
+            "if [%2] == [batch] (",
+            "set rdi_batch_mode=true",
+        ),
+        "setupEnv.bat": (
+            "if defined rdi_setup_env_function (",
+            "call :%rdi_setup_env_function% %*",
+            "set rdi_setup_env_function=",
+            "set rdi_binroot=%~dp0",
+            'call :dirname "%rdi_binroot%" rdi_approot',
+        ),
     }
     for name, snippets in required_calls.items():
         text = contents.get(name)
@@ -288,10 +324,102 @@ def _verify_vivado_batch_chain(batch_paths):
         for snippet in snippets:
             if snippet not in text:
                 raise ControllerError(f"Vivado批处理调用链与预期不符：{name} 缺少 {snippet!r}")
+    vivado_text = contents["vivado.bat"]
+    initial_setup_call = vivado_text.find('call "%_rdi_binroot%/setupenv.bat"')
+    internal_hook_assignment = vivado_text.find("set rdi_setup_env_function=dirname")
+    if initial_setup_call < 0 or internal_hook_assignment < 0 or initial_setup_call > internal_hook_assignment:
+        raise ControllerError("Vivado入口未先于内部DIRNAME钩子调用setupEnv正常初始化")
     return {name: list(snippets) for name, snippets in required_calls.items()}
 
 
+def _vivado_setup_environment_guard(environment):
+    """拒绝父环境覆盖setupEnv根路径或控制其初始化流程的变量。"""
+    present = sorted(name for name in VIVADO_SETUP_ENVIRONMENT_VARIABLES if environment.get(name) is not None)
+    if present:
+        raise ControllerError("Vivado setupEnv环境覆盖拒绝：" + ",".join(present))
+    vivado_binroot = Path(VIVADO_BIN)
+    return {
+        "status": "PASS_PARENT_OVERRIDES_ABSENT",
+        "parent_override_variables_absent": list(VIVADO_SETUP_ENVIRONMENT_VARIABLES),
+        "child_override_variables_removed": list(VIVADO_SETUP_ENVIRONMENT_VARIABLES),
+        "rdi_binroot": str(vivado_binroot),
+        "rdi_approot": str(vivado_binroot.parent),
+        "setupenv_initialization_source": "setupEnv.bat derives RDI_BINROOT from its own %~dp0, then RDI_APPROOT from RDI_BINROOT",
+    }
+
+
+def _validate_xvcredist_link_observation(link_directory, link_target, resolved_directory):
+    """只接受已核验的Vivado tps相对符号链接及其精确目标。"""
+    expected_link = os.path.normcase(os.path.abspath(XVCREDIST_LINK_DIRECTORY))
+    observed_link = os.path.normcase(os.path.abspath(os.fspath(link_directory)))
+    if observed_link != expected_link:
+        raise ControllerError("xvcredist tps符号链接路径与核验路径不符")
+    if link_target != XVCREDIST_LINK_TARGET:
+        raise ControllerError("xvcredist tps符号链接文本目标与核验值不符")
+    expected_target = os.path.normcase(os.path.abspath(XVCREDIST_RESOLVED_ROOT))
+    observed_target = os.path.normcase(os.path.abspath(os.fspath(resolved_directory)))
+    if observed_target != expected_target:
+        raise ControllerError("xvcredist tps符号链接严格解析目标与核验路径不符")
+    return {
+        "link_directory_path": os.path.abspath(os.fspath(link_directory)),
+        "link_type": "symbolic_link",
+        "link_target": link_target,
+        "expected_link_target": XVCREDIST_LINK_TARGET,
+        "resolved_target_path": os.path.abspath(os.fspath(resolved_directory)),
+        "expected_resolved_target_path": XVCREDIST_RESOLVED_ROOT,
+    }
+
+
+def _resolve_xvcredist_executable():
+    """解析唯一允许的tps链接，再校验真实xvcredist二进制路径。"""
+    link_directory = Path(XVCREDIST_LINK_DIRECTORY)
+    logical_executable = Path(XVCREDIST_EXE)
+    expected_logical_executable = link_directory / "win64" / "xvcredist.exe"
+    if os.path.normcase(os.path.abspath(logical_executable)) != os.path.normcase(
+        os.path.abspath(expected_logical_executable)
+    ):
+        raise ControllerError("xvcredist逻辑入口路径与核验的tps链接不符")
+    _assert_path_chain(link_directory.parent, "directory")
+    if not link_directory.is_symlink():
+        raise ControllerError("Vivado\\tps不是要求的符号链接")
+    try:
+        link_target = os.readlink(os.fspath(link_directory))
+        resolved_directory = link_directory.resolve(strict=True)
+    except (OSError, RuntimeError) as error:
+        raise ControllerError(f"解析Vivado\\tps符号链接失败：{error}") from error
+    link_facts = _validate_xvcredist_link_observation(link_directory, link_target, resolved_directory)
+    resolved_executable = _assert_path_chain(
+        Path(link_facts["resolved_target_path"]) / "win64" / "xvcredist.exe",
+        "file",
+    )
+    link_facts["logical_executable_path"] = str(logical_executable)
+    link_facts["resolved_executable_path"] = resolved_executable
+    return resolved_executable, link_facts
+
+
+def _recheck_xvcredist_link_before_bitgen(facts):
+    """主Bitgen Job创建前重核tps链接解析及已锁定二进制哈希。"""
+    executable, current = _resolve_xvcredist_executable()
+    expected = facts["xvcredist_link_resolution"]
+    for key in ("link_directory_path", "link_target", "resolved_target_path", "logical_executable_path", "resolved_executable_path"):
+        if key == "link_target":
+            unchanged = current[key] == expected[key]
+        else:
+            unchanged = os.path.normcase(os.path.abspath(current[key])) == os.path.normcase(
+                os.path.abspath(expected[key])
+            )
+        if not unchanged:
+            raise ControllerError(f"Bitgen启动前xvcredist链接解析变化：{key}")
+    digest = _sha256(executable)
+    if digest != facts["xvcredist_executable_sha256"]:
+        raise ControllerError("Bitgen启动前xvcredist真实二进制SHA256变化")
+    current["status"] = "PASS_UNCHANGED_BEFORE_BITGEN_JOB"
+    current["resolved_executable_sha256"] = digest
+    return current
+
+
 def _preflight_inputs():
+    setup_environment_guard = _vivado_setup_environment_guard(os.environ)
     _ensure_exact_repository()
     dcp = _assert_path_chain(FROZEN_DCP, "file")
     cmd_executable = _assert_path_chain(CMD_EXE, "file")
@@ -301,6 +429,32 @@ def _preflight_inputs():
         name: _assert_path_chain(path, "file")
         for name, path in VIVADO_BATCH_SUPPORT.items()
     }
+    vivado_binroot = Path(vivado_batch).parent
+    if os.path.normcase(os.path.abspath(VIVADO_BIN)) != os.path.normcase(os.path.abspath(vivado_binroot)):
+        raise ControllerError("Vivado配置binroot与入口vivado.bat所在目录不一致")
+    for name, path in support_paths.items():
+        if os.path.normcase(os.path.abspath(Path(path).parent)) != os.path.normcase(os.path.abspath(vivado_binroot)):
+            raise ControllerError(f"Vivado批处理依赖{name}不在入口binroot，无法绑定setupEnv解析路径")
+    setup_environment_guard.update(
+        {
+            "rdi_binroot": str(vivado_binroot),
+            "rdi_approot": str(vivado_binroot.parent),
+            "setupenv_path": support_paths["setupEnv.bat"],
+            "setupenv_sha256": _sha256(support_paths["setupEnv.bat"]),
+        }
+    )
+    redist_path, xvcredist_link_resolution = _resolve_xvcredist_executable()
+    redist_app_root = Path(vivado_batch).parent.parent
+    expected_redist_path = redist_app_root / "tps" / "win64" / "xvcredist.exe"
+    if os.path.normcase(os.path.abspath(xvcredist_link_resolution["logical_executable_path"])) != os.path.normcase(
+        os.path.abspath(expected_redist_path)
+    ):
+        raise ControllerError("xvcredist预检映像路径与Vivado入口的AppRoot/win64解析不符")
+    if _sha256(redist_path) != EXPECTED_XVCREDIST_SHA256:
+        raise ControllerError("xvcredist.exe SHA256与已核验安装包不符")
+    baseline_path = redist_app_root / "data" / "baseline.txt"
+    if os.path.lexists(baseline_path):
+        raise ControllerError("检测到Vivado baseline.txt会重定向loader的RDI_APPROOT，拒绝跳过未绑定检查")
     source = _assert_path_chain(Path(__file__).with_name(TCL_SCRIPT_NAME), "file")
     evidence = _effective_evidence_root()
     dcp_hash = _sha256(dcp)
@@ -330,6 +484,7 @@ def _preflight_inputs():
         "cmd.exe": {"path": cmd_executable, "sha256": _sha256(cmd_executable)},
         "vivado.bat": {"path": vivado_batch, "sha256": _sha256(vivado_batch)},
         "vivado.exe": {"path": vivado_executable, "sha256": _sha256(vivado_executable)},
+        "xvcredist.exe": {"path": redist_path, "sha256": _sha256(redist_path)},
         **{
             name: {"path": path, "sha256": _sha256(path)}
             for name, path in support_paths.items()
@@ -343,6 +498,18 @@ def _preflight_inputs():
         "vivado_working_directory": vivado_working_directory,
         "vivado_executable_path": vivado_executable,
         "vivado_executable_sha256": toolchain_files["vivado.exe"]["sha256"],
+        "xvcredist_executable_path": redist_path,
+        "xvcredist_executable_sha256": toolchain_files["xvcredist.exe"]["sha256"],
+        "xvcredist_link_resolution": xvcredist_link_resolution,
+        "redist_resolution_guard": {
+            "rdi_bin_root": str(Path(vivado_batch).parent),
+            "rdi_app_root": str(redist_app_root),
+            "rdi_platform": "win64",
+            "baseline_path": str(baseline_path),
+            "baseline_absent": True,
+            "path_override_environment_absent": ["XILINX_PATH", "MYVIVADO", "RDI_BASELINE"],
+        },
+        "vivado_setup_environment_guard": setup_environment_guard,
         "toolchain_files": toolchain_files,
         "batch_call_chain": batch_call_chain,
         "vivado_expected_version": EXPECTED_VIVADO_VERSION,
@@ -497,6 +664,8 @@ def _child_environment(run_dir):
     isolated_appdata.mkdir()
     _assert_path_chain(isolated_appdata, "directory")
     environment = dict(os.environ)
+    for name in VIVADO_SETUP_ENVIRONMENT_VARIABLES:
+        environment.pop(name, None)
     environment["APPDATA"] = str(isolated_appdata)
     environment["RDI_VERBOSE"] = "False"
     for name in LICENSE_ENVIRONMENT_NAMES:
@@ -604,6 +773,57 @@ def _lock_verified_toolchain(facts):
         if cleanup_errors:
             raise ControllerError(f"工具链锁定失败且只读锁清理不闭合：primary={primary!r}; cleanup={cleanup_errors!r}") from primary
         raise
+
+
+def _run_prelaunch_check(executable, argv, cwd, environment, std_handles, expected_sha256):
+    """在独立Job中运行只读预检，并要求全部成员身份和自然退出闭合。"""
+    executable = _assert_path_chain(executable, "file")
+    before_sha256 = _sha256(executable)
+    if before_sha256 != expected_sha256:
+        raise ControllerError("预检可执行文件启动前SHA256不符")
+    job = job_guard.JobObject(kill_on_close=True)
+    child = None
+    started = time.monotonic()
+    try:
+        child = job_guard.launch_suspended_root(
+            job,
+            executable,
+            argv,
+            cwd=cwd,
+            std_handles=std_handles,
+            environment=environment,
+        )
+        identity = dict(child.identity)
+        events = list(child.events)
+        closure = child.wait_and_close(timeout_seconds=30.0)
+        child = None
+        exit_code = closure["final"].get("root_native_handle_exit_code")
+        after_sha256 = _sha256(executable)
+        if after_sha256 != expected_sha256:
+            raise ControllerError("预检可执行文件退出后SHA256不符")
+        return {
+            "status": "CLOSED",
+            "executable_path": executable,
+            "executable_sha256_before": before_sha256,
+            "executable_sha256_after": after_sha256,
+            "argv": list(argv),
+            "working_directory": cwd,
+            "stdio_policy": "shared run stdout.log/stderr.log handles",
+            "root_identity": identity,
+            "lifecycle_events": events,
+            "job_closure": closure,
+            "exit_code": exit_code,
+            "duration_seconds": time.monotonic() - started,
+        }
+    except BaseException as error:
+        cleanup = _kill_and_close(child, "HARD_STOP:REDIST_PREFLIGHT_CLOSURE") if child is not None else None
+        if not job.closed:
+            try:
+                if not job.pid_list() and job.accounting()["active_processes"] == 0:
+                    job.close()
+            except BaseException:
+                pass
+        raise ControllerError(f"独立xvcredist预检未闭合：primary={error!r}; cleanup={cleanup!r}") from error
 
 
 def _open_stdio_handles(run_dir):
@@ -1468,6 +1688,9 @@ def run_frozen_bitgen():
             "controller_source_path": facts["controller_source_path"],
             "controller_source_sha256": facts["controller_source_sha256"],
             "evidence_root": facts["evidence_root"],
+            "redist_resolution_guard": facts["redist_resolution_guard"],
+            "xvcredist_link_resolution": facts["xvcredist_link_resolution"],
+            "vivado_setup_environment_guard": facts["vivado_setup_environment_guard"],
             "evidence_root_override_environment": EVIDENCE_ROOT_ENV,
             "vivado_install_init_candidates_absent": facts["vivado_install_init_candidates_absent"],
             "user_init_script_audit": facts["user_init_script_audit"],
@@ -1493,6 +1716,8 @@ def run_frozen_bitgen():
             "argv": argv,
             "windows_command_line": job_guard.subprocess.list2cmdline(argv),
             "working_directory": facts["vivado_working_directory"],
+            "loader_redist_precheck": None,
+            "environment_overrides": [],
             "isolated_appdata_path": str(run_dir / "isolated_appdata"),
             "root_identity": None,
             "vivado_member_observations": [],
@@ -1561,6 +1786,57 @@ def run_frozen_bitgen():
         child_environment, isolated_appdata, license_audit = _child_environment(run_dir)
         manifest["process_launch"]["isolated_appdata_path"] = isolated_appdata
         manifest["input_paths_and_hashes"]["license_environment_audit"] = license_audit
+        redist_environment = dict(child_environment)
+        redist_environment.pop(REDIST_CHECK_SKIP_ENV, None)
+        manifest["process_launch"]["loader_redist_precheck"] = {
+            "status": "RUNNING",
+            "source": {
+                "loader_path": facts["toolchain_files"]["loader.bat"]["path"],
+                "loader_sha256": facts["toolchain_files"]["loader.bat"]["sha256"],
+                "xvcredist_link_resolution": facts["xvcredist_link_resolution"],
+                "rdiArgs_path": facts["toolchain_files"]["rdiArgs.bat"]["path"],
+                "rdiArgs_sha256": facts["toolchain_files"]["rdiArgs.bat"]["sha256"],
+                "call_chain": facts["batch_call_chain"],
+            },
+            "skip_environment_variable": REDIST_CHECK_SKIP_ENV,
+            "skip_environment_variable_absent_during_check": True,
+        }
+        writer.write()
+        redist_check = _run_prelaunch_check(
+            facts["xvcredist_executable_path"],
+            [facts["xvcredist_executable_path"], "-check"],
+            str(Path(facts["xvcredist_executable_path"]).parent),
+            redist_environment,
+            std_handles,
+            facts["xvcredist_executable_sha256"],
+        )
+        redist_check.update(
+            {
+                key: value
+                for key, value in manifest["process_launch"]["loader_redist_precheck"].items()
+                if key != "status"
+            }
+        )
+        manifest["process_launch"]["loader_redist_precheck"] = redist_check
+        writer.write()
+        if redist_check["exit_code"] != 0:
+            raise ControllerError(f"独立xvcredist -check退出码不是0：{redist_check['exit_code']!r}")
+        child_environment[REDIST_CHECK_SKIP_ENV] = "1"
+        manifest["process_launch"]["environment_overrides"].append(
+            {
+                "name": REDIST_CHECK_SKIP_ENV,
+                "value": "1",
+                "reason": "同Run独立xvcredist.exe -check已受控退出0，loader内重复调用会创建未采样短命成员",
+                "precheck_executable_path": redist_check["executable_path"],
+                "precheck_executable_sha256": redist_check["executable_sha256_after"],
+                "precheck_exit_code": redist_check["exit_code"],
+            }
+        )
+        writer.write()
+        manifest["input_paths_and_hashes"]["xvcredist_link_resolution"]["pre_bitgen_recheck"] = (
+            _recheck_xvcredist_link_before_bitgen(facts)
+        )
+        writer.write()
         job = job_guard.JobObject(kill_on_close=True)
         if job.flags != job_guard.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE:
             raise ControllerError(f"新JobObject限制标志不符：0x{job.flags:08x}")

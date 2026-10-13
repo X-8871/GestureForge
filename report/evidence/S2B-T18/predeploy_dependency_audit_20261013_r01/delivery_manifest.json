@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "predeploy_dependency_audit_20261013_r01",
+  "source_commit": "5fe8746011643ee5d66f9716b68b9493998d8774",
+  "evidence_dir": "report/evidence/S2B-T18/predeploy_dependency_audit_20261013_r01",
+  "interfaces": [
+    {
+      "name": "已冻结2A模型与输入/检测头规格",
+      "version": "2026-09-23",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/predeploy_dependency_audit_20261013_r01/audit_result.json",
+      "sha256": "15f00559a50e8acb698d24749c53b815d9f7a576fc4b0a0638986b690c209d10",
+      "role": "result"
+    },
+    {
+      "path": "verification/s2b_board_acceptance.py",
+      "sha256": "5beefa0b60993ccd8f2c2a68718d36fdca391dc1048e0a1ab2bfca1b4eba1867",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_fixed_capture_check.py",
+      "sha256": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+      "role": "source"
+    },
+    {
+      "path": "verification/check_s2b_inference_platform.py",
+      "sha256": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/root_corpus_prepare_20261011_r01/preparation.json",
+      "sha256": "3d87b85e2e46becde90be7a071eb094d6dfb6b559d0301ece6333460a3a502cb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/full_build_20261011_r01/build_details.json",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "当前验收器与109样本准备身份",
+      "status": "PASS",
+      "command": "Python read-only: validate_plan; load_assets(range(109)); hash 218 bound head files; verify_build(full_build_20261011_r01)",
+      "exit_code": 0,
+      "reason": "已有生产核验函数及实际文件原字节检查完成"
+    },
+    {
+      "name": "冻结GF8与109个输入实际字节",
+      "status": "PASS",
+      "command": "Python read-only: validate_plan; load_assets(range(109)); hash 218 bound head files; verify_build(full_build_20261011_r01)",
+      "exit_code": 0,
+      "reason": "已有生产核验函数及实际文件原字节检查完成"
+    },
+    {
+      "name": "218个已提取黄金头实际字节",
+      "status": "PASS",
+      "command": "Python read-only: validate_plan; load_assets(range(109)); hash 218 bound head files; verify_build(full_build_20261011_r01)",
+      "exit_code": 0,
+      "reason": "已有生产核验函数及实际文件原字节检查完成"
+    },
+    {
+      "name": "既有全平台XSA及当前应用ELF绑定",
+      "status": "PASS",
+      "command": "Python read-only: validate_plan; load_assets(range(109)); hash 218 bound head files; verify_build(full_build_20261011_r01)",
+      "exit_code": 0,
+      "reason": "已有生产核验函数及实际文件原字节检查完成"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  },
+  "limitations": [
+    "仅核验离线准备和既有PS应用；未进行模型板上运行或1000次压力验收。",
+    "许可证未变化，Bitgen仍受阻；本审计不启动Vivado、SDK、UART或JTAG。",
+    "峰值内存未测。",
+    "核验通过一次Python -c调用完成；清单记录实际调用的生产函数，外层PowerShell/Python完整argv未采集。四个检查项的exit_code表示同一原生退出0调用中的检查成功，不是四个独立子进程退出码。",
+    "既有ELF/XSA0文件绑定通过不代表与尚未生成的最终位流/XSA1已经兼容；该兼容性仍须后续独立核验。"
+  ]
+}

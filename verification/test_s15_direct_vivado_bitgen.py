@@ -7,6 +7,7 @@ import secrets
 import struct
 import sys
 import time
+import traceback
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -58,8 +59,68 @@ def _fixture_argv(marker_path, exit_code):
         "time.sleep(0.15); "
         "raise SystemExit(int(sys.argv[2]))"
     )
-    executable = str(Path(sys.executable).resolve())
-    return executable, [executable, "-c", source, str(marker_path), str(exit_code)]
+    executable = str(Path(getattr(sys, "_base_executable", None) or sys.executable).resolve())
+    return executable, [executable, "-I", "-S", "-c", source, str(marker_path), str(exit_code)]
+
+
+def _minimal_fixture_environment():
+    environment = {
+        name: os.environ[name]
+        for name in ("SystemRoot", "WINDIR", "PATH", "TEMP", "TMP")
+        if os.environ.get(name)
+    }
+    environment["S15_FIXTURE_ENV"] = "unicode-环境-value"
+    return environment
+
+
+def _fixture_readback_or_error(reader):
+    try:
+        return reader()
+    except BaseException as error:
+        return {"diagnostic_read_error": repr(error)}
+
+
+def _wait_close_failure_receipt(run_dir, executable, argv, environment, job, child, error):
+    return {
+        "status": "REAL_WIN32_LIFECYCLE_WAIT_AND_CLOSE_FAILED",
+        "run_directory": str(run_dir),
+        "platform": sys.platform,
+        "interpreter": {
+            "executable": sys.executable,
+            "base_executable": getattr(sys, "_base_executable", None),
+            "version": sys.version,
+            "implementation": sys.implementation.name,
+            "flags": {
+                "isolated": sys.flags.isolated,
+                "ignore_environment": sys.flags.ignore_environment,
+                "no_site": sys.flags.no_site,
+                "safe_path": getattr(sys.flags, "safe_path", None),
+            },
+        },
+        "child": {
+            "executable": executable,
+            "argv": argv,
+            "pid": child.pid,
+            "birth_ticks": child.birth_ticks,
+            "identity": child.identity,
+            "closed": child.closed,
+        },
+        "child_environment_keys": sorted(environment),
+        "filtered_parent_python_environment_names": sorted(
+            name for name in os.environ if name.upper().startswith("PYTHON")
+        ),
+        "job": {
+            "accounting": _fixture_readback_or_error(job.accounting),
+            "pids": _fixture_readback_or_error(job.pid_list),
+            "cached_member_handle_keys": [
+                {"pid": int(pid), "birth_ticks": int(ticks)}
+                for pid, ticks in sorted(job.member_handles)
+            ],
+        },
+        "exception_type": type(error).__name__,
+        "exception": repr(error),
+        "traceback": traceback.format_exc(),
+    }
 
 
 @unittest.skipUnless(os.name == "nt", "非Windows环境：显式SKIP，不能声称本机Win32 fixture通过")
@@ -89,8 +150,8 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         marker = run_dir / "resumed.marker"
         executable, argv = _fixture_argv(marker, 23)
         job = job_guard.JobObject(kill_on_close=True)
-        environment = dict(os.environ)
-        environment["S15_FIXTURE_ENV"] = "unicode-环境-value"
+        environment = _minimal_fixture_environment()
+        child = None
         try:
             try:
                 child = job_guard.launch_suspended_root(job, executable, argv, cwd=str(ROOT), environment=environment)
@@ -112,12 +173,30 @@ class DirectSpawnFixtureTests(unittest.TestCase):
                 if receipt["status"] == "REAL_ASSIGN_BLOCKED_FAIL_CLOSED":
                     self.skipTest(f"本机外层Job拒绝嵌套Assign；真实错误及fail-closed清理保留于 {run_dir}")
                 self.fail(f"实际Win32生命周期未完成，原异常保留于 {run_dir}: {error!r}")
-            closure = child.wait_and_close(timeout_seconds=10.0)
+            try:
+                closure = child.wait_and_close(timeout_seconds=10.0)
+            except BaseException as error:
+                receipt = _wait_close_failure_receipt(
+                    run_dir, executable, argv, environment, job, child, error
+                )
+                try:
+                    child._close_all()
+                    receipt["cleanup_after_diagnostic"] = "OK"
+                except BaseException as cleanup_error:
+                    receipt["cleanup_after_diagnostic"] = repr(cleanup_error)
+                _write_json(run_dir / "fixture_result.json", receipt)
+                raise
             receipt = {
                 "status": "PASS_REAL_WIN32_LIFECYCLE",
+                "run_directory": str(run_dir),
                 "platform": sys.platform,
                 "executable": executable,
                 "argv": argv,
+                "python_version": sys.version,
+                "child_environment_keys": sorted(environment),
+                "filtered_parent_python_environment_names": sorted(
+                    name for name in os.environ if name.upper().startswith("PYTHON")
+                ),
                 "pid": child.pid,
                 "identity": child.identity,
                 "events": closure["events"],
@@ -131,7 +210,12 @@ class DirectSpawnFixtureTests(unittest.TestCase):
             self.assertTrue(any(row.get("event") == "PRE_RESUME_CLOSED" for row in closure["events"]))
             self.assertTrue(any(row.get("event") == "RESUME_THREAD" for row in closure["events"]))
         finally:
-            if not job.closed:
+            if child is not None and not child.closed:
+                try:
+                    child._close_all()
+                except BaseException:
+                    pass
+            elif not job.closed:
                 job.close()
 
     def test_cmd_batch_fixture_preserves_arguments_exit_code_and_job_descendant_closure(self):
@@ -1084,6 +1168,520 @@ class ControllerSafetyUnitTests(unittest.TestCase):
                 "verified_batch_path": verified_batch,
                 "selected_working_directory": working_directory,
                 "expected_working_directory": str(fake_bin),
+            },
+        )
+
+
+@unittest.skipUnless(os.name == "nt", "终态Job读回单元测试依赖Windows JobObject状态常量")
+class TerminalExitRaceReconciliationTests(unittest.TestCase):
+    """验证退出沿采样不确定性只在完整Job终态闭合后收敛。"""
+
+    class FakeJob:
+        def __init__(self, total_processes=2):
+            self.total_processes = total_processes
+            self.pid_calls = 0
+            self.accounting_calls = 0
+
+        def pid_list(self):
+            self.pid_calls += 1
+            return []
+
+        def accounting(self):
+            self.accounting_calls += 1
+            return {
+                "total_processes": self.total_processes,
+                "active_processes": 0,
+                "terminated_processes": 0,
+                "exited_processes": self.total_processes,
+                "page_faults": 0,
+            }
+
+    class FakeChild:
+        def __init__(self, closure, wait_error=None, close_on_wait=True):
+            self.pid = 25308
+            self.birth_ticks = 9001
+            self.closure = closure
+            self.wait_error = wait_error
+            self.close_on_wait = close_on_wait
+            self.closed = False
+            self.wait_calls = 0
+
+        def wait_and_close(self, timeout_seconds=30.0):
+            self.wait_calls += 1
+            if self.wait_error is not None:
+                raise self.wait_error
+            if self.close_on_wait:
+                self.closed = True
+            return self.closure
+
+    @staticmethod
+    def _no_such_process_readback(pid, message="process PID not found"):
+        error = job_guard.psutil.NoSuchProcess(pid=pid, msg=message)
+        wrapped = job_guard.GateBlocked(f"六字段无法读取：{error!r}")
+        return f"MEMBER_READBACK_FAILED:{pid}:{wrapped!r}"
+
+    @staticmethod
+    def _terminal_fixture(total_processes=2, root_exit_code=0):
+        root_key = (25308, 9001)
+        vivado_key = (472, 7002)
+        readbacks = [
+            {
+                "pid": pid,
+                "birth_ticks": ticks,
+                "status": "EXITED",
+                "exit_code": root_exit_code if pid == root_key[0] else 0,
+            }
+            for pid, ticks in (root_key, vivado_key)
+        ]
+        closure = {
+            "final": {
+                "job_pids": [],
+                "active_processes": 0,
+                "total_processes": total_processes,
+                "total_terminated_processes": 0,
+                "exited_processes": total_processes,
+                "root_handle_signaled": True,
+                "root_native_handle_exit_code": root_exit_code,
+                "root_native_handle_pid": root_key[0],
+                "root_native_handle_birth_ticks": root_key[1],
+                "member_readbacks": readbacks,
+                "live_members": [],
+                "unknown_members": [],
+            }
+        }
+        sample = {
+            "uncertainty": [
+                TerminalExitRaceReconciliationTests._no_such_process_readback(root_key[0]),
+                TerminalExitRaceReconciliationTests._no_such_process_readback(vivado_key[0]),
+                "PID_LIST_CHANGED_DURING_SAMPLE",
+                "JOB_PROCESS_COUNTER_CHANGED_DURING_SAMPLE",
+            ],
+            "job_pids_before": [root_key[0], vivado_key[0]],
+            "job_pids_after": [],
+            "accounting_before": {
+                "total_processes": 2,
+                "active_processes": 2,
+                "terminated_processes": 0,
+                "exited_processes": 0,
+            },
+            "accounting_after": {
+                "total_processes": 2,
+                "active_processes": 0,
+                "terminated_processes": 0,
+                "exited_processes": 2,
+            },
+            "member_measurements": [],
+            "tree_rss_bytes": 0,
+        }
+        previous_keys = {root_key, vivado_key}
+        previous_accounting = {"total_processes": 2, "exited_processes": 0}
+        observations = [{"pid": vivado_key[0], "birth_ticks": vivado_key[1]}]
+        return sample, previous_keys, previous_accounting, observations, closure
+
+    def _run_reconciliation(
+        self, label, *, alerts=None, root_wait=None, root_exit_code=0, final_total=2, closure_total=None
+    ):
+        sample, previous_keys, previous_accounting, observations, closure = self._terminal_fixture(
+            final_total if closure_total is None else closure_total, root_exit_code
+        )
+        job = self.FakeJob(total_processes=final_total)
+        child = self.FakeChild(closure)
+        result = controller._reconcile_terminal_exit_race(
+            job,
+            child,
+            sample,
+            ["SAMPLE_UNCERTAIN"] if alerts is None else alerts,
+            previous_keys,
+            previous_accounting,
+            job_guard.WAIT_OBJECT_0 if root_wait is None else root_wait,
+            root_exit_code,
+            observations,
+        )
+        receipt_dir = _new_run_dir(label)
+        _write_json(
+            receipt_dir / "fixture_result.json",
+            {
+                "status": "PASS_TERMINAL_RACE_RECONCILED" if result["reconciled"] else "HARD_STOP_TERMINAL_RACE_REJECTED",
+                "result": result,
+                "job_pid_read_count": job.pid_calls,
+                "job_accounting_read_count": job.accounting_calls,
+                "child_wait_and_close_calls": child.wait_calls,
+                "child_closed": child.closed,
+            },
+        )
+        return result, job, child, receipt_dir
+
+    def test_terminal_exit_race_reconciles_after_complete_closure(self):
+        result, job, child, receipt_dir = self._run_reconciliation("terminal_race_reconciled")
+        self.assertTrue(result["reconciled"], result["reason"])
+        self.assertEqual(2, job.pid_calls)
+        self.assertEqual(2, job.accounting_calls)
+        self.assertEqual(1, child.wait_calls)
+        self.assertTrue(child.closed)
+        self.assertEqual("PASS_TERMINAL_RACE_RECONCILED", json.loads((receipt_dir / "fixture_result.json").read_text(encoding="utf-8"))["status"])
+
+    def test_exact_process_pid_not_found_readback_is_supported(self):
+        for message in ("process PID not found", "process no longer exists"):
+            with self.subTest(message=message):
+                sample, previous_keys, previous_accounting, _observations, closure = self._terminal_fixture()
+                sample["uncertainty"][0] = self._no_such_process_readback(25308, message)
+                self.assertTrue(
+                    controller._NO_SUCH_PROCESS_READBACK.fullmatch(sample["uncertainty"][0]),
+                    sample["uncertainty"][0],
+                )
+                accepted, reason = controller._terminal_exit_sample_is_reconcilable(
+                    sample,
+                    ["SAMPLE_UNCERTAIN"],
+                    previous_keys,
+                    previous_accounting,
+                    self.FakeChild(closure),
+                )
+                self.assertTrue(accepted, reason)
+
+    def test_untracked_transient_child_count_mismatch_remains_hard_stop(self):
+        result, job, child, receipt_dir = self._run_reconciliation(
+            "terminal_race_untracked_count", final_total=2, closure_total=3
+        )
+        self.assertFalse(result["reconciled"])
+        self.assertIn("数量与Job total_processes不一致", result["reason"])
+        self.assertEqual(1, child.wait_calls)
+        self.assertTrue(child.closed)
+        self.assertEqual(2, len(result["closure"]["final"]["member_readbacks"]))
+        self.assertEqual(3, result["closure"]["final"]["total_processes"])
+        transition = controller._terminal_exit_race_runner_transition(
+            ["SAMPLE_UNCERTAIN"], result
+        )
+        self.assertFalse(transition["reconciled"])
+        self.assertTrue(transition["release_child"])
+        self.assertIs(transition["closure"], result["closure"])
+        self.assertTrue(transition["stop_reason"].startswith("HARD_STOP:"))
+        receipt = json.loads((receipt_dir / "fixture_result.json").read_text(encoding="utf-8"))
+        self.assertEqual("HARD_STOP_TERMINAL_RACE_REJECTED", receipt["status"])
+
+    def test_resource_and_no_progress_alerts_remain_hard_stop(self):
+        for alert in ("AVAILABLE_RAM_LT_512_MIB", "C_DISK_FREE_LT_8_GIB", "NO_PROGRESS_GE_900S"):
+            with self.subTest(alert=alert):
+                result, job, child, _receipt_dir = self._run_reconciliation(
+                    "terminal_race_alert_" + alert.lower(),
+                    alerts=["SAMPLE_UNCERTAIN", alert],
+                )
+                self.assertFalse(result["reconciled"])
+                self.assertIn("alerts不是单独的SAMPLE_UNCERTAIN", result["reason"])
+                self.assertEqual(0, job.pid_calls)
+                self.assertEqual(0, child.wait_calls)
+
+    def test_access_denied_and_other_member_errors_remain_hard_stop(self):
+        for label, error in (
+            (
+                "access_denied",
+                "MEMBER_READBACK_FAILED:25308:GateBlocked(\"六字段无法读取：psutil.AccessDenied(pid=25308)\")",
+            ),
+            (
+                "pid_reused_message",
+                "MEMBER_READBACK_FAILED:25308:GateBlocked(\"六字段无法读取：psutil.NoSuchProcess(pid=25308, msg='process no longer exists and its PID has been reused')\")",
+            ),
+            ("other_error", "MEMBER_READBACK_FAILED:25308:GateBlocked(\"六字段无法读取：OSError(5)\")"),
+            ("untyped_error", "MEMBER_READBACK_FAILED:25308:exited during sample"),
+        ):
+            with self.subTest(label=label):
+                sample, _keys, _accounting, _observations, _closure = self._terminal_fixture()
+                sample["uncertainty"][0] = error
+                self._assert_sample_rejected(label, sample)
+
+    def _assert_sample_rejected(self, label, sample):
+        _unused_sample, previous_keys, previous_accounting, observations, closure = self._terminal_fixture()
+        sample.pop("tree_rss_bytes", None) if label == "rss_absent" else None
+        job = self.FakeJob()
+        child = self.FakeChild(closure)
+        result = controller._reconcile_terminal_exit_race(
+            job,
+            child,
+            sample,
+            ["SAMPLE_UNCERTAIN"],
+            previous_keys,
+            previous_accounting,
+            job_guard.WAIT_OBJECT_0,
+            0,
+            observations,
+        )
+        self.assertFalse(result["reconciled"], label)
+        self.assertEqual(0, job.pid_calls, label)
+        self.assertEqual(0, child.wait_calls, label)
+
+    def test_missing_or_over_limit_tree_rss_remains_hard_stop(self):
+        sample, *_unused = self._terminal_fixture()
+        sample["tree_rss_bytes"] = None
+        self._assert_sample_rejected("rss_missing", sample)
+
+        sample, *_unused = self._terminal_fixture()
+        sample.pop("tree_rss_bytes")
+        self._assert_sample_rejected("rss_absent", sample)
+
+        sample, *_unused = self._terminal_fixture()
+        sample["tree_rss_bytes"] = -1
+        self._assert_sample_rejected("rss_negative", sample)
+
+        sample, *_unused = self._terminal_fixture()
+        sample["tree_rss_bytes"] = job_guard.RSS_LIMIT_BYTES + 1
+        self._assert_sample_rejected("rss_over_limit", sample)
+
+    def test_job_sample_reports_terminal_empty_rss_and_keeps_unproven_sample_unavailable(self):
+        job = job_guard.JobObject(kill_on_close=True)
+        try:
+            with (
+                mock.patch.object(job_guard, "_memory_status", return_value=(1024, 2048)),
+                mock.patch.object(job_guard, "_disk_free_c", return_value=4096),
+            ):
+                empty_sample = job.sample()
+            self.assertEqual([], empty_sample["job_pids_after"])
+            self.assertEqual(0, empty_sample["tree_rss_bytes"])
+            self.assertIn("exited_processes=total_processes", empty_sample["rss_metric"])
+
+            disappearing_pid = 48123
+            job.root_pid = disappearing_pid
+            readback_error = job_guard.psutil.NoSuchProcess(
+                pid=disappearing_pid, msg="process PID not found"
+            )
+            accounting_before = {
+                "total_processes": 1,
+                "active_processes": 1,
+                "terminated_processes": 0,
+                "exited_processes": 0,
+            }
+            accounting_terminal = {
+                "total_processes": 1,
+                "active_processes": 0,
+                "terminated_processes": 0,
+                "exited_processes": 1,
+            }
+            with (
+                mock.patch.object(job, "pid_list", side_effect=[[disappearing_pid], []]),
+                mock.patch.object(job, "accounting", side_effect=[accounting_before, accounting_terminal]),
+                mock.patch.object(job, "_remember_process", side_effect=readback_error),
+                mock.patch.object(job_guard, "_memory_status", return_value=(1024, 2048)),
+                mock.patch.object(job_guard, "_disk_free_c", return_value=4096),
+            ):
+                terminal_sample = job.sample()
+            self.assertEqual(0, terminal_sample["tree_rss_bytes"])
+            self.assertIn("MEMBER_READBACK_FAILED:", terminal_sample["uncertainty"][0])
+
+            accounting_not_terminal = dict(accounting_terminal, exited_processes=0)
+            with (
+                mock.patch.object(job, "pid_list", side_effect=[[disappearing_pid], []]),
+                mock.patch.object(job, "accounting", side_effect=[accounting_before, accounting_not_terminal]),
+                mock.patch.object(job, "_remember_process", side_effect=readback_error),
+                mock.patch.object(job_guard, "_memory_status", return_value=(1024, 2048)),
+                mock.patch.object(job_guard, "_disk_free_c", return_value=4096),
+            ):
+                uncertain_sample = job.sample()
+            self.assertIsNone(uncertain_sample["tree_rss_bytes"])
+        finally:
+            job.close()
+
+    def test_final_closure_rejects_root_birth_and_observed_vivado_identity_mismatch(self):
+        for label, mutate in (
+            (
+                "root_birth_mismatch",
+                lambda closure: closure["final"].__setitem__("root_native_handle_birth_ticks", 9002),
+            ),
+            (
+                "observed_vivado_birth_mismatch",
+                lambda closure: closure["final"]["member_readbacks"][1].__setitem__("birth_ticks", 7003),
+            ),
+        ):
+            with self.subTest(label=label):
+                sample, previous_keys, previous_accounting, observations, closure = self._terminal_fixture()
+                mutate(closure)
+                job = self.FakeJob()
+                child = self.FakeChild(closure)
+                result = controller._reconcile_terminal_exit_race(
+                    job,
+                    child,
+                    sample,
+                    ["SAMPLE_UNCERTAIN"],
+                    previous_keys,
+                    previous_accounting,
+                    job_guard.WAIT_OBJECT_0,
+                    0,
+                    observations,
+                )
+                self.assertFalse(result["reconciled"], result["reason"])
+                self.assertIn(
+                    "精确root句柄" if label == "root_birth_mismatch" else "此前样本观察到的Job成员身份",
+                    result["reason"],
+                )
+
+    def test_runner_reconciled_branch_skips_cleanup_but_nonzero_exit_stays_failed(self):
+        for exit_code, expected_reason in ((0, None), (1, "NATIVE_CMD_ROOT_EXIT_NONZERO_1")):
+            with self.subTest(exit_code=exit_code):
+                sample, previous_keys, previous_accounting, observations, closure = self._terminal_fixture(
+                    root_exit_code=exit_code
+                )
+                job = self.FakeJob()
+                child = self.FakeChild(closure)
+                with mock.patch.object(controller, "_kill_and_close") as kill_and_close:
+                    runner_result = controller._resolve_terminal_exit_race_for_runner(
+                        job,
+                        child,
+                        sample,
+                        ["SAMPLE_UNCERTAIN"],
+                        previous_keys,
+                        previous_accounting,
+                        job_guard.WAIT_OBJECT_0,
+                        exit_code,
+                        observations,
+                    )
+                result = runner_result["reconciliation"]
+                transition = runner_result["transition"]
+                self.assertTrue(result["reconciled"], result["reason"])
+                kill_and_close.assert_not_called()
+                self.assertIsNone(runner_result["child"])
+                self.assertIsNone(runner_result["cleanup_record"])
+                self.assertIs(closure, runner_result["closure"])
+                cleanup = mock.Mock()
+                if transition["stop_reason"]:
+                    cleanup(transition["stop_reason"])
+                cleanup.assert_not_called()
+                self.assertTrue(transition["release_child"])
+                self.assertIsNone(transition["stop_reason"])
+                final_reason = controller._ensure_native_exit_diagnostic(
+                    transition["closure"], exit_code, transition["stop_reason"]
+                )
+                self.assertEqual(expected_reason, final_reason)
+
+                digest = "A" * 64
+                manifest = {
+                    "process_launch": {
+                        "vivado_member_observations": [{"pid": 472, "birth_ticks": 7002}]
+                    },
+                    "input_paths_and_hashes": {},
+                }
+                writer = mock.Mock()
+                writer.manifest = manifest
+                input_facts = {
+                    "dcp_path": "fixture-dcp",
+                    "dcp_copy_path": "fixture-dcp-copy",
+                    "dcp_sha256": digest,
+                    "tcl_source_path": "fixture-tcl",
+                    "tcl_copy_path": "fixture-tcl-copy",
+                    "tcl_source_sha256": digest,
+                    "vivado_executable_path": "fixture-vivado",
+                    "vivado_executable_sha256": digest,
+                    "toolchain_files": {"vivado.exe": {"path": "fixture-vivado.exe", "sha256": digest}},
+                    "controller_source_path": "fixture-controller",
+                    "controller_source_sha256": digest,
+                }
+                outputs = {
+                    name: "fixture-" + name
+                    for name in (
+                        "vivado_log",
+                        "vivado_journal",
+                        "stdout",
+                        "stderr",
+                        "tcl_progress",
+                        "bitstream",
+                        "monitor",
+                    )
+                }
+                progress = [
+                    {"event": "vivado_version", "detail": controller.EXPECTED_VIVADO_VERSION},
+                    {"event": "checkpoint_opened", "detail": controller.EXPECTED_PART},
+                    {"event": "write_bitstream_complete", "detail": "5"},
+                ]
+                artifact = {"exists": True, "size_bytes": 5, "sha256": digest}
+                with (
+                    mock.patch.object(controller, "_read_progress", return_value=progress),
+                    mock.patch.object(controller, "_read_monitor", return_value=[{"event": "sample"}]),
+                    mock.patch.object(controller, "_artifact_record", return_value=artifact),
+                    mock.patch.object(controller, "_sha256_if_present", return_value=digest),
+                    mock.patch.object(controller, "_validate_success_artifacts", return_value={"valid": True}),
+                ):
+                    finalized = controller._finalize_manifest(
+                        writer,
+                        "fixture-run",
+                        input_facts,
+                        outputs,
+                        {},
+                        exit_code,
+                        final_reason,
+                        runner_result["closure"],
+                        [],
+                    )
+                self.assertEqual(
+                    "BITGEN_COMPLETE_SOFTWARE_ONLY" if exit_code == 0 else "FAILED_OR_INCOMPLETE",
+                    finalized["status"],
+                )
+                self.assertEqual(expected_reason, finalized["stop_reason"])
+
+        for label, child_kwargs in (
+            ("closure_exception", {"wait_error": RuntimeError("fixture closure failure")}),
+            ("closure_not_closed", {"close_on_wait": False}),
+        ):
+            with self.subTest(label=label):
+                sample, previous_keys, previous_accounting, observations, closure = self._terminal_fixture()
+                child = self.FakeChild(closure, **child_kwargs)
+                job = self.FakeJob()
+                cleanup_record = {
+                    "closure": None,
+                    "root_native_exit_code": None,
+                    "reason": "fixture cleanup",
+                }
+                with mock.patch.object(
+                    controller, "_kill_and_close", return_value=cleanup_record
+                ) as kill_and_close:
+                    runner_result = controller._resolve_terminal_exit_race_for_runner(
+                        job,
+                        child,
+                        sample,
+                        ["SAMPLE_UNCERTAIN"],
+                        previous_keys,
+                        previous_accounting,
+                        job_guard.WAIT_OBJECT_0,
+                        0,
+                        observations,
+                    )
+                self.assertFalse(runner_result["transition"]["reconciled"])
+                self.assertTrue(runner_result["transition"]["stop_reason"].startswith("HARD_STOP:"))
+                self.assertIsNone(runner_result["child"])
+                self.assertIs(cleanup_record, runner_result["cleanup_record"])
+                kill_and_close.assert_called_once_with(
+                    child, runner_result["transition"]["stop_reason"]
+                )
+
+    def test_root_live_or_unknown_remains_hard_stop(self):
+        for root_wait in (job_guard.WAIT_TIMEOUT, 0xFFFFFFFF):
+            with self.subTest(root_wait=root_wait):
+                result, job, child, _receipt_dir = self._run_reconciliation(
+                    "terminal_race_root_wait_" + str(root_wait), root_wait=root_wait
+                )
+                self.assertFalse(result["reconciled"])
+                self.assertIn("root原生句柄仍活动或等待状态未知", result["reason"])
+                self.assertEqual(0, job.pid_calls)
+                self.assertEqual(0, child.wait_calls)
+
+        result, job, child, _receipt_dir = self._run_reconciliation(
+            "terminal_race_root_still_active", root_exit_code=job_guard.STILL_ACTIVE
+        )
+        self.assertFalse(result["reconciled"])
+        self.assertEqual(0, job.pid_calls)
+        self.assertEqual(0, child.wait_calls)
+
+    def test_nonzero_native_exit_keeps_failed_diagnostic_reason(self):
+        run_dir = _new_run_dir("terminal_race_nonzero_root_exit")
+        closure = {"final": {"root_native_handle_exit_code": 1}}
+        no_prior_stop = controller._ensure_native_exit_diagnostic(closure, 1, None)
+        hard_stop = controller._ensure_native_exit_diagnostic(closure, 1, "HARD_STOP:SAMPLE_UNCERTAIN")
+        zero_exit = controller._ensure_native_exit_diagnostic(closure, 0, None)
+        self.assertEqual("NATIVE_CMD_ROOT_EXIT_NONZERO_1", no_prior_stop)
+        self.assertEqual("HARD_STOP:SAMPLE_UNCERTAIN:NATIVE_CMD_ROOT_EXIT_NONZERO_1", hard_stop)
+        self.assertIsNone(zero_exit)
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "FAILED_OR_INCOMPLETE",
+                "native_root_exit_code": 1,
+                "stop_reason": no_prior_stop,
+                "hard_stop_with_diagnostic": hard_stop,
             },
         )
 

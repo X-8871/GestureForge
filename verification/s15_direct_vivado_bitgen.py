@@ -859,6 +859,362 @@ def _vivado_member_closure(observations, closure):
     return {"valid": valid, "observed_count": len(members), "members": members}
 
 
+_TERMINAL_EXIT_SAMPLE_UNCERTAINTY = frozenset(
+    {
+        "PID_LIST_CHANGED_DURING_SAMPLE",
+        "JOB_PROCESS_COUNTER_CHANGED_DURING_SAMPLE",
+    }
+)
+_NO_SUCH_PROCESS_READBACK = re.compile(
+    r"MEMBER_READBACK_FAILED:(?P<pid>[0-9]+):GateBlocked\(\"六字段无法读取："
+    r"psutil\.NoSuchProcess\(pid=(?P=pid)"
+    r"(?:, name='(?:[^'\\]|\\.)*')?"
+    r", msg='(?:process PID not found|process no longer exists)'\)\"\)\Z",
+    re.ASCII,
+)
+
+
+def _terminal_exit_sample_is_reconcilable(sample, alerts, previous_keys, previous_accounting, child):
+    """仅接受由已知Job成员退出造成、且没有其他门禁告警的最后采样竞争。"""
+    if alerts != ["SAMPLE_UNCERTAIN"]:
+        return False, "sample alerts不是单独的SAMPLE_UNCERTAIN"
+    if not isinstance(sample, dict):
+        return False, "sample不是对象"
+    uncertainty = sample.get("uncertainty")
+    if not isinstance(uncertainty, list) or not uncertainty:
+        return False, "sample缺少非空uncertainty列表"
+    if any(not isinstance(item, str) for item in uncertainty):
+        return False, "sample uncertainty包含非字符串项"
+    known_keys = {(int(pid), int(ticks)) for pid, ticks in previous_keys}
+    root_key = (int(child.pid), int(child.birth_ticks))
+    if root_key not in known_keys:
+        return False, "此前样本未观察到精确root身份"
+    if len({pid for pid, _ticks in known_keys}) != len(known_keys):
+        return False, "此前样本存在同PID多重创建时间，拒绝PID复用"
+    tree_rss = sample.get("tree_rss_bytes")
+    if type(tree_rss) is not int or tree_rss < 0:
+        return False, "sample缺少有效tree RSS样本"
+    if tree_rss > job_guard.RSS_LIMIT_BYTES:
+        return False, "sample tree RSS超过6GiB门禁"
+
+    readback_failure_pids = set()
+    for item in uncertainty:
+        if item in _TERMINAL_EXIT_SAMPLE_UNCERTAINTY:
+            continue
+        if isinstance(item, str) and item.startswith("MEMBER_READBACK_FAILED:"):
+            match = _NO_SUCH_PROCESS_READBACK.fullmatch(item)
+            if match is None:
+                return False, "成员读回失败不是精确的psutil.NoSuchProcess"
+            pid = int(match.group("pid"))
+            if not any(known_pid == pid for known_pid, _ticks in known_keys):
+                return False, f"成员读回失败涉及此前未观察PID：{pid}"
+            if pid in readback_failure_pids:
+                return False, f"成员读回失败重复记录PID：{pid}"
+            readback_failure_pids.add(pid)
+            continue
+        return False, f"sample含有不允许的uncertainty：{item!r}"
+    if not readback_failure_pids:
+        return False, "sample没有已知成员读回失败，不能归因为退出竞争"
+
+    pids_before = sample.get("job_pids_before")
+    pids_after = sample.get("job_pids_after")
+    if not isinstance(pids_before, list) or not isinstance(pids_after, list):
+        return False, "sample缺少前后Job PID列表"
+    if any(type(pid) is not int or pid <= 0 for pid in pids_before + pids_after):
+        return False, "sample PID列表含有无效PID"
+    before_set, after_set = set(pids_before), set(pids_after)
+    if len(before_set) != len(pids_before) or len(after_set) != len(pids_after):
+        return False, "sample PID列表含有重复PID"
+    known_pids = {pid for pid, _ticks in known_keys}
+    if not before_set.issubset(known_pids) or after_set:
+        return False, "sample包含未跟踪PID或第二次PID读回仍非空"
+    if not readback_failure_pids.issubset(before_set):
+        return False, "成员读回失败PID不在该样本首次Job PID列表中"
+
+    accounting_before = sample.get("accounting_before")
+    accounting_after = sample.get("accounting_after")
+    if not isinstance(accounting_before, dict) or not isinstance(accounting_after, dict):
+        return False, "sample缺少前后Job accounting"
+    required_counts = ("total_processes", "active_processes", "terminated_processes", "exited_processes")
+    if any(type(row.get(key)) is not int or row[key] < 0 for row in (accounting_before, accounting_after) for key in required_counts):
+        return False, "sample accounting计数缺失或无效"
+    if (
+        accounting_before["active_processes"] != len(before_set)
+        or accounting_after["active_processes"] != 0
+        or accounting_before["total_processes"] != accounting_after["total_processes"]
+        or accounting_before["terminated_processes"] != accounting_after["terminated_processes"]
+        or accounting_after["exited_processes"] != accounting_after["total_processes"]
+    ):
+        return False, "sample accounting变化不能证明仅有已知成员退出"
+    uncertainties = set(uncertainty)
+    if (before_set != after_set) != ("PID_LIST_CHANGED_DURING_SAMPLE" in uncertainties):
+        return False, "PID列表变化与uncertainty记录不一致"
+    accounting_changed = any(accounting_before[key] != accounting_after[key] for key in required_counts)
+    if accounting_changed != ("JOB_PROCESS_COUNTER_CHANGED_DURING_SAMPLE" in uncertainties):
+        return False, "Job计数变化与uncertainty记录不一致"
+
+    if not isinstance(previous_accounting, dict):
+        return False, "缺少前一稳定样本accounting"
+    if any(type(previous_accounting.get(key)) is not int for key in ("total_processes", "exited_processes")):
+        return False, "前一稳定样本accounting无效"
+    current_keys = set()
+    measurements = sample.get("member_measurements")
+    if not isinstance(measurements, list):
+        return False, "sample成员测量不是列表"
+    for row in measurements:
+        if (
+            not isinstance(row, dict)
+            or type(row.get("pid")) is not int
+            or row["pid"] <= 0
+            or type(row.get("birth_ticks")) is not int
+            or row["birth_ticks"] < 0
+        ):
+            return False, "sample成员测量缺少精确进程身份"
+        key = (row["pid"], row["birth_ticks"])
+        if key not in known_keys or key in current_keys:
+            return False, "sample出现未跟踪或重复的进程身份"
+        current_keys.add(key)
+    total_delta = accounting_after["total_processes"] - previous_accounting["total_processes"]
+    exit_delta = accounting_after["exited_processes"] - previous_accounting["exited_processes"]
+    new_seen = len(current_keys - known_keys)
+    known_ended = len(known_keys - current_keys)
+    if total_delta < 0 or total_delta != new_seen or exit_delta < 0 or exit_delta != known_ended:
+        return False, "前后样本差额显示有未采样创建/退出或身份漂移"
+    return True, "采样不确定性仅涉及已知Job成员退出"
+
+
+def _stable_empty_job_readback(job):
+    """连续两次读回Job空成员及稳定计数。"""
+    first_pids = list(job.pid_list())
+    first_accounting = dict(job.accounting())
+    second_pids = list(job.pid_list())
+    second_accounting = dict(job.accounting())
+    stable_fields = ("total_processes", "active_processes", "terminated_processes", "exited_processes")
+    if first_pids or second_pids or first_pids != second_pids:
+        raise ControllerError("终态竞争收敛时Job PID列表非空或不稳定")
+    if any(first_accounting.get(key) != second_accounting.get(key) for key in stable_fields):
+        raise ControllerError("终态竞争收敛时Job计数第二次读回不稳定")
+    if first_accounting.get("active_processes") != 0 or second_accounting.get("active_processes") != 0:
+        raise ControllerError("终态竞争收敛时Job active_processes非零")
+    return second_accounting
+
+
+def _validate_terminal_job_closure(
+    closure, child, expected_exit_code, stable_accounting, previous_keys, vivado_observations
+):
+    """核对wait_and_close返回的完整身份、退出码与已观察Vivado成员。"""
+    if not isinstance(closure, dict) or not isinstance(closure.get("final"), dict):
+        return False, "wait_and_close没有返回final closure"
+    final = closure["final"]
+    if (
+        final.get("root_handle_signaled") is not True
+        or final.get("root_native_handle_pid") != int(child.pid)
+        or final.get("root_native_handle_birth_ticks") != int(child.birth_ticks)
+    ):
+        return False, "final closure没有证明精确root句柄已signal"
+    root_exit_code = final.get("root_native_handle_exit_code")
+    if type(root_exit_code) is not int or root_exit_code == job_guard.STILL_ACTIVE or root_exit_code != expected_exit_code:
+        return False, "final closure的root原生退出码缺失、仍活动或不一致"
+    if final.get("job_pids") != [] or final.get("active_processes") != 0:
+        return False, "final closure的Job仍有活动成员"
+    total = final.get("total_processes")
+    readbacks = final.get("member_readbacks")
+    if type(total) is not int or total < 1 or not isinstance(readbacks, list) or len(readbacks) != total:
+        return False, "final closure身份读回数量与Job total_processes不一致"
+    if (
+        total != stable_accounting.get("total_processes")
+        or final.get("exited_processes") != total
+        or final.get("total_terminated_processes") != 0
+        or stable_accounting.get("terminated_processes") != 0
+        or final.get("unknown_members") != []
+        or final.get("live_members") != []
+    ):
+        return False, "final closure含terminated、alive、unknown或计数不一致"
+    keys = set()
+    for row in readbacks:
+        if not isinstance(row, dict) or type(row.get("pid")) is not int or type(row.get("birth_ticks")) is not int:
+            return False, "final closure成员缺少精确身份"
+        key = (row["pid"], row["birth_ticks"])
+        if key in keys or row.get("status") != "EXITED" or type(row.get("exit_code")) is not int or row["exit_code"] == job_guard.STILL_ACTIVE:
+            return False, "final closure成员重复、未退出或退出码无效"
+        keys.add(key)
+    if (int(child.pid), int(child.birth_ticks)) not in keys:
+        return False, "final closure没有root精确身份"
+    if not {(int(pid), int(ticks)) for pid, ticks in previous_keys}.issubset(keys):
+        return False, "final closure缺少此前样本观察到的Job成员身份"
+    root_member = next(
+        row for row in readbacks
+        if (row["pid"], row["birth_ticks"]) == (int(child.pid), int(child.birth_ticks))
+    )
+    if root_member["exit_code"] != root_exit_code:
+        return False, "root Job成员句柄退出码与CreateProcessW原生句柄不一致"
+    observed_vivado_keys = {
+        (int(row["pid"]), int(row["birth_ticks"]))
+        for row in vivado_observations
+    }
+    if not observed_vivado_keys.issubset(keys):
+        return False, "final closure缺少此前观察到的Vivado成员"
+    return True, "root、Job全成员与Vivado观察身份均已闭合"
+
+
+def _reconcile_terminal_exit_race(
+    job,
+    child,
+    sample,
+    alerts,
+    previous_keys,
+    previous_accounting,
+    root_wait,
+    root_exit_code,
+    vivado_observations,
+):
+    """仅在严格终态闭合证明成立时，收敛退出沿的最后一次采样不确定性。"""
+    result = {
+        "reconciled": False,
+        "reason": None,
+        "closure": None,
+        "closed": False,
+        "closure_error": False,
+        "job_final_readback": None,
+    }
+    if root_wait != job_guard.WAIT_OBJECT_0 or type(root_exit_code) is not int or root_exit_code == job_guard.STILL_ACTIVE:
+        result["reason"] = "root原生句柄仍活动或等待状态未知"
+        return result
+    valid_sample, reason = _terminal_exit_sample_is_reconcilable(
+        sample, alerts, previous_keys, previous_accounting, child
+    )
+    if not valid_sample:
+        result["reason"] = reason
+        return result
+    try:
+        result["job_final_readback"] = _stable_empty_job_readback(job)
+        sample_accounting = sample["accounting_after"]
+        stable_fields = ("total_processes", "active_processes", "terminated_processes", "exited_processes")
+        if any(sample_accounting.get(key) != result["job_final_readback"].get(key) for key in stable_fields):
+            result["reason"] = "sample终态计数与Job稳定第二次读回不一致"
+            return result
+        closure = child.wait_and_close(timeout_seconds=30.0)
+        result["closure"] = closure
+        result["closed"] = bool(getattr(child, "closed", False))
+    except BaseException as error:
+        result["reason"] = f"终态Job/成员闭合失败：{error!r}"
+        result["closed"] = bool(getattr(child, "closed", False))
+        result["closure_error"] = True
+        return result
+    valid_closure, reason = _validate_terminal_job_closure(
+        closure,
+        child,
+        root_exit_code,
+        result["job_final_readback"],
+        previous_keys,
+        vivado_observations,
+    )
+    result["reconciled"] = valid_closure
+    result["reason"] = reason
+    return result
+
+
+def _terminal_exit_race_runner_transition(alerts, reconciliation):
+    """为监护循环确定终态分支，只有完整已关闭结果才跳过硬停清理。"""
+    if (
+        isinstance(reconciliation, dict)
+        and reconciliation.get("reconciled") is True
+        and reconciliation.get("closed") is True
+        and reconciliation.get("closure") is not None
+    ):
+        return {
+            "reconciled": True,
+            "release_child": True,
+            "closure": reconciliation["closure"],
+            "stop_reason": None,
+        }
+    reason = reconciliation.get("reason") if isinstance(reconciliation, dict) else None
+    stop_reason = "HARD_STOP:" + ",".join(alerts)
+    if reason:
+        stop_reason += ":TERMINAL_EXIT_RECONCILIATION_REJECTED:" + reason
+    return {
+        "reconciled": False,
+        "release_child": (
+            isinstance(reconciliation, dict)
+            and reconciliation.get("closed") is True
+            and reconciliation.get("closure_error") is not True
+        ),
+        "closure": reconciliation.get("closure") if isinstance(reconciliation, dict) else None,
+        "stop_reason": stop_reason,
+    }
+
+
+def _resolve_terminal_exit_race_for_runner(
+    job,
+    child,
+    sample,
+    alerts,
+    previous_keys,
+    previous_accounting,
+    root_wait,
+    root_exit_code,
+    vivado_observations,
+):
+    """执行生产runner使用的退出沿收敛、闭合分支及必要清理。"""
+    try:
+        reconciliation = _reconcile_terminal_exit_race(
+            job,
+            child,
+            sample,
+            alerts,
+            previous_keys,
+            previous_accounting,
+            root_wait,
+            root_exit_code,
+            vivado_observations,
+        )
+    except BaseException as error:
+        reconciliation = {
+            "reconciled": False,
+            "reason": f"终态退出竞争处理异常：{error!r}",
+            "closure": None,
+            "closed": bool(getattr(child, "closed", False)),
+            "closure_error": True,
+            "job_final_readback": None,
+        }
+    transition = _terminal_exit_race_runner_transition(alerts, reconciliation)
+    result = {
+        "reconciliation": reconciliation,
+        "transition": transition,
+        "child": child,
+        "closure": None,
+        "native_root_exit_code": None,
+        "cleanup_record": None,
+    }
+    if transition["reconciled"]:
+        result["closure"] = transition["closure"]
+        result["child"] = None
+        return result
+    if transition["release_child"]:
+        result["closure"] = transition["closure"]
+        result["child"] = None
+        return result
+    if child is not None:
+        cleanup_record = _kill_and_close(child, transition["stop_reason"])
+        result["cleanup_record"] = cleanup_record
+        result["closure"] = cleanup_record.get("closure")
+        result["native_root_exit_code"] = cleanup_record.get("root_native_exit_code")
+        result["child"] = None
+    return result
+
+
+def _ensure_native_exit_diagnostic(closure, native_root_exit_code, stop_reason):
+    """闭合后的非零root退出码始终保留为失败诊断。"""
+    if closure is None or native_root_exit_code in (None, 0):
+        return stop_reason
+    diagnostic = f"NATIVE_CMD_ROOT_EXIT_NONZERO_{native_root_exit_code}"
+    if not stop_reason:
+        return diagnostic
+    if diagnostic not in stop_reason:
+        return f"{stop_reason}:{diagnostic}"
+    return stop_reason
+
+
 def _sha256_if_present(path):
     if not os.path.lexists(path):
         return None
@@ -1248,11 +1604,13 @@ def run_frozen_bitgen():
             delay = next_sample - time.monotonic()
             if delay > 0:
                 time.sleep(delay)
+            sample_previous_accounting = previous_accounting
+            sample_previous_keys = set(previous_keys)
             sample = job.sample(
                 previous_sample_start=previous_sample_start,
-                previous_accounting=previous_accounting,
+                previous_accounting=sample_previous_accounting,
                 previous_pids=previous_pids,
-                previous_keys=previous_keys,
+                previous_keys=sample_previous_keys,
             )
             manifest["process_launch"]["vivado_member_observations"] = _record_vivado_job_members(
                 vivado_member_observations,
@@ -1298,9 +1656,6 @@ def run_frozen_bitgen():
             if disk_free is not None:
                 peaks["c_disk_free_min_bytes"] = disk_free if peaks["c_disk_free_min_bytes"] is None else min(peaks["c_disk_free_min_bytes"], disk_free)
 
-            if alerts:
-                stop_reason = "HARD_STOP:" + ",".join(alerts)
-                break
             root_wait = job_guard._api_wait(child.process_handle, 0)
             if root_wait not in (job_guard.WAIT_OBJECT_0, job_guard.WAIT_TIMEOUT):
                 stop_reason = f"HARD_STOP:ROOT_WAIT_UNKNOWN_{root_wait}"
@@ -1311,6 +1666,56 @@ def run_frozen_bitgen():
                     stop_reason = "HARD_STOP:ROOT_SIGNALED_STILL_ACTIVE"
                     break
                 native_root_exit_code = code
+            if alerts:
+                terminal_result = _resolve_terminal_exit_race_for_runner(
+                    job,
+                    child,
+                    sample,
+                    alerts,
+                    sample_previous_keys,
+                    sample_previous_accounting,
+                    root_wait,
+                    native_root_exit_code,
+                    [
+                        vivado_member_observations[key]
+                        for key in sorted(vivado_member_observations)
+                    ],
+                )
+                reconciliation = terminal_result["reconciliation"]
+                transition = terminal_result["transition"]
+                if terminal_result["closure"] is not None:
+                    closure = terminal_result["closure"]
+                if terminal_result["native_root_exit_code"] is not None:
+                    native_root_exit_code = terminal_result["native_root_exit_code"]
+                if terminal_result["cleanup_record"] is not None:
+                    cleanup_record = terminal_result["cleanup_record"]
+                child = terminal_result["child"]
+                sample_record["terminal_exit_race_reconciliation"] = {
+                    "reconciled": reconciliation["reconciled"],
+                    "reason": reconciliation["reason"],
+                    "job_final_readback": reconciliation["job_final_readback"],
+                    "closure": reconciliation["closure"],
+                    "hard_stop_cleanup": terminal_result["cleanup_record"],
+                }
+                if transition["reconciled"]:
+                    closure = transition["closure"]
+                    _append_monitor(
+                        monitor_path,
+                        {
+                            "utc": _utc_now(),
+                            "monotonic_seconds": time.monotonic(),
+                            "event": "TERMINAL_EXIT_SAMPLE_RACE_RECONCILED",
+                            "alerts": alerts,
+                            "reason": reconciliation["reason"],
+                            "job_final_readback": reconciliation["job_final_readback"],
+                            "closure": reconciliation["closure"],
+                        },
+                    )
+                    break
+                if transition["release_child"] and terminal_result["closure"] is None:
+                    closure = transition["closure"]
+                stop_reason = transition["stop_reason"]
+                break
             current_pids = job.pid_list()
             current_accounting = job.accounting()
             if root_wait == job_guard.WAIT_OBJECT_0 and not current_pids and current_accounting["active_processes"] == 0:
@@ -1318,13 +1723,15 @@ def run_frozen_bitgen():
                 child = None
                 break
             next_sample = time.monotonic() + SAMPLE_INTERVAL_SECONDS
-
+        stop_reason = _ensure_native_exit_diagnostic(closure, native_root_exit_code, stop_reason)
         manifest["resource_peaks_and_floors"] = peaks
         manifest["stop_reason"] = stop_reason
         if stop_reason:
-            _append_monitor(monitor_path, {"utc": _utc_now(), "monotonic_seconds": time.monotonic(), "event": "HARD_STOP", "reason": stop_reason})
-            cleanup_record = _kill_and_close(child, stop_reason) if child is not None else None
-            child = None
+            event = "HARD_STOP" if stop_reason.startswith("HARD_STOP:") else "STOP"
+            _append_monitor(monitor_path, {"utc": _utc_now(), "monotonic_seconds": time.monotonic(), "event": event, "reason": stop_reason})
+            if child is not None:
+                cleanup_record = _kill_and_close(child, stop_reason)
+                child = None
             if cleanup_record is not None:
                 closure = cleanup_record.get("closure")
                 native_root_exit_code = cleanup_record.get("root_native_exit_code")

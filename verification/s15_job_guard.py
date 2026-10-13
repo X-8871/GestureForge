@@ -1276,7 +1276,20 @@ class JobObject:
         except JobGuardError as error:
             uncertainty.append(f"RESOURCE_QUERY_FAILED:{error!r}")
             available_ram, total_ram, c_free = None, None, None
-        rss_sum = sum(item["rss_bytes"] for item in measured) if not uncertainty else None
+        terminal_empty_proven = (
+            not second_pids
+            and type(second_accounting.get("active_processes")) is int
+            and second_accounting["active_processes"] == 0
+            and type(second_accounting.get("exited_processes")) is int
+            and type(second_accounting.get("total_processes")) is int
+            and second_accounting["exited_processes"] == second_accounting["total_processes"]
+        )
+        if not uncertainty:
+            rss_sum = sum(item["rss_bytes"] for item in measured)
+        elif terminal_empty_proven:
+            rss_sum = 0
+        else:
+            rss_sum = None
         return {
             "sample_start_monotonic": started,
             "sample_end_monotonic": time.monotonic(),
@@ -1288,7 +1301,7 @@ class JobObject:
             "accounting_after": second_accounting,
             "member_measurements": measured,
             "tree_rss_bytes": rss_sum,
-            "rss_metric": "PSAPI_PROCESS_MEMORY_COUNTERS.WorkingSetSize sum; Job committed-memory fields unused",
+            "rss_metric": "PSAPI_PROCESS_MEMORY_COUNTERS.WorkingSetSize sum; terminal empty Job reports 0 only when second PID list is empty, active_processes=0, and exited_processes=total_processes; other uncertain samples report None; Job committed-memory fields unused",
             "available_ram_bytes": available_ram,
             "total_ram_bytes": total_ram,
             "c_disk_free_bytes": c_free,

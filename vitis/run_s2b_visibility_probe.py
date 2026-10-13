@@ -20,6 +20,8 @@ import subprocess
 import sys
 import time
 import traceback
+import xml.etree.ElementTree as ET
+import zipfile
 
 ROOT=Path(__file__).absolute().parents[1]
 TZ=timezone(timedelta(hours=8))
@@ -195,7 +197,7 @@ def verify_runtime_sources(config,session=None,target=None):
         j.bound_bytes(expected[name]);observed[name]={"path":str(j.exact_path(file)),"sha256":expected[name]["sha256"]}
     implementations={"xsdb":("start_debug_session","dispose"),"xsdb.xsdb_debug_session":("xsdb_start_debug_session","dispose_session"),
                      "xsdb.session":("Session.__init__","Session.connect","Session.disconnect","Session.targets"),
-                     "xsdb.target":("Target.__init__","Target.state","Target.stop","Target.con","Target.dow","Target.bpadd","Target.mrd","Target.mwr","Target.rst","Target.fpga","Target.rrd"),
+                     "xsdb.target":("Target.__init__","Target.state","Target.stop","Target.con","Target.dow","Target.bpadd","Target.mrd","Target.mwr","Target.rst","Target.fpga","Target.rrd","Target.loadhw","Target.unloadhw"),
                      "xsdb._tcf_reset":("TcfReset.rst_cmd","TcfReset.rst_capabilities"),"xsdb._breakpoint":("Breakpoint.remove","Breakpoint.status")}
     require(set(implementations)<=set(sys.modules),"实际调用实现模块未加载")
     def code_by_name(code,name):
@@ -229,7 +231,7 @@ def verify_runtime_sources(config,session=None,target=None):
     if target is not None:
         cls=sys.modules["xsdb.target"].Target
         require(type(target) is cls,"实际target接收器类型或定义模块不符")
-        for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga"):
+        for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga","loadhw","unloadhw"):
             require(getattr(getattr(target,name),"__func__",None) is getattr(cls,name),"实际target方法接收器被替换："+name)
     return observed
 
@@ -375,6 +377,62 @@ def _runtime(config):
     verify_runtime_sources(config)
     return xsdb,serial
 
+def register_csr_debug_map(config,record,log,session,controller,owner):
+    """仅从已独审的implemented XSA登记CSR调试窗口，不放开其他PL地址。"""
+    j,_=helpers()
+    binding=record["verified_inputs"]["compat_artifacts"]["implemented_xsa"]
+    raw=j.bound_bytes(binding)
+    with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+        names=archive.namelist()
+        require(len(names)==len(set(names)),"implemented XSA存在重复成员")
+        members=[name for name in names if name.endswith(".hwh")]
+        require(len(members)==1 and archive.getinfo(members[0]).file_size<=4*1024*1024,"implemented HWH不唯一或过大")
+        tree=ET.fromstring(archive.read(members[0]))
+    base,end=0x43C00000,0x43C0FFFF
+    regions=[]
+    for row in tree.findall(".//MEMRANGE"):
+        address=int(row.get("BASEVALUE","-1"),0)
+        if base<=address<=end:regions.append(row.attrib)
+    require(len(regions)==1,"CSR筛选范围必须只有一个HWH地址块")
+    region=regions[0]
+    require(int(region["BASEVALUE"],0)==base and int(region["HIGHVALUE"],0)==end
+            and region.get("INSTANCE")=="infer" and region.get("MEMTYPE")=="REGISTER"
+            and region.get("MASTERBUSINTERFACE")=="M_AXI_GP0" and region.get("SLAVEBUSINTERFACE")=="S_AXI",
+            "HWH CSR窗口、器件或总线不符合已批准平台")
+    controller.gate()
+    reference=controller.targets["apu"]
+    apu=log.call("session.select_apu_for_debug_map",session.targets,id=vars(reference)["_id"])
+    require(all(vars(apu).get(key)==vars(reference).get(key) for key in ("_ctx","_id","_name"))
+            and session._curtarget is apu,"映射接收器与实际选中APU不一致")
+    log.call("runtime.verify_debug_map_target",verify_runtime_sources,config,session,apu)
+    require(not session._designtable and not session._memmap_ctxs,"新自有会话已存在硬件映射，拒绝复用")
+    owner.update(apu=apu,channel=session._curchan,ctx=vars(apu)["_ctx"],attempted=True)
+    record["debug_memory_map"]={"status":"ATTEMPTED","implemented_xsa":binding,"hwh_region":region,
+                                "apu_id":vars(apu)["_id"],"apu_ctx":owner["ctx"],"range":[base,end],"cleanup":"NOT_RUN"}
+    log.call("apu.loadhw.csr_only",apu.loadhw,hw=binding["path"],mem_ranges=[[base,end]])
+    log.call("runtime.verify_after_loadhw",verify_runtime_sources,config,session,apu)
+    mapped=session._memmap_ctxs.get(owner["channel"],{}).get(owner["ctx"],{})
+    values=list(mapped.values())
+    require(len(values)==1 and values[0].get("base")==base and values[0].get("size")==0x10000
+            and values[0].get("high")==end and values[0].get("type")=="REGISTER" and values[0].get("flags")==3,
+            "SDK实际硬件映射缺失、越界或权限不符")
+    table=session._memmaptable.get(owner["channel"],{}).get(owner["ctx"],{})
+    entries=[row for rows in table.values() for row in rows]
+    require(len(entries)==1 and entries[0].get("Addr")==base and entries[0].get("Size")==0x10000
+            and entries[0].get("Flags")==3 and "FileName" not in entries[0],"SDK下发映射不是唯一CSR读写窗口")
+    record["debug_memory_map"].update(status="REGISTERED_CSR_ONLY",sdk_regions=mapped,sdk_entries=entries)
+
+def clear_csr_debug_map(config,record,log,session,owner):
+    """清理本次自有会话登记的硬件映射；部分失败亦保留真实清理结果。"""
+    if not owner.get("attempted"):return
+    apu=log.call("session.select_apu_for_map_cleanup",session.targets,id=vars(owner["apu"])["_id"])
+    require(all(vars(apu).get(key)==vars(owner["apu"]).get(key) for key in ("_ctx","_id","_name"))
+            and session._curtarget is apu and session._curchan==owner["channel"],"清理映射APU身份不符")
+    log.call("runtime.verify_map_cleanup_target",verify_runtime_sources,config,session,apu)
+    log.call("apu.unloadhw.owned_map",apu.unloadhw)
+    require(not session._designtable and not session._memmap_ctxs.get(owner["channel"],{}),"本次硬件映射未清理")
+    record["debug_memory_map"]["cleanup"]="OWNED_HW_MAP_CLEARED"
+
 def run(config):
     """总控显式传入JSON文件才执行；新Run独占，任何失败留原字节并抛异常。"""
     j,_=helpers();config_path=j.exact_path(config)
@@ -399,7 +457,7 @@ def run(config):
             "limitations":["compat role/PASS字符串不创造独立来源，root固定SHA的真实Reviewer来源需独立核查。","system-stop不等于物理POR或旧AXI生命周期结束，cold flag始终false。","本入口只执行visibility0缓存先验，不LOAD、不START、不发布visibility PASS。","核状态为离散观测，进程树峰值内存未测。"]}
     with (folder/"input_config.json").open("xb") as out:out.write(raw)
     log=Recorder(folder/"entry_calls.jsonl",record)
-    sdk=session=channel=port=controller=wire=None;cpu0=None;cpu0_touched=False;start=time.monotonic();failure=None
+    sdk=session=channel=port=controller=wire=None;cpu0=None;cpu0_touched=False;start=time.monotonic();failure=None;map_owner={}
     def identity(label):
         actual=log.call("identity."+label,_identity_snapshot)
         record["identity_snapshots"].append({"label":label,**actual})
@@ -442,6 +500,7 @@ def run(config):
         controller.system_reset_stop(cfg["cold_basis"])
         log.call("runtime.verify_after_reset",verify_runtime_sources,cfg,session)
         _preflight(cfg,record,log);identity("before_uart_deploy")
+        register_csr_debug_map(cfg,record,log,session,controller,map_owner)
         port=log.call("serial.construct_closed",serial.Serial,port=None,baudrate=115200,bytesize=8,parity="N",stopbits=1,timeout=0.1,write_timeout=1.0,rtscts=False,dsrdtr=False)
         port.dtr=False;port.rts=False;port.port="COM4"
         log.call("serial.open",port.open)
@@ -495,6 +554,7 @@ def run(config):
                 cleanup("controller.partial_log.close",controller.log.close)
                 save(folder/"jtag_close_failure_snapshot.json",controller.record)
         if session is not None:
+            cleanup("owned_csr_debug_map.clear",clear_csr_debug_map,config=cfg,record=record,log=log,session=session,owner=map_owner)
             cleanup("session.disconnect",session.disconnect,**({"chan":channel} if channel is not None else {}))
         if sdk is not None:cleanup("xsdb.dispose",sdk.dispose)
         for name in ("uart_rx_raw.bin","uart_tx_headers.bin","jtag_result.json","jtag_calls.jsonl"):

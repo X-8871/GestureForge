@@ -1,0 +1,87 @@
+{
+  "status": "FAILED_DEBUG_MEMORY_MAP_NOT_REGISTERED",
+  "source_commit": "dd1ffe44f2cb0d8a99f79e314febf2bdd44d84e2",
+  "actual_entry_exit_code": 2,
+  "vitis_launcher_exit_code": 0,
+  "elapsed_seconds": 87.26313289999962,
+  "error": "Exception('TCF command exception:\\nCommand: Memory get \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\", 1136656396, 0, 1...\\nException: Memory read error at 0x43C0000C. Blocked address 0x43C0000C. PL AXI slave ports access is not allowed. This address has not been added to the memory map\\nError code: 1')",
+  "initialization": {
+    "status": "READY_RESULT2_RETURN0",
+    "ready_address": 7432,
+    "result": 2,
+    "return_code": 0
+  },
+  "ddrc_observation": {
+    "address": 4160774228,
+    "word": 1,
+    "word_hex": "0x00000001",
+    "operating_mode": 1,
+    "status": "PASS"
+  },
+  "eos_observations": [
+    {
+      "phase": "after_system_reset",
+      "status": "PASS",
+      "eos": 0,
+      "status_word": 1174413068
+    },
+    {
+      "phase": "after_full_bit",
+      "status": "PASS",
+      "eos": 1,
+      "status_word": 1175486460
+    }
+  ],
+  "postconfiguration_status": "FAILED",
+  "postconfiguration_register_steps": [
+    {
+      "operation": "unlock",
+      "locksta": 0
+    },
+    {
+      "operation": "MASKWRITE",
+      "address": 4160751872,
+      "mask": 15,
+      "value": 15,
+      "before": 0,
+      "expected": 15,
+      "status": "PASS",
+      "after": 15
+    },
+    {
+      "operation": "MASKWRITE",
+      "address": 4160750144,
+      "mask": 4294967295,
+      "value": 0,
+      "before": 32718607,
+      "expected": 0,
+      "status": "PASS",
+      "after": 0
+    },
+    {
+      "operation": "lock",
+      "locksta": 1
+    }
+  ],
+  "serial_closed": true,
+  "sdk_cleanup_errors": [],
+  "owned_server_final": {
+    "status": "OWNED_SERVER_CLOSED",
+    "checked_at_utc8": "2026-10-13T14:13:09.4620306+08:00",
+    "identity_checked": true,
+    "native_pid": 22524,
+    "native_exit_code": -1,
+    "native_absent": true,
+    "listeners": [],
+    "launcher_current": null,
+    "hardware_program_execution": "SEE_VISIBILITY_PROBE_RESULT",
+    "target_operations": "本次易失部署与缓存观测，SDK及UART闭合见独立入口运行结果"
+  },
+  "cache_probe": "NOT_RUN",
+  "model_run": "NOT_RUN",
+  "limits": [
+    "EOS与寄存器观测不证明模型、缓存或完整冷生命周期。",
+    "Vitis启动器返回0但入口真实失败2，不能判断运行通过。",
+    "源码从绑定SHA重建，不冒充即时采样。"
+  ]
+}

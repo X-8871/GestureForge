@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "source_commit": "dd1ffe44f2cb0d8a99f79e314febf2bdd44d84e2",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "保存已批准候选的实际下载失败，不改变或冻结接口；后续修复与实物检查仍受原门禁约束。",
+  "tool_versions": {
+    "vitis": "2026.1",
+    "packager_python": "3.12.14",
+    "vitis_runtime_python": "未单独采集"
+  },
+  "checks": [
+    {
+      "name": "缓存先验部署",
+      "status": "BLOCKED",
+      "reason": "启动器原生退出0，但入口visibility_probe_result原生结果2/FAILED；first CSR被TCF拒绝，app/cache未运行。",
+      "command": "vitis.bat -s vitis/run_s2b_visibility_probe.py；入口结果见visibility_probe_result.json",
+      "exit_code": null
+    }
+  ],
+  "limitations": [
+    "EOS与寄存器观测不证明模型、缓存或完整冷生命周期。",
+    "Vitis启动器返回0但入口真实失败2，不能判断运行通过。",
+    "源码从绑定SHA重建，不冒充即时采样。"
+  ],
+  "run_id": "cache_probe_20261013_r01",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_20261013_r01",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/bound_build_details.json.raw",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/bound_compat_review.json.raw",
+      "sha256": "b5c6ecacc58a4a5490db5374149bf86b1a362f58f12b3577fe47a414872e6d63",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/bound_owned_server.json.raw",
+      "sha256": "846962424efa7c46356a4230d22de72f1d63760368c6b02f90af2621556a124b",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/bound_platform_manifest.json.raw",
+      "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/entry_calls.jsonl",
+      "sha256": "2f0eb05d02ac559d7e6855ad25138cc846bcc40f29e1039c7f0fc9943b35813f",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/input_config.json",
+      "sha256": "e0b72848ef36c6d513a234ec57b3ec75a0150ad2579e94076b4523b2c6cf4410",
+      "role": "input",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/jtag_calls.jsonl",
+      "sha256": "ca96b265755913b08a597bda944d9e6010d40548d625c5071a4264f48ddbbfc8",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/jtag_result.json",
+      "sha256": "ec1f6991f28c76ef39613d55f4df1d5184d299168e71445bc03c1a8015e8ffd5",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/uart_rx_raw.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/uart_tx_headers.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r01/visibility_probe_result.json",
+      "sha256": "97fe4ecfc4449c01d52efc3686f01523613e1fca7d25ee9a2a8aa754fa7e5d45",
+      "role": "result",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r01/source_snapshot/verification/s2b_board_jtag.py",
+      "sha256": "06c1f46d9906d39e76f9befddcdb50eaf20cf485ddb5e5d48145ab0553143432",
+      "role": "source",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r01/source_snapshot/vitis/run_s2b_visibility_probe.py",
+      "sha256": "d1fc585ff6d0a26c2d13b8bbb7f476357347dbce274489b1cc5906045730fe8d",
+      "role": "source",
+      "keep_reason": "保留真实失败、包装修复或源码绑定；不表示模型通过。"
+    }
+  ]
+}

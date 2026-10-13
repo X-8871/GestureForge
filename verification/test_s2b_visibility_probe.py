@@ -12,6 +12,7 @@ import tempfile
 import types
 from types import SimpleNamespace
 import unittest
+import zipfile
 from unittest.mock import patch
 
 from . import test_s2b_board_jtag as fixture
@@ -88,7 +89,7 @@ class LifecycleTests(unittest.TestCase):
                 return self.session
             return SimpleNamespace(start_debug_session=start,dispose=dispose,__file__="UNIT_FAKE_SDK"),SimpleNamespace(Serial=construct,__file__="UNIT_FAKE_SERIAL",__version__="3.5")
         self.runtime=runtime
-    def execute(self,scenario="normal",identity=None):
+    def execute(self,scenario="normal",identity=None,map_setup=None,map_clear=None):
         self.scenario=scenario
         if scenario=="init":self.session.fail_init=True
         if scenario=="init_download":self.session.fail_dow=True
@@ -111,7 +112,7 @@ class LifecycleTests(unittest.TestCase):
                 bp=original(**kwargs);bp.remove=lambda:(_ for _ in ()).throw(RuntimeError("mock breakpoint cleanup failure"));return bp
             self.session.objects[11].bpadd=fail_remove
         file=self.directory/"unit_config.json";write(file,self.config)
-        with patch.object(p,"ROOT",self.directory),patch.object(p,"_preflight",return_value=(j,j.transport,self.build,self.expected)),patch.object(p,"_runtime",side_effect=self.runtime),patch.object(p,"verify_runtime_sources",return_value={"scope":"UNIT_MOCK"}),patch.object(p,"_identity_snapshot",return_value=self.actual if identity is None else identity):
+        with patch.object(p,"ROOT",self.directory),patch.object(p,"_preflight",return_value=(j,j.transport,self.build,self.expected)),patch.object(p,"_runtime",side_effect=self.runtime),patch.object(p,"verify_runtime_sources",return_value={"scope":"UNIT_MOCK"}),patch.object(p,"register_csr_debug_map",side_effect=map_setup),patch.object(p,"clear_csr_debug_map",side_effect=map_clear),patch.object(p,"_identity_snapshot",return_value=self.actual if identity is None else identity):
             if scenario=="normal":result=p.run(file)
             else:
                 with self.assertRaises(p.VisibilityProbeError):p.run(file)
@@ -184,6 +185,39 @@ class LifecycleTests(unittest.TestCase):
         self.assertTrue((folder/"jtag_close_failure_snapshot.json").is_file())
         self.assertTrue((folder/"jtag_calls.jsonl").read_bytes())
         self.assertTrue(any(x["action"]=="controller.close" for x in result["cleanup_errors"]))
+    def test_mock_partial_map_failure_prevents_uart_and_deploy_and_keeps_original(self):
+        """映射故障注入仅核验生产编排，不声明真实SDK映射通过。"""
+        events=[]
+        def setup(config,record,log,session,controller,owner):
+            events.append("register");owner["attempted"]=True
+            raise RuntimeError("UNIT_ORIGINAL_MAP_FAILURE")
+        def clear(**kwargs):
+            self.assertTrue(kwargs["owner"]["attempted"])
+            events.append("clear")
+            raise RuntimeError("UNIT_MAP_CLEANUP_FAILURE")
+        result=self.execute("map_failure",map_setup=setup,map_clear=clear)
+        self.assertEqual(events,["register","clear"])
+        self.assertIn("UNIT_ORIGINAL_MAP_FAILURE",result["error"])
+        self.assertTrue(any(x["action"]=="owned_csr_debug_map.clear" and "UNIT_MAP_CLEANUP_FAILURE" in x["error"] for x in result["cleanup_errors"]))
+        self.assertFalse(self.ports)
+        self.assertFalse(any(x[0]=="dow" or (x[0]=="fpga" and "file" in x[2]) or (x[0]=="con" and not x[2]) for x in self.session.operations))
+        self.assertIn(("disconnect",{"chan":"unit-channel"}),self.session.operations)
+    def test_mock_map_cleanup_failure_overrides_success_and_stops_cpu(self):
+        """成功路径的清理故障必须返回失败，不能吞掉映射清理异常。"""
+        events=[]
+        def setup(config,record,log,session,controller,owner):
+            self.assertFalse(self.ports);owner["attempted"]=True;events.append("register")
+        def clear(**kwargs):
+            self.assertTrue(kwargs["owner"]["attempted"])
+            self.assertFalse(self.ports[0].is_open);events.append("clear")
+            raise RuntimeError("UNIT_MAP_CLEANUP_FAILURE_AFTER_CACHE")
+        result=self.execute("map_cleanup",map_setup=setup,map_clear=clear)
+        self.assertEqual(events,["register","clear"])
+        self.assertEqual(result["native_exit_code"],2)
+        self.assertIn("cache_probe",result)
+        self.assertTrue(any(x["action"]=="owned_csr_debug_map.clear" for x in result["cleanup_errors"]))
+        self.assertFalse(self.session.objects[11].running)
+        self.assertIn(("disconnect",{"chan":"unit-channel"}),self.session.operations)
 
 class PreflightTests(unittest.TestCase):
     """仅对未授权UNIT fixture核验schema/bindings；不创建正式compat receipt。"""
@@ -195,7 +229,12 @@ class PreflightTests(unittest.TestCase):
             file=self.directory/name;file.write_bytes(fixture.elf_bytes(app=name=="app_elf") if name.endswith("elf") else fixture.xsa_bytes() if name=="xsa" else name.encode());self.bindings[name]=bind(file)
         paths={"entry_source":Path(p.__file__),"tool_source":Path(j.__file__),"transport_source":Path(j.transport.__file__),"platform_checker":REAL_ROOT/"verification/check_s2b_inference_platform.py","elf_parser":REAL_ROOT/"verification/check_s2b_ps_smoke_layout.py","delivery_parser":REAL_ROOT/"verification/check_stage_delivery.py","sdk_init":p.SDK_INIT,"sdk_target":p.SDK_INIT.parent/"target.py",
                "csr_source":REAL_ROOT/"src/s2b_control_csr.sv","interface":REAL_ROOT/"docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"}
-        serial=Path(sys.executable).parent/"Lib/site-packages/serial/__init__.py"
+        # 测试采用实板入口已核验的pyserial原件，不要求当前验证解释器安装串口包。
+        original=json.loads((REAL_ROOT/"report/evidence/S2B-T19/offline_probe_entry_20261011_r01/offline_result.json").read_text(encoding="utf-8"))
+        serial_rows=[row for row in original["pyserial_files"] if Path(row["path"]).name=="__init__.py" and Path(row["path"]).parent.name=="serial"]
+        self.assertEqual(len(serial_rows),1)
+        serial=Path(serial_rows[0]["path"])
+        self.assertEqual(bind(serial)["sha256"],serial_rows[0]["sha256"])
         paths["pyserial_init"]=serial
         for key,file in paths.items():self.bindings[key]=bind(file)
         self.sources={"unit-fixture-only":"c"*64}
@@ -363,7 +402,7 @@ class SdkBoundaryTests(unittest.TestCase):
         files={name:bind(file) for name,file in p.sdk_source_closure().items()}
         required=("xsdb","xsdb.xsdb_debug_session","xsdb.session","xsdb.target","xsdb._tcf_reset","xsdb._breakpoint")
         modules={name:types.ModuleType(name) for name in required}
-        methods={"xsdb":("start_debug_session","dispose"),"xsdb.xsdb_debug_session":("xsdb_start_debug_session","dispose_session"),"xsdb.session":("Session.__init__","Session.connect","Session.disconnect","Session.targets"),"xsdb.target":("Target.__init__","Target.state","Target.stop","Target.con","Target.dow","Target.bpadd","Target.mrd","Target.mwr","Target.rst","Target.fpga","Target.rrd"),"xsdb._tcf_reset":("TcfReset.rst_cmd","TcfReset.rst_capabilities"),"xsdb._breakpoint":("Breakpoint.remove","Breakpoint.status")}
+        methods={"xsdb":("start_debug_session","dispose"),"xsdb.xsdb_debug_session":("xsdb_start_debug_session","dispose_session"),"xsdb.session":("Session.__init__","Session.connect","Session.disconnect","Session.targets"),"xsdb.target":("Target.__init__","Target.state","Target.stop","Target.con","Target.dow","Target.bpadd","Target.mrd","Target.mwr","Target.rst","Target.fpga","Target.rrd","Target.loadhw","Target.unloadhw"),"xsdb._tcf_reset":("TcfReset.rst_cmd","TcfReset.rst_capabilities"),"xsdb._breakpoint":("Breakpoint.remove","Breakpoint.status")}
         def find(code,name):
             if code.co_qualname==name:return code
             for value in code.co_consts:
@@ -438,5 +477,108 @@ class SdkBoundaryTests(unittest.TestCase):
                 error=p.VisibilityProbeError("UNIT_DLL_QUERY_FAILURE") if kind=="query_failure" else None
                 with patch.dict(sys.modules,modules),patch.object(p,"_loaded_native_images",return_value=images,side_effect=error):
                     with self.assertRaises((p.VisibilityProbeError,p.helpers()[0].JtagError)):p.verify_native_alias(declared)
+
+class CsrDebugMapTests(unittest.TestCase):
+    """独立最小地址块与SDK状态反例；不导入SDK或操作设备。"""
+    def setUp(self):
+        parent=REAL_ROOT/"tmp/2B/S2B-T19"
+        parent.mkdir(exist_ok=True)
+        self.directory=Path(tempfile.mkdtemp(prefix="unit_csr_map_",dir=parent))
+        self.binding=self.directory/"implemented.xsa"
+        self.region={"BASEVALUE":"0x43C00000","HIGHVALUE":"0x43C0FFFF","INSTANCE":"infer",
+                     "MEMTYPE":"REGISTER","MASTERBUSINTERFACE":"M_AXI_GP0","SLAVEBUSINTERFACE":"S_AXI"}
+        self.write_hwh([self.region])
+        self.calls=[];self.scenario="normal"
+        self.session=SimpleNamespace(_curtarget=None,_curchan="owned",_designtable={},_memmap_ctxs={},_memmaptable={})
+        self.apu=SimpleNamespace(_ctx="apu",_id=10,_name="APU")
+        def select(*,id):
+            self.calls.append(("select",id))
+            selected=self.apu if self.scenario!="wrong_selection" else SimpleNamespace(_ctx="fpga",_id=13,_name="xc7z020")
+            self.session._curtarget=selected
+            return selected
+        def loadhw(*,hw,mem_ranges):
+            self.assertIs(self.session._curtarget,self.apu)
+            self.calls.append(("loadhw",hw,mem_ranges))
+            self.session._designtable[hw]={"design":"UNIT_FAKE_DESIGN"}
+            if self.scenario=="partial_load":raise RuntimeError("UNIT_PARTIAL_LOAD")
+            value={"base":0x43C00000,"high":0x43C0FFFF,"size":0x10000,"type":"REGISTER","flags":3}
+            entry={"Addr":0x43C00000,"Size":0x10000,"Flags":3}
+            if self.scenario=="expanded":value["size"]=0x20000
+            if self.scenario=="flags":value["flags"]=7
+            if self.scenario=="entry_expanded":entry["Size"]=0x20000
+            if self.scenario=="entry_flags":entry["Flags"]=7
+            if self.scenario=="file_map":entry["FileName"]="UNOWNED_FILE"
+            context="cpu0" if self.scenario=="wrong_context" else "apu"
+            self.session._memmap_ctxs={"owned":{context:{"infer_S_AXI":value}}}
+            self.session._memmaptable={"owned":{context:{0x43C00000:[entry]}}}
+            if self.scenario=="extra":self.session._memmaptable["owned"][context][0x44000000]=[{"Addr":0x44000000,"Size":0x1000,"Flags":3}]
+            if self.scenario=="missing":self.session._memmap_ctxs={}
+        def unloadhw():
+            self.assertIs(self.session._curtarget,self.apu)
+            self.calls.append(("unloadhw",))
+            if self.scenario=="cleanup_failure":raise RuntimeError("UNIT_UNLOAD_FAILURE")
+            self.session._designtable.clear();self.session._memmap_ctxs.clear();self.session._memmaptable.clear()
+        self.session.targets=select;self.apu.loadhw=loadhw;self.apu.unloadhw=unloadhw
+        def gate():
+            self.calls.append(("gate",))
+            self.session._curtarget=SimpleNamespace(_ctx="fpga")
+        self.controller=SimpleNamespace(targets={"apu":self.apu},gate=gate)
+        self.record={"calls":[],"verified_inputs":{"compat_artifacts":{"implemented_xsa":bind(self.binding)}}}
+        self.log=p.Recorder(self.directory/"calls.jsonl",self.record);self.owner={}
+        self.runtime_patch=patch.object(p,"verify_runtime_sources",return_value={"scope":"UNIT_MOCK"})
+        self.runtime_patch.start()
+    def tearDown(self):
+        self.runtime_patch.stop();self.log.stream.close()
+    def write_hwh(self,regions,duplicate=False):
+        text="<SYSTEM>"+"".join("<MEMRANGE "+" ".join(f'{k}="{v}"' for k,v in row.items())+"/>" for row in regions)+"</SYSTEM>"
+        with zipfile.ZipFile(self.binding,"w") as archive:
+            archive.writestr("unit.hwh",text)
+            if duplicate:archive.writestr("second.hwh",text)
+    def register(self):
+        self.record["verified_inputs"]["compat_artifacts"]["implemented_xsa"]=bind(self.binding)
+        return p.register_csr_debug_map({},self.record,self.log,self.session,self.controller,self.owner)
+    def clear(self):
+        return p.clear_csr_debug_map({},self.record,self.log,self.session,self.owner)
+    def test_exact_window_selects_apu_and_cleans_owned_map(self):
+        self.register()
+        self.assertEqual(self.calls[:2],[("gate",),("select",10)])
+        self.assertEqual(self.calls[2],("loadhw",str(self.binding.absolute()),[[0x43C00000,0x43C0FFFF]]))
+        self.assertEqual(self.record["debug_memory_map"]["status"],"REGISTERED_CSR_ONLY")
+        self.clear();self.assertEqual(self.record["debug_memory_map"]["cleanup"],"OWNED_HW_MAP_CLEARED")
+    def test_hwh_rejects_missing_duplicate_expanded_and_wrong_interface(self):
+        for rows in ([],[self.region,self.region], [{**self.region,"HIGHVALUE":"0x43C1FFFF"}],
+                     [{**self.region,"INSTANCE":"other"}],[{**self.region,"MEMTYPE":"MEMORY"}],
+                     [{**self.region,"MASTERBUSINTERFACE":"M_AXI_GP1"}]):
+            with self.subTest(rows=rows):
+                self.write_hwh(rows)
+                with self.assertRaises(p.VisibilityProbeError):self.register()
+                self.assertFalse(any(row[0]=="loadhw" for row in self.calls))
+        self.write_hwh([self.region],duplicate=True)
+        with self.assertRaises(p.VisibilityProbeError):self.register()
+    def test_actual_sdk_mapping_growth_permissions_context_or_absence_rejected(self):
+        for scenario in ("expanded","flags","entry_expanded","entry_flags","file_map","wrong_context","extra","missing"):
+            with self.subTest(scenario=scenario):
+                self.scenario=scenario
+                with self.assertRaises(p.VisibilityProbeError):self.register()
+                self.assertTrue(self.owner["attempted"])
+                self.clear()
+    def test_wrong_selection_or_preexisting_design_rejected(self):
+        self.scenario="wrong_selection"
+        with self.assertRaises(p.VisibilityProbeError):self.register()
+        self.assertFalse(self.owner)
+        self.scenario="normal";self.session._designtable["other"]={}
+        with self.assertRaises(p.VisibilityProbeError):self.register()
+        self.assertFalse(any(row[0]=="loadhw" for row in self.calls))
+    def test_partial_load_and_cleanup_errors_remain_errors(self):
+        self.scenario="partial_load"
+        with self.assertRaisesRegex(RuntimeError,"UNIT_PARTIAL_LOAD"):self.register()
+        self.assertTrue(self.owner["attempted"]);self.clear()
+        self.scenario="normal";self.register();self.scenario="cleanup_failure"
+        with self.assertRaisesRegex(RuntimeError,"UNIT_UNLOAD_FAILURE"):self.clear()
+        self.assertEqual(self.record["debug_memory_map"]["cleanup"],"NOT_RUN")
+    def test_changed_cleanup_target_or_channel_rejected(self):
+        self.register();self.session._curchan="different"
+        with self.assertRaises(p.VisibilityProbeError):self.clear()
+        self.assertFalse(any(row[0]=="unloadhw" for row in self.calls))
 
 if __name__=="__main__":unittest.main()

@@ -205,6 +205,13 @@ def _assert_path_chain(path, expected_type):
     return absolute
 
 
+def _verified_vivado_batch_paths(batch_path):
+    """验证Vivado批处理入口，并返回其实际安装bin目录。"""
+    verified_batch = _assert_path_chain(batch_path, "file")
+    working_directory = _assert_path_chain(os.path.dirname(verified_batch), "directory")
+    return verified_batch, working_directory
+
+
 def _ensure_exact_repository():
     actual = os.path.normcase(os.path.abspath(Path(__file__).parent.parent))
     expected = os.path.normcase(REPOSITORY)
@@ -288,7 +295,7 @@ def _preflight_inputs():
     _ensure_exact_repository()
     dcp = _assert_path_chain(FROZEN_DCP, "file")
     cmd_executable = _assert_path_chain(CMD_EXE, "file")
-    vivado_batch = _assert_path_chain(VIVADO_BAT, "file")
+    vivado_batch, vivado_working_directory = _verified_vivado_batch_paths(VIVADO_BAT)
     vivado_executable = _assert_path_chain(VIVADO_EXE, "file")
     support_paths = {
         name: _assert_path_chain(path, "file")
@@ -333,6 +340,7 @@ def _preflight_inputs():
         "dcp_sha256": dcp_hash,
         "cmd_executable_path": cmd_executable,
         "vivado_batch_path": vivado_batch,
+        "vivado_working_directory": vivado_working_directory,
         "vivado_executable_path": vivado_executable,
         "vivado_executable_sha256": toolchain_files["vivado.exe"]["sha256"],
         "toolchain_files": toolchain_files,
@@ -1128,7 +1136,7 @@ def run_frozen_bitgen():
             "batch_argv": batch_argv,
             "argv": argv,
             "windows_command_line": job_guard.subprocess.list2cmdline(argv),
-            "working_directory": str(run_dir),
+            "working_directory": facts["vivado_working_directory"],
             "isolated_appdata_path": str(run_dir / "isolated_appdata"),
             "root_identity": None,
             "vivado_member_observations": [],
@@ -1208,7 +1216,7 @@ def run_frozen_bitgen():
             job,
             facts["cmd_executable_path"],
             argv,
-            cwd=str(run_dir),
+            cwd=facts["vivado_working_directory"],
             std_handles=std_handles,
             environment=child_environment,
         )

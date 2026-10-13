@@ -136,8 +136,13 @@ class DirectSpawnFixtureTests(unittest.TestCase):
 
     def test_cmd_batch_fixture_preserves_arguments_exit_code_and_job_descendant_closure(self):
         run_dir = _new_run_dir("cmd_batch_fixture")
-        batch_path = run_dir / "fixture_launcher.bat"
+        fake_bin = run_dir / "fixture_vivado_bin"
+        fake_bin.mkdir()
+        batch_path = fake_bin / "fixture_launcher.bat"
         args_receipt = run_dir / "batch_args.receipt"
+        cwd_after_pushd = run_dir / "cwd_after_pushd.receipt"
+        cwd_after_restore = run_dir / "cwd_after_restore.receipt"
+        cwd_after_popd = run_dir / "cwd_after_popd.receipt"
         python_executable = str(Path(sys.executable).resolve())
         batch_arguments = [
             "-mode",
@@ -151,8 +156,15 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         script = (
             "@echo off\r\n"
             "setlocal EnableExtensions DisableDelayedExpansion\r\n"
+            'set "_RDI_CWD=%cd%"\r\n'
+            'pushd "%~dp0"\r\n'
+            f'> "{cwd_after_pushd}" echo(%cd%\r\n'
+            'cd /d "%_RDI_CWD%"\r\n'
+            f'> "{cwd_after_restore}" echo(%cd%\r\n'
             f'> "{args_receipt}" echo(%*\r\n'
-            f'"{python_executable}" -c "import time; time.sleep(0.35)"\r\n'
+            f'"{python_executable}" -c "import time; time.sleep(0.8)"\r\n'
+            "popd\r\n"
+            f'> "{cwd_after_popd}" echo(%cd%\r\n'
             "exit /b 37\r\n"
         )
         batch_path.write_text(script, encoding="utf-8", newline="")
@@ -177,6 +189,9 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         self.assertTrue(license_audit["usable"])
         self.assertEqual(" ".join(batch_arguments), command[len("call ") + len(str(batch_path)) + 1 :])
         self.assertEqual([controller.CMD_EXE, "/D", "/S", "/V:OFF", "/C", command], cmd_argv)
+        verified_batch, working_directory = controller._verified_vivado_batch_paths(str(batch_path))
+        self.assertEqual(str(batch_path), verified_batch)
+        self.assertEqual(str(fake_bin), working_directory)
 
         locks = [
             controller.InputReadLock(controller.CMD_EXE),
@@ -186,25 +201,58 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         job = job_guard.JobObject(kill_on_close=True)
         child = None
         observed_python = {}
+        root_identity_samples = []
+        root_field_change_counts = {field: 0 for field in job_guard.ROSS_IDENTITY_FIELDS}
+        sample_uncertainty_counts = {}
         closure = None
         try:
             child = job_guard.launch_suspended_root(
                 job,
                 controller.CMD_EXE,
                 cmd_argv,
-                cwd=str(run_dir),
+                cwd=working_directory,
                 environment=environment,
             )
+            root_identity = json.loads(json.dumps(child.identity))
             self.assertEqual(
                 os.path.normcase(os.path.abspath(controller.CMD_EXE)),
                 os.path.normcase(os.path.abspath(child.identity["exe"])),
             )
             self.assertEqual(cmd_argv, child.identity["cmdline"])
+            self.assertEqual(
+                os.path.normcase(os.path.abspath(working_directory)),
+                os.path.normcase(os.path.abspath(child.identity["cwd"])),
+            )
             self.assertTrue(any(row.get("event") == "PRE_RESUME_CLOSED" for row in child.events))
 
             deadline = time.monotonic() + 10.0
             while time.monotonic() < deadline:
                 sample = job.sample()
+                root_rows = [
+                    member for member in sample["member_measurements"]
+                    if member["pid"] == child.pid
+                ]
+                root_wait = job_guard._api_wait(child.process_handle, 0)
+                self.assertIn(root_wait, (job_guard.WAIT_OBJECT_0, job_guard.WAIT_TIMEOUT))
+                if root_wait == job_guard.WAIT_TIMEOUT:
+                    self.assertEqual(1, len(root_rows), "root仍运行时该样本必须读回root六字段")
+                for root_row in root_rows:
+                    identity = root_row["identity"]
+                    changed_fields = [
+                        field for field in job_guard.ROSS_IDENTITY_FIELDS
+                        if identity.get(field) != root_identity.get(field)
+                    ]
+                    for field in changed_fields:
+                        root_field_change_counts[field] += 1
+                    self.assertEqual([], changed_fields, "root六字段相对挂起前身份发生漂移")
+                    root_identity_samples.append({
+                        "sample_start_monotonic": sample["sample_start_monotonic"],
+                        "identity": identity,
+                        "uncertainty": list(sample["uncertainty"]),
+                    })
+                for uncertainty in sample["uncertainty"]:
+                    category = uncertainty.split(":", 1)[0]
+                    sample_uncertainty_counts[category] = sample_uncertainty_counts.get(category, 0) + 1
                 for member in sample["member_measurements"]:
                     identity = member["identity"]
                     if os.path.normcase(os.path.abspath(identity["exe"])) == os.path.normcase(os.path.abspath(python_executable)):
@@ -215,7 +263,6 @@ class DirectSpawnFixtureTests(unittest.TestCase):
                             "exe": identity["exe"],
                             "cmdline": identity["cmdline"],
                         }
-                root_wait = job_guard._api_wait(child.process_handle, 0)
                 pids = job.pid_list()
                 accounting = job.accounting()
                 if root_wait == job_guard.WAIT_OBJECT_0 and not pids and accounting["active_processes"] == 0:
@@ -225,14 +272,34 @@ class DirectSpawnFixtureTests(unittest.TestCase):
                 time.sleep(0.04)
             self.assertIsNotNone(closure, "cmd/bat/后代未在期限内闭合")
             args_text = args_receipt.read_text(encoding="utf-8").strip()
+            cwd_receipts = {
+                "after_pushd": cwd_after_pushd.read_text(encoding="utf-8").strip(),
+                "after_restore": cwd_after_restore.read_text(encoding="utf-8").strip(),
+                "after_popd": cwd_after_popd.read_text(encoding="utf-8").strip(),
+            }
+            expected_cwd = os.path.normcase(os.path.abspath(working_directory))
+            self.assertTrue(root_identity_samples, "Job采样没有读回root六字段")
+            self.assertTrue(all(count == 0 for count in root_field_change_counts.values()))
+            self.assertTrue(all(
+                os.path.normcase(os.path.abspath(path)) == expected_cwd
+                for path in cwd_receipts.values()
+            ), f"fixture批处理pushd/恢复/popd CWD不在fake bin：{cwd_receipts!r}")
             final = closure["final"]
             receipt = {
                 "status": "PASS_CMD_BATCH_ARGUMENTS_EXIT_AND_JOB_CLOSURE",
                 "cmd_command_line": job_guard.subprocess.list2cmdline(cmd_argv),
                 "batch_path": str(batch_path),
+                "working_directory": working_directory,
+                "cwd_receipts": cwd_receipts,
+                "root_identity_before_resume": root_identity,
+                "root_identity_sample_count": len(root_identity_samples),
+                "root_field_change_counts": root_field_change_counts,
+                "root_identity_samples": root_identity_samples,
+                "sample_uncertainty_counts": sample_uncertainty_counts,
+                "sampling_note": "仅要求root身份每样本稳定；短命后代在样本边界退出可能产生成员集合不确定性并如实记录。",
                 "expected_batch_arguments": batch_arguments,
                 "batch_argument_receipt": args_text,
-                "cmd_root_identity": child.identity if child is not None else None,
+                "cmd_root_identity": root_identity,
                 "cmd_exit_code": final["root_native_handle_exit_code"],
                 "short_descendant_observations": list(observed_python.values()),
                 "job_final_closure": final,
@@ -243,6 +310,10 @@ class DirectSpawnFixtureTests(unittest.TestCase):
             self.assertEqual([], final["job_pids"])
             self.assertEqual(0, final["active_processes"])
             self.assertTrue(all(row["status"] == "EXITED" for row in final["member_readbacks"]))
+            self.assertTrue(all(
+                job_guard._identity_equal(root_identity, row["identity"])
+                for row in root_identity_samples
+            ))
             final_member_keys = {
                 (row["pid"], row["birth_ticks"])
                 for row in final["member_readbacks"]
@@ -252,11 +323,6 @@ class DirectSpawnFixtureTests(unittest.TestCase):
                 final_member_keys,
             )
             self.assertTrue(set(observed_python).issubset(final_member_keys))
-            receipt["cmd_root_identity"] = {
-                "pid": final["root_native_handle_pid"],
-                "birth_ticks": final["root_native_handle_birth_ticks"],
-                "exe": controller.CMD_EXE,
-            }
             _write_json(run_dir / "fixture_result.json", receipt)
         finally:
             if child is not None:
@@ -991,6 +1057,35 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         prepare_index = source.index("input_locks = _prepare_run_inputs(run_dir, facts)")
         launch_index = source.index("child = job_guard.launch_suspended_root(")
         self.assertLess(prepare_index, launch_index)
+
+    def test_production_working_directory_is_verified_vivado_batch_parent(self):
+        run_dir = _new_run_dir("working_directory_binding")
+        fake_bin = run_dir / "fake_vivado_bin"
+        fake_bin.mkdir()
+        batch_path = fake_bin / "vivado.bat"
+        batch_path.write_text("@echo off\r\n", encoding="utf-8", newline="")
+
+        verified_batch, working_directory = controller._verified_vivado_batch_paths(str(batch_path))
+
+        self.assertEqual(str(batch_path), verified_batch)
+        self.assertEqual(str(fake_bin), working_directory)
+        self.assertNotEqual(str(run_dir), working_directory)
+        source = (ROOT / "verification" / "s15_direct_vivado_bitgen.py").read_text(encoding="utf-8")
+        self.assertIn(
+            "vivado_batch, vivado_working_directory = _verified_vivado_batch_paths(VIVADO_BAT)",
+            source,
+        )
+        self.assertIn('"working_directory": facts["vivado_working_directory"]', source)
+        self.assertIn('cwd=facts["vivado_working_directory"]', source)
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_PRODUCTION_WORKING_DIRECTORY_BIN_BINDING",
+                "verified_batch_path": verified_batch,
+                "selected_working_directory": working_directory,
+                "expected_working_directory": str(fake_bin),
+            },
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,27 @@
+{
+  "run_id": "direct_bitgen_import_dependency_20261013T042541Z_r01",
+  "runner_invocation": "python.exe -B verification/s15_direct_vivado_bitgen.py --execute-frozen-bitgen",
+  "status": "BLOCKED_BEFORE_RUNNER_MAIN",
+  "failure": {
+    "exception": "ModuleNotFoundError",
+    "missing_module": "psutil",
+    "import_site": "verification/s15_job_guard.py:12",
+    "process_started": false,
+    "vivado_started": false,
+    "dcp_opened": false
+  },
+  "runtime_audit": {
+    "controller_python": "Python 3.12.14",
+    "configured_site_packages_psutil_version": "7.2.2",
+    "configured_site_packages_import_test": "PASS",
+    "controller_runpy_help_probe": "PASS",
+    "module_search_paths_added_to_controller_process": [
+      "repository verification directory",
+      "existing Python 3.12 site-packages"
+    ],
+    "pythonpath_environment_variable_present": false,
+    "pythonhome_environment_variable_present": false,
+    "vivado_child_environment_modified": false
+  },
+  "planned_correction": "仅在控制器进程内通过sys.path添加既有Python 3.12 site-packages和仓库verification目录，并用runpy执行入口；不改PYTHONPATH、不注入Vivado子进程。完整控制器--help探针已成功。"
+}

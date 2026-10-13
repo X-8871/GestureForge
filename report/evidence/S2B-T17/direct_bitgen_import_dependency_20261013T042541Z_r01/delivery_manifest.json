@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "direct_bitgen_import_dependency_20261013T042541Z_r01",
+  "source_commit": "3d986bf4f4ce3d2eceea5ca7c06e71e8bd07cf1b",
+  "evidence_dir": "report/evidence/S2B-T17/direct_bitgen_import_dependency_20261013T042541Z_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "该次调用在加载Bitgen控制器依赖前停止，没有触达RTL、模型、PS/PL或总线接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_import_dependency_20261013T042541Z_r01/dependency_audit.json",
+      "sha256": "1dae3d6f12cacb99ba09d48aa480e8ed3149da336212b700d52755b69ada7c5d",
+      "role": "result",
+      "keep_reason": "记录控制器依赖导入失败位置、无Vivado启动事实和已有psutil包的只读核验结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_import_dependency_20261013T042541Z_r01/launcher_import_failure.txt",
+      "sha256": "ea52e7150530b38d3cc955406a2367283d92358d92835dd4bce2687ca7c524bd",
+      "role": "log",
+      "keep_reason": "保留去除本机用户名后的真实Python traceback与退出码。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_job_guard.py",
+      "sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "受控Bitgen入口模块导入",
+      "status": "FAIL",
+      "command": "python.exe -B verification/s15_direct_vivado_bitgen.py --execute-frozen-bitgen",
+      "exit_code": 1,
+      "reason": "控制器模块在main执行前导入s15_job_guard失败，原因是当前打包Python环境缺少psutil。没有创建Vivado子进程或打开DCP。"
+    },
+    {
+      "name": "已有Python 3.12 site-packages中的psutil只读导入",
+      "status": "PASS",
+      "command": "python.exe -B -c sys.path.insert(existing Python 3.12 site-packages and repository verification); import psutil; runpy.run_path(runner, --help)",
+      "exit_code": 0,
+      "reason": "同一Python 3.12.14解释器可导入psutil 7.2.2，并且完整runner --help退出0；sys.path只在控制器进程中添加，PYTHONPATH/PYTHONHOME均未设置，Vivado子进程环境未注入依赖路径。"
+    }
+  ],
+  "limitations": [
+    "这不是Bitgen任务结果；未启动Vivado、Bitgen、XSDB或JTAG。"
+  ],
+  "tool_versions": {
+    "python": "Python 3.12.14",
+    "psutil": "7.2.2",
+    "git": "git version 2.56.0.windows.2",
+    "powershell": "7.6.5",
+    "os": "Microsoft Windows NT 10.0.26200.0"
+  }
+}

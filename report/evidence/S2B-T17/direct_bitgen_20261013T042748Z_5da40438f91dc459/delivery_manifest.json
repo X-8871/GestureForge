@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "direct_bitgen_20261013T042748Z_5da40438f91dc459",
+  "source_commit": "3d986bf4f4ce3d2eceea5ca7c06e71e8bd07cf1b",
+  "evidence_dir": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅对T17已生成并冻结的实现DCP执行位流生成，不修改PS/PL逻辑接口；接口冻结仍由对应G0/G4关口单独判断。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/inputs/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "input",
+      "keep_reason": "保留本次执行的Bitgen Tcl输入副本。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/inputs/s2b_inference_wrapper_postroute_physopt.dcp",
+      "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+      "role": "artifact",
+      "keep_reason": "逐字节保留本次write_bitstream实际打开的冻结实现检查点副本。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/manifest.json",
+      "sha256": "eeec64b5ebe94b295ec50093940ede3d56e1027b63b055916705ca4b95e4215c",
+      "role": "result",
+      "keep_reason": "绑定控制器审计、进程/资源闭合、输入哈希、Vivado返回码与缺失位流状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/monitor.jsonl",
+      "sha256": "e3388f10bae0e78848aa0c8adcbe69154c9483fe11f133954057acee83372943",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/stdout.log",
+      "sha256": "0f6ec7f38631748dc1484fb70bef2ae2b32113688aa1280ed6fc1417931e3595",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/tcl_progress.jsonl",
+      "sha256": "dadd09c25bfecaaa9d864ec486e028834c7d5f29bd885f962f50320b601b01ee",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/vivado.jou",
+      "sha256": "cbf37c8b8f82acd09dbccebc615ff4069beb153e52ae2ffd2c1faddd020afca9",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T042748Z_5da40438f91dc459/vivado.log",
+      "sha256": "41062c0034ba060586b1f319b56f25b0b04db5c7728d457bb4ae73049f4a0fce",
+      "role": "log",
+      "keep_reason": "保留实际Vivado执行、进度及受控进程监测原始记录。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_job_guard.py",
+      "sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "冻结DCP的Bitgen执行",
+      "status": "FAIL",
+      "command": "Vivado 2026.1 batch（受控direct runner，打开run内DCP副本后执行write_bitstream）",
+      "exit_code": 1,
+      "reason": "Vivado已打开检查点并确认目标器件xc7z020clg400-2；write_bitstream因未找到Implementation/xc7z020有效许可证退出1，控制器验证缺少bitstream产物。"
+    }
+  ],
+  "limitations": [
+    "没有生成.bit文件，因此尚不能导出可部署镜像或进行JTAG下载。",
+    "本次失败不代表RTL/实现时序失败，也不构成G3/G4/G5验收。"
+  ],
+  "tool_versions": {
+    "vivado": "2026.1",
+    "python": "Python 3.12.14",
+    "powershell": "7.6.5",
+    "git": "2.56.0.windows.2"
+  }
+}

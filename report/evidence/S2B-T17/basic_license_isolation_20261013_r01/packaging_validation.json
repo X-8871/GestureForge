@@ -1,0 +1,66 @@
+{
+  "scope": "包装核验，不代表硬件/2B验收",
+  "initial_failures": [
+    {
+      "kind": "sandbox_path_access",
+      "shell_exit_code": 1,
+      "native_exit_code_not_captured": true,
+      "reason": "project-root父目录不可访问 C:\\Users\\22061；改为授权只读提升后继续"
+    },
+    {
+      "kind": "manifest_draft_schema",
+      "native_exit_codes": [
+        2,
+        2,
+        2
+      ],
+      "reason": "DCP误标input，修正为artifact"
+    },
+    {
+      "kind": "manifest_draft_schema",
+      "native_exit_codes": [
+        2,
+        2
+      ],
+      "reason": "审查非命令却填null退出码；移除该checks条目，独立审查保留receipt；summary缺input，将真实Bitgen Tcl标为input"
+    }
+  ],
+  "final_checks": [
+    {
+      "run": "r01_failed",
+      "mode": "evidence",
+      "native_exit_code": 0
+    },
+    {
+      "run": "r01_failed",
+      "mode": "inputs",
+      "native_exit_code": 2,
+      "expected_block_reason": "真实Bitgen运行FAIL，不允许消费"
+    },
+    {
+      "run": "r02_success",
+      "mode": "evidence",
+      "native_exit_code": 0
+    },
+    {
+      "run": "r02_success",
+      "mode": "inputs",
+      "native_exit_code": 0
+    },
+    {
+      "run": "isolation_summary",
+      "mode": "evidence",
+      "native_exit_code": 0
+    },
+    {
+      "run": "isolation_summary",
+      "mode": "inputs",
+      "native_exit_code": 0
+    }
+  ],
+  "lmutil_version": "FlexNet Licensing v11.17.2.0 build 272614 (ipv6) x64_n6，lmver实测",
+  "limitations": [
+    "原始包装检查stdout保留于本轮工具调用记录，本文件如实归纳；不声称失败包通过inputs。",
+    "本轮未修改业务RTL或PS程序，没有重新综合/实现；本轮新增代码只为已审查执行脚本的证据快照。"
+  ]
+}

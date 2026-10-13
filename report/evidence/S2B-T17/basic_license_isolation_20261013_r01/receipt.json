@@ -1,0 +1,89 @@
+{
+  "schema": "s2b-t17-independent-bitgen-review/1.0.0",
+  "result": "PASS_BITGEN_ONLY",
+  "reviewer": "/root/basic_license_isolation_review",
+  "source_baseline": "5c43bb57d2626e9991a08cbdcbd6561f7177ba4b",
+  "scope": "独立只读核查r02实际位流生成的产物绑定、冻结输入、资源监控、原生退出及进程闭合；保留r01失败结论。",
+  "run_id": "direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe",
+  "reviewed_wrapper_sha256": "cd81a780bad1d3f4bbd24108dc25bebc5b405e0412c8eca294b0ef3f744f7e33",
+  "controller_sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+  "job_guard_sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+  "manifest_sha256": "a37749d168ff70dac750e956c8a1c69ce8ec88f152b9011d52dd921dac6a13f3",
+  "verified_artifacts": {
+    "s2b_inference_wrapper_postroute_physopt.bit": {"sha256": "601e5781142367846a7b5eff41af842571996fd478625a44108d042474f9084c", "size_bytes": 4045776},
+    "monitor.jsonl": {"sha256": "823363fab20ed0bd76250b18135469432535580a0fd571e8f9ab653b642e5115", "size_bytes": 1410310},
+    "stderr.log": {"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "size_bytes": 0},
+    "stdout.log": {"sha256": "b67d8dfb26730423cb1daF918547964ae292fd9b0f843c8fc352ecb4d7ddeceb", "size_bytes": 10082},
+    "tcl_progress.jsonl": {"sha256": "88a4b6b290bf5e7cd7610537868c16e43bd24dfacfCde224ad8485acaac01c56", "size_bytes": 457},
+    "vivado.jou": {"sha256": "8e19a23f2ea96053509e318e4e24d5d6896fe2e78731d8456561bbca298538ce", "size_bytes": 2367},
+    "vivado.log": {"sha256": "c42cb69a15bfdf717e4fd61e881561c0b0bd594479ced7b1e5ab9e949f2dfc8c", "size_bytes": 11711}
+  },
+  "frozen_input_checks": {
+    "dcp_original_and_run_copy_sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+    "tcl_original_and_run_copy_sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+    "all_actual_file_hashes_match_manifest": true,
+    "original_and_copy_hashes_match_preflight_and_after_run": true
+  },
+  "actual_bitgen_checks": {
+    "manifest_status": "BITGEN_COMPLETE_SOFTWARE_ONLY",
+    "stop_reason": null,
+    "vivado_version": "2026.1",
+    "checkpoint_part": "xc7z020clg400-2",
+    "bit_header_part": "7z020clg400",
+    "bit_header_size_bytes": 212,
+    "bit_payload_size_bytes": 4045564,
+    "bit_header_payload_size_matches_file": true,
+    "tcl_progress_events": ["vivado_version", "open_checkpoint_start", "checkpoint_opened", "write_bitstream_start", "write_bitstream_complete"],
+    "tcl_progress_values_match_manifest": true,
+    "tcl_receipt_size_matches_actual_bitstream": true,
+    "vivado_log_drc_errors": 0,
+    "vivado_write_bitstream_summary": {"warnings": 0, "critical_warnings": 0, "errors": 0},
+    "vivado_log_write_bitstream_completed_successfully": true,
+    "native_cmd_root_exit_code": 0,
+    "native_vivado_exit_codes": [0],
+    "runtime_seconds": 122.203
+  },
+  "resource_and_closure_checks": {
+    "sampling_target_seconds": 0.25,
+    "actual_sample_count": 315,
+    "actual_monitor_record_count": 316,
+    "monitor_count_matches_manifest": true,
+    "sample_timestamps_gaps_rss_ram_disk_match_manifest": true,
+    "max_actual_sample_gap_seconds": 0.4850000000005821,
+    "max_actual_sample_duration_seconds": 0.20300000000133878,
+    "max_actual_no_progress_seconds": 19.68699999999808,
+    "tree_rss_peak_bytes": 2467950592,
+    "available_ram_min_bytes": 3621994496,
+    "c_disk_free_min_bytes": 10915102720,
+    "limits_unchanged_except_sampling_target": {
+      "tree_rss_limit_bytes": 6442450944,
+      "available_ram_floor_bytes": 536870912,
+      "c_disk_free_floor_bytes": 8589934592,
+      "no_progress_hard_stop_seconds": 900,
+      "sample_gap_hard_stop_seconds": 1.0,
+      "job_object_limit_flags": 8192,
+      "breakaway_allowed": false
+    },
+    "terminal_sample_alert": "SAMPLE_UNCERTAIN",
+    "terminal_exit_race_reconciled": true,
+    "terminal_reconciliation_evidence": "末次采样内两个已观察进程退出；原生句柄读回两个退出码均0，root已signaled，Job active=0、exited=total=2、terminated=0、PID/live/unknown列表均空；monitor追加TERMINAL_EXIT_SAMPLE_RACE_RECONCILED记录。",
+    "input_and_toolchain_lock_release_errors": [],
+    "resource_peaks_and_floors_match_recomputed_monitor_values": true
+  },
+  "preserved_failed_attempt": {
+    "run_id": "direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49",
+    "manifest_sha256": "734e0e3af5a1949db277ee5679cb64761eca83b669bbc829e23571c6d945b2a3",
+    "status": "FAILED_OR_INCOMPLETE",
+    "native_root_exit_code": 93,
+    "tcl_progress_event_count": 0,
+    "sampling_target_seconds": 0.75,
+    "not_reclassified_as_pass": true
+  },
+  "verification_method": "只读精确文件路径；PowerShell UTF8 JSON解析、Get-FileHash实际SHA256及字节数核对、逐条Tcl字段比对、315条实际监控字段交叉核查、重算资源峰值与下限、读取位流头长度和型号、检查Vivado日志及原生闭合；所有核查命令原生退出0。Git Bash用于目录和普通文件只读检查。",
+  "limitations": [
+    "核查未启动Vivado、未重新生成位流、未读取许可证内容或private_selection。",
+    "仅证明冻结DCP实际bitgen及软件进程闭合；未验证PS/PL兼容、物理接口冻结、实板下载、模型推理或G3/G4/G5。",
+    "位流头不编码speed grade；完整Part依据冻结DCP及Tcl打开设计的实际记录。",
+    "末次退出竞态仍保留原始告警及独立闭合记录，未将所有采样描述为无告警。"
+  ]
+}

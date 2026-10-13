@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49",
+  "source_commit": "5c43bb57d2626e9991a08cbdcbd6561f7177ba4b",
+  "evidence_dir": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅隔离原有有效许可证并从已冻结DCP生成位流，不修改PS/PL接口；完整部署兼容性与阶段验收单独判断。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/inputs/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "input",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/inputs/s2b_inference_wrapper_postroute_physopt.dcp",
+      "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+      "role": "artifact",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/manifest.json",
+      "sha256": "734e0e3af5a1949db277ee5679cb64761eca83b669bbc829e23571c6d945b2a3",
+      "role": "result",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/monitor.jsonl",
+      "sha256": "0b289e2affa102d2e1c54065da82694ebbc1a49a44fc7f5cb9548d146b3cc0fe",
+      "role": "log",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/stdout.log",
+      "sha256": "12fe42b1de1c89af16738df398bc48e736fe3e56b6737787e995360d91879a44",
+      "role": "log",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/vivado.jou",
+      "sha256": "56e9d27dafb41f379d2e7972ec077fd585e8a7780d082ecbdbf14c2e3fea9ca9",
+      "role": "log",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T051738Z_c72d7ed4d9df9a49/vivado.log",
+      "sha256": "364b9b054e6b36f393a1522c5cff5386c9714aebb2896b6927a8aef14c5eca28",
+      "role": "log",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_job_guard.py",
+      "sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "受控冻结DCP位流生成",
+      "status": "FAIL",
+      "command": "python -B tmp/2B/S2B-T17/basic_license_isolation_20261013_r01/run_isolated_basic.py --execute",
+      "exit_code": 1,
+      "reason": "有效Basic已被识别，但采样开始间隔1.016秒超过1秒安全门禁，硬停止93，未打开DCP。"
+    }
+  ],
+  "limitations": [
+    "本次不执行硬件下载或模型测试，不能代表2B G3/G4/G5。",
+    "本地二进制产物不提交Git；冻结源DCP可由此前已归档输入副本恢复，位流可按本次受控命令重建。",
+    "位流成功不等于implemented XSA及既有ELF运行时兼容性已通过。"
+  ],
+  "tool_versions": {
+    "vivado": "2026.1",
+    "python": "3.12.14",
+    "lmutil": "FlexNet 11.17.2.0（随Vivado2026.1安装）"
+  }
+}

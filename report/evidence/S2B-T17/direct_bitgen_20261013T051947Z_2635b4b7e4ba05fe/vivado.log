@@ -1,0 +1,184 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Tue Oct 13 13:19:51 2026
+# Process ID         : 19000
+# Current directory  : D:/Xilinx/2026.1/Vivado/bin
+# Command line       : vivado.exe -mode batch -log C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\vivado.log -journal C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\vivado.jou -source C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\inputs\s15_frozen_dcp_bitgen.tcl -tclargs C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\inputs\s2b_inference_wrapper_postroute_physopt.dcp C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\s2b_inference_wrapper_postroute_physopt.bit C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\tcl_progress.jsonl C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17
+# Log file           : C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe/vivado.log
+# Journal file       : C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\vivado.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 23549 MB
+#-----------------------------------------------------------
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\inputs\s15_frozen_dcp_bitgen.tcl}
+# set expected_part {xc7z020clg400-2}
+# set expected_dcp_name {s2b_inference_wrapper_postroute_physopt.dcp}
+# set expected_tcl_name {s15_frozen_dcp_bitgen.tcl}
+# set expected_bit_name {s2b_inference_wrapper_postroute_physopt.bit}
+# set expected_progress_name {tcl_progress.jsonl}
+# proc write_progress {channel event detail} {
+#     set utc [clock format [clock seconds] -gmt 1 -format %Y-%m-%dT%H:%M:%SZ]
+#     puts $channel "{\"event\":\"$event\",\"utc\":\"$utc\",\"detail\":\"$detail\"}"
+#     flush $channel
+# }
+# if {[llength $argv] != 4} {
+#     puts stderr "Expected arguments: run DCP copy, output bitstream, Tcl progress log, evidence root"
+#     exit 71
+# }
+# set dcp [lindex $argv 0]
+# set bitfile [lindex $argv 1]
+# set progress_file [lindex $argv 2]
+# set expected_evidence_root [file normalize [lindex $argv 3]]
+# set script_path [file normalize [info script]]
+# set inputs_dir [file dirname $script_path]
+# set run_dir [file normalize [file dirname $inputs_dir]]
+# set normalized_dcp [file normalize $dcp]
+# set normalized_expected_dcp [file normalize [file join $inputs_dir $expected_dcp_name]]
+# if {[file tail $inputs_dir] ne "inputs" ||
+#     [file tail $script_path] ne $expected_tcl_name ||
+#     [string equal $normalized_dcp $normalized_expected_dcp] != 1 ||
+#     [string equal [file dirname $run_dir] $expected_evidence_root] != 1 ||
+#     ![regexp {^direct_bitgen_[0-9]{8}T[0-9]{6}Z_[0-9a-f]{16}$} [file tail $run_dir]]} {
+#     puts stderr "拒绝使用Run隔�?�目录之外的DCP或Tcl脚本"
+#     exit 72
+# }
+# set bit_parent [file normalize [file dirname $bitfile]]
+# set progress_parent [file normalize [file dirname $progress_file]]
+# if {[string equal $bit_parent $run_dir] != 1 ||
+#     [string equal $progress_parent $run_dir] != 1 ||
+#     [file tail $bitfile] ne $expected_bit_name ||
+#     [file tail $progress_file] ne $expected_progress_name} {
+#     puts stderr "拒绝写入指定Run�?录之外的输出"
+#     exit 73
+# }
+# if {[file exists $bitfile] || [file exists $progress_file]} {
+#     puts stderr "拒绝覆盖已有bitstream或Tcl progress文件"
+#     exit 74
+# }
+# if {[catch {open $progress_file {WRONLY CREAT EXCL}} progress_channel]} {
+#     puts stderr "无法以排他方式创建Tcl progress文件: $progress_channel"
+#     exit 75
+# }
+# fconfigure $progress_channel -buffering line -encoding utf-8 -translation lf
+DIRECT_BITGEN_VIVADO_VERSION 2026.1
+Command: open_checkpoint {C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\inputs\s2b_inference_wrapper_postroute_physopt.dcp}
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.076 . Memory (MB): peak = 360.152 ; gain = 8.129
+INFO: [Device 21-403] Loading part xc7z020clg400-2
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.239 . Memory (MB): peak = 884.223 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 6066 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.119 . Memory (MB): peak = 1017.668 ; gain = 5.863
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.065 . Memory (MB): peak = 1669.629 ; gain = 0.000
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.020 . Memory (MB): peak = 1669.629 ; gain = 0.000
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1669.629 ; gain = 0.000
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 1718.738 ; gain = 49.109
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1718.738 ; gain = 0.000
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.659 . Memory (MB): peak = 1718.738 ; gain = 0.000
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1718.738 ; gain = 49.109
+Restored from archive | CPU: 4.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 1718.738 ; gain = 49.113
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.010 . Memory (MB): peak = 1741.387 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 24 instances were transformed.
+  RAM64M => RAM64M (RAMD64E(x4)): 24 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:41 ; elapsed = 00:00:59 . Memory (MB): peak = 1749.457 ; gain = 1406.398
+Command: write_bitstream {C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe\s2b_inference_wrapper_postroute_physopt.bit}
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command write_bitstream
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/2026.1/Vivado/data/ip'.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado 12-3199] DRC finished with 0 Errors
+INFO: [Vivado 12-3200] Please refer to the DRC report (report_drc) for more information.
+Integrating Hard IP ELF/MEM with the PDI.
+INFO: [Designutils 20-2272] Running write_bitstream with 2 threads.
+Initializing bitstream generation complete. Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2072.102 ; gain = 92.926
+Loading data files...
+Loading site data...
+Loading route data...
+Processing options...
+Creating bitmap...
+Creating bitstream...
+Writing bitstream C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_20261013T051947Z_2635b4b7e4ba05fe/s2b_inference_wrapper_postroute_physopt.bit...
+Generate Bitstream complete. Time (s): cpu = 00:00:43 ; elapsed = 00:00:30 . Memory (MB): peak = 2349.699 ; gain = 370.523
+INFO: [Vivado 12-1842] Bitgen Completed Successfully.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+23 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+write_bitstream completed successfully
+write_bitstream: Time (s): cpu = 00:00:56 ; elapsed = 00:00:49 . Memory (MB): peak = 2349.699 ; gain = 600.242
+# set command_status [catch {
+#     set actual_version [version -short]
+#     puts "DIRECT_BITGEN_VIVADO_VERSION $actual_version"
+#     if {![regexp {^[0-9]+(\.[0-9]+)*$} $actual_version]} {
+#         error "Vivado version command returned a non-numeric version"
+#     }
+#     write_progress $progress_channel "vivado_version" $actual_version
+#     if {$actual_version ne "2026.1"} {
+#         error "Vivado version mismatch: expected 2026.1, actual $actual_version"
+#     }
+# 
+#     write_progress $progress_channel "open_checkpoint_start" "run_frozen_dcp_copy"
+#     open_checkpoint $dcp
+#     set design [current_design]
+#     if {[llength $design] != 1} {
+#         error "open_checkpoint did not produce exactly one current design"
+#     }
+#     set actual_part [get_property PART $design]
+#     if {![regexp {^[A-Za-z0-9_-]+$} $actual_part]} {
+#         error "DCP PART property is malformed"
+#     }
+#     write_progress $progress_channel "checkpoint_opened" $actual_part
+#     if {$actual_part ne $expected_part} {
+#         error "DCP PART mismatch: expected $expected_part, actual $actual_part"
+#     }
+# 
+#     write_progress $progress_channel "write_bitstream_start" [file tail $bitfile]
+#     write_bitstream $bitfile
+#     if {![file exists $bitfile] || [file size $bitfile] <= 0} {
+#         error "write_bitstream returned without a non-empty bit file"
+#     }
+#     write_progress $progress_channel "write_bitstream_complete" [file size $bitfile]
+# } command_message command_options]
+# if {$command_status != 0} {
+#     write_progress $progress_channel "failed" "see_vivado_log"
+#     puts stderr "S15 frozen DCP bitgen failed: $command_message"
+#     close $progress_channel
+#     exit 1
+# }
+# close $progress_channel
+# exit 0
+INFO: [Common 17-206] Exiting Vivado at Tue Oct 13 13:21:50 2026...

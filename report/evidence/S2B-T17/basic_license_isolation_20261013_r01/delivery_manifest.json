@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "basic_license_isolation_20261013_r01",
+  "source_commit": "5c43bb57d2626e9991a08cbdcbd6561f7177ba4b",
+  "evidence_dir": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅隔离原有有效许可证并从已冻结DCP生成位流，不修改PS/PL接口；完整部署兼容性与阶段验收单独判断。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/bitgen_result.json",
+      "sha256": "5253be9dd857dbc210cdfb6a932dff65c3a42ecc183a287429552a32a6dfd84a",
+      "role": "result",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/execution_result.json",
+      "sha256": "3a805a0eed15d1c9bc93f6abaaa8979caf8a15bf7e94842897253aee5256c81b",
+      "role": "result",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/execution_result_r02.json",
+      "sha256": "b690a6b171e0eb19ea937f005934ecfada75c43880a6ed64e918a6bf03bf19ec",
+      "role": "result",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/run_isolated_basic.py",
+      "sha256": "cd81a780bad1d3f4bbd24108dc25bebc5b405e0412c8eca294b0ef3f744f7e33",
+      "role": "source",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/selection_result.json",
+      "sha256": "e801418c323664a775cce5ff3f0548667666c6dcd6439eb4ecaf3dae74a2b83e",
+      "role": "result",
+      "keep_reason": "保留本次许可证隔离、受控执行及实际结果证据；二进制产物仅绑定并留在本机，不混入Git提交。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_job_guard.py",
+      "sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/receipt.json",
+      "sha256": "b90936e8838ab83f576dc953eac79584f1d6337471fe270da93ffd7d6c5143a8",
+      "role": "result",
+      "keep_reason": "独立Reviewer对实际Bitgen产物、DRC、资源安全及进程闭合的只读审核原件。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/basic_license_isolation_20261013_r01/packaging_validation.json",
+      "sha256": "42c84cefb22f4617402006083bc932100aa2ae0d7b7a89ff06d0f01c75472e8e",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "有效Basic隔离并生成位流",
+      "status": "PASS",
+      "command": "原样筛选5个授权块；lmutil lmdiag；受控runner r02；位流头与长度核查",
+      "exit_code": 0,
+      "reason": "原许可证不变，授权块原样复制；实际Vivado识别BASIC并获取实现授权，位流生成成功。"
+    }
+  ],
+  "limitations": [
+    "完整PS/PL兼容性及实板验收未执行；历史r01失败明确保留。",
+    "本次只归档脱敏结论，许可证原始诊断中私密字段不保存。",
+    "二进制产物保留本机但不混入Git提交。",
+    "尚不代表2B阶段完成。",
+    "独立审查是receipt中的人工/代理结论，没有伪造审查命令原生退出码；结果仅PASS_BITGEN_ONLY。"
+  ],
+  "tool_versions": {
+    "vivado": "2026.1",
+    "python": "3.12.14",
+    "lmutil": "FlexNet 11.17.2.0（随Vivado2026.1安装）"
+  }
+}

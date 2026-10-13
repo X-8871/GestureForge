@@ -1,0 +1,74 @@
+{
+  "result": "PASS_OFFICIAL_EXPORT_AND_VISIBILITY0_OFFLINE_COMPATIBILITY_ONLY",
+  "reviewer": "/root/basic_license_isolation_review",
+  "reviewed_at_utc8": "2026-10-13T14:01:08.593971+08:00",
+  "baseline_commit": "ddd4fbe9d981e8365440c0018c40a4aa3c87e210",
+  "facts": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261013_r01\\independent_facts_r01.json",
+    "sha256": "2a57d57709306694c3f6b173e37aee51880b8cc0003f0042c05d024bcf20fb67",
+    "bytes": 190773
+  },
+  "supplement": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261013_r01\\supplement_facts_r01.json",
+    "sha256": "de553167e3448a6c7b0c237f6e566644426c09cf26e2890dc716f8b29625aa38",
+    "bytes": 2784
+  },
+  "checker_calls": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261013_r01\\checker_calls_r01.json",
+    "sha256": "a233968557d42081be70465ec6135e6b0dbe2b982ccf47e3aa3975ae1c294041",
+    "bytes": 3487
+  },
+  "platform_manifest": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\direct_bitgen_20261013T054357Z_ccbeeb35a2053320\\delivery_manifest.json",
+    "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1",
+    "bytes": 7900
+  },
+  "historical_package": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_20261013_r01\\delivery_manifest.json",
+    "sha256": "046e3547d955f4194ad267fd63b975503d1de89d519974da7b484e18ddc45346",
+    "bytes": 7964
+  },
+  "gitattributes": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\.gitattributes",
+    "sha256": "dee86d4a91bbd2bfec647c1a293a31d1e084ae109aba09d3e3833c2c1032bee4",
+    "bytes": 65715
+  },
+  "state": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\.codex\\STATE.md",
+    "sha256": "c827c7171d443e2e3a508a58f9af22aa45a1a6f445cd53072e41b9cdc78905aa",
+    "bytes": 45016
+  },
+  "approval_basis": {
+    "same_ps7_config": "独立解析C0/S15/DCP内hwdef/实际官方XSA，937个PS参数逐值一致。",
+    "same_ps_init_bytes": "四方六份PS初始化原始字节一致；实际编译和初始ELF由原verify_build校验。",
+    "same_bsp_mmu_macros": "六份BSP/MMU/编译文件实际SHA匹配T15；读取实际ELF MMUTable，DDR0x10000000项0x10015de6，CSR初始0x43c00c02；绑定应用将CSR改为Device0xc06并执行flush/invalidate。",
+    "same_uart_ddr_csr_clocks": "实际BSP UART1地址0xe0001000/100MHz，CPU666666687Hz，DDR0x00100000..0x3fffffff及CSR0x43c00000..0x43c0ffff；编译与实现HWH地址范围相同，937PS参数相同，PNR50MHz且源码闭包一致。",
+    "full_model_core_present": "实际官方HWH存在唯一s2b_inference_top且visibility0；原PNR固定DCP及当前33项check_static源码与独审46项来源闭包一致，非仅依赖HWH模块名。",
+    "postroute_timing_pass": "核真既有独立PASS_PNR_STA_ONLY的固定DCP与原始时序报告；Physopt postRoute WNS0.007ns、WHS0.087ns、50MHz、12类check_timing均零。"
+  },
+  "bit_provenance": "同一官方Vivado会话导出时内部再次write_bitstream -force。外部bit与XSA内部bit仅三个d时间字节不同；4045564B载荷逐字节一致。审批bit精确绑定XSA原始成员提取文件，不把两完整文件称为相等。",
+  "monitor": {
+    "actual_samples": 313,
+    "sampling_target_seconds": 0.5,
+    "max_sample_gap_seconds": 0.8430000000007567,
+    "native_cmd_exit": 0,
+    "native_vivado_exit": [
+      0
+    ],
+    "two_native_members_closed_zero_exit": true,
+    "all_stop_thresholds_preserved": true
+  },
+  "source_document_review": "新增Tcl仅在原bitgen后追加官方XSA导出；原控制器及原bitgen Tcl未改。.gitattributes仅新增精确-text规则；STATE日期与新增当前事实条目相符，并明确兼容和实物仍待核查，未追认r03/r04失败为通过。",
+  "config_generator_review": {
+    "sha256": "df86d4b6437a29dce84fb2a707021ea7953e578e61b9c18f4683e4d7bcc273f8",
+    "result": "PASS_OFFLINE_CONFIG_GENERATOR_ONLY",
+    "scope": "只读静态审查；生成必须有真实收据及SHA/HEAD/产物/currentidentity格式/排他输出。未调用设备入口、SDK或串口，仅git与evidence checker子进程。"
+  },
+  "original_failures": "r01/r03/r04失败保持；r03/r04的all-member closure为null，不声称身份完全闭合。汇总包的CHECKS_OK仅证明包装完整。",
+  "audit_environment": "首轮check_static因沙箱拒绝祖先目录枚举而native1；受控提升后保持原检查器门禁运行native0，未读取许可或访问硬件。",
+  "limitations": [
+    "仅批准visibility0_cache_probe_only的离线平台兼容性。",
+    "不代表缓存探针、冷恢复、PS/PL运行、109样本/1000压力、visibility1、G3/G4/G5通过。",
+    "批准不关闭历史PNR连续预算受阻；本次bitgen/export监护独立判定。"
+  ]
+}

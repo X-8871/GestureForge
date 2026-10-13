@@ -1,8 +1,10 @@
 # 项目状态入口
 
-更新：2026-10-12（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-13（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
+
+- 2026-10-13：原许可证含已于10月6日到期的Enterprise和有效至2027年8月7日的Basic；保持签名块不变、隔离选择Basic后实际获取`Vivado_Implementation`并完成Bitgen。r02位流及独立`PASS_BITGEN_ONLY`已提交`ddd4fbe9d981e8365440c0018c40a4aa3c87e210`，见`report/evidence/S2B-T17/basic_license_isolation_20261013_r01/`。r01采样间隔超限、r03/r04进程创建采样不确定均保留失败，不算设计或许可证失败。r05采样目标0.5秒、所有硬门槛保持，原生0完成同一DCP的位流和官方`write_hw_platform -fixed -include_bit`导出；实际Run `direct_bitgen_20261013T054357Z_ccbeeb35a2053320`，外部bit SHA `ed7f78bd4b06c81385dd2e02840f04e4c916ef866c88311d11369fb48f3752a8`，XSA921090字节。官方导出再次生成bit，仅头部时间三字节不同，配置载荷逐字节相同；部署候选使用XSA原始bit，SHA `91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb`，见`implemented_export_20261013_r01/`。937 PS参数/六份初始化/HWH与S15一致；独立运行兼容审批已PASS，严格仅`visibility0_cache_probe_only`，原始收据SHA `b5c6ecacc58a4a5490db5374149bf86b1a362f58f12b3577fe47a414872e6d63`，见`implemented_export_independent_20261013_r01/`。visibility0缓存实物检查、visibility1平台及109样本/1000压力/恢复验收仍未完成，不代表2B通过。旧条目的bit待生成状态已由本条更新；已通知Wong连接电源/JTAG/UART并保持JTAG启动，等连接状态后执行现场身份与下载门禁。
 
 - 阶段2A「PL 推理仿真」已完成 G4/G5 独立审查并冻结。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
 - 用户已启动阶段2B，本工作树位于 `C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition`，分支 `codex/stage2b-t01-board-audit`，起点 `e433a081bc5f42a44ddec18b421f651d05e9c639`。PS-only平台及UART/DDR软件离线G1/G2已完成；2026-10-09固定OCM PS初始化、旧版及clock修正版UART/1MiB DDR smoke已实板功能通过。阶段2B PS/PL物理接口未冻结，G0/G4/G5未通过，不能称完整2B完成。

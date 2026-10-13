@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "direct_bitgen_20261013T054007Z_b8bb2276984435fc",
+  "source_commit": "ddd4fbe9d981e8365440c0018c40a4aa3c87e210",
+  "evidence_dir": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包只恢复已批准冻结DCP并官方导出固定XSA，不定义或冻结新的PS/PL接口；接口语义、运行兼容独审和板上验收另行判定。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/inputs/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "bb1307e5b2d49a926213dd65c0d00767f345c23f6b42debb2bea015798d28e8d",
+      "role": "input",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/inputs/s2b_inference_wrapper_postroute_physopt.dcp",
+      "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+      "role": "artifact",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/manifest.json",
+      "sha256": "f16ea2a903b2a8ede0d8e65586cd7fb46b006fb811f81c452f795284e7a1f6cf",
+      "role": "result",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/monitor.jsonl",
+      "sha256": "6ac0c398b006ffa795edcb8789fd866f06eb95474e4c4508cd309ad66e279b16",
+      "role": "log",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054007Z_b8bb2276984435fc/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441",
+      "role": "source",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    },
+    {
+      "path": "verification/s15_job_guard.py",
+      "sha256": "330a72c21f5309595b134609a2302beadc96a82dc16429db85e4eb8fd87e2112",
+      "role": "source",
+      "keep_reason": "绑定本次实际运行、审计输入及恢复产物；本地二进制和含私有运行路径的原始日志不进入Git暂存列表。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "monitor startup uncertainty阻断本次导出",
+      "status": "BLOCKED",
+      "command": "python -B tmp/2B/S2B-T17/basic_license_isolation_20261013_r01/run_isolated_basic.py --execute --attempt r04",
+      "exit_code": null,
+      "reason": "采样启动原生状态不确定，controller实际1/root实际93；没有Vivado退出码，job_final_closure为null，不声称成员闭合。"
+    }
+  ],
+  "limitations": [
+    "本包不执行板卡操作，不能代表2B G3/G4/G5或runtime兼容审查通过。",
+    "原始manifest/monitor/log仅保留本机并绑定哈希，Git暂存不含其私有运行路径；许可证及private_selection未读取或复制。",
+    "本地DCP/bit/XSA二进制不进入Git暂存列表。",
+    "r03/r04实际wrapper历史快照不可得，只保存当次Tcl与controller哈希；当前脱敏wrapper不追认为历史原件。"
+  ],
+  "tool_versions": {
+    "vivado": "2026.1",
+    "controller_python": "3.12.14",
+    "offline_packager_python": "3.13.0"
+  }
+}

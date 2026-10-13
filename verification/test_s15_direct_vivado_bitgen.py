@@ -7,6 +7,7 @@ import os
 import secrets
 import struct
 import sys
+import tempfile
 import time
 import traceback
 import unittest
@@ -45,6 +46,29 @@ def _new_run_dir(label):
             continue
         return target
     raise RuntimeError("不能为fixture分配唯一证据目录")
+
+
+def _new_private_temp_root(test_case):
+    """在工作区测试隔离目录下创建短TemporaryDirectory并由addCleanup回收。"""
+    root_parent = _effective_fixture_evidence_parent() / f"s15_test_parent_{secrets.token_hex(8)}"
+    current_user_sid, _groups = controller._current_process_token_sids()
+    controller._create_private_profile_directory(root_parent, current_user_sid)
+
+    def cleanup_parent():
+        if list(root_parent.iterdir()):
+            raise AssertionError(f"测试私有父目录未清空，保留路径：{str(root_parent)!r}")
+        root_parent.rmdir()
+
+    test_case.addCleanup(cleanup_parent)
+    temporary_directory = tempfile.TemporaryDirectory(prefix="s15t_", dir=str(root_parent))
+    test_case.addCleanup(temporary_directory.cleanup)
+    return Path(temporary_directory.name)
+
+
+def _child_environment_fixture(run_dir, temporary_root):
+    """用短的厂商相对路径运行child environment隔离测试。"""
+    with mock.patch.object(controller, "_vendor_tclstore_relative_files", return_value=["fixture.tcl"]):
+        return controller._child_environment(run_dir, temporary_root=temporary_root)
 
 
 def _write_json(path, payload):
@@ -262,14 +286,18 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         source_appdata.mkdir()
         license_file = run_dir / "fixture_license.lic"
         license_file.write_bytes(b"fixture license metadata only\n")
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(
             os.environ,
             {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": str(license_file)},
             clear=False,
         ):
-            environment, isolated_appdata, license_audit = controller._child_environment(run_dir)
+            environment, isolated_appdata, license_audit, appdata_profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
         self.assertNotEqual(str(source_appdata), isolated_appdata)
-        self.assertEqual(str(run_dir / "isolated_appdata"), environment["APPDATA"])
+        self.assertEqual(isolated_appdata, environment["APPDATA"])
+        self.assertEqual(isolated_appdata, appdata_profile_audit["path"])
         self.assertEqual(str(license_file), environment["XILINXD_LICENSE_FILE"])
         self.assertTrue(license_audit["usable"])
         self.assertEqual(" ".join(batch_arguments), command[len("call ") + len(str(batch_path)) + 1 :])
@@ -452,8 +480,11 @@ class DirectSpawnFixtureTests(unittest.TestCase):
             "XILINXD_LICENSE_FILE": str(license_path),
             "RDI_VERBOSE": "True",
         }
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(os.environ, patched_environment, clear=False):
-            environment, isolated_appdata, license_audit = controller._child_environment(run_dir)
+            environment, isolated_appdata, license_audit, _profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
             self.assertEqual("True", os.environ["RDI_VERBOSE"])
             self.assertEqual("False", environment["RDI_VERBOSE"])
             self.assertEqual(str(license_path), environment["XILINXD_LICENSE_FILE"])
@@ -704,12 +735,20 @@ class ControllerSafetyUnitTests(unittest.TestCase):
     def test_batch_launcher_inherits_appdata_and_license_environment(self):
         run_dir = _new_run_dir("environment_inheritance")
         expected = {"APPDATA": str(run_dir), "XILINXD_LICENSE_FILE": "27000@fixture-license.invalid", "LM_LICENSE_FILE": "fixture-license-file.lic"}
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(os.environ, expected, clear=False):
-            environment, isolated_appdata, audit = controller._child_environment(run_dir)
+            environment, isolated_appdata, audit, profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
         self.assertNotEqual(expected["APPDATA"], isolated_appdata)
-        self.assertEqual(str(run_dir / "isolated_appdata"), environment["APPDATA"])
+        self.assertEqual(isolated_appdata, environment["APPDATA"])
         self.assertTrue(audit["usable"])
         self.assertEqual("explicit_environment", audit["mode"])
+        self.assertEqual(run_dir.name, profile_audit["run_id"])
+        self.assertEqual(isolated_appdata, profile_audit["path"])
+        self.assertLessEqual(profile_audit["path_length_audit"]["longest_destination_path_utf16_chars"], 259)
+        self.assertNotIn(expected["XILINXD_LICENSE_FILE"], json.dumps(profile_audit, ensure_ascii=False))
+        self.assertNotIn(expected["LM_LICENSE_FILE"], json.dumps(profile_audit, ensure_ascii=False))
         for name in controller.LICENSE_ENVIRONMENT_NAMES:
             self.assertEqual(expected[name], environment[name])
         _write_json(
@@ -719,6 +758,428 @@ class ControllerSafetyUnitTests(unittest.TestCase):
                 "isolated_appdata": isolated_appdata,
                 "license_variables": list(controller.LICENSE_ENVIRONMENT_NAMES),
                 "license_audit": audit,
+            },
+        )
+
+    def test_private_appdata_profile_is_short_unique_canonical_and_writable(self):
+        run_dir = _new_run_dir("private_appdata_profile_path")
+        temporary_root = _new_private_temp_root(self)
+        vendor_files = ["apps/short_name.tcl", "catalogs/example/catalog.xml"]
+        first_path, first_audit = controller._create_private_appdata_profile(
+            run_dir.name,
+            temporary_root=temporary_root,
+            vendor_relative_files=vendor_files,
+        )
+        second_path, second_audit = controller._create_private_appdata_profile(
+            run_dir.name,
+            temporary_root=temporary_root,
+            vendor_relative_files=vendor_files,
+        )
+        self.assertNotEqual(first_path, second_path)
+        self.assertEqual(run_dir.name, first_audit["run_id"])
+        self.assertEqual(str(temporary_root.resolve(strict=True)), first_audit["profile_parent_path"])
+        self.assertEqual(str(Path(first_path).resolve(strict=True)), first_audit["canonical_path"])
+        self.assertEqual(first_audit["path"], controller._assert_path_chain(first_path, "directory"))
+        self.assertEqual(
+            os.path.normcase(os.path.abspath(str(temporary_root))),
+            os.path.normcase(os.path.abspath(first_path).rsplit(os.sep + "s15_appdata_", 1)[0]),
+        )
+        self.assertLessEqual(first_audit["path_utf16_chars"], 259)
+        self.assertLessEqual(first_audit["path_length_audit"]["longest_destination_path_utf16_chars"], 259)
+        profile_acl = first_audit["profile_security_audit"]
+        self.assertTrue(profile_acl["owner_matches_current_user"])
+        self.assertTrue(profile_acl["dacl_protected"])
+        self.assertTrue(profile_acl["only_expected_principals_with_full_control"])
+        self.assertEqual(3, profile_acl["ace_count"])
+        self.assertEqual(
+            {"CURRENT_USER", "SYSTEM", "ADMINISTRATORS"},
+            {ace["principal"] for ace in profile_acl["aces"]},
+        )
+        self.assertEqual(
+            {controller.FILE_ALL_ACCESS},
+            {ace["mask"] for ace in profile_acl["aces"]},
+        )
+        self.assertEqual(
+            {controller.OBJECT_INHERIT_ACE | controller.CONTAINER_INHERIT_ACE},
+            {ace["inherit_flags"] for ace in profile_acl["aces"]},
+        )
+        parent_acl = first_audit["parent_security_audit"]
+        self.assertFalse(parent_acl["parent_mutable_by_nontrusted_principal"])
+        self.assertEqual("EXPLICIT_TEST_ROOT", first_audit["profile_parent_source"])
+        current_user_sid, _groups = controller._current_process_token_sids()
+        inherited_directory = Path(first_path) / "Xilinx" / "Vivado" / controller.EXPECTED_VIVADO_VERSION
+        inherited_directory.mkdir(parents=True)
+        inherited_acl = controller._inspect_directory_security(
+            inherited_directory,
+            current_user_sid,
+            require_inherited_profile_dacl=True,
+        )
+        self.assertFalse(inherited_acl["dacl_protected"])
+        self.assertEqual(3, inherited_acl["ace_count"])
+        self.assertEqual(
+            {controller.OBJECT_INHERIT_ACE | controller.CONTAINER_INHERIT_ACE | controller.INHERITED_ACE},
+            {ace["inherit_flags"] for ace in inherited_acl["aces"]},
+        )
+        inherited_directory.rmdir()
+        inherited_directory.parent.rmdir()
+        inherited_directory.parent.parent.rmdir()
+        self.assertEqual([], list(Path(first_path).iterdir()))
+        self.assertEqual([], list(Path(second_path).iterdir()))
+        self.assertEqual("PASS_CREATED_AND_REMOVED_EMPTY_FILE", first_audit["write_delete_probe"])
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_PRIVATE_APPDATA_PROFILE_PATH_AND_EXCLUSIVE_CREATION",
+                "first_profile": first_audit,
+                "second_profile": second_audit,
+            },
+        )
+
+    def test_private_profile_parent_acl_checks_all_principals_and_user_documents_source(self):
+        run_dir = _new_run_dir("private_appdata_parent_acl")
+        user_sid = "S-1-5-21-1000-2000-3000-4000"
+        unknown_sid = "S-1-5-21-5000-6000-7000-8000"
+        appcontainer_sid = "S-1-15-2-1"
+        trusted_aces = [
+            {"ace_type": controller.ACCESS_ALLOWED_ACE_TYPE, "sid": user_sid, "mask": controller.FILE_ALL_ACCESS},
+            {
+                "ace_type": controller.ACCESS_ALLOWED_ACE_TYPE,
+                "sid": controller.SYSTEM_SID,
+                "mask": controller.FILE_ALL_ACCESS,
+            },
+            {
+                "ace_type": controller.ACCESS_ALLOWED_ACE_TYPE,
+                "sid": controller.ADMINISTRATORS_SID,
+                "mask": controller.FILE_ALL_ACCESS,
+            },
+            {
+                "ace_type": controller.ACCESS_ALLOWED_ACE_TYPE,
+                "sid": controller.OWNER_RIGHTS_SID,
+                "mask": controller.FILE_ALL_ACCESS,
+            },
+        ]
+        for principal_sid in (unknown_sid, appcontainer_sid):
+            with self.subTest(principal_sid=principal_sid):
+                with self.assertRaisesRegex(controller.ControllerError, "非受信任主体具有写入或替换权限"):
+                    controller._audit_private_profile_parent_acl(
+                        user_sid,
+                        user_sid,
+                        trusted_aces
+                        + [
+                            {
+                                "ace_type": controller.ACCESS_ALLOWED_ACE_TYPE,
+                                "sid": principal_sid,
+                                "mask": controller.FILE_DELETE_CHILD,
+                            }
+                        ],
+                    )
+        allowed_audit = controller._audit_private_profile_parent_acl(
+            user_sid,
+            user_sid,
+            trusted_aces
+            + [
+                {
+                    "ace_type": controller.ACCESS_ALLOWED_ACE_TYPE,
+                    "sid": unknown_sid,
+                    "mask": controller.FILE_READ_CONTROL,
+                }
+            ],
+        )
+        self.assertEqual("CURRENT_USER", allowed_audit["owner_role"])
+        self.assertFalse(allowed_audit["parent_mutable_by_nontrusted_principal"])
+        self.assertEqual(1, allowed_audit["nontrusted_readonly_ace_count"])
+        for trusted_owner_sid, expected_role in (
+            (controller.SYSTEM_SID, "SYSTEM"),
+            (controller.ADMINISTRATORS_SID, "ADMINISTRATORS"),
+        ):
+            with self.subTest(owner_role=expected_role):
+                with self.assertRaisesRegex(controller.ControllerError, "非受信任主体具有写入或替换权限"):
+                    controller._audit_private_profile_parent_acl(
+                        user_sid,
+                        trusted_owner_sid,
+                        trusted_aces,
+                        allowed_owner_sids=(controller.SYSTEM_SID, controller.ADMINISTRATORS_SID),
+                    )
+        for trusted_owner_sid, expected_role in (
+            (controller.SYSTEM_SID, "SYSTEM"),
+            (controller.ADMINISTRATORS_SID, "ADMINISTRATORS"),
+        ):
+            with self.subTest(owner_role=expected_role):
+                role_audit = controller._audit_private_profile_parent_acl(
+                    user_sid,
+                    trusted_owner_sid,
+                    trusted_aces[:-1],
+                    allowed_owner_sids=(controller.SYSTEM_SID, controller.ADMINISTRATORS_SID),
+                )
+                self.assertEqual(expected_role, role_audit["owner_role"])
+                self.assertFalse(role_audit["parent_mutable_by_nontrusted_principal"])
+        with self.assertRaisesRegex(controller.ControllerError, "owner不属于明确允许"):
+            controller._audit_private_profile_parent_acl(
+                user_sid,
+                unknown_sid,
+                trusted_aces,
+                allowed_owner_sids=(controller.SYSTEM_SID, controller.ADMINISTRATORS_SID),
+            )
+        with self.assertRaisesRegex(controller.ControllerError, "owner不属于明确允许"):
+            controller._audit_private_profile_parent_acl(
+                user_sid,
+                controller.SYSTEM_SID,
+                trusted_aces,
+            )
+        with self.assertRaisesRegex(controller.ControllerError, "非允许或无法安全评估的ACE"):
+            controller._audit_private_profile_parent_acl(
+                user_sid,
+                user_sid,
+                [{"ace_type": 5, "sid": unknown_sid, "mask": controller.FILE_READ_CONTROL}],
+            )
+
+        temporary_root = _new_private_temp_root(self)
+        user_profile = temporary_root / "fake_user_profile"
+        documents = user_profile / "Documents"
+        documents.mkdir(parents=True)
+        current_user_sid, _groups = controller._current_process_token_sids()
+        with mock.patch.dict(os.environ, {"USERPROFILE": str(user_profile)}, clear=False):
+            default_root = controller._user_documents_profile_root(current_user_sid)
+        self.assertEqual(str(documents.resolve(strict=True)), default_root)
+        with mock.patch.object(controller, "_user_documents_profile_root", return_value=str(temporary_root)):
+            _profile_path, default_profile_audit = controller._create_private_appdata_profile(
+                "user_documents_default_source_fixture",
+                profile_nonce="33333333444444445555555566666666",
+                vendor_relative_files=["fixture.tcl"],
+            )
+        self.assertEqual("USER_DOCUMENTS", default_profile_audit["profile_parent_source"])
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_ALL_PARENT_ACES_AUDITED_AND_USER_DOCUMENTS_SOURCE_DERIVED",
+                "unknown_mutate_rejected": True,
+                "appcontainer_mutate_rejected": True,
+                "unknown_readonly_allowed": True,
+                "non_allowed_ace_rejected": True,
+                "documents_root": default_root,
+                "default_profile_parent_source": default_profile_audit["profile_parent_source"],
+            },
+        )
+
+    def test_real_user_documents_parent_acl_is_read_only_and_summarized(self):
+        run_dir = _new_run_dir("real_user_documents_parent_acl")
+        user_profile = os.environ.get("USERPROFILE")
+        self.assertTrue(user_profile)
+        current_user_sid, _groups = controller._current_process_token_sids()
+        profile_audits = []
+        original_verify = controller._verify_private_profile_parent
+
+        def record_profile_audit(path, current_sid, allowed_owner_sids=None):
+            audit = original_verify(
+                path,
+                current_sid,
+                allowed_owner_sids=allowed_owner_sids,
+            )
+            profile_audits.append(audit)
+            return audit
+
+        with mock.patch.object(
+            controller,
+            "_verify_private_profile_parent",
+            side_effect=record_profile_audit,
+        ):
+            documents_root = controller._user_documents_profile_root(current_user_sid)
+
+        self.assertEqual(1, len(profile_audits))
+        profile_audit = profile_audits[0]
+        self.assertIn(profile_audit["owner_role"], {"CURRENT_USER", "SYSTEM", "ADMINISTRATORS"})
+        self.assertFalse(profile_audit["parent_mutable_by_nontrusted_principal"])
+        documents_audit = original_verify(documents_root, current_user_sid)
+        self.assertTrue(documents_audit["owner_matches_current_user"])
+        self.assertFalse(documents_audit["parent_mutable_by_nontrusted_principal"])
+        summary = {
+            "production_root_selection_succeeded": True,
+            "profile_parent": {
+                "owner_role": profile_audit["owner_role"],
+                "owner_matches_current_user": profile_audit["owner_matches_current_user"],
+                "ace_count": profile_audit["parent_acl_ace_count"],
+                "nontrusted_readonly_ace_count": profile_audit[
+                    "nontrusted_readonly_ace_count"
+                ],
+                "parent_mutable_by_nontrusted_principal": profile_audit[
+                    "parent_mutable_by_nontrusted_principal"
+                ],
+            },
+            "documents_parent": {
+                "owner_matches_current_user": documents_audit["owner_matches_current_user"],
+                "ace_count": documents_audit["parent_acl_ace_count"],
+                "nontrusted_readonly_ace_count": documents_audit[
+                    "nontrusted_readonly_ace_count"
+                ],
+                "parent_mutable_by_nontrusted_principal": documents_audit[
+                    "parent_mutable_by_nontrusted_principal"
+                ],
+            },
+            "documents_contents_changed": False,
+            "private_profile_created": False,
+        }
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_READ_ONLY_REAL_USERPROFILE_AND_DOCUMENTS_ACL_AUDIT",
+                "acl_summary": summary,
+            },
+        )
+
+    def test_missing_userprofile_rejects_without_touching_shared_temp(self):
+        run_dir = _new_run_dir("missing_userprofile_no_temp_fallback")
+        shared_temp_root = _new_private_temp_root(self)
+        before = tuple(sorted(entry.name for entry in shared_temp_root.iterdir()))
+
+        with mock.patch.dict(os.environ, clear=False):
+            os.environ.pop("USERPROFILE", None)
+            os.environ["TEMP"] = str(shared_temp_root)
+            os.environ["TMP"] = str(shared_temp_root)
+            with self.assertRaisesRegex(controller.ControllerError, "USERPROFILE未定义"):
+                controller._create_private_appdata_profile(
+                    "missing_userprofile_default",
+                    profile_nonce="55555555666666667777777788888888",
+                    vendor_relative_files=["fixture.tcl"],
+                )
+
+        after = tuple(sorted(entry.name for entry in shared_temp_root.iterdir()))
+        self.assertEqual(before, after)
+        self.assertFalse(
+            any(name.startswith("s15_appdata_") for name in set(after) - set(before))
+        )
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_MISSING_USERPROFILE_FAILS_CLOSED_WITHOUT_TEMP_FALLBACK",
+                "temp_contents_unchanged": before == after,
+                "before_entry_count": len(before),
+                "after_entry_count": len(after),
+            },
+        )
+
+    def test_private_appdata_profile_length_guard_accepts_259_and_rejects_260(self):
+        run_dir = _new_run_dir("private_appdata_path_length")
+        appdata = run_dir / "p"
+        store_root = appdata / "Xilinx" / "Vivado" / controller.EXPECTED_VIVADO_VERSION / "XilinxTclStore"
+        needed_component_length = 259 - controller._windows_path_utf16_chars(store_root) - 1
+        self.assertGreater(needed_component_length, 0)
+        self.assertLessEqual(needed_component_length + 1, 255)
+        accepted = controller._private_appdata_path_length_audit(
+            appdata,
+            ["x" * needed_component_length],
+        )
+        self.assertEqual(259, accepted["longest_destination_path_utf16_chars"])
+        with self.assertRaisesRegex(controller.ControllerError, "超过259 UTF-16字符"):
+            controller._private_appdata_path_length_audit(
+                appdata,
+                ["x" * (needed_component_length + 1)],
+            )
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_PRIVATE_APPDATA_PATH_LENGTH_BOUNDARY", "accepted_chars": 259, "rejected_chars": 260},
+        )
+
+    def test_user_documents_profile_path_fits_deepest_installed_tclstore_destination(self):
+        run_dir = _new_run_dir("user_documents_tclstore_path_length")
+        user_profile = os.environ.get("USERPROFILE")
+        self.assertTrue(user_profile)
+        documents_root = str(Path(user_profile) / "Documents")
+        run_id = "documents_tclstore_path_length"
+        profile_digest = controller.hashlib.sha256(run_id.encode("ascii")).hexdigest()[:8].upper()
+        profile_path = Path(documents_root) / f"s15_appdata_{profile_digest}_{'0' * 32}"
+        vendor_files = controller._vendor_tclstore_relative_files()
+        audit = controller._private_appdata_path_length_audit(profile_path, vendor_files)
+        self.assertGreater(audit["vendor_file_count"], 0)
+        self.assertLessEqual(audit["longest_destination_path_utf16_chars"], 259)
+        self.assertTrue(audit["all_destination_paths_within_limit"])
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_USER_DOCUMENTS_DEEPEST_TCLSTORE_PATH_WITHIN_259_UTF16_CHARS",
+                "vendor_file_count": audit["vendor_file_count"],
+                "longest_vendor_relative_path": audit["longest_vendor_relative_path"],
+                "longest_destination_path_utf16_chars": audit["longest_destination_path_utf16_chars"],
+                "documents_root": documents_root,
+            },
+        )
+
+    def test_private_appdata_profile_refuses_existing_path_without_reuse(self):
+        run_dir = _new_run_dir("private_appdata_profile_reuse")
+        temporary_root = _new_private_temp_root(self)
+        nonce = "0123456789abcdef0123456789abcdef"
+        profile_path, _audit = controller._create_private_appdata_profile(
+            run_dir.name,
+            profile_nonce=nonce,
+            temporary_root=temporary_root,
+            vendor_relative_files=["one.tcl"],
+        )
+        with self.assertRaisesRegex(controller.ControllerError, "拒绝复用已存在APPDATA profile路径"):
+            controller._create_private_appdata_profile(
+                run_dir.name,
+                profile_nonce=nonce,
+                temporary_root=temporary_root,
+                vendor_relative_files=["one.tcl"],
+            )
+        self.assertTrue(Path(profile_path).is_dir())
+        self.assertEqual([], list(Path(profile_path).iterdir()))
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_EXISTING_PRIVATE_APPDATA_PATH_REJECTED", "profile_path": profile_path},
+        )
+
+    def test_private_appdata_profile_rolls_back_own_empty_directory_after_probe_failure(self):
+        run_dir = _new_run_dir("private_appdata_profile_probe_rollback")
+        temporary_root = _new_private_temp_root(self)
+        nonce = "11111111222222223333333344444444"
+        profile_id = f"{controller.hashlib.sha256(run_dir.name.encode('ascii')).hexdigest()[:8].upper()}_{nonce}"
+        expected_profile = temporary_root / f"s15_appdata_{profile_id}"
+        with mock.patch.object(controller.os, "open", side_effect=OSError("injected probe create failure")):
+            with self.assertRaisesRegex(OSError, "injected probe create failure"):
+                controller._create_private_appdata_profile(
+                    run_dir.name,
+                    profile_nonce=nonce,
+                    temporary_root=temporary_root,
+                    vendor_relative_files=["one.tcl"],
+                )
+        self.assertFalse(expected_profile.exists())
+        _write_json(
+            run_dir / "fixture_result.json",
+            {"status": "PASS_PRIVATE_PROFILE_OWN_EMPTY_DIRECTORY_ROLLED_BACK", "profile_path_absent": True},
+        )
+
+    def test_private_appdata_profile_preserves_unowned_content_on_rollback(self):
+        run_dir = _new_run_dir("private_appdata_profile_rollback_preserve")
+        temporary_root = _new_private_temp_root(self)
+        nonce = "22222222333333334444444455555555"
+        profile_id = f"{controller.hashlib.sha256(run_dir.name.encode('ascii')).hexdigest()[:8].upper()}_{nonce}"
+        expected_profile = temporary_root / f"s15_appdata_{profile_id}"
+        unexpected = expected_profile / "unexpected.marker"
+        original_open = controller.os.open
+
+        def fail_after_adding_unexpected_content(path, flags, mode=0o777):
+            if Path(path) == expected_profile / ".s15_write_delete_probe":
+                unexpected.write_text("test-owned injected entry", encoding="utf-8")
+                raise OSError("injected unowned entry")
+            return original_open(path, flags, mode)
+
+        with mock.patch.object(controller.os, "open", side_effect=fail_after_adding_unexpected_content):
+            with self.assertRaisesRegex(controller.ControllerError, "保留路径") as raised:
+                controller._create_private_appdata_profile(
+                    run_dir.name,
+                    profile_nonce=nonce,
+                    temporary_root=temporary_root,
+                    vendor_relative_files=["one.tcl"],
+                )
+        self.assertIn(expected_profile.name, str(raised.exception))
+        self.assertTrue(expected_profile.is_dir())
+        self.assertTrue(unexpected.is_file())
+        unexpected.unlink()
+        expected_profile.rmdir()
+        _write_json(
+            run_dir / "fixture_result.json",
+            {
+                "status": "PASS_PRIVATE_PROFILE_UNKNOWN_CONTENT_PRESERVED",
+                "profile_preserved_until_test_removed_its_exact_injected_file": True,
             },
         )
 
@@ -770,8 +1231,11 @@ class ControllerSafetyUnitTests(unittest.TestCase):
             "RDI_BINROOT": r"D:\\attacker\\bin",
             "RDI_APPROOT": r"D:\\attacker",
         }
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(os.environ, injected, clear=False):
-            environment, _isolated_appdata, _license_audit = controller._child_environment(run_dir)
+            environment, _isolated_appdata, _license_audit, _profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
         for name in controller.VIVADO_SETUP_ENVIRONMENT_VARIABLES:
             self.assertNotIn(name, environment)
         _write_json(
@@ -829,17 +1293,23 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         script.write_text(f"set handle [open {{{marker}}} w]; puts $handle executed; close $handle\n", encoding="utf-8")
         license_file = run_dir / "fixture_license.lic"
         license_file.write_bytes(b"fixture license metadata only\n")
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(
             os.environ,
             {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": str(license_file)},
             clear=False,
         ):
             audit = controller._audit_user_init_scripts(source_appdata)
-            environment, isolated_appdata, _license_audit = controller._child_environment(run_dir)
+            environment, isolated_appdata, _license_audit, profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
         self.assertTrue(audit["source_scripts"][0]["exists"])
         self.assertFalse(audit["copied_to_child_appdata"])
         self.assertFalse((Path(isolated_appdata) / "Xilinx" / "Vivado" / controller.EXPECTED_VIVADO_VERSION / "Vivado_init.tcl").exists())
         self.assertEqual(isolated_appdata, environment["APPDATA"])
+        self.assertEqual(isolated_appdata, profile_audit["path"])
+        self.assertNotIn(str(source_appdata), json.dumps(profile_audit, ensure_ascii=False))
+        self.assertLessEqual(profile_audit["path_length_audit"]["longest_destination_path_utf16_chars"], 259)
         self.assertFalse(marker.exists())
         self.assertNotIn(str(source_appdata), json.dumps(audit, ensure_ascii=False))
         _write_json(
@@ -874,13 +1344,16 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         license_file = license_dir / "single_fixture.lic"
         license_file.write_bytes(b"fixture license bytes are not copied\n")
         environment = {"APPDATA": str(source_appdata), "XILINXD_LICENSE_FILE": ""}
+        private_temp_root = _new_private_temp_root(self)
         with mock.patch.dict(os.environ, environment, clear=False):
             audit = controller._audit_license_configuration(environment, source_appdata)
-            child_environment, isolated_appdata, child_audit = controller._child_environment(run_dir)
+            child_environment, isolated_appdata, child_audit, _profile_audit = _child_environment_fixture(
+                run_dir, private_temp_root
+            )
         self.assertTrue(audit["usable"])
         self.assertTrue(audit["default_license_used"])
         self.assertEqual(str(license_file), child_environment["XILINXD_LICENSE_FILE"])
-        self.assertEqual(str(run_dir / "isolated_appdata"), isolated_appdata)
+        self.assertEqual(isolated_appdata, child_environment["APPDATA"])
         self.assertEqual(audit, child_audit)
         self.assertNotIn(str(source_appdata), json.dumps(audit, ensure_ascii=False))
         self.assertFalse((Path(isolated_appdata) / "XilinxLicense" / license_file.name).exists())
@@ -1238,11 +1711,19 @@ class ControllerSafetyUnitTests(unittest.TestCase):
         runner_source = inspect.getsource(controller.run_frozen_bitgen)
         precheck_source = inspect.getsource(controller._run_prelaunch_check)
         prepare_index = runner_source.index("input_locks = _prepare_run_inputs(run_dir, facts)")
+        profile_index = runner_source.index("child_environment, isolated_appdata, license_audit, appdata_profile_audit = _child_environment(run_dir)")
+        profile_record_index = runner_source.index('manifest["process_launch"]["private_appdata_profile"] = appdata_profile_audit')
         precheck_index = runner_source.index("redist_check = _run_prelaunch_check(")
+        job_index = runner_source.index("job = job_guard.JobObject(kill_on_close=True)")
         launch_index = runner_source.index("child = job_guard.launch_suspended_root(")
         self.assertLess(prepare_index, launch_index)
         self.assertLess(prepare_index, precheck_index)
+        self.assertLess(prepare_index, profile_index)
+        self.assertLess(profile_index, profile_record_index)
+        self.assertLess(profile_record_index, precheck_index)
+        self.assertIn('"private_appdata_profile": None', runner_source)
         self.assertLess(precheck_index, launch_index)
+        self.assertLess(precheck_index, job_index)
         self.assertEqual(1, runner_source.count("child = job_guard.launch_suspended_root("))
         self.assertIn("job_guard.launch_suspended_root(", precheck_source)
 

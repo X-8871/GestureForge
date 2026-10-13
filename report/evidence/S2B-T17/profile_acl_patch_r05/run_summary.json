@@ -1,0 +1,75 @@
+{
+  "run_id": "profile_acl_patch_r05",
+  "source_commit": "04e93e6eeda75c1a381ce89f49a3f97b80b69e6b",
+  "source_snapshot": {
+    "verification/s15_direct_vivado_bitgen.py": {
+      "bytes": 134417,
+      "sha256": "eb11cbd7285b6b647444c265be805c47d7ef3e2f18334a9c7ff9756f7f634441"
+    },
+    "verification/test_s15_direct_vivado_bitgen.py": {
+      "bytes": 113439,
+      "sha256": "243fc307a485a89c826b7af2e851a8e7b3000181878c2dcc28070ef69f1a5d44"
+    }
+  },
+  "planned_frozen_bitgen_bindings": {
+    "verification/s15_frozen_dcp_bitgen.tcl": {
+      "bytes": 4036,
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e"
+    },
+    "tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/project_s15_r01/s2b_inference_candidate.runs/impl_1/s2b_inference_wrapper_postroute_physopt.dcp": {
+      "bytes": 13704328,
+      "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83"
+    }
+  },
+  "checks": {
+    "unit_tests": {
+      "command": "python.exe -B -c unittest.defaultTestLoader.loadTestsFromName('test_s15_direct_vivado_bitgen')",
+      "exit_code": 0,
+      "test_count": 45,
+      "passed": 45,
+      "failed": 0,
+      "fixture_root": "tmp/2B/S2B-T17/pacl_r05"
+    },
+    "py_compile": {
+      "exit_code": 0,
+      "compiled_file_count": 2,
+      "bytecode_output": "tmp/2B/S2B-T17/pacl_compile_r05"
+    },
+    "git_diff_check": {
+      "exit_code": 0,
+      "targets": [
+        "verification/s15_direct_vivado_bitgen.py",
+        "verification/test_s15_direct_vivado_bitgen.py"
+      ]
+    },
+    "owner_rights_policy": {
+      "current_user_owner_mutation_ace": "trusted",
+      "system_owner_mutation_ace": "rejected",
+      "administrators_owner_mutation_ace": "rejected",
+      "unlisted_owner": "rejected"
+    },
+    "real_userprofile_documents_acl": {
+      "status": "PASS_READ_ONLY_REAL_USERPROFILE_AND_DOCUMENTS_ACL_AUDIT",
+      "profile_owner_role": "SYSTEM",
+      "profile_ace_count": 4,
+      "profile_nontrusted_readonly_ace_count": 1,
+      "profile_nontrusted_mutable": false,
+      "documents_owner_matches_execution_user": true,
+      "documents_ace_count": 4,
+      "documents_nontrusted_readonly_ace_count": 1,
+      "documents_nontrusted_mutable": false,
+      "documents_contents_changed": false,
+      "private_profile_created": false
+    },
+    "missing_userprofile_shared_temp": {
+      "status": "PASS_MISSING_USERPROFILE_FAILS_CLOSED_WITHOUT_TEMP_FALLBACK",
+      "temp_contents_unchanged": true
+    }
+  },
+  "vivado_started": false,
+  "bitgen_started": false,
+  "jtag_started": false,
+  "limitations": [
+    "Common 17-356 / load_features失败的根因尚未由Vivado实际启动验证；本证据包只验证启动器隔离APPDATA与ACL门禁。"
+  ]
+}

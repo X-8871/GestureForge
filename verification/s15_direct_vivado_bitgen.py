@@ -35,6 +35,12 @@ XVCREDIST_LINK_TARGET = r"..\tps"
 XVCREDIST_RESOLVED_ROOT = r"D:\Xilinx\2026.1\tps"
 EXPECTED_XVCREDIST_SHA256 = "9AF2EDB12A74BE5F1F2B9FD7D0BA888EE36CF87A8F9F4CD131EC59B66BD12019"
 REDIST_CHECK_SKIP_ENV = "XIL_PA_NO_REDIST_CHECK"
+TCLSTORE_DATA_LINK = r"D:\Xilinx\2026.1\Vivado\data"
+TCLSTORE_DATA_LINK_TARGET = r"..\data"
+TCLSTORE_CANONICAL_DATA_ROOT = r"D:\Xilinx\2026.1\data"
+TCLSTORE_CANONICAL_ROOT = r"D:\Xilinx\2026.1\data\XilinxTclStore"
+TCLSTORE_INSTALL_ROOT = r"D:\Xilinx\2026.1"
+APPDATA_MAX_PATH_UTF16_CHARS = 259
 VIVADO_SETUP_ENVIRONMENT_VARIABLES = (
     "RDI_SETUP_ENV_FUNCTION",
     "RDI_BINROOT",
@@ -71,6 +77,50 @@ FILE_ATTRIBUTE_NORMAL = 0x00000080
 FILE_ATTRIBUTE_DIRECTORY = 0x00000010
 FILE_ATTRIBUTE_TAG_INFO_CLASS = 9
 INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
+TOKEN_QUERY = 0x0008
+TOKEN_USER_CLASS = 1
+ERROR_INSUFFICIENT_BUFFER = 122
+SE_FILE_OBJECT = 1
+OWNER_SECURITY_INFORMATION = 0x00000001
+DACL_SECURITY_INFORMATION = 0x00000004
+PROTECTED_DACL_SECURITY_INFORMATION = 0x80000000
+SE_DACL_PROTECTED = 0x1000
+ACCESS_ALLOWED_ACE_TYPE = 0
+OBJECT_INHERIT_ACE = 0x01
+CONTAINER_INHERIT_ACE = 0x02
+INHERITED_ACE = 0x10
+FILE_ALL_ACCESS = 0x001F01FF
+FILE_READ_CONTROL = 0x00020000
+FILE_DELETE = 0x00010000
+FILE_WRITE_DATA = 0x00000002
+FILE_APPEND_DATA = 0x00000004
+FILE_WRITE_EA = 0x00000010
+FILE_DELETE_CHILD = 0x00000040
+FILE_WRITE_ATTRIBUTES = 0x00000100
+WRITE_DAC = 0x00040000
+WRITE_OWNER = 0x00080000
+GENERIC_WRITE = 0x40000000
+GENERIC_ALL = 0x10000000
+ACCESS_SYSTEM_SECURITY = 0x01000000
+SE_GROUP_ENABLED = 0x00000004
+FILE_SHARE_DELETE = 0x00000004
+FILE_FLAG_BACKUP_SEMANTICS = 0x02000000
+SYSTEM_SID = "S-1-5-18"
+ADMINISTRATORS_SID = "S-1-5-32-544"
+OWNER_RIGHTS_SID = "S-1-3-4"
+PROFILE_PARENT_MUTATION_MASK = (
+    FILE_WRITE_DATA
+    | FILE_APPEND_DATA
+    | FILE_WRITE_EA
+    | FILE_DELETE_CHILD
+    | FILE_DELETE
+    | FILE_WRITE_ATTRIBUTES
+    | WRITE_DAC
+    | WRITE_OWNER
+    | GENERIC_WRITE
+    | GENERIC_ALL
+    | ACCESS_SYSTEM_SECURITY
+)
 CMD_SAFE_TOKEN = re.compile(r"\A[A-Za-z0-9_:\\/.-]+\Z", re.ASCII)
 LICENSE_ENVIRONMENT_NAMES = ("XILINXD_LICENSE_FILE", "LM_LICENSE_FILE")
 
@@ -81,6 +131,36 @@ class ControllerError(RuntimeError):
 
 class FILE_ATTRIBUTE_TAG_INFO(ctypes.Structure):
     _fields_ = [("FileAttributes", job_guard.wintypes.DWORD), ("ReparseTag", job_guard.wintypes.DWORD)]
+
+
+class SID_AND_ATTRIBUTES(ctypes.Structure):
+    _fields_ = [("Sid", ctypes.c_void_p), ("Attributes", job_guard.wintypes.DWORD)]
+
+
+class TOKEN_USER(ctypes.Structure):
+    _fields_ = [("User", SID_AND_ATTRIBUTES)]
+
+
+class TOKEN_GROUPS_HEADER(ctypes.Structure):
+    _fields_ = [("GroupCount", job_guard.wintypes.DWORD), ("Groups", SID_AND_ATTRIBUTES * 1)]
+
+
+class ACL_HEADER(ctypes.Structure):
+    _fields_ = [
+        ("AclRevision", job_guard.wintypes.BYTE),
+        ("Sbz1", job_guard.wintypes.BYTE),
+        ("AclSize", job_guard.wintypes.WORD),
+        ("AceCount", job_guard.wintypes.WORD),
+        ("Sbz2", job_guard.wintypes.WORD),
+    ]
+
+
+class ACE_HEADER(ctypes.Structure):
+    _fields_ = [
+        ("AceType", job_guard.wintypes.BYTE),
+        ("AceFlags", job_guard.wintypes.BYTE),
+        ("AceSize", job_guard.wintypes.WORD),
+    ]
 
 
 class InputReadLock:
@@ -220,6 +300,32 @@ def _assert_path_chain(path, expected_type):
             if expected_type == "directory" and not stat.S_ISDIR(info.st_mode):
                 raise ControllerError(f"目标不是目录：{current!r}")
     return absolute
+
+
+def _user_documents_profile_root(current_user_sid):
+    """从当前用户的规范USERPROFILE推导已存在的Documents根目录。"""
+    profile_value = os.environ.get("USERPROFILE")
+    if not profile_value:
+        raise ControllerError("USERPROFILE未定义，拒绝退回到TEMP或LocalAppData")
+    profile_path = _assert_path_chain(profile_value, "directory")
+    canonical_profile = str(Path(profile_path).resolve(strict=True))
+    if os.path.normcase(os.path.normpath(profile_path)) != os.path.normcase(
+        os.path.normpath(canonical_profile)
+    ):
+        raise ControllerError("USERPROFILE不是规范路径或含路径别名")
+    _verify_private_profile_parent(
+        canonical_profile,
+        current_user_sid,
+        allowed_owner_sids=(SYSTEM_SID, ADMINISTRATORS_SID),
+    )
+    documents_path = os.path.join(canonical_profile, "Documents")
+    documents_path = _assert_path_chain(documents_path, "directory")
+    canonical_documents = str(Path(documents_path).resolve(strict=True))
+    if os.path.normcase(os.path.normpath(documents_path)) != os.path.normcase(
+        os.path.normpath(canonical_documents)
+    ):
+        raise ControllerError("USERPROFILE下Documents不是规范路径或含路径别名")
+    return canonical_documents
 
 
 def _verified_vivado_batch_paths(batch_path):
@@ -649,8 +755,684 @@ def _audit_license_configuration(environment, appdata):
     }
 
 
-def _child_environment(run_dir):
-    """创建私有APPDATA并原样保留显式许可环境变量或唯一默认许可证。"""
+def _sid_to_string(sid_pointer):
+    """将Win32 SID转换为可精确比较的文本并释放系统分配缓冲区。"""
+    advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+    advapi32.ConvertSidToStringSidW.argtypes = [ctypes.c_void_p, ctypes.POINTER(job_guard.wintypes.LPWSTR)]
+    advapi32.ConvertSidToStringSidW.restype = job_guard.wintypes.BOOL
+    text_pointer = job_guard.wintypes.LPWSTR()
+    if not advapi32.ConvertSidToStringSidW(sid_pointer, ctypes.byref(text_pointer)):
+        raise job_guard._win_error("ConvertSidToStringSidW")
+    try:
+        return text_pointer.value
+    finally:
+        job_guard.kernel32.LocalFree.argtypes = [job_guard.wintypes.HLOCAL]
+        job_guard.kernel32.LocalFree.restype = job_guard.wintypes.HLOCAL
+        job_guard.kernel32.LocalFree(ctypes.cast(text_pointer, job_guard.wintypes.HLOCAL))
+
+
+def _current_process_token_sids():
+    """读取当前进程用户和启用组SID，不依赖显示名称或账户名。"""
+    kernel32 = job_guard.kernel32
+    advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel32.GetCurrentProcess.argtypes = []
+    kernel32.GetCurrentProcess.restype = job_guard.wintypes.HANDLE
+    advapi32.OpenProcessToken.argtypes = [
+        job_guard.wintypes.HANDLE,
+        job_guard.wintypes.DWORD,
+        ctypes.POINTER(job_guard.wintypes.HANDLE),
+    ]
+    advapi32.OpenProcessToken.restype = job_guard.wintypes.BOOL
+    advapi32.GetTokenInformation.argtypes = [
+        job_guard.wintypes.HANDLE,
+        ctypes.c_int,
+        ctypes.c_void_p,
+        job_guard.wintypes.DWORD,
+        ctypes.POINTER(job_guard.wintypes.DWORD),
+    ]
+    advapi32.GetTokenInformation.restype = job_guard.wintypes.BOOL
+    token = job_guard.wintypes.HANDLE()
+    if not advapi32.OpenProcessToken(kernel32.GetCurrentProcess(), TOKEN_QUERY, ctypes.byref(token)):
+        raise job_guard._win_error("OpenProcessToken(profile ACL)")
+    try:
+        def read_token_buffer(token_class, minimum_size):
+            required = job_guard.wintypes.DWORD()
+            advapi32.GetTokenInformation(token, token_class, None, 0, ctypes.byref(required))
+            if ctypes.get_last_error() != ERROR_INSUFFICIENT_BUFFER or required.value < minimum_size:
+                raise job_guard._win_error("GetTokenInformation(buffer size)")
+            buffer = ctypes.create_string_buffer(required.value)
+            if not advapi32.GetTokenInformation(
+                token, token_class, ctypes.byref(buffer), required.value, ctypes.byref(required)
+            ):
+                raise job_guard._win_error("GetTokenInformation(profile ACL)")
+            return buffer
+
+        user_buffer = read_token_buffer(TOKEN_USER_CLASS, ctypes.sizeof(TOKEN_USER))
+        user = ctypes.cast(ctypes.byref(user_buffer), ctypes.POINTER(TOKEN_USER)).contents
+        if not user.User.Sid:
+            raise ControllerError("当前进程令牌用户SID为空")
+        user_sid = _sid_to_string(user.User.Sid)
+        groups_buffer = read_token_buffer(2, ctypes.sizeof(TOKEN_GROUPS_HEADER))
+        groups = ctypes.cast(ctypes.byref(groups_buffer), ctypes.POINTER(TOKEN_GROUPS_HEADER)).contents
+        group_base = ctypes.addressof(groups_buffer) + TOKEN_GROUPS_HEADER.Groups.offset
+        group_size = ctypes.sizeof(SID_AND_ATTRIBUTES)
+        enabled_groups = set()
+        for index in range(int(groups.GroupCount)):
+            group = ctypes.cast(group_base + index * group_size, ctypes.POINTER(SID_AND_ATTRIBUTES)).contents
+            if int(group.Attributes) & SE_GROUP_ENABLED and group.Sid:
+                enabled_groups.add(_sid_to_string(group.Sid).casefold())
+        return user_sid, enabled_groups
+    finally:
+        job_guard._checked_close_handle(token, "profile ACL process token")
+
+
+def _create_private_profile_directory(profile_path, current_user_sid):
+    """在首次创建目录时原子指定受保护的私有DACL。"""
+    sddl = (
+        f"O:{current_user_sid}D:P"
+        f"(A;OICI;FA;;;{current_user_sid})"
+        f"(A;OICI;FA;;;{SYSTEM_SID})"
+        f"(A;OICI;FA;;;{ADMINISTRATORS_SID})"
+    )
+    advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+    advapi32.ConvertStringSecurityDescriptorToSecurityDescriptorW.argtypes = [
+        job_guard.wintypes.LPCWSTR,
+        job_guard.wintypes.DWORD,
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(job_guard.wintypes.DWORD),
+    ]
+    advapi32.ConvertStringSecurityDescriptorToSecurityDescriptorW.restype = job_guard.wintypes.BOOL
+    descriptor = ctypes.c_void_p()
+    descriptor_size = job_guard.wintypes.DWORD()
+    if not advapi32.ConvertStringSecurityDescriptorToSecurityDescriptorW(
+        sddl, 1, ctypes.byref(descriptor), ctypes.byref(descriptor_size)
+    ):
+        raise job_guard._win_error("ConvertStringSecurityDescriptorToSecurityDescriptorW(private APPDATA)")
+    try:
+        security_attributes = job_guard.SECURITY_ATTRIBUTES(
+            ctypes.sizeof(job_guard.SECURITY_ATTRIBUTES), descriptor, False
+        )
+        kernel32 = job_guard.kernel32
+        kernel32.CreateDirectoryW.argtypes = [
+            job_guard.wintypes.LPCWSTR,
+            ctypes.POINTER(job_guard.SECURITY_ATTRIBUTES),
+        ]
+        kernel32.CreateDirectoryW.restype = job_guard.wintypes.BOOL
+        if not kernel32.CreateDirectoryW(str(profile_path), ctypes.byref(security_attributes)):
+            error_code = ctypes.get_last_error()
+            if error_code == 183:
+                raise ControllerError(f"拒绝复用已存在APPDATA profile路径：{str(profile_path)!r}")
+            raise ControllerError(
+                f"原子创建受控DACL APPDATA profile失败：path={str(profile_path)!r}, winerror={error_code}"
+            )
+    finally:
+        job_guard.kernel32.LocalFree.argtypes = [job_guard.wintypes.HLOCAL]
+        job_guard.kernel32.LocalFree.restype = job_guard.wintypes.HLOCAL
+        job_guard.kernel32.LocalFree(ctypes.cast(descriptor, job_guard.wintypes.HLOCAL))
+
+
+def _inspect_directory_security(
+    directory_path,
+    current_user_sid,
+    require_private_dacl=False,
+    require_inherited_profile_dacl=False,
+):
+    """从目录HANDLE读取owner、DACL和reparse属性。"""
+    directory_path = os.fspath(directory_path)
+    _assert_path_chain(directory_path, "directory")
+    kernel32 = job_guard.kernel32
+    advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel32.CreateFileW.argtypes = [
+        job_guard.wintypes.LPCWSTR,
+        job_guard.wintypes.DWORD,
+        job_guard.wintypes.DWORD,
+        ctypes.c_void_p,
+        job_guard.wintypes.DWORD,
+        job_guard.wintypes.DWORD,
+        job_guard.wintypes.HANDLE,
+    ]
+    kernel32.CreateFileW.restype = job_guard.wintypes.HANDLE
+    handle = kernel32.CreateFileW(
+        directory_path,
+        FILE_READ_CONTROL,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        None,
+        OPEN_EXISTING,
+        FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+        None,
+    )
+    if not handle or int(handle) == INVALID_HANDLE_VALUE:
+        raise job_guard._win_error("CreateFileW(directory security handle)")
+    try:
+        kernel32.GetFileInformationByHandleEx.argtypes = [
+            job_guard.wintypes.HANDLE,
+            ctypes.c_int,
+            ctypes.c_void_p,
+            job_guard.wintypes.DWORD,
+        ]
+        kernel32.GetFileInformationByHandleEx.restype = job_guard.wintypes.BOOL
+        attributes = FILE_ATTRIBUTE_TAG_INFO()
+        if not kernel32.GetFileInformationByHandleEx(
+            handle, FILE_ATTRIBUTE_TAG_INFO_CLASS, ctypes.byref(attributes), ctypes.sizeof(attributes)
+        ):
+            raise job_guard._win_error("GetFileInformationByHandleEx(directory security)")
+        if int(attributes.FileAttributes) & FILE_ATTRIBUTE_REPARSE_POINT:
+            raise ControllerError(f"APPDATA安全目录含重解析点：{directory_path!r}")
+        if not int(attributes.FileAttributes) & FILE_ATTRIBUTE_DIRECTORY:
+            raise ControllerError(f"APPDATA安全路径不是目录：{directory_path!r}")
+
+        advapi32.GetSecurityInfo.argtypes = [
+            job_guard.wintypes.HANDLE,
+            job_guard.wintypes.DWORD,
+            job_guard.wintypes.DWORD,
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.POINTER(ctypes.c_void_p),
+        ]
+        advapi32.GetSecurityInfo.restype = job_guard.wintypes.DWORD
+        owner = ctypes.c_void_p()
+        dacl = ctypes.c_void_p()
+        descriptor = ctypes.c_void_p()
+        security_flags = OWNER_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION
+        status = advapi32.GetSecurityInfo(
+            handle,
+            SE_FILE_OBJECT,
+            security_flags,
+            ctypes.byref(owner),
+            None,
+            ctypes.byref(dacl),
+            None,
+            ctypes.byref(descriptor),
+        )
+        if status != 0:
+            raise ControllerError(f"GetSecurityInfo(APPDATA目录)失败：path={directory_path!r}, winerror={int(status)}")
+        try:
+            if not owner.value or not dacl.value:
+                raise ControllerError(f"APPDATA安全目录缺少owner或DACL：{directory_path!r}")
+            owner_sid = _sid_to_string(owner)
+            if owner_sid.casefold() != current_user_sid.casefold():
+                raise ControllerError(f"APPDATA安全目录owner不是当前用户：{directory_path!r}")
+            advapi32.GetSecurityDescriptorControl.argtypes = [
+                ctypes.c_void_p,
+                ctypes.POINTER(job_guard.wintypes.WORD),
+                ctypes.POINTER(job_guard.wintypes.DWORD),
+            ]
+            advapi32.GetSecurityDescriptorControl.restype = job_guard.wintypes.BOOL
+            control = job_guard.wintypes.WORD()
+            revision = job_guard.wintypes.DWORD()
+            if not advapi32.GetSecurityDescriptorControl(descriptor, ctypes.byref(control), ctypes.byref(revision)):
+                raise job_guard._win_error("GetSecurityDescriptorControl(APPDATA)")
+            protected = bool(control.value & SE_DACL_PROTECTED)
+            if require_private_dacl and not protected:
+                raise ControllerError(f"APPDATA profile DACL未protected：{directory_path!r}")
+            if require_inherited_profile_dacl and protected:
+                raise ControllerError(f"APPDATA profile子项未继承受控DACL：{directory_path!r}")
+            if not require_private_dacl and not require_inherited_profile_dacl:
+                return {
+                    "owner_matches_current_user": True,
+                    "dacl_protected": protected,
+                    "directory_path": directory_path,
+                }
+
+            acl = ctypes.cast(dacl, ctypes.POINTER(ACL_HEADER)).contents
+            if int(acl.AceCount) != 3:
+                raise ControllerError(f"APPDATA profile DACL ACE数量不为3：{directory_path!r}")
+            expected_roles = {
+                current_user_sid.casefold(): "CURRENT_USER",
+                SYSTEM_SID.casefold(): "SYSTEM",
+                ADMINISTRATORS_SID.casefold(): "ADMINISTRATORS",
+            }
+            expected_flags = OBJECT_INHERIT_ACE | CONTAINER_INHERIT_ACE
+            if require_inherited_profile_dacl:
+                expected_flags |= INHERITED_ACE
+            observed = []
+            for index in range(int(acl.AceCount)):
+                ace_pointer = ctypes.c_void_p()
+                if not advapi32.GetAce(dacl, index, ctypes.byref(ace_pointer)):
+                    raise job_guard._win_error("GetAce(APPDATA profile)")
+                ace_header = ctypes.cast(ace_pointer, ctypes.POINTER(ACE_HEADER)).contents
+                if ace_header.AceType != ACCESS_ALLOWED_ACE_TYPE or int(ace_header.AceSize) < 16:
+                    raise ControllerError(f"APPDATA profile DACL含额外ACE：{directory_path!r}")
+                mask = ctypes.c_uint32.from_address(ace_pointer.value + 4).value
+                sid_text = _sid_to_string(ctypes.c_void_p(ace_pointer.value + 8)).casefold()
+                role = expected_roles.get(sid_text)
+                if (
+                    role is None
+                    or int(ace_header.AceFlags) != expected_flags
+                    or mask != FILE_ALL_ACCESS
+                ):
+                    raise ControllerError(f"APPDATA profile DACL主体或权限不精确：{directory_path!r}")
+                observed.append({"principal": role, "mask": mask, "inherit_flags": int(ace_header.AceFlags)})
+            if {item["principal"] for item in observed} != {"CURRENT_USER", "SYSTEM", "ADMINISTRATORS"}:
+                raise ControllerError(f"APPDATA profile DACL主体集合不精确：{directory_path!r}")
+            return {
+                "owner_matches_current_user": True,
+                "current_user_sid_sha256": hashlib.sha256(current_user_sid.encode("ascii")).hexdigest().upper(),
+                "dacl_protected": protected,
+                "ace_count": len(observed),
+                "aces": sorted(observed, key=lambda item: item["principal"]),
+                "only_expected_principals_with_full_control": True,
+            }
+        finally:
+            if descriptor.value:
+                kernel32.LocalFree.argtypes = [job_guard.wintypes.HLOCAL]
+                kernel32.LocalFree.restype = job_guard.wintypes.HLOCAL
+                kernel32.LocalFree(ctypes.cast(descriptor, job_guard.wintypes.HLOCAL))
+    finally:
+        job_guard._checked_close_handle(handle, "APPDATA directory security handle")
+
+
+def _audit_private_profile_parent_acl(
+    current_user_sid, owner_sid, ace_entries, allowed_owner_sids=None
+):
+    """按全部ACE审计profile父目录，拒绝非可信主体获得任何修改权限。"""
+    sid_pattern = re.compile(r"S-[0-9]+-(?:[0-9]+-)*[0-9]+\Z", re.ASCII)
+    if not isinstance(current_user_sid, str) or not sid_pattern.fullmatch(current_user_sid):
+        raise ControllerError("当前用户SID无法安全解析")
+    if not isinstance(owner_sid, str) or not sid_pattern.fullmatch(owner_sid):
+        raise ControllerError("APPDATA父目录owner SID无法安全解析")
+    owner_roles = {
+        current_user_sid.casefold(): "CURRENT_USER",
+        SYSTEM_SID.casefold(): "SYSTEM",
+        ADMINISTRATORS_SID.casefold(): "ADMINISTRATORS",
+    }
+    permitted_owner_sids = {current_user_sid.casefold()}
+    if allowed_owner_sids is not None:
+        if not isinstance(allowed_owner_sids, (list, tuple, set, frozenset)):
+            raise ControllerError("APPDATA父目录owner允许列表无效")
+        for allowed_sid in allowed_owner_sids:
+            if (
+                not isinstance(allowed_sid, str)
+                or not sid_pattern.fullmatch(allowed_sid)
+                or allowed_sid.casefold()
+                not in {SYSTEM_SID.casefold(), ADMINISTRATORS_SID.casefold()}
+            ):
+                raise ControllerError("APPDATA父目录owner允许列表含未信任主体")
+            permitted_owner_sids.add(allowed_sid.casefold())
+    owner_role = owner_roles.get(owner_sid.casefold())
+    if owner_sid.casefold() not in permitted_owner_sids or owner_role is None:
+        raise ControllerError("APPDATA父目录owner不属于明确允许的当前用户或系统主体")
+    if not isinstance(ace_entries, (list, tuple)):
+        raise ControllerError("APPDATA父目录ACE列表无法安全解析")
+
+    trusted_principals = {
+        current_user_sid.casefold(),
+        SYSTEM_SID.casefold(),
+        ADMINISTRATORS_SID.casefold(),
+    }
+    if owner_sid.casefold() == current_user_sid.casefold():
+        trusted_principals.add(OWNER_RIGHTS_SID.casefold())
+    nontrusted_readonly_count = 0
+    for entry in ace_entries:
+        if not isinstance(entry, dict) or entry.get("ace_type") != ACCESS_ALLOWED_ACE_TYPE:
+            raise ControllerError("APPDATA父目录含非允许或无法安全评估的ACE")
+        sid_text = entry.get("sid")
+        if not isinstance(sid_text, str) or not sid_pattern.fullmatch(sid_text):
+            raise ControllerError("APPDATA父目录ACE主体SID无法安全解析")
+        mask = entry.get("mask")
+        if not isinstance(mask, int) or mask < 0 or mask > 0xFFFFFFFF:
+            raise ControllerError("APPDATA父目录ACE权限掩码无法安全解析")
+        if sid_text.casefold() not in trusted_principals:
+            if mask & PROFILE_PARENT_MUTATION_MASK:
+                raise ControllerError(
+                    "APPDATA父目录非受信任主体具有写入或替换权限："
+                    f"sid={sid_text!r}, mask=0x{mask:08X}"
+                )
+            nontrusted_readonly_count += 1
+    return {
+        "owner_matches_current_user": owner_sid.casefold() == current_user_sid.casefold(),
+        "owner_role": owner_role,
+        "parent_mutable_by_nontrusted_principal": False,
+        "ace_count": len(ace_entries),
+        "nontrusted_readonly_ace_count": nontrusted_readonly_count,
+    }
+
+
+def _verify_private_profile_parent(parent_path, current_user_sid, allowed_owner_sids=None):
+    """拒绝能被非可信主体修改或替换profile的父目录。"""
+    path = _assert_path_chain(parent_path, "directory")
+    token_user_sid, _enabled_groups = _current_process_token_sids()
+    if token_user_sid.casefold() != current_user_sid.casefold():
+        raise ControllerError("APPDATA父目录审计期间当前进程用户SID发生变化")
+    kernel32 = job_guard.kernel32
+    advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
+    advapi32.GetSecurityInfo.argtypes = [
+        job_guard.wintypes.HANDLE,
+        job_guard.wintypes.DWORD,
+        job_guard.wintypes.DWORD,
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    advapi32.GetSecurityInfo.restype = job_guard.wintypes.DWORD
+    handle = kernel32.CreateFileW(
+        path,
+        FILE_READ_CONTROL,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        None,
+        OPEN_EXISTING,
+        FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS,
+        None,
+    )
+    if not handle or int(handle) == INVALID_HANDLE_VALUE:
+        raise job_guard._win_error("CreateFileW(APPDATA parent ACL)")
+    try:
+        owner = ctypes.c_void_p()
+        dacl = ctypes.c_void_p()
+        descriptor = ctypes.c_void_p()
+        status = advapi32.GetSecurityInfo(
+            handle,
+            SE_FILE_OBJECT,
+            OWNER_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
+            ctypes.byref(owner),
+            None,
+            ctypes.byref(dacl),
+            None,
+            ctypes.byref(descriptor),
+        )
+        if status != 0:
+            raise ControllerError(f"读取APPDATA父目录ACL失败：path={path!r}, winerror={int(status)}")
+        try:
+            if not owner.value or not dacl.value:
+                raise ControllerError(f"APPDATA父目录缺少owner或DACL：{path!r}")
+            acl = ctypes.cast(dacl, ctypes.POINTER(ACL_HEADER)).contents
+            owner_sid = _sid_to_string(owner)
+            ace_entries = []
+            for index in range(int(acl.AceCount)):
+                ace_pointer = ctypes.c_void_p()
+                if not advapi32.GetAce(dacl, index, ctypes.byref(ace_pointer)):
+                    raise job_guard._win_error("GetAce(APPDATA parent)")
+                ace_header = ctypes.cast(ace_pointer, ctypes.POINTER(ACE_HEADER)).contents
+                entry = {"ace_type": int(ace_header.AceType)}
+                if ace_header.AceType == ACCESS_ALLOWED_ACE_TYPE:
+                    if int(ace_header.AceSize) < 16:
+                        raise ControllerError(f"APPDATA父目录ACE长度不足以包含SID：{path!r}")
+                    entry["mask"] = ctypes.c_uint32.from_address(ace_pointer.value + 4).value
+                    entry["sid"] = _sid_to_string(ctypes.c_void_p(ace_pointer.value + 8))
+                ace_entries.append(entry)
+            acl_audit = _audit_private_profile_parent_acl(
+                current_user_sid,
+                owner_sid,
+                ace_entries,
+                allowed_owner_sids=allowed_owner_sids,
+            )
+            return {
+                "owner_matches_current_user": acl_audit["owner_matches_current_user"],
+                "owner_role": acl_audit["owner_role"],
+                "parent_mutable_by_nontrusted_principal": acl_audit[
+                    "parent_mutable_by_nontrusted_principal"
+                ],
+                "parent_acl_ace_count": acl_audit["ace_count"],
+                "nontrusted_readonly_ace_count": acl_audit[
+                    "nontrusted_readonly_ace_count"
+                ],
+            }
+        finally:
+            if descriptor.value:
+                kernel32.LocalFree.argtypes = [job_guard.wintypes.HLOCAL]
+                kernel32.LocalFree.restype = job_guard.wintypes.HLOCAL
+                kernel32.LocalFree(ctypes.cast(descriptor, job_guard.wintypes.HLOCAL))
+    finally:
+        job_guard._checked_close_handle(handle, "APPDATA parent ACL handle")
+
+
+def _path_file_identity(path):
+    """读取普通目录项的卷号与文件索引，供失败回滚核对身份。"""
+    info = os.lstat(path)
+    if stat.S_ISLNK(info.st_mode) or int(getattr(info, "st_file_attributes", 0)) & FILE_ATTRIBUTE_REPARSE_POINT:
+        raise ControllerError(f"回滚目标是符号链接或重解析点：{os.fspath(path)!r}")
+    return int(info.st_dev), int(info.st_ino)
+
+
+def _rollback_private_appdata_profile(profile_path, current_user_sid, profile_identity, probe_path, probe_identity):
+    """仅在目录身份、ACL和内容均匹配本次创建事实时回滚空profile。"""
+    profile_path = Path(profile_path)
+    if profile_identity is None or _path_file_identity(profile_path) != profile_identity:
+        raise ControllerError(f"APPDATA profile目录身份无法证明，保留路径：{str(profile_path)!r}")
+    _inspect_directory_security(profile_path, current_user_sid, require_private_dacl=True)
+    entries = list(profile_path.iterdir())
+    if entries:
+        if len(entries) != 1 or probe_identity is None or entries[0] != probe_path:
+            raise ControllerError(f"APPDATA profile含非本次probe内容，保留路径：{str(profile_path)!r}")
+        if _path_file_identity(probe_path) != probe_identity:
+            raise ControllerError(f"APPDATA profile probe身份无法证明，保留路径：{str(profile_path)!r}")
+        probe_info = os.lstat(probe_path)
+        if not stat.S_ISREG(probe_info.st_mode) or probe_info.st_size != 0:
+            raise ControllerError(f"APPDATA profile probe类型或内容变化，保留路径：{str(profile_path)!r}")
+        _assert_path_chain(probe_path, "file")
+        probe_path.unlink()
+    if list(profile_path.iterdir()):
+        raise ControllerError(f"APPDATA profile回滚时目录非空，保留路径：{str(profile_path)!r}")
+    if _path_file_identity(profile_path) != profile_identity:
+        raise ControllerError(f"APPDATA profile回滚前目录身份变化，保留路径：{str(profile_path)!r}")
+    _inspect_directory_security(profile_path, current_user_sid, require_private_dacl=True)
+    profile_path.rmdir()
+
+
+def _verified_tclstore_source_root():
+    """只接受已核验的 Vivado data 相对符号链接及其安装内目标。"""
+    link_path = Path(TCLSTORE_DATA_LINK)
+    _assert_path_chain(link_path.parent, "directory")
+    try:
+        link_info = os.lstat(link_path)
+        link_target = os.readlink(link_path)
+    except OSError as error:
+        raise ControllerError(f"无法核验Vivado data符号链接：{error!r}") from error
+    if not stat.S_ISLNK(link_info.st_mode) or not int(
+        getattr(link_info, "st_file_attributes", 0)
+    ) & FILE_ATTRIBUTE_REPARSE_POINT:
+        raise ControllerError("Vivado data不再是核验过的符号链接")
+    if link_target != TCLSTORE_DATA_LINK_TARGET:
+        raise ControllerError("Vivado data符号链接文本目标发生变化")
+    canonical_data = Path(link_path.resolve(strict=True))
+    expected_data = Path(TCLSTORE_CANONICAL_DATA_ROOT)
+    install_root = Path(TCLSTORE_INSTALL_ROOT).resolve(strict=True)
+    if os.path.normcase(os.path.normpath(str(canonical_data))) != os.path.normcase(
+        os.path.normpath(str(expected_data))
+    ):
+        raise ControllerError("Vivado data符号链接严格解析目标不符")
+    if not canonical_data.is_relative_to(install_root):
+        raise ControllerError("Vivado data解析目标越出核验的2026.1安装根")
+    _assert_path_chain(canonical_data, "directory")
+    source_root = canonical_data / "XilinxTclStore"
+    if os.path.normcase(os.path.normpath(str(source_root.resolve(strict=True)))) != os.path.normcase(
+        os.path.normpath(TCLSTORE_CANONICAL_ROOT)
+    ):
+        raise ControllerError("Vivado TclStore规范解析路径与核验值不符")
+    _assert_path_chain(source_root, "directory")
+    return source_root
+
+
+def _vendor_tclstore_relative_files():
+    """只读列举核验版厂商TclStore文件路径，不读取或复制缓存内容。"""
+    source_root = _verified_tclstore_source_root()
+    relative_files = []
+    casefolded = set()
+    for current, directory_names, file_names in os.walk(
+        source_root, topdown=True, followlinks=False
+    ):
+        current_path = Path(current)
+        retained_directories = []
+        for name in sorted(directory_names):
+            directory_path = current_path / name
+            info = os.lstat(directory_path)
+            if stat.S_ISLNK(info.st_mode) or int(
+                getattr(info, "st_file_attributes", 0)
+            ) & FILE_ATTRIBUTE_REPARSE_POINT:
+                raise ControllerError(f"TclStore目录含未核验重解析点：{directory_path!s}")
+            retained_directories.append(name)
+        directory_names[:] = retained_directories
+        for name in sorted(file_names):
+            file_path = current_path / name
+            info = os.lstat(file_path)
+            if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode) or int(
+                getattr(info, "st_file_attributes", 0)
+            ) & FILE_ATTRIBUTE_REPARSE_POINT:
+                raise ControllerError(f"TclStore文件不是普通文件：{file_path!s}")
+            relative = file_path.relative_to(source_root).as_posix()
+            relative_parts = relative.split("/")
+            if (
+                not relative
+                or any(part in ("", ".", "..") or ":" in part or "\\" in part for part in relative_parts)
+            ):
+                raise ControllerError(f"TclStore包含不安全相对文件名：{relative!r}")
+            folded = relative.casefold()
+            if folded in casefolded:
+                raise ControllerError(f"TclStore包含大小写不唯一相对路径：{relative!r}")
+            casefolded.add(folded)
+            relative_files.append(relative)
+    if not relative_files:
+        raise ControllerError("核验版厂商TclStore没有普通文件，拒绝建立APPDATA配置")
+    return sorted(relative_files, key=str.casefold)
+
+
+def _windows_path_utf16_chars(path):
+    """返回Windows路径所占UTF-16代码单元数。"""
+    return len(os.fspath(path).encode("utf-16-le")) // 2
+
+
+def _private_appdata_path_length_audit(appdata_path, vendor_relative_files):
+    """要求TclStore每个厂商相对落点都低于传统Windows路径上限。"""
+    appdata_path = Path(appdata_path)
+    store_root = appdata_path / "Xilinx" / "Vivado" / EXPECTED_VIVADO_VERSION / "XilinxTclStore"
+    if not vendor_relative_files:
+        raise ControllerError("缺少厂商TclStore相对文件路径，拒绝启动")
+    longest = None
+    longest_path_chars = -1
+    max_relative_chars = 0
+    for relative in vendor_relative_files:
+        if not isinstance(relative, str):
+            raise ControllerError("TclStore相对路径必须是文本")
+        parts = relative.split("/")
+        if (
+            not relative
+            or relative.startswith("/")
+            or any(part in ("", ".", "..") or ":" in part or "\\" in part for part in parts)
+        ):
+            raise ControllerError(f"TclStore相对路径不安全：{relative!r}")
+        if any(_windows_path_utf16_chars(part) > 255 for part in parts):
+            raise ControllerError(f"TclStore路径组件超过Windows单组件上限：{relative!r}")
+        relative_chars = _windows_path_utf16_chars(relative.replace("/", os.sep))
+        destination = store_root.joinpath(*parts)
+        destination_chars = _windows_path_utf16_chars(destination)
+        if relative_chars > max_relative_chars:
+            max_relative_chars = relative_chars
+        if destination_chars > longest_path_chars:
+            longest = relative
+            longest_path_chars = destination_chars
+    if longest_path_chars > APPDATA_MAX_PATH_UTF16_CHARS:
+        raise ControllerError(
+            "私有APPDATA下TclStore落点超过259 UTF-16字符，拒绝启动："
+            f"max={longest_path_chars}, relative={longest!r}"
+        )
+    return {
+        "destination_path_limit_utf16_chars": APPDATA_MAX_PATH_UTF16_CHARS,
+        "max_vendor_relative_path_utf16_chars": max_relative_chars,
+        "longest_vendor_relative_path": longest,
+        "longest_destination_path_utf16_chars": longest_path_chars,
+        "vendor_file_count": len(vendor_relative_files),
+        "all_destination_paths_within_limit": True,
+    }
+
+
+def _create_private_appdata_profile(run_id, profile_nonce=None, temporary_root=None, vendor_relative_files=None):
+    """在ACL已核验的用户Documents或显式测试根中排他创建唯一空APPDATA配置。"""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,96}", str(run_id), flags=re.ASCII):
+        raise ControllerError("RunId不能安全用于私有APPDATA路径")
+    if profile_nonce is None:
+        profile_nonce = secrets.token_hex(16)
+    if not re.fullmatch(r"[0-9a-f]{32}", str(profile_nonce), flags=re.ASCII):
+        raise ControllerError("APPDATA profile随机标识格式不正确")
+    current_user_sid, _enabled_groups = _current_process_token_sids()
+    if temporary_root is None:
+        parent_path = _user_documents_profile_root(current_user_sid)
+        profile_parent_source = "USER_DOCUMENTS"
+    else:
+        parent_path = _assert_path_chain(temporary_root, "directory")
+        profile_parent_source = "EXPLICIT_TEST_ROOT"
+    canonical_parent = str(Path(parent_path).resolve(strict=True))
+    if os.path.normcase(os.path.normpath(parent_path)) != os.path.normcase(os.path.normpath(canonical_parent)):
+        raise ControllerError("APPDATA profile父目录不是规范路径或含路径别名")
+    parent_security_audit = _verify_private_profile_parent(parent_path, current_user_sid)
+    if vendor_relative_files is None:
+        vendor_relative_files = _vendor_tclstore_relative_files()
+    run_id_digest = hashlib.sha256(str(run_id).encode("ascii")).hexdigest()[:8].upper()
+    profile_id = f"{run_id_digest}_{profile_nonce}"
+    profile_path = Path(parent_path) / f"s15_appdata_{profile_id}"
+    path_audit = _private_appdata_path_length_audit(profile_path, vendor_relative_files)
+    if _windows_path_utf16_chars(profile_path) > APPDATA_MAX_PATH_UTF16_CHARS:
+        raise ControllerError("私有APPDATA profile根路径超过259字符，拒绝启动")
+    if os.path.lexists(profile_path):
+        raise ControllerError(f"拒绝复用已存在APPDATA profile路径：{str(profile_path)!r}")
+    _create_private_profile_directory(profile_path, current_user_sid)
+    profile_identity = None
+    probe_path = profile_path / ".s15_write_delete_probe"
+    probe_identity = None
+    try:
+        profile_identity = _path_file_identity(profile_path)
+        _assert_path_chain(profile_path, "directory")
+        canonical_profile = str(profile_path.resolve(strict=True))
+        if os.path.normcase(os.path.normpath(str(profile_path))) != os.path.normcase(
+            os.path.normpath(canonical_profile)
+        ):
+            raise ControllerError(f"新建APPDATA profile解析路径发生重定向：{str(profile_path)!r}")
+        security_audit = _inspect_directory_security(
+            profile_path, current_user_sid, require_private_dacl=True
+        )
+        if any(profile_path.iterdir()):
+            raise ControllerError(f"新建APPDATA profile非空，拒绝复用：{str(profile_path)!r}")
+        probe_handle = os.open(probe_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        try:
+            probe_stat = os.fstat(probe_handle)
+            probe_identity = (int(probe_stat.st_dev), int(probe_stat.st_ino))
+        finally:
+            os.close(probe_handle)
+        _assert_path_chain(probe_path, "file")
+        if _path_file_identity(probe_path) != probe_identity:
+            raise ControllerError(f"APPDATA写删权限probe身份变化：{str(profile_path)!r}")
+        probe_path.unlink()
+        probe_identity = None
+        if os.path.lexists(probe_path):
+            raise ControllerError(f"APPDATA写删权限probe未能移除：{str(profile_path)!r}")
+    except BaseException as error:
+        try:
+            _rollback_private_appdata_profile(
+                profile_path,
+                current_user_sid,
+                profile_identity,
+                probe_path,
+                probe_identity,
+            )
+        except BaseException as rollback_error:
+            raise ControllerError(
+                f"APPDATA profile预检失败且无法证明安全回滚，保留路径：{str(profile_path)!r}; "
+                f"failure={error!r}; rollback={rollback_error!r}"
+            ) from rollback_error
+        raise
+    return str(profile_path), {
+        "status": "PASS_PRIVATE_EMPTY_PROFILE",
+        "run_id": str(run_id),
+        "profile_id": profile_id,
+        "path": str(profile_path),
+        "profile_parent_source": profile_parent_source,
+        "canonical_path": canonical_profile,
+        "path_utf16_chars": _windows_path_utf16_chars(profile_path),
+        "profile_parent_path": parent_path,
+        "profile_parent_path_utf16_chars": _windows_path_utf16_chars(parent_path),
+        "parent_security_audit": parent_security_audit,
+        "profile_security_audit": security_audit,
+        "retention_policy": "runner不会自动删除或复用profile",
+        "write_delete_probe": "PASS_CREATED_AND_REMOVED_EMPTY_FILE",
+        "path_length_audit": path_audit,
+    }
+
+
+def _child_environment(run_dir, temporary_root=None):
+    """创建空私有APPDATA并原样保留显式许可变量或唯一默认许可证。"""
     _assert_path_chain(run_dir, "directory")
     source_appdata = os.environ.get("APPDATA")
     if not source_appdata:
@@ -658,22 +1440,20 @@ def _child_environment(run_dir):
     license_audit = _audit_license_configuration(os.environ, source_appdata)
     if not license_audit["usable"]:
         raise ControllerError("创建隔离APPDATA前未找到非空显式许可变量或唯一可核验默认许可证文件")
-    isolated_appdata = Path(run_dir) / "isolated_appdata"
-    if os.path.lexists(isolated_appdata):
-        raise ControllerError(f"拒绝复用已有私有APPDATA目录：{str(isolated_appdata)!r}")
-    isolated_appdata.mkdir()
-    _assert_path_chain(isolated_appdata, "directory")
+    isolated_appdata, appdata_profile_audit = _create_private_appdata_profile(
+        Path(run_dir).name, temporary_root=temporary_root
+    )
     environment = dict(os.environ)
     for name in VIVADO_SETUP_ENVIRONMENT_VARIABLES:
         environment.pop(name, None)
-    environment["APPDATA"] = str(isolated_appdata)
+    environment["APPDATA"] = isolated_appdata
     environment["RDI_VERBOSE"] = "False"
     for name in LICENSE_ENVIRONMENT_NAMES:
         if os.environ.get(name) is not None and environment.get(name) != os.environ[name]:
             raise ControllerError(f"显式许可变量未完整继承：{name}")
     if license_audit["default_license_used"]:
         environment["XILINXD_LICENSE_FILE"] = _resolve_single_default_license_path(source_appdata, license_audit)
-    return environment, str(isolated_appdata), license_audit
+    return environment, isolated_appdata, license_audit, appdata_profile_audit
 
 
 def _copy_verified_input(source_path, destination_path, expected_sha256, label):
@@ -1718,7 +2498,8 @@ def run_frozen_bitgen():
             "working_directory": facts["vivado_working_directory"],
             "loader_redist_precheck": None,
             "environment_overrides": [],
-            "isolated_appdata_path": str(run_dir / "isolated_appdata"),
+            "isolated_appdata_path": None,
+            "private_appdata_profile": None,
             "root_identity": None,
             "vivado_member_observations": [],
             "vivado_member_closure": None,
@@ -1783,8 +2564,9 @@ def run_frozen_bitgen():
         manifest["input_run_copies"] = facts["run_input_copies"]
         writer.write()
         std_handles, std_streams = _open_stdio_handles(run_dir)
-        child_environment, isolated_appdata, license_audit = _child_environment(run_dir)
+        child_environment, isolated_appdata, license_audit, appdata_profile_audit = _child_environment(run_dir)
         manifest["process_launch"]["isolated_appdata_path"] = isolated_appdata
+        manifest["process_launch"]["private_appdata_profile"] = appdata_profile_audit
         manifest["input_paths_and_hashes"]["license_environment_audit"] = license_audit
         redist_environment = dict(child_environment)
         redist_environment.pop(REDIST_CHECK_SKIP_ENV, None)

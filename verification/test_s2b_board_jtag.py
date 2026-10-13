@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import struct
+import sys
 import tempfile
 from types import SimpleNamespace
 import zipfile
@@ -116,8 +117,10 @@ class FakeTarget:
         self.session.operations.append(("stop", self._name))
         self.running = False
 
-    def rrd(self, *, reg):
-        print(f"pc: {self.position:08X}")
+    def rrd(self, *args, reg):
+        if args != ("--nvlist",) or reg != "pc":
+            raise AssertionError("PC必须使用官方nvlist结构化读回")
+        return {"pc": self.position}
 
     def mrd(self, *args, address, size, word_size):
         if self._name != "APU":
@@ -318,6 +321,128 @@ class JtagTests(unittest.TestCase):
 
     def test_native_target_dynamic_ids_and_real_two_device_shape(self):
         self.ready(); self.assertEqual(self.controller.targets["cpu0"]._id, 11)
+
+    def test_pc_nvlist_bounds_and_exact_sdk_arguments(self):
+        self.controller.select_and_gate()
+        for label, target_id in (("cpu0", 11), ("cpu1", 12)):
+            for value in (0, 0xFFFFFFFF):
+                with self.subTest(label=label, value=value):
+                    self.session.objects[target_id].position = value
+                    self.assertEqual(self.controller.pc(label), value)
+                    row = self.controller.record["calls"][-1]
+                    self.assertEqual(row["api"], label + ".rrd.pc")
+                    self.assertEqual(row["args"], ("--nvlist",))
+                    self.assertEqual(row["kwargs"], {"reg": "pc"})
+                    self.assertEqual(row["return_type"], "dict")
+                    self.assertEqual(row["return_repr"], repr({"pc": value}))
+
+    def test_pc_nvlist_preserves_actual_async_info_and_raw_stderr(self):
+        self.controller.select_and_gate()
+        actual = "Info: ARM Cortex-A9 MPCore #1 (target 3) Stopped at 0xffffff34 (Suspended)\npc: ffffff34\n\n"
+        diagnostic = "原始SDK诊断\n"
+        def read(*args, reg):
+            self.assertEqual(args, ("--nvlist",))
+            self.assertEqual(reg, "pc")
+            print(actual, end="")
+            print(diagnostic, file=sys.stderr, end="")
+            return {"pc": 0xFFFFFF34}
+        self.session.objects[12].rrd = read
+        self.controller.system_reset_stop(self.bindings["interface"])
+        self.assertEqual(self.controller.record["system_reset"]["after"]["cpu1_pc"], 0xFFFFFF34)
+        self.controller.close()
+        rows = [json.loads(line) for line in (self.run / "jtag_calls.jsonl").read_text(encoding="utf-8").splitlines()]
+        rows = [row for row in rows if row["api"] == "cpu1.rrd.pc"]
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertEqual(row["stdout"], actual)
+            self.assertEqual(row["stderr"], diagnostic)
+            self.assertEqual(row["return_repr"], repr({"pc": 0xFFFFFF34}))
+
+    def test_pc_nvlist_invalid_structure_locks_and_cleans_owned_breakpoints(self):
+        class DictSubclass(dict):
+            """字典子类不属于官方承诺的精确返回类型。"""
+        invalid = (("bool", {"pc": True}), ("negative", {"pc": -1}),
+                   ("oversized", {"pc": 0x100000000}), ("missing", {}),
+                   ("extra", {"pc": 0x100, "r0": 0}), ("na", {"pc": "N/A"}),
+                   ("empty", {"pc": ""}), ("errors", {"pc": 0x100, "error": "unavailable"}),
+                   ("nested_error", {"pc": {"error": "unavailable"}}),
+                   ("none", None), ("string", "pc: 00000100"), ("list", [0x100]),
+                   ("tuple", ("pc", 0x100)), ("integer", 0x100),
+                   ("dict_subclass", DictSubclass(pc=0x100)), ("float", {"pc": 256.0}),
+                   ("hex_string", {"pc": "0x100"}), ("wrong_case", {"PC": 0x100}))
+        for index, (name, value) in enumerate(invalid):
+            with self.subTest(name=name):
+                if index:
+                    self.tearDown(); self.setUp()
+                self.ready()
+                self.controller.add_bp(0x100)
+                def read(*args, reg):
+                    self.assertEqual(args, ("--nvlist",))
+                    self.assertEqual(reg, "pc")
+                    # 合法文本不能补救不合法的官方结构化返回。
+                    print("pc: 00000100")
+                    return value
+                self.session.objects[11].rrd = read
+                with self.assertRaisesRegex(j.JtagError, "PC结构化"):
+                    self.controller.deploy()
+                self.assertTrue(self.controller.failed)
+                self.assertFalse(self.controller.owned_bps)
+                self.assertEqual(set(self.session._bptable), {1})
+                self.assertFalse(self.session.objects[11].running)
+                self.assertEqual([row[0] for row in self.session.operations if row[0] in ("stop", "con", "dow")], ["dow"])
+                self.assertTrue(any(row["api"] == "cpu0.state" for row in self.controller.record["calls"][-2:]))
+                before = len(self.controller.record["calls"])
+                with self.assertRaisesRegex(j.JtagError, "控制器已失败"):
+                    self.controller.deploy()
+                self.assertEqual(len(self.controller.record["calls"]), before)
+                self.controller.close()
+                result = json.loads((self.run / "jtag_result.json").read_text(encoding="utf-8"))
+                self.assertEqual(result["status"], "FAILED")
+
+    def test_pc_nvlist_sdk_exception_keeps_raw_output_locks_and_cleans(self):
+        self.ready()
+        normal = self.session.objects[11].rrd
+        reads = 0
+        def read(*args, reg):
+            nonlocal reads
+            reads += 1
+            if reads == 1:
+                return normal(*args, reg=reg)
+            print("Info: 官方异步状态\n", end="")
+            print("原始SDK异常诊断\n", file=sys.stderr, end="")
+            self.session.objects[11].running = True
+            raise RuntimeError("native rrd failed")
+        self.session.objects[11].rrd = read
+        with self.assertRaisesRegex(RuntimeError, "native rrd failed"):
+            self.controller.deploy()
+        self.assertTrue(self.controller.failed)
+        self.assertFalse(self.controller.owned_bps)
+        self.assertEqual(set(self.session._bptable), {1})
+        self.assertFalse(self.session.objects[11].running)
+        self.assertIn(("stop", "ARM Cortex-A9 MPCore #0"), self.session.operations)
+        self.assertNotIn(("stop", "ARM Cortex-A9 MPCore #1"), self.session.operations)
+        self.assertNotIn("cpu0.con.app", [row["api"] for row in self.controller.record["calls"]])
+        row = next(row for row in self.controller.record["calls"] if row["api"] == "cpu0.rrd.pc" and row["status"] == "RAISED")
+        self.assertEqual(row["args"], ("--nvlist",))
+        self.assertEqual(row["stdout"], "Info: 官方异步状态\n")
+        self.assertEqual(row["stderr"], "原始SDK异常诊断\n")
+        self.assertEqual(row["exception_type"], "RuntimeError")
+        before = len(self.controller.record["calls"])
+        with self.assertRaisesRegex(j.JtagError, "控制器已失败"):
+            self.controller.deploy()
+        self.assertEqual(len(self.controller.record["calls"]), before)
+
+    def test_pc_nvlist_invalid_before_reset_prevents_physical_mutations(self):
+        self.controller.select_and_gate()
+        self.session.objects[12].rrd = lambda *args, reg: {"pc": "N/A"}
+        with self.assertRaisesRegex(j.JtagError, "PC结构化"):
+            self.controller.system_reset_stop(self.bindings["interface"])
+        self.assertTrue(self.controller.failed)
+        self.assertFalse(self.session.operations)
+        before = len(self.controller.record["calls"])
+        with self.assertRaisesRegex(j.JtagError, "控制器已失败"):
+            self.controller.deploy()
+        self.assertEqual(len(self.controller.record["calls"]), before)
 
     def test_target_ambiguity(self):
         self.session.rows["fpga"]["name"] = "APU"

@@ -425,6 +425,17 @@ class SdkBoundaryTests(unittest.TestCase):
         config={"sdk_files":files}
         with patch.dict(sys.modules,modules),patch.object(p,"verify_native_alias",return_value={"scope":"NATIVE_TEST_SEPARATE"}):
             p.verify_runtime_sources(config)
+            target=object.__new__(modules["xsdb.target"].Target)
+            p.verify_runtime_sources(config,target=target)
+            other_target=object.__new__(modules["xsdb.target"].Target)
+            for kind,replacement in (("foreign_function",lambda *args,**kwargs:{"pc":0}),
+                                     ("wrong_method",target.state),
+                                     ("wrong_target",other_target.rrd)):
+                with self.subTest(rrd_receiver_fault=kind):
+                    target.rrd=replacement
+                    with self.assertRaisesRegex(p.VisibilityProbeError,"接收器"):
+                        p.verify_runtime_sources(config,target=target)
+                    del target.rrd
             for class_name in ("Session","Target"):
                 cls=getattr(modules["xsdb."+class_name.lower()],class_name)
                 for attribute in ("__module__","__name__","__qualname__"):

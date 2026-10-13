@@ -27,7 +27,7 @@ ROOT=Path(__file__).absolute().parents[1]
 TZ=timezone(timedelta(hours=8))
 SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
 # 固定T16 EOS→生成postconfig→冷CSR候选；此绑定不替代独立G2及实板兼容批准。
-JTAG_SHA="06c1f46d9906d39e76f9befddcdb50eaf20cf485ddb5e5d48145ab0553143432"
+JTAG_SHA="4f69f848f71acb4b2ff7709a4ab40bbb892f0b205137d434f7a5f302805e1f85"
 CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
 ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
@@ -231,8 +231,10 @@ def verify_runtime_sources(config,session=None,target=None):
     if target is not None:
         cls=sys.modules["xsdb.target"].Target
         require(type(target) is cls,"实际target接收器类型或定义模块不符")
-        for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga","loadhw","unloadhw"):
+        for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga","rrd","loadhw","unloadhw"):
             require(getattr(getattr(target,name),"__func__",None) is getattr(cls,name),"实际target方法接收器被替换："+name)
+            if name=="rrd":
+                require(getattr(target.rrd,"__self__",None) is target,"实际target的rrd绑定到了其他接收器")
     return observed
 
 def helpers():

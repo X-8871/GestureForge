@@ -441,13 +441,13 @@ class JtagController:
             raise
 
     def pc(self, label="cpu0"):
-        """按真实rrd标准输出取得PC，不猜返回结构。"""
+        """按官方rrd的nvlist返回严格读取32位PC，原始输出由call完整保存。"""
         require(label in ("cpu0", "cpu1"), "PC核标签错误")
-        value = self.call(label + ".rrd.pc", self.targets[label].rrd, reg="pc")
-        row = self.record["calls"][-1]
-        match = re.fullmatch(r"\s*pc:\s*([0-9a-fA-F]{8})\s*", row["stdout"])
-        require(value is None and not row["stderr"] and match, "PC真实输出无法解析")
-        return int(match.group(1), 16)
+        value = self.call(label + ".rrd.pc", self.targets[label].rrd, "--nvlist", reg="pc")
+        require(type(value) is dict and set(value) == {"pc"} and
+                type(value["pc"]) is int and 0 <= value["pc"] <= 0xFFFFFFFF,
+                "PC结构化返回类型/字段/32位范围错误")
+        return value["pc"]
 
     def add_bp(self, address):
         """包括部分失败新增对象，只登记和移除本控制器拥有的断点。"""

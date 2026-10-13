@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "source_commit": "6019ed956f0008c4a97b42dc9e0aebb74f31f5c5",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "保存已批准visibility0入口在映射前的真实调试输出失败，不改变正式接口或验收条件。",
+  "tool_versions": {
+    "vitis": "2026.1",
+    "python_packager": "3.12.14"
+  },
+  "checks": [
+    {
+      "name": "缓存检查入口",
+      "status": "BLOCKED",
+      "command": "vitis.bat -s vitis/run_s2b_visibility_probe.py",
+      "exit_code": null,
+      "reason": "启动器原生0，入口逻辑结果2/FAILED；异步停止通知混入PC标准输出，映射和PSinit/下载/cache均未执行。"
+    }
+  ],
+  "limitations": [
+    "没有缓存或模型实物结果；真实复位调用完成不证明冷生命周期。",
+    "恢复的源码匹配实际绑定SHA，不是即时快照。"
+  ],
+  "run_id": "cache_probe_20261013_r02",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_20261013_r02",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/bound_build_details.json.raw",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/bound_compat_review.json.raw",
+      "sha256": "b5c6ecacc58a4a5490db5374149bf86b1a362f58f12b3577fe47a414872e6d63",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/bound_owned_server.json.raw",
+      "sha256": "5e615edb5e2fd2692a2b8f4d24ccf861db4511609253fc541524a251f88302be",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/bound_platform_manifest.json.raw",
+      "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/entry_calls.jsonl",
+      "sha256": "b1d942bc478870a5c9542828087e9945c0672bce2ad23e5cd0852a1edbe732b3",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/input_config.json",
+      "sha256": "fb9004b81360093c5b36e7b79ae7528bfdf3705e79d217e961587c6c78bbe637",
+      "role": "input",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/jtag_calls.jsonl",
+      "sha256": "f5d92b0c7c44dffa0a4ddc7424b8fca31f2911794993ab562dce0337cbbbfeda",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/jtag_result.json",
+      "sha256": "35cef7c0e1d3678fa97293ffbde93fc8b1263f39d87353e57632b7df1114548a",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r02/visibility_probe_result.json",
+      "sha256": "f854dbc987598bbf2cb25e5536579e2e0806f2a002fcef2e9e174b22d4adcca8",
+      "role": "result",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r02/source_snapshot/verification/s2b_board_jtag.py",
+      "sha256": "06c1f46d9906d39e76f9befddcdb50eaf20cf485ddb5e5d48145ab0553143432",
+      "role": "source",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r02/source_snapshot/vitis/run_s2b_visibility_probe.py",
+      "sha256": "01e7668a5af91a3f110ae92bcdeecdcf4cb56f12d4dd8f2cc3c45ee6d7ed71ab",
+      "role": "source",
+      "keep_reason": "保存实际失败、闭合原件或执行源码；不证明G3/G4/G5。"
+    }
+  ]
+}

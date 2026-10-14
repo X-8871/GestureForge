@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T01",
+  "run_id": "gp0_translation_mode_audit_20261014_r01",
+  "source_commit": "5bf43ff7bdad4a8d795456539b7a7573b1314ff9",
+  "evidence_dir": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本项仅核对候选文档与所绑定XSA/HWH的离线静态配置，不消费已冻结接口版本；候选接口仍为CANDIDATE_NOT_FROZEN。",
+  "files": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "69de8697f2b4d2f49fe5925a8985a71937a28a9b4848c9f793feb91e481816d9",
+      "role": "source",
+      "keep_reason": "本任务直接更正并审计的物理接口候选文档。"
+    },
+    {
+      "path": "src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "role": "source",
+      "keep_reason": "绑定当前审计HEAD的物理顶层源码；与T19平台源快照SHA一致。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "role": "input",
+      "keep_reason": "原始T19平台运行所绑定的顶层源码快照，用于核对当前HEAD源码哈希。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+      "sha256": "0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad",
+      "role": "input",
+      "keep_reason": "原始T19来源清单，声明平台源提交、XSA哈希及Vivado版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_current.xsa",
+      "sha256": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065",
+      "role": "input",
+      "keep_reason": "经任务给定SHA绑定的当前源码visibility=1离线平台XSA。"
+    },
+    {
+      "path": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/extract_hwh.py",
+      "sha256": "ba54a5132a74002661bc29a395ea9d12db67a21565494daa84fb07fabf3ed1b2",
+      "role": "source",
+      "keep_reason": "离线提取并断言HWH转换器配置、LEN连线、时钟和reset扇出的复核脚本。"
+    },
+    {
+      "path": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/s2b_inference.hwh",
+      "sha256": "67e5af631d346d16640bafbd262af7a33bda0236f1a950e632c2e05c90681370",
+      "role": "artifact",
+      "keep_reason": "从绑定XSA成员提取的原始HWH字节，供直接复核静态IP参数与连线。"
+    },
+    {
+      "path": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/hwh_extract.json",
+      "sha256": "69295934c8da3e9fa1d930a967ca947c2eb37761d80765967c279c2c4d4695ee",
+      "role": "result",
+      "keep_reason": "机器可读的HWH字段、端口连线、源绑定及证据限制提取结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/audit_report.md",
+      "sha256": "ced0e4bad052237d5a747252c8fdabe8acd8015bd1060950e7bebf6b136cf964",
+      "role": "result",
+      "keep_reason": "中文审计结论、官方依据、命令记录、G0状态和未覆盖项。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "xsa_hwh_static_extraction",
+      "status": "PASS",
+      "command": "python -B report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/extract_hwh.py",
+      "exit_code": 0,
+      "reason": "原生退出码0；XSA与内嵌HWH哈希匹配，且脚本断言协议、translation mode、LEN连线、50 MHz时钟和reset扇出。仅为静态提取。"
+    },
+    {
+      "name": "candidate_git_diff_check",
+      "status": "PASS",
+      "command": "git diff --check -- docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "exit_code": 0,
+      "reason": "原生退出码0，无候选文档空白错误。"
+    },
+    {
+      "name": "evidence_directory_validation",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "最终证据目录清单与目录枚举检查通过；检查器仅证明文件绑定/包装，不代表G0/G4/G5或实物验收。"
+    },
+    {
+      "name": "vivado_rerun",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本任务只读取既有XSA/HWH并离线解析；当前审计环境没有PATH可用Vivado，T19原始来源版本记录为2026.1 build 6511674。"
+    },
+    {
+      "name": "gp0_candidate_g0",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "缺少实板GP0单拍事务、READY背压/响应与动态reset证据；本静态审计不批准冻结。"
+    },
+    {
+      "name": "independent_review",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "等待总控基于冻结差异执行独立G2审查。"
+    }
+  ],
+  "limitations": [
+    "HWH只证明静态配置和端口连接，不证明PS运行时AWLEN/ARLEN值。",
+    "未捕获实板AXI VALID/READY、READY背压、响应或非法事务副作用。",
+    "未观察实际FCLK频率、reset波形、同步释放和两端复位重叠。",
+    "未运行Vivado、仿真、综合、部署或板卡验证；候选仍未冻结且G0未通过。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14 (Codex bundled runtime)",
+    "Vivado_current_audit_environment": "unavailable_on_PATH",
+    "Vivado_T19_source_run": "2026.1 build 6511674 (from original T19 manifest)"
+  }
+}

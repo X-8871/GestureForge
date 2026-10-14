@@ -1,0 +1,142 @@
+{
+  "audit": {
+    "task_id": "S2B-T01-G0",
+    "run_id": "gp0_translation_mode_audit_20261014_r01",
+    "scope": "offline_static_xsa_hwh_audit",
+    "worktree_head": "5bf43ff7bdad4a8d795456539b7a7573b1314ff9",
+    "candidate_document": {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "69de8697f2b4d2f49fe5925a8985a71937a28a9b4848c9f793feb91e481816d9"
+    },
+    "current_rtl_source": {
+      "path": "src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1"
+    }
+  },
+  "xsa": {
+    "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_current.xsa",
+    "sha256": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065",
+    "hwh_member": "s2b_inference.hwh",
+    "hwh_member_sha256": "67e5af631d346d16640bafbd262af7a33bda0236f1a950e632c2e05c90681370",
+    "hwh_extracted_path": "report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/s2b_inference.hwh",
+    "hwh_bytes": 156286
+  },
+  "source_provenance": {
+    "original_t19_manifest": {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+      "sha256": "0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad",
+      "source_commit": "f92823f0bd577a49db543868f44c4f63b670d8e0",
+      "vivado": "2026.1 build 6511674"
+    },
+    "t19_top_snapshot": {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1"
+    },
+    "current_top_matches_t19_snapshot": true
+  },
+  "converter": {
+    "instance": "axi_gp0_lite",
+    "full_name": "/axi_gp0_lite",
+    "vlnv": "xilinx.com:ip:axi_protocol_converter:2.1",
+    "parameters": {
+      "SI_PROTOCOL": "AXI3",
+      "MI_PROTOCOL": "AXI4LITE",
+      "ADDR_WIDTH": "32",
+      "DATA_WIDTH": "32",
+      "ID_WIDTH": "12",
+      "C_IGNORE_ID": "0",
+      "C_TRANSLATION_MODE": "0",
+      "TRANSLATION_MODE": "0"
+    },
+    "interfaces": {
+      "S_AXI": {
+        "type": "SLAVE",
+        "protocol": "AXI3",
+        "data_width": "32",
+        "id_width": "12",
+        "bus_name": "ps7_M_AXI_GP0"
+      },
+      "M_AXI": {
+        "type": "MASTER",
+        "protocol": "AXI4LITE",
+        "data_width": "32",
+        "id_width": "0",
+        "bus_name": "axi_gp0_lite_M_AXI"
+      }
+    },
+    "ps_m_axi_gp0_len_pins": {
+      "write": {
+        "ps_pin": "M_AXI_GP0_AWLEN",
+        "ps_width_bits": 4,
+        "converter_si_pin": "s_axi_awlen",
+        "converter_width_bits": 4,
+        "static_connection": true,
+        "runtime_value": "not inferable from HWH"
+      },
+      "read": {
+        "ps_pin": "M_AXI_GP0_ARLEN",
+        "ps_width_bits": 4,
+        "converter_si_pin": "s_axi_arlen",
+        "converter_width_bits": 4,
+        "static_connection": true,
+        "runtime_value": "not inferable from HWH"
+      }
+    }
+  },
+  "clock": {
+    "source": "ps7.FCLK_CLK0",
+    "nominal_hz": 50000000,
+    "fanout": [
+      "ps7.M_AXI_GP0_ACLK",
+      "ps7.S_AXI_HP0_ACLK",
+      "axi_gp0_lite.aclk",
+      "rst_fclk0.slowest_sync_clk",
+      "infer.clk"
+    ],
+    "ps_m_axi_gp0_aclk": [
+      "ps7.FCLK_CLK0"
+    ],
+    "converter_aclk": [
+      "ps7.FCLK_CLK0"
+    ],
+    "reset_controller_slowest_sync_clk": [
+      "ps7.FCLK_CLK0"
+    ],
+    "static_only": true
+  },
+  "reset": {
+    "controller_instance": "rst_fclk0",
+    "controller_vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
+    "parameters": {
+      "C_NUM_INTERCONNECT_ARESETN": "1",
+      "C_NUM_PERP_ARESETN": "1"
+    },
+    "ext_reset_in_from": [
+      "ps7.FCLK_RESET0_N"
+    ],
+    "sync_clock_from": [
+      "ps7.FCLK_CLK0"
+    ],
+    "peripheral_aresetn_fanout": [
+      "axi_gp0_lite.aresetn",
+      "infer.cold_resetn"
+    ],
+    "converter_aresetn_from": [
+      "rst_fclk0.peripheral_aresetn"
+    ],
+    "infer_cold_resetn_from": [
+      "rst_fclk0.peripheral_aresetn"
+    ],
+    "static_only": true
+  },
+  "interpretation_limits": [
+    "HWH端口连线不提供PS运行事务的AWLEN或ARLEN取值。",
+    "静态XSA/HWH不提供AXI READY背压、响应序列或实板事务记录。",
+    "reset连线与名义时钟频率不证明实物reset波形、释放时序或复位重叠。",
+    "提取成功及配置匹配不代表G0通过、接口冻结或实物验收。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "vivado_in_audit_environment": null
+  }
+}

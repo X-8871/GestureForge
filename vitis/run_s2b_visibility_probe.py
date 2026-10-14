@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import argparse
 import ast
+import faulthandler
 import hashlib
 import importlib
 import importlib.util
@@ -27,7 +28,7 @@ ROOT=Path(__file__).absolute().parents[1]
 TZ=timezone(timedelta(hours=8))
 SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
 # 固定T16 EOS→生成postconfig→冷CSR候选；此绑定不替代独立G2及实板兼容批准。
-JTAG_SHA="4f69f848f71acb4b2ff7709a4ab40bbb892f0b205137d434f7a5f302805e1f85"
+JTAG_SHA="248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
 CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
 ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
@@ -231,6 +232,8 @@ def verify_runtime_sources(config,session=None,target=None):
     if target is not None:
         cls=sys.modules["xsdb.target"].Target
         require(type(target) is cls,"实际target接收器类型或定义模块不符")
+        if session is not None:
+            require(vars(target).get("session") is session,"实际target接收器属于其他会话")
         for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga","rrd","loadhw","unloadhw"):
             require(getattr(getattr(target,name),"__func__",None) is getattr(cls,name),"实际target方法接收器被替换："+name)
             if name=="rrd":
@@ -405,10 +408,11 @@ def register_csr_debug_map(config,record,log,session,controller,owner):
     reference=controller.targets["apu"]
     apu=log.call("session.select_apu_for_debug_map",session.targets,id=vars(reference)["_id"])
     require(all(vars(apu).get(key)==vars(reference).get(key) for key in ("_ctx","_id","_name"))
-            and session._curtarget is apu,"映射接收器与实际选中APU不一致")
+            and vars(apu).get("session") is session and session._curtarget is apu,"映射接收器与实际选中APU不一致")
     log.call("runtime.verify_debug_map_target",verify_runtime_sources,config,session,apu)
     require(not session._designtable and not session._memmap_ctxs,"新自有会话已存在硬件映射，拒绝复用")
-    owner.update(apu=apu,channel=session._curchan,ctx=vars(apu)["_ctx"],attempted=True)
+    owner.update(apu=apu,channel=session._curchan,ctx=vars(apu)["_ctx"],attempted=True,
+                 targets={name:dict(row) for name,row in controller.selected.items()},hw=os.path.realpath(binding["path"]))
     record["debug_memory_map"]={"status":"ATTEMPTED","implemented_xsa":binding,"hwh_region":region,
                                 "apu_id":vars(apu)["_id"],"apu_ctx":owner["ctx"],"range":[base,end],"cleanup":"NOT_RUN"}
     log.call("apu.loadhw.csr_only",apu.loadhw,hw=binding["path"],mem_ranges=[[base,end]])
@@ -427,13 +431,59 @@ def register_csr_debug_map(config,record,log,session,controller,owner):
 def clear_csr_debug_map(config,record,log,session,owner):
     """清理本次自有会话登记的硬件映射；部分失败亦保留真实清理结果。"""
     if not owner.get("attempted"):return
-    apu=log.call("session.select_apu_for_map_cleanup",session.targets,id=vars(owner["apu"])["_id"])
-    require(all(vars(apu).get(key)==vars(owner["apu"]).get(key) for key in ("_ctx","_id","_name"))
-            and session._curtarget is apu and session._curchan==owner["channel"],"清理映射APU身份不符")
+    j,_=helpers()
+    selected=j.validate_targets(log.call("session.map_cleanup_targets",session.targets,"--target_properties"))
+    require(all(all(selected[name].get(key)==owner["targets"][name].get(key) for key in j.IDENTITY_KEYS)
+                for name in j.NAMES),"清理映射硬件上下文或父链改变")
+    row=selected["APU"]
+    apu=log.call("session.select_apu_for_map_cleanup",session.targets,id=row["target_id"])
+    require(vars(apu).get("_ctx")==owner["ctx"] and vars(apu).get("_id")==row["target_id"] and
+            vars(apu).get("_name")=="APU" and vars(apu).get("session") is session and
+            session._curtarget is apu and session._curchan==owner["channel"],"清理映射APU身份不符")
+    require(set(session._designtable)=={owner["hw"]},"清理映射存在其他硬件设计")
+    design=session._designtable[owner["hw"]]
+    require(("targets" not in design or design["targets"]==[owner["ctx"]]) and
+            ("channels" not in design or design["channels"]==[owner["channel"]]),"清理映射设计所有权改变")
     log.call("runtime.verify_map_cleanup_target",verify_runtime_sources,config,session,apu)
-    log.call("apu.unloadhw.owned_map",apu.unloadhw)
+    stack_path=j.exact_path(Path(log.stream.name).parent,directory=True)/"sdk_unload_stack.log"
+    diagnostic={"path":str(stack_path),"delay_seconds":30,"repeat":False,"status":"PLANNED","dump_observed":False}
+    record["debug_memory_map"]["unload_stack_diagnostic"]=diagnostic
+    stream=None;scheduled=False;cancelled=False
+    def diagnostic_error(action,error):
+        """诊断失败独立保存；仍执行公共卸载，禁止冒充SDK清理完成。"""
+        diagnostic.update(status="FAILED",error=repr(error))
+        record.setdefault("cleanup_errors",[]).append({"action":"owned_csr_debug_map.stack_"+action,"error":repr(error)})
+    try:
+        try:
+            stream=stack_path.open("xb")
+            faulthandler.dump_traceback_later(30,repeat=False,file=stream)
+            scheduled=True;diagnostic["status"]="SCHEDULED"
+        except Exception as error:
+            diagnostic_error("schedule",error)
+        log.call("apu.unloadhw.owned_map",apu.unloadhw)
+    finally:
+        if scheduled:
+            try:
+                faulthandler.cancel_dump_traceback_later();cancelled=True
+            except Exception as error:
+                diagnostic_error("cancel",error)
+        if stream is not None:
+            try:
+                stream.flush()
+                raw=stack_path.read_bytes()
+                diagnostic.update(size_bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),dump_observed=bool(raw))
+                if diagnostic["status"]!="FAILED":diagnostic["status"]="STACK_CAPTURED" if raw else "CANCELLED_WITHOUT_DUMP"
+            except Exception as error:
+                diagnostic_error("capture",error)
+            if not scheduled or cancelled:
+                try:stream.close()
+                except Exception as error:diagnostic_error("close",error)
+            else:
+                # 取消失败时保留描述符至自有进程结束，避免尚待执行的全局计时器写入已关闭文件。
+                owner["pending_stack_stream"]=stream
     require(not session._designtable and not session._memmap_ctxs.get(owner["channel"],{}),"本次硬件映射未清理")
     record["debug_memory_map"]["cleanup"]="OWNED_HW_MAP_CLEARED"
+    require(diagnostic["status"]!="FAILED","公共卸载已返回且映射已清空，但卸载栈诊断失败")
 
 def run(config):
     """总控显式传入JSON文件才执行；新Run独占，任何失败留原字节并抛异常。"""
@@ -559,7 +609,7 @@ def run(config):
             cleanup("owned_csr_debug_map.clear",clear_csr_debug_map,config=cfg,record=record,log=log,session=session,owner=map_owner)
             cleanup("session.disconnect",session.disconnect,**({"chan":channel} if channel is not None else {}))
         if sdk is not None:cleanup("xsdb.dispose",sdk.dispose)
-        for name in ("uart_rx_raw.bin","uart_tx_headers.bin","jtag_result.json","jtag_calls.jsonl"):
+        for name in ("uart_rx_raw.bin","uart_tx_headers.bin","jtag_result.json","jtag_calls.jsonl","sdk_unload_stack.log"):
             path=folder/name
             if path.is_file():record.setdefault("saved_files",{})[name]={"sha256":digest(path),"bytes":path.stat().st_size}
         record.update(finished_at_utc8=datetime.now(TZ).isoformat(),elapsed_seconds=time.monotonic()-start,native_exit_code=2 if failure or record["status"]=="FAILED" else 0,owned_hw_server_released=False)

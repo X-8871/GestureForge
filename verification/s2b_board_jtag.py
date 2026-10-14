@@ -26,7 +26,7 @@ SLCR_LOCK, SLCR_UNLOCK, SLCR_LOCKSTA = 0xF8000004, 0xF8000008, 0xF800000C
 PS_VERSION, LEVEL_SHIFTER, FPGA_RESET = 0xF8007080, 0xF8000900, 0xF8000240
 FPGA0_CLOCK, PLL_STATUS = 0xF8000170, 0xF800010C
 CSR_SNAPSHOT = tuple(range(0x00C, 0x030, 4)) + (0x050, 0x054, 0x058, 0x05C, 0x060, 0x068, 0x06C, 0x070, 0x074)
-IDENTITY_KEYS = ("name", "target_ctx", "target_id", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
+IDENTITY_KEYS = ("name", "target_ctx", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
                  "jtag_device_name", "jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")
 # 既有ELF解析器使用同目录绝对导入；兼容模块导入和Vitis脚本两种入口。
 if str(Path(__file__).absolute().parent) not in sys.path:
@@ -223,23 +223,38 @@ def postconfig_basis(raw):
 
 
 def validate_targets(properties):
-    """动态 ID 选择唯一同链 APU、双核和 FPGA；不硬编码历史目标ID。"""
-    require(type(properties) is dict and len(properties) == 4, "目标数量或类型错误")
-    selected = {}
+    """只接受同链四主体及官方递归枚举暴露的完整双核PA物理访问子目标。"""
+    require(type(properties) is dict and len(properties) in (4, 6), "目标数量或类型错误")
+    selected, physical = {}, []
     for ctx, row in properties.items():
-        require(type(row) is dict and row.get("name") in NAMES and row["name"] not in selected, "目标歧义")
+        require(type(row) is dict and row.get("name") in (*NAMES, "PA"), "目标歧义")
         require(row.get("target_ctx") == ctx and type(row.get("target_id")) is int and row["target_id"] > 0, "目标ID/上下文错误")
         require(tuple(row.get(k) for k in ("jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")) == CABLE,
                 "线缆身份不符")
         require(all(type(row.get(k)) is str and row[k] for k in ("jtag_cable_ctx", "jtag_device_ctx")), "目标链缺失")
-        selected[row["name"]] = row
-    require(set(selected) == set(NAMES) and len({r["target_id"] for r in selected.values()}) == 4, "目标不唯一")
-    require(len({r["jtag_cable_ctx"] for r in selected.values()}) == 1, "设备不在同一线缆")
+        if row["name"] == "PA":
+            physical.append(row)
+        else:
+            require(row["name"] not in selected, "目标歧义")
+            selected[row["name"]] = row
+    require(set(selected) == set(NAMES) and len({r["target_id"] for r in properties.values()}) == len(properties), "目标不唯一")
+    require(len({r["jtag_cable_ctx"] for r in properties.values()}) == 1, "设备不在同一线缆")
     apu = selected["APU"]
     require(apu.get("jtag_device_name") == "arm_dap" and selected[NAMES[3]].get("jtag_device_name") == "xc7z020", "DAP/FPGA器件类型不符")
     for name in NAMES[1:3]:
         require(selected[name].get("parent_ctx") == apu["target_ctx"] and selected[name].get("parent") == "APU" and
                 selected[name]["jtag_device_ctx"] == apu["jtag_device_ctx"] and selected[name].get("jtag_device_name") == "arm_dap", "CPU父链不符")
+    if physical:
+        require(len(physical) == 2, "PA目标必须为完整双核对")
+        for name in NAMES[1:3]:
+            cpu = selected[name]
+            matches = [row for row in physical if row.get("parent_ctx") == cpu["target_ctx"]]
+            require(len(matches) == 1, "PA父核缺失或重复")
+            row = matches[0]
+            # 官方递归原地展开APU的children缓存，parent文字与level是显示副作用；真实父链使用parent_ctx。
+            require(row["target_ctx"] == cpu["target_ctx"] + ".pa" and row.get("parent") == "APU" and
+                    type(row.get("level")) is int and row["level"] == 1, "PA上下文或官方显示属性不符")
+            require(all(row.get(key) == cpu.get(key) for key in set(row) | set(cpu) if key.startswith("jtag_")), "PA线缆或DAP父链不符")
     return selected
 
 
@@ -376,22 +391,29 @@ class JtagController:
         require(dict(self.session._curchan_obj.remote_peer.attrs) == self.peer, "借用会话被重定向")
         current = validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties"))
         require(all(all(current[name].get(k) == self.selected[name].get(k) for k in IDENTITY_KEYS) for name in NAMES),
-                "目标链/ID改变，禁止后续操作")
+                "目标上下文/父链改变，禁止后续操作")
+        self.refresh_targets(current)
         require(self.state("cpu1").startswith("Stopped"), "CPU1未停止")
         if both:
             require(self.state("cpu0").startswith("Stopped"), "CPU0未停止")
         require(self.words(0xF800025C, 1)[0] == 0, "BOOT_MODE不是JTAG=0")
 
+    def refresh_targets(self, selected):
+        """仅用当前枚举ID调用公开选择器；实际对象必须精确绑定固定上下文及本会话。"""
+        targets = {}
+        for label, name in zip(("apu", "cpu0", "cpu1", "fpga"), NAMES):
+            row = selected[name]
+            obj = self.call("session.targets." + label, self.session.targets, id=row["target_id"])
+            require(vars(obj).get("_ctx") == row["target_ctx"] and vars(obj).get("_id") == row["target_id"] and
+                    vars(obj).get("_name") == name and vars(obj).get("session") is self.session and
+                    self.session._curtarget is obj, "SDK对象不符合当前上下文或会话")
+            targets[label] = obj
+        self.targets, self.selected = targets, selected
+
     def select_and_gate(self):
         """首次仅枚举和只读门禁，Running时拒绝，不自行停止旧应用。"""
         def action():
-            self.selected = validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties"))
-            for label, name in zip(("apu", "cpu0", "cpu1", "fpga"), NAMES):
-                row = self.selected[name]
-                obj = self.call("session.targets." + label, self.session.targets, id=row["target_id"])
-                require(vars(obj).get("_ctx") == row["target_ctx"] and vars(obj).get("_id") == row["target_id"] and
-                        vars(obj).get("_name") == name, "SDK对象不符合当前上下文")
-                self.targets[label] = obj
+            self.refresh_targets(validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties")))
             self.gate()
             self.record["targets"] = self.selected
             return self.selected

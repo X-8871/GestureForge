@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "server_starter_fix_review_20261014_r01",
+  "source_commit": "7f99ed99e0a90d4029f97b57a46e0391fb3139c7",
+  "evidence_dir": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本Run只审查自有服务启动脚本的命令行身份字符串，不更改物理接口；实物与任务验收仍按G3/G4独立判断。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/source_snapshot/start_owned_server.ps1",
+      "sha256": "0bdf8eb0de5c9e57d22df271585c8446d02e081d93e3728074fe0afc0e76ef2d",
+      "role": "source",
+      "keep_reason": "本轮待审候选精确字节副本，SHA与根目录候选绑定。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1",
+      "sha256": "9fe019d783a29990acd7032ea79801219addbabec7574e94e34cdfa76e738f4f",
+      "role": "input",
+      "keep_reason": "验证三种启动命令行的独立隔离mock驱动。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/verify_single_line_fix.ps1",
+      "sha256": "6fa56d3c1bbee1ab3c8f067636983b6d9011a20b39d779556678c4d655913568",
+      "role": "input",
+      "keep_reason": "核验唯一S1单行差异、数组语义及既有身份安全门禁的独立只读断言脚本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/parse_candidate.ps1",
+      "sha256": "b1b0802b5b9732c9afa4d39d37be943d09fef2174cc42b844b666a7e2b07dd06",
+      "role": "input",
+      "keep_reason": "PowerShell Parser.ParseFile只读语法检查驱动。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/source_snapshot/start_owned_server.ps1",
+      "sha256": "4113e6eafa69de6a8c2049bdfdf653431b6c105730477ffc2de1bf6995c8ec79",
+      "role": "input",
+      "keep_reason": "S1修复前冻结starter字节，用于唯一差异比较。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/review_receipt.json",
+      "sha256": "b2e1c765ba8c6ac24197ded6b4e63d1aedbb3109cb0b45e1386e7b94a3d1a352",
+      "role": "input",
+      "keep_reason": "上一轮独立审查的CHANGES_REQUIRED回执及S1 finding。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/delivery_manifest.json",
+      "sha256": "16cca20e3d4e2b2845d638eb1d752e790b3e76161941ff68904c154c494b46a6",
+      "role": "input",
+      "keep_reason": "上一轮完整证据包装manifest，绑定其25项watchdog、10项PA及closer原始证据。"
+    },
+    {
+      "path": "tmp/2B/S2B-T19/board_run_20261014_r02/close_owned_server.ps1",
+      "sha256": "5bc9841fb6fdea6aa65b8cb28c7f46607d1ccb4462e8885a7c6ae3dbaad81773",
+      "role": "input",
+      "keep_reason": "确认上一轮closer冻结SHA未变化。"
+    },
+    {
+      "path": "tmp/2B/S2B-T19/watchdog_prepare_20261013_r01/run_visibility_guarded_r04.ps1",
+      "sha256": "0aa0e95a7014db2357aa5fd2b0bcf4db2a4dc1fe126ae79d2e097441eecff3b4",
+      "role": "input",
+      "keep_reason": "确认上一轮watchdog冻结SHA未变化。"
+    },
+    {
+      "path": "verification/s2b_board_jtag.py",
+      "sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+      "role": "input",
+      "keep_reason": "确认PA production source冻结SHA未变化。"
+    },
+    {
+      "path": "verification/test_s2b_board_jtag.py",
+      "sha256": "31c195dc402bb41bf37c4b1cbb9c23e9ba959bb2ea70c4c6b7d3bddaa1e51bdb",
+      "role": "input",
+      "keep_reason": "确认PA topology focused test冻结SHA未变化。"
+    },
+    {
+      "path": "vitis/run_s2b_visibility_probe.py",
+      "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "role": "input",
+      "keep_reason": "确认visibility probe production source冻结SHA未变化。"
+    },
+    {
+      "path": "verification/test_s2b_visibility_probe.py",
+      "sha256": "58e0a7aadc6691cdeacb956bd336c84bb12373308b52eab715af32e373e835be",
+      "role": "input",
+      "keep_reason": "确认SDK boundary/cleanup focused test冻结SHA未变化。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/review_receipt.json",
+      "sha256": "7249ca19468d74fdd9d52c6df8e0ec9f5ce638b630f6c2e639ab795d15fb035d",
+      "role": "result",
+      "keep_reason": "本轮独立S1关闭审查结论和冻结版本/限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/candidate_parse.exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/candidate_parse.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/candidate_parse.stdout.log",
+      "sha256": "48a469df5d0da6ecce547befed0d30b34c9d4f2c833879549d0ff783987d77aa",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_bad_arg.exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_bad_arg.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_bad_arg.stdout.log",
+      "sha256": "3c4c0fdfe6398d3c149fa4aab49393f3801fc0f88252804dcea28c920f057cf8",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_quoted.exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_quoted.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_quoted.stdout.log",
+      "sha256": "b1c738a803c7bbb9f913c519300808d0ec3c94cbcec4ede8910cd030e99d3bcb",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_unquoted.exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_unquoted.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/server_start_unquoted.stdout.log",
+      "sha256": "51a0e4ed0d7a47739825f42d63377c437b571f1bc7d84a6708c6aa510003a7da",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/single_line_fix.exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/single_line_fix.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/raw_logs/single_line_fix.stdout.log",
+      "sha256": "4e746333acb00d91daf23529bcfe4702e54766e95f183f33c720ccd4cdc660b8",
+      "role": "log",
+      "keep_reason": "本轮真实隔离mock、源码差异安全门禁或Parser运行的stdout/stderr与原生退出码。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "candidate_delta_and_static_safety_gates",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/verify_single_line_fix.ps1",
+      "exit_code": 0,
+      "reason": "候选/旧源SHA固定，唯一差异为第32行，数组产生两个期望元素且安全门禁字符串全部存在。"
+    },
+    {
+      "name": "starter_accepts_unquoted_exact_command_line",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_unquoted",
+      "exit_code": 0,
+      "reason": "隔离mock返回ACCEPTED_EXACT_VARIANT并生成包含OWNED_SERVER_READY的身份收据。"
+    },
+    {
+      "name": "starter_accepts_quoted_exact_command_line",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_quoted",
+      "exit_code": 0,
+      "reason": "隔离mock返回ACCEPTED_EXACT_VARIANT并生成包含OWNED_SERVER_READY的身份收据。"
+    },
+    {
+      "name": "starter_rejects_wrong_port_near_match",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_bad_arg",
+      "exit_code": 0,
+      "reason": "隔离mock拒绝tcp::9999且未写成功身份收据。"
+    },
+    {
+      "name": "candidate_parsefile",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/parse_candidate.ps1",
+      "exit_code": 0,
+      "reason": "PowerShell 7.6.5 Parser.ParseFile报告零错误。"
+    },
+    {
+      "name": "previous_r03_results_and_source_hashes_bound",
+      "status": "PASS",
+      "command": "PowerShell SHA-256核对本清单绑定的r03回执、manifest、watchdog、closer和四个生产源码/测试",
+      "exit_code": 0,
+      "reason": "当前字节哈希逐项匹配父任务卡及r03回执/manifest绑定；父级记录r03证据包装CHECKS_OK。"
+    },
+    {
+      "name": "inputs_delivery_checker",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "只读输入/依赖SHA包装检查通过。"
+    },
+    {
+      "name": "evidence_delivery_checker",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "只读本Run文件枚举与SHA包装检查通过。"
+    }
+  ],
+  "limitations": [
+    "所有Start-Process、进程枚举和端口查询均由测试驱动中的本地mock函数覆盖；未启动或终止任何服务进程。",
+    "未访问真实Vitis、SDK、UART、FPGA、JTAG或板卡。",
+    "本轮PASS仅关闭S1并通过G2软件范围，不代表G3/G4/G5。"
+  ],
+  "tool_versions": {
+    "powershell": "7.6.5",
+    "python": "3.12.10",
+    "git": "2.56.0.windows.2"
+  }
+}

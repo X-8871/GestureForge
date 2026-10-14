@@ -139,6 +139,17 @@ class LifecycleTests(unittest.TestCase):
         self.assertIn(("connect",{"url":"TCP:localhost:3121","server":"hw_server"}),self.session.operations)
         self.assertEqual(result["cache_probe"]["phase0_raw_hex"][:8],"78563412")
         self.assertEqual(len(Path(self.config["run_dir"]).joinpath("uart_rx_raw.bin").read_bytes()),result["banner"]["bytes"]+2*(40+40+256))
+    def test_full_mock_lifecycle_after_loadhw_pa_pair_and_fpga_renumbering(self):
+        def setup(*args):
+            self.session.rows=fixture.pa_target_rows()
+            for ctx in ("cpu0.pa","cpu1.pa","fpga"):
+                row=self.session.rows[ctx]
+                self.session.objects[row["target_id"]]=fixture.FakeTarget(self.session,row)
+        result=self.execute(map_setup=setup)
+        self.assertEqual(result["native_exit_code"],0)
+        raw=json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))
+        calls=[row for row in raw["calls"] if row["api"]=="session.targets.fpga"]
+        self.assertTrue(any(row["kwargs"]=={"id":15} for row in calls))
     def test_sdk_uart_and_cleanup_failures_preserve_originals(self):
         for scenario in ["start_session","connect","boot","chain","cpu0_stop","init_download","init","fpga","app","banner","cache","serial_open","serial_close","disconnect","dispose","breakpoint_cleanup"]:
             with self.subTest(scenario=scenario):
@@ -427,6 +438,14 @@ class SdkBoundaryTests(unittest.TestCase):
             p.verify_runtime_sources(config)
             target=object.__new__(modules["xsdb.target"].Target)
             p.verify_runtime_sources(config,target=target)
+            session=object.__new__(modules["xsdb.session"].Session)
+            modules["xsdb"].debug_session=session;modules["xsdb.xsdb_debug_session"].debug_session_int_obj=session
+            target.session=session
+            p.verify_runtime_sources(config,session,target)
+            target.session=object()
+            with self.assertRaisesRegex(p.VisibilityProbeError,"其他会话"):p.verify_runtime_sources(config,session,target)
+            target.session=session
+            modules["xsdb"].debug_session=None;modules["xsdb.xsdb_debug_session"].debug_session_int_obj=None
             other_target=object.__new__(modules["xsdb.target"].Target)
             for kind,replacement in (("foreign_function",lambda *args,**kwargs:{"pc":0}),
                                      ("wrong_method",target.state),
@@ -457,6 +476,41 @@ class SdkBoundaryTests(unittest.TestCase):
             modules["xsdb.session"].__file__=original
             modules["xsdb.session"].Session.connect=lambda **kwargs:None
             with self.assertRaises(p.VisibilityProbeError):p.verify_runtime_sources(config)
+
+    def test_official_public_targets_reselects_current_id_without_mutating_previous_id(self):
+        """执行官方AST中的公开选择路径和Target构造/属性分派，隔离所有TCF与SDK导入。"""
+        target_source=p.SDK_INIT.parent/"target.py"
+        session_source=p.SDK_INIT.parent/"session.py"
+        target_class=next(node for node in ast.parse(target_source.read_text(encoding="utf-8-sig")).body
+                          if isinstance(node,ast.ClassDef) and node.name=="Target")
+        target_class.body=[node for node in target_class.body if isinstance(node,ast.FunctionDef) and node.name in ("__init__","__getattr__")]
+        namespace={"TcfNodeExecContext":object}
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[target_class],type_ignores=[])),str(target_source),"exec"),namespace)
+        official_target=namespace["Target"]
+        ctx="fpga"
+        node=SimpleNamespace(id=ctx,get_run_context_data=lambda:SimpleNamespace(getName=lambda:"xc7z020",getID=lambda:ctx))
+        model=SimpleNamespace(get_node=lambda context:node,launch_node=SimpleNamespace(get_target_context_map=lambda:{15:ctx}))
+        session=SimpleNamespace(_curchan="owned",_targets=[],_model=model,_get_targets=lambda:None,
+                                _Session__get_debug_targets_properties=lambda tgts,jtag:{ctx:{"target_id":15}},
+                                _curchan_obj=SimpleNamespace(getRemoteServices=lambda:[]))
+        session.session=session
+        old=official_target("owned",13,node,session);session._targets=[old]
+        self.assertTrue(callable(old.ctx))
+        function=next(node for cls in ast.parse(session_source.read_text(encoding="utf-8-sig")).body
+                      if isinstance(cls,ast.ClassDef) and cls.name=="Session" for node in cls.body
+                      if isinstance(node,ast.FunctionDef) and node.name=="targets")
+        globals_={"argparse":argparse,"check_int":int,"exec_as_runnable":lambda function:{},
+                  "jtag_service":SimpleNamespace(NAME="Jtag"),"protocol":SimpleNamespace(invokeAndWait=lambda function:function()),
+                  "xsdb":SimpleNamespace(target=SimpleNamespace(Target=official_target),debug_session=session),
+                  "add_function_metadata":lambda *args:None}
+        # 保留官方方法的私有名称改写语义，容器类无需执行任何其他SDK初始化。
+        wrapper=ast.ClassDef(name="Session",bases=[],keywords=[],body=[function],decorator_list=[])
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper],type_ignores=[])),str(session_source),"exec"),globals_)
+        selected=globals_["Session"].targets(session,id=15)
+        self.assertIsNot(selected,old)
+        self.assertEqual((selected._ctx,selected._id,selected._name),(ctx,15,"xc7z020"))
+        self.assertIs(selected.session,session);self.assertIs(session._curtarget,selected)
+        self.assertEqual(old._id,13)
 
     def test_native_shared_metadata_and_physical_images_exact(self):
         names=("xv_pycommontasks","xv_hsmpytasks")
@@ -501,16 +555,19 @@ class CsrDebugMapTests(unittest.TestCase):
         self.write_hwh([self.region])
         self.calls=[];self.scenario="normal"
         self.session=SimpleNamespace(_curtarget=None,_curchan="owned",_designtable={},_memmap_ctxs={},_memmaptable={})
-        self.apu=SimpleNamespace(_ctx="apu",_id=10,_name="APU")
-        def select(*,id):
+        self.apu=SimpleNamespace(_ctx="apu",_id=10,_name="APU",session=self.session)
+        self.rows=fixture.target_rows()
+        def select(*args,id=None):
+            if args:
+                self.calls.append(("properties",));return copy.deepcopy(self.rows)
             self.calls.append(("select",id))
-            selected=self.apu if self.scenario!="wrong_selection" else SimpleNamespace(_ctx="fpga",_id=13,_name="xc7z020")
+            selected=self.apu if self.scenario!="wrong_selection" else SimpleNamespace(_ctx="fpga",_id=13,_name="xc7z020",session=self.session)
             self.session._curtarget=selected
             return selected
         def loadhw(*,hw,mem_ranges):
             self.assertIs(self.session._curtarget,self.apu)
             self.calls.append(("loadhw",hw,mem_ranges))
-            self.session._designtable[hw]={"design":"UNIT_FAKE_DESIGN"}
+            self.session._designtable[hw]={"design":"UNIT_FAKE_DESIGN","targets":["apu"],"channels":["owned"]}
             if self.scenario=="partial_load":raise RuntimeError("UNIT_PARTIAL_LOAD")
             value={"base":0x43C00000,"high":0x43C0FFFF,"size":0x10000,"type":"REGISTER","flags":3}
             entry={"Addr":0x43C00000,"Size":0x10000,"Flags":3}
@@ -533,7 +590,7 @@ class CsrDebugMapTests(unittest.TestCase):
         def gate():
             self.calls.append(("gate",))
             self.session._curtarget=SimpleNamespace(_ctx="fpga")
-        self.controller=SimpleNamespace(targets={"apu":self.apu},gate=gate)
+        self.controller=SimpleNamespace(targets={"apu":self.apu},selected=j.validate_targets(self.rows),gate=gate)
         self.record={"calls":[],"verified_inputs":{"compat_artifacts":{"implemented_xsa":bind(self.binding)}}}
         self.log=p.Recorder(self.directory/"calls.jsonl",self.record);self.owner={}
         self.runtime_patch=patch.object(p,"verify_runtime_sources",return_value={"scope":"UNIT_MOCK"})
@@ -550,6 +607,11 @@ class CsrDebugMapTests(unittest.TestCase):
         return p.register_csr_debug_map({},self.record,self.log,self.session,self.controller,self.owner)
     def clear(self):
         return p.clear_csr_debug_map({},self.record,self.log,self.session,self.owner)
+    def fresh_cleanup_log(self):
+        """每个独立mock卸载使用独占Run目录，保留此前诊断文件而不覆盖。"""
+        self.log.stream.close()
+        folder=Path(tempfile.mkdtemp(prefix="unit_cleanup_",dir=self.directory))
+        self.log=p.Recorder(folder/"calls.jsonl",self.record)
     def test_exact_window_selects_apu_and_cleans_owned_map(self):
         self.register()
         self.assertEqual(self.calls[:2],[("gate",),("select",10)])
@@ -569,6 +631,7 @@ class CsrDebugMapTests(unittest.TestCase):
     def test_actual_sdk_mapping_growth_permissions_context_or_absence_rejected(self):
         for scenario in ("expanded","flags","entry_expanded","entry_flags","file_map","wrong_context","extra","missing"):
             with self.subTest(scenario=scenario):
+                self.fresh_cleanup_log()
                 self.scenario=scenario
                 with self.assertRaises(p.VisibilityProbeError):self.register()
                 self.assertTrue(self.owner["attempted"])
@@ -584,6 +647,7 @@ class CsrDebugMapTests(unittest.TestCase):
         self.scenario="partial_load"
         with self.assertRaisesRegex(RuntimeError,"UNIT_PARTIAL_LOAD"):self.register()
         self.assertTrue(self.owner["attempted"]);self.clear()
+        self.fresh_cleanup_log()
         self.scenario="normal";self.register();self.scenario="cleanup_failure"
         with self.assertRaisesRegex(RuntimeError,"UNIT_UNLOAD_FAILURE"):self.clear()
         self.assertEqual(self.record["debug_memory_map"]["cleanup"],"NOT_RUN")
@@ -591,5 +655,76 @@ class CsrDebugMapTests(unittest.TestCase):
         self.register();self.session._curchan="different"
         with self.assertRaises(p.VisibilityProbeError):self.clear()
         self.assertFalse(any(row[0]=="unloadhw" for row in self.calls))
+
+    def test_cleanup_uses_current_apu_id_after_pa_topology_change(self):
+        self.register()
+        self.rows=fixture.pa_target_rows();self.rows["apu"]["target_id"]=20
+        original=self.apu
+        self.apu=SimpleNamespace(**{**vars(original),"_id":20})
+        self.clear()
+        self.assertEqual(original._id,10)
+        self.assertIn(("select",20),self.calls)
+        self.assertEqual(self.record["debug_memory_map"]["cleanup"],"OWNED_HW_MAP_CLEARED")
+
+    def test_cleanup_rejects_drift_extra_design_or_foreign_target_before_unload(self):
+        self.register()
+        original=copy.deepcopy(self.rows)
+        for kind in ("missing_pa","ctx_drift","extra_design","foreign_session","wrong_id","owner_targets","owner_channels"):
+            with self.subTest(fault=kind):
+                self.rows=copy.deepcopy(original)
+                if kind=="missing_pa":self.rows=fixture.pa_target_rows();del self.rows["cpu1.pa"]
+                if kind=="ctx_drift":self.rows["cpu1"]["parent_ctx"]="different"
+                if kind=="extra_design":self.session._designtable["foreign"]={}
+                if kind=="foreign_session":self.apu.session=object()
+                if kind=="wrong_id":self.apu._id=99
+                design=self.session._designtable[str(self.binding)]
+                if kind=="owner_targets":design["targets"]=["apu","foreign"]
+                if kind=="owner_channels":design["channels"]=["foreign"]
+                with self.assertRaises((p.VisibilityProbeError,p.helpers()[0].JtagError)):self.clear()
+                self.assertFalse(any(row[0]=="unloadhw" for row in self.calls))
+                self.session._designtable.pop("foreign",None);self.apu.session=self.session;self.apu._id=10
+                design.update(targets=["apu"],channels=["owned"])
+
+    def test_delayed_unload_stack_order_and_empty_file_means_no_dump(self):
+        self.register()
+        events=[]
+        def schedule(delay,*,repeat,file):
+            self.assertEqual(delay,30);self.assertFalse(repeat);self.assertFalse(file.closed)
+            events.append("schedule")
+        original=self.apu.unloadhw
+        def unload():events.append("unload");original()
+        self.apu.unloadhw=unload
+        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=schedule),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=lambda:events.append("cancel")):
+            self.clear()
+        self.assertEqual(events,["schedule","unload","cancel"])
+        diagnostic=self.record["debug_memory_map"]["unload_stack_diagnostic"]
+        self.assertEqual(diagnostic["status"],"CANCELLED_WITHOUT_DUMP")
+        self.assertFalse(diagnostic["dump_observed"])
+        self.assertEqual(diagnostic["sha256"],hashlib.sha256(b"").hexdigest())
+
+    def test_unload_exception_still_cancels_and_preserves_original_failure(self):
+        self.register();self.scenario="cleanup_failure"
+        events=[]
+        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=lambda *args,**kwargs:events.append("schedule")),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=lambda:events.append("cancel")):
+            with self.assertRaisesRegex(RuntimeError,"UNIT_UNLOAD_FAILURE"):self.clear()
+        self.assertEqual(events,["schedule","cancel"])
+        self.assertFalse(self.record["debug_memory_map"]["unload_stack_diagnostic"]["dump_observed"])
+
+    def test_stack_schedule_failure_keeps_public_unload_and_reports_failure(self):
+        self.register()
+        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=RuntimeError("UNIT_STACK_SCHEDULE_FAILURE")),patch.object(p.faulthandler,"cancel_dump_traceback_later") as cancel:
+            with self.assertRaisesRegex(p.VisibilityProbeError,"诊断失败"):self.clear()
+        cancel.assert_not_called()
+        self.assertIn(("unloadhw",),self.calls)
+        self.assertEqual(self.record["debug_memory_map"]["unload_stack_diagnostic"]["status"],"FAILED")
+        self.assertTrue(any("UNIT_STACK_SCHEDULE_FAILURE" in row["error"] for row in self.record["cleanup_errors"]))
+
+    def test_stack_cancel_failure_preserves_open_descriptor_and_failure_evidence(self):
+        self.register()
+        with patch.object(p.faulthandler,"dump_traceback_later"),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=RuntimeError("UNIT_STACK_CANCEL_FAILURE")):
+            with self.assertRaisesRegex(p.VisibilityProbeError,"诊断失败"):self.clear()
+        self.assertFalse(self.owner["pending_stack_stream"].closed)
+        self.assertEqual(self.record["debug_memory_map"]["unload_stack_diagnostic"]["status"],"FAILED")
+        self.owner["pending_stack_stream"].close()
 
 if __name__=="__main__":unittest.main()

@@ -1,0 +1,108 @@
+{
+  "task_id": "S2B-T19",
+  "run_id": "server_starter_fix_review_20261014_r01",
+  "review_level": "G2_SOFTWARE_ONLY",
+  "verdict": "PASS",
+  "baseline_commit": "7f99ed99e0a90d4029f97b57a46e0391fb3139c7",
+  "scope": "仅关闭 pa_review_20261014_luna_r03 的 S1 starter command-line 数组构造问题；未扩展 PA/watchdog 审查范围。",
+  "finding_closed": {
+    "id": "S1",
+    "severity": "BLOCKER",
+    "previous_finding_receipt": {
+      "path": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/review_receipt.json",
+      "sha256": "b2e1c765ba8c6ac24197ded6b4e63d1aedbb3109cb0b45e1386e7b94a3d1a352"
+    },
+    "previous_finding_manifest": {
+      "path": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/delivery_manifest.json",
+      "sha256": "16cca20e3d4e2b2845d638eb1d752e790b3e76161941ff68904c154c494b46a6"
+    },
+    "previous_source_sha256": "4113e6eafa69de6a8c2049bdfdf653431b6c105730477ffc2de1bf6995c8ec79",
+    "repaired_source_sha256": "0bdf8eb0de5c9e57d22df271585c8446d02e081d93e3728074fe0afc0e76ef2d",
+    "file": "tmp/2B/S2B-T19/board_run_20261014_r02/start_owned_server.ps1",
+    "line": 32,
+    "repair": "两个 legal command-line 字符串现在分别括入子表达式后作为数组的两个独立元素。",
+    "impact_closed": "quoted 与 unquoted 两种合法 hw_server 命令行均通过精确命令行校验并生成 OWNED_SERVER_READY mock identity receipt；错误端口参数仍被拒绝。"
+  },
+  "candidate_sha256": {
+    "tmp/2B/S2B-T19/board_run_20261014_r02/start_owned_server.ps1": "0bdf8eb0de5c9e57d22df271585c8446d02e081d93e3728074fe0afc0e76ef2d",
+    "report/evidence/S2B-T19/pa_review_20261014_luna_r03/source_snapshot/start_owned_server.ps1": "4113e6eafa69de6a8c2049bdfdf653431b6c105730477ffc2de1bf6995c8ec79",
+    "tmp/2B/S2B-T19/board_run_20261014_r02/close_owned_server.ps1": "5bc9841fb6fdea6aa65b8cb28c7f46607d1ccb4462e8885a7c6ae3dbaad81773",
+    "tmp/2B/S2B-T19/watchdog_prepare_20261013_r01/run_visibility_guarded_r04.ps1": "0aa0e95a7014db2357aa5fd2b0bcf4db2a4dc1fe126ae79d2e097441eecff3b4"
+  },
+  "production_source_sha256_unchanged_from_r03": {
+    "verification/s2b_board_jtag.py": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+    "verification/test_s2b_board_jtag.py": "31c195dc402bb41bf37c4b1cbb9c23e9ba959bb2ea70c4c6b7d3bddaa1e51bdb",
+    "vitis/run_s2b_visibility_probe.py": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+    "verification/test_s2b_visibility_probe.py": "58e0a7aadc6691cdeacb956bd336c84bb12373308b52eab715af32e373e835be"
+  },
+  "checks": [
+    {
+      "name": "candidate_delta_and_static_safety_gates",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/verify_single_line_fix.ps1",
+      "exit_code": 0,
+      "result": "old/new source hashes matched; exactly one changed line at line 32; fixed PowerShell expression produced exactly two specified command-line forms; ParseFile returned zero errors; Start-Process hidden mode/arguments, existing-service and port checks, listener ownership, PID/parent/image/command-line/hash checks, and identity-receipt bindings remained present."
+    },
+    {
+      "name": "starter_accepts_unquoted_exact_command_line",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_unquoted",
+      "exit_code": 0,
+      "result": "ACCEPTED_EXACT_VARIANT; OWNED_SERVER_READY receipt contains the unquoted exact command line, mock child/parent identity, expected executable path/hash, and port 3121 listener."
+    },
+    {
+      "name": "starter_accepts_quoted_exact_command_line",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_quoted",
+      "exit_code": 0,
+      "result": "ACCEPTED_EXACT_VARIANT; OWNED_SERVER_READY receipt contains the quoted exact command line and same verified mock identity fields."
+    },
+    {
+      "name": "starter_rejects_wrong_port_near_match",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/run_server_identity_mock.ps1 -Scenario start_bad_arg",
+      "exit_code": 0,
+      "result": "REJECTED_NEAR_MATCH for tcp::9999; no success identity receipt was written."
+    },
+    {
+      "name": "candidate_parsefile",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/mock_inputs/parse_candidate.ps1",
+      "exit_code": 0,
+      "result": "PowerShell 7.6.5 Parser.ParseFile reported zero errors."
+    },
+    {
+      "name": "previous_r03_results_and_source_hashes_bound",
+      "status": "PASS",
+      "command": "PowerShell SHA-256 verification against the frozen r03 receipt, manifest, watchdog, closer, and four production Python source/test files",
+      "exit_code": 0,
+      "result": "The current r03 receipt/manifest match the exact parent-supplied hashes; watchdog r04, closer and four production files match all supplied frozen hashes. Parent records the r03 evidence checker as CHECKS_OK."
+    },
+    {
+      "name": "inputs_delivery_checker",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "result": "实际只读检查返回CHECKS_OK；所有绑定输入文件SHA及八项PASS状态均通过。"
+    },
+    {
+      "name": "evidence_delivery_checker",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "result": "实际只读检查返回CHECKS_OK；本Run目录文件枚举完整，SHA-256绑定无错误。"
+    }
+  ],
+  "prior_r03_results_preserved_by_hash_binding": {
+    "watchdog_mock_matrix": "25 cases, PASS per frozen r03 receipt and delivery manifest",
+    "pa_topology_and_official_sdk_ast_focused_tests": "10/10 PASS per frozen r03 receipt and delivery manifest",
+    "server_closer_identity_boundary": "matching identity close and command-line/parent drift refusal PASS per frozen r03 receipt and delivery manifest"
+  },
+  "limitations": [
+    "All Start-Process, process enumeration, listener discovery, and process termination interfaces in the starter tests were overridden with isolated mocks; no hw_server or other process was launched or terminated.",
+    "No Vitis, SDK, UART, FPGA, JTAG or physical board was accessed.",
+    "This scoped G2 software review does not satisfy G3, G4, or G5."
+  ],
+  "evidence_dir": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01",
+  "delivery_manifest": "report/evidence/S2B-T19/server_starter_fix_review_20261014_r01/delivery_manifest.json"
+}

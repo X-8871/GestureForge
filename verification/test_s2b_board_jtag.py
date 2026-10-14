@@ -62,6 +62,18 @@ def target_rows():
     return rows
 
 
+def pa_target_rows():
+    """复现r04官方loadhw递归后显示：CPU物理父ctx、APU文字父及level1。"""
+    rows = target_rows()
+    rows["fpga"]["target_id"] = 15
+    for index, ctx in enumerate(("cpu0", "cpu1")):
+        row = copy.deepcopy(rows[ctx])
+        row.update(name="PA", target_ctx=ctx + ".pa", target_id=13 + index,
+                   parent_ctx=ctx, parent="APU", level=1)
+        rows[row["target_ctx"]] = row
+    return rows
+
+
 def xsa_bytes():
     """独立最小生成依据fixture；不引用被测常量，不冒充实际XSA。"""
     generated = "unsigned long ps7GetSiliconVersion(){unsigned long mask=0xF0000000;unsigned long *addr=(unsigned long*)0XF8007080;unsigned long ps_version=(*addr & mask)>>28;return ps_version;}\n"
@@ -216,7 +228,10 @@ class FakeSession:
         self.config_status_word = 0
 
     def targets(self, *args, **kwargs):
-        return copy.deepcopy(self.rows) if args else self.objects[kwargs["id"]]
+        if args:
+            return copy.deepcopy(self.rows)
+        self._curtarget = self.objects[kwargs["id"]]
+        return self._curtarget
 
 
 class FakeSerial:
@@ -321,6 +336,54 @@ class JtagTests(unittest.TestCase):
 
     def test_native_target_dynamic_ids_and_real_two_device_shape(self):
         self.ready(); self.assertEqual(self.controller.targets["cpu0"]._id, 11)
+
+    def test_pa_pair_refreshes_fpga_current_id_without_selecting_old_pa_id(self):
+        self.ready()
+        old = self.controller.targets["fpga"]
+        self.session.rows = pa_target_rows()
+        self.session.objects[13] = FakeTarget(self.session, self.session.rows["cpu0.pa"])
+        self.session.objects[14] = FakeTarget(self.session, self.session.rows["cpu1.pa"])
+        self.session.objects[15] = FakeTarget(self.session, self.session.rows["fpga"])
+        self.controller.gate()
+        self.assertEqual(old._id, 13)
+        self.assertEqual(self.controller.targets["fpga"]._id, 15)
+        self.assertEqual(self.controller.targets["fpga"]._ctx, "fpga")
+        self.assertEqual(self.controller.selected["xc7z020"]["target_id"], 15)
+        self.assertFalse(any(row["api"] == "session.targets.fpga" and row["kwargs"] == {"id":13}
+                             for row in self.controller.record["calls"][-8:]))
+
+    def test_dynamic_selection_rejects_wrong_context_id_name_session_or_current_object(self):
+        self.controller.select_and_gate()
+        original = self.session.objects[13]
+        for key, value in (("_ctx", "cpu0.pa"), ("_id", 99), ("_name", "PA"), ("session", object())):
+            with self.subTest(field=key):
+                previous = vars(original)[key]
+                setattr(original, key, value)
+                with self.assertRaises(j.JtagError): self.controller.gate()
+                setattr(original, key, previous)
+        selector = self.session.targets
+        def wrong_current(*args, **kwargs):
+            result = selector(*args, **kwargs)
+            if not args: self.session._curtarget = object()
+            return result
+        self.session.targets = wrong_current
+        with self.assertRaises(j.JtagError): self.controller.gate()
+
+    def test_exact_pa_topology_and_invalid_variants(self):
+        self.assertEqual(set(j.validate_targets(target_rows())), set(j.NAMES))
+        self.assertEqual(set(j.validate_targets(pa_target_rows())), set(j.NAMES))
+        cases = []
+        for key, value in (("name", "VA"), ("parent_ctx", "cpu1"), ("target_ctx", "cpu0.PA"),
+                           ("parent", j.NAMES[1]), ("level", 2), ("level", True),
+                           ("target_id", 10), ("target_id", True), ("jtag_cable_ctx", "other"),
+                           ("jtag_device_ctx", "fpga_device"), ("jtag_device_name", "xc7z020"),
+                           ("jtag_cable_serial", "other")):
+            rows = pa_target_rows(); rows["cpu0.pa"][key] = value; cases.append((key, rows))
+        rows = pa_target_rows(); del rows["cpu1.pa"]; cases.append(("missing", rows))
+        rows = pa_target_rows(); rows["extra"] = dict(rows["fpga"]); cases.append(("extra_hardware", rows))
+        rows = pa_target_rows(); rows["cpu0.pa"] = None; cases.append(("row_type", rows))
+        for label, rows in cases:
+            with self.subTest(fault=label), self.assertRaises(j.JtagError): j.validate_targets(rows)
 
     def test_pc_nvlist_bounds_and_exact_sdk_arguments(self):
         self.controller.select_and_gate()
@@ -606,7 +669,7 @@ class JtagTests(unittest.TestCase):
         self.assertFalse(self.controller.record["cold_lifecycle_proven"])
 
     def test_target_context_drift_latches_failure(self):
-        self.ready(); self.session.rows["cpu1"]["target_id"] = 30
+        self.ready(); self.session.rows["cpu1"]["target_ctx"] = "changed_cpu1"
         with self.assertRaises(j.JtagError): self.controller.deploy()
         self.assertTrue(self.controller.failed)
 

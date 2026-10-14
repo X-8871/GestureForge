@@ -1,16 +1,40 @@
 # 阶段2B PS/PL物理接口候选
 
-状态：`CANDIDATE_NOT_FROZEN`。候选编号 `S2B-PHYSICAL-20261009`，版本 `s2b-physical-candidate/0.1.1`。源码分析基线 `3f6e327a0ff9adc04ed6c98c1578862b8c2fae64`；本轮只设计、计算和独立审阅，不生成RTL/BD/XSA、运行测试或操作实物。已批准部分仅为《系统设计》中的 `s2b-axi-recovery-principles/1.0.0`。本文给出该原则的编码与实现候选，不能作为完整2B G0、物理接口冻结或实板通过依据。`0.1.0`被本修订替代，原r01证据与快照保留；R1的六项候选问题修订见本Run `candidate_revision_result.json`，不将修订自述当作独立R2通过。
+状态：`CANDIDATE_NOT_FROZEN`。候选编号 `S2B-PHYSICAL-20261009`，版本 `s2b-physical-candidate/0.1.1`。原始逻辑/地址分析基线 `3f6e327a0ff9adc04ed6c98c1578862b8c2fae64`；本次源码绑定复核覆盖当前 `s2b_inference_top` 组合及 T19 离线平台证据。本文只纠正实现层级和验证边界，不改变字段编码、接口语义或已批准的 `s2b-axi-recovery-principles/1.0.0`，故候选版本维持 `0.1.1`。此前 `0.1.0` 被 `0.1.1` 替代，原r01证据与快照保留；R1六项候选问题修订见原Run `candidate_revision_result.json`。
 
 ## 1. 上游与实施边界
 
-保持 S2A-T01 的逻辑CSR、32-bit单word memory、模型、量化、检测头、PS D9与2A内部timeout周期语义。外层包裹现有 `s2a_stage2a_core_ooc`，内部模块源码不改；GP0的物理状态不是内部CSR STATUS的别名。2A内部清owner后，外层仍可拥有和隔离DDR；软件只信任外层状态。
+保持 S2A-T01 的逻辑CSR、32-bit单word memory、模型、量化、检测头、PS D9与2A内部timeout周期语义。当前物理候选不例化 `s2a_stage2a_core_ooc`：`s2b_stage2b_core` 将 `s2a_runtime_shell` 与 `s2b_network_backend` 组合；runtime shell复用 `s2a_control_csr` 和 `s2a_memory_master`，网络请求由 `s2b_network_backend` 产生。物理顶层 `s2b_inference_top` 再并列接入 `s2b_control_csr` 与 `s2b_hp0_word_adapter`。因此，本文复用的是冻结逻辑接口与runtime shell，不表示旧2A OOC wrapper本身作为完整子模块被包裹。GP0物理状态不是内层CSR STATUS的别名；即使内层清除owner，外层仍须依据物理事务账本和可见性独立控制DDR归还，软件只信任外层状态。
 
 单CPU0裸机、单驱动、无中断重入/并发提交；CPU1停核，PS DMA/其他PL master/其他调试writer不得访问任务区域。门禁只能拦截控制入口，不能禁止CPU绕过驱动读写DDR。驱动必须遵守所有权，无法用MMIO门禁宣称硬件内存访问保护。
 
-拓扑候选：CPU→PS `M_AXI_GP0`→受控AXI协议转换→32-bit AXI4-Lite控制前端；计算core→自定义word adapter→PS `S_AXI_HP0`→DDR。HP0端直接实现AXI3（包含WID、4-bit LEN、2-bit LOCK），数据64 bit；不把HP0称为AXI4。若后续改AXI4 master，必须另冻结转换配置和排空边界。GP0原生AXI3→Lite的转换器属于完整待审路径，不能省略其reset及响应状态验证。
+物理候选连接与RTL层级如下；图示是当前RTL/BD候选结构，不是事务行为结论。CPU经PS `M_AXI_GP0`进入 `s2b_inference_top` 的AXI4-Lite从接口，控制器用内层公共CSR握手驱动 `s2b_stage2b_core`；core内部由runtime shell处理逻辑CSR及单笔memory接口，并与network backend交换请求/响应；core的memory请求经word adapter直达PS `S_AXI_HP0`。HP0端直接实现AXI3（包含WID、4-bit LEN、2-bit LOCK），数据64 bit；不把HP0称为AXI4。若后续改AXI4 master，必须另冻结转换配置和排空边界。
 
-FCLK0、GP0 ACLK、HP0 ACLK和候选PL逻辑同域，先以50 MHz为工程目标，受控reset同步释放；这是候选约束，不是实测频率或时序收敛。避免2A未计入的CDC假设；正式时钟/XDC和实现资源仍需验证。运行中不得只复位计算之外的adapter/互连/HP通路来清计数。
+```mermaid
+flowchart LR
+    CPU[CPU0软件] --> GP[PS M_AXI_GP0 / AXI3]
+    GP --> CVT[GP0到AXI4-Lite转换路径]
+    CVT --> CTRL[s2b_inference_top.s_axi]
+    subgraph TOP[s2b_inference_top]
+        CTRL --> PCSR[s2b_control_csr]
+        PCSR -->|内层CSR握手| CORE[s2b_stage2b_core]
+        CORE --> SHELL[s2a_runtime_shell]
+        CORE --> BACKEND[s2b_network_backend]
+        BACKEND <-->|计算请求与响应| SHELL
+        SHELL -->|32-bit逻辑mem接口| ADAPTER[s2b_hp0_word_adapter]
+    end
+    ADAPTER -->|AXI3 64-bit直连| HP[PS S_AXI_HP0]
+    HP --> DDR[DDR]
+```
+
+T19 visibility0离线候选平台 `report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/` 绑定上述RTL，并完成全平台综合、布线、时序报告和受管位流生成；无位流XSA SHA-256为 `02fcd956eb088ec0c0dedf1ba4a605e710604bac6b4a5d3f09ad732063b52003`，implemented XSA SHA-256为 `7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238`，implemented bit SHA-256为 `4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e`，平台源码基线为 `f38bf9e557e05a15636ee2d571b4523668d04260`。这是visibility=0离线平台证据；它不证明GP0/HP0事务、完整cache一致性、模型执行或实物验收。另有历史 `visibility1_timing_route_explore_20261014_r01/` route-explore，绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a`，并沿用既有 `phys_opt_design` DCP继续布线；该实验的 `s2b_maxpool_engine.sv` / `s2b_maxpool_geometry.sv` SHA-256分别为 `5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48` / `7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0`，与visibility0 R02所用源码（`37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e` / `63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9`）不同。maxpool专用化会影响这条时序路径；历史实验报告的WNS=-0.147 ns、60个setup失败endpoint且未生成位流，不能代表当前源码在visibility=1下的时序，当前源码visibility=1时序尚未测量。
+上述T19平台清单的接口条目仍绑定修订前候选正文SHA-256 `bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad`；本次只更新源码层级与验证状态说明，保持候选版本及接口/恢复语义不变。因此现有XSA证据绑定的是修订前的候选文档字节，不能视作对本修订正文的精确哈希绑定；后续冻结或新平台验收须重新绑定候选文档与产物清单。
+
+现有静态/仿真证据与未证明项必须分开：T19 `postroute_hp0_query_20261014_r02/query_summary.json` 是 `PASS_STATIC_TOPOLOGY_ONLY`，只核对该visibility0已布线DCP中的HP0直连、8个ARCACHE/AWCACHE位接共享零常量及相关静态端口；T10/T11记录覆盖adapter和控制候选RTL仿真，其中T11包含runtime shell/adapter候选组合场景。它们都不覆盖真实PS GP0转换器行为或板上HP0↔DDR事务。T19 `cache_probe_20261014_r02` 是旧源码/旧平台的CPU/DAP预探测，绑定源码提交 `7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9`、compiled XSA SHA-256 `6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7`、implemented bit SHA-256 `91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb`；只记录起始地址256字节CPU/DAP跨主机读回一致，命令未LOAD模型或START。该旧探测不验证当前R02 XSA `7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238` / bit `4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e`，也不证明PL/HP0缓存可见性。
+
+GP0 AXI3到Lite的转换路径仍需核验其reset、响应与输入事务限制；Lite端没有AxLEN，不能据Lite握手反推PS侧单拍。UG585 v1.15关于Device/Strongly Ordered访问的number/size保持、禁止未对齐访问及speculation要求，以及软件使用 `Xil_SetTlbAttributes(CSR_BASE, DEVICE_MEMORY)` 和对齐的32-bit `Xil_In32`/`Xil_Out32`，仅构成ARM访问映射的软件/静态依据；不代表已在GP0观测或证明AxLEN=0，也不构成AXI总线实测。
+
+FCLK0、GP0 ACLK、HP0 ACLK和候选PL逻辑同域，先以50 MHz为工程目标，受控reset同步释放；这是候选约束，不是实测板上频率。T19 visibility0候选平台在20 ns时钟约束下完成离线布线，setup WNS仅+0.030 ns、hold WHS +0.080 ns；与第1节绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a` 的历史visibility=1 route-explore发生setup失败，故其WNS=-0.147 ns、60个失败endpoint只描述旧源码/旧DCP实验，不能推断当前源码visibility=1的时序；当前源码visibility=1时序尚未测量，也不能据此宣称收敛或板级频率保证。运行中不得只复位计算之外的adapter/互连/HP通路来清计数。
 
 ## 2. 数据布局、地址平移与白名单
 
@@ -34,7 +58,7 @@ PS linker候选只声明应用 `[0x00100000,0x01100000)`和专属 `s2b_tensor_dd
 
 ## 3. GP0控制寄存器候选
 
-固定64 KiB解码窗口 `[0x43C00000,0x43C10000)`，落在GP0 PL地址段。所有定义字段32-bit little-endian、4-byte对齐。前端必须解码完整地址，不能仅截低8/16位形成别名。未对齐/保留地址/非法访问方向返回DECERR、无副作用；写要求WSTRB=`1111`，其他mask返回SLVERR、无副作用。读保留bit返回0；写非零保留bit返回SLVERR。single beat是驱动与GP0转换配置的输入前提：驱动使用32-bit对齐的Device/Strongly-ordered LDR/STR，GP0原生AxLEN=0必须由实际配置与验证确认。Lite端没有AxLEN，标准转换器可能把burst拆为多次合法Lite访问，因此Lite前端不能辨认原burst，也不能保证上游非法burst零控制副作用。此候选未实现GP0 burst拦截器，不声明该保证；转换配置/GP0输入前提未核查前不能作为部署冻结依据。
+固定64 KiB解码窗口 `[0x43C00000,0x43C10000)`，落在GP0 PL地址段。所有定义字段32-bit little-endian、4-byte对齐。前端必须解码完整地址，不能仅截低8/16位形成别名。未对齐/保留地址/非法访问方向返回DECERR、无副作用；写要求WSTRB=`1111`，其他mask返回SLVERR、无副作用。读保留bit返回0；写非零保留bit返回SLVERR。single beat是驱动与GP0输入事务的前提：现有PS应用对CSR基址调用 `Xil_SetTlbAttributes(CSR_BASE, DEVICE_MEMORY)`，并使用32-bit `Xil_In32`/`Xil_Out32` 访问对齐寄存器；UG585 v1.15“Device and Strongly Ordered”规定这类ARM访问保留访问数量/大小、禁止未对齐和推测访问。这是软件/ARM访问映射的静态依据，不是GP0总线实测。GP0侧原生AxLEN=0及转换器的行为仍须由实际配置与事务证据确认。Lite端没有AxLEN，转换器可能把burst拆为多次合法Lite访问，因此Lite前端不能辨认原burst，也不能保证上游非法burst零控制副作用。此候选未实现GP0 burst拦截器；转换配置/GP0输入前提未验证前不能作为部署冻结依据。
 
 | 偏移 | 名称 | 访问/字段 |
 |---:|---|---|
@@ -79,7 +103,7 @@ Lite AW与W分别锁存，最多一对尚未提交写，不能等两VALID同时�
 
 ### 4.1 既有端口、常驻CSR监视与停止确认
 
-`s2a_stage2a_core_ooc`只公开CSR和memory接口；busy/done/error/owner/backend_abort均为内部私有信号，本候选不引用层级私有引脚，也不修改冻结core。外层必须经CSR STATUS=`0x04`及ERROR_CODE=`0x08`的真实读握手观察状态。当前`csr_ready=!hard_reset`，同域非hard_reset时一次访问恰在一个上升沿完成；读值是该沿前状态，内层本沿NBA更新最早在后续读沿可见，不能把内层sticky变化表述成外层同沿立即观察。
+当前 `s2b_stage2b_core`公开CSR与memory接口，内部由 `s2a_runtime_shell`复用原CSR控制器和memory master，并组合 `s2b_network_backend`；物理顶层 `s2b_inference_top` 不窥视backend的busy/done/error/owner/backend_abort私有信号。外层 `s2b_control_csr` 必须经core公共CSR的STATUS=`0x04`及ERROR_CODE=`0x08`读握手观察状态；`csr_ready=!hard_reset`，同域非hard_reset时一次访问恰在一个上升沿完成；读值是该沿前状态，内层本沿NBA更新最早在后续读沿可见，不能把内层sticky变化表述成外层同沿立即观察。
 
 CSR仲裁采用常驻四相位：phase0读STATUS，phase1读ERROR_CODE，phase2给控制sequencer一笔访问（无控制待办时服务一笔已接受debug），phase3读STATUS。phase计数每个非hard_reset PL周期前进；普通外层GP0读/B或debug R背压不占CSR槽位。STATUS每四周期读两次，并非只读一次。ERROR_CODE与STATUS先保存到当前epoch的外层shadow，监视不得写ACK/reset。控制序列每4周期得到一槽，不被debug饿死；监视固定占槽不被控制饿死；debug只在无控制待办时接受AR，已接受debug预留下一phase2、不被新到控制抢走，最多4周期完成内部读，其R停顿只保持已采样值。此单笔预留至多延迟控制4周期，ARMING的40周期上限已包含这项。hard_reset/非预期csr_ready低不属于这些有界前提，不能假装握手或已停止。
 
@@ -134,7 +158,15 @@ R要求已接受AR、RID=0、RLAST=1；B要求已声明写、W此前已完成、
 
 ## 6. 可见性与PS缓存条件
 
-物理SAFE必须同时满足：计算停止或正常完成、账本为空、所有AXI3写B/读R已消费、属性整条路径保持非Bufferable、HP/DDR可见性依据与具体实现绑定。采用AxCACHE=0000，禁用早返回或改变属性的桥接配置；GP0读STATUS不能作为HP0写屏障。UG585的HP性能章节说明写请求到DDR/OCM slave且响应由该slave返回，以及收到B后发起事务的slave提交顺序。Arm IHI0022C的AXI3缓存属性/响应规则需核对§5.1；§13.8.1属于AXI4章节，只能说明对应非Bufferable语义，不能单独冒充AXI3证明。以上是安全归还的条件论证，不声称数据已到DRAM引脚或断电持久化。完整网表/属性/HP配置核对和CPU跨master cache维护后的真实读回仍未执行，缺一项则不能发布已验证SAFE结论；PG293不是HP可见性依据。
+物理SAFE必须同时满足：计算停止或正常完成、账本为空、所有AXI3写B/读R已消费、属性整条路径保持非Bufferable、HP/DDR可见性依据与具体实现绑定。采用AxCACHE=0000，禁止可能改变属性或提前生成B响应的中间桥；GP0读STATUS不能作为HP0写屏障。UG585的HP性能章节说明写请求到DDR/OCM slave且响应由该slave返回，以及收到B后发起事务的slave提交顺序。Arm IHI0022C的AXI3缓存属性/响应规则需核对§5.1；§13.8.1属于AXI4章节，只能说明对应非Bufferable语义，不能单独冒充AXI3证明。以上是安全归还条件，不声称数据已到DRAM引脚或断电持久化。
+
+截至T19当前证据，以下仅有离线静态或局部读回，不足以发布已验证SAFE：
+
+- GP0：XSA包含PS至控制前端的候选连接；ARM端Device映射有静态依据，但未观测AXI3 GP0的AxLEN、转换后的Lite事务、响应/背压、错误或reset恢复。
+- HP0：visibility0 postroute DCP静态查询确认HP0直接拓扑及AxCACHE零常量；adapter RTL仿真不等于真实HP0/DDR读写。未运行整模型，未测B/R延迟、背压、部分写或异常排空。
+- cache/可见性：T19 `cache_probe_20261014_r02` 是第1节所绑定旧源码/旧平台上的CPU/DAP预探测，仅对0x10000000起始256字节做两阶段一致读回，运行时保持IDLE、epoch/start/load为0；不经过PL/HP0，不验证当前R02 XSA/bit，也不覆盖32 MiB arena、模型输入/权重/特征或SAFE归还后的整模型读回。BSP、MMU和cache API绑定仅支持已执行先验探测的范围。
+
+因此，GP0事务限制、HP0错误/排空与DDR可见性、32 MiB缓存维护及完整模型的跨Master读回仍须另行验证；PG293不是HP可见性依据。
 
 PS启用DCache，任务arena与应用不共享32-byte缓存行，所有arena维护范围64-byte对齐。启动前：CPU写input/完整GF8及必要feature初始化→DSB SY→对input/GF8向外64-byte取整执行实际BSP `Xil_DCacheFlushRange`→DSB；对整个feature外包络向外64-byte取整执行FlushRange再InvalidateRange→DSB，消除旧脏输出cache line。维护覆盖的padding在专属arena内，但不是PL对象白名单。之后写MMIO参数、DSB、START，再DSB；RUN/ARMING/RECOVERING/FAULT禁止CPU访问arena，不做cache维护，也不从旧head解码。
 
@@ -153,13 +185,13 @@ FAULT未闭合时持续隔离：若事务始终未结束或状态不能证明，
 
 阶段计划“验证DMA、缓存一致性、缓冲所有权及传输长度”仍全部有效。若采用本候选，验收中的DMA由PL自主DDR搬运模块承担，须验证请求字节数/有效lane长度/错误/取消/完成/cache/连续任务；不能以“没装AXI DMA IP”标记NOT_APPLICABLE或减少100样本/1000连续任务。是否将正式计划中DMA专指特定IP，应在G0记录解释后再冻结，本文不改正式计划。
 
-现有2A OOC资源40,550 LUT / 53,200、3,082 FF / 106,400、32 BRAM / 140、186 DSP / 220，余量12,650 LUT、103,318 FF、108 BRAM、34 DSP。来自当前8×8/8lane冻结综合，不混历史串行计数；GP0转换、adapter、复位和时钟结构尚未集成，未证明布局布线余量。无冻结XDC/时钟及时序收敛，50 MHz也不能先承诺可达。
+现有2A OOC基线资源为40,550 LUT / 53,200、3,082 FF / 106,400、32 BRAM / 140、186 DSP / 220；这不是物理顶层资源。T19 visibility0完整候选平台已包含GP0/控制、adapter、reset/clock及HP0连接并完成综合和布线：综合层级报告为18,200 LUT、4,157 FF、32 RAMB36、145 DSP，28,621个routable nets全部布通、0 routing error；50 MHz setup WNS +0.030 ns、hold WHS +0.080 ns。此离线实现范围仅为visibility0，setup/hold余量很小；仅有第1节绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a` 的历史visibility=1 route-explore失败（WNS -0.147 ns、60个setup失败endpoint），未生成位流；它不代表当前源码visibility=1时序，当前该配置的时序尚未测量。资源/路由/时序证据不证明总线行为、cache可见性、完整模型或板上运行，也不构成候选接口冻结。
 
 运行速度风险高：tile engine当前逐INT8读写，即使连续数据只占1 byte，一次窄beat仍占64-bit总线通道和往返延迟，single outstanding不能掩盖DDR延迟。T66实际layer0已有2,551,955请求/响应，只是单层、TB延迟，不等于HP实测吞吐或整网周期。本轮计算给出全部独立feature写入的最低请求量与延迟敏感性，未把这些下界当整网预测。每任务还含重复tile读权重/特征、route/pool/upsample读、控制和PS D9/UART；正式连续1000任务的总时长待硬件测量。若性能不足，burst/coalescing/prefetch须重新定义物理可读范围、写完成和abort ledger并回归，不能改冻结2A数值或静默四倍展开。
 
 `s2a_control_csr.sv` 的timeout_cycles和elapsed_cycles均32 bit，零timeout非法；网络descriptor明确global timeout且不逐层重启。最大值`0xFFFFFFFF`在候选50 MHz下仅85.89934590秒，计数不能因DDR stall或恢复而偷偷延长/回绕。当前一次byte往返与重复tile读可能使整网正常完成超过此上限；所以下界估算不足以证明可部署，正常CORE_TIMEOUT和DRAIN_TIMEOUT部署值均为NOT_MEASURED，未填写无依据的默认值。落实前必须量化完整38层逻辑请求数量、实际HP每笔延迟/背压与计算周期，并证明指定范围的正常总周期加余量≤`0xFFFFFFFF`，再设置并记录deadline；如不满足则回G0选择受控加速或关键timeout接口变更，不能以延长软件等待、降低100/1000指标或内部暂停计数绕过。排空timer候选采用32-bit饱和比较，超限不停止接收B/R；其部署观察期限也需量测/上限依据，不宣称有限时间一定排空。
 
-G0未关闭项：本候选独立审查、AXI3属性和GP0实际转换/single-beat输入前提、CSR监视与reset/ARMING时序、linker arena与真实DDR/PCB绑定、计数期限的部署值及估算、软件ABI与cache代码、100样本/1000任务计划。后续验证必须覆盖AW先/W先/独立stall、合法B先于AW并继续AW、早到错误B仍排AW、每次子读前mem_valid/payload复核、内部timeout撤销后不新发子读、STATUS/code保存与soft_reset S/S+1/S+2停止确认、监视/控制/debug不饥饿、同沿首错优先与取消沿OKAY不交付、非exclusive EXOKAY协议隔离、VALID保持、byte lane与全部strobe、尾部/空隙拒绝、ACK不匹配/重复、终态start拒绝、错误可能部分写、旧response、观察期超限后合法晚排空转ERROR_SAFE且HEAD无效/诊断不清、异常响应无法闭合仍隔离、永久stall与冷恢复。随后做完整集成资源/时序及授权的实板传输/黄金比对；本轮未运行这些测试。
+G0未关闭项：GP0实际转换及输入事务前提、AXI3属性证据、CSR监视与reset/ARMING恢复、linker arena与真实DDR/PCB绑定、timeout部署值及估算、软件ABI/cache完整访问和100样本/1000任务计划。T10/T11已有adapter与控制候选RTL仿真及runtime shell/adapter组合场景记录；这些模块级结果不覆盖GP0物理转换或PS HP0↔DDR事务。上文列出的AW/W独立stall、合法早B、逐子读payload复核、timeout撤销、CSR保存与停止确认、控制/debug仲裁、同沿错误优先、取消沿不交付、EXOKAY隔离、lane/strobe、白名单边界、ACK、旧response、观察期超限后的合法晚排空及永久stall等条件，仍需按对应模块与真实集成边界形成可追溯验证。T19 visibility0的离线完整实现已完成；只有第1节所列旧源码 visibility=1 route-explore失败，当前源码visibility=1时序未测量。真实AXI事务、完整模型传输/黄金比对及G0/G2/G3/平台验收状态均未由这些证据关闭。
 
 地址、字段编码、单核裸机限制与adapter实现选择属于可审阅的工程候选；若保持本范围可由总控按既有授权推进落实，不另造审批门槛。已批准恢复原则覆盖停止→排空→归还、未排空持续隔离，包括期限后确已合法排空且可见性成立时的失败安全归还。改变正常输入/输出语义、正式长度/模型、无排空归还或无法证明旧事务结束就解除FAULT、改正式验收指标等关键语义须Wong决定。最终物理freeze仍需正式批准/审查记录，不能由本文`version`产生。
 

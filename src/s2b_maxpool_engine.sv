@@ -115,7 +115,7 @@ module s2b_maxpool_engine (
     logic [2:0] window_error_code;
     integer tap_index;
 
-    s2b_maxpool_geometry u_geometry_l9 (
+    s2b_maxpool_geometry #(.FAST_FIXED_POOL_SHAPE(1)) u_geometry_l9 (
         .input_base_address(input_base_address),
         .input_channels(32'd128),
         .input_height(32'd104),
@@ -139,7 +139,7 @@ module s2b_maxpool_engine (
         .error_code(fixed_query_error_code[0])
     );
 
-    s2b_maxpool_geometry u_geometry_l17 (
+    s2b_maxpool_geometry #(.FAST_FIXED_POOL_SHAPE(2)) u_geometry_l17 (
         .input_base_address(input_base_address),
         .input_channels(32'd256),
         .input_height(32'd52),
@@ -163,7 +163,7 @@ module s2b_maxpool_engine (
         .error_code(fixed_query_error_code[1])
     );
 
-    s2b_maxpool_geometry u_geometry_l25 (
+    s2b_maxpool_geometry #(.FAST_FIXED_POOL_SHAPE(3)) u_geometry_l25 (
         .input_base_address(input_base_address),
         .input_channels(32'd512),
         .input_height(32'd26),

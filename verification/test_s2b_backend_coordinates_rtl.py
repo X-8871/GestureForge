@@ -17,8 +17,6 @@ import subprocess
 import sys
 import time
 
-import psutil
-
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = "6d3fd8567b579a51d4042667d47af7d94f2f5a97"
 SOURCE_BASELINE = "891f750045ce141a8152c96025da559ff1d3a321"
@@ -31,6 +29,152 @@ RTL = ("src/s2a_network_descriptor_pkg.sv", "src/int8_maxpool_geometry.sv", "src
        "src/s2b_maxpool_engine.sv", "src/s2a_route_engine.sv", "src/s2b_upsample_engine.sv",
        "src/s2b_network_backend.sv", "src/s2b_route_query.sv", "src/s2b_route_engine.sv")
 OPS = {"convolutional": 0, "maxpool": 1, "route": 2, "upsample": 3, "yolo": 4}
+
+
+def _windows_process_snapshot():
+    """用Windows进程快照获得PID、父PID与映像名；查询失败时不继续。"""
+    if os.name != "nt":
+        raise OSError("资源监控仅支持本运行器目标Windows系统")
+
+    import ctypes
+    from ctypes import wintypes
+
+    class ProcessEntry32W(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD), ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD), ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD), ("pcPriClassBase", wintypes.LONG),
+            ("dwFlags", wintypes.DWORD), ("szExeFile", wintypes.WCHAR * 260),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    create_snapshot = kernel32.CreateToolhelp32Snapshot
+    create_snapshot.argtypes = (wintypes.DWORD, wintypes.DWORD)
+    create_snapshot.restype = wintypes.HANDLE
+    process_first = kernel32.Process32FirstW
+    process_first.argtypes = (wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W))
+    process_first.restype = wintypes.BOOL
+    process_next = kernel32.Process32NextW
+    process_next.argtypes = (wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W))
+    process_next.restype = wintypes.BOOL
+    close_handle = kernel32.CloseHandle
+    close_handle.argtypes = (wintypes.HANDLE,)
+    close_handle.restype = wintypes.BOOL
+
+    snapshot = create_snapshot(0x00000002, 0)
+    if snapshot == ctypes.c_void_p(-1).value:
+        raise ctypes.WinError(ctypes.get_last_error())
+    rows = []
+    try:
+        entry = ProcessEntry32W()
+        entry.dwSize = ctypes.sizeof(entry)
+        ctypes.set_last_error(0)
+        if not process_first(snapshot, ctypes.byref(entry)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        while True:
+            rows.append(dict(pid=int(entry.th32ProcessID), parent_pid=int(entry.th32ParentProcessID),
+                             name=entry.szExeFile))
+            ctypes.set_last_error(0)
+            if not process_next(snapshot, ctypes.byref(entry)):
+                error = ctypes.get_last_error()
+                if error != 18:  # 错误码18表示枚举结束
+                    raise ctypes.WinError(error)
+                break
+    finally:
+        close_handle(snapshot)
+    if not rows:
+        raise OSError("Windows进程快照为空，无法证明重型进程检查完成")
+    return rows
+
+
+def _windows_process_rss_bytes(pid):
+    """读取单进程工作集字节数；进程已退出返回None，权限错误直接失败。"""
+    import ctypes
+    from ctypes import wintypes
+
+    class ProcessMemoryCountersEx(ctypes.Structure):
+        _fields_ = [
+            ("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD),
+            ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+            ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t),
+            ("PrivateUsage", ctypes.c_size_t),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    open_process = kernel32.OpenProcess
+    open_process.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    open_process.restype = wintypes.HANDLE
+    close_handle = kernel32.CloseHandle
+    close_handle.argtypes = (wintypes.HANDLE,)
+    close_handle.restype = wintypes.BOOL
+    handle = open_process(0x0400 | 0x0010, False, pid)  # 查询信息与读取虚拟内存
+    if not handle:
+        error = ctypes.get_last_error()
+        if error == 87:  # 错误码87表示进程已退出
+            return None
+        raise ctypes.WinError(error)
+
+    try:
+        counters = ProcessMemoryCountersEx()
+        counters.cb = ctypes.sizeof(counters)
+        psapi = ctypes.WinDLL("psapi", use_last_error=True)
+        query = psapi.GetProcessMemoryInfo
+        query.argtypes = (wintypes.HANDLE, ctypes.POINTER(ProcessMemoryCountersEx), wintypes.DWORD)
+        query.restype = wintypes.BOOL
+        if not query(handle, ctypes.byref(counters), counters.cb):
+            error = ctypes.get_last_error()
+            if error == 87:  # 错误码87表示进程已退出
+                return None
+            raise ctypes.WinError(error)
+        return int(counters.WorkingSetSize)
+    finally:
+        close_handle(handle)
+
+
+def _windows_process_tree_rss_bytes(root_pid):
+    """按父PID递归求本次子进程树的工作集总量。"""
+    rows = _windows_process_snapshot()
+    children = {}
+    for row in rows:
+        children.setdefault(row["parent_pid"], []).append(row["pid"])
+    if not any(row["pid"] == root_pid for row in rows):
+        return 0
+    pids = [root_pid]
+    for pid in pids:
+        pids.extend(children.get(pid, ()))
+    total = 0
+    for pid in pids:
+        rss = _windows_process_rss_bytes(pid)
+        if rss is not None:
+            total += rss
+    return total
+
+
+def _windows_available_ram_bytes():
+    """通过Windows API读取可用物理内存；查询失败时停止。"""
+    if os.name != "nt":
+        raise OSError("资源预检仅支持本运行器目标Windows系统")
+    import ctypes
+    from ctypes import wintypes
+
+    class MemoryStatusEx(ctypes.Structure):
+        _fields_ = [("dwLength", wintypes.DWORD), ("dwMemoryLoad", wintypes.DWORD)] + [
+            (name, ctypes.c_ulonglong) for name in (
+                "ullTotalPhys", "ullAvailPhys", "ullTotalPageFile", "ullAvailPageFile",
+                "ullTotalVirtual", "ullAvailVirtual", "ullAvailExtendedVirtual")]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    query = kernel32.GlobalMemoryStatusEx
+    query.argtypes = (ctypes.POINTER(MemoryStatusEx),)
+    query.restype = wintypes.BOOL
+    status = MemoryStatusEx()
+    status.dwLength = ctypes.sizeof(status)
+    if not query(ctypes.byref(status)):
+        raise ctypes.WinError(ctypes.get_last_error())
+    return int(status.ullAvailPhys)
 
 
 def sha(path: Path) -> str:
@@ -400,10 +544,14 @@ def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict
         process = subprocess.Popen(command, cwd=work, env=env, stdout=stream, stderr=subprocess.STDOUT)
         while process.poll() is None:
             try:
-                parent = psutil.Process(process.pid)
-                peak = max(peak, sum(p.memory_info().rss for p in [parent]+parent.children(recursive=True) if p.is_running()))
-            except psutil.Error:
-                pass
+                peak = max(peak, _windows_process_tree_rss_bytes(process.pid))
+            except Exception as exc:
+                failure = "PROCESS_QUERY_ERROR"
+                stream.write(f"资源查询失败，终止本次进程树：{exc}\n")
+                subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                               stdout=stream, stderr=subprocess.STDOUT, timeout=30)
+                process.wait(timeout=30)
+                break
             if time.monotonic()-progress>30:
                 progress=time.monotonic()
                 print(json.dumps({"running": name, "seconds": round(progress-started), "peak_rss_bytes": peak}), flush=True)
@@ -528,8 +676,13 @@ def main() -> int:
         env["PATH"]=str(make_dir)+os.pathsep+str(bin_dir)+os.pathsep+env.get("PATH","")
         env["VERILATOR_ROOT"]=str(args.toolchain/"mingw64/share/verilator"); env["PYTHONUTF8"]="1"
         for path in (verilator,bin_dir/"g++.exe",make_dir/"make.exe"): checker.exact_file(path)
-        report["resource_preflight"]={"available_ram_bytes":psutil.virtual_memory().available,"disk_free_bytes":shutil.disk_usage(work).free,
-            "running_vivado":[{"pid":p.pid,"rss":p.memory_info().rss} for p in psutil.process_iter(["name"]) if p.info["name"] and p.info["name"].lower()=="vivado.exe"],
+        running_vivado=[]
+        for row in _windows_process_snapshot():
+            if row["name"].lower()=="vivado.exe":
+                rss=_windows_process_rss_bytes(row["pid"])
+                if rss is not None: running_vivado.append({"pid":row["pid"],"rss":rss})
+        report["resource_preflight"]={"available_ram_bytes":_windows_available_ram_bytes(),"disk_free_bytes":shutil.disk_usage(work).free,
+            "running_vivado":running_vivado,
             "heavy_slot":"总控已明确S2退出且保留唯一heavy槽；job1/thread1。"}
         if report["resource_preflight"]["available_ram_bytes"]<2147483648 or report["resource_preflight"]["disk_free_bytes"]<1073741824:
             raise ValueError("资源不足，未编译")

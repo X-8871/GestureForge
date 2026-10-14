@@ -171,6 +171,34 @@ class FramingTests(unittest.TestCase):
         with mock.patch.object(transport, "digest", side_effect=lambda raw: "0" * 64 if len(raw) == transport.INPUT_BYTES else original(raw)):
             with self.assertRaises(transport.TransportError): transport.load_assets(ASSETS, [0])
 
+    def test_exact_path_checks_case_when_drive_root_cannot_be_scanned(self):
+        expected = transport.ROOT / "verification" / "s2b_board_transport.py"
+        drive_root_key = os.path.normcase(os.path.abspath(os.fspath(Path(expected.anchor))))
+        real_scandir = transport.os.scandir
+        denied_roots = []
+
+        def restricted_scandir(path):
+            path_key = os.path.normcase(os.path.abspath(os.fspath(path)))
+            if path_key == drive_root_key:
+                denied_roots.append(os.fspath(path))
+                raise PermissionError(5, "enumeration denied", os.fspath(path))
+            return real_scandir(path)
+
+        outside = Path(tempfile.gettempdir()) / "transport-exact-path-probe" / "missing.bin"
+        self.assertNotEqual(
+            os.path.commonpath((os.fspath(transport.ROOT), os.fspath(outside))),
+            os.fspath(transport.ROOT),
+            "外部路径探针必须位于仓库外",
+        )
+        with mock.patch.object(transport.os, "scandir", side_effect=restricted_scandir):
+            self.assertEqual(transport.exact_path(expected), expected)
+            with self.assertRaises(transport.TransportError):
+                transport.exact_path(transport.ROOT / "VERIFICATION" / "s2b_board_transport.py")
+            with self.assertRaises(transport.TransportError):
+                transport.exact_path(outside)
+
+        self.assertEqual(1, len(denied_roots), denied_roots)
+
     def test_banner_identity_limit_and_truncated_response_raw_preserved(self):
         source_sha, xsa_sha = "a" * 64, "b" * 64
         banner = f"S2B-INFERENCE/1 READY SOURCE={source_sha} XSA={xsa_sha} MODEL={transport.MODEL_SHA}\r\n".encode()

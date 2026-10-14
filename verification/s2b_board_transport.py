@@ -49,9 +49,19 @@ def exact_path(raw, kind="file"):
     """按完整磁盘名称核对目标类型，不修正来源字符串。"""
     path = Path(raw)
     require(path.is_absolute() and not any(part in {".", ".."} for part in path.parts), f"需要精确绝对路径：{raw}")
-    current = Path(path.anchor)
-    for part in path.parts[1:]:
-        entries = {entry.name: entry for entry in os.scandir(current)}
+    root_parts = ROOT.parts
+    if len(path.parts) >= len(root_parts) and path.parts[:len(root_parts)] == root_parts:
+        current = ROOT
+        remaining = path.parts[len(root_parts):]
+    else:
+        current = Path(path.anchor)
+        remaining = path.parts[1:]
+    for part in remaining:
+        try:
+            with os.scandir(current) as scan:
+                entries = {entry.name: entry for entry in scan}
+        except OSError as exc:
+            raise TransportError(f"无法核验精确路径目录 {current}: {exc}") from exc
         require(part in entries, f"精确路径不存在：{current / part}")
         current = Path(entries[part].path)
     require(current.is_file() if kind == "file" else current.is_dir(), f"目标类型不符：{current}")

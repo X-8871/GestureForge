@@ -162,6 +162,38 @@ def preserved_diagnostic_suffix(path_text: str) -> str | None:
     )
 
 
+def _check_components_without_enumeration(
+    current: Path,
+    components: tuple[str, ...] | list[str],
+    errors: list[str],
+    label: str,
+) -> Path | None:
+    """父目录不能枚举时，逐项用规范路径与 lstat 保留路径安全检查。"""
+    for index, component in enumerate(components):
+        candidate = current / component
+        try:
+            info = os.lstat(candidate)
+        except OSError as exc:
+            errors.append(f"{label}路径不可访问：{candidate}：{exc}")
+            return None
+        if is_reparse_or_symlink(info):
+            errors.append(f"{label}路径包含符号链接或 reparse 点：{candidate}")
+            return None
+        if index < len(components) - 1 and not stat.S_ISDIR(info.st_mode):
+            errors.append(f"{label}父路径不是普通目录：{candidate}")
+            return None
+        current = candidate
+    try:
+        resolved = current.resolve(strict=True)
+    except OSError as exc:
+        errors.append(f"{label}路径不可访问：{current}：{exc}")
+        return None
+    if os.fspath(resolved) != os.fspath(current):
+        errors.append(f"{label}路径分量不存在或大小写不精确：{current}")
+        return None
+    return current
+
+
 def _check_absolute_path(path: Path, expected_kind: str, errors: list[str], label: str) -> Path | None:
     if not path.is_absolute():
         errors.append(f"{label}必须是绝对路径")
@@ -181,6 +213,18 @@ def _check_absolute_path(path: Path, expected_kind: str, errors: list[str], labe
         try:
             with os.scandir(current) as entries:
                 exact_name_exists = any(entry.name == component for entry in entries)
+        except PermissionError:
+            current = _check_components_without_enumeration(
+                current, remainder[index:], errors, label
+            )
+            if current is None:
+                return None
+            try:
+                info = os.lstat(current)
+            except OSError as exc:
+                errors.append(f"{label}路径不可访问：{current}：{exc}")
+                return None
+            break
         except OSError as exc:
             errors.append(f"{label}父目录不可访问：{current}：{exc}")
             return None

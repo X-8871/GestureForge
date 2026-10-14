@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T15",
+  "run_id": "transport_path_fix_20261014_r02",
+  "source_commit": "4a9181bddd1d92b2d42b096f1c0b2639940708b4",
+  "evidence_dir": "report/evidence/S2B-T15/transport_path_fix_20261014_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 Run 仅验证主机端路径检查器在受限目录枚举环境中的路径拼写、安全拒绝与异常封装，不修改或测试 FPGA、PS/PL、UART、DDR 或模型接口。",
+  "files": [
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "role": "source",
+      "keep_reason": "绑定受限目录枚举时的精确路径回退实现。"
+    },
+    {
+      "path": "verification/test_stage_delivery.py",
+      "sha256": "547bf363069749784a167373661307ff9acd81d2377e4f2c771577a97f658fc6",
+      "role": "source",
+      "keep_reason": "绑定路径回退的大小写、reparse、缺失路径和目标类型测试。"
+    },
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+      "role": "source",
+      "keep_reason": "绑定板卡运输工具的精确路径根选择及 I/O 错误转换。"
+    },
+    {
+      "path": "verification/test_s2b_board_transport.py",
+      "sha256": "c1ef8f1de7a1208ec71c97c844f3a222b64b8bd1e816b98c71bb454b176a7914",
+      "role": "source",
+      "keep_reason": "绑定盘符根拒绝扫描时的仓库内与仓库外路径回归用例。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/transport_path_fix_20261014_r02/stage_delivery.log",
+      "sha256": "1ff8e3b534ccdf3bfd40cfceeb917900ad1eb4a4b8165adae71e59c630f6ddc5",
+      "role": "log",
+      "keep_reason": "保留完整交付检查器回归的原始输出和原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/transport_path_fix_20261014_r02/transport_path_fallback.log",
+      "sha256": "78656466b6a552d6347f6fe5ed924a96e1bde0fe9c5b2883b9ec5a1642a08762",
+      "role": "log",
+      "keep_reason": "保留仓库内精确路径与受限盘符根回退定向回归的原始输出。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/transport_path_fix_20261014_r02/git_diff_check.log",
+      "sha256": "35c1cab2e36ad003f2472a467a7ae05c7f8196d95de73c1cda5710969cc7a452",
+      "role": "log",
+      "keep_reason": "保留本轮精确目标文件的差异空白检查原始退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/transport_path_fix_20261014_r02/transport_suite.log",
+      "sha256": "75597dfe107cc82bfde63a42792170f8bb67d77b5215371d9669dbea111f6f69",
+      "role": "log",
+      "keep_reason": "保留完整板卡运输套件的全部原始输出及环境错误。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "交付检查器完整回归",
+      "status": "PASS",
+      "command": "python -B -m unittest -v verification.test_stage_delivery",
+      "exit_code": 0,
+      "reason": "完整运行 51 项，全部通过；包含盘符根拒绝枚举时的路径拼写与安全拒绝测试。"
+    },
+    {
+      "name": "板卡运输路径回退定向回归",
+      "status": "PASS",
+      "command": "python -B -m unittest -v verification.test_s2b_board_transport.FramingTests.test_exact_path_checks_case_when_drive_root_cannot_be_scanned",
+      "exit_code": 0,
+      "reason": "仓库内路径在盘符根不可枚举时仍通过；错误大小写及外部锚点扫描 I/O 错误按预期拒绝。"
+    },
+    {
+      "name": "本轮精确差异空白检查",
+      "status": "PASS",
+      "command": "git diff --check -- verification/check_stage_delivery.py verification/test_stage_delivery.py verification/s2b_board_transport.py verification/test_s2b_board_transport.py",
+      "exit_code": 0,
+      "reason": "本轮四个目标文件无空白错误。"
+    },
+    {
+      "name": "完整板卡运输套件",
+      "status": "FAIL",
+      "command": "python -B -m unittest -v verification.test_s2b_board_transport",
+      "exit_code": 1,
+      "reason": "25 项中 24 项通过；仅109样本 C 解码测试因 bundled Python 缺少 cv2 而导入失败。新增路径回归与其他用例通过。"
+    }
+  ],
+  "limitations": [
+    "bundled Python 环境未安装 cv2，导致完整板卡运输套件中的109样本 C 解码用例无法导入其既有参考模块；其余24项通过。",
+    "本 Run 是主机端检查器回归，不证明板卡下载、FPGA 综合/时序、实板 UART/DDR/cache 或模型验收通过。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe"
+  }
+}

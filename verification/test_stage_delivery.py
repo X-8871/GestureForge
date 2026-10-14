@@ -646,6 +646,72 @@ class StageDeliveryTests(unittest.TestCase):
         result = self.run_direct("inputs", data)
         self.assertEqual("CHECKS_OK", result["status"], result["errors"])
 
+    def test项目根父目录拒绝枚举时使用规范路径并保留大小写检查(self) -> None:
+        data = self.input_manifest()
+        manifest = self.write_json("manifest.json", data)
+        linked_bytes = b"linked input\n"
+        self.write_bytes("input_alias/sample.bin", linked_bytes)
+        reparse_data = self.input_manifest()
+        reparse_data["files"][0] = {
+            "path": "input_alias/sample.bin",
+            "sha256": digest(linked_bytes),
+            "role": "input",
+        }
+        reparse_manifest = self.write_json("reparse_manifest.json", reparse_data)
+        real_scandir = checker.os.scandir
+        blocked_root = os.path.normcase(os.path.abspath(os.fspath(Path(self.root.anchor))))
+        blocked_root_calls: list[str] = []
+
+        def restricted_scandir(path: str | os.PathLike[str]):
+            path_key = os.path.normcase(os.path.abspath(os.fspath(path)))
+            if path_key == blocked_root:
+                blocked_root_calls.append(os.fspath(path))
+                raise PermissionError(5, "enumeration denied", os.fspath(path))
+            return real_scandir(path)
+
+        link_key = os.path.normcase(os.path.abspath(os.fspath(self.root / "input_alias")))
+        real_lstat = checker.os.lstat
+
+        def reparse_lstat(path: str | os.PathLike[str]) -> os.stat_result:
+            info = real_lstat(path)
+            if os.path.normcase(os.path.abspath(os.fspath(path))) == link_key:
+                return type(
+                    "ReparseStat",
+                    (),
+                    {"st_mode": info.st_mode, "st_file_attributes": 0x400},
+                )()
+            return info
+
+        missing_root = self.root / "missing_project_root"
+        ordinary_file_root = self.root / "fixtures" / "input.bin"
+        wrong_case_root = self.root.with_name(self.root.name.swapcase())
+        with (
+            patch.object(checker.os, "scandir", side_effect=restricted_scandir),
+            patch.object(checker.os, "lstat", side_effect=reparse_lstat),
+        ):
+            accessible = checker.check_manifest("inputs", str(manifest), str(self.root))
+            wrong_case = checker.check_manifest("inputs", str(manifest), str(wrong_case_root))
+            reparse = checker.check_manifest("inputs", str(reparse_manifest), str(self.root))
+            missing = checker.check_manifest("inputs", str(manifest), str(missing_root))
+            ordinary_file = checker.check_manifest("inputs", str(manifest), str(ordinary_file_root))
+
+        self.assertEqual("CHECKS_OK", accessible["status"], accessible["errors"])
+        self.assertEqual("CHECKS_FAILED", wrong_case["status"])
+        self.assertTrue(
+            any("大小写不精确" in error for error in wrong_case["errors"]),
+            wrong_case["errors"],
+        )
+        self.assertEqual("CHECKS_FAILED", reparse["status"])
+        self.assertTrue(
+            any("符号链接或 reparse 点" in error for error in reparse["errors"]),
+            reparse["errors"],
+        )
+        self.assertEqual("CHECKS_FAILED", missing["status"])
+        self.assertTrue(any("路径不可访问" in error for error in missing["errors"]), missing["errors"])
+        self.assertEqual("CHECKS_FAILED", ordinary_file["status"])
+        self.assertTrue(any("不是目录" in error for error in ordinary_file["errors"]), ordinary_file["errors"])
+        self.assertGreaterEqual(len(blocked_root_calls), 5, blocked_root_calls)
+
     def test父路径reparse点拒绝(self) -> None:
         data = self.input_manifest()
         link = self.root / "input_alias"

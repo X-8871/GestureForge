@@ -697,3 +697,15 @@ verification/test_s2b_platform_paths.py -text
 # 内存预算回归脚本与测试源码作为原始字节输入，保持其清单SHA。
 verification/s2b_memory_request_budget.py -text
 verification/test_s2b_memory_request_budget.py -text
+
+# GP0软件契约R02证据保持生成时的原始字节，防止检出过程改写哈希绑定。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r02/** -text
+
+# GP0软件契约R03证据保持生成时的原始字节，避免检出时改变manifest绑定SHA。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r03/** -text
+
+# XA补充诊断的Vivado原生文件保留实测原字节，仅豁免各文件实际已有的空白种类。
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/constraints.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/methodology.rpt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/route_status.rpt whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/timing_summary.rpt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19",
+  "run_id": "xa_timing_retarget_20261014_r01",
+  "classification": "OFFLINE_RETARGET_STA_ONLY",
+  "commits": {
+    "evidence_packaging_head": "b02ea83ee3d40d0b940fdaefe30459f47e23a025",
+    "run_source_commit": "f92823f0bd577a49db543868f44c4f63b670d8e0",
+    "run_audit_base_commit": "5b4b140d9540759a6940b339e93278371c06987e"
+  },
+  "session": {
+    "id": "vivado-20261014-133318-6fec06f6",
+    "invocation": "source run.tcl",
+    "started_utc": "2026-10-14T15:01:51Z",
+    "started_utc_plus_8": "2026-10-14T23:01:51+08:00",
+    "vivado_version": "2026.1",
+    "mcp_elapsed_seconds": 58.779,
+    "tcl_elapsed_milliseconds": 58733,
+    "native_exit_code": 0,
+    "checkpoint_open_code": 0,
+    "report_generation_code": 0,
+    "reported_session_memory_high_water_mb": 2842.824,
+    "memory_scope": "Vivado session cumulative high-water value repeated in command logs; not an independent peak for this operation.",
+    "os_process_peak_memory": "NOT_MEASURED"
+  },
+  "checkpoint": {
+    "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_routed.dcp",
+    "sha256": "cd0a10f90659a5a9a9cc184f08750ed6057a39e6eefe63f60173d031465df101",
+    "source_part": "xc7z020clg400-2",
+    "requested_retarget_part": "xa7z020clg400-1I",
+    "actual_opened_part": "xa7z020clg400-1I",
+    "open_result": "SUCCEEDED",
+    "restored_design_state": "Fully Routed",
+    "warnings": [
+      "Checkpoint part xc7z020clg400-2 differs from requested xa7z020clg400-1I.",
+      "Checkpoint device family zynq differs from selected part family azynq; binary netlist was not read and Vivado fell back to EDIF."
+    ]
+  },
+  "xa_retarget_timing": {
+    "verdict": "FAIL",
+    "constraints_met": false,
+    "clock": "clk_fpga_0",
+    "period_ns": 20.0,
+    "frequency_mhz": 50.0,
+    "wns_ns": -3.841,
+    "tns_ns": -6030.53,
+    "tns_failing_endpoints": 3127,
+    "tns_total_endpoints": 15427,
+    "whs_ns": 0.101,
+    "ths_ns": 0.0,
+    "route_status": {
+      "fully_routed_nets": 28858,
+      "routing_errors": 0
+    }
+  },
+  "current_hardware": {
+    "confirmed_physical_device": "XC7Z020-2CLG400I",
+    "vivado_part": "xc7z020clg400-2",
+    "confirmation_basis": "Latest user confirmation, current AGENTS.md, and board/s2b_inference_platform.json.",
+    "xa_timing_result_applicability": "NOT_APPLICABLE_TO_CURRENT_XC_HARDWARE",
+    "xc_reference_report": {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/reports/s2b_inference_wrapper_timing_summary_routed.rpt",
+      "sha256": "0155605e5805b13793592ab0dc9546a3a70d1135eb735b49adfbaed619742908",
+      "wns_ns": 0.229,
+      "tns_ns": 0.0,
+      "tns_failing_endpoints": 0,
+      "whs_ns": 0.095,
+      "ths_ns": 0.0,
+      "reported_verdict": "All user specified timing constraints are met.",
+      "use": "Read-only reference from the separate current XC visibility=1 package; not recomputed by this XA diagnostic."
+    }
+  },
+  "interpretation_limits": [
+    "Native exit code 0 and report generation code 0 mean the checkpoint opened and reports were written; they do not mean XA timing passed.",
+    "This is a cross-part offline timing diagnostic only. Its XA/-1I timing failure is not a failure or new blocker for the user-confirmed XC/-2 physical board.",
+    "The source visibility=1 delivery manifest contains an older photo-mismatch limitation; the latest user confirmation and current project hardware records supersede that historical note.",
+    "result.tcldict records previous_project as null after the Vivado project object was stringified following close_project; this does not establish that no project had been open. previous_part records xc7z020clg400-2.",
+    "The raw MCP trace contains localized Chinese mojibake from source encoding. The raw response is preserved unchanged; open and report error branches were not entered.",
+    "No independent OS memory peak was measured; the reported 2842.824 MB value is cumulative within the Vivado session."
+  ]
+}

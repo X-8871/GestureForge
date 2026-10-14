@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "xa_timing_retarget_20261014_r01",
+  "source_commit": "b02ea83ee3d40d0b940fdaefe30459f47e23a025",
+  "evidence_dir": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅封装已完成的XA跨器件离线时序诊断，并依据最新用户确认判定当前XC实板适用性；不消费、冻结或更改PS/PL接口。",
+  "tool_versions": {
+    "Vivado": "2026.1 (原诊断MCP会话；本封装未重启)",
+    "MCP_session": "vivado-20261014-133318-6fec06f6",
+    "Python": "3.12.14 (Codex bundled runtime，用于离线解析与证据检查)"
+  },
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/run.tcl",
+      "sha256": "c01f9c0923fd02f628c1be852548c429d23d5360b285c896604b9debe3102057",
+      "role": "source",
+      "keep_reason": "原诊断脚本；绑定检查点、目标part、输出命令和只读范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+      "sha256": "0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad",
+      "role": "input",
+      "keep_reason": "声明原DCP来源、Vivado目标part及XC visibility=1构建绑定；其中旧照片差异备注已被最新用户确认 supersede。"
+    },
+    {
+      "path": "board/s2b_inference_platform.json",
+      "sha256": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+      "role": "input",
+      "keep_reason": "当前平台器件请求字段，记录XC7Z020-2CLG400I与xc7z020clg400-2。"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "e6ca63f0f599e58638ef30f4343ef530fd8907a3be44a68829282e9c67ec4db4",
+      "role": "input",
+      "keep_reason": "当前硬件身份决策记录，绑定用户对同一实物为XC器件的明确确认。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/reports/s2b_inference_wrapper_timing_summary_routed.rpt",
+      "sha256": "0155605e5805b13793592ab0dc9546a3a70d1135eb735b49adfbaed619742908",
+      "role": "input",
+      "keep_reason": "独立XC visibility=1原时序报告，用于区分当前XC结果与XA retarget诊断；未复制或重跑。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/result.tcldict",
+      "sha256": "27c569ef4e23bf6139977fd6a834631acd12e0e99bf5f797fd526c4678b52f55",
+      "role": "result",
+      "keep_reason": "Vivado原始脚本结果字典，含打开状态、part、时序指标、状态和脚本计时。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/timing_summary.rpt",
+      "sha256": "323013563d32ec978dc97510373a4a5fca9c848d70eab79bf63ece076e9015e4",
+      "role": "result",
+      "keep_reason": "XA/-1I retarget的原始时序报告，明确记录时序约束失败。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/methodology.rpt",
+      "sha256": "5f40794be5dfafdd50651ff89e20918c93a8186c9f53213e5484d320d921b04d",
+      "role": "result",
+      "keep_reason": "Vivado原始methodology报告，保留跨器件恢复状态及诊断警告。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/route_status.rpt",
+      "sha256": "a7f7c5a00b03d2bd37ec2bd645845c3b56de4b1751d184f630cf5c4ca4c03645",
+      "role": "result",
+      "keep_reason": "Vivado原始route status报告，记录恢复设计的布线状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/constraints.xdc",
+      "sha256": "fa5c91a0e15f0e8e6279c4c2e3eb559771dfd92494094416c955ca6b2ab75eb8",
+      "role": "artifact",
+      "keep_reason": "本次Vivado导出的约束快照，供核对50 MHz时钟约束。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/mcp_response.json",
+      "sha256": "eb520eb5a3581be5e94560e14b2afae8f8460b467291f08f89cca2db1de43298",
+      "role": "log",
+      "keep_reason": "MCP原始响应及trace，保留原始编码呈现和会话耗时。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/summary.json",
+      "sha256": "76c8e8904f4fc70c03ee371ae6a915f643fca0376151cbcd1ad68e21f56a347f",
+      "role": "result",
+      "keep_reason": "机器可读汇总XA时序失败、XC当前适用性、来源及限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/audit_report.md",
+      "sha256": "f2f504516b0fc3e0c9086757dc03f6087a9676f15152da3586a604278878abeb",
+      "role": "result",
+      "keep_reason": "中文证据说明，区分原生成功、XA时序失败与当前XC实板适用性。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "checkpoint_retarget_and_report_generation",
+      "status": "PASS",
+      "command": "Vivado MCP session vivado-20261014-133318-6fec06f6: source run.tcl",
+      "exit_code": 0,
+      "reason": "原始响应exit_code=0；result.tcldict open_code=0、report_code=0，成功打开目标part并生成报告。时序是否满足由独立xa_timing_constraints检查判定。"
+    },
+    {
+      "name": "xa_timing_constraints",
+      "status": "FAIL",
+      "command": "python -B -c 'import re,sys; from pathlib import Path; s=Path(\"report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/timing_summary.rpt\").read_text(encoding=\"utf-8\"); m=re.search(r\"(?m)^\\s*(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(\\d+)\\s+(\\d+)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(\\d+)\\s+(\\d+)\\s+\",s); assert m, \"timing table row missing\"; wns,tns,setup_bad,setup_total,whs,ths,hold_bad,hold_total=m.groups(); print(f\"XA_TIMING_FAIL WNS={wns} TNS={tns} setup={setup_bad}/{setup_total} WHS={whs} THS={ths} hold={hold_bad}/{hold_total}\"); sys.exit(1 if float(wns)<0 or float(tns)<0 or int(setup_bad)>0 or float(whs)<0 or float(ths)<0 or int(hold_bad)>0 else 0)'",
+      "exit_code": 1,
+      "reason": "此离线判定命令从原始report读出WNS=-3.841 ns、TNS=-6030.530 ns及3127个setup失败端点，按约束失败返回1；它不是Vivado source run.tcl的进程退出码。"
+    },
+    {
+      "name": "current_xc_hardware_applicability",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "用户已确认当前实物为XC7Z020-2CLG400I/xc7z020clg400-2；本次请求的XA7Z020/-1I结果不适用于当前XC实板，也不构成当前平台失败或新阻断。"
+    },
+    {
+      "name": "evidence_directory_validation",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "evidence模式返回CHECKS_OK；仅核对清单绑定与运行目录，不代表XA时序通过、当前XC硬件验收或G0/G4/G5。首次核验耗时327ms。"
+    }
+  ],
+  "limitations": [
+    "这是以XC来源DCP请求XA/-1I的离线跨器件STA诊断；Vivado报告了zynq到azynq不匹配并回退读取EDIF。",
+    "XA目标时序失败不适用于用户确认的当前XC/-2实板；当前XC参考报告单独绑定，记录WNS +0.229 ns、WHS +0.095 ns、TNS/THS为0。",
+    "MCP/Tcl命令原生退出码0只表示打开和报告生成成功，不表示XA时序通过。",
+    "报告显示的2842.824 MB是Vivado session累计高水位，不是独立操作峰值；OS进程峰值未测。",
+    "未复制DCP或报告源包；本封装子任务没有再次启动Vivado、Vitis、JTAG或硬件操作。"
+  ]
+}

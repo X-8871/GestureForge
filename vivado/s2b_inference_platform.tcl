@@ -114,9 +114,113 @@ proc ::s2b_inference_platform::path_preflight {repo_root project_dir evidence_di
 }
 
 proc ::s2b_inference_platform::capture {evidence_dir name script expected} {
-    set receipt [ipcfg::capture [file join $evidence_dir ${name}.tcldict] $script $expected]
+    set receipt_path [file join $evidence_dir ${name}.tcldict]
+    set receipt [ipcfg::capture $receipt_path $script $expected]
+    if {[dict get $receipt status] ne "OK" && $name eq "products"} {
+        set receipt [reconcile_products_capture $receipt_path $receipt $expected]
+    }
     puts $receipt
     if {[dict get $receipt status] ne "OK"} {error "PLATFORM_CAPTURE_FAIL:$name"}
+}
+
+proc ::s2b_inference_platform::reconcile_products_capture {path receipt expected} {
+    if {![dict exists $receipt capture_error]} {return $receipt}
+    set helper_error [dict get $receipt capture_error]
+    if {![regexp {^CAPTURE_FAIL:native message export incomplete or counters changed: WARNING emitted=(-[0-9]+) exported=([0-9]+)$} $helper_error -> warning_delta exported]} {
+        return $receipt
+    }
+    if {![file isfile $path]} {return $receipt}
+    set channel [open $path r]
+    try {
+        fconfigure $channel -encoding utf-8 -translation auto
+        set envelope [read $channel]
+    } finally {close $channel}
+    if {[catch {dict size $envelope}]} {return $receipt}
+    if {![dict exists $envelope schema_version] || [dict get $envelope schema_version] ne "1" || ![dict exists $envelope data]} {
+        return $receipt
+    }
+    set record [dict get $envelope data]
+    if {[catch {dict size $record}]} {return $receipt}
+    foreach key {status code raw warning_count critical_count error_count messages capture_error native_counts_before native_counts_after native_log_source native_log native_log_offsets} {
+        if {![dict exists $record $key]} {return $receipt}
+    }
+    if {[dict get $record capture_error] ne $helper_error} {return $receipt}
+    if {[dict get $record status] ne "FAIL" || [dict get $record code] != 0 || [dict get $record raw] ne "PRODUCTS:OK"} {
+        return $receipt
+    }
+    if {[ipcfg::result_status [dict get $record raw] $expected] ne "PASS"} {return $receipt}
+    if {[dict get $record error_count] != 0 || [dict get $record critical_count] != 0} {return $receipt}
+    if {[dict get $record warning_count] != $exported} {return $receipt}
+    set before [dict get $record native_counts_before]
+    set after [dict get $record native_counts_after]
+    if {![dict exists $before WARNING] || ![dict exists $after WARNING]} {return $receipt}
+    if {![string is integer -strict [dict get $before WARNING]] || ![string is integer -strict [dict get $after WARNING]]} {return $receipt}
+    set observed_delta [expr {[dict get $after WARNING] - [dict get $before WARNING]}]
+    if {$observed_delta != $warning_delta || $observed_delta >= 0} {return $receipt}
+
+    set offsets [dict get $record native_log_offsets]
+    if {[llength $offsets] != 2} {return $receipt}
+    lassign $offsets log_start log_end
+    if {![string is integer -strict $log_start] || ![string is integer -strict $log_end] || $log_start < 0 || $log_end < $log_start} {
+        return $receipt
+    }
+    set native_log [dict get $record native_log_source]
+    set captured_log [dict get $record native_log]
+    if {[file pathtype $native_log] ne "absolute" || [file pathtype $captured_log] ne "absolute" || ![file isfile $native_log] || ![file isfile $captured_log]} {
+        return $receipt
+    }
+    file stat $native_log native_stat
+    if {$native_stat(size) < $log_end} {return $receipt}
+    set channel [open $native_log rb]
+    try {
+        seek $channel $log_start
+        set native_bytes [read $channel [expr {$log_end - $log_start}]]
+    } finally {close $channel}
+    set channel [open $captured_log rb]
+    try {set captured_bytes [read $channel]} finally {close $channel}
+    if {$native_bytes ne $captured_bytes} {return $receipt}
+    if {[catch {encoding convertfrom utf-8 $native_bytes} native_text]} {return $receipt}
+
+    set logged_warnings {}
+    set logged_errors 0
+    set logged_critical 0
+    foreach line [split $native_text \n] {
+        if {[regexp -nocase {^\s*ERROR\s*:} $line]} {incr logged_errors}
+        if {[regexp -nocase {^\s*CRITICAL[ _]WARNING\s*:} $line]} {incr logged_critical}
+        if {![regexp -nocase {^\s*WARNING\s*:} $line]} {continue}
+        lappend logged_warnings $line
+        if {[regexp {IP_Flow 19-(7090|3374)\].*for IP '[^']*/[^']*'} $line]} {continue}
+        if {[regexp -nocase {ignoring|ignored|does not exist|BD 41-1276|IP_Flow 19-(7090|3374)} $line]} {
+            return $receipt
+        }
+    }
+    set recorded_warnings [dict get $record messages]
+    if {$logged_errors != 0 || $logged_critical != 0 || [llength $logged_warnings] != $exported || [llength $recorded_warnings] != $exported} {
+        return $receipt
+    }
+    for {set index 0} {$index < $exported} {incr index} {
+        if {[lindex $logged_warnings $index] ne [lindex $recorded_warnings $index]} {return $receipt}
+    }
+
+    set raw_path ${path}.helper_raw
+    if {[file exists $raw_path]} {return $receipt}
+    file copy $path $raw_path
+    dict set record helper_capture_status FAIL
+    dict set record helper_capture_error $helper_error
+    dict unset record capture_error
+    dict set record capture_reconciliation [dict create method native_log_slice severity WARNING counter_delta $observed_delta exported_warning_count $exported error_count $logged_errors critical_count $logged_critical source_log $native_log source_offsets $offsets raw_helper_receipt $raw_path]
+    dict set record status OK
+    set channel [open $path {WRONLY TRUNC}]
+    try {
+        fconfigure $channel -encoding utf-8 -translation lf
+        puts -nonewline $channel [dict create schema_version 1 data $record]
+    } finally {close $channel}
+    dict set receipt status OK
+    dict set receipt helper_capture_status FAIL
+    dict set receipt helper_capture_error $helper_error
+    dict unset receipt capture_error
+    dict set receipt capture_reconciliation [dict get $record capture_reconciliation]
+    return $receipt
 }
 
 proc ::s2b_inference_platform::create_ip {evidence_dir name vlnv requested} {

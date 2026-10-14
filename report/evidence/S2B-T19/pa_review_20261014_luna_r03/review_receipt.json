@@ -1,0 +1,110 @@
+{
+  "task_id": "S2B-T19",
+  "run_id": "pa_review_20261014_luna_r03",
+  "review_level": "G2_SOFTWARE_ONLY",
+  "verdict": "CHANGES_REQUIRED",
+  "baseline_commit": "c8742858fbb23331763358775daa44dafb95db94",
+  "scope": "独立复核PA拓扑/卸载软件及watchdog r04与自有hw_server启动/释放脚本；离线mock，不操作真实Vitis、SDK、串口或板卡。",
+  "frozen_candidate_sha256": {
+    "tmp/2B/S2B-T19/watchdog_prepare_20261013_r01/run_visibility_guarded_r04.ps1": "0aa0e95a7014db2357aa5fd2b0bcf4db2a4dc1fe126ae79d2e097441eecff3b4",
+    "tmp/2B/S2B-T19/board_run_20261014_r02/start_owned_server.ps1": "4113e6eafa69de6a8c2049bdfdf653431b6c105730477ffc2de1bf6995c8ec79",
+    "tmp/2B/S2B-T19/board_run_20261014_r02/close_owned_server.ps1": "5bc9841fb6fdea6aa65b8cb28c7f46607d1ccb4462e8885a7c6ae3dbaad81773"
+  },
+  "frozen_production_sha256": {
+    "verification/s2b_board_jtag.py": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+    "verification/test_s2b_board_jtag.py": "31c195dc402bb41bf37c4b1cbb9c23e9ba959bb2ea70c4c6b7d3bddaa1e51bdb",
+    "vitis/run_s2b_visibility_probe.py": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+    "verification/test_s2b_visibility_probe.py": "58e0a7aadc6691cdeacb956bd336c84bb12373308b52eab715af32e373e835be"
+  },
+  "findings": [
+    {
+      "id": "S1",
+      "severity": "BLOCKER",
+      "file": "tmp/2B/S2B-T19/board_run_20261014_r02/start_owned_server.ps1",
+      "line": 32,
+      "condition": "$taskExpectedCommandLines = @($taskExecutable.FullName + ' -s tcp::3121', '\"' + $taskExecutable.FullName + '\" -s tcp::3121')",
+      "evidence": "PowerShell 7.6.5 evaluates this exact expression as one 145-character item; both legal command-line strings fail membership. Isolated starter mocks for quoted and unquoted forms each exit 1 at line 33 with 子进程身份或命令行不一致. The bad tcp::9999 variant is rejected as expected.",
+      "impact": "A valid owned hw_server process cannot produce OWNED_SERVER_READY, blocking the guarded run before SDK observation.",
+      "closure": "Construct and verify the two expected command-line strings as distinct array elements, then rerun both legal-form mocks and the bad-argument rejection mock against a newly frozen hash."
+    }
+  ],
+  "verified_results": [
+    {
+      "name": "watchdog_r04_offline_matrix",
+      "status": "PASS",
+      "result": "25 isolated scenarios passed their assertions: fast SDK exit with missing result receipt fails and closes the owned server; sampled live SDK without exit code fails, terminates only the mocked owned SDK and closes the server; SDK nonzero and launcher nonzero fail and clean up; malformed/missing/mismatched/failed receipt fields fail; valid all-zero launcher/SDK/entry receipt reports API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING and skips failure cleanup.",
+      "logs": "raw_logs/watchdog_*.stdout.log and corresponding stderr/exit_code files"
+    },
+    {
+      "name": "server_closer_identity_boundary",
+      "status": "PASS",
+      "result": "Mocked matching identity is stopped once; command-line or parent-PID drift is refused before Stop-Process. No real process API was allowed through the harness.",
+      "logs": "raw_logs/server_close_*.stdout.log and corresponding stderr/exit_code files"
+    },
+    {
+      "name": "server_starter_command_line_variants",
+      "status": "FAIL",
+      "result": "Both legal quoted and unquoted command lines are rejected (exit 1); invalid port variant is rejected (exit 0). This is finding S1.",
+      "logs": "raw_logs/server_start_*.stdout.log and corresponding stderr/exit_code files; raw_logs/server_expected_commandline_expression.stdout.log"
+    },
+    {
+      "name": "pa_topology_and_cleanup_focused_tests",
+      "status": "PASS",
+      "result": "10/10 focused offline tests passed, including exact PA topology, public SDK targets() reselection via official-source AST behavior, cleanup against refreshed APU identity, and delayed stack/cancel failure evidence.",
+      "command": "python -B tmp/2B/S2B-T19/pa_review_20261014_luna_r03/run_focused_tests.py",
+      "exit_code": 0,
+      "logs": "raw_logs/focused_tests_elevated.*"
+    },
+    {
+      "name": "candidate_powershell_parse",
+      "status": "PASS",
+      "result": "PowerShell 7.6.5 ParseFile reported zero errors for r04 watchdog, starter, and closer.",
+      "exit_code": 0,
+      "logs": "raw_logs/powershell_parse.json"
+    },
+    {
+      "name": "upstream_inputs_manifest_check",
+      "status": "BLOCKED",
+      "result": "Checker ran and returned exit 2 because the frozen topology delivery manifest records existing dependency FAIL/NOT_RUN rows (including historical sandbox/mock failures and not-run hardware validation). These rows are retained as upstream history and do not establish a failure in this review's current source.",
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/pa_target_topology_20261013_r01/delivery_manifest_r02.json",
+      "exit_code": 2,
+      "logs": "raw_logs/inputs_checker.log"
+    }
+  ],
+  "limitations": [
+    "No real Vitis, SDK, hw_server, serial port, FPGA, or board was operated; all process, WMI, port, start, and stop behavior in launcher tests was mocked.",
+    "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING is software-runner success only; it does not satisfy G3/G4 or prove cold lifecycle behavior.",
+    "The inputs checker is blocked by the referenced upstream manifest's preserved historical failed/not-run checks.",
+    "An initial sandbox PA-test invocation failed from host filesystem access restrictions; the elevated read-only rerun passed 10/10. An earlier SDK-live mock-capture attempt also failed in harness setup; the final corrected mock scenario passed. Both raw attempts remain preserved and are not treated as candidate software failures."
+  ],
+  "diagnostic_attempts": [
+    {
+      "name": "focused_pa_tests_initial_sandbox_run",
+      "status": "ENVIRONMENT_FAILURE",
+      "exit_code": 1,
+      "reason": "Host filesystem access PermissionError; detailed stack in raw_logs/focused_tests.stderr.log."
+    },
+    {
+      "name": "sdk_live_missing_exit_initial_mock_capture",
+      "status": "HARNESS_SETUP_FAILURE",
+      "exit_code": 2,
+      "reason": "Earlier harness capture-scope attempt; corrected final scenario raw_logs/watchdog_sdk_live_missing_exit.stdout.log passed its assertion."
+    }
+  ],
+  "evidence_dir": "report/evidence/S2B-T19/pa_review_20261014_luna_r03",
+  "delivery_manifest": "report/evidence/S2B-T19/pa_review_20261014_luna_r03/delivery_manifest.json",
+  "packaging_checks": {
+    "inputs": {
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/pa_target_topology_20261013_r01/delivery_manifest_r02.json",
+      "status": "CHECKS_FAILED",
+      "exit_code": 2,
+      "interpretation": "被引用的冻结上游清单保留既有FAIL/NOT_RUN依赖状态；此检查没有指出本轮证据目录包装错误。"
+    },
+    "evidence": {
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/pa_review_20261014_luna_r03/delivery_manifest.json",
+      "status": "CHECKS_OK",
+      "exit_code": 0,
+      "interpretation": "首次最终目录核验发现0项包装错误；在将最终核验结果写入manifest后再次对冻结清单复核。"
+    }
+  }
+}

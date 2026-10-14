@@ -1,8 +1,10 @@
 # 项目状态入口
 
-更新：2026-10-13（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-14（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
+
+- 2026-10-14恢复入口：当前HEAD `c8742858fbb23331763358775daa44dafb95db94`。r03扫描链全零、无设备动作；用户重新上电并插牢JTAG后r04恢复四主体，真实PC nvlist、双核停止/系统复位/EOS0与CSR loadhw已返回。官方枚举新增双PA使FPGA ID4→6，原门禁失败；PSinit/PL/app/cache未执行。串口/controller.close返回，但public unloadhw无进度，释放自有服务器PID10788后仍未返回；按精确身份终止SDK PID26300（原生−1），启动器0不代表成功、最终入口收据未写。两包原件及包装核验见`cache_probe_execution_20261013_r03/`、`cache_probe_execution_20261013_r04/`、`board_failure_packaging_20261013_r01/`，evidence0/inputs2。新PA补丁四源已STOP，helper `248779cf…`、入口`e2cf60f0…`；G1最终100项0/127.438秒、79消费者0/27.687秒。独立复审第三轮r03仍为CHANGES_REQUIRED，唯一S1在临时owned-server启动脚本第32行：PowerShell把两种合法命令行合并成单个数组项，quoted/unquoted启动均被拒绝；不能据此启动实板新Run。r04 watchdog 25项mock、PA focused 10/10、closer身份漂移保护及三脚本解析均通过；审查回执SHA `b2e1c765…`，修复回执哈希及归档检查输出后，最终evidence CHECKS_OK/0，清单SHA `16cca20e…`，见`pa_review_20261014_luna_r03/`。inputs2由其引用的历史上游FAIL/NOT_RUN导致。卸载根因仍UNKNOWN，官方Condition等待竞态只是推断，见`unload_diagnostic_audit_20261013_r01/`。保持JTAG，禁止QSPI烧写；visibility1新综合实现/完整109+1000+恢复及G3–G5未完成。
 
 - 2026-10-13第二次实板Run `cache_probe_20261013_r02`入口2/FAILED：system-stop API返回后，CPU1寄存器文本混入异步Stopped通知，PC解析失败；映射、PSinit、下载、UART/cache均未执行，SDK闭合、自有hw_server PID25508已释放。原件`cache_probe_execution_20261013_r02/`保留。修复改为官方rrd nvlist严格单字段int32，并绑定实际CPU接收器；helper SHA `4f69f848…`、入口`2015542a…`。G1最终89项0/120.172秒、79消费者项0/27.922秒；初始权限、测试断言及缺cv2失败原件保留。独立92项0/206.438秒，G2仅软件PC读取，回执`pc_nvlist_review_20261013_r01/review_receipt.json` SHA `ee6cf6fe55daf89225b9746ba4d595fdd26042cc5e1513c9159b1e40edc6bf21`。配置生成器只改helper SHA一次。下一步新Run重试真实CSR/cache；仍未批准visibility1或完整模型/G3–G5。23:16只读COM4身份正常、空闲约5.7GiB、无设备服务；板卡继续JTAG。
 

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "created_at_local": "2026-10-14 23:12:21 +08:00",
+  "working_tree_head": "5b4b140d9540759a6940b339e93278371c06987e",
+  "python_version": "3.12.14",
+  "estimator": {
+    "command": "python -X utf8 -B verification/s2b_memory_request_budget.py --output report/evidence/S2B-T19/request_budget_20261014_r01/summary.json",
+    "native_exit_code": 0,
+    "elapsed_seconds": 0.525143,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "summary_sha256": "116e7e27d358b3a7c16416eb660b2ab010027aefde25113693dcf3211213fe1a"
+  },
+  "lightweight_tests": {
+    "command": "python -X utf8 -B -m unittest verification.test_s2b_memory_request_budget -v",
+    "native_exit_code": 0,
+    "elapsed_seconds": 2.598781,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "75e7ba685563b62fd1cf6a18b162420eee96f5bfe47c19d3510d15715e77bec6",
+    "combined_log": "report/evidence/S2B-T19/request_budget_20261014_r01/test_output.txt",
+    "combined_log_sha256": "fe852bc1b175d65ee14719103732e098a11f33824f9220fb70fa45437e8980fa"
+  },
+  "limitations": [
+    "只执行轻量静态计数和 9 项 unittest；未运行 Vivado、硬件、整网仿真或旧 2A 的 109 样本回归。",
+    "直接读取 T66 原始 execution_record.json 被精确路径缺失阻断；只能用 SHA 绑定的 T68 冻结验收记录间接交叉核对 layer0 数量。",
+    "周期敏感性均为 ASSUMED_NOT_MEASURED；HP 实际响应延迟、CORE_TIMEOUT 与 DRAIN_TIMEOUT 部署值未测。"
+  ]
+}

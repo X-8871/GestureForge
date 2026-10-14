@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "created_at_local": "2026-10-14 23:15:34 +08:00",
+  "command": "python -X utf8 -B -c \"import hashlib,json; from pathlib import Path; from verification.s2b_memory_request_budget import validate_manifest; mp=Path('report/evidence/S2A-T01/tiny416_model_manifest.json'); mr=mp.read_bytes(); sp=Path('report/evidence/S2B-T19/request_budget_20261014_r01/summary.json'); sr=sp.read_bytes(); s=json.loads(sr.decode('utf-8')); tp=Path('verification/s2b_memory_request_budget.py'); th=hashlib.sha256(tp.read_bytes()).hexdigest(); assert hashlib.sha256(mr).hexdigest()==s['model_manifest']['sha256']; assert th==s['budget_tool_source']['sha256']; rows=validate_manifest(json.loads(mr.decode('utf-8'))); assert len(rows)==38; assert sum(row['request_total'] for row in rows)==s['request_accounting']['logical_total']; out={'schema_version':1,'status':'PASS_STATIC_PER_LAYER_BREAKDOWN_FOR_FROZEN_INPUTS','source_commit':s['source_commit'],'model_manifest':s['model_manifest'],'budget_tool_source':s['budget_tool_source'],'summary_sha256':hashlib.sha256(sr).hexdigest(),'layer_count':len(rows),'layers':rows,'totals_by_category':s['totals_by_category'],'padding_and_compute':s['padding_and_compute']}; target=Path('report/evidence/S2B-T19/request_budget_20261014_r01/layer_breakdown.json'); target.open('xb').write((json.dumps(out,ensure_ascii=False,allow_nan=False,indent=2)+'\\n').encode('utf-8'))\"",
+  "native_exit_code": 0,
+  "elapsed_seconds": 0.427377,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "result_path": "report/evidence/S2B-T19/request_budget_20261014_r01/layer_breakdown.json",
+  "result_sha256": "90b524698289fccb2313dbbb3d583dfdd780f5521a1d17fe0e6b9ff00b9a558e",
+  "layer_count": 38,
+  "purpose": "通过预算工具的 validate_manifest 函数投影逐层校验结果；断言逐层请求和等于摘要中的总量。"
+}

@@ -1,0 +1,25 @@
+=== stdout ===
+=== stderr ===
+test_current_maxpool_count_uses_existing_valid_window_helper (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_current_maxpool_count_uses_existing_valid_window_helper)
+冻结 maxpool 的读请求继续调用 2A valid-window 统计 helper。 ... ok
+test_feature_patch_is_loaded_once_across_output_lane_groups (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_feature_patch_is_loaded_once_across_output_lane_groups)
+同一空间 tile 的 feature patch 不因输出通道分组重读。 ... ok
+test_frozen_manifest_has_only_supported_tiny416_operations (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_frozen_manifest_has_only_supported_tiny416_operations)
+完整 frozen descriptor 的层数、字段和几何均在支持集合中。 ... ok
+test_padding_scan_slots_do_not_become_feature_requests (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_padding_scan_slots_do_not_become_feature_requests)
+tile 会扫描 padding 坐标并填零，但只有输入边界内位置请求 HP0。 ... ok
+test_repeating_frozen_stall_vector_preserves_its_phase (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_repeating_frozen_stall_vector_preserves_its_phase)
+精确重复 TB 向量与连续 5.6 平均成本场景分别给出。 ... ok
+test_t66_layer0_matches_sha_bound_acceptance_reference (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_t66_layer0_matches_sha_bound_acceptance_reference)
+从真实 layer0 descriptor 复算并与 T68 SHA 绑定记录交叉核对。 ... ok
+test_unknown_manifest_field_is_rejected (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_unknown_manifest_field_is_rejected)
+descriptor 新增字段必须先扩展已审计的支持范围。 ... ok
+test_upsample_reads_once_for_every_output_element (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_upsample_reads_once_for_every_output_element)
+2× nearest-repeat scheduler 每个输出坐标都发起一次源查询。 ... ok
+test_weight_bytes_repeat_for_each_spatial_tile (verification.test_s2b_memory_request_budget.MemoryRequestBudgetTests.test_weight_bytes_repeat_for_each_spatial_tile)
+卷积权重按空间 tile 重读，尾部 lane group 只计有效输出通道。 ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.400s
+
+OK

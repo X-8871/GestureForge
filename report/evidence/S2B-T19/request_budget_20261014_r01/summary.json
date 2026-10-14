@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "status": "PASS_STATIC_REQUEST_BUDGET_FOR_FROZEN_INPUTS",
+  "scope": "成功完成一帧、未发生异常中止时的静态逻辑 HP0 请求数量；不表示运行周期、部署超时或板上通过。",
+  "source_commit": "5b4b140d9540759a6940b339e93278371c06987e",
+  "model_manifest": {
+    "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+  },
+  "budget_tool_source": {
+    "path": "verification/s2b_memory_request_budget.py",
+    "sha256": "ea9281731ee0df12263e30ac352816ccb6fbfae68f4b6690d17eac13318b08cd"
+  },
+  "budget_test_source": {
+    "path": "verification/test_s2b_memory_request_budget.py",
+    "sha256": "1df8ddba6c6f034ba7f782f316cb550f82bdb561b0e5487a4de4a4a232a558fd"
+  },
+  "current_logic_sources": [
+    {
+      "path": "src/s2a_conv_tile_engine.sv",
+      "sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa"
+    },
+    {
+      "path": "src/s2a_maxpool_engine.sv",
+      "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7"
+    },
+    {
+      "path": "src/s2a_route_engine.sv",
+      "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44"
+    },
+    {
+      "path": "src/s2a_upsample_engine.sv",
+      "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b"
+    },
+    {
+      "path": "src/s2a_network_backend.sv",
+      "sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55"
+    },
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+    },
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf"
+    },
+    {
+      "path": "src/s2b_maxpool_engine.sv",
+      "sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e"
+    },
+    {
+      "path": "src/s2b_maxpool_geometry.sv",
+      "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9"
+    },
+    {
+      "path": "src/s2b_route_engine.sv",
+      "sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d"
+    },
+    {
+      "path": "src/s2b_route_query.sv",
+      "sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68"
+    },
+    {
+      "path": "src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b"
+    },
+    {
+      "path": "src/s2b_network_backend.sv",
+      "sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "verification/test_s2a_conv_tile_cycle_budget.py",
+      "sha256": "142d1eb31853c5a35aa84f10715d0a4dc59152cf9d3f83f3b0f96c29a5a2f405"
+    }
+  ],
+  "operation_counts": {
+    "convolutional": 21,
+    "route": 11,
+    "maxpool": 3,
+    "upsample": 1,
+    "yolo": 2
+  },
+  "request_accounting": {
+    "lane_mode": "single_byte_lane",
+    "logical_reads": 84753811,
+    "logical_writes": 11382150,
+    "logical_total": 96135961,
+    "physical_read_single_beat_transactions": 84753811,
+    "physical_write_single_beat_transactions": 11382150,
+    "physical_single_beat_transactions": 96135961,
+    "physical_mapping": "当前引擎逐字节读取使用 one-hot rstrb，逐字节写入使用 one-hot wstrb；adapter ARLEN/AWLEN=0，byte read ARSIZE=0，每个单字节逻辑请求对应一个物理 single-beat。写 beat 的 AWSIZE 为 4-byte transfer size，但仅 one-hot WSTRB lane 生效。这不是一般 word/burst/coalescing 结论。",
+    "includes": [
+      "每个非 YOLO 层输出写",
+      "每空间 tile 重复权重读",
+      "每 tile 有效 feature patch 读",
+      "upsample 每个输出元素一次源读"
+    ],
+    "excludes": [
+      "padding 坐标的 HP0 读（仅扫描并填零）",
+      "YOLO alias 读写",
+      "异常停止后的未完成后缀"
+    ]
+  },
+  "totals_by_category": {
+    "feature": 7969043,
+    "weight": 69732736,
+    "maxpool": 2422784,
+    "route": 4542720,
+    "upsample": 86528,
+    "write": 11382150,
+    "mac_group_taps": 424506368
+  },
+  "old_100044902_reconciliation": {
+    "old_total": 100044902,
+    "current_total": 96135961,
+    "old_minus_current": 3908941,
+    "components": {
+      "feature": {
+        "old": 75798528,
+        "current": 7969043,
+        "old_minus_current": 67829485,
+        "reason": "旧估算把完整输入 tensor 按输出 lane group 重复计数；当前按 8×8 F patch 有效边界每 tile 只读一次。"
+      },
+      "weight": {
+        "old": 5877088,
+        "current": 69732736,
+        "old_minus_current": -63855648,
+        "reason": "旧估算每层只读一次权重；当前引擎每个空间 tile 重读对应输出通道权重。"
+      },
+      "maxpool": {
+        "old": 2422784,
+        "current": 2422784,
+        "old_minus_current": 0,
+        "reason": "复用冻结 maxpool valid-window 统计 helper。"
+      },
+      "route": {
+        "old": 4542720,
+        "current": 4542720,
+        "old_minus_current": 0,
+        "reason": "每个 route 输出元素对应一次源读。"
+      },
+      "upsample": {
+        "old": 21632,
+        "current": 86528,
+        "old_minus_current": -64896,
+        "reason": "旧估算按输入大小读一次；当前引擎每个输出坐标发起一次源查询。"
+      },
+      "non_yolo_writes": {
+        "old": 11382150,
+        "current": 11382150,
+        "old_minus_current": 0,
+        "reason": "逐层输出 tensor 字节数；YOLO alias 不写。"
+      }
+    },
+    "legacy_source": {
+      "path": "verification/test_s2a_conv_tile_cycle_budget.py",
+      "sha256": "142d1eb31853c5a35aa84f10715d0a4dc59152cf9d3f83f3b0f96c29a5a2f405"
+    }
+  },
+  "padding_and_compute": {
+    "patch_scan_slots_all_convolution_tiles": 8285836,
+    "padding_scan_slots_not_read": 316793,
+    "mac_group_taps": 424506368,
+    "mac_group_taps_meaning": "ceil(Cout/8) × Hout × Wout × Cin × Kh × Kw；含 padding tap，按八 lane 输出组计。"
+  },
+  "t66_layer0_cross_check": {
+    "computed_layer0_requests": 2551955,
+    "computed_layer0_writes": 1384448,
+    "frozen_acceptance_report": {
+      "path": "report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md",
+      "sha256": "7c6e8db6eabbeee56c9791398c0d40c56435654e158cc597119e6949b989eb9c"
+    },
+    "raw_execution_record_path": "report/evidence/S2A-T66/candidate999_t66_postfix_retry_20261008/simulation/simulation_execution_record.json",
+    "raw_execution_record_sha256_as_bound_by_acceptance_report": "1b7bb9efcf4dc1f5ef0e920a28e5549888005cc2986e42158fc4adfca8e848b3",
+    "raw_execution_record_available_at_exact_path": false,
+    "direct_raw_record_verification": "BLOCKED_MISSING_LOCAL_FILE",
+    "cross_check": "与 T68 冻结验收记录报告的 T66 layer0 count 相符；原 T66 JSON 未在此工作树的精确路径下提供。",
+    "manual_reproduction": {
+      "tile_grid": "26×26=676",
+      "valid_feature": "Cin×(16+25×17)^2=3×441^2=583443",
+      "weight": "Cout×Cin×Kh×Kw×tiles=32×3×3×3×676=584064",
+      "writes": 1384448,
+      "sum": "583443+584064+1384448=2551955"
+    }
+  },
+  "cycle_sensitivity": {
+    "status": "ASSUMED_NOT_MEASURED",
+    "timeout_counter_max_cycles": 4294967295,
+    "clock_hz": 50000000,
+    "timeout_max_seconds_at_50mhz": "85.899345900",
+    "static_mac_assumption": {
+      "formula": "MAC_group_taps * 2",
+      "cycles": 849012736,
+      "status": "ASSUMED_NOT_MEASURED"
+    },
+    "static_control_assumption": {
+      "formula": "non_yolo_output_bytes * 8 + layer_count * 8",
+      "cycles": 91057504,
+      "status": "ASSUMED_NOT_MEASURED"
+    },
+    "fixed_compute_control_cycles": 940070240,
+    "cycles_left_for_request_path": 3354897055,
+    "average_total_request_cycles_budget": {
+      "exact_numerator": 3354897055,
+      "exact_denominator": 96135961,
+      "decimal": "34.897420488",
+      "includes_assumed_three_cycle_request_base": true,
+      "average_added_wait_cycles_after_three_cycle_base": "31.897420488",
+      "status": "ASSUMED_NOT_MEASURED"
+    },
+    "core_timeout_deployment_value": {
+      "value": null,
+      "status": "NOT_MEASURED"
+    },
+    "drain_timeout_deployment_value": {
+      "value": null,
+      "status": "NOT_MEASURED"
+    },
+    "scenarios": [
+      {
+        "name": "no_added_wait",
+        "assumed_average_total_request_cycles": "3",
+        "estimated_total_cycles": 1228478123,
+        "estimated_seconds_at_50mhz": "24.569562460",
+        "exceeds_uint32_timeout_max": false,
+        "timeout_counter_overflow_count": 0,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "continuous_average_at_frozen_tb_pattern_mean",
+        "assumed_average_total_request_cycles": "5.6",
+        "estimated_total_cycles": 1478431622,
+        "estimated_seconds_at_50mhz": "29.568632440",
+        "exceeds_uint32_timeout_max": false,
+        "timeout_counter_overflow_count": 0,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "old_max_stall_per_request",
+        "assumed_average_total_request_cycles": "10",
+        "estimated_total_cycles": 1901429850,
+        "estimated_seconds_at_50mhz": "38.028597000",
+        "exceeds_uint32_timeout_max": false,
+        "timeout_counter_overflow_count": 0,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "near_budget_under",
+        "assumed_average_total_request_cycles": "34.89",
+        "estimated_total_cycles": 4294253920,
+        "estimated_seconds_at_50mhz": "85.885078400",
+        "exceeds_uint32_timeout_max": false,
+        "timeout_counter_overflow_count": 0,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "near_budget_over",
+        "assumed_average_total_request_cycles": "34.9",
+        "estimated_total_cycles": 4295215279,
+        "estimated_seconds_at_50mhz": "85.904305580",
+        "exceeds_uint32_timeout_max": true,
+        "timeout_counter_overflow_count": 247984,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "integer_cost_over",
+        "assumed_average_total_request_cycles": "35",
+        "estimated_total_cycles": 4304828875,
+        "estimated_seconds_at_50mhz": "86.096577500",
+        "exceeds_uint32_timeout_max": true,
+        "timeout_counter_overflow_count": 9861580,
+        "status": "ASSUMED_NOT_MEASURED"
+      },
+      {
+        "name": "frozen_tb_pattern_periodic_sequence",
+        "stall_pattern_cycles": [
+          0,
+          1,
+          2,
+          7,
+          3
+        ],
+        "assumed_average_total_request_cycles": "5.599999972955",
+        "estimated_total_cycles": 1478431619,
+        "estimated_seconds_at_50mhz": "29.568632380",
+        "exceeds_uint32_timeout_max": false,
+        "timeout_counter_overflow_count": 0,
+        "status": "ASSUMED_NOT_MEASURED",
+        "interpretation": "仅按冻结 TB 向量从请求 0 周期重复，不是板卡 HP latency 记录。"
+      }
+    ],
+    "interpretation": "MAC×2 与 control×8 是历史静态预算假设，不是 RTL 全程周期上界；冻结 TB stall pattern 是测试向量，不是 HP 实际响应延迟。"
+  },
+  "cycle_source_classification": {
+    "frozen_testbench_stall_vector": {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "field": "operator_test_plan.protocol_vectors.memory_stall_cycles",
+      "values": [
+        0,
+        1,
+        2,
+        7,
+        3
+      ],
+      "status": "TB_VECTOR_NOT_HP_MEASUREMENT"
+    },
+    "mac_times_two_and_control_times_eight": "HISTORICAL_STATIC_ASSUMPTIONS_NOT_RTL_UPPER_BOUND",
+    "hp_response_latency": "UNKNOWN_NOT_MEASURED",
+    "core_timeout_and_drain_timeout": "NOT_MEASURED; NOT_WRITTEN_TO_RUNTIME_CONFIG"
+  },
+  "limitations": [
+    "不执行 Vivado、硬件、整网仿真或旧 2A 的 109 样本回归。",
+    "物理事务数基于当前单字节 lane 请求与 adapter 单拍定义；不适用于 word/burst 合并路径。",
+    "T66 原始 execution_record.json 的精确文件路径在当前工作树不存在；只以 SHA 绑定的 T68 冻结验收记录作间接计数交叉核对。",
+    "周期场景全部为 ASSUMED_NOT_MEASURED；没有实测 HP 响应延迟，不能据此宣称部署可行、超时已证明或风险已关闭。",
+    "本交付不冻结 G0，不执行上板；后续 G0、限定探针准入与板上验收仍待总控决策/验证。"
+  ]
+}

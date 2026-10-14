@@ -687,3 +687,13 @@ verification/s15_bitgen_export.tcl -text
 
 # S2B-T01本次审计证据按原始字节保存，避免换行转换破坏SHA-256。
 report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# GP0软件契约审计Run保留原始字节，不执行换行转换；CRLF输入按行尾识别。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r01/** -text whitespace=cr-at-eol
+
+# PATH绑定回归源按原始字节校验，避免Windows检出换行转换改变其证据SHA。
+verification/test_s2b_platform_paths.py -text
+
+# 内存预算回归脚本与测试源码作为原始字节输入，保持其清单SHA。
+verification/s2b_memory_request_budget.py -text
+verification/test_s2b_memory_request_budget.py -text

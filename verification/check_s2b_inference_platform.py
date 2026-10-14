@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import stat
 import sys
@@ -431,20 +432,56 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _is_link_or_reparse(info: os.stat_result) -> bool:
+    """识别符号链接及Windows reparse点。"""
+    reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & reparse_flag)
+
+
+def _exact_file_without_enumeration(current: Path, components: tuple[str, ...]) -> Path:
+    """父目录拒绝枚举时，用逐组件lstat和严格规范路径复核精确名称。"""
+    info = current.lstat()
+    if _is_link_or_reparse(info):
+        raise ValueError(f"拒绝链接路径：{current}")
+    for index, component in enumerate(components):
+        current = current / component
+        info = current.lstat()
+        if _is_link_or_reparse(info):
+            raise ValueError(f"拒绝链接路径：{current}")
+        if index < len(components) - 1 and not stat.S_ISDIR(info.st_mode):
+            raise ValueError(f"路径中间分量不是目录：{current}")
+    if not stat.S_ISREG(info.st_mode):
+        raise ValueError(f"目标不是普通文件：{current}")
+    resolved = current.resolve(strict=True)
+    if os.fspath(resolved) != os.fspath(current):
+        raise ValueError(f"路径分量不存在或大小写不精确：{current}")
+    return current
+
+
 def exact_file(path: Path) -> Path:
-    """逐级核对精确字面名称，拒绝符号链接与大小写改写。"""
+    """逐级核对精确字面名称，拒绝链接；仅在拒绝枚举时使用严格回退。"""
     if not path.is_absolute():
         raise ValueError(f"要求绝对文件路径：{path}")
     current = Path(path.anchor)
-    for part in path.parts[1:]:
-        if part not in [item.name for item in current.iterdir()]:
-            raise ValueError(f"精确路径不存在：{current / part}")
-        current = current / part
+    info = current.lstat()
+    if _is_link_or_reparse(info):
+        raise ValueError(f"拒绝链接路径：{current}")
+    components = path.parts[len(current.parts):]
+    for index, component in enumerate(components):
+        try:
+            exact_name_exists = any(item.name == component for item in current.iterdir())
+        except PermissionError:
+            return _exact_file_without_enumeration(current, components[index:])
+        if not exact_name_exists:
+            raise ValueError(f"精确路径不存在：{current / component}")
+        current = current / component
         info = current.lstat()
-        if current.is_symlink() or (getattr(info, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)):
+        if _is_link_or_reparse(info):
             raise ValueError(f"拒绝链接路径：{current}")
-    if not current.is_file():
-        raise ValueError(f"目标不是文件：{current}")
+        if index < len(components) - 1 and not stat.S_ISDIR(info.st_mode):
+            raise ValueError(f"路径中间分量不是目录：{current}")
+    if not stat.S_ISREG(info.st_mode):
+        raise ValueError(f"目标不是普通文件：{current}")
     return current
 
 

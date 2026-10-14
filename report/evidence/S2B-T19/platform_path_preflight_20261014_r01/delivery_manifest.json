@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "platform_path_preflight_20261014_r01",
+  "source_commit": "b02ea83ee3d40d0b940fdaefe30459f47e23a025",
+  "evidence_dir": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务仅修复静态检查器的受限目录精确路径核验并验证其回归；不消费、冻结或更改任何PS/PL接口。",
+  "tool_versions": {
+    "Python": "3.12.14 (Codex bundled runtime)",
+    "Vivado": "NOT_RUN (本任务明确禁止启动)",
+    "Vitis": "NOT_RUN (本任务明确禁止启动)",
+    "JTAG": "NOT_RUN (本任务明确禁止启动)"
+  },
+  "files": [
+    {
+      "path": "verification/check_s2b_inference_platform.py",
+      "sha256": "dfd64cff1fd5ed8f61961dbde22802a3ba1ed2f0171f0c0327a71503f2b6737e",
+      "role": "source",
+      "keep_reason": "精确路径枚举拒绝时使用的lstat与严格resolve回退实现。"
+    },
+    {
+      "path": "verification/test_s2b_platform_paths.py",
+      "sha256": "42267e6e08f66c00f140aa53f7d37dd454f6458b405113144cb102c13d3243a5",
+      "role": "source",
+      "keep_reason": "路径helper的常规路径、权限注入、大小写及异常路径回归覆盖。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/audit_report.md",
+      "sha256": "64c8d99b53b384a13017555db0365def87486927647ee65949464ef6fbe3a851",
+      "role": "result",
+      "keep_reason": "记录修复范围、源码绑定、命令结果及静态检查限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/platform_preflight.txt",
+      "sha256": "e9fe4655e7f42417cc863996bf77cdbe59d23ca28c45a67d70a802176ed2a800",
+      "role": "log",
+      "keep_reason": "修复后真实静态preflight命令输出、退出码和耗时。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/unit_test_output.txt",
+      "sha256": "0bdd4ec315de48699f86206bfb30680b39092a1c04e77986cf0dc633b23615af",
+      "role": "log",
+      "keep_reason": "路径回归的完整unittest输出，包括Windows权限导致的单项跳过。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/test_source_before_symlink_fixture.py.snapshot",
+      "sha256": "d3a544e5b5f18b2cb33db8d90478a2e8c910c0cfadc19d854f873cda1e35c32d",
+      "role": "input",
+      "keep_reason": "保存符号链接fixture修正前的测试原始字节，绑定首次运行。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/unit_test_output_r02.txt",
+      "sha256": "34d45627640960e92ffadb9cd6132003b30989dda1c2c6c424d8b9052b625b2e",
+      "role": "log",
+      "keep_reason": "保存修正fixture后的11项回归原始输出，不覆盖首次日志。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/platform_path_preflight_20261014_r01/fixture_correction.json",
+      "sha256": "c0141240f56ba99ee5356a30b8e887753123ffb3baaaf6d59a9eb257fbefac5a",
+      "role": "result",
+      "keep_reason": "记录fixture类型错误、修正前后源码哈希及真实执行计数。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "baseline_permission_failure_reproduction",
+      "status": "FAIL",
+      "command": "python -B verification/check_s2b_inference_platform.py --root 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition'",
+      "exit_code": 1,
+      "reason": "修复前真实复现WinError 5：枚举C:\\Users\\22061失败；该结果是本次修复前基线，不是修复后检查失败。"
+    },
+    {
+      "name": "platform_path_unit_tests_initial_fixture",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s2b_platform_paths -v",
+      "exit_code": 0,
+      "reason": "首次11项中10项通过、1项因WinError1314跳过；合成symlink的初始类型fixture有误，本次结果不证明该分支覆盖，修正与复验另见fixture_correction.json及r02检查。"
+    },
+    {
+      "name": "platform_static_preflight",
+      "status": "PASS",
+      "command": "python -B verification/check_s2b_inference_platform.py --root 'C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition'",
+      "exit_code": 0,
+      "reason": "输出PLATFORM_STATIC:OK visibility=0 rtl_sources=18；只证明静态源码检查通过，不证明BD、时序或实板通过。"
+    },
+    {
+      "name": "evidence_directory_validation",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/platform_path_preflight_20261014_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "原生退出码0，CHECKS_OK；只证明清单绑定和证据目录枚举通过。"
+    },
+    {
+      "name": "sdk_vivado_jtag_execution",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "任务明确要求不启动Vitis、Vivado或JTAG；本次仅修改并运行离线路径检查。"
+    },
+    {
+      "name": "platform_path_unit_tests_corrected_fixture_r02",
+      "status": "PASS",
+      "command": "python -X utf8 -B -m unittest verification.test_s2b_platform_paths -v",
+      "exit_code": 0,
+      "reason": "11项中10项通过、1项因WinError1314跳过；S_IFLNK与权限位组成有效link类型，合成link及reparse反例须明确匹配拒绝链接路径原因。"
+    }
+  ],
+  "limitations": [
+    "修复后静态preflight仍报告visibility=0；不证明BD、时序、Vivado构建或实板验证通过。",
+    "当前Windows账户缺少创建符号链接的特权，真实symlink创建测试跳过；回退分支通过合成lstat元数据覆盖符号链接与reparse拒绝逻辑。",
+    "未运行SDK、Vivado、JTAG、综合、仿真或板卡验证。",
+    "CHECKS_OK仅表示清单绑定及运行目录枚举通过，不代表平台、接口或实物验收通过。",
+    "初始synthetic symlink fixture将两种文件类型相或而不是有效link；首次日志和原测试快照保留，r02已修正类型与异常原因断言并复验。"
+  ]
+}

@@ -8,7 +8,7 @@
 - AX7020实物器件为 XC7Z020-2CLG400I，Vivado part为 xc7z020clg400-2，时序按 -2。Wong于2026-10-14明确确认此前照片中的同一块板也是该型号；旧XA解读不再作为身份冲突或部署阻断。
 - 本轮实际Vivado查询唯一匹配XC7Z020/CLG400/-2，主XPR项目、综合、实现三个字段及visibility=1会话均匹配。当前事实入口为 board/README.md；厂商原件目录 D:\FPGA\AX7Z020\AX7Z020 保持只读。
 - 分支 codex/stage2b-t01-board-audit；器件事实文档提交 b02ea83，最近已完成PS重新构建与封装提交 37c4b840977e727b6504d83b803da3358f89040e。恢复时以 git rev-parse HEAD 为准。
-- Wong已授权本阶段必要的易失PL/PS下载、DDR模型装载与板上验证；不含QSPI等非易失烧写。2026-10-15用户说明板卡已插上。当前主机未见Vivado/Vitis/XSDB/Python/hw_server进程，3121无监听；PnP/CIM枚举被拒，COM4/JTAG在线及占用尚未证明。旧owned hw_server PID27580已退出；下次硬件操作前重新核验设备身份、端口所有者和工具会话。
+- Wong已授权本阶段必要的易失PL/PS下载、DDR模型装载与板上验证；不含QSPI等非易失烧写。2026-10-15用户说明板卡已插上。当前只读快照：无活动Vivado会话、Vivado/Vitis/XSDB/xsct/hw_server/Python进程或3121监听；`pnputil /enum-devices /class Ports /connected`确认CP210x状态Started、COM4、实例ID `USB\VID_10C4&PID_EA60\d02e61162787ed11a536569f9d1cc348`，但PowerShell PnP/CIM查询仍拒绝访问，JTAG目标尚未重新枚举。旧owned hw_server PID27580已退出；实际板测前重新核验设备、端口所有者和工具会话。
 
 ## 已完成与证据
 

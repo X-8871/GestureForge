@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "model_qualification_entry_20261015_r01",
+  "source_commit": "17065255a01032a77ccd4d296c03bf13a8630632",
+  "evidence_dir": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本Run只验证离线单样本资格入口和mock失败清理，不冻结物理接口；正式物理接口文档仍为候选态，G0与独立审查尚未通过。",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "fef2aa5b137eccf4e3c15dae7e9dd7d5ca9fff9d207180db6730073805a0fa7b",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_model_qualification_entry.py",
+      "sha256": "d24a5d6eb41b2488f00b1fd350f8ab75a73161c4ff3c8b1ffbc80a75652b3bd3",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01/execution_record.json",
+      "sha256": "88e6ff281c41590ebc3773d0ed361a29e02867c4f8937d872a4636cf74eb57c2",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01/entry_tests_d1.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01/entry_tests_d1.stderr.txt",
+      "sha256": "64d05a932c51151bea61037ebb5cf68199d794b30f2b82d367b021e722082e60",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01/entry_tests.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/model_qualification_entry_20261015_r01/entry_tests.stderr.txt",
+      "sha256": "d511f206903ab973a39cea23d800301406860945d9545ec6472207a77218708d",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "D1专用入口测试（13项）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -X utf8 -B -m unittest verification.test_s2b_model_qualification_entry -v",
+      "exit_code": 0
+    },
+    {
+      "name": "证据包只读核验",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/model_qualification_entry_20261015_r01/delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "125项相关runner回归",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本D1未重复运行耗时套件。先前交接摘要提及125项和309.198秒，但没有找到对应原始执行记录，故不作为正式验证声明；同一摘要报告test_frozen_native_c_decoder_against_all_109因ModuleNotFoundError: No module named 'cv2'环境ERROR，原始完整日志不可得，本Run未复验该错误。"
+    },
+    {
+      "name": "G0可信资格输入和部署期限",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "可信Reviewer原件、G0/COLD依据与CORE/DRAIN实测期限锚缺失；正式周期界限为85.89934590秒且core/drain为NOT_MEASURED，硬件执行保持关闭。"
+    },
+    {
+      "name": "G2独立审查",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "D1修复待总控冻结后独立复审；本Run不自报审查通过。"
+    },
+    {
+      "name": "G3板上验证",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本Run仅mock和离线测试，未访问板卡、XSDB或串口。"
+    },
+    {
+      "name": "G4任务验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "G0、G2和G3均未完成，不能判定任务验收。"
+    },
+    {
+      "name": "G5阶段验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本离线入口修复不代表阶段2B完成；完整阶段验收未运行。"
+    }
+  ],
+  "limitations": [
+    "测试共13项，包含--help/import隔离、字段边界、伪造Reviewer、G0/COLD与timeout依据、UART timeout传值、只读preflight、无硬件BLOCKED、单次请求失败、串口构造前运行失败及资源清理异常；全部通过。",
+    "新增mock失败路径在TCF session.connect之后、串口构造之前注入异常；结果状态为FAILED，hardware_attempted=true，native_exit_code=2，并核验控制器关闭、CSR map清理、session断开与SDK dispose。该路径未触碰真实硬件。",
+    "未配置可信Reviewer/G0/COLD/CORE-DRAIN锚。可信锚不能从config自报role/status放行；未来应由独立G0/G2依据在非循环的外部控制记录中固定Reviewer原件摘要，再由总控绑定该锚，不把脚本内None常量视为可信来源。",
+    "物理接口候选文档明确core/drain部署值为NOT_MEASURED；最大32-bit计数@50MHz为85.89934590秒。未测周期不由任意config值或软件等待替代；真实硬件路径保持BLOCKED。",
+    "response_timeout_seconds固定为450秒，仅作为UART响应观察超时传给JtagWireSession；不替代或延长PL core/drain周期期限。",
+    "历史125项/309.198秒相关套件无本Run可核验原始执行记录，不作为正式验证结论；历史摘要所报cv2缺失ERROR未重跑、未伪装为通过。",
+    "delivery checker的CHECKS_OK只确认清单与本Run文件绑定通过，不表示G0/G2/G3/G4/G5或阶段2B验收通过。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  }
+}

@@ -836,7 +836,9 @@ def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, env
         job.root_pid = int(info.dwProcessId)
         job.root_birth_ticks = int(birth_ticks)
         job.root_identity = dict(identity)
-        job._verify_ready_membership()
+        suspended_membership = job._verify_suspended_root_membership(
+            info.hProcess, int(info.dwProcessId), birth_ticks, identity,
+        )
         before_resume_pids = job.pid_list()
         before_resume_accounting = job.accounting()
         if before_resume_pids != (int(info.dwProcessId),) or before_resume_accounting["active_processes"] != 1:
@@ -855,6 +857,7 @@ def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, env
             "pid": int(info.dwProcessId),
             "job_pids": list(before_resume_pids),
             "accounting": before_resume_accounting,
+            "suspended_root_membership": suspended_membership,
             "job_limit_flags": flags,
             "monotonic_seconds": time.monotonic(),
         })
@@ -976,7 +979,17 @@ class JobObject:
             error = _win_error("SetInformationJobObject(ExtendedLimitInformation)")
             self.close()
             raise error
-        self.flags = self.query_limit_flags()
+        try:
+            self.flags = self.query_limit_flags()
+        except BaseException as primary:
+            try:
+                self.close()
+            except BaseException as cleanup:
+                raise GateBlocked(
+                    "初始Job限制读回失败且Job HANDLE清理失败："
+                    f"primary={primary!r}; cleanup={cleanup!r}"
+                ) from primary
+            raise
         if self.flags != flags or self.flags & (0x00000800 | 0x00001000):
             self.close()
             raise GateBlocked(f"Job限制标志读回不符：0x{self.flags:08x}")
@@ -1162,6 +1175,80 @@ class JobObject:
         self._verify_ready_membership()
         self._ready_token_consumed = True
         return receipt
+
+    def _verify_suspended_root_membership(
+        self, root_process_handle, root_pid, root_birth_ticks, root_identity,
+    ):
+        """在未恢复的direct root上核验HANDLE身份与稳定单成员Job。"""
+        root_pid = int(root_pid)
+        root_birth_ticks = int(root_birth_ticks)
+        if self.closed or not self.handle:
+            raise GateBlocked("挂起root成员核验需要有效Job句柄")
+        if (
+            not root_process_handle
+            or self.root_pid != root_pid
+            or self.root_birth_ticks != root_birth_ticks
+            or not _identity_equal(self.root_identity, root_identity)
+        ):
+            raise GateBlocked("挂起root的PID、出生时刻或六字段身份未绑定到当前Job")
+        root = self.member_handles.get((root_pid, root_birth_ticks))
+        if root is None:
+            raise GateBlocked("挂起root缺少已登记的Job成员身份句柄")
+
+        previous = None
+        previous_accounting = None
+        for _ in range(8):
+            _assert_handle_identity(
+                root_process_handle, root_pid, root_birth_ticks, root_identity,
+            )
+            _assert_handle_identity(
+                root["handle"], root_pid, root_birth_ticks, root["identity"],
+            )
+            if not _api_is_process_in_job(root_process_handle, self.handle):
+                raise GateBlocked("挂起root原始HANDLE不属于当前Job")
+            if not _api_is_process_in_job(root["handle"], self.handle):
+                raise GateBlocked("挂起root成员HANDLE不属于当前Job")
+            root_wait = _api_wait(root_process_handle, 0)
+            if root_wait != WAIT_TIMEOUT:
+                raise GateBlocked(f"ResumeThread前root未保持挂起存活状态：wait={root_wait}")
+
+            pids = tuple(self.pid_list())
+            accounting = self.accounting()
+            if pids != (root_pid,) or accounting["active_processes"] != 1:
+                raise GateBlocked(
+                    "挂起root的Job成员不是唯一root："
+                    f"pids={pids}, accounting={accounting}"
+                )
+            state = (pids, accounting["active_processes"])
+            if state == previous:
+                _assert_handle_identity(
+                    root_process_handle, root_pid, root_birth_ticks, root_identity,
+                )
+                if not _api_is_process_in_job(root_process_handle, self.handle):
+                    raise GateBlocked("稳定单成员读回后root原始HANDLE失去Job归属")
+                final_wait = _api_wait(root_process_handle, 0)
+                if final_wait != WAIT_TIMEOUT:
+                    raise GateBlocked(f"稳定单成员读回后root不再保持挂起：wait={final_wait}")
+                return {
+                    "root_pid": root_pid,
+                    "root_birth_ticks": root_birth_ticks,
+                    "stable_singleton_reads": 2,
+                    "first": {
+                        "job_pids": list(previous[0]),
+                        "active_processes": previous[1],
+                        "accounting": previous_accounting,
+                    },
+                    "second": {
+                        "job_pids": list(pids),
+                        "active_processes": accounting["active_processes"],
+                        "accounting": accounting,
+                    },
+                    "root_wait_before_resume": WAIT_TIMEOUT,
+                }
+            previous = state
+            previous_accounting = accounting
+            time.sleep(0.05)
+        raise GateBlocked("挂起root的Job单成员状态未连续稳定读回")
 
     def _verify_ready_membership(self):
         previous = None

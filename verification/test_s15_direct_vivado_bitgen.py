@@ -170,6 +170,77 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         with self.assertRaises(job_guard.GateBlocked):
             job_guard._decode_job_pid_list(struct.pack("<II", 0, 0), 16)
 
+    def test_constructor_query_failure_and_bad_size_close_job_without_launch(self):
+        run_dir = _new_run_dir("job_constructor_query_cleanup")
+        original_create_job = job_guard.kernel32.CreateJobObjectW
+        original_close = job_guard._api_close_handle
+        cases = (
+            ("api_failure", job_guard.JobGuardError),
+            ("size_mismatch", job_guard.GateBlocked),
+        )
+        receipts = []
+        for label, expected_error in cases:
+            created_handles = []
+            closed_handles = []
+
+            def create_job(*args):
+                handle = original_create_job(*args)
+                created_handles.append(int(handle))
+                return handle
+
+            def close_job(handle):
+                result = bool(original_close(handle))
+                closed_handles.append({"handle": int(handle), "closed": result})
+                return result
+
+            def query_failure_or_bad_size(handle, info_class, info, size, returned):
+                self.assertIn(int(handle), created_handles)
+                self.assertEqual(job_guard.JOB_OBJECT_EXTENDED_LIMIT_INFORMATION, info_class)
+                value = ctypes.cast(
+                    returned, ctypes.POINTER(job_guard.wintypes.DWORD),
+                ).contents
+                if label == "api_failure":
+                    ctypes.set_last_error(job_guard.ERROR_ACCESS_DENIED)
+                    return False
+                value.value = int(size) - 1
+                return True
+
+            try:
+                with (
+                    mock.patch.object(job_guard.kernel32, "CreateJobObjectW", side_effect=create_job),
+                    mock.patch.object(job_guard.kernel32, "QueryInformationJobObject",
+                                      side_effect=query_failure_or_bad_size),
+                    mock.patch.object(job_guard, "_api_close_handle", side_effect=close_job),
+                    mock.patch.object(job_guard, "_api_create_process") as create_process,
+                    mock.patch.object(job_guard, "_api_resume_thread") as resume_thread,
+                ):
+                    with self.assertRaises(expected_error) as caught:
+                        job_guard.JobObject(kill_on_close=True)
+                    create_process.assert_not_called()
+                    resume_thread.assert_not_called()
+            finally:
+                for handle in created_handles:
+                    if not any(row["handle"] == handle and row["closed"] for row in closed_handles):
+                        original_close(handle)
+
+            self.assertEqual(1, len(created_handles))
+            self.assertEqual(
+                [{"handle": created_handles[0], "closed": True}], closed_handles,
+            )
+            receipts.append({
+                "case": label,
+                "exception": type(caught.exception).__name__,
+                "created_job_handle": created_handles[0],
+                "closed_handles": closed_handles,
+                "process_create_called": False,
+                "resume_thread_called": False,
+            })
+        _write_json(run_dir / "fixture_result.json", {
+            "status": "PASS_JOB_CONSTRUCTOR_QUERY_FAILURE_CLEANUP",
+            "run_directory": str(run_dir),
+            "cases": receipts,
+        })
+
     def test_real_create_suspended_assign_resume_and_exit_closure(self):
         run_dir = _new_run_dir("real_lifecycle")
         marker = run_dir / "resumed.marker"
@@ -242,6 +313,58 @@ class DirectSpawnFixtureTests(unittest.TestCase):
                     pass
             elif not job.closed:
                 job.close()
+
+    def test_suspended_root_ignores_pid_only_historical_descendants(self):
+        run_dir = _new_run_dir("suspended_root_stale_ppid")
+        environment = _minimal_fixture_environment()
+        cases = (
+            ("historical_pid", {"return_value": {26112}}),
+            ("access_denied", {"side_effect": job_guard.JobGuardError(
+                "OpenProcess(pid=26112) 失败：WinError 5")}),
+        )
+        receipts = []
+        for label, descendants_behavior in cases:
+            marker = run_dir / f"{label}.marker"
+            executable, argv = _fixture_argv(marker, 0)
+            job = job_guard.JobObject(kill_on_close=True)
+            child = None
+            try:
+                with mock.patch.object(
+                    job_guard, "descendants", **descendants_behavior,
+                ) as descendants:
+                    child = job_guard.launch_suspended_root(
+                        job, executable, argv, cwd=str(ROOT), environment=environment,
+                    )
+                    descendants.assert_not_called()
+                pre_resume = next(
+                    row for row in child.events
+                    if row.get("event") == "PRE_RESUME_CLOSED"
+                )
+                proof = pre_resume["suspended_root_membership"]
+                self.assertEqual([child.pid], proof["first"]["job_pids"])
+                self.assertEqual([child.pid], proof["second"]["job_pids"])
+                self.assertEqual(1, proof["first"]["active_processes"])
+                self.assertEqual(1, proof["second"]["active_processes"])
+                self.assertEqual(2, proof["stable_singleton_reads"])
+                closure = child.wait_and_close(timeout_seconds=10.0)
+                child = None
+                self.assertEqual(0, closure["final"]["active_processes"])
+                self.assertEqual(0, closure["final"]["root_native_handle_exit_code"])
+                self.assertTrue(marker.exists())
+                receipts.append({"case": label, "proof": proof, "closure": closure})
+            finally:
+                if child is not None and not child.closed:
+                    try:
+                        child._close_all()
+                    except BaseException:
+                        pass
+                elif not job.closed:
+                    job.close()
+        _write_json(run_dir / "fixture_result.json", {
+            "status": "PASS_SUSPENDED_ROOT_PID_ONLY_DESCENDANT_ISOLATION",
+            "run_directory": str(run_dir),
+            "cases": receipts,
+        })
 
     def test_cmd_batch_fixture_preserves_arguments_exit_code_and_job_descendant_closure(self):
         run_dir = _new_run_dir("cmd_batch_fixture")
@@ -657,10 +780,10 @@ class DirectSpawnFixtureTests(unittest.TestCase):
         executable, argv = _fixture_argv(marker, 0)
         job = job_guard.JobObject(kill_on_close=True)
 
-        def fail_membership(_self):
+        def fail_membership(_self, *_args):
             raise job_guard.GateBlocked("fixture注入稳定成员集合不闭合")
 
-        with mock.patch.object(job_guard.JobObject, "_verify_ready_membership", fail_membership):
+        with mock.patch.object(job_guard.JobObject, "_verify_suspended_root_membership", fail_membership):
             with self.assertRaises(job_guard.SuspendedRootError) as caught:
                 job_guard.launch_suspended_root(job, executable, argv, cwd=str(ROOT))
         error = caught.exception

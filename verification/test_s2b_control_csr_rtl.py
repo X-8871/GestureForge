@@ -164,7 +164,7 @@ def run(work: Path, evidence: Path, toolchain: Path, report: dict) -> None:
         [str(verilator), "--version"], cwd=work, env=env, text=True, timeout=30).strip()}
     report["tool_files"] = [{"path": str(p), "sha256": sha(p)}
         for p in (verilator, tools_dir / "g++.exe", make_dir / "make.exe")]
-    compile_command = [str(verilator), "--binary", "--timing", "--timescale", "1ns/1ps", "-Wall",
+    compile_command = [str(verilator), "--binary", "--timing", "--timescale", "1ns/1ps", "-Wall", "--output-groups", "8",
         "-j", "1", "--threads", "1", "--top-module", "tb_s2b_control_csr", "--Mdir", "obj_dir",
         "-MAKEFLAGS", "PYTHON3='\"" + sys.executable + "\"'", "-CFLAGS", "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
         *["source/" + Path(p).name for p in SOURCES if p.endswith(".sv")]]

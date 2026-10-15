@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T13",
+  "run_id": "platform_current_20261016_r01",
+  "source_commit": "c9ce89d08578b690c85966136f7674a79893b59c",
+  "evidence_dir": "report/evidence/S2B-T13/platform_current_20261016_r01",
+  "interfaces": [
+    {
+      "name": "s2b-physical-candidate/0.1.2",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+    }
+  ],
+  "files": [
+    {
+      "path": "board/s2b_inference_platform.json",
+      "sha256": "1e19f9ebf52365abac6ed81667bf9d941781c743ed1cfc953a8545c16bb348e8",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "board/ps_platform_fields.json",
+      "sha256": "182bfa003bd3d2d9a997a09ccae9b35e97c67375eb39712724f9d3d2dfb9bfdf",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "vivado/s2b_inference_platform.tcl",
+      "sha256": "700a02ff3e6f515e3f53a90d17abde2fd3be3ed9c85e928887a54f0652d86949",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "vivado/s2b_ps_platform.tcl",
+      "sha256": "2be7961f03a69f624c8c4da0bbfabe9a3a54c743a656909eb3117f4724c06556",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "verification/check_s2b_inference_platform.py",
+      "sha256": "8e8f910155e47d10df9a7a81af96b335c7c85514c8a7c4cf28da5b5d8eb30837",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "role": "source",
+      "keep_reason": "绑定本次离线平台候选构建与静态核验所消费的当前源码。"
+    },
+    {
+      "path": "report/evidence/S2B-T13/platform_current_20261016_r01/attempt.json",
+      "sha256": "5e582381c291f027924589c3fed100657bdd74658b357407c2bc9a503925d19d",
+      "role": "result",
+      "keep_reason": "保留本次运行结构化结果及失败或限制记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T13/platform_current_20261016_r01/vivado_session.log",
+      "sha256": "3296a4678fda1dd9053cc447c821648d0c41a1d163ab0811ee0ed058898c759f",
+      "role": "log",
+      "keep_reason": "保留本次真实Vivado或系统命令输出，供复核退出状态和原始信息。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "run_path_preflight",
+      "status": "FAIL",
+      "command": "Vivado Tcl ::s2b_inference_platform::run for platform_current_20261016_r01",
+      "exit_code": 1,
+      "reason": "前置路径核验因RunId父目录不存在而停止；未创建Vivado工程、BD或XSA。"
+    },
+    {
+      "name": "offline_bd_xsa_candidate_build",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "路径预检失败后没有进入BD/XSA重建。"
+    },
+    {
+      "name": "platform_g0_freeze",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "物理接口仍为0.1.2候选，实际DDR料号及PCB/电源/时序绑定和当前版本G0独立结论未完成。"
+    }
+  ],
+  "limitations": [
+    "该RunId保留真实路径预检失败；不代表Vivado构建或接口通过。",
+    "工具版本与源码绑定见清单；实际DDR操作、综合、实现和板卡操作均未执行。"
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 SW Build 6511674 IP Build 6504888",
+    "Vivado Python": "3.13.0",
+    "check_stage_delivery": "schema_version 1"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "board_readonly_20261016_r02",
+  "source_commit": "c9ce89d08578b690c85966136f7674a79893b59c",
+  "evidence_dir": "report/evidence/S2B-T19/board_readonly_20261016_r02",
+  "interfaces": [],
+  "files": [
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "role": "source",
+      "keep_reason": "绑定本次证据目录和文件哈希核验所用的仓库交付检查器。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r02/assessment.md",
+      "sha256": "7104e0cd87c93ecf6d80b9d9e0b354c33ee5de915a93068609d72c3150984066",
+      "role": "result",
+      "keep_reason": "保留本次运行结构化结果及失败或限制记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r02/board_readonly_result.json",
+      "sha256": "ac6dd0a597e9c22b654a594146afac4660d4b5d765a1acebbcb7ac26b52f3c41",
+      "role": "result",
+      "keep_reason": "保留本次运行结构化结果及失败或限制记录。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r02/pnputil_ports.txt",
+      "sha256": "5dc509dc5f212c6f7725da88fb7d00dfd5bcd45f7ecde9c8d90eb5e45bc1fc6a",
+      "role": "log",
+      "keep_reason": "保留本次真实Vivado或系统命令输出，供复核退出状态和原始信息。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r02/local_process_snapshot.txt",
+      "sha256": "6ce1184c58266c5d78d98459b7c141f1edb628bb93930eb30eb37bece5bf577a",
+      "role": "result",
+      "keep_reason": "保留Vivado后续全局服务进程名查询的原始观察及归属限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r02/vivado_session.log",
+      "sha256": "d95f9246e095055325d78e055de54f06aaf967aea95e7075c039132319fed358",
+      "role": "log",
+      "keep_reason": "保留本次真实Vivado或系统命令输出，供复核退出状态和原始信息。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "uart_bridge_presence",
+      "status": "PASS",
+      "command": "pnputil /enum-devices /class Ports /connected",
+      "exit_code": 0,
+      "reason": "本次枚举到Silicon Labs CP210x USB-UART桥COM4，状态Started；未打开串口或发送字节。"
+    },
+    {
+      "name": "jtag_target_and_device_readonly",
+      "status": "PASS",
+      "command": "open_hw_manager; connect_hw_server -url localhost:3121; get_hw_targets; open_hw_target; get_hw_devices; get_property NAME PART IDCODE_HEX IR_LENGTH UNKNOWN_DEVICE",
+      "exit_code": 0,
+      "reason": "Vivado 2026.1枚举Digilent target 210512180081及arm_dap_0/xc7z020_1；FPGA IDCODE_HEX=23727093。"
+    },
+    {
+      "name": "vivado_session_close_confirmation",
+      "status": "BLOCKED",
+      "command": "Get-Process -Name vivado,hw_server,cs_server -ErrorAction SilentlyContinue",
+      "exit_code": null,
+      "reason": "全局进程名快照在采样时未发现这些进程，但无法按工作树归属，也无法解释交接记录中曾活动的PID 25196与采样时刻关系，故不能确认特定会话退出。"
+    },
+    {
+      "name": "full_fpga_orderable_part_confirmation",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "JTAG对象不提供封装、速度和温度等级属性；完整型号XC7Z020-2CLG400I继续采用用户确认，不由该读回独立证明。"
+    },
+    {
+      "name": "uart_functional_test",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次仅枚举COM4；尚未核对电平/引脚/协议，也未打开串口。"
+    },
+    {
+      "name": "ps_ddr_model_programming",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次只读探针未运行PS初始化、DDR访问、PL下载或模型。DDR实装料号及板级对应关系仍待确认。"
+    },
+    {
+      "name": "g0_g3_model_acceptance",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次证据仅覆盖设备可见性；G0和适用G3未通过，100样本黄金比对与1000次连续任务未执行。"
+    }
+  ],
+  "limitations": [
+    "JTAG PART/IDCODE不证明封装、速度等级、温度等级或PCB版次。",
+    "COM4枚举不证明UART电气或协议可用。",
+    "DDR暂定料号MT41K256M16TW-107尚未得到厂家确认；未执行DDR初始化、训练或读写。",
+    "本次没有加载PL bitstream、运行PS、tiny416模型、黄金比对或连续任务，不构成G3/G4/G5。",
+    "全局进程名快照未发现vivado/hw_server/cs_server，但无法关联工作树或证明特定会话退出，相关确认保持BLOCKED。"
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 SW Build 6511674 IP Build 6504888",
+    "hw_server": "v2026.1",
+    "pnputil": "Windows PnP Utility",
+    "check_stage_delivery": "schema_version 1"
+  },
+  "interfaces_not_applicable_reason": "本次仅只读查询USB-UART设备节点和JTAG器件身份，没有加载或验证PS/PL总线接口。"
+}

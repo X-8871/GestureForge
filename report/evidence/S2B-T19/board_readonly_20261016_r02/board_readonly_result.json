@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19",
+  "run_id": "board_readonly_20261016_r02",
+  "source_commit": "c9ce89d08578b690c85966136f7674a79893b59c",
+  "observation_window_local": {
+    "timezone": "Asia/Shanghai",
+    "captured_at": "2026-10-16T02:41:19+08:00",
+    "vivado_session_id": "vivado-20261016-023049-33ee2ed9"
+  },
+  "tool_versions": {
+    "vivado": "2026.1 SW Build 6511674 IP Build 6504888",
+    "hw_server": "v2026.1",
+    "windows_pnp_utility": "pnputil"
+  },
+  "serial_enumeration": {
+    "command": "pnputil /enum-devices /class Ports /connected",
+    "exit_code": 0,
+    "device": {
+      "instance_id": "USB\\VID_10C4&PID_EA60\\d02e61162787ed11a536569f9d1cc348",
+      "description": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+      "class": "Ports",
+      "status": "Started",
+      "driver": "oem81.inf"
+    },
+    "port_opened": false,
+    "functional_uart_test": "NOT_RUN"
+  },
+  "jtag_enumeration": {
+    "target_count": 1,
+    "target": "localhost:3121/xilinx_tcf/Digilent/210512180081",
+    "devices": [
+      {
+        "name": "arm_dap_0",
+        "part": "arm_dap",
+        "idcode_hex": "4BA00477",
+        "ir_length": 4,
+        "unknown_device": false
+      },
+      {
+        "name": "xc7z020_1",
+        "part": "xc7z020",
+        "idcode_hex": "23727093",
+        "ir_length": 6,
+        "unknown_device": false
+      }
+    ],
+    "tcl_command": "open_hw_manager; connect_hw_server -url localhost:3121; set ts [get_hw_targets]; puts \"TARGET_COUNT=[llength $ts]\"; foreach t $ts {puts \"TARGET=$t\"}; set t [lindex $ts 0]; if {$t eq \"\"} {error \"NO_TARGET\"}; open_hw_target $t; set ds [get_hw_devices]; puts \"DEVICE_COUNT=[llength $ds]\"; foreach d $ds {puts \"DEVICE=$d\"; foreach p {NAME PART VARIANT_NAME IDCODE_HEX IR_LENGTH UNKNOWN_DEVICE} {if {[catch {set v [get_property $p $d]}]} {set v \"<unavailable>\"}; puts \"$p=$v\"}}; close_hw_target; disconnect_hw_server; close_hw_manager",
+    "exit_code": 0,
+    "full_user_part": "XC7Z020-2CLG400I",
+    "full_user_part_independently_confirmed": false
+  },
+  "programming_actions": {
+    "pl_bitstream_downloaded": false,
+    "ps_initialization_run": false,
+    "ddr_read_or_write": false,
+    "qspi_or_nonvolatile_write": false,
+    "program_hw_devices_called": false
+  },
+  "limitations": [
+    "JTAG只读属性返回PART=xc7z020与IDCODE 23727093，不含封装、速度或温度等级；完整型号仍以用户确认及后续板级资料为准。",
+    "COM4只确认CP210x桥已枚举；未打开UART，也未验证电平、引脚或协议。",
+    "用户暂定DDR料号MT41K256M16TW-107尚未按实际芯片丝印及厂家回复确认；未执行PS初始化、DDR训练、读写或模型运行。",
+    "本次没有加载PL bitstream或PS初始化文件，没有黄金样本比对或连续任务；G0、G3、G4、G5仍未通过。",
+    "查询期间Vivado为本会话启动本地hw_server与cs_server；Tcl执行了close_hw_target、disconnect_hw_server和close_hw_manager，未独立核查服务进程最终退出状态。"
+  ]
+}

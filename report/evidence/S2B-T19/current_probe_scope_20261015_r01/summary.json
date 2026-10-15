@@ -1,0 +1,1114 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-current-probe-static-scope/1.0.0",
+  "role": "DEVELOPER_EVIDENCE",
+  "created_at": "2026-10-15T14:35:25.868240+08:00",
+  "status": "STATIC_SCOPE_PASS_AWAITING_INDEPENDENT_REVIEW",
+  "command": [
+    "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "report/evidence/S2B-T19/current_probe_scope_20261015_r01/audit_current_probe.py",
+    "--collect"
+  ],
+  "native_exit_code": 0,
+  "elapsed_seconds_before_output": 2.1100000000001273,
+  "repeat_count": 2,
+  "collection_attempts": [
+    {
+      "fixed_baseline": "6e75eca59274444fa66d81465dbc03a8aab6f276",
+      "native_exit_code": 1,
+      "stdout": "",
+      "stderr": "{\"status\": \"BLOCKED\", \"error\": \"采集HEAD不等于固定基线\"}\n",
+      "reason": "共享HEAD已推进为本Run当前基线；门禁在任何摘要输出前停止。"
+    },
+    {
+      "fixed_baseline": "37c4b840977e727b6504d83b803da3358f89040e",
+      "native_exit_code": 0,
+      "reason": "当前基线重新采集，摘要和清单首次独占创建。"
+    }
+  ],
+  "peak_memory": "未测",
+  "audit": {
+    "scope": "visibility0_cache_probe_only",
+    "source_commit": "37c4b840977e727b6504d83b803da3358f89040e",
+    "checks": {
+      "same_ps7_config": true,
+      "same_ps_init_bytes": true,
+      "same_bsp_mmu_macros": true,
+      "same_uart_ddr_csr_clocks": true,
+      "full_model_core_present": true,
+      "postroute_timing_pass": true
+    },
+    "facts": {
+      "same_ps7_config": {
+        "parameter_count": 937,
+        "all_names_and_values_equal": true,
+        "canonical_sha256": "0480e1fcd143a3bbc712dde275d1a3102fd812d6e6d26b50b30582cb031a5bbc"
+      },
+      "same_ps_init_bytes": {
+        "ps7_init.c": {
+          "sha256": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+          "bytes": 335957
+        },
+        "ps7_init.h": {
+          "sha256": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+          "bytes": 3792
+        },
+        "ps7_init.html": {
+          "sha256": "e7273545a2e0c51c58e2818a58a5729b08f9b65ab41a009497a218c3c54c2c7f",
+          "bytes": 1940460
+        },
+        "ps7_init.tcl": {
+          "sha256": "059e4a9cee4121c5d47e28f86a1213a8277a0e50c8919be1ee9013ce5899d94b",
+          "bytes": 26573
+        },
+        "ps7_init_gpl.c": {
+          "sha256": "e96167b9317bf9723a29b717d82dcaff91d1bcb62e421256992f47a720f3e9d1",
+          "bytes": 336574
+        },
+        "ps7_init_gpl.h": {
+          "sha256": "10d682e5bd16bfc11504f8862b88fee6a2654b39871eb74b4b594d8d91cf2f83",
+          "bytes": 4410
+        }
+      },
+      "same_bsp_mmu_macros": {
+        "no_USE_AMP_in_bsp_commands": true,
+        "cpu_id": 0,
+        "NORM_WB_CACHE": "0x15de6",
+        "DEVICE_MEMORY": "0xc06",
+        "elf_tables": {
+          "app_elf": {
+            "address": 1114112,
+            "bytes": 16384,
+            "sha256": "c2495f07ae193b7ff2b6abe72344094e14928ee5bcc12ed08019607c15a7d2c9",
+            "arena_all_32_sections_wb_shareable": true,
+            "arena_no_second_alias_in_actual_startup_table": true,
+            "csr_startup_descriptor": "0x43c00c02",
+            "uart_startup_descriptor": "0xe0000c06"
+          },
+          "init_elf": {
+            "address": 16384,
+            "bytes": 16384,
+            "sha256": "c2495f07ae193b7ff2b6abe72344094e14928ee5bcc12ed08019607c15a7d2c9",
+            "arena_all_32_sections_wb_shareable": true,
+            "arena_no_second_alias_in_actual_startup_table": true,
+            "csr_startup_descriptor": "0x43c00c02",
+            "uart_startup_descriptor": "0xe0000c06"
+          }
+        },
+        "csr_device_retag_in_actual_app": true,
+        "bsp_reused_from_compiled_xsa": true,
+        "comparison_scope": "复用同一CPU0 BSP及同一ELF，结合937项PS/地址/时钟完全一致；未生成vis0新BSP。"
+      },
+      "same_uart_ddr_csr_clocks": {
+        "bsp_macros": {
+          "XPAR_UART1_BASEADDR": 3758100480,
+          "XPAR_UART1_HIGHADDR": 3758104575,
+          "XPAR_UART1_CLOCK_FREQ": 100000000,
+          "XPAR_INFER_BASEADDR": 1136656384,
+          "XPAR_INFER_HIGHADDR": 1136721919,
+          "XPAR_PS7_DDR_0_BASEADDRESS": 1048576,
+          "XPAR_PS7_DDR_0_HIGHADDRESS": 1073741823
+        },
+        "all_hwh_memranges_equal": true,
+        "hwh_memranges": [
+          {
+            "ADDRESSBLOCK": "HP0_DDR_LOWOCM",
+            "BASENAME": "C_BASEADDR",
+            "BASEVALUE": "0x00000000",
+            "HIGHNAME": "C_HIGHADDR",
+            "HIGHVALUE": "0x3FFFFFFF",
+            "INSTANCE": "ps7",
+            "IS_DATA": "TRUE",
+            "IS_INSTRUCTION": "TRUE",
+            "MASTERBUSINTERFACE": "M_AXI",
+            "MEMTYPE": "MEMORY",
+            "SLAVEBUSINTERFACE": "S_AXI_HP0"
+          },
+          {
+            "ADDRESSBLOCK": "reg0",
+            "BASENAME": "C_BASEADDR",
+            "BASEVALUE": "0x43C00000",
+            "HIGHNAME": "C_HIGHADDR",
+            "HIGHVALUE": "0x43C0FFFF",
+            "INSTANCE": "infer",
+            "IS_DATA": "TRUE",
+            "IS_INSTRUCTION": "TRUE",
+            "MASTERBUSINTERFACE": "M_AXI_GP0",
+            "MEMTYPE": "REGISTER",
+            "SLAVEBUSINTERFACE": "S_AXI"
+          }
+        ],
+        "uart": "UART1/MIO48..49/115200/100MHz",
+        "pl_clock_hz": 50000000
+      },
+      "full_model_core_present": {
+        "rtl_source_count": 18,
+        "rtl_sha256": {
+          "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+          "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+          "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+          "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+          "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+          "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+          "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+          "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1"
+        },
+        "git_source_comparison": {
+          "src/s2a_network_descriptor_pkg.sv": {
+            "git_blob_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+            "runtime_bytes_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+            "raw_bytes_equal": false,
+            "only_line_endings_differ": true,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_maxpool_geometry.sv": {
+            "git_blob_sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+            "runtime_bytes_sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/int8_maxpool_window.sv": {
+            "git_blob_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+            "runtime_bytes_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_route_query.sv": {
+            "git_blob_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+            "runtime_bytes_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/int8_upsample_query.sv": {
+            "git_blob_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+            "runtime_bytes_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_conv_tile_engine.sv": {
+            "git_blob_sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+            "runtime_bytes_sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_maxpool_engine.sv": {
+            "git_blob_sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+            "runtime_bytes_sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_route_engine.sv": {
+            "git_blob_sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+            "runtime_bytes_sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_upsample_engine.sv": {
+            "git_blob_sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+            "runtime_bytes_sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_network_backend.sv": {
+            "git_blob_sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+            "runtime_bytes_sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_memory_master.sv": {
+            "git_blob_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+            "runtime_bytes_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_runtime_shell.sv": {
+            "git_blob_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+            "runtime_bytes_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_stage2b_core.sv": {
+            "git_blob_sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+            "runtime_bytes_sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_control_csr.sv": {
+            "git_blob_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+            "runtime_bytes_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_request_guard.sv": {
+            "git_blob_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+            "runtime_bytes_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_hp0_word_adapter.sv": {
+            "git_blob_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+            "runtime_bytes_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_control_csr.sv": {
+            "git_blob_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+            "runtime_bytes_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_inference_top.sv": {
+            "git_blob_sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+            "runtime_bytes_sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          }
+        },
+        "source_sha256_for_entry": {
+          "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+          "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+          "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+          "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+          "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+          "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+          "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+          "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+          "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+          "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+          "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+          "vivado/s2b_inference_platform.tcl": "ea6f1556de0033838b85e25d0bc99b8535ee0f0192573b232b60cbe3dc5fd3af",
+          "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+          "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+          "board/s2b_inference_platform.md": "5068a611fafffe49602f3fdffd6debb97cf6f3c9777ac945ed5b075b7a0d7133",
+          "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+          "verification/check_s2b_inference_platform.py": "dfd64cff1fd5ed8f61961dbde22802a3ba1ed2f0171f0c0327a71503f2b6737e",
+          "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6"
+        },
+        "vis0_source_commit": "f38bf9e557e05a15636ee2d571b4523668d04260",
+        "vis1_source_commit": "f92823f0bd577a49db543868f44c4f63b670d8e0",
+        "both_xsa_full_model_module": true,
+        "synth_hierarchy_full_backend_present": true,
+        "compiled_visibility": 1,
+        "implemented_visibility": 0,
+        "embedded_bit_matches_selected_bit": true
+      },
+      "postroute_timing_pass": {
+        "setup_max": {
+          "worst_slack_ns": 0.03,
+          "total_negative_slack_ns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 15393,
+          "pulse_width_slack_ns": 8.87,
+          "pulse_failing_endpoints": 0,
+          "pulse_total_endpoints": 4369
+        },
+        "hold_min": {
+          "worst_slack_ns": 0.08,
+          "total_negative_slack_ns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 15393,
+          "pulse_width_slack_ns": 8.87,
+          "pulse_failing_endpoints": 0,
+          "pulse_total_endpoints": 4369
+        },
+        "clock_period_ns": 20.0,
+        "routing_errors": 0,
+        "routed_nets": 28621
+      }
+    },
+    "entry_contract": {
+      "COMPAT_CHECKS": [
+        "full_model_core_present",
+        "postroute_timing_pass",
+        "same_bsp_mmu_macros",
+        "same_ps7_config",
+        "same_ps_init_bytes",
+        "same_uart_ddr_csr_clocks"
+      ],
+      "ARTIFACT_KEYS": [
+        "app_elf",
+        "bit",
+        "build_details",
+        "compiled_xsa",
+        "implemented_xsa",
+        "init_elf",
+        "platform_manifest"
+      ],
+      "receipt_not_created": true,
+      "final_runtime_config_not_created": true
+    },
+    "current_build_preflight": {
+      "status": "PASS",
+      "function": "verify_build",
+      "reason": "只读构建绑定检查通过；未调用运行入口或硬件。"
+    },
+    "current_build_source_drift": {},
+    "bound_artifacts_without_platform_manifest": {
+      "compiled_xsa": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility1_timing_current_20261014_r01\\artifacts\\s2b_inference_wrapper_current.xsa",
+        "sha256": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065"
+      },
+      "implemented_xsa": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility0_hp_rebuild_20261014_r02\\s2b_inference_implemented_r02.xsa",
+        "sha256": "7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238"
+      },
+      "bit": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility0_hp_rebuild_20261014_r02\\s2b_inference_implemented_r02.bit",
+        "sha256": "4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e"
+      },
+      "app_elf": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r02\\infer.elf",
+        "sha256": "a436634e803cd6990a108e9d00b23a13a4e039149d0e413e450faca1daf67f2d"
+      },
+      "init_elf": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r02\\init.elf",
+        "sha256": "978a0970d49f4afe4341fde7887e7f3d31b1aacb24f3b9e6511d96276a2e1b3a"
+      },
+      "build_details": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r02\\build_details.json",
+        "sha256": "1e0be142b53f047e763b20be4632bcb31a25721c3f78a03683e70f42d95fdc67"
+      }
+    },
+    "new_elf_gp0_static_migration": {
+      "status": "PASS_STATIC_ONLY",
+      "sample_count": 31,
+      "samples": [
+        {
+          "address": 1048576,
+          "section": ".text",
+          "file_offset": 4096,
+          "bytes_hex": "310000ea",
+          "word": "0xea000031",
+          "assembly": "b 1000cc <_boot>",
+          "purpose": "入口向量跳到启动代码"
+        },
+        {
+          "address": 1048916,
+          "section": ".text",
+          "file_offset": 4436,
+          "bytes_hex": "0100c0e3",
+          "word": "0xe3c00001",
+          "assembly": "bic r0, r0, #1",
+          "purpose": "启动代码先清SCTLR.M"
+        },
+        {
+          "address": 1049124,
+          "section": ".text",
+          "file_offset": 4644,
+          "bytes_hex": "e8019fe5",
+          "word": "0xe59f01e8",
+          "assembly": "ldr r0, [pc, #488] ; 100414 <finished+0x54>",
+          "purpose": "读取TTBR0表基址字面量"
+        },
+        {
+          "address": 1049132,
+          "section": ".text",
+          "file_offset": 4652,
+          "bytes_hex": "100f02ee",
+          "word": "0xee020f10",
+          "assembly": "mcr 15, 0, r0, cr2, cr0, {0}",
+          "purpose": "写TTBR0"
+        },
+        {
+          "address": 1049136,
+          "section": ".text",
+          "file_offset": 4656,
+          "bytes_hex": "0000e0e3",
+          "word": "0xe3e00000",
+          "assembly": "mvn r0, #0",
+          "purpose": "构造全域访问控制值"
+        },
+        {
+          "address": 1049140,
+          "section": ".text",
+          "file_offset": 4660,
+          "bytes_hex": "100f03ee",
+          "word": "0xee030f10",
+          "assembly": "mcr 15, 0, r0, cr3, cr0, {0}",
+          "purpose": "写域访问控制寄存器"
+        },
+        {
+          "address": 1049144,
+          "section": ".text",
+          "file_offset": 4664,
+          "bytes_hex": "d8019fe5",
+          "word": "0xe59f01d8",
+          "assembly": "ldr r0, [pc, #472] ; 100418 <finished+0x58>",
+          "purpose": "读取SCTLR配置字面量"
+        },
+        {
+          "address": 1049148,
+          "section": ".text",
+          "file_offset": 4668,
+          "bytes_hex": "100f01ee",
+          "word": "0xee010f10",
+          "assembly": "mcr 15, 0, r0, cr1, cr0, {0}",
+          "purpose": "启动路径写SCTLR"
+        },
+        {
+          "address": 1049152,
+          "section": ".text",
+          "file_offset": 4672,
+          "bytes_hex": "4ff07ff5",
+          "word": "0xf57ff04f",
+          "assembly": "dsb sy",
+          "purpose": "SCTLR写后DSB"
+        },
+        {
+          "address": 1049156,
+          "section": ".text",
+          "file_offset": 4676,
+          "bytes_hex": "6ff07ff5",
+          "word": "0xf57ff06f",
+          "assembly": "isb sy",
+          "purpose": "SCTLR写后ISB"
+        },
+        {
+          "address": 1049400,
+          "section": ".text",
+          "file_offset": 4920,
+          "bytes_hex": "5f0000ea",
+          "word": "0xea00005f",
+          "assembly": "b 1004bc <_start>",
+          "purpose": "MMU初始化后进入_start"
+        },
+        {
+          "address": 1049620,
+          "section": ".text",
+          "file_offset": 5140,
+          "bytes_hex": "00001100",
+          "word": "0x00110000",
+          "assembly": ".word 0x00110000",
+          "purpose": "TTBR0表基址字面量"
+        },
+        {
+          "address": 1049624,
+          "section": ".text",
+          "file_offset": 5144,
+          "bytes_hex": "05100000",
+          "word": "0x00001005",
+          "assembly": ".word 0x00001005",
+          "purpose": "SCTLR配置字面量：M/C/I置位"
+        },
+        {
+          "address": 1053216,
+          "section": ".text",
+          "file_offset": 8736,
+          "bytes_hex": "1f00d3e7",
+          "word": "0xe7d3001f",
+          "assembly": "bfc r0, #0, #20",
+          "purpose": "MMU属性函数清除地址低20位"
+        },
+        {
+          "address": 1053224,
+          "section": ".text",
+          "file_offset": 8744,
+          "bytes_hex": "010080e1",
+          "word": "0xe1800001",
+          "assembly": "orr r0, r0, r1",
+          "purpose": "合成section描述符属性"
+        },
+        {
+          "address": 1053232,
+          "section": ".text",
+          "file_offset": 8752,
+          "bytes_hex": "020183e7",
+          "word": "0xe7830102",
+          "assembly": "str r0, [r3, r2, lsl #2]",
+          "purpose": "写MMU页表描述符"
+        },
+        {
+          "address": 1053252,
+          "section": ".text",
+          "file_offset": 8772,
+          "bytes_hex": "4ff07ff5",
+          "word": "0xf57ff04f",
+          "assembly": "dsb sy",
+          "purpose": "MMU属性更新后DSB"
+        },
+        {
+          "address": 1053256,
+          "section": ".text",
+          "file_offset": 8776,
+          "bytes_hex": "6ff07ff5",
+          "word": "0xf57ff06f",
+          "assembly": "isb sy",
+          "purpose": "MMU属性更新后ISB"
+        },
+        {
+          "address": 1052648,
+          "section": ".text",
+          "file_offset": 8168,
+          "bytes_hex": "104f01ee",
+          "word": "0xee014f10",
+          "assembly": "mcr 15, 0, r4, cr1, cr0, {0}",
+          "purpose": "实际应用启用DCache"
+        },
+        {
+          "address": 1096724,
+          "section": ".text",
+          "file_offset": 52244,
+          "bytes_hex": "0030a0e3",
+          "word": "0xe3a03000",
+          "assembly": "mov r3, #0",
+          "purpose": "CSR读取样例设置基址低位"
+        },
+        {
+          "address": 1096732,
+          "section": ".text",
+          "file_offset": 52252,
+          "bytes_hex": "c03344e3",
+          "word": "0xe34433c0",
+          "assembly": "movt r3, #17344 ; 0x43c0",
+          "purpose": "CSR读取样例形成0x43c00000"
+        },
+        {
+          "address": 1096744,
+          "section": ".text",
+          "file_offset": 52264,
+          "bytes_hex": "0c4093e5",
+          "word": "0xe593400c",
+          "assembly": "ldr r4, [r3, #12]",
+          "purpose": "CSR+0x0c的32-bit load样例"
+        },
+        {
+          "address": 1097492,
+          "section": ".text",
+          "file_offset": 53012,
+          "bytes_hex": "00c0a0e3",
+          "word": "0xe3a0c000",
+          "assembly": "mov ip, #0",
+          "purpose": "CSR写入样例设置基址低位"
+        },
+        {
+          "address": 1097500,
+          "section": ".text",
+          "file_offset": 53020,
+          "bytes_hex": "c0c344e3",
+          "word": "0xe344c3c0",
+          "assembly": "movt ip, #17344 ; 0x43c0",
+          "purpose": "CSR写入样例形成0x43c00000"
+        },
+        {
+          "address": 1097584,
+          "section": ".text",
+          "file_offset": 53104,
+          "bytes_hex": "14008ce5",
+          "word": "0xe58c0014",
+          "assembly": "str r0, [ip, #20]",
+          "purpose": "CSR+0x14的32-bit store样例"
+        },
+        {
+          "address": 1097588,
+          "section": ".text",
+          "file_offset": 53108,
+          "bytes_hex": "4ff07ff5",
+          "word": "0xf57ff04f",
+          "assembly": "dsb sy",
+          "purpose": "CSR写入后的DSB样例"
+        },
+        {
+          "address": 1099104,
+          "section": ".text",
+          "file_offset": 54624,
+          "bytes_hex": "0000a0e3",
+          "word": "0xe3a00000",
+          "assembly": "mov r0, #0",
+          "purpose": "实际调用前清零CSR_BASE低位"
+        },
+        {
+          "address": 1099108,
+          "section": ".text",
+          "file_offset": 54628,
+          "bytes_hex": "061c00e3",
+          "word": "0xe3001c06",
+          "assembly": "movw r1, #3078 ; 0xc06",
+          "purpose": "实际调用DEVICE_MEMORY参数低半字"
+        },
+        {
+          "address": 1099112,
+          "section": ".text",
+          "file_offset": 54632,
+          "bytes_hex": "c00344e3",
+          "word": "0xe34403c0",
+          "assembly": "movt r0, #17344 ; 0x43c0",
+          "purpose": "实际调用CSR_BASE高半字"
+        },
+        {
+          "address": 1099116,
+          "section": ".text",
+          "file_offset": 54636,
+          "bytes_hex": "29d3ffeb",
+          "word": "0xebffd329",
+          "assembly": "bl 101218 <xil_settlbattributes>",
+          "purpose": "实际调用CSR Device属性设置"
+        },
+        {
+          "address": 1099120,
+          "section": ".text",
+          "file_offset": 54640,
+          "bytes_hex": "96d2ffeb",
+          "word": "0xebffd296",
+          "assembly": "bl 100fd0 <xil_dcacheenable>",
+          "purpose": "实际调用DCache启用函数"
+        }
+      ],
+      "elf_sha256": "a436634e803cd6990a108e9d00b23a13a4e039149d0e413e450faca1daf67f2d",
+      "elf_sections": {
+        ".text": {
+          "index": 1,
+          "type": 1,
+          "flags": 6,
+          "address": 1048576,
+          "offset": 4096,
+          "size": 54948,
+          "align": 64,
+          "entry_size": 0,
+          "link": 0,
+          "info": 0
+        },
+        ".mmu_tbl": {
+          "index": 6,
+          "type": 1,
+          "flags": 2,
+          "address": 1114112,
+          "offset": 65536,
+          "size": 16384,
+          "align": 1,
+          "entry_size": 0,
+          "link": 0,
+          "info": 0
+        },
+        ".s2b_tensor_ddr": {
+          "index": 15,
+          "type": 8,
+          "flags": 3,
+          "address": 268435456,
+          "offset": 86016,
+          "size": 33554432,
+          "align": 64,
+          "entry_size": 0,
+          "link": 0,
+          "info": 0
+        }
+      },
+      "runtime_comparison_recomputed_equal": true,
+      "infer_difference_classification": {
+        "text": {
+          "kind": "GNU_NT_GNU_BUILD_ID_NOTE_DESCRIPTOR",
+          "header_hex": "040000001400000003000000474e5500",
+          "section_note_offset": 54912,
+          "descriptor_bytes": 20,
+          "different_byte_count": 20,
+          "all_other_text_bytes_equal": true
+        },
+        "rodata": {
+          "kind": "THREE_UARTPS_SOURCE_PATH_RUN_ID_BYTES",
+          "old_run_component": "t19_visibility1_20261014_r01",
+          "new_run_component": "t19_visibility1_20261014_r02",
+          "occurrences": 3,
+          "exact_replacement_matches_all_rodata_bytes": true
+        },
+        "limit": "该分类只解释两份绑定ELF的差异；新的GP0软件契约适用性仍须另行独立复核。"
+      },
+      "startup_sctlr_literal": "0x1005",
+      "startup_mmu_c_i_enabled": true,
+      "csr_device_attribute": "0xc06",
+      "evidence_reason": "31word覆盖启动MMU/TTBR0/SCTLR、CSR Device重标记、标量LDR/STR及DSB；全.text差异仅20字节GNU build-id，全部有长度函数原字节/地址/长度一致。",
+      "dynamic_cpu_preconditions_observed": false,
+      "actual_gp0_axlen_observed": false
+    },
+    "historical_blockers_preserved": {
+      "old_build_runtime_preflight": {
+        "status": "BLOCKED",
+        "function": "verify_build",
+        "reason": "构建源码与当前运输/应用版本不同",
+        "sdk_uart_hardware_access": false
+      },
+      "old_build_source_drift": {
+        "verification/s2b_board_transport.py": {
+          "compiled_sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+          "current_sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+        }
+      },
+      "upstream_original_checks": {
+        "visibility0": [
+          {
+            "name": "source-provenance",
+            "status": "PASS",
+            "command": "git cat-file -e 'f38bf9e557e05a15636ee2d571b4523668d04260^{commit}'; compare the committed and working-tree blob IDs for vivado/s2b_inference_platform.tcl; confirm bound RTL/Tcl paths are clean",
+            "exit_code": 0,
+            "reason": "HEAD 为 f38bf9e557e05a15636ee2d571b4523668d04260；平台创建时 HEAD 为 48d595a51c58d4f042f9049bddc3c548bd530cc0，但当时 vivado/s2b_inference_platform.tcl 的 SHA-1=d7b9b2196b2205ace184eea65b80c3775968b9df，精确等于后来提交 f38bf9e 的该文件 blob；完整综合、实现及 bitgen 在 f38bf9e 提交后运行。清单绑定所有 18 个 RTL、平台 Tcl、PS Tcl 与平台核验脚本 SHA-256。"
+          },
+          {
+            "name": "visibility0-platform-export",
+            "status": "PASS",
+            "command": "Vivado 2026.1 ROSS: ::s2b_inference_platform::run {repo_root} {project_dir} {evidence_dir} {ipcfg.tcl} {vivado.log}",
+            "exit_code": 0,
+            "reason": "真实 ROSS 命令 0 退出；生成并审计 visibility0 XSA。原始 helper capture 失败与重核收据均保留；导出回执 PRODUCTS:OK、0 error、0 critical warning，记录 2 个普通 warning。"
+          },
+          {
+            "name": "full-synthesis",
+            "status": "PASS",
+            "command": "launch_runs synth_1 -jobs 1; wait_on_run synth_1",
+            "exit_code": 0,
+            "reason": "Vivado 2026.1 synth_1 完成；约 9m50s，0 error、0 critical warning、10 ordinary warning。层级利用率报告将 OOC IP 计入：18,200 LUT、4,157 FF、32 RAMB36、145 DSP。"
+          },
+          {
+            "name": "routed-implementation",
+            "status": "PASS",
+            "command": "launch_runs impl_1 -jobs 1; wait_on_run impl_1",
+            "exit_code": 0,
+            "reason": "impl_1 全新实现至 route_design 成功；router 28,621 个 routable nets 全部 fully routed、0 routing errors。峰值内存 2,262.117 MiB；设备与约束为 xc7z020clg400-2、FCLK0 50 MHz。"
+          },
+          {
+            "name": "postroute-timing",
+            "status": "PASS",
+            "command": "report_timing_summary -delay_type max/min -check_timing_verbose; check_timing -verbose",
+            "exit_code": 0,
+            "reason": "20.000 ns/50 MHz 约束下 setup WNS=+0.030 ns、TNS=0、0/15,393 endpoint failing；hold WHS=+0.080 ns、THS=0、0/15,393 failing；pulse-width slack=+8.870 ns、0/4,369 failing；check_timing 的 no_clock、unconstrained endpoint、no_input_delay 与 no_output_delay 均为 0。裕量很小。"
+          },
+          {
+            "name": "routed-drc-methodology",
+            "status": "PASS",
+            "command": "report_route_status; report_drc; report_methodology",
+            "exit_code": 0,
+            "reason": "route_status 为 28,621/28,621 fully routed、0 routing errors；routed DRC 有 0 error，但保留 389 条 DSP48 pipeline warning（DPIP-1=114、DPOP-1=138、DPOP-2=137）；methodology 检查为 0。警告提示性能/功耗余地，未做 DSP 加深管线整改。"
+          },
+          {
+            "name": "managed-bitgen",
+            "status": "PASS",
+            "command": "launch_runs impl_1 -to_step write_bitstream -jobs 1; wait_on_run impl_1",
+            "exit_code": 0,
+            "reason": "Vivado 托管 impl_1 write_bitstream 完成，0 warning、0 critical warning、0 error。产物 s2b_inference_implemented_r02.bit SHA-256=4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e。"
+          },
+          {
+            "name": "implemented-platform-xsa",
+            "status": "PASS",
+            "command": "write_hw_platform -fixed -include_bit -force s2b_inference_implemented_r02.xsa",
+            "exit_code": 0,
+            "reason": "XSA 创建成功，SHA-256=7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238；zipfile.testzip() 返回 None，13 个成员；xsa.json 标记 part xc7z020clg400-2、speedGrade -2。XSA 嵌入 bit SHA 与受管 impl_1 bit 完全相同。"
+          },
+          {
+            "name": "independent-direct-bit-comparison",
+            "status": "PASS",
+            "command": "bytewise compare direct write_bitstream, impl_1 output, and the bit member embedded in the implemented XSA",
+            "exit_code": 0,
+            "reason": "3 个 bitstream 均 4,045,776 bytes；impl_1 位流与 XSA 内嵌位流逐字节一致。较早独立位流只在 offset 202、205 两个 bitstream header 时间字符不同，完整保留但不选作下载文件。"
+          },
+          {
+            "name": "g0-input-freeze",
+            "status": "BLOCKED",
+            "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json --project-root C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition",
+            "exit_code": null,
+            "reason": "适用的 S2B PS/PL 物理接口文档仍声明 CANDIDATE_NOT_FROZEN。该离线 build/bitstream 不等于接口 G0 冻结或允许据此宣称实板 G3/G4。"
+          },
+          {
+            "name": "check-stage-delivery-evidence",
+            "status": "PASS",
+            "command": "runpy.run_path('verification/check_stage_delivery.py'); check_manifest('evidence', 'report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json', project_root)",
+            "exit_code": 0,
+            "reason": "Vivado bundled Python 3.13.0 通过 ROSS ipcfg::python_exec 执行 schema-v1 evidence 检查，返回 CHECKS_OK，0 errors、0 warnings；当前目录 67 个文件全部与清单 SHA-256 一致。此包装核验不代表 G0/G4/G5 或实物验收。"
+          }
+        ],
+        "visibility1": [
+          {
+            "name": "当前HEAD源码内容绑定与隔离工程副本",
+            "status": "PASS",
+            "command": "18个XPR RTL源按CRLF转LF后与Git HEAD逐一比较；快照原始字节SHA-256单独绑定；在独立tmp RunId副本中运行",
+            "exit_code": 0,
+            "reason": "源码基线f92823f0bd577a49db543868f44c4f63b670d8e0；18个RTL经换行符归一化后内容一致。s2a_network_descriptor_pkg.sv快照保留Vivado读取的CRLF字节，原始SHA、Git blob SHA及blob OID见run_summary.json；其余17个文件字节一致。18个SystemVerilog源文件及平台Tcl均随证据保存。"
+          },
+          {
+            "name": "OOC及顶层综合",
+            "status": "PASS",
+            "command": "launch_runs synth_1 -jobs 1; wait_on_run synth_1",
+            "exit_code": 0,
+            "reason": "infer OOC与top synth_design均成功且0 error；warning数量与类别见run_summary.json及原始日志。"
+          },
+          {
+            "name": "50MHz routed setup/hold/pulse-width",
+            "status": "PASS",
+            "command": "report_timing_summary -max_paths 10 -routable_nets -report_unconstrained -warn_on_violation",
+            "exit_code": 0,
+            "reason": "routed WNS +0.229ns、TNS 0、setup失败0；WHS +0.095ns、THS 0、hold失败0；WPWS +8.870ns，所有用户约束通过。"
+          },
+          {
+            "name": "时序覆盖、methodology与路由连通",
+            "status": "PASS",
+            "command": "report_timing_summary -report_unconstrained; report_methodology; report_route_status",
+            "exit_code": 0,
+            "reason": "12类check_timing计数均为0；methodology 0 finding；28,858/28,858 routable nets fully routed，routing errors 0。"
+          },
+          {
+            "name": "实现DRC",
+            "status": "PASS",
+            "command": "report_drc -file s2b_inference_wrapper_drc_routed.rpt",
+            "exit_code": 0,
+            "reason": "无Error；392条均为DSP输入或输出寄存器流水性能建议，分类计数和原报告已保存。"
+          },
+          {
+            "name": "位流生成",
+            "status": "PASS",
+            "command": "launch_runs impl_1 -to_step write_bitstream -jobs 1; wait_on_run -timeout 2 impl_1",
+            "exit_code": 0,
+            "reason": "impl_1 write_bitstream Complete；预生成DRC 0 error，0 warning，0 critical warning。"
+          },
+          {
+            "name": "含位流XSA导出及一致性",
+            "status": "PASS",
+            "command": "write_hw_platform -fixed -include_bit -force <current-run-xsa>",
+            "exit_code": 0,
+            "reason": "XSA生成成功，内部唯一bit成员与独立.bit逐字节哈希相同。"
+          },
+          {
+            "name": "证据目录和哈希清单核验",
+            "status": "PASS",
+            "command": "verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+            "exit_code": 0,
+            "reason": "原生CHECKS_OK；枚举本Run证据目录并核验全部文件SHA-256。结果只说明包装完整，不代表G0/G4/G5或板上通过。"
+          },
+          {
+            "name": "阶段输入冻结检查",
+            "status": "BLOCKED",
+            "command": "verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+            "exit_code": null,
+            "reason": "检查器按规则阻断：PS/PL物理接口候选s2b-physical-candidate/0.1.1尚未冻结；此为当前G0输入门禁结果。manifest按BLOCKED语义将exit_code记为null；最新原始检查器结果为CHECKS_FAILED、进程退出码2，详见run_summary.json。"
+          },
+          {
+            "name": "平台输入冻结与实物部署门禁",
+            "status": "BLOCKED",
+            "command": "检查s2b_physical_interface_candidate.md冻结状态与芯片实物标记",
+            "exit_code": null,
+            "reason": "物理接口候选未冻结；板照XA7Z020与厂商确认XC7Z020-2CLG400I不一致，需先核明当前这块板的器件身份。"
+          },
+          {
+            "name": "板上部署、PS/UART/DDR及2B模型验收",
+            "status": "NOT_RUN",
+            "command": null,
+            "exit_code": null,
+            "reason": "本轮板卡断电；尚未进行JTAG下载、PS初始化、UART/DDR/cache检查或模型验收。"
+          }
+        ],
+        "build": [
+          {
+            "name": "offline_full_xsa_build",
+            "status": "PASS",
+            "command": "Vitis2026.1 vitis.bat -s vitis/build_s2b_inference.py (配置与原始外层日志见本包)",
+            "exit_code": 0,
+            "reason": "原始build_details记录完整新XSA、BSP、应用及初始化ELF成功，全部工具命令退出0。"
+          },
+          {
+            "name": "current_transport_verify_build",
+            "status": "PASS",
+            "command": "python -X utf8 -B report/evidence/S2B-T15/visibility1_xsa_20261014_r02/package_offline_build.py",
+            "exit_code": 0,
+            "reason": "调用实际当前verify_build，核对XSA、平台清单、两个ELF和当前七源码绑定；源码快照及构建命令日志另逐项核对。"
+          },
+          {
+            "name": "runtime_elf_section_comparison",
+            "status": "PASS",
+            "command": "package_offline_build.py: compare_elf",
+            "exit_code": 0,
+            "reason": "逐SHF_ALLOC节、LOAD段、函数符号与旧R01 ELF比较，真实差异完整记录，不以整体SHA差异判构建失败。"
+          },
+          {
+            "name": "whole_platform_g0",
+            "status": "BLOCKED",
+            "command": null,
+            "exit_code": null,
+            "reason": "PS/PL与UART接口候选尚未整体冻结，离线build不能自动授予部署准入。"
+          },
+          {
+            "name": "hardware_execution",
+            "status": "NOT_RUN",
+            "command": null,
+            "exit_code": null,
+            "reason": "封装范围禁止硬件操作；当前平台黄金样本、连续任务及异常恢复仍待实板。"
+          }
+        ]
+      }
+    },
+    "hardware_observations": {
+      "current_platform_cpu_dap_probe": "NOT_RUN",
+      "32MiB_arena_visibility": "NOT_RUN",
+      "PL_HP0_cache_visibility": "NOT_RUN",
+      "full_model_g0": "BLOCKED",
+      "golden_100": "NOT_RUN",
+      "continuous_1000": "NOT_RUN"
+    },
+    "input_sha256": {
+      "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+      "board/s2b_inference_platform.md": "5068a611fafffe49602f3fdffd6debb97cf6f3c9777ac945ed5b075b7a0d7133",
+      "report/evidence/S2B-T01/gp0_software_contract_20261014_r03/audit_gp0_software_contract.py": "36f810fa9ddb37f1d9c0739ed27d8a456f15359d9d33b2cd6e9fd184bec3028f",
+      "report/evidence/S2B-T01/gp0_software_contract_20261014_r03/delivery_manifest.json": "c5c6c9559c451cd50654735028a328dcc3fc2c37b8839fb3f1612492cdbdaa0e",
+      "report/evidence/S2B-T01/gp0_software_contract_20261014_r03/software_contract.json": "a90e21460882793bf82e5a4713618d564d8bebc812a8731221ffb696098dd5cf",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/delivery_manifest.json": "9abedb7b0b54363cfc96d40213b32d5ba7bdcad7c88e7f5f676f81ca7ccb4d65",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/infer.elf": "a7ca427ab06f5f81a650bcb0d2bda3ed0adb716c3c2cb226c34519e695d47869",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/init.elf": "7132ed104bc84066b714f61f61419b8c43474a4ef101cb51298b3027e30e2ee2",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_CMakeLists.txt": "90db91dd556ae1a52ef16a5737e801d17b9fbaeb3bb357999d86079328d5c76d",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_UserConfig.cmake": "83d982d0066b11bb4a12610ab5b0f617390b64aa409b5bc961777c22ec1c3e33",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_compile_commands.json": "49a04537a6fc6d7ff917af9d95812699a171e9cd32fd46ac740f4857e5047e9d",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_disassembly.log": "9c7cd2ebac2a3917c1233791473a47ead309f4aea6b8220fc07a000ff481e269",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_preprocessed.i": "6be618fdff4e32d79ea21f5a5a4d9aa6ed28b7ff532db2fc46f57dd188625299",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/app_readelf.log": "5e4cfcc979947f2608f20283752b8495ff3d5839438e697e524c634579a8b9de",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/asm_vectors.S": "bdc399c68867653fd00fd7707000d6e70162f6bad31f1be6ea3ad5248d5e93c7",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/bsp_compile_commands.json": "8583998543973691c182d0bda1bd773f6a1aa2ff829ce1bee60330ac22946ac9",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/bspconfig.h": "1ff8617a56f0d6d9bdedfe48c2b25a9e0fe4cca26050053a64a2e35be11932d0",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/build_details.json": "1e0be142b53f047e763b20be4632bcb31a25721c3f78a03683e70f42d95fdc67",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/decoder_preprocessed.i": "bd1894344526008f72e0f0386f95a4ba11a3534e9cff9dd6bdf44ab691e6fe8a",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/delivery_manifest.json": "66008ed50e588698e7344e272d587e826073dc943e29aa8fff622939c2a6b243",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/elf_layout.json": "4e2640a5dffca2af96e7987f084f2316ff3e34fe17c4d6c696dab4ec3060728c",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/globaltimer_sleep_zynq.c": "b627763b950c180e634bd8e896a84f882a0ac0f546e6131b9b03ce3be8a8abe7",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/infer.elf": "a436634e803cd6990a108e9d00b23a13a4e039149d0e413e450faca1daf67f2d",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/init.elf": "978a0970d49f4afe4341fde7887e7f3d31b1aacb24f3b9e6511d96276a2e1b3a",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/init_UserConfig.cmake": "a2a903ca6da14fa7d18be1462cb94e20b17a889e7fdd07f3f91416e7e0b67a65",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/init_compile_commands.json": "be48d290f79c57ec1941fc2549c3bcf95ea394bcf03ad20463a66772b800bee2",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/package_offline_build.py": "b86df0fec83c02e36b2696db07c322c674aed7c0361d7cb270d2f8180a715110",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/ps7_init.c": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/ps7_init.tcl": "059e4a9cee4121c5d47e28f86a1213a8277a0e50c8919be1ee9013ce5899d94b",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/runtime_section_comparison.json": "82d9e1ee16985f14f8352dbe51287b3c8d0e70004b878439bbb7fc2dd287a381",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/source_snapshot/s2b_inference_app.c": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/translation_table.S": "bae655f4d6c39f01a2e0f100196cfbd02722c6ba7197225ba5e6bf237aaa4430",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xil_cache.c": "d732f2cda7480680fc0f475e40e4b0f85954e192b6b7efe763fa7d20640c2de3",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xil_exception.c": "7b3a87a2589165beda4e4ccc9462f22c5f179190084511652535622b60db3dbf",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xil_exception.h": "04ebd3bc10b03880e4bd5c64ed3efb95f7be78492463f60e981093a926735974",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xil_mmu.c": "162ae3aecbf611b2d6bcb8454ff95b11040dcf807aa59b377b4b669b4966b864",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xil_mmu.h": "72bb377ea9cd805828e2103e47f35bdf3c0a291d4529c422a81391e86fe268ab",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xiltimer.c": "05479e75e3989bf5765e97b02940779fb8ea446cbf20971506f0dc710b9272a9",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xiltimer.h": "66c42037b524290b5fcf09ce9eac37937de49ef1fbbfca1bde44d3ee0d37b421",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xparameters.h": "7361be552faffb0b59b37d157c7fe7e332bea52841a17095e2ff7b8c80f04a36",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xtimer_config.h": "27c0700fba487080f8872e198d4c5814846568c990859f29ecd091d1b526a093",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xuartps.c": "3b8729996d298c48be591afba1ebfba56f05b1dff1236c053017db52848aa2d2",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r02/xuartps_g.c": "7f2181690c9d69951a62669eb95bfe36f22fc3a72ec3c8248d5fea9c2c6f1803",
+      "report/evidence/S2B-T19/current_probe_scope_20261015_r01/audit_current_probe.py": "cb96b52a00f1aab9b403aa6fde077e62b1cfb916d4481028ff10023e537d0b89",
+      "report/evidence/S2B-T19/visibility0_compatibility_20261014_r01/audit_compatibility.py": "66a869f10f2a206ad0ef3090958d937a919661b7339f00469044a38333c2f16b",
+      "report/evidence/S2B-T19/visibility0_compatibility_20261014_r01/delivery_manifest.json": "78df2c45ed08cb3603a62739c2bebb4f6fa87f97dc9e68c1b938cdaed07d97fe",
+      "report/evidence/S2B-T19/visibility0_compatibility_20261014_r01/summary.json": "40f687966b8b71c466d4e9075893a9de2369ac494f16db13f652e177c0b96f33",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json": "d5502eaed930b86fa477c8a780eba7546f63270357a8df9215a5eac46b21e928",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_check_timing_r02.rpt": "2c8ea5f8f933f629db0762240600586a4e45f8830adc5da31943fc4a3b0b9925",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_clocks_r02.rpt": "581a7fd026d31460f17e92b9dd3559b30e82081864ba31542529141371e9050e",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_hold_min_r02.rpt": "706e4e489ae7c6b09abd8d0ff2749c353bb99a5385f80cb55f53178dc0283337",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_route_status_r02.rpt": "654be31fa8b99ef619ac06f44321d56fe94437e01da103e2d44dc2e95c82e830",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_setup_max_r02.rpt": "71c8043d9a86da48c1287f8dbff7ecafe5818b6c43722c0432e309542de3e69d",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/s2b_inference_implemented_r02.bit": "4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/s2b_inference_implemented_r02.xsa": "7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/synth_hierarchical_utilization.rpt": "8789c78256a9867b3e018223e8a1f524cbf4cff1d9cff9c0eb4a16be558aff95",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_current.xsa": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json": "0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "verification/check_s2b_inference_platform.py": "dfd64cff1fd5ed8f61961dbde22802a3ba1ed2f0171f0c0327a71503f2b6737e",
+      "verification/check_s2b_ps_smoke_layout.py": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+      "verification/check_stage_delivery.py": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "verification/s2a_ps_decode_nms_reference.c": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845",
+      "verification/s2a_ps_decode_nms_reference.h": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47",
+      "verification/s2b_board_transport.py": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+      "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+      "vitis/build_s2b_inference.py": "0259af39128d003c5548ca04c8c51c1652e27c546b5ae2bb709bc92efd879b97",
+      "vitis/build_s2b_ps_smoke.py": "addff3a419609ac8203c8838edfd6fd56fb53baccf40efc403fca4eb36b50d76",
+      "vitis/run_s2b_visibility_probe.py": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "vitis/s2b_inference_app.c": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "vivado/s2b_inference_platform.tcl": "ea6f1556de0033838b85e25d0bc99b8535ee0f0192573b232b60cbe3dc5fd3af",
+      "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9"
+    },
+    "limitations": [
+      "本Run仅为visibility=0、CPU/DAP起始256字节探针的离线静态准入迁移；不LOAD、不START、不经过PL/HP0。",
+      "不生成INDEPENDENT_REVIEWER receipt或最终运行config；本Developer结果须独立审查后由总控决定消费。",
+      "新旧完整ELF不相同；仅在逐节差异完全解释、31个原字样例及实际BSP重新核验后迁移限定GP0静态依据。",
+      "实际AxLEN、HP0/cache属性与可见性未测；32MiB arena、整网G0/100黄金/1000连续及异常恢复均未通过本Run。",
+      "CPU0单一控制、禁止IRQ重入、CPU1停止是实际硬件入口必须受控观察的前提；本Run未观测或宣称其已满足。",
+      "旧构建host drift BLOCKED及上游全平台未冻结/失败原件保留；限定清单PASS不能使原平台G0或旧构建转为PASS。",
+      "峰值内存未测；仅标准库静态解析，不启动SDK/Vitis/Vivado/JTAG/串口或硬件。"
+    ]
+  }
+}

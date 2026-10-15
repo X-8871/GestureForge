@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19",
+  "run_id": "board_readonly_20261016_r01",
+  "source_commit": "aeaea942dfba1add885a926a6056b55ee1840df9",
+  "observation_window_local": {
+    "timezone": "Asia/Shanghai",
+    "vivado_session_id": "vivado-20261016-010618-70822227",
+    "vivado_log_last_write": "2026-10-16T01:09:30+08:00",
+    "evidence_copy_created": "2026-10-16T01:10:44+08:00"
+  },
+  "tool_versions": {
+    "vivado": "2026.1",
+    "hw_server": "v2026.1"
+  },
+  "serial_enumeration": {
+    "command": "pnputil /enum-devices /class Ports /connected",
+    "exit_code": 0,
+    "device": {
+      "instance_id": "USB\\VID_10C4&PID_EA60\\d02e61162787ed11a536569f9d1cc348",
+      "description": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+      "class": "Ports",
+      "status": "Started",
+      "driver": "oem81.inf"
+    },
+    "port_opened": false,
+    "functional_uart_test": "NOT_RUN"
+  },
+  "jtag_enumeration": {
+    "target_count": 1,
+    "target": "localhost:3121/xilinx_tcf/Digilent/210512180081",
+    "devices": [
+      {
+        "name": "arm_dap_0",
+        "part": "arm_dap",
+        "idcode_binary": "01001011101000000000010001110111"
+      },
+      {
+        "name": "xc7z020_1",
+        "part": "xc7z020",
+        "idcode_binary": "00100011011100100111000010010011",
+        "idcode_hex": "23727093",
+        "ir_length": 6,
+        "unknown_device": false,
+        "variant_name": ""
+      }
+    ],
+    "device_property_names_checked": [
+      "NAME",
+      "PART",
+      "VARIANT_NAME",
+      "IDCODE",
+      "IDCODE_HEX",
+      "IR_LENGTH",
+      "UNKNOWN_DEVICE"
+    ],
+    "full_user_part": "XC7Z020-2CLG400I",
+    "full_user_part_independently_confirmed": false,
+    "interpretation": "JTAG返回xc7z020和IDCODE 23727093；与Z-020系列/密度相符，但属性不含封装、速度等级或温度等级，不能据此确认完整订货型号。"
+  },
+  "tcl_commands": [
+    {
+      "name": "connect_and_enumerate_targets",
+      "command": "open_hw_manager; connect_hw_server -url localhost:3121; puts \"HWSERVERS=[get_hw_servers]\"; puts \"TARGETS=[get_hw_targets]\"",
+      "exit_code": 0,
+      "result": "hw_server localhost:3121 connected; one Digilent target 210512180081 enumerated."
+    },
+    {
+      "name": "open_target_and_read_device_properties",
+      "command": "set ts [get_hw_targets]; puts \"TARGET_COUNT=[llength $ts]\"; foreach t $ts {puts \"TARGET=$t\"}; set t [lindex $ts 0]; if {$t eq \"\"} {error \"NO_TARGET\"}; if {[catch {open_hw_target $t} e]} {error \"OPEN_TARGET_FAILED:$e\"}; set ds [get_hw_devices]; puts \"DEVICE_COUNT=[llength $ds]\"; foreach d $ds {puts \"DEVICE=$d\"; foreach p {NAME PART IDCODE JTAG_INDEX IS_PROGRAMMABLE} {if {[catch {set v [get_property $p $d]}]} {set v \"<unavailable>\"}; puts \"$p=$v\"}}",
+      "exit_code": 0,
+      "result": "Two devices enumerated: arm_dap_0 and xc7z020_1."
+    },
+    {
+      "name": "list_available_device_properties",
+      "command": "set d [get_hw_devices xc7z020_1]; puts \"PROPERTIES=[list_property $d]\"",
+      "exit_code": 0,
+      "result": "Available property list contains PART, VARIANT_NAME, IDCODE, IDCODE_HEX and IR_LENGTH; no package/speed/temperature-grade property was exposed. Full list is preserved in vivado_hw_readonly.log."
+    },
+    {
+      "name": "read_full_device_identity_properties",
+      "command": "set d [get_hw_devices xc7z020_1]; foreach p {NAME PART VARIANT_NAME IDCODE IDCODE_HEX IR_LENGTH UNKNOWN_DEVICE} {puts \"$p=[get_property $p $d]\"}",
+      "exit_code": 0,
+      "result": "NAME=xc7z020_1; PART=xc7z020; VARIANT_NAME=; IDCODE_HEX=23727093; IR_LENGTH=6; UNKNOWN_DEVICE=0."
+    },
+    {
+      "name": "close_readonly_target",
+      "command": "close_hw_target; disconnect_hw_server; close_hw_manager",
+      "exit_code": 0,
+      "result": "Target was closed."
+    }
+  ],
+  "programming_actions": {
+    "pl_bitstream_downloaded": false,
+    "ps_initialization_run": false,
+    "ddr_read_or_write": false,
+    "qspi_or_nonvolatile_write": false,
+    "program_hw_devices_called": false
+  },
+  "vivado_stop": {
+    "reported_warning": "Vivado PID 26204 may still be running after stop",
+    "followup_process_check": "PID 26204 was absent from Get-Process; the owned session was absent from vivado_list_sessions. The pre-existing session in another worktree remained untouched."
+  },
+  "limitations": [
+    "COM4 presence does not prove UART electrical or protocol functionality; no serial port was opened.",
+    "JTAG identity does not establish XC/XA family suffix, CLG400 package, -2 speed grade, or industrial temperature grade.",
+    "No DDR access, PS initialization, bitstream load, model execution, golden comparison, or continuous-task run occurred.",
+    "The user-provided MT41K256M16TW-107 remains a provisional DDR assumption pending manufacturer confirmation; no DDR timing or training was attempted."
+  ]
+}

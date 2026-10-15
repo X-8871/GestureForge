@@ -1,0 +1,133 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Oct 16 01:06:20 2026
+# Process ID         : 26204
+# Current directory  : D:/FPGA_Competition/w2b/tmp/2B/S2B-T19/board_readonly_20261016_r01
+# Command line       : vivado.exe -mode tcl -log .vivado-ai\vivado_83978598_0cd87771.log -journal .vivado-ai\vivado_83978598_0cd87771.jou -notrace -source .vivado-ai\init_83978598_0cd87771.tcl
+# Log file           : D:/FPGA_Competition/w2b/tmp/2B/S2B-T19/board_readonly_20261016_r01/.vivado-ai/vivado_83978598_0cd87771.log
+# Journal file       : D:/FPGA_Competition/w2b/tmp/2B/S2B-T19/board_readonly_20261016_r01\.vivado-ai\vivado_83978598_0cd87771.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 21966 MB
+#-----------------------------------------------------------
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] could not open socket on 127.0.0.1:7654 -> couldn't open socket: address already in use
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {.vivado-ai\init_83978598_0cd87771.tcl} -notrace
+INFO: [Common 17-1674] Started webserver at http://localhost:7666
+set_param -quiet messaging.defaultLimit 10000000
+puts "MCPPROBE:5cgkvggf81m0:[get_param messaging.defaultLimit]"
+MCPPROBE:5cgkvggf81m0:10000000
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:77i3adyqb6b3===}
+INFO: [MCP 00-100] ===MCP_CMD_START:77i3adyqb6b3===
+puts "VSCSTART" ; set exitCode [catch {open_hw_manager; connect_hw_server -url localhost:3121; puts "HWSERVERS=[get_hw_servers]"; puts "TARGETS=[get_hw_targets]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+open_hw_manager: Time (s): cpu = 00:00:15 ; elapsed = 00:00:10 . Memory (MB): peak = 615.332 ; gain = 273.305
+INFO: [Labtools 27-2285] Connecting to hw_server url TCP:localhost:3121
+INFO: [Labtools 27-2222] Launching hw_server...
+INFO: [Labtools 27-2221] Launch Output:
+
+****** Xilinx hw_server v2026.1
+  **** Build date : May 29 2026 at 14:55:19
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+
+
+INFO: [Labtools 27-3415] Connecting to cs_server url TCP:localhost:0
+INFO: [Labtools 27-3417] Launching cs_server...
+INFO: [Labtools 27-2221] Launch Output:
+
+****** Xilinx cs_server v2026.1
+  **** Build Info : #60 | 2026-06-15 19:15 UTC | a9691a9
+    ** Copyright 2017-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+
+
+connect_hw_server: Time (s): cpu = 00:00:00 ; elapsed = 00:00:10 . Memory (MB): peak = 621.281 ; gain = 5.949
+HWSERVERS=localhost:3121
+TARGETS=localhost:3121/xilinx_tcf/Digilent/210512180081
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:77i3adyqb6b3:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:77i3adyqb6b3:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:8gqaebbboido===}
+INFO: [MCP 00-100] ===MCP_CMD_START:8gqaebbboido===
+puts "VSCSTART" ; set exitCode [catch {set ts [get_hw_targets]; puts "TARGET_COUNT=[llength $ts]"; foreach t $ts {puts "TARGET=$t"}; set t [lindex $ts 0]; if {$t eq ""} {error "NO_TARGET"}; if {[catch {open_hw_target $t} e]} {error "OPEN_TARGET_FAILED:$e"}; set ds [get_hw_devices]; puts "DEVICE_COUNT=[llength $ds]"; foreach d $ds {puts "DEVICE=$d"; foreach p {NAME PART IDCODE JTAG_INDEX IS_PROGRAMMABLE} {if {[catch {set v [get_property $p $d]}]} {set v "<unavailable>"}; puts "$p=$v"}}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+TARGET_COUNT=1
+TARGET=localhost:3121/xilinx_tcf/Digilent/210512180081
+INFO: [Labtoolstcl 44-466] Opening hw_target localhost:3121/xilinx_tcf/Digilent/210512180081
+DEVICE_COUNT=2
+DEVICE=arm_dap_0
+NAME=arm_dap_0
+PART=arm_dap
+IDCODE=01001011101000000000010001110111
+JTAG_INDEX=<unavailable>
+IS_PROGRAMMABLE=<unavailable>
+DEVICE=xc7z020_1
+NAME=xc7z020_1
+PART=xc7z020
+IDCODE=00100011011100100111000010010011
+JTAG_INDEX=<unavailable>
+IS_PROGRAMMABLE=<unavailable>
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:8gqaebbboido:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:8gqaebbboido:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ou9ywyxmihy2===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ou9ywyxmihy2===
+puts "VSCSTART" ; set exitCode [catch {set d [get_hw_devices xc7z020_1]; puts "PROPERTIES=[list_property $d]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+PROPERTIES=CLASS NAME PART VARIANT_NAME PROGRAM.LOG INDEX IDCODE IDCODE_HEX IR_LENGTH USER_CHAIN_COUNT IS_SYSMON_SUPPORTED PROGRAM.IS_SUPPORTED PROGRAM.FILE PROGRAM.BOOT_FILE PROGRAM.PLD_FILE PROGRAM.PARTIAL_PLD_FILES PROBES.PLD_FILE PROBES.PARTIAL_PLD_FILES PROGRAM.OPTIONS PROGRAM.HW_BITSTREAM AUTH_JTAG.FILE PROBES.FILE FULL_PROBES.FILE PROBES.BOOT_FILE PARTIAL_PROBES.FILES PROGRAM.HW_CFGMEM PROGRAM.HW_CFGMEM_BITFILE PROGRAM.HW_CFGMEM_TYPE PROGRAM.READBACK_FILE PROGRAM.IS_RSA_PROGRAMMED PROGRAM.IS_AES_PROGRAMMED PROGRAM.DPA_PROTECT PROGRAM.DPA_COUNT PROGRAM.DPA_MODE REGISTER.BOOT_STATUS REGISTER.BOOT_STATUS.BIT00_0_STATUS_VALID REGISTER.BOOT_STATUS.BIT01_0_FALLBACK REGISTER.BOOT_STATUS.BIT02_0_INTERNAL_PROG REGISTER.BOOT_STATUS.BIT03_0_WATCHDOG_TIMEOUT_ERROR REGISTER.BOOT_STATUS.BIT04_0_ID_ERROR REGISTER.BOOT_STATUS.BIT05_0_CRC_ERROR REGISTER.BOOT_STATUS.BIT06_0_WRAP_ERROR REGISTER.BOOT_STATUS.BIT07_0_SECURITY_ERROR REGISTER.BOOT_STATUS.BIT08_1_STATUS_VALID REGISTER.BOOT_STATUS.BIT09_1_FALLBACK REGISTER.BOOT_STATUS.BIT10_1_INTERNAL_PROG REGISTER.BOOT_STATUS.BIT11_1_WATCHDOG_TIMEOUT_ERROR REGISTER.BOOT_STATUS.BIT12_1_ID_ERROR REGISTER.BOOT_STATUS.BIT13_1_CRC_ERROR REGISTER.BOOT_STATUS.BIT14_1_WRAP_ERROR REGISTER.BOOT_STATUS.BIT15_1_SECURITY_ERROR REGISTER.BOOT_STATUS.BIT16_RESERVED REGISTER.CONFIG_STATUS REGISTER.CONFIG_STATUS.BIT00_CRC_ERROR REGISTER.CONFIG_STATUS.BIT01_DECRYPTOR_ENABLE REGISTER.CONFIG_STATUS.BIT02_PLL_LOCK_STATUS REGISTER.CONFIG_STATUS.BIT03_DCI_MATCH_STATUS REGISTER.CONFIG_STATUS.BIT04_END_OF_STARTUP_(EOS)_STATUS REGISTER.CONFIG_STATUS.BIT05_GTS_CFG_B_STATUS REGISTER.CONFIG_STATUS.BIT06_GWE_STATUS REGISTER.CONFIG_STATUS.BIT07_GHIGH_STATUS {REGISTER.CONFIG_STATUS.BIT08_MODE_PIN_M[0]} {REGISTER.CONFIG_STATUS.BIT09_MODE_PIN_M[1]} {REGISTER.CONFIG_STATUS.BIT10_MODE_PIN_M[2]} REGISTER.CONFIG_STATUS.BIT11_INIT_B_INTERNAL_SIGNAL_STATUS REGISTER.CONFIG_STATUS.BIT12_INIT_B_PIN REGISTER.CONFIG_STATUS.BIT13_DONE_INTERNAL_SIGNAL_STATUS REGISTER.CONFIG_STATUS.BIT14_DONE_PIN REGISTER.CONFIG_STATUS.BIT15_IDCODE_ERROR REGISTER.CONFIG_STATUS.BIT16_SECURITY_ERROR REGISTER.CONFIG_STATUS.BIT17_SYSTEM_MONITOR_OVER-TEMP_ALARM_STATUS REGISTER.CONFIG_STATUS.BIT18_CFG_STARTUP_STATE_MACHINE_PHASE REGISTER.CONFIG_STATUS.BIT21_RESERVED REGISTER.CONFIG_STATUS.BIT25_CFG_BUS_WIDTH_DETECTION REGISTER.CONFIG_STATUS.BIT27_HMAC_ERROR REGISTER.CONFIG_STATUS.BIT28_PUDC_B_PIN REGISTER.CONFIG_STATUS.BIT29_BAD_PACKET_ERROR REGISTER.CONFIG_STATUS.BIT30_CFGBVS_PIN REGISTER.CONFIG_STATUS.BIT31_RESERVED REGISTER.COR0 REGISTER.COR0.BIT00_GWE_CYCLE REGISTER.COR0.BIT03_GTS_CYCLE REGISTER.COR0.BIT06_LOCK_CYCLE REGISTER.COR0.BIT09_MATCH_CYCLE REGISTER.COR0.BIT12_DONE_CYCLE REGISTER.COR0.BIT15_SSCLKSRC REGISTER.COR0.BIT17_OSCFSEL REGISTER.COR0.BIT23_SINGLE REGISTER.COR0.BIT24_DRIVE_DONE REGISTER.COR0.BIT25_DONE_PIPE REGISTER.COR0.BIT26_RESERVED REGISTER.COR0.BIT27_PWRDWN_STAT REGISTER.COR0.BIT28_RESERVED REGISTER.COR1 REGISTER.COR1.BIT00_BPI_PAGE_SIZE REGISTER.COR1.BIT02_BPI_1ST_READ_CYCLE REGISTER.COR1.BIT04_RESERVED REGISTER.COR1.BIT08_RBCRC_EN REGISTER.COR1.BIT09_RBCRC_NO_PIN REGISTER.COR1.BIT10_RESERVED REGISTER.COR1.BIT15_RBCRC_ACTION REGISTER.COR1.BIT17_PERSIST_DEASSERT_AT_DESYNC REGISTER.COR1.BIT18_RESERVED REGISTER.IR REGISTER.IR.BIT0_ALWAYS_ONE REGISTER.IR.BIT1_ALWAYS_ZERO REGISTER.IR.BIT2_ISC_DONE REGISTER.IR.BIT3_ISC_ENABLED REGISTER.IR.BIT4_INIT_COMPLETE REGISTER.IR.BIT5_DONE REGISTER.TIMER REGISTER.TIMER.BIT00_TIMER_VALUE REGISTER.TIMER.BIT30_TIMER_CFG_MON REGISTER.TIMER.BIT31_TIMER_USR_MON REGISTER.USERCODE REGISTER.USR_ACCESS REGISTER.WBSTAR REGISTER.WBSTAR.BIT00_START_ADDR REGISTER.WBSTAR.BIT29_RS_TS_B REGISTER.WBSTAR.BIT30_RS DID MASK MASK_HEX UNKNOWN_DEVICE XSDB_USER_BSCAN BSCAN_SWITCH_USER_MASK USE_BSCAN_FALLBACK
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ou9ywyxmihy2:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ou9ywyxmihy2:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:q8k785x1otar===}
+INFO: [MCP 00-100] ===MCP_CMD_START:q8k785x1otar===
+puts "VSCSTART" ; set exitCode [catch {set d [get_hw_devices xc7z020_1]; foreach p {NAME PART VARIANT_NAME IDCODE IDCODE_HEX IR_LENGTH UNKNOWN_DEVICE} {puts "$p=[get_property $p $d]"}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+NAME=xc7z020_1
+PART=xc7z020
+VARIANT_NAME=
+IDCODE=00100011011100100111000010010011
+IDCODE_HEX=23727093
+IR_LENGTH=6
+UNKNOWN_DEVICE=0
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:q8k785x1otar:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:q8k785x1otar:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ejuqhpukgzc4===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ejuqhpukgzc4===
+puts "VSCSTART" ; set exitCode [catch {close_hw_target; disconnect_hw_server; close_hw_manager; puts "READ_ONLY_TARGET_CLOSED=1"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+INFO: [Labtoolstcl 44-464] Closing hw_target localhost:3121/xilinx_tcf/Digilent/210512180081
+READ_ONLY_TARGET_CLOSED=1
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ejuqhpukgzc4:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ejuqhpukgzc4:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:sood5656u1sg===}
+INFO: [MCP 00-100] ===MCP_CMD_START:sood5656u1sg===
+puts "VSCSTART" ; set exitCode [catch {exit} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+INFO: [Common 17-206] Exiting Vivado at Fri Oct 16 01:09:30 2026...

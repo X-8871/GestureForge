@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "board_readonly_20261016_r01",
+  "source_commit": "aeaea942dfba1add885a926a6056b55ee1840df9",
+  "evidence_dir": "report/evidence/S2B-T19/board_readonly_20261016_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读查询USB-UART设备枚举与JTAG器件身份，没有加载或验证软件、PS/PL总线接口。",
+  "files": [
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "role": "source",
+      "keep_reason": "本次证据包所使用的仓库交付清单核验器。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r01/board_readonly_result.json",
+      "sha256": "1e7208b46f77f1c3c7ac6a165fd92bce02dd2167405544ee64569c1e466438cb",
+      "role": "result",
+      "keep_reason": "保存串口枚举、JTAG target/device读回、查询命令、返回码及未执行的硬件操作。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r01/assessment.md",
+      "sha256": "92817ed0baa1b7adb752f3ab16a12f323f6b09e01219a261376383d54d6c2b81",
+      "role": "result",
+      "keep_reason": "解释JTAG可见性结论、完整料号识别限制及本次硬件操作边界。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r01/pnputil_ports.txt",
+      "sha256": "08754fa24198615dc9b3c0239dd95a6d9f6a63f5af5bf0d8e2a4b0f8c962a7e4",
+      "role": "log",
+      "keep_reason": "保存Windows PnP串口桥的原始只读命令输出。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/board_readonly_20261016_r01/vivado_hw_readonly.log",
+      "sha256": "438c844fe208eca4d666c1de19caf5d5c4ee3e06a2f5093853334ec2053c3f09",
+      "role": "log",
+      "keep_reason": "从本次隔离Vivado会话原样复制的Hardware Manager命令及读回日志。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "uart_bridge_presence",
+      "status": "PASS",
+      "command": "pnputil /enum-devices /class Ports /connected",
+      "exit_code": 0,
+      "reason": "枚举到Started状态的Silicon Labs CP210x USB-UART桥，端口COM4；未打开端口或发送字节。Get-PnpDevice备选命令因Access Denied未使用。"
+    },
+    {
+      "name": "jtag_target_enumeration",
+      "status": "PASS",
+      "command": "open_hw_manager; connect_hw_server -url localhost:3121; get_hw_servers; get_hw_targets",
+      "exit_code": 0,
+      "reason": "Vivado 2026.1连接hw_server v2026.1，枚举一个Digilent target，序列号210512180081。"
+    },
+    {
+      "name": "jtag_device_identity_readonly",
+      "status": "PASS",
+      "command": "open_hw_target; get_hw_devices; list_property; get_property PART IDCODE_HEX IR_LENGTH UNKNOWN_DEVICE",
+      "exit_code": 0,
+      "reason": "链上识别arm_dap_0和xc7z020_1；FPGA PART=xc7z020、IDCODE_HEX=23727093、IR_LENGTH=6、UNKNOWN_DEVICE=0。"
+    },
+    {
+      "name": "full_orderable_fpga_part_confirmation",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "Vivado硬件对象没有暴露封装、速度等级或温度等级属性；JTAG读回不能独立验证完整型号XC7Z020-2CLG400I。"
+    },
+    {
+      "name": "uart_protocol_test",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "只枚举设备节点，没有打开COM4、发送数据或核对协议。"
+    },
+    {
+      "name": "pl_ps_programming_and_model_execution",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次范围为只读板卡识别；未执行program_hw_devices、PS初始化、DDR访问或模型运行。"
+    },
+    {
+      "name": "ddr_initialization_and_training",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "实际DDR料号仍等待厂家确认；MT41K256M16TW-107目前仅为用户指定的暂定输入。"
+    },
+    {
+      "name": "formal_model_acceptance",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "尚未建立经确认的PS/DDR平台和可运行模型镜像，100样本黄金比对及1000次连续任务未执行。"
+    },
+    {
+      "name": "readonly_result_json_parse",
+      "status": "PASS",
+      "command": "& 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -m json.tool report/evidence/S2B-T19/board_readonly_20261016_r01/board_readonly_result.json",
+      "exit_code": 0,
+      "reason": "结构化板卡只读识别记录可被Python JSON解析器读取。"
+    },
+    {
+      "name": "evidence_manifest_integrity",
+      "status": "PASS",
+      "command": "& 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/board_readonly_20261016_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "证据模式仅核验声明文件、SHA-256和运行目录完整性；不替代器件身份、接口语义或阶段验收。"
+    }
+  ],
+  "limitations": [
+    "本次没有读回或验证完整FPGA订货型号、PCB版次、接线、电平、时钟或复位行为。",
+    "COM4枚举不证明串口硬件或协议可用。",
+    "没有下载PL/PS镜像、访问DDR、运行tiny416模型、进行黄金比对或连续任务。",
+    "DDR实际料号和精确时序仍待厂家资料确认；没有DDR初始化或训练。",
+    "证据检查器CHECKS_OK只表示清单包装与哈希绑定通过，不代表G3/G4/G5或阶段2B通过。"
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "hw_server": "v2026.1",
+    "Python": "3.12.14",
+    "check_stage_delivery": "schema_version 1"
+  }
+}

@@ -109,7 +109,7 @@ def evidence_manifest(run, status, reason):
         files.append({"path": path.relative_to(ROOT).as_posix(), "sha256": binding(path)["sha256"], "role": "source"})
     interfaces = []
     for name, version, path in (("UART候选", "s2bu-candidate/1.1", "docs/obsidian-project/02-方案设计/s2b_board_transport.md"),
-                                ("PS/PL物理候选", "s2b-physical-candidate/0.1.1", "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md")):
+                                ("PS/PL物理候选", "s2b-physical-candidate/0.1.2", "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md")):
         interfaces.append({"name": name, "version": version, "path": path,
                            "sha256": binding(ROOT / path)["sha256"], "frozen": False})
     revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,

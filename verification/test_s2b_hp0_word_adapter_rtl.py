@@ -219,7 +219,7 @@ def write_delivery(evidence: Path, report: dict) -> None:
                 "reason": "候选接口未冻结；本leaf不含CSR停止确认、排空timer、缓存与所有权。"}]
     delivery = {"schema_version": 1, "stage": "2B", "task_id": "S2B-T10", "run_id": evidence.name,
         "source_commit": report["source_commit"], "evidence_dir": evidence.relative_to(ROOT).as_posix(),
-        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.1",
+        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.2",
                         "frozen": False, "path": SPEC, "sha256": sha(ROOT / SPEC)}],
         "files": files, "checks": checks, "limitations": report["limitations"],
         "tool_versions": report.get("tool_versions", {"python": sys.version.split()[0]})}

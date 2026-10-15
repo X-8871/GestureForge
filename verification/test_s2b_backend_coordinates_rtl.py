@@ -594,10 +594,16 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
         for item in profile["source_derivation"]["derived_sources"]+profile["source_derivation"]["upstream_sources"]:
             if item["path"]==path: item["sha256"]=sha(target)
         return [path]
-    for version in ("0.1.0","0.1.1","0.1.11"):
+    for version in ("0.1.0","0.1.1","0.1.11","0.1.15"):
         reject("旧profile"+version,lambda p,v=version:p.update(version="s2b-inference-platform/"+v))
     reject("旧派生policy",lambda p:p["source_derivation"].update(policy="s2b-constant-geometry-and-coordinates/1.0.0"))
     reject("旧派生基线",lambda p:p["source_derivation"].update(derivation_baseline_commit="18c0c34f9da885b5f35869c282dc0c2ed50d720e"))
+    reject("物理候选正文路径漂移",lambda p:p.update(physical_interface_document="docs/other.md"))
+    reject("物理候选正文自报SHA",lambda p:p.update(physical_interface_sha256="0"*64))
+    reject("物理候选冻结状态伪报",lambda p:p.update(physical_interface_status="FROZEN"))
+    reject("既有证据继承伪报",lambda p:p.update(evidence_reuse_policy="INHERIT_PASS"))
+    reject("物理候选正文原件漂移",lambda p:change(p,"docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+        "不要求集成AMD AXI DMA IP","要求集成AMD AXI DMA IP"))
     for name,before,after in (("通道宽度自报SHA","logic [8:0] output_channel_cursor","logic [7:0] output_channel_cursor"),
         ("carry自报SHA","output_channel_cursor + 9'd1","output_channel_cursor + 9'd2"),
         ("保持分支额外复位","default: begin\n                    state <= ST_IDLE;","default: begin\n                    output_x_cursor <= 0;\n                    state <= ST_IDLE;"),
@@ -608,15 +614,17 @@ def checker_negatives(checker, work: Path, bindings: dict) -> list:
     reject("闭包遗漏",lambda p:p["rtl_sources"].pop())
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
-    reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
-    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.12","variable version 0.1.1"))
+    reject("physical版本改变",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.3"))
+    reject("旧Tcl版本",lambda p:change(p,"vivado/s2b_inference_platform.tcl","variable version 0.1.13","variable version 0.1.12"))
     reject("ROUTE引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_route_engine #(.FROZEN_ROUTE_SHAPES(1'b1)) u_route_engine","s2a_route_engine u_route_engine"))
     reject("ROUTE恢复动态除法自报SHA",lambda p:change(p,"src/s2b_route_query.sv","groups > 32'd2","groups > (source0_channels / groups)"))
     reject("ROUTE组2校验漂移自报SHA",lambda p:change(p,"src/s2b_route_query.sv","source0_channels[0]","source0_channels[1]"))
     reject("ROUTE额外结果门禁",lambda p:change(p,"src/s2b_route_engine.sv","if (result_valid && result_ready)","if (result_valid && result_ready && !abort)"))
     reject("CONV引用原engine",lambda p:change(p,"src/s2b_network_backend.sv","s2b_conv_tile_engine #(.FROZEN_CONV_DESCRIPTOR(1'b1)) u_conv_engine","s2a_conv_tile_engine u_conv_engine"))
     reject("CONV校验新增batch语义自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_batch_count_latched != 32'd1)","(input_batch_count_latched != 32'd2)"))
-    reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","input_element_plane = {32'd0, input_channels_latched} * {32'd0, input_height_latched}","input_element_plane = {32'd0, input_batch_count_latched} * {32'd0, input_channels_latched} * {32'd0, input_height_latched}"))
+    reject("CONV恢复batch乘积自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv",
+        "input_element_plane <= {32'd0, input_channels} * {32'd0, input_height};",
+        "input_element_plane <= {32'd0, input_batch_count_latched} * {32'd0, input_channels} * {32'd0, input_height};"))
     reject("CONV额外周期自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","state <= ST_VALIDATE;","state <= ST_IDLE;"))
     reject("CONV丢失plane高位拒绝自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(input_element_plane[63:32] != 32'd0)","(input_element_plane[63:32] != 32'd0 && 1'b0)"))
     reject("CONV放宽reduction阈值自报SHA",lambda p:change(p,"src/s2b_conv_tile_engine.sv","(reduction_plane_narrow > 26'd4608)","(reduction_plane_narrow > 26'd4609)"))

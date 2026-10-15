@@ -74,12 +74,12 @@ def checker_negatives(checker,work,bindings):
                 item["sha256"]=sha(target)
                 if "replacements" in item:item["replacements"].append([before,after])
         return [path]
-    for value in ("0.1.0","0.1.11","0.1.13","0.1.14"):
+    for value in ("0.1.0","0.1.11","0.1.13","0.1.14","0.1.15"):
         reject("旧profile"+value,lambda p,v=value:p.update(version="s2b-inference-platform/"+v))
     reject("闭包遗漏",lambda p:p["rtl_sources"].pop())
     reject("闭包重复",lambda p:p["rtl_sources"].append(p["rtl_sources"][0]))
     reject("时钟降低",lambda p:p.update(clock_hz=25000000))
-    reject("physical漂移",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.2"))
+    reject("physical漂移",lambda p:p.update(physical_interface="s2b-physical-candidate/0.1.3"))
     for name,path,before,after in (
         ("输入geometry误用旧latched",ENGINE,"input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};","input_geometry_plane <= {32'd0, input_height_latched} * {32'd0, input_width_latched};"),
         ("输入geometry丢高32",ENGINE,"input_geometry_plane <= {32'd0, input_height} * {32'd0, input_width};","input_geometry_plane <= {32'd0, 32'(input_height * input_width)};"),
@@ -92,7 +92,7 @@ def checker_negatives(checker,work,bindings):
         ("冻结tuple低位alias",QUERY,"frozen_spatial_plane_lookup({source0_channels, source0_height, source0_width})","frozen_spatial_plane_lookup({source0_channels[15:0], source0_height[15:0], source0_width[15:0]})"),
         ("冻结plane错误",QUERY,"frozen_spatial_plane_lookup = 32'd10816;","frozen_spatial_plane_lookup = 32'd10817;"),
         ("冻结丢row",QUERY,"output_y * source0_width + output_x;","32'd0 + output_x;"),
-        ("旧Tcl版本","vivado/s2b_inference_platform.tcl","variable version 0.1.12","variable version 0.1.1"),
+        ("旧Tcl版本","vivado/s2b_inference_platform.tcl","variable version 0.1.13","variable version 0.1.12"),
         ("冻结原件自报SHA","src/s2a_network_backend.sv","module s2a_network_backend (","module bad_backend (")):
         if name=="冻结plane错误":
             before="96'h000000200000006800000068: "+before

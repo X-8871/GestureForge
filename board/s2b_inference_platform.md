@@ -1,6 +1,6 @@
 # 阶段 2B 全模型平台构建候选
 
-版本 `s2b-inference-platform/0.1.15`，依据 `s2b-physical-candidate/0.1.1`；字段入口为同目录 JSON。此文件说明实际构建和证据约束，不声明物理接口已冻结或阶段 2B 已验收。
+版本 `s2b-inference-platform/0.1.16`，依据 `s2b-physical-candidate/0.1.2`；候选正文为 `docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md`，SHA-256 为 `1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b`。字段入口为同目录 JSON。该绑定仅更新活动元数据，平台仍为 `BUILD_CANDIDATE`、物理接口仍为 `CANDIDATE_NOT_FROZEN`；既有 XSA、ELF 与 T19 证据不继承 PASS，也不代表阶段 2B 已验收。
 
 用户提供的芯片字符串原样保存为 `XC7Z020-2CLG400I`。Vivado 精确器件候选为 `xc7z020clg400-2`；生成时核对 `get_parts` 唯一返回，并记录可获得的 temperature/grade/speed/package 属性。工具名称不含 `I` 不能单独证明实物工业温度等级。DDR/UART 请求调用冻结 `s2b_ps_platform::requested`，只增加 GP0、HP0、FCLK0/reset 与 50 MHz 配置，不使用通用 board preset 替换厂商字段。
 
@@ -34,7 +34,7 @@ HP 路径另以实际全模型 BD/网表、adapter 两路 AxCACHE=0000、直接 
 
 启用参数由 `run` 同时接收证明 JSON、独立审查 JSON，以及总控从真实独立 Reviewer 返回来源冻结的审查原件 SHA-256。只读检查器只返回 `VISIBILITY_PROFILE:BINDINGS_VERIFIED`，表示文件绑定匹配；总控仍须核对审批来源、原始证据语义和允许的启用范围。
 
-证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.15`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的8个原上游源，共26个RTL，以及构建脚本、平台JSON/说明、PS字段和检查器本身。源文件或平台配置变化使旧证明失效。
+证明 JSON 包含 `schema_version=1`、`status=PASS`、`profile_version=s2b-inference-platform/0.1.16`、`source_sha256` 和两项 `hp_path_audit` / `ps_cache_proof`（每项为仓库相对 `path` 及真实 `sha256`）。`source_sha256` 的精确文件集合由检查器的 `check_static` 返回，包含活跃18 RTL与未编译的8个原上游源，共26个RTL，以及构建脚本、平台JSON/说明、PS字段、物理候选正文和检查器本身。此次版本与源码绑定变化使旧可见性证明失效；既有 XSA、ELF、T19 证据也不会继承为通过。
 
 两项证据 JSON 均须 `status=PASS`、同一 `source_sha256`、非空 `evidence_files`（各原始文件 path/hash）与布尔 `checks`。HP 审计要求 `axi3_nonbufferable_basis`、`axcache_0000_full_path`、`direct_hp0_no_bridge`、`no_early_write_response`、`full_model_core_present`。PS 证明要求 `dedicated_32mib_arena`、`cache_maintenance_actual_bsp`、`cpu_dap_prior_probe_idle_no_start`、`same_runtime_bsp_mmu_macros`、`no_use_amp`、`single_cacheable_alias`、`cpu1_other_writers_stopped`、`unified_cold_reset_lifecycle`。
 

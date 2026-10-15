@@ -12,7 +12,10 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.15"
+PROFILE_VERSION = "s2b-inference-platform/0.1.16"
+PHYSICAL_INTERFACE_VERSION = "s2b-physical-candidate/0.1.2"
+PHYSICAL_INTERFACE_DOCUMENT = "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"
+PHYSICAL_INTERFACE_SHA256 = "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -586,7 +589,16 @@ def check_static(root: Path) -> dict:
     """仅确认可恢复输入和公开口约束，不替代 IPI/RTL 审查。"""
     profile = read_json(root / "board/s2b_inference_platform.json")
     require(profile["version"] == PROFILE_VERSION, "平台版本不符")
-    require(profile.get("physical_interface") == "s2b-physical-candidate/0.1.1", "物理候选版本不符")
+    require(profile.get("physical_interface") == PHYSICAL_INTERFACE_VERSION, "物理候选版本不符")
+    require(profile.get("physical_interface_document") == PHYSICAL_INTERFACE_DOCUMENT,
+            "物理候选正文路径不符")
+    require(profile.get("physical_interface_sha256") == PHYSICAL_INTERFACE_SHA256 and
+            sha256(relative_file(root, PHYSICAL_INTERFACE_DOCUMENT)) == PHYSICAL_INTERFACE_SHA256,
+            "物理候选正文哈希不符")
+    require(profile.get("physical_interface_status") == "CANDIDATE_NOT_FROZEN" and
+            profile.get("evidence_reuse_policy") ==
+            "NO_PASS_INHERITANCE_FOR_EXISTING_XSA_ELF_OR_T19_EVIDENCE",
+            "候选状态或既有证据继承策略不符")
     require(profile["requested_part_literal"] == "XC7Z020-2CLG400I", "原始型号被改变")
     require(profile["vivado_part"] == "xc7z020clg400-2", "工具器件不符")
     require(profile["clock_hz"] == 50_000_000 and profile["visibility_default"] == 0, "时钟或默认门控不符")
@@ -608,7 +620,7 @@ def check_static(root: Path) -> dict:
                         for path in FROZEN_CORE_SHA256] + list(LEGACY_2B_SOURCES)
     require(sources == expected_sources, "闭包必须精确为6个冻结2A、8个派生及4个原2B模块")
     script = relative_file(root, "vivado/s2b_inference_platform.tcl").read_text(encoding="utf-8")
-    require("variable version 0.1.12" in script, "Tcl平台版本不符")
+    require("variable version 0.1.13" in script, "Tcl平台版本不符")
     require("list_properties" not in script and len(re.findall(r"\[list_property\s", script)) == 3,
         "Vivado 属性枚举必须使用官方 list_property 命令")
     require("make_wrapper -files $bd_file -top -import" in script and
@@ -636,7 +648,8 @@ def check_static(root: Path) -> dict:
             "构建脚本集合不符")
     files = list(dict.fromkeys(sources + list(FROZEN_CORE_SHA256) + profile["build_scripts"] +
         ["board/s2b_inference_platform.json", "board/s2b_inference_platform.md",
-         "board/ps_platform_fields.json", "verification/check_s2b_inference_platform.py",
+         "board/ps_platform_fields.json", PHYSICAL_INTERFACE_DOCUMENT,
+         "verification/check_s2b_inference_platform.py",
          "verification/test_s2b_conv_feature_address_rtl.py"]))
     return {path: sha256(relative_file(root, path)) for path in files}
 

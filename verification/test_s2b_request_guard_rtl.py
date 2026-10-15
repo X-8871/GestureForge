@@ -212,7 +212,7 @@ def write_delivery(evidence: Path, report: dict) -> None:
                 "reason": "本任务模块无时钟、AXI或实物接口；请求门禁调用及AXI VALID行为属于后续集成验收。"}]
     delivery = {"schema_version": 1, "stage": "2B", "task_id": "S2B-T09", "run_id": evidence.name,
         "source_commit": report["source_commit"], "evidence_dir": evidence.relative_to(ROOT).as_posix(),
-        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.1",
+        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.2",
                         "frozen": False, "path": SPEC, "sha256": sha(ROOT / SPEC)}],
         "files": files, "checks": checks, "limitations": report["limitations"],
         "tool_versions": report.get("tool_versions", {"python": sys.version.split()[0]})}

@@ -1,6 +1,6 @@
 # 2B CPU0 与 PC 的 UART 候选运输接口
 
-版本：`s2bu-candidate/1.1`；日期：2026-10-11（UTC+8）。对应 `vitis/s2b_inference_app.c`、`vitis/build_s2b_inference.py`、`verification/s2b_board_transport.py`。本文件定义部署及数据运输候选，尚未完成完整平台冻结或板上验收。1.1 增加未冻结 PS 诊断的 DAP 辅助 ABORT 与显式诊断 ACK；40 B `S2BU/1` 头、普通 RUN、模型、GFINT8W1、输入、D9 解码/NMS 和 AXI/CSR 语义保持原定义及 `s2b-physical-candidate/0.1.1`，不得由运输层更改。
+版本：`s2bu-candidate/1.1`；日期：2026-10-11（UTC+8）。对应 `vitis/s2b_inference_app.c`、`vitis/build_s2b_inference.py`、`verification/s2b_board_transport.py`。本文件定义部署及数据运输候选，尚未完成完整平台冻结或板上验收。1.1 增加未冻结 PS 诊断的 DAP 辅助 ABORT 与显式诊断 ACK；40 B `S2BU/1` 头、普通 RUN、模型、GFINT8W1、输入、D9 解码/NMS 和 AXI/CSR 语义保持原定义及当前物理接口候选 `s2b-physical-candidate/0.1.2`，不得由运输层更改。
 
 ## 部署与内存
 

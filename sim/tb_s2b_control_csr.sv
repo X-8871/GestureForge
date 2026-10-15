@@ -247,15 +247,17 @@ module tb_s2b_control_csr;
         idle_ticks(bstall); s_axi_bready=1; tick(); s_axi_bready=0;
     endtask
     task automatic read_reg(input logic [31:0] addr, expected, input logic [1:0] resp=0, input int stall=0);
-        int wait_count;
+        int wait_count, ar_wait_count;
         s_axi_araddr=addr; s_axi_arvalid=1;
         #1;
         wait_count=0;
         while(!s_axi_arready && wait_count<100) begin tick(); wait_count++; end
-        must(s_axi_arready,"读准入超时"); tick(); s_axi_arvalid=0;
+        must(s_axi_arready,"读准入超时"); ar_wait_count=wait_count; tick(); s_axi_arvalid=0;
         wait_count=0;
         while(!s_axi_rvalid && wait_count<20) begin tick(); wait_count++; end
-        must(s_axi_rvalid && s_axi_rresp==resp && s_axi_rdata==expected,"读值或响应");
+        must(s_axi_rvalid && s_axi_rresp==resp && s_axi_rdata==expected,
+            $sformatf("CSR读失败 stage=%s cycles=%0d addr=0x%08x expected_rdata=0x%08x actual_rdata=0x%08x expected_rresp=%0d actual_rresp=%0d rvalid=%b ar_wait_count=%0d r_wait_count=%0d",
+                progress_stage,cycles,addr,expected,s_axi_rdata,resp,s_axi_rresp,s_axi_rvalid,ar_wait_count,wait_count));
         idle_ticks(stall); s_axi_rready=1; tick(); s_axi_rready=0;
     endtask
     task automatic read_state(input int expected);
@@ -652,6 +654,116 @@ module tb_s2b_control_csr;
         write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,3); read_reg(32'h43c0000c,32'h106);
         write_reg(32'h43c00008,2,2); read_reg(32'h43c00064,3);
         read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16); directed++;
+        // ARMING期间重复START必须拒绝并保持活动epoch、frame及物理所有权。
+        mark_stage("start_rejected_in_arming");
+        initialize(1); configure(); write_reg(32'h43c00014,32'hcafef00d,0);
+        ready_enabled=0; prior=start_count; write_reg(32'h43c00008,1,0);
+        must(!run_enable && start_count==prior,"ARMING向量未启动内核");
+        previous_epoch=run_epoch;
+        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,1);
+        read_reg(32'h43c0000c,32'h101); read_reg(32'h43c00014,32'hcafef00d);
+        must(run_epoch==previous_epoch,"ARMING拒绝START不得递增epoch"); directed++;
+        // DONE采样必须同时等待core_mem_valid清零和公开账本闭合。
+        mark_stage("done_blocked_by_core_mem_valid");
+        initialize(1); configure(); start_run(); mock_status=2; mock_mem=1; idle_ticks(8);
+        read_reg(32'h43c0000c,32'h102); must(run_enable,"core_mem_valid阻断时保持RUN");
+        mock_mem=0; idle_ticks(8); read_state(4); acknowledge(); directed++;
+        mark_stage("done_blocked_by_unfinished_ledger");
+        initialize(1); configure(); start_run(); mock_status=2; mock_empty=0; idle_ticks(8);
+        read_reg(32'h43c0000c,32'h1102); must(run_enable,"账本未空阻断时保持RUN");
+        mock_empty=1; idle_ticks(8); read_state(4); acknowledge(); directed++;
+        // RECOVERING期间重复START保留首错；随后用不匹配ledger epoch验证永久隔离。
+        mark_stage("start_rejected_recovering_and_wrong_epoch");
+        initialize(1); configure(1000,1000); write_reg(32'h43c00014,32'h0badc0de,0);
+        start_run(); mock_empty=0; mock_status=4; mock_error=5; await_recovering_error(5);
+        previous_epoch=run_epoch;
+        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,1);
+        read_reg(32'h43c0000c,32'h1103); read_reg(32'h43c00010,5);
+        read_reg(32'h43c00014,32'h0badc0de); must(run_epoch==previous_epoch,"RECOVERING拒绝START保持epoch");
+        mock_wrong_epoch=1; mock_ledger_epoch=run_epoch+64'd1; tick();
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16);
+        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,3);
+        write_reg(32'h43c00008,2,2); read_reg(32'h43c00064,3);
+        write_reg(32'h43c00008,4,2); read_reg(32'h43c00064,3);
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,5); must(run_epoch==previous_epoch,"epoch隔离后命令保持原epoch"); directed++;
+        // 两种非法R响应均不能清理已接受读账本；后续匹配R只闭合账本，不解除隔离。
+        for(int protocol_case=0;protocol_case<2;protocol_case++) begin
+            mark_stage($sformatf("late_invalid_rid_or_last_%0d",protocol_case));
+            initialize(0); configure(1000,1000); start_run(); launch_memory(0);
+            m_axi_arready=1; tick(); m_axi_arready=0; must(!adapter_empty,"非法R向量先接受AR");
+            operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+            await_recovering_error(5);
+            m_axi_rid=protocol_case==0 ? 6'd1 : 6'd0;
+            m_axi_rlast=protocol_case==0 ? 1'b1 : 1'b0;
+            m_axi_rresp=0; m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+            read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16);
+            must(!adapter_empty && adapter_isolated,"错误RID/LAST不得清账且必须隔离");
+            m_axi_rid=0; m_axi_rlast=1; m_axi_rresp=0; m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+            must(adapter_empty && adapter_isolated,"匹配晚R只闭合账本且隔离保持");
+            read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16); directed++;
+        end
+        // EXOKAY虽匹配并物理消费，仍属于协议故障，且首个CORE错误保持不变。
+        mark_stage("late_exokay_r_after_first_error");
+        initialize(0); configure(1000,1000); start_run(); launch_memory(0);
+        m_axi_arready=1; tick(); m_axi_arready=0;
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_recovering_error(5); m_axi_rid=0; m_axi_rlast=1; m_axi_rresp=1; m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+        must(adapter_empty && adapter_isolated,"EXOKAY R已消费但协议隔离保持");
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,17); directed++;
+        // 已匹配R之后的重复R为无请求响应；不能覆盖首错，也不能清除隔离。
+        mark_stage("duplicate_r_after_first_error");
+        initialize(0); configure(1000,1000); start_run(); launch_memory(0);
+        m_axi_arready=1; tick(); m_axi_arready=0;
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_recovering_error(5); m_axi_rid=0; m_axi_rlast=1; m_axi_rresp=0; m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+        await_safe(); must(adapter_empty,"第一次匹配R后账本安全闭合");
+        m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16); directed++;
+        // 错误BID不能闭合写账本；后续合法B仅完成排空，晚EXOKAY B则直接隔离。
+        mark_stage("late_invalid_bid_after_first_error");
+        initialize(0); configure(1000,1000); start_run(); launch_memory(1);
+        m_axi_awready=1; m_axi_wready=1; tick(); m_axi_awready=0; m_axi_wready=0;
+        must(adapter_progress[4] && adapter_progress[6] && !adapter_empty,"BID向量AW/W均已接受");
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_recovering_error(5); m_axi_bid=1; m_axi_bresp=0; m_axi_bvalid=1; tick(); m_axi_bvalid=0;
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,20);
+        must(!adapter_empty && adapter_isolated,"错误BID不得清账且必须隔离");
+        m_axi_bid=0; m_axi_bresp=0; m_axi_bvalid=1; tick(); m_axi_bvalid=0;
+        must(adapter_empty && adapter_isolated,"匹配晚B只闭合账本且隔离保持");
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,20); directed++;
+        mark_stage("late_exokay_b_after_first_error");
+        initialize(0); configure(1000,1000); start_run(); launch_memory(1);
+        m_axi_awready=1; m_axi_wready=1; tick(); m_axi_awready=0; m_axi_wready=0;
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_recovering_error(5); m_axi_bid=0; m_axi_bresp=1; m_axi_bvalid=1; tick(); m_axi_bvalid=0;
+        must(adapter_empty && adapter_isolated,"EXOKAY B已消费但协议隔离保持");
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,21); directed++;
+        // 无请求B是写方向协议故障，同样保留已发布的首错。
+        mark_stage("unmatched_b_after_first_error");
+        initialize(0); configure(1000,1000); start_run(); operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_safe(); read_reg(32'h43c00010,5); m_axi_bid=0; m_axi_bresp=0; m_axi_bvalid=1; tick(); m_axi_bvalid=0;
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,20); directed++;
+        // DRAIN_TIMEOUT=12从公开ABORT路径触发；保留ABORT首错，bit3置位后继续接收合法晚R。
+        mark_stage("drain_timeout_retains_first_error_and_continues_drain");
+        initialize(0); configure(1000,12); start_run(); launch_memory(0);
+        m_axi_arready=1; tick(); m_axi_arready=0; must(!adapter_empty,"超限向量保留已接受读账本");
+        write_reg(32'h43c00008,2,0); idle_ticks(40);
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,8); read_reg(32'h43c00074,8);
+        must(!adapter_empty && adapter_isolated==0,"超限只标记bit3并继续等待读响应");
+        m_axi_rid=0; m_axi_rlast=1; m_axi_rresp=0; m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+        await_safe(); must(adapter_empty,"超限后合法晚R完成排空");
+        read_reg(32'h43c00010,8); read_reg(32'h43c00074,8); acknowledge(); directed++;
+        // B无效/重复响应可见缺口在上述R/B向量中闭合；此向量刻意永久保留未完成读账本。
+        mark_stage("permanent_unfinished_ledger_rejects_all_commands");
+        initialize(0); configure(1000,12); start_run(); launch_memory(0);
+        m_axi_arready=1; tick(); m_axi_arready=0;
+        write_reg(32'h43c00008,2,0); idle_ticks(40);
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,8); read_reg(32'h43c00074,8);
+        must(!adapter_empty && !adapter_isolated,"永久未完成事务保持未清账且非协议故障");
+        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,3);
+        write_reg(32'h43c00008,4,2); read_reg(32'h43c00064,3);
+        write_reg(32'h43c00008,2,2); read_reg(32'h43c00064,3);
+        read_reg(32'h43c0000c,32'h1106); read_reg(32'h43c00010,8); read_reg(32'h43c00074,8);
         mark_stage("final_assertions_and_coverage");
         must(error_count>0 && ack_count>0 && reset_count>0,"控制及监视路径覆盖");
         for(int p=0;p<4;p++) must(phase_coverage[p]==1,"四相位错误覆盖");

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "control_r18_readreg_diag_20261016_r01",
+  "record_type": "compile_resource_stop",
+  "observation_source": "人工/OS运行时观察；不是compile.log原始采样",
+  "observations_are_approximate": true,
+  "compile_process": {
+    "process_id": 19720,
+    "status": "FAIL_EXIT",
+    "exit_code": 4294967295,
+    "timed_out": false,
+    "seconds": 284.844,
+    "runner_timeout_seconds": 360
+  },
+  "stop_trigger": {
+    "memory_stop_line_gib": 2.0,
+    "observed_at_approx_elapsed_seconds": 225,
+    "available_memory_gib_approx": 1.80,
+    "cc1plus_working_set_gib_approx": 5.47,
+    "system_load_percent_approx": 88
+  },
+  "stop_action": {
+    "taskkill_result": "被拒绝",
+    "follow_up": "随后使用Stop-Process仅结束本Run编译进程（PID 19720）"
+  },
+  "post_stop_observation": {
+    "available_memory_gib_approx": 7.0,
+    "this_run_processes_remaining": false
+  },
+  "limitations": [
+    "资源数值和时间为人工/OS观察的近似值，不是compile.log中记录的原始采样。",
+    "人工资源停止不改写runner原始结果：compile仍为FAIL_EXIT、exit_code=4294967295、timed_out=false；本Run未启动仿真。"
+  ]
+}

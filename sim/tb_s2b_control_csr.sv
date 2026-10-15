@@ -259,8 +259,18 @@ module tb_s2b_control_csr;
         idle_ticks(stall); s_axi_rready=1; tick(); s_axi_rready=0;
     endtask
     task automatic read_state(input int expected);
-        s_axi_araddr=32'h43c0000c; s_axi_arvalid=1; tick(); s_axi_arvalid=0;
-        must(s_axi_rvalid && s_axi_rdata[2:0]==3'(expected),"物理状态");
+        int wait_count;
+        s_axi_araddr=32'h43c0000c; s_axi_arvalid=1; #1;
+        wait_count=0;
+        while(!s_axi_arready && wait_count<100) begin tick(); wait_count++; end
+        must(s_axi_arready,"物理状态查询AR准入超时");
+        tick(); s_axi_arvalid=0;
+        wait_count=0;
+        while(!s_axi_rvalid && wait_count<20) begin tick(); wait_count++; end
+        must(s_axi_rvalid && s_axi_rdata[2:0]==3'(expected),
+            $sformatf("物理状态 stage=%s expected=%0d rvalid=%b rresp=%0d rdata=0x%08x epoch=0x%016x",
+                progress_stage,expected,s_axi_rvalid,s_axi_rresp,s_axi_rdata,run_epoch));
+        must(s_axi_rresp==2'b00,"物理状态查询RRESP必须为OKAY");
         if(expected==5 && reset_cycle>=0) must(cycles-reset_cycle>=3,"S+2之前发布ERROR_SAFE");
         s_axi_rready=1; tick(); s_axi_rready=0;
     endtask
@@ -288,6 +298,21 @@ module tb_s2b_control_csr;
         end
         must(seen,"ERROR_SAFE未到达");
     endtask
+    task automatic await_recovering_error(input logic [31:0] expected_code);
+        int n;
+        logic seen;
+        n=0; seen=0;
+        while(!seen && n<40) begin
+            s_axi_araddr=32'h43c0000c; s_axi_arvalid=1; #1;
+            must(s_axi_arready,"RECOVERING状态查询AR准入"); tick(); s_axi_arvalid=0;
+            must(s_axi_rvalid && s_axi_rresp==0,"RECOVERING状态查询R响应");
+            seen=(s_axi_rdata[2:0]==3 && s_axi_rdata[8] && !s_axi_rdata[10] &&
+                !s_axi_rdata[11] && !s_axi_rdata[13]);
+            s_axi_rready=1; tick(); s_axi_rready=0; n++;
+        end
+        must(seen,"未观察到已完成首错取码的RECOVERING");
+        read_reg(32'h43c00010,expected_code);
+    endtask
     task automatic acknowledge();
         write_reg(32'h43c0005c,run_epoch[31:0],0); write_reg(32'h43c00060,run_epoch[63:32],0);
         write_reg(32'h43c00008,4,0); read_state(0);
@@ -302,6 +327,7 @@ module tb_s2b_control_csr;
 
     initial begin
         logic [31:0] addr, expected;
+        logic [63:0] previous_epoch;
         int prior, saved, count;
         mark_stage("directed_csr_and_random");
         initialize(1);
@@ -573,6 +599,33 @@ module tb_s2b_control_csr;
         tick(); ready_enabled=0; idle_ticks(20); read_reg(32'h43c0000c,32'h2106);
         read_reg(32'h43c00010,0); read_reg(32'h43c00074,8); ready_enabled=1;
         await_safe(); read_reg(32'h43c00010,5); read_reg(32'h43c00074,8); integration_count++;
+        // 错误任务排空并匹配ACK后，不冷复位地接受下一epoch。
+        mark_stage("ack_restart_and_old_response_drain");
+        initialize(0); configure(1000,100);
+        write_reg(32'h43c00014,32'h11112222,0); start_run(); launch_memory(0);
+        prior=logical_responses; m_axi_arready=1; tick(); m_axi_arready=0;
+        must(adapter_progress[1] && !adapter_empty,"首任务真实读已接受且账本未空");
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_recovering_error(5);
+        m_axi_rdata=64'h89abcdef76543210; m_axi_rresp=0; m_axi_rid=0; m_axi_rlast=1;
+        m_axi_rvalid=1; tick(); m_axi_rvalid=0;
+        await_safe(); must(adapter_empty && logical_responses==prior,"取消后的旧读被排空且未交付");
+        read_reg(32'h43c00010,5); read_reg(32'h43c00058,32'h11112222);
+        previous_epoch=run_epoch; acknowledge();
+        read_reg(32'h43c0000c,32'h400); read_reg(32'h43c00010,0);
+        read_reg(32'h43c0006c,0); read_reg(32'h43c00070,0); read_reg(32'h43c00074,0);
+        must(adapter_empty && run_epoch==previous_epoch,"ACK清诊断但保留epoch且账本为空");
+        mark_stage("restart_after_error_ack");
+        write_reg(32'h43c00014,32'h33334444,0); start_run();
+        must(run_epoch==previous_epoch+64'd1,"匹配ACK后下一START严格递增epoch");
+        read_reg(32'h43c00050,32'(run_epoch[31:0])); read_reg(32'h43c00054,32'(run_epoch[63:32]));
+        read_reg(32'h43c00010,0); read_reg(32'h43c0006c,0); read_reg(32'h43c00070,0);
+        read_reg(32'h43c00074,0); must(adapter_empty && logical_responses==prior,"新任务未继承旧读响应");
+        operator_error_code=0; operator_result_valid=1; tick(); operator_result_valid=0; idle_ticks(8);
+        mark_stage("second_epoch_done_state_check");
+        read_state(4); must(s_axi_rdata[9] && !s_axi_rdata[8] && s_axi_rdata[10],"新epoch成功终态标志");
+        mark_stage("second_epoch_done_ack");
+        acknowledge(); must(run_epoch==previous_epoch+64'd1,"第二次ACK不回绕epoch"); directed++;
         // debug预留不被同沿START抢占，phase2最多四周期且Rstall不占监视。
         initialize(1); configure(); while(phase!=3) tick();
         s_axi_araddr=32'h43c00110; s_axi_arvalid=1; s_axi_awaddr=32'h43c00008;
@@ -583,6 +636,22 @@ module tb_s2b_control_csr;
         count=status_count; idle_ticks(12); must(status_count>=count+6,"debug R背压不阻塞监视");
         s_axi_rready=1; s_axi_bready=1; tick(); s_axi_rready=0; s_axi_bready=0;
         while(!run_enable) tick(); directed++;
+        // 已选CORE首错后再到未请求OKAY R，协议隔离必须保留原首错。
+        mark_stage("late_protocol_after_first_error");
+        initialize(0); configure(1000,1000); start_run();
+        operator_error_code=5; operator_result_valid=1; tick(); operator_result_valid=0;
+        await_safe(); read_reg(32'h43c00010,5);
+        previous_epoch=run_epoch;
+        write_reg(32'h43c0005c,previous_epoch[31:0],0);
+        write_reg(32'h43c00060,previous_epoch[63:32],0);
+        m_axi_rdata=64'hfedcba9876543210; m_axi_rresp=0; m_axi_rid=0; m_axi_rlast=1;
+        m_axi_rvalid=1; tick(); m_axi_rvalid=0; idle_ticks(8);
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5);
+        read_reg(32'h43c00074,16); read_reg(32'h43c00050,32'(previous_epoch[31:0]));
+        write_reg(32'h43c00008,4,2); read_reg(32'h43c00064,3); read_reg(32'h43c0000c,32'h106);
+        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,3); read_reg(32'h43c0000c,32'h106);
+        write_reg(32'h43c00008,2,2); read_reg(32'h43c00064,3);
+        read_reg(32'h43c0000c,32'h106); read_reg(32'h43c00010,5); read_reg(32'h43c00074,16); directed++;
         mark_stage("final_assertions_and_coverage");
         must(error_count>0 && ack_count>0 && reset_count>0,"控制及监视路径覆盖");
         for(int p=0;p<4;p++) must(phase_coverage[p]==1,"四相位错误覆盖");

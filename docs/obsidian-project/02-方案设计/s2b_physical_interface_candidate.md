@@ -34,7 +34,7 @@ T19 visibility0离线候选平台 `report/evidence/S2B-T19/visibility0_hp_rebuil
 
 GP0 AXI3到Lite的静态转换配置已按T19 visibility=1离线平台XSA核验：`report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_current.xsa` SHA-256为 `90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065`，其中 `s2b_inference.hwh` SHA-256为 `67e5af631d346d16640bafbd262af7a33bda0236f1a950e632c2e05c90681370`。HWH显示 `/axi_gp0_lite` 为 `xilinx.com:ip:axi_protocol_converter:2.1`，SI为AXI3、MI为AXI4-Lite，地址/数据宽度32 bit、ID宽度12、`C_IGNORE_ID=0`，`C_TRANSLATION_MODE=0`且 `TRANSLATION_MODE=0`；PS `M_AXI_GP0` 的 `AWLEN`/`ARLEN` 端口分别连到转换器 `S_AXI` 的对应端口。这证明该XSA里的静态配置和端口连接，不证明事务运行时的 `AWLEN`/`ARLEN` 取值。AMD PG059规定 AXI4/AXI3到AXI4-Lite的 `TRANSLATION_MODE=0`（Unprotected）要求SI收到的所有事务均为single-beat，即 `AWLEN=0` 或 `ARLEN=0`；因此这是当前配置所依赖的master行为前提。不能据此声称此配置会拆分burst，也不能推断不满足前提时的转换器响应或Lite侧副作用。AXI4-Lite侧没有LEN信号，HWH中的LEN连线不是运行时证明。
 
-HWH还显示 `M_AXI_GP0_ACLK`、转换器 `aclk`、PS `FCLK_CLK0` 与 `rst_fclk0.slowest_sync_clk`同接 `ps7_FCLK_CLK0`、标称50 MHz；`rst_fclk0.ext_reset_in`接PS `FCLK_RESET0_N`，其 `peripheral_aresetn` 扇出到转换器 `aresetn` 和 `infer.cold_resetn`。这是静态时钟/reset拓扑。PG059要求每个 `aresetn` 与对应 `aclk` 同步，互连/基础设施两端复位须重叠且不支持partial reset；HWH连接不能证明实际reset波形、释放时序或运行中两端复位重叠。当前没有PS实板AXI事务、READY背压、响应或reset时序记录。故GP0单拍前提、异常事务边界及reset动态行为仍是G0待决项，候选保持 `CANDIDATE_NOT_FROZEN`；本静态核验不构成冻结依据。审计提取、源绑定和限制见 `report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/`。
+HWH还显示 `M_AXI_GP0_ACLK`、转换器 `aclk`、PS `FCLK_CLK0` 与 `rst_fclk0.slowest_sync_clk`同接 `ps7_FCLK_CLK0`、标称50 MHz；`rst_fclk0.ext_reset_in`接PS `FCLK_RESET0_N`，其 `peripheral_aresetn` 扇出到转换器 `aresetn` 和 `infer.cold_resetn`。这是静态时钟/reset拓扑。PG059要求每个 `aresetn` 与对应 `aclk` 同步，互连/基础设施两端复位须重叠且不支持partial reset；HWH连接不能证明实际reset波形、释放时序或运行中两端复位重叠。T15绑定的实际 `infer.elf` 现在为限定CPU0裸机驱动的标量Device软件前提提供静态依据，见 `report/evidence/S2B-T01/gp0_software_contract_20261014_r03/`；这使G0可以评审输入契约和受控验证计划，不要求先有G3事务波形。R01曾因同Run重生丢失三份初稿原字节，只有已记录SHA，未通过G2；其现存最终四文件原字节在R02中绑定为历史输入。R02自身未通过G2：提交后其只读入口要求live HEAD仍等于source_commit，因而不能跨提交回算。R03保留R01/R02历史输入绑定，并从同一实际ELF/外部输入重新采集事实；R01/R02均不是冻结上游。实际 `AWLEN/ARLEN`、Lite侧事务、READY背压、响应及reset时序仍须G3核验。其他G0阻断未关闭，候选保持 `CANDIDATE_NOT_FROZEN`；本静态核验不构成冻结依据。原始HWH审计见 `report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/`。
 
 FCLK0、GP0 ACLK、HP0 ACLK和候选PL逻辑同域，先以50 MHz为工程目标，受控reset同步释放；这是候选约束，不是实测板上频率。T19 visibility0候选平台在20 ns时钟约束下完成离线布线，setup WNS仅+0.030 ns、hold WHS +0.080 ns；历史visibility=1 route-explore绑定旧源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a`，其WNS=-0.147 ns、60个失败endpoint仅描述旧源码/旧DCP实验；当前源码visibility=1已于2026-10-14在50 MHz/20 ns约束下完成离线STA，WNS +0.229 ns、TNS 0、失败端点0，WHS +0.095 ns、THS 0，结果见本节补充测量。该离线结果不保证实板频率或实物验收。运行中不得只复位计算之外的adapter/互连/HP通路来清计数。
 
@@ -62,7 +62,7 @@ PS linker候选只声明应用 `[0x00100000,0x01100000)`和专属 `s2b_tensor_dd
 
 ## 3. GP0控制寄存器候选
 
-固定64 KiB解码窗口 `[0x43C00000,0x43C10000)`，落在GP0 PL地址段。所有定义字段32-bit little-endian、4-byte对齐。前端必须解码完整地址，不能仅截低8/16位形成别名。未对齐/保留地址/非法访问方向返回DECERR、无副作用；写要求WSTRB=`1111`，其他mask返回SLVERR、无副作用。读保留bit返回0；写非零保留bit返回SLVERR。single beat是驱动与GP0输入事务的前提：现有PS应用对CSR基址调用 `Xil_SetTlbAttributes(CSR_BASE, DEVICE_MEMORY)`，并使用32-bit `Xil_In32`/`Xil_Out32` 访问对齐寄存器；UG585 v1.15“Device and Strongly Ordered”规定这类ARM访问保留访问数量/大小、禁止未对齐和推测访问。这是软件/ARM访问映射的静态依据，不是GP0总线实测。绑定XSA中的AXI3→AXI4-Lite转换器为 `TRANSLATION_MODE=0`；PG059规定此模式要求SI收到的 `AWLEN`/`ARLEN` 为0。HWH只证明PS `M_AXI_GP0` 的LEN端口连到转换器，不能证明事务值为0。Lite端没有LEN，亦无依据声称当前配置会把burst拆成多次Lite访问；不满足single-beat前提时的转换器响应及Lite侧副作用未测。候选未实现GP0 burst拦截器；实板事务和边界证据补齐前，G0不通过且接口不能冻结。
+固定64 KiB解码窗口 `[0x43C00000,0x43C10000)`，落在GP0 PL地址段。所有定义字段32-bit little-endian、4-byte对齐。前端必须解码完整地址，不能仅截低8/16位形成别名。未对齐/保留地址/非法访问方向返回DECERR、无副作用；写要求WSTRB=`1111`，其他mask返回SLVERR、无副作用。读保留bit返回0；写非零保留bit返回SLVERR。single beat是驱动与GP0输入事务的前提。对实际T15 `infer.elf` 的完整SHA和ELF节表核验后，入口路径、SCTLR/MMU建立、`Xil_SetTlbAttributes(0x43C00000, 0xC06)` 调用以及CSR处的32-bit `LDR`/`STR` 和写后 `DSB SY` 均有原始指令字节支撑；同一绑定CPU0 BSP的 `XPAR_CPU_ID=0`，编译命令未定义 `USE_AMP`，源级CSR偏移均为4-byte对齐。UG585 v1.15“Device and Strongly Ordered”说明Device/Strongly Ordered访问保留访问数量与大小、禁止未对齐和推测访问。因此，限定为该实际应用由CPU0单核执行、无中断重入、CPU1停核且无其他控制寄存器writer时，标量对齐32-bit Device访问是有实际ELF静态依据的软件输入契约；选定指令是样例，不代表逐条覆盖整个ELF。完整ELF原字节偏移、BSP/MMU来源、输入哈希和只读重算入口见 `report/evidence/S2B-T01/gp0_software_contract_20261014_r03/`。`DSB SY`是软件顺序/完成屏障，不是AXI事务观测。该依据不声称板上 `AWLEN/ARLEN=0`，也不证明PS interconnect到转换器之间实际事务形态。绑定XSA中的AXI3→AXI4-Lite转换器为 `TRANSLATION_MODE=0`；PG059规定此模式要求SI收到的 `AWLEN`/`ARLEN` 为0，HWH仅证明LEN端口连线。G0评审上述软件输入契约和安全测试计划；实际LEN、Lite事务、响应/背压和reset行为属于G3实测。不能据此声称转换器会把burst拆成多次Lite访问；不在mode0下故意发送burst。其他G0阻断未关闭，候选仍为 `CANDIDATE_NOT_FROZEN`。
 
 | 偏移 | 名称 | 访问/字段 |
 |---:|---|---|
@@ -166,11 +166,11 @@ R要求已接受AR、RID=0、RLAST=1；B要求已声明写、W此前已完成、
 
 截至T19当前证据，以下仅有离线静态或局部读回，不足以发布已验证SAFE：
 
-- GP0：XSA包含PS至控制前端的候选连接；ARM端Device映射有静态依据，但未观测AXI3 GP0的AxLEN、转换后的Lite事务、响应/背压、错误或reset恢复。
+- GP0：绑定CPU0 BSP与实际ELF为受限驱动的标量、对齐32-bit Device访问提供静态输入契约依据；HWH/XSA只证明连接和mode0配置。AXI3 `AWLEN/ARLEN`实际值、转换后的Lite事务、响应/背压、错误与reset恢复仍未观测，属于G3验证内容。
 - HP0：visibility0 postroute DCP静态查询确认HP0直接拓扑及AxCACHE零常量；adapter RTL仿真不等于真实HP0/DDR读写。未运行整模型，未测B/R延迟、背压、部分写或异常排空。
 - cache/可见性：T19 `cache_probe_20261014_r02` 是第1节所绑定旧源码/旧平台上的CPU/DAP预探测，仅对0x10000000起始256字节做两阶段一致读回，运行时保持IDLE、epoch/start/load为0；不经过PL/HP0，不验证当前R02 XSA/bit，也不覆盖32 MiB arena、模型输入/权重/特征或SAFE归还后的整模型读回。BSP、MMU和cache API绑定仅支持已执行先验探测的范围。
 
-因此，GP0事务限制、HP0错误/排空与DDR可见性、32 MiB缓存维护及完整模型的跨Master读回仍须另行验证；PG293不是HP可见性依据。
+因此，GP0软件单拍输入契约和受控测试计划可在G0评审；GP0实际LEN/响应/背压/reset、HP0错误/排空与DDR可见性、32 MiB缓存维护及完整模型的跨Master读回仍须按适用标准验证，其中实物事务与完整传输属于G3；PG293不是HP可见性依据。
 
 PS启用DCache，任务arena与应用不共享32-byte缓存行，所有arena维护范围64-byte对齐。启动前：CPU写input/完整GF8及必要feature初始化→DSB SY→对input/GF8向外64-byte取整执行实际BSP `Xil_DCacheFlushRange`→DSB；对整个feature外包络向外64-byte取整执行FlushRange再InvalidateRange→DSB，消除旧脏输出cache line。维护覆盖的padding在专属arena内，但不是PL对象白名单。之后写MMIO参数、DSB、START，再DSB；RUN/ARMING/RECOVERING/FAULT禁止CPU访问arena，不做cache维护，也不从旧head解码。
 
@@ -195,7 +195,7 @@ FAULT未闭合时持续隔离：若事务始终未结束或状态不能证明，
 
 `s2a_control_csr.sv` 的timeout_cycles和elapsed_cycles均32 bit，零timeout非法；网络descriptor明确global timeout且不逐层重启。最大值`0xFFFFFFFF`在候选50 MHz下仅85.89934590秒，计数不能因DDR stall或恢复而偷偷延长/回绕。当前一次byte往返与重复tile读可能使整网正常完成超过此上限；所以下界估算不足以证明可部署，正常CORE_TIMEOUT和DRAIN_TIMEOUT部署值均为NOT_MEASURED，未填写无依据的默认值。落实前必须量化完整38层逻辑请求数量、实际HP每笔延迟/背压与计算周期，并证明指定范围的正常总周期加余量≤`0xFFFFFFFF`，再设置并记录deadline；如不满足则回G0选择受控加速或关键timeout接口变更，不能以延长软件等待、降低100/1000指标或内部暂停计数绕过。排空timer候选采用32-bit饱和比较，超限不停止接收B/R；其部署观察期限也需量测/上限依据，不宣称有限时间一定排空。
 
-G0未关闭项：GP0实际转换及输入事务前提、AXI3属性证据、CSR监视与reset/ARMING恢复、linker arena与真实DDR/PCB绑定、timeout部署值及估算、软件ABI/cache完整访问和100样本/1000任务计划。T10/T11已有adapter与控制候选RTL仿真及runtime shell/adapter组合场景记录；这些模块级结果不覆盖GP0物理转换或PS HP0↔DDR事务。上文列出的AW/W独立stall、合法早B、逐子读payload复核、timeout撤销、CSR保存与停止确认、控制/debug仲裁、同沿错误优先、取消沿不交付、EXOKAY隔离、lane/strobe、白名单边界、ACK、旧response、观察期超限后的合法晚排空及永久stall等条件，仍需按对应模块与真实集成边界形成可追溯验证。T19 visibility0的离线完整实现已完成；第1节所列旧源码 visibility=1 route-explore曾失败；当前源码visibility=1已完成离线STA，50 MHz/20 ns下WNS +0.229 ns、TNS 0、WHS +0.095 ns、THS 0（见本节补充测量），仍未完成实板与接口验收。真实AXI事务、完整模型传输/黄金比对及G0/G2/G3/平台验收状态均未由这些证据关闭。
+G0未关闭项：GP0输入契约及受控验证计划评审（实际T15 ELF对限定CPU0标量Device软件前提的静态支持和运行限制见R03；mode0下不故意送burst）、AXI3属性证据、CSR监视与reset/ARMING恢复、linker arena与真实DDR/PCB绑定、timeout部署值及估算、软件ABI/cache完整访问和100样本/1000任务计划。GP0实际 `AWLEN/ARLEN`、Lite事务、响应/背压与reset，以及HP0错误/排空和DDR可见性属于后续G3实物/集成验证；它们不是将G3波形前置为G0的理由。T10/T11已有adapter与控制候选RTL仿真及runtime shell/adapter组合场景记录；这些模块级结果不覆盖GP0物理转换或PS HP0↔DDR事务。上文列出的AW/W独立stall、合法早B、逐子读payload复核、timeout撤销、CSR保存与停止确认、控制/debug仲裁、同沿错误优先、取消沿不交付、EXOKAY隔离、lane/strobe、白名单边界、ACK、旧response、观察期超限后的合法晚排空及永久stall等条件，仍需按对应模块与真实集成边界形成可追溯验证。T19 visibility0的离线完整实现已完成；第1节所列旧源码 visibility=1 route-explore曾失败；当前源码visibility=1已完成离线STA，50 MHz/20 ns下WNS +0.229 ns、TNS 0、WHS +0.095 ns、THS 0（见本节补充测量），仍未完成实板与接口验收。100样本/1000连续任务验收指标不变。Wong于2026-10-14确认AX7020目标器件为XC7Z020-2CLG400I、照片所示板卡亦为该型号，Vivado part应核实 `xc7z020clg400-2`；先前照片标识差异仍保留为历史记录，本次软件静态审计不构成物理测量鉴定。真实AXI事务、完整模型传输/黄金比对及G0/G2/G3/平台验收状态均未由这些证据关闭。
 
 地址、字段编码、单核裸机限制与adapter实现选择属于可审阅的工程候选；若保持本范围可由总控按既有授权推进落实，不另造审批门槛。已批准恢复原则覆盖停止→排空→归还、未排空持续隔离，包括期限后确已合法排空且可见性成立时的失败安全归还。改变正常输入/输出语义、正式长度/模型、无排空归还或无法证明旧事务结束就解除FAULT、改正式验收指标等关键语义须Wong决定。最终物理freeze仍需正式批准/审查记录，不能由本文`version`产生。
 

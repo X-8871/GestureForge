@@ -1,0 +1,466 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Fri Oct 16 03:06:07 2026
+# Process ID         : 21680
+# Current directory  : D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01
+# Command line       : vivado.exe -mode tcl -log .vivado-ai\vivado_91166081_75243237.log -journal .vivado-ai\vivado_91166081_75243237.jou -notrace -source .vivado-ai\init_91166081_75243237.tcl
+# Log file           : D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/.vivado-ai/vivado_91166081_75243237.log
+# Journal file       : D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01\.vivado-ai\vivado_91166081_75243237.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 23175 MB
+#-----------------------------------------------------------
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {.vivado-ai\init_91166081_75243237.tcl} -notrace
+INFO: [Common 17-1674] Started webserver at http://localhost:8088
+set_param -quiet messaging.defaultLimit 10000000
+puts "MCPPROBE:cob3v6y9gy6j:[get_param messaging.defaultLimit]"
+MCPPROBE:cob3v6y9gy6j:10000000
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:bo1vcwnxtbjw===}
+INFO: [MCP 00-100] ===MCP_CMD_START:bo1vcwnxtbjw===
+puts "VSCSTART" ; set exitCode [catch {puts [version -short]; puts [info nameofexecutable]; puts [get_param general.maxThreads]; launch_simulation -help} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+2026.1
+D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe
+2
+launch_simulation
+
+Description: 
+Generate simulation scripts of the design and launch steps for the target simulator.
+
+
+Syntax: 
+launch_simulation  [-step <arg>] [-simset <arg>] [-mode <arg>] [-type <arg>]
+                   [-scripts_only] [-gui] [-exec] [-of_objects <args>]
+                   [-absolute_path] [-install_path <arg>]
+                   [-gcc_install_path <arg>] [-noclean_dir] [-quiet] [-verbose]
+
+Usage: 
+  Name                 Description
+  --------------------------------
+  [-step]              Launch a simulation step. Values: all, compile, 
+                       elaborate, simulate. Default:all (launch all steps).
+                       Default: all
+  [-simset]            Name of the simulation fileset
+  [-mode]              Simulation mode. Values: behavioral, post-synthesis, 
+                       post-implementation
+                       Default: behavioral
+  [-type]              Netlist type. Values: functional, timing. This is only
+                       applicable when mode is set to post-synthesis or 
+                       post-implementation
+  [-scripts_only]      Only generate scripts
+  [-gui]               Invoke simulator GUI (applicable for -scripts_only 
+                       mode)
+  [-exec]              Execute existing script for the step specified with 
+                       the -step switch
+  [-of_objects]        Generate compile order file for this object 
+                       (applicable with -scripts_only option only)
+  [-absolute_path]     Make design source file paths in 'absolute' format
+  [-install_path]      Custom installation directory path
+  [-gcc_install_path]  Specify GNU compiler installation directory path for 
+                       the g++/gcc executables
+  [-noclean_dir]       Do not remove simulation run directory files
+  [-quiet]             Ignore command errors
+  [-verbose]           Suspend message limits during command execution
+
+Categories: 
+ToolLaunch, Simulation
+
+Description:
+
+  Launch a simulator to perform analysis and verification of a design.
+
+  The launch_simulation command creates a script file for the target
+  simulator and then executes this file in the simulation run directory. The
+  simulation results are saved in the log files created in the run directory.
+
+  To run simulation for a specific simulator, you must first define the
+  target simulator by setting the TARGET_SIMULATOR property on the design
+  project:
+
+    set_property TARGET_SIMULATOR <name> [current_project]
+
+  The TARGET_SIMULATOR property can have a value of XSim, ModelSim, Xcelium,
+  VCS, Riviera, or ActiveHDL. The default value is XSim, the Vivado
+  simulator.
+
+  The following are the supported simulator versions:
+
+   *  xsim - Vivado Simulator version 2026.1
+
+   *  modelsim - ModelSim Simulator version 2025.3 or later
+
+   *  questa - Questa Advanced Simulator version 2025.3 or later
+
+   *  xcelium - (Linux only) Xcelium Parallel Simulator version 25.09.001 or
+      later
+
+   *  vcs - (Linux only) Verilog Compiler Simulator version X-2025.06-SP2 or
+      later
+
+   *  riviera - Riviera-PRO Simulator version 2024.10 or later
+
+   *  activehdl - (Windows only) Active-HDL Simulator version 16.0
+
+  You can define target simulator from the Vivado IDE. Create or open a
+  project, select Tools > Settings > Simulation menu item, and select the
+  Target simulator from the drop-down menu. The available choices are: Vivado
+  simulator, ModelSim Simulator, Questa Advanced Simulator, Xcelium Parallel
+  Simulator, Verilog Compiler Simulator (VCS), Riviera-PRO Simulator, and
+  Active-HDL Simulator.
+
+  Tip: Some of these simulators are only available on Linux and some are only
+  available on Windows.
+
+  The launch_simulation command uses a three-step process comprised of
+  compile, elaborate, and simulate steps. A script file for the target
+  simulator is created for each step in the process (compile.bat,
+  elaborate.bat, and simulate.bat), and written to the simulation run directory.
+
+  Tip: On Linux the script files are named with the .sh suffix instead of .bat.
+
+  By default, launch_simulation run these scripts files in sequence to run
+  the simulation. You can create the scripts without running them by using
+  the -scripts_only option.
+
+  This command returns a transcript of the process, or returns an error if it
+  fails.
+
+Arguments:
+
+  -simset <arg> - (Optional) The name of the simulation file set containing
+  the simulation test benches and sources that are used during simulation. If
+  not specified, the current simulation file set is used.
+
+  -mode [ behavioral | post-synthesis | post-implementation ] - (Optional)
+  Specifies either a behavioral simulation of the HDL design sources to
+  verify syntax and confirm that the design performs as intended, a
+  functional or timing simulation of the post-synthesis netlist, or a
+  functional or timing simulation of the post implementation design to verify
+  circuit operation after place and route. The default mode is behavioral.
+
+  -type [ functional | timing ] - (Optional) Specifies functional simulation
+  of just the netlist, or timing simulation of the netlist and SDF file. This
+  option must be specified with -mode for post-synthesis or
+  post-implementation, but cannot be used with -mode behavioral.
+  Post-synthesis timing simulation uses SDF component delays from the
+  synth_design command. Post-implementation timing simulation uses SDF delays
+  from the place_design and route_design commands.
+
+  Important: Do not use -type with -mode behavioral, or the tool returns an
+  error.
+
+  -scripts_only - (Optional) Only generate the simulation scripts for the
+  target simulator, rather than actually launching these scripts to start the
+  "compile", "elaborate" and "simulate" steps. You can use the scripts to
+  launch the simulation flow at a later time.
+
+  -gui - (Optional) Invoke simulator in GUI mode when executing the simulate
+  script (applicable for scripts only mode)
+
+  -of_objects <arg> - (Optional) Run simulation for a single specified
+  sub-design, or composite file. The sub-design must be specified as a design
+  object as returned by the get_files command, rather than simply specified
+  by name.
+
+  -absolute_path - (Optional) Specify this option to define the source and
+  include paths used in the simulation scripts as absolute paths. By default,
+  all paths are written as relative to the simulation run directory. Relative
+  paths include an "origin_dir" variable that is set in the simulation script
+  to the current run directory, but you can edit the $origin_dir variable to
+  point to a path of your choice when relocating the design and simulation
+  scripts.
+
+  -install_path <arg> - (Optional) Specifies the directory containing
+  simulator executables ( for example, vlog.exe, ncvlog, vlogan). If this
+  option is not specified, the target simulator looks in the current $PATH.
+
+  -gcc_install_path <arg> - (Optional) Specifies the directory containing
+  simulator GCC executables (for example, gcc, g++). If this switch is not
+  specified, then the directory path is determined from the project property
+  named "simulator.<name>_gcc_install_dir". If this property is not set, then
+  the path set by the GCC_SIM_EXE_PATH environment variable is used. If this
+  variable is not set, then launch_simulation automatically calculates the
+  path from the simulator installation. If the path is not available, then it
+  searches from the $PATH (Linux) or %PATH% (Windows) environment variable.
+
+  Supported GCC versions.
+
+   *  xsim - 9.3.0
+
+   *  questa - 7.4.0
+
+   *  xcelium - 9.3.0
+
+   *  vcs - 9.2.0
+
+   *  riviera - 9.3.0
+
+  -noclean_dir - (Optional) Do not remove files from the simulation run
+  directory prior to launching the simulator. The default behavior removes
+  files from the simulation run directory to create a clean start. With the
+  -noclean_dir option, existing files in the run directory are left in place.
+  However, some of the files generated for use by the simulator are
+  overwritten or updated by re-launching the simulator.
+
+  -step - (Optional) Specifies the simulation step to be launched. The valid
+  steps are: compile, elaborate, and simulate.
+
+  Tip: By default, all the steps are executed.
+
+  -exec - (Optional) Execute script for the step specified with the -step
+  switch. The script must be generated first and should be present in the
+  simulation run directory.
+
+  Note: This switch is applicable with the -step only.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following commands run behavioral simulation of the design using the
+  Vivado simulator:
+
+    set_property target_simulator "XSim" [current_project]
+    launch_simulation
+
+  The following commands run post-synthesis functional simulation of the
+  design using the ModelSim Simulator:
+
+    set_property target_simulator "ModelSim" [current_project]
+    launch_simulation -mode "post-synthesis" -type "functional"
+
+  The following commands run post-implementation functional simulation of the
+  design using the Cadence Xcelium Simulator:
+
+    set_property target_simulator "Xcelium" [current_project]
+    launch_simulation -mode "post-implementation" -type "functional"
+
+  The following commands run post-implementation timing simulation of the
+  design using the Synopsys VCS Simulator:
+
+    set_property target_simulator "VCS" [current_project]
+    launch_simulation -mode "post-implementation" -type "timing"
+
+  The following command generates behavioral simulation scripts for the
+  target simulator in the simulation run directory:
+
+    launch_simulation -scripts_only
+
+  The following command sets the target simulator command in the script to
+  run in the GUI mode:
+
+    launch_simulation -scripts_only -gui
+
+  The following command generates and execute compile step:
+
+    launch_simulation -step compile
+
+  The following command executes elaborate step by executing the existing
+  elaborate script in the simulation run directory:
+
+    launch_simulation -step elaborate -exec
+
+  The following commands run behavioral simulation flow of the design for the
+  my_simset simulation file set for the target simulator in the simulation
+  run directory:
+
+    launch_simulation -simset [get_filesets my_simset]
+
+  The following command runs behavioral simulation flow for the char_fifo.xci
+  IP for the target simulator in the simulation run directory, and does not
+  clean up prior simulation files:
+
+    launch_simulation -noclean_dir -of_objects [get_files char_fifo.xci]
+
+  The following command generates absolute paths for the source files in the
+  generated script files:
+
+    launch_simulation -absolute_path
+
+  The following command selects the Xcelium simulator tools from the
+  specified installation path rather than PATH variable:
+
+    launch_simulation -install_path /tools/20.09.006/tools/xcelium/bin
+
+See Also:
+
+   *  close_sim
+   *  current_sim
+   *  relaunch_sim
+   *  xsim
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:bo1vcwnxtbjw:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:bo1vcwnxtbjw:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:ig9ym0noiao8===}
+INFO: [MCP 00-100] ===MCP_CMD_START:ig9ym0noiao8===
+puts "VSCSTART" ; set exitCode [catch {source {D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/preflight.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+# set root {D:/FPGA_Competition/w2b}
+# set run_id control_r18_xsim_preflight_20261016_r01
+# set work $root/tmp/2B/S2B-T11/$run_id
+# set snapshots $root/report/evidence/S2B-T11/$run_id/source_snapshot
+# create_project csr_xsim $work/project -part xc7z020clg400-2
+INFO: [ProjectBase 1-489] The host OS only allows 260 characters in a normal path. The project is stored in a path with more than 80 characters. If you experience issues with IP, Block Designs, or files not being found, please consider moving the project to a location with a shorter path. Alternately consider using the OS subst command to map part of the path to a drive letter.
+Current project path is 'D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/project'
+create_project: Time (s): cpu = 00:00:15 ; elapsed = 00:00:10 . Memory (MB): peak = 610.562 ; gain = 269.473
+# set_property target_simulator XSim [current_project]
+# set files {}
+# foreach name {s2b_control_csr.sv s2b_hp0_word_adapter.sv s2b_request_guard.sv s2a_control_csr.sv s2a_memory_master.sv s2a_runtime_shell.sv tb_s2b_control_csr.sv} {
+#     lappend files $snapshots/$name
+# }
+# add_files -fileset sim_1 -norecurse $files
+# set_property top tb_s2b_control_csr [get_filesets sim_1]
+# update_compile_order -fileset sim_1
+# puts "XSIM_PREFLIGHT_VERSION=[version -short]"
+XSIM_PREFLIGHT_VERSION=2026.1
+# puts "XSIM_PREFLIGHT_EXECUTABLE=[info nameofexecutable]"
+XSIM_PREFLIGHT_EXECUTABLE=D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe
+# puts "XSIM_PREFLIGHT_PART=[get_property PART [current_project]]"
+XSIM_PREFLIGHT_PART=xc7z020clg400-2
+# puts "XSIM_PREFLIGHT_TOP=[get_property TOP [get_filesets sim_1]]"
+XSIM_PREFLIGHT_TOP=tb_s2b_control_csr
+# puts "XSIM_PREFLIGHT_SOURCE_ORDER=[get_files -compile_order sources -used_in simulation -of_objects [get_filesets sim_1]]"
+XSIM_PREFLIGHT_SOURCE_ORDER=D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2a_control_csr.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2a_memory_master.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2a_runtime_shell.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2b_control_csr.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2b_hp0_word_adapter.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/s2b_request_guard.sv D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/tb_s2b_control_csr.sv
+# foreach prop [list_property [get_filesets sim_1]] {
+#     if {[string match -nocase *xsim* $prop]} {puts "$prop=[get_property $prop [get_filesets sim_1]]"}
+# }
+XSIM.COMPILE.TCL.PRE=
+XSIM.COMPILE.XSC.MORE_OPTIONS=
+XSIM.COMPILE.XSC.MT_LEVEL=auto
+XSIM.COMPILE.XVHDL.MORE_OPTIONS=
+XSIM.COMPILE.XVHDL.NOSORT=1
+XSIM.COMPILE.XVHDL.RELAX=1
+XSIM.COMPILE.XVLOG.MORE_OPTIONS=
+XSIM.COMPILE.XVLOG.NOSORT=1
+XSIM.COMPILE.XVLOG.RELAX=1
+XSIM.ELABORATE.COVERAGE.CELLDEFINE=0
+XSIM.ELABORATE.COVERAGE.DIR=
+XSIM.ELABORATE.COVERAGE.LIBRARY=0
+XSIM.ELABORATE.COVERAGE.NAME=
+XSIM.ELABORATE.COVERAGE.TYPE=
+XSIM.ELABORATE.DEBUG_LEVEL=typical
+XSIM.ELABORATE.LINK.C=
+XSIM.ELABORATE.LINK.SYSC=
+XSIM.ELABORATE.LOAD_GLBL=1
+XSIM.ELABORATE.MT_LEVEL=auto
+XSIM.ELABORATE.RANGECHECK=0
+XSIM.ELABORATE.RELAX=1
+XSIM.ELABORATE.SDF_DELAY=sdfmax
+XSIM.ELABORATE.SNAPSHOT=
+XSIM.ELABORATE.XELAB.MORE_OPTIONS=
+XSIM.ELABORATE.XSC.MORE_OPTIONS=
+XSIM.MORE_OPTIONS=
+XSIM.SAIF=
+XSIM.SIMULATE.ADD_POSITIONAL=0
+XSIM.SIMULATE.CUSTOM_TCL=
+XSIM.SIMULATE.LOG_ALL_SIGNALS=0
+XSIM.SIMULATE.NO_QUIT=0
+XSIM.SIMULATE.RUNTIME=1000ns
+XSIM.SIMULATE.SAIF=
+XSIM.SIMULATE.SAIF_ALL_SIGNALS=0
+XSIM.SIMULATE.SAIF_SCOPE=
+XSIM.SIMULATE.TCL.POST=
+XSIM.SIMULATE.WDB=
+XSIM.SIMULATE.XSIM.MORE_OPTIONS=
+XSIM.VIEW=
+XSIM.WDB=
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:ig9ym0noiao8:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:ig9ym0noiao8:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:7k7udd2o84y1===}
+INFO: [MCP 00-100] ===MCP_CMD_START:7k7udd2o84y1===
+puts "VSCSTART" ; set exitCode [catch {puts "ELAB_MT_VALUES=[list_property_value XSIM.ELABORATE.MT_LEVEL [get_filesets sim_1]]"; puts "XSC_MT_VALUES=[list_property_value XSIM.COMPILE.XSC.MT_LEVEL [get_filesets sim_1]]"; puts "DEFAULT_DEFINES=[get_property VERILOG_DEFINE [get_filesets sim_1]]"; puts "DEFAULT_INCLUDES=[get_property INCLUDE_DIRS [get_filesets sim_1]]"} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+ELAB_MT_VALUES=auto off 2 4 8 16 32
+XSC_MT_VALUES=auto off 2 4 8 16 32
+DEFAULT_DEFINES=
+DEFAULT_INCLUDES=
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:7k7udd2o84y1:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:7k7udd2o84y1:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:jqtgf4bwszcx===}
+INFO: [MCP 00-100] ===MCP_CMD_START:jqtgf4bwszcx===
+puts "VSCSTART" ; set exitCode [catch {source {D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/export.tcl}} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+# set_param general.maxThreads 1
+# set simset [get_filesets sim_1]
+# set_property XSIM.COMPILE.XVLOG.RELAX false $simset
+# set_property XSIM.ELABORATE.RELAX false $simset
+# set_property XSIM.COMPILE.XSC.MT_LEVEL off $simset
+# set_property XSIM.ELABORATE.MT_LEVEL off $simset
+# set_property XSIM.ELABORATE.LOAD_GLBL false $simset
+# set_property XSIM.ELABORATE.DEBUG_LEVEL typical $simset
+# set_property XSIM.SIMULATE.RUNTIME 2ms $simset
+# set_property XSIM.SIMULATE.LOG_ALL_SIGNALS false $simset
+# launch_simulation -simset sim_1 -mode behavioral -scripts_only -absolute_path
+Command: launch_simulation  -simset sim_1 -mode behavioral -scripts_only -absolute_path
+INFO: [Vivado 12-25912] Generating simulation scripts for 'XSim' simulator
+INFO: [Vivado 12-28535] Process started - Fri Oct 16 03:08:37 2026
+
+INFO: [Vivado 12-12493] Simulation top is 'tb_s2b_control_csr'
+INFO: [Vivado 12-5680] Creating behavioral simulation scripts in 'D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/project/csr_xsim.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-72] Using boost library from 'D:/Xilinx/2026.1/Vivado/tps/boost_1_72_0'
+INFO: [SIM-utils-54] Inspecting design source files for 'tb_s2b_control_csr' in fileset 'sim_1'...
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-60] Script generated:D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/project/csr_xsim.sim/sim_1/behav/xsim/compile.bat
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-60] Script generated:D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/project/csr_xsim.sim/sim_1/behav/xsim/elaborate.bat
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-60] Script generated:D:/FPGA_Competition/w2b/tmp/2B/S2B-T11/control_r18_xsim_preflight_20261016_r01/project/csr_xsim.sim/sim_1/behav/xsim/simulate.bat
+# puts "XSIM_EXPORT_SCRIPTS_ONLY_OK"
+XSIM_EXPORT_SCRIPTS_ONLY_OK
+
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:jqtgf4bwszcx:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:jqtgf4bwszcx:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:p53330wluqh8===}
+INFO: [MCP 00-100] ===MCP_CMD_START:p53330wluqh8===
+puts "VSCSTART" ; set exitCode [catch {close_project} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+RQA_AMD_NETLIST-14
+VSCEND:0
+send_msg_id {MCP 00-101} INFO "===MCP_CMD_END:p53330wluqh8:$exitCode==="
+INFO: [MCP 00-101] ===MCP_CMD_END:p53330wluqh8:0===
+set_param -quiet messaging.defaultLimit 10000000
+send_msg_id {MCP 00-100} INFO {===MCP_CMD_START:0958jvrno78v===}
+INFO: [MCP 00-100] ===MCP_CMD_START:0958jvrno78v===
+puts "VSCSTART" ; set exitCode [catch {exit} result] ; catch {flush stdout} ; catch {flush stderr} ; puts $result ; puts "VSCEND:$exitCode"
+VSCSTART
+INFO: [Common 17-206] Exiting Vivado at Fri Oct 16 03:10:34 2026...

@@ -1,0 +1,26 @@
+test_caller_specific_thresholds_are_recorded (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_caller_specific_thresholds_are_recorded) ... ok
+test_delayed_memory_sample_fails_closed (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_delayed_memory_sample_fails_closed) ... ok
+test_low_memory_terminates_own_job_and_preserves_external_sentinel (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_low_memory_terminates_own_job_and_preserves_external_sentinel) ... ok
+test_low_preflight_never_launches_root (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_low_preflight_never_launches_root) ... ok
+test_manifest_never_trusts_exit_code_zero_alone (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_manifest_never_trusts_exit_code_zero_alone) ... ok
+test_memory_query_exception_fails_closed (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_memory_query_exception_fails_closed) ... ok
+test_nonfinite_time_parameters_fail_before_job_creation (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_nonfinite_time_parameters_fail_before_job_creation) ... ok
+test_normal_parent_child_finishes_and_job_is_empty (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_normal_parent_child_finishes_and_job_is_empty) ... ok
+test_timeout_is_never_pass_even_when_cleanup_is_confirmed (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_timeout_is_never_pass_even_when_cleanup_is_confirmed) ... ok
+test_unconfirmed_cleanup_after_timeout_cannot_pass (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_unconfirmed_cleanup_after_timeout_cannot_pass) ... FAIL
+
+======================================================================
+FAIL: test_unconfirmed_cleanup_after_timeout_cannot_pass (verification.test_s2b_process_supervisor.S2BProcessSupervisorTests.test_unconfirmed_cleanup_after_timeout_cannot_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\FPGA_Competition\w2b\verification\test_s2b_process_supervisor.py", line 197, in test_unconfirmed_cleanup_after_timeout_cannot_pass
+    self.assertEqual("FAIL_TIMEOUT_CLEANUP_UNCONFIRMED", result["status"], result)
+AssertionError: 'FAIL_TIMEOUT_CLEANUP_UNCONFIRMED' != 'FAIL_JOB_LAUNCH'
+- FAIL_TIMEOUT_CLEANUP_UNCONFIRMED
++ FAIL_JOB_LAUNCH
+ : {'name': 'fixture', 'command': ['C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe', '-c', 'import time; time.sleep(30)'], 'working_directory': 'C:\\Users\\22061\\AppData\\Local\\Temp\\s2b-job-test-7t5_hrxu', 'timeout_seconds': 0.15, 'exit_code': None, 'timed_out': False, 'status': 'FAIL_JOB_LAUNCH', 'process_id': None, 'started_at': '2026-10-16T03:32:55.876+08:00', 'launch_attempted': True, 'cleanup_confirmed': False, 'resource_monitor': {'supervisor_version': 's2b-job-supervisor/1.0', 'sample_interval_seconds': 0.05, 'max_sample_gap_seconds': 1.0, 'drain_timeout_seconds': 2.0, 'invalid_time_parameters': [], 'start_floor_bytes': 10737418240, 'stop_floor_bytes': 2147483648, 'preflight': {'available_ram_bytes': 12884901888, 'total_ram_bytes': 17179869184, 'meets_start_floor': True, 'monotonic_seconds': 27535.906}, 'sample_count': 0, 'minimum_available_ram_bytes': None, 'total_ram_bytes': None, 'maximum_sample_gap_seconds': 0.0, 'last_sample_monotonic': None, 'failure': None}, 'cleanup': {'job_created': True, 'termination_requested': False, 'termination_exit_code': None, 'empty_job_proof': None, 'job_closed': True, 'root_process_handle_closed': False, 'root_thread_handle_closed': False, 'confirmed': False, 'natural_drain_failure': None, 'errors': [], 'verification_scope': '双次读取Job PID列表为空且Accounting active_processes为0，并确认root原始HANDLE已signal；不要求保留所有短命子进程HANDLE。'}, 'error': "SuspendedRootError: suspended root 启动被fail-closed：primary=JobGuardError('OpenProcess(pid=26112) 失败：WinError 5'); cleanup_errors=[]; events=[{'event': 'CREATE_SUSPENDED', 'pid': 888, 'monotonic_seconds': 27535.906}, {'event': 'ASSIGN_PROCESS_TO_JOB', 'pid': 888, 'monotonic_seconds': 27535.953}, {'event': 'TERMINATE_OWN_JOB', 'monotonic_seconds': 27536.046}, {'event': 'ROOT_REAPED', 'exit_code': 92, 'monotonic_seconds': 27536.046}, {'event': 'JOB_REAPED', 'result': {'job_pids': [], 'active_processes': 0, 'total_processes': 1, 'total_terminated_processes': 0, 'exited_processes': 1, 'root_handle_signaled': True, 'member_readbacks': [{'pid': 888, 'birth_ticks': 134365663758786968, 'exit_code': 92, 'status': 'EXITED'}], 'live_members': [], 'unknown_members': []}, 'monotonic_seconds': 27536.046}, {'event': 'CLOSE_OWN_JOB', 'monotonic_seconds': 27536.046}, {'event': 'FAIL_CLOSED', 'resume_attempted': False, 'monotonic_seconds': 27536.046}]", 'seconds': 0.14, 'finished_at': '2026-10-16T03:32:56.009+08:00'}
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.026s
+
+FAILED (failures=1)

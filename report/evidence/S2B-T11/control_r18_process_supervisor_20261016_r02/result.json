@@ -1,0 +1,18 @@
+{
+  "source_commit": "7ba5be307ff09073f6897b5f39923adcbfe71e20",
+  "scope": "真实Windows进程隔离微型回归；非RTL/板上验证",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -m unittest -v verification.test_s2b_process_supervisor",
+  "exit_code": 1,
+  "tests_run": 10,
+  "tests_passed": 9,
+  "tests_failed": 1,
+  "unittest_elapsed_seconds": 4.026,
+  "outer_tool_elapsed_seconds": 5.2115743,
+  "status": "FAIL",
+  "failure": "最后一个清理未确认测试在创建挂起root的身份核验阶段提前FAIL_JOB_LAUNCH，未到预期TIMEOUT_CLEANUP_UNCONFIRMED；OpenProcess(pid=26112) WinError5。",
+  "launch_observation": "日志显示新root PID888已入本Job但未Resume；launcher终止自有Job，root退出92，Job为空且句柄关闭。",
+  "diagnosis": "待核实Toolhelp按PID/PPID遍历是否把复用rootPID的旧进程后代误认作本Run后代；不能靠重试或放宽断言关闭。",
+  "rtl_compile": "NOT_RUN",
+  "hardware_validation": "NOT_RUN",
+  "peak_memory": "未测"
+}

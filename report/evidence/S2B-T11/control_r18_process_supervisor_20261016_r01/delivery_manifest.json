@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "control_r18_process_supervisor_20261016_r01",
+  "source_commit": "7ba5be307ff09073f6897b5f39923adcbfe71e20",
+  "evidence_dir": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本小任务验证操作系统进程隔离与资源失败关闭，不变更总线或模型接口；不替代CSR业务验证。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/assessment.md",
+      "sha256": "28e0920f318ef30fc00d17301406ac0d42cf5817697b3203c081228c44bbdc8c",
+      "role": "result",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/package_manifest.py",
+      "sha256": "77343356b64f6fb8020021db2872fa064270345911c137d2129a32d33ea43a26",
+      "role": "source",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/python_executable_hash.txt",
+      "sha256": "b675e119711b9341abe52bbdb17830c156cdee3df220becf9b4c5458bac5a0be",
+      "role": "result",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/result.json",
+      "sha256": "9f61de6b54b0e9fafaa68d409d0893066ba0b9e146e5fd1971a701bcc5487a3c",
+      "role": "result",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/source_snapshot/s15_job_guard.py",
+      "sha256": "f3921402a16cdca390f4b26c4a2097a0f62b72ed8cbd18b03182b4f1c428053a",
+      "role": "source",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/source_snapshot/s2b_process_supervisor.py",
+      "sha256": "8baeba9c4797db8dfa76178a24fc9d59e372d663c0304537b73b804385c564c6",
+      "role": "source",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/source_snapshot/test_s2b_control_csr_rtl.py",
+      "sha256": "5ed117da83f4437434ab2f3bd2a9d163e45644acfe007ee18a9fff84c7c12d98",
+      "role": "source",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/source_snapshot/test_s2b_process_supervisor.py",
+      "sha256": "3b9d8d67a530ff1c02c383dd25e9c8c30f8d2f8451cfbf3030faf8460f9bde23",
+      "role": "source",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/tool_versions.json",
+      "sha256": "c6dd9974bb33729717fd92f5552bf4c5a39ba63cd815d0d733deb08712641b1f",
+      "role": "result",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    },
+    {
+      "path": "report/evidence/S2B-T11/control_r18_process_supervisor_20261016_r01/unittest.log",
+      "sha256": "949d1e30117613b8108d47dac19cd7ce704be5b2d8543c7234b62dc34ccf666c",
+      "role": "log",
+      "keep_reason": "保留真实测试记录、工具身份和待审源码绑定，供独立复核。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "windows_job_fixture_tests",
+      "status": "PASS",
+      "command": "python.exe -B -m unittest -v verification.test_s2b_process_supervisor",
+      "exit_code": 0,
+      "reason": "真实Windows进程/Job微型测试9项通过；故障内存值由测试注入。"
+    },
+    {
+      "name": "independent_review",
+      "status": "BLOCKED",
+      "command": "独立Reviewer /root/review_t13_and_board_probe 只读审查及9项复跑",
+      "exit_code": null,
+      "reason": "CHANGES_REQUIRED：非有限时间预算可能导致无界运行或清理。"
+    },
+    {
+      "name": "rtl_and_hardware_acceptance",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本Run不执行RTL或实板测试。"
+    }
+  ],
+  "limitations": [
+    "未测峰值内存；不是实际内存压力测试。",
+    "独立审查结论另行核对；包装检查不代表G2或阶段验收。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "psutil": "7.2.2",
+    "OS": "Windows"
+  }
+}

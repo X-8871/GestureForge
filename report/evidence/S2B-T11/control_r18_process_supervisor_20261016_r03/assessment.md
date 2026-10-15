@@ -1,0 +1,7 @@
+# r03 独立微型回归
+
+Reviewer串行实际运行DirectSpawnFixtureTests 7项与监督器10项，均退出0、无skip；原始stdout/stderr和命令/时间回执在本目录保留。首次默认沙箱启动解释器被拒，随后获自动审批后重跑，两次记录均保留。
+
+PID复用/历史PPID误认问题已用挂起root单成员Job核验修复，非有限时间预算用例亦通过。主审仍CHANGES_REQUIRED：JobObject构造中query_limit_flags异常会泄漏新建Job句柄；需修复后新Run验证。本版不能准入重型编译。
+
+没有RTL编译、仿真、Vitis或板卡操作。测试使用真实Windows进程和Job API；资源故障值由测试注入，不能宣称完成实际内存压力测试。

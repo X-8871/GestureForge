@@ -1,0 +1,20 @@
+{
+  "source_commit": "7ba5be307ff09073f6897b5f39923adcbfe71e20",
+  "scope": "初始MMU静态检查器单元测试，不是当前候选ELF或硬件验证",
+  "command": "python.exe -B -m unittest -v verification.test_s2b_inference_mmu",
+  "exit_code": 0,
+  "tests_run": 13,
+  "tests_passed": 13,
+  "unittest_elapsed_seconds": 0.017,
+  "outer_tool_elapsed_seconds": 1.1644894,
+  "independent_review": "CHANGES_REQUIRED",
+  "reviewer": "/root/review_actual_elf_mmu",
+  "review_blockers": [
+    "setter函数体额外ptr[-0x33C]写入可触及arena，现检查误放行",
+    "CSR_BASE未固定0x43C00000，其他对齐非arena地址误放行",
+    "链接map节地址未绑定ELF节地址"
+  ],
+  "vitis_build": "NOT_RUN",
+  "hardware_validation": "NOT_RUN",
+  "peak_memory": "未测"
+}

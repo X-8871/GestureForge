@@ -1,6 +1,6 @@
 # 阶段2B PS/PL物理接口候选
 
-状态：`CANDIDATE_NOT_FROZEN`。候选编号 `S2B-PHYSICAL-20261009`，版本 `s2b-physical-candidate/0.1.1`。原始逻辑/地址分析基线 `3f6e327a0ff9adc04ed6c98c1578862b8c2fae64`；本次源码绑定复核覆盖当前 `s2b_inference_top` 组合及 T19 离线平台证据。本文只纠正实现层级和验证边界，不改变字段编码、接口语义或已批准的 `s2b-axi-recovery-principles/1.0.0`，故候选版本维持 `0.1.1`。此前 `0.1.0` 被 `0.1.1` 替代，原r01证据与快照保留；R1六项候选问题修订见原Run `candidate_revision_result.json`。
+状态：`CANDIDATE_NOT_FROZEN`。候选编号 `S2B-PHYSICAL-20261009`，版本 `s2b-physical-candidate/0.1.2`。原始逻辑/地址分析基线 `3f6e327a0ff9adc04ed6c98c1578862b8c2fae64`。本版本记录Wong于2026-10-15确认阶段计划中的“验证DMA”按数据搬运功能验收，不要求集成AMD AXI DMA IP；该解释不改变硬件接口信号语义，也不代表G0已关闭。此前 `0.1.1` 原文和历史证据保留；`0.1.0` 被 `0.1.1` 替代的原r01证据与快照仍保留；R1六项候选问题修订见原Run `candidate_revision_result.json`。本版本需重新绑定并独立复核后才能用于G0评审。
 
 ## 1. 上游与实施边界
 
@@ -28,7 +28,7 @@ flowchart LR
 ```
 
 T19 visibility0离线候选平台 `report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/` 绑定上述RTL，并完成全平台综合、布线、时序报告和受管位流生成；无位流XSA SHA-256为 `02fcd956eb088ec0c0dedf1ba4a605e710604bac6b4a5d3f09ad732063b52003`，implemented XSA SHA-256为 `7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238`，implemented bit SHA-256为 `4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e`，平台源码基线为 `f38bf9e557e05a15636ee2d571b4523668d04260`。这是visibility=0离线平台证据；它不证明GP0/HP0事务、完整cache一致性、模型执行或实物验收。另有历史 `visibility1_timing_route_explore_20261014_r01/` route-explore，绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a`，并沿用既有 `phys_opt_design` DCP继续布线；该实验的 `s2b_maxpool_engine.sv` / `s2b_maxpool_geometry.sv` SHA-256分别为 `5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48` / `7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0`，与visibility0 R02所用源码（`37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e` / `63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9`）不同。maxpool专用化会影响这条时序路径；历史实验报告的WNS=-0.147 ns、60个setup失败endpoint且未生成位流，不能代表当前源码在visibility=1下的时序，当前源码visibility=1时序已于2026-10-14完成离线测量（详见本节补充测量）。
-上述T19平台清单的接口条目仍绑定修订前候选正文SHA-256 `bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad`；本次只更新源码层级与验证状态说明，保持候选版本及接口/恢复语义不变。因此现有XSA证据绑定的是修订前的候选文档字节，不能视作对本修订正文的精确哈希绑定；后续冻结或新平台验收须重新绑定候选文档与产物清单。
+上述T19平台清单的接口条目仍绑定修订前候选正文SHA-256 `bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad`。`0.1.1` 对应正文SHA-256为 `f5307bccbb67584ac2cec2f279d23facbb3b8246a01bfc160705fd09d47f3e68`，只更正实现层级与验证边界；本 `0.1.2` 再记录DMA功能验收口径。现有XSA证据不绑定 `0.1.1` 或本 `0.1.2` 的正文，不能视作对当前候选的精确哈希绑定；G0评审、后续冻结或新平台验收须重新绑定候选正文与对应产物清单。
 
 现有静态/仿真证据与未证明项必须分开：T19 `postroute_hp0_query_20261014_r02/query_summary.json` 是 `PASS_STATIC_TOPOLOGY_ONLY`，只核对该visibility0已布线DCP中的HP0直连、8个ARCACHE/AWCACHE位接共享零常量及相关静态端口；T10/T11记录覆盖adapter和控制候选RTL仿真，其中T11包含runtime shell/adapter候选组合场景。它们都不覆盖真实PS GP0转换器行为或板上HP0↔DDR事务。T19 `cache_probe_20261014_r02` 是旧源码/旧平台的CPU/DAP预探测，绑定源码提交 `7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9`、compiled XSA SHA-256 `6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7`、implemented bit SHA-256 `91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb`；只记录起始地址256字节CPU/DAP跨主机读回一致，命令未LOAD模型或START。该旧探测不验证当前R02 XSA `7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238` / bit `4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e`，也不证明PL/HP0缓存可见性。
 
@@ -187,7 +187,7 @@ FAULT未闭合时持续隔离：若事务始终未结束或状态不能证明，
 | 自定义HP AXI3 word adapter（本候选） | 保留2A随机字节地址、one-hot/sparse strobe和single outstanding；PL master自己发地址和搬运数据 | 最小语义跨度，明确承担DMA意义的数据搬运/完成/长度/恢复责任；不等于AMD AXI DMA IP |
 | AMD AXI DMA（PG021） | AXI4 memory与AXI4-Stream的MM2S/S2MM；当前core没有AXI-Stream数据接口或帧TLAST | 直接接入不匹配，需stream桥、缓冲及地址调度/权重重排，不能把随机请求当连续stream；可能改善后续burst性能但扩大实现和验证范围 |
 
-阶段计划“验证DMA、缓存一致性、缓冲所有权及传输长度”仍全部有效。若采用本候选，验收中的DMA由PL自主DDR搬运模块承担，须验证请求字节数/有效lane长度/错误/取消/完成/cache/连续任务；不能以“没装AXI DMA IP”标记NOT_APPLICABLE或减少100样本/1000连续任务。是否将正式计划中DMA专指特定IP，应在G0记录解释后再冻结，本文不改正式计划。
+2026-10-15 Wong确认：阶段计划“验证DMA、缓存一致性、缓冲所有权及传输长度”按数据搬运功能验收，保留当前自定义PL AXI3 master/word adapter，不要求AMD AXI DMA IP。该adapter承担PL自主DDR搬运；须核对请求字节数与有效lane长度、缓存一致性、缓冲所有权、错误/取消/完成，以及连续任务中的数据和状态完整性。不能因未集成AMD AXI DMA IP标记NOT_APPLICABLE，也不能减少100样本或1000次连续任务标准。这是G0输入口径，不关闭其余G0项，也不替代实际HP0事务与DDR可见性的G3证据。
 
 现有2A OOC基线资源为40,550 LUT / 53,200、3,082 FF / 106,400、32 BRAM / 140、186 DSP / 220；这不是物理顶层资源。T19 visibility0完整候选平台已包含GP0/控制、adapter、reset/clock及HP0连接并完成综合和布线：综合层级报告为18,200 LUT、4,157 FF、32 RAMB36、145 DSP，28,621个routable nets全部布通、0 routing error；50 MHz setup WNS +0.030 ns、hold WHS +0.080 ns。此离线实现范围仅为visibility0，setup/hold余量很小；仅有第1节绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a` 的历史visibility=1 route-explore失败（WNS -0.147 ns、60个setup失败endpoint），未生成位流；它不代表当前源码visibility=1时序，当前源码visibility=1已完成离线STA（WNS +0.229 ns、TNS 0、WHS +0.095 ns、THS 0，见本节补充测量）。资源/路由/时序证据不证明总线行为、cache可见性、完整模型或板上运行，也不构成候选接口冻结。
 

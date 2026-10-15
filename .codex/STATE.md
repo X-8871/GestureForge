@@ -26,7 +26,7 @@
 
 ## 当前阻碍与在制事项
 
-- PS/PL s2b-physical-candidate/0.1.1、UART s2bu-candidate/1.1 尚未整体冻结；器件身份已由最新实物确认关闭，不能继续列为阻断。
+- PS/PL s2b-physical-candidate/0.1.2、UART s2bu-candidate/1.1 尚未整体冻结；器件身份已由最新实物确认关闭，不能继续列为阻断。
 - 仍需收敛HP0非Bufferable完整路径依据、统一冷启动/排空恢复、32 MiB arena的实际BSP/cache访问与运行绑定；实际总线、延迟、可见性及恢复结果必须在受控实板测试留证。
 - 整网core/drain部署期限尚未实测。32位全局core计数在50 MHz最多85.8993459秒；实际tile复用/权重重读静态预算为每帧96,135,961次请求（读84,753,811/写11,382,150），38层及9项轻量测试独审PASS，提交 c8977ef；入口 report/evidence/S2B-T19/request_budget_20261014_r01/。不把静态敏感性估算当真实HP延迟或周期上界；T66原记录缺失仍BLOCKED，仅有T68间接计数依据。
 - 平台检查器受限祖先枚举问题已独审并提交 0aaea57：11项中10通过、1项因WinError1314跳过，静态preflight通过。入口 report/evidence/S2B-T19/platform_path_preflight_20261014_r01/。
@@ -36,7 +36,8 @@
 
 - 2026-10-15限定visibility0 CPU0/DAP起始256B真实探针已执行；运行原件状态保留`API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING`，native退出0、约107.672秒、cleanup_errors为空、`cold_lifecycle_proven=false`。独立Reviewer对运行与封包G2为PASS；总控仅接受该限定观测包。证据入口 report/evidence/S2B-T19/cache_probe_execution_20261015_r01/ 与 report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/。它未LOAD/START、未经过PL/HP0，不能证明32MiB arena、整网G0、100样本、1000连续任务、冷生命周期或恢复；原清单包装失败及补充清单修正均保留。
 - 2026-10-15单样本整网入口`vitis/run_s2b_model_qualification.py`与失败安全测试完成离线G1，13/13专用测试通过；Reviewer针对D1修复与证据包D2 PASS，提交`0f768c9055f0a3eae9e45b3aaf514307e778fda2`。证据入口`report/evidence/S2B-T19/model_qualification_entry_20261015_r01/`，execution record绑定当前源码/测试SHA及命令，delivery checker `CHECKS_OK`。该G2仅覆盖入口代码与证据包；没有批准整网G0或实板运行。正式物理接口、外部POR/独占保管及CORE/DRAIN期限可信锚仍缺失，硬件门保持关闭；单样本资格入口尚未在硬件执行。
-- 下一步是关闭物理接口G0：评审并冻结PS/PL/UART边界、HP0非Bufferable完整路径、32MiB arena/cache可见性与恢复ACK语义，形成可复核POR/独占保管链及CORE/DRAIN实测期限依据；获得真实独立输入后再通过整网运行G0/G2。之后完成板上冷启动、UART/DDR、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务及异常恢复，最后完成适用重建/时序和G4/G5。
+- 2026-10-15 Wong确认阶段计划中的DMA按数据搬运功能验收：保留自定义PL AXI3 master/word adapter，不要求AMD AXI DMA IP，字节/lane长度、cache、ownership、错误/取消/完成及连续任务均须覆盖，100样本/1000次标准不变。该口径记入物理候选`0.1.2`，尚未重新哈希绑定或独立复核，也不关闭G0。
+- 下一步是重新绑定并独立复核物理候选`0.1.2`，再关闭物理接口G0：评审PS/PL/UART边界、HP0非Bufferable完整路径、32MiB arena/cache可见性与恢复ACK语义，形成可复核POR/独占保管链及CORE/DRAIN实测期限依据；获得真实独立输入后再通过整网运行G0/G2。之后完成板上冷启动、UART/DDR、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务及异常恢复，最后完成适用重建/时序和G4/G5。
 - 历史板级调试失败、TCF memory map及目标枚举修复、unloadhw无进度原件见 report/evidence/S2B-T19/cache_probe_execution_20261013_r01/至_r04/、board_failure_packaging_20261013_r01/、server_starter_fix_review_20261014_r01/。不把启动器退出0当实际运行通过；SDK卸载根因仍UNKNOWN。
 - 当前16 GB机器只运行一个重型任务。新增综合最多三次的历史追加预算已使用1/3；仅豁免4.5 GiB启动门槛，其他既有运行停止条件仍有效。轻量读报告/静态检查不算重跑综合。
 - 仿真、独审、包装CHECKS_OK与实板分别判断；不改原始失败/冻结证据，不覆盖RunId，不降低指标。阶段冻结须绑定版本、完成适用验收、独审和精确Git提交。

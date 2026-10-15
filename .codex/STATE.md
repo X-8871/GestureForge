@@ -7,7 +7,8 @@
 - 本窗口是阶段2B总控：持续完成固定模型部署、至少100个黄金样本、1000次连续任务与异常恢复，直至2B G5；不自动进入阶段3或推送。
 - AX7020实物器件为 XC7Z020-2CLG400I，Vivado part为 xc7z020clg400-2，时序按 -2。Wong于2026-10-14明确确认此前照片中的同一块板也是该型号；旧XA解读不再作为身份冲突或部署阻断。
 - 本轮实际Vivado查询唯一匹配XC7Z020/CLG400/-2，主XPR项目、综合、实现三个字段及visibility=1会话均匹配。当前事实入口为 board/README.md；厂商原件目录 D:\FPGA\AX7Z020\AX7Z020 保持只读。
-- 分支 codex/stage2b-t01-board-audit；器件事实文档提交 b02ea83，最近已完成PS重新构建与封装提交 37c4b840977e727b6504d83b803da3358f89040e。恢复时以 git rev-parse HEAD 为准。
+- 当前2B工作树为 `D:\FPGA_Competition\w2b`，分支 `codex/stage2b-dma-g0`；T11 R12失败关闭运行器/仿真仪表化及失败包提交为 `03be19c2c3915749234871d19878fb8b4bb98020`；其被全局`*.log`忽略的原始编译日志在补充提交 `14928578ec08d257cc19f6ece684887e3e294ed3` 纳入，提交树中清单21项逐项核对无缺失/哈希错误。审查仅覆盖失败关闭、仪表化、证据一致性；RTL仿真仍FAIL。较早D4提交 `75988f2e6d737f68b10807834be1112698c7916a`、器件事实文档 `b02ea83` 与PS重建/封装提交 `37c4b840977e727b6504d83b803da3358f89040e`保留为历史输入；恢复时以 `git rev-parse HEAD` 为准。
+- DDR料号来源已澄清：Wong提供的 `MT41K256M16TW-107` 来自开发板手册，尚未按芯片丝印解码；2026-10-15 Wong要求暂按该型号继续后续工程/离线配置步骤，厂家预计2026-10-16确认。照片中两颗Micron芯片可见标记为 `D9PSK`；照片SHA-256 `f95f83d116fdd62ad01501241f00ca2299c9b80286182905f4ec0e4041f9cfee`，观察记录为 `OBSERVED_MARKING_ONLY`。该临时假设不证明当前实物料号或板卡/PCB版本绑定，不关闭DDR G0/G3。当前 `board/ps_platform_fields.json` 与 `vivado/s2b_ps_platform.tcl` 仍沿用 AX7020 V2.2 手册 Hynix/MT41J profile；在DDR相关PS配置/上板前必须形成匹配暂定型号的独审配置，厂家回覆后重核并重做受影响检查。
 - Wong已授权本阶段必要的易失PL/PS下载、DDR模型装载与板上验证；不含QSPI等非易失烧写。2026-10-15用户说明板卡已插上。当前只读快照：无活动Vivado会话、Vivado/Vitis/XSDB/xsct/hw_server/Python进程或3121监听；`pnputil /enum-devices /class Ports /connected`确认CP210x状态Started、COM4、实例ID `USB\VID_10C4&PID_EA60\d02e61162787ed11a536569f9d1cc348`，但PowerShell PnP/CIM查询仍拒绝访问，JTAG目标尚未重新枚举。旧owned hw_server PID27580已退出；实际板测前重新核验设备、端口所有者和工具会话。
 
 ## 已完成与证据
@@ -26,7 +27,7 @@
 
 ## 当前阻碍与在制事项
 
-- PS/PL s2b-physical-candidate/0.1.2、UART s2bu-candidate/1.1 尚未整体冻结；器件身份已由最新实物确认关闭，不能继续列为阻断。
+- PS/PL s2b-physical-candidate/0.1.2、UART s2bu-candidate/1.1 尚未整体冻结；器件身份XC7Z020-2CLG400I已由用户确认，DDR实际料号与当前板卡修订绑定仍待厂家确认。
 - 仍需收敛HP0非Bufferable完整路径依据、统一冷启动/排空恢复、32 MiB arena的实际BSP/cache访问与运行绑定；实际总线、延迟、可见性及恢复结果必须在受控实板测试留证。
 - 整网core/drain部署期限尚未实测。32位全局core计数在50 MHz最多85.8993459秒；实际tile复用/权重重读静态预算为每帧96,135,961次请求（读84,753,811/写11,382,150），38层及9项轻量测试独审PASS，提交 c8977ef；入口 report/evidence/S2B-T19/request_budget_20261014_r01/。不把静态敏感性估算当真实HP延迟或周期上界；T66原记录缺失仍BLOCKED，仅有T68间接计数依据。
 - 平台检查器受限祖先枚举问题已独审并提交 0aaea57：11项中10通过、1项因WinError1314跳过，静态preflight通过。入口 report/evidence/S2B-T19/platform_path_preflight_20261014_r01/。
@@ -35,9 +36,10 @@
 ## 下一步与恢复限制
 
 - 2026-10-15限定visibility0 CPU0/DAP起始256B真实探针已执行；运行原件状态保留`API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING`，native退出0、约107.672秒、cleanup_errors为空、`cold_lifecycle_proven=false`。独立Reviewer对运行与封包G2为PASS；总控仅接受该限定观测包。证据入口 report/evidence/S2B-T19/cache_probe_execution_20261015_r01/ 与 report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/。它未LOAD/START、未经过PL/HP0，不能证明32MiB arena、整网G0、100样本、1000连续任务、冷生命周期或恢复；原清单包装失败及补充清单修正均保留。
-- 2026-10-15单样本整网入口`vitis/run_s2b_model_qualification.py`与失败安全测试完成离线G1，13/13专用测试通过；Reviewer针对D1修复与证据包D2 PASS，提交`0f768c9055f0a3eae9e45b3aaf514307e778fda2`。证据入口`report/evidence/S2B-T19/model_qualification_entry_20261015_r01/`，execution record绑定当前源码/测试SHA及命令，delivery checker `CHECKS_OK`。该G2仅覆盖入口代码与证据包；没有批准整网G0或实板运行。正式物理接口、外部POR/独占保管及CORE/DRAIN期限可信锚仍缺失，硬件门保持关闭；单样本资格入口尚未在硬件执行。
-- 2026-10-15 Wong确认阶段计划中的DMA按数据搬运功能验收：保留自定义PL AXI3 master/word adapter，不要求AMD AXI DMA IP，字节/lane长度、cache、ownership、错误/取消/完成及连续任务均须覆盖，100样本/1000次标准不变。该口径记入物理候选`0.1.2`，尚未重新哈希绑定或独立复核，也不关闭G0。
-- 下一步是重新绑定并独立复核物理候选`0.1.2`，再关闭物理接口G0：评审PS/PL/UART边界、HP0非Bufferable完整路径、32MiB arena/cache可见性与恢复ACK语义，形成可复核POR/独占保管链及CORE/DRAIN实测期限依据；获得真实独立输入后再通过整网运行G0/G2。之后完成板上冷启动、UART/DDR、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务及异常恢复，最后完成适用重建/时序和G4/G5。
+- 2026-10-15单样本整网入口`vitis/run_s2b_model_qualification.py`与失败安全测试完成离线G1，13/13专用测试通过；Reviewer针对D1修复与证据包D2 PASS，提交`0f768c9055f0a3eae9e45b3aaf514307e778fda2`。证据入口`report/evidence/S2B-T19/model_qualification_entry_20261015_r01/`中的资格执行记录及delivery checker `CHECKS_OK`仅对应历史提交`0f768c9055f0a3eae9e45b3aaf514307e778fda2`的runner/test源码SHA-256（分别为`fef2aa5b137eccf4e3c15dae7e9dd7d5ca9fff9d207180db6730073805a0fa7b`与`d24a5d6eb41b2488f00b1fd350f8ab75a73161c4ff3c8b1ffbc80a75652b3bd3`）；它不验证D4及后续源码变更后的当前checkout。该G2仅覆盖历史版本的入口代码与证据包；没有批准整网G0或实板运行。正式物理接口、外部POR/独占保管及CORE/DRAIN期限可信锚仍缺失，硬件门保持关闭；单样本资格入口尚未在硬件执行。
+- 2026-10-15 Wong确认阶段计划中的DMA按数据搬运功能验收：保留自定义PL AXI3 master/word adapter，不要求AMD AXI DMA IP，字节/lane长度、cache、ownership、错误/取消/完成及连续任务均须覆盖，100样本/1000次标准不变。D4人工信任根与资格入口改动已独立复审并提交 `75988f2e6d737f68b10807834be1112698c7916a`；该根绑定两份用户指定JSON哈希，属于有限范围的人为批准，不是密码学签名，不构成G0或硬件执行通过。
+- T11候选CSR runner重绑 `s2b-physical-candidate/0.1.2` 的R11编译因180秒超时失败，direct启动分别因缺少工具链DLL路径和完整启动环境不明而失败/超时；原始证据保留于R11目录与两个direct目录。R12编译在360.015秒超时、`simulation_started=false`，代码加入wall超时清理确认、100,000周期watchdog与阶段标记；独立审查PASS仅覆盖失败关闭逻辑、仪表化和证据一致性。`taskkill`被拒后，4个本Run残留编译进程经Stop-Process清理并记录后续无残留（Stop-Process独立退出码未回传）。提交 `03be19c`；RTL仿真仍FAIL，T11未通过。证据入口 `report/evidence/S2B-T11/control_r12_candidate012_20261015/`。
+- 下一步是以临时DDR型号输入继续离线收敛PS配置及外层CSR/恢复矩阵；先验证DDR3L part/profile映射和全套Vivado读回，再独审后才用于DDR相关实板操作。物理接口G0仍需评审PS/PL/UART边界、HP0非Bufferable完整路径、32MiB arena/cache可见性与恢复ACK语义，取得板卡对应DDR料号/BOM依据，形成可复核POR/独占保管链及CORE/DRAIN实测期限；再通过整网运行G0/G2。之后完成板上冷启动、UART/DDR、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务及异常恢复，最后完成适用重建/时序和G4/G5。
 - 历史板级调试失败、TCF memory map及目标枚举修复、unloadhw无进度原件见 report/evidence/S2B-T19/cache_probe_execution_20261013_r01/至_r04/、board_failure_packaging_20261013_r01/、server_starter_fix_review_20261014_r01/。不把启动器退出0当实际运行通过；SDK卸载根因仍UNKNOWN。
 - 当前16 GB机器只运行一个重型任务。新增综合最多三次的历史追加预算已使用1/3；仅豁免4.5 GiB启动门槛，其他既有运行停止条件仍有效。轻量读报告/静态检查不算重跑综合。
 - 仿真、独审、包装CHECKS_OK与实板分别判断；不改原始失败/冻结证据，不覆盖RunId，不降低指标。阶段冻结须绑定版本、完成适用验收、独审和精确Git提交。

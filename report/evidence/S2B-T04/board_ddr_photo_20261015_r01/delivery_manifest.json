@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T04",
+  "run_id": "board_ddr_photo_20261015_r01",
+  "source_commit": "75988f2e6d737f68b10807834be1112698c7916a",
+  "evidence_dir": "report/evidence/S2B-T04/board_ddr_photo_20261015_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本Run仅保存用户提供的DDR芯片标记照片并记录来源与观察；不实现或验证PS/PL接口，故无上游接口依赖。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T04/board_ddr_photo_20261015_r01/ddr_chip_user_photo.png",
+      "sha256": "f95f83d116fdd62ad01501241f00ca2299c9b80286182905f4ec0e4041f9cfee",
+      "role": "input",
+      "keep_reason": "保留用户上传的原始DDR芯片照片字节，用于追溯可见丝印观察。"
+    },
+    {
+      "path": "report/evidence/S2B-T04/board_ddr_photo_20261015_r01/observation.json",
+      "sha256": "687023d55342ac4a2ce2c9b571f808a69d5e5b61ad64bfa4b7aa56a573f84797",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/audit.md",
+      "sha256": "8fd32ea2e672414bbab5ac100713c0ba615332c415f2c43050583da49c8bf8ac",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "source_copy_sha256_match",
+      "status": "PASS",
+      "command": "$ddrPhotoSourcePath = 'C:\\Users\\22061\\AppData\\Local\\Temp\\codex-clipboard-ff8e95ef-1429-4714-a802-5ef3987e5097.png'; $ddrPhotoEvidencePath = 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T04\\board_ddr_photo_20261015_r01\\ddr_chip_user_photo.png'; if ((Get-FileHash -Algorithm SHA256 -LiteralPath $ddrPhotoSourcePath).Hash -cne (Get-FileHash -Algorithm SHA256 -LiteralPath $ddrPhotoEvidencePath).Hash) { exit 1 }; exit 0",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "本证据只绑定照片可见丝印，不解码为完整DDR料号。",
+    "MT41K256M16TW-107来自用户指出的开发板手册，尚未证明与当前实物/PCB版本一致。",
+    "Wong授权暂将该手册型号作为后续离线工程配置输入；不得据此宣称硬件实物料号或DDR G0/G3已通过。",
+    "厂家料号与BOM确认待2026-10-16；未执行DDR硬件测试或阶段验收。"
+  ],
+  "tool_versions": {
+    "PowerShell": "7.6.5"
+  }
+}

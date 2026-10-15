@@ -18,6 +18,7 @@ from build_s2b_ps_smoke import (INITIALIZER_C, copy_exclusive, exact_path, new_d
 ROOT = Path(__file__).absolute().parents[1]
 sys.path.insert(0, str(ROOT / "verification"))
 from check_s2b_ps_smoke_layout import macro_int, parse_elf, require, verify_cache_contract
+from check_s2b_inference_mmu import verify_mmu_table
 
 MODEL_PATH = ROOT / "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
@@ -136,10 +137,16 @@ def build(config_path):
         snapshot = new_directory(artifact / "source_snapshot", artifact)
         for relative in ("vitis/s2b_inference_app.c", "vitis/build_s2b_inference.py", "vitis/build_s2b_ps_smoke.py",
                          "verification/s2a_ps_decode_nms_reference.c", "verification/s2a_ps_decode_nms_reference.h",
-                         "verification/s2b_board_transport.py", "verification/check_s2b_ps_smoke_layout.py"):
+                         "verification/s2b_board_transport.py", "verification/check_s2b_ps_smoke_layout.py",
+                         "verification/check_s2b_inference_mmu.py"):
             source = exact_path(ROOT / relative, "file")
             record["source_sha256"][relative] = sha256(source)
             copy_exclusive(source, snapshot / source.name)
+        checker_snapshot = exact_path(snapshot / "check_s2b_inference_mmu.py", "file")
+        require(sha256(checker_snapshot) == record["source_sha256"]["verification/check_s2b_inference_mmu.py"],
+                "MMU检查器快照与源码SHA不一致")
+        record["files"]["source_snapshot/check_s2b_inference_mmu.py"] = {
+            "path": str(checker_snapshot), "sha256": sha256(checker_snapshot)}
         workspace = new_directory(workspace, cache_parent)
         client = api("vitis.create_client", vitis.create_client, workspace=str(workspace)); created = True
         require(client._serverObj.cp is not None, "未创建本次独占server")
@@ -154,7 +161,8 @@ def build(config_path):
         build_api("platform.build", platform.build, platform_pb2.PlatformResponse.DESCRIPTOR)
         platform_root = exact_path(workspace / "ps7", "directory")
         bsp = exact_path(platform_root / "ps7_cortexa9_0/cpu0/bsp", "directory")
-        bsp_sources = {"xparameters.h": "include/xparameters.h", "bspconfig.h": "include/bspconfig.h",
+        bsp_sources = {"xparameters.h": "include/xparameters.h", "xmem_config.h": "include/xmem_config.h",
+                       "bspconfig.h": "include/bspconfig.h",
                        "xil_cache.c": "libsrc/standalone/src/arm/cortexa9/xil_cache.c",
                        "xil_mmu.c": "libsrc/standalone/src/arm/cortexa9/xil_mmu.c", "xil_mmu.h": "include/xil_mmu.h",
                        "xil_exception.c": "libsrc/standalone/src/arm/common/xil_exception.c", "xil_exception.h": "include/xil_exception.h",
@@ -169,6 +177,15 @@ def build(config_path):
             source = exact_path(bsp / relative, "file")
             copied = copy_exclusive(source, artifact / name)
             record["files"][name] = {"path": str(copied), "source_path": str(source), "sha256": sha256(copied)}
+        translation_table_source = exact_path(bsp / bsp_sources["translation_table.S"], "file")
+        bsp_archive = exact_path(
+            platform_root / "export/ps7/sw/cpu0/lib/libxilstandalone.a", "file")
+        record["bsp_translation_table"] = {
+            "source_path": str(translation_table_source),
+            "source_sha256": sha256(translation_table_source),
+            "archive_path": str(bsp_archive),
+            "archive_sha256": sha256(bsp_archive),
+        }
         verify_cache_contract((artifact / "xil_cache.c").read_text(encoding="utf-8"))
         compile_text = (artifact / "bsp_compile_commands.json").read_text(encoding="utf-8")
         require("-DUSE_AMP" not in compile_text, "实际BSP编译禁止USE_AMP")
@@ -246,11 +263,33 @@ def build(config_path):
             require(len(matches) == 1 and all(flag in matches[0]["command"] for flag in ("-DSDT", "-Wall", "-Wextra", "-Werror")) and
                     "-DUSE_AMP" not in matches[0]["command"], "实际应用编译命令不满足SDT/严格warnings/非AMP")
         elf = copy_exclusive(unique_file(workspace / "infer", "infer.elf"), artifact / "infer.elf")
-        copy_exclusive(unique_file(workspace / "infer", "infer.map"), artifact / "infer.map")
+        infer_map = copy_exclusive(unique_file(workspace / "infer", "infer.map"), artifact / "infer.map")
+        record["files"]["infer.map"] = {"path": str(infer_map), "sha256": sha256(infer_map)}
         copy_exclusive(ld_path, artifact / "lscript.ld"); copy_exclusive(header, artifact / header.name)
         parsed = verify_app_elf(elf)
         write_json(artifact / "elf_layout.json", parsed)
         record["elf"] = {"path": str(elf), "sha256": sha256(elf)}
+        mmu_report = verify_mmu_table(
+            elf.read_bytes(), parsed,
+            xil_mmu_header=(artifact / "xil_mmu.h").read_bytes().decode("utf-8"),
+            translation_table=(artifact / "translation_table.S").read_bytes().decode("utf-8"),
+            bsp_config_header=(artifact / "bspconfig.h").read_bytes().decode("utf-8"),
+            ddr_config_header=(artifact / "xmem_config.h").read_bytes().decode("utf-8"),
+            xparameters_header=(artifact / "xparameters.h").read_bytes().decode("utf-8"),
+            bsp_compile_commands=(artifact / "bsp_compile_commands.json").read_bytes().decode("utf-8"),
+            app_source=(snapshot / "s2b_inference_app.c").read_bytes().decode("utf-8"),
+            app_preprocessed=(artifact / "app_preprocessed.i").read_bytes().decode("utf-8"),
+            xil_mmu_source=(artifact / "xil_mmu.c").read_bytes().decode("utf-8"),
+            link_map=infer_map.read_bytes().decode("utf-8"),
+            translation_table_source_path=str(translation_table_source),
+            bsp_archive_path=str(bsp_archive))
+        mmu_path = artifact / "initial_mmu_table.json"
+        write_json(mmu_path, mmu_report)
+        record["files"]["initial_mmu_table.json"] = {"path": str(mmu_path), "sha256": sha256(mmu_path)}
+        record["initial_mmu_table"] = {
+            "status": mmu_report["status"], "path": str(mmu_path), "sha256": sha256(mmu_path),
+            "elf_sha256": mmu_report["elf_sha256"], "table_sha256": mmu_report["table_sha256"],
+            "checker_source_sha256": record["source_sha256"]["verification/check_s2b_inference_mmu.py"]}
 
         # 初始化来源必须来自同一新XSA；只构建原字节PS init，绝不执行。
         with zipfile.ZipFile(xsa) as archive:
@@ -307,6 +346,7 @@ def build(config_path):
         record["status"] = "PASS_OFFLINE_FULL_XSA_BUILD" if mode == "FULL_PLATFORM_BOUND" else "PASS_UNIT_ONLY_PS_XSA_BUILD"
         record["limitations"] = ["本次未执行任何实板动作、原始MMIO拒绝或UART传输；离线PASS不代表2B G3/G4/G5。",
                                  "CPU1停核、排空可见性、实际DDR和整网部署批准由总控独立绑定。",
+                                 "初始MMU静态表核验不改变visibility=0候选的G0状态，也不授权实板执行。",
                                  "初始化原厂源码使用-Wall/-Wextra；应用及冻结C参考使用-Werror，原始编译输出保留。"]
     except BaseException as error:
         record["error"] = f"{type(error).__name__}: {error}"

@@ -7,6 +7,7 @@
 """
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import ast
 import argparse
 import hashlib
 import importlib
@@ -37,11 +38,40 @@ CONFIG_KEYS = {"schema_version", "source_commit", "run_dir", "build_details", "b
 REVIEW_CHECKS = {"hwh_hp0_nonbufferable_adapter0", "new_elf_gp0_device_contract",
                  "controlled_startup_same_xsa", "single_job_arena_cache_retention", "postroute_timing"}
 RECEIPT_KEYS = {"schema_version", "kind", "role", "status", "scope", "visibility_parameter",
-                "source_commit", "entry_sha256", "source_sha256", "artifacts", "checks", "lifecycle"}
+                "source_commit", "reviewer_task", "manual_trust_root",
+                "entry_digest_scheme", "canonical_entry_sha256_v1",
+                "source_sha256", "artifacts", "checks", "lifecycle"}
+ENTRY_DIGEST_SCHEME = "s2b-model-qualification-entry-canonical-sha256-v1"
+ANCHOR_ASSIGNMENT_PREFIX = b"TRUSTED_REVIEW_ANCHOR = "
+ANCHOR_CANONICAL_VALUE = b"<NORMALIZED_TRUSTED_REVIEW_ANCHOR_V1>"
+MANUAL_REVIEWER_TASK = "/root/ps_build_r02_review"
+MANUAL_REVIEW_SOURCE_COMMIT = "37c4b840977e727b6504d83b803da3358f89040e"
+MANUAL_REVIEW_SCOPE = "visibility0_cache_probe_only"
+MANUAL_REVIEW_PROVENANCE = {
+    "path": "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json",
+    "sha256": "c87a2f40a099bdce0fce127af7d3c3282f4b2442e19dbc9da4f299b588321ce5",
+}
+MANUAL_RUNTIME_COMPATIBILITY = {
+    "path": "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json",
+    "sha256": "e22fd0a1fa0399de48d9694dd07c7b10e06dbb60f55aed7ce8a9057fc3d4c7ea",
+}
+MANUAL_PLATFORM_MANIFEST = {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\current_probe_scope_20261015_r01\\platform_delivery_manifest.json",
+    "sha256": "5548bb56e6a68e9a02cda4a93b8b5440ded86245a1d351103d6a7144c76676bf",
+}
+MANUAL_TRUST_ROOT_CLAIM = {
+    "kind": "s2b-manual-review-trust-root/1.0.0",
+    "reviewer_task": MANUAL_REVIEWER_TASK,
+    "source_commit": MANUAL_REVIEW_SOURCE_COMMIT,
+    "scope": MANUAL_REVIEW_SCOPE,
+    "review_provenance": MANUAL_REVIEW_PROVENANCE,
+    "runtime_compatibility_receipt": MANUAL_RUNTIME_COMPATIBILITY,
+}
 
-# 当前没有任何满足条件的原件；运行配置里的路径、哈希或角色字符串不能设定信任。
-# Reviewer收据含入口SHA，不能再把该收据SHA写回入口形成循环；未来须由总控先建立
-# 独立、非循环且可验证的信任根，再完成G0、POR/冷生命周期、独审和周期测量锚定。
+# 该Reviewer原件只作为Wong批准的人工信任依据；它不是密码签名，也不证明本资格收据已获审查。
+# canonical v1只规范化本行来打破收据SHA与入口SHA的循环；其余入口原字节均参与SHA。
+# 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
+# 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0、POR和timeout测量锚点仍缺失并保持fail-closed。
 TRUSTED_REVIEW_ANCHOR = None
 TRUSTED_G0_ANCHOR = None
 TRUSTED_COLD_ANCHOR = None
@@ -74,6 +104,43 @@ def integer(value, low, high, label):
     return value
 
 
+def read_trusted_review_anchor(path):
+    """读取唯一单行可信锚点赋值；锚点只能是None或精确路径/SHA字面量。"""
+    raw = Path(path).read_bytes()
+    assignments = list(re.finditer(rb"(?m)^[ \t]*TRUSTED_REVIEW_ANCHOR[ \t]*=", raw))
+    require(len(assignments) == 1, "入口必须恰有一个可信Reviewer锚点赋值")
+    match = re.search(rb"(?m)^TRUSTED_REVIEW_ANCHOR = ([^\r\n]*)(\r?\n|$)", raw)
+    require(match is not None and match.start() == assignments[0].start(),
+            "可信Reviewer锚点必须使用单行精确赋值格式")
+    try:
+        value = ast.literal_eval(match.group(1).decode("utf-8"))
+    except (SyntaxError, ValueError, UnicodeDecodeError) as exc:
+        raise QualificationError("可信Reviewer锚点必须是安全的Python字面量") from exc
+    require(value is None or (type(value) is dict and set(value) == {"path", "sha256"} and
+            type(value["path"]) is str and type(value["sha256"]) is str and
+            re.fullmatch(r"[0-9a-f]{64}", value["sha256"])),
+            "可信Reviewer锚点必须是None或精确路径/SHA绑定")
+    return value
+
+
+def canonical_entry_sha256(path):
+    """仅规范化单行Reviewer锚点赋值，其余入口原字节全部参与SHA-256。"""
+    raw = Path(path).read_bytes()
+    read_trusted_review_anchor(path)
+    match = re.search(rb"(?m)^TRUSTED_REVIEW_ANCHOR = ([^\r\n]*)(\r?\n|$)", raw)
+    require(match is not None, "缺少可信Reviewer锚点赋值")
+    normalized = ANCHOR_ASSIGNMENT_PREFIX + ANCHOR_CANONICAL_VALUE + match.group(2)
+    canonical = raw[:match.start()] + normalized + raw[match.end():]
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def require_reviewed_entry_digest(receipt, path):
+    """核对版本化入口摘要，保证锚点行外的任一原字节变化均失败。"""
+    require(receipt.get("entry_digest_scheme") == ENTRY_DIGEST_SCHEME and
+            receipt.get("canonical_entry_sha256_v1") == canonical_entry_sha256(path),
+            "资格入口canonical digest漂移或schema不兼容")
+
+
 def binding(item):
     """绑定精确文件及原字节SHA，不能使用相似路径。"""
     p, j, _ = helpers()
@@ -91,6 +158,81 @@ def document(item):
     path = binding(item)
     require(path.stat().st_size <= 4 * 1024 * 1024, "JSON输入超过4MiB")
     return p.strict_json(path.read_text(encoding="utf-8"))
+
+
+def fixed_manual_root_document(item, expected):
+    """只读取源码固定的人工根路径，逐级拒绝链接并核验原字节SHA。"""
+    require(type(item) is dict and item == expected, "BLOCKED：人工根路径/SHA不能由配置选择")
+    path = Path(item["path"])
+    require(path.is_absolute() and ".." not in path.parts and not any(c in str(path) for c in "*?[]"),
+            "BLOCKED：人工根路径必须是精确绝对路径")
+    try:
+        resolved = path.resolve(strict=True)
+        normalized = str(resolved).replace("\\", "/")
+        require(normalized == item["path"], "BLOCKED：人工根路径实际名称/链接解析不符")
+        current = Path(path.anchor)
+        for name in path.parts[1:]:
+            current = current / name
+            metadata = current.stat(follow_symlinks=False)
+            require(not current.is_symlink() and
+                    not (getattr(metadata, "st_file_attributes", 0) & 0x400),
+                    "BLOCKED：人工根路径包含链接或重解析点")
+        require(path.is_file() and path.stat().st_size <= 4 * 1024 * 1024,
+                "BLOCKED：人工根JSON缺失、类型错误或超过4MiB")
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise QualificationError("BLOCKED：无法只读访问固定人工根原件") from exc
+    require(hashlib.sha256(raw).hexdigest() == item["sha256"], "BLOCKED：固定人工根SHA漂移")
+    p, _, _ = helpers()
+    return p.strict_json(raw.decode("utf-8"))
+
+
+def validate_manual_review_root_documents(provenance, compatibility):
+    """核验Wong指定的两份人工信任原件及其平台清单交叉绑定。"""
+    require(type(provenance) is dict and type(compatibility) is dict,
+            "BLOCKED：人工Reviewer根必须是两个JSON对象")
+    require(provenance.get("schema_version") == 1 and type(provenance.get("schema_version")) is int and
+            provenance.get("kind") == "s2b-independent-review-provenance/1.0.0" and
+            provenance.get("reviewer_task") == MANUAL_REVIEWER_TASK and
+            provenance.get("role") == "INDEPENDENT_REVIEWER" and
+            provenance.get("source_commit") == MANUAL_REVIEW_SOURCE_COMMIT and
+            provenance.get("verdict") == "PASS" and provenance.get("scope") == MANUAL_REVIEW_SCOPE,
+            "BLOCKED：固定review provenance schema/角色/身份/范围不符")
+    facts = provenance.get("independent_raw_facts")
+    require(type(facts) is dict and facts.get("status") == "INDEPENDENT_RAW_FACTS_PASS" and
+            facts.get("dynamic_hardware") == "NOT_RUN" and
+            provenance.get("hardware_execution") == "NOT_RUN",
+            "BLOCKED：人工Reviewer根的动态硬件状态必须明确为NOT_RUN")
+    reviewed = provenance.get("frozen_reviewed_inputs")
+    platform_key = "report/evidence/S2B-T19/current_probe_scope_20261015_r01/platform_delivery_manifest.json"
+    require(type(reviewed) is dict and reviewed.get(platform_key) == MANUAL_PLATFORM_MANIFEST["sha256"],
+            "BLOCKED：review provenance未绑定固定平台清单")
+    require(compatibility.get("schema_version") == 1 and type(compatibility.get("schema_version")) is int and
+            compatibility.get("kind") == "s2b-runtime-platform-compatibility/1.0.0" and
+            compatibility.get("role") == "INDEPENDENT_REVIEWER" and
+            compatibility.get("status") == "PASS" and compatibility.get("scope") == MANUAL_REVIEW_SCOPE and
+            type(compatibility.get("visibility_parameter")) is int and compatibility.get("visibility_parameter") == 0,
+            "BLOCKED：固定runtime compatibility schema/角色/范围不符")
+    artifacts = compatibility.get("artifacts")
+    require(type(artifacts) is dict and artifacts.get("platform_manifest") == MANUAL_PLATFORM_MANIFEST,
+            "BLOCKED：runtime compatibility未绑定固定平台清单原件")
+    return MANUAL_TRUST_ROOT_CLAIM
+
+
+def validate_manual_review_trust_root():
+    """读取两份源码固定的原件；配置文件不能选择或替换根文件。"""
+    provenance = fixed_manual_root_document(MANUAL_REVIEW_PROVENANCE, MANUAL_REVIEW_PROVENANCE)
+    compatibility = fixed_manual_root_document(MANUAL_RUNTIME_COMPATIBILITY,
+                                               MANUAL_RUNTIME_COMPATIBILITY)
+    return validate_manual_review_root_documents(provenance, compatibility)
+
+
+def validate_qualification_reviewer_claim(receipt, expected_root=MANUAL_TRUST_ROOT_CLAIM):
+    """要求新资格收据引用固定Reviewer任务及完整人工根，拒绝角色自报。"""
+    require(type(receipt) is dict and receipt.get("reviewer_task") == MANUAL_REVIEWER_TASK,
+            "BLOCKED：资格收据Reviewer task身份不匹配")
+    require(receipt.get("manual_trust_root") == expected_root,
+            "BLOCKED：资格收据缺少或更换固定人工信任根引用")
 
 
 def validate_config(cfg):
@@ -117,9 +259,18 @@ def validate_config(cfg):
 
 
 def require_hardware_enablement(cfg):
-    """硬件门只接受源码内固定的真实原件锚点，当前均未设置，故明确失败关闭。"""
-    rows = (("独立Reviewer原件", TRUSTED_REVIEW_ANCHOR, cfg["qualification_receipt"]),
-            ("正式G0依据", TRUSTED_G0_ANCHOR, cfg["g0_basis"]),
+    """硬件门要求固定人工根、入口锚点和外部依据；缺项即阻断。"""
+    source_anchor = read_trusted_review_anchor(Path(__file__))
+    require(source_anchor == TRUSTED_REVIEW_ANCHOR,
+            "BLOCKED：入口内Reviewer锚点与已加载源码值不一致")
+    require(type(TRUSTED_REVIEW_ANCHOR) is dict and set(TRUSTED_REVIEW_ANCHOR) == {"path", "sha256"},
+            "BLOCKED：缺少总控固定的独立Reviewer原件锚点；运行配置不可自行授权")
+    require(cfg["qualification_receipt"] == TRUSTED_REVIEW_ANCHOR,
+            "BLOCKED：配置与总控固定的独立Reviewer原件锚点不一致")
+    validate_manual_review_trust_root()
+    review = document(cfg["qualification_receipt"])
+    validate_qualification_reviewer_claim(review)
+    rows = (("正式G0依据", TRUSTED_G0_ANCHOR, cfg["g0_basis"]),
             ("外部POR/冷生命周期依据", TRUSTED_COLD_ANCHOR, cfg["cold_basis"]),
             ("CORE/DRAIN部署期限测量依据", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR, cfg["timeout_basis"]))
     for label, anchor, configured in rows:
@@ -134,14 +285,15 @@ def verify_review(cfg, build, actual_sources):
     p, j, _ = helpers()
     receipt = document(cfg["qualification_receipt"])
     require(type(receipt) is dict and set(receipt) == RECEIPT_KEYS, "缺少typed qualification receipt")
-    integer(receipt["schema_version"], 1, 1, "receipt schema")
+    integer(receipt["schema_version"], 2, 2, "receipt schema")
     integer(receipt["visibility_parameter"], 1, 1, "visibility")
-    require(receipt["kind"] == "s2b-single-model-qualification/1.0.0" and
+    require(receipt["kind"] == "s2b-single-model-qualification/2.0.0" and
             receipt["role"] == "INDEPENDENT_REVIEWER" and receipt["status"] == "PASS" and
             receipt["scope"] == SCOPE, "独立收据范围/状态不符")
+    validate_qualification_reviewer_claim(receipt)
     require(receipt["source_commit"] == cfg["source_commit"] and
-            receipt["entry_sha256"] == p.digest(j.exact_path(Path(__file__))) and
-            receipt["source_sha256"] == actual_sources, "资格入口或33文件源码闭包漂移")
+            receipt["source_sha256"] == actual_sources, "33文件源码闭包漂移")
+    require_reviewed_entry_digest(receipt, Path(__file__))
     artifacts = receipt["artifacts"]
     require(type(artifacts) is dict and set(artifacts) == {"compiled_xsa", "bit", "app_elf", "init_elf", "build_details", "platform_manifest"}, "资格产物字段错误")
     expected = {key: cfg["bindings"][key] for key in ("bit", "app_elf", "init_elf")}

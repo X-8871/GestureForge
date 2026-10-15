@@ -158,7 +158,7 @@ R要求已接受AR、RID=0、RLAST=1；B要求已声明写、W此前已完成、
 
 正常R/B的`00/OKAY`只在当前epoch仍RUN、原mem_valid仍对应锁存请求、同沿无取消/故障时产生一次mem_ready；读的全部子事务完成后才交付组装数据，写必须AW/W/B全部完成。`10/SLVERR`与`11/DECERR`分别保存外层9/10诊断并进入恢复，HEAD无效；取消沿不通过mem_ready强行向core交付错误，计算通过4.1节soft_reset/确认停止。ID和时序合法的错误响应可以记为物理已消费，仍不证明DDR无写入/读副作用；已接受写可已修改部分目标，失败输出禁止解码。旧epoch响应/取消后的当前epoch响应只消费丢弃，不产生mem_ready、done或HEAD_VALID；必须在新任务之前完全排空，所以无需依赖ID回绕识别旧响应。
 
-声明前取消的请求可丢弃；刚好取消沿之前/同沿已经声明VALID的事务属于必须排空集合，同沿AW/W/AR握手也必须入账。实现用时序明确的next-state账本，不以当前busy判断握手不存在。取消优先禁止声明新VALID，但不能屏蔽已有VALID handshake。reset/cancel不清adapter pending、地址或epoch。只有无声明/无accepted/无等待B/R/无待交付逻辑响应才满足账本为空，计数0不能代替这些逐通道状态。
+声明前取消的请求可丢弃；刚好取消沿之前/同沿已经声明VALID的事务属于必须排空集合，同沿AW/W/AR握手也必须入账。实现用时序明确的next-state账本，不以当前busy判断握手不存在。取消优先禁止声明新VALID，但不能屏蔽已有VALID handshake。内部soft_reset、cancel和timeout均保留adapter pending、地址、epoch及逐通道账本；不得把计算复位解释为旧事务终止。外部cold_reset只有在旧事务生命周期已独立确认终止后，才可按已核对的复位范围统一复位整条fabric并重新初始化adapter；不能用cold_reset清除未决事务、解除隔离或扩大安全重用条件。只有无声明/无accepted/无等待B/R/无待交付逻辑响应才满足账本为空，计数0不能代替这些逐通道状态。
 
 ## 6. 可见性与PS缓存条件
 
@@ -188,6 +188,12 @@ FAULT未闭合时持续隔离：若事务始终未结束或状态不能证明，
 | AMD AXI DMA（PG021） | AXI4 memory与AXI4-Stream的MM2S/S2MM；当前core没有AXI-Stream数据接口或帧TLAST | 直接接入不匹配，需stream桥、缓冲及地址调度/权重重排，不能把随机请求当连续stream；可能改善后续burst性能但扩大实现和验证范围 |
 
 2026-10-15 Wong确认：阶段计划“验证DMA、缓存一致性、缓冲所有权及传输长度”按数据搬运功能验收，保留当前自定义PL AXI3 master/word adapter，不要求AMD AXI DMA IP。该adapter承担PL自主DDR搬运；须核对请求字节数与有效lane长度、缓存一致性、缓冲所有权、错误/取消/完成，以及连续任务中的数据和状态完整性。不能因未集成AMD AXI DMA IP标记NOT_APPLICABLE，也不能减少100样本或1000次连续任务标准。这是G0输入口径，不关闭其余G0项，也不替代实际HP0事务与DDR可见性的G3证据。
+
+### 7.1 单样本硬件资格入口的人工信任边界
+
+资格入口只把下列两份由Wong明确指定的外部原件作为人工信任根，并按固定绝对路径、SHA-256、schema、Reviewer角色、任务身份、visibility0范围及平台清单交叉绑定逐项核验：`C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json`（`c87a2f40a099bdce0fce127af7d3c3282f4b2442e19dbc9da4f299b588321ce5`）和 `C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json`（`e22fd0a1fa0399de48d9694dd07c7b10e06dbb60f55aed7ce8a9057fc3d4c7ea`）。新资格收据还须引用固定Reviewer task `/root/ps_build_r02_review`、这对根及版本化的资格入口canonical digest和完整源码绑定；配置不能改选信任根或Reviewer身份。canonical digest仅规范化唯一Reviewer锚点赋值行，其余入口原字节均参与SHA-256。
+
+该信任根是经Wong批准的人工信任工作流，不是密码签名、不可伪造身份凭据或防篡改存储。两份原件均只支持 `visibility0_cache_probe_only` 的静态探测审查，其中 `review_provenance.json` 记录 `hardware_execution=NOT_RUN`；该范围不能扩张为本入口 `visibility1_sample000_single_job` 的Reviewer PASS，也不能证明板卡执行。入口继续要求新的、完整绑定当前源码与产物的资格收据；G0、外部POR/冷生命周期、timeout测量任一锚点缺失时硬件门保持fail-closed。该入口不替代100样本黄金比对、1000次连续任务或阶段2B正式验收。
 
 现有2A OOC基线资源为40,550 LUT / 53,200、3,082 FF / 106,400、32 BRAM / 140、186 DSP / 220；这不是物理顶层资源。T19 visibility0完整候选平台已包含GP0/控制、adapter、reset/clock及HP0连接并完成综合和布线：综合层级报告为18,200 LUT、4,157 FF、32 RAMB36、145 DSP，28,621个routable nets全部布通、0 routing error；50 MHz setup WNS +0.030 ns、hold WHS +0.080 ns。此离线实现范围仅为visibility0，setup/hold余量很小；仅有第1节绑定源码提交 `aa6fd7248ef9271bbcc79fefe097c78fec8fb36a` 的历史visibility=1 route-explore失败（WNS -0.147 ns、60个setup失败endpoint），未生成位流；它不代表当前源码visibility=1时序，当前源码visibility=1已完成离线STA（WNS +0.229 ns、TNS 0、WHS +0.095 ns、THS 0，见本节补充测量）。资源/路由/时序证据不证明总线行为、cache可见性、完整模型或板上运行，也不构成候选接口冻结。
 

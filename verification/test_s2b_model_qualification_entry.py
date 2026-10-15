@@ -53,6 +53,44 @@ def valid_config(run_dir="unused"):
     }
 
 
+def valid_manual_root_documents():
+    """构造与固定人工信任根schema一致的离线夹具。"""
+    platform_key = "report/evidence/S2B-T19/current_probe_scope_20261015_r01/platform_delivery_manifest.json"
+    provenance = {
+        "schema_version": 1,
+        "kind": "s2b-independent-review-provenance/1.0.0",
+        "reviewer_task": ENTRY.MANUAL_REVIEWER_TASK,
+        "role": "INDEPENDENT_REVIEWER",
+        "source_commit": ENTRY.MANUAL_REVIEW_SOURCE_COMMIT,
+        "verdict": "PASS",
+        "scope": ENTRY.MANUAL_REVIEW_SCOPE,
+        "frozen_reviewed_inputs": {platform_key: ENTRY.MANUAL_PLATFORM_MANIFEST["sha256"]},
+        "independent_raw_facts": {
+            "status": "INDEPENDENT_RAW_FACTS_PASS",
+            "dynamic_hardware": "NOT_RUN",
+        },
+        "hardware_execution": "NOT_RUN",
+    }
+    compatibility = {
+        "schema_version": 1,
+        "kind": "s2b-runtime-platform-compatibility/1.0.0",
+        "role": "INDEPENDENT_REVIEWER",
+        "status": "PASS",
+        "scope": ENTRY.MANUAL_REVIEW_SCOPE,
+        "visibility_parameter": 0,
+        "artifacts": {"platform_manifest": dict(ENTRY.MANUAL_PLATFORM_MANIFEST)},
+    }
+    return provenance, compatibility
+
+
+def valid_qualification_trust_claim():
+    """构造仅供离线门禁单测使用的固定Reviewer/root声明。"""
+    return {
+        "reviewer_task": ENTRY.MANUAL_REVIEWER_TASK,
+        "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM,
+    }
+
+
 class ConfigGateTests(unittest.TestCase):
     """核对严格字段、整数类型及未冻结准入锚点。"""
 
@@ -62,6 +100,10 @@ class ConfigGateTests(unittest.TestCase):
         extra["allow_hardware"] = True
         with self.assertRaisesRegex(ENTRY.QualificationError, "字段错误"):
             ENTRY.validate_config(extra)
+        root_override = valid_config()
+        root_override["manual_trust_root"] = ENTRY.MANUAL_TRUST_ROOT_CLAIM
+        with self.assertRaisesRegex(ENTRY.QualificationError, "字段错误"):
+            ENTRY.validate_config(root_override)
         missing = valid_config()
         del missing["g0_basis"]
         with self.assertRaisesRegex(ENTRY.QualificationError, "字段错误"):
@@ -100,15 +142,154 @@ class ConfigGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ENTRY.QualificationError, "独立Reviewer原件"):
                 ENTRY.verify_review(cfg, {}, "d" * 64)
 
+    def test_canonical_entry_digest_normalizes_only_the_anchor_assignment(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_entry_digest_") as raw_dir:
+            source = Path(raw_dir) / "entry.py"
+            first = (b"# fixture\nTRUSTED_REVIEW_ANCHOR = None\nVALUE = 1\n")
+            second = (b"# fixture\nTRUSTED_REVIEW_ANCHOR = {'path': 'review.json', 'sha256': '" +
+                      b"a" * 64 + b"'}\nVALUE = 1\n")
+            changed_other_byte = second.replace(b"VALUE = 1", b"VALUE = 2")
+            source.write_bytes(first)
+            first_digest = ENTRY.canonical_entry_sha256(source)
+            receipt = {"entry_digest_scheme": ENTRY.ENTRY_DIGEST_SCHEME,
+                       "canonical_entry_sha256_v1": first_digest}
+            ENTRY.require_reviewed_entry_digest(receipt, source)
+            source.write_bytes(second)
+            self.assertEqual(ENTRY.canonical_entry_sha256(source), first_digest)
+            ENTRY.require_reviewed_entry_digest(receipt, source)
+            source.write_bytes(changed_other_byte)
+            self.assertNotEqual(ENTRY.canonical_entry_sha256(source), first_digest)
+            with self.assertRaisesRegex(ENTRY.QualificationError, "canonical digest漂移"):
+                ENTRY.require_reviewed_entry_digest(receipt, source)
+
+    def test_canonical_entry_digest_rejects_ambiguous_or_executable_anchor(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_entry_anchor_format_") as raw_dir:
+            source = Path(raw_dir) / "entry.py"
+            for raw in (
+                b"TRUSTED_REVIEW_ANCHOR = None\nTRUSTED_REVIEW_ANCHOR = None\n",
+                b"TRUSTED_REVIEW_ANCHOR = __import__('os')\n",
+                b"TRUSTED_REVIEW_ANCHOR = {'path': 'review.json', 'sha256': 'bad'}\n",
+            ):
+                with self.subTest(raw=raw):
+                    source.write_bytes(raw)
+                    with self.assertRaises(ENTRY.QualificationError):
+                        ENTRY.canonical_entry_sha256(source)
+
+    def test_source_anchor_replacement_is_rejected_against_existing_config(self):
+        cfg = valid_config()
+        pinned = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
+        cfg["qualification_receipt"] = pinned
+        raw = ENTRY_PATH.read_bytes()
+        old = b"TRUSTED_REVIEW_ANCHOR = None"
+        replacement = b"TRUSTED_REVIEW_ANCHOR = {'path': 'replacement.json', 'sha256': '" + b"d" * 64 + b"'}"
+        self.assertEqual(raw.count(old), 1)
+        with tempfile.TemporaryDirectory(prefix="s2b_changed_entry_anchor_") as raw_dir:
+            changed_entry = Path(raw_dir) / "entry.py"
+            changed_entry.write_bytes(raw.replace(old, replacement, 1))
+            with patch.object(ENTRY, "__file__", changed_entry), \
+                 patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", pinned):
+                with self.assertRaisesRegex(ENTRY.QualificationError, "入口内Reviewer锚点与已加载源码值不一致"):
+                    ENTRY.require_hardware_enablement(cfg)
+
+    def test_config_cannot_spoof_a_different_pinned_review_anchor(self):
+        pinned = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
+        cfg = valid_config()
+        cfg["qualification_receipt"] = {"path": str(ROOT / "forged-review.json"), "sha256": "d" * 64}
+        with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", pinned), \
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=pinned):
+            with self.assertRaisesRegex(ENTRY.QualificationError, "配置与总控固定的独立Reviewer原件锚点不一致"):
+                ENTRY.require_hardware_enablement(cfg)
+
+    def test_manual_trust_root_schema_scope_role_and_cross_binding_are_fixed(self):
+        self.assertEqual(ENTRY.MANUAL_REVIEW_PROVENANCE["path"],
+                         "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json")
+        self.assertEqual(ENTRY.MANUAL_REVIEW_PROVENANCE["sha256"],
+                         "c87a2f40a099bdce0fce127af7d3c3282f4b2442e19dbc9da4f299b588321ce5")
+        self.assertEqual(ENTRY.MANUAL_RUNTIME_COMPATIBILITY["path"],
+                         "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json")
+        self.assertEqual(ENTRY.MANUAL_RUNTIME_COMPATIBILITY["sha256"],
+                         "e22fd0a1fa0399de48d9694dd07c7b10e06dbb60f55aed7ce8a9057fc3d4c7ea")
+        provenance, compatibility = valid_manual_root_documents()
+        self.assertEqual(ENTRY.validate_manual_review_root_documents(provenance, compatibility),
+                         ENTRY.MANUAL_TRUST_ROOT_CLAIM)
+        mutations = (
+            ("provenance", "schema_version", True),
+            ("provenance", "role", "CONFIGURATOR"),
+            ("provenance", "reviewer_task", "/root/unauthorized_reviewer"),
+            ("provenance", "scope", "visibility1_sample000_single_job"),
+            ("provenance", "hardware_execution", "PASS"),
+            ("compatibility", "role", "CONFIGURATOR"),
+            ("compatibility", "scope", "visibility1_sample000_single_job"),
+            ("compatibility", "visibility_parameter", 1),
+        )
+        for target, key, value in mutations:
+            with self.subTest(target=target, key=key):
+                changed_provenance, changed_compatibility = valid_manual_root_documents()
+                target_object = changed_provenance if target == "provenance" else changed_compatibility
+                target_object[key] = value
+                with self.assertRaises(ENTRY.QualificationError):
+                    ENTRY.validate_manual_review_root_documents(changed_provenance, changed_compatibility)
+        changed_provenance, changed_compatibility = valid_manual_root_documents()
+        changed_compatibility["artifacts"]["platform_manifest"]["sha256"] = "f" * 64
+        with self.assertRaisesRegex(ENTRY.QualificationError, "平台清单原件"):
+            ENTRY.validate_manual_review_root_documents(changed_provenance, changed_compatibility)
+
+    def test_coordinated_anchor_config_and_receipt_rewrite_cannot_replace_reviewer_root(self):
+        raw = ENTRY_PATH.read_bytes()
+        fake_anchor = {"path": str(ROOT / "forged-review.json"), "sha256": "e" * 64}
+        old = b"TRUSTED_REVIEW_ANCHOR = None"
+        replacement = b"TRUSTED_REVIEW_ANCHOR = " + repr(fake_anchor).encode("utf-8")
+        self.assertEqual(raw.count(old), 1)
+        with tempfile.TemporaryDirectory(prefix="s2b_coordinated_rewrite_") as raw_dir:
+            changed_entry = Path(raw_dir) / "entry.py"
+            changed_entry.write_bytes(raw.replace(old, replacement, 1))
+            self.assertEqual(ENTRY.canonical_entry_sha256(changed_entry),
+                             ENTRY.canonical_entry_sha256(ENTRY_PATH))
+            forged_claims = (
+                {"reviewer_task": "/root/unauthorized_reviewer",
+                 "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM},
+                {"reviewer_task": ENTRY.MANUAL_REVIEWER_TASK},
+            )
+            for forged_receipt in forged_claims:
+                with self.subTest(forged_receipt=forged_receipt):
+                    cfg = valid_config()
+                    cfg["qualification_receipt"] = fake_anchor
+                    with patch.object(ENTRY, "__file__", changed_entry), \
+                         patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", fake_anchor), \
+                         patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
+                         patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", cfg["cold_basis"]), \
+                         patch.object(ENTRY, "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", cfg["timeout_basis"]), \
+                         patch.object(ENTRY, "validate_manual_review_trust_root",
+                                      return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
+                         patch.object(ENTRY, "document", return_value=forged_receipt):
+                        with self.assertRaises(ENTRY.QualificationError):
+                            ENTRY.require_hardware_enablement(cfg)
+
+    def test_receipt_schema_requires_versioned_canonical_entry_digest(self):
+        self.assertEqual(ENTRY.ENTRY_DIGEST_SCHEME, "s2b-model-qualification-entry-canonical-sha256-v1")
+        self.assertIn("canonical_entry_sha256_v1", ENTRY.RECEIPT_KEYS)
+        self.assertIn("entry_digest_scheme", ENTRY.RECEIPT_KEYS)
+        self.assertIn("reviewer_task", ENTRY.RECEIPT_KEYS)
+        self.assertIn("manual_trust_root", ENTRY.RECEIPT_KEYS)
+        self.assertNotIn("entry_sha256", ENTRY.RECEIPT_KEYS)
+
     def test_g0_cold_and_timeout_evidence_must_be_independently_fixed(self):
         cfg = valid_config()
         review = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
         cfg["qualification_receipt"] = review
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", review), \
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=review), \
+             patch.object(ENTRY, "validate_manual_review_trust_root",
+                          return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
+             patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None):
             with self.assertRaisesRegex(ENTRY.QualificationError, "正式G0依据"):
                 ENTRY.require_hardware_enablement(cfg)
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", review), \
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=review), \
+             patch.object(ENTRY, "validate_manual_review_trust_root",
+                          return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
+             patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
              patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None):
             with self.assertRaisesRegex(ENTRY.QualificationError, "POR/冷生命周期依据"):
@@ -117,6 +298,10 @@ class ConfigGateTests(unittest.TestCase):
     def test_unmeasured_deadline_values_never_enable_hardware(self):
         cfg = valid_config()
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", cfg["qualification_receipt"]), \
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=cfg["qualification_receipt"]), \
+             patch.object(ENTRY, "validate_manual_review_trust_root",
+                          return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
+             patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
              patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", cfg["cold_basis"]), \
              patch.object(ENTRY, "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", None):

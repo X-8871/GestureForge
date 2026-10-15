@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "control_r12_candidate012_20261015",
+  "status": "RESIDUAL_PROCESSES_TERMINATED_AND_VERIFIED",
+  "original_timeout": {
+    "phase": "compile",
+    "timeout_seconds": 360,
+    "runner_exit_code": 1,
+    "runner_process_id": 24804,
+    "taskkill_command": ["taskkill", "/PID", "24804", "/T", "/F"],
+    "taskkill_exit_code": 1,
+    "taskkill_output": "ERROR: Access denied",
+    "runner_recorded_tree_termination_confirmed": false
+  },
+  "manual_followup_action": {
+    "command": "Stop-Process -Id 17684,24448,15592,7436 -Force -ErrorAction Continue",
+    "command_exit_code": null,
+    "tool_reported_error": false,
+    "targets": [
+      {"process_id": 17684, "name": "cc1plus", "executable": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\..\\lib\\gcc\\x86_64-w64-mingw32\\16.2.0\\cc1plus.exe", "started_at": "2026-10-15T22:54:00+08:00"},
+      {"process_id": 24448, "name": "g++", "executable": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe", "started_at": "2026-10-15T22:54:00+08:00"},
+      {"process_id": 15592, "name": "make", "executable": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe", "started_at": "2026-10-15T22:54:00+08:00"},
+      {"process_id": 7436, "name": "make", "executable": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe", "started_at": "2026-10-15T22:47:39+08:00"}
+    ],
+    "recording_limit": "外层工具未回传该 Stop-Process 调用的独立退出码；调用无报错返回，后续检查作为完成依据。"
+  },
+  "verification": {
+    "command": "Get-Process -Id 17684,24448,15592,7436,24804; Get-Process -Name verilator_bin,g++,cc1plus,make,Vtb_s2b_control_csr",
+    "exit_code": 0,
+    "observed_at": "2026-10-15T22:55:15.8496510+08:00",
+    "remaining_processes": []
+  },
+  "final_compile_log": {
+    "path": "report/evidence/S2B-T11/control_r12_candidate012_20261015/compile.log",
+    "bytes": 6764,
+    "sha256": "0da701d492274d5ba30539d84ae91a28d565b414680350854333c683d3b3f610"
+  },
+  "simulation_started": false,
+  "adapter_regression_started": false,
+  "interpretation": "R12 remains compile-timeout FAIL; cleanup confirms no listed tool process remains. No generated binary was started and no RTL pass/failure is inferred."
+}

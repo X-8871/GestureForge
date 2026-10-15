@@ -141,12 +141,24 @@ module tb_s2b_control_csr;
     int start_count=0, config_count=0, reset_cycle=-1, reset_count=0, ack_count=0, phase=0;
     int status_count=0, error_count=0, debug_count=0;
     int logical_responses=0;
+    localparam int WATCHDOG_CYCLE_LIMIT=100000;
+    string progress_stage="startup";
     int phase_coverage[4]='{default:0};
     int runtime_phase_coverage[4]='{default:0};
     logic old_b=0, old_r=0;
     logic [1:0] saved_b;
     logic [33:0] saved_r;
     int unsigned rng=32'h2b111010;
+    task automatic mark_stage(input string name);
+        progress_stage=name;
+        $display("PROGRESS stage=%s cycles=%0d directed=%0d random=%0d integration=%0d phase=%0d",
+            progress_stage,cycles,directed,random_count,integration_count,phase);
+    endtask
+    initial begin
+        wait(cycles>=WATCHDOG_CYCLE_LIMIT);
+        $fatal(1,"WATCHDOG cycle_limit=%0d stage=%s cycles=%0d directed=%0d random=%0d integration=%0d phase=%0d",
+            WATCHDOG_CYCLE_LIMIT,progress_stage,cycles,directed,random_count,integration_count,phase);
+    end
     task automatic must(input logic cond, input string text);
         if (!cond) $fatal(1,"cycle=%0d directed=%0d integration=%0d %s",cycles,directed,integration_count,text);
     endtask
@@ -200,6 +212,9 @@ module tb_s2b_control_csr;
         #4; clk=1; #1; clk=0; #4;
         if(cold_reset) phase=0; else phase=(phase+1)%4;
         cycles++;
+        if ((cycles%512)==0)
+            $display("PROGRESS checkpoint cycles=%0d stage=%s directed=%0d random=%0d integration=%0d phase=%0d",
+                cycles,progress_stage,directed,random_count,integration_count,phase);
     endtask
     task automatic idle_ticks(input int n); repeat(n) tick(); endtask
     task automatic initialize(input bit mock);
@@ -288,6 +303,7 @@ module tb_s2b_control_csr;
     initial begin
         logic [31:0] addr, expected;
         int prior, saved, count;
+        mark_stage("directed_csr_and_random");
         initialize(1);
         // 完整普通map与非法方向、完整32位别名、所有byte strobe。
         for(int offset=0;offset<=16'h74;offset+=4) begin
@@ -329,6 +345,7 @@ module tb_s2b_control_csr;
             write_reg(32'h43c00014,rng,0,int'(rng%7)-3,15,int'((rng>>8)%4));
             read_reg(32'h43c00014,rng,0,int'((rng>>16)%4)); random_count++;
         end
+        mark_stage("mock_csr_recovery_and_phase_coverage");
         // 同沿普通写提交与AR从next-state读取新配置。
         s_axi_awaddr=32'h43c00014; s_axi_wdata=32'h11112222; s_axi_wstrb=15;
         s_axi_awvalid=1; s_axi_wvalid=1; tick(); s_axi_awvalid=0; s_axi_wvalid=0;
@@ -459,6 +476,7 @@ module tb_s2b_control_csr;
         initialize(0); configure(); start_run(); operator_result_valid=1; tick(); operator_result_valid=0;
         idle_ticks(8); read_state(4); acknowledge(); integration_count++;
         // 实际最后start槽与非法响应同沿：内核握手后外层直接隔离，永不声明AXI。
+        mark_stage("runtime_shell_adapter_integration");
         initialize(0); configure(); prior=start_count; saved=reset_count;
         write_reg(32'h43c00008,1,0);
         while(!(core_csr_valid && core_csr_write && core_csr_addr==0 && core_csr_wdata==1)) tick();
@@ -565,6 +583,7 @@ module tb_s2b_control_csr;
         count=status_count; idle_ticks(12); must(status_count>=count+6,"debug R背压不阻塞监视");
         s_axi_rready=1; s_axi_bready=1; tick(); s_axi_rready=0; s_axi_bready=0;
         while(!run_enable) tick(); directed++;
+        mark_stage("final_assertions_and_coverage");
         must(error_count>0 && ack_count>0 && reset_count>0,"控制及监视路径覆盖");
         for(int p=0;p<4;p++) must(phase_coverage[p]==1,"四相位错误覆盖");
         for(int p=0;p<4;p++) must(runtime_phase_coverage[p]==1,"真实runtime四相位错误覆盖");

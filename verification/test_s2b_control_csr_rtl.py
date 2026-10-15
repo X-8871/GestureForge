@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import hashlib
 import importlib.util
 import json
@@ -16,7 +17,10 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"
-SPEC_SHA = "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+SPEC_SHA = "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+COMPILE_TIMEOUT_SECONDS = 360
+SIMULATION_TIMEOUT_SECONDS = 60
+CHECKPOINT_INTERVAL_SECONDS = 15
 SOURCES = ("src/s2b_control_csr.sv", "src/s2b_hp0_word_adapter.sv", "src/s2b_request_guard.sv",
            "src/s2a_control_csr.sv", "src/s2a_memory_master.sv", "src/s2a_runtime_shell.sv",
            "sim/tb_s2b_control_csr.sv", "verification/test_s2b_control_csr_rtl.py")
@@ -27,27 +31,111 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict, report: dict) -> None:
-    """单job，超时只结束本次创建的进程树，原始日志不可覆盖。"""
+def checkpoint(evidence: Path, record: dict, log: Path, started: float, message: str) -> None:
+    """追加运行检查点并同步到终端，便于长编译期间恢复观察。"""
+    item = {"time": datetime.now().astimezone().isoformat(timespec="milliseconds"),
+        "phase": record["name"], "message": message,
+        "elapsed_seconds": round(time.monotonic() - started, 3),
+        "process_id": record.get("process_id"), "exit_code": record.get("exit_code"),
+        "log_bytes": log.stat().st_size if log.exists() else 0}
+    with (evidence / "runner_checkpoints.jsonl").open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(item, ensure_ascii=False) + "\n")
+        stream.flush()
+    print(json.dumps(item, ensure_ascii=False), flush=True)
+
+
+def stop_process_tree(process: subprocess.Popen, stream, record: dict) -> None:
+    """超时后尝试结束整棵子进程树；收尾不确定时记录并失败关闭。"""
+    cleanup = {"attempted": True, "tree_command": None, "tree_exit_code": None,
+        "tree_output": "", "parent_exit_code": None, "parent_terminated": False}
+    if os.name == "nt":
+        cleanup["tree_command"] = ["taskkill", "/PID", str(process.pid), "/T", "/F"]
+        try:
+            result = subprocess.run(cleanup["tree_command"], stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace", timeout=30)
+            cleanup["tree_exit_code"] = result.returncode
+            cleanup["tree_output"] = result.stdout or ""
+        except Exception as exc:
+            cleanup["tree_output"] = f"taskkill异常：{type(exc).__name__}: {exc}"
+        if cleanup["tree_output"]:
+            stream.write("\n[进程树收尾原始输出]\n" + cleanup["tree_output"] + "\n")
+            stream.flush()
+    else:
+        try:
+            process.kill()
+            cleanup["tree_exit_code"] = 0
+            cleanup["tree_output"] = "已向本进程发送kill；未枚举子进程。"
+        except Exception as exc:
+            cleanup["tree_output"] = f"kill异常：{type(exc).__name__}: {exc}"
+    try:
+        process.wait(timeout=30)
+    except subprocess.TimeoutExpired:
+        try:
+            process.kill()
+            process.wait(timeout=10)
+        except Exception as exc:
+            cleanup["tree_output"] += f"\n父进程强制结束异常：{type(exc).__name__}: {exc}"
+    except Exception as exc:
+        cleanup["tree_output"] += f"\n等待父进程异常：{type(exc).__name__}: {exc}"
+    cleanup["parent_exit_code"] = process.poll()
+    cleanup["parent_terminated"] = cleanup["parent_exit_code"] is not None
+    cleanup["tree_termination_confirmed"] = (os.name != "nt" or cleanup["tree_exit_code"] == 0) and cleanup["parent_terminated"]
+    record["cleanup"] = cleanup
+
+
+def execute(name: str, command: list[str], work: Path, evidence: Path, env: dict,
+            report: dict, timeout_seconds: int) -> dict:
+    """单job运行，定期保存检查点，并在超时或异常时保留日志与进程状态。"""
     started = time.monotonic()
     log = evidence / (name + ".log")
+    record = {"name": name, "command": command, "working_directory": str(work),
+        "timeout_seconds": timeout_seconds, "exit_code": None, "timed_out": False,
+        "status": "RUNNING", "log_path": log.relative_to(ROOT).as_posix(),
+        "process_id": None, "started_at": datetime.now().astimezone().isoformat(timespec="milliseconds")}
+    report["runs"].append(record)
     with log.open("x", encoding="utf-8") as stream:
-        process = subprocess.Popen(command, cwd=work, env=env, stdout=stream, stderr=subprocess.STDOUT)
-        timed_out = False
+        process = None
         try:
-            process.wait(timeout=180)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            if os.name == "nt":
-                subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                               stdout=stream, stderr=subprocess.STDOUT, timeout=30)
-            else:
-                process.kill()
-            process.wait(timeout=30)
-    report["runs"].append({"name": name, "command": command, "exit_code": process.returncode,
-        "seconds": round(time.monotonic() - started, 3), "timed_out": timed_out, "log_sha256": sha(log)})
-    if timed_out or process.returncode != 0:
-        raise ValueError(name + "失败")
+            creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+            process = subprocess.Popen(command, cwd=work, env=env, stdout=stream,
+                stderr=subprocess.STDOUT, creationflags=creationflags)
+            record["process_id"] = process.pid
+            checkpoint(evidence, record, log, started, "进程已启动")
+            deadline = started + timeout_seconds
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    record["timed_out"] = True
+                    record["status"] = "FAIL_TIMEOUT"
+                    checkpoint(evidence, record, log, started, "达到wall超时，开始进程树收尾")
+                    stop_process_tree(process, stream, record)
+                    break
+                try:
+                    process.wait(timeout=min(CHECKPOINT_INTERVAL_SECONDS, remaining))
+                    record["exit_code"] = process.returncode
+                    record["status"] = "PASS" if process.returncode == 0 else "FAIL_EXIT"
+                    break
+                except subprocess.TimeoutExpired:
+                    stream.flush()
+                    checkpoint(evidence, record, log, started, "运行中")
+            if record["timed_out"]:
+                record["exit_code"] = process.poll()
+                if not record.get("cleanup", {}).get("tree_termination_confirmed", False):
+                    record["status"] = "FAIL_TIMEOUT_CLEANUP_UNCONFIRMED"
+        except Exception as exc:
+            record["status"] = "FAIL_LAUNCH_OR_RUNNER_EXCEPTION"
+            record["error"] = f"{type(exc).__name__}: {exc}"
+            if process is not None and process.poll() is None:
+                stop_process_tree(process, stream, record)
+            record["exit_code"] = process.poll() if process is not None else None
+        finally:
+            record["seconds"] = round(time.monotonic() - started, 3)
+            record["finished_at"] = datetime.now().astimezone().isoformat(timespec="milliseconds")
+            record["log_sha256"] = sha(log)
+            record["log_bytes"] = log.stat().st_size
+    if record["status"] != "PASS":
+        raise RuntimeError(f"{name}失败：status={record['status']} exit_code={record['exit_code']}")
+    return record
 
 
 def run(work: Path, evidence: Path, toolchain: Path, report: dict) -> None:
@@ -66,6 +154,9 @@ def run(work: Path, evidence: Path, toolchain: Path, report: dict) -> None:
     env = os.environ.copy()
     env["PATH"] = str(make_dir) + os.pathsep + str(tools_dir) + os.pathsep + env.get("PATH", "")
     env["VERILATOR_ROOT"] = str(tools_dir.parent / "share/verilator")
+    report["runner_environment"] = {"inheritance": "Python os.environ.copy()",
+        "path_entries": env["PATH"].split(os.pathsep), "verilator_root": env["VERILATOR_ROOT"],
+        "python_executable": sys.executable, "cwd": str(work)}
     for path in (verilator, tools_dir / "g++.exe", make_dir / "make.exe", Path(env["VERILATOR_ROOT"])):
         if not path.exists():
             raise ValueError(f"工具精确路径不存在：{path}")
@@ -77,8 +168,12 @@ def run(work: Path, evidence: Path, toolchain: Path, report: dict) -> None:
         "-j", "1", "--threads", "1", "--top-module", "tb_s2b_control_csr", "--Mdir", "obj_dir",
         "-MAKEFLAGS", "PYTHON3='\"" + sys.executable + "\"'", "-CFLAGS", "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
         *["source/" + Path(p).name for p in SOURCES if p.endswith(".sv")]]
-    execute("compile", compile_command, work, evidence, env, report)
-    execute("simulation", [str(work / "obj_dir/Vtb_s2b_control_csr.exe")], work, evidence, env, report)
+    compile_run = execute("compile", compile_command, work, evidence, env, report,
+        COMPILE_TIMEOUT_SECONDS)
+    if compile_run["timed_out"] or compile_run["exit_code"] != 0:
+        raise RuntimeError("编译未成功完成，禁止启动本Run产生的仿真二进制")
+    execute("simulation", [str(work / "obj_dir/Vtb_s2b_control_csr.exe")], work,
+        evidence, env, report, SIMULATION_TIMEOUT_SECONDS)
     matches = re.findall(r"PASS CONTROL_CSR directed=(\d+) random=(\d+) integration=(\d+) cycles=(\d+) status=(\d+) error=(\d+) debug=(\d+) starts=(\d+) resets=(\d+) acks=(\d+)",
         (evidence / "simulation.log").read_text(encoding="utf-8"))
     if len(matches) != 1:
@@ -100,7 +195,7 @@ def run(work: Path, evidence: Path, toolchain: Path, report: dict) -> None:
     for source in report["sources"]:
         if sha(ROOT / source["path"]) != source["sha256"]:
             raise ValueError("运行期间源码变化")
-    report["status"] = "PASS_CANDIDATE_CONTROL_CSR"
+    report["status"] = "PASS_RTL_SIMULATION_ONLY"
 
 
 def main() -> int:
@@ -123,8 +218,11 @@ def main() -> int:
     evidence.mkdir(); work.mkdir()
     started = time.monotonic()
     report = {"status": "FAIL", "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+        "run_id": args.run_id, "runner_command": [sys.executable, *sys.argv],
+        "timeouts_seconds": {"compile": COMPILE_TIMEOUT_SECONDS,
+        "simulation": SIMULATION_TIMEOUT_SECONDS, "checkpoint_interval": CHECKPOINT_INTERVAL_SECONDS},
         "runs": [], "coverage": {"random_seed": "0x2b111010", "random_transactions": 128,
-        "reference_basis": "契约0.1.1常量及独立公开CSR模型；25组真实runtime_shell/word_adapter集成，mock及真实runtime分别覆盖四种sticky产生相位，不窥busy/owner/backend_abort。",
+        "reference_basis": "候选契约0.1.2常量及独立公开CSR模型；25组真实runtime_shell/word_adapter集成，mock及真实runtime分别覆盖四种sticky产生相位，不窥busy/owner/backend_abort。",
         "bindings": ["零W1P不改变LAST_REJECT；非法编码BAD_ENCODING。",
         "START安全终态NEED_ACK、FAULT NOT_SAFE、运行BUSY；ABORT idle NOT_SAFE、安全终态NEED_ACK、恢复BUSY、FAULT NOT_SAFE；ACK非安全NOT_SAFE。",
         "epoch耗尽仅TB白盒force corner；正常cold硬件epoch为零。",
@@ -171,7 +269,7 @@ def main() -> int:
         "reason": "本Run仅执行候选实现；上游物理契约未冻结、实物与可见性未验证。"}]
     delivery = {"schema_version": 1, "stage": "2B", "task_id": "S2B-T11", "run_id": args.run_id,
         "source_commit": report["source_commit"], "evidence_dir": evidence.relative_to(ROOT).as_posix(),
-        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.1",
+        "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.2",
         "frozen": False, "path": SPEC, "sha256": SPEC_SHA}], "files": files, "checks": checks,
         "limitations": report["limitations"], "tool_versions": report.get("tool_versions", {"python": sys.version.split()[0]})}
     (evidence / "delivery_manifest.json").write_text(json.dumps(delivery, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

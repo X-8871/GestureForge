@@ -1,0 +1,229 @@
+{
+  "status": "FAIL",
+  "source_commit": "75988f2e6d737f68b10807834be1112698c7916a",
+  "run_id": "control_r12_candidate012_20261015",
+  "runner_command": [
+    "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "verification/test_s2b_control_csr_rtl.py",
+    "--run-id",
+    "control_r12_candidate012_20261015",
+    "--adapter-regression"
+  ],
+  "timeouts_seconds": {
+    "compile": 360,
+    "simulation": 60,
+    "checkpoint_interval": 15
+  },
+  "runs": [
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--top-module",
+        "tb_s2b_control_csr",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O0",
+        "source/s2b_control_csr.sv",
+        "source/s2b_hp0_word_adapter.sv",
+        "source/s2b_request_guard.sv",
+        "source/s2a_control_csr.sv",
+        "source/s2a_memory_master.sv",
+        "source/s2a_runtime_shell.sv",
+        "source/tb_s2b_control_csr.sv"
+      ],
+      "working_directory": "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T11\\control_r12_candidate012_20261015",
+      "timeout_seconds": 360,
+      "exit_code": 1,
+      "timed_out": true,
+      "status": "FAIL_TIMEOUT_CLEANUP_UNCONFIRMED",
+      "log_path": "report/evidence/S2B-T11/control_r12_candidate012_20261015/compile.log",
+      "process_id": 24804,
+      "started_at": "2026-10-15T22:47:21.176+08:00",
+      "cleanup": {
+        "attempted": true,
+        "tree_command": [
+          "taskkill",
+          "/PID",
+          "24804",
+          "/T",
+          "/F"
+        ],
+        "tree_exit_code": 1,
+        "tree_output": "ERROR: Access denied\n\n",
+        "parent_exit_code": 1,
+        "parent_terminated": true,
+        "tree_termination_confirmed": false
+      },
+      "seconds": 395.109,
+      "finished_at": "2026-10-15T22:53:56.273+08:00",
+      "log_sha256": "0da701d492274d5ba30539d84ae91a28d565b414680350854333c683d3b3f610",
+      "log_bytes": 6764
+    }
+  ],
+  "coverage": {
+    "random_seed": "0x2b111010",
+    "random_transactions": 128,
+    "reference_basis": "候选契约0.1.2常量及独立公开CSR模型；25组真实runtime_shell/word_adapter集成，mock及真实runtime分别覆盖四种sticky产生相位，不窥busy/owner/backend_abort。",
+    "bindings": [
+      "零W1P不改变LAST_REJECT；非法编码BAD_ENCODING。",
+      "START安全终态NEED_ACK、FAULT NOT_SAFE、运行BUSY；ABORT idle NOT_SAFE、安全终态NEED_ACK、恢复BUSY、FAULT NOT_SAFE；ACK非安全NOT_SAFE。",
+      "epoch耗尽仅TB白盒force corner；正常cold硬件epoch为零。",
+      "DRAIN_TIMEOUT观察完整恢复条件；真实S+2在恢复第4沿满足安全，deadline1/3保留bit3，deadline4同沿安全优先且不新增bit3。",
+      "实际空账本下分别延迟可见性、公共CSR STOP和CORE首错ERROR取码，超限保持ownerPL/safe0，晚合法安全归还保留首错与bit3。"
+    ]
+  },
+  "limitations": [
+    "候选物理接口未冻结；不构成完整2B G0/G4/G5与实板验收。",
+    "visibility_confirmed低时真实任务禁止归还；实际HP/DDR属性、缓存路径与实物验证未执行。",
+    "峰值内存未测；单job/单线程；各次RunId保留重跑次数；未采集波形。"
+  ],
+  "sources": [
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+    },
+    {
+      "path": "sim/tb_s2b_control_csr.sv",
+      "sha256": "5559dc8ca31f294d2fe74542ab62b3f9c7809521951b6ebea72616afd1e32c1d"
+    },
+    {
+      "path": "verification/test_s2b_control_csr_rtl.py",
+      "sha256": "d4042b147f0fcc853a0087647554747b3563b3446fb1fe421c0b9f9bf2c3c60b"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+    }
+  ],
+  "runner_environment": {
+    "inheritance": "Python os.environ.copy()",
+    "path_entries": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin",
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin",
+      "C:\\Users\\22061\\.codex\\tmp\\arg0\\codex-arg0kWJQfk",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\libheif\\libheif\\bin",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\jxrlib\\jxrlib\\bin",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\override",
+      "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.4\\bin\\x64",
+      "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v13.4\\bin",
+      "c:\\windows\\system32",
+      "c:\\windows",
+      "c:\\windows\\system32\\wbem",
+      "c:\\windows\\system32\\windowspowershell\\v1.0\\",
+      "c:\\windows\\system32\\openssh\\",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell",
+      "c:\\users\\administrator\\appdata\\local\\microsoft\\windowsapps",
+      "c:\\program files\\hp\\omen-broadcast\\common",
+      "c:\\windows\\system32",
+      "c:\\windows",
+      "c:\\windows\\system32\\wbem",
+      "c:\\windows\\system32\\windowspowershell\\v1.0\\",
+      "c:\\windows\\system32\\openssh\\",
+      "d:\\mingw64\\bin",
+      "c:\\program files\\dotnet\\",
+      "c:\\program files\\nodejs\\",
+      "c:\\program files\\git\\cmd",
+      "c:\\program files\\nvidia corporation\\nvidia nvdlisr",
+      "C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common",
+      "C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2026.3.0\\",
+      "C:\\Program Files\\Git\\cmd",
+      "C:\\Users\\22061\\scoop\\shims",
+      "C:\\Users\\22061\\.cargo\\bin",
+      "C:\\Users\\22061\\.local\\bin",
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\",
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\",
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Launcher\\",
+      "C:\\Users\\22061\\AppData\\Local\\Microsoft\\WindowsApps",
+      "D:\\VScode\\Microsoft VS Code\\bin",
+      "C:\\Users\\22061\\.dotnet\\tools",
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Antigravity\\bin",
+      "C:\\Users\\22061\\AppData\\Roaming\\npm",
+      "C:\\Espressif\\tools\\xtensa-esp-elf-gdb\\16.3_20250913\\xtensa-esp-elf-gdb\\bin",
+      "C:\\Espressif\\tools\\xtensa-esp-elf\\esp-14.2.0_20251107\\xtensa-esp-elf\\bin",
+      "C:\\Espressif\\tools\\esp32ulp-elf\\2.38_20240113\\esp32ulp-elf\\bin",
+      "C:\\Espressif\\tools\\cmake\\3.30.2\\bin",
+      "C:\\Espressif\\tools\\openocd-esp32\\v0.12.0-esp32-20250707\\openocd-esp32\\bin",
+      "C:\\Espressif\\tools\\ninja\\1.12.1\\",
+      "C:\\Espressif\\tools\\idf-exe\\1.0.3\\",
+      "C:\\Espressif\\tools\\ccache\\4.11.2\\ccache-4.11.2-windows-x86_64",
+      "C:\\Espressif\\python_env\\idf5.5_py3.12_env\\Scripts",
+      "C:\\Users\\22061\\esp\\v5.5.2\\tools",
+      "C:\\Users\\22061\\AppData\\Local\\Microsoft\\WinGet\\Packages\\BurntSushi.ripgrep.MSVC_Microsoft.Winget.Source_8wekyb3d8bbwe\\ripgrep-15.1.0-x86_64-pc-windows-msvc",
+      "C:\\Users\\22061\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-8.1.1-full_build\\bin",
+      "C:\\Users\\22061\\AppData\\Local\\Microsoft\\WinGet\\Packages\\JohnMacFarlane.Pandoc_Microsoft.Winget.Source_8wekyb3d8bbwe\\pandoc-3.10",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\bin\\fallback",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd",
+      "C:\\Users\\22061\\AppData\\Local\\OpenAI\\Codex\\bin\\77fbd4d52e601e0a",
+      "C:\\Users\\22061\\AppData\\Local\\OpenAI\\Codex\\bin\\9614f1d9b40d9c4f"
+    ],
+    "verilator_root": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\share\\verilator",
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "cwd": "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T11\\control_r12_candidate012_20261015"
+  },
+  "tool_versions": {
+    "python": "3.12.14",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "tool_files": [
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+      "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+      "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+    }
+  ],
+  "error": "compile失败：status=FAIL_TIMEOUT_CLEANUP_UNCONFIRMED exit_code=1",
+  "elapsed_seconds": 395.797,
+  "post_timeout_cleanup": {
+    "path": "report/evidence/S2B-T11/control_r12_candidate012_20261015/post_timeout_cleanup.json",
+    "sha256": "7c0393c1375e34d59395c901431a921211ee9ce562dd469defdadc53b2ccc6b2",
+    "status": "RESIDUAL_PROCESSES_TERMINATED_AND_VERIFIED",
+    "runner_tree_kill": "FAIL: taskkill exit 1, Access denied; runner parent exit 1",
+    "followup": "R12的4个残留编译进程已用一次Stop-Process动作停止；后续PID/名称查询退出0且无残留。Stop-Process调用的独立退出码未由外层工具回传。",
+    "simulation_started": false,
+    "adapter_regression_started": false
+  }
+}

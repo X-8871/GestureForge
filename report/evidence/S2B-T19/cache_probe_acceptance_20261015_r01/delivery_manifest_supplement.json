@@ -371,6 +371,12 @@
       "keep_reason": "限定探针复算、真实退出记录与必要原日志/官方SDK快照；复核与恢复所需。"
     },
     {
+      "path": "report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/limited_scope_acceptance_receipt.json",
+      "sha256": "14ad63d513987c289bd1b26756367aefa18585b9a295171feb5b674d0338e75e",
+      "role": "result",
+      "keep_reason": "记录独立G2审查和总控限定范围验收，绑定被审版本并明确未覆盖项。"
+    },
+    {
       "path": "report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/offline_verification_execution.json",
       "sha256": "a014ed44f3594bcb1422836d4835e944fb438871616d67059bd52ba11b4c7022",
       "role": "result",
@@ -988,10 +994,10 @@
     },
     {
       "name": "acceptance_package_independent_review",
-      "status": "NOT_RUN",
-      "command": null,
-      "exit_code": null,
-      "reason": "本包为Developer交付，独立Reviewer待总控创建，不借入场准入收据替代本轮审查。"
+      "status": "PASS",
+      "command": "Codex独立Reviewer /root/review_probe_acceptance；复算audit_cache_probe.py --verify与audit_packaging_supplement.py --verify；结果见limited_scope_acceptance_receipt.json",
+      "exit_code": 0,
+      "reason": "独立Reviewer对冻结SHA版本审查PASS；范围限本次CPU0/DAP 256B探针及封包。核查命令、输入哈希和范围边界见同目录limited_scope_acceptance_receipt.json。"
     },
     {
       "name": "cold_lifecycle_proof",

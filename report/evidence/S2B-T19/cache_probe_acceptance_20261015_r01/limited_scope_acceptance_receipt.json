@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-limited-cpu-dap-probe-acceptance/1.0.0",
+  "receipt_author": "阶段2B总控",
+  "baseline": {
+    "worktree": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+    "branch": "codex/stage2b-t01-board-audit",
+    "reviewed_head": "d49f9b8d5bd5ec3f8d791a3f425aa7691c79f37c",
+    "run_id": "cache_probe_execution_20261015_r01"
+  },
+  "independent_review": {
+    "reviewer_role": "INDEPENDENT_REVIEWER",
+    "reviewer_agent": "/root/review_probe_acceptance",
+    "status": "PASS",
+    "reviewed_files_sha256": {
+      "audit_report.md": "c1e5ddefd752bfc27d30f3180b40ebef50a4c87d95e6f79583a72bc143d0c974",
+      "audit_cache_probe.py": "0fa8dcf4e122def989550c65c44b37518a0cce12d2033d6ba71a89b6f3c6ddfb",
+      "audit_packaging_supplement.py": "283f4736f3149fe9d2513048b607d8b0f2117f1622001e2ed1a6d69d76205f03",
+      "delivery_manifest.json": "f057e500a5a3bcf141540db1d3588985fb6a2e8e0cb4066447d4c06092315a1a",
+      "delivery_manifest_supplement.json_at_review": "73c338063491073304f80dce3fc4e501a623cfc5ebb026255649019eb21156fe",
+      "summary.json": "8d9467d959c393a18e1a751dc462c2b0fbe4f39d7fa8297d79e762f95f8aea78",
+      "offline_verification_execution.json": "a014ed44f3594bcb1422836d4835e944fb438871616d67059bd52ba11b4c7022"
+    },
+    "checks": [
+      {
+        "command": "python -X utf8 -B report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/audit_cache_probe.py --verify",
+        "status": "VERIFY_OK",
+        "exit_code": 0
+      },
+      {
+        "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/delivery_manifest.json",
+        "status": "CHECKS_FAILED_EXPECTED_HISTORICAL_PACKAGING_FAILURE",
+        "exit_code": 2
+      },
+      {
+        "command": "python -X utf8 -B report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/audit_packaging_supplement.py --verify",
+        "status": "VERIFY_SUPPLEMENT_OK",
+        "exit_code": 0
+      },
+      {
+        "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/delivery_manifest_supplement.json",
+        "status": "CHECKS_OK_WITH_RECORDED_LIMITATIONS",
+        "exit_code": 0
+      }
+    ],
+    "scope_finding": "本次数据路径只覆盖CPU0/DAP对0x10000000起始256B的双向观察；bitstream曾通过fpga.full.compatibility_default配置，因此不得表述为PL未配置。没有LOAD/START请求，数据路径未经过PL/HP0。"
+  },
+  "controller_acceptance": {
+    "limited_scope_status": "PASS",
+    "accepted_object": "本次CPU0/DAP 256B限定探针执行与验收封包",
+    "gates": {
+      "G2_limited_package_review": "PASS",
+      "G3_limited_probe_execution": "PASS_OBSERVATION_ONLY",
+      "G4_limited_package": "PASS",
+      "G0_full_model": "NOT_PASSED",
+      "G3_full_model": "NOT_RUN",
+      "G5_stage2b": "NOT_PASSED"
+    }
+  },
+  "runtime_observations": {
+    "source_status_preserved": "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING",
+    "native_exit_code": 0,
+    "elapsed_seconds": 107.672,
+    "cleanup_errors": [],
+    "cold_lifecycle_proven": false,
+    "bitstream_configured": true,
+    "load_requests": 0,
+    "start_requests": 0,
+    "data_path_through_pl_or_hp0": false
+  },
+  "limitations": [
+    "不证明32MiB arena、PL/HP0可见性或cache一致性。",
+    "不证明物理POR或旧AXI生命周期；cold_lifecycle_proven保持false。",
+    "不证明整网G0、整网单样本、100个黄金样本、1000次连续任务、异常恢复或阶段2B G5。",
+    "峰值进程树内存未测；原始manifest封装失败仍保留，补充清单只修正封装字段与绑定。"
+  ]
+}

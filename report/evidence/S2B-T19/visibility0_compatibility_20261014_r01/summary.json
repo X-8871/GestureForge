@@ -1,0 +1,758 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-visibility0-offline-compatibility-dossier/1.0.0",
+  "role": "DEVELOPER_EVIDENCE",
+  "status": "OFFLINE_FACTS_PASS_AWAITING_INDEPENDENT_REVIEW",
+  "source_commit": "0aaea57de30ee83833244bb2eb6e1caf802e39ce",
+  "created_at": "2026-10-14T23:49:42.522388+08:00",
+  "audit": {
+    "scope": "visibility0_cache_probe_only",
+    "scope_reason": "仅评估同一ELF/BSP搭配visibility0 implemented XSA/bit后执行CPU/DAP 256B预探针的兼容事实；不LOAD、不START、不走PL/HP0。",
+    "checks": {
+      "same_ps7_config": true,
+      "same_ps_init_bytes": true,
+      "same_bsp_mmu_macros": true,
+      "same_uart_ddr_csr_clocks": true,
+      "full_model_core_present": true,
+      "postroute_timing_pass": true
+    },
+    "facts": {
+      "same_ps7_config": {
+        "parameter_count": 937,
+        "all_names_and_values_equal": true,
+        "canonical_sha256": "0480e1fcd143a3bbc712dde275d1a3102fd812d6e6d26b50b30582cb031a5bbc"
+      },
+      "same_ps_init_bytes": {
+        "ps7_init.c": {
+          "sha256": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+          "bytes": 335957
+        },
+        "ps7_init.h": {
+          "sha256": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+          "bytes": 3792
+        },
+        "ps7_init.html": {
+          "sha256": "e7273545a2e0c51c58e2818a58a5729b08f9b65ab41a009497a218c3c54c2c7f",
+          "bytes": 1940460
+        },
+        "ps7_init.tcl": {
+          "sha256": "059e4a9cee4121c5d47e28f86a1213a8277a0e50c8919be1ee9013ce5899d94b",
+          "bytes": 26573
+        },
+        "ps7_init_gpl.c": {
+          "sha256": "e96167b9317bf9723a29b717d82dcaff91d1bcb62e421256992f47a720f3e9d1",
+          "bytes": 336574
+        },
+        "ps7_init_gpl.h": {
+          "sha256": "10d682e5bd16bfc11504f8862b88fee6a2654b39871eb74b4b594d8d91cf2f83",
+          "bytes": 4410
+        }
+      },
+      "same_bsp_mmu_macros": {
+        "no_USE_AMP_in_bsp_commands": true,
+        "cpu_id": 0,
+        "NORM_WB_CACHE": "0x15de6",
+        "DEVICE_MEMORY": "0xc06",
+        "elf_tables": {
+          "app_elf": {
+            "address": 1114112,
+            "bytes": 16384,
+            "sha256": "c2495f07ae193b7ff2b6abe72344094e14928ee5bcc12ed08019607c15a7d2c9",
+            "arena_all_32_sections_wb_shareable": true,
+            "arena_no_second_alias_in_actual_startup_table": true,
+            "csr_startup_descriptor": "0x43c00c02",
+            "uart_startup_descriptor": "0xe0000c06"
+          },
+          "init_elf": {
+            "address": 16384,
+            "bytes": 16384,
+            "sha256": "c2495f07ae193b7ff2b6abe72344094e14928ee5bcc12ed08019607c15a7d2c9",
+            "arena_all_32_sections_wb_shareable": true,
+            "arena_no_second_alias_in_actual_startup_table": true,
+            "csr_startup_descriptor": "0x43c00c02",
+            "uart_startup_descriptor": "0xe0000c06"
+          }
+        },
+        "csr_device_retag_in_actual_app": true,
+        "bsp_reused_from_compiled_xsa": true,
+        "comparison_scope": "复用同一CPU0 BSP及同一ELF，结合937项PS/地址/时钟完全一致；未生成vis0新BSP。"
+      },
+      "same_uart_ddr_csr_clocks": {
+        "bsp_macros": {
+          "XPAR_UART1_BASEADDR": 3758100480,
+          "XPAR_UART1_HIGHADDR": 3758104575,
+          "XPAR_UART1_CLOCK_FREQ": 100000000,
+          "XPAR_INFER_BASEADDR": 1136656384,
+          "XPAR_INFER_HIGHADDR": 1136721919,
+          "XPAR_PS7_DDR_0_BASEADDRESS": 1048576,
+          "XPAR_PS7_DDR_0_HIGHADDRESS": 1073741823
+        },
+        "all_hwh_memranges_equal": true,
+        "hwh_memranges": [
+          {
+            "ADDRESSBLOCK": "HP0_DDR_LOWOCM",
+            "BASENAME": "C_BASEADDR",
+            "BASEVALUE": "0x00000000",
+            "HIGHNAME": "C_HIGHADDR",
+            "HIGHVALUE": "0x3FFFFFFF",
+            "INSTANCE": "ps7",
+            "IS_DATA": "TRUE",
+            "IS_INSTRUCTION": "TRUE",
+            "MASTERBUSINTERFACE": "M_AXI",
+            "MEMTYPE": "MEMORY",
+            "SLAVEBUSINTERFACE": "S_AXI_HP0"
+          },
+          {
+            "ADDRESSBLOCK": "reg0",
+            "BASENAME": "C_BASEADDR",
+            "BASEVALUE": "0x43C00000",
+            "HIGHNAME": "C_HIGHADDR",
+            "HIGHVALUE": "0x43C0FFFF",
+            "INSTANCE": "infer",
+            "IS_DATA": "TRUE",
+            "IS_INSTRUCTION": "TRUE",
+            "MASTERBUSINTERFACE": "M_AXI_GP0",
+            "MEMTYPE": "REGISTER",
+            "SLAVEBUSINTERFACE": "S_AXI"
+          }
+        ],
+        "uart": "UART1/MIO48..49/115200/100MHz",
+        "pl_clock_hz": 50000000
+      },
+      "full_model_core_present": {
+        "rtl_source_count": 18,
+        "rtl_sha256": {
+          "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+          "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+          "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+          "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+          "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+          "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+          "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+          "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1"
+        },
+        "git_source_comparison": {
+          "src/s2a_network_descriptor_pkg.sv": {
+            "git_blob_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+            "runtime_bytes_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+            "raw_bytes_equal": false,
+            "only_line_endings_differ": true,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_maxpool_geometry.sv": {
+            "git_blob_sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+            "runtime_bytes_sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/int8_maxpool_window.sv": {
+            "git_blob_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+            "runtime_bytes_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_route_query.sv": {
+            "git_blob_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+            "runtime_bytes_sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/int8_upsample_query.sv": {
+            "git_blob_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+            "runtime_bytes_sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_conv_tile_engine.sv": {
+            "git_blob_sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+            "runtime_bytes_sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_maxpool_engine.sv": {
+            "git_blob_sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+            "runtime_bytes_sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_route_engine.sv": {
+            "git_blob_sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+            "runtime_bytes_sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_upsample_engine.sv": {
+            "git_blob_sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+            "runtime_bytes_sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_network_backend.sv": {
+            "git_blob_sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+            "runtime_bytes_sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_memory_master.sv": {
+            "git_blob_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+            "runtime_bytes_sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_runtime_shell.sv": {
+            "git_blob_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+            "runtime_bytes_sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_stage2b_core.sv": {
+            "git_blob_sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+            "runtime_bytes_sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2a_control_csr.sv": {
+            "git_blob_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+            "runtime_bytes_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_request_guard.sv": {
+            "git_blob_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+            "runtime_bytes_sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_hp0_word_adapter.sv": {
+            "git_blob_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+            "runtime_bytes_sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_control_csr.sv": {
+            "git_blob_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+            "runtime_bytes_sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          },
+          "src/s2b_inference_top.sv": {
+            "git_blob_sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+            "runtime_bytes_sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+            "raw_bytes_equal": true,
+            "only_line_endings_differ": false,
+            "git_show_native_exit_code": 0
+          }
+        },
+        "source_sha256_for_entry": {
+          "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+          "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+          "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+          "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+          "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+          "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+          "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+          "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+          "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+          "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+          "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+          "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+          "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+          "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+          "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+          "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+          "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+          "vivado/s2b_inference_platform.tcl": "ea6f1556de0033838b85e25d0bc99b8535ee0f0192573b232b60cbe3dc5fd3af",
+          "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9",
+          "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+          "board/s2b_inference_platform.md": "5068a611fafffe49602f3fdffd6debb97cf6f3c9777ac945ed5b075b7a0d7133",
+          "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+          "verification/check_s2b_inference_platform.py": "dfd64cff1fd5ed8f61961dbde22802a3ba1ed2f0171f0c0327a71503f2b6737e",
+          "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6"
+        },
+        "vis0_source_commit": "f38bf9e557e05a15636ee2d571b4523668d04260",
+        "vis1_source_commit": "f92823f0bd577a49db543868f44c4f63b670d8e0",
+        "both_xsa_full_model_module": true,
+        "synth_hierarchy_full_backend_present": true,
+        "compiled_visibility": 1,
+        "implemented_visibility": 0,
+        "embedded_bit_matches_selected_bit": true
+      },
+      "postroute_timing_pass": {
+        "setup_max": {
+          "worst_slack_ns": 0.03,
+          "total_negative_slack_ns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 15393,
+          "pulse_width_slack_ns": 8.87,
+          "pulse_failing_endpoints": 0,
+          "pulse_total_endpoints": 4369
+        },
+        "hold_min": {
+          "worst_slack_ns": 0.08,
+          "total_negative_slack_ns": 0.0,
+          "failing_endpoints": 0,
+          "total_endpoints": 15393,
+          "pulse_width_slack_ns": 8.87,
+          "pulse_failing_endpoints": 0,
+          "pulse_total_endpoints": 4369
+        },
+        "clock_period_ns": 20.0,
+        "routing_errors": 0,
+        "routed_nets": 28621
+      }
+    },
+    "errors": {},
+    "bound_artifacts": {
+      "compiled_xsa": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility1_timing_current_20261014_r01\\artifacts\\s2b_inference_wrapper_current.xsa",
+        "sha256": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065"
+      },
+      "implemented_xsa": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility0_hp_rebuild_20261014_r02\\s2b_inference_implemented_r02.xsa",
+        "sha256": "7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238"
+      },
+      "bit": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\visibility0_hp_rebuild_20261014_r02\\s2b_inference_implemented_r02.bit",
+        "sha256": "4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e"
+      },
+      "app_elf": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r01\\infer.elf",
+        "sha256": "a7ca427ab06f5f81a650bcb0d2bda3ed0adb716c3c2cb226c34519e695d47869"
+      },
+      "init_elf": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r01\\init.elf",
+        "sha256": "7132ed104bc84066b714f61f61419b8c43474a4ef101cb51298b3027e30e2ee2"
+      },
+      "build_details": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\visibility1_xsa_20261014_r01\\build_details.json",
+        "sha256": "0a5a80f05f0ccb8a00b737b91d145b704535578a62ab8d575cadfd83424587b0"
+      }
+    },
+    "entry_contract": {
+      "COMPAT_CHECKS": [
+        "full_model_core_present",
+        "postroute_timing_pass",
+        "same_bsp_mmu_macros",
+        "same_ps7_config",
+        "same_ps_init_bytes",
+        "same_uart_ddr_csr_clocks"
+      ],
+      "ARTIFACT_KEYS": [
+        "app_elf",
+        "bit",
+        "build_details",
+        "compiled_xsa",
+        "implemented_xsa",
+        "init_elf",
+        "platform_manifest"
+      ],
+      "receipt_not_created": true,
+      "final_runtime_config_not_created": true
+    },
+    "input_sha256": {
+      "board/ps_platform_fields.json": "acc6307c709c55ae09d9b8223bfeac96d3163a5a2d7f37dbd29c5abfa399446b",
+      "board/s2b_inference_platform.json": "c0b46d89b0ce063bd033586e1ba044bee4088c1bb91a2ea7b33bd285e24bc863",
+      "board/s2b_inference_platform.md": "5068a611fafffe49602f3fdffd6debb97cf6f3c9777ac945ed5b075b7a0d7133",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/app_CMakeLists.txt": "90db91dd556ae1a52ef16a5737e801d17b9fbaeb3bb357999d86079328d5c76d",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/app_UserConfig.cmake": "83d982d0066b11bb4a12610ab5b0f617390b64aa409b5bc961777c22ec1c3e33",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/app_compile_commands.json": "57f37cab9a0fb7a29746ab128e896db7f3fc9b10c6ad3748be3c0e53e6cabd58",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/app_preprocessed.i": "db3b721814f017f1490b5fd06305cb048929b6f9832d2e6a35844a5bcc79706a",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/asm_vectors.S": "bdc399c68867653fd00fd7707000d6e70162f6bad31f1be6ea3ad5248d5e93c7",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/bsp_compile_commands.json": "715a67e68dadf42db593babac9c71fd3c0ad3db17c990f44783fe5dc4ac563ce",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/bspconfig.h": "1ff8617a56f0d6d9bdedfe48c2b25a9e0fe4cca26050053a64a2e35be11932d0",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/build_details.json": "0a5a80f05f0ccb8a00b737b91d145b704535578a62ab8d575cadfd83424587b0",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/decoder_preprocessed.i": "bf8c9a4f7a614e3ca4655373982698bdcba132a5c65385a2013593812b46041e",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/delivery_manifest.json": "9abedb7b0b54363cfc96d40213b32d5ba7bdcad7c88e7f5f676f81ca7ccb4d65",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/globaltimer_sleep_zynq.c": "b627763b950c180e634bd8e896a84f882a0ac0f546e6131b9b03ce3be8a8abe7",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/infer.elf": "a7ca427ab06f5f81a650bcb0d2bda3ed0adb716c3c2cb226c34519e695d47869",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/init.elf": "7132ed104bc84066b714f61f61419b8c43474a4ef101cb51298b3027e30e2ee2",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/init_UserConfig.cmake": "a2a903ca6da14fa7d18be1462cb94e20b17a889e7fdd07f3f91416e7e0b67a65",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/init_compile_commands.json": "a2d81968a86c38c33a5d3acbfb79cee4b8222a9bca9e329f6c3b6717dfb998a1",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/ps7_init.c": "95f228bce034590569f2bec887cf2e7375997c62c935e43fe1e9d4a3a1818393",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/ps7_init.tcl": "059e4a9cee4121c5d47e28f86a1213a8277a0e50c8919be1ee9013ce5899d94b",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/source_snapshot/s2b_inference_app.c": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/translation_table.S": "bae655f4d6c39f01a2e0f100196cfbd02722c6ba7197225ba5e6bf237aaa4430",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xil_cache.c": "d732f2cda7480680fc0f475e40e4b0f85954e192b6b7efe763fa7d20640c2de3",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xil_exception.c": "7b3a87a2589165beda4e4ccc9462f22c5f179190084511652535622b60db3dbf",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xil_exception.h": "04ebd3bc10b03880e4bd5c64ed3efb95f7be78492463f60e981093a926735974",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xil_mmu.c": "162ae3aecbf611b2d6bcb8454ff95b11040dcf807aa59b377b4b669b4966b864",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xil_mmu.h": "72bb377ea9cd805828e2103e47f35bdf3c0a291d4529c422a81391e86fe268ab",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xiltimer.c": "05479e75e3989bf5765e97b02940779fb8ea446cbf20971506f0dc710b9272a9",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xiltimer.h": "66c42037b524290b5fcf09ce9eac37937de49ef1fbbfca1bde44d3ee0d37b421",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xparameters.h": "7361be552faffb0b59b37d157c7fe7e332bea52841a17095e2ff7b8c80f04a36",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xtimer_config.h": "27c0700fba487080f8872e198d4c5814846568c990859f29ecd091d1b526a093",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xuartps.c": "3b8729996d298c48be591afba1ebfba56f05b1dff1236c053017db52848aa2d2",
+      "report/evidence/S2B-T15/visibility1_xsa_20261014_r01/xuartps_g.c": "7f2181690c9d69951a62669eb95bfe36f22fc3a72ec3c8248d5fea9c2c6f1803",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json": "d5502eaed930b86fa477c8a780eba7546f63270357a8df9215a5eac46b21e928",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_check_timing_r02.rpt": "2c8ea5f8f933f629db0762240600586a4e45f8830adc5da31943fc4a3b0b9925",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_clocks_r02.rpt": "581a7fd026d31460f17e92b9dd3559b30e82081864ba31542529141371e9050e",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_hold_min_r02.rpt": "706e4e489ae7c6b09abd8d0ff2749c353bb99a5385f80cb55f53178dc0283337",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_route_status_r02.rpt": "654be31fa8b99ef619ac06f44321d56fe94437e01da103e2d44dc2e95c82e830",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/postroute_setup_max_r02.rpt": "71c8043d9a86da48c1287f8dbff7ecafe5818b6c43722c0432e309542de3e69d",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/s2b_inference_implemented_r02.bit": "4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/s2b_inference_implemented_r02.xsa": "7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238",
+      "report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/synth_hierarchical_utilization.rpt": "8789c78256a9867b3e018223e8a1f524cbf4cff1d9cff9c0eb4a16be558aff95",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/artifacts/s2b_inference_wrapper_current.xsa": "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json": "0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/sources/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "src/int8_maxpool_geometry.sv": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+      "src/int8_maxpool_window.sv": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "src/int8_route_query.sv": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+      "src/int8_upsample_query.sv": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "src/s2a_conv_tile_engine.sv": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+      "src/s2a_maxpool_engine.sv": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+      "src/s2a_memory_master.sv": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "src/s2a_network_backend.sv": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+      "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+      "src/s2a_runtime_shell.sv": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "src/s2a_stage2a_core_ooc.sv": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+      "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+      "src/s2b_control_csr.sv": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629",
+      "src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "src/s2b_hp0_word_adapter.sv": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "src/s2b_inference_top.sv": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "src/s2b_maxpool_engine.sv": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "src/s2b_maxpool_geometry.sv": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "src/s2b_network_backend.sv": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "src/s2b_request_guard.sv": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "src/s2b_route_engine.sv": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "src/s2b_route_query.sv": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "src/s2b_stage2b_core.sv": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "src/s2b_upsample_engine.sv": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "verification/check_s2b_inference_platform.py": "dfd64cff1fd5ed8f61961dbde22802a3ba1ed2f0171f0c0327a71503f2b6737e",
+      "verification/check_s2b_ps_smoke_layout.py": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+      "verification/s2a_ps_decode_nms_reference.c": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845",
+      "verification/s2a_ps_decode_nms_reference.h": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47",
+      "verification/s2b_board_transport.py": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+      "verification/test_s2b_conv_feature_address_rtl.py": "08daad9a6888963b1d0791d790c5e8fea7222607a4ee2e0724015acadf0cd5e6",
+      "vitis/build_s2b_inference.py": "0259af39128d003c5548ca04c8c51c1652e27c546b5ae2bb709bc92efd879b97",
+      "vitis/build_s2b_ps_smoke.py": "addff3a419609ac8203c8838edfd6fd56fb53baccf40efc403fca4eb36b50d76",
+      "vitis/run_s2b_visibility_probe.py": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "vitis/s2b_inference_app.c": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "vivado/s2b_inference_platform.tcl": "ea6f1556de0033838b85e25d0bc99b8535ee0f0192573b232b60cbe3dc5fd3af",
+      "vivado/s2b_ps_platform.tcl": "b70871097f2e434f54b35ef4a13efe070d64b08254707e9d66d0dbf32e23cea9"
+    },
+    "original_manifest_checks": {
+      "visibility0": [
+        {
+          "name": "source-provenance",
+          "status": "PASS",
+          "command": "git cat-file -e 'f38bf9e557e05a15636ee2d571b4523668d04260^{commit}'; compare the committed and working-tree blob IDs for vivado/s2b_inference_platform.tcl; confirm bound RTL/Tcl paths are clean",
+          "exit_code": 0,
+          "reason": "HEAD 为 f38bf9e557e05a15636ee2d571b4523668d04260；平台创建时 HEAD 为 48d595a51c58d4f042f9049bddc3c548bd530cc0，但当时 vivado/s2b_inference_platform.tcl 的 SHA-1=d7b9b2196b2205ace184eea65b80c3775968b9df，精确等于后来提交 f38bf9e 的该文件 blob；完整综合、实现及 bitgen 在 f38bf9e 提交后运行。清单绑定所有 18 个 RTL、平台 Tcl、PS Tcl 与平台核验脚本 SHA-256。"
+        },
+        {
+          "name": "visibility0-platform-export",
+          "status": "PASS",
+          "command": "Vivado 2026.1 ROSS: ::s2b_inference_platform::run {repo_root} {project_dir} {evidence_dir} {ipcfg.tcl} {vivado.log}",
+          "exit_code": 0,
+          "reason": "真实 ROSS 命令 0 退出；生成并审计 visibility0 XSA。原始 helper capture 失败与重核收据均保留；导出回执 PRODUCTS:OK、0 error、0 critical warning，记录 2 个普通 warning。"
+        },
+        {
+          "name": "full-synthesis",
+          "status": "PASS",
+          "command": "launch_runs synth_1 -jobs 1; wait_on_run synth_1",
+          "exit_code": 0,
+          "reason": "Vivado 2026.1 synth_1 完成；约 9m50s，0 error、0 critical warning、10 ordinary warning。层级利用率报告将 OOC IP 计入：18,200 LUT、4,157 FF、32 RAMB36、145 DSP。"
+        },
+        {
+          "name": "routed-implementation",
+          "status": "PASS",
+          "command": "launch_runs impl_1 -jobs 1; wait_on_run impl_1",
+          "exit_code": 0,
+          "reason": "impl_1 全新实现至 route_design 成功；router 28,621 个 routable nets 全部 fully routed、0 routing errors。峰值内存 2,262.117 MiB；设备与约束为 xc7z020clg400-2、FCLK0 50 MHz。"
+        },
+        {
+          "name": "postroute-timing",
+          "status": "PASS",
+          "command": "report_timing_summary -delay_type max/min -check_timing_verbose; check_timing -verbose",
+          "exit_code": 0,
+          "reason": "20.000 ns/50 MHz 约束下 setup WNS=+0.030 ns、TNS=0、0/15,393 endpoint failing；hold WHS=+0.080 ns、THS=0、0/15,393 failing；pulse-width slack=+8.870 ns、0/4,369 failing；check_timing 的 no_clock、unconstrained endpoint、no_input_delay 与 no_output_delay 均为 0。裕量很小。"
+        },
+        {
+          "name": "routed-drc-methodology",
+          "status": "PASS",
+          "command": "report_route_status; report_drc; report_methodology",
+          "exit_code": 0,
+          "reason": "route_status 为 28,621/28,621 fully routed、0 routing errors；routed DRC 有 0 error，但保留 389 条 DSP48 pipeline warning（DPIP-1=114、DPOP-1=138、DPOP-2=137）；methodology 检查为 0。警告提示性能/功耗余地，未做 DSP 加深管线整改。"
+        },
+        {
+          "name": "managed-bitgen",
+          "status": "PASS",
+          "command": "launch_runs impl_1 -to_step write_bitstream -jobs 1; wait_on_run impl_1",
+          "exit_code": 0,
+          "reason": "Vivado 托管 impl_1 write_bitstream 完成，0 warning、0 critical warning、0 error。产物 s2b_inference_implemented_r02.bit SHA-256=4c3fda32757e87f642b64fd2a0fb9978158e0f45dfe6aa9aecf7eef61752107e。"
+        },
+        {
+          "name": "implemented-platform-xsa",
+          "status": "PASS",
+          "command": "write_hw_platform -fixed -include_bit -force s2b_inference_implemented_r02.xsa",
+          "exit_code": 0,
+          "reason": "XSA 创建成功，SHA-256=7d605bde08a6ca9f6c74f2ba5bc537a610b47ef0233f2761fb07f31332b6f238；zipfile.testzip() 返回 None，13 个成员；xsa.json 标记 part xc7z020clg400-2、speedGrade -2。XSA 嵌入 bit SHA 与受管 impl_1 bit 完全相同。"
+        },
+        {
+          "name": "independent-direct-bit-comparison",
+          "status": "PASS",
+          "command": "bytewise compare direct write_bitstream, impl_1 output, and the bit member embedded in the implemented XSA",
+          "exit_code": 0,
+          "reason": "3 个 bitstream 均 4,045,776 bytes；impl_1 位流与 XSA 内嵌位流逐字节一致。较早独立位流只在 offset 202、205 两个 bitstream header 时间字符不同，完整保留但不选作下载文件。"
+        },
+        {
+          "name": "g0-input-freeze",
+          "status": "BLOCKED",
+          "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json --project-root C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition",
+          "exit_code": null,
+          "reason": "适用的 S2B PS/PL 物理接口文档仍声明 CANDIDATE_NOT_FROZEN。该离线 build/bitstream 不等于接口 G0 冻结或允许据此宣称实板 G3/G4。"
+        },
+        {
+          "name": "check-stage-delivery-evidence",
+          "status": "PASS",
+          "command": "runpy.run_path('verification/check_stage_delivery.py'); check_manifest('evidence', 'report/evidence/S2B-T19/visibility0_hp_rebuild_20261014_r02/delivery_manifest.json', project_root)",
+          "exit_code": 0,
+          "reason": "Vivado bundled Python 3.13.0 通过 ROSS ipcfg::python_exec 执行 schema-v1 evidence 检查，返回 CHECKS_OK，0 errors、0 warnings；当前目录 67 个文件全部与清单 SHA-256 一致。此包装核验不代表 G0/G4/G5 或实物验收。"
+        }
+      ],
+      "visibility1": [
+        {
+          "name": "当前HEAD源码内容绑定与隔离工程副本",
+          "status": "PASS",
+          "command": "18个XPR RTL源按CRLF转LF后与Git HEAD逐一比较；快照原始字节SHA-256单独绑定；在独立tmp RunId副本中运行",
+          "exit_code": 0,
+          "reason": "源码基线f92823f0bd577a49db543868f44c4f63b670d8e0；18个RTL经换行符归一化后内容一致。s2a_network_descriptor_pkg.sv快照保留Vivado读取的CRLF字节，原始SHA、Git blob SHA及blob OID见run_summary.json；其余17个文件字节一致。18个SystemVerilog源文件及平台Tcl均随证据保存。"
+        },
+        {
+          "name": "OOC及顶层综合",
+          "status": "PASS",
+          "command": "launch_runs synth_1 -jobs 1; wait_on_run synth_1",
+          "exit_code": 0,
+          "reason": "infer OOC与top synth_design均成功且0 error；warning数量与类别见run_summary.json及原始日志。"
+        },
+        {
+          "name": "50MHz routed setup/hold/pulse-width",
+          "status": "PASS",
+          "command": "report_timing_summary -max_paths 10 -routable_nets -report_unconstrained -warn_on_violation",
+          "exit_code": 0,
+          "reason": "routed WNS +0.229ns、TNS 0、setup失败0；WHS +0.095ns、THS 0、hold失败0；WPWS +8.870ns，所有用户约束通过。"
+        },
+        {
+          "name": "时序覆盖、methodology与路由连通",
+          "status": "PASS",
+          "command": "report_timing_summary -report_unconstrained; report_methodology; report_route_status",
+          "exit_code": 0,
+          "reason": "12类check_timing计数均为0；methodology 0 finding；28,858/28,858 routable nets fully routed，routing errors 0。"
+        },
+        {
+          "name": "实现DRC",
+          "status": "PASS",
+          "command": "report_drc -file s2b_inference_wrapper_drc_routed.rpt",
+          "exit_code": 0,
+          "reason": "无Error；392条均为DSP输入或输出寄存器流水性能建议，分类计数和原报告已保存。"
+        },
+        {
+          "name": "位流生成",
+          "status": "PASS",
+          "command": "launch_runs impl_1 -to_step write_bitstream -jobs 1; wait_on_run -timeout 2 impl_1",
+          "exit_code": 0,
+          "reason": "impl_1 write_bitstream Complete；预生成DRC 0 error，0 warning，0 critical warning。"
+        },
+        {
+          "name": "含位流XSA导出及一致性",
+          "status": "PASS",
+          "command": "write_hw_platform -fixed -include_bit -force <current-run-xsa>",
+          "exit_code": 0,
+          "reason": "XSA生成成功，内部唯一bit成员与独立.bit逐字节哈希相同。"
+        },
+        {
+          "name": "证据目录和哈希清单核验",
+          "status": "PASS",
+          "command": "verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+          "exit_code": 0,
+          "reason": "原生CHECKS_OK；枚举本Run证据目录并核验全部文件SHA-256。结果只说明包装完整，不代表G0/G4/G5或板上通过。"
+        },
+        {
+          "name": "阶段输入冻结检查",
+          "status": "BLOCKED",
+          "command": "verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T19/visibility1_timing_current_20261014_r01/delivery_manifest.json",
+          "exit_code": null,
+          "reason": "检查器按规则阻断：PS/PL物理接口候选s2b-physical-candidate/0.1.1尚未冻结；此为当前G0输入门禁结果。manifest按BLOCKED语义将exit_code记为null；最新原始检查器结果为CHECKS_FAILED、进程退出码2，详见run_summary.json。"
+        },
+        {
+          "name": "平台输入冻结与实物部署门禁",
+          "status": "BLOCKED",
+          "command": "检查s2b_physical_interface_candidate.md冻结状态与芯片实物标记",
+          "exit_code": null,
+          "reason": "物理接口候选未冻结；板照XA7Z020与厂商确认XC7Z020-2CLG400I不一致，需先核明当前这块板的器件身份。"
+        },
+        {
+          "name": "板上部署、PS/UART/DDR及2B模型验收",
+          "status": "NOT_RUN",
+          "command": null,
+          "exit_code": null,
+          "reason": "本轮板卡断电；尚未进行JTAG下载、PS初始化、UART/DDR/cache检查或模型验收。"
+        }
+      ],
+      "build": [
+        {
+          "name": "源码与 Git 提交绑定",
+          "status": "PASS",
+          "command": "核对七份源码 SHA-256、source_snapshot 与 git cat-file blob 8bbdcf821020dcb8f0909e8b5e6089ee51d120dc:<path>",
+          "exit_code": 0,
+          "reason": "七份实际消费源码的散列同时匹配 build_details、工作树、source_snapshot 和绑定提交的 Git blob。"
+        },
+        {
+          "name": "visibility=1 XSA、平台清单与构建配置绑定",
+          "status": "PASS",
+          "command": "核对 build config、build_details、上游 T19 platform manifest 及 XSA 的 SHA-256",
+          "exit_code": 0,
+          "reason": "XSA SHA-256=90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065；平台清单 SHA-256=0f32ff262d24dc49ff66e65d38653c27b0aaf53fffb263def51cf927412ca1ad；配置 SHA-256=15999265056f0b2ec110318e205d014f6ee4811e78b1dbb68d641f42acd415c8；目标 xc7z020clg400-2，XSA源提交 f92823f0bd577a49db543868f44c4f63b670d8e0。"
+        },
+        {
+          "name": "Vitis 离线完整平台与 CPU0 BSP/应用/初始化构建",
+          "status": "PASS",
+          "command": "Vitis 2026.1 API：client.create_platform_component；platform.build；app.build；init.build",
+          "exit_code": 0,
+          "reason": "Vitis 状态 PASS_OFFLINE_FULL_XSA_BUILD；Vitis 原生退出码 0；BSP 编译 102/102；infer.elf 与 init.elf 均成功构建；耗时 98.67 秒。硬件执行状态为 NOT_RUN。"
+        },
+        {
+          "name": "infer/init ELF、readelf/objdump 与内存布局证据",
+          "status": "PASS",
+          "command": "arm-none-eabi-readelf --wide -a；arm-none-eabi-objdump -d；核对两个 ELF 与 JSON 布局证据",
+          "exit_code": 0,
+          "reason": "infer.elf SHA-256=a7ca427ab06f5f81a650bcb0d2bda3ed0adb716c3c2cb226c34519e695d47869，入口 0x00100000，32 MiB arena 位于 0x10000000 且 64-byte 对齐；init.elf SHA-256=7132ed104bc84066b714f61f61419b8c43474a4ef101cb51298b3027e30e2ee2，入口位于 OCM 0x00000000。readelf/objdump 回执均为退出码 0。"
+        },
+        {
+          "name": "G0 物理接口、UART 与完整器件身份",
+          "status": "BLOCKED",
+          "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T15/visibility1_xsa_20261014_r01/delivery_manifest.json",
+          "exit_code": null,
+          "reason": "inputs 核验实测 CHECKS_FAILED，核验器进程退出码 2；诊断：interfaces[1] 接口未冻结，阻断 inputs 核验；interfaces[2] 接口未冻结，阻断 inputs 核验；checks[4] 依赖检查状态为 BLOCKED，阻断 inputs 核验；checks[5] 依赖检查状态为 NOT_RUN，阻断 inputs 核验。物理接口候选 s2b-physical-candidate/0.1.1 与 UART 候选 s2bu-candidate/1.1 均未冻结；芯片照片丝印为 XA7Z020/CLG400，用户转述厂商确认为 XC7Z020-2CLG400I，证据冲突未消解。"
+        },
+        {
+          "name": "JTAG 下载、PS 初始化、UART/DDR/cache 与模型板上验收",
+          "status": "NOT_RUN",
+          "command": null,
+          "exit_code": null,
+          "reason": "本轮仅为离线构建封装，未连接或操作板卡；100 个黄金样本与 1000 次连续任务仍待实板执行。"
+        },
+        {
+          "name": "标准 evidence 清单核验",
+          "status": "PASS",
+          "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T15/visibility1_xsa_20261014_r01/delivery_manifest.json",
+          "exit_code": 0,
+          "reason": "check_stage_delivery.py 返回 CHECKS_OK；此结果仅证明本 Run 文件枚举及 SHA-256 包装完整。"
+        }
+      ]
+    },
+    "current_build_source_drift": {
+      "verification/s2b_board_transport.py": {
+        "compiled_sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+        "current_sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+      }
+    },
+    "old_build_runtime_preflight": {
+      "status": "BLOCKED",
+      "function": "verify_build",
+      "reason": "构建源码与当前运输/应用版本不同",
+      "sdk_uart_hardware_access": false
+    },
+    "hardware_observations": {
+      "current_platform_cpu_dap_probe": "NOT_RUN",
+      "32MiB_arena_visibility": "NOT_RUN",
+      "PL_HP0_cache_visibility": "NOT_RUN",
+      "full_model_g0": "BLOCKED",
+      "golden_100": "NOT_RUN",
+      "continuous_1000": "NOT_RUN"
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "D:/Xilinx/2026.1/Vitis/tps/win64/python-3.13.0/python.exe",
+        "-B",
+        "report/evidence/S2B-T19/visibility0_compatibility_20261014_r01/audit_compatibility.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "native_exit_code": 0,
+      "elapsed_seconds": 2.203128100009053,
+      "stdout_sha256": "f1adc5fe5c912e360df00c9af2fd69982fd7d21892741c8b940474145d68eb52",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "execution_metrics": {
+    "final_audit_runs": 1,
+    "development_audit_runs": 7,
+    "final_audit_elapsed_seconds": 2.203128100009053,
+    "peak_memory_bytes": null,
+    "peak_memory_reason": "只读短时审计未采集进程峰值。",
+    "hardware_access": false
+  },
+  "limitations": [
+    "本包仅为visibility0_cache_probe_only的Developer离线兼容事实。没有INDEPENDENT_REVIEWER/PASS receipt、没有最终运行config，不构成运行批准。",
+    "原vis0/vis1平台及T15 r01清单保留原字节；其完整模型G0阻断和实板NOT_RUN没有被本包关闭。",
+    "旧T15 r01 verify_build实际只读核验为BLOCKED：当前verification/s2b_board_transport.py已变更。该构建不能进入当前运行入口；总控另行准备实际当前源码构建和独审绑定。",
+    "BSP/MMU兼容依据是复用同一CPU0 BSP及同一infer/init ELF，结合两XSA的937项PS配置及地址/时钟一致；本任务没有生成visibility0新BSP。",
+    "当前板卡可保持关机。本任务不导入SDK、不启动hw_server/Vivado、不连接JTAG/UART、不LOAD/START、不下载、不执行任何实板操作。",
+    "32MiB arena的实际全范围cache/HP0可见性、CPU1停核/其他writer状态、冷JTAG生命周期、板上LEN/响应/恢复均未验证；CPU/DAP256B探针尚未在当前平台执行。",
+    "完整模型G0、至少100黄金样本、1000连续任务与异常恢复属于后续正式验收，本包范围内NOT_APPLICABLE，不降低或替代这些标准。",
+    "时序仅对应既有vis0 routed报告、xc7z020clg400-2及50MHz；setup裕量仅+0.030ns。既有DSP管线化389条warning未整改，本任务未重跑设计。",
+    "实物XC7Z020-2CLG400I已由Wong明确确认，旧照片XA解读不再作为阻碍；原清单历史措辞仅保留追溯。",
+    "Git原blob及运行源在部分文件中只有LF/CRLF差异；二者哈希分别保存，不伪称原Git blob bytes等于运行原件。实际18份vis1快照及当前源原字节相同。",
+    "独立审查前仅固定本包及全部消费输入哈希；后续source_commit/interface变更和新T15 r02构建必须另行实际绑定，不静默更换本包输入。",
+    "Python启动器首次失败，使用已验证Vitis捆绑Python3.13.0解释器执行标准库只读审计；没有导入Vitis SDK。峰值内存未测。"
+  ]
+}

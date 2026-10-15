@@ -1,0 +1,17 @@
+# 限定CPU/DAP探针验收
+
+运行基线：d49f9b8d5bd5ec3f8d791a3f425aa7691c79f37c。本包由Developer离线核算真实已结束运行，独立G2审查另行执行。
+
+结论：本次visibility0、CPU0/DAP、地址0x10000000起始256字节限定探针通过。两个种子为722665479与722665480；独立依CPU源码公式生成64个小端word，分别与实际UART响应、原始receipt及两次DAP完整回读逐字节比较。两帧OP4的CRC、序号1/2、epoch0、IDLE0x400、响应0均一致，907字节RX含235字节READY和两个336字节响应，80字节TX仅两个请求头；记录没有LOAD/START。summary.json保存数据哈希及全部CSR实际值。
+
+52条入口调用与376条JTAG调用均RETURNED。内存入口记录的嵌套清理调用按开始顺序、JSONL按完成顺序写入，按time_utc8/API排序后逐条一致；没有删除或补造调用。107份DAP读回与实际调用一一对应，16个真实27字CSR连续读窗口与8组双读一致，epoch/start/load等计数0。初始化result2/return0并到ready PC7432；postconfig掩码回读、EOS、锁状态、时钟寄存器值及READY软件/XSA身份核对通过。
+
+核状态为离散观测：入场CPU0和CPU1经授权停止，CPU1全部JTAG状态观测保持停止，应用运行后CPU0最终停止。串口关闭、自有断点清理、owned CSR map清空、disconnect和dispose均正常返回，cleanup_errors为空。自有hw_server PID27580仍由总控管理，本封装未操作其进程。
+
+实际部署的visibility0 bit/XSA与新ELF的编译visibility1 XSA分别绑定；运行兼容关系仅继承已固定SHA的真实限定准入独审收据，不将两份XSA混称同一文件。原始运行保持API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING，不改原件状态。launcher_raw保存8份本次临时输入/日志原字节，restored_input_index.json逐项记录原路径和哈希；原运行的全部文件与当前平台/源码/入场独审来源均在delivery_manifest绑定。
+
+外层真实native/wrapper退出均0，耗时107.672秒；入口内部耗时以summary原数值记录。峰值进程树内存未测，硬件运行仅本次1次。用户“已重新上电，JTAG模式，继续”为经总控转述的外部确认，不是仪器测量；cold_lifecycle_proven保持false。仅两个已绑定官方SDK源码留快照，其余192个SDK文件与28个pyserial文件按原配置路径/哈希及实际工具版本绑定；未封存全部外部工具，恢复时仍需安装相同工具并匹配哈希。
+
+本结论不覆盖PL/HP0、32 MiB arena、统一冷启动与旧AXI生命周期、整网G0、至少100黄金样本、1000连续任务或异常恢复，阶段2B G3/G4/G5不可据此宣布通过。时钟为寄存器观测，非实测频率。单次未复现unloadhw挂起，历史根因仍UNKNOWN。
+
+复核：在仓库根使用Python标准库执行 python -X utf8 -B report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/audit_cache_probe.py --verify，再执行 python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/delivery_manifest.json。验证器只读，允许HEAD是运行基线的真实后代且所有绑定文件哈希一致。CHECKS_OK仅为包装检查，不替代独立审查或扩大实物标准。

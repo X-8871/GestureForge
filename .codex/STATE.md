@@ -8,7 +8,7 @@
 - AX7020实物器件为 XC7Z020-2CLG400I，Vivado part为 xc7z020clg400-2，时序按 -2。Wong于2026-10-14明确确认此前照片中的同一块板也是该型号；旧XA解读不再作为身份冲突或部署阻断。
 - 本轮实际Vivado查询唯一匹配XC7Z020/CLG400/-2，主XPR项目、综合、实现三个字段及visibility=1会话均匹配。当前事实入口为 board/README.md；厂商原件目录 D:\FPGA\AX7Z020\AX7Z020 保持只读。
 - 分支 codex/stage2b-t01-board-audit；器件事实文档提交 b02ea83，最近已完成PS重新构建与封装提交 37c4b840977e727b6504d83b803da3358f89040e。恢复时以 git rev-parse HEAD 为准。
-- Wong已授权本阶段必要的易失PL/PS下载、DDR模型装载与板上验证；不含QSPI等非易失烧写。2026-10-15已明确回复重新上电并保持JTAG模式；当前COM4和FTDI JTAG USB均已枚举，限定探针准入复核后进行受控连接。
+- Wong已授权本阶段必要的易失PL/PS下载、DDR模型装载与板上验证；不含QSPI等非易失烧写。2026-10-15用户说明板卡已插上。当前主机未见Vivado/Vitis/XSDB/Python/hw_server进程，3121无监听；PnP/CIM枚举被拒，COM4/JTAG在线及占用尚未证明。旧owned hw_server PID27580已退出；下次硬件操作前重新核验设备身份、端口所有者和工具会话。
 
 ## 已完成与证据
 
@@ -34,8 +34,8 @@
 
 ## 下一步与恢复限制
 
-- 限定visibility0 CPU/DAP256B探针准入独审PASS；权威清单在 report/evidence/S2B-T19/current_probe_scope_20261015_r01/platform_delivery_manifest.json，真实独审收据在 report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json（SHA e22fd0a1fa0399de48d9694dd07c7b10e06dbb60f55aed7ce8a9057fc3d4c7ea）。原包装缺键失败已保留，最终补充清单只修包装字段；限定探针不LOAD/START，不替代全模型G0/G3及100/1000与恢复标准。接下来固定当前HEAD配置并运行。
-- 核对同一bit/XSA/ELF/BSP和冷JTAG生命周期，先执行受控CSR/cache先验与单样本整网，再执行正式黄金样本、连续任务和恢复矩阵；需要接板时再通知Wong。
+- 2026-10-15限定visibility0 CPU0/DAP起始256B真实探针已执行；运行原件状态保留`API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING`，native退出0、约107.672秒、cleanup_errors为空、`cold_lifecycle_proven=false`。独立Reviewer对运行与封包G2为PASS；总控仅接受该限定观测包。证据入口 report/evidence/S2B-T19/cache_probe_execution_20261015_r01/ 与 report/evidence/S2B-T19/cache_probe_acceptance_20261015_r01/。它未LOAD/START、未经过PL/HP0，不能证明32MiB arena、整网G0、100样本、1000连续任务、冷生命周期或恢复；原清单包装失败及补充清单修正均保留。
+- 下一步为冻结并完成`vitis/run_s2b_model_qualification.py`单样本整网入口的开发测试与独立审查；当前未跟踪草稿尚未审查，正式整网G0/COLD回执缺失，core/drain部署期限仍未测且周期/秒单位与范围需逐项核实。通过G0/G2前不得运行整网硬件。之后再按正式计划完成冷生命周期、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务和异常恢复，最后通过G4/G5。
 - 历史板级调试失败、TCF memory map及目标枚举修复、unloadhw无进度原件见 report/evidence/S2B-T19/cache_probe_execution_20261013_r01/至_r04/、board_failure_packaging_20261013_r01/、server_starter_fix_review_20261014_r01/。不把启动器退出0当实际运行通过；SDK卸载根因仍UNKNOWN。
 - 当前16 GB机器只运行一个重型任务。新增综合最多三次的历史追加预算已使用1/3；仅豁免4.5 GiB启动门槛，其他既有运行停止条件仍有效。轻量读报告/静态检查不算重跑综合。
 - 仿真、独审、包装CHECKS_OK与实板分别判断；不改原始失败/冻结证据，不覆盖RunId，不降低指标。阶段冻结须绑定版本、完成适用验收、独审和精确Git提交。

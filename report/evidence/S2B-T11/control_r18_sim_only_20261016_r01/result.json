@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T11",
+  "run_id": "control_r18_sim_only_20261016_r01",
+  "source_commit": "edb79c04b618b816d8a8b5fa69aa71eaa56e70fa",
+  "status": "FAIL",
+  "execution_mode": "复用R18超时构建目录中后续生成的仿真可执行文件；本Run没有重新编译",
+  "binary": {
+    "path": "tmp/2B/S2B-T11/control_r18_csr_recovery_matrix_20261016/obj_dir/Vtb_s2b_control_csr.exe",
+    "sha256": "7b34838e7f49761b108397ccb0140a83a4a867c3ac993e84e624df3fa8173185",
+    "build_origin_run_id": "control_r18_csr_recovery_matrix_20261016",
+    "build_origin_runner_status": "FAIL_TIMEOUT_CLEANUP_UNCONFIRMED",
+    "build_origin_note": "R18 runner在360秒编译超时后返回失败；之后原构建日志追加了链接命令和make离开目录记录，出现该可执行文件不改变R18编译失败状态。"
+  },
+  "sources": [
+    {
+      "path": "sim/tb_s2b_control_csr.sv",
+      "sha256": "567cac8198c55dabc15acd8a460d421ad5fd1059ac5dbf8deae3bf8cc65742ce"
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "f884619e665502decbbb9186b4b79fa3f5d57c7ea0868a52d4af1f553a9a9629"
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62"
+    },
+    {
+      "path": "src/s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531"
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2"
+    },
+    {
+      "path": "src/s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07"
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e"
+    }
+  ],
+  "simulation": {
+    "status": "FAIL",
+    "started": true,
+    "command": "timeout.exe 60 ./obj_dir/Vtb_s2b_control_csr.exe",
+    "working_directory": "tmp/2B/S2B-T11/control_r18_csr_recovery_matrix_20261016",
+    "timeout_seconds": 60,
+    "timed_out": false,
+    "exit_code": 1,
+    "elapsed_seconds": 1.46,
+    "cycle": 5865,
+    "stage": "late_exokay_r_after_first_error",
+    "coverage_at_failure": {
+      "directed": 140,
+      "random": 128,
+      "integration": 25
+    },
+    "failure": "tb_s2b_control_csr.sv:163 assertion: 读值或响应；原始日志没有打印触发失败的CSR地址及实际值，根因仍待诊断。",
+    "log_path": "report/evidence/S2B-T11/control_r18_sim_only_20261016_r01/simulation.log",
+    "log_sha256": "9285bb694805427b908b2c2acfeada26c9b066e572c3cd5c920b660a62c8fab5"
+  },
+  "upstream_compile": {
+    "run_id": "control_r18_csr_recovery_matrix_20261016",
+    "status": "FAIL",
+    "timed_out": true,
+    "timeout_seconds": 360,
+    "exit_code": 1,
+    "simulation_started_by_upstream_runner": false,
+    "evidence_manifest": "report/evidence/S2B-T11/control_r18_csr_recovery_matrix_20261016/delivery_manifest.json"
+  },
+  "acceptance": {
+    "g1": "BLOCKED",
+    "g2": "仅静态差异与证据记录审查PASS；此次仿真已实际失败，须修复并重新独立复审",
+    "g3": "NOT_RUN",
+    "g4": "BLOCKED",
+    "stage_2b": "BLOCKED"
+  },
+  "limitations": [
+    "R18 runner的编译控制仍失败；单独复用其可执行文件只形成补充仿真记录，不把runner编译改判为通过。",
+    "仿真在新增EXOKAY晚响应场景断言失败；未执行后续向量。",
+    "此运行不是实板测试，不证明PL/HP0、DDR/cache、100样本黄金比对、1000次连续任务或阶段验收。",
+    "峰值内存未测。"
+  ]
+}

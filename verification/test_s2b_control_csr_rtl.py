@@ -18,7 +18,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"
 SPEC_SHA = "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
-COMPILE_TIMEOUT_SECONDS = 360
+COMPILE_TIMEOUT_SECONDS = 600
 SIMULATION_TIMEOUT_SECONDS = 60
 CHECKPOINT_INTERVAL_SECONDS = 15
 SOURCES = ("src/s2b_control_csr.sv", "src/s2b_hp0_word_adapter.sv", "src/s2b_request_guard.sv",

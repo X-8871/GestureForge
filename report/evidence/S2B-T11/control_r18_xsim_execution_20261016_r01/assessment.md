@@ -1,0 +1,13 @@
+# XSim r01 真实运行结果
+
+源码基线8add7ef。编译原生退出0，2.453秒；展开原生退出0，12.141秒并生成simulation snapshot。两阶段Job清理确认，最低可用RAM分别6599942144、6460645376字节；最大采样间隔0.250、0.265秒，没有触及2GiB停止线。峰值进程内存未测。
+
+simulation阶段在CreateProcessW创建挂起root之前发生WinError87，没有root PID，没有Resume，没有原生XSim退出码。外层驱动退出1，不能称为RTL仿真失败或通过；功能矩阵未执行。launcher原件记录空cleanup_errors、关闭本Job，但监督器没有空Job原始句柄终态证明，因此cleanup_confirmed=false保持原样。
+
+正在核查HANDLE白名单数组的生命周期。Microsoft UpdateProcThreadAttribute文档要求lpValue保留到DeleteProcThreadAttributeList：
+https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-updateprocthreadattribute
+现有函数仅返回属性缓冲区和指针，没有显式强持有局部HANDLE数组；这是与失败相符的机制假设，须用GC/生命周期微探针验证，不能仅凭WinError87断言根因。
+
+原始result.json SHA-256为e9e1a08bac481c22de5d1b00bdc4a7c942c64e54b6fbe901e8689afd9a62a556；原始delivery_manifest.json SHA-256为1bb8722c668fbcb59d118154d568cb85783a61e1c549e086260fa8d798d367af。两份原件不改写。补充delivery_manifest_historical.json绑定实际已冻结源码快照，避免后续启动器修复使历史包误读当前源码；包装通过不代表RTL矩阵或阶段通过。
+
+独立Reviewer /root/review_t13_and_board_probe 对失败证据与声明一致性给出PASS：38项原绑定、32项历史补充绑定无哈希不符；完整compile/elaborate原生日志没有WARNING/ERROR/FATAL。此结论不证明仿真或阶段通过，根因诊断仍须独立微探针证据。

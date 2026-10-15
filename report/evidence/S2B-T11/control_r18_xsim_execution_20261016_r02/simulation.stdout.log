@@ -1,0 +1,36 @@
+
+****** xsim v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Fri Oct 16 07:20:53 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/tb_s2b_control_csr_behav/xsim_script.tcl
+# xsim {tb_s2b_control_csr_behav} -autoloadwcfg -tclbatch {tb_s2b_control_csr.tcl} -key {Behavioral:sim_1:Functional:tb_s2b_control_csr}
+Time resolution is 1 ps
+source tb_s2b_control_csr.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+## run 2ms
+PROGRESS stage=directed_csr_and_random cycles=0 directed=0 random=0 integration=0 phase=0
+PROGRESS checkpoint cycles=512 stage=directed_csr_and_random directed=101 random=7 integration=0 phase=3
+PROGRESS checkpoint cycles=1024 stage=directed_csr_and_random directed=101 random=56 integration=0 phase=3
+PROGRESS checkpoint cycles=1536 stage=directed_csr_and_random directed=101 random=104 integration=0 phase=3
+PROGRESS stage=mock_csr_recovery_and_phase_coverage cycles=1790 directed=101 random=128 integration=0 phase=1
+PROGRESS checkpoint cycles=2048 stage=mock_csr_recovery_and_phase_coverage directed=106 random=128 integration=0 phase=0
+PROGRESS checkpoint cycles=2560 stage=mock_csr_recovery_and_phase_coverage directed=116 random=128 integration=0 phase=1
+PROGRESS checkpoint cycles=3072 stage=mock_csr_recovery_and_phase_coverage directed=125 random=128 integration=0 phase=2
+Fatal: cycle=3308 directed=130 integration=0 AWÿÿÿçÿÿÿÿÿÿ½
+Time: 34212 ns  Iteration: 0  Process: /tb_s2b_control_csr/must  Scope: tb_s2b_control_csr.must  File: D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_preflight_20261016_r01/source_snapshot/tb_s2b_control_csr.sv Line: 163
+$finish called at time : 34212 ns
+## quit
+INFO: [Common 17-206] Exiting xsim at Fri Oct 16 07:20:56 2026...

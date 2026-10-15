@@ -1,0 +1,9 @@
+# XSim r02 真实失败结果
+
+源码基线为 ba71fef83059e9ffd82ea29bfb7f3185e1506c06。编译、展开、仿真三个原生退出码均为0，资源监督和Job清理均通过。驱动在仿真原始日志发现Fatal后退出1，整轮状态FAIL；原生退出0不能替代断言和完整覆盖判据。
+
+Fatal发生在cycle=3308、directed=130、integration=0，随机刺激128项已运行，但没有完整PASS和集成25项的终态证明。Fatal后缀的中文原字节损坏，仅可靠显示AW；不能将其称为已确定的AW超时或RTL缺陷。计数将范围缩小到最大epoch白盒刺激后的START写。持续force packed struct成员与整个q<=d的交互只是待验证假设。
+
+failure_waveform.wdb为本Run关闭后的351179字节原始波形，用于后续AW槽诊断；本评估尚未解析波形。xsim_native.jou保留本Run原始仿真命令。两项在首次清单完成后补充保存，故使用delivery_manifest_historical.json补充绑定；不改写原始result.json或delivery_manifest.json。
+
+原始result.json SHA-256为4031d55b42f40a1af7776a7569f0fbcacd06a9e05d1ad59ab64edb1208b78f11；原始delivery_manifest.json SHA-256为a4bc5b77c7f58b76ff145d85b5ec26b111078037309ebfe319b10887c924c3a3。补充清单绑定冻结SV与监督器快照，避免后续诊断变更破坏历史输入关系。包装通过只说明文件绑定成立，不代表矩阵或阶段通过。本Run无任何板卡操作。

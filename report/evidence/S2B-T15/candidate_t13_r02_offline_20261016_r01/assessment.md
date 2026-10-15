@@ -1,0 +1,11 @@
+# 当前候选离线构建：整体失败
+
+基线ba71fef83059e9ffd82ea29bfb7f3185e1506c06，T13 r02 no-bit XSA SHA-256为481e1a73b5ce731743c61491bb98ab3d640903417c4457ac96a1270f9a1ca783；目标xc7z020clg400-2，DDR按用户临时指定MT41K256M16TW-107配置，尚未确认实装绑定。本Run没有硬件操作。
+
+Vitis 2026.1内层构建实际生成BSP、infer.elf和init.elf，初始MMU静态检查通过，内层状态PASS_OFFLINE_FULL_XSA_BUILD，耗时121.197秒。infer.elf SHA-256为4972fac2d414bc5bb60942233b948b530d6864252be999176fb82a9da9f4e4df。初始表静态结果不证明CPU运行时可见性、CPU1停核、DDR硬件或整网执行。
+
+外层原生退出0，root退出0，但退出检查时Job仍有PID9332，故监督器FAIL_JOB_NOT_EMPTY，launcher退出1，整轮FAIL。自建server PID为23024，不能把9332假定为同一server。现有监督器在root已退出而Job还有成员时立即报错，没有使用完整10秒自然退出等待；是否属于正常异步退出仍需诊断，不能据此把本Run改为PASS。
+
+监督器请求终止本Job后，终态双读为空、active_processes=0、root句柄signal，各句柄关闭，cleanup_confirmed=true、errors为空。最终Accounting terminated_processes=0，因此只能说明请求终止及最终清理，不能断言残留成员确实被强杀。外层总耗时129.516秒，最低可用RAM5621456896字节，最大采样间隔0.266秒，未触及2GiB停止线；峰值进程树内存未测。
+
+保留原始launcher_record、build_details、内层静态检查及全部实际产物。另按已记录哈希保存BSP归档，使来源链不只依赖可重建tmp。delivery_manifest绑定这些证据；包装通过不表示构建整体通过或阶段验收通过。后续修复必须使用新RunId，不覆盖本Run。

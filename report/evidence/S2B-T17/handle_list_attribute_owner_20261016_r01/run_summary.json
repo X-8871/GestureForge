@@ -1,0 +1,76 @@
+{
+  "run_id": "handle_list_attribute_owner_20261016_r01",
+  "status": "MICRO_FIXTURE_PASS_ONLY",
+  "task_baseline_head": "8add7ef46be9f28a9372de8420f03e6119cd44f4",
+  "legacy_probe_head": "9bcf0237020174ec5ce0faa6a6697419e5a56536",
+  "current_head_when_frozen": "c2ed441aa012966f93c1905f03aeb6ed1d5cfd56",
+  "legacy_probe_source_blobs": {
+    "verification/s15_job_guard.py": "153ce8a463700e4fc3486f9294beeda129c1dde0",
+    "verification/test_s15_direct_vivado_bitgen.py": "9113dd382968f48ee0ffbe2b41ec5afa5179c158"
+  },
+  "runtime": {
+    "python_path": "C:/Users/22061/AppData/Local/Programs/Python/Python312/python.exe",
+    "python_version": "3.12.10",
+    "psutil_version": "7.2.2",
+    "platform": "Windows"
+  },
+  "diagnosis": {
+    "legacy_initialize_returned_only_buffer_and_pointer": true,
+    "legacy_owner_weakref_alive_after_return_and_gc": false,
+    "legacy_same_size_allocations_attempted": 200000,
+    "legacy_same_address_reuse_observed": false,
+    "interpretation": "UpdateProcThreadAttribute收到的HANDLE数组在_initialize_handle_list返回后已无Python强引用；同尺寸地址复用未观察到，但属性列表保留的原始地址不再有存活数组对象作为所有者。",
+    "fix": "_initialize_handle_list返回handle_array所有者；launch_suspended_root在DeleteProcThreadAttributeList返回前一直保留该所有者；Update失败分支仍在局部数组存活时删除属性列表。"
+  },
+  "source_hashes_sha256": {
+    "verification/s15_job_guard.py": "102f396c0e696bc611da5759d204f0bb25ee006026a7ada85f13b6eb9325035a",
+    "verification/test_s15_direct_vivado_bitgen.py": "117b65d510f0ea9e3a0e0b5a94e3033029c4b33a22db6f6c396c7294ffc1f597"
+  },
+  "checks": [
+    {
+      "command": "python -B report/evidence/S2B-T17/handle_list_attribute_owner_20261016_r01/legacy_lifetime_probe.py",
+      "exit_code": 0,
+      "log": "legacy_lifetime_probe.log"
+    },
+    {
+      "command": "python -B -m unittest -v verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete",
+      "exit_code": 0,
+      "log": "targeted_handle_list_owner_unittest.log"
+    },
+    {
+      "command": "python -B -m unittest -v verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests",
+      "tests": 9,
+      "exit_code": 0,
+      "log": "direct_spawn_fixture_tests.log"
+    },
+    {
+      "command": "python -B -m unittest -v verification.test_s2b_process_supervisor",
+      "tests": 10,
+      "exit_code": 0,
+      "log": "process_supervisor_tests.log"
+    },
+    {
+      "command": "python -B -c <AST parse of the two changed modules and the probe source>",
+      "exit_code": 0,
+      "log": "ast_check.log"
+    },
+    {
+      "command": "git diff --check -- verification/s15_job_guard.py verification/test_s15_direct_vivado_bitgen.py",
+      "exit_code": 2,
+      "note": "默认whitespace规则把仓库原有CRLF行尾标记为trailing whitespace。使用git -c core.whitespace=cr-at-eol diff --check检查相同差异，退出码为0；原始与CRLF-aware日志均保留。",
+      "log": "git_diff_check_raw.log"
+    },
+    {
+      "command": "git -c core.whitespace=cr-at-eol diff --check -- verification/s15_job_guard.py verification/test_s15_direct_vivado_bitgen.py",
+      "exit_code": 0,
+      "log": "git_diff_check.log"
+    }
+  ],
+  "scope_limits": [
+    "没有运行Vivado、XSim、完整R18编译/仿真或板卡操作。",
+    "同尺寸地址复用没有在旧版微探针中观察到。",
+    "本结果只证明HANDLE_LIST数组生命周期实现及微型回归，不代表XSim三阶段、RTL/G1或阶段2B验收通过。",
+    "没有提交代码。"
+  ],
+  "preserved_initial_test_failures": "prior_attempts_transcript.txt"
+}

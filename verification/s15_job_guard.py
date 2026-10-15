@@ -704,15 +704,19 @@ class SuspendedRootProcess:
             raise GateBlocked("成功生命周期句柄关闭不完整：" + "；".join(errors))
 
 
-def _close_attribute_list(buffer, pointer):
+def _close_attribute_list(buffer, pointer, value_owner=None):
     if pointer:
-        kernel32.DeleteProcThreadAttributeList(pointer)
+        try:
+            kernel32.DeleteProcThreadAttributeList(pointer)
+        finally:
+            # Windows要求lpValue缓冲区至少保留到属性列表删除调用完成。
+            value_owner = None
 
 
 def _initialize_handle_list(handles):
     """建立STARTUPINFOEX白名单，避免向Vivado继承控制器的其他HANDLE。"""
     if not handles:
-        return None, None
+        return None, None, None
     size = ctypes.c_size_t(0)
     kernel32.InitializeProcThreadAttributeList(None, 1, 0, ctypes.byref(size))
     code = ctypes.get_last_error()
@@ -736,7 +740,7 @@ def _initialize_handle_list(handles):
         error = _win_error("UpdateProcThreadAttribute(HANDLE_LIST)")
         kernel32.DeleteProcThreadAttributeList(pointer)
         raise error
-    return buffer, pointer
+    return buffer, pointer, handle_array
 
 
 def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, environment=None):
@@ -760,6 +764,7 @@ def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, env
     root_registered = False
     attribute_buffer = None
     attribute_pointer = None
+    attribute_value_owner = None
     try:
         startup = STARTUPINFOW()
         startup.cb = ctypes.sizeof(STARTUPINFOW)
@@ -769,7 +774,7 @@ def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, env
             inherited = tuple(std_handles)
             if any(not handle for handle in inherited):
                 raise GateBlocked("標準句柄包含NULL")
-            attribute_buffer, attribute_pointer = _initialize_handle_list(inherited)
+            attribute_buffer, attribute_pointer, attribute_value_owner = _initialize_handle_list(inherited)
             startup_ex = STARTUPINFOEXW()
             startup_ex.StartupInfo = startup
             startup_ex.StartupInfo.cb = ctypes.sizeof(STARTUPINFOEXW)
@@ -867,14 +872,14 @@ def launch_suspended_root(job, executable, argv, cwd=None, std_handles=None, env
         if resume_count != 1:
             raise GateBlocked(f"ResumeThread先前挂起计数不是唯一预期值1：{resume_count}")
         events.append({"event": "RESUME_THREAD", "pid": int(info.dwProcessId), "previous_suspend_count": resume_count, "monotonic_seconds": time.monotonic()})
-        _close_attribute_list(attribute_buffer, attribute_pointer)
-        attribute_buffer = attribute_pointer = None
+        _close_attribute_list(attribute_buffer, attribute_pointer, attribute_value_owner)
+        attribute_buffer = attribute_pointer = attribute_value_owner = None
         return SuspendedRootProcess(job, info, identity, birth_ticks, events)
     except BaseException as primary:
         cleanup_errors = []
         if attribute_pointer:
             try:
-                _close_attribute_list(attribute_buffer, attribute_pointer)
+                _close_attribute_list(attribute_buffer, attribute_pointer, attribute_value_owner)
             except BaseException as error:
                 cleanup_errors.append(f"DeleteProcThreadAttributeList失败：{error!r}")
         if info is not None and info.hProcess:

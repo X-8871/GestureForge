@@ -1,0 +1,189 @@
+verification/s15_job_guard.py:707: trailing whitespace.
++def _close_attribute_list(buffer, pointer, value_owner=None):
+verification/s15_job_guard.py:709: trailing whitespace.
++        try:
+verification/s15_job_guard.py:710: trailing whitespace.
++            kernel32.DeleteProcThreadAttributeList(pointer)
+verification/s15_job_guard.py:711: trailing whitespace.
++        finally:
+verification/s15_job_guard.py:712: trailing whitespace.
++            # Windows要求lpValue缓冲区至少保留到属性列表删除调用完成。
+verification/s15_job_guard.py:713: trailing whitespace.
++            value_owner = None
+verification/s15_job_guard.py:719: trailing whitespace.
++        return None, None, None
+verification/s15_job_guard.py:743: trailing whitespace.
++    return buffer, pointer, handle_array
+verification/s15_job_guard.py:767: trailing whitespace.
++    attribute_value_owner = None
+verification/s15_job_guard.py:777: trailing whitespace.
++            attribute_buffer, attribute_pointer, attribute_value_owner = _initialize_handle_list(inherited)
+verification/s15_job_guard.py:875: trailing whitespace.
++        _close_attribute_list(attribute_buffer, attribute_pointer, attribute_value_owner)
+verification/s15_job_guard.py:876: trailing whitespace.
++        attribute_buffer = attribute_pointer = attribute_value_owner = None
+verification/s15_job_guard.py:882: trailing whitespace.
++                _close_attribute_list(attribute_buffer, attribute_pointer, attribute_value_owner)
+verification/test_s15_direct_vivado_bitgen.py:4: trailing whitespace.
++import gc
+verification/test_s15_direct_vivado_bitgen.py:15: trailing whitespace.
++import weakref
+verification/test_s15_direct_vivado_bitgen.py:155: trailing whitespace.
++    def test_handle_list_value_owner_lives_until_attribute_list_delete(self):
+verification/test_s15_direct_vivado_bitgen.py:156: trailing whitespace.
++        handles = (0x101, 0x202, 0x303)
+verification/test_s15_direct_vivado_bitgen.py:157: trailing whitespace.
++        expected_size = len(handles) * ctypes.sizeof(job_guard.wintypes.HANDLE)
+verification/test_s15_direct_vivado_bitgen.py:158: trailing whitespace.
++        original_cast = ctypes.cast
+verification/test_s15_direct_vivado_bitgen.py:159: trailing whitespace.
++        original_delete = job_guard.kernel32.DeleteProcThreadAttributeList
+verification/test_s15_direct_vivado_bitgen.py:160: trailing whitespace.
++
+verification/test_s15_direct_vivado_bitgen.py:161: trailing whitespace.
++        for update_succeeds in (True, False):
+verification/test_s15_direct_vivado_bitgen.py:162: trailing whitespace.
++            captured = {}
+verification/test_s15_direct_vivado_bitgen.py:163: trailing whitespace.
++            owner_ref = None
+verification/test_s15_direct_vivado_bitgen.py:164: trailing whitespace.
++
+verification/test_s15_direct_vivado_bitgen.py:165: trailing whitespace.
++            def capture_cast(value, target):
+verification/test_s15_direct_vivado_bitgen.py:166: trailing whitespace.
++                if (
+verification/test_s15_direct_vivado_bitgen.py:167: trailing whitespace.
++                    isinstance(value, ctypes.Array)
+verification/test_s15_direct_vivado_bitgen.py:168: trailing whitespace.
++                    and getattr(type(value), "_type_", None) == job_guard.wintypes.HANDLE
+verification/test_s15_direct_vivado_bitgen.py:169: trailing whitespace.
++                    and ctypes.sizeof(value) == expected_size
+verification/test_s15_direct_vivado_bitgen.py:170: trailing whitespace.
++                ):
+verification/test_s15_direct_vivado_bitgen.py:171: trailing whitespace.
++                    captured["weak_owner"] = weakref.ref(value)
+verification/test_s15_direct_vivado_bitgen.py:172: trailing whitespace.
++                    captured["address"] = ctypes.addressof(value)
+verification/test_s15_direct_vivado_bitgen.py:173: trailing whitespace.
++                return original_cast(value, target)
+verification/test_s15_direct_vivado_bitgen.py:174: trailing whitespace.
++
+verification/test_s15_direct_vivado_bitgen.py:175: trailing whitespace.
++            def update_attribute(pointer, flags, attribute, value, size, previous, returned_size):
+verification/test_s15_direct_vivado_bitgen.py:176: trailing whitespace.
++                captured["value_address"] = int(value.value or 0)
+verification/test_s15_direct_vivado_bitgen.py:177: trailing whitespace.
++                captured["value_size"] = int(size)
+verification/test_s15_direct_vivado_bitgen.py:178: trailing whitespace.
++                if not update_succeeds:
+verification/test_s15_direct_vivado_bitgen.py:179: trailing whitespace.
++                    ctypes.set_last_error(job_guard.ERROR_ACCESS_DENIED)
+verification/test_s15_direct_vivado_bitgen.py:180: trailing whitespace.
++                return update_succeeds
+verification/test_s15_direct_vivado_bitgen.py:181: trailing whitespace.
++
+verification/test_s15_direct_vivado_bitgen.py:182: trailing whitespace.
++            def delete_attribute_list(pointer):
+verification/test_s15_direct_vivado_bitgen.py:183: trailing whitespace.
++                self.assertIn("weak_owner", captured)
+verification/test_s15_direct_vivado_bitgen.py:184: trailing whitespace.
++                self.assertIsNotNone(captured["weak_owner"]())
+verification/test_s15_direct_vivado_bitgen.py:185: trailing whitespace.
++                values = (job_guard.wintypes.HANDLE * len(handles)).from_address(
+verification/test_s15_direct_vivado_bitgen.py:186: trailing whitespace.
++                    captured["value_address"],
+verification/test_s15_direct_vivado_bitgen.py:187: trailing whitespace.
++                )
+verification/test_s15_direct_vivado_bitgen.py:188: trailing whitespace.
++                self.assertEqual(handles, tuple(int(value or 0) for value in values))
+verification/test_s15_direct_vivado_bitgen.py:189: trailing whitespace.
++                result = original_delete(pointer)
+verification/test_s15_direct_vivado_bitgen.py:190: trailing whitespace.
++                captured["deleted"] = True
+verification/test_s15_direct_vivado_bitgen.py:191: trailing whitespace.
++                return result
+verification/test_s15_direct_vivado_bitgen.py:192: trailing whitespace.
++
+verification/test_s15_direct_vivado_bitgen.py:193: trailing whitespace.
++            with (
+verification/test_s15_direct_vivado_bitgen.py:194: trailing whitespace.
++                mock.patch.object(job_guard.ctypes, "cast", side_effect=capture_cast),
+verification/test_s15_direct_vivado_bitgen.py:195: trailing whitespace.
++                mock.patch.object(job_guard.kernel32, "UpdateProcThreadAttribute",
+verification/test_s15_direct_vivado_bitgen.py:196: trailing whitespace.
++                                  side_effect=update_attribute),
+verification/test_s15_direct_vivado_bitgen.py:197: trailing whitespace.
++                mock.patch.object(job_guard.kernel32, "DeleteProcThreadAttributeList",
+verification/test_s15_direct_vivado_bitgen.py:198: trailing whitespace.
++                                  side_effect=delete_attribute_list),
+verification/test_s15_direct_vivado_bitgen.py:199: trailing whitespace.
++            ):
+verification/test_s15_direct_vivado_bitgen.py:200: trailing whitespace.
++                if update_succeeds:
+verification/test_s15_direct_vivado_bitgen.py:201: trailing whitespace.
++                    buffer, pointer, value_owner = job_guard._initialize_handle_list(handles)
+verification/test_s15_direct_vivado_bitgen.py:202: trailing whitespace.
++                    owner_ref = captured["weak_owner"]
+verification/test_s15_direct_vivado_bitgen.py:203: trailing whitespace.
++                    try:
+verification/test_s15_direct_vivado_bitgen.py:204: trailing whitespace.
++                        self.assertEqual(expected_size, captured["value_size"])
+verification/test_s15_direct_vivado_bitgen.py:205: trailing whitespace.
++                        self.assertEqual(captured["address"], captured["value_address"])
+verification/test_s15_direct_vivado_bitgen.py:206: trailing whitespace.
++                        gc.collect()
+verification/test_s15_direct_vivado_bitgen.py:207: trailing whitespace.
++                        self.assertIs(value_owner, owner_ref())
+verification/test_s15_direct_vivado_bitgen.py:208: trailing whitespace.
++                        same_size_allocations = [
+verification/test_s15_direct_vivado_bitgen.py:209: trailing whitespace.
++                            (job_guard.wintypes.HANDLE * len(handles))(
+verification/test_s15_direct_vivado_bitgen.py:210: trailing whitespace.
++                                0xA000 + index, 0xB000 + index, 0xC000 + index,
+verification/test_s15_direct_vivado_bitgen.py:211: trailing whitespace.
++                            )
+verification/test_s15_direct_vivado_bitgen.py:212: trailing whitespace.
++                            for index in range(32)
+verification/test_s15_direct_vivado_bitgen.py:213: trailing whitespace.
++                        ]
+verification/test_s15_direct_vivado_bitgen.py:214: trailing whitespace.
++                        self.assertEqual(len(handles), len(value_owner))
+verification/test_s15_direct_vivado_bitgen.py:215: trailing whitespace.
++                        self.assertEqual(expected_size, ctypes.sizeof(value_owner))
+verification/test_s15_direct_vivado_bitgen.py:216: trailing whitespace.
++                        self.assertEqual(handles, tuple(int(value or 0) for value in value_owner))
+verification/test_s15_direct_vivado_bitgen.py:217: trailing whitespace.
++                        self.assertEqual(32, len(same_size_allocations))
+verification/test_s15_direct_vivado_bitgen.py:218: trailing whitespace.
++                        job_guard._close_attribute_list(buffer, pointer, value_owner)
+verification/test_s15_direct_vivado_bitgen.py:219: trailing whitespace.
++                        self.assertTrue(captured["deleted"])
+verification/test_s15_direct_vivado_bitgen.py:220: trailing whitespace.
++                    finally:
+verification/test_s15_direct_vivado_bitgen.py:221: trailing whitespace.
++                        if not captured.get("deleted"):
+verification/test_s15_direct_vivado_bitgen.py:222: trailing whitespace.
++                            job_guard._close_attribute_list(buffer, pointer, value_owner)
+verification/test_s15_direct_vivado_bitgen.py:223: trailing whitespace.
++                    owner_ref = captured["weak_owner"]
+verification/test_s15_direct_vivado_bitgen.py:224: trailing whitespace.
++                    del value_owner
+verification/test_s15_direct_vivado_bitgen.py:225: trailing whitespace.
++                else:
+verification/test_s15_direct_vivado_bitgen.py:226: trailing whitespace.
++                    with self.assertRaises(job_guard.JobGuardError):
+verification/test_s15_direct_vivado_bitgen.py:227: trailing whitespace.
++                        job_guard._initialize_handle_list(handles)
+verification/test_s15_direct_vivado_bitgen.py:228: trailing whitespace.
++                    self.assertTrue(captured["deleted"])
+verification/test_s15_direct_vivado_bitgen.py:229: trailing whitespace.
++                    owner_ref = captured["weak_owner"]
+verification/test_s15_direct_vivado_bitgen.py:230: trailing whitespace.
++            gc.collect()
+verification/test_s15_direct_vivado_bitgen.py:231: trailing whitespace.
++            self.assertIsNotNone(owner_ref)
+verification/test_s15_direct_vivado_bitgen.py:232: trailing whitespace.
++            self.assertIsNone(owner_ref())
+verification/test_s15_direct_vivado_bitgen.py:233: trailing whitespace.
++
+process_exit_code=2

@@ -1,0 +1,9 @@
+# HANDLE_LIST 所有权修复
+
+独立Reviewer /root/review_t13_and_board_probe 对两份冻结源码与轻量回归给出PASS：target 1项、direct 9项、supervisor 10项均退出0；真实cmd_batch夹具经过Update/CreateProcess和真实标准句柄路径，预期root退出37，Job活跃数0且root句柄signal。
+
+旧探针真实调用Initialize/Delete，Update则由Python函数模拟。它在GC后看到数组weakref消失；200000次同尺寸分配没有观察到同址复用，亦没有复现WinError87。它证明旧实现没有保留数组强引用，不能证明r01错误的唯一原因。该probe读取运行当时HEAD（9bcf023）的旧源码；重现须固定该Git版本作为输入，不可任意换成后续HEAD。原始probe、summary和初稿失败转存均保留。
+
+新实现返回数组owner，launcher在成功/异常路径保留至Delete完成；Update失败时局部数组在Delete期间仍存活。新测试检查两条路径的数组存活和值不变。原始默认diff-check将CRLF标为尾空白；CRLF感知且保留完整实际空白检查的验证通过。
+
+本结论仅为启动器修复G2与微型回归；没有运行XSim矩阵或板卡，不代表阶段验收。后续实际矩阵须用新RunId和受控资源监督执行。

@@ -1,0 +1,37 @@
+本文件是从本轮工具输出逐字转存的初稿测试结果，不是最终通过记录。
+前两次工具调用包装未显示进程退出码字段；unittest分别报告ERROR/FAIL，预期退出码为1。此退出码是按unittest结果解释，非工具返回字段。
+
+命令：& 'C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe' -B -m unittest -v verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete
+
+第一次输出：
+test_handle_list_value_owner_lives_until_attribute_list_delete (verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete) ... ERROR
+
+======================================================================
+ERROR: test_handle_list_value_owner_lives_until_attribute_list_delete (verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\FPGA_Competition\w2b\verification\test_s15_direct_vivado_bitgen.py", line 203, in test_handle_list_value_owner_lives_until_attribute_list_delete
+    gc.collect()
+    ^^
+NameError: name 'gc' is not defined. Did you forget to import 'gc'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=1)
+
+第二次输出：
+test_handle_list_value_owner_lives_until_attribute_list_delete (verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete) ... FAIL
+
+======================================================================
+FAIL: test_handle_list_value_owner_lives_until_attribute_list_delete (verification.test_s15_direct_vivado_bitgen.DirectSpawnFixtureTests.test_handle_list_value_owner_lives_until_attribute_list_delete)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\FPGA_Competition\w2b\verification\test_s15_direct_vivado_bitgen.py", line 224, in test_handle_list_value_owner_lives_until_attribute_list_delete
+    self.assertIsNone(owner_ref())
+AssertionError: <s15_job_guard.c_void_p_Array_3 object at 0x00000253E682C0D0> is not None
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+FAILED (failures=1)

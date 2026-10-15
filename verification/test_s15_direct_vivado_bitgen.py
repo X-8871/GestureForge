@@ -1,6 +1,7 @@
 """验证冻结DCP direct bitgen runner的本机Win32生命周期门禁。"""
 import ctypes
 import datetime
+import gc
 import inspect
 import json
 import os
@@ -11,6 +12,7 @@ import tempfile
 import time
 import traceback
 import unittest
+import weakref
 from pathlib import Path
 from unittest import mock
 
@@ -150,6 +152,85 @@ def _wait_close_failure_receipt(run_dir, executable, argv, environment, job, chi
 
 @unittest.skipUnless(os.name == "nt", "非Windows环境：显式SKIP，不能声称本机Win32 fixture通过")
 class DirectSpawnFixtureTests(unittest.TestCase):
+    def test_handle_list_value_owner_lives_until_attribute_list_delete(self):
+        handles = (0x101, 0x202, 0x303)
+        expected_size = len(handles) * ctypes.sizeof(job_guard.wintypes.HANDLE)
+        original_cast = ctypes.cast
+        original_delete = job_guard.kernel32.DeleteProcThreadAttributeList
+
+        for update_succeeds in (True, False):
+            captured = {}
+            owner_ref = None
+
+            def capture_cast(value, target):
+                if (
+                    isinstance(value, ctypes.Array)
+                    and getattr(type(value), "_type_", None) == job_guard.wintypes.HANDLE
+                    and ctypes.sizeof(value) == expected_size
+                ):
+                    captured["weak_owner"] = weakref.ref(value)
+                    captured["address"] = ctypes.addressof(value)
+                return original_cast(value, target)
+
+            def update_attribute(pointer, flags, attribute, value, size, previous, returned_size):
+                captured["value_address"] = int(value.value or 0)
+                captured["value_size"] = int(size)
+                if not update_succeeds:
+                    ctypes.set_last_error(job_guard.ERROR_ACCESS_DENIED)
+                return update_succeeds
+
+            def delete_attribute_list(pointer):
+                self.assertIn("weak_owner", captured)
+                self.assertIsNotNone(captured["weak_owner"]())
+                values = (job_guard.wintypes.HANDLE * len(handles)).from_address(
+                    captured["value_address"],
+                )
+                self.assertEqual(handles, tuple(int(value or 0) for value in values))
+                result = original_delete(pointer)
+                captured["deleted"] = True
+                return result
+
+            with (
+                mock.patch.object(job_guard.ctypes, "cast", side_effect=capture_cast),
+                mock.patch.object(job_guard.kernel32, "UpdateProcThreadAttribute",
+                                  side_effect=update_attribute),
+                mock.patch.object(job_guard.kernel32, "DeleteProcThreadAttributeList",
+                                  side_effect=delete_attribute_list),
+            ):
+                if update_succeeds:
+                    buffer, pointer, value_owner = job_guard._initialize_handle_list(handles)
+                    owner_ref = captured["weak_owner"]
+                    try:
+                        self.assertEqual(expected_size, captured["value_size"])
+                        self.assertEqual(captured["address"], captured["value_address"])
+                        gc.collect()
+                        self.assertIs(value_owner, owner_ref())
+                        same_size_allocations = [
+                            (job_guard.wintypes.HANDLE * len(handles))(
+                                0xA000 + index, 0xB000 + index, 0xC000 + index,
+                            )
+                            for index in range(32)
+                        ]
+                        self.assertEqual(len(handles), len(value_owner))
+                        self.assertEqual(expected_size, ctypes.sizeof(value_owner))
+                        self.assertEqual(handles, tuple(int(value or 0) for value in value_owner))
+                        self.assertEqual(32, len(same_size_allocations))
+                        job_guard._close_attribute_list(buffer, pointer, value_owner)
+                        self.assertTrue(captured["deleted"])
+                    finally:
+                        if not captured.get("deleted"):
+                            job_guard._close_attribute_list(buffer, pointer, value_owner)
+                    owner_ref = captured["weak_owner"]
+                    del value_owner
+                else:
+                    with self.assertRaises(job_guard.JobGuardError):
+                        job_guard._initialize_handle_list(handles)
+                    self.assertTrue(captured["deleted"])
+                    owner_ref = captured["weak_owner"]
+            gc.collect()
+            self.assertIsNotNone(owner_ref)
+            self.assertIsNone(owner_ref())
+
     def test_job_pid_decoder_handles_both_ulong_ptr_widths_and_count_boundaries(self):
         for width, format_code, values in (
             (4, "I", (0xFFFFFFFF, 0x10203)),

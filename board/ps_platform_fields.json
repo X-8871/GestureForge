@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "tool_version": "s2b-ps-platform/1.0.1",
+  "tool_version": "s2b-ps-platform/1.0.2",
   "stage": "2B",
   "task_id": "S2B-T04",
   "status": "OFFLINE_CANDIDATE",
@@ -12,12 +12,49 @@
     "historical_status": "R1 干净会话首次加载 helper 失败，G2 未通过；旧产物和 PASS/FAIL 日志仅作历史。",
     "source_prior_mapping": "report/evidence/S2B-T04/ps_platform_20261008_r02/source_prior_mapping.json"
   },
+  "historical_field_scope": {
+    "run": "ps_platform_20261008_r02",
+    "description": "source_commit、fields、review_state和candidate_artifacts保留原R2历史读回及其来源；不得作为R03活动DDR候选或本次新Vivado读回。当前暂定配置以active_ddr_candidate和vivado/s2b_ps_platform.tcl为准。"
+  },
   "candidate_artifacts": {
     "directory": "report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1",
     "xsa_sha256": "a57948c60cfc573b710f562ed7177b0422313d6b77f100856410370273f3eb58",
     "bd_sha256": "0d02803271faaafbd4bb795ae8f1f15fc09d35ef1b6647dca3ee3710711f59db",
     "wrapper_sha256": "78948eae1748e70c6a2a3dd0002255b558ecb7b57d81046f66add57d83d06f22",
     "scope": "新 MCP Tcl/IPI 会话实际生成；无位流、未运行板卡。"
+  },
+  "active_ddr_candidate": {
+    "candidate_id": "S2B-T04-MT41K-PROVISIONAL-20261016-R03",
+    "status": "PROVISIONAL_OFFLINE_CANDIDATE",
+    "source_script": "vivado/s2b_ps_platform.tcl",
+    "source_baseline_commit": "aeaea942dfba1add885a926a6056b55ee1840df9",
+    "partno_literal": "MT41K256M16TW-107",
+    "dram_family": "DDR3L",
+    "ps7_memory_type_enum": "DDR 3",
+    "geometry_candidate": {
+      "device_count": 2,
+      "bits_per_device": 16,
+      "density_bits_per_device": 4294967296,
+      "ps7_device_capacity_enum": "4096 MBits",
+      "ps7_bus_width_enum": "32 Bit",
+      "total_capacity_bytes": 1073741824,
+      "row_address_bits": 15,
+      "column_address_bits": 10,
+      "bank_address_bits": 3,
+      "bank_count": 8
+    },
+    "requested_ddr_clock_mhz": 533.333333,
+    "geometry_source_ids": [
+      "ax7_manual_ddr",
+      "micron_mt41k_geometry",
+      "r02_mt41k_readback"
+    ],
+    "timing_status": "BLOCKED",
+    "explicit_timing_values_set_by_r03": [],
+    "board_voltage_status": "UNKNOWN",
+    "physical_part_and_pcb_revision_status": "UNCONFIRMED",
+    "hardware_execution": "NOT_RUN",
+    "boundary": "用户授权的暂定离线配置输入；手册、原理图和PS7属性读回均不证明当前实板实装料号、PCB版次、电源或时序兼容性。"
   },
   "part": "xc7z020clg400-2",
   "ip_vlnv_observed": "xilinx.com:ip:processing_system7:5.5",
@@ -42,6 +79,42 @@
     "target_decision": {
       "commit": "4b6fcfcfb41d9647d043dd62ad5329d60799a19e",
       "scope": "Wong 最新选择 XC/-2；XA 丝印照片冲突保留部署前核实。"
+    },
+    "ax7_manual_ddr": {
+      "path": "D:/FPGA/AX7Z020/AX7Z020/AX7Z020开发板用户手册.pdf",
+      "sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+      "pages": [
+        8,
+        12,
+        13
+      ],
+      "access_date": "2026-10-16",
+      "scope": "第12页作为两颗MT41K256M16TW-107、每颗16-bit、32-bit总线、1GB总容量和533MHz建议的暂定板级输入；不证明当前实物或PCB版次。"
+    },
+    "micron_mt41k_geometry": {
+      "url": "https://www.micron.com/products/memory/dram-components/ddr3-sdram/part-catalog/part-detail/mt41k256m16tw",
+      "access_date": "2026-10-16",
+      "scope": "Micron产品目录列MT41K256M16为32 Meg x16 x8 banks，用作器件族几何依据；不提供本次可核验的裸料号精确时序表。"
+    },
+    "micron_mt41k_extended_suffix": {
+      "url": "https://www.micron.com/products/memory/dram-components/ddr3-sdram/part-catalog/part-detail/mt41k256m16tw-107-m-p",
+      "access_date": "2026-10-16",
+      "scope": "目录规格带-M-P扩展后缀；其1.35V、933MHz、CL13等不能转用于裸料号MT41K256M16TW-107。"
+    },
+    "amd_ug585_ddr": {
+      "url": "https://docs.amd.com/r/en-US/ug585-zynq-7000-SoC-TRM/DDR-Controller",
+      "access_date": "2026-10-16",
+      "scope": "Zynq-7000 PS DDR控制器能力参考，支持DDR3/DDR3L类型；不证明当前板级电源或走线适配。"
+    },
+    "amd_ug933_ps_ddr_voltage": {
+      "url": "https://docs.amd.com/api/khub/documents/emfVNNoDnc5paYCtwGzwPg/content",
+      "access_date": "2026-10-16",
+      "scope": "Zynq PS DDR PCB设计的一般VCCO和布线指导；不证明当前实板DDR VDD/VDDQ/VTT测量或版次。"
+    },
+    "r02_mt41k_readback": {
+      "path": "report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261015_r02/candidate_readback.tcldict",
+      "sha256": "5FE5A32103B6BEED8EF984665D0270DA3F19E060B0389BB46B4B728AEFF00CB0",
+      "scope": "Vivado 2026.1 PS7离线候选属性读回；只作R03几何映射交叉核对，不是R03源码运行结果、时序资格或硬件验证。"
     }
   },
   "board_facts": {
@@ -59,8 +132,8 @@
     "ddr_components": 2,
     "ddr_bits_per_component": 16,
     "ddr_capacity_bytes": 1073741824,
-    "ddr_actual_part_in_manual": "H5TQ4G63AFR-PBC",
-    "ddr_profile": "MT41J256M16 RE-125"
+    "ddr_actual_part_in_manual": "MT41K256M16TW-107",
+    "ddr_profile": "MT41K256M16TW-107（暂定PS7输入，不代表实装料号）"
   },
   "fields": [
     {

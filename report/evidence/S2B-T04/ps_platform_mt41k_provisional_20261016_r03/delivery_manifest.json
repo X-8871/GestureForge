@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T04",
+  "run_id": "ps_platform_mt41k_provisional_20261016_r03",
+  "source_commit": "aeaea942dfba1add885a926a6056b55ee1840df9",
+  "evidence_dir": "report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261016_r03",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次更新仅将用户暂定DDR输入绑定到PS7离线候选源码，未消费或冻结新的阶段接口；时序和实物资格仍受阻。",
+  "files": [
+    {
+      "path": "board/ps_platform_fields.json",
+      "sha256": "182bfa003bd3d2d9a997a09ccae9b35e97c67375eb39712724f9d3d2dfb9bfdf",
+      "role": "source"
+    },
+    {
+      "path": "board/ps_platform.md",
+      "sha256": "e2c015e0ee3760d6c172439e76396f44230a5d7e1ba9d0e54c408dda7e3cb27a",
+      "role": "source"
+    },
+    {
+      "path": "vivado/s2b_ps_platform.tcl",
+      "sha256": "2be7961f03a69f624c8c4da0bbfabe9a3a54c743a656909eb3117f4724c06556",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261015_r02/candidate_readback.tcldict",
+      "sha256": "5fe5a32103b6beed8ef984665d0270da3f19e060b0389bb46b4b728aeff00cb0",
+      "role": "input",
+      "keep_reason": "仅作为R02 MT41K候选的历史Vivado属性读回交叉核对，不作为R03当前运行或硬件通过结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261016_r03/assessment.md",
+      "sha256": "d2250d4b5f6366659145b8d53ef68084bbb18b4ade74556a4194f6a5e4acf8a9",
+      "role": "result",
+      "keep_reason": "记录R03暂定配置、来源边界、源码哈希、离线检查及未解决阻断项。"
+    },
+    {
+      "path": "report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261016_r03/validate_candidate.py",
+      "sha256": "7d04db0b20092f031eb101e2a60c940108ab73bee916ab045d632ff7862e0605",
+      "role": "artifact",
+      "keep_reason": "可复现的标准库断言，逐项核对DDR类型、总线/颗粒宽度、单颗容量、行列/Bank几何与频率，并约束Tcl请求不得含时序或板级延时属性。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "JSON与Tcl逐项DDR配置绑定断言",
+      "status": "PASS",
+      "command": "& 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -B report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261016_r03/validate_candidate.py",
+      "exit_code": 0,
+      "reason": "逐项比对MEMORY_TYPE/DDR3L族注释、32-bit总线、16-bit颗粒、4096 MBits单颗容量、row15/column10/bank3/8 banks与533.333333MHz；Tcl DDR属性集合必须与允许集合完全相等，拒绝CL/CWL、其他DDR时序、速度档、实测频率及板级/封装延时属性。"
+    },
+    {
+      "name": "PS/PL平台静态检查",
+      "status": "PASS",
+      "command": "python.exe -B verification/check_s2b_inference_platform.py",
+      "exit_code": 0,
+      "reason": "输出PLATFORM_STATIC:OK visibility=0 rtl_sources=18；该检查不证明DDR时序、Vivado配置或实板。"
+    },
+    {
+      "name": "Git差异空白检查",
+      "status": "PASS",
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "name": "证据目录evidence模式核验",
+      "status": "PASS",
+      "command": "python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T04/ps_platform_mt41k_provisional_20261016_r03/delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "Vivado配置运行与硬件验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "R03任务范围仅为源码候选绑定与廉价离线静态验证；没有启动Vivado或操作板卡。"
+    },
+    {
+      "name": "精确DDR时序匹配",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "未取得适用于裸料号MT41K256M16TW-107且覆盖533.333333 MHz的可核验厂家时序表。"
+    }
+  ],
+  "limitations": [
+    "MT41K256M16TW-107仅按用户授权作为暂定输入，不证明当前板卡实装料号或PCB版次。",
+    "533.333333 MHz为开发板手册建议的候选请求值，精确时序兼容性BLOCKED；未设置CL/CWL、tAA/tRCD/tRP等时序。",
+    "DDR VDD/VDDQ/VTT、PCB走线延时及版次关联没有实物测量或独立确认。",
+    "R02 PS7读回仅作历史交叉核对；本轮未启动Vivado、未生成XSA/bitstream、未初始化DDR、未操作板卡。",
+    "检查器只验证清单和哈希，不能替代语义审查、硬件G0/G3或阶段G4/G5验收。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14",
+    "check_stage_delivery": "schema_version 1",
+    "check_s2b_inference_platform": "repository checkout"
+  }
+}

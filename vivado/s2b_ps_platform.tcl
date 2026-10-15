@@ -2,7 +2,7 @@
 # 厂商字段和候选限制见 board/ps_platform_fields.json 与 board/ps_platform.md。
 
 namespace eval ::s2b_ps_platform {
-    variable version 1.0.1
+    variable version 1.0.2
     variable cell ps7
     variable bd_name s2b_ps_only
     variable part xc7z020clg400-2
@@ -37,8 +37,9 @@ proc ::s2b_ps_platform::prepare {project_dir} {
 }
 
 proc ::s2b_ps_platform::requested {} {
-    # 新版 V2.2 兼容 MT41J256M16RE-125；0.25ns 延时仅为旧例程候选。
-    # 不导入旧工具的封装延时；由当前精确器件在 Vivado 2026.1 派生。
+    # DDR料号和几何仅为R03暂定输入，依据及限制见对应字段表与审计记录。
+    # 不设置未核实的CL/CWL、时序值、板级走线延时或电源参数。
+    # 候选DRAM技术族为 DDR3L；PS7 MEMORY_TYPE 使用其配置枚举 DDR 3。
     return [dict create \
         CONFIG.PCW_IMPORT_BOARD_PRESET {None} \
         CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {33.333333} \
@@ -52,7 +53,7 @@ proc ::s2b_ps_platform::requested {} {
         CONFIG.PCW_MIO_48_IOTYPE {LVCMOS 1.8V} \
         CONFIG.PCW_MIO_49_IOTYPE {LVCMOS 1.8V} \
         CONFIG.PCW_UIPARAM_DDR_ENABLE {1} \
-        CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41J256M16 RE-125} \
+        CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16TW-107} \
         CONFIG.PCW_UIPARAM_DDR_MEMORY_TYPE {DDR 3} \
         CONFIG.PCW_UIPARAM_DDR_BUS_WIDTH {32 Bit} \
         CONFIG.PCW_UIPARAM_DDR_DRAM_WIDTH {16 Bits} \
@@ -62,14 +63,6 @@ proc ::s2b_ps_platform::requested {} {
         CONFIG.PCW_UIPARAM_DDR_BANK_ADDR_COUNT {3} \
         CONFIG.PCW_UIPARAM_DDR_FREQ_MHZ {533.333333} \
         CONFIG.PCW_UIPARAM_DDR_ECC {Disabled} \
-        CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY0 {0.25} \
-        CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY1 {0.25} \
-        CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY2 {0.25} \
-        CONFIG.PCW_UIPARAM_DDR_BOARD_DELAY3 {0.25} \
-        CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_0 {0.0} \
-        CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_1 {0.0} \
-        CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_2 {0.0} \
-        CONFIG.PCW_UIPARAM_DDR_DQS_TO_CLK_DELAY_3 {0.0} \
         CONFIG.PCW_UIPARAM_DDR_TRAIN_WRITE_LEVEL {1} \
         CONFIG.PCW_UIPARAM_DDR_TRAIN_READ_GATE {1} \
         CONFIG.PCW_UIPARAM_DDR_TRAIN_DATA_EYE {1} \

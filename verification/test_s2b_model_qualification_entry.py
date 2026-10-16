@@ -433,6 +433,15 @@ class OfflineR04SourceAnchorTests(unittest.TestCase):
 
 
 class R04QualificationBindingTests(unittest.TestCase):
+    @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
+    def test_candidate_config_carries_fixed_current_g0_and_cold_anchors(self):
+        cfg = R05.build_candidate_config()
+        self.assertEqual(cfg["g0_basis"], ENTRY.TRUSTED_G0_ANCHOR)
+        self.assertEqual(cfg["cold_basis"], ENTRY.TRUSTED_COLD_ANCHOR)
+
+    @patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None)
+    @patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None)
+    @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
     def test_r04_static_elf_xsa_binding_passes_but_all_anchor_gates_block(self):
         build_identity = R05.verify_r04_build()
         self.assertEqual(build_identity["build_source_commit"], R05.R04_BUILD_SOURCE_COMMIT)
@@ -457,6 +466,9 @@ class R04QualificationBindingTests(unittest.TestCase):
         self.assertFalse(any(name == "serial" or name.startswith("serial.") for name in sys.modules))
         self.assertFalse(any(name == "xsdb" or name.startswith("xsdb.") for name in sys.modules))
 
+    @patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None)
+    @patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None)
+    @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
     def test_each_missing_anchor_is_reported_as_a_hard_gate(self):
         cfg = R05.build_candidate_config()
         gaps = ENTRY.hardware_enablement_gaps(cfg)
@@ -497,6 +509,8 @@ class SideEffectAndFailureTests(unittest.TestCase):
             cfg = valid_config(str(requested))
             config_path.write_text(json.dumps(cfg), encoding="utf-8")
             with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None), \
+                 patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None), \
+                 patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None), \
                  patch.object(ENTRY, "helpers", return_value=ENTRY.helpers()), \
                  patch.object(ENTRY, "verify_static_candidate_bindings", return_value={"status": "STATIC_TEST_FIXTURE"}):
                 with self.assertRaisesRegex(ENTRY.QualificationError, "TRUSTED_REVIEW_ANCHOR"):
@@ -516,6 +530,8 @@ class SideEffectAndFailureTests(unittest.TestCase):
             config_path = sandbox_root / "config.json"
             config_path.write_text(json.dumps(cfg), encoding="utf-8")
             with patch.object(ENTRY, "ROOT", sandbox_root), \
+                 patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None), \
+                 patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None), \
                  patch.object(ENTRY, "helpers", return_value=(probe, jtag, transport)):
                 with self.assertRaisesRegex(ENTRY.QualificationError, "单样本资格阻断/失败"):
                     ENTRY.run(config_path)

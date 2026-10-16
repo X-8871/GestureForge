@@ -247,7 +247,7 @@ def build_candidate_config() -> dict:
         "bindings": bindings,
         "owned_hw_server_identity": None,
         "uart_identity": None,
-        "cold_basis": None,
+        "cold_basis": runner.TRUSTED_COLD_ANCHOR,
         "sdk_files": sdk_files,
         "pyserial_files": serial_files,
         "asset_root": str(ASSET_ROOT),
@@ -258,7 +258,7 @@ def build_candidate_config() -> dict:
         "core_timeout_cycles": 0xFFFFFFFF,
         "drain_timeout_cycles": 0xFFFFFFFF,
         "response_timeout_seconds": 450,
-        "g0_basis": None,
+        "g0_basis": runner.TRUSTED_G0_ANCHOR,
         "timeout_basis": None,
     }
     runner.validate_config(config)

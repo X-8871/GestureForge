@@ -72,11 +72,17 @@ MANUAL_TRUST_ROOT_CLAIM = {
 # 该Reviewer原件只作为Wong批准的人工信任依据；它不是密码签名，也不证明本资格收据已获审查。
 # canonical v1只规范化本行来打破收据SHA与入口SHA的循环；其余入口原字节均参与SHA。
 # 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
-# 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0与POR锚点仍需固定。
+# 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0候选审查与官方POR语义分别由下方固定锚点绑定。
 # 首个受控sample000按冻结规程使用有限最大期限；最终部署期限仍须在G4/G5量化。
 TRUSTED_REVIEW_ANCHOR = None
-TRUSTED_G0_ANCHOR = None
-TRUSTED_COLD_ANCHOR = None
+TRUSTED_G0_ANCHOR = {
+    'path': 'report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r02/independent_g0_review_outcome.json',
+    'sha256': '0540f3ab8d7e27b87a739c520f5228bb3b9186e2733e9fb6bb2d6bec05accc53',
+}
+TRUSTED_COLD_ANCHOR = {
+    'path': 'report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json',
+    'sha256': '2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3',
+}
 
 
 class QualificationError(RuntimeError):

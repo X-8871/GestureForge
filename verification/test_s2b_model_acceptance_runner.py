@@ -350,8 +350,72 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                     mock.patch.object(runner, "G0_BASIS_SHA256", config["g0_basis"]["sha256"]), \
                     mock.patch.object(runner, "COLD_BASIS_PATH", Path(config["cold_basis"]["path"])), \
                     mock.patch.object(runner, "COLD_BASIS_SHA256", config["cold_basis"]["sha256"]):
-                with self.assertRaisesRegex(runner.RunnerError, "build_details 与当前 source/XSA"):
+                with self.assertRaisesRegex(runner.RunnerError, "build_details 与当前编译 XSA"):
                     runner.validate_preflight_basis(config)
+
+    def test_g0_accepts_historical_ancestor_build_for_current_head(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_build_ancestor_") as temp:
+            root = Path(temp)
+            ancestor, current, _ = self._make_build_lineage(root)
+            config = self._make_build_output_config(root, ancestor, current)
+            with mock.patch.object(runner, "ROOT", root):
+                runner._validate_g0_build_outputs(config)
+
+    def test_g0_rejects_build_commit_outside_current_head_lineage(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_build_nonancestor_") as temp:
+            root = Path(temp)
+            _, current, unrelated = self._make_build_lineage(root)
+            config = self._make_build_output_config(root, unrelated, current)
+            with mock.patch.object(runner, "ROOT", root):
+                with self.assertRaisesRegex(runner.RunnerError, "不是当前源码基线的祖先"):
+                    runner._validate_g0_build_outputs(config)
+
+    @staticmethod
+    def _make_build_lineage(root: Path) -> tuple[str, str, str]:
+        """建立含祖先提交和独立提交的临时Git历史。"""
+        root.mkdir(parents=True, exist_ok=True)
+
+        def git(*args: str) -> str:
+            return runner.subprocess.run(["git", *args], cwd=root, capture_output=True,
+                                         text=True, encoding="ascii", check=True).stdout.strip()
+
+        git("init", "-q")
+        git("config", "user.name", "T18 Test")
+        git("config", "user.email", "t18-test@example.invalid")
+        git("commit", "--allow-empty", "-qm", "ancestor")
+        ancestor = git("rev-parse", "HEAD")
+        branch = git("branch", "--show-current")
+        git("commit", "--allow-empty", "-qm", "current")
+        current = git("rev-parse", "HEAD")
+        git("checkout", "--orphan", "unrelated")
+        git("commit", "--allow-empty", "-qm", "unrelated")
+        unrelated = git("rev-parse", "HEAD")
+        git("checkout", branch)
+        return ancestor, current, unrelated
+
+    @staticmethod
+    def _make_build_output_config(root: Path, build_commit: str, current_commit: str) -> dict:
+        """建立只供G0构建输出校验使用的本地绑定。"""
+        xsa = {"path": str(root / "artifacts/platform.xsa"), "sha256": "a" * 64}
+        app_elf = {"path": str(root / "artifacts/app.elf"), "sha256": "b" * 64}
+        init_elf = {"path": str(root / "artifacts/init.elf"), "sha256": "c" * 64}
+        build = {
+            "status": "PASS_OFFLINE_FULL_XSA_BUILD",
+            "hardware_mode": "FULL_PLATFORM_BOUND",
+            "source_commit": build_commit,
+            "config": {"xsa": xsa["path"], "xsa_sha256": xsa["sha256"]},
+            "xsa_sha256": xsa["sha256"],
+            "elf": app_elf,
+            "initializer_elf": init_elf,
+        }
+        build_path = root / "artifacts/build_details.json"
+        build_path.parent.mkdir(parents=True, exist_ok=True)
+        build_path.write_text(json.dumps(build), encoding="utf-8")
+        build_binding = {"path": str(build_path),
+                         "sha256": hashlib.sha256(build_path.read_bytes()).hexdigest()}
+        return {"source_commit": current_commit,
+                "build_details": build_binding,
+                "bindings": {"xsa": xsa, "app_elf": app_elf, "init_elf": init_elf}}
 
     def test_cold_receipt_rejects_wrong_controller_system_stop_and_unproven_lifecycle(self):
         cases = (("controller_source_sha256", "0" * 64), ("reset_method", "TCF_SYSTEM_STOP_ONLY"),
@@ -441,13 +505,20 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     @staticmethod
     def _make_preflight_tree(root: Path, *, physical: str, uart: str) -> Path:
+        root.mkdir(parents=True, exist_ok=True)
+        runner.subprocess.run(["git", "init", "-q"], cwd=root, check=True, capture_output=True)
+        runner.subprocess.run(["git", "config", "user.name", "T18 Test"], cwd=root, check=True, capture_output=True)
+        runner.subprocess.run(["git", "config", "user.email", "t18-test@example.invalid"], cwd=root,
+                              check=True, capture_output=True)
+        runner.subprocess.run(["git", "commit", "--allow-empty", "-qm", "test baseline"], cwd=root,
+                              check=True, capture_output=True)
         docs = root / "docs/obsidian-project/02-方案设计"
         docs.mkdir(parents=True)
         physical_path = docs / "s2b_physical_interface_candidate.md"
         uart_path = docs / "s2b_board_transport.md"
         physical_path.write_text("test-only / not approval: 状态：" + physical + "；版本：physical-test/0.1\n", encoding="utf-8")
         uart_path.write_text("test-only / not approval: 状态：" + uart + "；版本：uart-test/0.1\n", encoding="utf-8")
-        source_commit = runner.subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT,
+        source_commit = runner.subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                                               capture_output=True, text=True, encoding="ascii",
                                               check=True).stdout.strip()
 

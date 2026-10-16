@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "acceptance_build_lineage_20261016_r01",
+  "source_commit": "dc50bc5b70b0bd4e53c533606b34f8511472842a",
+  "evidence_dir": "report/evidence/S2B-T18/acceptance_build_lineage_20261016_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/acceptance_build_lineage_20261016_r01/independent_review.md",
+      "sha256": "05cf06afb62b711c2abf0014de8ac70185481138232a9154018f3792138ecb3e",
+      "role": "result",
+      "keep_reason": "绑定本次最小来源修复、实际验证日志与真实独立审查摘要。"
+    },
+    {
+      "path": "report/evidence/S2B-T18/acceptance_build_lineage_20261016_r01/runner_test.log",
+      "sha256": "aa864f4a105c1638606d55c77c100e56984984f854c0e85f8a44752d406aa50a",
+      "role": "result",
+      "keep_reason": "绑定本次最小来源修复、实际验证日志与真实独立审查摘要。"
+    },
+    {
+      "path": "report/evidence/S2B-T18/acceptance_build_lineage_20261016_r01/source_snapshot/run_s2b_model_acceptance.py",
+      "sha256": "5760e8a8e790e8f49c4cec771b0c58bcc7e4cb89b59401c2c983e05a99a6d326",
+      "role": "source",
+      "keep_reason": "绑定本次最小来源修复、实际验证日志与真实独立审查摘要。"
+    },
+    {
+      "path": "report/evidence/S2B-T18/acceptance_build_lineage_20261016_r01/source_snapshot/test_s2b_model_acceptance_runner.py",
+      "sha256": "04a814f2139d6ece27136780cf8c21cdab066cb56ddd7418a0a1ca2a8bc8cb91",
+      "role": "source",
+      "keep_reason": "绑定本次最小来源修复、实际验证日志与真实独立审查摘要。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "runner_regression",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "python -m unittest -v verification.test_s2b_model_acceptance_runner",
+      "reason": "27项既有及新增测试通过，11.775秒。"
+    },
+    {
+      "name": "hardware_validation",
+      "status": "NOT_APPLICABLE",
+      "exit_code": null,
+      "command": null,
+      "reason": "本次仅修复来源准入；未运行硬件，正式109/1000仍未执行。"
+    }
+  ],
+  "limitations": [
+    "独立审查仅覆盖该差异，不证明G0或实板验收通过。",
+    "Reviewer独立3项及额外Git负例的退出码由真实子代理回报，未虚构其原始日志。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  }
+}

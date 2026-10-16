@@ -199,7 +199,7 @@ def _g0_config_binding(config: dict, name: str) -> object:
 
 
 def _validate_g0_build_outputs(config: dict) -> None:
-    """检查 build_details 的真实 XSA 与 ELF 指向同一组当前部署产物。"""
+    """检查 build_details 的源码祖先关系，以及真实 XSA/ELF 产物绑定。"""
     build_path, build_raw = verify_binding(config.get("build_details"), "build_details", max_bytes=4 * 1024 * 1024)
     build = strict_json(build_raw)
     require(type(build) is dict and build.get("status") == "PASS_OFFLINE_FULL_XSA_BUILD" and
@@ -214,11 +214,22 @@ def _validate_g0_build_outputs(config: dict) -> None:
     init_elf = config["bindings"]["init_elf"]
     require(type(xsa) is dict and type(app_elf) is dict and type(init_elf) is dict,
             "G0 config 产物绑定格式错误")
-    require(build.get("source_commit") == config.get("source_commit") and
-            build_config.get("xsa") == xsa.get("path") and
+    build_commit = build.get("source_commit")
+    current_commit = config.get("source_commit")
+    require(type(build_commit) is str and re.fullmatch(r"[0-9a-f]{40}", build_commit) is not None and
+            type(current_commit) is str and re.fullmatch(r"[0-9a-f]{40}", current_commit) is not None,
+            "G0 build_details/config source_commit 必须是完整 commit SHA")
+    try:
+        subprocess.run(["git", "merge-base", "--is-ancestor", build_commit, current_commit],
+                       cwd=ROOT, capture_output=True, check=True)
+    except subprocess.CalledProcessError as error:
+        raise RunnerError("G0 build_details source_commit 不是当前源码基线的祖先") from error
+    except OSError as error:
+        raise RunnerError("无法核验 G0 build_details source_commit 祖先关系") from error
+    require(build_config.get("xsa") == xsa.get("path") and
             build_config.get("xsa_sha256") == xsa.get("sha256") and
             build.get("xsa_sha256") == xsa.get("sha256"),
-            "G0 build_details 与当前 source/XSA 不一致")
+            "G0 build_details 与当前编译 XSA 不一致")
     for label, actual, expected in (("app_elf", build.get("elf"), app_elf),
                                     ("init_elf", build.get("initializer_elf"), init_elf)):
         require(actual.get("path") == expected.get("path") and actual.get("sha256") == expected.get("sha256"),

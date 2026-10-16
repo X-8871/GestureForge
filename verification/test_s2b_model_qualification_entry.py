@@ -104,9 +104,9 @@ def valid_manual_root_documents():
 
 
 def valid_qualification_trust_claim():
-    """构造仅供离线门禁单测使用的固定Reviewer/root声明。"""
+    """构造仅供离线门禁单测使用的资格Reviewer/root声明。"""
     return {
-        "reviewer_task": ENTRY.MANUAL_REVIEWER_TASK,
+        "reviewer_task": ENTRY.QUALIFICATION_REVIEWER_TASK,
         "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM,
     }
 
@@ -255,6 +255,36 @@ class ConfigGateTests(unittest.TestCase):
         changed_compatibility["artifacts"]["platform_manifest"]["sha256"] = "f" * 64
         with self.assertRaisesRegex(ENTRY.QualificationError, "平台清单原件"):
             ENTRY.validate_manual_review_root_documents(changed_provenance, changed_compatibility)
+
+    def test_qualification_reviewer_is_separate_and_bound_to_fixed_manual_root(self):
+        claim = valid_qualification_trust_claim()
+        ENTRY.validate_qualification_reviewer_claim(claim)
+
+        rejected_claims = (
+            ("旧人工Reviewer冒充资格Reviewer", {
+                "reviewer_task": ENTRY.MANUAL_REVIEWER_TASK,
+                "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM,
+            }),
+            ("其他Reviewer", {
+                "reviewer_task": "/root/other_reviewer",
+                "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM,
+            }),
+            ("改写人工根", {
+                "reviewer_task": ENTRY.QUALIFICATION_REVIEWER_TASK,
+                "manual_trust_root": {**ENTRY.MANUAL_TRUST_ROOT_CLAIM,
+                                       "reviewer_task": "/root/forged_manual_root"},
+            }),
+            ("缺Reviewer字段", {
+                "manual_trust_root": ENTRY.MANUAL_TRUST_ROOT_CLAIM,
+            }),
+            ("缺人工根字段", {
+                "reviewer_task": ENTRY.QUALIFICATION_REVIEWER_TASK,
+            }),
+        )
+        for label, receipt in rejected_claims:
+            with self.subTest(label=label):
+                with self.assertRaises(ENTRY.QualificationError):
+                    ENTRY.validate_qualification_reviewer_claim(receipt)
 
     def test_coordinated_anchor_config_and_receipt_rewrite_cannot_replace_reviewer_root(self):
         raw = ENTRY_PATH.read_bytes()

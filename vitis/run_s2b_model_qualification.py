@@ -45,6 +45,7 @@ ENTRY_DIGEST_SCHEME = "s2b-model-qualification-entry-canonical-sha256-v1"
 ANCHOR_ASSIGNMENT_PREFIX = b"TRUSTED_REVIEW_ANCHOR = "
 ANCHOR_CANONICAL_VALUE = b"<NORMALIZED_TRUSTED_REVIEW_ANCHOR_V1>"
 MANUAL_REVIEWER_TASK = "/root/ps_build_r02_review"
+QUALIFICATION_REVIEWER_TASK = "/root/qualification_single_sample_review"
 MANUAL_REVIEW_SOURCE_COMMIT = "37c4b840977e727b6504d83b803da3358f89040e"
 MANUAL_REVIEW_SCOPE = "visibility0_cache_probe_only"
 MANUAL_REVIEW_PROVENANCE = {
@@ -227,11 +228,11 @@ def validate_manual_review_trust_root():
     return validate_manual_review_root_documents(provenance, compatibility)
 
 
-def validate_qualification_reviewer_claim(receipt, expected_root=MANUAL_TRUST_ROOT_CLAIM):
-    """要求新资格收据引用固定Reviewer任务及完整人工根，拒绝角色自报。"""
-    require(type(receipt) is dict and receipt.get("reviewer_task") == MANUAL_REVIEWER_TASK,
+def validate_qualification_reviewer_claim(receipt):
+    """要求资格收据绑定独立资格Reviewer身份及完整人工信任根。"""
+    require(type(receipt) is dict and receipt.get("reviewer_task") == QUALIFICATION_REVIEWER_TASK,
             "BLOCKED：资格收据Reviewer task身份不匹配")
-    require(receipt.get("manual_trust_root") == expected_root,
+    require(receipt.get("manual_trust_root") == MANUAL_TRUST_ROOT_CLAIM,
             "BLOCKED：资格收据缺少或更换固定人工信任根引用")
 
 

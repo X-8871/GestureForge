@@ -1,6 +1,12 @@
 # 项目状态入口
 
-更新：2026-10-16（UTC+8）。按根目录 AGENTS.md 恢复；先核对Git和实际证据，不将历史源码基线写作当前HEAD。
+更新：2026-10-16 14:10（UTC+8）。按根目录 AGENTS.md 恢复；先核对Git和实际证据，不将历史源码基线写作当前HEAD。
+
+## 最新检查点（覆盖下方历史运行状态）
+
+- T15 `csr_fixed_platform_offline_20261016_r03` 完整新 BSP/ELF 离线构建及独立 `vitis_managed_review` G2 PASS，清单 SHA `17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79`，67/67 原字节绑定。外层143.297秒/退出0，内层111.266秒；infer ELF SHA `a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82`。初始MMU/arena/CSR Device仅静态通过，未板测。见本Run `independent_review.md`。
+- T14 r02 因可用RAM跌至约1.98GiB失败关闭，三个小IP已完成；r03单独核心综合于14:03通过，原生0且Job清理确认，使用本轮追加核心综合第3/3次。r04四OOC均100%、无需刷新，但顶层因r02中止遗留“already running”状态未启动，整体FAIL。Developer正准备独立r05，仅恢复顶层状态并复用原四DCP；无新核心综合授权，不重跑core。当前无活动重型任务，恢复须先核对新r05实际结果/进程。
+- Wong回复“已重启，10s”，记录于 `report/evidence/S2B-T19/cold_confirmation_20261016_r01/`；人工确认回执时间不是测得的POR边沿。Wong也已退出闲置应用并允许内存不足时清理；当前不需额外清理。COM4 CP210x新鲜OS枚举正常，未启hw_server、未下载或访问板卡。必要易失板测授权继续有效；109样本、1000连续任务、恢复及2B G5仍未通过。
 
 ## 当前目标与器件基本事实
 

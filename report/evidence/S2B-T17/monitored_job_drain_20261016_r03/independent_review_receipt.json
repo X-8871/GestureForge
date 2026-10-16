@@ -1,0 +1,19 @@
+{
+  "reviewer_task": "/root/review_actual_elf_mmu",
+  "recorded_by": "/root",
+  "kind": "子代理工具审查回执摘要，非签名",
+  "status": "CHANGES_REQUIRED",
+  "source_commit": "abe095e1bff4586193149bbe837bc9bd855b2a03",
+  "supervisor_sha256": "e5c551eef2274e557c00faa72c02d65fc755eeb4da030c81b9a1c034ab7e3046",
+  "tests_sha256": "ce632b5512d75fd4d62f7bba03d281ab24c02a8f26b1e75207445fc0e0f03f36",
+  "original_manifest_sha256": "fd47ec8d8539754ed736f1c791f18ffc9fcc91dbe2485dff87cd05145bcabe7b",
+  "regression": {"tests": 17, "exit_code": 0, "elapsed_seconds": 8.634, "log_sha256": "e991ea5774b3b6934e25c8142160b1fa716564af86f6c3b6d4369163ccaac589"},
+  "blocker": "配置参数允许采样周期大于0.25秒、最大采样间隔大于1秒、自然排空大于10秒或停止线低于2GiB。",
+  "attacks": [
+    {"script": "independent_review_first/slow_exit_code_gap_attack.py", "exit_code": 0, "observation": "max gap参数2秒时实际终态采样间隔1.156秒仍PASS"},
+    {"script": "independent_review_first/oversized_drain_timeout_attack.py", "exit_code": 0, "observation": "虚拟时钟下drain参数20秒，自然排空10.1秒仍PASS"}
+  ],
+  "closure": "超限参数须在内存预检/Job创建前拒绝；合法边界和更严格参数可用，保持调用方启动RAM预算及start>=stop。",
+  "history_note": "r03原summary末句源码相对ba71fef未变仅适用于HEAD版本，不适用于已修改的被测工作树；实际被测内容以两份SHA和冻结快照为准。原件不改写。",
+  "limitations": "17项绿测试不关闭本阻断。未运行Vitis、XSim或板卡。"
+}

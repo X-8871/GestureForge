@@ -1,0 +1,423 @@
+diff --git a/verification/s2b_process_supervisor.py b/verification/s2b_process_supervisor.py
+index 5017914..7ab6def 100644
+--- a/verification/s2b_process_supervisor.py
++++ b/verification/s2b_process_supervisor.py
+@@ -22,6 +22,14 @@ class SupervisorError(RuntimeError):
+     """资源监视或本任务Job闭合失败。"""
+ 
+ 
++class _DrainWaitFailure(SupervisorError):
++    """携带自然排空阶段失败状态。"""
++
++    def __init__(self, status, message):
++        super().__init__(message)
++        self.status = status
++
++
+ def _finite_positive_seconds(value):
+     """验证时间预算为有限正数，并返回统一的浮点秒数。"""
+     try:
+@@ -56,13 +64,61 @@ def _validated_memory_sample(memory_reader):
+     return available, total
+ 
+ 
+-def _wait_for_empty_job(job, root_process, timeout_seconds):
++def _wait_for_empty_job(
++    job,
++    root_process,
++    timeout_seconds,
++    *,
++    allow_root_exit_drain=False,
++    overall_deadline=None,
++    poll_callback=None,
++    drain_record=None,
++):
+     """用Job PID列表、Accounting及root原始HANDLE证明终态。"""
+     job_guard = _load_job_guard()
+-    deadline = time.monotonic() + float(timeout_seconds)
++    drain_started = time.monotonic()
++    deadline = drain_started + float(timeout_seconds)
++    if overall_deadline is not None:
++        deadline = min(deadline, overall_deadline)
+     stable_reads = 0
+     last = None
++    if drain_record is not None:
++        drain_record.update({
++            "status": "RUNNING",
++            "elapsed_seconds": 0.0,
++            "poll_count": 0,
++            "start_job_pids": None,
++            "last_job_pids": None,
++            "last_active_processes": None,
++            "stable_empty_reads": 0,
++            "error": None,
++        })
++
++    def finish_drain(status, error=None):
++        if drain_record is not None:
++            drain_record["status"] = status
++            drain_record["elapsed_seconds"] = round(time.monotonic() - drain_started, 3)
++            drain_record["stable_empty_reads"] = stable_reads
++            drain_record["error"] = error
++
++    def check_deadlines(context):
++        now = time.monotonic()
++        if overall_deadline is not None and now >= overall_deadline:
++            message = f"整体wall timeout在{context}到期"
++            if allow_root_exit_drain:
++                raise _DrainWaitFailure("FAIL_TIMEOUT", message)
++            raise SupervisorError(message)
++        if now >= deadline:
++            message = f"Job自然排空期限在{context}到期"
++            if allow_root_exit_drain:
++                raise _DrainWaitFailure("FAIL_JOB_NOT_EMPTY", message)
++            raise SupervisorError(message)
++
+     while time.monotonic() < deadline:
++        if poll_callback is not None:
++            poll_callback()
++        check_deadlines("Job成员采样前")
++
+         pids_before = tuple(job.pid_list())
+         accounting_before = job.accounting()
+         root_wait = None
+@@ -86,21 +142,42 @@ def _wait_for_empty_job(job, root_process, timeout_seconds):
+             "accounting_after": accounting_after,
+             "root_signaled": root_ended,
+         }
++        if drain_record is not None:
++            drain_record["poll_count"] += 1
++            if drain_record["start_job_pids"] is None:
++                drain_record["start_job_pids"] = list(pids_before)
++            drain_record["last_job_pids"] = list(pids_after)
++            drain_record["last_active_processes"] = accounting_after["active_processes"]
+         if empty:
+             stable_reads += 1
+             if stable_reads >= 2:
++                if poll_callback is not None:
++                    poll_callback()
++                check_deadlines("最终资源采样后")
+                 if root_process is not None:
+                     root_exit_code = job_guard._api_get_exit_code(root_process.process_handle)
+                     if root_exit_code == job_guard.STILL_ACTIVE:
+                         raise SupervisorError("root已signal但退出码仍为STILL_ACTIVE")
+                     last["root_exit_code"] = root_exit_code
++                if poll_callback is not None:
++                    poll_callback()
++                check_deadlines("PASS提交前")
+                 last["stable_empty_reads"] = stable_reads
++                finish_drain("PASS_EMPTY_JOB")
+                 return last
+         else:
+             stable_reads = 0
+-            if root_process is not None and root_ended:
++            if root_process is not None and root_ended and not allow_root_exit_drain:
+                 raise SupervisorError(f"root已退出但本任务Job仍有成员：{last!r}")
+-        time.sleep(0.05)
++        if drain_record is not None:
++            drain_record["stable_empty_reads"] = stable_reads
++        time.sleep(min(0.05, max(0.0, deadline - time.monotonic())))
++
++    now = time.monotonic()
++    if overall_deadline is not None and now >= overall_deadline:
++        raise _DrainWaitFailure("FAIL_TIMEOUT", f"整体wall timeout到期，Job未稳定清空：{last!r}")
++    if allow_root_exit_drain:
++        raise _DrainWaitFailure("FAIL_JOB_NOT_EMPTY", f"Job未在自然排空期限内稳定清空：{last!r}")
+     raise SupervisorError(f"Job未在期限内稳定清空：{last!r}")
+ 
+ 
+@@ -209,6 +286,13 @@ def supervise_process(
+             "root_thread_handle_closed": False,
+             "confirmed": False,
+             "natural_drain_failure": None,
++            "natural_drain": {
++                "status": "NOT_STARTED",
++                "timeout_seconds": record_times["drain_timeout_seconds"],
++                "resource_samples_at_start": None,
++                "resource_samples_at_end": None,
++                "wall_timeout_seconds_remaining": None,
++            },
+             "errors": [],
+             "verification_scope": "双次读取Job PID列表为空且Accounting active_processes为0，并确认root原始HANDLE已signal；不要求保留所有短命子进程HANDLE。",
+         },
+@@ -401,12 +485,75 @@ def supervise_process(
+                 record["exit_code"] = observed_exit_code
+                 if observed_exit_code != 0:
+                     primary_failure = "FAIL_EXIT"
++                natural_drain = record["cleanup"]["natural_drain"]
++                natural_drain["resource_samples_at_start"] = record["resource_monitor"]["sample_count"]
++                natural_drain["wall_timeout_seconds_remaining"] = max(0.0, deadline - time.monotonic())
++                natural_drain_started = time.monotonic()
++
++                def sample_drain_resources():
++                    nonlocal last_sample
++                    monitor = record["resource_monitor"]
++                    now = time.monotonic()
++                    if last_sample is not None and now - last_sample > max_sample_gap_seconds:
++                        gap = now - last_sample
++                        monitor["maximum_sample_gap_seconds"] = max(
++                            monitor["maximum_sample_gap_seconds"], gap)
++                        monitor["failure"] = (
++                            f"自然排空资源采样间隔{gap:.3f}s超过"
++                            f"{max_sample_gap_seconds:.3f}s上限")
++                        raise _DrainWaitFailure("FAIL_RESOURCE_SAMPLE_GAP", monitor["failure"])
++                    if last_sample is not None and now - last_sample < sample_interval_seconds:
++                        return
++                    try:
++                        available, total = _validated_memory_sample(memory_reader)
++                    except Exception as error:
++                        monitor["failure"] = f"{type(error).__name__}: {error}"
++                        raise _DrainWaitFailure("FAIL_RESOURCE_QUERY", monitor["failure"]) from error
++                    sample_end = time.monotonic()
++                    gap = sample_end - last_sample if last_sample is not None else 0.0
++                    monitor["maximum_sample_gap_seconds"] = max(
++                        monitor["maximum_sample_gap_seconds"], gap)
++                    if last_sample is not None and gap > max_sample_gap_seconds:
++                        monitor["failure"] = (
++                            f"自然排空资源采样间隔{gap:.3f}s超过"
++                            f"{max_sample_gap_seconds:.3f}s上限")
++                        raise _DrainWaitFailure("FAIL_RESOURCE_SAMPLE_GAP", monitor["failure"])
++                    last_sample = sample_end
++                    monitor["sample_count"] += 1
++                    monitor["last_sample_monotonic"] = sample_end
++                    monitor["total_ram_bytes"] = total
++                    prior_minimum = monitor["minimum_available_ram_bytes"]
++                    monitor["minimum_available_ram_bytes"] = (
++                        available if prior_minimum is None else min(prior_minimum, available))
++                    if available < stop_floor_bytes:
++                        monitor["failure"] = f"可用物理内存低于{stop_floor_bytes}字节停止线"
++                        raise _DrainWaitFailure("FAIL_RESOURCE_STOP", monitor["failure"])
++
+                 try:
+-                    proof = _wait_for_empty_job(job, root_process, drain_timeout_seconds)
++                    proof = _wait_for_empty_job(
++                        job, root_process, drain_timeout_seconds,
++                        allow_root_exit_drain=True,
++                        overall_deadline=deadline,
++                        poll_callback=sample_drain_resources,
++                        drain_record=natural_drain,
++                    )
+                     record["cleanup"]["empty_job_proof"] = proof
++                except _DrainWaitFailure as error:
++                    record["cleanup"]["natural_drain_failure"] = f"{type(error).__name__}: {error}"
++                    natural_drain["status"] = error.status
++                    natural_drain["error"] = str(error)
++                    natural_drain["elapsed_seconds"] = round(time.monotonic() - natural_drain_started, 3)
++                    if error.status == "FAIL_TIMEOUT":
++                        record["timed_out"] = True
++                    primary_failure = error.status
+                 except Exception as error:
+                     record["cleanup"]["natural_drain_failure"] = f"{type(error).__name__}: {error}"
+-                    primary_failure = primary_failure or "FAIL_JOB_NOT_EMPTY"
++                    natural_drain["status"] = "FAIL_JOB_NOT_EMPTY"
++                    natural_drain["error"] = f"{type(error).__name__}: {error}"
++                    natural_drain["elapsed_seconds"] = round(time.monotonic() - natural_drain_started, 3)
++                    primary_failure = "FAIL_JOB_NOT_EMPTY"
++                finally:
++                    natural_drain["resource_samples_at_end"] = record["resource_monitor"]["sample_count"]
+ 
+         if primary_failure is not None and job is not None and not job.closed:
+             record["cleanup"]["termination_requested"] = True
+diff --git a/verification/test_s2b_process_supervisor.py b/verification/test_s2b_process_supervisor.py
+index 1fa0e1c..69c7a1e 100644
+--- a/verification/test_s2b_process_supervisor.py
++++ b/verification/test_s2b_process_supervisor.py
+@@ -9,6 +9,7 @@ import subprocess
+ import sys
+ import tempfile
+ import time
++from types import SimpleNamespace
+ import unittest
+ from unittest import mock
+ 
+@@ -22,6 +23,78 @@ import test_s2b_control_csr_rtl as runner
+ GIB = 1024 ** 3
+ 
+ 
++class S2BProcessSupervisorDrainBoundaryTests(unittest.TestCase):
++    """验证Job查询慢于资源采样或drain期限时不能误报PASS。"""
++
++    class FakeJob:
++        closed = False
++
++        def __init__(self, slow_query_seconds):
++            self.pid_queries = 0
++            self.slow_query_seconds = slow_query_seconds
++
++        def pid_list(self):
++            self.pid_queries += 1
++            if self.pid_queries == 4:
++                time.sleep(self.slow_query_seconds)
++            return []
++
++        def accounting(self):
++            return {"active_processes": 0, "total_processes": 1}
++
++    def _job_guard(self):
++        return SimpleNamespace(
++            WAIT_OBJECT_0=0,
++            WAIT_TIMEOUT=258,
++            STILL_ACTIVE=259,
++            _api_wait=lambda handle, milliseconds: 0,
++            _api_get_exit_code=lambda handle: 0,
++        )
++
++    def test_slow_second_empty_query_fails_resource_sample_gap(self):
++        job = self.FakeJob(slow_query_seconds=0.14)
++        root = SimpleNamespace(process_handle=object())
++        sample_times = []
++
++        def sample_resources():
++            now = time.monotonic()
++            if sample_times and now - sample_times[-1] > 0.10:
++                raise supervisor._DrainWaitFailure(
++                    "FAIL_RESOURCE_SAMPLE_GAP", "模拟超过最大资源采样间隔")
++            if not sample_times or now - sample_times[-1] >= 0.03:
++                sample_times.append(now)
++
++        with mock.patch.object(supervisor, "_load_job_guard", return_value=self._job_guard()):
++            with self.assertRaises(supervisor._DrainWaitFailure) as raised:
++                supervisor._wait_for_empty_job(
++                    job,
++                    root,
++                    1.0,
++                    allow_root_exit_drain=True,
++                    poll_callback=sample_resources,
++                )
++        self.assertEqual("FAIL_RESOURCE_SAMPLE_GAP", raised.exception.status)
++        self.assertEqual(4, job.pid_queries)
++
++    def test_slow_second_empty_query_past_drain_deadline_fails_closed(self):
++        job = self.FakeJob(slow_query_seconds=0.14)
++        root = SimpleNamespace(process_handle=object())
++        callbacks = []
++
++        with mock.patch.object(supervisor, "_load_job_guard", return_value=self._job_guard()):
++            with self.assertRaises(supervisor._DrainWaitFailure) as raised:
++                supervisor._wait_for_empty_job(
++                    job,
++                    root,
++                    0.08,
++                    allow_root_exit_drain=True,
++                    poll_callback=lambda: callbacks.append(time.monotonic()),
++                )
++        self.assertEqual("FAIL_JOB_NOT_EMPTY", raised.exception.status)
++        self.assertGreaterEqual(len(callbacks), 3)
++        self.assertEqual(4, job.pid_queries)
++
++
+ @unittest.skipUnless(os.name == "nt", "真实Job Object进程夹具仅在Windows运行")
+ class S2BProcessSupervisorTests(unittest.TestCase):
+     """验证本Run进程树归属、RAM门槛与失败状态映射。"""
+@@ -65,6 +138,111 @@ class S2BProcessSupervisorTests(unittest.TestCase):
+         self.assertTrue(proof["root_signaled"])
+         self.assertGreaterEqual(proof["accounting_after"]["total_processes"], 2)
+ 
++    def test_child_naturally_exits_during_monitored_root_exit_drain(self):
++        child = "import time; time.sleep(0.55)"
++        parent = "import subprocess,sys; subprocess.Popen([sys.executable,'-c',sys.argv[1]]); sys.exit(0)"
++        samples = {"count": 0}
++
++        def memory_reader():
++            samples["count"] += 1
++            return self._memory_high()
++
++        result = self._run([sys.executable, "-c", parent, child],
++            memory_reader=memory_reader, timeout_seconds=3.0,
++            sample_interval_seconds=0.05, drain_timeout_seconds=1.5)
++        self.assertEqual("PASS", result["status"], result)
++        drain = result["cleanup"]["natural_drain"]
++        self.assertEqual("PASS_EMPTY_JOB", drain["status"])
++        self.assertGreaterEqual(drain["elapsed_seconds"], 0.25)
++        self.assertGreater(drain["resource_samples_at_end"], drain["resource_samples_at_start"])
++        self.assertGreaterEqual(samples["count"], 3)
++        proof = result["cleanup"]["empty_job_proof"]
++        self.assertEqual([], proof["job_pids_before"])
++        self.assertEqual([], proof["job_pids_after"])
++        self.assertEqual(0, proof["accounting_after"]["active_processes"])
++        self.assertTrue(proof["root_signaled"])
++
++    def test_persistent_child_times_out_then_only_own_job_is_terminated(self):
++        child = "import time; time.sleep(30)"
++        parent = "import subprocess,sys; subprocess.Popen([sys.executable,'-c',sys.argv[1]]); sys.exit(0)"
++        result = self._run([sys.executable, "-c", parent, child],
++            timeout_seconds=3.0, sample_interval_seconds=0.05,
++            drain_timeout_seconds=0.25)
++        self.assertEqual("FAIL_JOB_NOT_EMPTY", result["status"], result)
++        self.assertTrue(result["cleanup"]["termination_requested"])
++        self.assertTrue(result["cleanup_confirmed"])
++        drain = result["cleanup"]["natural_drain"]
++        self.assertEqual("FAIL_JOB_NOT_EMPTY", drain["status"])
++        self.assertTrue(drain["last_job_pids"])
++        proof = result["cleanup"]["empty_job_proof"]
++        self.assertEqual([], proof["job_pids_after"])
++        self.assertEqual(0, proof["accounting_after"]["active_processes"])
++
++    def test_low_memory_during_natural_drain_fails_closed(self):
++        drain_started = {"value": False}
++        original_wait = supervisor._wait_for_empty_job
++        child = "import time; time.sleep(30)"
++        parent = "import subprocess,sys; subprocess.Popen([sys.executable,'-c',sys.argv[1]]); sys.exit(0)"
++        samples = {"count": 0}
++
++        def memory_reader():
++            samples["count"] += 1
++            if drain_started["value"]:
++                return GIB, 16 * GIB
++            return self._memory_high()
++
++        def mark_natural_drain(*args, **options):
++            if options.get("allow_root_exit_drain"):
++                drain_started["value"] = True
++            return original_wait(*args, **options)
++
++        with mock.patch.object(supervisor, "_wait_for_empty_job", side_effect=mark_natural_drain):
++            result = self._run([sys.executable, "-c", parent, child],
++                memory_reader=memory_reader, timeout_seconds=3.0,
++                sample_interval_seconds=0.05, drain_timeout_seconds=1.0)
++        self.assertEqual("FAIL_RESOURCE_STOP", result["status"], result)
++        self.assertEqual("FAIL_RESOURCE_STOP", result["cleanup"]["natural_drain"]["status"])
++        self.assertTrue(result["cleanup"]["termination_requested"])
++        self.assertTrue(result["cleanup_confirmed"])
++        self.assertGreaterEqual(samples["count"], 2)
++
++    def test_memory_query_error_during_natural_drain_fails_closed(self):
++        drain_started = {"value": False}
++        original_wait = supervisor._wait_for_empty_job
++        child = "import time; time.sleep(30)"
++        parent = "import subprocess,sys; subprocess.Popen([sys.executable,'-c',sys.argv[1]]); sys.exit(0)"
++
++        def memory_reader():
++            if drain_started["value"]:
++                raise OSError("模拟自然排空期间的内存查询错误")
++            return self._memory_high()
++
++        def mark_natural_drain(*args, **options):
++            if options.get("allow_root_exit_drain"):
++                drain_started["value"] = True
++            return original_wait(*args, **options)
++
++        with mock.patch.object(supervisor, "_wait_for_empty_job", side_effect=mark_natural_drain):
++            result = self._run([sys.executable, "-c", parent, child],
++                memory_reader=memory_reader, timeout_seconds=3.0,
++                sample_interval_seconds=0.05, drain_timeout_seconds=1.0)
++        self.assertEqual("FAIL_RESOURCE_QUERY", result["status"], result)
++        self.assertEqual("FAIL_RESOURCE_QUERY", result["cleanup"]["natural_drain"]["status"])
++        self.assertTrue(result["cleanup"]["termination_requested"])
++        self.assertTrue(result["cleanup_confirmed"])
++
++    def test_overall_wall_timeout_bounds_natural_drain(self):
++        child = "import time; time.sleep(30)"
++        parent = "import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',sys.argv[1]]); time.sleep(0.5); sys.exit(0)"
++        result = self._run([sys.executable, "-c", parent, child],
++            timeout_seconds=2.0, sample_interval_seconds=0.05,
++            drain_timeout_seconds=5.0)
++        self.assertEqual("FAIL_TIMEOUT", result["status"], result)
++        self.assertTrue(result["timed_out"])
++        self.assertEqual("FAIL_TIMEOUT", result["cleanup"]["natural_drain"]["status"])
++        self.assertTrue(result["cleanup"]["termination_requested"])
++        self.assertTrue(result["cleanup_confirmed"])
++
+     def test_low_memory_terminates_own_job_and_preserves_external_sentinel(self):
+         marker = self.root / "child-started.txt"
+         sentinel = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"],

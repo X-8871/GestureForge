@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17",
+  "run_id": "monitored_job_drain_20261016_r03",
+  "status": "MICRO_FIXTURE_PASS_ONLY",
+  "source_base_commit": "ba71fef83059e9ffd82ea29bfb7f3185e1506c06",
+  "current_head_when_packaged": "abe095e1bff4586193149bbe837bc9bd855b2a03",
+  "runtime_head_at_test": null,
+  "runtime_head_note": "测试时HEAD未由测试命令单独采样；源码快照和SHA-256绑定本次被测内容。打包时HEAD只包含总控提交的既有失败证据，监督器源文件相对source_base_commit未变。",
+  "source_hashes_sha256": {
+    "verification/s2b_process_supervisor.py": "e5c551eef2274e557c00faa72c02d65fc755eeb4da030c81b9a1c034ab7e3046",
+    "verification/test_s2b_process_supervisor.py": "ce632b5512d75fd4d62f7bba03d281ab24c02a8f26b1e75207445fc0e0f03f36"
+  },
+  "test_run": {
+    "command_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r03/test_supervisor.command.txt",
+    "exit_code_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r03/test_exit_code.txt",
+    "log_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r03/test_supervisor.log",
+    "exit_code": 0,
+    "tests_passed": 17,
+    "elapsed_seconds": 8.64,
+    "test_breakdown": {
+      "existing_supervisor_regression": 15,
+      "slow_job_query_sample_gap_boundary": 1,
+      "slow_job_query_drain_deadline_boundary": 1
+    },
+    "python": "3.12.10",
+    "command": "& 'C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe' -B -m unittest verification.test_s2b_process_supervisor -v *> 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T17\\monitored_job_drain_20261016_r03\\test_supervisor.log'; $testExit = $LASTEXITCODE; write test_exit_code.txt as UTF-8"
+  },
+  "checks": {
+    "crlf_aware_git_diff_check": {
+      "log_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r03/git_diff_check.log",
+      "exit_code": 0
+    },
+    "vitis_build": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "stage_delivery_checker": {
+      "command": "C:/Users/22061/AppData/Local/Programs/Python/Python312/python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T17/monitored_job_drain_20261016_r03/delivery_manifest.json",
+      "exit_code": 0,
+      "status": "CHECKS_OK"
+    }
+  },
+  "vendor_excerpt": {
+    "file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r03/vendor_source_excerpt.json",
+    "scope": "只读摘录，不是完整源码；无法识别历史Job PID 9332。"
+  },
+  "limitations": [
+    "只运行监督器自身轻量微型夹具；不运行Vitis、Vivado、XSim或板卡。",
+    "历史Job成员PID 9332的身份未能确认。",
+    "独立Reviewer尚未审查本轮最终差异。",
+    "本结果不构成阶段2B或实物验收通过。",
+    "本任务未提交代码；提交由总控完成。"
+  ]
+}

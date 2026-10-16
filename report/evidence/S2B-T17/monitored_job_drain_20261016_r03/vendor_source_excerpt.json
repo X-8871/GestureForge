@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "capture_kind": "LOCAL_VITIS_SOURCE_EXCERPTS",
+  "scope_note": "以下为只读源码摘录，不是完整源码；路径与完整SHA-256绑定到本机D:/Xilinx/2026.1/Vitis安装。摘录用于解释启动与收尾路径，不证明历史PID 9332的进程身份。",
+  "sources": [
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+      "sha256": "9a305c248c966207c3e785d38fe92f01b51aeb1f3450896e8617c10a1a8a56f7",
+      "excerpts": [
+        {
+          "start_line": 417,
+          "end_line": 433,
+          "lines": [
+            "    if [!SOURCE!] == [true] (",
+            "      set PYTHONPATH=%XILINX_VITIS%\\cli;%XILINX_VITIS%\\cli\\python-packages\\win64;%XILINX_VITIS%\\cli\\python-packages\\site-packages;%XILINX_VITIS%\\cli\\proto;%XILINX_VITIS%\\scripts\\python_pkg;!PYTHONPATH!",
+            "      set predef_class_file=%XILINX_VITIS%/cli/vitis/_predefined_classes.txt",
+            "      if exist \"!predef_class_file!\" (",
+            "        FOR /F \"tokens=* delims=, \" %%x in (!predef_class_file!) DO (",
+            "          set list=%%x",
+            "          for %%a in (!list!) do (",
+            "            if ^'!sourceWithoutExtension!^' == %%a (",
+            "              echo Error: The file name ^'!sourceWithoutExtension!^.py^' conflicts with Vitis pre-defined module names. ",
+            "              echo Using this file name may cause unexpected behavior. Please change the file name.",
+            "              echo For full list of pre-defined module name please refer !predef_class_file!",
+            "              exit /b 1",
+            "            )",
+            "          )",
+            "        )",
+            "      )",
+            "      python.exe %args_for_source%"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\_server.py",
+      "sha256": "2dc671f21afcaefa3223c125c5a1cdcdbebdd9fda4360b4e38bd99c92214e368",
+      "excerpts": [
+        {
+          "start_line": 120,
+          "end_line": 143,
+          "lines": [
+            "            if (platform.system() == \"Windows\"):",
+            "                serverBinFile +=\".bat\"",
+            "            if (os.path.exists(serverBinFile)):",
+            "                serverCmd = os.path.abspath(serverBinFile)",
+            "                # Starting the server with mentioned port",
+            "                if(self.serverPort != None):",
+            "                    serverCmd += \" -p \" + str(self.serverPort)",
+            "",
+            "                if (platform.system() == \"Windows\"):",
+            "                    self.cp = subprocess.Popen(serverCmd, shell = True, start_new_session=True, ",
+            "                                            stdout = subprocess.PIPE, stderr =  subprocess.STDOUT, ",
+            "                                            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)",
+            "                else:",
+            "                    self.cp = subprocess.Popen(serverCmd, shell = True, start_new_session=True, stdout = subprocess.PIPE, stderr =  subprocess.STDOUT)",
+            "                # Read port from the server log",
+            "                if(self.serverPort==None):",
+            "                    for line in iter(self.cp.stdout.readline,''):",
+            "                        line = str(line, 'utf-8')",
+            "                        if(\"serverPort\" in line):",
+            "                            line = re.split(r\"\\{(.*?)\\}\", line)[1]",
+            "                            line = json.loads('{'+line+'}')",
+            "                            self.serverPort = int(line['serverPort'])",
+            "                            break",
+            "                return True"
+          ]
+        },
+        {
+          "start_line": 172,
+          "end_line": 188,
+          "lines": [
+            "    def stop(self):",
+            "        if self.cp:",
+            "            #TODO: Fix for CR-1136659",
+            "            # \"Exception in thread Thread-1:\" error observed in Linux console when running simple vitis cli tests",
+            "            time.sleep(0.2)",
+            "            print(f\"Shutting down Vitis server running on port '{self.serverPort}'\")",
+            "            self.channel.close()",
+            "            #  self.cp.terminate()",
+            "            if (platform.system() == \"Windows\"):",
+            "                self.cp.kill()",
+            "            else:",
+            "                os.killpg(os.getpgid(self.cp.pid), signal.SIGTERM)",
+            "            self.cp = None",
+            "            self.serverPort = None",
+            "            self.host = None",
+            "            self.workspace = None",
+            "            self.channel = None"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\vitis\\__init__.py",
+      "sha256": "345e97d19f1254f410172d9126e667379cc0a6f43771835a70130908a5c1222a",
+      "excerpts": [
+        {
+          "start_line": 70,
+          "end_line": 84,
+          "lines": [
+            "    global cli_client_obj",
+            "    if (cli_client_obj != None):",
+            "        try:",
+            "            cli_client_obj._serverObj.stop()",
+            "            del cli_client_obj._serverObj",
+            "            del cli_client_obj._hlsComponentObj",
+            "            del cli_client_obj._aieComponentObj",
+            "            del cli_client_obj._hostComponentObj",
+            "            del cli_client_obj._repoObj",
+            "            del cli_client_obj._projObj",
+            "            del cli_client_obj._loggerObj",
+            "            del cli_client_obj._platformObj",
+            "            del cli_client_obj._vcxxObj",
+            "            del cli_client_obj._analysisObj",
+            "        except AttributeError:"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis-server.bat",
+      "sha256": "99b3480b039b03ba1c07653198df457a11caafc061c183ab99f5e6d89a4af534",
+      "excerpts": [
+        {
+          "start_line": 160,
+          "end_line": 165,
+          "lines": [
+            ":mp_done",
+            "if defined PATCH_VITIS_SERVER_DIR (",
+            "  \"%JAVA_EXE%\" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %VITISNG_SERVER_OPTS%  -classpath \"!PATCH_VITIS_SERVER_DIR!/vitis-server/lib/*;%XILINX_VITIS%/vitis-server/lib/*\" com.xilinx.rigel.app.RigelApp %*",
+            ") else (",
+            "  \"%JAVA_EXE%\" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %VITISNG_SERVER_OPTS%  -classpath \"%XILINX_VITIS%/vitis-server/lib/*\" com.xilinx.rigel.app.RigelApp %*",
+            ")"
+          ]
+        }
+      ]
+    }
+  ],
+  "interpretation": "vitis.bat的-s分支运行Python CLI脚本；Python server包装器在Windows以shell=True启动vitis-server.bat，stop()只kill持有的Popen对象且没有wait()/后代清理。其Popen PID不必是Java服务PID，因此这些代码只能支持残留后代假设，不能确认历史Job PID 9332。"
+}

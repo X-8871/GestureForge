@@ -74,7 +74,7 @@ MANUAL_TRUST_ROOT_CLAIM = {
 # 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
 # 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0候选审查与官方POR语义分别由下方固定锚点绑定。
 # 首个受控sample000按冻结规程使用有限最大期限；最终部署期限仍须在G4/G5量化。
-TRUSTED_REVIEW_ANCHOR = None
+TRUSTED_REVIEW_ANCHOR = {'path': 'report/evidence/S2B-T19/qualification_single_sample_review_20261017_r01/qualification_receipt.json', 'sha256': '8a64ad5266daac63a1a6a92ec5ce9fc56e66c35b9d28e8f3b6675b6c3ecd09b8'}
 TRUSTED_G0_ANCHOR = {
     'path': 'report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r02/independent_g0_review_outcome.json',
     'sha256': '0540f3ab8d7e27b87a739c520f5228bb3b9186e2733e9fb6bb2d6bec05accc53',

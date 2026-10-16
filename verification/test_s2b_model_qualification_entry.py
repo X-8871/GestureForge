@@ -201,7 +201,7 @@ class ConfigGateTests(unittest.TestCase):
         pinned = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
         cfg["qualification_receipt"] = pinned
         raw = ENTRY_PATH.read_bytes()
-        old = b"TRUSTED_REVIEW_ANCHOR = None"
+        old = b"TRUSTED_REVIEW_ANCHOR = " + repr(ENTRY.TRUSTED_REVIEW_ANCHOR).encode("utf-8")
         replacement = b"TRUSTED_REVIEW_ANCHOR = {'path': 'replacement.json', 'sha256': '" + b"d" * 64 + b"'}"
         self.assertEqual(raw.count(old), 1)
         with tempfile.TemporaryDirectory(prefix="s2b_changed_entry_anchor_") as raw_dir:
@@ -289,7 +289,7 @@ class ConfigGateTests(unittest.TestCase):
     def test_coordinated_anchor_config_and_receipt_rewrite_cannot_replace_reviewer_root(self):
         raw = ENTRY_PATH.read_bytes()
         fake_anchor = {"path": str(ROOT / "forged-review.json"), "sha256": "e" * 64}
-        old = b"TRUSTED_REVIEW_ANCHOR = None"
+        old = b"TRUSTED_REVIEW_ANCHOR = " + repr(ENTRY.TRUSTED_REVIEW_ANCHOR).encode("utf-8")
         replacement = b"TRUSTED_REVIEW_ANCHOR = " + repr(fake_anchor).encode("utf-8")
         self.assertEqual(raw.count(old), 1)
         with tempfile.TemporaryDirectory(prefix="s2b_coordinated_rewrite_") as raw_dir:
@@ -433,6 +433,7 @@ class OfflineR04SourceAnchorTests(unittest.TestCase):
 
 
 class R04QualificationBindingTests(unittest.TestCase):
+    @patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None)
     @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
     def test_candidate_config_carries_fixed_current_g0_and_cold_anchors(self):
         cfg = R05.build_candidate_config()
@@ -441,6 +442,8 @@ class R04QualificationBindingTests(unittest.TestCase):
 
     @patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None)
     @patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None)
+    @patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None)
+    @patch.object(ENTRY, "read_trusted_review_anchor", new=lambda path: None)
     @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
     def test_r04_static_elf_xsa_binding_passes_but_all_anchor_gates_block(self):
         build_identity = R05.verify_r04_build()
@@ -468,6 +471,7 @@ class R04QualificationBindingTests(unittest.TestCase):
 
     @patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None)
     @patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None)
+    @patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None)
     @patch.object(R05, "load_modules", new=lambda: (ENTRY, *ENTRY.helpers()[::2]))
     def test_each_missing_anchor_is_reported_as_a_hard_gate(self):
         cfg = R05.build_candidate_config()
@@ -509,6 +513,7 @@ class SideEffectAndFailureTests(unittest.TestCase):
             cfg = valid_config(str(requested))
             config_path.write_text(json.dumps(cfg), encoding="utf-8")
             with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None), \
+                 patch.object(ENTRY, "read_trusted_review_anchor", return_value=None), \
                  patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None), \
                  patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None), \
                  patch.object(ENTRY, "helpers", return_value=ENTRY.helpers()), \

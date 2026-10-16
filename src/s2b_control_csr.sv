@@ -51,6 +51,7 @@ module s2b_control_csr (
             weight_addr, weight_bytes, core_timeout, drain_timeout;
         logic [31:0] error_code, last_reject, fault_logical, fault_physical;
         logic [4:0] fault_detail;
+        logic fault_response_seen;
         logic first_selected, first_pending, isolated, owner, head;
         logic [3:0] status_shadow;
         logic arming_idle;
@@ -244,6 +245,7 @@ module s2b_control_csr (
                         d.epoch=q.epoch+64'd1; d.active_frame=q.frame; d.last_reject=0;
                         d.error_code=0; d.first_selected=0; d.first_pending=0;
                         d.fault_logical=0; d.fault_physical=0; d.fault_detail=0;
+                        d.fault_response_seen=0;
                         d.head=0; d.arming_idle=0; d.config_step=0; d.arming_cycles=0;
                         d.diagnostic_status=0; d.diagnostic_error=0; d.reset_sent=0;
                         d.reset_age=0; d.stop_confirmed=0; d.drain_cycles=0;
@@ -290,6 +292,7 @@ module s2b_control_csr (
         if (clear_safe) begin
             d.state=IDLE_PS; d.head=0; d.first_selected=0; d.first_pending=0;
             d.error_code=0; d.fault_logical=0; d.fault_physical=0; d.fault_detail=0;
+            d.fault_response_seen=0;
             d.withdrawn_seen=0; d.withdrawn_cycles=0; d.ack_pending=0;
             if (ack_commit) begin d.bvalid=1; d.bresp=OKAY; end
         end
@@ -311,8 +314,13 @@ module s2b_control_csr (
                 if (fault_event_address_valid) begin
                     d.fault_logical=fault_event_address; d.fault_physical=fault_event_physical_address;
                 end
-                d.fault_detail[2:0]={fault_event_write,fault_event_resp};
             end
+        end
+        // 首个整体故障与首个AXI响应独立记录，较晚的AXI事件仍补齐响应元数据。
+        if (fault_event_valid && fault_event_code>=8'd9 && fault_event_code<=8'd11 &&
+            !q.fault_response_seen) begin
+            d.fault_detail[2:0]={fault_event_write,fault_event_resp};
+            d.fault_response_seen=1;
         end
         if (fault_event_valid && fault_event_protocol || protocol_isolated || !epoch_ledger_ok) begin
             d.isolated=1; d.fault_detail[4]=1;

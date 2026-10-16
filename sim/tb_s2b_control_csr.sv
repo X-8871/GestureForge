@@ -141,6 +141,9 @@ module tb_s2b_control_csr;
     int start_count=0, config_count=0, reset_cycle=-1, reset_count=0, ack_count=0, phase=0;
     int status_count=0, error_count=0, debug_count=0;
     int logical_responses=0;
+    int unsigned fail_id=0;
+    int diagnostic_case_id=0;
+    string diagnostic_site="none";
     localparam int WATCHDOG_CYCLE_LIMIT=100000;
     string progress_stage="startup";
     int phase_coverage[4]='{default:0};
@@ -160,7 +163,17 @@ module tb_s2b_control_csr;
             WATCHDOG_CYCLE_LIMIT,progress_stage,cycles,directed,random_count,integration_count,phase);
     end
     task automatic must(input logic cond, input string text);
-        if (!cond) $fatal(1,"cycle=%0d directed=%0d integration=%0d %s",cycles,directed,integration_count,text);
+        fail_id++;
+        if (!cond) begin
+            $display("FAIL_DIAG FAIL_ID=%0d CASE_ID=%0d SITE=%s stage=%s cycle=%0d directed=%0d random=%0d integration=%0d phase=%0d AWVALID=%b AWREADY=%b WVALID=%b WREADY=%b BVALID=%b RVALID=%b RREADY=%b RRESP=%b RDATA=%08x ARADDR=%08x q_aw_held=%b q_w_held=%b q_bvalid=%b q_ack_pending=%b q_state=%0d q_epoch=%016x d_aw_held=%b d_w_held=%b d_bvalid=%b d_ack_pending=%b d_state=%0d d_epoch=%016x",
+                fail_id,diagnostic_case_id,diagnostic_site,progress_stage,cycles,directed,random_count,
+                integration_count,phase,s_axi_awvalid,s_axi_awready,s_axi_wvalid,s_axi_wready,s_axi_bvalid,
+                s_axi_rvalid,s_axi_rready,s_axi_rresp,s_axi_rdata,s_axi_araddr,
+                dut.q.aw_held,dut.q.w_held,dut.q.bvalid,dut.q.ack_pending,dut.q.state,dut.q.epoch,
+                dut.d.aw_held,dut.d.w_held,dut.d.bvalid,dut.d.ack_pending,dut.d.state,dut.d.epoch);
+            $fatal(1,"cycle=%0d directed=%0d integration=%0d %s",cycles,directed,integration_count,text);
+        end
+        diagnostic_site="none";
     endtask
     task automatic tick();
         #1;
@@ -232,18 +245,18 @@ module tb_s2b_control_csr;
         int wait_count;
         s_axi_awaddr=addr; s_axi_wdata=data; s_axi_wstrb=mask;
         if(skew<0) begin
-            s_axi_wvalid=1; #1; must(s_axi_wready,"写数据真实准入"); tick(); s_axi_wvalid=0;
-            #1; must(!s_axi_wready && s_axi_awready,"W独立单槽"); idle_ticks(-skew);
-            s_axi_awvalid=1; #1; must(s_axi_awready,"W先写地址准入"); tick(); s_axi_awvalid=0;
+            s_axi_wvalid=1; #1; diagnostic_site="W_ADMISSION"; must(s_axi_wready,"写数据真实准入"); tick(); s_axi_wvalid=0;
+            #1; diagnostic_site="W_ONLY_SLOT"; must(!s_axi_wready && s_axi_awready,"W独立单槽"); idle_ticks(-skew);
+            s_axi_awvalid=1; #1; diagnostic_site="W_FIRST_ADDRESS_ADMISSION"; must(s_axi_awready,"W先写地址准入"); tick(); s_axi_awvalid=0;
         end else begin
-            s_axi_awvalid=1; #1; must(s_axi_awready,"写地址真实准入"); tick(); s_axi_awvalid=0;
-            #1; must(!s_axi_awready && s_axi_wready,"AW独立单槽"); idle_ticks(skew);
-            s_axi_wvalid=1; #1; must(s_axi_wready,"AW先写数据准入"); tick(); s_axi_wvalid=0;
+            s_axi_awvalid=1; #1; diagnostic_site="AW_ADMISSION"; must(s_axi_awready,"写地址真实准入"); tick(); s_axi_awvalid=0;
+            #1; diagnostic_site="AW_ONLY_SLOT"; must(!s_axi_awready && s_axi_wready,"AW独立单槽"); idle_ticks(skew);
+            s_axi_wvalid=1; #1; diagnostic_site="AW_FIRST_DATA_ADMISSION"; must(s_axi_wready,"AW先写数据准入"); tick(); s_axi_wvalid=0;
         end
         wait_count=0;
         while(!s_axi_bvalid && wait_count<100) begin tick(); wait_count++; end
-        must(s_axi_bvalid && s_axi_bresp==resp,"写响应或超时");
-        must(!s_axi_awready && !s_axi_wready,"B等待期间两写槽保持关闭");
+        diagnostic_site="B_RESPONSE_OR_TIMEOUT"; must(s_axi_bvalid && s_axi_bresp==resp,"写响应或超时");
+        diagnostic_site="B_WAIT_SLOTS_CLOSED"; must(!s_axi_awready && !s_axi_wready,"B等待期间两写槽保持关闭");
         idle_ticks(bstall); s_axi_bready=1; tick(); s_axi_bready=0;
     endtask
     task automatic read_reg(input logic [31:0] addr, expected, input logic [1:0] resp=0, input int stall=0);
@@ -255,6 +268,9 @@ module tb_s2b_control_csr;
         must(s_axi_arready,"读准入超时"); ar_wait_count=wait_count; tick(); s_axi_arvalid=0;
         wait_count=0;
         while(!s_axi_rvalid && wait_count<20) begin tick(); wait_count++; end
+        if (!(s_axi_rvalid && s_axi_rresp==resp && s_axi_rdata==expected))
+            $display("CSR_READ_FAIL addr=%08x expected_data=%08x actual_data=%08x expected_resp=%0d actual_resp=%0d rvalid=%b ar_wait=%0d r_wait=%0d cycle=%0d",
+                addr,expected,s_axi_rdata,resp,s_axi_rresp,s_axi_rvalid,ar_wait_count,wait_count,cycles);
         must(s_axi_rvalid && s_axi_rresp==resp && s_axi_rdata==expected,
             $sformatf("CSR读失败 stage=%s cycles=%0d addr=0x%08x expected_rdata=0x%08x actual_rdata=0x%08x expected_rresp=%0d actual_rresp=%0d rvalid=%b ar_wait_count=%0d r_wait_count=%0d",
                 progress_stage,cycles,addr,expected,s_axi_rdata,resp,s_axi_rresp,s_axi_rvalid,ar_wait_count,wait_count));
@@ -467,10 +483,26 @@ module tb_s2b_control_csr;
         initialize(0); m_axi_rvalid=1; m_axi_rresp=1; tick(); m_axi_rvalid=0;
         idle_ticks(20); read_state(6); read_reg(32'h43c00010,11); read_reg(32'h43c00074,17);
         write_reg(32'h43c00008,1,2); write_reg(32'h43c00008,4,2); directed++;
-        // 白盒仅用于不可实际等待2^64次的耗尽corner，不改变硬件初始化ABI。
-        initialize(1); configure(); force dut.q.epoch=64'hffffffffffffffff;
-        write_reg(32'h43c00008,1,2); read_reg(32'h43c00064,6); read_state(0);
-        release dut.q.epoch; initialize(1); read_reg(32'h43c00050,0); directed++;
+        // 白盒在无时钟沿窗口注入耗尽epoch，避免force冻结整个q结构。
+        initialize(1); configure();
+        diagnostic_case_id=1801;
+        $display("CASE_BEGIN CASE_ID=1801 name=epoch_exhaustion_start_write");
+        force dut.q.epoch=64'hffffffffffffffff;
+        #1;
+        release dut.q.epoch;
+        #1;
+        must(dut.q.epoch==64'hffffffffffffffff,"单沿注入后epoch保持MAX");
+        must(dut.q.phase==2'(phase),"注入释放后DUT与TB相位一致");
+        read_reg(32'h43c00050,32'hffffffff); read_reg(32'h43c00054,32'hffffffff);
+        read_state(0);
+        must(dut.q.epoch==64'hffffffffffffffff,"公开START前q.epoch仍为MAX");
+        write_reg(32'h43c00008,1,2);
+        read_reg(32'h43c00064,6); read_state(0);
+        read_reg(32'h43c00050,32'hffffffff); read_reg(32'h43c00054,32'hffffffff);
+        must(dut.q.epoch==64'hffffffffffffffff,"拒绝START后epoch保持MAX");
+        initialize(1); read_reg(32'h43c00050,0); read_reg(32'h43c00054,0); directed++;
+        $display("CASE_END CASE_ID=1801");
+        diagnostic_case_id=0;
         // 集成四种AW/W独立停顿：ABORT后VALID不撤回，缺失通道最终合法闭合。
         for(int accepts=0;accepts<4;accepts++) begin
             initialize(0); configure(1000,8); start_run(); launch_memory(1);

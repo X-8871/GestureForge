@@ -4,6 +4,12 @@
 
 ## 当前目标与器件基本事实
 
+- 2026-10-16当前进展覆盖下列旧阻断记录：R07 CSR完整矩阵及`csr_final_review`独立R08完整XSim复跑通过，均为146 directed/128 random/25 integration/6362 cycles、两类四相位全1；原生三阶段退出0且Job清理确认。CSR源码SHA `4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1`，TB SHA `04afb9a9d3a154c415b40effb2bf47c955c858d0cf203da20b3a0f170f88112a`。修复首AXI故障响应metadata独立锁存；旧位流不自动继承此修复。入口`report/evidence/S2B-T11/control_r18_xsim_first_axi_20261016_r07/`与`control_r18_independent_20261016_r08/`。G2仅限RTL/接口，不是实板通过。
+- 2026-10-16 Wong明确DDR“以手册为准”：继续采用手册第12页`MT41K256M16TW-107`配置，不再等待厂家回复才推进已授权的易失板上验证；仍不声称D9PSK实装解码或DDR实测通过。见`board/README.md`。外部断电重启及后续独占操作确认已向用户请求，尚待回复。
+- Vitis实际候选r02内部BSP/ELF/MMU离线通过，但外层Job十秒后仍有成员，整体FAIL；新受控server/client真实probe r01也FAIL，SDK公开port连接仍创建额外启动进程，专属server终态身份证明不匹配。两次均未操作板卡；正修复SDK兼容连接与专属Job收尾。100样本/1000任务仍NOT_RUN，2B未冻结。
+
+- 2026-10-16 Wong最新明确：子agent只用`gpt-6-luna`/`high`，总控用`gpt-6.1-sol`/`high`；覆盖旧模型偏好。本轮已用显式spawn参数新建`csr_fast_fix`、`vitis_fast_cleanup`，不再续用未能指定新参数的旧子agent。工具未提供当前总控模型查询/切换接口，不能宣称已切换当前运行模型。今日优先2B冻结关键路径，合并重复检查、减少非必要工具层防御扩展；正式独审、实板100样本/1000任务与真实证据标准不降。
+
 - 本窗口是阶段2B总控：持续完成固定模型部署、至少100个黄金样本、1000次连续任务与异常恢复，直至2B G5；不自动进入阶段3或推送。
 - AX7020实物器件为 XC7Z020-2CLG400I，Vivado part为 xc7z020clg400-2，时序按 -2。Wong于2026-10-14明确确认此前照片中的同一块板也是该型号；旧XA解读不再作为身份冲突或部署阻断。
 - 本轮实际Vivado查询唯一匹配XC7Z020/CLG400/-2，主XPR项目、综合、实现三个字段及visibility=1会话均匹配。当前事实入口为 board/README.md；厂商原件目录 D:\FPGA\AX7Z020\AX7Z020 保持只读。

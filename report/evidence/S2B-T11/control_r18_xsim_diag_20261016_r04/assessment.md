@@ -1,0 +1,11 @@
+# 原持续force刺激的精确诊断：FAIL
+
+本Run使用已提交2bd977a中的监督器c1f1eb73…及已审TB诊断版379bbccd…，原RTL、刺激、seed和覆盖判据不变。Windows启动前psutil对PID236返回空名称，原host_prelaunch.json保持ready=false；独立审查通过的补充脚本以原生完整336项进程名快照核对该PID当前名称为Secure System，没有重型工具或未知名称，RAM6727163904字节、磁盘87783698432字节，原门槛未变。该快照不是其他会话生命周期或设备独占证明。
+
+三个阶段原生退出均为0，资源监督和Job清理均PASS：compile约2.437秒，elaborate约7.360秒，simulation约4.610秒。原始日志的Fatal使驱动退出1，整轮FAIL，不以原生退出0代替矩阵验收。
+
+ASCII诊断精确显示cycle=3308、directed=130、random=128、integration=0、CASE_ID=1801、SITE=AW_ONLY_SLOT。AWVALID=0、AWREADY=1、WVALID=0、WREADY=1、BVALID=0，q/d的aw_held、w_held、bvalid、ack_pending均为0，state均为0，epoch均为ffffffffffffffff。即最大epoch白盒持续force后的AW独立槽断言失败；这是具体观测，不是AW超时。没有完整PASS标记或25项集成终态。
+
+持续force与packed struct整体更新的交互仍需对照，不能仅凭该日志宣布工具缺陷或修改RTL。后续新Run将短暂注入后在首个时钟前release，并检查公开CSR的最大epoch、拒绝响应和状态保持；本Run原刺激、结果和日志不改。
+
+failure_waveform.wdb和xsim_native.jou是关闭后的真实波形与命令原件，用于必要AW/epoch时序复查，本评估未解析WDB。原result.json SHA-256为11edaefc962a7f7d8b3710323f085be7902c2136d52ad35eedb421ac0983604a，原delivery_manifest.json SHA-256为190842085c3678f304a67451c36164a79162807bcd6090d1b79e7db565692585，原件保留；历史补充清单以冻结快照绑定实际源码，避免后续TB修复导致旧Run误读当前源码。没有任何板卡操作。

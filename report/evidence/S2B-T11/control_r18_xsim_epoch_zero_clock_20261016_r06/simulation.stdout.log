@@ -1,0 +1,58 @@
+
+****** xsim v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Fri Oct 16 12:10:34 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/tb_s2b_control_csr_behav/xsim_script.tcl
+# xsim {tb_s2b_control_csr_behav} -autoloadwcfg -tclbatch {tb_s2b_control_csr.tcl} -key {Behavioral:sim_1:Functional:tb_s2b_control_csr}
+Time resolution is 1 ps
+source tb_s2b_control_csr.tcl
+## set curr_wave [current_wave_config]
+## if { [string length $curr_wave] == 0 } {
+##   if { [llength [get_objects]] > 0} {
+##     add_wave /
+##     set_property needs_save false [current_wave_config]
+##   } else {
+##      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+##   }
+## }
+## run 2ms
+PROGRESS stage=directed_csr_and_random cycles=0 directed=0 random=0 integration=0 phase=0
+PROGRESS checkpoint cycles=512 stage=directed_csr_and_random directed=101 random=7 integration=0 phase=3
+PROGRESS checkpoint cycles=1024 stage=directed_csr_and_random directed=101 random=56 integration=0 phase=3
+PROGRESS checkpoint cycles=1536 stage=directed_csr_and_random directed=101 random=104 integration=0 phase=3
+PROGRESS stage=mock_csr_recovery_and_phase_coverage cycles=1790 directed=101 random=128 integration=0 phase=1
+PROGRESS checkpoint cycles=2048 stage=mock_csr_recovery_and_phase_coverage directed=106 random=128 integration=0 phase=0
+PROGRESS checkpoint cycles=2560 stage=mock_csr_recovery_and_phase_coverage directed=116 random=128 integration=0 phase=1
+PROGRESS checkpoint cycles=3072 stage=mock_csr_recovery_and_phase_coverage directed=125 random=128 integration=0 phase=2
+CASE_BEGIN CASE_ID=1801 name=epoch_exhaustion_start_write
+CASE_END CASE_ID=1801
+PROGRESS checkpoint cycles=3584 stage=mock_csr_recovery_and_phase_coverage directed=131 random=128 integration=2 phase=1
+PROGRESS stage=runtime_shell_adapter_integration cycles=4036 directed=131 random=128 integration=8 phase=2
+PROGRESS checkpoint cycles=4096 stage=runtime_shell_adapter_integration directed=131 random=128 integration=8 phase=3
+PROGRESS checkpoint cycles=4608 stage=runtime_shell_adapter_integration directed=131 random=128 integration=17 phase=2
+PROGRESS stage=ack_restart_and_old_response_drain cycles=5104 directed=131 random=128 integration=25 phase=3
+PROGRESS checkpoint cycles=5120 stage=ack_restart_and_old_response_drain directed=131 random=128 integration=25 phase=3
+PROGRESS stage=restart_after_error_ack cycles=5193 directed=131 random=128 integration=25 phase=0
+PROGRESS stage=second_epoch_done_state_check cycles=5249 directed=131 random=128 integration=25 phase=0
+PROGRESS stage=second_epoch_done_ack cycles=5251 directed=131 random=128 integration=25 phase=2
+PROGRESS stage=late_protocol_after_first_error cycles=5311 directed=133 random=128 integration=25 phase=3
+PROGRESS stage=start_rejected_in_arming cycles=5413 directed=134 random=128 integration=25 phase=1
+PROGRESS stage=done_blocked_by_core_mem_valid cycles=5440 directed=135 random=128 integration=25 phase=2
+PROGRESS stage=done_blocked_by_unfinished_ledger cycles=5515 directed=136 random=128 integration=25 phase=2
+PROGRESS stage=start_rejected_recovering_and_wrong_epoch cycles=5590 directed=137 random=128 integration=25 phase=2
+PROGRESS checkpoint cycles=5632 stage=start_rejected_recovering_and_wrong_epoch directed=137 random=128 integration=25 phase=1
+PROGRESS stage=late_invalid_rid_or_last_0 cycles=5681 directed=138 random=128 integration=25 phase=2
+PROGRESS stage=late_invalid_rid_or_last_1 cycles=5749 directed=139 random=128 integration=25 phase=3
+PROGRESS stage=late_exokay_r_after_first_error cycles=5817 directed=140 random=128 integration=25 phase=3
+CSR_READ_FAIL addr=43c00074 expected_data=00000011 actual_data=00000010 expected_resp=0 actual_resp=0 rvalid=1 ar_wait=0 r_wait=0 cycle=5877
+FAIL_DIAG FAIL_ID=32309 CASE_ID=0 SITE=none stage=late_exokay_r_after_first_error cycle=5877 directed=140 random=128 integration=25 phase=3 AWVALID=0 AWREADY=1 WVALID=0 WREADY=1 BVALID=0 RVALID=1 RREADY=0 RRESP=00 RDATA=00000010 ARADDR=43c00074 q_aw_held=0 q_w_held=0 q_bvalid=0 q_ack_pending=0 q_state=6 q_epoch=0000000000000001 d_aw_held=0 d_w_held=0 d_bvalid=0 d_ack_pending=0 d_state=6 d_epoch=0000000000000001
+Fatal: cycle=5877 directed=140 integration=25 CSR读失败 stage=late_exokay_r_after_first_error cycles=5877 addr=0x43c00074 expected_rdata=0x00000011 actual_rdata=0x00000010 expected_rresp=0 actual_rresp=0 rvalid=1 ar_wait_count=0 r_wait_count=0
+Time: 60558 ns  Iteration: 0  Process: /tb_s2b_control_csr/must  Scope: tb_s2b_control_csr.must  File: D:/FPGA_Competition/w2b/report/evidence/S2B-T11/control_r18_xsim_epoch_zero_clock_20261016_r06/preflight/source_snapshot/tb_s2b_control_csr.sv Line: 174
+$finish called at time : 60558 ns
+## quit
+INFO: [Common 17-206] Exiting xsim at Fri Oct 16 12:10:37 2026...

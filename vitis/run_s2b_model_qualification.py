@@ -71,11 +71,11 @@ MANUAL_TRUST_ROOT_CLAIM = {
 # 该Reviewer原件只作为Wong批准的人工信任依据；它不是密码签名，也不证明本资格收据已获审查。
 # canonical v1只规范化本行来打破收据SHA与入口SHA的循环；其余入口原字节均参与SHA。
 # 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
-# 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0、POR和timeout测量锚点仍缺失并保持fail-closed。
+# 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0与POR锚点仍需固定。
+# 首个受控sample000按冻结规程使用有限最大期限；最终部署期限仍须在G4/G5量化。
 TRUSTED_REVIEW_ANCHOR = None
 TRUSTED_G0_ANCHOR = None
 TRUSTED_COLD_ANCHOR = None
-TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR = None
 
 
 class QualificationError(RuntimeError):
@@ -242,14 +242,13 @@ def validate_config(cfg):
     for key, value in (("sample_index", 0), ("frame", 0), ("repeat", 1)):
         integer(cfg[key], value, value, key)
     for key in ("core_timeout_cycles", "drain_timeout_cycles"):
-        if cfg[key] is None:
-            require(TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR is None,
-                    key + "缺少已固定的测量值")
-        else:
-            integer(cfg[key], 1, 0xFFFFFFFF, key)
+        integer(cfg[key], 1, 0xFFFFFFFF, key)
+    require(cfg["timeout_basis"] is None and
+            cfg["core_timeout_cycles"] == 0xFFFFFFFF and
+            cfg["drain_timeout_cycles"] == 0xFFFFFFFF,
+            "首个受控样本必须使用冻结规程规定的最大有限上限，不接受未审核期限依据")
     integer(cfg["response_timeout_seconds"], 450, 450, "response_timeout_seconds")
-    for key, anchor in (("g0_basis", TRUSTED_G0_ANCHOR),
-                        ("timeout_basis", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR)):
+    for key, anchor in (("g0_basis", TRUSTED_G0_ANCHOR),):
         item = cfg[key]
         if item is None:
             require(anchor is None, key + "缺少已固定的依据")
@@ -280,9 +279,6 @@ def hardware_enablement_gaps(cfg):
          "针对XC7Z020-2CLG400I及当前PCB/DDR资料、接口版本、部署范围和正式验收标准的批准依据路径及SHA"),
         ("TRUSTED_COLD_ANCHOR", TRUSTED_COLD_ANCHOR, cfg.get("cold_basis"),
          "操作者签认的外部POR记录及POR后独占保管/无HP探针证据链路径和SHA，时间须为UTC+8"),
-        ("TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR,
-         cfg.get("timeout_basis"),
-         "CORE与DRAIN期限上界的实测依据路径和SHA，并绑定已核定的非零周期值"),
     )
     for name, anchor, configured, needed in anchors:
         if anchor is None:
@@ -307,8 +303,7 @@ def require_hardware_enablement(cfg):
     review = document(cfg["qualification_receipt"])
     validate_qualification_reviewer_claim(review)
     rows = (("正式G0依据", TRUSTED_G0_ANCHOR, cfg["g0_basis"]),
-            ("外部POR/冷生命周期依据", TRUSTED_COLD_ANCHOR, cfg["cold_basis"]),
-            ("CORE/DRAIN部署期限测量依据", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR, cfg["timeout_basis"]))
+            ("外部POR/冷生命周期依据", TRUSTED_COLD_ANCHOR, cfg["cold_basis"]))
     for label, anchor, configured in rows:
         require(type(anchor) is dict and set(anchor) == {"path", "sha256"},
                 "BLOCKED：缺少总控固定的" + label + "锚点；运行配置不可自行授权")
@@ -594,8 +589,8 @@ def run(config_path, *, offline_only=False):
               "limitations": ["单样本资格不代表全T18 G0、109样本、1000连续任务或恢复验收。",
                               "收据来源及人工独占链由真实Reviewer独立核查，角色字符串不能自行证明。",
                               "不伪测公开CSR没有提供的精确PL周期；本实现不并发TCF轮询。",
-                              "core/drain为测量期限，尚非实测部署上界；SDK system-stop不等于POR。",
-                              "当前未固定可信Reviewer、G0、POR/冷生命周期或CORE/DRAIN测量锚点，真实硬件执行保持BLOCKED。",
+                              "首个受控样本的CORE/DRAIN使用冻结规程规定的最大有限上限；这不是实测部署上界，最终期限须在G4/G5量化。SDK system-stop不等于POR。",
+                              "当前未固定可信Reviewer、G0及POR/冷生命周期锚点，真实硬件执行保持BLOCKED。",
                               "response_timeout_seconds单位为秒，仅限UART响应观察，不替代PL CORE/DRAIN周期上限。"]}
     log = p.Recorder(folder / "entry_calls.jsonl", record)
     sdk = session = channel = port = controller = wire = None

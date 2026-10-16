@@ -9,13 +9,13 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).absolute().parents[1]
-RUN_ID = "single_sample_qualification_20261017_r09"
-PREP_DIR = ROOT / "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r09"
+RUN_ID = "single_sample_qualification_20261017_r11"
+PREP_DIR = ROOT / "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r11"
 CONFIG_PATH = PREP_DIR / "qualification_config.json"
 INPUT_MANIFEST_PATH = PREP_DIR / "r05_input_manifest.json"
 PREFLIGHT_REPORT_PATH = PREP_DIR / "offline_preflight_report.json"
 DELIVERY_PATH = PREP_DIR / "delivery_manifest.json"
-FUTURE_RUN_DIR = ROOT / "report/evidence/S2B-T19/single_sample_qualification_20261017_r09"
+FUTURE_RUN_DIR = ROOT / "report/evidence/S2B-T19/single_sample_qualification_20261017_r11"
 R04_RUN_DIR = ROOT / "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04"
 R04_ARTIFACT_DIR = ROOT / "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts"
 R04_RUN_DELIVERY = R04_RUN_DIR / "delivery_manifest.json"
@@ -255,8 +255,8 @@ def build_candidate_config() -> dict:
         "sample_index": 0,
         "frame": 0,
         "repeat": 1,
-        "core_timeout_cycles": None,
-        "drain_timeout_cycles": None,
+        "core_timeout_cycles": 0xFFFFFFFF,
+        "drain_timeout_cycles": 0xFFFFFFFF,
         "response_timeout_seconds": 450,
         "g0_basis": None,
         "timeout_basis": None,
@@ -308,7 +308,7 @@ def build_offline_report(config: dict, build_identity: dict, model_inputs: dict)
             "本报告仅说明静态候选绑定与实际缺失门禁；不授权任何板卡、串口、XSDB、PS初始化或DDR访问。",
             "R04原始input_record.json仍为FAIL且硬件NOT_RUN，未修改。",
             "不表示单样本、109样本、1000连续任务或G3/G4/G5通过。",
-            "所有缺少的Reviewer、G0、外部POR/保管链和CORE/DRAIN期限测量依据均需真实外部证据及总控固定路径/SHA。",
+            "Reviewer、G0及外部POR/保管链仍须真实证据及总控固定路径/SHA；首个受控样本按冻结规程使用最大有限CORE/DRAIN上限，最终部署期限测量仍须在G4/G5完成。",
         ],
     }
 
@@ -462,7 +462,7 @@ def r05_delivery_manifest(config: dict, input_manifest: dict, report: dict) -> d
         extra_checks=[{"name": "R04静态绑定与离线preflight", "status": "BLOCKED",
                        "command": "prepare_s2b_model_qualification_r05_offline.py --write-evidence",
                        "exit_code": None,
-                       "reason": "R04候选文件绑定已检查；正式Reviewer、G0、POR/保管链、CORE/DRAIN测量锚点缺失，资格门保持BLOCKED。"},
+                       "reason": "R04候选文件绑定已检查；当前Reviewer、G0、POR/保管链锚点缺失，资格门保持BLOCKED。CORE/DRAIN首测期限使用最大有限上限，最终部署期限测量仍属G4/G5。"},
                       {"name": "单样本板卡资格", "status": "NOT_RUN", "command": "NOT_RUN",
                        "exit_code": None, "reason": "本Run仅准备离线配置与证据绑定，不执行qualification main或硬件。"},
                       {"name": "109样本与1000连续任务", "status": "NOT_RUN", "command": "NOT_RUN",

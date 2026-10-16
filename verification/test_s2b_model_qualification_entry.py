@@ -55,11 +55,11 @@ def valid_config(run_dir="unused"):
         "sample_index": 0,
         "frame": 0,
         "repeat": 1,
-        "core_timeout_cycles": 1,
-        "drain_timeout_cycles": 1,
+        "core_timeout_cycles": 0xFFFFFFFF,
+        "drain_timeout_cycles": 0xFFFFFFFF,
         "response_timeout_seconds": 450,
         "g0_basis": dummy,
-        "timeout_basis": dummy,
+        "timeout_basis": None,
     }
 
 
@@ -280,7 +280,6 @@ class ConfigGateTests(unittest.TestCase):
                          patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", fake_anchor), \
                          patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
                          patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", cfg["cold_basis"]), \
-                         patch.object(ENTRY, "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", cfg["timeout_basis"]), \
                          patch.object(ENTRY, "validate_manual_review_trust_root",
                                       return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
                          patch.object(ENTRY, "document", return_value=forged_receipt):
@@ -295,7 +294,7 @@ class ConfigGateTests(unittest.TestCase):
         self.assertIn("manual_trust_root", ENTRY.RECEIPT_KEYS)
         self.assertNotIn("entry_sha256", ENTRY.RECEIPT_KEYS)
 
-    def test_g0_cold_and_timeout_evidence_must_be_independently_fixed(self):
+    def test_g0_and_cold_evidence_must_be_independently_fixed(self):
         cfg = valid_config()
         review = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
         cfg["qualification_receipt"] = review
@@ -319,24 +318,29 @@ class ConfigGateTests(unittest.TestCase):
                 ENTRY.require_hardware_enablement(cfg)
             assert_missing_anchor(self, error.exception, "TRUSTED_COLD_ANCHOR")
 
-    def test_unmeasured_deadline_values_never_enable_hardware(self):
+    def test_initial_sample_uses_maximum_finite_deadlines_without_measurement_anchor(self):
         cfg = valid_config()
+        review = {"path": str(ROOT / "review.json"), "sha256": "c" * 64}
+        cfg["qualification_receipt"] = review
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", cfg["qualification_receipt"]), \
-             patch.object(ENTRY, "read_trusted_review_anchor", return_value=cfg["qualification_receipt"]), \
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=review), \
              patch.object(ENTRY, "validate_manual_review_trust_root",
                           return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
              patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
-             patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", cfg["cold_basis"]), \
-             patch.object(ENTRY, "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", None):
-            for value in (1, 0xFFFFFFFF):
-                with self.subTest(value=value):
-                    cfg["core_timeout_cycles"] = value
-                    cfg["drain_timeout_cycles"] = value
-                    with self.assertRaises(ENTRY.QualificationError) as error:
-                        ENTRY.require_hardware_enablement(cfg)
-                    assert_missing_anchor(self, error.exception,
-                                          "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR")
+             patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", cfg["cold_basis"]):
+            ENTRY.validate_config(cfg)
+            ENTRY.require_hardware_enablement(cfg)
+            for field in ("core_timeout_cycles", "drain_timeout_cycles"):
+                with self.subTest(field=field):
+                    invalid = dict(cfg)
+                    invalid[field] = 0xFFFFFFFE
+                    with self.assertRaisesRegex(ENTRY.QualificationError, "最大有限上限"):
+                        ENTRY.validate_config(invalid)
+            invalid = dict(cfg)
+            invalid["timeout_basis"] = {"path": str(ROOT / "unreviewed.json"), "sha256": "d" * 64}
+            with self.assertRaisesRegex(ENTRY.QualificationError, "最大有限上限"):
+                ENTRY.validate_config(invalid)
 
     def test_only_uart_observation_timeout_value_is_passed_to_wire(self):
         class FakeWire:
@@ -418,7 +422,7 @@ class R04QualificationBindingTests(unittest.TestCase):
         with self.assertRaises(ENTRY.QualificationError) as error:
             ENTRY.preflight(cfg)
         for anchor in ("TRUSTED_REVIEW_ANCHOR", "TRUSTED_G0_ANCHOR",
-                       "TRUSTED_COLD_ANCHOR", "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR"):
+                       "TRUSTED_COLD_ANCHOR"):
             self.assertIn(anchor, str(error.exception))
         self.assertFalse(any(name == "serial" or name.startswith("serial.") for name in sys.modules))
         self.assertFalse(any(name == "xsdb" or name.startswith("xsdb.") for name in sys.modules))
@@ -427,7 +431,7 @@ class R04QualificationBindingTests(unittest.TestCase):
         cfg = R05.build_candidate_config()
         gaps = ENTRY.hardware_enablement_gaps(cfg)
         required = {"TRUSTED_REVIEW_ANCHOR", "TRUSTED_G0_ANCHOR",
-                    "TRUSTED_COLD_ANCHOR", "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR"}
+                    "TRUSTED_COLD_ANCHOR"}
         self.assertEqual({item["anchor"] for item in gaps}, required)
 
 

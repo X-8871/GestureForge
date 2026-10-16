@@ -1,0 +1,13 @@
+# 候选构建r02：完整自然排空后仍FAIL
+
+源码执行基线2bd977a3d85fc405eaff3bbf3869cf2751d99776，监督器SHA为c1f1eb733675a0c316788198420940236f062363808648f84c5293caccc85ac3。同T13 r02 XSA和离线候选配置，未操作板卡。
+
+内层实际完成BSP/infer/init ELF与初始MMU静态检查，状态PASS_OFFLINE_FULL_XSA_BUILD，耗时86.755秒。该结果不关闭外层收尾或硬件准入。
+
+原生/root退出0后，监督器完整执行10.000秒自然drain，198次Job轮询，资源样本数365增至404；start_job_pids和last_job_pids均为[14844]、active=1，故FAIL_JOB_NOT_EMPTY，launcher退出1、整轮FAIL。这次证据排除了“仅仅没有给配置的自然排空期限”的解释；不能把残留身份或根因直接确定为Java/server。
+
+build_details记录自建server壳PID26380。Job从15秒到90秒持续包含5220、14844、15420(root)、26380。总控随后Get-Process只读查询这四个PID时均已不存在，查询退出1没有输出，未取得进程名或出生时间。监督器仅对本Job请求终止，最终双次空Job、Accounting active=0及root原始句柄signal，cleanup_confirmed=true；总耗时101.625秒。终止请求不单独证明每个PID的实际退出原因。
+
+原psutil门禁false保留，原因仍为PID236空名称；同字节G2通过的补充脚本读取321项完整Windows原生进程名快照，名称无缺失、无指定重型工具，PID236当前显示Secure System，RAM和磁盘满足原门槛后才启动。不是PID豁免，也不证明其他会话历史。
+
+首次复制r01封包脚本时，生成清单的限制文字错误沿用了旧PID9332/23024；delivery_manifest_first_draft.json保留该初稿，实际launcher_record和build_details原件从未改写。正式delivery_manifest.json已改为本Run PID14844/26380并绑定初稿；包装CHECKS_OK不代表构建或阶段通过。BSP归档按本Run实际哈希保留，不依赖tmp长期存活。后续继续研究调用方SDK服务收尾，不放宽空Job准入或延长10秒硬期限。

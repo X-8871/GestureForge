@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T15",
+  "run_id": "managed_vitis_lifecycle_20261016_r01",
+  "source_commit": "2bd977a3d85fc405eaff3bbf3869cf2751d99776",
+  "evidence_dir": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/config.json",
+      "sha256": "3fc7c48927d3a4f98b866a100ba682736e19d21f856f3d3d89a80e1e3f476b4f",
+      "role": "input",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/launcher_record.json",
+      "sha256": "b2c251073e6bb8ccfd5b49571f8b6ae8a2fd438e225a26103f79da5d0c75d9b2",
+      "role": "result",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/managed_vitis_connection_probe.cmd",
+      "sha256": "a14ff54185b66bcc32b5fdb74fc3229c371a484718bd1f7d58e9a884708271f9",
+      "role": "result",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/managed_vitis_connection_probe.json",
+      "sha256": "370277af4430cb42f0c8c946a1eba604ce60dd1efbe9b2c853b1a68a10da9dad",
+      "role": "result",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/managed_vitis_connection_probe.py",
+      "sha256": "912d4fa6a97d4cd7d88509ec9548fbf9e082de0a18869fe17edf169926ba2703",
+      "role": "source",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/vitis-probe.stdout.log",
+      "sha256": "4b9e1ac817600e0f9d30836aeaf70a8c573269dae103b79c18d2d8647698b0b9",
+      "role": "log",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/managed_vitis_lifecycle_20261016_r01/vitis-server.stdout.log",
+      "sha256": "cce9615abaf90de1b8fa22499de9b98628c6f417141fbead06414c2546bb6eb9",
+      "role": "log",
+      "keep_reason": "绑定本Run真实输入、受控源码快照、结果或失败证据；保留原运行状态。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "managed_client_probe",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "managed_vitis_connection_probe.cmd",
+      "reason": "连接和公开client close/dispose有记录，但SDK额外server PID 18212留在probe Job内；Job自然排空FAIL_JOB_NOT_EMPTY。"
+    },
+    {
+      "name": "owned_server_job_cleanup",
+      "status": "FAIL",
+      "exit_code": 1,
+      "command": "OWN_SERVER_JOB_TERMINATE",
+      "reason": "launcher记录GateBlocked身份句柄总数与Job创建总数不等；执行kill-on-close fallback，不宣称完整终态句柄证明。"
+    },
+    {
+      "name": "hardware_validation",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "command": null,
+      "reason": "probe-only运行，没有访问板卡。"
+    }
+  ],
+  "limitations": [
+    "本Run整体FAIL，保留原launcher_record、probe JSON、生成脚本、命令与日志，不将局部连接/关闭结果提升为通过。",
+    "r01输入绑定builder SHA-256 67c5c04b3a7b64932e91ffa44fa2ced7d683c0e6e9f45b60174b54f07c45f65d及helper SHA-256 389b4efa34caaf70cdc38c451ce3cc64d91d4ce79e53e4faa29330c9979f750a；这两份旧源码快照未保存，未伪造。",
+    "没有完整BSP/ELF构建或硬件执行；该封包检查仅核对证据文件与哈希，不改变失败状态。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14",
+    "Vitis": "2026.1"
+  }
+}

@@ -22,6 +22,7 @@ from check_s2b_inference_mmu import verify_mmu_table
 
 MODEL_PATH = ROOT / "report/evidence/S2A-T01/tiny416_model_manifest.json"
 MODEL_SHA = "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+VITIS_SERVER_SOURCE_SHA = "2dc671f21afcaefa3223c125c5a1cdcdbebdd9fda4360b4e38bd99c92214e368"
 
 
 def xsa_contract(path, mode):
@@ -134,11 +135,32 @@ def build(config_path):
             expected = descriptor.fields_by_name["type"].enum_type.values_by_name["SUCCESS"].number
             require(type(result) is int and result == expected, f"{label}实际构建未成功：{result!r}")
 
+        managed_port_text = os.environ.get("S2B_MANAGED_VITIS_PORT")
+        managed_port = None
+        if managed_port_text is not None:
+            require(re.fullmatch(r"[0-9]{1,5}", managed_port_text) is not None,
+                    "受控Vitis端口环境变量必须是十进制端口")
+            managed_port = int(managed_port_text, 10)
+            require(1024 <= managed_port <= 65535, "受控Vitis端口超出范围")
+            record["vitis_connection"] = {
+                "mode": "OWN_SERVER_JOB",
+                "host": "127.0.0.1",
+                "port": managed_port,
+                "port_source": "S2B_MANAGED_VITIS_PORT",
+            }
+        else:
+            record["vitis_connection"] = {
+                "mode": "SDK_OWNED_SERVER_LEGACY",
+                "host": "localhost",
+                "port": None,
+                "port_source": "Vitis SDK dynamic port",
+            }
+
         snapshot = new_directory(artifact / "source_snapshot", artifact)
         for relative in ("vitis/s2b_inference_app.c", "vitis/build_s2b_inference.py", "vitis/build_s2b_ps_smoke.py",
                          "verification/s2a_ps_decode_nms_reference.c", "verification/s2a_ps_decode_nms_reference.h",
                          "verification/s2b_board_transport.py", "verification/check_s2b_ps_smoke_layout.py",
-                         "verification/check_s2b_inference_mmu.py"):
+                         "verification/check_s2b_inference_mmu.py", "verification/s2b_managed_vitis.py"):
             source = exact_path(ROOT / relative, "file")
             record["source_sha256"][relative] = sha256(source)
             copy_exclusive(source, snapshot / source.name)
@@ -148,9 +170,47 @@ def build(config_path):
         record["files"]["source_snapshot/check_s2b_inference_mmu.py"] = {
             "path": str(checker_snapshot), "sha256": sha256(checker_snapshot)}
         workspace = new_directory(workspace, cache_parent)
-        client = api("vitis.create_client", vitis.create_client, workspace=str(workspace)); created = True
-        require(client._serverObj.cp is not None, "未创建本次独占server")
-        record["own_server_pid"] = client._serverObj.cp.pid
+        if managed_port is None:
+            client = api("vitis.create_client", vitis.create_client, workspace=str(workspace))
+            created = True
+            require(client._serverObj.cp is not None, "历史SDK自管模式未创建本次server")
+            record["own_server_pid"] = client._serverObj.cp.pid
+        else:
+            from vitis import _server
+
+            sdk_server_source = exact_path(Path(_server.__file__), "file")
+            sdk_server_sha = sha256(sdk_server_source)
+            require(sdk_server_sha == VITIS_SERVER_SOURCE_SHA, "Vitis _server.py 与受控兼容shim固定版本不符")
+            server_class = _server.Server
+            require(server_class.channel is None and len(server_class._instances) == 0,
+                    "Vitis server singleton已有状态，拒绝应用受控连接shim")
+            preconnected_channel = _server.grpc.insecure_channel(f"127.0.0.1:{managed_port}")
+            original_channel = server_class.channel
+            original_start_server = server_class.startServer
+
+            def reject_sdk_server_start(instance):
+                """受控模式禁止SDK回退启动第二个server。"""
+                raise RuntimeError("managed server连接断开，禁止SDK创建非本Run server")
+
+            try:
+                _server.grpc.channel_ready_future(preconnected_channel).result(10)
+                server_class.channel = preconnected_channel
+                server_class.startServer = reject_sdk_server_start
+                record["vitis_connection"]["compatibility_shim"] = {
+                    "kind": "PRECONNECTED_CHANNEL_AND_BLOCK_SDK_FALLBACK_START",
+                    "sdk_server_source": str(sdk_server_source),
+                    "sdk_server_source_sha256": sdk_server_sha,
+                }
+                client = api("vitis.create_client", vitis.create_client, port=managed_port,
+                             host="127.0.0.1", workspace=str(workspace))
+                created = True
+            finally:
+                server_class.channel = original_channel
+                server_class.startServer = original_start_server
+                preconnected_channel.close()
+            require(client._serverObj.serverPort == managed_port, "SDK连接端口与本Run自有端口不符")
+            require(client._serverObj.host == "127.0.0.1", "SDK连接host偏离本机回环地址")
+            require(client._serverObj.cp is None, "受控连接意外创建SDK自管server，拒绝继续")
         require(api("client.set_workspace", client.set_workspace, path=str(workspace)) is True, "workspace配置失败")
         platform = api("client.create_platform_component", client.create_platform_component, name="ps7", hw_design=str(xsa),
                        cpu="ps7_cortexa9_0", os="standalone", domain_name="cpu0", no_boot_bsp=True, generate_dtb=False)
@@ -354,6 +414,10 @@ def build(config_path):
     finally:
         if created:
             try:
+                if managed_port is not None:
+                    # 外部server模式下dispose不关闭channel，先使用公开close接口。
+                    require(client.close() is True, "受控Vitis客户端channel关闭失败")
+                    record["managed_channel_closed"] = True
                 vitis.dispose(); record["own_server_cleanup"] = "DISPOSE_CALLED"
             except BaseException as error:
                 record["status"] = "FAIL"; record["cleanup_error"] = repr(error)

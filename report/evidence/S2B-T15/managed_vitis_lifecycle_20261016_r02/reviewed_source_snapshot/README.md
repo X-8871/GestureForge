@@ -1,0 +1,5 @@
+# 最终复审源码快照
+
+本目录保存独立复审最终版本：helper `ecb569cb2ad41383a7f32dbad7c03eeddad69976e818cdae1925843d71e1aa27`、builder `ffa81cbaaaf590ef00eeab8b31c3952becb8a90b29514b310e464f8326c45b9a` 与当前 `.gitattributes`。
+
+此快照仅绑定最终被审源码，r02实际执行使用的是相邻 `source_snapshot/` 内记录的旧helper SHA `9a5aed9337a2ce20ce1358083d571c6190805274757daaa01f87097c5151cec4`；不能把本目录误读为r02的运行输入。

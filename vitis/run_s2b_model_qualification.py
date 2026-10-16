@@ -24,11 +24,11 @@ import zipfile
 ROOT = Path(__file__).absolute().parents[1]
 TZ = timezone(timedelta(hours=8))
 SCOPE = "visibility1_sample000_single_job"
-XSA_SHA = "90f8d0b9e857f8beb9d99a6264b96441f9ba9b4b0af0568dbbcc064aecba6065"
-BIT_SHA = "a3e87d076ac102a4927a20ffa1e80699c2a29b5bc1ad3eacd1d7623f9ccf43da"
-BUILD_SHA = "1e0be142b53f047e763b20be4632bcb31a25721c3f78a03683e70f42d95fdc67"
-APP_SHA = "a436634e803cd6990a108e9d00b23a13a4e039149d0e413e450faca1daf67f2d"
-INIT_SHA = "978a0970d49f4afe4341fde7887e7f3d31b1aacb24f3b9e6511d96276a2e1b3a"
+XSA_SHA = "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+BIT_SHA = "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+BUILD_SHA = "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db"
+APP_SHA = "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+INIT_SHA = "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
 GOLDEN_SHA = "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80"
 CONFIG_KEYS = {"schema_version", "source_commit", "run_dir", "build_details", "bindings",
                "owned_hw_server_identity", "uart_identity", "cold_basis", "sdk_files", "pyserial_files",
@@ -242,15 +242,27 @@ def validate_config(cfg):
     for key, value in (("sample_index", 0), ("frame", 0), ("repeat", 1)):
         integer(cfg[key], value, value, key)
     for key in ("core_timeout_cycles", "drain_timeout_cycles"):
-        integer(cfg[key], 1, 0xFFFFFFFF, key)
+        if cfg[key] is None:
+            require(TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR is None,
+                    key + "缺少已固定的测量值")
+        else:
+            integer(cfg[key], 1, 0xFFFFFFFF, key)
     integer(cfg["response_timeout_seconds"], 450, 450, "response_timeout_seconds")
-    for key in ("g0_basis", "timeout_basis"):
+    for key, anchor in (("g0_basis", TRUSTED_G0_ANCHOR),
+                        ("timeout_basis", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR)):
         item = cfg[key]
+        if item is None:
+            require(anchor is None, key + "缺少已固定的依据")
+            continue
         require(type(item) is dict and set(item) == {"path", "sha256"} and
                 type(item["path"]) is str and type(item["sha256"]) is str and
                 re.fullmatch(r"[0-9a-f]{64}", item["sha256"]), key + "必须是完整文件绑定")
     require(type(cfg["source_commit"]) is str and re.fullmatch(r"[0-9a-f]{40}", cfg["source_commit"]), "需要完整源码基线")
     uart = cfg["uart_identity"]
+    if uart is None:
+        require(TRUSTED_REVIEW_ANCHOR is None,
+                "UART身份缺失且Reviewer锚点已固定")
+        return
     require(type(uart) is dict and set(uart) == {"port", "name", "pnp_device_id", "config_manager_error_code"}
             and uart["port"] == "COM4" and type(uart["config_manager_error_code"]) is int
             and uart["config_manager_error_code"] == 0 and type(uart["name"]) is str
@@ -258,13 +270,37 @@ def validate_config(cfg):
             and bool(uart["pnp_device_id"]), "COM4身份格式错误")
 
 
+def hardware_enablement_gaps(cfg):
+    """返回未固定或配置不匹配的各项部署信任锚点。"""
+    gaps = []
+    anchors = (
+        ("TRUSTED_REVIEW_ANCHOR", TRUSTED_REVIEW_ANCHOR, cfg.get("qualification_receipt"),
+         "当前visibility=1单样本资格范围的独立Reviewer回执路径及SHA，须独立审查当前入口digest、R04 XSA/bit/build/ELF、模型输入与兼容性"),
+        ("TRUSTED_G0_ANCHOR", TRUSTED_G0_ANCHOR, cfg.get("g0_basis"),
+         "针对XC7Z020-2CLG400I及当前PCB/DDR资料、接口版本、部署范围和正式验收标准的批准依据路径及SHA"),
+        ("TRUSTED_COLD_ANCHOR", TRUSTED_COLD_ANCHOR, cfg.get("cold_basis"),
+         "操作者签认的外部POR记录及POR后独占保管/无HP探针证据链路径和SHA，时间须为UTC+8"),
+        ("TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR", TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR,
+         cfg.get("timeout_basis"),
+         "CORE与DRAIN期限上界的实测依据路径和SHA，并绑定已核定的非零周期值"),
+    )
+    for name, anchor, configured, needed in anchors:
+        if anchor is None:
+            gaps.append({"anchor": name, "status": "MISSING", "required_evidence": needed})
+        elif configured != anchor:
+            gaps.append({"anchor": name, "status": "CONFIGURATION_MISMATCH",
+                         "required_evidence": "配置必须逐字匹配源码固定的路径与SHA"})
+    return gaps
+
+
 def require_hardware_enablement(cfg):
     """硬件门要求固定人工根、入口锚点和外部依据；缺项即阻断。"""
     source_anchor = read_trusted_review_anchor(Path(__file__))
     require(source_anchor == TRUSTED_REVIEW_ANCHOR,
             "BLOCKED：入口内Reviewer锚点与已加载源码值不一致")
-    require(type(TRUSTED_REVIEW_ANCHOR) is dict and set(TRUSTED_REVIEW_ANCHOR) == {"path", "sha256"},
-            "BLOCKED：缺少总控固定的独立Reviewer原件锚点；运行配置不可自行授权")
+    gaps = hardware_enablement_gaps(cfg)
+    require(not gaps, "BLOCKED：缺少部署信任锚点：" +
+            json.dumps(gaps, ensure_ascii=False, separators=(",", ":")))
     require(cfg["qualification_receipt"] == TRUSTED_REVIEW_ANCHOR,
             "BLOCKED：配置与总控固定的独立Reviewer原件锚点不一致")
     validate_manual_review_trust_root()
@@ -352,9 +388,8 @@ def verify_review(cfg, build, actual_sources):
     return receipt
 
 
-def preflight(cfg):
-    """只读门禁，不调用probe限定visibility0的_preflight，不导入SDK。"""
-    require_hardware_enablement(cfg)
+def verify_static_candidate_bindings(cfg):
+    """只读核对R04候选构建、源码闭包及样本000黄金；不访问板卡或SDK。"""
     validate_config(cfg)
     p, j, t = helpers()
     observed = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, check=True, capture_output=True).stdout.decode("ascii").strip()
@@ -362,17 +397,17 @@ def preflight(cfg):
     bindings = cfg["bindings"]
     required = {"init_elf", "app_elf", "xsa", "bit", "csr_source", "interface", "sdk_target", "tool_source", "elf_parser", "delivery_parser", "transport_source", "entry_source", "platform_checker", "sdk_init", "pyserial_init"}
     require(type(bindings) is dict and set(bindings) == required, "运行闭包绑定缺项")
-    for item in bindings.values():
-        binding(item)
+    for key, item in bindings.items():
+        if key not in {"sdk_init", "sdk_target", "pyserial_init"}:
+            binding(item)
     for key, sha in (("tool_source", p.JTAG_SHA), ("xsa", XSA_SHA), ("bit", BIT_SHA), ("app_elf", APP_SHA), ("init_elf", INIT_SHA)):
         require(bindings[key]["sha256"] == sha, "冻结产物错误：" + key)
     for key, path in (("entry_source", Path(p.__file__)), ("tool_source", Path(j.__file__)),
                       ("transport_source", Path(t.__file__)), ("platform_checker", ROOT / "verification/check_s2b_inference_platform.py"),
                       ("csr_source", ROOT / "src/s2b_control_csr.sv"), ("interface", ROOT / "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"),
-                      ("elf_parser", ROOT / "verification/check_s2b_ps_smoke_layout.py"), ("delivery_parser", ROOT / "verification/check_stage_delivery.py"),
-                      ("sdk_init", p.SDK_INIT), ("sdk_target", p.SDK_INIT.parent / "target.py")):
+                      ("elf_parser", ROOT / "verification/check_s2b_ps_smoke_layout.py"), ("delivery_parser", ROOT / "verification/check_stage_delivery.py")):
         require(j.exact_path(bindings[key]["path"]) == j.exact_path(path), "实际运行来源未绑定：" + key)
-    require(cfg["build_details"]["sha256"] == BUILD_SHA, "build必须为已审r02")
+    require(cfg["build_details"]["sha256"] == BUILD_SHA, "build_details不匹配R04固定候选")
     binding(cfg["build_details"])
     _, build = t.verify_build(cfg["build_details"]["path"])
     for key, item in (("app_elf", build["elf"]), ("init_elf", build["initializer_elf"]),
@@ -385,6 +420,25 @@ def preflight(cfg):
     checker = importlib.import_module("check_s2b_inference_platform")
     require(j.exact_path(checker.__file__) == binding(bindings["platform_checker"]), "平台checker来源错误")
     sources = checker.check_static(ROOT)
+    weight_path, weights, rows = t.load_assets(cfg["asset_root"], [0])
+    row = rows[0]
+    golden_path = t.exact_path(row["asset_root"] / "fixtures/sample_000/golden_unique.bin")
+    require(golden_path.stat().st_size == 11382150 and p.digest(golden_path) == GOLDEN_SHA,
+            "冻结黄金完整流错误")
+    return {"build": build, "source_commit": observed, "sources": sources,
+            "postconfig_basis": postconfig, "weight_path": weight_path,
+            "weights": weights, "row": row, "golden_path": golden_path}
+
+
+def preflight(cfg):
+    """静态输入检查后报告全部缺失信任锚点；不会导入SDK或触碰硬件。"""
+    static = verify_static_candidate_bindings(cfg)
+    require_hardware_enablement(cfg)
+    p, j, t = helpers()
+    build = static["build"]
+    sources = static["sources"]
+    observed = static["source_commit"]
+    postconfig = static["postconfig_basis"]
     receipt = verify_review(cfg, build, sources)
     p.verify_sdk_files(cfg)
     p.verify_serial_files(cfg)
@@ -396,12 +450,10 @@ def preflight(cfg):
             re.fullmatch(r"[0-9]+", str(native.get("CreationTimeFileTimeUtc", ""))), "服务PID/创建时刻错误")
     executable = j.exact_path(native["ExecutablePath"])
     require(executable.name == "hw_server.exe" and p.digest(executable) == server["native_sha256"], "服务原生程序漂移")
-    weight_path, weights, rows = t.load_assets(cfg["asset_root"], [0])
-    row = rows[0]
-    golden_path = t.exact_path(row["asset_root"] / "fixtures/sample_000/golden_unique.bin")
-    require(golden_path.stat().st_size == 11382150 and p.digest(golden_path) == GOLDEN_SHA, "冻结黄金完整流错误")
-    return {"build": build, "server": server, "weights": weights, "weight_path": weight_path,
-            "row": row, "receipt": receipt, "source_commit": observed, "postconfig_basis": postconfig}
+    return {"build": build, "server": server, "weights": static["weights"],
+            "weight_path": static["weight_path"],
+            "row": static["row"], "receipt": receipt, "source_commit": observed,
+            "postconfig_basis": postconfig}
 
 
 def require_idle(snapshot, epoch):
@@ -652,11 +704,35 @@ def run(config_path, *, offline_only=False):
 
 
 def main(argv=None):
-    """只有显式--config或专用环境变量才消费配置，help始终无硬件。"""
+    """help和--offline-bindings不访问硬件；资格运行必须显式提供配置。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config")
     parser.add_argument("--preflight", action="store_true", help="仅离线核验，不导入SDK或串口")
+    parser.add_argument("--offline-bindings", action="store_true",
+                        help="只读核验R04 XSA/bit、T15 ELF与冻结模型绑定，不运行资格门禁")
     args = parser.parse_args(argv)
+    if args.offline_bindings:
+        if args.config or args.preflight:
+            parser.error("--offline-bindings不能与--config或--preflight组合")
+        try:
+            vitis_directory = str(Path(__file__).absolute().parent)
+            if vitis_directory not in sys.path:
+                sys.path.insert(0, vitis_directory)
+            offline = importlib.import_module("prepare_s2b_model_qualification_offline")
+            report = offline.build_report()
+            print(json.dumps({"status": report["status"],
+                              "qualification_gate": report["qualification_gate"],
+                              "hardware_execution": report["hardware_execution"],
+                              "source_head": report["source_head"],
+                              "rebuild_config_path": report["same_xsa_elf_rebuild_plan"]["build_config_path"],
+                              "input_manifest_path": report["same_xsa_elf_rebuild_plan"]["input_manifest_path"],
+                              "managed_launcher_command": report["same_xsa_elf_rebuild_plan"]["managed_launcher"]["command"],
+                              "blockers": report["blockers"]}, ensure_ascii=False))
+            return 0
+        except Exception as error:
+            print(json.dumps({"status": "OFFLINE_BINDING_BLOCKED", "error": repr(error)},
+                             ensure_ascii=False), file=sys.stderr)
+            return 2
     config = args.config or os.environ.get("S2B_MODEL_QUALIFICATION_CONFIG")
     if not config:
         parser.error("必须显式提供--config或S2B_MODEL_QUALIFICATION_CONFIG")

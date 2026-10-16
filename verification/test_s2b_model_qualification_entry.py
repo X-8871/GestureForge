@@ -7,6 +7,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from unittest.mock import patch
 
 
@@ -16,6 +18,14 @@ EVIDENCE_ROOT = ROOT / "report/evidence/S2B-T19/model_qualification_entry_202610
 SPEC = importlib.util.spec_from_file_location("s2b_model_qualification_entry", ENTRY_PATH)
 ENTRY = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ENTRY)
+OFFLINE_PATH = ROOT / "vitis/prepare_s2b_model_qualification_offline.py"
+OFFLINE_SPEC = importlib.util.spec_from_file_location("s2b_model_qualification_offline", OFFLINE_PATH)
+OFFLINE = importlib.util.module_from_spec(OFFLINE_SPEC)
+OFFLINE_SPEC.loader.exec_module(OFFLINE)
+R05_PATH = ROOT / "vitis/prepare_s2b_model_qualification_r05_offline.py"
+R05_SPEC = importlib.util.spec_from_file_location("s2b_model_qualification_r05_offline", R05_PATH)
+R05 = importlib.util.module_from_spec(R05_SPEC)
+R05_SPEC.loader.exec_module(R05)
 
 
 def valid_config(run_dir="unused"):
@@ -51,6 +61,16 @@ def valid_config(run_dir="unused"):
         "g0_basis": dummy,
         "timeout_basis": dummy,
     }
+
+
+def assert_missing_anchor(testcase, error, anchor):
+    """断言聚合阻断报告中存在指定缺失锚点。"""
+    parts = str(error).split("：", 2)
+    testcase.assertEqual(parts[1], "缺少部署信任锚点")
+    gaps = json.loads(parts[2])
+    matching = [item for item in gaps if item.get("anchor") == anchor]
+    testcase.assertEqual(len(matching), 1)
+    testcase.assertEqual(matching[0].get("status"), "MISSING")
 
 
 def valid_manual_root_documents():
@@ -138,7 +158,8 @@ class ConfigGateTests(unittest.TestCase):
             "role": "INDEPENDENT_REVIEWER",
             "status": "PASS",
         }
-        with patch.object(ENTRY, "helpers", side_effect=AssertionError("不得读取自报receipt")):
+        with patch.object(ENTRY, "hardware_enablement_gaps", return_value=[]), \
+             patch.object(ENTRY, "helpers", side_effect=AssertionError("不得读取自报receipt")):
             with self.assertRaisesRegex(ENTRY.QualificationError, "独立Reviewer原件"):
                 ENTRY.verify_review(cfg, {}, "d" * 64)
 
@@ -196,7 +217,8 @@ class ConfigGateTests(unittest.TestCase):
         cfg = valid_config()
         cfg["qualification_receipt"] = {"path": str(ROOT / "forged-review.json"), "sha256": "d" * 64}
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", pinned), \
-             patch.object(ENTRY, "read_trusted_review_anchor", return_value=pinned):
+             patch.object(ENTRY, "read_trusted_review_anchor", return_value=pinned), \
+             patch.object(ENTRY, "hardware_enablement_gaps", return_value=[]):
             with self.assertRaisesRegex(ENTRY.QualificationError, "配置与总控固定的独立Reviewer原件锚点不一致"):
                 ENTRY.require_hardware_enablement(cfg)
 
@@ -283,8 +305,9 @@ class ConfigGateTests(unittest.TestCase):
                           return_value=ENTRY.MANUAL_TRUST_ROOT_CLAIM), \
              patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", None):
-            with self.assertRaisesRegex(ENTRY.QualificationError, "正式G0依据"):
+            with self.assertRaises(ENTRY.QualificationError) as error:
                 ENTRY.require_hardware_enablement(cfg)
+            assert_missing_anchor(self, error.exception, "TRUSTED_G0_ANCHOR")
         with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", review), \
              patch.object(ENTRY, "read_trusted_review_anchor", return_value=review), \
              patch.object(ENTRY, "validate_manual_review_trust_root",
@@ -292,8 +315,9 @@ class ConfigGateTests(unittest.TestCase):
              patch.object(ENTRY, "document", return_value=valid_qualification_trust_claim()), \
              patch.object(ENTRY, "TRUSTED_G0_ANCHOR", cfg["g0_basis"]), \
              patch.object(ENTRY, "TRUSTED_COLD_ANCHOR", None):
-            with self.assertRaisesRegex(ENTRY.QualificationError, "POR/冷生命周期依据"):
+            with self.assertRaises(ENTRY.QualificationError) as error:
                 ENTRY.require_hardware_enablement(cfg)
+            assert_missing_anchor(self, error.exception, "TRUSTED_COLD_ANCHOR")
 
     def test_unmeasured_deadline_values_never_enable_hardware(self):
         cfg = valid_config()
@@ -309,8 +333,10 @@ class ConfigGateTests(unittest.TestCase):
                 with self.subTest(value=value):
                     cfg["core_timeout_cycles"] = value
                     cfg["drain_timeout_cycles"] = value
-                    with self.assertRaisesRegex(ENTRY.QualificationError, "部署期限测量依据"):
+                    with self.assertRaises(ENTRY.QualificationError) as error:
                         ENTRY.require_hardware_enablement(cfg)
+                    assert_missing_anchor(self, error.exception,
+                                          "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR")
 
     def test_only_uart_observation_timeout_value_is_passed_to_wire(self):
         class FakeWire:
@@ -323,6 +349,86 @@ class ConfigGateTests(unittest.TestCase):
 
         wire = ENTRY.make_wire(FakeJtag, object(), object(), object(), object(), valid_config())
         self.assertEqual(wire.response_timeout, 450)
+
+
+class OfflineBindingModeTests(unittest.TestCase):
+    def test_repeated_offline_cli_reuses_exact_config_without_writing_evidence(self):
+        config_sha = OFFLINE.sha256(OFFLINE.REBUILD_CONFIG)
+        report_sha = OFFLINE.sha256(OFFLINE.OUTPUT)
+        reports = []
+        with patch.object(ENTRY, "run", side_effect=AssertionError("不得进入资格运行")):
+            for _ in range(2):
+                output = StringIO()
+                with redirect_stdout(output):
+                    result = ENTRY.main(["--offline-bindings"])
+                self.assertEqual(result, 0)
+                reports.append(json.loads(output.getvalue()))
+        for record in reports:
+            self.assertEqual(record["status"], "OFFLINE_BINDINGS_VERIFIED_REVIEW_REQUIRED")
+            self.assertEqual(record["qualification_gate"], "NOT_PASSED")
+            self.assertEqual(record["hardware_execution"], "NOT_RUN")
+            self.assertTrue(record["blockers"])
+            self.assertEqual(record["rebuild_config_path"], str(OFFLINE.REBUILD_CONFIG))
+        self.assertEqual(OFFLINE.sha256(OFFLINE.REBUILD_CONFIG), config_sha)
+        self.assertEqual(OFFLINE.sha256(OFFLINE.OUTPUT), report_sha)
+
+    def test_offline_binding_cli_cannot_be_combined_with_qualification_config(self):
+        with patch.object(ENTRY, "run", side_effect=AssertionError("不得进入资格运行")):
+            with self.assertRaises(SystemExit) as error:
+                ENTRY.main(["--offline-bindings", "--config", "unused.json"])
+        self.assertEqual(error.exception.code, 2)
+
+
+class OfflineR04SourceAnchorTests(unittest.TestCase):
+    def test_replaced_r04_input_record_is_rejected_by_fixed_sha256(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_r04_record_anchor_") as raw_dir:
+            changed = Path(raw_dir) / "input_record.json"
+            original = (OFFLINE.R04 / "input_record.json").read_bytes()
+            changed.write_bytes(original + b" ")
+            with self.assertRaisesRegex(OFFLINE.OfflineBindingError, "input_record.json SHA不符"):
+                OFFLINE.verify_r04_record_hash(changed)
+
+    def test_rewritten_r04_source_path_set_is_rejected_before_tree_read(self):
+        source_hashes = {relative: "0" * 64 for relative in OFFLINE.R04_SOURCE_PATHS}
+        source_hashes.pop(OFFLINE.R04_SOURCE_PATHS[0])
+        source_hashes["src/rewritten_untrusted.sv"] = "0" * 64
+        with patch.object(OFFLINE.subprocess, "run",
+                          side_effect=AssertionError("路径集合不符时不得读取Git tree")):
+            with self.assertRaisesRegex(OFFLINE.OfflineBindingError, "路径集合"):
+                OFFLINE.verify_source_closure(source_hashes)
+
+
+class R04QualificationBindingTests(unittest.TestCase):
+    def test_r04_static_elf_xsa_binding_passes_but_all_anchor_gates_block(self):
+        build_identity = R05.verify_r04_build()
+        self.assertEqual(build_identity["build_source_commit"], R05.R04_BUILD_SOURCE_COMMIT)
+        self.assertEqual(build_identity["current_source_commit"], R05.current_source_commit())
+        cfg = R05.build_candidate_config()
+        self.assertEqual(cfg["source_commit"], R05.current_source_commit())
+        self.assertEqual(build_identity["build_source_commit"], R05.R04_BUILD_SOURCE_COMMIT)
+        self.assertEqual(cfg["bindings"]["xsa"]["sha256"], R05.R04_XSA_SHA)
+        self.assertEqual(cfg["bindings"]["bit"]["sha256"], R05.R04_BIT_SHA)
+        self.assertEqual(cfg["bindings"]["app_elf"]["sha256"], R05.R04_APP_SHA)
+        self.assertEqual(cfg["bindings"]["init_elf"]["sha256"], R05.R04_INIT_SHA)
+        static = ENTRY.verify_static_candidate_bindings(cfg)
+        self.assertEqual(static["build"]["status"], "PASS_OFFLINE_FULL_XSA_BUILD")
+        self.assertEqual(static["row"]["sample_index"], 0)
+        self.assertEqual(OFFLINE.verify_r04_record_hash(R05.R04_INPUT_RECORD), R05.R04_INPUT_SHA)
+
+        with self.assertRaises(ENTRY.QualificationError) as error:
+            ENTRY.preflight(cfg)
+        for anchor in ("TRUSTED_REVIEW_ANCHOR", "TRUSTED_G0_ANCHOR",
+                       "TRUSTED_COLD_ANCHOR", "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR"):
+            self.assertIn(anchor, str(error.exception))
+        self.assertFalse(any(name == "serial" or name.startswith("serial.") for name in sys.modules))
+        self.assertFalse(any(name == "xsdb" or name.startswith("xsdb.") for name in sys.modules))
+
+    def test_each_missing_anchor_is_reported_as_a_hard_gate(self):
+        cfg = R05.build_candidate_config()
+        gaps = ENTRY.hardware_enablement_gaps(cfg)
+        required = {"TRUSTED_REVIEW_ANCHOR", "TRUSTED_G0_ANCHOR",
+                    "TRUSTED_COLD_ANCHOR", "TRUSTED_TIMEOUT_MEASUREMENT_ANCHOR"}
+        self.assertEqual({item["anchor"] for item in gaps}, required)
 
 
 class SideEffectAndFailureTests(unittest.TestCase):
@@ -357,8 +463,9 @@ class SideEffectAndFailureTests(unittest.TestCase):
             cfg = valid_config(str(requested))
             config_path.write_text(json.dumps(cfg), encoding="utf-8")
             with patch.object(ENTRY, "TRUSTED_REVIEW_ANCHOR", None), \
-                 patch.object(ENTRY, "helpers", return_value=ENTRY.helpers()):
-                with self.assertRaisesRegex(ENTRY.QualificationError, "独立Reviewer原件"):
+                 patch.object(ENTRY, "helpers", return_value=ENTRY.helpers()), \
+                 patch.object(ENTRY, "verify_static_candidate_bindings", return_value={"status": "STATIC_TEST_FIXTURE"}):
+                with self.assertRaisesRegex(ENTRY.QualificationError, "TRUSTED_REVIEW_ANCHOR"):
                     ENTRY.run(config_path, offline_only=True)
             self.assertFalse(requested.exists())
             self.assertFalse(any(name == "serial" or name.startswith("serial.") for name in sys.modules))

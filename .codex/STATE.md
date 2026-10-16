@@ -1,13 +1,13 @@
 # 项目状态入口
 
-更新：2026-10-16 23:39（UTC+8）。按根目录 AGENTS.md 恢复；当前HEAD为`6f5c6dc871d92fe32e5d37a58ff693442b793903`，下列检查点覆盖后文旧运行状态。
+更新：2026-10-17（UTC+8）。按根目录 AGENTS.md 恢复；当前提交前HEAD为`03faa2d47a6e49d7475e387cf6b33edda4962c68`，下列检查点覆盖后文旧运行状态。
 
 ## 最新检查点（覆盖下方历史运行状态）
 
-- 核心综合总上限10次，当前6次实际启动、剩余4次；R01在综合前失败不计。T19 R04综合/实现/bit/XSA Job退出0、资源停止线未触发；原始`input_record.json`仍为FAIL（profile marker未进入Vivado stdout日志），不得改写。独立审查只对当前构建/产物链PASS_LIMITED_SCOPE。R04 bit SHA `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`。
-- 板级候选G0由独立Reviewer限定为PASS_LIMITED_SCOPE：用户确认AX7Z020/XC7Z020-2CLG400I，手册第6/9/11–15页及R04 PS DDR读回参数支持本轮易失PL候选；实际PCB/BOM版次未绑定。当前JTAG只读识别`xc7z020_1`/PART `xc7z020`/IDCODE `00100011011100100111000010010011`。随后R04 bit已volatile配置，Vivado返回`End of startup status: HIGH`。证据 `report/evidence/S2B-T19/volatile_pl_program_20261016_r01/`；evidence包装核验CHECKS_OK、独立Reviewer PASS，仅限PL配置命令成功。
-- Wong回复“已重启，10s”，记录于 `report/evidence/S2B-T19/cold_confirmation_20261016_r01/`；人工确认回执时间不是测得的POR边沿。该冷启动后已完成的本轮JTAG读取与PL配置见上方Run记录；PS初始化/DDR/HP0尚未启动，109样本、1000连续任务、恢复及2B G5仍未通过。
-- qualification入口当前阻断：脚本仍固定旧XSA/bit/build，R04 bit-included XSA与T15 ELF组合尚未独立兼容审查；R04构建产物limited review不能代替该组合审查或资格entry收据。`TRUSTED_REVIEW/G0/COLD/TIMEOUT` anchors仍为空。资格rebind子任务正在只读核查/准备离线绑定，不访问硬件。下一步先关闭组合兼容和门禁/收据审查，再PS初始化、DDR/cache/HP0、单样本，随后109样本、1000连续任务和异常恢复。
+- 核心综合总上限10次，当前6次实际启动、剩余4次；R01在综合前失败不计。T19 R04综合/实现/bit/XSA Job退出0、资源停止线未触发；原始`input_record.json`仍为FAIL（profile marker未进入Vivado stdout日志），不得改写。R04 bit SHA `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`；同XSA Vitis BSP/`infer.elf`/`init.elf`离线重建通过并经独立有限范围复核，未上板验证。
+- 实际板卡标称`XC7Z020-2CLG400I`已由用户确认；JTAG只读识别`xc7z020_1`/PART `xc7z020`/IDCODE `00100011011100100111000010010011`。R04 bit已volatile配置，Vivado `End of startup status: HIGH`；仅证明PL配置命令完成。用户暂按手册DDR候选`MT41K256M16TW-107`推进，但最新确认实际DDR完整料号及PCB/BOM版次仍未知，不声称实装对应或DDR实测通过。
+- 当前资格入口离线改动于HEAD `03faa2d47a6e49d7475e387cf6b33edda4962c68`通过独立复审PASS（仅限源代码、离线绑定与证据封包）。R09：`report/evidence/S2B-T19/qualification_r04_single_job_20261017_r09/`；完整测试模块26项通过、Python编译通过、离线绑定CLI可重复且只读、证据包装`CHECKS_OK`。R04原记录继续为FAIL，资格门`NOT_PASSED`，硬件`NOT_RUN`。
+- 正式资格入口仍缺4项固定信任锚：当前范围独立Reviewer资格回执、正式G0依据、可追溯POR/独占保管链、CORE/DRAIN期限实测。PS初始化、DDR/cache/HP0、单样本、109样本黄金比对、1000次连续任务及恢复均未执行；不得绕过门禁。2B G3/G4/G5未通过。下一步补齐锚点后启动板级资格任务，否则先请求能够构成独立依据的材料。
 
 ## 当前目标与器件基本事实
 

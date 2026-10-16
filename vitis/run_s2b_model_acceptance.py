@@ -9,6 +9,7 @@ import hashlib
 import importlib
 import importlib.machinery
 import json
+import math
 import os
 import re
 import shutil
@@ -22,6 +23,9 @@ ROOT = Path(__file__).absolute().parents[1]
 EVIDENCE_PARENT = ROOT / "report/evidence/S2B-T18"
 TZ = timezone(timedelta(hours=8))
 JTAG_SOURCE_SHA256 = "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+CSR_FLOW_SOURCE_SHA256 = "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b"
+CSR_BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
+CSR_BUSY_SOURCE_SHA256 = "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
 # 正式G0与统一冷生命周期回执尚未由独立审查固定；None时所有运行在运行时初始化前阻断。
 G0_BASIS_PATH: Path | None = None
 G0_BASIS_SHA256: str | None = None
@@ -40,6 +44,7 @@ CONFIG_KEYS = {
 }
 G0_RECEIPT_KEYS = {
     "schema_version", "status", "role", "scope", "source_commit", "interface_versions", "bindings",
+    "deadline_profile",
 }
 G0_BINDING_NAMES = (
     "interface", "uart_interface", "preparation", "build_details", "xsa", "bit", "app_elf", "init_elf",
@@ -120,19 +125,39 @@ def verify_binding(item: object, label: str, *, max_bytes: int | None = None,
     return path, raw
 
 
-def load_apis():
+def _verify_csr_flow_sources() -> None:
+    """显式CSR scope在设备运行时导入前固定三份编排/执行源码。"""
+    pins = {
+        ROOT / "verification/s2b_csr_acceptance_flow.py": CSR_FLOW_SOURCE_SHA256,
+        ROOT / "verification/s2b_csr_board_acceptance.py": CSR_BOARD_SOURCE_SHA256,
+        ROOT / "verification/s2b_csr_busy_observer.py": CSR_BUSY_SOURCE_SHA256,
+    }
+    for path, expected in pins.items():
+        actual = digest(exact_path(path).read_bytes())
+        require(re.fullmatch(r"[0-9a-f]{64}", expected) is not None and actual == expected,
+                "CSR固定执行源码SHA不匹配：" + str(path))
+
+
+def load_apis(scope: str = "model"):
     """延迟加载仓库 API；模块导入不连接板卡或串口。"""
     root_text = str(ROOT)
     if root_text not in sys.path:
         sys.path.insert(0, root_text)
+    verification_text = str(ROOT / "verification")
+    if verification_text not in sys.path:
+        sys.path.insert(0, verification_text)
     from verification import check_s2b_inference_platform as platform
     from verification import check_s2b_ps_smoke_layout as elf_parser
     from verification import check_stage_delivery as delivery
     from verification import s2b_board_acceptance as acceptance
     from verification import s2b_board_jtag as jtag
     from verification import s2b_board_transport as transport
-    return type("Apis", (), {"acceptance": acceptance, "delivery": delivery, "jtag": jtag,
-                              "elf_parser": elf_parser, "platform": platform, "transport": transport})
+    values = {"acceptance": acceptance, "delivery": delivery, "jtag": jtag,
+              "elf_parser": elf_parser, "platform": platform, "transport": transport}
+    if scope == "csr":
+        from verification import s2b_csr_acceptance_flow as csr_flow
+        values["csr_flow"] = csr_flow
+    return type("Apis", (), values)
 
 
 def _same_binding(left: dict, right: dict) -> bool:
@@ -244,11 +269,26 @@ def _validate_g0_receipt(receipt: object, config: dict, versions: dict[str, str]
             receipt["status"] == "PASS" and receipt["role"] == "INDEPENDENT_REVIEWER" and
             receipt["scope"] == "S2B_T18_G0_APPROVAL", "G0 receipt 审批身份或范围错误")
     source_commit = config.get("source_commit")
+    receipt_commit = receipt["source_commit"]
     require(type(source_commit) is str and re.fullmatch(r"[0-9a-f]{40}", source_commit) is not None and
-            receipt["source_commit"] == source_commit, "G0 receipt source_commit 与当前 config 不符")
+            type(receipt_commit) is str and re.fullmatch(r"[0-9a-f]{40}", receipt_commit) is not None,
+            "G0 receipt/config source_commit 必须是完整 commit SHA")
+    try:
+        subprocess.run(["git", "merge-base", "--is-ancestor", receipt_commit, source_commit],
+                       cwd=ROOT, capture_output=True, check=True)
+    except subprocess.CalledProcessError as error:
+        raise RunnerError("G0 receipt source_commit 不是当前源码基线的祖先") from error
+    except OSError as error:
+        raise RunnerError("无法核验 G0 receipt source_commit 祖先关系") from error
     require(type(receipt["interface_versions"]) is dict and
             set(receipt["interface_versions"]) == {"interface", "uart_interface"} and
             receipt["interface_versions"] == versions, "G0 receipt 接口文档版本与当前原文不符")
+    profile = receipt["deadline_profile"]
+    require(type(profile) is dict and set(profile) ==
+            {"core_timeout", "drain_timeout", "response_timeout_seconds"}, "G0 deadline_profile字段错误")
+    _validate_deadline_profile(config)
+    require(profile == {name: config[name] for name in profile},
+            "G0 deadline_profile与当前config值不一致")
     expected = {}
     for name in G0_BINDING_NAMES:
         item = _g0_config_binding(config, name)
@@ -260,6 +300,18 @@ def _validate_g0_receipt(receipt: object, config: dict, versions: dict[str, str]
     require(type(receipt["bindings"]) is dict and set(receipt["bindings"]) == set(G0_BINDING_NAMES) and
             receipt["bindings"] == expected, "G0 receipt path/version/SHA 与当前实际输入不符")
     _validate_g0_build_outputs(config)
+
+
+def _validate_deadline_profile(config: dict) -> None:
+    """核验CSR deadline计数周期和UART接收秒数的独立单位契约。"""
+    require(type(config.get("core_timeout")) is int and 1 <= config["core_timeout"] <= 0xFFFFFFFF,
+            "core_timeout必须是非零uint32周期数")
+    require(type(config.get("drain_timeout")) is int and 1 <= config["drain_timeout"] <= 0xFFFFFFFF,
+            "drain_timeout必须是非零uint32周期数")
+    response = config.get("response_timeout_seconds")
+    require(type(response) in (int, float) and 0 < response <= 450 and
+            (type(response) is int or math.isfinite(response)),
+            "UART response_timeout_seconds必须是有限正数且不超过450秒")
 
 
 def _validate_cold_receipt(receipt: object) -> None:
@@ -455,12 +507,7 @@ def validate_v1_inputs(config: dict, apis) -> dict:
     del review_raw, final_review_path
     _validate_serial_config(config["serial"])
     _validate_server_config(config["hw_server"])
-    require(type(config["core_timeout"]) is int and 0 <= config["core_timeout"] <= 0xFFFFFFFF,
-            "core_timeout 必须是 uint32")
-    require(type(config["drain_timeout"]) in (int, float) and 0 < config["drain_timeout"] <= 600,
-            "drain_timeout 超出范围")
-    require(type(config["response_timeout_seconds"]) in (int, float) and
-            0 < config["response_timeout_seconds"] <= 60, "UART response_timeout_seconds 超出范围")
+    _validate_deadline_profile(config)
     return {"run_dir": run_dir, "deploy_dir": deploy_dir, "build": build,
             "preparation": preparation, "preparation_path": preparation_path,
             "proof_path": proof_path, "review_path": review_path, "manifest_path": manifest_path,
@@ -566,8 +613,10 @@ class Journal:
             self.stream.close()
 
 
-def execute_board_flow(controller, wire, config: dict, checked: dict, apis, journal: Journal | None = None):
+def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
+                       journal: Journal | None = None, *, scope: str = "model"):
     """先完成 T16 冷部署，再通过 T18 完整准入后进入 UART 验收。"""
+    require(scope in ("model", "csr"), "scope只能是model或csr")
     try:
         controller.select_and_gate()
         controller.system_reset_stop(checked["cold_basis"])
@@ -577,19 +626,53 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis, jour
         if journal:
             journal.event("deployment_ready", "PASS", postconfigured=controller.postconfigured,
                           app_running=controller.app_running, configured=controller.configured)
+        source_sha = config["build_details"]["source_sha256"]["vitis/s2b_inference_app.c"]
+        xsa_sha = config["build_details"]["xsa_sha256"]
+        banner = wire.banner(source_sha, xsa_sha)
+        require(type(banner) is dict and set(banner) == {"bytes", "sha256", "text"} and
+                type(banner["bytes"]) is int and banner["bytes"] > 0 and
+                type(banner["sha256"]) is str and re.fullmatch(r"[0-9a-f]{64}", banner["sha256"]) and
+                type(banner["text"]) is str, "真实启动banner返回字段错误")
+        if journal:
+            journal.event("uart.banner", "PASS", **banner)
+        rx_file = getattr(wire, "rx_file", None)
+        prefix_binding = None
+        if rx_file is not None and getattr(rx_file, "name", None):
+            rx_path = exact_path(rx_file.name)
+            rx_file.flush()
+            with rx_path.open("rb") as stream:
+                prefix = stream.read(banner["bytes"])
+            require(len(prefix) == banner["bytes"] and digest(prefix) == banner["sha256"],
+                    "真实UART原始RX启动前缀与banner返回摘要不一致")
+            prefix_binding = {"path": str(rx_path), "offset": 0,
+                              "bytes": len(prefix), "sha256": digest(prefix)}
+        wire_type = getattr(getattr(apis, "jtag", None), "JtagWireSession", None)
+        require(wire_type is None or type(wire) is not wire_type or prefix_binding is not None,
+                "正式UART wire未提供可绑定的真实RX banner前缀")
         args = (controller, wire, config["build_details"]["path"], checked["proof_path"],
                 checked["review_path"], config["visibility_review"]["sha256"],
                 checked["manifest_path"], checked["final_review_path"], config["final_review"]["sha256"])
-        apis.acceptance.admit(*args)
+        admission = apis.acceptance.admit(*args)
         if journal:
             journal.event("s2b_t18_admit", "PASS", uart_tx_count=len(getattr(wire, "sent_requests", {})))
-        result = apis.acceptance.execute(
-            controller, wire, checked["preparation_path"], checked["run_dir"],
-            build_details=config["build_details"]["path"], visibility_proof=checked["proof_path"],
-            review=checked["review_path"], review_sha256=config["visibility_review"]["sha256"],
-            final_platform_manifest=checked["manifest_path"], final_review=checked["final_review_path"],
-            final_review_sha256=config["final_review"]["sha256"], core_timeout=config["core_timeout"],
-            drain_timeout=config["drain_timeout"])
+        if scope == "model":
+            result = apis.acceptance.execute(
+                controller, wire, checked["preparation_path"], checked["run_dir"],
+                build_details=config["build_details"]["path"], visibility_proof=checked["proof_path"],
+                review=checked["review_path"], review_sha256=config["visibility_review"]["sha256"],
+                final_platform_manifest=checked["manifest_path"], final_review=checked["final_review_path"],
+                final_review_sha256=config["final_review"]["sha256"], core_timeout=config["core_timeout"],
+                drain_timeout=config["drain_timeout"])
+        elif scope == "csr":
+            result = apis.csr_flow.execute(controller, wire, config, checked, apis,
+                                           admission, journal)
+            if result.get("status") != "PASS_CSR_RECOVERY_SCOPE_ONLY":
+                error = RunnerError("CSR固定流程失败；原始阶段异常见acceptance结果")
+                error.csr_flow_result = result
+                raise error
+        else:
+            raise RunnerError("scope 只能是model或csr")
+        result["startup_banner"] = {"returned": banner, "rx_prefix": prefix_binding}
         return result
     except BaseException as error:
         if wire is not None:
@@ -826,6 +909,11 @@ def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, reco
                  Path(apis.transport.__file__), Path(apis.platform.__file__), Path(apis.delivery.__file__)):
         actual = exact_path(path)
         files_by_path[_relative(actual)] = _manifest_file("source", actual)
+    if record.get("scope") == "csr":
+        for path in (Path(apis.csr_flow.__file__),
+                     exact_path(ROOT / "verification/s2b_csr_board_acceptance.py"),
+                     exact_path(ROOT / "verification/s2b_csr_busy_observer.py")):
+            files_by_path[_relative(path)] = _manifest_file("source", path)
     external_inputs = {}
     for key in ("preparation", "build_details", "visibility_proof", "visibility_review",
                 "final_platform_manifest", "final_review", "g0_basis", "cold_basis"):
@@ -835,6 +923,9 @@ def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, reco
     for path in sorted(checked["deploy_dir"].rglob("*")):
         if path.is_file():
             external_inputs[str(exact_path(path))] = _bound_file(path)
+    for item in record.get("acceptance", {}).get("t20_outputs", []):
+        path, _ = verify_binding(item, "T20 CSR输出", within_root=False)
+        external_inputs[str(path)] = item
     for binding in external_inputs.values():
         path, _ = verify_binding(binding, "T18 输入/运行日志", within_root=False)
         if not path.is_relative_to(ROOT):
@@ -883,15 +974,18 @@ def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, reco
     return result
 
 
-def run(config_path: str | Path, *, runtime=None) -> dict:
+def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
     """显式 config 是唯一可启动硬件入口；调用者不得用环境变量替代。"""
+    require(scope in ("model", "csr"), "scope 只能是model或csr")
     config_file = exact_path(config_path)
     require(config_file.is_relative_to(ROOT), "显式 config 必须位于仓库内的隔离证据目录")
     require(config_file.stat().st_size <= 1024 * 1024, "config 超过 1 MiB")
     config_raw = config_file.read_bytes()
     config = strict_json(config_raw)
     validate_preflight_basis(config)
-    apis = load_apis()
+    if scope == "csr":
+        _verify_csr_flow_sources()
+    apis = load_apis(scope)
     checked = validate_v1_inputs(config, apis)
     runtime = runtime or ProductionRuntime()
     checked["deploy_dir"].mkdir()
@@ -901,13 +995,15 @@ def run(config_path: str | Path, *, runtime=None) -> dict:
         stream.write(config_raw)
         stream.flush()
         os.fsync(stream.fileno())
-    record = {"schema_version": 1, "status": "IN_PROGRESS", "hardware_execution": "REQUESTED_BY_EXPLICIT_CONFIG",
+    record = {"schema_version": 1, "status": "IN_PROGRESS", "scope": scope,
+              "hardware_execution": "REQUESTED_BY_EXPLICIT_CONFIG",
               "source_commit": checked["source_commit"], "run_id": config["run_id"],
               "started_at_utc8": datetime.now(TZ).isoformat(), "identity_snapshots": [],
               "cleanup_steps": [], "cleanup_errors": [], "limitations": [
                   "本入口不执行 Vitis build；build_details 与全部部署产物须预先绑定。",
                   "只核验 visibility1 文件与独审回执绑定；独立 Reviewer 身份由总控确认。",
-                  "本入口只完成 T18 109 样本及 1000 次连续请求，不替代 T16 复位、CSR 负向或阶段验收。",
+                  ("本入口只完成 T18 109 样本及 1000 次连续请求，不替代 T16 复位、CSR 负向或阶段验收。"
+                   if scope == "model" else "本scope只执行固定CSR恢复顺序，不代表109样本或1000次压力完成。"),
                   "硬件进程峰值内存未测。"]}
     objects = {"xsdb": None, "serial": None, "session": None, "channel": None,
                "controller": None, "port": None, "wire": None, "rx": None, "tx": None}
@@ -934,12 +1030,17 @@ def run(config_path: str | Path, *, runtime=None) -> dict:
         objects["tx"] = (deploy_dir / "uart_tx_raw.bin").open("xb")
         objects["wire"] = apis.jtag.JtagWireSession(objects["port"], objects["rx"], objects["tx"],
                                                      response_timeout=config["response_timeout_seconds"])
-        result = execute_board_flow(objects["controller"], objects["wire"], config, checked, apis, journal)
+        result = execute_board_flow(objects["controller"], objects["wire"], config, checked, apis,
+                                    journal, scope=scope)
         record["acceptance"] = result
-        record["status"] = result.get("status", "PASS_MODEL_CORPUS_AND_STRESS_ONLY")
+        record["status"] = result.get("status", "PASS_MODEL_CORPUS_AND_STRESS_ONLY" if scope == "model"
+                                      else "PASS_CSR_RECOVERY_SCOPE_ONLY")
     except BaseException as error:
         failure = error
         record.update(status="FAILED", error=repr(error), traceback=traceback.format_exc())
+        partial_acceptance = getattr(error, "csr_flow_result", None)
+        if type(partial_acceptance) is dict:
+            record["acceptance"] = partial_acceptance
         if objects["wire"] is not None:
             objects["wire"].failed = True
         if objects["controller"] is not None and not objects["controller"].failed:
@@ -1048,7 +1149,7 @@ def run(config_path: str | Path, *, runtime=None) -> dict:
             record["status"] = "FAILED"
             failure = failure or RunnerError("一个或多个自有资源清理失败")
         if record["status"] == "IN_PROGRESS":
-            record["status"] = "PASS_MODEL_CORPUS_AND_STRESS_ONLY"
+            record["status"] = "PASS_MODEL_CORPUS_AND_STRESS_ONLY" if scope == "model" else "PASS_CSR_RECOVERY_SCOPE_ONLY"
     except BaseException as error:
         failure = failure or error
         record.update(status="FAILED", evidence_packaging_error=repr(error),
@@ -1063,8 +1164,10 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True,
                         help="由总控生成并逐文件绑定的 S2B-T18 visibility1 部署配置")
+    parser.add_argument("--scope", choices=("model", "csr"), default="model",
+                        help="固定验收scope；默认model，csr只执行CSR恢复序列")
     args = parser.parse_args(argv)
-    record = run(args.config)
+    record = run(args.config, scope=args.scope)
     print(json.dumps({"status": record["status"], "native_exit_code": record["native_exit_code"],
                       "run_id": record["run_id"], "delivery_manifest_check": record.get("delivery_manifest_check")},
                      ensure_ascii=False))

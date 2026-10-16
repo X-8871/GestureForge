@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "g0_receipt_lineage_20261016_r01_review_r02",
+  "source_commit": "6448ba4e1bfbab5275741fd55184cdfb588c4fc9",
+  "evidence_dir": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02",
+  "status": "PASS",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "ad24b68b5ab19c680e0c2af51df8186be25d49c1731eff24e0b7076f58abd7ba",
+      "role": "reviewed_source"
+    },
+    {
+      "path": "verification/test_s2b_model_acceptance_runner.py",
+      "sha256": "6ce6d47b48358e937993f7d37cf7b293bce0244f05803a43244192c8fd1264fc",
+      "role": "reviewed_test"
+    },
+    {
+      "path": "verification/s2b_csr_acceptance_flow.py",
+      "sha256": "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b",
+      "role": "reviewed_source"
+    },
+    {
+      "path": "verification/test_s2b_csr_acceptance_flow.py",
+      "sha256": "1bc9c8dc9fa7d869d93140fc9bdc32947eebf9e5354a8abe1d49b35cb7ae7942",
+      "role": "reviewed_test"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/independent_review.md",
+      "sha256": "c7e0ef8398030f1ae48f39af2216a88af4e73e738d7625e13590291c8b6b2b4e",
+      "role": "review"
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_review",
+      "status": "PASS",
+      "command": "read-only review of fixed source and tests",
+      "exit_code": 0,
+      "reason": "Original failure-path evidence gap is closed by failure result capture, output hashing, manifest generation, and runner propagation."
+    },
+    {
+      "name": "focused_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.local\\bin\\python3.11.exe -m unittest verification.test_s2b_model_acceptance_runner verification.test_s2b_csr_acceptance_flow",
+      "exit_code": 0,
+      "reason": "34 tests passed."
+    },
+    {
+      "name": "git_diff_check",
+      "status": "PASS",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "reason": "No whitespace errors."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.11"
+  },
+  "limitations": [
+    "中途失败由隔离测试替身注入，不代表实板运行。",
+    "未运行Vivado、RTL动态仿真或硬件测试。",
+    "本审查PASS不代表109样本、1000次压力、G3/G4/G5通过。"
+  ]
+}

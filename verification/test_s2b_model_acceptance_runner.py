@@ -21,10 +21,19 @@ SPEC.loader.exec_module(runner)
 
 class FakeWire:
     """只记录请求边界的隔离 UART 替身。"""
-    def __init__(self, *, fail_send=False):
+    def __init__(self, trace=None, *, fail_send=False, fail_banner=False):
         self.sent_requests = {}
         self.failed = False
         self.fail_send = fail_send
+        self.trace = trace if trace is not None else []
+        self.fail_banner = fail_banner
+
+    def banner(self, source_sha, xsa_sha):
+        self.trace.append("banner")
+        if self.fail_banner:
+            raise RuntimeError("mock banner failure")
+        raw = f"S2B-INFERENCE/1 READY SOURCE={source_sha} XSA={xsa_sha}".encode("ascii")
+        return {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(), "text": raw.decode("ascii")}
 
     def send_request(self):
         self.sent_requests[len(self.sent_requests)] = True
@@ -110,8 +119,9 @@ class FakeAcceptance:
 
 
 class FakeApis:
-    def __init__(self, acceptance):
+    def __init__(self, acceptance, csr_flow=None):
         self.acceptance = acceptance
+        self.csr_flow = csr_flow
 
 
 class ModelAcceptanceRunnerTests(unittest.TestCase):
@@ -353,6 +363,54 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                 with self.assertRaisesRegex(runner.RunnerError, "build_details 与当前编译 XSA"):
                     runner.validate_preflight_basis(config)
 
+    def test_g0_receipt_accepts_approved_ancestor_commit_for_current_head(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_g0_receipt_ancestor_") as temp:
+            root = Path(temp)
+            config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            approved_commit = config["source_commit"]
+            runner.subprocess.run(["git", "commit", "--allow-empty", "-qm", "current config"],
+                                  cwd=root, check=True, capture_output=True)
+            current_commit = runner.subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
+                                                   capture_output=True, text=True, encoding="ascii",
+                                                   check=True).stdout.strip()
+            config["source_commit"] = current_commit
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+            with mock.patch.object(runner, "ROOT", root), \
+                    mock.patch.object(runner, "G0_BASIS_PATH", Path(config["g0_basis"]["path"])), \
+                    mock.patch.object(runner, "G0_BASIS_SHA256", config["g0_basis"]["sha256"]), \
+                    mock.patch.object(runner, "COLD_BASIS_PATH", Path(config["cold_basis"]["path"])), \
+                    mock.patch.object(runner, "COLD_BASIS_SHA256", config["cold_basis"]["sha256"]):
+                checked = runner.validate_preflight_basis(config)
+            self.assertEqual(checked["source_commit"], current_commit)
+            receipt = json.loads(Path(config["g0_basis"]["path"]).read_text(encoding="utf-8"))
+            self.assertEqual(receipt["source_commit"], approved_commit)
+            self.assertNotEqual(checked["source_commit"], receipt["source_commit"])
+
+    def test_g0_receipt_rejects_unrelated_approved_commit(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_g0_receipt_nonancestor_") as temp:
+            root = Path(temp)
+            config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            tree = runner.subprocess.run(["git", "write-tree"], cwd=root, capture_output=True,
+                                         text=True, encoding="ascii", check=True).stdout.strip()
+            unrelated_commit = runner.subprocess.run(
+                ["git", "commit-tree", tree, "-m", "unrelated approval"], cwd=root,
+                capture_output=True, text=True, encoding="ascii", check=True).stdout.strip()
+            g0_path = Path(config["g0_basis"]["path"])
+            receipt = json.loads(g0_path.read_text(encoding="utf-8"))
+            receipt["source_commit"] = unrelated_commit
+            g0_path.write_text(json.dumps(receipt), encoding="utf-8")
+            config["g0_basis"]["sha256"] = hashlib.sha256(g0_path.read_bytes()).hexdigest()
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+            with mock.patch.object(runner, "ROOT", root), \
+                    mock.patch.object(runner, "G0_BASIS_PATH", g0_path), \
+                    mock.patch.object(runner, "G0_BASIS_SHA256", config["g0_basis"]["sha256"]), \
+                    mock.patch.object(runner, "COLD_BASIS_PATH", Path(config["cold_basis"]["path"])), \
+                    mock.patch.object(runner, "COLD_BASIS_SHA256", config["cold_basis"]["sha256"]):
+                with self.assertRaisesRegex(runner.RunnerError, "G0 receipt source_commit 不是当前源码基线的祖先"):
+                    runner.validate_preflight_basis(config)
+
     def test_g0_accepts_historical_ancestor_build_for_current_head(self):
         with tempfile.TemporaryDirectory(prefix="s2b_t18_build_ancestor_") as temp:
             root = Path(temp)
@@ -570,9 +628,12 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                             "visibility_review": top_bindings["visibility_review"],
                             "final_platform_manifest": top_bindings["final_platform_manifest"],
                             "final_review": top_bindings["final_review"]}
+        deadlines = {"core_timeout": 0xFFFFFFFF, "drain_timeout": 0xFFFFFFFF,
+                     "response_timeout_seconds": 450}
         g0_receipt = {"schema_version": 1, "status": "PASS", "role": "INDEPENDENT_REVIEWER",
                       "scope": "S2B_T18_G0_APPROVAL", "source_commit": source_commit,
-                      "interface_versions": versions, "bindings": current_bindings}
+                      "interface_versions": versions, "bindings": current_bindings,
+                      "deadline_profile": deadlines}
         cold_receipt = {"schema_version": 1, "status": "PASS", "role": "INDEPENDENT_REVIEWER",
                         "scope": "S2B_T18_UNIFIED_COLD_LIFECYCLE",
                         "controller_source_sha256": runner.JTAG_SOURCE_SHA256,
@@ -582,7 +643,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         cold_path.write_text(json.dumps(cold_receipt), encoding="utf-8")
         config = {
             "schema_version": 1, "source_commit": source_commit, "bindings": bindings,
-            **top_bindings, "build_details": build_binding,
+            **top_bindings, "build_details": build_binding, **deadlines,
             "g0_basis": {"path": str(g0_path), "sha256": hashlib.sha256(g0_path.read_bytes()).hexdigest()},
             "cold_basis": {"path": str(cold_path), "sha256": hashlib.sha256(cold_path.read_bytes()).hexdigest()},
         }
@@ -618,7 +679,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     def test_v1_manifest_receipt_allows_t18_only_after_complete_admission(self):
         trace = []
-        wire = FakeWire()
+        wire = FakeWire(trace)
         controller = FakeController(trace)
         acceptance = FakeAcceptance(trace, wire)
         config = self.config()
@@ -628,12 +689,13 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertEqual(trace[:6], ["select_and_gate", "system_reset_stop", "download_init",
                                      "observe_eos1", "postconfig", "download_app"])
         self.assertLess(trace.index("download_app"), trace.index("admit"))
+        self.assertLess(trace.index("banner"), trace.index("admit"))
         self.assertLess(trace.index("admit"), trace.index("execute"))
         self.assertEqual(len(wire.sent_requests), 1)
 
     def test_wrong_manifest_receipt_blocks_t18_without_uart_tx(self):
         trace = []
-        wire = FakeWire()
+        wire = FakeWire(trace)
         controller = FakeController(trace)
         acceptance = FakeAcceptance(trace, wire, fail_receipt=True)
         with self.assertRaises(runner.RunnerError):
@@ -647,7 +709,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         for stage in ("eos", "postconfig"):
             with self.subTest(stage=stage):
                 trace = []
-                wire = FakeWire()
+                wire = FakeWire(trace)
                 controller = FakeController(trace, fail_at=stage)
                 acceptance = FakeAcceptance(trace, wire)
                 with self.assertRaises(runner.RunnerError):
@@ -660,7 +722,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     def test_dynamic_jtag_and_uart_errors_fail_closed_without_retry(self):
         trace = []
-        wire = FakeWire()
+        wire = FakeWire(trace)
         controller = FakeController(trace, fail_select=True)
         acceptance = FakeAcceptance(trace, wire)
         with self.assertRaises(runner.RunnerError):
@@ -671,7 +733,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertIn("fail_stop", trace)
 
         trace = []
-        wire = FakeWire(fail_send=True)
+        wire = FakeWire(trace, fail_send=True)
         controller = FakeController(trace)
         acceptance = FakeAcceptance(trace, wire)
         with self.assertRaises(runner.RunnerError):
@@ -680,6 +742,78 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertEqual(len(wire.sent_requests), 1)
         self.assertTrue(wire.failed)
         self.assertIn("fail_stop", trace)
+
+    def test_banner_failure_blocks_admission_and_csr_scope_is_explicit(self):
+        trace = []
+        wire = FakeWire(trace, fail_banner=True)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+        with self.assertRaises(runner.RunnerError):
+            runner.execute_board_flow(controller, wire, self.config(), self.checked(), FakeApis(acceptance))
+        self.assertNotIn("admit", trace)
+        self.assertEqual(acceptance.execute_count, 0)
+        self.assertFalse(wire.sent_requests)
+
+        class FakeCsrFlow:
+            @staticmethod
+            def execute(controller, wire, config, checked, apis, admission, journal):
+                trace.append("csr_execute")
+                return {"status": "PASS_CSR_RECOVERY_SCOPE_ONLY"}
+
+        trace = []
+        wire = FakeWire(trace)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+        result = runner.execute_board_flow(controller, wire, self.config(), self.checked(),
+                                           FakeApis(acceptance, FakeCsrFlow), scope="csr")
+        self.assertEqual(result["status"], "PASS_CSR_RECOVERY_SCOPE_ONLY")
+        self.assertLess(trace.index("banner"), trace.index("admit"))
+        self.assertLess(trace.index("admit"), trace.index("csr_execute"))
+        self.assertEqual(acceptance.execute_count, 0)
+
+        failed_result = {"status": "FAILED_CSR_RECOVERY_SCOPE_ONLY",
+                         "error": "RuntimeError('mid-flow failure')",
+                         "t20_outputs": [{"path": "busy_result.json", "sha256": "a" * 64}]}
+
+        class FailedCsrFlow:
+            @staticmethod
+            def execute(controller, wire, config, checked, apis, admission, journal):
+                return failed_result
+
+        trace = []
+        wire = FakeWire(trace)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+        with self.assertRaises(runner.RunnerError) as raised:
+            runner.execute_board_flow(controller, wire, self.config(), self.checked(),
+                                      FakeApis(acceptance, FailedCsrFlow), scope="csr")
+        self.assertEqual(raised.exception.csr_flow_result, failed_result)
+
+    def test_scope_and_deadline_profile_are_strict(self):
+        with self.assertRaisesRegex(runner.RunnerError, "scope"):
+            runner.run("missing.json", scope="arbitrary")
+        config = {"core_timeout": 1, "drain_timeout": 1, "response_timeout_seconds": 450}
+        runner._validate_deadline_profile(config)
+        cases = (("core_timeout", 0), ("core_timeout", True), ("core_timeout", 1.0),
+                 ("core_timeout", 0x100000000), ("drain_timeout", 0), ("drain_timeout", False),
+                 ("drain_timeout", 1.5), ("drain_timeout", 0x100000000),
+                 ("response_timeout_seconds", 0), ("response_timeout_seconds", float("inf")),
+                 ("response_timeout_seconds", 450.01))
+        for field, value in cases:
+            with self.subTest(field=field, value=value), self.assertRaises(runner.RunnerError):
+                runner._validate_deadline_profile(dict(config, **{field: value}))
+
+    def test_g0_deadline_profile_is_bound_to_config_values(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_deadline_profile_") as temp:
+            root = Path(temp)
+            config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            receipt = json.loads(Path(config["g0_basis"]["path"]).read_text(encoding="utf-8"))
+            receipt["deadline_profile"]["drain_timeout"] -= 1
+            with mock.patch.object(runner, "ROOT", root):
+                versions = runner._validate_interface_freeze_sources(config["bindings"])
+                with self.assertRaisesRegex(runner.RunnerError, "deadline_profile与当前config值不一致"):
+                    runner._validate_g0_receipt(receipt, config, versions)
 
     def test_serial_identity_is_config_driven_and_exact(self):
         config = {"hw_server": {"process_id": 41, "executable_path": r"D:\Xilinx\hw_server.exe",
@@ -700,10 +834,13 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     @staticmethod
     def config():
-        return {"build_details": {"path": "build.json", "sha256": "c" * 64},
+        return {"build_details": {"path": "build.json", "sha256": "c" * 64,
+                                  "source_sha256": {"vitis/s2b_inference_app.c": "a" * 64},
+                                  "xsa_sha256": "b" * 64},
                 "visibility_review": {"path": "review.json", "sha256": "d" * 64},
                 "final_review": {"path": "final_review.json", "sha256": "e" * 64},
-                "core_timeout": 0xFFFFFFFF, "drain_timeout": 60}
+                "core_timeout": 0xFFFFFFFF, "drain_timeout": 60,
+                "final_platform_manifest": {"path": "manifest.json", "sha256": "f" * 64}}
 
     @staticmethod
     def checked():

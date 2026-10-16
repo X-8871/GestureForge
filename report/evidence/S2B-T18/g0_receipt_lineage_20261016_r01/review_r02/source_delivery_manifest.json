@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "g0_receipt_lineage_20261016_r01",
+  "source_commit": "6448ba4e1bfbab5275741fd55184cdfb588c4fc9",
+  "evidence_dir": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本Run封存主机验收流程源码及隔离测试的独审结果，不批准具体平台部署或改变接口语义。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/delivery_manifest.json",
+      "sha256": "af56824bef4b37f06c01c635d79a1e391137e8d154e813a706a9c5cc97252b8b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/independent_review.md",
+      "sha256": "c7e0ef8398030f1ae48f39af2216a88af4e73e738d7625e13590291c8b6b2b4e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/package_sources.py",
+      "sha256": "606bce1041983a59d31a864fed78f90196ab9eaf9c23db143d66db1eacc583f8",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/source_snapshot/verification/s2b_csr_acceptance_flow.py",
+      "sha256": "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/source_snapshot/verification/test_s2b_csr_acceptance_flow.py",
+      "sha256": "1bc9c8dc9fa7d869d93140fc9bdc32947eebf9e5354a8abe1d49b35cb7ae7942",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/source_snapshot/verification/test_s2b_model_acceptance_runner.py",
+      "sha256": "6ce6d47b48358e937993f7d37cf7b293bce0244f05803a43244192c8fd1264fc",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/review_r02/source_snapshot/vitis/run_s2b_model_acceptance.py",
+      "sha256": "ad24b68b5ab19c680e0c2af51df8186be25d49c1731eff24e0b7076f58abd7ba",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/g0_receipt_lineage_20261016_r01/runner_test.txt",
+      "sha256": "fbae3a44c773e6a733b26229ec6f4f5b4973b0185bfea238ce6422d30fe0f84b",
+      "role": "log",
+      "keep_reason": "先前29项测试stdout原件；最终34项结果由独立review记录，不混称同一次运行。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "independent_source_review",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "独立Reviewer只读核对四文件并运行两个定向unittest模块及git diff --check",
+      "reason": "真实Reviewer回报34项通过，失败路径原始错误及T20文件绑定阻断关闭；原始测试stdout未另行保存。"
+    },
+    {
+      "name": "hardware_validation",
+      "status": "NOT_APPLICABLE",
+      "exit_code": null,
+      "command": null,
+      "reason": "仅主机流程源码与隔离替身测试；109/1000和CSR实板验收未执行。"
+    }
+  ],
+  "limitations": [
+    "审查使用隔离替身，不能证明硬件通过。",
+    "保留原业务review清单，不将其替代标准包装清单。"
+  ],
+  "tool_versions": {
+    "Python": "3.11 (独立Reviewer回报)"
+  }
+}

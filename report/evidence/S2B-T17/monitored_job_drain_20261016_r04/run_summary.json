@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17",
+  "run_id": "monitored_job_drain_20261016_r04",
+  "status": "MICRO_FIXTURE_PASS_ONLY_PENDING_INDEPENDENT_REVIEW",
+  "source_base_commit": "ba71fef83059e9ffd82ea29bfb7f3185e1506c06",
+  "current_head_after_test": "abe095e1bff4586193149bbe837bc9bd855b2a03",
+  "runtime_head_at_test": null,
+  "head_tree_binding": {
+    "command_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/head_source_tree_binding.txt",
+    "exit_code": 0,
+    "meaning": "ba71fef与打包时HEAD的提交树里两项监督器文件相同。"
+  },
+  "working_tree_source_changed_from_base": true,
+  "tested_working_tree_source_hashes_sha256": {
+    "verification/s2b_process_supervisor.py": "c1f1eb733675a0c316788198420940236f062363808648f84c5293caccc85ac3",
+    "verification/test_s2b_process_supervisor.py": "5f9889891949b492dd87c0350c72844cabdb2cb7a721a31e0bf1e0886a0c04ed"
+  },
+  "final_local_snapshot_hashes_sha256": {
+    "verification/s2b_process_supervisor.py": "c1f1eb733675a0c316788198420940236f062363808648f84c5293caccc85ac3",
+    "verification/test_s2b_process_supervisor.py": "5f9889891949b492dd87c0350c72844cabdb2cb7a721a31e0bf1e0886a0c04ed"
+  },
+  "runtime_head_note": "测试时未采样HEAD；不声称工作树源码与source_base_commit相同。打包时HEAD仍是abe095e1bff4586193149bbe837bc9bd855b2a03，其提交树相对ba71fef没有这两项源码改动；本次被测工作树源码已变化，并通过独立SHA-256及本地快照绑定。",
+  "prior_review_failure_source": "tmp/2B/S2B-T17/review_abe095e_r01/",
+  "prior_review_failures": [
+    {
+      "attack": "slow_exit_code_gap_attack",
+      "original_result": "PASS",
+      "configured_max_sample_gap_seconds": 2.0,
+      "observed_max_sample_gap_seconds": 1.156,
+      "original_log": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/prior_review_failure/slow_exit_code_gap_attack.log",
+      "new_rejection": "配置上限测试以max_sample_gap_seconds=2.0验证FAIL_SUPERVISOR_CONFIG，且memory_reader与Job构造均未调用。"
+    },
+    {
+      "attack": "oversized_drain_timeout_attack",
+      "original_result": "PASS",
+      "configured_drain_timeout_seconds": 20.0,
+      "observed_drain_elapsed_seconds": 10.1,
+      "original_log": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/prior_review_failure/oversized_drain_timeout_attack.log",
+      "new_rejection": "配置上限测试以drain_timeout_seconds=20.0验证FAIL_SUPERVISOR_CONFIG，且memory_reader与Job构造均未调用。"
+    }
+  ],
+  "final_test_run": {
+    "command_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/test_supervisor_final.command.txt",
+    "log_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/test_supervisor_final.log",
+    "exit_code_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/test_exit_code_final.txt",
+    "exit_code": 0,
+    "tests_passed": 21,
+    "elapsed_seconds": 8.589,
+    "python": "3.12.10",
+    "coverage": [
+      "四类硬上限越界及start_floor低于stop_floor均在内存预检与Job创建前拒绝。",
+      "sample interval=0.25秒、最大采样间隔=1.0秒、drain=10秒、start/stop=2GiB边界到达内存预检，证明合法边界不被拒绝。",
+      "慢Job查询跨最大采样间隔或drain期限仍失败关闭。",
+      "慢最终root退出码读回跨最大采样间隔或drain期限仍失败关闭。",
+      "原15项监督器回归通过。"
+    ]
+  },
+  "diff_check": {
+    "command": "git -c core.whitespace=cr-at-eol diff --check ba71fef -- verification/s2b_process_supervisor.py verification/test_s2b_process_supervisor.py",
+    "exit_code": 0,
+    "log_file": "report/evidence/S2B-T17/monitored_job_drain_20261016_r04/git_diff_check_final.log"
+  },
+  "stage_delivery_check": {
+    "status": "CHECKS_OK",
+    "exit_code": 0,
+    "command": "C:/Users/22061/AppData/Local/Programs/Python/Python312/python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T17/monitored_job_drain_20261016_r04/delivery_manifest.json"
+  },
+  "hardware_vitis_xsim": "NOT_RUN",
+  "limitations": [
+    "本轮只进行监督器自身轻量回归；没有启动Vitis、Vivado、XSim或操作板卡。",
+    "历史Job成员PID 9332的身份仍未知。",
+    "本结果不代表真实Vitis构建行为、阶段2B或实物验收通过。",
+    "独立Reviewer复审及总控提交尚未进行。"
+  ]
+}

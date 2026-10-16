@@ -1,0 +1,11 @@
+AST_AND_SOURCE_HASHES PASS {"verification/s2b_process_supervisor.py": "c1f1eb733675a0c316788198420940236f062363808648f84c5293caccc85ac3", "verification/test_s2b_process_supervisor.py": "5f9889891949b492dd87c0350c72844cabdb2cb7a721a31e0bf1e0886a0c04ed"}
+R04_MANIFEST_FILE_HASHES PASS 30
+REJECT_BEFORE_SIDE_EFFECT PASS slow_exit_code_gap_attack ['max_sample_gap_seconds不能大于1.0秒']
+REJECT_BEFORE_SIDE_EFFECT PASS oversized_drain_timeout_attack ['drain_timeout_seconds不能大于10.0秒']
+REJECT_BEFORE_SIDE_EFFECT PASS sample_interval_over_cap ['sample_interval_seconds不能大于0.25秒']
+REJECT_BEFORE_SIDE_EFFECT PASS stop_floor_below_hard_minimum ['stop_floor_bytes不能低于2147483648字节']
+REJECT_BEFORE_SIDE_EFFECT PASS start_floor_below_stop_floor ['start_floor_bytes必须是整数且不低于stop_floor_bytes']
+EXACT_LIMITS_ACCEPTED PASS FAIL_RESOURCE_PREFLIGHT_QUERY
+SLOW_OPERATION_DEADLINE_REJECTED PASS slow_final_exit_read_overall_deadline 5.1
+SLOW_OPERATION_DEADLINE_REJECTED PASS slow_job_query_overall_deadline 5.1
+ALL_REVIEW_ATTACKS PASS

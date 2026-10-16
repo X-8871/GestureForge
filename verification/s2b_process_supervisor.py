@@ -13,13 +13,23 @@ GIB = 1024 ** 3
 START_FLOOR_BYTES = 10 * GIB
 STOP_FLOOR_BYTES = 2 * GIB
 SAMPLE_INTERVAL_SECONDS = 0.25
+MAX_SAMPLE_INTERVAL_SECONDS = 0.25
 MAX_SAMPLE_GAP_SECONDS = 1.0
 JOB_DRAIN_TIMEOUT_SECONDS = 10.0
+MAX_DRAIN_TIMEOUT_SECONDS = 10.0
 SUPERVISOR_VERSION = "s2b-job-supervisor/1.0"
 
 
 class SupervisorError(RuntimeError):
     """资源监视或本任务Job闭合失败。"""
+
+
+class _DrainWaitFailure(SupervisorError):
+    """携带自然排空阶段失败状态。"""
+
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
 
 
 def _finite_positive_seconds(value):
@@ -56,13 +66,61 @@ def _validated_memory_sample(memory_reader):
     return available, total
 
 
-def _wait_for_empty_job(job, root_process, timeout_seconds):
+def _wait_for_empty_job(
+    job,
+    root_process,
+    timeout_seconds,
+    *,
+    allow_root_exit_drain=False,
+    overall_deadline=None,
+    poll_callback=None,
+    drain_record=None,
+):
     """用Job PID列表、Accounting及root原始HANDLE证明终态。"""
     job_guard = _load_job_guard()
-    deadline = time.monotonic() + float(timeout_seconds)
+    drain_started = time.monotonic()
+    deadline = drain_started + float(timeout_seconds)
+    if overall_deadline is not None:
+        deadline = min(deadline, overall_deadline)
     stable_reads = 0
     last = None
+    if drain_record is not None:
+        drain_record.update({
+            "status": "RUNNING",
+            "elapsed_seconds": 0.0,
+            "poll_count": 0,
+            "start_job_pids": None,
+            "last_job_pids": None,
+            "last_active_processes": None,
+            "stable_empty_reads": 0,
+            "error": None,
+        })
+
+    def finish_drain(status, error=None):
+        if drain_record is not None:
+            drain_record["status"] = status
+            drain_record["elapsed_seconds"] = round(time.monotonic() - drain_started, 3)
+            drain_record["stable_empty_reads"] = stable_reads
+            drain_record["error"] = error
+
+    def check_deadlines(context):
+        now = time.monotonic()
+        if overall_deadline is not None and now >= overall_deadline:
+            message = f"整体wall timeout在{context}到期"
+            if allow_root_exit_drain:
+                raise _DrainWaitFailure("FAIL_TIMEOUT", message)
+            raise SupervisorError(message)
+        if now >= deadline:
+            message = f"Job自然排空期限在{context}到期"
+            if allow_root_exit_drain:
+                raise _DrainWaitFailure("FAIL_JOB_NOT_EMPTY", message)
+            raise SupervisorError(message)
+
     while time.monotonic() < deadline:
+        if poll_callback is not None:
+            poll_callback()
+        check_deadlines("Job成员采样前")
+
         pids_before = tuple(job.pid_list())
         accounting_before = job.accounting()
         root_wait = None
@@ -86,21 +144,42 @@ def _wait_for_empty_job(job, root_process, timeout_seconds):
             "accounting_after": accounting_after,
             "root_signaled": root_ended,
         }
+        if drain_record is not None:
+            drain_record["poll_count"] += 1
+            if drain_record["start_job_pids"] is None:
+                drain_record["start_job_pids"] = list(pids_before)
+            drain_record["last_job_pids"] = list(pids_after)
+            drain_record["last_active_processes"] = accounting_after["active_processes"]
         if empty:
             stable_reads += 1
             if stable_reads >= 2:
+                if poll_callback is not None:
+                    poll_callback()
+                check_deadlines("最终资源采样后")
                 if root_process is not None:
                     root_exit_code = job_guard._api_get_exit_code(root_process.process_handle)
                     if root_exit_code == job_guard.STILL_ACTIVE:
                         raise SupervisorError("root已signal但退出码仍为STILL_ACTIVE")
                     last["root_exit_code"] = root_exit_code
+                if poll_callback is not None:
+                    poll_callback()
+                check_deadlines("PASS提交前")
                 last["stable_empty_reads"] = stable_reads
+                finish_drain("PASS_EMPTY_JOB")
                 return last
         else:
             stable_reads = 0
-            if root_process is not None and root_ended:
+            if root_process is not None and root_ended and not allow_root_exit_drain:
                 raise SupervisorError(f"root已退出但本任务Job仍有成员：{last!r}")
-        time.sleep(0.05)
+        if drain_record is not None:
+            drain_record["stable_empty_reads"] = stable_reads
+        time.sleep(min(0.05, max(0.0, deadline - time.monotonic())))
+
+    now = time.monotonic()
+    if overall_deadline is not None and now >= overall_deadline:
+        raise _DrainWaitFailure("FAIL_TIMEOUT", f"整体wall timeout到期，Job未稳定清空：{last!r}")
+    if allow_root_exit_drain:
+        raise _DrainWaitFailure("FAIL_JOB_NOT_EMPTY", f"Job未在自然排空期限内稳定清空：{last!r}")
     raise SupervisorError(f"Job未在期限内稳定清空：{last!r}")
 
 
@@ -189,6 +268,7 @@ def supervise_process(
             "max_sample_gap_seconds": record_times["max_sample_gap_seconds"],
             "drain_timeout_seconds": record_times["drain_timeout_seconds"],
             "invalid_time_parameters": invalid_time_parameters,
+            "invalid_configuration_constraints": [],
             "start_floor_bytes": start_floor_bytes,
             "stop_floor_bytes": stop_floor_bytes,
             "preflight": None,
@@ -209,6 +289,13 @@ def supervise_process(
             "root_thread_handle_closed": False,
             "confirmed": False,
             "natural_drain_failure": None,
+            "natural_drain": {
+                "status": "NOT_STARTED",
+                "timeout_seconds": record_times["drain_timeout_seconds"],
+                "resource_samples_at_start": None,
+                "resource_samples_at_end": None,
+                "wall_timeout_seconds_remaining": None,
+            },
             "errors": [],
             "verification_scope": "双次读取Job PID列表为空且Accounting active_processes为0，并确认root原始HANDLE已signal；不要求保留所有短命子进程HANDLE。",
         },
@@ -224,14 +311,35 @@ def supervise_process(
     primary_failure = None
 
     try:
-        if (type(start_floor_bytes) is not int or type(stop_floor_bytes) is not int
-                or stop_floor_bytes <= 0 or start_floor_bytes < stop_floor_bytes
-                or invalid_time_parameters
-                or validated_times["sample_interval_seconds"] > 0.5):
+        configuration_violations = []
+        if invalid_time_parameters:
+            configuration_violations.extend(
+                f"{name}必须为有限正数" for name in invalid_time_parameters)
+        if (validated_times["sample_interval_seconds"] is not None
+                and validated_times["sample_interval_seconds"] > MAX_SAMPLE_INTERVAL_SECONDS):
+            configuration_violations.append(
+                f"sample_interval_seconds不能大于{MAX_SAMPLE_INTERVAL_SECONDS:.2f}秒")
+        if (validated_times["max_sample_gap_seconds"] is not None
+                and validated_times["max_sample_gap_seconds"] > MAX_SAMPLE_GAP_SECONDS):
+            configuration_violations.append(
+                f"max_sample_gap_seconds不能大于{MAX_SAMPLE_GAP_SECONDS:.1f}秒")
+        if (validated_times["drain_timeout_seconds"] is not None
+                and validated_times["drain_timeout_seconds"] > MAX_DRAIN_TIMEOUT_SECONDS):
+            configuration_violations.append(
+                f"drain_timeout_seconds不能大于{MAX_DRAIN_TIMEOUT_SECONDS:.1f}秒")
+        if type(stop_floor_bytes) is not int or stop_floor_bytes < STOP_FLOOR_BYTES:
+            configuration_violations.append(
+                f"stop_floor_bytes不能低于{STOP_FLOOR_BYTES}字节")
+        if type(start_floor_bytes) is not int or (
+                type(stop_floor_bytes) is int and start_floor_bytes < stop_floor_bytes):
+            configuration_violations.append(
+                "start_floor_bytes必须是整数且不低于stop_floor_bytes")
+        if configuration_violations:
             record["status"] = "FAIL_SUPERVISOR_CONFIG"
+            record["resource_monitor"]["invalid_configuration_constraints"] = (
+                configuration_violations)
             record["resource_monitor"]["failure"] = (
-                "监督器时间预算必须为有限正数，采样间隔须不超过0.5秒，"
-                "且内存门槛配置有效。")
+                "监督器硬约束配置无效：" + "；".join(configuration_violations))
             return record
         timeout_seconds = validated_times["timeout_seconds"]
         sample_interval_seconds = validated_times["sample_interval_seconds"]
@@ -401,12 +509,75 @@ def supervise_process(
                 record["exit_code"] = observed_exit_code
                 if observed_exit_code != 0:
                     primary_failure = "FAIL_EXIT"
+                natural_drain = record["cleanup"]["natural_drain"]
+                natural_drain["resource_samples_at_start"] = record["resource_monitor"]["sample_count"]
+                natural_drain["wall_timeout_seconds_remaining"] = max(0.0, deadline - time.monotonic())
+                natural_drain_started = time.monotonic()
+
+                def sample_drain_resources():
+                    nonlocal last_sample
+                    monitor = record["resource_monitor"]
+                    now = time.monotonic()
+                    if last_sample is not None and now - last_sample > max_sample_gap_seconds:
+                        gap = now - last_sample
+                        monitor["maximum_sample_gap_seconds"] = max(
+                            monitor["maximum_sample_gap_seconds"], gap)
+                        monitor["failure"] = (
+                            f"自然排空资源采样间隔{gap:.3f}s超过"
+                            f"{max_sample_gap_seconds:.3f}s上限")
+                        raise _DrainWaitFailure("FAIL_RESOURCE_SAMPLE_GAP", monitor["failure"])
+                    if last_sample is not None and now - last_sample < sample_interval_seconds:
+                        return
+                    try:
+                        available, total = _validated_memory_sample(memory_reader)
+                    except Exception as error:
+                        monitor["failure"] = f"{type(error).__name__}: {error}"
+                        raise _DrainWaitFailure("FAIL_RESOURCE_QUERY", monitor["failure"]) from error
+                    sample_end = time.monotonic()
+                    gap = sample_end - last_sample if last_sample is not None else 0.0
+                    monitor["maximum_sample_gap_seconds"] = max(
+                        monitor["maximum_sample_gap_seconds"], gap)
+                    if last_sample is not None and gap > max_sample_gap_seconds:
+                        monitor["failure"] = (
+                            f"自然排空资源采样间隔{gap:.3f}s超过"
+                            f"{max_sample_gap_seconds:.3f}s上限")
+                        raise _DrainWaitFailure("FAIL_RESOURCE_SAMPLE_GAP", monitor["failure"])
+                    last_sample = sample_end
+                    monitor["sample_count"] += 1
+                    monitor["last_sample_monotonic"] = sample_end
+                    monitor["total_ram_bytes"] = total
+                    prior_minimum = monitor["minimum_available_ram_bytes"]
+                    monitor["minimum_available_ram_bytes"] = (
+                        available if prior_minimum is None else min(prior_minimum, available))
+                    if available < stop_floor_bytes:
+                        monitor["failure"] = f"可用物理内存低于{stop_floor_bytes}字节停止线"
+                        raise _DrainWaitFailure("FAIL_RESOURCE_STOP", monitor["failure"])
+
                 try:
-                    proof = _wait_for_empty_job(job, root_process, drain_timeout_seconds)
+                    proof = _wait_for_empty_job(
+                        job, root_process, drain_timeout_seconds,
+                        allow_root_exit_drain=True,
+                        overall_deadline=deadline,
+                        poll_callback=sample_drain_resources,
+                        drain_record=natural_drain,
+                    )
                     record["cleanup"]["empty_job_proof"] = proof
+                except _DrainWaitFailure as error:
+                    record["cleanup"]["natural_drain_failure"] = f"{type(error).__name__}: {error}"
+                    natural_drain["status"] = error.status
+                    natural_drain["error"] = str(error)
+                    natural_drain["elapsed_seconds"] = round(time.monotonic() - natural_drain_started, 3)
+                    if error.status == "FAIL_TIMEOUT":
+                        record["timed_out"] = True
+                    primary_failure = error.status
                 except Exception as error:
                     record["cleanup"]["natural_drain_failure"] = f"{type(error).__name__}: {error}"
-                    primary_failure = primary_failure or "FAIL_JOB_NOT_EMPTY"
+                    natural_drain["status"] = "FAIL_JOB_NOT_EMPTY"
+                    natural_drain["error"] = f"{type(error).__name__}: {error}"
+                    natural_drain["elapsed_seconds"] = round(time.monotonic() - natural_drain_started, 3)
+                    primary_failure = "FAIL_JOB_NOT_EMPTY"
+                finally:
+                    natural_drain["resource_samples_at_end"] = record["resource_monitor"]["sample_count"]
 
         if primary_failure is not None and job is not None and not job.closed:
             record["cleanup"]["termination_requested"] = True

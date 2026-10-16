@@ -28,6 +28,14 @@
 
 ## 当前阻碍与在制事项
 
+- 本轮最新恢复检查点：两组真实失败证据已独立核对并提交`abe095e1bff4586193149bbe837bc9bd855b2a03`（仅evidence，121项暂存原字节匹配）。下面提及“待独审/提交”的旧运行描述以本条和各Run原件为准；无板卡动作，2B仍未通过。
+- 历史微型运行及XSim未执行阻断包独立一致性PASS，提交`eec3be34e5b571805d8e637e7e3410d6ed293969`（80项原字节匹配）。监督器最终r04 G2 PASS：源码SHA`c1f1eb733675a0c316788198420940236f062363808648f84c5293caccc85ac3`，测试SHA`5f9889891949b492dd87c0350c72844cabdb2cb7a721a31e0bf1e0886a0c04ed`，Developer21项/8.589秒、Reviewer21项/8.544秒及定向边界攻击均退出0。四项硬约束只允许收紧，慢终态查询跨期限/采样间隔失败关闭；此PASS仅覆盖监督器，不能替代实际XSim/Vitis重跑或硬件验收。
+- 受监控自然drain的r03源码`e5c551ee…ab7e3046`完成Developer17项/8.640秒与Reviewer17项/8.634秒，均退出0，但G2为CHANGES_REQUIRED：API可放宽0.25秒采样、1秒最大间隔、10秒drain或2GiB停止线。两项独立攻击已复现超限仍PASS，正在同轮封住参数并补充边界测试；旧Run原件/快照和审查阻断保留，不使用旧源码启动重型任务。最终修复须独审PASS、固定提交后再执行。
+- TB诊断版SHA`379bbccdffb8700ac0d562c5d5daa8e5c0f12852aedbc1564f47a0390151e214`静态G2 PASS，原epoch force/断言/seed/覆盖不改。XSim诊断准备r03因旧监督器终态采样/期限缺陷被拒绝启动，明确BLOCKED/NOT_RUN；新r04静态准备PASS但依赖新监督器最终G2和真实启动前快照，尚未启动compile/elaborate/simulation。候选Vitis离线r02同样已准备但NOT_RUN。
+
+- 2026-10-16 XSim r02已真实执行：`report/evidence/S2B-T11/control_r18_xsim_execution_20261016_r02/`以`ba71fef`为源码基线，compile/elaborate/simulation原生均退出0、Job清理均确认，但cycle=3308、directed=130、integration=0出现Fatal，驱动退出1，整体FAIL。中文后缀损坏，只能确认AW相关文本；最大epoch持续force与packed struct更新的交互尚为假设。原结果/清单保持原字节，另保留必要WDB/journal及历史快照补充清单；包装CHECKS_OK不代表矩阵通过。TB仅增加ASCII位置和q/d诊断，原刺激/断言/seed/覆盖不变，尚待独审与新Run动态复验。
+- 当前T13 r02 XSA候选首次离线构建`report/evidence/S2B-T15/candidate_t13_r02_offline_20261016_r01/`内层生成BSP/infer/init ELF，初始MMU静态通过，infer SHA`4972fac2d414bc5bb60942233b948b530d6864252be999176fb82a9da9f4e4df`；但外层`FAIL_JOB_NOT_EMPTY`/退出1，整体FAIL。root/native0退出时Job残留PID9332（不同于server壳PID23024，身份未留证），监督器随即报错；请求终止后空Job双读/Accounting0/句柄闭合，cleanup_confirmed=true。原运行不改判PASS；正在修复有界自然排空且持续RAM监控。只离线，无板卡动作；原始失败、源码/BSP归档及产物已保存，尚待独审/提交。
+
 - PS/PL s2b-physical-candidate/0.1.2、UART s2bu-candidate/1.1 尚未整体冻结；器件身份XC7Z020-2CLG400I已由用户确认，DDR实际料号与当前板卡修订绑定仍待厂家确认。
 - 仍需收敛HP0非Bufferable完整路径依据、统一冷启动/排空恢复、32 MiB arena的实际BSP/cache访问与运行绑定；实际总线、延迟、可见性及恢复结果必须在受控实板测试留证。
 - 整网core/drain部署期限尚未实测。32位全局core计数在50 MHz最多85.8993459秒；实际tile复用/权重重读静态预算为每帧96,135,961次请求（读84,753,811/写11,382,150），38层及9项轻量测试独审PASS，提交 c8977ef；入口 report/evidence/S2B-T19/request_budget_20261014_r01/。不把静态敏感性估算当真实HP延迟或周期上界；T66原记录缺失仍BLOCKED，仅有T68间接计数依据。

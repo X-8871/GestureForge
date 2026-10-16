@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-interface-freeze-and-cache-probe-independent-review/1.0.0",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "PASS_LIMITED_SCOPE",
+  "review_time_utc8": "2026-10-16T18:06:21+08:00",
+  "freeze_review": {
+    "verdict": "PASS_G0_INTERFACE_AND_EXPERIMENT_PROCEDURE_ONLY",
+    "interface_version": "s2b-physical/1.0.0",
+    "transport_version": "s2bu/1.1",
+    "platform_profile": "s2b-inference-platform/0.1.17",
+    "physical_interface_sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+    "check_static_source_count": 34,
+    "check_static_exit_code": 0,
+    "diff_check_exit_code": 0,
+    "checks": {
+      "six_file_diff_reviewed": true,
+      "G0_scope_limited_to_interface_and_controlled_experiment_procedure": true,
+      "sample000_max_counter_is_finite_observation_limit_not_measured_normal_bound": true,
+      "109_sample_then_1000_task_gate_and_fail_stop_preserved": true,
+      "formal_G4_G5_quantification_and_acceptance_not_reduced": true,
+      "prior_runtime_pass_not_inherited_into_new_profile": true
+    },
+    "limitations": [
+      "不批准具体新XSA/ELF/board image，也不代表G3/G4/G5或阶段验收。"
+    ]
+  },
+  "probe_review": {
+    "verdict": "PASS_LIMITED_ACTUAL_API_OBSERVATIONS",
+    "execution_run": "report/evidence/S2B-T19/cache_probe_execution_20261016_r03",
+    "config_sha256": "f1ae3e39e97268cd5f212c653a85f443095785fa3ea214781cca359052c17401",
+    "native_exit_code": 0,
+    "inner_elapsed_seconds": 84.78245650000463,
+    "outer_job": {
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 89.36,
+      "cleanup_confirmed": true,
+      "stable_empty_reads": 2,
+      "active_processes_after": 0,
+      "name": "s2b_current_visibility0_cache_probe_r03"
+    },
+    "raw_status_preserved": "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING",
+    "raw_result_sha256": "aec8eafbc8ea0540dbbb15699201163122c7965c214d90f903ac70e056f8c1fd",
+    "jtag_result_sha256": "0ae0f6d682d335ecf2e1143a82848d6bf1f81685069569824f32ac42b06820ad",
+    "raw_uart_sha256": {
+      "rx": "0ee03fbf3694b59daae96f4f3689d260ae6a8a73218e653ad8f6584e5904f0f8",
+      "tx_headers": "0af31818723a964d4f722d13ccf9616d63955e141d653b702a36d9bab3954410"
+    },
+    "checks": {
+      "two_phase_uart_OP4_256B_each_crc_seq_and_payload_recomputed": [
+        {
+          "phase": 0,
+          "sequence": 1,
+          "request_op": "OP4_CACHE_PROBE",
+          "bytes": 256,
+          "data_sha256": "0df1d0f2cfc14c3f871a99ae66d484990badc841d16f102930b9b269a8ae90af",
+          "header_and_payload_crc_pass": true
+        },
+        {
+          "phase": 1,
+          "sequence": 2,
+          "request_op": "OP4_CACHE_PROBE",
+          "bytes": 256,
+          "data_sha256": "f6e5ce3c67efc259e821451b779dccd7a606cd0a76f4c87fe08f0a423041b5a0",
+          "header_and_payload_crc_pass": true
+        }
+      ],
+      "cpu_and_dap_64_word_patterns_match_actual_readback_and_write": true,
+      "only_two_UART_OP4_requests_no_protocol_LOAD_or_START": true,
+      "full_final_csr_equals_postconfiguration_and_eight_stable_pairs": true,
+      "final_csr_idle_epoch0_owner_head_and_ledger_constraints": true,
+      "serial_closed_controller_closed_map_unloaded_session_disconnected_sdk_disposed": true,
+      "entry_calls_returned": 52,
+      "jtag_calls_returned": 376,
+      "cleanup_errors_empty": true,
+      "owned_external_hw_server_released": false,
+      "bound_artifact_hashes_match": {
+        "compiled_xsa": true,
+        "implemented_xsa": true,
+        "init_elf": true,
+        "app_elf": true,
+        "bit": true,
+        "build_details": true,
+        "platform_manifest": true
+      },
+      "captured_file_hashes_match": {
+        "uart_rx_raw.bin": true,
+        "uart_tx_headers.bin": true,
+        "jtag_result.json": true,
+        "jtag_calls.jsonl": true,
+        "sdk_unload_stack.log": true
+      },
+      "raw_json_binding_copies_match": {
+        "build_details": true,
+        "compat_review": true,
+        "platform_manifest": true,
+        "owned_server": true
+      },
+      "compatibility_receipt_scope": "visibility0_cache_probe_only",
+      "compatibility_receipt_checks": {
+        "same_ps7_config": true,
+        "same_ps_init_bytes": true,
+        "same_bsp_mmu_macros": true,
+        "same_uart_ddr_csr_clocks": true,
+        "full_model_core_present": true,
+        "postroute_timing_pass": true
+      }
+    },
+    "jtag_deployment_boundary": {
+      "observed_calls": [
+        "cpu0.dow.init",
+        "fpga.full.compatibility_default",
+        "cpu0.dow.app",
+        "cpu0.con.app"
+      ],
+      "meaning": "为执行缓存探针，JTAG确实下载并运行了已绑定应用；“无LOAD/START”仅指没有发送UART协议LOAD/START模型命令，原始UART只有两个OP4缓存请求。",
+      "application_inference_or_109_1000": false
+    },
+    "source_closure_at_probe": {
+      "source_commit": "6448ba4e1bfbab5275741fd55184cdfb588c4fc9",
+      "runtime_source_count": 34,
+      "current_profile_metadata_drift": [
+        {
+          "path": "board/s2b_inference_platform.json",
+          "run_sha256": "1e19f9ebf52365abac6ed81667bf9d941781c743ed1cfc953a8545c16bb348e8",
+          "current_sha256": "6f69e6ad1d77eb455ab924d41c06e0c93703bfdb89be6743ea301868975ecd97"
+        },
+        {
+          "path": "board/s2b_inference_platform.md",
+          "run_sha256": "b1b391aaf565274e0a7c5ecf8456b6055d61e7efc21788a5a4601ad107e09e21",
+          "current_sha256": "b4920c3f8d6146f76576cd4104d2f5e4428f81feeec423b8a57ac7d4e82f83bc"
+        },
+        {
+          "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+          "run_sha256": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b",
+          "current_sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+        },
+        {
+          "path": "verification/check_s2b_inference_platform.py",
+          "run_sha256": "8e8f910155e47d10df9a7a81af96b335c7c85514c8a7c4cf28da5b5d8eb30837",
+          "current_sha256": "a573607bd0db6a0c151c7407edcf0197fd69ebc29cfccfa7586d1b5da4009f8f"
+        }
+      ],
+      "meaning": "本次原始probe绑定的旧profile/interface文档与当前G0冻结元数据不同；这4处是本轮文件/版本/checker元数据更新，不从旧运行推导新profile的完整通过。其余运行绑定产物哈希逐项符合当前compatibility receipt。"
+    },
+    "limitations": [
+      "只证明该绑定XSA/bit/ELF和软件栈下的256B CPU/DAP缓存交叉观察；不测试PL/HP0访问、32MiB arena、模型黄金、109样本、1000次连续任务或恢复异常。",
+      "CPU0/CPU1入场时均Running，探针按已授权流程stop；probe后CPU0保持Stopped，CPU1由控制器保持Stopped。",
+      "Vitis已通过JTAG下载并运行app；此处无UART模型LOAD/START命令，不得描述为全流程从未load/start。",
+      "原始probe及JTAG结果保持cold_lifecycle_proven=false；不因本审查改写。"
+    ]
+  },
+  "cold_lifecycle_review": {
+    "verdict": "OPERATOR_ATTESTED_CONTEXT_SUPPORTED_NOT_INSTRUMENT_PROVEN",
+    "operator_confirmation_sha256": "11bd5edd519b006516cae6cf05e96f68adc34e6f3ae830e529dae893d808ccc1",
+    "user_message_sha256": "4ab66cf7abcc7ee94c977d77f9e2aa052ad5fbb947f7afb36c49b71597509345",
+    "official_reset_basis_sha256": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3",
+    "reported_confirmation": "Wong回复“已重启，10s”；确认记录明确未测POR沿或精确上电时刻。",
+    "observed_sequence": {
+      "boot_mode_before_after": 0,
+      "system_reset_reboot_status_before": 4194306,
+      "system_reset_reboot_status_after": 5242882,
+      "configuration_eos": [
+        {
+          "phase": "after_system_reset",
+          "eos": 0
+        },
+        {
+          "phase": "after_full_bit",
+          "eos": 1
+        }
+      ],
+      "ocm_init": {
+        "status": "READY_RESULT2_RETURN0",
+        "ready_address": 7432,
+        "result": 2,
+        "return_code": 0
+      },
+      "postconfiguration_status": "PASS",
+      "cpu1_stopped_during_controlled_probe": true
+    },
+    "boundary": "用户的明确约10秒断电/重新上电确认可作为人工见证的冷生命周期上下文；JTAG记录另证BOOT_MODE=JTAG、system-stop前后状态、EOS0→OCM init成功→全位流后EOS1、postconfig及稳定默认CSR。它不提供电源轨/POR引脚的仪器时间戳，不证明DDR清零或物理POR沿；原始cold_lifecycle_proven仍为false。"
+  },
+  "reviewer_commands": [
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "verification.check_s2b_inference_platform.check_static(Path.cwd()) via Vivado Python 3.13 -B",
+      "exit_code": 0,
+      "source_count": 34
+    },
+    {
+      "command": "独立只读复算JSON绑定、UART头/负载CRC、seed数据、DAP读写、CSR稳定快照与服务/Job记录",
+      "exit_code": 0
+    },
+    {
+      "command": "本轮未启动Vivado/Vitis/硬件，也未运行109/1000样本。",
+      "exit_code": 0
+    }
+  ],
+  "reviewed_input_sha256": {
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+    "docs/obsidian-project/02-方案设计/s2b_board_transport.md": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+    "board/s2b_inference_platform.json": "6f69e6ad1d77eb455ab924d41c06e0c93703bfdb89be6743ea301868975ecd97",
+    "board/s2b_inference_platform.md": "b4920c3f8d6146f76576cd4104d2f5e4428f81feeec423b8a57ac7d4e82f83bc",
+    "verification/check_s2b_inference_platform.py": "a573607bd0db6a0c151c7407edcf0197fd69ebc29cfccfa7586d1b5da4009f8f",
+    "verification/s2b_board_acceptance.py": "bcb0abca31efeaa73fdd6c7a289ac9a41dc20ea268fa3b8ce3c18fb6406a176a",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/visibility_probe_result.json": "aec8eafbc8ea0540dbbb15699201163122c7965c214d90f903ac70e056f8c1fd",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/jtag_result.json": "0ae0f6d682d335ecf2e1143a82848d6bf1f81685069569824f32ac42b06820ad",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/input_config.json": "f1ae3e39e97268cd5f212c653a85f443095785fa3ea214781cca359052c17401",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/entry_calls.jsonl": "bdaf3a539d92eb58ab94609f3c866d53d9e271d55170e79be7b4cc744006b58b",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/jtag_calls.jsonl": "4abf9f633186e972ca5f90478fb3b0084cf9a00bb1964fc44092f14365f5280b",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/uart_rx_raw.bin": "0ee03fbf3694b59daae96f4f3689d260ae6a8a73218e653ad8f6584e5904f0f8",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/uart_tx_headers.bin": "0af31818723a964d4f722d13ccf9616d63955e141d653b702a36d9bab3954410",
+    "report/evidence/S2B-T19/cache_probe_execution_20261016_r03/sdk_unload_stack.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report/evidence/S2B-T19/board_probe_configuration_20261016_r03/probe_r04_job_result.json": "40b74ea12117ebb21c15f2dc3cff1dc91c96a22403897df7ebaf9e27a49b1462",
+    "report/evidence/S2B-T19/board_probe_configuration_20261016_r03/probe_r04.stdout.log": "1f7b7ebccc161513fabe38c0bd8728fbb837bcbc94386aee2ce06133d7273c88",
+    "report/evidence/S2B-T19/current_probe_independent_20261016_r01/runtime_compatibility_receipt.json": "419deda86b13cd9d3967a04c03a4cca64540b39e890ac6e374e73ed0a0f5747e",
+    "report/evidence/S2B-T19/cold_confirmation_20261016_r01/operator_confirmation.json": "11bd5edd519b006516cae6cf05e96f68adc34e6f3ae830e529dae893d808ccc1",
+    "report/evidence/S2B-T19/cold_confirmation_20261016_r01/user_message.json": "4ab66cf7abcc7ee94c977d77f9e2aa052ad5fbb947f7afb36c49b71597509345",
+    "report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3"
+  },
+  "bound_probe_artifacts": {
+    "compiled_xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T13\\platform_csr_fixed_20261016_r03\\s2b_inference_no_bit.xsa",
+      "sha256": "0607120b1733ee17582ab0c508c366fca7b1f49d32afffe87a070a346df04252"
+    },
+    "implemented_xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T14\\csr_fixed_visibility0_20261016_r08\\s2b_inference.xsa",
+      "sha256": "d3f1f14711322df567def1836ff2bbdef0f4c7d986e8e379c9f203dd206ca938"
+    },
+    "init_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\csr_fixed_platform_offline_20261016_r03\\artifacts\\init.elf",
+      "sha256": "26824eb5ec3a73d3dc606b7f7797591b12ca82cf8fb8dc0e40f3a8756efaaadc"
+    },
+    "app_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\csr_fixed_platform_offline_20261016_r03\\artifacts\\infer.elf",
+      "sha256": "a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82"
+    },
+    "bit": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T14\\csr_fixed_visibility0_20261016_r08\\s2b_inference.bit",
+      "sha256": "cec64cd0644ba39b8b311fd5bce38c9cfd03b2148052da4c5d2af7c56520145a"
+    },
+    "build_details": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\csr_fixed_platform_offline_20261016_r03\\artifacts\\build_details.json",
+      "sha256": "e96bb5042a9824b20231060e60a475effd0dd8c0c8d2db599b1112844aa3f104"
+    },
+    "platform_manifest": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T14\\csr_fixed_visibility0_20261016_r08\\platform_delivery_manifest.json",
+      "sha256": "ae722467423c20bf6bc5b144e9f9bb3f08bd7e576c8f84014b6866f8346bb9c1"
+    }
+  }
+}

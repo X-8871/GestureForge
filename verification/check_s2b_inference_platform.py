@@ -12,10 +12,10 @@ import stat
 import sys
 from pathlib import Path, PurePosixPath
 
-PROFILE_VERSION = "s2b-inference-platform/0.1.16"
-PHYSICAL_INTERFACE_VERSION = "s2b-physical-candidate/0.1.2"
+PROFILE_VERSION = "s2b-inference-platform/0.1.17"
+PHYSICAL_INTERFACE_VERSION = "s2b-physical/1.0.0"
 PHYSICAL_INTERFACE_DOCUMENT = "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"
-PHYSICAL_INTERFACE_SHA256 = "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b"
+PHYSICAL_INTERFACE_SHA256 = "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
 # 冻结上游原字节与允许的派生差异均独立固定，不能由自报哈希授权变更。
 FROZEN_CORE_SHA256 = {
     "src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
@@ -595,7 +595,7 @@ def check_static(root: Path) -> dict:
     require(profile.get("physical_interface_sha256") == PHYSICAL_INTERFACE_SHA256 and
             sha256(relative_file(root, PHYSICAL_INTERFACE_DOCUMENT)) == PHYSICAL_INTERFACE_SHA256,
             "物理候选正文哈希不符")
-    require(profile.get("physical_interface_status") == "CANDIDATE_NOT_FROZEN" and
+    require(profile.get("physical_interface_status") == "G0_FROZEN" and
             profile.get("evidence_reuse_policy") ==
             "NO_PASS_INHERITANCE_FOR_EXISTING_XSA_ELF_OR_T19_EVIDENCE",
             "候选状态或既有证据继承策略不符")

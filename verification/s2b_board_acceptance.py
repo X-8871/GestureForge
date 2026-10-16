@@ -108,10 +108,10 @@ def evidence_manifest(run, status, reason):
     for path in (Path(__file__), Path(transport.__file__), Path(checker.__file__), Path(platform.__file__)):
         files.append({"path": path.relative_to(ROOT).as_posix(), "sha256": binding(path)["sha256"], "role": "source"})
     interfaces = []
-    for name, version, path in (("UART候选", "s2bu-candidate/1.1", "docs/obsidian-project/02-方案设计/s2b_board_transport.md"),
-                                ("PS/PL物理候选", "s2b-physical-candidate/0.1.2", "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md")):
+    for name, version, path in (("UART候选", "s2bu/1.1", "docs/obsidian-project/02-方案设计/s2b_board_transport.md"),
+                                ("PS/PL物理候选", "s2b-physical/1.0.0", "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md")):
         interfaces.append({"name": name, "version": version, "path": path,
-                           "sha256": binding(ROOT / path)["sha256"], "frozen": False})
+                           "sha256": binding(ROOT / path)["sha256"], "frozen": True})
     revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
                               text=True, encoding="utf-8", check=True).stdout.strip()
     save(run / "delivery_manifest.json", {"schema_version": 1, "stage": "2B", "task_id": "S2B-T18",

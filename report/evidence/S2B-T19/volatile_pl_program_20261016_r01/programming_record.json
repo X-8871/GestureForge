@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19",
+  "run_id": "volatile_pl_program_20261016_r01",
+  "status": "PASS_LIMITED_SCOPE",
+  "hardware_execution": "VOLATILE_PL_CONFIGURATION_COMPLETED",
+  "scope": "仅使用Vivado JTAG将R04候选PL bit配置到当前xc7z020；未运行PS初始化、未访问DDR、未写QSPI。",
+  "source_commit": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+  "target": {
+    "user_confirmed_board": "AX7Z020核心板",
+    "user_confirmed_ordering_part": "XC7Z020-2CLG400I",
+    "vivado_part": "xc7z020clg400-2",
+    "jtag_device_name": "xc7z020_1",
+    "jtag_reported_part": "xc7z020",
+    "jtag_idcode_binary": "00100011011100100111000010010011",
+    "jtag_chain_also_contains": ["arm_dap_0"],
+    "manual_candidate": {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\AX7Z020开发板用户手册.pdf",
+      "sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+      "pages": [6, 9, 11, 12, 13, 14, 15],
+      "ddr_candidate": "MT41K256M16TW-107"
+    },
+    "independent_board_mapping_review": {
+      "result": "PASS_LIMITED_SCOPE",
+      "scope": "手册及R04 PS参数支持本轮易失PL测试候选；未绑定实物PCB/BOM修订号。",
+      "reviewer_task": "/root/visibility_proof_review",
+      "reviewed_evidence": [
+        "D:\\FPGA\\AX7Z020\\AX7Z020\\AX7Z020开发板用户手册.pdf",
+        "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\01_原理图\\ax7z010_ax7z020原理图.pdf",
+        "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/ps7_readback.tcldict"
+      ]
+    }
+  },
+  "bitstream": {
+    "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit",
+    "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+    "part_timing_target": "xc7z020clg400-2"
+  },
+  "build_record": {
+    "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/input_record.json",
+    "status": "FAIL",
+    "job_status": "PASS",
+    "limitation": "构建记录整体FAIL；独立审查仅对实际构建/产物链给出PASS_LIMITED_SCOPE。本次易失配置不将该记录改写为PASS。",
+    "independent_artifact_review_summary": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/independent_build_review_summary.json",
+    "independent_artifact_review_summary_sha256": "8ec5a8fca70bf27a6beca1da3daac2c57727527f54cc735197d3225f77b7f348",
+    "input_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164"
+  },
+  "vivado_session": {
+    "session_id": "vivado-20261016-233210-92220033",
+    "vivado_version": "2026.1",
+    "hw_server_url": "TCP:localhost:3121",
+    "command": "set_property PROGRAM.FILE {D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit} $d; program_hw_devices $d",
+    "exit_code": 0,
+    "elapsed_seconds": 3.42,
+    "observed_output": "INFO: [Labtools 27-3164] End of startup status: HIGH",
+    "program_file_readback": "D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit"
+  },
+  "vivado_log": {
+    "path": "tmp/2B/S2B-T19/hw_id_current_20261016_r01/.vivado-ai/vivado_64730241_4eebd3e1.log",
+    "sha256": "9557ea62134606876c1837d23623da260d1dd6ec9c88618cdf7312f391972f37",
+    "contains_device_identity_and_programming_output": true
+  },
+  "cold_confirmation": {
+    "path": "report/evidence/S2B-T19/cold_confirmation_20261016_r01/operator_confirmation.json",
+    "sha256": "11bd5edd519b006516cae6cf05e96f68adc34e6f3ae830e529dae893d808ccc1"
+  },
+  "limitations": [
+    "本记录只证明volatile PL配置命令成功且DONE/startup状态为HIGH；不证明PS启动、DDR训练/读写、HP0可见性、模型推理或G3/G4/G5通过。",
+    "实际PCB/BOM修订未绑定；按用户指定的手册DDR候选继续，不外推其为颗粒丝印解码结果。",
+    "尚未执行冻结tiny416的109样本比对、1000次连续任务及正式异常恢复验收。"
+  ]
+}

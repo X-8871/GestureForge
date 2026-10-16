@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "volatile_pl_program_20261016_r01",
+  "source_commit": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+  "evidence_dir": "report/evidence/S2B-T19/volatile_pl_program_20261016_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本Run仅记录JTAG易失PL配置，不启动PS软件、DDR/HP0或模型数据搬运，未消费数据接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/volatile_pl_program_20261016_r01/programming_record.json",
+      "sha256": "07af145d8f49b23b00808d9ac322464a0168297380c565a338011d407267ce49",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/volatile_pl_program_20261016_r01/vivado_session.log",
+      "sha256": "9557ea62134606876c1837d23623da260d1dd6ec9c88618cdf7312f391972f37",
+      "role": "log",
+      "keep_reason": "保留Vivado对当前JTAG器件身份和volatile bit配置结果的原始日志。"
+    },
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "002e22101f0edad5ce537ec1e930a786847ca4b529b70de7115ce46eeaeaff87",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_board_acceptance.py",
+      "sha256": "bcb0abca31efeaa73fdd6c7a289ac9a41dc20ea268fa3b8ce3c18fb6406a176a",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/input_record.json",
+      "sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/ps7_readback.tcldict",
+      "sha256": "931132b5fe645c66737c9fd3543812a6cecc906a160fb4c341e7a8d8bf17097e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/independent_build_review_summary.json",
+      "sha256": "8ec5a8fca70bf27a6beca1da3daac2c57727527f54cc735197d3225f77b7f348",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility_proof_current_20261016_r01/ps_cache_proof.json",
+      "sha256": "5984b37b193e5a39ecd9d3aa429784fb308dc105313c5e25f211f0b751963958",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "JTAG设备身份读取",
+      "status": "PASS",
+      "command": "open_hw_manager; connect_hw_server -url localhost:3121; open_hw_target; get_hw_devices及PART/IDCODE只读查询",
+      "exit_code": 0,
+      "reason": "识别到xc7z020_1，PART为xc7z020；本检查不证明完整订购后缀或PCB修订。"
+    },
+    {
+      "name": "候选PL bit易失配置",
+      "status": "PASS",
+      "command": "set_property PROGRAM.FILE <R04 s2b_inference.bit>; program_hw_devices xc7z020_1",
+      "exit_code": 0,
+      "reason": "Vivado返回End of startup status: HIGH；仅配置PL，不启动PS初始化或访问DDR。"
+    },
+    {
+      "name": "PS DDR及模型任务",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "reason": "本Run范围不包含PS初始化、DDR/HP0访问或模型推理。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "JTAG_hw_server": "2026.1",
+    "part": "xc7z020clg400-2"
+  },
+  "limitations": [
+    "本Run只证明限定范围的易失PL配置，不是G3/G4/G5实板验收。",
+    "实际PCB/BOM修订号尚未绑定；DDR按用户指定的手册候选MT41K256M16TW-107。",
+    "R04原始input_record.json整体状态为FAIL，保留不改；独立审查仅对构建/产物链PASS_LIMITED_SCOPE。",
+    "109黄金样本、1000连续任务、异常恢复、DDR/cache/HP0结果仍未完成。"
+  ]
+}

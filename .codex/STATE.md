@@ -1,12 +1,13 @@
 # 项目状态入口
 
-更新：2026-10-16 14:10（UTC+8）。按根目录 AGENTS.md 恢复；先核对Git和实际证据，不将历史源码基线写作当前HEAD。
+更新：2026-10-16 23:39（UTC+8）。按根目录 AGENTS.md 恢复；当前HEAD为`6f5c6dc871d92fe32e5d37a58ff693442b793903`，下列检查点覆盖后文旧运行状态。
 
 ## 最新检查点（覆盖下方历史运行状态）
 
-- T15 `csr_fixed_platform_offline_20261016_r03` 完整新 BSP/ELF 离线构建及独立 `vitis_managed_review` G2 PASS，清单 SHA `17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79`，67/67 原字节绑定。外层143.297秒/退出0，内层111.266秒；infer ELF SHA `a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82`。初始MMU/arena/CSR Device仅静态通过，未板测。见本Run `independent_review.md`。
-- T14 r02 因可用RAM跌至约1.98GiB失败关闭，三个小IP已完成；r03单独核心综合于14:03通过，原生0且Job清理确认，使用本轮追加核心综合第3/3次。r04四OOC均100%、无需刷新，但顶层因r02中止遗留“already running”状态未启动，整体FAIL。Developer正准备独立r05，仅恢复顶层状态并复用原四DCP；无新核心综合授权，不重跑core。当前无活动重型任务，恢复须先核对新r05实际结果/进程。
-- Wong回复“已重启，10s”，记录于 `report/evidence/S2B-T19/cold_confirmation_20261016_r01/`；人工确认回执时间不是测得的POR边沿。Wong也已退出闲置应用并允许内存不足时清理；当前不需额外清理。COM4 CP210x新鲜OS枚举正常，未启hw_server、未下载或访问板卡。必要易失板测授权继续有效；109样本、1000连续任务、恢复及2B G5仍未通过。
+- 核心综合总上限10次，当前6次实际启动、剩余4次；R01在综合前失败不计。T19 R04综合/实现/bit/XSA Job退出0、资源停止线未触发；原始`input_record.json`仍为FAIL（profile marker未进入Vivado stdout日志），不得改写。独立审查只对当前构建/产物链PASS_LIMITED_SCOPE。R04 bit SHA `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`。
+- 板级候选G0由独立Reviewer限定为PASS_LIMITED_SCOPE：用户确认AX7Z020/XC7Z020-2CLG400I，手册第6/9/11–15页及R04 PS DDR读回参数支持本轮易失PL候选；实际PCB/BOM版次未绑定。当前JTAG只读识别`xc7z020_1`/PART `xc7z020`/IDCODE `00100011011100100111000010010011`。随后R04 bit已volatile配置，Vivado返回`End of startup status: HIGH`。证据 `report/evidence/S2B-T19/volatile_pl_program_20261016_r01/`；evidence包装核验CHECKS_OK、独立Reviewer PASS，仅限PL配置命令成功。
+- Wong回复“已重启，10s”，记录于 `report/evidence/S2B-T19/cold_confirmation_20261016_r01/`；人工确认回执时间不是测得的POR边沿。该冷启动后已完成的本轮JTAG读取与PL配置见上方Run记录；PS初始化/DDR/HP0尚未启动，109样本、1000连续任务、恢复及2B G5仍未通过。
+- qualification入口当前阻断：脚本仍固定旧XSA/bit/build，R04 bit-included XSA与T15 ELF组合尚未独立兼容审查；R04构建产物limited review不能代替该组合审查或资格entry收据。`TRUSTED_REVIEW/G0/COLD/TIMEOUT` anchors仍为空。资格rebind子任务正在只读核查/准备离线绑定，不访问硬件。下一步先关闭组合兼容和门禁/收据审查，再PS初始化、DDR/cache/HP0、单样本，随后109样本、1000连续任务和异常恢复。
 
 ## 当前目标与器件基本事实
 
@@ -71,7 +72,7 @@
 - XSim真实r01已运行：`report/evidence/S2B-T11/control_r18_xsim_execution_20261016_r01/`以源码基线`8add7ef`完成compile原生0/2.453秒、elaborate原生0/12.141秒且两Job清理确认；simulation在CreateProcessW挂起创建前WinError87、未产生root/未Resume，外层FAIL，RTL仿真NOT_RUN。原始结果/清单保留，不能把包装CHECKS_OK当矩阵通过。正在核查HANDLE白名单数组需保留到DeleteProcThreadAttributeList的生命周期；新小任务只修启动器与轻量夹具，不改RTL判据，不覆盖r01重跑。
 - r01失败包/历史快照清单一致性独审PASS，提交`c2ed441aa012966f93c1905f03aeb6ed1d5cfd56`。HANDLE_LIST数组owner修复独审PASS：`report/evidence/S2B-T17/handle_list_attribute_owner_20261016_r01/`独立target1、direct9、supervisor10项退出0；旧probe真实Initialize/Delete但模拟Update，GC后weakref消失，无同址复用/WinError87复现。新launcher持有数组至Delete结束，不更改白名单或RTL。后续完整XSim须新r02实测，不把微型通过当原故障已复现或RTL通过。
 - 活动平台版本绑定 `s2b-physical-candidate/0.1.2` 已独审PASS并提交 `707a3e41e536c88ed064fd0f1f8a5683488553de`；候选正文SHA-256 `1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b`。平台仍为 `CANDIDATE_NOT_FROZEN`。T13 r01因RunId父目录缺失而路径预检失败，没有创建BD/XSA；r02用Vivado 2026.1完成PS7/GP0/reset/constants读回、BD校验和no-bit XSA导出（XSA SHA-256 `481e1a73b5ce731743c61491bb98ab3d640903417c4457ac96a1270f9a1ca783`），静态平台检查通过。日志有4条WARNING；通用产品警告捕获器因累计计数回退报FAIL，专用回退核对产品区间2条，原捕获失败与4条警告均保留。未综合、实现、生成bit或访问DDR。T13 Reviewer仅对证据/声明一致性PASS，不覆盖G0/G3/G4/G5。证据入口 `report/evidence/S2B-T13/platform_current_20261016_r01/` 和 `_r02/`。
-- 下一步先在资源条件满足时用唯一新RunId完成R18真实编译与矩阵仿真，保留2 GiB停止线；如果通过，另做独立动态审查。DDR型号仍按用户允许的临时值用于离线候选，待厂家确认后重新核对料号/PCB/BOM/电源和时序；此之前不初始化或访问DDR。物理接口G0仍需评审PS/PL/UART边界、HP0非Bufferable完整路径、32MiB arena/cache可见性与恢复ACK语义，形成可复核POR/独占保管链及CORE/DRAIN实测期限，再通过整网运行G0/G2。之后完成板上冷启动、UART/DDR、HP0与32MiB可见性、整网单样本、至少100个黄金样本、至少1000次连续任务及异常恢复，最后完成适用重建/时序和G4/G5。
+- 之前的R18真实编译及CSR恢复矩阵已在上方检查点记录通过；旧RTL位流不继承新CSR结论。后续仍需以同一冻结平台/ELF/位流完成受审资格入口、DDR/cache/HP0/单样本、至少109黄金样本、1000连续任务及异常恢复，最后完成适用重建/时序和G4/G5。DDR继续以用户指定的手册候选MT41K256M16TW-107推进，正式实物G3前记录型号/PCB对应限制。
 - 历史板级调试失败、TCF memory map及目标枚举修复、unloadhw无进度原件见 report/evidence/S2B-T19/cache_probe_execution_20261013_r01/至_r04/、board_failure_packaging_20261013_r01/、server_starter_fix_review_20261014_r01/。不把启动器退出0当实际运行通过；SDK卸载根因仍UNKNOWN。
-- 当前16 GB机器只运行一个重型任务。新增综合最多三次的历史追加预算已使用1/3；仅豁免4.5 GiB启动门槛，其他既有运行停止条件仍有效。轻量读报告/静态检查不算重跑综合。
+- 当前16 GB机器只运行一个重型任务。用户将核心综合总预算上调至10次；6次实际启动、4次可用。资源启动/停止条件与正式验收标准仍有效；轻量读报告/静态检查不算重跑综合。
 - 仿真、独审、包装CHECKS_OK与实板分别判断；不改原始失败/冻结证据，不覆盖RunId，不降低指标。阶段冻结须绑定版本、完成适用验收、独审和精确Git提交。

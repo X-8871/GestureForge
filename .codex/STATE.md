@@ -42,6 +42,15 @@
 - 交接行格式：`任务 | 接任务方 | 基线提交 | 允许修改范围 | 开始时间 | 状态`；当前无进行中任务。
 - 环境事实（2026-10-17）：DSH 沙箱在 `D:\FPGA_Competition` 的写入授权已修复（仅给当前用户补完全控制，未删除任何条目，回滚脚本在 `D:\dsh_acl_recovery\20261017\`）；Git Bash 的 `bash.exe`/`sh.exe` 在受限沙箱下报 signal pipe Win32 5，改用 git 直调与 Python。用户级 `TEMP`/`TMP` 已设为 `D:\tmp`（2026-10-17，新进程生效，Vivado/xsim/Verilator 共用；已运行进程需重启后才切换）。
 
+## DSH→Codex 交接（2026-10-18）
+
+- 完整交接文档：`.codex/DSH_HANDOFF_20261018.md`（Wong 明确要求的跨 Agent 交接记录，不替代本 STATE 与 `AGENTS.md`）。
+- DSH 本轮只改自身 DSH 配置与 `D:\tmp` 探针，未动 `src/`、`sim/`、`vivado/`、`docs/`、`report/`；全部 Vivado/hw_server/cs_server 进程已关闭，RAM 可用 8.3 GB。
+- 已完成：WSL 2.7.13 + Docker 29.8.2 + 本地文档栈（导入 725,911 篇完成；因内存要求停栈，数据卷保留）；DSH 新增百炼路由 `jl-ds`=`deepseek-v4.1-flash`（档位 off/low/high/max，密钥仅在用户环境变量）；修复百炼 `developer` 角色导致的 400；修复 Vivado 许可（过期的 Enterprise 试用挡住综合）→ `D:\Xilinx_licenses\basic_only.lic`（BASIC 至 2027-08-07，已注入 MCP env）。
+- Vivado 实测（探针，非工程验收）：综合/实现/比特流（3.9 MB）/xsim 全部通过；工程 `AX7Z020_Gesture`（part `xc7z020clg400-2`，top `rom_controller`，4 源文件 + 4 个 TB）可读打开；JTAG 线缆 `Digilent/210512180081` 已识别但器件列表为空（板未上电）。
+- 上板前阻碍：①工程无任何 XDC（`constrs_1` 空，bitgen 会被 NSTD-1/UCIO-1 拦，且无时钟约束）；②`synth_1` 状态 `synth_design ERROR` 且 `INCREMENTAL_CHECKPOINT` 指向 `xa7z020clg400-1I` 与 run part 不符、BASIC 许可不含增量，须先清增量并 reset；③板子未上电。
+- 交接行：任务=`上板前准备（XDC/清增量/板卡上电）` | 接任务方=Codex（待接） | 基线提交=`5d1a4ac` | 允许范围见交接文档 §3 | 开始=2026-10-18 | 状态=待接。
+
 ## Git 与下一步
 
 - 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。

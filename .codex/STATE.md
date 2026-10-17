@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-09（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-17（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
 
 ## 当前目标与阶段
 
@@ -33,6 +33,14 @@
 - 在证据归档校验后，仅清理 109 个 PL `build` 与 4 个支持回归 `build/obj_dir` 缓存，释放 33,104,952,077 字节；输入、结果、日志、VCD、T25 shards 和失败记录保留。该 RunId 已完成，绝不重跑。
 - T13/T14/T15 当前 helper 源专项已有独立复核通过的新证据；早期 `helper_vectors_current_candidate_20261008_r2` 的 T13/T15 PASS manifest 被 FAIL 日志推翻，失败证据保留，新运行替代其验收地位。验收记录列出各报告、运行日志哈希及确切范围。
 - 验收记录：`report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`；用户本地运行说明：`docs/S2A-T68_local_run_guide.md`。限制仍包括无 XDC/时序收敛证明，以及当前候选未在干净副本重跑完整 109 样本 PL；审查确认后者不是 2A 硬性门槛。
+
+## 共享工作区与交接（2026-10-17）
+
+- Wong 决定 Codex 与 DSH 共用本仓库，按任务轮流独占写（方案 A）；共同规则见 `AGENTS.md`「与 Codex 共享同一工作区」。
+- 接任务方：先读 `AGENTS.md` 与本文件，核对 `git status --short`、`.git/index.lock` 及 Vivado/xsim 进程，再独占修改；结束时更新本段交接行并只提交本轮相关文件。
+- 非接任务方只读复核，不并发写同一文件、不并发提交、不跑重型综合/仿真。
+- 交接行格式：`任务 | 接任务方 | 基线提交 | 允许修改范围 | 开始时间 | 状态`；当前无进行中任务。
+- 环境事实（2026-10-17）：DSH 沙箱在 `D:\FPGA_Competition` 的写入授权已修复（仅给当前用户补完全控制，未删除任何条目，回滚脚本在 `D:\dsh_acl_recovery\20261017\`）；Git Bash 的 `bash.exe`/`sh.exe` 在受限沙箱下报 signal pipe Win32 5，改用 git 直调与 Python。
 
 ## Git 与下一步
 

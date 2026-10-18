@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "run_id": "native_acceptance_20261018_r06",
+  "calls": [
+    {
+      "sequence": 1,
+      "tool": "mcp__harness_relay_mcp__doctor",
+      "native_is_error": false,
+      "os_exit_code": null,
+      "status": "PASS",
+      "summary": {
+        "ok": true,
+        "relay_version": "0.2.18",
+        "profile": "desktop",
+        "mode": "embedded",
+        "state": "ready",
+        "authority_id": "embedded-15a771bab87ed70e5b58f46a",
+        "owner_pid": 2980,
+        "owner_probe": "alive",
+        "remote_connected": true,
+        "token_contents_read": false
+      }
+    },
+    {
+      "sequence": 2,
+      "tool": "mcp__harness_relay_mcp__list_workspaces",
+      "native_is_error": false,
+      "os_exit_code": null,
+      "status": "PASS",
+      "selected_workspace": {
+        "workspace_id": "ab7d8dfb-0049-46a0-ba32-a04151403cd6",
+        "path": "D:\\FPGA_Competition",
+        "title": "FPGA_Competition"
+      }
+    },
+    {
+      "sequence": 3,
+      "tool": "mcp__harness_relay_mcp__list_capabilities",
+      "native_is_error": false,
+      "os_exit_code": null,
+      "status": "PASS",
+      "catalog_default": {
+        "provider": "jl-ds",
+        "model": "deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "default_route_field_present": true,
+      "available_provider_models": [
+        {"provider": "deepseek-official", "model": "deepseek-flash"},
+        {"provider": "deepseek-official", "model": "deepseek-v4-pro"},
+        {"provider": "deepseek-account", "model": "deepseek-flash"},
+        {"provider": "deepseek-account", "model": "deepseek-v4-pro"},
+        {"provider": "dashscope", "model": "qwen3.5-plus"},
+        {"provider": "dashscope", "model": "qwen3.8-max"},
+        {"provider": "dashscope", "model": "deepseek-v4-flash"},
+        {"provider": "openai", "model": "qwen3.8-max"},
+        {"provider": "jl-ds", "model": "deepseek-v4.1-flash"}
+      ],
+      "existing_session_route_field_present": false,
+      "permission_presets": ["read-only", "workspace-write", "danger-full-access"]
+    },
+    {
+      "sequence": 4,
+      "tool": "mcp__harness_relay_mcp__list_workspace_sessions",
+      "arguments": {
+        "workspace": "D:\\FPGA_Competition"
+      },
+      "native_is_error": false,
+      "os_exit_code": null,
+      "status": "BLOCKED_MULTIPLE_IDLE_CANDIDATES",
+      "sessions": [
+        {"session_id": "session-7ad8e847-9cd3-49d4-953b-8aa3ff6ebd76", "running": false, "blank": false, "archived": false, "agent_preset": "standard", "updated_at_unix_ms": 1792291505313, "updated_at_local": "2026-10-18 10:45:05.313 +08:00", "title": null},
+        {"session_id": "session-8769e7d0-c6f4-49dc-9667-7ad80ed5dbe1", "running": false, "blank": true, "archived": false, "agent_preset": "standard", "updated_at_unix_ms": 1792245493081, "updated_at_local": "2026-10-17 21:58:13.081 +08:00", "title": null},
+        {"session_id": "session-3914205c-b609-4569-bce9-9f12919f605c", "running": false, "blank": true, "archived": false, "agent_preset": "standard", "updated_at_unix_ms": 1792241523205, "updated_at_local": "2026-10-17 20:52:03.205 +08:00", "title": null},
+        {"session_id": "session-fe248d68-c64a-43cf-8272-dbe5f5c4a6d6", "running": false, "blank": true, "archived": false, "agent_preset": "standard", "updated_at_unix_ms": 1792228655918, "updated_at_local": "2026-10-17 17:17:35.918 +08:00", "title": null}
+      ],
+      "note": "Native response exposes no title or session-level provider/model. No ACK dispatch was made."
+    },
+    {
+      "sequence": 5,
+      "tool": "mcp__codex_app__send_message_to_thread",
+      "native_is_error": false,
+      "os_exit_code": null,
+      "status": "SENT",
+      "thread_id": "01a09ffa-555f-75f1-bdca-23787df39912",
+      "purpose": "Ask Wong to select one exact existing idle sessionId."
+    }
+  ],
+  "not_called": [
+    "mcp__harness_relay_mcp__start_review",
+    "mcp__harness_relay_mcp__start_run",
+    "mcp__harness_relay_mcp__wait_run"
+  ]
+}

@@ -1,0 +1,360 @@
+✔ normalizes loopback Host aliases and isolates embedded from standalone state (1.6455ms)
+✔ same Host rejects a second authority and permits exact owner reuse only (324.2054ms)
+✔ dead owner requires explicit recovery, increments epoch, and fences the old lease (147.7413ms)
+✔ PID reuse ambiguity remains fail closed while the PID is alive (84.2179ms)
+✔ a guard abandoned during a process crash is recovered only after its PID is dead (85.9459ms)
+✔ malformed owner registry fails closed and is not overwritten (23.7169ms)
+✔ authority acquire retries live ownership with a bounded backoff and recovers after death (159.5753ms)
+✔ authority acquire retry times out live or unknown owners with structured ownership details (130.6643ms)
+✔ authority acquire retry cancels promptly while sleeping (90.2508ms)
+✔ endpoint descriptor is atomic, strict, and never contains bearer token material (23.9568ms)
+✔ separate processes cannot both own one Host authority (1252.9901ms)
+✔ a crashed process leaves a stale owner that only explicit recovery can replace (468.7248ms)
+✔ authority and state-repository internals are consumed only through module indexes (20.0486ms)
+✔ build lock is fail-closed for a live owner and never stolen by age (173.478ms)
+✔ build lock refuses a reused PID whose startup identity differs from the record (153.9491ms)
+✔ build lock recovers a recorded owner only after its PID is provably dead and the record still matches (15.9533ms)
+✔ build lock with an unknown liveness probe fails closed (155.8136ms)
+✔ defaultProcessProbe reports a reused or unprobeable PID as unknown (0.4076ms)
+✔ reclaimBuildLock uses compare-before-delete and restores a changed record (4.9213ms)
+✔ build lease release preserves a lock record replaced by another owner (12.4461ms)
+✔ promoteArtifacts atomically swaps a staged tree and keeps the previous dist on failure (18.8809ms)
+✔ concurrent lock holders serialize promotion without losing the final tree (46.97ms)
+✔ syncVersions rewrites only changed targets and is idempotent (33.4077ms)
+✔ syncVersions detects the marker created by processStartIdentity (0.2457ms)
+✔ local Codex install gate rejects a fresh manifest beside stale proxy artifacts (15.8374ms)
+✔ InProcess gateway forwards official mux and host AsyncIterables without dispatch duplication (1.1049ms)
+✔ sequencer deduplicates, buffers out-of-order events, and rebases only from durable history (1.0679ms)
+✔ sequencer fails over to polling when pending gap storage overflows (0.1274ms)
+✔ event monitoring emits reconciliation hints and never treats stream frames as durable state (10.8207ms)
+✔ a live sequence gap explicitly keeps session polling enabled (11.1522ms)
+✔ approval and question frames only produce deduplicated attention notifications (5.0023ms)
+✔ stream disconnect enables polling and a later open reports restoration (10.3254ms)
+✔ win32 backend restricts via a SID-scoped native ACL operation (1.185ms)
+✔ non-win32 backend keeps mode 0600 and never swallows chmod failures (9.8821ms)
+✔ win32 backend propagates ACL failures and wraps runner errors (0.4128ms)
+✔ win32 check consumes strict structured ACL inspection output (0.1836ms)
+✔ win32 check preserves a structured missing-file diagnostic (0.1025ms)
+✔ currentUserPrincipal prefers USERDOMAIN and falls back to the local hostname (0.0903ms)
+✔ real win32 backend applies and verifies a current-user-only ACL (518.0685ms)
+✔ restrictPermissions uses the injected backend and propagates its failure (0.3126ms)
+✔ token store restricts the token file on create and on existing reads (8.4665ms)
+✔ token store removes a newly created token when permission hardening fails (2.0652ms)
+✔ RelayStateStore applies the injected backend to staged and lock files (10.0892ms)
+✔ HTTP adapter contract returns the semantic Host description (14.1041ms)
+✔ HTTP adapter contract consumes additive rc.8 history projections (0.3541ms)
+✔ HTTP adapter contract preserves definitive business rejection (0.7486ms)
+✔ HTTP adapter contract preserves retryable internal failure (0.3544ms)
+✔ InProcess adapter contract returns the semantic Host description (0.3029ms)
+✔ InProcess adapter contract consumes additive rc.8 history projections (0.1205ms)
+✔ InProcess adapter contract preserves definitive business rejection (0.1656ms)
+✔ InProcess adapter contract preserves retryable internal failure (0.0775ms)
+✔ in-process gateway awaits rpcId durability before ApiProxy dispatch (14.1956ms)
+✔ in-process gateway normalizes official client business errors (0.8147ms)
+✔ dispatch observer rejects method drift before the Host handler runs (0.3319ms)
+✔ HTTP gateway maps semantic operations to the public Host wire contract (15.9336ms)
+✔ HTTP gateway preserves definitive Host errors without exposing generic RPC methods (0.8556ms)
+✔ HTTP gateway keeps retryable and unknown outcomes distinct (0.5731ms)
+✔ HTTP gateway awaits correlation durability before network dispatch (0.3733ms)
+✔ Facade accepts a transport-free provider for the future in-process adapter (0.1572ms)
+✔ Cordis plugin factory exposes native injects and disposes infrastructure without cancelling runs (1.3367ms)
+✔ experimental opt-ins reject explicitly supplied non-boolean runtime values (0.4849ms)
+✔ Cordis plugin factory exposes an abort disposer before authority startup settles (0.3564ms)
+✔ headless profile preflight blocks before profile mutation (0.1667ms)
+✔ desktop profile requires explicit experimental opt-in and every Harness service (0.1564ms)
+✔ desktop opt-in does not permit headless or unknown profiles (0.0769ms)
+✔ native Desktop profileContext supplies profile and home when DSH_PROFILE is absent (0.907ms)
+✔ native profileContext takes precedence over conflicting environment values without mutation (0.1899ms)
+✔ the same local profile environment resolves runtime paths and relay configuration (0.3666ms)
+✔ Desktop stays blocked without opt-in and is ready only with all required services (0.2102ms)
+✔ missing native context retains existing web behavior and unknown profiles remain blocked (0.1684ms)
+✔ missing native context without an explicit profile fails closed instead of defaulting to web (0.3173ms)
+✔ malformed native context fails closed without exposing token or descriptor values (0.1221ms)
+✔ delegation skill forbids visible shell and temporary client fallbacks (0.623ms)
+✔ delegation skill keeps Harness browser opening opt-in (0.2426ms)
+✔ named review requests carry exact routing and existing authorization without reconfirmation (0.1352ms)
+✔ plugin default prompt keeps Harness review and polling on managed background transport (0.2097ms)
+✔ auto-start launches one recorded Harness Web when the old owner is dead and the port is free (31.6315ms)
+✔ auto-start replays a recorded tsx ESM source launcher vector (11.1766ms)
+✔ Windows background launch hides the console without requesting a detached console (1.2753ms)
+✔ POSIX background launch remains detached (0.9243ms)
+✔ auto-start rejects a raw Node source launcher contract without spawning (8.9308ms)
+✔ auto-start fails closed without spawning when the Harness loopback port is occupied (8.1027ms)
+✔ cross-process start lock lets concurrent proxies launch only one Harness Web instance (32.3007ms)
+✔ running wait_run slices forbid concluding the host turn (0.8912ms)
+✔ succeeded runs require consuming assistantText before closing (0.0866ms)
+✔ attention and failure stay open until the host inspects them (0.086ms)
+✔ does not restore a reused-session permission after the prompt was accepted (664.555ms)
+✔ restores a reused-session permission after definitive prompt rejection (759.2424ms)
+✔ reconciles an uncertain steer by its durable rpcId (768.6312ms)
+✔ rolls back cancelRequested after a definitive cancellation rejection (784.3706ms)
+✔ restores a fresh session after a temporary elevated permission (720.9816ms)
+✔ marks a silent running session for attention and resumes after durable progress (1701.5528ms)
+✔ marks expired permission leases for explicit reconciliation during restore (415.0142ms)
+✔ deduplicates concurrent service attachment for one workspace (366.9778ms)
+✔ resumes a prepared persisted run with the original prompt rpcId (451.504ms)
+✔ acquire records PID, process startup identity, and a fencing token (19.1973ms)
+✔ lease release uses compare-before-delete and preserves a replaced lock record (3.6014ms)
+✔ inspect classifies a dead owner and recoverStale deletes it with compare-before-delete (7.4753ms)
+✔ live and unknown owners fail closed; no time-based stealing (217.5491ms)
+✔ a reused PID with a different startup identity is never recovered (6.3351ms)
+✔ a record changed between read and recovery is never deleted (3.0693ms)
+✔ a malformed lock record is reported as unknown and never recovered (3.0289ms)
+✔ legacy lock records without a startup identity are fenced by token only (4.263ms)
+✔ acquire with a dead but still-present lock fails closed instead of stealing (181.6378ms)
+✔ defaultProcessProbe and processStartIdentity are stable (0.2964ms)
+✔ FileLockFacade options accept an injected probe for deterministic recovery (7.584ms)
+✔ RelayStateStore exposes lock diagnostics and explicit stale recovery for doctor (7.3236ms)
+✔ RelayStateStore recovers all dead state and session locks only through the explicit authority path (8.5706ms)
+✔ RelayStateStore leaves live and unknown locks untouched during explicit dead-lock recovery (7.1793ms)
+✔ token store atomically creates and reuses a 256-bit file secret (257.6931ms)
+✔ environment token overrides the file without persisting the secret (1.8757ms)
+✔ authenticated stateless HTTP supports initialize, tools/list, and tools/call (61.1096ms)
+✔ HTTP policy rejects bad auth, Host, Origin, oversized bodies, and post-drain requests (18.6698ms)
+✔ restores the previous shared default after selecting a session model (1.2122ms)
+✔ does not overwrite a concurrent default-model change (0.1592ms)
+✔ removes a newly created user default when none existed before selection (0.195ms)
+✖ feature modules are consumed only through their root index (33.3618ms)
+✔ projects every current RunSnapshot status without defining a parallel status (0.7711ms)
+✔ uses the durable last progress timestamp for a live run summary (0.1045ms)
+✔ maps every attention reason to an executable next action (0.1894ms)
+✔ reports CURSOR_EXPIRED with gap and resync metadata after queue overflow (1.8616ms)
+✔ rejects one notification that cannot fit without advancing the cursor (0.148ms)
+✔ deep-clones published notification input and returned values (0.1221ms)
+✔ advertises polling and snapshot fallbacks when client notifications degrade (0.1393ms)
+✔ 旧网关运行时没有 createPeer 时保留原请求路径 (1.0813ms)
+✔ 原生 createPeer 存在而 opt-in 关闭时明确拒绝且不创建 owner Peer (0.3439ms)
+✔ 原生 connection 创建独立 owner Peer，invoke 与 stream 共用并覆盖调用者注入的 peer (0.3959ms)
+✔ native-like gateway reproduces missing-peer failure before adapter and accepts the real created Peer after (0.2267ms)
+✔ disposed owner Peer blocks future invoke and stream, releases only itself, and never cancels a session (0.2716ms)
+✔ createPeer errors are sanitized and do not expose credential-like details (0.278ms)
+✔ 显式批准 owner Peer 但缺少原生工厂时拒绝，不降级到旧路径 (0.1797ms)
+✔ 未使用的适配器先释放后不再创建 Peer (0.1346ms)
+✔ 原生 Peer 被外部生命周期释放后不能继续调用网关 (0.1654ms)
+✔ publishes the slash-free Harness Relay MCP identity at the package root (0.8685ms)
+✔ publishes a repo marketplace that installs the Codex layer from npm (0.5148ms)
+✔ uses an explicit publication whitelist and validates its byte budget (63.1269ms)
+✔ fails closed when the configured package byte budget is exceeded (56.1714ms)
+✔ prepack performs strict TypeScript checking and MCP smoke builds first (0.1318ms)
+✔ version sync can explicitly adopt the official plugin cachebuster (0.2667ms)
+✔ dual-mode Harness peers are versioned but optional for standalone installs (0.143ms)
+✔ current rejects a permission value outside the native preset set (1.1633ms)
+✔ select requests the preset once and confirms it with one read (0.1766ms)
+✔ select rejects a denied command without an unnecessary confirmation read (0.1305ms)
+✔ select rejects a successful command whose confirmed preset is inconsistent (0.1463ms)
+✔ confirm only reads once and returns the matching preset (0.0843ms)
+✔ in-process provider uses native sessions and permission presets without chat commands (0.2219ms)
+✔ in-process provider fails closed when the native session is unavailable (0.1324ms)
+✔ the same idempotency key is isolated between stable client principals (815.7459ms)
+✔ resolves legacy text without retaining image data (1.0093ms)
+✔ accepts canonical base64 and rejects data URLs (0.3563ms)
+✔ requires exactly one prompt surface (0.1281ms)
+✔ replays start_run by idempotency key without submitting a second prompt (595.8426ms)
+✔ rejects danger-full-access before any Host call without explicit confirmation (0.9447ms)
+✔ source launcher capture requires and persists the exact tsx ESM loader vector (191.7856ms)
+✔ shared runtime resolver defaults blank home/profile values and isolates host state (1.2252ms)
+✔ shared runtime resolver honors explicit home/profile, state, token, and endpoint paths (0.2928ms)
+✔ shared runtime resolver reports structured invalid profile and blank overrides (0.4325ms)
+✔ runtime preparation creates only directories and fails closed when a parent is a file (2.0651ms)
+✔ relay status v1 is atomic UTF-8, strict, lifecycle-ready, and credential-safe (64.1186ms)
+✔ finalAssistantText never exposes reasoning-only assistant content (0.6062ms)
+✔ finalAssistantText retains text while excluding adjacent reasoning blocks (0.0989ms)
+✔ finalAssistantText does not project reasoning from a non-terminal event stream (0.0786ms)
+✔ MCP wait surfaces a suspended native approval, responds once, resumes the same run and retains permission mode (164.578ms)
+✔ selects the model, enforces read-only, then submits the task (933.3087ms)
+✔ pulls only new history from the highest loaded seq after the first refresh (87.6452ms)
+✔ steady-state refreshes never replay the backlog and preserve dedup (80.0721ms)
+✔ after a restart the first refresh resumes from the persisted checkpoint (67.798ms)
+✔ incrementalStartSeq is monotonic and falls back to baselineSeq on restore (0.2396ms)
+✔ reconciles an rc.8 completed turn while session.list is stale running and rereads the terminal snapshot (961.7481ms)
+✔ keeps a steer turn in the owning run and consumes its final assistant message (734.5353ms)
+✔ retains a final assistant message that appears after an earlier progress-only history read (603.6067ms)
+✔ maps a completed interrupted assistant surface to incomplete with an actionable warning (563.8298ms)
+✔ replaying a steer idempotency key does not submit a second steer (676.8764ms)
+✔ a persisted running snapshot is promoted by durable terminal history after restart (912.5635ms)
+✔ persists the rpcId before submitting the prompt (579.6033ms)
+✔ reserves a reused session before asynchronous setup (739.3754ms)
+✔ exposes setup and monitoring Facades as read-only MCP tools (55.8098ms)
+✔ schema-bearing tools preserve their original error without invalid structured content (4.2461ms)
+✔ lists only direct workspace sessions and marks archived entries (1.2053ms)
+✔ latest-idle reuses the newest nonblank idle unarchived session (0.258ms)
+✔ latest-idle creates a fresh session when no reusable conversation exists (0.1652ms)
+✔ explicit reuse rejects archived, missing, and running sessions (0.5261ms)
+✔ declares the verified scope matrix for all four clients (0.9961ms)
+✔ rejects unsupported scopes before rendering a patch (0.4076ms)
+✔ renders Codex user TOML as a minimal structured upsert (0.4314ms)
+✔ maps all Claude scopes to their distinct official locations (0.8115ms)
+✔ maps Cursor user and project scopes without inventing a local scope (0.2666ms)
+✔ renders OpenCode V2 mcp.servers with command array and environment (0.2643ms)
+✔ detect reports an existing relay entry without mutating the snapshot (0.0982ms)
+✔ detect returns structured directory errors instead of guessing paths (0.0935ms)
+✔ validate rejects a manually altered relative launcher patch (0.2022ms)
+✔ blocks a configuration and launcher platform mismatch (0.1652ms)
+✔ keeps absolute paths with spaces as separate stdio argv fields (0.9965ms)
+✔ rejects pnpm.exe and pnpm.cmd as the Node ESM runtime (0.1672ms)
+✔ rejects relative runtime and package entry paths (0.0912ms)
+✔ plans a macOS launcher without relying on a GUI process PATH (0.0852ms)
+✔ doctor is machine-readable and healthy only when every supplied probe passes (0.7089ms)
+✔ doctor distinguishes absent probes from failed probes without performing I/O (0.1982ms)
+✔ an old lease cannot delete a replacement lock owned by another token (314.8178ms)
+✔ a pre-existing lock is never deleted or taken over based only on age (183.1813ms)
+✔ separate Node processes serialize writes without losing unique records (1719.7424ms)
+✔ a failed state write does not poison later writes (359.227ms)
+✔ migrates schema version 1 state without losing records (8.112ms)
+✔ quarantines malformed state instead of silently overwriting it (2.352ms)
+✔ a stale writer cannot regress a terminal run to a non-terminal state (703.3845ms)
+✔ independent store instances merge concurrent unique records (543.2189ms)
+✔ a stale writer cannot resurrect a stopped service attachment (734.0822ms)
+✔ concurrent processes claim one canonical operation per principal and idempotency key (383.7226ms)
+✔ explicit v2 to v3 migration copies source without deleting or rewriting it (376.2631ms)
+✔ a state belonging to another authority fails closed without quarantine (340.4414ms)
+✔ same proxy degrades locally and reconnects after the Host restarts (256.2634ms)
+✔ stdio proxy discovers the authority and transparently forwards tools (100.256ms)
+✔ stdio proxy initializes locally and exposes the stable product catalog when the endpoint is missing (31.0944ms)
+✔ stdio proxy answers tools/list with the stable product catalog while Host recovery is still pending (18.8392ms)
+✔ stdio proxy rejects a status and descriptor epoch mismatch as stale (17.6948ms)
+✔ stdio proxy reports failed status without exposing status credentials (13.4388ms)
+✔ stdio proxy preserves a healthy remote route after a tool call timeout (135.4931ms)
+✔ proxy doctor reports a provably dead ready owner before reading stale endpoint artifacts (8.5603ms)
+✔ proxy doctor fails closed when owner liveness cannot be verified (8.1419ms)
+✔ stdio proxy maps HTTP 401 to AUTHENTICATION_FAILED (30.2403ms)
+✔ stdio proxy maps HTTP 405 to POST_ROUTE_MISSING (29.5159ms)
+✔ descriptor reader rejects credentials and non-loopback endpoints (18.3336ms)
+✔ decodeUtf8Strict rejects malformed UTF-8 instead of replacing it with U+FFFD (0.889ms)
+✔ decodeUtf8Strict rejects a UTF-8 BOM (0.1214ms)
+✔ readTextFileStrict reads valid UTF-8 and rejects BOM or malformed files (12.103ms)
+✔ HttpHostClient decodes the Host JSON body with a fatal UTF-8 decoder (3.3388ms)
+✔ readJsonBody rejects malformed and BOM-marked MCP bodies (0.3833ms)
+✔ state files with a BOM are quarantined instead of being decoded with U+FFFD (12.1641ms)
+✔ status and lock files are decoded strictly at the untrusted boundary (180.5767ms)
+✖ task manifest exposes only authorized locations and scope without reading source contents (10.7383ms)
+✖ write authorization keeps the same path-reference-only contract and requires explicit write locations (3.3863ms)
+✖ task manifest rejects multiline payloads and workspace escapes (3.5204ms)
+✖ task manifest rejects a context symlink that resolves outside the workspace (3.9228ms)
+✔ plan review separates the target from workspace context without reading source (1.6301ms)
+✔ target-only review is represented by matching target and context scopes (0.427ms)
+✔ explicit Harness authorization is recorded without broadening scope (0.12ms)
+✔ reply scope inherits every prior field and changes only explicit fields (0.7916ms)
+✔ structured scope rejects traversal and writes in read-only mode (0.8137ms)
+✔ Typert adapter consumes Workspace and Session baselines from Harness 0.1.2 streams (1.2275ms)
+✔ Typert adapter maps Session follow/page history and current projections (0.3988ms)
+✔ Typert adapter persists the Relay request id before direct prompt dispatch (0.1828ms)
+✔ Typert adapter preserves new namespaced business and transient error codes (1.2378ms)
+✔ overlapping Web upgrade waits for the old owner and reconnects the same proxy to the new epoch (491.5586ms)
+✔ one-shot approval exposes exact context and rejects wrong owner, missing authority and duplicate responses (2.3679ms)
+✔ foreign requests reach original answerer; abort, lost ownership and disposal never grant (0.3834ms)
+✔ question answers preserve plan context and validate exact IDs, choices, single selection and cancellation (0.6165ms)
+✔ native binding prepends without global scope and rejects replaced or native-child agent identities (0.2517ms)
+✔ Agent context disposal closes requests even without a signal or subsequent polling (0.1679ms)
+✔ explicit Skip is not approval; explicit cancellation preserves native cancellation taxonomy (0.2308ms)
+✔ registry policy allows a registered workspace outside Host cwd without creating it (949.3965ms)
+✔ registry policy rejects an unregistered workspace (2.4214ms)
+✔ configured roots remain a strict boundary even for registered workspaces (2.0459ms)
+✔ configured roots allow creating an unregistered workspace (346.9838ms)
+ℹ tests 253
+ℹ suites 0
+ℹ pass 248
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39311.453
+
+✖ failing tests:
+
+test at tests\module-boundaries.test.ts:8:1
+✖ feature modules are consumed only through their root index (33.3618ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'harness-plugin/native-gateway-peer.ts imports harness-gateway internals'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (D:\FPGA_Competition\tmp\CTRL-HARNESS\validation_20261018_1250\upstream\tests\module-boundaries.test.ts:20:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'harness-plugin/native-gateway-peer.ts imports harness-gateway internals' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\task-manifest-contract.test.ts:13:1
+✖ task manifest exposes only authorized locations and scope without reading source contents (10.7383ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (D:\FPGA_Competition\tmp\CTRL-HARNESS\validation_20261018_1250\upstream\tests\task-manifest-contract.test.ts:26:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\task-manifest-contract.test.ts:54:1
+✖ write authorization keeps the same path-reference-only contract and requires explicit write locations (3.3863ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== 0
+  
+      at TestContext.<anonymous> (D:\FPGA_Competition\tmp\CTRL-HARNESS\validation_20261018_1250\upstream\tests\task-manifest-contract.test.ts:66:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\task-manifest-contract.test.ts:85:1
+✖ task manifest rejects multiline payloads and workspace escapes (3.5204ms)
+  AssertionError [ERR_ASSERTION]: The "string" argument must be of type string. Received type undefined (undefined)
+      at TestContext.<anonymous> (D:\FPGA_Competition\tmp\CTRL-HARNESS\validation_20261018_1250\upstream\tests\task-manifest-contract.test.ts:95:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /single-line instructions/u,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\task-manifest-contract.test.ts:110:1
+✖ task manifest rejects a context symlink that resolves outside the workspace (3.9228ms)
+  AssertionError [ERR_ASSERTION]: The "string" argument must be of type string. Received type undefined (undefined)
+      at TestContext.<anonymous> (D:\FPGA_Competition\tmp\CTRL-HARNESS\validation_20261018_1250\upstream\tests\task-manifest-contract.test.ts:127:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /path escapes workspace/u,
+    operator: 'match',
+    diff: 'simple'
+  }

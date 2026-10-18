@@ -1,0 +1,658 @@
+--- a/src/harness-entry.ts
++++ b/src/harness-entry.ts
+@@ -22,6 +22,7 @@
+   type EmbeddedRelayAdapters,
+   type HarnessPluginContext,
+ } from './harness-plugin/index.js'
++import { createNativeGatewayPeerAdapter } from './harness-plugin/native-gateway-peer.js'
+ import { resolveHarnessProfileEnvironment } from './harness-plugin/profile-context.js'
+ import { McpHttpFacade, TokenStoreFacade } from './mcp-http/index.js'
+ import { createServer } from './mcp-server/index.js'
+@@ -96,7 +97,7 @@
+ 
+ const plugin = createHarnessPlugin<NativeHarnessContext>({
+   schema: Schema,
+-  createAdapters(ctx): EmbeddedRelayAdapters {
++  createAdapters(ctx, config): EmbeddedRelayAdapters {
+     const permissionProvider = new InProcessPermissionProvider(
+       async (sessionId) => {
+         const live = ctx.sessions.get(sessionId)
+@@ -108,8 +109,13 @@
+       ctx.permissionPresets,
+     )
+     const permissions = new PermissionGatewayFacade(permissionProvider)
+-    const gateway = createTypertHarnessGateway(ctx.typertGateway, permissions)
+-    return { gateway, permissions }
++    const gatewayPeerAdapter = createNativeGatewayPeerAdapter(
++      ctx.typertGateway,
++      ctx.get('connection', false),
++      config.experimentalOwnerPeerOptIn,
++    )
++    const gateway = createTypertHarnessGateway(gatewayPeerAdapter.gateway, permissions)
++    return { gateway, permissions, dispose: () => gatewayPeerAdapter.dispose() }
+   },
+   async startAuthority(ctx, config, adapters, options) {
+     const runtime = new RelayRuntimeFacade()
+--- a/src/harness-plugin/config.ts
++++ b/src/harness-plugin/config.ts
+@@ -4,6 +4,7 @@
+   stateDirectory?: string
+   tokenFile?: string
+   experimentalDesktopOptIn: boolean
++  experimentalOwnerPeerOptIn: boolean
+   requestBodyLimitBytes: number
+   maxConcurrency: number
+   rateLimitPerMinute: number
+@@ -43,6 +44,7 @@
+     stateDirectory: schema.string(),
+     tokenFile: schema.string(),
+     experimentalDesktopOptIn: schema.boolean().default(false),
++    experimentalOwnerPeerOptIn: schema.boolean().default(false),
+     requestBodyLimitBytes: schema.natural().min(1_024).max(16 * 1024 * 1024).default(1024 * 1024),
+     maxConcurrency: schema.natural().min(1).max(256).default(16),
+     rateLimitPerMinute: schema.natural().min(1).max(60_000).default(120),
+@@ -65,9 +67,14 @@
+   if (experimentalDesktopOptIn !== undefined && typeof experimentalDesktopOptIn !== 'boolean') {
+     throw new Error('dsh-relay experimentalDesktopOptIn must be a boolean')
+   }
++  const experimentalOwnerPeerOptIn = input.experimentalOwnerPeerOptIn
++  if (experimentalOwnerPeerOptIn !== undefined && typeof experimentalOwnerPeerOptIn !== 'boolean') {
++    throw new Error('dsh-relay experimentalOwnerPeerOptIn must be a boolean')
++  }
+   return {
+     route,
+     experimentalDesktopOptIn: experimentalDesktopOptIn === undefined ? false : experimentalDesktopOptIn,
++    experimentalOwnerPeerOptIn: experimentalOwnerPeerOptIn === undefined ? false : experimentalOwnerPeerOptIn,
+     requestBodyLimitBytes: bounded(input.requestBodyLimitBytes, 1024 * 1024, 1_024, 16 * 1024 * 1024, 'requestBodyLimitBytes'),
+     maxConcurrency: bounded(input.maxConcurrency, 16, 1, 256, 'maxConcurrency'),
+     rateLimitPerMinute: bounded(input.rateLimitPerMinute, 120, 1, 60_000, 'rateLimitPerMinute'),
+--- a/src/harness-plugin/index.ts
++++ b/src/harness-plugin/index.ts
+@@ -21,3 +21,9 @@
+   type HarnessProfileProbe,
+ } from './preflight.js'
+ export { resolveHarnessProfileEnvironment } from './profile-context.js'
++export {
++  createNativeGatewayPeerAdapter,
++  type NativeConnectionPort,
++  type NativePeerScope,
++  type NativeOwnerPrincipal,
++} from './native-gateway-peer.js'
+--- a/src/harness-plugin/plugin-factory.ts
++++ b/src/harness-plugin/plugin-factory.ts
+@@ -11,6 +11,7 @@
+ export const name = HARNESS_PLUGIN_NAME
+ export const inject = [
+   'agents',
++  'connection',
+   'typertGateway',
+   'webServer',
+   'sessions',
+@@ -22,6 +23,7 @@
+ ] as const
+ 
+ export interface HarnessPluginContext {
++  connection?: unknown
+   typertGateway: unknown
+   webServer: unknown
+   sessions: unknown
+@@ -39,6 +41,7 @@
+ export interface EmbeddedRelayAdapters {
+   gateway: HarnessGatewayFacade
+   permissions: PermissionGatewayFacade
++  dispose?(): void | Promise<void>
+ }
+ 
+ /** Authority teardown deliberately excludes submitted Harness runs. */
+@@ -48,7 +51,7 @@
+ 
+ export interface HarnessPluginRuntime<TContext extends HarnessPluginContext> {
+   schema: HarnessSchemaFactory
+-  createAdapters(ctx: TContext): EmbeddedRelayAdapters
++  createAdapters(ctx: TContext, config: HarnessPluginConfig): EmbeddedRelayAdapters
+   startAuthority(
+     ctx: TContext,
+     config: HarnessPluginConfig,
+@@ -78,12 +81,35 @@
+     Config: createHarnessConfigSchema(runtime.schema),
+     apply(ctx, rawConfig) {
+       const config = resolveHarnessPluginConfig(rawConfig)
+-      const adapters = runtime.createAdapters(ctx)
++      const adapters = runtime.createAdapters(ctx, config)
+       ctx.effect(async function* () {
+         const controller = new AbortController()
+         yield () => controller.abort()
+-        const authority = await runtime.startAuthority(ctx, config, adapters, { signal: controller.signal })
+-        yield () => authority.disposeInfrastructure({ drainTimeoutMs: config.drainTimeoutMs })
++        let authority: EmbeddedRelayAuthority
++        try {
++          authority = await runtime.startAuthority(ctx, config, adapters, { signal: controller.signal })
++        } catch (error: unknown) {
++          try {
++            await adapters.dispose?.()
++          } catch {
++            // 启动错误优先保留，适配器清理失败不附带潜在敏感数据。
++          }
++          throw error
++        }
++        yield async () => {
++          let cleanupError: unknown
++          try {
++            await authority.disposeInfrastructure({ drainTimeoutMs: config.drainTimeoutMs })
++          } catch (error: unknown) {
++            cleanupError = error
++          }
++          try {
++            await adapters.dispose?.()
++          } catch (error: unknown) {
++            cleanupError ??= error
++          }
++          if (cleanupError !== undefined) throw cleanupError
++        }
+       }, 'harness-relay-mcp.embedded-authority')
+     },
+   }
+--- a/src/harness-plugin/preflight.ts
++++ b/src/harness-plugin/preflight.ts
+@@ -1,5 +1,6 @@
+ export const REQUIRED_HARNESS_SERVICES = [
+   'agents',
++  'connection',
+   'typertGateway',
+   'webServer',
+   'sessions',
+--- /dev/null
++++ b/src/harness-plugin/native-gateway-peer.ts
+@@ -0,0 +1,142 @@
++import type { TypertGatewayPort } from '../harness-gateway/index.js'
++
++export interface NativeOwnerPrincipal {
++  readonly kind: 'owner'
++}
++
++export interface NativePeerScope {
++  readonly principal: NativeOwnerPrincipal
++  readonly signal: AbortSignal
++  dispose(): void | Promise<void>
++}
++
++export interface NativeConnectionPort {
++  createPeer?: (options: {
++    readonly principal: NativeOwnerPrincipal
++    readonly interactions: 'none'
++  }) => NativePeerScope
++}
++
++export interface NativeGatewayPeerAdapter {
++  readonly gateway: TypertGatewayPort
++  dispose(): Promise<void>
++}
++
++/** 为网关请求绑定独立的原生 Peer，并只释放本适配器创建的 Peer。 */
++export function createNativeGatewayPeerAdapter(
++  gateway: TypertGatewayPort,
++  connectionValue: unknown,
++  experimentalOwnerPeerOptIn: boolean,
++): NativeGatewayPeerAdapter {
++  const connection = asRecord(connectionValue)
++  const createPeer = connection?.createPeer
++
++  if (createPeer === undefined) {
++    if (experimentalOwnerPeerOptIn) {
++      throw new Error('HARNESS_NATIVE_OWNER_PEER_UNAVAILABLE: connection.createPeer is required for the explicit owner Peer opt-in')
++    }
++    return createLegacyGatewayAdapter(gateway)
++  }
++  if (typeof createPeer !== 'function') {
++    throw new Error('HARNESS_NATIVE_OWNER_PEER_INVALID: connection.createPeer is not callable')
++  }
++  if (!experimentalOwnerPeerOptIn) {
++    throw new Error(
++      'HARNESS_NATIVE_OWNER_PEER_OPT_IN_REQUIRED: set experimentalOwnerPeerOptIn=true to enable the native owner Peer',
++    )
++  }
++
++  let peer: NativePeerScope | undefined
++  let disposed = false
++
++  const getPeer = (): NativePeerScope => {
++    if (disposed) throw new Error('HARNESS_NATIVE_OWNER_PEER_DISPOSED: the Relay-owned Peer has been disposed')
++    if (peer !== undefined) {
++      assertPeerLive(peer)
++      return peer
++    }
++
++    let created: unknown
++    try {
++      created = Reflect.apply(createPeer, connection, [
++        { principal: { kind: 'owner' }, interactions: 'none' },
++      ])
++    } catch {
++      throw new Error('HARNESS_NATIVE_OWNER_PEER_CREATE_FAILED: the native connection could not create a Peer')
++    }
++    if (!isNativeOwnerPeer(created)) {
++      disposeInvalidPeer(created)
++      throw new Error('HARNESS_NATIVE_OWNER_PEER_INVALID: connection.createPeer returned an invalid owner Peer')
++    }
++    peer = created
++    assertPeerLive(peer)
++    return peer
++  }
++
++  return {
++    gateway: {
++      async invoke(request) {
++        return gateway.invoke({ ...request, peer: getPeer() })
++      },
++      async stream(request) {
++        return gateway.stream({ ...request, peer: getPeer() })
++      },
++    },
++    async dispose() {
++      if (disposed) return
++      disposed = true
++      const ownedPeer = peer
++      peer = undefined
++      if (ownedPeer === undefined) return
++      try {
++        await ownedPeer.dispose()
++      } catch {
++        throw new Error('HARNESS_NATIVE_OWNER_PEER_DISPOSE_FAILED: the Relay-owned Peer could not be disposed')
++      }
++    },
++  }
++}
++
++function createLegacyGatewayAdapter(gateway: TypertGatewayPort): NativeGatewayPeerAdapter {
++  return {
++    gateway,
++    async dispose() {},
++  }
++}
++
++function assertPeerLive(peer: NativePeerScope): void {
++  if (peer.signal.aborted) {
++    throw new Error('HARNESS_NATIVE_OWNER_PEER_DISPOSED: the Relay-owned Peer has been disposed')
++  }
++  if (peer.principal.kind !== 'owner') {
++    throw new Error('HARNESS_NATIVE_OWNER_PEER_INVALID: the Relay-owned Peer is not an owner Peer')
++  }
++}
++
++function isNativeOwnerPeer(value: unknown): value is NativePeerScope {
++  try {
++    const peer = asRecord(value)
++    const principal = asRecord(peer?.principal)
++    const signal = asRecord(peer?.signal)
++    return principal?.kind === 'owner'
++      && typeof signal?.aborted === 'boolean'
++      && typeof peer?.dispose === 'function'
++  } catch {
++    return false
++  }
++}
++
++function disposeInvalidPeer(value: unknown): void {
++  try {
++    const dispose = asRecord(value)?.dispose
++    if (typeof dispose === 'function') {
++      void Promise.resolve(Reflect.apply(dispose, value, [])).catch(() => {})
++    }
++  } catch {
++    // 无效对象的清理错误不应覆盖结构校验错误或泄漏原生错误内容。
++  }
++}
++
++function asRecord(value: unknown): Record<string, unknown> | undefined {
++  return typeof value === 'object' && value !== null ? value as Record<string, unknown> : undefined
++}
+--- a/src/harness-gateway/typert-harness-gateway.ts
++++ b/src/harness-gateway/typert-harness-gateway.ts
+@@ -16,11 +16,12 @@
+   WorkspaceView,
+ } from './types.js'
+ 
+-interface TypertInvokeRequest {
++export interface TypertInvokeRequest {
+   namespace: string
+   method: string
+   args: Readonly<Record<string, unknown>>
+   signal?: AbortSignal
++  peer?: unknown
+ }
+ 
+ /** Structural view of Harness 0.1.2's Host-side Typert Gateway. */
+--- /dev/null
++++ b/tests/native-gateway-peer.test.ts
+@@ -0,0 +1,208 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import type { TypertGatewayPort, TypertInvokeRequest } from '../src/harness-gateway/typert-harness-gateway.js'
++import {
++  createNativeGatewayPeerAdapter,
++  type NativePeerScope,
++} from '../src/harness-plugin/native-gateway-peer.js'
++
++test('旧网关运行时没有 createPeer 时保留原请求路径', async () => {
++  const requests: TypertInvokeRequest[] = []
++  const gateway: TypertGatewayPort = {
++    async invoke(request) { requests.push(request); return { ok: true } },
++    async stream(request) { requests.push(request); return emptyStream() },
++  }
++  const adapter = createNativeGatewayPeerAdapter(gateway, {}, false)
++  const request: TypertInvokeRequest = { namespace: 'workspace', method: 'list', args: {} }
++
++  assert.equal(adapter.gateway, gateway)
++  assert.deepEqual(await adapter.gateway.invoke(request), { ok: true })
++  assert.equal(requests[0], request)
++  await adapter.dispose()
++})
++
++test('原生 createPeer 存在而 opt-in 关闭时明确拒绝且不创建 owner Peer', () => {
++  let createCalls = 0
++  const connection = {
++    createPeer() { createCalls += 1; return makePeer() },
++  }
++
++  assert.throws(
++    () => createNativeGatewayPeerAdapter(createNativeGateway(), connection, false),
++    /HARNESS_NATIVE_OWNER_PEER_OPT_IN_REQUIRED/iu,
++  )
++  assert.equal(createCalls, 0)
++})
++
++test('原生 connection 创建独立 owner Peer，invoke 与 stream 共用并覆盖调用者注入的 peer', async () => {
++  const controller = new AbortController()
++  let createdPeer: NativePeerScope | undefined
++  let createCalls = 0
++  let browserPeerReads = 0
++  const connection = {
++    get browserPeer() { browserPeerReads += 1; throw new Error('browserPeer must not be read') },
++    createPeer(options: { principal: { kind: 'owner' }; interactions: 'none' }) {
++      createCalls += 1
++      assert.deepEqual(options, { principal: { kind: 'owner' }, interactions: 'none' })
++      createdPeer = makePeer(controller)
++      return createdPeer
++    },
++  }
++  const nativeGateway = createNativeGateway()
++  const adapter = createNativeGatewayPeerAdapter(nativeGateway, connection, true)
++  const callerPeer = { signal: new AbortController().signal, principal: { kind: 'untrusted' } }
++  const invokeSignal = new AbortController().signal
++  const streamSignal = new AbortController().signal
++  const invokeRequest: TypertInvokeRequest = {
++    namespace: 'workspace', method: 'list', args: { keep: 'same' }, signal: invokeSignal, peer: callerPeer,
++  }
++  const streamRequest: TypertInvokeRequest = {
++    namespace: 'session', method: 'follow', args: { cursor: 7 }, signal: streamSignal, peer: callerPeer,
++  }
++
++  assert.deepEqual(await adapter.gateway.invoke(invokeRequest), { accepted: true })
++  const stream = await adapter.gateway.stream(streamRequest)
++  assert.deepEqual(await stream[Symbol.asyncIterator]().next(), { done: true, value: undefined })
++  assert.equal(createCalls, 1)
++  assert.equal(browserPeerReads, 0)
++  assert.equal(nativeGateway.requests[0]?.peer, createdPeer)
++  assert.equal(nativeGateway.requests[0]?.peer === callerPeer, false)
++  assert.equal(nativeGateway.requests[0]?.signal, invokeSignal)
++  assert.deepEqual(nativeGateway.requests[0], { ...invokeRequest, peer: createdPeer })
++  assert.equal(nativeGateway.requests[1]?.peer, createdPeer)
++  assert.equal(nativeGateway.requests[1]?.signal, streamSignal)
++  assert.deepEqual(nativeGateway.requests[1], { ...streamRequest, peer: createdPeer })
++
++  await adapter.dispose()
++  assert.equal(controller.signal.aborted, true)
++  assert.equal(browserPeerReads, 0)
++})
++
++test('native-like gateway reproduces missing-peer failure before adapter and accepts the real created Peer after', async () => {
++  const nativeGateway = createNativeGateway()
++  const request: TypertInvokeRequest = { namespace: 'workspace', method: 'list', args: {} }
++
++  await assert.rejects(nativeGateway.invoke(request), /Cannot read properties of undefined \(reading 'signal'\)/u)
++  const adapter = createNativeGatewayPeerAdapter(nativeGateway, {
++    createPeer: () => makePeer(),
++  }, true)
++  assert.deepEqual(await adapter.gateway.invoke(request), { accepted: true })
++  await adapter.dispose()
++})
++
++test('disposed owner Peer blocks future invoke and stream, releases only itself, and never cancels a session', async () => {
++  const controller = new AbortController()
++  let ownDisposeCalls = 0
++  let browserPeerReads = 0
++  let cancelSessionCalls = 0
++  let gatewayCalls = 0
++  const peer: NativePeerScope = {
++    principal: { kind: 'owner' },
++    signal: controller.signal,
++    async dispose() { ownDisposeCalls += 1; controller.abort() },
++  }
++  const gateway: TypertGatewayPort & { cancelSession(): Promise<void> } = {
++    async invoke(request) { gatewayCalls += 1; assertNativePeer(request); return { accepted: true } },
++    async stream(request) { gatewayCalls += 1; assertNativePeer(request); return emptyStream() },
++    async cancelSession() { cancelSessionCalls += 1 },
++  }
++  const connection = {
++    get browserPeer() { browserPeerReads += 1; return makePeer() },
++    createPeer: () => peer,
++  }
++  const adapter = createNativeGatewayPeerAdapter(gateway, connection, true)
++  const request: TypertInvokeRequest = { namespace: 'session', method: 'list', args: {} }
++  await adapter.gateway.invoke(request)
++  assert.equal(gatewayCalls, 1)
++
++  await adapter.dispose()
++  await adapter.dispose()
++  await assert.rejects(adapter.gateway.invoke(request), /HARNESS_NATIVE_OWNER_PEER_DISPOSED/iu)
++  await assert.rejects(adapter.gateway.stream(request), /HARNESS_NATIVE_OWNER_PEER_DISPOSED/iu)
++
++  assert.equal(ownDisposeCalls, 1)
++  assert.equal(browserPeerReads, 0)
++  assert.equal(cancelSessionCalls, 0)
++  assert.equal(gatewayCalls, 1)
++})
++
++test('createPeer errors are sanitized and do not expose credential-like details', async () => {
++  const sentinel = 'secret-token-should-not-escape'
++  const adapter = createNativeGatewayPeerAdapter(createNativeGateway(), {
++    createPeer() { throw new Error(`native failure ${sentinel}`) },
++  }, true)
++
++  await assert.rejects(adapter.gateway.invoke({ namespace: 'settings', method: 'describe', args: {} }), error => {
++    assert.match((error as Error).message, /HARNESS_NATIVE_OWNER_PEER_CREATE_FAILED/iu)
++    assert.equal((error as Error).message.includes(sentinel), false)
++    return true
++  })
++  await adapter.dispose()
++})
++
++test('显式批准 owner Peer 但缺少原生工厂时拒绝，不降级到旧路径', () => {
++  for (const connection of [undefined, {}, { createPeer: undefined }]) {
++    assert.throws(() => createNativeGatewayPeerAdapter(createNativeGateway(), connection, true),
++      /HARNESS_NATIVE_OWNER_PEER_UNAVAILABLE/u)
++  }
++})
++
++test('未使用的适配器先释放后不再创建 Peer', async () => {
++  let calls = 0
++  const adapter = createNativeGatewayPeerAdapter(createNativeGateway(), {
++    createPeer() { calls += 1; return makePeer() },
++  }, true)
++  await adapter.dispose()
++  await assert.rejects(adapter.gateway.invoke({ namespace: 'session', method: 'list', args: {} }),
++    /HARNESS_NATIVE_OWNER_PEER_DISPOSED/u)
++  assert.equal(calls, 0)
++})
++
++test('原生 Peer 被外部生命周期释放后不能继续调用网关', async () => {
++  const controller = new AbortController()
++  const nativeGateway = createNativeGateway()
++  const adapter = createNativeGatewayPeerAdapter(nativeGateway, { createPeer: () => makePeer(controller) }, true)
++  await adapter.gateway.invoke({ namespace: 'session', method: 'list', args: {} })
++  controller.abort()
++  await assert.rejects(adapter.gateway.stream({ namespace: 'session', method: 'follow', args: {} }),
++    /HARNESS_NATIVE_OWNER_PEER_DISPOSED/u)
++  assert.equal(nativeGateway.requests.length, 1)
++  await adapter.dispose()
++})
++
++function createNativeGateway(): TypertGatewayPort & { requests: TypertInvokeRequest[] } {
++  const requests: TypertInvokeRequest[] = []
++  return {
++    requests,
++    async invoke(request) {
++      requests.push(request)
++      assertNativePeer(request)
++      return { accepted: true }
++    },
++    async stream(request) {
++      requests.push(request)
++      assertNativePeer(request)
++      return emptyStream()
++    },
++  }
++}
++
++function assertNativePeer(request: TypertInvokeRequest): asserts request is TypertInvokeRequest & { peer: NativePeerScope } {
++  if (request.peer === undefined) throw new TypeError("Cannot read properties of undefined (reading 'signal')")
++  const peer = request.peer as NativePeerScope
++  if (peer.signal.aborted) throw new Error('native peer is disposed')
++  if (peer.principal.kind !== 'owner') throw new Error('native peer principal is not owner')
++}
++
++function makePeer(controller = new AbortController()): NativePeerScope {
++  return {
++    ctx: {},
++    principal: { kind: 'owner' },
++    signal: controller.signal,
++    async dispose() { controller.abort() },
++  } as NativePeerScope
++}
++
++function emptyStream(): AsyncIterable<unknown> {
++  return { async *[Symbol.asyncIterator]() {} }
++}
+--- a/tests/harness-plugin.test.ts
++++ b/tests/harness-plugin.test.ts
+@@ -38,7 +38,14 @@
+   }) as PermissionProvider)
+   const plugin = createHarnessPlugin({
+     schema,
+-    createAdapters: () => ({ gateway, permissions }),
++    createAdapters: (_ctx, config) => {
++      assert.equal(config.experimentalOwnerPeerOptIn, false)
++      return {
++        gateway,
++        permissions,
++        async dispose() { lifecycle.push('adapters-disposed') },
++      }
++    },
+     async startAuthority() {
+       lifecycle.push('started')
+       return {
+@@ -52,6 +59,7 @@
+   assert.equal(plugin.name, 'harness-relay-mcp')
+   assert.deepEqual(plugin.inject, [
+     'agents',
++    'connection',
+     'typertGateway',
+     'webServer',
+     'sessions',
+@@ -67,15 +75,20 @@
+     'stateDirectory',
+     'tokenFile',
+     'experimentalDesktopOptIn',
++    'experimentalOwnerPeerOptIn',
+     'requestBodyLimitBytes',
+     'maxConcurrency',
+     'rateLimitPerMinute',
+     'drainTimeoutMs',
+   ])
+   assert.equal((schema.shape.experimentalDesktopOptIn as ChainSchema).defaultValue, false)
++  assert.equal((schema.shape.experimentalOwnerPeerOptIn as ChainSchema).defaultValue, false)
+   assert.equal(resolveHarnessPluginConfig({}).experimentalDesktopOptIn, false)
++  assert.equal(resolveHarnessPluginConfig({}).experimentalOwnerPeerOptIn, false)
+   assert.equal(resolveHarnessPluginConfig({ experimentalDesktopOptIn: false }).experimentalDesktopOptIn, false)
+   assert.equal(resolveHarnessPluginConfig({ experimentalDesktopOptIn: true }).experimentalDesktopOptIn, true)
++  assert.equal(resolveHarnessPluginConfig({ experimentalOwnerPeerOptIn: false }).experimentalOwnerPeerOptIn, false)
++  assert.equal(resolveHarnessPluginConfig({ experimentalOwnerPeerOptIn: true }).experimentalOwnerPeerOptIn, true)
+ 
+   plugin.apply(ctx, { drainTimeoutMs: 750 })
+   assert(installer !== undefined)
+@@ -87,22 +100,22 @@
+   const dispose = await iterator.next()
+   assert.equal(dispose.done, false)
+   await dispose.value()
+-  assert.deepEqual(lifecycle, ['started', 'disposed:750'])
+-})
+-
+-test('desktop opt-in rejects explicitly supplied non-boolean runtime values', () => {
++  assert.deepEqual(lifecycle, ['started', 'disposed:750', 'adapters-disposed'])
++})
++
++test('experimental opt-ins reject explicitly supplied non-boolean runtime values', () => {
+   const invalidValues: unknown[] = ['true', 'false', 1, null, {}, []]
+   for (const value of invalidValues) {
+-    const input = { experimentalDesktopOptIn: value } as unknown as Partial<HarnessPluginConfig>
+-    assert.throws(
+-      () => resolveHarnessPluginConfig(input),
+-      /experimentalDesktopOptIn must be a boolean/iu,
+-    )
++    for (const key of ['experimentalDesktopOptIn', 'experimentalOwnerPeerOptIn'] as const) {
++      const input = { [key]: value } as unknown as Partial<HarnessPluginConfig>
++      assert.throws(() => resolveHarnessPluginConfig(input), new RegExp(`${key} must be a boolean`, 'iu'))
++    }
+   }
+ })
+ 
+ test('Cordis plugin factory exposes an abort disposer before authority startup settles', async () => {
+   let installer: (() => Promise<() => Promise<void>> | AsyncIterable<() => void | Promise<void>, void, void>) | undefined
++  let adaptersDisposed = false
+   const ctx: HarnessPluginContext = {
+     typertGateway: {}, webServer: {}, sessions: {}, sessionController: {},
+     workspaceController: {}, settingsController: {}, agentPresets: {}, permissionPresets: {},
+@@ -116,7 +129,7 @@
+   }) as PermissionProvider)
+   const plugin = createHarnessPlugin({
+     schema: new RecordingSchemaFactory(),
+-    createAdapters: () => ({ gateway, permissions }),
++    createAdapters: () => ({ gateway, permissions, dispose() { adaptersDisposed = true } }),
+     async startAuthority(_ctx, _config, _adapters, { signal }) {
+       await new Promise<void>((_resolve, reject) => {
+         signal.addEventListener('abort', () => reject(new Error('startup cancelled')), { once: true })
+@@ -134,6 +147,7 @@
+   const pendingStartup = iterator.next()
+   await cancel.value()
+   await assert.rejects(pendingStartup, /startup cancelled/iu)
++  assert.equal(adaptersDisposed, true)
+ })
+ 
+ test('headless profile preflight blocks before profile mutation', () => {
+@@ -146,7 +160,7 @@
+   assert.deepEqual(preflightHarnessProfile({
+     profile: 'web',
+     availableServices: [
+-      'agents', 'typertGateway', 'sessions', 'sessionController', 'workspaceController',
++      'agents', 'connection', 'typertGateway', 'sessions', 'sessionController', 'workspaceController',
+       'settingsController', 'agentPresets', 'permissionPresets',
+     ],
+   }), {
+@@ -158,7 +172,7 @@
+   assert.equal(preflightHarnessProfile({
+     profile: 'web',
+     availableServices: [
+-      'agents', 'typertGateway', 'webServer', 'sessions', 'sessionController', 'workspaceController',
++      'agents', 'connection', 'typertGateway', 'webServer', 'sessions', 'sessionController', 'workspaceController',
+       'settingsController', 'agentPresets', 'permissionPresets',
+     ],
+   }).ready, true)
+@@ -166,7 +180,7 @@
+ 
+ test('desktop profile requires explicit experimental opt-in and every Harness service', () => {
+   const allServices = [
+-    'agents', 'typertGateway', 'webServer', 'sessions', 'sessionController', 'workspaceController',
++    'agents', 'connection', 'typertGateway', 'webServer', 'sessions', 'sessionController', 'workspaceController',
+     'settingsController', 'agentPresets', 'permissionPresets',
+   ]
+   assert.deepEqual(preflightHarnessProfile({ profile: 'desktop', availableServices: allServices }), {

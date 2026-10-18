@@ -1,0 +1,55 @@
+{
+  "task_id": "CTRL-HARNESS",
+  "run_id": "activation_20261018_r03",
+  "baseline_commit": "a5d72dcc4cfecd4e2b9ed2042ebf5c10fdd9e8bd",
+  "status": "NATIVE_DOCTOR_PASS_GATEWAY_PEER_COMPATIBILITY_BLOCKED",
+  "authorization": {
+    "basis": "Wong在本轮明确回复：允许该精确版本豁免并继续测试。此前已批准实验安装、专用Relay鉴权及保存后DSH重启，并确认从托盘退出。",
+    "package": "harness-relay-mcp@0.2.18",
+    "dsh_runtime": "0.2.1-rc.2",
+    "other_versions_exempted": false,
+    "plugin_peer_range_modified": false
+  },
+  "source_and_review": {
+    "fixed_upstream": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+    "accepted_source_receipt": "report/evidence/CTRL-HARNESS/installation_20261018_r02/review_receipt.json",
+    "source_changed_this_run": false,
+    "prior_full_regression": "244/244 PASS，未在本轮重复执行",
+    "package_sha256": "a6c6e572c67606c6ca61b507934384f93bc1b84c59577415bbe30946a9d18fc9",
+    "installed_harness_sha256": "54f190c927da0da36d034af119c407b071341543b03d154c6ff1d83e50b9d0a8"
+  },
+  "verification": {
+    "official_exact_version_exemption": {"status": "PASS", "native_exit_code": 0},
+    "official_installation": {"status": "PASS", "native_exit_code": 0},
+    "minimal_config_change": {"status": "PASS", "reason": "原有dependencies、bundle顺序保持，仅新增Relay包/bundle和已经审查的experimentalDesktopOptIn行。"},
+    "desktop_native_profile_routing": {"status": "PASS", "reason": "启动时刻意不设DSH_PROFILE，实际发布profile=desktop，证明使用原生profileContext。"},
+    "authority_publication": {"status": "PASS", "state": "ready", "mode": "embedded", "owner_pid": 28188, "shell_pid": 14256, "authority_and_epoch_match": true, "tcp_listener": true, "token_file_exists": true, "token_content_read": false},
+    "native_mcp_doctor": {"status": "PASS", "reason": "新建授权验收窗口已加载原生Relay工具，实际doctor ok=true、remote connected=true、relayVersion=0.2.18；父窗口/子代理未加载的旧阻断保留在native_tool_probe.json。"},
+    "registered_workspace_and_session_queries": {"status": "BLOCKED", "reason": "原生list_workspaces与list_capabilities在并行及串行查询均报HOST_TYPERT_GATEWAY: Cannot read properties of undefined (reading 'signal')，retryable=false；现有会话尚未查询。实际DSH0.2.1 prepareInvocation现在要求request.peer，旧Relay未传；待官方独立Peer适配。"},
+    "existing_session_read_only_message_round_trip": {"status": "NOT_RUN"},
+    "stage2b_or_hardware": {"status": "NOT_APPLICABLE", "reason": "独立工具接入；未写入2B工作树、发送阶段任务、启动重型构建、操作板卡或重启Codex。"}
+  },
+  "privacy": {
+    "model_api_keys_read_or_displayed": false,
+    "relay_token_content_read_or_displayed": false,
+    "private_backups_and_desktop_logs_in_git": false,
+    "private_log_directory": "C:\\Users\\22061\\.dsh\\relay-runtime-check-20261018-r03",
+    "backup_directory": "C:\\Users\\22061\\.dsh\\relay-backup-20261018-1326"
+  },
+  "rollback_not_executed": {
+    "precondition": "先保存DSH工作并从托盘退出，确认无活动任务/DSH进程；不关闭Codex或2B。不能用全量备份覆盖后续用户修改。",
+    "desktop_cli": ["D:\\DSH\\DeepSeek Harness.exe", "--expose-internals", "D:\\DSH\\resources\\app.asar\\dsh\\node_modules\\@deepseek-ai\\dsh-desktop-host\\lib\\cli.js"],
+    "remove_package_arguments": ["plugin", "--profile", "desktop", "remove", "harness-relay-mcp", "--ignore-scripts"],
+    "revoke_exact_exemption_arguments": ["plugin", "--profile", "desktop", "revoke-version", "harness-relay-mcp@0.2.18", "--dsh-version", "0.2.1-rc.2"],
+    "config": "仅移除configuration_delta.yml中本轮添加的配置行；保留其他原有或后续修改。"
+  },
+  "next_required_action": "验收窗口原生doctor已通过，R04查询失败证据已保留。Wong随后明确批准独立本地owner Peer修复并再次确认DSH退出，主控进程检查为空；P05补丁开发/独审/复测另用新RunId，不改写本次失败证据。不得伪造Peer、借browserPeer或关闭native权限策略。",
+  "acceptance_thread": {"thread_id": "01a14da3-2112-7f51-9ea9-59618413d762", "host_id": "local", "model": "gpt-6-luna", "reasoning_effort": "xhigh", "project_path": "D:\\FPGA_Competition", "environment": "local existing checkout, read-only verification scope", "prompt_sent": true, "final_result": "BLOCKED_GATEWAY", "receipt": "native_acceptance_r04/receipt.json", "native_call_metadata": "native_acceptance_r04/native_call_records.json"},
+  "limitations": [
+    "服务ready、端点一致和TCP可连接仅证明发布成功，不能当作原生doctor、DSH协议兼容或模型消息测试通过。",
+    "精确版本豁免不改变上游支持范围，当前仍为实验兼容；不宣称生产稳定。",
+    "本轮现有会话消息未发送，未选择或改变DSH模型；原生doctor通过不等于业务网关兼容或完整消息往返通过。",
+    "桌面日志仅留私有目录，不复制潜在含私密信息的启动日志；证据中仅保留无凭据安全投影。",
+    "本轮先在沙箱内读Relay状态遇PermissionError，获准只读该Relay元数据后成功，未改ACL。峰值内存未测。"
+  ]
+}

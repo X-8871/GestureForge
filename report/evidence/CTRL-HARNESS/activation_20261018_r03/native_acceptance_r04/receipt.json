@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "task_id": "CTRL-HARNESS",
+  "run_id": "native_acceptance_20261018_r04",
+  "date_local": "2026-10-18 Asia/Shanghai",
+  "status": "BLOCKED_GATEWAY",
+  "lineage": {
+    "relay_upstream_commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+    "relay_version": "0.2.18",
+    "r02_archive_sha256": "a6c6e572c67606c6ca61b507934384f93bc1b84c59577415bbe30946a9d18fc9",
+    "r02_codex_installation": "PASS",
+    "r02_verified_installed_files": 7,
+    "r03_exact_version_exemption": "PASS",
+    "r03_official_installation": "PASS"
+  },
+  "native_tool_directory": {
+    "status": "PASS",
+    "tools_loaded": [
+      "doctor",
+      "list_workspaces",
+      "list_capabilities",
+      "list_workspace_sessions",
+      "start_review",
+      "start_run",
+      "wait_run"
+    ]
+  },
+  "doctor": {
+    "status": "PASS",
+    "ok": true,
+    "relay_version": "0.2.18",
+    "profile": "desktop",
+    "mode": "embedded",
+    "state": "ready",
+    "owner_probe": "alive",
+    "remote_connected": true,
+    "token_contents_read": false
+  },
+  "workspace_and_capability_discovery": {
+    "status": "BLOCKED",
+    "attempts": ["parallel", "serial"],
+    "list_workspaces": {
+      "code": "HOST_TYPERT_GATEWAY",
+      "message": "workspace.follow failed: HOST_TYPERT_GATEWAY: Cannot read properties of undefined (reading 'signal')",
+      "retryable": false
+    },
+    "list_capabilities": {
+      "code": "HOST_TYPERT_GATEWAY",
+      "message": "session.modelCatalog failed: HOST_TYPERT_GATEWAY: Cannot read properties of undefined (reading 'signal')",
+      "retryable": false
+    }
+  },
+  "existing_session_query": "NOT_RUN_WORKSPACE_NOT_RESOLVED",
+  "readonly_message_round_trip": {
+    "status": "NOT_RUN",
+    "message_dispatched": false,
+    "run_id": null,
+    "session_id": null,
+    "web_url": null
+  },
+  "git_baseline": {
+    "root": "D:\\FPGA_Competition",
+    "initial_status_entries": 406,
+    "initial_tracked_modifications": 18,
+    "initial_untracked_entries": 388,
+    "index_lock_present": false,
+    "project_files_modified_by_this_run": false
+  },
+  "required_follow_up": "Repair or diagnose the DSH Host workspace/model-catalog gateway failure, then rerun discovery and the explicitly authorized existing-session read-only check in a loaded native Relay task. No Codex reload, host restart, or RPC fallback was performed here."
+}

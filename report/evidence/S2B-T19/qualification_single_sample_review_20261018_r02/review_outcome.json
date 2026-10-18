@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-independent-review-outcome/1.0.0",
+  "verdict": "PASS",
+  "reviewer_task": "/root/qualification_single_sample_review",
+  "source_commit": "ce2db7437c1c067fdce826afcc8913033eea3dcf",
+  "runner_sha256_at_review": "d7b1efc6deda3064328bb76d12587637f481c10263e3d1e42c53adffb8784882",
+  "test_sha256_at_review": "bf88019cf2649b072b35cf5a539b25f680942f7c4f16fc75ff7518b3e5a87850",
+  "canonical_entry_sha256_v1": "8c76baccc2f150253755a6e06780c15ba3a748ab0b8a7c45317998234002f8fe",
+  "receipt": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261018_r02\\qualification_receipt.json",
+    "sha256": "f0b3dbfbb300de550ee11f4b455f263b9d50365cd6d1021e6e06692eb61a2ea9"
+  },
+  "review_execution": "STATIC_REVIEW_ONLY",
+  "candidate_r02_qualification_execution": "NOT_RUN",
+  "candidate_r02_sample000_result": "NOT_RUN",
+  "prior_r01_hardware_execution": "BOARD_INTERACTION_ATTEMPTED",
+  "prior_r01_result": "FAILED_BEFORE_LOADHW_SERIAL_DEPLOYMENT_WEIGHTS_START_OR_HP",
+  "cache_probe": "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING",
+  "g3": "NOT_PASSED",
+  "g4": "NOT_PASSED",
+  "g5": "NOT_PASSED",
+  "checks": {
+    "hwh_hp0_nonbufferable_adapter0": "PASS",
+    "new_elf_gp0_device_contract": "PASS",
+    "single_job_arena_cache_retention": "PASS",
+    "postroute_timing": "PASS",
+    "controlled_startup_same_xsa": "PASS"
+  },
+  "limitations": [
+    "R01 failure evidence remains FAILED; this review does not relabel it as success.",
+    "The R01 target path executed CPU/APU selection and system_reset_stop, then failed at the shared helper context lookup. Logs contain no CSR loadhw, serial open, deployment, weight load, START, or HP operation; cleanup_errors is empty.",
+    "The new regression invokes the shared helper using the real R04 XSA/HWH and stops before apu.loadhw; 31 unit tests passed.",
+    "This receipt approves corrected single-sample entry mechanics only. No R02 deployment/sample000 result is asserted; G3/G4/G5 remain not passed."
+  ],
+  "inputs": {
+    "config_draft": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\hardware_online_20261018_r01\\qualification_config_r02_draft.json",
+      "sha256": "b58264487cf2d7be481444304ef4eee4ae89ab1a3359e9d572aab5ef92eae421"
+    },
+    "test_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_map_glue_fix_20261018_r01\\test_result.json",
+      "sha256": "55b546ade192f3f9f645a84d935435991a84427d1c2b7cd955cff3882fa91335"
+    },
+    "failed_run": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\single_sample_qualification_20261018_r01\\model_qualification_result.json",
+      "sha256": "b3b1d2666dd9f13293397679a8b94333cf20a085d396dbce5e4c7749239ef7d0"
+    },
+    "failed_jtag_trace": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\single_sample_qualification_20261018_r01\\jtag_result.json",
+      "sha256": "b154cfbde6b844c8ae9995973f04040c091add752edf45b02e6155db9db5705b"
+    },
+    "custody_chain": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\hardware_online_20261018_r01\\custody_chain_r02.json",
+      "sha256": "c84026275891a0bec743223c5ae99268fa6394d42f0be8a53679c95fdfaa1dfd"
+    },
+    "last_probe": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\cache_probe_execution_20261018_r02\\visibility_probe_result.json",
+      "sha256": "22547ecfdfe67ce4b52dcff0f4f9e4fb367165f95fc01bf9135df256232e1fda"
+    }
+  }
+}

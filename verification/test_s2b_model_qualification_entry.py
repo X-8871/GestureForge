@@ -504,6 +504,11 @@ class R04QualificationBindingTests(unittest.TestCase):
 class SideEffectAndFailureTests(unittest.TestCase):
     """检查导入、预检及运行失败都不会越过硬件门。"""
 
+    def test_shared_csr_helper_reproduces_historical_context_keyerror(self):
+        probe, _, _ = ENTRY.helpers()
+        with self.assertRaisesRegex(KeyError, "verified_inputs"):
+            probe.register_csr_debug_map({}, {}, None, None, None, {})
+
     def test_import_and_help_do_not_load_sdk_or_serial(self):
         code = (
             "import importlib.util,sys;"
@@ -571,6 +576,8 @@ class SideEffectAndFailureTests(unittest.TestCase):
             self.assertFalse(any(name == "xsdb" or name.startswith("xsdb.") for name in sys.modules))
 
     def test_pre_serial_failure_after_tcf_attempt_is_failed_and_cleans_owned_resources(self):
+        probe, _, _ = ENTRY.helpers()
+
         class FakeRecorder:
             def __init__(self, path, record):
                 self.path = path
@@ -579,6 +586,8 @@ class SideEffectAndFailureTests(unittest.TestCase):
 
             def call(self, name, function, *args, **kwargs):
                 self.record["calls"].append({"api": name})
+                if name == "apu.loadhw.csr_only":
+                    raise OSError("实际HWH窗口已核验；在调用loadhw前主动中断")
                 result = function(*args, **kwargs)
                 return result
 
@@ -586,6 +595,11 @@ class SideEffectAndFailureTests(unittest.TestCase):
             def __init__(self):
                 self.disconnect_calls = 0
                 self.targets_by_id = {}
+                self._curtarget = None
+                self._curchan = "mock-channel"
+                self._designtable = {}
+                self._memmap_ctxs = {}
+                self._memmaptable = {}
 
             def connect(self, **kwargs):
                 return "mock-channel"
@@ -610,6 +624,7 @@ class SideEffectAndFailureTests(unittest.TestCase):
             def __init__(self):
                 self.failed = False
                 self.targets = {}
+                self.selected = {}
                 self.record = {"status": "READY", "cleanup_errors": []}
                 self.close_calls = 0
                 self.fail_stop_calls = 0
@@ -620,6 +635,9 @@ class SideEffectAndFailureTests(unittest.TestCase):
 
             def system_reset_stop(self, basis):
                 self.reset_calls += 1
+
+            def gate(self):
+                return None
 
             def fail_stop(self):
                 self.fail_stop_calls += 1
@@ -709,7 +727,7 @@ class SideEffectAndFailureTests(unittest.TestCase):
 
             @staticmethod
             def register_csr_debug_map(*args, **kwargs):
-                raise OSError("注入的串口打开前映射注册失败")
+                return probe.register_csr_debug_map(*args, **kwargs)
 
         with tempfile.TemporaryDirectory(prefix="s2b_pre_serial_failure_") as raw_dir:
             sandbox_root = Path(raw_dir)
@@ -717,16 +735,25 @@ class SideEffectAndFailureTests(unittest.TestCase):
             evidence_parent.mkdir(parents=True)
             run_dir = evidence_parent / "pre_serial_failure"
             config = valid_config(str(run_dir))
+            # 使用本轮真实R04配置里的XSA绑定，让运行入口调用真实共享helper并解析归档内HWH。
+            real_config_path = ROOT / "report/evidence/S2B-T19/single_sample_qualification_20261018_r01/input_config.json"
+            real_config = json.loads(real_config_path.read_text(encoding="utf-8"))
+            config["bindings"] = {"xsa": real_config["bindings"]["xsa"]}
             config_path = sandbox_root / "config.json"
             config_path.write_text(json.dumps(config), encoding="utf-8")
 
             session = FakeSession()
             cpu0 = FakeTarget(FakeJtag.NAMES[1], "cpu0-context")
             cpu1 = FakeTarget(FakeJtag.NAMES[2], "cpu1-context")
-            session.targets_by_id = {11: cpu0, 12: cpu1}
+            apu = FakeTarget("APU", "apu-context")
+            apu._id = 10
+            apu.session = session
+            session._curtarget = apu
+            session.targets_by_id = {10: apu, 11: cpu0, 12: cpu1}
             sdk = FakeSDK(session)
             serial_module = FakeSerialModule()
             controller = FakeController()
+            controller.targets = {"apu": apu}
             FakeJtag.JtagController = lambda *args, **kwargs: controller
             FakeProbe._runtime = staticmethod(lambda cfg: (sdk, serial_module))
             prepared = {"source_commit": config["source_commit"], "server": {},
@@ -734,7 +761,8 @@ class SideEffectAndFailureTests(unittest.TestCase):
 
             with patch.object(ENTRY, "ROOT", sandbox_root), \
                  patch.object(ENTRY, "helpers", return_value=(FakeProbe, FakeJtag, FakeTransport)), \
-                 patch.object(ENTRY, "preflight", return_value=prepared):
+                 patch.object(ENTRY, "preflight", return_value=prepared), \
+                 patch.object(probe, "verify_runtime_sources", return_value=None):
                 with self.assertRaisesRegex(ENTRY.QualificationError, "单样本资格阻断/失败"):
                     ENTRY.run(config_path)
 
@@ -744,6 +772,11 @@ class SideEffectAndFailureTests(unittest.TestCase):
             self.assertEqual(result["status"], "FAILED")
             self.assertEqual(result["native_exit_code"], 2)
             self.assertEqual(result["cleanup_errors"], [])
+            self.assertEqual(result["verified_inputs"]["compat_artifacts"]["implemented_xsa"],
+                             config["bindings"]["xsa"])
+            self.assertEqual(result["debug_memory_map"]["status"], "ATTEMPTED")
+            self.assertEqual(result["debug_memory_map"]["range"], [0x43C00000, 0x43C0FFFF])
+            self.assertEqual(result["debug_memory_map"]["hwh_region"]["INSTANCE"], "infer")
             call_names = [row["api"] for row in result["calls"]]
             self.assertIn("session.connect", call_names)
             self.assertIn("controller.close", call_names)

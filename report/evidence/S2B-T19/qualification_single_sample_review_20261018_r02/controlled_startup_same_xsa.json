@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-qualification-review-check/1.0.0",
+  "check": "controlled_startup_same_xsa",
+  "status": "PASS",
+  "mechanism_review": "PASS",
+  "hardware_execution": "NOT_RUN",
+  "sample000_result": "NOT_RUN",
+  "finding": "Mechanism-only PASS for the corrected candidate. The sole runner behavior change after the reviewed system_reset_stop is to populate the shared helper’s historical verified_inputs.compat_artifacts.implemented_xsa field from cfg.bindings.xsa, already statically bound with the R04 bit and the same XSA used by init/app ELF. The helper then validates the HWH CSR region before its apu.loadhw call; test fixture parses the real R04 XSA/HWH and intentionally interrupts before that call. The prior real R01 attempt failed at this missing field before HWH parsing, loadhw, serial construction, deployment, weight transfer, START, or HP access; its system-reset-stop/readback evidence and no-HP custody remain preserved. This PASS reviews the corrected entry mechanism only; candidate R02 deployment/sample000 are not run or passed.",
+  "canonical_entry_sha256_v1": "8c76baccc2f150253755a6e06780c15ba3a748ab0b8a7c45317998234002f8fe",
+  "inputs": [
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_qualification.py",
+      "sha256": "d7b1efc6deda3064328bb76d12587637f481c10263e3d1e42c53adffb8784882"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\verification\\test_s2b_model_qualification_entry.py",
+      "sha256": "bf88019cf2649b072b35cf5a539b25f680942f7c4f16fc75ff7518b3e5a87850"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+      "sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+      "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+      "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_map_glue_fix_20261018_r01\\test_result.json",
+      "sha256": "55b546ade192f3f9f645a84d935435991a84427d1c2b7cd955cff3882fa91335"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_map_glue_fix_20261018_r01\\unittest.log",
+      "sha256": "83236cfaa9b23345d08eb454765eb1ae37391af9890d66b4915d40de83c248b9"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\single_sample_qualification_20261018_r01\\model_qualification_result.json",
+      "sha256": "b3b1d2666dd9f13293397679a8b94333cf20a085d396dbce5e4c7749239ef7d0"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\single_sample_qualification_20261018_r01\\jtag_result.json",
+      "sha256": "b154cfbde6b844c8ae9995973f04040c091add752edf45b02e6155db9db5705b"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_failed_source_20261018_r01\\run_s2b_model_qualification.py",
+      "sha256": "ac5fc973f51465669e53646906d80cfe5d7d61cb55395d5bf01a4121a22337f2"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_failed_source_20261018_r01\\source_reconstruction.json",
+      "sha256": "e51a7829dc5fad36e4616cee5b031b9791b169520c19df491ee410deb95e226d"
+    }
+  ]
+}

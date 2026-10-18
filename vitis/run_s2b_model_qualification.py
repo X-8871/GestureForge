@@ -79,7 +79,7 @@ MANUAL_TRUST_ROOT_CLAIM = {
 # 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
 # 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0候选审查与官方POR语义分别由下方固定锚点绑定。
 # 首个受控sample000按冻结规程使用有限最大期限；最终部署期限仍须在G4/G5量化。
-TRUSTED_REVIEW_ANCHOR = {'path': 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261017_r04\\qualification_receipt.json', 'sha256': 'f6d94bb66ffb678d1334a7194246029d955e62df6075369ca17c422a266f30fe'}
+TRUSTED_REVIEW_ANCHOR = {'path': 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261018_r02\\qualification_receipt.json', 'sha256': 'f0b3dbfbb300de550ee11f4b455f263b9d50365cd6d1021e6e06692eb61a2ea9'}
 TRUSTED_G0_ANCHOR = {
     'path': 'report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r02/independent_g0_review_outcome.json',
     'sha256': '0540f3ab8d7e27b87a739c520f5228bb3b9186e2733e9fb6bb2d6bec05accc53',
@@ -648,6 +648,8 @@ def run(config_path, *, offline_only=False):
             preflight(cfg)
             identity("before_deploy")
             controller.system_reset_stop(cfg["cold_basis"])
+            # 共享探针helper沿用历史字段名implemented_xsa；此入口的静态preflight已验证当前R04 bindings.xsa，且其内含bit并与本次ELF同属一套构建。
+            record["verified_inputs"] = {"compat_artifacts": {"implemented_xsa": cfg["bindings"]["xsa"]}}
             p.register_csr_debug_map(cfg, record, log, session, controller, owner)
             port = log.call("serial.construct_closed", serial.Serial, port=None, baudrate=115200, bytesize=8,
                             parity="N", stopbits=1, timeout=0.1, write_timeout=1.0, rtscts=False, dsrdtr=False)

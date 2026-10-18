@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-17（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。
+更新：2026-10-18（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
 
 ## 当前目标与阶段
 
@@ -39,17 +39,24 @@
 - Wong 决定 Codex 与 DSH 共用本仓库，按任务轮流独占写（方案 A）；共同规则见 `AGENTS.md`「与 Codex 共享同一工作区」。
 - 接任务方：先读 `AGENTS.md` 与本文件，核对 `git status --short`、`.git/index.lock` 及 Vivado/xsim 进程，再独占修改；结束时更新本段交接行并只提交本轮相关文件。
 - 非接任务方只读复核，不并发写同一文件、不并发提交、不跑重型综合/仿真。
-- 交接行格式：`任务 | 接任务方 | 基线提交 | 允许修改范围 | 开始时间 | 状态`；当前无进行中任务。
+- 交接行格式：`任务 | 负责人 | 工作树/分支 | 起始提交 | 允许修改范围 | 未提交改动归属 | 状态 | 下一接手方`；当前交接记录见下方「阶段入口与任务归属」。
 - 环境事实（2026-10-17）：DSH 沙箱在 `D:\FPGA_Competition` 的写入授权已修复（仅给当前用户补完全控制，未删除任何条目，回滚脚本在 `D:\dsh_acl_recovery\20261017\`）；Git Bash 的 `bash.exe`/`sh.exe` 在受限沙箱下报 signal pipe Win32 5，改用 git 直调与 Python。用户级 `TEMP`/`TMP` 已设为 `D:\tmp`（2026-10-17，新进程生效，Vivado/xsim/Verilator 共用；已运行进程需重启后才切换）。
 
-## DSH→Codex 交接（2026-10-18）
+## 阶段入口与任务归属（2026-10-18 核实）
 
-- 完整交接文档：`.codex/DSH_HANDOFF_20261018.md`（Wong 明确要求的跨 Agent 交接记录，不替代本 STATE 与 `AGENTS.md`）。
-- DSH 本轮只改自身 DSH 配置与 `D:\tmp` 探针，未动 `src/`、`sim/`、`vivado/`、`docs/`、`report/`；全部 Vivado/hw_server/cs_server 进程已关闭，RAM 可用 8.3 GB。
-- 已完成：WSL 2.7.13 + Docker 29.8.2 + 本地文档栈（导入 725,911 篇完成；因内存要求停栈，数据卷保留）；DSH 新增百炼路由 `jl-ds`=`deepseek-v4.1-flash`（档位 off/low/high/max，密钥仅在用户环境变量）；修复百炼 `developer` 角色导致的 400；修复 Vivado 许可（过期的 Enterprise 试用挡住综合）→ `D:\Xilinx_licenses\basic_only.lic`（BASIC 至 2027-08-07，已注入 MCP env）。
-- Vivado 实测（探针，非工程验收）：综合/实现/比特流（3.9 MB）/xsim 全部通过；工程 `AX7Z020_Gesture`（part `xc7z020clg400-2`，top `rom_controller`，4 源文件 + 4 个 TB）可读打开；JTAG 线缆 `Digilent/210512180081` 已识别但器件列表为空（板未上电）。
-- 上板前阻碍：①工程无任何 XDC（`constrs_1` 空，bitgen 会被 NSTD-1/UCIO-1 拦，且无时钟约束）；②`synth_1` 状态 `synth_design ERROR` 且 `INCREMENTAL_CHECKPOINT` 指向 `xa7z020clg400-1I` 与 run part 不符、BASIC 许可不含增量，须先清增量并 reset；③板子未上电。
-- 交接行：任务=`上板前准备（XDC/清增量/板卡上电）` | 接任务方=Codex（待接） | 基线提交=`5d1a4ac` | 允许范围见交接文档 §3 | 开始=2026-10-18 | 状态=待接。
+| 阶段 | 工作树 | 分支 | HEAD | 状态入口 |
+|---|---|---|---|---|
+| 2A（已冻结） | `D:\FPGA_Competition` | `main` | 见下方冻结提交 | 本文件下方 2A 证据段 |
+| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `2e9e3c6`（104 项未提交） | `w2b/.codex/STATE.md`（技术事实） |
+| 3（未启动） | `D:\codex-worktrees\dbdf` | `codex/stage3-video` | `896e6c7` | 该工作树自身 |
+| 较早 2B | `D:\codex-worktrees\96a3` | `codex/stage2b-t01-board-audit` | `e26feea` | 仅历史参考 |
+
+- 主目录 STATE 只维护全局状态、任务归属与阶段入口；阶段技术事实以对应工作树 STATE/证据为准，不在此复制全文。
+- 2B 最新有效阻断（2026-10-18 只读核对 `w2b`）：R14 `report/evidence/S2B-T19/single_sample_qualification_20261017_r14` 为 `BLOCKED`/`hardware_execution=NOT_RUN`/`native_exit_code=2`，错误 `必须通过Vitis2026.1脚本入口`（未在 Vitis 2026.1 脚本入口环境启动）；最新独立收据 r04 `status=PASS` 仅批准“单样本资格入口机制”，`g3/g4/g5=NOT_PASSED`；`w2b` HEAD 仅绑定 r01 收据，指向 r04 的锚点改动未提交。`w2b/.codex/STATE.md` 头部 HEAD 与“收据未签发”表述已过时，待 Codex 更新（DSH 未写入该工作树）。
+- 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交 | 下一接手方=Codex（只读复核）
+- 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
+- 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
+- 主目录小工程（`vivado/AX7Z020_Gesture`）上板前阻碍：无 XDC；`synth_1` ERROR 且增量检查点 part 与 run 不符、BASIC 不含增量；板卡未上电。**仅适用该小工程，与 2B 无关，不得据此改 `w2b`。**
 
 ## Git 与下一步
 

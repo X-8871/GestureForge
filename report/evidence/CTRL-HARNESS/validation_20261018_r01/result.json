@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "task_id": "CTRL-HARNESS",
+  "run_id": "validation_20261018_r01",
+  "recorded_at_timezone": "Asia/Shanghai",
+  "status": "OFFLINE_PATCH_ACCEPTED_LIVE_INTEGRATION_BLOCKED",
+  "scope": "验证 Harness Relay MCP，并提供默认关闭的实验桌面预检补丁；不代表真实 DSH Desktop 会话已接通。",
+  "project_packaging_baseline": "fbdb6e0e24a81eab1c8e4a32e7d167f7b552c9d6",
+  "upstream": {
+    "repository": "https://github.com/tonytanglab/deepseek-harness-relay-mcp",
+    "commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+    "tree": "8c6f6c3be8e868dae67778acecae4c6099c1fa28",
+    "version": "0.2.18",
+    "verified_git_blobs": 187,
+    "all_archive_blobs_match": true,
+    "npm_latest_observed": "0.2.17",
+    "archive_sha256": "f05130a7a2a860c4de587bb9b54d483333987c7b9a332fd78ead73bf34b2a2a8"
+  },
+  "environment": {
+    "os": "Windows",
+    "node": "v24.19.0",
+    "pnpm": "11.25.0",
+    "actual_dsh_desktop": "0.2.1-rc.2",
+    "dsh_executable": "D:\\DSH\\DeepSeek Harness.exe",
+    "dsh_app_asar": "D:\\DSH\\resources\\app.asar",
+    "upstream_peer_range": ">=0.1.3-alpha.2 <0.2.0",
+    "production_profile": "C:\\Users\\22061\\.dsh\\profiles\\desktop",
+    "isolated_work_directory": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250",
+    "installed_production_plugin": false,
+    "production_configuration_changed": false,
+    "production_dsh_restarted": false,
+    "existing_dsh_session_contacted": false,
+    "api_keys_read": false,
+    "board_operations": false,
+    "peak_memory": "NOT_MEASURED"
+  },
+  "test_environment": {
+    "DSH_HOME": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\isolated_home",
+    "DSH_PROFILE": "desktop",
+    "DSH_RELAY_AUTO_START": "false",
+    "DSH_RELAY_ENDPOINT_DESCRIPTOR": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\isolated_home\\plugins\\dsh-relay\\desktop\\relay-endpoint.json",
+    "DSH_RELAY_STATE_FILE": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\isolated_home\\state.json",
+    "DSH_RELAY_SMOKE_ENTRY": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\upstream\\dist\\dsh-relay-proxy.mjs",
+    "TEMP": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\runtime_temp",
+    "TMP": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\runtime_temp",
+    "LOCALAPPDATA": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\isolated_localappdata",
+    "PATH_prefix": [
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin",
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python"
+    ],
+    "removed_environment_key_patterns": [
+      "API_KEY",
+      "RELAY_TOKEN"
+    ],
+    "note": "只设置测试子进程环境；重现协议测试必须保留这些隔离设置，不得使用裸默认脚本连接用户实际Host。"
+  },
+  "implementation": {
+    "experimentalDesktopOptIn_default": false,
+    "explicit_boolean_required": true,
+    "invalid_values_rejected": [
+      "null",
+      "string",
+      "number",
+      "object",
+      "array"
+    ],
+    "requires_all_native_services": true,
+    "headless_and_unknown_profiles_rejected": true,
+    "authentication_loopback_and_peer_ranges_unchanged": true,
+    "production_compatibility_unverified": true,
+    "files": [
+      {
+        "path": "src/harness-plugin/preflight.ts",
+        "baseline_sha256": "9f71b474ba26eb19269c5b4c3a2c3e1e11728bcde416bfc3174b5e0482bb00d9",
+        "candidate_sha256": "8a5f03d465f1431d1e86c238f1d270458d227f36be3eb81ef81aa5e10d00bbbc"
+      },
+      {
+        "path": "src/harness-plugin/config.ts",
+        "baseline_sha256": "2ba2dbe6212f766d6c679051d6fead84eccdb3ed77a929dad0b881a156760144",
+        "candidate_sha256": "5ae9e8656654e63306ef901a3af90b9d4156cd1dd24e803ff41973a254832e58"
+      },
+      {
+        "path": "src/harness-entry.ts",
+        "baseline_sha256": "c682f32679d670c0986a58d73d5051eadb35dc1661ce7111290eaee32cc17d5a",
+        "candidate_sha256": "2a37c94e4470960e42f934640511268e9fafc4718fdfa1da9854d55734fb2f56"
+      },
+      {
+        "path": "tests/harness-plugin.test.ts",
+        "baseline_sha256": "3923a98d444232d145c1042ed2ef9ac8647f81a1ca9dacfe0832fef4e40cac00",
+        "candidate_sha256": "755062e90af18a07a755a22a5e1d493ba5b17feaf79327b0dce372bba9633f56"
+      }
+    ],
+    "patch_sha256": "a4b441dd60c6b1b7397fe77e80e54f395189139319acd2f0edab2fd28c460515",
+    "built_artifacts": [
+      {
+        "path": "dsh-relay-harness.mjs",
+        "sha256": "27eb28c3613abdf31d96bc562c1efe2a0918e52a282ece75ef7cd45fba44f16c",
+        "bytes": 792516
+      },
+      {
+        "path": "dsh-relay-proxy.mjs",
+        "sha256": "d8cb5b16e134d3c5e3d532038525b6281928adc23ab6337eda24718f0a78a01d",
+        "bytes": 719728
+      },
+      {
+        "path": "dsh-relay.mjs",
+        "sha256": "2ed1b97f302430d5d190c490d7159de9bc3b6fabd78d30c5fea141bf5e8c0543",
+        "bytes": 711795
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "原版桌面阻断复现",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "同样完整服务清单下 web=READY，desktop/headless=HARNESS_WEB_PROFILE_REQUIRED。探针退出0不代表desktop可用。"
+    },
+    {
+      "name": "原版构建与产物版本检查",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "最终候选构建、类型检查、产物版本检查",
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_seconds": 3.656
+    },
+    {
+      "name": "最终完整回归",
+      "status": "PASS",
+      "exit_code": 0,
+      "test_files": 47,
+      "tests": 237,
+      "passed": 237,
+      "failed": 0,
+      "skipped": 0,
+      "elapsed_seconds": 37.688
+    },
+    {
+      "name": "独立复审定向测试",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests": 6,
+      "passed": 6
+    },
+    {
+      "name": "补丁可应用性",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "git apply --check --directory=tmp/CTRL-HARNESS/validation_20261018_1250/baseline_upstream report/evidence/CTRL-HARNESS/validation_20261018_r01/desktop_experimental.patch"
+    },
+    {
+      "name": "隔离 SDK stdio MCP 初始化及工具目录",
+      "status": "PASS",
+      "exit_code": 0,
+      "tools": 27,
+      "elapsed_seconds": 0.375,
+      "scope": "仅上游SDK协议冒烟，不是当前Codex窗口已安装的原生MCP工具。"
+    },
+    {
+      "name": "真实 DSH 后端连接",
+      "status": "BLOCKED",
+      "exit_code": null,
+      "reason": "隔离doctor.ok=false/errorCode=STATUS_MISSING；现有DSH未安装Relay，未发现web/desktop endpoint descriptor。"
+    },
+    {
+      "name": "DSH 0.2.1-rc.2 实际协议兼容",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "超出上游声明peer范围；实验预检开关与类型/模拟测试不证明实际兼容。"
+    },
+    {
+      "name": "指定原有会话双向消息回合",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "尚未进行生产插件安装/鉴权/DSH重启，也未确定原会话sessionId。"
+    },
+    {
+      "name": "板上测试",
+      "status": "NOT_APPLICABLE",
+      "exit_code": null,
+      "reason": "本任务是独立工具接入验证，不消费模型或PS/PL业务接口、不操作板卡。"
+    }
+  ],
+  "failure_history": [
+    {
+      "run": "candidate_full_suite_r01",
+      "status": "FAIL",
+      "exit_code": 1,
+      "tests": 236,
+      "passed": 232,
+      "failed": 4,
+      "reason": "task-manifest-contract使用裸python；测试子进程PATH没有Python，spawn失败。原日志保留。",
+      "closed_by": "只为测试子进程增加明确Python目录；R02同源码236/236通过，未改测试判据。"
+    },
+    {
+      "run": "reviewer_r01",
+      "verdict": "CHANGES_REQUIRED",
+      "finding": "config.ts运行时resolver接受非boolean；未绕过严格true门禁，但违反配置契约。",
+      "closed_by": "仅undefined默认false，其他非boolean拒绝；独立R02复审通过。"
+    }
+  ],
+  "independent_review": {
+    "reviewer_agent_id": "01a14d5e-5b9d-7943-84e1-9fd2cf7f98af",
+    "final_verdict": "PASS",
+    "scope": "CTRL-HARNESS-D1离线实验补丁的独立G2；不涵盖生产安装或实际DSH协议。",
+    "typecheck_exit_code": 0,
+    "targeted_tests": 6,
+    "targeted_test_exit_code": 0,
+    "source_bindings": [
+      {
+        "path": "src/harness-plugin/preflight.ts",
+        "baseline_sha256": "9f71b474ba26eb19269c5b4c3a2c3e1e11728bcde416bfc3174b5e0482bb00d9",
+        "candidate_sha256": "8a5f03d465f1431d1e86c238f1d270458d227f36be3eb81ef81aa5e10d00bbbc"
+      },
+      {
+        "path": "src/harness-plugin/config.ts",
+        "baseline_sha256": "2ba2dbe6212f766d6c679051d6fead84eccdb3ed77a929dad0b881a156760144",
+        "candidate_sha256": "5ae9e8656654e63306ef901a3af90b9d4156cd1dd24e803ff41973a254832e58"
+      },
+      {
+        "path": "src/harness-entry.ts",
+        "baseline_sha256": "c682f32679d670c0986a58d73d5051eadb35dc1661ce7111290eaee32cc17d5a",
+        "candidate_sha256": "2a37c94e4470960e42f934640511268e9fafc4718fdfa1da9854d55734fb2f56"
+      },
+      {
+        "path": "tests/harness-plugin.test.ts",
+        "baseline_sha256": "3923a98d444232d145c1042ed2ef9ac8647f81a1ca9dacfe0832fef4e40cac00",
+        "candidate_sha256": "755062e90af18a07a755a22a5e1d493ba5b17feaf79327b0dce372bba9633f56"
+      }
+    ]
+  },
+  "final_execution_records": [
+    {
+      "name": "build",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\pnpm\\bin\\pnpm.mjs run prepare:codex-local",
+      "cwd": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\upstream",
+      "exit_code": 0,
+      "elapsed_seconds": 3.656
+    },
+    {
+      "name": "full_suite",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe node_modules/tsx/dist/cli.mjs --test --test-reporter=tap --test-concurrency=1 tests\\authority.test.ts tests\\build-safety.test.ts tests\\built-version-contract.test.ts tests\\event-monitoring-gateway.test.ts tests\\event-monitoring.test.ts tests\\file-permissions.test.ts tests\\harness-gateway-adapter-contract.test.ts tests\\harness-gateway-in-process.test.ts tests\\harness-gateway.test.ts tests\\harness-plugin.test.ts tests\\headless-invocation-contract.test.ts tests\\host-autostart.test.ts tests\\host-poll-contract.test.ts tests\\lifecycle-recovery.test.ts tests\\lock-recovery.test.ts tests\\mcp-http.test.ts tests\\model-selection.test.ts tests\\module-boundaries.test.ts tests\\monitoring-facade.test.ts tests\\package-publication-gate.test.ts tests\\permission-gateway.test.ts tests\\principal-idempotency.test.ts tests\\prompt.test.ts tests\\relay-idempotency.test.ts tests\\relay-runtime.test.ts tests\\run-events.test.ts tests\\run-interactions.test.ts tests\\run-manager.test.ts tests\\run-reconciler-incremental.test.ts tests\\run-reconciliation-rc8.test.ts tests\\run-recovery.test.ts tests\\server-product-tools.test.ts tests\\session-routing.test.ts tests\\setup-client-config.test.ts tests\\setup-launcher-doctor.test.ts tests\\state-repository-lock.test.ts tests\\state-store-multiprocess.test.ts tests\\state-store.test.ts tests\\stdio-proxy-recovery.test.ts tests\\stdio-proxy.test.ts tests\\strict-utf8.test.ts tests\\task-manifest-contract.test.ts tests\\task-scope.test.ts tests\\typert-harness-gateway.test.ts tests\\upgrade-overlap.test.ts tests\\user-interactions.test.ts tests\\workspace-routing.test.ts",
+      "cwd": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\upstream",
+      "exit_code": 0,
+      "elapsed_seconds": 37.688
+    },
+    {
+      "name": "mcp_proxy",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe scripts/mcp-smoke.mjs",
+      "cwd": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\validation_20261018_1250\\upstream",
+      "exit_code": 0,
+      "elapsed_seconds": 0.375
+    }
+  ],
+  "next_step": "按 Skill Vetter 的凭据/权限审批要求，取得Wong对生产插件安装、专用中继鉴权与保存工作后DSH重启的明确确认；先核实真实0.2.1协议兼容，再限定原有空闲sessionId做只读ping/回复。不得重启Codex或中断正在运行的2B，不自动创建替代会话。",
+  "limitations": [
+    "MCP SDK协议层成功不等于真实DSH已接通；doctor仍明确未连接。",
+    "默认关闭实验开关，未放宽peer范围；不得直接宣称支持DSH0.2.1。",
+    "本任务不改变Vivado ROSS已验证状态，也不增加2B启动或冻结门禁。",
+    "未安装生产插件或修改全局配置，未读API密钥，未操作硬件；2B工作树未由本任务写入。",
+    "第三方全仓源码安全性未作无条件担保；已读完整3个skill文件、关键生命周期/鉴权/路径模块及4文件补丁，不等于对所有传递依赖完成全面审计。"
+  ]
+}

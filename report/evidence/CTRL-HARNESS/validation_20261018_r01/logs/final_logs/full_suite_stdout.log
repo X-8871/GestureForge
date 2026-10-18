@@ -1,0 +1,1432 @@
+TAP version 13
+# Subtest: normalizes loopback Host aliases and isolates embedded from standalone state
+ok 1 - normalizes loopback Host aliases and isolates embedded from standalone state
+  ---
+  duration_ms: 1.1032
+  type: 'test'
+  ...
+# Subtest: same Host rejects a second authority and permits exact owner reuse only
+ok 2 - same Host rejects a second authority and permits exact owner reuse only
+  ---
+  duration_ms: 293.2439
+  type: 'test'
+  ...
+# Subtest: dead owner requires explicit recovery, increments epoch, and fences the old lease
+ok 3 - dead owner requires explicit recovery, increments epoch, and fences the old lease
+  ---
+  duration_ms: 152.4939
+  type: 'test'
+  ...
+# Subtest: PID reuse ambiguity remains fail closed while the PID is alive
+ok 4 - PID reuse ambiguity remains fail closed while the PID is alive
+  ---
+  duration_ms: 89.0302
+  type: 'test'
+  ...
+# Subtest: a guard abandoned during a process crash is recovered only after its PID is dead
+ok 5 - a guard abandoned during a process crash is recovered only after its PID is dead
+  ---
+  duration_ms: 87.9114
+  type: 'test'
+  ...
+# Subtest: malformed owner registry fails closed and is not overwritten
+ok 6 - malformed owner registry fails closed and is not overwritten
+  ---
+  duration_ms: 23.9115
+  type: 'test'
+  ...
+# Subtest: authority acquire retries live ownership with a bounded backoff and recovers after death
+ok 7 - authority acquire retries live ownership with a bounded backoff and recovers after death
+  ---
+  duration_ms: 151.7432
+  type: 'test'
+  ...
+# Subtest: authority acquire retry times out live or unknown owners with structured ownership details
+ok 8 - authority acquire retry times out live or unknown owners with structured ownership details
+  ---
+  duration_ms: 129.6517
+  type: 'test'
+  ...
+# Subtest: authority acquire retry cancels promptly while sleeping
+ok 9 - authority acquire retry cancels promptly while sleeping
+  ---
+  duration_ms: 86.8721
+  type: 'test'
+  ...
+# Subtest: endpoint descriptor is atomic, strict, and never contains bearer token material
+ok 10 - endpoint descriptor is atomic, strict, and never contains bearer token material
+  ---
+  duration_ms: 23.5393
+  type: 'test'
+  ...
+# Subtest: separate processes cannot both own one Host authority
+ok 11 - separate processes cannot both own one Host authority
+  ---
+  duration_ms: 1215.8003
+  type: 'test'
+  ...
+# Subtest: a crashed process leaves a stale owner that only explicit recovery can replace
+ok 12 - a crashed process leaves a stale owner that only explicit recovery can replace
+  ---
+  duration_ms: 461.0384
+  type: 'test'
+  ...
+# Subtest: authority and state-repository internals are consumed only through module indexes
+ok 13 - authority and state-repository internals are consumed only through module indexes
+  ---
+  duration_ms: 19.656
+  type: 'test'
+  ...
+# Subtest: build lock is fail-closed for a live owner and never stolen by age
+ok 14 - build lock is fail-closed for a live owner and never stolen by age
+  ---
+  duration_ms: 175.7211
+  type: 'test'
+  ...
+# Subtest: build lock refuses a reused PID whose startup identity differs from the record
+ok 15 - build lock refuses a reused PID whose startup identity differs from the record
+  ---
+  duration_ms: 154.7397
+  type: 'test'
+  ...
+# Subtest: build lock recovers a recorded owner only after its PID is provably dead and the record still matches
+ok 16 - build lock recovers a recorded owner only after its PID is provably dead and the record still matches
+  ---
+  duration_ms: 17.6641
+  type: 'test'
+  ...
+# Subtest: build lock with an unknown liveness probe fails closed
+ok 17 - build lock with an unknown liveness probe fails closed
+  ---
+  duration_ms: 151.4996
+  type: 'test'
+  ...
+# Subtest: defaultProcessProbe reports a reused or unprobeable PID as unknown
+ok 18 - defaultProcessProbe reports a reused or unprobeable PID as unknown
+  ---
+  duration_ms: 0.294
+  type: 'test'
+  ...
+# Subtest: reclaimBuildLock uses compare-before-delete and restores a changed record
+ok 19 - reclaimBuildLock uses compare-before-delete and restores a changed record
+  ---
+  duration_ms: 5.6584
+  type: 'test'
+  ...
+# Subtest: build lease release preserves a lock record replaced by another owner
+ok 20 - build lease release preserves a lock record replaced by another owner
+  ---
+  duration_ms: 10.8057
+  type: 'test'
+  ...
+# Subtest: promoteArtifacts atomically swaps a staged tree and keeps the previous dist on failure
+ok 21 - promoteArtifacts atomically swaps a staged tree and keeps the previous dist on failure
+  ---
+  duration_ms: 10.853
+  type: 'test'
+  ...
+# Subtest: concurrent lock holders serialize promotion without losing the final tree
+ok 22 - concurrent lock holders serialize promotion without losing the final tree
+  ---
+  duration_ms: 37.5266
+  type: 'test'
+  ...
+# Subtest: syncVersions rewrites only changed targets and is idempotent
+ok 23 - syncVersions rewrites only changed targets and is idempotent
+  ---
+  duration_ms: 28.2678
+  type: 'test'
+  ...
+# Subtest: syncVersions detects the marker created by processStartIdentity
+ok 24 - syncVersions detects the marker created by processStartIdentity
+  ---
+  duration_ms: 0.2637
+  type: 'test'
+  ...
+# Subtest: local Codex install gate rejects a fresh manifest beside stale proxy artifacts
+ok 25 - local Codex install gate rejects a fresh manifest beside stale proxy artifacts
+  ---
+  duration_ms: 21.0248
+  type: 'test'
+  ...
+# Subtest: InProcess gateway forwards official mux and host AsyncIterables without dispatch duplication
+ok 26 - InProcess gateway forwards official mux and host AsyncIterables without dispatch duplication
+  ---
+  duration_ms: 1.1565
+  type: 'test'
+  ...
+# Subtest: sequencer deduplicates, buffers out-of-order events, and rebases only from durable history
+ok 27 - sequencer deduplicates, buffers out-of-order events, and rebases only from durable history
+  ---
+  duration_ms: 1.0734
+  type: 'test'
+  ...
+# Subtest: sequencer fails over to polling when pending gap storage overflows
+ok 28 - sequencer fails over to polling when pending gap storage overflows
+  ---
+  duration_ms: 0.1384
+  type: 'test'
+  ...
+# Subtest: event monitoring emits reconciliation hints and never treats stream frames as durable state
+ok 29 - event monitoring emits reconciliation hints and never treats stream frames as durable state
+  ---
+  duration_ms: 11.1359
+  type: 'test'
+  ...
+# Subtest: a live sequence gap explicitly keeps session polling enabled
+ok 30 - a live sequence gap explicitly keeps session polling enabled
+  ---
+  duration_ms: 13.1021
+  type: 'test'
+  ...
+# Subtest: approval and question frames only produce deduplicated attention notifications
+ok 31 - approval and question frames only produce deduplicated attention notifications
+  ---
+  duration_ms: 5.1153
+  type: 'test'
+  ...
+# Subtest: stream disconnect enables polling and a later open reports restoration
+ok 32 - stream disconnect enables polling and a later open reports restoration
+  ---
+  duration_ms: 12.4318
+  type: 'test'
+  ...
+# Subtest: win32 backend restricts via a SID-scoped native ACL operation
+ok 33 - win32 backend restricts via a SID-scoped native ACL operation
+  ---
+  duration_ms: 1.0839
+  type: 'test'
+  ...
+# Subtest: non-win32 backend keeps mode 0600 and never swallows chmod failures
+ok 34 - non-win32 backend keeps mode 0600 and never swallows chmod failures
+  ---
+  duration_ms: 11.0422
+  type: 'test'
+  ...
+# Subtest: win32 backend propagates ACL failures and wraps runner errors
+ok 35 - win32 backend propagates ACL failures and wraps runner errors
+  ---
+  duration_ms: 0.3885
+  type: 'test'
+  ...
+# Subtest: win32 check consumes strict structured ACL inspection output
+ok 36 - win32 check consumes strict structured ACL inspection output
+  ---
+  duration_ms: 0.2148
+  type: 'test'
+  ...
+# Subtest: win32 check preserves a structured missing-file diagnostic
+ok 37 - win32 check preserves a structured missing-file diagnostic
+  ---
+  duration_ms: 0.1169
+  type: 'test'
+  ...
+# Subtest: currentUserPrincipal prefers USERDOMAIN and falls back to the local hostname
+ok 38 - currentUserPrincipal prefers USERDOMAIN and falls back to the local hostname
+  ---
+  duration_ms: 0.1046
+  type: 'test'
+  ...
+# Subtest: real win32 backend applies and verifies a current-user-only ACL
+ok 39 - real win32 backend applies and verifies a current-user-only ACL
+  ---
+  duration_ms: 479.7944
+  type: 'test'
+  ...
+# Subtest: restrictPermissions uses the injected backend and propagates its failure
+ok 40 - restrictPermissions uses the injected backend and propagates its failure
+  ---
+  duration_ms: 0.302
+  type: 'test'
+  ...
+# Subtest: token store restricts the token file on create and on existing reads
+ok 41 - token store restricts the token file on create and on existing reads
+  ---
+  duration_ms: 12.9259
+  type: 'test'
+  ...
+# Subtest: token store removes a newly created token when permission hardening fails
+ok 42 - token store removes a newly created token when permission hardening fails
+  ---
+  duration_ms: 2.0425
+  type: 'test'
+  ...
+# Subtest: RelayStateStore applies the injected backend to staged and lock files
+ok 43 - RelayStateStore applies the injected backend to staged and lock files
+  ---
+  duration_ms: 9.6015
+  type: 'test'
+  ...
+# Subtest: HTTP adapter contract returns the semantic Host description
+ok 44 - HTTP adapter contract returns the semantic Host description
+  ---
+  duration_ms: 14.5481
+  type: 'test'
+  ...
+# Subtest: HTTP adapter contract consumes additive rc.8 history projections
+ok 45 - HTTP adapter contract consumes additive rc.8 history projections
+  ---
+  duration_ms: 0.3627
+  type: 'test'
+  ...
+# Subtest: HTTP adapter contract preserves definitive business rejection
+ok 46 - HTTP adapter contract preserves definitive business rejection
+  ---
+  duration_ms: 0.7353
+  type: 'test'
+  ...
+# Subtest: HTTP adapter contract preserves retryable internal failure
+ok 47 - HTTP adapter contract preserves retryable internal failure
+  ---
+  duration_ms: 0.339
+  type: 'test'
+  ...
+# Subtest: InProcess adapter contract returns the semantic Host description
+ok 48 - InProcess adapter contract returns the semantic Host description
+  ---
+  duration_ms: 0.2943
+  type: 'test'
+  ...
+# Subtest: InProcess adapter contract consumes additive rc.8 history projections
+ok 49 - InProcess adapter contract consumes additive rc.8 history projections
+  ---
+  duration_ms: 0.1277
+  type: 'test'
+  ...
+# Subtest: InProcess adapter contract preserves definitive business rejection
+ok 50 - InProcess adapter contract preserves definitive business rejection
+  ---
+  duration_ms: 0.1632
+  type: 'test'
+  ...
+# Subtest: InProcess adapter contract preserves retryable internal failure
+ok 51 - InProcess adapter contract preserves retryable internal failure
+  ---
+  duration_ms: 0.0694
+  type: 'test'
+  ...
+# Subtest: in-process gateway awaits rpcId durability before ApiProxy dispatch
+ok 52 - in-process gateway awaits rpcId durability before ApiProxy dispatch
+  ---
+  duration_ms: 15.2739
+  type: 'test'
+  ...
+# Subtest: in-process gateway normalizes official client business errors
+ok 53 - in-process gateway normalizes official client business errors
+  ---
+  duration_ms: 0.9875
+  type: 'test'
+  ...
+# Subtest: dispatch observer rejects method drift before the Host handler runs
+ok 54 - dispatch observer rejects method drift before the Host handler runs
+  ---
+  duration_ms: 0.2014
+  type: 'test'
+  ...
+# Subtest: HTTP gateway maps semantic operations to the public Host wire contract
+ok 55 - HTTP gateway maps semantic operations to the public Host wire contract
+  ---
+  duration_ms: 16.8657
+  type: 'test'
+  ...
+# Subtest: HTTP gateway preserves definitive Host errors without exposing generic RPC methods
+ok 56 - HTTP gateway preserves definitive Host errors without exposing generic RPC methods
+  ---
+  duration_ms: 0.8392
+  type: 'test'
+  ...
+# Subtest: HTTP gateway keeps retryable and unknown outcomes distinct
+ok 57 - HTTP gateway keeps retryable and unknown outcomes distinct
+  ---
+  duration_ms: 0.6252
+  type: 'test'
+  ...
+# Subtest: HTTP gateway awaits correlation durability before network dispatch
+ok 58 - HTTP gateway awaits correlation durability before network dispatch
+  ---
+  duration_ms: 0.3988
+  type: 'test'
+  ...
+# Subtest: Facade accepts a transport-free provider for the future in-process adapter
+ok 59 - Facade accepts a transport-free provider for the future in-process adapter
+  ---
+  duration_ms: 0.2021
+  type: 'test'
+  ...
+# Subtest: Cordis plugin factory exposes native injects and disposes infrastructure without cancelling runs
+ok 60 - Cordis plugin factory exposes native injects and disposes infrastructure without cancelling runs
+  ---
+  duration_ms: 1.3665
+  type: 'test'
+  ...
+# Subtest: desktop opt-in rejects explicitly supplied non-boolean runtime values
+ok 61 - desktop opt-in rejects explicitly supplied non-boolean runtime values
+  ---
+  duration_ms: 0.387
+  type: 'test'
+  ...
+# Subtest: Cordis plugin factory exposes an abort disposer before authority startup settles
+ok 62 - Cordis plugin factory exposes an abort disposer before authority startup settles
+  ---
+  duration_ms: 0.3302
+  type: 'test'
+  ...
+# Subtest: headless profile preflight blocks before profile mutation
+ok 63 - headless profile preflight blocks before profile mutation
+  ---
+  duration_ms: 0.1948
+  type: 'test'
+  ...
+# Subtest: desktop profile requires explicit experimental opt-in and every Harness service
+ok 64 - desktop profile requires explicit experimental opt-in and every Harness service
+  ---
+  duration_ms: 0.1419
+  type: 'test'
+  ...
+# Subtest: desktop opt-in does not permit headless or unknown profiles
+ok 65 - desktop opt-in does not permit headless or unknown profiles
+  ---
+  duration_ms: 0.0693
+  type: 'test'
+  ...
+# Subtest: delegation skill forbids visible shell and temporary client fallbacks
+ok 66 - delegation skill forbids visible shell and temporary client fallbacks
+  ---
+  duration_ms: 0.6563
+  type: 'test'
+  ...
+# Subtest: delegation skill keeps Harness browser opening opt-in
+ok 67 - delegation skill keeps Harness browser opening opt-in
+  ---
+  duration_ms: 0.227
+  type: 'test'
+  ...
+# Subtest: named review requests carry exact routing and existing authorization without reconfirmation
+ok 68 - named review requests carry exact routing and existing authorization without reconfirmation
+  ---
+  duration_ms: 0.1621
+  type: 'test'
+  ...
+# Subtest: plugin default prompt keeps Harness review and polling on managed background transport
+ok 69 - plugin default prompt keeps Harness review and polling on managed background transport
+  ---
+  duration_ms: 0.2369
+  type: 'test'
+  ...
+# Subtest: auto-start launches one recorded Harness Web when the old owner is dead and the port is free
+ok 70 - auto-start launches one recorded Harness Web when the old owner is dead and the port is free
+  ---
+  duration_ms: 14.3647
+  type: 'test'
+  ...
+# Subtest: auto-start replays a recorded tsx ESM source launcher vector
+ok 71 - auto-start replays a recorded tsx ESM source launcher vector
+  ---
+  duration_ms: 6.8495
+  type: 'test'
+  ...
+# Subtest: Windows background launch hides the console without requesting a detached console
+ok 72 - Windows background launch hides the console without requesting a detached console
+  ---
+  duration_ms: 1.2543
+  type: 'test'
+  ...
+# Subtest: POSIX background launch remains detached
+ok 73 - POSIX background launch remains detached
+  ---
+  duration_ms: 0.9127
+  type: 'test'
+  ...
+# Subtest: auto-start rejects a raw Node source launcher contract without spawning
+ok 74 - auto-start rejects a raw Node source launcher contract without spawning
+  ---
+  duration_ms: 7.0634
+  type: 'test'
+  ...
+# Subtest: auto-start fails closed without spawning when the Harness loopback port is occupied
+ok 75 - auto-start fails closed without spawning when the Harness loopback port is occupied
+  ---
+  duration_ms: 6.918
+  type: 'test'
+  ...
+# Subtest: cross-process start lock lets concurrent proxies launch only one Harness Web instance
+ok 76 - cross-process start lock lets concurrent proxies launch only one Harness Web instance
+  ---
+  duration_ms: 38.3858
+  type: 'test'
+  ...
+# Subtest: running wait_run slices forbid concluding the host turn
+ok 77 - running wait_run slices forbid concluding the host turn
+  ---
+  duration_ms: 0.9203
+  type: 'test'
+  ...
+# Subtest: succeeded runs require consuming assistantText before closing
+ok 78 - succeeded runs require consuming assistantText before closing
+  ---
+  duration_ms: 0.0973
+  type: 'test'
+  ...
+# Subtest: attention and failure stay open until the host inspects them
+ok 79 - attention and failure stay open until the host inspects them
+  ---
+  duration_ms: 0.0847
+  type: 'test'
+  ...
+# Subtest: does not restore a reused-session permission after the prompt was accepted
+ok 80 - does not restore a reused-session permission after the prompt was accepted
+  ---
+  duration_ms: 659.9131
+  type: 'test'
+  ...
+# Subtest: restores a reused-session permission after definitive prompt rejection
+ok 81 - restores a reused-session permission after definitive prompt rejection
+  ---
+  duration_ms: 737.7197
+  type: 'test'
+  ...
+# Subtest: reconciles an uncertain steer by its durable rpcId
+ok 82 - reconciles an uncertain steer by its durable rpcId
+  ---
+  duration_ms: 774.0666
+  type: 'test'
+  ...
+# Subtest: rolls back cancelRequested after a definitive cancellation rejection
+ok 83 - rolls back cancelRequested after a definitive cancellation rejection
+  ---
+  duration_ms: 761.3305
+  type: 'test'
+  ...
+# Subtest: restores a fresh session after a temporary elevated permission
+ok 84 - restores a fresh session after a temporary elevated permission
+  ---
+  duration_ms: 714.6355
+  type: 'test'
+  ...
+# Subtest: marks a silent running session for attention and resumes after durable progress
+ok 85 - marks a silent running session for attention and resumes after durable progress
+  ---
+  duration_ms: 1692.4557
+  type: 'test'
+  ...
+# Subtest: marks expired permission leases for explicit reconciliation during restore
+ok 86 - marks expired permission leases for explicit reconciliation during restore
+  ---
+  duration_ms: 395.3253
+  type: 'test'
+  ...
+# Subtest: deduplicates concurrent service attachment for one workspace
+ok 87 - deduplicates concurrent service attachment for one workspace
+  ---
+  duration_ms: 347.5144
+  type: 'test'
+  ...
+# Subtest: resumes a prepared persisted run with the original prompt rpcId
+ok 88 - resumes a prepared persisted run with the original prompt rpcId
+  ---
+  duration_ms: 448.2315
+  type: 'test'
+  ...
+# Subtest: acquire records PID, process startup identity, and a fencing token
+ok 89 - acquire records PID, process startup identity, and a fencing token
+  ---
+  duration_ms: 18.5056
+  type: 'test'
+  ...
+# Subtest: lease release uses compare-before-delete and preserves a replaced lock record
+ok 90 - lease release uses compare-before-delete and preserves a replaced lock record
+  ---
+  duration_ms: 8.661
+  type: 'test'
+  ...
+# Subtest: inspect classifies a dead owner and recoverStale deletes it with compare-before-delete
+ok 91 - inspect classifies a dead owner and recoverStale deletes it with compare-before-delete
+  ---
+  duration_ms: 7.008
+  type: 'test'
+  ...
+# Subtest: live and unknown owners fail closed; no time-based stealing
+ok 92 - live and unknown owners fail closed; no time-based stealing
+  ---
+  duration_ms: 211.9159
+  type: 'test'
+  ...
+# Subtest: a reused PID with a different startup identity is never recovered
+ok 93 - a reused PID with a different startup identity is never recovered
+  ---
+  duration_ms: 7.0537
+  type: 'test'
+  ...
+# Subtest: a record changed between read and recovery is never deleted
+ok 94 - a record changed between read and recovery is never deleted
+  ---
+  duration_ms: 3.2939
+  type: 'test'
+  ...
+# Subtest: a malformed lock record is reported as unknown and never recovered
+ok 95 - a malformed lock record is reported as unknown and never recovered
+  ---
+  duration_ms: 2.2968
+  type: 'test'
+  ...
+# Subtest: legacy lock records without a startup identity are fenced by token only
+ok 96 - legacy lock records without a startup identity are fenced by token only
+  ---
+  duration_ms: 2.3588
+  type: 'test'
+  ...
+# Subtest: acquire with a dead but still-present lock fails closed instead of stealing
+ok 97 - acquire with a dead but still-present lock fails closed instead of stealing
+  ---
+  duration_ms: 179.5274
+  type: 'test'
+  ...
+# Subtest: defaultProcessProbe and processStartIdentity are stable
+ok 98 - defaultProcessProbe and processStartIdentity are stable
+  ---
+  duration_ms: 0.3236
+  type: 'test'
+  ...
+# Subtest: FileLockFacade options accept an injected probe for deterministic recovery
+ok 99 - FileLockFacade options accept an injected probe for deterministic recovery
+  ---
+  duration_ms: 2.815
+  type: 'test'
+  ...
+# Subtest: RelayStateStore exposes lock diagnostics and explicit stale recovery for doctor
+ok 100 - RelayStateStore exposes lock diagnostics and explicit stale recovery for doctor
+  ---
+  duration_ms: 7.1981
+  type: 'test'
+  ...
+# Subtest: RelayStateStore recovers all dead state and session locks only through the explicit authority path
+ok 101 - RelayStateStore recovers all dead state and session locks only through the explicit authority path
+  ---
+  duration_ms: 3.4067
+  type: 'test'
+  ...
+# Subtest: RelayStateStore leaves live and unknown locks untouched during explicit dead-lock recovery
+ok 102 - RelayStateStore leaves live and unknown locks untouched during explicit dead-lock recovery
+  ---
+  duration_ms: 7.2841
+  type: 'test'
+  ...
+# Subtest: token store atomically creates and reuses a 256-bit file secret
+ok 103 - token store atomically creates and reuses a 256-bit file secret
+  ---
+  duration_ms: 246.0419
+  type: 'test'
+  ...
+# Subtest: environment token overrides the file without persisting the secret
+ok 104 - environment token overrides the file without persisting the secret
+  ---
+  duration_ms: 1.8595
+  type: 'test'
+  ...
+# Subtest: authenticated stateless HTTP supports initialize, tools/list, and tools/call
+ok 105 - authenticated stateless HTTP supports initialize, tools/list, and tools/call
+  ---
+  duration_ms: 60.7532
+  type: 'test'
+  ...
+# Subtest: HTTP policy rejects bad auth, Host, Origin, oversized bodies, and post-drain requests
+ok 106 - HTTP policy rejects bad auth, Host, Origin, oversized bodies, and post-drain requests
+  ---
+  duration_ms: 18.8578
+  type: 'test'
+  ...
+# Subtest: restores the previous shared default after selecting a session model
+ok 107 - restores the previous shared default after selecting a session model
+  ---
+  duration_ms: 1.1506
+  type: 'test'
+  ...
+# Subtest: does not overwrite a concurrent default-model change
+ok 108 - does not overwrite a concurrent default-model change
+  ---
+  duration_ms: 0.1563
+  type: 'test'
+  ...
+# Subtest: removes a newly created user default when none existed before selection
+ok 109 - removes a newly created user default when none existed before selection
+  ---
+  duration_ms: 0.22
+  type: 'test'
+  ...
+# Subtest: feature modules are consumed only through their root index
+ok 110 - feature modules are consumed only through their root index
+  ---
+  duration_ms: 31.8757
+  type: 'test'
+  ...
+# Subtest: projects every current RunSnapshot status without defining a parallel status
+ok 111 - projects every current RunSnapshot status without defining a parallel status
+  ---
+  duration_ms: 0.7649
+  type: 'test'
+  ...
+# Subtest: uses the durable last progress timestamp for a live run summary
+ok 112 - uses the durable last progress timestamp for a live run summary
+  ---
+  duration_ms: 0.1639
+  type: 'test'
+  ...
+# Subtest: maps every attention reason to an executable next action
+ok 113 - maps every attention reason to an executable next action
+  ---
+  duration_ms: 0.3115
+  type: 'test'
+  ...
+# Subtest: reports CURSOR_EXPIRED with gap and resync metadata after queue overflow
+ok 114 - reports CURSOR_EXPIRED with gap and resync metadata after queue overflow
+  ---
+  duration_ms: 2.1105
+  type: 'test'
+  ...
+# Subtest: rejects one notification that cannot fit without advancing the cursor
+ok 115 - rejects one notification that cannot fit without advancing the cursor
+  ---
+  duration_ms: 0.2184
+  type: 'test'
+  ...
+# Subtest: deep-clones published notification input and returned values
+ok 116 - deep-clones published notification input and returned values
+  ---
+  duration_ms: 0.1374
+  type: 'test'
+  ...
+# Subtest: advertises polling and snapshot fallbacks when client notifications degrade
+ok 117 - advertises polling and snapshot fallbacks when client notifications degrade
+  ---
+  duration_ms: 0.1406
+  type: 'test'
+  ...
+# Subtest: publishes the slash-free Harness Relay MCP identity at the package root
+ok 118 - publishes the slash-free Harness Relay MCP identity at the package root
+  ---
+  duration_ms: 0.9604
+  type: 'test'
+  ...
+# Subtest: publishes a repo marketplace that installs the Codex layer from npm
+ok 119 - publishes a repo marketplace that installs the Codex layer from npm
+  ---
+  duration_ms: 0.5536
+  type: 'test'
+  ...
+# Subtest: uses an explicit publication whitelist and validates its byte budget
+ok 120 - uses an explicit publication whitelist and validates its byte budget
+  ---
+  duration_ms: 60.627
+  type: 'test'
+  ...
+# Subtest: fails closed when the configured package byte budget is exceeded
+ok 121 - fails closed when the configured package byte budget is exceeded
+  ---
+  duration_ms: 56.4746
+  type: 'test'
+  ...
+# Subtest: prepack performs strict TypeScript checking and MCP smoke builds first
+ok 122 - prepack performs strict TypeScript checking and MCP smoke builds first
+  ---
+  duration_ms: 0.1442
+  type: 'test'
+  ...
+# Subtest: version sync can explicitly adopt the official plugin cachebuster
+ok 123 - version sync can explicitly adopt the official plugin cachebuster
+  ---
+  duration_ms: 0.2621
+  type: 'test'
+  ...
+# Subtest: dual-mode Harness peers are versioned but optional for standalone installs
+ok 124 - dual-mode Harness peers are versioned but optional for standalone installs
+  ---
+  duration_ms: 0.1352
+  type: 'test'
+  ...
+# Subtest: current rejects a permission value outside the native preset set
+ok 125 - current rejects a permission value outside the native preset set
+  ---
+  duration_ms: 1.216
+  type: 'test'
+  ...
+# Subtest: select requests the preset once and confirms it with one read
+ok 126 - select requests the preset once and confirms it with one read
+  ---
+  duration_ms: 0.1879
+  type: 'test'
+  ...
+# Subtest: select rejects a denied command without an unnecessary confirmation read
+ok 127 - select rejects a denied command without an unnecessary confirmation read
+  ---
+  duration_ms: 0.1552
+  type: 'test'
+  ...
+# Subtest: select rejects a successful command whose confirmed preset is inconsistent
+ok 128 - select rejects a successful command whose confirmed preset is inconsistent
+  ---
+  duration_ms: 0.1458
+  type: 'test'
+  ...
+# Subtest: confirm only reads once and returns the matching preset
+ok 129 - confirm only reads once and returns the matching preset
+  ---
+  duration_ms: 0.0901
+  type: 'test'
+  ...
+# Subtest: in-process provider uses native sessions and permission presets without chat commands
+ok 130 - in-process provider uses native sessions and permission presets without chat commands
+  ---
+  duration_ms: 0.22
+  type: 'test'
+  ...
+# Subtest: in-process provider fails closed when the native session is unavailable
+ok 131 - in-process provider fails closed when the native session is unavailable
+  ---
+  duration_ms: 0.1198
+  type: 'test'
+  ...
+# Subtest: the same idempotency key is isolated between stable client principals
+ok 132 - the same idempotency key is isolated between stable client principals
+  ---
+  duration_ms: 804.5466
+  type: 'test'
+  ...
+# Subtest: resolves legacy text without retaining image data
+ok 133 - resolves legacy text without retaining image data
+  ---
+  duration_ms: 1.3407
+  type: 'test'
+  ...
+# Subtest: accepts canonical base64 and rejects data URLs
+ok 134 - accepts canonical base64 and rejects data URLs
+  ---
+  duration_ms: 0.4104
+  type: 'test'
+  ...
+# Subtest: requires exactly one prompt surface
+ok 135 - requires exactly one prompt surface
+  ---
+  duration_ms: 0.1177
+  type: 'test'
+  ...
+# Subtest: replays start_run by idempotency key without submitting a second prompt
+ok 136 - replays start_run by idempotency key without submitting a second prompt
+  ---
+  duration_ms: 596.7954
+  type: 'test'
+  ...
+# Subtest: rejects danger-full-access before any Host call without explicit confirmation
+ok 137 - rejects danger-full-access before any Host call without explicit confirmation
+  ---
+  duration_ms: 0.973
+  type: 'test'
+  ...
+# Subtest: source launcher capture requires and persists the exact tsx ESM loader vector
+ok 138 - source launcher capture requires and persists the exact tsx ESM loader vector
+  ---
+  duration_ms: 203.3799
+  type: 'test'
+  ...
+# Subtest: shared runtime resolver defaults blank home/profile values and isolates host state
+ok 139 - shared runtime resolver defaults blank home/profile values and isolates host state
+  ---
+  duration_ms: 1.2733
+  type: 'test'
+  ...
+# Subtest: shared runtime resolver honors explicit home/profile, state, token, and endpoint paths
+ok 140 - shared runtime resolver honors explicit home/profile, state, token, and endpoint paths
+  ---
+  duration_ms: 0.2616
+  type: 'test'
+  ...
+# Subtest: shared runtime resolver reports structured invalid profile and blank overrides
+ok 141 - shared runtime resolver reports structured invalid profile and blank overrides
+  ---
+  duration_ms: 0.466
+  type: 'test'
+  ...
+# Subtest: runtime preparation creates only directories and fails closed when a parent is a file
+ok 142 - runtime preparation creates only directories and fails closed when a parent is a file
+  ---
+  duration_ms: 2.0835
+  type: 'test'
+  ...
+# Subtest: relay status v1 is atomic UTF-8, strict, lifecycle-ready, and credential-safe
+ok 143 - relay status v1 is atomic UTF-8, strict, lifecycle-ready, and credential-safe
+  ---
+  duration_ms: 67.2413
+  type: 'test'
+  ...
+# Subtest: finalAssistantText never exposes reasoning-only assistant content
+ok 144 - finalAssistantText never exposes reasoning-only assistant content
+  ---
+  duration_ms: 0.567
+  type: 'test'
+  ...
+# Subtest: finalAssistantText retains text while excluding adjacent reasoning blocks
+ok 145 - finalAssistantText retains text while excluding adjacent reasoning blocks
+  ---
+  duration_ms: 0.1007
+  type: 'test'
+  ...
+# Subtest: finalAssistantText does not project reasoning from a non-terminal event stream
+ok 146 - finalAssistantText does not project reasoning from a non-terminal event stream
+  ---
+  duration_ms: 0.0777
+  type: 'test'
+  ...
+# Subtest: MCP wait surfaces a suspended native approval, responds once, resumes the same run and retains permission mode
+ok 147 - MCP wait surfaces a suspended native approval, responds once, resumes the same run and retains permission mode
+  ---
+  duration_ms: 174.2597
+  type: 'test'
+  ...
+# Subtest: selects the model, enforces read-only, then submits the task
+ok 148 - selects the model, enforces read-only, then submits the task
+  ---
+  duration_ms: 951.6883
+  type: 'test'
+  ...
+# Subtest: pulls only new history from the highest loaded seq after the first refresh
+ok 149 - pulls only new history from the highest loaded seq after the first refresh
+  ---
+  duration_ms: 84.6309
+  type: 'test'
+  ...
+# Subtest: steady-state refreshes never replay the backlog and preserve dedup
+ok 150 - steady-state refreshes never replay the backlog and preserve dedup
+  ---
+  duration_ms: 81.8959
+  type: 'test'
+  ...
+# Subtest: after a restart the first refresh resumes from the persisted checkpoint
+ok 151 - after a restart the first refresh resumes from the persisted checkpoint
+  ---
+  duration_ms: 76.6289
+  type: 'test'
+  ...
+# Subtest: incrementalStartSeq is monotonic and falls back to baselineSeq on restore
+ok 152 - incrementalStartSeq is monotonic and falls back to baselineSeq on restore
+  ---
+  duration_ms: 0.2729
+  type: 'test'
+  ...
+# Subtest: reconciles an rc.8 completed turn while session.list is stale running and rereads the terminal snapshot
+ok 153 - reconciles an rc.8 completed turn while session.list is stale running and rereads the terminal snapshot
+  ---
+  duration_ms: 943.745
+  type: 'test'
+  ...
+# Subtest: keeps a steer turn in the owning run and consumes its final assistant message
+ok 154 - keeps a steer turn in the owning run and consumes its final assistant message
+  ---
+  duration_ms: 745.4776
+  type: 'test'
+  ...
+# Subtest: retains a final assistant message that appears after an earlier progress-only history read
+ok 155 - retains a final assistant message that appears after an earlier progress-only history read
+  ---
+  duration_ms: 606.4503
+  type: 'test'
+  ...
+# Subtest: maps a completed interrupted assistant surface to incomplete with an actionable warning
+ok 156 - maps a completed interrupted assistant surface to incomplete with an actionable warning
+  ---
+  duration_ms: 568.7098
+  type: 'test'
+  ...
+# Subtest: replaying a steer idempotency key does not submit a second steer
+ok 157 - replaying a steer idempotency key does not submit a second steer
+  ---
+  duration_ms: 684.4986
+  type: 'test'
+  ...
+# Subtest: a persisted running snapshot is promoted by durable terminal history after restart
+ok 158 - a persisted running snapshot is promoted by durable terminal history after restart
+  ---
+  duration_ms: 934.7338
+  type: 'test'
+  ...
+# Subtest: persists the rpcId before submitting the prompt
+ok 159 - persists the rpcId before submitting the prompt
+  ---
+  duration_ms: 638.9112
+  type: 'test'
+  ...
+# Subtest: reserves a reused session before asynchronous setup
+ok 160 - reserves a reused session before asynchronous setup
+  ---
+  duration_ms: 736.0698
+  type: 'test'
+  ...
+# Subtest: exposes setup and monitoring Facades as read-only MCP tools
+ok 161 - exposes setup and monitoring Facades as read-only MCP tools
+  ---
+  duration_ms: 54.8013
+  type: 'test'
+  ...
+# Subtest: schema-bearing tools preserve their original error without invalid structured content
+ok 162 - schema-bearing tools preserve their original error without invalid structured content
+  ---
+  duration_ms: 4.3283
+  type: 'test'
+  ...
+# Subtest: lists only direct workspace sessions and marks archived entries
+ok 163 - lists only direct workspace sessions and marks archived entries
+  ---
+  duration_ms: 1.4226
+  type: 'test'
+  ...
+# Subtest: latest-idle reuses the newest nonblank idle unarchived session
+ok 164 - latest-idle reuses the newest nonblank idle unarchived session
+  ---
+  duration_ms: 0.281
+  type: 'test'
+  ...
+# Subtest: latest-idle creates a fresh session when no reusable conversation exists
+ok 165 - latest-idle creates a fresh session when no reusable conversation exists
+  ---
+  duration_ms: 0.1659
+  type: 'test'
+  ...
+# Subtest: explicit reuse rejects archived, missing, and running sessions
+ok 166 - explicit reuse rejects archived, missing, and running sessions
+  ---
+  duration_ms: 0.5079
+  type: 'test'
+  ...
+# Subtest: declares the verified scope matrix for all four clients
+ok 167 - declares the verified scope matrix for all four clients
+  ---
+  duration_ms: 1.1234
+  type: 'test'
+  ...
+# Subtest: rejects unsupported scopes before rendering a patch
+ok 168 - rejects unsupported scopes before rendering a patch
+  ---
+  duration_ms: 0.3707
+  type: 'test'
+  ...
+# Subtest: renders Codex user TOML as a minimal structured upsert
+ok 169 - renders Codex user TOML as a minimal structured upsert
+  ---
+  duration_ms: 0.87
+  type: 'test'
+  ...
+# Subtest: maps all Claude scopes to their distinct official locations
+ok 170 - maps all Claude scopes to their distinct official locations
+  ---
+  duration_ms: 0.2843
+  type: 'test'
+  ...
+# Subtest: maps Cursor user and project scopes without inventing a local scope
+ok 171 - maps Cursor user and project scopes without inventing a local scope
+  ---
+  duration_ms: 0.2308
+  type: 'test'
+  ...
+# Subtest: renders OpenCode V2 mcp.servers with command array and environment
+ok 172 - renders OpenCode V2 mcp.servers with command array and environment
+  ---
+  duration_ms: 0.2354
+  type: 'test'
+  ...
+# Subtest: detect reports an existing relay entry without mutating the snapshot
+ok 173 - detect reports an existing relay entry without mutating the snapshot
+  ---
+  duration_ms: 0.094
+  type: 'test'
+  ...
+# Subtest: detect returns structured directory errors instead of guessing paths
+ok 174 - detect returns structured directory errors instead of guessing paths
+  ---
+  duration_ms: 0.0949
+  type: 'test'
+  ...
+# Subtest: validate rejects a manually altered relative launcher patch
+ok 175 - validate rejects a manually altered relative launcher patch
+  ---
+  duration_ms: 0.1927
+  type: 'test'
+  ...
+# Subtest: blocks a configuration and launcher platform mismatch
+ok 176 - blocks a configuration and launcher platform mismatch
+  ---
+  duration_ms: 0.2023
+  type: 'test'
+  ...
+# Subtest: keeps absolute paths with spaces as separate stdio argv fields
+ok 177 - keeps absolute paths with spaces as separate stdio argv fields
+  ---
+  duration_ms: 1.2103
+  type: 'test'
+  ...
+# Subtest: rejects pnpm.exe and pnpm.cmd as the Node ESM runtime
+ok 178 - rejects pnpm.exe and pnpm.cmd as the Node ESM runtime
+  ---
+  duration_ms: 0.168
+  type: 'test'
+  ...
+# Subtest: rejects relative runtime and package entry paths
+ok 179 - rejects relative runtime and package entry paths
+  ---
+  duration_ms: 0.0949
+  type: 'test'
+  ...
+# Subtest: plans a macOS launcher without relying on a GUI process PATH
+ok 180 - plans a macOS launcher without relying on a GUI process PATH
+  ---
+  duration_ms: 0.1065
+  type: 'test'
+  ...
+# Subtest: doctor is machine-readable and healthy only when every supplied probe passes
+ok 181 - doctor is machine-readable and healthy only when every supplied probe passes
+  ---
+  duration_ms: 0.8026
+  type: 'test'
+  ...
+# Subtest: doctor distinguishes absent probes from failed probes without performing I/O
+ok 182 - doctor distinguishes absent probes from failed probes without performing I/O
+  ---
+  duration_ms: 0.2176
+  type: 'test'
+  ...
+# Subtest: an old lease cannot delete a replacement lock owned by another token
+ok 183 - an old lease cannot delete a replacement lock owned by another token
+  ---
+  duration_ms: 327.2868
+  type: 'test'
+  ...
+# Subtest: a pre-existing lock is never deleted or taken over based only on age
+ok 184 - a pre-existing lock is never deleted or taken over based only on age
+  ---
+  duration_ms: 174.7822
+  type: 'test'
+  ...
+# Subtest: separate Node processes serialize writes without losing unique records
+ok 185 - separate Node processes serialize writes without losing unique records
+  ---
+  duration_ms: 1677.5313
+  type: 'test'
+  ...
+# Subtest: a failed state write does not poison later writes
+ok 186 - a failed state write does not poison later writes
+  ---
+  duration_ms: 360.495
+  type: 'test'
+  ...
+# Subtest: migrates schema version 1 state without losing records
+ok 187 - migrates schema version 1 state without losing records
+  ---
+  duration_ms: 3.8172
+  type: 'test'
+  ...
+# Subtest: quarantines malformed state instead of silently overwriting it
+ok 188 - quarantines malformed state instead of silently overwriting it
+  ---
+  duration_ms: 2.882
+  type: 'test'
+  ...
+# Subtest: a stale writer cannot regress a terminal run to a non-terminal state
+ok 189 - a stale writer cannot regress a terminal run to a non-terminal state
+  ---
+  duration_ms: 703.0306
+  type: 'test'
+  ...
+# Subtest: independent store instances merge concurrent unique records
+ok 190 - independent store instances merge concurrent unique records
+  ---
+  duration_ms: 550.821
+  type: 'test'
+  ...
+# Subtest: a stale writer cannot resurrect a stopped service attachment
+ok 191 - a stale writer cannot resurrect a stopped service attachment
+  ---
+  duration_ms: 746.289
+  type: 'test'
+  ...
+# Subtest: concurrent processes claim one canonical operation per principal and idempotency key
+ok 192 - concurrent processes claim one canonical operation per principal and idempotency key
+  ---
+  duration_ms: 369.6999
+  type: 'test'
+  ...
+# Subtest: explicit v2 to v3 migration copies source without deleting or rewriting it
+ok 193 - explicit v2 to v3 migration copies source without deleting or rewriting it
+  ---
+  duration_ms: 377.4147
+  type: 'test'
+  ...
+# Subtest: a state belonging to another authority fails closed without quarantine
+ok 194 - a state belonging to another authority fails closed without quarantine
+  ---
+  duration_ms: 344.8264
+  type: 'test'
+  ...
+# Subtest: same proxy degrades locally and reconnects after the Host restarts
+ok 195 - same proxy degrades locally and reconnects after the Host restarts
+  ---
+  duration_ms: 265.2112
+  type: 'test'
+  ...
+# Subtest: stdio proxy discovers the authority and transparently forwards tools
+ok 196 - stdio proxy discovers the authority and transparently forwards tools
+  ---
+  duration_ms: 98.2579
+  type: 'test'
+  ...
+# Subtest: stdio proxy initializes locally and exposes the stable product catalog when the endpoint is missing
+ok 197 - stdio proxy initializes locally and exposes the stable product catalog when the endpoint is missing
+  ---
+  duration_ms: 33.7918
+  type: 'test'
+  ...
+# Subtest: stdio proxy answers tools/list with the stable product catalog while Host recovery is still pending
+ok 198 - stdio proxy answers tools/list with the stable product catalog while Host recovery is still pending
+  ---
+  duration_ms: 18.4552
+  type: 'test'
+  ...
+# Subtest: stdio proxy rejects a status and descriptor epoch mismatch as stale
+ok 199 - stdio proxy rejects a status and descriptor epoch mismatch as stale
+  ---
+  duration_ms: 18.0399
+  type: 'test'
+  ...
+# Subtest: stdio proxy reports failed status without exposing status credentials
+ok 200 - stdio proxy reports failed status without exposing status credentials
+  ---
+  duration_ms: 14.5067
+  type: 'test'
+  ...
+# Subtest: stdio proxy preserves a healthy remote route after a tool call timeout
+ok 201 - stdio proxy preserves a healthy remote route after a tool call timeout
+  ---
+  duration_ms: 134.9447
+  type: 'test'
+  ...
+# Subtest: proxy doctor reports a provably dead ready owner before reading stale endpoint artifacts
+ok 202 - proxy doctor reports a provably dead ready owner before reading stale endpoint artifacts
+  ---
+  duration_ms: 8.3519
+  type: 'test'
+  ...
+# Subtest: proxy doctor fails closed when owner liveness cannot be verified
+ok 203 - proxy doctor fails closed when owner liveness cannot be verified
+  ---
+  duration_ms: 6.9457
+  type: 'test'
+  ...
+# Subtest: stdio proxy maps HTTP 401 to AUTHENTICATION_FAILED
+ok 204 - stdio proxy maps HTTP 401 to AUTHENTICATION_FAILED
+  ---
+  duration_ms: 25.0654
+  type: 'test'
+  ...
+# Subtest: stdio proxy maps HTTP 405 to POST_ROUTE_MISSING
+ok 205 - stdio proxy maps HTTP 405 to POST_ROUTE_MISSING
+  ---
+  duration_ms: 25.3687
+  type: 'test'
+  ...
+# Subtest: descriptor reader rejects credentials and non-loopback endpoints
+ok 206 - descriptor reader rejects credentials and non-loopback endpoints
+  ---
+  duration_ms: 14.3171
+  type: 'test'
+  ...
+# Subtest: decodeUtf8Strict rejects malformed UTF-8 instead of replacing it with U+FFFD
+ok 207 - decodeUtf8Strict rejects malformed UTF-8 instead of replacing it with U+FFFD
+  ---
+  duration_ms: 1.0012
+  type: 'test'
+  ...
+# Subtest: decodeUtf8Strict rejects a UTF-8 BOM
+ok 208 - decodeUtf8Strict rejects a UTF-8 BOM
+  ---
+  duration_ms: 0.5158
+  type: 'test'
+  ...
+# Subtest: readTextFileStrict reads valid UTF-8 and rejects BOM or malformed files
+ok 209 - readTextFileStrict reads valid UTF-8 and rejects BOM or malformed files
+  ---
+  duration_ms: 17.3847
+  type: 'test'
+  ...
+# Subtest: HttpHostClient decodes the Host JSON body with a fatal UTF-8 decoder
+ok 210 - HttpHostClient decodes the Host JSON body with a fatal UTF-8 decoder
+  ---
+  duration_ms: 3.5534
+  type: 'test'
+  ...
+# Subtest: readJsonBody rejects malformed and BOM-marked MCP bodies
+ok 211 - readJsonBody rejects malformed and BOM-marked MCP bodies
+  ---
+  duration_ms: 0.328
+  type: 'test'
+  ...
+# Subtest: state files with a BOM are quarantined instead of being decoded with U+FFFD
+ok 212 - state files with a BOM are quarantined instead of being decoded with U+FFFD
+  ---
+  duration_ms: 3.0787
+  type: 'test'
+  ...
+# Subtest: status and lock files are decoded strictly at the untrusted boundary
+ok 213 - status and lock files are decoded strictly at the untrusted boundary
+  ---
+  duration_ms: 187.6345
+  type: 'test'
+  ...
+# Subtest: task manifest exposes only authorized locations and scope without reading source contents
+ok 214 - task manifest exposes only authorized locations and scope without reading source contents
+  ---
+  duration_ms: 97.8753
+  type: 'test'
+  ...
+# Subtest: write authorization keeps the same path-reference-only contract and requires explicit write locations
+ok 215 - write authorization keeps the same path-reference-only contract and requires explicit write locations
+  ---
+  duration_ms: 163.8056
+  type: 'test'
+  ...
+# Subtest: task manifest rejects multiline payloads and workspace escapes
+ok 216 - task manifest rejects multiline payloads and workspace escapes
+  ---
+  duration_ms: 163.825
+  type: 'test'
+  ...
+# Subtest: task manifest rejects a context symlink that resolves outside the workspace
+ok 217 - task manifest rejects a context symlink that resolves outside the workspace
+  ---
+  duration_ms: 171.646
+  type: 'test'
+  ...
+# Subtest: plan review separates the target from workspace context without reading source
+ok 218 - plan review separates the target from workspace context without reading source
+  ---
+  duration_ms: 1.7262
+  type: 'test'
+  ...
+# Subtest: target-only review is represented by matching target and context scopes
+ok 219 - target-only review is represented by matching target and context scopes
+  ---
+  duration_ms: 0.4412
+  type: 'test'
+  ...
+# Subtest: explicit Harness authorization is recorded without broadening scope
+ok 220 - explicit Harness authorization is recorded without broadening scope
+  ---
+  duration_ms: 0.1169
+  type: 'test'
+  ...
+# Subtest: reply scope inherits every prior field and changes only explicit fields
+ok 221 - reply scope inherits every prior field and changes only explicit fields
+  ---
+  duration_ms: 0.6722
+  type: 'test'
+  ...
+# Subtest: structured scope rejects traversal and writes in read-only mode
+ok 222 - structured scope rejects traversal and writes in read-only mode
+  ---
+  duration_ms: 0.7631
+  type: 'test'
+  ...
+# Subtest: Typert adapter consumes Workspace and Session baselines from Harness 0.1.2 streams
+ok 223 - Typert adapter consumes Workspace and Session baselines from Harness 0.1.2 streams
+  ---
+  duration_ms: 1.3291
+  type: 'test'
+  ...
+# Subtest: Typert adapter maps Session follow/page history and current projections
+ok 224 - Typert adapter maps Session follow/page history and current projections
+  ---
+  duration_ms: 0.348
+  type: 'test'
+  ...
+# Subtest: Typert adapter persists the Relay request id before direct prompt dispatch
+ok 225 - Typert adapter persists the Relay request id before direct prompt dispatch
+  ---
+  duration_ms: 0.2176
+  type: 'test'
+  ...
+# Subtest: Typert adapter preserves new namespaced business and transient error codes
+ok 226 - Typert adapter preserves new namespaced business and transient error codes
+  ---
+  duration_ms: 0.9505
+  type: 'test'
+  ...
+# Subtest: overlapping Web upgrade waits for the old owner and reconnects the same proxy to the new epoch
+ok 227 - overlapping Web upgrade waits for the old owner and reconnects the same proxy to the new epoch
+  ---
+  duration_ms: 502.0399
+  type: 'test'
+  ...
+# Subtest: one-shot approval exposes exact context and rejects wrong owner, missing authority and duplicate responses
+ok 228 - one-shot approval exposes exact context and rejects wrong owner, missing authority and duplicate responses
+  ---
+  duration_ms: 2.3831
+  type: 'test'
+  ...
+# Subtest: foreign requests reach original answerer; abort, lost ownership and disposal never grant
+ok 229 - foreign requests reach original answerer; abort, lost ownership and disposal never grant
+  ---
+  duration_ms: 0.3502
+  type: 'test'
+  ...
+# Subtest: question answers preserve plan context and validate exact IDs, choices, single selection and cancellation
+ok 230 - question answers preserve plan context and validate exact IDs, choices, single selection and cancellation
+  ---
+  duration_ms: 0.5803
+  type: 'test'
+  ...
+# Subtest: native binding prepends without global scope and rejects replaced or native-child agent identities
+ok 231 - native binding prepends without global scope and rejects replaced or native-child agent identities
+  ---
+  duration_ms: 0.2562
+  type: 'test'
+  ...
+# Subtest: Agent context disposal closes requests even without a signal or subsequent polling
+ok 232 - Agent context disposal closes requests even without a signal or subsequent polling
+  ---
+  duration_ms: 0.1758
+  type: 'test'
+  ...
+# Subtest: explicit Skip is not approval; explicit cancellation preserves native cancellation taxonomy
+ok 233 - explicit Skip is not approval; explicit cancellation preserves native cancellation taxonomy
+  ---
+  duration_ms: 0.2415
+  type: 'test'
+  ...
+# Subtest: registry policy allows a registered workspace outside Host cwd without creating it
+ok 234 - registry policy allows a registered workspace outside Host cwd without creating it
+  ---
+  duration_ms: 1096.9711
+  type: 'test'
+  ...
+# Subtest: registry policy rejects an unregistered workspace
+ok 235 - registry policy rejects an unregistered workspace
+  ---
+  duration_ms: 2.7344
+  type: 'test'
+  ...
+# Subtest: configured roots remain a strict boundary even for registered workspaces
+ok 236 - configured roots remain a strict boundary even for registered workspaces
+  ---
+  duration_ms: 2.4609
+  type: 'test'
+  ...
+# Subtest: configured roots allow creating an unregistered workspace
+ok 237 - configured roots allow creating an unregistered workspace
+  ---
+  duration_ms: 392.8767
+  type: 'test'
+  ...
+1..237
+# tests 237
+# suites 0
+# pass 237
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 37556.068

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "skill": "delegate-to-deepseek-harness",
+  "source": "https://github.com/tonytanglab/deepseek-harness-relay-mcp",
+  "author": "TonyTangLab",
+  "source_commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+  "version": "0.2.18",
+  "source_commit_time": "2026-09-27T14:00:04Z",
+  "repository_stars_observed": 3,
+  "skill_files_reviewed": 3,
+  "permission_scope": {
+    "files": "安装后将读写本机Relay状态与新专用令牌，并通过原生Host控制被明确选中的会话；本轮未进行生产安装。",
+    "network": "本轮仅公开源码/软件包GET和隔离SDK测试；未来中继HTTP应只绑定127.0.0.1，模型处理仍可能经DSH已配置提供商。",
+    "commands": "本轮只执行隔离包安装(ignore-scripts)、构建、测试、CLI --help；未启动DSH Host或模型任务。"
+  },
+  "risk_level": "HIGH_FOR_PRODUCTION_INSTALL",
+  "verdict": "ISOLATED_VALIDATION_ONLY_PRODUCTION_INSTALL_REQUIRES_EXPLICIT_CONFIRMATION",
+  "findings": [
+    "生产连接需要读取专用中继凭据、创建/限制该文件权限及启用本机控制接口，须明确审批。",
+    "构建脚本生成压缩bundle，已审源码和版本/哈希，仍不将其等同第三方全面安全保证。",
+    "本机DSH0.2.1超出上游peer范围，且原版预检拒绝desktop；禁止盲目放宽peer版本求通过。",
+    "不得使用kill-all、覆盖配置、关闭2B或把新会话冒充指定旧会话。"
+  ],
+  "notes": "未发现本轮补丁引入外传、鉴权降级或自动重启；这是有限范围结论，不是无条件安全背书。"
+}

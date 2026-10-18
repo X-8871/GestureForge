@@ -256,4 +256,7 @@ else if (compat.thinkingFormat === "qwen" && model.reasoning) {
 
 ## 11. 本轮结束提交
 
-见主目录 STATE「本轮交接记录」一行与最终回复；v1 提交为 `51f7130`。
+- 基线：`51f7130`（v1 交接提交）
+- 主提交：`7d56a24`（交接文档 v2 + STATE 修正 + 证据包 13 文件）
+- 补充提交：`b87dd4f`（`*.log`/`*.jou` 被 .gitignore 忽略的原始 xsim/Vivado 日志，`git add -f` 纳入证据）
+- 未推送；主目录原有 403 项未提交改动保持不动（不属于 DSH 本轮）

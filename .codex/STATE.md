@@ -53,7 +53,7 @@
 
 - 主目录 STATE 只维护全局状态、任务归属与阶段入口；阶段技术事实以对应工作树 STATE/证据为准，不在此复制全文。
 - 2B 最新有效阻断（2026-10-18 只读核对 `w2b`）：R14 `report/evidence/S2B-T19/single_sample_qualification_20261017_r14` 为 `BLOCKED`/`hardware_execution=NOT_RUN`/`native_exit_code=2`，错误 `必须通过Vitis2026.1脚本入口`（未在 Vitis 2026.1 脚本入口环境启动）；最新独立收据 r04 `status=PASS` 仅批准“单样本资格入口机制”，`g3/g4/g5=NOT_PASSED`；`w2b` HEAD 仅绑定 r01 收据，指向 r04 的锚点改动未提交。`w2b/.codex/STATE.md` 头部 HEAD 与“收据未签发”表述已过时，待 Codex 更新（DSH 未写入该工作树）。
-- 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交 | 下一接手方=Codex（只读复核）
+- 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 结束提交=`b87dd4f`（主提交 `7d56a24`） | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交、待 Codex 只读复核 | 下一接手方=Codex
 - 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
 - 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
 - 主目录小工程（`vivado/AX7Z020_Gesture`）上板前阻碍：无 XDC；`synth_1` ERROR 且增量检查点 part 与 run 不符、BASIC 不含增量；板卡未上电。**仅适用该小工程，与 2B 无关，不得据此改 `w2b`。**

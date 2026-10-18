@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "captured_at_utc8": "2026-10-18T19:13:34.928076+08:00",
+  "operation": "HOST_READ_ONLY_PROCESS_SOCKET_UART_INVENTORY",
+  "command": "$p=Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(hw_server|cs_server|vivado|xsdb|xsim|vitis|vitis_cli)\\.exe$' } | ForEach-Object { [pscustomobject]@{pid=$_.ProcessId;parent_pid=$_.ParentProcessId;name=$_.Name;exe=$_.ExecutablePath;creation_filetime_utc=$_.CreationDate.ToUniversalTime().ToFileTimeUtc()} }; $c=Get-NetTCPConnection -LocalPort 3121 -ErrorAction SilentlyContinue | Select-Object State,LocalAddress,LocalPort,RemoteAddress,RemotePort,OwningProcess; $u=Get-CimInstance Win32_SerialPort | Select-Object DeviceID,Name,PNPDeviceID; [pscustomobject]@{processes=@($p);port3121=@($c);uart=@($u)} | ConvertTo-Json -Depth 8 -Compress",
+  "native_exit_code": 0,
+  "observed": {
+    "processes": [
+      {
+        "pid": 10876,
+        "parent_pid": 26236,
+        "name": "hw_server.exe",
+        "exe": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "creation_filetime_utc": 134367931765111510
+      }
+    ],
+    "port3121": [
+      {
+        "State": 2,
+        "LocalAddress": "0.0.0.0",
+        "LocalPort": 3121,
+        "RemoteAddress": "0.0.0.0",
+        "RemotePort": 0,
+        "OwningProcess": 10876
+      }
+    ],
+    "uart": [
+      {
+        "DeviceID": "COM4",
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348"
+      }
+    ]
+  },
+  "board_operations_after_sample": "NONE_BY_THIS_TASK",
+  "basis": "Only the root task operates the board under the user authorization; latest target state is the saved sample000 ACK_IDLE epoch1, CPU0 stopped and cleanup successful."
+}

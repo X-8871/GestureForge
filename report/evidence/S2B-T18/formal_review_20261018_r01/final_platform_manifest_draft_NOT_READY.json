@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "formal_review_20261018_r01",
+  "source_commit": "ce2db7437c1c067fdce826afcc8913033eea3dcf",
+  "evidence_dir": "report/evidence/S2B-T18/formal_review_20261018_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "role": "deployed_bit_candidate"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "role": "platform_candidate"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/infer.elf",
+      "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+      "role": "runtime_app_elf_candidate"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/init.elf",
+      "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+      "role": "runtime_init_elf_candidate"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/build_details.json",
+      "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db",
+      "role": "build_binding"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/initial_mmu_table.json",
+      "sha256": "f75991497a43b8ec19f49972099dfd9c60b3982c113f412b50609a88338902db",
+      "role": "runtime_mmu_binding"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/bspconfig.h",
+      "sha256": "1ff8617a56f0d6d9bdedfe48c2b25a9e0fe4cca26050053a64a2e35be11932d0",
+      "role": "runtime_bsp_macros"
+    },
+    {
+      "path": "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/ps7_init.c",
+      "sha256": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba",
+      "role": "platform_init_binding"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_single_sample_review_20261017_r01/hwh_hp0_nonbufferable_adapter0.json",
+      "sha256": "03796b11eae5a14e24d2cd868308f761c06c2adc6b0d7c0cb5f460e9834a31e4",
+      "role": "independent_static_hp_audit"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_single_sample_review_20261017_r01/new_elf_gp0_device_contract.json",
+      "sha256": "4dbb2a4eb2be0810b42a8a46168e3202d9a03ed200fc7b8d6a8131c8f01c2dd6",
+      "role": "independent_static_gp0_audit"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_single_sample_review_20261017_r01/single_job_arena_cache_retention.json",
+      "sha256": "c6c458b8e08964ad622571940b3266ac205c1aede17d4b9282b83795c9ca9e83",
+      "role": "independent_static_cache_audit"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_single_sample_review_20261018_r01/postroute_timing.json",
+      "sha256": "6f0c669d20038ce1dd2bc193ef8f6565e3ac0fd84181f2d250f71c08ccb697c3",
+      "role": "independent_postroute_timing_audit"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_review_20261018_r01/visibility_proof_draft_NOT_READY.json",
+      "sha256": "PENDING_REHASH_AFTER_SAMPLE_REVIEW_BINDING",
+      "role": "draft_visibility_proof_not_for_execution"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_review_20261018_r01/sample000_independent_review.json",
+      "sha256": "2f6326a95dc70e32fabee68147ed88cb07c2c8c7411d00b1038584d16fa0ddbf",
+      "role": "limited_scope_sample000_independent_review"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_review_20261018_r01/candidate_static_review.json",
+      "sha256": "8f8952a8d267b36146799cc499207b6ba54b0ccf43546f6d8a74330636e43de7",
+      "role": "review_preparation"
+    }
+  ],
+  "checks": [
+    {
+      "name": "R04 XSA/bit/app/init ELF 及同运行时BSP/MMU/macros静态绑定",
+      "status": "PASS_STATIC_ONLY",
+      "command": "独立Reviewer只读核对R04 build_details、initial_mmu_table、BSP archive及散列。",
+      "exit_code": 0,
+      "reason": "不表示板上PS/MMU/cache执行或DDR可用。"
+    },
+    {
+      "name": "R04 post-route timing/DRC",
+      "status": "PASS_STATIC_ONLY",
+      "command": "复核R04 timing_summary、route_status、DRC与已独立审查postroute_timing证据。",
+      "exit_code": 0,
+      "reason": "WNS +0.156 ns、WHS +0.078 ns；板上模型验收未由此证明。"
+    },
+    {
+      "name": "visibility=1 sample000双头黄金比对、DONE_SAFE/HEAD_VALID及ACK/cache/HP实测",
+      "status": "PASS_LIMITED_SCOPE_SAMPLE000",
+      "command": "Read-only binary SHA/byte comparison and independent review of saved result, CSR snapshots, UART and JTAG records.",
+      "exit_code": null,
+      "reason": "只证明本次单样本双头黄金及SAFE/ACK观察；统一冷生命周期未审，不能声称正式T18 proof或109/1000入口通过。"
+    },
+    {
+      "name": "正式visibility proof、proof独立回执、G0回执、unified cold-lifecycle回执及final-platform独立回执",
+      "status": "NOT_ISSUED",
+      "command": "PENDING_SAMPLE000_AND_REVIEW",
+      "exit_code": null,
+      "reason": "正式T18 runner目前需要精确pin的独立回执；本草案不能满足执行准入。"
+    }
+  ],
+  "limitations": [
+    "这份JSON是final-platform manifest草案，不是可供正式runner接受的交付清单；check状态不是PASS/NOT_APPLICABLE，且草案哈希字段尚待最终proof生成后固定。",
+    "R04原始input_record.json的FAIL原件不修改；T15旧manifest中的NOT_RUN不被继承成PASS。",
+    "`only_visibility_parameter_changed`仅限同一冻结profile的visibility default 0到构建override 1；R04 XSA/ELF/MMU与较早R03产物不同，不能声称跨run逐字节相同。",
+    "sample000硬件执行、两个输出头黄金比对、SAFE/ACK/cache/HP生命周期以及独立冷/G0/final review均未审结。"
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Vitis": "2026.1",
+    "Python": "3.12.14"
+  },
+  "summary": "仅登记R04全平台候选静态产物和独立静态审查。正式T18运行准入仍关闭，等待sample000真实结果及其独立审查，并补齐proof/G0/cold/final platform回执。"
+}

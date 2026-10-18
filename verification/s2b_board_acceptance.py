@@ -315,7 +315,7 @@ class AcceptanceRunner:
             append(self.log, record)
 
     def models(self, plan, core_timeout, drain_timeout, *, stress_count=STRESS_COUNT):
-        """完整109逐次请求后一次repeat1000，连续seq/frame/epoch由运输接口强制核验。"""
+        """先一次repeat1000，再完整109逐次请求；连续seq/frame/epoch由运输接口强制核验。"""
         require(not self.failed, "runner已失败")
         for timeout in (core_timeout, drain_timeout):
             require(type(timeout) is int and 1 <= timeout <= 0xFFFFFFFF, "deadline须为非零32-bit，不改变CSR语义")
@@ -326,12 +326,14 @@ class AcceptanceRunner:
         request, header = transport.make_request(transport.OP_WEIGHTS, sequence, 0, weight)
         self.send(request, header, weight, plan["weights"])
         self.receive(request, 0)
-        next_frame = 0
+        self.record["execution_order"] = ["weights", "stress", "corpus"]
+        self.run_input(plan["rows"][0], sequence + 1, 0, stress_count,
+                       core_timeout, drain_timeout, "stress")
+        sequence += 1
+        next_frame = stress_count
         for row in plan["rows"]:
             self.run_input(row, sequence + 1, next_frame, 1, core_timeout, drain_timeout, "corpus")
             sequence += 1; next_frame += 1; self.record["completed_corpus"] += 1
-        self.run_input(plan["rows"][0], sequence + 1, next_frame, stress_count,
-                       core_timeout, drain_timeout, "stress")
 
     def run_input(self, row, sequence, frame, repeat, core_timeout, drain_timeout, phase):
         """发送前重新绑定同一实际input；repeat不重复传输输入或复制黄金。"""

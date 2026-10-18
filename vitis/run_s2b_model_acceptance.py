@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import importlib
 import importlib.machinery
+import importlib.util
 import json
 import math
 import os
@@ -23,14 +24,15 @@ ROOT = Path(__file__).absolute().parents[1]
 EVIDENCE_PARENT = ROOT / "report/evidence/S2B-T18"
 TZ = timezone(timedelta(hours=8))
 JTAG_SOURCE_SHA256 = "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+CSR_MAP_HELPER_SOURCE_SHA256 = "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
 CSR_FLOW_SOURCE_SHA256 = "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b"
 CSR_BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
 CSR_BUSY_SOURCE_SHA256 = "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
-# 正式G0与统一冷生命周期回执尚未由独立审查固定；None时所有运行在运行时初始化前阻断。
-G0_BASIS_PATH: Path | None = None
-G0_BASIS_SHA256: str | None = None
-COLD_BASIS_PATH: Path | None = None
-COLD_BASIS_SHA256: str | None = None
+# 正式G0与统一冷生命周期回执固定到本轮独立审查原件；不代表109/1000或阶段验收已通过。
+G0_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_execution_review_20261018_r02/g0_receipt_r02.json"
+G0_BASIS_SHA256: str | None = "cf8366cee925bc67751b751107afeb91c2b73b732864abc76d84a7fe2b1a078b"
+COLD_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_review_20261018_r01/cold_lifecycle_receipt.json"
+COLD_BASIS_SHA256: str | None = "62dd8423a9f29446845f1c30236e599104f366a1bafed8ddc7287a85b100c9e2"
 CONTROLLER_BINDING_KEYS = {
     "init_elf", "app_elf", "xsa", "bit", "csr_source", "interface", "sdk_target",
     "tool_source", "elf_parser", "delivery_parser", "transport_source",
@@ -200,8 +202,13 @@ def _validate_interface_freeze_sources(bindings: object) -> dict[str, str]:
             require("尚未完成完整平台冻结" not in text and "G0_FROZEN" in text,
                     "物理UART接口尚未声明G0_FROZEN")
         first_line = text.splitlines()[0] if text.splitlines() else ""
-        matches = re.findall(r"版本\s*[：:]?\s*`?([A-Za-z0-9][A-Za-z0-9._/-]*)`?", first_line)
-        require(len(matches) == 1, name + "首行必须含唯一明确版本")
+        prefix = "s2b-physical/" if name == "interface" else "s2bu/"
+        version_pattern = re.escape(prefix) + r"[A-Za-z0-9][A-Za-z0-9._/-]*"
+        # 正式标题用反引号版本字段，旧式首行用“版本：”字段；两种格式均须唯一且匹配接口前缀。
+        title_versions = re.findall(r"`(" + version_pattern + r")`", first_line)
+        labeled_versions = re.findall(r"版本\s*[：:]?\s*`?(" + version_pattern + r")`?", first_line)
+        matches = title_versions + labeled_versions
+        require(len(matches) == 1, name + "首行必须含唯一且前缀正确的明确版本")
         versions[name] = matches[0]
     return versions
 
@@ -211,6 +218,25 @@ def validate_controller_source_pin(binding: object) -> None:
     require(type(binding) is dict and type(binding.get("sha256")) is str and
             binding["sha256"] == JTAG_SOURCE_SHA256,
             "T16 JTAG controller 不是已审源码版本")
+
+
+def load_pinned_csr_map_helper():
+    """仅加载原字节SHA固定的T19 CSR映射helper。"""
+    path = exact_path(ROOT / "vitis/run_s2b_visibility_probe.py")
+    require(digest(path.read_bytes()) == CSR_MAP_HELPER_SOURCE_SHA256,
+            "CSR map helper 源码SHA不匹配")
+    module_dir = str(path.parent)
+    if module_dir not in sys.path:
+        sys.path.insert(0, module_dir)
+    spec = importlib.util.spec_from_file_location("_s2b_t18_pinned_csr_map_helper", path)
+    require(spec is not None and spec.loader is not None, "无法创建固定CSR map helper导入规格")
+    helper = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = helper
+    spec.loader.exec_module(helper)
+    require(exact_path(helper.__file__) == path and
+            digest(path.read_bytes()) == CSR_MAP_HELPER_SOURCE_SHA256,
+            "已导入CSR map helper路径或原字节SHA漂移")
+    return helper, {"path": str(path), "sha256": CSR_MAP_HELPER_SOURCE_SHA256}
 
 
 def _g0_config_binding(config: dict, name: str) -> object:
@@ -614,20 +640,28 @@ class Journal:
 
 
 def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
-                       journal: Journal | None = None, *, scope: str = "model"):
+                       journal: Journal | None = None, *, scope: str = "model", csr_map=None):
     """先完成 T16 冷部署，再通过 T18 完整准入后进入 UART 验收。"""
     require(scope in ("model", "csr"), "scope只能是model或csr")
     try:
         controller.select_and_gate()
         controller.system_reset_stop(checked["cold_basis"])
+        if csr_map is not None:
+            helper, helper_config, helper_record, session, owner = csr_map
+            helper.register_csr_debug_map(helper_config, helper_record, journal,
+                                          session, controller, owner)
+            if journal:
+                journal.event("csr_debug_map.registered", "PASS",
+                              helper_sha256=CSR_MAP_HELPER_SOURCE_SHA256,
+                              debug_memory_map=helper_record.get("debug_memory_map"))
         controller.deploy()
         require(controller.configured and controller.postconfigured and controller.app_running and not controller.failed,
                 "T16 EOS/postconfig/app 状态未全部通过")
         if journal:
             journal.event("deployment_ready", "PASS", postconfigured=controller.postconfigured,
                           app_running=controller.app_running, configured=controller.configured)
-        source_sha = config["build_details"]["source_sha256"]["vitis/s2b_inference_app.c"]
-        xsa_sha = config["build_details"]["xsa_sha256"]
+        source_sha = checked["build"]["source_sha256"]["vitis/s2b_inference_app.c"]
+        xsa_sha = checked["build"]["xsa_sha256"]
         banner = wire.banner(source_sha, xsa_sha)
         require(type(banner) is dict and set(banner) == {"bytes", "sha256", "text"} and
                 type(banner["bytes"]) is int and banner["bytes"] > 0 and
@@ -985,6 +1019,7 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
     validate_preflight_basis(config)
     if scope == "csr":
         _verify_csr_flow_sources()
+    csr_map_helper, csr_map_source = load_pinned_csr_map_helper()
     apis = load_apis(scope)
     checked = validate_v1_inputs(config, apis)
     runtime = runtime or ProductionRuntime()
@@ -1005,8 +1040,14 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
                   ("本入口只完成 T18 109 样本及 1000 次连续请求，不替代 T16 复位、CSR 负向或阶段验收。"
                    if scope == "model" else "本scope只执行固定CSR恢复顺序，不代表109样本或1000次压力完成。"),
                   "硬件进程峰值内存未测。"]}
+    csr_map_config = {"sdk_files": config["runtime"]["sdk_files"]}
+    csr_map_record = {"verified_inputs": {"compat_artifacts": {
+        "implemented_xsa": config["bindings"]["xsa"]}}, "cleanup_errors": []}
+    csr_map_owner = {}
+    record["csr_debug_map_helper"] = csr_map_source
     objects = {"xsdb": None, "serial": None, "session": None, "channel": None,
-               "controller": None, "port": None, "wire": None, "rx": None, "tx": None}
+               "controller": None, "port": None, "wire": None, "rx": None, "tx": None,
+               "csr_map": None}
     failure = None
     started = time.monotonic()
     try:
@@ -1020,6 +1061,8 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
         identity = journal.call("identity.after_connect", runtime.identity, config)
         record["identity_snapshots"].append({"label": "after_connect", **identity})
         objects["controller"] = apis.jtag.JtagController(objects["session"], config["bindings"], deploy_dir)
+        objects["csr_map"] = (csr_map_helper, csr_map_config, csr_map_record,
+                               objects["session"], csr_map_owner)
         uart_identity = journal.call("identity.before_serial", runtime.identity, config)
         record["identity_snapshots"].append({"label": "before_serial", **uart_identity})
         objects["port"] = runtime.serial(objects["serial"], config, journal,
@@ -1031,7 +1074,7 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
         objects["wire"] = apis.jtag.JtagWireSession(objects["port"], objects["rx"], objects["tx"],
                                                      response_timeout=config["response_timeout_seconds"])
         result = execute_board_flow(objects["controller"], objects["wire"], config, checked, apis,
-                                    journal, scope=scope)
+                                    journal, scope=scope, csr_map=objects["csr_map"])
         record["acceptance"] = result
         record["status"] = result.get("status", "PASS_MODEL_CORPUS_AND_STRESS_ONLY" if scope == "model"
                                       else "PASS_CSR_RECOVERY_SCOPE_ONLY")
@@ -1103,6 +1146,27 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
                     except BaseException as snapshot_error:
                         record["cleanup_errors"].append({"step": "controller.partial_log.close",
                                                           "error": repr(snapshot_error)})
+        csr_map = objects["csr_map"]
+        if csr_map is not None:
+            helper, helper_config, helper_record, map_session, owner = csr_map
+            if owner.get("attempted"):
+                try:
+                    journal.call("cleanup.csr_debug_map.clear", helper.clear_csr_debug_map,
+                                 helper_config, helper_record, journal, map_session, owner)
+                    record["cleanup_steps"].append({"step": "csr_debug_map.clear", "status": "PASS"})
+                except BaseException as error:
+                    record["cleanup_errors"].append({"step": "csr_debug_map.clear", "error": repr(error)})
+                    failure = failure or error
+                    record["status"] = "FAILED"
+            else:
+                record["cleanup_steps"].append({"step": "csr_debug_map.clear", "status": "NOT_NEEDED"})
+            if type(helper_record.get("debug_memory_map")) is dict:
+                record["debug_memory_map"] = helper_record["debug_memory_map"]
+            for error in helper_record.get("cleanup_errors", []):
+                record["cleanup_errors"].append({"step": "csr_debug_map.internal_cleanup",
+                                                  **error})
+                failure = failure or RunnerError("CSR debug map 内部清理失败")
+                record["status"] = "FAILED"
         session = objects["session"]
         if session is not None:
             try:

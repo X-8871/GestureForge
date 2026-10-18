@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-t18-formal-platform-static-review-preparation/1.0.0",
+  "status": "PREPARED_DYNAMIC_SAMPLE000_REVIEW_PENDING",
+  "reviewer_task": "/root/qualification_single_sample_review",
+  "reviewed_head": "ce2db7437c1c067fdce826afcc8913033eea3dcf",
+  "review_scope": "只读准备R04 visibility=1 proof及final-platform manifest；未执行板卡操作、未改工程源码，未签发正式PASS回执。",
+  "candidate_artifacts": {
+    "xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    "bit": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+    },
+    "app_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+      "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+    },
+    "init_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+      "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+    },
+    "build_details": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\build_details.json",
+      "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db"
+    }
+  },
+  "runtime_binding_review": {
+    "status": "PASS_STATIC_R04_BINDINGS",
+    "app_elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+    "bsp_archive": {
+      "path": "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04\\ps7\\export\\ps7\\sw\\cpu0\\lib\\libxilstandalone.a",
+      "sha256": "1341903853c1aafcad3ae3ac21f816a59e715dffe46b4b9d126a2c7c6f95cc17",
+      "bytes": 359692
+    },
+    "mmu": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\initial_mmu_table.json",
+      "sha256": "f75991497a43b8ec19f49972099dfd9c60b3982c113f412b50609a88338902db",
+      "elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+    },
+    "macros": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\bspconfig.h",
+      "sha256": "1ff8617a56f0d6d9bdedfe48c2b25a9e0fe4cca26050053a64a2e35be11932d0"
+    },
+    "ps_init": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\ps7_init.c",
+      "sha256": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba"
+    },
+    "same_runtime_bsp_mmu_macros": {
+      "static_result": "PASS_FOR_R04_APP",
+      "basis": "R04 build_details binds app ELF, archive and generated BSP header; R04 initial_mmu_table.json explicitly binds the same app ELF. This does not assert runtime execution of MMU/cache setup.",
+      "runtime_execution": "PENDING_SAMPLE000_EVIDENCE"
+    }
+  },
+  "only_visibility_parameter_changed": {
+    "static_result": "PASS_WITH_NARROW_COMPARISON_SCOPE",
+    "comparison_scope": "同一冻结平台 profile 的默认 visibility_default=0 与 R04 构建的显式 visibility=1 override；源文件闭包与 profile 版本不变。",
+    "basis": [
+      "R04 build log/config records visibility_parameter=1 and part xc7z020clg400-2.",
+      "R04 launcher records the new BD/XSA is for compatibility bridge and PL bitstream; PS/BSP is rebuilt separately for the same R04 XSA before app/init ELF build.",
+      "R04 build Tcl changes PROFILE_VISIBILITY_PROVEN and does not edit other profile parameters.",
+      "Existing visibility proof source_sha256 closure (34 files) was compared against current original file bytes; no source hash mismatch was found."
+    ],
+    "limitations": [
+      "This is not a claim that R04 artifacts equal earlier R03/T15 artifacts; R04 intentionally has a different XSA, app ELF and MMU table.",
+      "The prior visibility proof runtime is stale: prior ELF a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82 differs from R04 ELF a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8; prior MMU SHA e2226ba7931e94b9affb32c306b68c886634f4c8567a07ac84f42a415fa4c649 differs from R04 MMU SHA f75991497a43b8ec19f49972099dfd9c60b3982c113f412b50609a88338902db; prior BSP archive SHA d88d86620e6e1fa3c02e7fff93bee0e5ab60e1c2da22e6b3ad87f4c5337f01c7 differs from R04 archive SHA 1341903853c1aafcad3ae3ac21f816a59e715dffe46b4b9d126a2c7c6f95cc17."
+    ]
+  },
+  "static_checks_reused": [
+    {
+      "check": "hwh_hp0_nonbufferable_adapter0",
+      "status": "PASS_STATIC_ONLY",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261017_r01\\hwh_hp0_nonbufferable_adapter0.json",
+      "sha256": "03796b11eae5a14e24d2cd868308f761c06c2adc6b0d7c0cb5f460e9834a31e4"
+    },
+    {
+      "check": "new_elf_gp0_device_contract",
+      "status": "PASS_STATIC_ONLY",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261017_r01\\new_elf_gp0_device_contract.json",
+      "sha256": "4dbb2a4eb2be0810b42a8a46168e3202d9a03ed200fc7b8d6a8131c8f01c2dd6"
+    },
+    {
+      "check": "single_job_arena_cache_retention",
+      "status": "PASS_STATIC_ONLY",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261017_r01\\single_job_arena_cache_retention.json",
+      "sha256": "c6c458b8e08964ad622571940b3266ac205c1aede17d4b9282b83795c9ca9e83"
+    },
+    {
+      "check": "postroute_timing",
+      "status": "PASS_STATIC_ONLY",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261018_r01\\postroute_timing.json",
+      "sha256": "6f0c669d20038ce1dd2bc193ef8f6565e3ac0fd84181f2d250f71c08ccb697c3"
+    },
+    {
+      "check": "controlled_startup_same_xsa",
+      "status": "PASS_MECHANISM_ONLY",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261018_r02\\controlled_startup_same_xsa.json",
+      "sha256": "4aa33bc2e9344a2162cec217067d40cf691b49ba6d25abde0f53d74e0de58206"
+    }
+  ],
+  "visibility_source_profile": {
+    "profile_version": "s2b-inference-platform/0.1.17",
+    "visibility_default": 0,
+    "requested_visibility_parameter": 1,
+    "source_closure_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility_proof_current_20261016_r01\\visibility_proof.json",
+    "source_closure_sha256": "6c379a78a626e932c0de707cadb815ec0d14171edac713716694d7423ca0c61c",
+    "closure_revalidation": "PASS_NO_MISMATCHES"
+  },
+  "dynamic_review_pending": {
+    "sample000_execution": "IN_PROGRESS_NOT_REVIEWED",
+    "golden_two_head_comparison": "NOT_RUN_OR_NOT_REVIEWED",
+    "done_safe_head_valid": "NOT_RUN_OR_NOT_REVIEWED",
+    "ack_and_cache_hp_lifecycle": "NOT_RUN_OR_NOT_REVIEWED",
+    "unified_cold_lifecycle_receipt": "NOT_ISSUED",
+    "visibility_proof_final_status": "NOT_READY",
+    "final_platform_manifest_check": "NOT_RUN",
+    "formal_g0_and_final_review_receipts": "NOT_ISSUED"
+  },
+  "conclusion": "可将R04静态证据作为新proof及平台manifest的候选输入，但不能从旧visibility proof继承运行时PASS。R04 app/XSA/bit/BSP/MMU/macros可建立当前绑定；sample000结果、实际SAFE/ACK与cache/HP路径观测、统一冷生命周期和正式独审仍须随后据真实证据完成。"
+}

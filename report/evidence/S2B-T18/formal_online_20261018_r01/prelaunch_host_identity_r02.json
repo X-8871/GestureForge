@@ -1,0 +1,17 @@
+{
+  "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+  "native_exit_code": 0,
+  "stdout_sha256": "c2ea8504a324e5962330428d2c580d93cf19d04ff79babfeff7d31e4d64cf7ef",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "snapshot": {
+    "servers": [],
+    "listeners": [],
+    "ports": [
+      {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    ]
+  }
+}

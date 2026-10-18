@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "ce2db7437c1c067fdce826afcc8913033eea3dcf",
+  "sources": {
+    "vitis/run_s2b_model_acceptance.py": {
+      "sha256": "f84efb14ee501f611d8ab6be328253242f2796999de1e77f46c87e7c674e1e5b"
+    },
+    "verification/test_s2b_model_acceptance_runner.py": {
+      "sha256": "e35a647f346c8ef769c1c8e27c3ffbc33b5ed3e49a7311ae7db74a6f564b4e48"
+    },
+    "vitis/run_s2b_visibility_probe.py": {
+      "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
+    }
+  },
+  "helper_binding": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_visibility_probe.py",
+    "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
+  },
+  "targeted_tests": {
+    "command": "python -m unittest verification.test_s2b_model_acceptance_runner.ModelAcceptanceRunnerTests.test_execute_flow_registers_csr_map_after_reset_before_deploy verification.test_s2b_model_acceptance_runner.ModelAcceptanceRunnerTests.test_real_r04_helper_registers_and_cleans_csr_map_after_partial_failure -v",
+    "tests_run": 2,
+    "native_exit_code": 0,
+    "log": "unittest_csr_map_targeted.log",
+    "log_sha256": "bafe4c948a9f0891461746ae492663f5c6b7d3ae8284e36056749c6a4f7aa58a"
+  },
+  "acceptance_runner_suite": {
+    "command": "python -m unittest verification.test_s2b_model_acceptance_runner -v",
+    "tests_run": 34,
+    "native_exit_code": 1,
+    "passed": 33,
+    "failed": [
+      {
+        "test": "test_checked_in_interfaces_are_unfrozen_and_block_preflight",
+        "reason": "The checked-in interface title lacks the '版本' marker required by the existing parser, so validation fails at 'interface首行必须含唯一明确版本' before the test's expected PS/PL freeze message."
+      }
+    ],
+    "log": "unittest_after_import_test_update.log",
+    "log_sha256": "40e3c8ce8bc16eefe23b8aefb73e9e855fe04b29f4ebde80dae9727aa04c533b"
+  },
+  "regression_fixture": "The real R04 XSA binding from single_sample_qualification_20261018_r02/input_config.json; the helper parsed the HWH CSR window and both successful registration/cleanup and partial loadhw failure followed by cleanup were exercised.",
+  "hardware_operations": "NONE"
+}

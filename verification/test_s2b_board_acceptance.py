@@ -194,21 +194,42 @@ class RunnerTests(unittest.TestCase):
             self.runner.run_input(self.row, 1, 109, 2, 0xFFFFFFFF, 17, "stress")
         self.assertEqual(self.serial.sent, b"")
 
-    def test_request_choreography_short_mock_corpus_and_stress(self):
+    def test_request_choreography_stress_first_then_full_mock_corpus(self):
         weight = self.root / "mock_weights.bin"
         weight.write_bytes(bytes(transport.WEIGHT_BYTES))
         plan = {"weights": acceptance.binding(weight), "rows": [self.row]}
         req1, _ = transport.make_request(1, 1, 0, weight.read_bytes())
-        req2, _ = transport.make_request(2, 2, 0, self.payload, width=416, height=416)
-        req3, _ = transport.make_request(2, 3, 1, self.payload, width=416, height=416, repeat=2)
+        req2, _ = transport.make_request(2, 2, 0, self.payload, width=416, height=416, repeat=2)
+        req3, _ = transport.make_request(2, 3, 2, self.payload, width=416, height=416)
         self.serial.raw.extend(response(req1, epoch=0, status=0x400) + response(req2, epoch=1) +
-                               response(req3, epoch=2) + response(req3, epoch=3, index=1))
+                               response(req2, epoch=2, index=1) + response(req3, epoch=3))
         self.runner.models(plan, 0xFFFFFFFF, 17, stress_count=2)
         self.assertEqual(self.runner.record["completed_corpus"], 1)
         self.assertEqual(self.runner.record["completed_stress"], 2)
         self.assertEqual((self.wire.last_sequence, self.wire.epoch), (3, 3))
-        planned = json.loads((self.runner.run / "request_00000003.json").read_text(encoding="utf-8"))
+        self.assertEqual(self.runner.record["execution_order"], ["weights", "stress", "corpus"])
+        self.assertEqual([(row["phase"], row["frame"], row["epoch"]) for row in self.runner.record["frames"]],
+                         [("weights", 0, 0), ("stress", 0, 1), ("stress", 1, 2), ("corpus", 2, 3)])
+        planned = json.loads((self.runner.run / "request_00000002.json").read_text(encoding="utf-8"))
         self.assertEqual((planned["repeat"], planned["core_timeout"], planned["drain_timeout"]), (2, 0xFFFFFFFF, 17))
+        corpus = json.loads((self.runner.run / "request_00000003.json").read_text(encoding="utf-8"))
+        self.assertEqual((corpus["repeat"], corpus["frame"]), (1, 2))
+
+    def test_failed_stress_does_not_start_corpus(self):
+        """连续任务失败后锁存停止，不发送后续语料请求。"""
+        weight = self.root / "mock_weights.bin"
+        weight.write_bytes(bytes(transport.WEIGHT_BYTES))
+        plan = {"weights": acceptance.binding(weight), "rows": [self.row]}
+        req1, _ = transport.make_request(1, 1, 0, weight.read_bytes())
+        req2, _ = transport.make_request(2, 2, 0, self.payload, width=416, height=416, repeat=2)
+        self.serial.raw.extend(response(req1, epoch=0, status=0x400) + response(req2, epoch=1) +
+                               response(req2, epoch=1, index=1))
+        with self.assertRaises(transport.TransportError):
+            self.runner.models(plan, 0xFFFFFFFF, 17, stress_count=2)
+        self.assertTrue(self.runner.failed)
+        self.assertEqual(self.runner.record["completed_stress"], 1)
+        self.assertEqual(self.runner.record["completed_corpus"], 0)
+        self.assertFalse((self.runner.run / "request_00000003.json").exists())
 
 
 class AdmissionTests(unittest.TestCase):
@@ -216,7 +237,7 @@ class AdmissionTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(prefix="s2b_t18_admit_mock_")
         self.root = Path(self.tmp.name)
-        actual_build_path = acceptance.ROOT / "report/evidence/S2B-T15/full_build_20261011_r01/build_details.json"
+        actual_build_path = acceptance.ROOT / "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/build_details.json"
         _, actual_build = transport.verify_build(actual_build_path)
         self.build = copy.deepcopy(actual_build)
         self.artifact_sha256 = actual_build["elf"]["sha256"]

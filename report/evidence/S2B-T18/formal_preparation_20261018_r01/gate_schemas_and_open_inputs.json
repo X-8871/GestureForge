@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "preparation_status": "NOT_READY_NOT_FOR_EXECUTION",
+  "baseline_head_at_preparation": "ce2db7437c1c067fdce826afcc8913033eea3dcf",
+  "runner": "vitis/run_s2b_model_acceptance.py",
+  "config_top_level_keys_exact": [
+    "schema_version", "source_commit", "run_id", "preparation", "build_details", "bindings",
+    "visibility_proof", "visibility_review", "final_platform_manifest", "final_review",
+    "g0_basis", "cold_basis", "runtime", "serial", "hw_server", "core_timeout", "drain_timeout",
+    "response_timeout_seconds"
+  ],
+  "controller_binding_keys_exact": [
+    "init_elf", "app_elf", "xsa", "bit", "csr_source", "interface", "sdk_target", "tool_source",
+    "elf_parser", "delivery_parser", "transport_source", "acceptance_source", "runner_source", "uart_interface"
+  ],
+  "binding_shape": {"path": "exact absolute file path", "sha256": "SHA-256 of actual original bytes"},
+  "g0_receipt": {
+    "exact_keys": ["schema_version", "status", "role", "scope", "source_commit", "interface_versions", "bindings", "deadline_profile"],
+    "required_values": {"schema_version": 1, "status": "PASS", "role": "INDEPENDENT_REVIEWER", "scope": "S2B_T18_G0_APPROVAL"},
+    "interface_versions_exact_keys": ["interface", "uart_interface"],
+    "bindings_exact_names": [
+      "interface", "uart_interface", "preparation", "build_details", "xsa", "bit", "app_elf", "init_elf",
+      "visibility_proof", "visibility_review", "final_platform_manifest", "final_review"
+    ],
+    "binding_values": "each exact {path,sha256}; interface entries also include exact parsed document version",
+    "deadline_profile_exact_keys": ["core_timeout", "drain_timeout", "response_timeout_seconds"],
+    "binding_relation": "receipt source_commit and build_details source_commit must be ancestors of config.source_commit; receipt input bindings must exactly match config raw-file hashes"
+  },
+  "cold_receipt": {
+    "exact_keys": ["schema_version", "status", "role", "scope", "controller_source_sha256", "reset_method", "evidence_kind", "hard_reset_proven", "cold_lifecycle_proven", "evidence"],
+    "required_values": {"schema_version": 1, "status": "PASS", "role": "INDEPENDENT_REVIEWER", "scope": "S2B_T18_UNIFIED_COLD_LIFECYCLE", "controller_source_sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee", "reset_method": "PHYSICAL_POR", "evidence_kind": "PHYSICAL_HARD_RESET_POR", "hard_reset_proven": true, "cold_lifecycle_proven": true},
+    "evidence_binding": "exact {path,sha256} of real cold-cycle evidence; r02 cache probe reports cold_lifecycle_proven=false and cannot fill this"
+  },
+  "visibility_proof": {
+    "required_top_fields": ["schema_version", "status", "profile_version", "source_sha256", "hp_path_audit", "ps_cache_proof", "runtime_bindings"],
+    "fixed_values": {"schema_version": 1, "status": "PASS", "profile_version": "s2b-inference-platform/0.1.17"},
+    "hp_path_audit": "path+sha256 to PASS JSON with exact current source_sha256, checks: axi3_nonbufferable_basis, axcache_0000_full_path, direct_hp0_no_bridge, no_early_write_response, full_model_core_present; evidence_files path/SHA list",
+    "ps_cache_proof": "path+sha256 to PASS JSON with exact current source_sha256, checks: dedicated_32mib_arena, cache_maintenance_actual_bsp, cpu_dap_prior_probe_idle_no_start, same_runtime_bsp_mmu_macros, no_use_amp, single_cacheable_alias, cpu1_other_writers_stopped, unified_cold_reset_lifecycle; evidence_files path/SHA list",
+    "prior_probe": {"visibility_parameter": 0, "physical_state": "IDLE_PS", "epoch": 0, "start_count": 0, "load_count": 0, "abi": "S2BU/1", "operation": 4, "header_bytes": 40, "payload_bytes": 12, "physical_address": "0x10000000", "length_bytes": 256, "word_count": 64, "phase0": "FLUSH_DSB_WAIT_DAP", "phase1": "INVALIDATE_DSB_COMPARE", "dap_read_write_readback": true},
+    "runtime_bindings_exact_names": ["elf", "bsp", "mmu", "macros", "ps_init", "cold_lifecycle", "uart_log", "dap_log"],
+    "proof_review": "status PASS, role INDEPENDENT_REVIEWER, approved_profile_sha256 equals exact proof SHA, visibility_parameter=1, cold_reset_only=true; verifier also requires separately pinned review SHA"
+  },
+  "final_platform_manifest": {
+    "required_schema": "verification/check_stage_delivery.py evidence mode: schema_version=1, stage, task_id, run_id, source_commit, evidence_dir, interfaces, files, checks, limitations, tool_versions",
+    "runner_extra_requirements": ["machine CHECKS_OK", "files binds exact deployed bit path+SHA", "all checks statuses PASS or NOT_APPLICABLE"],
+    "final_review_required_fields": {"status": "PASS", "role": "INDEPENDENT_REVIEWER", "approved_manifest_sha256": "manifest raw SHA", "approved_profile_sha256": "visibility proof raw SHA", "visibility_parameter": 1, "same_runtime_bsp_mmu_macros": true, "only_visibility_parameter_changed": true}
+  },
+  "preparation_gate": {
+    "existing_plan_path": "report/evidence/S2B-T18/model_assets_20261016_r02/prep/preparation.json",
+    "existing_plan_sha256": "be9868e11214dd6ce64cde825e6b6dcc70690653eab9afa2de3a6d22f33d655e",
+    "expected": "hardware_execution=NOT_RUN; preparation=PASS_OFFLINE_ASSET_BINDINGS; exactly 109 rows indexed 0..108; inputs/references/golden/heads revalidated before consumption"
+  },
+  "csr_scope": {
+    "invocation": "same runner with --scope csr, separate unique config.run_id and new evidence directory; do not reuse model run_id",
+    "source_pins": {
+      "verification/s2b_csr_acceptance_flow.py": "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b",
+      "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+      "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
+    },
+    "flow_order": ["sample000 seed", "busy-start rejection observer", "sample000 reaccept", "ABORT recovery", "static CSR negative matrix"],
+    "limitations": ["short_deadline remains BLOCKED and is not run by this flow", "busy_start in static matrix remains BLOCKED; busy observer covers it separately", "wire_after_external_csr remains BLOCKED because T20 helper cannot synchronize UART epoch"]
+  },
+  "open_inputs": [
+    "actual post-sample visibility1 proof and full runtime/PS/HP cache evidence; cache-probe r02 alone is only a 256-byte CPU-DAP prior observation",
+    "independent visibility proof receipt and its pinned exact SHA",
+    "final platform evidence manifest and independent receipt bound to exact manifest/proof SHA",
+    "formal G0 receipt and exact SHA pin; runner currently defines G0 path/SHA as None",
+    "unified physical POR lifecycle evidence and independent receipt; runner currently defines COLD path/SHA as None",
+    "selected formal build_details/XSA/bit/app ELF/init ELF coherent bindings",
+    "fresh runtime SDK and pyserial file closure, active hw_server process identity, serial COM/PNP identity",
+    "new model run_id and separate CSR run_id; actual runner hash after pin edit"
+  ],
+  "runtime_pin_cycle_resolution": "Keep source_commit equal to live baseline HEAD ce2db7437c1c067fdce826afcc8913033eea3dcf. After reviews issue exact G0/cold receipt files, edit only runner pin constants in the uncommitted tree, then bind runner_source to its edited raw SHA while retaining config.source_commit as unchanged live HEAD. Run evidence truthfully records that baseline HEAD plus exact dirty-source hashes; commit pin+evidence after run and report the commit as archival closure, not as the run-time HEAD tree. Never claim source tree matched HEAD completely."
+}

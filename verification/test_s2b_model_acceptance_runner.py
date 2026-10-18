@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -30,6 +31,7 @@ class FakeWire:
 
     def banner(self, source_sha, xsa_sha):
         self.trace.append("banner")
+        self.banner_bindings = (source_sha, xsa_sha)
         if self.fail_banner:
             raise RuntimeError("mock banner failure")
         raw = f"S2B-INFERENCE/1 READY SOURCE={source_sha} XSA={xsa_sha}".encode("ascii")
@@ -135,7 +137,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             self.assertEqual(missing_config.exception.code, 2)
             importer.assert_not_called()
         source = RUNNER_PATH.read_text(encoding="utf-8")
-        self.assertNotIn("run_s2b_visibility_probe", source)
+        self.assertNotRegex(source, r"(?m)^\s*(?:import|from)\s+run_s2b_visibility_probe")
         self.assertNotIn("cache_probe", source)
         self.assertNotIn("visibility0", source)
 
@@ -157,12 +159,12 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                     with self.subTest(label=label), self.assertRaises(runner.RunnerError):
                         runner.verify_binding({"path": str(artifact), "sha256": "0" * 64}, label)
 
-    def test_default_unpinned_g0_and_cold_basis_fail_before_runtime_or_device_import(self):
-        self.assertIsNone(runner.G0_BASIS_PATH)
-        self.assertIsNone(runner.G0_BASIS_SHA256)
-        self.assertIsNone(runner.COLD_BASIS_PATH)
-        self.assertIsNone(runner.COLD_BASIS_SHA256)
-        with tempfile.TemporaryDirectory(prefix="s2b_t18_default_block_") as temp:
+    def test_unpinned_g0_and_cold_basis_fail_before_runtime_or_device_import(self):
+        with mock.patch.object(runner, "G0_BASIS_PATH", None), \
+                mock.patch.object(runner, "G0_BASIS_SHA256", None), \
+                mock.patch.object(runner, "COLD_BASIS_PATH", None), \
+                mock.patch.object(runner, "COLD_BASIS_SHA256", None), \
+                tempfile.TemporaryDirectory(prefix="s2b_t18_default_block_") as temp:
             root = Path(temp)
             config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
             self._assert_run_preflight_fails(root, config_path, "尚无独立审查固定的正式回执SHA")
@@ -184,17 +186,35 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                     mock.patch.object(runner, "G0_BASIS_SHA256", "a" * 64):
                 self._assert_run_preflight_fails(root, config_path, "PS/PL物理接口仍未冻结")
 
-    def test_checked_in_interfaces_are_unfrozen_and_block_preflight(self):
+    def test_checked_in_frozen_interface_versions_parse_without_claiming_g0_deployment(self):
         bindings = {}
         for name, relative in (
                 ("interface", "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md"),
                 ("uart_interface", "docs/obsidian-project/02-方案设计/s2b_board_transport.md")):
             path = runner.ROOT / relative
             bindings[name] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
-        with self.assertRaisesRegex(runner.RunnerError, "PS/PL物理接口仍未冻结"):
-            runner.validate_preflight_basis({"bindings": bindings,
-                                             "g0_basis": {"path": "unused", "sha256": "0" * 64},
-                                             "cold_basis": {"path": "unused", "sha256": "0" * 64}})
+        self.assertEqual(runner._validate_interface_freeze_sources(bindings),
+                         {"interface": "s2b-physical/1.0.0", "uart_interface": "s2bu/1.1"})
+
+    def test_interface_version_parser_rejects_duplicate_and_wrong_prefix_versions(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_duplicate_interface_version_") as temp:
+            root = Path(temp)
+            config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            physical_path = Path(config["bindings"]["interface"]["path"])
+            cases = (
+                ("test-only: 状态：G0_FROZEN；版本：s2b-physical/1.0.0；版本：s2b-physical/1.1.0\n",
+                 "唯一且前缀正确"),
+                ("test-only: 状态：G0_FROZEN；版本：s2bu/1.1\n", "唯一且前缀正确"),
+            )
+            for content, error in cases:
+                with self.subTest(content=content):
+                    physical_path.write_text(content, encoding="utf-8")
+                    config["bindings"]["interface"]["sha256"] = hashlib.sha256(
+                        physical_path.read_bytes()).hexdigest()
+                    with mock.patch.object(runner, "ROOT", root), self.assertRaisesRegex(
+                            runner.RunnerError, error):
+                        runner._validate_interface_freeze_sources(config["bindings"])
 
     def test_stale_g0_pin_fails_before_runtime_or_device_import(self):
         with tempfile.TemporaryDirectory(prefix="s2b_t18_stale_g0_") as temp:
@@ -551,6 +571,8 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             config["schema_version"] = 1
             config["source_commit"] = "0" * 40
             with mock.patch.object(runner, "ROOT", root), \
+                    mock.patch.object(runner, "G0_BASIS_PATH", None), \
+                    mock.patch.object(runner, "G0_BASIS_SHA256", None), \
                     mock.patch.object(runner.subprocess, "run", side_effect=AssertionError("不得继续")) as git:
                 with self.assertRaisesRegex(runner.RunnerError, "尚无独立审查固定的正式回执SHA"):
                     runner.validate_v1_inputs(config, apis=object())
@@ -574,8 +596,8 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         docs.mkdir(parents=True)
         physical_path = docs / "s2b_physical_interface_candidate.md"
         uart_path = docs / "s2b_board_transport.md"
-        physical_path.write_text("test-only / not approval: 状态：" + physical + "；版本：physical-test/0.1\n", encoding="utf-8")
-        uart_path.write_text("test-only / not approval: 状态：" + uart + "；版本：uart-test/0.1\n", encoding="utf-8")
+        physical_path.write_text("test-only / not approval: 状态：" + physical + "；版本：s2b-physical/1.0.0\n", encoding="utf-8")
+        uart_path.write_text("test-only / not approval: 状态：" + uart + "；版本：s2bu/1.1\n", encoding="utf-8")
         source_commit = runner.subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                                               capture_output=True, text=True, encoding="ascii",
                                               check=True).stdout.strip()
@@ -619,7 +641,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         cold_path = root / "synthetic_cold_pin_not_approval.json"
         evidence_path = root / "report/evidence/S2B-T16/test_only_por_evidence.json"
         evidence = fixture(evidence_path, "synthetic physical POR evidence")
-        versions = {"interface": "physical-test/0.1", "uart_interface": "uart-test/0.1"}
+        versions = {"interface": "s2b-physical/1.0.0", "uart_interface": "s2bu/1.1"}
         current_bindings = {"interface": {**bindings["interface"], "version": versions["interface"]},
                             "uart_interface": {**bindings["uart_interface"], "version": versions["uart_interface"]},
                             "preparation": top_bindings["preparation"], "build_details": build_binding,
@@ -677,6 +699,146 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         runtime_spy.session.assert_not_called()
         runtime_spy.serial.assert_not_called()
 
+    def test_execute_flow_registers_csr_map_after_reset_before_deploy(self):
+        trace = []
+        wire = FakeWire(trace)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+
+        class MapHelper:
+            @staticmethod
+            def register_csr_debug_map(config, record, journal, session, controller, owner):
+                trace.append("csr_map_register")
+                record["debug_memory_map"] = {"status": "REGISTERED_CSR_ONLY"}
+
+        map_record = {"verified_inputs": {"compat_artifacts": {"implemented_xsa": {"path": "xsa", "sha256": "a" * 64}}}}
+        result = runner.execute_board_flow(
+            controller, wire, self.config(), self.checked(), FakeApis(acceptance),
+            csr_map=(MapHelper, {}, map_record, object(), {}))
+        self.assertEqual(result["status"], "PASS_MODEL_CORPUS_AND_STRESS_ONLY")
+        self.assertLess(trace.index("system_reset_stop"), trace.index("csr_map_register"))
+        self.assertLess(trace.index("csr_map_register"), trace.index("download_init"))
+
+    def test_real_r04_helper_registers_and_cleans_csr_map_after_partial_failure(self):
+        helper, source = runner.load_pinned_csr_map_helper()
+        helper_path = ROOT / "vitis/run_s2b_visibility_probe.py"
+        self.assertEqual(source, {"path": str(helper_path), "sha256": runner.CSR_MAP_HELPER_SOURCE_SHA256})
+        self.assertEqual(hashlib.sha256(helper_path.read_bytes()).hexdigest(), runner.CSR_MAP_HELPER_SOURCE_SHA256)
+        qualification_config = json.loads(
+            (ROOT / "report/evidence/S2B-T19/single_sample_qualification_20261018_r02/input_config.json")
+            .read_text(encoding="utf-8"))
+        xsa_binding = qualification_config["bindings"]["xsa"]
+
+        class FakeTarget:
+            def __init__(self, session, *, fail_load=False):
+                self._name = "APU"
+                self._ctx = "target-apu"
+                self._id = 1
+                self.session = session
+                self.fail_load = fail_load
+
+            def loadhw(self, *, hw, mem_ranges):
+                self.session._designtable[os.path.realpath(hw)] = {
+                    "targets": [self._ctx], "channels": [self.session._curchan]}
+                self.session._memmap_ctxs[self.session._curchan] = {self._ctx: {"csr": {
+                    "base": 0x43C00000, "size": 0x10000, "high": 0x43C0FFFF,
+                    "type": "REGISTER", "flags": 3}}}
+                self.session._memmaptable[self.session._curchan] = {self._ctx: {"csr": [{
+                    "Addr": 0x43C00000, "Size": 0x10000, "Flags": 3}]}}
+                if self.fail_load:
+                    raise OSError("mock partial loadhw failure")
+
+            def unloadhw(self):
+                self.session._designtable.clear()
+                self.session._memmap_ctxs.clear()
+                self.session._memmaptable.clear()
+
+        class FakeSession:
+            def __init__(self, *, fail_load=False):
+                self._curchan = "mock-channel"
+                self._designtable = {}
+                self._memmap_ctxs = {}
+                self._memmaptable = {}
+                self._curtarget = None
+                self.properties = {}
+                self.apu = FakeTarget(self, fail_load=fail_load)
+                self._curtarget = self.apu
+
+            def targets(self, *args, **kwargs):
+                if "id" in kwargs:
+                    return self.apu
+                return self.properties
+
+        def target_rows():
+            common = {"jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "JTAG-HS1",
+                      "jtag_cable_serial": "210512180081", "jtag_cable_ctx": "cable"}
+            rows = [
+                {**common, "target_id": 1, "target_ctx": "target-apu", "name": "APU",
+                 "parent_ctx": "", "parent": "", "jtag_device_ctx": "device-apu",
+                 "jtag_device_name": "arm_dap"},
+                {**common, "target_id": 2, "target_ctx": "target-cpu0", "name": "ARM Cortex-A9 MPCore #0",
+                 "parent_ctx": "target-apu", "parent": "APU", "jtag_device_ctx": "device-apu",
+                 "jtag_device_name": "arm_dap"},
+                {**common, "target_id": 3, "target_ctx": "target-cpu1", "name": "ARM Cortex-A9 MPCore #1",
+                 "parent_ctx": "target-apu", "parent": "APU", "jtag_device_ctx": "device-apu",
+                 "jtag_device_name": "arm_dap"},
+                {**common, "target_id": 4, "target_ctx": "target-fpga", "name": "xc7z020",
+                 "parent_ctx": "", "parent": "", "jtag_device_ctx": "device-fpga",
+                 "jtag_device_name": "xc7z020"},
+            ]
+            return {row["target_ctx"]: row for row in rows}
+
+        class FakeController:
+            def __init__(self, session):
+                self.targets = {"apu": session.apu}
+                self.selected = {row["name"]: row for row in session.properties.values()}
+
+            def gate(self):
+                return None
+
+        class FakeLog:
+            def __init__(self, path):
+                self.journal = runner.Journal(path)
+                self.stream = self.journal.stream
+
+            def call(self, *args, **kwargs):
+                return self.journal.call(*args, **kwargs)
+
+            def close(self):
+                self.journal.close()
+
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_csr_map_") as temp:
+            root = Path(temp)
+            with mock.patch.object(helper, "verify_runtime_sources", return_value={}):
+                for fail_load in (False, True):
+                    with self.subTest(fail_load=fail_load):
+                        case_root = root / str(fail_load)
+                        case_root.mkdir()
+                        session = FakeSession(fail_load=fail_load)
+                        session.properties = target_rows()
+                        controller = FakeController(session)
+                        helper_config = {"sdk_files": {}}
+                        record = {"verified_inputs": {"compat_artifacts": {"implemented_xsa": xsa_binding}},
+                                  "cleanup_errors": []}
+                        owner = {}
+                        log = FakeLog(case_root / "calls.jsonl")
+                        try:
+                            if fail_load:
+                                with self.assertRaisesRegex(OSError, "partial loadhw"):
+                                    helper.register_csr_debug_map(helper_config, record, log, session,
+                                                                  controller, owner)
+                                self.assertTrue(owner["attempted"])
+                                self.assertEqual(record["debug_memory_map"]["status"], "ATTEMPTED")
+                            else:
+                                helper.register_csr_debug_map(helper_config, record, log, session,
+                                                              controller, owner)
+                                self.assertEqual(record["debug_memory_map"]["status"], "REGISTERED_CSR_ONLY")
+                            helper.clear_csr_debug_map(helper_config, record, log, session, owner)
+                            self.assertEqual(record["debug_memory_map"]["cleanup"], "OWNED_HW_MAP_CLEARED")
+                            self.assertEqual(session._designtable, {})
+                        finally:
+                            log.close()
+
     def test_v1_manifest_receipt_allows_t18_only_after_complete_admission(self):
         trace = []
         wire = FakeWire(trace)
@@ -692,6 +854,21 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertLess(trace.index("banner"), trace.index("admit"))
         self.assertLess(trace.index("admit"), trace.index("execute"))
         self.assertEqual(len(wire.sent_requests), 1)
+
+    def test_banner_uses_verified_build_record_with_binding_only_config(self):
+        """使用实板同款文件引用配置，构建内容来自预检已校验的结果。"""
+        trace = []
+        wire = FakeWire(trace)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+        checked = self.checked()
+        build_path = ROOT / "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/build_details.json"
+        checked["build"] = json.loads(build_path.read_text(encoding="utf-8"))
+        result = runner.execute_board_flow(controller, wire, self.config(), checked, FakeApis(acceptance))
+        self.assertEqual(result["status"], "PASS_MODEL_CORPUS_AND_STRESS_ONLY")
+        self.assertEqual(wire.banner_bindings,
+                         (checked["build"]["source_sha256"]["vitis/s2b_inference_app.c"],
+                          checked["build"]["xsa_sha256"]))
 
     def test_wrong_manifest_receipt_blocks_t18_without_uart_tx(self):
         trace = []
@@ -834,9 +1011,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     @staticmethod
     def config():
-        return {"build_details": {"path": "build.json", "sha256": "c" * 64,
-                                  "source_sha256": {"vitis/s2b_inference_app.c": "a" * 64},
-                                  "xsa_sha256": "b" * 64},
+        return {"build_details": {"path": "build.json", "sha256": "c" * 64},
                 "visibility_review": {"path": "review.json", "sha256": "d" * 64},
                 "final_review": {"path": "final_review.json", "sha256": "e" * 64},
                 "core_timeout": 0xFFFFFFFF, "drain_timeout": 60,
@@ -844,7 +1019,9 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
 
     @staticmethod
     def checked():
-        return {"cold_basis": {"path": "cold.json", "sha256": "f" * 64},
+        return {"build": {"source_sha256": {"vitis/s2b_inference_app.c": "a" * 64},
+                          "xsa_sha256": "b" * 64},
+                "cold_basis": {"path": "cold.json", "sha256": "f" * 64},
                 "proof_path": Path("profile.json"), "review_path": Path("review.json"),
                 "manifest_path": Path("manifest.json"), "final_review_path": Path("final_review.json"),
                 "preparation_path": Path("preparation.json"), "run_dir": Path("run"),

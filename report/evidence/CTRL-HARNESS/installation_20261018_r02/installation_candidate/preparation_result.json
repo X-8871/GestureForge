@@ -1,0 +1,63 @@
+{
+  "task": "CTRL-HARNESS-I01",
+  "status": "frozen_for_main_review_and_full_regression",
+  "baseline": {
+    "project_head": "96a4ed94ab7f",
+    "upstream_commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+    "plugin_version": "0.2.18"
+  },
+  "profile_resolution": {
+    "source": "Cordis ctx.get('profileContext') public runtime context",
+    "precedence": "native name/home take precedence; explicit DSH_PROFILE is fallback only when native context is absent",
+    "environment_mutation": false,
+    "missing_native_and_explicit_profile": "fail closed; do not silently use runtime default web profile",
+    "desktop_producer_note": "The inspected Desktop producer supplies profileContext but does not set DSH_PROFILE. The main controller must set DSH_PROFILE=desktop only in the DSH child process as already planned.",
+    "security_invariants": [
+      "desktop opt-in remains required",
+      "loopback, authentication, and peer-scope protections remain enforced",
+      "tokens and endpoint descriptor contents are not read or emitted"
+    ]
+  },
+  "verification": {
+    "prepare_command": "pnpm run prepare:codex-local",
+    "prepare_exit_code": 0,
+    "prepare_result": "valid plugin version 0.2.18; 3 artifacts; 3 required proxy tools",
+    "targeted_test_command": "pnpm exec tsx --test tests/harness-profile-context.test.ts tests/harness-plugin.test.ts",
+    "targeted_test_exit_code": 0,
+    "targeted_tests": "13 passed",
+    "full_237_test_regression": "not run; reserved for main controller",
+    "independent_review": "pending; reserved for main controller",
+    "installation_desktop_startup_and_rpc": "not performed"
+  },
+  "changed_source_sha256": {
+    "src/harness-entry.ts": "229B9A0270A04B2688DD1D5B492E96A34F92B719DFC203A83F932B9F5B0A0CE3",
+    "src/harness-plugin/index.ts": "7AE7B3A265BA36A3CCA0A9905F6AF25D0C99174233563AFBD4AF1A1FB21FCAC1",
+    "src/harness-plugin/profile-context.ts": "049DB9D6C5C043CA0B7A938278F1CA8FF4ECC3B7C3C27F0F9C3FA39AE5518DE0",
+    "tests/harness-profile-context.test.ts": "3B552D9BCE084D806594BDA29690D0FF059F58CF9C5A8F8A7EE0CE23DA058392"
+  },
+  "candidate_files": [
+    ".agents/plugins/marketplace.json",
+    "plugin/.codex-plugin/plugin.json",
+    "plugin/.mcp.json",
+    "cordis.patch.yml"
+  ],
+  "codex_mcp_execution_binding": {
+    "args": [
+      "./dist/dsh-relay-proxy.mjs"
+    ],
+    "cwd": ".",
+    "note": "Relative installed-copy paths bind execution to the Codex marketplace installation copy rather than the durable source checkout. Node executable remains the explicitly tested absolute runtime path; the three requested environment entries remain in .mcp.json."
+  },
+  "copy_into_durable_marketplace_plugin": [
+    "upstream/dist/dsh-relay-proxy.mjs",
+    "upstream/skills/delegate-to-deepseek-harness/SKILL.md",
+    "upstream/skills/delegate-to-deepseek-harness/agents/openai.yaml",
+    "upstream/skills/delegate-to-deepseek-harness/scripts/build_task_manifest.py"
+  ],
+  "cordis_patch_template": "candidate/cordis.patch.yml contains the minimal experimentalDesktopOptIn=true update template; it was not applied to user configuration.",
+  "limitations": [
+    "No production/user configuration was changed and no installation was performed.",
+    "The pre-profile-fix package artifact must not be used; the main controller should package the frozen reviewed source.",
+    "No Git commit was made; this task's source and candidate changes remain for main-controller review and integration."
+  ]
+}

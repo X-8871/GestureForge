@@ -1,0 +1,41 @@
+{
+  "task_id": "CTRL-HARNESS",
+  "run_id": "installation_20261018_r02",
+  "status": "CODEX_INSTALLED_DSH_EXACT_VERSION_EXEMPTION_PENDING",
+  "baseline_commit": "96a4ed94ab7ff52187224ed8df8f5266a3a662aa",
+  "authorization": "Wong已明确批准实验安装、专用Relay鉴权及保存后DSH重启；本轮再次确认从托盘退出，进程检查为空。",
+  "source": {
+    "upstream_commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+    "version": "0.2.18 + local experimental desktop/native-profile patches",
+    "binding_file": "source_binding.json",
+    "peer_range_unchanged": ">=0.1.3-alpha.2 <0.2.0",
+    "actual_desktop_version": "0.2.1-rc.2"
+  },
+  "verification": {
+    "full_regression": {"status": "PASS", "native_exit_code": 0, "passed": 244, "failed": 0, "skipped": 0, "elapsed_s": 12.39},
+    "build_type_version_check": {"status": "PASS", "native_exit_code": 0},
+    "package_whitelist": {"status": "PASS", "native_exit_code": 0, "file_count": 228, "expanded_bytes": 5205871},
+    "patch_apply_check": {"status": "PASS", "native_exit_code": 0},
+    "independent_review": {"status": "PASS", "agent_id": "01a14d8e-5ca5-78c1-801e-78b4311947aa", "targeted_passed": 13, "native_exit_code": 0, "receipt": "review_receipt.json"},
+    "dsh_installation": {"status": "BLOCKED", "native_exit_code": 1, "reason": "官方安装器拒绝不支持的运行时版本，并恢复package.json、pnpm-lock.yaml、node_modules。五份profile配置哈希与备份一致。待Wong批准官方精确版本豁免，尚未执行allow-version或改变peer范围。"},
+    "codex_installation": {"status": "PASS", "native_exit_code": 0, "plugin_id": "deepseek-harness-relay@harness-relay-desktop-exp", "installed_path": "C:\\Users\\22061\\.codex\\plugins\\cache\\harness-relay-desktop-exp\\deepseek-harness-relay\\0.2.18", "verified_installed_files": 7, "old_model_mcp_feature_settings_unchanged": true},
+    "native_mcp_round_trip": {"status": "NOT_RUN", "reason": "DSH端尚未通过官方版本门禁；当前Codex工具目录也未出现Relay原生工具，不用临时客户端替代。"},
+    "hardware": {"status": "NOT_APPLICABLE", "reason": "独立工具接入，不操作硬件或改变2B验收门槛。"}
+  },
+  "backups": {
+    "dsh_private_directory": "C:\\Users\\22061\\.dsh\\relay-backup-20261018-1326",
+    "codex_private_file": "C:\\Users\\22061\\.codex\\config.toml.pre-harness-relay-20261018-1326.bak",
+    "private_backups_in_git": false,
+    "api_keys_displayed": false
+  },
+  "failures_preserved": [
+    "DSH官方CLI首次在沙箱内列包时无法创建package.json.lock，EPERM/native exit1；仅授权官方CLI在沙箱外重试后exit0，profile五文件哈希保持不变，未修改权限配置。",
+    "完整回归原生exit0后，包装器打印测试尾部遇GBK UnicodeEncodeError而exit1；原始测试结果和日志完整保留，随后UTF-8只读显示确认244/244，未为此重复测试。",
+    "DSH官方安装器native exit1：PLUGIN_VERSION_INCOMPATIBLE类版本阻断，明确提示仅可用allow-version对harness-relay-mcp@0.2.18/DSH0.2.1-rc.2执行精确豁免；本轮未擅自接受风险。"
+  ],
+  "limitations": [
+    "离线测试和源码审查不等于本机DSH协议兼容、真实会话消息通过。",
+    "未扩大peer范围；当前DSH超上游声明范围，必须保留实验身份。",
+    "峰值内存未测；具体命令、耗时与退出码见logs，未重启Codex或触碰2B工作树。"
+  ]
+}

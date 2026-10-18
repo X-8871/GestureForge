@@ -1,0 +1,462 @@
+--- a/src/harness-entry.ts
++++ b/src/harness-entry.ts
+@@ -22,6 +22,7 @@
+   type EmbeddedRelayAdapters,
+   type HarnessPluginContext,
+ } from './harness-plugin/index.js'
++import { resolveHarnessProfileEnvironment } from './harness-plugin/profile-context.js'
+ import { McpHttpFacade, TokenStoreFacade } from './mcp-http/index.js'
+ import { createServer } from './mcp-server/index.js'
+ import { MonitoringFacade } from './monitoring/index.js'
+@@ -112,7 +113,8 @@
+   },
+   async startAuthority(ctx, config, adapters, options) {
+     const runtime = new RelayRuntimeFacade()
+-    const defaultPaths = runtime.resolve({ mode: 'embedded', env: process.env })
++    const runtimeEnvironment = resolveHarnessProfileEnvironment(process.env, ctx.get('profileContext'))
++    const defaultPaths = runtime.resolve({ mode: 'embedded', env: runtimeEnvironment })
+     const profile = defaultPaths.profile
+     const hostWebUrl = `http://127.0.0.1:${ctx.webServer.port}/`
+     const hostIdentity = normalizeHostIdentity(hostWebUrl)
+@@ -128,7 +130,7 @@
+     try {
+       paths = runtime.resolve({
+         mode: 'embedded',
+-        env: process.env,
++        env: runtimeEnvironment,
+         hostIdentity,
+         ...(config.stateDirectory === undefined ? {} : { stateDirectory: config.stateDirectory }),
+         ...(config.tokenFile === undefined ? {} : { tokenFile: config.tokenFile }),
+@@ -140,8 +142,14 @@
+       const preflight = preflightHarnessProfile({
+         profile,
+         availableServices: REQUIRED_HARNESS_SERVICES,
+-      })
+-      if (!preflight.ready) throw new RelayStartupError(preflight.code, preflight.message, 'Enable the Harness web profile with the required native services and retry.')
++        experimentalDesktopOptIn: config.experimentalDesktopOptIn,
++      })
++      if (!preflight.ready) {
++        const remediation = profile === 'desktop'
++          ? 'Set experimentalDesktopOptIn=true only for a controlled desktop compatibility experiment, and verify that every required native service is available.'
++          : 'Enable the Harness web profile with the required native services and retry.'
++        throw new RelayStartupError(preflight.code, preflight.message, remediation)
++      }
+       if (ctx.webServer.host !== '127.0.0.1') {
+         throw new RelayStartupError(
+           'HARNESS_WEB_BIND_HOST_INVALID',
+@@ -167,7 +175,7 @@
+         environmentVariable: 'DSH_RELAY_TOKEN',
+       })
+       const relayConfig = resolveConfig({
+-        ...process.env,
++        ...runtimeEnvironment,
+         DSH_RELAY_HOST_URL: hostWebUrl,
+         DSH_RELAY_STATE_FILE: paths.stateFile,
+         DSH_RELAY_CLIENT_PRINCIPAL_ID: 'embedded-authority',
+--- a/src/harness-plugin/index.ts
++++ b/src/harness-plugin/index.ts
+@@ -20,3 +20,4 @@
+   type HarnessProfilePreflight,
+   type HarnessProfileProbe,
+ } from './preflight.js'
++export { resolveHarnessProfileEnvironment } from './profile-context.js'
+--- /dev/null
++++ b/src/harness-plugin/profile-context.ts
+@@ -0,0 +1,37 @@
++import { isAbsolute, resolve } from 'node:path'
++
++interface NativeProfileContext {
++  name?: unknown
++  home?: unknown
++}
++
++/** 依据公开的 Cordis profileContext 创建独立环境快照。 */
++export function resolveHarnessProfileEnvironment(
++  baseEnvironment: NodeJS.ProcessEnv,
++  nativeContext: unknown,
++): NodeJS.ProcessEnv {
++  const environment = { ...baseEnvironment }
++  if (nativeContext === undefined) {
++    const explicitProfile = environment.DSH_PROFILE
++    if (explicitProfile === undefined || explicitProfile.length === 0 || explicitProfile !== explicitProfile.trim()) {
++      throw new Error('DSH profileContext is unavailable and DSH_PROFILE is not explicitly set')
++    }
++    return environment
++  }
++
++  if (typeof nativeContext !== 'object' || nativeContext === null || Array.isArray(nativeContext)) {
++    throw new Error('DSH profileContext must provide a non-empty name and an absolute home path')
++  }
++
++  const profileContext = nativeContext as NativeProfileContext
++  const name = profileContext.name
++  const home = profileContext.home
++  if (typeof name !== 'string' || name.length === 0 || name !== name.trim()
++    || typeof home !== 'string' || home.length === 0 || home !== home.trim() || !isAbsolute(home)) {
++    throw new Error('DSH profileContext must provide a non-empty name and an absolute home path')
++  }
++
++  environment.DSH_PROFILE = name
++  environment.DSH_HOME = resolve(home)
++  return environment
++}
+--- a/src/harness-plugin/config.ts
++++ b/src/harness-plugin/config.ts
+@@ -3,6 +3,7 @@
+   route: string
+   stateDirectory?: string
+   tokenFile?: string
++  experimentalDesktopOptIn: boolean
+   requestBodyLimitBytes: number
+   maxConcurrency: number
+   rateLimitPerMinute: number
+@@ -19,10 +20,15 @@
+   default(value: number): NumberSchema
+ }
+ 
++interface BooleanSchema {
++  default(value: boolean): BooleanSchema
++}
++
+ /** Minimal Schemastery-compatible builder used by the peer-backed thin entry. */
+ export interface HarnessSchemaFactory {
+   string(): StringSchema
+   natural(): NumberSchema
++  boolean(): BooleanSchema
+   object(shape: Record<string, unknown>): unknown
+ }
+ 
+@@ -36,6 +42,7 @@
+     route: schema.string().default('/plugins/dsh-relay/mcp'),
+     stateDirectory: schema.string(),
+     tokenFile: schema.string(),
++    experimentalDesktopOptIn: schema.boolean().default(false),
+     requestBodyLimitBytes: schema.natural().min(1_024).max(16 * 1024 * 1024).default(1024 * 1024),
+     maxConcurrency: schema.natural().min(1).max(256).default(16),
+     rateLimitPerMinute: schema.natural().min(1).max(60_000).default(120),
+@@ -53,8 +60,14 @@
+   if (!route.startsWith('/') || route === '/' || route.startsWith('/api/')) {
+     throw new Error('dsh-relay route must be an absolute non-/api path')
+   }
++  const experimentalDesktopOptIn = input.experimentalDesktopOptIn
++  // 仅未提供该字段时使用默认值，显式提供的值必须是布尔类型。
++  if (experimentalDesktopOptIn !== undefined && typeof experimentalDesktopOptIn !== 'boolean') {
++    throw new Error('dsh-relay experimentalDesktopOptIn must be a boolean')
++  }
+   return {
+     route,
++    experimentalDesktopOptIn: experimentalDesktopOptIn === undefined ? false : experimentalDesktopOptIn,
+     requestBodyLimitBytes: bounded(input.requestBodyLimitBytes, 1024 * 1024, 1_024, 16 * 1024 * 1024, 'requestBodyLimitBytes'),
+     maxConcurrency: bounded(input.maxConcurrency, 16, 1, 256, 'maxConcurrency'),
+     rateLimitPerMinute: bounded(input.rateLimitPerMinute, 120, 1, 60_000, 'rateLimitPerMinute'),
+--- a/src/harness-plugin/preflight.ts
++++ b/src/harness-plugin/preflight.ts
+@@ -13,11 +13,12 @@
+ export interface HarnessProfileProbe {
+   profile: string
+   availableServices: readonly string[]
++  experimentalDesktopOptIn?: boolean
+ }
+ 
+ export interface HarnessProfilePreflight {
+   ready: boolean
+-  code: 'READY' | 'HARNESS_WEB_PROFILE_REQUIRED' | 'HARNESS_SERVICES_MISSING'
++  code: 'READY' | 'HARNESS_WEB_PROFILE_REQUIRED' | 'HARNESS_DESKTOP_PROFILE_EXPERIMENTAL_OPT_IN_REQUIRED' | 'HARNESS_SERVICES_MISSING'
+   missingServices: string[]
+   message: string
+ }
+@@ -28,7 +29,15 @@
+  * @returns Machine-readable preflight result.
+  */
+ export function preflightHarnessProfile(probe: HarnessProfileProbe): HarnessProfilePreflight {
+-  if (probe.profile !== 'web') {
++  if (probe.profile === 'desktop' && probe.experimentalDesktopOptIn !== true) {
++    return {
++      ready: false,
++      code: 'HARNESS_DESKTOP_PROFILE_EXPERIMENTAL_OPT_IN_REQUIRED',
++      missingServices: [],
++      message: 'DSH Relay desktop profile is experimental and requires explicit experimentalDesktopOptIn=true',
++    }
++  }
++  if (probe.profile !== 'web' && probe.profile !== 'desktop') {
+     return {
+       ready: false,
+       code: 'HARNESS_WEB_PROFILE_REQUIRED',
+@@ -43,8 +52,15 @@
+       ready: false,
+       code: 'HARNESS_SERVICES_MISSING',
+       missingServices,
+-      message: `Harness web profile is missing required services: ${missingServices.join(', ')}`,
++      message: `Harness ${probe.profile} profile is missing required services: ${missingServices.join(', ')}`,
+     }
+   }
+-  return { ready: true, code: 'READY', missingServices: [], message: 'Harness web profile can host DSH Relay' }
++  return {
++    ready: true,
++    code: 'READY',
++    missingServices: [],
++    message: probe.profile === 'web'
++      ? 'Harness web profile can host DSH Relay'
++      : 'Harness desktop profile passed experimental preflight; protocol compatibility is unverified',
++  }
+ }
+--- /dev/null
++++ b/tests/harness-profile-context.test.ts
+@@ -0,0 +1,137 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import { tmpdir } from 'node:os'
++import { resolve } from 'node:path'
++import { resolveConfig } from '../src/config.js'
++import {
++  preflightHarnessProfile,
++  REQUIRED_HARNESS_SERVICES,
++  resolveHarnessProfileEnvironment,
++} from '../src/harness-plugin/index.js'
++import { resolveRelayRuntimePaths } from '../src/relay-runtime/path-resolver.js'
++
++const dshHome = resolve(tmpdir(), 'dsh-profile-context-home')
++const otherHome = resolve(tmpdir(), 'dsh-profile-context-other-home')
++const descriptor = resolve(dshHome, 'plugins', 'dsh-relay', 'desktop', 'relay-endpoint.json')
++
++test('native Desktop profileContext supplies profile and home when DSH_PROFILE is absent', () => {
++  const baseEnvironment: NodeJS.ProcessEnv = {
++    DSH_RELAY_ENDPOINT_DESCRIPTOR: descriptor,
++    DSH_RELAY_AUTO_START: 'false',
++  }
++  const environment = resolveHarnessProfileEnvironment(baseEnvironment, {
++    name: 'desktop',
++    home: dshHome,
++    dir: resolve(dshHome, 'profiles', 'desktop'),
++    token: 'native-token-sentinel',
++    endpointDescriptorFile: 'native-descriptor-sentinel',
++  })
++  const paths = resolveRelayRuntimePaths({
++    mode: 'embedded',
++    env: environment,
++    hostIdentity: 'http://127.0.0.1:3080/',
++  })
++
++  assert.equal(paths.profile, 'desktop')
++  assert.equal(paths.dshHome, dshHome)
++  assert.equal(paths.endpointDescriptorFile, descriptor)
++  assert.equal(baseEnvironment.DSH_PROFILE, undefined)
++  assert.equal(baseEnvironment.DSH_HOME, undefined)
++  assert.equal(environment.token, undefined)
++  assert.equal(environment.endpointDescriptorFile, undefined)
++  assert.equal(JSON.stringify(environment).includes('native-token-sentinel'), false)
++  assert.equal(JSON.stringify(environment).includes('native-descriptor-sentinel'), false)
++})
++
++test('native profileContext takes precedence over conflicting environment values without mutation', () => {
++  const baseEnvironment: NodeJS.ProcessEnv = {
++    DSH_PROFILE: 'web',
++    DSH_HOME: otherHome,
++    DSH_RELAY_ENDPOINT_DESCRIPTOR: descriptor,
++  }
++  const environment = resolveHarnessProfileEnvironment(baseEnvironment, { name: 'desktop', home: dshHome })
++  const paths = resolveRelayRuntimePaths({ mode: 'embedded', env: environment })
++
++  assert.equal(paths.profile, 'desktop')
++  assert.equal(paths.dshHome, dshHome)
++  assert.equal(baseEnvironment.DSH_PROFILE, 'web')
++  assert.equal(baseEnvironment.DSH_HOME, otherHome)
++})
++
++test('the same local profile environment resolves runtime paths and relay configuration', () => {
++  const environment = resolveHarnessProfileEnvironment({
++    DSH_RELAY_ENDPOINT_DESCRIPTOR: descriptor,
++  }, { name: 'desktop', home: dshHome })
++  const paths = resolveRelayRuntimePaths({ mode: 'embedded', env: environment })
++  const relayConfig = resolveConfig({ ...environment, DSH_RELAY_STATE_FILE: paths.stateFile })
++
++  assert.equal(paths.profile, 'desktop')
++  assert.equal(relayConfig.stateFile, paths.stateFile)
++})
++
++test('Desktop stays blocked without opt-in and is ready only with all required services', () => {
++  const environment = resolveHarnessProfileEnvironment({}, { name: 'desktop', home: dshHome })
++  const paths = resolveRelayRuntimePaths({ mode: 'embedded', env: environment })
++
++  assert.equal(preflightHarnessProfile({
++    profile: paths.profile,
++    availableServices: REQUIRED_HARNESS_SERVICES,
++  }).code, 'HARNESS_DESKTOP_PROFILE_EXPERIMENTAL_OPT_IN_REQUIRED')
++  assert.equal(preflightHarnessProfile({
++    profile: paths.profile,
++    availableServices: REQUIRED_HARNESS_SERVICES,
++    experimentalDesktopOptIn: true,
++  }).ready, true)
++  assert.equal(preflightHarnessProfile({
++    profile: paths.profile,
++    availableServices: REQUIRED_HARNESS_SERVICES.filter(service => service !== 'webServer'),
++    experimentalDesktopOptIn: true,
++  }).code, 'HARNESS_SERVICES_MISSING')
++})
++
++test('missing native context retains existing web behavior and unknown profiles remain blocked', () => {
++  const webEnvironment = resolveHarnessProfileEnvironment({
++    DSH_PROFILE: 'web',
++    DSH_HOME: dshHome,
++  }, undefined)
++  const webPaths = resolveRelayRuntimePaths({ mode: 'embedded', env: webEnvironment })
++  assert.equal(webPaths.profile, 'web')
++  assert.equal(webPaths.dshHome, dshHome)
++  assert.equal(preflightHarnessProfile({
++    profile: webPaths.profile,
++    availableServices: REQUIRED_HARNESS_SERVICES,
++  }).ready, true)
++
++  const unknownEnvironment = resolveHarnessProfileEnvironment({ DSH_PROFILE: 'web' }, {
++    name: 'desktop-preview',
++    home: dshHome,
++  })
++  const unknownPaths = resolveRelayRuntimePaths({ mode: 'embedded', env: unknownEnvironment })
++  assert.equal(unknownPaths.profile, 'desktop-preview')
++  assert.equal(preflightHarnessProfile({
++    profile: unknownPaths.profile,
++    availableServices: REQUIRED_HARNESS_SERVICES,
++    experimentalDesktopOptIn: true,
++  }).code, 'HARNESS_WEB_PROFILE_REQUIRED')
++})
++
++test('missing native context without an explicit profile fails closed instead of defaulting to web', () => {
++  assert.throws(
++    () => resolveHarnessProfileEnvironment({}, undefined),
++    /profileContext is unavailable and DSH_PROFILE is not explicitly set/iu,
++  )
++})
++
++test('malformed native context fails closed without exposing token or descriptor values', () => {
++  assert.throws(() => resolveHarnessProfileEnvironment({ DSH_PROFILE: 'web' }, {
++    name: 'desktop',
++    home: 'relative-home',
++    token: 'private-token-sentinel',
++    endpointDescriptorFile: 'private-descriptor-sentinel',
++  }), error => {
++    if (!(error instanceof Error)) return false
++    assert.equal(error.message.includes('private-token-sentinel'), false)
++    assert.equal(error.message.includes('private-descriptor-sentinel'), false)
++    return true
++  })
++})
+--- a/tests/harness-plugin.test.ts
++++ b/tests/harness-plugin.test.ts
+@@ -2,8 +2,11 @@
+ import test from 'node:test'
+ import { HarnessGatewayFacade, type HarnessGatewayProvider } from '../src/harness-gateway/index.js'
+ import {
++  resolveHarnessPluginConfig,
+   createHarnessPlugin,
+   preflightHarnessProfile,
++  REQUIRED_HARNESS_SERVICES,
++  type HarnessPluginConfig,
+   type HarnessPluginContext,
+   type HarnessSchemaFactory,
+ } from '../src/harness-plugin/index.js'
+@@ -63,11 +66,16 @@
+     'route',
+     'stateDirectory',
+     'tokenFile',
++    'experimentalDesktopOptIn',
+     'requestBodyLimitBytes',
+     'maxConcurrency',
+     'rateLimitPerMinute',
+     'drainTimeoutMs',
+   ])
++  assert.equal((schema.shape.experimentalDesktopOptIn as ChainSchema).defaultValue, false)
++  assert.equal(resolveHarnessPluginConfig({}).experimentalDesktopOptIn, false)
++  assert.equal(resolveHarnessPluginConfig({ experimentalDesktopOptIn: false }).experimentalDesktopOptIn, false)
++  assert.equal(resolveHarnessPluginConfig({ experimentalDesktopOptIn: true }).experimentalDesktopOptIn, true)
+ 
+   plugin.apply(ctx, { drainTimeoutMs: 750 })
+   assert(installer !== undefined)
+@@ -82,6 +90,17 @@
+   assert.deepEqual(lifecycle, ['started', 'disposed:750'])
+ })
+ 
++test('desktop opt-in rejects explicitly supplied non-boolean runtime values', () => {
++  const invalidValues: unknown[] = ['true', 'false', 1, null, {}, []]
++  for (const value of invalidValues) {
++    const input = { experimentalDesktopOptIn: value } as unknown as Partial<HarnessPluginConfig>
++    assert.throws(
++      () => resolveHarnessPluginConfig(input),
++      /experimentalDesktopOptIn must be a boolean/iu,
++    )
++  }
++})
++
+ test('Cordis plugin factory exposes an abort disposer before authority startup settles', async () => {
+   let installer: (() => Promise<() => Promise<void>> | AsyncIterable<() => void | Promise<void>, void, void>) | undefined
+   const ctx: HarnessPluginContext = {
+@@ -145,8 +164,48 @@
+   }).ready, true)
+ })
+ 
++test('desktop profile requires explicit experimental opt-in and every Harness service', () => {
++  const allServices = [
++    'agents', 'typertGateway', 'webServer', 'sessions', 'sessionController', 'workspaceController',
++    'settingsController', 'agentPresets', 'permissionPresets',
++  ]
++  assert.deepEqual(preflightHarnessProfile({ profile: 'desktop', availableServices: allServices }), {
++    ready: false,
++    code: 'HARNESS_DESKTOP_PROFILE_EXPERIMENTAL_OPT_IN_REQUIRED',
++    missingServices: [],
++    message: 'DSH Relay desktop profile is experimental and requires explicit experimentalDesktopOptIn=true',
++  })
++  assert.deepEqual(preflightHarnessProfile({
++    profile: 'desktop',
++    availableServices: allServices,
++    experimentalDesktopOptIn: true,
++  }), {
++    ready: true,
++    code: 'READY',
++    missingServices: [],
++    message: 'Harness desktop profile passed experimental preflight; protocol compatibility is unverified',
++  })
++  assert.deepEqual(preflightHarnessProfile({
++    profile: 'desktop',
++    availableServices: allServices.filter(service => service !== 'webServer'),
++    experimentalDesktopOptIn: true,
++  }), {
++    ready: false,
++    code: 'HARNESS_SERVICES_MISSING',
++    missingServices: ['webServer'],
++    message: 'Harness desktop profile is missing required services: webServer',
++  })
++})
++
++test('desktop opt-in does not permit headless or unknown profiles', () => {
++  const probe = { availableServices: REQUIRED_HARNESS_SERVICES, experimentalDesktopOptIn: true }
++  assert.equal(preflightHarnessProfile({ ...probe, profile: 'headless' }).code, 'HARNESS_WEB_PROFILE_REQUIRED')
++  assert.equal(preflightHarnessProfile({ ...probe, profile: 'desktop-preview' }).code, 'HARNESS_WEB_PROFILE_REQUIRED')
++})
++
+ class RecordingSchemaFactory implements HarnessSchemaFactory {
+   readonly fields: string[] = []
++  shape: Record<string, unknown> = {}
+ 
+   string(): ChainSchema {
+     return new ChainSchema()
+@@ -156,14 +215,20 @@
+     return new ChainSchema()
+   }
+ 
++  boolean(): ChainSchema {
++    return new ChainSchema()
++  }
++
+   object(shape: Record<string, unknown>): unknown {
++    this.shape = shape
+     this.fields.push(...Object.keys(shape))
+     return shape
+   }
+ }
+ 
+ class ChainSchema {
+-  default(_value: string | number): ChainSchema { return this }
++  defaultValue: string | number | boolean | undefined
++  default(value: string | number | boolean): ChainSchema { this.defaultValue = value; return this }
+   min(_value: number): ChainSchema { return this }
+   max(_value: number): ChainSchema { return this }
+ }

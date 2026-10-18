@@ -60,7 +60,7 @@
 
 ## Git 与下一步
 
-- 2026-10-18 工具接入 CTRL-HARNESS：固定上游 `17e690cf9a56fc65fe39b2c214276cfdcb5a1891`/0.2.18，187/187 Git blob核验；默认关闭的Desktop实验补丁经独审PASS，构建/类型检查及237/237回归通过。隔离SDK MCP发现27工具，但doctor为`STATUS_MISSING`，真实DSH 0.2.1-rc.2超上游peer范围且会话消息NOT_RUN。未安装生产插件、改配置或重启DSH；待Wong明确确认生产安装/专用中继鉴权/保存后DSH重启。证据 `report/evidence/CTRL-HARNESS/validation_20261018_r01/`。这是独立工具任务，不改变ROSS状态或增加2B门禁。
+- 2026-10-18 工具接入 CTRL-HARNESS：固定上游 `17e690cf9a56fc65fe39b2c214276cfdcb5a1891`/0.2.18；Wong批准实验安装并从托盘退出DSH。新增native profileContext识别补丁独审PASS，244/244回归、构建及打包通过；Codex本地插件 `deepseek-harness-relay@harness-relay-desktop-exp` 已安装并核对7文件哈希，旧模型/MCP/功能设置不变。DSH官方安装因0.2.1-rc.2超peer范围拒绝并自动回滚，五份配置与私有备份哈希一致；尚未执行精确版本 `allow-version`，待Wong批准其明确风险。DSH尚未重启、未创建Relay鉴权、真实会话消息NOT_RUN；当前窗口也未加载Relay原生工具，不用临时RPC客户端替代。新证据 `report/evidence/CTRL-HARNESS/installation_20261018_r02/`，旧r01原样保留。独立工具任务，不改变ROSS状态或增加2B门禁。
 - 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。
 - 新增交付规则见 `AGENTS.md`「产物落点、阶段对接与 ROSS 使用」及 `report/README.md`；只读检查器提交 `9db8d64` 已通过50项回归与独立审查，证据 `report/evidence/CTRL-DELIVERY/validation_20261008_2054/`。它只核对当前声明的输入/证据，不代表阶段 G0/G4/G5 或实物通过。
 - 2026-10-11 按 Wong 授权清理已结束任务的可重建缓存：C盘仅npm/pip下载缓存，操作时净释放6,073,454,592 B；D盘仅当前候选109个成功RunId下218个精确PCH文件，净释放31,633,760,256 B。其余8,434个候选文件前后SHA一致，109个可执行文件保留；全部失败目录、模型/数据、波形、2B/3工作树及用户原16项修改不动。范围经独立Reviewer PASS；精确清单、命令和空间口径见 `report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/cleanup_record.json`，不是全库清空，下载/PCH缓存后续可重建。

@@ -60,6 +60,11 @@ MANUAL_PLATFORM_MANIFEST = {
     "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\current_probe_scope_20261015_r01\\platform_delivery_manifest.json",
     "sha256": "5548bb56e6a68e9a02cda4a93b8b5440ded86245a1d351103d6a7144c76676bf",
 }
+# 迁盘只改变读取位置；Wong批准的原始路径、摘要和收据内引用保持原样。
+MANUAL_ROOT_STORAGE = {
+    MANUAL_REVIEW_PROVENANCE["path"]: "D:/codex-worktrees/96a3/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json",
+    MANUAL_RUNTIME_COMPATIBILITY["path"]: "D:/codex-worktrees/96a3/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json",
+}
 MANUAL_TRUST_ROOT_CLAIM = {
     "kind": "s2b-manual-review-trust-root/1.0.0",
     "reviewer_task": MANUAL_REVIEWER_TASK,
@@ -74,13 +79,13 @@ MANUAL_TRUST_ROOT_CLAIM = {
 # 两份固定外部原件必须各自匹配SHA、schema、角色、范围与交叉绑定；运行配置不能替换信任根。
 # 该根仅覆盖visibility0静态探测且硬件NOT_RUN；G0候选审查与官方POR语义分别由下方固定锚点绑定。
 # 首个受控sample000按冻结规程使用有限最大期限；最终部署期限仍须在G4/G5量化。
-TRUSTED_REVIEW_ANCHOR = {'path': 'report/evidence/S2B-T19/qualification_single_sample_review_20261017_r01/qualification_receipt.json', 'sha256': '8a64ad5266daac63a1a6a92ec5ce9fc56e66c35b9d28e8f3b6675b6c3ecd09b8'}
+TRUSTED_REVIEW_ANCHOR = {'path': 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\qualification_single_sample_review_20261017_r04\\qualification_receipt.json', 'sha256': 'f6d94bb66ffb678d1334a7194246029d955e62df6075369ca17c422a266f30fe'}
 TRUSTED_G0_ANCHOR = {
     'path': 'report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r02/independent_g0_review_outcome.json',
     'sha256': '0540f3ab8d7e27b87a739c520f5228bb3b9186e2733e9fb6bb2d6bec05accc53',
 }
 TRUSTED_COLD_ANCHOR = {
-    'path': 'report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json',
+    'path': 'D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\official_reset_basis_20261011_r01\\cold_reset_basis_candidate.json',
     'sha256': '2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3',
 }
 
@@ -168,15 +173,17 @@ def document(item):
 
 
 def fixed_manual_root_document(item, expected):
-    """只读取源码固定的人工根路径，逐级拒绝链接并核验原字节SHA。"""
+    """从固定迁移位置读取人工根，保留原引用并核验原字节SHA。"""
     require(type(item) is dict and item == expected, "BLOCKED：人工根路径/SHA不能由配置选择")
-    path = Path(item["path"])
+    storage = MANUAL_ROOT_STORAGE.get(item["path"])
+    require(storage is not None, "BLOCKED：人工根没有固定迁移位置")
+    path = Path(storage)
     require(path.is_absolute() and ".." not in path.parts and not any(c in str(path) for c in "*?[]"),
             "BLOCKED：人工根路径必须是精确绝对路径")
     try:
         resolved = path.resolve(strict=True)
         normalized = str(resolved).replace("\\", "/")
-        require(normalized == item["path"], "BLOCKED：人工根路径实际名称/链接解析不符")
+        require(normalized == storage, "BLOCKED：人工根路径实际名称/链接解析不符")
         current = Path(path.anchor)
         for name in path.parts[1:]:
             current = current / name

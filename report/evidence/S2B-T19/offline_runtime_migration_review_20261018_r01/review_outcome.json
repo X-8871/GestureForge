@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "reviewer_role": "INDEPENDENT_REVIEWER",
+  "verdict": "PASS",
+  "source_commit": "2e9e3c625abe523e54be36a3010966b9f679c80e",
+  "review_scope": "offline manual-root migration and runtime checker; G3/G4/G5 excluded",
+  "reviewed_sha256": {
+    "vitis/run_s2b_model_qualification.py": "fc787e401b12e08a25eec7bc4b7fcbb3e470a3f79fc9533cb053ffaba419d763",
+    "verification/test_s2b_model_qualification_entry.py": "73335a7f96328739a3cea14f2db30f4dd94baf8a1426ad5db327f41a78e43f4d",
+    "verification/check_s2b_qualification_runtime.py": "b8177adf7087587fab82aae7bd59bc1b72e396b8aed72e2c6d42ff1db2660dbc"
+  },
+  "checks": [
+    {
+      "command": "python.exe -B -m unittest verification.test_s2b_model_qualification_entry",
+      "exit_code": 0,
+      "result": "Ran 30 tests; OK"
+    },
+    {
+      "command": "Get-FileHash -Algorithm SHA256 -LiteralPath <two migrated D-drive JSON files>",
+      "exit_code": 0,
+      "result": "Both files match the approved SHA-256 values"
+    },
+    {
+      "command": "git diff --check -- vitis/run_s2b_model_qualification.py verification/test_s2b_model_qualification_entry.py verification/check_s2b_qualification_runtime.py",
+      "exit_code": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "runner_test_review": {
+    "status": "PASS",
+    "findings": [],
+    "basis": "Migration lookup is fixed by source mapping, original approved path/SHA claim remains intact, storage paths are exact absolute paths, reparse points are rejected, and original-byte SHA plus schema/cross-binding checks remain enforced. Added tests cover real migrated inputs, altered bytes, and an unapproved reference."
+  },
+  "runtime_checker_review": {
+    "status": "PASS",
+    "findings": [],
+    "basis": "Frozen checker writes UTC+8 timestamps and creates its result with exclusive mode x; its invocation chain imports the probe and calls _runtime, which verifies source bindings and imports XSDB/pyserial without creating SDK sessions/clients, starting servers, opening serial ports, initializing PS, loading DDR, or programming targets."
+  },
+  "runtime_evidence": {
+    "path": "report/evidence/S2B-T19/qualification_runtime_offline_20261018_r03/",
+    "outer_launcher_exit_code": 0,
+    "native_script_exit_code": 0,
+    "checker_sha256": "b8177adf7087587fab82aae7bd59bc1b72e396b8aed72e2c6d42ff1db2660dbc",
+    "status": "PASS_RUNTIME_IMPORT_HARDWARE_NOT_RUN",
+    "limitations": "This is runtime import and binding evidence only; no hardware operations were authorized or performed. A future POR-bound qualification receipt must bind the new canonical entry digest and undergo independent review."
+  },
+  "hardware_and_stage_status": {
+    "hardware_operations": "NOT_RUN",
+    "G3": "NOT_PASSED",
+    "G4": "NOT_PASSED",
+    "G5": "NOT_PASSED"
+  }
+}

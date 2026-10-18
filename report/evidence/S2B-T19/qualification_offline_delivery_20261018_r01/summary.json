@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "created_at_utc8": "2026-10-18T11:19:57.118324+08:00",
+  "scope": "仅关闭官方Vitis运行环境及人工根迁盘读取的离线问题",
+  "source_baseline": "2e9e3c625abe523e54be36a3010966b9f679c80e",
+  "hardware_execution": "NOT_RUN",
+  "board_availability": "用户2026-10-18确认不在板卡旁边、无法接板/上电",
+  "statuses": {
+    "qualification_runtime_import": "PASS_RUNTIME_IMPORT_HARDWARE_NOT_RUN",
+    "migration_tests": "30/30 PASS",
+    "independent_code_review": "PASS",
+    "historical_r14": "BLOCKED_HARDWARE_NOT_RUN",
+    "sample000": "NOT_RUN",
+    "golden_109": "NOT_RUN",
+    "continuous_1000": "NOT_RUN",
+    "board_csr_recovery": "NOT_RUN",
+    "G3": "NOT_PASSED",
+    "G4": "NOT_PASSED",
+    "G5": "NOT_PASSED"
+  },
+  "canonical_entry_sha256_v1": "cf57921c78d33828f5c5da71d5ba7c6dba8f53a8f12d535b804d527dc560c6aa",
+  "qualification_receipt_reuse": "旧R04机制收据canonical不同且旧独占链已到期；不自动继承，待新POR绑定后由独立Reviewer更新。",
+  "official_launch": {
+    "launcher": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+    "arguments": [
+      "-s",
+      "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_qualification.py"
+    ],
+    "environment": {
+      "S2B_MODEL_QUALIFICATION_CONFIG": "必须指定新POR/新回执/新RunId且实际绑定通过的绝对配置路径",
+      "TEMP": "D:\\tmp",
+      "TMP": "D:\\tmp"
+    },
+    "execution_status": "NOT_RUN",
+    "outcome_rule": "同时核对脚本结果/真实操作日志；官方bat退出0不单独表示任务成功。"
+  },
+  "manual_root_storage": [
+    {
+      "original_approved_reference": "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json",
+      "current_storage": "D:/codex-worktrees/96a3/report/evidence/S2B-T19/current_probe_independent_20261015_r01/review_provenance.json",
+      "sha256": "c87a2f40a099bdce0fce127af7d3c3282f4b2442e19dbc9da4f299b588321ce5"
+    },
+    {
+      "original_approved_reference": "C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json",
+      "current_storage": "D:/codex-worktrees/96a3/report/evidence/S2B-T19/current_probe_independent_20261015_r01/runtime_compatibility_receipt.json",
+      "sha256": "e22fd0a1fa0399de48d9694dd07c7b10e06dbb60f55aed7ce8a9057fc3d4c7ea"
+    }
+  ],
+  "limitations": [
+    "代码/导入/包装通过不能代替板上G3、任务G4或阶段G5。",
+    "不改写R04原始input_record FAIL；同XSA重建ELF及实际route产物已有独立补证，本轮未重跑综合。",
+    "没有重跑109离线整网仿真，没有启动hw_server/SDK会话/串口，没有进行板卡写入。",
+    "本轮原生单测和导入耗时已记录；峰值内存、物理板上耗时未测。",
+    "正式T18依赖实际visibility证明与不同schema的最终平台/G0/冷生命周期回执；本包不伪造这些输入。"
+  ]
+}

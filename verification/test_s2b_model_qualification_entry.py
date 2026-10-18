@@ -256,6 +256,26 @@ class ConfigGateTests(unittest.TestCase):
         with self.assertRaisesRegex(ENTRY.QualificationError, "平台清单原件"):
             ENTRY.validate_manual_review_root_documents(changed_provenance, changed_compatibility)
 
+    def test_migrated_manual_root_preserves_original_claim_and_bytes(self):
+        claim = ENTRY.validate_manual_review_trust_root()
+        self.assertEqual(claim, ENTRY.MANUAL_TRUST_ROOT_CLAIM)
+        self.assertTrue(claim["review_provenance"]["path"].startswith("C:/"))
+        self.assertTrue(all(path.startswith("D:/codex-worktrees/96a3/")
+                            for path in ENTRY.MANUAL_ROOT_STORAGE.values()))
+
+    def test_migrated_manual_root_rejects_changed_bytes_or_unknown_reference(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_migrated_root_") as raw_dir:
+            changed = Path(raw_dir) / "changed.json"
+            changed.write_text("{}", encoding="utf-8")
+            source = ENTRY.MANUAL_REVIEW_PROVENANCE
+            with patch.dict(ENTRY.MANUAL_ROOT_STORAGE,
+                            {source["path"]: changed.as_posix()}):
+                with self.assertRaisesRegex(ENTRY.QualificationError, "固定人工根SHA漂移"):
+                    ENTRY.fixed_manual_root_document(source, source)
+        unknown = {"path": "D:/unapproved.json", "sha256": "a" * 64}
+        with self.assertRaisesRegex(ENTRY.QualificationError, "没有固定迁移位置"):
+            ENTRY.fixed_manual_root_document(unknown, unknown)
+
     def test_qualification_reviewer_is_separate_and_bound_to_fixed_manual_root(self):
         claim = valid_qualification_trust_claim()
         ENTRY.validate_qualification_reviewer_claim(claim)

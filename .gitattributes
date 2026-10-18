@@ -91,6 +91,11 @@ report/evidence/S2B-T15/**/init_lscript.ld whitespace=blank-at-eol,-blank-at-eof
 vitis/s2b_inference_app.c -text
 vitis/build_s2b_inference.py -text
 
+# 资格入口canonical摘要与独审源码哈希依赖原字节，提交和检出均保留换行。
+vitis/run_s2b_model_qualification.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+verification/test_s2b_model_qualification_entry.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+verification/check_s2b_qualification_runtime.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
 # R04离线准备脚本参与原字节SHA绑定，禁止Git自动换行转换。
 vitis/prepare_s2b_model_qualification_offline.py -text
 vitis/prepare_s2b_model_qualification_r05_offline.py -text

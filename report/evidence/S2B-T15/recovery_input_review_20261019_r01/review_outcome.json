@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "PASS_OFFLINE_PS_RECOVERY_SCOPE_ONLY",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_task": "/root/csr_ready_20261019",
+  "recorded_at_utc8": "2026-10-19T13:25:11.394665+08:00",
+  "bindings": [
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/recovery_bundle.zip",
+      "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/bundle_manifest.json",
+      "sha256": "5e5de850d5d14cb1ed1c949481d1267286fb3fabe88a2d0a672fbf1484ec0b22"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/machine_result.json",
+      "sha256": "65b3d4c74ed2a920cf5c8886938db2459851792722e7f1b3ac1de1aefdef6433"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/command_results.json",
+      "sha256": "b42c252e2cd93870e0695b4679ffd67fa474d8208bafb43d523e507f033bf258"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/comparison.json",
+      "sha256": "c6396a3558f52f9ae64d3a3c9f6c4e134783ec67d60bfd84f7f5b52e845c7108"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/provenance_limits.json",
+      "sha256": "40f52f9f099f31bf89f1b7c3e620d878e0857fa20b6720897fb44253b92f35e1"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/delivery_manifest.json",
+      "sha256": "d745eedb4d8bf6647b3f36fad877b9b0e117db85f5ef91d10b738a5bbd2c7399"
+    }
+  ],
+  "checks": {
+    "manifest_files": "32/32 paths and SHA verified",
+    "archive_members": "85 listed members byte length and SHA matched; one additional directory member; no path traversal",
+    "bsp_inputs": "67 BSP headers totaling 511874 bytes and three libraries; source library and Xilinx.spec hashes matched",
+    "fresh_build": "Four C compiles and two links exited zero; commands use fresh bundle extraction, no old workspace data paths",
+    "elf_comparison": "Independently parsed all ELF32 PT_LOAD fields including alignment; only the exact 20-byte GNU build-id descriptor differs per ELF; normalized payloads match"
+  },
+  "limitations": [
+    "External official GCC 13.4.0 installation and prebuilt BSP libraries are required.",
+    "Not BSP source rebuilding, PL/XSA/bit rebuilding, hardware validation, G4 or G5.",
+    "Initial Developer comparison was not retained; independent final ELF parsing supports current limited result.",
+    "Dependency inventory summary fields are unreliable; use bound raw GCC -M logs, complete archive include tree and actual compilation.",
+    "Archive is a separately retained local artifact outside Git source-only restore."
+  ]
+}

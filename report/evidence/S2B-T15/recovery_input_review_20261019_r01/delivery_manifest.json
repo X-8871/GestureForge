@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T15",
+  "run_id": "recovery_input_review_20261019_r01",
+  "source_commit": "e1b048f3a867f5608c2e12c385800fed055da1da",
+  "evidence_dir": "report/evidence/S2B-T15/recovery_input_review_20261019_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "Read-only provenance receipt for PS input bundle and compiler/static comparison; deployment interfaces remain in the reviewed task manifest.",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T15/recovery_input_review_20261019_r01/review_outcome.json",
+      "sha256": "6c082ec77238fa9f58668824b69073b244af0aa8e74bb6de375eba2b06950850",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/recovery_bundle.zip",
+      "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/bundle_manifest.json",
+      "sha256": "5e5de850d5d14cb1ed1c949481d1267286fb3fabe88a2d0a672fbf1484ec0b22",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/machine_result.json",
+      "sha256": "65b3d4c74ed2a920cf5c8886938db2459851792722e7f1b3ac1de1aefdef6433",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/command_results.json",
+      "sha256": "b42c252e2cd93870e0695b4679ffd67fa474d8208bafb43d523e507f033bf258",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/comparison.json",
+      "sha256": "c6396a3558f52f9ae64d3a3c9f6c4e134783ec67d60bfd84f7f5b52e845c7108",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/provenance_limits.json",
+      "sha256": "40f52f9f099f31bf89f1b7c3e620d878e0857fa20b6720897fb44253b92f35e1",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/delivery_manifest.json",
+      "sha256": "d745eedb4d8bf6647b3f36fad877b9b0e117db85f5ef91d10b738a5bbd2c7399",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/rebuild_bundle_once.py",
+      "sha256": "5b4e507923c91555f2f81f7748247257bdb44e41cd4f97e45d2e193a7941ef2f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T15/recovery_inputs_20261019_r02/compare_pt_loads.py",
+      "sha256": "b7cd8f331abe8ea9f7c72a70177ec8a2ae089af137a1d49e389f6fe68b1f8885",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Independent PS bundle and static rebuild review",
+      "status": "PASS",
+      "command": "Read-only review and independent ELF parsing by /root/csr_ready_20261019",
+      "exit_code": 0,
+      "reason": "Archive/source/library/command/log/output bindings and exact normalized ELF scope checked independently, without device access."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  },
+  "limitations": [
+    "External official GCC 13.4.0 installation and prebuilt BSP libraries are required.",
+    "Not BSP source rebuilding, PL/XSA/bit rebuilding, hardware validation, G4 or G5.",
+    "Initial Developer comparison was not retained; independent final ELF parsing supports current limited result.",
+    "Dependency inventory summary fields are unreliable; use bound raw GCC -M logs, complete archive include tree and actual compilation.",
+    "Archive is a separately retained local artifact outside Git source-only restore."
+  ]
+}

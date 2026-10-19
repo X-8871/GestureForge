@@ -42,6 +42,16 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_sy
 source [file join $::vendor_dir ps_config.tcl]
 set_ps_config processing_system7_0
 source [file join $::vendor_dir pl_config.tcl]
+
+# 关闭厂商 OV5640 IP 内嵌的 ILA：BASIC 许可不支持 >5 probes 的 ILA（Chipscope 16-620）。
+# 官方 RTL 中 DEBUG_OV5640 为 parameter（默认 1），置 0 后 generate 块不再实例化 ila_0。
+if {[llength [get_bd_cells -quiet alinx_ov5640_0]] > 0} {
+    set_property -dict [list CONFIG.DEBUG_OV5640 {false}] [get_bd_cells alinx_ov5640_0]
+    t04_log "ILA_DISABLED_DEBUG_OV5640=false"
+} else {
+    t04_fail "OV5640_CELL_NOT_FOUND"
+}
+
 regenerate_bd_layout
 set bd_valid [validate_bd_design]
 t04_log "BD_VALIDATED=$bd_valid"
@@ -60,12 +70,27 @@ t04_log "TOP=[get_property top [current_fileset]]"
 add_files -fileset constrs_1 -norecurse $xdc_files
 t04_log "XDC_ADDED=[llength [get_files -of [get_filesets constrs_1]]]"
 
-launch_runs synth_1 -jobs 4
-wait_on_run synth_1
+launch_runs synth_1 -jobs 3
+if {[catch {wait_on_run synth_1} wait_err]} { t04_log "SYNTH_WAIT_WARN=$wait_err" }
 set synth_status [get_property STATUS [get_runs synth_1]]
 set synth_progress [get_property PROGRESS [get_runs synth_1]]
 t04_log "SYNTH_STATUS=$synth_status"
 t04_log "SYNTH_PROGRESS=$synth_progress"
+
+# OOC 子 run 偶发启动期目录错误（'Failed to create directory C'）：重置失败 run 后重试，最多 2 轮。
+for {set attempt 1} {$attempt <= 2} {incr attempt} {
+    if {[string match "*Complete*" $synth_status] && $synth_progress eq "100%"} { break }
+    set failed [get_runs -quiet -filter {PROGRESS != "100%"}]
+    t04_log "SYNTH_RETRY_${attempt}_FAILED_RUNS=[llength $failed]"
+    if {[llength $failed] == 0} { break }
+    reset_run $failed
+    launch_runs synth_1 -jobs 3
+    if {[catch {wait_on_run synth_1} wait_err2]} { t04_log "SYNTH_RETRY_WAIT_WARN=$wait_err2" }
+    set synth_status [get_property STATUS [get_runs synth_1]]
+    set synth_progress [get_property PROGRESS [get_runs synth_1]]
+    t04_log "SYNTH_RETRY_${attempt}_STATUS=$synth_status"
+    t04_log "SYNTH_RETRY_${attempt}_PROGRESS=$synth_progress"
+}
 if {![string match "*Complete*" $synth_status] || $synth_progress ne "100%"} {
     t04_fail "SYNTH_NOT_COMPLETE:$synth_status:$synth_progress"
 }
@@ -73,8 +98,8 @@ open_run synth_1 -name synth_1
 report_utilization -file [file join $::run_dir report_utilization_synth.rpt]
 close_design
 
-launch_runs impl_1 -to_step write_bitstream -jobs 4
-wait_on_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 3
+if {[catch {wait_on_run impl_1} impl_wait_err]} { t04_log "IMPL_WAIT_WARN=$impl_wait_err" }
 set impl_status [get_property STATUS [get_runs impl_1]]
 set impl_progress [get_property PROGRESS [get_runs impl_1]]
 t04_log "IMPL_STATUS=$impl_status"

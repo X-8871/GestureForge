@@ -1,0 +1,39 @@
+--- a/display_demo.c
++++ b/display_demo.c
+@@ -62,6 +62,7 @@ int main(void)
+ {
+ 
+ 	int Status;
++	xil_printf("S3_DIAG_APP_ENTER\r\n");
+ 	XAxiVdma_Config *vdmaConfig;
+ 	int i;
+ 
+@@ -91,6 +92,12 @@ int main(void)
+ 	 * Initialize Sensor
+ 	 */
+ 	sensor_init(&ps_i2c0);
++	/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */
++	{
++		u8 s3_id_hi = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300A);
++		u8 s3_id_lo = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300B);
++		xil_printf("S3_DIAG_SENSOR_ID=0x%02X%02X\r\n", s3_id_hi, s3_id_lo);
++	}
+ 	/*
+ 	 * Initialize VDMA driver
+ 	 */
+@@ -117,6 +124,7 @@ int main(void)
+ 
+ 	}
+ 	Status = DisplayStart(&dispCtrl);
++	xil_printf("S3_DIAG_DISPLAY_START status=%d\r\n", Status);
+ 	if (Status != XST_SUCCESS)
+ 	{
+ 		xil_printf("Couldn't start display during demo initialization%d\r\n", Status);
+@@ -126,6 +134,7 @@ int main(void)
+ 	memset(dispCtrl.framePtr[dispCtrl.curFrame], 0, 1920 * 1080 * 3);
+ 	/* Start Sensor Vdma */
+ 	vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
++	xil_printf("S3_DIAG_VDMA_WRITE_STARTED\r\n");
+ 
+ 	return 0;
+ }

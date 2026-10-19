@@ -1,0 +1,73 @@
+--- a/display_demo.c
++++ b/display_demo.c
+@@ -62,6 +62,7 @@ int main(void)
+ {
+ 
+ 	int Status;
++	xil_printf("S3_DIAG_APP_ENTER\r\n");
+ 	XAxiVdma_Config *vdmaConfig;
+ 	int i;
+ 
+@@ -91,6 +92,46 @@ int main(void)
+ 	 * Initialize Sensor
+ 	 */
+ 	sensor_init(&ps_i2c0);
++	/* S3-DIAG2: I2C 控制器寄存器 + 整总线扫描 + CHIP ID 重试读取。
++	 * 只读探测：用于区分“I2C 总线/连接不通（无任何 ACK）”与“器件存在但地址/配置不符”。*/
++	{
++		XIicPs *s3_iic = &ps_i2c0;
++		int s3_a, s3_s, s3_s2;
++		int s3_found = 0;
++		u8 s3_wr[2];
++		xil_printf("S3_DIAG2_IIC_BASE=0x%08X\r\n", (unsigned int)s3_iic->Config.BaseAddress);
++		xil_printf("S3_DIAG2_IIC_CR=0x%08X SR=0x%08X ISR=0x%08X\r\n",
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_CR_OFFSET),
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_SR_OFFSET),
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_ISR_OFFSET));
++		for (s3_a = 0x08; s3_a < 0x78; s3_a++) {
++			u8 s3_rd = 0;
++			s3_wr[0] = 0x30; s3_wr[1] = 0x0A;
++			s3_s = XIicPs_MasterSendPolled(s3_iic, s3_wr, 2, (u8)s3_a);
++			while (XIicPs_BusIsBusy(s3_iic));
++			if (s3_s != XST_SUCCESS) { continue; }
++			s3_s2 = XIicPs_MasterRecvPolled(s3_iic, &s3_rd, 1, (u8)s3_a);
++			while (XIicPs_BusIsBusy(s3_iic));
++			xil_printf("S3_DIAG2_DEV=0x%02X recv=%d val=0x%02X\r\n", s3_a, s3_s2, s3_rd);
++			s3_found++;
++		}
++		xil_printf("S3_DIAG2_SCAN_ACK_COUNT=%d\r\n", s3_found);
++		{
++			int s3_t;
++			for (s3_t = 0; s3_t < 3; s3_t++) {
++				u8 s3_h = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300A);
++				u8 s3_l = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300B);
++				xil_printf("S3_DIAG2_CHIPID_TRY%d=0x%02X%02X\r\n", s3_t, s3_h, s3_l);
++				usleep(200000);
++			}
++		}
++	}
++	/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */
++	{
++		u8 s3_id_hi = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300A);
++		u8 s3_id_lo = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300B);
++		xil_printf("S3_DIAG_SENSOR_ID=0x%02X%02X\r\n", s3_id_hi, s3_id_lo);
++	}
+ 	/*
+ 	 * Initialize VDMA driver
+ 	 */
+@@ -117,6 +158,7 @@ int main(void)
+ 
+ 	}
+ 	Status = DisplayStart(&dispCtrl);
++	xil_printf("S3_DIAG_DISPLAY_START status=%d\r\n", Status);
+ 	if (Status != XST_SUCCESS)
+ 	{
+ 		xil_printf("Couldn't start display during demo initialization%d\r\n", Status);
+@@ -126,6 +168,7 @@ int main(void)
+ 	memset(dispCtrl.framePtr[dispCtrl.curFrame], 0, 1920 * 1080 * 3);
+ 	/* Start Sensor Vdma */
+ 	vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
++	xil_printf("S3_DIAG_VDMA_WRITE_STARTED\r\n");
+ 
+ 	return 0;
+ }

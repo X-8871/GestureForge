@@ -55,6 +55,46 @@ insertions = [
         "\tvdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);\n"
         "\txil_printf(\"S3_DIAG_VDMA_WRITE_STARTED\\r\\n\");\n",
     ),
+    (
+        "\tsensor_init(&ps_i2c0);\n"
+        "\t/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */\n",
+        "\tsensor_init(&ps_i2c0);\n"
+        "\t/* S3-DIAG2: I2C 控制器寄存器 + 整总线扫描 + CHIP ID 重试读取。\n"
+        "\t * 只读探测：用于区分“I2C 总线/连接不通（无任何 ACK）”与“器件存在但地址/配置不符”。*/\n"
+        "\t{\n"
+        "\t\tXIicPs *s3_iic = &ps_i2c0;\n"
+        "\t\tint s3_a, s3_s, s3_s2;\n"
+        "\t\tint s3_found = 0;\n"
+        "\t\tu8 s3_wr[2];\n"
+        "\t\txil_printf(\"S3_DIAG2_IIC_BASE=0x%08X\\r\\n\", (unsigned int)s3_iic->Config.BaseAddress);\n"
+        "\t\txil_printf(\"S3_DIAG2_IIC_CR=0x%08X SR=0x%08X ISR=0x%08X\\r\\n\",\n"
+        "\t\t\t(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_CR_OFFSET),\n"
+        "\t\t\t(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_SR_OFFSET),\n"
+        "\t\t\t(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_ISR_OFFSET));\n"
+        "\t\tfor (s3_a = 0x08; s3_a < 0x78; s3_a++) {\n"
+        "\t\t\tu8 s3_rd = 0;\n"
+        "\t\t\ts3_wr[0] = 0x30; s3_wr[1] = 0x0A;\n"
+        "\t\t\ts3_s = XIicPs_MasterSendPolled(s3_iic, s3_wr, 2, (u8)s3_a);\n"
+        "\t\t\twhile (XIicPs_BusIsBusy(s3_iic));\n"
+        "\t\t\tif (s3_s != XST_SUCCESS) { continue; }\n"
+        "\t\t\ts3_s2 = XIicPs_MasterRecvPolled(s3_iic, &s3_rd, 1, (u8)s3_a);\n"
+        "\t\t\twhile (XIicPs_BusIsBusy(s3_iic));\n"
+        "\t\t\txil_printf(\"S3_DIAG2_DEV=0x%02X recv=%d val=0x%02X\\r\\n\", s3_a, s3_s2, s3_rd);\n"
+        "\t\t\ts3_found++;\n"
+        "\t\t}\n"
+        "\t\txil_printf(\"S3_DIAG2_SCAN_ACK_COUNT=%d\\r\\n\", s3_found);\n"
+        "\t\t{\n"
+        "\t\t\tint s3_t;\n"
+        "\t\t\tfor (s3_t = 0; s3_t < 3; s3_t++) {\n"
+        "\t\t\t\tu8 s3_h = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300A);\n"
+        "\t\t\t\tu8 s3_l = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300B);\n"
+        "\t\t\t\txil_printf(\"S3_DIAG2_CHIPID_TRY%d=0x%02X%02X\\r\\n\", s3_t, s3_h, s3_l);\n"
+        "\t\t\t\tusleep(200000);\n"
+        "\t\t\t}\n"
+        "\t\t}\n"
+        "\t}\n"
+        "\t/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */\n",
+    ),
 ]
 
 for old, new in insertions:

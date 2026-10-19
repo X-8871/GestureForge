@@ -950,6 +950,20 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertTrue(thumb_controller.record["csr_reentry"]["current_app_pc"]["thumb_state"])
 
         trace.clear()
+        state.update(cpu0="Stopped (Suspended)", cpu1="Stopped (Suspended)")
+        execution.update(pc=0x100000, cpsr=0)
+        stopped_controller = Controller()
+        with mock.patch.object(runner, "verify_binding", side_effect=verify_app):
+            stopped_result = runner.execute_board_flow(stopped_controller, FakeWire(trace), self.config(), checked,
+                                                       Apis, scope="csr")
+        self.assertEqual(stopped_result["status"], "PASS_CSR_RECOVERY_SCOPE_ONLY")
+        self.assertEqual(stopped_controller.record["csr_reentry"]["stop_status"], "ALREADY_STOPPED")
+        self.assertIsNone(stopped_controller.record["csr_reentry"]["stop_call_index"])
+        self.assertNotIn("cpu0_stop_api", trace)
+        self.assertLess(trace.index("words_1048576_4"), trace.index("select_and_gate"))
+        self.assertLess(trace.index("select_and_gate"), trace.index("system_reset_stop"))
+
+        trace.clear()
         state.update(cpu0="Running", cpu1="Stopped (Suspended)")
         identity["ARM Cortex-A9 MPCore #0"]["jtag_cable_serial"] = "different-live-chain"
         mismatch_controller = Controller()

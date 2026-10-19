@@ -24,9 +24,9 @@ import traceback
 ROOT = Path(__file__).absolute().parents[1]
 EVIDENCE_PARENT = ROOT / "report/evidence/S2B-T18"
 TZ = timezone(timedelta(hours=8))
-JTAG_SOURCE_SHA256 = "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+JTAG_SOURCE_SHA256 = "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
 CSR_MAP_HELPER_SOURCE_SHA256 = "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
-CSR_FLOW_SOURCE_SHA256 = "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b"
+CSR_FLOW_SOURCE_SHA256 = "4bca21540393fe4a3a405faea0504bee5be97f8baf807fa1d2851f31d7ebab7e"
 CSR_BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
 CSR_BUSY_SOURCE_SHA256 = "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
 # 正式G0与统一冷生命周期回执固定到本轮独立审查原件；不代表109/1000或阶段验收已通过。
@@ -950,7 +950,8 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
                 before_cpu0 = controller.state("cpu0")
                 before_cpu1 = controller.state("cpu1")
                 require(before_cpu1.startswith("Stopped"), "CSR重入前CPU1未停止")
-                require(before_cpu0 == "Running", "CSR重入当前CPU0不是已运行应用")
+                require(before_cpu0 == "Running" or before_cpu0.startswith("Stopped"),
+                        "CSR重入当前CPU0状态既非运行也非停机")
                 app_path, app_raw = verify_binding(reentry["artifact_bindings"]["app_elf"],
                                                    "CSR重入绑定应用ELF", max_bytes=64 * 1024 * 1024)
                 app_elf = apis.elf_parser.parse_elf(app_raw)
@@ -988,14 +989,19 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
                          "continuity_limit": "历史R02之后无法从本机日志全面证明未发生外部硬件控制；本次仅以当前完整目标链、CPU状态、JTAG启动模式及PC/指令与绑定ELF一致作现场核验。",
                          "before_cpu0": before_cpu0, "before_cpu1": before_cpu1,
                          "stop_status": "NOT_REQUESTED"}
-                controller.call("cpu0.stop.csr_reentry", controller.targets["cpu0"].stop)
+                stop_call_index = None
+                if before_cpu0 == "Running":
+                    controller.call("cpu0.stop.csr_reentry", controller.targets["cpu0"].stop)
+                    stop_call_index = len(controller.record["calls"]) - 1
+                    event["stop_status"] = "RETURNED"
+                else:
+                    event["stop_status"] = "ALREADY_STOPPED"
                 after_cpu0 = controller.state("cpu0")
                 after_cpu1 = controller.state("cpu1")
                 require(after_cpu0.startswith("Stopped") and after_cpu1.startswith("Stopped"),
                         "CSR重入stop后CPU0/CPU1未全部停止")
-                event.update(stop_status="RETURNED", after_cpu0=after_cpu0,
-                             after_cpu1=after_cpu1,
-                             stop_call_index=len(controller.record["calls"]) - 3)
+                event.update(after_cpu0=after_cpu0, after_cpu1=after_cpu1,
+                             stop_call_index=stop_call_index)
                 controller.record["csr_reentry"] = event
                 return event
             reentry_evidence = controller.guarded(stop_prior_model_app)

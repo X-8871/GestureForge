@@ -24,6 +24,15 @@
 - **寄存器回读证据**：dynclk STATUS bit0=1（RUNNING）、LOCK_L=0x7E8FA401；VDMA CR=0x00010001（RS=1）、VDMASR=0x00011000（Halted=0）；v_tc CTRL=0x03F7EF06；帧缓冲 0x26CBC0 起为图像数据 → 显示通路已在实物上被配置并运行。
 - 证据入口：`report/evidence/S3-T03/t03b_hdmi_build_20261020_r01/`（build_report.json、bringup_record.md）；运行现场 `tmp/s3r06/t03b_hdmi_20261020_r01/`；厂商工程调研 `report/evidence/S3-T01/survey_20261020_r01/vendor_project_survey.md`。
 
+## 本轮已完成（S3-T04/T05 硬件侧）
+
+- 官方 `22_ov5640_single`（AN5642 单通道采集→VDMA/DDR→HDMI 直通）在 `xc7z020clg400-2` 上**构建成功**（run `tmp/s3r06/t04_camera_20261020_r03`）：01:02:00→01:11:02、exit 0、synth/impl/bitstream/XSA 全出；WNS=1.1200、WHS=0.0411、TNS/THS=0；LUT 10.43%、FF 8.77%、BRAM 10.36%、IOB 18.40%、DRC 0 error；峰值内存 2564 MB。
+- 产物：bitstream SHA-256 `5f6d357d57fa4b206390103ed6fcc90d5fbbca310c471ce3c956c09aa4f10738`（1,714,005 B，压缩开启）；XSA `5e0663b661611f1d44dcff600f90553150a8623f23470426dba1cffdbc2db9a7`。
+- 两个必须记住的工具事实：① **BASIC 许可不支持 >5 probes 的 ILA**（`Chipscope 16-620`），厂商 `alinx_ov5640` IP 的 `DEBUG_OV5640` 默认 true 会内嵌 ila_0，必须在 BD 上设 `CONFIG.DEBUG_OV5640=false`；② OOC 子 run 偶发启动期 `ERROR [Common 17-354] Could not open 'C' for writing` + `tclapp::load_apps` failed（非 IP 专属，r01/r03 各命中 2 个 run），**reset_run + 重新 launch_runs 重试可通过**，根因未定位。
+- 外设基址（软件侧必须用 T04 自己的 XSA 生成 BSP）：显示 `axi_vdma_0` 0x4300_0000、摄像头 `axi_vdma_1` 0x4301_0000、`cmos_rst` 0x4120_0000、`v_tc` 0x43C0_0000、`axi_dynclk` 0x43C1_0000；显示模式 `VMODE_1280x720`（固定，不读 EDID）；显示与采集共用同一帧缓冲（官方例程口径，快速运动可能撕裂）。
+- 应用诊断补丁 `board/stage3/software/sensor/s3_t04_app_diag.patch`（4 条 S3_DIAG UART 打印，已验证可干净应用）；UART 抓取 `scripts/stage3_t03b/read_uart.py`（COM4@115200）；板测步骤 `board/stage3/board_test_runbook.md`。
+- 证据入口：`report/evidence/S3-T04/t04_camera_build_20261020_r03/build_report.json`。
+
 ## 可复用命令（Git Bash）
 
 ```bash
@@ -44,7 +53,9 @@ bash scripts/stage3_t03b/run_xsdb.sh <脚本.tcl>                   # JTAG/寄�
 - **T03 实物关口未闭合**：Wong 2026-10-20 明确“没接显示器”，HDMI 物理画面/EDID/显示器兼容未验证；不得记为 T03 实物通过。
 - `CRITICAL WARNING [Timing 38-249]`：`rgb2dvi_0/U0/SerialClk` 生成时钟与 `axi_dynclk_0_PXL_CLK_O` 无逻辑路径（厂商原 XDC 未声明 PixelClk→SerialClk ×5 关系）。DRC 0 error、时序为正，但不等价于完整 I/O 时序签核。
 - 旧 `scripts/s3_implement_hdmi_only_diag.tcl` 链路锁定 XA/-1I 且不产出比特流，**不得**作为活动构建入口复用。
-- 软件侧 ELF 流程（HSI + make）尚需封装为可重放脚本；T04 应用必须在 T04 的 XSA 上重新生成 BSP（外设地址/ID 不同）。
+- 软件侧 ELF 流程（HSI + make）尚需封装为可重放脚本；T04 应用必须用 T04 的 XSA 重新生成 BSP（外设地址/ID 不同）。**T04 摄像头应用 ELF 尚未产出**，这是第一版上板的最后一块。
+- 厂商缓存 `tmp/stage3_reference/AX7020_2023.1` 出现 7 个未跟踪新增文件（`14_vdma_hdmi_out/Vitis/` 下的 design_1_wrapper.bit 与 ps7_init.*，2026-10-20 00:38:08，软件侧 HSI 解包所致）：已跟踪源文件未被修改、未被删除；已在 T04 证据中声明归属，后续解包一律放 `tmp/s3r06/`。
+- T04 未上板：摄像头与显示器未接，实物画面未验证。
 - 与 2B 的硬件互斥：2B 名义持有 hw_server/JTAG/COM4；本轮开工时无 hw_server 运行，已发跨方请求 `report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261020-003-stage3-jtag-com4-request.md`，未收到回执前不再假设独占。
 
 ## 下一步

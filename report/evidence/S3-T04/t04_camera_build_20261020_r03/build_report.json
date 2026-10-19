@@ -1,0 +1,128 @@
+{
+  "schema": "stage3_t04_camera_build_record_v1",
+  "task_id": "S3-T04/T05",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "worktree": "D:/codex-worktrees/dbdf",
+  "branch": "codex/stage3-video",
+  "goal": "官方 22_ov5640_single（AN5642 单通道采集→VDMA/DDR→HDMI 原始画面直通）在现行器件 xc7z020clg400-2 上重建到比特流",
+  "vendor_source": {
+    "repository": "https://github.com/alinxalinx/AX7020_2023.1",
+    "commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "cache": "tmp/stage3_reference/AX7020_2023.1",
+    "project": "course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "cache_tracked_content_unchanged": true,
+    "cache_untracked_additions": [
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/design_1_wrapper.bit",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init.c",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init.h",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init.html",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init.tcl",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init_gpl.c",
+      "course_s2_vitis/14_vdma_hdmi_out/Vitis/ps7_init_gpl.h"
+    ],
+    "cache_untracked_note": "时间 2026-10-20 00:38:08，为软件侧 HSI 流程解包 XSA 时写入厂商缓存目录（已向该执行者确认中）；只新增未跟踪文件，未修改任何已跟踪源文件，未删除"
+  },
+  "build_attempts": [
+    {
+      "run": "tmp/s3r06/t04_camera_20261020_r01",
+      "result": "FAILED",
+      "root_causes": [
+        "BASIC 许可不支持厂商 OV5640 IP 内嵌 ILA（>5 probes）：ERROR [Chipscope 16-620]",
+        "两个 OOC run 启动期 ERROR [Common 17-1257/17-354] 'Failed to create directory C' / 'Could not open C for writing' + 'tclapp::load_apps' failed（rgb2dvi、axi_vdma_0）"
+      ],
+      "note": "失败现场保留，不覆盖"
+    },
+    {
+      "run": "tmp/s3r06/t04_camera_20261020_r02",
+      "result": "PARTIAL",
+      "detail": "synth_1 100% Complete（ILA 已关闭，OOC 全部通过），但构建脚本内 for 循环缺 next 子句导致在实现前退出",
+      "note": "现场保留"
+    },
+    {
+      "run": "tmp/s3r06/t04_camera_20261020_r03",
+      "result": "PASS",
+      "exit_code": 0,
+      "detail": "synth_1 Complete、impl_1 write_bitstream Complete、XSA 生成；首轮 OOC 中 axis_subset_converter 与 v_tc 再次命中 'Could not open C' 错误，经 reset_run + 重试后通过"
+    }
+  ],
+  "fixes_applied": [
+    {
+      "fix": "BD 单元格 alinx_ov5640_0 设 CONFIG.DEBUG_OV5640=false",
+      "reason": "官方 RTL alinx_ov5640.v 中 DEBUG_OV5640 为 parameter（默认 1），为 1 时 generate 实例化 ila_0（>5 probes），BASIC 许可不覆盖该 ILA 特性",
+      "evidence": "report/…/r01 的 OOC 日志 ERROR [Chipscope 16-620]；r02 起同样 OOC 不再出现该错误"
+    },
+    {
+      "fix": "OOC/实现失败重试：catch wait_on_run + 对 PROGRESS!=100% 的 run 执行 reset_run 后重新 launch_runs（最多 2 轮）",
+      "reason": "OOC 子进程偶发启动期目录/tclapp 错误，非设计问题；实测重试可恢复"
+    }
+  ],
+  "build": {
+    "run_dir": "tmp/s3r06/t04_camera_20261020_r03",
+    "tcl": "scripts/stage3_t04/build_t04_camera.tcl",
+    "runner": "scripts/stage3_t04/run_t04_camera_build.sh（Git Bash）",
+    "started_local": "2026-10-20 01:02:00",
+    "exited_local": "2026-10-20 01:11:02",
+    "exit_code": 0,
+    "part": "xc7z020clg400-2",
+    "synth_1_status": "synth_design Complete!",
+    "impl_1_status": "write_bitstream Complete!",
+    "timing": {"wns_ns": 1.120044, "tns_ns": 0.0, "whs_ns": 0.041095, "ths_ns": 0.0},
+    "utilization_impl": {
+      "slice_luts": "5548 / 53200 (10.43%)",
+      "slice_registers": "9333 / 106400 (8.77%)",
+      "block_ram_tile": "14.5 / 140 (10.36%)",
+      "dsps": "0 / 220 (0.00%)",
+      "bonded_iob": "23 / 125 (18.40%)",
+      "bufgctrl": "3 / 32 (9.38%)"
+    },
+    "drc": {"errors": 0},
+    "peak_memory_mb": 2564,
+    "warnings_open": [
+      "CRITICAL WARNING [Timing 38-249] rgb2dvi SerialClk 生成时钟与 axi_dynclk PXL_CLK_O 无逻辑路径（同 T03，约束建模问题）",
+      "WARNING [Vivado 12-507] No nets matched 'cmos1_pclk_IBUF'（an5642.xdc:39，综合前层级未展开；该文件被标为 implementation-specific，实现阶段再生效）",
+      "WARNING [Timing 38-436] 设计含 set_bus_skew 约束，需 report_bus_skew 核验（未做）"
+    ]
+  },
+  "artifacts": {
+    "bitstream": {
+      "path": "tmp/s3r06/t04_camera_20261020_r03/project/ov5640_single.runs/impl_1/design_1_wrapper.bit",
+      "bytes": 1714005,
+      "sha256": "5f6d357d57fa4b206390103ed6fcc90d5fbbca310c471ce3c956c09aa4f10738",
+      "note": "bitstream 压缩已启用（system.xdc: BITSTREAM.GENERAL.COMPRESS TRUE），故体积小于 T03"
+    },
+    "xsa": {
+      "path": "tmp/s3r06/t04_camera_20261020_r03/design_1_wrapper.xsa",
+      "bytes": 628215,
+      "sha256": "5e0663b661611f1d44dcff600f90553150a8623f23470426dba1cffdbc2db9a7",
+      "contains": ["design_1_wrapper.bit", "ps7_init.tcl", "ps7_init.c", "ps7_init.h"]
+    },
+    "app_source_for_elf": {
+      "dir": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single",
+      "diag_patch": "board/stage3/software/sensor/s3_t04_app_diag.patch",
+      "diag_patch_verified_applies_cleanly": true,
+      "diagnostic_prints": ["S3_DIAG_APP_ENTER", "S3_DIAG_SENSOR_ID=0x%02X%02X", "S3_DIAG_DISPLAY_START status=%d", "S3_DIAG_VDMA_WRITE_STARTED"]
+    }
+  },
+  "peripheral_map_for_software_check": {
+    "axi_vdma_0_display_mm2s": "0x4300_0000",
+    "axi_vdma_1_camera_s2mm": "0x4301_0000",
+    "cmos_rst": "0x4120_0000",
+    "v_tc": "0x43C0_0000",
+    "axi_dynclk": "0x43C1_0000",
+    "display_mode": "VMODE_1280x720（display_ctrl.c 固定，不依赖 EDID）",
+    "single_framebuffer": "显示 VDMA 与摄像头 VDMA 共用同一帧缓冲（官方例程口径），快速运动可能撕裂"
+  },
+  "classification": "T04/T05 硬件工程构建通过（synth/impl/bitstream/XSA，时序为正、DRC 0 error）；摄像头应用 ELF 与实物画面尚未完成，G3 未闭合",
+  "limitations": [
+    "未上板：摄像头未接，HDMI 实物画面未验证；应用 ELF 待软件侧产出。",
+    "OOC 子 run 偶发 'Could not open C'（tclapp::load_apps）未找到根因，仅以重试规避；不代表已修复。",
+    "Timing 38-249 与 bus skew 未核验；未做 CDC/methodology 完整审查。",
+    "未做 ≥30 分钟耐久、未测丢帧与撕裂口径。"
+  ],
+  "next": [
+    "软件侧用 r03 XSA 产出摄像头应用 ELF（含诊断补丁）",
+    "Wong 断电后接 J10 摄像头与 HDMI 显示器，阶段3总控执行 JTAG 下载并读 UART 诊断行",
+    "画面正常后补 T03/T04 的实物证据（照片/UART/寄存器回读）"
+  ]
+}

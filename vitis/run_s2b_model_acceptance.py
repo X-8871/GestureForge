@@ -31,8 +31,8 @@ CSR_FLOW_SOURCE_SHA256 = "4bca21540393fe4a3a405faea0504bee5be97f8baf807fa1d2851f
 CSR_BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
 CSR_BUSY_SOURCE_SHA256 = "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
 # 正式G0与统一冷生命周期回执固定到本轮独立审查原件；不代表109/1000或阶段验收已通过。
-G0_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_execution_review_20261018_r02/g0_receipt_r02.json"
-G0_BASIS_SHA256: str | None = "cf8366cee925bc67751b751107afeb91c2b73b732864abc76d84a7fe2b1a078b"
+G0_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_g0_refresh_20261019_r01/g0_receipt_csr_r04.json"
+G0_BASIS_SHA256: str | None = "45369c180f6b5de585dea35c4d5ac6b0655b80f5be0c5a100960d737b929bd79"
 COLD_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_review_20261018_r01/cold_lifecycle_receipt.json"
 COLD_BASIS_SHA256: str | None = "62dd8423a9f29446845f1c30236e599104f366a1bafed8ddc7287a85b100c9e2"
 CONTROLLER_BINDING_KEYS = {

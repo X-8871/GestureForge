@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T20",
+  "run_id": "csr_geometry_fix_20261019_r10",
+  "source_commit": "83f7da0bb95fd990d2c07fefde56043f93dbb7b6",
+  "evidence_dir": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本运行只验证CSR host helper代码及离线夹具，不验收或消费外部接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/regression_result.json",
+      "sha256": "aea01866036d9fd98d8d6d9a61d9ab04412e6a43ecd707990ad39ab54fab4f1d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/vitis_regression.txt",
+      "sha256": "88e8596a37e8847d557957f6a9f35c764bdaccf7e8f33330d8c28640315f3fb8",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/test_launcher.py",
+      "sha256": "486e93da0923d734583faca905167ec3d6fd7eff25fb86696886d4b1545fd0c0",
+      "role": "input"
+    },
+    {
+      "path": "verification/s2b_csr_acceptance_flow.py",
+      "sha256": "632b137e27c73fe6e648a49ab77a98bda31f4e5c36d0c3b241dd561e0fab11a9",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_board_acceptance.py",
+      "sha256": "2384c4c001f82b8c877c0b861f97c356483ec4d5b627b7d8b6ef286b6fdb368b",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_busy_observer.py",
+      "sha256": "e51dcf4360fe3f14805cc2e873449bc9b4367a92d40c2b06965f1e6cd68b2a20",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_board_acceptance.py",
+      "sha256": "84afa6103fc96fdb422a1b3730e71833b90c1d997ef89b1312f1ba060e8f8d51",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_busy_observer.py",
+      "sha256": "f941476878dbfca027a4f987711e22bbcafd7ca211c59caebeb01b9dfc4810c5",
+      "role": "source"
+    },
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "629c0595d0f415868d60cecd72358a98ab6cc2c1fefdc0ce12ab780e43c91794",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "CSR几何绑定官方Vitis回归",
+      "status": "PASS",
+      "command": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat -s D:\\FPGA_Competition\\w2b\\tmp\\2B\\run_csr_receipt_regression.py",
+      "exit_code": 0,
+      "reason": "199项回归全部通过，含CSR board acceptance、busy observer、JTAG及runner测试。"
+    }
+  ],
+  "tool_versions": {
+    "Vitis": "2026.1",
+    "Python": "3.13",
+    "PowerShell": "7.6.5"
+  },
+  "limitations": [
+    "仅离线CSR helper回归，不代表修复后实板busy START、完整CSR异常恢复或阶段G4/G5通过。"
+  ]
+}

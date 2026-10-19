@@ -1087,7 +1087,7 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                       "deadline_profile": deadlines}
         cold_receipt = {"schema_version": 1, "status": "PASS", "role": "INDEPENDENT_REVIEWER",
                         "scope": "S2B_T18_UNIFIED_COLD_LIFECYCLE",
-                        "controller_source_sha256": runner.JTAG_SOURCE_SHA256,
+                        "controller_source_sha256": runner.COLD_RECEIPT_CONTROLLER_SHA256,
                         "reset_method": "PHYSICAL_POR", "evidence_kind": "PHYSICAL_HARD_RESET_POR",
                         "hard_reset_proven": True, "cold_lifecycle_proven": True, "evidence": evidence}
         g0_path.write_text(json.dumps(g0_receipt), encoding="utf-8")

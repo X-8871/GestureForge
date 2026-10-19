@@ -25,6 +25,7 @@ ROOT = Path(__file__).absolute().parents[1]
 EVIDENCE_PARENT = ROOT / "report/evidence/S2B-T18"
 TZ = timezone(timedelta(hours=8))
 JTAG_SOURCE_SHA256 = "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
+COLD_RECEIPT_CONTROLLER_SHA256 = "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
 CSR_MAP_HELPER_SOURCE_SHA256 = "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
 CSR_FLOW_SOURCE_SHA256 = "4bca21540393fe4a3a405faea0504bee5be97f8baf807fa1d2851f31d7ebab7e"
 CSR_BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
@@ -348,8 +349,8 @@ def _validate_cold_receipt(receipt: object) -> None:
     require(type(receipt["schema_version"]) is int and receipt["schema_version"] == 1 and
             receipt["status"] == "PASS" and receipt["role"] == "INDEPENDENT_REVIEWER" and
             receipt["scope"] == "S2B_T18_UNIFIED_COLD_LIFECYCLE", "冷生命周期 receipt 审批身份或范围错误")
-    require(receipt["controller_source_sha256"] == JTAG_SOURCE_SHA256,
-            "冷生命周期 receipt controller SHA 与已审 T16 源不符")
+    require(receipt["controller_source_sha256"] == COLD_RECEIPT_CONTROLLER_SHA256,
+            "冷生命周期 receipt controller SHA 与其审查时的 T16 源不符")
     require(receipt["reset_method"] == "PHYSICAL_POR" and
             receipt["evidence_kind"] == "PHYSICAL_HARD_RESET_POR" and
             receipt["hard_reset_proven"] is True and receipt["cold_lifecycle_proven"] is True,

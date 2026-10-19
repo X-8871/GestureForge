@@ -11,11 +11,11 @@ set ::s3_expected_board_xdc_sha256 D8FD1B1AD450BC44C25AECB0EF2AE3ECE67EB1F718B60
 set ::s3_classification DIAGNOSTIC_ONLY_NO_BITSTREAM_NO_BOARD_NO_TIMING_SIGNOFF
 
 proc s3_read_utf8_secure {path} {
-    set channel [open $path r]
-    fconfigure $channel -encoding utf-8 -translation auto
-    set value [read $channel]
-    close $channel
-    return $value
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {
+        error "SECURE_INPUT_READ_RUN_ROOT_MISSING"
+    }
+    set record [s3_secure_io_read_record read-input $::s3_state(output) $path]
+    return [encoding convertfrom utf-8 [dict get $record bytes]]
 }
 
 proc s3_write_utf8_secure {path value} {
@@ -31,46 +31,61 @@ proc s3_write_sentinel {path value} {
 }
 
 proc s3_read_binary {path} {
-    set channel [open $path rb]
-    fconfigure $channel -translation binary -encoding binary
-    set value [read $channel]
-    close $channel
-    return $value
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {
+        error "SECURE_BINARY_READ_RUN_ROOT_MISSING"
+    }
+    set record [s3_secure_io_read_record read-input $::s3_state(output) $path]
+    return [dict get $record bytes]
+}
+
+proc s3_secure_io_command {operation args} {
+    foreach variable {STAGE3_T03_DOTNET_EXE STAGE3_T03_HELPER_DLL} {
+        if {![info exists ::env($variable)] || $::env($variable) eq ""} {
+            error "SECURE_IO_ENVIRONMENT_VARIABLE_MISSING: $variable"
+        }
+    }
+    if {![file isfile $::env(STAGE3_T03_DOTNET_EXE)] || ![file isfile $::env(STAGE3_T03_HELPER_DLL)]} {
+        error "SECURE_IO_DOTNET_OR_HELPER_FILE_MISSING"
+    }
+    return [concat [list $::env(STAGE3_T03_DOTNET_EXE) $::env(STAGE3_T03_HELPER_DLL) secure-io $operation] $args]
+}
+
+proc s3_secure_io_exec {operation args} {
+    set command [s3_secure_io_command $operation {*}$args]
+    if {[catch {set output [exec {*}$command 2>@1]} error_text]} {
+        error "SECURE_IO_COMMAND_FAILED: $operation; $error_text"
+    }
+    return $output
+}
+
+proc s3_secure_io_exec_stdin {operation bytes args} {
+    set command [s3_secure_io_command $operation {*}$args]
+    set encoded_bytes [binary encode base64 -maxlen 0 $bytes]
+    if {[catch {set output [exec {*}$command << $encoded_bytes 2>@1]} error_text]} {
+        error "SECURE_IO_COMMAND_FAILED: $operation; $error_text"
+    }
+    return $output
+}
+
+proc s3_secure_io_read_record {operation run_root path} {
+    set output [s3_secure_io_exec $operation $run_root $path]
+    if {![regexp {^S3_SECURE_READ=([A-Fa-f0-9]{64}):([A-Za-z0-9+/]*={0,2})$} [string trim $output] -> digest encoded]} {
+        error "SECURE_IO_READ_BAD_RESULT: $path; $output"
+    }
+    return [dict create sha256 [string toupper $digest] bytes [binary decode base64 $encoded]]
 }
 
 proc s3_secure_write_bytes {path bytes mode} {
     if {$mode ni {CreateNew OpenExisting}} {error "INVALID_SECURE_FILE_MODE: $mode"}
-    if {![info exists ::s3_repo_root] || ![file isfile [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]]} {
-        error "SECURE_FILE_HELPER_NOT_FOUND"
-    }
-    set helper [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]
-    if {[info exists ::s3_state(output)] && $::s3_state(output) ne ""} {
-        set secure_root $::s3_state(output)
-    } else {
-        set secure_root [file dirname $path]
-    }
-    set command [list powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $helper \
-        -SecureHelper -SecurePath $path -SecureRoot $secure_root -SecureMode $mode]
-    set encoded_bytes [binary encode base64 -maxlen 0 $bytes]
-    if {[catch {set output [exec {*}$command << $encoded_bytes]} err]} {
-        error "SECURE_FILE_WRITE_FAILED: $path; $err"
-    }
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {error "SECURE_WRITE_RUN_ROOT_MISSING"}
+    set output [s3_secure_io_exec_stdin write $bytes $::s3_state(output) $path $mode]
     if {[string trim $output] ne "S3_SECURE_WRITE=PASS"} {
         error "SECURE_FILE_WRITE_BAD_RESULT: $path; $output"
     }
 }
 
 proc s3_secure_write_hash {path bytes root} {
-    if {![info exists ::s3_repo_root] || ![file isfile [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]]} {
-        error "SECURE_HASH_WRITE_HELPER_NOT_FOUND"
-    }
-    set helper [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]
-    set command [list powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $helper \
-        -SecureHelper -SecureHashOnWrite -SecurePath $path -SecureRoot $root -SecureMode OpenExisting]
-    set encoded_bytes [binary encode base64 -maxlen 0 $bytes]
-    if {[catch {set output [exec {*}$command << $encoded_bytes]} error_text]} {
-        error "SECURE_HASH_WRITE_FAILED: $path; $error_text"
-    }
+    set output [s3_secure_io_exec_stdin write-hash $bytes $root $path OpenExisting]
     if {![regexp {^S3_SECURE_WRITE=PASS:([A-Fa-f0-9]{64})$} [string trim $output] -> digest]} {
         error "SECURE_HASH_WRITE_BAD_RESULT: $path; $output"
     }
@@ -78,20 +93,24 @@ proc s3_secure_write_hash {path bytes root} {
 }
 
 proc s3_secure_read_utf8 {path root} {
-    if {![info exists ::s3_repo_root] || ![file isfile [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]]} {
-        error "SECURE_READ_HELPER_NOT_FOUND"
+    set record [s3_secure_io_read_record read $root $path]
+    return [dict create sha256 [dict get $record sha256] text [encoding convertfrom utf-8 [dict get $record bytes]]]
+}
+
+proc s3_secure_create_directory {run_root path} {
+    set output [s3_secure_io_exec create-directory $run_root $path]
+    if {![regexp {^S3_SECURE_DIRECTORY_CREATE=PASS:(.+)$} [string trim $output] -> actual_path] ||
+        [s3_normalized_key $actual_path] ne [s3_normalized_key $path]} {
+        error "SECURE_DIRECTORY_CREATE_BAD_RESULT: $path; $output"
     }
-    set helper [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]
-    set command [list powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $helper \
-        -SecureReadHelper -SecurePath $path -SecureRoot $root]
-    if {[catch {set output [exec {*}$command 2>@1]} error_text]} {
-        error "SECURE_READ_FAILED: $path; $error_text"
+}
+
+proc s3_secure_create_run_root {path} {
+    set output [s3_secure_io_exec create-run-root $path]
+    if {![regexp {^S3_SECURE_DIRECTORY_CREATE=PASS:(.+)$} [string trim $output] -> actual_path] ||
+        [s3_normalized_key $actual_path] ne [s3_normalized_key $path]} {
+        error "SECURE_RUN_ROOT_CREATE_BAD_RESULT: $path; $output"
     }
-    if {![regexp {^S3_SECURE_READ=([A-Fa-f0-9]{64}):([A-Za-z0-9+/]*={0,2})$} [string trim $output] -> digest encoded]} {
-        error "SECURE_READ_BAD_RESULT: $path; $output"
-    }
-    set bytes [binary decode base64 $encoded]
-    return [dict create sha256 [string toupper $digest] text [encoding convertfrom utf-8 $bytes]]
 }
 
 proc s3_expected_generated_clock_xdc_path {project} {
@@ -438,35 +457,10 @@ proc s3_apply_1080p60_clock_model {} {
     return [dict create xdc_path $xdc_path xdc_sha256 $xdc_sha256 serial_period_ns $serial_period_actual pixel_period_ns $pixel_period_actual]
 }
 
-proc s3_ps_quote {value} {
-    return "'[string map [list "'" "''"] $value]'"
-}
-
-proc s3_sha256_read_mode {path} {
-    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {return Read}
-    set output_root $::s3_state(output)
-    if {[file pathtype $output_root] ne "absolute" || [s3_path_has_traversal $output_root]} {return Read}
-    if {[file pathtype $path] ne "absolute" || [s3_path_has_traversal $path]} {return Read}
-    set output_key [s3_normalized_key $output_root]
-    set path_key [s3_normalized_key $path]
-    if {[string first "${output_key}/" $path_key] == 0} {return ReadWrite}
-    return Read
-}
-
 proc s3_sha256_manifest {paths} {
     if {[llength $paths] == 0} {error "EMPTY_SHA256_INPUT_MANIFEST"}
-    set quoted_read_paths {}
-    set quoted_shared_read_paths {}
-    foreach path $paths {
-        if {[s3_sha256_read_mode $path] eq "ReadWrite"} {
-            lappend quoted_shared_read_paths [s3_ps_quote $path]
-        } else {
-            lappend quoted_read_paths [s3_ps_quote $path]
-        }
-    }
-    set powershell_script "\$ErrorActionPreference='Stop'; \$ProgressPreference='SilentlyContinue'; \$VerbosePreference='SilentlyContinue'; \$readPaths=@([join $quoted_read_paths ,]); \$sharedReadPaths=@([join $quoted_shared_read_paths ,]); function Write-S3Hash(\$p,\$share) { \$sha=\[Security.Cryptography.SHA256\]::Create(); \$stream=\[IO.File\]::Open(\$p,\[IO.FileMode\]::Open,\[IO.FileAccess\]::Read,\$share); try { \$h=\[BitConverter\]::ToString(\$sha.ComputeHash(\$stream)).Replace('-','') } finally { \$stream.Dispose(); \$sha.Dispose() }; Write-Output (\$h + \[char\]9 + \$p) }; foreach (\$p in \$readPaths) { Write-S3Hash \$p (\[IO.FileShare\]::Read) }; foreach (\$p in \$sharedReadPaths) { Write-S3Hash \$p (\[IO.FileShare\]::ReadWrite) }"
-    set encoded [binary encode base64 -maxlen 0 [encoding convertto unicode $powershell_script]]
-    set output [exec powershell.exe -NoLogo -NoProfile -NonInteractive -OutputFormat Text -EncodedCommand $encoded 2>@1]
+    if {![info exists ::s3_state(output)] || $::s3_state(output) eq ""} {error "SHA256_MANIFEST_RUN_ROOT_MISSING"}
+    set output [s3_secure_io_exec hash-files $::s3_state(output) {*}$paths]
     set hashes [dict create]
     foreach line [split [string trim $output "\r\n"] "\n"] {
         set line [string trimright $line "\r"]
@@ -484,21 +478,22 @@ proc s3_sha256_manifest {paths} {
 
 proc s3_tree_sha256_manifest {root} {
     if {![info exists ::s3_state(output)] || $::s3_state(output) eq "" ||
-        [s3_sha256_read_mode $root] ne "ReadWrite"} {
+        ![s3_output_is_authorized_s3r04_child $::s3_repo_root $::s3_state(output)]} {
         error "TREE_SHA256_ROOT_OUTSIDE_VERIFIED_OUTPUT"
     }
-    set helper [file join $::s3_repo_root scripts run_s3_implement_hdmi_only_diag.ps1]
-    if {![file isfile $helper] || ![file isdirectory $root]} {error "SECURE_TREE_SHA256_HELPER_OR_ROOT_NOT_FOUND"}
-    set command [list powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $helper \
-        -SecureTreeHashHelper -SecureRoot $::s3_state(output) -SecureTreeRoot $root]
-    if {[catch {set output [exec {*}$command 2>@1]} error_text]} {
-        error "SECURE_TREE_SHA256_HELPER_FAILED: $error_text"
-    }
+    if {![file isdirectory $root]} {error "SECURE_TREE_SHA256_ROOT_NOT_FOUND"}
+    set output [s3_secure_io_exec tree-hash $::s3_state(output) $root]
     set hashes [dict create]
     set records 0
+    set tree_digest ""
     foreach line [split [string trim $output "\r\n"] "\n"] {
         set line [string trimright $line "\r"]
         if {$line eq ""} {continue}
+        if {[regexp {^S3_SECURE_TREE_ROOT_SHA256=([A-Fa-f0-9]{64})$} $line -> digest]} {
+            if {$tree_digest ne ""} {error "DUPLICATE_SECURE_TREE_ROOT_SHA256"}
+            set tree_digest [string toupper $digest]
+            continue
+        }
         if {![regexp {^S3_SECURE_TREE_SHA256=([A-Fa-f0-9]{64})\t(.+)$} $line -> digest relative]} {
             error "INVALID_SECURE_TREE_SHA256_HELPER_OUTPUT: $line"
         }
@@ -511,9 +506,10 @@ proc s3_tree_sha256_manifest {root} {
         dict set hashes $relative [string toupper $digest]
         incr records
     }
-    if {$records == 0 || [dict size $hashes] != $records} {
+    if {$records == 0 || [dict size $hashes] != $records || ![regexp {^[A-F0-9]{64}$} $tree_digest]} {
         error "SECURE_TREE_SHA256_MANIFEST_CARDINALITY_MISMATCH"
     }
+    set ::s3_state(last_tree_sha256) $tree_digest
     return $hashes
 }
 
@@ -581,17 +577,6 @@ proc s3_load_existing_guard {repo_root} {
     if {![file isfile $validator]} {error "EXISTING_PATH_GUARD_SCRIPT_MISSING"}
     set digest [dict get [s3_sha256_manifest [list $validator]] $validator]
     if {$digest ne $::s3_guard_script_sha256} {error "EXISTING_PATH_GUARD_SCRIPT_SHA256_MISMATCH"}
-
-    set text [s3_read_utf8_secure $validator]
-    set boundary {if {$argc < 2 || $argc > 4}}
-    set index [string first $boundary $text]
-    if {$index < 0} {error "PATH_GUARD_DEFINITION_BOUNDARY_NOT_FOUND"}
-    set definitions [string range $text 0 [expr {$index - 1}]]
-    if {[string first {proc s3_launch_secure_guardian} $definitions] < 0 ||
-        [string first {proc s3_guard_status_dict} $definitions] < 0} {
-        error "PATH_GUARD_PROCEDURES_NOT_FOUND_BEFORE_EXECUTABLE_BODY"
-    }
-    uplevel #0 $definitions
     return $validator
 }
 
@@ -713,17 +698,27 @@ proc s3_validate_guarded_children {guard_data expected_phase} {
 }
 
 proc s3_guarded_output {vendor_root output_dir phase} {
-    set source_root [file join $vendor_root {*}$::s3_source_relative]
     set validator [s3_load_existing_guard $::s3_repo_root]
-    s3_extend_guard_api
-    set guard_phase [expr {$phase eq "prepare-only" ? "hdl_precreated" : "run"}]
-    set status [s3_launch_secure_guardian $vendor_root $source_root $output_dir azynq_metadata $guard_phase]
-    set data [s3_guard_status_dict $status]
-    s3_validate_guarded_children $data $phase
-    if {![dict exists $data OUTPUT] || ![dict exists $data PROJECT] || ![dict exists $data METADATA]} {
-        error "PATH_GUARD_RETURNED_INCOMPLETE_OUTPUT_PATHS"
+    if {[s3_normalized_key $output_dir] ne [s3_normalized_key $::s3_state(output)]} {
+        error "PARENT_GUARDED_OUTPUT_ROOT_MISMATCH"
     }
-    return [dict create output [dict get $data OUTPUT] project [dict get $data PROJECT] metadata [dict get $data METADATA] validator $validator guard_data $data]
+    set children [dict create \
+        project [file join $output_dir project] \
+        metadata [file join $output_dir vendor_ip_metadata] \
+        reports [file join $output_dir reports] \
+        checkpoints [file join $output_dir checkpoints] \
+        sentinels [file join $output_dir sentinels] \
+        inputs [file join $output_dir inputs]]
+    foreach key [dict keys $children] {
+        set path [dict get $children $key]
+        if {![file isdirectory $path]} {error "PARENT_GUARDED_OUTPUT_CHILD_MISSING_$key: $path"}
+    }
+    set metadata_hashes [s3_tree_sha256_manifest [dict get $children metadata]]
+    set metadata_count [dict size $metadata_hashes]
+    if {$metadata_count < 1} {error "PARENT_GUARDED_METADATA_TREE_EMPTY"}
+    set guard_data [dict create METADATA_COUNT $metadata_count METADATA_TREE_SHA256 $::s3_state(last_tree_sha256)]
+    return [dict create output $output_dir project [dict get $children project] \
+        metadata [dict get $children metadata] validator $validator guard_data $guard_data]
 }
 
 proc s3_collect_input_files {vendor_root validator} {
@@ -997,6 +992,7 @@ proc s3_exec_main {vendor_root output_dir action run_id expected_metadata_manife
               ![regexp {^[A-Za-z0-9_]{1,80}$} $prepare_digest_pipe_name]} {
         error "PREPARE_PHASE_MUST_NOT_RECEIVE_METADATA_SHA256_ARGUMENTS"
     }
+    set ::s3_state(output) $output_dir
     set guard [s3_guarded_output $vendor_root $output_dir $action]
     set ::s3_state(output) [dict get $guard output]
     set ::s3_state(project) [dict get $guard project]
@@ -1529,68 +1525,27 @@ proc s3_run_selftest {} {
         lappend failures "metadata tree manifest root mismatch was accepted"
     }
     incr checks
-    set saved_output_exists [info exists ::s3_state(output)]
-    if {$saved_output_exists} {set saved_output $::s3_state(output)}
-    set ::s3_state(output) {C:/repo/tmp/out}
-    if {[s3_sha256_read_mode {C:/repo/tmp/out/inputs/hdmi_out.xdc}] ne "ReadWrite" ||
-        [s3_sha256_read_mode {C:/repo/tmp/outside/inputs/hdmi_out.xdc}] ne "Read" ||
-        [s3_sha256_read_mode {C:/repo/tmp/out/../outside/inputs/hdmi_out.xdc}] ne "Read" ||
-        [s3_sha256_read_mode {relative/inputs/hdmi_out.xdc}] ne "Read"} {
-        lappend failures "SHA256 shared-read mode escaped the absolute output subtree"
-    }
-    set ::s3_state(output) {relative/tmp/out}
-    if {[s3_sha256_read_mode {C:/repo/tmp/out/inputs/hdmi_out.xdc}] ne "Read"} {
-        lappend failures "relative output root enabled shared-write hash reads"
-    }
-    if {$saved_output_exists} {set ::s3_state(output) $saved_output} else {unset ::s3_state(output)}
-    incr checks
-    if {[catch {s3_load_existing_guard .; s3_extend_guard_api} guard_error guard_options]} {
-        lappend failures "verified path-guard API extension failed: $guard_error [dict get $guard_options -errorinfo]"
-    } else {
-        set expected_guard_metadata_digest [string repeat C 64]
-        set synthetic_guard_status "RESULT=PASS_PATH_GUARD_PREPARATION\nMETADATA_TREE_SHA256=$expected_guard_metadata_digest\n"
-        if {[catch {set parsed_guard_status [s3_guard_status_dict $synthetic_guard_status]} guard_status_error] ||
-            [dict get $parsed_guard_status RESULT] ne "PASS_PATH_GUARD_PREPARATION" ||
-            [dict get $parsed_guard_status METADATA_TREE_SHA256] ne $expected_guard_metadata_digest} {
-            lappend failures "secure guard status rejected numeric digest key or changed its value: $guard_status_error"
-        }
-        incr checks
-        if {![catch {s3_guard_status_dict "RESULT=PASS\nBAD-KEY=value\n"} bad_key_error] ||
-            [string first "INVALID_GUARD_STATUS_LINE:" $bad_key_error] != 0} {
-            lappend failures "secure guard status accepted a key containing a disallowed character"
-        }
-        incr checks
-        if {![catch {s3_guard_status_dict "RESULT=PASS\nRESULT=FAIL\n"} duplicate_key_error] ||
-            $duplicate_key_error ne "DUPLICATE_GUARD_STATUS_KEY: RESULT"} {
-            lappend failures "secure guard status did not reject duplicate keys"
-        }
-        incr checks
-        if {![catch {s3_guard_status_dict "METADATA_TREE_SHA256=$expected_guard_metadata_digest\n"} missing_result_error] ||
-            $missing_result_error ne "GUARD_STATUS_MISSING_RESULT"} {
-            lappend failures "secure guard status did not require RESULT"
-        }
-        incr checks
-        set extended_guard_body [info body s3_launch_secure_guardian]
-        foreach required_snippet {{phase == "run"} {phase == "hdl_precreated"} {string runProjectPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "project"));} {string runMetadataPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"));} {string runReportsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"));} {string runCheckpointsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"));} {string runSentinelsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"));} {string runInputsPath = AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"));} {MetadataTreeSha256(metadataPath, manifest)} {METADATA_TREE_SHA256=} {AcquireSubtree(OutputFinal, Join(OutputFinal, "project"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "vendor_ip_metadata"))} {CreateDirectoryChild(OutputFinal, "reports")} {CreateDirectoryChild(OutputFinal, "checkpoints")} {CreateDirectoryChild(OutputFinal, "sentinels")} {CreateDirectoryChild(OutputFinal, "inputs")} {AcquireSubtree(OutputFinal, Join(OutputFinal, "reports"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "checkpoints"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "sentinels"))} {AcquireSubtree(OutputFinal, Join(OutputFinal, "inputs"))}} {
-            if {[string first $required_snippet $extended_guard_body] < 0} {
-                lappend failures "secure guard extension missing required operation: $required_snippet"
-            }
-        }
+    if {![s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/s3r04/fresh_run}] ||
+        [s3_output_is_authorized_s3r04_child {C:/repo} {C:/repo/tmp/s3r04/nested/fresh_run}]} {
+        lappend failures "Tcl output preflight disagrees with the fixed direct-child boundary"
     }
     incr checks
-    set secure_test_dir [file join $::s3_repo_root tmp "s3_t03_tcl_selftest_[pid]_[clock clicks]"]
+    set secure_test_dir [file join $::s3_repo_root tmp s3r04 "s3_t03_tcl_selftest_[pid]_[clock clicks]"]
     if {[file exists $secure_test_dir]} {
         lappend failures "secure-write selftest output collision: $secure_test_dir"
     } else {
-        file mkdir $secure_test_dir
+        s3_secure_create_run_root $secure_test_dir
         set ::s3_state(output) $secure_test_dir
         set ::s3_state(project) [file join $secure_test_dir project]
+        foreach child {project vendor_ip_metadata reports checkpoints sentinels inputs} {
+            s3_secure_create_directory $secure_test_dir [file join $secure_test_dir $child]
+        }
         set owner_text "S3_T03_TCL_SELFTEST_[pid]_[clock clicks]"
-        set owner_path [file join $secure_test_dir .s3_t03_selftest_owner]
+        set owner_path [file join $secure_test_dir project .s3_t03_selftest_owner]
         if {[catch {s3_secure_write_bytes $owner_path [encoding convertto utf-8 $owner_text] CreateNew} owner_error]} {
             lappend failures "secure-write selftest owner marker creation failed: $owner_error"
         }
-        set secure_test_file [file join $secure_test_dir secure_leaf.txt]
+        set secure_test_file [file join $secure_test_dir project secure_leaf.txt]
         if {[catch {s3_secure_write_bytes $secure_test_file [encoding convertto utf-8 first] CreateNew} secure_create_error]} {
             lappend failures "secure CREATE_NEW helper failed: $secure_create_error"
         } elseif {[catch {s3_secure_write_bytes $secure_test_file [encoding convertto utf-8 second] OpenExisting} secure_update_error]} {
@@ -1604,7 +1559,6 @@ proc s3_run_selftest {} {
         }
         incr checks
         set control_dir [file join $secure_test_dir reports]
-        file mkdir $control_dir
         if {[catch {
             set secure_read_record [s3_secure_read_utf8 $secure_test_file $secure_test_dir]
             set hash_manifest [s3_sha256_manifest [list $secure_test_file]]
@@ -1669,24 +1623,11 @@ proc s3_run_selftest {} {
             lappend failures "generated-clock broker test controls could not be securely reset: [join $lease_reset_failures {; }]"
         }
         incr checks
-        incr checks
-        if {[file exists $secure_test_dir]} {
-            set cleanup_helper [file join $::s3_repo_root scripts s3_tcl_selftest_cleanup.ps1]
-            set cleanup_output ""
-            if {![file isfile $cleanup_helper]} {
-                lappend failures "secure-write selftest cleanup helper is missing: $cleanup_helper"
-            } elseif {[catch {set cleanup_output [exec powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -OutputFormat Text -File $cleanup_helper -Root $secure_test_dir -Boundary [file join $::s3_repo_root tmp] -OwnerText $owner_text 2>@1]} cleanup_error]} {
-                lappend failures "secure-write selftest directory cleanup failed: $cleanup_error; OUTPUT=$cleanup_output"
-            } elseif {[string first "SELFTEST_TMP_CLEANUP=PASS" $cleanup_output] < 0} {
-                lappend failures "secure-write selftest cleanup returned unexpected marker: $cleanup_output"
-            }
-            if {![regexp {(?m)^(SELFTEST_EXTERNAL_SENTINEL=UNCHANGED;SHA256=[A-Fa-f0-9]{64})$} $cleanup_output -> sentinel_line]} {
-                lappend failures "secure-write selftest external sentinel regression missing: $cleanup_output"
-            } else {
-                puts $sentinel_line
-            }
+        if {![file isdirectory $secure_test_dir]} {
+            lappend failures "secure-write selftest evidence directory disappeared: $secure_test_dir"
+        } else {
+            puts "SELFTEST_OUTPUT_RETAINED=$secure_test_dir"
         }
-        if {[file exists $secure_test_dir]} {lappend failures "secure-write selftest directory remains after cleanup: $secure_test_dir"}
     }
     incr checks
     if {[llength $failures] != 0} {

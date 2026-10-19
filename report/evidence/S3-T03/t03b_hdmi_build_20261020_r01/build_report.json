@@ -1,0 +1,147 @@
+{
+  "schema": "stage3_t03b_hdmi_build_record_v1",
+  "task_id": "S3-T03b",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "worktree": "D:/codex-worktrees/dbdf",
+  "branch": "codex/stage3-video",
+  "head_at_start": "896e6c7a6bae9571303cd65e08c6176c6baebd12",
+  "device_current_fact": {
+    "user_confirmed": "XC7Z020-2CLG400I",
+    "vivado_part": "xc7z020clg400-2",
+    "jtag_readback_target_name": "xc7z020"
+  },
+  "previous_deviation": {
+    "historical_target_in_this_tree": "xa7z020clg400-1I",
+    "root_cause_of_prior_blockers": "上一轮自设 XA/-1I；BASIC 许可不含 XA 器件（合成时报 Synthesis/xa7z020 无许可），且自定义 IP 的家族声明只在 zynq 家族下原生可用",
+    "vendor_source_native_part": "xc7z020clg400-2（create_project.tcl:39，官方源本来就是本器件）"
+  },
+  "environment": {
+    "vivado": "2026.1 (SW Build 6511674)",
+    "vitis": "2026.1（XSCT 已禁用，见 limitations）",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "license_banner": "A valid Vivado Design Suite BASIC license has been detected. active, expires 07-aug-2027",
+    "launcher": "Git Bash + D:/Xilinx/2026.1/Vivado/bin/vivado（-mode batch）"
+  },
+  "vendor_source": {
+    "repository": "https://github.com/alinxalinx/AX7020_2023.1",
+    "commit": "fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327",
+    "cache": "tmp/stage3_reference/AX7020_2023.1",
+    "cache_git_status_after_build": "clean（构建只读取，未改厂商原件）",
+    "project": "course_s2_vitis/14_vdma_hdmi_out/Vivado/auto_create_project",
+    "files_read_only": ["ps_config.tcl", "pl_config.tcl", "src/constraints/hdmi_out.xdc", "my_ip/**"]
+  },
+  "build": {
+    "run_dir": "tmp/s3r06/t03b_hdmi_20261020_r01",
+    "tcl": "scripts/stage3_t03b/build_t03b_hdmi.tcl",
+    "runner": "scripts/stage3_t03b/run_t03b_hdmi_build.sh（Git Bash）",
+    "started_local": "2026-10-20 00:31:06",
+    "exited_local": "2026-10-20 00:37:53",
+    "wall_seconds_approx": 407,
+    "exit_code": 0,
+    "bd_validated": true,
+    "synth_1_status": "synth_design Complete!",
+    "impl_1_status": "write_bitstream Complete!",
+    "peak_memory_mb": 2488,
+    "timing": {
+      "part": "xc7z020clg400-2",
+      "speed_grade_from_report": "-2",
+      "wns_ns": 1.292533,
+      "tns_ns": 0.0,
+      "whs_ns": 0.01163,
+      "ths_ns": 0.0,
+      "note": "实现后 report_timing_summary 数值；WNS/WHS 均为正，TNS/THS=0"
+    },
+    "utilization_impl": {
+      "slice_luts": "3544 / 53200 (6.66%)",
+      "slice_registers": "6298 / 106400 (5.92%)",
+      "block_ram_tile": "7.5 / 140 (5.36%)",
+      "dsps": "0 / 220 (0.00%)",
+      "bonded_iob": "11 / 125 (8.80%)",
+      "bufgctrl": "2 / 32 (6.25%)"
+    },
+    "drc": {"errors": 0, "source": "report_drc_impl.rpt + write_bitstream 前置 DRC"},
+    "critical_warnings_open": [
+      "Timing 38-249：生成时钟 design_1_i/rgb2dvi_0/U0/SerialClk 与主时钟 axi_dynclk_0_PXL_CLK_O 之间无逻辑路径（约束建模问题，非构建失败；vendor 原 XDC 未声明 PixelClk→SerialClk ×5 关系）"
+    ],
+    "reports": [
+      "report_utilization_synth.rpt",
+      "report_utilization_impl.rpt",
+      "report_timing_summary_impl.rpt",
+      "report_drc_impl.rpt",
+      "report_clock_interaction_impl.rpt",
+      "report_clocks_impl.rpt"
+    ]
+  },
+  "artifacts": {
+    "bitstream": {
+      "path": "tmp/s3r06/t03b_hdmi_20261020_r01/project/vdma_hdmi_out.runs/impl_1/design_1_wrapper.bit",
+      "bytes": 4045771,
+      "sha256": "7143427f99e25ad44b3ead13510b52dd63522f67f8f57e011214408051450d7f"
+    },
+    "xsa": {
+      "path": "tmp/s3r06/t03b_hdmi_20261020_r01/design_1_wrapper.xsa",
+      "bytes": 540174,
+      "sha256": "02174319ba1b6206274fc11b62c3b1d165cd7980b7695661830f7e4c3977b96c",
+      "contains": ["design_1_wrapper.bit", "ps7_init.tcl", "ps7_init.c", "ps7_init.h"]
+    },
+    "elf": {
+      "path": "tmp/s3r06/vitis_rehearsal_r01/proto2_app_out/Empty_Application/vdma_hdmi.elf",
+      "bytes": 1668940,
+      "sha256": "f6686cd7e10a68ecabeedd02b0c4ebc21498f362a77d2bf35c7bc3229fe6aa9f",
+      "built_against_xsa": "tmp/s3r06/t03b_hdmi_20261020_r01/design_1_wrapper.xsa",
+      "verified_symbols": ["main", "DemoPrintTest", "DisplayInitialize", "DisplayStart", "XAxiVdma_CfgInitialize", "Xil_DCacheFlushRange"],
+      "entry": "0x00100000",
+      "producer": "teammate vitis-elf（HSI + make 流程；非 XSCT）"
+    },
+    "ps7_init_tcl_extracted": {
+      "path": "tmp/s3r06/t03b_hdmi_20261020_r01/ps7_init.tcl",
+      "bytes": 36068,
+      "sha256": "ac98ab1a6567897fc8dd2329acf9e78e3f25b378878bd690c8265c9bf2ddb01b"
+    }
+  },
+  "board_bringup": {
+    "authorization": "Wong 2026-10-20 00:3x（UTC+8）直接指示继续阶段3，并已上电、接好 JTAG 与 UART、启动模式 JTAG",
+    "jtag": {
+      "cable": "FTDI USB\\VID_0403&PID_6014\\210512180081",
+      "hw_server": "v2026.1, TCP:127.0.0.1:3121",
+      "targets": ["APU", "ARM Cortex-A9 MPCore #0", "ARM Cortex-A9 MPCore #1", "xc7z020"],
+      "uart_port": "COM4 (Silicon Labs CP210x)"
+    },
+    "download": {
+      "script": "scripts/stage3_t03b/jtag_download_t03.tcl + run_jtag_download_t03.sh",
+      "steps_ok": ["CONNECT", "PS_RESET", "FPGA_PROGRAM", "PS7_INIT_SOURCE", "PS7_INIT_RUN", "PS7_POST_CONFIG", "A9_SELECT", "DOW_ELF", "RUN"],
+      "all_done": true,
+      "log": "tmp/s3r06/t03b_hdmi_20261020_r01/jtag_download/download.log",
+      "non_volatile_writes": false
+    },
+    "register_readback": {
+      "script": "scripts/stage3_t03b/jtag_readback_t03.tcl",
+      "log": "tmp/s3r06/t03b_hdmi_20261020_r01/jtag_download/readback.log",
+      "values": {
+        "DYNCLK_CTRL_0x43C10000": "0x00000001",
+        "DYNCLK_STATUS_0x43C10004": "0x00000001（bit0 RUNNING=1）",
+        "DYNCLK_LOCK_L_0x43C10018": "0x7E8FA401（锁计数）",
+        "DYNCLK_DIV_0x43C10014": "0x00001041",
+        "VDMA_MM2S_CR_0x43000000": "0x00010001（RS=1 运行）",
+        "VDMA_MM2S_VDMASR_0x43000004": "0x00011000（Halted=0）",
+        "VTC_CTRL_0x43C00000": "0x03F7EF06",
+        "VTC_STATUS_0x43C00004": "0x00013000",
+        "FRAMEBUF_0x26CBC0": "0x1B728418（帧缓冲已写入图像数据）"
+      },
+      "interpretation": "PS 应用已在实物上运行并配置 dynclk/VDMA/v_tc，帧缓冲已写入图像；这是板上真实运行的程序化证据"
+    }
+  },
+  "classification": "T03 HDMI 独立画面：构建与 JTAG 启动在实物上完成；显示器未接，物理 HDMI 画面尚未确认（G3 未闭合）",
+  "limitations": [
+    "Wong 2026-10-20 明确回复“没接显示器”，因此 HDMI 物理输出与显示器画面未验证，不得记为 T03 实物通过。",
+    "Vitis 2026.1 的 XSCT 已被禁用（实测 xsct.bat 直接报错退出），本阶段软件侧改走 HSI + make 手工流程；该流程的正式封装与可重放性仍待补。",
+    "T03 ELF 由厂商 14_vdma_hdmi_out 应用源码构建，属于 HDMI 独立画面基线，不是摄像头直通应用。",
+    "Timing 38-249（SerialClk 生成时钟建模）未关闭；DRC 0 error，时序 WNS/WHS 为正，但不能据此宣称完整 I/O 时序签核。",
+    "未做 ≥30 分钟耐久、未测丢帧、未验证 EDID/显示器兼容性（T06 范围）。"
+  ],
+  "next": [
+    "S3-T04/T05：构建官方 22_ov5640_single（摄像头→VDMA→DDR→HDMI 直通），产出 bitstream + XSA + 应用 ELF，再由 Wong 接显示器与摄像头做实物确认。",
+    "Wong 接上显示器后补做 T03 的物理画面确认（可用同一 bitstream + ELF）。"
+  ]
+}

@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-19（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
+更新：2026-10-19 23:40（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
 
 ## 当前目标与阶段
 
@@ -39,7 +39,8 @@
 - Wong 决定 Codex 与 DSH 共用本仓库，按任务轮流独占写（方案 A）；共同规则见 `AGENTS.md`「与 Codex 共享同一工作区」。
 - 接任务方：先读 `AGENTS.md` 与本文件，核对 `git status --short`、`.git/index.lock` 及 Vivado/xsim 进程，再独占修改；结束时更新本段交接行并只提交本轮相关文件。
 - 非接任务方只读复核，不并发写同一文件、不并发提交、不跑重型综合/仿真。
-- 交接行格式：`任务 | 负责人 | 工作树/分支 | 起始提交 | 允许修改范围 | 未提交改动归属 | 状态 | 下一接手方`；当前交接记录见下方「阶段入口与任务归属」。
+- 交接行格式（11 字段）：`任务 | 负责人 | 工作树/分支 | 起始提交 | 允许修改范围 | 未提交改动归属 | 让出声明 | 心跳(UTC+8) | 证据入口 | 恢复命令 | 状态/下一接手方`；状态机 `IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE`；当前交接记录见下方「阶段入口与任务归属」。
+- 独立信箱（2026-10-19 Wong 授权，主目录单写规则的限定例外）：`report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/` **仅 DSH 写**、`codex_mailbox/` **仅 Codex 写**，双方只读对方信箱；仅限跨方请求/回执/接收确认/必要核验证据；唯一编号、不覆盖旧记录；不代表工作树写权交接。首条见 `dsh_mailbox/DSH-20261019-001-mailbox-live.md`。
 - 环境事实（2026-10-17）：DSH 沙箱在 `D:\FPGA_Competition` 的写入授权已修复（仅给当前用户补完全控制，未删除任何条目，回滚脚本在 `D:\dsh_acl_recovery\20261017\`）；Git Bash 的 `bash.exe`/`sh.exe` 在受限沙箱下报 signal pipe Win32 5，改用 git 直调与 Python。用户级 `TEMP`/`TMP` 已设为 `D:\tmp`（2026-10-17，新进程生效，Vivado/xsim/Verilator 共用；已运行进程需重启后才切换）。
 
 ## 阶段入口与任务归属（2026-10-18 核实）
@@ -47,13 +48,15 @@
 | 阶段 | 工作树 | 分支 | HEAD | 状态入口 |
 |---|---|---|---|---|
 | 2A（已冻结） | `D:\FPGA_Competition` | `main` | 见下方冻结提交 | 本文件下方 2A 证据段 |
-| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `5e26eddb`（2026-10-19 只读核实） | `w2b/.codex/STATE.md`及该树最新证据 |
-| 3（未启动） | `D:\codex-worktrees\dbdf` | `codex/stage3-video` | `896e6c7` | 该工作树自身 |
+| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `bca323b1`（2026-10-19 23:40 只读核实；同日由 `75fcc59` 推进至此） | `w2b/.codex/STATE.md`及该树最新证据 |
+| 3（未启动） | `D:\codex-worktrees\dbdf` | `codex/stage3-video` | `896e6c7` | 该工作树自身（存在 9 项 2026-10-03~07 旧未提交改动，开工前须先定归属） |
 | 较早 2B | `D:\codex-worktrees\96a3` | `codex/stage2b-t01-board-audit` | `e26feea` | 仅历史参考 |
 
 - 主目录 STATE 只维护全局状态、任务归属与阶段入口；阶段技术事实以对应工作树 STATE/证据为准，不在此复制全文。
-- 2B 当前恢复观察（2026-10-19）：R14 是历史失败，不能继续称当前阻断。正式 R02 `formal_stress1000_then109_20261018_r02` 已运行；07:49 只读观察为 574 个连续 stress 结果、109 尚未执行，独审仅 `PASS_PREFIX_ONLY`，不是1000/109或G4/G5通过。入口为 `w2b/report/evidence/S2B-T18/resume_observation_20261019_r01/`及实际运行目录；恢复先核实进程完整身份与新日志，不因旧PID/HEAD或本行快照重启任务。用户现优先完成DSH插件适配，2B健康硬件后台保持独占、不干预。
-- 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 结束提交=`b87dd4f`（主提交 `7d56a24`） | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交、待 Codex 只读复核 | 下一接手方=Codex
+- 2B 只读观察（2026-10-19 23:59，DSH）：w2b HEAD=`bca323b1`（23:18:13）、未提交 141 项；**`hw_server` 已于 23:59:15 由 Codex 重建为 PID 33672（父 22712），旧 PID 10116 已退出**；R10 板测脚本（`python.exe` 12516，23:25:41 起）于 23:44~23:59 之间结束，其结论以 Codex 自身证据为准、DSH 未核验；重型任务由 2B 占用期间 DSH 不启动任何重型任务、不争用 JTAG/COM4；四棵树均无 index.lock。R08 板测 19:23 开始/19:38 结束（`STOPPED_QUEUE`、native exit 2、R09 未启动），Codex 已于 23:17:47 在 w2b STATE 自我纠正，DSH 核对一致。07:49 旧快照及 R14 均为历史，不据此重启任务。
+- 交接行（11 字段，2026-10-19 23:59）：任务=`HL-T08 双方独立信箱授权落盘与目录核验` | 负责人=`DSH` | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`99ec493` | 允许修改范围=`AGENTS.md`、`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261019.md`、`report/evidence/CTRL-DSH-HANDOFF/**`（其中 `dsh_mailbox/**` 仅 DSH 写、`codex_mailbox/**` 仅 Codex 写） | 未提交改动归属=`main 剩余未提交项均为 Codex/用户历史改动，DSH 本轮相关文件随本行同批提交；w2b 141 项归 Codex` | 让出声明=`未让出：主目录写权仍由 DSH 持有；Codex 只读复核并在自己信箱回执，接管须先由 DSH 置 OFFERED` | 心跳(UTC+8)=`2026-10-19 23:59` | 证据入口=`report/evidence/CTRL-DSH-HANDOFF/handoff_20261019_r01/`、`report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/` | 恢复命令=`python -B verification/handoff_check.py --worktree D:/FPGA_Competition --record report/evidence/CTRL-DSH-HANDOFF/handoff_20261019_r01/handoff_record_main.json --json` | 状态/下一接手方=`DONE / Codex（在自己信箱回执；不接管主目录）`
+- 本轮结束提交：见 `git log -1 -- AGENTS.md`（本行与该提交同批；精确哈希在紧随的补记提交中给出）。HL-T07 的 8→11 字段补齐与两树记录见 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261019_r01/`。
+- 交接行格式与状态机见根 `AGENTS.md`「运行逻辑：双 Agent、两级总控（2026-10-19）」；旧 8 字段一行式记录（`51f7130`/`b87dd4f`，无心跳）已作废。
 - 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
 - 环境路径索引（2026-10-19 核实）：项目根 `D:\FPGA_Competition`（主工作树 `main`，可写）；2B 工作树 `D:\FPGA_Competition\w2b`；厂商原件 `D:\FPGA\AX7Z020\AX7Z020`（**只读，保持不动**）；Vivado 2026.1 安装 `D:\Xilinx\2026.1`（启动器 `D:\Xilinx\2026.1\Vivado\bin\vivado.bat`）。
 - Obsidian 本项目仓库（2026-10-19 核实）：`C:\Users\22061\Documents\Obsidian Vault\02-项目\基于 AX7Z020 的低比特神经网络 FPGA 加速系统，实现摄像头手势识别并驱动板卡进行实时交互`；操作前先读该 Vault 的 `00-AI全局整理规则.md`，不导入其他 Vault 内容，该规则不得由工具/技能扩权。

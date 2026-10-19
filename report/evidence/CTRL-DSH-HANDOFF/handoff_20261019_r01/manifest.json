@@ -1,0 +1,80 @@
+{
+  "task_id": "HL-T07",
+  "run_id": "handoff_20261019_r01",
+  "owner": "DSH",
+  "phase": "complete",
+  "created_utc8": "2026-10-19 23:40",
+  "finalized_utc8": "2026-10-19 23:42",
+  "purpose": "补齐主 STATE 11 字段交接行与心跳；用 --record 把 handoff_check 检查项 e~i 从 SKIP 变为实检；向 Codex 发出对接确认请求（只读复核 + 回执）",
+  "scope": "主目录本轮声明范围内写入 + 只读核验；未写 w2b/dbdf/96a3；未启动综合、实现、仿真、板测；未结束任何他人进程",
+  "committed_this_round": {
+    "commit": "99ec493ae81f47b2a38937dc7814df7ff154c698",
+    "files": [
+      "AGENTS.md"
+    ],
+    "detail": "仅 AGENTS.md 1 行（DSH 退出授权），按 Wong 2026-10-19 指令单独提交；其余本轮产物未提交，归属见 STATE 交接行第 6 字段"
+  },
+  "tree_facts_at_finalize": {
+    "main": {
+      "worktree": "D:/FPGA_Competition",
+      "branch": "main",
+      "head": "99ec493ae81f47b2a38937dc7814df7ff154c698",
+      "dirty": 407
+    },
+    "w2b": {
+      "worktree": "D:/FPGA_Competition/w2b",
+      "branch": "codex/stage2b-dma-g0",
+      "head": "bca323b1750caee783af5552c00769fd584fc1a6",
+      "dirty": 140
+    },
+    "dbdf": {
+      "worktree": "D:/codex-worktrees/dbdf",
+      "branch": "codex/stage3-video",
+      "head": "896e6c7",
+      "dirty": 9,
+      "note": "9 项未提交改动 mtime 2026-10-03~07，阶段 3 未启动；开工前须先定归属"
+    },
+    "index_locks": "四个工作树均无 index.lock（按 git rev-parse --git-path 解析）",
+    "heavy_processes": "hw_server.exe(PID 10116，父 cmd.exe 23784，-stcp::3121)归 Codex 2B；另据实补记 Codex 活跃板测：cmd.exe 30844(23:25:41)→python.exe 12516 运行 w2b/tmp/2B/run_csr_r10_only.py(vitis.bat -s)，2026-10-19 23:44 仍存活；无 vivado/xsim/xelab/xvlog/xsdb"
+  },
+  "commands": [
+    {
+      "cmd": "python -B verification/handoff_check.py --worktree D:/FPGA_Competition --record report/evidence/CTRL-DSH-HANDOFF/handoff_20261019_r01/handoff_record_main.json --json",
+      "exit_code": 1,
+      "checks": {"PASS": 7, "FAIL": 1, "SKIP": 1},
+      "only_fail": "d 重型进程占用：命中 hw_server.exe(pid=10116)",
+      "skip": "i 未使用 --claim（本轮无接管）",
+      "output": "handoff_check_main.json"
+    },
+    {
+      "cmd": "python -B verification/handoff_check.py --worktree D:/FPGA_Competition/w2b --record D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/handoff_20261019_r01/handoff_record_w2b.json --json",
+      "exit_code": 1,
+      "checks": {"PASS": 6, "FAIL": 1, "SKIP": 2},
+      "only_fail": "d 重型进程占用：命中 hw_server.exe(pid=10116)",
+      "skip": "g 未声明 evidence_dir（DSH 不写 w2b，故不放证据目录）；i 未使用 --claim",
+      "output": "handoff_check_w2b.json"
+    }
+  ],
+  "intermediate_run": "首次 w2b 核验（23:41，record 绑定 75fcc59）因 Codex 于 23:18:13 提交 bca323b1 而检查项 a FAIL；已按新 HEAD 重绑 record 并复跑，旧输出文件被覆盖，事实如实记于本清单，不保留为通过证据。",
+  "artifacts": [
+    {"path": "handoff_record_main.json", "sha256": "2e1f5b891c0cd8aeba0711436171bfaf0fa4139bf9b3922a8ba626f03c0c4c74"},
+    {"path": "handoff_record_w2b.json", "sha256": "b34f2b22a089663ee450c75e48578c640b41b1bde5961534dbb996d071f2c19f"},
+    {"path": "handoff_check_main.json", "sha256": "b0803cc4666ce34c2ad1f1721cda85fe091a58bc71d8a2eb9e42c7f618e15e6a"},
+    {"path": "handoff_check_w2b.json", "sha256": "2970b8f62b8c44b15a350c640621f26430869676d05aaa13c9419f533d68483b"},
+    {"path": "exit_codes.txt", "sha256": "390013a54f72d23e08e528cecbb509db81ed830a57d25985b98c06e3ce192bcd"}
+  ],
+  "mailbox": {
+    "state_row": "report/../.codex/STATE.md「交接行（11 字段，2026-10-19 23:40）」",
+    "letter": ".codex/DSH_HANDOFF_20261019.md",
+    "counterparty_ack": "未收到；收到前 DSH 不宣称对接成功"
+  },
+  "limits": [
+    "检查项 d 因 hw_server(PID 10116，Codex 2B 硬件服务) 存在而 FAIL，故两树退出码均为 1；DSH 未结束该进程，在 2B 持有硬件会话期间退出码 0 不可达。按失联规则（心跳超时+无重型进程+无 index.lock 三者齐备才可判失联），当前不构成任何失联裁定，也不授权任何接管。",
+    "本清单定稿于检查运行之后；运行时本目录已存在 phase-1 manifest.json 供 g 项核验，被检查树在该次运行前后无变化（仅本目录内新增文件，不改变 git status 计数）。",
+    "w2b 记录为 DSH 侧只读观察，不构成对任何路径的授权；w2b 的 140 项未提交改动及其后续提交归 Codex。",
+    "本轮无代码交付，未创建独立 Reviewer，不宣称独立审查；检查器结论不代表 G0/G4/G5、测试通过或实物验收。",
+    "未读 w2b 证据明细与 dbdf 差异内容，不为其技术结论背书。",
+    "检查项 d 按固定进程名（vivado/xsim/xelab/xvlog/hw_server/cs_server/xsdb）匹配，不覆盖 vitis.bat -s 启动的 python.exe 板测进程；DSH 于 23:44 另行发现 Codex R10 脚本进程存活并据实补记，d 的 FAIL 仅反映 hw_server。"
+  ],
+  "scope_statement": "只读核验 + 主目录声明范围内写入；不代表 G0/G4/G5、测试通过或实物验收。"
+}

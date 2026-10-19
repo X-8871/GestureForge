@@ -1,0 +1,144 @@
+{
+  "reviewer": "rev-handoff-check",
+  "shared_task": "task-2",
+  "subject": "HL-T02 独立审查 handoff_check 实现与自测",
+  "run_id": "20261019T2115_rev1",
+  "verdict": "PASS",
+  "reviewed_artifacts": [
+    {
+      "path": "verification/handoff_check.py",
+      "sha256_declared": "5715B290BAB33F58D4935CA7AA62990A43404AA00F80B0A07BEEBA1384607C50",
+      "sha256_recomputed_start": "5715b290bab33f58d4935ca7aa62990a43404aa00f80b0a07beeba1384607c50",
+      "sha256_recomputed_end": "5715b290bab33f58d4935ca7aa62990a43404aa00f80b0a07beeba1384607c50",
+      "match": true,
+      "git_state": "untracked (?? 未提交，冻结基线仅由哈希确定)"
+    },
+    {
+      "path": "verification/test_handoff_check.py",
+      "sha256_declared": "C89E1C7077F7E55274E3C0F2F5A5162257A2FE546A17CEC87C5C6E8E1CB40281",
+      "sha256_recomputed_start": "c89e1c7077f7e55274e3c0f2f5a5162257a2fe546a17cec87c5c6e8e1cb40281",
+      "sha256_recomputed_end": "c89e1c7077f7e55274e3c0f2f5a5162257a2fe546a17cec87c5c6e8e1cb40281",
+      "match": true,
+      "git_state": "untracked (?? 未提交)"
+    }
+  ],
+  "self_test": {
+    "command": "python -B -m unittest verification.test_handoff_check -v",
+    "runs": 2,
+    "tests": 29,
+    "result": "OK",
+    "exit_code": 0,
+    "duration_seconds": [10.078, 9.604]
+  },
+  "independent_counterexamples": {
+    "driver": "tmp/HL-T02/20261019T2115_rev1/independent_counterexamples.py",
+    "cases_total": 40,
+    "cases_as_expected": 40,
+    "cases_mismatched": 0,
+    "driver_exit_code": 0,
+    "sections": {
+      "A": "CLI 真实退出码反例 31 例（a–h、退出码 1/2、UTF-8 路径、越界、非法 JSON/状态/心跳/证据目录）",
+      "B": "--print-template 11 字段与状态机文本、--json 结构与单行性",
+      "C": "注入探针：全 PASS/SKIP 退出码 0、d 不可枚举 SKIP、失联三条件",
+      "D": "只读副作用：索引哈希与 mtime 不变、无残留锁、工作树文件集不变",
+      "E": "w2b 链接工作树锁路径由 git 解析",
+      "F": "主工作树 d 项真实 FAIL 且只报告不处理",
+      "G": "run_git 写动词白名单拒绝、恢复命令金丝雀未触发、非 Windows 进程枚举分支"
+    }
+  },
+  "supplementary_probes": {
+    "file": "tmp/HL-T02/20261019T2115_rev1/final_probes_results.json",
+    "help_exit": 0,
+    "unknown_flag_exit": 2,
+    "unknown_flag_json_exit": 2,
+    "abbrev_commit_check_a": "PASS",
+    "hw_server_still_present": true,
+    "source_mentions_terminate": false
+  },
+  "index_lock_resolution": {
+    "method": "git rev-parse --git-path index.lock",
+    "static": "源码中 index.lock 仅作为 rev-parse 参数出现（第 335/337 行），无任何 <worktree>/.git/index.lock 硬编码拼接",
+    "w2b": {
+      "dotgit_is_file": true,
+      "gitdir_pointer": "gitdir: D:/FPGA_Competition/.git/worktrees/w2b",
+      "resolved": "D:/FPGA_Competition/.git/worktrees/w2b/index.lock",
+      "naive_repo_root_lock": "D:\\FPGA_Competition\\.git\\index.lock",
+      "differs_from_repo_root_lock": true,
+      "differs_from_w2b_own_lock": true,
+      "check_b_status": "PASS"
+    },
+    "sandbox_linked_worktree": {
+      "resolved": "tmp/HL-T02/20261019T2115_rev1/sandbox/repo/.git/worktrees/linked/index.lock",
+      "lock_at_resolved_path_triggers_b_FAIL": true
+    }
+  },
+  "read_only_evidence": {
+    "static_write_apis_found": [],
+    "imports": ["argparse", "csv", "fnmatch", "io", "json", "os", "re", "subprocess", "sys", "datetime", "pathlib", "typing"],
+    "network_api_found": false,
+    "eval_exec_found": false,
+    "subprocess_targets": ["git (rev-parse/status only, --no-optional-locks)", "tasklist", "ps", "pgrep"],
+    "git_write_verbs_rejected_by_whitelist": ["add", "commit", "checkout", "reset", "push", "clean", "init", "worktree"],
+    "recovery_command_canary_created": false,
+    "sandbox_index_hash_unchanged": true,
+    "sandbox_index_mtime_unchanged": true,
+    "main_git_status_hash_before": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+    "main_git_status_hash_after": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+    "main_git_index_unchanged_after_self_test": true,
+    "w2b_git_index_unchanged_after_self_test": true,
+    "w2b_status_hash_unchanged_after_self_test": true,
+    "verification_pycache_unchanged": true,
+    "leftover_handoff_check_temp_dirs": 0,
+    "leftover_index_lock": false
+  },
+  "requirements_checklist": {
+    "a_worktree_branch_head": "PASS（存在性/分支/HEAD/缩写提交前缀/声明不符，均按卡实现）",
+    "b_index_lock_via_git_path": "PASS",
+    "c_dirty_count_and_owner": "PASS（脏树未声明 FAIL；已声明 PASS；干净树多余声明仅 warning）",
+    "d_heavy_processes": "PASS（真实命中 hw_server.exe pid=10116；不可枚举时 SKIP 并写明原因）",
+    "e_heartbeat": "PASS（超时/非法格式/未来时间 FAIL，阈值可调，时区后缀支持）",
+    "f_status_machine": "PASS（IDLE/OFFERED/CLAIMED/IN_PROGRESS/DONE；仅 OFFERED 允许 --claim 接管）",
+    "g_evidence_dir": "PASS（缺目录或缺 manifest.json FAIL；null 时 SKIP）",
+    "h_allowed_scope_vs_claimed_path": "PASS（空/占位 FAIL，越界 FAIL，同前缀陷阱按文件条目正确拒绝）",
+    "exit_codes": "PASS（0 全 PASS/SKIP；1 存在 FAIL；2 输入/环境错误——均以真实进程退出码验证）",
+    "print_template_11_fields": "PASS（字段名与顺序与任务卡逐字一致，状态机文本齐备，CLI 退出码 0）",
+    "json_output": "PASS（单行、可解析、8 项顺序 a–h、counts 合计 8、lost_contact 结构完整）"
+  },
+  "environment_notes": [
+    "本机 hw_server.exe（PID 10116）在跑，属 Codex 独占运行：d 项对主工作树报 FAIL 是真实状态而非缺陷；已确认检查器全程只报告，未结束或干扰任何进程（hw_server 结束时仍在，PID 未变）。",
+    "vivado-mcp-server-windows-amd64-2026.9.1.exe 的 4 个进程未被 d 项误报，因为匹配为声明列表内的精确进程名。",
+    "在本机运行完整 8 项 CLI 核验必然得退出码 1（d 真实 FAIL），因此“8 项全 PASS/SKIP → 退出码 0”由以下三条共同证明：--print-template 真实 CLI 退出码 0；G04 经文档化 process_probe 注入“枚举不可用”后 7 PASS + d SKIP → 退出码 0；C01 无 record 全 PASS/SKIP → 退出码 0。"
+  ],
+  "findings": [
+    {
+      "id": "OBS-1",
+      "severity": "non-blocking",
+      "title": "glob 允许范围的 * 会跨越路径分隔符，可能放宽允许修改范围（false PASS 方向）",
+      "location": "verification/handoff_check.py matches_scope() 第 398–404 行（fnmatch.fnmatchcase）",
+      "impact": "当 record 作者用单星 glob（如 verification/*.py）意图限定一层目录时，实际允许范围被放宽：verification/sub/deep.py 被判为在范围内（h PASS）而不是 FAIL。目录前缀与精确文件两种主用形式是严格的，已分别验证。",
+      "evidence": "tmp/HL-T02/20261019T2115_rev1/final_probes_results.json → glob_star_semantics：{'verification/top.py': 'PASS', 'verification/sub/deep.py': 'PASS', 'verification/sub/deep.txt': 'FAIL'}",
+      "basis": "task-1 卡只要求“允许修改范围非空 + 越界即 FAIL”，未定义 glob 语义；模板文本也把该字段描述为“仓库相对路径”，未向用户宣传 glob。故不构成任务卡违背，但错误方向是假通过。",
+      "close_condition": "二选一：① 改为分隔符感知匹配（如 PurePosixPath.match 或显式说明 * 不跨 /），使单星 glob 只匹配一层；② 在 --print-template 与 docstring 中明确写“glob 的 * 可跨 /，需限定层级时请用 dir/ 前缀”，把该语义纳入冻结契约。"
+    },
+    {
+      "id": "OBS-2",
+      "severity": "non-blocking",
+      "title": "11 字段交接行中有 5 个字段被接受但从不校验",
+      "location": "verification/handoff_check.py RECORD_ALIASES 第 76–90 行；8 项检查未引用 task/owner/yield_statement/recovery_command/next_owner",
+      "impact": "--claim 可在缺少「让出声明」「下一接手方」「任务编号」「负责人」「恢复命令」的 OFFERED 记录上通过接管校验（f PASS），检查器无法强制交接行 11 字段完整。",
+      "evidence": "反例 A31_five_fields_not_validated：最小 record（仅 worktree/branch/base_commit/allowed_paths/heartbeat/status）→ a/b/c/e/f/h PASS、g SKIP，详见 tmp/HL-T02/20261019T2115_rev1/independent_counterexamples_results.json",
+      "basis": "task-1 卡的 8 项检查 a–h 未要求校验这 5 个字段，故非任务卡违背；但卡片同时要求“11 字段交接行”，检查器只覆盖其中 6 个语义位。",
+      "close_condition": "二选一：① 增加一项校验（建议：status=OFFERED 且 --claim 时要求 yield_statement、next_owner 为非占位文本）；② 在 --print-template 中明确这 5 个字段仅供参考、不参与机器核验。"
+    }
+  ],
+  "evidence_root": "tmp/HL-T02/20261019T2115_rev1/",
+  "evidence_files": [
+    "independent_counterexamples.py / .log / _console.txt / _results.json",
+    "cases/*.stdout.txt, cases/*.stderr.txt（逐例真实 CLI 输出与退出码）",
+    "records/*.json（反例使用的交接记录）",
+    "final_probes.py / final_probes_results.json",
+    "self_test_stdout.txt / self_test_stderr.txt / self_test_exit.txt",
+    "isolation/*（自测前后主仓库/w2b 索引与状态快照）",
+    "baseline_git_status_short.txt / final_git_status_short.txt / baseline_hashes.txt / final_hashes.txt"
+  ]
+}

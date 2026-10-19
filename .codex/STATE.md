@@ -59,6 +59,7 @@
 - Obsidian 本项目仓库（2026-10-19 核实）：`C:\Users\22061\Documents\Obsidian Vault\02-项目\基于 AX7Z020 的低比特神经网络 FPGA 加速系统，实现摄像头手势识别并驱动板卡进行实时交互`；操作前先读该 Vault 的 `00-AI全局整理规则.md`，不导入其他 Vault 内容，该规则不得由工具/技能扩权。
 - 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
 - 主目录小工程（`vivado/AX7Z020_Gesture`）上板前阻碍：无 XDC；`synth_1` ERROR 且增量检查点 part 与 run 不符、BASIC 不含增量；板卡未上电。**仅适用该小工程，与 2B 无关，不得据此改 `w2b`。**
+- 交接检查器（2026-10-19 交付，G2 已过）：`verification/handoff_check.py` 只读、纯标准库，参数 `--worktree/--record/--claim/--json/--print-template`，退出码 0=全 PASS、1=有 FAIL、2=输入/环境错误；检查项 a 工作树/分支/HEAD、b index.lock（`git rev-parse --git-path` 解析）、c 未提交改动归属、d 重型进程、e 心跳、f 状态机、g 证据入口、h 范围越界、i 接管让出契约（仅 --claim）。自测 `python -B -m unittest verification.test_handoff_check -v`（38 用例，真实退出码 0）；证据 `report/evidence/CTRL-HANDOFF-CHECK/hl_20261019_r01/manifest.json`；可选加固 OBS-1/2/3 见该清单。
 
 ## Git 与下一步
 

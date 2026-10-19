@@ -1,0 +1,148 @@
+{
+  "reviewer": "rev-handoff-check",
+  "shared_task": "task-6",
+  "subject": "HL-T06 复审 BLOCKING-1 修复（墙钟无关性）",
+  "run_id": "20261019T2146_rev3",
+  "verdict": "PASS",
+  "blocking_count": 0,
+  "reviewed_artifacts": [
+    {
+      "path": "verification/handoff_check.py",
+      "sha256_declared": "02F42EDB06B7E67CB03717937671DF7BA65DF84697145ED310298BEC9A69065B",
+      "sha256_start": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "sha256_end": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "match": true,
+      "scope_check": "与 HL-T04 冻结哈希逐字节一致，未发生“只改测试文件”范围违规"
+    },
+    {
+      "path": "verification/test_handoff_check.py",
+      "sha256_declared": "988192E83FFC30375FBAB6E508CC712F7E209445D066277F9AF97E59BEF39B10",
+      "sha256_start": "988192e83ffc30375fbab6e508cc712f7e209445d066277f9af97e59bef39b10",
+      "sha256_end": "988192e83ffc30375fbab6e508cc712f7e209445d066277f9af97e59bef39b10",
+      "match": true
+    }
+  ],
+  "blocking1_closure": {
+    "status": "CLOSED",
+    "suite_runs": [
+      {"run": 1, "wall_clock": "21:45:01", "tests": 38, "result": "OK", "exit_code": 0, "duration_seconds": 14.570},
+      {"run": 2, "wall_clock": "21:45:16", "tests": 38, "result": "OK", "exit_code": 0, "duration_seconds": 14.577},
+      {"run": 3, "wall_clock": "21:45:31", "tests": 38, "result": "OK", "exit_code": 0, "duration_seconds": 14.614}
+    ],
+    "rot_point_of_frozen_hl_t04_version": "2026-10-19 21:30（UTC+8）",
+    "runs_are_past_rot_point": true,
+    "old_version_failed_here": "HL-T04 同一机器在 21:32:29 / 21:33 两次确定性 FAILED (failures=1)",
+    "root_cause_removed": [
+      "make_record 心跳改为 heartbeat_text(NOW - 30min)，仅与注入时刻 NOW 比较（test_handoff_check.py:163）",
+      "新增 live_record()：心跳取自真实墙钟（test_handoff_check.py:172-175）",
+      "原失败用例改用 live_record() 并新增 statuses['e']=='PASS' 断言（test_handoff_check.py:815, 833）——为加强而非削弱"
+    ],
+    "not_luck_not_weakening": "自建真实 CLI 边界矩阵：新鲜→e PASS；119 分钟→e PASS；121 分钟→e FAIL；240 分钟→e FAIL 且退出码 1；240 分钟@阈值 300→e PASS；未来 30 分钟→e FAIL。阈值语义完整保留，改动只在测试侧的心跳来源。"
+  },
+  "time_independence_audit": {
+    "calendar_literals_in_test_file": [
+      {"line": 46, "text": "NOW = datetime(2026, 10, 19, 20, 0, 0, tzinfo=UTC8)", "classification": "注入式固定时刻，仅作 now= 参数与进程内用例的心跳基准；与真实墙钟解耦，确定性"}
+    ],
+    "calendar_literal_count": 1,
+    "blocking1_literal_removed": "原 2026-10-19 19:30 字面量已从测试逻辑中清除",
+    "run_cli_callsites_audited": {
+      "238": "--print-template，无 record，断言 exit 0",
+      "718": "record 文件不存在，断言 exit 2",
+      "724": "内联非法记录，断言 exit 2",
+      "728": "非法 JSON，断言 exit 2",
+      "731": "--max-heartbeat-minutes 0，断言 exit 2（在任何检查前返回）",
+      "737": "record 不存在 + --json，断言 exit 2",
+      "816": "test_JSON输出为单行且可解析 → live_record()（动态心跳）",
+      "848": "test_时间无关_新鲜心跳必须PASS → live_record()",
+      "869": "test_时间无关_过期心跳必须FAIL → live_now()-240min（动态过期）"
+    },
+    "all_real_cli_record_paths_dynamic_or_time_irrelevant": true
+  },
+  "guard_case_effectiveness": {
+    "target": "test_时间无关_用例不依赖固定日历字面量（test_handoff_check.py:879-894）",
+    "self_matching": false,
+    "self_matching_evidence": "三个正则模式文本均不被自身命中（probe 未改动副本通过；对源码逐一 search 均为 False）",
+    "detection_confirmed": [
+      {"probe": "double_quote_dict", "injected": "\"heartbeat_utc8\": \"2026-10-19 19:30\"", "guard_detected": true},
+      {"probe": "chinese_alias", "injected": "\"心跳(UTC+8)\": \"2026-10-19 19:30\"", "guard_detected": true}
+    ],
+    "bypass_confirmed": [
+      {"probe": "single_quote_dict", "injected": "'heartbeat_utc8': '2026-10-19 19:30'", "guard_detected": false},
+      {"probe": "indirect_constant", "injected": "FIXED_HB = \"2026-10-19 19:30\" 后 \"heartbeat_utc8\": FIXED_HB", "guard_detected": false},
+      {"probe": "computed_datetime", "injected": "datetime(2026,10,19,19,30).strftime('%Y-%m-%d %H:%M')", "guard_detected": false},
+      {"probe": "setdefault_kwarg", "injected": "setdefault(\"heartbeat_utc8\", \"2026-10-19 19:30\") 位置", "guard_detected": false}
+    ],
+    "assessment": "该用例是形态烟测，不是证明；真正的时间无关保障来自行为用例（新鲜→PASS、过期→FAIL，均以运行时刻动态推导）。"
+  },
+  "regression": {
+    "harness": "tmp/HL-T06/20261019T2146_rev3/regression_review.py（沿用 HL-T04 独立反例集）",
+    "cases_total": 58,
+    "cases_ok": 58,
+    "cases_mismatched": 0,
+    "driver_exit_code": 0,
+    "identical_to_hl_t04": true,
+    "covered": "分隔符匹配 20 例、检查项 i 10 例、HL-T02 关键反例 23 例、JSON 9 项 a–i 顺序、退出码 2 族、链接工作树锁、模板一致性"
+  },
+  "test_count_35_to_38": {
+    "new_tests": [
+      "test_时间无关_新鲜心跳必须PASS（:845）",
+      "test_时间无关_过期心跳必须FAIL（:855）",
+      "test_时间无关_用例不依赖固定日历字面量（:879）"
+    ],
+    "assertions_strengthened": "原 test_JSON输出为单行且可解析 保留 failing in ([], ['d']) 断言，并新增 statuses['e']=='PASS'（:833）",
+    "assertion_weakening_found": false
+  },
+  "read_only_and_process": {
+    "main_git_status_hash_before": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+    "main_git_status_hash_after": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+    "unchanged": true,
+    "main_git_index_unchanged": true,
+    "w2b_git_index_unchanged": true,
+    "leftover_index_lock": false,
+    "tmp_not_in_git_status": true,
+    "probe_residue_in_verification": false,
+    "recovery_canary_absent": true,
+    "leftover_system_temp_dirs": 0,
+    "hw_server_pid_10116_alive_at_start": true,
+    "hw_server_pid_10116_alive_at_end": true,
+    "w2b_touched": false
+  },
+  "findings": [
+    {
+      "id": "OBS-1",
+      "severity": "non-blocking",
+      "title": "源码级正则守护可被多种写法绕过（但部分形态可拦截，且不自匹配）",
+      "location": "verification/test_handoff_check.py:879-894",
+      "impact": "守护仅识别「键名后紧跟双引号包起来的固定日历」三种形态：双引号字典式、键值 kwarg 式、中文别名 (UTC+8) 字典式。单引号字典式、间接常量、datetime(...) 计算式、以及非键值位置（如 setdefault/注释）中的固定日历心跳均不被拦截。它是回归烟测，不是不变量证明。",
+      "evidence": "tmp/HL-T06/20261019T2146_rev3/guard_and_clock_results.json → guard_probes：double_quote_dict 与 chinese_alias 被拦截；single_quote_dict / indirect_constant / computed_datetime / setdefault_kwarg 未被拦截；guard_self_match 三项全 False。",
+      "basis": "task-6 卡第 3 点要求核查守护用例「能否被绕过、是否自匹配」；当前版本本身时间无关（已由 3 次 >21:30 的绿灯与全部 run_cli 调用点审计证明），故不阻断。",
+      "close_condition": "可选加固：把守护从「形态匹配」升级为「结构约束」——例如断言所有携带 --record 的 run_cli 调用（test_handoff_check.py:816/848/869 之外不得新增）其记录必须来自 live_record()/live_now()；或在测试内加一条行为断言「make_record() 的心跳不得被直接用于真实 CLI 用例」。"
+    },
+    {
+      "id": "OBS-2",
+      "severity": "non-blocking",
+      "title": "残留风险：把 make_record()（NOW 派生、固定为 2026-10-19 19:30）直接用于真实 CLI 用例仍会使套件随时间变红，且现有守护不会拦截",
+      "location": "verification/test_handoff_check.py:163（make_record 心跳）与 :723（make_record 用于 run_cli，但该例断言退出码 2，故当前无害）",
+      "impact": "当前冻结版本无此问题（已逐点审计 10 个 run_cli 调用点）。但未来若新增 `run_cli(..., --record make_record())` 并断言 e 或失败清单，将复现 BLOCKING-1，且三种正则守护都不命中（心跳表达式不是内联字面量）。",
+      "evidence": "结构审计显示 run_cli 调用点 [196,238,718,724,728,731,737,816,848,869]，其中仅 :723 使用 make_record() 且其断言为退出码 2（阈值 0 在任何检查前返回）；Section K 边界矩阵显示 e 语义完好。",
+      "basis": "无现行缺陷，属对未来回归的加固建议；task-6 卡第 2/3 点要求的时间无关性审计已通过。",
+      "close_condition": "可选：为 make_record() 增加「仅供进程内 now=NOW 注入用例使用」的命名或断言约束，或在 test_时间无关_用例不依赖固定日历字面量 中同时禁止 make_record() 出现在真实 run_cli 的 --record 参数上。"
+    }
+  ],
+  "environment_notes": [
+    "本机 hw_server.exe（PID 10116）在跑，属 Codex 独占运行；d 项报 FAIL 是真实状态，审查全程只报告、未结束或干扰任何进程。",
+    "系统时间不可修改（且不应修改），故“墙钟推进”以三重方式证明：① 在旧版本确定性失效的墙钟之后（21:45 > 21:30）连续三次全绿；② 全部 run_cli 调用点的记录来源审计；③ 真实 CLI 心跳边界矩阵证明阈值语义未被削弱。",
+    "审查期间修复了自建回归脚本的一次自身缺陷（sed 误改 shebang 导致 __future__ 报错），与受审文件无关。"
+  ],
+  "evidence_root": "tmp/HL-T06/20261019T2146_rev3/",
+  "evidence_files": [
+    "self_test_run1/2/3_stdout.txt · self_test_run1/2/3_stderr.txt · self_test_run1/2/3_exit.txt",
+    "guard_and_clock.py · guard_and_clock_console.txt · guard_and_clock_results.json",
+    "guard_probe/*.py · guard_probe/*.runner.txt（7 个守护探针及其运行输出）",
+    "regression_review.py · regression_review_console.txt · independent_review_results.json（58 例）",
+    "cases/*.stdout.txt · records/*.json · clock_records/*.json",
+    "cli_callsite_audit.txt · baseline_git_status_short.txt · final_git_status_short.txt",
+    "baseline_hashes.txt · final_hashes.txt · baseline_index_hashes.txt · wallclock_start.txt",
+    "hw_server_start.txt"
+  ]
+}

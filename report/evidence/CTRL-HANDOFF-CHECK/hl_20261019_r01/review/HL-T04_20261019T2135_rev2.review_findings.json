@@ -1,0 +1,133 @@
+{
+  "reviewer": "rev-handoff-check",
+  "shared_task": "task-4",
+  "subject": "HL-T04 复审 handoff_check 加固（分隔符匹配 + 让出契约）",
+  "run_id": "20261019T2135_rev2",
+  "verdict": "CHANGES_REQUIRED",
+  "blocking_count": 1,
+  "reviewed_artifacts": [
+    {
+      "path": "verification/handoff_check.py",
+      "sha256_declared": "02F42EDB06B7E67CB03717937671DF7BA65DF84697145ED310298BEC9A69065B",
+      "sha256_start": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "sha256_end": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "match": true,
+      "assessment": "加固实现本身经独立反例验证正确"
+    },
+    {
+      "path": "verification/test_handoff_check.py",
+      "sha256_declared": "33404E20592472C69BE1EE06AAD3439D14C611CF062146E627EB4F12D389FB7C",
+      "sha256_start": "33404e20592472c69be1ee06aad3439d14c611cf062146e627eb4f12d389fb7c",
+      "sha256_end": "33404e20592472c69be1ee06aad3439d14c611cf062146e627eb4f12d389fb7c",
+      "match": true,
+      "assessment": "存在阻断问题 BLOCKING-1"
+    }
+  ],
+  "self_test": {
+    "command": "python -B -m unittest verification.test_handoff_check -v",
+    "runs": 2,
+    "tests": 35,
+    "result": "FAILED (failures=1)",
+    "exit_code": [1, 1],
+    "duration_seconds": [12.899, 12.902],
+    "deterministic": true,
+    "failed_test": "test_JSON输出为单行且可解析",
+    "assertion": "AssertionError: ['d', 'e'] not found in ([], ['d'])",
+    "lead_claimed": "35 tests OK / exit 0（该结论在 2026-10-19 21:30（UTC+8）之前成立）"
+  },
+  "findings": [
+    {
+      "id": "BLOCKING-1",
+      "severity": "blocking",
+      "title": "自测存在墙钟时间依赖：2026-10-19 21:30（UTC+8）之后 test_JSON输出为单行且可解析 永久失败，套件不再全绿",
+      "location": "verification/test_handoff_check.py:143（make_record 的 heartbeat_utc8 固定字面量 \"2026-10-19 19:30\"）与 verification/test_handoff_check.py:782-805（断言在 :801 self.assertIn(failing, ([], [\"d\"]))）",
+      "impact": "该用例经真实 CLI 运行、使用真实墙钟（默认 --max-heartbeat-minutes=120），记录心跳为固定字面量 19:30。自 21:30 起心跳年龄 > 120 分钟，检查项 e 与 d 同时 FAIL，failing=['d','e']，断言不成立 → 套件 exit 1。冻结基线的声明验收命令从此永久返回非零，G1「自测全绿」无法重现；后续任何回归运行都会误报失败。不是偶发抖动，已复跑两次结论一致。",
+      "evidence": "tmp/HL-T04/20261019T2135_rev2/self_test_stderr.txt（run1，当前时间 21:32:29，距今 122.5 分钟）、self_test_run2_stderr.txt（run2，同样 1 failure）、独立定因实验 independent_review_results.json → C_time_dependency：字面量心跳 124.8→126.1 分钟 > 120 → FAIL 项 ['d','e']；放宽阈值 300 或改用当前时间心跳 → FAIL 项仅 ['d']。检查器本身行为正确（e=FAIL 是因声明心跳确实过期 124.8 分钟）。",
+      "close_condition": "仅改 test_handoff_check.py：使该 CLI 用例与墙钟无关，例如 ① 该用例的 record 用 datetime.now(UTC8) 生成心跳；或 ② 传入足够大的 --max-heartbeat-minutes；或 ③ 断言改为「e 必须 PASS，d 允许 FAIL」而不使用 failing in ([], ['d'])。修复后在晚于 2026-10-19 21:30 的墙钟时间重跑 python -B -m unittest verification.test_handoff_check -v，确认 35 tests OK / exit 0（必须在阈值之后运行，否则修复未被真正验证）。然后重新冻结两文件哈希并复审。"
+    },
+    {
+      "id": "OBS-1",
+      "severity": "non-blocking",
+      "title": "上一轮 OBS-1（glob * 跨 /）已关闭",
+      "location": "verification/handoff_check.py:428-464（_match_segments / matches_scope）",
+      "impact": "无。旧 fnmatch 假通过已消失。",
+      "evidence": "独立反例 S01-S16（Cli 真实退出码）：dir/*.py 对 dir/x.py h=PASS、对 dir/sub/x.py h=FAIL；dir/ 对 dir/sub/x.py PASS、对 dirx/a.py FAIL；dir/a.py 对 dir/a.py 与 dir/a.py.bak 分别 PASS/FAIL；deep/** 对 deep/a/b/c.py 与 deep/a.py 均 PASS、对 deepx/a.py FAIL；dir/*/deep.py 对 dir/sub/deep.py PASS、对 dir/sub/x/deep.py FAIL；**/*.py 对 a.py PASS；反斜杠与 ./ 归一化 4 例全部符合预期。",
+      "close_condition": "已关闭"
+    },
+    {
+      "id": "OBS-2",
+      "severity": "non-blocking",
+      "title": "上一轮 OBS-2（字段不校验）已按卡片关闭：新增检查项 i，并显式声明 3 个人工核对字段",
+      "location": "verification/handoff_check.py:60-66（CLAIM_CONTRACT_FIELDS / MANUAL_REVIEW_NOTES）、:971-1006（_check_claim_contract）",
+      "impact": "无。--claim 时 yield_statement 与 next_owner 必须非空且非占位；task/owner/recovery_command 明确标注「不参与机器核验」。",
+      "evidence": "独立反例 T01-T10：齐备 i=PASS；缺/占位 yield_statement、缺/占位 next_owner、两项均缺 → i=FAIL 且 reason 逐一指明字段；无 --claim → i=SKIP；--claim 无 record → i=FAIL 且 f=FAIL；非 OFFERED + --claim → f=FAIL（i 可 PASS）。",
+      "close_condition": "已关闭"
+    },
+    {
+      "id": "OBS-3",
+      "severity": "non-blocking",
+      "title": "模板部分文案为硬编码散文，未从常量派生（当前无漂移）",
+      "location": "verification/handoff_check.py:1118-1139（render_template 的字段语义与匹配规则段落）",
+      "impact": "低。共享常量已复用：TEMPLATE_FIELDS、RECORD_KEYS/RECORD_ALIASES、MANUAL_REVIEW_NOTES、CLAIM_CONTRACT_FIELDS、HANDOFF_STATUSES、TAKEOVER_STATUS、HANDOFF_STATUS_FLOW。其余为描述性散文（各字段语义、匹配规则示例），当前与实现逐条一致，但未来改实现需手工同步。",
+      "evidence": "Section V 漂移检测：模板状态取值列表与 HANDOFF_STATUSES 一致；8 组文案声称的匹配语义经真实 matches_scope 逐条比对一致；实现注册检查项顺序 = a..i 且模板检查项行逐一列出；11 字段逐字一致。",
+      "close_condition": "可选：把匹配规则示例也改为由单元表派生，或在改动流程中把该段列入同步检查清单。"
+    }
+  ],
+  "hardening_verification": {
+    "item1_separator_aware": {
+      "status": "PASS",
+      "cases": 20,
+      "detail": "S01-S16：单星不跨段、dir/ 子树、dirx/ 不匹配、精确路径同前缀陷阱、** 跨层与零段、段内 * 计数、反斜杠与 ./ 归一化、目录条目缺 / 的提示"
+    },
+    "item2_claim_contract": {
+      "status": "PASS",
+      "cases": 10,
+      "detail": "T01-T10 全部符合 task-4 卡片语义"
+    },
+    "regression_hl_t02": {
+      "status": "PASS",
+      "cases": 23,
+      "detail": "R01-R23：链接工作树锁解析（含锁置于 git 解析路径 → b FAIL）、脏树未声明归属、越界、心跳、状态机、退出码 2 族、9 项 JSON 结构与计数"
+    },
+    "template_consistency": {"status": "PASS", "detail": "Section V，无漂移、无缺口"},
+    "read_only": {
+      "status": "PASS",
+      "sandbox_index_hash_unchanged": true,
+      "sandbox_index_mtime_unchanged": true,
+      "leftover_lock": false,
+      "recovery_canary_absent": true,
+      "git_write_verbs_rejected": ["add", "commit", "checkout", "reset", "push", "clean", "init", "worktree"],
+      "suspicious_source_tokens_found": [],
+      "main_git_status_hash_before": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+      "main_git_status_hash_after": "dd93f6a437b9ba011ecc2484fe549e9d1c75dc096ab19f2fd929339f0b03d67b",
+      "main_git_index_unchanged": true,
+      "w2b_index_unchanged": true,
+      "w2b_touched": false
+    },
+    "process_not_terminated": {
+      "status": "PASS",
+      "hw_server_pid_10116_alive_at_start": true,
+      "hw_server_pid_10116_alive_at_end": true
+    }
+  },
+  "independent_case_totals": {
+    "cases_total": 58,
+    "cases_ok": 58,
+    "cases_mismatched": 0,
+    "driver_exit_code": 0
+  },
+  "environment_notes": [
+    "本机 hw_server.exe（PID 10116）在跑，属 Codex 独占运行；d 项对主工作树报 FAIL 是真实状态，审查全程只报告、未结束或干扰任何进程。",
+    "因 d 真实 FAIL，本机完整 CLI 核验退出码恒为 1；断言仅针对具体检查项状态与退出码族（0 由 --print-template 与注入探针路径证明）。",
+    "BLOCKING-1 与 hw_server 无关：即使本机无重型进程，e=FAIL 仍会使该用例的退出码断言与 failing 断言失败。"
+  ],
+  "evidence_root": "tmp/HL-T04/20261019T2135_rev2/",
+  "evidence_files": [
+    "independent_review.py / independent_review.log / independent_review_console.txt / independent_review_results.json",
+    "cases/*.stdout.txt（逐例真实 CLI 输出）、records/*.json",
+    "self_test_stdout.txt / self_test_stderr.txt / self_test_exit.txt（run1）",
+    "self_test_run2_stdout.txt / self_test_run2_stderr.txt / self_test_run2_exit.txt（run2，确定性验证）",
+    "baseline_git_status_short.txt / final_git_status_short.txt / baseline_hashes.txt / final_hashes.txt",
+    "baseline_main_index_hash.txt / baseline_w2b_index_hash.txt"
+  ]
+}

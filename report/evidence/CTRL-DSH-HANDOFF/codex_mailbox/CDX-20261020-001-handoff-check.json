@@ -1,0 +1,31 @@
+{
+  "message_id": "CDX-20261020-001",
+  "evidence_kind": "只读检查工具输出的字段摘录，非原始stdout文件",
+  "checked_at_utc8": "2026-10-20T00:02:40+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:/FPGA_Competition --record D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\handoff_20261019_r01\\handoff_record_main.json --json",
+  "command_exit_code": 1,
+  "record_sha256": "2e1f5b891c0cd8aeba0711436171bfaf0fa4139bf9b3922a8ba626f03c0c4c74",
+  "result_status": "HANDOFF_FAILED",
+  "worktree": "D:\\FPGA_Competition",
+  "branch": "main",
+  "head_at_check": "99ec493ae81f47b2a38937dc7814df7ff154c698",
+  "counts": {"PASS": 7, "FAIL": 1, "SKIP": 1},
+  "checks": {
+    "a": {"status": "PASS", "detail": "当次工作树、分支、HEAD与record一致"},
+    "b": {"status": "PASS", "detail": "git rev-parse --git-path解析为.git/index.lock，不存在"},
+    "c": {"status": "PASS", "actual_dirty_entries": 409, "declared_dirty_entries": 407, "detail": "检查器接受非空归属声明；不证明计数精确一致或逐项归属已独立核实"},
+    "d": {"status": "FAIL", "matched_process": "hw_server.exe", "pid": 33672},
+    "e": {"status": "PASS", "heartbeat_utc8": "2026-10-19 23:40", "age_minutes": 22.7},
+    "f": {"status": "PASS", "declared_status": "DONE", "detail": "未声明OFFERED，不接管"},
+    "g": {"status": "PASS", "detail": "证据目录及manifest存在"},
+    "h": {"status": "PASS", "detail": "允许范围已声明；未传--claimed-path，未实际核验拟改路径越界"},
+    "i": {"status": "SKIP", "detail": "未使用--claim"}
+  },
+  "lost_contact": false,
+  "limitations": [
+    "与DSH原检查的状态分布一致，但占用进程PID已从10116变化为33672。",
+    "不代表检查全通过、硬件健康、测试通过、G0/G4/G5或工作树写权交接。",
+    "00:02:56观察主HEAD已推进为a36a0cd830bf7b25f229ba56065ddc2923b2cd98；本摘录只描述00:02:40的历史检查，不声称新HEAD仍与旧record匹配。",
+    "本次未连接JTAG、打开串口、操作板卡或停止进程。"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_task": "/root/csr_ready_20261019",
+  "source_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+  "scope": "FIXED_INPUT_BINDINGS_ONLY_NO_DEVICE_ACCESS",
+  "checker_sha256": "c6dcec3afd6cca303496b584734e80e220e8d811d7a2e6861b6a547b5d05a09b",
+  "result_sha256": "3472323d79cc745b41564c942bc52fa516b3d14487cbf28d84e94875e30d9d73",
+  "retained_failure_sha256": "ac95430cb24609f28a9731f55a3b75323428ffd53cb1d46ef9b6c046574aaebb",
+  "checks": [
+    "独立重算结果记录：498处绑定、490个唯一路径、100084257字节；全部记录PASS且无失败项。",
+    "静态核对脚本只做固定文件、JSON、ZIP读取和本Run证据写入，无设备、SDK或服务操作。",
+    "重新哈希runner、JTAG控制器、build_details、G0及冷链回执、接口、模型清单和权重等9项，与结果中记录一致。",
+    "R01的29项PermissionError及失败结果保留，R02采用独立RunId；未覆盖失败原件。"
+  ],
+  "limitations": [
+    "Reviewer没有重新读取全部490个文件，仅复核结果结构、脚本和上述9项哈希。",
+    "R01结果没有执行脚本哈希，不能将当前脚本哈希追溯为R01执行时版本。",
+    "不代表109样本、1000连续任务、CSR恢复、干净重建或G4/G5通过。"
+  ]
+}

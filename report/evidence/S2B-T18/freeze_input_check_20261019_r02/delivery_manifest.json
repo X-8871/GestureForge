@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "freeze_input_check_20261019_r02",
+  "source_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+  "evidence_dir": "report/evidence/S2B-T18/freeze_input_check_20261019_r02",
+  "interfaces": [
+    {
+      "name": "physical",
+      "version": "s2b-physical/1.0.0",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "frozen": true
+    },
+    {
+      "name": "uart",
+      "version": "s2bu/1.1",
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "frozen": true
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/freeze_input_check_20261019_r02/result.json",
+      "sha256": "3472323d79cc745b41564c942bc52fa516b3d14487cbf28d84e94875e30d9d73",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/freeze_input_check_20261019_r01/check_inputs.py",
+      "sha256": "c6dcec3afd6cca303496b584734e80e220e8d811d7a2e6861b6a547b5d05a09b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_online_20261018_r01/model_config_r04.json",
+      "sha256": "52535107f08a670aaf389fa88cd46a5d0e68ef6dc4c7e44b42d54095356d59fb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_online_20261018_r01/preparation_stress_first.json",
+      "sha256": "7121f86a36db1920652275af6ea0684af0dc1dd374d6fac3d4e438dc47049c09",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T18/freeze_input_check_20261019_r02/independent_review.json",
+      "sha256": "9f67549ccf8bd50f7dfb82a6d802e98254faad5b32b759eafe55e3ab4c671169",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Explicit fixed input file hashes and embedded bit",
+      "status": "PASS",
+      "command": "python -B report/evidence/S2B-T18/freeze_input_check_20261019_r01/check_inputs.py --output-dir report/evidence/S2B-T18/freeze_input_check_20261019_r02",
+      "exit_code": 0,
+      "reason": "498 explicit bindings across 490 files match, and embedded XSA bit matches; elevated read-only check, no device access."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  },
+  "limitations": [
+    "Fixed input bytes only; not model acceptance, clean rebuild, CSR recovery, G4 or G5.",
+    "Active run inputs and source files remain unchanged.",
+    "Retained R01 environment failure did not bind its executed checker version; R02 binds the current checker SHA."
+  ]
+}

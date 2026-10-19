@@ -10,7 +10,8 @@
 
 ## 器件与环境（现行事实）
 
-- 器件：**XC7Z020-2CLG400I**，Vivado part = **`xc7z020clg400-2`**。JTAG 实测目标名 `xc7z020`（2026-10-20 两次复现）。
+- 器件：**XC7Z020-2CLG400I**，Vivado part = **`xc7z020clg400-2`**。JTAG 目标名显示 `xc7z020`。
+- **器件身份更正（2026-10-20 01:40，复核 Vault 板卡正面照片）**：芯片丝印为 `XA7Z020` + `CLG400ABX2117` + `DB424532A`（XA 级、后缀速度等级在照片上不可辨）。JTAG 目标名 `xc7z020` 只反映公共裸片/IDCODE，**不能区分 XC/XA**，也不能证明 `-2`。本轮按 Wong 现行事实用 `xc7z020clg400-2` 构建并在实物上成功启动；`-1` 与 `-2` 的时序签核问题仍未关闭。
 - 官方源（fcf1e4a239b0f47e8ee95dfde7c2eedc5685c327）的 14/22/23 三个工程 `create_project.tcl:39` **本来就是 `xc7z020clg400-2`**；本树历史文档里的 `xa7z020clg400-1I` 是上一轮自设偏差，已停用。
 - BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，host-locked，`TS_OK`）：**必须按进程注入** `XILINXD_LICENSE_FILE`，否则 Vivado 2026.1 启动/许可检出失败（上一轮 exit 42 的根因）。注入后 Synthesis/Implementation/bitstream 对 `xc7z020` 全部可用（已实测）。
 - Vivado 2026.1 = `D:\Xilinx\2026.1\Vivado\bin\vivado`（**Tcl 模式**）；Vitis 2026.1 的 **XSCT 已禁用**（`xsct.bat` 直接报错退出），软件侧改走 HSI + make；JTAG 用 Vivado 自带 **Tcl 版 `xsdb.bat`**（Vitis 的 xsdb 是 Python 版）。

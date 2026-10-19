@@ -52,8 +52,23 @@ insertions = [
     ),
     (
         "\tvdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);\n",
+        "\t/* S3-DIAG4: 采集 IP 内部有 200M+100M 个 PCLK 周期的上电等待（见 alinx_ov5640.v 的\n"
+        "\t * reset_cnt / fifo_ready_cnt），若不等它就绪就启动 S2MM，会在第一帧落下帧尺寸粘滞错误。*/\n"
+        "\txil_printf(\"S3_DIAG4_WAIT_START\\r\\n\");\n"
+        "\t{\n"
+        "\t\tint s3_w;\n"
+        "\t\tfor (s3_w = 0; s3_w < 15; s3_w++) { sleep(1); }\n"
+        "\t}\n"
+        "\txil_printf(\"S3_DIAG4_WAIT_DONE\\r\\n\");\n"
         "\tvdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);\n"
-        "\txil_printf(\"S3_DIAG_VDMA_WRITE_STARTED\\r\\n\");\n",
+        "\txil_printf(\"S3_DIAG_VDMA_WRITE_STARTED\\r\\n\");\n"
+        "\t{\n"
+        "\t\tint s3_w2;\n"
+        "\t\tvolatile unsigned int *s3_fb = (volatile unsigned int *)dispCtrl.framePtr[dispCtrl.curFrame];\n"
+        "\t\tfor (s3_w2 = 0; s3_w2 < 5; s3_w2++) { sleep(1); }\n"
+        "\t\txil_printf(\"S3_DIAG4_FB=0x%08X 0x%08X 0x%08X 0x%08X\\r\\n\", s3_fb[0], s3_fb[1], s3_fb[2], s3_fb[3]);\n"
+        "\t\txil_printf(\"S3_DIAG4_FB_MID=0x%08X 0x%08X\\r\\n\", s3_fb[960], s3_fb[961]);\n"
+        "\t}\n",
     ),
     (
         "\tsensor_init(&ps_i2c0);\n"
@@ -92,6 +107,23 @@ insertions = [
         "\t\t\t\tusleep(200000);\n"
         "\t\t\t}\n"
         "\t\t}\n"
+        "\t}\n"
+        "\t/* S3-DIAG3: 回读传感器关键寄存器，确认 sensor_init 的写是否生效（帧尺寸不匹配时用）*/\n"
+        "\t{\n"
+        "\t\tu8 d_3808 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3808);\n"
+        "\t\tu8 d_3809 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3809);\n"
+        "\t\tu8 d_380a = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380A);\n"
+        "\t\tu8 d_380b = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380B);\n"
+        "\t\tu8 d_380e = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380E);\n"
+        "\t\tu8 d_380f = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380F);\n"
+        "\t\tu8 d_3035 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3035);\n"
+        "\t\tu8 d_3034 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3034);\n"
+        "\t\tu8 d_4300 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x4300);\n"
+        "\t\tu8 d_501f = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x501F);\n"
+        "\t\txil_printf(\"S3_DIAG3_OUT_W=0x%02X%02X(exp 0x0500)\\r\\n\", d_3808, d_3809);\n"
+        "\t\txil_printf(\"S3_DIAG3_OUT_H=0x%02X%02X(exp 0x02D0)\\r\\n\", d_380a, d_380b);\n"
+        "\t\txil_printf(\"S3_DIAG3_VTS=0x%02X%02X\\r\\n\", d_380e, d_380f);\n"
+        "\t\txil_printf(\"S3_DIAG3_3035=0x%02X 3034=0x%02X 4300=0x%02X 501F=0x%02X\\r\\n\", d_3035, d_3034, d_4300, d_501f);\n"
         "\t}\n"
         "\t/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */\n",
     ),

@@ -38,12 +38,12 @@ def _request(wire, plan):
                 "期限或seq/frame/epoch没有合法递增空间")
     _, input_raw = model.read_bound(plan["rows"][0]["input"])
     reference = csr.bound_json(plan["rows"][0]["reference"])["samples"][0]
-    csr.require(reference["input"]["geometry_wh"] == [640, 480] and
+    csr.require(reference["input"]["geometry_wh"] == [previous.width, previous.height] and
                 transport.digest(input_raw) == reference["input"]["pl_input_sha256"],
-                "冻结sample000输入或640×480来源身份不匹配")
+                "冻结sample000输入或几何来源身份不匹配")
     payload = struct.pack("<II", core, drain) + input_raw
     request, header = transport.make_request(transport.OP_RUN, wire.last_sequence + 1,
-        previous.frame + 1, payload, width=640, height=480, repeat=1)
+        previous.frame + 1, payload, width=previous.width, height=previous.height, repeat=1)
     return request, header, payload
 
 

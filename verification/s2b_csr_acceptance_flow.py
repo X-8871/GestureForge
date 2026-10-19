@@ -15,8 +15,8 @@ from verification import s2b_csr_busy_observer as busy
 
 ROOT = Path(__file__).absolute().parents[1]
 TZ = timezone(timedelta(hours=8))
-BOARD_SOURCE_SHA256 = "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a"
-BUSY_SOURCE_SHA256 = "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
+BOARD_SOURCE_SHA256 = "2384c4c001f82b8c877c0b861f97c356483ec4d5b627b7d8b6ef286b6fdb368b"
+BUSY_SOURCE_SHA256 = "e51dcf4360fe3f14805cc2e873449bc9b4367a92d40c2b06965f1e6cd68b2a20"
 
 
 def _save(path: Path, value: object) -> bytes:

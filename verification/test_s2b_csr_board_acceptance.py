@@ -378,7 +378,11 @@ class RawWireTests(unittest.TestCase):
         self.serial = MemorySerial()
         self.wire = csr.jtag.JtagWireSession(self.serial, self.rx, self.tx, response_timeout=0.1)
         self.weights, self.input_raw = b"W" * 5903100, b"I" * 519168
-        self.plan = {"weights": {"kind": "MOCK_WEIGHTS"}, "rows": [{"input": {"kind": "MOCK_INPUT"}}]}
+        self.reference_raw = json.dumps({"samples": [{"input": {
+            "geometry_wh": [640, 480], "pl_input_sha256": csr.transport.digest(self.input_raw)}}]},
+            separators=(",", ":")).encode("utf-8")
+        self.plan = {"weights": {"kind": "MOCK_WEIGHTS"}, "rows": [{
+            "input": {"kind": "MOCK_INPUT"}, "reference": {"kind": "MOCK_REFERENCE"}}]}
 
     def tearDown(self):
         self.rx.close(); self.tx.close(); self.temp.cleanup()
@@ -393,7 +397,9 @@ class RawWireTests(unittest.TestCase):
     def prior(self):
         """测试文件读取替身仅代表显式小型MOCK，不替代冻结模型核验。"""
         def read_bound(item):
-            return self.root, self.weights if item["kind"] == "MOCK_WEIGHTS" else self.input_raw
+            values = {"MOCK_WEIGHTS": self.weights, "MOCK_INPUT": self.input_raw,
+                      "MOCK_REFERENCE": self.reference_raw}
+            return self.root, values[item["kind"]]
         with mock.patch.object(csr.model, "read_bound", side_effect=read_bound):
             return csr.prior_model_success(self.wire, self.plan)
 
@@ -404,6 +410,19 @@ class RawWireTests(unittest.TestCase):
 
     def test_prior_complete_raw_receipts(self):
         self.seed(); self.prior()
+
+    def test_prior_uses_frozen_sample_geometry(self):
+        self.plan["rows"][0]["reference"] = {"kind": "MOCK_REFERENCE"}
+        self.reference_raw = json.dumps({"samples": [{"input": {
+            "geometry_wh": [1440, 1920], "pl_input_sha256": csr.transport.digest(self.input_raw)}}]},
+            separators=(",", ":")).encode("utf-8")
+        self.send_receive(1, 1, self.weights, epoch=0)
+        payload = struct.pack("<II", 1000, 2000) + self.input_raw
+        request, header = csr.transport.make_request(2, 2, 0, payload, width=1440, height=1920)
+        self.wire.send(request, header, payload, {"kind": "MOCK_ONLY"})
+        self.serial.raw.extend(raw_response(request, 1, status=0xE04, run=True))
+        self.wire.receipt(request)
+        self.prior()
 
     def test_acceptance_runner_registers_borrowed_jtag_receipt(self):
         request, header = csr.transport.make_request(1, 1, 0, self.weights)

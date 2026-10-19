@@ -210,8 +210,9 @@ class BusyObserverTests(unittest.TestCase):
         for name, start, size in (("head13", 0, 5070), ("head26", 5070, 20280)):
             path = self.root / (name + ".bin"); path.write_bytes(self.heads[start:start + size])
             tensors[name] = {"path": str(path), "byte_length": size, "tensor_sha256": transport.digest(path.read_bytes())}
+        self.geometry = [1440, 1920] if self._testMethodName == "test_busy_request_uses_frozen_sample_geometry" else [640, 480]
         sample = {"frame_id": 0, "sample_id": "synthetic_busy_two_boxes", "input": {
-            "geometry_wh": [640, 480], "pl_input_sha256": transport.digest(input_path.read_bytes())},
+            "geometry_wh": self.geometry, "pl_input_sha256": transport.digest(input_path.read_bytes())},
             "head_tensors": tensors, "nms_output_box_count": 2, "detections": self.boxes}
         basis = self.root / "basis.json"
         model.save(basis, {"scope": "MOCK_ONLY", "method": "两个head13 anchor0位置的xywh/object/class为0，其余INT8=-127；sigmoid(0)^2=0.25。anchor81×82，416×312加上下52，直接算出两框；不同类别不互相NMS。"})
@@ -219,6 +220,7 @@ class BusyObserverTests(unittest.TestCase):
         model.save(source, {"schema_version": 1, "kind": "s2b_synthetic_hand_computed", "model_manifest_sha256": transport.MODEL_SHA,
             "basis": {**model.binding(basis), "description": "独立手算两个非空合法框，仅mock"}, "samples": [sample]})
         reference = self.root / "reference.json"
+        self.reference_path = reference
         model.save(reference, {"schema_version": 1, "kind": "s2b_fixed_reference", "model_manifest_sha256": transport.MODEL_SHA,
             "golden_source": {"kind": "synthetic_hand_computed", **model.binding(source)}, "samples": [sample]})
         self.row = {"input": model.binding(input_path), "reference": model.binding(reference)}
@@ -256,7 +258,7 @@ class BusyObserverTests(unittest.TestCase):
     def send_receipt(self, op, sequence, payload):
         """严格有序的真实发送与消费，禁止伪造receipt历史。"""
         request, header = transport.make_request(op, sequence, 0, payload,
-            width=640 if op == 2 else 0, height=480 if op == 2 else 0)
+            width=self.geometry[0] if op == 2 else 0, height=self.geometry[1] if op == 2 else 0)
         self.wire.send(request, header, payload, {"scope": "MOCK_ONLY"})
         return self.wire.receipt(request)
 
@@ -290,6 +292,10 @@ class BusyObserverTests(unittest.TestCase):
         self.assertEqual(len(self.wire.receipt_attempts), 3)
         self.assertEqual([row[0] for row in self.session.operations], ["stop", "mwr", "con"])
         self.assertIn('"kind": "observation"', (self.run / "busy_events.jsonl").read_text(encoding="utf-8"))
+
+    def test_busy_request_uses_frozen_sample_geometry(self):
+        request, _, _ = busy._request(self.wire, self.plan)
+        self.assertEqual((request.width, request.height), (1440, 1920))
 
     def test_arming_to_run_is_legal(self):
         self.session.start_state = 1

@@ -153,6 +153,12 @@ def prior_model_success(wire, plan):
     require(actual == b"".join(wire.rx_chunks), "UART磁盘原字节与实际读取记录不同")
     _, weights = model.read_bound(plan["weights"])
     _, input_raw = model.read_bound(plan["rows"][0]["input"])
+    _, reference_raw = model.read_bound(plan["rows"][0]["reference"])
+    reference = json.loads(reference_raw.decode("utf-8"))["samples"][0]
+    geometry = reference["input"]["geometry_wh"]
+    require(type(geometry) is list and len(geometry) == 2 and
+            all(type(value) is int and 1 <= value <= 0xFFFF for value in geometry),
+            "sample000冻结黄金几何格式错误")
     sent_rows = list(wire.sent_requests.items())
     require(sent_rows and [key for key, _ in sent_rows] == list(range(1, wire.last_sequence + 1)),
             "前置发送sequence缺失或乱序")
@@ -210,7 +216,7 @@ def prior_model_success(wire, plan):
                 "前置UART含未绑定的额外字节或错误启动banner")
     transport.require(previous_epoch == wire.epoch, "前置重放epoch与实际wire不同")
     require(current_weights == weights and last_request.op == transport.OP_RUN and last_request.frame == 0 and
-            (last_request.width, last_request.height, last_request.repeat) == (640, 480, 1) and
+            (last_request.width, last_request.height, last_request.repeat) == (*geometry, 1) and
             last_payload[8:] == input_raw,
             "最后有效LOAD或最终完整消费RUN不是冻结权重与sample000")
 

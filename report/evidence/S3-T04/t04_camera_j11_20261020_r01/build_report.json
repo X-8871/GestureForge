@@ -1,0 +1,54 @@
+{
+  "schema": "stage3_t04_j11_variant_build_record_v1",
+  "task_id": "S3-T04/A-B-J11",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "purpose": "把官方 22_ov5640_single 的 CMOS1 通道从 J10 改映射到 J11，用于区分“J10 侧供电/连线问题”与“摄像头模块本体问题”（Wong 2026-10-20 选择方案 B）",
+  "variant": {
+    "xdc": "board/stage3/hardware/an5642_j11.xdc",
+    "xdc_source": "AX7020 V3.0 用户手册 Table 7.5.1（J11），模块 PinN ↔ 扩展口 PinN",
+    "runner": "scripts/stage3_t04/run_t04_camera_j11_build.sh",
+    "pins": {
+      "cmos1_i2c_sda_io": "J20 (J11 PIN20)",
+      "cmos1_d[9]": "L17", "cmos1_d[8]": "L16", "cmos1_i2c_scl_io": "M18 (PIN23)",
+      "cmos1_d[5]": "M17", "cmos1_d[3]": "D20", "cmos1_d[4]": "D19", "cmos1_d[6]": "E19",
+      "cmos1_d[0]": "E18", "cmos1_d[7]": "G18", "cmos1_d[1]": "G17", "cmos1_d[2]": "H17",
+      "cmos1_pclk": "H16 (PIN32)", "cmos1_href": "G15 (PIN33)", "cmos1_vsync": "H15 (PIN34)",
+      "cmos_rstn_tri_o[0]": "J14 (PIN35)"
+    },
+    "note": "本项目自建变体，非厂商工程；BD 结构、器件与软件地址映射均不变"
+  },
+  "build": {
+    "run_dir": "tmp/s3r06/t04_camera_j11_20261020_r01",
+    "started_local": "2026-10-20 02:17:26",
+    "exited_local": "2026-10-20 02:25:57",
+    "exit_code": 0,
+    "synth_status": "synth_design Complete!",
+    "impl_status": "write_bitstream Complete!",
+    "timing": {"wns_ns": 1.115405, "tns_ns": 0.0, "whs_ns": 0.01464, "ths_ns": 0.0},
+    "drc_errors": 0
+  },
+  "artifacts": {
+    "bitstream": {
+      "path": "tmp/s3r06/t04_camera_j11_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit",
+      "sha256": "268fd81e29114ef38f57c1cbd43bfcbcd4b648509a778bf36dfc2354275499bc"
+    },
+    "xsa": {
+      "path": "tmp/s3r06/t04_camera_j11_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "911d114ec0d4bf528530b6d5b5fff25687f7415d670361af772d2257b75478cb"
+    },
+    "elf": {
+      "path": "tmp/s3r06/t04_camera_j11_elf_r01/app/an5642_single_j11_diag2.elf",
+      "note": "用 J11 的 XSA 重新生成 BSP（exit 0），带 v2 诊断（I2C 控制器寄存器 + 全总线扫描）"
+    }
+  },
+  "placement_verified": {
+    "source": "impl_1/design_1_wrapper_io_placed.rpt",
+    "result": "16 个摄像头信号全部落在 J11 表指定引脚、BANK35、LVCMOS33；I2C 两脚为 BIDIR"
+  },
+  "status": "构建完成；板卡当前未上电（JTAG 探测无目标），实物验证待 Wong 上电后进行",
+  "limitations": [
+    "J11 映射按手册表逐针推出，尚未实物验证；若仍无 ACK，则支持“模块本体/模块供电侧故障”的判断。",
+    "未做 J11 的电气测量；未接显示器。"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T07",
+  "run_id": "deadline_budget_20261019_r01",
+  "source_commit": "f99b2e9f04a18b3e1d3eb0a24bd1ed6b07b41823",
+  "evidence_dir": "report/evidence/S2B-T07/deadline_budget_20261019_r01",
+  "interfaces": [
+    {
+      "name": "physical",
+      "version": "s2b-physical/1.0.0",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "frozen": true
+    },
+    {
+      "name": "uart",
+      "version": "s2bu/1.1",
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "frozen": true
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/compute_deadline_budget.py",
+      "sha256": "e03b62c88a8a94b77ac74baffd160a60b3b6965c856e7c2fd6ab6e6a4bec9374",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/deadline_budget.json",
+      "sha256": "6cbb298c9b4d170be8d705211a7959c1e21b9dd7a778d81cea413f765307b56e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/delivery_manifest.json",
+      "sha256": "450f5072d2b6143d3043e0b82036402149a186bb3065ecd615f0f2563bfbf96f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/executed_calculator_snapshot.py",
+      "sha256": "4bc3627b99e64f15d950642cb65515522312ec4ad74b4f68d25a14781f6a2ec1",
+      "role": "source"
+    },
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_maxpool_engine.sv",
+      "sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_route_engine.sv",
+      "sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "role": "source"
+    },
+    {
+      "path": "src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "role": "source"
+    },
+    {
+      "path": "vitis/s2b_inference_app.c",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T07/physical_contract_20261009_r02/layout_result.json",
+      "sha256": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Static request and compute budget",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B report/evidence/S2B-T07/deadline_budget_20261019_r01/compute_deadline_budget.py",
+      "exit_code": 0,
+      "reason": "Only the stated offline computation or compiler/static comparison succeeded; scope and limitations are retained."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14",
+    "Compiler": "Not invoked"
+  },
+  "limitations": [
+    "Historical custom delivery_manifest.json binds the executed script bytes retained as executed_calculator_snapshot.py.",
+    "Current compute_deadline_budget.py adds non-overwrite checks; R02 is its actual replay.",
+    "Static lower bound only; HP latency, drain and complete PL cycles remain unmeasured."
+  ]
+}

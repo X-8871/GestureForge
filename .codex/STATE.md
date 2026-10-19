@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-18（UTC+8）。按适用 AGENTS.md 恢复；运行状态以代码与原始证据为准。
+更新：2026-10-19（UTC+8）。按适用 AGENTS.md 恢复；运行状态以代码与原始证据为准。
 
 ## 目标、位置与授权
 
@@ -40,5 +40,7 @@
 - 自动审批超时/网络失败记录 `formal_online_20261018_r01/approval_service_failure_r01.json` 原件保留；服务已恢复。CIM真实确认原hw_server/3121均无进程后才新建本任务服务，当前PID10116/父23784，身份从同源CIM绑定，COM4/PNP相同；不因先前无HP软件错误要求新POR。
 - 当前真实后台R02于23:45:13启动：launcher PID13956，官方Vitis Python PID26564，hw_server PID10116；23:48:26主机快照确认仍活，部署、CSR映射、banner和T18 admit均PASS，正在发送权重，尚未计入模型完成次数。配置 `formal_online_20261018_r01/model_config_r04.json` SHA `52535107f08a670aaf389fa88cd46a5d0e68ef6dc4c7e44b42d54095356d59fb`，运行基线e9fac6c、实际runner SHA同上；启动记录 `background_launch_r02.json`、快照 `background_r02_running_snapshot.json`。正式R01失败原件和旧启动记录不覆盖。
 - 当前活动目录为 `report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment/` 与 `formal_stress1000_then109_20261018_r02/`；进度在后者 `frames/progress.jsonl`，1000请求为 `frames/request_00000002.json`，权重完成后才发送。1000成功后同一进程自动执行109；日志 `formal_online_20261018_r01/background_r02_stdout.log`/`background_r02_stderr.log`。禁止重启、重传或另开板上任务争用设备。以实际进程和进度/最终orchestrator_result为准，不以启动器退出0代替脚本结果。用户要求后台启动后结束本轮等待。
-- 一次性续办已实际创建并读回：automation `10-19-05-2b-dsh`，2026-10-19南京时间05:00，目标窗口 `01a09ffa-555f-75f1-bdca-23787df39912`。用户授权该窗口继续与DSH对接、必要时自行正常关闭DSH、范围内自主决定；不得终止健康验收任务或争用JTAG/COM4。定时提示明确须核对实际运行，不把计划当启动。
+- 一次性续办已按用户要求通过原生工具改为2026-10-19南京时间06:30，automation ID仍为 `10-19-05-2b-dsh`，目标窗口 `01a09ffa-555f-75f1-bdca-23787df39912`；不把已设置时间当作成功执行。用户授权该窗口继续与DSH对接、必要时自行关闭DSH、范围内自主决定；不得终止健康验收任务或争用JTAG/COM4。
+- 2026-10-19在正式运行期间完成固定输入核验并独审PASS：498处绑定、490文件、100084257字节全部SHA一致，XSA内嵌bit一致；提交 `f99b2e9f04a18b3e1d3eb0a24bd1ed6b07b41823`，入口 `S2B-T18/freeze_input_check_20261019_r02/`。R01沙箱读取Python312串口库受限的失败原件保留；R02授权只读核验及inputs/evidence检查通过，不代表G3/G4/G5。活动代码/配置未改，证据提交造成HEAD前进不使既有运行失效。13:06已观察958/1000、corpus0，运行仍须读实时进度。CSR现有flow已具备忙启动、非法参数、ABORT黄金恢复及静止矩阵；短超时/排空和忙时实际reset尚未由该flow覆盖，待当前1000及109结束并清理设备后执行板上后续。
+- 已独审离线准备：`S2B-T07/deadline_budget_20261019_r02/` 重算38层逻辑请求96135961、卷积compute迭代424506368、含最少request/response状态的乐观下界616778290 cycles；不代表实际周期或HP延迟上界。cache维护覆盖实际input/weights/features及两头，未用arena区不新增逐字节探针要求。`S2B-T15/offline_restore_20261019_r01/` 在隔离副本重编译4个C对象和两个ELF链接退出0，入口/布局相同，PT_LOAD仅20字节GNU build-id差异，归一化一致；BSP复用、PL未重建、副本linker BOM被忽略及初期部分失败日志已覆写的限制保留。旧tmp依赖另在独立recovery_inputs运行处理中，不得称完整恢复或G5。回执 `S2B-T18/offline_freeze_preparation_review_20261019_r01/`；CSR覆盖/未测项见 `S2B-T20/csr_offline_coverage_20261019_r01/`。
 - 首样本发送45.053秒、发送结束至完整结果49.652秒；1000约14小时仅为单样本外推，今日不能承诺冻结。CORE/DRAIN均有限 `0xFFFFFFFF`，UART观察450秒；最终deadline量化、109/1000、板上异常恢复、适用干净重建/可恢复冻结及G3/G4/G5均未完成。核心综合总预算10次，已用6次，单重型，不重跑现有R04构建；不得使用DSH降级DRC的counter探针bit上板。

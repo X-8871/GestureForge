@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T20",
+  "run_id": "csr_offline_coverage_20261019_r01",
+  "source_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+  "evidence_dir": "report/evidence/S2B-T20/csr_offline_coverage_20261019_r01",
+  "interfaces": [
+    {
+      "name": "physical",
+      "version": "s2b-physical/1.0.0",
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "frozen": true
+    },
+    {
+      "name": "uart",
+      "version": "s2bu/1.1",
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "frozen": true
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T20/csr_offline_coverage_20261019_r01/coverage_review.json",
+      "sha256": "7b2308380db2b2cfaacce896dfec792576eaec13533e0b9a590da0bbe6567e13",
+      "role": "result"
+    },
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_acceptance_flow.py",
+      "sha256": "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_board_acceptance.py",
+      "sha256": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_busy_observer.py",
+      "sha256": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Read-only CSR code coverage review",
+      "status": "PASS",
+      "command": "Independent read-only source review by /root/csr_ready_20261019",
+      "exit_code": 0,
+      "reason": "Code scene coverage and outstanding board gaps are explicitly recorded; no hardware executed."
+    },
+    {
+      "name": "Board CSR recovery completion",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "Current model stress and corpus retain exclusive board session; board follow-up remains pending."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  },
+  "limitations": [
+    "Offline coverage review only; not board acceptance or G4/G5."
+  ]
+}

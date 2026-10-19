@@ -1,0 +1,1580 @@
+{
+  "schema_version": "s2b_tiny416_deadline_budget_offline_v1",
+  "status": "OFFLINE_COUNT_ONLY_NO_BOARD_OR_HP_LATENCY_CLAIM",
+  "source_commit": "f99b2e9f04a18b3e1d3eb0a24bd1ed6b07b41823",
+  "working_tree_note": "计算仅读取 descriptor/source；如其他文件有未提交变更，不纳入本计算。",
+  "model": {
+    "model_id": "tiny416",
+    "input_wh": [
+      416,
+      416
+    ],
+    "layer_count": 38
+  },
+  "sources": [
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "bytes": 215271
+    },
+    {
+      "path": "src/s2b_maxpool_engine.sv",
+      "sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "bytes": 21761
+    },
+    {
+      "path": "src/s2b_route_engine.sv",
+      "sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "bytes": 17533
+    },
+    {
+      "path": "src/s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "bytes": 10535
+    },
+    {
+      "path": "src/s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "bytes": 15073
+    },
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "bytes": 374316
+    },
+    {
+      "path": "src/s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "bytes": 5427
+    },
+    {
+      "path": "src/s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "bytes": 3696
+    },
+    {
+      "path": "src/s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "bytes": 11284
+    },
+    {
+      "path": "src/s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "bytes": 13808
+    },
+    {
+      "path": "src/s2b_control_csr.sv",
+      "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+      "bytes": 21722
+    },
+    {
+      "path": "vitis/s2b_inference_app.c",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "bytes": 23212
+    }
+  ],
+  "source_references": {
+    "src/s2b_conv_tile_engine.sv": [
+      "69-96: tile/lane constants and FSM states",
+      "2268-2290: feature patch bounds",
+      "2750-2767: patch dimensions and scan setup",
+      "2778-2835: feature/weight byte requests",
+      "2905-2968: ST_COMPUTE iteration and requant",
+      "2964-3010: per-byte output writes"
+    ],
+    "src/s2b_maxpool_engine.sv": [
+      "65-78: FSM states",
+      "404-410: four window taps",
+      "414-459: read/write request and response states"
+    ],
+    "src/s2b_route_engine.sv": [
+      "340-377: selected-input read and output-write transaction states"
+    ],
+    "src/s2b_upsample_engine.sv": [
+      "190-229: nearest source read and output write transaction states"
+    ],
+    "src/s2b_hp0_word_adapter.sv": [
+      "98-112: logical request capture and response match",
+      "195-245: AXI handshakes and response ledger"
+    ],
+    "src/s2a_network_descriptor_pkg.sv": [
+      "4-40: layer/op contract and serial dispatch",
+      "61-81: op/input count/source arrays",
+      "241-403: input tensor dimensions",
+      "528-608: output tensor dimensions",
+      "616-704: kernels/strides/padding/groups",
+      "824-920: pool/upsample/route parameters"
+    ]
+  },
+  "s2a_s2b_counting_scope": "S2B counts above are computed from the S2B engine loops and current descriptor. S2A and S2B source files are distinct revisions; no S2A latency/cycle estimate is reused or asserted equivalent. Model-level transaction counts use successful-path logical byte operations, independent of extra S2B validation/recovery FSM cycles.",
+  "count_inputs": [
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "role": "当前 S2B core 使用的冻结 descriptor ROM；解析每层 op/shape/geometry/input references。",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+    },
+    {
+      "path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+      "role": "模型身份校验，不从 S2A 引擎估算 S2B 工作量。",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a"
+    },
+    {
+      "path": "report/evidence/S2B-T07/physical_contract_20261009_r02/layout_result.json",
+      "role": "历史 T07 层数/操作/输出形状交叉核对；不作为访问量来源。",
+      "sha256": "34bc0b1aa4a632ad4fdabd5154ee181ab3f3a7708cafff2968a863263a2f7b1f"
+    }
+  ],
+  "parameters": {
+    "conv_tile_edge_pixels": 8,
+    "conv_output_lanes": 8,
+    "counter_width_bits": 32,
+    "counter_max_cycles": 4294967295,
+    "candidate_clock_hz_for_conversion_only": 50000000
+  },
+  "deadline_counter_reference": {
+    "path": "src/s2a_control_csr.sv",
+    "lines": "69-70, 171-172, 244-253",
+    "fact": "被当前 s2b_stage2b_core 内嵌的 runtime shell 使用；timeout_cycles / elapsed_cycles 均为 32 位，elapsed_cycles 从 START 清零，活跃期间比较 elapsed+1 与配置阈值。32 位非零最大阈值为 4,294,967,295 cycles。",
+    "interpretation": "这是可配置 watchdog 的最大可表达阈值（约 85.8993459 秒 @ 声明 50 MHz），不证明模型必定在此时限内成功完成。",
+    "clock_reference": {
+      "path": "src/s2b_inference_top.sv",
+      "line": 8,
+      "freq_hz": 50000000
+    },
+    "counter_max_seconds_at_declared_clock": 85.8993459,
+    "drain_counter": {
+      "path": "src/s2b_control_csr.sv",
+      "lines": "62, 340-343",
+      "fact": "另有独立 32 位饱和 drain_cycles 和 drain_timeout；其实际清账时间/HP 响应延迟本次未测。"
+    }
+  },
+  "static_cache_memory_ranges": {
+    "source": {
+      "path": "vitis/s2b_inference_app.c",
+      "lines": "31-35, 217-226, 260-261",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39"
+    },
+    "arena": {
+      "start": 0,
+      "end_exclusive": 33554432,
+      "bytes": 33554432,
+      "unit": "byte"
+    },
+    "input_flush": {
+      "start": 0,
+      "end_exclusive": 519168,
+      "bytes": 519168,
+      "aligned_64": true
+    },
+    "weight_flush": {
+      "start": 1048576,
+      "end_exclusive": 6951680,
+      "bytes": 5903104,
+      "source_payload_bytes": 5903100,
+      "alignment": 64
+    },
+    "feature_flush_invalidate": {
+      "start": 16777216,
+      "end_exclusive": 28159424,
+      "bytes": 11382208,
+      "logical_end_exclusive": 28159416,
+      "alignment": 64
+    },
+    "head13": {
+      "start": 27549952,
+      "end_exclusive": 27555022,
+      "bytes": 5070,
+      "contained_in_feature_logical_range": true
+    },
+    "head26": {
+      "start": 28139136,
+      "end_exclusive": 28159416,
+      "bytes": 20280,
+      "contained_in_feature_logical_range": true
+    },
+    "arena_remaining_after_feature_end": 5395016,
+    "interpretation": "静态 cache maintenance 覆盖真实 input/weights/feature/head 地址范围；arena 剩余区不构成逐字节探针要求。109/1000 完成后用同一 ELF 的全模型实际访问和 golden 对部署 cache 路径作判断；本清单不因 256B 小探针缺少 32MiB 覆盖而新增要求。"
+  },
+  "formulas": {
+    "conv_feature_reads_bytes": "sum_tiles(IC * valid_in_bounds_patch_height * valid_in_bounds_patch_width); patch=(tile_output_extent-1)*stride+kernel; tile_origin=tile_start*stride-pad_top/left",
+    "conv_weight_reads_bytes": "tile_count * OC * (IC*KH*KW); S2B scans each output-channel lane and reduction byte for each spatial tile",
+    "conv_macs": "N*OH*OW*OC*IC*KH*KW/groups; model groups=1",
+    "conv_compute_state_cycles": "OH*OW*ceil(OC/8)*(IC*KH*KW), counting only ST_COMPUTE iterations; excludes setup, feature/weight scan, requant, output, requests, and stalls",
+    "maxpool_reads_writes_bytes": "reads=4*N*OC*OH*OW for 2x2; writes=N*OC*OH*OW",
+    "route_reads_writes_bytes": "reads=sum_inputs(N*C_selected*H*W), writes=N*OC*OH*OW; descriptor equality checked",
+    "upsample_reads_writes_bytes": "one logical source byte and one output byte per output element",
+    "yolo_reads_writes_bytes": "zero; descriptor alias only",
+    "logical_request_cycle_lower_bound": "2 cycles per one-byte logical request (request-state acceptance plus response-state minimum); no backend/HP wait is included; this is an optimistic engine-state lower bound"
+  },
+  "totals": {
+    "logical_reads": 84753811,
+    "logical_writes": 11382150,
+    "macs": 3395531776,
+    "conv_compute_cycles": 424506368
+  },
+  "request_budget": {
+    "logical_read_requests": 84753811,
+    "logical_write_requests": 11382150,
+    "logical_requests_total": 96135961,
+    "minimum_request_state_cycles": 192271922,
+    "optimistic_core_cycle_lower_bound": 616778290,
+    "counter_max_cycles": 4294967295,
+    "optimistic_remaining_cycles_after_compute_and_minimum_request_states": 3678189005,
+    "optimistic_average_extra_cycles_per_request_headroom": 38.26028227876143,
+    "counter_max_seconds_at_candidate_clock": 85.8993459,
+    "optimistic_lower_bound_seconds_at_candidate_clock": 12.3355658
+  },
+  "known_lower_bound_and_unmeasured": {
+    "known": [
+      "descriptor MAC 运算数",
+      "conv ST_COMPUTE 状态迭代数",
+      "模型级逻辑单字节读写数",
+      "请求状态至少各经过 request/response 两状态的乐观周期下界"
+    ],
+    "unmeasured": [
+      "HP0 每个 AR/R/AW/W/B 分段实际等待周期",
+      "adapter/backend stall 周期",
+      "DRain/ledger-empty 周期",
+      "任务从 START 到 DONE 的完整 PL cycle 数",
+      "计时器在当前运行图像上的实际余量",
+      "FPGA 端每个逻辑 byte 请求的实际物理总线占用分布"
+    ],
+    "not_a_hard_upper_bound": "任何已收集 host elapsed 都仅能作为混合接收期观察值；若在 PL 启动后才起计，或重复帧间 PS/UART 处理未计时，不能覆盖完整 PL walltime。观察值和经验分位数不能证明 HP 延迟上界或 deadline 硬上界。"
+  },
+  "layers": [
+    {
+      "layer_index": 0,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          3,
+          416,
+          416
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        208,
+        208
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "logical_feature_reads_bytes": 1167507,
+      "logical_feature_writes_bytes": 1384448,
+      "conv_feature_patch_reads_bytes": 583443,
+      "conv_weight_reads_bytes": 584064,
+      "mac_operations": 37380096,
+      "conv_compute_state_cycles": 4672512
+    },
+    {
+      "layer_index": 1,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          32,
+          208,
+          208
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "logical_feature_reads_bytes": 4663808,
+      "logical_feature_writes_bytes": 692224,
+      "conv_feature_patch_reads_bytes": 1548800,
+      "conv_weight_reads_bytes": 3115008,
+      "mac_operations": 199360512,
+      "conv_compute_state_cycles": 24920064
+    },
+    {
+      "layer_index": 2,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 7278592,
+      "logical_feature_writes_bytes": 692224,
+      "conv_feature_patch_reads_bytes": 1048576,
+      "conv_weight_reads_bytes": 6230016,
+      "mac_operations": 398721024,
+      "conv_compute_state_cycles": 49840128
+    },
+    {
+      "layer_index": 3,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "groups": 2,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 346112,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 4,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          32,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2081792,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 524288,
+      "conv_weight_reads_bytes": 1557504,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 5,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          32,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        32,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2081792,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 524288,
+      "conv_weight_reads_bytes": 1557504,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 6,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          32,
+          104,
+          104
+        ],
+        [
+          1,
+          32,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 692224,
+      "logical_feature_writes_bytes": 692224,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 7,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 1384448,
+      "logical_feature_writes_bytes": 692224,
+      "conv_feature_patch_reads_bytes": 692224,
+      "conv_weight_reads_bytes": 692224,
+      "mac_operations": 44302336,
+      "conv_compute_state_cycles": 5537792
+    },
+    {
+      "layer_index": 8,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          104,
+          104
+        ],
+        [
+          1,
+          64,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        104,
+        104
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 1384448,
+      "logical_feature_writes_bytes": 1384448,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 9,
+      "op_code": 1,
+      "op": "maxpool",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          104,
+          104
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        2,
+        2
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "logical_feature_reads_bytes": 1384448,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 10,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 7749632,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 524288,
+      "conv_weight_reads_bytes": 7225344,
+      "mac_operations": 398721024,
+      "conv_compute_state_cycles": 49840128
+    },
+    {
+      "layer_index": 11,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "groups": 2,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 173056,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 12,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2068480,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 262144,
+      "conv_weight_reads_bytes": 1806336,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 13,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        64,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2068480,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 262144,
+      "conv_weight_reads_bytes": 1806336,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 14,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          64,
+          52,
+          52
+        ],
+        [
+          1,
+          64,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 346112,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 15,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 1148928,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 346112,
+      "conv_weight_reads_bytes": 802816,
+      "mac_operations": 44302336,
+      "conv_compute_state_cycles": 5537792
+    },
+    {
+      "layer_index": 16,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          52,
+          52
+        ],
+        [
+          1,
+          128,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        52,
+        52
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 692224,
+      "logical_feature_writes_bytes": 692224,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 17,
+      "op_code": 1,
+      "op": "maxpool",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          52,
+          52
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        2,
+        2
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "logical_feature_reads_bytes": 692224,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 18,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 9699328,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 262144,
+      "conv_weight_reads_bytes": 9437184,
+      "mac_operations": 398721024,
+      "conv_compute_state_cycles": 49840128
+    },
+    {
+      "layer_index": 19,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "groups": 2,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 86528,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 20,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2490368,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 131072,
+      "conv_weight_reads_bytes": 2359296,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 21,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 2490368,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 131072,
+      "conv_weight_reads_bytes": 2359296,
+      "mac_operations": 99680256,
+      "conv_compute_state_cycles": 12460032
+    },
+    {
+      "layer_index": 22,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          26,
+          26
+        ],
+        [
+          1,
+          128,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 173056,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 23,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 1221632,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 173056,
+      "conv_weight_reads_bytes": 1048576,
+      "mac_operations": 44302336,
+      "conv_compute_state_cycles": 5537792
+    },
+    {
+      "layer_index": 24,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          26,
+          26
+        ],
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 346112,
+      "logical_feature_writes_bytes": 346112,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 25,
+      "op_code": 1,
+      "op": "maxpool",
+      "input_shapes_nchw": [
+        [
+          1,
+          512,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        2,
+        2
+      ],
+      "stride_hw": [
+        2,
+        2
+      ],
+      "logical_feature_reads_bytes": 346112,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 26,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          512,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 9552384,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 115200,
+      "conv_weight_reads_bytes": 9437184,
+      "mac_operations": 398721024,
+      "conv_compute_state_cycles": 49840128
+    },
+    {
+      "layer_index": 27,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          512,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 610816,
+      "logical_feature_writes_bytes": 43264,
+      "conv_feature_patch_reads_bytes": 86528,
+      "conv_weight_reads_bytes": 524288,
+      "mac_operations": 22151168,
+      "conv_compute_state_cycles": 2768896
+    },
+    {
+      "layer_index": 28,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        512,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 4776192,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 57600,
+      "conv_weight_reads_bytes": 4718592,
+      "mac_operations": 199360512,
+      "conv_compute_state_cycles": 24920064
+    },
+    {
+      "layer_index": 29,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          512,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 147968,
+      "logical_feature_writes_bytes": 5070,
+      "conv_feature_patch_reads_bytes": 86528,
+      "conv_weight_reads_bytes": 61440,
+      "mac_operations": 2595840,
+      "conv_compute_state_cycles": 346112
+    },
+    {
+      "layer_index": 30,
+      "op_code": 4,
+      "op": "yolo",
+      "input_shapes_nchw": [
+        [
+          1,
+          30,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        13,
+        13
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 0,
+      "logical_feature_writes_bytes": 0,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 31,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 43264,
+      "logical_feature_writes_bytes": 43264,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 32,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        13,
+        13
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 174336,
+      "logical_feature_writes_bytes": 21632,
+      "conv_feature_patch_reads_bytes": 43264,
+      "conv_weight_reads_bytes": 131072,
+      "mac_operations": 5537792,
+      "conv_compute_state_cycles": 692224
+    },
+    {
+      "layer_index": 33,
+      "op_code": 3,
+      "op": "upsample",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          13,
+          13
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        128,
+        26,
+        26
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 86528,
+      "logical_feature_writes_bytes": 86528,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 34,
+      "op_code": 2,
+      "op": "route",
+      "input_shapes_nchw": [
+        [
+          1,
+          128,
+          26,
+          26
+        ],
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        384,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 259584,
+      "logical_feature_writes_bytes": 259584,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    },
+    {
+      "layer_index": 35,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          384,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        256,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        3,
+        3
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 14548992,
+      "logical_feature_writes_bytes": 173056,
+      "conv_feature_patch_reads_bytes": 393216,
+      "conv_weight_reads_bytes": 14155776,
+      "mac_operations": 598081536,
+      "conv_compute_state_cycles": 74760192
+    },
+    {
+      "layer_index": 36,
+      "op_code": 0,
+      "op": "convolutional",
+      "input_shapes_nchw": [
+        [
+          1,
+          256,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "groups": 1,
+      "kernel_hw": [
+        1,
+        1
+      ],
+      "stride_hw": [
+        1,
+        1
+      ],
+      "logical_feature_reads_bytes": 295936,
+      "logical_feature_writes_bytes": 20280,
+      "conv_feature_patch_reads_bytes": 173056,
+      "conv_weight_reads_bytes": 122880,
+      "mac_operations": 5191680,
+      "conv_compute_state_cycles": 692224
+    },
+    {
+      "layer_index": 37,
+      "op_code": 4,
+      "op": "yolo",
+      "input_shapes_nchw": [
+        [
+          1,
+          30,
+          26,
+          26
+        ]
+      ],
+      "output_shape_nchw": [
+        1,
+        30,
+        26,
+        26
+      ],
+      "groups": 0,
+      "kernel_hw": [
+        0,
+        0
+      ],
+      "stride_hw": [
+        0,
+        0
+      ],
+      "logical_feature_reads_bytes": 0,
+      "logical_feature_writes_bytes": 0,
+      "conv_feature_patch_reads_bytes": 0,
+      "conv_weight_reads_bytes": 0,
+      "mac_operations": 0,
+      "conv_compute_state_cycles": 0
+    }
+  ]
+}

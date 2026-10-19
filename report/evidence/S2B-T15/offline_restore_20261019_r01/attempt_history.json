@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "captured_from_tool_results": true,
+  "attempts": [
+    {
+      "command": "ninja -C <offline-copy>/infer/build -t clean; ninja -C <offline-copy>/infer/build -v infer.elf",
+      "exit_codes": [1, 1],
+      "outcome": "Ninja build.ninja UTF-8 BOM 导致首行解析错误；未能进行该次清理或编译。",
+      "raw_log_status": "该次日志文件随后被同名的第二次尝试覆盖；此处为工具返回内容的摘要记录，不冒充原始日志。"
+    },
+    {
+      "command": "ninja -C <offline-copy>/infer/build -t clean; ninja -C <offline-copy>/infer/build -v infer.elf",
+      "exit_codes": [0, 1],
+      "outcome": "新副本清理退出0。构建触发CMake regenerate，旧CMakeCache含UTF-8 BOM且记录旧工作目录，regen失败；没有将原工作区当作构建输出。",
+      "raw_log_status": "当前目录内 infer-clean.log / infer-rebuild.log 保存了第二次尝试日志。"
+    },
+    {
+      "command": "python.exe report/evidence/S2B-T15/offline_restore_20261019_r01/restore_offline_build.py",
+      "exit_code": 1,
+      "outcome": "直接 GCC 编译被副本 Xilinx.spec 的 UTF-8 BOM 阻断：arm-xilinx-eabi-gcc.exe: fatal error: specs file malformed after 74 characters。随后从既有 R04 临时目录恢复该spec文件并重跑成功。",
+      "raw_log_status": "infer-compile-00.log 后来由成功重跑覆盖；错误文本来自工具返回输出的记录。"
+    },
+    {
+      "command": "python.exe report/evidence/S2B-T15/offline_restore_20261019_r01/restore_offline_build.py",
+      "exit_code": 0,
+      "outcome": "两应用所有编译/链接均退出0；结果及输入输出SHA见 machine_result.json。链接脚本副本仍含BOM，差异见 summary.md 与 comparison 文件。",
+      "raw_log_status": "成功编译/链接日志保留在本目录。"
+    }
+  ]
+}

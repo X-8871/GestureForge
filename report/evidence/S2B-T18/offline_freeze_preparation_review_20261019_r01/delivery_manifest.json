@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "offline_freeze_preparation_review_20261019_r01",
+  "source_commit": "f99b2e9f04a18b3e1d3eb0a24bd1ed6b07b41823",
+  "evidence_dir": "report/evidence/S2B-T18/offline_freeze_preparation_review_20261019_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This receipt binds read-only review outputs; referenced task manifests retain their physical and UART interface definitions.",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/offline_freeze_preparation_review_20261019_r01/review_outcome.json",
+      "sha256": "8b3d6c6e8030e16819cf533e352d62b8ea0c7c1bb336b515c33816fe8c735f48",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T15/offline_restore_20261019_r01/delivery_manifest.json",
+      "sha256": "89986bedf5c7efb27d911a806ca72e54592528fddd60b00fae03c4cdcf5db4ec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/stage_delivery_manifest.json",
+      "sha256": "34f74a81fd82ac06ff9dec42c0ed41b5846e4ab6732a32c6db2f3eafa589a3cb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r02/delivery_manifest.json",
+      "sha256": "0ff6db98a0112db46031bf0fdf93d2e5de8f0e384e9d8149de786fd20a025da4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_offline_coverage_20261019_r01/coverage_review.json",
+      "sha256": "7b2308380db2b2cfaacce896dfec792576eaec13533e0b9a590da0bbe6567e13",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r01/compute_deadline_budget.py",
+      "sha256": "e03b62c88a8a94b77ac74baffd160a60b3b6965c856e7c2fd6ab6e6a4bec9374",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T15/offline_restore_20261019_r01/restore_offline_build.py",
+      "sha256": "dd85e79ae0d304db0e4653344cc4b4dca91d54573a42ad25b23641411f51f94c",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Independent offline freeze preparation review",
+      "status": "PASS",
+      "command": "Read-only independent review by /root/csr_ready_20261019",
+      "exit_code": 0,
+      "reason": "Limited PS build/static comparison, budget, cache range and CSR coverage facts independently checked; board acceptance excluded."
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.12.14"
+  },
+  "limitations": [
+    "Not model corpus/stress, board recovery, full BSP/PL rebuilding or G4/G5 acceptance.",
+    "T15 original/stripped ELF files are not byte-identical; normalization excludes only recorded GNU build-id descriptors.",
+    "T15 copied linker scripts had ignored BOM and some early failure logs were overwritten; limits remain explicit.",
+    "No calculator rerun or device access by Reviewer; parent actually ran the corrected calculator to independent R02."
+  ]
+}

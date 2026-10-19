@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "OFFLINE_COVERAGE_REVIEW_COMPLETE_HARDWARE_NOT_RUN",
+  "reviewer_task": "/root/csr_ready_20261019",
+  "reviewed_source_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+  "source_sha256": {
+    "vitis/run_s2b_model_acceptance.py": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+    "verification/s2b_csr_acceptance_flow.py": "136b7bf5831363080ac1224fbe32c07c7dac001b63ad59198de098688cf6046b",
+    "verification/s2b_csr_board_acceptance.py": "b26a3cfaa9e7ecc5d901339b9edd85ba342a29d3a88930981096390c7309aa8a",
+    "verification/s2b_csr_busy_observer.py": "de15f04086f025de2786ebdb08d2c913b1a88073dcaadd4a0f3057f39d9dd3f2"
+  },
+  "existing_flow": {
+    "entry": "vitis/run_s2b_model_acceptance.py --scope csr",
+    "implemented_scenes": [
+      "同平台部署、banner及sample000黄金比对",
+      "BusyObserver在真实忙窗口写START，核对拒绝响应、LAST_REJECT及epoch/frame和黄金输出",
+      "sample000重新接收",
+      "UART诊断和DAP ABORT、显式最终ACK及sample000热恢复黄金比对",
+      "停CPU后的非法CMD、8类非法参数、terminal START、错误/正确/重复ACK及配置恢复"
+    ],
+    "hardware_execution": "NOT_RUN_IN_THIS_REVIEW"
+  },
+  "remaining_gaps": [
+    {
+      "name": "实际CORE短超时、安全排空及恢复",
+      "status": "NOT_RUN",
+      "reason": "已有execute_short_deadline helper未接入正式flow；该helper只覆盖code5及匹配ACK，外部START改变epoch后仍需正常模型恢复证明。"
+    },
+    {
+      "name": "DRAIN超时、隔离与晚排空",
+      "status": "NOT_RUN",
+      "reason": "zero_drain_deadline仅为非法参数拒绝；不能据此声称实际排空超时或晚返回路径已验收。"
+    },
+    {
+      "name": "忙时或未决事务期间实际reset",
+      "status": "NOT_RUN",
+      "reason": "入口统一复位位于新部署前，不替代运行期间的GP0 reset/恢复实板场景。"
+    }
+  ],
+  "execution_preparation": {
+    "official_launcher": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat",
+    "script": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py",
+    "scope": "csr",
+    "configuration_changes_required": [
+      "使用启动时实际HEAD和独立新RunId，不复用正在运行的model_config_r04.json。",
+      "保留同R04 bit/XSA/ELF、固定输入及已审回执的实际字节绑定，重新核对runner SHA。",
+      "在当前1000及109的最终结果与资源清理完成后，读取实时主机/板卡身份准备新配置。"
+    ],
+    "hardware_started": false
+  },
+  "limitations": [
+    "本记录保存只读代码覆盖审查结果，不是新板上结果。",
+    "现有CSR scope即使通过，也不能单独关闭上述缺口或阶段G4/G5。",
+    "不修改活动运行源、配置、UART或JTAG会话；不新增设备操作。"
+  ]
+}

@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # 阶段3 T03 板测下载（Git Bash + Vivado xsdb）。只做易失性 JTAG 下载：PL bitstream + PS 初始化 + ELF。
-# 用法: bash run_jtag_download_t03.sh <run_dir> <elf_path>
-#   run_dir 需包含 design_1_wrapper.xsa 与 project/vdma_hdmi_out.runs/impl_1/design_1_wrapper.bit
+# 用法: bash run_jtag_download_t03.sh <run_dir> <elf_path> [bit_path]
 set -u
 
 RUN_DIR="${1:?需要 run_dir}"
 ELF="${2:?需要 ELF 路径}"
+BIT_ARG="${3:-}"
 
 WT="D:/codex-worktrees/dbdf"
-BIT_DIR="$RUN_DIR/project/vdma_hdmi_out.runs/impl_1"
-BIT="$BIT_DIR/design_1_wrapper.bit"
+if [ -n "$BIT_ARG" ]; then
+  BIT="$BIT_ARG"
+else
+  BIT="$(ls -1 "$RUN_DIR"/project/*.runs/impl_1/design_1_wrapper.bit 2>/dev/null | head -1)"
+fi
 XSA="$RUN_DIR/design_1_wrapper.xsa"
 PS7="$RUN_DIR/ps7_init.tcl"
 LOG_DIR="$RUN_DIR/jtag_download"

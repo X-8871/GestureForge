@@ -32,6 +32,9 @@
 - 外设基址（软件侧必须用 T04 自己的 XSA 生成 BSP）：显示 `axi_vdma_0` 0x4300_0000、摄像头 `axi_vdma_1` 0x4301_0000、`cmos_rst` 0x4120_0000、`v_tc` 0x43C0_0000、`axi_dynclk` 0x43C1_0000；显示模式 `VMODE_1280x720`（固定，不读 EDID）；显示与采集共用同一帧缓冲（官方例程口径，快速运动可能撕裂）。
 - 应用诊断补丁 `board/stage3/software/sensor/s3_t04_app_diag.patch`（4 条 S3_DIAG UART 打印，已验证可干净应用）；UART 抓取 `scripts/stage3_t03b/read_uart.py`（COM4@115200）；板测步骤 `board/stage3/board_test_runbook.md`。
 - 证据入口：`report/evidence/S3-T04/t04_camera_build_20261020_r03/build_report.json`。
+- **无摄像头板卡预测试已通过**（2026-10-20 01:2x，无显示器/无摄像头）：T04 bitstream + 摄像头 ELF 经 JTAG 下载运行，UART 输出 `S3_DIAG_APP_ENTER` / `SENSOR_ID=0x0000`（未接摄像头，I2C 无应答，符合预期）/ `DISPLAY_START status=0`（成功）/ `VDMA_WRITE_STARTED`；寄存器回读两个 VDMA 均运行（显示 MM2S CR=0x00010001、SR Halted=0；摄像头 S2MM CR=0x43010030=`0x00018003`、SR Halted=0），dynclk RUNNING/LOCK=0xCFAFA401。记录 `report/evidence/S3-T04/t04_camera_build_20261020_r03/board_pretest_record.md`。
+- **口径坑**：VDMA 的 **S2MM 寄存器组在 +0x30**（CR=+0x30、SR=+0x34），MM2S 才在 +0x00；首轮回读因偏移错误得到 0，已修正并保留错误日志。
+- 软件侧交付（由 Developer 产出）：可重放脚本 `scripts/stage3_t04_vitis/run_stage3_vitis_elf.cmd`（参数 = XSA / 输出目录 / 应用源码 / [ELF 名] / [补丁]）；T03 ELF 与 T04 摄像头 ELF（`an5642_single_t04_r03.elf`，302,004 B，SHA-256 `a3720d8c6d50ea9d4671ecc2029a4341911b350ab9b80d54066b84673c8bfa74`）、报告在 `report/evidence/S3-T03/vitis_rehearsal_20261020_r01/`。Vitis 2026.1 入口 = `sdtgen`（仍加载完整 HSI：`hsi::open_hw_design`→`create_sw_design`→`generate_bsp`/`generate_app`）+ `make`；Unified 平台不可用的根因是 XSA 的 `xsa.xml` 无处理器节点。
 
 ## 可复用命令（Git Bash）
 

@@ -578,6 +578,421 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                     runner.validate_v1_inputs(config, apis=object())
             git.assert_not_called()
 
+    def test_csr_reentry_requires_bound_complete_model_pass_and_same_hardware(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_csr_reentry_") as temp:
+            root = Path(temp)
+            config_path = self._make_preflight_tree(root, physical="G0_FROZEN", uart="G0_FROZEN")
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            config["run_id"] = "csr_current_run"
+            run_id = "prior_model_run"
+            config["hw_server"] = {"process_id": 41, "executable_path": r"D:\Xilinx\hw_server.exe",
+                                   "creation_time_filetime_utc": "100"}
+            config["serial"] = {"identity": {"port": "COM8", "name": "USB Serial Device (COM8)",
+                                                "pnp_device_id": r"USB\VID_1234&PID_5678",
+                                                "config_manager_error_code": 0}}
+            evidence = root / "report/evidence/S2B-T18"
+            run_dir = evidence / run_id
+            deploy = evidence / (run_id + "_deployment")
+            run_dir.mkdir(parents=True)
+            deploy.mkdir(parents=True)
+            prior_config = {"run_id": run_id, "bindings": config["bindings"],
+                            "hw_server": config["hw_server"], "serial": config["serial"]}
+            config_binding = deploy / "input_config.json"
+            config_binding.write_text(json.dumps(prior_config), encoding="utf-8")
+            validated = {"server": {"ProcessId": 41, "ExecutablePath": r"D:\Xilinx\hw_server.exe",
+                                    "CreationTimeFileTimeUtc": "100"},
+                         "listeners": [{"LocalAddress": "127.0.0.1", "LocalPort": 3121, "OwningProcess": 41}],
+                         "uart": {"Name": "USB Serial Device (COM8)", "PNPDeviceID": r"USB\VID_1234&PID_5678",
+                                  "ConfigManagerErrorCode": 0}}
+            result = {"scope": "model", "status": "PASS_MODEL_CORPUS_AND_STRESS_ONLY",
+                      "native_exit_code": 0, "run_id": run_id, "cleanup_errors": [],
+                      "finished_at_utc8": "2026-10-18T22:00:00+08:00",
+                      "acceptance": {"status": "PASS_MODEL_CORPUS_AND_STRESS_ONLY",
+                                     "completed_stress": 1000, "completed_corpus": 109},
+                      "identity_snapshots": [{"label": label, "validated": validated}
+                          for label in ("before_runtime", "after_connect", "before_serial", "after_serial_open")]}
+            result_path = run_dir / "orchestrator_result.json"
+            result_path.write_text(json.dumps(result), encoding="utf-8")
+            targets = {
+                "APU": {"target_id": 1, "target_ctx": "apu_ctx", "level": 0, "name": "APU", "parent_ctx": "", "parent": "",
+                        "jtag_device_id": 2, "jtag_device_ctx": "dap_ctx", "jtag_device_index": 0, "jtag_device_name": "arm_dap",
+                        "jtag_cable_id": 1, "jtag_cable_ctx": "cable_ctx", "jtag_cable_name": "JTAG-HS1",
+                        "jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "JTAG-HS1", "jtag_cable_serial": "serial-1"},
+                "ARM Cortex-A9 MPCore #0": {"target_id": 2, "target_ctx": "cpu0_ctx", "level": 1,
+                        "name": "ARM Cortex-A9 MPCore #0", "parent_ctx": "apu_ctx", "parent": "APU",
+                        "jtag_device_id": 2, "jtag_device_ctx": "dap_ctx", "jtag_device_index": 0, "jtag_device_name": "arm_dap",
+                        "jtag_cable_id": 1, "jtag_cable_ctx": "cable_ctx", "jtag_cable_name": "JTAG-HS1",
+                        "jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "JTAG-HS1", "jtag_cable_serial": "serial-1"},
+                "ARM Cortex-A9 MPCore #1": {"target_id": 3, "target_ctx": "cpu1_ctx", "level": 1,
+                        "name": "ARM Cortex-A9 MPCore #1", "parent_ctx": "apu_ctx", "parent": "APU",
+                        "jtag_device_id": 2, "jtag_device_ctx": "dap_ctx", "jtag_device_index": 0, "jtag_device_name": "arm_dap",
+                        "jtag_cable_id": 1, "jtag_cable_ctx": "cable_ctx", "jtag_cable_name": "JTAG-HS1",
+                        "jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "JTAG-HS1", "jtag_cable_serial": "serial-1"},
+                "xc7z020": {"target_id": 4, "target_ctx": "fpga_ctx", "level": 0, "name": "xc7z020", "parent_ctx": "", "parent": "",
+                        "jtag_device_id": 3, "jtag_device_ctx": "fpga_device_ctx", "jtag_device_index": 1, "jtag_device_name": "xc7z020",
+                        "jtag_cable_id": 1, "jtag_cable_ctx": "cable_ctx", "jtag_cable_name": "JTAG-HS1",
+                        "jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "JTAG-HS1", "jtag_cable_serial": "serial-1"}}
+            def call(api, *, repr_value=None, kwargs=None):
+                return {"api": api, "status": "RETURNED", "args": ["--target_properties"] if api.endswith("properties") else [],
+                        "kwargs": kwargs or {}, "return_repr": repr_value}
+            model_calls = [call("session.targets.properties", repr_value=repr({"target_" + str(i): row
+                          for i, row in enumerate(targets.values())})),
+                           call("cpu0.dow.app", kwargs={"file": prior_config["bindings"]["app_elf"]["path"],
+                                                        "auto_stop": True, "set_entry": True}),
+                           call("cpu0.con.app"), call("cpu1.state", repr_value="'Stopped: (Suspended)'"),
+                           call("cpu0.state", repr_value="'Running'")]
+            model_jtag_result = {"status": "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING", "cleanup_errors": [],
+                                 "bindings": prior_config["bindings"], "calls": model_calls, "targets": targets}
+            model_jtag_result_path = deploy / "jtag_result.json"
+            model_jtag_result_path.write_text(json.dumps(model_jtag_result), encoding="utf-8")
+            model_jtag_calls_path = deploy / "jtag_calls.jsonl"
+            model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in model_calls), encoding="utf-8")
+            self.assertEqual(result_path.parent.name, run_id)
+            self.assertEqual(config_binding.parent.name, run_id + "_deployment")
+
+            failure_id = "formal_csr_recovery_20261019_r02"
+            failure_run_dir = evidence / failure_id
+            failure_deploy = evidence / (failure_id + "_deployment")
+            failure_run_dir.mkdir()
+            failure_deploy.mkdir()
+            failure_calls = [call("session.targets.properties", repr_value=repr({"target_" + str(i): row
+                             for i, row in enumerate(targets.values())})),
+                             call("cpu1.state", repr_value="'Stopped: (Suspended)'"),
+                             call("cpu0.state", repr_value="'Running'")]
+            failure_jtag_result = {"status": "FAILED", "error": "JtagError('CPU0未停止')",
+                                   "cleanup_errors": [], "bindings": prior_config["bindings"],
+                                   "calls": failure_calls}
+            failure_jtag_result_path = failure_deploy / "jtag_result.json"
+            failure_jtag_result_path.write_text(json.dumps(failure_jtag_result), encoding="utf-8")
+            failure_jtag_calls_path = failure_deploy / "jtag_calls.jsonl"
+            failure_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in failure_calls), encoding="utf-8")
+            failure_orchestrator_calls_path = failure_deploy / "orchestrator_calls.jsonl"
+            failure_orchestrator_calls_path.write_text(json.dumps({"step": "board_flow", "status": "FAILED",
+                "uart_tx_count": 0, "exception": "RunnerError('CPU0未停止')"}) + "\n", encoding="utf-8")
+            failure_result_path = failure_run_dir / "orchestrator_result.json"
+            failure_result_path.write_text(json.dumps({"run_id": failure_id, "scope": "csr", "status": "FAILED",
+                "native_exit_code": 2, "started_at_utc8": "2026-10-19T10:00:00+08:00",
+                "traceback": "RunnerError: CPU0未停止", "identity_snapshots": [
+                    {"label": "before_runtime", "validated": validated}]}), encoding="utf-8")
+
+            def bind(path):
+                return {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
+
+            binding = {"model_result": bind(result_path), "model_input_config": bind(config_binding),
+                       "model_jtag_result": bind(model_jtag_result_path), "model_jtag_calls": bind(model_jtag_calls_path),
+                       "prior_csr_result": bind(failure_result_path),
+                       "prior_csr_jtag_result": bind(failure_jtag_result_path),
+                       "prior_csr_jtag_calls": bind(failure_jtag_calls_path),
+                       "prior_csr_orchestrator_calls": bind(failure_orchestrator_calls_path)}
+            config["csr_reentry"] = binding
+            with mock.patch.object(runner, "ROOT", root), \
+                    mock.patch.object(runner, "EVIDENCE_PARENT", evidence):
+                checked = runner.validate_csr_reentry(config, scope="csr")
+                self.assertEqual(checked["model_run_id"], run_id)
+                self.assertEqual(checked["artifact_bindings"]["app_elf"], config["bindings"]["app_elf"])
+                self.assertEqual(checked["prior_csr_failure"]["run_id"], failure_id)
+                with self.assertRaisesRegex(runner.RunnerError, "model scope禁止"):
+                    runner.validate_csr_reentry(config, scope="model")
+
+                for field, value, message in (("native_exit_code", 2, "完整PASS"),
+                                              ("cleanup_errors", [{"step": "x"}], "完整PASS"),
+                                              ("acceptance", {"status": "PASS_MODEL_CORPUS_AND_STRESS_ONLY",
+                                                               "completed_stress": 999,
+                                                               "completed_corpus": 109}, "1000次压力")):
+                    mutated = dict(result, **{field: value})
+                    result_path.write_text(json.dumps(mutated), encoding="utf-8")
+                    bad = dict(binding, model_result=bind(result_path))
+                    with self.assertRaisesRegex(runner.RunnerError, message):
+                        runner.validate_csr_reentry(dict(config, csr_reentry=bad), scope="csr")
+                result_path.write_text(json.dumps(result), encoding="utf-8")
+                bad = dict(config, csr_reentry={**binding, "model_result": dict(binding["model_result"], sha256="0" * 64)})
+                with self.assertRaisesRegex(runner.RunnerError, "SHA-256"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+                changed_artifact = json.loads(config_binding.read_text(encoding="utf-8"))
+                changed_artifact["bindings"]["app_elf"] = {"path": "other.elf", "sha256": "f" * 64}
+                config_binding.write_text(json.dumps(changed_artifact), encoding="utf-8")
+                bad = dict(binding, model_input_config=bind(config_binding))
+                with self.assertRaisesRegex(runner.RunnerError, "app_elf"):
+                    runner.validate_csr_reentry(dict(config, csr_reentry=bad), scope="csr")
+                config_binding.write_text(json.dumps(prior_config), encoding="utf-8")
+                wrong_config_path = run_dir / "input_config.json"
+                wrong_config_path.write_bytes(config_binding.read_bytes())
+                bad = dict(binding, model_input_config=bind(wrong_config_path))
+                with self.assertRaisesRegex(runner.RunnerError, "相邻run/deployment目录"):
+                    runner.validate_csr_reentry(dict(config, csr_reentry=bad), scope="csr")
+                for changed, message in ((dict(config, hw_server={**config["hw_server"], "process_id": 42}),
+                                          "hw_server/COM身份"),
+                                         (dict(config, serial={"identity": {**config["serial"]["identity"],
+                                                                             "port": "COM9"}}),
+                                          "hw_server/COM身份")):
+                    with self.assertRaisesRegex(runner.RunnerError, message):
+                        runner.validate_csr_reentry(dict(changed, csr_reentry=binding), scope="csr")
+                changed_calls = model_calls + [call("apu.rst.system.stop", kwargs={"type": "system"})]
+                model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in changed_calls), encoding="utf-8")
+                bad = dict(config, csr_reentry=dict(binding, model_jtag_calls=bind(model_jtag_calls_path)))
+                with self.assertRaisesRegex(runner.RunnerError, "jtag_calls与jtag_result.calls不一致"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+                model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in model_calls), encoding="utf-8")
+                bad_model_calls = list(model_calls)
+                bad_model_calls[1], bad_model_calls[2] = bad_model_calls[2], bad_model_calls[1]
+                model_jtag_result["calls"] = bad_model_calls
+                model_jtag_result_path.write_text(json.dumps(model_jtag_result), encoding="utf-8")
+                model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in bad_model_calls), encoding="utf-8")
+                bad = dict(config, csr_reentry=dict(binding,
+                    model_jtag_result=bind(model_jtag_result_path), model_jtag_calls=bind(model_jtag_calls_path)))
+                with self.assertRaisesRegex(runner.RunnerError, "app下载与continue"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+                model_jtag_result["calls"] = model_calls
+                model_jtag_result_path.write_text(json.dumps(model_jtag_result), encoding="utf-8")
+                model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in model_calls), encoding="utf-8")
+
+                changed_targets = json.loads(json.dumps(targets))
+                changed_targets["ARM Cortex-A9 MPCore #0"]["jtag_cable_serial"] = "other-board"
+                failure_calls[0]["return_repr"] = repr({"target_" + str(i): row
+                    for i, row in enumerate(changed_targets.values())})
+                failure_jtag_result["calls"] = failure_calls
+                failure_jtag_result_path.write_text(json.dumps(failure_jtag_result), encoding="utf-8")
+                failure_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in failure_calls), encoding="utf-8")
+                bad = dict(config, csr_reentry=dict(binding, prior_csr_jtag_result=bind(failure_jtag_result_path),
+                                                     prior_csr_jtag_calls=bind(failure_jtag_calls_path)))
+                with self.assertRaisesRegex(runner.RunnerError, "JTAG目标链身份缺失或不一致"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+                failure_calls[0]["return_repr"] = repr({"target_" + str(i): row
+                    for i, row in enumerate(targets.values())})
+                failure_jtag_result["calls"] = failure_calls
+                failure_jtag_result_path.write_text(json.dumps(failure_jtag_result), encoding="utf-8")
+                failure_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in failure_calls), encoding="utf-8")
+
+                mutating_calls = failure_calls + [call("apu.rst.system.stop", kwargs={"type": "system"})]
+                failure_jtag_result["calls"] = mutating_calls
+                failure_jtag_result_path.write_text(json.dumps(failure_jtag_result), encoding="utf-8")
+                failure_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in mutating_calls), encoding="utf-8")
+                bad = dict(config, csr_reentry=dict(binding, prior_csr_jtag_result=bind(failure_jtag_result_path),
+                                                     prior_csr_jtag_calls=bind(failure_jtag_calls_path)))
+                with self.assertRaisesRegex(runner.RunnerError, "可能改变板卡状态"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+
+    def test_csr_missing_reentry_binding_fails_before_hardware_setup(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_csr_missing_binding_") as temp:
+            root = Path(temp)
+            config_dir = root / "report/evidence/S2B-T18/test_run"
+            config_dir.mkdir(parents=True)
+            config_path = config_dir / "runner_config.json"
+            config_path.write_text("{}", encoding="utf-8")
+            runtime_spy = mock.Mock()
+            with mock.patch.object(runner, "ROOT", root), \
+                    mock.patch.object(runner, "validate_preflight_basis"), \
+                    mock.patch.object(runner, "load_pinned_csr_map_helper",
+                                      side_effect=AssertionError("不得继续预检")) as load_helper, \
+                    mock.patch.object(runner, "load_apis",
+                                      side_effect=AssertionError("不得导入API")) as load_apis:
+                with self.assertRaisesRegex(runner.RunnerError, "精确绑定前序模型与R02失败证据"):
+                    runner.run(config_path, runtime=runtime_spy, scope="csr")
+            load_helper.assert_not_called()
+            load_apis.assert_not_called()
+            runtime_spy.identity.assert_not_called()
+            runtime_spy.modules.assert_not_called()
+            runtime_spy.session.assert_not_called()
+            runtime_spy.serial.assert_not_called()
+
+    def test_csr_reentry_records_cpu0_stop_before_existing_deploy_flow(self):
+        trace = []
+        names = ("APU", "ARM Cortex-A9 MPCore #0", "ARM Cortex-A9 MPCore #1", "xc7z020")
+        identity = {}
+        for index, name in enumerate(names):
+            identity[name] = {"target_id": index + 1, "target_ctx": "ctx_" + str(index),
+                              "level": 0 if index in (0, 3) else 1, "name": name,
+                              "parent_ctx": "" if index in (0, 3) else "ctx_0",
+                              "parent": "" if index in (0, 3) else "APU",
+                              "jtag_device_id": 2 if index < 3 else 3,
+                              "jtag_device_ctx": "dap_ctx" if index < 3 else "fpga_ctx",
+                              "jtag_device_index": 0 if index < 3 else 1,
+                              "jtag_device_name": "arm_dap" if index < 3 else "xc7z020",
+                              "jtag_cable_id": 1, "jtag_cable_ctx": "cable_ctx",
+                              "jtag_cable_name": "JTAG-HS1", "jtag_cable_manufacturer": "Digilent",
+                              "jtag_cable_product": "JTAG-HS1", "jtag_cable_serial": "serial-1"}
+        app_bytes = bytes(range(1, 21))
+        execution = {"pc": 0x100000, "cpsr": 0}
+
+        class Target:
+            def __init__(self, name):
+                self.name = name
+
+            def stop(self):
+                trace.append("cpu0_stop_api")
+                state["cpu0"] = "Stopped (Suspended)"
+
+            def rrd(self, *_args, **_kwargs):
+                return {"cpsr": execution["cpsr"]}
+
+        state = {"cpu0": "Running", "cpu1": "Stopped (Suspended)"}
+
+        class Controller(FakeController):
+            def __init__(self):
+                super().__init__(trace)
+                self.record = {"calls": []}
+                self.session = type("Session", (), {"targets": lambda *_args, **_kwargs: {"cpu0": "cpu0"}})()
+                self.targets = {"cpu0": Target("cpu0")}
+
+            def call(self, name, function, *args, **kwargs):
+                trace.append(name)
+                result = ({"target_" + str(index): row for index, row in enumerate(identity.values())}
+                          if name == "session.targets.properties.csr_reentry" else
+                          function(*args, **kwargs) if callable(function) else None)
+                self.record["calls"].append({"api": name, "status": "RETURNED"})
+                return result
+
+            def refresh_targets(self, rows):
+                trace.append("refresh_targets")
+
+            def gate(self, *, both=True):
+                trace.append("gate_both" if both else "gate_cpu1_only")
+                runner.require(state["cpu1"].startswith("Stopped"), "mock CPU1 running")
+
+            def state(self, label):
+                trace.append("state_" + label)
+                return state[label]
+
+            def pc(self, label):
+                trace.append("pc_" + label)
+                return execution["pc"]
+
+            def words(self, address, count):
+                trace.append("words_" + str(address) + "_" + str(count))
+                offset = address - 0x100000
+                raw = app_bytes[offset:offset + count * 4]
+                return [int.from_bytes(raw[index:index + 4], "little")
+                        for index in range(0, len(raw), 4)]
+
+            def guarded(self, function):
+                return function()
+
+            def select_and_gate(self):
+                trace.append("select_and_gate")
+
+        class Jtag:
+            @staticmethod
+            def validate_targets(rows):
+                trace.append("validate_target_chain")
+                return identity
+
+        class ElfParser:
+            @staticmethod
+            def parse_elf(raw):
+                assert raw == app_bytes
+                return {"programs": [{"type": 1, "flags": 5, "virtual": 0x100000,
+                                      "offset": 0, "file_size": len(raw), "memory_size": len(raw)}],
+                        "sections": [{"name": ".text", "type": 1, "flags": 6,
+                                      "address": 0x100000, "offset": 0, "size": len(raw)}]}
+
+        class CsrFlow:
+            @staticmethod
+            def execute(*_args):
+                trace.append("csr_execute")
+                return {"status": "PASS_CSR_RECOVERY_SCOPE_ONLY"}
+
+        class Apis:
+            jtag = Jtag
+            elf_parser = ElfParser
+            acceptance = FakeAcceptance(trace, FakeWire(trace))
+            csr_flow = CsrFlow
+
+        reentry = {"model_run_id": "formal_model_r02",
+                   "model_result": {"path": "result.json", "sha256": "a" * 64},
+                   "model_input_config": {"path": "input_config.json", "sha256": "b" * 64},
+                   "model_jtag_result": {"path": "jtag_result.json", "sha256": "c" * 64},
+                   "model_jtag_calls": {"path": "jtag_calls.jsonl", "sha256": "d" * 64},
+                   "model_target_identity": json.loads(json.dumps(identity)),
+                   "prior_csr_failure": {"run_id": "formal_csr_recovery_20261019_r02",
+                                         "target_identity": json.loads(json.dumps(identity))},
+                   "artifact_bindings": {name: {"path": name, "sha256": "e" * 64}
+                                         for name in ("app_elf", "bit", "xsa")}}
+        checked = self.checked()
+        checked["csr_reentry"] = reentry
+        controller = Controller()
+        wire = FakeWire(trace)
+        original_verify_binding = runner.verify_binding
+        def verify_app(binding, label, **kwargs):
+            if label == "CSR重入绑定应用ELF":
+                return Path("app.elf"), app_bytes
+            return original_verify_binding(binding, label, **kwargs)
+        with mock.patch.object(runner, "verify_binding", side_effect=verify_app):
+            result = runner.execute_board_flow(controller, wire, self.config(), checked, Apis,
+                                               scope="csr")
+        self.assertEqual(result["status"], "PASS_CSR_RECOVERY_SCOPE_ONLY")
+        self.assertLess(trace.index("gate_cpu1_only"), trace.index("cpu0.stop.csr_reentry"))
+        self.assertLess(trace.index("validate_target_chain"), trace.index("cpu0.stop.csr_reentry"))
+        self.assertLess(trace.index("cpu0.rrd.cpsr.csr_reentry"), trace.index("cpu0.stop.csr_reentry"))
+        self.assertLess(trace.index("pc_cpu0"), trace.index("cpu0.stop.csr_reentry"))
+        self.assertLess(trace.index("words_1048576_4"), trace.index("cpu0.stop.csr_reentry"))
+        self.assertLess(trace.index("cpu0.stop.csr_reentry"), trace.index("select_and_gate"))
+        self.assertLess(trace.index("select_and_gate"), trace.index("system_reset_stop"))
+        self.assertLess(trace.index("system_reset_stop"), trace.index("csr_execute"))
+        self.assertEqual(controller.record["csr_reentry"]["before_cpu0"], "Running")
+        self.assertEqual(controller.record["csr_reentry"]["after_cpu0"], "Stopped (Suspended)")
+        self.assertEqual(controller.record["csr_reentry"]["model_run_id"], "formal_model_r02")
+        self.assertEqual(controller.record["csr_reentry"]["current_app_pc"]["verification"],
+                         "MATCH_EXECUTABLE_LOAD_AND_SECTION")
+        self.assertEqual(controller.record["csr_reentry"]["current_app_pc"]["instruction_bytes"], 16)
+        self.assertFalse(controller.record["csr_reentry"]["current_app_pc"]["thumb_state"])
+        self.assertIn("无法从本机日志全面证明", controller.record["csr_reentry"]["continuity_limit"])
+
+        trace.clear()
+        state.update(cpu0="Running", cpu1="Stopped (Suspended)")
+        execution.update(pc=0x100002, cpsr=1 << 5)
+        thumb_controller = Controller()
+        with mock.patch.object(runner, "verify_binding", side_effect=verify_app):
+            thumb_result = runner.execute_board_flow(thumb_controller, FakeWire(trace), self.config(), checked,
+                                                     Apis, scope="csr")
+        self.assertEqual(thumb_result["status"], "PASS_CSR_RECOVERY_SCOPE_ONLY")
+        self.assertIn("words_1048576_5", trace)
+        self.assertEqual(thumb_controller.record["csr_reentry"]["current_app_pc"]["readback_alignment_offset"], 2)
+        self.assertTrue(thumb_controller.record["csr_reentry"]["current_app_pc"]["thumb_state"])
+
+        trace.clear()
+        state.update(cpu0="Running", cpu1="Stopped (Suspended)")
+        identity["ARM Cortex-A9 MPCore #0"]["jtag_cable_serial"] = "different-live-chain"
+        mismatch_controller = Controller()
+        with mock.patch.object(runner, "verify_binding", side_effect=verify_app):
+            with self.assertRaisesRegex(runner.RunnerError, "身份缺失或不一致"):
+                runner.execute_board_flow(mismatch_controller, FakeWire(trace), self.config(), checked,
+                                          Apis, scope="csr")
+        self.assertNotIn("cpu0_stop_api", trace)
+        self.assertNotIn("cpu0.stop.csr_reentry", trace)
+
+    def test_csr_reentry_live_chain_and_pc_instruction_are_fail_closed(self):
+        raw = bytes(range(20))
+        elf = {"programs": [{"type": 1, "flags": 5, "virtual": 0x1000, "offset": 0,
+                             "file_size": 20, "memory_size": 20}],
+               "sections": [{"name": ".text", "type": 1, "flags": 6, "address": 0x1000,
+                             "offset": 0, "size": 20}]}
+        valid = runner._validate_app_pc_instructions(elf, raw, 0x1000, 0, raw[:16])
+        self.assertEqual(valid["instruction_bytes_sha256"], hashlib.sha256(raw[:16]).hexdigest())
+        thumb = runner._validate_app_pc_instructions(elf, raw, 0x1002, 1 << 5, raw[2:18])
+        self.assertTrue(thumb["thumb_state"])
+        with self.assertRaisesRegex(runner.RunnerError, "不在唯一"):
+            runner._validate_app_pc_instructions(elf, raw, 0x2000, 0, raw[:16])
+        with self.assertRaisesRegex(runner.RunnerError, "不一致"):
+            runner._validate_app_pc_instructions(elf, raw, 0x1000, 0,
+                                                 bytes([raw[0] ^ 1]) + raw[1:16])
+        with self.assertRaisesRegex(runner.RunnerError, "对齐不符"):
+            runner._validate_app_pc_instructions(elf, raw, 0x1002, 0, raw[2:18])
+        identity = {"CPU0": {"target_id": 1, "target_ctx": "cpu0", "level": 1, "name": "CPU0",
+                             "parent_ctx": "apu", "parent": "APU", "jtag_device_id": 1,
+                             "jtag_device_ctx": "dap", "jtag_device_index": 0,
+                             "jtag_device_name": "arm_dap", "jtag_cable_id": 1,
+                             "jtag_cable_ctx": "cable", "jtag_cable_name": "JTAG-HS1",
+                             "jtag_cable_manufacturer": "Digilent", "jtag_cable_product": "HS1",
+                             "jtag_cable_serial": "serial"}}
+        changed = json.loads(json.dumps(identity))
+        changed["CPU0"]["target_id"] = 2
+        with self.assertRaisesRegex(runner.RunnerError, "身份缺失或不一致"):
+            runner._same_jtag_target_identity(identity, changed)
+        missing = json.loads(json.dumps(identity))
+        del missing["CPU0"]["jtag_cable_serial"]
+        with self.assertRaisesRegex(runner.RunnerError, "身份缺失"):
+            runner._same_jtag_target_identity(missing, missing)
+
     def test_t16_controller_source_sha_boundary_is_preserved(self):
         runner.validate_controller_source_pin({"path": "synthetic-test-source", "sha256": runner.JTAG_SOURCE_SHA256})
         with self.assertRaisesRegex(runner.RunnerError, "T16 JTAG controller"):

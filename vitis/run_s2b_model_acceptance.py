@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import argparse
+import ast
 import hashlib
 import importlib
 import importlib.machinery
@@ -44,6 +45,7 @@ CONFIG_KEYS = {
     "g0_basis", "cold_basis", "runtime", "serial", "hw_server", "core_timeout", "drain_timeout",
     "response_timeout_seconds",
 }
+CSR_CONFIG_KEYS = CONFIG_KEYS | {"csr_reentry"}
 G0_RECEIPT_KEYS = {
     "schema_version", "status", "role", "scope", "source_commit", "interface_versions", "bindings",
     "deadline_profile",
@@ -390,6 +392,293 @@ def validate_preflight_basis(config: object) -> dict:
             "cold_path": cold_path, "cold_sha256": digest(cold_raw), "source_commit": source_commit}
 
 
+def _validate_reentry_identity(snapshot: object, prior_config: dict) -> None:
+    """确保前序运行的JTAG进程与串口身份由同一份config声明并被观测。"""
+    require(type(snapshot) is dict and type(snapshot.get("validated")) is dict,
+            "前序模型运行缺少已验证硬件身份快照")
+    validated = snapshot["validated"]
+    server, uart, listeners = validated.get("server"), validated.get("uart"), validated.get("listeners")
+    expected_server = prior_config["hw_server"]
+    expected_uart = prior_config["serial"]["identity"]
+    require(type(server) is dict and server.get("ProcessId") == expected_server["process_id"] and
+            server.get("ExecutablePath") == expected_server["executable_path"] and
+            server.get("CreationTimeFileTimeUtc") == expected_server["creation_time_filetime_utc"],
+            "前序模型hw_server身份与其config不匹配")
+    require(type(listeners) is list and listeners and all(
+            row.get("LocalPort") == 3121 and row.get("OwningProcess") == expected_server["process_id"]
+            for row in listeners), "前序模型hw_server listener归属不匹配")
+    require(type(uart) is dict and uart.get("Name") == expected_uart["name"] and
+            uart.get("PNPDeviceID") == expected_uart["pnp_device_id"] and
+            uart.get("ConfigManagerErrorCode") == expected_uart["config_manager_error_code"] == 0,
+            "前序模型COM/PNP身份与其config不匹配")
+
+
+def _validate_bound_jtag_log(result_binding: object, calls_binding: object, label: str) -> tuple[dict, list]:
+    """核对JTAG结果与逐行调用日志的原始记录一致。"""
+    _, result_raw = verify_binding(result_binding, label + " jtag_result", max_bytes=2 * 1024 * 1024)
+    _, calls_raw = verify_binding(calls_binding, label + " jtag_calls", max_bytes=2 * 1024 * 1024)
+    result = strict_json(result_raw)
+    require(type(result) is dict and type(result.get("calls")) is list,
+            label + " jtag_result缺少调用列表")
+    try:
+        calls = [strict_json(line) for line in calls_raw.splitlines() if line]
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise RunnerError(label + " jtag_calls格式错误") from error
+    require(calls == result["calls"], label + " jtag_calls与jtag_result.calls不一致")
+    return result, calls
+
+
+def _target_rows_from_call(call: dict, label: str) -> dict:
+    require(type(call) is dict and call.get("api") == "session.targets.properties" and
+            call.get("status") == "RETURNED" and type(call.get("return_repr")) is str,
+            label + "缺少目标链枚举调用")
+    try:
+        rows = ast.literal_eval(call["return_repr"])
+    except (SyntaxError, ValueError) as error:
+        raise RunnerError(label + "目标链枚举结果无法安全解析") from error
+    require(type(rows) is dict and rows, label + "目标链枚举结果为空")
+    by_name = {row.get("name"): row for row in rows.values() if type(row) is dict}
+    require(len(by_name) == len(rows), label + "目标链枚举名称重复或格式错误")
+    return by_name
+
+
+def _same_jtag_target_identity(previous: dict, observed: dict) -> None:
+    """将两次运行的JTAG上下文绑定到同一物理目标链。"""
+    fields = ("target_id", "target_ctx", "level", "name", "parent_ctx", "parent", "jtag_device_id",
+              "jtag_device_ctx", "jtag_device_index", "jtag_device_name", "jtag_cable_id",
+              "jtag_cable_ctx", "jtag_cable_name", "jtag_cable_manufacturer", "jtag_cable_product",
+              "jtag_cable_serial")
+    integer_fields = {"target_id", "level", "jtag_device_id", "jtag_device_index", "jtag_cable_id"}
+    def valid_rows(rows: object) -> bool:
+        return (type(rows) is dict and bool(rows) and all(
+            type(name) is str and type(row) is dict and row.get("name") == name and
+            set(fields) <= set(row) and all(
+                type(row[field]) is (int if field in integer_fields else str) for field in fields)
+            for name, row in rows.items()))
+    require(type(previous) is dict and type(observed) is dict and set(previous) == set(observed) and
+            valid_rows(previous) and valid_rows(observed) and
+            all(all(previous[name][field] == observed[name][field] for field in fields)
+                for name in previous), "前序模型与当前运行的JTAG目标链身份缺失或不一致")
+
+
+def _validate_app_pc_instructions(elf: dict, raw: bytes, pc: int, cpsr: int,
+                                  observed_bytes: object) -> dict:
+    """按CPSR.T核验PC后16字节位于绑定ELF可执行段且与ELF逐字节一致。"""
+    require(type(cpsr) is int and 0 <= cpsr <= 0xFFFFFFFF, "CPU0 CPSR不是有效32位值")
+    thumb = bool(cpsr & (1 << 5))
+    require(type(pc) is int and 0 <= pc <= 0xFFFFFFFF and pc % (2 if thumb else 4) == 0,
+            "CPU0 PC与CPSR指示的ARM/Thumb指令对齐不符")
+    require(type(observed_bytes) is bytes and len(observed_bytes) == 16,
+            "CPU0 PC附近内存读回不是16字节指令")
+    width = 16
+    loads = [row for row in elf.get("programs", []) if row.get("type") == 1 and
+             row.get("flags", 0) & 1 and row.get("file_size", 0) >= width and
+             row.get("virtual") <= pc and pc + width <= row.get("virtual", 0) + row.get("file_size", 0)]
+    sections = [row for row in elf.get("sections", []) if row.get("flags", 0) & 4 and
+                row.get("type") != 8 and row.get("size", 0) >= width and
+                row.get("address") <= pc and pc + width <= row.get("address", 0) + row.get("size", 0)]
+    matches = []
+    for load in loads:
+        for section in sections:
+            file_offset = section["offset"] + pc - section["address"]
+            if (section["offset"] >= load["offset"] and
+                    file_offset == load["offset"] + pc - load["virtual"] and
+                    file_offset >= load["offset"] and
+                    file_offset + width <= load["offset"] + load["file_size"]):
+                matches.append((load, section, file_offset))
+    require(len(matches) == 1, "CPU0 PC不在唯一的绑定应用ELF可执行LOAD/section中")
+    load, section, file_offset = matches[0]
+    expected = raw[file_offset:file_offset + width]
+    observed = observed_bytes
+    require(len(expected) == width and expected == observed,
+            "CPU0 PC处实读16字节指令与绑定应用ELF不一致")
+    return {"pc": pc, "cpsr": cpsr, "thumb_state": thumb, "section": section["name"],
+            "segment_virtual": load["virtual"],
+            "instruction_bytes": width, "instruction_bytes_sha256": digest(observed),
+            "elf_file_offset": file_offset, "verification": "MATCH_EXECUTABLE_LOAD_AND_SECTION"}
+
+
+def _validate_model_jtag_observations(jtag_result: dict, calls: list, prior_config: dict) -> dict:
+    """证明前序模型在同一绑定ELF上完成app下载并观察到CPU0运行。"""
+    require(jtag_result.get("status") == "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING" and
+            jtag_result.get("cleanup_errors") == [], "前序模型JTAG观察未正常保存")
+    bindings = jtag_result.get("bindings")
+    require(type(bindings) is dict, "前序模型JTAG结果缺少部署绑定")
+    for name in ("app_elf", "bit", "xsa"):
+        old, current = bindings.get(name), prior_config["bindings"].get(name)
+        require(type(old) is dict and type(current) is dict and
+                old.get("path") == current.get("path") and old.get("sha256") == current.get("sha256"),
+                "前序模型JTAG结果部署绑定不一致：" + name)
+    app_downloads = [(index, call) for index, call in enumerate(calls) if call.get("api") == "cpu0.dow.app"]
+    app_continues = [(index, call) for index, call in enumerate(calls) if call.get("api") == "cpu0.con.app"]
+    require(len(app_downloads) == len(app_continues) == 1 and
+            app_downloads[0][1].get("status") == "RETURNED" and
+            app_downloads[0][1].get("kwargs") == {"file": prior_config["bindings"]["app_elf"]["path"],
+                                                    "auto_stop": True, "set_entry": True} and
+            app_continues[0][1].get("status") == "RETURNED" and
+            app_downloads[0][0] < app_continues[0][0],
+            "前序模型JTAG调用未按绑定ELF完成app下载与continue")
+    cpu0_states_after_continue = [call for index, call in enumerate(calls)
+                                  if index > app_continues[0][0] and call.get("api") == "cpu0.state" and
+                                  call.get("status") == "RETURNED"]
+    cpu1_states = [call for call in calls if call.get("api") == "cpu1.state" and
+                   call.get("status") == "RETURNED"]
+    require(cpu0_states_after_continue and cpu0_states_after_continue[-1].get("return_repr") == "'Running'" and
+            cpu1_states and cpu1_states[-1].get("return_repr") == "'Stopped: (Suspended)'",
+            "前序模型最后观测未证明CPU0运行且CPU1停止")
+    require(type(jtag_result.get("targets")) is dict, "前序模型JTAG结果缺少已选目标链")
+    return jtag_result["targets"]
+
+
+def _validate_prior_csr_failure(result: dict, jtag_result: dict, calls: list,
+                                orchestrator_calls_binding: object, run_id: str,
+                                current_config: dict, model_targets: dict) -> dict:
+    """核验前次CSR入口失败只读观察到既有app仍运行且未改变板卡状态。"""
+    required_run_id = "formal_csr_recovery_20261019_r02"
+    require(run_id == required_run_id and result.get("run_id") == run_id and
+            result.get("scope") == "csr" and result.get("status") == "FAILED" and
+            result.get("native_exit_code") == 2 and "CPU0未停止" in result.get("traceback", ""),
+            "绑定的前次CSR结果不是R02只读入口失败")
+    require(jtag_result.get("status") == "FAILED" and "CPU0未停止" in jtag_result.get("error", "") and
+            jtag_result.get("cleanup_errors") == [], "前次CSR JTAG结果未记录CPU0未停止")
+    for name in ("app_elf", "bit", "xsa"):
+        old, current = jtag_result.get("bindings", {}).get(name), current_config["bindings"].get(name)
+        require(type(old) is dict and type(current) is dict and
+                old.get("path") == current.get("path") and old.get("sha256") == current.get("sha256"),
+                "前次CSR失败运行的部署绑定不一致：" + name)
+    snapshots = result.get("identity_snapshots")
+    require(type(snapshots) is list and snapshots, "前次CSR失败结果缺少硬件身份快照")
+    for snapshot in snapshots:
+        _validate_reentry_identity(snapshot, current_config)
+    failed_events = []
+    _, raw = verify_binding(orchestrator_calls_binding, "前次CSR orchestrator_calls", max_bytes=2 * 1024 * 1024)
+    try:
+        orchestrator_calls = [strict_json(line) for line in raw.splitlines() if line]
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise RunnerError("前次CSR orchestrator_calls格式错误") from error
+    failed_events = [row for row in orchestrator_calls if row.get("step") == "board_flow" and
+                     row.get("status") == "FAILED"]
+    require(len(failed_events) == 1 and failed_events[0].get("uart_tx_count") == 0 and
+            "CPU0未停止" in failed_events[0].get("exception", ""),
+            "前次CSR入口失败没有可核验的CPU0未停止与UART TX=0记录")
+    forbidden = ("cpu0.stop", "apu.rst", "fpga.config", "cpu0.dow", "cpu0.con", "apu.mwr", "cpu0.mwr")
+    require(not any(type(call.get("api")) is str and call["api"].startswith(forbidden) for call in calls),
+            "前次CSR失败调用日志包含可能改变板卡状态的操作")
+    states = [(index, call.get("api"), call.get("return_repr")) for index, call in enumerate(calls)
+              if call.get("api") in ("cpu0.state", "cpu1.state") and call.get("status") == "RETURNED"]
+    require(len(states) >= 2 and states[-2][1:] == ("cpu1.state", "'Stopped: (Suspended)'",) and
+            states[-1][1:] == ("cpu0.state", "'Running'"),
+            "前次CSR失败运行末态未核验CPU1停止与CPU0运行")
+    failure_target_call = next((call for call in calls if call.get("api") == "session.targets.properties"), None)
+    failure_targets = _target_rows_from_call(failure_target_call, "前次CSR失败")
+    _same_jtag_target_identity(model_targets, failure_targets)
+    return {"run_id": run_id, "uart_tx_count": 0,
+            "observed_cpu0": "Running", "observed_cpu1": "Stopped: (Suspended)",
+            "target_identity": failure_targets}
+
+
+def validate_csr_reentry(config: object, *, scope: str) -> dict | None:
+    """在SDK导入或设备动作前验证CSR重入所引用的前序模型PASS。"""
+    require(scope in ("model", "csr"), "scope只能是model或csr")
+    require(type(config) is dict, "T18 config顶层必须是对象")
+    if scope == "model":
+        require("csr_reentry" not in config, "model scope禁止携带CSR重入授权")
+        return None
+    binding = config.get("csr_reentry")
+    required = {"model_result", "model_input_config", "model_jtag_result", "model_jtag_calls",
+                "prior_csr_result", "prior_csr_jtag_result", "prior_csr_jtag_calls",
+                "prior_csr_orchestrator_calls"}
+    require(type(binding) is dict and set(binding) == required,
+            "csr scope必须精确绑定前序模型与R02失败证据")
+    current_run_id = config.get("run_id")
+    require(type(current_run_id) is str and re.fullmatch(r"[A-Za-z0-9_-]+", current_run_id) is not None,
+            "CSR config缺少有效run_id")
+    result_path, result_raw = verify_binding(binding["model_result"], "前序模型orchestrator_result",
+                                             max_bytes=2 * 1024 * 1024)
+    require(result_path.name == "orchestrator_result.json" and
+            re.fullmatch(r"[A-Za-z0-9_-]+", result_path.parent.name) is not None,
+            "前序模型orchestrator_result路径错误")
+    run_id = result_path.parent.name
+    require(current_run_id != run_id, "CSR本次run_id不能复用前序模型RunId")
+    deployment = result_path.parent.parent / (run_id + "_deployment")
+    expected_paths = {"model_input_config": deployment / "input_config.json",
+                      "model_jtag_result": deployment / "jtag_result.json",
+                      "model_jtag_calls": deployment / "jtag_calls.jsonl"}
+    for name, expected in expected_paths.items():
+        path, _ = verify_binding(binding[name], "前序模型 " + name, max_bytes=2 * 1024 * 1024)
+        require(path == exact_path(expected), "前序模型证据未与result按相邻run/deployment目录配对：" + name)
+    failure_run_id = "formal_csr_recovery_20261019_r02"
+    failure_result_path = exact_path(EVIDENCE_PARENT / failure_run_id / "orchestrator_result.json")
+    failure_deployment = EVIDENCE_PARENT / (failure_run_id + "_deployment")
+    failure_paths = {"prior_csr_result": failure_result_path,
+                     "prior_csr_jtag_result": failure_deployment / "jtag_result.json",
+                     "prior_csr_jtag_calls": failure_deployment / "jtag_calls.jsonl",
+                     "prior_csr_orchestrator_calls": failure_deployment / "orchestrator_calls.jsonl"}
+    prior_failure_files = {}
+    for name, expected in failure_paths.items():
+        path, _ = verify_binding(binding[name], "前次CSR失败 " + name, max_bytes=2 * 1024 * 1024)
+        require(path == exact_path(expected), "前次CSR失败证据路径不等于固定R02目录：" + name)
+        prior_failure_files[name] = path
+    _, config_raw = verify_binding(binding["model_input_config"], "前序模型input_config",
+                                   max_bytes=1024 * 1024)
+    prior_config = strict_json(config_raw)
+    result = strict_json(result_raw)
+    require(type(result) is dict and result.get("scope") == "model" and
+            result.get("status") == "PASS_MODEL_CORPUS_AND_STRESS_ONLY" and
+            result.get("native_exit_code") == 0 and type(result.get("run_id")) is str and
+            result["run_id"] == run_id and type(prior_config) is dict and prior_config.get("run_id") == run_id and
+            result.get("cleanup_errors") == [], "前序模型结果不是完整PASS或清理失败")
+    acceptance = result.get("acceptance")
+    require(type(acceptance) is dict and acceptance.get("status") == "PASS_MODEL_CORPUS_AND_STRESS_ONLY" and
+            acceptance.get("completed_stress") == 1000 and acceptance.get("completed_corpus") == 109,
+            "前序模型结果未完成1000次压力与109项语料")
+    require(type(prior_config) is dict and type(prior_config.get("bindings")) is dict and
+            type(config.get("bindings")) is dict, "前序或当前config缺少部署产物绑定")
+    for name in ("app_elf", "bit", "xsa"):
+        old, current = prior_config["bindings"].get(name), config["bindings"].get(name)
+        require(type(old) is dict and type(current) is dict and old.get("path") == current.get("path") and
+                old.get("sha256") == current.get("sha256"),
+                "CSR重入前序模型与当前部署产物不一致：" + name)
+    require(prior_config.get("hw_server") == config.get("hw_server") and
+            prior_config.get("serial", {}).get("identity") == config.get("serial", {}).get("identity"),
+            "前序模型与当前CSR config的hw_server/COM身份不一致")
+    snapshots = result.get("identity_snapshots")
+    required_labels = {"before_runtime", "after_connect", "before_serial", "after_serial_open"}
+    require(type(snapshots) is list and required_labels <=
+            {row.get("label") for row in snapshots if type(row) is dict},
+            "前序模型运行缺少部署前后硬件身份快照")
+    for snapshot in snapshots:
+        _validate_reentry_identity(snapshot, prior_config)
+    model_jtag_result, model_jtag_calls = _validate_bound_jtag_log(
+        binding["model_jtag_result"], binding["model_jtag_calls"], "前序模型")
+    model_targets = _validate_model_jtag_observations(model_jtag_result, model_jtag_calls, prior_config)
+    failure_result = strict_json(prior_failure_files["prior_csr_result"].read_bytes())
+    failure_jtag_result, failure_jtag_calls = _validate_bound_jtag_log(
+        binding["prior_csr_jtag_result"], binding["prior_csr_jtag_calls"], "前次CSR失败")
+    failure_run_id = _validate_prior_csr_failure(
+            failure_result, failure_jtag_result, failure_jtag_calls,
+        binding["prior_csr_orchestrator_calls"], "formal_csr_recovery_20261019_r02",
+        config, model_targets)
+    try:
+        model_finished = datetime.fromisoformat(result["finished_at_utc8"])
+        failure_started = datetime.fromisoformat(failure_result["started_at_utc8"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise RunnerError("模型PASS或前次CSR失败缺少有效时间戳") from error
+    require(model_finished <= failure_started, "前次CSR失败时间早于所绑定模型PASS")
+    failure_run_id.update({"result": dict(binding["prior_csr_result"]),
+                           "jtag_result": dict(binding["prior_csr_jtag_result"]),
+                           "jtag_calls": dict(binding["prior_csr_jtag_calls"]),
+                           "orchestrator_calls": dict(binding["prior_csr_orchestrator_calls"])})
+    return {"model_run_id": result["run_id"], "model_result": dict(binding["model_result"]),
+            "model_input_config": dict(binding["model_input_config"]),
+            "model_jtag_result": dict(binding["model_jtag_result"]),
+            "model_jtag_calls": dict(binding["model_jtag_calls"]),
+            "model_target_identity": model_targets,
+            "prior_csr_failure": failure_run_id,
+            "artifact_bindings": {name: dict(prior_config["bindings"][name])
+                                  for name in ("app_elf", "bit", "xsa")}}
+
+
 def _validate_runtime_config(config: dict, apis) -> None:
     runtime = config["runtime"]
     required = {"sdk_init", "sdk_target", "sdk_files", "pyserial_init", "pyserial_files", "pyserial_version"}
@@ -433,11 +722,14 @@ def _validate_runtime_config(config: dict, apis) -> None:
             "pyserial 纯 Python 文件闭包缺项、重复或多项")
 
 
-def validate_v1_inputs(config: dict, apis) -> dict:
+def validate_v1_inputs(config: dict, apis, *, scope: str = "model") -> dict:
     """全部核验模型、构建、证明与最终独审后才允许建立 SDK 会话。"""
-    require(type(config) is dict and set(config) == CONFIG_KEYS, "config 字段集合不匹配")
+    require(scope in ("model", "csr"), "scope只能是model或csr")
+    expected_keys = CONFIG_KEYS if scope == "model" else CSR_CONFIG_KEYS
+    require(type(config) is dict and set(config) == expected_keys, "config 字段集合不匹配")
     require(type(config["schema_version"]) is int and config["schema_version"] == 1, "config schema_version 错误")
     approved_basis = validate_preflight_basis(config)
+    csr_reentry = validate_csr_reentry(config, scope=scope)
     require(type(config["source_commit"]) is str and re.fullmatch(r"[0-9a-f]{40}", config["source_commit"]),
             "source_commit 必须是完整 commit SHA")
     observed = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
@@ -539,6 +831,7 @@ def validate_v1_inputs(config: dict, apis) -> dict:
             "proof_path": proof_path, "review_path": review_path, "manifest_path": manifest_path,
             "final_review_path": exact_path(config["final_review"]["path"]),
             "cold_basis": config["cold_basis"], "approved_basis": approved_basis,
+            "csr_reentry": csr_reentry,
             "source_commit": observed}
 
 
@@ -644,6 +937,70 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
     """先完成 T16 冷部署，再通过 T18 完整准入后进入 UART 验收。"""
     require(scope in ("model", "csr"), "scope只能是model或csr")
     try:
+        reentry = checked.get("csr_reentry") if scope == "csr" else None
+        if reentry is not None:
+            def stop_prior_model_app():
+                rows = controller.call("session.targets.properties.csr_reentry",
+                                       controller.session.targets, "--target_properties")
+                current_targets = apis.jtag.validate_targets(rows)
+                _same_jtag_target_identity(reentry["model_target_identity"], current_targets)
+                _same_jtag_target_identity(reentry["prior_csr_failure"]["target_identity"], current_targets)
+                controller.refresh_targets(current_targets)
+                controller.gate(both=False)
+                before_cpu0 = controller.state("cpu0")
+                before_cpu1 = controller.state("cpu1")
+                require(before_cpu1.startswith("Stopped"), "CSR重入前CPU1未停止")
+                require(before_cpu0 == "Running", "CSR重入当前CPU0不是已运行应用")
+                app_path, app_raw = verify_binding(reentry["artifact_bindings"]["app_elf"],
+                                                   "CSR重入绑定应用ELF", max_bytes=64 * 1024 * 1024)
+                app_elf = apis.elf_parser.parse_elf(app_raw)
+                cpsr_data = controller.call("cpu0.rrd.cpsr.csr_reentry", controller.targets["cpu0"].rrd,
+                                            "--nvlist", reg="cpsr")
+                require(type(cpsr_data) is dict and set(cpsr_data) == {"cpsr"} and
+                        type(cpsr_data["cpsr"]) is int and 0 <= cpsr_data["cpsr"] <= 0xFFFFFFFF,
+                        "CPU0 CPSR结构化返回类型、字段或32位范围错误")
+                cpsr = cpsr_data["cpsr"]
+                thumb = bool(cpsr & (1 << 5))
+                pc = controller.pc("cpu0")
+                require(pc % (2 if thumb else 4) == 0,
+                        "CPU0 PC与CPSR指示的ARM/Thumb指令对齐不符")
+                read_address = pc & ~3
+                word_count = (pc - read_address + 16 + 3) // 4
+                observed_words = controller.words(read_address, word_count)
+                require(type(observed_words) is list and len(observed_words) == word_count and
+                        all(type(word) is int and 0 <= word <= 0xFFFFFFFF for word in observed_words),
+                        "CPU0 PC附近DAP读回不是预期的32位指令字数量")
+                aligned_bytes = b"".join(word.to_bytes(4, "little") for word in observed_words)
+                pc_offset = pc - read_address
+                instruction_bytes = aligned_bytes[pc_offset:pc_offset + 16]
+                pc_evidence = _validate_app_pc_instructions(app_elf, app_raw, pc, cpsr, instruction_bytes)
+                pc_evidence.update(readback_address=read_address, readback_word_count=word_count,
+                                   readback_alignment_offset=pc_offset)
+                event = {"model_run_id": reentry["model_run_id"],
+                         "model_result": reentry["model_result"],
+                         "model_input_config": reentry["model_input_config"],
+                         "model_jtag_result": reentry["model_jtag_result"],
+                         "model_jtag_calls": reentry["model_jtag_calls"],
+                         "prior_csr_failure": reentry["prior_csr_failure"],
+                         "artifact_bindings": reentry["artifact_bindings"],
+                         "current_target_identity": current_targets,
+                         "current_app_pc": pc_evidence,
+                         "continuity_limit": "历史R02之后无法从本机日志全面证明未发生外部硬件控制；本次仅以当前完整目标链、CPU状态、JTAG启动模式及PC/指令与绑定ELF一致作现场核验。",
+                         "before_cpu0": before_cpu0, "before_cpu1": before_cpu1,
+                         "stop_status": "NOT_REQUESTED"}
+                controller.call("cpu0.stop.csr_reentry", controller.targets["cpu0"].stop)
+                after_cpu0 = controller.state("cpu0")
+                after_cpu1 = controller.state("cpu1")
+                require(after_cpu0.startswith("Stopped") and after_cpu1.startswith("Stopped"),
+                        "CSR重入stop后CPU0/CPU1未全部停止")
+                event.update(stop_status="RETURNED", after_cpu0=after_cpu0,
+                             after_cpu1=after_cpu1,
+                             stop_call_index=len(controller.record["calls"]) - 3)
+                controller.record["csr_reentry"] = event
+                return event
+            reentry_evidence = controller.guarded(stop_prior_model_app)
+            if journal:
+                journal.event("csr_reentry.stop_running_model_app", "PASS", **reentry_evidence)
         controller.select_and_gate()
         controller.system_reset_stop(checked["cold_basis"])
         if csr_map is not None:
@@ -1017,11 +1374,13 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
     config_raw = config_file.read_bytes()
     config = strict_json(config_raw)
     validate_preflight_basis(config)
+    csr_reentry = validate_csr_reentry(config, scope=scope)
     if scope == "csr":
         _verify_csr_flow_sources()
     csr_map_helper, csr_map_source = load_pinned_csr_map_helper()
     apis = load_apis(scope)
-    checked = validate_v1_inputs(config, apis)
+    checked = validate_v1_inputs(config, apis, scope=scope)
+    checked["csr_reentry"] = csr_reentry
     runtime = runtime or ProductionRuntime()
     checked["deploy_dir"].mkdir()
     deploy_dir = exact_path(checked["deploy_dir"], "directory")

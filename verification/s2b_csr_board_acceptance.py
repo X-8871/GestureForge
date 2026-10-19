@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import struct
 import subprocess
 import time
@@ -38,6 +39,21 @@ PARAMETER_CASES = (
     ("range_over_length_argument", {0x018: 4, 0x01C: 519167, 0x028: 0}, 2),
     ("length_over_argument", {0x024: 5903099, 0x02C: 0}, 3),
 )
+
+
+def is_ahb_ap_write_bresp_unresolved(error, address):
+    """只识别CSR COMMAND地址上的精确AHB AP写错误签名，不推断AXI BRESP。"""
+    if type(address) is not int or address != jtag.CSR_BASE + 8:
+        return False
+    message = error if type(error) is str else str(error)
+    pattern = (
+        rf'TCF command exception:\n'
+        rf'Command: Memory set "[^"\r\n]+", {address}, 0, 4\.\.\.\n'
+        rf'Exception: Memory write error at 0x{address:08X}\. '
+        rf'AHB AP transaction error, DAP status 0xF0000021\n'
+        rf'Error code: 1'
+    )
+    return re.fullmatch(pattern, message) is not None
 
 
 class CsrAcceptanceError(RuntimeError):
@@ -228,7 +244,8 @@ class _Runner:
         self.log = (run / "csr_events.jsonl").open("x", encoding="utf-8", newline="\n")
         self.started, self.call_start = time.monotonic(), len(controller.record["calls"])
         self.record = {"schema_version": 1, "status": "IN_PROGRESS", "hardware_execution": scope,
-                       "admission": admitted, "scenarios": [], "started_at_utc8": datetime.now(TZ).isoformat(),
+                       "admission": admitted, "scenarios": [], "blockers": [],
+                       "started_at_utc8": datetime.now(TZ).isoformat(),
                        "limitations": ["不创建会话/服务/串口；不自动stop/resume/reset或清理外部资源。",
                                        "CPU1及目标链是逐次观测；进程树峰值内存未测。",
                                        "不能用mock或SDK未知总线异常宣称实板SLVERR。"]}
@@ -245,7 +262,7 @@ class _Runner:
         self.event("csr:" + label, result)
         return checked_snapshot(result)
 
-    def write(self, offset, value, *, reject=None):
+    def write(self, offset, value, *, reject=None, allow_unresolved_bresp=False):
         """DAP拒绝必须有明确原生响应；成功由后续实际CSR效果核验。"""
         uint(offset); uint(value)
         require(offset in (0x008, 0x014, 0x018, 0x01C, 0x020, 0x024, 0x028, 0x02C, 0x05C, 0x060),
@@ -257,10 +274,14 @@ class _Runner:
                                  address=jtag.CSR_BASE + offset, size=1, word_size=4, words=[value])
         except Exception as error:
             caught = error; response = jtag.bus_error_kind(error)
+        unresolved = (allow_unresolved_bresp and reject == "SLVERR" and offset == 0x008 and
+                      response == "UNKNOWN" and
+                      is_ahb_ap_write_bresp_unresolved(caught, jtag.CSR_BASE + offset))
         self.event("write", {"offset": offset, "value": value, "native_response": response,
-                             "exception_repr": repr(caught) if caught is not None else None})
+                             "exception_repr": repr(caught) if caught is not None else None,
+                             "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED" if unresolved else None})
         if reject is not None:
-            require(response == reject, "原生拒绝无法证明：" + response)
+            require(response == reject or unresolved, "原生拒绝无法证明：" + response)
         else:
             require(caught is None, "合法写产生原生异常：" + response)
         return response
@@ -268,12 +289,22 @@ class _Runner:
     def reject_command(self, name, command, last_reject):
         """除LAST_REJECT外完全相同；不能将合法诊断变化当作副作用失败。"""
         before = self.snapshot(name + ":before")
-        response = self.write(0x008, command, reject="SLVERR")
+        response = self.write(0x008, command, reject="SLVERR", allow_unresolved_bresp=True)
         after = self.snapshot(name + ":after")
         unchanged(before, after, (0x064,))
         require(after[0x064] == last_reject, "LAST_REJECT错误")
-        self.record["scenarios"].append({"name": name, "status": "PASS", "native_response": response,
-                                         "before": before, "after": after})
+        unresolved = response == "UNKNOWN"
+        scenario = {"name": name, "status": "BLOCKED_BRESP_UNRESOLVED" if unresolved else "PASS",
+                    "native_response": response, "before": before, "after": after}
+        if unresolved:
+            scenario.update(classification="AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+                            expected_bresp="SLVERR", observed_bresp="NOT_OBSERVED",
+                            reason="精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。")
+            self.record["blockers"].append({"name": name, "status": "BLOCKED_BRESP_UNRESOLVED",
+                                            "native_response": response,
+                                            "classification": scenario["classification"],
+                                            "reason": scenario["reason"]})
+        self.record["scenarios"].append(scenario)
         return after
 
     def parameters(self, frame, core, drain, changes=None):

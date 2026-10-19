@@ -40,13 +40,46 @@ def _scope_check(results: dict) -> dict:
     passed = results["status"] in ("PASS_CSR_RECOVERY_SCOPE_ONLY",
                                    "PASS_CSR_DEADLINE_SCOPE_ONLY")
     blocked = results["status"] == "BLOCKED_CSR_RECOVERY_SCOPE_ONLY"
+    blocker_names = [item.get("name") for item in results.get("blockers", [])
+                     if item.get("status") == "BLOCKED_BRESP_UNRESOLVED"]
     reason = results.get("error", "已执行场景与未关闭项见stages/blockers/deadline_scope；模型corpus与压力未执行。")
     if results["status"] == "PASS_CSR_DEADLINE_SCOPE_ONLY":
         reason = "deadline有限范围通过；本profile的busy与ABORT未运行，真实pending晚响应未声称。"
+        if blocker_names:
+            reason += "静止矩阵BRESP仍未解析并保持BLOCKED：" + ", ".join(blocker_names) + "。"
+    elif results["status"] == "BLOCKED_CSR_RECOVERY_SCOPE_ONLY" and blocker_names:
+        reason = "CSR恢复范围BLOCKED；原生BRESP未解析的静止拒绝场景：" + ", ".join(blocker_names) + "。"
     return {"name": "CSR恢复固定顺序", "status": "PASS" if passed else "BLOCKED" if blocked else "FAIL",
             "command": "s2b_csr_acceptance_flow.execute(borrowed_controller, borrowed_wire)",
             "exit_code": 0 if passed else None if blocked else 1,
             "reason": reason}
+
+
+def _matrix_bresp_blockers(scenarios: list[dict]) -> list[dict]:
+    """仅接受白名单拒绝场景的精确AHB未知响应，合法矩阵项仍须逐项PASS。"""
+    rejection_names = {"idle_bad_encoding", "terminal_start", "wrong_ack"}
+    rejection_names.update("duplicate_ack:" + item[0] for item in csr.PARAMETER_CASES)
+    expected_names = rejection_names | {item[0] for item in csr.PARAMETER_CASES} | {"busy_start"}
+    unresolved = []
+    model.require(scenarios, "静止CSR矩阵没有场景结果")
+    names = [item.get("name") for item in scenarios]
+    model.require(len(names) == len(expected_names) and set(names) == expected_names,
+                  "静止CSR矩阵场景集合不完整或重复")
+    for item in scenarios:
+        name, status = item.get("name"), item.get("status")
+        if name == "busy_start":
+            model.require(status == "BLOCKED", "busy_start场景状态异常")
+        elif status == "PASS":
+            continue
+        elif (name in rejection_names and status == "BLOCKED_BRESP_UNRESOLVED" and
+              item.get("native_response") == "UNKNOWN" and
+              item.get("classification") == "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED"):
+            unresolved.append(item)
+        else:
+            model.require(False, "静止CSR矩阵场景未通过且不属于精确BRESP未解析拒绝：" + str(name))
+    model.require(any(item.get("name") == "busy_start" for item in scenarios),
+                  "静止CSR矩阵缺少busy_start范围标记")
+    return unresolved
 
 
 def _profile_stages(config: dict) -> tuple[str, ...]:
@@ -241,11 +274,24 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
             core_timeout=config["core_timeout"], drain_timeout=config["drain_timeout"])
         register("static_csr_negative_matrix", static_result, static_dir)
         scenarios = static_result.get("scenarios", [])
-        require(static_result.get("status") == "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE" and scenarios and
-                all(item.get("status") == "PASS" for item in scenarios if item.get("name") != "busy_start") and
-                all(item.get("status") == "BLOCKED" for item in scenarios if item.get("name") == "busy_start") and
-                any(item.get("name") == "busy_start" and item.get("status") == "BLOCKED" for item in scenarios),
+        matrix_bresp_blockers = _matrix_bresp_blockers(scenarios)
+        require(static_result.get("status") == "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE" and
+                all(item.get("name") != "busy_start" or item.get("status") == "BLOCKED" for item in scenarios),
                 "静止CSR矩阵场景状态与固定PASS/BLOCKED集合不符")
+        source_blockers = static_result.get("blockers", [])
+        require({item.get("name") for item in source_blockers} ==
+                {item.get("name") for item in matrix_bresp_blockers} and
+                all(item.get("status") == "BLOCKED_BRESP_UNRESOLVED" and
+                    item.get("native_response") == "UNKNOWN" and
+                    item.get("classification") == "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED"
+                    for item in source_blockers),
+                "静止矩阵场景与逐项BRESP blocker不一致")
+        for item in matrix_bresp_blockers:
+            results["blockers"].append({"name": item["name"], "status": "BLOCKED_BRESP_UNRESOLVED",
+                "native_response": "UNKNOWN", "classification": item["classification"],
+                "reason": item.get("reason", "BRESP未解析"), "evidence_dir": str(static_dir)})
+        if matrix_bresp_blockers:
+            results["limitations"].append("静止矩阵拒绝场景的精确AHB错误及CSR副作用已核验，但原生BRESP未知；逐项保留BLOCKED，不视为SLVERR通过。")
         require(csr.checked_snapshot(final_snapshot), "静止CSR最终快照无效")
         results["status"] = ("PASS_CSR_DEADLINE_SCOPE_ONLY" if with_deadlines else
                              "BLOCKED_CSR_RECOVERY_SCOPE_ONLY" if results["blockers"] else
@@ -259,6 +305,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
             "static_matrix_busy_start": "BLOCKED_UNCHANGED; " +
                 ("真实BusyObserver在本profile为NOT_RUN" if with_deadlines else
                  "real busy refusal is covered by the separate BusyObserver stage"),
+            "static_matrix_native_bresp": [item["name"] for item in matrix_bresp_blockers] or "NO_UNRESOLVED_REJECTION_RESPONSES",
             "static_matrix_wire_after_external_csr": "BLOCKED_UNCHANGED; the T20 helper cannot synchronize UART epoch",
             "frame_identity": "The accepted requests use sample000 with frame 0 repeatedly; UART sequence and epoch are checked by existing helpers.",
             "weights": "Transferred once and used by this profile's sample000 seed and subsequent stages."}

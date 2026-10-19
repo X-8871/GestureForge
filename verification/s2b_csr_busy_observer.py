@@ -6,7 +6,6 @@ from datetime import datetime
 import json
 import math
 from pathlib import Path
-import re
 import struct
 import time
 
@@ -31,19 +30,7 @@ def _seconds(value, label, maximum):
 
 def _is_ahb_ap_write_bresp_unresolved(error, address):
     """只识别本次CSR START写的精确DAP/AHB错误原文，不推断AXI BRESP。"""
-    if type(address) is not int or address != jtag.CSR_BASE + 8:
-        return False
-    message = error if type(error) is str else str(error)
-    address_hex = f"0x{address:08X}"
-    address_dec = str(address)
-    pattern = (
-        rf'TCF command exception:\n'
-        rf'Command: Memory set "[^"\r\n]+", {address_dec}, 0, 4\.\.\.\n'
-        rf'Exception: Memory write error at {address_hex}\. '
-        rf'AHB AP transaction error, DAP status 0xF0000021\n'
-        rf'Error code: 1'
-    )
-    return re.fullmatch(pattern, message) is not None
+    return csr.is_ahb_ap_write_bresp_unresolved(error, address)
 
 
 def _request(wire, plan):

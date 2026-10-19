@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "review_id": "cpu_bresp_diag_review_20261019_r01",
+  "verdict": "CHANGES_REQUIRED",
+  "scope": "静态代码/既有离线构建审查；仅判定是否可进入受控实验，不是G3/G4/G5结果",
+  "reviewed_head": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "source_files": [
+    {
+      "path": "vitis/s2b_bresp_diag.S",
+      "sha256": "4d4185cd598f5a428de43cb3823e31abbe9cbed937b7df9789d52f7b7dabda2c"
+    },
+    {
+      "path": "vitis/build_s2b_bresp_diag.py",
+      "sha256": "6a47d7e288dc7fa36ef830b4add4309cb9e38fd4c919fee58714eed92f6333db"
+    }
+  ],
+  "existing_build_evidence": {
+    "path": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r04",
+    "status": "OFFLINE_BUILD_OK_NOT_HARDWARE_RESULT",
+    "built_head": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+    "elf_sha256": "402502e0446e3de2486ee12435daebe0d921fd1bc048b4cc0dd567e1159f959d",
+    "map_sha256": "d33dfa0bff8ff7cab660b71bf4ea950a02328aa8c32929b97330b0e591087f9b",
+    "readelf_sha256": "a6a40344c152b8d31c74038653ab3dfba3aa639d6eed339c88f32cac8b5ada0b",
+    "disassembly_sha256": "2cfd89adda0467de921e212646edef7821a5f1415cb1489de69d09aa7503e9f1"
+  },
+  "blocking_findings": [
+    {
+      "id": "B1",
+      "location": "vitis/build_s2b_bresp_diag.py:37, 159-160",
+      "finding": "构建器EXPECTED_HEAD仍固定为54e6c8d607d9bbf3479d71ff820880aa2653c9ba，而当前HEAD为75fcc5950f6d848ea5bfbb94226e20a63fe1e075。按当前工作树执行构建会在git rev-parse校验时退出，不能从当前交付状态重建候选ELF。现有离线ELF证明此前54e6基线的快照成功构建，且源码SHA相符，但不能证明当前HEAD下构建入口可运行。",
+      "closure": "将构建基线显式对齐到获准的当前源码/依赖基线（或准确恢复54e6构建快照），在新的唯一RunId重建并复核输入绑定、ELF、反汇编及readelf产物SHA后，重新独审。"
+    }
+  ],
+  "positive_checks": [
+    "同步Data Abort路径读取DFSR/DFAR、SPSR_abt/LR_abt；ARM状态下用LR_abt-8并要求唯一store PC、精确STR机器码0xe5801000及DFAR 0x43c00008。",
+    "Cortex-A9 DFSR检查FS[4]=0、FS[3:0]=8、WnR=1、ExT=1；Arm TRM定义ExT=1为SLVERR，ExT=0为DECERR。",
+    "RUN前置及busy写后保存状态/epoch/frame/LAST_REJECT；不匹配归为UNKNOWN，未发生abort会停驻失败路径。",
+    "诊断异常终态仅写mailbox并BKPT/WFE park；未发现自动重试、ACK、reset或账本清零。",
+    "ELF仅由诊断汇编对象链接；反汇编/ELF显示代码位于低OCM 0xc000-0x10000、独立16KiB NOBITS L1表位于0x10000，栈与mailbox分配不重叠。",
+    "builder绑定了R04 init.elf/infer.elf/XSA/bit SHA；链接命令只输入诊断汇编对象，没有混入旧infer.elf。",
+    "页表以TTBR0短描述符表复制到隔离OCM副本，仅修改CSR 1MiB段为Strongly-ordered，并clean表、切TTBR0、TLBI、DSB/ISB及清I-cache；冻结BSP translation_table.S说明平台flat-map，现有init ELF布局支持低OCM保留区。"
+  ],
+  "limits": [
+    "没有运行构建器或任何Vitis/XSDB/JTAG/UART/板卡操作；仅重读既有R04离线产物及代码。",
+    "硬件前置条件由构建器记录为执行者必须新鲜核实：OCM_CFG、CPU1停核/PC、SAFE/ledger-empty、输入与权重已加载并flush；既有R07记录仅为历史依据。",
+    "现有ELF与源码绑定可用于了解此前静态构建；当前builder的HEAD pin漂移阻止从当前checkout重复构建，因此本审查不批准现状态进入受控实验。"
+  ],
+  "arm_basis": {
+    "title": "Arm Cortex-A9 Technical Reference Manual",
+    "url": "https://documentation-service.arm.com/static/5e7e23ffb471823cb9de5920",
+    "sections": [
+      "4.3.15 DFSR: FS[4], WnR, ExT; ExT=1 SLVERR, ExT=0 DECERR",
+      "5.5 External aborts: synchronous/asynchronous distinction and DFAR validity"
+    ],
+    "note": "只依据Arm官方Cortex-A9 TRM描述；未使用非官方资料。"
+  },
+  "queue_review": {
+    "path": "tmp/2B/run_csr_r08_r09.py",
+    "source_sha256": "f71942740a3ffab7172ad8c8ea3678726a304a427dc700430a73368b8da26acd",
+    "result": "两次runner.run在for循环内串行，runtime未共享则每次创建ProductionRuntime，并且runner.run的finally显式关闭串口、JTAG controller/session及XSDB。R08 blocked且native_exit_code=2时脚本按特例检查唯一busy_start_native_bresp blocker、五阶段计数/末阶段名及cleanup_errors后仍进入R09；flow本身会require各实际阶段成功。",
+    "risk": "R08预期blocker的native_exit_code=2仍使最终launcher native_exit_code=2，即使R09成功也必须读每条record，不能把进程退出0作为R09单独通过信号；当前脚本的行为符合保留R08未解决状态。R08/R09均绑定同一先前R02失败/恢复基线，队列依赖每次run前runner完整冷部署和fresh runtime；不应在首个run异常/清理失败后强行继续。",
+    "queue_runner_sha256": "3a2f07463848aa5f162e0a5b31919268438c7fa16176e18a6e779aa31f21d725"
+  },
+  "commands": [
+    {
+      "command": "Get-FileHash on two candidate files and saved R04 ELF/map/readelf/disassembly",
+      "exit_code": 0,
+      "performed": "read-only"
+    },
+    {
+      "command": "git rev-parse HEAD",
+      "exit_code": 0,
+      "performed": "read-only"
+    },
+    {
+      "command": "Static source/evidence inspection; no build, test, SDK, UART, JTAG, or hardware",
+      "exit_code": 0,
+      "performed": "read-only"
+    }
+  ],
+  "reviewer_evidence": "report/evidence/S2B-T20/cpu_bresp_diag_review_20261019_r01/review_outcome.json",
+  "saved_at_utc8": "2026-10-19T19:24:40+08:00"
+}

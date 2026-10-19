@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "review": "PASS",
+  "scope": "INCREMENTAL_OFFLINE_REVIEW_OF_STATIC_CSR_BRESP_PARTIAL_HANDLING",
+  "source_commit": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "reviewed_files_sha256": {
+    "verification/s2b_csr_board_acceptance.py": "053c9ba39311c667e7622cfa700fc8cfd6771231b8edf2622ac1363174eebf8e",
+    "verification/s2b_csr_busy_observer.py": "666b791e8bc741bb07f6317cc4cca5be8032d032f2e0f6968b63caee7751a6ae",
+    "verification/s2b_csr_acceptance_flow.py": "a31fa1d7b287d8b4b8e361a7bbcc85992b80258db4bbaba099e9cbb600a0744a",
+    "verification/test_s2b_csr_board_acceptance.py": "bab3c129d4a14f8cadc8d40b37d7245d647acb20ca438479c10612b1a6c7c6a2",
+    "verification/test_s2b_csr_acceptance_flow.py": "3d2c86c5fdbb7bcaf0bca7f7979859de82f94bf5ef09b1b90ed9caa6665af377",
+    "vitis/run_s2b_model_acceptance.py": "e889e1ea4e76b447aab5cd916860354dec963da1613f7277123cd9ec05d88421"
+  },
+  "regression_evidence": {
+    "run_id": "csr_static_bresp_partial_20261019_r03",
+    "result": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/regression_result.json",
+    "delivery_manifest": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/delivery_manifest.json",
+    "suite": "Vitis 2026.1; 132 tests; failures=0; errors=0; skipped=0; native exit=0",
+    "log_sha256": "eaf636a3af9cce2fef0601c06ca24da92d35c9569cd3bf1b13e6b9c30fd63425",
+    "reviewer_reran_suite": false
+  },
+  "findings": [],
+  "reviewed_behavior": [
+    "仅当CSR COMMAND地址、DAP状态、错误码和Memory set操作符合完整精确AHB/AP错误签名，且bus_error_kind仍为UNKNOWN时，才允许进入未解析BRESP分支；不映射或声称SLVERR。",
+    "拒绝写前后执行稳定CSR快照逐字段比较，仅允许LAST_REJECT按预期变化；地址/格式不匹配或任一其他副作用均失败关闭。",
+    "精确未解析拒绝逐项记录为BLOCKED_BRESP_UNRESOLVED，并保存expected_bresp=SLVERR、observed_bresp=NOT_OBSERVED及分类；后续静止矩阵合法参数项继续真实验证。",
+    "流程层验证完整且无重复的场景集合、拒绝场景白名单、状态和blocker集合；标准profile保留BLOCKED_CSR_RECOVERY_SCOPE_ONLY，runner native exit=2；deadline限定profile仅报告PASS_CSR_DEADLINE_SCOPE_ONLY，并在原因中保留静止BRESP blocker。",
+    "测试覆盖11项未解析拒绝、8项合法参数START/ERROR_SAFE/ACK闭合、busy范围标记、失败签名和非法副作用失败路径；flow fixtures覆盖限定profile状态与blocker透传。"
+  ],
+  "limitations": [
+    "这是离线实现与回归审查，不证明真实总线BRESP；所有未解析拒绝仍是BLOCKED。",
+    "R03未运行板卡、JTAG、XSDB或UART，不代表CSR实板或阶段2B验收通过。",
+    "R02的132项失败证据应保留；最终源码fixture版本由R03的132项零失败回归覆盖。"
+  ]
+}

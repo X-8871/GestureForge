@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "run_id": "cpu_bresp_diag_ocm_20261019_r05",
+  "status": "OFFLINE_BUILD_OK_NOT_HARDWARE_RESULT",
+  "hardware_execution": "NOT_RUN",
+  "sdk_or_jtag_access": "NOT_USED",
+  "source": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_bresp_diag.S",
+    "sha256": "c18c90bcc9c64df426b8aa04904388ad802b922fdeacfec94990661db7f9de09"
+  },
+  "builder": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\build_s2b_bresp_diag.py",
+    "sha256": "395476b7bcb6e7c392c3b0faa3e0ca92642dcd3b592bccc82aa6862e04290db2"
+  },
+  "toolchain": {
+    "gcc": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "gcc_version_first_line": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "objdump": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+    "readelf": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-readelf.exe"
+  },
+  "inputs": {
+    "init_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+      "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+    },
+    "infer_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+      "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+    },
+    "xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    "bit": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+    }
+  },
+  "artifacts": {
+    "s2b_bresp_diag.elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.elf",
+      "sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d"
+    },
+    "s2b_bresp_diag.map": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.map",
+      "sha256": "bd020e766fc4be86cc77b0121f8b898fc62c6ba0588b0b2deb29b5ee606f61df"
+    },
+    "disassembly.log": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\disassembly.log",
+      "sha256": "3a8500cc35c98764c463c9416cee38b901cd7f7675ed51003bf515e058bf1c50"
+    },
+    "readelf.log": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\readelf.log",
+      "sha256": "a6a40344c152b8d31c74038653ab3dfba3aa639d6eed339c88f32cac8b5ada0b"
+    },
+    "mailbox_schema.json": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\mailbox_schema.json",
+      "sha256": "8f77a860e0c48d5ce5c5c1743be0369e0892a73d4b20252eebc1cc578053a7b1"
+    },
+    "ocm_allocation.json": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\ocm_allocation.json",
+      "sha256": "65a143157673d3964917448ca29519370afbac023259149d34cbf59afbb38fd3"
+    },
+    "s2b_bresp_diag.ld": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.ld",
+      "sha256": "da4a881af3a6eeff2b4ec78262a94447d17e51b15132293c21838adb2c56049d"
+    }
+  },
+  "limitations": [
+    "只完成汇编、链接、静态地址/机器码核验；不证明板上ELF装载、MMU运行状态、AXI响应或mailbox内容。",
+    "Strongly-ordered仅用于独立诊断ELF的CSR段；其证据不能替代正式Device映射推理应用。",
+    "R07 CPU1停核PC及OCM_CFG是历史记录；上板前须新鲜确认CPU1、OCM_CFG和SAFE/ledger-empty。",
+    "输入/权重已加载并flush及旧事务SAFE/ledger-empty是板上执行前提，不由此离线构建器验证。",
+    "诊断期间CPU0不返回infer.elf上下文；需由总控在真实SAFE/ledger-empty后恢复原R04 bit、原infer.elf及约定黄金流程。"
+  ],
+  "baseline_head": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "commands": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\git_head.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "--version"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\gcc_version.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-c",
+        "-x",
+        "assembler-with-cpp",
+        "-mcpu=cortex-a9",
+        "-marm",
+        "-ffreestanding",
+        "-o",
+        "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\build\\s2b_bresp_diag.o",
+        "D:\\FPGA_Competition\\w2b\\vitis\\s2b_bresp_diag.S"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\assemble.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-nostdlib",
+        "-nostartfiles",
+        "-mcpu=cortex-a9",
+        "-marm",
+        "-Wl,--build-id=none",
+        "-Wl,-Map=D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.map",
+        "-Wl,-T,D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\build\\s2b_bresp_diag.ld",
+        "-o",
+        "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.elf",
+        "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\build\\s2b_bresp_diag.o"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\link.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+        "-d",
+        "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.elf"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\disassembly.log",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-readelf.exe",
+        "-h",
+        "-lW",
+        "-SW",
+        "-sW",
+        "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.elf"
+      ],
+      "cwd": "D:\\FPGA_Competition\\w2b",
+      "log": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\readelf.log",
+      "exit_code": 0
+    }
+  ]
+}

@@ -33,6 +33,7 @@ class FakeController:
     def __init__(self):
         self.row = snapshot()
         self.failed = False
+        self.unknown_bus_error = None
         self.record = {"calls": [], "readbacks": []}
         self.targets = {"apu": self}
         self.bindings = {"bit": {"path": "MOCK_ONLY", "sha256": "0" * 64}}
@@ -95,7 +96,14 @@ class FakeController:
         self.row[0x064] = code
         if self.mutate_rejection is not None:
             self.row[self.mutate_rejection] ^= 1
-        raise RuntimeError("DAP write failed" if self.unknown_bus else "SLVERR")
+        if self.unknown_bus:
+            raise RuntimeError(self.unknown_bus_error or (
+                'TCF command exception:\n'
+                'Command: Memory set "mock-target", 1136656392, 0, 4...\n'
+                'Exception: Memory write error at 0x43C00008. '
+                'AHB AP transaction error, DAP status 0xF0000021\n'
+                'Error code: 1'))
+        raise RuntimeError("SLVERR")
 
     def mwr(self, option, *, address, size, word_size, words):
         """按正式优先序模拟范围/长度/参数，绝不调用原生mwr。"""
@@ -203,8 +211,36 @@ class CsrTests(unittest.TestCase):
         self.runner.reject_command("encoding", 3, 5)
         self.assertEqual(self.controller.row[0x064], 5)
 
-    def test_unknown_bus_is_not_slverr(self):
+    def test_exact_ahb_ap_signature_is_blocked_after_csr_rejection_proof(self):
         self.controller.unknown_bus = True
+        before = snapshot()
+        after = self.runner.reject_command("encoding", 3, 5)
+        self.assertEqual(after, {**before, 0x064: 5})
+        scenario = self.runner.record["scenarios"][-1]
+        self.assertEqual(scenario["status"], "BLOCKED_BRESP_UNRESOLVED")
+        self.assertEqual(scenario["native_response"], "UNKNOWN")
+        self.assertEqual(scenario["classification"], "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED")
+        self.assertEqual(self.runner.record["blockers"][0]["name"], "encoding")
+
+    def test_static_matrix_continues_legal_cases_after_exact_unknown_rejections(self):
+        self.controller.unknown_bus = True
+        final = self.runner.static_matrix(100, 1000, 2000)
+        self.assertEqual(final[0x00C], 0x400)
+        self.assertEqual(csr.epoch(final), 8)
+        self.assertEqual(self.controller.model_starts, 0)
+        unresolved = [row for row in self.runner.record["scenarios"]
+                      if row["status"] == "BLOCKED_BRESP_UNRESOLVED"]
+        legal = [row for row in self.runner.record["scenarios"] if row["status"] == "PASS"]
+        self.assertEqual(len(unresolved), 11)
+        self.assertEqual(len(legal), 8)
+        self.assertEqual(len(self.runner.record["blockers"]), len(unresolved))
+        self.assertTrue(all(row["native_response"] == "UNKNOWN" for row in unresolved))
+        self.assertTrue(all(row["status"] == "BLOCKED" for row in self.runner.record["scenarios"]
+                            if row["name"] == "busy_start"))
+
+    def test_unknown_signature_or_other_csr_side_effect_still_fails(self):
+        self.controller.unknown_bus = True
+        self.controller.unknown_bus_error = "DAP write failed"
         with self.assertRaisesRegex(csr.CsrAcceptanceError, "UNKNOWN"):
             self.runner.reject_command("encoding", 3, 5)
 
@@ -345,6 +381,7 @@ class CsrTests(unittest.TestCase):
 
     def test_failure_evidence_retains_raw_mock_calls(self):
         self.controller.unknown_bus = True
+        self.controller.unknown_bus_error = "DAP write failed"
         with self.assertRaises(csr.CsrAcceptanceError):
             self.runner.reject_command("encoding", 3, 5)
         result = self.runner.finish("FAIL_MOCK_ONLY", "known mock failure")

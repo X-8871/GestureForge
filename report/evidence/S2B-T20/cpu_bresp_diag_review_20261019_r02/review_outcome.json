@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "review_id": "cpu_bresp_diag_review_20261019_r02",
+  "supersedes": "report/evidence/S2B-T20/cpu_bresp_diag_review_20261019_r01/review_outcome.json",
+  "verdict": "PASS",
+  "scope": "静态代码与已保存离线ELF审查：允许在满足新鲜运行前置条件后进入受控实验；不代表G3/G4/G5，也未执行硬件",
+  "reviewed_current_head": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "source_bindings": [
+    {
+      "path": "vitis/s2b_bresp_diag.S",
+      "current_sha256": "4d4185cd598f5a428de43cb3823e31abbe9cbed937b7df9789d52f7b7dabda2c",
+      "frozen_snapshot_sha256": "4d4185cd598f5a428de43cb3823e31abbe9cbed937b7df9789d52f7b7dabda2c",
+      "build_result_sha256": "4d4185cd598f5a428de43cb3823e31abbe9cbed937b7df9789d52f7b7dabda2c"
+    },
+    {
+      "path": "vitis/build_s2b_bresp_diag.py",
+      "current_sha256": "6a47d7e288dc7fa36ef830b4add4309cb9e38fd4c919fee58714eed92f6333db",
+      "frozen_snapshot_sha256": "6a47d7e288dc7fa36ef830b4add4309cb9e38fd4c919fee58714eed92f6333db",
+      "build_result_sha256": "6a47d7e288dc7fa36ef830b4add4309cb9e38fd4c919fee58714eed92f6333db"
+    }
+  ],
+  "historical_build": {
+    "evidence_dir": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r04",
+    "status": "OFFLINE_BUILD_OK_NOT_HARDWARE_RESULT",
+    "built_head": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+    "git_head_log": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+    "elf_sha256": "402502e0446e3de2486ee12435daebe0d921fd1bc048b4cc0dd567e1159f959d",
+    "recorded_elf_sha256": "402502e0446e3de2486ee12435daebe0d921fd1bc048b4cc0dd567e1159f959d",
+    "builder_commands": [
+      {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+          "--version"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+          "-c",
+          "-x",
+          "assembler-with-cpp",
+          "-mcpu=cortex-a9",
+          "-marm",
+          "-ffreestanding",
+          "-o",
+          "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\build\\s2b_bresp_diag.o",
+          "D:\\FPGA_Competition\\w2b\\vitis\\s2b_bresp_diag.S"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+          "-nostdlib",
+          "-nostartfiles",
+          "-mcpu=cortex-a9",
+          "-marm",
+          "-Wl,--build-id=none",
+          "-Wl,-Map=D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\s2b_bresp_diag.map",
+          "-Wl,-T,D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\build\\s2b_bresp_diag.ld",
+          "-o",
+          "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\s2b_bresp_diag.elf",
+          "D:\\FPGA_Competition\\w2b\\tmp\\2B\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\build\\s2b_bresp_diag.o"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+          "-d",
+          "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\s2b_bresp_diag.elf"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-readelf.exe",
+          "-h",
+          "-lW",
+          "-SW",
+          "-sW",
+          "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r04\\s2b_bresp_diag.elf"
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "prior_finding_disposition": {
+    "id": "R01-B1",
+    "location": "vitis/build_s2b_bresp_diag.py:37,159-160",
+    "decision": "撤销为阻断",
+    "basis": "固定历史RunId的离线构建在HEAD 54e6c8d下真实执行成功，commands.json与git_head.log记录退出码0；当前源码、冻结source_snapshot与build_result中的SHA逐字节一致；现存ELF的实际SHA与build_result绑定一致。当前HEAD 75fcc59仅修改无关CSR host文件，不改变已构建ELF及其绑定。R04实验消费的是冻结ELF；任务没有要求在当前HEAD重跑此固定RunId构建器。不能将此重跑限制上升为所有HEAD必须相同的通用门槛。",
+    "residual": "若未来要求从新HEAD重建，应使用新的RunId并更新对应基线绑定；此为新构建任务，不影响当前已冻结候选的可消费性。"
+  },
+  "technical_review": {
+    "synchronous_abort": "ARMv7-A ARM态Data Abort采集LR_abt-8、DFSR、DFAR、SPSR；仅当fault PC为唯一busy store、指令为0xe5801000、DFAR=0x43c00008且FS[4]=0/FS[3:0]=8/WnR=1/ExT=1才分类SLVERR。Arm Cortex-A9 TRM将ExT=1定义为SLVERR、0定义为DECERR；异常/数据不一致落入UNKNOWN并停驻。",
+    "mmu_vector_cache": "保留32字节对齐的低OCM vector/code，核验原TTBR0=0x00110000/TTBCR=0、复制完整短描述符L1表到独立16KiB OCM区，校验CSR 1MiB section描述符物理基址与Device属性后仅改私有副本为Strongly-ordered；清/写回表、切TTBR0、TLBI和DSB/ISB顺序完整。冻结BSP页表为flat map，init ELF与infer map记录支持低OCM和原TTBR地址布局。",
+    "layout": "已有ELF仅输入诊断汇编对象，PT_LOAD代码0xc000..0x10000和NOBITS表0x10000..0x14000；独立栈与mailbox在0x2c000及0x2e000范围，均处低OCM保留区且彼此无重叠；不链接infer.elf。",
+    "run_reject": "运行前检查IDLE/SAFE、owner/pending bits清零、AXI ledger为0；合法RUN后唯一一次busy store，保存busy前后epoch/frame/status/reject快照；不abort或证据不匹配时失败park。",
+    "exception_behavior": "abort/unknown/fail路径只封存诊断mailbox、clean后BKPT/WFE驻留；未发现retry、ACK、reset或清账本。"
+  },
+  "conditions_for_controlled_experiment": [
+    "使用这份SHA绑定的历史ELF与同版R04 bit/init/infer输入。",
+    "上板前新鲜读取OCM_CFG并确认CPU1仍停核、PC不与诊断代码/栈/mailbox重叠；确认CSR为SAFE且AXI ledger清空。",
+    "确认sample000输入和权重仍在预期arena并完成CPU cache flush；异常时保持CPU park，不自动reset/ACK。"
+  ],
+  "limitations": [
+    "本次只读；未运行构建器、测试、SDK、XSDB、JTAG、UART或实物。",
+    "PASS仅表示代码/已保存离线ELF适合在上述门槛下进行受控实验，不表示真实SLVERR已观测或G3/G4/G5通过。",
+    "R01回执原件未修改，R02明确更正其唯一阻断判断。"
+  ],
+  "arm_trm": {
+    "title": "Arm Cortex-A9 Technical Reference Manual",
+    "url": "https://documentation-service.arm.com/static/5e7e23ffb471823cb9de5920",
+    "sections": [
+      "4.3.15 Data Fault Status Register",
+      "5.5 External aborts"
+    ]
+  },
+  "reviewer_evidence": "report/evidence/S2B-T20/cpu_bresp_diag_review_20261019_r02/review_outcome.json",
+  "saved_at_utc8": "2026-10-19T19:25:45+08:00",
+  "queue_review": {
+    "path": "tmp/2B/run_csr_r08_r09.py",
+    "sha256": "f71942740a3ffab7172ad8c8ea3678726a304a427dc700430a73368b8da26acd",
+    "result": "The loop invokes runner.run sequentially. When R08 is BLOCKED_CSR_RECOVERY_SCOPE_ONLY, it continues only with no cleanup_errors, exactly one busy_start_native_bresp blocker, five stages, and static_csr_negative_matrix last. The flow itself requires execution stages and static-matrix checks to pass before returning this blocked status. The runner constructs a fresh ProductionRuntime per call when no runtime is supplied and closes serial, controller, session, and XSDB in finally.",
+    "risk": "R08 has expected native_exit_code=2, so the launcher returns 2 even if R09 succeeds. Consume each record separately and do not treat aggregate exit 0 as an R09-only signal. Stop on unexpected R08 status or cleanup errors.",
+    "reviewed": "Read-only code/config inspection; no queue or hardware execution"
+  }
+}

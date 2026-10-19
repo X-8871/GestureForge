@@ -1,0 +1,76 @@
+
+Discarded input sections
+
+ .note.GNU-stack
+                0x00000000        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+ .ARM.attributes
+                0x00000000       0x1d D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+DIAG             0x0000c000         0x00004000         xrw
+TTB              0x00010000         0x00004000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+
+.vectors        0x0000c000       0x20
+ *(.vectors)
+ .vectors       0x0000c000       0x20 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+                0x0000c000                __diag_vectors
+
+.text           0x0000c020      0x5dc
+ *(.text.boot)
+ .text.boot     0x0000c020      0x5dc D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+                0x0000c020                _diag_start
+                0x0000c344                diag_busy_start_store
+                0x0000c348                diag_busy_start_store_end
+ *(.text*)
+ .text          0x0000c5fc        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+ *(.rodata*)
+                0x0000c5fc                        __diag_end = .
+
+.data           0x0000c5fc        0x0
+ .data          0x0000c5fc        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+.igot.plt       0x0000c5fc        0x0
+ .igot.plt      0x0000c5fc        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+.glue_7         0x0000c5fc        0x0
+ .glue_7        0x0000c5fc        0x0 linker stubs
+
+.glue_7t        0x0000c5fc        0x0
+ .glue_7t       0x0000c5fc        0x0 linker stubs
+
+.vfp11_veneer   0x0000c5fc        0x0
+ .vfp11_veneer  0x0000c5fc        0x0 linker stubs
+
+.v4_bx          0x0000c5fc        0x0
+ .v4_bx         0x0000c5fc        0x0 linker stubs
+
+.iplt           0x0000c5fc        0x0
+ .iplt          0x0000c5fc        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+.rel.dyn        0x0000c5fc        0x0
+ .rel.iplt      0x0000c5fc        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+.diag_ttb       0x00010000     0x4000
+ *(.diag_ttb)
+ .diag_ttb      0x00010000     0x4000 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+                0x00010000                __diag_ttb_start
+
+.bss            0x00014000        0x0
+ .bss           0x00014000        0x0 D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+
+/DISCARD/
+ *(.comment)
+ *(.note*)
+ *(.eh_frame*)
+ *(.ARM.attributes)
+                0x00000001                        ASSERT ((__diag_end <= 0x10000), 诊断代码越过保留低OCM范围)
+                0x00000001                        ASSERT ((SIZEOF (.diag_ttb) == 0x4000), 独立L1表必须为16KiB)
+LOAD D:\FPGA_Competition\w2b\tmp\2B\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\build\s2b_bresp_diag.o
+OUTPUT(D:\FPGA_Competition\w2b\report\evidence\S2B-T20\cpu_bresp_diag_ocm_20261019_r04\s2b_bresp_diag.elf elf32-littlearm)
+LOAD linker stubs

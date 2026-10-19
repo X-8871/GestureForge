@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "run_id": "cpu_bresp_host_offline_20261019_r01",
+  "status": "OFFLINE_HOST_TESTS_PASS",
+  "hardware_execution": "NOT_RUN",
+  "board_sdk_jtag_uart_access": "NOT_USED",
+  "source_commit": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "sources": {
+    "verification\\s2b_cpu_bresp_experiment.py": "2fc3c9f12075cb41fdd1918b8bd27ae228729350bd40ef050b69436a525c4096",
+    "verification\\test_s2b_cpu_bresp_experiment.py": "7bc767312f6d8eb4783af7b5cc14b2b927c4b2c96a0222c7ea7d00b1680ece9f"
+  },
+  "inputs": {
+    "r08_acceptance_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261019_r08\\acceptance_result.json",
+      "sha256": "2fa6a05a9e14f3aaa86c15aba8777aded207928f84c3d7f5b7f86e4971dac93f"
+    },
+    "r05_build_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\build_result.json",
+      "sha256": "800cb891292505005dc9ec2794350a6f7afc30f379f33cee268a305363affcc5",
+      "elf_sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d"
+    }
+  },
+  "test": {
+    "command": [
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "verification.test_s2b_cpu_bresp_experiment",
+      "-v"
+    ],
+    "exit_code": 0,
+    "expected_tests": 9,
+    "summary": [
+      "",
+      "OK"
+    ]
+  },
+  "runtime": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "independent_review": "PENDING_TOTAL_CONTROLLER_REVIEW",
+  "limitations": [
+    "仅验证离线分类、真实R08结果绑定、R05 ELF布局及fake controller执行路径。",
+    "不证明板上运行、AXI BRESP类型或G3/G4/G5。",
+    "旧infer执行上下文不能直接恢复；诊断后只在实际SAFE/账本零时重载app并停入口。"
+  ],
+  "saved_at_utc8": "2026-10-19T23:11:36.964904+08:00"
+}

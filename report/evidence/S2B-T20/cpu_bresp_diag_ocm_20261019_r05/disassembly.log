@@ -1,0 +1,450 @@
+
+D:\FPGA_Competition\w2b\report\evidence\S2B-T20\cpu_bresp_diag_ocm_20261019_r05\s2b_bresp_diag.elf:     file format elf32-littlearm
+
+
+Disassembly of section .vectors:
+
+0000c000 <__diag_vectors>:
+    c000:	ea000006 	b	c020 <_diag_start>
+    c004:	ea00012d 	b	c4c0 <_diag_unexpected>
+    c008:	ea00012c 	b	c4c0 <_diag_unexpected>
+    c00c:	ea00012b 	b	c4c0 <_diag_unexpected>
+    c010:	ea0000d6 	b	c370 <_diag_data_abort>
+    c014:	ea000129 	b	c4c0 <_diag_unexpected>
+    c018:	ea000128 	b	c4c0 <_diag_unexpected>
+    c01c:	ea000127 	b	c4c0 <_diag_unexpected>
+
+Disassembly of section .text:
+
+0000c020 <_diag_start>:
+    c020:	f10c00c0 	cpsid	if
+    c024:	f1020013 	cps	#19
+    c028:	e3a0da2d 	mov	sp, #184320	; 0x2d000
+    c02c:	f1020017 	cps	#23
+    c030:	e3a0da2d 	mov	sp, #184320	; 0x2d000
+    c034:	f1020013 	cps	#19
+    c038:	e3a00a2e 	mov	r0, #188416	; 0x2e000
+    c03c:	e3a01000 	mov	r1, #0
+    c040:	e3a02040 	mov	r2, #64	; 0x40
+    c044:	e4801004 	str	r1, [r0], #4
+    c048:	e2522001 	subs	r2, r2, #1
+    c04c:	1afffffc 	bne	c044 <_diag_start+0x24>
+    c050:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
+    c054:	e3c00a02 	bic	r0, r0, #8192	; 0x2000
+    c058:	ee010f10 	mcr	15, 0, r0, cr1, cr0, {0}
+    c05c:	e59f054c 	ldr	r0, [pc, #1356]	; c5b0 <_diag_park+0x28>
+    c060:	ee0c0f10 	mcr	15, 0, r0, cr12, cr0, {0}
+    c064:	f57ff04f 	dsb	sy
+    c068:	f57ff06f 	isb	sy
+    c06c:	ee100f10 	mrc	15, 0, r0, cr0, cr0, {0}
+    c070:	e59f153c 	ldr	r1, [pc, #1340]	; c5b4 <_diag_park+0x2c>
+    c074:	e0002001 	and	r2, r0, r1
+    c078:	e59f1538 	ldr	r1, [pc, #1336]	; c5b8 <_diag_park+0x30>
+    c07c:	e1520001 	cmp	r2, r1
+    c080:	1a000115 	bne	c4dc <_diag_fail_midr>
+    c084:	e3a01a2e 	mov	r1, #188416	; 0x2e000
+    c088:	e1a06001 	mov	r6, r1
+    c08c:	e5810004 	str	r0, [r1, #4]
+    c090:	ee110f10 	mrc	15, 0, r0, cr1, cr0, {0}
+    c094:	e5860008 	str	r0, [r6, #8]
+    c098:	e3100001 	tst	r0, #1
+    c09c:	0a000110 	beq	c4e4 <_diag_fail_mmu_off>
+    c0a0:	ee120f50 	mrc	15, 0, r0, cr2, cr0, {2}
+    c0a4:	e586000c 	str	r0, [r6, #12]
+    c0a8:	e3500000 	cmp	r0, #0
+    c0ac:	1a00010e 	bne	c4ec <_diag_fail_ttbcr>
+    c0b0:	ee124f10 	mrc	15, 0, r4, cr2, cr0, {0}
+    c0b4:	e5864010 	str	r4, [r6, #16]
+    c0b8:	e59f04fc 	ldr	r0, [pc, #1276]	; c5bc <_diag_park+0x34>
+    c0bc:	e0044000 	and	r4, r4, r0
+    c0c0:	e3a00811 	mov	r0, #1114112	; 0x110000
+    c0c4:	e1540000 	cmp	r4, r0
+    c0c8:	1a000127 	bne	c56c <_diag_fail_ttb_base>
+    c0cc:	e59f54ec 	ldr	r5, [pc, #1260]	; c5c0 <_diag_park+0x38>
+    c0d0:	e1a02005 	mov	r2, r5
+    c0d4:	e59f34e8 	ldr	r3, [pc, #1256]	; c5c4 <_diag_park+0x3c>
+    c0d8:	ee072f3e 	mcr	15, 0, r2, cr7, cr14, {1}
+    c0dc:	e2822020 	add	r2, r2, #32
+    c0e0:	e1520003 	cmp	r2, r3
+    c0e4:	3afffffb 	bcc	c0d8 <_diag_start+0xb8>
+    c0e8:	f57ff04f 	dsb	sy
+    c0ec:	e3a02a01 	mov	r2, #4096	; 0x1000
+    c0f0:	e4943004 	ldr	r3, [r4], #4
+    c0f4:	e4853004 	str	r3, [r5], #4
+    c0f8:	e2522001 	subs	r2, r2, #1
+    c0fc:	1afffffb 	bne	c0f0 <_diag_start+0xd0>
+    c100:	e59f24b8 	ldr	r2, [pc, #1208]	; c5c0 <_diag_park+0x38>
+    c104:	e59f34b8 	ldr	r3, [pc, #1208]	; c5c4 <_diag_park+0x3c>
+    c108:	ee072f3a 	mcr	15, 0, r2, cr7, cr10, {1}
+    c10c:	e2822020 	add	r2, r2, #32
+    c110:	e1520003 	cmp	r2, r3
+    c114:	3afffffb 	bcc	c108 <_diag_start+0xe8>
+    c118:	f57ff04f 	dsb	sy
+    c11c:	e59f44a4 	ldr	r4, [pc, #1188]	; c5c8 <_diag_park+0x40>
+    c120:	e5864014 	str	r4, [r6, #20]
+    c124:	e59f04a0 	ldr	r0, [pc, #1184]	; c5cc <_diag_park+0x44>
+    c128:	e5945000 	ldr	r5, [r4]
+    c12c:	e5865018 	str	r5, [r6, #24]
+    c130:	e2052003 	and	r2, r5, #3
+    c134:	e3520002 	cmp	r2, #2
+    c138:	1a0000ed 	bne	c4f4 <_diag_fail_l1_type>
+    c13c:	e3150701 	tst	r5, #262144	; 0x40000
+    c140:	1a0000ed 	bne	c4fc <_diag_fail_supersection>
+    c144:	e59f2484 	ldr	r2, [pc, #1156]	; c5d0 <_diag_park+0x48>
+    c148:	e0052002 	and	r2, r5, r2
+    c14c:	e1520000 	cmp	r2, r0
+    c150:	1a0000eb 	bne	c504 <_diag_fail_l1_address>
+    c154:	e3150a07 	tst	r5, #28672	; 0x7000
+    c158:	1a0000eb 	bne	c50c <_diag_fail_old_attr>
+    c15c:	e3150008 	tst	r5, #8
+    c160:	1a0000e9 	bne	c50c <_diag_fail_old_attr>
+    c164:	e3150004 	tst	r5, #4
+    c168:	0a0000e7 	beq	c50c <_diag_fail_old_attr>
+    c16c:	e59f2460 	ldr	r2, [pc, #1120]	; c5d4 <_diag_park+0x4c>
+    c170:	e0055002 	and	r5, r5, r2
+    c174:	e5845000 	str	r5, [r4]
+    c178:	e586501c 	str	r5, [r6, #28]
+    c17c:	e1a02004 	mov	r2, r4
+    c180:	ee072f3a 	mcr	15, 0, r2, cr7, cr10, {1}
+    c184:	f57ff04f 	dsb	sy
+    c188:	ee124f10 	mrc	15, 0, r4, cr2, cr0, {0}
+    c18c:	e59f2444 	ldr	r2, [pc, #1092]	; c5d8 <_diag_park+0x50>
+    c190:	e0044002 	and	r4, r4, r2
+    c194:	e59f2424 	ldr	r2, [pc, #1060]	; c5c0 <_diag_park+0x38>
+    c198:	e1844002 	orr	r4, r4, r2
+    c19c:	e5862098 	str	r2, [r6, #152]	; 0x98
+    c1a0:	f57ff04f 	dsb	sy
+    c1a4:	ee024f10 	mcr	15, 0, r4, cr2, cr0, {0}
+    c1a8:	f57ff04f 	dsb	sy
+    c1ac:	e3a00000 	mov	r0, #0
+    c1b0:	ee080f17 	mcr	15, 0, r0, cr8, cr7, {0}
+    c1b4:	f57ff04f 	dsb	sy
+    c1b8:	f57ff06f 	isb	sy
+    c1bc:	e3a02000 	mov	r2, #0
+    c1c0:	ee072f15 	mcr	15, 0, r2, cr7, cr5, {0}
+    c1c4:	f57ff04f 	dsb	sy
+    c1c8:	f57ff06f 	isb	sy
+    c1cc:	e59f43f8 	ldr	r4, [pc, #1016]	; c5cc <_diag_park+0x44>
+    c1d0:	e594000c 	ldr	r0, [r4, #12]
+    c1d4:	e5860020 	str	r0, [r6, #32]
+    c1d8:	e2002007 	and	r2, r0, #7
+    c1dc:	e3520000 	cmp	r2, #0
+    c1e0:	1a0000cb 	bne	c514 <_diag_fail_not_idle>
+    c1e4:	e3100b01 	tst	r0, #1024	; 0x400
+    c1e8:	0a0000cb 	beq	c51c <_diag_fail_not_safe>
+    c1ec:	e3100c39 	tst	r0, #14592	; 0x3900
+    c1f0:	1a0000cb 	bne	c524 <_diag_fail_pending>
+    c1f4:	e5942068 	ldr	r2, [r4, #104]	; 0x68
+    c1f8:	e5862024 	str	r2, [r6, #36]	; 0x24
+    c1fc:	e3520000 	cmp	r2, #0
+    c200:	1a0000c9 	bne	c52c <_diag_fail_ledger>
+    c204:	e5942064 	ldr	r2, [r4, #100]	; 0x64
+    c208:	e5862028 	str	r2, [r6, #40]	; 0x28
+    c20c:	eb000050 	bl	c354 <_diag_read_epoch>
+    c210:	e586002c 	str	r0, [r6, #44]	; 0x2c
+    c214:	e5862030 	str	r2, [r6, #48]	; 0x30
+    c218:	e5943058 	ldr	r3, [r4, #88]	; 0x58
+    c21c:	e5863034 	str	r3, [r6, #52]	; 0x34
+    c220:	e3a00000 	mov	r0, #0
+    c224:	e5840014 	str	r0, [r4, #20]
+    c228:	e5840018 	str	r0, [r4, #24]
+    c22c:	e59f03a8 	ldr	r0, [pc, #936]	; c5dc <_diag_park+0x54>
+    c230:	e584001c 	str	r0, [r4, #28]
+    c234:	e3a00601 	mov	r0, #1048576	; 0x100000
+    c238:	e5840020 	str	r0, [r4, #32]
+    c23c:	e59f039c 	ldr	r0, [pc, #924]	; c5e0 <_diag_park+0x58>
+    c240:	e5840024 	str	r0, [r4, #36]	; 0x24
+    c244:	e3e00000 	mvn	r0, #0
+    c248:	e5840028 	str	r0, [r4, #40]	; 0x28
+    c24c:	e584002c 	str	r0, [r4, #44]	; 0x2c
+    c250:	f57ff04f 	dsb	sy
+    c254:	e3a00001 	mov	r0, #1
+    c258:	e5840008 	str	r0, [r4, #8]
+    c25c:	f57ff04f 	dsb	sy
+    c260:	e3a05201 	mov	r5, #268435456	; 0x10000000
+    c264:	e3a08000 	mov	r8, #0
+    c268:	e594000c 	ldr	r0, [r4, #12]
+    c26c:	e2002007 	and	r2, r0, #7
+    c270:	e3520001 	cmp	r2, #1
+    c274:	1a00000a 	bne	c2a4 <_diag_start+0x284>
+    c278:	e3580000 	cmp	r8, #0
+    c27c:	1a000008 	bne	c2a4 <_diag_start+0x284>
+    c280:	e5860080 	str	r0, [r6, #128]	; 0x80
+    c284:	eb000032 	bl	c354 <_diag_read_epoch>
+    c288:	e5860084 	str	r0, [r6, #132]	; 0x84
+    c28c:	e5862088 	str	r2, [r6, #136]	; 0x88
+    c290:	e5943058 	ldr	r3, [r4, #88]	; 0x58
+    c294:	e586308c 	str	r3, [r6, #140]	; 0x8c
+    c298:	e5943064 	ldr	r3, [r4, #100]	; 0x64
+    c29c:	e5863090 	str	r3, [r6, #144]	; 0x90
+    c2a0:	e3a08001 	mov	r8, #1
+    c2a4:	e594000c 	ldr	r0, [r4, #12]
+    c2a8:	e2002007 	and	r2, r0, #7
+    c2ac:	e3520002 	cmp	r2, #2
+    c2b0:	0a000003 	beq	c2c4 <_diag_start+0x2a4>
+    c2b4:	e2555001 	subs	r5, r5, #1
+    c2b8:	1affffea 	bne	c268 <_diag_start+0x248>
+    c2bc:	e3a00001 	mov	r0, #1
+    c2c0:	ea00009b 	b	c534 <_diag_fail_no_run>
+    c2c4:	e5860038 	str	r0, [r6, #56]	; 0x38
+    c2c8:	e3100c01 	tst	r0, #256	; 0x100
+    c2cc:	0a00009a 	beq	c53c <_diag_fail_no_owner>
+    c2d0:	e3100b03 	tst	r0, #3072	; 0xc00
+    c2d4:	1a00009a 	bne	c544 <_diag_fail_run_status>
+    c2d8:	e5942064 	ldr	r2, [r4, #100]	; 0x64
+    c2dc:	e586203c 	str	r2, [r6, #60]	; 0x3c
+    c2e0:	e3520000 	cmp	r2, #0
+    c2e4:	1a000098 	bne	c54c <_diag_fail_reject_before>
+    c2e8:	eb000019 	bl	c354 <_diag_read_epoch>
+    c2ec:	e5860040 	str	r0, [r6, #64]	; 0x40
+    c2f0:	e5862044 	str	r2, [r6, #68]	; 0x44
+    c2f4:	e596002c 	ldr	r0, [r6, #44]	; 0x2c
+    c2f8:	e2900001 	adds	r0, r0, #1
+    c2fc:	e5967030 	ldr	r7, [r6, #48]	; 0x30
+    c300:	e2a77000 	adc	r7, r7, #0
+    c304:	e5962040 	ldr	r2, [r6, #64]	; 0x40
+    c308:	e1500002 	cmp	r0, r2
+    c30c:	1a000092 	bne	c55c <_diag_fail_run_epoch>
+    c310:	e5962044 	ldr	r2, [r6, #68]	; 0x44
+    c314:	e1570002 	cmp	r7, r2
+    c318:	1a00008f 	bne	c55c <_diag_fail_run_epoch>
+    c31c:	e5943058 	ldr	r3, [r4, #88]	; 0x58
+    c320:	e5863048 	str	r3, [r6, #72]	; 0x48
+    c324:	e3530000 	cmp	r3, #0
+    c328:	1a00008d 	bne	c564 <_diag_fail_run_frame>
+    c32c:	e59f02b0 	ldr	r0, [pc, #688]	; c5e4 <_diag_park+0x5c>
+    c330:	e5860000 	str	r0, [r6]
+    c334:	f57ff04f 	dsb	sy
+    c338:	e3a01001 	mov	r1, #1
+    c33c:	e59f0288 	ldr	r0, [pc, #648]	; c5cc <_diag_park+0x44>
+    c340:	e2800008 	add	r0, r0, #8
+
+0000c344 <diag_busy_start_store>:
+    c344:	e5801000 	str	r1, [r0]
+
+0000c348 <diag_busy_start_store_end>:
+    c348:	f57ff04f 	dsb	sy
+    c34c:	e3a00002 	mov	r0, #2
+    c350:	ea00007f 	b	c554 <_diag_fail_no_abort>
+
+0000c354 <_diag_read_epoch>:
+    c354:	e59f1270 	ldr	r1, [pc, #624]	; c5cc <_diag_park+0x44>
+    c358:	e5912054 	ldr	r2, [r1, #84]	; 0x54
+    c35c:	e5910050 	ldr	r0, [r1, #80]	; 0x50
+    c360:	e5913054 	ldr	r3, [r1, #84]	; 0x54
+    c364:	e1520003 	cmp	r2, r3
+    c368:	1afffffa 	bne	c358 <_diag_read_epoch+0x4>
+    c36c:	e12fff1e 	bx	lr
+
+0000c370 <_diag_data_abort>:
+    c370:	e3a08a2e 	mov	r8, #188416	; 0x2e000
+    c374:	e14f9000 	mrs	r9, SPSR
+    c378:	e5889050 	str	r9, [r8, #80]	; 0x50
+    c37c:	e1a0900e 	mov	r9, lr
+    c380:	e5889054 	str	r9, [r8, #84]	; 0x54
+    c384:	e249a008 	sub	sl, r9, #8
+    c388:	e588a058 	str	sl, [r8, #88]	; 0x58
+    c38c:	ee15cf10 	mrc	15, 0, ip, cr5, cr0, {0}
+    c390:	e588c04c 	str	ip, [r8, #76]	; 0x4c
+    c394:	ee16cf10 	mrc	15, 0, ip, cr6, cr0, {0}
+    c398:	e588c060 	str	ip, [r8, #96]	; 0x60
+    c39c:	e59f0244 	ldr	r0, [pc, #580]	; c5e8 <_diag_park+0x60>
+    c3a0:	e15a0000 	cmp	sl, r0
+    c3a4:	1a00003b 	bne	c498 <_diag_abort_unknown>
+    c3a8:	e59ab000 	ldr	fp, [sl]
+    c3ac:	e588b05c 	str	fp, [r8, #92]	; 0x5c
+    c3b0:	e59f0214 	ldr	r0, [pc, #532]	; c5cc <_diag_park+0x44>
+    c3b4:	e2800008 	add	r0, r0, #8
+    c3b8:	e15c0000 	cmp	ip, r0
+    c3bc:	1a000035 	bne	c498 <_diag_abort_unknown>
+    c3c0:	e598005c 	ldr	r0, [r8, #92]	; 0x5c
+    c3c4:	e59f2220 	ldr	r2, [pc, #544]	; c5ec <_diag_park+0x64>
+    c3c8:	e1500002 	cmp	r0, r2
+    c3cc:	1a000031 	bne	c498 <_diag_abort_unknown>
+    c3d0:	e59f41f4 	ldr	r4, [pc, #500]	; c5cc <_diag_park+0x44>
+    c3d4:	e594c00c 	ldr	ip, [r4, #12]
+    c3d8:	e588c064 	str	ip, [r8, #100]	; 0x64
+    c3dc:	eb000030 	bl	c4a4 <_diag_read_epoch_abort>
+    c3e0:	e5880068 	str	r0, [r8, #104]	; 0x68
+    c3e4:	e588206c 	str	r2, [r8, #108]	; 0x6c
+    c3e8:	e594c058 	ldr	ip, [r4, #88]	; 0x58
+    c3ec:	e588c070 	str	ip, [r8, #112]	; 0x70
+    c3f0:	e594c064 	ldr	ip, [r4, #100]	; 0x64
+    c3f4:	e588c074 	str	ip, [r8, #116]	; 0x74
+    c3f8:	e594c068 	ldr	ip, [r4, #104]	; 0x68
+    c3fc:	e588c078 	str	ip, [r8, #120]	; 0x78
+    c400:	e598c04c 	ldr	ip, [r8, #76]	; 0x4c
+    c404:	e20c000f 	and	r0, ip, #15
+    c408:	e3500008 	cmp	r0, #8
+    c40c:	1a000021 	bne	c498 <_diag_abort_unknown>
+    c410:	e31c0b01 	tst	ip, #1024	; 0x400
+    c414:	1a00001f 	bne	c498 <_diag_abort_unknown>
+    c418:	e31c0b02 	tst	ip, #2048	; 0x800
+    c41c:	0a00001d 	beq	c498 <_diag_abort_unknown>
+    c420:	e31c0a01 	tst	ip, #4096	; 0x1000
+    c424:	0a00001b 	beq	c498 <_diag_abort_unknown>
+    c428:	e5980038 	ldr	r0, [r8, #56]	; 0x38
+    c42c:	e2000007 	and	r0, r0, #7
+    c430:	e3500002 	cmp	r0, #2
+    c434:	1a000017 	bne	c498 <_diag_abort_unknown>
+    c438:	e5980038 	ldr	r0, [r8, #56]	; 0x38
+    c43c:	e3100c01 	tst	r0, #256	; 0x100
+    c440:	0a000014 	beq	c498 <_diag_abort_unknown>
+    c444:	e598003c 	ldr	r0, [r8, #60]	; 0x3c
+    c448:	e3500000 	cmp	r0, #0
+    c44c:	1a000011 	bne	c498 <_diag_abort_unknown>
+    c450:	e5980074 	ldr	r0, [r8, #116]	; 0x74
+    c454:	e3500001 	cmp	r0, #1
+    c458:	1a00000e 	bne	c498 <_diag_abort_unknown>
+    c45c:	e5980040 	ldr	r0, [r8, #64]	; 0x40
+    c460:	e5982068 	ldr	r2, [r8, #104]	; 0x68
+    c464:	e1500002 	cmp	r0, r2
+    c468:	1a00000a 	bne	c498 <_diag_abort_unknown>
+    c46c:	e5980044 	ldr	r0, [r8, #68]	; 0x44
+    c470:	e598206c 	ldr	r2, [r8, #108]	; 0x6c
+    c474:	e1500002 	cmp	r0, r2
+    c478:	1a000006 	bne	c498 <_diag_abort_unknown>
+    c47c:	e5980048 	ldr	r0, [r8, #72]	; 0x48
+    c480:	e5982070 	ldr	r2, [r8, #112]	; 0x70
+    c484:	e1500002 	cmp	r0, r2
+    c488:	1a000002 	bne	c498 <_diag_abort_unknown>
+    c48c:	e59f015c 	ldr	r0, [pc, #348]	; c5f0 <_diag_park+0x68>
+    c490:	e5880000 	str	r0, [r8]
+    c494:	ea00003b 	b	c588 <_diag_park>
+
+0000c498 <_diag_abort_unknown>:
+    c498:	e59f0154 	ldr	r0, [pc, #340]	; c5f4 <_diag_park+0x6c>
+    c49c:	e5880000 	str	r0, [r8]
+    c4a0:	ea000038 	b	c588 <_diag_park>
+
+0000c4a4 <_diag_read_epoch_abort>:
+    c4a4:	e59f1120 	ldr	r1, [pc, #288]	; c5cc <_diag_park+0x44>
+    c4a8:	e5912054 	ldr	r2, [r1, #84]	; 0x54
+    c4ac:	e5910050 	ldr	r0, [r1, #80]	; 0x50
+    c4b0:	e5913054 	ldr	r3, [r1, #84]	; 0x54
+    c4b4:	e1520003 	cmp	r2, r3
+    c4b8:	1afffffa 	bne	c4a8 <_diag_read_epoch_abort+0x4>
+    c4bc:	e12fff1e 	bx	lr
+
+0000c4c0 <_diag_unexpected>:
+    c4c0:	e3a01a2e 	mov	r1, #188416	; 0x2e000
+    c4c4:	e3a00003 	mov	r0, #3
+    c4c8:	e581007c 	str	r0, [r1, #124]	; 0x7c
+    c4cc:	e59f0124 	ldr	r0, [pc, #292]	; c5f8 <_diag_park+0x70>
+    c4d0:	e5810000 	str	r0, [r1]
+    c4d4:	f57ff04f 	dsb	sy
+    c4d8:	ea00002a 	b	c588 <_diag_park>
+
+0000c4dc <_diag_fail_midr>:
+    c4dc:	e3a00001 	mov	r0, #1
+    c4e0:	ea000023 	b	c574 <_diag_fail>
+
+0000c4e4 <_diag_fail_mmu_off>:
+    c4e4:	e3a00002 	mov	r0, #2
+    c4e8:	ea000021 	b	c574 <_diag_fail>
+
+0000c4ec <_diag_fail_ttbcr>:
+    c4ec:	e3a00003 	mov	r0, #3
+    c4f0:	ea00001f 	b	c574 <_diag_fail>
+
+0000c4f4 <_diag_fail_l1_type>:
+    c4f4:	e3a00004 	mov	r0, #4
+    c4f8:	ea00001d 	b	c574 <_diag_fail>
+
+0000c4fc <_diag_fail_supersection>:
+    c4fc:	e3a00005 	mov	r0, #5
+    c500:	ea00001b 	b	c574 <_diag_fail>
+
+0000c504 <_diag_fail_l1_address>:
+    c504:	e3a00006 	mov	r0, #6
+    c508:	ea000019 	b	c574 <_diag_fail>
+
+0000c50c <_diag_fail_old_attr>:
+    c50c:	e3a00007 	mov	r0, #7
+    c510:	ea000017 	b	c574 <_diag_fail>
+
+0000c514 <_diag_fail_not_idle>:
+    c514:	e3a00008 	mov	r0, #8
+    c518:	ea000015 	b	c574 <_diag_fail>
+
+0000c51c <_diag_fail_not_safe>:
+    c51c:	e3a00009 	mov	r0, #9
+    c520:	ea000013 	b	c574 <_diag_fail>
+
+0000c524 <_diag_fail_pending>:
+    c524:	e3a0000a 	mov	r0, #10
+    c528:	ea000011 	b	c574 <_diag_fail>
+
+0000c52c <_diag_fail_ledger>:
+    c52c:	e3a0000b 	mov	r0, #11
+    c530:	ea00000f 	b	c574 <_diag_fail>
+
+0000c534 <_diag_fail_no_run>:
+    c534:	e3a0000c 	mov	r0, #12
+    c538:	ea00000d 	b	c574 <_diag_fail>
+
+0000c53c <_diag_fail_no_owner>:
+    c53c:	e3a0000d 	mov	r0, #13
+    c540:	ea00000b 	b	c574 <_diag_fail>
+
+0000c544 <_diag_fail_run_status>:
+    c544:	e3a0000e 	mov	r0, #14
+    c548:	ea000009 	b	c574 <_diag_fail>
+
+0000c54c <_diag_fail_reject_before>:
+    c54c:	e3a0000f 	mov	r0, #15
+    c550:	ea000007 	b	c574 <_diag_fail>
+
+0000c554 <_diag_fail_no_abort>:
+    c554:	e3a00010 	mov	r0, #16
+    c558:	ea000005 	b	c574 <_diag_fail>
+
+0000c55c <_diag_fail_run_epoch>:
+    c55c:	e3a00011 	mov	r0, #17
+    c560:	ea000003 	b	c574 <_diag_fail>
+
+0000c564 <_diag_fail_run_frame>:
+    c564:	e3a00012 	mov	r0, #18
+    c568:	ea000001 	b	c574 <_diag_fail>
+
+0000c56c <_diag_fail_ttb_base>:
+    c56c:	e3a00013 	mov	r0, #19
+    c570:	eaffffff 	b	c574 <_diag_fail>
+
+0000c574 <_diag_fail>:
+    c574:	e3a01a2e 	mov	r1, #188416	; 0x2e000
+    c578:	e581007c 	str	r0, [r1, #124]	; 0x7c
+    c57c:	e59f0074 	ldr	r0, [pc, #116]	; c5f8 <_diag_park+0x70>
+    c580:	e5810000 	str	r0, [r1]
+    c584:	f57ff04f 	dsb	sy
+
+0000c588 <_diag_park>:
+    c588:	e3a00a2e 	mov	r0, #188416	; 0x2e000
+    c58c:	e3a01008 	mov	r1, #8
+    c590:	ee070f3a 	mcr	15, 0, r0, cr7, cr10, {1}
+    c594:	e2800020 	add	r0, r0, #32
+    c598:	e2511001 	subs	r1, r1, #1
+    c59c:	1afffffb 	bne	c590 <_diag_park+0x8>
+    c5a0:	f57ff04f 	dsb	sy
+    c5a4:	e1200070 	bkpt	0x0000
+    c5a8:	e320f002 	wfe
+    c5ac:	eafffffd 	b	c5a8 <_diag_park+0x20>
+    c5b0:	0000c000 	.word	0x0000c000
+    c5b4:	ff0ffff0 	.word	0xff0ffff0
+    c5b8:	410fc090 	.word	0x410fc090
+    c5bc:	ffffc000 	.word	0xffffc000
+    c5c0:	00010000 	.word	0x00010000
+    c5c4:	00014000 	.word	0x00014000
+    c5c8:	000110f0 	.word	0x000110f0
+    c5cc:	43c00000 	.word	0x43c00000
+    c5d0:	fff00000 	.word	0xfff00000
+    c5d4:	ffff8ff3 	.word	0xffff8ff3
+    c5d8:	00003fff 	.word	0x00003fff
+    c5dc:	0007ec00 	.word	0x0007ec00
+    c5e0:	005a12fc 	.word	0x005a12fc
+    c5e4:	42524453 	.word	0x42524453
+    c5e8:	0000c344 	.word	0x0000c344
+    c5ec:	e5801000 	.word	0xe5801000
+    c5f0:	4252444f 	.word	0x4252444f
+    c5f4:	4252554e 	.word	0x4252554e
+    c5f8:	42524641 	.word	0x42524641

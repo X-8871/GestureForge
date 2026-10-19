@@ -11,6 +11,30 @@ from verification import s2b_csr_acceptance_flow as flow
 
 
 class FixedCsrFlowOrderTests(unittest.TestCase):
+    def test_static_bresp_blocker_requires_exact_signature_and_rejection_name(self):
+        scenarios = [{"name": item[0], "status": "PASS"} for item in flow.csr.PARAMETER_CASES]
+        scenarios.extend({"name": name, "status": "PASS"} for name in ("terminal_start", "wrong_ack"))
+        scenarios.extend({"name": "duplicate_ack:" + item[0], "status": "PASS"}
+                         for item in flow.csr.PARAMETER_CASES)
+        scenarios.extend([
+            {"name": "idle_bad_encoding", "status": "BLOCKED_BRESP_UNRESOLVED",
+             "native_response": "UNKNOWN",
+             "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED"},
+            {"name": "busy_start", "status": "BLOCKED"},
+        ])
+        self.assertEqual([item["name"] for item in flow._matrix_bresp_blockers(scenarios)],
+                         ["idle_bad_encoding"])
+        idle_reject = next(item for item in scenarios if item["name"] == "idle_bad_encoding")
+        idle_reject["native_response"] = "SLVERR"
+        with self.assertRaises(Exception):
+            flow._matrix_bresp_blockers(scenarios)
+        idle_reject.update(name="input_range", native_response="UNKNOWN")
+        with self.assertRaises(Exception):
+            flow._matrix_bresp_blockers(scenarios)
+        scenarios.pop()
+        with self.assertRaises(Exception):
+            flow._matrix_bresp_blockers(scenarios)
+
     def test_csr_profiles_use_disjoint_stage_routes(self):
         standard = flow._profile_stages({})
         deadline = flow._profile_stages({"csr_profile": "with_deadlines"})
@@ -98,8 +122,11 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
                 trace.append("static_last")
                 run_path.mkdir()
                 (run_path / "csr_result.json").write_text("{}", encoding="utf-8")
-                rows = [{"name": "parameter", "status": "PASS"},
-                        {"name": "busy_start", "status": "BLOCKED"}]
+                rows = [{"name": item[0], "status": "PASS"} for item in flow.csr.PARAMETER_CASES]
+                rows.extend({"name": name, "status": "PASS"} for name in ("idle_bad_encoding", "terminal_start", "wrong_ack"))
+                rows.extend({"name": "duplicate_ack:" + item[0], "status": "PASS"}
+                            for item in flow.csr.PARAMETER_CASES)
+                rows.append({"name": "busy_start", "status": "BLOCKED"})
                 return ({"status": "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE", "scenarios": rows},
                         {offset: 0 for offset in flow.csr.OFFSETS})
 
@@ -230,10 +257,22 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
             def static_stage(_controller, _wire, _binding, run_path, **kwargs):
                 run_path.mkdir()
                 trace.append("static")
-                scenarios = [{"name": "parameter", "status": "PASS"},
-                             {"name": "busy_start", "status": "BLOCKED"}]
+                unresolved = {"name": "idle_bad_encoding", "status": "BLOCKED_BRESP_UNRESOLVED",
+                              "native_response": "UNKNOWN",
+                              "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+                              "reason": "native response not exposed"}
+                scenarios = [{"name": item[0], "status": "PASS"} for item in flow.csr.PARAMETER_CASES]
+                scenarios.extend({"name": name, "status": "PASS"} for name in ("terminal_start", "wrong_ack"))
+                scenarios.extend({"name": "duplicate_ack:" + item[0], "status": "PASS"}
+                                 for item in flow.csr.PARAMETER_CASES)
+                scenarios.extend([unresolved, {"name": "busy_start", "status": "BLOCKED"}])
                 return ({"status": "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE",
-                         "scenarios": scenarios}, {offset: 0 for offset in flow.csr.OFFSETS})
+                         "scenarios": scenarios,
+                         "blockers": [{"name": unresolved["name"], "status": unresolved["status"],
+                                       "native_response": unresolved["native_response"],
+                                       "classification": unresolved["classification"],
+                                       "reason": unresolved["reason"]}]},
+                        {offset: 0 for offset in flow.csr.OFFSETS})
 
             apis = SimpleNamespace(acceptance=SimpleNamespace(), transport=flow.transport)
             with mock.patch.object(flow, "ROOT", root), \
@@ -263,6 +302,10 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
             self.assertEqual(result["scope_details"]["profile"],
                              "deadline有限范围；本profile的busy与ABORT为NOT_RUN")
             self.assertEqual(result["scope_details"]["late_pending_response"], "NOT_CLAIMED")
+            self.assertEqual(result["blockers"][0]["name"], "idle_bad_encoding")
+            self.assertEqual(result["blockers"][0]["status"], "BLOCKED_BRESP_UNRESOLVED")
+            self.assertEqual(result["scope_details"]["static_matrix_native_bresp"], ["idle_bad_encoding"])
+            self.assertIn("保持BLOCKED", flow._scope_check(result)["reason"])
             self.assertEqual(flow._scope_check(result)["status"], "PASS")
 
     def test_busy_failure_preserves_t20_output_and_writes_failed_index(self):

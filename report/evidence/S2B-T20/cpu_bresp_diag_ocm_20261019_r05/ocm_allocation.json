@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "STATIC_LAYOUT_VALIDATION_ONLY",
+  "low_ocm": [
+    0,
+    196608
+  ],
+  "init_elf": {
+    "layout_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init_elf_layout.json",
+    "layout_sha256": "a4dfe4eeaf463a3d364f6f2de28a56a3b569ec94e1ef0619ebd8fc0c9cff7778",
+    "low_pt_load": {
+      "type": 1,
+      "offset": 4096,
+      "virtual": 0,
+      "physical": 0,
+      "file_size": 32776,
+      "memory_size": 45584,
+      "flags": 7,
+      "align": 4096
+    },
+    "high_pt_load": {
+      "type": 1,
+      "offset": 0,
+      "virtual": 4294901760,
+      "physical": 4294901760,
+      "file_size": 0,
+      "memory_size": 54272,
+      "flags": 6,
+      "align": 4096
+    },
+    "low_end_exclusive": 45584,
+    "diagnostic_code_range": [
+      49152,
+      65536
+    ],
+    "diagnostic_stack_range": [
+      180224,
+      184320
+    ],
+    "mailbox_range": [
+      188416,
+      192512
+    ]
+  },
+  "diagnostic_code": [
+    49152,
+    65536
+  ],
+  "diagnostic_private_l1_table": [
+    65536,
+    81920
+  ],
+  "diagnostic_stack": [
+    180224,
+    184320
+  ],
+  "reserved_guard": [
+    184320,
+    188416
+  ],
+  "mailbox": [
+    188416,
+    192512
+  ],
+  "cpu1_historical_snapshot": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261019_r07_deployment\\jtag_result.json",
+    "sha256": "4ba41e7b8c2f7ced775614d78a4e1bd4937c0665afb17db945dc2a9939845b56",
+    "ocm_cfg": 24,
+    "historical_cpu1_state": "Suspended",
+    "historical_cpu1_pc": 4294967092,
+    "note": "这是R07历史快照；每次真实执行诊断前仍须重新确认CPU1停核及PC不变。"
+  },
+  "runtime_precondition": "每次真实使用前重读OCM_CFG并核实CPU1仍Stopped/Suspended且PC不在诊断代码、栈、mailbox范围；本构建不证明当前硬件状态。"
+}

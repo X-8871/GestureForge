@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "review_id": "cpu_bresp_host_review_20261019_r01",
+  "verdict": "PASS",
+  "status": "PASS",
+  "scope": "Independent read-only code review of the CPU BRESP host, offline tests, Vitis warm-attach wrapper, diagnostic assembly and builder. PASS means the frozen code candidate is suitable to enter a controlled experiment after the wrapper's fresh runtime preconditions; it does not assert a hardware observation or G3/G4/G5 acceptance.",
+  "reviewed_current_head": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "source_bindings": [
+    {"path": "verification/s2b_cpu_bresp_experiment.py", "current_sha256": "e92efd0e7c1f356cd9851523fd13c57464731f835c7963d2924834375b57300e"},
+    {"path": "verification/test_s2b_cpu_bresp_experiment.py", "current_sha256": "3aba98652ced16b575046cf062bd740f968a3be74e151d4234bb0abfbee4aa21"},
+    {"path": "vitis/run_s2b_cpu_bresp_experiment.py", "current_sha256": "39d8aee2612e872ec53b95f7feb8840e06697493d473330b63aa1764668c3380"},
+    {"path": "vitis/s2b_bresp_diag.S", "current_sha256": "c18c90bcc9c64df426b8aa04904388ad802b922fdeacfec94990661db7f9de09"},
+    {"path": "vitis/build_s2b_bresp_diag.py", "current_sha256": "395476b7bcb6e7c392c3b0faa3e0ca92642dcd3b592bccc82aa6862e04290db2"}
+  ],
+  "artifact_sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d",
+  "artifact_bindings": [
+    {"path": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r05/s2b_bresp_diag.elf", "sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r05/build_result.json", "sha256": "800cb891292505005dc9ec2794350a6f7afc30f379f33cee268a305363affcc5"}
+  ],
+  "offline_regression_evidence": {
+    "path": "report/evidence/S2B-T20/cpu_bresp_host_offline_20261019_r02/offline_result.json",
+    "sha256": "2a9263fcd98f33c66ebb26474f10649c86a257f1aa115288ecd6ddf10c6c30ef",
+    "test_log_path": "report/evidence/S2B-T20/cpu_bresp_host_offline_20261019_r02/unittest_output.txt",
+    "test_log_sha256": "4466923e720fcdc0b64424a9c3e1cdcc5f57249bdf61f4839e4183a09dfa986d",
+    "command": "python -B -m unittest verification.test_s2b_cpu_bresp_experiment -v",
+    "recorded_exit_code": 0,
+    "recorded_tests": 9,
+    "reviewer_reran_tests": false,
+    "coverage_limit": "The 9-test evidence binds the unchanged host and test module, and records an earlier wrapper SHA 95ff02af1bf3699822b5797cc100a154615709ab35c887854416c10f69ec7ee3. The reviewed wrapper SHA is 39d8aee2612e872ec53b95f7feb8840e06697493d473330b63aa1764668c3380; its final delta adds config, R08, review, diagnostic ELF and build manifest inputs. This exact final wrapper revision is not covered by the recorded 9-test run; no tests were rerun in this review."
+  },
+  "review_findings": {
+    "mailbox_and_provenance": "Host reads exactly 64 mailbox words, matches the assembly mailbox ABI and classifies only the required synchronous external write-abort signature, exact DFAR, PC and opcode as SLVERR. The initial CSR epoch/frame are checked against the R08 closed recovery golden (epoch 5/frame 1); terminal SAFE observation is checked as epoch+1/frame 0. The R02 fake rejects mailbox counts other than 64, addressing the earlier false pass from a count-insensitive fake.",
+    "execution_and_lifecycle": "Wrapper validates explicit input configuration and bindings, attaches through the existing ProductionRuntime session, does not open UART or start an owned server, and follows the existing controller/map/session/XSDB cleanup order. Host verifies both CPUs stopped, CPU1 park PC, OCM_CFG, fresh SAFE/empty AXI state and bound app PC before loading the diagnostic. It makes one diagnostic download/continue, waits for real SAFE terminal with pending bits and ledger clear, and only then reloads the same bound infer.elf at its entry. It does not claim restoration of CPU registers, stack or prior execution context and requires a subsequent formal reentry/golden flow.",
+    "failure_behavior": "Diagnostic assembly parks in BKPT/WFE on classified abort, unknown abort or precondition failure. Host failure handling fail-stops CPU0 and does not ACK, reset, retry or clear AXI accounting. Wrapper cleanup only removes controller-owned breakpoints and its temporary CSR map before disconnecting its SDK session; it does not stop or dispose an externally owned JTAG server.",
+    "static_candidate": "The host binds the R05 ELF SHA, source SHA, entry, PT_LOAD layout and busy-store symbol, then requires a PASS review receipt binding the current assembly SHA. The reviewed assembly uses a private OCM L1 table copy to change only the CSR descriptor to Strongly-ordered, retains its own low-OCM code/vector/stack/mailbox layout, and uses the frozen ELF without linking the inference app. The exception path checks the recorded ARM synchronous external-abort status and unique STR context, otherwise parks UNKNOWN."
+  },
+  "commands_and_exit_codes": [
+    {"command": "git -C w2b rev-parse HEAD", "exit_code": 0, "result": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075"},
+    {"command": "Get-FileHash -Algorithm SHA256 -LiteralPath <five reviewed source files>", "exit_code": 0, "result": "all five current hashes equal the source_bindings above"},
+    {"command": "Get-FileHash -Algorithm SHA256 -LiteralPath <R02 offline result, test log, R05 ELF>", "exit_code": 0, "result": "hashes recorded above"},
+    {"command": "python -B -m unittest verification.test_s2b_cpu_bresp_experiment -v", "reviewer_exit_code": null, "result": "not rerun; prior recorded evidence only"}
+  ],
+  "limitations": [
+    "Read-only source and saved-evidence inspection. No SDK, XSDB, JTAG, UART or board action was performed.",
+    "The R05 build record is offline build evidence; it does not prove the target's actual MMU state, BRESP or mailbox contents.",
+    "No end-to-end hardware diagnostic, ACK/recovery run, G3/G4/G5 result, or stage acceptance is asserted.",
+    "The final wrapper manifest-input extension was reviewed as source but is not covered by the existing 9-test evidence, which recorded the previous wrapper SHA."
+  ],
+  "blocking_findings": []
+}

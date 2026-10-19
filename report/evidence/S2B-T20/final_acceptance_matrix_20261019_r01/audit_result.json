@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "record_type": "S2B_T20_G4_G5_MINIMUM_EVIDENCE_AUDIT",
+  "audit_date_utc8": "2026-10-19",
+  "base_head": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "stage2b_status": "NOT_ACCEPTED",
+  "scope": "Read-only mapping of explicit Stage 2B / physical-interface requirements to frozen evidence; no test or hardware actions by this audit.",
+  "numeric_gates": {
+    "golden_sample_minimum": {
+      "required": 100,
+      "matched_outputs": 109,
+      "ack_closed_samples": 108,
+      "ack_closed_indices": "corpus index 0..107",
+      "coverage": [
+        "five classes",
+        "no-hand negative",
+        "multiple ground-truth boxes",
+        "boundary box",
+        "empty ground truth",
+        "small ground-truth box"
+      ],
+      "status": "PASS_NUMERIC_MINIMUM"
+    },
+    "continuous_task_minimum": {
+      "required": 1000,
+      "ack_closed_tasks": 1000,
+      "repeat_indices": "0..999",
+      "epochs": "1..1000",
+      "status": "PASS_NUMERIC_MINIMUM"
+    },
+    "r02_last_corpus_ack": {
+      "status": "NOT_PROVEN_FOR_R02_FINAL_TASK",
+      "detail": "corpus index 108 / sequence 111 / frame 1108 / epoch 1109 had no dynamic post-task ACK/IDLE readback in R02; this is outside the 108 closed samples used for the Stage 2B count minimum."
+    }
+  },
+  "board_runs": {
+    "r08": {
+      "status": "FAILED_CSR_RECOVERY_SCOPE_ONLY",
+      "native_exit_code": 2,
+      "launcher_exit_code": 2,
+      "seed_sample000": "PASS_SAMPLE000_SEED_ONLY",
+      "busy_start": "BUSY_REJECTION_AND_GOLD_BRESP_UNRESOLVED",
+      "busy_last_reject": 1,
+      "busy_response": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+      "reaccept_sample000": "PASS_SAMPLE000_REACCEPT_FRAME0_ONLY",
+      "abort_pending_recovery": "PASS",
+      "abort_recovery_scope": "Actual AXI_PENDING during ABORT; ERROR_SAFE/SAFE_TO_REUSE after drain, explicit ACK, then golden sample000 at epoch 5.",
+      "static_matrix": "STOPPED_AT_IDLE_BAD_ENCODING_UNKNOWN; later cases NOT_RUN",
+      "cleanup_limit": "controller.close reported RunnerError; serial/RX/TX, owned CSR map, session disconnect and XSDB disposal were recorded successful.",
+      "source_commit": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075"
+    },
+    "r09": {
+      "status": "NOT_RUN",
+      "scope": "with_deadlines board profile was not launched; formal physical R10 was also not yet started at audit time."
+    }
+  },
+  "criteria": [
+    {
+      "criterion": "At least 100 covered golden comparisons and at least 1000 consecutive tasks",
+      "status": "PASS",
+      "evidence": [
+        "report/evidence/S2B-T18/formal_model_result_review_20261019_r01/scope_analysis.json",
+        "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/orchestrator_result.json"
+      ]
+    },
+    {
+      "criterion": "Post-route setup/hold and zero TNS/THS at 50 MHz",
+      "status": "PASS_LIMITED_TO_R04_IMPLEMENTED_ARTIFACT",
+      "evidence": [
+        "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/timing_summary.rpt",
+        "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/actual_timing_setup.rpt",
+        "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/actual_timing_hold.rpt",
+        "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/drc.rpt"
+      ],
+      "metrics": {
+        "wns_ns": 0.156,
+        "whs_ns": 0.078,
+        "tns_ns": 0.0,
+        "ths_ns": 0.0,
+        "drc_related_violations": 0
+      },
+      "limitation": "R04 input_record wrapper says FAIL because stdout was not captured; actual Job result and hashed route reports are preserved."
+    },
+    {
+      "criterion": "Busy and static invalid command BRESP, with no side effects",
+      "status": "PARTIAL_UNKNOWN_BRESP",
+      "limitation": "R08 observed busy no-side-effect/LAST_REJECT behavior and later golden/ACK, but SDK only reported AHB AP transaction error; static matrix stopped at the first UNKNOWN response."
+    },
+    {
+      "criterion": "ABORT while an AXI transaction is pending, drain, safe terminal, ACK and subsequent golden request",
+      "status": "PASS_LIMITED_TO_R08_ABORT_SCENE",
+      "evidence": [
+        "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/csr_result.json",
+        "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/csr_events.jsonl",
+        "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/golden_sample000/recovery_00000001/result.json"
+      ],
+      "limitation": "Does not exercise a legal response arriving after DRAIN_TIMEOUT, or permanent non-drain isolation."
+    },
+    {
+      "criterion": "Normal CORE/DRAIN deadline deployment and measured cycle/HP/compute basis with margin",
+      "status": "NOT_RUN_ON_BOARD",
+      "evidence": [
+        "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md:202",
+        "report/evidence/S2B-T18/formal_csr_recovery_20261019_r08/acceptance_result.json"
+      ],
+      "interpretation": "Normative text requires a justified conservative bound with margin, not a precise counter for every internal state. A complete START-to-DONE_SAFE wall interval multiplied by the bound HWH clock and 25% margin may be reported as an estimated upper bound if the run and clock basis are bound; precise PL cycles remain NOT_MEASURED.",
+      "limitation": "Neither the planned R09 nor physical R10 deadline profile had run at audit time; offline tests do not establish board timing."
+    },
+    {
+      "criterion": "ABORT while pending, late drain after deadline, and permanent isolation",
+      "status": "PASS_BY_LAYERED_EVIDENCE",
+      "evidence": [
+        "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/csr_events.jsonl",
+        "report/evidence/S2B-T11/control_r18_independent_20261016_r08/result.json",
+        "report/evidence/S2B-T11/control_r18_independent_20261016_r08/preflight/source_snapshot/tb_s2b_control_csr.sv"
+      ],
+      "limitation": "R08 proves actual board pending ABORT and safe drain. T11 integrated RTL simulation proves DRAIN_TIMEOUT followed by legal late R drain and permanent ledger isolation. This does not claim a physical HP late-response trace; no approved board-side fault-injection control was identified."
+    },
+    {
+      "criterion": "Reset/recovery behavior at allowed lifecycle boundary",
+      "status": "PASS_LIMITED",
+      "limitation": "R08 verifies prior SAFE/empty ledger before cold reset deployment and proves pending-time ABORT/inner soft reset. The frozen interface forbids using FCLK reset/POR/cold reset to clear unresolved transactions; a system reset during pending is not a required or permissible test. A standalone reset waveform is not listed as a separate requirement."
+    },
+    {
+      "criterion": "DDR and buffer ownership tied to physical board, plus safe DDR test record",
+      "status": "PASS_LIMITED_256_BYTE_CROSS_MASTER_OBSERVATION",
+      "evidence": [
+        "report/evidence/S2B-T19/cache_probe_execution_20261017_r02/visibility_probe_result.json",
+        "report/evidence/S2B-T19/current_probe_independent_20261017_r02/reviewer_outcome.json"
+      ],
+      "limitation": "The probe reports two-phase 256-byte match at 0x10000000, but its original package remains API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING and independent review only closed server-release attachment. It does not prove the 32 MiB range or identify the installed DDR/PCB revision; the user-approved manual candidate remains the basis."
+    },
+    {
+      "criterion": "Recovery and clean rebuild delivery",
+      "status": "PASS_LIMITED_TO_PS_APPLICATION_REBUILD",
+      "evidence": [
+        "report/evidence/S2B-T15/recovery_inputs_20261019_r02/final_summary.json",
+        "report/evidence/S2B-T15/recovery_inputs_20261019_r02/comparison.json"
+      ],
+      "limitation": "Offline PS infer/init compile/link succeeds; bundle does not rebuild BSP from sources, XSA, PL or bitstream and is not a hardware restore."
+    },
+    {
+      "criterion": "Offline CSR flow code regression",
+      "status": "PASS_OFFLINE_ONLY",
+      "evidence": [
+        "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/regression_result.json"
+      ],
+      "metrics": {
+        "tests": 129,
+        "native_exit_code": 0,
+        "tool": "Vitis 2026.1"
+      }
+    }
+  ],
+  "required_open_scope_from_existing_norms": [
+    "Resolve observable GP0 BRESP for busy and invalid commands and finish remaining static rejection cases with unchanged state/epoch evidence.",
+    "Run the planned deadline profile and bind the complete START-to-DONE_SAFE interval, HWH clock basis, justified margin and configured nonzero deadline. A conservative total upper bound is acceptable; exact PL cycles remain NOT_MEASURED when unavailable.",
+    "No unresolved system reset may be cleared with FCLK reset/POR/cold reset; only permitted safe lifecycle reset behavior is in scope, and pending ABORT recovery is already demonstrated.",
+    "Late-drain and permanent-isolation logic is covered by integrated RTL simulation; no physical fault injection is required by the current record absent a controllable board-side injection path. Keep actual board pending-drain evidence distinct from the RTL scenarios.",
+    "Retain the 256-byte/two-phase cross-master DDR observation as limited evidence; preserve the user-authorized manual DDR candidate and unresolved physical PCB/installed-part identity, plus the limited PS-only rebuild scope."
+  ],
+  "reviewed_file_sha256": {
+    "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
+    "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+    "docs/obsidian-project/02-方案设计/s2b_board_transport.md": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+    "report/evidence/S2B-T18/formal_model_result_review_20261019_r01/scope_analysis.json": "e60d341bd6e41ccc827b89cdd758bf1858c6960ba326b5c183841eff4fd956e2",
+    "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/orchestrator_result.json": "d107643a774947595d858d40c375cf4bd11067d687ab12740dcce349e0b74b35",
+    "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/timing_summary.rpt": "15bbc671bde91b7ec92ae58249051bc7ed4e8e6dc3734a39a4f4c79762fcd99c",
+    "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/actual_timing_setup.rpt": "077044a5ebb6070d776570511e4622cc72f1b9c1f733a97cd66f5d7e6b419f81",
+    "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/actual_timing_hold.rpt": "569cdeb7c4628ce3e09b43e71c7ecac064a3baccf9bc5440763b2617c79f7a8f",
+    "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/drc.rpt": "9acea99d7d840d991578a28c46c061b4c2d2f66fdcd34cba9bf47140ace3a004",
+    "report/evidence/S2B-T15/recovery_inputs_20261019_r02/final_summary.json": "95398140c672156aa694e9fd0a79bd48589d72f3fb5ca7a99f566da2353c1b45",
+    "report/evidence/S2B-T15/recovery_inputs_20261019_r02/comparison.json": "c6396a3558f52f9ae64d3a3c9f6c4e134783ec67d60bfd84f7f5b52e845c7108",
+    "report/evidence/S2B-T11/control_r18_independent_20261016_r08/result.json": "f7ff5c73be4a99da101e7a13a25b11a0c7fecc8d25cc855ab8a6be3d41e3b03c",
+    "report/evidence/S2B-T11/control_r18_independent_20261016_r08/preflight/source_snapshot/tb_s2b_control_csr.sv": "04afb9a9d3a154c415b40effb2bf47c955c858d0cf203da20b3a0f170f88112a",
+    "report/evidence/S2B-T19/cache_probe_execution_20261017_r02/visibility_probe_result.json": "85f7c52f9444ed1e62f490a85a1c632d837c043b53f0b625a12b4e8b99bde03d",
+    "report/evidence/S2B-T19/current_probe_independent_20261017_r02/reviewer_outcome.json": "91f44c5f93db42ea76ee20638a54cca1281ac3cb7524c98499e17e0e31bde118",
+    "report/evidence/S2B-T18/formal_csr_recovery_20261019_r08/orchestrator_result.json": "df7d841df90a761127c648020a0abb986ff3a163019a258514324d3c507286d5",
+    "report/evidence/S2B-T18/formal_csr_recovery_20261019_r08/acceptance_result.json": "2fa6a05a9e14f3aaa86c15aba8777aded207928f84c3d7f5b7f86e4971dac93f",
+    "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/csr_result.json": "18eee60b09ed087291bb34920caf1f0ea7492b194dc727c84d153c7c34c631fe",
+    "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_abort_recovery/csr_events.jsonl": "74206d10a52e65d487603a028523b77988c8d91f5d256f9aeaba0d1efd26da19",
+    "report/evidence/S2B-T20/formal_csr_recovery_20261019_r08_csr_busy_observer/busy_result.json": "d88917f1f444e1916bacb94096319eff84961f4f3aef3e7954a8930aa33ff588",
+    "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/regression_result.json": "7d325d6e88c5027efcfceee7e2c45df43333133d84839d41da0e2a2044ada01d"
+  },
+  "method": {
+    "hardware_or_sdk_touched_by_auditor": false,
+    "tests_run_by_auditor": false,
+    "source_or_head_modified_by_auditor": false,
+    "report_files_created": [
+      "report/evidence/S2B-T20/final_acceptance_matrix_20261019_r01/g4_g5_matrix.md",
+      "report/evidence/S2B-T20/final_acceptance_matrix_20261019_r01/audit_result.json"
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T20",
+  "run_id": "csr_static_bresp_partial_20261019_r03",
+  "source_commit": "75fcc5950f6d848ea5bfbb94226e20a63fe1e075",
+  "evidence_dir": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本运行只验证静止CSR矩阵BRESP未解析部分路径的离线代码回归，不声明新的接口冻结。",
+  "files": [
+    {"path": "vitis/run_s2b_model_acceptance.py", "sha256": "e889e1ea4e76b447aab5cd916860354dec963da1613f7277123cd9ec05d88421", "role": "source"},
+    {"path": "verification/s2b_csr_board_acceptance.py", "sha256": "053c9ba39311c667e7622cfa700fc8cfd6771231b8edf2622ac1363174eebf8e", "role": "source"},
+    {"path": "verification/s2b_csr_busy_observer.py", "sha256": "666b791e8bc741bb07f6317cc4cca5be8032d032f2e0f6968b63caee7751a6ae", "role": "source"},
+    {"path": "verification/s2b_csr_deadline_flow.py", "sha256": "0894adf2aa370fd99a7c07cc5d29c7d46d261134c46a50b1c80aa3af0b03e4bb", "role": "source"},
+    {"path": "verification/s2b_csr_acceptance_flow.py", "sha256": "a31fa1d7b287d8b4b8e361a7bbcc85992b80258db4bbaba099e9cbb600a0744a", "role": "source"},
+    {"path": "verification/test_s2b_model_acceptance_runner.py", "sha256": "2d198dc03104adad9b17595cf2cfff80e2f00695e0976ca7b1876f3edd6ed0d0", "role": "source"},
+    {"path": "verification/test_s2b_csr_board_acceptance.py", "sha256": "bab3c129d4a14f8cadc8d40b37d7245d647acb20ca438479c10612b1a6c7c6a2", "role": "source"},
+    {"path": "verification/test_s2b_csr_busy_observer.py", "sha256": "6bb36672aed9e656bac0682fc648f1da201b533f1116c77368a9a618d0f789ab", "role": "source"},
+    {"path": "verification/test_s2b_csr_deadline_flow.py", "sha256": "a561563a8f0dabd7f55d423bf3d720d5a6beefe8fdab95ba70e27513dd6940ed", "role": "source"},
+    {"path": "verification/test_s2b_csr_acceptance_flow.py", "sha256": "3d2c86c5fdbb7bcaf0bca7f7979859de82f94bf5ef09b1b90ed9caa6665af377", "role": "source"},
+    {"path": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/regression_result.json", "sha256": "33eab947612dd2c61429bd9cd872c3c5a3dbbb1f38f2bd704902d29d2280b983", "role": "result"},
+    {"path": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/test_launcher.py", "sha256": "db0eda3370b5274ebafdab61d14b84e052b7eaa81bc66311360cdef1661bd077", "role": "artifact"},
+    {"path": "report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/unittest.log", "sha256": "eaf636a3af9cce2fef0601c06ca24da92d35c9569cd3bf1b13e6b9c30fd63425", "role": "log"}
+  ],
+  "checks": [
+    {
+      "name": "官方Vitis离线CSR回归（132项）",
+      "status": "PASS",
+      "command": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat -s D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\csr_static_bresp_partial_20261019_r03\\test_launcher.py",
+      "exit_code": 0,
+      "reason": "Vitis 2026.1，132 tests，failures=0、errors=0、skipped=0；未操作硬件、JTAG、XSDB或串口。"
+    },
+    {
+      "name": "证据目录只读核验",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T20/csr_static_bresp_partial_20261019_r03/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "check_stage_delivery.py --mode evidence返回CHECKS_OK；只验证清单和目录文件绑定，不代表测试语义或实板验收通过。"
+    }
+  ],
+  "tool_versions": {"Python": "3.13.0", "Vitis": "Vitis 2026.1", "Test framework": "Python unittest"},
+  "limitations": [
+    "仅覆盖限定AHB AP签名、CSR COMMAND+8地址上的BRESP未解析静止拒绝部分路径及离线回归。",
+    "BRESP仍为UNKNOWN并保持BLOCKED；本证据不声称SLVERR分类、CSR实板验收或阶段2B通过。",
+    "R02失败记录保留在相邻RunId中；本R03重新运行后132项全部通过。"
+  ]
+}

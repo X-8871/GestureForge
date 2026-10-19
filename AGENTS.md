@@ -14,6 +14,16 @@
 - 私密数据访问、真实数据上传、高危或明显不可逆操作，以及已有规则要求二次/即时确认的事项，继续按对应明确审批执行；一般任务授权不替代这些确认。不自动推送、烧录、删除外部数据或操作实物。
 - 厂商原件 `D:\FPGA\AX7Z020` 保持不动；不导入其他 Obsidian Vault 内容。确需操作 Vault 时先读取 `C:\Users\22061\Documents\Obsidian Vault\00-AI全局整理规则.md`，该规则不能由工具或技能扩权。
 
+## 运行逻辑：双 Agent、两级总控（2026-10-19）
+
+- 组织：Wong（决策）→ 每方一个**项目总控**（Codex 一个、DSH 一个）→ **阶段总控**（由项目总控创建、下发任务卡并控制其生命周期，不再由 Wong 单独开窗或单独写提示词）→ 阶段总控内部再编排 Developer/Reviewer 子 agent。
+- 工作单元：一个阶段 = 一个工作树（2B=`w2b`、阶段 3=`dbdf` 等）+ 一个独占写入方；阶段技术事实写在该工作树 STATE，主 STATE 只放全局状态、阶段入口与任务归属。
+- 写权：主 `.codex/STATE.md` 只由「当前持有主目录写入权」的一方维护（默认 DSH 项目总控）；要动主目录须先请求让出，对方置 `OFFERED` 后才能接管。阶段工作树 STATE 由该阶段总控独占。
+- 交接信箱 = 主/阶段 STATE 的 11 字段交接行：`任务 | 负责人 | 工作树/分支 | 起始提交 | 允许修改范围 | 未提交改动归属 | 让出声明 | 心跳(UTC+8) | 证据入口 | 恢复命令 | 状态/下一接手方`；状态机 `IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE`，只有 `OFFERED` 可接管；心跳每 30–60 分钟更新；**心跳超时 + 无重型进程 + 无 index.lock 三者同时成立**才可判失联，接管前必须先把对方未完成证据保全到新 RunId。
+- 只读核验工具 `verification/handoff_check.py`：跨工作树用绝对路径调用（如 `python -B D:\FPGA_Competition\verification\handoff_check.py --worktree <工作树> --json`）；退出码 0=全 PASS/SKIP、1=存在 FAIL、2=输入或环境错误；检查 a 工作树/分支/HEAD、b `index.lock`（必须由 `git rev-parse --git-path` 解析）、c 未提交改动归属声明、d 重型进程、e 心跳时效、f 状态机、g 证据入口、h 允许范围越界、i 接管让出契约。
+- 接手前必须核对：工作树/分支/HEAD、锁、进程与资源、对方**明确让出**；不接受"没有锁就等于没人写"。
+- 当前实例（2026-10-19）：主目录 `main` 归 DSH 项目总控；2B `w2b`（`codex/stage2b-dma-g0`）归 Codex 项目总控且持有硬件会话（`hw_server` PID 10116），任何窗口不得结束或干扰；阶段 3 `dbdf` 未启动。
+
 ## 恢复与阶段边界
 
 1. 读取适用 `AGENTS.md`，再读 `.codex/STATE.md`。

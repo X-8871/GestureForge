@@ -20,6 +20,22 @@ except ImportError:
     from test_s2b_csr_board_acceptance import snapshot
 
 j, model, transport = busy.jtag, busy.model, busy.transport
+AHB_AP_BUSY_WRITE_ERROR = (
+    'TCF command exception:\n'
+    'Command: Memory set "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0", 1136656392, 0, 4...\n'
+    'Exception: Memory write error at 0x43C00008. AHB AP transaction error, DAP status 0xF0000021\n'
+    'Error code: 1'
+)
+
+
+def ahb_ap_error(*, command_address=1136656392, error_address="0x43C00008", dap_status="0xF0000021", code=1):
+    """构造原生DAP错误格式；参数变化用于证明分类器按精确签名拒绝。"""
+    return (
+        'TCF command exception:\n'
+        f'Command: Memory set "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0", {command_address}, 0, 4...\n'
+        f'Exception: Memory write error at {error_address}. AHB AP transaction error, DAP status {dap_status}\n'
+        f'Error code: {code}'
+    )
 TEST_PARENT = busy.csr.ROOT / "tmp/2B/S2B-T20/busy_observer_offline"
 
 
@@ -165,6 +181,8 @@ class NativeSerial:
         self.raw.extend(result)
         self.session.busy_active = False
         self.session.memory[j.CSR_BASE + 0x00C] = 0x400
+        for offset in (0x068, 0x06C, 0x070, 0x074):
+            self.session.memory[j.CSR_BASE + offset] = 0
 
 
 class BusyObserverTests(unittest.TestCase):
@@ -293,6 +311,44 @@ class BusyObserverTests(unittest.TestCase):
         self.assertEqual([row[0] for row in self.session.operations], ["stop", "mwr", "con"])
         self.assertIn('"kind": "observation"', (self.run / "busy_events.jsonl").read_text(encoding="utf-8"))
 
+    def test_exact_ahb_ap_error_only_claims_gold_with_bresp_unresolved(self):
+        self.session.bus_error = AHB_AP_BUSY_WRITE_ERROR
+        result = self.execute()
+        self.assertEqual(result["status"], "BUSY_REJECTION_AND_GOLD_BRESP_UNRESOLVED")
+        rejection = result["rejection"]
+        self.assertEqual(rejection["native_response"], "UNKNOWN")
+        self.assertEqual(rejection["classification"], "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED")
+        self.assertEqual((rejection["expected_bresp"], rejection["observed_bresp"]),
+                         ("SLVERR", "NOT_OBSERVED"))
+        self.assertEqual(rejection["exception_text"], AHB_AP_BUSY_WRITE_ERROR)
+        self.assertEqual((rejection["before"][0x064], rejection["after"][0x064]), (0, 1))
+        for snapshot in (rejection["before"], rejection["after"]):
+            self.assertIn(snapshot[0x00C], (0x102, 0x1102))
+            self.assertEqual((snapshot[0x050], snapshot[0x058]), (2, 1))
+        allowed = (0x00C, 0x064, 0x068)
+        self.assertTrue(all(rejection["before"][key] == rejection["after"][key]
+                            for key in busy.csr.OFFSETS if key not in allowed))
+        self.assertEqual(result["golden"]["status"], "PASS_SAME_RUN_RECEIPT_AND_GOLD")
+        self.assertEqual(result["ack_idle"][0x00C], 0x400)
+        self.assertEqual((busy.csr.epoch(result["ack_idle"]), result["ack_idle"][0x058]), (2, 1))
+        self.assertEqual([row[0] for row in self.session.operations], ["stop", "mwr", "con"])
+
+    def test_ahb_ap_error_at_other_address_is_not_accepted(self):
+        self.session.bus_error = ahb_ap_error(error_address="0x43C0000C")
+        self.assert_failure()
+        self.assertEqual(self.result()["rejection"]["native_response"], "UNKNOWN")
+        self.assertNotIn("classification", self.result()["rejection"])
+        self.assertFalse(any(row[0] == "con" for row in self.session.operations))
+
+    def test_ahb_ap_error_does_not_hide_same_run_golden_failure(self):
+        self.session.bus_error = AHB_AP_BUSY_WRITE_ERROR
+        self.serial.response_fault = "head"
+        self.assert_failure()
+        self.assertNotEqual(self.result()["status"], "BUSY_REJECTION_AND_GOLD_BRESP_UNRESOLVED")
+        golden = json.loads((self.run / "same_run_golden/result.json").read_text(encoding="utf-8"))
+        self.assertEqual(golden["status"], "FAIL_LATCHED")
+        self.assertEqual((self.run / "same_run_golden/head13.bin").read_bytes()[0], 130)
+
     def test_busy_request_uses_frozen_sample_geometry(self):
         request, _, _ = busy._request(self.wire, self.plan)
         self.assertEqual((request.width, request.height), (1440, 1920))
@@ -331,6 +387,7 @@ class BusyObserverTests(unittest.TestCase):
     def test_decerr_is_not_slverr(self):
         self.session.bus_error = "DECERR"
         self.assert_failure()
+        self.assertEqual(self.result()["rejection"]["observed_bresp"], "DECERR")
 
     def test_stale_reject_one_cannot_pass(self):
         self.session.stale_reject = True

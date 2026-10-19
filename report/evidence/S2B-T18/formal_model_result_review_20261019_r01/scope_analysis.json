@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "analysis_id": "S2B-T18 R02 stage-scope supplement",
+  "parent_review_outcome": "CHANGES_REQUIRED",
+  "purpose": "区分R02逐run最终ACK证据缺口与Stage 2B计数门槛；不更改原review_outcome.json。",
+  "scope_and_methods": {
+    "read_only": true,
+    "reran_original_uart": false,
+    "device_or_sdk_actions": false,
+    "business_source_or_head_modified": false,
+    "used_existing_independent_replay": "replay_r02_final_result.json",
+    "used_existing_runs": [
+      "formal_stress1000_then109_20261018_r02",
+      "formal_csr_recovery_20261019_r07"
+    ]
+  },
+  "normative_basis": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
+      "lines": "68-76",
+      "requirement": "Stage 2B requires at least 100 samples covering the five classes, no-hand, multi-hand and boundary-box cases, with all head tensors and frozen-rule boxes matching; it separately requires at least 1000 consecutive tasks without loss, duplication or deadlock, plus agreed idle/busy-start, invalid-parameter, reset and recovery behavior.",
+      "same_session_requirement_found": false
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "lines": "45, 49-55",
+      "requirement": "A repeat=1000 RUN is the defined continuous-stability candidate; every result frame and epoch increments. The full 109-sample corpus is to be loaded and checked. Normal RUN is DONE_SAFE with valid result identity; after full UART transmission and drain the CPU writes the matching terminal epoch and ACK.",
+      "dynamic_post_final_readback_explicitly_required_for_normal_RUN": false
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "lines": "72-85, 96, 98, 102-103, 141",
+      "requirement": "PHYS_STATUS=0 denotes IDLE_PS; SAFE_TO_REUSE is bit 10. A matching ACK commits the safe terminal back to IDLE_PS; software that relies on read-after-command must wait for the ACK write response, issue DSB and perform the ordered read.",
+      "dynamic_readback_semantics": "The document defines how to observe committed IDLE after ACK; it does not state that a host must dynamically read IDLE after every ordinary RUN, including the last run in a process."
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_execution_review_20261018_r02/review_outcome.json",
+      "sha256": "5dc27a863b4ea8385273d06621404d1449f21440554d939820796387f33d2399",
+      "scope": "S2B_T18_FORMAL_EXECUTION_PATCH_AND_G0_PREPARATION_REBINDING",
+      "relevant_note": "此为host调度/准备绑定审查，不是R02硬件结果或最终IDLE读回审查。"
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_execution_review_20261018_r02/review_outcome_r03.json",
+      "sha256": "7051ccbdbab45a22dd9bb97b9f3aeb6d98dfc4fc299c8b8f6262bdd7f213f1d4",
+      "scope": "S2B_T18_FORMAL_BUILD_CONTEXT_FIX_R01_DELTA_ONLY",
+      "relevant_note": "明确指出该delta审查不证明正式R02的109 corpus或1000 repeat。"
+    }
+  ],
+  "a_r02_run_final_state": {
+    "status": "NOT_PROVEN",
+    "detail": "R02原始UART重放的最后一项是corpus index 108、sequence 111、frame 1108、epoch 1109。没有后继RUN，也没有此R02运行后的CSR IDLE/ACK读回。成功response及固定固件源码能证明结果发送与ACK代码路径存在，但此R02最后终态的动态ACK/IDLE没有被保存。",
+    "review_consequence": "保持原R02完整run独审CHANGES_REQUIRED。之后的新run不能伪装成R02最后一项的历史读回。"
+  },
+  "b_stage2b_numeric_minima": {
+    "status": "MET",
+    "golden_sample_minimum": {
+      "required": 100,
+      "R02_data_matched": 109,
+      "R02_samples_with_successor_ack_evidence": 108,
+      "selected_complete_samples": "corpus index 0..107",
+      "selected_sample_count": 108,
+      "coverage_tags_in_selected_108": [
+        "class:fist",
+        "class:one",
+        "class:palm",
+        "class:three",
+        "class:two_up",
+        "no_hand_negative",
+        "multi_ground_truth_boxes",
+        "boundary_ground_truth_box",
+        "empty_ground_truth",
+        "small_ground_truth_box"
+      ],
+      "all_selected_head_bytes_and_boxes_matched": true,
+      "why_ack_closed": "对corpus index 0..107，每项成功response后均有下一项成功RUN响应；协议只接受IDLE中的新RUN，连续递增epoch因此佐证前一项matching ACK。最终index108不在此108个选择内。"
+    },
+    "continuous_task_minimum": {
+      "required": 1000,
+      "R02_completed": 1000,
+      "request_sequence": 2,
+      "repeat_indices": "0..999",
+      "response_frames": "0..999",
+      "epochs": "1..1000",
+      "all_stress_tasks_ack_closed": true,
+      "why_last_stress_ack_closed": "stress frame 999后紧接corpus frame 1000的成功response；该后继任务及epoch递增佐证最后一个stress终态已ACK。"
+    },
+    "same_run_or_session_required_by_stage_plan": false,
+    "basis_for_no_same_session_rule": "Stage plan分别声明两个数量门槛，且没有同一run/session条款；R02事实上已在一个run中连续执行stress后再执行109 corpus。"
+  },
+  "c_later_same_artifact_ack_and_recovery_evidence": {
+    "r07_artifact_identity": {
+      "R02_bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "R07_bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "R02_infer_elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+      "R07_infer_elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+      "same_bit_and_infer_elf": true
+    },
+    "existing_r07_observation": {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261019_r07_deployment/jtag_result.json",
+      "sha256": "4ba41e7b8c2f7ced775614d78a4e1bd4937c0665afb17db945dc2a9939845b56",
+      "sample_result": "formal_csr_recovery_20261019_r07_csr_seed_sample000/acceptance_result.json; status PASS_SAMPLE000_SEED_ONLY; sequence 2, frame 0, epoch 1",
+      "stable_csr_label": "t18.csr_scope.before_busy_start",
+      "first_and_second_readbacks": {
+        "PHYS_STATUS_0x00C": 1024,
+        "ERROR_CODE_0x010": 0,
+        "EPOCH_LO_0x050": 1,
+        "EPOCH_HI_0x054": 0,
+        "RESULT_FRAME_ID_0x058": 0
+      },
+      "interpretation": "两次实际JTAG读值均为IDLE_PS(状态0)+SAFE_TO_REUSE(bit10)，epoch1/frame0/error0；这能为同一R04 bit/原infer.elf上的一个正常黄金任务提供独立ACK后IDLE行为证据。",
+      "scope_limit": "R07整体验收FAILED，随后busy START的原生错误为UNKNOWN，不能据此声称忙启动拒绝或完整CSR恢复通过；该seed读回不证明R02 sequence111/frame1108/epoch1109的历史ACK。"
+    },
+    "stage_coverage_conclusion": "Stage 2B没有同session限制，因此R02的108个ACK闭合黄金样本与1000个ACK闭合连续stress可计入数量门槛；同版R07的真实IDLE读回可补充正常ACK机制行为证据。CSR异常恢复项仍需一项成功、直接记录恢复与后续新任务的合格证据；R07当前失败不能关闭该项。",
+    "whether_a_new_single_golden_ack_observation_can_replace_a_3_hour_109_rerun": "为Stage 2B的100黄金+1000连续数量和跨run ACK行为组合证据，不需要重跑完整109；若另需验证异常恢复，补做同版恢复场景并记录最终IDLE/新任务。若验收对象明确限定为R02自身109个任务全部ACK闭合，则任何后续run都不能追溯补证其最后一次ACK；只能维持R02该范围CHANGES_REQUIRED，或以新的完整run形成替代证据。"
+  },
+  "exact_remaining_blockers": [
+    {
+      "blocker": "R02独审任务要求逐项核验109 corpus及1000 stress的ACK；最后一个corpus终态没有R02运行后的动态IDLE/ACK读回。",
+      "not_a_stage_count_blocker": "Stage plan仅要求至少100个覆盖规定场景的黄金样本；108个已ACK闭合样本包含所需coverage。Stage plan还要求1000次连续无损/无重复/无死锁，R02的1000 stress全数在下一任务响应前闭合ACK。"
+    },
+    {
+      "blocker": "CSR异常恢复行为尚未通过；R07在sample000正常请求后记录到稳定IDLE，但整run在busy START处因原生响应UNKNOWN失败。",
+      "closure": "需要同版的直接恢复行为PASS及恢复后安全IDLE/新任务证据；无需为这个CSR行为重跑109黄金整批。"
+    }
+  ],
+  "not_rechecked": [
+    "没有重新解析R02原始UART或重新执行golden比对；本范围分析复用已存独审replay结果。",
+    "未运行199项回归、离线整网仿真、SDK/JTAG/串口或板卡操作。"
+  ]
+}

@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "review_id": "S2B-T18 formal model result review R01",
+  "reviewer_role": "独立Reviewer；只读离线复核",
+  "review_outcome": "CHANGES_REQUIRED",
+  "data_replay_outcome": "PASS",
+  "scope": {
+    "run_id": "formal_stress1000_then109_20261018_r02",
+    "run_path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02",
+    "deployment_path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment",
+    "included": [
+      "依据保存的原始UART RX字节流，重解码WEIGHTS、1000次stress及109项corpus响应。",
+      "由冻结输入及实际绑定重建请求payload，复核保存的TX header、source_binding、CRC、长度和调用日志摘要。",
+      "将109份冻结reference双头重解码为D9检测，并逐帧比较全部stress与corpus的两头INT8字节及所有检测框。",
+      "复核运行输入配置、acceptance admission绑定、历史源快照和对应Git blob。"
+    ],
+    "excluded": [
+      "CSR、R07、G3、G4、G5及当前工作树中的CSR修改。",
+      "任何SDK、JTAG、串口或板卡动作；本次没有执行。",
+      "离线整网仿真和199项回归；本次没有重跑。"
+    ],
+    "review_head": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba"
+  },
+  "findings": [
+    {
+      "severity": "blocking",
+      "finding": "R02最后一个corpus RUN的终态ACK没有动态读回证据。",
+      "evidence": "原始RX有1109个RUN成功终态；其中前1108个后续RUN响应递增epoch，动态佐证其前序终态已被ACK。最终corpus帧为sequence=111、frame=1108、epoch=1109，没有后续RUN，deployment也没有保存运行后CSR IDLE/ACK读回。绑定固件源码及启动banner/build_details证明ACK调用路径存在，但静态源码路径不能证明本次最后一次动态读回。",
+      "closure_criteria": "提供与R02最终corpus终态绑定的已保存运行后CSR IDLE/ACK状态读回，或其他可独立验证的等价动态证据；不得以源码路径或前序帧证据代替最终帧结果。"
+    },
+    {
+      "severity": "limitation",
+      "finding": "TX原始捕获只包含111个40字节请求header；发送payload不是独立线级原始采集。",
+      "evidence": "本次以冻结输入字节和权重重建payload，并逐项匹配acceptance事件中的source_binding、payload CRC、payload SHA、完整header+payload SHA及发送长度。",
+      "closure_criteria": "此限制不妨碍本次header和绑定输入的一致性重算；如验收要求TX线级payload原始采集，需补充对应捕获。"
+    }
+  ],
+  "independent_replay": {
+    "command": "D:\\Xilinx\\2026.1\\Vitis\\tps\\win64\\python-3.13.0\\python.exe report/evidence/S2B-T18/formal_model_result_review_20261019_r01/replay_r02_final.py",
+    "exit_code": 0,
+    "script": {
+      "path": "report/evidence/S2B-T18/formal_model_result_review_20261019_r01/replay_r02_final.py",
+      "sha256": "27b0fb810818702a588532854d14085e7636a98cc82fc4bb92def158794a2a38",
+      "result_path": "report/evidence/S2B-T18/formal_model_result_review_20261019_r01/replay_r02_final_result.json",
+      "result_sha256": "40c65ec68eae00c4d714fe2de27b33342d20257db33ba68ed27f74fc3077adea",
+      "result_status": "PASS",
+      "errors": []
+    },
+    "initial_reviewer_harness_attempt": {
+      "command": "D:\\Xilinx\\2026.1\\Vitis\\tps\\win64\\python-3.13.0\\python.exe report/evidence/S2B-T18/formal_model_result_review_20261019_r01/replay_r02.py",
+      "exit_code": 1,
+      "result_path": "report/evidence/S2B-T18/formal_model_result_review_20261019_r01/replay_r02_result.json",
+      "result_sha256": "68949c9ef3dc8afc9f9ee60e8681635014a1542e9b53fea1dc910ca05fbbe445",
+      "cause": "初版审查脚本错误假定准备文件status为PREPARED并错误索引source_sha256；依据实际冻结文件结构修正审查脚本后完整重放通过。此失败属于审查脚本前置断言错误，不是R02设备结果失败。"
+    },
+    "admission_binding_check": {
+      "command": "PowerShell只读比较orchestrator_result.acceptance.admission.deployment_bindings与deployment/input_config.json的14项path/SHA绑定",
+      "exit_code": 0,
+      "binding_count": 14,
+      "all_match": true
+    },
+    "replay_counts": {
+      "tx_requests": 111,
+      "tx_headers": 111,
+      "rx_responses": 1110,
+      "weights_responses": 1,
+      "stress_responses": 1000,
+      "corpus_responses": 109,
+      "run_responses": 1109,
+      "corpus_unique_samples": 109,
+      "stress_repeat_count": 1000,
+      "response_status_word_counts": {
+        "1024": 1,
+        "3588": 1109
+      },
+      "final_sequence": 111,
+      "final_epoch": 1109,
+      "run_epochs_strictly_incremented": true,
+      "all_frames_identity_repeat_length_crc_terminal_status_valid": true,
+      "run_frames_compared_to_frozen_d9": 1109,
+      "two_head_bytes_compared": 28113150,
+      "all_two_head_bytes_equal": true,
+      "d9_rows_redecoded": 109,
+      "detections_compared": 1104,
+      "all_detections_match_frozen_d9": true,
+      "detection_count_by_phase_and_class_id": {
+        "stress": {"0": 1000},
+        "corpus": {"0": 22, "1": 20, "2": 23, "3": 20, "4": 19}
+      },
+      "comparison_tolerances": {
+        "uart_detection_absolute": 1e-6,
+        "frozen_d9_record": 1e-12
+      }
+    }
+  },
+  "source_provenance": {
+    "source_commit_fields": {
+      "manifest": "50d68308ae6431775cff99c135628cd31773dc74",
+      "input_config": "e9fac6cbb1a0b7b60cd33e348dd1d304388de043",
+      "orchestrator_result": "e9fac6cbb1a0b7b60cd33e348dd1d304388de043"
+    },
+    "single_clean_tree_claim": false,
+    "source_commit_difference": "manifest与input_config/orchestrator_result source_commit不同；本审查没有声称R02由单一clean tree构建。",
+    "per_file_binding_method": "实际input_config的14项绑定与acceptance admission绑定表逐项相同；三个漂移源文件通过原delivery manifest、original_binding、保存快照及历史Git blob逐字节/哈希复核。其他manifest文件当前哈希与原清单一致。",
+    "manifest": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/delivery_manifest.json",
+      "sha256": "bf24724940a59d7e64712fd61d093091156091cb48c0e583c18a681057d41b2c",
+      "listed_files": 9244,
+      "unique_paths": 9244,
+      "bytes_hashed": 128349347,
+      "missing_files": 0,
+      "expected_source_file_drift_count": 3,
+      "unexpected_drift_count": 0
+    },
+    "historical_source_snapshots": [
+      {
+        "path": "verification/s2b_board_acceptance.py",
+        "input_config_binding": "acceptance_source",
+        "sha256": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+        "historical_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+        "git_blob": "196939811b7c6d1fdb42dcb9d526d7ef4458ef25",
+        "snapshot_and_blob_verified": true
+      },
+      {
+        "path": "verification/s2b_board_jtag.py",
+        "input_config_binding": "tool_source",
+        "sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+        "historical_commit": "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+        "git_blob": "6a47722add354399c85b9179590ee314e270874e",
+        "snapshot_and_blob_verified": true
+      },
+      {
+        "path": "vitis/run_s2b_model_acceptance.py",
+        "input_config_binding": "runner_source",
+        "sha256": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+        "historical_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+        "git_blob": "cad6b2541bb542cf0a060df779f5ff3e559d2842",
+        "snapshot_and_blob_verified": true
+      }
+    ],
+    "current_R02_bound_file_drift": [
+      "verification/s2b_board_acceptance.py",
+      "verification/s2b_board_jtag.py",
+      "vitis/run_s2b_model_acceptance.py"
+    ],
+    "real_source_gap": "manifest与运行source_commit字段不一致；运行版本只能以逐文件input_config/admission绑定及已存历史快照证明，不能证明为同一clean commit树。三个漂移文件的per-file源快照与历史Git blob均匹配，没有发现未解释的文件SHA差异。"
+  },
+  "evidence_hashes": {
+    "orchestrator_result": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/orchestrator_result.json",
+      "sha256": "d107643a774947595d858d40c375cf4bd11067d687ab12740dcce349e0b74b35"
+    },
+    "run_input_config": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/orchestrator/input_config.json",
+      "sha256": "52535107f08a670aaf389fa88cd46a5d0e68ef6dc4c7e44b42d54095356d59fb"
+    },
+    "deployment_input_config": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment/input_config.json",
+      "sha256": "52535107f08a670aaf389fa88cd46a5d0e68ef6dc4c7e44b42d54095356d59fb"
+    },
+    "orchestrator_call_log": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment/orchestrator_calls.jsonl",
+      "bytes": 24564,
+      "sha256": "68a941bd7311a33df6691954fc7c69f4bd967080acab7f974ed20f5c87107064",
+      "records": 27,
+      "admission_step_passed": true
+    },
+    "uart_rx_raw": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment/uart_rx_raw.bin",
+      "bytes": 28255177,
+      "sha256": "679f65a65d3481b846b14fdd87062918d697b6b7f88e06e4aac8ec2b30faf37d"
+    },
+    "uart_tx_headers": {
+      "path": "report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02_deployment/uart_tx_raw.bin",
+      "bytes": 4440,
+      "sha256": "dcf55f138eff86ea5a088ab5693316a6cd30faaa3eb17754cb5d0dda6aa5d296"
+    },
+    "preparation": {
+      "path": "report/evidence/S2B-T18/formal_online_20261018_r01/preparation_stress_first.json",
+      "sha256": "7121f86a36db1920652275af6ea0684af0dc1dd374d6fac3d4e438dc47049c09",
+      "rows": 109
+    },
+    "weights": {
+      "bytes": 5903100,
+      "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+    },
+    "frozen_cpu_d9_golden": {
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "bytes": 265725,
+      "sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231"
+    },
+    "decoder_helpers": {
+      "verification/s2b_fixed_capture_check.py": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+      "verification/s2b_board_transport.py": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+      "verification/s1_t02_d9_yolo_decode.py": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    "firmware_app_source": {
+      "path": "vitis/s2b_inference_app.c",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "matches_banner_and_build_details": true
+    }
+  },
+  "limitations": [
+    "最终corpus RUN终态ACK缺少动态CSR IDLE/ACK读回，因此严格包含最终ACK要求的整体独审为CHANGES_REQUIRED；模型输出字节及检测结果的离线重放本身为PASS。",
+    "TX保存的是请求header；payload通过绑定输入源和调用日志摘要重建，没有独立TX线级payload采集。",
+    "一次进程、UART流式读和分块SHA计算；没有测量本机峰值内存。",
+    "本次未运行SDK、JTAG、串口、板卡、离线整网仿真或199项回归。",
+    "本结果仅针对R02 model corpus+stress数据；不表示CSR、R07、G3、G4或G5通过。"
+  ],
+  "reviewer_actions": {
+    "hardware_actions": false,
+    "business_source_modified": false,
+    "head_modified": false,
+    "tests_rerun": false,
+    "single_python_process_at_a_time": true,
+    "peak_memory_measured": false
+  }
+}

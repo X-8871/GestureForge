@@ -345,11 +345,13 @@ class _Runner:
             "reason": "DAP START增epoch，而既有UART没有外部epoch同步；旧wire不得接正常RUN。需另行统一冷恢复建立新会话。"}
         return self.snapshot("matrix:final")
 
-    def short_deadline(self, frame, core, drain, observation_seconds):
+    def short_deadline(self, frame, core, drain, observation_seconds, *, required_fault_detail_mask=0):
         """CPU停核时实际START短期限；隔离仅观察，不把FAULT当作已安全归还。"""
         require(type(observation_seconds) in (int, float) and math.isfinite(observation_seconds) and
                 0 < observation_seconds <= 120 and type(core) is int and 0 < core <= 10000 and
                 type(drain) is int and 0 < drain <= 0xFFFFFFFF, "短期限或观察上限错误")
+        uint(required_fault_detail_mask)
+        require(required_fault_detail_mask & ~0x1F == 0, "必需故障标志超出FAULT_DETAIL定义")
         before = self.parameters(frame, core, drain)
         target_epoch = epoch(before) + 1
         require(target_epoch < 1 << 64, "epoch耗尽")
@@ -368,6 +370,8 @@ class _Runner:
             if phase == 5:
                 terminal = self.snapshot("short_deadline:terminal")
                 error_safe(terminal, target_epoch, frame, 5)
+                require(terminal[0x074] & required_fault_detail_mask == required_fault_detail_mask,
+                        "安全终态缺少本场景必需故障标志；保留终态，不发送ACK")
                 self.ack(target_epoch, code=5, frame=frame)
                 result = {"name": "short_deadline", "status": "PASS", "terminal": terminal,
                           "isolated_seen": isolated_seen, "hot_golden_recovery": "BLOCKED",

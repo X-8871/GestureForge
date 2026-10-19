@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 import math
 from pathlib import Path
+import re
 import struct
 import time
 
@@ -26,6 +27,23 @@ def _seconds(value, label, maximum):
     csr.require(type(value) in (int, float) and math.isfinite(value) and 0 < value <= maximum,
                 label + "必须为有限正秒数")
     return value
+
+
+def _is_ahb_ap_write_bresp_unresolved(error, address):
+    """只识别本次CSR START写的精确DAP/AHB错误原文，不推断AXI BRESP。"""
+    if type(address) is not int or address != jtag.CSR_BASE + 8:
+        return False
+    message = error if type(error) is str else str(error)
+    address_hex = f"0x{address:08X}"
+    address_dec = str(address)
+    pattern = (
+        rf'TCF command exception:\n'
+        rf'Command: Memory set "[^"\r\n]+", {address_dec}, 0, 4\.\.\.\n'
+        rf'Exception: Memory write error at {address_hex}\. '
+        rf'AHB AP transaction error, DAP status 0xF0000021\n'
+        rf'Error code: 1'
+    )
+    return re.fullmatch(pattern, message) is not None
 
 
 def _request(wire, plan):
@@ -221,6 +239,17 @@ class _Observer:
             result["raw_uart"] = {"path": str(path), "offset": start, "bytes": len(raw), "sha256": transport.digest(raw)}
             model.save(directory / "result.json", result)
 
+    def verify_ack_idle(self):
+        """黄金结果消费后确认相同任务已ACK并安全回到IDLE。"""
+        self.controller.verify_bindings()
+        self.controller.gate(both=False)
+        snapshot = self.controller.full_csr()
+        csr.idle(snapshot)
+        csr.require(csr.epoch(snapshot) == self.expected_epoch and
+                    snapshot[0x058] == self.request.frame,
+                    "同RUN黄金消费后的ACK/IDLE身份不符")
+        return snapshot
+
     def execute(self, request, header, payload, row, *, observation_seconds, poll_seconds):
         """完整动作闭环；异常后fail_stop保留CPU0停止和失败锁，不操作CPU1。"""
         self.request, self.expected_epoch = request, self.wire.epoch + 1
@@ -238,21 +267,34 @@ class _Observer:
             self.await_busy(expected, observation_seconds, poll_seconds)
             self.stop_cpu0()
             before = self.busy(self.observation("before_start"), expected, 0)
-            response, error_text = "SDK_RETURNED_WITHOUT_EXCEPTION", None
+            response, error_text, error_repr = "SDK_RETURNED_WITHOUT_EXCEPTION", None, None
             self.dap_attempted = True
             try:
                 self.controller.call("t20.busy.apu.mwr", self.controller.targets["apu"].mwr,
                     "--bypass_cache_synq", address=jtag.CSR_BASE + 8, size=1, word_size=4, words=[1])
             except Exception as error:
-                response, error_text = jtag.bus_error_kind(error), repr(error)
-            self.event("dap_start_response", {"native_response": response, "exception_repr": error_text})
+                response, error_text, error_repr = jtag.bus_error_kind(error), str(error), repr(error)
+            self.event("dap_start_response", {"native_response": response, "exception_text": error_text,
+                "exception_repr": error_repr})
             # 无论原生结果能否识别，先保留真实后快照，再作拒绝判定。
             after = self.busy(self.observation("after_start"), expected, 1)
-            self.record["rejection"] = {"before": before, "after": after, "native_response": response}
-            csr.require(response == "SLVERR", "原生响应不能证明SLVERR：" + response)
+            unresolved = response == "UNKNOWN" and _is_ahb_ap_write_bresp_unresolved(
+                error_text, jtag.CSR_BASE + 8)
+            self.record["rejection"] = {"before": before, "after": after, "native_response": response,
+                "exception_text": error_text, "exception_repr": error_repr,
+                "expected_bresp": "SLVERR",
+                "observed_bresp": (response if response in ("SLVERR", "DECERR")
+                                   else "NOT_OBSERVED")}
+            if unresolved:
+                self.record["rejection"]["classification"] = "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED"
+            csr.require(response == "SLVERR" or unresolved,
+                        "原生响应不能证明SLVERR，也不符合限定的AHB AP错误签名：" + response)
             self.resume_cpu0()
             self.record["golden"] = self.capture(row)
-            return self.finish("PASS_BUSY_START_REJECTION_AND_GOLD")
+            self.record["ack_idle"] = self.verify_ack_idle()
+            status = ("BUSY_REJECTION_AND_GOLD_BRESP_UNRESOLVED" if unresolved
+                      else "PASS_BUSY_START_REJECTION_AND_GOLD")
+            return self.finish(status)
         except BaseException as error:
             if self.tx_attempted:
                 self.controller.failed = self.wire.failed = True

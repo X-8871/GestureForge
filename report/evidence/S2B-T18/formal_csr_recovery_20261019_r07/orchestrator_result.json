@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "scope": "csr",
+  "hardware_execution": "REQUESTED_BY_EXPLICIT_CONFIG",
+  "source_commit": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+  "run_id": "formal_csr_recovery_20261019_r07",
+  "started_at_utc8": "2026-10-19T18:41:12.946205+08:00",
+  "identity_snapshots": [
+    {
+      "label": "before_runtime",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_connect",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "before_serial",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_serial_open",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_cleanup",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    }
+  ],
+  "cleanup_steps": [
+    {
+      "step": "serial.close",
+      "status": "PASS"
+    },
+    {
+      "step": "rx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "tx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "csr_debug_map.clear",
+      "status": "PASS"
+    },
+    {
+      "step": "session.disconnect",
+      "status": "PASS"
+    },
+    {
+      "step": "xsdb.dispose",
+      "status": "PASS"
+    }
+  ],
+  "cleanup_errors": [
+    {
+      "step": "controller.close",
+      "error": "RunnerError('JTAG controller 或自有断点清理失败')"
+    }
+  ],
+  "limitations": [
+    "本入口不执行 Vitis build；build_details 与全部部署产物须预先绑定。",
+    "只核验 visibility1 文件与独审回执绑定；独立 Reviewer 身份由总控确认。",
+    "本scope只执行固定CSR恢复顺序，不代表109样本或1000次压力完成。",
+    "硬件进程峰值内存未测。"
+  ],
+  "csr_debug_map_helper": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_visibility_probe.py",
+    "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
+  },
+  "error": "RunnerError('CSR固定流程失败；原始阶段异常见acceptance结果')",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py\", line 1442, in run\n    result = execute_board_flow(objects[\"controller\"], objects[\"wire\"], config, checked, apis,\n                                journal, scope=scope, csr_map=objects[\"csr_map\"])\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py\", line 1070, in execute_board_flow\n    raise error\ns2b_r07_runner.RunnerError: CSR固定流程失败；原始阶段异常见acceptance结果\n",
+  "acceptance": {
+    "schema_version": 1,
+    "scope": "CSR_RECOVERY_ONLY",
+    "status": "FAILED_CSR_RECOVERY_SCOPE_ONLY",
+    "hardware_execution": "BORROWED_SESSION_UART_DAP_REQUESTED",
+    "stages": [
+      {
+        "name": "sample000_seed_frame0",
+        "status": "PASS_SAMPLE000_SEED_ONLY",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000"
+      }
+    ],
+    "t20_outputs": [
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_busy_observer\\busy_events.jsonl",
+        "sha256": "b324435ef6f53aa4e31e12386588156d337081a5d4eb5b796eeb4fe88ae04a63"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_busy_observer\\busy_result.json",
+        "sha256": "b6514cca55e9fb150d701fbdf6455de87e65e681290e267ad3955a470f626290"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\acceptance_result.json",
+        "sha256": "c7edce608342cedeae38259e0a8a90d1daf7c73230f244f89024fdd6e87e39a2"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\boxes.json",
+        "sha256": "7566fe74e17acbb546bbdc0885e10546d6ab30a2891b8558a722ab99933edc4e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\capture.json",
+        "sha256": "4322c6af1f5dc68c6da2c8906a6838e4d00b314d2f4b7e70981c067074d5cb64"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\capture_check.json",
+        "sha256": "1b0ed0098838adf166a3ce7bbd6993f651127eb5d2601fb21e8172f07e4fc8c8"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\head13.bin",
+        "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\head26.bin",
+        "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\metadata.json",
+        "sha256": "9703c04fe29ec84e0e04fbacc4a12b7f4d94a1bb551eb6430aa129dc8dfdb145"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\result.json",
+        "sha256": "db3bdbc33d4524f73bb25068b68142be70007f2043c8a880c8bb766ad8f869ce"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\csr_seed_00000000\\uart_response_raw.bin",
+        "sha256": "d21f5bab7c1af149b683ab4e0d3d4c5c28ff49ffbb7cb510cd9a53f47612f119"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\progress.jsonl",
+        "sha256": "0d75b5d9cd85c4b719477740f51a9564962d606564d621133aaea063071eb242"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\request_00000001.json",
+        "sha256": "8ce9780887a8d907ee46008484c0e039a9731352c4cf5d666691c18509543665"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\request_00000002.json",
+        "sha256": "e286b5ce2280a510d2331b0f555e288f26608a2ed887e924e437d193b838898e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\send_00000001.json",
+        "sha256": "ebbcdc176394acb2054d6af2359194f69d45942e43a38bc9b59523243f2b5c2b"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\send_00000002.json",
+        "sha256": "0161953d44036404da8c981627cf0d0cc102a68f54eea5ae7d3421cd49b3039b"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\started.json",
+        "sha256": "47abfa4c208b071e34b750343de6ad54b08016c2134b3ea096c113688172d741"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\weights_00000000\\boxes.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\weights_00000000\\metadata.json",
+        "sha256": "675671775cc38807710a4f3969b87b180ae1344092804ffd281900554bb96325"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\weights_00000000\\result.json",
+        "sha256": "e8926ed4f37fb2dbc182b223c76b10fcb6f3144e640d38abe3e7f6885ff02801"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r07_csr_seed_sample000\\weights_00000000\\uart_response_raw.bin",
+        "sha256": "25b07f68a6253f1dfdb63ab3997fca696e5a075afb878b2bcd5156b5d234dbd2"
+      }
+    ],
+    "limitations": [
+      "不代表109样本corpus或1000次连续压力完成。",
+      "short_deadline保留既有BLOCKED，本流程未执行。",
+      "静止矩阵内busy_start仍为BLOCKED；实际忙启动拒绝由独立BusyObserver阶段记录。",
+      "静止矩阵wire_after_external_csr仍为BLOCKED；该helper没有外部epoch同步。"
+    ],
+    "error": "CsrAcceptanceError('原生响应不能证明SLVERR：UNKNOWN')",
+    "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_csr_acceptance_flow.py\", line 153, in execute\n    busy_result = busy.execute_busy_start(controller, wire, busy_config, busy_dir,\n                                          preparation=config[\"preparation\"],\n                                          observation_seconds=5.0, poll_seconds=0.01)\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_csr_busy_observer.py\", line 308, in execute_busy_start\n    return observer.execute(request, header, payload, plan[\"rows\"][0],\n           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                            observation_seconds=observation_seconds, poll_seconds=poll_seconds)\n                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_csr_busy_observer.py\", line 252, in execute\n    csr.require(response == \"SLVERR\", \"原生响应不能证明SLVERR：\" + response)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_csr_board_acceptance.py\", line 50, in require\n    raise CsrAcceptanceError(message)\nverification.s2b_csr_board_acceptance.CsrAcceptanceError: 原生响应不能证明SLVERR：UNKNOWN\n"
+  },
+  "debug_memory_map": {
+    "status": "REGISTERED_CSR_ONLY",
+    "implemented_xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    "hwh_region": {
+      "ADDRESSBLOCK": "reg0",
+      "BASENAME": "C_BASEADDR",
+      "BASEVALUE": "0x43C00000",
+      "HIGHNAME": "C_HIGHADDR",
+      "HIGHVALUE": "0x43C0FFFF",
+      "INSTANCE": "infer",
+      "IS_DATA": "TRUE",
+      "IS_INSTRUCTION": "TRUE",
+      "MASTERBUSINTERFACE": "M_AXI_GP0",
+      "MEMTYPE": "REGISTER",
+      "SLAVEBUSINTERFACE": "S_AXI"
+    },
+    "apu_id": 1,
+    "apu_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+    "range": [
+      1136656384,
+      1136721919
+    ],
+    "cleanup": "OWNED_HW_MAP_CLEARED",
+    "sdk_regions": {
+      "infer_S_AXI": {
+        "name": "infer",
+        "base": 1136656384,
+        "high": 1136721919,
+        "size": 65536,
+        "slaveintf": "S_AXI",
+        "type": "REGISTER",
+        "flags": 3,
+        "segment": "",
+        "acctype": "",
+        "tz": ""
+      }
+    },
+    "sdk_entries": [
+      {
+        "Addr": 1136656384,
+        "Size": 65536,
+        "Flags": 3,
+        "ID": "1136656384"
+      }
+    ],
+    "unload_stack_diagnostic": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261019_r07_deployment\\sdk_unload_stack.log",
+      "delay_seconds": 30,
+      "repeat": false,
+      "status": "CANCELLED_WITHOUT_DUMP",
+      "dump_observed": false,
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "finished_at_utc8": "2026-10-19T18:52:32.353883+08:00",
+  "elapsed_seconds": 679.407669799999,
+  "native_exit_code": 2
+}

@@ -796,7 +796,13 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             runtime_spy.serial.assert_not_called()
 
     def test_csr_reentry_records_cpu0_stop_before_existing_deploy_flow(self):
+        from verification import s2b_csr_board_acceptance as csr_validator
         trace = []
+        csr_snapshot = {offset: 0 for offset in csr_validator.OFFSETS}
+        csr_snapshot.update({0: 0x53324250, 4: 0x100, 0x00C: 0x400,
+                             0x030: 0x10000000, 0x034: 0x02000000, 0x038: 0x01000000,
+                             0x03C: 0x01ADADB8, 0x040: 0x01A46100, 0x044: 5070,
+                             0x048: 0x01AD5E80, 0x04C: 20280})
         names = ("APU", "ARM Cortex-A9 MPCore #0", "ARM Cortex-A9 MPCore #1", "xc7z020")
         identity = {}
         for index, name in enumerate(names):
@@ -870,6 +876,10 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             def select_and_gate(self):
                 trace.append("select_and_gate")
 
+            def stable_csr(self, label):
+                trace.append(label)
+                return dict(csr_snapshot)
+
         class Jtag:
             @staticmethod
             def validate_targets(rows):
@@ -886,6 +896,8 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                                       "address": 0x100000, "offset": 0, "size": len(raw)}]}
 
         class CsrFlow:
+            csr = csr_validator
+
             @staticmethod
             def execute(*_args):
                 trace.append("csr_execute")
@@ -962,6 +974,36 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
         self.assertNotIn("cpu0_stop_api", trace)
         self.assertLess(trace.index("words_1048576_4"), trace.index("select_and_gate"))
         self.assertLess(trace.index("select_and_gate"), trace.index("system_reset_stop"))
+
+        class MapHelper:
+            @staticmethod
+            def register_csr_debug_map(*_args):
+                trace.append("csr_map_register")
+
+        initial_csr = dict(csr_snapshot)
+        for field, value, allowed in ((0x00C, 0xE04, True), (0x00C, 0x4400, False),
+                                      (0x00C, 0x1400, False), (0x068, 1, False),
+                                      (0x074, 0x20, False)):
+            with self.subTest(old_csr_field=field, value=value):
+                trace.clear()
+                csr_snapshot.clear(); csr_snapshot.update(initial_csr)
+                csr_snapshot[field] = value
+                state.update(cpu0="Stopped (Suspended)", cpu1="Stopped (Suspended)")
+                current = Controller()
+                with mock.patch.object(runner, "verify_binding", side_effect=verify_app):
+                    if allowed:
+                        runner.execute_board_flow(current, FakeWire(trace), self.config(), checked, Apis,
+                            scope="csr", csr_map=(MapHelper, {}, {}, object(), {}))
+                        self.assertLess(trace.index("csr_map_register"),
+                                        trace.index("csr_reentry.before_system_reset"))
+                        self.assertLess(trace.index("csr_reentry.before_system_reset"),
+                                        trace.index("system_reset_stop"))
+                    else:
+                        with self.assertRaises((runner.RunnerError, csr_validator.CsrAcceptanceError)):
+                            runner.execute_board_flow(current, FakeWire(trace), self.config(), checked, Apis,
+                                scope="csr", csr_map=(MapHelper, {}, {}, object(), {}))
+                        self.assertNotIn("system_reset_stop", trace)
+        csr_snapshot.clear(); csr_snapshot.update(initial_csr)
 
         trace.clear()
         state.update(cpu0="Running", cpu1="Stopped (Suspended)")
@@ -1394,6 +1436,37 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             runner.execute_board_flow(controller, wire, self.config(), self.checked(),
                                       FakeApis(acceptance, FailedCsrFlow), scope="csr")
         self.assertEqual(raised.exception.csr_flow_result, failed_result)
+
+    def test_csr_missing_bresp_is_preserved_as_blocked_after_safe_flow(self):
+        """证据类型未暴露可保留受阻结论，不能被改成通过或失败清理路径。"""
+        blocked = {"status": "BLOCKED_CSR_RECOVERY_SCOPE_ONLY",
+                   "blockers": [{"name": "busy_start_native_bresp", "status": "BLOCKED"}]}
+
+        class BlockedCsrFlow:
+            @staticmethod
+            def execute(controller, wire, config, checked, apis, admission, journal):
+                return blocked
+
+        trace = []
+        wire = FakeWire(trace)
+        controller = FakeController(trace)
+        acceptance = FakeAcceptance(trace, wire)
+        result = runner.execute_board_flow(controller, wire, self.config(), self.checked(),
+                                          FakeApis(acceptance, BlockedCsrFlow), scope="csr")
+        self.assertEqual(result["status"], "BLOCKED_CSR_RECOVERY_SCOPE_ONLY")
+        self.assertEqual(result["blockers"], blocked["blockers"])
+        self.assertEqual(acceptance.execute_count, 0)
+
+    def test_blocked_csr_manifest_check_passes_real_delivery_schema(self):
+        """受阻的CSR检查须被真实清单检查器识别，不能在收尾时变成封包失败。"""
+        from verification import check_stage_delivery as delivery
+        from verification import s2b_csr_acceptance_flow as csr_flow
+        item = csr_flow._scope_check({"status": "BLOCKED_CSR_RECOVERY_SCOPE_ONLY"})
+        errors, statuses = [], []
+        delivery.validate_check(item, 0, "evidence", errors, statuses)
+        self.assertEqual(errors, [])
+        self.assertIsNone(item["exit_code"])
+        self.assertEqual(statuses[0]["status"], "BLOCKED")
 
     def test_scope_and_deadline_profile_are_strict(self):
         with self.assertRaisesRegex(runner.RunnerError, "scope"):

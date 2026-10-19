@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T20",
+  "role": "INDEPENDENT_REVIEWER",
+  "status": "CHANGES_REQUIRED",
+  "reviewed_commit": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+  "reviewed_files": [
+    {
+      "path": "verification/s2b_csr_deadline_flow.py",
+      "sha256": "2008fb0e4282dd487677d5440968ebfaad9ff1da8fb4d2038c08a09f5e5f8458"
+    },
+    {
+      "path": "verification/test_s2b_csr_deadline_flow.py",
+      "sha256": "033769a0e70c1d1dcca82716c1fad94a7721b4df5f5c691953fdcf46c4cf7b09"
+    }
+  ],
+  "scope": "仅审查这两个未跟踪文件和现有CSR/JTAG/transport/model接口契约；不审runner/旧flow/observer集成，不执行SDK/JTAG/UART/硬件。",
+  "findings": [
+    {
+      "id": "P1-CPU0-FAILURE-STOP",
+      "priority": "P1",
+      "location": "verification/s2b_csr_deadline_flow.py:202-208, 608-618",
+      "impact": "真实mode0 DIAG前恢复CPU0。若响应头、CRC、epoch、状态或UART读取随后失败，异常路径仅设置controller.failed和wire.failed并打包结果，没有停止已经运行的CPU0；真实板会留在未受控运行状态，且与故障后保留安全现场的控制预期不符。",
+      "basis": "JtagController.call只记录并执行SDK调用；失败时自动fail_stop仅由guarded触发，而本路径直接controller.call且execute异常处理不调用fail_stop。",
+      "closure": "为DIAG失败提供有界、审计的CPU0停止收尾；不发ACK/START或恢复模型，不修改wire.epoch，不丢弃已收到原字节。增加错误响应/读取失败注入验证：wire epoch保持旧值、raw bytes留存、wire/controller锁存失败、CPU0停止或停止失败被明确记录。"
+    },
+    {
+      "id": "P2-RECOVERY-EVIDENCE-OMITTED",
+      "priority": "P2",
+      "location": "verification/s2b_csr_deadline_flow.py:274-279, 560-565, 281-320",
+      "impact": "黄金恢复目录通过直接拼接路径创建，没有加入outputs列表；persist_result因此不会把recovery_dir中的progress.jsonl、started.json、帧原始UART/头张量/黄金比较等文件纳入t20_outputs或delivery_manifest.files，成功恢复证据与主清单脱节。",
+      "basis": "fresh_run会append outputs；恢复阶段未使用fresh_run，persist_result只遍历outputs。",
+      "closure": "通过fresh_run创建恢复目录或显式登记该目录；离线测试断言最终清单包含恢复目录全部产物并哈希绑定。"
+    },
+    {
+      "id": "P2-OFFLINE-TEST-COVERAGE",
+      "priority": "P2",
+      "location": "verification/test_s2b_csr_deadline_flow.py:72-108",
+      "impact": "两项测试只覆盖DIAG成功与epoch不匹配；没有覆盖错误响应/CRC/截断时原字节保留、失败锁存、CPU停止，也没有覆盖非安全终态不ACK/不发新START或恢复、T20产物清单完整性。当前测试无法检出上述P1/P2回归。",
+      "basis": "离线测试类目前只有两个直接调用_manual_mode0_diag的用例。",
+      "closure": "补充纯离线故障注入测试，至少覆盖P1失败收尾和恢复证据清单；必要时用fake controller/wire/runner隔离状态机，不调用SDK或硬件。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "聚焦DIAG离线协议测试",
+      "command": "python -m unittest verification.test_s2b_csr_deadline_flow -v",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "Ran 2 tests in 0.007s; OK",
+      "python": "Codex bundled Python runtime"
+    },
+    {
+      "name": "真实SDK/JTAG/UART/硬件操作",
+      "status": "NOT_RUN",
+      "reason": "按审查边界禁止。"
+    }
+  ],
+  "limitations": [
+    "不对尚未集成的runner、旧flow或observer给出PASS。",
+    "未执行199项回归；本次只执行新增的2项离线协议测试。",
+    "本审查不证明任何实板验收结果。"
+  ]
+}

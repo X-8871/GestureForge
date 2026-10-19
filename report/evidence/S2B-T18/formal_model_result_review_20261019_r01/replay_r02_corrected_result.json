@@ -1,0 +1,5592 @@
+{
+  "schema_version": 1,
+  "run_id": "formal_stress1000_then109_20261018_r02",
+  "replay_status": "PASS",
+  "errors": [],
+  "warnings": [
+    "manifest source_commit与orchestrator/input_config source_commit不同；仅能声称经input_config/call log和归档快照逐文件绑定，不能声称单一clean tree来源。",
+    "uart_tx_raw.bin仅保存111个40-byte request header；payload由绑定输入字节、source_binding、CRC和调用日志SHA重建校验，并非独立TX线级原字节采集。",
+    "最后一个corpus RUN的终态ACK无后继RUN可佐证，deployment没有保存运行后CSR IDLE/ACK读回；app源代码可证明ACK调用路径但不能替代该次动态读回。"
+  ],
+  "source_provenance": {
+    "source_commits": {
+      "manifest": "50d68308ae6431775cff99c135628cd31773dc74",
+      "input_config": "e9fac6cbb1a0b7b60cd33e348dd1d304388de043",
+      "orchestrator_result": "e9fac6cbb1a0b7b60cd33e348dd1d304388de043"
+    },
+    "single_clean_tree_proven": false,
+    "per_file_input_config_bindings": [
+      {
+        "name": "init_elf",
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+        "expected_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+        "actual_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+        "bytes": 170592,
+        "matches_current_file": true
+      },
+      {
+        "name": "app_elf",
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+        "expected_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+        "actual_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+        "bytes": 389216,
+        "matches_current_file": true
+      },
+      {
+        "name": "xsa",
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+        "expected_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+        "actual_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+        "bytes": 848620,
+        "matches_current_file": true
+      },
+      {
+        "name": "bit",
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+        "expected_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+        "actual_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+        "bytes": 4045776,
+        "matches_current_file": true
+      },
+      {
+        "name": "csr_source",
+        "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_control_csr.sv",
+        "expected_sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+        "actual_sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+        "bytes": 21722,
+        "matches_current_file": true
+      },
+      {
+        "name": "interface",
+        "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_physical_interface_candidate.md",
+        "expected_sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+        "actual_sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+        "bytes": 52200,
+        "matches_current_file": true
+      },
+      {
+        "name": "sdk_target",
+        "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+        "expected_sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+        "actual_sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+        "bytes": 340547,
+        "matches_current_file": true
+      },
+      {
+        "name": "tool_source",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+        "expected_sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+        "actual_sha256": "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6",
+        "bytes": 56137,
+        "matches_current_file": false
+      },
+      {
+        "name": "elf_parser",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\check_s2b_ps_smoke_layout.py",
+        "expected_sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+        "actual_sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77",
+        "bytes": 38557,
+        "matches_current_file": true
+      },
+      {
+        "name": "delivery_parser",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\check_stage_delivery.py",
+        "expected_sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+        "actual_sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+        "bytes": 36842,
+        "matches_current_file": true
+      },
+      {
+        "name": "transport_source",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_transport.py",
+        "expected_sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+        "actual_sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+        "bytes": 30371,
+        "matches_current_file": true
+      },
+      {
+        "name": "acceptance_source",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_acceptance.py",
+        "expected_sha256": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+        "actual_sha256": "17c35429833c7267f35479caf5704e123127f1c637470acb210d429f3507eced",
+        "bytes": 27657,
+        "matches_current_file": false
+      },
+      {
+        "name": "runner_source",
+        "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py",
+        "expected_sha256": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+        "actual_sha256": "1d634c3e9ba67bdf111b23f5a0c740e91272f9b6001bcdd06bdcff70ed1c8ace",
+        "bytes": 102961,
+        "matches_current_file": false
+      },
+      {
+        "name": "uart_interface",
+        "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_board_transport.md",
+        "expected_sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+        "actual_sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+        "bytes": 13366,
+        "matches_current_file": true
+      }
+    ],
+    "input_config_binding_current_file_drift": [
+      {
+        "name": "tool_source",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+        "expected": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+        "actual": "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
+      },
+      {
+        "name": "acceptance_source",
+        "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_acceptance.py",
+        "expected": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+        "actual": "17c35429833c7267f35479caf5704e123127f1c637470acb210d429f3507eced"
+      },
+      {
+        "name": "runner_source",
+        "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py",
+        "expected": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+        "actual": "1d634c3e9ba67bdf111b23f5a0c740e91272f9b6001bcdd06bdcff70ed1c8ace"
+      }
+    ],
+    "historical_source_snapshots": [
+      {
+        "path": "verification/s2b_board_acceptance.py",
+        "input_config_binding": "acceptance_source",
+        "manifest_sha256": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+        "snapshot_sha256": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+        "snapshot_bytes": 26927,
+        "historical_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+        "git_blob": "196939811b7c6d1fdb42dcb9d526d7ef4458ef25",
+        "git_blob_reverified": true
+      },
+      {
+        "path": "verification/s2b_board_jtag.py",
+        "input_config_binding": "tool_source",
+        "manifest_sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+        "snapshot_sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+        "snapshot_bytes": 54476,
+        "historical_commit": "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+        "git_blob": "6a47722add354399c85b9179590ee314e270874e",
+        "git_blob_reverified": true
+      },
+      {
+        "path": "vitis/run_s2b_model_acceptance.py",
+        "input_config_binding": "runner_source",
+        "manifest_sha256": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+        "snapshot_sha256": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+        "snapshot_bytes": 75747,
+        "historical_commit": "5e26eddbfee4953ef3a266a985654e3f7354068f",
+        "git_blob": "cad6b2541bb542cf0a060df779f5ff3e559d2842",
+        "git_blob_reverified": true
+      }
+    ],
+    "original_manifest_sha256": "bf24724940a59d7e64712fd61d093091156091cb48c0e583c18a681057d41b2c",
+    "original_manifest_bytes": 2187298,
+    "manifest_inventory": {
+      "listed_files": 9244,
+      "unique_paths": 9244,
+      "current_bytes_hashed": 128349347,
+      "mismatches": [
+        {
+          "path": "verification/s2b_board_acceptance.py",
+          "expected": "6bffafbf2b3003d434c572d47b11229ab4e2e32ff881e95adc105fb8b83735d6",
+          "actual": "17c35429833c7267f35479caf5704e123127f1c637470acb210d429f3507eced"
+        },
+        {
+          "path": "verification/s2b_board_jtag.py",
+          "expected": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+          "actual": "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
+        },
+        {
+          "path": "vitis/run_s2b_model_acceptance.py",
+          "expected": "f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60",
+          "actual": "1d634c3e9ba67bdf111b23f5a0c740e91272f9b6001bcdd06bdcff70ed1c8ace"
+        }
+      ],
+      "missing": []
+    }
+  },
+  "frozen_assets": {
+    "preparation_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_online_20261018_r01\\preparation_stress_first.json",
+    "preparation_sha256": "7121f86a36db1920652275af6ea0684af0dc1dd374d6fac3d4e438dc47049c09",
+    "rows": 109,
+    "weight_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\candidate8x8_109_20261006_130252\\fixtures\\common\\weights.gf8",
+    "weight_bytes": 5903100,
+    "weight_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+    "frozen_cpu_d9_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+    "frozen_cpu_d9_sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+    "frozen_d9_samples": 109,
+    "d9_samples_redecoded": 109,
+    "references": [
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_000.json",
+        "sha256": "4217821fca4351c7dbaee6e011d9c3257b919af1eaf6d3506b3255f1b1df1661",
+        "head_sha256": {
+          "head13": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+          "head26": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_001.json",
+        "sha256": "9d7f29149d5409ff4e2585bc2ec5fc00d2cc54808340e1f4470e68771aabc46d",
+        "head_sha256": {
+          "head13": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82",
+          "head26": "4c74bfed8efec1066108b64a80baf19aa7bdb9a0480d9ca067845f387ddfc913"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_002.json",
+        "sha256": "3c14c0dcf4d140b801e5395423fa566845f795e2651033685e53021707f227ac",
+        "head_sha256": {
+          "head13": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c",
+          "head26": "8551a5cfb51788582cd75345c32ae3b07efbe9bb93a961d7c24313e56816d0d7"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_003.json",
+        "sha256": "261407a21b162f31845da9b566e923e8c7775725a4f4559da075d5a7c8403423",
+        "head_sha256": {
+          "head13": "738591641eef01fd265a8dfc796809bbe7f7dadac0a39bc7d4913f39e7eae32f",
+          "head26": "362bef04979b51c8f6b269812544f5a2ec5378cae3ad7069bbc7a8e809a5d787"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_004.json",
+        "sha256": "5ddf3e65a0fb683b80bcd29b9cd9a995f50a20c3cbc3163538c5a83bd84aa94f",
+        "head_sha256": {
+          "head13": "a5e1baba995b28e79d4ef0e51d24bf67889309bb5ecc1f16790f183f4b93adef",
+          "head26": "f84e6f21f65e12e62ec8d4ad117047de258b91b4542f3d67318490511681bfca"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_005.json",
+        "sha256": "2f0fbe951323f123cf6c5bcd41dcb3c51603c57a5886d737262277dc66518eb5",
+        "head_sha256": {
+          "head13": "0f302c490f77d188bca19e14fe7f5ba66a16cbefd86f0099d14a0e709d339956",
+          "head26": "762ae7809ce8818ecd3f737f109b79eb9a3400ce887d40187a802cc861db90f4"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_006.json",
+        "sha256": "a6ba39df0c7129dc4820ea20200a5ab7e67840d1e56d8f9440d0ae5c7566ebfd",
+        "head_sha256": {
+          "head13": "7475e0343414930cc448085c20718d1239454cccaeb99bc0930d759a58c4eb72",
+          "head26": "a846591d5085f3fff10b935f167ce2554786d9b759a1fcfe185bbfa150031ec8"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_007.json",
+        "sha256": "084d3d7ba45a59b33b2c172d7e311933caf095064dea56b9e6a2b72ec008ccf0",
+        "head_sha256": {
+          "head13": "847675d4b633be708f5089f6e612b15a1ac0b30afb2123d87abc26d10557d7ee",
+          "head26": "f25f0788b99629ecd6232a3843b15c996d64f31f5f936c334679bbce850e8a35"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_008.json",
+        "sha256": "8f1a9c204483d8af3f67aab3c11bbdc72ec70ba9908539f74a7ef26d53d79b9c",
+        "head_sha256": {
+          "head13": "2528029568893409fb0d48b8b70d92bfa7893c320b332980dd638f58d063bfb6",
+          "head26": "25b36c9e7a370ae8f4ac71ad31ec37a6d0edfa1baaf007447155933c5d00c2c0"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_009.json",
+        "sha256": "e954183c687c4c93acdb34ea913185df8592b8c3fcc988e65d59539e6c6a3aa0",
+        "head_sha256": {
+          "head13": "29a30b4c64b6cea20a4b71d1133dc7ffa1b9eb3ac72c7e77f126b28e1127944e",
+          "head26": "28594789f14f449a6cef47991267dd7f9f0968a8374ecd7adc2c84d5f5c1c01f"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_010.json",
+        "sha256": "434e0ae5d443c452dd1ad20c6f28d7b91b6ec7d6bde434738957eb0a55b84eca",
+        "head_sha256": {
+          "head13": "1ea4c301a5b800886562e04c01b9fe92d604428221fc19c763e5983bbf5c6b45",
+          "head26": "e525ed382aad36b5f3a734caf8a8b9fb374911491f5b84fce5d7b67b7038c1cc"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_011.json",
+        "sha256": "4dc0185b81040fe619e0db57ed115f2205b495dc0119a290ba58f80675e7ca94",
+        "head_sha256": {
+          "head13": "b10e5f9fdd8972238bf05069eb4a40cb99caafd5de5f10b7613887769f658a44",
+          "head26": "4f9a3667bcb3ae6a0ff8054a74f47071dc9d0cefe2972fa21abd01334734d4f6"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_012.json",
+        "sha256": "1c1c61e7b6391ec2812c82a1a1a088a1e3ecb866742b652087f1131c636dd705",
+        "head_sha256": {
+          "head13": "874f1218b4b754956bdedc0c126ffeb999e7f3e8532b63d768ff2a86a11d5a1a",
+          "head26": "105cfdcd2af7fb8a847973e46837ce7d4956d3048144340b2152d176dac52fff"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_013.json",
+        "sha256": "67048f0004bb2868d87dad5ef37c58591c14a6bb11b9b9573b030e4709118d3e",
+        "head_sha256": {
+          "head13": "f3b7ef86b99f5cd39b24f9cb62378ef8f23a783ef25fa6fdddd95bc31a2751bb",
+          "head26": "00554aa00b943b20889db600ea44bc03551bd9f802bbf567ae9ad3d16647074a"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_014.json",
+        "sha256": "f30d4cf9c6b48c8676732bb949972774c9485fe585b8248236605b933f1807ba",
+        "head_sha256": {
+          "head13": "85018d590bb28def619b7bc0c4ba160c66041deef1aa3ec85787d66bbf5400f8",
+          "head26": "49946f487957e3b5ab2c9320053b0e24e1d818d28cb81c1b77121aa86a0f15bc"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_015.json",
+        "sha256": "c7f7c97d520bbe6ff01fa33237eb42322e7c1b9fd9974736177c7a724d855841",
+        "head_sha256": {
+          "head13": "c4ab1b6a67f9965106909d85a0d6c05eec632ad07d36a7c79bfd7a5db6b49c9b",
+          "head26": "ab9dbd6a2fc1c8afe2ff9070a7ea444203b121023b28beb4f73ffcd8d10fdc76"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_016.json",
+        "sha256": "843a89776de9e86093cc84849e3aec29ffeb61826500fc6c6ef41a2a9ced9668",
+        "head_sha256": {
+          "head13": "aa33aa9a48c6e9d26dd639199c074f2289b7585a895c0f4a2417ba4fb5fc6280",
+          "head26": "be1b59201ff1fd11c46259a28544c1cc25d5159dbb4c99bc629ebfc1fb60db56"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_017.json",
+        "sha256": "9562fc48a615111f40133e01f4e5fef3f14a286c611e27b2b01a23d442d90ba9",
+        "head_sha256": {
+          "head13": "e453809c2f630bb6ab5ae34eb83ff47cda61bc4143a496d220de5825f48e0c8d",
+          "head26": "19c4e3359412d49e1c62b2dc4d1e13f40d0ca8e5cd7933be964f2b43cc414f86"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_018.json",
+        "sha256": "2c54b3b5ccfdefc7d625ea0655046e02e3aef432f56d73f790d62992f85e5873",
+        "head_sha256": {
+          "head13": "6f82f340e1501483671e709dc87ee7d758eeca772611995b37f8521a7e04fcab",
+          "head26": "1d8283e5fe4923ac3dd1920594fa71b443d671249f5fca5f2a7bffa2cdb2114b"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_019.json",
+        "sha256": "711dc72a2126c934274f3d25a31849b6663368a5fa8666ae54938718db0631c6",
+        "head_sha256": {
+          "head13": "4c38d341ad810f226c579ad784417a8867c0d93af4501c9738b94949871b7db8",
+          "head26": "645c276c9f95a61500f28d2c8beb1987b1b9bfcf33cf3f6e1779292fb1124723"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_020.json",
+        "sha256": "d28525f8fbd66c06efd9f9522680d4eac4dc5d72a2920218a10a28d8a593573f",
+        "head_sha256": {
+          "head13": "0b82ebc01fefad35e01fc5b145c5eaabd7e843f5eadd667091b74f466008349c",
+          "head26": "8875aa7aa367cb7c7d74856242e6ffa70c7249d8b21d1b710693e6263ac6a553"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_021.json",
+        "sha256": "4c42d8651a68c3a4afd5b7810b2dff60275f4b214fc7bf15285639effb104636",
+        "head_sha256": {
+          "head13": "6bcb18e48b1924612ec0b2b44bf92eb6ceb6c08e5597924147e51e0e7e76d9a9",
+          "head26": "24b5a8534120b52cdb1ae3e6efaf92f5514f506878106b15d6b5e480d42bfac3"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_022.json",
+        "sha256": "0082313998fa2140f975558806243eabb70d92b3f5317a6845d3615d60961a8a",
+        "head_sha256": {
+          "head13": "a19b44680b64db8e1ec4e52977213edbd240a32170415479353bbae904e7f679",
+          "head26": "789ae3ea545a7eb0d3701fdbfeda87ad874f0d56bf5e428870ed9b5427f3ee74"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_023.json",
+        "sha256": "f7037f3fc9b9a1bd85b9b1ad9c995c5d3f6fb133f66efdb7c0a26f019cb482c9",
+        "head_sha256": {
+          "head13": "9eda182469bf7fb74fd33299db0a727564574e432baea34b2e4189eee17b1e9b",
+          "head26": "a36b22e68655620844bfc1b48afb9e7430ca23125600f1835493ba5494c748df"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_024.json",
+        "sha256": "acb3613a46dbf01525004d3294f8d4f4a5673bbc8f5c41faa861c98f8f18f81b",
+        "head_sha256": {
+          "head13": "61169f9a3f5a32f55fac0941e4e2de95022f1daa1abbd26fe68ea9f3d25b44c7",
+          "head26": "6d2df719c08974e47c7d5efbcac25e37e5442f8213b05f917bdf19db1d5fe597"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_025.json",
+        "sha256": "fa21f3d622a69c347e5ea3f52d898c9df0b91a8aea1333bfe4ae4c76621e1ab6",
+        "head_sha256": {
+          "head13": "39b2d1e9cb7f5f2bb3c6192cd8ad11486e74fc238f149a3b5d2181c033dda233",
+          "head26": "380920bc0d4a058931a993486dfe01ab5efa5236062a7ae8f4b1d179e5a03bdf"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_026.json",
+        "sha256": "57dada1998c39307266f77c6fc8eda5dca9b5978ce88f7fb5bd8e86a3383c1d3",
+        "head_sha256": {
+          "head13": "d95897941bcd538a203542ddbdb4568027644ba51d135833c0483256d01d0cf8",
+          "head26": "547f436b27a834f7af5944be0144deeeac59b317ac5a6fbb3b5e4107d674ea09"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_027.json",
+        "sha256": "6f43c74bbdfad1b252adf84fe50d8947ce8d7280bb7051e07b48bd070110b24f",
+        "head_sha256": {
+          "head13": "453225159ebf9892440572bc9746083f1cd8165dc7fa97342a025d9d2cde7a87",
+          "head26": "a4cf5f48ffc0628aa53ac46694cbe46c47f616e657f7446ba7430123fb4b548d"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_028.json",
+        "sha256": "b00f169222ba948639c58189baff0bc4336b31dbed0e14e1c7cca8ca10f5822c",
+        "head_sha256": {
+          "head13": "b087180164c9f39a5351d28b9712b2c80c5f94d9935b8499adcced3aaf2d02ea",
+          "head26": "dd008c210dffd5e981cc485173cdb0be7eaecbfdb63f83f6c8a87452a0f076d7"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_029.json",
+        "sha256": "240c0651e6b9854231bc8e559376dd3e4f9cc6e21beee61ec90b273741235fe6",
+        "head_sha256": {
+          "head13": "9fde3fd8967d032ccf30d924ffee07524df9c3be879cd10674caa7a94c702549",
+          "head26": "61f910cb846371ffc39240670fdff03c1d5af550281ba53e6dfb1937b6f67c6d"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_030.json",
+        "sha256": "8a05a6d45d1bf5d90b58d5a3beaebd6edded6b4cba0671174e325849c1147650",
+        "head_sha256": {
+          "head13": "58cd70bb8045858337805e1ac54bcf90c5314019fa88e8a7024b35d3913cf1d0",
+          "head26": "d031a59e1b8977a7d9edd7fe95e0a68cf3a1080a533bc64cc7924cbd125204a5"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_031.json",
+        "sha256": "0971f13684d982c47bf85be1134ce55111236d82b74aab2094a8248c369782c1",
+        "head_sha256": {
+          "head13": "9665492c617f686a527adb134afcb53e52d5ac1f4f3783ef9c10aaa2a8ae8bfd",
+          "head26": "cec891234b5d9aa162129ed93208cde82c2c91fa459e10a51d123e408eb82902"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_032.json",
+        "sha256": "cbfbc250288ac2c5ad963b09332ed3f8927b3ab367296697b9528db4810d7c6c",
+        "head_sha256": {
+          "head13": "9ed19f34494ab635fd6e89d1cda900820f83216e72d2144c673a8d14a15a61ff",
+          "head26": "05f0b22b11445a9d2602ec4de99218427e34560ee4f5a03aea8852f6e5e89bd3"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_033.json",
+        "sha256": "cecd2eef0b359f5922b821cf980566df0097353429e4ff10bec744b3bdf2aceb",
+        "head_sha256": {
+          "head13": "3281ff8d4861bc4d76e40734a1bccb38c3db85c25e43f75c6b885896326b0fa9",
+          "head26": "344cd7819649bcc7ab4cd7de751355c38ebb0c0dc01055121a0fddc7ae7711e6"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_034.json",
+        "sha256": "45fd16100ce0e46835843cac0b7f7fd1453dbf5e8e3681cc2553c190b0ab025a",
+        "head_sha256": {
+          "head13": "efde62fb8a08c6a830efd7eb918389722a71705ab4e98cb89025524cd2f6f25d",
+          "head26": "e02472cea10739b7a250309a0c5d0ba85be7013ce6ba36f5003013585c897754"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_035.json",
+        "sha256": "a6ed0beba7d42564cc2170efad8906d354eaa55a8d2de8367b0860bd01b00040",
+        "head_sha256": {
+          "head13": "2399f3aafbcc2a84009381d49afa1a26e59ecfbba3c48114fe7421f4bba599d4",
+          "head26": "faae69b2b0c1cb7c37ff7706582f6ec895d173c94275842d4ca4ca6770dcdf6c"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_036.json",
+        "sha256": "4f07811ab21e28b12a67c0e5fa7e66000a36b9a15061c052ad1469630f6e8e2c",
+        "head_sha256": {
+          "head13": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+          "head26": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_037.json",
+        "sha256": "bae1be60ae2122d20bef125165f0bb361d516707e7c80ca6e54652707ca36c73",
+        "head_sha256": {
+          "head13": "11d02cd05d236117d8cd3235d8fbfa6dfd3f00e62b18cc2edd190250c122803a",
+          "head26": "b7595f4adca1c9ae5170a805ed8b622cdba90bd23724b0abaf57b69d6928ffee"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_038.json",
+        "sha256": "9cd13183ce0c2bbd65e9aec7b207cda4009bf810a81a081f45d8b0b568a742c5",
+        "head_sha256": {
+          "head13": "be0b47115699311c959c9775f533b6decfe0e369364e218b5ae3211a1b32de67",
+          "head26": "75215133e9ff4c6e1f77dd101fa5dee834cbe096253ef534d61245ea66e919dd"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_039.json",
+        "sha256": "5b383790c5f52524c95071024db9754e8e62c1c46c2e37d35dfbf41de70d0e8b",
+        "head_sha256": {
+          "head13": "22d66b4581213431e42c140018e98349a6c90abdd547104fa8918e4a522da15a",
+          "head26": "42aeb86f120bf79c155a12eed422ec11bcab90b706b1be5a92b3923e8b06df06"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_040.json",
+        "sha256": "30688fc685eb89276137f6c19c28eecac7089d95e90dbb0ad7ace8c154f6ebc8",
+        "head_sha256": {
+          "head13": "996d466f17e1f0f6eb082720d1f2f7401f9a6d1ed5d5d8c6734b3ad245b315f1",
+          "head26": "bf579ecbd03d21c68c0bc7562486cd99243153aa79bc2669841f8e5372c5c6c0"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_041.json",
+        "sha256": "599d82d539a589a7f279bdf7a50700fcb9165e796ae5f0800c6cc3ec1524c377",
+        "head_sha256": {
+          "head13": "b7b2d002ea8a34078519f1dc42f3571d8eaa6e08eeafd588336b024f3e0f1d77",
+          "head26": "741d0531cf5ce1ddfce30379adbf71b8b2ed127d497c414fd2905f20e3de0050"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_042.json",
+        "sha256": "e13f7d463b9621764522c8570ee3e9198c0c77c9d01abd0ecd4dfd55a834441c",
+        "head_sha256": {
+          "head13": "fda6ca6b6925cc5f35d1d7b97fdddb3f6c45de604eb6b561fcc446f8385dabd9",
+          "head26": "3d1343b4d77bbbde502d92acd02c9508f69f7c537dee908add8e84e518215410"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_043.json",
+        "sha256": "45baa720ca39e8b288a1b6b13296082b71c3a81d3c289bacb7992e37661ea1ee",
+        "head_sha256": {
+          "head13": "98131f07da437ac37d35723fbf60253de74a9caf690ded22a407e4575736c327",
+          "head26": "b837292a072ef554ba2c7b8760cd66f77a50b60aa64522385b8b832b4ff04af9"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_044.json",
+        "sha256": "5b2aaac4d5f33aba6c75b755173c509f18b8976053718c8b8b981f67fdb67233",
+        "head_sha256": {
+          "head13": "427262df992c828556e2f3675666e036f37f0d468714a88849266bb13f32d889",
+          "head26": "6e0814c09a9a058f9bdfeae9db58b08694a4066dfc9c981a1b49c252e6fef772"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_045.json",
+        "sha256": "18739b43db22014e472d615943dcdd6fe11a3c4584f94c63f4d5871caa839069",
+        "head_sha256": {
+          "head13": "d5df5e1c140fbb46cafcf18f3c75587ecc4825521fbccfcf0a2a1b4703fc5c18",
+          "head26": "412f81acb4c198dc0b06f438e5bc5c0cbbfaa89a8228953481d302afd7542db2"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_046.json",
+        "sha256": "deb529b5017e6679a32d8ef789f0fc0a122709c7858abb110bdecdc797f32aac",
+        "head_sha256": {
+          "head13": "6bc652c74d20650020a4e09e68f7bcadd090cdf4095efb298ea1f7b0efbcb5c0",
+          "head26": "ffa10d0b480528a1beb256be5ffa1968a758399e5928ddfd066bd15019a74685"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_047.json",
+        "sha256": "f9c1d896d0a07f95640e8fc8110ad2ea509daa408d3037199087a0bc473d8ae1",
+        "head_sha256": {
+          "head13": "b5b6cf153e599c6bac2eba661fd2f5bff757a5ea9f4225667a68bb01a4f54ff8",
+          "head26": "fc0035828bec8d069b5a847b3d7cc260cbe70e88d723dc20c87003044de1d487"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_048.json",
+        "sha256": "6241dcbdcefbdb68bbf1ea75810283bdcab098cd96968a7b3533adf2b0afd69a",
+        "head_sha256": {
+          "head13": "537e498194bdbd50bcc7f6b8cba8406d6e9b3fa73f376ef624916d3be2325bd2",
+          "head26": "c33066c18630279030d1e822c53f6027a7f7eafd531763579fc5e79aa7ab2fd7"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_049.json",
+        "sha256": "b6f3f4b76eddf12b8e1f8962bbfa011b5ca4345939121812f9934a2b6fc42ab4",
+        "head_sha256": {
+          "head13": "739cd62fdc01b36129c71288e8795d1939547bdeeea4f8e662734ce46479fb5d",
+          "head26": "e906a8fca8383cd3bdb5a369b8399f0978853170b54ada6fb9a042787a0a8beb"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_050.json",
+        "sha256": "4f9819fd403ce0b9f93c235b26826c1e0ba00fce65bd7ddfd0cae0d04ee822e0",
+        "head_sha256": {
+          "head13": "e4445001f140cdd8eebace3ed4d48e6fcaa5def9aaa9918fbc719473b211f27b",
+          "head26": "689f0f59b64ded54077c49890e4ab13a85b33d44b9c0d4b3ee6d8dc7f44e387b"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_051.json",
+        "sha256": "02cff79c7e39ea3257958de50c0716313a0618bb6e081929e9e240a6875a489e",
+        "head_sha256": {
+          "head13": "be91d0b2432db8b03c3e59befdc6e934000a7a86824d7448ccbe40b017453fa9",
+          "head26": "f19b74fabe3a71cc0a9c59775014f352277b1574054dd97e403dd7966d107193"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_052.json",
+        "sha256": "04905dd7645334f5432be4011d84df9f2bfefc91495b444d40dffd458cacf46f",
+        "head_sha256": {
+          "head13": "5b7c5c469d5ba22b184853e991a483f3fd45832f5613cd1d8766e14ebcb192fd",
+          "head26": "e6955176783224d5ab420136a8cdf8db10d984247931975661a7c313254672f7"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_053.json",
+        "sha256": "25043dc27126075bbf5122927a1c8f0be471a1c05914c95e256b28bcc09ec3fb",
+        "head_sha256": {
+          "head13": "c3181afd57f23e3edd705e15c809612f93290cad68350d18d31118b3fc9ec793",
+          "head26": "9ef2b076432a177cfe6cf0b2f2ca08dc337068477f7ee5d1463e86ea242ff492"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_054.json",
+        "sha256": "c724e5f46074cac81c52301ed5547ed2f0f172d6eaa9891fc14381c5eef3ba31",
+        "head_sha256": {
+          "head13": "75bb5b872182d96884c67d07427773303536fabf0714d2b5940bc588096629fd",
+          "head26": "1b97a1f8f86924d1f1b8d74f497d65054d461964cf6e16f1758655f897511b30"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_055.json",
+        "sha256": "846c381bec107e65c9c40a79624da180e047865a6c58d31f1add2079e8276bcd",
+        "head_sha256": {
+          "head13": "48bb4d15f2858a1ab9f28720c29aedc1431c52f92e7853ef67de045883c4ddd9",
+          "head26": "db8ccc5f72d0e28b779a2d5ce107155601238906fbb05aa4700dde3836a93dbd"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_056.json",
+        "sha256": "7ca79cb2d9f9ede03320593b8cc49380e75e1d6814dcd0685d51f785db15f401",
+        "head_sha256": {
+          "head13": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+          "head26": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_057.json",
+        "sha256": "e04dc6716be22070f8debf2b9c422b7712bec33dec95cd9cd2e46d5a8b25d43a",
+        "head_sha256": {
+          "head13": "e4c9a8e9a76b56f3eeaacfa2072091db78e6432f2f261a87c2944393d5299f7a",
+          "head26": "054df6a91789b45fa25de4da26f82b75765d99a7c3ace88fdf067e07f4ed54ad"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_058.json",
+        "sha256": "e02ecb61b7b714e6dd3036bc8c18a30a42267eb119a4bdc3cf244fd33a42c3c3",
+        "head_sha256": {
+          "head13": "237b1708174293a7871dce80294cb93371dfa4c226af3ff7c21bca480fcace9b",
+          "head26": "823bd00405ec0d736e575624f95a9847a7eda11cfe5542d13dc18bf13c69c730"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_059.json",
+        "sha256": "eb874863f1f3c6d85ebfbb05885a375c2ab6554d94fd87a1e5866af438b390fa",
+        "head_sha256": {
+          "head13": "acad6393aaf024e4275456d851b69906180c8e6313d7234d75ff9f61c62e458d",
+          "head26": "b398c80018b186f8be31d9ca98d280f128323b838c3da57c44bd9d2cedc24c78"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_060.json",
+        "sha256": "cabbb1f622bd74f31e24285a5249af1d3eb4e24594ec1fda95b24a1a469022b0",
+        "head_sha256": {
+          "head13": "6d6c14d425601135089abbe1f86dfc24940e3d95c7f0a27064ea314bffb40e72",
+          "head26": "755222d136687261739061f50ceaa8bffddddd712d69e55b58105c84ac752fec"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_061.json",
+        "sha256": "63a83f80c62006833e82eb7703f5eb441b2e1c14f65affca7154df9fb028b4ee",
+        "head_sha256": {
+          "head13": "6bc8358a37af86acfead2ed117a4127b3355c713df46d97496c3f36439466e44",
+          "head26": "b8f156ebf3f7ee036258d33f921c69bfb9be1b254eeefc30e63996a604ac6d59"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_062.json",
+        "sha256": "af9dad58b087a3d069042c41568e88510593373f12baaf66bb6fff6548213a7f",
+        "head_sha256": {
+          "head13": "6c9a716a96b17a74ab6a085c566c8567cb6236e787d76efcb6dfa8b7e61a712e",
+          "head26": "eb833c9748c2f0a7a390d7873b6ee826f89286b0248857649151ac711d407ee1"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_063.json",
+        "sha256": "507e52ac7a20f2725296ba6969578873d9be304e9447fb378616e649cc833673",
+        "head_sha256": {
+          "head13": "956c648be5f52f5386ef3c9a02adcb89f3d4321996b393948490f4fd3e39890b",
+          "head26": "49745faff6cf15dac8340ff756625aa5bd28dc9c6a9e8db68d2d663008fb9f97"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_064.json",
+        "sha256": "e93f6841c215d62e23609e5164534d975696e65c1b644cf8c11a2b425a0d5b1d",
+        "head_sha256": {
+          "head13": "cbf015e80812ae88ffd26905b65368c173cf71942331403697bee2541fd43911",
+          "head26": "709f6f78efd92bac730e6023841abe8064839d5d90cc2a46d321fe4f6de450d2"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_065.json",
+        "sha256": "ba7a10caa09685acaa82d234e19ca02e3c00249703a4174ed6f78f79b38bbeef",
+        "head_sha256": {
+          "head13": "22b8367e272ec128bee986ce1afed22afecfffa536229f730cccd5f454d73ab1",
+          "head26": "97c7646f157c030d7a8f8e974298012670d98bef62a37ea94004b7e78ad18e2f"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_066.json",
+        "sha256": "f4a2851c1728b188a46e574c8bdd3b0f02996f1f59d30ed28a297ca201892d4d",
+        "head_sha256": {
+          "head13": "0362d2a3e461a4e256ae9d79ae2c865e668ce6e4aaafd142eec5612ac4c708e4",
+          "head26": "9f89dcf1a0af4141082faa5baafc8b3fd196de33dc563df2a60be4f27253e055"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_067.json",
+        "sha256": "f527f270c2c08f0a5264ff663f80e84e35a6fbcd79f955b1e752943a0a45f2a2",
+        "head_sha256": {
+          "head13": "635bb50b5caa86a7316c128bfb2d617fa16c659654e4140494d0a8560cfd2bfd",
+          "head26": "0d1c57789b46a28ecee00ecbf37f76528ffcad61fd2c05458c8650f0a61ef9a1"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_068.json",
+        "sha256": "36de47b6d9fd39bf01ab1ab9922379908abf67a0d3b995b811b16d775fe363df",
+        "head_sha256": {
+          "head13": "d89b5bbbc9ffb67bbc14a4dad6b2aa1de25b0f87d12ef5e82b31fb4e2fc7ffa9",
+          "head26": "1bce10e6aaeeaaf6e1b3c1bcf6b6c688ba9ec90cb8712cf9d11b5f13b6a438d1"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_069.json",
+        "sha256": "d640249a30d29a27a2137fedba23d0b10d3435cd73766870634e99b8e84ba770",
+        "head_sha256": {
+          "head13": "41acafc6dc7a1264c24bec316fb73cf34fb2d40bffed7559348735824ec0b56c",
+          "head26": "3b8bba99f3c3b53a6112336bc53df4420f776156044b6f593b819fd68a17d16e"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_070.json",
+        "sha256": "0798d530785f6df5e892a605e07878af9a088c5003c36a2de326ef7891c6d2de",
+        "head_sha256": {
+          "head13": "8240537a936fff37f264f1b6898bf946b9848ef0c8ea07366e2ad9e6d12d4e1a",
+          "head26": "eaf4e560da0ffd7b555e822e5827e65f73498db81c8ec74735d2e3c752f222f8"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_071.json",
+        "sha256": "3356c2d1cdbfd0be4776266b20407db4644e094f5a5a3e986645f7c4a34ed9c5",
+        "head_sha256": {
+          "head13": "7d128914db06ca3aa6e77362144afc4dc8c62a0bf3ce35abab2cea866c71cfc1",
+          "head26": "d2a4e9230d78fbba8b86a4b7c42238ffa45e9d994fa375caac68eae8325713a3"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_072.json",
+        "sha256": "dbd5b949f4c920236622bf15b248eae4cc83c8cfb4da089cf9baa34bf1239377",
+        "head_sha256": {
+          "head13": "08893255ff98ed3bc97f03dbb8185617bc89cecc5f6557ecb88cb6fcdb1471ae",
+          "head26": "14ecdb19ad17062079674b511337e195d3b3a7aff1545ed5c6b55423de467f38"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_073.json",
+        "sha256": "b1cbaf98c235434229b16ae8b5e8fdfb0ed318070225bd8c86eaaf4da53a1144",
+        "head_sha256": {
+          "head13": "c4c9d4f5fc5679076d9dc4d2110de64d7c5d72f34a6bd6e45aa03bfbdc463c10",
+          "head26": "90b9bcc95f240f0bc1ef72529cf20e35a0ce90958903a666e7b1e10b241a875d"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_074.json",
+        "sha256": "ec700717554c09988dd035406a6c1ba40574e59c821dc8f63309810a735ad719",
+        "head_sha256": {
+          "head13": "aba1e82ef12fe512dc3b8e54f8d232171c3b55aa289f52f8005eaf59506d286f",
+          "head26": "8e6ef92ccfaf28d3a5994dba39fb648d8341a7a549e44c798fc34cf957f6b81a"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_075.json",
+        "sha256": "75522221d4a0ed34f18d3cf981c99d8500df4785250a08b5a673ab9b223a025f",
+        "head_sha256": {
+          "head13": "9e498f54f6c864686be765a33a02af198e0e35a78555965aa2d29a03ade2b0fa",
+          "head26": "299495586c06d1e7c950a35cabb991178a489e7ef933570d4d5156de0d10da5a"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_076.json",
+        "sha256": "02634ba7da8ac19f705f2fb089bf6e8a1c10f24917ff8e706289246eb9e3af5b",
+        "head_sha256": {
+          "head13": "7d529c2d5da780c8f637a1ed8e559ea46612e12ccd9eeb7e080a63b3a92ed7c1",
+          "head26": "8a28ffd5774eb9fc6ff7a7caa019b73ca1c50d7269bfff12530bd77fd181c6af"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_077.json",
+        "sha256": "00549d0120d0fcbe8f27c0a5cfaedba7a325e2e43f0aae0e960bd9a5920c9917",
+        "head_sha256": {
+          "head13": "7335a04787af7e4a70bfde7bca9664ec425c681e1d3f3f7f963a9a486b54890f",
+          "head26": "e2df3c456b0c7ed63010440622b360ab1636d963111ce6a57e9a4a5091ea5542"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_078.json",
+        "sha256": "fe8470a984bfb9bf9fc1d2db79e598f48a3943e638aea5bbf4db1ecfd0ec9daa",
+        "head_sha256": {
+          "head13": "e87fbe9e013ea8e54e39a2550409f0f1d79f91d332f88a14e680dcad86ccb269",
+          "head26": "18db40f139a7e625d467b4132888f5958ad23de7113abbb9701cb5cd7efc0ad3"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_079.json",
+        "sha256": "f2b6b66b31d31a3f7f5c8294355b01b2e47cd215981b26f942ef450c273126c5",
+        "head_sha256": {
+          "head13": "0b3980235d32082dc1d2b5dbb032592cfbeead766b8e107172b6a40bb8ac709f",
+          "head26": "8054925865c8143b0e7c946fd96bcc4596a251b9f4a059846dbe0fae97dadd92"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_080.json",
+        "sha256": "f637c74200c1884a6066d09541b73fde91b9d1021c7a1e63e1b345ce809924de",
+        "head_sha256": {
+          "head13": "24f4ca8ccb25c35d8bace34f3c814b7423e66a31c0baa3dbf497c57702ad8c84",
+          "head26": "27e530b040c433ecc154c73e7b8c033534db1075479435cc59ee685ccd35692f"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_081.json",
+        "sha256": "33c70d58a7b64a754ca0b35bc2fa6bea64e916df7557c64fff2ce2f8ba8141b6",
+        "head_sha256": {
+          "head13": "aec1b7cb1c8fc471ba4c789a438601e763245a51bff87d2377dad66ea9763488",
+          "head26": "d9a36214154c9a347052e30afd335de76df7b37b8b1aba82e13df82cba1e06c4"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_082.json",
+        "sha256": "f1cf039ca18293dd85a9dd275755bbbb70e3d9562100ee7edb86811ef7aacc22",
+        "head_sha256": {
+          "head13": "e5c2d4f8676b727af05d98492ad43c470e4515015e6418250306f1a81ee3feb5",
+          "head26": "7b43ff0bbd33fd677137c5632aa5a30a7c59d0115dca10a825dd0f22e3984add"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_083.json",
+        "sha256": "6facb343fa545514bcc3d813ad5626f714a945fba54d93b373b6ffb11268fda8",
+        "head_sha256": {
+          "head13": "84b8c1b9ca7746d6fb3824a762931dd497b69e270091d0bd5ad55d561d83651c",
+          "head26": "efd39fb3532232e4c1a08f1491754582b07280fa02a490d81b5b6cca086f78b5"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_084.json",
+        "sha256": "9de85707854d4d268ba9e6656f1c05f5cd190862cb69b11b90e1ee46660784a6",
+        "head_sha256": {
+          "head13": "ead4d9174f74ac00991dd1b0a0343db8ba22e95c570b0bb06bb950333741c890",
+          "head26": "7724a6aa2723be8ffd04d04f3274543bfcbb3dfda9cb1e0581fa73910db62731"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_085.json",
+        "sha256": "a734f8b3ffd82a14524d0b9d831d320a6971458d8d132af0a902ebfca41f8940",
+        "head_sha256": {
+          "head13": "dd9c61b9c9d7d5264a2565b83ac070f4fa479b31e713bb7ab5a251b27f5a9a30",
+          "head26": "efb509509212cd2066f3b526190e343801f50b8abbd819fd42614dda55883296"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_086.json",
+        "sha256": "7e27d22b7b5800d6498092bd8b99ceccdd176280f67b94321f914e8c14334067",
+        "head_sha256": {
+          "head13": "e17d7c65970a86c1f56307db0f531d57d2a8c69c4946c9742a16d9ccc5d336e5",
+          "head26": "fb70f162ad2ceab28cd8b2956ac37f6266a1e84b7f071e3afdfda2c6a4986367"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_087.json",
+        "sha256": "173c69fb72e8cc3e9982c6957d9899ee4df5fb4f1318ed2a9d741b5472ea2870",
+        "head_sha256": {
+          "head13": "adf562b8a5835209846256a73f9d45070c4a908c407bba933d91843fdad7323b",
+          "head26": "f1d5565b4db152b57abbe0b5783c4ce8ee73f25261458704e661a8889d7e8051"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_088.json",
+        "sha256": "d584f393c19933a3d75a321f380fbf3849327774b67fbc0a4a9f77ec55ae5c17",
+        "head_sha256": {
+          "head13": "0a08b329f30fa06d0f8593ba77903d7d6e625d593dd1342e0afae9c470fa60fb",
+          "head26": "6f5fd8dc8dd00b9dab93adfef3328b59b154715a2d2261fefb6b5ea60c8c2141"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_089.json",
+        "sha256": "7666bb6b7a5d5145c3416981c6816bcd260bcc9662f644f14779f5fd8c0e23e8",
+        "head_sha256": {
+          "head13": "8295d779f4bbdace5fdf11906e5b549d9f7bfc366598dee96a37e182527c4fb3",
+          "head26": "359ff2b09c92a1badf862ef03c14fae99073c4601b785459bf7c40c99462d13d"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_090.json",
+        "sha256": "b914072c02f8f065bbe252dfe20b8bde0bc0d9cdb03718ec074b3da4b679a21d",
+        "head_sha256": {
+          "head13": "026d0c151a8b5b0310a6d83d18763ecc1cfd03bd82bf232bfbfea67d1e4be2f1",
+          "head26": "44f1350ca77c70b279feac3fb382ed7e77ae2d9c85c23f7aad40230947d642ad"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_091.json",
+        "sha256": "57f16c7b504b11c517236129c943eddcf0c24e8c56d0a497679788a199af4e92",
+        "head_sha256": {
+          "head13": "d73aa2bca3ee3f832b9fb6970be10e889c660146c4d173f76a38c92729b8dbc6",
+          "head26": "164d0cfe7062e64ea63a296da1e2b436bfd63b311250964519a3e6a1656d3c53"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_092.json",
+        "sha256": "cbbaa35c2e6c5f98b69767ee876d9dc2fd53bf8150f718ac28833a4f5973e861",
+        "head_sha256": {
+          "head13": "adcd49804d5d6efa7d13eba1d6474a34f4aaac6fd027bd62c538c30fbb15c21c",
+          "head26": "cfccbfb1be3f78dddcc0e7d8795166152603222dc829ec2f5bade6079a2c6a5a"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_093.json",
+        "sha256": "2ff7de4b8ed9c8763a241eb0782e04abf824a1f3e84e610310e917fa91167c08",
+        "head_sha256": {
+          "head13": "6227b7f6203b0405422171ea482b59ba51b76d4bbc2f3605f10b3924e07b9784",
+          "head26": "9980a6d74ae280f87949688ff2306717b7587a72a36e79cded52cb57740994ea"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_094.json",
+        "sha256": "8450c71c6e31dd185090bdc2765337b74656d755b4c8ae6df6f44ac1dabc7276",
+        "head_sha256": {
+          "head13": "925fd86941870212021f05dbdcf2080c90c8f0dad3341325177d8a0de92d1102",
+          "head26": "14bc0b6fa710f1169a70f6ca1b6b4566c35ac033e518ab49e2518a451d111fe2"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_095.json",
+        "sha256": "a15238e4bfd4f71e3b0090b360386bc94b6734a455835b0e0f871e97a3d65c48",
+        "head_sha256": {
+          "head13": "2929e829443308a5ff3c47a2fb98cd6a50f2484dcaa6aa6714aa4ca33ef80802",
+          "head26": "909e8f7adb46abee2540f0da997c82011fbeedac1d94c0e783d724dfa234fbd6"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_096.json",
+        "sha256": "6a70f2a56a56cb14264f17554f096cb3a02ca271d24c7817191347328812938d",
+        "head_sha256": {
+          "head13": "c9a02f55c04564f6ff85831e96c235c57e97da1dcaf969a77b3c3e371c8bd724",
+          "head26": "6e131a17fdd65f059032018e583fdaeb1a0c98a33382d429f5f71f2423815e62"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_097.json",
+        "sha256": "405354c6ec9922761fe620ae598f1ecfc5086d99f771a94839b7ed3b37fb53fc",
+        "head_sha256": {
+          "head13": "ff8b886400a26910b081c5ef8ba8a4e27714fd1e548591a855e6e5985fae0a67",
+          "head26": "a54c8a26c7a656f9883b782ec617edcd9faedc8bbdba4811d5e110a1dc22b030"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_098.json",
+        "sha256": "c7443004bede83153f7a8d6fc25edbf3244bb277de3c9c71eab917261022d802",
+        "head_sha256": {
+          "head13": "9ac97f88ba14c2cd85a0de380547c2f4c2378f07c211a35eda2e4364b6126f3d",
+          "head26": "800fcf8344c17a5bfb0f075a37897ce0425edddbbfd70e2c26ffdc07f3585758"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_099.json",
+        "sha256": "8afa4f885acab0ae6b201366d190e9614635d24e134fd33284e777918606e258",
+        "head_sha256": {
+          "head13": "7861a8b7da30125a50947c00b42fcb706fd1c9878f56c74e90f9c0ad39f3823b",
+          "head26": "af3868284df0e2fda280d4b86a31e27e663f4cc6f4ddfefef8aa16c31285c604"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_100.json",
+        "sha256": "bab7eead7b20a56c19130b74d0a7a9916c77bb94c0ef01d3fe51a30dde27e337",
+        "head_sha256": {
+          "head13": "0bbbb2d86ea72b60b5aed48d529a803a719e961491024a0dcb69e821eb21e2ea",
+          "head26": "da9487a4c7233986d11cd251e8ddad6ef7dd5b96dee207bbb72fc509fd25d1aa"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_101.json",
+        "sha256": "1758409e5792f921a43dfdda6c26580259b75e9098351172d7ca74c9e533533c",
+        "head_sha256": {
+          "head13": "125349d77d94335de829184fdce3c09d64005fc8c1d6b5841ef888872d76a0cf",
+          "head26": "30f7fea7aa29e1ab76f714959eaacefa7e98ef717119e09425a74e411cc75552"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_102.json",
+        "sha256": "50134439f67ef2af548118c5894ced52527ef439f64482c1af2e4fe469a64307",
+        "head_sha256": {
+          "head13": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+          "head26": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_103.json",
+        "sha256": "32b0e0513e1827a61aa710208b6d196daba6a6077a074df8b697a856a5c11f4f",
+        "head_sha256": {
+          "head13": "ff39af1cb055d361c12f950fb62e2758d01d323dc18fdf2b83243045df302976",
+          "head26": "0787ab1098e7bfed8564ca28214e699beee8b94813930887d4807a2beed71d28"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_104.json",
+        "sha256": "d89f33ae7b27cb1d0d4d9c873f8d0e5350eff55d7985f819e490c964037da3dc",
+        "head_sha256": {
+          "head13": "9cd99090af82173c884bbb61e500590c24db3038547fdfec5ff479544a351aa2",
+          "head26": "437dad41f079aa7617488048a3bdcd60aa3485e970e717ceb7737dc1b6b4cdf1"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_105.json",
+        "sha256": "cef7dd004cff2c25f8fbaf5ef27efeeaf44d97e20d894aa8c7c1d54d5b390410",
+        "head_sha256": {
+          "head13": "ae5d313c54b9686c5405f48da2c9828009b2b678b1d500c1250e5eaba7e615fb",
+          "head26": "ac15868ab8e8955c4f4d6f3ec16e871dee7e57fc79eb6d96a35afb971289cdc8"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_106.json",
+        "sha256": "eaf40d5741174c9fd1f47d43505a39dc446e304ec8d584b6cc8af855b7435bd2",
+        "head_sha256": {
+          "head13": "f7d86cd527da658172d1252fda52098fe8ec9d5146d4fb7705f4983899d70638",
+          "head26": "6271b1c45f1b80275c371e729b2bf59bc0d8a9d5c26674d8786f08a582ce5349"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_107.json",
+        "sha256": "247f10a00b072e01b5d19fed1adae4ad3c6d11949083015595f7577e289cfc63",
+        "head_sha256": {
+          "head13": "defdb2763bd181c1d2612284d984d2d5876ae248e57de564bdb6ebc03146c37f",
+          "head26": "425872ab51d50099f5461220e27f183f579d02ae39012d1708e451e84b46b2e1"
+        }
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_108.json",
+        "sha256": "3601f287a44c60aa9fb67d6279ed4a29223c35134d82f1c024b7d4ef520482d2",
+        "head_sha256": {
+          "head13": "2d7d91d43b1f95ac1f1fba0da3318e75d6acece09c6f2bac6eaaa483088aa56c",
+          "head26": "fbcb105ad5ae27a3fb4af7c5780211d7809a8f4033ddaaca67dfdfe0e6119bb5"
+        }
+      }
+    ],
+    "decoder_tool_sha256": "51b85573048107688ee870abbb3ebd1a18a07b039534bc39f7f6fbedd9e161bc",
+    "transport_tool_sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+    "decoder_source_sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+  },
+  "uart_replay": {
+    "rx_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_stress1000_then109_20261018_r02_deployment\\uart_rx_raw.bin",
+    "rx_bytes": 28255177,
+    "rx_sha256": "679f65a65d3481b846b14fdd87062918d697b6b7f88e06e4aac8ec2b30faf37d",
+    "tx_header_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_stress1000_then109_20261018_r02_deployment\\uart_tx_raw.bin",
+    "tx_header_bytes": 4440,
+    "tx_header_sha256": "dcf55f138eff86ea5a088ab5693316a6cd30faaa3eb17754cb5d0dda6aa5d296",
+    "tx_requests": 111,
+    "rx_responses": 1110,
+    "weights_responses": 1,
+    "stress_responses": 1000,
+    "corpus_responses": 109,
+    "run_responses": 1109,
+    "response_status_counts": {
+      "1024": 1,
+      "3588": 1109
+    },
+    "final_epoch": 1109,
+    "final_sequence": 111,
+    "banner_bytes": 235,
+    "banner_sha256": "ed1207485f2c6f1750f66f68ea70cc7c54bb86df2c14bf5b698910ecedc8ca69",
+    "all_response_offsets_and_lengths": [
+      {
+        "offset": 235,
+        "bytes": 80
+      },
+      {
+        "offset": 315,
+        "bytes": 25478
+      },
+      {
+        "offset": 25793,
+        "bytes": 25478
+      },
+      {
+        "offset": 51271,
+        "bytes": 25478
+      },
+      {
+        "offset": 76749,
+        "bytes": 25478
+      },
+      {
+        "offset": 102227,
+        "bytes": 25478
+      },
+      {
+        "offset": 127705,
+        "bytes": 25478
+      },
+      {
+        "offset": 153183,
+        "bytes": 25478
+      },
+      {
+        "offset": 178661,
+        "bytes": 25478
+      },
+      {
+        "offset": 204139,
+        "bytes": 25478
+      },
+      {
+        "offset": 229617,
+        "bytes": 25478
+      },
+      {
+        "offset": 255095,
+        "bytes": 25478
+      },
+      {
+        "offset": 280573,
+        "bytes": 25478
+      },
+      {
+        "offset": 306051,
+        "bytes": 25478
+      },
+      {
+        "offset": 331529,
+        "bytes": 25478
+      },
+      {
+        "offset": 357007,
+        "bytes": 25478
+      },
+      {
+        "offset": 382485,
+        "bytes": 25478
+      },
+      {
+        "offset": 407963,
+        "bytes": 25478
+      },
+      {
+        "offset": 433441,
+        "bytes": 25478
+      },
+      {
+        "offset": 458919,
+        "bytes": 25478
+      },
+      {
+        "offset": 484397,
+        "bytes": 25478
+      },
+      {
+        "offset": 509875,
+        "bytes": 25478
+      },
+      {
+        "offset": 535353,
+        "bytes": 25478
+      },
+      {
+        "offset": 560831,
+        "bytes": 25478
+      },
+      {
+        "offset": 586309,
+        "bytes": 25478
+      },
+      {
+        "offset": 611787,
+        "bytes": 25478
+      },
+      {
+        "offset": 637265,
+        "bytes": 25478
+      },
+      {
+        "offset": 662743,
+        "bytes": 25478
+      },
+      {
+        "offset": 688221,
+        "bytes": 25478
+      },
+      {
+        "offset": 713699,
+        "bytes": 25478
+      },
+      {
+        "offset": 739177,
+        "bytes": 25478
+      },
+      {
+        "offset": 764655,
+        "bytes": 25478
+      },
+      {
+        "offset": 790133,
+        "bytes": 25478
+      },
+      {
+        "offset": 815611,
+        "bytes": 25478
+      },
+      {
+        "offset": 841089,
+        "bytes": 25478
+      },
+      {
+        "offset": 866567,
+        "bytes": 25478
+      },
+      {
+        "offset": 892045,
+        "bytes": 25478
+      },
+      {
+        "offset": 917523,
+        "bytes": 25478
+      },
+      {
+        "offset": 943001,
+        "bytes": 25478
+      },
+      {
+        "offset": 968479,
+        "bytes": 25478
+      },
+      {
+        "offset": 993957,
+        "bytes": 25478
+      },
+      {
+        "offset": 1019435,
+        "bytes": 25478
+      },
+      {
+        "offset": 1044913,
+        "bytes": 25478
+      },
+      {
+        "offset": 1070391,
+        "bytes": 25478
+      },
+      {
+        "offset": 1095869,
+        "bytes": 25478
+      },
+      {
+        "offset": 1121347,
+        "bytes": 25478
+      },
+      {
+        "offset": 1146825,
+        "bytes": 25478
+      },
+      {
+        "offset": 1172303,
+        "bytes": 25478
+      },
+      {
+        "offset": 1197781,
+        "bytes": 25478
+      },
+      {
+        "offset": 1223259,
+        "bytes": 25478
+      },
+      {
+        "offset": 1248737,
+        "bytes": 25478
+      },
+      {
+        "offset": 1274215,
+        "bytes": 25478
+      },
+      {
+        "offset": 1299693,
+        "bytes": 25478
+      },
+      {
+        "offset": 1325171,
+        "bytes": 25478
+      },
+      {
+        "offset": 1350649,
+        "bytes": 25478
+      },
+      {
+        "offset": 1376127,
+        "bytes": 25478
+      },
+      {
+        "offset": 1401605,
+        "bytes": 25478
+      },
+      {
+        "offset": 1427083,
+        "bytes": 25478
+      },
+      {
+        "offset": 1452561,
+        "bytes": 25478
+      },
+      {
+        "offset": 1478039,
+        "bytes": 25478
+      },
+      {
+        "offset": 1503517,
+        "bytes": 25478
+      },
+      {
+        "offset": 1528995,
+        "bytes": 25478
+      },
+      {
+        "offset": 1554473,
+        "bytes": 25478
+      },
+      {
+        "offset": 1579951,
+        "bytes": 25478
+      },
+      {
+        "offset": 1605429,
+        "bytes": 25478
+      },
+      {
+        "offset": 1630907,
+        "bytes": 25478
+      },
+      {
+        "offset": 1656385,
+        "bytes": 25478
+      },
+      {
+        "offset": 1681863,
+        "bytes": 25478
+      },
+      {
+        "offset": 1707341,
+        "bytes": 25478
+      },
+      {
+        "offset": 1732819,
+        "bytes": 25478
+      },
+      {
+        "offset": 1758297,
+        "bytes": 25478
+      },
+      {
+        "offset": 1783775,
+        "bytes": 25478
+      },
+      {
+        "offset": 1809253,
+        "bytes": 25478
+      },
+      {
+        "offset": 1834731,
+        "bytes": 25478
+      },
+      {
+        "offset": 1860209,
+        "bytes": 25478
+      },
+      {
+        "offset": 1885687,
+        "bytes": 25478
+      },
+      {
+        "offset": 1911165,
+        "bytes": 25478
+      },
+      {
+        "offset": 1936643,
+        "bytes": 25478
+      },
+      {
+        "offset": 1962121,
+        "bytes": 25478
+      },
+      {
+        "offset": 1987599,
+        "bytes": 25478
+      },
+      {
+        "offset": 2013077,
+        "bytes": 25478
+      },
+      {
+        "offset": 2038555,
+        "bytes": 25478
+      },
+      {
+        "offset": 2064033,
+        "bytes": 25478
+      },
+      {
+        "offset": 2089511,
+        "bytes": 25478
+      },
+      {
+        "offset": 2114989,
+        "bytes": 25478
+      },
+      {
+        "offset": 2140467,
+        "bytes": 25478
+      },
+      {
+        "offset": 2165945,
+        "bytes": 25478
+      },
+      {
+        "offset": 2191423,
+        "bytes": 25478
+      },
+      {
+        "offset": 2216901,
+        "bytes": 25478
+      },
+      {
+        "offset": 2242379,
+        "bytes": 25478
+      },
+      {
+        "offset": 2267857,
+        "bytes": 25478
+      },
+      {
+        "offset": 2293335,
+        "bytes": 25478
+      },
+      {
+        "offset": 2318813,
+        "bytes": 25478
+      },
+      {
+        "offset": 2344291,
+        "bytes": 25478
+      },
+      {
+        "offset": 2369769,
+        "bytes": 25478
+      },
+      {
+        "offset": 2395247,
+        "bytes": 25478
+      },
+      {
+        "offset": 2420725,
+        "bytes": 25478
+      },
+      {
+        "offset": 2446203,
+        "bytes": 25478
+      },
+      {
+        "offset": 2471681,
+        "bytes": 25478
+      },
+      {
+        "offset": 2497159,
+        "bytes": 25478
+      },
+      {
+        "offset": 2522637,
+        "bytes": 25478
+      },
+      {
+        "offset": 2548115,
+        "bytes": 25478
+      },
+      {
+        "offset": 2573593,
+        "bytes": 25478
+      },
+      {
+        "offset": 2599071,
+        "bytes": 25478
+      },
+      {
+        "offset": 2624549,
+        "bytes": 25478
+      },
+      {
+        "offset": 2650027,
+        "bytes": 25478
+      },
+      {
+        "offset": 2675505,
+        "bytes": 25478
+      },
+      {
+        "offset": 2700983,
+        "bytes": 25478
+      },
+      {
+        "offset": 2726461,
+        "bytes": 25478
+      },
+      {
+        "offset": 2751939,
+        "bytes": 25478
+      },
+      {
+        "offset": 2777417,
+        "bytes": 25478
+      },
+      {
+        "offset": 2802895,
+        "bytes": 25478
+      },
+      {
+        "offset": 2828373,
+        "bytes": 25478
+      },
+      {
+        "offset": 2853851,
+        "bytes": 25478
+      },
+      {
+        "offset": 2879329,
+        "bytes": 25478
+      },
+      {
+        "offset": 2904807,
+        "bytes": 25478
+      },
+      {
+        "offset": 2930285,
+        "bytes": 25478
+      },
+      {
+        "offset": 2955763,
+        "bytes": 25478
+      },
+      {
+        "offset": 2981241,
+        "bytes": 25478
+      },
+      {
+        "offset": 3006719,
+        "bytes": 25478
+      },
+      {
+        "offset": 3032197,
+        "bytes": 25478
+      },
+      {
+        "offset": 3057675,
+        "bytes": 25478
+      },
+      {
+        "offset": 3083153,
+        "bytes": 25478
+      },
+      {
+        "offset": 3108631,
+        "bytes": 25478
+      },
+      {
+        "offset": 3134109,
+        "bytes": 25478
+      },
+      {
+        "offset": 3159587,
+        "bytes": 25478
+      },
+      {
+        "offset": 3185065,
+        "bytes": 25478
+      },
+      {
+        "offset": 3210543,
+        "bytes": 25478
+      },
+      {
+        "offset": 3236021,
+        "bytes": 25478
+      },
+      {
+        "offset": 3261499,
+        "bytes": 25478
+      },
+      {
+        "offset": 3286977,
+        "bytes": 25478
+      },
+      {
+        "offset": 3312455,
+        "bytes": 25478
+      },
+      {
+        "offset": 3337933,
+        "bytes": 25478
+      },
+      {
+        "offset": 3363411,
+        "bytes": 25478
+      },
+      {
+        "offset": 3388889,
+        "bytes": 25478
+      },
+      {
+        "offset": 3414367,
+        "bytes": 25478
+      },
+      {
+        "offset": 3439845,
+        "bytes": 25478
+      },
+      {
+        "offset": 3465323,
+        "bytes": 25478
+      },
+      {
+        "offset": 3490801,
+        "bytes": 25478
+      },
+      {
+        "offset": 3516279,
+        "bytes": 25478
+      },
+      {
+        "offset": 3541757,
+        "bytes": 25478
+      },
+      {
+        "offset": 3567235,
+        "bytes": 25478
+      },
+      {
+        "offset": 3592713,
+        "bytes": 25478
+      },
+      {
+        "offset": 3618191,
+        "bytes": 25478
+      },
+      {
+        "offset": 3643669,
+        "bytes": 25478
+      },
+      {
+        "offset": 3669147,
+        "bytes": 25478
+      },
+      {
+        "offset": 3694625,
+        "bytes": 25478
+      },
+      {
+        "offset": 3720103,
+        "bytes": 25478
+      },
+      {
+        "offset": 3745581,
+        "bytes": 25478
+      },
+      {
+        "offset": 3771059,
+        "bytes": 25478
+      },
+      {
+        "offset": 3796537,
+        "bytes": 25478
+      },
+      {
+        "offset": 3822015,
+        "bytes": 25478
+      },
+      {
+        "offset": 3847493,
+        "bytes": 25478
+      },
+      {
+        "offset": 3872971,
+        "bytes": 25478
+      },
+      {
+        "offset": 3898449,
+        "bytes": 25478
+      },
+      {
+        "offset": 3923927,
+        "bytes": 25478
+      },
+      {
+        "offset": 3949405,
+        "bytes": 25478
+      },
+      {
+        "offset": 3974883,
+        "bytes": 25478
+      },
+      {
+        "offset": 4000361,
+        "bytes": 25478
+      },
+      {
+        "offset": 4025839,
+        "bytes": 25478
+      },
+      {
+        "offset": 4051317,
+        "bytes": 25478
+      },
+      {
+        "offset": 4076795,
+        "bytes": 25478
+      },
+      {
+        "offset": 4102273,
+        "bytes": 25478
+      },
+      {
+        "offset": 4127751,
+        "bytes": 25478
+      },
+      {
+        "offset": 4153229,
+        "bytes": 25478
+      },
+      {
+        "offset": 4178707,
+        "bytes": 25478
+      },
+      {
+        "offset": 4204185,
+        "bytes": 25478
+      },
+      {
+        "offset": 4229663,
+        "bytes": 25478
+      },
+      {
+        "offset": 4255141,
+        "bytes": 25478
+      },
+      {
+        "offset": 4280619,
+        "bytes": 25478
+      },
+      {
+        "offset": 4306097,
+        "bytes": 25478
+      },
+      {
+        "offset": 4331575,
+        "bytes": 25478
+      },
+      {
+        "offset": 4357053,
+        "bytes": 25478
+      },
+      {
+        "offset": 4382531,
+        "bytes": 25478
+      },
+      {
+        "offset": 4408009,
+        "bytes": 25478
+      },
+      {
+        "offset": 4433487,
+        "bytes": 25478
+      },
+      {
+        "offset": 4458965,
+        "bytes": 25478
+      },
+      {
+        "offset": 4484443,
+        "bytes": 25478
+      },
+      {
+        "offset": 4509921,
+        "bytes": 25478
+      },
+      {
+        "offset": 4535399,
+        "bytes": 25478
+      },
+      {
+        "offset": 4560877,
+        "bytes": 25478
+      },
+      {
+        "offset": 4586355,
+        "bytes": 25478
+      },
+      {
+        "offset": 4611833,
+        "bytes": 25478
+      },
+      {
+        "offset": 4637311,
+        "bytes": 25478
+      },
+      {
+        "offset": 4662789,
+        "bytes": 25478
+      },
+      {
+        "offset": 4688267,
+        "bytes": 25478
+      },
+      {
+        "offset": 4713745,
+        "bytes": 25478
+      },
+      {
+        "offset": 4739223,
+        "bytes": 25478
+      },
+      {
+        "offset": 4764701,
+        "bytes": 25478
+      },
+      {
+        "offset": 4790179,
+        "bytes": 25478
+      },
+      {
+        "offset": 4815657,
+        "bytes": 25478
+      },
+      {
+        "offset": 4841135,
+        "bytes": 25478
+      },
+      {
+        "offset": 4866613,
+        "bytes": 25478
+      },
+      {
+        "offset": 4892091,
+        "bytes": 25478
+      },
+      {
+        "offset": 4917569,
+        "bytes": 25478
+      },
+      {
+        "offset": 4943047,
+        "bytes": 25478
+      },
+      {
+        "offset": 4968525,
+        "bytes": 25478
+      },
+      {
+        "offset": 4994003,
+        "bytes": 25478
+      },
+      {
+        "offset": 5019481,
+        "bytes": 25478
+      },
+      {
+        "offset": 5044959,
+        "bytes": 25478
+      },
+      {
+        "offset": 5070437,
+        "bytes": 25478
+      },
+      {
+        "offset": 5095915,
+        "bytes": 25478
+      },
+      {
+        "offset": 5121393,
+        "bytes": 25478
+      },
+      {
+        "offset": 5146871,
+        "bytes": 25478
+      },
+      {
+        "offset": 5172349,
+        "bytes": 25478
+      },
+      {
+        "offset": 5197827,
+        "bytes": 25478
+      },
+      {
+        "offset": 5223305,
+        "bytes": 25478
+      },
+      {
+        "offset": 5248783,
+        "bytes": 25478
+      },
+      {
+        "offset": 5274261,
+        "bytes": 25478
+      },
+      {
+        "offset": 5299739,
+        "bytes": 25478
+      },
+      {
+        "offset": 5325217,
+        "bytes": 25478
+      },
+      {
+        "offset": 5350695,
+        "bytes": 25478
+      },
+      {
+        "offset": 5376173,
+        "bytes": 25478
+      },
+      {
+        "offset": 5401651,
+        "bytes": 25478
+      },
+      {
+        "offset": 5427129,
+        "bytes": 25478
+      },
+      {
+        "offset": 5452607,
+        "bytes": 25478
+      },
+      {
+        "offset": 5478085,
+        "bytes": 25478
+      },
+      {
+        "offset": 5503563,
+        "bytes": 25478
+      },
+      {
+        "offset": 5529041,
+        "bytes": 25478
+      },
+      {
+        "offset": 5554519,
+        "bytes": 25478
+      },
+      {
+        "offset": 5579997,
+        "bytes": 25478
+      },
+      {
+        "offset": 5605475,
+        "bytes": 25478
+      },
+      {
+        "offset": 5630953,
+        "bytes": 25478
+      },
+      {
+        "offset": 5656431,
+        "bytes": 25478
+      },
+      {
+        "offset": 5681909,
+        "bytes": 25478
+      },
+      {
+        "offset": 5707387,
+        "bytes": 25478
+      },
+      {
+        "offset": 5732865,
+        "bytes": 25478
+      },
+      {
+        "offset": 5758343,
+        "bytes": 25478
+      },
+      {
+        "offset": 5783821,
+        "bytes": 25478
+      },
+      {
+        "offset": 5809299,
+        "bytes": 25478
+      },
+      {
+        "offset": 5834777,
+        "bytes": 25478
+      },
+      {
+        "offset": 5860255,
+        "bytes": 25478
+      },
+      {
+        "offset": 5885733,
+        "bytes": 25478
+      },
+      {
+        "offset": 5911211,
+        "bytes": 25478
+      },
+      {
+        "offset": 5936689,
+        "bytes": 25478
+      },
+      {
+        "offset": 5962167,
+        "bytes": 25478
+      },
+      {
+        "offset": 5987645,
+        "bytes": 25478
+      },
+      {
+        "offset": 6013123,
+        "bytes": 25478
+      },
+      {
+        "offset": 6038601,
+        "bytes": 25478
+      },
+      {
+        "offset": 6064079,
+        "bytes": 25478
+      },
+      {
+        "offset": 6089557,
+        "bytes": 25478
+      },
+      {
+        "offset": 6115035,
+        "bytes": 25478
+      },
+      {
+        "offset": 6140513,
+        "bytes": 25478
+      },
+      {
+        "offset": 6165991,
+        "bytes": 25478
+      },
+      {
+        "offset": 6191469,
+        "bytes": 25478
+      },
+      {
+        "offset": 6216947,
+        "bytes": 25478
+      },
+      {
+        "offset": 6242425,
+        "bytes": 25478
+      },
+      {
+        "offset": 6267903,
+        "bytes": 25478
+      },
+      {
+        "offset": 6293381,
+        "bytes": 25478
+      },
+      {
+        "offset": 6318859,
+        "bytes": 25478
+      },
+      {
+        "offset": 6344337,
+        "bytes": 25478
+      },
+      {
+        "offset": 6369815,
+        "bytes": 25478
+      },
+      {
+        "offset": 6395293,
+        "bytes": 25478
+      },
+      {
+        "offset": 6420771,
+        "bytes": 25478
+      },
+      {
+        "offset": 6446249,
+        "bytes": 25478
+      },
+      {
+        "offset": 6471727,
+        "bytes": 25478
+      },
+      {
+        "offset": 6497205,
+        "bytes": 25478
+      },
+      {
+        "offset": 6522683,
+        "bytes": 25478
+      },
+      {
+        "offset": 6548161,
+        "bytes": 25478
+      },
+      {
+        "offset": 6573639,
+        "bytes": 25478
+      },
+      {
+        "offset": 6599117,
+        "bytes": 25478
+      },
+      {
+        "offset": 6624595,
+        "bytes": 25478
+      },
+      {
+        "offset": 6650073,
+        "bytes": 25478
+      },
+      {
+        "offset": 6675551,
+        "bytes": 25478
+      },
+      {
+        "offset": 6701029,
+        "bytes": 25478
+      },
+      {
+        "offset": 6726507,
+        "bytes": 25478
+      },
+      {
+        "offset": 6751985,
+        "bytes": 25478
+      },
+      {
+        "offset": 6777463,
+        "bytes": 25478
+      },
+      {
+        "offset": 6802941,
+        "bytes": 25478
+      },
+      {
+        "offset": 6828419,
+        "bytes": 25478
+      },
+      {
+        "offset": 6853897,
+        "bytes": 25478
+      },
+      {
+        "offset": 6879375,
+        "bytes": 25478
+      },
+      {
+        "offset": 6904853,
+        "bytes": 25478
+      },
+      {
+        "offset": 6930331,
+        "bytes": 25478
+      },
+      {
+        "offset": 6955809,
+        "bytes": 25478
+      },
+      {
+        "offset": 6981287,
+        "bytes": 25478
+      },
+      {
+        "offset": 7006765,
+        "bytes": 25478
+      },
+      {
+        "offset": 7032243,
+        "bytes": 25478
+      },
+      {
+        "offset": 7057721,
+        "bytes": 25478
+      },
+      {
+        "offset": 7083199,
+        "bytes": 25478
+      },
+      {
+        "offset": 7108677,
+        "bytes": 25478
+      },
+      {
+        "offset": 7134155,
+        "bytes": 25478
+      },
+      {
+        "offset": 7159633,
+        "bytes": 25478
+      },
+      {
+        "offset": 7185111,
+        "bytes": 25478
+      },
+      {
+        "offset": 7210589,
+        "bytes": 25478
+      },
+      {
+        "offset": 7236067,
+        "bytes": 25478
+      },
+      {
+        "offset": 7261545,
+        "bytes": 25478
+      },
+      {
+        "offset": 7287023,
+        "bytes": 25478
+      },
+      {
+        "offset": 7312501,
+        "bytes": 25478
+      },
+      {
+        "offset": 7337979,
+        "bytes": 25478
+      },
+      {
+        "offset": 7363457,
+        "bytes": 25478
+      },
+      {
+        "offset": 7388935,
+        "bytes": 25478
+      },
+      {
+        "offset": 7414413,
+        "bytes": 25478
+      },
+      {
+        "offset": 7439891,
+        "bytes": 25478
+      },
+      {
+        "offset": 7465369,
+        "bytes": 25478
+      },
+      {
+        "offset": 7490847,
+        "bytes": 25478
+      },
+      {
+        "offset": 7516325,
+        "bytes": 25478
+      },
+      {
+        "offset": 7541803,
+        "bytes": 25478
+      },
+      {
+        "offset": 7567281,
+        "bytes": 25478
+      },
+      {
+        "offset": 7592759,
+        "bytes": 25478
+      },
+      {
+        "offset": 7618237,
+        "bytes": 25478
+      },
+      {
+        "offset": 7643715,
+        "bytes": 25478
+      },
+      {
+        "offset": 7669193,
+        "bytes": 25478
+      },
+      {
+        "offset": 7694671,
+        "bytes": 25478
+      },
+      {
+        "offset": 7720149,
+        "bytes": 25478
+      },
+      {
+        "offset": 7745627,
+        "bytes": 25478
+      },
+      {
+        "offset": 7771105,
+        "bytes": 25478
+      },
+      {
+        "offset": 7796583,
+        "bytes": 25478
+      },
+      {
+        "offset": 7822061,
+        "bytes": 25478
+      },
+      {
+        "offset": 7847539,
+        "bytes": 25478
+      },
+      {
+        "offset": 7873017,
+        "bytes": 25478
+      },
+      {
+        "offset": 7898495,
+        "bytes": 25478
+      },
+      {
+        "offset": 7923973,
+        "bytes": 25478
+      },
+      {
+        "offset": 7949451,
+        "bytes": 25478
+      },
+      {
+        "offset": 7974929,
+        "bytes": 25478
+      },
+      {
+        "offset": 8000407,
+        "bytes": 25478
+      },
+      {
+        "offset": 8025885,
+        "bytes": 25478
+      },
+      {
+        "offset": 8051363,
+        "bytes": 25478
+      },
+      {
+        "offset": 8076841,
+        "bytes": 25478
+      },
+      {
+        "offset": 8102319,
+        "bytes": 25478
+      },
+      {
+        "offset": 8127797,
+        "bytes": 25478
+      },
+      {
+        "offset": 8153275,
+        "bytes": 25478
+      },
+      {
+        "offset": 8178753,
+        "bytes": 25478
+      },
+      {
+        "offset": 8204231,
+        "bytes": 25478
+      },
+      {
+        "offset": 8229709,
+        "bytes": 25478
+      },
+      {
+        "offset": 8255187,
+        "bytes": 25478
+      },
+      {
+        "offset": 8280665,
+        "bytes": 25478
+      },
+      {
+        "offset": 8306143,
+        "bytes": 25478
+      },
+      {
+        "offset": 8331621,
+        "bytes": 25478
+      },
+      {
+        "offset": 8357099,
+        "bytes": 25478
+      },
+      {
+        "offset": 8382577,
+        "bytes": 25478
+      },
+      {
+        "offset": 8408055,
+        "bytes": 25478
+      },
+      {
+        "offset": 8433533,
+        "bytes": 25478
+      },
+      {
+        "offset": 8459011,
+        "bytes": 25478
+      },
+      {
+        "offset": 8484489,
+        "bytes": 25478
+      },
+      {
+        "offset": 8509967,
+        "bytes": 25478
+      },
+      {
+        "offset": 8535445,
+        "bytes": 25478
+      },
+      {
+        "offset": 8560923,
+        "bytes": 25478
+      },
+      {
+        "offset": 8586401,
+        "bytes": 25478
+      },
+      {
+        "offset": 8611879,
+        "bytes": 25478
+      },
+      {
+        "offset": 8637357,
+        "bytes": 25478
+      },
+      {
+        "offset": 8662835,
+        "bytes": 25478
+      },
+      {
+        "offset": 8688313,
+        "bytes": 25478
+      },
+      {
+        "offset": 8713791,
+        "bytes": 25478
+      },
+      {
+        "offset": 8739269,
+        "bytes": 25478
+      },
+      {
+        "offset": 8764747,
+        "bytes": 25478
+      },
+      {
+        "offset": 8790225,
+        "bytes": 25478
+      },
+      {
+        "offset": 8815703,
+        "bytes": 25478
+      },
+      {
+        "offset": 8841181,
+        "bytes": 25478
+      },
+      {
+        "offset": 8866659,
+        "bytes": 25478
+      },
+      {
+        "offset": 8892137,
+        "bytes": 25478
+      },
+      {
+        "offset": 8917615,
+        "bytes": 25478
+      },
+      {
+        "offset": 8943093,
+        "bytes": 25478
+      },
+      {
+        "offset": 8968571,
+        "bytes": 25478
+      },
+      {
+        "offset": 8994049,
+        "bytes": 25478
+      },
+      {
+        "offset": 9019527,
+        "bytes": 25478
+      },
+      {
+        "offset": 9045005,
+        "bytes": 25478
+      },
+      {
+        "offset": 9070483,
+        "bytes": 25478
+      },
+      {
+        "offset": 9095961,
+        "bytes": 25478
+      },
+      {
+        "offset": 9121439,
+        "bytes": 25478
+      },
+      {
+        "offset": 9146917,
+        "bytes": 25478
+      },
+      {
+        "offset": 9172395,
+        "bytes": 25478
+      },
+      {
+        "offset": 9197873,
+        "bytes": 25478
+      },
+      {
+        "offset": 9223351,
+        "bytes": 25478
+      },
+      {
+        "offset": 9248829,
+        "bytes": 25478
+      },
+      {
+        "offset": 9274307,
+        "bytes": 25478
+      },
+      {
+        "offset": 9299785,
+        "bytes": 25478
+      },
+      {
+        "offset": 9325263,
+        "bytes": 25478
+      },
+      {
+        "offset": 9350741,
+        "bytes": 25478
+      },
+      {
+        "offset": 9376219,
+        "bytes": 25478
+      },
+      {
+        "offset": 9401697,
+        "bytes": 25478
+      },
+      {
+        "offset": 9427175,
+        "bytes": 25478
+      },
+      {
+        "offset": 9452653,
+        "bytes": 25478
+      },
+      {
+        "offset": 9478131,
+        "bytes": 25478
+      },
+      {
+        "offset": 9503609,
+        "bytes": 25478
+      },
+      {
+        "offset": 9529087,
+        "bytes": 25478
+      },
+      {
+        "offset": 9554565,
+        "bytes": 25478
+      },
+      {
+        "offset": 9580043,
+        "bytes": 25478
+      },
+      {
+        "offset": 9605521,
+        "bytes": 25478
+      },
+      {
+        "offset": 9630999,
+        "bytes": 25478
+      },
+      {
+        "offset": 9656477,
+        "bytes": 25478
+      },
+      {
+        "offset": 9681955,
+        "bytes": 25478
+      },
+      {
+        "offset": 9707433,
+        "bytes": 25478
+      },
+      {
+        "offset": 9732911,
+        "bytes": 25478
+      },
+      {
+        "offset": 9758389,
+        "bytes": 25478
+      },
+      {
+        "offset": 9783867,
+        "bytes": 25478
+      },
+      {
+        "offset": 9809345,
+        "bytes": 25478
+      },
+      {
+        "offset": 9834823,
+        "bytes": 25478
+      },
+      {
+        "offset": 9860301,
+        "bytes": 25478
+      },
+      {
+        "offset": 9885779,
+        "bytes": 25478
+      },
+      {
+        "offset": 9911257,
+        "bytes": 25478
+      },
+      {
+        "offset": 9936735,
+        "bytes": 25478
+      },
+      {
+        "offset": 9962213,
+        "bytes": 25478
+      },
+      {
+        "offset": 9987691,
+        "bytes": 25478
+      },
+      {
+        "offset": 10013169,
+        "bytes": 25478
+      },
+      {
+        "offset": 10038647,
+        "bytes": 25478
+      },
+      {
+        "offset": 10064125,
+        "bytes": 25478
+      },
+      {
+        "offset": 10089603,
+        "bytes": 25478
+      },
+      {
+        "offset": 10115081,
+        "bytes": 25478
+      },
+      {
+        "offset": 10140559,
+        "bytes": 25478
+      },
+      {
+        "offset": 10166037,
+        "bytes": 25478
+      },
+      {
+        "offset": 10191515,
+        "bytes": 25478
+      },
+      {
+        "offset": 10216993,
+        "bytes": 25478
+      },
+      {
+        "offset": 10242471,
+        "bytes": 25478
+      },
+      {
+        "offset": 10267949,
+        "bytes": 25478
+      },
+      {
+        "offset": 10293427,
+        "bytes": 25478
+      },
+      {
+        "offset": 10318905,
+        "bytes": 25478
+      },
+      {
+        "offset": 10344383,
+        "bytes": 25478
+      },
+      {
+        "offset": 10369861,
+        "bytes": 25478
+      },
+      {
+        "offset": 10395339,
+        "bytes": 25478
+      },
+      {
+        "offset": 10420817,
+        "bytes": 25478
+      },
+      {
+        "offset": 10446295,
+        "bytes": 25478
+      },
+      {
+        "offset": 10471773,
+        "bytes": 25478
+      },
+      {
+        "offset": 10497251,
+        "bytes": 25478
+      },
+      {
+        "offset": 10522729,
+        "bytes": 25478
+      },
+      {
+        "offset": 10548207,
+        "bytes": 25478
+      },
+      {
+        "offset": 10573685,
+        "bytes": 25478
+      },
+      {
+        "offset": 10599163,
+        "bytes": 25478
+      },
+      {
+        "offset": 10624641,
+        "bytes": 25478
+      },
+      {
+        "offset": 10650119,
+        "bytes": 25478
+      },
+      {
+        "offset": 10675597,
+        "bytes": 25478
+      },
+      {
+        "offset": 10701075,
+        "bytes": 25478
+      },
+      {
+        "offset": 10726553,
+        "bytes": 25478
+      },
+      {
+        "offset": 10752031,
+        "bytes": 25478
+      },
+      {
+        "offset": 10777509,
+        "bytes": 25478
+      },
+      {
+        "offset": 10802987,
+        "bytes": 25478
+      },
+      {
+        "offset": 10828465,
+        "bytes": 25478
+      },
+      {
+        "offset": 10853943,
+        "bytes": 25478
+      },
+      {
+        "offset": 10879421,
+        "bytes": 25478
+      },
+      {
+        "offset": 10904899,
+        "bytes": 25478
+      },
+      {
+        "offset": 10930377,
+        "bytes": 25478
+      },
+      {
+        "offset": 10955855,
+        "bytes": 25478
+      },
+      {
+        "offset": 10981333,
+        "bytes": 25478
+      },
+      {
+        "offset": 11006811,
+        "bytes": 25478
+      },
+      {
+        "offset": 11032289,
+        "bytes": 25478
+      },
+      {
+        "offset": 11057767,
+        "bytes": 25478
+      },
+      {
+        "offset": 11083245,
+        "bytes": 25478
+      },
+      {
+        "offset": 11108723,
+        "bytes": 25478
+      },
+      {
+        "offset": 11134201,
+        "bytes": 25478
+      },
+      {
+        "offset": 11159679,
+        "bytes": 25478
+      },
+      {
+        "offset": 11185157,
+        "bytes": 25478
+      },
+      {
+        "offset": 11210635,
+        "bytes": 25478
+      },
+      {
+        "offset": 11236113,
+        "bytes": 25478
+      },
+      {
+        "offset": 11261591,
+        "bytes": 25478
+      },
+      {
+        "offset": 11287069,
+        "bytes": 25478
+      },
+      {
+        "offset": 11312547,
+        "bytes": 25478
+      },
+      {
+        "offset": 11338025,
+        "bytes": 25478
+      },
+      {
+        "offset": 11363503,
+        "bytes": 25478
+      },
+      {
+        "offset": 11388981,
+        "bytes": 25478
+      },
+      {
+        "offset": 11414459,
+        "bytes": 25478
+      },
+      {
+        "offset": 11439937,
+        "bytes": 25478
+      },
+      {
+        "offset": 11465415,
+        "bytes": 25478
+      },
+      {
+        "offset": 11490893,
+        "bytes": 25478
+      },
+      {
+        "offset": 11516371,
+        "bytes": 25478
+      },
+      {
+        "offset": 11541849,
+        "bytes": 25478
+      },
+      {
+        "offset": 11567327,
+        "bytes": 25478
+      },
+      {
+        "offset": 11592805,
+        "bytes": 25478
+      },
+      {
+        "offset": 11618283,
+        "bytes": 25478
+      },
+      {
+        "offset": 11643761,
+        "bytes": 25478
+      },
+      {
+        "offset": 11669239,
+        "bytes": 25478
+      },
+      {
+        "offset": 11694717,
+        "bytes": 25478
+      },
+      {
+        "offset": 11720195,
+        "bytes": 25478
+      },
+      {
+        "offset": 11745673,
+        "bytes": 25478
+      },
+      {
+        "offset": 11771151,
+        "bytes": 25478
+      },
+      {
+        "offset": 11796629,
+        "bytes": 25478
+      },
+      {
+        "offset": 11822107,
+        "bytes": 25478
+      },
+      {
+        "offset": 11847585,
+        "bytes": 25478
+      },
+      {
+        "offset": 11873063,
+        "bytes": 25478
+      },
+      {
+        "offset": 11898541,
+        "bytes": 25478
+      },
+      {
+        "offset": 11924019,
+        "bytes": 25478
+      },
+      {
+        "offset": 11949497,
+        "bytes": 25478
+      },
+      {
+        "offset": 11974975,
+        "bytes": 25478
+      },
+      {
+        "offset": 12000453,
+        "bytes": 25478
+      },
+      {
+        "offset": 12025931,
+        "bytes": 25478
+      },
+      {
+        "offset": 12051409,
+        "bytes": 25478
+      },
+      {
+        "offset": 12076887,
+        "bytes": 25478
+      },
+      {
+        "offset": 12102365,
+        "bytes": 25478
+      },
+      {
+        "offset": 12127843,
+        "bytes": 25478
+      },
+      {
+        "offset": 12153321,
+        "bytes": 25478
+      },
+      {
+        "offset": 12178799,
+        "bytes": 25478
+      },
+      {
+        "offset": 12204277,
+        "bytes": 25478
+      },
+      {
+        "offset": 12229755,
+        "bytes": 25478
+      },
+      {
+        "offset": 12255233,
+        "bytes": 25478
+      },
+      {
+        "offset": 12280711,
+        "bytes": 25478
+      },
+      {
+        "offset": 12306189,
+        "bytes": 25478
+      },
+      {
+        "offset": 12331667,
+        "bytes": 25478
+      },
+      {
+        "offset": 12357145,
+        "bytes": 25478
+      },
+      {
+        "offset": 12382623,
+        "bytes": 25478
+      },
+      {
+        "offset": 12408101,
+        "bytes": 25478
+      },
+      {
+        "offset": 12433579,
+        "bytes": 25478
+      },
+      {
+        "offset": 12459057,
+        "bytes": 25478
+      },
+      {
+        "offset": 12484535,
+        "bytes": 25478
+      },
+      {
+        "offset": 12510013,
+        "bytes": 25478
+      },
+      {
+        "offset": 12535491,
+        "bytes": 25478
+      },
+      {
+        "offset": 12560969,
+        "bytes": 25478
+      },
+      {
+        "offset": 12586447,
+        "bytes": 25478
+      },
+      {
+        "offset": 12611925,
+        "bytes": 25478
+      },
+      {
+        "offset": 12637403,
+        "bytes": 25478
+      },
+      {
+        "offset": 12662881,
+        "bytes": 25478
+      },
+      {
+        "offset": 12688359,
+        "bytes": 25478
+      },
+      {
+        "offset": 12713837,
+        "bytes": 25478
+      },
+      {
+        "offset": 12739315,
+        "bytes": 25478
+      },
+      {
+        "offset": 12764793,
+        "bytes": 25478
+      },
+      {
+        "offset": 12790271,
+        "bytes": 25478
+      },
+      {
+        "offset": 12815749,
+        "bytes": 25478
+      },
+      {
+        "offset": 12841227,
+        "bytes": 25478
+      },
+      {
+        "offset": 12866705,
+        "bytes": 25478
+      },
+      {
+        "offset": 12892183,
+        "bytes": 25478
+      },
+      {
+        "offset": 12917661,
+        "bytes": 25478
+      },
+      {
+        "offset": 12943139,
+        "bytes": 25478
+      },
+      {
+        "offset": 12968617,
+        "bytes": 25478
+      },
+      {
+        "offset": 12994095,
+        "bytes": 25478
+      },
+      {
+        "offset": 13019573,
+        "bytes": 25478
+      },
+      {
+        "offset": 13045051,
+        "bytes": 25478
+      },
+      {
+        "offset": 13070529,
+        "bytes": 25478
+      },
+      {
+        "offset": 13096007,
+        "bytes": 25478
+      },
+      {
+        "offset": 13121485,
+        "bytes": 25478
+      },
+      {
+        "offset": 13146963,
+        "bytes": 25478
+      },
+      {
+        "offset": 13172441,
+        "bytes": 25478
+      },
+      {
+        "offset": 13197919,
+        "bytes": 25478
+      },
+      {
+        "offset": 13223397,
+        "bytes": 25478
+      },
+      {
+        "offset": 13248875,
+        "bytes": 25478
+      },
+      {
+        "offset": 13274353,
+        "bytes": 25478
+      },
+      {
+        "offset": 13299831,
+        "bytes": 25478
+      },
+      {
+        "offset": 13325309,
+        "bytes": 25478
+      },
+      {
+        "offset": 13350787,
+        "bytes": 25478
+      },
+      {
+        "offset": 13376265,
+        "bytes": 25478
+      },
+      {
+        "offset": 13401743,
+        "bytes": 25478
+      },
+      {
+        "offset": 13427221,
+        "bytes": 25478
+      },
+      {
+        "offset": 13452699,
+        "bytes": 25478
+      },
+      {
+        "offset": 13478177,
+        "bytes": 25478
+      },
+      {
+        "offset": 13503655,
+        "bytes": 25478
+      },
+      {
+        "offset": 13529133,
+        "bytes": 25478
+      },
+      {
+        "offset": 13554611,
+        "bytes": 25478
+      },
+      {
+        "offset": 13580089,
+        "bytes": 25478
+      },
+      {
+        "offset": 13605567,
+        "bytes": 25478
+      },
+      {
+        "offset": 13631045,
+        "bytes": 25478
+      },
+      {
+        "offset": 13656523,
+        "bytes": 25478
+      },
+      {
+        "offset": 13682001,
+        "bytes": 25478
+      },
+      {
+        "offset": 13707479,
+        "bytes": 25478
+      },
+      {
+        "offset": 13732957,
+        "bytes": 25478
+      },
+      {
+        "offset": 13758435,
+        "bytes": 25478
+      },
+      {
+        "offset": 13783913,
+        "bytes": 25478
+      },
+      {
+        "offset": 13809391,
+        "bytes": 25478
+      },
+      {
+        "offset": 13834869,
+        "bytes": 25478
+      },
+      {
+        "offset": 13860347,
+        "bytes": 25478
+      },
+      {
+        "offset": 13885825,
+        "bytes": 25478
+      },
+      {
+        "offset": 13911303,
+        "bytes": 25478
+      },
+      {
+        "offset": 13936781,
+        "bytes": 25478
+      },
+      {
+        "offset": 13962259,
+        "bytes": 25478
+      },
+      {
+        "offset": 13987737,
+        "bytes": 25478
+      },
+      {
+        "offset": 14013215,
+        "bytes": 25478
+      },
+      {
+        "offset": 14038693,
+        "bytes": 25478
+      },
+      {
+        "offset": 14064171,
+        "bytes": 25478
+      },
+      {
+        "offset": 14089649,
+        "bytes": 25478
+      },
+      {
+        "offset": 14115127,
+        "bytes": 25478
+      },
+      {
+        "offset": 14140605,
+        "bytes": 25478
+      },
+      {
+        "offset": 14166083,
+        "bytes": 25478
+      },
+      {
+        "offset": 14191561,
+        "bytes": 25478
+      },
+      {
+        "offset": 14217039,
+        "bytes": 25478
+      },
+      {
+        "offset": 14242517,
+        "bytes": 25478
+      },
+      {
+        "offset": 14267995,
+        "bytes": 25478
+      },
+      {
+        "offset": 14293473,
+        "bytes": 25478
+      },
+      {
+        "offset": 14318951,
+        "bytes": 25478
+      },
+      {
+        "offset": 14344429,
+        "bytes": 25478
+      },
+      {
+        "offset": 14369907,
+        "bytes": 25478
+      },
+      {
+        "offset": 14395385,
+        "bytes": 25478
+      },
+      {
+        "offset": 14420863,
+        "bytes": 25478
+      },
+      {
+        "offset": 14446341,
+        "bytes": 25478
+      },
+      {
+        "offset": 14471819,
+        "bytes": 25478
+      },
+      {
+        "offset": 14497297,
+        "bytes": 25478
+      },
+      {
+        "offset": 14522775,
+        "bytes": 25478
+      },
+      {
+        "offset": 14548253,
+        "bytes": 25478
+      },
+      {
+        "offset": 14573731,
+        "bytes": 25478
+      },
+      {
+        "offset": 14599209,
+        "bytes": 25478
+      },
+      {
+        "offset": 14624687,
+        "bytes": 25478
+      },
+      {
+        "offset": 14650165,
+        "bytes": 25478
+      },
+      {
+        "offset": 14675643,
+        "bytes": 25478
+      },
+      {
+        "offset": 14701121,
+        "bytes": 25478
+      },
+      {
+        "offset": 14726599,
+        "bytes": 25478
+      },
+      {
+        "offset": 14752077,
+        "bytes": 25478
+      },
+      {
+        "offset": 14777555,
+        "bytes": 25478
+      },
+      {
+        "offset": 14803033,
+        "bytes": 25478
+      },
+      {
+        "offset": 14828511,
+        "bytes": 25478
+      },
+      {
+        "offset": 14853989,
+        "bytes": 25478
+      },
+      {
+        "offset": 14879467,
+        "bytes": 25478
+      },
+      {
+        "offset": 14904945,
+        "bytes": 25478
+      },
+      {
+        "offset": 14930423,
+        "bytes": 25478
+      },
+      {
+        "offset": 14955901,
+        "bytes": 25478
+      },
+      {
+        "offset": 14981379,
+        "bytes": 25478
+      },
+      {
+        "offset": 15006857,
+        "bytes": 25478
+      },
+      {
+        "offset": 15032335,
+        "bytes": 25478
+      },
+      {
+        "offset": 15057813,
+        "bytes": 25478
+      },
+      {
+        "offset": 15083291,
+        "bytes": 25478
+      },
+      {
+        "offset": 15108769,
+        "bytes": 25478
+      },
+      {
+        "offset": 15134247,
+        "bytes": 25478
+      },
+      {
+        "offset": 15159725,
+        "bytes": 25478
+      },
+      {
+        "offset": 15185203,
+        "bytes": 25478
+      },
+      {
+        "offset": 15210681,
+        "bytes": 25478
+      },
+      {
+        "offset": 15236159,
+        "bytes": 25478
+      },
+      {
+        "offset": 15261637,
+        "bytes": 25478
+      },
+      {
+        "offset": 15287115,
+        "bytes": 25478
+      },
+      {
+        "offset": 15312593,
+        "bytes": 25478
+      },
+      {
+        "offset": 15338071,
+        "bytes": 25478
+      },
+      {
+        "offset": 15363549,
+        "bytes": 25478
+      },
+      {
+        "offset": 15389027,
+        "bytes": 25478
+      },
+      {
+        "offset": 15414505,
+        "bytes": 25478
+      },
+      {
+        "offset": 15439983,
+        "bytes": 25478
+      },
+      {
+        "offset": 15465461,
+        "bytes": 25478
+      },
+      {
+        "offset": 15490939,
+        "bytes": 25478
+      },
+      {
+        "offset": 15516417,
+        "bytes": 25478
+      },
+      {
+        "offset": 15541895,
+        "bytes": 25478
+      },
+      {
+        "offset": 15567373,
+        "bytes": 25478
+      },
+      {
+        "offset": 15592851,
+        "bytes": 25478
+      },
+      {
+        "offset": 15618329,
+        "bytes": 25478
+      },
+      {
+        "offset": 15643807,
+        "bytes": 25478
+      },
+      {
+        "offset": 15669285,
+        "bytes": 25478
+      },
+      {
+        "offset": 15694763,
+        "bytes": 25478
+      },
+      {
+        "offset": 15720241,
+        "bytes": 25478
+      },
+      {
+        "offset": 15745719,
+        "bytes": 25478
+      },
+      {
+        "offset": 15771197,
+        "bytes": 25478
+      },
+      {
+        "offset": 15796675,
+        "bytes": 25478
+      },
+      {
+        "offset": 15822153,
+        "bytes": 25478
+      },
+      {
+        "offset": 15847631,
+        "bytes": 25478
+      },
+      {
+        "offset": 15873109,
+        "bytes": 25478
+      },
+      {
+        "offset": 15898587,
+        "bytes": 25478
+      },
+      {
+        "offset": 15924065,
+        "bytes": 25478
+      },
+      {
+        "offset": 15949543,
+        "bytes": 25478
+      },
+      {
+        "offset": 15975021,
+        "bytes": 25478
+      },
+      {
+        "offset": 16000499,
+        "bytes": 25478
+      },
+      {
+        "offset": 16025977,
+        "bytes": 25478
+      },
+      {
+        "offset": 16051455,
+        "bytes": 25478
+      },
+      {
+        "offset": 16076933,
+        "bytes": 25478
+      },
+      {
+        "offset": 16102411,
+        "bytes": 25478
+      },
+      {
+        "offset": 16127889,
+        "bytes": 25478
+      },
+      {
+        "offset": 16153367,
+        "bytes": 25478
+      },
+      {
+        "offset": 16178845,
+        "bytes": 25478
+      },
+      {
+        "offset": 16204323,
+        "bytes": 25478
+      },
+      {
+        "offset": 16229801,
+        "bytes": 25478
+      },
+      {
+        "offset": 16255279,
+        "bytes": 25478
+      },
+      {
+        "offset": 16280757,
+        "bytes": 25478
+      },
+      {
+        "offset": 16306235,
+        "bytes": 25478
+      },
+      {
+        "offset": 16331713,
+        "bytes": 25478
+      },
+      {
+        "offset": 16357191,
+        "bytes": 25478
+      },
+      {
+        "offset": 16382669,
+        "bytes": 25478
+      },
+      {
+        "offset": 16408147,
+        "bytes": 25478
+      },
+      {
+        "offset": 16433625,
+        "bytes": 25478
+      },
+      {
+        "offset": 16459103,
+        "bytes": 25478
+      },
+      {
+        "offset": 16484581,
+        "bytes": 25478
+      },
+      {
+        "offset": 16510059,
+        "bytes": 25478
+      },
+      {
+        "offset": 16535537,
+        "bytes": 25478
+      },
+      {
+        "offset": 16561015,
+        "bytes": 25478
+      },
+      {
+        "offset": 16586493,
+        "bytes": 25478
+      },
+      {
+        "offset": 16611971,
+        "bytes": 25478
+      },
+      {
+        "offset": 16637449,
+        "bytes": 25478
+      },
+      {
+        "offset": 16662927,
+        "bytes": 25478
+      },
+      {
+        "offset": 16688405,
+        "bytes": 25478
+      },
+      {
+        "offset": 16713883,
+        "bytes": 25478
+      },
+      {
+        "offset": 16739361,
+        "bytes": 25478
+      },
+      {
+        "offset": 16764839,
+        "bytes": 25478
+      },
+      {
+        "offset": 16790317,
+        "bytes": 25478
+      },
+      {
+        "offset": 16815795,
+        "bytes": 25478
+      },
+      {
+        "offset": 16841273,
+        "bytes": 25478
+      },
+      {
+        "offset": 16866751,
+        "bytes": 25478
+      },
+      {
+        "offset": 16892229,
+        "bytes": 25478
+      },
+      {
+        "offset": 16917707,
+        "bytes": 25478
+      },
+      {
+        "offset": 16943185,
+        "bytes": 25478
+      },
+      {
+        "offset": 16968663,
+        "bytes": 25478
+      },
+      {
+        "offset": 16994141,
+        "bytes": 25478
+      },
+      {
+        "offset": 17019619,
+        "bytes": 25478
+      },
+      {
+        "offset": 17045097,
+        "bytes": 25478
+      },
+      {
+        "offset": 17070575,
+        "bytes": 25478
+      },
+      {
+        "offset": 17096053,
+        "bytes": 25478
+      },
+      {
+        "offset": 17121531,
+        "bytes": 25478
+      },
+      {
+        "offset": 17147009,
+        "bytes": 25478
+      },
+      {
+        "offset": 17172487,
+        "bytes": 25478
+      },
+      {
+        "offset": 17197965,
+        "bytes": 25478
+      },
+      {
+        "offset": 17223443,
+        "bytes": 25478
+      },
+      {
+        "offset": 17248921,
+        "bytes": 25478
+      },
+      {
+        "offset": 17274399,
+        "bytes": 25478
+      },
+      {
+        "offset": 17299877,
+        "bytes": 25478
+      },
+      {
+        "offset": 17325355,
+        "bytes": 25478
+      },
+      {
+        "offset": 17350833,
+        "bytes": 25478
+      },
+      {
+        "offset": 17376311,
+        "bytes": 25478
+      },
+      {
+        "offset": 17401789,
+        "bytes": 25478
+      },
+      {
+        "offset": 17427267,
+        "bytes": 25478
+      },
+      {
+        "offset": 17452745,
+        "bytes": 25478
+      },
+      {
+        "offset": 17478223,
+        "bytes": 25478
+      },
+      {
+        "offset": 17503701,
+        "bytes": 25478
+      },
+      {
+        "offset": 17529179,
+        "bytes": 25478
+      },
+      {
+        "offset": 17554657,
+        "bytes": 25478
+      },
+      {
+        "offset": 17580135,
+        "bytes": 25478
+      },
+      {
+        "offset": 17605613,
+        "bytes": 25478
+      },
+      {
+        "offset": 17631091,
+        "bytes": 25478
+      },
+      {
+        "offset": 17656569,
+        "bytes": 25478
+      },
+      {
+        "offset": 17682047,
+        "bytes": 25478
+      },
+      {
+        "offset": 17707525,
+        "bytes": 25478
+      },
+      {
+        "offset": 17733003,
+        "bytes": 25478
+      },
+      {
+        "offset": 17758481,
+        "bytes": 25478
+      },
+      {
+        "offset": 17783959,
+        "bytes": 25478
+      },
+      {
+        "offset": 17809437,
+        "bytes": 25478
+      },
+      {
+        "offset": 17834915,
+        "bytes": 25478
+      },
+      {
+        "offset": 17860393,
+        "bytes": 25478
+      },
+      {
+        "offset": 17885871,
+        "bytes": 25478
+      },
+      {
+        "offset": 17911349,
+        "bytes": 25478
+      },
+      {
+        "offset": 17936827,
+        "bytes": 25478
+      },
+      {
+        "offset": 17962305,
+        "bytes": 25478
+      },
+      {
+        "offset": 17987783,
+        "bytes": 25478
+      },
+      {
+        "offset": 18013261,
+        "bytes": 25478
+      },
+      {
+        "offset": 18038739,
+        "bytes": 25478
+      },
+      {
+        "offset": 18064217,
+        "bytes": 25478
+      },
+      {
+        "offset": 18089695,
+        "bytes": 25478
+      },
+      {
+        "offset": 18115173,
+        "bytes": 25478
+      },
+      {
+        "offset": 18140651,
+        "bytes": 25478
+      },
+      {
+        "offset": 18166129,
+        "bytes": 25478
+      },
+      {
+        "offset": 18191607,
+        "bytes": 25478
+      },
+      {
+        "offset": 18217085,
+        "bytes": 25478
+      },
+      {
+        "offset": 18242563,
+        "bytes": 25478
+      },
+      {
+        "offset": 18268041,
+        "bytes": 25478
+      },
+      {
+        "offset": 18293519,
+        "bytes": 25478
+      },
+      {
+        "offset": 18318997,
+        "bytes": 25478
+      },
+      {
+        "offset": 18344475,
+        "bytes": 25478
+      },
+      {
+        "offset": 18369953,
+        "bytes": 25478
+      },
+      {
+        "offset": 18395431,
+        "bytes": 25478
+      },
+      {
+        "offset": 18420909,
+        "bytes": 25478
+      },
+      {
+        "offset": 18446387,
+        "bytes": 25478
+      },
+      {
+        "offset": 18471865,
+        "bytes": 25478
+      },
+      {
+        "offset": 18497343,
+        "bytes": 25478
+      },
+      {
+        "offset": 18522821,
+        "bytes": 25478
+      },
+      {
+        "offset": 18548299,
+        "bytes": 25478
+      },
+      {
+        "offset": 18573777,
+        "bytes": 25478
+      },
+      {
+        "offset": 18599255,
+        "bytes": 25478
+      },
+      {
+        "offset": 18624733,
+        "bytes": 25478
+      },
+      {
+        "offset": 18650211,
+        "bytes": 25478
+      },
+      {
+        "offset": 18675689,
+        "bytes": 25478
+      },
+      {
+        "offset": 18701167,
+        "bytes": 25478
+      },
+      {
+        "offset": 18726645,
+        "bytes": 25478
+      },
+      {
+        "offset": 18752123,
+        "bytes": 25478
+      },
+      {
+        "offset": 18777601,
+        "bytes": 25478
+      },
+      {
+        "offset": 18803079,
+        "bytes": 25478
+      },
+      {
+        "offset": 18828557,
+        "bytes": 25478
+      },
+      {
+        "offset": 18854035,
+        "bytes": 25478
+      },
+      {
+        "offset": 18879513,
+        "bytes": 25478
+      },
+      {
+        "offset": 18904991,
+        "bytes": 25478
+      },
+      {
+        "offset": 18930469,
+        "bytes": 25478
+      },
+      {
+        "offset": 18955947,
+        "bytes": 25478
+      },
+      {
+        "offset": 18981425,
+        "bytes": 25478
+      },
+      {
+        "offset": 19006903,
+        "bytes": 25478
+      },
+      {
+        "offset": 19032381,
+        "bytes": 25478
+      },
+      {
+        "offset": 19057859,
+        "bytes": 25478
+      },
+      {
+        "offset": 19083337,
+        "bytes": 25478
+      },
+      {
+        "offset": 19108815,
+        "bytes": 25478
+      },
+      {
+        "offset": 19134293,
+        "bytes": 25478
+      },
+      {
+        "offset": 19159771,
+        "bytes": 25478
+      },
+      {
+        "offset": 19185249,
+        "bytes": 25478
+      },
+      {
+        "offset": 19210727,
+        "bytes": 25478
+      },
+      {
+        "offset": 19236205,
+        "bytes": 25478
+      },
+      {
+        "offset": 19261683,
+        "bytes": 25478
+      },
+      {
+        "offset": 19287161,
+        "bytes": 25478
+      },
+      {
+        "offset": 19312639,
+        "bytes": 25478
+      },
+      {
+        "offset": 19338117,
+        "bytes": 25478
+      },
+      {
+        "offset": 19363595,
+        "bytes": 25478
+      },
+      {
+        "offset": 19389073,
+        "bytes": 25478
+      },
+      {
+        "offset": 19414551,
+        "bytes": 25478
+      },
+      {
+        "offset": 19440029,
+        "bytes": 25478
+      },
+      {
+        "offset": 19465507,
+        "bytes": 25478
+      },
+      {
+        "offset": 19490985,
+        "bytes": 25478
+      },
+      {
+        "offset": 19516463,
+        "bytes": 25478
+      },
+      {
+        "offset": 19541941,
+        "bytes": 25478
+      },
+      {
+        "offset": 19567419,
+        "bytes": 25478
+      },
+      {
+        "offset": 19592897,
+        "bytes": 25478
+      },
+      {
+        "offset": 19618375,
+        "bytes": 25478
+      },
+      {
+        "offset": 19643853,
+        "bytes": 25478
+      },
+      {
+        "offset": 19669331,
+        "bytes": 25478
+      },
+      {
+        "offset": 19694809,
+        "bytes": 25478
+      },
+      {
+        "offset": 19720287,
+        "bytes": 25478
+      },
+      {
+        "offset": 19745765,
+        "bytes": 25478
+      },
+      {
+        "offset": 19771243,
+        "bytes": 25478
+      },
+      {
+        "offset": 19796721,
+        "bytes": 25478
+      },
+      {
+        "offset": 19822199,
+        "bytes": 25478
+      },
+      {
+        "offset": 19847677,
+        "bytes": 25478
+      },
+      {
+        "offset": 19873155,
+        "bytes": 25478
+      },
+      {
+        "offset": 19898633,
+        "bytes": 25478
+      },
+      {
+        "offset": 19924111,
+        "bytes": 25478
+      },
+      {
+        "offset": 19949589,
+        "bytes": 25478
+      },
+      {
+        "offset": 19975067,
+        "bytes": 25478
+      },
+      {
+        "offset": 20000545,
+        "bytes": 25478
+      },
+      {
+        "offset": 20026023,
+        "bytes": 25478
+      },
+      {
+        "offset": 20051501,
+        "bytes": 25478
+      },
+      {
+        "offset": 20076979,
+        "bytes": 25478
+      },
+      {
+        "offset": 20102457,
+        "bytes": 25478
+      },
+      {
+        "offset": 20127935,
+        "bytes": 25478
+      },
+      {
+        "offset": 20153413,
+        "bytes": 25478
+      },
+      {
+        "offset": 20178891,
+        "bytes": 25478
+      },
+      {
+        "offset": 20204369,
+        "bytes": 25478
+      },
+      {
+        "offset": 20229847,
+        "bytes": 25478
+      },
+      {
+        "offset": 20255325,
+        "bytes": 25478
+      },
+      {
+        "offset": 20280803,
+        "bytes": 25478
+      },
+      {
+        "offset": 20306281,
+        "bytes": 25478
+      },
+      {
+        "offset": 20331759,
+        "bytes": 25478
+      },
+      {
+        "offset": 20357237,
+        "bytes": 25478
+      },
+      {
+        "offset": 20382715,
+        "bytes": 25478
+      },
+      {
+        "offset": 20408193,
+        "bytes": 25478
+      },
+      {
+        "offset": 20433671,
+        "bytes": 25478
+      },
+      {
+        "offset": 20459149,
+        "bytes": 25478
+      },
+      {
+        "offset": 20484627,
+        "bytes": 25478
+      },
+      {
+        "offset": 20510105,
+        "bytes": 25478
+      },
+      {
+        "offset": 20535583,
+        "bytes": 25478
+      },
+      {
+        "offset": 20561061,
+        "bytes": 25478
+      },
+      {
+        "offset": 20586539,
+        "bytes": 25478
+      },
+      {
+        "offset": 20612017,
+        "bytes": 25478
+      },
+      {
+        "offset": 20637495,
+        "bytes": 25478
+      },
+      {
+        "offset": 20662973,
+        "bytes": 25478
+      },
+      {
+        "offset": 20688451,
+        "bytes": 25478
+      },
+      {
+        "offset": 20713929,
+        "bytes": 25478
+      },
+      {
+        "offset": 20739407,
+        "bytes": 25478
+      },
+      {
+        "offset": 20764885,
+        "bytes": 25478
+      },
+      {
+        "offset": 20790363,
+        "bytes": 25478
+      },
+      {
+        "offset": 20815841,
+        "bytes": 25478
+      },
+      {
+        "offset": 20841319,
+        "bytes": 25478
+      },
+      {
+        "offset": 20866797,
+        "bytes": 25478
+      },
+      {
+        "offset": 20892275,
+        "bytes": 25478
+      },
+      {
+        "offset": 20917753,
+        "bytes": 25478
+      },
+      {
+        "offset": 20943231,
+        "bytes": 25478
+      },
+      {
+        "offset": 20968709,
+        "bytes": 25478
+      },
+      {
+        "offset": 20994187,
+        "bytes": 25478
+      },
+      {
+        "offset": 21019665,
+        "bytes": 25478
+      },
+      {
+        "offset": 21045143,
+        "bytes": 25478
+      },
+      {
+        "offset": 21070621,
+        "bytes": 25478
+      },
+      {
+        "offset": 21096099,
+        "bytes": 25478
+      },
+      {
+        "offset": 21121577,
+        "bytes": 25478
+      },
+      {
+        "offset": 21147055,
+        "bytes": 25478
+      },
+      {
+        "offset": 21172533,
+        "bytes": 25478
+      },
+      {
+        "offset": 21198011,
+        "bytes": 25478
+      },
+      {
+        "offset": 21223489,
+        "bytes": 25478
+      },
+      {
+        "offset": 21248967,
+        "bytes": 25478
+      },
+      {
+        "offset": 21274445,
+        "bytes": 25478
+      },
+      {
+        "offset": 21299923,
+        "bytes": 25478
+      },
+      {
+        "offset": 21325401,
+        "bytes": 25478
+      },
+      {
+        "offset": 21350879,
+        "bytes": 25478
+      },
+      {
+        "offset": 21376357,
+        "bytes": 25478
+      },
+      {
+        "offset": 21401835,
+        "bytes": 25478
+      },
+      {
+        "offset": 21427313,
+        "bytes": 25478
+      },
+      {
+        "offset": 21452791,
+        "bytes": 25478
+      },
+      {
+        "offset": 21478269,
+        "bytes": 25478
+      },
+      {
+        "offset": 21503747,
+        "bytes": 25478
+      },
+      {
+        "offset": 21529225,
+        "bytes": 25478
+      },
+      {
+        "offset": 21554703,
+        "bytes": 25478
+      },
+      {
+        "offset": 21580181,
+        "bytes": 25478
+      },
+      {
+        "offset": 21605659,
+        "bytes": 25478
+      },
+      {
+        "offset": 21631137,
+        "bytes": 25478
+      },
+      {
+        "offset": 21656615,
+        "bytes": 25478
+      },
+      {
+        "offset": 21682093,
+        "bytes": 25478
+      },
+      {
+        "offset": 21707571,
+        "bytes": 25478
+      },
+      {
+        "offset": 21733049,
+        "bytes": 25478
+      },
+      {
+        "offset": 21758527,
+        "bytes": 25478
+      },
+      {
+        "offset": 21784005,
+        "bytes": 25478
+      },
+      {
+        "offset": 21809483,
+        "bytes": 25478
+      },
+      {
+        "offset": 21834961,
+        "bytes": 25478
+      },
+      {
+        "offset": 21860439,
+        "bytes": 25478
+      },
+      {
+        "offset": 21885917,
+        "bytes": 25478
+      },
+      {
+        "offset": 21911395,
+        "bytes": 25478
+      },
+      {
+        "offset": 21936873,
+        "bytes": 25478
+      },
+      {
+        "offset": 21962351,
+        "bytes": 25478
+      },
+      {
+        "offset": 21987829,
+        "bytes": 25478
+      },
+      {
+        "offset": 22013307,
+        "bytes": 25478
+      },
+      {
+        "offset": 22038785,
+        "bytes": 25478
+      },
+      {
+        "offset": 22064263,
+        "bytes": 25478
+      },
+      {
+        "offset": 22089741,
+        "bytes": 25478
+      },
+      {
+        "offset": 22115219,
+        "bytes": 25478
+      },
+      {
+        "offset": 22140697,
+        "bytes": 25478
+      },
+      {
+        "offset": 22166175,
+        "bytes": 25478
+      },
+      {
+        "offset": 22191653,
+        "bytes": 25478
+      },
+      {
+        "offset": 22217131,
+        "bytes": 25478
+      },
+      {
+        "offset": 22242609,
+        "bytes": 25478
+      },
+      {
+        "offset": 22268087,
+        "bytes": 25478
+      },
+      {
+        "offset": 22293565,
+        "bytes": 25478
+      },
+      {
+        "offset": 22319043,
+        "bytes": 25478
+      },
+      {
+        "offset": 22344521,
+        "bytes": 25478
+      },
+      {
+        "offset": 22369999,
+        "bytes": 25478
+      },
+      {
+        "offset": 22395477,
+        "bytes": 25478
+      },
+      {
+        "offset": 22420955,
+        "bytes": 25478
+      },
+      {
+        "offset": 22446433,
+        "bytes": 25478
+      },
+      {
+        "offset": 22471911,
+        "bytes": 25478
+      },
+      {
+        "offset": 22497389,
+        "bytes": 25478
+      },
+      {
+        "offset": 22522867,
+        "bytes": 25478
+      },
+      {
+        "offset": 22548345,
+        "bytes": 25478
+      },
+      {
+        "offset": 22573823,
+        "bytes": 25478
+      },
+      {
+        "offset": 22599301,
+        "bytes": 25478
+      },
+      {
+        "offset": 22624779,
+        "bytes": 25478
+      },
+      {
+        "offset": 22650257,
+        "bytes": 25478
+      },
+      {
+        "offset": 22675735,
+        "bytes": 25478
+      },
+      {
+        "offset": 22701213,
+        "bytes": 25478
+      },
+      {
+        "offset": 22726691,
+        "bytes": 25478
+      },
+      {
+        "offset": 22752169,
+        "bytes": 25478
+      },
+      {
+        "offset": 22777647,
+        "bytes": 25478
+      },
+      {
+        "offset": 22803125,
+        "bytes": 25478
+      },
+      {
+        "offset": 22828603,
+        "bytes": 25478
+      },
+      {
+        "offset": 22854081,
+        "bytes": 25478
+      },
+      {
+        "offset": 22879559,
+        "bytes": 25478
+      },
+      {
+        "offset": 22905037,
+        "bytes": 25478
+      },
+      {
+        "offset": 22930515,
+        "bytes": 25478
+      },
+      {
+        "offset": 22955993,
+        "bytes": 25478
+      },
+      {
+        "offset": 22981471,
+        "bytes": 25478
+      },
+      {
+        "offset": 23006949,
+        "bytes": 25478
+      },
+      {
+        "offset": 23032427,
+        "bytes": 25478
+      },
+      {
+        "offset": 23057905,
+        "bytes": 25478
+      },
+      {
+        "offset": 23083383,
+        "bytes": 25478
+      },
+      {
+        "offset": 23108861,
+        "bytes": 25478
+      },
+      {
+        "offset": 23134339,
+        "bytes": 25478
+      },
+      {
+        "offset": 23159817,
+        "bytes": 25478
+      },
+      {
+        "offset": 23185295,
+        "bytes": 25478
+      },
+      {
+        "offset": 23210773,
+        "bytes": 25478
+      },
+      {
+        "offset": 23236251,
+        "bytes": 25478
+      },
+      {
+        "offset": 23261729,
+        "bytes": 25478
+      },
+      {
+        "offset": 23287207,
+        "bytes": 25478
+      },
+      {
+        "offset": 23312685,
+        "bytes": 25478
+      },
+      {
+        "offset": 23338163,
+        "bytes": 25478
+      },
+      {
+        "offset": 23363641,
+        "bytes": 25478
+      },
+      {
+        "offset": 23389119,
+        "bytes": 25478
+      },
+      {
+        "offset": 23414597,
+        "bytes": 25478
+      },
+      {
+        "offset": 23440075,
+        "bytes": 25478
+      },
+      {
+        "offset": 23465553,
+        "bytes": 25478
+      },
+      {
+        "offset": 23491031,
+        "bytes": 25478
+      },
+      {
+        "offset": 23516509,
+        "bytes": 25478
+      },
+      {
+        "offset": 23541987,
+        "bytes": 25478
+      },
+      {
+        "offset": 23567465,
+        "bytes": 25478
+      },
+      {
+        "offset": 23592943,
+        "bytes": 25478
+      },
+      {
+        "offset": 23618421,
+        "bytes": 25478
+      },
+      {
+        "offset": 23643899,
+        "bytes": 25478
+      },
+      {
+        "offset": 23669377,
+        "bytes": 25478
+      },
+      {
+        "offset": 23694855,
+        "bytes": 25478
+      },
+      {
+        "offset": 23720333,
+        "bytes": 25478
+      },
+      {
+        "offset": 23745811,
+        "bytes": 25478
+      },
+      {
+        "offset": 23771289,
+        "bytes": 25478
+      },
+      {
+        "offset": 23796767,
+        "bytes": 25478
+      },
+      {
+        "offset": 23822245,
+        "bytes": 25478
+      },
+      {
+        "offset": 23847723,
+        "bytes": 25478
+      },
+      {
+        "offset": 23873201,
+        "bytes": 25478
+      },
+      {
+        "offset": 23898679,
+        "bytes": 25478
+      },
+      {
+        "offset": 23924157,
+        "bytes": 25478
+      },
+      {
+        "offset": 23949635,
+        "bytes": 25478
+      },
+      {
+        "offset": 23975113,
+        "bytes": 25478
+      },
+      {
+        "offset": 24000591,
+        "bytes": 25478
+      },
+      {
+        "offset": 24026069,
+        "bytes": 25478
+      },
+      {
+        "offset": 24051547,
+        "bytes": 25478
+      },
+      {
+        "offset": 24077025,
+        "bytes": 25478
+      },
+      {
+        "offset": 24102503,
+        "bytes": 25478
+      },
+      {
+        "offset": 24127981,
+        "bytes": 25478
+      },
+      {
+        "offset": 24153459,
+        "bytes": 25478
+      },
+      {
+        "offset": 24178937,
+        "bytes": 25478
+      },
+      {
+        "offset": 24204415,
+        "bytes": 25478
+      },
+      {
+        "offset": 24229893,
+        "bytes": 25478
+      },
+      {
+        "offset": 24255371,
+        "bytes": 25478
+      },
+      {
+        "offset": 24280849,
+        "bytes": 25478
+      },
+      {
+        "offset": 24306327,
+        "bytes": 25478
+      },
+      {
+        "offset": 24331805,
+        "bytes": 25478
+      },
+      {
+        "offset": 24357283,
+        "bytes": 25478
+      },
+      {
+        "offset": 24382761,
+        "bytes": 25478
+      },
+      {
+        "offset": 24408239,
+        "bytes": 25478
+      },
+      {
+        "offset": 24433717,
+        "bytes": 25478
+      },
+      {
+        "offset": 24459195,
+        "bytes": 25478
+      },
+      {
+        "offset": 24484673,
+        "bytes": 25478
+      },
+      {
+        "offset": 24510151,
+        "bytes": 25478
+      },
+      {
+        "offset": 24535629,
+        "bytes": 25478
+      },
+      {
+        "offset": 24561107,
+        "bytes": 25478
+      },
+      {
+        "offset": 24586585,
+        "bytes": 25478
+      },
+      {
+        "offset": 24612063,
+        "bytes": 25478
+      },
+      {
+        "offset": 24637541,
+        "bytes": 25478
+      },
+      {
+        "offset": 24663019,
+        "bytes": 25478
+      },
+      {
+        "offset": 24688497,
+        "bytes": 25478
+      },
+      {
+        "offset": 24713975,
+        "bytes": 25478
+      },
+      {
+        "offset": 24739453,
+        "bytes": 25478
+      },
+      {
+        "offset": 24764931,
+        "bytes": 25478
+      },
+      {
+        "offset": 24790409,
+        "bytes": 25478
+      },
+      {
+        "offset": 24815887,
+        "bytes": 25478
+      },
+      {
+        "offset": 24841365,
+        "bytes": 25478
+      },
+      {
+        "offset": 24866843,
+        "bytes": 25478
+      },
+      {
+        "offset": 24892321,
+        "bytes": 25478
+      },
+      {
+        "offset": 24917799,
+        "bytes": 25478
+      },
+      {
+        "offset": 24943277,
+        "bytes": 25478
+      },
+      {
+        "offset": 24968755,
+        "bytes": 25478
+      },
+      {
+        "offset": 24994233,
+        "bytes": 25478
+      },
+      {
+        "offset": 25019711,
+        "bytes": 25478
+      },
+      {
+        "offset": 25045189,
+        "bytes": 25478
+      },
+      {
+        "offset": 25070667,
+        "bytes": 25478
+      },
+      {
+        "offset": 25096145,
+        "bytes": 25478
+      },
+      {
+        "offset": 25121623,
+        "bytes": 25478
+      },
+      {
+        "offset": 25147101,
+        "bytes": 25478
+      },
+      {
+        "offset": 25172579,
+        "bytes": 25478
+      },
+      {
+        "offset": 25198057,
+        "bytes": 25478
+      },
+      {
+        "offset": 25223535,
+        "bytes": 25478
+      },
+      {
+        "offset": 25249013,
+        "bytes": 25478
+      },
+      {
+        "offset": 25274491,
+        "bytes": 25478
+      },
+      {
+        "offset": 25299969,
+        "bytes": 25478
+      },
+      {
+        "offset": 25325447,
+        "bytes": 25478
+      },
+      {
+        "offset": 25350925,
+        "bytes": 25478
+      },
+      {
+        "offset": 25376403,
+        "bytes": 25478
+      },
+      {
+        "offset": 25401881,
+        "bytes": 25478
+      },
+      {
+        "offset": 25427359,
+        "bytes": 25478
+      },
+      {
+        "offset": 25452837,
+        "bytes": 25478
+      },
+      {
+        "offset": 25478315,
+        "bytes": 25478
+      },
+      {
+        "offset": 25503793,
+        "bytes": 25478
+      },
+      {
+        "offset": 25529271,
+        "bytes": 25478
+      },
+      {
+        "offset": 25554749,
+        "bytes": 25478
+      },
+      {
+        "offset": 25580227,
+        "bytes": 25478
+      },
+      {
+        "offset": 25605705,
+        "bytes": 25478
+      },
+      {
+        "offset": 25631183,
+        "bytes": 25478
+      },
+      {
+        "offset": 25656661,
+        "bytes": 25478
+      },
+      {
+        "offset": 25682139,
+        "bytes": 25478
+      },
+      {
+        "offset": 25707617,
+        "bytes": 25478
+      },
+      {
+        "offset": 25733095,
+        "bytes": 25478
+      },
+      {
+        "offset": 25758573,
+        "bytes": 25478
+      },
+      {
+        "offset": 25784051,
+        "bytes": 25478
+      },
+      {
+        "offset": 25809529,
+        "bytes": 25478
+      },
+      {
+        "offset": 25835007,
+        "bytes": 25478
+      },
+      {
+        "offset": 25860485,
+        "bytes": 25478
+      },
+      {
+        "offset": 25885963,
+        "bytes": 25478
+      },
+      {
+        "offset": 25911441,
+        "bytes": 25478
+      },
+      {
+        "offset": 25936919,
+        "bytes": 25478
+      },
+      {
+        "offset": 25962397,
+        "bytes": 25478
+      },
+      {
+        "offset": 25987875,
+        "bytes": 25478
+      },
+      {
+        "offset": 26013353,
+        "bytes": 25478
+      },
+      {
+        "offset": 26038831,
+        "bytes": 25478
+      },
+      {
+        "offset": 26064309,
+        "bytes": 25478
+      },
+      {
+        "offset": 26089787,
+        "bytes": 25478
+      },
+      {
+        "offset": 26115265,
+        "bytes": 25478
+      },
+      {
+        "offset": 26140743,
+        "bytes": 25478
+      },
+      {
+        "offset": 26166221,
+        "bytes": 25478
+      },
+      {
+        "offset": 26191699,
+        "bytes": 25478
+      },
+      {
+        "offset": 26217177,
+        "bytes": 25478
+      },
+      {
+        "offset": 26242655,
+        "bytes": 25478
+      },
+      {
+        "offset": 26268133,
+        "bytes": 25478
+      },
+      {
+        "offset": 26293611,
+        "bytes": 25478
+      },
+      {
+        "offset": 26319089,
+        "bytes": 25478
+      },
+      {
+        "offset": 26344567,
+        "bytes": 25478
+      },
+      {
+        "offset": 26370045,
+        "bytes": 25478
+      },
+      {
+        "offset": 26395523,
+        "bytes": 25526
+      },
+      {
+        "offset": 26421049,
+        "bytes": 25478
+      },
+      {
+        "offset": 26446527,
+        "bytes": 25478
+      },
+      {
+        "offset": 26472005,
+        "bytes": 25478
+      },
+      {
+        "offset": 26497483,
+        "bytes": 25478
+      },
+      {
+        "offset": 26522961,
+        "bytes": 25478
+      },
+      {
+        "offset": 26548439,
+        "bytes": 25478
+      },
+      {
+        "offset": 26573917,
+        "bytes": 25478
+      },
+      {
+        "offset": 26599395,
+        "bytes": 25478
+      },
+      {
+        "offset": 26624873,
+        "bytes": 25478
+      },
+      {
+        "offset": 26650351,
+        "bytes": 25478
+      },
+      {
+        "offset": 26675829,
+        "bytes": 25478
+      },
+      {
+        "offset": 26701307,
+        "bytes": 25478
+      },
+      {
+        "offset": 26726785,
+        "bytes": 25478
+      },
+      {
+        "offset": 26752263,
+        "bytes": 25478
+      },
+      {
+        "offset": 26777741,
+        "bytes": 25478
+      },
+      {
+        "offset": 26803219,
+        "bytes": 25478
+      },
+      {
+        "offset": 26828697,
+        "bytes": 25478
+      },
+      {
+        "offset": 26854175,
+        "bytes": 25478
+      },
+      {
+        "offset": 26879653,
+        "bytes": 25478
+      },
+      {
+        "offset": 26905131,
+        "bytes": 25526
+      },
+      {
+        "offset": 26930657,
+        "bytes": 25478
+      },
+      {
+        "offset": 26956135,
+        "bytes": 25478
+      },
+      {
+        "offset": 26981613,
+        "bytes": 25478
+      },
+      {
+        "offset": 27007091,
+        "bytes": 25478
+      },
+      {
+        "offset": 27032569,
+        "bytes": 25478
+      },
+      {
+        "offset": 27058047,
+        "bytes": 25478
+      },
+      {
+        "offset": 27083525,
+        "bytes": 25478
+      },
+      {
+        "offset": 27109003,
+        "bytes": 25478
+      },
+      {
+        "offset": 27134481,
+        "bytes": 25478
+      },
+      {
+        "offset": 27159959,
+        "bytes": 25478
+      },
+      {
+        "offset": 27185437,
+        "bytes": 25478
+      },
+      {
+        "offset": 27210915,
+        "bytes": 25478
+      },
+      {
+        "offset": 27236393,
+        "bytes": 25478
+      },
+      {
+        "offset": 27261871,
+        "bytes": 25478
+      },
+      {
+        "offset": 27287349,
+        "bytes": 25478
+      },
+      {
+        "offset": 27312827,
+        "bytes": 25478
+      },
+      {
+        "offset": 27338305,
+        "bytes": 25526
+      },
+      {
+        "offset": 27363831,
+        "bytes": 25478
+      },
+      {
+        "offset": 27389309,
+        "bytes": 25478
+      },
+      {
+        "offset": 27414787,
+        "bytes": 25478
+      },
+      {
+        "offset": 27440265,
+        "bytes": 25478
+      },
+      {
+        "offset": 27465743,
+        "bytes": 25478
+      },
+      {
+        "offset": 27491221,
+        "bytes": 25478
+      },
+      {
+        "offset": 27516699,
+        "bytes": 25478
+      },
+      {
+        "offset": 27542177,
+        "bytes": 25478
+      },
+      {
+        "offset": 27567655,
+        "bytes": 25478
+      },
+      {
+        "offset": 27593133,
+        "bytes": 25478
+      },
+      {
+        "offset": 27618611,
+        "bytes": 25478
+      },
+      {
+        "offset": 27644089,
+        "bytes": 25430
+      },
+      {
+        "offset": 27669519,
+        "bytes": 25478
+      },
+      {
+        "offset": 27694997,
+        "bytes": 25478
+      },
+      {
+        "offset": 27720475,
+        "bytes": 25478
+      },
+      {
+        "offset": 27745953,
+        "bytes": 25478
+      },
+      {
+        "offset": 27771431,
+        "bytes": 25478
+      },
+      {
+        "offset": 27796909,
+        "bytes": 25478
+      },
+      {
+        "offset": 27822387,
+        "bytes": 25478
+      },
+      {
+        "offset": 27847865,
+        "bytes": 25478
+      },
+      {
+        "offset": 27873343,
+        "bytes": 25478
+      },
+      {
+        "offset": 27898821,
+        "bytes": 25478
+      },
+      {
+        "offset": 27924299,
+        "bytes": 25478
+      },
+      {
+        "offset": 27949777,
+        "bytes": 25478
+      },
+      {
+        "offset": 27975255,
+        "bytes": 25478
+      },
+      {
+        "offset": 28000733,
+        "bytes": 25478
+      },
+      {
+        "offset": 28026211,
+        "bytes": 25478
+      },
+      {
+        "offset": 28051689,
+        "bytes": 25478
+      },
+      {
+        "offset": 28077167,
+        "bytes": 25430
+      },
+      {
+        "offset": 28102597,
+        "bytes": 25430
+      },
+      {
+        "offset": 28128027,
+        "bytes": 25430
+      },
+      {
+        "offset": 28153457,
+        "bytes": 25430
+      },
+      {
+        "offset": 28178887,
+        "bytes": 25430
+      },
+      {
+        "offset": 28204317,
+        "bytes": 25430
+      },
+      {
+        "offset": 28229747,
+        "bytes": 25430
+      }
+    ]
+  },
+  "golden_comparison": {
+    "corpus_samples": 109,
+    "stress_repeats": 1000,
+    "run_frames_compared": 1109,
+    "head_bytes_compared": 28113150,
+    "detections_total": 1104,
+    "all_two_head_bytes_equal": true,
+    "all_frame_boxes_match_frozen_d9": true,
+    "d9_tolerance": 1e-06,
+    "gold_record_tolerance": 1e-12
+  },
+  "terminal_ack": {
+    "firmware_source_path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+    "firmware_source_sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+    "source_hash_matches_banner": true,
+    "source_hash_matches_build_details": true,
+    "ack_path_in_source": true,
+    "prior_terminal_acks_with_successor_response": 1108,
+    "successful_run_terminals": 1109,
+    "final_corpus_terminal_ack_dynamically_observed": false,
+    "reason": "最终corpus响应之后没有下一RUN，且原deployment未保存运行后CSR IDLE/ACK快照。"
+  },
+  "execution": {
+    "python": "3.13.0",
+    "process_model": "单Python进程；UART按stream读取；文件SHA逐块流式计算。",
+    "hardware_access": false,
+    "sdk_jtag_serial_actions": false,
+    "peak_memory_measured": false
+  }
+}

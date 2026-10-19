@@ -11,6 +11,14 @@ from verification import s2b_csr_acceptance_flow as flow
 
 
 class FixedCsrFlowOrderTests(unittest.TestCase):
+    def test_csr_profiles_use_disjoint_stage_routes(self):
+        standard = flow._profile_stages({})
+        deadline = flow._profile_stages({"csr_profile": "with_deadlines"})
+        self.assertEqual(standard, ("busy", "reaccept", "abort"))
+        self.assertEqual(deadline, ("deadline",))
+        self.assertNotIn("deadline", standard)
+        self.assertTrue(set(deadline).isdisjoint({"busy", "reaccept", "abort"}))
+
     def test_busy_frame1_then_new_sequence_frame0_precedes_abort(self):
         with tempfile.TemporaryDirectory(prefix="s2b_csr_flow_order_") as temp:
             root = Path(temp)
@@ -39,7 +47,7 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
             request_counter = {"value": 0}
 
             class AcceptanceRunner:
-                def __init__(self, session, directory, admission):
+                def __init__(self, session, directory, admission, capture_wire_receipts=False):
                     self.wire, self.run = session, directory
                     self.run.mkdir()
                     self.record = {"status": "IN_PROGRESS"}
@@ -125,6 +133,7 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
                     mock.patch.object(flow.csr, "checked_snapshot", side_effect=lambda snapshot: snapshot), \
                     mock.patch.object(flow.csr, "idle"), \
                     mock.patch.object(flow.busy, "execute_busy_start", side_effect=busy_stage), \
+                    mock.patch.object(flow.deadline, "execute_after_seed", side_effect=AssertionError("standard profile must not invoke deadline")), \
                     mock.patch.object(flow.csr, "execute_abort_recovery", side_effect=abort_stage), \
                     mock.patch.object(flow.csr, "execute_static_matrix", side_effect=static_stage):
                 result = flow.execute(controller, wire, config, checked, apis, {"status": "ADMITTED"})
@@ -136,9 +145,125 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
             self.assertLess(trace.index(("busy_observer", 3, 1)), trace.index(("csr_reaccept", 4, 0)))
             self.assertLess(trace.index(("csr_reaccept", 4, 0)), trace.index("abort_after_frame0"))
             self.assertEqual([row["name"] for row in result["stages"]], [
-                "sample000_seed_frame0", "real_busy_start_slverr_last_reject",
+                "sample000_seed_frame0", "real_busy_start_response_last_reject",
                 "sample000_reaccept_frame0", "wait_final_ack_sample000_recovery",
                 "static_csr_negative_matrix"])
+
+    def test_deadline_profile_skips_busy_and_abort_and_keeps_limited_status(self):
+        import json
+
+        with tempfile.TemporaryDirectory(prefix="s2b_csr_deadline_route_") as temp:
+            root = Path(temp)
+            (root / "report/evidence/S2B-T20").mkdir(parents=True)
+            run_dir = root / "report/evidence/S2B-T18/deadline_run"
+            run_dir.parent.mkdir(parents=True)
+            trace = []
+            wire = SimpleNamespace(last_sequence=0, last_run_frame=None, failed=False,
+                                   abort_pending=None, epoch=0)
+
+            class Controller:
+                bindings = {}
+                failed = False
+
+                def stable_csr(self, label):
+                    trace.append("scene:" + label)
+                    return {offset: 0 for offset in flow.csr.OFFSETS}
+
+                def gate(self, both):
+                    trace.append("gate:" + str(both))
+
+                def state(self, cpu):
+                    return "Stopped"
+
+                def call(self, label, function):
+                    trace.append("call:" + label)
+
+            class AcceptanceRunner:
+                def __init__(self, session, directory, admission, capture_wire_receipts=False):
+                    self.wire, self.run = session, directory
+                    self.run.mkdir()
+                    self.record = {"status": "IN_PROGRESS"}
+
+                def send(self, request, header, payload, source):
+                    self.wire.last_sequence = request.sequence
+
+                def receive(self, request, index):
+                    pass
+
+                def run_input(self, row, sequence, frame, repeat, core, drain, phase):
+                    self.wire.last_sequence = sequence
+                    self.wire.last_run_frame = frame
+                    trace.append(phase)
+
+                def finish(self, status):
+                    (self.run / "acceptance_result.json").write_text("{}", encoding="utf-8")
+                    return {"status": status}
+
+            config = {
+                "csr_profile": "with_deadlines", "run_id": "deadline_route",
+                "source_commit": "a" * 40,
+                "preparation": {"path": "prep.json", "sha256": "1" * 64},
+                "build_details": {"path": "build.json", "sha256": "2" * 64},
+                "visibility_proof": {"path": "proof.json", "sha256": "3" * 64},
+                "visibility_review": {"path": "review.json", "sha256": "4" * 64},
+                "final_platform_manifest": {"path": "manifest.json", "sha256": "5" * 64},
+                "final_review": {"path": "final.json", "sha256": "6" * 64},
+                "core_timeout": 100, "drain_timeout": 200,
+            }
+            plan = {"weights": {"path": "weights.bin", "sha256": "7" * 64},
+                    "rows": [{"input": {"path": "input.bin", "sha256": "8" * 64},
+                              "reference": {"path": "reference.json", "sha256": "9" * 64}}]}
+
+            def read_bound(item):
+                if item == config["preparation"]:
+                    return Path("prep.json"), json.dumps(plan).encode("utf-8")
+                return Path("weights.bin"), b"weights"
+
+            def make_request(op, sequence, frame, payload, **kwargs):
+                return SimpleNamespace(op=op, sequence=sequence, frame=frame), b"header"
+
+            def deadline_stage(_controller, _wire, _config, nested_checked, _apis, _admission, _journal):
+                nested_checked["run_dir"].mkdir()
+                trace.append("deadline")
+                return {"status": "PASS_CSR_DEADLINE_SCOPE_ONLY", "t20_outputs": []}
+
+            def static_stage(_controller, _wire, _binding, run_path, **kwargs):
+                run_path.mkdir()
+                trace.append("static")
+                scenarios = [{"name": "parameter", "status": "PASS"},
+                             {"name": "busy_start", "status": "BLOCKED"}]
+                return ({"status": "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE",
+                         "scenarios": scenarios}, {offset: 0 for offset in flow.csr.OFFSETS})
+
+            apis = SimpleNamespace(acceptance=SimpleNamespace(), transport=flow.transport)
+            with mock.patch.object(flow, "ROOT", root), \
+                    mock.patch.object(flow.transport, "exact_path", side_effect=lambda path, kind="file": Path(path)), \
+                    mock.patch.object(flow.transport, "make_request", side_effect=make_request), \
+                    mock.patch.object(flow.model, "read_bound", side_effect=read_bound), \
+                    mock.patch.object(flow.model, "validate_plan"), \
+                    mock.patch.object(flow.model, "AcceptanceRunner", AcceptanceRunner), \
+                    mock.patch.object(flow.csr, "checked_snapshot", side_effect=lambda snapshot: snapshot), \
+                    mock.patch.object(flow.csr, "idle"), \
+                    mock.patch.object(flow.busy, "execute_busy_start", side_effect=AssertionError("deadline profile must skip BusyObserver")) as busy_stage, \
+                    mock.patch.object(flow.deadline, "execute_after_seed", side_effect=deadline_stage) as deadline_call, \
+                    mock.patch.object(flow.csr, "execute_abort_recovery", side_effect=AssertionError("deadline profile must skip ABORT")) as abort_stage, \
+                    mock.patch.object(flow.csr, "execute_static_matrix", side_effect=static_stage):
+                result = flow.execute(Controller(), wire, config, {"run_dir": run_dir}, apis,
+                                      {"status": "ADMITTED"})
+
+            self.assertEqual(result["status"], "PASS_CSR_DEADLINE_SCOPE_ONLY")
+            busy_stage.assert_not_called()
+            deadline_call.assert_called_once()
+            abort_stage.assert_not_called()
+            self.assertEqual([row["name"] for row in result["stages"]], [
+                "sample000_seed_frame0", "actual_deadline_and_golden_recovery",
+                "static_csr_negative_matrix"])
+            self.assertEqual([item for item in trace if item == "csr_reaccept"], [])
+            self.assertFalse(any(item.startswith("call:") for item in trace))
+            self.assertEqual(result["scope_details"]["profile"],
+                             "deadline有限范围；本profile的busy与ABORT为NOT_RUN")
+            self.assertEqual(result["scope_details"]["late_pending_response"], "NOT_CLAIMED")
+            self.assertEqual(flow._scope_check(result)["status"], "PASS")
 
     def test_busy_failure_preserves_t20_output_and_writes_failed_index(self):
         import json
@@ -159,7 +284,7 @@ class FixedCsrFlowOrderTests(unittest.TestCase):
                     return {offset: 0 for offset in flow.csr.OFFSETS}
 
             class AcceptanceRunner:
-                def __init__(self, session, directory, admission):
+                def __init__(self, session, directory, admission, capture_wire_receipts=False):
                     self.wire, self.run = session, directory
                     self.run.mkdir()
                     self.record = {}

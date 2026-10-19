@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T20",
+  "run_id": "csr_combined_flow_20261019_r01",
+  "source_commit": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+  "evidence_dir": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本运行仅记录CSR组合流程的离线回归结果及源码绑定，不声明或核验新的正式接口冻结。",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "3a2f07463848aa5f162e0a5b31919268438c7fa16176e18a6e779aa31f21d725",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_board_acceptance.py",
+      "sha256": "9ad1060b08eb8429770e58b21f8a4eea542a7bd8949ded9a0c920986709bad97",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_busy_observer.py",
+      "sha256": "bc6d69c8de4594e65a9db95443d36484ecd1ed0631158e915662060522b7197c",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_deadline_flow.py",
+      "sha256": "0894adf2aa370fd99a7c07cc5d29c7d46d261134c46a50b1c80aa3af0b03e4bb",
+      "role": "source"
+    },
+    {
+      "path": "verification/s2b_csr_acceptance_flow.py",
+      "sha256": "67f8ffa463ee5980a9dda11bf4e59d5b4f8f2e0175c41a0206db22379f9b486c",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_model_acceptance_runner.py",
+      "sha256": "2d198dc03104adad9b17595cf2cfff80e2f00695e0976ca7b1876f3edd6ed0d0",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_board_acceptance.py",
+      "sha256": "7f1b074d04e9bf69b85393a06b1b503e4108e08f7811aa344442ab4d16f56679",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_busy_observer.py",
+      "sha256": "6bb36672aed9e656bac0682fc648f1da201b533f1116c77368a9a618d0f789ab",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_deadline_flow.py",
+      "sha256": "a561563a8f0dabd7f55d423bf3d720d5a6beefe8fdab95ba70e27513dd6940ed",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_csr_acceptance_flow.py",
+      "sha256": "9caab5a0e2638beec71034493ad4509b928d070252d60a40df3e7e93633c565d",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/regression_result.json",
+      "sha256": "7d325d6e88c5027efcfceee7e2c45df43333133d84839d41da0e2a2044ada01d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/test_launcher.py",
+      "sha256": "b33d8d1f786088fd73ffa70a9a85ddb1ff12ca1d6442daa58d93821a3e915361",
+      "role": "artifact"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/unittest.log",
+      "sha256": "26f1ac998c2253388ce08bd9ccc2d63f6a67e25edd45ec727fbf1b68a3f71f07",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01/evidence_check.json",
+      "sha256": "3e6780cf7f7091dff74a6552a7cddc457da542f719ec42ee67cb93dcfa6025b4",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "CSR组合流程离线回归（129项）",
+      "status": "PASS",
+      "command": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat -s D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\csr_combined_flow_20261019_r01\\test_launcher.py",
+      "exit_code": 0,
+      "reason": "已有回归结果记录 129 项测试，failures=0、errors=0、skipped=0；本次未重跑。"
+    },
+    {
+      "name": "交付证据目录只读核验",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T20/csr_combined_flow_20261019_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "evidence模式清单与目录文件绑定核验通过；该结果不代表需求、接口语义或实板验收。"
+    }
+  ],
+  "tool_versions": {
+    "Python": "3.13.0",
+    "Vitis": "Vitis 2026.1",
+    "Test framework": "Python unittest"
+  },
+  "limitations": [
+    "本运行仅覆盖报告中的离线CSR组合流程回归，不代表CSR实板测试或阶段2B验收通过。",
+    "129项测试证据来自已有regression_result.json与unittest.log；本次没有重新运行测试。",
+    "源码逐文件SHA绑定当前文件，并与回归结果记录的源码SHA逐项核对一致。"
+  ]
+}

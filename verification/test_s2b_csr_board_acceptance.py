@@ -132,6 +132,8 @@ class FakeController:
                     self.pending_reads = 1
                     return
             self.row[0x00C] = 0xC05; self.row[0x010] = self.bad_code if self.bad_code is not None else code
+            if self.valid_short_behavior == "safe_flagged":
+                self.row[0x074] = 8
             return
         if value == 4:
             if status not in (4, 5):
@@ -246,6 +248,21 @@ class CsrTests(unittest.TestCase):
         self.assertEqual(self.controller.row[0x00C], 0x106)
         writes = [call["kwargs"]["words"] for call in self.controller.record["calls"]]
         self.assertNotIn([4], writes)
+
+    def test_drain_limit_without_flag_retains_safe_terminal_without_ack(self):
+        """CORE安全返回不能代替DRAIN超限；缺bit3时保留终态。"""
+        with self.assertRaisesRegex(csr.CsrAcceptanceError, "必需故障标志"):
+            self.runner.short_deadline(17, 1, 1, 0.1, required_fault_detail_mask=8)
+        self.assertEqual(self.controller.row[0x00C], 0xC05)
+        writes = [call["kwargs"]["words"] for call in self.controller.record["calls"]]
+        self.assertNotIn([4], writes)
+
+    def test_drain_limit_with_flag_allows_matching_ack(self):
+        """实际安全终态含bit3时才可ACK并回IDLE。"""
+        self.controller.valid_short_behavior = "safe_flagged"
+        result = self.runner.short_deadline(17, 1, 1, 0.1, required_fault_detail_mask=8)
+        self.assertEqual(result["terminal"][0x074], 8)
+        self.assertEqual(self.controller.row[0x00C], 0x400)
 
     def test_legal_late_drain_is_saved_and_safe_acknowledged(self):
         self.controller.valid_short_behavior = "late_safe"

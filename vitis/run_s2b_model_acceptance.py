@@ -27,9 +27,10 @@ TZ = timezone(timedelta(hours=8))
 JTAG_SOURCE_SHA256 = "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
 COLD_RECEIPT_CONTROLLER_SHA256 = "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
 CSR_MAP_HELPER_SOURCE_SHA256 = "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
-CSR_FLOW_SOURCE_SHA256 = "632b137e27c73fe6e648a49ab77a98bda31f4e5c36d0c3b241dd561e0fab11a9"
-CSR_BOARD_SOURCE_SHA256 = "2384c4c001f82b8c877c0b861f97c356483ec4d5b627b7d8b6ef286b6fdb368b"
-CSR_BUSY_SOURCE_SHA256 = "e51dcf4360fe3f14805cc2e873449bc9b4367a92d40c2b06965f1e6cd68b2a20"
+CSR_FLOW_SOURCE_SHA256 = "67f8ffa463ee5980a9dda11bf4e59d5b4f8f2e0175c41a0206db22379f9b486c"
+CSR_BOARD_SOURCE_SHA256 = "9ad1060b08eb8429770e58b21f8a4eea542a7bd8949ded9a0c920986709bad97"
+CSR_BUSY_SOURCE_SHA256 = "bc6d69c8de4594e65a9db95443d36484ecd1ed0631158e915662060522b7197c"
+CSR_DEADLINE_SOURCE_SHA256 = "0894adf2aa370fd99a7c07cc5d29c7d46d261134c46a50b1c80aa3af0b03e4bb"
 # 正式G0与统一冷生命周期回执固定到本轮独立审查原件；不代表109/1000或阶段验收已通过。
 G0_BASIS_PATH: Path | None = ROOT / "report/evidence/S2B-T18/formal_g0_refresh_20261019_r01/g0_receipt_csr_r04.json"
 G0_BASIS_SHA256: str | None = "45369c180f6b5de585dea35c4d5ac6b0655b80f5be0c5a100960d737b929bd79"
@@ -136,6 +137,7 @@ def _verify_csr_flow_sources() -> None:
         ROOT / "verification/s2b_csr_acceptance_flow.py": CSR_FLOW_SOURCE_SHA256,
         ROOT / "verification/s2b_csr_board_acceptance.py": CSR_BOARD_SOURCE_SHA256,
         ROOT / "verification/s2b_csr_busy_observer.py": CSR_BUSY_SOURCE_SHA256,
+        ROOT / "verification/s2b_csr_deadline_flow.py": CSR_DEADLINE_SOURCE_SHA256,
     }
     for path, expected in pins.items():
         actual = digest(exact_path(path).read_bytes())
@@ -727,6 +729,9 @@ def validate_v1_inputs(config: dict, apis, *, scope: str = "model") -> dict:
     """全部核验模型、构建、证明与最终独审后才允许建立 SDK 会话。"""
     require(scope in ("model", "csr"), "scope只能是model或csr")
     expected_keys = CONFIG_KEYS if scope == "model" else CSR_CONFIG_KEYS
+    if scope == "csr" and "csr_profile" in config:
+        expected_keys = CSR_CONFIG_KEYS | {"csr_profile"}
+        require(config["csr_profile"] == "with_deadlines", "未知CSR执行profile")
     require(type(config) is dict and set(config) == expected_keys, "config 字段集合不匹配")
     require(type(config["schema_version"]) is int and config["schema_version"] == 1, "config schema_version 错误")
     approved_basis = validate_preflight_basis(config)
@@ -1008,9 +1013,8 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
             reentry_evidence = controller.guarded(stop_prior_model_app)
             if journal:
                 journal.event("csr_reentry.stop_running_model_app", "PASS", **reentry_evidence)
-        controller.select_and_gate()
-        controller.system_reset_stop(checked["cold_basis"])
-        if csr_map is not None:
+        def register_debug_map():
+            """当前自有会话只登记一次相同XSA的CSR地址映射。"""
             helper, helper_config, helper_record, session, owner = csr_map
             helper.register_csr_debug_map(helper_config, helper_record, journal,
                                           session, controller, owner)
@@ -1018,6 +1022,19 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
                 journal.event("csr_debug_map.registered", "PASS",
                               helper_sha256=CSR_MAP_HELPER_SOURCE_SHA256,
                               debug_memory_map=helper_record.get("debug_memory_map"))
+        controller.select_and_gate()
+        if reentry is not None and csr_map is not None:
+            register_debug_map()
+            previous = controller.stable_csr("csr_reentry.before_system_reset")
+            apis.csr_flow.csr.checked_snapshot(previous)
+            status = previous[0x00C]
+            require(status & 7 in (0, 4, 5) and status & 0x400 and
+                    status & 0x3100 == 0 and previous[0x068] == 0,
+                    "CSR重入前旧任务尚未安全归还或仍有pending，禁止system reset")
+            controller.record["csr_reentry"]["before_system_reset_csr"] = previous
+        controller.system_reset_stop(checked["cold_basis"])
+        if csr_map is not None and reentry is None:
+            register_debug_map()
         controller.deploy()
         require(controller.configured and controller.postconfigured and controller.app_running and not controller.failed,
                 "T16 EOS/postconfig/app 状态未全部通过")
@@ -1064,7 +1081,8 @@ def execute_board_flow(controller, wire, config: dict, checked: dict, apis,
         elif scope == "csr":
             result = apis.csr_flow.execute(controller, wire, config, checked, apis,
                                            admission, journal)
-            if result.get("status") != "PASS_CSR_RECOVERY_SCOPE_ONLY":
+            if result.get("status") not in ("PASS_CSR_RECOVERY_SCOPE_ONLY", "PASS_CSR_DEADLINE_SCOPE_ONLY",
+                                             "BLOCKED_CSR_RECOVERY_SCOPE_ONLY"):
                 error = RunnerError("CSR固定流程失败；原始阶段异常见acceptance结果")
                 error.csr_flow_result = result
                 raise error
@@ -1310,7 +1328,8 @@ def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, reco
     if record.get("scope") == "csr":
         for path in (Path(apis.csr_flow.__file__),
                      exact_path(ROOT / "verification/s2b_csr_board_acceptance.py"),
-                     exact_path(ROOT / "verification/s2b_csr_busy_observer.py")):
+                     exact_path(ROOT / "verification/s2b_csr_busy_observer.py"),
+                     exact_path(ROOT / "verification/s2b_csr_deadline_flow.py")):
             files_by_path[_relative(path)] = _manifest_file("source", path)
     external_inputs = {}
     for key in ("preparation", "build_details", "visibility_proof", "visibility_review",
@@ -1560,7 +1579,7 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
             failure = failure or error
             record["status"] = "FAILED"
         record.update(finished_at_utc8=datetime.now(TZ).isoformat(), elapsed_seconds=time.monotonic() - started,
-                      native_exit_code=2 if failure else 0)
+                      native_exit_code=2 if failure or record["status"] == "BLOCKED_CSR_RECOVERY_SCOPE_ONLY" else 0)
         try:
             journal.close()
         except BaseException as error:

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "review_id": "S2B-T20 R10",
+  "reviewer_role": "原独立Reviewer",
+  "outcome": "PASS",
+  "reviewed_at_utc8_date": "2026-10-19",
+  "revisions": {
+    "base_commit": "83f7da0bb95fd990d2c07fefde56043f93dbb7b6",
+    "fix_commit": "395be46c7dc7ccef485d857f4e8bf62d1f7ccc09",
+    "fix_commit_parent": "83f7da0bb95fd990d2c07fefde56043f93dbb7b6",
+    "reviewed_head": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+    "fix_commit_is_ancestor_of_reviewed_head": true,
+    "six_files_match_fix_commit_at_reviewed_head": true
+  },
+  "review_scope": [
+    "审核固定sample000几何从绑定黄金reference导出及seed请求核验。",
+    "审核busy observer复用实际seed宽高生成后续请求，以及相应测试断言和回归覆盖。",
+    "核对CSR flow与Vitis runner中的源码SHA固定值是否绑定到实际源码。",
+    "范围为离线源码和既有回归证据审查；不包含板上验收或阶段验收。"
+  ],
+  "reviewed_files": [
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "629c0595d0f415868d60cecd72358a98ab6cc2c1fefdc0ce12ab780e43c91794"
+    },
+    {
+      "path": "verification/s2b_csr_acceptance_flow.py",
+      "sha256": "632b137e27c73fe6e648a49ab77a98bda31f4e5c36d0c3b241dd561e0fab11a9"
+    },
+    {
+      "path": "verification/s2b_csr_board_acceptance.py",
+      "sha256": "2384c4c001f82b8c877c0b861f97c356483ec4d5b627b7d8b6ef286b6fdb368b"
+    },
+    {
+      "path": "verification/s2b_csr_busy_observer.py",
+      "sha256": "e51dcf4360fe3f14805cc2e873449bc9b4367a92d40c2b06965f1e6cd68b2a20"
+    },
+    {
+      "path": "verification/test_s2b_csr_board_acceptance.py",
+      "sha256": "84afa6103fc96fdb422a1b3730e71833b90c1d997ef89b1312f1ba060e8f8d51"
+    },
+    {
+      "path": "verification/test_s2b_csr_busy_observer.py",
+      "sha256": "f941476878dbfca027a4f987711e22bbcafd7ca211c59caebeb01b9dfc4810c5"
+    }
+  ],
+  "review_findings": [
+    "reference几何为1440×1920的记录与R06 seed CSR请求相符；接受路径按绑定reference校验宽高并将其用于最后有效RUN身份核验。",
+    "busy请求检查reference几何与已消费seed RUN宽高相等，并使用seed请求宽高构造后续RUN；同时核对固定输入摘要。",
+    "busy observer几何测试只验证生成请求的宽高；observer动作及观察日志断言位于完整成功路径测试。",
+    "CSR flow与Vitis runner内的board、busy及flow SHA固定值均与六个文件的实算SHA一致。"
+  ],
+  "reviewer_actions": [
+    "相对路径补丁工具初次将文件落在项目父目录的同名临时目录；发现后将唯一回执移动到本任务指定的w2b证据目录，并移除空的临时目录。最终只保留指定证据目录中的review_outcome.json。"
+  ],
+  "diff_check": {
+    "command": "git diff --check 83f7da0bb95fd990d2c07fefde56043f93dbb7b6 395be46c7dc7ccef485d857f4e8bf62d1f7ccc09 -- vitis/run_s2b_model_acceptance.py verification/s2b_csr_acceptance_flow.py verification/s2b_csr_board_acceptance.py verification/s2b_csr_busy_observer.py verification/test_s2b_csr_board_acceptance.py verification/test_s2b_csr_busy_observer.py",
+    "exit_code": 0
+  },
+  "existing_regression_result": {
+    "path": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/regression_result.json",
+    "status": "PASS",
+    "tool": "Vitis v2026.1",
+    "tests": 199,
+    "native_exit_code": 0,
+    "source_commit": "83f7da0bb95fd990d2c07fefde56043f93dbb7b6",
+    "source_hashes_match_reviewed_files": true,
+    "log_path": "report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/vitis_regression.txt",
+    "log_sha256": "88e8596a37e8847d557957f6a9f35c764bdaccf7e8f33330d8c28640315f3fb8",
+    "log_sha256_recomputed_and_matched": true,
+    "log_summary": "Ran 199 tests in 50.144s; OK",
+    "reviewer_reran_tests": false,
+    "duration_note": "总控消息报告52.155秒；已存且哈希匹配的日志记为50.144秒。本Reviewer未重跑测试，不将两者差异解释为新的执行结果。"
+  },
+  "limitations": [
+    "本回执不代表G3板上验证、G4任务验收或G5阶段验收通过。",
+    "本回执不代表当前运行中的R07通过。",
+    "本Reviewer未运行测试、未操作硬件，未修改被审源码或HEAD；本回执是唯一新写入的目录。"
+  ]
+}

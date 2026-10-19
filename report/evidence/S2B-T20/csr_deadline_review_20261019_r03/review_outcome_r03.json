@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "review_id": "csr_deadline_review_20261019_r03",
+  "status": "PASS",
+  "review_scope": "独立只读代码审查；不代表实板或完整2B验收",
+  "baseline_commit": "54e6c8d607d9bbf3479d71ff820880aa2653c9ba",
+  "source_files": [
+    {"path": "verification/s2b_csr_deadline_flow.py", "sha256": "0894adf2aa370fd99a7c07cc5d29c7d46d261134c46a50b1c80aa3af0b03e4bb"},
+    {"path": "verification/test_s2b_csr_deadline_flow.py", "sha256": "a561563a8f0dabd7f55d423bf3d720d5a6beefe8fdab95ba70e27513dd6940ed"},
+    {"path": "verification/s2b_csr_acceptance_flow.py", "sha256": "67f8ffa463ee5980a9dda11bf4e59d5b4f8f2e0175c41a0206db22379f9b486c"},
+    {"path": "verification/test_s2b_csr_acceptance_flow.py", "sha256": "9caab5a0e2638beec71034493ad4509b928d070252d60a40df3e7e93633c565d"},
+    {"path": "verification/s2b_csr_busy_observer.py", "sha256": "bc6d69c8de4594e65a9db95443d36484ecd1ed0631158e915662060522b7197c"},
+    {"path": "verification/test_s2b_csr_busy_observer.py", "sha256": "6bb36672aed9e656bac0682fc648f1da201b533f1116c77368a9a618d0f789ab"},
+    {"path": "verification/test_s2b_model_acceptance_runner.py", "sha256": "2d198dc03104adad9b17595cf2cfff80e2f00695e0976ca7b1876f3edd6ed0d0"},
+    {"path": "verification/s2b_csr_board_acceptance.py", "sha256": "9ad1060b08eb8429770e58b21f8a4eea542a7bd8949ded9a0c920986709bad97"},
+    {"path": "verification/test_s2b_csr_board_acceptance.py", "sha256": "7f1b074d04e9bf69b85393a06b1b503e4108e08f7811aa344442ab4d16f56679"},
+    {"path": "vitis/run_s2b_model_acceptance.py", "sha256": "3a2f07463848aa5f162e0a5b31919268438c7fa16176e18a6e779aa31f21d725"}
+  ],
+  "closed_findings": [
+    {
+      "id": "R01-P2-recovery-output-collection",
+      "disposition": "false_positive_withdrawn",
+      "evidence": "recovery目录由fresh_run登记并由deadline输出收集器绑定；test_recovery_files_are_in_output_bindings_and_delivery_manifest覆盖该路径。"
+    },
+    {
+      "id": "R02-P2-blocked-manifest-exit-code",
+      "disposition": "closed",
+      "evidence": "BLOCKED检查现写exit_code=null；新增测试调用生产_scope_check和真实delivery.validate_check，确认无schema错误且状态仍为BLOCKED。"
+    },
+    {
+      "id": "R02-P2-drain-flag-before-ack",
+      "disposition": "closed",
+      "evidence": "short_deadline在安全终态后、ACK前验证required_fault_detail_mask；DRAIN调用要求bit3。测试验证缺bit3保留ERROR_SAFE且不发送ACK，存在bit3才匹配ACK并回IDLE。"
+    },
+    {
+      "id": "R02-P2-reentry-snapshot-gate",
+      "disposition": "closed",
+      "evidence": "CSR映射后复位前调用checked_snapshot并核验SAFE、owner、pending及ledger；生产分支测试覆盖合法DONE_SAFE和reserved status、pending、ledger、FAULT_DETAIL非法值均禁止system reset。"
+    }
+  ],
+  "profile_review": {
+    "standard": "保留sample000 seed、BusyObserver、frame0重接收、ABORT恢复及静止矩阵；未接入deadline子流程。",
+    "with_deadlines": "sample000 seed后复用既有会话运行deadline、mode0真实epoch对账、黄金恢复及静止矩阵；不运行BusyObserver、reaccept或ABORT，避免在外部DAP epoch变化后重放旧UART历史。",
+    "scope_semantics": "PASS_CSR_DEADLINE_SCOPE_ONLY仅表示已声明的有限profile；109样本、1000次压力、busy、ABORT和真实pending晚响应均未据此声称通过。标准profile遇未解析BRESP时保留BLOCKED及native exit 2。"
+  },
+  "verification": {
+    "status": "PASS",
+    "command": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat -s D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\csr_combined_flow_20261019_r01\\test_launcher.py",
+    "evidence_dir": "report/evidence/S2B-T20/csr_combined_flow_20261019_r01",
+    "result_sha256": "7d325d6e88c5027efcfceee7e2c45df43333133d84839d41da0e2a2044ada01d",
+    "log_sha256": "26f1ac998c2253388ce08bd9ccc2d63f6a67e25edd45ec727fbf1b68a3f71f07",
+    "tests": 129,
+    "failures": 0,
+    "errors": 0,
+    "native_exit_code": 0,
+    "elapsed_seconds": 23.11377859998902,
+    "limitations": ["离线回归，未连接SDK、JTAG、UART或硬件。", "不构成S2B实板验收或G4/G5通过。"]
+  },
+  "review_limitations": [
+    "本结论仅覆盖列出的10个源码/测试文件及其所调用CSR、JTAG、UART、transport和delivery契约。",
+    "没有真实BRESP原生暴露时，标准profile仍必须保持BLOCKED；本审查不将其改写为SLVERR或PASS。"
+  ]
+}

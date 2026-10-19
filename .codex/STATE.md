@@ -55,6 +55,8 @@
 - 2B 当前恢复观察（2026-10-19）：R14 是历史失败，不能继续称当前阻断。正式 R02 `formal_stress1000_then109_20261018_r02` 已运行；07:49 只读观察为 574 个连续 stress 结果、109 尚未执行，独审仅 `PASS_PREFIX_ONLY`，不是1000/109或G4/G5通过。入口为 `w2b/report/evidence/S2B-T18/resume_observation_20261019_r01/`及实际运行目录；恢复先核实进程完整身份与新日志，不因旧PID/HEAD或本行快照重启任务。用户现优先完成DSH插件适配，2B健康硬件后台保持独占、不干预。
 - 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 结束提交=`b87dd4f`（主提交 `7d56a24`） | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交、待 Codex 只读复核 | 下一接手方=Codex
 - 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
+- 环境路径索引（2026-10-19 核实）：项目根 `D:\FPGA_Competition`（主工作树 `main`，可写）；2B 工作树 `D:\FPGA_Competition\w2b`；厂商原件 `D:\FPGA\AX7Z020\AX7Z020`（**只读，保持不动**）；Vivado 2026.1 安装 `D:\Xilinx\2026.1`（启动器 `D:\Xilinx\2026.1\Vivado\bin\vivado.bat`）。
+- Obsidian 本项目仓库（2026-10-19 核实）：`C:\Users\22061\Documents\Obsidian Vault\02-项目\基于 AX7Z020 的低比特神经网络 FPGA 加速系统，实现摄像头手势识别并驱动板卡进行实时交互`；操作前先读该 Vault 的 `00-AI全局整理规则.md`，不导入其他 Vault 内容，该规则不得由工具/技能扩权。
 - 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
 - 主目录小工程（`vivado/AX7Z020_Gesture`）上板前阻碍：无 XDC；`synth_1` ERROR 且增量检查点 part 与 run 不符、BASIC 不含增量；板卡未上电。**仅适用该小工程，与 2B 无关，不得据此改 `w2b`。**
 

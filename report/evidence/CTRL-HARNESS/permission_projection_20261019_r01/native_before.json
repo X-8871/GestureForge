@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scope": "仅公开合成夹具的插件兼容测试；非真实项目源码审查",
+  "versions": {"DSH": "0.2.1-rc.2", "Relay": "0.2.18 + owner Peer 实验补丁"},
+  "session_id": "session-8769e7d0-c6f4-49dc-9667-7ad80ed5dbe1",
+  "provider": "jl-ds",
+  "model": "deepseek-v4.1-flash",
+  "reasoning_effort": "high",
+  "permission": "read-only",
+  "fixture": "tmp/CTRL-HARNESS/integration_20261019_r01/input.json",
+  "attempts": [
+    {"key": "CTRL-HARNESS-PUBLIC-CANARY-READ-20261019-R01", "status": "FAILED_BEFORE_PROMPT", "code": "PERMISSION_DENIED", "message": "Harness rejected permission preset read-only: permission: permissions session projection is not registered", "operation_id": "5d048232-c7b6-4341-9f9a-4fe2d15897b6", "allocated_run_id": "22f44244-89e5-4693-9d73-b732cb9017c9", "operation_state": "failed", "message_id": null, "created_at": "2026-10-18T23:52:05.861Z", "updated_at": "2026-10-18T23:52:06.625Z"},
+    {"key": "CTRL-HARNESS-PUBLIC-CANARY-READ-20261019-R01", "status": "REJECTED_CHANGED_PAYLOAD", "code": "OPERATION_CONFLICT", "reason": "相同幂等键的重试提示词不同；未创建第二个模型任务。"},
+    {"tool": "get_run", "run_id": "22f44244-89e5-4693-9d73-b732cb9017c9", "status": "NO_SNAPSHOT", "code": "INTERNAL_ERROR", "message": "unknown runId: 22f44244-89e5-4693-9d73-b732cb9017c9"},
+    {"key": "CTRL-HARNESS-PUBLIC-CANARY-READ-20261019-R02", "status": "REJECTED_BEFORE_PROMPT", "code": "PERMISSION_LEASE_CONFLICT"},
+    {"tool": "reconcile_permissions", "status": "PASS", "restored": true, "reason": "使用插件正式接口恢复原权限，未删除锁或修改策略。"},
+    {"key": "CTRL-HARNESS-PUBLIC-CANARY-READ-20261019-R03", "status": "FAILED_BEFORE_PROMPT", "code": "PERMISSION_DENIED", "message": "Harness rejected permission preset read-only: permission: permissions session projection is not registered"},
+    {"tool": "reconcile_permissions", "status": "PASS", "restored": true}
+  ],
+  "doctor": {"ok": true, "authority_id": "embedded-d13ea305232de4935bd899dd", "owner_pid": 25664, "host_url": "http://127.0.0.1:3162/", "remote_connected": true},
+  "native_api_sources": [
+    {"package": "@deepseek-ai/dsh-permission-presets", "path_in_asar": "dsh/node_modules/@deepseek-ai/dsh-permission-presets/lib/index.js", "sha256": "4f23c620145098d611d04d8363bc6716f49b26930c9141a21dc9a8df2b72ba63"},
+    {"package": "@deepseek-ai/dsh-api-session-controller", "path_in_asar": "dsh/node_modules/@deepseek-ai/dsh-api-session-controller/lib/index.js", "sha256": "a9801acb577b03053c5d5a3191ff555c5f1d791d0acddec113bea4511e33b386"}
+  ],
+  "cause_status": "CANDIDATE_NOT_YET_PROVEN",
+  "cause_candidate": "原生模型选择异步保存设置，权限服务可能重载；Relay 持有旧服务引用。必须通过真实生命周期单测、独立审查及安装后同范围复测验证，不能仅凭时间相邻断言。",
+  "limitations": ["失败时分配了 operation/run 标识，但没有可恢复 run snapshot 或模型消息；不能说完全没有分配 runId。", "另一个真实 CSR 源码审查因外传审批被拒，该范围未重试，合成测试不能替代该审批。", "没有读取 API 密钥、浏览器凭据，没有工程改动或硬件操作。"]
+}

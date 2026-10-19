@@ -1,0 +1,234 @@
+--- a/src/harness-entry.ts
++++ b/src/harness-entry.ts
+@@ -106,7 +106,7 @@
+         if ('error' in resolved) return undefined
+         return resolved.agent.session
+       },
+-      ctx.permissionPresets,
++      () => ctx.permissionPresets,
+     )
+     const permissions = new PermissionGatewayFacade(permissionProvider)
+     const gatewayPeerAdapter = createNativeGatewayPeerAdapter(
+--- a/src/permission-gateway/in-process-permission-provider.ts
++++ b/src/permission-gateway/in-process-permission-provider.ts
+@@ -19,19 +19,20 @@
+ export class InProcessPermissionProvider<TSession> implements PermissionProvider {
+   constructor(
+     private readonly resolveSession: (sessionId: string) => TSession | undefined | Promise<TSession | undefined>,
+-    private readonly presets: InProcessPermissionPresetPort<TSession>,
++    private readonly presets: InProcessPermissionPresetPort<TSession> | (() => InProcessPermissionPresetPort<TSession> | undefined),
+   ) {}
+ 
+   async readCurrent(sessionId: string): Promise<unknown> {
+     const session = await this.requireSession(sessionId)
+-    return this.presets.current(session)
++    return this.requirePresets(sessionId).current(session)
+   }
+ 
+   async select(sessionId: string, preset: PermissionPreset): Promise<PermissionSelectionResult> {
+     const session = await this.requireSession(sessionId)
+     try {
+-      this.presets.set(session, preset)
++      this.requirePresets(sessionId).set(session, preset)
+     } catch (error: unknown) {
++      if (error instanceof PermissionGatewayError) throw error
+       throw new PermissionGatewayError(
+         'PERMISSION_DENIED',
+         `Harness rejected permission preset ${preset}: ${error instanceof Error ? error.message : String(error)}`,
+@@ -39,6 +40,19 @@
+       )
+     }
+     return { accepted: true }
++  }
++
++  private requirePresets(sessionId: string): InProcessPermissionPresetPort<TSession> {
++    // 原生服务可能随配置重载替换，操作时取当前实例，不能继续持有已卸载的权限服务。
++    const presets = typeof this.presets === 'function' ? this.presets() : this.presets
++    if (presets === undefined) {
++      throw new PermissionGatewayError(
++        'PERMISSION_UNAVAILABLE',
++        'Harness native permission service is unavailable; task prompt was not submitted',
++        { sessionId },
++      )
++    }
++    return presets
+   }
+ 
+   private async requireSession(sessionId: string): Promise<TSession> {
+--- /dev/null
++++ b/tests/in-process-permission-lifecycle.test.ts
+@@ -0,0 +1,174 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import { Context, Service } from '@deepseek-ai/cordis'
++import {
++  InProcessPermissionProvider,
++  PermissionGatewayError,
++  PermissionGatewayFacade,
++  type InProcessPermissionPresetPort,
++  type PermissionPreset,
++} from '../src/permission-gateway/index.js'
++
++interface Session {
++  preset: PermissionPreset
++}
++
++test('静态 preset port 仍兼容既有调用', async () => {
++  const session: Session = { preset: 'read-only' }
++  const calls: string[] = []
++  const provider = new InProcessPermissionProvider<Session>(
++    () => session,
++    {
++      current(value) {
++        calls.push('current')
++        return value.preset
++      },
++      set(value, preset) {
++        calls.push(`set:${preset}`)
++        value.preset = preset as PermissionPreset
++      },
++    },
++  )
++
++  assert.equal(await provider.readCurrent('session-static'), 'read-only')
++  assert.deepEqual(await provider.select('session-static', 'workspace-write'), { accepted: true })
++  assert.deepEqual(calls, ['current', 'set:workspace-write'])
++  assert.equal(session.preset, 'workspace-write')
++})
++
++test('Cordis service 卸载和替换后动态 resolver 使用新实例', async () => {
++  const session: Session = { preset: 'read-only' }
++  const calls: string[] = []
++  const ctx = new Context()
++  const oldFiber = await ctx.plugin(installPermissionPresets('old', calls))
++  const oldService = ctx.get('permissionPresets') as TraceablePermissionPresets
++  const provider = cordisProvider(ctx, () => session)
++
++  assert.equal(await provider.readCurrent('session-replaced'), 'read-only')
++  await oldFiber.dispose()
++  assert.throws(() => oldService.set(session, 'workspace-write'), /projection not registered/u)
++
++  const newFiber = await ctx.plugin(installPermissionPresets('new', calls))
++  try {
++    assert.deepEqual(await provider.select('session-replaced', 'workspace-write'), { accepted: true })
++    assert.deepEqual(calls, ['old:current', 'new:set:workspace-write'])
++    assert.equal(session.preset, 'workspace-write')
++  } finally {
++    await newFiber.dispose()
++  }
++})
++
++test('dynamic service 卸载后不回退到旧实例', async () => {
++  const calls: string[] = []
++  const ctx = new Context()
++  const fiber = await ctx.plugin(installPermissionPresets('old', calls))
++  const provider = cordisProvider(ctx, () => ({ preset: 'read-only' }))
++
++  assert.equal(await provider.readCurrent('session-no-service'), 'read-only')
++  await fiber.dispose()
++  await assert.rejects(provider.readCurrent('session-no-service'), unavailable)
++  await assert.rejects(provider.select('session-no-service', 'workspace-write'), unavailable)
++  assert.deepEqual(calls, ['old:current'])
++})
++
++test('resolveSession 等待期间替换 Cordis service 后 current 读取新实例', async () => {
++  const calls: string[] = []
++  const ctx = new Context()
++  const oldFiber = await ctx.plugin(installPermissionPresets('old', calls))
++  const oldService = ctx.get('permissionPresets') as TraceablePermissionPresets
++  let resolveSession!: (session: Session) => void
++  let signalStarted!: () => void
++  const started = new Promise<void>(resolve => { signalStarted = resolve })
++  const pendingSession = new Promise<Session>(resolve => { resolveSession = resolve })
++  const provider = cordisProvider(ctx, () => {
++    signalStarted()
++    return pendingSession
++  })
++
++  const reading = provider.readCurrent('session-race')
++  await started
++  await oldFiber.dispose()
++  assert.throws(() => oldService.set({ preset: 'read-only' }, 'workspace-write'), /projection not registered/u)
++  const newFiber = await ctx.plugin(installPermissionPresets('new', calls))
++  try {
++    resolveSession({ preset: 'read-only' })
++    assert.equal(await reading, 'read-only')
++    assert.deepEqual(calls, ['new:current'])
++  } finally {
++    await newFiber.dispose()
++  }
++})
++
++test('native set 拒绝保持 PERMISSION_DENIED 且不重试其他权限', async () => {
++  const attempted: string[] = []
++  const provider = new InProcessPermissionProvider<Session>(
++    () => ({ preset: 'read-only' }),
++    {
++      current: () => 'read-only',
++      set(_session, preset) {
++        attempted.push(preset)
++        throw new Error('native policy denied')
++      },
++    },
++  )
++  const gateway = new PermissionGatewayFacade(provider)
++
++  await assert.rejects(gateway.select('session-denied', 'workspace-write'), (error: unknown) => {
++    assert(error instanceof PermissionGatewayError)
++    assert.equal(error.code, 'PERMISSION_DENIED')
++    assert.deepEqual(error.details, { sessionId: 'session-denied', expected: 'workspace-write' })
++    return true
++  })
++  assert.deepEqual(attempted, ['workspace-write'])
++})
++
++function cordisProvider(
++  ctx: Context,
++  resolveSession: (sessionId: string) => Session | undefined | Promise<Session | undefined>,
++): InProcessPermissionProvider<Session> {
++  return new InProcessPermissionProvider(
++    resolveSession,
++    () => ctx.get('permissionPresets') as InProcessPermissionPresetPort<Session> | undefined,
++  )
++}
++
++function installPermissionPresets(label: string, calls: string[]) {
++  return (ctx: Context) => {
++    const service = new TraceablePermissionPresets(ctx, label, calls)
++    return () => service.unregisterProjection()
++  }
++}
++
++class TraceablePermissionPresets extends Service {
++  private registered = true
++
++  constructor(ctx: Context, private readonly label: string, private readonly calls: string[]) {
++    super(ctx, 'permissionPresets')
++  }
++
++  current(session: Session): PermissionPreset {
++    this.assertRegistered()
++    this.calls.push(`${this.label}:current`)
++    return session.preset
++  }
++
++  set(session: Session, preset: string): void {
++    this.assertRegistered()
++    this.calls.push(`${this.label}:set:${preset}`)
++    session.preset = preset as PermissionPreset
++  }
++
++  unregisterProjection(): void {
++    this.registered = false
++  }
++
++  private assertRegistered(): void {
++    if (!this.registered) throw new Error('projection not registered')
++  }
++}
++
++function unavailable(error: unknown): boolean {
++  assert(error instanceof PermissionGatewayError)
++  assert.equal(error.code, 'PERMISSION_UNAVAILABLE')
++  return true
++}

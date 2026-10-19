@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-18（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
+更新：2026-10-19（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
 
 ## 当前目标与阶段
 
@@ -47,12 +47,12 @@
 | 阶段 | 工作树 | 分支 | HEAD | 状态入口 |
 |---|---|---|---|---|
 | 2A（已冻结） | `D:\FPGA_Competition` | `main` | 见下方冻结提交 | 本文件下方 2A 证据段 |
-| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `2e9e3c6`（104 项未提交） | `w2b/.codex/STATE.md`（技术事实） |
+| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `5e26eddb`（2026-10-19 只读核实） | `w2b/.codex/STATE.md`及该树最新证据 |
 | 3（未启动） | `D:\codex-worktrees\dbdf` | `codex/stage3-video` | `896e6c7` | 该工作树自身 |
 | 较早 2B | `D:\codex-worktrees\96a3` | `codex/stage2b-t01-board-audit` | `e26feea` | 仅历史参考 |
 
 - 主目录 STATE 只维护全局状态、任务归属与阶段入口；阶段技术事实以对应工作树 STATE/证据为准，不在此复制全文。
-- 2B 最新有效阻断（2026-10-18 只读核对 `w2b`）：R14 `report/evidence/S2B-T19/single_sample_qualification_20261017_r14` 为 `BLOCKED`/`hardware_execution=NOT_RUN`/`native_exit_code=2`，错误 `必须通过Vitis2026.1脚本入口`（未在 Vitis 2026.1 脚本入口环境启动）；最新独立收据 r04 `status=PASS` 仅批准“单样本资格入口机制”，`g3/g4/g5=NOT_PASSED`；`w2b` HEAD 仅绑定 r01 收据，指向 r04 的锚点改动未提交。`w2b/.codex/STATE.md` 头部 HEAD 与“收据未签发”表述已过时，待 Codex 更新（DSH 未写入该工作树）。
+- 2B 当前恢复观察（2026-10-19）：R14 是历史失败，不能继续称当前阻断。正式 R02 `formal_stress1000_then109_20261018_r02` 已运行；07:49 只读观察为 574 个连续 stress 结果、109 尚未执行，独审仅 `PASS_PREFIX_ONLY`，不是1000/109或G4/G5通过。入口为 `w2b/report/evidence/S2B-T18/resume_observation_20261019_r01/`及实际运行目录；恢复先核实进程完整身份与新日志，不因旧PID/HEAD或本行快照重启任务。用户现优先完成DSH插件适配，2B健康硬件后台保持独占、不干预。
 - 交接记录（一行式）：任务=`交接核实与统一入口补齐` | 负责人=DSH | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`51f7130` | 结束提交=`b87dd4f`（主提交 `7d56a24`） | 允许修改范围=`.codex/STATE.md`、`.codex/DSH_HANDOFF_20261018.md`、`report/evidence/CTRL-DSH-HANDOFF/**` | 未提交改动归属=主目录原有 403 项属 Codex/用户、DSH 未动；`w2b` 104 项属 Codex | 状态=本轮已提交、待 Codex 只读复核 | 下一接手方=Codex
 - 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
 - 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
@@ -60,7 +60,8 @@
 
 ## Git 与下一步
 
-- 2026-10-18 工具接入 CTRL-HARNESS：固定上游`17e690cf9a56fc65fe39b2c214276cfdcb5a1891`/0.2.18；唯一精确版本豁免仍仅适用DSH`0.2.1-rc.2`。Wong批准的原生独立owner Peer补丁默认关闭显式开关，独审r02 PASS（16/16）、全回归253/253 PASS、构建/打包/官方重装exit0；已启用获批开关，未借browserPeer/读密钥/改native策略。DSH正常重启后desktop/embedded/ready；授权验收窗口`01a14da3-2112-7f51-9ea9-59618413d762`（gpt-6-luna/xhigh）原生doctor、workspace/capability/session查询通过，原reading signal故障已解除。工程有4个idle会话（1非空/3空白），未猜选或发送ACK；待Wong确认目标会话/模型后完成R06消息往返。P05证据`report/evidence/CTRL-HARNESS/gateway_peer_20261018_r05/`，旧r01/r02/r03失败保留。Codex代理SHA未变未重装，不重启Codex、不写2B/硬件、不新增2B门禁。
+- 2026-10-18 工具接入 CTRL-HARNESS：固定上游`17e690cf9a56fc65fe39b2c214276cfdcb5a1891`/Relay0.2.18，仅豁免DSH`0.2.1-rc.2`。独立原生owner Peer补丁独审PASS（16/16）、全回归253/253 PASS、构建/官方安装exit0，源码/安装哈希未变；P05提交`4722cd5`。Wong指定现有空白会话`session-8769e7d0-c6f4-49dc-9667-7ad80ed5dbe1`及`jl-ds/deepseek-v4.1-flash/high`后，授权验收窗口`01a14da3-2112-7f51-9ea9-59618413d762`通过原生start_review/read-only和wait_run取得终态succeeded/精确ACK；run=`925e9e22-a198-4614-8313-7317fb53da0d`，30.988秒。主控核对10次原生调用元数据、实际安装哈希与9项源码、原16项脏文件哈希不变，只读连通验收通过。证据`report/evidence/CTRL-HARNESS/native_ack_20261018_r07/`；首次空scope数组校验失败保留，依正式optional语义省略四字段后成功，未扩大权限。模型内部工具/读取事件未采集，不宣称零读取；工程读写协作/生产稳定性/板卡验收未测。仍为获批精确版本实验兼容，未借browserPeer/读密钥/改native策略、未重启Codex或写2B/硬件；旧失败证据保留。
+- 2026-10-19 CTRL-HARNESS 公开合成文件测试发现真实权限投影故障：`PERMISSION_DENIED / permissions session projection is not registered`；失败发生模型提示提交前，分配operation/run标识但无run快照；通过正式`reconcile_permissions`恢复原权限，未删锁。最小候选改为逐操作解析当前权限服务、缺失仍拒绝；独审PASS仅限未上线候选，258/258回归、构建/包检查及实际DSH Cordis4.0.5的5/5生命周期测试通过。证据`report/evidence/CTRL-HARNESS/permission_projection_20261019_r01/`。**候选尚未安装，原生读取/写回测试未通过，不能称插件适配完成**；当前安装bundle仍SHA `2004bc01…`，待Wong从托盘正常退出DSH后按官方CLI替换固定候选包并同范围复测；不强杀、不扩大权限、不重启Codex或2B。真实CSR源码向`jl-ds`处理的另项请求被外传审批拒绝，未重试；合成测试不替代该授权。
 - 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。
 - 新增交付规则见 `AGENTS.md`「产物落点、阶段对接与 ROSS 使用」及 `report/README.md`；只读检查器提交 `9db8d64` 已通过50项回归与独立审查，证据 `report/evidence/CTRL-DELIVERY/validation_20261008_2054/`。它只核对当前声明的输入/证据，不代表阶段 G0/G4/G5 或实物通过。
 - 2026-10-11 按 Wong 授权清理已结束任务的可重建缓存：C盘仅npm/pip下载缓存，操作时净释放6,073,454,592 B；D盘仅当前候选109个成功RunId下218个精确PCH文件，净释放31,633,760,256 B。其余8,434个候选文件前后SHA一致，109个可执行文件保留；全部失败目录、模型/数据、波形、2B/3工作树及用户原16项修改不动。范围经独立Reviewer PASS；精确清单、命令和空间口径见 `report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/cleanup_record.json`，不是全库清空，下载/PCH缓存后续可重建。

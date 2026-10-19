@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "OFFLINE_CANDIDATE_VALIDATED_NATIVE_PENDING",
+  "observed_date_utc8": "2026-10-19",
+  "upstream_commit": "17e690cf9a56fc65fe39b2c214276cfdcb5a1891",
+  "relay_version": "0.2.18",
+  "dsh_version": "0.2.1-rc.2",
+  "experimental_exact_version_exemption_only": true,
+  "change": "权限服务由构造时缓存改为逐操作解析当前实例；等待session后再解析；缺失仍拒绝，原拒绝与确认语义保留，不改原生权限策略。",
+  "cause": "CANDIDATE_STALE_SERVICE_REFERENCE; 尚未通过安装后的原生复测证明现场因果",
+  "checks": {
+    "full_regression": {"status": "PASS", "files": 50, "passed": 258, "total": 258, "exit_code": 0, "seconds": 40.020527},
+    "typescript_and_build": {"status": "PASS", "exit_code": 0},
+    "package_check": {"status": "PASS", "exit_code": 0, "files": 230, "bytes": 5214049},
+    "actual_native_cordis_lifecycle": {"status": "PASS", "version": "4.0.5", "passed": 5, "total": 5, "exit_code": 0},
+    "independent_review": {"status": "PASS", "scope": "未上线3文件候选", "independent_tests": "5/5及16/16"},
+    "native_read_before_patch": {"status": "FAIL", "code": "PERMISSION_DENIED", "details": "native_before.json"},
+    "native_permission_restore": {"status": "PASS", "method": "reconcile_permissions", "restored": true},
+    "candidate_installation": {"status": "BLOCKED", "reason": "DSH仍运行；官方CLI安装要求先正常退出，已请求托盘Quit，没有强制终止。"},
+    "native_read_after_patch": {"status": "NOT_RUN"},
+    "native_workspace_write": {"status": "NOT_RUN"},
+    "hardware_or_phase2b_acceptance": {"status": "NOT_APPLICABLE", "reason": "独立插件适配，不改变2B实现或硬件会话。"}
+  },
+  "prior_failures_preserved": [
+    {"kind": "测试编写阶段类型错误", "details": "新增测试28:9及109:24的string/PermissionPreset冲突，prepare外层exit1、tsc exit2；测试已修复，后续完整构建成功。"},
+    {"kind": "首次全回归启动环境错误", "exit_code": 1, "details": "仅子进程TEMP字符串转义错误导致tsx临时目录ENOENT；logs/full_tests.log和logs/validation.json保留，改用Path生成当前进程TEMP后在validation_r02完整成功；未改用户环境变量。"},
+    {"kind": "原生投影与权限租约错误", "details": "native_before.json保留；仅使用正式恢复接口，不删锁，不调高权限。"}
+  ],
+  "candidate": {
+    "package_cache": "D:\\FPGA_Competition\\tmp\\CTRL-HARNESS\\permission_projection_20261019_r01\\harness-relay-mcp-0.2.18-permission-lifecycle-exp.tgz",
+    "package_sha256": "9416aa5a9ae3bff4759f6e05711ff523193c1b210decd60ad2e6368c02494a44",
+    "harness_sha256": "d5a655c50a767692bcd3f08f1173de54a79277d36c4db80be53f4e06123fcbf8",
+    "unchanged_proxy_sha256": "d8cb5b16e134d3c5e3d532038525b6281928adc23ab6337eda24718f0a78a01d",
+    "installed_harness_sha256_at_check": "2004bc0186d15dc7520c1e13e9b9e66dc24681ed23cfb831974b8c9fc8f65f31",
+    "installed": false
+  },
+  "next": ["核实DSH已从托盘正常退出且无DSH运行任务", "备份原配置和包依赖后，使用既有官方Desktop CLI plugin add安装固定哈希候选包，禁生命周期脚本与自动peer安装，精确版本豁免不变", "正常启动DSH并核对安装哈希、doctor与原生查询", "只在原公开合成夹具目录复测真实读取、workspace-write写回及本地结果校验，保持scope不扩展；若失败保留证据再诊断", "成功前不宣称插件适配完成或工程协作验收通过"],
+  "safety": {"credentials_read_or_displayed": false, "browser_peer_borrowed": false, "native_policy_changed": false, "outside_fixture_model_processing": false, "codex_restarted": false, "dsh_force_killed": false, "phase2b_interrupted": false, "original_user_dirty_files_unchanged": 16},
+  "limitations": ["当前只完成离线候选，G4未通过；尚未安装和原生读写验收。", "scope字段是指令边界，不是强制逐路径沙箱，不能宣称已有强隔离证明。", "真实CSR源码外传审批仍独立受阻，未重试或换通道；公开合成测试不替代该授权。", "生产稳定性、长任务中断恢复、跨Agent完整开发闭环尚未验收。"]
+}

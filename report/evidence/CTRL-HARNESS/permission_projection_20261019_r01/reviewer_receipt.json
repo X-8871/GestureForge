@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "reviewer_id": "01a15178-705c-7061-90f7-82692f4b3186",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "high",
+  "verdict": "PASS",
+  "scope": "仅3项冻结文件的未上线候选；不证明现场因果或原生集成成功",
+  "read_only": true,
+  "files": {
+    "src/harness-entry.ts": "3963f3f195ae644bc06ff1c6b0f7155c1b3ce597f9d32501e5e787dfdc673f67",
+    "src/permission-gateway/in-process-permission-provider.ts": "0fa321615fc4c94cdaf3261090b342b48c086c4ebe1578ab6059d36f5939ab93",
+    "tests/in-process-permission-lifecycle.test.ts": "4acc0b19b7cc17259e4b336415c10320dfbec1745694e8366d2b18e64c121872"
+  },
+  "independent_commands": [
+    {"command": "node.exe node_modules/tsx/dist/cli.mjs --test tests/in-process-permission-lifecycle.test.ts", "passed": 5, "total": 5, "exit_code": 0},
+    {"command": "node.exe node_modules/tsx/dist/cli.mjs --test tests/permission-gateway.test.ts tests/native-gateway-peer.test.ts", "passed": 16, "total": 16, "exit_code": 0}
+  ],
+  "independent_findings": [],
+  "checked_parent_evidence_not_rerun": ["50文件258/258完整回归", "TypeScript与构建", "包检查", "实际DSH Cordis4.0.5的5/5生命周期测试"],
+  "completed_report": "Hello Wong. PASS：这3个文件可以作为未上线候选提交；没有阻断发现，也未修改或提交文件。动态解析在等待session后读取当前权限服务；服务缺失时fail closed，不回退旧实例；静态port兼容；调用保留服务对象接收者；原生拒绝仍为PERMISSION_DENIED，权限确认严格比较实际值。任务提交路径在权限选择与确认成功后才继续。现场集成仍pending，本PASS不证明安装、上线或现场故障因果。",
+  "audit_addendum": "Reviewer本人独立执行5/5和16/16测试exit0；258/258、构建及实际Cordis4.0.5测试是核对父Agent日志，未由Reviewer重跑。静态审查与基线对照由Reviewer完成。"
+}

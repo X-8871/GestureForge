@@ -358,13 +358,14 @@ class MemorySerial:
         return result
 
 
-def raw_response(request, epoch, *, status=0x400, run=False, error=0, code=0):
+def raw_response(request, epoch, *, status=0x400, run=False, error=0, code=0, index=0):
     """独立结构化响应；负logits只作格式测试，不充当业务黄金。"""
-    payload = struct.pack("<Q8I", epoch, status, error, 0, 0, 0, 0, 1, code)
+    payload = struct.pack("<Q8I", epoch, status, error, 0, 0, 0, index, request.repeat, code)
     if run:
         payload += bytes([129]) * 25350
     prefix = struct.pack("<4sHH7I", b"S2BU", 1, request.op | 0x8000, request.sequence,
-                         request.frame, request.width, request.height, 1, len(payload), zlib.crc32(payload))
+                         request.frame + index, request.width, request.height, request.repeat,
+                         len(payload), zlib.crc32(payload))
     return prefix + struct.pack("<I", zlib.crc32(prefix)) + payload
 
 
@@ -403,6 +404,30 @@ class RawWireTests(unittest.TestCase):
 
     def test_prior_complete_raw_receipts(self):
         self.seed(); self.prior()
+
+    def test_acceptance_runner_registers_borrowed_jtag_receipt(self):
+        request, header = csr.transport.make_request(1, 1, 0, self.weights)
+        runner = csr.model.AcceptanceRunner(self.wire, self.root / "runner", {"scope": "MOCK_ONLY"},
+                                            capture_wire_receipts=True)
+        runner.send(request, header, self.weights, {"kind": "MOCK_ONLY"})
+        self.serial.raw.extend(raw_response(request, 0))
+        runner.receive(request, 0)
+        runner.finish("MOCK_ONLY")
+        self.assertEqual(len(self.wire.receipt_attempts), 1)
+        self.assertEqual(self.wire.receipt_attempts[0]["request_header_hex"], header.hex())
+        self.assertEqual(self.wire.receipt_attempts[0]["raw_received_hex"], raw_response(request, 0).hex())
+
+    def test_default_runner_keeps_repeated_model_responses_off_receipt_ledger(self):
+        payload = struct.pack("<II", 1000, 2000) + self.input_raw
+        request, header = csr.transport.make_request(2, 1, 9, payload, width=640, height=480, repeat=2)
+        runner = csr.model.AcceptanceRunner(self.wire, self.root / "repeat_runner", {"scope": "MOCK_ONLY"})
+        runner.send(request, header, payload, {"kind": "MOCK_ONLY"})
+        for index in range(2):
+            self.serial.raw.extend(raw_response(request, index + 1, status=0xE04, run=True, index=index))
+            runner.receive(request, index)
+        runner.finish("MOCK_ONLY")
+        self.assertEqual(self.wire.receipt_attempts, [])
+        self.assertEqual(self.wire.epoch, 2)
 
     def test_replaced_successful_weights_rejects_historical_load(self):
         self.send_receive(1, 1, self.weights, epoch=0)

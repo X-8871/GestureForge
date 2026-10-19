@@ -214,8 +214,10 @@ def validate_plan(plan):
 
 class AcceptanceRunner:
     """逐帧锁存原始结果；不打开/关闭串口，不调用SDK，不自动重试或重同步。"""
-    def __init__(self, wire, run, admission):
+    def __init__(self, wire, run, admission, *, capture_wire_receipts=False):
         self.wire, self.run, self.admission = wire, transport.new_directory(run), admission
+        require(type(capture_wire_receipts) is bool, "wire receipt捕获选项必须为bool")
+        self.capture_wire_receipts = capture_wire_receipts
         self.failed = False
         self.started = time.monotonic()
         self.log = (self.run / "progress.jsonl").open("x", encoding="utf-8", newline="\n")
@@ -263,6 +265,7 @@ class AcceptanceRunner:
         frame = request.frame + index
         directory = transport.new_directory(self.run / f"{phase}_{frame:08d}")
         start, previous_epoch, started = self.rx_position(), self.wire.epoch, time.monotonic()
+        rx_chunk_start = len(getattr(self.wire, "rx_chunks", ()))
         record = {"status": "IN_PROGRESS", "phase": phase, "sequence": request.sequence,
                   "frame": frame, "repeat_index": index, "repeat_total": request.repeat,
                   "request_header_hex": request.pack().hex(), "previous_epoch": previous_epoch}
@@ -272,6 +275,12 @@ class AcceptanceRunner:
             require(len(raw) >= transport.HEADER.size, "缺少原UART响应")
             parsed = transport.decode_response(raw[:40], raw[40:], request, index, previous_epoch)
             require(returned == parsed, "receive返回值与实际原UART不符")
+            if self.capture_wire_receipts:
+                record_receipt = getattr(self.wire, "record_completed_receipt", None)
+                require(callable(record_receipt), "启用wire receipt捕获时底层会话不支持receipt登记")
+                require(index == 0, "JTAG receipt扩展只接受单响应请求")
+                record_receipt(request, raw, previous_epoch=previous_epoch,
+                               rx_chunk_start=rx_chunk_start, parsed=parsed)
             meta, heads, boxes = parsed
             record.update(meta=meta, detections=boxes, raw_uart=span)
             save(directory / "metadata.json", record)

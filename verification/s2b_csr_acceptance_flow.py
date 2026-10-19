@@ -136,7 +136,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
         transport.require(not wire.failed and wire.abort_pending is None, "CSR流程开始前wire失败或有pending")
 
         seed_dir = fresh_run("csr_seed_sample000")
-        seed = model.AcceptanceRunner(wire, seed_dir, admission)
+        seed = model.AcceptanceRunner(wire, seed_dir, admission, capture_wire_receipts=True)
         seed.record["hardware_execution"] = "BORROWED_SESSION_UART_DAP_REQUESTED"
         weight_path, weights = model.read_bound(plan["weights"])
         seq = wire.last_sequence + 1
@@ -158,7 +158,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
                 "实际忙启动拒绝BusyObserver未通过")
 
         second_dir = fresh_run("csr_reaccept_sample000_frame0")
-        second = model.AcceptanceRunner(wire, second_dir, admission)
+        second = model.AcceptanceRunner(wire, second_dir, admission, capture_wire_receipts=True)
         second.record["hardware_execution"] = "BORROWED_SESSION_UART_DAP_REQUESTED"
         second.run_input(plan["rows"][0], wire.last_sequence + 1, 0, 1,
                          config["core_timeout"], config["drain_timeout"], "csr_reaccept")

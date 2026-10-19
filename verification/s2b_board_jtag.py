@@ -74,6 +74,27 @@ class JtagWireSession(transport.WireSession):
         return {"request_header_hex": header.hex(), "request_payload_hex": request_payload.hex(),
                 "header_hex": raw_header.hex(), "payload_hex": payload.hex(), "meta": parsed[0]}
 
+    def record_completed_receipt(self, request, raw, *, previous_epoch, rx_chunk_start, parsed):
+        """为借用会话的通用runner登记已解码响应，并核对实际接收分块。"""
+        require(type(request) is transport.Header and request.sequence in self.sent_requests,
+                "缺少receipt对应的真实已发送请求")
+        sent, header, request_payload = self.sent_requests[request.sequence]
+        require(sent == request and header == request.pack(), "receipt请求身份变化")
+        require(type(raw) is bytes and type(previous_epoch) is int and type(rx_chunk_start) is int,
+                "receipt输入类型错误")
+        chunks = b"".join(self.rx_chunks[rx_chunk_start:])
+        require(chunks == raw, "receipt原字节与串口分块记录不同")
+        require(len(raw) >= transport.HEADER.size, "实际UART响应缺少完整头")
+        raw_header, payload = raw[:transport.HEADER.size], raw[transport.HEADER.size:]
+        verified = transport.decode_response(raw_header, payload, request, 0, previous_epoch)
+        require(type(parsed) is tuple and len(parsed) == 3 and parsed == verified,
+                "runner解码与receipt原字节不一致")
+        self.receipt_attempts.append({"request_header_hex": header.hex(),
+                                      "request_payload_hex": request_payload.hex(),
+                                      "raw_received_hex": raw.hex(), "abort_ready": False})
+        return {"request_header_hex": header.hex(), "request_payload_hex": request_payload.hex(),
+                "header_hex": raw_header.hex(), "payload_hex": payload.hex(), "meta": verified[0]}
+
 
 class JtagError(RuntimeError):
     """门禁或真实读回失败；当前控制器永久锁存失败。"""

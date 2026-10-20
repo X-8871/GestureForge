@@ -1,0 +1,256 @@
+{
+  "schema": "stage3_t05_sw_diag_v7_build_record_v1",
+  "task_id": "S3-T05-SW3 v7",
+  "task_board_id": "task-4",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "generated_local": "2026-10-20T13:43:05+0800",
+  "purpose": "v7 纯新增：①只读回读 OV5640 ISP/AWB/AEC 关键寄存器（0x5001/0x3406/0x3400..0x3405/0x3503/0x3500..0x3502/0x5580..0x558B/0x503D/0x4300/0x501F/0x3035），用于判定“彩条蓝色分量只有期望约 42%”是否由 ISP/AWB 造成；②编译期开关 S3_AWB_OFF（默认 0）出一个启动 S2MM 前关闭 AWB（0x5001 bit0 清 0）的 A/B ELF；③保留 v6 的 64 KB 帧缓冲指纹与 t≈30 s 传感器回读。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "fe5177d9079932bb657922cc976c332aa50e7523",
+    "note": "任务卡给定起始 HEAD 41ee5ba003147d77349e8908c38b2efc97752ca8；本任务未提交 Git。"
+  },
+  "inputs": {
+    "xsa_sof_fix": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "bytes": 633089,
+      "note": "任务卡指定 1f5b138e...cb0e3；实测一致"
+    },
+    "vendor_app_src_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "bytes": 3735
+    },
+    "vendor_src_ov5640_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/ov5640.c",
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec",
+      "bytes": 9673,
+      "note": "厂商 init 表来源（期望值对照），见证据 vendor_init_extract/"
+    },
+    "v4_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v4.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "v5_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748
+    },
+    "v6_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v6.patch",
+      "sha256": "4c7becc145c845d14b457e7917273f9c50120d9d513a0dc2612ecd057c08b960",
+      "bytes": 14583
+    },
+    "bsp_xtime_l_h": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build/app/empty_application_bsp/ps7_cortexa9_0/include/xtime_l.h",
+      "sha256": "9a9325ed8a6c7b0a65dd7cda97d39c3c94a374be83d5f31579aadf0d325c09be",
+      "bytes": 2867
+    },
+    "makefile_app": {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04_vitis/Makefile.app",
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503",
+      "bytes": 1729,
+      "note": "编译规则用 OPT_FLAGS、链接规则不用 → 可用命令行变量注入 -DS3_AWB_OFF=1"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py",
+      "sha256": "bf12bb390a1d6898c9c5696c79aea54cf03f34f32363f509f141b81a30a40820",
+      "bytes": 35287,
+      "note": "新增 v7 变体；默认变体仍为 v5；v4/v5/v6 输出逐字节不变（见 commands 的回归项）"
+    },
+    {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "sha256": "d471317726818a835e5e6aaf25108df688b122f6aacd641e933d48fffcb79cad",
+      "bytes": 18082,
+      "note": "只改 display_demo.c，373 行"
+    }
+  ],
+  "commands": [
+    {
+      "id": "regression_default_v5",
+      "command_text": "python scripts/stage3_t04/make_app_diag_patch.py <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/default_regen.patch <…>/scratch_default",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/default_regen.log",
+      "result": "与 s3_t04_app_diag_v5.patch 逐字节相同（1cee3145...ec0a）"
+    },
+    {
+      "id": "regression_v4",
+      "command_text": "同脚本 + 末尾 v4 → tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/v4_regen.patch",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/v4_regen.log",
+      "result": "与 s3_t04_app_diag_v4.patch 逐字节相同（9f927f5e...c5f0）"
+    },
+    {
+      "id": "regression_v6",
+      "command_text": "同脚本 + 末尾 v6 → tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/v6_regen.patch",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/v6_regen.log",
+      "result": "与 s3_t04_app_diag_v6.patch 逐字节相同（4c7becc1...b960，与任务卡给定哈希一致）"
+    },
+    {
+      "id": "v7_patch_generation",
+      "command_text": "同脚本 + 末尾 v7 → board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/v7_gen.log",
+      "result": "GIT_APPLY_EXIT=0；VERIFY_HAS_D7_* 全部 True；VERIFY_NO_D5_SAMPLING=True；VERIFY_MAIN_TAIL_IDLE=True"
+    },
+    {
+      "id": "git_apply_check_fresh_vendor_copy",
+      "command_text": "cp -r <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v7/patch_gen/check_v7/an5642_single && cd .../check_v7/an5642_single && git apply --check -p1 board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "exit_code": 0,
+      "result": "补丁可从厂商原始 display_demo.c 干净应用；只含 display_demo.c"
+    },
+    {
+      "id": "elf_build_v7",
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v7/run_v7_elf_build.sh  # 内部: cmd //c 'scripts\\stage3_t04_vitis\\run_stage3_vitis_elf.cmd <sof_fix XSA> D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v7\\elf_build <vendor an5642_single> an5642_j11cmos2_v7.elf board\\stage3\\software\\sensor\\s3_t04_app_diag_v7.patch'",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/elf_build.log",
+      "result": "sdtgen PASS + make [OK] ELF；display_demo.c 编译无 warning（仅 BSP xaxivdma_g.c 2 条既有 missing-initializer 警告）"
+    },
+    {
+      "id": "elf_build_v7_awboff",
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v7/run_v7_awboff_elf_build.sh  # 内部: cmd //c tmp\\s3r06\\t04_j11cmos2_elf_v7\\run_v7_awboff_elf_build.cmd → del display_demo.o && make -f Makefile.app EXEC=an5642_j11cmos2_v7_awboff.elf \"OPT_FLAGS=-O2 -c -DS3_AWB_OFF=1\"",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v7/elf_build_awboff.log",
+      "result": "编译命令含 -DS3_AWB_OFF=1（日志逐字可见）；V7_AWBOFF_MAKE_RC=0"
+    }
+  ],
+  "artifacts": {
+    "elf_v7": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build/app/an5642_j11cmos2_v7.elf",
+      "sha256": "f33a10cc46e508002247fb233d44a28bc723b1e87cb8d39f6774f36d133b62af",
+      "bytes": 306208,
+      "note": "S3_AWB_OFF=0（默认，AWB 不动，只回读）"
+    },
+    "elf_v7_awboff": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build/app/an5642_j11cmos2_v7_awboff.elf",
+      "sha256": "72d3390933315303ad8dce4af405ff77b020d6a06a5bf1fbf8dceb9053b5293b",
+      "bytes": 306208,
+      "note": "S3_AWB_OFF=1（启动 S2MM 前把 0x5001 bit0 清 0）"
+    },
+    "patched_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build/app/display_demo.c",
+      "sha256": "67d021482e54e7586a03301b42cc1f32ec3ffa2fc3ed1f8827ea6ba6902b9397",
+      "bytes": 20836,
+      "note": "与生成器 verify 副本逐字节相同"
+    },
+    "v7_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "sha256": "d471317726818a835e5e6aaf25108df688b122f6aacd641e933d48fffcb79cad",
+      "bytes": 18082
+    },
+    "build_log_v7": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build.log",
+      "sha256": "b3f0327bc6cded939f2590bdd07286dac1541e099375a85ec9afa1fc49381ca7",
+      "bytes": 24763
+    },
+    "build_log_awboff": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/elf_build_awboff.log",
+      "sha256": "903590c790932693a8990867bfb6ffa8e03f97c6bd30e4cdabeb250add6c3728",
+      "bytes": 905
+    },
+    "run_script_v7": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/run_v7_elf_build.sh",
+      "sha256": "8b52be74a58c9c0220a8c1b1c721b01d18a19ba06df0cb9573e55b85d88b1453",
+      "bytes": 1038
+    },
+    "run_script_awboff_sh": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/run_v7_awboff_elf_build.sh",
+      "sha256": "7362ae9b41c4f52575c493dc505b5661dc72f9cfe0f8d0d86efb8bebe125b6aa",
+      "bytes": 505
+    },
+    "run_script_awboff_cmd": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v7/run_v7_awboff_elf_build.cmd",
+      "sha256": "dc50e8a36ace23a7bc590aa2fe12c1a1ee90aedf8f0765dfeae58026aac0a87f",
+      "bytes": 1110
+    },
+    "vendor_init_extract": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v7_20261020_r01/vendor_init_extract/vendor_ov5640_init_relevant.txt",
+      "sha256": "636c7fe9ae7a21a7eca26f62fff28729e8f7b73876b32f5c6436dc7d92ceb656",
+      "bytes": 2322
+    },
+    "evidence_readme": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v7_20261020_r01/README.md",
+      "sha256": "e0243697d57560c051147bd2e4dc7eb3965b11a8cc0608b42b1c6b29d7e5e355",
+      "bytes": 5755
+    }
+  },
+  "artifacts_checks": {
+    "elf_v7_has_awboff_on_string": 0,
+    "elf_v7_has_awboff_off_string": 1,
+    "elf_awboff_has_awboff_on_string": 1,
+    "elf_awboff_has_awboff_off_string": 0,
+    "interpretation": "默认 ELF 只含 OFF 行、AWB-OFF ELF 只含 ON 行 → 编译期开关确实生效",
+    "elf_v7_has_d7_tags": [
+      "S3_DIAG7_AE",
+      "S3_DIAG7_AWB",
+      "S3_DIAG7_AWB_OFF",
+      "S3_DIAG7_ISP_A",
+      "S3_DIAG7_ISP_B"
+    ],
+    "elf_v7_has_d6_tags": [
+      "S3_DIAG6_ALGO",
+      "S3_DIAG6_FP",
+      "S3_DIAG6_SAMPLE",
+      "S3_DIAG6_SAMPLING_DONE",
+      "S3_DIAG6_SENS",
+      "S3_DIAG6_SR",
+      "S3_DIAG6_TESTPATTERN"
+    ]
+  },
+  "vendor_expected_values": {
+    "source": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/ov5640.c（厂商 init 表原文见证据 vendor_init_extract/）",
+    "0x5001": "0xa3（厂商注释：SDE on, scale on, UV average off, color matrix on, AWB on；bit0=AWB=1）——init 表中出现两次",
+    "0x3503": "0x00（厂商注释：AEC/AGC on）",
+    "0x3035": "0x21（最终值；中间先写 0x11）",
+    "0x3824": "0x04（PCLK manual divider，最终值）",
+    "0x4300": "0x60（厂商注释写 RGB565 —— 注意该注释与 v7 回读值需一并判读，本任务未核对手册原文）",
+    "0x501F": "0x01（厂商注释写 ISP RGB）",
+    "0x5580": "0x06（saturation on）",
+    "0x5583": "0x40",
+    "0x5589": "0x10",
+    "0x558A": "0x00",
+    "0x558B": "0xf8",
+    "not_written_by_driver": [
+      "0x3400",
+      "0x3401",
+      "0x3402",
+      "0x3403",
+      "0x3404",
+      "0x3405",
+      "0x3406",
+      "0x3500",
+      "0x3501",
+      "0x3502",
+      "0x503D"
+    ],
+    "not_written_meaning": "AWB 增益（0x3400..0x3405）与手动增益使能 0x3406、曝光 0x3500..0x3502 都未由驱动写入 → 说明这些值由传感器自动环路（AWB/AEC）实时产生；v7 回读的是**当次会话的实际值**。"
+  },
+  "environment": {
+    "vitis": "2026.1（sdtgen/HSI + make）",
+    "licence": "XILINXD_LICENSE_FILE=D:\\Xilinx_licenses\\basic_only.lic（脚本内设置）",
+    "host": "HAO",
+    "python": "3.12.10"
+  },
+  "not_executed": [
+    "未上板：本任务不下载、不运行 ELF，也没有 UART 采样；S3_DIAG7_* 的实际数值尚未产生（上板由阶段总控执行）。",
+    "未跑 Vivado synth/impl/route（约束：本机同时只允许一个重型任务）。",
+    "未烧写 QSPI；未做任何非易失写入。",
+    "未提交 Git（按任务约束由阶段总控统一提交）。",
+    "未查询 OV5640 手册原文核对 0x4300/0x501F 的格式语义与 0x5001 各位定义；本报告只引用厂商源码注释。"
+  ],
+  "limitations": [
+    "回读是**当次会话的实时值**：AWB/AEC 是自动环路，0x3400..0x3405 / 0x3500..0x3502 会随场景变化；两次上板读数不同属正常，不能用单次读数当“固定配置”。",
+    "AWB-OFF ELF 只关闭 0x5001 bit0（AWB），**不关闭**其它 ISP 块（SDE/CMX/scale/saturation 仍在）——若蓝色仍偏低，还需排查 0x5580/0x5583(UV 调整)、0x5388..0x538B(color matrix) 等。",
+    "若 0x5001 读回失败（0xFF），AWB-OFF ELF 会**跳过写入**并打印 write_status=-2 与 SKIPPED 行，避免用不可信的值改写 ISP 使能寄存器；这是相对卡面“0x5001 = 读回值 & ~0x01”的**记录性偏差**（安全优先）。",
+    "0x5001 写后额外回读一次（S3_DIAG7_AWB_OFF_VERIFY）用于确认；if 回读仍为 0xa3 说明写未生效。",
+    "v7 复用 v6 的 64 KB 指纹与 5 次采样，因此 v7 的 UART 输出时长约 30 s 以上；指纹扫描不是对 DMA 的原子快照（判读看五次之间的差异）。",
+    "本任务只做软件与证据；G3 未闭合，颜色结论需上板 A/B 对照后由总控判定。"
+  ]
+}

@@ -1,6 +1,6 @@
 """生成 S3-T04/S3-T05 应用诊断补丁：只给厂商摄像头应用加 UART 诊断打印，不改任何寄存器时序与配置。
 
-用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6]
+用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7]
 
 变体（默认 v5）：
   v4 = 延时启动 + FB 回读（历史补丁 s3_t04_app_diag_v4.patch，仍可逐字节复现）
@@ -11,11 +11,14 @@
        （S3_DIAG6_FP：32 位加和 + 反射式 CRC-32/0xEDB88320，读前 Xil_DCacheInvalidateRange，
         t≈5/10/15/20/25 s，每次同时打印 S2MM SR），t≈30 s 传感器回读（S3_DIAG6_SENS），
        以及编译期开关 S3_TESTPATTERN（默认 0；=1 时启动 S2MM 前写 0x503D=0x80 彩条测试图）
+  v7 = v6 + ISP/AWB 寄存器只读回读（0x5001/0x3406/0x3400..0x3405/0x3503/0x3500..0x3502/
+       0x5580..0x558B/0x503D/0x4300/0x501F/0x3035），以及编译期开关 S3_AWB_OFF（默认 0；
+       =1 时启动 S2MM 之前把 0x5001 bit0 清 0 关闭 AWB，并打印 before/after/write_status）
 
 做四件事：
 1) 从官方源复制一份应用目录到 scratch；
 2) 在 main() 关键节点插入 S3_DIAG 打印；
-3) 按变体追加 v5/v6 内容；
+3) 按变体追加 v5/v6/v7 内容；
 4) 用 git diff --no-index 生成 unified diff，并对全新副本验证补丁可干净应用。
 
 只改 display_demo.c；输出补丁不进 Git 之外的地方。
@@ -32,7 +35,7 @@ OUT_PATCH = Path(sys.argv[2]).resolve()
 SCRATCH = Path(sys.argv[3])
 # 变体选择：默认 v5（最新诊断补丁）；v4 仍可显式指定以逐字节复现历史补丁。
 VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v5"
-if VARIANT not in ("v4", "v5", "v6"):
+if VARIANT not in ("v4", "v5", "v6", "v7"):
     print(f"UNKNOWN_VARIANT: {VARIANT}")
     sys.exit(2)
 
@@ -419,9 +422,109 @@ V6_WRITE_INIT_NEW = (
     "\txil_printf(\"S3_DIAG6_SAMPLING_DONE\\r\\n\");\n"
 )
 
-if VARIANT in ("v5", "v6"):
-    # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；v5/v6 用各自的采样段）
-    write_init_new = V6_WRITE_INIT_NEW if VARIANT == "v6" else V5_WRITE_INIT_NEW
+# ---------------------------------------------------------------------------
+# v7 变体追加内容（只在 VARIANT == "v7" 时生效；v4/v5/v6 输出保持不变）
+# v7 = v6 + ISP/AWB/AEC 只读回读 + 编译期开关 S3_AWB_OFF（启动 S2MM 前关 AWB）
+# ---------------------------------------------------------------------------
+V7_HELPERS = (
+    "/* ================= S3-DIAG7 编译期开关 =================\n"
+    " * S3_AWB_OFF：默认 0（AWB 不动，只回读）。=1 时在启动 S2MM 之前把 OV5640 0x5001 的 bit0 清 0\n"
+    " * （厂商 init 表 0x5001=0xa3，bit0=1 表示 AWB 使能），用来判定“蓝色分量被压到约 42%”是否由 ISP/AWB 造成。*/\n"
+    "#ifndef S3_AWB_OFF\n"
+    "#define S3_AWB_OFF 0\n"
+    "#endif\n"
+    "\n"
+)
+
+V7_AWB_READBACK = (
+    "\t/* S3-DIAG7: ISP/AWB/AEC 只读回读（不做任何写）。读不到的寄存器打印 0xFF。\n"
+    "\t * 5001=ISP 使能(bit0=AWB) 3406=AWB 手动增益使能 3400..3405=AWB 增益(R,G,B 各 16 位，高/低字节)\n"
+    "\t * 3503=AEC/AGC 手动控制 3500..3502=AEC 曝光(4+8+8 位) 5580..558B=ISP 控制/特效 3035=PLL 分频*/\n"
+    "\t{\n"
+    "\t\tu8 s3_5001 = s3_diag5_sens(0x5001);\n"
+    "\t\tu8 s3_3406 = s3_diag5_sens(0x3406);\n"
+    "\t\tu8 s3_3400 = s3_diag5_sens(0x3400);\n"
+    "\t\tu8 s3_3401 = s3_diag5_sens(0x3401);\n"
+    "\t\tu8 s3_3402 = s3_diag5_sens(0x3402);\n"
+    "\t\tu8 s3_3403 = s3_diag5_sens(0x3403);\n"
+    "\t\tu8 s3_3404 = s3_diag5_sens(0x3404);\n"
+    "\t\tu8 s3_3405 = s3_diag5_sens(0x3405);\n"
+    "\t\tu8 s3_503d = s3_diag5_sens(0x503D);\n"
+    "\t\tu8 s3_4300 = s3_diag5_sens(0x4300);\n"
+    "\t\tu8 s3_501f = s3_diag5_sens(0x501F);\n"
+    "\t\tu8 s3_3503 = s3_diag5_sens(0x3503);\n"
+    "\t\tu8 s3_3500 = s3_diag5_sens(0x3500);\n"
+    "\t\tu8 s3_3501 = s3_diag5_sens(0x3501);\n"
+    "\t\tu8 s3_3502 = s3_diag5_sens(0x3502);\n"
+    "\t\tu8 s3_3035 = s3_diag5_sens(0x3035);\n"
+    "\t\tu8 s3_5580 = s3_diag5_sens(0x5580);\n"
+    "\t\tu8 s3_5581 = s3_diag5_sens(0x5581);\n"
+    "\t\tu8 s3_5582 = s3_diag5_sens(0x5582);\n"
+    "\t\tu8 s3_5583 = s3_diag5_sens(0x5583);\n"
+    "\t\tu8 s3_5584 = s3_diag5_sens(0x5584);\n"
+    "\t\tu8 s3_5585 = s3_diag5_sens(0x5585);\n"
+    "\t\tu8 s3_5586 = s3_diag5_sens(0x5586);\n"
+    "\t\tu8 s3_5587 = s3_diag5_sens(0x5587);\n"
+    "\t\tu8 s3_5588 = s3_diag5_sens(0x5588);\n"
+    "\t\tu8 s3_5589 = s3_diag5_sens(0x5589);\n"
+    "\t\tu8 s3_558a = s3_diag5_sens(0x558A);\n"
+    "\t\tu8 s3_558b = s3_diag5_sens(0x558B);\n"
+    "\t\txil_printf(\"S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X\\r\\n\",\n"
+    "\t\t\ts3_5001, s3_3406, s3_3400, s3_3401, s3_3402, s3_3403, s3_3404, s3_3405, s3_503d, s3_4300, s3_501f);\n"
+    "\t\txil_printf(\"S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X\\r\\n\",\n"
+    "\t\t\ts3_3503, s3_3500, s3_3501, s3_3502, s3_3035);\n"
+    "\t\txil_printf(\"S3_DIAG7_ISP_A=5580..5585=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\\r\\n\",\n"
+    "\t\t\ts3_5580, s3_5581, s3_5582, s3_5583, s3_5584, s3_5585);\n"
+    "\t\txil_printf(\"S3_DIAG7_ISP_B=5586..558B=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\\r\\n\",\n"
+    "\t\t\ts3_5586, s3_5587, s3_5588, s3_5589, s3_558a, s3_558b);\n"
+    "\t}\n"
+)
+
+V7_AWB_SWITCH = (
+    "\t/* S3-DIAG7: 编译期开关 S3_AWB_OFF（默认 0）。=1 时在启动 S2MM 之前关闭 AWB：\n"
+    "\t * 0x5001 = (读回值 & ~0x01)。若读回失败（0xFF）则跳过写入并打印 write_status=-2，\n"
+    "\t * 避免用不可信的值改写 ISP 使能寄存器；写入后再回读一次确认。*/\n"
+    "#if S3_AWB_OFF\n"
+    "\t{\n"
+    "\t\tu8 s3_awb_before = s3_diag5_sens(0x5001);\n"
+    "\t\tu8 s3_awb_after = (u8)(s3_awb_before & (u8)~0x01U);\n"
+    "\t\tint s3_awb_wr = -2;\n"
+    "\t\tu8 s3_awb_rd = 0xFF;\n"
+    "\t\tif (s3_awb_before != 0xFF) {\n"
+    "\t\t\ts3_awb_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x5001, (char)s3_awb_after);\n"
+    "\t\t\ts3_awb_rd = s3_diag5_sens(0x5001);\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_awb_after = 0xFF;\n"
+    "\t\t\txil_printf(\"S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed\\r\\n\");\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG7_AWB_OFF=ON before=0x%02X after=0x%02X write_status=%d\\r\\n\",\n"
+    "\t\t\ts3_awb_before, s3_awb_after, s3_awb_wr);\n"
+    "\t\txil_printf(\"S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X\\r\\n\", s3_awb_rd);\n"
+    "\t}\n"
+    "#else\n"
+    "\txil_printf(\"S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)\\r\\n\");\n"
+    "#endif\n"
+)
+
+_V7_WRITE_INIT_ANCHOR = "\t/* S3-DIAG4: 采集 IP 内部"
+if V6_WRITE_INIT_NEW.count(_V7_WRITE_INIT_ANCHOR) != 1:
+    print("V7_WRITE_INIT_ANCHOR_NOT_UNIQUE")
+    sys.exit(2)
+V7_WRITE_INIT_NEW = V6_WRITE_INIT_NEW.replace(_V7_WRITE_INIT_ANCHOR, V7_AWB_SWITCH + _V7_WRITE_INIT_ANCHOR)
+
+# S3_DIAG5_SENS 打印块（v5/v6/v7 共用）的结尾：v7 在其后追加 AWB 回读块
+V5_SENS_ARGS_TAIL = (
+    "\t\t\ts3_4202, s3_3008, s3_4740, s3_3035v, s3_3034v, s3_4300v, s3_501fv, s3_3824v, s3_503dv);\n"
+    "\t}\n"
+)
+
+if VARIANT in ("v5", "v6", "v7"):
+    # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；v5/v6/v7 用各自的采样段）
+    write_init_new = {
+        "v5": V5_WRITE_INIT_NEW,
+        "v6": V6_WRITE_INIT_NEW,
+        "v7": V7_WRITE_INIT_NEW,
+    }[VARIANT]
     insertions = [
         (old, write_init_new) if old.startswith("\tvdma_write_init(") else (old, new)
         for (old, new) in insertions
@@ -432,10 +535,15 @@ if VARIANT in ("v5", "v6"):
         (V5_DIAG3_OLD, V5_DIAG3_NEW),
         (V5_RETURN_OLD, V5_RETURN_NEW),
     ]
-    if VARIANT == "v6":
+    if VARIANT in ("v6", "v7"):
         insertions += [
             (V6_INCLUDE_OLD, V6_INCLUDE_NEW),
             ("int main(void)\n{", V6_HELPERS + "int main(void)\n{"),
+        ]
+    if VARIANT == "v7":
+        insertions += [
+            ("int main(void)\n{", V7_HELPERS + "int main(void)\n{"),
+            (V5_SENS_ARGS_TAIL, V5_SENS_ARGS_TAIL + V7_AWB_READBACK),
         ]
 
 for old, new in insertions:
@@ -496,7 +604,7 @@ print(f"VERIFY_HAS_APP_ENTER={'S3_DIAG_APP_ENTER' in verify_text}")
 print(f"VERIFY_HAS_SENSOR_ID={'S3_DIAG_SENSOR_ID' in verify_text}")
 print(f"VERIFY_HAS_DISPLAY_START={'S3_DIAG_DISPLAY_START' in verify_text}")
 print(f"VERIFY_HAS_VDMA_WRITE={'S3_DIAG_VDMA_WRITE_STARTED' in verify_text}")
-if VARIANT in ("v5", "v6"):
+if VARIANT in ("v5", "v6", "v7"):
     print(f"VERIFY_HAS_D5_REG={'S3_DIAG5_REG' in verify_text}")
     print(f"VERIFY_HAS_D5_SR_DECODE={'S3_DIAG5_SR_DECODE' in verify_text}")
     print(f"VERIFY_HAS_D5_CFG={'S3_DIAG5_CFG' in verify_text}")
@@ -509,7 +617,7 @@ if VARIANT == "v5":
     print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
     print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
     print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
-if VARIANT == "v6":
+if VARIANT in ("v6", "v7"):
     print(f"VERIFY_HAS_D6_ALGO={'S3_DIAG6_ALGO=sum32+crc32(0xEDB88320)' in verify_text}")
     print(f"VERIFY_HAS_D6_FP={'S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u' in verify_text}")
     print(f"VERIFY_HAS_D6_SR={'S3_DIAG6_SR t=%u S2MM_SR=0x%08X' in verify_text}")
@@ -521,6 +629,17 @@ if VARIANT == "v6":
     print(f"VERIFY_HAS_D6_INV64K={'Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES)' in verify_text}")
     print(f"VERIFY_HAS_XTIME={'#include \"xtime_l.h\"' in verify_text}")
     print(f"VERIFY_NO_D5_SAMPLING={'S3_DIAG5_SAMPLE=%d' not in verify_text}")
+if VARIANT == "v7":
+    print(f"VERIFY_HAS_D7_AWB={'S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X' in verify_text}")
+    print(f"VERIFY_HAS_D7_AE={'S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X' in verify_text}")
+    print(f"VERIFY_HAS_D7_ISP_A={'S3_DIAG7_ISP_A=5580..5585=' in verify_text}")
+    print(f"VERIFY_HAS_D7_ISP_B={'S3_DIAG7_ISP_B=5586..558B=' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_OFF_SWITCH={'#if S3_AWB_OFF' in verify_text and '#define S3_AWB_OFF 0' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_OFF_WRITE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x5001, (char)s3_awb_after)' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_OFF_ON={'S3_DIAG7_AWB_OFF=ON before=0x%02X after=0x%02X write_status=%d' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_OFF_OFFLINE={'S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_VERIFY={'S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X' in verify_text}")
+    print(f"VERIFY_HAS_D7_AWB_SKIP={'S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed' in verify_text}")
 print(f"PATCH_LINES={len(diff.splitlines())}")
 print(f"PATCH_SHA256={hashlib.sha256(OUT_PATCH.read_bytes()).hexdigest()}")
 print(f"VERIFY_DISPLAY_DEMO_SHA256={hashlib.sha256((VERIFY / FILE).read_bytes()).hexdigest()}")

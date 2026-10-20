@@ -31,6 +31,13 @@
   5. 厂商 IP 的 SOF 只在 `cmos_vsync` 下降沿产生（`alinx_ov5640.v` 140–143），而 HREF/PCLK/数据都通 → **疑似该路 VSYNC 未到达 IP**（未用 ILA 直接观测）。
 - J11-CMOS2 引脚映射已**独立核验正确**：AX7020 V3.0 手册 Table 7.5.1（PDF p.29–31）逐针比对 16 个信号，全部一致（pclk=K19、vsync=J19、href=H18、sda=F16、scl=F19…），并与官方 `23_ov5640_dual` XDC 的 cmos2 顺序、模块原理图网络名三方一致。记录 `report/evidence/S3-T05/t05_ctrl_20261020_r01/verification_record.md`。
 
+## 已完成（S3-T05 实时直通，2026-10-20 12:3x–13:2x）
+
+- **SOF 修复变体**：厂商 IP `alinx_ov5640.v` 的 `s_axis_tuser` 由“`cmos_vsync` 下降沿”改为“hblank 连续低 ≥ `GAP_THRESH=16384` pclk 后的第一个有效像素”（16 位饱和计数器；行间隙 612 pclk < 阈值 < 场间隙 38452 pclk）。补丁 `board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch`；位流 `7cb33068…8710`、XSA `1f5b138e…cb0e3`（WNS 1.0545、DRC 0 error）。
+- **实物实时画面成立**：Wong 接 HDMI 显示器出图；v6 指纹诊断（3 处 × 64 KB，`sum32+CRC-32`，读前 `Xil_DCacheInvalidateRange`）在 t≈5/10/15/20/25 s 的 **15/15 指纹互不相同** ⇒ S2MM 在持续写帧；传感器 `0x4202=0x00` 仍在流。证据 `report/evidence/S3-T05/t05_v6_board_20261020_r01/`、画面照片 `…/t05_monitor_20261020_r01/`（原始字节 `fb3359c6…8a095`）。
+- **作废的判断**：基于 JTAG 标记法（halt 的 A9 `mwr/mrd`）得出的“冻结单帧/缓冲全 0”结论作废——该方法经 CPU 数据 cache，不可作为 DDR 内容证据；已在证据中如实记录并改用应用侧 cache 正确判据。
+- 仍存在（不影响直通）：S2MM SR 启动后一次粘滞错误 `0x00015810`（INT+FSZ_MORE/SOFLate+ErrIrq），清 sticky 后 20 s 内不复现；偏色（Wong 反馈“偏黄”）**未归因**，彩条版 ELF（`503D=0x80`）已上板待判读。
+
 ## 可复用命令（Git Bash）
 
 ```bash
@@ -49,16 +56,17 @@ bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/
 
 ## 未关闭的阻碍与风险
 
-- **HDMI 物理画面未验证**（Wong 明确“没接显示器”）→ T03/T05 实物关口均未闭合；不得记为通过。
-- **帧同步（SOF/TUSER）未修复**：预期表现为画面撕裂/滚动；修复变体（HREF 长间隔推导 SOF）在构建中，未上板。
-- `CRITICAL WARNING [Timing 38-249]`：`rgb2dvi_0/U0/SerialClk` 与 PIX_CLK 无逻辑路径（厂商 XDC 未声明 ×5 关系）；DRC 0 error 且时序为正，不等价于完整 I/O 时序签核。
-- 与 2B 硬件互斥：本轮开工及全程现场**无 hw_server/vivado/xsim 进程**（2B 未占用）；跨方请求 `codex_mailbox/CDX-20261020-003` 仍无回执；本轮只用自起自停的 xsdb/hw_server。
+- **颜色未判读**：Wong 反馈画面“偏黄”；彩条测试图已上板，**待 Wong 目视/拍照判读**（标准 8 条顺序是否正确）以区分“场景/AWB 偏暖”与“通道/打包错位”。
+- 启动瞬间一次粘滞错误（见上）；`CRITICAL WARNING [Timing 38-249]`（rgb2dvi SerialClk 与 PIX_CLK 未声明 ×5 关系）仍在：DRC 0 error、时序为正，但不等价于完整 I/O 时序签核。
+- 未做耐久/长时间测试；未做色卡或仪器测量；未烧 QSPI。
+- 与 2B 硬件互斥：本轮全程现场**无 hw_server/vivado/xsim 进程**（2B 未占用）；跨方请求 `codex_mailbox/CDX-20261020-003` 仍无回执；本树已发 `S3CTRL-20261020-001`，只用自起自停的 xsdb/hw_server。
+- ILA 路线受阻：BASIC 许可不支持 `create_debug_core`（Vivado 12-29205）；**未取得任何 ILA 波形**（VSYNC/TUSER 只有行为证据）。
 
 ## 下一步
 
-- 等 SOF 修复位流 → 上板复核 S2MM SR 是否转干净、帧计数是否推进 → **Wong 接 HDMI 显示器做直通实物确认**。
+- **等 Wong 判读彩条颜色**（屏幕上现在应是测试图）→ 决定是否需要修通道/打包或只调 AWB；随后做一次普通 ELF 的挥手实时确认与（可选）双通道。
 - 恢复入口：`git -C D:/codex-worktrees/dbdf status --short`；证据入口 `report/evidence/S3-T05/`。
 
-## 交接行（11 字段，2026-10-20 12:40）
+## 交接行（11 字段，2026-10-20 13:25）
 
-任务=`S3-T05 阶段3 视频直通：S2MM 帧同步根因定位 + v5 上板诊断` | 负责人=`阶段3总控（新会话）` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`41ee5ba` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`.codex/STATE.md` | 未提交改动归属=`本轮新增：S3-T05 证据包、stage3_t05 脚本、v5 补丁+生成器；`NA/`、`clockInfo.txt` 为旧散落件、非本轮产物` | 让出声明=`未让出（本树写权仍归阶段3总控）` | 心跳(UTC+8)=`2026-10-20 12:40` | 证据入口=`report/evidence/S3-T05/t05_board_diag5_20261020_r01/`、`report/evidence/S3-T05/t05_ctrl_20261020_r01/`、`report/evidence/S3-T05/t05_sw_20261020_r01/` | 恢复命令=`bash scripts/stage3_t05/run_t05_board_capture.sh D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/elf_build/app/an5642_j11cmos2_v5.elf diag5 120` | 状态/下一接手方=`IN_PROGRESS / 阶段3总控（无人接管；等 SOF 修复位流 + Wong 接显示器）`
+任务=`S3-T05 阶段3 视频直通：帧同步修复 + 实物实时画面达成 + 颜色判读待办` | 负责人=`阶段3总控（新会话）` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`41ee5ba` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`本轮已分批提交：ea16e32/e9b853f/cdde845/cb389a3/3cba2c3/354a737/d1dd2d9；`NA/`、`clockInfo.txt` 为旧散落件、非本轮产物` | 让出声明=`未让出（本树写权仍归阶段3总控）` | 心跳(UTC+8)=`2026-10-20 13:25` | 证据入口=`report/evidence/S3-T05/t05_v6_board_20261020_r01/`、`…/t05_soffix_board_20261020_r01/`、`…/t05_monitor_20261020_r01/`、`…/t05_sof_fix_20261020_r01/`、`…/t05_board_diag5_20261020_r01/`、`…/t05_ctrl_20261020_r01/` | 恢复命令=`bash scripts/stage3_t05/run_t05_board_capture.sh D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v6/elf_build/app/an5642_j11cmos2_v6.elf v6 120` | 状态/下一接手方=`IN_PROGRESS / 阶段3总控（无人接管；等彩条颜色判读）`

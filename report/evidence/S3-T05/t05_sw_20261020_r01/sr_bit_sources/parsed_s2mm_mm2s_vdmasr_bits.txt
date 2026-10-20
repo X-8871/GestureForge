@@ -1,0 +1,79 @@
+REGISTER S2MM_VDMASR  (13 fields)
+  bit    0  width   1  mask=0x00000001  Halted  | VDMA Channel Halted.
+Indicates the run/stop state of the VDMA channel.
+  0 - VDMA channel running
+  1 - VDMA channel hal
+  bit    4  width   1  mask=0x00000010  VDMAIntErr  | VDMA Internal Error.
+  0 - No VDMA Internal Errors.
+  1 - VDMA Internal Error detected.
+This error occurs during one of 
+  bit    5  width   1  mask=0x00000020  VDMASlvErr  | VDMA Slave Error.
+  0 - No VDMA Slave Errors.
+  1 - VDMA Slave Error detected. VDMA Engine halts.
+This error occurs if t
+  bit    6  width   1  mask=0x00000040  VDMADecErr  | VDMA Decode Error. This error occurs if the address request is to an invalid address.
+  0 = No VDMA Decode Errors.
+  1 =
+  bit    7  width   1  mask=0x00000080  SOFEarlyErr  | Start of Frame Early Error
+  0 - No start-of-frame Error
+  1 - Start of Frame Early Error detected. VDMA does not halt.
+
+  bit    8  width   1  mask=0x00000100  EOLEarlyErr  | End of Line Early Error.
+  0 - No End of Line Early Error
+  1 - End of Line Early Error detected. VDMA does not halt.
+Th
+  bit   11  width   1  mask=0x00000800  SOFLateErr  | Start of Frame Late Error.
+  0 - No start-of-frame Late Error
+  1 - Start of Frame Late Error detected. VDMA does not ha
+  bit   12  width   1  mask=0x00001000  FrmCnt_Irq  | Frame Count Interrupt.
+  0 - No Frame Count Interrupt.
+  1 - Frame Count Interrupt detected.
+If enabled (DMACR.FrmCnt_Ir
+  bit   13  width   1  mask=0x00002000  DlyCnt_Irq  | Interrupt on Delay.
+  0 - No Delay Interrupt.
+  1 - Delay Interrupt detected.
+If enabled (DMACR.DlyCnt_IrqEn = 1), an in
+  bit   14  width   1  mask=0x00004000  Err_Irq  | Interrupt on Error.
+  0 - No error Interrupt.
+  1 - Error interrupt detected.
+If enabled (VDMACR.Err_IrqEn = 1), an inte
+  bit   15  width   1  mask=0x00008000  EOLLateErr  | End of Line Late Error.
+  0 - No End of Line Late Error
+  1 - End of Line Late Error detected. VDMA does not halt.
+This 
+  bit   16  width   8  mask=0x00FF0000  IRQFrameCntSts  | Interrupt Frame Count Status. Indicates current interrupt frame count value.
+  bit   24  width   8  mask=0xFF000000  IRQDelayCntSts  | Interrupt Delay Count Status. Indicates current interrupt delay time value.
+REGISTER MM2S_VDMASR  (10 fields)
+  bit    0  width   1  mask=0x00000001  Halted  | VDMA Channel Halted.
+Indicates the run/stop state of the VDMA channel.
+  0 - VDMA channel running
+  1 - VDMA channel hal
+  bit    4  width   1  mask=0x00000010  VDMAIntErr  | VDMA Internal Error.
+  0 - No VDMA Internal Errors.
+  1 - VDMA Internal Error detected.
+This error occurs during one of 
+  bit    5  width   1  mask=0x00000020  VDMASlvErr  | VDMA Slave Error.
+  0 - No VDMA Slave Errors.
+  1 - VDMA Slave Error detected. VDMA Engine halts.
+This error occurs if t
+  bit    6  width   1  mask=0x00000040  VDMADecErr  | VDMA Decode Error. This error occurs if the address request is to an invalid address.
+  0 = No VDMA Decode Errors.
+  1 =
+  bit    7  width   1  mask=0x00000080  SOFEarlyErr  | Start of Frame Early Error
+  0 - No start-of-frame Error
+  1 - Start of Frame Early Error detected
+This error occurs if 
+  bit   12  width   1  mask=0x00001000  FrmCnt_Irq  | Frame Count Interrupt.
+  0 - No Frame Count Interrupt.
+  1 - Frame Count Interrupt detected.
+If enabled (DMACR.FrmCnt_Ir
+  bit   13  width   1  mask=0x00002000  DlyCnt_Irq  | Interrupt on Delay.
+  0 - No Delay Interrupt.
+  1 - Delay Interrupt detected.
+If enabled (DMACR.DlyCnt_IrqEn = 1), an in
+  bit   14  width   1  mask=0x00004000  Err_Irq  | Interrupt on Error.
+  0 - No error Interrupt.
+  1 - Error interrupt detected.
+If enabled (VDMACR.Err_IrqEn = 1), an inte
+  bit   16  width   8  mask=0x00FF0000  IRQFrameCntSts  | Interrupt Frame Count Status. Indicates current interrupt frame count value.
+  bit   24  width   8  mask=0xFF000000  IRQDelayCntSts  | Interrupt Delay Count Status. Indicates current interrupt delay time value.

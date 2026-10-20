@@ -1,0 +1,169 @@
+{
+  "task_id": "S3-T05-ILA",
+  "task_board_id": "task-2",
+  "route": "bd_ip_instantiation",
+  "title": "BD 内实例化 xilinx.com:ip:ila（5 探针）-> 比特流 + .ltx",
+  "run_id": "t04_ila_bd_20261020_r02",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01",
+  "generated_at_utc8": "2026-10-20T12:27:26+08:00",
+  "status": "failed",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "41ee5ba003147d77349e8908c38b2efc97752ca8",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "xdc_sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+  },
+  "commands": {
+    "precheck": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/bd_insert_ila.tcl -log D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01/ila_ip_precheck.log -journal D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01/ila_ip_precheck.jou -tclargs precheck D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01",
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/bd_insert_ila.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02/vivado_ila_bd.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02/vivado_ila_bd.jou -tclargs build D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02 D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02/vendor_src D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "tcl_script": "scripts/stage3_t04/bd_insert_ila.tcl",
+    "vivado_exit_code": 12,
+    "elapsed_seconds": 25
+  },
+  "ila_configuration": {
+    "cell": "ila_cam",
+    "ip": "xilinx.com:ip:ila (BD 内实例化，未用 create_debug_core)",
+    "num_probes": 5,
+    "data_depth": 4096,
+    "c_en_strg_qual": 1,
+    "vendor_debug_ov5640": "false (厂商内嵌 6 探针 ila_0 保持关闭)",
+    "clock_input": "axi_vdma_1/s_axis_s2mm_aclk 所在 BD 网 (processing_system7_0_FCLK_CLK1，150MHz)"
+  },
+  "probe_map": {
+    "probe0": {
+      "intended_signal": "cmos1_pclk 顶层 DVP 输入（外部端口 cmos1_pclk / alinx_ov5640_0/cmos_pclk，同一 BD 网络）",
+      "target_bd_pin": "/alinx_ov5640_0/cmos_pclk",
+      "bd_net": "/cmos_pclk_1",
+      "bd_net_pins": "/alinx_ov5640_0/cmos_pclk|/ila_cam/probe0",
+      "bd_net_ports": "/cmos1_pclk"
+    },
+    "probe1": {
+      "intended_signal": "cmos1_vsync 顶层 DVP 输入（外部端口 cmos1_vsync / alinx_ov5640_0/cmos_vsync）",
+      "target_bd_pin": "/alinx_ov5640_0/cmos_vsync",
+      "bd_net": "/cmos_vsync_1",
+      "bd_net_pins": "/alinx_ov5640_0/cmos_vsync|/ila_cam/probe1",
+      "bd_net_ports": "/cmos1_vsync"
+    },
+    "probe2": {
+      "intended_signal": "cmos1_href 顶层 DVP 输入（外部端口 cmos1_href / alinx_ov5640_0/cmos_href）",
+      "target_bd_pin": "/alinx_ov5640_0/cmos_href",
+      "bd_net": "/cmos_href_1",
+      "bd_net_pins": "/alinx_ov5640_0/cmos_href|/ila_cam/probe2",
+      "bd_net_ports": "/cmos1_href"
+    },
+    "probe3": {
+      "intended_signal": "alinx_ov5640_0 m_axis_video TUSER（S2MM 帧起始）",
+      "target_bd_pin": "/alinx_ov5640_0/m_axis_video_tuser",
+      "bd_net": "/alinx_ov5640_0_m_axis_video_tuser",
+      "bd_net_pins": "/alinx_ov5640_0/m_axis_video_tuser|/ila_cam/probe3",
+      "bd_net_ports": ""
+    },
+    "probe4": {
+      "intended_signal": "alinx_ov5640_0 m_axis_video TLAST（行结束）",
+      "target_bd_pin": "/alinx_ov5640_0/m_axis_video_tlast",
+      "bd_net": "/alinx_ov5640_0_m_axis_video_tlast",
+      "bd_net_pins": "/alinx_ov5640_0/m_axis_video_tlast|/ila_cam/probe4",
+      "bd_net_ports": ""
+    }
+  },
+  "ila_clock": {
+    "bd_pin": "/axi_vdma_1/s_axis_s2mm_aclk",
+    "bd_net": "/processing_system7_0_FCLK_CLK1"
+  },
+  "implementation": {
+    "timing": {
+      "wns_ns": null,
+      "tns_ns": null,
+      "whs_ns": null,
+      "ths_ns": null
+    },
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 0,
+    "ila_cells_in_impl": null,
+    "dbg_hub_cells_in_impl": null,
+    "peak_memory_mb": 614.102
+  },
+  "log_messages": {
+    "error_count": 0,
+    "critical_warning_count": 0,
+    "warning_count": 10,
+    "error_codes": [],
+    "critical_warning_codes": [],
+    "license_or_chipscope_messages": [],
+    "ila_bd_fail_marks": [
+      "FAIL=missing_mode\"; exit 2 }",
+      "FAIL=$msg\"; exit 2 }",
+      "FAIL=probe3_bd_net_missing_downstream_or_ila"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02\\impl_ila\\design_1_wrapper.bit",
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "ltx": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02\\impl_ila\\design_1_wrapper.ltx",
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "vivado_bd_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02\\vivado_ila_bd.log",
+      "exists": true,
+      "size_bytes": 58150,
+      "sha256": "655840eddca6d22067e2ef571558ed8ca0ffd0c59ffbbd6f7460485d8771013c"
+    },
+    "ila_bd_netmap": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_bd_20261020_r02\\ila_bd_netmap.txt",
+      "exists": true,
+      "size_bytes": 1039,
+      "sha256": "02fc4bf2e66c491381aed07b63926e2bf69bcf8fa7395f58954b5f5d5d8f93b1"
+    },
+    "ila_ip_precheck_log": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01\\ila_ip_precheck.log",
+      "exists": true,
+      "size_bytes": 5511,
+      "sha256": "a521bee390fc43f666ad7b67594bcfb6d908f0f9de92c81775fe5d29397c34d5"
+    },
+    "xdc_j11_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    }
+  },
+  "route_history": [
+    {
+      "route": "netlist_insertion_create_debug_core",
+      "run_id": "t04_ila_20261020_r01",
+      "result": "blocked_by_basic_license",
+      "error": "ERROR: [Vivado 12-29205] 'create_debug_core' tcl command is not supported. Your current selected license is BASIC.",
+      "evidence": "report/evidence/S3-T05/t05_ila_20261020_r01/vivado_ila.log"
+    }
+  ],
+  "limitations": [
+    "只产出调试位流与 .ltx，未下载、未上板、未做 ILA 采集（采集由阶段总控在独立运行中执行）。",
+    "ILA 采样时钟 150MHz + C_DATA_DEPTH=4096 ≈ 27.3us 采集窗口（约 1.2 行 1280x720@74.25MHz），短于一个视频帧；需靠触发条件命中 VSYNC 下降沿/TUSER 脉冲。",
+    "probe0..2 接在摄像头 IP 的 DVP 输入管脚上（与外部端口 cmos1_pclk/vsync/href 同一个 BD 网络），等价于探外部引脚信号；已用 BD 网络成员核验。",
+    "未做上板功能验证；未验证位流与基线功能一致性。"
+  ],
+  "not_executed": [
+    "program_device / hw_server 连接",
+    "ILA arm/trigger/capture/read_ila_data",
+    "上板图像或帧数据验证",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

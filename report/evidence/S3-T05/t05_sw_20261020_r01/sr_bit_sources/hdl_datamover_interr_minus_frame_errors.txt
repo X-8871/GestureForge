@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+-- Begin architecture logic
+-------------------------------------------------------------------------------
+begin
+
+slverr <= slverr_i;
+decerr <= decerr_i;
+
+interr_minus_frame_errors <= interr_i or zero_size_err;
+
+interr <= interr_i or zero_size_err
+                   or fsize_mismatch_err
+		   or s2mm_fsize_more_or_sof_late	;                       -- 
+
+
+-- Asserted with each valid status

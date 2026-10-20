@@ -1,0 +1,229 @@
+{
+  "schema": "stage3_t05_sw_diag_v5_build_record_v1",
+  "task_id": "S3-T05-SW",
+  "task_board_id": "task-1",
+  "date_local": "2026-10-20",
+  "timezone": "Asia/Shanghai",
+  "generated_local": "2026-10-20T12:27:15+0800",
+  "purpose": "v5 最小改动软件诊断：①绕开 CPU cache（flush/invalidate 后读物理内存）确认 S2MM 是否真的把图像写进 DDR 帧缓冲；②按 IP/驱动/HDL 三份依据解码 S2MM SR 错误位与帧计数；③t≈5/15/25 秒三次采样判断是否为活视频；④新增传感器关键寄存器只读回显（区分“传感器停流/极性异常”与“PL 侧引脚/连线问题”）。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "41ee5ba003147d77349e8908c38b2efc97752ca8",
+    "note": "任务卡给定起始 HEAD 41ee5ba003147d77349e8908c38b2efc97752ca8；本任务未提交 Git。"
+  },
+  "inputs": {
+    "xsa_j11cmos2": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "c598375429f88f17f9e80c680555ece943837257aee13ce25ce34a477566dd27",
+      "bytes": 626629,
+      "note": "任务卡指定 c5983754...dd27；实测一致"
+    },
+    "vendor_app_src_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "bytes": 3735
+    },
+    "v4_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v4.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "sr_bit_source_driver_header": {
+      "path": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/axivdma_v6_15/src/xaxivdma_hw.h",
+      "sha256": "545b5948a37eda9a0caa6ddb21d05e2e01bf80e85abd4cd7cda8186fb7a2a558",
+      "bytes": 13458,
+      "note": "任务卡指定依据（Vivado 安装目录，只读）"
+    },
+    "sr_bit_source_ip_component_xml": {
+      "path": "D:/Xilinx/2026.1/data/ip/xilinx/axi_vdma_v6_3/component.xml",
+      "sha256": "548d9809a6fbde96c9efd11a417a5ed9fb225eb1e69c52545f487c92bbfd30f5",
+      "bytes": 434331,
+      "note": "IP 自带元数据：S2MM_VDMASR 各字段 bitOffset"
+    },
+    "sr_bit_source_ip_hdl": {
+      "path": "D:/Xilinx/2026.1/data/ip/xilinx/axi_vdma_v6_3/hdl/axi_vdma_v6_3_vh_rfs.vhd",
+      "sha256": "410cebf4ad6e019af154d232d7b76f1a261e9c2e805cc192db20da6114680590",
+      "bytes": 3643435,
+      "note": "IP HDL：DMASR_*_BIT 常量与状态寄存器拼装"
+    },
+    "design_axi_vdma_1_xci": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.srcs/sources_1/bd/design_1/ip/design_1_axi_vdma_1_0/design_1_axi_vdma_1_0.xci",
+      "sha256": "9750840b87c748797b5da709fece6eeb7f82e8141ceb8de808b376193f359c7f",
+      "bytes": 122539,
+      "note": "证明 C_ENABLE_VIDPRMTR_READS=1（+0xA0 起的 VSIZE/HSIZE/STRIDE/ADDR 参数寄存器可回读）"
+    },
+    "bsp_driver_header_axivdma_v6_17": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/elf_build/app/empty_application_bsp/ps7_cortexa9_0/include/xaxivdma_hw.h",
+      "sha256": "7d5836d42d31746124442d039dcb8b5c33186b9709f9c4c602fa7d3b59b8f0e5",
+      "bytes": 13460,
+      "note": "应用实际编译所用的 BSP 头（Vitis 2026.1 = axivdma_v6_17，位掩码与 v6_15 同值）"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py",
+      "sha256": "75ccddab32bbd6990c4bb5a76d0fb8a07ae24ed777087598278f4997d90c1b02",
+      "bytes": 20283,
+      "note": "新增 v5 变体（默认 v4 不变）；把 OUT_PATCH 归一化为绝对路径（修掉 verify 用相对路径时 git apply 报 128 的缺陷）"
+    },
+    {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748,
+      "note": "只改 display_demo.c；由上述生成器用 `v5` 参数生成"
+    }
+  ],
+  "commands": [
+    {
+      "id": "v4_regression_regen",
+      "command_text": "python scripts/stage3_t04/make_app_diag_patch.py tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/v4_regen.patch tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/scratch_v4",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/v4_regen.log",
+      "result": "重生成的 v4 补丁与既有 board/stage3/software/sensor/s3_t04_app_diag_v4.patch 逐字节相同（SHA-256 9f927f5e...c5f0）"
+    },
+    {
+      "id": "v5_patch_generation",
+      "command_text": "python scripts/stage3_t04/make_app_diag_patch.py tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single board/stage3/software/sensor/s3_t04_app_diag_v5.patch tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/scratch_v5 v5",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/v5_gen.log",
+      "result": "GIT_APPLY_EXIT=0；VERIFY_MAIN_TAIL_IDLE=True；VERIFY_TAIL_STILL_RETURNS=False；S3_DIAG5_NZ / SR_DECODE / CFG / SENS / SAMPLES 全部 True"
+    },
+    {
+      "id": "git_apply_check_fresh_vendor_copy",
+      "command_text": "cp -r <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/check_v5/an5642_single && cd tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/check_v5/an5642_single && git apply --check -p1 board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "exit_code": 0,
+      "result": "补丁可从厂商原始 display_demo.c 干净应用；补丁只含 display_demo.c 一个文件（--- a/display_demo.c / +++ b/display_demo.c）"
+    },
+    {
+      "id": "elf_build_vitis_2026_1",
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v5/run_v5_elf_build.sh  # 内部: cmd //c 'scripts\\stage3_t04_vitis\\run_stage3_vitis_elf.cmd <XSA> D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v5\\elf_build <vendor an5642_single> an5642_j11cmos2_v5.elf board\\stage3\\software\\sensor\\s3_t04_app_diag_v5.patch'",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v5/elf_build.log",
+      "result": "sdtgen S3_RESULT=PASS；补丁自检 [OK]；make 链接成功 [OK] ELF；sdtgen/HSI 与 make 均无错误；display_demo.c 编译无 warning（编译命令行见日志第 129 行）"
+    },
+    {
+      "id": "sr_bit_source_collection",
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v5/collect_sr_sources.sh",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v5/collect_sr_sources.log",
+      "result": "SR 位定义三份依据的原文摘录与源文件哈希落到 report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/"
+    },
+    {
+      "id": "sr_bit_parse",
+      "command_text": "python tmp/s3r06/t04_j11cmos2_elf_v5/parse_vdma_dmasr.py",
+      "exit_code": 0,
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v5/vdma_dmasr_bits.txt",
+      "result": "从 IP 元数据解析出 S2MM_VDMASR/MM2S_VDMASR 全部字段的 bitOffset（与 HDL、驱动头一致）"
+    }
+  ],
+  "artifacts": {
+    "elf": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/elf_build/app/an5642_j11cmos2_v5.elf",
+      "sha256": "a54d038530fc1a63ea84c897600195f68b7f14d7094f89951d6218e8fb1b0c3e",
+      "bytes": 306188,
+      "note": "上板用 v5 诊断 ELF（Cortex-A9 standalone，含全部 S3_DIAG5 打印）"
+    },
+    "elf_strings_check": "ELF 内含 S3_DIAG5_REG/SR_DECODE/CFG/NZ/SENS/SAMPLE/SAMPLING_DONE 七个打印标签",
+    "patched_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/elf_build/app/display_demo.c",
+      "sha256": "ba2a75ca6e997fd8bd75e7479261b18aae17d49360f43275a9e4853fc61dd203",
+      "bytes": 13631,
+      "note": "构建目录内已打补丁的源；与生成器 verify 副本逐字节相同"
+    },
+    "v5_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748
+    },
+    "build_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/elf_build.log",
+      "sha256": "ca8f84d9ac9d6c1378ee53f3861dfeb6d58c999d3abe774cb9696ceb7cebdac0",
+      "bytes": 24866
+    },
+    "v4_regen_patch": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/patch_gen/v4_regen.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "run_script": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v5/run_v5_elf_build.sh",
+      "sha256": "0243a370a38e2e7b110719e603b6326bcb621a27d837f53d0d44dfe9905678a4",
+      "bytes": 1165
+    },
+    "sr_decode_conclusion_md": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_20261020_r01/s2mm_sr_decode_conclusion.md",
+      "sha256": "a290c612019a93220229213c544b763d35708bc96e1645437d7a5480ff8ee1f7",
+      "bytes": 10077
+    },
+    "evidence_readme": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_20261020_r01/README.md",
+      "sha256": "0daaa109093473afbe52f67ee417697a8610c3ed3020cfb92c83bac5ba105308",
+      "bytes": 1171
+    },
+    "sr_bit_source_extracts": {
+      "design_axi_vdma_1_config.txt": {
+        "sha256": "f153b9b6f76d17ca43dd6e27bc62ec39271b30ade4b7e1f265c5aff95e323c67",
+        "bytes": 1550
+      },
+      "driver_cr_sr_shared_masks_and_xci_irq_config.txt": {
+        "sha256": "e030e42a9f366914f0c0a3032207a944ed8267ea117b0f4f290d9c10d6819978",
+        "bytes": 5392
+      },
+      "driver_xaxivdma_hw_sr_masks.txt": {
+        "sha256": "babbefe71c7c9f19e91d46e16945d572070748e48e50d01caa16b03ab60475b1",
+        "bytes": 1918
+      },
+      "hdl_datamover_interr_minus_frame_errors.txt": {
+        "sha256": "952001cb0e29edadebcbcc2a9baead9b47960a343a1b0a4bc588da347ab49282",
+        "bytes": 471
+      },
+      "hdl_dmasr_bit_constants.txt": {
+        "sha256": "cd3865e587605d385b6dc3dc137ad42ef7c2fd2dde57f122a675032249e19639",
+        "bytes": 1568
+      },
+      "hdl_s2mm_dmasr_assembly.txt": {
+        "sha256": "ed27704e41eb098694fd6f478c1a70d31de6150b96651fc4be3c8122ddd2a9e1",
+        "bytes": 1152
+      },
+      "hdl_s2mm_err_for_irq_and_dmainterr.txt": {
+        "sha256": "c92ec8c3ce8250ab03e3fb0ef30482a5dfad884cf19f46e97d6756cc84b3b2a0",
+        "bytes": 1915
+      },
+      "hdl_s2mm_instance_portmap_and_dmainterr.txt": {
+        "sha256": "dd94e017011414de89af4892338e34f93ce713a9ab4095c4d19c9e1bedd08cf0",
+        "bytes": 5158
+      },
+      "ip_component_xml_s2mm_vdmasr.txt": {
+        "sha256": "1a9cefba316d62558d1d5cf4acc0abd091ac86cf8e27b0ec928ca7adbc0c7e64",
+        "bytes": 7940
+      },
+      "parsed_s2mm_mm2s_vdmasr_bits.txt": {
+        "sha256": "0c00a2f4523be867f393e5eb9ed41d0b1f0ec27276a65d41eb84857cffc7a70b",
+        "bytes": 3999
+      }
+    }
+  },
+  "environment": {
+    "vitis": "2026.1（sdtgen/HSI + make；XSCT 已禁用）",
+    "licence": "XILINXD_LICENSE_FILE=D:\\Xilinx_licenses\\basic_only.lic（脚本内设置，调用前亦已按进程注入）",
+    "host": "HAO",
+    "python": "3.12.10"
+  },
+  "not_executed": [
+    "未上板：本任务不下载、不运行 ELF，也没有 UART 采样；S3_DIAG5_* 的实际数值尚未产生（由阶段总控在独立上板运行中执行）。",
+    "未跑 Vivado synth/impl/route（任务约束：本机同时只允许一个重型任务，项目另有 ILA 位流构建在跑）。",
+    "未烧写 QSPI、未做任何非易失写入。",
+    "未提交 Git（按任务约束由阶段总控统一提交）。",
+    "未实测 xil_printf 对 13 参数行的实际输出（xil_printf 无参数个数上限，但本 ELF 未上板验证过该行）。"
+  ],
+  "limitations": [
+    "“读不到即打印 0xFF”：s3_diag5_sens() 用带传输状态检查的读（厂商 i2c_reg16_read 不看状态、失败会返回未初始化栈值）。但 0xFF 也可能是某些寄存器的合法值，判读时须结合位定义，不能一律当作读失败。",
+    "参数寄存器（+0xA0 起的 VSIZE/HSIZE/STRIDE/ADDR）只有在 C_ENABLE_VIDPRMTR_READS=1 时才可回读；本设计该参数=1（见设计 .xci 摘录），换配置后同样打印可能读到 0。",
+    "SR 位是 sticky（写 1 清除）：三次采样若读到相同的 SR，只说明自 vdma_write_init 后累加的状态，不能据此判断错误发生在哪一帧；帧计数位(bit16..23)是否累加还取决于 C_FRMCNT_EN（本设计 EnableFrameCounter=0）。",
+    "S3_DIAG5_NZ 的“非零字”统计覆盖 4096 个字（16 KB）—— 卡文写“4096 个字”，而 cache 失效调用按卡文先做 4096 B，故实现额外失效了后 12 KB 以保证整段统计都绕过 cache。这是记录在案的实现细节，不改变读法。",
+    "v5 相对 v4 去掉了 S3_DIAG4_FB/S3_DIAG4_FB_MID 两行（未失效 cache 的读数不可信），保留 v4 的 15 秒等待。",
+    "帧缓冲采样点 0x400000 落在 DEMO_MAX_FRAME=1920*1080*3=6,220,800 B 之内，但该偏移仍可能落在“有效图像行之外”（S2MM 按 stride 1280*3 只写前 720 行 = 2,764,800 B）；因此 0x400000 处非零只能证明“该地址被写过”，不能单独证明图像内容有效 —— 判读以 site0（fb+0）与三处 NZ 是否随时间变化为准。",
+    "本任务只做软件与证据；G3（实物）未闭合，SR 解码结论的上板验证依赖后续下载与 UART 采集。"
+  ]
+}

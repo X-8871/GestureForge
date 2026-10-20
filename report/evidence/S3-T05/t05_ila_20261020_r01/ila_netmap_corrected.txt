@@ -1,0 +1,56 @@
+# S3-T05-ILA 网表插入路线（RunId t04_ila_20261020_r01）探针网名映射 —— 更正版
+#
+# 说明：本文件是对同目录/同 RunId 下自动生成的 ila_netmap.txt 的更正。
+#   自动生成的 ila_netmap.txt 中 probe0..probe4 的值被写成了字面量 "$p0".."$p4"
+#   （netlist_insert_ila.tcl 原版把探针列表写成花括号字面量 {0 $p0 1 $p1 ...}，
+#    TCL 不展开变量），因此在写映射表与打印驱动信息时用了字面量。
+#   这是脚本缺陷，与许可失败无因果关系；原文件保持原样保留作为失败证据。
+#
+# 本文件的映射取自同一份 vivado_ila.log 中 ILA_T05|CAND 行（TCL 解析阶段真实输出，
+# 每条都带 COUNT 与完整候选名），可独立复核：
+#   tmp/s3r06/t04_ila_20261020_r01/vivado_ila.log（副本：
+#   report/evidence/S3-T05/t05_ila_20261020_r01/vivado_ila.log）
+#
+# 该路线的最终结局：在 opt_design 之前被 BASIC 许可阻断，
+#   ERROR: [Vivado 12-29205] 'create_debug_core' tcl command is not supported.
+#   Your current selected license is BASIC.
+# 因此未做实现、未产出 bit/ltx；驱动/负载信息未取得（未到该步骤）。
+
+ila_clock_net=design_1_i/processing_system7_0_FCLK_CLK1
+ila_clock_net_source=通过 axi_vdma_1/s_axis_s2mm_aclk 等 4 个 S2MM 侧 aclk 管脚反查（sink 管脚共 11 个，命中 S2MM 侧 4 个）
+ila_clock_obj=<未解析：get_clocks -of_objects <net> 未返回该网所属时钟对象>
+
+probe0=cmos1_pclk_IBUF
+probe0_候选=cmos1_pclk_IBUF(COUNT=1)
+probe0_命中方式=精确名匹配
+probe0_width=<未取得>
+probe0_driver=<未取得>
+probe0_sink_count=<未取得>
+
+probe1=cmos1_vsync_IBUF
+probe1_候选=cmos1_vsync_IBUF(COUNT=1)；同层另有 cmos1_vsync（顶层端口网，IBUF 之前）与 design_1_i/cmos1_vsync（BD 内）
+probe1_命中方式=精确名匹配（顶层、无层级前缀）
+probe1_width=<未取得>
+probe1_driver=<未取得>
+probe1_sink_count=<未取得>
+
+probe2=cmos1_href_IBUF
+probe2_候选=cmos1_href_IBUF(COUNT=1)；同层另有 cmos1_href、design_1_i/cmos1_href
+probe2_命中方式=精确名匹配（顶层、无层级前缀）
+probe2_width=<未取得>
+probe2_driver=<未取得>
+probe2_sink_count=<未取得>
+
+probe3=design_1_i/alinx_ov5640_0_m_axis_video_TUSER
+probe3_候选=design_1_i/alinx_ov5640_0_m_axis_video_TUSER(COUNT=1，大写 TUSER 命中；小写 tuser 模式 COUNT=0)
+probe3_命中方式=大小写变体模式命中（说明综合后网名是大写后缀）
+probe3_width=<未取得>
+probe3_driver=<未取得>
+probe3_sink_count=<未取得>
+
+probe4=design_1_i/alinx_ov5640_0_m_axis_video_TLAST
+probe4_候选=design_1_i/alinx_ov5640_0_m_axis_video_TLAST(COUNT=1，大写 TLAST 命中；小写 tlast 模式 COUNT=0)
+probe4_命中方式=大小写变体模式命中
+probe4_width=<未取得>
+probe4_driver=<未取得>
+probe4_sink_count=<未取得>

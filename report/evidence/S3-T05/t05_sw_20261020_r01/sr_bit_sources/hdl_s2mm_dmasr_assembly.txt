@@ -1,0 +1,26 @@
+    end process;
+
+---------------------------------------------------------------------------
+-- DMA Status Register
+---------------------------------------------------------------------------
+dmasr_i    <=  irqdelay_status    -- Bits 31 downto 24
+                    & irqthresh_status -- Bits 23 downto 16
+                    & lsize_more_err              -- Bit  15
+                    & err_irq          -- Bit  14
+                    & dly_irq          -- Bit  13
+                    & ioc_irq          -- Bit  12
+                    & s2mm_fsize_more_or_sof_late_bit              -- Bit  11
+                    & sg_decerr        -- Bit  10
+                    & sg_slverr        -- Bit  9
+                    & lsize_err              -- Bit  8
+                    & fsize_err              -- Bit  7
+                    & dma_decerr       -- Bit  6
+                    & dma_slverr       -- Bit  5
+                    & dma_interr       -- Bit  4
+                    & '0'              -- Bit  3
+                    & '0'              -- Bit  2
+                    & idle             -- Bit  1
+                    & halted;          -- Bit  0
+
+
+

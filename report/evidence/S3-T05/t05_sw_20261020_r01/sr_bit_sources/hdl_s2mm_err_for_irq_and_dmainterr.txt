@@ -1,0 +1,61 @@
+begin
+
+err_p  <= dma_interr
+            or lsize_err
+            or lsize_more_err
+            or dma_slverr
+            or dma_decerr
+            or sg_slverr
+            or sg_decerr;
+
+
+
+err  <= dma_interr_minus_frame_errors
+            or (fsize_err                       and not dma_irq_mask_i(0))
+            or (lsize_err                       and not dma_irq_mask_i(1))
+            or (s2mm_fsize_more_or_sof_late_bit and not dma_irq_mask_i(2))
+            or (lsize_more_err                  and not dma_irq_mask_i(3))
+            or dma_slverr
+            or dma_decerr
+            or sg_slverr
+            or sg_decerr;
+
+FRMSTR_REGISTER : process(prmry_aclk)
+    begin
+        if(prmry_aclk'EVENT and prmry_aclk = '1')then
+            if(prmry_resetn = '0' )then
+                    frm_store_i           <= (others => '0');
+--            elsif(err = '1')then
+--                    frm_store_i           <= frm_store_i;
+            elsif(err_p = '0')then
+                    frm_store_i           <= new_frmstr;
+            end if;
+        end if;
+    end process FRMSTR_REGISTER;
+
+
+    DMAINTERR_MINUS_FRAME_ERRORS : process(prmry_aclk)
+        begin
+            if(prmry_aclk'EVENT and prmry_aclk = '1')then
+                if(prmry_resetn = '0')then
+                    dma_interr_minus_frame_errors <= '0';
+
+                elsif(axi2ip_wrce(DMASR_INDEX) = '1' )then
+
+                    dma_interr_minus_frame_errors <= (dma_interr_minus_frame_errors and not(axi2ip_wrdata(DMASR_DMAINTERR_BIT)))
+                                 or dma_interr_set_minus_frame_errors;
+
+                elsif(dma_interr_set_minus_frame_errors = '1' )then
+                    dma_interr_minus_frame_errors <= '1';
+                end if;
+            end if;
+        end process DMAINTERR_MINUS_FRAME_ERRORS;
+
+
+
+
+end generate S2MM_ERR_FOR_IRQ;
+
+-- Scatter Gather Error
+sg_ftch_err <= ftch_slverr_set or ftch_decerr_set;
+

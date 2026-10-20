@@ -1,0 +1,211 @@
+========================= PAGE 27 =========================
+AX7020
+27 / 33
+Copyright © Alinx 2026
+Signal name
+ZYNQ pin name
+ZYNQ pin number
+Remark
+RTC _SCLK
+IO_0_34
+R19
+RTC clock signal
+RTC_ RESET
+IO_L22N_T3_AD7N_35
+L15
+RTC reset signal
+RTC _DATA
+IO_L22P_T3_AD7P_35
+L14
+RTC data signal
+Table 7.3.1 - DS1302 Interface Pin Assignment
+7.4 Expansion Port J10
+Expansion port J10 is a 40-pin 2.54mm dual-row connector, providing users with more
+peripherals and interfaces. Currently, ALINX offers modules including: ADDA modules, LCD screen
+modules, Gigabit Ethernet modules, audio input/output modules, matrix keyboard modules, and 500W binocular
+vision camera modules . The expansion port includes one 5V power supply, two 3.3V power supply,
+three ground lines, and 34 I/O ports. The I/O signals connect to BANK34 and BANK35 on the ZYNQ
+PL, with a default voltage level of 3.3V. Some I/O signals on expansion port J10 can have their
+voltage levels changed by replacing the power supply chip ( SPX3819M5-3-3 ) on the development
+board. Do not connect directly to 5V devices to avoid damaging the FPGA. If you need to connect 5V devices,
+you need to use a level converter chip.
+A 33-ohm resistor array is connected in series between the expansion port and the FPGA to
+protect the FPGA from damage caused by excessive external voltage or current. The P and N traces
+on the PCB design use differential routing, controlling the differential impedance to 100 ohms. The
+pin assignments for the J10 expansion port are shown in the table below:
+J10 pin
+Signal nam e
+ZYNQ pin nam e
+ZYNQ pin num ber
+PIN1
+GND
+-
+-
+PIN2
++5V
+-
+-
+PIN3
+EX_IO1_1N
+IO_L22 N _T3_34
+W19
+PIN4
+EX_IO1_1 P
+IO_L22P_T3_34
+W18
+PIN5
+EX_IO1_ 2 N
+IO_L6N_T0_34
+R14
+PIN6
+EX_IO1_ 2P
+IO_L6P_T0_34
+P14
+PIN7
+EX_IO1_ 3 N
+IO_L7 N _T1_34
+Y17
+PIN8
+EX_IO1_ 3P
+IO_L7P_T1_34
+Y16
+PIN9
+EX_IO1_ 4 N
+IO_L10 N _T1_34
+W15
+
+========================= PAGE 29 =========================
+AX7020
+29 / 33
+Copyright © Alinx 2026
+PIN34
+EX_IO1_ 16P
+IO_L2P_T0_35​
+B19
+PIN35
+EX_IO1_ 17 N
+IO_L1 N _T0 _35
+B20
+PIN36
+EX_IO1_ 17P
+IO_L1P_T0 _35
+C20
+PIN37
+GND
+-
+-
+PIN38
+GND
+-
+-
+PIN39
++3.3V
+-
+-
+PIN40
++3.3V
+-
+-
+Table 7.4.1 - J10 Expansion Port Pin Assignment
+7.5 Expansion Port J11
+The expansion port J11 is also a 40-pin 2.54mm dual-row connector, allowing users to expand
+with more peripherals and interfaces. Currently, ALINX provides modules such as: ADDA modules, LCD
+screen modules, Gigabit Ethernet modules, audio input/output modules, matrix keyboard modules, and 500W
+binocular vision camera modules . The expansion port includes one 5V power supply, two 3.3V power
+supply, three ground lines, and 34 I/O ports. The I/O signals are connected to the ZYNQ PL's
+BANK35, with a default voltage level of 3.3V. All I/O signals on expansion port J11 can be changed
+by replacing the power supply chip ( SPX3819M5-3-3 ) on the development board. Do not connect
+directly to 5V devices to avoid damaging the FPGA. If you need to connect 5V devices, you need to use a level
+converter chip.
+A 33-ohm resistor array is connected in series between the expansion port and the FPGA to
+protect the FPGA from damage caused by excessive external voltage or current. The P and N traces
+on the PCB are routed differentially, with the differential impedance controlled at 100 ohms. The pin
+assignments for the J11 expansion port are shown in the table below:
+J11 pin
+Signal name
+ZYNQ pin name
+ZYNQ pin number
+PIN1
+GND
+-
+-
+PIN2
++5V
+-
+-
+PIN3
+EX_IO 2 _1N
+IO_L6 N _T0_35
+F17
+PIN4
+EX_IO 2 _1 P
+IO_L6P_T0_35
+F16
+PIN5
+EX_IO 2 _ 2 N
+IO_L15 N _T2_35
+F20
+PIN6
+EX_IO 2 _ 2P
+IO_L15P_T2_35
+F19
+
+========================= PAGE 31 =========================
+AX7020
+31 / 33
+Copyright © Alinx 2026
+PIN31
+EX_IO 2 _ 15 N
+IO_L13 N _T2_35
+H17
+PIN32
+EX_IO 2 _ 15P
+IO_L13P_T2_35
+H16
+PIN33
+EX_IO 2 _ 16 N
+IO_L19 N _T3_35
+G15
+PIN34
+EX_IO 2 _ 16P
+IO_L19P_T3_35
+H15
+PIN35
+EX_IO 2 _ 17 N
+IO_L20 N _T3_35
+J14
+PIN36
+EX_IO 2 _ 17P
+IO_L20P_T3_35
+K14
+PIN37
+GND
+-
+-
+PIN38
+GND
+-
+-
+PIN39
++3.3V
+-
+-
+PIN40
++3.3V
+-
+-
+Table 7.5.1 - J11 Expansion Port Pin Assignment
+7.6 User LED
+The PL section of the AX7020 development board connects to four LEDs. The LED signals are
+connected to the BANK35 I/O pin of the PL section. When the BANK35 I/O pin outputs logic 0, the
+LED is lit; when it outputs logic 1, the LED is off.
+Figure 7.6.1 - PL User LED Schematic Diagram
+PL user LED pin assignment:
+Signal name
+ZYNQ pin name
+ZYNQ pin number
+Remark
+LED1
+IO_L23P_T3_35
+M14
+PL user LED1 light

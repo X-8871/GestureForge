@@ -1,0 +1,181 @@
+{
+  "task_id": "S3-T05-ILA",
+  "task_board_id": "task-2",
+  "title": "在 J11+CMOS2 综合检查点上以网表插入法加 1 个 5 探针 ILA 并实现到调试位流",
+  "run_id": "t04_ila_20261020_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_ila_20261020_r01",
+  "generated_at_utc8": "2026-10-20T12:18:53+08:00",
+  "status": "failed",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "41ee5ba003147d77349e8908c38b2efc97752ca8",
+    "part": "xc7z020clg400-2",
+    "synth_checkpoint": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/synth_1/design_1_wrapper.dcp",
+    "synth_checkpoint_sha256": "94822be9d625f0ad95504f6edcf3325b4c403da38b13b6f75a5917dba44e0086",
+    "design": "design_1_wrapper (BD design_1, alinx_ov5640 + axi_vdma_1 S2MM + HDMI 直通)"
+  },
+  "commands": {
+    "launcher": "bash scripts/stage3_t04/run_t04_ila_build.sh t04_ila_20261020_r01",
+    "vivado": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/netlist_insert_ila.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01/vivado_ila.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01/vivado_ila.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/synth_1/design_1_wrapper.dcp",
+    "addressing_dcp": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/synth_1/design_1_wrapper.dcp",
+    "tcl_script": "scripts/stage3_t04/netlist_insert_ila.tcl",
+    "vivado_exit_code": 11,
+    "elapsed_seconds": 44
+  },
+  "ila_configuration": {
+    "core": "u_ila_0",
+    "type": "ila",
+    "num_probes": 5,
+    "data_depth": 4096,
+    "clock_input": "axi_vdma_1 S2MM 流时钟 (BD 网 processing_system7_0_FCLK_CLK1)",
+    "single_core_no_vendor_debug": true,
+    "note": "BASIC 许可上限 5 探针；未打开厂商 IP 内嵌 DEBUG_OV5640 ila_0(6 探针)"
+  },
+  "probe_map": {
+    "probe0": {
+      "net": "$p0",
+      "width": "<unknown>",
+      "driver_pin": "<none>",
+      "driver_ref": "<none>",
+      "sink_count": "0",
+      "intended_signal": "cmos1_pclk (顶层 DVP 输入网 / IBUF 输出)"
+    },
+    "probe1": {
+      "net": "$p1",
+      "width": "<unknown>",
+      "driver_pin": "<none>",
+      "driver_ref": "<none>",
+      "sink_count": "0",
+      "intended_signal": "cmos1_vsync (顶层 DVP 输入网 / IBUF 输出)"
+    },
+    "probe2": {
+      "net": "$p2",
+      "width": "<unknown>",
+      "driver_pin": "<none>",
+      "driver_ref": "<none>",
+      "sink_count": "0",
+      "intended_signal": "cmos1_href (顶层 DVP 输入网 / IBUF 输出)"
+    },
+    "probe3": {
+      "net": "$p3",
+      "width": "<unknown>",
+      "driver_pin": "<none>",
+      "driver_ref": "<none>",
+      "sink_count": "0",
+      "intended_signal": "alinx_ov5640_0/m_axis_video_tuser (S2MM 帧起始 TUSER)"
+    },
+    "probe4": {
+      "net": "$p4",
+      "width": "<unknown>",
+      "driver_pin": "<none>",
+      "driver_ref": "<none>",
+      "sink_count": "0",
+      "intended_signal": "alinx_ov5640_0/m_axis_video_tlast (S2MM 行结束 TLAST)"
+    }
+  },
+  "ila_clock": {
+    "net": "design_1_i/processing_system7_0_FCLK_CLK1",
+    "clock_object": "<unknown>",
+    "period_ns": "<unknown>"
+  },
+  "implementation": {
+    "flow": [
+      "opt_design",
+      "place_design",
+      "phys_opt_design",
+      "route_design",
+      "report_timing_summary",
+      "report_drc",
+      "write_bitstream",
+      "write_debug_probes"
+    ],
+    "timing": {
+      "wns_ns": null,
+      "tns_ns": null,
+      "whs_ns": null,
+      "ths_ns": null,
+      "wns_from_get_timing_paths_ns": null,
+      "whs_from_get_timing_paths_ns": null
+    },
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 0,
+    "drc_error_count_from_summary_table": 0,
+    "drc_violation_counts_by_severity": {},
+    "debug_core_cells_after_opt": null,
+    "dbg_hub_cells_after_opt": null,
+    "peak_memory_mb": 967.211
+  },
+  "log_messages": {
+    "error_count": 1,
+    "critical_warning_count": 17,
+    "warning_count": 22,
+    "error_codes": [
+      "Vivado 12-29205"
+    ],
+    "critical_warning_codes": [
+      "Project 1-486"
+    ],
+    "license_or_chipscope_messages": [
+      "ERROR: [Vivado 12-29205] 'create_debug_core' tcl command is not supported. Your current selected license is BASIC. This license doesn't cover the feature you selected. See the Vivado Licensing page for what features are supported in each tier and how to get the right license based on your requirements."
+    ],
+    "ila_t05_fail_marks": [
+      "FAIL=missing_tclargs_usage_run_dir_synth_dcp\"",
+      "FAIL=synth_dcp_missing:$SYNTH_DCP\"",
+      "FAIL=create_debug_core:ERROR: [Common 17-39] 'create_debug_core' failed due to earlier errors."
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01\\impl_ila\\design_1_wrapper.bit",
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "ltx": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01\\impl_ila\\design_1_wrapper.ltx",
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "synth_dcp": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/synth_1/design_1_wrapper.dcp",
+      "exists": true,
+      "size_bytes": 248284,
+      "sha256": "94822be9d625f0ad95504f6edcf3325b4c403da38b13b6f75a5917dba44e0086"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01\\vivado_ila.log",
+      "exists": true,
+      "size_bytes": 22511,
+      "sha256": "e69ce63efd2ce5c2bdb9b30d8bee36f629371e9873c060b1b64a9ffe9eba81ec"
+    },
+    "ila_netmap": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_ila_20261020_r01\\ila_netmap.txt",
+      "exists": true,
+      "size_bytes": 638,
+      "sha256": "944a1f41275f06d8e38ba33cec8a430e39393f744c3c1fe48225ab9c9e3f843e"
+    }
+  },
+  "limitations": [
+    "本任务只产出调试位流与 .ltx，未下载到实物、未做 ILA 采集（下载与采集由阶段总控在独立运行中执行）。",
+    "ILA 采样时钟为 S2MM 流时钟 (FCLK_CLK1, 150MHz)，C_DATA_DEPTH=4096 对应约 27.3us 窗口（约 1.2 行 1280x720 PCLK@74.25MHz），单次采集窗口短于一个视频帧；能否看到 VSYNC 下降沿/TUSER 脉冲取决于触发条件，需在采集阶段设置触发。",
+    "probe0 取 cmos1_pclk_IBUF（IBUF 输出、BUFG 之前的原始引脚活动网）；该网为时钟网，ILA 作为数据负载接入可能引入 PLCK 类 DRC 警告（见 report_drc_routed.rpt）。",
+    "未做上板功能验证，位流是否与基线功能一致未在本任务内验证。",
+    "未执行：JTAG 下载、ILA 触发采集、波形导出、帧数据比对。"
+  ],
+  "not_executed": [
+    "program_device / hw_server 连接",
+    "ILA arm/trigger/capture/read_ila_data",
+    "上板图像或帧数据验证",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

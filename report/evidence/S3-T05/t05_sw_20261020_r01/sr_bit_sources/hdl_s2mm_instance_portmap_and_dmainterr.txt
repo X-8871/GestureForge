@@ -1,0 +1,85 @@
+=== vhd lines 72560-72580 (S2MM 状态寄存器实例端口映射) ===
+            update_frmstore             => s2mm_update_frmstore             ,
+            new_frmstr                  => s2mm_frame_number                ,
+            tstvect_fsync               => s2mm_tstvect_fsync               ,
+            valid_frame_sync            => s2mm_valid_frame_sync            ,
+            irqthresh_rstdsbl           => s2mm_irqthresh_rstdsbl           ,
+            dlyirq_dsble                => s2mm_dlyirq_dsble                ,
+            irqthresh_wren              => s2mm_irqthresh_wren              ,
+            irqdelay_wren               => s2mm_irqdelay_wren               ,
+            tailpntr_updated            => s2mm_tailpntr_updated            ,
+
+            -- Error Detection Control
+            stop                        => s2mm_stop                        ,
+            dma_interr_set              => s2mm_dma_interr_set              ,
+            dma_interr_set_minus_frame_errors              => s2mm_dma_interr_set_minus_frame_errors              ,
+            dma_slverr_set              => s2mm_dma_slverr_set              ,
+            dma_decerr_set              => s2mm_dma_decerr_set              ,
+            ftch_slverr_set             => s2mm_ftch_slverr_set             ,
+            ftch_decerr_set             => s2mm_ftch_decerr_set             ,
+
+            fsize_mismatch_err          => s2mm_fsize_mismatch_err          ,   
+            lsize_mismatch_err          => s2mm_lsize_mismatch_err          ,   
+
+=== vhd lines 19418-19452 (DMASR_DMAINTERR sticky, S2MM 实例) ===
+
+                    lsize_more_err <= (lsize_more_err and not(axi2ip_wrdata(DMASR_LSIZE_MORE_ERR_BIT)))
+                                 or lsize_more_mismatch_err;
+
+                elsif(lsize_more_mismatch_err = '1' )then
+                    lsize_more_err <= '1';
+                end if;
+            end if;
+        end process DMASR_LSIZE_MORE_ERR;
+
+    DMASR_DMAINTERR : process(prmry_aclk)
+        begin
+            if(prmry_aclk'EVENT and prmry_aclk = '1')then
+                if(prmry_resetn = '0')then
+                    dma_interr <= '0';
+
+                -- CPU Writing a '1' to clear - OR'ed with setting to prevent
+                -- missing a 'set' during the write.
+                elsif(axi2ip_wrce(DMASR_INDEX) = '1' )then
+
+                    dma_interr <= (dma_interr and not(axi2ip_wrdata(DMASR_DMAINTERR_BIT)))
+                                 or dma_interr_set;
+
+                elsif(dma_interr_set = '1' )then
+                    dma_interr <= '1';
+                end if;
+            end if;
+        end process DMASR_DMAINTERR;
+
+
+
+---------------------------------------------------------------------------
+-- DMA Status DMA Slave Error bit (BIT 5)
+---------------------------------------------------------------------------
+DMASR_DMASLVERR : process(prmry_aclk)
+5993:        ch1_dma_interr_set          => ch1_dma_interr_set                   ,
+6012:        ch2_dma_interr_set          => ch2_dma_interr_set                   ,
+7752:                dma_interr_set              => ch1_dma_interr_set                   ,
+7818:                dma_interr_set              => ch1_dma_interr_set                   ,
+7922:                dma_interr_set              => ch2_dma_interr_set           ,
+7988:                dma_interr_set              => ch2_dma_interr_set           ,
+9484:            ch1_dma_interr_set          => ch1_dma_interr_set_i                 ,
+9503:            ch2_dma_interr_set          => ch2_dma_interr_set_i                 ,
+9566:            ch1_dma_interr_set          => ch1_dma_interr_set_i                 ,
+9582:            ch2_dma_interr_set          => ch2_dma_interr_set_i                 ,
+39001:    dma_interr_set              => dma_interr_set           ,
+69549:signal s2mm_dma_interr_set              : std_logic := '0';
+69550:signal s2mm_dma_interr_set_minus_frame_errors              : std_logic := '0';
+70396:            ch1_dma_interr_set          => open                             ,
+70451:            ch2_dma_interr_set          => open                             ,
+70871:            dma_interr_set              => mm2s_dma_interr_set              ,
+71045:            dma_interr_set              => mm2s_dma_interr_set              ,
+71228:            dma_interr_set              => mm2s_dma_interr_set              ,
+72572:            dma_interr_set              => s2mm_dma_interr_set              ,
+72573:            dma_interr_set_minus_frame_errors              => s2mm_dma_interr_set_minus_frame_errors              ,
+72744:            dma_interr_set              => s2mm_dma_interr_set              ,
+72745:            dma_interr_set_minus_frame_errors              => s2mm_dma_interr_set_minus_frame_errors              ,
+72928:            dma_interr_set              => s2mm_dma_interr_set              ,
+72929:            dma_interr_set_minus_frame_errors              => s2mm_dma_interr_set_minus_frame_errors              ,
+73274:    s2mm_dma_interr_set             <= '0';
+73275:    s2mm_dma_interr_set_minus_frame_errors             <= '0';

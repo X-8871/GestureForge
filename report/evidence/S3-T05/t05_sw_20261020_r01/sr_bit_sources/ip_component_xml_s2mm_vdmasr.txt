@@ -1,0 +1,151 @@
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+        </spirit:register>
+        <spirit:register>
+          <spirit:name>S2MM_VDMASR</spirit:name>
+          <spirit:displayName>S2MM VDMA Status Register</spirit:displayName>
+          <spirit:description>S2MM VDMA Status Register</spirit:description>
+          <spirit:addressOffset>0x34</spirit:addressOffset>
+          <spirit:size spirit:format="long">32</spirit:size>
+          <spirit:volatile>true</spirit:volatile>
+          <spirit:access>read-write</spirit:access>
+          <spirit:reset>
+            <spirit:value spirit:format="long">0x10001</spirit:value>
+          </spirit:reset>
+          <spirit:field>
+            <spirit:name>Halted</spirit:name>
+            <spirit:displayName>VDMA Channel Halted</spirit:displayName>
+            <spirit:description>VDMA Channel Halted.
+Indicates the run/stop state of the VDMA channel.
+  0 - VDMA channel running
+  1 - VDMA channel halted. This bit gets set when VDMACR.RS = 0. There can be a lag of time between when VDMACR.RS = 0 and when VDMASR.Halted = 1.
+</spirit:description>
+            <spirit:bitOffset>0</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-only</spirit:access>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>VDMAIntErr</spirit:name>
+            <spirit:displayName>VDMA Internal Error</spirit:displayName>
+            <spirit:description>VDMA Internal Error.
+  0 - No VDMA Internal Errors.
+  1 - VDMA Internal Error detected.
+This error occurs during one of the following conditions.
+  (a) HSIZE or VSIZE register were written zeros or
+  (b) Internal error received from helper core axi_datamover or
+  (c) Transferred frame size is lesser than programmed vsize (SOFEarlyErr).
+In case (a) and/or (b) channel stops (that is, the VDMACR.RS bit is set to 0 and remains cleared).
+To restart the channel, soft or hard reset is required.
+In case (c), channel does not stop or halt.
+</spirit:description>
+            <spirit:bitOffset>4</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-write</spirit:access>
+            <spirit:modifiedWriteValue>oneToClear</spirit:modifiedWriteValue>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>VDMASlvErr</spirit:name>
+            <spirit:displayName>VDMA Slave Error</spirit:displayName>
+            <spirit:description>VDMA Slave Error.
+  0 - No VDMA Slave Errors.
+  1 - VDMA Slave Error detected. VDMA Engine halts.
+This error occurs if the slave read from the Memory Map interface issues a Slave Error.
+</spirit:description>
+            <spirit:bitOffset>5</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-only</spirit:access>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>VDMADecErr</spirit:name>
+            <spirit:displayName>VDMA Decode Error</spirit:displayName>
+            <spirit:description>VDMA Decode Error. This error occurs if the address request is to an invalid address.
+  0 = No VDMA Decode Errors.
+  1 = VDMA Decode Error detected. VDMA channel halts.
+</spirit:description>
+            <spirit:bitOffset>6</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-only</spirit:access>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>SOFEarlyErr</spirit:name>
+            <spirit:displayName>Start of Frame Early Error</spirit:displayName>
+            <spirit:description>Start of Frame Early Error
+  0 - No start-of-frame Error
+  1 - Start of Frame Early Error detected. VDMA does not halt.
+This error occurs if incoming frame size is lesser than programmed vsize value. Write 1 to Clear in flush on fsync mode and Read Only otherwise.
+</spirit:description>
+            <spirit:bitOffset>7</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-write</spirit:access>
+            <spirit:modifiedWriteValue>oneToClear</spirit:modifiedWriteValue>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>EOLEarlyErr</spirit:name>
+            <spirit:displayName>End of Line Early Error</spirit:displayName>
+            <spirit:description>End of Line Early Error.
+  0 - No End of Line Early Error
+  1 - End of Line Early Error detected. VDMA does not halt.
+This error occurs if the incoming line size is lesser than the programmed hsize value. Write 1 to clear.
+</spirit:description>
+            <spirit:bitOffset>8</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-write</spirit:access>
+            <spirit:modifiedWriteValue>oneToClear</spirit:modifiedWriteValue>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>
+            <spirit:name>SOFLateErr</spirit:name>
+            <spirit:displayName>Start of Frame Late Error</spirit:displayName>
+            <spirit:description>Start of Frame Late Error.
+  0 - No start-of-frame Late Error
+  1 - Start of Frame Late Error detected. VDMA does not halt.
+This error occurs if the incoming frame size is greater than the programmed vsize value. Write 1 to Clear in flush on fsync mode.
+</spirit:description>
+            <spirit:bitOffset>11</spirit:bitOffset>
+            <spirit:bitWidth>1</spirit:bitWidth>
+            <spirit:volatile>true</spirit:volatile>
+            <spirit:access>read-write</spirit:access>
+            <spirit:modifiedWriteValue>oneToClear</spirit:modifiedWriteValue>
+            <spirit:writeValueConstraint>
+              <spirit:minimum>0</spirit:minimum>
+              <spirit:maximum>0</spirit:maximum>
+            </spirit:writeValueConstraint>
+            <spirit:testable spirit:testConstraint="unconstrained">false</spirit:testable>
+          </spirit:field>
+          <spirit:field>

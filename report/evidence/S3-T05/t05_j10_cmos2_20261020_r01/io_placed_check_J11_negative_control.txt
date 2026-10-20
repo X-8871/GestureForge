@@ -1,0 +1,27 @@
+# 阴性对照：把 J11 变体的 io_placed 报告按 J10 期望表比对（应 0/16）
+# 目的：证明 verify_io_placement.py 确实按 FPGA 脚逐条判定，而不是解析失败后假通过。
+
+IO_REPORT=tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper_io_placed.rpt
+PARSED_IO_SIGNALS=155
+
+J10pin  want   port                   actual                 match   iostd
+3       W19    cmos1_d[9]             F17                    MISMATCH LVCMOS33
+4       W18    cmos1_i2c_sda_io       F16                    MISMATCH LVCMOS33
+5       R14    cmos1_d[6]             F20                    MISMATCH LVCMOS33
+6       P14    cmos1_i2c_scl_io       F19                    MISMATCH LVCMOS33
+7       Y17    cmos1_d[7]             G20                    MISMATCH LVCMOS33
+8       Y16    cmos1_d[2]             G19                    MISMATCH LVCMOS33
+9       W15    cmos1_href             H18                    MISMATCH LVCMOS33
+10      V15    cmos1_d[8]             J18                    MISMATCH LVCMOS33
+11      Y14    cmos1_d[3]             L20                    MISMATCH LVCMOS33
+12      W14    cmos_rstn_tri_o[0]     L19                    MISMATCH LVCMOS33
+13      P18    cmos1_d[4]             M20                    MISMATCH LVCMOS33
+14      N17    cmos1_d[5]             M19                    MISMATCH LVCMOS33
+15      U15    cmos1_d[1]             K18                    MISMATCH LVCMOS33
+16      U14    cmos1_d[0]             K17                    MISMATCH LVCMOS33
+17      P16    cmos1_vsync            J19                    MISMATCH LVCMOS33
+18      P15    cmos1_pclk             K19                    MISMATCH LVCMOS33
+
+MATCHED=0/16
+MISMATCHES=[(3, 'W19', 'cmos1_d[9]', 'F17'), (4, 'W18', 'cmos1_i2c_sda_io', 'F16'), (5, 'R14', 'cmos1_d[6]', 'F20'), (6, 'P14', 'cmos1_i2c_scl_io', 'F19'), (7, 'Y17', 'cmos1_d[7]', 'G20'), (8, 'Y16', 'cmos1_d[2]', 'G19'), (9, 'W15', 'cmos1_href', 'H18'), (10, 'V15', 'cmos1_d[8]', 'J18'), (11, 'Y14', 'cmos1_d[3]', 'L20'), (12, 'W14', 'cmos_rstn_tri_o[0]', 'L19'), (13, 'P18', 'cmos1_d[4]', 'M20'), (14, 'N17', 'cmos1_d[5]', 'M19'), (15, 'U15', 'cmos1_d[1]', 'K18'), (16, 'U14', 'cmos1_d[0]', 'K17'), (17, 'P16', 'cmos1_vsync', 'J19'), (18, 'P15', 'cmos1_pclk', 'K19')]
+EXIT_RC=1

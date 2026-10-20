@@ -1,0 +1,27 @@
+# 正向核验：J10 变体的 io_placed 落点 vs J10 期望表（应 16/16）
+# 独立脚本：verify_io_placement.py（阴性对照见 io_placed_check_J11_negative_control.txt）
+
+IO_REPORT=tmp/s3r06/t04_j10cmos2_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper_io_placed.rpt
+PARSED_IO_SIGNALS=155
+
+J10pin  want   port                   actual                 match   iostd
+3       W19    cmos1_d[9]             W19                    OK      LVCMOS33
+4       W18    cmos1_i2c_sda_io       W18                    OK      LVCMOS33
+5       R14    cmos1_d[6]             R14                    OK      LVCMOS33
+6       P14    cmos1_i2c_scl_io       P14                    OK      LVCMOS33
+7       Y17    cmos1_d[7]             Y17                    OK      LVCMOS33
+8       Y16    cmos1_d[2]             Y16                    OK      LVCMOS33
+9       W15    cmos1_href             W15                    OK      LVCMOS33
+10      V15    cmos1_d[8]             V15                    OK      LVCMOS33
+11      Y14    cmos1_d[3]             Y14                    OK      LVCMOS33
+12      W14    cmos_rstn_tri_o[0]     W14                    OK      LVCMOS33
+13      P18    cmos1_d[4]             P18                    OK      LVCMOS33
+14      N17    cmos1_d[5]             N17                    OK      LVCMOS33
+15      U15    cmos1_d[1]             U15                    OK      LVCMOS33
+16      U14    cmos1_d[0]             U14                    OK      LVCMOS33
+17      P16    cmos1_vsync            P16                    OK      LVCMOS33
+18      P15    cmos1_pclk             P15                    OK      LVCMOS33
+
+MATCHED=16/16
+RESULT=ALL_16_MATCH_J10_TABLE
+EXIT_RC=0

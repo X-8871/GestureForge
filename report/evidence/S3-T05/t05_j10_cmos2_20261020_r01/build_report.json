@@ -1,0 +1,412 @@
+{
+  "task_id": "S3-T05-PL2",
+  "task_board_id": "task-7",
+  "title": "J10 + 模块 CMOS2 交叉验证变体（官方 23_ov5640_dual cmos2 映射，SOF 补丁、无蓝位重建）",
+  "run_id": "t04_j10cmos2_20261020_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_j10_cmos2_20261020_r01",
+  "generated_at_utc8": "2026-10-20T14:35:35+08:00",
+  "status": "ok",
+  "purpose": "判定「RGB565 B[4] 恒 0 / 蓝最大恒 120」的根因在板侧 J11 走线还是在模块 D6 走线：把模块改插 J10、用官方双目例程 cmos2 通道的 FPGA 脚（与 J11 完全不同）。若 J10 下蓝出现 >127 像素 => 板侧 J11 故障；若仍锁 120 => 模块 D6 故障。",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "flow": "vendor BD auto_create_project (build_t04_camera.tcl)"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit_at_build": "c51b59374b3b068ed317e2cc52c4771d5dde71d6",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "compare_runs": [
+      "t04_camera_j11cmos2_20261020_r01",
+      "t04_sof_fix_20261020_r01"
+    ],
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j10_cmos2.xdc",
+    "xdc_sha256": "07fe96adf4d9ee752c2574616322f6844904995e08b77cf9aff9377ad9210de8",
+    "xdc_basis": [
+      "官方 23_ov5640_dual src/constraints/an5642.xdc（cmos2 通道 16 个 PACKAGE_PIN）",
+      "AX7020 V3.0 手册 Table 7.4.1（J10 针脚表）"
+    ]
+  },
+  "xdc_cross_check": {
+    "file": "report/evidence/S3-T05/t05_j10_cmos2_20261020_r01/xdc_cross_check.txt",
+    "official_xdc": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/23_ov5640_dual/Vivado/auto_create_project/src/constraints/an5642.xdc",
+    "our_xdc": "board/stage3/hardware/an5642_j10_cmos2.xdc",
+    "method": "只取 set_property PACKAGE_PIN 行；把官方 cmos2_* 归一化为本设计 cmos1_*、cmos_rstn_tri_o[1] -> [0]，压缩空格后排序比较",
+    "result": "IDENTICAL 16/16",
+    "meaning": "本变体的 16 个落点与官方双目例程 cmos2 通道逐条一致（仅端口名不同），落点依据可独立复核。"
+  },
+  "variant_scope": {
+    "pin_group_replaced": "J11 (F/G/H/J/K/L/M) -> J10 (W/V/R/P/Y/N/U)",
+    "blue_patch_applied": false,
+    "blue_patch_note": "本变体故意不应用 alinx_ov5640_blue_msb_rebuild.patch，保持蓝通道原始行为以便判定。",
+    "sof_patch_applied": true,
+    "debug_ov5640": false
+  },
+  "patches": {
+    "items": [
+      {
+        "name": "SOF fix",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+        "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+        "hunks": 3,
+        "lines_added": 24,
+        "lines_removed": 5,
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      }
+    ],
+    "applied_order": [
+      "alinx_ov5640_sof_hrefgap.patch"
+    ],
+    "git_apply_note": "从工作树根执行 git apply -p1 --directory=<run>/vendor_src；GNU patch 对该 CRLF 文件不适用。"
+  },
+  "rtl_hashes": {
+    "pristine_vendor": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+    "after_sof_patch": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "final_actual": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "bluefix_marker_absent": true
+  },
+  "commands": {
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/build_t04_camera.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01/vivado.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01/vivado.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01/vendor_src",
+    "tcl_script": "scripts/stage3_t04/build_t04_camera.tcl",
+    "vivado_exit_code": 0,
+    "elapsed_seconds": 488
+  },
+  "implementation": {
+    "synth_status": "synth_design Complete!",
+    "impl_status": "write_bitstream Complete!",
+    "timing": {
+      "wns_ns": "1.162281",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.058777",
+      "ths_ns": "0.000000"
+    },
+    "timing_reference_runs": {
+      "t04_camera_j11cmos2_20261020_r01_baseline": {
+        "wns_ns": "1.141183",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058332",
+        "ths_ns": "0.000000"
+      },
+      "t04_sof_fix_20261020_r01_sof_only_J11": {
+        "wns_ns": "1.054525",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058931",
+        "ths_ns": "0.000000"
+      }
+    },
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 8,
+    "drc_counts_by_severity": {
+      "Warning": 8
+    },
+    "drc_rule_breakdown": {
+      "PDCN-1569": 3,
+      "PLCK-12": 1,
+      "REQP-1839": 2,
+      "REQP-1840": 1,
+      "RTSTAT-10": 1
+    },
+    "peak_memory_mb": 2560.598,
+    "utilization_by_run": {
+      "t04_camera_j11cmos2_20261020_r01": {
+        "design_synth": 10534,
+        "alinx_ip_ooc": 401
+      },
+      "t04_sof_fix_20261020_r01": {
+        "design_synth": 10548,
+        "alinx_ip_ooc": 415
+      },
+      "t04_j10cmos2_20261020_r01": {
+        "design_synth": 10548,
+        "alinx_ip_ooc": 415
+      }
+    },
+    "xsa_exists": "1"
+  },
+  "io_placement": {
+    "source_report": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper_io_placed.rpt",
+    "device_package_pins_checked": 16,
+    "all_16_match_j10_table": true,
+    "mismatches": [],
+    "verifier_script": "report/evidence/S3-T05/t05_j10_cmos2_20261020_r01/verify_io_placement.py",
+    "positive_check_txt": "report/evidence/S3-T05/t05_j10_cmos2_20261020_r01/io_placed_check_J10.txt",
+    "positive_check_result": "MATCHED=16/16, RESULT=ALL_16_MATCH_J10_TABLE（全部 IOSTANDARD=LVCMOS33）",
+    "negative_control_txt": "report/evidence/S3-T05/t05_j10_cmos2_20261020_r01/io_placed_check_J11_negative_control.txt",
+    "negative_control_result": "把 J11 变体的 io_placed 按 J10 期望表比对 = MATCHED=0/16（实际落点为 J11 的 F17/F16/F20/F19/G20/G19/H18/J18/L20/L19/M20/M19/K18/K17/J19/K19），证明该比对照 FPGA 脚逐条判定而非解析失败假通过。",
+    "expected_and_actual": [
+      {
+        "j10_pin": 3,
+        "fpga": "W19",
+        "port": "cmos1_d[9]",
+        "placed": true,
+        "actual_fpga_pin": "W19",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 4,
+        "fpga": "W18",
+        "port": "cmos1_i2c_sda_io",
+        "placed": true,
+        "actual_fpga_pin": "W18",
+        "use": "BIDIR",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 5,
+        "fpga": "R14",
+        "port": "cmos1_d[6]",
+        "placed": true,
+        "actual_fpga_pin": "R14",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 6,
+        "fpga": "P14",
+        "port": "cmos1_i2c_scl_io",
+        "placed": true,
+        "actual_fpga_pin": "P14",
+        "use": "BIDIR",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 7,
+        "fpga": "Y17",
+        "port": "cmos1_d[7]",
+        "placed": true,
+        "actual_fpga_pin": "Y17",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 8,
+        "fpga": "Y16",
+        "port": "cmos1_d[2]",
+        "placed": true,
+        "actual_fpga_pin": "Y16",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 9,
+        "fpga": "W15",
+        "port": "cmos1_href",
+        "placed": true,
+        "actual_fpga_pin": "W15",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 10,
+        "fpga": "V15",
+        "port": "cmos1_d[8]",
+        "placed": true,
+        "actual_fpga_pin": "V15",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 11,
+        "fpga": "Y14",
+        "port": "cmos1_d[3]",
+        "placed": true,
+        "actual_fpga_pin": "Y14",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 12,
+        "fpga": "W14",
+        "port": "cmos_rstn_tri_o[0]",
+        "placed": true,
+        "actual_fpga_pin": "W14",
+        "use": "OUTPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 13,
+        "fpga": "P18",
+        "port": "cmos1_d[4]",
+        "placed": true,
+        "actual_fpga_pin": "P18",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 14,
+        "fpga": "N17",
+        "port": "cmos1_d[5]",
+        "placed": true,
+        "actual_fpga_pin": "N17",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 15,
+        "fpga": "U15",
+        "port": "cmos1_d[1]",
+        "placed": true,
+        "actual_fpga_pin": "U15",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 16,
+        "fpga": "U14",
+        "port": "cmos1_d[0]",
+        "placed": true,
+        "actual_fpga_pin": "U14",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 17,
+        "fpga": "P16",
+        "port": "cmos1_vsync",
+        "placed": true,
+        "actual_fpga_pin": "P16",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      },
+      {
+        "j10_pin": 18,
+        "fpga": "P15",
+        "port": "cmos1_pclk",
+        "placed": true,
+        "actual_fpga_pin": "P15",
+        "use": "INPUT",
+        "iostd": "LVCMOS33",
+        "match": true
+      }
+    ],
+    "meaning": "通过 io_placed 报告逐条核对：16 个摄像头信号（cmos1_d[9:0]、cmos1_href、cmos1_vsync、cmos1_pclk、cmos1_i2c_sda_io、cmos1_i2c_scl_io、cmos_rstn_tri_o[0]）落点等于官方 23_ov5640_dual cmos2 通道的 J10 FPGA 脚，即本变体确实换到了与 J11 完全不同的 FPGA 脚。"
+  },
+  "rtl_evidence": {
+    "project_rtl_copies": [
+      {
+        "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\project\\ov5640_single.gen\\sources_1\\bd\\design_1\\ipshared\\564b\\src\\alinx_ov5640.v",
+        "sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+        "size_bytes": 8167,
+        "matches_expected": true,
+        "contains_gap_thresh": true,
+        "contains_bluefix": false
+      }
+    ],
+    "meaning": "工程 .gen 下 IP RTL 副本哈希 = 仅 SOF 补丁后的哈希，且不含蓝位重建标记，证明本变体是“干净蓝通道”。"
+  },
+  "log_messages": {
+    "error_count": 0,
+    "critical_warning_count": 17,
+    "warning_count": 196,
+    "error_codes": [],
+    "critical_warning_codes": [
+      "Designutils 20-1280",
+      "Timing 38-249"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "exists": true,
+      "size_bytes": 1748993,
+      "sha256": "d4ce330b5dc706392530668166e2f8806bf09bd3a615c81455d3c26e195b9474"
+    },
+    "xsa": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\design_1_wrapper.xsa",
+      "exists": true,
+      "size_bytes": 631037,
+      "sha256": "7afe4174a732811ea19a6f7b782f8b2465210ebed194ef95cba11c95fe375c2e"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\vivado.log",
+      "exists": true,
+      "size_bytes": 229411,
+      "sha256": "6ba8348f036a5119373949851a2f86f86c22936599085bcdf1e1887188c92b6d"
+    },
+    "io_placed_report": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper_io_placed.rpt",
+      "exists": true,
+      "size_bytes": 125043,
+      "sha256": "54c372a25b56df4525cb745c5a28a5e4af70f4d73ca23e54fac8f64d85fbdc32"
+    },
+    "report_timing_summary_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\report_timing_summary_impl.rpt",
+      "exists": true,
+      "size_bytes": 1428060,
+      "sha256": "f201d475582725a34fce0f56a7de192fa2830bfbd635cd5fe4f41208e58a1f9c"
+    },
+    "report_drc_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\report_drc_impl.rpt",
+      "exists": true,
+      "size_bytes": 14027,
+      "sha256": "aa8bb07184a9606905bd41ad760966d4fc61947946cd85adbbc921e6f6c035e9"
+    },
+    "report_utilization_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\report_utilization_impl.rpt",
+      "exists": true,
+      "size_bytes": 13400,
+      "sha256": "f21159a384d7422eca73709dc86c23470ae7c33d20390f7782fbbdc5e2c47568"
+    },
+    "report_utilization_synth": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\report_utilization_synth.rpt",
+      "exists": true,
+      "size_bytes": 11232,
+      "sha256": "6acdf2336043505ba597e4bb19e2c3e99727f399ce2f23cd8e9ecb45541e6457"
+    },
+    "patched_rtl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j10cmos2_20261020_r01\\vendor_src\\my_ip/ov5640_ip/src/alinx_ov5640.v",
+      "exists": true,
+      "size_bytes": 8167,
+      "sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6"
+    },
+    "patch_sof": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+      "exists": true,
+      "size_bytes": 2204,
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    },
+    "xdc_j10_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j10_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 4434,
+      "sha256": "07fe96adf4d9ee752c2574616322f6844904995e08b77cf9aff9377ad9210de8"
+    }
+  },
+  "limitations": [
+    "只产出 bitstream + XSA；未下载、未烧 QSPI、未上板（上板、插拔 J10 与判读由阶段总控执行）。",
+    "本变体的结论必须配上板蓝通道直方图才能定根因；仅构建本身不能判定。",
+    "若 J10 下蓝仍锁 120，还不能完全排除「两种连接共用的模块侧 D6 走线」以外的其他共性因素（如 IP 内部该位处理），需结合后续证据。",
+    "SOF 修复的既有约束仍成立：复位后第一帧可能无 SOF；GAP_THRESH=16384 只对 1280x720(HTS=1892/VTS=740) 成立。",
+    "未做 RTL 功能仿真；未验证位流与基线功能一致性（仅时序/DRC/资源与落点对比）。"
+  ],
+  "not_executed": [
+    "program_device / QSPI 烧写",
+    "上板插拔 J10 与蓝通道判读",
+    "RTL 仿真",
+    "根因定位（J11 板侧 vs 模块 D6）",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

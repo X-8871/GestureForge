@@ -1,0 +1,53 @@
+# S3-T05-SW4 v8：5 个 ELF 的编译行与哈希证据（2026-10-20 14:02:58 +0800）
+
+## 1) 五条编译行（原文，取自各自构建日志）
+--- an5642_j11cmos2_v8_off.elf（标准入口 run_stage3_vitis_elf.cmd，未带 -D；见下方第 4 节证明其等于显式 -D 版本）
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v8_b2048.elf
+arm-none-eabi-gcc -O2 -c -DS3_WB_MANUAL=1 -DS3_WB_R=1024 -DS3_WB_G=1024 -DS3_WB_B=2048 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v8_b2560.elf
+arm-none-eabi-gcc -O2 -c -DS3_WB_MANUAL=1 -DS3_WB_R=1024 -DS3_WB_G=1024 -DS3_WB_B=2560 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v8_b3072.elf
+arm-none-eabi-gcc -O2 -c -DS3_WB_MANUAL=1 -DS3_WB_R=1024 -DS3_WB_G=1024 -DS3_WB_B=3072 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v8_b3584.elf
+arm-none-eabi-gcc -O2 -c -DS3_WB_MANUAL=1 -DS3_WB_R=1024 -DS3_WB_G=1024 -DS3_WB_B=3584 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+
+## 2) 五个 ELF 的 SHA-256 与字节数
+85e989196dc34f5f1cc7b87607b2905f54405ec95a5486cf14916edd7eec145e */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_off.elf
+    bytes=306208
+ef89df1520228e0388f6590c8fd4181a92c323b08a5f49f25d27fd49df43da47 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_b2048.elf
+    bytes=306208
+7c068a658dc6a5f0876aa1ba62b86662d70aab34b76f366c80a43ad318f7879a */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_b2560.elf
+    bytes=306208
+3124befe02f475033a677772c18664f9f5f3236300bb05d803d385ca70d9783d */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_b3072.elf
+    bytes=306208
+7ccf332f01e59d98df4f60483a843583104d9ce85cbaa49e3e7438fa8915257b */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_b3584.elf
+    bytes=306208
+
+## 3) 开关生效（ELF 内字符串，MANUAL 与 OFF 互斥）
+an5642_j11cmos2_v8_off.elf         MANUAL=0 OFF=1
+an5642_j11cmos2_v8_b2048.elf       MANUAL=1 OFF=0
+an5642_j11cmos2_v8_b2560.elf       MANUAL=1 OFF=0
+an5642_j11cmos2_v8_b3072.elf       MANUAL=1 OFF=0
+an5642_j11cmos2_v8_b3584.elf       MANUAL=1 OFF=0
+
+## 4) 显式 -D 的 off 版本与官方 off ELF 逐字节相同（证明默认值 = MANUAL0/R1024/G1024/B1024）
+编译行：arm-none-eabi-gcc -O2 -c -DS3_WB_MANUAL=0 -DS3_WB_R=1024 -DS3_WB_G=1024 -DS3_WB_B=1024 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+85e989196dc34f5f1cc7b87607b2905f54405ec95a5486cf14916edd7eec145e */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_off.elf
+85e989196dc34f5f1cc7b87607b2905f54405ec95a5486cf14916edd7eec145e */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v8/elf_build/app/an5642_j11cmos2_v8_off_dfo.elf
+RESULT: OFF_IDENTICAL_TO_DFO=1（同一份字节）
+
+## 5) objdump 立即数证据：每个 WB ELF 的 .text 里带有自己的 B 立即数
+（基线：off ELF 里 2048/3072 的计数来自 BSP/libxil；WB ELF 多出的那部分即 WB 代码）
+an5642_j11cmos2_v8_off.elf               5 #2048       1 #3072 
+an5642_j11cmos2_v8_b2048.elf             7 #2048       1 #3072 
+an5642_j11cmos2_v8_b2560.elf             5 #2048       2 #2560       1 #3072 
+an5642_j11cmos2_v8_b3072.elf             5 #2048       3 #3072 
+an5642_j11cmos2_v8_b3584.elf             5 #2048       1 #3072       2 #3584 
+
+## 6) ELF 里存在的 S3_DIAG8 打印标签（每个 WB ELF 均应含 MANUAL 行与 RB 行）
+an5642_j11cmos2_v8_off.elf         S3_DIAG8_WB 
+an5642_j11cmos2_v8_b2048.elf       S3_DIAG8_WB S3_DIAG8_WB_RB 
+an5642_j11cmos2_v8_b2560.elf       S3_DIAG8_WB S3_DIAG8_WB_RB 
+an5642_j11cmos2_v8_b3072.elf       S3_DIAG8_WB S3_DIAG8_WB_RB 
+an5642_j11cmos2_v8_b3584.elf       S3_DIAG8_WB S3_DIAG8_WB_RB 

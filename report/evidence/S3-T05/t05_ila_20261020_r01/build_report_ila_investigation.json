@@ -1,0 +1,171 @@
+{
+  "task_id": "S3-T05-ILA",
+  "task_board_id": "task-2",
+  "title": "5 探针 ILA 调试位流 —— 结题汇总（附加文件，不改既有已提交证据）",
+  "route": "netlist_insertion -> bd_ip_instantiation",
+  "status": "blocked_no_debug_bitstream_produced",
+  "conclusion": "两条 ILA 路线都未产出调试位流与 .ltx：网表插入路线被 BASIC 许可直接否决（Vivado 12-29205）；BD 内实例化 ILA IP 路线在许可层面可行（precheck 实测 create_ip/generate_target RC=0），BD 连接审计也已通过，但尚未跑到位流即被阶段总控改派为 SOF 修复变体（见 t05_sof_fix_20261020_r01）。本目录不含 bit/ltx。",
+  "generated_at_utc8": "2026-10-20T13:10:00+08:00",
+  "evidence_dir": "report/evidence/S3-T05/t05_ila_20261020_r01",
+  "file_role_note": "本文件是附加的结题汇总，写入时保持既有已提交证据（build_report.json、build_report_bd.json、ila_netmap*.txt，见提交 cb389a3）字节不变；不重命名、不改写任何已提交文件。",
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit_at_first_attempt": "41ee5ba003147d77349e8908c38b2efc97752ca8",
+    "head_at_write_time": "cb389a3f7a75acf356309c7044eeff01634624ad",
+    "part": "xc7z020clg400-2",
+    "tool": "Vivado 2026.1 (win64) Build 6511674, batch Tcl mode",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "license_features": [
+      "Vivado_Basic_Package",
+      "Vivado_Simulation",
+      "Vivado_Synthesis",
+      "Vivado_Implementation"
+    ],
+    "synth_checkpoint": "tmp/s3r06/t04_camera_j11cmos2_20261020_r01/project/ov5640_single.runs/synth_1/design_1_wrapper.dcp",
+    "synth_checkpoint_sha256": "94822be9d625f0ad95504f6edcf3325b4c403da38b13b6f75a5917dba44e0086"
+  },
+  "route_a_netlist_insertion": {
+    "run_id": "t04_ila_20261020_r01",
+    "run_dir": "tmp/s3r06/t04_ila_20261020_r01",
+    "script": "scripts/stage3_t04/netlist_insert_ila.tcl",
+    "launcher": "scripts/stage3_t04/run_t04_ila_build.sh",
+    "command": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/netlist_insert_ila.tcl -log <run>/vivado_ila.log -journal <run>/vivado_ila.jou -tclargs <run> <synth dcp>",
+    "vivado_exit_code": 11,
+    "elapsed_seconds": 44,
+    "peak_memory_mb": 967.211,
+    "failure_stage": "create_debug_core (before opt_design)",
+    "failure_evidence": {
+      "error": "ERROR: [Vivado 12-29205] 'create_debug_core' tcl command is not supported. Your current selected license is BASIC. This license doesn't cover the feature you selected.",
+      "followup": "ILA_T05|FAIL=create_debug_core:ERROR: [Common 17-39] 'create_debug_core' failed due to earlier errors.",
+      "log": "report/evidence/S3-T05/t05_ila_20261020_r01/vivado_ila.log",
+      "note": "该拒绝与探针个数无关：报错来自命令本身在当前许可层级不受支持。许可文件只授予 Basic_Package/Simulation/Synthesis/Implementation 四项，不含任何 debug 特性。"
+    },
+    "resolved_objects_before_stop": {
+      "ila_clock_net": "design_1_i/processing_system7_0_FCLK_CLK1",
+      "ila_clock_net_source": "通过 axi_vdma_1/s_axis_s2mm_aclk、axis_subset_converter_0/aclk、v_axi4s_vid_out_0/aclk 反查；该网 sink 管脚共 11 个，命中 S2MM 侧 aclk 4 个",
+      "probe0": "cmos1_pclk_IBUF",
+      "probe1": "cmos1_vsync_IBUF",
+      "probe2": "cmos1_href_IBUF",
+      "probe3": "design_1_i/alinx_ov5640_0_m_axis_video_TUSER",
+      "probe4": "design_1_i/alinx_ov5640_0_m_axis_video_TLAST",
+      "case_note": "probe3/4 的小写模式 COUNT=0，大写 _TUSER/_TLAST 命中；probe1/2 存在同名端口网与 BD 内网，最终取顶层 IBUF 输出网",
+      "source": "同目录 vivado_ila.log 的 ILA_T05|CAND 行",
+      "corrected_mapping_file": "report/evidence/S3-T05/t05_ila_20261020_r01/ila_netmap_corrected.txt"
+    },
+    "known_defect_in_first_attempt": {
+      "defect": "netlist_insert_ila.tcl 原版把探针列表写成花括号字面量 {0 $p0 1 $p1 ...}，TCL 不展开变量，导致自动生成的 ila_netmap.txt 里 probe0..4 被写成字面量 \"$p0\"..\"$p4\"。",
+      "impact": "仅影响该次运行的映射表与驱动信息打印，与许可失败无因果关系；映射表已按日志 CAND 行更正（ila_netmap_corrected.txt），原文件保留。",
+      "fixed": "scripts/stage3_t04/netlist_insert_ila.tcl 已改为 [list 0 $p0 1 $p1 ...] 构造。"
+    },
+    "timing": null,
+    "drc_error_count": null,
+    "artifacts_sha256": {}
+  },
+  "route_b_bd_ip_instantiation": {
+    "script": "scripts/stage3_t04/bd_insert_ila.tcl",
+    "launcher": "scripts/stage3_t04/run_t04_ila_bd_build.sh",
+    "conclusion": "许可可行、BD 连接可行，但按阶段总控指令在产出位流前停止（改派 SOF 修复）。",
+    "steps": [
+      {
+        "step": "precheck",
+        "scratch": "report/evidence/S3-T05/t05_ila_20261020_r01/precheck_scratch (已删除)",
+        "log": "report/evidence/S3-T05/t05_ila_20261020_r01/ila_ip_precheck.log",
+        "vivado_exit_code": 0,
+        "result": "CREATE_IP_RC=0 / GENERATE_TARGET_RC=0 / PRECHECK_STATUS=ok_ila_ip_usable",
+        "meaning": "BASIC 许可下 xilinx.com:ip:ila:6.2 可以 create_ip 并 generate_target；被许可否决的只有 create_debug_core 这类调试核插入 API。"
+      },
+      {
+        "step": "bd build attempt 1",
+        "run_id": "t04_ila_bd_20261020_r01",
+        "vivado_exit_code": 1,
+        "elapsed_seconds": 37,
+        "failure_evidence": "can't read \"idx_target_pin\": no such variable（bd_insert_ila.tcl 写映射表时的 TCL 插值缺陷，$idx_target_pin 被当成变量名）",
+        "state_before_failure": "BD 已创建、ILA 已实例化(C_NUM_OF_PROBES=5/C_DATA_DEPTH=4096/C_EN_STRG_QUAL=1)、时钟与 5 个探针 connect_bd_net 全部成功；仅在写证据文件时崩溃。",
+        "log": "report/evidence/S3-T05/t05_ila_20261020_r01/vivado_ila_bd.log"
+      },
+      {
+        "step": "bd build attempt 2",
+        "run_id": "t04_ila_bd_20261020_r02",
+        "vivado_exit_code": 12,
+        "elapsed_seconds": 25,
+        "failure_evidence": "ILA_BD|FAIL=probe3_bd_net_missing_downstream_or_ila",
+        "false_negative_analysis": "该判定不成立：get_bd_nets -of_objects <接口成员管脚> 对未被我改动的 tdata/tvalid 成员同样返回空，故该方法无法区分“被拆开”与“接口成员连接本身不暴露标量网”。",
+        "log": "report/evidence/S3-T05/t05_ila_20261020_r01/build_report_bd.json + vivado_ila_bd.log"
+      },
+      {
+        "step": "bd connect audit（修正后，独立 scratch）",
+        "vivado_exit_code": 0,
+        "log": "report/evidence/S3-T05/t05_ila_20261020_r01/ila_bd_connect_audit.log",
+        "netmap_evidence": "report/evidence/S3-T05/t05_ila_20261020_r01/ila_bd_connect_audit.txt",
+        "result": "AUDIT_STATUS=bd_connect_audit_passed；tuser/tlast 三点同网：tuser_net=/alinx_ov5640_0_m_axis_video_tuser pins=/alinx_ov5640_0/m_axis_video_tuser|/ila_cam/probe3|/axis_subset_converter_0/s_axis_tuser；tlast 同理",
+        "fix": "探针不再只覆盖生产者管脚，而是显式把「摄像头 IP 生产者 + ILA 探针 + axis_subset_converter_0 消费者」三点连到同一标量网，电学上保证 TUSER/TLAST 仍到达 VDMA 侧。",
+        "clock": "ila_cam/clk <- /axi_vdma_1/s_axis_s2mm_aclk，所在 BD 网 /processing_system7_0_FCLK_CLK1（150MHz FCLK_CLK1）",
+        "probe_targets": {
+          "probe0": "/alinx_ov5640_0/cmos_pclk（BD 网 /cmos_pclk_1，含外部端口 /cmos1_pclk）",
+          "probe1": "/alinx_ov5640_0/cmos_vsync（BD 网 /cmos_vsync_1，含外部端口 /cmos1_vsync）",
+          "probe2": "/alinx_ov5640_0/cmos_href（BD 网 /cmos_href_1，含外部端口 /cmos1_href）",
+          "probe3": "/alinx_ov5640_0/m_axis_video_tuser（BD 管脚实为小写 tuser）",
+          "probe4": "/alinx_ov5640_0/m_axis_video_tlast",
+          "debug_core": "厂商 IP CONFIG.DEBUG_OV5640 保持 false，未打开内嵌 6 探针 ila_0"
+        }
+      },
+      {
+        "step": "bd build attempt 3（r03）",
+        "status": "未执行",
+        "reason": "阶段总控改派任务目标为 SOF 修复变体，并明确要求暂时不要再花时间修 ILA。"
+      }
+    ],
+    "timing": null,
+    "drc_error_count": null,
+    "peak_memory_mb": {
+      "precheck": 704.074,
+      "bd_build_attempt1": 616.086,
+      "bd_build_attempt2": 614.102
+    },
+    "artifacts_sha256": {},
+    "transient_scratch_note": "手工 bdaudit 运行留下 16MB 的 BD 审计工程工作区（仅 BD、无综合产物），已核验绝对路径后删除；审计结论由 ila_bd_connect_audit.log 与 ila_bd_connect_audit.txt 留存。"
+  },
+  "artifacts": {
+    "bit": null,
+    "ltx": null,
+    "note": "两条路线都没有产出 bit/ltx；本报告不含任何产物 SHA-256，因为没有产物。"
+  },
+  "acceptance_status": {
+    "impl_complete": false,
+    "write_bitstream_complete": false,
+    "bit_and_ltx_exist": false,
+    "reason": "route A 被 BASIC 许可拒绝；route B 在产出位流前按总控指令停止。"
+  },
+  "evidence_immutability": {
+    "action": "只读检查并保持既有已提交证据字节不变；本文件与 ila_bd_connect_audit.txt 为新增附加证据。",
+    "verified_unchanged": [
+      {
+        "file": "build_report.json",
+        "sha256": "1747695903a5e12d911aaf5b12675d8a17538dded7b2158283da07b24c489d13",
+        "role": "路由 A（网表插入）自动生成报告原文；其 probe 映射含 $p0 字面量缺陷，更正版见 ila_netmap_corrected.txt"
+      },
+      {
+        "file": "build_report_bd.json",
+        "sha256": "fd1fc8da707205a0ea27194c3b37d803589c4748ce4556bce15f9400d057ad8f",
+        "role": "路由 B 第 2 次尝试（误判）自动生成报告原文"
+      }
+    ]
+  },
+  "limitations": [
+    "本任务未产出任何调试位流或 .ltx，未做上板采集；没有波形数据，SOF/TUSER/VSYNC 的实测结论仍未取得。",
+    "路由 A 的失败是许可层级问题，不是探针个数问题；「BASIC 不支持 >5 探针」的旧结论不精确，应更正为「BASIC 不支持 create_debug_core 等调试核插入」。",
+    "路由 B 已证明 ILA IP 在 BASIC 下可实例化，且 BD 连接可用三点同网方式完成；若后续仍需要 ILA，只需执行 scripts/stage3_t04/run_t04_ila_bd_build.sh <new_run_id>（含 precheck + BD 连接审计 + 综合/实现/bitstream/ltx 门禁）。",
+    "路由 A 的 netmap 自动文件含字面量缺陷，已提供更正版；驱动/负载管脚信息因在 create_debug_core 前即停止而未取得。"
+  ],
+  "not_executed": [
+    "ILA 综合/实现/位流（两条路线都未完成）",
+    "program_device / hw_server 连接",
+    "ILA arm/trigger/capture/read_ila_data 与波形导出",
+    "上板图像或帧数据验证",
+    "Git 提交（由阶段总控统一提交）"
+  ],
+  "related_evidence": {
+    "sof_fix_variant": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/（阶段总控改派后的 SOF 修复变体构建证据）"
+  }
+}

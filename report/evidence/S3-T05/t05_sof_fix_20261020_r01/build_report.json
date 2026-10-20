@@ -1,0 +1,236 @@
+{
+  "task_id": "S3-T05-SOF-FIX",
+  "task_board_id": "task-2",
+  "title": "SOF 修复变体：帧起始改为 hblank 长低电平后的第一个有效像素（不依赖 cmos_vsync）",
+  "run_id": "t04_sof_fix_20261020_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sof_fix_20261020_r01",
+  "generated_at_utc8": "2026-10-20T12:48:06+08:00",
+  "status": "ok",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "flow": "vendor BD auto_create_project (build_t04_camera.tcl)"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "e9b853f356ac6f32b2b9b961c71d55bf0c26f6c4",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "reference_run_id": "t04_camera_j11cmos2_20261020_r01",
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "xdc_sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+  },
+  "patch": {
+    "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+    "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+    "target_module": "my_ip/ov5640_ip/src/alinx_ov5640.v",
+    "change_summary": "s_axis_tuser 触发由 cmos_vsync 下降沿改为：hblank(=有效像素窗, cmos_8_16bit hblank<=de_i) 连续低 >= GAP_THRESH 个 pclk 后的第一个有效像素；保留「置起 -> 首个 tvalid 清除」结构；新增 16 位饱和计数器 cmos_hblank_low_cnt；新增参数 GAP_THRESH 默认 16'd16384；不 OR 原 vsync 触发；DEBUG_OV5640 仍为 false",
+    "hunks": 3,
+    "lines_added": 24,
+    "lines_removed": 5,
+    "pristine_rtl_sha256": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+    "patched_rtl_sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "git_apply_check_rc": 0,
+    "git_apply_rc": 0,
+    "git_apply_command": "git apply -p1 --directory=<run>/vendor_src <patch>（从工作树根执行）",
+    "gnu_patch_note": "GNU patch -p1 对该 CRLF 文件报 'different line endings' 而失败；本流程统一用 git apply。",
+    "patch_application_log": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sof_fix_20261020_r01\\patch_git_apply.log",
+    "patch_application_result_txt": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/patch_git_apply_result.txt",
+    "patch_application_result_note": "patch_git_apply.log 被 .gitignore 的 *.log 规则忽略，故同一内容另存为 .txt（含命令原文、两个返回码、前后哈希与可复现复核步骤），保证进入 Git 的证据完整。",
+    "patch_verification_dir": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/patch_verification/",
+    "patch_verification_files": {
+      "pristine_alinx_ov5640.v": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+      "expected_patched_alinx_ov5640.v": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+      "alinx_ov5640_sof_hrefgap.patch": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    }
+  },
+  "timing_design_basis": {
+    "source": "厂商驱动 Vitis/auto_create_vitis/src/an5642_single/ov5640.c（1280x720 模式寄存器表）",
+    "pclk_hz": 84000000,
+    "hts": 1892,
+    "vts": 740,
+    "active_w": 1280,
+    "active_h": 720,
+    "line_blank_pclk": 612,
+    "field_blank_pclk": 38452,
+    "gap_thresh_default": 16384,
+    "check": "612 < 16384 < 38452（阈值必须严格位于行消隐与场消隐之间）",
+    "note": "与阶段总控给出的估算（行周期约 3784 pclk、HBLANK 约 2.5k）不一致：驱动寄存器 0x380c/0x380d=0x0764 -> HTS=1892，0x380e/0x380f=0x02e4 -> VTS=740，故行周期 1892 pclk、行消隐 612 pclk、场消隐 ≈38452 pclk；PCLK=84MHz（0x3035=0x21,0x3036=0x69）与此一致（1892*740/84e6 = 16.67ms = 60fps）。默认阈值 16384 仍同时满足两侧约束。"
+  },
+  "commands": {
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/build_t04_camera.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/vivado.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/vivado.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/vendor_src",
+    "tcl_script": "scripts/stage3_t04/build_t04_camera.tcl",
+    "vivado_exit_code": 0,
+    "elapsed_seconds": 550
+  },
+  "implementation": {
+    "synth_status": "synth_design Complete!",
+    "synth_progress_final": "100%",
+    "synth_status_first_check": "Scripts Generated",
+    "synth_progress_first_check": "0%",
+    "synth_retry_1_failed_runs": 23,
+    "ooc_first_launch_note": "首次 launch_runs synth_1 的 OOC 子 run 在启动期失败：'design_1_axi_mem_intercon_imp_auto_pc_0_synth_1' run failed ... ERROR: [Common 17-354] Could not open 'C' for writing / [Common 17-69] tclapp::load_apps failed。这是既有 J11CMOS2 流程已知的启动期抖动（build_t04_camera.tcl 内置 reset_run + 重试），第 1 次重试后 synth 100% 完成，实现与位流均正常。",
+    "impl_status": "write_bitstream Complete!",
+    "impl_progress": "100%",
+    "timing": {
+      "wns_ns": "1.054525",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.058931",
+      "ths_ns": "0.000000"
+    },
+    "timing_baseline_run_id": "t04_camera_j11cmos2_20261020_r01",
+    "timing_baseline": {
+      "wns_ns": "1.141183",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.058332",
+      "ths_ns": "0.000000"
+    },
+    "timing_delta_vs_baseline_ns": {
+      "wns_ns": -0.086658,
+      "tns_ns": 0.0,
+      "whs_ns": 0.000599,
+      "ths_ns": 0.0
+    },
+    "timing_verdict": "WNS/WHS 均为正、TNS/THS 均为 0，无时序违规；WNS 相对基线下降 0.087ns 仍余量充足。",
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 8,
+    "drc_rule_breakdown": {
+      "PDCN-1569": 3,
+      "PLCK-12": 1,
+      "REQP-1839": 2,
+      "REQP-1840": 1,
+      "RTSTAT-10": 1
+    },
+    "drc_note": "与基线 04 run 的 DRC 明细完全一致（同样的 8 条 Warning、0 Error）；write_bitstream 前置 DRC 也报 0 Errors。",
+    "peak_memory_mb": 2568.176,
+    "peak_memory_mb_baseline": 2555.516,
+    "impl_elapsed_seconds_in_log": 131,
+    "slice_registers_synth": 10548,
+    "slice_registers_synth_baseline": 10534,
+    "slice_registers_delta_vs_baseline": 14,
+    "ip_level_utilization_alinx_ov5640_ooc": {
+      "baseline_slice_registers": 401,
+      "new_slice_registers": 415,
+      "delta": 14,
+      "report": "tmp/s3r06/<run>/project/ov5640_single.runs/design_1_alinx_ov5640_0_0_synth_1/design_1_alinx_ov5640_0_0_utilization_synth.rpt",
+      "meaning": "摄像头 IP 自身 OOC 综合的寄存器数 +14，与新增 16 位饱和计数器（含控制/比较逻辑复用后净增 14）一致，是补丁进入 IP 综合的独立旁证。"
+    },
+    "xsa_exists": "1"
+  },
+  "rtl_evidence": {
+    "project_rtl_copies": [
+      {
+        "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\project\\ov5640_single.gen\\sources_1\\bd\\design_1\\ipshared\\564b\\src\\alinx_ov5640.v",
+        "sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+        "size_bytes": 8167,
+        "matches_patched": true,
+        "contains_gap_thresh": true
+      }
+    ],
+    "any_copy_matches_patched": true,
+    "any_copy_contains_gap_thresh": true,
+    "meaning": "工程 .gen 下的 IP RTL 副本哈希等于补丁后 RTL 哈希，证明打过补丁的 RTL 被本次 IP 生成/综合采用。"
+  },
+  "log_messages": {
+    "error_count": 3,
+    "critical_warning_count": 17,
+    "warning_count": 196,
+    "error_codes": [
+      "Common 17-354",
+      "Common 17-69",
+      "Vivado 12-13638"
+    ],
+    "critical_warning_codes": [
+      "Designutils 20-1280",
+      "Timing 38-249"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "exists": true,
+      "size_bytes": 1668969,
+      "sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710"
+    },
+    "xsa": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\design_1_wrapper.xsa",
+      "exists": true,
+      "size_bytes": 633089,
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\vivado.log",
+      "exists": true,
+      "size_bytes": 230995,
+      "sha256": "591735fb9ec49bfa5aa44bea76ae923d3078fcaf885c7776f8aab1181b490b16"
+    },
+    "report_timing_summary_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\report_timing_summary_impl.rpt",
+      "exists": true,
+      "size_bytes": 1429205,
+      "sha256": "73d6e4cb2c00a005060582e106867e7248037c001f1b306b131dd1ac4395b8f0"
+    },
+    "report_drc_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\report_drc_impl.rpt",
+      "exists": true,
+      "size_bytes": 14023,
+      "sha256": "f3877cc2945d6550694fde57e39820e9a35ac899cda882f1a05ab41848c4e5ea"
+    },
+    "report_utilization_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\report_utilization_impl.rpt",
+      "exists": true,
+      "size_bytes": 13399,
+      "sha256": "39b0a30f1c5be0b2f3aaa2104b2b2be46ca12a63feee99d36edac091b1aca78d"
+    },
+    "report_utilization_synth": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\report_utilization_synth.rpt",
+      "exists": true,
+      "size_bytes": 11231,
+      "sha256": "ce906dc7df54921283a5ee9df9e61dae5a8e674dd580a0511d42668a6176756a"
+    },
+    "patched_rtl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01\\vendor_src\\my_ip/ov5640_ip/src/alinx_ov5640.v",
+      "exists": true,
+      "size_bytes": 8167,
+      "sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6"
+    },
+    "patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+      "exists": true,
+      "size_bytes": 2204,
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    },
+    "xdc_j11_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    }
+  },
+  "error_interpretation": {
+    "log_error_count": 3,
+    "codes": ["Vivado 12-13638", "Common 17-354", "Common 17-69"],
+    "text": "均来自首次 launch_runs synth_1 的 OOC 启动期失败（'Could not open C for writing'），不是设计错误；build_t04_camera.tcl 的重试后 synth/impl/write_bitstream 全部 Complete，VIVADO_EXIT=0，write_bitstream 前置 DRC 为 0 Errors。",
+    "build_flow_verdict": "构建成功（success with one recovered OOC launch flake）"
+  },
+  "limitations": [
+    "只产出 bitstream + XSA，未下载、未烧 QSPI、未连接硬件（下载与上板验收由阶段总控执行）。",
+    "未做 RTL 功能仿真（本任务未要求；无既有 testbench），SOF 修复的正确性靠时序核算 + 上板实测验证。",
+    "复位后第一帧可能没有 SOF（cmos_aresetn 由 200M 个 pclk 计数器保持低约 2.4s，复位释放后若正处于行消隐，计数器尚未达到阈值）；从第二个场消隐起每个场消隐都必然超过 GAP_THRESH。",
+    "GAP_THRESH=16384 的适用前提是 1280x720（HTS=1892/VTS=740）：若换成垂直消隐更短的模式，需重新核算阈值（阈值必须 < 场消隐 pclk 数）。",
+    "帧起始改为「hblank 长低后的第一个有效像素」，等价于该帧第一行第一个有效像素；若传感器在行消隐期间出现 >=16384 pclk 的异常停顿，会误产生一次 SOF（本模式下行消隐仅 612 pclk）。",
+    "未验证位流与基线功能一致性（除时序/DRC/资源对比外）。"
+  ],
+  "not_executed": [
+    "program_device / QSPI 烧写",
+    "上板图像与 VDMA S2MM SR 验证",
+    "RTL 仿真",
+    "ILA 采集（见 t05_ila_20261020_r01 证据）",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "task_id": "S3-T05-PL1",
+  "task_board_id": "task-6",
+  "title": "蓝最高位（RGB565 B[4]）重建变体：B'[4:0]={B[3:0],B[3]} 于厂商 IP 内，构建到比特流+XSA",
+  "run_id": "t04_bluefix_20261020_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_bluefix_20261020_r01",
+  "generated_at_utc8": "2026-10-20T14:20:18+08:00",
+  "status": "ok",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "flow": "vendor BD auto_create_project (build_t04_camera.tcl)"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit_at_build": "1b437e399ade0a0498187d4e4d03dc3a01451872",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "compare_runs": [
+      "t04_camera_j11cmos2_20261020_r01",
+      "t04_sof_fix_20261020_r01"
+    ],
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "xdc_sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+  },
+  "patches": {
+    "applied_order": [
+      "alinx_ov5640_sof_hrefgap.patch",
+      "alinx_ov5640_blue_msb_rebuild.patch"
+    ],
+    "target_module": "my_ip/ov5640_ip/src/alinx_ov5640.v",
+    "items": [
+      {
+        "name": "SOF fix (task-2)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+        "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+        "hunks": 3,
+        "lines_added": 24,
+        "lines_removed": 5,
+        "change_summary": "s_axis_tuser 触发改为 hblank 长低电平后的第一个有效像素（GAP_THRESH=16384，16 位饱和计数器）",
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      },
+      {
+        "name": "BLUE MSB rebuild (this task)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_blue_msb_rebuild.patch",
+        "sha256": "6609a59da624beb562a5a717e4839567f803bd80e7df0a5ca9ce4e4ff5ec7505",
+        "hunks": 3,
+        "lines_added": 5,
+        "lines_removed": 2,
+        "change_summary": "新增 wire s_axis_tdata_bluefix = {s_axis_tdata[15:5], s_axis_tdata[3:0], s_axis_tdata[3]}；FIFO .din(...) 与（关闭的）ILA 探针 .probe0 改用它；仅 bit[4] 改变，tlast/tuser/tkeep/时序不动",
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      }
+    ],
+    "order_conflict_analysis": "两个补丁修改区域互不重叠（SOF 改参数表/tuser always 块；BLUE 改 s_axis_tdata 声明后、ILA probe0、FIFO din），实测 A) BLUE 单独对厂商原件 --check/apply RC=0；B) SOF->BLUE 四个操作全 RC=0；C) BLUE->SOF 亦全 RC=0 且最终字节相同（幂等/可交换）。本构建按卡面要求采用 SOF->BLUE 顺序。",
+    "order_test_evidence": "report/evidence/S3-T05/t05_bluefix_20261020_r01/patch_apply_order_test.txt",
+    "git_apply_log": "report/evidence/S3-T05/t05_bluefix_20261020_r01/patch_git_apply.log",
+    "git_apply_note": "git apply 必须从工作树根执行并配 --directory=<相对路径>；补丁内容行保留 CRLF，GNU patch 不适用。",
+    "patch_application_result_txt": "report/evidence/S3-T05/t05_bluefix_20261020_r01/patch_git_apply_result.txt",
+    "patch_application_result_note": "patch_git_apply.log 被 .gitignore 的 *.log 规则忽略，故同一内容另存为 .txt（含两补丁身份、四个操作的真实命令与返回码、三方 RTL 哈希、顺序独立性结论、可复现复核步骤）。",
+    "patch_verification_dir": "report/evidence/S3-T05/t05_bluefix_20261020_r01/patch_verification/",
+    "patch_verification_files": {
+      "pristine_alinx_ov5640.v": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+      "blue_only_alinx_ov5640.v": "e1cc558eee4df7b9cf042613b45f27986939870ebfa664485047cd927e6c083b",
+      "combined_sof_then_blue_alinx_ov5640.v": "91b67c1e0149255112b085b1c737b39f737aec52a4baee97144e8839408b4cec"
+    },
+    "bd_note": "scripts/stage3_t04/bluefix_bd_note.md"
+  },
+  "rtl_hashes": {
+    "pristine_vendor": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+    "after_sof_patch": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "after_sof_then_blue": "91b67c1e0149255112b085b1c737b39f737aec52a4baee97144e8839408b4cec",
+    "final_actual": "91b67c1e0149255112b085b1c737b39f737aec52a4baee97144e8839408b4cec"
+  },
+  "blue_fix": {
+    "problem_evidence": "阶段总控 4 组独立实测（白纸 / 实景 AWB 开 / 实景 AWB 关 / 彩条）统计一致：蓝通道最大值恒为 120、从无 >127 的蓝像素，而 R 可达 248、G 可达 236 => RGB565 的 B[4] 恒为 0，蓝色动态范围减半，画面偏黄；AWB/ISP/显示器均已排除。依据厂商 IP 取 cmos_d[9:2] 当字节，RGB565 第二字节 = {G[2:0],B[4:0]}，缺失位对应 DVP 的 D[6] 线（断线或映射错仍在核，与重建位无关）。",
+    "field_layout": "R=tdata[15:11](5b), G=tdata[10:5](6b), B=tdata[4:0](5b)",
+    "rebuild_formula": "B'[4:0] = {B[3:0], B[3]}  <=>  new_word = {tdata[15:5], tdata[3:0], tdata[3]}",
+    "equivalence_note": "该式只把 bit[4] 由常量 0 换成原 bit[3]，其余 15 位逐位不变，故只恢复一半量化台阶。",
+    "logic_cost": "零新增逻辑：新老 16 位字都取自同一个寄存器 cmos_d_16bit_d1，改动只是把 FIFO din 的第 4 位改接到该寄存器的 bit[3]，属于纯位重排（无 LUT/FF/寄存器）。IP OOC 综合寄存器数 401(基线)->415(SOF)->412(SOF+蓝位)，与 SOF 的 +14 相比出现 -3 差异，属综合优化差异（本改动不引入任何功能逻辑），不作为蓝位改动的资源增量。",
+    "known_error": "把 B[3] 复制到 B[4] 等价于把蓝通道的低 4 位区间做 2 倍拉伸，蓝值 b(0..15) 映射为 b' = b + (b>=8 ? 16 : 0)（以 5 位蓝计），在蓝淡色区（B 小）误差相对最大、深蓝区相对准确；AWB 会在此基础上再自适应调整，可能掩盖或加重该误差。因此这是近似修复，不是恢复真实位。",
+    "not_changed": [
+      "tlast",
+      "tuser",
+      "tkeep",
+      "时序/时钟",
+      "DEBUG_OV5640（保持 false，未打开厂商内嵌 6 探针 ILA）"
+    ]
+  },
+  "commands": {
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/build_t04_camera.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01/vivado.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01/vivado.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01/vendor_src",
+    "tcl_script": "scripts/stage3_t04/build_t04_camera.tcl",
+    "vivado_exit_code": 0,
+    "elapsed_seconds": 555
+  },
+  "implementation": {
+    "synth_status": "synth_design Complete!",
+    "synth_progress_final": "100%",
+    "synth_status_first_check": "Scripts Generated",
+    "synth_progress_first_check": "0%",
+    "synth_retry_1_failed_runs": 24,
+    "ooc_first_launch_note": "首次 launch_runs synth_1 的 OOC 子 run（design_1_alinx_ov5640_0_0_synth_1、design_1_rst_processing_system7_0_150M_0_synth_1）在启动期失败：ERROR: [Common 17-354] Could not open 'C' for writing / [Common 17-69] tclapp::load_apps failed。这是既有 J11CMOS2 流程已知的启动期抖动（build_t04_camera.tcl 内置 reset_run + 重试），第 1 次重试后 synth 100% 完成，实现与位流均正常。",
+    "impl_status": "write_bitstream Complete!",
+    "impl_progress": "100%",
+    "timing": {
+      "wns_ns": "1.102659",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.040436",
+      "ths_ns": "0.000000"
+    },
+    "timing_by_run": {
+      "t04_camera_j11cmos2_20261020_r01_baseline": {"wns_ns": "1.141183", "tns_ns": "0.000000", "whs_ns": "0.058332", "ths_ns": "0.000000"},
+      "t04_sof_fix_20261020_r01_sof_only": {"wns_ns": "1.054525", "tns_ns": "0.000000", "whs_ns": "0.058931", "ths_ns": "0.000000"},
+      "t04_bluefix_20261020_r01_sof_plus_blue": {"wns_ns": "1.102659", "tns_ns": "0.000000", "whs_ns": "0.040436", "ths_ns": "0.000000"}
+    },
+    "timing_verdict": "三个变体 WNS/WHS 均为正、TNS/THS 均为 0，无时序违规；本变体相对基线 WNS -0.039、WHS -0.018，余量仍充足。",
+    "drc_note": "与基线 04 run 及 SOF 变体的 DRC 明细完全一致（同样 8 条 Warning、0 Error）；write_bitstream 前置 DRC 亦报 0 Errors。",
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 8,
+    "drc_counts_by_severity": {
+      "Warning": 8
+    },
+    "drc_rule_breakdown": {
+      "PDCN-1569": 3,
+      "PLCK-12": 1,
+      "REQP-1839": 2,
+      "REQP-1840": 1,
+      "RTSTAT-10": 1
+    },
+    "peak_memory_mb": 2566.836,
+    "utilization_by_run": {
+      "t04_camera_j11cmos2_20261020_r01": {
+        "design_synth": 10534,
+        "alinx_ip_ooc": 401
+      },
+      "t04_sof_fix_20261020_r01": {
+        "design_synth": 10548,
+        "alinx_ip_ooc": 415
+      },
+      "t04_bluefix_20261020_r01": {
+        "design_synth": 10545,
+        "alinx_ip_ooc": 412
+      }
+    },
+    "xsa_exists": "1"
+  },
+  "rtl_evidence": {
+    "project_rtl_copies": [
+      {
+        "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\project\\ov5640_single.gen\\sources_1\\bd\\design_1\\ipshared\\564b\\src\\alinx_ov5640.v",
+        "sha256": "91b67c1e0149255112b085b1c737b39f737aec52a4baee97144e8839408b4cec",
+        "size_bytes": 8461,
+        "matches_final": true,
+        "contains_gap_thresh": true,
+        "contains_bluefix": true
+      }
+    ],
+    "meaning": "工程 .gen 下 IP RTL 副本哈希等于两补丁叠加后的 RTL 哈希，且同时含 GAP_THRESH 与 s_axis_tdata_bluefix，证明两个补丁都被本次 IP 生成/综合采用。"
+  },
+  "log_messages": {
+    "error_count": 5,
+    "critical_warning_count": 17,
+    "warning_count": 197,
+    "error_codes": [
+      "Common 17-354",
+      "Common 17-69",
+      "Vivado 12-13638"
+    ],
+    "critical_warning_codes": [
+      "Designutils 20-1280",
+      "Timing 38-249"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "exists": true,
+      "size_bytes": 1735321,
+      "sha256": "0819d0da1508cdc43f72d8ab67e8d4173de3ddc656e3fbfa957a72c061c119d7"
+    },
+    "xsa": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\design_1_wrapper.xsa",
+      "exists": true,
+      "size_bytes": 627017,
+      "sha256": "fed8f652be0a2d567215a7b0e5905355dfe2bbac8c380f0a94df1daf038bbabc"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\vivado.log",
+      "exists": true,
+      "size_bytes": 231397,
+      "sha256": "977fcb8be0419588d6b9d5167e9e2826c4c31564109b7f6c03ed6b2b567815ec"
+    },
+    "report_timing_summary_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\report_timing_summary_impl.rpt",
+      "exists": true,
+      "size_bytes": 1435925,
+      "sha256": "6956a30ff7148808c106cd806134a6749749eaaba08ec512ea0ff751690f42bc"
+    },
+    "report_drc_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\report_drc_impl.rpt",
+      "exists": true,
+      "size_bytes": 14025,
+      "sha256": "433ce854ceeeb664ff2324f960b0abcc2c4fef2e3c56d7a047c7e9e373f5c6e2"
+    },
+    "report_utilization_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\report_utilization_impl.rpt",
+      "exists": true,
+      "size_bytes": 13399,
+      "sha256": "d21800049503e8a32943f4a8ab9b14baa78823123eeb4c345935981c205400ad"
+    },
+    "report_utilization_synth": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\report_utilization_synth.rpt",
+      "exists": true,
+      "size_bytes": 11231,
+      "sha256": "5b7acae68703896444291b05f79ad877072e6c02adb8e8f9bbafbdd610faa226"
+    },
+    "patched_rtl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_bluefix_20261020_r01\\vendor_src\\my_ip/ov5640_ip/src/alinx_ov5640.v",
+      "exists": true,
+      "size_bytes": 8461,
+      "sha256": "91b67c1e0149255112b085b1c737b39f737aec52a4baee97144e8839408b4cec"
+    },
+    "patch_sof": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+      "exists": true,
+      "size_bytes": 2204,
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    },
+    "patch_blue": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_blue_msb_rebuild.patch",
+      "exists": true,
+      "size_bytes": 1372,
+      "sha256": "6609a59da624beb562a5a717e4839567f803bd80e7df0a5ca9ce4e4ff5ec7505"
+    },
+    "xdc_j11_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    }
+  },
+  "limitations": [
+    "只产出 bitstream + XSA；未下载、未烧 QSPI、未上板（上板与判读由阶段总控执行）。",
+    "蓝位重建是近似修复：B'[4:0]={B[3:0],B[3]} 把 B[3] 复制到 B[4]，蓝淡色区误差相对最大，且 AWB 会再自适应调整。",
+    "未做 RTL 功能仿真（无既有 testbench）；SOF 与蓝位两处改动的正确性靠时序核算 + 上板实测验证。",
+    "SOF 修复的既有约束仍成立：复位后第一帧可能无 SOF；GAP_THRESH=16384 只对 1280x720(HTS=1892/VTS=740) 成立。",
+    "根因（DVP D[6] 断线或映射错）未在本任务定位与修复，本变体只是绕过。",
+    "未验证位流与基线功能一致性（仅时序/DRC/资源对比）。"
+  ],
+  "not_executed": [
+    "program_device / QSPI 烧写",
+    "上板颜色/蓝通道直方图判读",
+    "RTL 仿真",
+    "根因定位（D[6] 线断/映射）",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "task_id": "CTRL-HARNESS",
+  "run_id": "session_compaction_lock_20261020_r01",
+  "owner": "DSH",
+  "created_utc8": "2026-10-20 11:48",
+  "purpose": "阶段三总控窗口更换：记录旧会话压缩锁事故、第三方插件 v4 source 报错根因与修复，并给出只读核验与解码方法",
+  "scope": "只读核验 + 主目录本轮声明范围内写入；未重启 DSH、未解锁或修复旧会话、未写回旧日志、未改插件源码、未改 profile 配置",
+  "session_incident": {
+    "session_id": "session-f067ad85-4434-4f6a-bc01-d6c43068a0c5",
+    "cwd": "D:\\FPGA_Competition",
+    "created_utc8": "2026-10-20 00:24",
+    "log_path": "C:\\Users\\22061\\.dsh\\sessions\\--D-FPGA_Competition--\\session-f067ad85-4434-4f6a-bc01-d6c43068a0c5\\session.v4.jsonl.zstd",
+    "log_bytes": 2098576,
+    "log_sha256": "b08f03edeae2fba850f055a34075ee94107907722e4ee1615580f425c4446695",
+    "log_last_write_utc8": "2026-10-20 04:36:44.475",
+    "frames_by_magic": 1093,
+    "events": 2093,
+    "seq_min": 0,
+    "seq_max": 2091,
+    "seq_values": 2092,
+    "duplicate_seq": 0,
+    "parse_errors": 0,
+    "compaction_start": 1,
+    "compaction_end": 0,
+    "unclosed_compaction": {
+      "compactionId": "58ec4c74-1321-45c6-b788-28661a9a1b58",
+      "turn": 5,
+      "seq": 2091
+    },
+    "tail_events": [
+      { "seq": 2089, "type": "tool/result" },
+      { "seq": 2090, "type": "step/end" },
+      { "seq": 2091, "type": "compaction/start" }
+    ],
+    "provided_background_discrepancy": "背景材料称 2703 个 zstd 帧；实测魔数偏移 1093 个帧。事件数 2093 与 seq 区间 0–2091 与背景一致。以实测为准。"
+  },
+  "root_cause": {
+    "plugin": "dsh-batch-tool-calls",
+    "plugin_dir": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\node_modules\\dsh-batch-tool-calls",
+    "source_kind_line": "lib/index.js:60  const PLUGIN_SOURCE = Object.freeze({ kind: 'plugin', plugin: name })",
+    "injection_gate_line": "lib/index.js:231  const wantsReassert = cfg.reassertAfterCompaction || cfg.reassertEverySteps > 0",
+    "default_line": "lib/index.js:72  reassertAfterCompaction: z.boolean().default(true)",
+    "error_text": "format v4 message requires a producer-owned source kind",
+    "chain": "压缩成功后的下一步由 reassertAfterCompaction 触发的注入使用 kind:'plugin' 来源；会话格式 v4 要求产生方自有 kind 且不接受 'plugin'，故写入被拒。"
+  },
+  "fix": {
+    "patch_file": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.patch.yml",
+    "patch_sha256": "23459292b2a3645d02f76df1ad2f43be213a417467d87cd40b2ae0f3cde51bc9",
+    "patch_mtime_utc8": "2026-10-20 07:54:41",
+    "backup_file": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.patch.yml.bak-20261020-batch-fix",
+    "backup_sha256": "f58629c3765f4ecc45cb5e4ecce7600939fa2d626805a521ed5a60fa66de00b2",
+    "backup_mtime_utc8": "2026-10-20 07:41:08",
+    "effective_file": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.yml",
+    "effective_sha256": "6ef2330e56e12d28b8537bd0b44cc4670a4f74e4de8b67f873ac3a8eea68c3d6",
+    "effective_flag_line": 1346,
+    "effective_mtime_utc8": "2026-10-20 07:54:43",
+    "diff_summary": "现行 patch 相对备份纯新增 20 行、0 删除（仅新增 batch-tool-calls 覆盖块）",
+    "changed_values": { "reassertAfterCompaction": false, "reassertEverySteps": 0 }
+  },
+  "commands": [
+    {
+      "cmd": "node report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/verify_incident.mjs report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/verification_6checks.json",
+      "exit_code": 0,
+      "result": "6/6 PASS",
+      "node_version": "v24.19.0"
+    },
+    {
+      "cmd": "diff -u cordis.patch.yml.bak-20261020-batch-fix cordis.patch.yml",
+      "exit_code": 0,
+      "result": "26 行 diff 输出；纯新增 20 行、0 删除"
+    }
+  ],
+  "artifacts": [
+    { "path": "README.md", "sha256": "6c2e4cc7a1480feb7a18de1c3252a9233ce9513ea1d01c9ff2ebd36855aa354a" },
+    { "path": "verify_incident.mjs", "sha256": "fa4bf787f6650773de526c9058ff22183f62717c0914c4c0791167a7281108a0" },
+    { "path": "verification_6checks.json", "sha256": "664f4efa4d267cdaf227c3919c4a80d6b91be036bce074fed372506b7eeb55fe" },
+    { "path": "session_tail_events.json", "sha256": "10b6414d844274e6142b6c00c6f9746142568b8fc179fe98163252f28c387e03" },
+    { "path": "patch_diff.txt", "sha256": "b2782cc891170524fb6f6c8e94a21454bff7aa892e263633bb23daf2132282c2" }
+  ],
+  "decode_method": "按 4 字节 zstd 魔数 28 B5 2F FD 的偏移切分、逐帧 zstdDecompressSync 后拼接；连续流解码不可用（zstdDecompressSync 整文件只解首帧、createZstdDecompress 在首帧后报 ZSTD_error_prefix_unknown），因帧间存在 4 字节非帧字段。",
+  "limits": [
+    "本包不重启 DSH、不解锁旧会话、不写回旧日志、不伪造 compaction/end；旧日志字节与 SHA-256 前后一致。",
+    "本包只证明「旧日志终态 + 配置已改 + 生效配置已带新值」；「新会话不再触发 v4 报错」需以新会话实际运行为准，本包不作为该结论的通过依据。",
+    "修复方声明的「行为验证 6/6」未在仓库内找到原始入口，本包只登记其结论；本包的 6/6 是 DSH 另做的静态核验。",
+    "解码临时副本位于 tmp/CTRL-DSH-HANDOFF/session_lock_20261020_r01/（不入 Git）；原始 2,098,576 B 日志未复制进仓库。"
+  ],
+  "scope_statement": "只读核验 + 主目录声明范围内写入；不代表 G0/G4/G5、阶段验收、设备健康或写权交接。"
+}

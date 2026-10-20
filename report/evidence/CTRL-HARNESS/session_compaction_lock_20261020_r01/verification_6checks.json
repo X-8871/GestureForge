@@ -1,0 +1,134 @@
+{
+  "task": "CTRL-HARNESS / session_compaction_lock_20261020_r01",
+  "verified_at_utc8": "2026-10-20T03:45:53.007Z",
+  "session_id": "session-f067ad85-4434-4f6a-bc01-d6c43068a0c5",
+  "checks_total": 6,
+  "checks_passed": 6,
+  "checks": [
+    {
+      "id": "C1",
+      "name": "插件门控与来源格式仍在源码中（根因可复核）",
+      "pass": true,
+      "detail": {
+        "gate_line_number": 231,
+        "gate_line_text": "const wantsReassert = cfg.reassertAfterCompaction || cfg.reassertEverySteps > 0",
+        "source_kind_line_number": 60,
+        "source_kind_line_text": "const PLUGIN_SOURCE = Object.freeze({ kind: 'plugin', plugin: name })",
+        "plugin_index_sha256": "2b56a229f17cb880cda82a4a89e79a5c5a0fa9b4cfbe03a230a6cc6e47dbfdc8"
+      }
+    },
+    {
+      "id": "C2",
+      "name": "profile 覆盖含 batch-tool-calls 且 reassertAfterCompaction:false",
+      "pass": true,
+      "detail": {
+        "patch_path": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.patch.yml",
+        "id_line_number": 158,
+        "flag_line_number": 168,
+        "patch_sha256": "23459292b2a3645d02f76df1ad2f43be213a417467d87cd40b2ae0f3cde51bc9",
+        "patch_mtime": "2026-10-19T23:54:41.076Z"
+      }
+    },
+    {
+      "id": "C3",
+      "name": "生效配置 cordis.yml 已带同一取值（说明覆盖已应用/热重载）",
+      "pass": true,
+      "detail": {
+        "effective_path": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.yml",
+        "id_line_number": 1336,
+        "flag_line_number": 1346,
+        "effective_sha256": "6ef2330e56e12d28b8537bd0b44cc4670a4f74e4de8b67f873ac3a8eea68c3d6",
+        "effective_mtime": "2026-10-19T23:54:43.343Z"
+      }
+    },
+    {
+      "id": "C4",
+      "name": "存在修复前备份，且现行 patch 相对备份为纯新增（无其它配置漂移）",
+      "pass": true,
+      "detail": {
+        "backup_path": "C:\\Users\\22061\\.dsh\\profiles\\desktop\\cordis.patch.yml.bak-20261020-batch-fix",
+        "backup_sha256": "f58629c3765f4ecc45cb5e4ecce7600939fa2d626805a521ed5a60fa66de00b2",
+        "backup_mtime": "2026-10-19T23:41:08.938Z",
+        "added_lines": 17,
+        "removed_lines": 0,
+        "backup_line_count": 150,
+        "current_line_count": 170
+      }
+    },
+    {
+      "id": "C5",
+      "name": "卡死会话日志：末事件为未闭合 compaction/start，且无 compaction/end",
+      "pass": true,
+      "detail": {
+        "log_path": "C:\\Users\\22061\\.dsh\\sessions\\--D-FPGA_Competition--\\session-f067ad85-4434-4f6a-bc01-d6c43068a0c5\\session.v4.jsonl.zstd",
+        "log_bytes": 2098576,
+        "log_sha256": "b08f03edeae2fba850f055a34075ee94107907722e4ee1615580f425c4446695",
+        "log_mtime": "2026-10-19T20:36:44.475Z",
+        "tail_events": [
+          {
+            "seq": 2089,
+            "type": "tool/result",
+            "time": 1792442204455
+          },
+          {
+            "seq": 2090,
+            "type": "step/end",
+            "time": 1792442204456
+          },
+          {
+            "seq": 2091,
+            "type": "compaction/start",
+            "time": 1792442204470
+          }
+        ],
+        "compaction_start_count": 1,
+        "compaction_end_count": 0,
+        "last_compaction_start_seq": 2091,
+        "last_compaction_start_data": {
+          "compactionId": "58ec4c74-1321-45c6-b788-28661a9a1b58",
+          "turn": 5
+        }
+      }
+    },
+    {
+      "id": "C6",
+      "name": "魔数分帧可完整解码，事件数与 seq 区间可复核",
+      "pass": true,
+      "detail": {
+        "frames_by_magic": 1093,
+        "frames_failed": 0,
+        "decoded_events": 2093,
+        "parse_errors": 0,
+        "seq_min": 0,
+        "seq_max": 2091,
+        "seq_values": 2092,
+        "duplicate_seq_count": 0,
+        "event_source_kind_counts": {
+          "<absent>": 2036,
+          "user": 7,
+          "user-approval": 1,
+          "agent-instructions": 1,
+          "runtime-context": 2,
+          "skill-catalog": 1,
+          "time-context": 16,
+          "fallback": 1,
+          "tool-jobs": 25,
+          "subagent-settled": 2,
+          "agent-message": 1
+        }
+      }
+    }
+  ],
+  "measurements": {
+    "decoded_frames_by_magic": 1093,
+    "decoded_events": 2093,
+    "seq_min": 0,
+    "seq_max": 2091,
+    "compaction_end_count": 0
+  },
+  "limits": [
+    "本脚本只做静态/只读核验：不解锁、不修复、不重启、不写回任何日志或配置。",
+    "帧间存在 4 字节非帧字段，故连续 zstd 流解码（zstdDecompressSync 整文件或 createZstdDecompress）会在首帧后失败；必须按魔数偏移逐帧解码。",
+    "通过本脚本不代表新会话不会再触发 v4 source 报错；该结论需以新会话实际运行为准。"
+  ]
+}

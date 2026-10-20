@@ -1,0 +1,26 @@
+--- cordis.patch.yml.bak-20261020-batch-fix	2026-10-20 07:41:08.937920600 +0800
++++ cordis.patch.yml	2026-10-20 07:54:41.075826900 +0800
+@@ -147,3 +147,23 @@
+         toolCallTimeoutMs: 120000
+ 
+ # 2026-10-18 02:19 触发一次配置重载，让 MCP 服务器带上 XILINXD_LICENSE_FILE 重新启动
++
++# 2026-10-20 修复 DSH 会话格式 v4 报错：
++#   format v4 message requires a producer-owned source kind
++# 原因：dsh-batch-tool-calls 在压缩成功后（compaction/end）的下一步注入一条提醒消息，
++# source 仍是 v3 旧格式 { kind: 'plugin', plugin: 'batch-tool-calls' }；v4 只接受产生方
++# 自己的非空 kind，且禁止 'plugin'，于是该步在写入时被拒。
++# 处置：只关掉「压缩后提醒」这一条注入，静态提示段（本插件主功能）保持启用。
++# 回滚：删除本条目，或用同目录 cordis.patch.yml.bak-20261020-batch-fix 覆盖。
++- id: batch-tool-calls
++  name: dsh-batch-tool-calls
++  config:
++    enabled: true
++    language: auto
++    order: 9500
++    minCalls: 3
++    maxCalls: 6
++    mentionShell: true
++    extra: ''
++    reassertAfterCompaction: false
++    reassertEverySteps: 0

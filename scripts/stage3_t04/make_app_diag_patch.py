@@ -1,16 +1,24 @@
 """生成 S3-T04/S3-T05 应用诊断补丁：只给厂商摄像头应用加 UART 诊断打印，不改任何寄存器时序与配置。
 
-用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5]
+用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6]
+
+变体（默认 v5）：
+  v4 = 延时启动 + FB 回读（历史补丁 s3_t04_app_diag_v4.patch，仍可逐字节复现）
+  v5 = v4 + memset 后 DCache flush、DCache 失效后回读物理内存三处（S3_DIAG5_NZ）、
+       S2MM SR 位解码 + 帧计数（S3_DIAG5_REG/SR_DECODE/CFG）、t≈5/15/25 秒三次采样、
+       传感器关键寄存器只读回显（S3_DIAG5_SENS）、main 不返回
+  v6 = 保留 v5 的辅助函数与一次性打印，把 v5 的三次 16 KB 采样换成帧缓冲 64 KB 区指纹五次采样
+       （S3_DIAG6_FP：32 位加和 + 反射式 CRC-32/0xEDB88320，读前 Xil_DCacheInvalidateRange，
+        t≈5/10/15/20/25 s，每次同时打印 S2MM SR），t≈30 s 传感器回读（S3_DIAG6_SENS），
+       以及编译期开关 S3_TESTPATTERN（默认 0；=1 时启动 S2MM 前写 0x503D=0x80 彩条测试图）
 
 做四件事：
 1) 从官方源复制一份应用目录到 scratch；
-2) 在 main() 关键节点插入 S3_DIAG 打印（应用启动、传感器 CHIP ID、显示启动状态、VDMA 写入启动）；
-3) v5 变体追加：memset 后 DCache flush、DCache 失效后回读物理内存三处（S3_DIAG5_NZ）、
-   S2MM SR 按真实位定义解码 + 帧计数（S3_DIAG5_REG/SR_DECODE/CFG）、t≈5/15/25 秒三次采样、
-   传感器关键寄存器只读回显（S3_DIAG5_SENS）、main 不返回；
+2) 在 main() 关键节点插入 S3_DIAG 打印；
+3) 按变体追加 v5/v6 内容；
 4) 用 git diff --no-index 生成 unified diff，并对全新副本验证补丁可干净应用。
 
-默认变体 v4（保持既有 s3_t04_app_diag_v4.patch 可复现）；v5 只改 display_demo.c，输出路径由调用方给定。
+只改 display_demo.c；输出补丁不进 Git 之外的地方。
 """
 import hashlib
 import shutil
@@ -22,9 +30,9 @@ SRC = Path(sys.argv[1])
 # 归一化为绝对路径：验证步骤会用 cwd=<verify 副本> 调 git apply，相对路径会被解析到副本内部而失败。
 OUT_PATCH = Path(sys.argv[2]).resolve()
 SCRATCH = Path(sys.argv[3])
-# 变体选择：默认 v4，避免影响既有补丁的可复现性。
-VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v4"
-if VARIANT not in ("v4", "v5"):
+# 变体选择：默认 v5（最新诊断补丁）；v4 仍可显式指定以逐字节复现历史补丁。
+VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v5"
+if VARIANT not in ("v4", "v5", "v6"):
     print(f"UNKNOWN_VARIANT: {VARIANT}")
     sys.exit(2)
 
@@ -294,10 +302,128 @@ V5_RETURN_NEW = (
     "}"
 )
 
-if VARIANT == "v5":
-    # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；改用 v5 的 t≈5/15/25 三次采样）
+# ---------------------------------------------------------------------------
+# v6 变体追加内容（只在 VARIANT == "v6" 时生效；v4/v5 输出保持不变）
+# 设计：保留 v5 的辅助函数与一次性打印，把 v5 的三次 16 KB 采样换成五次 64 KB 指纹采样。
+# ---------------------------------------------------------------------------
+V6_INCLUDE_OLD = "#include \"sleep.h\"\n"
+V6_INCLUDE_NEW = (
+    "#include \"sleep.h\"\n"
+    "#include \"xtime_l.h\" /* S3-DIAG6: XTime_GetTime/COUNTS_PER_SECOND 用于打印真实耗时秒 */\n"
+)
+
+V6_HELPERS = (
+    "/* ================= S3-DIAG6 帧缓冲 64 KB 区指纹（只读） =================\n"
+    " * 算法（五次采样完全相同）：32 位循环进位加和 sum；哈希 = 反射式 CRC-32，\n"
+    " *   多项式 0xEDB88320、初值 0xFFFFFFFF、末取反，按小端 32 位字依次喂入\n"
+    " *   （等价于对连续 64 KB 字节流做标准 CRC-32/IEEE）。\n"
+    " * 读前必须 Xil_DCacheInvalidateRange，否则可能读到 CPU cache 里的陈旧行。\n"
+    " * 编译期开关 S3_TESTPATTERN：默认 0；=1 时启动 S2MM 前写 OV5640 0x503D=0x80（彩条测试图）。*/\n"
+    "#ifndef S3_TESTPATTERN\n"
+    "#define S3_TESTPATTERN 0\n"
+    "#endif\n"
+    "#define S3_DIAG6_FP_BYTES (64 * 1024)\n"
+    "static XTime s3_t6_start, s3_t6_now;\n"
+    "\n"
+    "static u32 s3_diag6_hash(const volatile u32 *p, u32 words, u32 *sum_out, u32 *nz_out)\n"
+    "{\n"
+    "\tu32 s3_i, s3_b, s3_nz = 0, s3_sum = 0, s3_crc = 0xFFFFFFFFU;\n"
+    "\tfor (s3_i = 0; s3_i < words; s3_i++) {\n"
+    "\t\tu32 s3_w = p[s3_i];\n"
+    "\t\ts3_sum += s3_w;\n"
+    "\t\tif (s3_w != 0U) { s3_nz++; }\n"
+    "\t\ts3_crc ^= s3_w;\n"
+    "\t\tfor (s3_b = 0; s3_b < 32; s3_b++) {\n"
+    "\t\t\tif (s3_crc & 1U) { s3_crc = (s3_crc >> 1) ^ 0xEDB88320U; } else { s3_crc >>= 1; }\n"
+    "\t\t}\n"
+    "\t}\n"
+    "\t*sum_out = s3_sum;\n"
+    "\t*nz_out = s3_nz;\n"
+    "\treturn ~s3_crc;\n"
+    "}\n"
+    "\n"
+    "static void s3_diag6_fp(u32 tsec, u32 site, u32 off)\n"
+    "{\n"
+    "\tvolatile u32 *s3_p = (volatile u32 *)((u8 *)dispCtrl.framePtr[dispCtrl.curFrame] + off);\n"
+    "\tu32 s3_sum = 0, s3_nz = 0, s3_hash;\n"
+    "\tXil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES);\n"
+    "\ts3_hash = s3_diag6_hash(s3_p, S3_DIAG6_FP_BYTES / 4, &s3_sum, &s3_nz);\n"
+    "\txil_printf(\"S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u\\r\\n\", tsec, site, s3_sum, s3_hash, s3_nz);\n"
+    "}\n"
+    "\n"
+    "/* 只读：每次采样同时打印 S2MM SR/CR 与逐位判读（位定义见 S3-DIAG5 注释）。*/\n"
+    "static void s3_diag6_sr(u32 tsec)\n"
+    "{\n"
+    "\tu32 s3_sr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);\n"
+    "\tu32 s3_cr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);\n"
+    "\txil_printf(\"S3_DIAG6_SR t=%u S2MM_SR=0x%08X S2MM_CR=0x%08X FRMCNT=%u HALTED=%u IDLE=%u INT=%u SLV=%u DEC=%u FSZ_LESS=%u LSZ_LESS=%u FSZ_MORE=%u LSZ_MORE=%u ERR_IRQ=%u\\r\\n\",\n"
+    "\t\ttsec, s3_sr, s3_cr, (s3_sr >> XAXIVDMA_FRMCNT_SHIFT) & 0xFFU, s3_sr & 0x1U, (s3_sr >> 1) & 0x1U,\n"
+    "\t\t(s3_sr >> 4) & 0x1U, (s3_sr >> 5) & 0x1U, (s3_sr >> 6) & 0x1U, (s3_sr >> 7) & 0x1U,\n"
+    "\t\t(s3_sr >> 8) & 0x1U, (s3_sr >> 11) & 0x1U, (s3_sr >> 15) & 0x1U, (s3_sr >> 14) & 0x1U);\n"
+    "}\n"
+    "\n"
+)
+
+V6_WRITE_INIT_NEW = (
+    "\t/* S3-DIAG6: 编译期开关 S3_TESTPATTERN（默认 0）。=1 时在启动 S2MM 之前写 OV5640 0x503D=0x80\n"
+    "\t * 打开彩条测试图（用于颜色判读）；=0 时只打印 OFF，便于区分手里是哪个 ELF。*/\n"
+    "#if S3_TESTPATTERN\n"
+    "\t{\n"
+    "\t\tint s3_tp_st = i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80);\n"
+    "\t\txil_printf(\"S3_DIAG6_TESTPATTERN=ON write_status=%d\\r\\n\", s3_tp_st);\n"
+    "\t}\n"
+    "#else\n"
+    "\txil_printf(\"S3_DIAG6_TESTPATTERN=OFF\\r\\n\");\n"
+    "#endif\n"
+    "\t/* S3-DIAG4: 采集 IP 内部有 200M+100M 个 PCLK 周期的上电等待（见 alinx_ov5640.v 的\n"
+    "\t * reset_cnt / fifo_ready_cnt），若不等它就绪就启动 S2MM，会在第一帧落下帧尺寸粘滞错误。*/\n"
+    "\txil_printf(\"S3_DIAG4_WAIT_START\\r\\n\");\n"
+    "\t{\n"
+    "\t\tint s3_w;\n"
+    "\t\tfor (s3_w = 0; s3_w < 15; s3_w++) { sleep(1); }\n"
+    "\t}\n"
+    "\txil_printf(\"S3_DIAG4_WAIT_DONE\\r\\n\");\n"
+    "\tvdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);\n"
+    "\txil_printf(\"S3_DIAG_VDMA_WRITE_STARTED\\r\\n\");\n"
+    "\t/* S3-DIAG6: 启动后 t≈5/10/15/20/25 秒各做一次 64 KB×3 区指纹（先失效 cache 再读物理内存），\n"
+    "\t * 同一批内存每次都用同一算法与同一范围，用于判断是否为活视频（取代 v5 的三次 16 KB 采样）。*/\n"
+    "\txil_printf(\"S3_DIAG6_ALGO=sum32+crc32(0xEDB88320) bytes=65536 sites=0x000000,0x080000,0x100000\\r\\n\");\n"
+    "\ts3_diag5_regs(0);\n"
+    "\tXTime_GetTime(&s3_t6_start);\n"
+    "\t{\n"
+    "\t\tint s3_k, s3_s;\n"
+    "\t\tfor (s3_k = 0; s3_k < 5; s3_k++) {\n"
+    "\t\t\tu32 s3_tsec;\n"
+    "\t\t\tfor (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }\n"
+    "\t\t\tXTime_GetTime(&s3_t6_now);\n"
+    "\t\t\ts3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\t\txil_printf(\"S3_DIAG6_SAMPLE=%d\\r\\n\", s3_k + 1);\n"
+    "\t\t\ts3_diag6_sr(s3_tsec);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 0, 0x000000U);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 1, 0x080000U);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 2, 0x100000U);\n"
+    "\t\t}\n"
+    "\t\t/* t≈30 s：再等 5 秒后回读传感器，判断传感器是否仍在流 */\n"
+    "\t\tfor (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }\n"
+    "\t}\n"
+    "\tXTime_GetTime(&s3_t6_now);\n"
+    "\t{\n"
+    "\t\tu32 s3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\tu8 s3_s6_4202 = s3_diag5_sens(0x4202);\n"
+    "\t\tu8 s3_s6_3008 = s3_diag5_sens(0x3008);\n"
+    "\t\tu8 s3_s6_503d = s3_diag5_sens(0x503D);\n"
+    "\t\tu8 s3_s6_3035 = s3_diag5_sens(0x3035);\n"
+    "\t\txil_printf(\"S3_DIAG6_SENS=4202=0x%02X 3008=0x%02X 503D=0x%02X 3035=0x%02X t=%u\\r\\n\",\n"
+    "\t\t\ts3_s6_4202, s3_s6_3008, s3_s6_503d, s3_s6_3035, s3_tsec);\n"
+    "\t}\n"
+    "\txil_printf(\"S3_DIAG6_SAMPLING_DONE\\r\\n\");\n"
+)
+
+if VARIANT in ("v5", "v6"):
+    # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；v5/v6 用各自的采样段）
+    write_init_new = V6_WRITE_INIT_NEW if VARIANT == "v6" else V5_WRITE_INIT_NEW
     insertions = [
-        (old, V5_WRITE_INIT_NEW) if old.startswith("\tvdma_write_init(") else (old, new)
+        (old, write_init_new) if old.startswith("\tvdma_write_init(") else (old, new)
         for (old, new) in insertions
     ]
     insertions += [
@@ -306,6 +432,11 @@ if VARIANT == "v5":
         (V5_DIAG3_OLD, V5_DIAG3_NEW),
         (V5_RETURN_OLD, V5_RETURN_NEW),
     ]
+    if VARIANT == "v6":
+        insertions += [
+            (V6_INCLUDE_OLD, V6_INCLUDE_NEW),
+            ("int main(void)\n{", V6_HELPERS + "int main(void)\n{"),
+        ]
 
 for old, new in insertions:
     if old not in text:
@@ -365,18 +496,31 @@ print(f"VERIFY_HAS_APP_ENTER={'S3_DIAG_APP_ENTER' in verify_text}")
 print(f"VERIFY_HAS_SENSOR_ID={'S3_DIAG_SENSOR_ID' in verify_text}")
 print(f"VERIFY_HAS_DISPLAY_START={'S3_DIAG_DISPLAY_START' in verify_text}")
 print(f"VERIFY_HAS_VDMA_WRITE={'S3_DIAG_VDMA_WRITE_STARTED' in verify_text}")
-if VARIANT == "v5":
+if VARIANT in ("v5", "v6"):
     print(f"VERIFY_HAS_D5_REG={'S3_DIAG5_REG' in verify_text}")
     print(f"VERIFY_HAS_D5_SR_DECODE={'S3_DIAG5_SR_DECODE' in verify_text}")
     print(f"VERIFY_HAS_D5_CFG={'S3_DIAG5_CFG' in verify_text}")
-    print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
     print(f"VERIFY_HAS_D5_SENS={'S3_DIAG5_SENS' in verify_text}")
-    print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
     print(f"VERIFY_HAS_DCACHE_FLUSH={'Xil_DCacheFlushRange((INTPTR)dispCtrl.framePtr[dispCtrl.curFrame], 1920 * 1080 * 3)' in verify_text}")
-    print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
     print(f"VERIFY_HAS_IDLE_LOOP={'for (;;) { sleep(1); }' in verify_text}")
     print(f"VERIFY_MAIN_TAIL_IDLE={verify_text_norm.rstrip().endswith(V5_TAIL_IDLE_SUFFIX)}")
     print(f"VERIFY_TAIL_STILL_RETURNS={V5_TAIL_RETURN in verify_text_norm}")
+if VARIANT == "v5":
+    print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
+    print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
+    print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
+if VARIANT == "v6":
+    print(f"VERIFY_HAS_D6_ALGO={'S3_DIAG6_ALGO=sum32+crc32(0xEDB88320)' in verify_text}")
+    print(f"VERIFY_HAS_D6_FP={'S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u' in verify_text}")
+    print(f"VERIFY_HAS_D6_SR={'S3_DIAG6_SR t=%u S2MM_SR=0x%08X' in verify_text}")
+    print(f"VERIFY_HAS_D6_SENS={'S3_DIAG6_SENS=4202=0x%02X 3008=0x%02X 503D=0x%02X 3035=0x%02X t=%u' in verify_text}")
+    print(f"VERIFY_HAS_D6_TP_SWITCH={'#if S3_TESTPATTERN' in verify_text and '#define S3_TESTPATTERN 0' in verify_text}")
+    print(f"VERIFY_HAS_D6_TP_WRITE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80)' in verify_text}")
+    print(f"VERIFY_HAS_D6_5SAMPLES={'for (s3_k = 0; s3_k < 5; s3_k++)' in verify_text}")
+    print(f"VERIFY_HAS_D6_3SITES={'0x080000U' in verify_text and '0x100000U' in verify_text}")
+    print(f"VERIFY_HAS_D6_INV64K={'Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES)' in verify_text}")
+    print(f"VERIFY_HAS_XTIME={'#include \"xtime_l.h\"' in verify_text}")
+    print(f"VERIFY_NO_D5_SAMPLING={'S3_DIAG5_SAMPLE=%d' not in verify_text}")
 print(f"PATCH_LINES={len(diff.splitlines())}")
 print(f"PATCH_SHA256={hashlib.sha256(OUT_PATCH.read_bytes()).hexdigest()}")
 print(f"VERIFY_DISPLAY_DEMO_SHA256={hashlib.sha256((VERIFY / FILE).read_bytes()).hexdigest()}")

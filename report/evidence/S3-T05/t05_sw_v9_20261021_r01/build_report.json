@@ -1,0 +1,311 @@
+{
+  "schema": "stage3_t05_sw_diag_v9_build_record_v1",
+  "task_id": "S3-T05-SW5 v9",
+  "task_board_id": "task-8",
+  "date_local": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "generated_local": "2026-10-21T21:45:34+0800",
+  "purpose": "v9 纯新增：①只读回读 DVP 端口/数据线 output select（0x3017/0x3018/0x301D/0x301E/0x300A/0x300B/0x4741/0x4745/0x4300/0x501F）并逐位判读 D9SEL/D6SEL，用于验证“蓝 bit7 与绿 bit4 置位率 0.000%”是否由 0x301D bit3（D9 output select=1，该线输出固定值）造成；②两个默认 0 的编译期写测试（S3_PAD_SEL_CLEAR / S3_DVP_ORDER_DEBUG），均为“先回读 → 写 → 回读校验”，且 ORDER_DEBUG 不自动恢复。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "a0c95e4ceb7904878bfcae050d462f28db044fca",
+    "note": "任务卡未固定起始 commit；此处记录本任务开工时的实际 HEAD。本任务未提交 Git。"
+  },
+  "inputs": {
+    "xsa_sof_fix": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "bytes": 633089,
+      "note": "任务卡指定 1f5b138e...cb0e3；实测一致"
+    },
+    "vendor_app_src_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "bytes": 3735
+    },
+    "vendor_src_ov5640_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/ov5640.c",
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec",
+      "bytes": 9673,
+      "note": "厂商 init 表：0x3017=0xff、0x3018=0xff 被写入；0x301D/0x301E/0x4740/0x4741/0x4745 未出现；表首为 0x3008=0x82 软复位"
+    },
+    "v4_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v4.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "v5_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748
+    },
+    "v6_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v6.patch",
+      "sha256": "4c7becc145c845d14b457e7917273f9c50120d9d513a0dc2612ecd057c08b960",
+      "bytes": 14583
+    },
+    "v7_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "sha256": "d471317726818a835e5e6aaf25108df688b122f6aacd641e933d48fffcb79cad",
+      "bytes": 18082
+    },
+    "v8_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v8.patch",
+      "sha256": "6c963628fc38a2d83e65bdddea599016756ca9eb2cf95112592de35036ce62d1",
+      "bytes": 21492
+    },
+    "makefile_app": {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04_vitis/Makefile.app",
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503",
+      "bytes": 1729,
+      "note": "编译规则用 OPT_FLAGS → 可注入 -DS3_PAD_SEL_CLEAR/-DS3_DVP_ORDER_DEBUG"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py",
+      "sha256": "7fd473c641ae21876cf9ec739cdab0a1cd4eac83c081a4a1d313faef96e3ae24",
+      "bytes": 51162,
+      "note": "新增 v9 变体；默认变体仍为 v5；v4/v5/v6/v7/v8 输出逐字节不变（见 commands 回归项）"
+    },
+    {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "sha256": "bea88dd21fcac8c7eed6e5f05d2f9a59540925b06b69e5ae91d43d7e3942a2fc",
+      "bytes": 26679,
+      "note": "只改 display_demo.c，537 行"
+    }
+  ],
+  "commands": [
+    {
+      "id": "regression_default_v5",
+      "exit_code": 0,
+      "command_text": "python scripts/stage3_t04/make_app_diag_patch.py <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/default_regen.patch <…>/scratch_default",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/default_regen.log",
+      "result": "与 s3_t04_app_diag_v5.patch 逐字节相同"
+    },
+    {
+      "id": "regression_v4",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v4",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/v4_regen.log",
+      "result": "与 s3_t04_app_diag_v4.patch 逐字节相同"
+    },
+    {
+      "id": "regression_v6",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v6",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/v6_regen.log",
+      "result": "与 s3_t04_app_diag_v6.patch 逐字节相同（4c7becc1...b960）"
+    },
+    {
+      "id": "regression_v7",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v7",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/v7_regen.log",
+      "result": "与 s3_t04_app_diag_v7.patch 逐字节相同（d4713177...b79cad）"
+    },
+    {
+      "id": "regression_v8",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v8",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/v8_regen.log",
+      "result": "与 s3_t04_app_diag_v8.patch 逐字节相同（6c963628...36ce62d1）"
+    },
+    {
+      "id": "v9_patch_generation",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v9 → board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/v9_gen.log",
+      "result": "GIT_APPLY_EXIT=0；VERIFY_HAS_D9_* 全部 True；VERIFY_HAS_D9_D9SEL_UNKNOWN=True；VERIFY_HAS_D9_NO_RESTORE_CODE=True；VERIFY_MAIN_TAIL_IDLE=True"
+    },
+    {
+      "id": "git_apply_check_fresh_vendor_copy",
+      "exit_code": 0,
+      "command_text": "cp -r <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v9/patch_gen/check_v9/an5642_single && cd .../check_v9/an5642_single && git apply --check -p1 board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "result": "补丁可从厂商原始 display_demo.c 干净应用；只含 display_demo.c"
+    },
+    {
+      "id": "elf_build_v9_read",
+      "exit_code": 0,
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v9/run_v9_read_elf_build.sh  # 内部: cmd //c 'scripts\\stage3_t04_vitis\\run_stage3_vitis_elf.cmd <sof_fix XSA> D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v9\\elf_build <vendor an5642_single> an5642_j11cmos2_v9_read.elf board\\stage3\\software\\sensor\\s3_t04_app_diag_v9.patch'",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/elf_build_read.log",
+      "result": "sdtgen PASS + make [OK] ELF（标准入口，不带 -D，用源码默认 0/0）"
+    },
+    {
+      "id": "elf_build_v9_write_tests",
+      "exit_code": 0,
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v9/run_v9_write_elfs_build.sh  # 内部逐个: del display_demo.o && make -f Makefile.app EXEC=an5642_j11cmos2_v9_padclear.elf \"OPT_FLAGS=-O2 -c -DS3_PAD_SEL_CLEAR=1\" ; … orderdbg … -DS3_DVP_ORDER_DEBUG=1 ; … read_dfo … -DS3_PAD_SEL_CLEAR=0 -DS3_DVP_ORDER_DEBUG=0",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v9/elf_build_write.log",
+      "result": "3 条编译行逐字含各自 -D；三个 ELF 均生成；ALL_V9_WRITE_ELFS_OK；read_dfo（显式 -D=0）与官方 read ELF 逐字节相同（b2e8fa55...97b5）"
+    }
+  ],
+  "artifacts": {
+    "elf_v9_read": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf",
+      "sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+      "bytes": 306272,
+      "note": "默认（S3_PAD_SEL_CLEAR=0 / S3_DVP_ORDER_DEBUG=0）：纯只读回读"
+    },
+    "elf_v9_padclear": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_padclear.elf",
+      "sha256": "5debc927bafab7492616c6d6280681fa294eb8358e07e33c09aa4ffb02cefbbc",
+      "bytes": 306272,
+      "note": "S3_PAD_SEL_CLEAR=1：清 0x301D bit3（D9 select），视回读清 0x301E bit1（D6 select）"
+    },
+    "elf_v9_orderdbg": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_orderdbg.elf",
+      "sha256": "eeadef6f370c0318f6d68fb69474958cd119072a8bf792da84ff1ff10ba12e4b",
+      "bytes": 306272,
+      "note": "S3_DVP_ORDER_DEBUG=1：置 0x4745[2:1]=10，不自动恢复（UART 明示 NOT_RESTORED）"
+    },
+    "elf_v9_read_dfo": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read_dfo.elf",
+      "sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+      "bytes": 306272,
+      "note": "取证专用（非交付）：显式 -DS3_PAD_SEL_CLEAR=0 -DS3_DVP_ORDER_DEBUG=0，与官方 read 逐字节相同"
+    },
+    "patched_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/display_demo.c",
+      "sha256": "bdfc06c1569e10d51181ba673b8f45297f18085175d95999d7e163b817266a13",
+      "bytes": 29432,
+      "note": "与生成器 verify 副本逐字节相同"
+    },
+    "v9_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "sha256": "bea88dd21fcac8c7eed6e5f05d2f9a59540925b06b69e5ae91d43d7e3942a2fc",
+      "bytes": 26679
+    },
+    "build_log_read": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build_read.log",
+      "sha256": "7320f6a21fc8d220322c89dacda08e24192ee7c81aece87deb7e4b9ead0bf1bf",
+      "bytes": 24778
+    },
+    "build_log_write": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build_write.log",
+      "sha256": "90bbf366418c78078f2b7e1f9c5dad139f4e6443d562f7f149c5b19542d2b3a6",
+      "bytes": 2420
+    },
+    "elf_build_evidence": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v9_20261021_r01/elf_build_evidence.txt",
+      "sha256": "0594461b2461270cd710263cec60657ed34820ba9851b34239cbcd1369681212",
+      "bytes": 3733,
+      "note": "3 条编译行 + 3 个 SHA-256 + 字符串/objdump 证据 + read/显式-D 等价性"
+    },
+    "run_script_read": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/run_v9_read_elf_build.sh",
+      "sha256": "0545048e0eb241399e0e3701b42659ec22653d1d272ca303941b8d5d4a20a07a",
+      "bytes": 1067
+    },
+    "run_script_write_sh": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/run_v9_write_elfs_build.sh",
+      "sha256": "6dc8b344b702bdedd3f19f33a9fa091dcadedc6dceb8f8660f785668bfce34b0",
+      "bytes": 473
+    },
+    "run_script_write_cmd": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/run_v9_write_elfs_build.cmd",
+      "sha256": "3b6c49191cc3814895cfa0a4d0e43242cbfccc20b787867195f10892e6844740",
+      "bytes": 2116
+    },
+    "evidence_readme": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v9_20261021_r01/README.md",
+      "sha256": "f8a6b65f93d16dd272f5b5513a4d005bb25824943bc6db56ce8cfd1acebed03c",
+      "bytes": 6254
+    }
+  },
+  "artifacts_checks": {
+    "elf_v9_read": {
+      "PAD_LINE": 1,
+      "FIX_LINE": 0,
+      "FIX_SKIPPED": 0,
+      "FIX_SKIP_301E": 0,
+      "ORDER_WR": 0,
+      "NOT_RESTORED": 0,
+      "ORDER_OFF": 1,
+      "d9_tags": [
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD"
+      ]
+    },
+    "elf_v9_padclear": {
+      "PAD_LINE": 1,
+      "FIX_LINE": 1,
+      "FIX_SKIPPED": 1,
+      "FIX_SKIP_301E": 1,
+      "ORDER_WR": 0,
+      "NOT_RESTORED": 0,
+      "ORDER_OFF": 1,
+      "d9_tags": [
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_FIX",
+        "S3_DIAG9_FIX_SKIPPED",
+        "S3_DIAG9_FIX_SKIP_301E",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD"
+      ]
+    },
+    "elf_v9_orderdbg": {
+      "PAD_LINE": 1,
+      "FIX_LINE": 0,
+      "FIX_SKIPPED": 0,
+      "FIX_SKIP_301E": 0,
+      "ORDER_WR": 1,
+      "NOT_RESTORED": 1,
+      "ORDER_OFF": 0,
+      "d9_tags": [
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_ORDER_SKIPPED",
+        "S3_DIAG9_ORDER_WR",
+        "S3_DIAG9_PAD"
+      ]
+    }
+  },
+  "read_define_equivalence": {
+    "official_read_sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+    "explicit_define_read_sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+    "identical": true,
+    "note": "an5642_j11cmos2_v9_read_dfo.elf 仅为取证对照，不是交付 ELF"
+  },
+  "dvp_output_select_plan": {
+    "hypothesis": "19 行样本 24,320 像素实测蓝 8 位 bit7 与绿 8 位 bit4 置位率均为 0.000% ⇒ DVP 两个字节的 MSB 同时恒 0 ⇒ 单线 cmos_d[9] 无信号；若 0x301D bit3（D9 output select）=1，该线输出寄存器固定值，症状完全一致，且软件可修。",
+    "readback_fields": {
+      "0x301D bit3": "D9 output select（1=该线输出固定值）",
+      "0x301E bit1": "D6 output select（本轮实测 D6 正常，预期该位=0）",
+      "0x3017": "厂商 init 表写 0xff（FREX/Vsync/HREF/PCLK/D[9:6] output enable）",
+      "0x3018": "厂商 init 表写 0xff（D[5:0]/GPIO[1:0] output enable）"
+    },
+    "decision_rule": "S3_DIAG9_D9SEL=1 ⇒ 假设成立（软件可修，用 padclear ELF 复验）；=0 ⇒ 该假设排除，D9 无信号需转向引脚/焊接/模块侧；=255 ⇒ 0x301D 读失败（未知），不能据此下结论。",
+    "vendor_init_table_fact": "厂商 init 表**未写** 0x301D/0x301E/0x4740/0x4741/0x4745（因此它们保持 POR 默认值，从未被我们的软件回读或设置过）；表首是 0x3008=0x82 软复位 → 重跑应用（sensor_init）会把传感器寄存器复位到默认，故写测试状态不跨应用运行持久（未在实物验证该复位行为）。",
+    "semantics_source": "0x301D/0x301E/0x4745 的位语义来自任务卡（阶段总控复核手册后的口径）；本任务未再次核对手册原文。"
+  },
+  "write_test_protocol": {
+    "S3_PAD_SEL_CLEAR": "先回读 0x301D/0x301E 原值 → 写 0x301D=原值&~0x08 → 回读校验；0x301E 仅当回读 bit1=1 时才写（卡面“视回读结果可选”），否则打印 FIX_SKIP_301E=1 不写；打印 S3_DIAG9_FIX=301D before/after/readback 301E before/after/readback write_status",
+    "S3_DVP_ORDER_DEBUG": "先回读 0x4745 → 写 (原值&~0x06)|0x04（即 [2:1]=10）→ 回读校验；**不自动恢复**，打印 S3_DIAG9_ORDER_WR=4745 before/after/readback 与 S3_DIAG9_ORDER=NOT_RESTORED",
+    "safety": "任一关键回读失败（I2C 传输失败）时**跳过对应写入**并打印 *_SKIPPED，write_status 打 -2；不用不可信的值改写端口控制寄存器（与 v7/v8 同一原则）。",
+    "restore": "UART 已给出 before 值可供手工回写；另外按厂商 init 表首两条（0x3008=0x82 软复位）推断，重跑应用或断电重启即可恢复默认（未在实物验证）。"
+  },
+  "environment": {
+    "vitis": "2026.1（sdtgen/HSI + make）",
+    "licence": "XILINXD_LICENSE_FILE=D:\\Xilinx_licenses\\basic_only.lic（脚本内设置）",
+    "host": "HAO",
+    "python": "3.12.10"
+  },
+  "not_executed": [
+    "未上板、未下载、未运行、未采集 UART（按任务卡边界：Wong 指示暂不上板）；S3_DIAG9_* 的实际数值与 D9SEL 结论尚未产生。",
+    "未跑 Vivado synth/impl/route（本任务只需 make）。",
+    "未烧写 QSPI；未做任何非易失写入。",
+    "未提交 Git（按任务约束由阶段总控统一提交）。",
+    "未查 OV5640 手册原文核对 0x301D/0x301E/0x4745 的位定义（只引用任务卡口径与厂商 init 表事实）。"
+  ],
+  "limitations": [
+    "本任务交付的是**可上板的诊断 ELF**，不是颜色/端口结论：D9 output select 到底是不是 1，必须由上板 UART 的 S3_DIAG9_PAD 行才能判定。",
+    "0x301D/0x301E/0x4745 的位语义来自任务卡，未在本次核对手册；若口径有偏差，padclear/orderdbg 的写入对象也需相应调整。",
+    "padclear 只清“D9 select”这一位（并在 bit1 确实置起时清 D6）——不改变 0x3017/0x3018 的 output enable（厂商已写 0xff）。",
+    "orderdbg 的 0x4745[2:1]=10 会把 DVP 输出顺序改掉（可能造成额外错位/花屏），属预期；它**不会自动恢复**，UART 明示 NOT_RESTORED，恢复路径见 write_test_protocol.restore。",
+    "读失败时 D9SEL/D6SEL 打印 255（未知）而不是 1，避免把“读不到”误判成“置位”；同时 0x301D/0x301E 字节也打印 0xFF。",
+    "v9 保留 v6 的 5 次指纹采样，UART 输出时长仍 ≥30 s（便于同轮确认仍在写帧）。",
+    "本任务只做软件与证据；G3 未闭合。"
+  ]
+}

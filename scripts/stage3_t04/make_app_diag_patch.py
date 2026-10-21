@@ -1,6 +1,6 @@
 """生成 S3-T04/S3-T05 应用诊断补丁：只给厂商摄像头应用加 UART 诊断打印，不改任何寄存器时序与配置。
 
-用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8]
+用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8|v9]
 
 变体（默认 v5）：
   v4 = 延时启动 + FB 回读（历史补丁 s3_t04_app_diag_v4.patch，仍可逐字节复现）
@@ -16,11 +16,15 @@
        =1 时启动 S2MM 之前把 0x5001 bit0 清 0 关闭 AWB，并打印 before/after/write_status）
   v8 = v7 + 编译期手动白平衡：S3_WB_MANUAL（默认 0）+ S3_WB_R/S3_WB_G/S3_WB_B（默认 1024 = 1.0×）。
        =1 时启动 S2MM 之前写 0x3406=0x01 与 0x3400..0x3405（增益高位/低位），写入后立即回读校验
+  v9 = v8 + DVP 端口/数据线 output select 只读回读（0x3017/0x3018/0x301D/0x301E/0x300A/0x300B/
+       0x4741/0x4745/0x4300/0x501F + D9SEL/D6SEL 逐位判读），以及两个默认 0 的编译期写测试开关：
+       S3_PAD_SEL_CLEAR（清 0x301D bit3 / 视回读清 0x301E bit1，写前后均回读校验）、
+       S3_DVP_ORDER_DEBUG（置 0x4745[2:1]=10，不自动恢复，UART 明示 NOT_RESTORED）
 
 做四件事：
 1) 从官方源复制一份应用目录到 scratch；
 2) 在 main() 关键节点插入 S3_DIAG 打印；
-3) 按变体追加 v5/v6/v7/v8 内容；
+3) 按变体追加 v5/v6/v7/v8/v9 内容；
 4) 用 git diff --no-index 生成 unified diff，并对全新副本验证补丁可干净应用。
 
 只改 display_demo.c；输出补丁不进 Git 之外的地方。
@@ -37,7 +41,7 @@ OUT_PATCH = Path(sys.argv[2]).resolve()
 SCRATCH = Path(sys.argv[3])
 # 变体选择：默认 v5（最新诊断补丁）；v4 仍可显式指定以逐字节复现历史补丁。
 VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v5"
-if VARIANT not in ("v4", "v5", "v6", "v7", "v8"):
+if VARIANT not in ("v4", "v5", "v6", "v7", "v8", "v9"):
     print(f"UNKNOWN_VARIANT: {VARIANT}")
     sys.exit(2)
 
@@ -594,19 +598,146 @@ if V7_WRITE_INIT_NEW.count(_V7_WRITE_INIT_ANCHOR) != 1:
 # 插在 v7 的 AWB 开关块之后、15 s 等待之前 → 顺序：测试图 → AWB 关 → 手动增益 → 等待 → 启动 S2MM
 V8_WRITE_INIT_NEW = V7_WRITE_INIT_NEW.replace(_V7_WRITE_INIT_ANCHOR, V8_WB_BLOCK + _V7_WRITE_INIT_ANCHOR)
 
-# S3_DIAG5_SENS 打印块（v5/v6/v7/v8 共用）的结尾：v7 起在其后追加 AWB 回读块
+# ---------------------------------------------------------------------------
+# v9 变体追加内容（只在 VARIANT == "v9" 时生效；v4~v8 输出保持不变）
+# v9 = v8 + DVP 端口/数据线 output select 回读 + 两个默认 0 的可选写测试开关
+# ---------------------------------------------------------------------------
+V9_HELPERS = (
+    "/* ================= S3-DIAG9 DVP 端口控制写测试开关 =================\n"
+    " * 背景：19 行样本 24,320 像素实测蓝 bit7 与绿 bit4 置位率均为 0.000% ⇒ DVP 两个字节的 MSB 同时恒 0，\n"
+    " *   指向单线 cmos_d[9] 无信号；OV5640 的 0x301D/0x301E 是 D[9:0] 的 output select\n"
+    " *   （0=正常数据通路，1=寄存器固定值，按任务卡口径），若 D9 位为 1 则症状完全一致且软件可修。\n"
+    " * S3_PAD_SEL_CLEAR（默认 0）：=1 时清 0x301D bit3（D9 select），并视回读结果清 0x301E bit1（D6 select）；\n"
+    " *   写前先回读、写后回读校验，全程打印 before/after/readback。\n"
+    " * S3_DVP_ORDER_DEBUG（默认 0）：=1 时置 0x4745[2:1]=10，**不自动恢复**（UART 明示 NOT_RESTORED），\n"
+    " *   恢复办法：刷回最小改动 ELF 或复位传感器。\n"
+    " * 两个开关可同时为 1；任一关键读失败时跳过对应写入（不用不可信的值改写端口控制寄存器）。*/\n"
+    "#ifndef S3_PAD_SEL_CLEAR\n"
+    "#define S3_PAD_SEL_CLEAR 0\n"
+    "#endif\n"
+    "#ifndef S3_DVP_ORDER_DEBUG\n"
+    "#define S3_DVP_ORDER_DEBUG 0\n"
+    "#endif\n"
+    "\n"
+)
+
+V9_PAD_READBACK = (
+    "\t/* S3-DIAG9: DVP 端口/数据线 output select 只读回读（不做任何写）。\n"
+    "\t * 关键位：0x301D bit3 = D9 output select、0x301E bit1 = D6 output select（1=该线输出寄存器固定值）。\n"
+    "\t * 注意：D9SEL/D6SEL 在读失败时打印 255（=未知），不会被误读成“置位 1”。*/\n"
+    "\t{\n"
+    "\t\tu8 s3_9_3017 = s3_diag5_sens(0x3017);\n"
+    "\t\tu8 s3_9_3018 = s3_diag5_sens(0x3018);\n"
+    "\t\tu8 s3_9_301d = 0;\n"
+    "\t\tu8 s3_9_301e = 0;\n"
+    "\t\tu8 s3_9_300a = s3_diag5_sens(0x300A);\n"
+    "\t\tu8 s3_9_300b = s3_diag5_sens(0x300B);\n"
+    "\t\tu8 s3_9_4741 = s3_diag5_sens(0x4741);\n"
+    "\t\tu8 s3_9_4745 = s3_diag5_sens(0x4745);\n"
+    "\t\tu8 s3_9_4300 = s3_diag5_sens(0x4300);\n"
+    "\t\tu8 s3_9_501f = s3_diag5_sens(0x501F);\n"
+    "\t\tu32 s3_9_d9 = 255U, s3_9_d6 = 255U;\n"
+    "\t\tif (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9_301d) != 0) {\n"
+    "\t\t\ts3_9_301d = 0xFF;\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_9_d9 = ((u32)s3_9_301d >> 3) & 1U;\n"
+    "\t\t}\n"
+    "\t\tif (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9_301e) != 0) {\n"
+    "\t\t\ts3_9_301e = 0xFF;\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_9_d6 = ((u32)s3_9_301e >> 1) & 1U;\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG9_PAD=3017=0x%02X 3018=0x%02X 301D=0x%02X 301E=0x%02X 300A=0x%02X 300B=0x%02X 4741=0x%02X 4745=0x%02X 4300=0x%02X 501F=0x%02X S3_DIAG9_D9SEL=%u D6SEL=%u\\r\\n\",\n"
+    "\t\t\ts3_9_3017, s3_9_3018, s3_9_301d, s3_9_301e, s3_9_300a, s3_9_300b,\n"
+    "\t\t\ts3_9_4741, s3_9_4745, s3_9_4300, s3_9_501f, s3_9_d9, s3_9_d6);\n"
+    "\t}\n"
+)
+
+V9_WRITE_BLOCK = (
+    "\t/* S3-DIAG9: 两个可选写测试（编译期开关，默认 0）。\n"
+    "\t * 原则：先回读原值 → 写 → 回读校验；关键读失败的寄存器跳过写入（write_status=-2），\n"
+    "\t * 避免用不可信的值改写端口控制寄存器。*/\n"
+    "#if S3_PAD_SEL_CLEAR\n"
+    "\t{\n"
+    "\t\tu8 s3_9d_before = 0, s3_9d_after = 0, s3_9d_rb = 0xFF;\n"
+    "\t\tu8 s3_9e_before = 0, s3_9e_after = 0, s3_9e_rb = 0xFF;\n"
+    "\t\tint s3_9d_ok, s3_9e_ok, s3_9_skip = 0, s3_9_wr = 0;\n"
+    "\t\ts3_9d_ok = (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9d_before) == 0);\n"
+    "\t\ts3_9e_ok = (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9e_before) == 0);\n"
+    "\t\tif (s3_9d_ok) {\n"
+    "\t\t\ts3_9d_after = (u8)(s3_9d_before & (u8)~0x08U);\n"
+    "\t\t\ts3_9_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x301D, (char)s3_9d_after);\n"
+    "\t\t\tif (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9d_rb) != 0) { s3_9d_rb = 0xFF; }\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_9d_before = 0xFF; s3_9d_after = 0xFF; s3_9d_rb = 0xFF; s3_9_skip = 1;\n"
+    "\t\t\txil_printf(\"S3_DIAG9_FIX_SKIPPED reg=301D reason=read_failed\\r\\n\");\n"
+    "\t\t}\n"
+    "\t\tif (s3_9e_ok) {\n"
+    "\t\t\tif ((s3_9e_before & 0x02U) != 0U) {\n"
+    "\t\t\t\ts3_9e_after = (u8)(s3_9e_before & (u8)~0x02U);\n"
+    "\t\t\t\ts3_9_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x301E, (char)s3_9e_after);\n"
+    "\t\t\t\tif (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9e_rb) != 0) { s3_9e_rb = 0xFF; }\n"
+    "\t\t\t} else {\n"
+    "\t\t\t\ts3_9e_after = s3_9e_before; s3_9e_rb = s3_9e_before;\n"
+    "\t\t\t\txil_printf(\"S3_DIAG9_FIX_SKIP_301E=1 reason=bit1_already_0_no_write\\r\\n\");\n"
+    "\t\t\t}\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_9e_before = 0xFF; s3_9e_after = 0xFF; s3_9e_rb = 0xFF; s3_9_skip = 1;\n"
+    "\t\t\txil_printf(\"S3_DIAG9_FIX_SKIPPED reg=301E reason=read_failed\\r\\n\");\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG9_FIX=301D before=0x%02X after=0x%02X readback=0x%02X 301E before=0x%02X after=0x%02X readback=0x%02X write_status=%d\\r\\n\",\n"
+    "\t\t\ts3_9d_before, s3_9d_after, s3_9d_rb, s3_9e_before, s3_9e_after, s3_9e_rb,\n"
+    "\t\t\ts3_9_skip ? -2 : s3_9_wr);\n"
+    "\t}\n"
+    "#endif\n"
+    "#if S3_DVP_ORDER_DEBUG\n"
+    "\t{\n"
+    "\t\tu8 s3_9o_before = 0, s3_9o_after = 0, s3_9o_rb = 0xFF;\n"
+    "\t\tint s3_9o_wr = 0;\n"
+    "\t\tif (s3_diag5_i2c_read16(0x3C, 0x4745, &s3_9o_before) == 0) {\n"
+    "\t\t\ts3_9o_after = (u8)((s3_9o_before & (u8)~0x06U) | 0x04U);\n"
+    "\t\t\ts3_9o_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_after);\n"
+    "\t\t\tif (s3_diag5_i2c_read16(0x3C, 0x4745, &s3_9o_rb) != 0) { s3_9o_rb = 0xFF; }\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_9o_before = 0xFF; s3_9o_after = 0xFF; s3_9o_rb = 0xFF; s3_9o_wr = -2;\n"
+    "\t\t\txil_printf(\"S3_DIAG9_ORDER_SKIPPED reason=0x4745_read_failed\\r\\n\");\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG9_ORDER_WR=4745 before=0x%02X after=0x%02X readback=0x%02X write_status=%d\\r\\n\",\n"
+    "\t\t\ts3_9o_before, s3_9o_after, s3_9o_rb, s3_9o_wr);\n"
+    "\t\txil_printf(\"S3_DIAG9_ORDER=NOT_RESTORED no_auto_restore=1 (restore: reload minimal-change ELF or reset sensor)\\r\\n\");\n"
+    "\t}\n"
+    "#else\n"
+    "\txil_printf(\"S3_DIAG9_ORDER=OFF (0x4745 unchanged)\\r\\n\");\n"
+    "#endif\n"
+)
+
+if V8_WRITE_INIT_NEW.count(_V7_WRITE_INIT_ANCHOR) != 1:
+    print("V9_WRITE_INIT_ANCHOR_NOT_UNIQUE")
+    sys.exit(2)
+# 插在 v8 的手动白平衡块之后、15 s 等待之前
+# → 顺序：测试图 → AWB 关 → 手动增益 → 端口 select 写测试 → 输出顺序写测试 → 等待 → 启动 S2MM
+V9_WRITE_INIT_NEW = V8_WRITE_INIT_NEW.replace(_V7_WRITE_INIT_ANCHOR, V9_WRITE_BLOCK + _V7_WRITE_INIT_ANCHOR)
+
+# S3_DIAG5_SENS 打印块（v5~v9 共用）的结尾：v7 起在其后追加 AWB 回读块
 V5_SENS_ARGS_TAIL = (
     "\t\t\ts3_4202, s3_3008, s3_4740, s3_3035v, s3_3034v, s3_4300v, s3_501fv, s3_3824v, s3_503dv);\n"
     "\t}\n"
 )
+# S3_DIAG7_ISP_B 打印块（v7~v9 共用）的结尾：v9 在其后追加 DVP 端口回读块
+V7_ISP_B_TAIL = (
+    "\t\txil_printf(\"S3_DIAG7_ISP_B=5586..558B=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\\r\\n\",\n"
+    "\t\t\ts3_5586, s3_5587, s3_5588, s3_5589, s3_558a, s3_558b);\n"
+    "\t}\n"
+)
 
-if VARIANT in ("v5", "v6", "v7", "v8"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9"):
     # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；各变体用各自的采样段）
     write_init_new = {
         "v5": V5_WRITE_INIT_NEW,
         "v6": V6_WRITE_INIT_NEW,
         "v7": V7_WRITE_INIT_NEW,
         "v8": V8_WRITE_INIT_NEW,
+        "v9": V9_WRITE_INIT_NEW,
     }[VARIANT]
     insertions = [
         (old, write_init_new) if old.startswith("\tvdma_write_init(") else (old, new)
@@ -618,19 +749,24 @@ if VARIANT in ("v5", "v6", "v7", "v8"):
         (V5_DIAG3_OLD, V5_DIAG3_NEW),
         (V5_RETURN_OLD, V5_RETURN_NEW),
     ]
-    if VARIANT in ("v6", "v7", "v8"):
+    if VARIANT in ("v6", "v7", "v8", "v9"):
         insertions += [
             (V6_INCLUDE_OLD, V6_INCLUDE_NEW),
             ("int main(void)\n{", V6_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT in ("v7", "v8"):
+    if VARIANT in ("v7", "v8", "v9"):
         insertions += [
             ("int main(void)\n{", V7_HELPERS + "int main(void)\n{"),
             (V5_SENS_ARGS_TAIL, V5_SENS_ARGS_TAIL + V7_AWB_READBACK),
         ]
-    if VARIANT == "v8":
+    if VARIANT in ("v8", "v9"):
         insertions += [
             ("int main(void)\n{", V8_HELPERS + "int main(void)\n{"),
+        ]
+    if VARIANT == "v9":
+        insertions += [
+            ("int main(void)\n{", V9_HELPERS + "int main(void)\n{"),
+            (V7_ISP_B_TAIL, V7_ISP_B_TAIL + V9_PAD_READBACK),
         ]
 
 for old, new in insertions:
@@ -691,7 +827,7 @@ print(f"VERIFY_HAS_APP_ENTER={'S3_DIAG_APP_ENTER' in verify_text}")
 print(f"VERIFY_HAS_SENSOR_ID={'S3_DIAG_SENSOR_ID' in verify_text}")
 print(f"VERIFY_HAS_DISPLAY_START={'S3_DIAG_DISPLAY_START' in verify_text}")
 print(f"VERIFY_HAS_VDMA_WRITE={'S3_DIAG_VDMA_WRITE_STARTED' in verify_text}")
-if VARIANT in ("v5", "v6", "v7", "v8"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9"):
     print(f"VERIFY_HAS_D5_REG={'S3_DIAG5_REG' in verify_text}")
     print(f"VERIFY_HAS_D5_SR_DECODE={'S3_DIAG5_SR_DECODE' in verify_text}")
     print(f"VERIFY_HAS_D5_CFG={'S3_DIAG5_CFG' in verify_text}")
@@ -704,7 +840,7 @@ if VARIANT == "v5":
     print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
     print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
     print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
-if VARIANT in ("v6", "v7", "v8"):
+if VARIANT in ("v6", "v7", "v8", "v9"):
     print(f"VERIFY_HAS_D6_ALGO={'S3_DIAG6_ALGO=sum32+crc32(0xEDB88320)' in verify_text}")
     print(f"VERIFY_HAS_D6_FP={'S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u' in verify_text}")
     print(f"VERIFY_HAS_D6_SR={'S3_DIAG6_SR t=%u S2MM_SR=0x%08X' in verify_text}")
@@ -716,7 +852,7 @@ if VARIANT in ("v6", "v7", "v8"):
     print(f"VERIFY_HAS_D6_INV64K={'Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES)' in verify_text}")
     print(f"VERIFY_HAS_XTIME={'#include \"xtime_l.h\"' in verify_text}")
     print(f"VERIFY_NO_D5_SAMPLING={'S3_DIAG5_SAMPLE=%d' not in verify_text}")
-if VARIANT in ("v7", "v8"):
+if VARIANT in ("v7", "v8", "v9"):
     print(f"VERIFY_HAS_D7_AWB={'S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AE={'S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_ISP_A={'S3_DIAG7_ISP_A=5580..5585=' in verify_text}")
@@ -727,7 +863,7 @@ if VARIANT in ("v7", "v8"):
     print(f"VERIFY_HAS_D7_AWB_OFF_OFFLINE={'S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_VERIFY={'S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_SKIP={'S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed' in verify_text}")
-if VARIANT == "v8":
+if VARIANT in ("v8", "v9"):
     print(f"VERIFY_HAS_D8_SWITCH={'#if S3_WB_MANUAL' in verify_text and '#define S3_WB_MANUAL 0' in verify_text}")
     print(f"VERIFY_HAS_D8_DEFAULTS={'#define S3_WB_R 1024' in verify_text and '#define S3_WB_G 1024' in verify_text and '#define S3_WB_B 1024' in verify_text}")
     print(f"VERIFY_HAS_D8_3406_ENABLE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x3406, 0x01)' in verify_text}")
@@ -735,6 +871,19 @@ if VARIANT == "v8":
     print(f"VERIFY_HAS_D8_WB_LINE={'S3_DIAG8_WB=MANUAL R=0x%04X G=0x%04X B=0x%04X before3406=0x%02X after3406=0x%02X readback3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_RB_LINE={'S3_DIAG8_WB_RB rb_r16=0x%04X rb_g16=0x%04X rb_b16=0x%04X match=%u,%u,%u write_status=%d' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_OFFLINE={'S3_DIAG8_WB=OFF (auto AWB unchanged)' in verify_text}")
+if VARIANT == "v9":
+    print(f"VERIFY_HAS_D9_PAD_LINE={'S3_DIAG9_PAD=3017=0x%02X 3018=0x%02X 301D=0x%02X 301E=0x%02X 300A=0x%02X 300B=0x%02X 4741=0x%02X 4745=0x%02X 4300=0x%02X 501F=0x%02X S3_DIAG9_D9SEL=%u D6SEL=%u' in verify_text}")
+    print(f"VERIFY_HAS_D9_SWITCHES={'#ifndef S3_PAD_SEL_CLEAR' in verify_text and '#define S3_PAD_SEL_CLEAR 0' in verify_text and '#ifndef S3_DVP_ORDER_DEBUG' in verify_text and '#define S3_DVP_ORDER_DEBUG 0' in verify_text}")
+    print(f"VERIFY_HAS_D9_FIX_LINE={'S3_DIAG9_FIX=301D before=0x%02X after=0x%02X readback=0x%02X 301E before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
+    print(f"VERIFY_HAS_D9_FIX_WRITE_301D={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x301D, (char)s3_9d_after)' in verify_text}")
+    print(f"VERIFY_HAS_D9_FIX_WRITE_301E={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x301E, (char)s3_9e_after)' in verify_text}")
+    print(f"VERIFY_HAS_D9_FIX_SKIPS={'S3_DIAG9_FIX_SKIPPED reg=301D reason=read_failed' in verify_text and 'S3_DIAG9_FIX_SKIP_301E=1 reason=bit1_already_0_no_write' in verify_text}")
+    print(f"VERIFY_HAS_D9_ORDER_WR={'S3_DIAG9_ORDER_WR=4745 before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
+    print(f"VERIFY_HAS_D9_ORDER_WRITE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_after)' in verify_text}")
+    print(f"VERIFY_HAS_D9_NOT_RESTORED={'S3_DIAG9_ORDER=NOT_RESTORED' in verify_text}")
+    print(f"VERIFY_HAS_D9_ORDER_OFFLINE={'S3_DIAG9_ORDER=OFF (0x4745 unchanged)' in verify_text}")
+    print(f"VERIFY_HAS_D9_NO_RESTORE_CODE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_before)' not in verify_text}")
+    print(f"VERIFY_HAS_D9_D9SEL_UNKNOWN={'s3_9_d9 = 255U' in verify_text and 's3_9_d6 = 255U' in verify_text}")
 print(f"PATCH_LINES={len(diff.splitlines())}")
 print(f"PATCH_SHA256={hashlib.sha256(OUT_PATCH.read_bytes()).hexdigest()}")
 print(f"VERIFY_DISPLAY_DEMO_SHA256={hashlib.sha256((VERIFY / FILE).read_bytes()).hexdigest()}")

@@ -1,0 +1,41 @@
+# S3-T05-SW5 v9：3 个 ELF 的编译行与哈希证据（2026-10-21 21:43:42 +0800）
+
+## 1) 编译行（原文，取自各自构建日志）
+--- an5642_j11cmos2_v9_read.elf（标准入口 run_stage3_vitis_elf.cmd，未带 -D；见第 4 节证明其等于显式 -D 版本）
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v9_padclear.elf
+arm-none-eabi-gcc -O2 -c -DS3_PAD_SEL_CLEAR=1 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v9_orderdbg.elf
+arm-none-eabi-gcc -O2 -c -DS3_DVP_ORDER_DEBUG=1 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+
+## 2) 三个交付 ELF 的 SHA-256 与字节数
+b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf
+    bytes=306272
+5debc927bafab7492616c6d6280681fa294eb8358e07e33c09aa4ffb02cefbbc */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_padclear.elf
+    bytes=306272
+eeadef6f370c0318f6d68fb69474958cd119072a8bf792da84ff1ff10ba12e4b */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_orderdbg.elf
+    bytes=306272
+
+## 3) 开关生效（ELF 内字符串，互斥分支）
+an5642_j11cmos2_v9_read.elf          PAD_LINE=1 FIX_LINE=0 FIX_SKIPPED=0 ORDER_WR=0 NOT_RESTORED=0 ORDER_OFF=1
+an5642_j11cmos2_v9_padclear.elf      PAD_LINE=1 FIX_LINE=1 FIX_SKIPPED=1 ORDER_WR=0 NOT_RESTORED=0 ORDER_OFF=1
+an5642_j11cmos2_v9_orderdbg.elf      PAD_LINE=1 FIX_LINE=0 FIX_SKIPPED=0 ORDER_WR=1 NOT_RESTORED=1 ORDER_OFF=0
+预期：read 只有 PAD_LINE + ORDER_OFF；padclear 有 PAD_LINE + FIX_LINE + FIX_SKIPPED + ORDER_OFF；
+      orderdbg 有 PAD_LINE + ORDER_WR + NOT_RESTORED（无 FIX_*、无 ORDER_OFF）
+
+## 4) 显式 -D 的 read 版本与官方 read ELF 逐字节相同（证明默认值 = PAD_SEL_CLEAR 0 / DVP_ORDER_DEBUG 0）
+编译行：arm-none-eabi-gcc -O2 -c -DS3_PAD_SEL_CLEAR=0 -DS3_DVP_ORDER_DEBUG=0 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf
+b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read_dfo.elf
+RESULT: READ_IDENTICAL_TO_DFO=1（同一份字节）
+
+## 5) ELF 里存在的 S3_DIAG9 打印标签
+an5642_j11cmos2_v9_read.elf          S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_PAD 
+an5642_j11cmos2_v9_padclear.elf      S3_DIAG9_D9SEL S3_DIAG9_FIX S3_DIAG9_FIX_SKIP_301E S3_DIAG9_FIX_SKIPPED S3_DIAG9_ORDER S3_DIAG9_PAD 
+an5642_j11cmos2_v9_orderdbg.elf      S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_ORDER_SKIPPED S3_DIAG9_ORDER_WR S3_DIAG9_PAD 
+
+## 6) 关键寄存器立即数（objdump，0x301D=12317 / 0x301E=12318 / 0x4745=18245）
+an5642_j11cmos2_v9_read.elf                1 #12317       1 #12318       1 #18245 
+an5642_j11cmos2_v9_padclear.elf            4 #12317       4 #12318       1 #18245 
+an5642_j11cmos2_v9_orderdbg.elf            1 #12317       1 #12318       4 #18245 
+（三个 ELF 都读这三个寄存器，故立即数都会出现；写入路径的有无由第 3 节的字符串证据判定）

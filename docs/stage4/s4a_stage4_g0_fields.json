@@ -1,0 +1,500 @@
+{
+  "schema_version": "gestureforge_s4a_stage4_g0_draft_v1",
+  "status": "DRAFT_NOT_FROZEN",
+  "task_id": "S4-A",
+  "created_utc8": "2026-10-21T21:43:00+08:00",
+  "revision_note": "r02：按 rev-spec 独立审查（CHANGES_REQUIRED）修复 F4/F5/F6/F7/F8/F9/F10/F11/F12/F13；字段名集合与必填性/冻结标注未变。",
+  "scope": "阶段4 离线 G0 草案：结果记录字段、时间口径与异常记录口径。本文件是草案，不是阶段4 G0 冻结、不是阶段4 验收；不产生板上或实物结论。上游 2A 冻结常量原样引用，未冻结值一律标注 DRAFT_PROPOSED。",
+  "human_doc": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
+  "field_annotation_definitions": {
+    "required": "true 表示该字段在任何一条结果记录中都必须出现（可以是缺值哨兵，但字段本身不得省略）。",
+    "frozen_by_2a": "true 表示该字段（或其在 2A 中对应的量）已在 2A 冻结对象中定义，阶段4 必须原样沿用、不得重新定义；false 表示字段本身由阶段4 定义，仅当其取值受 2A 比较要求约束时在 field_semantics_note 中显式说明。",
+    "boundary_cases_of_frozen_by_2a": {
+      "geometry": "true：原图 width/height 是 D9 补边逆映射的冻结输入（2A 规格第 77 行、样本清单逐项 width/height）。",
+      "detection_count": "false：字段本身由阶段4 定义；但其取值受 2A 规格第 75 行『检测数必须完全相同』约束，且不得超过 2A 冻结的每图 15 框上限。"
+    }
+  },
+  "upstream_bindings": [
+    {
+      "id": "s2a_t01_spec",
+      "role": "2A G0 冻结规格（PS/PL 控制、张量、解码/NMS 语义与比较容限）",
+      "path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+      "status": "G0_FROZEN"
+    },
+    {
+      "id": "s2a_t01_model_manifest",
+      "role": "tiny416 机器清单：38 层形状/scale/地址、两头布局与 length_bytes/int8_scale、detection_postprocess（阈值/NMS/上限/类别顺序）、CSR/memory 协议",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "status": "G0_FROZEN"
+    },
+    {
+      "id": "s2a_t01_fixed_test_samples",
+      "role": "109 个固定整网输入清单（frame_id 0..108、原图 width/height、pl_input_sha256）",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\fixed_test_samples.json",
+      "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "status": "G0_FROZEN"
+    },
+    {
+      "id": "s2a_t25_layer_golden_index",
+      "role": "109×38 逐层 CPU 整数张量索引；逐样本层流摘要位于 samples[i].network.raw_stream_sha256，逐张量摘要字段为 tensors[j].tensor_sha256，逐张量 byte_offset/byte_length 亦在 tensors[j]",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json",
+      "sha256": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "status": "COMPLETE"
+    },
+    {
+      "id": "s2a_t25_shard_recovery_manifest",
+      "role": "T25 分片恢复清单（sample_count/total_bytes 与逐片 SHA-256）；分片计数与完整性的上游依据",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\t25_shard_recovery_manifest_20261002.json",
+      "sha256": "5352b2ef6edb8f40bb1e635aaa1337556171937db176db841fb044406657d0d9",
+      "status": "RECOVERY_MANIFEST"
+    },
+    {
+      "id": "s2a_t25_tensor_shards",
+      "role": "逐样本 zlib 层流分片（109 个）；只存在于主树，git worktree 未物化，只读引用",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors",
+      "pattern": "sample_NNN.zlib (NNN=000..108)",
+      "file_count": 109,
+      "total_bytes": 390700998,
+      "count_authority": "s2a_t25_shard_recovery_manifest",
+      "status": "READ_ONLY_REFERENCE"
+    },
+    {
+      "id": "s2a_t29_cpu_decode_nms_reference",
+      "role": "109 样本 CPU D9 解码/NMS 参考框、两头 tensor_sha256 与 int8_scale",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+      "sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "status": "CPU_REFERENCE_GENERATED"
+    },
+    {
+      "id": "s1_t02_d9_decoder",
+      "role": "2A 冻结 D9 解码/NMS 参考实现（decode_yolov4_tiny416）",
+      "path": "verification/s1_t02_d9_yolo_decode.py",
+      "sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    {
+      "id": "s1_t02_d6_metrics",
+      "role": "D9 依赖：Prediction/stable_nms/类别顺序/MAX_OUTPUTS",
+      "path": "verification/s1_t02_d6_detection_metrics.py",
+      "sha256": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a"
+    },
+    {
+      "id": "s2b_uart_transport",
+      "role": "2B UART 运输接口（仅接口定义冻结；2B 尚未最终验收）。阶段4 复用其帧结构，正文不得由本阶段修改",
+      "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_board_transport.md",
+      "version": "s2bu/1.1",
+      "status": "G0_FROZEN_ONLY_DEFINITION",
+      "sha256": null,
+      "sha_note": "该正文由 2B 总控维护；阶段4 不复制、不冻结其哈希，仅在 2B 变更时做适用回归"
+    },
+    {
+      "id": "s2b_physical_interface",
+      "role": "2B PS/PL 物理接口（仅接口定义冻结）",
+      "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_physical_interface_candidate.md",
+      "version": "s2b-physical/1.0.0",
+      "status": "G0_FROZEN_ONLY_DEFINITION",
+      "sha256": null,
+      "sha_note": "同 s2b_uart_transport"
+    }
+  ],
+  "frozen_2a_constants": {
+    "authority": "s2a_t01_model_manifest.detection_postprocess / address_map.heads 与 s2a_t01_spec；自检脚本必须从上游文件读取并比对，不得只与脚本内副本比对",
+    "model_id": "tiny416",
+    "classes": ["fist", "palm", "one", "two_up", "three"],
+    "class_order_note": "class_id 0..4 严格按此顺序，不得重排",
+    "network_input_wh": [416, 416],
+    "input_dtype": "signed int8 two's complement, NCHW contiguous",
+    "score_threshold": 0.25,
+    "score_threshold_rule": "score >= 0.25（含等号）",
+    "nms_iou": 0.45,
+    "nms_rule": "类别内 greedy NMS，跨类别不抑制；先按分数稳定排序截断到 15 个，再执行 NMS",
+    "max_outputs_per_image": 15,
+    "score_definition": "score = sigmoid(objectness_logit) * sigmoid(class_logit)",
+    "coordinate_policy": "D2 整数截断 resize + 左上 floor padding 逆映射；逐边裁剪到 [0,1]；裁剪后零面积丢弃",
+    "tie_order": "head 顺序 → row-major cell → anchor-local 顺序 → class_id",
+    "head13": {"shape_nchw": [1, 30, 13, 13], "byte_length": 5070, "int8_scale": 0.24267549589862975},
+    "head26": {"shape_nchw": [1, 30, 26, 26], "byte_length": 20280, "int8_scale": 0.30223452951025775},
+    "head_layout": "查看时 reshape 为 [anchor=3, entry=10, row, col]；entry 顺序 x,y,w,h,objectness,class0..class4",
+    "frame_id_semantics": "PL 侧 u32 不透明值：PS 在 idle 写入 FRAME_ID，PL 接受 start 时锁存并随 done 原样回传；PL 不解释该值",
+    "csr_error_codes": {
+      "NONE": 0,
+      "BAD_ARGUMENT": 1,
+      "BAD_RANGE": 2,
+      "BAD_LENGTH": 3,
+      "UNSUPPORTED_OP": 4,
+      "TIMEOUT": 5,
+      "INTERNAL": 6,
+      "ACCUMULATOR_OVERFLOW": 7
+    },
+    "comparison_tolerance": {
+      "discrete_fields": "必须完全相同（框数、class_id、class_name、source_order）",
+      "score_abs_tolerance": 1e-06,
+      "xyxy_abs_tolerance_per_component": 1e-06,
+      "relative_tolerance": 0,
+      "source": "S2A-T01 规格第 75 行"
+    }
+  },
+  "result_record": {
+    "description": "阶段4 每条推理结果的一条记录。字段名对 S4-B UART 侧与 S4-C 对拍侧均为权威命名。",
+    "absent_value_policy": {
+      "rule": "任何一条结果记录都必须包含 result_record.fields 的全部字段（required 全为 true）。当 state 表示无结果时，用下表哨兵值填充，字段本身不得省略、不得沿用上一帧的值、不得出现负数。",
+      "sentinel_zero_means_unobserved": "0 表示『未观测/不适用』，不是 1970 时刻、也不是合法耗时；读取方必须先按 state 判别，再决定 0 是否可解释为数值。",
+      "by_state": {
+        "OK": {
+          "capture_time_ns": "真实采集时刻",
+          "result_time_ns": "真实结果可用时刻",
+          "inference_time_ns": "真实 PL 任务窗口耗时（>0）",
+          "end_to_end_latency_ns": "result_time_ns - capture_time_ns（>0）",
+          "candidate_count": "阈值筛除前真实原始候选数",
+          "candidate_overflow": "真实溢出标志",
+          "dropped_frames": "真实缺失帧数（可为 0）",
+          "stale": "按 stale 定义域计算",
+          "error_code": 0
+        },
+        "NO_HAND": {
+          "same_as": "OK",
+          "note": "detection_count=0、detections=[]，但全部时间字段必须为真实测量值；无手是合法成功结果，不是缺值"
+        },
+        "TIMEOUT": {
+          "capture_time_ns": "真实采集时刻",
+          "result_time_ns": "0（无可用结果）",
+          "inference_time_ns": "实际测量到的 PL 窗口耗时（>0）",
+          "end_to_end_latency_ns": "0（无 result_time，不得用负数或沿用其它帧）",
+          "candidate_count": "已观测到的原始候选数；未观测为 0",
+          "candidate_overflow": "仅在已观测到超限时为 true",
+          "dropped_frames": "真实缺失帧数",
+          "stale": false,
+          "error_code": 5
+        },
+        "ERROR": {
+          "capture_time_ns": "真实采集时刻",
+          "result_time_ns": "0",
+          "inference_time_ns": "若 PL 已接受 start 则为实测窗口耗时（>0），否则 0",
+          "end_to_end_latency_ns": "0",
+          "candidate_count": "已观测到的原始候选数；未观测为 0",
+          "candidate_overflow": "仅在已观测到超限时为 true",
+          "dropped_frames": "真实缺失帧数",
+          "stale": false,
+          "error_code": "非 0 且非 5（见 csr_error_codes）"
+        },
+        "DROPPED": {
+          "capture_time_ns": "若采集事实已知则为真实采集时刻，否则 0",
+          "result_time_ns": 0,
+          "inference_time_ns": 0,
+          "end_to_end_latency_ns": 0,
+          "candidate_count": 0,
+          "candidate_overflow": false,
+          "dropped_frames": "该 DROPPED 行自身不计入 dropped_frames（见 anomaly_accounting.drop_frame.mutual_exclusion）",
+          "stale": false,
+          "error_code": 0,
+          "detections": "[]",
+          "detection_count": 0
+        }
+      }
+    },
+    "fields": [
+      {
+        "name": "frame_id",
+        "type": "uint32",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": true,
+        "field_semantics_note": "对 PL 不透明；连续分配约定是 PS/采集侧约定，见 anomaly_accounting.frame_id_allocation",
+        "semantics": "与送入 PL 的输入张量同批提交的帧标识，PL 原样回传；同一帧的采集侧与结果侧必须使用同一值；不解释、不重编号、不当作序号"
+      },
+      {
+        "name": "result_seq",
+        "type": "uint32",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": false,
+        "field_semantics_note": "拒绝 0xFFFFFFFF 回绕；与 s2bu/1.1 的运输 sequence 不同，后者是请求/响应配对序号",
+        "semantics": "PS 结果记录本地单调递增序号（从 1 起）；用于识别重复/乱序，不替代 frame_id；丢帧判定使用 frame_id 而非本字段"
+      },
+      {
+        "name": "geometry",
+        "type": "object{width:uint32,height:uint32}",
+        "unit": "原始图像像素",
+        "required": true,
+        "frozen_by_2a": true,
+        "field_semantics_note": "见 field_annotation_definitions.boundary_cases_of_frozen_by_2a.geometry",
+        "semantics": "该帧原图尺寸，是补边逆映射与显示逆映射的唯一基准。注意顺序固定为 width,height"
+      },
+      {
+        "name": "state",
+        "type": "enum",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "结果状态，取值见 state_enum。OK=推理成功且有框；NO_HAND=推理成功、阈值与 NMS 后零框（无手=零框）；TIMEOUT=PL 期限超时；ERROR=其他 PL/memory/协议错误；DROPPED=采集到但未产生结果"
+      },
+      {
+        "name": "detection_count",
+        "type": "uint32",
+        "unit": "框",
+        "required": true,
+        "frozen_by_2a": false,
+        "field_semantics_note": "见 field_annotation_definitions.boundary_cases_of_frozen_by_2a.detection_count",
+        "semantics": "必须恒等于 detections 数组长度；NO_HAND 与任何失败状态必须为 0；不得超过 max_outputs_per_image=15"
+      },
+      {
+        "name": "detections",
+        "type": "array<detection_record>",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": true,
+        "field_semantics_note": "无结果状态必须为空数组 []，不得省略字段",
+        "semantics": "已执行阈值、稳定排序截断与类别内 NMS 之后的框列表，顺序即 D9 输出顺序"
+      },
+      {
+        "name": "candidate_count",
+        "type": "uint32",
+        "unit": "候选",
+        "required": true,
+        "frozen_by_2a": false,
+        "field_semantics_note": "对应 s2bu/1.1 响应元数据的 raw_candidate_count 字段名；该字段的语义在上游正文中未定义（见 uart_mapping.raw_candidate_count_semantics）",
+        "semantics": "阶段4 定义为阈值筛除前的原始候选数（未观测时为 0 哨兵，须结合 state 判别）。用于区分模型漏检/误检与阈值行为"
+      },
+      {
+        "name": "candidate_overflow",
+        "type": "bool",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "candidate_count 超过候选缓冲上限时为 true，且此时候选框已按分数稳定排序截断到上限；必须显式记录，不得静默丢弃"
+      },
+      {
+        "name": "capture_time_ns",
+        "type": "uint64",
+        "unit": "ns（PS 单调时基）",
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "该帧采集起点：采集到的第一个有效像素（或等价的帧起始事件）时刻；无观测时为 0 哨兵"
+      },
+      {
+        "name": "result_time_ns",
+        "type": "uint64",
+        "unit": "ns（同一 PS 单调时基）",
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "该帧结果可用时刻：解码/NMS 完成、结果记录可发布（可开始 UART 发送）的时刻；无结果为 0 哨兵"
+      },
+      {
+        "name": "inference_time_ns",
+        "type": "uint64",
+        "unit": "ns",
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "PL 任务窗口耗时，定义见 timing_definitions.inference_time；不得用它冒充端到端延迟；无观测时按 absent_value_policy.by_state 取值"
+      },
+      {
+        "name": "end_to_end_latency_ns",
+        "type": "uint64",
+        "unit": "ns",
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "端到端延迟 = result_time_ns - capture_time_ns，仅当两者均为真实观测值时有定义；否则为 0 哨兵（不得为负数、不得沿用上一帧）。定义见 timing_definitions.end_to_end_latency"
+      },
+      {
+        "name": "dropped_frames",
+        "type": "uint32",
+        "unit": "帧",
+        "required": true,
+        "frozen_by_2a": false,
+        "semantics": "相对上一条结果丢失的采集帧数（丢帧口径见 anomaly_accounting.drop_frame）。必须显式累计，不得静默跳过"
+      },
+      {
+        "name": "stale",
+        "type": "bool",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": false,
+        "field_semantics_note": "定义域见 anomaly_accounting.stale_result.domain：仅 state ∈ {OK, NO_HAND} 有意义，其余状态恒为 false",
+        "semantics": "结果年龄超过声明上限时为 true；与 state 正交（正交指两者独立取值，不改变 stale 的定义域）。stale 结果仍保留并携带 detections 供追溯，但显示层不得当作同帧结果"
+      },
+      {
+        "name": "error_code",
+        "type": "uint32",
+        "unit": null,
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "沿用 2A CSR ERROR_CODE 语义（0..7，见 frozen_2a_constants.csr_error_codes）；成功与无手必须为 0"
+      }
+    ]
+  },
+  "detection_record": {
+    "description": "单个检测框。坐标一律以归一化原图坐标为主口径（2A 冻结），像素坐标为派生显示用值。",
+    "fields": [
+      {
+        "name": "class_id",
+        "type": "uint32",
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "0..4，严格按 classes 顺序"
+      },
+      {
+        "name": "class_name",
+        "type": "string",
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "fist|palm|one|two_up|three"
+      },
+      {
+        "name": "score",
+        "type": "float64",
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "sigmoid(objectness)*sigmoid(class)。显示与报告一律称“分数（score）”，不得称“置信度”"
+      },
+      {
+        "name": "xyxy",
+        "type": "array<float64>[4]",
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "归一化原图坐标 [x1,y1,x2,y2]，含补边逆映射，已裁剪到 [0,1]，正面积"
+      },
+      {
+        "name": "xyxy_px",
+        "type": "array<float64>[4]",
+        "required": false,
+        "frozen_by_2a": false,
+        "semantics": "派生显示字段 = xyxy * [geometry.width, geometry.height]。仅为显示/布局使用，不作为对拍口径，不得反向替代 xyxy。本字段是唯一 required=false 的字段：缺省表示未派生，不等于 0 哨兵"
+      },
+      {
+        "name": "source_order",
+        "type": "uint32",
+        "required": true,
+        "frozen_by_2a": true,
+        "semantics": "D9 稳定 tie 顺序下的候选序号（head 顺序→row-major cell→anchor-local→class_id）"
+      }
+    ]
+  },
+  "state_enum": {
+    "OK": "PL 成功、阈值与 NMS 后 detection_count >= 1；时间字段均为真实观测值",
+    "NO_HAND": "PL 成功、阈值与 NMS 后 detection_count == 0（无手=零框，是合法成功结果，不是错误，不计入丢帧）",
+    "TIMEOUT": "PL 期限到期中止（error_code=5/TIMEOUT），detections=[] 且 detection_count=0",
+    "ERROR": "其他 PL/memory/协议/数值错误（error_code 非 0 且非 5），detections=[] 且 detection_count=0",
+    "DROPPED": "采集侧存在该帧但未产生结果（入队/搬运/会话失败等）；detections=[]、detection_count=0；该 DROPPED 行与 dropped_frames 的互斥关系见 anomaly_accounting.drop_frame.mutual_exclusion",
+    "field_values_when_not_ok": "TIMEOUT/ERROR/DROPPED 下所有 required 字段的取值见 result_record.absent_value_policy.by_state；字段不得省略，缺值用 0 哨兵并以 state 判别"
+  },
+  "timing_definitions": {
+    "inference_time": {
+      "field": "inference_time_ns",
+      "start_event": "CSR 接受有效 start 的上升沿（PL busy 置 1、取得 buffer 所有权）",
+      "end_event": "operator_result_valid 单周期脉冲且 operator_error_code=0（PL 提交 done）",
+      "includes": ["PL 内部算子计算", "PL 对 memory 的 feature/head 读写与停顿周期"],
+      "excludes": ["PS 侧预处理/量化", "输入与权重装载", "PS 侧解码/NMS", "UART 发送", "结果排队/显示"],
+      "notes": "本窗口是 2A CSR busy 窗口的近似：2A 规格第 46 行规定 busy 要写完两头与 FRAME_ID 才清，而本终点取 operator_result_valid=0（第 67 行）；若按 STATUS.busy 门控实测，实测窗口可能略宽。本阶段不声称两者逐周期等价，实测门控方法待 G0 冻结。"
+    },
+    "end_to_end_latency": {
+      "field": "end_to_end_latency_ns",
+      "start_event": "capture_time_ns：该帧第一个有效像素（或等价帧起始事件）",
+      "end_event": "result_time_ns：该 frame 解码/NMS 完成、结果记录可发布（可开始 UART 发送）",
+      "includes": ["采集", "缩放/补边/颜色/量化预处理", "输入搬运", "PL 推理（含 inference_time）", "PS 解码/NMS", "结果排队"],
+      "excludes": ["UART 传输完成时刻之后的显示延迟（属阶段5 口径）", "阶段5 显示发布时刻"],
+      "rule": "必须与 inference_time 分别测量与分别报告；不得用 inference_time 冒充端到端延迟；两者必须同一 PS 单调时基",
+      "defined_only_when": "仅当 capture_time_ns 与 result_time_ns 均为真实观测值（state ∈ {OK, NO_HAND}）时有定义；否则取 0 哨兵"
+    },
+    "measurement_basis": {
+      "timebase": "PS 侧同一单调计数器（建议 CPU 全局定时器，频率与 COUNTS_PER_SECOND 需在 G0 冻结）；PL 窗口端点由 PS 侧门控观测，跨域测量方法待 G0 冻结",
+      "fps_definitions": ["采集 FPS", "推理 FPS", "显示 FPS（阶段5）分别定义，不得互相替代", "预热、丢帧、超时不得隐藏"]
+    }
+  },
+  "anomaly_accounting": {
+    "frame_id_allocation": {
+      "rule": "同一会话内，PS 采集侧对每个被采集/入队的帧按 +1 递增分配 frame_id（从 1 起）；离线回放沿用 2A 固定样本的 frame_id 0..108",
+      "source": "连续性来自 PS/运输侧约定（s2bu/1.1 第 49 行『响应 frame 为请求 frame+index』）与 2A 固定样本清单；PL 侧不承担该约定，对 PL 仍是任意 u32 不透明值",
+      "consequence": "丢帧判定依赖 PS 侧连续分配；若采集源本身会跳号（非连续分配），必须显式声明实际分配规则，否则丢帧统计无效"
+    },
+    "drop_frame": {
+      "rule": "同一 frame_id 序列中 frame_id 不连续即计为丢帧；dropped_frames = 本结果相对上一已发布结果的缺失帧数",
+      "mutual_exclusion": "若某缺失帧已单独发布一条 state=DROPPED 记录，则该帧不再计入后续结果的 dropped_frames；dropped_frames 只统计既无结果、也无 DROPPED 记录的缺失帧。每个缺失帧恰好被计数一次，不得双计或漏计",
+      "explicitness": "PS 若知道该帧存在，必须补一条 state=DROPPED 记录；仅当完全无采集事实时才只累计 dropped_frames",
+      "no_hardware_note": "PL 未启动、会话中断、队列溢出等均计入丢帧"
+    },
+    "candidate_overflow": {
+      "rule": "candidate_count > candidate_limit 时 candidate_overflow=true；先按分数稳定排序截断到 candidate_limit，再执行阈值与类别内 NMS",
+      "explicitness": "必须显式记录溢出与截断事实；不得静默丢弃候选",
+      "draft_value": "candidate_limit = 4096（DRAFT_PROPOSED，未冻结）"
+    },
+    "stale_result": {
+      "rule": "stale=true 当结果年龄超过 stale_age_limit；结果年龄 = 发布时刻 − result_time_ns",
+      "publish_event": "发布时刻 = 该结果记录被提交给发布层（开始 UART 发送或交给显示层）的时刻，与其余时间字段同一 PS 单调时基",
+      "domain": "stale 仅在 state ∈ {OK, NO_HAND} 有意义；TIMEOUT/ERROR/DROPPED 恒为 false（这些状态无 result_time_ns，年龄无定义）",
+      "explicitness": "stale 结果仍保留原记录与框，标记 stale=true；显示层必须显式声明结果年龄，不得伪称同帧",
+      "draft_value": "stale_age_limit = 200 ms（DRAFT_PROPOSED，未冻结）"
+    },
+    "no_hand": {
+      "rule": "无手 = 零框：state=NO_HAND、detection_count=0、error_code=0；时间字段仍为真实观测值；不是错误、不计入丢帧"
+    },
+    "limits": {
+      "max_outputs_per_image": 15,
+      "rule": "每图 ≤15 框为 2A 冻结值；任何放宽都属规格变更，必须回退 G0 决策"
+    }
+  },
+  "draft_proposed_thresholds": {
+    "WARNING": "本节的数值均为 DRAFT_PROPOSED：未冻结、未验收，需阶段4 G0 或 Wong 决策后才有效。不得在任何报告中把它们写成已冻结指标。",
+    "candidate_limit": 4096,
+    "stale_age_limit_ms": 200,
+    "stage4_effective_inference_baseline": {
+      "value": 1000,
+      "source": "阶段计划「阶段4」第 92 行：至少 1000 次有效推理形成基线统计",
+      "status": "PLAN_REQUIREMENT_NOT_YET_MEASURED"
+    },
+    "stage4_interaction_observation": {
+      "value": 50,
+      "per_class_min": 10,
+      "success_rate_suggestion": 0.8,
+      "source": "阶段计划「阶段4」第 92 行（基线成功率建议 ≥80%，不替代阶段1 独立精度）",
+      "status": "PLAN_REQUIREMENT_NOT_YET_MEASURED"
+    }
+  },
+  "uart_mapping": {
+    "interface": "s2bu/1.1",
+    "interface_owner": "2B 总控（本阶段不得修改其正文）",
+    "existing_header": "40 B <4sHH8I>：magic 'S2BU'、version、op、sequence、frame_id、width、height、repeat_count、payload_len、payload_crc32、header_crc32",
+    "existing_response_meta": "<Q8I>：epoch、PHYS_STATUS、ERROR_CODE、LAST_REJECT、raw_candidate_count、box_count、repeat_index、repeat_total、response_code",
+    "existing_box": "<ii5d> 48 B：class_id、source_order、score、x1、y1、x2、y2",
+    "crc32": "reflected polynomial 0xEDB88320，初值 0xFFFFFFFF，末异或 0xFFFFFFFF；'123456789' -> 0xCBF43926",
+    "raw_candidate_count_semantics": "s2bu/1.1 正文只列出该字段名与长度，未定义其统计口径（阈值前/截断前/NMS 后均未写明）。阶段4 本契约将其定义为阈值筛除前的原始候选数；若 2B 后续冻结的定义不同，必须回归本契约、S4-B 骨架与 UART 映射，不得默默沿用",
+    "field_coverage": {
+      "frame_id": "已有（40 B 头）",
+      "geometry": "已有（width/height 在 40 B 头）",
+      "detection_count": "已有（box_count）",
+      "detections": "已有（<ii5d> 每框 48 B，score/xyxy 与 D9 一致；class_name 由 class_id 派生）",
+      "candidate_count": "字段名已有（raw_candidate_count），语义未由上游定义（见 raw_candidate_count_semantics）",
+      "error_code": "已有（ERROR_CODE）",
+      "result_seq": "无对应字段：运输 sequence 是请求/响应配对序号，不是结果序号",
+      "state": "无独立字段（可由 PHYS_STATUS/ERROR_CODE/box_count 推导，但缺显式状态）",
+      "candidate_overflow": "缺失",
+      "capture_time_ns": "缺失",
+      "result_time_ns": "缺失",
+      "inference_time_ns": "缺失",
+      "end_to_end_latency_ns": "缺失",
+      "dropped_frames": "缺失",
+      "stale": "缺失",
+      "xyxy_px": "缺失（可由 geometry 派生，无需传输）"
+    },
+    "open_decision": {
+      "issue": "阶段4 要求的时间/丢帧/过期/状态字段超出 s2bu/1.1 现有 payload；而 s2bu/1.1 正文只能由 2B 总控修改",
+      "options": [
+        "A：阶段4 在 G0 决定后新增扩展（如新 op 或 TLV 尾块），不改 s2bu/1.1 既有字段语义——需 Wong/项目总控决策并协调 2B",
+        "B：UART 只传 s2bu/1.1 既有字段，时间/丢帧/过期/状态字段在 PS 侧记录（离线/联调期默认口径）"
+      ],
+      "interim_default": "B（不改 2B 接口正文即可离线完成准备）",
+      "option_b_consequence": "选项 B 下 capture_time_ns/result_time_ns/inference_time_ns/end_to_end_latency_ns/stale/dropped_frames 不会出现在 UART 记录中；主机侧只能自行记录接收时刻并推导部分状态，**拿不到 PS 侧的真实采集/结果/推理耗时**。因此不得据选项 B 宣称满足阶段计划第 88 行『每条结果包含…采集与结果时间、推理耗时和状态』；该满足只能来自选项 A 的 G0 决策，或明确的 PS 侧日志证据方案（需在 G0 声明其证据落点与采集方式）。",
+      "escalate_to": "Wong（重大接口语义变化）",
+      "status": "OPEN_AWAITING_DECISION"
+    }
+  },
+  "limitations": [
+    "草案，未冻结、未验收；无板上、无摄像头、无 HDMI、无 UART 实测",
+    "上游冻结资产只读引用；T25 分片未物化到本工作树",
+    "时间口径的时基与跨域测量方法需阶段4 G0 冻结，本草案只给端点定义",
+    "inference_time 窗口是 2A busy 窗口的近似，不声称与 STATUS.busy 门控逐周期等价",
+    "候选上限与过期上限为 DRAFT_PROPOSED，不构成验收指标",
+    "选项 B 下阶段计划第 88 行的部分字段不由 UART 记录满足（见 uart_mapping.open_decision.option_b_consequence）",
+    "不声称与 Darknet C 后处理逐值相同（2A D9 已声明奇数补边半像素差异）"
+  ]
+}

@@ -1,7 +1,7 @@
 # 阶段3 状态（AN5642 原始视频链路）
 
-更新：2026-10-21 19:53（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
-规则见 `D:\FPGA_Competition\AGENTS.md`。**Wong 要求交回 DSH 继续完成；Codex 将本树置 OFFERED，除本次交接提交外停止写入。技术基线 `0d47801266a96c950d025702c158734f9bbd25de`；完整接续依据见 `report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`。实时成立、近似补偿目视失败，阶段未验收；下一步查 DVP MSB，不继续盲调白平衡。**
+更新：2026-10-21 21:47（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
+规则见 `D:\FPGA_Competition\AGENTS.md`。**DSH 阶段三总控已按 OFFERED 行认领（CLAIMED→IN_PROGRESS，负责人 DSH）；Codex 已停止写入。技术基线 `0d47801266a96c950d025702c158734f9bbd25de`，完整接续依据 `report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`。实时成立、颜色 FAIL（根因已定位为 DVP 字节 MSB 单线无信号），阶段未验收。Wong 指示：暂不上板，先做不依赖板卡的排查与准备。**
 
 ## 目标与第一版范围
 - 第一版：AN5642(OV5640) → 扩展口 → PL 采集/DDR 缓冲 → HDMI → 显示器【原始画面直通】，单通道；不加 CNN/检测框/手势交互。
@@ -26,7 +26,8 @@
 - **2026-10-21 OOC 排查完成**：旧 bit `0819d0da…19d7` 的 OOC 确实综合补丁源；RAM 写端保留完整重建连接。旧补丁作用低 5 位，实际改变显示红（DDR offset2），不是显示蓝。旧三个行样本 offset2 恰为重建后的 16 档数值，推翻“未进入运行设计”结论；旧产物保留。证据 `report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r02/`（checker 0）。
 - **本轮构建/上板已完成**：65,536 词穷举、独立 G2、安全转储替身测试通过。运行 `tmp/s3r06/t04_display_bluefix_20261021_r01` 实现退出 0，bit `0f3b74e4…b61d`、XSA `b9a56572…f17`，WNS 1.249946 ns、WHS 0.006289 ns、DRC 0 error；实际易失下载/传感器 ID/15 个变化指纹/安全转储通过，maxB=248，近似重建数值字母表匹配。证据 `report/evidence/S3-T05/t05_display_bluefix_20261021_r01/` 与 `t05_display_bluefix_board_20261021_r01/`。
 - **目视失败**：Wong 确认实时正常，但阴影偏蓝、白色亮部偏黄；照片呈大片黄与紫蓝伪彩。近似拉伸低 4 位不能区分原本相差最高位的两种强度，不能作为恢复真彩的修复。机读重建判据 PASS 不等于 G3/G4/G5，旧补偿位流仅保留为失败实验，不冻结。
-- **当前下一步**：以官方资料检查 DVP 字节 MSB／`cmos_d[9]` 的输出使能、数据选择、位序及采样连接；区分传感器配置、RTL/采样与物理链路，暂不判硬件损坏。当前 UART 实机回读 `0x4300=0x60`、`0x501F=0x01`，与 RGB565 初始化一致，不能仅凭伪彩转判 Bayer/RAW 或 YUV，也不再盲调 AWB。不改接线、不测电气。
+- **2026-10-21 DSH 复核（新增签名证据，只读、未上板）**：用**已有 19 个行样本**（J11+J10、AWB 开/关、手动增益 B=3.5×、传感器彩条、白纸、暗行，共 24,320 像素）统计：**蓝 8 位 bit7 置位率 0.000%、绿 8 位 bit4 置位率 0.000%**，全部样本无一例外。二者分别来自 DVP 两个字节各自的 MSB，而两字节 MSB 在厂商 IP 里走**同一条 `cmos_d[9]`** ⇒ **该线无信号**是唯一能同时解释两个缺位的单一故障（也解释了为何只补蓝一位的近似补偿必然出伪彩：绿的一位同样丢失，且猜位在低蓝/暗部产生 ±128 跳变）。证据 `report/evidence/S3-T05/t05_msb_line_diagnosis_20261021_r01/`（脚本 `scripts/stage3_t05/analyze_missing_msb_signature.py`，判定 exit 0）。
+- **当前下一步（Wong 指示暂不上板）**：① 不碰板卡的工作——按官方 OV5640 手册（页 87/93/102/141，已解析入 `tmp/3/S3-T05/t05_sensor_register_pdf_20261021_r01/`）核 `0x3017/0x3018/0x301D`（数据脚输出使能/选择）与 `0x4741/0x4745`（测试图案/位序）语义，据此设计**可区分「源端未输出」与「该线断」的单变量受控实验**（例如用字节序/数据选择寄存器换槽位，看缺位是否随寄存器移动）；② 硬件路径并行：厂家返修/更换（只寄模块、不寄板卡；返修单与沟通模板见 `S3CTRL-20261021-002`）；③ 在缺线修复前，颜色验收**只能判受阻/FAIL**，近似补偿仅作标注清楚的过渡实验，不作 G3/G4 依据。
 - **验收判据**：数值重建分布只证明实验补丁生效，不证明真彩；仍须实际缺位根因与正确颜色证据、Wong 目视“不偏黄也不偏青”及适用耐久/时序验收，不能降低标准。
 
 ## 可复用命令与工具教训
@@ -54,4 +55,4 @@ bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/
 - 未跟踪散落件：`NA/`、`clockInfo.txt`（旧轮、非本阶段产物，保留不动）；`tmp/**` 为构建缓存，不入提交。
 
 ## 交接行（11 字段，2026-10-21 19:53）
-任务=`S3-T05 阶段3：修复 DVP MSB 缺失/色彩并完成适用验收` | 负责人=`Codex 阶段三总控（交出）→DSH 阶段三总控（待接手）` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/、clockInfo.txt 原有散落件保留不动；仅本交接文档和 STATE 由 Codex 作最后一次提交；tmp/** 保留不入提交` | 让出声明=`Codex 于 2026-10-21 19:53 OFFERED；除本次交接提交外已停止写入，提交后不再运行构建/板测/心跳任务，DSH 核验后可 CLAIMED→IN_PROGRESS` | 心跳(UTC+8)=`2026-10-21 19:53` | 证据入口=`report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`；`report/evidence/S3-T05/t05_display_bluefix_board_20261021_r01/README.md` | 恢复命令=`先完整读 STATE、003交接及主仓AGENTS；核验分支/HEAD/锁/进程/2B会话后接管；补充 DVP 使能/位序回读，按003路线推进；不重启固定旧RunId，不把近似补偿当修复` | 状态/下一接手方=`OFFERED / DSH 阶段三总控`
+任务=`S3-T05 阶段3：修复 DVP 字节 MSB 无信号（单线 cmos_d[9]）造成的色彩缺失，并完成适用验收` | 负责人=`DSH 阶段三总控` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de`（HEAD 以实际核验为准） | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`tmp/**` 为构建缓存不入提交；本轮新增证据与 STATE 由 DSH 提交` | 让出声明=`已认领：Codex 于 2026-10-21 19:53 OFFERED，DSH 于 2026-10-21 21:47 CLAIMED→IN_PROGRESS 并独占写入；当前无让出` | 心跳(UTC+8)=`2026-10-21 21:47` | 证据入口=`report/evidence/S3-T05/t05_msb_line_diagnosis_20261021_r01/`（根因签名复核）、`report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`、`report/evidence/S3-T05/t05_display_bluefix_board_20261021_r01/` | 恢复命令=`先读 STATE 与 003 交接；**本阶段暂不上板（Wong 指示）**；不依赖板卡的下一步见 STATE「当前下一步」；上板类命令须 Wong 明确允许后，用已审安全脚本并手动新建空输出目录` | 状态/下一接手方=`IN_PROGRESS / 当前由 DSH 阶段三总控持有（无让出）`

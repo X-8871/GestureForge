@@ -1,0 +1,71 @@
+{
+  "run_id": "s4d_spec_draft_20261021_r01",
+  "task_id": "S4-D",
+  "subtask": "S4-D（阶段5/6 规格草案）",
+  "worktree": "D:/codex-worktrees/w4",
+  "branch": "stage4-infer-prep",
+  "source_commit": "6a666ff73e0218177f66fb17fbe1d22acd752a8a",
+  "recorded_at_local": "2026-10-21 (UTC+8)",
+  "shell": "Windows PowerShell 7 host (commands executed from the worktree root)",
+  "tool_versions": {
+    "python": "3.12.10 (CPython, MSC v.1943 64-bit)",
+    "git": "系统 git（只读查询）",
+    "checker": "verification/check_stage_delivery.py schema_version=1 evidence 模式"
+  },
+  "commands": [
+    {
+      "id": "CMD-01",
+      "label": "S4-D 规格草案自检（JSON/阈值一致性/覆盖矩阵/几何复算/草案状态）",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r01/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "8/8 检查 PASS；覆盖矩阵 41/41 命中（阶段5 21 项、阶段6 20 项）；重跑位定"
+    },
+    {
+      "id": "CMD-02",
+      "label": "阶段6 阈值 JSON 语法校验",
+      "command": "python -B -m json.tool docs/stage6/s6_interaction_thresholds.json",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "stdout 重定向丢弃，仅取退出码"
+    },
+    {
+      "id": "CMD-03",
+      "label": "阶段6 阈值 JSON json.load 并可读关键字段",
+      "command": "python -B -c \"import json;d=json.load(open('docs/stage6/s6_interaction_thresholds.json',encoding='utf-8'));print(d['task_id'],d['status'],len(d['thresholds']))\"",
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout": "S4-D draft_proposed_unfrozen 3"
+    },
+    {
+      "id": "CMD-04",
+      "label": "官方产物清单检查器（evidence 模式）",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "两段式布局 report/evidence/S4-D/<run_id>：task_id=S4-D、run_id=s4d_spec_draft_20261021_r01、evidence_dir=report/evidence/S4-D，满足检查器 evidence_dir 精确匹配要求；退出码由冻结时实跑核验。"
+    },
+    {
+      "id": "CMD-05",
+      "label": "工作树状态（确认只新增本任务文件、未修改上游/只读树）",
+      "command": "git status --short",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "本任务只新增 docs/stage5/、docs/stage6/、report/evidence/S4-D/；未写主树 D:/FPGA_Competition、w2b、dbdf，未修改被引用的阶段计划与 2A/2B/D2/D6 文档，未执行 git add/commit"
+    },
+    {
+      "id": "CMD-06",
+      "label": "清单哈希一致性复核（files 与 interfaces 的 SHA-256 与磁盘一致）",
+      "command": "python -B -c \"import hashlib,json,pathlib;m=json.load(open('report/evidence/S4-D/s4d_spec_draft_20261021_r01/delivery_manifest.json',encoding='utf-8'));bad=[x['path'] for x in m['files']+m['interfaces'] if hashlib.sha256(pathlib.Path(x['path']).read_bytes()).hexdigest()!=x['sha256']];print('MISMATCH',len(bad));raise SystemExit(1 if bad else 0)\"",
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout": "MISMATCH 0"
+    }
+  ],
+  "limitations": [
+    "未执行任何显示/摄像头/HDMI/交互/上板实测；无硬件会话。",
+    "阶段计划第 94-108 行的最终指标（允许延迟、FPS 下限、端到端 P99）与阶段6 阈值待阶段5/6 G0 固定，本文档只给草案建议值。",
+    "阶段计划与 verification/s1_t02_d2_numeric_reference.py 在只读主树与工作树的副本哈希不同（差异位于引用行之外），引用行内容已双树核对一致。",
+    "本 RunId 原落于 report/evidence/S4-CTRL/S4D/s4d_spec_draft_20261021_r01/（三段式），按 Lead 决定迁至两段式 report/evidence/S4-D/s4d_spec_draft_20261021_r01/ 并删除旧 S4D 子目录；report/evidence/S4-CTRL/<id>/<run_id>/ 保留给跨方请求类文件。迁移未改动任何文件内容之外的上游依赖。"
+  ]
+}

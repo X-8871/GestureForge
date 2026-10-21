@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-D",
+  "run_id": "s4d_spec_draft_20261021_r03",
+  "source_commit": "6a666ff73e0218177f66fb17fbe1d22acd752a8a",
+  "evidence_dir": "report/evidence/S4-D/s4d_spec_draft_20261021_r03",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "name": "S1-T02-D2-preprocessing-int8-spec",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    },
+    {
+      "name": "S1-T02-D6-detection-eval-metrics",
+      "version": "S1-T02-D6",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+      "sha256": "735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7"
+    },
+    {
+      "name": "B-plan-stage-acceptance",
+      "version": "20260914",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage5/S5_stage5_display_spec_draft.md",
+      "sha256": "0b4f537d2efb572d5e67482c7bc095e57bb469701cff11209cbbafe36c0a5032",
+      "role": "source",
+      "keep_reason": "阶段5 显示规格草案交付物（S4-D，R1 修复后）"
+    },
+    {
+      "path": "docs/stage6/S6_stage6_interaction_spec_draft.md",
+      "sha256": "d7cf98093996fffb23180b078dfa4068dcab5b5031d5bd4c62e4c51baa40a0a1",
+      "role": "source",
+      "keep_reason": "阶段6 交互规格草案交付物（S4-D，R1 修复后，含 M15 路径规则）"
+    },
+    {
+      "path": "docs/stage6/s6_interaction_thresholds.json",
+      "sha256": "b87234e4f091bac94f9d7cc7c8ab16c180932f60dc8e5160e32cd3278b11ec42",
+      "role": "source",
+      "keep_reason": "阶段6 阈值机器可读草案（含 m15_path_* 与 id_multi_key_note）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "sha256": "dfa53e274fab5fa4caa696693ec31250aaa2ea0730a47cd1701e417261576b97",
+      "role": "source",
+      "keep_reason": "本轮自检脚本（C1–C11，可复跑）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/commands.json",
+      "sha256": "08ada725e268a7a3b72fed70cb737cbd109910e5864acfe7a52e33deea680a70",
+      "role": "log",
+      "keep_reason": "命令与真实退出码记录（含一次锚点失效的自检 FAIL 与被取代运行重跑）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/selfcheck_result.json",
+      "sha256": "463a59f94937cf79d5a9f617f242e6986bf32b43181e3b3ff741e9ac5a049b44",
+      "role": "result",
+      "keep_reason": "自检结果（含上游哈希与文档哈希）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/coverage_matrix.json",
+      "sha256": "49e4a55bcb6c0ede2f070c490160a0761a526341a384409b5a38f93f0c8ffdcc",
+      "role": "result",
+      "keep_reason": "阶段计划条目覆盖矩阵（含章节锚点，49 项）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/letterbox_geometry_fixtures.json",
+      "sha256": "7d36d34656d29cf1042c7332f24345db766224800ce3e53dfba87956fafe672b",
+      "role": "result",
+      "keep_reason": "补边几何复算样例、奇数补边枚举与逆映射往返样例"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input",
+      "keep_reason": "D2 冻结几何实现：C7/C10 直接 import 复算所依据的只读输入"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s4d_spec_selfcheck_c1_c11",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "11/11 检查 PASS；覆盖矩阵 49/49（阶段5 23 项、阶段6 26 项）；重跑位定"
+    },
+    {
+      "name": "s6_thresholds_json_parses",
+      "status": "PASS",
+      "command": "python -B -m json.tool docs/stage6/s6_interaction_thresholds.json",
+      "exit_code": 0,
+      "reason": "JSON 可解析：task_id=S4-D、thresholds=3、draft_timings=19 键、state_machine 含 m15_path_* 与 id_multi_key_note"
+    },
+    {
+      "name": "docs_and_json_thresholds_consistent",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "§8.4 镜像块与 JSON 逐字段相等（含 R1 新增键）；§8.1 表格 id/门槛/样本数一致"
+    },
+    {
+      "name": "param_id_sets_match_C9",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "正文 18 个 T6-* ID 与 JSON draft_timings 键集合一致；已标注校验方向性（O1，单向）"
+    },
+    {
+      "name": "inverse_mapping_endpoint_aligned_C10",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "逆映射与正向端点对齐往返最大偏差 0.00e+00（12 样例）"
+    },
+    {
+      "name": "letterbox_geometry_frozen_import_C7",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "7 样例直接 import 冻结实现复算并与文档 §3.1 逐值一致"
+    },
+    {
+      "name": "m15_path_closed_C11",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "M15 路径（同一次获取）不再触发：M5 行有『仅当本次获取尚未触发』门控、§4.3 声明该路径不构成 (a)/(b)、JSON m15_path_stable_exit_set 非空且不含 M5（M10 丢失确认/§6 目标切换）"
+    },
+    {
+      "name": "upstream_readonly_sources_unmodified",
+      "status": "PASS",
+      "command": "git status --short",
+      "exit_code": 0,
+      "reason": "只改本任务 docs/stage5、docs/stage6 与 report/evidence/S4-D/**；未写只读主树/w2b/dbdf，未改阶段计划与 2A/D2/D6 文档，未 git add/commit"
+    },
+    {
+      "name": "official_checker_evidence_mode",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r03/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；两段式 evidence_dir 与 task_id/run_id 精确匹配；仅代表清单与哈希绑定通过，不代表 G0/G4/G5 或任何实测"
+    },
+    {
+      "name": "superseded_r02_rerun_recorded",
+      "status": "FAIL",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r02/delivery_manifest.json",
+      "exit_code": 2,
+      "reason": "被取代运行 r02 重跑为 CHECKS_FAILED，仅 3 处预期文档哈希漂移（S5/S6/JSON 已由 R1 修改）；r02 已加 SUPERSEDED_note.md，非新缺陷，按证据口径如实记为 FAIL 并保留"
+    },
+    {
+      "name": "selfcheck_first_run_anchor_fail",
+      "status": "FAIL",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 1,
+      "reason": "脚本补丁后首次运行 C5 未命中 S6-L104-07（§4.3 文案改为『配合 M8/M9/M15』致旧锚点失效）；同步锚点后复跑 11/11 PASS，失败记录见 commands.json CMD-10"
+    },
+    {
+      "name": "display_and_interaction_measurements",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线规格草案：未执行显示/摄像头/HDMI/交互/上板实测，无硬件会话"
+    },
+    {
+      "name": "stage5_stage6_g0_freeze",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "画面语义上限、布局、测量起止事件、逆映射取整规则与阶段6 时间参数/三项目标阈值待阶段5/6 G0 固定"
+    }
+  ],
+  "limitations": [
+    "本 run 为复审 R1/O1/O2 修复轮，取代 r02（report/evidence/S4-D/s4d_spec_draft_20261021_r02，已加 SUPERSEDED_note.md）；r01/r02 均保留，不覆盖不删除。",
+    "R1 按选项①关闭：M15 路径仍属同一次获取，达到稳定后不再触发（M5 不可用），其 STABLE 为维持态，出口为 M10 丢失确认或 §6 目标切换；若要允许该分支重触发，属 §4.3 声明 A→B 的实质语义变更，须 Wong/阶段6 G0 决策，本轮未采用。",
+    "全部内容为未冻结草案：阶段5 画面语义/布局/误差门槛/测量起止事件/逆映射取整规则与阶段6 时间参数、三项目标阈值均待阶段5/6 G0 固定。",
+    "未执行任何实测：文档与 JSON 不含实测数据；未上板、未接摄像头/HDMI、未做交互。文档中的数值（如 1915.38 px vs 1919.00 px）为按冻结公式的算术推导。",
+    "自检与官方 CHECKS_OK 仅代表清单、哈希绑定与文档-JSON 一致性；不代表接口语义正确、测试通过或 G0/G4/G5。C9 仅覆盖『正文引用 JSON 未定义 ID』方向（O1）。参数 ID 可由多个键承载（O2，如 T6-U00）。",
+    "阶段7 指标（吞吐下限、端到端 P99、≥10000 次有效任务口径）不在本任务范围。",
+    "被取代运行 r02 的 SUPERSEDED_note.md 位于 r02 目录内（检查器规定 role=diagnostic 证据必须位于当前 evidence_dir，故不在本清单 files 中）；其存在与哈希由 r02 自身清单绑定，本清单 CMD-12/CMD-13 记录其加注与重跑结果。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "git": "系统 git（只读）",
+    "os": "Windows 10/11 x64",
+    "checker": "verification/check_stage_delivery.py schema_version=1"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "run_id": "s4d_spec_draft_20261021_r03",
+  "task_id": "S4-D",
+  "subtask": "S4-D（阶段5/6 规格草案，复审 R1/O1/O2 修复轮）",
+  "supersedes": "s4d_spec_draft_20261021_r02",
+  "worktree": "D:/codex-worktrees/w4",
+  "branch": "stage4-infer-prep",
+  "source_commit": "6a666ff73e0218177f66fb17fbe1d22acd752a8a",
+  "recorded_at_local": "2026-10-21 (UTC+8)",
+  "shell": "Windows PowerShell 7 host (commands executed from the worktree root)",
+  "tool_versions": {
+    "python": "3.12.10 (CPython, MSC v.1943 64-bit)",
+    "git": "系统 git（只读查询）",
+    "checker": "verification/check_stage_delivery.py schema_version=1 evidence 模式"
+  },
+  "commands": [
+    {
+      "id": "CMD-01",
+      "label": "S4-D 自检 r03（C1–C11：JSON/阈值/参数 ID/覆盖/几何/逆映射/草案状态/M15 路径闭环）",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "11/11 检查 PASS；覆盖矩阵 49/49（阶段5 23 项、阶段6 26 项）；重跑位定"
+    },
+    {
+      "id": "CMD-02",
+      "label": "阶段6 阈值 JSON 语法校验",
+      "command": "python -B -m json.tool docs/stage6/s6_interaction_thresholds.json",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "stdout 重定向丢弃，仅取退出码"
+    },
+    {
+      "id": "CMD-03",
+      "label": "阶段6 阈值 JSON json.load 并可读关键字段",
+      "command": "python -B -c \"import json;d=json.load(open('docs/stage6/s6_interaction_thresholds.json',encoding='utf-8'));print(d['task_id'],d['status'],len(d['thresholds']),len(d['draft_timings_unfrozen']))\"",
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout": "S4-D draft_proposed_unfrozen 3 19"
+    },
+    {
+      "id": "CMD-04",
+      "label": "官方产物清单检查器（evidence 模式，r03）",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r03/delivery_manifest.json",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "两段式布局；task_id=S4-D、run_id=s4d_spec_draft_20261021_r03；退出码由冻结时实跑核验"
+    },
+    {
+      "id": "CMD-05",
+      "label": "工作树状态（确认只改本任务文件、未 git add/commit）",
+      "command": "git status --short",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "本轮只改 docs/stage5、docs/stage6 与新增 report/evidence/S4-D/s4d_spec_draft_20261021_r03（并给 r02 加 SUPERSEDED_note.md）；未写主树 D:/FPGA_Competition、w2b、dbdf，未改阶段计划或 2A/D2/D6 文档"
+    },
+    {
+      "id": "CMD-06",
+      "label": "清单哈希一致性复核（r03 files 与 interfaces 的 SHA-256 与磁盘一致）",
+      "command": "python -B -c \"import hashlib,json,pathlib;m=json.load(open('report/evidence/S4-D/s4d_spec_draft_20261021_r03/delivery_manifest.json',encoding='utf-8'));bad=[x['path'] for x in m['files']+m['interfaces'] if hashlib.sha256(pathlib.Path(x['path']).read_bytes()).hexdigest()!=x['sha256']];print('MISMATCH',len(bad));raise SystemExit(1 if bad else 0)\"",
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout": "MISMATCH 0"
+    },
+    {
+      "id": "CMD-07",
+      "label": "R1/O1/O2 定点补丁：S6 五处替换 + JSON 一处替换（逐处 count 断言）+ §8.4 镜像重拼接 + 文档运行目录 r02→r03（S5 3 处、S6 4 处）",
+      "command": "python -B -（内联补丁脚本，含 count 断言）",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "输出 R1_DOC_JSON_PATCH_OK 与 mirror respliced"
+    },
+    {
+      "id": "CMD-08",
+      "label": "r02→r03 证据目录复制",
+      "command": "python -B -（shutil.copytree r02 → r03）",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "r02 保留并另加 SUPERSEDED_note.md；r03 为 R1 修复后继"
+    },
+    {
+      "id": "CMD-09",
+      "label": "r03 自检脚本补丁（RUN_ID、C11 M15 路径闭环、S6-R1-01 覆盖项、C9 方向性说明）",
+      "command": "python -B -（内联补丁脚本，含 count 断言）",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "输出 R03_SCRIPT_PATCH_OK"
+    },
+    {
+      "id": "CMD-10",
+      "label": "自检首次运行（脚本补丁后，锚点未同步）",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 1,
+      "status": "FAIL",
+      "note": "C5 未命中 S6-L104-07：§4.3 文案更新为「配合 M8/M9/M15」后旧锚点失效；失败记录不隐藏，修复见 CMD-11"
+    },
+    {
+      "id": "CMD-11",
+      "label": "覆盖锚点同步后自检复跑",
+      "command": "python -B -（内联锚点修复：S6-L104-07 anchors 更新为 M8/M9/M15 与 M15 路径句）后 python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "11/11 检查 PASS；覆盖 49/49"
+    },
+    {
+      "id": "CMD-12",
+      "label": "被取代运行 r02 重跑官方检查器（预期文档哈希漂移）",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r02/delivery_manifest.json",
+      "exit_code": 2,
+      "status": "FAIL",
+      "note": "CHECKS_FAILED：文件枚举通过，仅 3 处预期硬件无关的文档哈希漂移（S5/S6/JSON 已由 R1 修改）；r02 属被取代证据，见其 SUPERSEDED_note.md。非新缺陷，如实记录。"
+    },
+    {
+      "id": "CMD-13",
+      "label": "r02 写入 SUPERSEDED_note.md 并纳入 r02 清单 files",
+      "command": "python -B -（写说明文件并把其 SHA-256 追加到 r02 delivery_manifest.json files/role=diagnostic）",
+      "exit_code": 0,
+      "status": "PASS",
+      "note": "r02 files 由 9 项增至 10 项；说明 r02 被 r03 取代及预期哈希漂移"
+    }
+  ],
+  "limitations": [
+    "未执行任何显示/摄像头/HDMI/交互/上板实测；无硬件会话。",
+    "阶段计划第 94-108 行的最终指标（允许延迟、FPS 下限、端到端 P99）与阶段6 阈值待阶段5/6 G0 固定，本文档只给草案建议值。",
+    "阶段计划与 verification/s1_t02_d2_numeric_reference.py 在只读主树与工作树的副本哈希不同（差异位于引用行与冻结几何函数之外），引用行内容已双树核对确认。",
+    "阶段5 画面语义默认 B（最新结果叠加）仅为草案默认，A/C 登记未声明；由阶段5 G0 决策。逆映射为端点对齐草案推导，取整与裁剪规则待 G0。",
+    "M15 路径按复审选项①关闭：同一次获取不再触发（M5 在该路径不可用）；若要改为可重触发，属声明 A→B 的实质语义变更，须 Wong/阶段6 G0 决策。",
+    "r02 为被取代运行（保留且加 SUPERSEDED_note.md），其清单绑定 R1 前文档哈希，重跑检查器 exit 2 属预期漂移（CMD-12）。"
+  ]
+}

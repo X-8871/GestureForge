@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "artifact": "s6_interaction_thresholds",
+  "stage": "stage6",
+  "task_id": "S4-D",
+  "status": "draft_proposed_unfrozen",
+  "status_label": "沿用强化建议、待阶段6 G0 固定",
+  "status_note": "机器可读阈值草案，与 docs/stage6/S6_stage6_interaction_spec_draft.md 的阈值表逐项一致；未冻结、未验收、未执行任何交互实测。",
+  "source_refs": [
+    {
+      "ref": "plan-L104",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "lines": "102-104",
+      "note": "阶段6 目标：稳定手势判定→HDMI切图/界面/显示状态；冻结多框目标选择、丢失与重获、稳定判定窗口、保持期是否只触发一次、冷却、重新触发条件、无手/未知输入与恢复行为。"
+    },
+    {
+      "ref": "plan-L106",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "lines": "106",
+      "note": "沿用强化建议：已知手势有效动作成功率≥90%；至少200个独立未知输入误接受率≤5%；无有效手势30分钟误动作≤1次。各条件样本数及阈值在任务G0固定，不能只挑成功视频。"
+    },
+    {
+      "ref": "plan-L108",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "lines": "108",
+      "note": "证据：状态机规格、输入/事件/动作日志、失败案例、连续视频；交互通过不代替阶段7最终性能与可靠性验收。"
+    },
+    {
+      "ref": "plan-L92",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "lines": "92",
+      "note": "阶段4 同口径来源：至少50次预定义交互观察、每类至少10次，完整记录成功与失败。仅作为 T6-01 样本数的沿用出处，不是阶段6 上游要求。"
+    },
+    {
+      "ref": "2A-L75",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "lines": "75",
+      "note": "离散字段（frame_id、检测数、类别、source_order、NMS决策、输出顺序）必须完全相同；score 与归一化坐标绝对误差≤1e-6、相对误差容限0。"
+    },
+    {
+      "ref": "2A-L77",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "lines": "77",
+      "note": "score=sigmoid(objectness)*sigmoid(class)；阈值 score>=0.25、NMS IoU=0.45、每图≤15框、类别顺序 fist,palm,one,two_up,three、稳定同分顺序。"
+    },
+    {
+      "ref": "2A-L81",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "lines": "81",
+      "note": "no_hand 是空标签条件，不是第六类。"
+    },
+    {
+      "ref": "D2-L22",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "lines": "22",
+      "note": "no_hand 是空标签负样本，不是第六类；其他空标签不能被改写为 no_hand。"
+    },
+    {
+      "ref": "D6-L9",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+      "lines": "9",
+      "note": "最终 score threshold=0.25、NMS IoU=0.45、每图最多15框；test/robustness 禁止重新调参。"
+    }
+  ],
+  "thresholds": [
+    {
+      "id": "T6-01",
+      "metric": "known_gesture_valid_action_success_rate",
+      "metric_zh": "已知手势有效动作成功率",
+      "operator": ">=",
+      "value": 0.9,
+      "value_display": "≥90%",
+      "unit": "ratio",
+      "min_samples": 50,
+      "per_class_min_samples": 10,
+      "recommended_min_samples": 100,
+      "sample_unit": "一次预定义交互试验（一次已知手势从出现到完成，独立重复）",
+      "sample_source_note": "总 ≥50 次 / 每类 ≥10 次沿用阶段计划 [计划L92]（阶段4 同口径）；建议 ≥100 次为本草案建议、无上游依据。",
+      "success_definition": "预期动作在 T6-A01 内首次触发、唯一，且动作实际生效（result=success，见 S6 §1.3）；仅触发但未生效不算成功",
+      "failure_definition": "超时未触发、触发错误动作、重复触发、动作 result=fail、无法判定",
+      "unobserved_policy": "result=unobserved 单列并按 NOT_RUN 处理：不计入成功、也不得从分母剔除",
+      "denominator": "全部预定义已知手势试验（含失败），禁止只统计成功视频",
+      "excluded_from_denominator": "无",
+      "confidence_interval": "同时报告点估计与95% Clopper-Pearson单侧下界；下界是否纳入通过门槛由阶段6 G0 固定",
+      "g0_status": "unfrozen"
+    },
+    {
+      "id": "T6-02",
+      "metric": "independent_unknown_input_false_accept_rate",
+      "metric_zh": "独立未知输入误接受率",
+      "operator": "<=",
+      "value": 0.05,
+      "value_display": "≤5%",
+      "unit": "ratio",
+      "min_samples": 200,
+      "max_false_accepts": 10,
+      "sample_unit": "一个独立未知输入样本（独立场景或独立录制，样本之间互不重复）",
+      "false_accept_definition": "样本内出现任一次已提交的阶段6动作（A_*）即该样本计为误接受",
+      "action_result_policy": "已提交动作不论 result=success/fail/unobserved 均计误接受，执行失败不豁免",
+      "denominator": "200 个独立未知输入样本",
+      "event_counting": "同时保留样本级与事件级计数，通过门槛按样本级",
+      "excluded_from_denominator": "无；未定义场景不得事后并入或剔除",
+      "confidence_interval": "报告95% Clopper-Pearson单侧上界作为附加信息；是否要求上界≤5%由 G0 固定（200样本、10次误接受的上界明显大于5%，若要求上界达标需更大样本）",
+      "g0_status": "unfrozen"
+    },
+    {
+      "id": "T6-03",
+      "metric": "false_action_count_without_valid_gesture_per_30min",
+      "metric_zh": "无有效手势30分钟误动作次数",
+      "operator": "<=",
+      "value": 1,
+      "value_display": "≤1 次",
+      "unit": "count_per_1800s",
+      "session_seconds": 1800,
+      "recommended_min_sessions": 3,
+      "recommended_min_sessions_note": "本草案建议、无上游依据。",
+      "false_action_definition": "无有效（五类）手势期间发生的任一次已提交的阶段6动作",
+      "action_result_policy": "已提交动作不论 result=success/fail/unobserved 均计误动作",
+      "denominator": "单段连续 ≥30 分钟运行",
+      "warmup_policy": "预热期（草案 60 s）计入时长与误动作计数，不剔除（更严格、不隐藏）",
+      "excluded_from_denominator": "无",
+      "confidence_interval": "按时长归一化报告每30分钟误动作次数；不据此声称概率上界",
+      "g0_status": "unfrozen"
+    }
+  ],
+  "draft_timings_unfrozen": {
+    "T6-A01_action_latency_max_ms": 1000,
+    "T6-A02_action_dedup_window_ms": 500,
+    "T6-C01_candidate_enter_consecutive_frames": 2,
+    "T6-S01_stable_window_ms": 200,
+    "T6-S02_stable_window_frames": 6,
+    "T6-S03_stable_window_logic": "同时满足帧数与时长，取较晚满足者",
+    "T6-S04_candidate_timeout_ms": 500,
+    "T6-L01_lost_consecutive_frames": 5,
+    "T6-L02_lost_ms": 300,
+    "T6-K01_cooldown_ms": 1000,
+    "T6-U00_anomaly_window_frames": 3,
+    "T6-U00_anomaly_min_count": 3,
+    "T6-U01_unknown_recover_consecutive_frames": 5,
+    "T6-P01_select_score_min": 0.35,
+    "T6-P02_stable_score_min": 0.3,
+    "T6-P03_track_iou_min": 0.3,
+    "T6-P04_track_center_norm_max": 0.15,
+    "T6-P05_stable_jitter_norm_per_frame": 0.05,
+    "T6-J01_tolerated_missing_frames_in_window": 1
+  },
+  "state_machine": {
+    "states": ["IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN", "LOST", "UNKNOWN_RECOVER"],
+    "trigger_once_while_held": true,
+    "trigger_once_note": "草案声明A：一次目标获取仅触发一次；备选B（保持期周期性重触发）已在文档登记但未声明",
+    "transition_priority": [
+      "P1 异常输入（M2/M13）",
+      "P2 丢失确认（M10）",
+      "P3 当前状态专属推进（M5/M6/M8/M9/M15/M3/M4）",
+      "P4 重获/获取（M1/M14）",
+      "P5 恢复（M12）"
+    ],
+    "first_match_wins": true,
+    "conflict_rule": "同一帧首次命中即停；CANDIDATE 下 M4 与 M10 同帧同时满足时以 M10 优先；未命中候选写入 transition_candidates 并记录 S_CONFLICT_RESOLVED",
+    "cooldown_evidence_policy": "进入 COOLDOWN 保留目标标识、重置稳定窗口证据（帧计数/时间窗起点/抖动容忍计数归零）",
+    "cooldown_exit_coverage": "冷却结束三情形互斥穷尽：目标匹配且窗口满足→M9/STABLE（不再触发）；目标匹配但窗口未满足→M15/CANDIDATE；目标不匹配或丢失→M8/IDLE",
+    "m15_path_rule": "M15 前提是目标仍匹配（未丢失、未切换），仍属同一次获取；经 M15 进入的 CANDIDATE 达到稳定后不再触发（M5 在该路径不可用），其 STABLE 等同 S6 4.3 的维持态",
+    "m15_path_no_retrigger": true,
+    "m15_path_stable_exit_set": ["M10_lost_confirmed", "section6_target_switch"],
+    "m15_path_stable_exit_closed": "出口集合非空且与 M5 互斥；M15 路径上不再触发，若目标持续有效则由 M10 丢失确认或 S6 第6节目标切换之一离开，无死状态",
+    "id_multi_key_note": "一个 ID 可由多个键构成：T6-U00 由 T6-U00_anomaly_window_frames 与 T6-U00_anomaly_min_count 两个键承载；参数 ID 全集校验按 ID 前缀比对。",
+    "no_dead_state": true,
+    "g0_status": "unfrozen"
+  },
+  "not_claimed": [
+    "本文与本 JSON 未冻结，不构成阶段6 G0 或任何验收结论",
+    "未执行任何交互实测；不含实测数据",
+    "交互通过不代替阶段7 最终性能与可靠性验收"
+  ]
+}

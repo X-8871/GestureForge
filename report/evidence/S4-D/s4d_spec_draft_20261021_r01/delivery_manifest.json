@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-D",
+  "run_id": "s4d_spec_draft_20261021_r01",
+  "source_commit": "6a666ff73e0218177f66fb17fbe1d22acd752a8a",
+  "evidence_dir": "report/evidence/S4-D/s4d_spec_draft_20261021_r01",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    },
+    {
+      "name": "S1-T02-D2-preprocessing-int8-spec",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    },
+    {
+      "name": "S1-T02-D6-detection-eval-metrics",
+      "version": "S1-T02-D6",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+      "sha256": "735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7"
+    },
+    {
+      "name": "B-plan-stage-acceptance",
+      "version": "20260914",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage5/S5_stage5_display_spec_draft.md",
+      "sha256": "f0613153dacadeb8e9e67f228a262635ce4aaa0c1bae93432ac94795c3d16b5a",
+      "role": "source",
+      "keep_reason": "阶段5 显示规格草案交付物（S4-D）"
+    },
+    {
+      "path": "docs/stage6/S6_stage6_interaction_spec_draft.md",
+      "sha256": "09b401c44ecd66c810adec10e915e3c9ff190d12dfbac7f710e2c83ec59eb690",
+      "role": "source",
+      "keep_reason": "阶段6 交互规格草案交付物（S4-D）"
+    },
+    {
+      "path": "docs/stage6/s6_interaction_thresholds.json",
+      "sha256": "12af2d05dfbae77d8a6afab878bed73d0daf0abdca3a5456fa56f1beb9c6ac91",
+      "role": "source",
+      "keep_reason": "阶段6 阈值机器可读草案（与文档 §8.1/§8.4 一致）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r01/s4d_spec_selfcheck.py",
+      "sha256": "a1286a4e715b12113ce10e3c3d55466debc2919ba3f9e58769289082eb947325",
+      "role": "source",
+      "keep_reason": "本轮自检脚本（可复跑）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r01/commands.json",
+      "sha256": "5fda9b419fce9ca71fde2c5402e54966d125f3a942f61b703824b7914a98d329",
+      "role": "log",
+      "keep_reason": "命令与真实退出码记录"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r01/selfcheck_result.json",
+      "sha256": "33da33b275e8d1dece8209b9cf05bf7960059e6f10127c4eca5f7d6905cc7e2c",
+      "role": "result",
+      "keep_reason": "自检结果（含上游哈希与文档哈希）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r01/coverage_matrix.json",
+      "sha256": "8702eadff88a5f0fecb644acda793f3cc60e49151ca9118635648a54e2eaf48f",
+      "role": "result",
+      "keep_reason": "阶段计划条目覆盖矩阵（机器可读）"
+    },
+    {
+      "path": "report/evidence/S4-D/s4d_spec_draft_20261021_r01/letterbox_geometry_fixtures.json",
+      "sha256": "f9eb5153b49bb5189f204b2e1f3b7eaa1fa00930a0b3a49724b582dc1e34e972",
+      "role": "result",
+      "keep_reason": "补边几何复算样例与奇数补边枚举"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s4d_spec_selfcheck",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r01/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "8/8 检查 PASS；覆盖矩阵 41/41（阶段5 21 项、阶段6 20 项）；重跑位定"
+    },
+    {
+      "name": "s6_thresholds_json_parses",
+      "status": "PASS",
+      "command": "python -B -m json.tool docs/stage6/s6_interaction_thresholds.json",
+      "exit_code": 0,
+      "reason": "JSON 可解析且 task_id=S4-D、thresholds=3、status=draft_proposed_unfrozen"
+    },
+    {
+      "name": "docs_and_json_thresholds_consistent",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r01/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "文档 §8.4 镜像块与 JSON 逐字段相等；§8.1 表格 id/门槛/样本数一致"
+    },
+    {
+      "name": "letterbox_geometry_recomputed",
+      "status": "PASS",
+      "command": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r01/s4d_spec_selfcheck.py",
+      "exit_code": 0,
+      "reason": "7 个样例按 D2 第9行/2A 第77行冻结公式复算，与文档 §3.1 表格逐值一致；并枚举奇数总补边样例"
+    },
+    {
+      "name": "upstream_readonly_sources_unmodified",
+      "status": "PASS",
+      "command": "git status --short",
+      "exit_code": 0,
+      "reason": "仅新增本任务文件；未写只读主树/w2b/dbdf，未修改阶段计划与 2A/D2/D6 文档，未 git add/commit"
+    },
+    {
+      "name": "official_checker_evidence_mode",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；两段式 evidence_dir=report/evidence/S4-D 与 task_id/run_id 精确匹配；仅代表清单与哈希绑定通过，不代表 G0/G4/G5 或任何实测"
+    },
+    {
+      "name": "display_and_interaction_measurements",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线规格草案：未执行显示/摄像头/HDMI/交互/上板实测，无硬件会话"
+    },
+    {
+      "name": "stage5_stage6_g0_freeze",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "画面语义上限、布局、测量起止事件与阶段6 三项目标阈值待阶段5/6 G0 固定"
+    }
+  ],
+  "limitations": [
+    "本 RunId 原落于三段式 report/evidence/S4-CTRL/S4D/s4d_spec_draft_20261021_r01/，按 Lead 决定迁至官方两段式 report/evidence/S4-D/s4d_spec_draft_20261021_r01/ 并删除旧 S4D 子目录（S4-CTRL 下其他成员证据未动）；report/evidence/S4-CTRL/<id>/<run_id>/ 保留给跨方请求类文件。",
+    "全部内容为未冻结草案：阶段5 画面语义/布局/误差门槛/测量起止事件与阶段6 状态机时间参数、三项目标阈值均待阶段5/6 G0 固定。",
+    "未执行任何实测：本文档与 JSON 不含实测数据；未上板、未接摄像头/HDMI、未做交互。",
+    "阶段计划与 verification/s1_t02_d2_numeric_reference.py 在只读主树与工作树的副本哈希不同（差异位于本文引用行之外）；引用行内容已在两树核对一致，清单 interfaces[3] 绑定的是工作树副本哈希。",
+    "逆映射公式为按 D2/2A 冻结几何的草案推导，2A L77 未补写逆式、取整规则待定（见 S5 文档 §3.2 与 §8 U5-07）。",
+    "阶段7 指标（吞吐下限、端到端 P99、≥10000 次有效任务口径）不在本任务范围，未被本草案占用或声明。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "git": "系统 git（只读）",
+    "os": "Windows 10/11 x64",
+    "checker": "verification/check_stage_delivery.py schema_version=1"
+  }
+}

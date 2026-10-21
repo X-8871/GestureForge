@@ -535,7 +535,8 @@ def _validate_model_jtag_observations(jtag_result: dict, calls: list, prior_conf
 
 def _validate_prior_csr_failure(result: dict, jtag_result: dict, calls: list,
                                 orchestrator_calls_binding: object, run_id: str,
-                                current_config: dict, model_targets: dict) -> dict:
+                                current_config: dict, historical_config: dict,
+                                model_targets: dict) -> dict:
     """核验前次CSR入口失败只读观察到既有app仍运行且未改变板卡状态。"""
     required_run_id = "formal_csr_recovery_20261019_r02"
     require(run_id == required_run_id and result.get("run_id") == run_id and
@@ -552,7 +553,7 @@ def _validate_prior_csr_failure(result: dict, jtag_result: dict, calls: list,
     snapshots = result.get("identity_snapshots")
     require(type(snapshots) is list and snapshots, "前次CSR失败结果缺少硬件身份快照")
     for snapshot in snapshots:
-        _validate_reentry_identity(snapshot, current_config)
+        _validate_reentry_identity(snapshot, historical_config)
     failed_events = []
     _, raw = verify_binding(orchestrator_calls_binding, "前次CSR orchestrator_calls", max_bytes=2 * 1024 * 1024)
     try:
@@ -642,9 +643,18 @@ def validate_csr_reentry(config: object, *, scope: str) -> dict | None:
         require(type(old) is dict and type(current) is dict and old.get("path") == current.get("path") and
                 old.get("sha256") == current.get("sha256"),
                 "CSR重入前序模型与当前部署产物不一致：" + name)
-    require(prior_config.get("hw_server") == config.get("hw_server") and
-            prior_config.get("serial", {}).get("identity") == config.get("serial", {}).get("identity"),
-            "前序模型与当前CSR config的hw_server/COM身份不一致")
+    historical_server = prior_config["hw_server"]
+    current_server = config.get("hw_server")
+    historical_uart = prior_config["serial"]["identity"]
+    current_uart = config.get("serial", {}).get("identity")
+    require(type(current_server) is dict and
+            historical_server.get("executable_path") == current_server.get("executable_path") and
+            type(current_uart) is dict and
+            historical_uart.get("port") == current_uart.get("port") and
+            historical_uart.get("name") == current_uart.get("name") and
+            historical_uart.get("pnp_device_id") == current_uart.get("pnp_device_id") and
+            historical_uart.get("config_manager_error_code") == current_uart.get("config_manager_error_code") == 0,
+            "前序模型与当前CSR config的hw_server可执行文件/COM/PNP身份不一致")
     snapshots = result.get("identity_snapshots")
     required_labels = {"before_runtime", "after_connect", "before_serial", "after_serial_open"}
     require(type(snapshots) is list and required_labels <=
@@ -661,7 +671,7 @@ def validate_csr_reentry(config: object, *, scope: str) -> dict | None:
     failure_run_id = _validate_prior_csr_failure(
             failure_result, failure_jtag_result, failure_jtag_calls,
         binding["prior_csr_orchestrator_calls"], "formal_csr_recovery_20261019_r02",
-        config, model_targets)
+        config, prior_config, model_targets)
     try:
         model_finished = datetime.fromisoformat(result["finished_at_utc8"])
         failure_started = datetime.fromisoformat(failure_result["started_at_utc8"])
@@ -672,11 +682,24 @@ def validate_csr_reentry(config: object, *, scope: str) -> dict | None:
                            "jtag_result": dict(binding["prior_csr_jtag_result"]),
                            "jtag_calls": dict(binding["prior_csr_jtag_calls"]),
                            "orchestrator_calls": dict(binding["prior_csr_orchestrator_calls"])})
+    identity_comparison = {
+        "historical_hw_server": dict(historical_server),
+        "current_hw_server": dict(current_server),
+        "same_hw_server_executable_path": True,
+        "hw_server_process_id_changed": historical_server["process_id"] != current_server["process_id"],
+        "hw_server_creation_time_changed": (
+            historical_server["creation_time_filetime_utc"] != current_server["creation_time_filetime_utc"]),
+        "historical_serial_identity": dict(historical_uart),
+        "current_serial_identity": dict(current_uart),
+        "same_com_pnp_identity": True,
+        "cold_chain_continuity": "NOT_CLAIMED_HISTORICAL_TO_CURRENT_CONTINUITY_UNPROVEN",
+    }
     return {"model_run_id": result["run_id"], "model_result": dict(binding["model_result"]),
             "model_input_config": dict(binding["model_input_config"]),
             "model_jtag_result": dict(binding["model_jtag_result"]),
             "model_jtag_calls": dict(binding["model_jtag_calls"]),
             "model_target_identity": model_targets,
+            "hardware_identity_comparison": identity_comparison,
             "prior_csr_failure": failure_run_id,
             "artifact_bindings": {name: dict(prior_config["bindings"][name])
                                   for name in ("app_elf", "bit", "xsa")}}

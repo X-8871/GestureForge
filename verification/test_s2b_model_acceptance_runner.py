@@ -591,8 +591,8 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             config = json.loads(config_path.read_text(encoding="utf-8"))
             config["run_id"] = "csr_current_run"
             run_id = "prior_model_run"
-            config["hw_server"] = {"process_id": 41, "executable_path": r"D:\Xilinx\hw_server.exe",
-                                   "creation_time_filetime_utc": "100"}
+            config["hw_server"] = {"process_id": 74, "executable_path": r"D:\Xilinx\hw_server.exe",
+                                   "creation_time_filetime_utc": "200"}
             config["serial"] = {"identity": {"port": "COM8", "name": "USB Serial Device (COM8)",
                                                 "pnp_device_id": r"USB\VID_1234&PID_5678",
                                                 "config_manager_error_code": 0}}
@@ -602,7 +602,9 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             run_dir.mkdir(parents=True)
             deploy.mkdir(parents=True)
             prior_config = {"run_id": run_id, "bindings": config["bindings"],
-                            "hw_server": config["hw_server"], "serial": config["serial"]}
+                            "hw_server": {"process_id": 41, "executable_path": r"D:\Xilinx\hw_server.exe",
+                                          "creation_time_filetime_utc": "100"},
+                            "serial": config["serial"]}
             config_binding = deploy / "input_config.json"
             config_binding.write_text(json.dumps(prior_config), encoding="utf-8")
             validated = {"server": {"ProcessId": 41, "ExecutablePath": r"D:\Xilinx\hw_server.exe",
@@ -697,6 +699,13 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                 self.assertEqual(checked["model_run_id"], run_id)
                 self.assertEqual(checked["artifact_bindings"]["app_elf"], config["bindings"]["app_elf"])
                 self.assertEqual(checked["prior_csr_failure"]["run_id"], failure_id)
+                identity_comparison = checked["hardware_identity_comparison"]
+                self.assertTrue(identity_comparison["hw_server_process_id_changed"])
+                self.assertTrue(identity_comparison["hw_server_creation_time_changed"])
+                self.assertTrue(identity_comparison["same_hw_server_executable_path"])
+                self.assertTrue(identity_comparison["same_com_pnp_identity"])
+                self.assertEqual(identity_comparison["cold_chain_continuity"],
+                                 "NOT_CLAIMED_HISTORICAL_TO_CURRENT_CONTINUITY_UNPROVEN")
                 with self.assertRaisesRegex(runner.RunnerError, "model scope禁止"):
                     runner.validate_csr_reentry(config, scope="model")
 
@@ -726,13 +735,28 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                 bad = dict(binding, model_input_config=bind(wrong_config_path))
                 with self.assertRaisesRegex(runner.RunnerError, "相邻run/deployment目录"):
                     runner.validate_csr_reentry(dict(config, csr_reentry=bad), scope="csr")
-                for changed, message in ((dict(config, hw_server={**config["hw_server"], "process_id": 42}),
-                                          "hw_server/COM身份"),
+                for changed, message in ((dict(config, hw_server={**config["hw_server"],
+                                                                  "executable_path": r"D:\Other\hw_server.exe"}),
+                                          "hw_server可执行文件/COM/PNP身份"),
                                          (dict(config, serial={"identity": {**config["serial"]["identity"],
                                                                              "port": "COM9"}}),
-                                          "hw_server/COM身份")):
+                                          "hw_server可执行文件/COM/PNP身份"),
+                                         (dict(config, serial={"identity": {**config["serial"]["identity"],
+                                                                             "pnp_device_id": r"USB\VID_9999"}}),
+                                          "hw_server可执行文件/COM/PNP身份")):
                     with self.assertRaisesRegex(runner.RunnerError, message):
                         runner.validate_csr_reentry(dict(changed, csr_reentry=binding), scope="csr")
+
+                corrupt_failure = json.loads(failure_result_path.read_text(encoding="utf-8"))
+                corrupt_failure["identity_snapshots"][0]["validated"]["server"]["ProcessId"] = 999
+                failure_result_path.write_text(json.dumps(corrupt_failure), encoding="utf-8")
+                bad = dict(config, csr_reentry=dict(binding, prior_csr_result=bind(failure_result_path)))
+                with self.assertRaisesRegex(runner.RunnerError, "前序模型hw_server身份与其config不匹配"):
+                    runner.validate_csr_reentry(bad, scope="csr")
+                failure_result_path.write_text(json.dumps({"run_id": failure_id, "scope": "csr", "status": "FAILED",
+                    "native_exit_code": 2, "started_at_utc8": "2026-10-19T10:00:00+08:00",
+                    "traceback": "RunnerError: CPU0未停止", "identity_snapshots": [
+                        {"label": "before_runtime", "validated": validated}]}), encoding="utf-8")
                 changed_calls = model_calls + [call("apu.rst.system.stop", kwargs={"type": "system"})]
                 model_jtag_calls_path.write_text("".join(json.dumps(row) + "\n" for row in changed_calls), encoding="utf-8")
                 bad = dict(config, csr_reentry=dict(binding, model_jtag_calls=bind(model_jtag_calls_path)))

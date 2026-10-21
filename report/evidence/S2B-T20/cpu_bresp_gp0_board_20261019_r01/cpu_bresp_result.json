@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "status": "FAIL_LATCHED",
+  "hardware_execution": "BORROWED_SESSION_REQUESTED",
+  "seed_provenance": {
+    "r08_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261019_r08\\acceptance_result.json",
+      "sha256": "2fa6a05a9e14f3aaa86c15aba8777aded207928f84c3d7f5b7f86e4971dac93f"
+    },
+    "seed_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r08_csr_seed_sample000\\acceptance_result.json",
+      "sha256": "accdf4ad31ebe99d75060cb8e797d1b6a434aca397352b613c6090c9644fff49"
+    },
+    "ack_recovery_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r08_csr_abort_recovery\\csr_result.json",
+      "sha256": "18eee60b09ed087291bb34920caf1f0ea7492b194dc727c84d153c7c34c631fe"
+    },
+    "golden_result": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261019_r08_csr_abort_recovery\\golden_sample000\\acceptance_result.json",
+      "sha256": "d9e7c6cfccb39673713df55478188c0f7625aba9285517d1d9a4b28805ac4ba6"
+    },
+    "ack_api": "t20.wire.abort.explicit_ack",
+    "ack_status": "RETURNED",
+    "golden_epoch": 5,
+    "golden_frame": 1
+  },
+  "diag_elf": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_diag_ocm_20261019_r05\\s2b_bresp_diag.elf",
+    "sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d",
+    "entry": 49184,
+    "loads": [
+      {
+        "physical": 49152,
+        "file_size": 1532,
+        "memory_size": 1532
+      },
+      {
+        "physical": 65536,
+        "file_size": 0,
+        "memory_size": 16384
+      }
+    ],
+    "busy_store_pc": 49988,
+    "mailbox": [
+      188416,
+      192512
+    ],
+    "review": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_host_review_20261019_r01\\review_outcome.json",
+      "sha256": "94b7b8c478af7c8b80dd6a971cea695c015eb39cc3b1cf2294bf55640f9a4485"
+    }
+  },
+  "original_app_context": {
+    "app_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+      "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+    },
+    "app_entry": 1048576,
+    "cpu0_pc": 1096600,
+    "pc_evidence": {
+      "pc": 1096600,
+      "cpsr": 537854175,
+      "thumb": false,
+      "instruction_bytes_sha256": "8424d6988532e4583c1c048622d4892d6c84abc9f9d1308daa387f32ec70b3a0",
+      "verification": "MATCH_EXECUTABLE_LOAD_AND_SECTION"
+    },
+    "cpu1_pc": 4294967092,
+    "ocm_cfg": 24
+  },
+  "before_csr": {
+    "0": 1395802704,
+    "4": 256,
+    "12": 1024,
+    "16": 0,
+    "20": 1,
+    "24": 0,
+    "28": 519168,
+    "32": 1048576,
+    "36": 5903100,
+    "40": 4294967295,
+    "44": 4294967295,
+    "48": 268435456,
+    "52": 33554432,
+    "56": 16777216,
+    "60": 28159416,
+    "64": 27549952,
+    "68": 5070,
+    "72": 28139136,
+    "76": 20280,
+    "80": 5,
+    "84": 0,
+    "88": 1,
+    "92": 5,
+    "96": 0,
+    "100": 5,
+    "104": 0,
+    "108": 0,
+    "112": 0,
+    "116": 0
+  },
+  "events": [
+    {
+      "event": "diag_loaded",
+      "value": {
+        "entry": 49184,
+        "elf_sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d"
+      }
+    }
+  ],
+  "limitations": [
+    "不执行ACK、reset、重试或清理AXI账本。",
+    "诊断ELF覆盖CPU0执行现场；SDK未提供CPU寄存器/栈/MMU连续上下文快照恢复API。",
+    "仅在真实DONE_SAFE/ERROR_SAFE且pending清零后允许由总控重载原R04 infer.elf并从入口建立新语境。"
+  ],
+  "recovery_ready": false,
+  "error": "Exception('timeout: target has not halted')",
+  "recovery_instruction": "CPU0停驻；不得ACK/reset/retry。待真实SAFE且pending清零后由总控决定重建app语境。"
+}

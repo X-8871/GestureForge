@@ -1,0 +1,108 @@
+{
+  "status": "APP_RELOADED_STOPPED_AT_ENTRY_ONLY",
+  "purpose": "APP_RELOAD_ONLY_NOT_RECOVERY_ACCEPTANCE",
+  "postmortem": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_gp0_postmortem_20261019_r01\\postmortem.json",
+    "sha256": "953771582c871ba430de3ead65010c904e125f31d1d04f52f8f65a2886e7e884"
+  },
+  "classification": {
+    "classification": "SLVERR",
+    "mailbox_magic": 1112687695,
+    "fault_status": 6152,
+    "fault_pc": 49988,
+    "opcode": 3850375168,
+    "dfar": 1136656392,
+    "epoch_before": 6,
+    "epoch_after": 6,
+    "frame_before": 0,
+    "frame_after": 0,
+    "last_reject_before": 0,
+    "last_reject_after": 1,
+    "axi_progress_after": 7
+  },
+  "ack_or_reset_issued": false,
+  "app_run_issued": false,
+  "identity": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 10116,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134368114282744990"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 10116,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134368114282744990"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 10116
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "before_csr": {
+    "0": 1395802704,
+    "4": 256,
+    "12": 3588,
+    "16": 0,
+    "20": 0,
+    "24": 0,
+    "28": 519168,
+    "32": 1048576,
+    "36": 5903100,
+    "40": 4294967295,
+    "44": 4294967295,
+    "48": 268435456,
+    "52": 33554432,
+    "56": 16777216,
+    "60": 28159416,
+    "64": 27549952,
+    "68": 5070,
+    "72": 28139136,
+    "76": 20280,
+    "80": 6,
+    "84": 0,
+    "88": 0,
+    "92": 5,
+    "96": 0,
+    "100": 1,
+    "104": 0,
+    "108": 0,
+    "112": 0,
+    "116": 0
+  },
+  "entry": 1048576,
+  "entry_bytes_sha256": "638109b414d148a3ba69890e87902acee31d3c707876982daf0fd06def75ec37"
+}

@@ -1,0 +1,58 @@
+{
+  "scope": "READ_ONLY_DIAGNOSTIC",
+  "hardware_commands": "NO_START_ACK_RESET_DOW_CON_STOP",
+  "read_mode": "APU address_space=AP0",
+  "status": "FAILED_READ_ONLY_OBSERVER",
+  "cleanup_errors": [],
+  "identity": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "abc98686c88218de2d5c118a390d461b77c5398d6febb112083e169d59a8f3a6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 28160,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134370581437493840"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28160
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 28160,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134370581437493840"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 28160
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "error": "JtagError('CPU1未停止')"
+}

@@ -1,5 +1,6 @@
 """T20 deadline流程离线协议回归；不创建SDK会话或串口。"""
 from pathlib import Path
+import json
 import tempfile
 import unittest
 import zlib
@@ -78,6 +79,61 @@ def diag_response(epoch, sequence=1, frame=0):
 
 
 class DeadlineFlowTests(unittest.TestCase):
+    def test_real_done_safe_fixture_with_head_valid_is_accepted(self):
+        fixture_path = (flow.ROOT / "report/evidence/S2B-T18/"
+                        "r10_interruption_observer_20261020_r02/observation.json")
+        fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+        terminal = {int(key): value for key, value in fixture["csr"].items()}
+        self.assertEqual(fixture["status"], "OBSERVATIONS_SAVED_NOT_ACCEPTANCE")
+        self.assertEqual(terminal[0x00C], 0xE04)
+        self.assertEqual(flow._normal_start_phase(terminal, expected_epoch=2, frame=1), 4)
+
+        before = dict(terminal)
+        before.update({0x00C: 0x400, 0x050: 1, 0x054: 0, 0x058: 0,
+                       0x010: 0, 0x068: 0, 0x06C: 0, 0x070: 0, 0x074: 0})
+        after_ack = dict(terminal)
+        after_ack.update({0x00C: 0x400, 0x010: 0, 0x064: 0,
+                          0x068: 0, 0x06C: 0, 0x070: 0, 0x074: 0})
+
+        class FixtureRunner:
+            def __init__(self):
+                self.writes = []
+
+            def snapshot(self, label, *, stable):
+                if label.endswith(":before"):
+                    return before
+                if label.endswith(":done_safe"):
+                    return terminal
+                if label.endswith(":after_ack"):
+                    return after_ack
+                return terminal
+
+            def parameters(self, frame, core, drain):
+                return {"frame": frame, "core": core, "drain": drain}
+
+            def event(self, kind, value):
+                pass
+
+            def write(self, offset, value):
+                self.writes.append((offset, value))
+
+        runner = FixtureRunner()
+        result = flow._measure_normal_start(
+            runner, frame=1, clock_profile={"hwh_clock_hz": flow.EXPECTED_PL_CLOCK_HZ})
+        self.assertEqual(result["status"], "PASS_DONE_SAFE_MEASURED_ACKED")
+        self.assertEqual(result["terminal"][0x00C], 0xE04)
+        self.assertEqual(runner.writes, [(0x008, 1), (0x05C, 2), (0x060, 0), (0x008, 4)])
+
+    def test_normal_start_active_phase_still_rejects_early_head_valid(self):
+        snapshot = {offset: 0 for offset in flow.csr.OFFSETS}
+        snapshot.update({0: 0x53324250, 4: 0x100, 0x00C: 0x201,
+                        0x030: 0x10000000, 0x034: 0x02000000, 0x038: 0x01000000,
+                        0x03C: 0x01ADADB8, 0x040: 0x01A46100, 0x044: 5070,
+                        0x048: 0x01AD5E80, 0x04C: 20280,
+                        0x050: 2, 0x058: 1})
+        with self.assertRaisesRegex(transport.TransportError, "HEAD_VALID提前置位"):
+            flow._normal_start_phase(snapshot, expected_epoch=2, frame=1)
+
     def test_diag_reconciles_epoch_only_after_raw_response_validation(self):
         external_epoch, prior_epoch = 17, 12
         with tempfile.TemporaryDirectory() as directory:

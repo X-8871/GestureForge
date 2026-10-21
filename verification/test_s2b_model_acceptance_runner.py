@@ -159,6 +159,12 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                     with self.subTest(label=label), self.assertRaises(runner.RunnerError):
                         runner.verify_binding({"path": str(artifact), "sha256": "0" * 64}, label)
 
+    def test_csr_deadline_source_pin_matches_current_source(self):
+        source = ROOT / "verification/s2b_csr_deadline_flow.py"
+        actual = hashlib.sha256(source.read_bytes()).hexdigest()
+        self.assertEqual(actual, runner.CSR_DEADLINE_SOURCE_SHA256)
+        runner._verify_csr_flow_sources()
+
     def test_unpinned_g0_and_cold_basis_fail_before_runtime_or_device_import(self):
         with mock.patch.object(runner, "G0_BASIS_PATH", None), \
                 mock.patch.object(runner, "G0_BASIS_SHA256", None), \

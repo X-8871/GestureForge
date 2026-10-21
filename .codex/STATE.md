@@ -1,6 +1,6 @@
 # 项目状态入口
 
-更新：2026-10-19（UTC+8）。按适用 AGENTS.md 恢复；运行状态以代码与原始证据为准。
+更新：2026-10-21 20:18（UTC+8）。按适用 AGENTS.md 恢复；运行状态以代码与原始证据为准。
 
 ## 目标、位置与授权
 
@@ -49,4 +49,11 @@
 - 当前阶段结论仍为NOT ACCEPTED：109/1000输出比较通过；数量门槛由已闭合ACK的108黄金样本及1000连续任务严格满足，独立范围分析见 `S2B-T18/formal_model_result_review_20261019_r01/scope_analysis.json`，原R02最后第109帧ACK缺证不改写。CSR完整实板恢复、CORE/DRAIN实际期限、原生BRESP类型及正式G4/G5仍缺。规范不要求故意用POR清除未决AXI；真实RUN→ABORT可验证内核软复位，FCLK/reset波形与重叠仍无实测。DDR实装/PCB适配关系尚未核实，保留用户“以手册为准”的授权。R04时序与CSR仿真有效；综合预算10次已用6次，不重跑未变PL。
 - `75fcc59` 两profile独审R03及官方129回归通过。R08于19:23实际开始、19:38结束，session33508已终止：seed、busy同RUN黄金/ACK、reaccept通过；真实RUN+AXI_PENDING=1时ABORT→ERROR_SAFE→显式ACK→gold epoch5/frame1通过。静止第一非法命令因AHB UNKNOWN停止，原run FAILED/native2与controller.close错误保留；R09未启动。原件 `S2B-T18/formal_csr_recovery_20261019_r08/` 及相邻deployment、T20同前缀目录。服务10116/3121仅Listen、COM4原PNP已重新核对，无活跃硬件任务。
 - 新静止矩阵partial修复只接受精确AHB签名且拒绝后逐字无副作用/LAST_REJECT符合；未识别BRESP仍逐项BLOCKED。最终正式Vitis132回归PASS及独审PASS，见 `S2B-T20/csr_static_bresp_partial_20261019_r03/`、`csr_static_bresp_review_20261019_r03/`；r01旧版PASS、r02三fixture失败保留。下一轮只跑新R10 with_deadlines及完整静止矩阵，不重复R08成功stage。
-- CPU原生BRESP受控诊断候选已独审PASS：`S2B-T20/cpu_bresp_host_review_20261019_r01/`；R05 OCM ELF SHA `a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d`，6离线命令成功，host9tests修正后PASS，见 `cpu_bresp_host_offline_20261019_r02/`。暖attach只消费R08真实LOAD/输入/黄金/ACK链与现场同epoch/PC，运行隔离OCM ELF后等真实新任务SAFE/空账本才下载原infer并停入口；不恢复旧上下文，不ACK/reset/开UART。尚未运行硬件。完整阶段矩阵与规范范围澄清见 `final_acceptance_matrix_20261019_r01/`，不新增未决时强制system reset或实板永久stall注入要求。
+- CPU原生BRESP已实际诊断：`S2B-T20/cpu_bresp_gp0_board_20261019_r01/` 原运行因SDK未识别BKPT而FAILED；独立postmortem保存DFSR=0x1808、DFAR=0x43C00008、fault PC=0xC344、STR=e5801000及LAST_REJECT变化，判SLVERR，后观察DONE_SAFE/空账本。独审PASS见 `cpu_bresp_gp0_postmortem_independent_review_20261019_r01/`，不改旧运行失败。随后原infer已安全重载但未算黄金验收，见 `cpu_bresp_app_restore_20261019_r01/`。
+- R10于10月19日完成weights/seed后，完整正常START计时中途服务/进程消失；原生退出码未知，不能判期限通过。`S2B-T18/r10_interruption_20261019_r01/` 保留中断；10月20日AP0 observer_r02见DONE_SAFE epoch2/frame1，仅为当时观察。
+- 10月21日恢复时无hw_server/3121或板测程序，已新建自有服务PID28160、creation_filetime=134370581437493840，COM4原PNP不变。现场为后续阶段3视频配置；双核原Running，20:11停核后PC0=0x105D0C、PC1=0xFFFFFF34，非2B CSR。证据 `S2B-T18/r10_interruption_observer_20261021_r01` 至 `_r03`（前两次门禁拒绝，第三次非2B CSR变化，不能称2B失败）。不复用旧DDR/权重/冷链；恢复脚本独审后先停稳视频DMA再完整易失部署2B。
+- 阶段3树只读核验已于2026-10-21 19:53 OFFERED停止板测/构建，未接管其写权。占用通知 `D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\codex_mailbox\CDX-20261021-004-2b-hardware-resume.md`。当前2B仍NOT ACCEPTED；剩余期限/非法矩阵、重建ELF单样本与DDR有限范围证据及独立G4/G5。完整阶段矩阵见 `S2B-T20/final_acceptance_matrix_20261019_r01/`，不要求未决时强制reset或实板永久stall注入。
+
+## 当前交接行（11字段）
+
+任务=`阶段2B验收冻结` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2b / codex/stage2b-dma-g0` | 起始提交=`bca323b1750caee783af5552c00769fd584fc1a6` | 允许修改范围=`2B verification/vitis/docs/report及本STATE` | 未提交改动归属=`本总控2B证据与STATE；历史未跟踪原件保留；不提交大产物/tmp；未完成warm候选未使用` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-21 20:18` | 证据入口=`report/evidence/S2B-T20/g5_remaining_audit_20261021_r01/` | 恢复命令=`先核对进程和最新原始结果；不得重启同RunId；读本STATE及AGENTS` | 状态/下一接手方=`IN_PROGRESS / 本总控`

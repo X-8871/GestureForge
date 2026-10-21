@@ -1,0 +1,212 @@
+{
+  "purpose": "READ_ONLY_POSTMORTEM",
+  "writes_to_target": "NONE",
+  "cleanup_errors": [],
+  "identity": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 10116,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134368114282744990"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 10116,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134368114282744990"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 10116
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "pc": 50596,
+  "cpu1_pc": 4294967092,
+  "cpsr": {
+    "cpsr": 1611596247
+  },
+  "csr": {
+    "0": 1395802704,
+    "4": 256,
+    "12": 3588,
+    "16": 0,
+    "20": 0,
+    "24": 0,
+    "28": 519168,
+    "32": 1048576,
+    "36": 5903100,
+    "40": 4294967295,
+    "44": 4294967295,
+    "48": 268435456,
+    "52": 33554432,
+    "56": 16777216,
+    "60": 28159416,
+    "64": 27549952,
+    "68": 5070,
+    "72": 28139136,
+    "76": 20280,
+    "80": 6,
+    "84": 0,
+    "88": 0,
+    "92": 5,
+    "96": 0,
+    "100": 1,
+    "104": 0,
+    "108": 0,
+    "112": 0,
+    "116": 0
+  },
+  "mailbox_words": [
+    1112687695,
+    1094697104,
+    147134589,
+    0,
+    1114203,
+    69872,
+    1136659462,
+    1136659458,
+    1024,
+    0,
+    5,
+    5,
+    0,
+    1,
+    4354,
+    0,
+    6,
+    0,
+    0,
+    6152,
+    1611595987,
+    49996,
+    49988,
+    3850375168,
+    1136656392,
+    4354,
+    6,
+    0,
+    0,
+    1,
+    7,
+    0,
+    257,
+    6,
+    0,
+    0,
+    0,
+    0,
+    65536,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "diag_code_words": [
+    4044095680,
+    4043440147,
+    3818969645,
+    4043440151,
+    3818969645,
+    4043440147,
+    3818916398,
+    3818917888,
+    3818922048,
+    3833597956,
+    3797032961,
+    452984828,
+    3994095376,
+    3821013506,
+    3993046800,
+    3852404044
+  ],
+  "page0_descriptor": [
+    89574
+  ],
+  "private_page0_descriptor": [
+    89574
+  ],
+  "register_cp15": {
+    "0": "",
+    "1": "",
+    "2": "",
+    "3": "",
+    "5": "",
+    "6": "",
+    "7": "",
+    "8": "",
+    "9": "",
+    "10": "",
+    "11": "",
+    "12": "",
+    "13": "",
+    "15": ""
+  },
+  "register_vbar": {
+    "read_error": "Exception('No register match: ', 'vbar')"
+  },
+  "register_sctlr": {
+    "read_error": "Exception('No register match: ', 'sctlr')"
+  },
+  "register_dfsr": {
+    "read_error": "Exception('No register match: ', 'dfsr')"
+  },
+  "register_dfar": {
+    "read_error": "Exception('No register match: ', 'dfar')"
+  },
+  "register_ttbr0": {
+    "read_error": "Exception('No register match: ', 'ttbr0')"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "run_id": "cpu_bresp_gp0_board_20261019_r01",
+  "source_commit": "bca323b1750caee783af5552c00769fd584fc1a6",
+  "r08_result": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261019_r08\\acceptance_result.json",
+    "sha256": "2fa6a05a9e14f3aaa86c15aba8777aded207928f84c3d7f5b7f86e4971dac93f"
+  },
+  "diagnostic_review": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\cpu_bresp_host_review_20261019_r01\\review_outcome.json",
+    "sha256": "94b7b8c478af7c8b80dd6a971cea695c015eb39cc3b1cf2294bf55640f9a4485"
+  },
+  "hardware_execution": "EXPLICIT_WARM_JTAG_CPU_DIAGNOSTIC",
+  "uart_opened": false,
+  "system_reset_or_ack_issued": false,
+  "cleanup_errors": [],
+  "limitations": [
+    "独立OCM诊断，不是生产infer.elf运行结果。",
+    "不恢复旧CPU执行上下文；安全后仅把原infer.elf下载并停在入口，后续须正式重部署与黄金恢复。"
+  ],
+  "identity_before": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 10116,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134368114282744990"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 10116,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134368114282744990"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 10116
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "error": "Exception('timeout: target has not halted')",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_cpu_bresp_experiment.py\", line 66, in run\n    record[\"experiment\"] = experiment.execute_cpu_bresp_experiment(\n                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        controller, r08_result_binding, diag_binding, review_binding, output)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_cpu_bresp_experiment.py\", line 325, in execute_cpu_bresp_experiment\n    controller.call(\"cpu0.con.cpu_bresp_diag\", controller.targets[\"cpu0\"].con, \"--block\", timeout=30)\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 376, in call\n    result = function(*args, **kwargs)\n  File \"D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py\", line 2372, in con\n    raise Exception('timeout: target has not halted') from None\nException: timeout: target has not halted\n",
+  "native_exit_code": 2
+}

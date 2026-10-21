@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "review_id": "cpu_bresp_gp0_postmortem_independent_review_20261019_r01",
+  "verdict": "PASS",
+  "status": "PASS_POSTMORTEM_CLASSIFICATION_ONLY",
+  "scope": "Independent read-only decoding of the saved CPU BRESP postmortem for the R01 controlled experiment; assessment of Vitis XSDB Target.dow/con source semantics and the saved run records. This does not change the original R01 launcher result and does not assert G3/G4/G5 acceptance.",
+  "reviewed_run": {
+    "run_id": "cpu_bresp_gp0_board_20261019_r01",
+    "run_source_commit": "bca323b1750caee783af5552c00769fd584fc1a6",
+    "review_worktree_head_at_review": "bca323b1750caee783af5552c00769fd584fc1a6",
+    "original_launcher_status": "FAILED",
+    "original_launcher_native_exit_code": 2,
+    "original_error": "Exception('timeout: target has not halted')",
+    "postmortem_sha256": "953771582c871ba430de3ead65010c904e125f31d1d04f52f8f65a2886e7e884"
+  },
+  "evidence_bindings": [
+    {"path": "report/evidence/S2B-T20/cpu_bresp_gp0_board_20261019_r01/launcher_result.json", "sha256": "252e29f6c1f8c3c016bd911dd25f265731a1c2b42a77e2ac8b7aa398b0d9fd7f"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_gp0_board_20261019_r01/cpu_bresp_result.json", "sha256": "4197a16f0a143ca71beee124f01abcad0ba5d6655b75d5f29faeccc774139263"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_gp0_board_20261019_r01/jtag_calls.jsonl", "sha256": "9a6fc9b5375abc8ec659c7d2f6b0a85ee9101c54a8d1285cc8e82afbb2b6a66b1"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_gp0_postmortem_20261019_r01/postmortem.json", "sha256": "953771582c871ba430de3ead65010c904e125f31d1d04f52f8f65a2886e7e884"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r05/s2b_bresp_diag.elf", "sha256": "a40efe0cab5be792eb2f1edd5b661dd59f7531283cb0a545b6ee34c7c1f88c8d"},
+    {"path": "report/evidence/S2B-T20/cpu_bresp_diag_ocm_20261019_r05/disassembly.log", "sha256": "3a8500cc35c98764c463c9416cee38b901cd7f7675ed51003bf515e058bf1c50"},
+    {"path": "D:/Xilinx/2026.1/Vitis/cli/xsdb/target.py", "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"},
+    {"path": "verification/s2b_cpu_bresp_experiment.py", "sha256": "e92efd0e7c1f356cd9851523fd13c57464731f835c7963d2924834375b57300e"}
+  ],
+  "mailbox_recalculation": {
+    "word_count": 64,
+    "classification": "SLVERR",
+    "checks": {
+      "magic_BRDO_0x4252444F": true,
+      "DFSR_FS_8": true,
+      "DFSR_bit10_zero": true,
+      "DFSR_WnR_one": true,
+      "DFSR_ExT_one": true,
+      "DFAR_0x43C00008": true,
+      "fault_PC_0xC344": true,
+      "opcode_0xE5801000": true,
+      "before_and_after_RUN_owner_PL_without_SAFE_or_TERMINAL": true,
+      "LAST_REJECT_0_to_1": true,
+      "epoch_6_unchanged": true,
+      "frame_0_unchanged": true
+    },
+    "interpretation": "All classifier predicates from verification/s2b_cpu_bresp_experiment.py:168-197 evaluate true against the saved 64 words. The postmortem read is therefore consistent with the frozen diagnostic detecting a synchronous external write abort at the unique busy-start STR with SLVERR ExT status. This is an offline re-evaluation of the saved postmortem bytes, not a new hardware read."
+  },
+  "postmortem_state": {
+    "cpu0_pc": "0x0000C5A4",
+    "cpu0_cpsr": "0x600F01D7",
+    "cpu0_mode": "Abort mode",
+    "cpu1_pc": "0xFFFFFF34",
+    "diagnostic_park_instruction": "0xE1200070 (BKPT #0 at 0xC5A4, confirmed by R05 disassembly)",
+    "csr_status": "0x00000E04",
+    "csr_state": "DONE_SAFE (status[2:0] == 4)",
+    "head_valid": true,
+    "safe_to_reuse": true,
+    "terminal": true,
+    "owner_PL": false,
+    "error_code_offset_0x010": 0,
+    "epoch": 6,
+    "result_frame": 0,
+    "axi_progress": 0,
+    "interpretation": "The 0xE04 status is DONE_SAFE, not ERROR_SAFE; ERROR_CODE is 0. This is the result of the completed diagnostic-triggered normal task. The original R01 runner still failed with a con timeout and remains recorded as FAILED. The saved postmortem is a separate, read-only observation after the run."
+  },
+  "sdk_semantics": {
+    "source": "D:/Xilinx/2026.1/Vitis/cli/xsdb/target.py",
+    "con_definition": "Target.con(addr=None, timeout=0) documents that addr resumes at an explicitly supplied address. At lines 2354-2358, it writes PC only when addr is not None, then calls __resume(0, 1). With R01's call `con('--block', timeout=30)` no addr is supplied; it resumes the current PC.",
+    "block_definition": "At lines 2359-2372, --block polls is_suspended once per second and raises `timeout: target has not halted` if the target remains reported running through the timeout.",
+    "dow_definition": "Target.dow documents set_entry as setting PC to the ELF entry; lines 3923-3926 perform rwr('pc', entry). R01 SDK output reports successful download and `Setting PC ... 0x0000c020`; a subsequent recorded PC read is 0xC020.",
+    "con_addr_recommendation": "Passing addr=0xC020 is unnecessary for the recorded R01 sequence and does not explain the timeout: dow(set_entry=True), the PC read, the absence of an addr argument, and the final PC at the diagnostic park establish that the ELF was entered and executed."
+  },
+  "diagnosis": {
+    "established": [
+      "R01 downloaded the frozen OCM diagnostic ELF, set and read PC 0xC020, and resumed it.",
+      "The saved mailbox records the expected synchronous external abort signature and classifies SLVERR under the reviewed host predicates.",
+      "The CPU reached the R05 diagnostic BKPT park at 0xC5A4; the postmortem snapshot is in Abort mode.",
+      "The CSR completed in DONE_SAFE at epoch 6/frame 0, ERROR_CODE 0, SAFE/TERMINAL/head-valid set, PL owner clear, AXI progress zero.",
+      "The wrapper's `con --block` nevertheless timed out after 30 seconds while its recorded state query said Running; its failure handler explicitly stopped CPU0 and reported Stopped at 0xC5A4."
+    ],
+    "not_established": [
+      "The saved records do not uniquely establish why XSDB's --block run-state polling failed to observe suspension at the BKPT. Do not attribute it specifically to MMU, OCM mapping, failed entry, restored application context, or a particular debug-monitor configuration without further evidence.",
+      "The initial report of an after-fail-stop PC equal to the old application PC is contradicted by R01's explicit stop output and the read-only postmortem PC, both 0xC5A4. The recorded pre-run application PC was 0x10BB98. No saved after-stop PC read of 0x10BB98 was identified."
+    ],
+    "minimal_future_host_change_if_needed": "No diagnostic rerun is warranted from this review. If a future separately approved run needs to avoid this runner failure mode, use a nonblocking con followed by bounded polling for a stable saved mailbox and the real DONE_SAFE/ERROR_SAFE terminal CSR with pending clear; then explicitly stop CPU0 and read the final mailbox. Preserve timeout/fail-stop semantics and never infer completion from elapsed time alone. This is a proposal only, not tested or executed here."
+  },
+  "commands_and_exit_codes": [
+    {"command": "git rev-parse HEAD", "exit_code": 0, "result": "bca323b1750caee783af5552c00769fd584fc1a6"},
+    {"command": "Get-FileHash -Algorithm SHA256 -LiteralPath <saved R01/postmortem/ELF/SDK inputs>", "exit_code": 0, "result": "all listed hashes recorded above"},
+    {"command": "PowerShell read-only predicate evaluation of the saved 64-word mailbox against host classifier fields", "exit_code": 0, "result": "all 19 checks true; SLVERR"},
+    {"command": "Official Vitis or hardware operation", "exit_code": null, "result": "not run; no board, JTAG, XSDB session, UART, SDK or target access by reviewer"}
+  ],
+  "limitations": [
+    "The reviewer re-read the saved postmortem artifact; did not access the Vitis postmortem session or the target.",
+    "The original run remains FAILED with native exit code 2 even though its saved postmortem independently classifies the event and records a safe terminal snapshot.",
+    "The reviewer did not rerun tests or hardware, alter code, modify HEAD, or assert R10, G3, G4 or G5 acceptance."
+  ],
+  "blocking_findings": []
+}

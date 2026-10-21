@@ -144,6 +144,21 @@ def _epoch(snapshot: dict) -> int:
     return snapshot[0x050] | snapshot[0x054] << 32
 
 
+def _normal_start_phase(snapshot: dict, expected_epoch: int, frame: int) -> int:
+    """先分类状态；HEAD_VALID在DONE_SAFE是必需终态字段，只禁止活动期置位。"""
+    csr.checked_snapshot(snapshot)
+    phase = snapshot[0x00C] & 7
+    model.require(_epoch(snapshot) == expected_epoch and snapshot[0x058] == frame,
+                  "正常deadline任务epoch/frame错误")
+    if phase in (1, 2, 3):
+        model.require(snapshot[0x00C] & 0x200 == 0,
+                      "正常deadline活动期HEAD_VALID提前置位")
+    else:
+        model.require(phase == 4,
+                      "正常deadline任务进入错误或隔离状态；不ACK、不启动后续阶段")
+    return phase
+
+
 def _scene_config(controller, config: dict, run_dir: Path, label: str, snapshot: dict) -> dict:
     """冻结安全IDLE现场，复用T18的同构配置schema供短期限preflight。"""
     csr.checked_snapshot(snapshot)
@@ -220,9 +235,7 @@ def _measure_normal_start(runner, *, frame: int, clock_profile: dict) -> dict:
     while time.monotonic() < deadline:
         current = runner.snapshot("deadline_measurement:observe", stable=False)
         observations += 1
-        model.require(_epoch(current) == expected_epoch and current[0x058] == frame and
-                      not current[0x00C] & 0x200, "正常deadline任务epoch/frame/head状态异常")
-        phase = current[0x00C] & 7
+        phase = _normal_start_phase(current, expected_epoch, frame)
         if phase == 4:
             terminal = runner.snapshot("deadline_measurement:done_safe", stable=True)
             model.require(_epoch(terminal) == expected_epoch and terminal[0x058] == frame and

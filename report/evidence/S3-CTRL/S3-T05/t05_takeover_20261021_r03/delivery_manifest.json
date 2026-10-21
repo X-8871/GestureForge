@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_takeover_20261021_r03",
+  "source_commit": "d476df8db21614df35bb3ccb11843b1beca88212",
+  "evidence_dir": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包仅复核已交付相机视频路径的旧网表与样本，不新增或消费模型、DMA或推理冻结接口；既定厂商位连接以哈希绑定。",
+  "files": [
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/channel_mapping_report.json",
+      "role": "result",
+      "sha256": "c6115a389c43bca1607deb99efe862eb12f9461f9958fe36a5a4399b5263a571"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/handoff_check.json",
+      "role": "result",
+      "sha256": "5ab40533870b6d4f4ae1c69e68e3294f07babd75ad7edc3014dc87b04d5bda8f"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/manifest.json",
+      "role": "result",
+      "sha256": "463f35e2bca92cd0a410a34fbe876737d8e9f3e78c17d6fbc79d04f2eb7f26ec"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/samples/00_row_y100.bin",
+      "role": "result",
+      "sha256": "30ced0ffcb7653da9f35a2d37d57f6a21f0eb2d8bd50b7566d9a5e329a50337a"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/samples/01_row_y100.bin",
+      "role": "result",
+      "sha256": "b78ecd9c360a827e74d7b57ab6511ff2fe977c515b6c7b7aef4a97d3e3423cf5"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/samples/02_row_y400.bin",
+      "role": "result",
+      "sha256": "d44e012d6d6a3d394606d21e84f06e9dfa5c3b7a3308640f73160fde280e524c"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/samples/03_row_y600.bin",
+      "role": "result",
+      "sha256": "348600298f1cb18f43f8414814af5a87fbb6dabc055a4de336c8fd0785883c2b"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/takeover_record.json",
+      "role": "result",
+      "sha256": "44eaf847fb2b849f3e542230229bf2cb01b27bd7a12ff41c27d157ec3ac0d678"
+    },
+    {
+      "path": "scripts/stage3_t05/analyze_channel_mapping.py",
+      "role": "source",
+      "sha256": "2d24c2576a54e49ec7844983332dbd2db9d990758fd10fd2d424c7bea9012881"
+    }
+  ],
+  "checks": [
+    {
+      "name": "接管契约与历史落点12项语义检查",
+      "status": "PASS",
+      "command": "python -B scripts/stage3_t05/analyze_channel_mapping.py --worktree D:/codex-worktrees/dbdf --output D:/codex-worktrees/dbdf/report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03",
+      "exit_code": 0
+    },
+    {
+      "name": "本轮新位流实机与目视验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "新变体仍在独立审查，尚未重型构建与下载；本包只判断历史旧补丁落点。"
+    }
+  ],
+  "limitations": [
+    "本报告仅复核既有文件，没有重新下载或采样；旧采样时间绑定仍依赖历史日志。",
+    "位重建是近似拉伸，不恢复真实丢失最高位。",
+    "绿色缺位的根因尚未排除，不在本次蓝通道最小修复中更改。",
+    "尚未证明硬件故障；该包不代表G3/G4/G5。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "git version 2.56.0.windows.2"
+  }
+}

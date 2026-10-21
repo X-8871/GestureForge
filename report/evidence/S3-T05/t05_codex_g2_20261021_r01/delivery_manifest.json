@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_codex_g2_20261021_r01",
+  "source_commit": "d476df8db21614df35bb3ccb11843b1beca88212",
+  "evidence_dir": "report/evidence/S3-T05/t05_codex_g2_20261021_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "既有厂商原始视频通道的最小修复及诊断工具审查，不引入模型或DMA冻结接口，不改变既有地址映射与侧带语义。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_codex_g2_20261021_r01/capture_negative_cases_before_fix.json",
+      "role": "result",
+      "sha256": "c1e4eb3e5fba4d3cd9b599c9c3b620122b7e9fbb549d67c63c74347a1138c3e5"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_codex_g2_20261021_r01/capture_retest_after_fix.txt",
+      "role": "result",
+      "sha256": "eab3355e28f988a672530e82bdaa1a1fca97d385b83b52bea26a0b6051267ddd"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_codex_g2_20261021_r01/dump_mock.txt",
+      "role": "result",
+      "sha256": "f3b9faca38cc90b76eabe5e924e48091593c2bf74f95cef06208c3f173f96214"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_codex_g2_20261021_r01/review.txt",
+      "role": "result",
+      "sha256": "5f9d51a6b84d61e3c304d77218edcfbfd819e830498aa3e4f9269bf9ebd86e8c"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_codex_g2_20261021_r01/review_summary.json",
+      "role": "result",
+      "sha256": "860054237779a7dfe047a5f0e5debe739a8a8170c781a5eb7414bfafa66d9b73"
+    },
+    {
+      "path": "board/stage3/software/sensor/alinx_ov5640_display_blue_rebuild.patch",
+      "role": "source",
+      "sha256": "bee049c6c46afe897a0b051f3e124669c63d94ddc5c827a87e3ab74696b9aea7"
+    },
+    {
+      "path": "scripts/stage3_t04/check_display_bluefix.py",
+      "role": "source",
+      "sha256": "37cd9dae157f492d1d0892f1f0877604f15fdec2e6d1f5873029570ca8c9590a"
+    },
+    {
+      "path": "scripts/stage3_t04/run_t04_camera_display_bluefix_build.sh",
+      "role": "source",
+      "sha256": "d475602904b48feaefc169aa03855b9c49407d6b02e01103bd5155140de6c4ad"
+    },
+    {
+      "path": "scripts/stage3_t04/build_t04_camera.tcl",
+      "role": "source",
+      "sha256": "1f666b4a7ea8ce09c59d6e08471e76028dca53c6d73fe7a9f57006c98c16983c"
+    },
+    {
+      "path": "scripts/stage3_t04/inspect_display_bluefix.tcl",
+      "role": "source",
+      "sha256": "462063ade92f4f9cb01f75ee2c74fb3351a849dbf290035cd190d814f0fc673c"
+    },
+    {
+      "path": "scripts/stage3_t04/run_bounded_build.py",
+      "role": "source",
+      "sha256": "b3c1e200d272aa4ba129c351708e9ae64dabbe06afe8004ede2dee1b35af8ff5"
+    },
+    {
+      "path": "scripts/stage3_t05/analyze_channel_mapping.py",
+      "role": "source",
+      "sha256": "2d24c2576a54e49ec7844983332dbd2db9d990758fd10fd2d424c7bea9012881"
+    },
+    {
+      "path": "scripts/stage3_t05/jtag_dump_display_channels.tcl",
+      "role": "source",
+      "sha256": "c10314762f7700acf29aa0055e3d3c81c3dcfd0e0c5a6b076c107ff4d602271e"
+    },
+    {
+      "path": "scripts/stage3_t05/test_dump_display_channels.tcl",
+      "role": "source",
+      "sha256": "9c20bac2969d5a831ebe02d704a8d1e955d07d181bc4d8d420c7e21d59060ea0"
+    },
+    {
+      "path": "scripts/stage3_t05/analyze_display_capture.py",
+      "role": "source",
+      "sha256": "adff7bdc8c467789a56727cb7b8a93f4f40f9781ce47237cfccb5857dc092c78"
+    }
+  ],
+  "checks": [
+    {
+      "name": "独立数学与隔离补丁应用",
+      "status": "PASS",
+      "command": "python -B scripts/stage3_t04/check_display_bluefix.py --check-patch",
+      "exit_code": 0
+    },
+    {
+      "name": "安全转储命令替身4路径",
+      "status": "PASS",
+      "command": "tclsh scripts/stage3_t05/test_dump_display_channels.tcl D:/codex-worktrees/dbdf/tmp/3/S3-T05/codex_dumpmock_20261021_r01",
+      "exit_code": 0
+    },
+    {
+      "name": "板测判读器纯数据6组",
+      "status": "PASS",
+      "command": "python -B scripts/stage3_t05/analyze_display_capture.py --selftest",
+      "exit_code": 0
+    },
+    {
+      "name": "新位流与目视验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "唯一重型构建仍运行中，尚无本轮板测与人工目视结果。"
+    }
+  ],
+  "limitations": [
+    "仅G2代码启动就绪；不是G3/G4/G5。",
+    "近似补偿不恢复真实色彩；绿色缺位和时序警告保留。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "git version 2.56.0.windows.2"
+  }
+}

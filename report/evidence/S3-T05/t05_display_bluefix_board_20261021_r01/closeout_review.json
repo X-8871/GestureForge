@@ -1,0 +1,18 @@
+{
+  "reviewer": "Bernoulli",
+  "review_status": "PASS_FOR_FAILED_EXPERIMENT_ARCHIVE_ONLY",
+  "source_identity": "与 t05_codex_g2_20261021_r01 的十项补丁/脚本哈希一致，独立复核 build_report、生成源、bit/XSA、board_analysis 输入哈希匹配。",
+  "documentation_review": "STATE、README、visual_result 已明确机读 PASS / 目视 FAIL / 阶段 NOT_ACCEPTED，未覆盖旧分析快照；不再断言 ISP 已完全排除或模块物理故障已证明。",
+  "confirmed_d9_path": [
+    "impl_1/design_1_wrapper_io_placed.rpt 第154行：F17 对应 cmos1_d[9]，INPUT、LVCMOS33、Bank35。",
+    "生成 design_1.v 第359行及相机 OOC 网表第1811/525行：外部数据[9:2]进入内部8位总线，bit7接采样触发器，非直接常零。",
+    "官方 cmos_8_16bit.v 第55行完整拼接两个8位字节，D9对应补偿前的16位字bit15与bit7。"
+  ],
+  "limitations": [
+    "尚缺3017/3018等引脚控制实际回读及采样裕量证据。",
+    "本轮不做电气测量；物理故障没有证明。",
+    "方法学仍有TIMING-17=236、TIMING-36=1及缺失I/O延迟约束等问题，不是完整时序签核。",
+    "VDMA粘滞状态0x00015810仍在，指纹变化不等于无错。",
+    "PASS只适用于诊断代码和失败实验归档，非G3/G4/G5。"
+  ]
+}

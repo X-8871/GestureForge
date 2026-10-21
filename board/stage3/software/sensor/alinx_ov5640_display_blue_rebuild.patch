@@ -1,0 +1,22 @@
+diff --git a/my_ip/ov5640_ip/src/alinx_ov5640.v b/my_ip/ov5640_ip/src/alinx_ov5640.v
+--- a/my_ip/ov5640_ip/src/alinx_ov5640.v
++++ b/my_ip/ov5640_ip/src/alinx_ov5640.v
+@@ -40,6 +40,9 @@
+ reg[15:0]     cmos_d_16bit_d1;
+ wire          s_axis_tvalid = cmos_href_16bit_d1 & cmos_hblank_d1 & s_axis_tready;
+ wire[15:0]    s_axis_tdata = cmos_d_16bit_d1;
++// 显示蓝色位于高五位：按既定策略近似重建，不代表恢复真实丢位。
++// 低十一位（显示绿、红）、侧带和时钟保持不变。
++wire[15:0] s_axis_tdata_display_bluefix={s_axis_tdata[14:11],s_axis_tdata[14],s_axis_tdata[10:0]};
+ reg[31:0]     reset_cnt;
+ reg[31:0]     fifo_ready_cnt;
+ reg           fifo_ready;
+@@ -186,7 +189,7 @@
+       .rst              (~cmos_aresetn),
+       .wr_clk           (cmos_pclk),
+       .wr_en            (s_axis_tvalid & fifo_ready),
+-      .din              ({s_axis_tdata,s_axis_tlast,s_axis_tuser}),
++      .din              ({s_axis_tdata_display_bluefix,s_axis_tlast,s_axis_tuser}),
+       .full             (full),
+       .overflow         (),
+       .prog_full        (),

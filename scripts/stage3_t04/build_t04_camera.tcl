@@ -12,6 +12,14 @@ set ::part "xc7z020clg400-2"
 set ::proj_name "ov5640_single"
 set ::bd_name "design_1"
 set ::proj_dir [file join $::run_dir project]
+set ::build_jobs 3
+if {[info exists ::env(S3_BUILD_JOBS)]} {
+    if {![string is integer -strict $::env(S3_BUILD_JOBS)] || $::env(S3_BUILD_JOBS) < 1 || $::env(S3_BUILD_JOBS) > 3} {
+        puts "T04_FAIL=INVALID_S3_BUILD_JOBS"
+        exit 3
+    }
+    set ::build_jobs $::env(S3_BUILD_JOBS)
+}
 
 proc t04_log {msg} { puts "T04: $msg" }
 proc t04_fail {msg} { puts "T04_FAIL=$msg"; exit 2 }
@@ -20,6 +28,7 @@ t04_log "VIVADO_VERSION=[version -short]"
 t04_log "PART=$::part"
 t04_log "RUN_DIR=$::run_dir"
 t04_log "VENDOR_DIR=$::vendor_dir"
+t04_log "BUILD_JOBS=$::build_jobs"
 if {[info exists ::env(XILINXD_LICENSE_FILE)]} { t04_log "LICENSE_ENV=$::env(XILINXD_LICENSE_FILE)" } else { t04_log "LICENSE_ENV=<unset>" }
 
 foreach f [list "ps_config.tcl" "pl_config.tcl"] {
@@ -70,7 +79,7 @@ t04_log "TOP=[get_property top [current_fileset]]"
 add_files -fileset constrs_1 -norecurse $xdc_files
 t04_log "XDC_ADDED=[llength [get_files -of [get_filesets constrs_1]]]"
 
-launch_runs synth_1 -jobs 3
+launch_runs synth_1 -jobs $::build_jobs
 if {[catch {wait_on_run synth_1} wait_err]} { t04_log "SYNTH_WAIT_WARN=$wait_err" }
 set synth_status [get_property STATUS [get_runs synth_1]]
 set synth_progress [get_property PROGRESS [get_runs synth_1]]
@@ -84,7 +93,7 @@ for {set attempt 1} {$attempt <= 2} {incr attempt} {
     t04_log "SYNTH_RETRY_${attempt}_FAILED_RUNS=[llength $failed]"
     if {[llength $failed] == 0} { break }
     reset_run $failed
-    launch_runs synth_1 -jobs 3
+    launch_runs synth_1 -jobs $::build_jobs
     if {[catch {wait_on_run synth_1} wait_err2]} { t04_log "SYNTH_RETRY_WAIT_WARN=$wait_err2" }
     set synth_status [get_property STATUS [get_runs synth_1]]
     set synth_progress [get_property PROGRESS [get_runs synth_1]]
@@ -98,7 +107,7 @@ open_run synth_1 -name synth_1
 report_utilization -file [file join $::run_dir report_utilization_synth.rpt]
 close_design
 
-launch_runs impl_1 -to_step write_bitstream -jobs 3
+launch_runs impl_1 -to_step write_bitstream -jobs $::build_jobs
 if {[catch {wait_on_run impl_1} impl_wait_err]} { t04_log "IMPL_WAIT_WARN=$impl_wait_err" }
 set impl_status [get_property STATUS [get_runs impl_1]]
 set impl_progress [get_property PROGRESS [get_runs impl_1]]

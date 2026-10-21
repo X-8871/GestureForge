@@ -1,0 +1,674 @@
+{
+  "schema_version": "gestureforge_s4b_offline_chain_v1",
+  "task_id": "S4-B",
+  "run_id": "20261021_r01",
+  "stage": "4",
+  "scope": "离线准备：冻结 heads -> C 解码/NMS -> s2bu/1.1 风格帧 -> 主机解帧 -> Python D9 对拍",
+  "created_utc8": "2026-10-21T21:41:31+08:00",
+  "w4_root": "D:\\codex-worktrees\\w4",
+  "contract": {
+    "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+    "relative": "docs/stage4/s4a_stage4_g0_fields.json",
+    "sha256": "128f605cf5371306947cc81a95905a1b66cbac0fba298907ed9cc58c6d35fa6e",
+    "schema_version": "gestureforge_s4a_stage4_g0_draft_v1",
+    "status": "DRAFT_NOT_FROZEN",
+    "note": "S4-A 契约为 DRAFT_NOT_FROZEN；字段名以其 result_record.fields 为权威命名",
+    "result_record_fields": [
+      "frame_id",
+      "result_seq",
+      "geometry",
+      "state",
+      "detection_count",
+      "detections",
+      "candidate_count",
+      "candidate_overflow",
+      "capture_time_ns",
+      "result_time_ns",
+      "inference_time_ns",
+      "end_to_end_latency_ns",
+      "dropped_frames",
+      "stale",
+      "error_code"
+    ],
+    "detection_record_fields": [
+      "class_id",
+      "class_name",
+      "score",
+      "xyxy",
+      "xyxy_px",
+      "source_order"
+    ],
+    "state_enum": [
+      "DROPPED",
+      "ERROR",
+      "NO_HAND",
+      "OK",
+      "TIMEOUT"
+    ]
+  },
+  "bindings": [
+    {
+      "id": "s4a_contract",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+      "sha256": "128f605cf5371306947cc81a95905a1b66cbac0fba298907ed9cc58c6d35fa6e"
+    },
+    {
+      "id": "t25_index",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json"
+    },
+    {
+      "id": "t29_reference",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json"
+    },
+    {
+      "id": "d9_decoder",
+      "path": "verification\\s1_t02_d9_yolo_decode.py"
+    },
+    {
+      "id": "d6_metrics",
+      "path": "verification\\s1_t02_d6_detection_metrics.py"
+    },
+    {
+      "id": "fixed_samples",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\fixed_test_samples.json"
+    },
+    {
+      "id": "s2b_transport_reference",
+      "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_transport.py",
+      "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+    }
+  ],
+  "environment": {
+    "python": "3.12.10",
+    "gcc": [
+      "gcc.exe (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0"
+    ],
+    "host_os": "nt",
+    "note": "未使用 Vivado/xsim/综合/仿真；未访问 UART/JTAG/hw_server/COM4/板卡"
+  },
+  "sources": [
+    {
+      "path": "vitis/stage4/s4_ps_decode.h",
+      "sha256": "dc5ebaa701ecfbb2a2c91144c573c9b2a3b10a91bc306711b76dd99197dfd1f2",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_ps_decode.c",
+      "sha256": "161c67ab6729134c5a6f41d76a08ae6ff2ae9471441769db30816431c368b162",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.h",
+      "sha256": "42c4d81655b1b2b41b97bfd87e0475a73951eafcddbc42bdeda73facdd6489f4",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.c",
+      "sha256": "196ce14d97bf94d6bc5711109f87f5c63aab0e3ea363ffea2058fc17a1682e51",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_offline_host.c",
+      "sha256": "744195d00299d00993027cea0d2e88c2bd60a5399074f77dd930e583623316c2",
+      "exists": true
+    }
+  ],
+  "commands": {
+    "compile": {
+      "command": [
+        "D:\\mingw64\\bin\\gcc.exe",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wconversion",
+        "-Wshadow",
+        "-I",
+        "vitis/stage4",
+        "vitis/stage4/s4_ps_decode.h",
+        "vitis/stage4/s4_ps_decode.c",
+        "vitis/stage4/s4_uart_protocol.h",
+        "vitis/stage4/s4_uart_protocol.c",
+        "vitis/stage4/s4_offline_host.c",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r01\\s4_offline_host.exe"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.418485,
+      "error_line_count": 0,
+      "warning_line_count": 0,
+      "stderr_tail": "",
+      "binary_sha256": "f64dbe367826af96d0740895f42c41cd263ecfa1c60ebcba44c44d009706a58a"
+    },
+    "selftest": {
+      "command": [
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r01\\s4_offline_host.exe",
+        "--selftest",
+        "--json",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\S4B\\20261021_r01\\c_selftest.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.037681,
+      "stdout": "[s4_host] selftest passed=11 failed=0 all_pass=1"
+    }
+  },
+  "samples": [],
+  "checks": [
+    {
+      "name": "contract.result_record_fields_present",
+      "status": "PASS",
+      "detail": "S4-A result_record.fields 非空，字段名以其为权威",
+      "expected": "非空",
+      "actual": "15 个字段"
+    },
+    {
+      "name": "binding.s2a_t25_layer_golden_index",
+      "status": "PASS",
+      "detail": "2A T25 逐层索引（只读引用，未写入）",
+      "expected": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "actual": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d"
+    },
+    {
+      "name": "binding.s2a_t29_cpu_decode_nms_reference",
+      "status": "PASS",
+      "detail": "2A T29 D9 参考（只读引用，未写入）",
+      "expected": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "actual": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231"
+    },
+    {
+      "name": "binding.s1_t02_d9_decoder",
+      "status": "PASS",
+      "detail": "2A 冻结 D9 参考实现（只读引用，未写入）",
+      "expected": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "actual": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    {
+      "name": "binding.s1_t02_d6_metrics",
+      "status": "PASS",
+      "detail": "2A 冻结 D6 指标/stable_nms（只读引用，未写入）",
+      "expected": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "actual": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a"
+    },
+    {
+      "name": "binding.s2a_t01_fixed_test_samples",
+      "status": "PASS",
+      "detail": "2A 固定样本清单（只读引用，未写入）",
+      "expected": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "actual": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed"
+    },
+    {
+      "name": "t25_shard_dir_present",
+      "status": "PASS",
+      "detail": "T25 分片目录只读引用（主树物化，工作树未物化）",
+      "expected": "109 个 sample_NNN.zlib",
+      "actual": "109 个"
+    },
+    {
+      "name": "c_compile_zero_error",
+      "status": "PASS",
+      "detail": "d:\\mingw64\\bin\\gcc.exe 编译 S4-B C 源",
+      "expected": "exit 0 且 0 error",
+      "actual": "exit 0，error 行 0，warning 行 0"
+    },
+    {
+      "name": "c_selftest_all_pass",
+      "status": "PASS",
+      "detail": "C 自检全部通过（11 项：CRC/头/meta/框/整帧回读/篡改拒绝/扩展门闸）",
+      "expected": "exit 0 且 all_pass=true",
+      "actual": "exit 0，all_pass=True"
+    },
+    {
+      "name": "c_crc32_check_vector",
+      "status": "PASS",
+      "detail": "CRC32 自检 '123456789' -> 0xCBF43926",
+      "expected": "0xCBF43926",
+      "actual": "0xCBF43926"
+    },
+    {
+      "name": "python_crc32_check_vector",
+      "status": "PASS",
+      "detail": "Python zlib 独立复核同一检查向量",
+      "expected": "0xCBF43926",
+      "actual": "0xCBF43926"
+    },
+    {
+      "name": "c_frame_pack_unpack_byte_readback",
+      "status": "PASS",
+      "detail": "帧 pack->unpack->re-pack 字节回读一致（含双头与每框 48 B）",
+      "expected": "全部一致",
+      "actual": "一致"
+    },
+    {
+      "name": "frozen_2b_transport_import",
+      "status": "PASS",
+      "detail": "已只读导入 2B 冻结传输实现作为独立消费端"
+    },
+    {
+      "name": "sample0.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "test_fist_000 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "test_fist_000/frame_id=0",
+      "actual": "test_fist_000/frame_id=0"
+    },
+    {
+      "name": "sample0.shard_binding",
+      "status": "PASS",
+      "detail": "test_fist_000 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+      "actual": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e"
+    },
+    {
+      "name": "sample0.stream_binding",
+      "status": "PASS",
+      "detail": "test_fist_000 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80",
+      "actual": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80"
+    },
+    {
+      "name": "sample0.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_000 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "actual": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+    },
+    {
+      "name": "sample0.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_000 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+      "actual": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+    },
+    {
+      "name": "sample0.host_exit_zero",
+      "status": "PASS",
+      "detail": "test_fist_000 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample0.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "test_fist_000 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "actual": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+    },
+    {
+      "name": "sample0.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "test_fist_000 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample0.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "test_fist_000 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "caf38ceada77ca96eb710e68bee954dbd3cf8b0a3c3d90264ba40a4542f009d4",
+      "actual": "caf38ceada77ca96eb710e68bee954dbd3cf8b0a3c3d90264ba40a4542f009d4"
+    },
+    {
+      "name": "sample0.c_readback_flags",
+      "status": "PASS",
+      "detail": "test_fist_000 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25478, \"decoded_box_count\": 1}"
+    },
+    {
+      "name": "sample0.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "test_fist_000 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "actual": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+    },
+    {
+      "name": "sample0.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "test_fist_000 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample0.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "test_fist_000 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample0.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "test_fist_000 C raw_candidate_count 等于 Python D9 阈值后/NMS 前候选数",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "sample0.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "test_fist_000 C raw_candidate_count 等于 2A T29 冻结参考的候选数",
+      "expected": 2,
+      "actual": 2
+    },
+    {
+      "name": "sample0.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "test_fist_000 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample0.s4a_field_names",
+      "status": "PASS",
+      "detail": "test_fist_000 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample0.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "test_fist_000 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=OK, detection_count=1"
+    },
+    {
+      "name": "sample0.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "test_fist_000 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 2, \"box_count\": 1, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    },
+    {
+      "name": "sample1.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "test_fist_001 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "test_fist_001/frame_id=1",
+      "actual": "test_fist_001/frame_id=1"
+    },
+    {
+      "name": "sample1.shard_binding",
+      "status": "PASS",
+      "detail": "test_fist_001 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "65d441f5acf723708352e947de34b41385d6ff8b7849adf718f56f046acbfbc7",
+      "actual": "65d441f5acf723708352e947de34b41385d6ff8b7849adf718f56f046acbfbc7"
+    },
+    {
+      "name": "sample1.stream_binding",
+      "status": "PASS",
+      "detail": "test_fist_001 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "591787a546bcdfe560a7c76474c8edb4a276d1c4ea7bd88900cfe05a985ebd1e",
+      "actual": "591787a546bcdfe560a7c76474c8edb4a276d1c4ea7bd88900cfe05a985ebd1e"
+    },
+    {
+      "name": "sample1.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_001 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82",
+      "actual": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82"
+    },
+    {
+      "name": "sample1.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_001 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "4c74bfed8efec1066108b64a80baf19aa7bdb9a0480d9ca067845f387ddfc913",
+      "actual": "4c74bfed8efec1066108b64a80baf19aa7bdb9a0480d9ca067845f387ddfc913"
+    },
+    {
+      "name": "sample1.host_exit_zero",
+      "status": "PASS",
+      "detail": "test_fist_001 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample1.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "test_fist_001 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82",
+      "actual": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82"
+    },
+    {
+      "name": "sample1.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "test_fist_001 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample1.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "test_fist_001 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "c150e6f3244b139227a5fa107ba5828ad1ab12b247606fad127fa52669d7247b",
+      "actual": "c150e6f3244b139227a5fa107ba5828ad1ab12b247606fad127fa52669d7247b"
+    },
+    {
+      "name": "sample1.c_readback_flags",
+      "status": "PASS",
+      "detail": "test_fist_001 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25478, \"decoded_box_count\": 1}"
+    },
+    {
+      "name": "sample1.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "test_fist_001 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82",
+      "actual": "aae022d87ecd96ed8fa174805e6aa577e0548a4c7ec95f0a3c99b7377038ea82"
+    },
+    {
+      "name": "sample1.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "test_fist_001 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample1.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "test_fist_001 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample1.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "test_fist_001 C raw_candidate_count 等于 Python D9 阈值后/NMS 前候选数",
+      "expected": 5,
+      "actual": 5
+    },
+    {
+      "name": "sample1.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "test_fist_001 C raw_candidate_count 等于 2A T29 冻结参考的候选数",
+      "expected": 5,
+      "actual": 5
+    },
+    {
+      "name": "sample1.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "test_fist_001 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample1.s4a_field_names",
+      "status": "PASS",
+      "detail": "test_fist_001 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample1.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "test_fist_001 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=OK, detection_count=1"
+    },
+    {
+      "name": "sample1.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "test_fist_001 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 5, \"box_count\": 1, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    },
+    {
+      "name": "sample2.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "test_fist_002 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "test_fist_002/frame_id=2",
+      "actual": "test_fist_002/frame_id=2"
+    },
+    {
+      "name": "sample2.shard_binding",
+      "status": "PASS",
+      "detail": "test_fist_002 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "eeeefd739641c9171190a25d853e2c14a1d4fc7cc0ccfa7fb9e093cf84602044",
+      "actual": "eeeefd739641c9171190a25d853e2c14a1d4fc7cc0ccfa7fb9e093cf84602044"
+    },
+    {
+      "name": "sample2.stream_binding",
+      "status": "PASS",
+      "detail": "test_fist_002 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "769da2dc4c384014c27babff5db222845ca1b6f49943b3c181e4a853b54a9d6b",
+      "actual": "769da2dc4c384014c27babff5db222845ca1b6f49943b3c181e4a853b54a9d6b"
+    },
+    {
+      "name": "sample2.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_002 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c",
+      "actual": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c"
+    },
+    {
+      "name": "sample2.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "test_fist_002 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "8551a5cfb51788582cd75345c32ae3b07efbe9bb93a961d7c24313e56816d0d7",
+      "actual": "8551a5cfb51788582cd75345c32ae3b07efbe9bb93a961d7c24313e56816d0d7"
+    },
+    {
+      "name": "sample2.host_exit_zero",
+      "status": "PASS",
+      "detail": "test_fist_002 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample2.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "test_fist_002 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c",
+      "actual": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c"
+    },
+    {
+      "name": "sample2.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "test_fist_002 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample2.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "test_fist_002 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "128395239c80a63526bf595c20cafa88c1861e4b553b6339c7961cd1c8898d76",
+      "actual": "128395239c80a63526bf595c20cafa88c1861e4b553b6339c7961cd1c8898d76"
+    },
+    {
+      "name": "sample2.c_readback_flags",
+      "status": "PASS",
+      "detail": "test_fist_002 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25478, \"decoded_box_count\": 1}"
+    },
+    {
+      "name": "sample2.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "test_fist_002 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c",
+      "actual": "4e96d89d7ddc10892293817cc5c2d0e77620e71f056d20eaf8a651998ee1431c"
+    },
+    {
+      "name": "sample2.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "test_fist_002 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample2.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "test_fist_002 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample2.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "test_fist_002 C raw_candidate_count 等于 Python D9 阈值后/NMS 前候选数",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "sample2.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "test_fist_002 C raw_candidate_count 等于 2A T29 冻结参考的候选数",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "sample2.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "test_fist_002 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample2.s4a_field_names",
+      "status": "PASS",
+      "detail": "test_fist_002 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample2.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "test_fist_002 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=OK, detection_count=1"
+    },
+    {
+      "name": "sample2.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "test_fist_002 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 3, \"box_count\": 1, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    }
+  ],
+  "limitations": [
+    "离线骨架：无板卡、无 PL、无真实 UART/JTAG、无 PL 时间戳；不产生 G3/G4/G5 结论",
+    "默认只覆盖 1~3 个冻结样本；109 全量由 S4-C 负责",
+    "未测量 PL 推理时间/期限/吞吐；JSON 中 inference_time_ns 等时间字段为 null",
+    "S4-A 为草案：candidate_limit=4096 与 stale_age_limit_ms=200 属 DRAFT_PROPOSED，本链不启用",
+    "2B 验收（s2bu/1.1 板上行为）不在本任务范围；本链只做帧格式/CRC/字节一致性核验",
+    "s2bu/1.1 缺少 result_seq/state/时间/丢帧/过期字段：扩展格式待 Wong 决策，本链不新增传输字段",
+    "只执行轻量 Python 与 d:\\mingw64 gcc 编译；未启动 Vivado/xsim，未争用 2B 硬件会话"
+  ],
+  "not_executed": [
+    "板上真实串口 / COM4 / UART 收发",
+    "JTAG / hw_server / DAP / PL 加载",
+    "PL inference_time / deadline / 吞吐测量",
+    "109 全量样本（S4-C）",
+    "2B 实板验收与 s2bu/1.1 板上行为",
+    "Vivado / xsim / 综合 / 仿真 / 上板"
+  ],
+  "check_summary": {
+    "pass": 70,
+    "fail": 0,
+    "skip": 0
+  },
+  "status": "PASS",
+  "failed_checks": [],
+  "elapsed_seconds": 0.82,
+  "tmp_dir": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r01",
+  "evidence_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\S4B\\20261021_r01"
+}

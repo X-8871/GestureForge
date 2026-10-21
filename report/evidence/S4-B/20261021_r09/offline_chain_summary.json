@@ -1,0 +1,1826 @@
+{
+  "schema_version": "gestureforge_s4b_offline_chain_v1",
+  "task_id": "S4-B",
+  "run_id": "20261021_r09",
+  "stage": "4",
+  "scope": "离线准备：冻结 heads -> C 解码/NMS -> s2bu/1.1 风格帧 -> 主机解帧 -> Python D9 对拍",
+  "created_utc8": "2026-10-21T22:07:42+08:00",
+  "w4_root": "D:\\codex-worktrees\\w4",
+  "contract": {
+    "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+    "relative": "docs/stage4/s4a_stage4_g0_fields.json",
+    "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+    "schema_version": "gestureforge_s4a_stage4_g0_draft_v1",
+    "status": "DRAFT_NOT_FROZEN",
+    "note": "S4-A 契约为 DRAFT_NOT_FROZEN；字段名以其 result_record.fields 为权威命名",
+    "result_record_fields": [
+      "frame_id",
+      "result_seq",
+      "geometry",
+      "state",
+      "detection_count",
+      "detections",
+      "candidate_count",
+      "candidate_count_pre_threshold",
+      "candidate_overflow",
+      "capture_time_ns",
+      "result_time_ns",
+      "inference_time_ns",
+      "end_to_end_latency_ns",
+      "dropped_frames",
+      "stale",
+      "error_code"
+    ],
+    "detection_record_fields": [
+      "class_id",
+      "class_name",
+      "score",
+      "xyxy",
+      "xyxy_px",
+      "source_order"
+    ],
+    "state_enum": [
+      "DROPPED",
+      "ERROR",
+      "NO_HAND",
+      "OK",
+      "TIMEOUT"
+    ],
+    "candidate_count_semantics_text": "阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为 | s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_reference.c）与 2A T29 黄金（samples[i].raw_candidate_count_before_stable_nms）实际都是**阈值筛除后、15 框截断前、NMS 前**的计数。阶段4 的 candidate_count 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART raw_candidate_count 可直接对齐。若 2B 后续把该字段正式冻结为其他口径（例如阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径。",
+    "candidate_count_declares_thresholded_after_nms": true,
+    "lead_decision_sha256": "1d7fd5f02bc4948fc6aa16734bf7bd258c1be34d2141f67eb487a2449f3be350",
+    "revision_drift_from_lead_decision": true
+  },
+  "bindings": [
+    {
+      "id": "s4a_contract",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+      "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87"
+    },
+    {
+      "id": "t25_index",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json"
+    },
+    {
+      "id": "t29_reference",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json"
+    },
+    {
+      "id": "d9_decoder",
+      "path": "verification\\s1_t02_d9_yolo_decode.py"
+    },
+    {
+      "id": "d6_metrics",
+      "path": "verification\\s1_t02_d6_detection_metrics.py"
+    },
+    {
+      "id": "fixed_samples",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\fixed_test_samples.json"
+    },
+    {
+      "id": "s2b_transport_reference",
+      "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_transport.py",
+      "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+    }
+  ],
+  "environment": {
+    "python": "3.12.10",
+    "gcc": [
+      "gcc.exe (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0"
+    ],
+    "host_os": "nt",
+    "note": "未使用 Vivado/xsim/综合/仿真；未访问 UART/JTAG/hw_server/COM4/板卡"
+  },
+  "sources": [
+    {
+      "path": "vitis/stage4/s4_ps_decode.h",
+      "sha256": "16fa58c2fcc7017c58f5c3838e39b4bb46d6a82e39ec76d434a035edd41f2fdf",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_ps_decode.c",
+      "sha256": "e9ba1732644c640dfe67099b055fb689d65638c3811d7ce29310fe57816e93e3",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.h",
+      "sha256": "42c4d81655b1b2b41b97bfd87e0475a73951eafcddbc42bdeda73facdd6489f4",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.c",
+      "sha256": "196ce14d97bf94d6bc5711109f87f5c63aab0e3ea363ffea2058fc17a1682e51",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_offline_host.c",
+      "sha256": "3331504010d794a02e71d0ebde5bfacb880befc0fe8624e96f5b0e4c5c8ff406",
+      "exists": true
+    }
+  ],
+  "commands": {
+    "compile": {
+      "command": [
+        "D:\\mingw64\\bin\\gcc.exe",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wconversion",
+        "-Wshadow",
+        "-I",
+        "vitis/stage4",
+        "vitis/stage4/s4_ps_decode.h",
+        "vitis/stage4/s4_ps_decode.c",
+        "vitis/stage4/s4_uart_protocol.h",
+        "vitis/stage4/s4_uart_protocol.c",
+        "vitis/stage4/s4_offline_host.c",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\s4_offline_host.exe"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.431912,
+      "error_line_count": 0,
+      "warning_line_count": 0,
+      "stderr_tail": "",
+      "binary_sha256": "5d3827ed97a5e34ede141fc1ffebaee41e92998a3f052f827d1fee2c502afec7"
+    },
+    "selftest": {
+      "command": [
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\s4_offline_host.exe",
+        "--selftest",
+        "--json",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r09\\c_selftest.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.035013,
+      "stdout": "[s4_host] selftest passed=11 failed=0 all_pass=1"
+    }
+  },
+  "samples": [
+    {
+      "sample_index": 36,
+      "sample_id": "test_palm_036",
+      "frame_id": 36,
+      "geometry": {
+        "width": 1440,
+        "height": 1920
+      },
+      "shard": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_036.zlib",
+        "bytes": 3748165,
+        "sha256": "c44694a32cc75a0684bd51c7ce301c32889895625d2adbe69b58bfb75dcc7364",
+        "expected_sha256": "c44694a32cc75a0684bd51c7ce301c32889895625d2adbe69b58bfb75dcc7364"
+      },
+      "stream": {
+        "bytes": 11382150,
+        "sha256": "9bf5d30ebf83589c3a6ee68d7888f8da6400f943a5dc8c3b45071c9b3d79e64b",
+        "expected_sha256": "9bf5d30ebf83589c3a6ee68d7888f8da6400f943a5dc8c3b45071c9b3d79e64b",
+        "expected_bytes": 11382150,
+        "t29_decompressed_sha256": "9bf5d30ebf83589c3a6ee68d7888f8da6400f943a5dc8c3b45071c9b3d79e64b"
+      },
+      "heads": {
+        "head13": {
+          "byte_offset": 10772736,
+          "byte_length": 5070,
+          "int8_scale": 0.24267549589862975,
+          "tensor_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+          "expected_tensor_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+          "index_layer_index": 29,
+          "index_byte_offset": 10772736,
+          "index_byte_length": 5070,
+          "index_scale": 0.24267549589862975,
+          "index_tensor_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+          "first8_hex": "03fc02ff01000200"
+        },
+        "head26": {
+          "byte_offset": 11361870,
+          "byte_length": 20280,
+          "int8_scale": 0.30223452951025775,
+          "tensor_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+          "expected_tensor_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+          "index_layer_index": 36,
+          "index_byte_offset": 11361870,
+          "index_byte_length": 20280,
+          "index_scale": 0.30223452951025775,
+          "index_tensor_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+          "first8_hex": "0200ff01ffffffff"
+        }
+      },
+      "bundle": {
+        "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_palm_036.bin",
+        "bytes": 25422,
+        "header_bytes": 72,
+        "blob_crc32": "0x406BEEA6",
+        "sha256": "22888b8e9ee4c0f27460efcd65ce938e608c40b88f89a2c8c02e589389475fe5",
+        "head13_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+        "head26_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844"
+      },
+      "host": {
+        "command": [
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\s4_offline_host.exe",
+          "--bundle",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_palm_036.bin",
+          "--json",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\host_result_test_palm_036.json",
+          "--frame",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\frame_test_palm_036.bin",
+          "--heads-dir",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\heads_test_palm_036"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.008532,
+        "stdout": "[s4_host] bundle=D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_palm_036.bin frame_id=36 detections=2 candidates_pre_threshold=10630 candidates_thresholded=4 candidate_boxes=2126 state=0 head_bytes_unchanged=1 readback_ok=1 frame_bytes=25526",
+        "stderr_tail": ""
+      },
+      "host_result": {
+        "schema_version": "gestureforge_s4b_offline_host_result_v1",
+        "mode": "bundle",
+        "s4a_contract": "docs/stage4/s4a_stage4_g0_fields.json",
+        "s4a_result_fields_authority": "result_record.fields",
+        "frame_id": 36,
+        "result_seq": 1,
+        "geometry": {
+          "width": 1440,
+          "height": 1920
+        },
+        "state": "OK",
+        "detection_count": 2,
+        "detections": [
+          {
+            "class_id": 1,
+            "class_name": "palm",
+            "score": 0.9999527168691112,
+            "xyxy": [
+              0.20789470125854473,
+              0.3198794405447408,
+              0.46751008587392934,
+              0.5865526023559912
+            ],
+            "xyxy_px": [
+              299.3683698123044,
+              614.1685258459024,
+              673.2145236584582,
+              1126.180996523503
+            ],
+            "source_order": 6971
+          },
+          {
+            "class_id": 0,
+            "class_name": "fist",
+            "score": 0.31230869634401914,
+            "xyxy": [
+              0.7205376916181265,
+              0.8520057503207472,
+              1,
+              1
+            ],
+            "xyxy_px": [
+              1037.5742759301022,
+              1635.8510406158346,
+              1440,
+              1920
+            ],
+            "source_order": 2490
+          }
+        ],
+        "candidate_count": 4,
+        "candidate_count_pre_threshold": 10630,
+        "candidate_box_count": 2126,
+        "candidate_count_semantics": {
+          "candidate_count": "S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）",
+          "candidate_count_pre_threshold": "S4-A 可选诊断字段：阈值筛除前的候选机会数 = 5 * candidate_box_count，不参与对拍口径、不进 UART",
+          "candidate_box_count": "非契约附加透明字段：通过几何/正面积校验的候选框数",
+          "candidate_overflow_rule": "按 2B 参考实现为硬错误路径（候选数达到缓冲上限即 S2A_T62_INVALID_ARGUMENT，无截断）；tiny416 理论上界 = 上限 = 12675，本实现仅在尝试追加第 12676 个候选时置位（不可达），故恒 false 并显式记录未超限事实",
+          "divergence_open": false,
+          "resolved_by": "S4-A 契约 2026-10-21 修订（Lead 裁决 + r05 复核）"
+        },
+        "candidate_overflow": false,
+        "candidate_limit": 12675,
+        "capture_time_ns": 0,
+        "result_time_ns": 0,
+        "inference_time_ns": 0,
+        "end_to_end_latency_ns": 0,
+        "dropped_frames": 0,
+        "stale": false,
+        "error_code": 0,
+        "unavailable_fields": [
+          "capture_time_ns",
+          "result_time_ns",
+          "inference_time_ns",
+          "end_to_end_latency_ns"
+        ],
+        "measurement_scope": {
+          "pl_timing": "NOT_EXECUTED_OFFLINE",
+          "uart_transport": "NOT_EXECUTED_OFFLINE",
+          "board_pl": "NOT_EXECUTED_OFFLINE",
+          "unavailable_fields": [
+            "capture_time_ns",
+            "result_time_ns",
+            "inference_time_ns",
+            "end_to_end_latency_ns"
+          ],
+          "note": "键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时"
+        },
+        "field_source_notes": {
+          "state": "由 s2bu/1.1 PHYS_STATUS/ERROR_CODE/box_count/response_code 派生，非传输字段",
+          "timing": "离线无 PL，未测量，用 0 哨兵并按 state 判别",
+          "dropped_frames": "单帧离线链，无丢帧事实",
+          "stale": "无显示层，离线恒 false"
+        },
+        "decode": {
+          "status": 0,
+          "score_threshold": 0.25,
+          "head13_scale": 0.24267549589862975,
+          "head26_scale": 0.30223452951025775,
+          "max_outputs": 15,
+          "nms_iou": 0.45,
+          "head13_len": 5070,
+          "head26_len": 20280
+        },
+        "geometry_letterbox": {
+          "status": 0,
+          "resized_width": 312,
+          "resized_height": 416,
+          "pad_left": 52,
+          "pad_top": 0
+        },
+        "uart": {
+          "interface": "s2bu/1.1",
+          "op_request": 2,
+          "op_response": 32770,
+          "sequence": 1,
+          "repeat_count": 1,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "payload_len": 25486,
+          "response_code": 0,
+          "epoch": 1,
+          "phys_status": 3588,
+          "raw_candidate_count": 4,
+          "box_count": 2,
+          "frame_bytes": 25526
+        },
+        "uart_crc": {
+          "payload_crc32": "0xF3BB22D3",
+          "header_crc32": "0x43D25C22"
+        },
+        "readback": {
+          "pack_status": 0,
+          "unpack_status": 0,
+          "field_identical": true,
+          "heads_identical": true,
+          "boxes_identical": true,
+          "repack_byte_identical": true,
+          "frame_length": 25526,
+          "decoded_box_count": 2
+        },
+        "head_bytes_unchanged": true
+      },
+      "head_bytes_roundtrip": {
+        "head13_in_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+        "head13_out_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+        "head26_in_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+        "head26_out_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+        "frozen_head13_sha256": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+        "frozen_head26_sha256": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+        "c_reported_unchanged": true
+      },
+      "frame": {
+        "bytes": 25526,
+        "sha256": "0e89460bb44ccbe10308af3021968aed55919d28cbc3e9a25c6cb82001b61087",
+        "header": {
+          "magic": "S2BU",
+          "version": 1,
+          "op": 32770,
+          "sequence": 1,
+          "frame_id": 36,
+          "width": 1440,
+          "height": 1920,
+          "repeat_count": 1,
+          "payload_len": 25486,
+          "payload_crc32": "0xF3BB22D3",
+          "header_crc32": "0x43D25C22"
+        },
+        "meta": {
+          "epoch": 1,
+          "phys_status": 3588,
+          "error_code": 0,
+          "last_reject": 0,
+          "raw_candidate_count": 4,
+          "box_count": 2,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "response_code": 0
+        }
+      },
+      "python_d9": {
+        "detection_count": 2,
+        "candidate_count": 4,
+        "detections": [
+          {
+            "class_id": 1,
+            "class_name": "palm",
+            "score": 0.9999527168691112,
+            "xyxy": [
+              0.20789470125854473,
+              0.3198794405447408,
+              0.46751008587392934,
+              0.5865526023559912
+            ],
+            "source_order": 6971
+          },
+          {
+            "class_id": 0,
+            "class_name": "fist",
+            "score": 0.31230869634401914,
+            "xyxy": [
+              0.7205376916181265,
+              0.8520057503207472,
+              1.0,
+              1.0
+            ],
+            "source_order": 2490
+          }
+        ]
+      },
+      "comparison_c_vs_python_d9": {
+        "c_count": 2,
+        "python_count": 2,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance": 1e-06,
+        "tolerance_exceeded": 0,
+        "field_mismatch_details": []
+      },
+      "comparison_c_vs_t29_reference": {
+        "reference_count": 2,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance_exceeded": 0
+      },
+      "s4a_field_check": {
+        "missing_result_fields": [],
+        "missing_detection_fields": [],
+        "state": "OK",
+        "state_enum": [
+          "DROPPED",
+          "ERROR",
+          "NO_HAND",
+          "OK",
+          "TIMEOUT"
+        ]
+      },
+      "host_process_elapsed_seconds": 0.008532
+    },
+    {
+      "sample_index": 56,
+      "sample_id": "test_one_056",
+      "frame_id": 56,
+      "geometry": {
+        "width": 1440,
+        "height": 1920
+      },
+      "shard": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_056.zlib",
+        "bytes": 3657501,
+        "sha256": "678b3b92732ae3b2d8d5f6aed5aebbaec7569139870e9861dfcc43b5983c1475",
+        "expected_sha256": "678b3b92732ae3b2d8d5f6aed5aebbaec7569139870e9861dfcc43b5983c1475"
+      },
+      "stream": {
+        "bytes": 11382150,
+        "sha256": "9248c882041a4cea72679a7b6933c7b61ab1d7b3f735003311f27309eee9d78a",
+        "expected_sha256": "9248c882041a4cea72679a7b6933c7b61ab1d7b3f735003311f27309eee9d78a",
+        "expected_bytes": 11382150,
+        "t29_decompressed_sha256": "9248c882041a4cea72679a7b6933c7b61ab1d7b3f735003311f27309eee9d78a"
+      },
+      "heads": {
+        "head13": {
+          "byte_offset": 10772736,
+          "byte_length": 5070,
+          "int8_scale": 0.24267549589862975,
+          "tensor_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+          "expected_tensor_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+          "index_layer_index": 29,
+          "index_byte_offset": 10772736,
+          "index_byte_length": 5070,
+          "index_scale": 0.24267549589862975,
+          "index_tensor_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+          "first8_hex": "03fb04fffefffeff"
+        },
+        "head26": {
+          "byte_offset": 11361870,
+          "byte_length": 20280,
+          "int8_scale": 0.30223452951025775,
+          "tensor_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+          "expected_tensor_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+          "index_layer_index": 36,
+          "index_byte_offset": 11361870,
+          "index_byte_length": 20280,
+          "index_scale": 0.30223452951025775,
+          "index_tensor_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+          "first8_hex": "0200000100ff00ff"
+        }
+      },
+      "bundle": {
+        "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_one_056.bin",
+        "bytes": 25422,
+        "header_bytes": 72,
+        "blob_crc32": "0x07490283",
+        "sha256": "4bced1b029c8b25b543d2a165e15bd4ad021787cebbacd497a3aa6ecd891ea5e",
+        "head13_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+        "head26_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c"
+      },
+      "host": {
+        "command": [
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\s4_offline_host.exe",
+          "--bundle",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_one_056.bin",
+          "--json",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\host_result_test_one_056.json",
+          "--frame",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\frame_test_one_056.bin",
+          "--heads-dir",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\heads_test_one_056"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.009447,
+        "stdout": "[s4_host] bundle=D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_test_one_056.bin frame_id=56 detections=2 candidates_pre_threshold=10665 candidates_thresholded=3 candidate_boxes=2133 state=0 head_bytes_unchanged=1 readback_ok=1 frame_bytes=25526",
+        "stderr_tail": ""
+      },
+      "host_result": {
+        "schema_version": "gestureforge_s4b_offline_host_result_v1",
+        "mode": "bundle",
+        "s4a_contract": "docs/stage4/s4a_stage4_g0_fields.json",
+        "s4a_result_fields_authority": "result_record.fields",
+        "frame_id": 56,
+        "result_seq": 2,
+        "geometry": {
+          "width": 1440,
+          "height": 1920
+        },
+        "state": "OK",
+        "detection_count": 2,
+        "detections": [
+          {
+            "class_id": 2,
+            "class_name": "one",
+            "score": 0.49964644915172746,
+            "xyxy": [
+              0.7053431486534868,
+              0.3119120420071644,
+              0.7790610973714354,
+              0.4307042652355936
+            ],
+            "xyxy_px": [
+              1015.694134061021,
+              598.8711206537556,
+              1121.847980214867,
+              826.9521892523396
+            ],
+            "source_order": 6302
+          },
+          {
+            "class_id": 3,
+            "class_name": "two_up",
+            "score": 0.42471079872531275,
+            "xyxy": [
+              0.7053431486534868,
+              0.3119120420071644,
+              0.7790610973714354,
+              0.4307042652355936
+            ],
+            "xyxy_px": [
+              1015.694134061021,
+              598.8711206537556,
+              1121.847980214867,
+              826.9521892523396
+            ],
+            "source_order": 6303
+          }
+        ],
+        "candidate_count": 3,
+        "candidate_count_pre_threshold": 10665,
+        "candidate_box_count": 2133,
+        "candidate_count_semantics": {
+          "candidate_count": "S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）",
+          "candidate_count_pre_threshold": "S4-A 可选诊断字段：阈值筛除前的候选机会数 = 5 * candidate_box_count，不参与对拍口径、不进 UART",
+          "candidate_box_count": "非契约附加透明字段：通过几何/正面积校验的候选框数",
+          "candidate_overflow_rule": "按 2B 参考实现为硬错误路径（候选数达到缓冲上限即 S2A_T62_INVALID_ARGUMENT，无截断）；tiny416 理论上界 = 上限 = 12675，本实现仅在尝试追加第 12676 个候选时置位（不可达），故恒 false 并显式记录未超限事实",
+          "divergence_open": false,
+          "resolved_by": "S4-A 契约 2026-10-21 修订（Lead 裁决 + r05 复核）"
+        },
+        "candidate_overflow": false,
+        "candidate_limit": 12675,
+        "capture_time_ns": 0,
+        "result_time_ns": 0,
+        "inference_time_ns": 0,
+        "end_to_end_latency_ns": 0,
+        "dropped_frames": 0,
+        "stale": false,
+        "error_code": 0,
+        "unavailable_fields": [
+          "capture_time_ns",
+          "result_time_ns",
+          "inference_time_ns",
+          "end_to_end_latency_ns"
+        ],
+        "measurement_scope": {
+          "pl_timing": "NOT_EXECUTED_OFFLINE",
+          "uart_transport": "NOT_EXECUTED_OFFLINE",
+          "board_pl": "NOT_EXECUTED_OFFLINE",
+          "unavailable_fields": [
+            "capture_time_ns",
+            "result_time_ns",
+            "inference_time_ns",
+            "end_to_end_latency_ns"
+          ],
+          "note": "键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时"
+        },
+        "field_source_notes": {
+          "state": "由 s2bu/1.1 PHYS_STATUS/ERROR_CODE/box_count/response_code 派生，非传输字段",
+          "timing": "离线无 PL，未测量，用 0 哨兵并按 state 判别",
+          "dropped_frames": "单帧离线链，无丢帧事实",
+          "stale": "无显示层，离线恒 false"
+        },
+        "decode": {
+          "status": 0,
+          "score_threshold": 0.25,
+          "head13_scale": 0.24267549589862975,
+          "head26_scale": 0.30223452951025775,
+          "max_outputs": 15,
+          "nms_iou": 0.45,
+          "head13_len": 5070,
+          "head26_len": 20280
+        },
+        "geometry_letterbox": {
+          "status": 0,
+          "resized_width": 312,
+          "resized_height": 416,
+          "pad_left": 52,
+          "pad_top": 0
+        },
+        "uart": {
+          "interface": "s2bu/1.1",
+          "op_request": 2,
+          "op_response": 32770,
+          "sequence": 2,
+          "repeat_count": 1,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "payload_len": 25486,
+          "response_code": 0,
+          "epoch": 1,
+          "phys_status": 3588,
+          "raw_candidate_count": 3,
+          "box_count": 2,
+          "frame_bytes": 25526
+        },
+        "uart_crc": {
+          "payload_crc32": "0x2544CC12",
+          "header_crc32": "0x14757883"
+        },
+        "readback": {
+          "pack_status": 0,
+          "unpack_status": 0,
+          "field_identical": true,
+          "heads_identical": true,
+          "boxes_identical": true,
+          "repack_byte_identical": true,
+          "frame_length": 25526,
+          "decoded_box_count": 2
+        },
+        "head_bytes_unchanged": true
+      },
+      "head_bytes_roundtrip": {
+        "head13_in_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+        "head13_out_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+        "head26_in_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+        "head26_out_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+        "frozen_head13_sha256": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+        "frozen_head26_sha256": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+        "c_reported_unchanged": true
+      },
+      "frame": {
+        "bytes": 25526,
+        "sha256": "d72dfc05205cd086a01b501e2587ea49df2f0ef9c99882e9737dd9c3cae6f1c7",
+        "header": {
+          "magic": "S2BU",
+          "version": 1,
+          "op": 32770,
+          "sequence": 2,
+          "frame_id": 56,
+          "width": 1440,
+          "height": 1920,
+          "repeat_count": 1,
+          "payload_len": 25486,
+          "payload_crc32": "0x2544CC12",
+          "header_crc32": "0x14757883"
+        },
+        "meta": {
+          "epoch": 1,
+          "phys_status": 3588,
+          "error_code": 0,
+          "last_reject": 0,
+          "raw_candidate_count": 3,
+          "box_count": 2,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "response_code": 0
+        }
+      },
+      "python_d9": {
+        "detection_count": 2,
+        "candidate_count": 3,
+        "detections": [
+          {
+            "class_id": 2,
+            "class_name": "one",
+            "score": 0.49964644915172746,
+            "xyxy": [
+              0.7053431486534868,
+              0.3119120420071644,
+              0.7790610973714354,
+              0.4307042652355936
+            ],
+            "source_order": 6302
+          },
+          {
+            "class_id": 3,
+            "class_name": "two_up",
+            "score": 0.42471079872531275,
+            "xyxy": [
+              0.7053431486534868,
+              0.3119120420071644,
+              0.7790610973714354,
+              0.4307042652355936
+            ],
+            "source_order": 6303
+          }
+        ]
+      },
+      "comparison_c_vs_python_d9": {
+        "c_count": 2,
+        "python_count": 2,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance": 1e-06,
+        "tolerance_exceeded": 0,
+        "field_mismatch_details": []
+      },
+      "comparison_c_vs_t29_reference": {
+        "reference_count": 2,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance_exceeded": 0
+      },
+      "s4a_field_check": {
+        "missing_result_fields": [],
+        "missing_detection_fields": [],
+        "state": "OK",
+        "state_enum": [
+          "DROPPED",
+          "ERROR",
+          "NO_HAND",
+          "OK",
+          "TIMEOUT"
+        ]
+      },
+      "host_process_elapsed_seconds": 0.009447
+    },
+    {
+      "sample_index": 102,
+      "sample_id": "approved_no_hand_001",
+      "frame_id": 102,
+      "geometry": {
+        "width": 640,
+        "height": 963
+      },
+      "shard": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_102.zlib",
+        "bytes": 3431340,
+        "sha256": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6",
+        "expected_sha256": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6"
+      },
+      "stream": {
+        "bytes": 11382150,
+        "sha256": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69",
+        "expected_sha256": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69",
+        "expected_bytes": 11382150,
+        "t29_decompressed_sha256": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69"
+      },
+      "heads": {
+        "head13": {
+          "byte_offset": 10772736,
+          "byte_length": 5070,
+          "int8_scale": 0.24267549589862975,
+          "tensor_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+          "expected_tensor_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+          "index_layer_index": 29,
+          "index_byte_offset": 10772736,
+          "index_byte_length": 5070,
+          "index_scale": 0.24267549589862975,
+          "index_tensor_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+          "first8_hex": "05fc0005fcfcff02"
+        },
+        "head26": {
+          "byte_offset": 11361870,
+          "byte_length": 20280,
+          "int8_scale": 0.30223452951025775,
+          "tensor_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+          "expected_tensor_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+          "index_layer_index": 36,
+          "index_byte_offset": 11361870,
+          "index_byte_length": 20280,
+          "index_scale": 0.30223452951025775,
+          "index_tensor_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+          "first8_hex": "02fe01020201ff00"
+        }
+      },
+      "bundle": {
+        "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_approved_no_hand_001.bin",
+        "bytes": 25422,
+        "header_bytes": 72,
+        "blob_crc32": "0xBA0EB9B5",
+        "sha256": "36c1a3d2cf4247e539724463d5a183466969c3d23a8ddaa4a0d5ffaa497df443",
+        "head13_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+        "head26_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2"
+      },
+      "host": {
+        "command": [
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\s4_offline_host.exe",
+          "--bundle",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_approved_no_hand_001.bin",
+          "--json",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\host_result_approved_no_hand_001.json",
+          "--frame",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\frame_approved_no_hand_001.bin",
+          "--heads-dir",
+          "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\heads_approved_no_hand_001"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 0.009295,
+        "stdout": "[s4_host] bundle=D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09\\bundle_approved_no_hand_001.bin frame_id=102 detections=0 candidates_pre_threshold=9845 candidates_thresholded=0 candidate_boxes=1969 state=1 head_bytes_unchanged=1 readback_ok=1 frame_bytes=25430",
+        "stderr_tail": ""
+      },
+      "host_result": {
+        "schema_version": "gestureforge_s4b_offline_host_result_v1",
+        "mode": "bundle",
+        "s4a_contract": "docs/stage4/s4a_stage4_g0_fields.json",
+        "s4a_result_fields_authority": "result_record.fields",
+        "frame_id": 102,
+        "result_seq": 3,
+        "geometry": {
+          "width": 640,
+          "height": 963
+        },
+        "state": "NO_HAND",
+        "detection_count": 0,
+        "detections": [],
+        "candidate_count": 0,
+        "candidate_count_pre_threshold": 9845,
+        "candidate_box_count": 1969,
+        "candidate_count_semantics": {
+          "candidate_count": "S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）",
+          "candidate_count_pre_threshold": "S4-A 可选诊断字段：阈值筛除前的候选机会数 = 5 * candidate_box_count，不参与对拍口径、不进 UART",
+          "candidate_box_count": "非契约附加透明字段：通过几何/正面积校验的候选框数",
+          "candidate_overflow_rule": "按 2B 参考实现为硬错误路径（候选数达到缓冲上限即 S2A_T62_INVALID_ARGUMENT，无截断）；tiny416 理论上界 = 上限 = 12675，本实现仅在尝试追加第 12676 个候选时置位（不可达），故恒 false 并显式记录未超限事实",
+          "divergence_open": false,
+          "resolved_by": "S4-A 契约 2026-10-21 修订（Lead 裁决 + r05 复核）"
+        },
+        "candidate_overflow": false,
+        "candidate_limit": 12675,
+        "capture_time_ns": 0,
+        "result_time_ns": 0,
+        "inference_time_ns": 0,
+        "end_to_end_latency_ns": 0,
+        "dropped_frames": 0,
+        "stale": false,
+        "error_code": 0,
+        "unavailable_fields": [
+          "capture_time_ns",
+          "result_time_ns",
+          "inference_time_ns",
+          "end_to_end_latency_ns"
+        ],
+        "measurement_scope": {
+          "pl_timing": "NOT_EXECUTED_OFFLINE",
+          "uart_transport": "NOT_EXECUTED_OFFLINE",
+          "board_pl": "NOT_EXECUTED_OFFLINE",
+          "unavailable_fields": [
+            "capture_time_ns",
+            "result_time_ns",
+            "inference_time_ns",
+            "end_to_end_latency_ns"
+          ],
+          "note": "键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时"
+        },
+        "field_source_notes": {
+          "state": "由 s2bu/1.1 PHYS_STATUS/ERROR_CODE/box_count/response_code 派生，非传输字段",
+          "timing": "离线无 PL，未测量，用 0 哨兵并按 state 判别",
+          "dropped_frames": "单帧离线链，无丢帧事实",
+          "stale": "无显示层，离线恒 false"
+        },
+        "decode": {
+          "status": 0,
+          "score_threshold": 0.25,
+          "head13_scale": 0.24267549589862975,
+          "head26_scale": 0.30223452951025775,
+          "max_outputs": 15,
+          "nms_iou": 0.45,
+          "head13_len": 5070,
+          "head26_len": 20280
+        },
+        "geometry_letterbox": {
+          "status": 0,
+          "resized_width": 276,
+          "resized_height": 416,
+          "pad_left": 70,
+          "pad_top": 0
+        },
+        "uart": {
+          "interface": "s2bu/1.1",
+          "op_request": 2,
+          "op_response": 32770,
+          "sequence": 3,
+          "repeat_count": 1,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "payload_len": 25390,
+          "response_code": 0,
+          "epoch": 1,
+          "phys_status": 3588,
+          "raw_candidate_count": 0,
+          "box_count": 0,
+          "frame_bytes": 25430
+        },
+        "uart_crc": {
+          "payload_crc32": "0x29A93C33",
+          "header_crc32": "0x162E0F5E"
+        },
+        "readback": {
+          "pack_status": 0,
+          "unpack_status": 0,
+          "field_identical": true,
+          "heads_identical": true,
+          "boxes_identical": true,
+          "repack_byte_identical": true,
+          "frame_length": 25430,
+          "decoded_box_count": 0
+        },
+        "head_bytes_unchanged": true
+      },
+      "head_bytes_roundtrip": {
+        "head13_in_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+        "head13_out_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+        "head26_in_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+        "head26_out_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+        "frozen_head13_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+        "frozen_head26_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+        "c_reported_unchanged": true
+      },
+      "frame": {
+        "bytes": 25430,
+        "sha256": "8aba865eae34b00e349b2455f3844ccfdbfa414be5d2036e2dbdd5d137d8852f",
+        "header": {
+          "magic": "S2BU",
+          "version": 1,
+          "op": 32770,
+          "sequence": 3,
+          "frame_id": 102,
+          "width": 640,
+          "height": 963,
+          "repeat_count": 1,
+          "payload_len": 25390,
+          "payload_crc32": "0x29A93C33",
+          "header_crc32": "0x162E0F5E"
+        },
+        "meta": {
+          "epoch": 1,
+          "phys_status": 3588,
+          "error_code": 0,
+          "last_reject": 0,
+          "raw_candidate_count": 0,
+          "box_count": 0,
+          "repeat_index": 0,
+          "repeat_total": 1,
+          "response_code": 0
+        }
+      },
+      "python_d9": {
+        "detection_count": 0,
+        "candidate_count": 0,
+        "detections": []
+      },
+      "comparison_c_vs_python_d9": {
+        "c_count": 0,
+        "python_count": 0,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance": 1e-06,
+        "tolerance_exceeded": 0,
+        "field_mismatch_details": []
+      },
+      "comparison_c_vs_t29_reference": {
+        "reference_count": 0,
+        "count_mismatch": false,
+        "discrete_mismatch_count": 0,
+        "score_max_abs_error": 0.0,
+        "xyxy_max_abs_error": 0.0,
+        "tolerance_exceeded": 0
+      },
+      "s4a_field_check": {
+        "missing_result_fields": [],
+        "missing_detection_fields": [],
+        "state": "NO_HAND",
+        "state_enum": [
+          "DROPPED",
+          "ERROR",
+          "NO_HAND",
+          "OK",
+          "TIMEOUT"
+        ]
+      },
+      "host_process_elapsed_seconds": 0.009295
+    }
+  ],
+  "checks": [
+    {
+      "name": "contract.result_record_fields_present",
+      "status": "PASS",
+      "detail": "S4-A result_record.fields 非空，字段名以其为权威",
+      "expected": "非空",
+      "actual": "16 个字段"
+    },
+    {
+      "name": "contract.candidate_count_semantics_read",
+      "status": "PASS",
+      "detail": "已读取契约 candidate_count 口径文本并据此实现（阈值后/NMS 前口径进入结果记录 candidate_count）",
+      "expected": "契约文本存在且明确口径",
+      "actual": "阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为 | s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_refer"
+    },
+    {
+      "name": "contract.candidate_count_semantics_is_thresholded_after_nms",
+      "status": "PASS",
+      "detail": "契约 candidate_count 已与 2B 冻结实现/T29 黄金统一为阈值后、NMS 前口径（原冲突已裁决）",
+      "expected": "契约声明阈值后/NMS 前",
+      "actual": "阈值后"
+    },
+    {
+      "name": "contract.sha256_matches_lead_decision_r04",
+      "status": "SKIP",
+      "detail": "契约哈希与 Lead 裁决基线一致（契约在工作区继续修订时为 SKIP，判定改以语义不变量为准）",
+      "expected": "1d7fd5f02bc4948fc6aa16734bf7bd258c1be34d2141f67eb487a2449f3be350",
+      "actual": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87"
+    },
+    {
+      "name": "contract.measurement_scope_keys_defined",
+      "status": "PASS",
+      "detail": "契约 evidence_annotation.measurement_scope 键名（离线证据必须使用同一组键）",
+      "expected": "pl_timing/uart_transport/board_pl/unavailable_fields",
+      "actual": "board_pl,pl_timing,uart_transport,unavailable_fields"
+    },
+    {
+      "name": "contract.candidate_overflow_is_hard_error_semantics",
+      "status": "PASS",
+      "detail": "契约 candidate_overflow 为硬错误语义且不定义候选截断（本实现仅在尝试超出上限时置位，不可达）",
+      "expected": "硬错误路径且无截断",
+      "actual": "{\"rule\": \"候选缓冲上限由 2B 参考实现以**硬错误**方式强制：w2b/verification/s2a_ps_decode_nms_reference.c 在候选数达到 S2A_T62_MAX_CANDIDATES（12,675）时返回 S2A_T62_INVALID_ARGUMENT"
+    },
+    {
+      "name": "contract.candidate_limit_is_12675",
+      "status": "PASS",
+      "detail": "契约候选缓冲上限 = 12675（2B 冻结上限 = tiny416 理论最大候选数），4096 已弃用",
+      "expected": 12675,
+      "actual": 12675
+    },
+    {
+      "name": "contract.candidate_count_pre_threshold_is_optional_diagnostic",
+      "status": "PASS",
+      "detail": "candidate_count_pre_threshold 为 required=false 诊断字段且不进 UART（缺省表示未统计）",
+      "expected": "required=false 且不进 UART",
+      "actual": "{\"name\": \"candidate_count_pre_threshold\", \"type\": \"uint32\", \"unit\": \"候选\", \"required\": false, \"frozen_by_2a\": false, \"field_semantics_note\": \"可选诊断字段，不进 UART；缺省表示"
+    },
+    {
+      "name": "binding.s2a_t25_layer_golden_index",
+      "status": "PASS",
+      "detail": "2A T25 逐层索引（只读引用，未写入）",
+      "expected": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "actual": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d"
+    },
+    {
+      "name": "binding.s2a_t29_cpu_decode_nms_reference",
+      "status": "PASS",
+      "detail": "2A T29 D9 参考（只读引用，未写入）",
+      "expected": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "actual": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231"
+    },
+    {
+      "name": "binding.s1_t02_d9_decoder",
+      "status": "PASS",
+      "detail": "2A 冻结 D9 参考实现（只读引用，未写入）",
+      "expected": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "actual": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    {
+      "name": "binding.s1_t02_d6_metrics",
+      "status": "PASS",
+      "detail": "2A 冻结 D6 指标/stable_nms（只读引用，未写入）",
+      "expected": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "actual": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a"
+    },
+    {
+      "name": "binding.s2a_t01_fixed_test_samples",
+      "status": "PASS",
+      "detail": "2A 固定样本清单（只读引用，未写入）",
+      "expected": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "actual": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed"
+    },
+    {
+      "name": "t25_shard_dir_present",
+      "status": "PASS",
+      "detail": "T25 分片目录只读引用（主树物化，工作树未物化）",
+      "expected": "109 个 sample_NNN.zlib",
+      "actual": "109 个"
+    },
+    {
+      "name": "c_compile_zero_error",
+      "status": "PASS",
+      "detail": "d:\\mingw64\\bin\\gcc.exe 编译 S4-B C 源",
+      "expected": "exit 0 且 0 error",
+      "actual": "exit 0，error 行 0，warning 行 0"
+    },
+    {
+      "name": "c_selftest_all_pass",
+      "status": "PASS",
+      "detail": "C 自检全部通过（11 项：CRC/头/meta/框/整帧回读/篡改拒绝/扩展门闸）",
+      "expected": "exit 0 且 all_pass=true",
+      "actual": "exit 0，all_pass=True"
+    },
+    {
+      "name": "c_crc32_check_vector",
+      "status": "PASS",
+      "detail": "CRC32 自检 '123456789' -> 0xCBF43926",
+      "expected": "0xCBF43926",
+      "actual": "0xCBF43926"
+    },
+    {
+      "name": "python_crc32_check_vector",
+      "status": "PASS",
+      "detail": "Python zlib 独立复核同一检查向量",
+      "expected": "0xCBF43926",
+      "actual": "0xCBF43926"
+    },
+    {
+      "name": "c_frame_pack_unpack_byte_readback",
+      "status": "PASS",
+      "detail": "帧 pack->unpack->re-pack 字节回读一致（含双头与每框 48 B）",
+      "expected": "全部一致",
+      "actual": "一致"
+    },
+    {
+      "name": "frozen_2b_transport_import",
+      "status": "PASS",
+      "detail": "已只读导入 2B 冻结传输实现作为独立消费端"
+    },
+    {
+      "name": "sample36.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "test_palm_036 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "test_palm_036/frame_id=36",
+      "actual": "test_palm_036/frame_id=36"
+    },
+    {
+      "name": "sample36.shard_binding",
+      "status": "PASS",
+      "detail": "test_palm_036 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "c44694a32cc75a0684bd51c7ce301c32889895625d2adbe69b58bfb75dcc7364",
+      "actual": "c44694a32cc75a0684bd51c7ce301c32889895625d2adbe69b58bfb75dcc7364"
+    },
+    {
+      "name": "sample36.stream_binding",
+      "status": "PASS",
+      "detail": "test_palm_036 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "9bf5d30ebf83589c3a6ee68d7888f8da6400f943a5dc8c3b45071c9b3d79e64b",
+      "actual": "9bf5d30ebf83589c3a6ee68d7888f8da6400f943a5dc8c3b45071c9b3d79e64b"
+    },
+    {
+      "name": "sample36.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "test_palm_036 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+      "actual": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3"
+    },
+    {
+      "name": "sample36.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "test_palm_036 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844",
+      "actual": "4caf8aee0f073f65e25e43ff9dc1dfcea23fb382897fdd7f5e699a81e2d83844"
+    },
+    {
+      "name": "sample36.host_exit_zero",
+      "status": "PASS",
+      "detail": "test_palm_036 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample36.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "test_palm_036 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+      "actual": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3"
+    },
+    {
+      "name": "sample36.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "test_palm_036 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample36.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "test_palm_036 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "0e89460bb44ccbe10308af3021968aed55919d28cbc3e9a25c6cb82001b61087",
+      "actual": "0e89460bb44ccbe10308af3021968aed55919d28cbc3e9a25c6cb82001b61087"
+    },
+    {
+      "name": "sample36.c_readback_flags",
+      "status": "PASS",
+      "detail": "test_palm_036 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25526, \"decoded_box_count\": 2}"
+    },
+    {
+      "name": "sample36.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "test_palm_036 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3",
+      "actual": "3095a909caec562f7d3c58f65f570d2932df836c3b08bf1649533771c3633ca3"
+    },
+    {
+      "name": "sample36.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "test_palm_036 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample36.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "test_palm_036 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample36.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "test_palm_036 candidate_count（契约口径：阈值后/NMS 前）与 UART raw_candidate_count 均等于 Python D9 候选数",
+      "expected": 4,
+      "actual": "record=4, UART=4"
+    },
+    {
+      "name": "sample36.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "test_palm_036 candidate_count 与 UART raw_candidate_count 均等于 2A T29 冻结参考（可被黄金独立验证）",
+      "expected": 4,
+      "actual": 4
+    },
+    {
+      "name": "sample36.candidate_count_pre_threshold_consistent",
+      "status": "PASS",
+      "detail": "test_palm_036 candidate_count_pre_threshold == 5 * candidate_box_count 且不小于 candidate_count",
+      "expected": "5 * candidate_box_count",
+      "actual": "10630 vs 5 * 2126（candidate_count=4）"
+    },
+    {
+      "name": "sample36.candidate_count_semantics_resolved",
+      "status": "PASS",
+      "detail": "test_palm_036 候选数口径冲突已由 S4-A 契约修订裁决（candidate_count=阈值后/NMS 前，pre_threshold 为可选诊断）",
+      "expected": "divergence_open=false",
+      "actual": "{\"candidate_count\": \"S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）\", \"candidate_count_pre_threshold\": \"S4"
+    },
+    {
+      "name": "sample36.timing_sentinel_not_fabricated",
+      "status": "PASS",
+      "detail": "test_palm_036 离线无 PL：四个时间字段为 0 哨兵，measurement_scope 按契约键名标注三项 NOT_EXECUTED_OFFLINE",
+      "expected": "0 哨兵 + pl_timing/uart_transport/board_pl=NOT_EXECUTED_OFFLINE",
+      "actual": "{\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}"
+    },
+    {
+      "name": "sample36.candidate_overflow_explicitly_false",
+      "status": "PASS",
+      "detail": "test_palm_036 candidate_overflow 字段保留并显式记录“未超限”（硬错误路径、无候选截断；上限 12675 = 理论上界，恒 false）",
+      "expected": "字段存在且为 false，上限 12675",
+      "actual": "overflow=False, limit=12675"
+    },
+    {
+      "name": "sample36.max_outputs_is_15",
+      "status": "PASS",
+      "detail": "test_palm_036 NMS 后输出上限 15（2A 冻结）与候选缓冲上限 12675 不得混用",
+      "expected": "detection_count <= 15",
+      "actual": "2"
+    },
+    {
+      "name": "sample36.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "test_palm_036 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample36.s4a_field_names",
+      "status": "PASS",
+      "detail": "test_palm_036 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample36.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "test_palm_036 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=OK, detection_count=2"
+    },
+    {
+      "name": "sample36.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "test_palm_036 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 4, \"box_count\": 2, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    },
+    {
+      "name": "sample56.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "test_one_056 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "test_one_056/frame_id=56",
+      "actual": "test_one_056/frame_id=56"
+    },
+    {
+      "name": "sample56.shard_binding",
+      "status": "PASS",
+      "detail": "test_one_056 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "678b3b92732ae3b2d8d5f6aed5aebbaec7569139870e9861dfcc43b5983c1475",
+      "actual": "678b3b92732ae3b2d8d5f6aed5aebbaec7569139870e9861dfcc43b5983c1475"
+    },
+    {
+      "name": "sample56.stream_binding",
+      "status": "PASS",
+      "detail": "test_one_056 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "9248c882041a4cea72679a7b6933c7b61ab1d7b3f735003311f27309eee9d78a",
+      "actual": "9248c882041a4cea72679a7b6933c7b61ab1d7b3f735003311f27309eee9d78a"
+    },
+    {
+      "name": "sample56.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "test_one_056 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+      "actual": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb"
+    },
+    {
+      "name": "sample56.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "test_one_056 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c",
+      "actual": "d4bb53650e60249b746057d58e6c0fa2916cd48dd2a505f9f32e3a7cd7f1133c"
+    },
+    {
+      "name": "sample56.host_exit_zero",
+      "status": "PASS",
+      "detail": "test_one_056 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample56.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "test_one_056 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+      "actual": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb"
+    },
+    {
+      "name": "sample56.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "test_one_056 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample56.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "test_one_056 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "d72dfc05205cd086a01b501e2587ea49df2f0ef9c99882e9737dd9c3cae6f1c7",
+      "actual": "d72dfc05205cd086a01b501e2587ea49df2f0ef9c99882e9737dd9c3cae6f1c7"
+    },
+    {
+      "name": "sample56.c_readback_flags",
+      "status": "PASS",
+      "detail": "test_one_056 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25526, \"decoded_box_count\": 2}"
+    },
+    {
+      "name": "sample56.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "test_one_056 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb",
+      "actual": "0caf460452cd2b94311a4e1161f35eff340e0ee02cf7a0e76aa1196fe0bb41bb"
+    },
+    {
+      "name": "sample56.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "test_one_056 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample56.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "test_one_056 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample56.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "test_one_056 candidate_count（契约口径：阈值后/NMS 前）与 UART raw_candidate_count 均等于 Python D9 候选数",
+      "expected": 3,
+      "actual": "record=3, UART=3"
+    },
+    {
+      "name": "sample56.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "test_one_056 candidate_count 与 UART raw_candidate_count 均等于 2A T29 冻结参考（可被黄金独立验证）",
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "name": "sample56.candidate_count_pre_threshold_consistent",
+      "status": "PASS",
+      "detail": "test_one_056 candidate_count_pre_threshold == 5 * candidate_box_count 且不小于 candidate_count",
+      "expected": "5 * candidate_box_count",
+      "actual": "10665 vs 5 * 2133（candidate_count=3）"
+    },
+    {
+      "name": "sample56.candidate_count_semantics_resolved",
+      "status": "PASS",
+      "detail": "test_one_056 候选数口径冲突已由 S4-A 契约修订裁决（candidate_count=阈值后/NMS 前，pre_threshold 为可选诊断）",
+      "expected": "divergence_open=false",
+      "actual": "{\"candidate_count\": \"S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）\", \"candidate_count_pre_threshold\": \"S4"
+    },
+    {
+      "name": "sample56.timing_sentinel_not_fabricated",
+      "status": "PASS",
+      "detail": "test_one_056 离线无 PL：四个时间字段为 0 哨兵，measurement_scope 按契约键名标注三项 NOT_EXECUTED_OFFLINE",
+      "expected": "0 哨兵 + pl_timing/uart_transport/board_pl=NOT_EXECUTED_OFFLINE",
+      "actual": "{\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}"
+    },
+    {
+      "name": "sample56.candidate_overflow_explicitly_false",
+      "status": "PASS",
+      "detail": "test_one_056 candidate_overflow 字段保留并显式记录“未超限”（硬错误路径、无候选截断；上限 12675 = 理论上界，恒 false）",
+      "expected": "字段存在且为 false，上限 12675",
+      "actual": "overflow=False, limit=12675"
+    },
+    {
+      "name": "sample56.max_outputs_is_15",
+      "status": "PASS",
+      "detail": "test_one_056 NMS 后输出上限 15（2A 冻结）与候选缓冲上限 12675 不得混用",
+      "expected": "detection_count <= 15",
+      "actual": "2"
+    },
+    {
+      "name": "sample56.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "test_one_056 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample56.s4a_field_names",
+      "status": "PASS",
+      "detail": "test_one_056 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample56.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "test_one_056 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=OK, detection_count=2"
+    },
+    {
+      "name": "sample56.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "test_one_056 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 3, \"box_count\": 2, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    },
+    {
+      "name": "sample102.index_vs_t29_identity",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 T25 索引与 T29 参考的 sample_id/frame_id 一致（同一冻结样本）",
+      "expected": "approved_no_hand_001/frame_id=102",
+      "actual": "approved_no_hand_001/frame_id=102"
+    },
+    {
+      "name": "sample102.shard_binding",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 zlib 分片只读引用与 SHA-256 绑定",
+      "expected": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6",
+      "actual": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6"
+    },
+    {
+      "name": "sample102.stream_binding",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 解压后逐层 raw 层流长度/SHA-256 绑定（T25 索引与 T29 双方一致）",
+      "expected": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69",
+      "actual": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69"
+    },
+    {
+      "name": "sample102.head13_extraction_binding",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 head13 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+      "actual": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d"
+    },
+    {
+      "name": "sample102.head26_extraction_binding",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 head26 按 T25 索引偏移抽取，T25 索引与 T29 的偏移/scale/SHA 一致",
+      "expected": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+      "actual": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2"
+    },
+    {
+      "name": "sample102.host_exit_zero",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 主机链（解码->打包->解帧回读）退出码",
+      "expected": "exit 0",
+      "actual": "exit 0"
+    },
+    {
+      "name": "sample102.head_int8_bytes_unchanged",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 head13/head26 INT8 原字节进出一致且等于 2A 冻结 tensor_sha256",
+      "expected": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+      "actual": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d"
+    },
+    {
+      "name": "sample102.frame_independent_unpack",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 独立（非 C、非 2B 代码）解帧：头/payload CRC、op、seq、frame、几何、长度",
+      "expected": "解帧成功",
+      "actual": "成功"
+    },
+    {
+      "name": "sample102.frame_repack_byte_identical",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 独立重打包与 C 帧原字节逐字节相同（pack->unpack 回读一致）",
+      "expected": "8aba865eae34b00e349b2455f3844ccfdbfa414be5d2036e2dbdd5d137d8852f",
+      "actual": "8aba865eae34b00e349b2455f3844ccfdbfa414be5d2036e2dbdd5d137d8852f"
+    },
+    {
+      "name": "sample102.c_readback_flags",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 C 侧 pack/unpack 回读标记（字段/双头/框/re-pack 字节）",
+      "expected": "全部 true",
+      "actual": "{\"pack_status\": 0, \"unpack_status\": 0, \"field_identical\": true, \"heads_identical\": true, \"boxes_identical\": true, \"repack_byte_identical\": true, \"frame_length\": 25430, \"decoded_box_count\": 0}"
+    },
+    {
+      "name": "sample102.frame_heads_frozen_identical",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 帧内双头 INT8 与抽取自冻结分片的原字节逐字节相同",
+      "expected": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+      "actual": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d"
+    },
+    {
+      "name": "sample102.c_vs_python_d9_discrete",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 C 与 Python D9 逐框离散字段（框数/class_id/class_name/source_order）完全相同",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete_mismatch=0"
+    },
+    {
+      "name": "sample102.c_vs_python_d9_tolerance",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 C 与 Python D9 的 score/xyxy 绝对误差 <= 1e-06",
+      "expected": "max_abs <= 1e-06",
+      "actual": "score=0.000e+00, xyxy=0.000e+00, exceeded=0"
+    },
+    {
+      "name": "sample102.candidate_count_matches_d9",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 candidate_count（契约口径：阈值后/NMS 前）与 UART raw_candidate_count 均等于 Python D9 候选数",
+      "expected": 0,
+      "actual": "record=0, UART=0"
+    },
+    {
+      "name": "sample102.candidate_count_matches_t29",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 candidate_count 与 UART raw_candidate_count 均等于 2A T29 冻结参考（可被黄金独立验证）",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "name": "sample102.candidate_count_pre_threshold_consistent",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 candidate_count_pre_threshold == 5 * candidate_box_count 且不小于 candidate_count",
+      "expected": "5 * candidate_box_count",
+      "actual": "9845 vs 5 * 1969（candidate_count=0）"
+    },
+    {
+      "name": "sample102.candidate_count_semantics_resolved",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 候选数口径冲突已由 S4-A 契约修订裁决（candidate_count=阈值后/NMS 前，pre_threshold 为可选诊断）",
+      "expected": "divergence_open=false",
+      "actual": "{\"candidate_count\": \"S4-A 契约口径：阈值筛除后、稳定排序截断到 15 之前、NMS 前（与 2A T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，与 UART raw_candidate_count 同值，可被 T29 黄金独立验证）\", \"candidate_count_pre_threshold\": \"S4"
+    },
+    {
+      "name": "sample102.timing_sentinel_not_fabricated",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 离线无 PL：四个时间字段为 0 哨兵，measurement_scope 按契约键名标注三项 NOT_EXECUTED_OFFLINE",
+      "expected": "0 哨兵 + pl_timing/uart_transport/board_pl=NOT_EXECUTED_OFFLINE",
+      "actual": "{\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}"
+    },
+    {
+      "name": "sample102.candidate_overflow_explicitly_false",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 candidate_overflow 字段保留并显式记录“未超限”（硬错误路径、无候选截断；上限 12675 = 理论上界，恒 false）",
+      "expected": "字段存在且为 false，上限 12675",
+      "actual": "overflow=False, limit=12675"
+    },
+    {
+      "name": "sample102.max_outputs_is_15",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 NMS 后输出上限 15（2A 冻结）与候选缓冲上限 12675 不得混用",
+      "expected": "detection_count <= 15",
+      "actual": "0"
+    },
+    {
+      "name": "sample102.c_vs_t29_reference",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 C 结果与 2A T29 冻结参考框逐框一致（独立黄金交叉确认）",
+      "expected": "0 mismatch",
+      "actual": "count_mismatch=False, discrete=0, exceeded=0"
+    },
+    {
+      "name": "sample102.s4a_field_names",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 C 结果 JSON 覆盖 S4-A result_record/detection_record 权威字段名",
+      "expected": "无缺失",
+      "actual": "缺失 result=[] detection=[]"
+    },
+    {
+      "name": "sample102.state_and_count_consistency",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 state 属 S4-A state_enum，且 detection_count == len(detections) 并符合 OK/NO_HAND 口径",
+      "expected": "state=OK(>=1框) 或 NO_HAND(0框)",
+      "actual": "state=NO_HAND, detection_count=0"
+    },
+    {
+      "name": "sample102.frozen_2b_transport_accepts_frame",
+      "status": "PASS",
+      "detail": "approved_no_hand_001 2B 冻结传输实现作为独立消费端核对帧（未修改 2B 代码）",
+      "expected": "接受且双头/框一致",
+      "actual": "2B decode_response 接受该帧：meta={\"epoch\": 1, \"phys_status\": 3588, \"error_code\": 0, \"last_reject\": 0, \"raw_candidate_count\": 0, \"box_count\": 0, \"index\": 0, \"total\": 1, \"response_code\": 0}"
+    },
+    {
+      "name": "s4a_alignment_all_items",
+      "status": "PASS",
+      "detail": "与 S4-A 契约的逐项对齐清单（语义不变量判定；见 s4a_alignment.json）",
+      "expected": "全部 ALIGNED（允许 ALIGNED_WITH_REVISION_DRIFT）",
+      "actual": "[\"ALIGNED_WITH_REVISION_DRIFT\", \"ALIGNED\", \"ALIGNED\", \"ALIGNED\", \"ALIGNED\", \"ALIGNED\", \"ALIGNED\", \"ALIGNED\"]"
+    }
+  ],
+  "limitations": [
+    "离线骨架：无板卡、无 PL、无真实 UART/JTAG、无 PL 时间戳；不产生 G3/G4/G5 结论",
+    "默认只覆盖 1~3 个冻结样本；109 全量由 S4-C 负责",
+    "未测量 PL 推理时间/期限/吞吐；JSON 中 inference_time_ns 等时间字段为 null",
+    "S4-A 为草案：candidate_limit=4096 与 stale_age_limit_ms=200 属 DRAFT_PROPOSED，本链不启用",
+    "2B 验收（s2bu/1.1 板上行为）不在本任务范围；本链只做帧格式/CRC/字节一致性核验",
+    "s2bu/1.1 缺少 result_seq/state/时间/丢帧/过期字段：扩展格式待 Wong 决策，本链不新增传输字段",
+    "只执行轻量 Python 与 d:\\mingw64 gcc 编译；未启动 Vivado/xsim，未争用 2B 硬件会话"
+  ],
+  "not_executed": [
+    "板上真实串口 / COM4 / UART 收发",
+    "JTAG / hw_server / DAP / PL 加载",
+    "PL inference_time / deadline / 吞吐测量",
+    "109 全量样本（S4-C）",
+    "2B 实板验收与 s2bu/1.1 板上行为",
+    "Vivado / xsim / 综合 / 仿真 / 上板"
+  ],
+  "development_notes": [
+    "证据落点：按 Lead 决定统一为官方两段式 report/evidence/S4-B/<run_id>/（早期运行曾写在 report/evidence/S4-CTRL/S4B/<run_id>/，其 summary 内嵌的 evidence_dir 字符串为迁移前路径，内容未改写；本 run 的落点与内嵌路径一致，为权威运行）。",
+    "开发期驱动调用暴露并修复了两个骨架缺陷（C 自检帧缓冲 4096 B < 完整 RUN 帧 26150 B；importlib 导入 2B 冻结传输时未注册 sys.modules 导致 dataclass 字符串注解解析失败）。修复后的权威运行见本 run_id；先前 run_id=20261021_r01/r02 为 schema 不完整或样本集不同的早期运行，按“不删除既有 RunId 证据”的规则保留，其结论以本 run 为准。"
+  ],
+  "open_items": [
+    {
+      "id": "S4B-OPEN-01",
+      "title": "candidate_count 口径冲突（契约 vs 2B/T29 冻结实现）",
+      "contract_text": "S4-A 原草案曾定义 candidate_count = 阈值筛除前的原始候选数；uart_mapping.raw_candidate_count_semantics 指出 2B 正文未定义该口径",
+      "frozen_reality": "2B 冻结 C 实现与 2A T29 黄金 raw_candidate_count_before_stable_nms 均为阈值筛除后、NMS 前的候选数",
+      "resolution": "已由 Lead 裁决并修订 S4-A 契约：candidate_count = 阈值筛除后、NMS 前（2B/T29 同口径，可被 T29 黄金独立验证）；阈值前候选机会数改列可选诊断字段 candidate_count_pre_threshold（不进 UART、不参与对拍）",
+      "implementation": "结果记录 candidate_count 取自 UART raw_candidate_count（阈值后/NMS 前）；candidate_count_pre_threshold = 5 * candidate_box_count；UART 字段语义未改",
+      "status": "RESOLVED_BY_LEAD_CONTRACT_REVISION"
+    },
+    {
+      "id": "S4B-OPEN-02",
+      "title": "S4-A absent_value_policy 与离线无 PL 的取值",
+      "interim_behaviour": "四个时间字段按契约用 0 哨兵 + measurement_scope.pl_timing=NOT_EXECUTED_OFFLINE + unavailable_fields 显式标注，不冒充实测值",
+      "status": "CONFORMANT_PENDING_CONFIRMATION"
+    },
+    {
+      "id": "S4B-OPEN-03",
+      "title": "S4-A 草案 candidate_limit=4096 未启用",
+      "interim_behaviour": "保持 2B 冻结缓冲上限 12675（= 理论最大候选数），启用 4096 会破坏与 2A D9 的逐框等价",
+      "status": "NOT_APPLIED_DRAFT_VALUE"
+    },
+    {
+      "id": "S4B-OPEN-04",
+      "title": "s2bu/1.1 时间/丢帧/过期/result_seq/state 字段扩展",
+      "interim_behaviour": "按 Lead 指示预留（新 op/TLV 位置已定义，S4_UART_ENABLE_EXTENSION=0、扩展 op 门闸关闭），不修改 2B 正文语义",
+      "status": "OPEN_AWAITING_WONG_DECISION"
+    }
+  ],
+  "s4a_alignment": {
+    "contract_sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+    "lead_decision_contract_sha256": "1d7fd5f02bc4948fc6aa16734bf7bd258c1be34d2141f67eb487a2449f3be350",
+    "revision_drift_from_lead_decision": true,
+    "judgement_basis": "契约哈希仅作记录；对齐判定以语义不变量为准（candidate 口径/上限硬错误语义/measurement_scope 键名/0 哨兵/扩展预留）",
+    "items": [
+      {
+        "item": "契约版本与 SHA（语义不变量判定）",
+        "expectation": "S4-A r04 基线 sha256=1d7fd5f02bc4948fc6aa16734bf7bd258c1be34d2141f67eb487a2449f3be350；契约允许继续修订，但 candidate 口径/上限/哨兵/扩展等语义不变量必须保持",
+        "actual": "运行期契约 sha256=3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87（契约在裁决基线之后又经修订，已改按语义不变量校验；清单 interfaces 绑定生成时的实际文件哈希）",
+        "status": "ALIGNED_WITH_REVISION_DRIFT"
+      },
+      {
+        "item": "candidate_count 口径（required）",
+        "expectation": "阈值筛除后、NMS 前；与 T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，= UART raw_candidate_count",
+        "actual": "所有样本 candidate_count == UART raw_candidate_count == Python D9 候选数 == T29 黄金",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "candidate_count_pre_threshold（required=false 诊断）",
+        "expectation": "阈值前候选机会数 = 5 × 通过几何/正面积校验的候选框数；不进 UART、不参与对拍",
+        "actual": "test_palm_036: pre=10630 = 5×2126; test_one_056: pre=10665 = 5×2133; approved_no_hand_001: pre=9845 = 5×1969",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "candidate_limit 与 candidate_overflow",
+        "expectation": "candidate_limit=12675（2B 参考实现硬错误路径的上界，无候选截断；4096 已弃用）；字段保留、恒 false 并显式记录未超限；候选上限不得与 15 框截断混用",
+        "actual": "test_palm_036: limit=12675 overflow=False（硬错误路径不可达）; test_one_056: limit=12675 overflow=False（硬错误路径不可达）; approved_no_hand_001: limit=12675 overflow=False（硬错误路径不可达）",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "时间字段 0 哨兵与未执行标注",
+        "expectation": "离线无 PL：四个时间字段 0 哨兵，且 measurement_scope 按契约键名标注 pl_timing/uart_transport/board_pl=NOT_EXECUTED_OFFLINE 并列出 unavailable_fields；TIMEOUT/ERROR 下 inference_time_ns 亦为 0 哨兵",
+        "actual": "test_palm_036: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}; test_one_056: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}; approved_no_hand_001: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "UART raw_candidate_count 语义",
+        "expectation": "保持 2B 冻结实现口径不变（不改 2B 正文语义）",
+        "actual": "帧内 raw_candidate_count 与 2B 冻结 decode_response 消费一致，未被本阶段修改",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "max_outputs_per_image 与 candidate_limit 不混用",
+        "expectation": "NMS 后 ≤15（2A 冻结）；候选缓冲上限 12675",
+        "actual": "test_palm_036: boxes=2; test_one_056: boxes=2; approved_no_hand_001: boxes=0",
+        "status": "ALIGNED"
+      },
+      {
+        "item": "UART 时间/丢帧/过期/result_seq/state 扩展",
+        "expectation": "预留不启用（选项 B 离线临时默认；帧格式扩展待 Wong 决策）",
+        "actual": "S4_UART_ENABLE_EXTENSION=0，s4_uart_op_is_reserved() 拒绝扩展 op；selftest extension_op_gate_closed PASS",
+        "status": "ALIGNED"
+      }
+    ],
+    "all_aligned": true
+  },
+  "check_summary": {
+    "pass": 92,
+    "fail": 0,
+    "skip": 1
+  },
+  "status": "PASS",
+  "failed_checks": [],
+  "elapsed_seconds": 0.793,
+  "tmp_dir": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r09",
+  "evidence_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r09"
+}

@@ -1,0 +1,86 @@
+{
+  "contract_sha256_at_run": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+  "expected_contract_sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+  "judgement_basis": "契约哈希运行期读出并记录（不硬编码历史值）；对齐判定以字段名/语义/常量不变量为准（candidate_count 阈值后/15 框截断前/NMS 前、candidate_count_pre_threshold 可选诊断、candidate_limit=12675 硬错误语义、score_threshold=0.25 含等号、nms_iou=0.45、<=15 框、5 类、两头 5070/20280 与 scale、容限 1e-6/相对 0、state_enum 5 态、<ii5d> 48 B、measurement_scope 4 键）",
+  "contract_hash_item": {
+    "item": "契约 SHA-256（运行期读出，不硬编码）",
+    "expectation": "从 docs/stage4/s4a_stage4_g0_fields.json 现场读出 sha256 并如实记录；--expected-contract-sha256 缺省时取读出值",
+    "actual": "读出 sha256=3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87；期望值=3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+    "status": "ALIGNED"
+  },
+  "items": [
+    {
+      "item": "score_threshold=0.25 且含等号",
+      "expectation": "contract/frozen 与 C 头均为 0.25，rule 含等号",
+      "actual": "contract=0.25, C 头=0.25, 运行期=[0.25], rule含等号=True",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "nms_iou=0.45（类别内 greedy，>= 抑制）",
+      "expectation": "contract 与 C 头均为 0.45，规则为类别内 greedy",
+      "actual": "contract=0.45, C 头=0.45, rule=类别内 greedy NMS，跨类别不抑制；先按分数稳定排序截断到 15 个，再执行 NMS",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "max_outputs_per_image=15",
+      "expectation": "contract 与 C 头均为 15，且所有样本与帧内框数 <= 15",
+      "actual": "contract=15, C 头=15.0, 各样本框数=[2, 2, 0]",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "5 类与类别顺序",
+      "expectation": "contract 顺序与脚本 CLASS_NAMES 一致，class_name 由 class_id 派生",
+      "actual": "contract=['fist', 'palm', 'one', 'two_up', 'three'], C 头=5.0, 运行期出现的类=['fist', 'one', 'palm', 'two_up']",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "两头 5,070/20,280 B 与 int8_scale",
+      "expectation": "contract/C 头/运行期三方一致",
+      "actual": "contract=(5070,20280)/(0.24267549589862975,0.30223452951025775), C 头=(5070.0,20280.0)/(0.24267549589862975,0.30223452951025775), 运行期=True",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "比较容限 score/xyxy 1e-6、相对 0",
+      "expectation": "contract 容限 1e-6/1e-6/相对 0，且实测误差在容限内",
+      "actual": "contract={'score_abs_tolerance': 1e-06, 'xyxy_abs_tolerance_per_component': 1e-06, 'relative_tolerance': 0}, 驱动 tolerance=1e-06, 实测最大误差=[(0.0, 0.0), (0.0, 0.0), (0.0, 0.0)]",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_count=阈值后/15 框截断前/NMS 前",
+      "expectation": "契约语义为阈值筛除后/NMS 前，且记录值 == UART 值 == Python D9 候选数",
+      "actual": "contract 语义=阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型；各样本 record=UART=Python=[(4, 4), (3, 3), (0, 0)]",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_count_pre_threshold 仅为可选诊断（required=false、不进 UART）",
+      "expectation": "required=false 且不进 UART；运行期 pre == 5 × candidate_box_count",
+      "actual": "contract.required=False；各样本 pre=5×boxes 且 >= candidate_count",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_limit=12675 且为硬错误路径（不定义候选截断）",
+      "expectation": "契约与运行期均为 12675；语义为硬错误且不定义截断；overflow 恒 false 但字段保留",
+      "actual": "limit_value=12675, derived=12675, 运行期 limit/overflow=[(12675, False), (12675, False), (12675, False)]",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "state_enum 5 态",
+      "expectation": "契约含 OK/NO_HAND/TIMEOUT/ERROR/DROPPED，运行期取值合法",
+      "actual": "contract=['DROPPED', 'ERROR', 'NO_HAND', 'OK', 'TIMEOUT'], 运行期 state=['OK', 'OK', 'NO_HAND']",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "每框 <ii5d> 48 B 与帧长等式",
+      "expectation": "C 头 48 B、契约 <ii5d> 48 B、帧长 = 40+40+5070+20280+48×框数",
+      "actual": "C 头 S4_UART_BOX_BYTES=48.0, contract=<ii5d> 48 B：class_id、source_order、score、x1、y1、x2、y2, 帧长等式=True",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "measurement_scope 4 键（含 note 允许）",
+      "expectation": "契约 4 键齐备、取值合法，且顶层不再重复 unavailable_fields",
+      "actual": "contract=['board_pl', 'pl_timing', 'uart_transport', 'unavailable_fields'], 运行期=['board_pl', 'note', 'pl_timing', 'uart_transport', 'unavailable_fields'], 顶层无重复 unavailable_fields=True",
+      "status": "ALIGNED"
+    }
+  ],
+  "all_aligned": true
+}

@@ -1,0 +1,323 @@
+{
+  "schema_version": "gestureforge_s4b_offline_chain_v1",
+  "task_id": "S4-B",
+  "run_id": "20261021_r10",
+  "stage": "4",
+  "scope": "离线准备：冻结 heads -> C 解码/NMS -> s2bu/1.1 风格帧 -> 主机解帧 -> Python D9 对拍",
+  "created_utc8": "2026-10-21T22:11:12+08:00",
+  "w4_root": "D:\\codex-worktrees\\w4",
+  "contract": {
+    "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+    "relative": "docs/stage4/s4a_stage4_g0_fields.json",
+    "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+    "schema_version": "gestureforge_s4a_stage4_g0_draft_v1",
+    "status": "DRAFT_NOT_FROZEN",
+    "note": "S4-A 契约为 DRAFT_NOT_FROZEN；字段名以其 result_record.fields 为权威命名",
+    "result_record_fields": [
+      "frame_id",
+      "result_seq",
+      "geometry",
+      "state",
+      "detection_count",
+      "detections",
+      "candidate_count",
+      "candidate_count_pre_threshold",
+      "candidate_overflow",
+      "capture_time_ns",
+      "result_time_ns",
+      "inference_time_ns",
+      "end_to_end_latency_ns",
+      "dropped_frames",
+      "stale",
+      "error_code"
+    ],
+    "detection_record_fields": [
+      "class_id",
+      "class_name",
+      "score",
+      "xyxy",
+      "xyxy_px",
+      "source_order"
+    ],
+    "state_enum": [
+      "DROPPED",
+      "ERROR",
+      "NO_HAND",
+      "OK",
+      "TIMEOUT"
+    ],
+    "candidate_count_semantics_text": "阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为 | s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_reference.c）与 2A T29 黄金（samples[i].raw_candidate_count_before_stable_nms）实际都是**阈值筛除后、15 框截断前、NMS 前**的计数。阶段4 的 candidate_count 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART raw_candidate_count 可直接对齐。若 2B 后续把该字段正式冻结为其他口径（例如阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径。",
+    "candidate_count_declares_thresholded_after_nms": true
+  },
+  "bindings": [
+    {
+      "id": "s4a_contract",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+      "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87"
+    },
+    {
+      "id": "t25_index",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json"
+    },
+    {
+      "id": "t29_reference",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json"
+    },
+    {
+      "id": "d9_decoder",
+      "path": "verification\\s1_t02_d9_yolo_decode.py"
+    },
+    {
+      "id": "d6_metrics",
+      "path": "verification\\s1_t02_d6_detection_metrics.py"
+    },
+    {
+      "id": "fixed_samples",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\fixed_test_samples.json"
+    }
+  ],
+  "environment": {
+    "python": "3.12.10",
+    "gcc": [
+      "gcc.exe (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0"
+    ],
+    "host_os": "nt",
+    "note": "未使用 Vivado/xsim/综合/仿真；未访问 UART/JTAG/hw_server/COM4/板卡"
+  },
+  "sources": [
+    {
+      "path": "vitis/stage4/s4_ps_decode.h",
+      "sha256": "16fa58c2fcc7017c58f5c3838e39b4bb46d6a82e39ec76d434a035edd41f2fdf",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_ps_decode.c",
+      "sha256": "e9ba1732644c640dfe67099b055fb689d65638c3811d7ce29310fe57816e93e3",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.h",
+      "sha256": "42c4d81655b1b2b41b97bfd87e0475a73951eafcddbc42bdeda73facdd6489f4",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_uart_protocol.c",
+      "sha256": "196ce14d97bf94d6bc5711109f87f5c63aab0e3ea363ffea2058fc17a1682e51",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/s4_offline_host.c",
+      "sha256": "3331504010d794a02e71d0ebde5bfacb880befc0fe8624e96f5b0e4c5c8ff406",
+      "exists": true
+    },
+    {
+      "path": "vitis/stage4/README.md",
+      "sha256": "2e8dbe3b1aa095086ba55eb30c07dbfc2baa62879d8a914d9cb997bd8eaf7488",
+      "exists": true
+    },
+    {
+      "path": "scripts/stage4_s4b/run_s4b_offline_chain.py",
+      "sha256": "ac5e60c12cf485d274a51f23f0681e49ac1f713ad02ab2996c391945563e04b8",
+      "exists": true
+    },
+    {
+      "path": "scripts/stage4_s4b/build_s4b_manifest.py",
+      "sha256": "0c747b30e9138b1fcbf17368dfe0842c04e9a8c87b8ebd6519aa79f4c6959dcf",
+      "exists": true
+    },
+    {
+      "path": "verification/test_s4_ps_decode.py",
+      "sha256": "5ad812b47a6368e2119b0625d7ac9a3bc8e106bb91f3f524ef91115fbad2b07c",
+      "exists": true
+    }
+  ],
+  "commands": {
+    "compile": {
+      "command": [
+        "D:\\mingw64\\bin\\gcc.exe",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wconversion",
+        "-Wshadow",
+        "-I",
+        "vitis/stage4",
+        "vitis/stage4/s4_ps_decode.h",
+        "vitis/stage4/s4_ps_decode.c",
+        "vitis/stage4/s4_uart_protocol.h",
+        "vitis/stage4/s4_uart_protocol.c",
+        "vitis/stage4/s4_offline_host.c",
+        "vitis/stage4/README.md",
+        "scripts/stage4_s4b/run_s4b_offline_chain.py",
+        "scripts/stage4_s4b/build_s4b_manifest.py",
+        "verification/test_s4_ps_decode.py",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4B\\20261021_r10\\s4_offline_host.exe"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 0.425098,
+      "error_line_count": 1,
+      "warning_line_count": 0,
+      "stderr_tail": "vitis/stage4/README.md: file not recognized: File format not recognized\r\ncollect2.exe: error: ld returned 1 exit status\n"
+    }
+  },
+  "samples": [],
+  "checks": [
+    {
+      "name": "contract.result_record_fields_present",
+      "status": "PASS",
+      "detail": "S4-A result_record.fields 非空，字段名以其为权威",
+      "expected": "非空",
+      "actual": "16 个字段"
+    },
+    {
+      "name": "contract.candidate_count_semantics_read",
+      "status": "PASS",
+      "detail": "已读取契约 candidate_count 口径文本并据此实现（阈值后/NMS 前口径进入结果记录 candidate_count）",
+      "expected": "契约文本存在且明确口径",
+      "actual": "阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为 | s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_refer"
+    },
+    {
+      "name": "contract.candidate_count_semantics_is_thresholded_after_nms",
+      "status": "PASS",
+      "detail": "契约 candidate_count 已与 2B 冻结实现/T29 黄金统一为阈值后、NMS 前口径（原冲突已裁决）",
+      "expected": "契约声明阈值后/NMS 前",
+      "actual": "阈值后"
+    },
+    {
+      "name": "contract.sha256_read_from_file",
+      "status": "PASS",
+      "detail": "契约 SHA-256 现场读出并与期望值一致（期望值默认取读出值；不硬编码历史哈希）",
+      "expected": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+      "actual": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87"
+    },
+    {
+      "name": "contract.measurement_scope_keys_defined",
+      "status": "PASS",
+      "detail": "契约 evidence_annotation.measurement_scope 键名（离线证据必须使用同一组键）",
+      "expected": "pl_timing/uart_transport/board_pl/unavailable_fields",
+      "actual": "board_pl,pl_timing,uart_transport,unavailable_fields"
+    },
+    {
+      "name": "contract.candidate_overflow_is_hard_error_semantics",
+      "status": "PASS",
+      "detail": "契约 candidate_overflow 为硬错误语义且不定义候选截断（本实现仅在尝试超出上限时置位，不可达）",
+      "expected": "硬错误路径且无截断",
+      "actual": "{\"rule\": \"候选缓冲上限由 2B 参考实现以**硬错误**方式强制：w2b/verification/s2a_ps_decode_nms_reference.c 在候选数达到 S2A_T62_MAX_CANDIDATES（12,675）时返回 S2A_T62_INVALID_ARGUMENT"
+    },
+    {
+      "name": "contract.candidate_limit_is_12675",
+      "status": "PASS",
+      "detail": "契约候选缓冲上限 = 12675（2B 冻结上限 = tiny416 理论最大候选数），4096 已弃用",
+      "expected": 12675,
+      "actual": 12675
+    },
+    {
+      "name": "contract.candidate_count_pre_threshold_is_optional_diagnostic",
+      "status": "PASS",
+      "detail": "candidate_count_pre_threshold 为 required=false 诊断字段且不进 UART（缺省表示未统计）",
+      "expected": "required=false 且不进 UART",
+      "actual": "{\"name\": \"candidate_count_pre_threshold\", \"type\": \"uint32\", \"unit\": \"候选\", \"required\": false, \"frozen_by_2a\": false, \"field_semantics_note\": \"可选诊断字段，不进 UART；缺省表示"
+    },
+    {
+      "name": "binding.s2a_t25_layer_golden_index",
+      "status": "PASS",
+      "detail": "2A T25 逐层索引（只读引用，未写入）",
+      "expected": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "actual": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d"
+    },
+    {
+      "name": "binding.s2a_t29_cpu_decode_nms_reference",
+      "status": "PASS",
+      "detail": "2A T29 D9 参考（只读引用，未写入）",
+      "expected": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "actual": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231"
+    },
+    {
+      "name": "binding.s1_t02_d9_decoder",
+      "status": "PASS",
+      "detail": "2A 冻结 D9 参考实现（只读引用，未写入）",
+      "expected": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "actual": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    {
+      "name": "binding.s1_t02_d6_metrics",
+      "status": "PASS",
+      "detail": "2A 冻结 D6 指标/stable_nms（只读引用，未写入）",
+      "expected": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "actual": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a"
+    },
+    {
+      "name": "binding.s2a_t01_fixed_test_samples",
+      "status": "PASS",
+      "detail": "2A 固定样本清单（只读引用，未写入）",
+      "expected": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "actual": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed"
+    },
+    {
+      "name": "t25_shard_dir_present",
+      "status": "PASS",
+      "detail": "T25 分片目录只读引用（主树物化，工作树未物化）",
+      "expected": "109 个 sample_NNN.zlib",
+      "actual": "109 个"
+    },
+    {
+      "name": "c_compile_zero_error",
+      "status": "FAIL",
+      "detail": "d:\\mingw64\\bin\\gcc.exe 编译 S4-B C 源",
+      "expected": "exit 0 且 0 error",
+      "actual": "exit 1，error 行 1，warning 行 0"
+    }
+  ],
+  "limitations": [
+    "离线骨架：无板卡、无 PL、无真实 UART/JTAG、无 PL 时间戳；不产生 G3/G4/G5 结论",
+    "默认只覆盖 1~3 个冻结样本；109 全量由 S4-C 负责",
+    "未测量 PL 推理时间/期限/吞吐；JSON 中 inference_time_ns 等时间字段为 null",
+    "S4-A 为草案：candidate_limit=4096 与 stale_age_limit_ms=200 属 DRAFT_PROPOSED，本链不启用",
+    "2B 验收（s2bu/1.1 板上行为）不在本任务范围；本链只做帧格式/CRC/字节一致性核验",
+    "s2bu/1.1 缺少 result_seq/state/时间/丢帧/过期字段：扩展格式待 Wong 决策，本链不新增传输字段"
+  ],
+  "not_executed": [
+    "板上真实串口 / COM4 / UART 收发",
+    "JTAG / hw_server / DAP / PL 加载",
+    "PL inference_time / deadline / 吞吐测量",
+    "109 全量样本（S4-C）",
+    "2B 实板验收与 s2bu/1.1 板上行为",
+    "Vivado / xsim / 综合 / 仿真 / 上板"
+  ],
+  "development_notes": [
+    "证据落点：按 Lead 决定统一为官方两段式 report/evidence/S4-B/<run_id>/（早期运行曾写在 report/evidence/S4-CTRL/S4B/<run_id>/，其 summary 内嵌的 evidence_dir 字符串为迁移前路径，内容未改写；本 run 的落点与内嵌路径一致，为权威运行）。",
+    "开发期驱动调用暴露并修复了两个骨架缺陷（C 自检帧缓冲 4096 B < 完整 RUN 帧 26150 B；importlib 导入 2B 冻结传输时未注册 sys.modules 导致 dataclass 字符串注解解析失败）。修复后的权威运行见本 run_id；先前 run_id=20261021_r01/r02 为 schema 不完整或样本集不同的早期运行，按“不删除既有 RunId 证据”的规则保留，其结论以本 run 为准。"
+  ],
+  "open_items": [
+    {
+      "id": "S4B-OPEN-01",
+      "title": "candidate_count 口径冲突（契约 vs 2B/T29 冻结实现）",
+      "contract_text": "S4-A 原草案曾定义 candidate_count = 阈值筛除前的原始候选数；uart_mapping.raw_candidate_count_semantics 指出 2B 正文未定义该口径",
+      "frozen_reality": "2B 冻结 C 实现与 2A T29 黄金 raw_candidate_count_before_stable_nms 均为阈值筛除后、NMS 前的候选数",
+      "resolution": "已由 Lead 裁决并修订 S4-A 契约：candidate_count = 阈值筛除后、NMS 前（2B/T29 同口径，可被 T29 黄金独立验证）；阈值前候选机会数改列可选诊断字段 candidate_count_pre_threshold（不进 UART、不参与对拍）",
+      "implementation": "结果记录 candidate_count 取自 UART raw_candidate_count（阈值后/NMS 前）；candidate_count_pre_threshold = 5 * candidate_box_count；UART 字段语义未改",
+      "status": "RESOLVED_BY_LEAD_CONTRACT_REVISION"
+    },
+    {
+      "id": "S4B-OPEN-02",
+      "title": "S4-A absent_value_policy 与离线无 PL 的取值",
+      "interim_behaviour": "四个时间字段按契约用 0 哨兵 + measurement_scope.pl_timing=NOT_EXECUTED_OFFLINE + unavailable_fields 显式标注，不冒充实测值",
+      "status": "CONFORMANT_PENDING_CONFIRMATION"
+    },
+    {
+      "id": "S4B-OPEN-03",
+      "title": "S4-A 草案 candidate_limit=4096 未启用",
+      "interim_behaviour": "保持 2B 冻结缓冲上限 12675（= 理论最大候选数），启用 4096 会破坏与 2A D9 的逐框等价",
+      "status": "NOT_APPLIED_DRAFT_VALUE"
+    },
+    {
+      "id": "S4B-OPEN-04",
+      "title": "s2bu/1.1 时间/丢帧/过期/result_seq/state 字段扩展",
+      "interim_behaviour": "按 Lead 指示预留（新 op/TLV 位置已定义，S4_UART_ENABLE_EXTENSION=0、扩展 op 门闸关闭），不修改 2B 正文语义",
+      "status": "OPEN_AWAITING_WONG_DECISION"
+    }
+  ]
+}

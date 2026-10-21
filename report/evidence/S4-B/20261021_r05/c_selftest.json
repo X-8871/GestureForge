@@ -1,0 +1,19 @@
+{
+  "schema_version": "gestureforge_s4b_offline_selftest_v1",
+  "mode": "selftest",
+  "checks": [
+    {"name": "crc32_check_vector_123456789", "pass": true, "expected": "0xCBF43926", "actual": "0xCBF43926"},
+    {"name": "crc32_empty", "pass": true, "expected": "0x00000000", "actual": "0x00000000"},
+    {"name": "header_pack_unpack_roundtrip", "pass": true, "expected": "pack==unpack且LE布局正确", "actual": "一致"},
+    {"name": "header_crc_rejects_tamper", "pass": true, "expected": "拒绝S4_UART_ERR_HEADER_CRC", "actual": "已拒绝"},
+    {"name": "header_rejects_bad_magic", "pass": true, "expected": "拒绝S4_UART_ERR_MAGIC", "actual": "已拒绝"},
+    {"name": "meta_pack_unpack_roundtrip", "pass": true, "expected": "meta回读一致且RUN成功谓词成立", "actual": "一致"},
+    {"name": "box_pack_unpack_roundtrip", "pass": true, "expected": "48B逐位一致", "actual": "一致"},
+    {"name": "run_response_pack_unpack_roundtrip", "pass": true, "expected": "unpack成功且双头48B*3逐字节一致", "actual": "一致"},
+    {"name": "run_response_repack_byte_identical", "pass": true, "expected": "re-pack与原始帧逐字节相同", "actual": "一致"},
+    {"name": "payload_crc_rejects_tamper", "pass": true, "expected": "拒绝S4_UART_ERR_PAYLOAD_CRC", "actual": "已拒绝"},
+    {"name": "extension_op_gate_closed", "pass": true, "expected": "扩展op保留且未启用", "actual": "已拒绝"},
+    {"name": "__summary__", "pass": true, "passed": 11, "failed": 0}
+  ],
+  "all_pass": true
+}

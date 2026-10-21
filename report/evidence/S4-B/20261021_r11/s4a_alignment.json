@@ -1,0 +1,56 @@
+{
+  "contract_sha256_at_run": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+  "expected_contract_sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+  "judgement_basis": "契约哈希运行期读出并记录（不硬编码历史值）；对齐判定以字段名/语义/常量不变量为准（candidate_count 阈值后/NMS 前、candidate_count_pre_threshold 可选诊断、candidate_limit=12675 硬错误语义、measurement_scope 键名、0 哨兵、扩展预留）",
+  "items": [
+    {
+      "item": "契约版本与 SHA（运行期读出，不硬编码）",
+      "expectation": "从 docs/stage4/s4a_stage4_g0_fields.json 现场读出 sha256 并记录；对齐判定基于字段名/语义/常量不变量（candidate 口径、candidate_limit、measurement_scope 键名、0 哨兵、扩展预留）",
+      "actual": "运行期读出 sha256=3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87；期望值=3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87（缺省=读出值）",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_count 口径（required）",
+      "expectation": "阈值筛除后、NMS 前；与 T29 raw_candidate_count_before_stable_nms 及 2B 冻结实现同口径，= UART raw_candidate_count",
+      "actual": "所有样本 candidate_count == UART raw_candidate_count == Python D9 候选数 == T29 黄金",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_count_pre_threshold（required=false 诊断）",
+      "expectation": "阈值前候选机会数 = 5 × 通过几何/正面积校验的候选框数；不进 UART、不参与对拍",
+      "actual": "test_palm_036: pre=10630 = 5×2126; test_one_056: pre=10665 = 5×2133; approved_no_hand_001: pre=9845 = 5×1969",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "candidate_limit 与 candidate_overflow",
+      "expectation": "candidate_limit=12675（2B 参考实现硬错误路径的上界，无候选截断；4096 已弃用）；字段保留、恒 false 并显式记录未超限；候选上限不得与 15 框截断混用",
+      "actual": "test_palm_036: limit=12675 overflow=False（硬错误路径不可达）; test_one_056: limit=12675 overflow=False（硬错误路径不可达）; approved_no_hand_001: limit=12675 overflow=False（硬错误路径不可达）",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "时间字段 0 哨兵与未执行标注",
+      "expectation": "离线无 PL：四个时间字段 0 哨兵，且 measurement_scope 按契约键名标注 pl_timing/uart_transport/board_pl=NOT_EXECUTED_OFFLINE 并列出 unavailable_fields；TIMEOUT/ERROR 下 inference_time_ns 亦为 0 哨兵",
+      "actual": "test_palm_036: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}; test_one_056: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}; approved_no_hand_001: {\"pl_timing\": \"NOT_EXECUTED_OFFLINE\", \"uart_transport\": \"NOT_EXECUTED_OFFLINE\", \"board_pl\": \"NOT_EXECUTED_OFFLINE\", \"unavailable_fields\": [\"capture_time_ns\", \"result_time_ns\", \"inference_time_ns\", \"end_to_end_latency_ns\"], \"note\": \"键名与取值按 S4-A evidence_annotation.measurement_scope；离线骨架无 PL/UART/板卡，四个时间字段为 0 哨兵，不是实测耗时\"}",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "UART raw_candidate_count 语义",
+      "expectation": "保持 2B 冻结实现口径不变（不改 2B 正文语义）",
+      "actual": "帧内 raw_candidate_count 与 2B 冻结 decode_response 消费一致，未被本阶段修改",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "max_outputs_per_image 与 candidate_limit 不混用",
+      "expectation": "NMS 后 ≤15（2A 冻结）；候选缓冲上限 12675",
+      "actual": "test_palm_036: boxes=2; test_one_056: boxes=2; approved_no_hand_001: boxes=0",
+      "status": "ALIGNED"
+    },
+    {
+      "item": "UART 时间/丢帧/过期/result_seq/state 扩展",
+      "expectation": "预留不启用（选项 B 离线临时默认；帧格式扩展待 Wong 决策）",
+      "actual": "S4_UART_ENABLE_EXTENSION=0，s4_uart_op_is_reserved() 拒绝扩展 op；selftest extension_op_gate_closed PASS",
+      "status": "ALIGNED"
+    }
+  ],
+  "all_aligned": true
+}

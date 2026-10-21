@@ -1,7 +1,7 @@
 # 阶段3 状态（AN5642 原始视频链路）
 
-更新：2026-10-21 19:39（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
-规则见 `D:\FPGA_Competition\AGENTS.md`。**Codex 阶段三总控已完成 OFFERED→CLAIMED→IN_PROGRESS；基线 `d476df8db21614df35bb3ccb11843b1beca88212`，接管核验无 index.lock、重型任务或 hw_server/3121 监听；仅保留原有 NA/、clockInfo.txt。当前定位 OOC 实际输入及蓝位重建数据路径。**
+更新：2026-10-21 19:53（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
+规则见 `D:\FPGA_Competition\AGENTS.md`。**Wong 要求交回 DSH 继续完成；Codex 将本树置 OFFERED，除本次交接提交外停止写入。技术基线 `0d47801266a96c950d025702c158734f9bbd25de`；完整接续依据见 `report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`。实时成立、近似补偿目视失败，阶段未验收；下一步查 DVP MSB，不继续盲调白平衡。**
 
 ## 目标与第一版范围
 - 第一版：AN5642(OV5640) → 扩展口 → PL 采集/DDR 缓冲 → HDMI → 显示器【原始画面直通】，单通道；不加 CNN/检测框/手势交互。
@@ -35,9 +35,11 @@ bash scripts/stage3_t04/run_t04_camera_j11_cmos2_build.sh <新run名>          #
 bash scripts/stage3_t04/run_t04_camera_j11cmos2_bluefix_build.sh <新run名>   # SOF + 蓝位重建
 bash scripts/stage3_t04/run_t04_camera_j10_cmos2_build.sh <新run名>          # J10 + 官方 cmos2 映射
 bash scripts/stage3_t05/run_t05_board_capture.sh <run_dir> <elf> <tag> 120   # 抓UART + JTAG 下载 + 只读探测
-bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/jtag_dump_rows3.tcl D:/codex-worktrees/dbdf/tmp/3/S3-CTRL/t05_live_r01
+# 读取前核实当前 ELF 的 FRAME0/stride，并手动创建全新、空的输出目录；再使用已审安全脚本：
+bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/jtag_dump_display_channels.tcl <新建空输出目录>
 ```
-- 运行目录必须不存在（脚本拒绝覆盖）；重跑一律用新 RunId；`*.log` 被 gitignore，关键日志另存 `.txt`。
+- 重跑一律用新 RunId；调用方先核对新输出目录不存在，安全转储则要求手动创建的新空目录。不是所有旧脚本都防覆盖，`run_t05_board_capture.sh` 使用 `mkdir -p`，不能原样复用旧 tag；`*.log` 被 gitignore，关键日志另存 `.txt`。
+- **禁止原样执行历史 `jtag_dump_rows3.tcl`**：该旧脚本暂停失败后仍可能读内存，恢复失败也不能可靠报告非零；仅保留历史，不作为接续工具。
 - **工具教训**：对**运行中**的 A9 直接 `mrd` 会触发 “Timeout waiting for the Instruction Complete bit” 并把 DAP 打成 `APB AP transaction error 0x30000021`（A9 从目标树消失）；恢复 = `targets -set *DAP*` → `rst -type system`（**会清 PL 配置**，需重下比特流）。只读一律 `stop` → `mrd` → `con`。
 
 ## 未关闭的阻碍与风险
@@ -48,8 +50,8 @@ bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/
 - 跨方：`codex_mailbox/CDX-20261020-003` 无回执；本树已发 `S3CTRL-20261020-001`、`S3CTRL-20261021-002`。**不得写两个 mailbox 目录**。
 
 ## 未提交改动归属（接手声明，不覆盖不回退）
-- 本阶段已提交（分支 `codex/stage3-video`，**未 push**）：`ea16e32 e9b853f cdde845 cb389a3 3cba2c3 354a737 d1dd2d9 e7fe2c9 fbcfc1e fe5177d f2345c3 1b437e3 c51b593 402b074`。
+- 本阶段已提交（分支 `codex/stage3-video`，**未 push**）：`ea16e32 e9b853f cdde845 cb389a3 3cba2c3 354a737 d1dd2d9 e7fe2c9 fbcfc1e fe5177d f2345c3 1b437e3 c51b593 402b074 d476df8 0d47801`；本交接文件另作提交，接手时以实际 HEAD 核验。
 - 未跟踪散落件：`NA/`、`clockInfo.txt`（旧轮、非本阶段产物，保留不动）；`tmp/**` 为构建缓存，不入提交。
 
-## 交接行（11 字段，2026-10-21 15:05）
-任务=`S3-T05 阶段3：实时直通成立；近似重建目视失败，定位 DVP MSB 缺失` | 负责人=`Codex 阶段三总控` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`d476df8db21614df35bb3ccb11843b1beca88212` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/、clockInfo.txt 为原有散落件保留不动；本轮 STATE 及范围内变更归 Codex；tmp/** 不入提交` | 让出声明=`DSH 于 2026-10-21 15:05 OFFERED 并停止写入；Codex 于 18:28 核验后 CLAIMED→IN_PROGRESS，写权独占` | 心跳(UTC+8)=`2026-10-21 19:39` | 证据入口=`report/evidence/S3-T05/t05_display_bluefix_board_20261021_r01/README.md`；`report/evidence/S3-T05/t05_codex_g2_20261021_r01/` | 恢复命令=`先读本轮 README 与 visual_result.json，候选已完成构建/易失上板，禁止重复启动；近似补偿位流仍有伪彩，不冻结。继续只读官方格式/DVP 资料和 cmos_d[9] 路径核查；任何后续板测先核对 2B hw_server，A9 读取先 stop 后 mrd 最后 con` | 状态/下一接手方=`IN_PROGRESS / Codex 阶段三总控`
+## 交接行（11 字段，2026-10-21 19:53）
+任务=`S3-T05 阶段3：修复 DVP MSB 缺失/色彩并完成适用验收` | 负责人=`Codex 阶段三总控（交出）→DSH 阶段三总控（待接手）` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/、clockInfo.txt 原有散落件保留不动；仅本交接文档和 STATE 由 Codex 作最后一次提交；tmp/** 保留不入提交` | 让出声明=`Codex 于 2026-10-21 19:53 OFFERED；除本次交接提交外已停止写入，提交后不再运行构建/板测/心跳任务，DSH 核验后可 CLAIMED→IN_PROGRESS` | 心跳(UTC+8)=`2026-10-21 19:53` | 证据入口=`report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`；`report/evidence/S3-T05/t05_display_bluefix_board_20261021_r01/README.md` | 恢复命令=`先完整读 STATE、003交接及主仓AGENTS；核验分支/HEAD/锁/进程/2B会话后接管；补充 DVP 使能/位序回读，按003路线推进；不重启固定旧RunId，不把近似补偿当修复` | 状态/下一接手方=`OFFERED / DSH 阶段三总控`

@@ -3,7 +3,7 @@
   "status": "DRAFT_NOT_FROZEN",
   "task_id": "S4-A",
   "created_utc8": "2026-10-21T21:43:00+08:00",
-  "revision_note": "r04：① 按 rev-spec 第 2 轮阻断修复——TIMEOUT 的 inference_time_ns 明确为 0 哨兵并给出超时终点口径（2A 规格第 65 行），state_enum 恢复为仅 5 个状态键（说明移入 result_record.non_ok_field_values_note）；② 按 dev-ps 实现反馈裁决 candidate_count 口径与 2B 冻结实现及 2A T29 黄金对齐（阈值筛除后、NMS 前），阈值前计数改为可选诊断字段 candidate_count_pre_threshold；candidate_limit 由 2B 冻结候选缓冲上限推导为 12,675 并记录弃用 4,096 的理由。r02 为按 rev-spec 第 1 轮审查修复 F4–F13。",
+  "revision_note": "r05：按 rev-spec 第 3 轮阻断修复——① 新增 evidence_annotation.measurement_scope 定义（关闭 N1：原先是悬空引用）；② candidate_overflow 改为与 2B 参考实现一致的硬错误语义（S2A_T62_INVALID_ARGUMENT，无截断，关闭 N2）；③ 新增候选理论上界与 2B 宏的上游自检（N3）；④ 把推得值与计划要求移出 draft_proposed_thresholds，使 WARNING 字面成立（N5）；⑤ checker_version 递增（N7）。r04 为 TIMEOUT 终点与 state_enum 修复 + candidate 口径对齐 2B/T29。",
   "scope": "阶段4 离线 G0 草案：结果记录字段、时间口径与异常记录口径。本文件是草案，不是阶段4 G0 冻结、不是阶段4 验收；不产生板上或实物结论。上游 2A 冻结常量原样引用，未冻结值一律标注 DRAFT_PROPOSED。",
   "human_doc": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
   "field_annotation_definitions": {
@@ -13,6 +13,33 @@
       "geometry": "true：原图 width/height 是 D9 补边逆映射的冻结输入（2A 规格第 77 行、样本清单逐项 width/height）。",
       "detection_count": "false：字段本身由阶段4 定义；但其取值受 2A 规格第 75 行『检测数必须完全相同』约束，且不得超过 2A 冻结的每图 15 框上限。",
       "candidate_count": "false：字段本身由阶段4 定义；但阶段4 采用与 2A T29 黄金字段 raw_candidate_count_before_stable_nms 完全相同的口径，因此其取值可被 T29 黄金逐样本独立验证。"
+    }
+  },
+  "evidence_annotation": {
+    "description": "运行级注解块：与结果记录/证据清单一同保存，用于声明该批结果的测量范围。它不是结果记录字段、不进 UART 帧；S4-B/S4-C 引用 measurement_scope 时应使用本块定义的键名与取值。",
+    "measurement_scope": {
+      "type": "object",
+      "required": false,
+      "placement": "证据清单/S4-A 结果集合的元数据中（例如 S4-B 的 host 结果 JSON 顶层 measurement_scope）；不属于 result_record.fields，不进入 UART payload",
+      "keys": {
+        "pl_timing": {
+          "allowed_values": ["MEASURED", "NOT_EXECUTED_OFFLINE"],
+          "semantics": "capture_time_ns/result_time_ns/inference_time_ns/end_to_end_latency_ns 的测量状态。NOT_EXECUTED_OFFLINE 表示这些字段取 0 哨兵、不是实测值"
+        },
+        "uart_transport": {
+          "allowed_values": ["MEASURED", "NOT_EXECUTED_OFFLINE"],
+          "semantics": "UART 真实链路是否参与；离线准备期为 NOT_EXECUTED_OFFLINE"
+        },
+        "board_pl": {
+          "allowed_values": ["MEASURED", "NOT_EXECUTED_OFFLINE"],
+          "semantics": "PL/板卡是否参与；离线准备期为 NOT_EXECUTED_OFFLINE"
+        },
+        "unavailable_fields": {
+          "type": "array<string>",
+          "semantics": "因未执行而取 0 哨兵的字段名列表；必须与 pl_timing/uart_transport/board_pl 的取值自洽"
+        }
+      },
+      "rule": "取值为 NOT_EXECUTED_OFFLINE 时，相应字段必须是 0 哨兵且不得被解释为实测耗时；缺失整个 measurement_scope 对象表示未声明该批结果的测量范围，不得据此推断已实测"
     }
   },
   "upstream_bindings": [
@@ -91,10 +118,10 @@
     },
     {
       "id": "s2b_ps_decode_reference_impl",
-      "role": "2B 冻结实现中实际使用的 PS 解码/NMS C 参考（candidate 计数口径的事实来源；只读引用，阶段4 不修改）",
+      "role": "2B 冻结实现中实际使用的 PS 解码/NMS C 参考（candidate 计数口径与候选缓冲上限的事实来源；只读引用，阶段4 不修改）",
       "path": "D:\\FPGA_Competition\\w2b\\verification\\s2a_ps_decode_nms_reference.c",
       "sha256": null,
-      "sha_note": "由 2B 维护；阶段4 以其为 candidate_count 口径依据，若其实现变更须做适用回归"
+      "sha_note": "由 2B 维护（s2bu/1.1 第 53 行称其为冻结参考）。阶段4 以其中的 S2A_T62_MAX_CANDIDATES=12675 与阈值后候选计数为实现依据；该文件无 SHA 钉扎，若其实现变更必须重新推导候选上限与 candidate_count 口径并做适用回归"
     },
     {
       "id": "s2b_physical_interface",
@@ -119,7 +146,7 @@
     "nms_rule": "类别内 greedy NMS，跨类别不抑制；先按分数稳定排序截断到 15 个，再执行 NMS",
     "max_outputs_per_image": 15,
     "candidate_theoretical_max": 12675,
-    "candidate_theoretical_max_basis": "tiny416 两头共 (13×13 + 26×26) × 3 anchors × 5 classes = 12,675，即 D9 阈值后可产生的候选上界",
+    "candidate_theoretical_max_basis": "tiny416 两头共 (13×13 + 26×26) × 3 anchors × 5 classes = 12,675，即阈值后可产生的候选上界；该值同时等于 2B 参考实现的候选缓冲上限 S2A_T62_MAX_CANDIDATES。自检脚本从 manifest 两头 shape 与类别数复算，并与 2B C 参考的宏比对",
     "score_definition": "score = sigmoid(objectness_logit) * sigmoid(class_logit)",
     "coordinate_policy": "D2 整数截断 resize + 左上 floor padding 逆映射；逐边裁剪到 [0,1]；裁剪后零面积丢弃",
     "tie_order": "head 顺序 → row-major cell → anchor-local 顺序 → class_id",
@@ -150,7 +177,7 @@
     "non_ok_field_values_note": "TIMEOUT/ERROR/DROPPED 下 required 字段的取值统一由 result_record.absent_value_policy.by_state 规定；字段不得省略，缺值用 0 哨兵并以 state 判别。state_enum 只承载状态取值域本身，不再混入该说明。",
     "absent_value_policy": {
       "rule": "任何一条结果记录都必须包含 result_record.fields 中标为 required=true 的全部字段。当 state 表示无结果时，用下表哨兵值填充，字段本身不得省略、不得沿用上一帧的值、不得出现负数。",
-      "sentinel_zero_means_unobserved": "0 表示『未观测/不适用』，不是 1970 时刻、也不是合法耗时；读取方必须先按 state 判别，再决定 0 是否可解释为数值。离线准备阶段没有 PL 硬件时的 0 哨兵必须同时显式标注未执行范围，绝不冒充实测值。",
+      "sentinel_zero_means_unobserved": "0 表示『未观测/不适用』，不是 1970 时刻、也不是合法耗时；读取方必须先按 state 判别，再决定 0 是否可解释为数值。离线准备阶段没有 PL 硬件时的 0 哨兵必须同时按 evidence_annotation.measurement_scope 标注未执行范围，绝不冒充实测值。",
       "by_state": {
         "OK": {
           "capture_time_ns": "真实采集时刻",
@@ -158,7 +185,7 @@
           "inference_time_ns": "真实 PL 任务窗口耗时（>0）",
           "end_to_end_latency_ns": "result_time_ns - capture_time_ns（>0）",
           "candidate_count": "阈值筛除后、NMS 前的真实候选数（与 T29 黄金同口径）",
-          "candidate_overflow": "真实溢出标志（tiny416 固定配置下恒为 false，见 anomaly_accounting.candidate_overflow）",
+          "candidate_overflow": false,
           "dropped_frames": "真实缺失帧数（可为 0）",
           "stale": "按 stale 定义域计算",
           "error_code": 0
@@ -173,7 +200,7 @@
           "inference_time_ns": "0 哨兵。TIMEOUT 在第 N 个后续上升沿中止，不存在 operator_result_valid 且 code=0 的完成沿（2A 规格第 65 行），故本合同不定义超时下的 inference_time_ns 数值；若实现另有按 STATUS.busy 门控观测到的中止沿耗时，只能作为实现侧诊断值单独记录，不得写入本字段",
           "end_to_end_latency_ns": "0（无 result_time，不得用负数或沿用其它帧）",
           "candidate_count": "已观测到的阈值后候选数；未观测为 0",
-          "candidate_overflow": "仅在已观测到超限时为 true",
+          "candidate_overflow": false,
           "dropped_frames": "真实缺失帧数",
           "stale": false,
           "error_code": 5
@@ -184,10 +211,10 @@
           "inference_time_ns": "0 哨兵。错误完成事件存在（2A 规格第 67 行：非零 operator_error_code 随单周期 valid 脉冲给出），故 ERROR 下若实现记录了该沿到 start 的窗口，可作为实现侧诊断值；本合同不定义其数值口径，缺省为 0 哨兵",
           "end_to_end_latency_ns": "0",
           "candidate_count": "已观测到的阈值后候选数；未观测为 0",
-          "candidate_overflow": "仅在已观测到超限时为 true",
+          "candidate_overflow": "若候选数达到候选缓冲上限则为 true，且此时 error_code 必须为 BAD_ARGUMENT(1)（见 anomaly_accounting.candidate_overflow）",
           "dropped_frames": "真实缺失帧数",
           "stale": false,
-          "error_code": "非 0 且非 5（见 csr_error_codes）"
+          "error_code": "非 0 且非 5（见 csr_error_codes）；候选超限路径固定为 1"
         },
         "DROPPED": {
           "capture_time_ns": "若采集事实已知则为真实采集时刻，否则 0",
@@ -264,8 +291,8 @@
         "unit": "候选",
         "required": true,
         "frozen_by_2a": false,
-        "field_semantics_note": "与 2A T29 黄金字段 raw_candidate_count_before_stable_nms 及 2B 冻结实现 s2a_ps_decode_nms_reference.c 同口径（见 uart_mapping.raw_candidate_count_semantics），因此可被 T29 黄金逐样本独立验证",
-        "semantics": "阈值筛除后、NMS 前（稳定排序截断到 15 之前）的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为"
+        "field_semantics_note": "与 2A T29 黄金字段 raw_candidate_count_before_stable_nms 及 2B 冻结实现 s2a_ps_decode_nms_reference.c 同口径（阈值筛除后、稳定排序截断到 15 之前、NMS 前；见 uart_mapping.raw_candidate_count_semantics），因此可被 T29 黄金逐样本独立验证",
+        "semantics": "阈值筛除后、稳定排序截断到 15 之前、NMS 前的候选数；未观测时为 0 哨兵，须结合 state 判别。用于区分模型漏检/误检与阈值行为"
       },
       {
         "name": "candidate_count_pre_threshold",
@@ -273,7 +300,7 @@
         "unit": "候选",
         "required": false,
         "frozen_by_2a": false,
-        "field_semantics_note": "可选诊断字段，不进 UART；缺省表示未统计。存在时可用其与候选缓冲上限比较判定 candidate_overflow",
+        "field_semantics_note": "可选诊断字段，不进 UART；缺省表示未统计。存在时可用于观测阈值行为",
         "semantics": "阈值筛除前的候选机会数（= 通过几何/正面积校验的候选框数 × 类别数 5）；不参与对拍口径，不得替代 candidate_count"
       },
       {
@@ -282,7 +309,7 @@
         "unit": null,
         "required": true,
         "frozen_by_2a": false,
-        "semantics": "候选数超过候选缓冲上限 candidate_limit 时为 true，且此时候选框已按分数稳定排序截断到上限；必须显式记录，不得静默丢弃。tiny416 固定配置下该上限等于理论最大候选数，故恒为 false（见 anomaly_accounting.candidate_overflow）"
+        "semantics": "候选数达到候选缓冲上限时为 true。此时按 2B 参考实现语义属硬错误路径：state=ERROR、error_code=BAD_ARGUMENT(1)、detections=[]；本合同**不定义候选截断语义**。tiny416 固定配置下理论最大候选数恰等于该上限，故恒为 false，但必须显式记录该字段与“未超限”事实（见 anomaly_accounting.candidate_overflow）"
       },
       {
         "name": "capture_time_ns",
@@ -290,7 +317,7 @@
         "unit": "ns（PS 单调时基）",
         "required": true,
         "frozen_by_2a": false,
-        "field_semantics_note": "离线准备阶段（无 PL 硬件）必须同时以 measurement_scope 标注未执行范围，不得冒充实测",
+        "field_semantics_note": "离线准备阶段（无 PL 硬件）取 0 哨兵时必须按 evidence_annotation.measurement_scope 标注 NOT_EXECUTED_OFFLINE，不得冒充实测",
         "semantics": "该帧采集起点：采集到的第一个有效像素（或等价的帧起始事件）时刻；无观测时为 0 哨兵"
       },
       {
@@ -395,7 +422,7 @@
     "OK": "PL 成功、阈值与 NMS 后 detection_count >= 1；时间字段均为真实观测值",
     "NO_HAND": "PL 成功、阈值与 NMS 后 detection_count == 0（无手=零框，是合法成功结果，不是错误，不计入丢帧）",
     "TIMEOUT": "PL 期限到期中止（error_code=5/TIMEOUT），detections=[] 且 detection_count=0；无完成沿，inference_time_ns 取 0 哨兵",
-    "ERROR": "其他 PL/memory/协议/数值错误（error_code 非 0 且非 5），detections=[] 且 detection_count=0",
+    "ERROR": "其他 PL/memory/协议/数值错误（error_code 非 0 且非 5），detections=[] 且 detection_count=0；候选达到缓冲上限属该状态且 error_code=1",
     "DROPPED": "采集侧存在该帧但未产生结果（入队/搬运/会话失败等）；detections=[]、detection_count=0；该 DROPPED 行与 dropped_frames 的互斥关系见 anomaly_accounting.drop_frame.mutual_exclusion"
   },
   "timing_definitions": {
@@ -420,7 +447,7 @@
     },
     "measurement_basis": {
       "timebase": "PS 侧同一单调计数器（建议 CPU 全局定时器，频率与 COUNTS_PER_SECOND 需在 G0 冻结）；PL 窗口端点由 PS 侧门控观测，跨域测量方法待 G0 冻结",
-      "offline_preparation": "离线准备期无 PL 硬件时，时间字段取 0 哨兵并必须以 measurement_scope 显式标注 NOT_EXECUTED_OFFLINE；不得把 0 当作实测耗时。",
+      "offline_preparation": "离线准备期无 PL 硬件时，时间字段取 0 哨兵，并必须按 evidence_annotation.measurement_scope 显式声明 pl_timing=NOT_EXECUTED_OFFLINE 与 unavailable_fields；不得把 0 当作实测耗时。",
       "fps_definitions": ["采集 FPS", "推理 FPS", "显示 FPS（阶段5）分别定义，不得互相替代", "预热、丢帧、超时不得隐藏"]
     }
   },
@@ -438,16 +465,16 @@
       "no_hardware_note": "PL 未启动、会话中断、队列溢出等均计入丢帧"
     },
     "candidate_overflow": {
-      "rule": "candidate_count 或 candidate_count_pre_threshold 超过 candidate_limit 时 candidate_overflow=true；先按分数稳定排序截断到候选缓冲上限，再执行类别内 NMS",
+      "rule": "候选缓冲上限由 2B 参考实现以**硬错误**方式强制：w2b/verification/s2a_ps_decode_nms_reference.c 在候选数达到 S2A_T62_MAX_CANDIDATES（12,675）时返回 S2A_T62_INVALID_ARGUMENT 并中止（该文件第 178–179 行），**没有“截断到上限”的行为**；该实现只有 NMS 之前对 15 的截断。本合同因此**不定义候选截断语义**：候选数达到上限属 ERROR 路径（state=ERROR、error_code=BAD_ARGUMENT(1)、detections=[]）。",
       "limit_value": 12675,
-      "limit_basis": "由 2B 冻结候选缓冲上限与 tiny416 几何共同决定：两头 (13×13 + 26×26) × 3 anchors × 5 classes = 12,675，即阈值后可产生的候选上界（frozen_2a_constants.candidate_theoretical_max）",
-      "consequence": "candidate_count 是该上界之内的计数，因此在 tiny416 固定配置下 candidate_overflow 恒为 false；此时必须显式记录『未超限』这一事实（字段保留、值为 false），不得因恒假而省略字段或省略记录口径",
+      "limit_basis": "由 2B 参考实现的 S2A_T62_MAX_CANDIDATES 与 tiny416 几何共同决定：两头 (13×13 + 26×26) × 3 anchors × 5 classes = 12,675，即阈值后可产生的候选上界（frozen_2a_constants.candidate_theoretical_max）",
+      "reachability": "candidate_count 是该上界之内的计数，且理论最大候选数恰等于该上限，因此在 tiny416 固定配置下 candidate_overflow **不可达**（恒 false）；此时必须显式记录『未超限』这一事实（字段保留、值为 false），不得因恒假而省略字段或省略记录口径",
       "rejected_draft": {
         "value": 4096,
-        "reason": "该上限低于 tiny416 的理论最大候选数，会引入 2A D9 中不存在的候选截断，破坏与 T29 黄金的逐框等价，故弃用；仅在规格变更时重新评估"
+        "reason": "该上限低于 tiny416 的理论最大候选数，会引入 2A D9 与 2B 参考实现中都不存在的候选截断，破坏与 T29 黄金的逐框等价，故弃用；仅在规格变更时重新评估"
       },
-      "explicitness": "必须显式记录溢出与截断事实；不得静默丢弃候选",
-      "distinction": "candidate_limit 是候选缓冲上限（12,675）；max_outputs_per_image=15 是 NMS 之后的输出上限（2A 冻结）。两者不得混用"
+      "explicitness": "必须显式记录溢出事实与 S4-A 字段取值；不得静默丢弃候选",
+      "distinction": "candidate_limit 是候选缓冲上限（12,675，硬错误路径）；max_outputs_per_image=15 是 NMS 之前的截断与 NMS 之后的输出上限（2A 冻结）。两者不得混用"
     },
     "stale_result": {
       "rule": "stale=true 当结果年龄超过 stale_age_limit；结果年龄 = 发布时刻 − result_time_ns",
@@ -465,9 +492,24 @@
     }
   },
   "draft_proposed_thresholds": {
-    "WARNING": "本节的数值均为 DRAFT_PROPOSED：未冻结、未验收，需阶段4 G0 或 Wong 决策后才有效。不得在任何报告中把它们写成已冻结指标。",
-    "stale_age_limit_ms": 200,
-    "candidate_limit_status": "已由 2B 冻结候选缓冲上限推导为 12,675（见 anomaly_accounting.candidate_overflow），不再是 DRAFT_PROPOSED 的 4,096；4,096 已弃用并记录理由。",
+    "WARNING": "本节仅含 DRAFT_PROPOSED 数值：未冻结、未验收，需阶段4 G0 或 Wong 决策后才有效。不得在任何报告中把它们写成已冻结指标。",
+    "stale_age_limit_ms": 200
+  },
+  "derived_values_not_draft": {
+    "description": "由上游冻结对象/冻结实现推导、不属于 DRAFT_PROPOSED 的值；其推导依据仍须随上游变更重新计算。",
+    "candidate_limit": {
+      "value": 12675,
+      "basis": "2B 参考实现 S2A_T62_MAX_CANDIDATES 与 tiny416 几何乘积（见 anomaly_accounting.candidate_overflow.limit_basis）",
+      "note": "该值的推导依赖 2B 实现文件 w2b/verification/s2a_ps_decode_nms_reference.c；该文件在本契约中无 SHA 钉扎（由 2B 维护），若其实现变更必须重新推导"
+    },
+    "deprecated_draft_values": {
+      "candidate_limit": {
+        "value": 4096,
+        "reason": "见 anomaly_accounting.candidate_overflow.rejected_draft"
+      }
+    }
+  },
+  "plan_requirements_not_measured": {
     "stage4_effective_inference_baseline": {
       "value": 1000,
       "source": "阶段计划「阶段4」第 92 行：至少 1000 次有效推理形成基线统计",
@@ -488,13 +530,13 @@
     "existing_response_meta": "<Q8I>：epoch、PHYS_STATUS、ERROR_CODE、LAST_REJECT、raw_candidate_count、box_count、repeat_index、repeat_total、response_code",
     "existing_box": "<ii5d> 48 B：class_id、source_order、score、x1、y1、x2、y2",
     "crc32": "reflected polynomial 0xEDB88320，初值 0xFFFFFFFF，末异或 0xFFFFFFFF；'123456789' -> 0xCBF43926",
-    "raw_candidate_count_semantics": "s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_reference.c）与 2A T29 黄金（samples[i].raw_candidate_count_before_stable_nms）实际都是**阈值筛除后、NMS 前**的计数。阶段4 的 candidate_count 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART raw_candidate_count 可直接对齐。若 2B 后续把该字段正式冻结为其他口径（例如阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径。",
+    "raw_candidate_count_semantics": "s2bu/1.1 正文只列出该字段名与长度，**未写明统计口径**；但 2B G0 冻结实现（w2b/verification/s2a_ps_decode_nms_reference.c）与 2A T29 黄金（samples[i].raw_candidate_count_before_stable_nms）实际都是**阈值筛除后、15 框截断前、NMS 前**的计数。阶段4 的 candidate_count 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART raw_candidate_count 可直接对齐。若 2B 后续把该字段正式冻结为其他口径（例如阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径。",
     "field_coverage": {
       "frame_id": "已有（40 B 头）",
       "geometry": "已有（width/height 在 40 B 头）",
       "detection_count": "已有（box_count）",
       "detections": "已有（<ii5d> 每框 48 B，score/xyxy 与 D9 一致；class_name 由 class_id 派生）",
-      "candidate_count": "已有（raw_candidate_count，与阶段4 candidate_count 同口径：阈值后、NMS 前）",
+      "candidate_count": "已有（raw_candidate_count，与阶段4 candidate_count 同口径：阈值后、15 框截断前、NMS 前）",
       "candidate_count_pre_threshold": "缺失（诊断字段，不进 UART）",
       "error_code": "已有（ERROR_CODE）",
       "result_seq": "无对应字段：运输 sequence 是请求/响应配对序号，不是结果序号",
@@ -525,7 +567,8 @@
     "上游冻结资产只读引用；T25 分片未物化到本工作树",
     "时间口径的时基与跨域测量方法需阶段4 G0 冻结，本草案只给端点定义",
     "inference_time 窗口是 2A busy 窗口的近似，不声称与 STATUS.busy 门控逐周期等价；TIMEOUT/ERROR 下该字段取 0 哨兵，超时/错误窗口的诊断值不由本合同定义",
-    "存在会引入截断的候选上限（如曾提出的 4,096）会破坏与 2A D9 的逐框等价，已弃用；当前 candidate_limit=12,675 使 candidate_overflow 在 tiny416 固定配置下恒为 false",
+    "候选缓冲上限 12,675 的推导依赖 2B 实现文件 s2a_ps_decode_nms_reference.c（本合同未钉扎其 SHA）；若该实现变更必须重新推导并回归",
+    "会引入候选截断的上限（如曾提出的 4,096）与 2A D9 及 2B 参考实现都不一致，已弃用；当前上限使候选超限在 tiny416 固定配置下不可达",
     "stale_age_limit 为 DRAFT_PROPOSED，不构成验收指标",
     "选项 B 下阶段计划第 88 行的部分字段不由 UART 记录满足（见 uart_mapping.open_decision.option_b_consequence）",
     "不声称与 Darknet C 后处理逐值相同（2A D9 已声明奇数补边半像素差异）"

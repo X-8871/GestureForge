@@ -294,21 +294,42 @@ def main() -> int:
             ref = t29["samples"][0]["head_tensors"][head_name]
             head_checks.append((f"T29.{head_name}.byte_length", ref["byte_length"], frozen[head_name]["byte_length"]))
             head_checks.append((f"T29.{head_name}.int8_scale", ref["int8_scale"], frozen[head_name]["int8_scale"]))
+        # 候选理论上界：manifest 两头几何乘积与 2B 参考实现宏（N3 关闭）
+        candidate_checks: list[tuple[str, object, object]] = []
+        products = [head["shape_nchw"][2] * head["shape_nchw"][3] for head in manifest["address_map"]["heads"]]
+        computed_max = sum(products) * 3 * len(post["class_order"])
+        candidate_checks.append(("candidate_theoretical_max(manifest 两头几何×3 anchors×classes)", computed_max, frozen["candidate_theoretical_max"]))
+        ref_binding = next((b for b in contract["upstream_bindings"] if b.get("id") == "s2b_ps_decode_reference_impl"), None)
+        if ref_binding:
+            ref_path = resolve(ref_binding["path"])
+            if ref_path.is_file():
+                ref_text = ref_path.read_text(encoding="utf-8", errors="replace")
+                declared_max = None
+                for line in ref_text.splitlines():
+                    if "#define" in line and "S2A_T62_MAX_CANDIDATES" in line:
+                        digits = "".join(ch for ch in line.split("S2A_T62_MAX_CANDIDATES", 1)[1] if ch.isdigit())
+                        declared_max = int(digits) if digits else None
+                        break
+                candidate_checks.append(("S2A_T62_MAX_CANDIDATES(2B C 参考)", declared_max, frozen["candidate_theoretical_max"]))
+                details["s2b_max_candidates_observed"] = declared_max
+            else:
+                failures.append(f"2B 参考实现文件不可读：{ref_path}")
+        all_checks = upstream_checks + head_checks + candidate_checks
         mismatches = [
             {"item": name, "upstream": upstream, "contract": declared}
-            for name, upstream, declared in upstream_checks + head_checks
+            for name, upstream, declared in all_checks
             if upstream != declared
         ]
         details["frozen_constant_checks"] = {
-            "checked": len(upstream_checks) + len(head_checks),
+            "checked": len(all_checks),
             "mismatches": mismatches,
         }
         if mismatches:
             failures.append(f"2A 冻结常量与上游文件不一致：{mismatches}")
         else:
             passes.append(
-                f"2A 冻结常量与上游文件一致（{len(upstream_checks) + len(head_checks)} 项："
-                "manifest detection_postprocess/address_map.heads 与 T29 head_tensors）"
+                f"2A 冻结常量与上游文件一致（{len(all_checks)} 项：manifest detection_postprocess/address_map.heads、"
+                "T29 head_tensors、候选理论上界与 2B 参考实现宏）"
             )
 
     # 7. 未冻结标注
@@ -328,7 +349,7 @@ def main() -> int:
     ]
     report = {
         "task_id": "S4-A",
-        "checker_version": "r02",
+        "checker_version": "r05",
         "status": status,
         "generated_at_utc8": now_utc8(),
         "command": " ".join([sys.executable, *sys.argv]),

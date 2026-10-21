@@ -1,16 +1,17 @@
 # S4-A 阶段4 G0 草案：结果记录、时间口径与异常记录口径
 
-状态：`DRAFT_NOT_FROZEN`（2026-10-21，UTC+8）。任务编号 `S4-A`。修订 `r04`。
+状态：`DRAFT_NOT_FROZEN`（2026-10-21，UTC+8）。任务编号 `S4-A`。修订 `r05`。
 - `r02`：按 rev-spec 第 1 轮独立审查（CHANGES_REQUIRED）修复 F4–F13。
 - `r03`：按 dev-ps 实现反馈裁决 `candidate_count` 口径，与 2B 冻结实现及 2A T29 黄金对齐。
-- `r04`：按 rev-spec 第 2 轮阻断修复 TIMEOUT 的 `inference_time_ns` 口径与 `state_enum` 混入非状态键；并按建议补齐重复行检测、`frame_id` 回绕与 `stale` 措辞。
+- `r04`：修复 TIMEOUT 的 `inference_time_ns` 口径与 `state_enum` 混入非状态键；补齐重复行检测、`frame_id` 回绕与 `stale` 措辞。
+- `r05`：按 rev-spec 第 3 轮修复——新增 `measurement_scope` 定义（N1）、把候选超限改为与 2B 参考实现一致的硬错误语义并取消截断表述（N2），并把推得值/计划要求移出草案阈值节（N5）。
 
 机器可读契约（权威字段名）：[`s4a_stage4_g0_fields.json`](s4a_stage4_g0_fields.json)。
 本文件是阶段4 的**离线准备草案**，不是阶段4 G0 冻结、不是阶段4 验收，不产生板上、摄像头、HDMI 或 UART 实测结论。
 
 ## 1. 范围与边界
 
-- 覆盖：阶段4 一条推理结果的字段与 `frame_id` 语义、推理耗时与端到端延迟的分别定义、丢帧/候选框超限/过期结果的显式记录口径、无手=零框、非结果状态的取值规则、沿用 2A 的解码与阈值常量。
+- 覆盖：阶段4 一条推理结果的字段与 `frame_id` 语义、推理耗时与端到端延迟的分别定义、丢帧/候选超限/过期结果的显式记录口径、无手=零框、非结果状态的取值规则、运行级测量范围注解、沿用 2A 的解码与阈值常量。
 - 不覆盖：真实摄像头联调、上板、烧录、HDMI 显示（阶段5）、交互控制（阶段6）、CNN 重训。
 - 不改动：2A 冻结规格与阈值、2B `s2b-physical/1.0.0`／`s2bu/1.1` 接口正文。
 - 上游一律只读引用，绑定见第 2 节。
@@ -29,10 +30,10 @@
 | D9 解码实现 | `verification/s1_t02_d9_yolo_decode.py` | `94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190` | 2A 冻结语义 |
 | D9 依赖指标库 | `verification/s1_t02_d6_detection_metrics.py` | `4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a` | 2A 冻结语义 |
 | 2B UART 运输接口 | `w2b/docs/obsidian-project/02-方案设计/s2b_board_transport.md` | 由 2B 总控维护，本阶段不冻结其哈希 | `s2bu/1.1`，仅接口定义冻结 |
-| 2B PS 解码 C 参考 | `w2b/verification/s2a_ps_decode_nms_reference.c` | 由 2B 总控维护 | `candidate_count` 口径的事实来源 |
+| 2B PS 解码 C 参考 | `w2b/verification/s2a_ps_decode_nms_reference.c` | 由 2B 总控维护（**无 SHA 钉扎**） | `candidate` 口径与候选上限的事实来源 |
 | 2B PS/PL 物理接口 | `w2b/docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md` | 同上 | `s2b-physical/1.0.0`，仅接口定义冻结 |
 
-注意：2B 仅冻结“接口定义与受控实验规程”，**2B 尚未最终验收**。若上述 2B 正文或 C 参考实现变更，本草案的 UART 映射与 `candidate_count` 口径需做适用回归。带 SHA-256 的绑定共 **8 项**（其余 3 项由对方维护、1 项为目录），另有 T25 分片计数 1 项。
+注意：2B 仅冻结“接口定义与受控实验规程”，**2B 尚未最终验收**。若上述 2B 正文或 C 参考实现变更，本草案的 UART 映射、`candidate_count` 口径与候选上限需做适用回归。带 SHA-256 的绑定共 **8 项**（其余 3 项由对方维护、1 项为目录），另有 T25 分片计数 1 项。
 
 ## 3. 阶段4 结果记录
 
@@ -55,9 +56,9 @@
 | `state` | enum | 是 | 否 | 只能取 3.4 的 5 个状态之一 |
 | `detection_count` | u32 | 是 | 否 | 恒等于 `detections` 长度；失败与无手必须为 0；≤15；取值受 2A 第 75 行“检测数必须完全相同”约束 |
 | `detections` | array | 是 | 是 | 阈值+稳定排序截断+类别内 NMS 之后的框，顺序即 D9 输出顺序；无结果状态必须为空数组 |
-| `candidate_count` | u32 | 是 | 否 | **阈值筛除后、NMS 前**的候选数，与 T29 `raw_candidate_count_before_stable_nms` 及 2B 冻结实现同口径（见 7.2） |
+| `candidate_count` | u32 | 是 | 否 | **阈值筛除后、稳定排序截断到 15 之前、NMS 前**的候选数，与 T29 `raw_candidate_count_before_stable_nms` 及 2B 冻结实现同口径（见 7.2） |
 | `candidate_count_pre_threshold` | u32 | 否 | 否 | 可选诊断：阈值筛除前的候选机会数（正面积候选框数 × 5 类）；不进 UART、不参与对拍 |
-| `candidate_overflow` | bool | 是 | 否 | 候选数超候选缓冲上限并已截断，必须显式记录；tiny416 固定配置下恒为 false（见 5.2） |
+| `candidate_overflow` | bool | 是 | 否 | 候选数达到候选缓冲上限时为 true，属 ERROR 硬错误路径（`error_code=1`），**不定义截断**；tiny416 固定配置下不可达（恒 false），仍须显式记录（见 5.2） |
 | `capture_time_ns` | u64 | 是 | 否 | 该帧第一个有效像素（或等价帧起始事件）时刻；无观测为 0 哨兵 |
 | `result_time_ns` | u64 | 是 | 否 | 解码/NMS 完成、结果可发布（可开始 UART 发送）时刻；无结果为 0 哨兵 |
 | `inference_time_ns` | u64 | 是 | 否 | PL 任务窗口耗时，见 4.1；**不得**冒充端到端延迟；超时/错误取 0 哨兵 |
@@ -84,7 +85,7 @@
 | `OK` | PL 成功、阈值与 NMS 后 ≥1 框；时间字段均为真实观测值 | ≥1，≤15 |
 | `NO_HAND` | PL 成功、阈值与 NMS 后 0 框（无手=零框，合法成功，不计入丢帧） | 0 |
 | `TIMEOUT` | PL 期限到期中止（`error_code=5`）；无完成沿，`inference_time_ns` 取 0 哨兵 | 0（框无效） |
-| `ERROR` | 其他 PL/memory/协议/数值错误（`error_code∉{0,5}`） | 0（框无效） |
+| `ERROR` | 其他 PL/memory/协议/数值错误（`error_code∉{0,5}`）；候选达上限属此状态且 `error_code=1` | 0（框无效） |
 | `DROPPED` | 采集侧存在该帧但未产生结果 | 0 |
 
 `state` 只能取以上 5 个值；非 `OK`/`NO_HAND` 状态下其余必填字段的取值规则见 5.5（与 JSON `result_record.absent_value_policy` 一致）。
@@ -113,8 +114,21 @@
 ### 4.3 时基与 FPS
 
 - 时基：PS 侧同一单调计数器（建议 CPU 全局定时器，频率与 `COUNTS_PER_SECOND` 需在 G0 冻结）；PL 窗口端点由 PS 侧门控观测，跨域测量方法待 G0 冻结。
-- 离线准备期无 PL 硬件时，时间字段取 0 哨兵并必须以 `measurement_scope` 显式标注 `NOT_EXECUTED_OFFLINE`，不得把 0 当作实测耗时。
 - FPS 分别定义：采集 FPS、推理 FPS、显示 FPS（阶段5）不得互相替代；预热、丢帧、超时不得隐藏。
+
+### 4.4 运行级注解 `measurement_scope`（证据侧，定义见 JSON `evidence_annotation`）
+
+- 位置：证据清单/结果集合的元数据（例如 S4-B host 结果 JSON 顶层 `measurement_scope`）。它**不是结果记录字段、不进 UART 帧**，此处给出权威键名与取值是为了让 S4-B/S4-C 不再自行发明。
+- 键与允许值：
+
+| 键 | 允许值 | 语义 |
+|---|---|---|
+| `pl_timing` | `MEASURED` / `NOT_EXECUTED_OFFLINE` | `capture_time_ns`/`result_time_ns`/`inference_time_ns`/`end_to_end_latency_ns` 的测量状态 |
+| `uart_transport` | `MEASURED` / `NOT_EXECUTED_OFFLINE` | UART 真实链路是否参与；离线准备期为 `NOT_EXECUTED_OFFLINE` |
+| `board_pl` | `MEASURED` / `NOT_EXECUTED_OFFLINE` | PL/板卡是否参与；离线准备期为 `NOT_EXECUTED_OFFLINE` |
+| `unavailable_fields` | `array<string>` | 因未执行而取 0 哨兵的字段名列表，必须与上述三项取值自洽 |
+
+- 规则：取值为 `NOT_EXECUTED_OFFLINE` 时相应字段必须是 0 哨兵且不得解释为实测耗时；整个对象缺失表示未声明测量范围，**不得据此推断已实测**。
 
 ## 5. 异常与边界记录口径
 
@@ -128,13 +142,14 @@
 - 缺帧不得静默跳过：PS 若知道该帧存在，必须补一条 `state=DROPPED` 记录；仅当完全无采集事实时才只累计 `dropped_frames`。
 - 若采集源本身会跳号（非连续分配），必须显式声明实际分配规则，否则丢帧统计无效。
 
-### 5.2 候选框超限
+### 5.2 候选超限（与 2B 参考实现一致的硬错误语义）
 
-- 候选缓冲上限 `candidate_limit = 12675`，由 2B 冻结候选缓冲上限与 tiny416 几何共同决定：两头 `(13×13 + 26×26) × 3 anchors × 5 classes = 12,675`，即阈值后可产生的候选上界。
-- `candidate_count`（或 `candidate_count_pre_threshold`）超过该上限时 `candidate_overflow=true`，并先按分数稳定排序截断到上限，再执行类别内 NMS。
-- 因此**在 tiny416 固定配置下 `candidate_overflow` 恒为 false**；此时必须显式记录“未超限”这一事实（字段保留、值为 false），不得因恒假而省略字段或省略记录口径。
-- 曾提出的 `candidate_limit = 4096` 属 **弃用的草案值**：它低于理论最大候选数，会引入 2A D9 中不存在的候选截断，破坏与 T29 黄金的逐框等价。
-- 区分：`candidate_limit`（12,675）是候选缓冲上限；`max_outputs_per_image=15` 是 NMS 之后的输出上限（2A 冻结）。两者不得混用。
+- 候选缓冲上限 `candidate_limit = 12675`，由 2B 参考实现 `w2b/verification/s2a_ps_decode_nms_reference.c` 的 `S2A_T62_MAX_CANDIDATES` 与 tiny416 几何共同决定：两头 `(13×13 + 26×26) × 3 anchors × 5 classes = 12,675`，即阈值后可产生的候选上界。
+- **该上限以硬错误方式强制**：参考实现在候选数达到上限时返回 `S2A_T62_INVALID_ARGUMENT` 并中止（该文件第 178–179 行），**没有“截断到上限”的行为**；该实现只有 NMS 之前对 **15** 的截断。本合同因此**不定义候选截断语义**。
+- 对应到阶段4 记录：`candidate_overflow=true` ⇒ `state=ERROR`、`error_code=BAD_ARGUMENT(1)`、`detections=[]`。
+- **在 tiny416 固定配置下不可达**：`candidate_count` 的上界恰等于该上限，故 `candidate_overflow` 恒为 false；此时必须**显式记录“未超限”这一事实**（字段保留、值为 false），不得因恒假而省略字段或省略记录口径。
+- 曾提出的 `candidate_limit = 4096` 属 **弃用的草案值**：它低于理论最大候选数，会引入 2A D9 与 2B 参考实现中都不存在的候选截断，破坏与 T29 黄金的逐框等价。
+- 区分：`candidate_limit`（12,675）是候选缓冲上限（硬错误路径）；`max_outputs_per_image=15` 是 NMS 之前的截断与 NMS 之后的输出上限（2A 冻结）。两者不得混用。
 
 ### 5.3 过期结果
 
@@ -152,21 +167,21 @@
 ### 5.5 非结果状态的取值与缺值哨兵
 
 - 所有 `required` 字段在每条记录中都必须出现；无结果时用哨兵值填充，**不得省略字段、不得沿用上一帧的值、不得出现负数或时间倒流**。
-- `0` 的含义是“未观测/不适用”，不是 1970 时刻、也不是合法耗时；读取方必须先按 `state` 判别。
+- `0` 的含义是“未观测/不适用”，不是 1970 时刻、也不是合法耗时；读取方必须先按 `state` 判别，并按 4.4 的 `measurement_scope` 确认测量范围。
 - 逐状态取值（与 JSON `result_record.absent_value_policy.by_state` 一致）：
 
 | 状态 | capture_time_ns | result_time_ns | inference_time_ns | end_to_end_latency_ns | candidate 字段 | stale | error_code |
 |---|---|---|---|---|---|---|---|
-| `OK` / `NO_HAND` | 真实值 | 真实值 | 真实实测（大于 0） | `result_time − capture_time`（大于 0） | 真实候选数与溢出标志 | 按 5.3 计算 | 0 |
-| `TIMEOUT` | 真实值 | 0 | 0 哨兵（无完成沿，见 4.1） | 0 | 已观测值，未观测为 0 | false | 5 |
-| `ERROR` | 真实值 | 0 | 0 哨兵（本合同不定义口径，见 4.1） | 0 | 已观测值，未观测为 0 | false | 非 0 且非 5 |
+| `OK` / `NO_HAND` | 真实值 | 真实值 | 真实实测（大于 0） | `result_time − capture_time`（大于 0） | 真实候选数；overflow=false | 按 5.3 计算 | 0 |
+| `TIMEOUT` | 真实值 | 0 | 0 哨兵（无完成沿，见 4.1） | 0 | 已观测值，未观测为 0；overflow=false | false | 5 |
+| `ERROR` | 真实值 | 0 | 0 哨兵（本合同不定义口径，见 4.1） | 0 | 已观测值；若达候选上限则 overflow=true | false | 非 0 且非 5；候选超限为 1 |
 | `DROPPED` | 已知则真实值，否则 0 | 0 | 0 | 0 | 0 与 false | false | 0 |
 
 - `DROPPED` 记录本身的 `dropped_frames` 按 5.1 的互斥规则处理（该帧不被重复计入后续结果）。
 
 ## 6. 沿用 2A 的冻结常量
 
-以下常量由上游 `tiny416_model_manifest.json` 的 `detection_postprocess` / `address_map.heads` 与 2A 规格决定；自检脚本必须从上游文件读取并比对，不得只与本契约的副本比对。
+以下常量由上游 `tiny416_model_manifest.json` 的 `detection_postprocess` / `address_map.heads` 与 2A 规格决定；自检脚本必须从上游文件读取并比对，不得只与本契约的副本比对。候选理论上界同时与 2B 参考实现的宏比对。
 
 | 项 | 值 |
 |---|---|
@@ -174,8 +189,8 @@
 | 类别顺序 | `fist=0, palm=1, one=2, two_up=3, three=4` |
 | `score_threshold` | `0.25`，判定为 `score >= 0.25`（含等号） |
 | NMS | 类别内 greedy `IoU=0.45`，跨类别不抑制 |
-| 每图输出上限 | 15（NMS 之后） |
-| 候选理论上界 | 12,675（`(13×13+26×26) × 3 anchors × 5 classes`） |
+| 每图输出上限 | 15（NMS 之前截断与 NMS 之后输出） |
+| 候选缓冲上限 | 12,675（2B 参考实现 `S2A_T62_MAX_CANDIDATES`；等于理论最大候选数 `(13×13+26×26) × 3 anchors × 5 classes`） |
 | 分数定义 | `sigmoid(objectness)*sigmoid(class)` |
 | 坐标策略 | D2 整数截断 resize + 左上 floor padding；裁剪到 `[0,1]`；零面积丢弃 |
 | 稳定 tie 顺序 | head 顺序 → row-major cell → anchor-local → class_id |
@@ -198,7 +213,7 @@
 
 ### 7.2 未定义语义与缺失字段
 
-- `raw_candidate_count` 语义：`s2bu/1.1` **正文未写明统计口径**；但 2B G0 冻结实现（`w2b/verification/s2a_ps_decode_nms_reference.c`）与 2A T29 黄金（`samples[i].raw_candidate_count_before_stable_nms`）实际都是**阈值筛除后、NMS 前**的计数。阶段4 的 `candidate_count` 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART 字段可直接对齐。**若 2B 后续把该字段正式冻结为其他口径（阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径**。
+- `raw_candidate_count` 语义：`s2bu/1.1` **正文未写明统计口径**；但 2B G0 冻结实现（`w2b/verification/s2a_ps_decode_nms_reference.c`）与 2A T29 黄金（`samples[i].raw_candidate_count_before_stable_nms`）实际都是**阈值筛除后、15 框截断前、NMS 前**的计数。阶段4 的 `candidate_count` 采用完全相同口径，以保证可与 T29 黄金逐样本比对，并因此与 UART 字段可直接对齐。**若 2B 后续把该字段正式冻结为其他口径（阈值前或 NMS 后），必须回归本契约、S4-B 骨架与 S4-C 对拍口径**。
 - 缺失字段：`s2bu/1.1` 现有 payload 没有 `candidate_overflow`、`capture_time`、`result_time`、`inference_time`、`end_to_end_latency`、`dropped_frames`、`stale` 与显式 `state`；而该接口正文只能由 2B 总控修改。因此：
   - 选项 A：阶段4 G0 决定后新增扩展（新 op 或 TLV 尾块），不改 `s2bu/1.1` 既有字段语义 —— 属重大接口语义变化，需 Wong/项目总控决策并协调 2B。
   - 选项 B（**离线准备期临时默认**）：UART 只传 `s2bu/1.1` 既有字段；时间/丢帧/过期/状态字段在 PS 侧记录，不改任何接口正文。
@@ -207,9 +222,9 @@
 
 ## 8. 未冻结项与下一步
 
-- 未冻结：`stale_age_limit`、时基/跨域测量方法、选项 A/B 的帧格式扩展。
-- 已由上游推导（不再属未冻结草案）：`candidate_limit = 12675`（2B 冻结候选缓冲上限 + tiny416 几何）；弃用值 4,096 已记录理由。
-- 计划要求（尚未实测）：阶段4 至少 1000 次有效推理形成基线；至少 50 次预定义交互观察、每类至少 10 次、基线成功率建议 ≥80%（阶段计划第 92 行）。不得写成已达成。
+- **DRAFT_PROPOSED（未冻结）**：`stale_age_limit`、时基/跨域测量方法、选项 A/B 的帧格式扩展。
+- **由上游推导（不属草案值）**：`candidate_limit = 12675`（2B 参考实现宏 + tiny416 几何）；弃用值 4,096 已记录理由。该推导依赖 2B 的 C 参考实现，且该文件在本合同中**无 SHA 钉扎**，若其变更须重新推导。
+- **计划要求（尚未实测）**：阶段4 至少 1000 次有效推理形成基线；至少 50 次预定义交互观察、每类至少 10 次、基线成功率建议 ≥80%（阶段计划第 92 行）。不得写成已达成。
 - 下一步：S4-B（PS 解码/NMS + UART 骨架）、S4-C（离线回放对拍）按本契约实现；S4-D 细化阶段5/6 口径。
 
 ## 9. 验收与自检
@@ -223,8 +238,8 @@ python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/
 1. 契约 JSON 可解析、必需键齐全；
 2. 上游带 SHA 的绑定（当前 8 项）在本机复算一致，且 T25 分片计数与分片恢复清单一致（109 个 / 390,700,998 B）并逐片校验 SHA-256；
 3. §3.2 与 §3.3 表格与 JSON 的字段集合**双向相等**、**无重复行**，且逐字段 `必填`/`2A 冻结` 标注一致；
-4. §3.4 状态表的状态集合与 JSON `state_enum` 的**键集合严格相等**且恰为 5 个状态（枚举中混入非状态键会被判 FAIL）；
-5. 2A 冻结常量与**上游文件**（manifest `detection_postprocess`、`address_map.heads`、T29 `head_tensors`）一致；
+4. §3.4 状态表的状态集合与 JSON `state_enum` 的**键集合严格相等**且恰为 5 个状态；
+5. 2A 冻结常量与**上游文件**一致（manifest `detection_postprocess`、`address_map.heads`、T29 `head_tensors`），且候选理论上界与 manifest 两头几何乘积及 2B 参考实现宏 `S2A_T62_MAX_CANDIDATES` 一致；
 6. 草案未冻结值显式标注 `DRAFT_PROPOSED`（**已知限制**：本项为子串存在性检查，不能机器判定“某数值被写成了验收门槛”；该判定由 Reviewer 人工覆盖）。
 
 **不代表**阶段4 G0 冻结或任何实物验收；也不代表 S4-B/S4-C 的实现正确。
@@ -235,7 +250,8 @@ python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/
 - 上游资产只读；T25 分片未物化到本工作树（只读绝对路径引用）。
 - 时间口径的时基与跨域测量方法待 G0 冻结；本草案只给端点定义。
 - `inference_time` 窗口是 2A busy 窗口的近似，不声称与 `STATUS.busy` 门控逐周期等价；`TIMEOUT`/`ERROR` 下该字段取 0 哨兵，超时/错误窗口的诊断值不由本合同定义。
-- 会引入截断的候选上限（如曾提出的 4,096）会破坏与 2A D9 的逐框等价，已弃用；当前 `candidate_limit=12675` 使 `candidate_overflow` 在 tiny416 固定配置下恒为 false。
+- 候选缓冲上限 12,675 的推导依赖 2B 实现文件 `s2a_ps_decode_nms_reference.c`（本合同未钉扎其 SHA）；若该实现变更必须重新推导并回归。
+- 会引入候选截断的上限（如曾提出的 4,096）与 2A D9 及 2B 参考实现都不一致，已弃用；当前上限使候选超限在 tiny416 固定配置下不可达。
 - `stale_age_limit` 为 DRAFT_PROPOSED，不构成验收指标。
 - 选项 B 下阶段计划第 88 行的部分字段不由 UART 记录满足（见 7.2）。
 - 自检第 6 项为子串检查，不覆盖“数值是否被误写为门槛”的语义判定。

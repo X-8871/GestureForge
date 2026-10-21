@@ -1,0 +1,52 @@
+{
+  "schema_version": "gestureforge_s4_independent_review_record_v1",
+  "task_id": "S4-B",
+  "run_id": "20261021_r13",
+  "record_author": "lead（DSH 阶段4 离线准备总控）",
+  "record_note": "本文件是 Lead 对独立 Reviewer 结论的记录，不是 Reviewer 的原始产物（原始产物在 tmp/4/review/rev-b/**，未纳入版本库）；不代表阶段4 G0 冻结、G2/G3/G4/G5 或任何实物验收。",
+  "reviewer": "rev-b（独立只读审查，验证仅写 tmp/4/review/rev-b/**）",
+  "verdict": "PASS",
+  "verdict_history": [
+    {"round": "interim", "version": "21:57/22:06 双快照", "verdict": "无结论（流程阻断：审查期间开发者持续写入）", "items": ["F1 硬编码契约哈希", "F2/F3/F5 文档口径", "F4 measurement_scope", "F6 奇数补边测试缺口"]},
+    {"round": "final", "version": "冻结源码哈希集 + r13 证据", "verdict": "PASS", "items": [], "notes": "遗留 R1–R5 均非阻断"}
+  ],
+  "bound_artifacts": [
+    {"path": "vitis/stage4/s4_ps_decode.h", "sha256": "d5550e461123833590728349b4af3daf19045b3d1842879f6a00532c66b13d0f"},
+    {"path": "vitis/stage4/s4_ps_decode.c", "sha256": "900665d4c4474e4a755fa31d8a0c8d454cf112daa3344c62cc258324cb7e7ce2"},
+    {"path": "vitis/stage4/s4_uart_protocol.h", "sha256": "99d948873c6e6d17fda5e7725a592a7b5700a8ee212112a8d02282cf6944de2f"},
+    {"path": "vitis/stage4/s4_uart_protocol.c", "sha256": "1b14e1610d97feb11051e03a7cc3dfca263013ef4850cfb0be1a4cb469a23b8c"},
+    {"path": "vitis/stage4/s4_offline_host.c", "sha256": "4b447cef7b896fe4665a0e1829dc51df3882885b0d1ab0daf110f4b903c70950"},
+    {"path": "vitis/stage4/README.md", "sha256": "2e8dbe3b1aa095086ba55eb30c07dbfc2baa62879d8a914d9cb997bd8eaf7488"},
+    {"path": "scripts/stage4_s4b/run_s4b_offline_chain.py", "sha256": "ee2e92dd5210df78123925d694064997f3c6037d57d56f059d65da5b166851ea"},
+    {"path": "scripts/stage4_s4b/build_s4b_manifest.py", "sha256": "b7ebd3181bed007553faacfaca17312a8c70d54d0becf9a70655d7f469bf0a1d"},
+    {"path": "verification/test_s4_ps_decode.py", "sha256": "af342704432fb1c2000cc1251eff0d4f3f4a7a5e320fa1a0e647bcd86b5266d6"},
+    {"path": "report/evidence/S4-B/20261021_r13/delivery_manifest.json", "sha256": "684f069b375979ee8408a1e5164bf3722c2659dbd74bf4fa787d4a18b43ac1fb"}
+  ],
+  "bound_contract": {"path": "docs/stage4/s4a_stage4_g0_fields.json", "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87", "version": "S4-A r05"},
+  "reviewer_independent_commands": [
+    {"cmd": "gcc -std=c11 -O2 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -I vitis/stage4 <三 .c>", "exit_code": 0, "result": "0 error / 0 warning（输出 0 行）"},
+    {"cmd": "自写帧篡改/门闸/状态可派生性探针", "exit_code": 0, "result": "PASS=33 FAIL=0；帧篡改落到具体错误码 -2/-3/-4/-5/-6/-8/-1"},
+    {"cmd": "自写 rev_b_independent.py（T25 偏移切两头 + 冻结 D9 对拍 + 自写 s2bu 打包 + INT8 绑定）", "exit_code": 0, "result": "111/111 PASS；离散字段完全相同、score/xyxy 最大绝对误差 0.000e+00、与 T29 黄金 0 mismatch"},
+    {"cmd": "自写 rev_b_differential.py --cases 160", "exit_code": 0, "result": "160/160 C==D9 逐位一致（含 993×1920 奇数补边、1×1、100000×416）"},
+    {"cmd": "python -B -m unittest verification.test_s4_ps_decode", "exit_code": 0, "result": "Ran 27 tests OK"},
+    {"cmd": "s4_offline_host --selftest", "exit_code": 0, "result": "11/11（CRC '123456789'→0xCBF43926、整帧 pack→unpack→re-pack 字节一致）"},
+    {"cmd": "F1 门闸对抗（路径重定向副本 + 改坏契约）", "exit_code": 0, "result": "GATE_TEST PASS：真契约 104/0/0；limit 12675→4096 → FAIL 102/2；仅改 candidate_count 语义文本 → FAIL 103/1；SKIP 全 0（不存在静默降级）"}
+  ],
+  "open_items_non_blocking": [
+    "R1 证据卫生：r12/delivery_manifest.json 在 22:21:28 被原地重写（e163a0d3→7fd13f90）以更正 26→27 文案，使该 RunId 清单哈希失效；r12 已 SUPERSEDED，最终绑定改为 r13。此后不得原地改写既有 RunId 产物",
+    "R2 measurement_scope 含契约 4 键之外的一枚说明性 note 键",
+    "R3 候选超限硬错误分支在 tiny416 下不可达，仅源码级确认（未行为触发）",
+    "R4 板上串口/PL 时间与期限/吞吐/JTAG、109 全量、G3/G4/G5 未执行（清单 5 项 NOT_RUN 如实记录）",
+    "R5 契约哈希不再硬钉；语义硬检为门闸，另有 --expected-contract-sha256 可显式钉死"
+  ],
+  "lead_decisions": [
+    "R2：允许保留说明性 note 键（契约定义的 4 键齐备且取值合法；note 不改变语义）；结果 JSON 顶层重复的 unavailable_fields 已要求删除并已核实删除",
+    "R5：门闸以 12 项语义不变量硬 FAIL 为准（已由 rev-b 对抗验证）；是否额外传 --expected-contract-sha256 留作 G0 冻结时的选择，不阻断",
+    "R1：记录为流程偏差（证据卫生），不阻断最终结论；已在收尾记录中登记为后续必须避免的做法",
+    "F1–F6 全部关闭，其中 F3 的“时间字段为 null”已改为 0 哨兵 + measurement_scope NOT_EXECUTED_OFFLINE"
+  ],
+  "limits": [
+    "离线骨架：未接 PL、板卡、真实串口；时间字段为 0 哨兵并标注 NOT_EXECUTED_OFFLINE",
+    "S4-A 契约仍为 DRAFT_NOT_FROZEN；UART 时间/丢帧/过期字段扩展预留未启用（待 Wong 决策）"
+  ]
+}

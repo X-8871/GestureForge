@@ -1,0 +1,47 @@
+{
+  "schema_version": "gestureforge_s4_independent_review_record_v1",
+  "task_id": "S4-D",
+  "run_id": "s4d_spec_draft_20261021_r03",
+  "record_author": "lead（DSH 阶段4 离线准备总控）",
+  "record_note": "本文件是 Lead 对独立 Reviewer 结论的记录，不是 Reviewer 的原始产物（原始产物在 tmp/4/review/rev-spec/**，未纳入版本库）；不代表阶段5/6 G0 冻结、G2/G3/G4/G5 或任何实物验收。",
+  "reviewer": "rev-spec（独立只读审查，验证仅写 tmp/4/review/rev-spec/**）",
+  "verdict": "PASS",
+  "verdict_history": [
+    {"round": 1, "version": "r01", "verdict": "CHANGES_REQUIRED", "items": ["D1 2A 行号错", "D2 T6-U00 未定义", "D3 COOLDOWN 死状态", "D4 成功率口径", "D5 逆映射公式冲突"], "notes": "另有 D6–D9 建议"},
+    {"round": 2, "version": "r02", "verdict": "CHANGES_REQUIRED", "items": ["R1 M15 分支下游语义未闭环"], "notes": "O1–O3 非阻断"},
+    {"round": 3, "version": "r03", "verdict": "PASS", "items": [], "notes": "仅余 O1–O4 非阻断观察"}
+  ],
+  "bound_artifacts": [
+    {"path": "docs/stage5/S5_stage5_display_spec_draft.md", "sha256": "0b4f537d2efb572d5e67482c7bc095e57bb469701cff11209cbbafe36c0a5032"},
+    {"path": "docs/stage6/S6_stage6_interaction_spec_draft.md", "sha256": "d7cf98093996fffb23180b078dfa4068dcab5b5031d5bd4c62e4c51baa40a0a1"},
+    {"path": "docs/stage6/s6_interaction_thresholds.json", "sha256": "b87234e4f091bac94f9d7cc7c8ab16c180932f60dc8e5160e32cd3278b11ec42"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py", "sha256": "dfa53e274fab5fa4caa696693ec31250aaa2ea0730a47cd1701e417261576b97"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/delivery_manifest.json", "sha256": "9014dba45daade4fc05ddab9c32eaa16eeef3902ae1b25e7cc1b17ef0f56fccd"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/selfcheck_result.json", "sha256": "463a59f94937cf79d5a9f617f242e6986bf32b43181e3b3ff741e9ac5a049b44"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/coverage_matrix.json", "sha256": "49e4a55bcb6c0ede2f070c490160a0761a526341a384409b5a38f93f0c8ffdcc"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/letterbox_geometry_fixtures.json", "sha256": "7d36d34656d29cf1042c7332f24345db766224800ce3e53dfba87956fafe672b"},
+    {"path": "report/evidence/S4-D/s4d_spec_draft_20261021_r03/commands.json", "sha256": "08ada725e268a7a3b72fed70cb737cbd109910e5864acfe7a52e33deea680a70"}
+  ],
+  "reviewer_independent_commands": [
+    {"cmd": "python -B report/evidence/S4-D/s4d_spec_draft_20261021_r03/s4d_spec_selfcheck.py", "exit_code": 0, "result": "C1–C11 全 PASS；覆盖 49/49（阶段5 23、阶段6 26）"},
+    {"cmd": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-D/s4d_spec_draft_20261021_r03/delivery_manifest.json", "exit_code": 0, "result": "CHECKS_OK；check_statuses 同时如实列出两条 FAIL（被取代 r02 重跑、自检首次锚点失败）"},
+    {"cmd": "python -B tmp/4/review/rev-spec/s4d_r03_c11_probe.py（Y0–Y6 变异）", "exit_code": 0, "result": "Y0=0；删 M5 门控、出口集合改空、出口集合含 M5、no_retrigger=false、删 §4.3 断言、删下游语义小节 → 全 =1；C11 非恒真"},
+    {"cmd": "独立复算 manifest 12 条 files+interfaces 与 §8.4 镜像深度相等、逆映射往返 7 源×3 点", "exit_code": 0, "result": "MISMATCH 0；镜像与 JSON 逐字段相等；端点对齐往返最大偏差 0.000e+00，旧式在 1920 宽偏差 3.615 px 与文档 3.62 px 一致"}
+  ],
+  "open_items_non_blocking": [
+    "O1：C11 与 C5 新锚点属“锚点句存在性”，变异 Y7（把“不再触发”改成“会再次触发”但保留锚点句）仍 PASS —— 可选负向断言加固",
+    "O2：M15 出口集合第二项（§6 目标切换）实践上经 M10 才可达，写法正确但略冗余",
+    "O3：S6 §10.2 帧日志 schema 建议增加 acquisition_triggered 标记以便机器校验 M5 门控",
+    "O4：清单内 CHECKS_OK 与两条 FAIL 并存，须按“CHECKS_OK 仅表示清单/绑定通过”解读"
+  ],
+  "lead_decisions": [
+    "O1–O4 本轮不改：编辑会使已 PASS 的字节集失效；登记为阶段5/6 G0 前的遗留清单",
+    "R1 采用选项①关闭（M5 仅在本次获取尚未触发时可用；M15 路径达到稳定后不再触发，语义等同维持态，出口 = M10 或 §6 切换）——未把声明 A 改为 B；如需允许 M15 后重触发属实质语义变更，须 Wong/阶段6 G0 决策"
+  ],
+  "limits": [
+    "未执行任何显示/摄像头/HDMI/交互/上板实测",
+    "阶段5 画面语义上限/布局/显示像素误差门槛/测量起止事件、阶段6 全部时间参数与三项目标阈值待各自 G0 固定",
+    "阶段5 画面语义草案默认 B（最新结果叠加），A/C 仅登记未声明；属阶段5 G0 决策项",
+    "补边逆映射公式为草案推导（未补写 2A 冻结规格），取整规则待 G0"
+  ]
+}

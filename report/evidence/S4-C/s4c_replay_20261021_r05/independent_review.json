@@ -1,0 +1,44 @@
+{
+  "schema_version": "gestureforge_s4_independent_review_record_v1",
+  "task_id": "S4-C",
+  "run_id": "s4c_replay_20261021_r05",
+  "record_author": "lead（DSH 阶段4 离线准备总控）",
+  "record_note": "本文件是 Lead 对独立 Reviewer 结论的记录，不是 Reviewer 的原始产物（原始产物在 tmp/4/review/rev-c/**，未纳入版本库）；不代表阶段4 G0 冻结、G2/G3/G4/G5 或任何实物验收。",
+  "reviewer": "rev-c（独立只读审查，验证仅写 tmp/4/review/rev-c/**）",
+  "verdict": "PASS",
+  "verdict_history": [
+    {"round": "initial", "version": "契约 r04 / 证据 s4c_replay_20261021_r04", "verdict": "PASS", "items": [], "notes": "阻断 0，非阻断 N1–N5"},
+    {"round": "incremental", "version": "契约 r05 / 证据 s4c_replay_20261021_r05（被审字节未变）", "verdict": "PASS", "items": [], "notes": "r04↔r05 逐样本记录完全相同（仅耗时字段不同）"}
+  ],
+  "bound_artifacts": [
+    {"path": "verification/s4_replay_compare.py", "sha256": "3c2a61aeee7006ff394a6794333262f57c85aa00b86bb7cd3ecfe2ed41d32625"},
+    {"path": "verification/test_s4_replay_compare.py", "sha256": "b3cf7bf02b0b5b552ec94dcba95286302a528ea3b5139f5476e00be3e15d40d9"},
+    {"path": "scripts/stage4_s4c/run_s4c_replay.py", "sha256": "2dfccea4a2cecb59afdd3cf3ea8ed9b96c0cc590c15f6091e4b8ba06e1e565d9"},
+    {"path": "report/evidence/S4-C/s4c_replay_20261021_r05/s4c_run_manifest.json", "sha256": null, "note": "r05 证据；manifest 记录的 contract_sha256 = 3524d02a…（r05）"}
+  ],
+  "bound_contract": {"path": "docs/stage4/s4a_stage4_g0_fields.json", "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87", "version": "S4-A r05"},
+  "reviewer_independent_commands": [
+    {"cmd": "python -B verification/s4_replay_compare.py --run-id revc_full --json-out <tmp>", "exit_code": 0, "result": "109/109 PASS、mismatch=0、最大 score/xyxy 误差 0.0、框数 104/104、21.55 s、RSS 42.65 MiB"},
+    {"cmd": "python -B -m unittest verification.test_s4_replay_compare -v", "exit_code": 0, "result": "Ran 36 tests OK"},
+    {"cmd": "自写 zlib + 索引切片复算 4 样本（含 sample000 与两个零框样本）", "exit_code": 0, "result": "压缩 SHA、raw_stream SHA(11,382,150 B)、head13(5,070 B)/head26(20,280 B) SHA 全等于 T25 索引且等于 T29 head_tensors"},
+    {"cmd": "自造反例：test_palm_036 head26 偏移 12345 置改 + 正对照（自切 pristine / JSON 输入 / 零框）", "exit_code": 1, "result": "篡改 exit 1 且定位 field=head26.tensor_sha256、first_diff_offset=12345；正对照 exit 0 PASS（非恒 FAIL）"},
+    {"cmd": "证伪“框是回显 golden”：把 test_fist_000 字节放到 test_palm_036 名下", "exit_code": 1, "result": "11 条 mismatch（byte+discrete+numeric），框数 2→1，score 误差 0.230 → 框确由输入字节解码得到"},
+    {"cmd": "错误码检查：未知样本/--limit 0/阈值越界/上游 SHA 不符；head13 长度 5,069 B；--no-golden-bytes 降级；--score-threshold 0.5", "exit_code": 2, "result": "输入类错误 exit 2；长度不符 exit 1 且定位；降级 exit 0 并如实记录；阈值改 0.5 后框数 2→1 证明阈值真透传"}
+  ],
+  "open_items_non_blocking": [
+    "N1：--actual 输入类错误（目录不存在/长度不符）报 exit 1，而模块 docstring 把“格式不支持/输入错误”归为 exit 2 —— 语义需二选一写明（无静默 PASS）",
+    "N2：r01/r02 manifest 的 commands[].log_file 仍指向迁移前的旧根（SUPERSEDED 说明已解释）",
+    "N3：容限边界 error > 1e-6 的 float64 细节（本任务误差全 0，无影响）",
+    "N4：T29 source_bindings 记 D9/D6 为 LF 版 SHA（0be8e2dc/5ff91ffb），契约与工具绑定 CRLF 版（94dacdac/4dcf0f7d）；rev-c 证明仅 CRLF↔LF 差异、无语义分叉，但未落证据",
+    "N5：manifest acceptance 键名与命令步骤名不对应"
+  ],
+  "lead_decisions": [
+    "N1–N5 本轮不改：任何编辑都会使已 PASS 的字节集失效；全部登记为阶段4 正式开工前的遗留清单",
+    "N4 的 CRLF↔LF 等价结论由 Lead 记入收尾记录（同一文本内容、不同行尾），阶段4 正式使用时如遇哈希比对需按归一化口径处理"
+  ],
+  "limits": [
+    "纯 CPU 离线；未做板上推理、UART/PL 实测联调、RTL 仿真与综合",
+    "零框样本的样本级 max_*_abs_error 记为 null（无可比较公共框），口径已写入报告",
+    "不声称与 Darknet C 后处理逐值相同（2A D9 已声明奇数补边半像素差异）"
+  ]
+}

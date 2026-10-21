@@ -1,78 +1,49 @@
-# 项目状态入口
+# 阶段4 状态（摄像头推理 · 离线准备）
 
-更新：2026-10-19 23:40（UTC+8）。按根目录 `AGENTS.md` 恢复；阶段验收以当前代码、Git 和报告证据为准。主目录只维护全局状态、任务归属与阶段入口。
+更新：2026-10-21 21:35（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`／起始 `8ee2530`（自 `main`）。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**本树只做阶段4 的离线准备，不是阶段4 正式开工、更不是阶段4 验收。** 真实摄像头联调与上板验收必须等阶段3 完成且 2B 让出硬件。
 
-## 当前目标与阶段
+## 目标与范围
 
-- 阶段2A「PL 推理仿真」旧XA/-1目标已完成 G4/G5 独立审查并冻结；2026-10-09 新XC/-2限定同源OOC补验也经独立审查PASS并完成技术G4/G5收尾，冻结入口见下文。用户已批准 8×8 空间 tile、8 路输出通道并行；保持 T01 冻结的 CSR、32-bit 单 word memory 接口、timeout 和握手协议。
-- 用户已启动独立阶段2B总控；本窗口按其已授权任务补验阶段2A的新器件适用性。2026-10-08 Wong 确认器件输入 `XC7Z020-2CLG400I`；实际 Vivado 目录唯一解析为 `xc7z020clg400-2`。旧 XA/-1 冻结及全部功能证据保留，新器件相关验收须另行补齐；本轮未改硬件工程或进行实物操作。
-- 本主目录先前2B只读核查未通过G0，独立2B工作树的后续状态以其自身STATE/证据为准：T01 已冻结 tiny416 模型、两检测头及 D9 解码/NMS，不能继续称这些未冻结；物理 PS/PL 地址映射、AXI/DDR 传输、DMA/cache 和缓冲所有权由2B总控冻结。新器件编号依据本轮用户确认和手册，新实板与 PCB/BOM/DDR 图纸的独立对应仍未知；旧板照片及已有 `.xpr` 的 XA/-1 记录保留历史身份，不能直接沿用其 PS/DDR 配置。当前主工程无 PS Block Design、Vitis 平台或板级 XDC。
-- 本轮未改2B/3的独立工作树，仅处理2A器件适用性补验。阶段2B后续任务须先冻结物理接口和适用器件资料；板卡下载、上电、DDR/UART实测等实物操作须另行明确授权。
-- 2026-10-05 核对最新 Vault 阶段计划源 SHA `a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd`：2A G4 现要求综合无错误/非预期锁存器、资源可容纳性与时钟风险报告；已将 `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md` 单文件精确同步到该源。旧准备报告的综合 N/A 字段已过时。
+- 阶段4 正式目标（计划「阶段4：摄像头推理」）：摄像头→全帧缩放/补边/颜色/量化→PL 检测网络→PS 解码/NMS→UART；每条结果含 frame_id、检测数量、每框类别/分数/原图坐标、采集与结果时间、推理耗时、状态；无手=零框；候选框超限/丢帧/过期结果显式记录；≥1000 次有效推理形成基线，推理耗时与端到端延迟分别定义。
+- 本树范围（离线、可独立验收）：
+  - **S4-A** 阶段4 G0 草案：结果字段与 frame_id 语义、推理耗时 vs 端到端延迟定义、丢帧/超限/过期记录口径、沿用 2A 的 `score_threshold=0.25`／NMS IoU=0.45／每图≤15 框。
+  - **S4-B** PS 侧解码/NMS + UART（s2bu 风格）集成骨架：复用 2A D9 语义，输入取自 2A 冻结张量/heads，可离线跑通的最小可执行链。
+  - **S4-C** 离线回放与对拍工具：用 2A 冻结 109 样本与 CPU golden 做逐值/逐框比较，随机验证留种子、统计留样本数与口径。
+  - **S4-D** 阶段5/6 规格草案（叠框布局与补边逆映射、坐标误差门槛口径、分数 vs 置信度用词、FPS/延迟测量起止事件；交互状态机与阈值表）。
+- 明确不做：真实摄像头/HDMI 联调、上板、烧录、CNN 重训、改动 2A 冻结规格、改动 2B 接口正文、访问或争用 `hw_server`/JTAG/COM4。
+- 只读禁止：主工作树 `D:\FPGA_Competition`、`w2b`、`dbdf`、`96a3`、厂商原件 `D:\FPGA\AX7Z020` 均不写、不改、不提交；不直写 `codex_mailbox/`、`dsh_mailbox/`。
 
-## 当前候选批次（2026-10-08）
+## 上游冻结绑定（只读）
 
-- 当前 RTL 候选为 commit `999238284157bed77cdb3a37e3e6eea52daeefc4` / tree `b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67`。原始 RunId `candidate8x8_109_20261006_130252` 的索引 0–24 PASS；恢复 RunId `candidate8x8_109_resume_20261007_023531` 仅运行 25–108，摘要 `PASS_RESUMED_84_RUNNERS`。恢复清单 `PASS_109_RECOVERY_MANIFEST`、109/109 PASS，SHA `eefe285f1c03673143d1fa0563f153626fe90d86be2d245ced59a05d8a7e65a2`；无存活协调器/仿真进程，不重跑。
-- 当前候选 D9 报告 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`，最大 score/xyxy 误差均 0，报告 SHA `fcdf60ef68990a13ba634ee6cb2df71ad152d7f9d5a05d6625f5f3af296523ab`。sample000 磁盘 marker 后续被截断；D9 verifier 从 SHA 绑定的 console 原始字节恢复并显式记录，未改写文件、未重跑。109 源快照映射 `PASS_109_CROSS_RUNID_RECOVERY_SOURCE_SNAPSHOT_TO_GIT_TREE`，报告 SHA `61789bb7951dde06160e376761e74b4f2a408002ae81533bbb9cd86906b89ba1`。
-- D9 修复及三项关键结果报告提交 `8646a02`。T66 runner 异常处理四项发现已修复并经独立 Reviewer PASS，离线故障回归 35 项 PASS、无残留进程，提交 `671f9cf`；之后当前候选 layer0 完整黑盒仿真亦 PASS（1,384,448 输出字节、2,551,955 请求/响应、6,635,073 stall cycles，记录 SHA `1b7bb9efcf4dc1f5ef0e920a28e5549888005cc2986e42158fc4adfca8e848b3`）。OS 拒绝结束进程时，runner 明确报告进程未退出/输出不完整并返回非零。
+- 2A G0 规格：`docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md`（`G0_FROZEN`，SHA-256 `7C2C8684…71F230`）。tiny416／五类 `fist,palm,one,two_up,three`／RGB 416×416 CHW INT8。
+- 机器清单：`report/evidence/S2A-T01/tiny416_model_manifest.json`（`9dd2477b…79453a`，22.2 MB，38 层形状/scale/地址、两头布局、CSR/memory 协议、算子测试计划）；`report/evidence/S2A-T01/fixed_test_samples.json`（`ccf741c1…a755eed`，109 样本，种子 20260922）。
+- CPU 参考：`report/evidence/S2A-T25/cpu_layer_golden_index.json`（`cbda3f25…f0f6950d`，109×38 逐层整数张量索引，逐样本 `raw_stream_sha256`）；`report/evidence/S2A-T29/cpu_decode_nms_reference.json`（109 样本框参考、两头 `tensor_sha256`/scale、覆盖统计）。
+- 张量分片：`report/evidence/S2A-T25/tensors/sample_000..108.zlib`（109 个、共 372.6 MB）**只存在于主树，git worktree 未物化**；本树脚本以绝对只读路径引用。
+- D9 解码器（2A 冻结语义）：`verification/s1_t02_d9_yolo_decode.py` + `verification/s1_t02_d6_detection_metrics.py`；比较容限 score/坐标 ≤`1e-6`、离散字段必须完全相同（规格第 75 行）。
+- 2B 物理/运输（仅接口定义冻结，**2B 尚未最终验收**）：`s2b-physical/1.0.0`（`w2b/docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md`）、`s2bu/1.1`（`…/s2b_board_transport.md`，40 B `S2BU` 头、op1/2/3/4、`<Q8I>` 响应）。若其正文变更，本树做适用回归。
+- 2B 现有 PS 解码 C 参考（只读复用来源）：`D:\FPGA_Competition\w2b\verification\s2a_ps_decode_nms_reference.c/.h`。
+- 阶段3 现状（dbdf）：实时直通成立、色彩未过（DVP MSB 缺失）、2026-10-21 19:53 起 `OFFERED` 待认领 ⇒ **真实摄像头输入当前不可用**。
 
-## 历史基线批次（非当前候选）
+## 已完成准备
 
-- 历史 RunId `repair109_20261003_194620` 的原始证据为 `report/evidence/S2A-T68/repair109_20261003_194620/`，逐样本审计为 `report/evidence/S2A-T68/acceptance_audit_repair109_20261003_194620.json`。它不是当前 `candidate8x8_109_20261006_130252` 候选的通过记录。
-- 该历史批次索引 0–108 均通过当时版本的完整 38 cfg 层 PL golden，无 mismatch；记录每样本 972,865,374 cycles。协调器摘要 `PASS_108_RUNNERS` 只含 1–108；sample000 是同 RunId 独立成功记录。最终审计合并为 109，不能称协调器原始摘要为 `PASS_109`。
-- 历史批次的 PL head 对冻结 CPU D9 比较记录最大 score/xyxy 绝对误差为 0：`d9_109_sample_report.json`，`PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`。该项不替代当前候选独立 D9 证据。
-- 该历史批次 109 份编译快照映射到当时冻结的 38 项闭包：源码 commit `fecbf1f8f37fcee8b25e6e2517b9621850912a4e`，tree `094e1492396a6788cc33b3b5866dd304387c02da`。映射报告状态 `PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE`；当前候选映射见上文候选批次段及验收记录。
-- 当前候选 T70 tile 算术、选定内存和边界/异常结果，以及 T68 `protocol_directed24` 有各自独立范围，不替代 109 样本整网结果；当前白盒/边界证据经独立 Reviewer PASS。T17/T20 是历史串行 engine/pilot，不能称作新 tile 等价覆盖。详见 `report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`。
-- T25 独立干净副本实际恢复 109×38 CPU shards 并完成 109 样本 D9 canonical replay；恢复 2,283.61 秒、D9 12.359 秒。它证明 CPU oracle 可恢复，不证明 PL 在干净副本全量重跑。
+- 开工核验（2026-10-21 21:24）：w4 干净、HEAD `8ee2530`、无 `index.lock`；主树 406 项脏属他人，本树未触碰；五棵树均无锁。
+- 硬件边界核验：`hw_server` PID 28624（20:29 起）归 2B，未访问；无 vivado/xsim/重型进程；空闲物理内存 2.6 GB ⇒ 本树仅做轻量 Python/MinGW gcc。
+- 工具可用性：Python 3.12.10、NumPy/OpenCV（按 2A runtime 记录）、`d:\mingw64\bin\gcc.exe`。
 
-## 冻结限制与证据保全
+## 未决与风险
 
-- 当前候选全核心 OOC Vivado 综合（`s2a_stage2a_core_ooc`，14 个 RTL）已成功：0 errors、0 latch；LUT 40,550/53,200，FF 3,082/106,400，BRAM 32/140，DSP 186/220。无 XDC/冻结时钟，不能宣称 timing closure。独立 Reviewer 对综合/资源/风险子项 PASS；证据在 `report/evidence/S2A-T68/g4_synthesis_20261005/candidate8x8_core_ooc_run01_20261006/`。T68/OOC、T70 与协议材料归档情况见验收记录。最终 G4/G5 独立 Reviewer 对固定 HEAD `671f9cf494b92ce182b3f1542fefd0cfd4b209f5` 及本轮证据返回 PASS，Stage 2A 已冻结；验收记录为 `report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`。
-- 上述旧综合实际目标为 `xa7z020clg400-1I`。新补验 r01 的 Python 环境预检查失败、r02 的过期 Enterprise 试用检出失败均保留原证据。Wong 后提供的 Downloads `Xilinx.lic` 同时含有效 BASIC（至2027-08-07）；只复制完整 BASIC 条目到私有临时目录并给本次子进程设置许可路径，未改原件或持久环境。Vivado MCP 只读调用被审批配置拦住后，r03 使用相同安装版本的官方 batch/Tcl，实际 tier=BASIC、part=`xc7z020clg400-2`、14 项历史源精确匹配、进程 exit0/Tcl139秒。新实际报告为 LUT40,550/53,200、FF3,082/106,400、BRAM32/140、DSP186/220、0 errors、0 latch、65 warnings、0 critical；有报告/DCP，峰值为 Vivado 报告2259.402 MB。工业grade仅功耗环境，最差未放置路径97.069ns且无XDC/冻结时钟，不是时序收敛。独立 Reviewer `/root/xc2_supplement_review` 对固定HEAD `b285ca4831be676f2f169c4d57691221ee0b9715`、r03清单SHA `75b3b945b32d32e688b0de5349fb029451ffc7077f6bd082d02c240231622719` 及正式差异返回 `S2A-XC2-R-Final PASS`；补验G3不适用，技术G4/G5通过。证据入口 `report/evidence/S2A-T68/xc7z020_2_ooc_20261008_r03/`，关闭记录 `report/evidence/S2A-T68/xc7z020_2_supplement_acceptance_20261009.json`；提交身份以包含关闭记录的Git提交确定。
-- T68、T25 与 tile/协议支持证据已分别归档到 `archive/S2A-T68/repair109_20261003_194620/`、`archive/S2A-T25/clean_restore_20261002_160036/`、`archive/S2A-Support/Stage2A_20261005/`，逐文件 manifest 校验通过。归档和源都在 D 盘同一物理卷，不是异盘备份。
-- 在证据归档校验后，仅清理 109 个 PL `build` 与 4 个支持回归 `build/obj_dir` 缓存，释放 33,104,952,077 字节；输入、结果、日志、VCD、T25 shards 和失败记录保留。该 RunId 已完成，绝不重跑。
-- T13/T14/T15 当前 helper 源专项已有独立复核通过的新证据；早期 `helper_vectors_current_candidate_20261008_r2` 的 T13/T15 PASS manifest 被 FAIL 日志推翻，失败证据保留，新运行替代其验收地位。验收记录列出各报告、运行日志哈希及确切范围。
-- 验收记录：`report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`；用户本地运行说明：`docs/S2A-T68_local_run_guide.md`。限制仍包括无 XDC/时序收敛证明，以及当前候选未在干净副本重跑完整 109 样本 PL；审查确认后者不是 2A 硬性门槛。
+- T25 分片未在本树；若主树被移动/清理，S4-C 需改用其他冻结绑定并如实记录限制。
+- 阶段3 色彩未过 ⇒ 阶段4 真实输入可用时间未知；本树不因此停滞。
+- 2B 未验收；`s2bu/1.1` 正文若变更，UART 骨架需回归。
+- 2A 规格第 75 行要求两头 INT8 字节完全相同后才解码；离线对拍必须先过字节比较再比框。
+- D9 API 把 `score_threshold` 限制在 `[0.25,0.50]`；阶段4 G0 沿用 0.25，不改 2A 冻结值。
 
-## 共享工作区与交接（2026-10-17）
+## 证据入口与下一步
 
-- Wong 决定 Codex 与 DSH 共用本仓库，按任务轮流独占写（方案 A）；共同规则见 `AGENTS.md`「与 Codex 共享同一工作区」。
-- 接任务方：先读 `AGENTS.md` 与本文件，核对 `git status --short`、`.git/index.lock` 及 Vivado/xsim 进程，再独占修改；结束时更新本段交接行并只提交本轮相关文件。
-- 非接任务方只读复核，不并发写同一文件、不并发提交、不跑重型综合/仿真。
-- 交接行格式（11 字段）：`任务 | 负责人 | 工作树/分支 | 起始提交 | 允许修改范围 | 未提交改动归属 | 让出声明 | 心跳(UTC+8) | 证据入口 | 恢复命令 | 状态/下一接手方`；状态机 `IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE`；当前交接记录见下方「阶段入口与任务归属」。
-- 独立信箱（2026-10-19 Wong 授权，主目录单写规则的限定例外）：`report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/` **仅 DSH 写**、`codex_mailbox/` **仅 Codex 写**，双方只读对方信箱；仅限跨方请求/回执/接收确认/必要核验证据；唯一编号、不覆盖旧记录；不代表工作树写权交接。首条见 `dsh_mailbox/DSH-20261019-001-mailbox-live.md`。
-- 环境事实（2026-10-17）：DSH 沙箱在 `D:\FPGA_Competition` 的写入授权已修复（仅给当前用户补完全控制，未删除任何条目，回滚脚本在 `D:\dsh_acl_recovery\20261017\`）；Git Bash 的 `bash.exe`/`sh.exe` 在受限沙箱下报 signal pipe Win32 5，改用 git 直调与 Python。用户级 `TEMP`/`TMP` 已设为 `D:\tmp`（2026-10-17，新进程生效，Vivado/xsim/Verilator 共用；已运行进程需重启后才切换）。
+- 证据：`report/evidence/S4-CTRL/<task_id>/<run_id>/`；临时产物：`tmp/4/<task_id>/<run_id>/`（`tmp/` 已 gitignore）。
+- 下一步：按 S4-A→(S4-B/S4-C/S4-D) 顺序推进；每个小任务：差异核对→最小验证→只暂存本轮文件→在 `stage4-infer-prep` 提交→报告提交哈希/证据/限制/未验证项。
 
-## 阶段入口与任务归属（2026-10-18 核实）
+## 交接行（11 字段，2026-10-21 21:35）
 
-| 阶段 | 工作树 | 分支 | HEAD | 状态入口 |
-|---|---|---|---|---|
-| 2A（已冻结） | `D:\FPGA_Competition` | `main` | 见下方冻结提交 | 本文件下方 2A 证据段 |
-| 2B（进行中，Codex） | `D:\FPGA_Competition\w2b` | `codex/stage2b-dma-g0` | `bca323b1`（2026-10-19 23:40 只读核实；同日由 `75fcc59` 推进至此） | `w2b/.codex/STATE.md`及该树最新证据 |
-| 3（进行中；窗口更换 2026-10-20 11:39） | `D:\codex-worktrees\dbdf` | `codex/stage3-video` | `41ee5ba`（旧窗口 04:34 提交；11:39 只读核实；起始 `896e6c7`） | 该树自身 `.codex/STATE.md`、`board/stage3/README.md`；**旧窗口 `session-f067ad85-4434-4f6a-bc01-d6c43068a0c5` 已被压缩锁卡死 → 降级只读证据源；新窗口会话 id 待回填**。旧 9 项未提交已由旧窗口提交，现存 2 项未跟踪（`NA/`、`clockInfo.txt`）待新窗口定归属。**`C:\Users\22061\.codex\worktrees\dbdf\FPGA_Competition` 不是 Git 仓库（仅 `tmp/` 残留），不得当作工作树** |
-| 较早 2B | `D:\codex-worktrees\96a3` | `codex/stage2b-t01-board-audit` | `e26feea` | 仅历史参考 |
-
-- 主目录 STATE 只维护全局状态、任务归属与阶段入口；阶段技术事实以对应工作树 STATE/证据为准，不在此复制全文。
-- 阶段3（2026-10-20 授权开工 / 11:39 窗口更换）：Wong 的方向是「先完成作品、验证从简，第一版能过即可」；新窗口**工作区 = `D:\FPGA_Competition`（读规则/资料）**，**Git 写入树 = `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`**，由其独占写入，主 STATE 不复制其技术事实。资料：摄像头 `D:\FPGA_Competition\摄像头资料\`（`官方资料` 优先）、板卡 `D:\FPGA\AX7Z020\AX7Z020`（只读）。**若要求阶段3 代码直接写入主工作树，须先由 DSH 让出并声明写入范围，不得默认。**【事故】旧阶段3窗口于 04:36:44 以未闭合 `compaction/start`（`compactionId 58ec4c74-1321-45c6-b788-28661a9a1b58`、turn 5）卡死，构成持久压缩锁、不能自愈；该窗口此前已提交 9 个 dbdf 提交（00:51–04:34，最新 `41ee5ba`：HDMI 已 JTAG 启动、CMOS2 1280×720 可用、仅剩 S2MM 缺 SOF）。【修复】根因是第三方插件 `dsh-batch-tool-calls` 压缩后注入 v3 格式 `{kind:'plugin'}` 被会话格式 v4 拒绝（`lib/index.js:60`/`:231`）；已在 profile `cordis.patch.yml` 覆盖 `reassertAfterCompaction:false`+`reassertEverySteps:0`（备份 `.bak-20261020-batch-fix`），生效 `cordis.yml:1346` 已带新值，只读核验 **6/6 PASS**（`report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/`）。旧会话不修复、不写回；**「新会话不再触发 v4 报错」尚未以实际新会话运行验证**。
-- 2B 只读观察（2026-10-20 11:39，DSH）：w2b HEAD=`bca323b1`（10-19 23:18:13）、未提交 143 项；**当前无 `hw_server`、无 vivado/xsim/xelab/xvlog/vitis/xsdb 进程**（23:59 曾由 Codex 重建的 PID 33672 已退出；PID 与归属以现场核验为准）；R08/R10 结论以 Codex 自身证据为准、DSH 未核验；重型任务由 2B 占用期间 DSH 不启动任何重型任务、不争用 JTAG/COM4；四棵树均无 index.lock。07:49 旧快照及 R14 均为历史，不据此重启任务。
-- 交接行（11 字段，2026-10-20 11:39）：任务=`HL-T10 阶段三窗口更换（旧会话压缩锁事故 + 插件 v4 修复）与提示词 v2` | 负责人=`DSH` | 工作树/分支=`D:\FPGA_Competition`/`main` | 起始提交=`f920e24` | 允许修改范围=`.codex/STATE.md`、`report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/**`、`report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/**`（dbdf 树只读核对、不写入） | 未提交改动归属=`main 407 项：本轮 DSH 相关 4 项（本文件、dsh_mailbox/005、CTRL-HARNESS 证据包、Codex 的 CDX-20261020-003 由 DSH 按串行规则代为提交）随本行同批；另有无归属残留 `NA/`、`clockInfo.txt`（旧阶段3窗口 00:28/03:57 误落主树，未提交）；其余为 Codex/用户历史改动；w2b 143 项归 Codex；dbdf 2 项待新窗口定归属` | 让出声明=`未让出：主目录写权仍由 DSH 持有；新阶段3窗口只获 dbdf 工作树写入权` | 心跳(UTC+8)=`2026-10-20 11:39` | 证据入口=`report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/`、`report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261020-005-stage3-window-replace.md` | 恢复命令=`node D:/FPGA_Competition/report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/verify_incident.mjs D:/FPGA_Competition/tmp/3/S3-CTRL/old_session_probe.json`（只读复核事故与修复 6 项，退出 0=6/6） | 状态/下一接手方=`DONE / 新阶段3总控窗口（新会话 id 待回填；旧 session-f067ad85 只读、不修复）`
-- 本轮结束提交：本行同批提交（见 `git log -1 -- .codex/STATE.md`）。此前：`a36a0cd`（信箱授权）、`dcf28c1`、`a06e72e`（信箱闭环）、`4885013`、`605a1f8`（阶段3入口）、`f920e24`（工作区/写入树区分）。事故证据包 `report/evidence/CTRL-HARNESS/session_compaction_lock_20261020_r01/`（`verify_incident.mjs` 可复跑，6/6 PASS）。
-- 交接行格式与状态机见根 `AGENTS.md`「运行逻辑：双 Agent、两级总控（2026-10-19）」；旧 8 字段一行式记录（`51f7130`/`b87dd4f`，无心跳）已作废。
-- 环境事实（2026-10-18）：`TEMP/TMP=D:\tmp`（用户级）；Vivado BASIC 许可 `D:\Xilinx_licenses\basic_only.lic`（至 2027-08-07，仅注入 DSH MCP env，用户级 `XILINXD_LICENSE_FILE` 为空）；DSH MCP：`vivado-mcp`(ROSS stdio)、`vivado-py`、`amd-doc-search`(HTTP 8080，服务已停)；ROSS 技能 50 目录 / **49 个 `SKILL.md`**；C 盘 41.2 GB、D 盘 38.0 GB 可用。
-- 环境路径索引（2026-10-19 核实）：项目根 `D:\FPGA_Competition`（主工作树 `main`，可写）；2B 工作树 `D:\FPGA_Competition\w2b`；厂商原件 `D:\FPGA\AX7Z020\AX7Z020`（**只读，保持不动**）；Vivado 2026.1 安装 `D:\Xilinx\2026.1`（启动器 `D:\Xilinx\2026.1\Vivado\bin\vivado.bat`）。
-- Obsidian 本项目仓库（2026-10-19 核实）：`C:\Users\22061\Documents\Obsidian Vault\02-项目\基于 AX7Z020 的低比特神经网络 FPGA 加速系统，实现摄像头手势识别并驱动板卡进行实时交互`；操作前先读该 Vault 的 `00-AI全局整理规则.md`，不导入其他 Vault 内容，该规则不得由工具/技能扩权。
-- 探针证据包 `report/evidence/CTRL-DSH-HANDOFF/handoff_20261018_r01/`：只证明工具链可用（综合/实现/比特流/xsim，原生日志与退出码已封包；xsim 未采集覆盖率；bit 曾因 DRC NSTD-1/UCIO-1 降级后才生成，不作为板级证据）；无 vivado/xsim/hw_server 残留进程。`.xpr` 于 2026-10-18 02:26:41 被 DSH 的 open/close 回写（相对 HEAD 12 增 1 删，前态无快照，不宣称“未动工程”）。
-- 主目录小工程（`vivado/AX7Z020_Gesture`）上板前阻碍：无 XDC；`synth_1` ERROR 且增量检查点 part 与 run 不符、BASIC 不含增量；板卡未上电。**仅适用该小工程，与 2B 无关，不得据此改 `w2b`。**
-- 交接检查器（2026-10-19 交付，G2 已过）：`verification/handoff_check.py` 只读、纯标准库，参数 `--worktree/--record/--claim/--json/--print-template`，退出码 0=全 PASS、1=有 FAIL、2=输入/环境错误；检查项 a 工作树/分支/HEAD、b index.lock（`git rev-parse --git-path` 解析）、c 未提交改动归属、d 重型进程、e 心跳、f 状态机、g 证据入口、h 范围越界、i 接管让出契约（仅 --claim）。自测 `python -B -m unittest verification.test_handoff_check -v`（38 用例，真实退出码 0）；证据 `report/evidence/CTRL-HANDOFF-CHECK/hl_20261019_r01/manifest.json`；可选加固 OBS-1/2/3 见该清单。
-- 运行逻辑（双 Agent、两级总控）：项目总控（每方一个）→ 阶段总控（由项目总控创建与派卡）→ 阶段内 Developer/Reviewer 子 agent；写权、交接信箱/状态机、检查器用法已写入根 `AGENTS.md`「运行逻辑：双 Agent、两级总控（2026-10-19）」，各窗口开工先读该节。
-
-## Git 与下一步
-
-- 2026-10-18 工具接入 CTRL-HARNESS：固定上游`17e690cf9a56fc65fe39b2c214276cfdcb5a1891`/Relay0.2.18，仅豁免DSH`0.2.1-rc.2`。独立原生owner Peer补丁独审PASS（16/16）、全回归253/253 PASS、构建/官方安装exit0，源码/安装哈希未变；P05提交`4722cd5`。Wong指定现有空白会话`session-8769e7d0-c6f4-49dc-9667-7ad80ed5dbe1`及`jl-ds/deepseek-v4.1-flash/high`后，授权验收窗口`01a14da3-2112-7f51-9ea9-59618413d762`通过原生start_review/read-only和wait_run取得终态succeeded/精确ACK；run=`925e9e22-a198-4614-8313-7317fb53da0d`，30.988秒。主控核对10次原生调用元数据、实际安装哈希与9项源码、原16项脏文件哈希不变，只读连通验收通过。证据`report/evidence/CTRL-HARNESS/native_ack_20261018_r07/`；首次空scope数组校验失败保留，依正式optional语义省略四字段后成功，未扩大权限。模型内部工具/读取事件未采集，不宣称零读取；工程读写协作/生产稳定性/板卡验收未测。仍为获批精确版本实验兼容，未借browserPeer/读密钥/改native策略、未重启Codex或写2B/硬件；旧失败证据保留。
-- 2026-10-19 CTRL-HARNESS 公开合成文件测试发现真实权限投影故障：`PERMISSION_DENIED / permissions session projection is not registered`；失败发生模型提示提交前，分配operation/run标识但无run快照；通过正式`reconcile_permissions`恢复原权限，未删锁。最小候选改为逐操作解析当前权限服务、缺失仍拒绝；独审PASS仅限未上线候选，258/258回归、构建/包检查及实际DSH Cordis4.0.5的5/5生命周期测试通过。证据`report/evidence/CTRL-HARNESS/permission_projection_20261019_r01/`。**候选尚未安装，原生读取/写回测试未通过，不能称插件适配完成**；当前安装bundle仍SHA `2004bc01…`，待Wong从托盘正常退出DSH后按官方CLI替换固定候选包并同范围复测；不强杀、不扩大权限、不重启Codex或2B。真实CSR源码向`jl-ds`处理的另项请求被外传审批拒绝，未重试；合成测试不替代该授权。
-- 2026-10-08 用户要求改用新建的独立工作树/阶段2B总控窗口，旧2B窗口暂不使用；主目录与阶段3已有未提交改动保持不动。新工作树必须先核对冻结基线，不复制主目录全部未提交内容。
-- 新增交付规则见 `AGENTS.md`「产物落点、阶段对接与 ROSS 使用」及 `report/README.md`；只读检查器提交 `9db8d64` 已通过50项回归与独立审查，证据 `report/evidence/CTRL-DELIVERY/validation_20261008_2054/`。它只核对当前声明的输入/证据，不代表阶段 G0/G4/G5 或实物通过。
-- 2026-10-11 按 Wong 授权清理已结束任务的可重建缓存：C盘仅npm/pip下载缓存，操作时净释放6,073,454,592 B；D盘仅当前候选109个成功RunId下218个精确PCH文件，净释放31,633,760,256 B。其余8,434个候选文件前后SHA一致，109个可执行文件保留；全部失败目录、模型/数据、波形、2B/3工作树及用户原16项修改不动。范围经独立Reviewer PASS；精确清单、命令和空间口径见 `report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/cleanup_record.json`，不是全库清空，下载/PCH缓存后续可重建。
-- 本次 ROSS 2026.9.1 独立 Tcl 冒烟已通过：Vivado 2026.1 `version` 与 Tcl 查询完成码均为0，状态健康且仅本次会话已关闭；证据 `report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/`。未测试 IP、综合/实现或硬件，不能由此关闭上文2B G0阻碍。
-- 历史 T68 源映射修复基线为 `65dd1c310e7686d50685d2f83b9b2b623e6cf3ad`。候选实现提交 `999238284157bed77cdb3a37e3e6eea52daeefc4` 包含 tile engine、T66 testbench 与 runner；2026-10-06 G4 acceptance/OOC 综合证据提交为 `a232bc7c815a1e9bb18c675b0e9f31bccd857c62`。均未推送；保持其他阶段改动、运行目录、shards、模型数据、密钥和构建产物不入提交。
-- 下一步：发令总控按本次补验关闭记录及其所在Git提交核对交付；r03源码/工具/报告/日志清单核验与独立审查均通过，旧目标成果、109功能证据和r01/r02失败证据保留。r03脚本是已执行快照，不能重复prepare；后续综合须新RunId、路径、namespace及重新绑定哈希，源码可从冻结14项Git blobs恢复。摄像头/HDMI等尚未计入本次核心OOC；阶段7各资源≤85%的初始目标下DSP仅余1、LUT余4,670，完整系统资源/带宽/时序仍须后续评估；不自动越过2B/3阶段边界。
+任务=`S4-CTRL 阶段4 离线准备（G0 草案／PS 解码-NMS+UART 骨架／离线回放对拍／阶段5-6 规格草案）` | 负责人=`DSH 阶段4 离线准备总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`8ee2530` | 允许修改范围=`本树全部（docs/、verification/、scripts/、board/、vitis/、report/evidence/S4-CTRL/**、tmp/4/**、.codex/STATE.md）；主树/w2b/dbdf/96a3/厂商原件只读` | 未提交改动归属=`本树无他人未提交改动；主树 406 项与 w2b 151 项均非本树，不动` | 让出声明=`未让出：本树写权由本窗口独占；不接管阶段3 OFFERED、不争用 2B 硬件` | 心跳(UTC+8)=`2026-10-21 21:35` | 证据入口=`report/evidence/S4-CTRL/`、`tmp/4/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 rev-parse --short HEAD; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock; git -C D:/FPGA_Competition status --short \| wc -l` | 状态/下一接手方=`IN_PROGRESS / 本阶段4 离线准备总控（不越阶段边界；阶段4 正式开工须 Wong 授权且等阶段3 与 2B 让出硬件）`

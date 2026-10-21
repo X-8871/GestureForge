@@ -1,0 +1,467 @@
+{
+  "schema": "stage3_t05_sw_diag_v10_build_record_v1",
+  "task_id": "S3-T05-SW6 v10",
+  "task_board_id": "task-10",
+  "date_local": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "generated_local": "2026-10-21T23:01:58+0800",
+  "purpose": "v10 纯新增：传感器端去色（黑白）尝试。Wong 2026-10-21 决定“试试黑白能不能接受”（手势识别不需要颜色，黑白可直接消除偏黄观感）。编译期开关 S3_GRAY_TRY=0/1/2/3 各出一个 ELF，统一打印 5580/5583/5584 的 before/after/readback，读失败跳过写入；保留 v9 的 DVP 端口回读与 v6 的 64 KB 指纹。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "65f2b6b9625a788e99f2808df69ec01962ec4e68",
+    "note": "任务卡未固定起始 commit；此处记录本任务开工时的实际 HEAD。本任务未提交 Git。"
+  },
+  "inputs": {
+    "xsa_sof_fix": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "bytes": 633089,
+      "note": "任务卡指定 1f5b138e...cb0e3；构建时对 BSP 出处的 _input 副本再校验了同一哈希"
+    },
+    "vendor_app_src_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "bytes": 3735,
+      "note": "构建前校验 pristine 哈希 1e2c74f1...a985"
+    },
+    "v9_bsp_tree_reused": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/lscript.ld",
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "bytes": 6324,
+      "note": "BSP/链接脚本来自 v9 标准入口（同一 SOF 修复 XSA）；本轮不运行 sdtgen"
+    },
+    "v4_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v4.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "v5_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748
+    },
+    "v6_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v6.patch",
+      "sha256": "4c7becc145c845d14b457e7917273f9c50120d9d513a0dc2612ecd057c08b960",
+      "bytes": 14583
+    },
+    "v7_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "sha256": "d471317726818a835e5e6aaf25108df688b122f6aacd641e933d48fffcb79cad",
+      "bytes": 18082
+    },
+    "v8_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v8.patch",
+      "sha256": "6c963628fc38a2d83e65bdddea599016756ca9eb2cf95112592de35036ce62d1",
+      "bytes": 21492
+    },
+    "v9_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "sha256": "bea88dd21fcac8c7eed6e5f05d2f9a59540925b06b69e5ae91d43d7e3942a2fc",
+      "bytes": 26679
+    },
+    "makefile_app": {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04_vitis/Makefile.app",
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503",
+      "bytes": 1729,
+      "note": "编译规则用 OPT_FLAGS → 注入 -DS3_GRAY_TRY=n"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py",
+      "sha256": "ca8a1dd91027343a527916aaefd85ddc7e43fd28d6de0f3f32cb6a14f50fc54d",
+      "bytes": 58034,
+      "note": "新增 v10 变体；默认变体仍为 v5；v4~v9 输出逐字节不变（见 commands 回归项）"
+    },
+    {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "sha256": "82e2efe093ef968f6aeb37dc2484a39d519ff32622fd288fd24c680fe606369c",
+      "bytes": 30262,
+      "note": "只改 display_demo.c，608 行"
+    }
+  ],
+  "commands": [
+    {
+      "id": "regression_default_v5",
+      "exit_code": 0,
+      "command_text": "python scripts/stage3_t04/make_app_diag_patch.py <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/default_regen.patch <…>/scratch_default",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/default_regen.log",
+      "result": "与 s3_t04_app_diag_v5.patch 逐字节相同"
+    },
+    {
+      "id": "regression_v4",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v4",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v4_regen.log",
+      "result": "与 v4 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v6",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v6",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v6_regen.log",
+      "result": "与 v6 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v7",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v7",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v7_regen.log",
+      "result": "与 v7 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v8",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v8",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v8_regen.log",
+      "result": "与 v8 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v9",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v9",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v9_regen.log",
+      "result": "与 v9 补丁逐字节相同"
+    },
+    {
+      "id": "v10_patch_generation",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v10 → board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/v10_gen.log",
+      "result": "GIT_APPLY_EXIT=0；VERIFY_HAS_D10_* 全部 True（含四个 TRY 注释行、两类写入与 SKIPPED）"
+    },
+    {
+      "id": "git_apply_check_fresh_vendor_copy",
+      "exit_code": 0,
+      "command_text": "cp -r <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v10/patch_gen/check_v10/an5642_single && cd .../check_v10/an5642_single && git apply --check -p1 board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "result": "补丁可从厂商原始 display_demo.c 干净应用；只含 display_demo.c"
+    },
+    {
+      "id": "make_only_build",
+      "exit_code": 0,
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v10/make_only_build.sh  (只用 make；未运行 sdtgen/HSI、未运行 Vivado 综合/实现；app 目录从厂商源全新铺开，BSP/链接脚本复用 v9 同一 XSA 的产物)",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v10/make_only_build.log",
+      "result": "XSA 与 pristine 源码哈希双重校验通过；git apply = 0；5 次 make 全成功；ALL_V10_MAKE_OK；4 条交付编译行逐字含 -DS3_GRAY_TRY=0/1/2/3"
+    }
+  ],
+  "artifacts": {
+    "elf_v10_read": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf",
+      "sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+      "bytes": 306272,
+      "note": "S3_GRAY_TRY=0：只回读不写（交付）"
+    },
+    "elf_v10_sat0": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_sat0.elf",
+      "sha256": "8cc925896da0b5847a7560b2135d9f406f45834e53eebf711e9b88eb21bc439c",
+      "bytes": 306272,
+      "note": "S3_GRAY_TRY=1：0x5583=0x5584=0x00（U/V 饱和置 0）"
+    },
+    "elf_v10_bw40": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_bw40.elf",
+      "sha256": "d951d328055dcc6c08a52e59fee37808a728e1f0a12eff1f2894aa4ca69978c4",
+      "bytes": 306272,
+      "note": "S3_GRAY_TRY=2：0x5580=(rb&~0xC0)|0x40"
+    },
+    "elf_v10_bw80": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_bw80.elf",
+      "sha256": "2eb4104a799d733c63ea41e39e796797f8078b249c1a5ece55690f2a932aaf15",
+      "bytes": 306272,
+      "note": "S3_GRAY_TRY=3：0x5580=(rb&~0xC0)|0x80"
+    },
+    "elf_v10_read_default": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read_default.elf",
+      "sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+      "bytes": 306272,
+      "note": "取证专用（非交付）：不带 -D 构建，用于证明源码默认 S3_GRAY_TRY=0"
+    },
+    "patched_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/display_demo.c",
+      "sha256": "e5fafa2e537288e0979ed6ed51762e9d5d68a66ce9b7c4d3b1f03912629aa377",
+      "bytes": 33015,
+      "note": "与生成器 verify 副本逐字节相同（e5fafa2e...）"
+    },
+    "v10_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "sha256": "82e2efe093ef968f6aeb37dc2484a39d519ff32622fd288fd24c680fe606369c",
+      "bytes": 30262
+    },
+    "build_log_make_only": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/make_only_build.log",
+      "sha256": "dbaad18cf2e7856648fdd14209a95d1737871506eeeb6b80757a73d8f971246e",
+      "bytes": 6189
+    },
+    "elf_build_evidence": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v10_20261021_r01/elf_build_evidence.txt",
+      "sha256": "77ba67b4e1a0f98d840f4f2d10d8db3850f0f69da141c10794a65ef2556608e9",
+      "bytes": 4798,
+      "note": "4 条编译行 + 4 个 SHA-256 + 分支字符串矩阵 + 默认值等价性 + 出处哈希"
+    },
+    "build_script": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/make_only_build.sh",
+      "sha256": "a4e812a5831fdfc2516fd4d76338f97906a361e14eb85332632ac5d87270279a",
+      "bytes": 4532
+    },
+    "collect_script": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/collect_v10_elf_evidence.sh",
+      "sha256": "0468bd33fab59af7173bcc38e6ccdb46d09f3f470e2d2b452784d2ba499da46d",
+      "bytes": 3213
+    },
+    "evidence_readme": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v10_20261021_r01/README.md",
+      "sha256": "57bab72db5c77e613674f9f5346cac5f30a57d71043ca64a0aeee3e29b6d9632",
+      "bytes": 6003
+    }
+  },
+  "artifacts_checks": {
+    "elf_v10_read": {
+      "NOTE_TRY0": 1,
+      "NOTE_TRY1": 0,
+      "NOTE_TRY2": 0,
+      "NOTE_TRY3": 0,
+      "SKIPPED_5583": 0,
+      "SKIPPED_5584": 0,
+      "SKIPPED_5580": 0,
+      "V9_PAD_LINE": 1,
+      "GRAY_LINE": 1,
+      "tags": [
+        "S3_DIAG10_GRAY",
+        "S3_DIAG10_GRAY_NOTE",
+        "S3_DIAG2_CHIPID_TRY",
+        "S3_DIAG2_DEV",
+        "S3_DIAG2_IIC_BASE",
+        "S3_DIAG2_IIC_CR",
+        "S3_DIAG2_SCAN_ACK_COUNT",
+        "S3_DIAG3_3035",
+        "S3_DIAG3_OUT_H",
+        "S3_DIAG3_OUT_W",
+        "S3_DIAG3_VTS",
+        "S3_DIAG4_WAIT_DONE",
+        "S3_DIAG4_WAIT_START",
+        "S3_DIAG5_CFG",
+        "S3_DIAG5_REG",
+        "S3_DIAG5_SENS",
+        "S3_DIAG5_SR_DECODE",
+        "S3_DIAG6_ALGO",
+        "S3_DIAG6_FP",
+        "S3_DIAG6_SAMPLE",
+        "S3_DIAG6_SAMPLING_DONE",
+        "S3_DIAG6_SENS",
+        "S3_DIAG6_SR",
+        "S3_DIAG6_TESTPATTERN",
+        "S3_DIAG7_AE",
+        "S3_DIAG7_AWB",
+        "S3_DIAG7_AWB_OFF",
+        "S3_DIAG7_ISP_A",
+        "S3_DIAG7_ISP_B",
+        "S3_DIAG8_WB",
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD",
+        "S3_DIAG_APP_ENTER",
+        "S3_DIAG_DISPLAY_START",
+        "S3_DIAG_SENSOR_ID",
+        "S3_DIAG_VDMA_WRITE_STARTED"
+      ]
+    },
+    "elf_v10_sat0": {
+      "NOTE_TRY0": 0,
+      "NOTE_TRY1": 1,
+      "NOTE_TRY2": 0,
+      "NOTE_TRY3": 0,
+      "SKIPPED_5583": 1,
+      "SKIPPED_5584": 1,
+      "SKIPPED_5580": 0,
+      "V9_PAD_LINE": 1,
+      "GRAY_LINE": 1,
+      "tags": [
+        "S3_DIAG10_GRAY",
+        "S3_DIAG10_GRAY_NOTE",
+        "S3_DIAG10_GRAY_SKIPPED",
+        "S3_DIAG2_CHIPID_TRY",
+        "S3_DIAG2_DEV",
+        "S3_DIAG2_IIC_BASE",
+        "S3_DIAG2_IIC_CR",
+        "S3_DIAG2_SCAN_ACK_COUNT",
+        "S3_DIAG3_3035",
+        "S3_DIAG3_OUT_H",
+        "S3_DIAG3_OUT_W",
+        "S3_DIAG3_VTS",
+        "S3_DIAG4_WAIT_DONE",
+        "S3_DIAG4_WAIT_START",
+        "S3_DIAG5_CFG",
+        "S3_DIAG5_REG",
+        "S3_DIAG5_SENS",
+        "S3_DIAG5_SR_DECODE",
+        "S3_DIAG6_ALGO",
+        "S3_DIAG6_FP",
+        "S3_DIAG6_SAMPLE",
+        "S3_DIAG6_SAMPLING_DONE",
+        "S3_DIAG6_SENS",
+        "S3_DIAG6_SR",
+        "S3_DIAG6_TESTPATTERN",
+        "S3_DIAG7_AE",
+        "S3_DIAG7_AWB",
+        "S3_DIAG7_AWB_OFF",
+        "S3_DIAG7_ISP_A",
+        "S3_DIAG7_ISP_B",
+        "S3_DIAG8_WB",
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD",
+        "S3_DIAG_APP_ENTER",
+        "S3_DIAG_DISPLAY_START",
+        "S3_DIAG_SENSOR_ID",
+        "S3_DIAG_VDMA_WRITE_STARTED"
+      ]
+    },
+    "elf_v10_bw40": {
+      "NOTE_TRY0": 0,
+      "NOTE_TRY1": 0,
+      "NOTE_TRY2": 1,
+      "NOTE_TRY3": 0,
+      "SKIPPED_5583": 0,
+      "SKIPPED_5584": 0,
+      "SKIPPED_5580": 1,
+      "V9_PAD_LINE": 1,
+      "GRAY_LINE": 1,
+      "tags": [
+        "S3_DIAG10_GRAY",
+        "S3_DIAG10_GRAY_NOTE",
+        "S3_DIAG10_GRAY_SKIPPED",
+        "S3_DIAG2_CHIPID_TRY",
+        "S3_DIAG2_DEV",
+        "S3_DIAG2_IIC_BASE",
+        "S3_DIAG2_IIC_CR",
+        "S3_DIAG2_SCAN_ACK_COUNT",
+        "S3_DIAG3_3035",
+        "S3_DIAG3_OUT_H",
+        "S3_DIAG3_OUT_W",
+        "S3_DIAG3_VTS",
+        "S3_DIAG4_WAIT_DONE",
+        "S3_DIAG4_WAIT_START",
+        "S3_DIAG5_CFG",
+        "S3_DIAG5_REG",
+        "S3_DIAG5_SENS",
+        "S3_DIAG5_SR_DECODE",
+        "S3_DIAG6_ALGO",
+        "S3_DIAG6_FP",
+        "S3_DIAG6_SAMPLE",
+        "S3_DIAG6_SAMPLING_DONE",
+        "S3_DIAG6_SENS",
+        "S3_DIAG6_SR",
+        "S3_DIAG6_TESTPATTERN",
+        "S3_DIAG7_AE",
+        "S3_DIAG7_AWB",
+        "S3_DIAG7_AWB_OFF",
+        "S3_DIAG7_ISP_A",
+        "S3_DIAG7_ISP_B",
+        "S3_DIAG8_WB",
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD",
+        "S3_DIAG_APP_ENTER",
+        "S3_DIAG_DISPLAY_START",
+        "S3_DIAG_SENSOR_ID",
+        "S3_DIAG_VDMA_WRITE_STARTED"
+      ]
+    },
+    "elf_v10_bw80": {
+      "NOTE_TRY0": 0,
+      "NOTE_TRY1": 0,
+      "NOTE_TRY2": 0,
+      "NOTE_TRY3": 1,
+      "SKIPPED_5583": 0,
+      "SKIPPED_5584": 0,
+      "SKIPPED_5580": 1,
+      "V9_PAD_LINE": 1,
+      "GRAY_LINE": 1,
+      "tags": [
+        "S3_DIAG10_GRAY",
+        "S3_DIAG10_GRAY_NOTE",
+        "S3_DIAG10_GRAY_SKIPPED",
+        "S3_DIAG2_CHIPID_TRY",
+        "S3_DIAG2_DEV",
+        "S3_DIAG2_IIC_BASE",
+        "S3_DIAG2_IIC_CR",
+        "S3_DIAG2_SCAN_ACK_COUNT",
+        "S3_DIAG3_3035",
+        "S3_DIAG3_OUT_H",
+        "S3_DIAG3_OUT_W",
+        "S3_DIAG3_VTS",
+        "S3_DIAG4_WAIT_DONE",
+        "S3_DIAG4_WAIT_START",
+        "S3_DIAG5_CFG",
+        "S3_DIAG5_REG",
+        "S3_DIAG5_SENS",
+        "S3_DIAG5_SR_DECODE",
+        "S3_DIAG6_ALGO",
+        "S3_DIAG6_FP",
+        "S3_DIAG6_SAMPLE",
+        "S3_DIAG6_SAMPLING_DONE",
+        "S3_DIAG6_SENS",
+        "S3_DIAG6_SR",
+        "S3_DIAG6_TESTPATTERN",
+        "S3_DIAG7_AE",
+        "S3_DIAG7_AWB",
+        "S3_DIAG7_AWB_OFF",
+        "S3_DIAG7_ISP_A",
+        "S3_DIAG7_ISP_B",
+        "S3_DIAG8_WB",
+        "S3_DIAG9_D9SEL",
+        "S3_DIAG9_ORDER",
+        "S3_DIAG9_PAD",
+        "S3_DIAG_APP_ENTER",
+        "S3_DIAG_DISPLAY_START",
+        "S3_DIAG_SENSOR_ID",
+        "S3_DIAG_VDMA_WRITE_STARTED"
+      ]
+    }
+  },
+  "read_eq_default": {
+    "official_read_sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+    "no_define_sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+    "identical": true,
+    "note": "an5642_j11cmos2_v10_read_default.elf 仅为取证对照，不是交付 ELF"
+  },
+  "build_method": {
+    "constraint": "任务卡要求只跑 make：本机已有 task-9 重型 Vivado 构建在跑，必须串行。",
+    "what_was_run": "只跑了 make（编译器 arm-none-eabi-gcc 与 make 来自 Vitis 2026.1）；未运行 sdtgen/HSI，未运行任何 Vivado 综合/实现。",
+    "bsp_provenance": "BSP（empty_application_bsp）与 lscript.ld/Makefile/Xilinx.spec 复用 v9 构建目录——那是标准入口 run_stage3_vitis_elf.cmd 用同一份 SOF 修复 XSA 生成的；脚本先校验 _input 里的 XSA 副本哈希等于 1f5b138e...cb0e3 才继续，并对 pristine display_demo.c 校验 1e2c74f1...a985。",
+    "xsa_sha_check": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+    "pristine_sha_check": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+    "patched_sha": "e5fafa2e537288e0979ed6ed51762e9d5d68a66ce9b7c4d3b1f03912629aa377",
+    "pitfall_found_and_fixed": "首次实现把 Vitis 的 gnuwin 目录放到了 PATH 前面，那里的 Windows cp.exe 遮蔽了 MSYS coreutils，导致应用源码“覆盖式铺开”静默失效（cp 返回 0 但没覆盖），git apply 因此失败。已改为把 Vitis 路径放到 PATH 末尾（cp=/usr/bin/cp）并从**全新目录**铺开源码；失败过程与修复都保留在 tmp/.../make_only_build.log 与本文件里。"
+  },
+  "gray_try_matrix": {
+    "0": "只回读不写（交付基线：先上板看 0x5580/0x5583/0x5584 的真实值与画面）",
+    "1": "0x5583=0x00、0x5584=0x00（U/V 饱和度置 0；0x5580 保持 0x06 不动）——按“色度信息归零”的常见做法",
+    "2": "0x5580 = (读回 & ~0xC0) | 0x40（效果位 [7:6]=10，尝试 B&W 编码）",
+    "3": "0x5580 = (读回 & ~0xC0) | 0x80（效果位 [7:6]=11，另一编码）",
+    "how_to_judge": "UART 看 S3_DIAG10_GRAY 行的 after 与 readback 是否一致（写是否生效）；板上看画面是否变黑白、以及是否出现花屏/错位（TRY=2/3 的效果位若语义不同可能引入异常）。TRY=1 只动 0x5583/0x5584，风险最低（0x5580 的 ISP 结构不变）。",
+    "semantics_source": "0x5580/0x5583/0x5584 的位语义来自任务卡（阶段总控口径）；本任务未再查 OV5640 手册原文。",
+    "vendor_init_values": "厂商 init 表把 0x5580 写 0x06、0x5583 写 0x40、0x5584 写 0x10（v7 上板实测一致）→ TRY=1/2/3 都是相对这些值的可逆修改；复位或重跑应用（init 表会重写这三个寄存器）即可恢复。"
+  },
+  "environment": {
+    "vitis": "2026.1（仅 make；本轮不用 sdtgen/HSI）",
+    "licence": "本轮不涉及许可检出（未启动 Vivado/Vitis 工具）",
+    "host": "HAO",
+    "python": "3.12.10"
+  },
+  "not_executed": [
+    "未上板、未下载、未运行、未采集 UART（按任务卡边界）；S3_DIAG10_* 的实际数值与“画面是否变黑白”的结论尚未产生。",
+    "未运行 sdtgen/HSI（按任务卡“只跑 make”）；未运行任何 Vivado 综合/实现。",
+    "未烧写 QSPI；未做任何非易失写入，未提交 Git。",
+    "未查 OV5640 手册原文核对 0x5580[7:6]/0x5583/0x5584 的位定义与效果编码语义。"
+  ],
+  "limitations": [
+    "v10 交付的是**可上板的 4 个变体 ELF**，不是“黑白是否可接受”的结论；该结论必须由 Wong 看画面给出。",
+    "TRY=2/3 只改 0x5580 的 [7:6] 两位（其余位保持回读值），若手册语义与任务卡口径不同，可能表现为“无明显变化”或“异常花屏”，UART 的 before/after/readback 可用于确认写入本身是否生效。",
+    "0x5580/0x5583/0x5584 都是可写寄存器且不在“不改配置”的只读集合里：本任务按卡面把它们列入写测试，复位/重跑应用可由厂商 init 表恢复（0x5580=0x06、0x5583=0x40、0x5584=0x10）。",
+    "本轮未用标准入口（不跑 sdtgen）：BSP 是从 v9 构建树复用的同一 XSA 产物（已做哈希校验）；若需要完全走标准入口重建，请等 task-9 重型构建结束后另开一轮（预期 ELF 字节一致）。",
+    "v10 保留 v6 的 5 次指纹采样，UART 时长仍 ≥30 s。",
+    "本任务只做软件与证据；G3 未闭合。"
+  ]
+}

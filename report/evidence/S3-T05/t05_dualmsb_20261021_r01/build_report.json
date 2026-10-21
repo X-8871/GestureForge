@@ -1,0 +1,441 @@
+{
+  "task_id": "S3-T05-PL3",
+  "task_board_id": "task-9",
+  "title": "双位重建（B'[4]=B[3]、G'[2]=G[3]）+ 水平 3 抽头多数表决 —— 明示的近似补偿",
+  "run_id": "t04_dualmsb_20261021_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_dualmsb_20261021_r01",
+  "generated_at_utc8": "2026-10-21T22:52:12+08:00",
+  "status": "ok",
+  "disclaimer": "*** 近似补偿、非真实修复、不得用于颜色验收 ***。真实故障是模块侧 DVP 字节 MSB 线 cmos_d[9] 无信号（两个字节的 MSB 都丢），本变体只是用相邻位近似重建这两个位并做多数平滑；硬件返修后应回到无补偿位流重新验收颜色。",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "flow": "vendor BD auto_create_project (build_t04_camera.tcl)"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit_at_build": "65f2b6b9625a788e99f2808df69ec01962ec4e68",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "compare_runs": [
+      "t04_camera_j11cmos2_20261020_r01",
+      "t04_sof_fix_20261020_r01"
+    ],
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "xdc_sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+  },
+  "bit_layout": {
+    "word_layout": "word[15:11]=B[4:0], word[10:5]=G[5:0], word[4:0]=R[4:0]",
+    "lost_bits": [
+      "word[15] = B[4] (第一字节 MSB, cmos_d[9])",
+      "word[7] = G[2] (第二字节 MSB, 同一根 cmos_d[9])"
+    ],
+    "measured_maxima_support": "R max 248(31<<3)、G max 236(59<<2, G[2]=0)、B max 120(15<<3, B[4]=0) 与该位序完全自洽",
+    "note": "旧一轮（task-6）按 word={R,G,B} 的位序重建了 word[4]，实际是 R[4]，因此没有修好蓝位并引入伪彩；本轮按正确位序重建 word[15]。"
+  },
+  "compensation": {
+    "rebuild_table": "B'[4]=B[3]=tdata[14]；G'[2]=G[3]=tdata[8]；其余位原样",
+    "new_word": "new = { maj3(B[3]), tdata[14:11], tdata[10:8], maj3(G[3]), tdata[6:5], tdata[4:0] }",
+    "majority": "水平 3 抽头多数（当前 + 前 2 个像素）：maj=(c0&c1)|(c0&c2)|(c1&c2)，只用像素率延迟寄存器（2 个 DFF/位，共 4 个），无行缓冲/BRAM；只作用于 B'[4] 与 G'[2] 两位；数据流本身不额外延迟，故 tvalid/tlast/tuser 仍对齐。",
+    "not_changed": [
+      "tlast",
+      "tuser",
+      "tkeep",
+      "tvalid/tready",
+      "时钟/时序",
+      "DEBUG_OV5640（保持 false）"
+    ],
+    "known_errors": [
+      "低蓝/暗部残差：B'[4]=B[3] 把蓝低 4 位区间做 2 倍拉伸，暗部/低饱和蓝的量化误差被放大（G'[2]=G[3] 同理影响绿的次高位）。",
+      "亮部可能过冲：真实 B[4]=0 而 B[3]=1 的亮色会被判成 B[4]=1，蓝偏高；多数表决只能压掉孤立过冲。",
+      "整帧仍非真实颜色：这是近似补偿，不构成颜色正确性证据，也不能用于颜色验收/标定。"
+    ]
+  },
+  "patches": {
+    "applied_order": [
+      "alinx_ov5640_sof_hrefgap.patch",
+      "alinx_ov5640_dual_msb_rebuild.patch"
+    ],
+    "items": [
+      {
+        "name": "SOF fix (task-2)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+        "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+        "hunks": 3,
+        "lines_added": 24,
+        "lines_removed": 5,
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      },
+      {
+        "name": "dual-MSB rebuild + H3 majority (this task)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_dual_msb_rebuild.patch",
+        "sha256": "635c886dfdcd0e2517fec86a3ca7239ac805091c54cc907e13510501e6cd2616",
+        "hunks": 2,
+        "lines_added": 51,
+        "lines_removed": 1,
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      }
+    ],
+    "supersedes": "旧 task-6 的 alinx_ov5640_blue_msb_rebuild.patch 基于错误位序（改到了 R[4]），本变体**不使用**它；已断言最终 RTL 中不含其标记 s_axis_tdata_bluefix。",
+    "order_note": "两补丁修改区域不重叠（SOF 改参数表/tuser always 块；DUAL 在 FIFO 前插入新块并改 .din），实测 dual 单独对厂商原件 --check/apply RC=0，SOF->DUAL 与 DUAL->SOF 均 RC=0 且结果字节相同。",
+    "git_apply_log": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_dualmsb_20261021_r01\\patch_git_apply.log",
+    "order_test_evidence": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_dualmsb_20261021_r01\\patch_apply_order_test.txt"
+  },
+  "rtl_hashes": {
+    "pristine_vendor": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+    "after_sof_patch": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "after_sof_then_dual": "1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3",
+    "final_actual": "1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3"
+  },
+  "netlist_confirmation": {
+    "trace_log": "report/evidence/S3-T05/t05_dualmsb_20261021_r01\\netlist_din_trace.log",
+    "trace_vivado_exit_code": 0,
+    "din_pins_found": true,
+    "bits": {
+      "2": {
+        "net": "inst/cmos_d_16bit_d1_reg_n_0_[0]",
+        "depth1": "inst/cmos_d_16bit_d1_reg[0]/Q(FDRE)",
+        "depth2": "inst/cmos_d_16bit_d1_reg[0]/Q(FDRE)",
+        "lut_inputs": [
+          "inst/cmos_d_16bit_d1_reg[0]/C",
+          "inst/cmos_d_16bit_d1_reg[0]/CE",
+          "inst/cmos_d_16bit_d1_reg[0]/D",
+          "inst/cmos_d_16bit_d1_reg[0]/R"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[0]/Q"
+        ]
+      },
+      "7": {
+        "net": "inst/cmos_d_16bit_d1_reg_n_0_[5]",
+        "depth1": "inst/cmos_d_16bit_d1_reg[5]/Q(FDRE)",
+        "depth2": "inst/cmos_d_16bit_d1_reg[5]/Q(FDRE)",
+        "lut_inputs": [
+          "inst/cmos_d_16bit_d1_reg[5]/C",
+          "inst/cmos_d_16bit_d1_reg[5]/CE",
+          "inst/cmos_d_16bit_d1_reg[5]/D",
+          "inst/cmos_d_16bit_d1_reg[5]/R"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[5]/Q"
+        ]
+      },
+      "8": {
+        "net": "inst/cmos_d_16bit_d1_reg_n_0_[6]",
+        "depth1": "inst/cmos_d_16bit_d1_reg[6]/Q(FDRE)",
+        "depth2": "inst/cmos_d_16bit_d1_reg[6]/Q(FDRE)",
+        "lut_inputs": [
+          "inst/cmos_d_16bit_d1_reg[6]/C",
+          "inst/cmos_d_16bit_d1_reg[6]/CE",
+          "inst/cmos_d_16bit_d1_reg[6]/D",
+          "inst/cmos_d_16bit_d1_reg[6]/R"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[6]/Q"
+        ]
+      },
+      "9": {
+        "net": "inst/p_11_out[9]",
+        "depth1": "inst/xpm_fifo_async_inst_i_4/O(LUT3)",
+        "depth2": "inst/xpm_fifo_async_inst_i_4/O(LUT3)",
+        "lut_inputs": [
+          "inst/xpm_fifo_async_inst_i_4/I0",
+          "inst/xpm_fifo_async_inst_i_4/I1",
+          "inst/xpm_fifo_async_inst_i_4/I2"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[8]/Q",
+          "inst/dualmsb_g2_d1_reg/Q",
+          "inst/dualmsb_g2_d2_reg/Q"
+        ]
+      },
+      "10": {
+        "net": "inst/dualmsb_g2_cand",
+        "depth1": "inst/cmos_d_16bit_d1_reg[8]/Q(FDRE)",
+        "depth2": "inst/cmos_d_16bit_d1_reg[8]/Q(FDRE)",
+        "lut_inputs": [
+          "inst/cmos_d_16bit_d1_reg[8]/C",
+          "inst/cmos_d_16bit_d1_reg[8]/CE",
+          "inst/cmos_d_16bit_d1_reg[8]/D",
+          "inst/cmos_d_16bit_d1_reg[8]/R"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[8]/Q"
+        ]
+      },
+      "16": {
+        "net": "inst/dualmsb_b4_cand",
+        "depth1": "inst/cmos_d_16bit_d1_reg[14]/Q(FDRE)",
+        "depth2": "inst/cmos_d_16bit_d1_reg[14]/Q(FDRE)",
+        "lut_inputs": [
+          "inst/cmos_d_16bit_d1_reg[14]/C",
+          "inst/cmos_d_16bit_d1_reg[14]/CE",
+          "inst/cmos_d_16bit_d1_reg[14]/D",
+          "inst/cmos_d_16bit_d1_reg[14]/R"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[14]/Q"
+        ]
+      },
+      "17": {
+        "net": "inst/p_11_out[17]",
+        "depth1": "inst/xpm_fifo_async_inst_i_3/O(LUT3)",
+        "depth2": "inst/xpm_fifo_async_inst_i_3/O(LUT3)",
+        "lut_inputs": [
+          "inst/xpm_fifo_async_inst_i_3/I0",
+          "inst/xpm_fifo_async_inst_i_3/I1",
+          "inst/xpm_fifo_async_inst_i_3/I2"
+        ],
+        "roots": [
+          "inst/cmos_d_16bit_d1_reg[14]/Q",
+          "inst/dualmsb_b4_d1_reg/Q",
+          "inst/dualmsb_b4_d2_reg/Q"
+        ]
+      }
+    },
+    "rule": "重建位 A[15]/A[7] 落在 din[17]/din[9]（din={word,tlast,tuser}）；要求它们由 3 输入多数门驱动，且根驱动集合含 B[3](din[16]) / G[3](din[10]) 的根。",
+    "b4_din17_driver_ref": "inst/xpm_fifo_async_inst_i_3/O(LUT3)",
+    "b4_din17_roots": [
+      "inst/cmos_d_16bit_d1_reg[14]/Q",
+      "inst/dualmsb_b4_d1_reg/Q",
+      "inst/dualmsb_b4_d2_reg/Q"
+    ],
+    "b3_din16_roots": [
+      "inst/cmos_d_16bit_d1_reg[14]/Q"
+    ],
+    "b4_lut_inputs": [
+      "inst/xpm_fifo_async_inst_i_3/I0",
+      "inst/xpm_fifo_async_inst_i_3/I1",
+      "inst/xpm_fifo_async_inst_i_3/I2"
+    ],
+    "g2_din9_driver_ref": "inst/xpm_fifo_async_inst_i_4/O(LUT3)",
+    "g2_din9_roots": [
+      "inst/cmos_d_16bit_d1_reg[8]/Q",
+      "inst/dualmsb_g2_d1_reg/Q",
+      "inst/dualmsb_g2_d2_reg/Q"
+    ],
+    "g3_din10_roots": [
+      "inst/cmos_d_16bit_d1_reg[8]/Q"
+    ],
+    "g2_lut_inputs": [
+      "inst/xpm_fifo_async_inst_i_4/I0",
+      "inst/xpm_fifo_async_inst_i_4/I1",
+      "inst/xpm_fifo_async_inst_i_4/I2"
+    ],
+    "b4_majority_has_b3_source": true,
+    "g2_majority_has_g3_source": true,
+    "b4_is_3tap": true,
+    "g2_is_3tap": true,
+    "other_bits_untouched_single_ff_root": true,
+    "passed": true,
+    "baseline_reference": {
+      "trace_log": "report/evidence/S3-T05/t05_dualmsb_20261021_r01\\netlist_din_trace_baseline.log",
+      "run": "t04_sof_fix_20261020_r01（仅 SOF 补丁，无重建）",
+      "b4_din17_driver_ref": "inst/cmos_d_16bit_d1_reg[15]/Q(FDRE)",
+      "b4_din17_roots": [
+        "inst/cmos_d_16bit_d1_reg[15]/Q"
+      ],
+      "g2_din9_driver_ref": "inst/cmos_d_16bit_d1_reg[7]/Q(FDRE)",
+      "g2_din9_roots": [
+        "inst/cmos_d_16bit_d1_reg[7]/Q"
+      ],
+      "meaning": "基线里 din[17]/din[9] 各由单个寄存器直接驱动（1 个根）；本变体变成 LUT3 三抽头多数门。"
+    }
+  },
+  "commands": {
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/build_t04_camera.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01/vivado.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01/vivado.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01/vendor_src",
+    "tcl_script": "scripts/stage3_t04/build_t04_camera.tcl",
+    "netlist_trace_tcl": "report/evidence/S3-T05/t05_dualmsb_20261021_r01/netlist_din_trace.tcl",
+    "vivado_exit_code": 0,
+    "trace_exit_code": 0,
+    "elapsed_seconds": 537
+  },
+  "implementation": {
+    "synth_status": "synth_design Complete!",
+    "impl_status": "write_bitstream Complete!",
+    "timing": {
+      "wns_ns": "1.171408",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.053436",
+      "ths_ns": "0.000000"
+    },
+    "timing_reference_runs": {
+      "t04_camera_j11cmos2_20261020_r01_baseline": {
+        "wns_ns": "1.141183",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058332",
+        "ths_ns": "0.000000"
+      },
+      "t04_sof_fix_20261020_r01_sof_only": {
+        "wns_ns": "1.054525",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058931",
+        "ths_ns": "0.000000"
+      }
+    },
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 8,
+    "drc_counts_by_severity": {
+      "Warning": 8
+    },
+    "drc_rule_breakdown": {
+      "PDCN-1569": 3,
+      "PLCK-12": 1,
+      "REQP-1839": 2,
+      "REQP-1840": 1,
+      "RTSTAT-10": 1
+    },
+    "peak_memory_mb": 2563.582,
+    "utilization_by_run": {
+      "t04_camera_j11cmos2_20261020_r01": {
+        "design_synth": 10534,
+        "alinx_ip_ooc": 401
+      },
+      "t04_sof_fix_20261020_r01": {
+        "design_synth": 10548,
+        "alinx_ip_ooc": 415
+      },
+      "t04_dualmsb_20261021_r01": {
+        "design_synth": 10544,
+        "alinx_ip_ooc": 411
+      }
+    },
+    "xsa_exists": "1"
+  },
+  "rtl_evidence": {
+    "project_rtl_copies": [
+      {
+        "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\project\\ov5640_single.gen\\sources_1\\bd\\design_1\\ipshared\\564b\\src\\alinx_ov5640.v",
+        "sha256": "1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3",
+        "size_bytes": 11029,
+        "matches_expected": true,
+        "contains_gap_thresh": true,
+        "contains_dualmsb": true,
+        "contains_old_bluefix": false
+      }
+    ],
+    "meaning": "工程 .gen 下 IP RTL 副本哈希 = SOF+DUAL 叠加后的哈希，且含 GAP_THRESH 与 s_axis_tdata_dualmsb、不含旧 bluefix 标记。"
+  },
+  "log_messages": {
+    "error_count": 0,
+    "critical_warning_count": 17,
+    "warning_count": 196,
+    "error_codes": [],
+    "critical_warning_codes": [
+      "Designutils 20-1280",
+      "Timing 38-249"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "exists": true,
+      "size_bytes": 1735281,
+      "sha256": "30db09ba8e4e9df8fca73429ce7e941988391b4475fc88d19ebc86469fff23e4"
+    },
+    "xsa": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\design_1_wrapper.xsa",
+      "exists": true,
+      "size_bytes": 626807,
+      "sha256": "cf15a02c36b4ba33ed4a5430e70ccc5d4a5960932266b25ade2c1cc177a3ce36"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\vivado.log",
+      "exists": true,
+      "size_bytes": 229588,
+      "sha256": "20a5afdb2012fb3e16ee8980187593e6cb76c8e0afe85d1de1ac0d2fa9c92dc0"
+    },
+    "report_timing_summary_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\report_timing_summary_impl.rpt",
+      "exists": true,
+      "size_bytes": 1438262,
+      "sha256": "b0feec157a69427ac66fb5133afd733192048f79906478fe20cc61e2690daa2d"
+    },
+    "report_drc_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\report_drc_impl.rpt",
+      "exists": true,
+      "size_bytes": 14024,
+      "sha256": "1017a3f14d76f193c269bd45e75769f96f184639e99c66a3d2c97e908850bffe"
+    },
+    "report_utilization_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\report_utilization_impl.rpt",
+      "exists": true,
+      "size_bytes": 13399,
+      "sha256": "720a3e48be42d26cc578e41d6b80be70dfafb9d6648463548dd9cf998a59acea"
+    },
+    "report_utilization_synth": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\report_utilization_synth.rpt",
+      "exists": true,
+      "size_bytes": 11231,
+      "sha256": "148c3f8349c5154a62975a1b3de69beb06c63b6389ebb4fdd34bcc2359a8f179"
+    },
+    "patched_rtl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_dualmsb_20261021_r01\\vendor_src\\my_ip/ov5640_ip/src/alinx_ov5640.v",
+      "exists": true,
+      "size_bytes": 11029,
+      "sha256": "1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3"
+    },
+    "patch_sof": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+      "exists": true,
+      "size_bytes": 2204,
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    },
+    "patch_dual_msb": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_dual_msb_rebuild.patch",
+      "exists": true,
+      "size_bytes": 3607,
+      "sha256": "635c886dfdcd0e2517fec86a3ca7239ac805091c54cc907e13510501e6cd2616"
+    },
+    "xdc_j11_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    },
+    "netlist_trace_log": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_dualmsb_20261021_r01/netlist_din_trace.log",
+      "exists": true,
+      "size_bytes": 8077,
+      "sha256": "a7693f51ac0a1d3c436da5fd1298edab8c0a71e927349f9680e65c50108860f3"
+    }
+  },
+  "limitations": [
+    "只产出 bitstream + XSA；未下载、未烧 QSPI、未上板（上板与目视判读由阶段总控执行）。",
+    "*** 近似补偿、非真实修复、不用于颜色验收 ***；真实修复需硬件返修模块侧 DVP 字节 MSB 线。",
+    "已知误差：低蓝/暗部残差被放大；亮部蓝可能过冲；多数表决只压孤立散斑，不改变系统性偏差。",
+    "SOF 修复的既有约束仍成立：复位后第一帧可能无 SOF；GAP_THRESH=16384 只对 1280x720(HTS=1892/VTS=740) 成立。",
+    "未做 RTL 功能仿真；未验证位流与基线功能一致性（仅时序/DRC/资源/网表连通性对比）。"
+  ],
+  "not_executed": [
+    "program_device / QSPI 烧写",
+    "上板目视/直方图判读",
+    "RTL 仿真",
+    "硬件返修",
+    "Git 提交（由阶段总控统一提交）"
+  ],
+  "netlist_check_correction": {
+    "first_run_result": "failed (NETLIST_CHECK_PASSED=False)",
+    "cause": "首次运行的 roots_of_pin 只取组合单元的输出管脚、未下钻其输入，把 LUT3 驱动的 din[17]/din[9] 误判为只有 1 个根驱动。",
+    "fix": "改为下钻组合单元（LUT*/MUXF*）的输入管脚后重跑同一份 OOC DCP。",
+    "artifacts_unchanged": {
+      "bit": "30db09ba8e4e9df8fca73429ce7e941988391b4475fc88d19ebc86469fff23e4",
+      "xsa": "cf15a02c36b4ba33ed4a5430e70ccc5d4a5960932266b25ade2c1cc177a3ce36",
+      "note": "复跑核对前后位流/XSA 哈希完全一致（30db09ba… / cf15a02c…），未重建、未改动产物。"
+    },
+    "build_itself": "VIVADO_EXIT=0，synth_design/write_bitstream 均 Complete，与核对脚本的误判无关。"
+  },
+  "netlist_confirmation_history": [
+    {
+      "status_before_correction": "failed",
+      "status_after_correction": "ok"
+    }
+  ]
+}

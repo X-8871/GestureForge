@@ -1,0 +1,48 @@
+# S3-T05-PL3 补丁应用顺序实测（真实 git apply 输出 + 结果哈希）
+
+补丁身份：
+- SOF（已有）      sha256 = fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5
+- DUAL（本任务）   sha256 = 635c886dfdcd0e2517fec86a3ca7239ac805091c54cc907e13510501e6cd2616
+- 旧蓝位（已废弃） sha256 = 6609a59da624beb562a5a717e4839567f803bd80e7df0a5ca9ce4e4ff5ec7505
+  （基于错误位序，实际改到了 R[4]，**本变体不使用**）
+
+期望结果哈希：
+- 厂商原件 + DUAL              = 7069ace3cb4d5d1b50677ef17a7b8fe286505f456f2039f4507fa4e909469ba1
+- 厂商原件 + SOF + DUAL        = 1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3
+
+== A) 厂商原件 + DUAL ==
+A_CHECK_RC=0
+A_APPLY_RC=0
+7069ace3cb4d5d1b50677ef17a7b8fe286505f456f2039f4507fa4e909469ba1  (t1/.../alinx_ov5640.v)
+expected_dual_only=7069ace3cb4d5d1b50677ef17a7b8fe286505f456f2039f4507fa4e909469ba1  => MATCH
+
+== B) 厂商原件 -> SOF -> DUAL ==
+B_SOF_RC=0
+B_DUAL_CHECK_RC=0
+B_DUAL_APPLY_RC=0
+1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3  (t2/.../alinx_ov5640.v)
+expected_combined=1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3  => MATCH
+
+== C) 厂商原件 -> DUAL -> SOF ==
+C_DUAL_RC=0
+C_SOF_CHECK_RC=0
+C_SOF_APPLY_RC=0
+1d7b86680f27d90dfd79f8aefd6ca0f58f3fa4eb82c1b704f4180329d7f0f8e3  (t3/.../alinx_ov5640.v)
+=> 与 B 逐字节相同（两补丁可交换、无冲突）
+
+== D) (信息性) SOF+DUAL 之后再叠旧蓝位补丁 => 失败（证明旧补丁已被取代、不可叠加） ==
+D_OLD_BLUE_ON_TOP_OF_PRISTINE_RC=0   (旧补丁单独对厂商原件本是可用的)
+D_PREP_RC=0
+error: patch failed: .../alinx_ov5640.v:186
+error: .../alinx_ov5640.v: patch does not apply
+D_OLD_BLUE_AFTER_SOF_DUAL_RC=1
+
+结论：
+1) 本变体的 DUAL 补丁满足「对厂商原件 git apply --check 通过」；
+2) 与 SOF 补丁区域不重叠，SOF->DUAL 与 DUAL->SOF 均 RC=0 且结果相同；
+3) 旧蓝位补丁与新补丁改同一行（FIFO .din），叠加会失败，故本变体明确不使用它，
+   并在最终 RTL 中断言其标记 s_axis_tdata_bluefix 不存在。
+
+注：`git apply` 须从工作树根执行并配 `--directory=<相对路径>`；补丁内容行保留 CRLF，
+GNU `patch` 对该文件报 "different line endings" 而失败，故统一使用 git apply。
+本文件的 A/B/C/D 四组 RC 与哈希均由脚本在临时副本（_order_test/t1..t4，已删除）上真实执行得到。

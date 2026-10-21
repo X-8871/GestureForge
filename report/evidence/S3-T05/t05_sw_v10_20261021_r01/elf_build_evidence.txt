@@ -1,0 +1,56 @@
+# S3-T05-SW6 v10 证据：4 个 ELF 的编译行 / 哈希 / 开关证据（2026-10-21 22:59:34 +0800）
+# 构建方式：**只用 make**（未运行 sdtgen/HSI、未运行 Vivado 综合/实现）；
+#   cp=/usr/bin/cp  make=/d/Xilinx/2026.1/Vitis/gnuwin/bin/make  gcc=/d/Xilinx/2026.1/Vitis/gnu/aarch32/nt/gcc-arm-none-eabi/bin/arm-none-eabi-gcc
+#   BSP 复用 v9 标准入口（同一 SOF 修复 XSA 1f5b138e...cb0e3）生成的产物；XSA 与 pristine 源码哈希在构建时校验。
+
+## 1) 编译行（原文，取自 make_only_build.log）
+交付 ELF：
+--- an5642_j11cmos2_v10_read.elf
+arm-none-eabi-gcc -O2 -c -DS3_GRAY_TRY=0 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v10_sat0.elf
+arm-none-eabi-gcc -O2 -c -DS3_GRAY_TRY=1 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v10_bw40.elf
+arm-none-eabi-gcc -O2 -c -DS3_GRAY_TRY=2 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+--- an5642_j11cmos2_v10_bw80.elf
+arm-none-eabi-gcc -O2 -c -DS3_GRAY_TRY=3 -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+默认值对照（无 -D，用于证明源码默认 = 0）：
+--- an5642_j11cmos2_v10_read_default.elf
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+
+## 2) 四个交付 ELF 的 SHA-256 与字节数
+1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf
+    bytes=306272
+8cc925896da0b5847a7560b2135d9f406f45834e53eebf711e9b88eb21bc439c */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_sat0.elf
+    bytes=306272
+d951d328055dcc6c08a52e59fee37808a728e1f0a12eff1f2894aa4ca69978c4 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_bw40.elf
+    bytes=306272
+2eb4104a799d733c63ea41e39e796797f8078b249c1a5ece55690f2a932aaf15 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_bw80.elf
+    bytes=306272
+
+## 3) 每 ELF 的分支字符串矩阵（证明编译期开关确实生效）
+ELF                                TRY0note TRY1note TRY2note TRY3note SKIP5583 SKIP5580 v9PAD
+an5642_j11cmos2_v10_read.elf       1 0 0 0 0 0 1 
+an5642_j11cmos2_v10_sat0.elf       0 1 0 0 1 0 1 
+an5642_j11cmos2_v10_bw40.elf       0 0 1 0 0 1 1 
+an5642_j11cmos2_v10_bw80.elf       0 0 0 1 0 1 1 
+
+## 4) 源码默认值等价性：官方 read（显式 -DS3_GRAY_TRY=0） vs 无 -D 构建
+1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf
+1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read_default.elf
+RESULT: READ_EQ_DEFAULT=1（源码默认 S3_GRAY_TRY=0 得到同一份字节）
+
+## 5) 出处与中间哈希（构建日志摘录）
+    EFFECTIVE_COMMAND=bash tmp/s3r06/t04_j11cmos2_elf_v10/make_only_build.sh  (make only; no sdtgen/HSI, no Vivado)
+      staged XSA sha256 (v9 _input):   1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3
+      XSA expected:                    1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3
+      BSP libxil.a bytes:              1658648
+      lscript.ld sha256:               7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a
+      pristine display_demo.c sha256:  1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985
+      git apply -p1 -> exit 0
+      patched display_demo.c sha256:   e5fafa2e537288e0979ed6ed51762e9d5d68a66ce9b7c4d3b1f03912629aa377
+
+## 6) ELF 里存在的 S3_DIAG10 / S3_DIAG9 打印标签
+an5642_j11cmos2_v10_read.elf       S3_DIAG10_GRAY S3_DIAG10_GRAY_NOTE S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_PAD 
+an5642_j11cmos2_v10_sat0.elf       S3_DIAG10_GRAY S3_DIAG10_GRAY_NOTE S3_DIAG10_GRAY_SKIPPED S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_PAD 
+an5642_j11cmos2_v10_bw40.elf       S3_DIAG10_GRAY S3_DIAG10_GRAY_NOTE S3_DIAG10_GRAY_SKIPPED S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_PAD 
+an5642_j11cmos2_v10_bw80.elf       S3_DIAG10_GRAY S3_DIAG10_GRAY_NOTE S3_DIAG10_GRAY_SKIPPED S3_DIAG9_D9SEL S3_DIAG9_ORDER S3_DIAG9_PAD 

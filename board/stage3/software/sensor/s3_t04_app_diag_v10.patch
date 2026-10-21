@@ -1,0 +1,608 @@
+--- a/display_demo.c
++++ b/display_demo.c
+@@ -22,6 +22,7 @@
+ #include "i2c/PS_i2c.h"
+ #include "xgpio.h"
+ #include "sleep.h"
++#include "xtime_l.h" /* S3-DIAG6: XTime_GetTime/COUNTS_PER_SECOND 用于打印真实耗时秒 */
+ #include "ov5640.h"
+ /*
+  * XPAR redefines
+@@ -58,10 +59,188 @@ u8 *pFrames[DISPLAY_NUM_FRAMES]; //array of pointers to the frame buffers
+ 
+ 
+ 
++/* ================= S3-DIAG5 只读诊断辅助（不改任何配置/时序） =================
++ * S2MM/MM2S 状态寄存器位定义依据（三者一致，证据在 tmp/s3r06/t04_j11cmos2_elf_v5/）：
++ *  1) 驱动头文件 axivdma_v6_17/src/xaxivdma_hw.h（任务卡引用 v6_15，位掩码同值）
++ *  2) IP 元数据 data/ip/xilinx/axi_vdma_v6_3/component.xml -> S2MM_VDMASR 字段 bitOffset
++ *  3) IP HDL axi_vdma_v6_3_vh_rfs.vhd -> DMASR_*_BIT 常量与状态寄存器拼装
++ * bit4=DMAIntErr bit5=DMASlvErr bit6=DMADecErr bit7=FSizeErr(SOFEarlyErr)
++ * bit8=LSizeErr(EOLEarlyErr) bit9=SGSlvErr bit10=SGDecErr bit11=FSizeMore/SOFLateErr
++ * bit12=FrmCntIrq bit13=DlyCntIrq bit14=ErrIrq bit15=LSizeMore(EOLLateErr)
++ * bit16..23=帧计数(IRQFrameCntSts) bit24..31=延迟计数
++ * 注意：驱动头文件记 bit11 为 ERR_FSZ_MORE(0x800)，IP 元数据记为 SOFLateErr —— 同一物理位。*/
++static void s3_diag5_regs(u32 phase)
++{
++	u32 s3_s2sr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);
++	u32 s3_s2cr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);
++	u32 s3_mmsr = XAxiVdma_ReadReg(XPAR_AXIVDMA_0_BASEADDR, XAXIVDMA_TX_OFFSET + XAXIVDMA_SR_OFFSET);
++	u32 s3_vsz = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x00);
++	u32 s3_hsz = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x04);
++	u32 s3_str = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x08);
++	u32 s3_adr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x0C);
++	xil_printf("S3_DIAG5_REG phase=%u S2MM_CR=0x%08X S2MM_SR=0x%08X FRMCNT=%u HALTED=%u IDLE=%u\r\n",
++		phase, s3_s2cr, s3_s2sr, (s3_s2sr >> XAXIVDMA_FRMCNT_SHIFT) & 0xFFU, s3_s2sr & 0x1U, (s3_s2sr >> 1) & 0x1U);
++	xil_printf("S3_DIAG5_SR_DECODE phase=%u INT=%u SLV=%u DEC=%u FSZ_LESS=%u LSZ_LESS=%u SG_SLV=%u SG_DEC=%u FSZ_MORE=%u FRMCNT_IRQ=%u DLY_IRQ=%u ERR_IRQ=%u LSZ_MORE=%u\r\n",
++		phase, (s3_s2sr >> 4) & 0x1U, (s3_s2sr >> 5) & 0x1U, (s3_s2sr >> 6) & 0x1U, (s3_s2sr >> 7) & 0x1U,
++		(s3_s2sr >> 8) & 0x1U, (s3_s2sr >> 9) & 0x1U, (s3_s2sr >> 10) & 0x1U, (s3_s2sr >> 11) & 0x1U,
++		(s3_s2sr >> 12) & 0x1U, (s3_s2sr >> 13) & 0x1U, (s3_s2sr >> 14) & 0x1U, (s3_s2sr >> 15) & 0x1U);
++	xil_printf("S3_DIAG5_CFG VSIZE=0x%08X HSIZE=0x%08X STRIDE=0x%08X ADDR=0x%08X MM2S_SR=0x%08X\r\n",
++		s3_vsz, s3_hsz, s3_str, s3_adr, s3_mmsr);
++}
++
++/* 只读：cache 失效后回读 DDR 物理内存；打印 4096 个字里的非零字个数与样本字。*/
++static void s3_diag5_site(u32 site, u32 off)
++{
++	volatile u32 *s3_p = (volatile u32 *)((u8 *)dispCtrl.framePtr[dispCtrl.curFrame] + off);
++	u32 s3_i, s3_nz = 0;
++	/* 卡要求：读帧缓冲前先失效 4096 B。NZ 统计覆盖 4096 个字（16 KB），
++	 * 故把剩余 12 KB 一并失效，否则统计区后段可能命中陈旧 cache 行。*/
++	Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096);
++	Xil_DCacheInvalidateRange((INTPTR)s3_p + 4096, 4096 * 4 - 4096);
++	for (s3_i = 0; s3_i < 4096; s3_i++) {
++		if (s3_p[s3_i] != 0U) { s3_nz++; }
++	}
++	xil_printf("S3_DIAG5_NZ site=%u off=0x%06X nz=%u/4096 fb0=%08X %08X %08X %08X %08X %08X %08X %08X +1000=%08X %08X %08X %08X\r\n",
++		site, off, s3_nz,
++		s3_p[0], s3_p[1], s3_p[2], s3_p[3], s3_p[4], s3_p[5], s3_p[6], s3_p[7],
++		s3_p[0x1000 / 4], s3_p[0x1000 / 4 + 1], s3_p[0x1000 / 4 + 2], s3_p[0x1000 / 4 + 3]);
++}
++
++/* 只读：带传输状态检查的 16 位寄存器读（厂商 i2c_reg16_read 不看状态，失败会返回未初始化栈值）。
++ * 返回 0=成功，-1=失败；调用方按任务要求把读不到的值打印成 0xFF。*/
++static int s3_diag5_i2c_read16(u8 dev, u16 reg, u8 *val)
++{
++	u8 s3_wr[2];
++	u8 s3_rd = 0;
++	int s3_st;
++	s3_wr[0] = (u8)(reg >> 8);
++	s3_wr[1] = (u8)(reg & 0xFF);
++	s3_st = XIicPs_MasterSendPolled(&ps_i2c0, s3_wr, 2, dev);
++	while (XIicPs_BusIsBusy(&ps_i2c0)) { }
++	if (s3_st != XST_SUCCESS) { return -1; }
++	s3_st = XIicPs_MasterRecvPolled(&ps_i2c0, &s3_rd, 1, dev);
++	while (XIicPs_BusIsBusy(&ps_i2c0)) { }
++	if (s3_st != XST_SUCCESS) { return -1; }
++	*val = s3_rd;
++	return 0;
++}
++
++static u8 s3_diag5_sens(u16 reg)
++{
++	u8 s3_v = 0xFF;
++	if (s3_diag5_i2c_read16(0x3C, reg, &s3_v) != 0) { s3_v = 0xFF; }
++	return s3_v;
++}
++
++/* ================= S3-DIAG6 帧缓冲 64 KB 区指纹（只读） =================
++ * 算法（五次采样完全相同）：32 位循环进位加和 sum；哈希 = 反射式 CRC-32，
++ *   多项式 0xEDB88320、初值 0xFFFFFFFF、末取反，按小端 32 位字依次喂入
++ *   （等价于对连续 64 KB 字节流做标准 CRC-32/IEEE）。
++ * 读前必须 Xil_DCacheInvalidateRange，否则可能读到 CPU cache 里的陈旧行。
++ * 编译期开关 S3_TESTPATTERN：默认 0；=1 时启动 S2MM 前写 OV5640 0x503D=0x80（彩条测试图）。*/
++#ifndef S3_TESTPATTERN
++#define S3_TESTPATTERN 0
++#endif
++#define S3_DIAG6_FP_BYTES (64 * 1024)
++static XTime s3_t6_start, s3_t6_now;
++
++static u32 s3_diag6_hash(const volatile u32 *p, u32 words, u32 *sum_out, u32 *nz_out)
++{
++	u32 s3_i, s3_b, s3_nz = 0, s3_sum = 0, s3_crc = 0xFFFFFFFFU;
++	for (s3_i = 0; s3_i < words; s3_i++) {
++		u32 s3_w = p[s3_i];
++		s3_sum += s3_w;
++		if (s3_w != 0U) { s3_nz++; }
++		s3_crc ^= s3_w;
++		for (s3_b = 0; s3_b < 32; s3_b++) {
++			if (s3_crc & 1U) { s3_crc = (s3_crc >> 1) ^ 0xEDB88320U; } else { s3_crc >>= 1; }
++		}
++	}
++	*sum_out = s3_sum;
++	*nz_out = s3_nz;
++	return ~s3_crc;
++}
++
++static void s3_diag6_fp(u32 tsec, u32 site, u32 off)
++{
++	volatile u32 *s3_p = (volatile u32 *)((u8 *)dispCtrl.framePtr[dispCtrl.curFrame] + off);
++	u32 s3_sum = 0, s3_nz = 0, s3_hash;
++	Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES);
++	s3_hash = s3_diag6_hash(s3_p, S3_DIAG6_FP_BYTES / 4, &s3_sum, &s3_nz);
++	xil_printf("S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u\r\n", tsec, site, s3_sum, s3_hash, s3_nz);
++}
++
++/* 只读：每次采样同时打印 S2MM SR/CR 与逐位判读（位定义见 S3-DIAG5 注释）。*/
++static void s3_diag6_sr(u32 tsec)
++{
++	u32 s3_sr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);
++	u32 s3_cr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);
++	xil_printf("S3_DIAG6_SR t=%u S2MM_SR=0x%08X S2MM_CR=0x%08X FRMCNT=%u HALTED=%u IDLE=%u INT=%u SLV=%u DEC=%u FSZ_LESS=%u LSZ_LESS=%u FSZ_MORE=%u LSZ_MORE=%u ERR_IRQ=%u\r\n",
++		tsec, s3_sr, s3_cr, (s3_sr >> XAXIVDMA_FRMCNT_SHIFT) & 0xFFU, s3_sr & 0x1U, (s3_sr >> 1) & 0x1U,
++		(s3_sr >> 4) & 0x1U, (s3_sr >> 5) & 0x1U, (s3_sr >> 6) & 0x1U, (s3_sr >> 7) & 0x1U,
++		(s3_sr >> 8) & 0x1U, (s3_sr >> 11) & 0x1U, (s3_sr >> 15) & 0x1U, (s3_sr >> 14) & 0x1U);
++}
++
++/* ================= S3-DIAG7 编译期开关 =================
++ * S3_AWB_OFF：默认 0（AWB 不动，只回读）。=1 时在启动 S2MM 之前把 OV5640 0x5001 的 bit0 清 0
++ * （厂商 init 表 0x5001=0xa3，bit0=1 表示 AWB 使能），用来判定“蓝色分量被压到约 42%”是否由 ISP/AWB 造成。*/
++#ifndef S3_AWB_OFF
++#define S3_AWB_OFF 0
++#endif
++
++/* ================= S3-DIAG8 手动白平衡开关 =================
++ * S3_WB_MANUAL（默认 0）：=1 时在启动 S2MM 之前使能 AWB 手动增益（0x3406=0x01），
++ *   并按 R/G/B 写 0x3400/0x3401、0x3402/0x3403、0x3404/0x3405，然后**回读校验**。
++ * 位域假设（本任务未与 OV5640 手册核对，依据是 v7 上板实测的自动增益读法）：
++ *   增益 = (0x3400<<8)|0x3401，即高字节 = 增益[10:8]（放进 8 位寄存器的低 3 位有效位），
++ *   低字节 = 增益[7:0]；1024 = 0x0400 = 1.0×。v7 实测 R=(0x04<<8)|0x3D=1085、
++ *   G=(0x04<<8)|0x00=1024、B=(0x07<<8)|0xE5=2021 —— 与该读法自洽。
++ * 注意：本轮 B 档位 2048/2560/3072/3584 已超出 11 位（>2047），高字节因此带上 bit11+；
++ *   若回读与写入不一致（例如被截成 0x0600），说明该字段比 12 位更窄，
++ *   实际生效值一律以 UART 的 readback 为准（S3_DIAG8_WB_RB 行给出 match 标志）。*/
++#ifndef S3_WB_MANUAL
++#define S3_WB_MANUAL 0
++#endif
++#ifndef S3_WB_R
++#define S3_WB_R 1024
++#endif
++#ifndef S3_WB_G
++#define S3_WB_G 1024
++#endif
++#ifndef S3_WB_B
++#define S3_WB_B 1024
++#endif
++
++/* ================= S3-DIAG9 DVP 端口控制写测试开关 =================
++ * 背景：19 行样本 24,320 像素实测蓝 bit7 与绿 bit4 置位率均为 0.000% ⇒ DVP 两个字节的 MSB 同时恒 0，
++ *   指向单线 cmos_d[9] 无信号；OV5640 的 0x301D/0x301E 是 D[9:0] 的 output select
++ *   （0=正常数据通路，1=寄存器固定值，按任务卡口径），若 D9 位为 1 则症状完全一致且软件可修。
++ * S3_PAD_SEL_CLEAR（默认 0）：=1 时清 0x301D bit3（D9 select），并视回读结果清 0x301E bit1（D6 select）；
++ *   写前先回读、写后回读校验，全程打印 before/after/readback。
++ * S3_DVP_ORDER_DEBUG（默认 0）：=1 时置 0x4745[2:1]=10，**不自动恢复**（UART 明示 NOT_RESTORED），
++ *   恢复办法：刷回最小改动 ELF 或复位传感器。
++ * 两个开关可同时为 1；任一关键读失败时跳过对应写入（不用不可信的值改写端口控制寄存器）。*/
++#ifndef S3_PAD_SEL_CLEAR
++#define S3_PAD_SEL_CLEAR 0
++#endif
++#ifndef S3_DVP_ORDER_DEBUG
++#define S3_DVP_ORDER_DEBUG 0
++#endif
++
++/* ================= S3-DIAG10 传感器端去色（黑白）尝试 =================
++ * S3_GRAY_TRY（默认 0）：0=只回读不写；1=0x5583=0x5584=0x00（U/V 饱和度置 0，0x5580 不动）；
++ *   2=0x5580 效果位 (rb & ~0xC0) | 0x40；3=(rb & ~0xC0) | 0x80。
++ * 用途：手势识别不需要颜色，黑白可直接消除“偏黄”观感（缺的两位只表现为轻微明暗误差）。
++ * 原则同 v7~v9：写前回读、写后回读校验；关键读失败跳过写入（write_status=-2）。*/
++#ifndef S3_GRAY_TRY
++#define S3_GRAY_TRY 0
++#endif
++
+ int main(void)
+ {
+ 
+ 	int Status;
++	xil_printf("S3_DIAG_APP_ENTER\r\n");
+ 	XAxiVdma_Config *vdmaConfig;
+ 	int i;
+ 
+@@ -91,6 +270,151 @@ int main(void)
+ 	 * Initialize Sensor
+ 	 */
+ 	sensor_init(&ps_i2c0);
++	/* S3-DIAG2: I2C 控制器寄存器 + 整总线扫描 + CHIP ID 重试读取。
++	 * 只读探测：用于区分“I2C 总线/连接不通（无任何 ACK）”与“器件存在但地址/配置不符”。*/
++	{
++		XIicPs *s3_iic = &ps_i2c0;
++		int s3_a, s3_s, s3_s2;
++		int s3_found = 0;
++		u8 s3_wr[2];
++		xil_printf("S3_DIAG2_IIC_BASE=0x%08X\r\n", (unsigned int)s3_iic->Config.BaseAddress);
++		xil_printf("S3_DIAG2_IIC_CR=0x%08X SR=0x%08X ISR=0x%08X\r\n",
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_CR_OFFSET),
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_SR_OFFSET),
++			(unsigned int)XIicPs_ReadReg(s3_iic->Config.BaseAddress, XIICPS_ISR_OFFSET));
++		for (s3_a = 0x08; s3_a < 0x78; s3_a++) {
++			u8 s3_rd = 0;
++			s3_wr[0] = 0x30; s3_wr[1] = 0x0A;
++			s3_s = XIicPs_MasterSendPolled(s3_iic, s3_wr, 2, (u8)s3_a);
++			while (XIicPs_BusIsBusy(s3_iic));
++			if (s3_s != XST_SUCCESS) { continue; }
++			s3_s2 = XIicPs_MasterRecvPolled(s3_iic, &s3_rd, 1, (u8)s3_a);
++			while (XIicPs_BusIsBusy(s3_iic));
++			xil_printf("S3_DIAG2_DEV=0x%02X recv=%d val=0x%02X\r\n", s3_a, s3_s2, s3_rd);
++			s3_found++;
++		}
++		xil_printf("S3_DIAG2_SCAN_ACK_COUNT=%d\r\n", s3_found);
++		{
++			int s3_t;
++			for (s3_t = 0; s3_t < 3; s3_t++) {
++				u8 s3_h = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300A);
++				u8 s3_l = (u8)i2c_reg16_read(s3_iic, 0x3c, 0x300B);
++				xil_printf("S3_DIAG2_CHIPID_TRY%d=0x%02X%02X\r\n", s3_t, s3_h, s3_l);
++				usleep(200000);
++			}
++		}
++	}
++	/* S3-DIAG3: 回读传感器关键寄存器，确认 sensor_init 的写是否生效（帧尺寸不匹配时用）*/
++	{
++		u8 d_3808 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3808);
++		u8 d_3809 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3809);
++		u8 d_380a = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380A);
++		u8 d_380b = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380B);
++		u8 d_380e = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380E);
++		u8 d_380f = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x380F);
++		u8 d_3035 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3035);
++		u8 d_3034 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x3034);
++		u8 d_4300 = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x4300);
++		u8 d_501f = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x501F);
++		xil_printf("S3_DIAG3_OUT_W=0x%02X%02X(exp 0x0500)\r\n", d_3808, d_3809);
++		xil_printf("S3_DIAG3_OUT_H=0x%02X%02X(exp 0x02D0)\r\n", d_380a, d_380b);
++		xil_printf("S3_DIAG3_VTS=0x%02X%02X\r\n", d_380e, d_380f);
++		xil_printf("S3_DIAG3_3035=0x%02X 3034=0x%02X 4300=0x%02X 501F=0x%02X\r\n", d_3035, d_3034, d_4300, d_501f);
++	}
++	/* S3-DIAG5-SENS: 传感器关键寄存器只读回显（不做任何写）。
++	 * 用于区分“传感器停流/极性异常”与“PL 侧引脚/连线问题”：读不到的寄存器打印 0xFF。
++	 * 4202=streaming 控制(0x00=stream on) 3008=system control(bit6 软复位/bit1 standby)
++	 * 4740=DVP 极性(bit5 VSYNC/bit4 HREF/bit3 PCLK) 3035/3034=时钟分频 4300=输出格式
++	 * 501F=ISP 输入格式 3824=PCLK 手动分频 503D=test pattern 使能*/
++	{
++		u8 s3_4202 = s3_diag5_sens(0x4202);
++		u8 s3_3008 = s3_diag5_sens(0x3008);
++		u8 s3_4740 = s3_diag5_sens(0x4740);
++		u8 s3_3035v = s3_diag5_sens(0x3035);
++		u8 s3_3034v = s3_diag5_sens(0x3034);
++		u8 s3_4300v = s3_diag5_sens(0x4300);
++		u8 s3_501fv = s3_diag5_sens(0x501F);
++		u8 s3_3824v = s3_diag5_sens(0x3824);
++		u8 s3_503dv = s3_diag5_sens(0x503D);
++		xil_printf("S3_DIAG5_SENS=4202=0x%02X 3008=0x%02X 4740=0x%02X 3035=0x%02X 3034=0x%02X 4300=0x%02X 501F=0x%02X 3824=0x%02X 503D=0x%02X\r\n",
++			s3_4202, s3_3008, s3_4740, s3_3035v, s3_3034v, s3_4300v, s3_501fv, s3_3824v, s3_503dv);
++	}
++	/* S3-DIAG7: ISP/AWB/AEC 只读回读（不做任何写）。读不到的寄存器打印 0xFF。
++	 * 5001=ISP 使能(bit0=AWB) 3406=AWB 手动增益使能 3400..3405=AWB 增益(R,G,B 各 16 位，高/低字节)
++	 * 3503=AEC/AGC 手动控制 3500..3502=AEC 曝光(4+8+8 位) 5580..558B=ISP 控制/特效 3035=PLL 分频*/
++	{
++		u8 s3_5001 = s3_diag5_sens(0x5001);
++		u8 s3_3406 = s3_diag5_sens(0x3406);
++		u8 s3_3400 = s3_diag5_sens(0x3400);
++		u8 s3_3401 = s3_diag5_sens(0x3401);
++		u8 s3_3402 = s3_diag5_sens(0x3402);
++		u8 s3_3403 = s3_diag5_sens(0x3403);
++		u8 s3_3404 = s3_diag5_sens(0x3404);
++		u8 s3_3405 = s3_diag5_sens(0x3405);
++		u8 s3_503d = s3_diag5_sens(0x503D);
++		u8 s3_4300 = s3_diag5_sens(0x4300);
++		u8 s3_501f = s3_diag5_sens(0x501F);
++		u8 s3_3503 = s3_diag5_sens(0x3503);
++		u8 s3_3500 = s3_diag5_sens(0x3500);
++		u8 s3_3501 = s3_diag5_sens(0x3501);
++		u8 s3_3502 = s3_diag5_sens(0x3502);
++		u8 s3_3035 = s3_diag5_sens(0x3035);
++		u8 s3_5580 = s3_diag5_sens(0x5580);
++		u8 s3_5581 = s3_diag5_sens(0x5581);
++		u8 s3_5582 = s3_diag5_sens(0x5582);
++		u8 s3_5583 = s3_diag5_sens(0x5583);
++		u8 s3_5584 = s3_diag5_sens(0x5584);
++		u8 s3_5585 = s3_diag5_sens(0x5585);
++		u8 s3_5586 = s3_diag5_sens(0x5586);
++		u8 s3_5587 = s3_diag5_sens(0x5587);
++		u8 s3_5588 = s3_diag5_sens(0x5588);
++		u8 s3_5589 = s3_diag5_sens(0x5589);
++		u8 s3_558a = s3_diag5_sens(0x558A);
++		u8 s3_558b = s3_diag5_sens(0x558B);
++		xil_printf("S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X\r\n",
++			s3_5001, s3_3406, s3_3400, s3_3401, s3_3402, s3_3403, s3_3404, s3_3405, s3_503d, s3_4300, s3_501f);
++		xil_printf("S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X\r\n",
++			s3_3503, s3_3500, s3_3501, s3_3502, s3_3035);
++		xil_printf("S3_DIAG7_ISP_A=5580..5585=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\r\n",
++			s3_5580, s3_5581, s3_5582, s3_5583, s3_5584, s3_5585);
++		xil_printf("S3_DIAG7_ISP_B=5586..558B=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\r\n",
++			s3_5586, s3_5587, s3_5588, s3_5589, s3_558a, s3_558b);
++	}
++	/* S3-DIAG9: DVP 端口/数据线 output select 只读回读（不做任何写）。
++	 * 关键位：0x301D bit3 = D9 output select、0x301E bit1 = D6 output select（1=该线输出寄存器固定值）。
++	 * 注意：D9SEL/D6SEL 在读失败时打印 255（=未知），不会被误读成“置位 1”。*/
++	{
++		u8 s3_9_3017 = s3_diag5_sens(0x3017);
++		u8 s3_9_3018 = s3_diag5_sens(0x3018);
++		u8 s3_9_301d = 0;
++		u8 s3_9_301e = 0;
++		u8 s3_9_300a = s3_diag5_sens(0x300A);
++		u8 s3_9_300b = s3_diag5_sens(0x300B);
++		u8 s3_9_4741 = s3_diag5_sens(0x4741);
++		u8 s3_9_4745 = s3_diag5_sens(0x4745);
++		u8 s3_9_4300 = s3_diag5_sens(0x4300);
++		u8 s3_9_501f = s3_diag5_sens(0x501F);
++		u32 s3_9_d9 = 255U, s3_9_d6 = 255U;
++		if (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9_301d) != 0) {
++			s3_9_301d = 0xFF;
++		} else {
++			s3_9_d9 = ((u32)s3_9_301d >> 3) & 1U;
++		}
++		if (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9_301e) != 0) {
++			s3_9_301e = 0xFF;
++		} else {
++			s3_9_d6 = ((u32)s3_9_301e >> 1) & 1U;
++		}
++		xil_printf("S3_DIAG9_PAD=3017=0x%02X 3018=0x%02X 301D=0x%02X 301E=0x%02X 300A=0x%02X 300B=0x%02X 4741=0x%02X 4745=0x%02X 4300=0x%02X 501F=0x%02X S3_DIAG9_D9SEL=%u D6SEL=%u\r\n",
++			s3_9_3017, s3_9_3018, s3_9_301d, s3_9_301e, s3_9_300a, s3_9_300b,
++			s3_9_4741, s3_9_4745, s3_9_4300, s3_9_501f, s3_9_d9, s3_9_d6);
++	}
++	/* S3-DIAG: 传感器 I2C 连通性诊断；OV5640 CHIP ID 期望 0x5640 */
++	{
++		u8 s3_id_hi = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300A);
++		u8 s3_id_lo = (u8)i2c_reg16_read(&ps_i2c0, 0x3c, 0x300B);
++		xil_printf("S3_DIAG_SENSOR_ID=0x%02X%02X\r\n", s3_id_hi, s3_id_lo);
++	}
+ 	/*
+ 	 * Initialize VDMA driver
+ 	 */
+@@ -117,6 +441,7 @@ int main(void)
+ 
+ 	}
+ 	Status = DisplayStart(&dispCtrl);
++	xil_printf("S3_DIAG_DISPLAY_START status=%d\r\n", Status);
+ 	if (Status != XST_SUCCESS)
+ 	{
+ 		xil_printf("Couldn't start display during demo initialization%d\r\n", Status);
+@@ -124,10 +449,247 @@ int main(void)
+ 	}
+ 	/* Clear frame buffer */
+ 	memset(dispCtrl.framePtr[dispCtrl.curFrame], 0, 1920 * 1080 * 3);
++	/* S3-DIAG5: memset 只写进 CPU cache（dirty 行）。不 flush 的话，S2MM 写进 DDR 的数据
++	 * 会被之后 cache 行回写覆盖，且 CPU 回读会命中脏零行 —— v4“帧缓冲全 0”的根因之一。*/
++	Xil_DCacheFlushRange((INTPTR)dispCtrl.framePtr[dispCtrl.curFrame], 1920 * 1080 * 3);
+ 	/* Start Sensor Vdma */
++	/* S3-DIAG6: 编译期开关 S3_TESTPATTERN（默认 0）。=1 时在启动 S2MM 之前写 OV5640 0x503D=0x80
++	 * 打开彩条测试图（用于颜色判读）；=0 时只打印 OFF，便于区分手里是哪个 ELF。*/
++#if S3_TESTPATTERN
++	{
++		int s3_tp_st = i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80);
++		xil_printf("S3_DIAG6_TESTPATTERN=ON write_status=%d\r\n", s3_tp_st);
++	}
++#else
++	xil_printf("S3_DIAG6_TESTPATTERN=OFF\r\n");
++#endif
++	/* S3-DIAG7: 编译期开关 S3_AWB_OFF（默认 0）。=1 时在启动 S2MM 之前关闭 AWB：
++	 * 0x5001 = (读回值 & ~0x01)。若读回失败（0xFF）则跳过写入并打印 write_status=-2，
++	 * 避免用不可信的值改写 ISP 使能寄存器；写入后再回读一次确认。*/
++#if S3_AWB_OFF
++	{
++		u8 s3_awb_before = s3_diag5_sens(0x5001);
++		u8 s3_awb_after = (u8)(s3_awb_before & (u8)~0x01U);
++		int s3_awb_wr = -2;
++		u8 s3_awb_rd = 0xFF;
++		if (s3_awb_before != 0xFF) {
++			s3_awb_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x5001, (char)s3_awb_after);
++			s3_awb_rd = s3_diag5_sens(0x5001);
++		} else {
++			s3_awb_after = 0xFF;
++			xil_printf("S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed\r\n");
++		}
++		xil_printf("S3_DIAG7_AWB_OFF=ON before=0x%02X after=0x%02X write_status=%d\r\n",
++			s3_awb_before, s3_awb_after, s3_awb_wr);
++		xil_printf("S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X\r\n", s3_awb_rd);
++	}
++#else
++	xil_printf("S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)\r\n");
++#endif
++	/* S3-DIAG8: 手动白平衡（编译期开关 S3_WB_MANUAL）。=1 时在启动 S2MM 之前：
++	 * 0x3406=0x01 使能 AWB 手动增益，再按位域假设写 R/G/B 增益高位/低位，并立即回读校验。*/
++#if S3_WB_MANUAL
++	{
++		u16 s3_wb_r = (u16)S3_WB_R;
++		u16 s3_wb_g = (u16)S3_WB_G;
++		u16 s3_wb_b = (u16)S3_WB_B;
++		u8 s3_wb_3406a = 0;
++		u8 s3_wb_3406b = 0;
++		u8 s3_wb_rb0 = 0, s3_wb_rb1 = 0, s3_wb_rb2 = 0, s3_wb_rb3 = 0, s3_wb_rb4 = 0, s3_wb_rb5 = 0;
++		u32 s3_wb_rd_r, s3_wb_rd_g, s3_wb_rd_b;
++		int s3_wb_wr;
++		s3_wb_3406a = s3_diag5_sens(0x3406);
++		s3_wb_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x3406, 0x01);
++		s3_wb_3406b = s3_diag5_sens(0x3406);
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3400, (char)((s3_wb_r >> 8) & 0xFF));
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3401, (char)(s3_wb_r & 0xFF));
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3402, (char)((s3_wb_g >> 8) & 0xFF));
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3403, (char)(s3_wb_g & 0xFF));
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3404, (char)((s3_wb_b >> 8) & 0xFF));
++		s3_wb_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x3405, (char)(s3_wb_b & 0xFF));
++		s3_wb_rb0 = s3_diag5_sens(0x3400);
++		s3_wb_rb1 = s3_diag5_sens(0x3401);
++		s3_wb_rb2 = s3_diag5_sens(0x3402);
++		s3_wb_rb3 = s3_diag5_sens(0x3403);
++		s3_wb_rb4 = s3_diag5_sens(0x3404);
++		s3_wb_rb5 = s3_diag5_sens(0x3405);
++		s3_wb_rd_r = ((u32)s3_wb_rb0 << 8) | (u32)s3_wb_rb1;
++		s3_wb_rd_g = ((u32)s3_wb_rb2 << 8) | (u32)s3_wb_rb3;
++		s3_wb_rd_b = ((u32)s3_wb_rb4 << 8) | (u32)s3_wb_rb5;
++		xil_printf("S3_DIAG8_WB=MANUAL R=0x%04X G=0x%04X B=0x%04X before3406=0x%02X after3406=0x%02X readback3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\r\n",
++			s3_wb_r, s3_wb_g, s3_wb_b, s3_wb_3406a, s3_wb_3406b,
++			s3_wb_rb0, s3_wb_rb1, s3_wb_rb2, s3_wb_rb3, s3_wb_rb4, s3_wb_rb5);
++		xil_printf("S3_DIAG8_WB_RB rb_r16=0x%04X rb_g16=0x%04X rb_b16=0x%04X match=%u,%u,%u write_status=%d\r\n",
++			s3_wb_rd_r, s3_wb_rd_g, s3_wb_rd_b,
++			(s3_wb_rd_r == (u32)s3_wb_r) ? 1U : 0U, (s3_wb_rd_g == (u32)s3_wb_g) ? 1U : 0U,
++			(s3_wb_rd_b == (u32)s3_wb_b) ? 1U : 0U, s3_wb_wr);
++	}
++#else
++	xil_printf("S3_DIAG8_WB=OFF (auto AWB unchanged)\r\n");
++#endif
++	/* S3-DIAG9: 两个可选写测试（编译期开关，默认 0）。
++	 * 原则：先回读原值 → 写 → 回读校验；关键读失败的寄存器跳过写入（write_status=-2），
++	 * 避免用不可信的值改写端口控制寄存器。*/
++#if S3_PAD_SEL_CLEAR
++	{
++		u8 s3_9d_before = 0, s3_9d_after = 0, s3_9d_rb = 0xFF;
++		u8 s3_9e_before = 0, s3_9e_after = 0, s3_9e_rb = 0xFF;
++		int s3_9d_ok, s3_9e_ok, s3_9_skip = 0, s3_9_wr = 0;
++		s3_9d_ok = (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9d_before) == 0);
++		s3_9e_ok = (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9e_before) == 0);
++		if (s3_9d_ok) {
++			s3_9d_after = (u8)(s3_9d_before & (u8)~0x08U);
++			s3_9_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x301D, (char)s3_9d_after);
++			if (s3_diag5_i2c_read16(0x3C, 0x301D, &s3_9d_rb) != 0) { s3_9d_rb = 0xFF; }
++		} else {
++			s3_9d_before = 0xFF; s3_9d_after = 0xFF; s3_9d_rb = 0xFF; s3_9_skip = 1;
++			xil_printf("S3_DIAG9_FIX_SKIPPED reg=301D reason=read_failed\r\n");
++		}
++		if (s3_9e_ok) {
++			if ((s3_9e_before & 0x02U) != 0U) {
++				s3_9e_after = (u8)(s3_9e_before & (u8)~0x02U);
++				s3_9_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x301E, (char)s3_9e_after);
++				if (s3_diag5_i2c_read16(0x3C, 0x301E, &s3_9e_rb) != 0) { s3_9e_rb = 0xFF; }
++			} else {
++				s3_9e_after = s3_9e_before; s3_9e_rb = s3_9e_before;
++				xil_printf("S3_DIAG9_FIX_SKIP_301E=1 reason=bit1_already_0_no_write\r\n");
++			}
++		} else {
++			s3_9e_before = 0xFF; s3_9e_after = 0xFF; s3_9e_rb = 0xFF; s3_9_skip = 1;
++			xil_printf("S3_DIAG9_FIX_SKIPPED reg=301E reason=read_failed\r\n");
++		}
++		xil_printf("S3_DIAG9_FIX=301D before=0x%02X after=0x%02X readback=0x%02X 301E before=0x%02X after=0x%02X readback=0x%02X write_status=%d\r\n",
++			s3_9d_before, s3_9d_after, s3_9d_rb, s3_9e_before, s3_9e_after, s3_9e_rb,
++			s3_9_skip ? -2 : s3_9_wr);
++	}
++#endif
++#if S3_DVP_ORDER_DEBUG
++	{
++		u8 s3_9o_before = 0, s3_9o_after = 0, s3_9o_rb = 0xFF;
++		int s3_9o_wr = 0;
++		if (s3_diag5_i2c_read16(0x3C, 0x4745, &s3_9o_before) == 0) {
++			s3_9o_after = (u8)((s3_9o_before & (u8)~0x06U) | 0x04U);
++			s3_9o_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_after);
++			if (s3_diag5_i2c_read16(0x3C, 0x4745, &s3_9o_rb) != 0) { s3_9o_rb = 0xFF; }
++		} else {
++			s3_9o_before = 0xFF; s3_9o_after = 0xFF; s3_9o_rb = 0xFF; s3_9o_wr = -2;
++			xil_printf("S3_DIAG9_ORDER_SKIPPED reason=0x4745_read_failed\r\n");
++		}
++		xil_printf("S3_DIAG9_ORDER_WR=4745 before=0x%02X after=0x%02X readback=0x%02X write_status=%d\r\n",
++			s3_9o_before, s3_9o_after, s3_9o_rb, s3_9o_wr);
++		xil_printf("S3_DIAG9_ORDER=NOT_RESTORED no_auto_restore=1 (restore: reload minimal-change ELF or reset sensor)\r\n");
++	}
++#else
++	xil_printf("S3_DIAG9_ORDER=OFF (0x4745 unchanged)\r\n");
++#endif
++	/* S3-DIAG10: 传感器端去色（黑白）尝试（编译期 S3_GRAY_TRY=0/1/2/3，见 S3-DIAG10 注释）。
++	 * 统一打印 5580/5583/5584 的 before/after/readback；读失败跳过写入。*/
++	{
++		u8 s3_10_5580 = 0, s3_10_5583 = 0, s3_10_5584 = 0;
++		u8 s3_10_5580_a, s3_10_5583_a, s3_10_5584_a;
++		u8 s3_10_5580_rb = 0xFF, s3_10_5583_rb = 0xFF, s3_10_5584_rb = 0xFF;
++		int s3_10_ok80, s3_10_ok83, s3_10_ok84, s3_10_wr = 0, s3_10_skip = 0;
++		s3_10_ok80 = (s3_diag5_i2c_read16(0x3C, 0x5580, &s3_10_5580) == 0);
++		s3_10_ok83 = (s3_diag5_i2c_read16(0x3C, 0x5583, &s3_10_5583) == 0);
++		s3_10_ok84 = (s3_diag5_i2c_read16(0x3C, 0x5584, &s3_10_5584) == 0);
++		if (!s3_10_ok80) { s3_10_5580 = 0xFF; }
++		if (!s3_10_ok83) { s3_10_5583 = 0xFF; }
++		if (!s3_10_ok84) { s3_10_5584 = 0xFF; }
++		s3_10_5580_a = s3_10_5580;
++		s3_10_5583_a = s3_10_5583;
++		s3_10_5584_a = s3_10_5584;
++#if S3_GRAY_TRY == 1
++		if (s3_10_ok83) {
++			s3_10_5583_a = 0x00;
++			s3_10_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x5583, 0x00);
++		} else {
++			s3_10_5583_a = 0xFF; s3_10_skip = 1;
++			xil_printf("S3_DIAG10_GRAY_SKIPPED reg=5583 reason=read_failed\r\n");
++		}
++		if (s3_10_ok84) {
++			s3_10_5584_a = 0x00;
++			s3_10_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x5584, 0x00);
++		} else {
++			s3_10_5584_a = 0xFF; s3_10_skip = 1;
++			xil_printf("S3_DIAG10_GRAY_SKIPPED reg=5584 reason=read_failed\r\n");
++		}
++		xil_printf("S3_DIAG10_GRAY_NOTE=TRY1_sat_uv_zero (0x5583=0x5584=0x00, 0x5580 unchanged)\r\n");
++#elif S3_GRAY_TRY == 2
++		if (s3_10_ok80) {
++			s3_10_5580_a = (u8)((s3_10_5580 & (u8)~0xC0U) | 0x40U);
++			s3_10_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x5580, (char)s3_10_5580_a);
++		} else {
++			s3_10_5580_a = 0xFF; s3_10_skip = 1;
++			xil_printf("S3_DIAG10_GRAY_SKIPPED reg=5580 reason=read_failed\r\n");
++		}
++		xil_printf("S3_DIAG10_GRAY_NOTE=TRY2_effect_40 (0x5580[7:6]=10)\r\n");
++#elif S3_GRAY_TRY == 3
++		if (s3_10_ok80) {
++			s3_10_5580_a = (u8)((s3_10_5580 & (u8)~0xC0U) | 0x80U);
++			s3_10_wr |= i2c_reg16_write(&ps_i2c0, 0x3c, 0x5580, (char)s3_10_5580_a);
++		} else {
++			s3_10_5580_a = 0xFF; s3_10_skip = 1;
++			xil_printf("S3_DIAG10_GRAY_SKIPPED reg=5580 reason=read_failed\r\n");
++		}
++		xil_printf("S3_DIAG10_GRAY_NOTE=TRY3_effect_80 (0x5580[7:6]=11)\r\n");
++#else
++		xil_printf("S3_DIAG10_GRAY_NOTE=TRY0_read_only_no_write\r\n");
++#endif
++		if (s3_diag5_i2c_read16(0x3C, 0x5580, &s3_10_5580_rb) != 0) { s3_10_5580_rb = 0xFF; }
++		if (s3_diag5_i2c_read16(0x3C, 0x5583, &s3_10_5583_rb) != 0) { s3_10_5583_rb = 0xFF; }
++		if (s3_diag5_i2c_read16(0x3C, 0x5584, &s3_10_5584_rb) != 0) { s3_10_5584_rb = 0xFF; }
++		xil_printf("S3_DIAG10_GRAY=TRY=%d 5580 before=0x%02X after=0x%02X readback=0x%02X | 5583 before=0x%02X after=0x%02X readback=0x%02X | 5584 before=0x%02X after=0x%02X readback=0x%02X write_status=%d\r\n",
++			(int)S3_GRAY_TRY, s3_10_5580, s3_10_5580_a, s3_10_5580_rb,
++			s3_10_5583, s3_10_5583_a, s3_10_5583_rb,
++			s3_10_5584, s3_10_5584_a, s3_10_5584_rb,
++			s3_10_skip ? -2 : s3_10_wr);
++	}
++	/* S3-DIAG4: 采集 IP 内部有 200M+100M 个 PCLK 周期的上电等待（见 alinx_ov5640.v 的
++	 * reset_cnt / fifo_ready_cnt），若不等它就绪就启动 S2MM，会在第一帧落下帧尺寸粘滞错误。*/
++	xil_printf("S3_DIAG4_WAIT_START\r\n");
++	{
++		int s3_w;
++		for (s3_w = 0; s3_w < 15; s3_w++) { sleep(1); }
++	}
++	xil_printf("S3_DIAG4_WAIT_DONE\r\n");
+ 	vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
++	xil_printf("S3_DIAG_VDMA_WRITE_STARTED\r\n");
++	/* S3-DIAG6: 启动后 t≈5/10/15/20/25 秒各做一次 64 KB×3 区指纹（先失效 cache 再读物理内存），
++	 * 同一批内存每次都用同一算法与同一范围，用于判断是否为活视频（取代 v5 的三次 16 KB 采样）。*/
++	xil_printf("S3_DIAG6_ALGO=sum32+crc32(0xEDB88320) bytes=65536 sites=0x000000,0x080000,0x100000\r\n");
++	s3_diag5_regs(0);
++	XTime_GetTime(&s3_t6_start);
++	{
++		int s3_k, s3_s;
++		for (s3_k = 0; s3_k < 5; s3_k++) {
++			u32 s3_tsec;
++			for (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }
++			XTime_GetTime(&s3_t6_now);
++			s3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);
++			xil_printf("S3_DIAG6_SAMPLE=%d\r\n", s3_k + 1);
++			s3_diag6_sr(s3_tsec);
++			s3_diag6_fp(s3_tsec, 0, 0x000000U);
++			s3_diag6_fp(s3_tsec, 1, 0x080000U);
++			s3_diag6_fp(s3_tsec, 2, 0x100000U);
++		}
++		/* t≈30 s：再等 5 秒后回读传感器，判断传感器是否仍在流 */
++		for (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }
++	}
++	XTime_GetTime(&s3_t6_now);
++	{
++		u32 s3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);
++		u8 s3_s6_4202 = s3_diag5_sens(0x4202);
++		u8 s3_s6_3008 = s3_diag5_sens(0x3008);
++		u8 s3_s6_503d = s3_diag5_sens(0x503D);
++		u8 s3_s6_3035 = s3_diag5_sens(0x3035);
++		xil_printf("S3_DIAG6_SENS=4202=0x%02X 3008=0x%02X 503D=0x%02X 3035=0x%02X t=%u\r\n",
++			s3_s6_4202, s3_s6_3008, s3_s6_503d, s3_s6_3035, s3_tsec);
++	}
++	xil_printf("S3_DIAG6_SAMPLING_DONE\r\n");
+ 
+-	return 0;
++	/* S3-DIAG5: main 不再返回（原 return 0 已删除）—— 保持显示中断/S2MM 持续运行，
++	 * 避免退出路径影响观测。*/
++	for (;;) { sleep(1); }
+ }
+ 
+ 

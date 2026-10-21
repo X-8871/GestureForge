@@ -1,0 +1,146 @@
+{
+  "task_id": "S4-A",
+  "checker_version": "r02",
+  "status": "PASS",
+  "generated_at_utc8": "2026-10-21T21:56:16+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_draft_20261021_r04",
+  "exit_code": 0,
+  "cwd": "D:\\codex-worktrees\\w4",
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "evidence_files": [
+    {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+      "sha256": "1d7fd5f02bc4948fc6aa16734bf7bd258c1be34d2141f67eb487a2449f3be350",
+      "purpose": "被审契约"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4A_stage4_g0_tracking_and_timing_draft.md",
+      "sha256": "a2232657d3ea6117dc00c8434975d80bea8302a1d041122549606ee7432a49af",
+      "purpose": "被审人读草案"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4a\\verify_s4a_draft.py",
+      "sha256": "8e9f78d219c3d962b1b29cf0520e09e0a83ca5d06e03fa62d583ee8fd643501e",
+      "purpose": "本自检脚本"
+    }
+  ],
+  "passes": [
+    "契约 JSON 可解析且必需键齐全",
+    "上游带 SHA 的 8 项绑定全部复算一致",
+    "T25 分片计数与上游恢复清单一致：109 个 / 390700998 B",
+    "T25 分片逐片 SHA-256 全部一致（109/109）",
+    "md §3.2/§3.3 与 JSON 字段集合双向相等、标注逐字段一致（结果 16 项、检测 6 项）",
+    "md §3.4 状态表与 JSON state_enum 键集合严格相等且恰为 5 个状态",
+    "2A 冻结常量与上游文件一致（14 项：manifest detection_postprocess/address_map.heads 与 T29 head_tensors）",
+    "草案未冻结值显式标注（DRAFT_PROPOSED / 未冻结 / WARNING）"
+  ],
+  "failures": [],
+  "details": {
+    "upstream_sha": [
+      {
+        "id": "s2a_t01_spec",
+        "path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\S2A-T01_模型交付规格与G0接口冻结.md",
+        "expected": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+        "actual": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+        "status": "MATCH"
+      },
+      {
+        "id": "s2a_t01_model_manifest",
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+        "expected": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+        "actual": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+        "status": "MATCH"
+      },
+      {
+        "id": "s2a_t01_fixed_test_samples",
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T01\\fixed_test_samples.json",
+        "expected": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+        "actual": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+        "status": "MATCH"
+      },
+      {
+        "id": "s2a_t25_layer_golden_index",
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json",
+        "expected": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+        "actual": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+        "status": "MATCH"
+      },
+      {
+        "id": "s2a_t25_shard_recovery_manifest",
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\t25_shard_recovery_manifest_20261002.json",
+        "expected": "5352b2ef6edb8f40bb1e635aaa1337556171937db176db841fb044406657d0d9",
+        "actual": "5352b2ef6edb8f40bb1e635aaa1337556171937db176db841fb044406657d0d9",
+        "status": "MATCH"
+      },
+      {
+        "id": "s2a_t29_cpu_decode_nms_reference",
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+        "expected": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+        "actual": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+        "status": "MATCH"
+      },
+      {
+        "id": "s1_t02_d9_decoder",
+        "path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d9_yolo_decode.py",
+        "expected": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+        "actual": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+        "status": "MATCH"
+      },
+      {
+        "id": "s1_t02_d6_metrics",
+        "path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d6_detection_metrics.py",
+        "expected": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+        "actual": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+        "status": "MATCH"
+      }
+    ],
+    "tensor_shards": {
+      "dir": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors",
+      "observed_file_count": 109,
+      "observed_total_bytes": 390700998,
+      "authority_manifest": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\t25_shard_recovery_manifest_20261002.json",
+        "declared": {
+          "sample_count": 109,
+          "total_bytes": 390700998
+        }
+      },
+      "contract_declared": {
+        "file_count": 109,
+        "total_bytes": 390700998
+      },
+      "status": "MATCH",
+      "shard_sha_checked": 109,
+      "shard_sha_bad": []
+    },
+    "result_table_duplicate_rows": [],
+    "result_table_md_only": [],
+    "result_table_json_only": [],
+    "result_table_annotation_mismatch": [],
+    "result_table_field_count": 16,
+    "detection_table_duplicate_rows": [],
+    "detection_table_md_only": [],
+    "detection_table_json_only": [],
+    "detection_table_annotation_mismatch": [],
+    "detection_table_field_count": 6,
+    "state_md": [
+      "DROPPED",
+      "ERROR",
+      "NO_HAND",
+      "OK",
+      "TIMEOUT"
+    ],
+    "state_json": [
+      "DROPPED",
+      "ERROR",
+      "NO_HAND",
+      "OK",
+      "TIMEOUT"
+    ],
+    "frozen_constant_checks": {
+      "checked": 14,
+      "mismatches": []
+    }
+  }
+}

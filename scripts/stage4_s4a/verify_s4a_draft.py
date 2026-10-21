@@ -98,7 +98,12 @@ def compare_md_table(
     failures: list[str],
     details: dict,
 ) -> None:
-    """双向比对 md 表格与 JSON 字段定义（集合相等 + 逐字段标注一致）。"""
+    """双向比对 md 表格与 JSON 字段定义（集合相等 + 无重复行 + 逐字段标注一致）。"""
+    name_list = [row[0] for row in rows]
+    duplicates = sorted({name for name in name_list if name_list.count(name) > 1})
+    details[f"{table_name}_duplicate_rows"] = duplicates
+    if duplicates:
+        failures.append(f"{table_name}：md 表格存在重复字段行 {duplicates}")
     md_map = {row[0]: {"required": row[2] == "是", "frozen_by_2a": row[3] == "是"} for row in rows}
     json_map = {item["name"]: {"required": bool(item["required"]), "frozen_by_2a": bool(item["frozen_by_2a"])} for item in json_fields}
     md_only = sorted(set(md_map) - set(json_map))
@@ -251,13 +256,16 @@ def main() -> int:
         failures.append(f"无法解析状态枚举表：{exc}")
     else:
         md_states = {row[0] for row in state_rows}
-        json_states = {key for key in contract["state_enum"] if key in STATES}
+        json_states = set(contract["state_enum"])
         details["state_md"] = sorted(md_states)
         details["state_json"] = sorted(json_states)
         if md_states != json_states or json_states != set(STATES):
-            failures.append(f"状态集合不一致：md={sorted(md_states)} json={sorted(json_states)} 期望={list(STATES)}")
+            failures.append(
+                f"状态集合不严格相等：md={sorted(md_states)} json={sorted(json_states)} 期望恰为={list(STATES)}"
+                "（state_enum 中混入非状态键或漏状态都会判 FAIL）"
+            )
         else:
-            passes.append("md §3.4 状态表与 JSON state_enum 状态集合一致（5/5）")
+            passes.append("md §3.4 状态表与 JSON state_enum 键集合严格相等且恰为 5 个状态")
 
     # 6. 2A 冻结常量：从上游文件读取比对（修复 F3）
     frozen = contract["frozen_2a_constants"]

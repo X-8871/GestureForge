@@ -33,6 +33,17 @@ def _save(path: Path, value: object) -> bytes:
     return raw
 
 
+def _save_epoch_causality(run_dir: Path, stage: str, value: dict) -> bytes:
+    """以独立不可覆盖文件保存各阶段的epoch因果快照。"""
+    filenames = {
+        "after_normal_start": "deadline_epoch_causality_after_normal_start.json",
+        "after_core_timeout": "deadline_epoch_causality_after_core_timeout.json",
+        "after_drain_limit": "deadline_epoch_causality_after_drain_limit.json",
+    }
+    model.require(stage in filenames, "未知epoch因果快照阶段：" + str(stage))
+    return _save(run_dir / filenames[stage], value)
+
+
 def _binding(path: Path) -> dict:
     actual = transport.exact_path(path)
     return {"path": str(actual), "sha256": transport.digest(actual.read_bytes())}
@@ -518,7 +529,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
                                       "after_normal_ack_csr_epoch": _epoch(after_normal),
                                       "after_normal_ack_snapshot": after_normal}
         results["uart_epoch_state"] = "STALE_AFTER_EXTERNAL_DAP_START"
-        _save(run_dir / "deadline_epoch_causality.json", results["epoch_causality"])
+        _save_epoch_causality(run_dir, "after_normal_start", results["epoch_causality"])
 
         core_dir = fresh_run("csr_deadline_core_timeout")
         transport.new_directory(core_dir, parent=t20_root)
@@ -561,7 +572,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
                                           after_core_ack_csr_epoch=_epoch(post_core),
                                           after_core_ack_snapshot=post_core,
                                           next_drain_start_expected_epoch=first_external_epoch + 1)
-        _save(run_dir / "deadline_epoch_causality.json", results["epoch_causality"])
+        _save_epoch_causality(run_dir, "after_core_timeout", results["epoch_causality"])
 
         drain_dir = fresh_run("csr_deadline_drain_limit")
         transport.new_directory(drain_dir, parent=t20_root)
@@ -633,7 +644,7 @@ def execute(controller, wire, config: dict, checked: dict, apis, admission: dict
         results["epoch_causality"].update(
             drain_timeout_terminal_epoch=second_external_epoch,
             after_drain_ack_csr_epoch=_epoch(drain_after), after_drain_ack_snapshot=drain_after)
-        _save(run_dir / "deadline_epoch_causality.json", results["epoch_causality"])
+        _save_epoch_causality(run_dir, "after_drain_limit", results["epoch_causality"])
 
         pre_diag = controller.stable_csr("t20.csr_deadline.before_mode0_epoch_diag")
         csr.checked_snapshot(pre_diag); csr.idle(pre_diag)

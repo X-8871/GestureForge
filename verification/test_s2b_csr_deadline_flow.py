@@ -79,6 +79,41 @@ def diag_response(epoch, sequence=1, frame=0):
 
 
 class DeadlineFlowTests(unittest.TestCase):
+    def test_epoch_causality_full_sequence_uses_unique_real_files(self):
+        """以真实临时目录重放三个阶段写入，防止exclusive创建重名失败。"""
+        filenames = (
+            "deadline_epoch_causality_after_normal_start.json",
+            "deadline_epoch_causality_after_core_timeout.json",
+            "deadline_epoch_causality_after_drain_limit.json",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            causality = {
+                "seed_uart_epoch": 1,
+                "normal_start_terminal_epoch": 2,
+                "uart_epoch_after_normal_start": 1,
+                "after_normal_ack_csr_epoch": 2,
+            }
+            flow._save_epoch_causality(run_dir, "after_normal_start", causality)
+
+            causality.update(core_timeout_terminal_epoch=3,
+                             after_core_ack_csr_epoch=3,
+                             next_drain_start_expected_epoch=4)
+            flow._save_epoch_causality(run_dir, "after_core_timeout", causality)
+
+            causality.update(drain_timeout_terminal_epoch=4,
+                             after_drain_ack_csr_epoch=4)
+            flow._save_epoch_causality(run_dir, "after_drain_limit", causality)
+
+            self.assertEqual({path.name for path in run_dir.iterdir()}, set(filenames))
+            self.assertEqual(json.loads((run_dir / filenames[0]).read_text(encoding="utf-8"))
+                             ["after_normal_ack_csr_epoch"], 2)
+            self.assertEqual(json.loads((run_dir / filenames[1]).read_text(encoding="utf-8"))
+                             ["after_core_ack_csr_epoch"], 3)
+            final = json.loads((run_dir / filenames[2]).read_text(encoding="utf-8"))
+            self.assertEqual(final["next_drain_start_expected_epoch"], 4)
+            self.assertEqual(final["after_drain_ack_csr_epoch"], 4)
+
     def test_real_done_safe_fixture_with_head_valid_is_accepted(self):
         fixture_path = (flow.ROOT / "report/evidence/S2B-T18/"
                         "r10_interruption_observer_20261020_r02/observation.json")

@@ -20,7 +20,7 @@
 | S4-D 阶段5/6 规格草案 | `docs/stage5/**`、`docs/stage6/**` | `report/evidence/S4-D/s4d_spec_draft_20261021_r03/` | rev-spec PASS |
 
 - 关键数字（真实退出码）：S4-A 自检 8/8 exit 0；S4-B gcc 0 error/0 warning、C 自检 11/11、链 104 PASS/0 FAIL、unittest 27 OK、官方检查器 CHECKS_OK；S4-C 全量 109/109 PASS、mismatch 0、最大误差 0.0、反例 exit 1；S4-D 自检 11/11（覆盖 49/49）、CHECKS_OK。
-- 审查记录：各最终证据目录 `independent_review.json`（绑定被审哈希）。收尾记录：`report/evidence/S4-CTRL/S4-C01/s4_ctrl_20261021_r02/S4CTRL-20261021-002-stage4-offline-prep-closing-record.md`。
+- 审查记录：`report/evidence/S4-CTRL/S4-C01/s4_ctrl_20261021_r02/reviews/*_independent_review.json`（绑定被审哈希；**不得**放进各任务 RunId 目录，否则破坏官方清单的目录一致性）。收尾记录：`report/evidence/S4-CTRL/S4-C01/s4_ctrl_20261021_r02/S4CTRL-20261021-002-stage4-offline-prep-closing-record.md`。
 
 ## 上游冻结绑定（只读）
 

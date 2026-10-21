@@ -15,7 +15,9 @@
 | S4-C 离线回放与对拍工具（109 样本 vs CPU golden） | `verification/s4_replay_compare.py`、`verification/test_s4_replay_compare.py`、`scripts/stage4_s4c/**` | `report/evidence/S4-C/s4c_replay_20261021_r05/` | rev-c **PASS**（初轮 + r05 增量） |
 | S4-D 阶段5/6 规格草案 | `docs/stage5/**`、`docs/stage6/**` | `report/evidence/S4-D/s4d_spec_draft_20261021_r03/` | rev-spec **PASS**（2 轮 CHANGES_REQUIRED 后） |
 
-独立审查记录（Lead 侧，绑定被审哈希）：各最终证据目录下 `independent_review.json`。Reviewer 原始产物在 `tmp/4/review/<reviewer>/**`（未纳入版本库）。
+独立审查记录（Lead 侧，绑定被审哈希）：`report/evidence/S4-CTRL/S4-C01/s4_ctrl_20261021_r02/reviews/S4-A_r05_independent_review.json`、`S4-B_r13_independent_review.json`、`S4-C_r05_independent_review.json`、`S4-D_r03_independent_review.json`。Reviewer 原始产物在 `tmp/4/review/<reviewer>/**`（未纳入版本库）。
+教训：审查记录**不得**放进各任务 RunId 目录——官方清单检查器会因“运行目录文件未列入 files”报 CHECKS_FAILED；本次已迁到控制目录并复跑检查器（S4-B r13 与 S4-D r03 均恢复 `CHECKS_OK`）。
+偏差登记：S4-C 证据未附官方格式 `delivery_manifest.json`（使用其自带 `s4c_run_manifest.json`，已由 rev-c 独立核验文件绑定与退出码）；如需统一格式，阶段4 正式开工时另行补齐。
 
 ## 2. 关键结果（真实执行，含退出码）
 

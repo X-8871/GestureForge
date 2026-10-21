@@ -1,7 +1,9 @@
 # 阶段3 状态（AN5642 原始视频链路）
 
-更新：2026-10-21 22:05（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
-规则见 `D:\FPGA_Competition\AGENTS.md`。**DSH 阶段三总控持有（CLAIMED→IN_PROGRESS，心跳 2026-10-21 22:05）**；技术基线 `0d47801266a96c950d025702c158734f9bbd25de`，接续依据 `report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`。实时直通与帧同步修复成立；**颜色受阻，且根因已收敛为硬件**（DVP 字节 MSB 物理链路无信号：配置侧 v9 回读已排除，映射/RTL/FPGA 引脚/场景均已排除）；阶段未验收。
+更新：2026-10-21 23:35（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。
+规则见 `D:\FPGA_Competition\AGENTS.md`。**状态：暂定冻结（Wong 2026-10-21 23:2x 决定；DSH 阶段三总控持有）。**
+**冻结配置**：J11+CMOS2；灰度位流 bit `2f72aaa42936225eb7215bd8f138f68e52c27c3ab31ab236c8a3c15f7669af4f`、XSA `bb71c3f6e15b6f22fd0709373c3910f3dc4682214fb0cd6a9f69330a13eaaa12`；应用 `an5642_j11cmos2_v10_read.elf` = `1457cda4…6073`；补丁 `board/stage3/software/sensor/alinx_ov5640_gray_luma.patch`。板上实测：**真灰**（\|R−G\|=\|G−B\|≈2/255）、**实时**（t=5/15/25 指纹互不相同）、传感器寄存器已恢复。冻结记录 `report/evidence/S3-T05/t05_freeze_20261021_r01/`。
+**未关闭**：颜色验收待**更换模块到货后复测**（步骤见冻结记录 §5）；task-11 网表交叉核对未完成（补丁已人工逐行审阅）；VDMA 粘滞 `0x00015810`；方法学 TIMING-17/36 与 I/O delay 缺口；J10 半屏未定性；无 ILA；未做 ≥30 min 耐久。**根因**：模块侧 DVP 字节 MSB 线 `cmos_d[9]` 无信号（配置/RTL/映射/FPGA 引脚/场景均已排除）⇒ 真修 = 硬件返修/更换。
 
 ## 目标与第一版范围
 - 第一版：AN5642(OV5640) → 扩展口 → PL 采集/DDR 缓冲 → HDMI → 显示器【原始画面直通】，单通道；不加 CNN/检测框/手势交互。
@@ -56,4 +58,4 @@ bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/
 - 未跟踪散落件：`NA/`、`clockInfo.txt`（旧轮、非本阶段产物，保留不动）；`tmp/**` 为构建缓存，不入提交。
 
 ## 交接行（11 字段，2026-10-21 19:53）
-任务=`S3-T05 阶段3：修复 DVP 字节 MSB 无信号（单线 cmos_d[9]）造成的色彩缺失，并完成适用验收` | 负责人=`DSH 阶段三总控` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de`（HEAD 以实际核验为准） | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`tmp/**` 为构建缓存不入提交；本轮新增证据与 STATE 由 DSH 提交` | 让出声明=`已认领：Codex 于 2026-10-21 19:53 OFFERED，DSH 于 2026-10-21 21:47 CLAIMED→IN_PROGRESS 并独占写入；当前无让出` | 心跳(UTC+8)=`2026-10-21 22:05` | 证据入口=`report/evidence/S3-T05/t05_v9_board_20261021_r01/`（v9 回读：配置侧排除 + 干净基线签名复测）、`report/evidence/S3-T05/t05_msb_line_diagnosis_20261021_r01/`（根因签名）、`report/evidence/S3-T05/t05_dvp_pin_control_plan_20261021_r01/`（受控实验方案）、`report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md` | 恢复命令=`先读 STATE 与 003 交接；上板须用已审安全脚本并手动新建空输出目录；读前核实当前 ELF 的 FRAME0/stride（本轮为 0x00110C00 / 0x0F00）` | 状态/下一接手方=`IN_PROGRESS / 当前由 DSH 阶段三总控持有（无让出）`
+任务=`S3-T05 阶段3：修复 DVP 字节 MSB 无信号（单线 cmos_d[9]）造成的色彩缺失，并完成适用验收` | 负责人=`DSH 阶段三总控` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de`（HEAD 以实际核验为准） | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`tmp/**` 为构建缓存不入提交；本轮新增证据与 STATE 由 DSH 提交` | 让出声明=`已认领：Codex 于 2026-10-21 19:53 OFFERED，DSH 于 2026-10-21 21:47 CLAIMED→IN_PROGRESS 并独占写入；当前无让出` | 心跳(UTC+8)=`2026-10-21 23:35` | 证据入口=`report/evidence/S3-T05/t05_freeze_20261021_r01/`（冻结记录）、`…/t05_gray_board_20261021_r01/`（板上实测：中性度+实时）、`…/t05_msb_line_diagnosis_20261021_r01/`、`…/t05_v9_board_20261021_r01/` | 恢复命令=`模块到货后按 t05_freeze_20261021_r01/README.md §5 复测颜色：刷回无补偿基线 + v9_read → 安全转储 3 行 → analyze_missing_msb_signature.py 应判“不符合签名”(=修好) → 彩条判色相 → 白纸不发黄` | 状态/下一接手方=`DONE（暂定冻结；颜色项待模块到货复测，重开需按新任务卡）`

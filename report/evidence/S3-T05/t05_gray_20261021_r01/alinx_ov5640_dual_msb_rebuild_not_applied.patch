@@ -1,0 +1,69 @@
+diff --git a/my_ip/ov5640_ip/src/alinx_ov5640.v b/my_ip/ov5640_ip/src/alinx_ov5640.v
+--- a/my_ip/ov5640_ip/src/alinx_ov5640.v
++++ b/my_ip/ov5640_ip/src/alinx_ov5640.v
+@@ -157,6 +157,56 @@
+     end
+ endgenerate
+ 
++// ---------------------------------------------------------------------------
++// S3-T05-PL3 dual-MSB approximate compensation.
++// *** APPROXIMATE COMPENSATION ONLY -- NOT A TRUE REPAIR -- MUST NOT BE USED FOR
++// *** COLOUR ACCEPTANCE.  The real fault (module-side dead DVP byte-MSB line
++// *** cmos_d[9]) is not fixed here; this block only approximates the two lost bits.
++// Word layout (confirmed by netlist analysis + row-sample signatures):
++//   word[15:11] = B[4:0],  word[10:5] = G[5:0],  word[4:0] = R[4:0]
++// Lost bits: word[15] = B[4] (first-byte MSB) and word[7] = G[2] (second-byte MSB);
++// both come from the same dead DVP line cmos_d[9] (so both are stuck at 0).
++// Rebuild table (explicit, bit by bit):
++//   B'[4] = B[3] = tdata[14]        G'[2] = G[3] = tdata[8]        all other bits unchanged
++// Then a horizontal 3-tap majority vote is applied to THOSE TWO BITS ONLY to suppress
++// speckle. It uses pixel-rate delay registers only (no line buffer / no BRAM) and the
++// window is causal (current pixel + previous 2 pixels); the data stream itself is NOT
++// delayed, so tvalid/tlast/tuser stay aligned with the word.
++// ---------------------------------------------------------------------------
++wire        dualmsb_b4_cand = s_axis_tdata[14];  // B[3]
++wire        dualmsb_g2_cand = s_axis_tdata[8];   // G[3]
++reg         dualmsb_b4_d1;
++reg         dualmsb_b4_d2;
++reg         dualmsb_g2_d1;
++reg         dualmsb_g2_d2;
++always@(posedge cmos_pclk)
++begin
++    if(cmos_aresetn == 1'b0)
++    begin
++        dualmsb_b4_d1 <= 1'b0;
++        dualmsb_b4_d2 <= 1'b0;
++        dualmsb_g2_d1 <= 1'b0;
++        dualmsb_g2_d2 <= 1'b0;
++    end
++    else
++    begin
++        dualmsb_b4_d1 <= dualmsb_b4_cand;
++        dualmsb_b4_d2 <= dualmsb_b4_d1;
++        dualmsb_g2_d1 <= dualmsb_g2_cand;
++        dualmsb_g2_d2 <= dualmsb_g2_d1;
++    end
++end
++// Majority of (n, n-1, n-2) -- affects ONLY the two rebuilt bits.
++wire dualmsb_b4_maj = (dualmsb_b4_cand & dualmsb_b4_d1) | (dualmsb_b4_cand & dualmsb_b4_d2) | (dualmsb_b4_d1 & dualmsb_b4_d2);
++wire dualmsb_g2_maj = (dualmsb_g2_cand & dualmsb_g2_d1) | (dualmsb_g2_cand & dualmsb_g2_d2) | (dualmsb_g2_d1 & dualmsb_g2_d2);
++wire[15:0]  s_axis_tdata_dualmsb = {
++    dualmsb_b4_maj,                                                                     // [15]    B'[4] = maj3(B[3])
++    s_axis_tdata[14], s_axis_tdata[13], s_axis_tdata[12], s_axis_tdata[11],             // [14:11] B[3:0]
++    s_axis_tdata[10], s_axis_tdata[9], s_axis_tdata[8],                                 // [10:8]  G[5:3]
++    dualmsb_g2_maj,                                                                     // [7]     G'[2] = maj3(G[3])
++    s_axis_tdata[6], s_axis_tdata[5],                                                   // [6:5]   G[1:0]
++    s_axis_tdata[4], s_axis_tdata[3], s_axis_tdata[2], s_axis_tdata[1], s_axis_tdata[0] // [4:0]   R[4:0]
++};
+ wire empty;
+ wire full;
+ assign m_axis_video_tvalid = ~empty & m_axis_video_tready;
+@@ -186,7 +236,7 @@
+       .rst              (~cmos_aresetn),
+       .wr_clk           (cmos_pclk),
+       .wr_en            (s_axis_tvalid & fifo_ready),
+-      .din              ({s_axis_tdata,s_axis_tlast,s_axis_tuser}),
++      .din              ({s_axis_tdata_dualmsb,s_axis_tlast,s_axis_tuser}),
+       .full             (full),
+       .overflow         (),
+       .prog_full        (),

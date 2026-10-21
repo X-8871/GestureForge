@@ -1,0 +1,54 @@
+diff --git a/my_ip/ov5640_ip/src/alinx_ov5640.v b/my_ip/ov5640_ip/src/alinx_ov5640.v
+--- a/my_ip/ov5640_ip/src/alinx_ov5640.v
++++ b/my_ip/ov5640_ip/src/alinx_ov5640.v
+@@ -157,6 +157,41 @@
+     end
+ endgenerate
+ 
++// ---------------------------------------------------------------------------
++// S3-T05-PL4 PL-side neutral greyscale (luma taken from the GREEN channel).
++// *** GREYSCALE COMPENSATION ONLY -- NOT A REPAIR. ***  The blue channel is
++// deliberately discarded entirely (it is the channel whose MSB is dead); the real
++// fault -- the module-side dead DVP byte-MSB line cmos_d[9] -- still requires
++// hardware repair, and this bitstream must NOT be used for colour acceptance.
++// Word layout: word[15:11] = B[4:0],  word[10:5] = G[5:0],  word[4:0] = R[4:0]
++//   G'    = { tdata[10], tdata[9], tdata[8], maj3(tdata[8]), tdata[6], tdata[5] }
++//           (G'[2] rebuilt from G[3] = tdata[8] and smoothed by a horizontal 3-tap
++//            majority vote; only 2 pixel-rate delay registers + 1 majority gate,
++//            no line buffer / no BRAM)
++//   new   = { G'[5:1], G'[5:0], G'[5:1] }   ->  R = B = G'[5:1],  G = G'
++//           (all three channels carry the same luminance, differing by <= 1 LSB)
++// tlast / tuser / tkeep / tvalid / tready and all clocks/timing are untouched.
++// ---------------------------------------------------------------------------
++wire        gray_g2_cand = s_axis_tdata[8];   // G[3]
++reg         gray_g2_d1;
++reg         gray_g2_d2;
++always@(posedge cmos_pclk)
++begin
++    if(cmos_aresetn == 1'b0)
++    begin
++        gray_g2_d1 <= 1'b0;
++        gray_g2_d2 <= 1'b0;
++    end
++    else
++    begin
++        gray_g2_d1 <= gray_g2_cand;
++        gray_g2_d2 <= gray_g2_d1;
++    end
++end
++// Majority of (n, n-1, n-2) -- affects ONLY the rebuilt G'[2] bit.
++wire gray_g2_maj = (gray_g2_cand & gray_g2_d1) | (gray_g2_cand & gray_g2_d2) | (gray_g2_d1 & gray_g2_d2);
++wire[5:0]   gray_g = {s_axis_tdata[10], s_axis_tdata[9], s_axis_tdata[8], gray_g2_maj, s_axis_tdata[6], s_axis_tdata[5]};
++wire[15:0]  s_axis_tdata_gray = {gray_g[5:1], gray_g[5:0], gray_g[5:1]};
+ wire empty;
+ wire full;
+ assign m_axis_video_tvalid = ~empty & m_axis_video_tready;
+@@ -186,7 +221,7 @@
+       .rst              (~cmos_aresetn),
+       .wr_clk           (cmos_pclk),
+       .wr_en            (s_axis_tvalid & fifo_ready),
+-      .din              ({s_axis_tdata,s_axis_tlast,s_axis_tuser}),
++      .din              ({s_axis_tdata_gray,s_axis_tlast,s_axis_tuser}),
+       .full             (full),
+       .overflow         (),
+       .prog_full        (),

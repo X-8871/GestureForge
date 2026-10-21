@@ -1,0 +1,760 @@
+{
+  "task_id": "S3-T05-PL4",
+  "task_board_id": "task-11",
+  "title": "PL 端中性灰度（用完整绿通道算亮度，三通道同值输出）",
+  "run_id": "t04_gray_20261021_r01",
+  "run_dir": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01",
+  "evidence_dir": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01",
+  "generated_at_utc8": "2026-10-21T23:15:00+08:00",
+  "status": "failed",
+  "disclaimer": "*** 灰度补偿，非修复 ***。蓝通道已被完全弃用（它的最高位就是坏的那根 DVP 线）；真实修复仍需硬件返修模块侧 DVP 字节 MSB 线 cmos_d[9]。本变体只保证黑白画面无偏色，不构成颜色正确性证据，不得用于颜色验收。",
+  "tool": {
+    "name": "Vivado",
+    "version": null,
+    "mode": "batch_tcl",
+    "license_file": "D:/Xilinx_licenses/basic_only.lic",
+    "flow": "vendor BD auto_create_project (build_t04_camera.tcl)"
+  },
+  "baseline": {
+    "worktree": "D:/codex-worktrees/dbdf",
+    "branch": "codex/stage3-video",
+    "commit_at_build": "eac337ca1299cb135a34d88c61d907dd9b5bf89f",
+    "part": "xc7z020clg400-2",
+    "vendor_source": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
+    "compare_runs": [
+      "t04_camera_j11cmos2_20261020_r01",
+      "t04_sof_fix_20261020_r01"
+    ],
+    "xdc": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "xdc_sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+  },
+  "bit_layout": {
+    "word_layout": "word[15:11]=B[4:0], word[10:5]=G[5:0], word[4:0]=R[4:0]",
+    "lost_bits": [
+      "word[15] = B[4] (第一字节 MSB, cmos_d[9])",
+      "word[7] = G[2] (第二字节 MSB, 同一根 cmos_d[9])"
+    ]
+  },
+  "grayscale": {
+    "formula": "G' = { tdata[10], tdata[9], tdata[8], maj3(tdata[8]), tdata[6], tdata[5] }；new = { G'[5:1], G'[5:0], G'[5:1] }",
+    "expansion": "new = { t10,t9,t8,maj,t6,  t10,t9,t8,maj,t6,t5,  t10,t9,t8,maj,t6 }",
+    "luma_source": "完整绿通道（6 位），G'[2] 用 G[3]=tdata[8] 重建",
+    "majority": "水平 3 抽头多数 maj=(c0&c1)|(c0&c2)|(c1&c2)，只用于 G'[2]；2 个像素率延迟寄存器 + 1 个多数门，无行缓冲/BRAM；窗口因果（当前+前 2 像素），数据流不额外延迟，tvalid/tlast/tuser 仍对齐。",
+    "channel_equality": "R=B=G'[5:1]、G=G' ⇒ 三通道亮度基本相等（丢 G'[0]，差 ≤1 LSB）",
+    "card_expansion_note": "卡面括注写作 `{t10,t9,t8,t8,t6, ...}`，与本卡主公式 `{G'[5:1], G', G'[5:1]}` 的第四位（应为 maj3(tdata[8])）不一致；本实现按**主公式**执行（R=B=G'[5:1]），这样三通道才真正只差 1 LSB。",
+    "not_changed": [
+      "tlast",
+      "tuser",
+      "tkeep",
+      "tvalid/tready",
+      "时钟/时序",
+      "DEBUG_OV5640（保持 false）"
+    ],
+    "known_errors": [
+      "灰度亮度取自绿通道：偏绿的场景亮度偏亮、偏蓝/偏红的场景亮度偏低（非标准亮度权重，未做 0.299R+0.587G+0.114B）。",
+      "G'[2] 是近似重建位，暗部/低饱和区仍有量化残差；多数表决只压孤立散斑。",
+      "整帧只有亮度信息，颜色不可恢复；不得用于颜色验收。"
+    ]
+  },
+  "patches": {
+    "applied_order": [
+      "alinx_ov5640_sof_hrefgap.patch",
+      "alinx_ov5640_gray_luma.patch"
+    ],
+    "items": [
+      {
+        "name": "SOF fix (task-2)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+        "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+        "hunks": 3,
+        "lines_added": 24,
+        "lines_removed": 5,
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      },
+      {
+        "name": "PL neutral gray luma (this task)",
+        "file": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_gray_luma.patch",
+        "sha256": "136166243e7ef26dc3ba81a983ed17078c8bd3b2d0d1bcf7739d4b2a10045478",
+        "hunks": 2,
+        "lines_added": 36,
+        "lines_removed": 1,
+        "git_apply_check_rc": 0,
+        "git_apply_rc": 0
+      }
+    ],
+    "not_applied": [
+      "alinx_ov5640_dual_msb_rebuild.patch（task-9，双位重建）",
+      "alinx_ov5640_blue_msb_rebuild.patch（task-6，已被 task-9 取代）"
+    ],
+    "residual_marker_assertion": "构建脚本断言最终 RTL 不含 s_axis_tdata_dualmsb / s_axis_tdata_bluefix（PATCHES_VERIFIED=1）。",
+    "order_note": "两补丁区域不重叠（SOF 改参数表/tuser always 块；GRAY 在 FIFO 前插入新块并改 .din）；实测 gray 单独对厂商原件 --check/apply RC=0，SOF->GRAY 与 GRAY->SOF 均 RC=0 且结果字节相同。",
+    "git_apply_log": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01\\patch_git_apply.log",
+    "order_test_evidence": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01\\patch_apply_order_test.txt"
+  },
+  "rtl_hashes": {
+    "pristine_vendor": "98260b62f996ec700eb766c6c4e57706b2c1ff3a8224a5105a3641b6475b3e4d",
+    "after_sof_patch": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "after_sof_then_gray": "e9a93f4137829e15631925b9772ed28441e2cc454f18db714b72f6ee15c716b2",
+    "final_actual": "e9a93f4137829e15631925b9772ed28441e2cc454f18db714b72f6ee15c716b2"
+  },
+  "netlist_confirmation": {
+    "trace_log": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01/netlist_din_trace_gray.log",
+    "trace_vivado_exit_code": 0,
+    "baseline_trace_log": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01/netlist_din_trace_gray_baseline.log",
+    "baseline_trace_exit_code": 0,
+    "din_pins_found": true,
+    "rule": "din={word,tlast,tuser} => word[i]=din[i+2]；新字三个通道都取自 G'[5:1]/G'，故每一位的根驱动都必须落在 {reg[5],reg[6],reg[8],reg[9],reg[10]} 与 2 个多数延迟寄存器内；G'[2] 的三处（word[12],[7],[1]）必须由 3 输入多数门驱动。",
+    "expected_map": {
+      "15": "G'[5]=tdata[10]",
+      "14": "G'[4]=tdata[9]",
+      "13": "G'[3]=tdata[8]",
+      "12": "G'[2]=maj3(tdata[8])",
+      "11": "G'[1]=tdata[6]",
+      "10": "G'[5]=tdata[10]",
+      "9": "G'[4]=tdata[9]",
+      "8": "G'[3]=tdata[8]",
+      "7": "G'[2]=maj3(tdata[8])",
+      "6": "G'[1]=tdata[6]",
+      "5": "G'[0]=tdata[5]",
+      "4": "G'[5]=tdata[10]",
+      "3": "G'[4]=tdata[9]",
+      "2": "G'[3]=tdata[8]",
+      "1": "G'[2]=maj3(tdata[8])",
+      "0": "G'[1]=tdata[6]"
+    },
+    "per_bit": [
+      {
+        "din_bit": 17,
+        "word_bit": 15,
+        "expected_source": "G'[5]=tdata[10]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[10]/Q"
+      },
+      {
+        "din_bit": 16,
+        "word_bit": 14,
+        "expected_source": "G'[4]=tdata[9]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[9]/Q"
+      },
+      {
+        "din_bit": 15,
+        "word_bit": 13,
+        "expected_source": "G'[3]=tdata[8]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[8]/Q"
+        ],
+        "actual_driver": "inst/cmos_d_16bit_d1_reg[8]/Q(FDRE)",
+        "ok": true
+      },
+      {
+        "din_bit": 14,
+        "word_bit": 12,
+        "expected_source": "G'[2]=maj3(tdata[8])",
+        "expected_kind": "maj",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[8]/Q",
+          "inst/gray_g2_d1_reg/Q",
+          "inst/gray_g2_d2_reg/Q"
+        ],
+        "actual_driver": "inst/gray_g2_maj/O(LUT3)",
+        "ok": true,
+        "majority_extra_roots": [
+          "inst/gray_g2_d1_reg/Q",
+          "inst/gray_g2_d2_reg/Q"
+        ]
+      },
+      {
+        "din_bit": 13,
+        "word_bit": 11,
+        "expected_source": "G'[1]=tdata[6]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[6]/Q"
+        ],
+        "actual_driver": "inst/cmos_d_16bit_d1_reg[6]/Q(FDRE)",
+        "ok": true
+      },
+      {
+        "din_bit": 12,
+        "word_bit": 10,
+        "expected_source": "G'[5]=tdata[10]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[10]/Q"
+        ],
+        "actual_driver": "inst/cmos_d_16bit_d1_reg[10]/Q(FDRE)",
+        "ok": true
+      },
+      {
+        "din_bit": 11,
+        "word_bit": 9,
+        "expected_source": "G'[4]=tdata[9]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[9]/Q"
+        ],
+        "actual_driver": "inst/cmos_d_16bit_d1_reg[9]/Q(FDRE)",
+        "ok": true
+      },
+      {
+        "din_bit": 10,
+        "word_bit": 8,
+        "expected_source": "G'[3]=tdata[8]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[8]/Q"
+      },
+      {
+        "din_bit": 9,
+        "word_bit": 7,
+        "expected_source": "G'[2]=maj3(tdata[8])",
+        "expected_kind": "maj",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "majority_extra_roots": [
+          "inst/GND/G"
+        ],
+        "problem": "expected LUT3 majority with roots {reg8/Q, d1, d2}"
+      },
+      {
+        "din_bit": 8,
+        "word_bit": 6,
+        "expected_source": "G'[1]=tdata[6]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[6]/Q"
+      },
+      {
+        "din_bit": 7,
+        "word_bit": 5,
+        "expected_source": "G'[0]=tdata[5]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/cmos_d_16bit_d1_reg[5]/Q"
+        ],
+        "actual_driver": "inst/cmos_d_16bit_d1_reg[5]/Q(FDRE)",
+        "ok": true
+      },
+      {
+        "din_bit": 6,
+        "word_bit": 4,
+        "expected_source": "G'[5]=tdata[10]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[10]/Q"
+      },
+      {
+        "din_bit": 5,
+        "word_bit": 3,
+        "expected_source": "G'[4]=tdata[9]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[9]/Q"
+      },
+      {
+        "din_bit": 4,
+        "word_bit": 2,
+        "expected_source": "G'[3]=tdata[8]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[8]/Q"
+      },
+      {
+        "din_bit": 3,
+        "word_bit": 1,
+        "expected_source": "G'[2]=maj3(tdata[8])",
+        "expected_kind": "maj",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "majority_extra_roots": [
+          "inst/GND/G"
+        ],
+        "problem": "expected LUT3 majority with roots {reg8/Q, d1, d2}"
+      },
+      {
+        "din_bit": 2,
+        "word_bit": 0,
+        "expected_source": "G'[1]=tdata[6]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[6]/Q"
+      }
+    ],
+    "problems": [
+      {
+        "din_bit": 17,
+        "word_bit": 15,
+        "expected_source": "G'[5]=tdata[10]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[10]/Q"
+      },
+      {
+        "din_bit": 16,
+        "word_bit": 14,
+        "expected_source": "G'[4]=tdata[9]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[9]/Q"
+      },
+      {
+        "din_bit": 10,
+        "word_bit": 8,
+        "expected_source": "G'[3]=tdata[8]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[8]/Q"
+      },
+      {
+        "din_bit": 9,
+        "word_bit": 7,
+        "expected_source": "G'[2]=maj3(tdata[8])",
+        "expected_kind": "maj",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "majority_extra_roots": [
+          "inst/GND/G"
+        ],
+        "problem": "expected LUT3 majority with roots {reg8/Q, d1, d2}"
+      },
+      {
+        "din_bit": 8,
+        "word_bit": 6,
+        "expected_source": "G'[1]=tdata[6]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[6]/Q"
+      },
+      {
+        "din_bit": 6,
+        "word_bit": 4,
+        "expected_source": "G'[5]=tdata[10]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[10]/Q"
+      },
+      {
+        "din_bit": 5,
+        "word_bit": 3,
+        "expected_source": "G'[4]=tdata[9]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[9]/Q"
+      },
+      {
+        "din_bit": 4,
+        "word_bit": 2,
+        "expected_source": "G'[3]=tdata[8]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[8]/Q"
+      },
+      {
+        "din_bit": 3,
+        "word_bit": 1,
+        "expected_source": "G'[2]=maj3(tdata[8])",
+        "expected_kind": "maj",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "majority_extra_roots": [
+          "inst/GND/G"
+        ],
+        "problem": "expected LUT3 majority with roots {reg8/Q, d1, d2}"
+      },
+      {
+        "din_bit": 2,
+        "word_bit": 0,
+        "expected_source": "G'[1]=tdata[6]",
+        "expected_kind": "reg",
+        "actual_roots": [
+          "inst/GND/G"
+        ],
+        "actual_driver": "inst/GND/G(GND)",
+        "ok": false,
+        "problem": "expected single root inst/cmos_d_16bit_d1_reg[6]/Q"
+      }
+    ],
+    "leaked_forbidden_register_roots": [],
+    "unexpected_root_names": [
+      {
+        "din_bit": 17,
+        "word_bit": 15,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 16,
+        "word_bit": 14,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 10,
+        "word_bit": 8,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 9,
+        "word_bit": 7,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 8,
+        "word_bit": 6,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 6,
+        "word_bit": 4,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 5,
+        "word_bit": 3,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 4,
+        "word_bit": 2,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 3,
+        "word_bit": 1,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      },
+      {
+        "din_bit": 2,
+        "word_bit": 0,
+        "root": "inst/GND/G",
+        "why": "unrecognised root"
+      }
+    ],
+    "baseline_vs_gray": {
+      "din[17_search]": {
+        "word_bit": 15,
+        "baseline_roots": [
+          "inst/cmos_d_16bit_d1_reg[15]/Q"
+        ],
+        "gray_roots": [
+          "inst/GND/G"
+        ]
+      },
+      "din[14_search]": {
+        "word_bit": 12,
+        "baseline_roots": [
+          "inst/cmos_d_16bit_d1_reg[12]/Q"
+        ],
+        "gray_roots": [
+          "inst/cmos_d_16bit_d1_reg[8]/Q",
+          "inst/gray_g2_d1_reg/Q",
+          "inst/gray_g2_d2_reg/Q"
+        ]
+      },
+      "din[13_search]": {
+        "word_bit": 11,
+        "baseline_roots": [
+          "inst/cmos_d_16bit_d1_reg[11]/Q"
+        ],
+        "gray_roots": [
+          "inst/cmos_d_16bit_d1_reg[6]/Q"
+        ]
+      },
+      "din[9_search]": {
+        "word_bit": 7,
+        "baseline_roots": [
+          "inst/cmos_d_16bit_d1_reg[7]/Q"
+        ],
+        "gray_roots": [
+          "inst/GND/G"
+        ]
+      },
+      "din[3_search]": {
+        "word_bit": 1,
+        "baseline_roots": [
+          "inst/cmos_d_16bit_d1_reg[1]/Q"
+        ],
+        "gray_roots": [
+          "inst/GND/G"
+        ]
+      }
+    },
+    "baseline_meaning": "基线(仅 SOF)里 word[15]/word[12]/word[11] 来自 B 字段寄存器(reg[15]/[12]/[11])、word[7] 来自已死的 reg[7]；本变体里对应位改由绿通道 reg[10]/[9]/[8]/[6] 与多数门驱动。",
+    "passed": false
+  },
+  "commands": {
+    "build": "D:/Xilinx/2026.1/Vivado/bin/vivado -mode batch -source D:/codex-worktrees/dbdf/scripts/stage3_t04/build_t04_camera.tcl -log D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01/vivado.log -journal D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01/vivado.jou -tclargs D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01/vendor_src",
+    "tcl_script": "scripts/stage3_t04/build_t04_camera.tcl",
+    "netlist_trace_tcl": "report/evidence/S3-T05/t05_gray_20261021_r01/netlist_din_trace_gray.tcl",
+    "vivado_exit_code": 0,
+    "trace_exit_code": 0,
+    "baseline_trace_exit_code": 0,
+    "elapsed_seconds": 536
+  },
+  "implementation": {
+    "synth_status": "Scripts Generated",
+    "impl_status": "write_bitstream Complete!",
+    "timing": {
+      "wns_ns": "0.422210",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.040176",
+      "ths_ns": "0.000000"
+    },
+    "timing_reference_runs": {
+      "t04_camera_j11cmos2_20261020_r01_baseline": {
+        "wns_ns": "1.141183",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058332",
+        "ths_ns": "0.000000"
+      },
+      "t04_sof_fix_20261020_r01_sof_only": {
+        "wns_ns": "1.054525",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.058931",
+        "ths_ns": "0.000000"
+      },
+      "t04_dualmsb_20261021_r01_dual_rebuild": {
+        "wns_ns": "1.171408",
+        "tns_ns": "0.000000",
+        "whs_ns": "0.053436",
+        "ths_ns": "0.000000"
+      }
+    },
+    "drc_error_count": 0,
+    "drc_critical_warning_count": 0,
+    "drc_warning_count": 8,
+    "drc_counts_by_severity": {
+      "Warning": 8
+    },
+    "drc_rule_breakdown": {
+      "PDCN-1569": 3,
+      "PLCK-12": 1,
+      "REQP-1839": 2,
+      "REQP-1840": 1,
+      "RTSTAT-10": 1
+    },
+    "peak_memory_mb": 2573.098,
+    "utilization_by_run": {
+      "t04_camera_j11cmos2_20261020_r01": {
+        "design_synth": 10534,
+        "alinx_ip_ooc": 401
+      },
+      "t04_sof_fix_20261020_r01": {
+        "design_synth": 10548,
+        "alinx_ip_ooc": 415
+      },
+      "t04_gray_20261021_r01": {
+        "design_synth": 10509,
+        "alinx_ip_ooc": 376
+      }
+    },
+    "xsa_exists": "1"
+  },
+  "rtl_evidence": {
+    "project_rtl_copies": [
+      {
+        "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\project\\ov5640_single.gen\\sources_1\\bd\\design_1\\ipshared\\564b\\src\\alinx_ov5640.v",
+        "sha256": "e9a93f4137829e15631925b9772ed28441e2cc454f18db714b72f6ee15c716b2",
+        "size_bytes": 10038,
+        "matches_expected": true,
+        "contains_gap_thresh": true,
+        "contains_gray_marker": true,
+        "contains_dualmsb_marker": false,
+        "contains_bluefix_marker": false
+      }
+    ],
+    "meaning": "工程 .gen 下 IP RTL 副本哈希 = SOF+GRAY 叠加后的哈希，含 GAP_THRESH 与 s_axis_tdata_gray，且不含 dual/blue 标记。"
+  },
+  "log_messages": {
+    "error_count": 5,
+    "critical_warning_count": 17,
+    "warning_count": 196,
+    "error_codes": [
+      "Common 17-354",
+      "Common 17-69",
+      "Vivado 12-13638"
+    ],
+    "critical_warning_codes": [
+      "Designutils 20-1280",
+      "Timing 38-249"
+    ]
+  },
+  "artifacts": {
+    "bit": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "exists": true,
+      "size_bytes": 1662253,
+      "sha256": "2f72aaa42936225eb7215bd8f138f68e52c27c3ab31ab236c8a3c15f7669af4f"
+    },
+    "xsa": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\design_1_wrapper.xsa",
+      "exists": true,
+      "size_bytes": 629697,
+      "sha256": "bb71c3f6e15b6f22fd0709373c3910f3dc4682214fb0cd6a9f69330a13eaaa12"
+    },
+    "vivado_log": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\vivado.log",
+      "exists": true,
+      "size_bytes": 230794,
+      "sha256": "23463a48de66966356e703bcb06bf5cc9077a0d7fc8ffba2c29fc0026d9f31e6"
+    },
+    "report_timing_summary_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\report_timing_summary_impl.rpt",
+      "exists": true,
+      "size_bytes": 1426502,
+      "sha256": "07f813ec3d83e3a5447dac3b2c204f44cafc1eb563f7c695b0ef31f86a61ac9f"
+    },
+    "report_drc_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\report_drc_impl.rpt",
+      "exists": true,
+      "size_bytes": 14022,
+      "sha256": "0a9fd300c8a948e6134886cd3b32f0b1c275b3091eaf99580ecb3edd34831d1c"
+    },
+    "report_utilization_impl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\report_utilization_impl.rpt",
+      "exists": true,
+      "size_bytes": 13396,
+      "sha256": "73649885dece84e191cbe0f3d572a6e291d6d0bc8d57c757303f7a8a4f4ebcea"
+    },
+    "report_utilization_synth": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\report_utilization_synth.rpt",
+      "exists": true,
+      "size_bytes": 11228,
+      "sha256": "45ddf889044cdcb690bd92870785b3b3529f91af05a656917a6f6312d251f524"
+    },
+    "patched_rtl": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_gray_20261021_r01\\vendor_src\\my_ip/ov5640_ip/src/alinx_ov5640.v",
+      "exists": true,
+      "size_bytes": 10038,
+      "sha256": "e9a93f4137829e15631925b9772ed28441e2cc454f18db714b72f6ee15c716b2"
+    },
+    "patch_sof": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch",
+      "exists": true,
+      "size_bytes": 2204,
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5"
+    },
+    "patch_gray_luma": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/alinx_ov5640_gray_luma.patch",
+      "exists": true,
+      "size_bytes": 2601,
+      "sha256": "136166243e7ef26dc3ba81a983ed17078c8bd3b2d0d1bcf7739d4b2a10045478"
+    },
+    "xdc_j11_cmos2": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "exists": true,
+      "size_bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    },
+    "netlist_trace_log": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01/netlist_din_trace_gray.log",
+      "exists": true,
+      "size_bytes": 9760,
+      "sha256": "448262184ccbc7ae687e4deac9b5d8ac16be22b1609b7ed397a4c31c02fa492d"
+    },
+    "netlist_trace_baseline_log": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_gray_20261021_r01/netlist_din_trace_gray_baseline.log",
+      "exists": true,
+      "size_bytes": 11528,
+      "sha256": "21ca442afa06299633f74a5095791f8d9540113fb570acf526a8569e69377bed"
+    }
+  },
+  "limitations": [
+    "只产出 bitstream + XSA；未下载、未烧 QSPI、未上板（上板与目视判读由阶段总控执行）。",
+    "*** 灰度补偿，非修复 ***：蓝通道已被完全弃用；真实修复仍需硬件返修模块侧 DVP 字节 MSB 线。",
+    "亮度取自绿通道而非标准亮度权重，场景偏色会带来亮度偏差；G'[2] 为近似重建位，暗部仍有残差。",
+    "SOF 修复的既有约束仍成立：复位后第一帧可能无 SOF；GAP_THRESH=16384 只对 1280x720(HTS=1892/VTS=740) 成立。",
+    "未做 RTL 功能仿真；未验证位流与基线功能一致性（仅时序/DRC/资源/网表连通性对比）。"
+  ],
+  "not_executed": [
+    "program_device / QSPI 烧写",
+    "上板目视判读",
+    "RTL 仿真",
+    "硬件返修",
+    "Git 提交（由阶段总控统一提交）"
+  ]
+}

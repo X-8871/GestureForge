@@ -10,8 +10,10 @@ Wong 2026-10-21 23:2x 决定：黑白画面可接受，颜色项待**更换模�
 |---|---|
 | 工作树/分支 | `D:\codex-worktrees\dbdf` / `codex/stage3-video` |
 | 硬件 | AX7020 + AN5642 模块插 **J11（CMOS2 通道）** |
-| 位流（灰度，冻结候选） | `tmp/s3r06/t04_gray_20261021_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit` = `2f72aaa42936225eb7215bd8f138f68e52c27c3ab31ab236c8a3c15f7669af4f` |
+| 位流（灰度，2026-10-21 冻结候选） | `tmp/s3r06/t04_gray_20261021_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit` = `2f72aaa42936225eb7215bd8f138f68e52c27c3ab31ab236c8a3c15f7669af4f` |
 | XSA | `tmp/s3r06/t04_gray_20261021_r01/design_1_wrapper.xsa` = `bb71c3f6e15b6f22fd0709373c3910f3dc4682214fb0cd6a9f69330a13eaaa12` |
+| **部署位流（2026-10-22 12:4x Wong 决定按灰度继续后续工作）** | **标准亮度灰度** `tmp/s3r06/t04_stdluma_20261022_r01/.../design_1_wrapper.bit` = `44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb`，XSA = `90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4`；亮度式 `Y=(77R8+150G8+29B8)>>8`（**训练集转灰度须用同一整数权重**）；板上实测 `\|R−B\|=0.0`、`\|R−G\|≈\|G−B\|≈2/255` |
+| 备选（仅留档） | 纯绿灰度 bit `2f72aaa4…`；补偿彩色 bit `30db09ba…`（`t04_dualmsb_20261021_r01`，**暂不使用**） |
 | 应用 | `an5642_j11cmos2_v10_read.elf` = `1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073`（TRY=0：只回读、不改寄存器） |
 | 灰度补丁 | `board/stage3/software/sensor/alinx_ov5640_gray_luma.patch`（2601 B） |
 | 启动器 | `scripts/stage3_t04/run_t04_camera_j11cmos2_gray_build.sh` |

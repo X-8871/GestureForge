@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_limitations_not_executed",
+  "artifact_version": "S6A-G0-v1.4",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r05",
+  "supersedes_run_id": "s6a_g0_20261022_r04",
+  "status_legend": {
+    "PASS": "本次声明范围的所有条件已验证",
+    "FAIL": "执行后不满足条件",
+    "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行",
+    "NOT_RUN": "本轮没有执行",
+    "NOT_APPLICABLE": "确实不适用，必须说明理由"
+  },
+  "not_run": [
+    {
+      "item": "6-B 状态机实现（纯核心 + 动作层隔离）",
+      "status": "NOT_RUN",
+      "reason": "S6-A v1.4 已收尾；6-B 实现由本轮第二部分（task-6）启动，产物另立 RunId 与证据目录，不在本 S6-A 证据包内。"
+    },
+    {
+      "item": "6-C 确定性测试矩阵（含 11 类用例行）",
+      "status": "NOT_RUN",
+      "reason": "依赖 6-B 实现与独立预期；本轮第一部分只修订 G0 规格与手算样例（30 例）。"
+    },
+    {
+      "item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）",
+      "status": "NOT_RUN",
+      "reason": "无状态机实现、无硬件授权；不在本轮范围。"
+    },
+    {
+      "item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）",
+      "status": "NOT_RUN",
+      "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"
+    },
+    {
+      "item": "≥30 分钟回放稳定性实验",
+      "status": "NOT_RUN",
+      "reason": "无状态机与回放驱动；未执行。"
+    },
+    {
+      "item": "T6-01/02/03 任何统计",
+      "status": "NOT_RUN",
+      "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何“观测值”为通过。"
+    },
+    {
+      "item": "T6-A03 交互延迟与低 FPS 延迟量级",
+      "status": "NOT_RUN",
+      "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.4 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。"
+    },
+    {
+      "item": "M4/T6-S04 运行时行为验证",
+      "status": "NOT_RUN",
+      "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"
+    },
+    {
+      "item": "独立复评（Reviewer）",
+      "status": "NOT_RUN",
+      "reason": "由项目总控另派；r05 不因收尾视为通过，不得自称已审查/已通过。"
+    }
+  ],
+  "blocked": [
+    {
+      "item": "6-E 真摄像头验收与统计",
+      "status": "BLOCKED",
+      "reason": "摄像头不可用（待重新采购）；真手势验收延期至模块到货并完成阶段3 验收后。"
+    },
+    {
+      "item": "阶段6 集成验收依赖",
+      "status": "BLOCKED",
+      "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"
+    },
+    {
+      "item": "阶段5 显示侧新增 HUD 字段（sm_state 等）",
+      "status": "BLOCKED",
+      "reason": "属阶段6 提案，需与阶段5 协调并由项目总控确认；未采纳前只能用五元组与既有 HUD 字段做离线断言。"
+    },
+    {
+      "item": "阶段4 实测帧周期 P_meas",
+      "status": "BLOCKED",
+      "reason": "未取得实测值；影响 T6-A03、交互延迟统计与低 FPS 窗口估算（U6-13）。"
+    },
+    {
+      "item": "独立 Reviewer 复评",
+      "status": "BLOCKED",
+      "reason": "阶段6 总控会话委派深度已用尽；由项目总控另派（本包状态 PENDING_REVIEW）。"
+    }
+  ],
+  "not_applicable": [
+    {
+      "item": "本轮板上 G3 实物验证",
+      "status": "NOT_APPLICABLE",
+      "reason": "本任务为 G0 规格交付，无实现、无位流，且本阶段无硬件授权；G3 对本轮不适用，但仍属阶段6 后续关口。"
+    },
+    {
+      "item": "inputs 模式下对阶段4/阶段5 接口的冻结核验",
+      "status": "NOT_APPLICABLE",
+      "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+    }
+  ],
+  "hard_limits_observed": [
+    "未触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头",
+    "未烧录、未 program、未写寄存器",
+    "未 push；未新建其他工作树；未修改 main/w4/w5/dbdf/w2b 与厂商原件",
+    "同时只运行轻量任务（本轮无重型综合/实现/仿真）"
+  ],
+  "replay_injection_boundary": "任何由脚本注入或回放输入得到的结论，其适用范围仅限回放/注入输入，不得冒充真实摄像头验收；真手势验收延期至摄像头到货。",
+  "checker_scope_note": "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5。",
+  "r03_notes": [
+    "N-r04-01：M5 条件补「本帧必须为窗口推进帧（`state ∈ {OK,NO_HAND}`、`stale=false`、非重复、非倒序）」，与 §4 锁存段一致；C12 增加该文本断言；HC-30 覆盖「锁存 STABLE + 门恰在 TIMEOUT 帧开启」角落序列并断言无动作。",
+    "N-r04-02：`predicate_binding_policy.statement` 精确化为「M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段」。",
+    "N-r04-03：C12 增加非空列表普适断言；`probe_summary.json` 的 `empty_predicates_used` 注入用例证明可捕获。",
+    "N-r04-04：C7 窗口跨度按 §9 口径修正（HC-29 320 ms→200 ms），并断言宽松口径下 `m3_fires` 结论一致。",
+    "N-r04-05：清理 `src/stage6/s6_core.py` 对不存在设计文档的引用；该 WIP 仍未提交、不作为证据。"
+  ]
+}

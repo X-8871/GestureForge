@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_r05_injection_probe",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r05",
+  "selfcheck": "verification/s6_g0_selfcheck.py（r05 最终版）",
+  "purpose": "先证明 C12/C7 的新断言能捕获缺陷，再允许 r05 出 ALL_PASS（N-r04-01/N-r04-03/N-r04-04）",
+  "baseline_verdict": "AS_EXPECTED",
+  "results": [
+    {
+      "case_id": "baseline_no_injection",
+      "note": "基线：不注入，必须 ALL_PASS",
+      "injection": "（无注入）",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_check": null,
+      "failed_checks": [],
+      "captured": true,
+      "selfcheck_status": "ALL_PASS",
+      "stdout_file": "probe_baseline_no_injection_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "m5_window_advance_removed",
+      "note": "N-r04-01 回归",
+      "injection": "M5.condition 回退为无窗口推进帧限定：STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_m5_window_advance_removed_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "empty_predicates_used",
+      "note": "N-r04-03",
+      "injection": "transitions.M2.predicates_used = []",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_empty_predicates_used_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "b13_predicates_used_added",
+      "note": "N-r04-02",
+      "injection": "behavior_rows.B13.predicates_used = ['TARGET_CONTINUES']（叙述声明其无该字段）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_b13_predicates_used_added_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "undeclared_predicate_name",
+      "note": "R3-B02 回归",
+      "injection": "transitions.M8.predicates_used = ['TARGET_LOST']（未定义谓词）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_undeclared_predicate_name_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "suppressed_release_not_window_advancing",
+      "note": "N-r04-01 一致性断言",
+      "injection": "stable_latching.suppressed_trigger_release 去掉「窗口推进帧」限定",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_suppressed_release_not_window_advancing_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "case_timeout_frame_action",
+      "note": "N-r04-01 角落用例判别力",
+      "injection": "HC-30.expected.action_at_gate_open_frame.gate_opens_on_timeout = true（应无动作）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C7"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_case_timeout_frame_action_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "case_span_wrong",
+      "note": "N-r04-04 跨度口径判别力",
+      "injection": "HC-29.expected.window_span_ms = 320.0（宽松序列跨度，非 §9 口径）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C7"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_case_span_wrong_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    }
+  ],
+  "scope_statement": "探针只证明自检断言有判别力，不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+}

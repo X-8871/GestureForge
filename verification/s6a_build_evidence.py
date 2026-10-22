@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A 证据包构建器（r04 起：R3-B01/R3-B02 与 N03/N04 关闭）。
+"""阶段6 S6-A 证据包构建器（r05 起：第 4 轮复评 N-r04-01..05 收尾）。
+
+r05 变更：构建前新增 verification/s6a_r05_probe.py 注入探针（基线 + 8 个注入用例，
+证明 C12/C7 的新断言具备判别力）；旧包失败证据重跑保持；版本口径统一为 v1.4/r05。
 
 r04 变更：构建前先用 verification/s6a_rerun_legacy_failures.py 以**最终脚本**重跑
 r01/r02/r03 旧包失败证据（N03），失败输出直接落入本运行目录；自检条目由 16 项增至 17 项
@@ -77,6 +80,9 @@ def keep_reason_for(relative: str) -> str:
         "r03_package_under_test.json": "r03 被检版本 git 字节与哈希（R3-B01/R3-B02 失败证据）",
         "selfcheck_r03_failure.json": "加固自检在 r03 上的失败输出（C12 捕获 R3 项、C17 捕获缺锁存块）",
         "selfcheck_r03_failure_stdout.txt": "r03 失败运行 stdout 原文",
+        "r04_package_under_test.json": "r04 被检版本 git 字节与哈希（N-r04-01..04 捕获证据）",
+        "selfcheck_r04_failure.json": "r05 加固自检在 r04 上的失败输出（C12/C7 捕获 r05 新断言针对的缺陷）",
+        "selfcheck_r04_failure_stdout.txt": "r04 失败运行 stdout 原文",
         "selfcheck_old_package_failure.json": "加固自检在 r01 真实字节上的失败输出（exit 1）",
         "selfcheck_old_package_failure_stdout.txt": "r01 失败运行 stdout 原文",
         "selfcheck_r02_blk1_failure.json": "加固自检在 r02 上的失败输出，C12 捕获 BLK-1",
@@ -85,6 +91,7 @@ def keep_reason_for(relative: str) -> str:
         "selfcheck_c11_stdout.txt": "完整 C11 自检运行 stdout",
         "check_inputs_mode_output.txt": "check_stage_delivery --mode inputs 真实 stdout",
         "check_evidence_mode_output.txt": "check_stage_delivery --mode evidence 真实 stdout",
+        "probe_summary.json": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）",
         "coverage_matrix.json": "CDX-012 §2 与计划 L102–L108 覆盖矩阵",
         "limitations_not_executed.json": "限制、未执行与阻塞项登记",
         "fix_record.json": "评审 BLK/NBL 项逐条修复记录",
@@ -98,9 +105,10 @@ def keep_reason_for(relative: str) -> str:
 
 def source_entries(root: Path) -> list[dict[str, str]]:
     sources = [
-        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.3/r04）"),
-        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.3/r04）"),
+        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.4/r05）"),
+        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.4/r05）"),
         ("verification/s6a_rerun_legacy_failures.py", "旧包失败证据可复现重跑脚本（N03）"),
+        ("verification/s6a_r05_probe.py", "C12/C7 新断言的注入探针（N-r04-01/N-r04-03/N-r04-04）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
         ("verification/s6a_build_evidence.py", "证据清单构建器（真实执行检查并记录退出码）"),
         (".codex/STATE.md", "阶段6 STATE（11 字段交接行与证据入口）"),
@@ -190,8 +198,8 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
         "interfaces": frozen_interfaces()[:1],
         "files": files, "checks": checks, "tool_versions": tool_versions,
         "limitations": [
-            "source_commit 为修订基线 2ce290f；证据由未提交工作树生成，最终交付提交哈希见 git log。",
-            "r01/r02/r03 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，"
+            "source_commit 为修订基线 b20b670；证据由未提交工作树生成，最终交付提交哈希见 git log。",
+            "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，"
             "提取一律 git cat-file blob 二进制（N03）。",
             "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
             "M4/M7 在当前草案参数/实现结构下不可达（U6-12），不计入覆盖声明。",
@@ -251,6 +259,16 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[legacy-rerun] exit={legacy_run['exit_code']}")
     if legacy_run["exit_code"] != 0:
         print(legacy_run["stdout"]); print(legacy_run["stderr"]); return 1
+
+    # ---- r05：注入探针（先证明新断言能捕获缺陷；任何非预期结果即中止） ----
+    probe_cmd = [
+        sys.executable, "-B", str(root / "verification/s6a_r05_probe.py"),
+        "--run-dir", str(run_dir), "--project-root", str(root),
+    ]
+    probe_run = run_command(probe_cmd, root)
+    print(f"[r05-probe] exit={probe_run['exit_code']}")
+    if probe_run["exit_code"] != 0:
+        print(probe_run["stdout"]); print(probe_run["stderr"]); return 1
 
     source_commit = subprocess.run(
         ["git", "-C", str(root), "rev-parse", "HEAD"],
@@ -316,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
     inputs_output_path.write_text(inputs_final["stdout"], encoding="utf-8")
 
     summary_lines = [
-        "# S6-A v1.3 / r04 运行摘要",
+        "# S6-A v1.4 / r05 运行摘要",
         "",
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 修订基线提交：`{source_commit}`（证据由未提交工作树生成）",
@@ -327,7 +345,8 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "| 检查 | 命令（绝对 project-root） | 实测退出码 |",
         "|---|---|---|",
-        f"| 旧包失败证据重跑（r01/r02/r03，N03） | `{subprocess.list2cmdline(legacy_cmd)}` | 实测 {legacy_run['exit_code']}（各类失败输出落盘） |",
+        f"| 旧包失败证据重跑（r01/r02/r03/r04） | `{subprocess.list2cmdline(legacy_cmd)}` | 实测 {legacy_run['exit_code']}（各类失败输出落盘） |",
+        f"| 注入探针（基线 + 8 用例，N-r04-01/03/04） | `{subprocess.list2cmdline(probe_cmd)}` | 实测 {probe_run['exit_code']}（各用例自检输出落盘） |",
         f"| 自检（17 项，含完整 C11 与 C17） | `{subprocess.list2cmdline(selfcheck_cmd)}` | 见 `delivery_manifest.json.checks` 与 `selfcheck_c11_stdout.txt` |",
         f"| check_stage_delivery --mode inputs | `{subprocess.list2cmdline(inputs_cmd)}` | {inputs_final['exit_code']}（stdout: `check_inputs_mode_output.txt`） |",
         f"| check_stage_delivery --mode evidence | `{subprocess.list2cmdline(evidence_cmd)}` | 见 `delivery_manifest.json.checks`（stdout: `check_evidence_mode_output.txt`） |",
@@ -343,6 +362,8 @@ def main(argv: list[str] | None = None) -> int:
         "- `selfcheck_old_package_failure.json/.txt` + `old_package_under_test.json`（r01，git 字节可复核）",
         "- `selfcheck_r02_blk1_failure.json/.txt` + `r02_package_under_test.json`（r02，C12 捕获 BLK-1）",
         "- `selfcheck_r03_failure.json/.txt` + `r03_package_under_test.json`（r03，C12 捕获 R3-B01/R3-B02、C17 捕获缺锁存块）",
+        "- `selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）",
+        "- `probe_summary.json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）",
         "- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`",
         "",
         "## 结论边界",

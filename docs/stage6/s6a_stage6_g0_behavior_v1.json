@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
   "artifact": "s6a_stage6_g0_behavior",
-  "artifact_version": "S6A-G0-v1.3",
+  "artifact_version": "S6A-G0-v1.4",
   "stage": "stage6",
   "task_id": "S6-A",
-  "run_id": "s6a_g0_20261022_r04",
+  "run_id": "s6a_g0_20261022_r05",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_PENDING_APPROVAL",
-  "status_label": "阶段6 G0 包与行为表 v1.3（r04 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
-  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r04 针对第三轮复评 S6A_r03_20261022_r01（CHANGES_REQUIRED）关闭 R3-B01（§12 谓词残留改写 + t_last_target_continues 定义 + 禁用标识符扫描）、R3-B02（predicates.used_by 与 predicates_used 全量双向一致；M5/B13 的字段现状与叙述一致）、N01..N05 与 STABLE 锁存观察项；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
+  "status_label": "阶段6 G0 包与行为表 v1.4（r05 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
+  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r05 关闭第 4 轮独立复评（PASS，0 阻断）的 5 项非阻断建议：N-r04-01（M5 条件补「本帧必须为窗口推进帧」+ C12 文本断言 + 角落序列用例）、N-r04-02（M5/B13 绑定叙述精确化）、N-r04-03（C12 拒绝显式空列表 predicates_used）、N-r04-04（C7 窗口跨度改为窗口首帧→第 T6-S02 个 WINDOW_MATCH 帧）、N-r04-05（清理 S6-B WIP 中不存在的设计文档引用，WIP 仍不提交）；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
     "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151",
     "worktree_clean_at_start": true,
     "index_lock_present_at_start": false,
-    "revision_base_commit": "2ce290f495e3bd50b249158be9f4f876a5f8e3fb",
-    "revision_note": "在 r03（提交 2ce290f）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
+    "revision_base_commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7",
+    "revision_note": "在 r04（提交 b20b670）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
   },
   "upstream": [
     {
@@ -242,13 +242,14 @@
       "id": "M5",
       "from": "STABLE",
       "to": "TRIGGERED",
-      "condition": "STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）",
+      "condition": "STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）（且本帧必须为窗口推进帧：state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）",
       "priority": "P3",
       "params": [
         "T6-K01"
       ],
       "global_cooldown_gate": true,
-      "predicate_binding_note": "本迁移不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段（见 predicate_binding_policy）。"
+      "predicate_binding_note": "本迁移不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段（见 predicate_binding_policy）。",
+      "window_advance_required": "只有窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）可触发 M5；异常/过期/重复/倒序/缺帧帧即使恰逢全局冷却门开启也不得触发（B18/B21/B22/B23、§13）。"
     },
     {
       "id": "M6",
@@ -1236,9 +1237,10 @@
       "抖动耗尽（M4 只作用于 CANDIDATE，不作用于 STABLE）",
       "score 跌破 T6-P02"
     ],
-    "suppressed_trigger_release": "全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。",
+    "suppressed_trigger_release": "全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。若门恰在异常/重复/倒序/过期/缺帧帧开启，该帧不得触发（B18/B21/B22/B23、§13），必须等到下一条窗口推进帧。",
     "pending_confirmation": "U6-16：若 G0 改为不锁存，属实质语义变更，需补 STABLE→CANDIDATE 迁移并同步 §4/§10/M5 与本块。",
-    "source": "第三轮复评 S6A_r03_20261022_r01 观察项（STABLE 是否锁存必须给出唯一答案）"
+    "source": "第三轮复评 S6A_r03_20261022_r01 观察项（STABLE 是否锁存必须给出唯一答案）",
+    "window_advance_required": true
   },
   "low_fps_latency": {
     "frame_period_symbol": "P_meas（必须为阶段4 实测帧周期；无实测时 T6-A03 记 NOT_RUN，不得用假设 FPS 代替）",
@@ -1404,7 +1406,7 @@
     "全部阈值与指标为待批准；获批前任何统计只能报告为观测值",
     "交互通过不代替阶段7 最终性能与可靠性验收",
     "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）",
-    "本文件为 r04 修订版（v1.3），只按独立复评关闭记录/语义缺陷；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
+    "本文件为 r05 修订版（v1.4），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
   ],
   "evidence_boundaries": [
     "回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收",
@@ -1412,55 +1414,40 @@
     "显示侧新增 HUD 字段与五类动作映射为阶段6 提案",
     "无硬件授权：未做任何板上验证"
   ],
-  "supersedes_run_id": "s6a_g0_20261022_r03",
+  "supersedes_run_id": "s6a_g0_20261022_r04",
   "revision": {
-    "run_id": "s6a_g0_20261022_r04",
-    "supersedes_run_id": "s6a_g0_20261022_r03",
-    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r03_20261022_r01/",
-    "review_verdict": "CHANGES_REQUIRED（R3-B01/R3-B02 + N01..N05 + 观察项）",
-    "semantic_changes": true,
+    "run_id": "s6a_g0_20261022_r05",
+    "supersedes_run_id": "s6a_g0_20261022_r04",
+    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/",
+    "review_verdict": "PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）",
+    "semantic_changes": false,
     "parameter_value_changes": false,
     "parameter_approval_changes": false,
     "changes": [
       {
-        "issue": "R3-B01",
-        "summary": "§12 稳定帧数行改用「连续 WINDOW_MATCH 帧数 ≥ T6-S02」、丢失时间行改用 t_now − t_last_target_continues ≥ T6-L02，并在 §3/§12/§13 给出该锚点定义；M10/B10 同步；C12 增加禁用标识符扫描（matched_frames、t_last_match、t_submit+ 均已废弃，仅放行邻近标注“已废弃”的历史说明）",
-        "where": "文档 §3/§4/§5/§12/§13 / transitions.M10 / behavior_rows.B10 / time_anchors / 自检 C12"
+        "issue": "N-r04-01",
+        "summary": "M5 条件补「本帧必须为窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）」并与 §4 锁存段/stable_latching 一致；新增 window_advance_required 说明；自检 C12 增加 M5 限定文本断言；新增手算样例 HC-30 覆盖「锁存 STABLE + 冷却门恰在 TIMEOUT 帧开启」",
+        "where": "transitions.M5 / stable_latching / 文档 §4 / hand_computed_cases HC-30 / 自检 C12+C7"
       },
       {
-        "issue": "R3-B02",
-        "summary": "predicates.used_by 与 predicates_used 全量双向一致：B03 补 [TARGET_CONTINUES]、B17 补 [WINDOW_MATCH]、TARGET_CONTINUES.used_by 补 B14、M1.predicates_used 收敛为仅 [TARGET_CONTINUES]；M5/B13 只有条件文本 + global_cooldown_gate 绑定、无 predicates_used 字段（叙述与 JSON 一致）；C12 增加全量双向断言",
-        "where": "behavior_rows.B03/B17 / transitions.M1 / predicates.TARGET_CONTINUES.used_by / predicate_binding_policy / 自检 C12"
+        "issue": "N-r04-02",
+        "summary": "predicate_binding_policy.statement 精确化：M5 带 global_cooldown_gate 标记、B13 由 H-10 承载；两者都只有条件文本、均无 predicates_used 字段（文档 §4 与 STATE 同步）",
+        "where": "predicate_binding_policy / 文档 §4 / .codex/STATE.md"
       },
       {
-        "issue": "N01",
-        "summary": "H-10 与 §4 统一冷却锚点 t_last_submit，删除已废弃的 t_submit+ 写法与「自动作提交时刻」错字",
-        "where": "文档 §2 H-10 / §4"
+        "issue": "N-r04-03",
+        "summary": "自检 C12 增加普适断言：任何条目的 predicates_used 出现时必须为非空列表，显式空列表 [] 判不合法；由注入探针证明可捕获",
+        "where": "自检 C12 / verification/s6a_r05_probe.py"
       },
       {
-        "issue": "N02",
-        "summary": "HC-27 去掉自比较 (s02>=s02)/(s02+1>=s02)，改为按帧时刻序列推导；HC-28/HC-29 由逐帧 score/几何序列真推导 TARGET_CONTINUES 与 WINDOW_MATCH 计数；revision.changes 措辞按实际改动重述",
-        "where": "hand_computed_cases.json HC-27/28/29 / 自检 C7 recompute"
+        "issue": "N-r04-04",
+        "summary": "C7 的窗口跨度改为「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」（HC-29 由 320 ms 修正为 200 ms），并断言与宽松序列跨度口径下 m3_fires 结论一致",
+        "where": "自检 C7 recompute / hand_computed_cases HC-28/HC-29"
       },
       {
-        "issue": "N03",
-        "summary": "旧包失败证据改由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑（r01/r02/r03），并纳入构建器流程；提取一律 git cat-file blob 二进制",
-        "where": "verification/s6a_rerun_legacy_failures.py / verification/s6a_build_evidence.py"
-      },
-      {
-        "issue": "N04",
-        "summary": "coverage C7 样例数 27→29；limitations/selfcheck/构建器版本号统一为 v1.3/r04",
-        "where": "coverage_matrix.json / limitations_not_executed.json / verification/s6_g0_selfcheck.py / verification/s6a_build_evidence.py"
-      },
-      {
-        "issue": "N05",
-        "summary": "旧哈希成因措辞改为「LF→CRLF + 末尾补 CRLF」（去掉无证据的「编码」表述）",
-        "where": "fix_record / limitations_not_executed / old_package_under_test"
-      },
-      {
-        "issue": "观察项",
-        "summary": "STABLE 定论为「本次获取内锁存」：不因窗口中断/分数下降/抖动耗尽退回 CANDIDATE，离开路径为 M2/M10/M5；新增 stable_latching、自检 C17 与 U6-16",
-        "where": "文档 §4 / stable_latching / 自检 C17 / open_decisions U6-16"
+        "issue": "N-r04-05",
+        "summary": "清理 src/stage6 WIP 中对不存在的 docs/stage6/S6B_stage6_state_machine_design_v1.md 的引用，改引用现有 v1.4 契约文件；WIP 仍不提交",
+        "where": "src/stage6/s6_core.py（未跟踪 WIP）"
       }
     ],
     "deleted_transitions": [
@@ -1470,10 +1457,10 @@
       }
     ],
     "review_status": "PENDING_REVIEW",
-    "retained_from_r03": {
-      "artifact_version": "S6A-G0-v1.2",
-      "run_id": "s6a_g0_20261022_r03",
-      "note": "r03 的谓词落地、旧包哈希二进制重算、C11 完整入库与 NBL-1..5 修订全部保留；r04 只修 R3-B01/R3-B02、N01..N05 与 STABLE 锁存观察项。"
+    "retained_from_r04": {
+      "artifact_version": "S6A-G0-v1.3",
+      "run_id": "s6a_g0_20261022_r04",
+      "note": "r04 的 R3-B01/R3-B02/N01..N05 与 STABLE 锁存定论全部保留；r05 只做 5 项非阻断收尾。"
     }
   },
   "predicates": {
@@ -1528,16 +1515,17 @@
     "terminology_rule": "文档与行为表不得再用无修饰的“匹配”指代上述两类判定。"
   },
   "predicate_binding_policy": {
-    "statement": "M5 与 B13 只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段。",
+    "statement": "M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段。",
     "items_without_predicates_used": [
       "M5",
       "B13"
     ],
     "item_notes": {
-      "M5": "M5 的条件由 STABLE、本次获取尚未触发、全局冷却门（t_now − t_last_submit ≥ T6-K01）构成，不使用 TARGET_CONTINUES/WINDOW_MATCH；只有 global_cooldown_gate 标记。",
-      "B13": "B13 的条件由 t_last_submit 与 T6-K01 构成，不使用 TARGET_CONTINUES/WINDOW_MATCH；其抑制语义由 H-10 全局门承载。"
+      "M5": "M5 带 global_cooldown_gate 标记（条件另含 STABLE 与本次获取尚未触发），不使用 TARGET_CONTINUES/WINDOW_MATCH；没有 predicates_used 字段。",
+      "B13": "B13 的抑制语义由 H-10 全局门承载（条件只含 t_last_submit 与 T6-K01），不使用 TARGET_CONTINUES/WINDOW_MATCH；没有 predicates_used 字段。"
     },
-    "rule": "predicates.used_by 与每一条目的 predicates_used 必须全量双向一致；不使用谓词的条目不得出现 predicates_used 字段，且全部叙述必须与本块一致（R3-B02）。"
+    "rule": "predicates.used_by 与每一条目的 predicates_used 必须全量双向一致；不使用谓词的条目不得出现 predicates_used 字段，且全部叙述必须与本块一致（R3-B02）。",
+    "empty_list_rule": "任何条目的 predicates_used 若出现必须是非空列表；显式空列表 [] 视为不合法（N-r04-03）。"
   },
   "cooldown_policy": {
     "scope": "GLOBAL_GATE",

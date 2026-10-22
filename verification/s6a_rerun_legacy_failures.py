@@ -64,6 +64,19 @@ LEGACY = [
                    "与 R3-B02（predicates.used_by ↔ predicates_used 非双向、B03/B17 缺字段、B14 反向缺），"
                    "C17 必须捕获缺失的 stable_latching。",
     },
+    {
+        "label": "r04",
+        "tag": "r04",
+        "commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7",
+        "evidence_run": "s6a_g0_20261022_r04",
+        "package_out": "r04_package_under_test.json",
+        "failure_json": "selfcheck_r04_failure.json",
+        "failure_txt": "selfcheck_r04_failure_stdout.txt",
+        "artifact": "s6a_r04_package_under_test",
+        "purpose": "r04 被检版本字节与哈希（第 4 轮复评 PASS 的版本）；r05 加固后的自检必须在其上捕获"
+                   "N-r04-01（M5 条件缺「仅窗口推进帧」限定）、N-r04-02（M5/B13 叙述措辞）与 N-r04-04"
+                   "（样例数不足 30 / 缺 HC-30 与窗口跨度断言），即证明 r05 新断言不是空壳。",
+    },
 ]
 
 HASH_ERROR_EXPLANATION = (

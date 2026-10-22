@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.4",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r05",
+  "supersedes_run_id": "s6a_g0_20261022_r04",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/",
+  "review_verdict": "PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）",
+  "review_status_after_fix": "PENDING_REVIEW（是否再复评由项目总控决定；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r05",
+    "r01..r04_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "s6b_wip_committed": false,
+    "self_check_before_after": "先用 r05 最终自检在 r04（git b20b670）字节上跑出失败输出（exit 1：C12 捕获 N-r04-01/N-r04-02、C7 捕获 N-r04-04）并保留（selfcheck_r04_failure.json/.txt、r04_package_under_test.json）；再由注入探针（probe_summary.json）对 8 个注入用例逐条证明 C12/C7 新断言可捕获；最后对 r05 跑出 17 项 ALL_PASS"
+  },
+  "non_blocking_items": [
+    {
+      "id": "N-r04-01",
+      "problem": "M5 条件文本未复述「仅窗口推进帧」限定；「锁存 STABLE + 门在 TIMEOUT 帧开启」角落序列无显式用例。",
+      "fix": "M5 条件追加「（且本帧必须为窗口推进帧：state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）」；新增 `window_advance_required` 说明并与 `stable_latching.suppressed_trigger_release` 一致；C12 增加 M5/文档 §4/`suppressed_trigger_release` 三处文本断言；新增 HC-30 角落序列（门在 TIMEOUT 帧开启 → 无动作；门在 OK 帧开启 → 该帧触发）。",
+      "evidence": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json transitions.M5 / stable_latching",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §4 M5 行",
+        "hand_computed_cases.json HC-30",
+        "probe_summary.json: m5_window_advance_removed（C12）、case_timeout_frame_action（C7）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r04-02",
+      "problem": "`predicate_binding_policy.statement` 称 M5 与 B13 都带 `global_cooldown_gate` 绑定，但 B13 实际没有该字段（其语义由 H-10 承载）。",
+      "fix": "statement 改为「M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段」，文档 §4 与 STATE 同步；C12 增加 `global_cooldown_gate`/`H-10`/`predicates_used` 事实要素断言。",
+      "evidence": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json predicate_binding_policy.statement",
+        ".codex/STATE.md M5/B13 叙述口径行"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r04-03",
+      "problem": "C12 未拒绝显式空列表 `predicates_used: []`（注入 M2 时自检仍 ALL_PASS）。",
+      "fix": "C12 增加普适断言：任何条目的 `predicates_used` 出现时必须是非空列表，显式空列表或非列表均不合法；`predicate_binding_policy.empty_list_rule` 记录该规则。",
+      "evidence": [
+        "verification/s6_g0_selfcheck.py C12",
+        "probe_summary.json: empty_predicates_used（C12 捕获，exit 1）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r04-04",
+      "problem": "C7 的 `window_span_ms` 用整段输入序列跨度，与 §9「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」不一致；HC-29 推导写成 320 ms。",
+      "fix": "改为按 §9 口径计算（HC-29 = 5×40 = 200 ms），保留宽松序列跨度并新增 `span_conventions_agree` 断言两种口径下 `m3_fires` 结论一致；修正 HC-28/HC-29 推导文字。",
+      "evidence": [
+        "verification/s6_g0_selfcheck.py C7 recompute",
+        "hand_computed_cases.json HC-28/HC-29 expected.window_span_ms",
+        "probe_summary.json: case_span_wrong（C7 捕获，exit 1）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r04-05",
+      "problem": "`src/stage6/s6_core.py` 文档串引用不存在的 `docs/stage6/S6B_stage6_state_machine_design_v1.md`。",
+      "fix": "改为引用现有已冻结的 G0 契约文件（`docs/stage6/s6a_stage6_g0_behavior_v1.json` 与 `docs/stage6/S6A_stage6_g0_behavior_spec_v1.md`），并声明 WIP 与 v1.4 契约的差异须在 S6-B 返工时逐条消除；该 WIP 仍未提交、不作为本包证据。",
+      "evidence": [
+        "src/stage6/s6_core.py 模块文档串（未跟踪 WIP）"
+      ],
+      "status": "FIXED_PENDING_REVIEW（WIP 不入库）"
+    }
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；是否再复评由项目总控决定。",
+    "全部 24 项参数值与 PENDING_APPROVAL 状态未改；未在测试集上调整任何参数。",
+    "S6-B WIP（docs/stage6/s6b_frozen_interface_v1.json、src/stage6/**）保持未提交，不参与本包证据。",
+    "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+  ]
+}

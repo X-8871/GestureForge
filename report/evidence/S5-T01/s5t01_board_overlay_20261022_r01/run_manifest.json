@@ -2,8 +2,8 @@
   "schema_version": "gestureforge_s5t01_board_overlay_v1",
   "task_id": "S5-T01",
   "run_id": "s5t01_board_overlay_20261022_r01",
-  "generated_utc8": "2026-10-22T15:30:57+08:00",
-  "source_head": "bbaa3f8859a8cc813316cfbf6663bcb0a6a61400",
+  "generated_utc8": "2026-10-22T17:58:03+08:00",
+  "source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2",
   "decision": "Wong 2026-10-22 chose option B (PS synthetic video source + software overlay, zero new PL)",
   "goal_reached": "P1_APP_BUILT_AND_RUNNING__DISPLAY_BUFFER_VERIFIED__FPS_NOT_VERIFIED",
   "video_source": "PS_SYNTHETIC (not a real capture; must not be used to claim stage-3 capture/colour results)",
@@ -111,6 +111,10 @@
       "sha256": "2288ff130fba91d839df2c576a5740b18b30f4a35fc73a7b1b21f6faecccf83d"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/photo_analysis.json",
+      "sha256": "a9e67172c047b9d8aad4dd3ae3d95c361cf91273ac3fcdba5cb5bb16c7208a6d"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/read_overlay_buf.txt",
       "sha256": "fa4143b2203226a0add263f0b1573eedca6931fe38873b554905d165ec9fd212"
     },
@@ -123,8 +127,12 @@
       "sha256": "9722510b02ec062568782625ab0414b0378fb8c3db8c8820c70352bc61d12111"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/photos/hdmi_case5_20261022.jpg",
+      "sha256": "110f46e3b2476cf44ed2f9e54c5cbc9b044fcdc994586412c97546fd52c5a78f"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/summary.md",
-      "sha256": "59477922b6a67c2753d896130a342a46639a59f598fdc61638e2983a213cb008"
+      "sha256": "4a02735820c371e4f82d8997e619966853368188c301731412cfdf5684b76ae8"
     }
   ],
   "bound_inputs": [
@@ -173,5 +181,25 @@
   "self_defects_fixed": [
     "生成头 seg[8][4] 装不下 'B' 的 10 笔画（越界/截断）",
     "s5_text 中字形指针 g 遮蔽颜色参数 g（颜色错乱）"
-  ]
+  ],
+  "photo_evidence": {
+    "file": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/photos/hdmi_case5_20261022.jpg",
+    "sha256": "110f46e3b2476cf44ed2f9e54c5cbc9b044fcdc994586412c97546fd52c5a78f",
+    "provided_by": "Wong",
+    "size": "1919x1080, 493672 bytes",
+    "visual_confirms": [
+      "synthetic background on screen",
+      "HUD CASE5/BOXES2/SEMB/FRESH readable",
+      "red FIST box + green PALM box rendered",
+      "green box label PALM 0.62 flipped inside because its top edge is at canvas y=0",
+      "class colours applied"
+    ],
+    "automated_quantitative_extraction": "NOT_ACHIEVED (white corner markers below threshold; horizontal centre cross too dim in photo) -> no canvas<->photo mapping, no 1px-level claim",
+    "defects_found": [
+      "D-1 background bar value wraps in u8 (black bands at x>=512,1024)",
+      "D-2 case-5 red label overlaps top-left HUD rows"
+    ],
+    "analysis_file": "console/photo_analysis.json",
+    "analysis_script": "scripts/stage5_t01/analyze_hdmi_photo.py"
+  }
 }

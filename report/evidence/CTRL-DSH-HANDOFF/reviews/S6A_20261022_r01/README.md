@@ -52,7 +52,9 @@
 - `selfcheck_independent.json`、`selfcheck_with_project_root_dot.json`：不同 `--project-root` 下的自检复跑输出
 - `dump_source_order.py`、`make_manifests_sim.py`：辅助脚本
 
-## 4. 处置
+## 5. 复核更正（DSH 项目总控，2026-10-22 19:52）
 
-- 已下发共享任务 `task-3`（S6-A 修订）给阶段6 总控 `stage6-lead2`；修订后由项目总控**另行安排独立复评**（不得由修订者自评）。
-- 修订期间 w6 写权仍归 `stage6-lead2`；本项目总控只读。
+1. **「文档缺 H-5 / M2 / M10」是误报**：用 `git show 1fe4648:docs/stage6/S6A_stage6_g0_behavior_spec_v1.md` 核对，三项在 r01 中分别位于**第 41 / 66 / 74 行**。上一轮 `compare_spec.py` 的正则要求 `**：` 形式与特定来源状态写法，过严而漏检。→ 本记录 §2.2 与主 STATE 中「文档缺 H-5、M2/M10」的表述**作废**，以本节为准。`T6-S03`、`E_FRAME_CONFLICT`、`A_DISPLAY_STATE`、`M14` 的差异仍成立（阶段6 已在 r02 处理）。
+2. **自检命令复现**：`s6_g0_selfcheck.py` 的 C11 要求 `--evidence-dir`（不静默跳过，属合理设计）。DSH 用 r01 时期登记的旧命令（无该参数）复跑得到 `FAILED` exit 1，系**使用旧命令**所致；r02 的 `S6A_run_summary.md` 与 w6 STATE 均已登记该参数，按完整命令复跑为 `ALL_PASS` exit 0。**不构成 r02 缺陷**。
+3. 我方独立复核通过项（r02，提交 `3b59674`）：带 `--evidence-dir` 自检 `ALL_PASS` exit 0；`check_stage_delivery.py --mode inputs` 与 `--mode evidence` 均 `CHECKS_OK` exit 0（绝对 `--project-root`）；`W_min` / `TARGET_CONTINUES` / `WINDOW_MATCH` / `H-10` / `cooldown_policy` 在 MD 与 JSON 双侧均出现；旧包失败证据文件在位；24 项参数仍为 `PENDING_APPROVAL`。
+4. 复评由 DSH 另派的**新** Reviewers 进行（非修订者、非本轮评审者）；其结论回来前，r02 **不得**作为 G0 批准输入。

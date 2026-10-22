@@ -20,7 +20,7 @@
 - **S5-D**：`docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md`（5 条建议，未改 w4 草案）。
 - **独立审查**：第 1 轮 `CHANGES_REQUIRED`（3 项，均文档/证据标注层）→ 第 2 轮聚焦关闭 **PASS**（F-01/F-02/F-03 全部 CLOSED，无新增阻断项）；记录 `report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01|_r02/`。
 - **收尾记录与机器清单**：`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/S5CTRL-20261022-002-stage5-offline-prep-closing-record.md`；交付清单 `report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json`（`check_stage_delivery.py --mode evidence` **exit 0 / CHECKS_OK**，确定性 SHA `6b3176cf…`；清单 `source_commit` 为起始基线 `acd2df6`，交付以逐文件 SHA-256 绑定）。
-- **本阶段提交链**：`0b942ed`（交付本体 425 文件）→ `ff8d78c`（`.gitattributes -text` + 记录）→ `256fc98`（`--renormalize` 143 文件重存，HEAD）；修复后复验清单绑定 **12/12** 文件 blob==工作树字节、检查器 exit 0、工作区干净。
+- **本阶段提交链**：`0b942ed`（交付本体 425 文件）→ `ff8d78c`（`.gitattributes -text` + 记录）→ `256fc98`（`--renormalize` 143 文件重存）→ 收尾定稿提交（HEAD 以 `git log --oneline -1` 为准）；修复后复验清单绑定 **12/12** 文件 blob==工作树字节、检查器 exit 0、工作区干净。
 
 ## 未决与风险
 - 待正式 G0/Wong：成品允许延迟上限、颜色表/字号；契约 `discrete_fields_must_match` 拆分（F-01 根因）；阶段4 `stale_age_limit` 仍 `DRAFT_PROPOSED`（阶段5 已按**同源同一常量 200 ms** 使用，正式冻结须同步）。

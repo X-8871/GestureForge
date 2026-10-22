@@ -73,7 +73,7 @@
 - **修复**：按项目既有惯例（`.gitattributes` 对证据/验证文件使用 `-text`），为阶段5 路径加 `-text` 并重新入库，使 **blob == 工作树字节**；修复后清单绑定的 12/12 文件 blob 与工作树 SHA-256 一致。
 - **复现口径**：所有证据/清单哈希以**仓库内字节**为准；复现命令 `git cat-file blob <commit>:<path> | sha256sum` 与工作树 `sha256sum <path>` 应相同。
 - 该修复只涉及 EOL 策略与重新入库，**不改**任何实现、规格、阈值或结论；交付清单核验（CHECKS_OK / exit 0）在修复后重新确认。
-- **提交链（本阶段）**：`0b942ed`（交付本体，425 文件）→ `ff8d78c`（`.gitattributes` `-text` + 本记录与 STATE 更新）→ `256fc98`（`git add --renormalize`，143 文件按新属性重存）＝ 本阶段 HEAD。修复后复验：清单绑定的 **12/12** 文件 blob 与工作树 SHA-256 一致，`check_stage_delivery.py --mode evidence` 仍 **exit 0 / CHECKS_OK**，工作区干净。
+- **提交链（本阶段）**：`0b942ed`（交付本体，425 文件）→ `ff8d78c`（`.gitattributes` `-text` + 本记录与 STATE 更新）→ `256fc98`（`git add --renormalize`，143 文件按新属性重存）→ 收尾记录/STATE 定稿提交（阶段 HEAD 以 `git log --oneline -1` 为准，不在此内嵌自指哈希）。修复后复验：清单绑定的 **12/12** 文件 blob 与工作树 SHA-256 一致，`check_stage_delivery.py --mode evidence` 仍 **exit 0 / CHECKS_OK**，工作区干净。
 - **清单 `source_commit` 语义**：`delivery_manifest.json` 的 `source_commit = acd2df6` 是**起始基线**（本阶段交付即 `acd2df6`→`256fc98` 的差异）；清单对交付物的绑定以**逐文件 SHA-256**（`role=source` 8 项 + 运行目录文件）为准，不以 `source_commit` 指代最终版本。
 
 ## 8. 边界声明与下一步

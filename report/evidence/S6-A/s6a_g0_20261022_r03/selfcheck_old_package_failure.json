@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_g0_selfcheck_result",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r01",
+  "artifact_version": "S6A-G0-v1",
+  "status": "FAILED",
+  "checks": [
+    {
+      "id": "C1",
+      "name": "JSON 身份与必填块",
+      "status": "PASS",
+      "detail": "identity ok"
+    },
+    {
+      "id": "C2",
+      "name": "ID 唯一性与最小规模",
+      "status": "FAIL",
+      "detail": "硬不变量少于 10 条（H-10 全局冷却门必须存在）"
+    },
+    {
+      "id": "C3",
+      "name": "文档↔JSON 标识集合双向一致",
+      "status": "FAIL",
+      "detail": "M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comparison 不一致：JSON 'sliding_window' vs 文档 '—'；JSON 有而文档 §3 缺的事件：['E_FRAME_CONFLICT']；动作支持类型不一致：JSON ['A_DISPLAY_STATE', 'A_SWITCH_CHANNEL', 'A_SWITCH_UI'] vs 文档表 A-1 ['A_SWITCH_CHANNEL', 'A_SWITCH_UI']"
+    },
+    {
+      "id": "C4",
+      "name": "待批准纪律",
+      "status": "FAIL",
+      "detail": "文档 §14 缺少 T6-S03 行"
+    },
+    {
+      "id": "C5",
+      "name": "五类动作映射一致",
+      "status": "FAIL",
+      "detail": "r02 支持类型必须恰为 A_SWITCH_UI + A_SWITCH_CHANNEL"
+    },
+    {
+      "id": "C6",
+      "name": "硬不变量与唯一触发解释",
+      "status": "FAIL",
+      "detail": "缺少硬不变量 H-10"
+    },
+    {
+      "id": "C7",
+      "name": "人工手算样例独立复算",
+      "status": "FAIL",
+      "detail": "HC-07 复算异常：KeyError: 't_last_submit_ms'"
+    },
+    {
+      "id": "C8",
+      "name": "上游只读文件哈希复算",
+      "status": "PASS",
+      "detail": "11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d)"
+    },
+    {
+      "id": "C9",
+      "name": "文档必备覆盖与章节",
+      "status": "FAIL",
+      "detail": "文档缺少必备关键词：['TARGET_CONTINUES', 'WINDOW_MATCH', 'W_min', 'window_complete', 'H-10', 'DELIVERED_PENDING_APPROVAL']"
+    },
+    {
+      "id": "C10",
+      "name": "禁止声明扫描（窄口径）",
+      "status": "PASS",
+      "detail": "未发现禁止声明"
+    },
+    {
+      "id": "C11",
+      "name": "证据清单/STATE 声明 vs 实际文件",
+      "status": "FAIL",
+      "detail": "STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL"
+    },
+    {
+      "id": "C12",
+      "name": "谓词拆分一致性（B-05）",
+      "status": "FAIL",
+      "detail": "缺少谓词定义：TARGET_CONTINUES"
+    },
+    {
+      "id": "C13",
+      "name": "冷却全局门一致性（B-03/H-10）",
+      "status": "FAIL",
+      "detail": "cooldown_policy.scope 必须为 GLOBAL_GATE"
+    },
+    {
+      "id": "C14",
+      "name": "W_min/实测帧周期口径（B-04/N-05）",
+      "status": "FAIL",
+      "detail": "low_fps_latency 必须声明 W_min 只是下界"
+    },
+    {
+      "id": "C15",
+      "name": "H-4/NO_HAND 一致性（B-02）",
+      "status": "FAIL",
+      "detail": "H-4 必须区分窗口序列推进与匹配计数，并写明 NO_HAND 不推进匹配计数"
+    },
+    {
+      "id": "C16",
+      "name": "迁移可达性与覆盖声明（N-02/N-03）",
+      "status": "FAIL",
+      "detail": "r02 必须删除 M14（重获统一为 M10→M11→M1）"
+    }
+  ],
+  "errors": [
+    "C2: 硬不变量少于 10 条（H-10 全局冷却门必须存在）",
+    "C3: M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comparison 不一致：JSON 'sliding_window' vs 文档 '—'；JSON 有而文档 §3 缺的事件：['E_FRAME_CONFLICT']；动作支持类型不一致：JSON ['A_DISPLAY_STATE', 'A_SWITCH_CHANNEL', 'A_SWITCH_UI'] vs 文档表 A-1 ['A_SWITCH_CHANNEL', 'A_SWITCH_UI']",
+    "C4: 文档 §14 缺少 T6-S03 行",
+    "C5: r02 支持类型必须恰为 A_SWITCH_UI + A_SWITCH_CHANNEL",
+    "C6: 缺少硬不变量 H-10",
+    "C7: HC-07 复算异常：KeyError: 't_last_submit_ms'",
+    "C9: 文档缺少必备关键词：['TARGET_CONTINUES', 'WINDOW_MATCH', 'W_min', 'window_complete', 'H-10', 'DELIVERED_PENDING_APPROVAL']",
+    "C11: STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL",
+    "C12: 缺少谓词定义：TARGET_CONTINUES",
+    "C13: cooldown_policy.scope 必须为 GLOBAL_GATE",
+    "C14: low_fps_latency 必须声明 W_min 只是下界",
+    "C15: H-4 必须区分窗口序列推进与匹配计数，并写明 NO_HAND 不推进匹配计数",
+    "C16: r02 必须删除 M14（重获统一为 M10→M11→M1）"
+  ],
+  "id_inventory": {},
+  "inputs": {
+    "behavior_json_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r03\\oldpkg\\r01\\old_behavior.json",
+    "behavior_json_sha256": "1cd0cfc357f3b02a8d8367fead64e5ba8b9cf900607fd65caab76fa88937c583",
+    "human_doc_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r03\\oldpkg\\r01\\old_doc.md",
+    "human_doc_sha256": "12bce40313289acb2f3f618630b82c53293fca15579355c12e329160c1585220",
+    "hand_cases_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r03\\oldpkg\\r01\\old_cases.json",
+    "hand_cases_sha256": "34d35202e546740d0e9885a141afed686dbfbe232cb15a666e735d1209b969f1",
+    "evidence_dir": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r01",
+    "manifest_path": null,
+    "state_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r03\\oldpkg\\r01\\old_STATE.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍无状态机实现）",
+    "C10 为窄口径文本扫描，不是完备的声明审计",
+    "C3 的 from/to 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过"
+  ]
+}

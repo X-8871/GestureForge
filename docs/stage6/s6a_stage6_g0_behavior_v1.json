@@ -1,21 +1,21 @@
 {
   "schema_version": 1,
   "artifact": "s6a_stage6_g0_behavior",
-  "artifact_version": "S6A-G0-v1.1",
+  "artifact_version": "S6A-G0-v1.2",
   "stage": "stage6",
   "task_id": "S6-A",
-  "run_id": "s6a_g0_20261022_r02",
+  "run_id": "s6a_g0_20261022_r03",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_PENDING_APPROVAL",
-  "status_label": "阶段6 G0 包与行为表 v1.1（r02 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
-  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r02 针对独立评审 S6A_20261022_r01（CHANGES_REQUIRED）修订 H-4/冷却全局门/W_min/谓词拆分等语义表述，未改任何参数值（24 项仍全部 PENDING_APPROVAL）。本轮仍未实现状态机、未执行状态机测试、未上板、未接摄像头。",
+  "status_label": "阶段6 G0 包与行为表 v1.2（r03 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
+  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r03 针对复评 S6A_20261022_r02（CHANGES_REQUIRED）关闭 BLK-1（谓词落地到迁移/行为行）、BLK-2（旧包哈希绑定）、BLK-3（C11 证据入库）与 NBL-1..NBL-5；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
     "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151",
     "worktree_clean_at_start": true,
     "index_lock_present_at_start": false,
-    "revision_base_commit": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+    "revision_base_commit": "3b59674f93e8a2c020a0670fa475ee6a15330833",
     "revision_note": "在 r01（提交 1fe4648）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
   },
   "upstream": [
@@ -131,7 +131,7 @@
     },
     {
       "id": "H-10",
-      "rule": "冷却全局门：自动作提交时刻 t_submit 起 T6-K01 内，任何状态、任何获取（含目标丢失后重获、异常恢复、目标切换）都不得提交动作；展示状态 COOLDOWN 因丢失/异常提前退出不解除该门；动作执行层在提交前再次校验。"
+      "rule": "冷却全局门：自最近一次真实提交 t_last_submit 起 T6-K01 内，任何状态、任何获取（含目标丢失后重获、异常恢复、目标切换）都不得提交动作；展示状态 COOLDOWN 因丢失/异常提前退出不解除该门；被抑制或失败的提交尝试不更新 t_last_submit；动作执行层在提交前再次校验。"
     }
   ],
   "event_classes": {
@@ -187,10 +187,14 @@
       "id": "M1",
       "from": "IDLE",
       "to": "CANDIDATE",
-      "condition": "存在通过 §8 选择的目标，且连续 T6-C01 条窗口推进帧为同一目标",
+      "condition": "存在通过 §8 选择的目标，且连续 T6-C01 条窗口推进帧为同一目标（同一目标由 TARGET_CONTINUES 判定；WINDOW_MATCH 仅用于窗口计数）",
       "priority": "P4",
       "params": [
         "T6-C01"
+      ],
+      "predicates_used": [
+        "TARGET_CONTINUES",
+        "WINDOW_MATCH"
       ]
     },
     {
@@ -208,12 +212,15 @@
       "id": "M3",
       "from": "CANDIDATE",
       "to": "STABLE",
-      "condition": "稳定窗口满足：匹配帧数 ≥ T6-S02 且时长 ≥ T6-S01，取较晚满足者",
+      "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01（取较晚满足者）；不得按 TARGET_CONTINUES 计帧（低分目标不得进入 STABLE）",
       "priority": "P3",
       "params": [
         "T6-S01",
         "T6-S02",
         "T6-S03"
+      ],
+      "predicates_used": [
+        "WINDOW_MATCH"
       ]
     },
     {
@@ -227,13 +234,16 @@
         "T6-S04"
       ],
       "reachability": "UNREACHABLE_UNDER_DRAFT_PARAMS",
-      "reachability_note": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，任何候选停留达 S04 前 M10 已先命中；见 reachability / U6-12"
+      "reachability_note": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，任何候选停留达 S04 前 M10 已先命中；见 reachability / U6-12",
+      "predicates_used": [
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "M5",
       "from": "STABLE",
       "to": "TRIGGERED",
-      "condition": "STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_submit ≥ T6-K01；无提交记录视为已结束）",
+      "condition": "STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）",
       "priority": "P3",
       "params": [
         "T6-K01"
@@ -262,33 +272,43 @@
       "id": "M8",
       "from": "COOLDOWN",
       "to": "IDLE",
-      "condition": "冷却结束且当前目标不匹配/已丢失",
+      "condition": "冷却结束且当前目标 TARGET_CONTINUES 不成立/已丢失",
       "priority": "P3",
       "params": [
         "T6-K01"
       ],
-      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证"
+      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证",
+      "predicates_used": [
+        "TARGET_CONTINUES"
+      ]
     },
     {
       "id": "M9",
       "from": "COOLDOWN",
       "to": "STABLE",
-      "condition": "冷却结束、同一目标仍匹配且窗口再次满足 → 维持态，不再触发",
+      "condition": "冷却结束、同一目标仍满足 TARGET_CONTINUES 且 WINDOW_MATCH 窗口再次满足 → 维持态，不再触发",
       "priority": "P3",
       "params": [
         "T6-K01"
       ],
-      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证"
+      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证",
+      "predicates_used": [
+        "TARGET_CONTINUES",
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "M10",
       "from": "*",
       "to": "LOST",
-      "condition": "连续 T6-L01 条推进帧不匹配 或 距上次匹配 ≥ T6-L02，取较早满足者",
+      "condition": "连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立 ≥ T6-L02（取较早满足者）；不得用 WINDOW_MATCH 判丢失（低分但几何连续的目标仍维持）",
       "priority": "P2",
       "params": [
         "T6-L01",
         "T6-L02"
+      ],
+      "predicates_used": [
+        "TARGET_CONTINUES"
       ]
     },
     {
@@ -324,12 +344,16 @@
       "id": "M15",
       "from": "COOLDOWN",
       "to": "CANDIDATE",
-      "condition": "冷却结束、目标仍匹配但窗口未满足；该路径达到稳定也不再触发",
+      "condition": "冷却结束、目标仍满足 TARGET_CONTINUES 但 WINDOW_MATCH 窗口未满足；该路径达到稳定也不再触发",
       "priority": "P3",
       "params": [
         "T6-K01"
       ],
-      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证"
+      "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证",
+      "predicates_used": [
+        "TARGET_CONTINUES",
+        "WINDOW_MATCH"
+      ]
     }
   ],
   "evaluation_order": [
@@ -398,7 +422,7 @@
     {
       "id": "B04",
       "title": "分数优先",
-      "condition": "当前目标不匹配时",
+      "condition": "当前目标 TARGET_CONTINUES 不成立时选最高分框",
       "output": "选 score ≥ T6-P01 的最高分框为新目标并重新累积证据",
       "must_log": [
         "选择依据",
@@ -408,7 +432,10 @@
       "params": [
         "T6-P01"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "TARGET_CONTINUES"
+      ]
     },
     {
       "id": "B05",
@@ -450,12 +477,15 @@
         "T6-S02",
         "T6-S03"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "B08",
       "title": "抖动容忍",
-      "condition": "窗口内短暂中断",
+      "condition": "窗口内短暂中断（窗口推进帧不满足 WINDOW_MATCH）",
       "output": "≤ T6-J01 帧不重置；达到 T6-J01+1 立即重置",
       "must_log": [
         "S_JITTER_TOLERATED 或窗口重置原因"
@@ -464,7 +494,10 @@
       "params": [
         "T6-J01"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "B09",
@@ -480,12 +513,16 @@
         "T6-P04",
         "T6-P05"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "TARGET_CONTINUES",
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "B10",
       "title": "丢失确认",
-      "condition": "连续 T6-L01 条推进帧不匹配 或 距上次匹配 ≥ T6-L02",
+      "condition": "连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立 ≥ T6-L02",
       "output": "M10→M11 清空目标与证据，不产生动作",
       "must_log": [
         "丢失原因分类",
@@ -496,7 +533,10 @@
         "T6-L01",
         "T6-L02"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "TARGET_CONTINUES"
+      ]
     },
     {
       "id": "B11",
@@ -516,7 +556,7 @@
     {
       "id": "B12",
       "title": "目标切换",
-      "condition": "当前目标不匹配且出现另一合法目标",
+      "condition": "当前目标 TARGET_CONTINUES 不成立且出现另一合法目标",
       "output": "切换走丢失/重获路径，新目标必须重新满足窗口",
       "must_log": [
         "旧/新目标字段",
@@ -528,12 +568,15 @@
         "T6-P03",
         "T6-P04"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "TARGET_CONTINUES"
+      ]
     },
     {
       "id": "B13",
       "title": "冷却抑制（全局门）",
-      "condition": "自 t_submit 起 t_now − t_submit < T6-K01（任意状态/任意获取）",
+      "condition": "自 t_last_submit 起 t_now − t_last_submit < T6-K01（任意状态/任意获取）",
       "output": "抑制全部触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间",
       "must_log": [
         "S_COOLDOWN",
@@ -549,8 +592,8 @@
     {
       "id": "B14",
       "title": "冷却结束三分支",
-      "condition": "t_now − t_submit ≥ T6-K01",
-      "output": "WINDOW_MATCH 且窗口满足→M9 维持（不触发）；WINDOW_MATCH 但窗口未满足→M15 候选（不触发）；不匹配/丢失→M8 IDLE；三分支只决定展示状态出口，不解除全局门",
+      "condition": "t_now − t_last_submit ≥ T6-K01（含等号）",
+      "output": "TARGET_CONTINUES 成立且 WINDOW_MATCH 窗口满足→M9 维持（不触发）；TARGET_CONTINUES 成立但窗口未满足→M15 候选（不触发）；TARGET_CONTINUES 不成立/丢失→M8 IDLE；三分支只决定展示状态出口，不解除全局门",
       "must_log": [
         "分支判定证据"
       ],
@@ -558,7 +601,11 @@
       "params": [
         "T6-K01"
       ],
-      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"
+      "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL",
+      "predicates_used": [
+        "TARGET_CONTINUES",
+        "WINDOW_MATCH"
+      ]
     },
     {
       "id": "B15",
@@ -604,7 +651,7 @@
       "id": "B18",
       "title": "过期结果",
       "condition": "stale=true",
-      "output": "不得触发；可作非匹配推进时间；必须显式标注年龄",
+      "output": "不得触发；可作非 WINDOW_MATCH 推进时间；必须显式标注年龄",
       "must_log": [
         "E_FRAME_STALE",
         "age",
@@ -1334,90 +1381,55 @@
     "显示侧新增 HUD 字段与五类动作映射为阶段6 提案",
     "无硬件授权：未做任何板上验证"
   ],
-  "supersedes_run_id": "s6a_g0_20261022_r01",
+  "supersedes_run_id": "s6a_g0_20261022_r02",
   "revision": {
-    "run_id": "s6a_g0_20261022_r02",
-    "supersedes_run_id": "s6a_g0_20261022_r01",
-    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_20261022_r01/",
-    "review_verdict": "CHANGES_REQUIRED（B-01..B-05 阻断 + N-01..N-10）",
+    "run_id": "s6a_g0_20261022_r03",
+    "supersedes_run_id": "s6a_g0_20261022_r02",
+    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r02_20261022_r01/",
+    "review_verdict": "CHANGES_REQUIRED（BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）",
     "semantic_changes": true,
     "parameter_value_changes": false,
     "parameter_approval_changes": false,
     "changes": [
       {
-        "issue": "B-01",
-        "summary": "真实生成 delivery_manifest/inputs_manifest/hashes_sha256，并用绝对 --project-root 实跑 check_stage_delivery 两种模式记录真实退出码",
-        "where": "report/evidence/S6-A/s6a_g0_20261022_r02/ + verification/s6a_build_evidence.py + S6A_run_summary.md"
+        "issue": "BLK-1",
+        "summary": "谓词落地：M3 改用 WINDOW_MATCH 计数；M10/B10 绑 TARGET_CONTINUES；M1/M4/M5/M8/M9/M15 与 B04/B08/B12/B13/B14 显式绑定；used_by 补 M3/M10；C12 增加迁移/行为行断言",
+        "where": "transitions.M1/M3/M4/M5/M8/M9/M10/M15 / behavior_rows.B04/B08/B10/B12/B13/B14 / predicates.used_by / 文档 §4/§5/§9/§10/§12/§13"
       },
       {
-        "issue": "B-02",
-        "summary": "H-4 拆分窗口序列推进与匹配计数；NO_HAND 不推进匹配计数、不得完成稳定窗口",
-        "where": "hard_invariants.H-4 / behavior_rows.B17 / event_classes.window_advance_vs_match"
+        "issue": "BLK-2",
+        "summary": "旧包哈希改用 git show 1fe4648: 原始字节重算（二进制提取）；用同一字节重跑失败证据；说明 r02 哈希不符原因",
+        "where": "old_package_under_test.json / selfcheck_old_package_failure.json/.txt / fix_record"
       },
       {
-        "issue": "B-03",
-        "summary": "冷却改为全局门 H-10：任意状态/任意获取在 K01 内不得提交动作，展示状态退出不解除",
-        "where": "hard_invariants.H-10 / transitions.M5 / behavior_rows.B13,B14 / cooldown_policy"
+        "issue": "BLK-3",
+        "summary": "入库自检改用 --manifest + --state 完整 C11；落盘 C11 stdout 与 inputs/evidence 两种检查器完整 stdout；删除/补齐声明",
+        "where": "selfcheck_result.json / selfcheck_c11_stdout.txt / check_inputs_mode_output.txt / check_evidence_mode_output.txt / coverage_matrix / S6A_run_summary.md"
       },
       {
-        "issue": "B-04",
-        "summary": "窗口完成时刻=第 N 个 WINDOW_MATCH 结果到达时刻；W_min 仅下界且不进延迟统计",
-        "where": "low_fps_latency / behavior_rows.B27"
+        "issue": "NBL-1",
+        "summary": "inputs_manifest.checks 改为两阶段实测回写（先 NOT_RUN，实测后写 PASS+真实退出码）",
+        "where": "verification/s6a_build_evidence.py"
       },
       {
-        "issue": "B-05",
-        "summary": "拆分 TARGET_CONTINUES 与 WINDOW_MATCH 并全表引用",
-        "where": "predicates / behavior_rows.B03,B07,B09,B12 / transitions.M10"
+        "issue": "NBL-2",
+        "summary": "统一冷却锚点名词 t_last_submit（最近一次真实 ACTION_SUBMITTED）；删除“尝试提交”歧义",
+        "where": "cooldown_policy / H-10 / M5 / B13 / B14 / 文档 §10/§12"
       },
       {
-        "issue": "N-01",
-        "summary": "M14 删除；T6-S03 进文档 §14；E_FRAME_CONFLICT 进 §3；A_DISPLAY_STATE 从 supported_types 删除",
-        "where": "transitions / actions.supported_types / 文档 §3/§14"
+        "issue": "NBL-3",
+        "summary": "cooldown/dedup/lost_time/stale/hysteresis 等边界样例引入 t_now/几何输入真算；不再用自比较与输入重述",
+        "where": "hand_computed_cases.json / verification/s6_g0_selfcheck.py C7"
       },
       {
-        "issue": "N-02",
-        "summary": "M4/M7 在当前参数/实现下不可达，登记 reachability 与 U6-12",
-        "where": "reachability / 文档 §14 脚注"
+        "issue": "NBL-4",
+        "summary": "§15 表格补第 6 列表头",
+        "where": "文档 §15"
       },
       {
-        "issue": "N-03",
-        "summary": "§12/B26 覆盖声明收敛；新增 §12.1 缺口与 U00 滑动窗口定义",
-        "where": "文档 §12/§12.1 / behavior_rows.B26"
-      },
-      {
-        "issue": "N-04",
-        "summary": "HC-16/17/20 改为可复算推导；新增 HC-21..HC-27 边界样例",
-        "where": "hand_computed_cases.json / verification/s6_g0_selfcheck.py"
-      },
-      {
-        "issue": "N-05",
-        "summary": "无阶段4 实测 P：T6-A03/延迟量级记 NOT_RUN，新增 U6-13",
-        "where": "low_fps_latency / open_decisions / limitations"
-      },
-      {
-        "issue": "N-06",
-        "summary": "补五类逐类 UX 要求（可见时长待批准 U6-14）",
-        "where": "文档 §7 / actions.ux_requirements"
-      },
-      {
-        "issue": "N-07",
-        "summary": "修正 B16/B19/B23 依据引用",
-        "where": "behavior_rows"
-      },
-      {
-        "issue": "N-08",
-        "summary": "新 RunId 保留旧包失败检测输出与旧包失败自检日志",
-        "where": "report/evidence/S6-A/s6a_g0_20261022_r02/"
-      },
-      {
-        "issue": "N-09",
-        "summary": "±1 单位口径统一为帧 1 条/时间 1 ns/分数 1 ULP，并补 1 ns 样例",
-        "where": "parameter_comparison_semantics / 文档 §12 / HC-27"
-      },
-      {
-        "issue": "N-10",
-        "summary": "去除“冻结为 v1”与“DONE”措辞，统一为 DELIVERED_PENDING_APPROVAL",
-        "where": "文档 §5 / .codex/STATE.md"
+        "issue": "NBL-5",
+        "summary": "修正 B-05“全表引用”过强表述与 transitions.M10 改动点记录；BLK-1 修完后按实际改动重述",
+        "where": "revision.changes / fix_record"
       }
     ],
     "deleted_transitions": [
@@ -1426,15 +1438,28 @@
         "reason": "M10→M11 使 LOST→IDLE 立即完成，原 M14 的 LOST 分支不可达、IDLE 分支与 M1 同效；重获统一表达为 M10→M11→M1（新 acquisition_id）"
       }
     ],
-    "review_status": "PENDING_REVIEW"
+    "review_status": "PENDING_REVIEW",
+    "retained_from_r02": {
+      "artifact_version": "S6A-G0-v1.1",
+      "run_id": "s6a_g0_20261022_r02",
+      "note": "r02 的 H-4/H-10/W_min/谓词定义与 N-01..N-10 修订全部保留；r03 只补谓词绑定与证据/复算缺陷。"
+    }
   },
   "predicates": {
     "TARGET_CONTINUES": {
       "definition": "同一帧内存在与当前目标类别相同、且（IoU ≥ T6-P03 或 归一化中心位移 ≤ T6-P04）的框。",
       "used_by": [
         "B03 迟滞",
+        "B04 当前目标不成立时选择",
         "B09 目标保持",
-        "B12 目标切换判定依据"
+        "B10 丢失确认",
+        "B12 目标切换",
+        "M1 获取连续性",
+        "M8 冷却结束回 IDLE",
+        "M9 冷却结束维持",
+        "M10 丢失确认",
+        "M15 冷却结束回候选",
+        "§12 边界：追踪 IoU / 追踪位移"
       ],
       "params": [
         "T6-P03",
@@ -1449,8 +1474,15 @@
       "definition": "在 TARGET_CONTINUES 成立的框上，再满足 score ≥ T6-P02 且与前一个 WINDOW_MATCH 帧的归一化中心位移 ≤ T6-P05。",
       "used_by": [
         "B07 稳定窗口",
-        "B08 抖动",
-        "B17 无手"
+        "B08 抖动容忍",
+        "B09 目标保持（窗口不重启）",
+        "B14 冷却结束分支",
+        "B17 无手（零框不满足）",
+        "M3 进入 STABLE（帧计数）",
+        "M4 候选超时（抖动耗尽判定）",
+        "M9 窗口再次满足",
+        "M15 窗口未满足",
+        "§12 边界：稳定门 / 逐帧位移"
       ],
       "params": [
         "T6-P02",
@@ -1465,7 +1497,7 @@
   },
   "cooldown_policy": {
     "scope": "GLOBAL_GATE",
-    "anchor": "t_submit（动作提交/尝试提交时刻；不用 t_effective）",
+    "anchor": "t_last_submit（最近一次真实 ACTION_SUBMITTED 的 t_submit；被抑制或失败的尝试不更新）",
     "gate_condition": "t_now − t_last_submit < T6-K01 → 禁止提交动作",
     "applies_to_states": [
       "IDLE",
@@ -1481,7 +1513,12 @@
     "suppression_event": "S_COOLDOWN",
     "display_state_exit": "M8/M9/M15 只决定展示状态出口，不解除全局门",
     "no_submit_record_means_gate_open": true,
-    "rationale": "评审 B-03：原实现只在 COOLDOWN 状态内抑制，M10/M11/异常可提前离开状态从而绕过 K01。"
+    "rationale": "评审 B-03：原实现只在 COOLDOWN 状态内抑制，M10/M11/异常可提前离开状态从而绕过 K01。",
+    "definitions": {
+      "t_submit": "动作执行层接受提交（ACTION_SUBMITTED）时的显式单调时刻",
+      "t_last_submit": "最近一次 ACTION_SUBMITTED 的 t_submit；无提交记录时冷却门开放",
+      "suppressed_or_failed_attempt_does_not_update_anchor": true
+    }
   },
   "reachability": {
     "method": "按当前草案参数与求值顺序推导；不改任何阈值",

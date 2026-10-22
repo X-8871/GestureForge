@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.2",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r03",
+  "supersedes_run_id": "s6a_g0_20261022_r02",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r02_20261022_r01/S6A_20261022_r02_review.md",
+  "review_verdict": "CHANGES_REQUIRED（BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）",
+  "review_status_after_fix": "PENDING_REVIEW（复评由项目总控另派；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r03",
+    "r01_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "self_check_before_after": "先用加固后的自检在**旧包**（git 1fe4648 的 MD/JSON/cases/STATE + r01 证据目录）上跑出失败输出并保留，再对修复包跑出 ALL_PASS"
+  },
+  "blocking_items": [
+    {
+      "id": "BLK-1",
+      "problem": "谓词拆分未落到迁移/行为行：M3 仍用“匹配帧数”，M10/M8/M9/M15/B04/B10/B12 仍用裸“匹配/不匹配”，predicates.used_by 未列 M3/M10，C12 未覆盖。",
+      "fix": "M3 改为 WINDOW_MATCH 计数；M10/B10 绑 TARGET_CONTINUES；M1/M4/M5/M8/M9/M15 与 B04/B08/B12/B13/B14 显式绑定并在 JSON 记录 predicates_used；used_by 补 M3/M10；文档 §4/§5/§9/§10/§12/§13 同步；C12 增加迁移/行为行断言与 predicates_used 精确匹配。",
+      "evidence": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §4/§5/§12",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json transitions/behavior_rows/predicates",
+        "selfcheck C12（r03 PASS）",
+        "selfcheck_r02_blk1_failure.json（r02 上 C12 FAIL：predicates.used_by 未登记 M3）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "BLK-2",
+      "problem": "r02 的 old_package_under_test.json 5/5 哈希与 git show 1fe4648: 原始字节不符；失败明细不可复现。",
+      "fix": "改用 git cat-file blob 的二进制输出直接落盘（无文本/换行转换），对 git 字节计算 SHA-256；用同一字节重跑 r01 失败证据（exit 1，13 项）。r02 哈希错误原因：PowerShell 文本管道 `git show | Set-Content -Encoding utf8` 改写行尾/编码。",
+      "evidence": [
+        "old_package_under_test.json（extraction=git cat-file blob 二进制）",
+        "selfcheck_old_package_failure.json/.txt（r01 真实字节）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "BLK-3",
+      "problem": "入库 selfcheck_result.json 的 C11 只做文件计数（manifest/state=null）；C11 完整 stdout 未落盘；MD 声称的两个检查输出文件不存在。",
+      "fix": "入库 selfcheck_result.json 改由带 --manifest + --state 的完整命令生成（C11 detail 含清单双向与 STATE 核对）；落盘 selfcheck_c11_stdout.txt、check_inputs_mode_output.txt、check_evidence_mode_output.txt；构造器用不动点迭代保证清单/哈希/自检结果一致。",
+      "evidence": [
+        "selfcheck_result.json inputs.manifest_path/state_path 非空",
+        "selfcheck_c11_stdout.txt",
+        "check_inputs_mode_output.txt",
+        "check_evidence_mode_output.txt",
+        "delivery_manifest.json.checks"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "non_blocking_items": [
+    {
+      "id": "NBL-1",
+      "fix": "inputs_manifest.checks 两阶段：先 NOT_RUN，实跑后回写 PASS+真实退出码。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "NBL-2",
+      "fix": "统一 t_last_submit（最近一次真实 ACTION_SUBMITTED）；删除“尝试提交”歧义；H-10/M5/B13/B14/§10/§12 同步。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "NBL-3",
+      "fix": "HC-07/08/10/11 引入 t_now 偏移真算；HC-17 用 IoU/位移/阈值真算 target_continues 与 window_match；HC-24/25 用候选分数比较；新增 HC-28/29 验证 BLK-1。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "NBL-4",
+      "fix": "§15 表格补第 6 列表头。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "NBL-5",
+      "fix": "revision.changes 与 fix_record 按实际改动重写，删除“全表引用”和未改动的 M10 改动点表述。",
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "reviewer_claim_corrections": [
+    {
+      "claim": "文档缺 H-5",
+      "finding": "H-5 在 r01 文档第 41 行已存在（内容与 JSON 一致）。评审 compare_spec.py 的正则要求 `**：` 紧跟加粗标题，而 H-5 行使用逗号，导致漏检。",
+      "action": "属于可机器解析性缺陷：r02 已把 H-5 行统一为“标题**：正文”格式；加固后的 C3 按 ID 集合比对，不依赖该正则。"
+    },
+    {
+      "claim": "迁移 M2、M10 文档缺失",
+      "finding": "M2/M10 在 r01 文档 §4 表第 66/74 行已存在；评审独立脚本的迁移正则要求来源状态在反引号内（如 `IDLE`），而 M2/M10 来源写作“任意”，故漏检。",
+      "action": "属于可机器解析性缺陷：r02 把 M2/M10 来源单元格改为 `` `*`（…） `` 形式；C3 对全部迁移比对 from/to。"
+    },
+    {
+      "claim": "fix_record/revision 称 B-05“全表引用”",
+      "finding": "r02 实际只改了 B03/B07/B09/B17 与 §3/§8/§9，M3/M10 等未改，措辞过强（NBL-5）。",
+      "action": "r03 已实际补齐全部迁移/行为行绑定；本记录按实际改动重述，不再使用“全表”表述。"
+    }
+  ],
+  "verification_commands": [
+    "python -B verification/s6a_build_evidence.py --run-dir report/evidence/S6-A/s6a_g0_20261022_r03 --project-root D:/codex-worktrees/w6",
+    "python -B verification/s6_g0_selfcheck.py ... --manifest report/evidence/S6-A/s6a_g0_20261022_r03/delivery_manifest.json --state .codex/STATE.md",
+    "python -B verification/check_stage_delivery.py --mode inputs|evidence --manifest ... --project-root D:/codex-worktrees/w6",
+    "r01/r02 旧包失败证据：tmp/6/S6-A/s6a_g0_20261022_r03/oldpkg（git cat-file blob 二进制提取）"
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；复评由项目总控另派 Reviewer。",
+    "全部阈值与指标仍为 PENDING_APPROVAL；未在测试集上调整任何参数。",
+    "M4/M7 不可达是当前草案参数/实现结构的结果，已登记而非通过实现制造路径。"
+  ]
+}

@@ -4,7 +4,9 @@
 > **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为 **待批准**（`PENDING_APPROVAL`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
 > **本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI。** 本文不含任何实测数据。
 > 机器可读权威：`docs/stage6/s6a_stage6_g0_behavior_v1.json`（契约身份 `S6A-G0-v1`）。两者冲突时以 JSON 为准并回改本文；一致性由 `verification/s6_g0_selfcheck.py` 机器校验。
-> **修订记录（v1.1 / r02，2026-10-22）**：本包针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-02** `NO_HAND` 不推进匹配计数、零框不得完成稳定窗口（H-4 与 JSON 同步改写）；**B-03** 冷却改为**全局门**（任意状态/任意获取在 `t_submit+T6-K01` 内不得提交动作，新增 H-10）；**B-04** 窗口完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻，`W_min` 仅下界且不进入延迟统计；**B-05** 拆分 `TARGET_CONTINUES` 与 `WINDOW_MATCH` 两个唯一谓词并全表引用。另修 N-01..N-10（M14 删除、`A_DISPLAY_STATE` 删除、可达性登记、覆盖声明收敛、手算样例补实、±1 单位口径、措辞去“冻结/DONE”）。**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。
+> **修订记录（v1.2 / r03，2026-10-22）**：本包针对**复评** `S6A_20261022_r02`（`CHANGES_REQUIRED`，BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）修订：**BLK-1** 谓词拆分落到全部迁移与行为行（M3 改 `WINDOW_MATCH`；M10/B10 绑 `TARGET_CONTINUES`；M8/M9/M15/B04/B12 与 §12 同步；`predicates.used_by` 补 M3/M10；自检 C12 增加迁移/行为行断言）；**BLK-2** 旧包哈希改用 `git show 1fe4648:` 原始字节重算并重跑失败证据；**BLK-3** 入库自检改用 `--manifest`+`--state` 完整 C11 并落盘检查输出；NBL-1..5 同批修（inputs 清单 checks 实测、`t_last_submit` 单一名词、边界样例真算、§15 表头、B-05 措辞更正）。**全部参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因修订而视为通过。
+>
+> **上一轮修订记录（v1.1 / r02，2026-10-22）**：针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-02** `NO_HAND` 不推进匹配计数、零框不得完成稳定窗口（H-4 与 JSON 同步改写）；**B-03** 冷却改为**全局门**（任意状态/任意获取在 `t_submit+T6-K01` 内不得提交动作，新增 H-10）；**B-04** 窗口完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻，`W_min` 仅下界且不进入延迟统计；**B-05** 拆分 `TARGET_CONTINUES` 与 `WINDOW_MATCH` 两个唯一谓词并全表引用。另修 N-01..N-10（M14 删除、`A_DISPLAY_STATE` 删除、可达性登记、覆盖声明收敛、手算样例补实、±1 单位口径、措辞去“冻结/DONE”）。**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。
 
 ---
 
@@ -66,20 +68,20 @@
 
 | 编号 | 从 → 到 | 条件 | 优先级 |
 |---|---|---|---|
-| M1 | `IDLE` → `CANDIDATE` | 存在通过 §8 选择的目标，且连续 `T6-C01` 条窗口推进帧为同一目标 | P4 |
+| M1 | `IDLE` → `CANDIDATE` | 存在通过 §8 选择的目标，且连续 `T6-C01` 条窗口推进帧为同一目标（`TARGET_CONTINUES` 判定同一目标；`WINDOW_MATCH` 仅用于窗口计数） | P4 |
 | M2 | `*`（任意状态） → `UNKNOWN_RECOVER` | 连续 `T6-U00_W` 条结果内异常数 ≥ `T6-U00_N` | P1 |
-| M3 | `CANDIDATE` → `STABLE` | §9 稳定窗口满足（帧数与时长**取较晚**满足者） | P3 |
+| M3 | `CANDIDATE` → `STABLE` | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`（**取较晚**满足者）；**不得按 `TARGET_CONTINUES` 计帧**（低分目标不得进入 STABLE） | P3 |
 | M4 | `CANDIDATE` → `IDLE` | 抖动容忍耗尽（`> T6-J01` 帧不满足 `WINDOW_MATCH`）且候选停留 ≥ `T6-S04`；仅在 M10 未命中时求值。**当前草案 `T6-S04`=500 ms ≥ `T6-L02`=300 ms，M10 先命中，故 M4 在本轮参数下不可达**（见 JSON `reachability`、U6-12） | P3 |
-| M5 | `STABLE` → `TRIGGERED` | 触发一次动作并记录 `ACTION_SUBMITTED`；**仅当本次获取尚未触发、且全局冷却门已结束**（`t_now − t_submit ≥ T6-K01`，无提交记录视为已结束）时可用 | P3 |
+| M5 | `STABLE` → `TRIGGERED` | 触发一次动作并记录 `ACTION_SUBMITTED`；**仅当本次获取尚未触发、且全局冷却门已结束**（`t_now − t_last_submit ≥ T6-K01`，无提交记录视为已结束）时可用 | P3 |
 | M6 | `TRIGGERED` → `COOLDOWN` | 动作提交事件落盘（同帧或下一帧） | P3 |
 | M7 | `TRIGGERED` → `LOST` | 提交前目标已丢失。**M5 为同步提交，`TRIGGERED` 之后的提交前丢失没有独立路径，故 M7 在本轮实现中不可达**（见 JSON `reachability`） | P3 |
-| M8 | `COOLDOWN` → `IDLE` | 冷却结束且当前目标不匹配/已丢失 | P3 |
-| M9 | `COOLDOWN` → `STABLE` | 冷却结束、同一目标仍匹配且窗口再次满足 → **维持态，不再触发** | P3 |
-| M10 | `*`（任意有目标状态） → `LOST` | 连续 `T6-L01` 条推进帧不匹配 **或** 距上次匹配 ≥ `T6-L02`（取**较早**满足者） | P2 |
+| M8 | `COOLDOWN` → `IDLE` | 冷却结束且当前目标 `TARGET_CONTINUES` 不成立/已丢失 | P3 |
+| M9 | `COOLDOWN` → `STABLE` | 冷却结束、同一目标仍满足 `TARGET_CONTINUES` 且 `WINDOW_MATCH` 窗口再次满足 → **维持态，不再触发** | P3 |
+| M10 | `*`（任意有目标状态） → `LOST` | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 **或** 距上一次 `TARGET_CONTINUES` 成立 ≥ `T6-L02`（取**较早**满足者）；**不得用 `WINDOW_MATCH` 判丢失**（低分但几何连续的目标仍维持） | P2 |
 | M11 | `LOST` → `IDLE` | 丢失确认后立即清空当前目标与稳定证据 | P3 |
 | M12 | `UNKNOWN_RECOVER` → `IDLE` | 连续 `T6-U01` 条合法结果且无未知类别 | P5 |
 | M13 | `UNKNOWN_RECOVER` → `UNKNOWN_RECOVER` | 期间再次出现异常（按 §11.4 重置规则） | P1 |
-| M15 | `COOLDOWN` → `CANDIDATE` | 冷却结束、目标仍匹配但窗口未满足；**该路径达到稳定也不再触发** | P3 |
+| M15 | `COOLDOWN` → `CANDIDATE` | 冷却结束、目标仍满足 `TARGET_CONTINUES` 但 `WINDOW_MATCH` 窗口未满足；**该路径达到稳定也不再触发** | P3 |
 
 - **M14 已删除（r02）**：`M10→M11` 使 `LOST` 立即回到 `IDLE`，故原 M14 的 `LOST` 分支不可达、`IDLE` 分支与 M1 同效；重获统一表达为 `M10→M11→M1`（新 `acquisition_id`）。删除记录见 JSON `revision.deleted_transitions`。
 - **全局冷却门不依赖展示状态**：即使 M10/M11 使状态提前离开 `COOLDOWN`，`t_submit+T6-K01` 内的任何 M5 仍被 H-10 抑制。
@@ -97,21 +99,21 @@
 | B01 | 五类稳定触发 | 目标稳定（M3→M5） | 按 §7 表 A-1 提交唯一动作 | `ACTION_SUBMITTED` + `action_id`/`target_id`/`trigger_frame_id`/`t_submit` | 计划 L104 | `T6-S01/S02`、`T6-P01/P02` |
 | B02 | 提交成功 ≠ 实际生效 | M5 后执行层回执 | 分记 `ACTION_SUBMITTED` 与 `ACTION_EFFECTIVE`；`fail`/`unobserved` 单列 | `submit_result`、`effective_result`、`t_effective` | 运行手册 §2.3；H-8 | 无 |
 | B03 | 多框维持优先 | 存在与当前目标 `TARGET_CONTINUES` 成立的框 | 维持当前目标；即使他框类别不同且分更高也维持 | `S_TARGET_HELD` + 两条候选信息 | 计划 L104 | `T6-P03/P04` |
-| B04 | 分数优先 | 当前目标不匹配时选最高分框 | 新目标 → 重新累积证据 | 选择依据与新目标字段 | 计划 L104 | `T6-P01` |
+| B04 | 分数优先 | 当前目标 `TARGET_CONTINUES` 不成立时选最高分框 | 新目标 → 重新累积证据 | 选择依据与新目标字段 | 计划 L104 | `T6-P01` |
 | B05 | 同分排序 | 分数完全相等 | 按 2A 冻结稳定顺序；`source_order` 可用时以其为权威 | 两者 `score` 与 `source_order` | 2A L75/L77 | 无（2A 冻结） |
 | B06 | 禁止未冻结启发式 | 任何选择/排序 | 不得按面积、像素位置、"中央优先"重排或加权重排 | — | 2A L77 | 无 |
 | B07 | 稳定窗口 | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`；**完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻**；`NO_HAND` 不计入 | M3 进入 `STABLE`（取较晚满足者） | 帧计数、窗口起点、两条件各自满足时刻、完成时刻 | 计划 L104；评审 B-02/B-04 | `T6-S01/S02/S03` |
-| B08 | 抖动容忍 | 窗口内短暂中断 | 中断 ≤ `T6-J01` 帧不重置；`= T6-J01+1` 立即重置 | `S_JITTER_TOLERATED` 或窗口重置原因 | 计划 L106 | `T6-J01` |
+| B08 | 抖动容忍 | 窗口内短暂中断（窗口推进帧不满足 `WINDOW_MATCH`） | 中断 ≤ `T6-J01` 帧不重置；`= T6-J01+1` 立即重置 | `S_JITTER_TOLERATED` 或窗口重置原因 | 计划 L106 | `T6-J01` |
 | B09 | 目标保持 | `TARGET_CONTINUES` 成立 | 获取延续，窗口不重启（证据连续） | `TARGET_CONTINUES 依据（IoU/位移）` | 计划 L104 | `T6-P03/P04/P05` |
-| B10 | 丢失确认 | 连续 `T6-L01` 帧不匹配 或 距上次匹配 ≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还是时间条件 | 计划 L104 | `T6-L01/L02` |
+| B10 | 丢失确认 | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 或 距上一次 `TARGET_CONTINUES` 成立 ≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还是时间条件 | 计划 L104 | `T6-L01/L02` |
 | B11 | 重获 | `LOST`→`IDLE` 后同类目标再现并满足窗口 | 视为**新的独立获取**，可再次触发一次（受冷却约束） | 新获取的 `acquisition_id` | 计划 L104 | `T6-S01/S02` |
-| B12 | 目标切换 | 当前目标不匹配且出现另一合法目标 | 切换 → 丢失/重获路径；新目标必须重新满足窗口 | 旧/新目标字段与切换原因 | 计划 L106 | `T6-P01/P03/P04` |
-| B13 | 冷却抑制（全局门） | 自 `t_submit` 起 `t_now − t_submit < T6-K01`，**任意状态/任意获取** | 抑制**全部**触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间 | `S_COOLDOWN` + 目标与分数 + 剩余时间 | 计划 L104；评审 B-03；H-10 | `T6-K01` |
-| B14 | 冷却结束三分支 | 冷却结束时刻（含等号） | `WINDOW_MATCH` 且窗口满足→M9 维持（不触发）；`WINDOW_MATCH` 但窗口未满足→M15 候选（不触发）；不匹配/丢失→M8 `IDLE`。三分支只决定展示状态出口，**不解除全局冷却门** | 分支判定证据 | 计划 L104；评审 B-03 | `T6-K01` |
+| B12 | 目标切换 | 当前目标 `TARGET_CONTINUES` 不成立且出现另一合法目标 | 切换 → 丢失/重获路径；新目标必须重新满足窗口 | 旧/新目标字段与切换原因 | 计划 L106 | `T6-P01/P03/P04` |
+| B13 | 冷却抑制（全局门） | 自 `t_last_submit` 起 `t_now − t_last_submit < T6-K01`，**任意状态/任意获取** | 抑制**全部**触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间 | `S_COOLDOWN` + 目标与分数 + 剩余时间 | 计划 L104；评审 B-03；H-10 | `T6-K01` |
+| B14 | 冷却结束三分支 | `t_now − t_last_submit ≥ T6-K01`（含等号） | `TARGET_CONTINUES` 成立且 `WINDOW_MATCH` 窗口满足→M9 维持（不触发）；`TARGET_CONTINUES` 成立但窗口未满足→M15 候选（不触发）；`TARGET_CONTINUES` 不成立/丢失→M8 `IDLE`。三分支只决定展示状态出口，**不解除全局冷却门** | 分支判定证据 | 计划 L104；评审 B-03 | `T6-K01` |
 | B15 | 持续保持只触发一次 | 同一获取内目标持续稳定（含冷却后） | **恰好一次** `ACTION_SUBMITTED`；二次触发只允许来自新获取 | `acquisition_id` 与触发计数 | 计划 L104；本文 §10 | 无 |
 | B16 | 动作去重窗口 | 相同 `(action_type,target_id)` 在 `T6-A02` 内重复提交 | 抑制并记录 | `S_DEDUP` | H-2 去重日志要求；CDX-20261022-012 §2.3（提交/回执分离） | `T6-A02` |
 | B17 | 无手（零框） | `state=NO_HAND` | 合法结果：`IDLE` 下保持 `IDLE`；有目标时计入丢失判定；**不推进匹配计数、不得完成稳定窗口**；只推进时间与结果计数 | `boxes=0`、`no_hand` 计数 | 计划 L104；D2 L22；H-4/H-5；评审 B-02 | 无 |
-| B18 | 过期结果 | `stale=true` | **不得触发**；可作非匹配推进时间；必须显式标注年龄 | `E_FRAME_STALE`、`age`、`stale_cleared` | 计划 L98；阶段5 C-03 | `T6-STALE_LIMIT` |
+| B18 | 过期结果 | `stale=true` | **不得触发**；可作非 `WINDOW_MATCH` 推进时间；必须显式标注年龄 | `E_FRAME_STALE`、`age`、`stale_cleared` | 计划 L98；阶段5 C-03 | `T6-STALE_LIMIT` |
 | B19 | 未知类别/非法结果 | `class_id ∉ 0..4` 或非 finite/框数 >15/字段不自洽 | 丢弃该帧证据、计入异常；**不得**改写为 `NO_HAND` | `E_FRAME_INVALID` + 原始类别值 | 2A L77（classes=5、≤15 框）；D9 输出契约；D2 L22 仅提供空标签语义 | `T6-U00_*` |
 | B20 | 未知场景（合法类别） | 未知手势被模型判为已知类 | 按正常检测处理但只能触发已定义动作；**拒绝能力不得由 class_id 证明** | 未知样本标识与场景类型 | 运行手册 §2.9；H-6 | 指标 `T6-02` |
 | B21 | 超时/错误/丢帧 | `TIMEOUT`/`ERROR`/`DROPPED` | 无动作；推进时间、不推进匹配计数；计入异常；达阈进 `UNKNOWN_RECOVER` | 各自的 `error_code` 与计数 | 运行手册 §2.10；H-4 | `T6-U00_*`、`T6-U01` |
@@ -165,13 +167,13 @@
 - **窗口条件（全部满足）**：连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` **且** 窗口持续时间 ≥ `T6-S01`，按 `T6-S03` 语义取**较晚**满足者。
 - **窗口完成时刻**：第 `T6-S02` 个 `WINDOW_MATCH` 结果到达且时长条件同时满足的那一帧的显式输入时刻；`W_min=max(T6-S01,(T6-S02−1)·P)` **只是下界**，不得当作完成时刻（B-04）。
 - 窗口每一帧（除允许中断外）都必须 `WINDOW_MATCH` 成立（类别不变、`score ≥ T6-P02`、与前一个 `WINDOW_MATCH` 帧中心位移 ≤ `T6-P05`）；窗口内不得出现 `E_FRAME_INVALID`。`NO_HAND` 帧不满足 `WINDOW_MATCH`，**不推进匹配计数、不得完成窗口**（B-02/H-4）。
-- **抖动容忍**：窗口内允许至多 `T6-J01` 条非匹配窗口推进帧而不重置窗口（记录 `S_JITTER_TOLERATED`）；中断数达到 `T6-J01 + 1` 立即重置窗口。时间在中断期间**继续流逝**。
-- **丢帧/超时/过期对窗口的影响**：均**不增加**匹配帧计数（时间继续流逝）；`TIMEOUT/ERROR/INVALID` 走 §11 异常路径；`stale` 帧不得触发。若因丢帧导致帧数条件在合理时限内无法满足，该次获取按超时处理并记录 `S_WINDOW_TIMEOUT`。
+- **抖动容忍**：窗口内允许至多 `T6-J01` 条不满足 `WINDOW_MATCH` 的窗口推进帧而不重置窗口（记录 `S_JITTER_TOLERATED`）；中断数达到 `T6-J01 + 1` 立即重置窗口。时间在中断期间**继续流逝**。
+- **丢帧/超时/过期对窗口的影响**：均**不增加** `WINDOW_MATCH` 计数（时间继续流逝）；`TIMEOUT/ERROR/INVALID` 走 §11 异常路径；`stale` 帧不得触发。若因丢帧导致帧数条件在合理时限内无法满足，该次获取按超时处理并记录 `S_WINDOW_TIMEOUT`。
 - **窗口序列来源**：窗口由**结果 `frame_id` 序列**推进（不是显示帧），且只由 `state ∈ {OK, NO_HAND}`、`stale=false`、非重复/非倒序的结果推进；序列来源必须在日志中声明。
 
 ## 10. 冷却、再触发与"持续保持只触发一次"的**唯一**解释
 
-- **冷却（全局门，H-10）**：`T6-K01`，起点 = 动作**提交时刻** `t_submit`（不用 `t_effective`，因其在 `fail`/`unobserved` 下无定义；确定性与可复算优先）。**`t_now − t_submit < T6-K01` 内，任何状态、任何获取（含目标丢失后重获/异常恢复/目标切换）都不得提交动作**，逐个记录 `S_COOLDOWN`；动作执行层在真正提交前再次校验该门。展示状态 `COOLDOWN` 提前退出（M10/M11/异常）**不解除**该门。
+- **冷却（全局门，H-10）**：`T6-K01`，锚点 = `t_last_submit` = **最近一次真实 `ACTION_SUBMITTED` 的 `t_submit`**（`t_submit` = 执行层接受提交时的显式单调时刻；不用 `t_effective`，因其在 `fail`/`unobserved` 下无定义）。**被抑制或失败的提交尝试不更新 `t_last_submit`，不得延长冷却；无提交记录时门开放。** **`t_now − t_last_submit < T6-K01` 内，任何状态、任何获取（含目标丢失后重获/异常恢复/目标切换）都不得提交动作**，逐个记录 `S_COOLDOWN`；动作执行层在真正提交前再次校验该门。展示状态 `COOLDOWN` 提前退出（M10/M11/异常）**不解除**该门。
 - **冷却结束（含等号）**后的三条分支互斥且穷尽：M9（维持，不触发）/ M15（回到候选，**不再触发**）/ M8（回 IDLE）。
 - **`T6-A02` 去重窗口**独立于冷却：同一 `(action_type,target_id)` 在 `T6-A02` 内重复提交一律抑制并记录 `S_DEDUP`。
 
@@ -184,7 +186,7 @@
 ## 11. 过期、未知、无手、超时/错误的行为与恢复
 
 1. **无手（`NO_HAND`，零框）**：合法成功结果。`IDLE` 下保持 `IDLE`；有目标时计入丢失判定；不计入异常；**不推进匹配计数、不得完成稳定窗口**（B-02/H-4）；分区统计（`no_hand_frames` ≠ `unknown_frames`）。
-2. **过期（`stale=true`）**：仅在 `state ∈ {OK,NO_HAND}` 有意义；`stale` 结果不得触发动作，也不得作为匹配帧；必须记录年龄（`age_result_ns`/`age_frame_ns`）并计入 `stale_cleared`。过期门槛与阶段5 同源常量对齐，**严格大于**判过期（§12）。
+2. **过期（`stale=true`）**：仅在 `state ∈ {OK,NO_HAND}` 有意义；`stale` 结果不得触发动作，也不得作为 `WINDOW_MATCH` 帧；必须记录年龄（`age_result_ns`/`age_frame_ns`）并计入 `stale_cleared`。过期门槛与阶段5 同源常量对齐，**严格大于**判过期（§12）。
 3. **未知类别/非法结果**：`class_id ∉ {0..4}`、非 finite、框数超限、字段缺失/不自洽 → 丢弃该帧证据并计入异常；**不得**改写为 `NO_HAND`；必须记录原始类别值。
 4. **未知场景（合法类别）**：模型可能把未知手势判为已知类。因此未知拒绝**不能**由「`class_id` 落在五类内」证明；只能由 §14 `T6-02` 的独立未知样本统计支撑，且样本必须包含「高分误识别」与「无手」两类，分别计数。`T6-02` 的样本清单（编号、来源、时长、SHA-256）必须**预先登记**，事后不得增删。
 5. **超时/错误**：`TIMEOUT`（`error_code=5`）、`ERROR`（非 0 非 5；候选超限固定为 `BAD_ARGUMENT=1`）与 `DROPPED`：无动作、不推进匹配计数、推进时间、计入异常；达 `T6-U00_*` 阈值进入 `UNKNOWN_RECOVER`。
@@ -201,14 +203,14 @@
 | 抖动 `T6-J01` | `missing ≤ J01` 容忍 | 容忍（不重置） | — | 重置（`J01+1`） |
 | 丢失帧 `T6-L01` | `miss_streak ≥ L01` | 确认丢失 | 不丢失 | 确认丢失 |
 | 丢失时间 `T6-L02` | `t_now − t_last_match ≥ L02` | 确认丢失 | 不丢失 | 确认丢失 |
-| 冷却 `T6-K01` | `t_now − t_submit ≥ K01` | 冷却结束（可走 M8/M9/M15） | 抑制中 | 结束 |
+| 冷却 `T6-K01` | `t_now − t_last_submit ≥ K01` | 冷却结束（可走 M8/M9/M15） | 抑制中 | 结束 |
 | 去重 `T6-A02` | `t_now − t_last_submit < A02` 抑制 | 不被抑制 | 抑制 | 不被抑制 |
 | 候选超时 `T6-S04` | `dwell ≥ S04`（配合 M4） | M4 可用 | 不可用 | 可用 |
 | 选择门 `T6-P01` | `score ≥ P01` | 入选 | 淘汰 | 入选 |
-| 稳定门 `T6-P02` | `score ≥ P02` | 计入匹配 | 不计入 | 计入 |
-| 追踪 IoU `T6-P03` | `IoU ≥ P03` | 匹配 | 不匹配 | 匹配 |
-| 追踪位移 `T6-P04` | `d ≤ P04` | 匹配 | 匹配 | 不匹配 |
-| 逐帧位移 `T6-P05` | `d ≤ P05` | 窗口内接受 | 接受 | 不接受（计为窗口中断，按抖动规则处理） |
+| 稳定门 `T6-P02` | `score ≥ P02` | `WINDOW_MATCH` 成立 | 不成立 | 成立 |
+| 追踪 IoU `T6-P03` | `IoU ≥ P03` | `TARGET_CONTINUES` 成立 | 不成立 | 成立 |
+| 追踪位移 `T6-P04` | `d ≤ P04` | `TARGET_CONTINUES` 成立 | 成立 | 不成立 |
+| 逐帧位移 `T6-P05` | `d ≤ P05` | `WINDOW_MATCH` 接受 | 接受 | 不接受（窗口中断，按抖动规则处理） |
 | 过期 `T6-STALE_LIMIT` | `age > LIMIT` | **不过期**（严格大于） | 不过期 | 过期 |
 | 未知恢复 `T6-U01` | `legal_streak ≥ U01` | 恢复 | 未恢复 | 恢复 |
 
@@ -233,7 +235,7 @@
 | 情形 | 判定 | 处理 | 记录 |
 |---|---|---|---|
 | 重复 `frame_id` | 等于上一条已处理 `frame_id` | 幂等丢弃（不推进计数/状态）；内容哈希不同则判 `E_FRAME_CONFLICT` 并按非法输入处理 | `E_FRAME_DUPLICATE` / `E_FRAME_CONFLICT` |
-| 倒序 | `frame_id` 小于上一条已处理值且 `session_id` 未变 | 不推进窗口、不计匹配；计异常 | `E_FRAME_OUT_OF_ORDER` |
+| 倒序 | `frame_id` 小于上一条已处理值且 `session_id` 未变 | 不推进窗口、不推进 `WINDOW_MATCH` 计数；计异常 | `E_FRAME_OUT_OF_ORDER` |
 | 缺帧 | `frame_id` 跳号且既无结果也无 `DROPPED` 记录 | 时间由后续结果时间戳推进；不推进匹配计数；每个缺帧只计一次 | `dropped_frames` 累计 |
 | 重启帧号/会话切换 | `session_id` 变化，或同会话 `frame_id` 大幅回退 | 全量复位到 `IDLE`、清目标与证据、开启新会话计数；**禁止**静默续用旧状态 | `E_SESSION_RESET_SUSPECTED` 或新 `session_id` |
 | `frame_id` 回绕 | 达到 `0xFFFFFFFE` | 不得自然溢出到 0；必须新会话或显式复位（阶段4 约定） | 复位标记 |
@@ -281,12 +283,12 @@
 - **`W_min`（只是下界，不得进入延迟统计）**：`W_min = max(T6-S01, (T6-S02 − 1) · P_meas)`；N 个连续结果只跨越 `(N−1)` 个周期，帧栅格对齐会使实际完成更晚。
 - **窗口完成时刻（`window_complete`）**：第 `T6-S02` 个 `WINDOW_MATCH` 结果到达且时长条件同时满足的那一帧的显式输入时刻（B-04）。
 - **动作延迟**：`latency_action = t_effective − t_trigger`，其中 `t_trigger` = 触发该动作的那条结果的显式输入时刻。受 `T6-A01` 约束（待批准）。
-- **交互延迟**：`latency_interaction = t_effective − window_complete`，**不得**用 `t_capture(窗口首个匹配帧)` 或 `W_min` 顶替（B-04）；其上限为 `T6-A03`（**待批准**，草案未给值，且必须先有实测 P）。
+- **交互延迟**：`latency_interaction = t_effective − window_complete`，**不得**用 `t_capture(窗口首个 `WINDOW_MATCH` 帧)` 或 `W_min` 顶替（B-04）；其上限为 `T6-A03`（**待批准**，草案未给值，且必须先有实测 P）。
 - 两者**必须分别报告**，不得互相替代；日志必须给出该次获取所用的 `P_meas` 与 `window_complete`。
 - 手算示例（参数取草案值 `T6-S01=200 ms`、`T6-S02=6`）：
 
-| FPS | `P` | `(S02−1)·P` | `W = max(200, (S02−1)·P)` | 支配项 |
-|---|---|---|---|---|
+| FPS | `P` | `(S02−1)·P` | `W_min = max(T6-S01, (S02−1)·P)` | 支配项 | 帧栅格实际完成（示例） |
+|---|---|---|---|---|---|
 | 30 | 33.3 ms | 166.7 ms | 200 ms（下界） | 时长 | 第 8 帧 233.1 ms（帧栅格对齐） |
 | 10 | 100 ms | 500 ms | 500 ms（下界） | 帧数 | 第 6 帧 500 ms |
 | 5 | 200 ms | 1000 ms | 1000 ms（下界） | 帧数 | 第 6 帧 1000 ms |
@@ -301,7 +303,7 @@
 | U6-01 | `T6-01/02/03` 三项目标值与样本数 | 沿用建议，草案 | 项目总控转呈 Wong（G0 批准） |
 | U6-02 | 保持期触发语义 | 本 G0 声明「一次获取只触发一次」（唯一解释） | Wong 确认；若改则属语义变更 |
 | U6-03 | 全部时间参数（§14） | 草案建议值 | Wong/G0 批准 |
-| U6-04 | 选择/匹配阈值与抖动容忍（§14） | 草案建议值 | Wong/G0 批准 |
+| U6-04 | 选择阈值与 `TARGET_CONTINUES`/`WINDOW_MATCH` 谓词阈值、抖动容忍（§14） | 草案建议值 | Wong/G0 批准 |
 | U6-05 | 阶段4 结果记录接口冻结 | `DRAFT_NOT_FROZEN` | 阶段4 G0；未冻结前阶段6 集成验收 `BLOCKED` |
 | U6-06 | 阶段5 显示侧新增 HUD 字段（`sm_state` 等） | 阶段6 提案，阶段5 为离线定稿未验收 | 与阶段5 协调，需 Wong/项目总控确认 |
 | U6-07 | 五类动作映射与 `target_id` 命名（表 A-1） | 阶段6 提案 | G0 批准 |
@@ -319,6 +321,8 @@
 **操作文档 `CDX-20261022-012` §2（6-A）覆盖**：1 独占写入方与 STATE → §1 + `.codex/STATE.md`；2 上游冻结版本核对 → §1；3 五类动作/成功失败反馈/可观察状态 + 两类事件 → §7 + §5-B01/B02；4 行为表冻结（多框选择、同分、保持/重获、抖动、稳定窗口、冷却、再触发、过期、未知、无手、超时/错误）→ §5 + §8–§13；5 草案状态作起点 → §4（状态名沿用，声明不代表已实现）；6 「持续保持只触发一次」唯一 → §10；7 窗口用真实时间与有效结果数、重复帧不推进、低 FPS 延迟估算 → §9 + §13 + §15；8 阈值未冻结、不在正式集调参 → §14；9 `NO_HAND` 与未知拒绝证明 → §11 + H-5/H-6；10 异常/重复/过期不触发、单调时钟推进 → §11 + §13 + H-3。
 
 **独立评审 S6A_20261022_r01 关闭索引（r02）**：B-01 → §18 清单与真实退出码 + `delivery_manifest.json`/`inputs_manifest.json`/`hashes_sha256.txt` + `fix_record.json`；B-02 → H-4/§9/§11.1/B17/JSON；B-03 → H-10/§10/B13/B14/M5/JSON `cooldown_policy`；B-04 → §15/§9/B27/JSON `low_fps_latency`；B-05 → §3/§8/§9/B03/B07/B09/JSON `predicates`；N-01 → M14 删除、§14 `T6-S03`、§3 `E_FRAME_CONFLICT`、`A_DISPLAY_STATE` 删除；N-02 → JSON `reachability` + §14 脚注；N-03 → §12.1；N-04 → HC-16/17/20 改为可复算 + 新增 HC-21..HC-27；N-05 → §15/U6-13/limitations；N-06 → §7 逐类 UX；N-07 → B16/B19/B23 依据；N-08 → 新 RunId 保留旧包失败输出；N-09 → §12 ±1 单位口径 + HC-27；N-10 → §5/STATE 措辞。
+
+**独立复评 S6A_20261022_r02 关闭索引（r03）**：BLK-1 → JSON `transitions.M1/M3/M4/M5/M8/M9/M10/M15` 与 `behavior_rows.B04/B08/B10/B12/B13/B14` 的谓词绑定、`predicates.*.used_by` 补 M3/M10、§4/§5/§9/§10/§12/§13 文本同步、自检 C12 增加迁移/行为行断言；BLK-2 → `old_package_under_test.json` 改为 `git show 1fe4648:` 原始字节哈希并重跑失败证据（`selfcheck_old_package_failure.json/.txt`），旧哈希错误原因见 `fix_record.json`；BLK-3 → 入库 `selfcheck_result.json` 改用 `--manifest`+`--state`，落盘 `selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；NBL-1 → inputs 清单 checks 两阶段实测回写；NBL-2 → 统一 `t_last_submit`；NBL-3 → 边界样例引入 `t_now` 真算；NBL-4 → §15 六列表头；NBL-5 → 修正 B-05/`transitions.M10` 描述。
 
 **计划 L102–L108 覆盖**：L104 目标与八项冻结要求 → §4/§8/§9/§10/§11；L106 五个测试场景与沿用建议 → §5-B01…B28 与 §14；L108 证据与"不代替阶段7" → §0、§18。
 
@@ -340,9 +344,10 @@
 
 ## 18. 证据、限制与不宣称项
 
-- 本轮（v1.1 / r02）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r02/`（机器可读清单 `delivery_manifest.json`；输入清单 `inputs_manifest.json`；哈希清单 `hashes_sha256.txt`（只哈希实际存在文件）；手算样例 `hand_computed_cases.json`；覆盖矩阵 `coverage_matrix.json`；自检结果 `selfcheck_result.json`；旧包失败检测输出 `selfcheck_old_package_failure.json`/`.txt`；交付检查真实输出 `check_inputs_mode_output.txt`/`check_evidence_mode_output.txt`；修订记录 `fix_record.json`/`fix_record.md`；限制/未执行 `limitations_not_executed.json`；上游绑定 `upstream_bindings.json`；运行摘要 `S6A_run_summary.md`）。原始 r01 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r02/`（不入库）。
+- 本轮（v1.2 / r03）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r03/`（机器可读清单 `delivery_manifest.json`；输入清单 `inputs_manifest.json`；哈希清单 `hashes_sha256.txt`；手算样例 `hand_computed_cases.json`；覆盖矩阵 `coverage_matrix.json`；自检结果 `selfcheck_result.json`（含完整 C11 清单/STATE 核对）；C11 完整 stdout `selfcheck_c11_stdout.txt`；交付检查真实输出 `check_inputs_mode_output.txt`/`check_evidence_mode_output.txt`；r01 旧包失败证据 `selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`；r02 BLK-1 失败证据 `selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`；修订记录 `fix_record.json`/`fix_record.md`；限制/未执行 `limitations_not_executed.json`；上游绑定 `upstream_bindings.json`；运行摘要 `S6A_run_summary.md`）。r01/r02 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r03/`（不入库）。
 - **本轮全部实测类项目为 `NOT_RUN`**：状态机确定性测试（6-B/6-C）、脚本注入联调（6-D 一级）、独立图片/视频序列板上联调（6-D 二级）、≥30 分钟回放稳定性、真摄像头验收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
 - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。**阶段4 实测帧周期 `P_meas` 未取得 → `T6-A03` 与交互延迟量级 `NOT_RUN`（U6-13）**；`T6-S04`/M4 在当前草案下不可达（U6-12）；五类逐类反馈可见时长未批准（U6-14）。
+- **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。
 - **回放/注入限定**：任何由脚本注入或回放输入得到的结论，其适用范围**仅限回放/注入输入**，不得冒充真实摄像头验收。
 - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。
 - 独立 Reviewer：本阶段总控在本次会话中**无法创建子代理**（运行环境限制：委派深度已用尽），故本轮**未完成独立审查**；该限制已如实登记，独立审查须在后续轮次由项目总控安排。

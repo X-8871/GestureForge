@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A 证据包构建器（r02 起使用）。
+"""阶段6 S6-A 证据包构建器（r03 起：BLK-3/NBL-1 关闭）。
 
-职责（针对独立评审 B-01）：
-* 只对**实际存在**的文件生成 `hashes_sha256.txt`；
-* 由本脚本真实执行自检与 `check_stage_delivery.py` 的 inputs/evidence 两种模式
-  （绝对 `--project-root`），把**实测退出码**写入 `delivery_manifest.json.checks`，
-  不硬编码任何 exit_code；
-* 生成 `inputs_manifest.json` 与 `delivery_manifest.json`（schema 见 report/README.md）；
-* 不修改被证据引用的源码/规格文件，不触碰硬件、不 push。
+关键行为：
+* 只对**实际存在**文件生成 `hashes_sha256.txt`；
+* 真实执行自检与 `check_stage_delivery.py` inputs/evidence（绝对 `--project-root`），
+  实测退出码写入清单（不硬编码）；
+* 入库的 `selfcheck_result.json` 由 **`--manifest` + `--state` 完整命令**生成，
+  C11 的清单/STATE 核对结果因此进入证据；同时落盘 `selfcheck_c11_stdout.txt`、
+  `check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；
+* `inputs_manifest.checks` 两阶段写入：先 `NOT_RUN`，实测后回写 `PASS` + 真实退出码（NBL-1）；
+* 清单/哈希/自检结果用不动点迭代，保证最终清单与实际文件逐一对应。
 
-流程：自检 → inputs 清单/检查 → 运行摘要 → hashes → 清单(首版) → evidence 模式实跑 →
-清单(定稿，写入 evidence 实测退出码) → evidence 模式最终确认 → C11 清单/STATE 核对（输出写 tmp）。
-
-用法（工作树根执行）：
+用法：
     python -B verification/s6a_build_evidence.py \
-        --run-dir report/evidence/S6-A/s6a_g0_20261022_r02 \
+        --run-dir report/evidence/S6-A/s6a_g0_20261022_r03 \
         --project-root D:/codex-worktrees/w6
-
-本脚本只用标准库。
 """
 
 from __future__ import annotations
@@ -41,20 +38,14 @@ def sha256_file(path: Path) -> str:
 
 def run_command(command: list[str], project_root: Path) -> dict[str, Any]:
     completed = subprocess.run(
-        command,
-        cwd=str(project_root),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        check=False,
+        command, cwd=str(project_root), capture_output=True, text=True,
+        encoding="utf-8", errors="replace", check=False,
     )
     return {
-        "argv": command,
         "command_text": subprocess.list2cmdline(command),
         "exit_code": completed.returncode,
-        "stdout": completed.stdout.strip(),
-        "stderr": completed.stderr.strip(),
+        "stdout": completed.stdout,
+        "stderr": completed.stderr,
     }
 
 
@@ -63,12 +54,8 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def role_for(relative: str) -> str:
-    if relative in (
-        "inputs_manifest.json",
-        "upstream_bindings.json",
-        "hand_computed_cases.json",
-        "old_package_under_test.json",
-    ):
+    if relative in ("inputs_manifest.json", "upstream_bindings.json", "hand_computed_cases.json",
+                    "old_package_under_test.json", "r02_package_under_test.json"):
         return "input"
     if relative.endswith("_stdout.txt") or "failure" in relative:
         return "diagnostic"
@@ -81,13 +68,19 @@ def keep_reason_for(relative: str) -> str:
     return {
         "hand_computed_cases.json": "人工推导的手算边界样例（S6-C/复评输入）",
         "upstream_bindings.json": "上游只读文件绑定与并发漂移记录",
-        "old_package_under_test.json": "旧包（1fe4648）被检版本清单与哈希，用于证明加固自检能捕获旧缺陷",
-        "selfcheck_old_package_failure.json": "加固自检在旧包上的真实失败输出（N-08/B-01 要求保留）",
-        "selfcheck_old_package_failure_stdout.txt": "旧包失败运行的 stdout 原文",
-        "selfcheck_result.json": "修复包自检结果（真实退出码见 delivery_manifest.checks）",
+        "old_package_under_test.json": "r01 被检版本 git 字节与哈希（BLK-2 可复核）",
+        "r02_package_under_test.json": "r02 被检版本 git 字节与哈希（BLK-1 失败证据）",
+        "selfcheck_old_package_failure.json": "加固自检在 r01 真实字节上的失败输出（exit 1）",
+        "selfcheck_old_package_failure_stdout.txt": "r01 失败运行 stdout 原文",
+        "selfcheck_r02_blk1_failure.json": "加固自检在 r02 上的失败输出，C12 捕获 BLK-1",
+        "selfcheck_r02_blk1_failure_stdout.txt": "r02 BLK-1 失败运行 stdout 原文",
+        "selfcheck_result.json": "修复包自检结果（含完整 C11 清单/STATE 核对）",
+        "selfcheck_c11_stdout.txt": "完整 C11 自检运行 stdout",
+        "check_inputs_mode_output.txt": "check_stage_delivery --mode inputs 真实 stdout",
+        "check_evidence_mode_output.txt": "check_stage_delivery --mode evidence 真实 stdout",
         "coverage_matrix.json": "CDX-012 §2 与计划 L102–L108 覆盖矩阵",
         "limitations_not_executed.json": "限制、未执行与阻塞项登记",
-        "fix_record.json": "评审 B/N 项逐条修复记录",
+        "fix_record.json": "评审 BLK/NBL 项逐条修复记录",
         "fix_record.md": "评审修复记录人读版",
         "inputs_manifest.json": "输入清单（冻结上游接口与输入文件绑定）",
         "hashes_sha256.txt": "证据目录已存在文件的 SHA-256 清单",
@@ -98,8 +91,8 @@ def keep_reason_for(relative: str) -> str:
 
 def source_entries(root: Path) -> list[dict[str, str]]:
     sources = [
-        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.1/r02）"),
-        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.1/r02）"),
+        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.2/r03）"),
+        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.2/r03）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
         ("verification/s6a_build_evidence.py", "证据清单构建器（真实执行检查并记录退出码）"),
         (".codex/STATE.md", "阶段6 STATE（11 字段交接行与证据入口）"),
@@ -109,139 +102,100 @@ def source_entries(root: Path) -> list[dict[str, str]]:
         path = root / relative
         if not path.is_file():
             raise SystemExit(f"缺少需要绑定的源码文件：{relative}")
-        entries.append(
-            {"path": relative, "sha256": sha256_file(path), "role": "source", "keep_reason": reason}
-        )
+        entries.append({"path": relative, "sha256": sha256_file(path), "role": "source", "keep_reason": reason})
     return entries
 
 
-def run_entries(run_dir: Path, root: Path, skip: set[str]) -> list[dict[str, str]]:
+def run_entries(run_dir: Path, root: Path) -> list[dict[str, str]]:
     entries = []
     for path in sorted(run_dir.rglob("*")):
         if not path.is_file():
             continue
         local = path.relative_to(run_dir).as_posix()
-        if local in skip:
+        if local == "delivery_manifest.json":
             continue
-        entries.append(
-            {
-                "path": path.relative_to(root).as_posix(),
-                "sha256": sha256_file(path),
-                "role": role_for(local),
-                "keep_reason": keep_reason_for(local),
-            }
-        )
+        entries.append({
+            "path": path.relative_to(root).as_posix(),
+            "sha256": sha256_file(path),
+            "role": role_for(local),
+            "keep_reason": keep_reason_for(local),
+        })
     return entries
 
 
 def all_entries(run_dir: Path, root: Path) -> list[dict[str, str]]:
-    return source_entries(root) + run_entries(run_dir, root, {"delivery_manifest.json"})
+    return source_entries(root) + run_entries(run_dir, root)
 
 
 def frozen_interfaces() -> list[dict[str, Any]]:
     return [
         {
             "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
-            "version": "G0_FROZEN",
-            "frozen": True,
+            "version": "G0_FROZEN", "frozen": True,
             "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
             "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
         },
         {
             "name": "S1-T02-D2 固定预处理与 INT8 数值规格（no_hand 空标签语义）",
-            "version": "STAGE1_FROZEN",
-            "frozen": True,
+            "version": "STAGE1_FROZEN", "frozen": True,
             "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
             "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
         },
         {
             "name": "S1-T02-D6 检测评估口径与离线指标基础",
-            "version": "STAGE1_FROZEN",
-            "frozen": True,
+            "version": "STAGE1_FROZEN", "frozen": True,
             "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
             "sha256": "735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7",
         },
     ]
 
 
-def build_inputs_manifest(task_id: str, run_id: str, stage: str, source_commit: str) -> dict[str, Any]:
+def build_inputs_manifest(task_id: str, run_id: str, stage: str, source_commit: str, checks: list[dict]) -> dict[str, Any]:
     interfaces = frozen_interfaces()
     files = [
-        {
-            "path": item["path"],
-            "sha256": item["sha256"],
-            "role": "input",
-            "keep_reason": f"冻结上游输入：{item['name']}",
-        }
+        {"path": item["path"], "sha256": item["sha256"], "role": "input", "keep_reason": f"冻结上游输入：{item['name']}"}
         for item in interfaces
     ]
-    files.append(
-        {
-            "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
-            "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
-            "role": "input",
-            "keep_reason": "阶段6 目标与测试场景范围来源（现行批准计划 L102–L108）",
-        }
-    )
+    files.append({
+        "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+        "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
+        "role": "input",
+        "keep_reason": "阶段6 目标与测试场景范围来源（现行批准计划 L102–L108）",
+    })
     return {
-        "schema_version": 1,
-        "stage": stage,
-        "task_id": task_id,
-        "run_id": run_id,
+        "schema_version": 1, "stage": stage, "task_id": task_id, "run_id": run_id,
         "source_commit": source_commit,
         "evidence_dir": f"report/evidence/{task_id}/{run_id}",
-        "interfaces": interfaces,
-        "files": files,
-        "checks": [
-            {
-                "name": "上游冻结接口与输入文件 SHA-256 复算",
-                "status": "PASS",
-                "command": "python -B verification/s6a_build_evidence.py（构建器内部复算 + check_stage_delivery inputs 模式实跑）",
-                "exit_code": 0,
-            }
-        ],
+        "interfaces": interfaces, "files": files, "checks": checks,
         "limitations": [
-            "inputs 清单只登记已冻结的上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 的草案区，不作 frozen 依赖。",
+            "inputs 清单只登记已冻结上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 草案区。",
             "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或 G0 通过。",
         ],
     }
 
 
-def build_delivery_manifest(
-    task_id: str,
-    run_id: str,
-    stage: str,
-    source_commit: str,
-    checks: list[dict[str, Any]],
-    files: list[dict[str, str]],
-    tool_versions: dict[str, str],
-) -> dict[str, Any]:
+def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files, tool_versions):
     return {
-        "schema_version": 1,
-        "stage": stage,
-        "task_id": task_id,
-        "run_id": run_id,
+        "schema_version": 1, "stage": stage, "task_id": task_id, "run_id": run_id,
         "source_commit": source_commit,
         "evidence_dir": f"report/evidence/{task_id}/{run_id}",
         "interfaces": frozen_interfaces()[:1],
-        "files": files,
-        "checks": checks,
-        "tool_versions": tool_versions,
+        "files": files, "checks": checks, "tool_versions": tool_versions,
         "limitations": [
-            "source_commit 为修订基线 1fe4648；证据由未提交工作树生成，最终交付提交哈希见 git log，证据包不自指提交哈希。",
-            "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03 与交互延迟量级因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
-            "M4/M7 在当前草案参数/实现结构下不可达，已登记 reachability 与 U6-12，不计入覆盖声明。",
-            "selfcheck 的 ALL_PASS 只覆盖规格一致性、算术边界与证据存在性，不验证状态机行为；CHECKS_OK 只覆盖清单/文件绑定。",
-            "旧包缺陷可捕获性：加固自检在 git 1fe4648 的旧包上 exit 1，失败输出见 selfcheck_old_package_failure.json/.txt。",
-            "本证据包不构成 G0 复评通过、独立审查通过或任何实物/板上验收。",
+            "source_commit 为修订基线 3b59674；证据由未提交工作树生成，最终交付提交哈希见 git log。",
+            "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
+            "M4/M7 在当前草案参数/实现结构下不可达（U6-12），不计入覆盖声明。",
+            "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
+            "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
+            "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。",
         ],
     }
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="生成 S6-A 证据清单并实跑检查器")
-    parser.add_argument("--run-dir", required=True)
-    parser.add_argument("--project-root", required=True)
+    parser = argparse.ArgumentParser(description="生成 S6-A 证据清单并实跑检查器（r03 不动点迭代）")
+    parser.add_argument("--run-dir", required=False)
+    parser.add_argument("--project-root", required=False)
     parser.add_argument("--stage", default="6")
     parser.add_argument("--task-id", default="S6-A")
     parser.add_argument("--behavior-json", default="docs/stage6/s6a_stage6_g0_behavior_v1.json")
@@ -249,8 +203,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--state", default=".codex/STATE.md")
     parser.add_argument("--selfcheck", default="verification/s6_g0_selfcheck.py")
     parser.add_argument("--checker", default="verification/check_stage_delivery.py")
+    parser.add_argument("--verify-inputs", default=None, help="内部模式：复算 inputs 清单的输入文件哈希，退出码 0/1")
     args = parser.parse_args(argv)
 
+    if args.verify_inputs:
+        manifest = json.loads(Path(args.verify_inputs).resolve().read_text(encoding="utf-8"))
+        failures = []
+        for item in manifest.get("files", []):
+            path = (Path(args.project_root).resolve() / item["path"]).resolve()
+            if not path.is_file() or sha256_file(path) != item["sha256"]:
+                failures.append(item["path"])
+        print(json.dumps({"verified": len(manifest.get("files", [])), "failures": failures}, ensure_ascii=False))
+        return 0 if not failures else 1
+
+    if not args.run_dir or not args.project_root:
+        print("缺少 --run-dir/--project-root")
+        return 2
     root = Path(args.project_root).resolve()
     run_dir = (root / args.run_dir).resolve()
     if not run_dir.is_dir():
@@ -270,16 +238,22 @@ def main(argv: list[str] | None = None) -> int:
     ).stdout.strip()
     tool_versions = {
         "python": sys.version.split()[0],
-        "git": subprocess.run(
-            ["git", "--version"], capture_output=True, text=True, encoding="utf-8", check=False
-        ).stdout.strip(),
+        "git": subprocess.run(["git", "--version"], capture_output=True, text=True, encoding="utf-8", check=False).stdout.strip(),
     }
 
     manifest_path = run_dir / "delivery_manifest.json"
     hashes_path = run_dir / "hashes_sha256.txt"
     summary_path = run_dir / "S6A_run_summary.md"
     result_path = run_dir / "selfcheck_result.json"
-    tmp_state_check = root / "tmp/6/S6-A/s6a_g0_20261022_r02/state_manifest_check.json"
+    c11_stdout_path = run_dir / "selfcheck_c11_stdout.txt"
+    inputs_manifest_path = run_dir / "inputs_manifest.json"
+    inputs_output_path = run_dir / "check_inputs_mode_output.txt"
+    evidence_output_path = run_dir / "check_evidence_mode_output.txt"
+
+    # 预置本轮将写入的 stdout 证据文件，保证 C11 的 STATE 声明在首次完整自检时已存在
+    for placeholder in (c11_stdout_path, inputs_output_path, evidence_output_path):
+        if not placeholder.exists():
+            placeholder.write_text("", encoding="utf-8")
 
     selfcheck_base = [
         sys.executable, "-B", str(root / args.selfcheck),
@@ -290,69 +264,73 @@ def main(argv: list[str] | None = None) -> int:
         "--project-root", str(root),
         "--evidence-dir", str(run_dir),
     ]
-    selfcheck_cmd = selfcheck_base + ["--out", str(result_path)]
-    selfcheck_run = run_command(selfcheck_cmd, root)
-    print(f"[selfcheck] exit={selfcheck_run['exit_code']}")
-    if selfcheck_run["exit_code"] != 0:
-        print(selfcheck_run["stdout"]); print(selfcheck_run["stderr"]); return 1
-
-    inputs_manifest_path = run_dir / "inputs_manifest.json"
-    write_json(inputs_manifest_path, build_inputs_manifest(args.task_id, run_id, args.stage, source_commit))
+    selfcheck_cmd = selfcheck_base + [
+        "--out", str(result_path), "--manifest", str(manifest_path), "--state", str(root / args.state),
+    ]
     inputs_cmd = [
         sys.executable, "-B", str(root / args.checker), "--mode", "inputs",
         "--manifest", str(inputs_manifest_path), "--project-root", str(root),
     ]
-    inputs_run = run_command(inputs_cmd, root)
-    print(f"[inputs-mode] exit={inputs_run['exit_code']}")
-    if inputs_run["exit_code"] != 0:
-        print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
-
     evidence_cmd = [
         sys.executable, "-B", str(root / args.checker), "--mode", "evidence",
         "--manifest", str(manifest_path), "--project-root", str(root),
     ]
 
+    # ---- NBL-1：inputs 清单 checks 由真实复算命令的退出码填写（不硬编码） ----
+    write_json(inputs_manifest_path, build_inputs_manifest(args.task_id, run_id, args.stage, source_commit, []))
+    verify_cmd = [
+        sys.executable, "-B", str(root / "verification/s6a_build_evidence.py"),
+        "--verify-inputs", str(inputs_manifest_path), "--project-root", str(root),
+    ]
+    verify_run = run_command(verify_cmd, root)
+    if verify_run["exit_code"] != 0:
+        print(verify_run["stdout"]); print(verify_run["stderr"]); return 1
+    write_json(inputs_manifest_path, build_inputs_manifest(args.task_id, run_id, args.stage, source_commit, [{
+        "name": "输入文件 SHA-256 复算（构建器 --verify-inputs 实跑）",
+        "status": "PASS", "command": verify_run["command_text"], "exit_code": verify_run["exit_code"],
+    }]))
+    inputs_final = run_command(inputs_cmd, root)
+    print(f"[inputs-mode] exit={inputs_final['exit_code']}")
+    if inputs_final["exit_code"] != 0:
+        print(inputs_final["stdout"]); print(inputs_final["stderr"]); return 1
+    inputs_output_path.write_text(inputs_final["stdout"], encoding="utf-8")
+
     summary_lines = [
-        "# S6-A v1.1 / r02 运行摘要",
+        "# S6-A v1.2 / r03 运行摘要",
         "",
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 修订基线提交：`{source_commit}`（证据由未提交工作树生成）",
         "- 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）",
-        "- 阈值纪律：24 项参数值未改，全部 `PENDING_APPROVAL`；未在测试集上调参；未触碰硬件。",
+        "- 阈值纪律：24 项参数值与 `PENDING_APPROVAL` 状态未改；未在测试集调参；未触碰硬件。",
         "",
-        "## 真实命令与退出码（由 `verification/s6a_build_evidence.py` 实跑记录）",
+        "## 真实命令与退出码",
         "",
         "| 检查 | 命令（绝对 project-root） | 实测退出码 |",
         "|---|---|---|",
-        f"| 自检（16 项） | `{selfcheck_run['command_text']}` | {selfcheck_run['exit_code']} |",
-        f"| check_stage_delivery --mode inputs | `{inputs_run['command_text']}` | {inputs_run['exit_code']} |",
-        f"| check_stage_delivery --mode evidence | `{subprocess.list2cmdline(evidence_cmd)}` | 见 `delivery_manifest.json.checks`（构建器实跑写入） |",
-        "| 自检 --manifest（C11 清单/STATE 核对） | 构建器在清单定稿后实跑，输出写 tmp | 见构建器 stdout（真实退出码） |",
+        f"| 自检（16 项，含完整 C11） | `{subprocess.list2cmdline(selfcheck_cmd)}` | 见 `delivery_manifest.json.checks` 与 `selfcheck_c11_stdout.txt` |",
+        f"| check_stage_delivery --mode inputs | `{subprocess.list2cmdline(inputs_cmd)}` | {inputs_final['exit_code']}（stdout: `check_inputs_mode_output.txt`） |",
+        f"| check_stage_delivery --mode evidence | `{subprocess.list2cmdline(evidence_cmd)}` | 见 `delivery_manifest.json.checks`（stdout: `check_evidence_mode_output.txt`） |",
         "",
-        "> `delivery_manifest.json.checks` 中 status=PASS 的条目，其 exit_code 均为构建器实测值（PASS 必须为 0）。",
-        "> 清单定稿后构建器再实跑一次 evidence 模式作为最终确认。",
+        "> 清单 checks 中 status=PASS 的条目其 exit_code 均为构建器实测值（PASS 必须为 0）。",
+        "> 入库 `selfcheck_result.json` 由带 `--manifest` + `--state` 的命令生成，C11 detail 含清单双向一致与 STATE 声明核对。",
         "",
         "## 证据文件",
         "",
-        "- `delivery_manifest.json`：机器可读清单（按实际文件生成，清单本身不列入 files）。",
-        "- `inputs_manifest.json`：冻结上游接口与输入文件绑定。",
-        "- `hashes_sha256.txt`：本目录所有已存在文件的 SHA-256（不含自身与清单）。",
-        "- `selfcheck_result.json`：修复包自检 `ALL_PASS`（16 项）。",
-        "- `selfcheck_old_package_failure.json` / `..._stdout.txt`：加固自检在旧包（`1fe4648`）上的失败输出。",
-        "- `old_package_under_test.json`：旧包被检文件清单与哈希。",
-        "- `fix_record.json` / `fix_record.md`：B-01..B-05、N-01..N-10 修复记录。",
-        "- `coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`。",
+        "- `delivery_manifest.json` / `inputs_manifest.json` / `hashes_sha256.txt`（只哈希实际存在文件）",
+        "- `selfcheck_result.json`（ALL_PASS 16 项，含完整 C11）+ `selfcheck_c11_stdout.txt`",
+        "- `check_inputs_mode_output.txt` / `check_evidence_mode_output.txt`（检查器完整 stdout）",
+        "- `selfcheck_old_package_failure.json/.txt` + `old_package_under_test.json`（r01，git 字节可复核）",
+        "- `selfcheck_r02_blk1_failure.json/.txt` + `r02_package_under_test.json`（r02，C12 捕获 BLK-1）",
+        "- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`",
         "",
         "## 结论边界",
         "",
-        "- `selfcheck_result.json` 的 `ALL_PASS` 只表示规格一致性、算术边界与证据存在性复算通过；",
-        "  `check_stage_delivery.py` 的 `CHECKS_OK` 只表示清单/文件绑定检查通过。",
-        "- 均不代表状态机行为正确、G0 复评通过、独立审查通过或任何板上/摄像头验收。",
-        "- 回放/注入类结论的适用范围仅限回放/注入输入；本包未运行任何状态机。",
+        "- `ALL_PASS`/`CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定；不验证状态机行为，不代表 G0 复评/独立审查/实物验收通过。",
+        "- 回放/注入类结论仅限回放/注入输入；本包未运行任何状态机。",
         "",
         "## 限制与未执行",
         "",
-        "见 `limitations_not_executed.json`（含 T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。",
+        "见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。",
         "",
     ]
     summary_path.write_text("\n".join(summary_lines), encoding="utf-8")
@@ -368,67 +346,93 @@ def main(argv: list[str] | None = None) -> int:
             lines.append(f"{sha256_file(path)}  {relative}")
         hashes_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
-    def write_manifest(checks: list[dict[str, Any]]) -> None:
-        write_json(
-            manifest_path,
-            build_delivery_manifest(
-                args.task_id, run_id, args.stage, source_commit, checks, all_entries(run_dir, root), tool_versions
-            ),
-        )
+    def write_manifest(selfcheck_exit: int | None, evidence_exit: int | None, selfcheck_command: str) -> None:
+        checks = [
+            {
+                "name": "S6-A 自检（16 项：规格一致性/算术/证据存在性/C11 清单与 STATE）",
+                "status": "PASS" if selfcheck_exit == 0 else ("NOT_RUN" if selfcheck_exit is None else "FAIL"),
+                "command": selfcheck_command if selfcheck_exit is not None else None,
+                "exit_code": selfcheck_exit,
+                **({"reason": "首版清单生成后立即实跑"} if selfcheck_exit is None else {}),
+            },
+            {
+                "name": "check_stage_delivery.py --mode inputs",
+                "status": "PASS" if inputs_final["exit_code"] == 0 else "FAIL",
+                "command": inputs_final["command_text"], "exit_code": inputs_final["exit_code"],
+            },
+            {
+                "name": "check_stage_delivery.py --mode evidence",
+                "status": "PASS" if evidence_exit == 0 else ("NOT_RUN" if evidence_exit is None else "FAIL"),
+                "command": subprocess.list2cmdline(evidence_cmd) if evidence_exit is not None else None,
+                "exit_code": evidence_exit,
+                **({"reason": "首版清单生成后立即实跑"} if evidence_exit is None else {}),
+            },
+        ]
+        write_json(manifest_path, build_delivery_manifest(
+            args.task_id, run_id, args.stage, source_commit, checks, all_entries(run_dir, root), tool_versions,
+        ))
 
-    base_checks = [
-        {
-            "name": "S6-A 自检（16 项：规格一致性/算术/证据存在性）",
-            "status": "PASS", "command": selfcheck_run["command_text"], "exit_code": selfcheck_run["exit_code"],
-        },
-        {
-            "name": "check_stage_delivery.py --mode inputs",
-            "status": "PASS", "command": inputs_run["command_text"], "exit_code": inputs_run["exit_code"],
-        },
-    ]
+    # 首版自检结果（保证 C11 的 STATE 声明文件存在）+ 首版清单
+    provisional = run_command(selfcheck_base + ["--out", str(result_path)], root)
+    if provisional["exit_code"] != 0:
+        print(provisional["stdout"]); print(provisional["stderr"]); return 1
     write_hashes()
-    write_manifest(base_checks + [{
-        "name": "check_stage_delivery.py --mode evidence",
-        "status": "NOT_RUN", "command": None, "exit_code": None,
-        "reason": "首版清单生成后立即实跑，实测退出码写入定稿清单",
-    }])
+    write_manifest(None, None, "")
     evidence_run = run_command(evidence_cmd, root)
-    print(f"[evidence-mode] exit={evidence_run['exit_code']}")
+    print(f"[evidence-mode:first] exit={evidence_run['exit_code']}")
     if evidence_run["exit_code"] != 0:
         print(evidence_run["stdout"]); print(evidence_run["stderr"]); return 1
+    evidence_output_path.write_text(evidence_run["stdout"], encoding="utf-8")
+    write_hashes()
+    write_manifest(None, evidence_run["exit_code"], "")
 
-    final_checks = base_checks + [{
-        "name": "check_stage_delivery.py --mode evidence",
-        "status": "PASS" if evidence_run["exit_code"] == 0 else "FAIL",
-        "command": evidence_run["command_text"],
-        "exit_code": evidence_run["exit_code"],
-    }]
-    write_manifest(final_checks)
-    evidence_final = run_command(evidence_cmd, root)
-    print(f"[evidence-mode:final] exit={evidence_final['exit_code']}")
-    if evidence_final["exit_code"] != 0:
-        print(evidence_final["stdout"]); print(evidence_final["stderr"]); return 1
+    selfcheck_exit: int | None = None
+    previous_state: tuple | None = None
+    for iteration in range(1, 7):
+        run = run_command(selfcheck_cmd, root)
+        print(f"[selfcheck:iter{iteration}] exit={run['exit_code']}")
+        if run["exit_code"] != 0:
+            print(run["stdout"]); print(run["stderr"]); return 1
+        selfcheck_exit = run["exit_code"]
+        c11_stdout_path.write_text(run["stdout"], encoding="utf-8")
+        write_hashes()
+        write_manifest(selfcheck_exit, evidence_run["exit_code"], run["command_text"])
+        evidence_run = run_command(evidence_cmd, root)
+        print(f"[evidence-mode:iter{iteration}] exit={evidence_run['exit_code']}")
+        if evidence_run["exit_code"] != 0:
+            print(evidence_run["stdout"]); print(evidence_run["stderr"]); return 1
+        evidence_output_path.write_text(evidence_run["stdout"], encoding="utf-8")
+        write_hashes()
+        write_manifest(selfcheck_exit, evidence_run["exit_code"], run["command_text"])
+        state = (
+            sha256_file(result_path),
+            sha256_file(c11_stdout_path),
+            sha256_file(hashes_path),
+            sha256_file(inputs_output_path),
+            sha256_file(evidence_output_path),
+            tuple(item["path"] for item in all_entries(run_dir, root)),
+        )
+        if previous_state == state:
+            break
+        previous_state = state
 
-    state_check_cmd = selfcheck_base + [
-        "--out", str(tmp_state_check),
-        "--manifest", str(manifest_path),
-        "--state", str(root / args.state),
-    ]
-    state_check = run_command(state_check_cmd, root)
-    print(f"[selfcheck+manifest:final] exit={state_check['exit_code']}")
-    if state_check["exit_code"] != 0:
-        print(state_check["stdout"]); print(state_check["stderr"]); return 1
-
+    final_evidence = run_command(evidence_cmd, root)
+    print(f"[evidence-mode:final] exit={final_evidence['exit_code']}")
+    if final_evidence["exit_code"] != 0:
+        print(final_evidence["stdout"]); print(final_evidence["stderr"]); return 1
     result = json.loads(result_path.read_text(encoding="utf-8"))
+    c11 = next((item for item in result["checks"] if item["id"] == "C11"), None)
+    if c11 is None or "manifest 双向一致" not in c11["detail"] or "STATE 声明" not in c11["detail"]:
+        print(f"C11 未执行完整清单/STATE 核对：{c11}")
+        return 1
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     print(json.dumps({
         "status": "EVIDENCE_BUILT",
         "selfcheck": result["status"],
-        "checks": [
-            {"name": item["name"], "status": item["status"], "exit_code": item["exit_code"]}
-            for item in final_checks
-        ],
-        "files": len(all_entries(run_dir, root)),
-        "state_manifest_check_exit": state_check["exit_code"],
+        "c11_detail": c11["detail"],
+        "checks": [{"name": c["name"], "status": c["status"], "exit_code": c["exit_code"]} for c in manifest["checks"]],
+        "files": len(manifest["files"]),
+        "evidence_final_exit": final_evidence["exit_code"],
     }, ensure_ascii=False))
     return 0
 

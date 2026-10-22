@@ -69,6 +69,7 @@ REQUIRED_DOC_KEYWORDS = [
     "window_complete",
     "H-10",
     "DELIVERED_PENDING_APPROVAL",
+    "t_last_submit",
 ]
 REQUIRED_DOC_SECTIONS = ["## 5.", "## 9.", "## 10.", "## 12.", "## 15.", "## 18.", "### 12.1"]
 FORBIDDEN_CLAIMS = [
@@ -133,8 +134,9 @@ def check_identity(data: dict[str, Any]) -> None:
     if data.get("artifact") != "s6a_stage6_g0_behavior":
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
-    if version not in ("S6A-G0-v1", "S6A-G0-v1.1"):
-        raise CheckFailure(f"artifact_version 必须为 S6A-G0-v1 或 S6A-G0-v1.1，实际 {version!r}")
+    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2")
+    if version not in allowed_versions:
+        raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
         raise CheckFailure("status 必须为 G0_PACKET_PENDING_APPROVAL")
     for key in (
@@ -153,15 +155,19 @@ def check_identity(data: dict[str, Any]) -> None:
             raise CheckFailure(f"缺少必填块：{key}")
     if data["baseline"].get("start_commit") != "d8bc70e43572a8e44ddcd4b3489166e28a1c6151":
         raise CheckFailure("起始提交与开工核验不一致")
-    if version == "S6A-G0-v1.1":
+    expected_runs = {
+        "S6A-G0-v1.1": "s6a_g0_20261022_r02",
+        "S6A-G0-v1.2": "s6a_g0_20261022_r03",
+    }
+    if version in expected_runs:
         revision = data.get("revision") or {}
         for key in ("run_id", "review_source", "changes", "review_status"):
             if not revision.get(key):
-                raise CheckFailure(f"v1.1 缺少 revision.{key}")
-        if data.get("run_id") != "s6a_g0_20261022_r02":
-            raise CheckFailure("v1.1 的 run_id 必须是 s6a_g0_20261022_r02")
-        if data.get("supersedes_run_id") != "s6a_g0_20261022_r01":
-            raise CheckFailure("v1.1 必须声明 supersedes_run_id=r01")
+                raise CheckFailure(f"{version} 缺少 revision.{key}")
+        if data.get("run_id") != expected_runs[version]:
+            raise CheckFailure(f"{version} 的 run_id 必须是 {expected_runs[version]}")
+        if not data.get("supersedes_run_id"):
+            raise CheckFailure(f"{version} 必须声明 supersedes_run_id")
 
 
 def check_unique_ids(data: dict[str, Any]) -> None:
@@ -482,39 +488,46 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "w_min_ms": w_min,
             "w_min_is_lower_bound_only": True,
             "dominant": "frame_count" if (s02 - 1) * period > s01 else "duration",
-            "stable": True,
+            "stable": (index >= s02) and ((index - 1) * period >= s01),
             "stable_at_sixth_frame": 6 >= s02 and (6 - 1) * period >= s01,
             "stable_at_fifth_frame": 5 >= s02 and (5 - 1) * period >= s01,
         }
     if kind == "cooldown":
-        t_submit = float(spec["t_submit_ms"])
-        k01 = float(spec["k01_ms"])
+        t_last_submit_ns = int(round(float(spec["t_last_submit_ms"]) * 1_000_000))
+        k01_ns = int(round(float(spec["k01_ms"]) * 1_000_000))
+        offsets = spec["t_now_offsets_ns"]
         return {
-            "ended_at_ms": r6(t_submit + k01),
-            "ended_at_minus_1ns": (k01 - 0.000001) >= k01,
-            "ended_at_exact": k01 >= k01,
+            "ended_at_ms": r6((t_last_submit_ns + k01_ns) / 1_000_000),
+            "ended_at_minus_1ns": (t_last_submit_ns + int(offsets["minus_1ns"]) - t_last_submit_ns) >= k01_ns,
+            "ended_at_exact": (t_last_submit_ns + int(offsets["exact"]) - t_last_submit_ns) >= k01_ns,
+            "ended_at_plus_1ns": (t_last_submit_ns + int(offsets.get("plus_1ns", offsets["exact"])) - t_last_submit_ns) >= k01_ns,
         }
     if kind == "dedup":
-        a02 = float(spec["a02_ms"])
+        t_last_submit_ns = int(round(float(spec["t_last_submit_ms"]) * 1_000_000))
+        a02_ns = int(round(float(spec["a02_ms"]) * 1_000_000))
+        offsets = spec["t_now_offsets_ns"]
         return {
-            "suppressed_at_minus_1": (a02 - 1.0) < a02,
-            "suppressed_at_exact": a02 < a02,
-            "unit_granularity": "ms_direction_only",
+            "suppressed_at_minus_1": int(offsets["minus_1ns"]) < a02_ns,
+            "suppressed_at_exact": int(offsets["exact"]) < a02_ns,
+            "unit_granularity": "ns_true_computation",
         }
     if kind == "lost_frames":
         l01 = int(spec["l01_frames"])
         return {"lost_at_4": 4 >= l01, "lost_at_5": 5 >= l01}
     if kind == "lost_time":
-        l02 = float(spec["l02_ms"])
+        t_last_match_ns = int(round(float(spec["t_last_match_ms"]) * 1_000_000))
+        l02_ns = int(round(float(spec["l02_ms"]) * 1_000_000))
+        offsets = spec["t_now_offsets_ns"]
         return {
-            "lost_at_minus_1ns": (l02 - 0.000001) >= l02,
-            "lost_at_exact": l02 >= l02,
+            "lost_at_minus_1ns": int(offsets["minus_1ns"]) >= l02_ns,
+            "lost_at_exact": int(offsets["exact"]) >= l02_ns,
         }
     if kind == "stale":
-        limit = float(spec["limit_ms"])
+        limit_ns = int(round(float(spec["limit_ms"]) * 1_000_000))
+        ages = spec["ages_ns"]
         return {
-            "stale_at_exact": limit > limit,
-            "stale_at_exact_plus_1ns": (limit + 0.000001) > limit,
+            "stale_at_exact": int(ages["exact"]) > limit_ns,
+            "stale_at_exact_plus_1ns": int(ages["plus_1ns"]) > limit_ns,
         }
     if kind == "jitter":
         j01 = int(spec["j01_frames"])
@@ -595,20 +608,28 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
     if kind == "hysteresis":
         current_score = float(spec["current_score"])
         other_score = float(spec["other_class_score"])
-        continues = bool(spec["target_continues"])
         p01 = float(spec["p01"])
         p02 = float(spec["p02"])
+        p03 = float(spec["p03"])
+        p04 = float(spec["p04"])
+        same_class = bool(spec["same_class"])
+        iou = float(spec["iou"])
+        center_disp = float(spec["center_disp"])
+        continues = same_class and (iou >= p03 or center_disp <= p04)
+        window_match = continues and current_score >= p02
         held = continues
         if held:
             selected_class = "fist" if int(spec["current_class_id"]) == 0 else "current"
         else:
-            candidates = [(float(spec["current_score"]), int(spec["current_class_id"]))]
+            candidates = [(current_score, int(spec["current_class_id"]))]
             candidates.append((other_score, int(spec["other_class_id"])))
             eligible = [row for row in candidates if row[0] >= p01]
             best = max(eligible, key=lambda row: row[0]) if eligible else None
             selected_class = "palm" if best and best[1] == 1 else "current"
         return {
             "held": held,
+            "target_continues": continues,
+            "window_match": window_match,
             "selected_class": selected_class,
             "selected_class_id": 0 if selected_class == "fist" else (1 if selected_class == "palm" else int(spec["current_class_id"])),
             "higher_other_candidate": other_score > current_score,
@@ -678,18 +699,41 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "reachable_if_s04_lt_l02": True,
         }
     if kind == "score_gate":
-        threshold = float(spec["p01"])
+        p01 = float(spec["p01"])
+        score_exact = float(spec.get("score_exact", p01))
+        score_minus = float(spec.get("score_minus_1ulp", _nextafter(p01, 0.0)))
         return {
-            "eligible_at_exact": threshold >= threshold,
-            "eligible_at_minus_1ulp": _nextafter(threshold, 0.0) >= threshold,
+            "eligible_at_exact": score_exact >= p01,
+            "eligible_at_minus_1ulp": score_minus >= p01,
             "inclusive": True,
         }
     if kind == "window_match_score":
-        threshold = float(spec["p02"])
+        p02 = float(spec["p02"])
+        score_exact = float(spec.get("score_exact", p02))
+        score_minus = float(spec.get("score_minus_1ulp", _nextafter(p02, 0.0)))
         return {
-            "window_match_at_exact": threshold >= threshold,
-            "window_match_at_minus_1ulp": _nextafter(threshold, 0.0) >= threshold,
+            "window_match_at_exact": score_exact >= p02,
+            "window_match_at_minus_1ulp": score_minus >= p02,
             "inclusive": True,
+        }
+    if kind == "window_match_vs_continues":
+        continues_frames = int(spec["continues_frames"])
+        window_match_frames = int(spec["window_match_frames"])
+        s02 = int(spec["s02_frames"])
+        s01_ok = bool(spec["s01_ok"])
+        l01 = int(spec["l01_frames"])
+        continues_false_streak = int(spec["continues_false_streak"])
+        m3_fires = (window_match_frames >= s02) and s01_ok
+        lost = continues_false_streak >= l01
+        # M5 需要 STABLE 之后的下一条结果帧；本样例无后续帧 → 不触发
+        trigger = m3_fires and bool(spec.get("m5_next_frame_supplied", False))
+        return {
+            "m3_fires": m3_fires,
+            "lost": lost,
+            "trigger": trigger,
+            "window_match_count": window_match_frames,
+            "continues_count": continues_frames,
+            "continues_false_streak": continues_false_streak,
         }
     if kind == "recovery_streak":
         u01 = int(spec["u01_frames"])
@@ -733,9 +777,9 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
                     raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
             elif want != got:
                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
-    if len(seen) < 27:
-        raise CheckFailure(f"手算样例数量不足 27：{len(seen)}")
-    return f"{len(seen)} 个样例全部由输入独立复算一致（含 HC-16/17/20 真算与 HC-21..HC-27）"
+    if len(seen) < 29:
+        raise CheckFailure(f"手算样例数量不足 29：{len(seen)}")
+    return f"{len(seen)} 个样例全部由输入独立复算一致（含 HC-16/17/20/28/29 真算与边界样例）"
 
 
 # ---------------------------------------------------------------- C8
@@ -888,9 +932,9 @@ def check_evidence_integrity(
             raise CheckFailure(f"STATE 文件不存在：{state_path}")
         state_text = state_path.read_text(encoding="utf-8")
         if "S6-A DONE" in state_text:
-            raise CheckFailure("STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL")
-        if "DELIVERED_PENDING_APPROVAL" not in state_text:
-            raise CheckFailure("STATE 缺少 DELIVERED_PENDING_APPROVAL 状态口径")
+            raise CheckFailure("STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW")
+        if "DELIVERED_PENDING_APPROVAL" not in state_text and "DELIVERED_PENDING_REVIEW" not in state_text:
+            raise CheckFailure("STATE 缺少 DELIVERED_PENDING_APPROVAL/REVIEW 状态口径")
         lines = state_text.splitlines()
         declared_files: set[str] = set()
         declared_dirs: set[str] = set()
@@ -898,7 +942,11 @@ def check_evidence_integrity(
             if "证据入口" not in line and "report/evidence" not in line:
                 continue
             for token in re.findall(r"`([^`]+)`", line):
-                if re.search(r"\.(json|md|txt|jsonl)$", token) and "/" not in token and "\\" not in token:
+                if (
+                    re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.\-]*\.(json|md|txt|jsonl)", token)
+                    and "/" not in token
+                    and "\\" not in token
+                ):
                     declared_files.add(token)
                 elif token.startswith("report/evidence/"):
                     declared_dirs.add(token.rstrip("/"))
@@ -930,18 +978,76 @@ def check_predicates(data: dict[str, Any], doc_text: str) -> None:
             raise CheckFailure(f"文档未引用谓词：{name}")
         if not predicates[name].get("definition") or not predicates[name].get("used_by"):
             raise CheckFailure(f"{name} 缺少定义或引用位置")
+    used_by = {
+        name: [str(item) for item in predicates[name].get("used_by", [])]
+        for name in ("TARGET_CONTINUES", "WINDOW_MATCH")
+    }
+    for anchor in ("M3", "M10"):
+        if not any(item.startswith(anchor) for item in used_by["WINDOW_MATCH"] + used_by["TARGET_CONTINUES"]):
+            raise CheckFailure(f"predicates.used_by 未登记 {anchor}（BLK-1 关闭条件）")
+
+    transitions = {item["id"]: item for item in data["transitions"]}
     rows = {row["id"]: row for row in data["behavior_rows"]}
-    if "TARGET_CONTINUES" not in rows["B03"]["condition"]:
-        raise CheckFailure("B03 迟滞未使用 TARGET_CONTINUES")
-    if "TARGET_CONTINUES" not in rows["B09"]["condition"]:
-        raise CheckFailure("B09 目标保持未使用 TARGET_CONTINUES")
-    if "WINDOW_MATCH" not in rows["B07"]["condition"]:
-        raise CheckFailure("B07 稳定窗口未使用 WINDOW_MATCH")
-    if "WINDOW_MATCH" not in rows["B17"]["output"]:
-        raise CheckFailure("B17 未声明 NO_HAND 不推进匹配计数")
-    for phrase in AMBIGUOUS_MATCH_PHRASES:
+    required_binding = {
+        "M1": ["TARGET_CONTINUES", "WINDOW_MATCH"],
+        "M3": ["WINDOW_MATCH"],
+        "M4": ["WINDOW_MATCH"],
+        "M8": ["TARGET_CONTINUES"],
+        "M9": ["TARGET_CONTINUES", "WINDOW_MATCH"],
+        "M10": ["TARGET_CONTINUES"],
+        "M15": ["TARGET_CONTINUES", "WINDOW_MATCH"],
+        "B04": ["TARGET_CONTINUES"],
+        "B07": ["WINDOW_MATCH"],
+        "B08": ["WINDOW_MATCH"],
+        "B10": ["TARGET_CONTINUES"],
+        "B12": ["TARGET_CONTINUES"],
+        "B14": ["TARGET_CONTINUES", "WINDOW_MATCH"],
+    }
+    for item_id, expected in required_binding.items():
+        if item_id.startswith("M"):
+            item = transitions[item_id]
+            text = str(item.get("condition", ""))
+        else:
+            item = rows[item_id]
+            text = str(item.get("condition", "")) + " " + str(item.get("output", ""))
+        for name in expected:
+            if name not in text:
+                raise CheckFailure(f"{item_id} 的条件/输出未绑定 {name}（BLK-1）")
+        declared = item.get("predicates_used")
+        if declared is None:
+            raise CheckFailure(f"{item_id} 缺少 predicates_used 字段（BLK-1）")
+        if sorted(set(declared)) != sorted(set(expected)):
+            raise CheckFailure(
+                f"{item_id}.predicates_used 与要求不符：{declared} vs {expected}"
+            )
+
+    # 裸“匹配”残留扫描（“匹配计数”是已定义计数器名，允许；其余裸用法禁止）
+    bare_patterns = [phrase for phrase in AMBIGUOUS_MATCH_PHRASES] + [
+        "不匹配",
+        "仍匹配",
+        "上次匹配",
+        "匹配帧数",
+        "匹配成立",
+        "匹配的框",
+        "未匹配",
+        "非匹配",
+        "计入匹配",
+    ]
+    json_text = json.dumps(
+        {
+            "transitions": [item.get("condition", "") for item in data["transitions"]],
+            "behavior_rows": [
+                str(row.get("condition", "")) + str(row.get("output", ""))
+                for row in data["behavior_rows"]
+            ],
+        },
+        ensure_ascii=False,
+    )
+    for phrase in bare_patterns:
+        if phrase in json_text:
+            raise CheckFailure(f"JSON 迁移/行为行仍含未绑定谓词的表述：{phrase!r}")
         if phrase in doc_text:
-            raise CheckFailure(f"文档仍含含糊“匹配”表述：{phrase!r}")
+            raise CheckFailure(f"文档仍含未绑定谓词的表述：{phrase!r}")
 
 
 def check_cooldown_gate(data: dict[str, Any], doc_text: str) -> None:
@@ -950,17 +1056,28 @@ def check_cooldown_gate(data: dict[str, Any], doc_text: str) -> None:
         raise CheckFailure("cooldown_policy.scope 必须为 GLOBAL_GATE")
     if policy.get("applies_across_acquisitions") is not True:
         raise CheckFailure("冷却门必须跨获取生效")
-    if "t_submit" not in str(policy.get("anchor", "")):
-        raise CheckFailure("冷却锚点必须为 t_submit")
+    anchor = str(policy.get("anchor", ""))
+    gate = str(policy.get("gate_condition", ""))
+    if "t_last_submit" not in anchor or "t_last_submit" not in gate:
+        raise CheckFailure("冷却锚点必须统一为 t_last_submit（NBL-2）")
+    if "尝试提交" in anchor or "尝试提交" in gate:
+        raise CheckFailure("冷却锚点仍含“尝试提交”歧义（NBL-2）")
+    definitions = policy.get("definitions") or {}
+    if "t_last_submit" not in definitions or "t_submit" not in definitions:
+        raise CheckFailure("cooldown_policy 缺少 t_submit/t_last_submit 定义")
     transitions = {item["id"]: item for item in data["transitions"]}
     if "全局冷却门" not in transitions["M5"]["condition"]:
         raise CheckFailure("M5 条件缺少全局冷却门")
+    if "t_last_submit" not in transitions["M5"]["condition"]:
+        raise CheckFailure("M5 冷却门必须使用 t_last_submit")
     if not transitions["M5"].get("global_cooldown_gate"):
         raise CheckFailure("M5 缺少 global_cooldown_gate 标记")
     h10 = next((item for item in data["hard_invariants"] if item["id"] == "H-10"), None)
     if h10 is None or "全局门" not in h10["rule"] or "T6-K01" not in h10["rule"]:
         raise CheckFailure("H-10 冷却全局门定义不完整")
-    for phrase in ("全局门", "H-10", "S_COOLDOWN"):
+    if "t_last_submit" not in h10["rule"]:
+        raise CheckFailure("H-10 必须使用统一定义 t_last_submit")
+    for phrase in ("全局门", "H-10", "S_COOLDOWN", "t_last_submit"):
         if phrase not in doc_text:
             raise CheckFailure(f"文档缺少冷却全局门口径：{phrase}")
 
@@ -1190,7 +1307,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    print(json.dumps({"status": result["status"], "errors": result["errors"]}, ensure_ascii=False))
+    print(json.dumps({"status": result["status"], "errors": result["errors"], "checks": result["checks"]}, ensure_ascii=False))
     return 0 if result["status"] == "ALL_PASS" else 1
 
 

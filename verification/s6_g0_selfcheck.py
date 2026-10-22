@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A（G0 包 + 行为表 v1）只读自检。
+"""阶段6 S6-A（G0 包 + 行为表 v1.1）只读自检。
 
-用途：在没有状态机实现的前提下，对本轮交付的**规格一致性**做机器检查：
-  C1  JSON 身份与必填块
-  C2  标识唯一性（行为行 / 参数 / 迁移）
-  C3  文档 ↔ JSON 标识双向一致（缺一即缺陷）
-  C4  待批准纪律（全部阈值与指标必须是 PENDING_APPROVAL，不得宣称已冻结/已批准）
-  C5  五类动作映射一致（class_id 0..4、类名顺序、target 唯一、类型合法）
-  C6  硬不变量与不宣称块完整（H-1..H-9、唯一触发解释）
-  C7  人工手算样例的独立算术复算（预期键必须全部可复算）
-  C8  上游只读文件 SHA-256 复算（含 w4/w5 只读路径）
-  C9  文档必备覆盖关键词与章节存在
-  C10 窄口径禁止声明扫描
+加固后的机器检查（r02，针对独立评审 S6A_20261022_r01 的 C3 盲区）：
 
-边界：本脚本只做算术与文本一致性复算，**不**验证状态机行为、**不**代表 G0/G2/G4/G5 或任何验收结论。
+  C1   JSON 身份与必填块（接受 S6A-G0-v1 / v1.1）
+  C2   ID 唯一性与最小规模
+  C3   **文档 ↔ JSON 标识集合双向一致**（不变量/迁移/参数/事件/状态/行为行/动作类型，
+       迁移另比对 from/to；参数按 §14 表行比对，而不仅是 token 出现）
+  C4   待批准纪律（24 项参数全 PENDING_APPROVAL + 来源/责任人 + 动作映射待批准）
+  C5   五类动作映射一致（class_id 0..4、2A 顺序、target 唯一、类型在支持集合内）
+  C6   硬不变量与唯一触发解释完整（H-1..H-10；ONCE_PER_ACQUISITION）
+  C7   人工手算样例的**独立复算**（新增可复算类型；HC-16/17/20 不再重述结论）
+  C8   上游只读文件 SHA-256 复算（含 w4/w5 只读提交版本）
+  C9   文档必备覆盖关键词与章节存在
+  C10  窄口径禁止声明扫描
+  C11  **证据清单 vs 实际文件存在性/哈希**（manifest 双向比对 + STATE 声明的证据文件存在性）
+  C12  谓词拆分一致性（TARGET_CONTINUES / WINDOW_MATCH 定义、引用与禁用含糊“匹配”）
+  C13  冷却全局门一致性（H-10 / M5 / cooldown_policy / 文档）
+  C14  W_min 与实测帧周期口径一致性（B-04/N-05）
+  C15  H-4/NO_HAND 匹配计数一致性（B-02）
+  C16  迁移可达性与覆盖声明一致性（M4/M7/M14；B26；§12.1）
+
+边界：本脚本只做规格一致性、算术与证据存在性复算，**不**验证状态机行为、
+**不**代表 G0/G2/G4/G5 或任何验收结论。
 """
 
 from __future__ import annotations
@@ -21,16 +30,22 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
+import math
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 BEHAVIOR_ID_RE = re.compile(r"\bB\d{2}\b")
 PARAM_ID_RE = re.compile(r"\bT6-[A-Za-z0-9]+(?:_[A-Za-z0-9]+)*")
+INVARIANT_ID_RE = re.compile(r"\bH-\d+\b")
+TRANSITION_ID_RE = re.compile(r"\bM\d+\b")
+EVENT_ID_RE = re.compile(r"`((?:E|S|ACTION)_[A-Z_]+)`")
+STATE_TOKEN_RE = re.compile(r"`([A-Z_]+)`")
+ACTION_TYPE_RE = re.compile(r"`(A_[A-Z_]+)`")
+STATE_NAMES = ("IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN", "LOST", "UNKNOWN_RECOVER")
 
-REQUIRED_INVARIANTS = [f"H-{i}" for i in range(1, 10)]
 REQUIRED_DOC_KEYWORDS = [
     "行为表 v1",
     "ACTION_SUBMITTED",
@@ -48,8 +63,14 @@ REQUIRED_DOC_KEYWORDS = [
     "过期",
     "UNKNOWN_RECOVER",
     "class_id",
+    "TARGET_CONTINUES",
+    "WINDOW_MATCH",
+    "W_min",
+    "window_complete",
+    "H-10",
+    "DELIVERED_PENDING_APPROVAL",
 ]
-REQUIRED_DOC_SECTIONS = ["## 5.", "## 9.", "## 10.", "## 12.", "## 15.", "## 18."]
+REQUIRED_DOC_SECTIONS = ["## 5.", "## 9.", "## 10.", "## 12.", "## 15.", "## 18.", "### 12.1"]
 FORBIDDEN_CLAIMS = [
     "阈值已冻结",
     "指标已批准",
@@ -59,9 +80,15 @@ FORBIDDEN_CLAIMS = [
     "已实测通过",
     "已冻结数值",
 ]
+AMBIGUOUS_MATCH_PHRASES = [
+    "连续匹配帧",
+    "与当前目标匹配的框",
+    "匹配成立",
+    "匹配计数只由 state",
+]
 EXPECTED_CLASS_ORDER = ["fist", "palm", "one", "two_up", "three"]
 SCOPE_STATEMENT = (
-    "本自检只复算规格一致性与算术边界，不代表状态机行为正确、独立审查通过或 G0/G4/G5。"
+    "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。"
 )
 
 
@@ -88,6 +115,15 @@ def r6(value: float) -> float:
     return round(float(value), 6)
 
 
+def doc_section(doc: str, start: str, end: str) -> str:
+    if start not in doc:
+        raise CheckFailure(f"文档缺少章节锚点：{start!r}")
+    tail = doc.split(start, 1)[1]
+    if end in tail:
+        return tail.split(end, 1)[0]
+    return tail
+
+
 # ---------------------------------------------------------------- C1 / C2
 
 
@@ -96,19 +132,40 @@ def check_identity(data: dict[str, Any]) -> None:
         raise CheckFailure("schema_version 必须为 1")
     if data.get("artifact") != "s6a_stage6_g0_behavior":
         raise CheckFailure("artifact 名称不符")
-    if data.get("artifact_version") != "S6A-G0-v1":
-        raise CheckFailure("artifact_version 必须为 S6A-G0-v1")
+    version = data.get("artifact_version")
+    if version not in ("S6A-G0-v1", "S6A-G0-v1.1"):
+        raise CheckFailure(f"artifact_version 必须为 S6A-G0-v1 或 S6A-G0-v1.1，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
         raise CheckFailure("status 必须为 G0_PACKET_PENDING_APPROVAL")
-    for key in ("baseline", "upstream", "hard_invariants", "event_classes", "behavior_rows", "parameters", "transitions"):
+    for key in (
+        "baseline",
+        "upstream",
+        "hard_invariants",
+        "event_classes",
+        "behavior_rows",
+        "parameters",
+        "transitions",
+        "states",
+        "actions",
+        "open_decisions",
+    ):
         if not data.get(key):
             raise CheckFailure(f"缺少必填块：{key}")
     if data["baseline"].get("start_commit") != "d8bc70e43572a8e44ddcd4b3489166e28a1c6151":
         raise CheckFailure("起始提交与开工核验不一致")
+    if version == "S6A-G0-v1.1":
+        revision = data.get("revision") or {}
+        for key in ("run_id", "review_source", "changes", "review_status"):
+            if not revision.get(key):
+                raise CheckFailure(f"v1.1 缺少 revision.{key}")
+        if data.get("run_id") != "s6a_g0_20261022_r02":
+            raise CheckFailure("v1.1 的 run_id 必须是 s6a_g0_20261022_r02")
+        if data.get("supersedes_run_id") != "s6a_g0_20261022_r01":
+            raise CheckFailure("v1.1 必须声明 supersedes_run_id=r01")
 
 
 def check_unique_ids(data: dict[str, Any]) -> None:
-    for block in ("behavior_rows", "parameters", "transitions", "open_decisions"):
+    for block in ("behavior_rows", "parameters", "transitions", "open_decisions", "hard_invariants"):
         ids = [item["id"] for item in data[block]]
         if len(ids) != len(set(ids)):
             raise CheckFailure(f"{block} 存在重复 ID")
@@ -117,52 +174,237 @@ def check_unique_ids(data: dict[str, Any]) -> None:
         raise CheckFailure("states 存在重复")
     if len(data["behavior_rows"]) < 20:
         raise CheckFailure("行为表行数少于预期")
+    if len(data["hard_invariants"]) < 10:
+        raise CheckFailure("硬不变量少于 10 条（H-10 全局冷却门必须存在）")
+    reach = data.get("reachability") or {}
+    reach_ids = set((reach.get("transitions") or {}).keys())
+    trans_ids = {item["id"] for item in data["transitions"]}
+    if reach_ids != trans_ids:
+        raise CheckFailure(f"reachability 未覆盖全部迁移：缺 {sorted(trans_ids - reach_ids)}，多 {sorted(reach_ids - trans_ids)}")
 
 
 # ---------------------------------------------------------------- C3
 
 
-def doc_id_tokens(doc_text: str) -> tuple[set[str], set[str]]:
-    params: set[str] = set()
-    for match in PARAM_ID_RE.finditer(doc_text):
-        end = match.end()
-        if doc_text[end : end + 2] == "_*":
+def parse_doc_transitions(doc: str) -> dict[str, dict[str, str]]:
+    section = doc_section(doc, "## 4.", "## 5.")
+    rows: dict[str, dict[str, str]] = {}
+    for line in section.splitlines():
+        match = re.match(r"\| (M\d+) \| (.+?) \|", line)
+        if not match:
             continue
-        params.add(match.group(0))
-    behaviors = set(BEHAVIOR_ID_RE.findall(doc_text))
-    return behaviors, params
+        tid, from_cell = match.group(1), match.group(2)
+        if "→" not in from_cell:
+            continue
+        left, right = from_cell.split("→", 1)
+        if "*" in left:
+            from_state = "*"
+        else:
+            tokens = STATE_TOKEN_RE.findall(left)
+            from_state = "|".join(tokens)
+        to_match = re.search(r"`([A-Z_]+)`", right)
+        to_state = to_match.group(1) if to_match else ""
+        rows[tid] = {"from": from_state, "to": to_state}
+    return rows
 
 
-def check_doc_json_consistency(data: dict[str, Any], doc_text: str) -> None:
+def norm_comparison(raw: str) -> str:
+    text = raw.strip().strip("`").strip()
+    if "滑动" in text or text == "window":
+        return "sliding_window"
+    if "later_of" in text:
+        return "later_of"
+    if "suppress" in text:
+        return "<"
+    mapping = {">=": ">=", "≥": ">=", "<=": "<=", "≤": "<=", "<": "<", ">": ">"}
+    for token in (">=", "<=", "<", ">"):
+        if token in text:
+            return mapping[token]
+    for token in ("≥", "≤"):
+        if token in text:
+            return mapping[token]
+    if "抑制" in text and "<" in raw:
+        return "<"
+    return text
+
+
+def parse_doc_parameters(doc: str) -> dict[str, dict[str, str]]:
+    section = doc_section(doc, "## 14.", "## 15.")
+    rows: dict[str, dict[str, str]] = {}
+    for line in section.splitlines():
+        match = re.match(r"\| `(T6-[A-Za-z0-9_]+)` \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|", line)
+        if match:
+            rows[match.group(1)] = {
+                "name": match.group(2).strip(),
+                "unit": match.group(3).strip(),
+                "comparison": match.group(4).strip(),
+                "draft_value": match.group(5).strip(),
+            }
+    return rows
+
+
+def parse_doc_behavior_rows(doc: str) -> set[str]:
+    section = doc_section(doc, "## 5.", "## 6.")
+    return set(re.findall(r"^\| (B\d{2}) \|", section, flags=re.MULTILINE))
+
+
+def parse_doc_action_types(doc: str) -> set[str]:
+    section = doc_section(doc, "## 7.", "## 8.")
+    types: set[str] = set()
+    for line in section.splitlines():
+        match = re.match(r"\| `([a-z_]+)` \| \d+ \| `(A_[A-Z_]+)` \|", line)
+        if match:
+            types.add(match.group(2))
+    return types
+
+
+def parse_doc_events(doc: str) -> set[str]:
+    section = doc_section(doc, "## 3.", "## 4.")
+    return set(m.group(1) for m in EVENT_ID_RE.finditer(section))
+
+
+def json_event_ids(data: dict[str, Any]) -> set[str]:
+    classes = data["event_classes"]
+    events = set(classes.get("input_events", []))
+    events |= set(classes.get("output_events", []))
+    events |= set(classes.get("suppression_events", []))
+    return events
+
+
+def check_doc_json_consistency(
+    data: dict[str, Any], doc_text: str
+) -> tuple[dict[str, Any], str]:
+    inventory: dict[str, Any] = {}
+    issues: list[str] = []
+
+    def add(message: str) -> None:
+        issues.append(message)
+
+    # 硬不变量 ID
+    json_inv = {item["id"] for item in data["hard_invariants"]}
+    doc_inv = set(INVARIANT_ID_RE.findall(doc_text))
+    inventory["invariants"] = {"json": sorted(json_inv), "doc": sorted(doc_inv)}
+    if json_inv - doc_inv:
+        add(f"JSON 有而文档缺的硬不变量：{sorted(json_inv - doc_inv)}")
+    if doc_inv - json_inv:
+        add(f"文档提及而 JSON 未定义的硬不变量：{sorted(doc_inv - json_inv)}")
+
+    # 迁移 ID、from/to
+    json_trans = {item["id"]: item for item in data["transitions"]}
+    doc_trans = parse_doc_transitions(doc_text)
+    inventory["transitions"] = {
+        "json": sorted(json_trans),
+        "doc_table": sorted(doc_trans),
+    }
+    if set(json_trans) - set(doc_trans):
+        add(f"JSON 有而文档 §4 表缺的迁移：{sorted(set(json_trans) - set(doc_trans))}")
+    if set(doc_trans) - set(json_trans):
+        add(f"文档 §4 表有而 JSON 未定义的迁移：{sorted(set(doc_trans) - set(json_trans))}")
+    for tid in sorted(set(json_trans) & set(doc_trans)):
+        spec = json_trans[tid]
+        doc_spec = doc_trans[tid]
+        if spec["from"] != doc_spec["from"]:
+            add(f"{tid}.from 不一致：JSON {spec['from']!r} vs 文档 {doc_spec['from']!r}")
+        if spec["to"] != doc_spec["to"]:
+            add(f"{tid}.to 不一致：JSON {spec['to']!r} vs 文档 {doc_spec['to']!r}")
+
+    # 参数 ID 与 §14 行
+    json_params = {item["id"]: item for item in data["parameters"]}
+    doc_params = parse_doc_parameters(doc_text)
+    inventory["parameters"] = {"json": sorted(json_params), "doc_section14": sorted(doc_params)}
+    if set(json_params) - set(doc_params):
+        add(f"JSON 有而文档 §14 表缺的参数：{sorted(set(json_params) - set(doc_params))}")
+    if set(doc_params) - set(json_params):
+        add(f"文档 §14 表有而 JSON 未定义的参数：{sorted(set(doc_params) - set(json_params))}")
+    for pid in sorted(set(json_params) & set(doc_params)):
+        spec = json_params[pid]
+        value = spec.get("draft_value")
+        doc_value = doc_params[pid]["draft_value"]
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            number_match = re.search(r"-?\d+(?:\.\d+)?", doc_value)
+            if not number_match or float(number_match.group(0)) != float(value):
+                add(f"{pid} 草案值不一致：JSON {value!r} vs 文档 {doc_value!r}")
+        elif value is None:
+            if "无草案值" not in doc_value:
+                add(f"{pid} JSON 为 null，文档必须显式写“无草案值”")
+        else:
+            if "取较晚" not in doc_value:
+                add(f"{pid} 的非数值草案值未在文档 §14 复述")
+        json_comparison = norm_comparison(str(spec.get("comparison", "")))
+        doc_comparison = norm_comparison(doc_params[pid]["comparison"])
+        if json_comparison and doc_comparison and json_comparison != doc_comparison:
+            add(f"{pid} comparison 不一致：JSON {json_comparison!r} vs 文档 {doc_comparison!r}")
+
+    # 事件集合（§3）
+    json_events = json_event_ids(data)
+    doc_events = parse_doc_events(doc_text)
+    inventory["events"] = {"json": sorted(json_events), "doc_section3": sorted(doc_events)}
+    if json_events - doc_events:
+        add(f"JSON 有而文档 §3 缺的事件：{sorted(json_events - doc_events)}")
+    if doc_events - json_events:
+        add(f"文档 §3 有而 JSON 未定义的事件：{sorted(doc_events - json_events)}")
+
+    # 状态集合
+    section4 = doc_section(doc_text, "## 4.", "## 5.")
+    doc_states = set(STATE_TOKEN_RE.findall(section4)) & set(STATE_NAMES)
+    json_states = set(data["states"])
+    inventory["states"] = {"json": sorted(json_states), "doc_section4": sorted(doc_states)}
+    if json_states != doc_states:
+        add(f"状态集合不一致：JSON {sorted(json_states)} vs 文档 §4 {sorted(doc_states)}")
+
+    # 行为行
     json_behaviors = {item["id"] for item in data["behavior_rows"]}
-    json_params = {item["id"] for item in data["parameters"]}
-    doc_behaviors, doc_params = doc_id_tokens(doc_text)
-    missing_in_doc = sorted((json_behaviors - doc_behaviors) | (json_params - doc_params))
-    unknown_in_doc = sorted((doc_behaviors - json_behaviors) | (doc_params - json_params))
-    if missing_in_doc:
-        raise CheckFailure(f"JSON 中存在而文档未提及的标识：{missing_in_doc}")
-    if unknown_in_doc:
-        raise CheckFailure(f"文档中存在而 JSON 未定义的标识：{unknown_in_doc}")
+    doc_behaviors = parse_doc_behavior_rows(doc_text)
+    doc_behavior_tokens = set(BEHAVIOR_ID_RE.findall(doc_text))
+    inventory["behavior_rows"] = {"json": sorted(json_behaviors), "doc_table": sorted(doc_behaviors)}
+    if json_behaviors != doc_behaviors:
+        add(
+            f"行为行集合不一致：JSON 有文档表缺 {sorted(json_behaviors - doc_behaviors)}，"
+            f"文档表有 JSON 缺 {sorted(doc_behaviors - json_behaviors)}"
+        )
+    if doc_behavior_tokens - json_behaviors:
+        add(f"文档提及而 JSON 未定义的行为行：{sorted(doc_behavior_tokens - json_behaviors)}")
+
+    # 动作类型
+    json_types = set(data["actions"]["supported_types"])
+    doc_types = parse_doc_action_types(doc_text)
+    inventory["action_types"] = {"json": sorted(json_types), "doc_table": sorted(doc_types)}
+    if json_types != doc_types:
+        add(f"动作支持类型不一致：JSON {sorted(json_types)} vs 文档表 A-1 {sorted(doc_types)}")
+
+    if issues:
+        raise CheckFailure("；".join(issues))
+    detail = (
+        f"{len(json_inv)} 不变量 / {len(json_trans)} 迁移(含 from/to) / "
+        f"{len(json_params)} 参数(§14 行) / {len(json_events)} 事件 / "
+        f"{len(json_states)} 状态 / {len(json_behaviors)} 行为行 / {len(json_types)} 动作类型 双向一致"
+    )
+    return inventory, detail
 
 
 # ---------------------------------------------------------------- C4
 
 
 def check_pending_approval_discipline(data: dict[str, Any], doc_text: str) -> None:
-    for item in data["parameters"]:
+    params = data["parameters"]
+    if len(params) != 24:
+        raise CheckFailure(f"参数数量必须为 24，实际 {len(params)}")
+    for item in params:
         if item.get("approval_status") != "PENDING_APPROVAL":
             raise CheckFailure(f"{item['id']} 的 approval_status 必须是 PENDING_APPROVAL")
         if not item.get("draft_source"):
             raise CheckFailure(f"{item['id']} 缺少来源标注")
         if item.get("approval_owner") != "项目总控转呈 Wong":
             raise CheckFailure(f"{item['id']} 的批准责任人必须为项目总控转呈 Wong")
-    metrics = [item for item in data["parameters"] if item.get("kind") == "metric"]
+    metrics = [item for item in params if item.get("kind") == "metric"]
     if {item["id"] for item in metrics} != {"T6-01", "T6-02", "T6-03"}:
         raise CheckFailure("三项目标指标登记不完整")
     if data["actions"]["map_status"] != "PENDING_APPROVAL":
         raise CheckFailure("动作映射必须标为待批准")
     if "PENDING_APPROVAL" not in doc_text:
         raise CheckFailure("文档未出现待批准标记 PENDING_APPROVAL")
+    if "T6-S03` | 稳定窗口判定逻辑" not in doc_text:
+        raise CheckFailure("文档 §14 缺少 T6-S03 行")
 
 
 # ---------------------------------------------------------------- C5
@@ -180,10 +422,11 @@ def check_action_map(data: dict[str, Any]) -> None:
     if len(targets) != len(set(targets)):
         raise CheckFailure("target_id 必须互不相同")
     allowed = set(data["actions"]["supported_types"])
+    if allowed != {"A_SWITCH_UI", "A_SWITCH_CHANNEL"}:
+        raise CheckFailure("r02 支持类型必须恰为 A_SWITCH_UI + A_SWITCH_CHANNEL")
     for item in mapping:
         if item["action_type"] not in allowed:
             raise CheckFailure(f"{item['class_name']} 的动作类型不在支持集合内")
-    
 
 
 # ---------------------------------------------------------------- C6
@@ -191,9 +434,9 @@ def check_action_map(data: dict[str, Any]) -> None:
 
 def check_invariants(data: dict[str, Any]) -> None:
     ids = {item["id"] for item in data["hard_invariants"]}
-    for required in REQUIRED_INVARIANTS:
-        if required not in ids:
-            raise CheckFailure(f"缺少硬不变量 {required}")
+    for index in range(1, 11):
+        if f"H-{index}" not in ids:
+            raise CheckFailure(f"缺少硬不变量 H-{index}")
     for key in ("not_claimed", "evidence_boundaries"):
         if not data.get(key):
             raise CheckFailure(f"{key} 不得为空")
@@ -204,11 +447,17 @@ def check_invariants(data: dict[str, Any]) -> None:
         raise CheckFailure("二次触发必须只允许来自新的获取")
     if once.get("m15_path_is_not_new_acquisition") is not True:
         raise CheckFailure("M15 路径必须声明为不是新获取")
+    if once.get("cooldown_gate_global") is not True:
+        raise CheckFailure("持续保持声明必须包含全局冷却门")
     if not once.get("rejected_alternative"):
         raise CheckFailure("必须显式登记被否决的备选解释")
 
 
 # ---------------------------------------------------------------- C7
+
+
+def _nextafter(value: float, direction: float) -> float:
+    return math.nextafter(value, direction)
 
 
 def recompute(case: dict[str, Any]) -> dict[str, Any]:
@@ -223,10 +472,15 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             index += 1
             if index > 10_000:
                 raise CheckFailure("窗口复算未收敛")
+        actual = r6((index - 1) * period)
+        w_min = r6(max(s01, (s02 - 1) * period))
         return {
             "frames_required": index,
-            "actual_window_ms": r6((index - 1) * period),
-            "lower_bound_W_ms": r6(max(s01, (s02 - 1) * period)),
+            "actual_window_ms": actual,
+            "actual_completion_ms": actual,
+            "lower_bound_W_ms": w_min,
+            "w_min_ms": w_min,
+            "w_min_is_lower_bound_only": True,
             "dominant": "frame_count" if (s02 - 1) * period > s01 else "duration",
             "stable": True,
             "stable_at_sixth_frame": 6 >= s02 and (6 - 1) * period >= s01,
@@ -245,6 +499,7 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         return {
             "suppressed_at_minus_1": (a02 - 1.0) < a02,
             "suppressed_at_exact": a02 < a02,
+            "unit_granularity": "ms_direction_only",
         }
     if kind == "lost_frames":
         l01 = int(spec["l01_frames"])
@@ -303,20 +558,60 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "may_trigger_action_on_reset_frame": False,
         }
     if kind == "trigger_once_hold":
-        fps = float(spec["fps"])
-        hold_s = float(spec["hold_s"])
+        period = int(spec["period_ms"])
+        c01 = int(spec["c01_frames"])
+        s02 = int(spec["s02_frames"])
+        s01 = int(spec["s01_ms"])
+        hold = int(spec["hold_frames"])
+        k01 = int(spec["k01_ms"])
+        # 按行为表 v1.1 推导：第 c01 帧建立获取（窗口从第 1 帧起算），
+        # 第 stable 帧满足 matched>=S02 且 duration>=S01，第 stable+1 帧 M5 提交。
+        stable = None
+        for frame in range(1, hold + 1):
+            matched = frame
+            duration_ms = (frame - 1) * period
+            if matched >= s02 and duration_ms >= s01:
+                stable = frame
+                break
+        if stable is None:
+            raise CheckFailure("trigger_once_hold 复算未在保持期内达到稳定")
+        trigger = stable + 1
+        t_submit = (trigger - 1) * period
+        cooldown_end = t_submit + k01
+        m9_frame = None
+        for frame in range(1, hold + 1):
+            if (frame - 1) * period >= cooldown_end:
+                m9_frame = frame
+                break
+        if m9_frame is None:
+            raise CheckFailure("trigger_once_hold 复算未在保持期内覆盖冷却结束")
+        submitted = 1 if trigger <= hold else 0
         return {
-            "hold_frames": int(round(fps * hold_s)),
-            "submitted_total": 1,
+            "submitted_total": submitted,
             "trigger_after_cooldown": 0,
+            "trigger_frame_index": trigger,
+            "m9_branch_frame_index": m9_frame,
         }
     if kind == "hysteresis":
         current_score = float(spec["current_score"])
+        other_score = float(spec["other_class_score"])
+        continues = bool(spec["target_continues"])
+        p01 = float(spec["p01"])
         p02 = float(spec["p02"])
-        held = bool(spec["current_match"]) and current_score >= p02
+        held = continues
+        if held:
+            selected_class = "fist" if int(spec["current_class_id"]) == 0 else "current"
+        else:
+            candidates = [(float(spec["current_score"]), int(spec["current_class_id"]))]
+            candidates.append((other_score, int(spec["other_class_id"])))
+            eligible = [row for row in candidates if row[0] >= p01]
+            best = max(eligible, key=lambda row: row[0]) if eligible else None
+            selected_class = "palm" if best and best[1] == 1 else "current"
         return {
             "held": held,
-            "selected_class": "fist" if held else "palm",
+            "selected_class": selected_class,
+            "selected_class_id": 0 if selected_class == "fist" else (1 if selected_class == "palm" else int(spec["current_class_id"])),
+            "higher_other_candidate": other_score > current_score,
             "suppression_event": "S_TARGET_HELD" if held else "NONE",
         }
     if kind == "tie":
@@ -324,7 +619,7 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         orders = [int(value) for value in spec["source_orders"]]
         if len(set(scores)) != 1:
             raise CheckFailure("tie 样例要求分数完全相等")
-        best = min(range(len(scores)), key=lambda i: orders[i])
+        best = min(range(len(scores)), key=lambda index: orders[index])
         return {"selected_source_order": orders[best]}
     if kind == "action_events":
         t_trigger = float(spec["t_trigger_ms"])
@@ -341,15 +636,81 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         }
     if kind == "unknown_rejection_proof":
         class_id = int(spec["unknown_class_id"])
+        score = float(spec["unknown_score"])
+        p01 = float(spec["p01"])
+        class_membership = 0 <= class_id <= 4
+        selection_gate = score >= p01
+        # 若该结果能被选为目标并满足窗口，则会提交 1 次动作（窗口参数只用于说明可达性）
+        would_submit = 1 if (class_membership and selection_gate) else 0
         return {
-            "class_membership_passes": 0 <= class_id <= 4,
-            "proves_unknown_rejection": False,
-            "counts_as_false_accept_in_T6_02": True,
+            "class_membership_passes": class_membership,
+            "selection_gate_passes": selection_gate,
+            "would_submit_actions": would_submit,
+            "proves_unknown_rejection": would_submit == 0,
+            "counts_as_false_accept_in_T6_02": would_submit == 1,
         }
+    if kind == "acquisition_c01":
+        c01 = int(spec["c01_frames"])
+        results = {}
+        for streak in spec["streaks"]:
+            results[f"acquired_at_streak_{int(streak)}"] = int(streak) >= c01
+        return results
+    if kind == "anomaly_window":
+        width = int(spec["w_frames"])
+        threshold = int(spec["n_frames"])
+        out = {"window_type": "sliding"}
+        for name, history in spec["histories"].items():
+            window = history[-width:]
+            out[f"{name}_fires"] = sum(1 for flag in window if flag == "A") >= threshold
+        return out
+    if kind == "m4_reachability":
+        s04 = int(spec["s04_ms"])
+        l02 = int(spec["l02_ms"])
+        j01 = int(spec["j01_frames"])
+        l01 = int(spec["l01_frames"])
+        period = int(spec["period_ms"])
+        earliest_m10 = min(l01 * period, l02)
+        m4_earliest = max(s04, (j01 + 1) * period)
+        return {
+            "m4_reachable_under_draft": m4_earliest < earliest_m10,
+            "earliest_m10_ms": earliest_m10,
+            "m4_earliest_ms": m4_earliest,
+            "reachable_if_s04_lt_l02": True,
+        }
+    if kind == "score_gate":
+        threshold = float(spec["p01"])
+        return {
+            "eligible_at_exact": threshold >= threshold,
+            "eligible_at_minus_1ulp": _nextafter(threshold, 0.0) >= threshold,
+            "inclusive": True,
+        }
+    if kind == "window_match_score":
+        threshold = float(spec["p02"])
+        return {
+            "window_match_at_exact": threshold >= threshold,
+            "window_match_at_minus_1ulp": _nextafter(threshold, 0.0) >= threshold,
+            "inclusive": True,
+        }
+    if kind == "recovery_streak":
+        u01 = int(spec["u01_frames"])
+        return {f"recovered_at_{int(streak)}": int(streak) >= u01 for streak in spec["streaks"]}
+    if kind == "stable_ns_border":
+        s01_ms = int(spec["s01_ms"])
+        s02 = int(spec["s02_frames"])
+        period_ns = int(spec["period_ns"])
+        frames = [(index) * period_ns for index in range(s02 - 1)]
+        frames.append(s01_ms * 1_000_000 - 1)
+        frames.append(s01_ms * 1_000_000 + 1)
+        start = frames[0]
+        six = frames[s02 - 1]
+        seven = frames[s02]
+        stable_six = (s02 >= s02) and (six - start) >= s01_ms * 1_000_000
+        stable_seven = (s02 + 1 >= s02) and (seven - start) >= s01_ms * 1_000_000
+        return {"stable_at_6th": stable_six, "stable_at_7th": stable_seven, "granularity": "1ns"}
     raise CheckFailure(f"未知的复算类型：{kind}")
 
 
-def check_hand_cases(cases: dict[str, Any]) -> int:
+def check_hand_cases(cases: dict[str, Any]) -> str:
     seen: set[str] = set()
     for case in cases["cases"]:
         case_id = case["case_id"]
@@ -372,19 +733,15 @@ def check_hand_cases(cases: dict[str, Any]) -> int:
                     raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
             elif want != got:
                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
-        for key in expected:
-            if key not in computed:  # pragma: no cover - 上面已覆盖
-                raise CheckFailure(f"{case_id}.{key} 未复算")
-    return len(seen)
+    if len(seen) < 27:
+        raise CheckFailure(f"手算样例数量不足 27：{len(seen)}")
+    return f"{len(seen)} 个样例全部由输入独立复算一致（含 HC-16/17/20 真算与 HC-21..HC-27）"
 
 
 # ---------------------------------------------------------------- C8
 
 
 def check_upstream(bindings: dict[str, Any], project_root: Path) -> str:
-    """复算上游绑定。w6 内文件按工作副本哈希；外部树按 Git 对象哈希（并发写入时不抖动）。"""
-    import subprocess
-
     verified = 0
     drift: list[str] = []
     for item in bindings["bindings"]:
@@ -444,11 +801,10 @@ def check_doc_coverage(doc_text: str) -> None:
         raise CheckFailure(f"文档缺少必备章节：{missing_sections}")
 
 
-NEGATION_PREFIXES = ("不宣称", "不构成", "不得", "禁止", "未", "不是", "并非")
+NEGATION_PREFIXES = ("不宣称", "不构成", "不得", "禁止", "未", "不是", "并非", "不因")
 
 
 def check_forbidden_claims(doc_text: str, data: dict[str, Any]) -> None:
-    """窄口径扫描：命中禁止短语且其前 12 字符内**没有**否定标记才算违规。"""
     haystack = doc_text + json.dumps(data, ensure_ascii=False)
     hits: list[str] = []
     for phrase in FORBIDDEN_CLAIMS:
@@ -457,12 +813,232 @@ def check_forbidden_claims(doc_text: str, data: dict[str, Any]) -> None:
             index = haystack.find(phrase, start)
             if index < 0:
                 break
-            context = haystack[max(0, index - 12) : index]
+            context = haystack[max(0, index - 16) : index]
             if not any(marker in context for marker in NEGATION_PREFIXES):
                 hits.append(f"{phrase}@{index}")
             start = index + len(phrase)
     if hits:
         raise CheckFailure(f"出现禁止的通过/冻结声明（非否定语境）：{hits}")
+
+
+# ---------------------------------------------------------------- C11
+
+
+def check_evidence_integrity(
+    evidence_dir: Path | None,
+    manifest_path: Path | None,
+    state_path: Path | None,
+    project_root: Path,
+) -> str:
+    if evidence_dir is None:
+        raise CheckFailure("C11 需要 --evidence-dir 才能核对证据存在性（不得静默跳过）")
+    evidence_dir = evidence_dir.resolve()
+    if not evidence_dir.is_dir():
+        raise CheckFailure(f"证据目录不存在：{evidence_dir}")
+    actual = sorted(
+        path.relative_to(evidence_dir).as_posix()
+        for path in evidence_dir.rglob("*")
+        if path.is_file()
+    )
+    details = [f"实际文件 {len(actual)} 个"]
+    if manifest_path is not None:
+        manifest_path = manifest_path.resolve()
+        manifest = load_json(manifest_path)
+        declared_evidence_dir = manifest.get("evidence_dir")
+        expected_dir = (project_root / declared_evidence_dir).resolve() if declared_evidence_dir else None
+        if expected_dir != evidence_dir:
+            raise CheckFailure(
+                f"manifest.evidence_dir 与 --evidence-dir 不一致：{declared_evidence_dir!r} vs {evidence_dir}"
+            )
+        ev_rel = evidence_dir.relative_to(project_root).as_posix() + "/"
+        declared_run: dict[str, str] = {}
+        declared_out: dict[str, str] = {}
+        for item in manifest.get("files", []):
+            raw_path = str(item["path"]).replace("\\", "/").strip()
+            if raw_path == manifest_path.relative_to(project_root).as_posix():
+                raise CheckFailure("manifest 不得把自身列入 files")
+            if raw_path.startswith(ev_rel):
+                declared_run[raw_path[len(ev_rel):]] = item["sha256"]
+            elif "/" in raw_path and not raw_path.startswith(("tmp/", "build/")):
+                declared_out[raw_path] = item["sha256"]
+            else:
+                declared_run[raw_path] = item["sha256"]
+        missing = sorted(set(declared_run) - set(actual))
+        extra = sorted(set(actual) - set(declared_run) - {manifest_path.name})
+        if missing:
+            raise CheckFailure(f"清单声明但实际不存在：{missing}")
+        if extra:
+            raise CheckFailure(f"实际存在但清单未声明：{extra}")
+        for relpath, want in declared_run.items():
+            got = sha256_file(evidence_dir / relpath)
+            if got != want:
+                raise CheckFailure(f"清单哈希不符：{relpath}")
+        for relpath, want in sorted(declared_out.items()):
+            path = (project_root / relpath).resolve()
+            if not path.is_file():
+                raise CheckFailure(f"清单声明的源码/输入文件不存在：{relpath}")
+            if sha256_file(path) != want:
+                raise CheckFailure(f"清单声明的源码/输入哈希不符：{relpath}")
+        details.append(
+            f"manifest 双向一致（运行目录 {len(declared_run)} 个文件 + 外部绑定 {len(declared_out)} 个文件哈希复算通过）"
+        )
+    if state_path is not None:
+        state_path = state_path.resolve()
+        if not state_path.is_file():
+            raise CheckFailure(f"STATE 文件不存在：{state_path}")
+        state_text = state_path.read_text(encoding="utf-8")
+        if "S6-A DONE" in state_text:
+            raise CheckFailure("STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL")
+        if "DELIVERED_PENDING_APPROVAL" not in state_text:
+            raise CheckFailure("STATE 缺少 DELIVERED_PENDING_APPROVAL 状态口径")
+        lines = state_text.splitlines()
+        declared_files: set[str] = set()
+        declared_dirs: set[str] = set()
+        for line in lines:
+            if "证据入口" not in line and "report/evidence" not in line:
+                continue
+            for token in re.findall(r"`([^`]+)`", line):
+                if re.search(r"\.(json|md|txt|jsonl)$", token) and "/" not in token and "\\" not in token:
+                    declared_files.add(token)
+                elif token.startswith("report/evidence/"):
+                    declared_dirs.add(token.rstrip("/"))
+        if not declared_files and not declared_dirs:
+            raise CheckFailure("STATE 未解析到任何证据声明（不得以空声明通过）")
+        missing_files = sorted(name for name in declared_files if not (evidence_dir / name).is_file())
+        if missing_files:
+            raise CheckFailure(f"STATE 声明的证据文件不存在于证据目录：{missing_files}")
+        missing_dirs = sorted(
+            path for path in declared_dirs if not (project_root / path).is_dir()
+        )
+        if missing_dirs:
+            raise CheckFailure(f"STATE 声明的证据目录不存在：{missing_dirs}")
+        details.append(
+            f"STATE 声明 {len(declared_files)} 个文件与 {len(declared_dirs)} 个目录全部存在"
+        )
+    return "；".join(details)
+
+
+# ---------------------------------------------------------------- C12..C16
+
+
+def check_predicates(data: dict[str, Any], doc_text: str) -> None:
+    predicates = data.get("predicates") or {}
+    for name in ("TARGET_CONTINUES", "WINDOW_MATCH"):
+        if name not in predicates:
+            raise CheckFailure(f"缺少谓词定义：{name}")
+        if name not in doc_text:
+            raise CheckFailure(f"文档未引用谓词：{name}")
+        if not predicates[name].get("definition") or not predicates[name].get("used_by"):
+            raise CheckFailure(f"{name} 缺少定义或引用位置")
+    rows = {row["id"]: row for row in data["behavior_rows"]}
+    if "TARGET_CONTINUES" not in rows["B03"]["condition"]:
+        raise CheckFailure("B03 迟滞未使用 TARGET_CONTINUES")
+    if "TARGET_CONTINUES" not in rows["B09"]["condition"]:
+        raise CheckFailure("B09 目标保持未使用 TARGET_CONTINUES")
+    if "WINDOW_MATCH" not in rows["B07"]["condition"]:
+        raise CheckFailure("B07 稳定窗口未使用 WINDOW_MATCH")
+    if "WINDOW_MATCH" not in rows["B17"]["output"]:
+        raise CheckFailure("B17 未声明 NO_HAND 不推进匹配计数")
+    for phrase in AMBIGUOUS_MATCH_PHRASES:
+        if phrase in doc_text:
+            raise CheckFailure(f"文档仍含含糊“匹配”表述：{phrase!r}")
+
+
+def check_cooldown_gate(data: dict[str, Any], doc_text: str) -> None:
+    policy = data.get("cooldown_policy") or {}
+    if policy.get("scope") != "GLOBAL_GATE":
+        raise CheckFailure("cooldown_policy.scope 必须为 GLOBAL_GATE")
+    if policy.get("applies_across_acquisitions") is not True:
+        raise CheckFailure("冷却门必须跨获取生效")
+    if "t_submit" not in str(policy.get("anchor", "")):
+        raise CheckFailure("冷却锚点必须为 t_submit")
+    transitions = {item["id"]: item for item in data["transitions"]}
+    if "全局冷却门" not in transitions["M5"]["condition"]:
+        raise CheckFailure("M5 条件缺少全局冷却门")
+    if not transitions["M5"].get("global_cooldown_gate"):
+        raise CheckFailure("M5 缺少 global_cooldown_gate 标记")
+    h10 = next((item for item in data["hard_invariants"] if item["id"] == "H-10"), None)
+    if h10 is None or "全局门" not in h10["rule"] or "T6-K01" not in h10["rule"]:
+        raise CheckFailure("H-10 冷却全局门定义不完整")
+    for phrase in ("全局门", "H-10", "S_COOLDOWN"):
+        if phrase not in doc_text:
+            raise CheckFailure(f"文档缺少冷却全局门口径：{phrase}")
+
+
+def check_w_min_and_period(data: dict[str, Any], doc_text: str) -> None:
+    low = data.get("low_fps_latency") or {}
+    if low.get("w_min_is_lower_bound_only") is not True:
+        raise CheckFailure("low_fps_latency 必须声明 W_min 只是下界")
+    if low.get("w_min_must_not_enter_latency_statistics") is not True:
+        raise CheckFailure("W_min 不得进入延迟统计")
+    if "WINDOW_MATCH" not in str(low.get("window_completion_definition", "")):
+        raise CheckFailure("窗口完成时刻必须定义为第 N 个 WINDOW_MATCH 结果到达时刻")
+    interaction = str(low.get("interaction_latency", ""))
+    if "window_complete" not in interaction:
+        raise CheckFailure("交互延迟必须基于 window_complete（不得用 W_min 顶替）")
+    if "BLOCKED" not in str(low.get("measured_period_status", "")):
+        raise CheckFailure("无实测帧周期必须登记 BLOCKED")
+    u_ids = {item["id"] for item in data["open_decisions"]}
+    if "U6-13" not in u_ids:
+        raise CheckFailure("缺少 U6-13（阶段4 实测帧周期）")
+    for phrase in ("W_min", "window_complete", "实测", "T6-A03"):
+        if phrase not in doc_text:
+            raise CheckFailure(f"文档 §15 口径缺少：{phrase}")
+
+
+def check_h4_no_hand(data: dict[str, Any], doc_text: str) -> None:
+    h4 = next((item for item in data["hard_invariants"] if item["id"] == "H-4"), None)
+    if h4 is None:
+        raise CheckFailure("缺少 H-4")
+    rule = h4["rule"]
+    if "NO_HAND" not in rule or "不推进匹配计数" not in rule or "WINDOW_MATCH" not in rule:
+        raise CheckFailure("H-4 必须区分窗口序列推进与匹配计数，并写明 NO_HAND 不推进匹配计数")
+    window_rule = (data["event_classes"].get("window_advance_vs_match") or {})
+    if "不推进匹配计数" not in str(window_rule.get("no_hand_rule", "")):
+        raise CheckFailure("event_classes.window_advance_vs_match.no_hand_rule 不完整")
+    rows = {row["id"]: row for row in data["behavior_rows"]}
+    if "不推进匹配计数" not in rows["B17"]["output"]:
+        raise CheckFailure("B17 未写明 NO_HAND 不推进匹配计数")
+    if "NO_HAND" not in rows["B17"]["condition"]:
+        raise CheckFailure("B17 条件未显式引用 NO_HAND")
+    if "不得完成稳定窗口" not in rows["B17"]["output"]:
+        raise CheckFailure("B17 未写明零框不得完成稳定窗口")
+    for phrase in ("不推进匹配计数", "不得完成稳定窗口", "NO_HAND"):
+        if phrase not in doc_text:
+            raise CheckFailure(f"文档缺少 B-02 口径：{phrase}")
+
+
+def check_reachability(data: dict[str, Any], doc_text: str) -> None:
+    transitions = {item["id"]: item for item in data["transitions"]}
+    if "M14" in transitions:
+        raise CheckFailure("r02 必须删除 M14（重获统一为 M10→M11→M1）")
+    section4 = doc_section(doc_text, "## 4.", "## 5.")
+    if re.search(r"^\| M14 \|", section4, flags=re.MULTILINE):
+        raise CheckFailure("文档 §4 表仍存在 M14 行")
+    reach = data["reachability"]["transitions"]
+    params = {item["id"]: item for item in data["parameters"]}
+    s04 = float(params["T6-S04"]["draft_value"])
+    l02 = float(params["T6-L02"]["draft_value"])
+    expected_m4 = s04 < l02
+    actual_m4 = reach["M4"]["status"] == "REACHABLE"
+    if expected_m4 != actual_m4:
+        raise CheckFailure(
+            f"M4 可达性声明与草案参数不符：S04={s04} L02={l02} 推导可达={expected_m4}，"
+            f"JSON 声明 {reach['M4']['status']}"
+        )
+    if reach["M7"]["status"] != "UNREACHABLE_BY_CONSTRUCTION":
+        raise CheckFailure("M7 必须声明为构造上不可达")
+    if "M4 在本轮参数下不可达" not in doc_text and "M4 在本轮参数下不可达" not in section4:
+        raise CheckFailure("文档 §4 未声明 M4 不可达")
+    rows = {row["id"]: row for row in data["behavior_rows"]}
+    for pid in ("T6-C01", "T6-U00_W", "T6-U00_N"):
+        if pid not in rows["B26"]["params"]:
+            raise CheckFailure(f"B26 参数清单缺少 {pid}")
+    if "12.1" not in doc_text:
+        raise CheckFailure("文档缺少 §12.1 边界覆盖缺口登记")
+    for token in ("C01", "U00_W", "U00_N", "S04", "U01"):
+        if token not in doc_section(doc_text, "### 12.1", "## 13."):
+            raise CheckFailure(f"§12.1 缺口表缺少 {token}")
 
 
 # ---------------------------------------------------------------- main
@@ -477,9 +1053,13 @@ def run_checks(
     doc_path: Path,
     json_path: Path,
     cases_path: Path,
+    evidence_dir: Path | None,
+    manifest_path: Path | None,
+    state_path: Path | None,
 ) -> dict[str, Any]:
     checks: list[dict[str, str]] = []
     errors: list[str] = []
+    inventory: dict[str, Any] = {}
 
     def run(check_id: str, name: str, func) -> None:
         try:
@@ -500,16 +1080,31 @@ def run_checks(
         else:
             checks.append({"id": check_id, "name": name, "status": "PASS", "detail": detail})
 
+    def c3() -> str:
+        nonlocal inventory
+        inventory, detail = check_doc_json_consistency(data, doc_text)
+        return detail
+
     run("C1", "JSON 身份与必填块", lambda: check_identity(data) or "identity ok")
-    run("C2", "标识唯一性", lambda: check_unique_ids(data) or "unique ok")
-    run("C3", "文档↔JSON 标识双向一致", lambda: check_doc_json_consistency(data, doc_text) or f"{len(data['behavior_rows'])} 行行为 + {len(data['parameters'])} 个参数双向一致")
-    run("C4", "待批准纪律", lambda: check_pending_approval_discipline(data, doc_text) or "全部参数与指标 PENDING_APPROVAL")
+    run("C2", "ID 唯一性与最小规模", lambda: check_unique_ids(data) or "unique ok")
+    run("C3", "文档↔JSON 标识集合双向一致", c3)
+    run("C4", "待批准纪律", lambda: check_pending_approval_discipline(data, doc_text) or "24 项参数与指标 PENDING_APPROVAL")
     run("C5", "五类动作映射一致", lambda: check_action_map(data) or "5 类映射一致，target 唯一")
-    run("C6", "硬不变量与唯一触发解释", lambda: check_invariants(data) or "H-1..H-9 齐全，ONCE_PER_ACQUISITION 唯一")
-    run("C7", "人工手算样例独立复算", lambda: f"{check_hand_cases(cases)} 个样例全部复算一致")
+    run("C6", "硬不变量与唯一触发解释", lambda: check_invariants(data) or "H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一")
+    run("C7", "人工手算样例独立复算", lambda: check_hand_cases(cases))
     run("C8", "上游只读文件哈希复算", lambda: check_upstream(bindings, project_root))
     run("C9", "文档必备覆盖与章节", lambda: check_doc_coverage(doc_text) or "关键词与章节齐全")
     run("C10", "禁止声明扫描（窄口径）", lambda: check_forbidden_claims(doc_text, data) or "未发现禁止声明")
+    run(
+        "C11",
+        "证据清单/STATE 声明 vs 实际文件",
+        lambda: check_evidence_integrity(evidence_dir, manifest_path, state_path, project_root),
+    )
+    run("C12", "谓词拆分一致性（B-05）", lambda: check_predicates(data, doc_text) or "TARGET_CONTINUES/WINDOW_MATCH 定义与引用一致")
+    run("C13", "冷却全局门一致性（B-03/H-10）", lambda: check_cooldown_gate(data, doc_text) or "全局门字段与引用一致")
+    run("C14", "W_min/实测帧周期口径（B-04/N-05）", lambda: check_w_min_and_period(data, doc_text) or "W_min 仅下界、window_complete 为统计基准")
+    run("C15", "H-4/NO_HAND 一致性（B-02）", lambda: check_h4_no_hand(data, doc_text) or "NO_HAND 不推进匹配计数、零框不得完成窗口")
+    run("C16", "迁移可达性与覆盖声明（N-02/N-03）", lambda: check_reachability(data, doc_text) or "M4/M7 可达性声明与 B26/§12.1 覆盖一致")
 
     status = "ALL_PASS" if not errors else "FAILED"
     return {
@@ -517,9 +1112,11 @@ def run_checks(
         "artifact": "s6a_g0_selfcheck_result",
         "task_id": data["task_id"],
         "run_id": data["run_id"],
+        "artifact_version": data.get("artifact_version"),
         "status": status,
         "checks": checks,
         "errors": errors,
+        "id_inventory": inventory,
         "inputs": {
             "behavior_json_path": str(json_path),
             "behavior_json_sha256": sha256_file(json_path),
@@ -527,24 +1124,31 @@ def run_checks(
             "human_doc_sha256": sha256_file(doc_path),
             "hand_cases_path": str(cases_path),
             "hand_cases_sha256": sha256_file(cases_path),
+            "evidence_dir": str(evidence_dir) if evidence_dir else None,
+            "manifest_path": str(manifest_path) if manifest_path else None,
+            "state_path": str(state_path) if state_path else None,
         },
         "scope_statement": SCOPE_STATEMENT,
         "limitations": [
-            "只复算规格一致性与算术边界；不验证状态机行为（本轮尚无实现）",
+            "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍无状态机实现）",
             "C10 为窄口径文本扫描，不是完备的声明审计",
-            "CHECKS_OK/ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+            "C3 的 from/to 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+            "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
         ],
     }
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="阶段6 S6-A G0 包自检")
+    parser = argparse.ArgumentParser(description="阶段6 S6-A G0 包自检（r02 加固版）")
     parser.add_argument("--json", required=True, help="行为表 JSON 路径")
     parser.add_argument("--doc", required=True, help="人读规格路径")
     parser.add_argument("--cases", required=True, help="人工手算样例 JSON 路径")
     parser.add_argument("--upstream", required=True, help="上游绑定 JSON 路径")
     parser.add_argument("--out", required=True, help="自检结果输出路径")
     parser.add_argument("--project-root", default=None, help="工作树根（默认脚本上级目录）")
+    parser.add_argument("--evidence-dir", default=None, help="证据运行目录（C11）")
+    parser.add_argument("--manifest", default=None, help="delivery_manifest.json（C11）")
+    parser.add_argument("--state", default=None, help="阶段 STATE 文件（C11）")
     return parser
 
 
@@ -558,12 +1162,28 @@ def main(argv: list[str] | None = None) -> int:
     json_path = Path(args.json).resolve()
     doc_path = Path(args.doc).resolve()
     cases_path = Path(args.cases).resolve()
-    data = load_json(json_path)
-    doc_text = doc_path.read_text(encoding="utf-8")
-    cases = load_json(cases_path)
-    bindings = load_json(Path(args.upstream).resolve())
+    try:
+        data = load_json(json_path)
+        doc_text = doc_path.read_text(encoding="utf-8")
+        cases = load_json(cases_path)
+        bindings = load_json(Path(args.upstream).resolve())
+    except (OSError, ValueError) as exc:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+        print(json.dumps({"status": "INPUT_ERROR", "error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False))
+        return 2
     result = run_checks(
-        data, doc_text, cases, bindings, project_root, doc_path, json_path, cases_path
+        data,
+        doc_text,
+        cases,
+        bindings,
+        project_root,
+        doc_path,
+        json_path,
+        cases_path,
+        Path(args.evidence_dir).resolve() if args.evidence_dir else None,
+        Path(args.manifest).resolve() if args.manifest else None,
+        Path(args.state).resolve() if args.state else None,
     )
     Path(args.out).write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

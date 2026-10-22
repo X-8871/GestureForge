@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_coverage_matrix",
+  "artifact_version": "S6A-G0-v1.1",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r02",
+  "supersedes_run_id": "s6a_g0_20261022_r01",
+  "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+  "machine_json": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+  "status_note": "本矩阵覆盖 S6-A G0 包（v1.1/r02）的规格与证据项；不代表 G0 复评、状态机行为、板上或摄像头验收。",
+  "runbook_coverage": [
+    {"item": 1, "requirement": "由项目总控确认阶段6独占写入方与范围，负责人在 w6 建立有效 STATE", "location": "§1 + .codex/STATE.md（11 字段交接行）", "status": "DONE"},
+    {"item": 2, "requirement": "核对阶段4结果字段、错误语义和阶段5显示语义的冻结版本；未冻结接口只能草案/隔离使用", "location": "§1 上游绑定表 + upstream_bindings.json", "status": "DONE_WITH_BLOCKED_DEPENDENCY"},
+    {"item": 3, "requirement": "五类手势逐项动作、动作成功反馈、失败反馈、可观察显示状态；提交成功与实际生效区分", "location": "§7 表 A-1 + 逐类 UX 要求 + B01/B02 + JSON actions.ux_requirements", "status": "DONE_PENDING_APPROVAL"},
+    {"item": 4, "requirement": "冻结多框选择、同分、保持/重获、抖动、窗口、冷却、再触发、过期、未知、无手、超时/错误", "location": "§5 B01–B28（v1.1）+ §8–§13 + M1–M15（M14 删除）", "status": "DONE_WITH_DECLARED_UNREACHABLE（B-02/B-03/B-04/B-05 已按裁定修订；M4/M7 登记不可达，见 JSON reachability 与 U6-12）"},
+    {"item": 5, "requirement": "草案状态作起点，状态名不等于已实现", "location": "§4 + states 7 个 + §0/§18", "status": "DONE"},
+    {"item": 6, "requirement": "明确「持续保持只触发一次」，冷却结束时是否可再触发必须唯一", "location": "§10 + H-10 全局门 + JSON trigger_once_while_held", "status": "DONE_DECLARED_PENDING_CONFIRMATION（U6-02 待 Wong 确认）"},
+    {"item": 7, "requirement": "窗口用真实时间与有效结果数，重复 frame_id 不推进；低 FPS 估算交互延迟", "location": "§9 WINDOW_MATCH/窗口完成时刻 + §13 + §15", "status": "DONE_WITH_BLOCKED_DEPENDENCY（阶段4 实测 P_meas 未取得 → T6-A03 与延迟量级 NOT_RUN，U6-13）"},
+    {"item": 8, "requirement": "草案 0.35/0.30、200ms、6 帧、1000ms 等未冻结；不在正式集调参", "location": "§14 全表 24 项 PENDING_APPROVAL + §0", "status": "DONE_PENDING_APPROVAL"},
+    {"item": 9, "requirement": "NO_HAND 合法零框不是第六类；未知拒绝不能只用 class_id 落在五类内证明", "location": "H-5/H-6 + B17/B20 + §11.1/§11.4 + HC-20（真算）", "status": "DONE"},
+    {"item": 10, "requirement": "异常/重复/过期不触发；超时与失踪计时按单调时钟推进，防停帧永久候选", "location": "H-3/H-4 + §11.5/§11.6 + §13 + HC-10/HC-13/HC-14/HC-22", "status": "DONE_WITH_DECLARED_GAPS（U00 窗口已定义滑动语义；U00/S04/P01–P05/U01 边界样例见 §12.1）"}
+  ],
+  "plan_coverage": [
+    {"plan_line": "L104", "requirement": "稳定手势判定→HDMI切图/界面/显示状态", "location": "§4、§5-B01、§7"},
+    {"plan_line": "L104", "requirement": "多框时的目标选择", "location": "§8 + B03/B04/B05/B06（TARGET_CONTINUES 迟滞）"},
+    {"plan_line": "L104", "requirement": "目标丢失与重获", "location": "§10 + B10/B11 + M10/M11/M1（M14 删除）"},
+    {"plan_line": "L104", "requirement": "稳定判定窗口", "location": "§9 + B07/B08（WINDOW_MATCH）"},
+    {"plan_line": "L104", "requirement": "保持时是否只触发一次", "location": "§10 + B15 + trigger_once_while_held"},
+    {"plan_line": "L104", "requirement": "冷却", "location": "§10 + H-10 + B13/B14 + M6/M8/M9/M15 + cooldown_policy"},
+    {"plan_line": "L104", "requirement": "重新触发条件", "location": "§10 + B11/B12"},
+    {"plan_line": "L104", "requirement": "无手/未知输入与恢复行为", "location": "§11 + B17/B19/B20/B21 + M2/M12/M13"},
+    {"plan_line": "L106", "requirement": "测试短暂抖动/持续保持/手势切换/手离开/未知场景", "location": "B07/B08/B11/B12/B15/B17/B20（场景执行状态 NOT_RUN）"},
+    {"plan_line": "L106", "requirement": "已知手势有效动作成功率≥90%", "location": "§14 T6-01（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "至少200个独立未知输入误接受率≤5%", "location": "§14 T6-02 + §11.4（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "无有效手势30分钟误动作≤1次", "location": "§14 T6-03（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "各条件样本数及阈值在任务G0固定；不能只挑成功视频", "location": "§14 统计口径要点 + §16 U6-01"},
+    {"plan_line": "L108", "requirement": "证据：状态机规格、输入/事件/动作日志、失败案例、连续视频", "location": "§3 日志字段 + §18（本轮为规格证据；日志/视频类证据 NOT_RUN）"},
+    {"plan_line": "L108", "requirement": "交互通过不代替阶段7最终性能与可靠性验收", "location": "§0 边界 + §18"}
+  ],
+  "stage5_suggestion_coverage": [
+    {"id": "S6-D-01", "location": "H-4 + §9", "status": "ADOPTED"},
+    {"id": "S6-D-02", "location": "§9 + §13", "status": "ADOPTED"},
+    {"id": "S6-D-03", "location": "§11.1/§11.4", "status": "ADOPTED"},
+    {"id": "S6-D-04", "location": "§3 日志字段", "status": "ADOPTED"},
+    {"id": "S6-D-05", "location": "§7/§14（统一 score）", "status": "ADOPTED"}
+  ],
+  "review_fix_coverage": [
+    {"issue": "B-01", "location": "report/evidence/S6-A/s6a_g0_20261022_r02/delivery_manifest.json + inputs_manifest.json + hashes_sha256.txt + verification/s6a_build_evidence.py + S6A_run_summary.md", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "B-02", "location": "H-4 / B17 / §9 / §11.1 / event_classes.window_advance_vs_match + selfcheck C15", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "B-03", "location": "H-10 / §10 / B13 / B14 / M5 / cooldown_policy + selfcheck C13", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "B-04", "location": "§15 / §9 / B27 / low_fps_latency + selfcheck C14", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "B-05", "location": "§3 / §8 / §9 / B03 / B07 / B09 / predicates + selfcheck C12", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-01", "location": "M14 删除 / §14 T6-S03 / §3 E_FRAME_CONFLICT / A_DISPLAY_STATE 删除 + selfcheck C3", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-02", "location": "reachability / §4 M4/M7 标注 / U6-12 + selfcheck C16", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-03", "location": "§12/§12.1 / B26 + selfcheck C16", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-04", "location": "hand_computed_cases HC-16/17/20 + HC-21..HC-27 + selfcheck C7", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-05", "location": "§15 / U6-13 / limitations_not_executed.json", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-06", "location": "§7 逐类 UX / actions.ux_requirements", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-07", "location": "B16/B19/B23 依据", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-08", "location": "selfcheck_old_package_failure.json/.txt + old_package_under_test.json", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-09", "location": "§12 ±1 单位口径 / parameter_comparison_semantics / HC-27", "status": "FIXED_PENDING_REVIEW"},
+    {"issue": "N-10", "location": "§5 / .codex/STATE.md（DELIVERED_PENDING_APPROVAL）", "status": "FIXED_PENDING_REVIEW"}
+  ],
+  "selfcheck_mapping": {
+    "script": "verification/s6_g0_selfcheck.py",
+    "version": "r02-hardened",
+    "checks": {
+      "C1": "JSON 身份与必填块（v1/v1.1 + revision 块）",
+      "C2": "ID 唯一性与最小规模（含 reachability 覆盖全部迁移）",
+      "C3": "文档↔JSON 标识集合双向一致（不变量/迁移 from-to/§14 参数行/事件/状态/行为行/动作类型）",
+      "C4": "待批准纪律（24 项）",
+      "C5": "五类动作映射一致",
+      "C6": "H-1..H-10 与唯一触发解释",
+      "C7": "27 个人工手算样例独立复算（含真算 HC-16/17/20 与新增 HC-21..27）",
+      "C8": "上游只读文件哈希复算",
+      "C9": "文档必备覆盖与章节",
+      "C10": "禁止声明窄口径扫描",
+      "C11": "证据清单/STATE 声明 vs 实际文件存在性与哈希",
+      "C12": "谓词拆分一致性",
+      "C13": "冷却全局门一致性",
+      "C14": "W_min/实测帧周期口径",
+      "C15": "H-4/NO_HAND 一致性",
+      "C16": "迁移可达性与覆盖声明"
+    }
+  },
+  "not_claimed": [
+    "本矩阵不代表 G0 复评通过、不代表独立审查通过，也不代表状态机/摄像头/HDMI/板上验收。",
+    "全部阈值仍为 PENDING_APPROVAL；T6-A03 与交互延迟量级因缺阶段4 实测 P 记 NOT_RUN。"
+  ]
+}

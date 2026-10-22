@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.1",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r02",
+  "supersedes_run_id": "s6a_g0_20261022_r01",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_20261022_r01/S6A_20261022_r01_review.md",
+  "review_verdict": "CHANGES_REQUIRED",
+  "review_status_after_fix": "PENDING_REVIEW（复评由项目总控另派；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r02",
+    "r01_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "self_check_before_after": "先用加固后的自检在**旧包**（git 1fe4648 的 MD/JSON/cases/STATE + r01 证据目录）上跑出失败输出并保留，再对修复包跑出 ALL_PASS"
+  },
+  "blocking_items": [
+    {
+      "id": "B-01",
+      "problem": "STATE/MD/summary 声称的 delivery_manifest.json / inputs_manifest.json / hashes_sha256.txt 实际不存在；CHECK 命令不可复现；make_manifests.py 硬编码 exit_code。",
+      "fix": "新增可复现构建器 verification/s6a_build_evidence.py：按当前实际文件生成三份清单；hashes 只哈希已存在文件；由构建器真实执行 selfcheck 与 check_stage_delivery 两种模式（绝对 --project-root），把真实退出码写入 manifest.checks；不再硬编码任何 exit_code。tmp 下旧 make_manifests.py 同步修正生成顺序与实跑逻辑（仅缓存，不入库）。",
+      "evidence": ["delivery_manifest.json", "inputs_manifest.json", "hashes_sha256.txt", "verification/s6a_build_evidence.py", "S6A_run_summary.md", "check 输出见 manifest.checks 的 command/exit_code"],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "B-02",
+      "problem": "H-4 称 NO_HAND 推进匹配计数，与 B17/§9/§11.1 矛盾，可能零框完成稳定窗口。",
+      "fix": "按裁定改写 H-4：拆分「窗口序列推进」与「匹配计数」；NO_HAND 推进时间/结果计数、不推进匹配计数、不得完成稳定窗口。同步 JSON H-4、event_classes.window_advance_vs_match、B17、文档 §9/§11.1。新增 selfcheck C15 断言该口径。",
+      "evidence": ["docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §2/§9/§11.1", "docs/stage6/s6a_stage6_g0_behavior_v1.json hard_invariants H-4", "selfcheck C15 PASS"],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "B-03",
+      "problem": "冷却只在 COOLDOWN 状态内抑制，M10/M11/M14/M3 可提前离开状态，K01 内新获取可再次触发。",
+      "fix": "新增 H-10 冷却全局门；M5 增加全局门条件与 global_cooldown_gate 标记；新增 JSON cooldown_policy（GLOBAL_GATE / 跨状态 / 跨获取 / 执行层提交前再校验）；B13/B14 与文档 §10 同步。M14 删除（重获=M10→M11→M1，仍受 H-10 约束）。新增 selfcheck C13。",
+      "evidence": ["JSON hard_invariants H-10 / cooldown_policy / transitions.M5", "文档 §10/H-10", "selfcheck C13 PASS"],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "B-04",
+      "problem": "W=max(...) 被定义为窗口完成时间，但 HC-02/HC-06 证明它只是下界，交互延迟会少算一个帧周期。",
+      "fix": "窗口完成时刻改定义为第 N 个 WINDOW_MATCH 结果到达且时长满足的那一帧的显式输入时刻；W_min 仅下界且不得进入延迟统计；交互延迟=t_effective−window_complete；T6-A03 必须用实测 P_meas，无实测记 NOT_RUN 并登记 U6-13。同步 JSON low_fps_latency、B27、文档 §9/§15。新增 selfcheck C14。",
+      "evidence": ["JSON low_fps_latency", "文档 §15", "HC-06 期望更新", "selfcheck C14 PASS"],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "B-05",
+      "problem": "“匹配”在 §3 与 §8.1 有两种条件，保持与窗口判定不可区分。",
+      "fix": "新增 JSON predicates：TARGET_CONTINUES（类别+IoU/中心位移，仅迟滞/保持）与 WINDOW_MATCH（再加 score≥P02、逐帧位移≤P05，仅窗口计数）；B03/B07/B09/B17、§3/§8/§9 全表引用；禁用含糊“匹配”表述。新增 selfcheck C12（定义、引用与含糊短语扫描）。",
+      "evidence": ["JSON predicates", "文档 §3/§8/§9", "selfcheck C12 PASS"],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "non_blocking_items": [
+    {"id": "N-01", "fix": "M14 删除并登记；§14 增 T6-S03 行；§3 增 E_FRAME_CONFLICT；A_DISPLAY_STATE 从 supported_types 删除并登记 U6-15；C3 改为按 ID 集合+from/to+§14 行双向比对。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-02", "fix": "按当前草案参数推导 M4 不可达（S04 500 ≥ L02 300）、M7 构造上不可达；JSON reachability + 文档 §4/§14 标注 + U6-12；C16 自动复算一致性。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-03", "fix": "§12 覆盖声明收敛为“已列出的边界”；新增 §12.1 缺口表（C01/U00_W/U00_N/S04/P01–P05/U01）；U00 明确为滑动窗口；B26 参数扩充。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-04", "fix": "HC-16 改为按 M1/M3/M5/M6/M9 时间线真算（含 trigger/M9 帧号）；HC-17 引入 other_class_score 与 TARGET_CONTINUES 推导；HC-20 由选择门/类别集合推导 would_submit 与 proves=False；新增 HC-21..HC-27。C7 要求 ≥27 例且全部可复算。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-05", "fix": "§15 要求 P_meas 实测；无实测记 NOT_RUN；新增 U6-13 与 limitations/coverage 更新。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-06", "fix": "§7 增加五类共用 UX 骨架与逐类目标状态；JSON actions.ux_requirements；可见时长登记 U6-14。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-07", "fix": "修正 B16（H-2 + CDX §2.3 提交/回执分离）、B19（2A L77 + D9 + D2 L22 限定）、B23（CDX §4 矩阵第 8 行 + §13）依据。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-08", "fix": "新 RunId 保留旧包失败输出：selfcheck_old_package_failure.json/.txt + old_package_under_test.json（含被检文件 SHA-256 与 git 引用）。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-09", "fix": "§12 ±1 单位统一（帧 1 条/时间 1 ns/分数 1 ULP）；毫秒级样例标注方向性；新增 HC-27（±1 ns）。", "status": "FIXED_PENDING_REVIEW"},
+    {"id": "N-10", "fix": "§5 改“行为表 v1.1 基线已声明（DELIVERED_PENDING_APPROVAL）”；w6 STATE 状态改 DELIVERED_PENDING_APPROVAL，不再写 S6-A DONE。", "status": "FIXED_PENDING_REVIEW"}
+  ],
+  "reviewer_claim_corrections": [
+    {
+      "claim": "文档缺 H-5",
+      "finding": "H-5 在 r01 文档第 41 行已存在（内容与 JSON 一致）。评审 compare_spec.py 的正则要求 `**：` 紧跟加粗标题，而 H-5 行使用逗号，导致漏检。",
+      "action": "属于可机器解析性缺陷：r02 已把 H-5 行统一为“标题**：正文”格式；加固后的 C3 按 ID 集合比对，不依赖该正则。"
+    },
+    {
+      "claim": "迁移 M2、M10 文档缺失",
+      "finding": "M2/M10 在 r01 文档 §4 表第 66/74 行已存在；评审独立脚本的迁移正则要求来源状态在反引号内（如 `IDLE`），而 M2/M10 来源写作“任意”，故漏检。",
+      "action": "属于可机器解析性缺陷：r02 把 M2/M10 来源单元格改为 `` `*`（…） `` 形式；C3 对全部迁移比对 from/to。"
+    }
+  ],
+  "verification_commands": [
+    "python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r02/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r02/upstream_bindings.json --out report/evidence/S6-A/s6a_g0_20261022_r02/selfcheck_result.json --project-root D:/codex-worktrees/w6 --evidence-dir report/evidence/S6-A/s6a_g0_20261022_r02 --state .codex/STATE.md",
+    "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S6-A/s6a_g0_20261022_r02/inputs_manifest.json --project-root D:/codex-worktrees/w6",
+    "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S6-A/s6a_g0_20261022_r02/delivery_manifest.json --project-root D:/codex-worktrees/w6",
+    "旧包失败复现：自检脚本以 git ref 1fe4648: 的 MD/JSON/cases/STATE 与 r01 证据目录为输入（见 old_package_under_test.json）"
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；复评由项目总控另派 Reviewer。",
+    "全部阈值与指标仍为 PENDING_APPROVAL；未在测试集上调整任何参数。",
+    "M4/M7 不可达是当前草案参数/实现结构的结果，已登记而非通过实现制造路径。"
+  ]
+}

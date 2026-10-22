@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_old_package_under_test",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r02",
+  "purpose": "证明加固后的自检能捕获旧包（r01，提交 1fe4648）的缺陷：先用 git 1fe4648 的版本作为输入跑出失败输出，再对修复包跑出 ALL_PASS。",
+  "git_commit": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+  "worktree": "D:\\codex-worktrees\\w6",
+  "branch": "stage6-interact-prep",
+  "files_under_test": [
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "git_ref": "1fe4648:docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "5a5fe54f86fb147eb46cadb4146b60c26bfa413e1d89d4fab79b6f0244286170"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "git_ref": "1fe4648:docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "556c336007e9671318aedf07858bd22befe14de01c3630a0c394c44553f53201"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json",
+      "git_ref": "1fe4648:report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json",
+      "sha256": "73d0e6f8e1481a7d0da1cb9f485f4a8006ba1328322873b1858a7d2e69486632"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "git_ref": "1fe4648:.codex/STATE.md",
+      "sha256": "60f39ace18d31328df54675ff6a74212d4c2ca8ca3f5b06db8871f5ee746c12a"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json",
+      "git_ref": "1fe4648:report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json",
+      "sha256": "7ab4ca0c2fd40155dda21142c81190148a11d0368a1ed8f2009248fef609d746"
+    }
+  ],
+  "evidence_dir_under_test": {
+    "path": "report/evidence/S6-A/s6a_g0_20261022_r01",
+    "claimed_but_missing": [
+      "delivery_manifest.json",
+      "inputs_manifest.json",
+      "hashes_sha256.txt"
+    ],
+    "actual_files": [
+      "S6A_run_summary.md",
+      "coverage_matrix.json",
+      "hand_computed_cases.json",
+      "limitations_not_executed.json",
+      "selfcheck_result.json",
+      "upstream_bindings.json"
+    ]
+  },
+  "observed_failure_summary": "加固自检在旧包上 exit 1，至少捕获：C3 迁移 from/to 解析缺陷、T6-S03 不在 §14、E_FRAME_CONFLICT 不在 §3、动作支持类型含未映射的 A_DISPLAY_STATE、C11 STATE 写有 S6-A DONE 且声称的三份证据文件不存在、C12/C13/C14/C15/C16 对应语义缺陷、C6 缺 H-10、C7 旧 HC 不可复算。"
+}

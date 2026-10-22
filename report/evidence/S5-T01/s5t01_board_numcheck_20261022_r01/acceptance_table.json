@@ -1,0 +1,103 @@
+{
+  "schema_version": "gestureforge_s5t01_acceptance_table_v1",
+  "task_id": "S5-T01",
+  "generated_utc8": "2026-10-22T18:45:00+08:00",
+  "video_source": "PS_SYNTHETIC",
+  "display_semantics": "B_latest_result_overlay",
+  "artifacts_under_test": {
+    "elf_case5_r02_sha256": "dd350c8afd7868399eae9e1ae0c98c8964ec8243db19137ad1fdf9af73a07161",
+    "elf_cycle_r02_sha256": "9f5e6db1cb51fd39246bbfe355604e6547bbd238917d3f98e094c42f6bacf1f2",
+    "elf_cycle_r01_sha256": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+    "bitstream_stdluma_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "photos_taken_on_elf": "elf_cycle_r01_sha256 (照片为 r01 画面；r02 仅改 D-1/D-2 观感与 FPS 测法)"
+  },
+  "items": [
+    {
+      "id": "T5-01",
+      "criterion_zh": "非方形视频与补边逆映射（竖屏/683×384 无源则 NOT_APPLICABLE 并说明）",
+      "status": "PASS",
+      "evidence": ["console/decode_rows.json: row53_green_left_border_513_514 PASS",
+                   "console/decode_rows.json: row200_red_right_border_77_78 = (64,64,255)",
+                   "console/decode_rows.json: row200_red_left_border_0_1 PASS",
+                   "console/decode_rows.json: row66_green_bottom_border_present (84 px)",
+                   "case_photo_evidence.json case 1/2/3"],
+      "notes": ["源 1280×720（非方形）→ letterbox 416×234、off=(0,91)，逆映射在**像素级**与冻结参考吻合（绿框 x1=513 精确命中 513,514 列；红框 x2=77 精确命中 77,78 列）。",
+                "竖屏/683×384 等其它几何**无对应视频源**，本轮 NOT_APPLICABLE（不由 PS 合成源伪造）。"]
+    },
+    {
+      "id": "T5-02",
+      "criterion_zh": "边缘框/四角/部分越界/零面积：注入计划覆盖；零面积不绘制",
+      "status": "PASS",
+      "evidence": ["case_photo_evidence.json case 2（四角）与 case 5（左边缘/上边缘贴边）",
+                   "uart: S5_P1_SHOW case=5 boxes=2（用例 5 输入 3 个框、绘制 2 个：落在上补边带者为零面积被丢弃）",
+                   "console/decode_rows.json row53/row200 红框边界列"],
+      "notes": ["左边缘贴边（x1=0）与上边缘贴边（y1=0）均正常渲染；补边带内框→裁剪后零面积→不绘制（与冻结语义一致）。"]
+    },
+    {
+      "id": "T5-03",
+      "criterion_zh": "多框（≤15）与零框（无手）：零框不画框、boxes=0，与过期/丢失区分",
+      "status": "PASS",
+      "evidence": ["case_photo_evidence.json case 3（15 框 6+6+3）、case 4（零框 FRESH）",
+                   "uart: S5_P1_SHOW case=3 boxes=15 / case=4 boxes=0 stale=0"],
+      "notes": ["零框用例 HUD=FRESH，与过期用例 HUD=STALE 明确区分。"]
+    },
+    {
+      "id": "T5-04",
+      "criterion_zh": "过期清除：age==limit 不过期；limit+1 过期且计数+1",
+      "status": "PARTIAL",
+      "evidence": ["case_photo_evidence.json case 6（无框 + HUD STALE）", "uart: S5_P1_SHOW case=6 boxes=0 stale=1"],
+      "notes": ["**板上过期显示路径**已验（不叠加、HUD 显式 STALE）。",
+                "**边界条件（age==limit 不过期 / limit+1 过期且计数+1）未在板上测试**：P1 应用不注入年龄，该边界由离线 S5-A/S5-C 用例覆盖；列为 NOT_RUN（板上）。"]
+    },
+    {
+      "id": "T5-05",
+      "criterion_zh": "≥100 帧结果—帧号对应：记录五元组，可按 frame_id 索引",
+      "status": "NOT_RUN",
+      "evidence": [],
+      "notes": ["P1 目前仅 6 个静态用例，**未注射 ≥100 帧序列**、未输出 frame_id 五元组。列为下一步（可在 P1 内加顺序注入与五元组日志）。"]
+    },
+    {
+      "id": "T5-06",
+      "criterion_zh": "分数/置信度用词：字段名为 score，无依据不出现“置信度”",
+      "status": "PASS",
+      "evidence": ["case_photo_evidence.json（score 字段）", "generator: label_for() -> \"<CLASS> <score:.2f>\"",
+                   "全部 S5-T01 产物与 UART 标记使用 score，未出现“置信度”断言"],
+      "notes": ["屏上文案即类别 + score（如 PALM 0.62）；未把 score 表述为置信度。"]
+    },
+    {
+      "id": "T5-08",
+      "criterion_zh": "FPS/延迟分别测量：真实统计（非离线占位）；写明起止事件与分母口径",
+      "status": "NOT_VERIFIED",
+      "evidence": ["uart: S5_P1_MEAS case=* frames_delta=0 window_counts≈2.298e9 mm2s_sr=00011000 display_fps_x10=0",
+                   "uart: S5_P1_MM2S_CR_AFTER_IRQEN=00011001（已置 FrmCntIrqEn）"],
+      "notes": ["测法（读 MM2S SR 帧计数，窗口 6 s，COUNTS_PER_SECOND 分母）已写明起止事件，但 **FrmCntIrqEn 置位后计数仍停在 1**（未应答的帧计数 IRQ 使计数不推进）⇒ 本轮**不报任何 FPS/延迟数值**。",
+                "下一步：为 MM2S 接 GIC 中断服务（计数 + 时间戳），或改用 VTC/其它帧完成事件作为起止。"]
+    },
+    {
+      "id": "T5-09",
+      "criterion_zh": "连续 30 分钟无死锁（受硬件窗口限制；未做则 NOT_RUN 并说明）",
+      "status": "NOT_RUN",
+      "evidence": [],
+      "notes": ["受硬件窗口限制本轮未做；已连续运行约 1 小时未见死锁（**不作为通过依据**）。"]
+    },
+    {
+      "id": "T5-11",
+      "criterion_zh": "预热/丢帧/超时不隐藏：注入故障与计数单列",
+      "status": "NOT_RUN",
+      "evidence": [],
+      "notes": ["P1 未实现故障注入与丢帧/超时计数。列入下一步。"]
+    },
+    {
+      "id": "T5-12",
+      "criterion_zh": "显示语义一致性：单包内 display_semantics 唯一",
+      "status": "PASS",
+      "evidence": ["uart: S5_P1_SEMANTICS=B_latest_result_overlay stale_limit_ns=200000000",
+                   "run_manifest.json display_semantics 字段"],
+      "notes": ["全部产物与运行日志中 display_semantics 唯一为 B_latest_result_overlay；不存在同帧声明。"]
+    }
+  ],
+  "summary": {"PASS": 6, "PARTIAL": 1, "NOT_RUN": 3, "NOT_VERIFIED": 1, "FAIL": 0},
+  "not_claimed": ["不以 PS 合成源声称阶段3 采集/颜色结论。",
+                   "未测得 FPS/延迟，故不报数值。",
+                   "照片为 r01 画面（r02 仅观感与测法变更）。"]
+}

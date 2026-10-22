@@ -1,0 +1,84 @@
+{
+  "log": "report\\evidence\\S5-T01\\s5t01_board_numcheck_20261022_r01\\console\\dump_rows.txt",
+  "rows_parsed": [
+    "row=0 x=0 buf0",
+    "row=53 x=0 buf0",
+    "row=53 x=512 buf0",
+    "row=66 x=512 buf0",
+    "row=359 x=0 buf0",
+    "row=200 x=64 buf0",
+    "row=200 x=0 buf0",
+    "row=359 x=1256 buf0",
+    "row=0 x=0 buf1",
+    "row=0 x=0 buf2"
+  ],
+  "checks": [
+    {
+      "name": "row0_x0_15_white_corner",
+      "status": "PASS",
+      "detail": "x0..15=[(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)]...全部白"
+    },
+    {
+      "name": "row53_red_top_border_left_of_hud",
+      "status": "PASS",
+      "detail": "红色像素 x 范围=[0..22]（x 23..123 为 HUD 面板，置顶覆盖；期望可见部分自 x=0 起）"
+    },
+    {
+      "name": "row53_x80_84_background",
+      "status": "PASS",
+      "detail": "x=80,82,84 取值=[(64, 255, 64), (0, 0, 0), (0, 0, 0)]（应为斜坡背景，非红）"
+    },
+    {
+      "name": "row200_red_right_border_77_78",
+      "status": "PASS",
+      "detail": "x=77,78 取值=[(64, 64, 255), (64, 64, 255)]，期望 (64,64,255)"
+    },
+    {
+      "name": "row200_x100_background",
+      "status": "PASS",
+      "detail": "x=100 取值=None"
+    },
+    {
+      "name": "row200_red_left_border_0_1",
+      "status": "PASS",
+      "detail": "x=0,1 取值=[(64, 64, 255), (64, 64, 255)]"
+    },
+    {
+      "name": "row53_green_left_border_513_514",
+      "status": "PASS",
+      "detail": "绿色像素 x=[513, 514] 期望起始 513,514"
+    },
+    {
+      "name": "row53_green_inside_is_background",
+      "status": "PASS",
+      "detail": "x=560 取值=(111, 111, 111)"
+    },
+    {
+      "name": "row66_green_bottom_border_present",
+      "status": "PASS",
+      "detail": "绿色像素数=84（行 66 为绿框底边，应近乎连续）"
+    },
+    {
+      "name": "row359_red_left_border_0_1",
+      "status": "PASS",
+      "detail": "x=0,1 取值=[(64, 64, 255), (64, 64, 255)]"
+    },
+    {
+      "name": "row359_x1264_smooth_ramp_value",
+      "status": "PASS",
+      "detail": "x=1264 取值=(252, 252, 252)，期望灰度 ≈252（D-1 平滑斜坡；该行无角标记）"
+    },
+    {
+      "name": "buf1_row0_white_corner",
+      "status": "PASS",
+      "detail": "x0..3=[(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)]"
+    },
+    {
+      "name": "buf2_row0_white_corner",
+      "status": "PASS",
+      "detail": "x0..3=[(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)]"
+    }
+  ],
+  "passed": 13,
+  "failed": 0
+}

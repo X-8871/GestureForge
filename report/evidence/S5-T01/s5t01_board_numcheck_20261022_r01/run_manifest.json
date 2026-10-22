@@ -1,0 +1,144 @@
+{
+  "schema_version": "gestureforge_s5t01_board_numcheck_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_numcheck_20261022_r01",
+  "generated_utc8": "2026-10-22T18:35:33+08:00",
+  "source_head": "d65636c6fad83d7227b6299f77053cd404f3cff1",
+  "goal_reached": "PER_PIXEL_GEOMETRY_VERIFIED_ON_BOARD__FPS_NOT_VERIFIED",
+  "elf_case5_r02_sha256": "dd350c8afd7868399eae9e1ae0c98c8964ec8243db19137ad1fdf9af73a07161",
+  "elf_cycle_r02_sha256": "9f5e6db1cb51fd39246bbfe355604e6547bbd238917d3f98e094c42f6bacf1f2",
+  "bitstream_stdluma_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+  "display_semantics": "B_latest_result_overlay",
+  "video_source": "PS_SYNTHETIC",
+  "commands": [
+    {
+      "cmd": "bash dbdf/scripts/stage3_t05/run_t05_board_capture.sh <RUN_DIR> <case5 r02 ELF> numcheck 40",
+      "exit_code": 0,
+      "log": "console/capture_numcheck.txt"
+    },
+    {
+      "cmd": "bash dbdf/scripts/stage3_t03b/run_xsdb.sh w5/scripts/stage5_t01/jtag_dump_rows.tcl",
+      "exit_code": 0,
+      "log": "console/dump_rows.txt"
+    },
+    {
+      "cmd": "python -B w5/scripts/stage5_t01/decode_mrd_rows.py --log console/dump_rows.txt",
+      "exit_code": 0,
+      "log": "console/decode_rows.json"
+    }
+  ],
+  "pixel_checks": {
+    "total": 13,
+    "pass": 13,
+    "fail": 0,
+    "json": "console/decode_rows.json",
+    "highlights": [
+      "row200 red right border x=77,78 = (64,64,255) matches frozen x2=77 with 2px line",
+      "row53 green left border exactly [513,514] matches frozen x1=513",
+      "row66 green bottom border present (84 px) matches frozen y2=66",
+      "row359 x=1264 = 252 = floor(1264*255/1279) -> D-1 smooth ramp effective",
+      "buf1/buf2 row0 white corner -> all three scanout buffers carry the frame"
+    ]
+  },
+  "acceptance_table": "acceptance_table.json",
+  "fps": {
+    "status": "NOT_VERIFIED",
+    "method": "read MM2S SR IRQFrameCntSts over 6 s window",
+    "evidence": "CR bit12 set (0x00011001) but SR stays 0x00011000, frames_delta=0",
+    "reason": "unacknowledged frame-count IRQ holds the counter; needs GIC ISR or another frame-complete reference",
+    "reported_value": null
+  },
+  "defects": [
+    {
+      "id": "D-1",
+      "status": "FIXED",
+      "evidence": "row359 x=1264 = 252 (smooth ramp)"
+    },
+    {
+      "id": "D-2",
+      "status": "FIXED",
+      "side_effect": "case-5 red top border x 23..123 covered by on-top HUD panel"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/acceptance_table.json",
+      "sha256": "e7b70dc4268778571830da4c71e94c0889e2a1eedfc0e3f795a881617b7f7fd9"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/build_case5_r02.log",
+      "sha256": "0c5a2e35217a93e7e2cf3b660b32f4d64746dc7ec1d9f45ce6eafdde1cc053a3"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/capture_numcheck.txt",
+      "sha256": "d7d050de4ee3014b93caffcb3c77cd59b615d7a5c4ad4878603d35802d5a7ffa"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/decode_rows.json",
+      "sha256": "4f6059815a5dd8fac32fc264f9decd2d8f99a494516b297fd76bf0b2fe8798b8"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/dump_rows.txt",
+      "sha256": "0afd99c09fc3758fe15e46d5da6a6a0ee3edf01fe8481131379ee4817edf633b"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/input_hashes.txt",
+      "sha256": "f0d102d2a03b6996a5acacbfc70122e9fefb4d573befc5b1a5ce08ee9f8d698d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/uart_numcheck.log",
+      "sha256": "82ba63f5821bfbc111125fa53d347e16c0fe1af71d7ba83ba40ea07ad74c03db"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/wording_check.txt",
+      "sha256": "78decc05f3cea325951722d401b03e04619dda3c4440d24443b90d1a6cf26b45"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/summary.md",
+      "sha256": "4607e05786025f36f37db20aae9e3760fa12eeb5894ea3b7dc5d505dfc52a3b6"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256": "fd547e92c8d88d809f199c9cc74b29d71648c170a0cad18338dec3922df91f55"
+    },
+    {
+      "path": "scripts/stage5_t01/gen_overlay_cases.py",
+      "sha256": "fff1ea7c62fd700074bd038eeb9a7e4f4a3e662261a0f19ced88f80733ec6cee"
+    },
+    {
+      "path": "scripts/stage5_t01/build_p1_app.sh",
+      "sha256": "3a5d10f29bf8c0b6895de4cd9ca8e4cd524d7aba30ed33a6fb2fe66eb28b7378"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_dump_rows.tcl",
+      "sha256": "7a29466d418706367f9070ab62c4504bf2df42d16a337ca5975fec9975ab1058"
+    },
+    {
+      "path": "scripts/stage5_t01/decode_mrd_rows.py",
+      "sha256": "52bd8d585e7b98291600ef85b9ca4dd3ceaad36e15777c2a0c7a2a58b5bc1435"
+    },
+    {
+      "path": "scripts/stage5_t01/apply_p1_patch.py",
+      "sha256": "8e54d56546f8550089cc8f483d661ab94500e7e2946604941c5b12a72f37655b"
+    },
+    {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553"
+    }
+  ],
+  "not_executed": [
+    "FPS/延迟实测",
+    "≥100 帧序列与 frame_id 五元组（T5-05）",
+    "30 分钟长跑（T5-09）",
+    "故障注入与丢帧/超时计数（T5-11）",
+    "真实采集画面（本轮为 PS 合成源）"
+  ],
+  "limitations": [
+    "视频源为 PS 合成图，不得用于声称阶段3 采集/颜色结论。",
+    "照片（photos/）为 r01 画面；r02 仅改观感与 FPS 测法。",
+    "HUD 置顶会覆盖与其重叠的框线（用例 5 红框顶边 x 23..123）。",
+    "易失下载，未烧 QSPI；0x503D 未被改变；hw_server 已清理不驻留。"
+  ]
+}

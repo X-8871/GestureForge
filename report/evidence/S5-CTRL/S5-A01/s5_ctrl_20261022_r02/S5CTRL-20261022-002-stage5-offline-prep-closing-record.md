@@ -61,8 +61,18 @@
 
 ## 7. 机器可读交付清单
 
-- 同目录 `delivery_manifest.json`（`schema_version=1`）：绑定 `source_commit`、上游接口（S5A-G0-v2 契约/规格、S4-A DRAFT、S4-C/S4-B 只读输入）、本目录全部文件与 SHA-256、检查项与真实退出码、限制；由 `verification/check_stage_delivery.py --mode evidence` 只读核验，结果见 §2 与 `console/`。
+- 权威清单：`report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json`（`schema_version=1`）：绑定 `source_commit`、上游接口（S5A-G0-v2 契约/规格、S4-A DRAFT、阶段计划）、运行目录全部文件与交付源码（`role=source`）的 SHA-256、检查项与真实退出码、限制；由 `verification/check_stage_delivery.py --mode evidence` 只读核验，**退出码 0 / CHECKS_OK（errors 为空）**，输出确定性（两次生成逐字节一致，SHA-256 `6b3176cf…`）。
+- 布局说明：控制记录按提示词要求落在 `report/evidence/S5-CTRL/<task_id>/<run_id>/`（三段式），而检查器要求 `evidence_dir` 精确等于 `report/evidence/<task_id>/<run_id>`（两段式），故机器清单落在规范路径。本目录首次尝试的清单被检查器拒绝（退出码 2、41 条 schema 违规），**保留为失败证据**，说明见 `DELIVERY_MANIFEST_SUPERSEDED.md`。
+- `--mode inputs` **不适用**：本任务无冻结的上游接口（按 `report/README.md`：无本地输入的独立任务只对交付证据运行 evidence），未伪造接口或输入。
 - 检查器通过**仅**表示清单/文件绑定与目录检查通过，**不代表**接口语义正确、阶段5 开工或任何验收通过。
+
+### 7.1 字节保真与 EOL 修复（提交后发现并修复，如实登记）
+
+- **发现**：首次提交 `0b942ed` 时 Git 提示 `LF will be replaced by CRLF`。核查后确认：Python 文本模式写出的证据文件（`console/*.txt`、`run_manifest.json`、`summary.md`）在**工作树为 CRLF**，而 `core.autocrlf=true` 提交后 **blob 为 LF** → 交付清单绑定的 12 个文件中 **4 个** blob ≠ 工作树字节。
+- **影响**：清单绑定的是**工作树字节**；在另一种 checkout 配置（如 `autocrlf=false`）下由 blob 还原的文件哈希会与清单不符，削弱「按清单复现」的能力。**技术结论与断言不受影响**（独立审查在同一工作树完成，当时哈希一致）。
+- **修复**：按项目既有惯例（`.gitattributes` 对证据/验证文件使用 `-text`），为阶段5 路径加 `-text` 并重新入库，使 **blob == 工作树字节**；修复后清单绑定的 12/12 文件 blob 与工作树 SHA-256 一致。
+- **复现口径**：所有证据/清单哈希以**仓库内字节**为准；复现命令 `git cat-file blob <commit>:<path> | sha256sum` 与工作树 `sha256sum <path>` 应相同。
+- 该修复只涉及 EOL 策略与重新入库，**不改**任何实现、规格、阈值或结论；交付清单核验（CHECKS_OK / exit 0）在修复后重新确认。
 
 ## 8. 边界声明与下一步
 

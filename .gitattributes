@@ -184,3 +184,19 @@ report/evidence/CTRL-HARNESS/activation_20261018_r03/** -text
 report/evidence/CTRL-HARNESS/gateway_peer_20261018_r05/** -text
 report/evidence/CTRL-HARNESS/native_ack_20261018_r07/** -text
 report/evidence/CTRL-HARNESS/permission_projection_20261019_r01/** -text
+
+# 阶段5 离线准备（2026-10-22）：证据、交付源码与规格按逐字节保真，禁止 EOL 归一化
+# 起因：Python 文本模式写出的证据文件在工作树为 CRLF，autocrlf=true 提交后 blob 变为 LF，
+# 导致「交付清单绑定的工作树 SHA-256」在另一种 checkout 配置下无法复现；加 -text 后 blob==工作树字节。
+report/evidence/S5-A/** -text
+report/evidence/S5-B/** -text
+report/evidence/S5-C/** -text
+report/evidence/S5-CTRL/** -text
+docs/stage4/** -text
+docs/stage5/** -text
+docs/stage6/** -text
+scripts/stage5_s5a/** -text
+scripts/stage5_s5b/** -text
+scripts/stage5_s5c/** -text
+verification/s5_display_geometry_reference.py -text
+verification/test_s5_display_geometry_reference.py -text

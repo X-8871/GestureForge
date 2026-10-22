@@ -23,7 +23,7 @@
 
 ## 未决与风险
 - 待正式 G0/Wong：成品允许延迟上限、颜色表/字号；契约 `discrete_fields_must_match` 拆分（F-01 根因）；阶段4 `stale_age_limit` 仍 `DRAFT_PROPOSED`（阶段5 已按**同源同一常量 200 ms** 使用，正式冻结须同步）。
-- 过程缺陷（已登记）：S5-C 的 r01/r02 曾被 Developer 删除（违反证据保留口径、不可恢复，`report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md`）；`dev-s5b`/`dev-s5c` 子代理在恢复重跑时失败退出，S5-B r07 与 S5-C r04 由 Lead 代执行（Reviewer 已独立复现）；首次交付清单被检查器拒绝（exit 2、41 条 schema 违规）已保留为失败证据并注明（`DELIVERY_MANIFEST_SUPERSEDED.md`）。
+- 过程缺陷（已登记）：S5-C 的 r01/r02 曾被 Developer 删除（违反证据保留口径、不可恢复，`report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md`）；`dev-s5b`/`dev-s5c` 子代理在恢复重跑时失败退出，S5-B r07 与 S5-C r04 由 Lead 代执行（Reviewer 已独立复现）；首次交付清单被检查器拒绝（exit 2、41 条 schema 违规）已保留为失败证据并注明（`DELIVERY_MANIFEST_SUPERSEDED.md`）；首次提交后发现 EOL 归一化导致 4/12 清单绑定文件 blob≠工作树，已按项目惯例加 `.gitattributes -text` 并重新入库，修复后 blob==工作树字节。
 - 硬件：本轮期间本机出现他人 `hw_server`（观测 PID 4812）；2B 书面占用 `CDX-20261021-004/005` **未正式让出** → 本树未启动/重启/结束任何硬件服务，未占 JTAG/COM4。
 - **NOT_RUN（需硬件）**：真实 HDMI/摄像头联调、上板、30 分钟无死锁（T5-09）、真实 FPS/延迟（T5-08）、截图/视频、阶段6 联动；S5-B/C 部分用例为 PARTIAL（口径与像素索引级已断言）。
 

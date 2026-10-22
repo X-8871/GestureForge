@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.6",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r07",
+  "supersedes_run_id": "s6a_g0_20261022_r06",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r06_20261023_r01/ 与 report/evidence/CTRL-DSH-HANDOFF/reviews/S6B_20261023_r01/（BLK-1 的 S6-A 侧）",
+  "review_verdict": "S6-A r06 = PASS（0 阻断 / F1–F11）；S6-B r01 = CHANGES_REQUIRED（BLK-1 牵到 S6-A 的 M4 可达性）",
+  "review_status_after_fix": "PENDING_REVIEW（是否再复评由项目总控决定；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r07",
+    "r01..r06_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "self_proof_rule": "任何冻结/交付提交必须自证：`git archive` 导出该提交后，用该提交内的自检与两个检查器复跑，三项 exit 0；r06 实测 C11 FAIL（STATE 声明了该提交内 0 文件的 S6-B 证据目录），r07 在同一提交内自查自证通过",
+    "self_check_before_after": "先跑注入与历史口径对照证明新断言可捕获缺陷（C12/C7/C14 + r05/r06 旧脚本），再对 r07 出 ALL_PASS（17 项，C7 = 32 例）"
+  },
+  "blocking_items": [],
+  "non_blocking_items": [
+    {
+      "id": "F6",
+      "problem": "r06 提交内 STATE 声明了 0 文件的证据目录（report/evidence/S6-B/…），单独检出该提交时 C11 FAIL——交付提交不自证。",
+      "fix": "新增 verification/export_selfproof.py（导出提交 → 用该提交内自检 + inputs/evidence 检查器复跑，三项 exit 0 才 SELF_PROVEN）；STATE 只声明入库路径；本包登记 r06 FAIL 与 r07 快照 PASS 的实测结果。",
+      "evidence": [
+        "verification/export_selfproof.py",
+        "export_selfproof.json",
+        "export_selfproof.md"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "F1",
+      "problem": "文档 §9/B07/B27 与 JSON B07.condition/B27.output 仍写「第 N 个 WINDOW_MATCH 结果到达时刻」，与 time_anchors.window_complete/M3.condition/§15 的「取较晚」口径不统一，后人照字面实现会把 30fps 漏判重新引入。",
+      "fix": "五处文本统一为「第一个同时满足帧数与时长（取较晚）的帧」；C14 增加机器断言（含禁止残留「第 N 个」），注入 b07_old_wording 证明可捕获。",
+      "evidence": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §9/B07/B27",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json behavior_rows.B07/B27",
+        "verification/s6_g0_selfcheck.py C14",
+        "probe_b07_old_wording_stdout.txt"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "BLK-1(b)",
+      "problem": "S6-A 声明 M4 不可达（仅比较 T6-S04 ≥ T6-L02）并让 U6-12 要求「删除 M4/T6-S04」；但 TARGET_CONTINUES 不含 score ≥ T6-P02，低分中断不推进 miss_streak，M10 不先命中 → M4 实际可达（S6-B C4-jitter-reset 的 M4@f7）。",
+      "fix": "reachability.M4 → REACHABLE 并写明机制；U6-12 改写为保留 M4/T6-S04、仅决定兜底次序；文档 §4/§12.1/§16 同步；C16 断言改为要求 REACHABLE + 机制关键词。",
+      "evidence": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json reachability/open_decisions.U6-12",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §4/§12.1/§16",
+        "verification/s6_g0_selfcheck.py C16"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "F2/F3/F4/F5",
+      "problem": "清单限制项硬编码旧修订基线；探针计数表述与实际运行数不符；r04 重跑归因数值与同包证据矛盾；STATE 存在陈旧行（版本/已移除字段/时间戳/恢复命令）。",
+      "fix": "限制项基线改为动态取 source_commit；探针计数写实（基线 1 + 注入 7 + 历史对照 2）；r04 归因统一为「样例数不足（29 < 32，缺 HC-30/31/32）」；STATE 全量按实际更新。",
+      "evidence": [
+        "verification/s6a_build_evidence.py",
+        "delivery_manifest.json",
+        "S6A_run_summary.md",
+        ".codex/STATE.md"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "F7",
+      "problem": "完成帧超出所给序列时仍报越界 completion_index/window_span_ms，易误读为已观测完成帧。",
+      "fix": "改报 -1 / 0.0 / completion_within_sequence=false，外推值单列 required_completion_index；新增 HC-32 与注入 case_out_of_sequence_index。",
+      "evidence": [
+        "verification/s6_g0_selfcheck.py C7",
+        "hand_computed_cases.json HC-32",
+        "probe_case_out_of_sequence_index_stdout.txt"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "F8/F9",
+      "problem": "两处实现细节未登记为有意设计，易被后续误判为缺陷。",
+      "fix": "在 limitations_not_executed.json 明确登记（浮点含等号鲁棒性；整段给定序列视为一个窗口）。",
+      "evidence": [
+        "limitations_not_executed.json review_fix_notes"
+      ],
+      "status": "DOCUMENTED"
+    },
+    {
+      "id": "F10/F11",
+      "problem": "旧口径对照的失败点描述不精确（首个失败在 HC-28）；limitations 键名/版本、total_actions 别名、文档完整版本令牌等零星残留。",
+      "fix": "描述改为「首个失败在 HC-28（新键不可复算）；HC-31 由 case_span_wrong 直接证明」；键名改 review_fix_notes；移除 total_actions 别名；文档补完整令牌 S6A-G0-v1.6；复评措辞精确到 r05 包。",
+      "evidence": [
+        "verification/s6a_r07_probe.py",
+        "probe_summary.json",
+        "limitations_not_executed.json",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；是否再复评由项目总控决定。",
+    "全部 24 项参数值与 PENDING_APPROVAL 状态未改；未在测试集上调整任何参数。",
+    "r04/r05/r06 证据保持原样不改写（RunId 证据不可覆盖）；更正记于本记录与本包。",
+    "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+  ]
+}

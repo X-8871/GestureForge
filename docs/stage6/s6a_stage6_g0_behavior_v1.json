@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
   "artifact": "s6a_stage6_g0_behavior",
-  "artifact_version": "S6A-G0-v1.5",
+  "artifact_version": "S6A-G0-v1.6",
   "stage": "stage6",
   "task_id": "S6-A",
-  "run_id": "s6a_g0_20261022_r06",
+  "run_id": "s6a_g0_20261022_r07",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_PENDING_APPROVAL",
-  "status_label": "阶段6 G0 包与行为表 v1.5（r06 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
-  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r06 关闭第 5 轮独立复评（PASS，0 阻断）的 4 项非阻断建议：N-r05-04（窗口完成时刻按 T6-S03「取较晚满足者」实现：计数与时长两者都满足的第一帧；覆盖 30fps=33.3 ms 的真实相机路径）、N-r05-01（探针计数表述）、N-r05-02（r04 重跑失败归因）、N-r05-03（HC-30 动作计数覆盖边界）；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
+  "status_label": "阶段6 G0 包与行为表 v1.6（r07 收尾版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
+  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论。r07 按第 6 轮独立复评（PASS，0 阻断 / 11 项非阻断或观察）逐条收尾：F6 冻结自证性（导出副本复跑自证工具 + STATE 只声明入库路径）、F1 窗口完成文本统一（§9/B07/B27 与 B07.condition/B27.output 统一为「第一个同时满足帧数与时长（取较晚）的帧」）、F2–F5/F7/F10/F11 清单与表述收尾、F8/F9 确认为有意设计。未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
     "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151",
     "worktree_clean_at_start": true,
     "index_lock_present_at_start": false,
-    "revision_base_commit": "1632761b2d60d8c1328aa82be97d53eef30e1072",
-    "revision_note": "在 r05（提交 1632761）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
+    "revision_base_commit": "04ea58e1e363e956b8a46ae5711ec8aecb27bfd4",
+    "revision_note": "在 r06（提交 04ea58e）基础上收尾；起始提交仍为 d8bc70e（本阶段开工基线）。"
   },
   "upstream": [
     {
@@ -211,7 +211,7 @@
       "id": "M3",
       "from": "CANDIDATE",
       "to": "STABLE",
-      "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01（取较晚满足者）；不得按 TARGET_CONTINUES 计帧（低分目标不得进入 STABLE）",
+      "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成帧 = 第一个同时满足帧数与时长（取较晚）的帧（T6-S03）；不得按 TARGET_CONTINUES 计帧（低分目标不得进入 STABLE）",
       "priority": "P3",
       "params": [
         "T6-S01",
@@ -467,7 +467,7 @@
     {
       "id": "B07",
       "title": "稳定窗口",
-      "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成时刻=第 N 个 WINDOW_MATCH 结果到达时刻；NO_HAND 不计入",
+      "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成时刻=第一个同时满足帧数与时长（取较晚）的帧的显式输入时刻；NO_HAND 不计入",
       "output": "M3 进入 STABLE（取较晚满足者）；完成时刻按 B-04 定义",
       "must_log": [
         "帧计数",
@@ -808,7 +808,7 @@
       "id": "B27",
       "title": "低 FPS 交互延迟",
       "condition": "帧周期 P_meas 较大时",
-      "output": "W_min=max(T6-S01,(T6-S02−1)·P_meas) 只是下界、不得进入延迟统计；窗口完成时刻=第 N 个 WINDOW_MATCH 结果到达时刻（实测）；动作延迟与交互延迟分别报告",
+      "output": "W_min=max(T6-S01,(T6-S02−1)·P_meas) 只是下界、不得进入延迟统计；窗口完成时刻=第一个同时满足帧数与时长（取较晚）的帧（实测）；动作延迟与交互延迟分别报告",
       "must_log": [
         "P_meas",
         "window_complete_ns",
@@ -1244,7 +1244,7 @@
   },
   "low_fps_latency": {
     "frame_period_symbol": "P_meas（必须为阶段4 实测帧周期；无实测时 T6-A03 记 NOT_RUN，不得用假设 FPS 代替）",
-    "window_completion_definition": "窗口完成时刻 = 第一个「WINDOW_MATCH 帧计数 ≥ T6-S02」且「时长 ≥ T6-S01」同时满足的那一帧（T6-S03 later_of；30fps 由时长支配，完成在第 8 帧=233.1 ms）",
+    "window_completion_definition": "窗口完成时刻 = 第一个同时满足帧数与时长（取较晚）的帧——即第一个「WINDOW_MATCH 帧计数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的窗口推进帧的显式输入时刻（T6-S03 later_of）；30fps（P=33.3 ms）由时长支配，完成帧是第 8 帧 233.1 ms（第 6 个 WINDOW_MATCH 帧只有 166.7 ms）。",
     "w_min_formula": "W_min = max(T6-S01, (T6-S02 − 1) · P_meas)",
     "w_min_is_lower_bound_only": true,
     "w_min_must_not_enter_latency_statistics": true,
@@ -1371,9 +1371,10 @@
     },
     {
       "id": "U6-12",
-      "item": "T6-S04/M4 可达性：调整 T6-S04 < T6-L02 或删除 M4/T6-S04",
-      "status": "NEW_FROM_REVIEW_N-02",
-      "owner": "Wong/G0"
+      "item": "T6-S04/M4 可达性与兜底次序：M4 已修正为**可达**（TARGET_CONTINUES 不含 score ≥ T6-P02，低分中断不推进 miss_streak，因此 M10 不先命中）；M4/T6-S04 保留并计入覆盖，G0 只需决定是否让 S04 早于 L02 命中以改变兜底次序（不改变 M4 的存在性）",
+      "status": "CORRECTED_BY_S6B_REVIEW_BLK1",
+      "owner": "Wong/G0",
+      "note": "r07 修正：M4 可达并保留（BLK-1）。原「去掉 M4/T6-S04」的选项已撤销；如需缩小兜底窗口，可评估 T6-S04 < T6-L02，但 M4 与 T6-S04 均保留并计入覆盖。"
     },
     {
       "id": "U6-13",
@@ -1406,7 +1407,7 @@
     "全部阈值与指标为待批准；获批前任何统计只能报告为观测值",
     "交互通过不代替阶段7 最终性能与可靠性验收",
     "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）",
-    "本文件为 r06 修订版（v1.5），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
+    "本文件为 r07 收尾版（v1.6），只按第 6 轮复评的非阻断/观察项收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
   ],
   "evidence_boundaries": [
     "回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收",
@@ -1414,35 +1415,70 @@
     "显示侧新增 HUD 字段与五类动作映射为阶段6 提案",
     "无硬件授权：未做任何板上验证"
   ],
-  "supersedes_run_id": "s6a_g0_20261022_r05",
+  "supersedes_run_id": "s6a_g0_20261022_r06",
   "revision": {
-    "run_id": "s6a_g0_20261022_r06",
-    "supersedes_run_id": "s6a_g0_20261022_r05",
-    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r05_20261023_r01/",
-    "review_verdict": "PASS（0 阻断 + 4 项非阻断 N-r05-01..N-r05-04）",
+    "run_id": "s6a_g0_20261022_r07",
+    "supersedes_run_id": "s6a_g0_20261022_r06",
+    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r06_20261023_r01/",
+    "review_verdict": "PASS（0 阻断 + 11 项非阻断/观察 F1–F11）",
     "semantic_changes": true,
     "parameter_value_changes": false,
     "parameter_approval_changes": false,
     "changes": [
       {
-        "issue": "N-r05-04",
-        "summary": "实现 T6-S03「取较晚满足者」：窗口完成帧 = 第一个计数 ≥ T6-S02 且 (帧序−窗口首帧)·P ≥ T6-S01 的帧；新增 30fps（P=33.3 ms）样例 HC-31，并保留旧口径（只按第 T6-S02 个 WINDOW_MATCH 帧）的对照字段 m3_fires_count_only 以证明差异；probe 增加「旧口径对照」运行并保留失败输出",
-        "where": "selfcheck C7 window_match_vs_continues / hand_computed_cases HC-31 / 文档 §15 / time_anchors / low_fps_latency"
+        "issue": "F6",
+        "summary": "冻结自证性：新增 verification/export_selfproof.py（git archive 导出提交后，用该提交内自检 + 两个检查器复跑，三项 exit 0 才算自证）；STATE 只声明已入库路径",
+        "where": "verification/export_selfproof.py / .codex/STATE.md / 文档 §18"
       },
       {
-        "issue": "N-r05-01",
-        "summary": "探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」",
-        "where": "verification/s6a_r06_probe.py / s6a_build_evidence.py / fix_record / run summary / manifest"
+        "issue": "F1",
+        "summary": "窗口完成表述统一为「第一个同时满足帧数与时长（取较晚）的帧」（文档 §9/B07/B27 + JSON B07.condition/B27.output），C14 增加机器断言",
+        "where": "selfcheck C14 / 文档 B07·B27·§9 / behavior_rows.B07·B27"
       },
       {
-        "issue": "N-r05-02",
-        "summary": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 case_span_wrong 证据",
-        "where": "fix_record / limitations / run summary / 探针注入清单"
+        "issue": "F2",
+        "summary": "delivery_manifest.limitations 的修订基线改为动态取值（与 source_commit 一致）",
+        "where": "verification/s6a_build_evidence.py"
       },
       {
-        "issue": "N-r05-03",
-        "summary": "HC-30 的动作计数去掉封顶：改为「给定序列内计数 actions_within_supplied_sequence」并注明至少 1 次的覆盖边界与真正的判别字段（gate_open_frame/first_action_frame/action_at_gate_open_frame）",
-        "where": "selfcheck C7 latched_stable_gate_on_timeout / hand_computed_cases HC-30"
+        "issue": "F3",
+        "summary": "清单 keep_reason 的三处旧计数表述改为「基线 1 例 + 注入 7 例（共 8 例）+ 历史对照」",
+        "where": "verification/s6a_build_evidence.py / delivery_manifest.json"
+      },
+      {
+        "issue": "F4",
+        "summary": "r04 重跑失败归因统一为「样例数不足（29 < 32，缺 HC-30/31/32）」，消除与同包证据的数值矛盾",
+        "where": "builder summary_lines / fix_record / S6A_run_summary.md"
+      },
+      {
+        "issue": "F5",
+        "summary": "STATE 陈旧行按实际更新（版本、移除的 span_conventions_agree、11 字段时间戳与心跳一致、修订基线与恢复命令）",
+        "where": ".codex/STATE.md"
+      },
+      {
+        "issue": "F7",
+        "summary": "完成帧超出所给序列时改报 completion_index=-1 / window_span_ms=0.0 / completion_within_sequence=false，外推值单列 required_completion_index；新增 HC-32",
+        "where": "selfcheck C7 / hand_computed_cases HC-32"
+      },
+      {
+        "issue": "F8",
+        "summary": "ceil(S01/P − 1e−9) 的浮点含等号鲁棒性确认为有意设计并登记",
+        "where": "limitations_not_executed.json / 文档 §18"
+      },
+      {
+        "issue": "F9",
+        "summary": "window_match_vs_continues 把整段给定序列视为一个窗口（抖动/重置另由 HC-12 建模）确认为有意简化并登记",
+        "where": "limitations_not_executed.json"
+      },
+      {
+        "issue": "F10",
+        "summary": "旧口径对照的失败点描述改为「首个失败在 HC-28（新键不可复算）；HC-31 的口径差异由 case_span_wrong 直接证明」",
+        "where": "verification/s6a_r07_probe.py / probe_summary.json / fix_record"
+      },
+      {
+        "issue": "F11",
+        "summary": "limitations 键名 r03_notes→review_fix_notes、not_run 版本、移除 total_actions 别名、文档补完整版本令牌、复评措辞精确到 r05 包",
+        "where": "limitations_not_executed.json / selfcheck C7 / 文档 / JSON review_verdict"
       }
     ],
     "deleted_transitions": [
@@ -1453,9 +1489,9 @@
     ],
     "review_status": "PENDING_REVIEW",
     "retained_from_r05": {
-      "artifact_version": "S6A-G0-v1.4",
-      "run_id": "s6a_g0_20261022_r05",
-      "note": "r05 的 N-r04-01..05 收尾全部保留；r06 只修窗口完成口径与 3 项表述/覆盖边界。"
+      "artifact_version": "S6A-G0-v1.5",
+      "run_id": "s6a_g0_20261022_r06",
+      "note": "r06 的 N-r05-01..04 收尾全部保留；r07 只做收尾与自证性修复，未改语义与参数。"
     }
   },
   "predicates": {
@@ -1550,10 +1586,10 @@
   "time_anchors": {
     "t_last_target_continues": "最近一次 TARGET_CONTINUES 成立的结果的显式输入时刻；TARGET_CONTINUES 不成立的结果不更新该锚点；被抑制或失败的动作尝试不更新该锚点（该锚点只由逐帧 TARGET_CONTINUES 判定更新）。用于 M10/B10 的 T6-L02 时间条件与文档 §12 丢失时间行。",
     "t_last_submit": "最近一次真实 ACTION_SUBMITTED 的 t_submit（被抑制或失败的尝试不更新）；用于 H-10 全局冷却门。",
-    "window_complete": "窗口完成时刻 = 第一个「连续 WINDOW_MATCH 帧数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的帧的显式输入时刻（T6-S03 取较晚满足者）。30fps（P=33.3 ms）下第 6 个 WINDOW_MATCH 帧的时长只有 166.7 ms < 200 ms，完成帧是第 8 帧（233.1 ms）——与文档 §15 示例一致。"
+    "window_complete": "窗口完成时刻 = 第一个同时满足帧数与时长（取较晚）的帧的显式输入时刻——即第一个「连续 WINDOW_MATCH 帧数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的帧（T6-S03 取较晚满足者）。30fps（P=33.3 ms）下第 6 个 WINDOW_MATCH 帧的时长只有 166.7 ms < 200 ms，完成帧是第 8 帧（233.1 ms）——与文档 §15 示例一致。"
   },
   "reachability": {
-    "method": "按当前草案参数与求值顺序推导；不改任何阈值",
+    "method": "按当前草案参数、§3 谓词定义与求值顺序推导；不改任何阈值。M4 的可达性由 TARGET_CONTINUES 的口径决定，不能只比较 T6-S04 与 T6-L02 的大小。",
     "draft_params_used": {
       "T6-S04_ms": 500,
       "T6-L02_ms": 300,
@@ -1573,9 +1609,11 @@
         "status": "REACHABLE"
       },
       "M4": {
-        "status": "UNREACHABLE_UNDER_DRAFT_PARAMS",
-        "reason": "T6-S04(500ms) ≥ T6-L02(300ms)：候选停留达 S04 前 M10 已先命中并离开 CANDIDATE",
-        "resolution": "U6-12：G0 决定 T6-S04 < T6-L02 或删除 M4/T6-S04"
+        "status": "REACHABLE",
+        "reason": "TARGET_CONTINUES（§3）不含 score ≥ T6-P02：低分或位移造成的 WINDOW_MATCH 中断仍满足 TARGET_CONTINUES，t_last_target_continues 继续刷新、miss_streak 不增 → M10 不会先命中，候选停留可达到 T6-S04(500 ms) → M4 可达（S6-B 实现轮复评 BLK-1；见 C4-jitter-reset 的 M4@f7）",
+        "resolution": "M4/T6-S04 保留并计入覆盖；G0 可决定是否让 T6-S04 早于 T6-L02 命中以改变兜底次序（不改变 M4 存在性，见 U6-12）",
+        "evidence": "S6-B 实现轮复评 BLK-1 + S6-B 用例 C4-jitter-reset（expected transitions=['M1','M4']，实测 M4@f7）",
+        "review_correction": "原声明「T6-S04(500 ms) ≥ T6-L02(300 ms) → M10 先命中 → M4 不可达」忽略了 TARGET_CONTINUES 不含 score ≥ T6-P02 这一事实，r07 修正"
       },
       "M5": {
         "status": "REACHABLE"

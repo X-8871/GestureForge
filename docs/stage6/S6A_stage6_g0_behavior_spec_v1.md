@@ -4,7 +4,14 @@
 > **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为 **待批准**（`PENDING_APPROVAL`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
 > **本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI。** 本文不含任何实测数据。
 > 机器可读权威：`docs/stage6/s6a_stage6_g0_behavior_v1.json`（契约身份 `S6A-G0-v1`）。两者冲突时以 JSON 为准并回改本文；一致性由 `verification/s6_g0_selfcheck.py` 机器校验。
-> **修订记录（v1.5 / r06，2026-10-23）**：本包已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断），现按该轮 4 项非阻断建议收尾：**N-r05-04** 实现 `T6-S03`「**取较晚满足者**」的窗口完成口径——完成帧 = 第一个「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」**且**「(该帧序 − 窗口首帧序)·`P` ≥ `T6-S01`」的帧（此前只按第 `T6-S02` 个 `WINDOW_MATCH` 帧取跨度，在 `P < T6-S01/(T6-S02−1)` 即 **30fps=33.3 ms** 时会把本应完成的窗口误判为未完成，与 §15「30fps → 第 8 帧 233.1 ms」示例冲突）；新增 30fps 样例 **HC-31**，并保留旧口径对照字段 `m3_fires_count_only` 与「旧口径对照」探针运行（失败输出随包保留）；**N-r05-01** 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」；**N-r05-02** r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」，N-r04-04 的判别力只引探针 `case_span_wrong`；**N-r05-03** HC-30 动作计数去掉封顶，改为「给定序列内计数」并注明至少 1 次的覆盖边界。**全部 24 项参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因收尾而视为通过。
+> **修订记录（v1.6 / r07，2026-10-23）**：r06 包（提交 `04ea58e1`，契约 `S6A-G0-v1.5`）已通过**第 6 轮独立复评** `S6A_r06_20261023_r01`（`PASS`，0 阻断 / 11 项非阻断或观察 `F1`–`F11`）。本轮（契约令牌 **`S6A-G0-v1.6`**，RunId `s6a_g0_20261022_r07`）只做收尾与自证性修复，不新增语义、不动参数：
+> - **`F6`（冻结自证性，最高优先）**：新增 `verification/export_selfproof.py`——把任意提交 `git archive` 导出到隔离目录后，用**该提交内的**自检与两个交付检查器复跑，三项都 exit 0 才算该提交自证。规则固定：**任何冻结/交付提交必须自证**。本轮实测：r06（`04ea58e1`）导出后 C11 FAIL（STATE 声明了该提交内 0 文件的 `report/evidence/S6-B/…`）；r07 修正在同一提交内落入被声明目录。
+> - **`F1`（文本统一）**：文档 §9、行为行 B07/B27 与 JSON `behavior_rows.B07.condition`/`B27.output` 统一为「**第一个同时满足帧数与时长（取较晚）的帧**」，与 `time_anchors.window_complete`/`M3.condition`/§15 一致；并在 C14 增加机器断言（同时禁止残留「第 N 个」旧措辞），用注入证明可捕获。
+> - `F2`/`F3`/`F4`/`F5`/`F7`/`F10`/`F11`：清单限制项基线改为动态取值；探针计数与 `C7` 归因表述改准（样例数不足 32：29，缺 HC-30/31/32）；STATE 陈旧行更新；完成帧超出所给序列时报 `-1`/`0.0` 与 `required_completion_index`（不再报越界值）；旧口径对照的失败点描述改为「首个失败在 HC-28（新键不可复算），HC-31 的口径差异由 `case_span_wrong` 直接证明」；`limitations` 键名与 `not_run` 版本、完整版本令牌等零星项清理。
+> - `F8`/`F9` 经复核确认为**有意设计**（`ceil(S01/P − 1e−9)` 的浮点含等号鲁棒性；`window_match_vs_continues` 把整段给定序列视为一个窗口），已在 `limitations_not_executed.json` 明确写出。
+> - 全部 24 项参数值与 `PENDING_APPROVAL` 状态未改；复评由项目总控另行安排；本包不因收尾而视为通过。
+>
+> **修订记录（v1.5 / r06，2026-10-23）**：r05 包（提交 `1632761`，契约 `S6A-G0-v1.4`）已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断），现按该轮 4 项非阻断建议收尾：**N-r05-04** 实现 `T6-S03`「**取较晚满足者**」的窗口完成口径——完成帧 = 第一个「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」**且**「(该帧序 − 窗口首帧序)·`P` ≥ `T6-S01`」的帧（此前只按第 `T6-S02` 个 `WINDOW_MATCH` 帧取跨度，在 `P < T6-S01/(T6-S02−1)` 即 **30fps=33.3 ms** 时会把本应完成的窗口误判为未完成，与 §15「30fps → 第 8 帧 233.1 ms」示例冲突）；新增 30fps 样例 **HC-31**，并保留旧口径对照字段 `m3_fires_count_only` 与「旧口径对照」探针运行（失败输出随包保留）；**N-r05-01** 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」；**N-r05-02** r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」，N-r04-04 的判别力只引探针 `case_span_wrong`；**N-r05-03** HC-30 动作计数去掉封顶，改为「给定序列内计数」并注明至少 1 次的覆盖边界。**全部 24 项参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因收尾而视为通过。
 >
 > **上一轮修订记录（v1.4 / r05，2026-10-23）**：本包已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 项非阻断），现按该 5 项非阻断建议收尾：**N-r04-01** M5 条件补「本帧必须为窗口推进帧（`state ∈ {OK,NO_HAND}`、`stale=false`、非重复、非倒序）」并与 §4 锁存段、JSON `stable_latching` 一致，自检 C12 增加该文本断言，新增手算样例 HC-30 覆盖「锁存 STABLE + 冷却门恰在 `TIMEOUT` 帧开启」并断言该帧无动作（B21）；**N-r04-02** M5/B13 绑定叙述精确化（M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段）；**N-r04-03** 自检 C12 增加「任何条目的 `predicates_used` 出现时必须为非空列表，显式空列表 `[]` 不合法」的普适断言，并由注入探针 `verification/s6a_r05_probe.py` 证明可捕获；**N-r04-04** C7 窗口跨度改为「窗口首帧 → 第 `T6-S02` 个 `WINDOW_MATCH` 帧」（HC-29 由 320 ms 修正为 200 ms），并断言与宽松序列跨度口径下 `m3_fires` 结论一致；**N-r04-05** 清理 S6-B WIP 中对不存在文档的引用（WIP 仍不提交）。**全部 24 项参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因收尾而视为通过。
 >
@@ -78,7 +85,7 @@
 | M1 | `IDLE` → `CANDIDATE` | 存在通过 §8 选择的目标，且连续 `T6-C01` 条窗口推进帧为同一目标（同一目标由 `TARGET_CONTINUES` 判定，不以 `WINDOW_MATCH` 计数） | P4 |
 | M2 | `*`（任意状态） → `UNKNOWN_RECOVER` | 连续 `T6-U00_W` 条结果内异常数 ≥ `T6-U00_N` | P1 |
 | M3 | `CANDIDATE` → `STABLE` | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`（**取较晚**满足者）；**不得按 `TARGET_CONTINUES` 计帧**（低分目标不得进入 STABLE） | P3 |
-| M4 | `CANDIDATE` → `IDLE` | 抖动容忍耗尽（`> T6-J01` 帧不满足 `WINDOW_MATCH`）且候选停留 ≥ `T6-S04`；仅在 M10 未命中时求值。**当前草案 `T6-S04`=500 ms ≥ `T6-L02`=300 ms，M10 先命中，故 M4 在本轮参数下不可达**（见 JSON `reachability`、U6-12） | P3 |
+| M4 | `CANDIDATE` → `IDLE` | 抖动容忍耗尽（`> T6-J01` 帧不满足 `WINDOW_MATCH`）且候选停留 ≥ `T6-S04`；仅在 M10 未命中时求值。**M4 在本轮参数下可达**（`T6-S04`=500 ms 与 `T6-L02`=300 ms 的大小不足以判定：§3 的 `TARGET_CONTINUES` **不含** `score ≥ T6-P02`，低分/位移造成的 `WINDOW_MATCH` 中断仍满足 `TARGET_CONTINUES` → `t_last_target_continues` 继续刷新、`miss_streak` 不增 → M10 不会先命中，候选停留可达到 `T6-S04`；见 JSON `reachability`、U6-12 与 S6-B `C4-jitter-reset`） | P3 |
 | M5 | `STABLE` → `TRIGGERED` | 触发一次动作并记录 `ACTION_SUBMITTED`；**仅当本次获取尚未触发、且全局冷却门已结束**（`t_now − t_last_submit ≥ T6-K01`，无提交记录视为已结束）**且本帧必须为窗口推进帧**（`state ∈ {OK, NO_HAND}`、`stale=false`、非重复、非倒序）时可用；异常/过期/重复/倒序/缺帧帧即使恰逢门开启也不得触发（B18/B21/B22/B23、§13） | P3 |
 | M6 | `TRIGGERED` → `COOLDOWN` | 动作提交事件落盘（同帧或下一帧） | P3 |
 | M7 | `TRIGGERED` → `LOST` | 提交前目标已丢失。**M5 为同步提交，`TRIGGERED` 之后的提交前丢失没有独立路径，故 M7 在本轮实现中不可达**（见 JSON `reachability`） | P3 |
@@ -111,7 +118,7 @@
 | B04 | 分数优先 | 当前目标 `TARGET_CONTINUES` 不成立时选最高分框 | 新目标 → 重新累积证据 | 选择依据与新目标字段 | 计划 L104 | `T6-P01` |
 | B05 | 同分排序 | 分数完全相等 | 按 2A 冻结稳定顺序；`source_order` 可用时以其为权威 | 两者 `score` 与 `source_order` | 2A L75/L77 | 无（2A 冻结） |
 | B06 | 禁止未冻结启发式 | 任何选择/排序 | 不得按面积、像素位置、"中央优先"重排或加权重排 | — | 2A L77 | 无 |
-| B07 | 稳定窗口 | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`；**完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻**；`NO_HAND` 不计入 | M3 进入 `STABLE`（取较晚满足者） | 帧计数、窗口起点、两条件各自满足时刻、完成时刻 | 计划 L104；评审 B-02/B-04 | `T6-S01/S02/S03` |
+| B07 | 稳定窗口 | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`；**完成时刻 = 第一个同时满足帧数与时长（取较晚）的帧的显式输入时刻（`T6-S03` 取较晚）**；`NO_HAND` 不计入 | M3 进入 `STABLE`（取较晚满足者） | 帧计数、窗口起点、两条件各自满足时刻、完成时刻 | 计划 L104；评审 B-02/B-04 | `T6-S01/S02/S03` |
 | B08 | 抖动容忍 | 窗口内短暂中断（窗口推进帧不满足 `WINDOW_MATCH`） | 中断 ≤ `T6-J01` 帧不重置；`= T6-J01+1` 立即重置 | `S_JITTER_TOLERATED` 或窗口重置原因 | 计划 L106 | `T6-J01` |
 | B09 | 目标保持 | `TARGET_CONTINUES` 成立 | 获取延续，窗口不重启（证据连续） | `TARGET_CONTINUES 依据（IoU/位移）` | 计划 L104 | `T6-P03/P04/P05` |
 | B10 | 丢失确认 | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 或 距上一次 `TARGET_CONTINUES` 成立（`t_last_target_continues`）≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还是时间条件 | 计划 L104 | `T6-L01/L02` |
@@ -131,7 +138,7 @@
 | B24 | 缺帧 | `frame_id` 跳号（无结果且无 `DROPPED` 记录） | 由后续结果时间戳推进时间；不推进匹配计数；每个缺帧只计一次 | `dropped_frames` 累计 | 阶段4 丢帧互斥口径 | 无 |
 | B25 | 重启/会话切换 | `session_id` 变化，或同会话 `frame_id` 大幅回退 | 全量复位到 `IDLE`（清目标与证据）并显式标记；**禁止**静默续用 | `E_SESSION_RESET_SUSPECTED`/新 `session_id` | 阶段4 `frame_id_allocation` | 无 |
 | B26 | 时间边界 | 等于阈值 / 阈值 ±1 单位（帧类 1 条结果；时间类 1 ns；分数/几何 1 ULP） | 见 §12 逐条（除过期用严格 `>`，其余 `≥`）；未覆盖参数见 §12.1 缺口登记 | 边界判定所用比较与两侧取值 | 运行手册 §4 | 全部数值参数（`T6-C01`/`T6-U00_W`/`T6-U00_N`/`T6-S04`/`T6-P01..P05`/`T6-U01` 边界样例待补，见 §12.1） |
-| B27 | 低 FPS 交互延迟 | 帧周期 P 较大时 | `W_min=max(T6-S01,(T6-S02−1)·P)` **只是下界、不得进入延迟统计**；窗口完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻（实测）；动作延迟与交互延迟分别报告 | `P_meas`、窗口完成时刻、两个延迟 | 运行手册 §2.7；评审 B-04 | `T6-A01`、`T6-A03`、`T6-S01`、`T6-S02` |
+| B27 | 低 FPS 交互延迟 | 帧周期 P 较大时 | `W_min=max(T6-S01,(T6-S02−1)·P)` **只是下界、不得进入延迟统计**；窗口完成时刻 = 第一个同时满足帧数与时长（取较晚）的帧（实测）；动作延迟与交互延迟分别报告 | `P_meas`、窗口完成时刻、两个延迟 | 运行手册 §2.7；评审 B-04 | `T6-A01`、`T6-A03`、`T6-S01`、`T6-S02` |
 | B28 | 动作失败/未观察/重复回执 | 执行层返回 `fail`/`unobserved` 或重复 ACK | **不虚报成功**；`fail` 计失败；`unobserved` 单列按 `NOT_RUN` 处理，不从分母剔除 | `ACTION_FAILED`/`ACTION_UNOBSERVED`、重试计数 | 运行手册 §4/§6 | 指标 `T6-01` |
 
 ## 6. 状态机的"一条结果 + 显式时间"输入契约
@@ -174,7 +181,7 @@
 ## 9. 稳定窗口与抖动
 
 - **窗口条件（全部满足）**：连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` **且** 窗口持续时间 ≥ `T6-S01`，按 `T6-S03` 语义取**较晚**满足者。
-- **窗口完成时刻**：第 `T6-S02` 个 `WINDOW_MATCH` 结果到达且时长条件同时满足的那一帧的显式输入时刻；`W_min=max(T6-S01,(T6-S02−1)·P)` **只是下界**，不得当作完成时刻（B-04）。
+- **窗口完成时刻**：**第一个同时满足帧数与时长（取较晚）的帧**的显式输入时刻（即第一个「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」**且**「(该帧序 − 窗口首帧序)·`P` ≥ `T6-S01`」同时满足的窗口推进帧；`T6-S03` 取较晚满足者）；`W_min=max(T6-S01,(T6-S02−1)·P)` **只是下界**，不得当作完成时刻（B-04）。当 `P < 40 ms`（30fps 命中）时由时长支配：第 6 个 `WINDOW_MATCH` 帧只有 166.7 ms，完成帧是第 8 帧 233.1 ms。
 - 窗口每一帧（除允许中断外）都必须 `WINDOW_MATCH` 成立（类别不变、`score ≥ T6-P02`、与前一个 `WINDOW_MATCH` 帧中心位移 ≤ `T6-P05`）；窗口内不得出现 `E_FRAME_INVALID`。`NO_HAND` 帧不满足 `WINDOW_MATCH`，**不推进匹配计数、不得完成窗口**（B-02/H-4）。
 - **抖动容忍**：窗口内允许至多 `T6-J01` 条不满足 `WINDOW_MATCH` 的窗口推进帧而不重置窗口（记录 `S_JITTER_TOLERATED`）；中断数达到 `T6-J01 + 1` 立即重置窗口。时间在中断期间**继续流逝**。
 - **丢帧/超时/过期对窗口的影响**：均**不增加** `WINDOW_MATCH` 计数（时间继续流逝）；`TIMEOUT/ERROR/INVALID` 走 §11 异常路径；`stale` 帧不得触发。若因丢帧导致帧数条件在合理时限内无法满足，该次获取按超时处理并记录 `S_WINDOW_TIMEOUT`。
@@ -234,7 +241,7 @@
 |---|---|---|
 | `T6-C01` | 新增 HC-21（`=C01` 建立获取、`C01−1` 不建立） | 帧类边界 |
 | `T6-U00_W` / `T6-U00_N` | 新增 HC-22（滑动窗口 `=N` 触发、`N−1` 不触发） | 明确为滑动窗口 |
-| `T6-S04` | 新增 HC-23（可达性推导：草案值下 M4 不可达） | 规则可达性，不是运行时样例 |
+| `T6-S04` | 新增 HC-23（边界推导）+ HC-12（抖动耗尽与窗口重置）；**r07 修正：草案值下 M4 可达**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中） | 规则可达性，不是运行时样例 |
 | `T6-P01` / `T6-P02` | 新增 HC-24/HC-25（`=阈值` 通过、`−1 ULP` 不通过） | 分数门 |
 | `T6-P03` / `T6-P04` / `T6-P05` | 谓词级边界（`=` 含等号、`+1 ULP` 不含） | 几何浮点边界无法用有限样例穷尽，登记为待补 |
 | `T6-U01` | 新增 HC-26（`=U01` 恢复、`U01−1` 不恢复） | 恢复帧数 |
@@ -285,7 +292,7 @@
 | `T6-03` | 无有效手势 30 分钟误动作次数 | 次/1800s | `≤` | 1；单段 ≥30 分钟 | PENDING_APPROVAL |
 
 - 统计口径要点（沿用并强化）：分母含全部预定义试验与失败，**禁止只挑成功视频**；`unobserved` 单列按 `NOT_RUN`，不得计入成功也不得从分母剔除；`T6-02`/`T6-03` 的误接受/误动作按**已提交**动作计数（`fail`/`unobserved` 不豁免）；置信区间默认 Clopper-Pearson 并单列；样本预先登记、独立性去重、分环境报告。
-- `T6-S04` 当前草案 500 ms ≥ `T6-L02` 300 ms：M10 会在 300 ms 先命中，M4 在本轮参数下不可达（JSON `reachability`）。**本行不代表可实现覆盖**；建议 G0 决定 `T6-S04 < T6-L02` 或删除 M4/`T6-S04`（U6-12）。
+- `T6-S04` 当前草案 500 ms ≥ `T6-L02` 300 ms，但**两者大小不足以判定可达性**：§3 的 `TARGET_CONTINUES` 不含 `score ≥ T6-P02`，低分/位移造成的 `WINDOW_MATCH` 中断仍满足 `TARGET_CONTINUES` → `miss_streak` 不增 → M10 不会先命中 → 候选停留可达到 `T6-S04`，**M4 在本轮参数下可达并计入覆盖**（r07 按 S6-B 复评 BLK-1 修正，见 JSON `reachability`/U6-12）。
 - **本轮不得在正式测试集上调整上述任何值**；获批前的任何统计只能报告为「观测值」。
 
 ## 15. 低 FPS 下的交互延迟口径
@@ -322,7 +329,7 @@
 | U6-09 | 摄像头不可用导致真手势验收 | 延期 | 等模块到货；阶段3 验收后回归 |
 | U6-10 | `T6-STALE_LIMIT` 的正式冻结 | 阶段5 已用同源 200 ms；阶段4 仍 `DRAFT_PROPOSED` | 阶段4/阶段5/G0 |
 | U6-11 | 状态机实现与确定性测试矩阵（6-B/6-C） | `NOT_RUN`（G0 v1.1 复评通过前不启动） | 下一任务（S6-B），依赖本包复评 |
-| U6-12 | `T6-S04`/M4 可达性：调整 `T6-S04 < T6-L02` 或删除 M4/`T6-S04` | 新登记（评审 N-02） | Wong/G0 |
+| U6-12 | `T6-S04`/M4 可达性与兜底次序：M4 **可达并保留**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02`）；G0 只需决定是否让 `T6-S04` 早于 `T6-L02` 命中以改变兜底次序 | r07 修正（S6-B 复评 BLK-1） | Wong/G0 |
 | U6-13 | 阶段4 实测帧周期 `P_meas`（`T6-A03` 与交互延迟基准） | 新登记 `BLOCKED`（无实测 P，评审 N-05/B-04） | 阶段4 + 项目总控 |
 | U6-14 | 五类动作反馈可见时长/过渡（逐类 UX） | 新登记（评审 N-06） | Wong/G0 |
 | U6-15 | `A_DISPLAY_STATE` 是否需要（r02 已从支持类型删除） | 新登记（评审 N-01） | Wong/G0 |
@@ -340,7 +347,8 @@
 
 **第 4 轮复评 S6A_r04_20261023_r01 收尾索引（r05）**：N-r04-01 → §4 M5 行与 JSON `transitions.M5` 补窗口推进帧限定 + `stable_latching.suppressed_trigger_release` 一致 + C12 文本断言 + HC-30 角落序列；N-r04-02 → `predicate_binding_policy.statement`（M5 带标记、B13 由 H-10 承载）+ §4 + STATE 同步；N-r04-03 → C12 非空列表普适断言 + `verification/s6a_r05_probe.py` 注入证明；N-r04-04 → C7 窗口跨度口径修正（HC-29 200 ms）+ 两种口径一致性断言；N-r04-05 → `src/stage6/s6_core.py` 引用清理（WIP 不提交）。
 
-**第 5 轮复评 S6A_r05_20261023_r01 收尾索引（r06）**：N-r05-04 → 自检 C7 按 `T6-S03`「取较晚」实现窗口完成帧（新增 `completion_index`/`m3_fires_count_only`）+ 30fps 样例 HC-31 + §15 口径更新 + 旧口径对照探针；N-r05-01 → 探针计数表述「基线 1 例 + 注入 7 例（共 8 例）」；N-r05-02 → r04 重跑归因改为样例数 29<30；N-r05-03 → HC-30 动作计数去掉封顶并注明覆盖边界。
+**第 6 轮复评 S6A_r06_20261023_r01 收尾索引（r07）**：`F6` → `verification/export_selfproof.py`（导出副本复跑自证，r06 实测 FAIL / r07 修正）+ STATE 声明口径；`F1` → §9/B07/B27 与 JSON B07.condition/B27.output 统一为「第一个同时满足帧数与时长（取较晚）的帧」+ C14 断言；`F2`–`F5`/`F7`/`F10`/`F11` → 清单/表述/STATE/越界完成帧报告等收尾；`F8`/`F9` → limitations 写明有意设计。
+**上一轮：**N-r05-04 → 自检 C7 按 `T6-S03`「取较晚」实现窗口完成帧（新增 `completion_index`/`m3_fires_count_only`）+ 30fps 样例 HC-31 + §15 口径更新 + 旧口径对照探针；N-r05-01 → 探针计数表述「基线 1 例 + 注入 7 例（共 8 例）」；N-r05-02 → r04 重跑归因改为样例数 29<30；N-r05-03 → HC-30 动作计数去掉封顶并注明覆盖边界。
 
 **计划 L102–L108 覆盖**：L104 目标与八项冻结要求 → §4/§8/§9/§10/§11；L106 五个测试场景与沿用建议 → §5-B01…B28 与 §14；L108 证据与"不代替阶段7" → §0、§18。
 
@@ -362,7 +370,8 @@
 
 ## 18. 证据、限制与不宣称项
 
-- 本轮（v1.5 / r06）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r06/`（清单/自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`；探针：`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_historical_model_check_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。r01..r05 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/` … `..._r05/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r06/`（不入库）。（清单与自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`（r05 加固自检在 r04 提交字节上的失败输出，证明新断言能捕获其缺失项）；注入探针：`probe_summary.json` 与 `probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。旧包失败证据由 `verification/s6a_rerun_legacy_failures.py` 用最终脚本重跑生成（r01/r02/r03/r04，git 字节二进制提取）。r01/r02/r03/r04 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`、`..._r03/`、`..._r04/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r05/`（不入库）。
+- 本轮（v1.6 / r07）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r07/`（与 r06 同构：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、旧包失败证据与前几轮同名的 `.json` + `_stdout.txt` 对、`probe_summary.json` 与 10 个 `probe_*_stdout.txt`、`export_selfproof.json`/`export_selfproof.md`、`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`；缓存 `tmp/6/S6-A/s6a_g0_20261022_r07/` 不入库）。
+- 上一轮（v1.5 / r06）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r06/`（清单/自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`；探针：`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_historical_model_check_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。r01..r05 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/` … `..._r05/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r06/`（不入库）。（清单与自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`（r05 加固自检在 r04 提交字节上的失败输出，证明新断言能捕获其缺失项）；注入探针：`probe_summary.json` 与 `probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。旧包失败证据由 `verification/s6a_rerun_legacy_failures.py` 用最终脚本重跑生成（r01/r02/r03/r04，git 字节二进制提取）。r01/r02/r03/r04 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`、`..._r03/`、`..._r04/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r05/`（不入库）。
 - **本轮全部实测类项目为 `NOT_RUN`**：状态机确定性测试（6-B/6-C）、脚本注入联调（6-D 一级）、独立图片/视频序列板上联调（6-D 二级）、≥30 分钟回放稳定性、真摄像头验收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
 - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。**阶段4 实测帧周期 `P_meas` 未取得 → `T6-A03` 与交互延迟量级 `NOT_RUN`（U6-13）**；`T6-S04`/M4 在当前草案下不可达（U6-12）；五类逐类反馈可见时长未批准（U6-14）。
 - **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。 **r04 修订说明**：R3-B01 修正 §12 的 `T6-S02`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates.used_by` 与 `predicates_used` 的双向一致；M5/B13 叙述改为「只有条件文本 + `global_cooldown_gate` 绑定、无 `predicates_used` 字段」；旧哈希成因（N05）更正为「LF→CRLF + 末尾补 CRLF」，不再声称「编码」被改写。 **r05 修订说明**：N-r04-01..05 五项均为非阻断收尾；M5 的窗口推进帧限定同时写入 JSON 与文档，并由 C12 文本断言固定；C7 的窗口跨度口径按 §9 修正，并保留宽松口径一致性断言；新增注入探针证明 C12/C7 新断言具备判别力（探针失败输出随包保留）。 **r06 修订说明**：N-r05-04 把 C7 的窗口完成口径改成 `T6-S03`「取较晚」，并保留旧口径对照字段与「旧口径对照」运行（用 r05 版本自检脚本在 r06 样例上重跑，必须失败）；N-r05-01..03 为表述/覆盖边界修正。

@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_limitations_not_executed",
+  "artifact_version": "S6A-G0-v1.6",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r07",
+  "supersedes_run_id": "s6a_g0_20261022_r06",
+  "status_legend": {
+    "PASS": "本次声明范围的所有条件已验证",
+    "FAIL": "执行后不满足条件",
+    "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行",
+    "NOT_RUN": "本轮没有执行",
+    "NOT_APPLICABLE": "确实不适用，必须说明理由"
+  },
+  "not_run": [
+    {
+      "item": "6-B 状态机实现（纯核心 + 动作层隔离）",
+      "status": "NOT_RUN",
+      "reason": "S6-B 实现与 6-C 矩阵已产出（`report/evidence/S6-B/s6b_core_20261023_r01/`），其实现轮复评判 CHANGES_REQUIRED（1 阻断 + 10 非阻断），修正产物另立 RunId，不在本 S6-A 证据包内。"
+    },
+    {
+      "item": "6-C 确定性测试矩阵（含 11 类用例行）",
+      "status": "NOT_RUN",
+      "reason": "依赖 6-B 实现与独立预期；本轮只修订 G0 规格与手算样例（32 例）。"
+    },
+    {
+      "item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）",
+      "status": "NOT_RUN",
+      "reason": "无状态机实现、无硬件授权；不在本轮范围。"
+    },
+    {
+      "item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）",
+      "status": "NOT_RUN",
+      "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"
+    },
+    {
+      "item": "≥30 分钟回放稳定性实验",
+      "status": "NOT_RUN",
+      "reason": "无状态机与回放驱动；未执行。"
+    },
+    {
+      "item": "T6-01/02/03 任何统计",
+      "status": "NOT_RUN",
+      "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何“观测值”为通过。"
+    },
+    {
+      "item": "T6-A03 交互延迟与低 FPS 延迟量级",
+      "status": "NOT_RUN",
+      "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.5 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。r06 的 30fps 完成帧结论是**按 P=33.3 ms 假设的模型一致性检查**，不是实测。"
+    },
+    {
+      "item": "M4/T6-S04 运行时行为验证",
+      "status": "NOT_RUN",
+      "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"
+    },
+    {
+      "item": "独立复评（Reviewer）",
+      "status": "NOT_RUN",
+      "reason": "由项目总控另派；r07 不因收尾视为通过，不得自称已审查/已通过。"
+    }
+  ],
+  "blocked": [
+    {
+      "item": "6-E 真摄像头验收与统计",
+      "status": "BLOCKED",
+      "reason": "摄像头不可用（待重新采购）；真手势验收延期至模块到货并完成阶段3 验收后。"
+    },
+    {
+      "item": "阶段6 集成验收依赖",
+      "status": "BLOCKED",
+      "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"
+    },
+    {
+      "item": "阶段5 显示侧新增 HUD 字段（sm_state 等）",
+      "status": "BLOCKED",
+      "reason": "属阶段6 提案，需与阶段5 协调并由项目总控确认；未采纳前只能用五元组与既有 HUD 字段做离线断言。"
+    },
+    {
+      "item": "阶段4 实测帧周期 P_meas",
+      "status": "BLOCKED",
+      "reason": "未取得实测值；影响 T6-A03、交互延迟统计与低 FPS 窗口估算（U6-13）。"
+    },
+    {
+      "item": "独立 Reviewer 复评",
+      "status": "BLOCKED",
+      "reason": "阶段6 总控会话委派深度已用尽；由项目总控另派（本包状态 PENDING_REVIEW）。"
+    }
+  ],
+  "not_applicable": [
+    {
+      "item": "本轮板上 G3 实物验证",
+      "status": "NOT_APPLICABLE",
+      "reason": "本任务为 G0 规格交付，无实现、无位流，且本阶段无硬件授权；G3 对本轮不适用，但仍属阶段6 后续关口。"
+    },
+    {
+      "item": "inputs 模式下对阶段4/阶段5 接口的冻结核验",
+      "status": "NOT_APPLICABLE",
+      "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+    }
+  ],
+  "hard_limits_observed": [
+    "未触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头",
+    "未烧录、未 program、未写寄存器",
+    "未 push；未新建其他工作树；未修改 main/w4/w5/dbdf/w2b 与厂商原件",
+    "同时只运行轻量任务（本轮无重型综合/实现/仿真）"
+  ],
+  "replay_injection_boundary": "任何由脚本注入或回放输入得到的结论，其适用范围仅限回放/注入输入，不得冒充真实摄像头验收；真手势验收延期至摄像头到货。",
+  "checker_scope_note": "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5。",
+  "review_fix_notes": [
+    "F6（冻结自证性）：`verification/export_selfproof.py` 把提交 `git archive` 导出后用**该提交内**的自检与两个检查器复跑；r06（04ea58e1）实测 C11 FAIL（STATE 声明了该提交内 0 文件的 S6-B 证据目录），r07 修正后同一提交内自证。规则固定：任何冻结/交付提交必须自证。",
+    "F1：窗口完成表述统一为「第一个同时满足帧数与时长（取较晚）的帧」，并在 C14 增加机器断言；注入 `b07_old_wording` 证明可捕获。",
+    "F7：完成帧超出所给序列时改报 `completion_index=-1`/`window_span_ms=0.0`/`completion_within_sequence=false`，外推值单列 `required_completion_index`；新增 HC-32 与注入 `case_out_of_sequence_index` 证明可捕获。",
+    "BLK-1(b)：M4 修正为**可达**并计入覆盖（`TARGET_CONTINUES` 不含 `score ≥ T6-P02`）；U6-12 改写为「保留 M4/T6-S04，仅决定兜底次序」，不再要求删除 M4。",
+    "F8（有意设计）：`ceil(S01/P − 1e−9)` 的 1e−9 余量用于让「数学上正好等于」的边界含等号（§12 除过期外全部含等号）；朴素浮点乘会在如 P=33.3/S01=99.9 时多要一个间隔。反向风险仅在 `S01/P` 落在整数上方 1e−9 以内时出现，对 ms 量级与现存/草案参数不可达。",
+    "F9（有意简化）：`kind=\"window_match_vs_continues\"` 把**整段给定序列视为一个窗口**（不含 T6-J01 抖动重置、非 WM 帧不重置计数）；抖动/重置语义由 `kind=\"jitter\"`（HC-12）单独建模，r04/r05 同此。`window_span_ms` 自 r06 起不参与判定（判定用 `completion_index`）。",
+    "F10：旧口径对照运行的首个 C7 失败发生在 HC-28（新键不可复算，脚本在首个不匹配处即抛错），**未走到 HC-31**；HC-31 的口径差异由探针 `case_span_wrong` 直接证明——两条结论皆为真，描述已改准。"
+  ]
+}

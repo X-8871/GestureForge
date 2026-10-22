@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A（G0 包 + 行为表 v1.5 / r06）只读自检。
+"""阶段6 S6-A（G0 包 + 行为表 v1.6 / r07）只读自检。
 
 加固后的机器检查（r02，针对独立评审 S6A_20261022_r01 的 C3 盲区）：
 
@@ -10,8 +10,9 @@
   C4   待批准纪律（24 项参数全 PENDING_APPROVAL + 来源/责任人 + 动作映射待批准）
   C5   五类动作映射一致（class_id 0..4、2A 顺序、target 唯一、类型在支持集合内）
   C6   硬不变量与唯一触发解释完整（H-1..H-10；ONCE_PER_ACQUISITION）
-  C7   人工手算样例的**独立复算**（31 例；窗口完成帧按 T6-S03「取较晚满足者」推导，覆盖 30fps 时长支配场景，
-       并保留旧口径对照字段 m3_fires_count_only；含锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
+  C7   人工手算样例的**独立复算**（32 例；窗口完成帧按 T6-S03「取较晚满足者」推导，覆盖 30fps 时长支配场景，
+       并保留旧口径对照字段 m3_fires_count_only；完成帧超出所给序列时报 -1/0.0 与 required_completion_index（F7）；
+       含锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
   C8   上游只读文件 SHA-256 复算（含 w4/w5 只读提交版本）
   C9   文档必备覆盖关键词与章节存在
   C10  窄口径禁止声明扫描
@@ -139,7 +140,8 @@ def check_identity(data: dict[str, Any]) -> None:
     if data.get("artifact") != "s6a_stage6_g0_behavior":
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
-    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4", "S6A-G0-v1.5")
+    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4",
+                        "S6A-G0-v1.5", "S6A-G0-v1.6")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
@@ -166,6 +168,7 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.3": "s6a_g0_20261022_r04",
         "S6A-G0-v1.4": "s6a_g0_20261022_r05",
         "S6A-G0-v1.5": "s6a_g0_20261022_r06",
+        "S6A-G0-v1.6": "s6a_g0_20261022_r07",
     }
     if version in expected_runs:
         revision = data.get("revision") or {}
@@ -791,11 +794,19 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             continues_false_streak += 1
         time_since_last_continues_ms = 0.0 if continues_flags[-1] else continues_false_streak * period_ms
         lost = continues_false_streak >= l01 or time_since_last_continues_ms >= l02_ms
-        m3_fires = (
-            len(window_indices) >= s02
-            and completion_index is not None
-            and completion_index <= (len(frames) - 1)
+        # F7：完成帧可能落在所给序列之外（需要更多帧才判定）——此时不报越界的完成帧与跨度，
+        # 只报「序列不足以判定」（completion_index=-1 / window_span_ms=0.0），
+        # 外推值单独放在 required_completion_index，避免被误读为已观测到的完成帧。
+        required_completion_index = completion_index if completion_index is not None else -1
+        completion_within_sequence = (
+            completion_index is not None and completion_index <= (len(frames) - 1)
         )
+        if completion_index is not None and not completion_within_sequence:
+            reported_completion_index = -1
+            window_span_ms = 0.0
+        else:
+            reported_completion_index = required_completion_index
+        m3_fires = len(window_indices) >= s02 and completion_within_sequence
         later_of_applied = (
             completion_index is not None
             and len(window_indices) >= s02
@@ -812,7 +823,9 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "continues_false_streak": continues_false_streak,
             "window_span_ms": r6(window_span_ms),
             "sequence_span_ms": r6(sequence_span_ms),
-            "completion_index": completion_index if completion_index is not None else -1,
+            "completion_index": reported_completion_index,
+            "required_completion_index": required_completion_index,
+            "completion_within_sequence": completion_within_sequence,
             "later_of_applied": later_of_applied,
             "m3_fires_count_only": m3_fires_count_only,
         }
@@ -887,7 +900,7 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "action_at_gate_open_frame": {
                 name: first_action_frame[name] == gate_open_frame[name] for name in gate_open_frame
             },
-            "actions_within_supplied_sequence": total_actions,
+            "actions_within_supplied_sequence": total_actions,  # 内部变量名保留；不再同时返回 total_actions 别名
             "action_count_is_lower_bound": True,
             "action_count_scope": "within_supplied_sequence",
             "action_count_discriminators": ["gate_open_frame", "first_action_frame",
@@ -922,12 +935,13 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
                     raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
             elif want != got:
                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
-    if len(seen) < 31:
-        raise CheckFailure(f"手算样例数量不足 31：{len(seen)}")
+    if len(seen) < 32:
+        raise CheckFailure(f"手算样例数量不足 32：{len(seen)}")
     return (
         f"{len(seen)} 个样例全部由输入独立复算一致"
         "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、"
-        "HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）"
+        "HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、"
+        "HC-32 完成帧超出所给序列（序列不足以判定，F7））"
     )
 
 
@@ -1368,14 +1382,58 @@ def check_cooldown_gate(data: dict[str, Any], doc_text: str) -> None:
             raise CheckFailure(f"文档缺少冷却全局门口径：{phrase}")
 
 
+UNIFIED_COMPLETION_PHRASE = "第一个同时满足帧数与时长（取较晚）的帧"
+
+
 def check_w_min_and_period(data: dict[str, Any], doc_text: str) -> None:
     low = data.get("low_fps_latency") or {}
     if low.get("w_min_is_lower_bound_only") is not True:
         raise CheckFailure("low_fps_latency 必须声明 W_min 只是下界")
     if low.get("w_min_must_not_enter_latency_statistics") is not True:
         raise CheckFailure("W_min 不得进入延迟统计")
-    if "WINDOW_MATCH" not in str(low.get("window_completion_definition", "")):
-        raise CheckFailure("窗口完成时刻必须定义为第 N 个 WINDOW_MATCH 结果到达时刻")
+    # F1：窗口完成口径必须在文档（B07/B27 行 + §9）与 JSON（B07.condition/B27.output/
+    # time_anchors.window_complete/M3.condition）之间文本统一，禁止残留「第 N 个 …」旧措辞。
+    flat = " ".join(str(low.get("window_completion_definition", "")).split())
+    if "WINDOW_MATCH" not in flat:
+        raise CheckFailure("low_fps_latency.window_completion_definition 必须提到 WINDOW_MATCH")
+    if UNIFIED_COMPLETION_PHRASE not in flat:
+        raise CheckFailure(
+            f"low_fps_latency.window_completion_definition 必须含统一口径「{UNIFIED_COMPLETION_PHRASE}」"
+        )
+    rows = {row["id"]: row for row in data["behavior_rows"]}
+    anchors = " ".join(str(data.get("time_anchors", {}).get("window_complete", "")).split())
+    transitions = {item["id"]: item for item in data["transitions"]}
+    m3_condition = " ".join(str(transitions["M3"].get("condition", "")).split())
+    for label, text_value in (("behavior_rows.B07.condition", str(rows["B07"].get("condition", ""))),
+                              ("behavior_rows.B27.output", str(rows["B27"].get("output", ""))),
+                              ("time_anchors.window_complete", anchors),
+                              ("transitions.M3.condition", m3_condition)):
+        flat_value = " ".join(text_value.split())
+        if UNIFIED_COMPLETION_PHRASE not in flat_value:
+            raise CheckFailure(f"{label} 缺少统一窗口完成口径「{UNIFIED_COMPLETION_PHRASE}」（F1）")
+        if "第 N 个" in flat_value or "第 T6-S02 个 `WINDOW_MATCH` 结果到达" in flat_value:
+            raise CheckFailure(f"{label} 仍残留旧措辞「第 N 个 WINDOW_MATCH 结果到达」（F1）")
+    doc_lines = doc_text.splitlines()
+    named_rows = {}
+    for line in doc_lines:
+        stripped = line.strip()
+        for row_id in ("B07", "B27"):
+            if stripped.startswith(f"| {row_id} |"):
+                named_rows[row_id] = stripped
+    for row_id in ("B07", "B27"):
+        if row_id not in named_rows:
+            raise CheckFailure(f"文档缺少行为行 {row_id}（F1）")
+        if UNIFIED_COMPLETION_PHRASE not in named_rows[row_id]:
+            raise CheckFailure(f"文档 {row_id} 行缺少统一窗口完成口径「{UNIFIED_COMPLETION_PHRASE}」（F1）")
+        if "第 N 个" in named_rows[row_id]:
+            raise CheckFailure(f"文档 {row_id} 行仍残留旧措辞「第 N 个」（F1）")
+    section_lines = [line for line in doc_lines if "**窗口完成时刻**" in line]
+    if not section_lines:
+        raise CheckFailure("文档 §9 缺少「窗口完成时刻」口径行（F1）")
+    if UNIFIED_COMPLETION_PHRASE not in " ".join(section_lines):
+        raise CheckFailure(f"文档 §9 窗口完成时刻行缺少统一口径「{UNIFIED_COMPLETION_PHRASE}」（F1）")
+    if any("第 N 个" in line for line in section_lines):
+        raise CheckFailure("文档 §9 窗口完成时刻行仍残留旧措辞「第 N 个」（F1）")
     interaction = str(low.get("interaction_latency", ""))
     if "window_complete" not in interaction:
         raise CheckFailure("交互延迟必须基于 window_complete（不得用 W_min 顶替）")
@@ -1419,20 +1477,35 @@ def check_reachability(data: dict[str, Any], doc_text: str) -> None:
     if re.search(r"^\| M14 \|", section4, flags=re.MULTILINE):
         raise CheckFailure("文档 §4 表仍存在 M14 行")
     reach = data["reachability"]["transitions"]
-    params = {item["id"]: item for item in data["parameters"]}
-    s04 = float(params["T6-S04"]["draft_value"])
-    l02 = float(params["T6-L02"]["draft_value"])
-    expected_m4 = s04 < l02
-    actual_m4 = reach["M4"]["status"] == "REACHABLE"
-    if expected_m4 != actual_m4:
+    # BLK-1（S6-B 实现轮复评）：M4 可达性**不能只看 S04 与 L02 的大小**。
+    # §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，因此低分/位移造成的 WINDOW_MATCH 中断
+    # 仍是窗口推进帧且 TARGET_CONTINUES 成立：t_last_target_continues 继续刷新、miss_streak 不增，
+    # M10 不会先命中 → 候选停留可达到 T6-S04 → M4 可达（S6-B 的 C4-jitter-reset 实测 M4@f7）。
+    if reach["M4"]["status"] != "REACHABLE":
         raise CheckFailure(
-            f"M4 可达性声明与草案参数不符：S04={s04} L02={l02} 推导可达={expected_m4}，"
-            f"JSON 声明 {reach['M4']['status']}"
+            f"M4 必须声明为 REACHABLE（BLK-1）：{reach['M4']['status']}；"
+            "TARGET_CONTINUES 不含 score ≥ T6-P02，低分中断不推进 miss_streak，M10 不先命中"
         )
+    m4_reason = str(reach["M4"].get("reason", ""))
+    for token in ("TARGET_CONTINUES", "T6-P02", "T6-S04"):
+        if token not in m4_reason:
+            raise CheckFailure(f"reachability.M4.reason 未说明 {token} 机制（BLK-1）")
+    if "UNREACHABLE" in str(reach["M4"].get("resolution", "")):
+        raise CheckFailure("reachability.M4.resolution 不得再按不可达处理（BLK-1）")
     if reach["M7"]["status"] != "UNREACHABLE_BY_CONSTRUCTION":
         raise CheckFailure("M7 必须声明为构造上不可达")
-    if "M4 在本轮参数下不可达" not in doc_text and "M4 在本轮参数下不可达" not in section4:
-        raise CheckFailure("文档 §4 未声明 M4 不可达")
+    if "M4 在本轮参数下可达" not in doc_text and "M4 在本轮参数下可达" not in section4:
+        raise CheckFailure("文档 §4 未声明 M4 在本轮参数下可达（BLK-1）")
+    if "M4 在本轮参数下不可达" in doc_text:
+        raise CheckFailure("文档仍残留「M4 在本轮参数下不可达」旧结论（BLK-1）")
+    u12 = {item["id"]: item for item in data["open_decisions"]}.get("U6-12")
+    if u12 is None:
+        raise CheckFailure("缺少 U6-12")
+    u12_text = f"{u12.get('item', '')} {u12.get('note', '')}"
+    if "可达" not in u12_text or "保留" not in u12_text:
+        raise CheckFailure("U6-12 必须改写为「M4 可达且保留（不删除）」口径（BLK-1(b)）")
+    if "删除 M4" in u12_text:
+        raise CheckFailure("U6-12 不得再要求删除 M4（BLK-1(b)）")
     rows = {row["id"]: row for row in data["behavior_rows"]}
     for pid in ("T6-C01", "T6-U00_W", "T6-U00_N"):
         if pid not in rows["B26"]["params"]:
@@ -1548,7 +1621,8 @@ def run_checks(
         or "谓词定义、引用、禁用标识符与全量双向绑定一致",
     )
     run("C13", "冷却全局门一致性（B-03/H-10）", lambda: check_cooldown_gate(data, doc_text) or "全局门字段与引用一致")
-    run("C14", "W_min/实测帧周期口径（B-04/N-05）", lambda: check_w_min_and_period(data, doc_text) or "W_min 仅下界、window_complete 为统计基准")
+    run("C14", "W_min/窗口完成口径（B-04/N-05/F1）", lambda: check_w_min_and_period(data, doc_text)
+        or "W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致")
     run("C15", "H-4/NO_HAND 一致性（B-02）", lambda: check_h4_no_hand(data, doc_text) or "NO_HAND 不推进匹配计数、零框不得完成窗口")
     run("C16", "迁移可达性与覆盖声明（N-02/N-03）", lambda: check_reachability(data, doc_text) or "M4/M7 可达性声明与 B26/§12.1 覆盖一致")
     run("C17", "STABLE 锁存语义一致性（观察项）", lambda: check_stable_latching(data, doc_text))

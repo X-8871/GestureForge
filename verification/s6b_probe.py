@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # P1 基线：在 evidence 目录内直接跑（不改动任何东西）
     completed = run_driver(driver, root, run_dir, cases_src)
-    ok_all &= record("baseline", 0, "未改动：21 例全部通过", completed)
+    ok_all &= record("baseline", 0, "未改动：23 例全部通过", completed)
 
     # P2 冻结后篡改 expected → 拒绝运行
     probe2 = work / "expected_tampered"

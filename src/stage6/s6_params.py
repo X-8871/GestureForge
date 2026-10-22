@@ -25,7 +25,7 @@ import json
 from pathlib import Path
 
 EXPECTED_ARTIFACT = "s6a_stage6_g0_behavior"
-EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.7"
+EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.8"
 PENDING_APPROVAL = "PENDING_APPROVAL"
 
 # 单位换算常量只出现在装载层，不进入判定核心。
@@ -67,12 +67,13 @@ class ParamError(RuntimeError):
     """参数装载/校验失败。调用方必须按输入错误处理（退出码 2）。"""
 
 
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+def _sha256_file(path: Path, normalize_newlines: bool = False) -> str:
+    """文件 SHA-256。`normalize_newlines=True` 时按 O1 口径把 CRLF 归一为 LF 后取哈希，
+    使工作区（CRLF）与 `git archive`/LF 导出得到**同一**身份哈希（否则冻结复用判断会漂移）。"""
+    data = path.read_bytes()
+    if normalize_newlines:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 class ParamPack:
@@ -94,7 +95,7 @@ class ParamPack:
         )
         if not self.behavior_path.is_file():
             raise ParamError(f"行为表 JSON 不存在：{self.behavior_path}")
-        self.behavior_sha256 = _sha256_file(self.behavior_path)
+        self.behavior_sha256 = _sha256_file(self.behavior_path, normalize_newlines=True)
         with self.behavior_path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
 
@@ -178,7 +179,7 @@ class ParamPack:
         self.states = tuple(data.get("states", []))
         self.event_classes = dict(data.get("event_classes", {}))
         self.transitions = {row["id"]: dict(row) for row in data.get("transitions", [])}
-        self.class_action_map = self.class_action_map
+        # NB-r03-05：删除原本的 `self.class_action_map = self.class_action_map` 自赋值（无作用；映射在 142 行已由 actions.class_action_map 构建）
 
     # ------------------------------------------------------------------
     # 原始读取与单位换算

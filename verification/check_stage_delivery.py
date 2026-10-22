@@ -353,6 +353,23 @@ def load_json_strict(path: Path) -> Any:
 TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
 
 
+def hash_variants(path: Path) -> set[str]:
+    """同一文件在两种换行约定下的可比哈希集合（O1 口径）。
+
+    包含三个方向，任一声明值命中即视为一致：
+    * 原字节（工作区当前写法）；
+    * CRLF→LF（git 归一化；`git archive`/LF 工作副本的口径）；
+    * LF→CRLF（清单按工作区 CRLF 声明、而导出为 LF 时的反方向）。
+    """
+    data = path.read_bytes()
+    variants = {hashlib.sha256(data).hexdigest()}
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        lf = data.replace(b"\r\n", b"\n")
+        variants.add(hashlib.sha256(lf).hexdigest())
+        variants.add(hashlib.sha256(lf.replace(b"\n", b"\r\n")).hexdigest())
+    return variants
+
+
 def hash_normalized(path: Path) -> str:
     """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
 
@@ -399,8 +416,9 @@ def verify_hash(
             normalized = hash_normalized(path)
         except OSError:
             normalized = ""
-        if normalized.casefold() != expected.casefold():
-            errors.append(f"{label} SHA-256 不匹配：清单 {expected}，实际 {actual}（归一化 {normalized} 亦不匹配）")
+        if expected.casefold() not in {h.casefold() for h in hash_variants(path)}:
+            errors.append(f"{label} SHA-256 不匹配：清单 {expected}，实际 {actual}"
+                          f"（原字节/CRLF→LF/LF→CRLF 三种口径均不匹配）")
     if size >= SIZE_WARNING_BYTES:
         warnings.append(
             f"{label}文件较大（{size} 字节）；此提示不是验收指标"

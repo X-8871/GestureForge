@@ -298,6 +298,10 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         pass
 
+    # 活文档不进硬哈希集合（lead 裁定 (a)）：STATE 哈希仅作为信息性快照记录
+    _state_path = root / ".codex/STATE.md"
+    state_hash = (hashlib.sha256(_state_path.read_bytes()).hexdigest()
+                  if _state_path is not None and _state_path.is_file() else None)
     report = {
         "schema_version": 1,
         "artifact": "s6a_export_selfproof",
@@ -313,6 +317,9 @@ def main(argv: list[str] | None = None) -> int:
         "degradation_note": ("S6-B 模式（--s6b-run）下**不复算 S6-A 旧轮次的 inputs/evidence 清单**："
                              "旧轮次清单绑定其构建时的源码字节，工作区前进后哈希自然不匹配（NB-10 显式声明）。"
                              "该模式下仍跑 S6-A 自检（仅校验 STATE 声明存在性）与 S6-B 驱动 + S6-B 两个检查器。"),
+        "live_document_note": ("活文档（.codex/STATE.md）**不进硬哈希集合**（lead 裁定 (a)）：STATE 每轮维护都会变化，"
+                              "绑哈希会让证据包当场失效；此处以信息性快照记录其哈希，F6 判定仍依赖「STATE 声明的文件/目录是否真实存在」。"),
+        "state_snapshot_sha256": state_hash,
         "subject_note": ("报告主体至少包含：交付轮次的工作区快照；提交后可用同一命令追加 `--commit <交付提交>`，"
                          "把交付提交本身列为主体（N-r07-2）。报告存放在同 RunId 的 `_selfproof` 兄弟目录，"
                          "不属于被清单声明的运行目录，故可在提交后原地更新而不影响清单绑定。"),

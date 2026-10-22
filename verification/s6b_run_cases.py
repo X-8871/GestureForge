@@ -170,6 +170,11 @@ def compare(case: dict, observed: dict) -> list[str]:
     for key in ("transitions",):
         if key in expected and observed[key] != expected[key]:
             failures.append(f"{key} 预期 {expected[key]}，实际 {observed[key]}")
+    # BLK-r03-1：动作记录携带的 acquisition_id 序列（"一次获取一次触发"的逐次凭据）
+    if "acquisition_ids" in expected:
+        got_ids = [row.get("acquisition_id") for row in observed.get("action_records", [])]
+        if got_ids != expected["acquisition_ids"]:
+            failures.append(f"acquisition_ids 预期 {expected['acquisition_ids']}，实际 {got_ids}")
     summary = observed["action_summary"]
     for key in ("action_submitted", "action_effective", "action_failed",
                 "action_unobserved", "dedup_suppressed", "visible_state_changes",
@@ -245,6 +250,13 @@ def main(argv: list[str] | None = None) -> int:
             if existing.get("expected_sha256") != payload["expected_sha256"]:
                 print("已存在不同的冻结文件；如需覆盖请加 --force-freeze")
                 return 2
+            # 幂等（本轮修正）：期望与用例/行为表身份都一致时**不复写**，避免 frozen_at_utc8
+            # 时间戳漂移导致 run_report.json（内嵌 expected_freeze_sha256）每次运行都变。
+            if (existing.get("cases_file_sha256") == payload.get("cases_file_sha256")
+                    and existing.get("behavior_json_sha256") == payload.get("behavior_json_sha256")):
+                print(json.dumps({"status": "EXPECTED_FROZEN_REUSED",
+                                  "cases": len(payload["expected_sha256"])}, ensure_ascii=False))
+                return 0
         run_dir.mkdir(parents=True, exist_ok=True)
         freeze_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(json.dumps({"status": "EXPECTED_FROZEN", "cases": len(payload["expected_sha256"])}, ensure_ascii=False))

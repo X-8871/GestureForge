@@ -72,6 +72,44 @@ def run_command(command: list[str], project_root: Path) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------- 只读守门（构建期只读约束）
+_HAND_INPUTS = ("coverage_matrix.json", "limitations_not_executed.json", "hand_computed_cases.json",
+                "upstream_bindings.json", "fix_record.json", "fix_record.md")
+_GUARD: dict[str, str] = {}
+_GUARD_VIOLATIONS: list[str] = []
+
+
+def _guard_snapshot(run_dir: Path) -> dict[str, str]:
+    return {name: hashlib.sha256((run_dir / name).read_bytes()).hexdigest()
+            for name in _HAND_INPUTS if (run_dir / name).is_file()}
+
+
+def _guard_check(phase: str) -> None:
+    """比对人工输入哈希；任何变化都记为违规（构建期只读约束）。"""
+    global _GUARD
+    after = _guard_snapshot(_GUARD_DIR) if _GUARD_DIR is not None else {}
+    _trace = {k: (v[:8]) for k, v in sorted(after.items())}
+    print(f"[GUARD-TRACE] {phase} coverage={_trace.get('coverage_matrix.json')} "
+          f"limitations={_trace.get('limitations_not_executed.json')}")
+    changed = [k for k in sorted(set(_GUARD) | set(after)) if _GUARD.get(k) != after.get(k)]
+    if changed:
+        _GUARD_VIOLATIONS.append(f"{phase}: {changed}")
+        print(f"[GUARD] {phase} 后人工输入被改写：{changed}")
+        print("[GUARD] 构建中止（只读约束被破坏：人工撰写输入在构建期发生变化）")
+        raise SystemExit(1)
+    _GUARD = after
+
+
+_GUARD_DIR: Path | None = None
+
+def _guard_init(run_dir: Path) -> None:
+    """初始化守门基线（必须在此处声明 global，否则模块级 _GUARD 永远为空 → 假警报）。"""
+    global _GUARD_DIR, _GUARD
+    _GUARD_DIR = run_dir
+    _GUARD = _guard_snapshot(run_dir)
+
+
+
 def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -99,7 +137,7 @@ def keep_reason_for(relative: str) -> str:
         "r04_package_under_test.json": "r04 被检版本 git 字节与哈希（N-r04-01..04 捕获证据）",
         "selfcheck_r04_failure.json": "r06/r07/r08 自检在 r04 上的失败输出（C12 捕获 M5/policy 缺陷；"
                                       "C7 因**样例数不足 32：29**（缺 HC-30/31/32）失败；F4）",
-        "selfcheck_r04_failure_stdout.txt": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）",
+        "selfcheck_r04_failure_stdout.txt": "r04 失败运行 stdout 原文（C7 归因：样例数不足 32：29，缺 HC-30）",
         "selfcheck_old_package_failure.json": "加固自检在 r01 真实字节上的失败输出（exit 1）",
         "selfcheck_old_package_failure_stdout.txt": "r01 失败运行 stdout 原文",
         "selfcheck_r02_blk1_failure.json": "加固自检在 r02 上的失败输出，C12 捕获 BLK-1",
@@ -125,15 +163,19 @@ def keep_reason_for(relative: str) -> str:
 
 def source_entries(root: Path) -> list[dict[str, str]]:
     sources = [
-        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.7/r08）"),
-        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.7/r08）"),
+        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.8/r09）"),
+        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.8/r09）"),
         ("verification/s6a_rerun_legacy_failures.py", "旧包失败证据可复现重跑脚本（N03）"),
-        ("verification/s6a_r08_probe.py", "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史口径对照 2 例）"),
+        ("verification/s6a_r09_probe.py", "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史口径对照 2 例）"),
+        ("verification/transport_clone_check.py", "传输克隆可解析性检查（source_commit 必须可达）"),
+        ("verification/tool_self_tests.py", "工具自测两例（必 PASS / 必 FAIL）"),
+        ("verification/hash_convention_check.py", "O1 换行口径双向反例（真实 verify_hash）"),
         ("verification/claim_verify.py", "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"),
         ("verification/export_selfproof.py", "冻结自证工具（导出提交后复跑自检 + 两个交付检查器，F6 规则）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
         ("verification/s6a_build_evidence.py", "证据清单构建器（真实执行检查并记录退出码）"),
-        (".codex/STATE.md", "阶段6 STATE（11 字段交接行与证据入口）"),
+        # 活文档不含哈希（lead 裁定 (a)）：STATE 只做"存在性 + 其声明路径必须存在"检查（F6 本质），
+    # 其字节哈希改记在 _selfproof 的快照注记里（信息性，非硬判定）。
     ]
     entries = []
     for relative, reason in sources:
@@ -226,7 +268,7 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
             "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，"
             "提取一律 git cat-file blob 二进制（N03）。",
             "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
-            "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1、BLK-r07-1）。",
+            "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",
             "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
             "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
             "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。",
@@ -236,6 +278,8 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="生成 S6-A 证据清单并实跑检查器（r03 不动点迭代）")
+    parser.add_argument("--self-tests", action="store_true",
+                        help="构建前跑工具自测套件并产生产物（C5 引用该产物）")
     parser.add_argument("--run-dir", required=False)
     parser.add_argument("--project-root", required=False)
     parser.add_argument("--stage", default="6")
@@ -263,6 +307,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     root = Path(args.project_root).resolve()
     run_dir = (root / args.run_dir).resolve()
+    _guard_init(run_dir)
     if not run_dir.is_dir():
         print(f"运行目录不存在：{run_dir}")
         return 2
@@ -280,16 +325,18 @@ def main(argv: list[str] | None = None) -> int:
         "--run-dir", str(run_dir), "--project-root", str(root),
     ]
     legacy_run = run_command(legacy_cmd, root)
+    _guard_check("legacy-rerun")
     print(f"[legacy-rerun] exit={legacy_run['exit_code']}")
     if legacy_run["exit_code"] != 0:
         print(legacy_run["stdout"]); print(legacy_run["stderr"]); return 1
 
     # ---- r06：注入探针（基线 1 例 + 注入 7 例 + 旧口径对照；任何非预期结果即中止） ----
     probe_cmd = [
-        sys.executable, "-B", str(root / "verification/s6a_r08_probe.py"),
+        sys.executable, "-B", str(root / "verification/s6a_r09_probe.py"),
         "--run-dir", str(run_dir), "--project-root", str(root),
     ]
     probe_run = run_command(probe_cmd, root)
+    _guard_check("r08-probe")
     print(f"[r08-probe] exit={probe_run['exit_code']}")
     if probe_run["exit_code"] != 0:
         print(probe_run["stdout"]); print(probe_run["stderr"]); return 1
@@ -308,12 +355,21 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = run_dir / "S6A_run_summary.md"
     result_path = run_dir / "selfcheck_result.json"
     c11_stdout_path = run_dir / "selfcheck_c11_stdout.txt"
+    if args.self_tests:
+        st_cmd = [sys.executable, "-B", str(root / "verification/tool_self_tests.py"),
+                  "--project-root", str(root)]
+        st_run = run_command(st_cmd, root)
+        print(f"[self-tests] exit={st_run['exit_code']}")
+        if st_run["exit_code"] != 0:
+            print(st_run["stdout"]); print(st_run["stderr"]); return 1
+
     claim_cmd = [sys.executable, "-B", str(root / "verification/claim_verify.py"),
                  "--package", "s6a", "--run-dir", str(run_dir), "--project-root", str(root)]
     claim_run = run_command(claim_cmd, root)
+    _guard_check("claim-verify")
     print(f"[claim-verify] exit={claim_run['exit_code']}")
-    if claim_run["exit_code"] != 0 and (run_dir / "selfcheck_result.json").is_file():
-        # 首版构建时自检结果可能尚未落盘（换代收敛中）；已有结果却失败即中止（不得带未验证声明发布）
+    if claim_run["exit_code"] != 0:
+        # BLK-r08-2④：**首版也必须中止**——绝不允许发布 NOT_ALL_VERIFIED 的附录。
         print(claim_run["stdout"]); print(claim_run["stderr"]); return 1
 
     inputs_manifest_path = run_dir / "inputs_manifest.json"
@@ -360,13 +416,14 @@ def main(argv: list[str] | None = None) -> int:
         "status": "PASS", "command": verify_run["command_text"], "exit_code": verify_run["exit_code"],
     }]))
     inputs_final = run_command(inputs_cmd, root)
+    _guard_check("inputs-mode")
     print(f"[inputs-mode] exit={inputs_final['exit_code']}")
     if inputs_final["exit_code"] != 0:
         print(inputs_final["stdout"]); print(inputs_final["stderr"]); return 1
     inputs_output_path.write_text(inputs_final["stdout"], encoding="utf-8")
 
     summary_lines = [
-        "# S6-A v1.7 / r08 运行摘要",
+        "# S6-A v1.8 / r09 运行摘要",
         "",
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 绑定提交：`{source_commit}`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）",
@@ -524,6 +581,33 @@ def main(argv: list[str] | None = None) -> int:
         print(f"C11 未执行完整清单/STATE 核对：{c11}")
         return 1
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    # ---- 结构规则（lead 冻结级阻断）：清单必须是最后写入者；写完清单立即新鲜自检并迭代到不动点 ----
+    for _round in range(3):
+        write_hashes()
+        write_manifest(None, None, "")
+        # 必须带 --manifest：否则 C11 不核清单哈希绑定，收敛判定会"假通过"
+        # 验证自检的输出必须落在 run-dir **之外**：否则它会重写被声明的 selfcheck_result.json，
+        # 使刚写好的清单立刻过期（本轮冻结级顺序问题的最后一环）。
+        _verify_out = root / "tmp/6" / f"fixpoint_verify_{run_id}.json"
+        _fresh = run_command(selfcheck_base + ["--out", str(_verify_out),
+                                              "--manifest", str(manifest_path)], root)
+        if _fresh["exit_code"] == 0:
+            print(f"[FIXPOINT] converged at round {_round + 1}")
+            break
+    else:
+        print("[FIXPOINT] 清单无法收敛：构建后仍有写入者（C11 哈希不符）")
+        print(_fresh["stdout"]); print(_fresh["stderr"]); return 1
+
+    # ---- 收尾断言（lead 结构要求 3）：FIXPOINT 必须是最后动作 ----
+    # 末尾再跑 evidence 模式：任何在 FIXPOINT 之后写入 run-dir 的未声明文件/哈希不符都会中止构建。
+    _closing = run_command([sys.executable, "-B", str(root / "verification/check_stage_delivery.py"),
+                            "--mode", "evidence", "--manifest", str(manifest_path),
+                            "--project-root", str(root)], root)
+    if _closing["exit_code"] != 0:
+        print("[CLOSING] run-dir 出现未声明文件或哈希不符，构建中止（FIXPOINT 之后不得再改 run-dir）")
+        print(_closing["stdout"]); print(_closing["stderr"]); return 1
+    print("[CLOSING] run-dir 无未声明文件、清单一致")
+
     print(json.dumps({
         "status": "EVIDENCE_BUILT",
         "selfcheck": result["status"],

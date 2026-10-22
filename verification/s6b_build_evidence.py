@@ -3,7 +3,7 @@
 
 流程（严格保持"先冻结预期、再运行、再探针"的顺序）：
 
-  1. 冻结 expected（--freeze-only --force-freeze），记录冻结文件哈希；
+  1. 冻结 expected（--freeze-only ），记录冻结文件哈希；
   2. 运行确定性用例（驱动自查冻结哈希 → 断言）；
   3. 运行判别力探针（verification/s6b_probe.py）；
   4. 写入 params_snapshot / reachability_notes / limitations / run_summary；
@@ -39,7 +39,7 @@ SOURCES = (
     "docs/stage6/s6a_stage6_g0_behavior_v1.json",
     "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
     "docs/stage6/s6b_frozen_interface_v1.json",
-    ".codex/STATE.md",
+    # 活文档不含哈希（lead 裁定 (a)）：STATE 只做存在性与声明路径检查；哈希记入 _selfproof 快照注记。
 )
 
 
@@ -82,8 +82,56 @@ def run_command(command: list[str], root: Path) -> dict:
     env = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
     completed = subprocess.run(command, cwd=str(root), capture_output=True, text=True,
                                encoding="utf-8", errors="replace", env=env, check=False)
+    _guard_after_command(command)
     return {"command_text": subprocess.list2cmdline(command), "exit_code": completed.returncode,
             "stdout": completed.stdout, "stderr": completed.stderr}
+
+
+# ---------------------------------------------------------------- 只读守门（构建期只读约束）
+# S6-B 包内 limitations/coverage/摘要/清单均由**构建器与驱动生成**，不属只读输入；
+# 只保护人工撰写的用例矩阵脚本（构建期不得被任何相位改写）。
+_HAND_INPUTS = ("cases/build_case_matrix.py",)
+_GUARD: dict[str, str] = {}
+_GUARD_VIOLATIONS: list[str] = []
+
+
+def _guard_snapshot(run_dir: Path) -> dict[str, str]:
+    return {name: hashlib.sha256((run_dir / name).read_bytes()).hexdigest()
+            for name in _HAND_INPUTS if (run_dir / name).is_file()}
+
+
+def _guard_check(phase: str) -> None:
+    """比对人工输入哈希；任何变化都记为违规（构建期只读约束）。"""
+    global _GUARD
+    after = _guard_snapshot(_GUARD_DIR) if _GUARD_DIR is not None else {}
+    _trace = {k: (v[:8]) for k, v in sorted(after.items())}
+    print(f"[GUARD-TRACE] {phase} coverage={_trace.get('coverage_matrix.json')} "
+          f"limitations={_trace.get('limitations_not_executed.json')}")
+    changed = [k for k in sorted(set(_GUARD) | set(after)) if _GUARD.get(k) != after.get(k)]
+    if changed:
+        _GUARD_VIOLATIONS.append(f"{phase}: {changed}")
+        print(f"[GUARD] {phase} 后人工输入被改写：{changed}")
+        print("[GUARD] 构建中止（只读约束被破坏：人工撰写输入在构建期发生变化）")
+        raise SystemExit(1)
+    _GUARD = after
+
+
+_GUARD_DIR: Path | None = None
+
+def _guard_init(run_dir: Path) -> None:
+    """初始化守门基线（必须在此处声明 global，否则模块级 _GUARD 永远为空 → 假警报）。"""
+    global _GUARD_DIR, _GUARD
+    _GUARD_DIR = run_dir
+    _GUARD = _guard_snapshot(run_dir)
+
+
+def _guard_after_command(command: list[str]) -> None:
+    """每个 subprocess 调用后立即比对（label = 被调脚本名），变化即中止。"""
+    if _GUARD_DIR is None:
+        return
+    label = Path(command[2]).name if len(command) > 2 else "command"
+    _guard_check(f"subprocess:{label}")
+
 
 
 def write_json(path: Path, payload) -> None:
@@ -99,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.project_root).resolve()
     run_dir = (root / args.run_dir).resolve()
+    _guard_init(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     driver = root / "verification/s6b_run_cases.py"
     probe = root / "verification/s6b_probe.py"
@@ -111,7 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     # 1) 冻结预期
     freeze_run = run_command([sys.executable, "-B", str(driver), "--project-root", str(root),
                               "--run-dir", str(run_dir), "--cases", str(cases),
-                              "--freeze-only", "--force-freeze"], root)
+                              "--freeze-only"], root)
+    _guard_check("freeze")
     print(f"[freeze] exit={freeze_run['exit_code']}")
     if freeze_run["exit_code"] != 0:
         print(freeze_run["stdout"]); print(freeze_run["stderr"]); return 1
@@ -121,6 +171,7 @@ def main(argv: list[str] | None = None) -> int:
     # 2) 运行用例（驱动在运行前再次校验冻结哈希）
     run_result = run_command([sys.executable, "-B", str(driver), "--project-root", str(root),
                               "--run-dir", str(run_dir), "--cases", str(cases)], root)
+    _guard_check("cases")
     print(f"[cases] exit={run_result['exit_code']}")
     (run_dir / "run_stdout.txt").write_text(run_result["stdout"], encoding="utf-8")
     if run_result["exit_code"] != 0:
@@ -129,6 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     # 3) 判别力探针
     probe_result = run_command([sys.executable, "-B", str(probe), "--project-root", str(root),
                                 "--run-dir", str(run_dir)], root)
+    _guard_check("probe")
     print(f"[probe] exit={probe_result['exit_code']}")
     if probe_result["exit_code"] != 0:
         print(probe_result["stdout"]); print(probe_result["stderr"]); return 1
@@ -188,6 +240,10 @@ def main(argv: list[str] | None = None) -> int:
         ],
         "reachability_not_counted_as_coverage": ["B16 S_DEDUP（A02<K01，草案值下不可达）", "M7（构造上不可达）"],
         "reachability_counted": ["M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）"],
+        "known_costs": [
+            "工具自测套件（tool_self_tests.py）约 20 分钟/次；冻结时由项目总控与增量复核方各跑一次",
+            "附录引用自测产物而不重跑；套件内守门两侧为同逻辑探针副本（构建器内真实守门另有独立实测）",
+        ],
         "not_implemented": [
             "§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现：每帧只输出单一 transition；"
             "相关常量与分支已从代码移除（NB-04 登记）。",
@@ -312,6 +368,7 @@ def main(argv: list[str] | None = None) -> int:
     })
     inputs_run = run_command([sys.executable, "-B", str(checker), "--mode", "inputs",
                               "--manifest", str(inputs_manifest_path), "--project-root", str(root)], root)
+    _guard_check("inputs-mode")
     print(f"[inputs-mode] exit={inputs_run['exit_code']}")
     if inputs_run["exit_code"] != 0:
         print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
@@ -334,7 +391,21 @@ def main(argv: list[str] | None = None) -> int:
             "exit_code": 0 if expected else 1,
             "reason": f"工具判定 {proof.get('verdict')}；逐项退出码 {per_check}",
         }
+    claim_verdict_path = run_dir / "claim_verification.json"
+    if claim_verdict_path.is_file():
+        _verdict = json.loads(claim_verdict_path.read_text(encoding="utf-8")).get("verdict")
+        _claim_doc = json.loads(claim_verdict_path.read_text(encoding="utf-8"))
+        claim_check = {
+            "name": "claim_verification.verdict == ALL_CLAIMS_VERIFIED",
+            "status": "PASS" if _verdict == "ALL_CLAIMS_VERIFIED" else "FAIL",
+            "command": _claim_doc.get("reproduce", "python -B verification/claim_verify.py --package s6b ..."),
+            "exit_code": 0 if _verdict == "ALL_CLAIMS_VERIFIED" else 1,
+            **({} if _verdict == "ALL_CLAIMS_VERIFIED" else {"reason": f"附录判定 {_verdict}（真实退出码见附录）"}),
+        }
+    else:
+        claim_check = None
     checks = [
+        *([] if claim_check is None else [claim_check]),
         *([] if selfproof_check is None else [selfproof_check]),
         {"name": f"S6-B 确定性用例（{report['case_count']} 条 / 11 类）", "status": "PASS" if run_result["exit_code"] == 0 else "FAIL",
          "command": run_result["command_text"], "exit_code": run_result["exit_code"]},
@@ -346,9 +417,8 @@ def main(argv: list[str] | None = None) -> int:
          "exit_code": None, "reason": "首版清单生成后立即实跑（本轮结束前回填真实退出码）"},
     ]
 
-    previous = None
-    for iteration in range(6):
-        write_hashes()
+    def write_manifest() -> None:
+        """清单必须是**最后写入者**（结构规则）：由 FIXPOINT 在 selfcheck_result/hashes 之后调用。"""
         write_json(manifest_path, {
             "schema_version": 1, "stage": "6", "task_id": "S6-B", "run_id": run_dir.name,
             "source_commit": source_commit, "evidence_dir": f"report/evidence/S6-B/{run_dir.name}",
@@ -363,19 +433,24 @@ def main(argv: list[str] | None = None) -> int:
             "checks": checks, "tool_versions": tool_versions,
             "limitations": [
                 f"source_commit 为本次构建时的 HEAD（动态取值 {source_commit}）；实际交付提交由 "
-            "verification/export_selfproof.py 导出后复跑自证（三项退出码见本包 export_selfproof.json）。",
+                "verification/export_selfproof.py 导出后复跑自证。",
                 "全部阈值为 PENDING_APPROVAL 草案值；interfaces 为空表示没有可声明为 frozen 的接口。",
                 "结论只对注入输入 + 虚拟单调时钟有效。",
                 "计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。",
+                "活文档（.codex/STATE.md、进度记录）不进硬哈希集合；只有交付物绑哈希（lead 裁定 (a)）。",
+                "FIXPOINT 必须是最后动作；冻结后禁止再改动 run-dir 内容（[CLOSING] 断言兜底）。",
             ],
         })
+
+    # ---- FIXPOINT（与 S6-A 同构）：driver → selfcheck/证据产物 → hashes/manifest → run-dir 之外的验证自检 ----
+    previous = None
+    for iteration in range(6):
         evidence_run = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
                                     "--manifest", str(manifest_path), "--project-root", str(root)], root)
         print(f"[evidence-mode:iter{iteration}] exit={evidence_run['exit_code']}")
-        if evidence_run["exit_code"] != 0:
-            print(evidence_run["stdout"]); print(evidence_run["stderr"]); return 1
+        # 预检可能因**上一轮**清单已过期而失败：不据此中止，先重写清单再用"清单之后"的验证自检判定
         evidence_out.write_text(evidence_run["stdout"], encoding="utf-8")
-        # NB-06：回填两个检查器的真实退出码（下一轮 iterate 的清单/哈希会带上该摘要版本，收敛一致）
+        # 声明状态必须取自"清单之后"的验证自检（预检可能因上一轮清单过期而失败，不可作为声明）
         _summary_path = run_dir / "s6b_run_summary.md"
         if _summary_path.is_file():
             _text = _summary_path.read_text(encoding="utf-8")
@@ -385,14 +460,39 @@ def main(argv: list[str] | None = None) -> int:
                     f"| 交付检查 inputs | `{inputs_run['command_text']}` | 实测 {inputs_run['exit_code']} |\n"
                     f"| 交付检查 evidence | `{evidence_run['command_text']}` | 实测 {evidence_run['exit_code']} |")
                 _summary_path.write_text(_text, encoding="utf-8")
-        checks[-1] = {"name": "check_stage_delivery.py --mode evidence", "status": "PASS",
-                      "command": evidence_run["command_text"], "exit_code": evidence_run["exit_code"]}
-        state = (sha256_file(manifest_path), sha256_file(hashes_path), sha256_file(evidence_out))
+        write_hashes()
+        write_manifest()
+        # 验证自检的输出必须落在 run-dir **之外**（否则会改写被声明文件、让清单当场过期）
+        _verify_out = root / "tmp/6" / f"fixpoint_area_{run_dir.name}.txt"
+        _verify = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
+                               "--manifest", str(manifest_path), "--project-root", str(root)], root)
+        checks[-1] = {"name": "check_stage_delivery.py --mode evidence",
+                      "status": "PASS" if _verify["exit_code"] == 0 else "FAIL",
+                      "command": _verify["command_text"], "exit_code": _verify["exit_code"]}
+        if _verify["exit_code"] != 0:
+            print("[FIXPOINT-B] 验证自检失败"); print(_verify["stdout"]); return 1
+        _verify_out.parent.mkdir(parents=True, exist_ok=True)
+        _verify_out.write_text(_verify["stdout"], encoding="utf-8")
+        # 收敛判据必须覆盖**全部已声明文件**（只比清单+哈希会在其它产物后写时假收敛）
+        state = {q.relative_to(run_dir).as_posix(): sha256_file(q)
+                 for q in sorted(run_dir.rglob("*")) if q.is_file()}
+
         if previous == state:
+            print(f"[FIXPOINT-B] converged at round {iteration + 1}")
             break
         previous = state
+    else:
+        print("[FIXPOINT-B] 清单无法收敛")
+        return 1
 
-    write_hashes()
+    # ---- [CLOSING] 收尾断言：FIXPOINT 之后不得再改 run-dir ----
+    _closing = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
+                            "--manifest", str(manifest_path), "--project-root", str(root)], root)
+    if _closing["exit_code"] != 0:
+        print("[CLOSING] run-dir 出现未声明文件或哈希不符，构建中止")
+        print(_closing["stdout"]); return 1
+    print("[CLOSING] run-dir 无未声明文件、清单一致")
+
     print(json.dumps({"status": "S6B_EVIDENCE_BUILT", "cases": report["case_count"],
                       "report_status": report["status"], "failed_cases": wrong,
                       "freeze_sha256": freeze_sha,

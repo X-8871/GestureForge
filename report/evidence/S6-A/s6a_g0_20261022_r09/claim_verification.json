@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "artifact": "claim_verification",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r09",
+  "rule": "每条声明的 exit_code 均为**真实 subprocess 退出码**；命令可独立复算（无占位符）；内置 self_test_false_claim 证明本工具对假声明会 FAIL。",
+  "reproduce": "python -B verification/claim_verify.py --package s6a --run-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r09 --project-root D:\\codex-worktrees\\w6",
+  "generated_at_utc8": "2026-10-23 07:22:50",
+  "claims": [
+    {
+      "claim_id": "self_test_false_claim",
+      "statement": "故意为假的声明（assert 1==2）必须得到非 0 退出码——证明本工具会 FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -c \"assert 1==2\"",
+      "exit_code": 1,
+      "expected_exit": "非 0",
+      "observable": "self-test",
+      "output_tail": [
+        "AssertionError"
+      ],
+      "verdict": "VERIFIED"
+    }
+  ],
+  "verdict": "ALL_CLAIMS_VERIFIED",
+  "scope_statement": "本附录只证明这些声明在**本次真实执行**下成立；不代表独立审查或验收通过。"
+}

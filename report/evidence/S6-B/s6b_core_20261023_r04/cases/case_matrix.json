@@ -1,0 +1,7283 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_case_matrix",
+  "task_id": "S6-B",
+  "run_id": "s6b_core_20261023_r04",
+  "contract_version": "S6A-G0-v1.6",
+  "cdx_class_mapping": {
+    "id 生命周期": "id 生命周期",
+    "每类稳定输入": "每类稳定输入",
+    "持续保持与冷却后保持": "持续保持与冷却后保持",
+    "冷却后保持 / 全局冷却门": "持续保持与冷却后保持",
+    "手离开再出现": "手离开再出现",
+    "短暂抖动": "两类快速切换/短暂抖动",
+    "两类快速切换": "两类快速切换/短暂抖动",
+    "多目标/同分": "多目标/同分/目标跳变",
+    "多目标/维持优先": "多目标/同分/目标跳变",
+    "多目标/目标跳变": "多目标/同分/目标跳变",
+    "NO_HAND / 未知类 / 低分": "NO_HAND / 场景未知 / 低分",
+    "TIMEOUT / ERROR / DROPPED / stale": "TIMEOUT / ERROR / DROPPED / stale",
+    "重复 / 倒序 / 缺帧 / 重启帧号": "重复、倒序、缺帧、重启帧号",
+    "时间等于阈值": "时间等于阈值、前后 1 个计时单位",
+    "时间阈值 −1 个计时单位": "时间等于阈值、前后 1 个计时单位",
+    "低 FPS / 窗口完成取较晚": "时间等于阈值、前后 1 个计时单位",
+    "无新结果但时间前进": "无新结果但时间持续前进",
+    "动作失败 / 未观察": "动作失败/未观察/重复 ACK",
+    "动作未观察": "动作失败/未观察/重复 ACK"
+  },
+  "case_class_coverage": {
+    "每类稳定输入": [
+      "C1-fist-stable",
+      "C1-palm-stable",
+      "C1-one-stable",
+      "C1-two_up-stable",
+      "C1-three-stable"
+    ],
+    "持续保持与冷却后保持": [
+      "C2-hold-past-cooldown",
+      "C11-global-gate-second-acquisition"
+    ],
+    "手离开再出现": [
+      "C3-lost-then-reappear"
+    ],
+    "两类快速切换/短暂抖动": [
+      "C4-jitter-reset",
+      "C4-quick-switch"
+    ],
+    "多目标/同分/目标跳变": [
+      "C5-tie-source-order",
+      "C5-held-priority",
+      "C5-target-jump"
+    ],
+    "NO_HAND / 场景未知 / 低分": [
+      "C6-no-hand-unknown-lowscore",
+      "C6b-no-hand-with-detections"
+    ],
+    "TIMEOUT / ERROR / DROPPED / stale": [
+      "C7-timeout-error-dropped-stale"
+    ],
+    "重复、倒序、缺帧、重启帧号": [
+      "C8-duplicate-reorder-missing-restart"
+    ],
+    "时间等于阈值、前后 1 个计时单位": [
+      "C9c-30fps-later-of",
+      "C9-s01-equal",
+      "C9-s01-minus-1ns"
+    ],
+    "无新结果但时间持续前进": [
+      "C10-tick-time-advance"
+    ],
+    "动作失败/未观察/重复 ACK": [
+      "C11-fail-then-success",
+      "C11-unobserved"
+    ],
+    "id 生命周期": [
+      "C12-m8-two-acquisitions",
+      "C12-m2-m12-new-target",
+      "C12-gate-reopen-new-acquisition"
+    ]
+  },
+  "runbook_matrix_coverage": [
+    {
+      "case_class": "每类稳定输入",
+      "cases": [
+        "C1-fist-stable",
+        "C1-palm-stable",
+        "C1-one-stable",
+        "C1-two_up-stable",
+        "C1-three-stable"
+      ]
+    },
+    {
+      "case_class": "持续保持与冷却后保持",
+      "cases": [
+        "C2-hold-past-cooldown",
+        "C11-global-gate-second-acquisition"
+      ]
+    },
+    {
+      "case_class": "手离开再出现",
+      "cases": [
+        "C3-lost-then-reappear"
+      ]
+    },
+    {
+      "case_class": "两类快速切换/短暂抖动",
+      "cases": [
+        "C4-jitter-reset",
+        "C4-quick-switch"
+      ]
+    },
+    {
+      "case_class": "多目标/同分/目标跳变",
+      "cases": [
+        "C5-tie-source-order",
+        "C5-held-priority",
+        "C5-target-jump"
+      ]
+    },
+    {
+      "case_class": "NO_HAND / 场景未知 / 低分",
+      "cases": [
+        "C6-no-hand-unknown-lowscore",
+        "C6b-no-hand-with-detections"
+      ]
+    },
+    {
+      "case_class": "TIMEOUT / ERROR / DROPPED / stale",
+      "cases": [
+        "C7-timeout-error-dropped-stale"
+      ]
+    },
+    {
+      "case_class": "重复、倒序、缺帧、重启帧号",
+      "cases": [
+        "C8-duplicate-reorder-missing-restart"
+      ]
+    },
+    {
+      "case_class": "时间等于阈值、前后 1 个计时单位",
+      "cases": [
+        "C9c-30fps-later-of",
+        "C9-s01-equal",
+        "C9-s01-minus-1ns"
+      ]
+    },
+    {
+      "case_class": "无新结果但时间持续前进",
+      "cases": [
+        "C10-tick-time-advance"
+      ]
+    },
+    {
+      "case_class": "动作失败/未观察/重复 ACK",
+      "cases": [
+        "C11-fail-then-success",
+        "C11-unobserved"
+      ]
+    },
+    {
+      "case_class": "id 生命周期",
+      "cases": [
+        "C12-m8-two-acquisitions",
+        "C12-m2-m12-new-target",
+        "C12-gate-reopen-new-acquisition"
+      ]
+    }
+  ],
+  "expected_derivation_note": "expected 全部由行为表 v1.4（§4 迁移表、§9 窗口、§10 冷却/一次获取一次、§13 帧序、§14 参数草案值）人工推导：周期、帧号、时间偏移均在用例内显式给出；不使用状态机输出作为预期（H-7）。参数全部为 PENDING_APPROVAL 草案值，任何结论只对注入输入有效。",
+  "cases": [
+    {
+      "case_id": "C1-fist-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=0（fist）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_MENU。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C1-palm-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=1（palm）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_STATS。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_STATS",
+          "final_channel": null
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C1-one-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=2（one）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_1。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 2,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": null,
+          "final_channel": "CH_1"
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C1-two_up-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=3（two_up）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_2。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 3,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": null,
+          "final_channel": "CH_2"
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C1-three-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=4（three）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_3。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 4,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": null,
+          "final_channel": "CH_3"
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C2-hold-past-cooldown",
+      "matrix_class": "持续保持与冷却后保持",
+      "description": "保持 20 帧（2 s）：第 7 帧触发一次；冷却在 t_last_submit+T6-K01=1600 ms 结束，第 17 帧走 M9 维持态，不再触发（B15/§10）。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 13,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 14,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 15,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 16,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 17,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 18,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 19,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 20,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "STABLE",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C3-lost-then-reappear",
+      "matrix_class": "手离开再出现",
+      "description": "触发后手离开：第 8 帧仍为 OK（刷新 t_last_target_continues=700 ms），第 9–11 帧 NO_HAND 且第 11 帧距锚点满 T6-L02=300 ms → M10→LOST；第 12 帧先按丢失态走 M11→IDLE（清空目标与证据）；同目标自第 13 帧起重新累积窗口 → 第 18 帧 M3、第 19 帧第二次触发（新获取，门已结束）。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 13,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 14,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 15,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 16,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 17,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 18,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 19,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7,
+          19
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 2,
+          "action_effective": 2,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "no_hand_frames": 3,
+          "action_submitted": 2
+        }
+      }
+    },
+    {
+      "case_id": "C4-jitter-reset",
+      "matrix_class": "短暂抖动",
+      "description": "5 帧稳定后连续 2 帧 score<P02：第 1 帧容忍（≤T6-J01），第 2 帧重置窗口；候选停留已达 T6-S04=500 ms → M4→IDLE，不触发。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.28,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.28,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [
+          "M1",
+          "M4"
+        ],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "action_submitted": 0
+        },
+        "suppressions_include": [
+          "S_JITTER_TOLERATED"
+        ]
+      }
+    },
+    {
+      "case_id": "C4-quick-switch",
+      "matrix_class": "两类快速切换",
+      "description": "fist/palm 逐帧交替：每帧都是目标切换（TARGET_CONTINUES 不成立），连续同目标帧数达不到 T6-C01=2 → 不进入 CANDIDATE、不触发。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "action_submitted": 0
+        }
+      }
+    },
+    {
+      "case_id": "C5-tie-source-order",
+      "matrix_class": "多目标/同分",
+      "description": "每帧两框同分 0.90（fist order=5、palm order=2）：同分按 source_order 权威解析 → 选中 palm（order 2），稳定后动作为 UI_STATS；记录 S_CONFLICT_RESOLVED。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 5
+            },
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 2
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_STATS",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        },
+        "markers_include": [
+          "source_order"
+        ]
+      }
+    },
+    {
+      "case_id": "C5-held-priority",
+      "matrix_class": "多目标/维持优先",
+      "description": "当前 fist 0.40（≥T6-P02）持续成立，另有 palm 0.95 异类高分框：按 B03 维持 fist（记录 S_TARGET_HELD），稳定后动作仍是 UI_MENU。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.4,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            },
+            {
+              "class_id": 1,
+              "score": 0.95,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        },
+        "suppressions_include": [
+          "S_TARGET_HELD"
+        ]
+      }
+    },
+    {
+      "case_id": "C5-target-jump",
+      "matrix_class": "多目标/目标跳变",
+      "description": "第 1–3 帧 fist，第 4 帧起换成远处 palm：切换结束当前获取并清空窗口证据，新目标重新累积 6 帧 → 第 9 帧 M3、第 10 帧触发 UI_STATS。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 1,
+              "score": 0.9,
+              "xyxy": [
+                0.62,
+                0.22,
+                0.9,
+                0.5
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          10
+        ],
+        "window_complete_ns": 800000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_STATS",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C6-no-hand-unknown-lowscore",
+      "matrix_class": "NO_HAND / 未知类 / 低分",
+      "description": "4 帧 NO_HAND（合法零框）+ 1 帧 class_id=5（E_FRAME_INVALID，单独计 unknown_class_frames）+ 3 帧低分（<T6-P01）：全部不触发，分区计数不混用。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 5,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.2,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.2,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.2,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "no_hand_frames": 4,
+          "unknown_class_frames": 1,
+          "invalid": 1,
+          "ok_frames": 3
+        }
+      }
+    },
+    {
+      "case_id": "C6b-no-hand-with-detections",
+      "matrix_class": "NO_HAND / 未知类 / 低分",
+      "description": "state=NO_HAND 却携带 detections（§11.3 非法输入）：计 E_FRAME_INVALID 并丢弃该帧证据，**不**计入 no_hand_frames；2 帧未达异常窗口阈值（W=3）→ 不进入恢复态、无动作。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "NO_HAND",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "NO_HAND",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "invalid": 2,
+          "no_hand_with_detections": 2,
+          "no_hand_frames": 0
+        }
+      }
+    },
+    {
+      "case_id": "C7-timeout-error-dropped-stale",
+      "matrix_class": "TIMEOUT / ERROR / DROPPED / stale",
+      "description": "3 个异常帧（TIMEOUT/ERROR/DROPPED）达 T6-U00 阈值 → M2→UNKNOWN_RECOVER 并清空目标；stale 帧不触发不计窗口；随后 5 帧合法结果 → M12→IDLE。全程无动作。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_TIMEOUT",
+          "dt_ns": 100000000,
+          "frame_id": 3
+        },
+        {
+          "kind": "E_FRAME_ERROR",
+          "dt_ns": 100000000,
+          "frame_id": 4
+        },
+        {
+          "kind": "E_FRAME_DROPPED",
+          "dt_ns": 100000000,
+          "frame_id": 5
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ],
+          "stale": true
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [
+          "M1",
+          "M2",
+          "M12"
+        ],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "timeout": 1,
+          "error": 1,
+          "dropped": 1,
+          "stale": 1
+        }
+      }
+    },
+    {
+      "case_id": "C8-duplicate-reorder-missing-restart",
+      "matrix_class": "重复 / 倒序 / 缺帧 / 重启帧号",
+      "description": "重复 frame_id 幂等丢弃；缺帧计 2；倒序计异常；session 变化 → 全量复位（RESET）并清空计数，不延续旧会话状态。全程无动作。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 1,
+          "session_id": "s2",
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [
+          "M1",
+          "RESET"
+        ],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        },
+        "core_counters": {
+          "duplicate_frames": 0,
+          "out_of_order_frames": 0,
+          "ok_frames": 0
+        },
+        "counter_highs": {
+          "duplicate_frames": 1,
+          "missing_frames": 2,
+          "out_of_order_frames": 1,
+          "ok_frames": 3
+        }
+      }
+    },
+    {
+      "case_id": "C9c-30fps-later-of",
+      "matrix_class": "低 FPS / 窗口完成取较晚",
+      "description": "30fps（P=33.3 ms，T6-S01=200 ms，T6-S02=6）：第 6 个 WINDOW_MATCH 帧只有 166.5 ms < 200 ms，按 T6-S03「取较晚」完成帧是第 8 帧（233.1 ms）→ 第 8 帧 M3、第 9 帧触发；若按旧口径（只数帧）会误判为第 6 帧完成。",
+      "period_ns": 33300000,
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 33300000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          9
+        ],
+        "window_complete_ns": 233100000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C9-s01-equal",
+      "matrix_class": "时间等于阈值",
+      "description": "周期 40 ms：第 6 个 WINDOW_MATCH 帧恰为 200 ms = T6-S01，含等号 → M3 在第 6 帧成立，第 7 帧触发。",
+      "period_ns": 40000000,
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 200000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C9-s01-minus-1ns",
+      "matrix_class": "时间阈值 −1 个计时单位",
+      "description": "第 6 帧落在 T6-S01−1 ns（199 999 999 ns）→ 帧数够但时长不足，不进入 STABLE；第 7 帧落在 T6-S01+1 ns → 成立；第 8 帧触发。",
+      "period_ns": 40000000,
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 40000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 39999999,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 2,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          8
+        ],
+        "window_complete_ns": 200000001,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "action_submitted": 1
+        }
+      }
+    },
+    {
+      "case_id": "C10-tick-time-advance",
+      "matrix_class": "无新结果但时间前进",
+      "description": "2 帧建立候选后只有时钟推进：距最近一次 TARGET_CONTINUES 成立达 T6-L02=300 ms → M10→LOST，下一 tick M11→IDLE；全程无动作。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_TICK",
+          "dt_ns": 100000000
+        },
+        {
+          "kind": "E_TICK",
+          "dt_ns": 100000000
+        },
+        {
+          "kind": "E_TICK",
+          "dt_ns": 100000000
+        },
+        {
+          "kind": "E_TICK",
+          "dt_ns": 100000000
+        }
+      ],
+      "expected": {
+        "final_state": "IDLE",
+        "transitions": [
+          "M1",
+          "M10",
+          "M11"
+        ],
+        "submitted_at_frames": [],
+        "action_summary": {
+          "action_submitted": 0,
+          "action_effective": 0
+        }
+      }
+    },
+    {
+      "case_id": "C11-fail-then-success",
+      "matrix_class": "动作失败 / 未观察",
+      "outcome_policy": {
+        "fail_attempts": [
+          1
+        ]
+      },
+      "description": "第 1 次提交执行层返回 fail：不产生 ACTION_SUBMITTED、不更新冷却锚点、不计成功；下一窗口推进帧重新提交成功 → 恰好一次成功。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          8
+        ],
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 1,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU"
+        }
+      }
+    },
+    {
+      "case_id": "C11-unobserved",
+      "matrix_class": "动作未观察",
+      "outcome_policy": {
+        "unobserved_attempts": [
+          1
+        ]
+      },
+      "description": "提交成功但未观察到生效：ACTION_SUBMITTED 计入、ACTION_EFFECTIVE 不计入、可见状态不变（H-8/B28）。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 0,
+          "action_unobserved": 1,
+          "visible_state_changes": 0,
+          "final_display_state": null
+        },
+        "core_counters": {
+          "unobserved": 1
+        }
+      }
+    },
+    {
+      "case_id": "C11-global-gate-second-acquisition",
+      "matrix_class": "冷却后保持 / 全局冷却门",
+      "description": "第 12 帧触发（t_submit=220 ms）；目标丢失后重获并再次满足窗口（第 29 帧 M3），但 t_now−t_submit=360 ms < T6-K01=1000 ms → M5 被 H-10 抑制（S_COOLDOWN），全程只提交一次。",
+      "period_ns": 20000000,
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 13,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 14,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 15,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 16,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 17,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 18,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 19,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 20,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 21,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 22,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 23,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 24,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 25,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 26,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 27,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 28,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 29,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 30,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 31,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 20000000,
+          "frame_id": 32,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "STABLE",
+        "submitted_at_frames": [
+          12
+        ],
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1
+        },
+        "core_counters": {
+          "no_hand_frames": 6,
+          "action_submitted": 1
+        },
+        "suppressions_include": [
+          "S_COOLDOWN"
+        ],
+        "window_complete_ns": 200000000
+      }
+    },
+    {
+      "case_id": "C12-m8-two-acquisitions",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：M8（COOLDOWN 结束且目标缺失、M10 未先命中）结束一次获取并分配新 acquisition_id；该路径两次触发应得 [0,1]。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 13,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 14,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 15,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 16,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 17,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 18,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 19,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 20,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 21,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 22,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 23,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 24,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 25,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 26,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 27,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 28,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 29,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 30,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 31,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 32,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 33,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 34,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 35,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7,
+          28
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 2,
+          "action_effective": 2
+        },
+        "acquisition_ids": [
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "case_id": "C12-m2-m12-new-target",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：M5→M2（恢复态）→M12（恢复出口）→新目标→M5 必须使用新的 acquisition_id（两个出口各分配一次）。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_TIMEOUT",
+          "dt_ns": 100000000,
+          "frame_id": 13
+        },
+        {
+          "kind": "E_FRAME_ERROR",
+          "dt_ns": 100000000,
+          "frame_id": 14
+        },
+        {
+          "kind": "E_FRAME_DROPPED",
+          "dt_ns": 100000000,
+          "frame_id": 15
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 16,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 17,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 18,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 19,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 20,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 21,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 22,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 23,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 24,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 25,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 26,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 27,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 28,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 29,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 30,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 31,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 32,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 33,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M2",
+          "M12",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7,
+          27
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 2,
+          "action_effective": 2
+        },
+        "acquisition_ids": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "case_id": "C12-gate-reopen-new-acquisition",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：三段获取（首触发 → M8 结束 → 再触发 → M10/M11 结束 → 再触发）的 acquisition_id 必须逐段独立，不得复用。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 9,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 10,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 11,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 12,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 13,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 14,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 15,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 16,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 17,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 18,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 19,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 20,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 21,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 22,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 23,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 24,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 25,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 26,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 27,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 28,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 29,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 30,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 31,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 32,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 33,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 34,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 35,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 36,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 37,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 38,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 39,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 40,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 41,
+          "state": "NO_HAND",
+          "detections": []
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 42,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 43,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 44,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 45,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 46,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 47,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 48,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 49,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 50,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 51,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 52,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 53,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 54,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 55,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 56,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 57,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 58,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 59,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "STABLE",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ],
+        "submitted_at_frames": [
+          7,
+          28,
+          48
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 3,
+          "action_effective": 3
+        },
+        "acquisition_ids": [
+          0,
+          1,
+          2
+        ]
+      }
+    }
+  ]
+}

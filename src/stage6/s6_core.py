@@ -49,7 +49,7 @@ SUP_WINDOW_TIMEOUT = "S_WINDOW_TIMEOUT"
 NON_ADVANCING_KINDS = (EV_FRAME_TIMEOUT, EV_FRAME_ERROR, EV_FRAME_DROPPED)
 
 #: 判定核心使用的期望契约版本（可被构造参数覆盖，但不允许静默跟随上游改版）。
-EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.7"
+EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.8"
 
 
 class CoreInputError(RuntimeError):
@@ -76,9 +76,11 @@ class GestureInteractionCore:
         "D5: 时间条件使用显式输入时刻；E_TICK 只推进时间，用于「无新结果但时间持续前进」。",
         "D6: 语义上无法由核心判定的未知场景（合法五类内的误识别）不做拒绝判定（H-6）；"
         "class_id ∉ {0..4} 按 E_FRAME_INVALID 处理并计入异常。",
-        "D7（N-05/BLK-r02-1，已按实测修正）：acquisition_id 在**结束一次获取**时递增——M11（丢失确认→IDLE）、"
-        "M4（抖动超时→IDLE）与目标切换（D3）各 +1；M8（会话/重启复位）由 _init_state 归零；M1 建立候选不递增。"
-        "同一获取内 M5 至多触发一次（B11/B15）；动作记录与日志都带该 id，可由交付证据逐获取核对。",
+        "D7（N-05/BLK-r02-1/BLK-r03-1，已按实测修正）：**凡结束一次获取的转移都分配新的 acquisition_id**——"
+        "M11（丢失确认→IDLE）、M4（抖动超时→IDLE）、M8（COOLDOWN→IDLE 目标丢失出口）、M2（进入 UNKNOWN_RECOVER）、"
+        "M12（恢复出口）与目标切换（D3）各 +1；M13 只是恢复态内再入，不结束获取、不递增；"
+        "会话/重启复位（RESET）由 _init_state 归零；M1 建立候选不递增。同一获取内 M5 至多触发一次（B11/B15）；"
+        "动作记录、逐帧日志与 action_ack 日志都带该 id，可由交付证据逐获取核对。",
         "D8（N-08/NB-03，按实测改写）：IDLE **会**保留 current_target——单帧选中目标时 M1 未成立（需 T6-C01=2 帧），"
         "但该帧已按 §8 选定目标，而 IDLE 不在 M10 的求值分支里；实测「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10。"
         "这是与规格「M10 适用于任意有目标状态」的**已知行为偏差**，已在 limitations_not_executed.json 的 "
@@ -400,7 +402,7 @@ class GestureInteractionCore:
         log["window_advance"] = True
         if state_value == "NO_HAND":
             self.counters["no_hand_frames"] += 1
-            self.current_target = None if self.current_target is None else self.current_target
+            # NB-r03-05：删除无意义自赋值（原为 current_target 的自比较，无实际作用）
             self._on_advancing_no_target(log)
         else:
             self.counters["ok_frames"] += 1
@@ -503,7 +505,7 @@ class GestureInteractionCore:
         return False
 
     def _evaluate(self, t_now_ns: int, advancing: bool, log: dict[str, Any]) -> None:
-        """按 v1.6 求值序逐级判定，首次命中即停（BLK-r02-1：M11/M4 递增 acquisition_id）。"""
+        """按 v1.8 求值序逐级判定，首次命中即停（BLK-r03-1：结束获取的 M11/M4/M8/M2/M12 都分配新 acquisition_id）。"""
         previous = self.state
 
         # P1 异常
@@ -586,7 +588,8 @@ class GestureInteractionCore:
         # P4 获取（IDLE）
         if self.state == "IDLE" and self.current_target is not None:
             if self.candidate_streak >= self.th["c01_frames"]:
-                self.candidate_dwell_start_ns = self.candidate_dwell_start_ns or t_now_ns
+                if self.candidate_dwell_start_ns is None:  # NB-r03-08：显式判空（避免 t=0 时被 or 改写）
+                    self.candidate_dwell_start_ns = t_now_ns
                 self._transition(log, "M1", f"连续 {self.th['c01_frames']} 条窗口推进帧为同一目标（TARGET_CONTINUES）")
 
         _ = previous
@@ -599,10 +602,9 @@ class GestureInteractionCore:
             "M11": "IDLE", "M12": "IDLE", "M13": "UNKNOWN_RECOVER", "M15": "CANDIDATE",
         }[mid]
         if mid in ("M11", "M4", "M8"):
-            # BLK-r02-1：这三个迁移都**结束一次获取**，必须真的递增获取级 id（使 D7 与实现一致）；
-            # M8（会话/重启复位）由 _init_state 归零，故只在 M11/M4 递增。
-            if mid in ("M11", "M4"):
-                self.acquisition_id += 1
+            # BLK-r03-1（终审 B，按 (a) 修）：**凡结束一次获取的转移都分配新的 acquisition_id**。
+            # M8 = COOLDOWN→IDLE 的目标丢失出口（并非会话复位；复位是 RESET，由 _init_state 归零），同样结束获取。
+            self.acquisition_id += 1
             self.current_target = None
             self._clear_window_evidence()
             self.continues_false_streak = 0
@@ -610,6 +612,9 @@ class GestureInteractionCore:
             self.candidate_streak = 0
             self.candidate_dwell_start_ns = None
             self.acquisition_triggered = False
+        if mid == "M12":
+            # BLK-r03-1：恢复出口同样结束该轮获取（恢复期不保留旧目标）→ 分配新 id
+            self.acquisition_id += 1
         if mid == "M15":
             self._clear_window_evidence()
             self.candidate_streak = 1
@@ -621,6 +626,8 @@ class GestureInteractionCore:
             self._clear_window_evidence()
         if mid == "M2":
             # §11.6：进入恢复态时清空目标与稳定证据，恢复期帧不计入窗口
+            # BLK-r03-1：M2 同样结束一次获取 → 分配新 id（M13 只是恢复态内再入，不结束获取、不递增）
+            self.acquisition_id += 1
             self.current_target = None
             self._clear_window_evidence()
             self.continues_false_streak = 0

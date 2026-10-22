@@ -9,7 +9,7 @@
   5. case_timeout_frame_action        N-r04-01 角落用例 → C7
   6. case_span_wrong                  N-r05-04：HC-31 预期改成旧口径（166.5 ms / m3_fires=false）→ C7
   7. case_out_of_sequence_index       F7：HC-32 预期改成越界外推值（completion_index=7/window_span_ms=233.1）→ C7
-  8. m4_unreachable_phrase            BLK-r07-1：把 parameter_notes.T6-S04 回退为「M4 不可达」→ C16（全包禁语断言）
+  8. m4_conflict_phrase            BLK-r07-1：把 parameter_notes.T6-S04 回退为「M4 不可达」→ C16（全包禁语断言）
 
 历史口径对照（不计入注入数）：
   * r05 版自检（git `1632761`）在 r08 样例上运行 → 必须 exit 1（旧脚本无法接受 r07 预期）
@@ -89,7 +89,7 @@ def _case_out_of_sequence_index(cases: dict[str, Any]) -> str:
     return "HC-32 预期改成越界外推值（completion_index=7 / window_span_ms=233.1）"
 
 
-def _m4_unreachable_phrase(data: dict[str, Any]) -> str:
+def _m4_conflict_phrase(data: dict[str, Any]) -> str:
     """BLK-r07-1：把 M4 口径回退为不可达，验证 C16 的全包禁语断言可捕获。"""
     data["parameter_notes"]["T6-S04"] = "草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。"
     return "parameter_notes.T6-S04 回退为「M4 不可达…不得计入覆盖声明」"
@@ -112,8 +112,8 @@ INJECTIONS = [
      "apply": _case_span_wrong, "note": "N-r05-04 判别力（旧口径：只按第 T6-S02 个 WINDOW_MATCH 帧取跨度）"},
     {"id": "case_out_of_sequence_index", "target": "cases", "expect_exit": 1, "expect_check": "C7",
      "apply": _case_out_of_sequence_index, "note": "F7：完成帧超出所给序列的报值口径"},
-    {"id": "m4_unreachable_phrase", "target": "json", "expect_exit": 1, "expect_check": "C16",
-     "apply": _m4_unreachable_phrase, "note": "BLK-r07-1：M4 口径统一的全包禁语断言"},
+    {"id": "m4_conflict_phrase", "target": "json", "expect_exit": 1, "expect_check": "C16",
+     "apply": _m4_conflict_phrase, "note": "BLK-r07-1：M4 口径统一的全包禁语断言"},
 ]
 
 

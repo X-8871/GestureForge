@@ -106,6 +106,23 @@ class CheckFailure(Exception):
 TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
 
 
+def hash_variants(path: Path) -> set[str]:
+    """同一文件在两种换行约定下的可比哈希集合（O1 口径）。
+
+    包含三个方向，任一声明值命中即视为一致：
+    * 原字节（工作区当前写法）；
+    * CRLF→LF（git 归一化；`git archive`/LF 工作副本的口径）；
+    * LF→CRLF（清单按工作区 CRLF 声明、而导出为 LF 时的反方向）。
+    """
+    data = path.read_bytes()
+    variants = {hashlib.sha256(data).hexdigest()}
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        lf = data.replace(b"\r\n", b"\n")
+        variants.add(hashlib.sha256(lf).hexdigest())
+        variants.add(hashlib.sha256(lf.replace(b"\n", b"\r\n")).hexdigest())
+    return variants
+
+
 def hash_normalized(path: Path) -> str:
     """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
 
@@ -156,7 +173,7 @@ def check_identity(data: dict[str, Any]) -> None:
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
     allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4",
-                        "S6A-G0-v1.5", "S6A-G0-v1.6", "S6A-G0-v1.7")
+                        "S6A-G0-v1.5", "S6A-G0-v1.6", "S6A-G0-v1.7", "S6A-G0-v1.8")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
@@ -184,6 +201,8 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.4": "s6a_g0_20261022_r05",
         "S6A-G0-v1.5": "s6a_g0_20261022_r06",
         "S6A-G0-v1.6": "s6a_g0_20261022_r07",
+        "S6A-G0-v1.7": "s6a_g0_20261022_r08",
+        "S6A-G0-v1.8": "s6a_g0_20261022_r09",
         "S6A-G0-v1.7": "s6a_g0_20261022_r08",
     }
     if version in expected_runs:
@@ -723,6 +742,10 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         j01 = int(spec["j01_frames"])
         l01 = int(spec["l01_frames"])
         period = int(spec["period_ms"])
+        # N-r08-7：可达性**由输入推导**，不再硬编码：
+        # `target_continues_requires_score_gate` 由调用方从行为表 predicates.TARGET_CONTINUES 的
+        # params/excludes 推导（T6-P02 在 params 内才等于"含分数门"）；历史对照值仅用于展示。
+        score_gate = bool(spec.get("target_continues_requires_score_gate", False))
         # r08/BLK-r07-1：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进；§3 的 TARGET_CONTINUES
         # **不含** score ≥ T6-P02，故低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、
         # miss_streak 保持 0 → M10 不会先命中 → 候选停留可达 T6-S04 → **M4 可达**。
@@ -730,8 +753,8 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         earliest_m10_if_score_gate = min(l01 * period, l02)
         m4_earliest = max(s04, (j01 + 1) * period)
         return {
-            "m4_reachable_under_draft": True,
-            "target_continues_requires_score_gate": False,
+            "m4_reachable_under_draft": (not score_gate) or (m4_earliest < earliest_m10_if_score_gate),
+            "target_continues_requires_score_gate": score_gate,
             "historical_earliest_m10_ms_if_score_gate": earliest_m10_if_score_gate,
             "m4_earliest_ms": m4_earliest,
             "reachable_if_s04_lt_l02": True,
@@ -933,7 +956,19 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
     raise CheckFailure(f"未知的复算类型：{kind}")
 
 
-def check_hand_cases(cases: dict[str, Any]) -> str:
+def target_continues_score_gate(data: dict[str, Any]) -> bool:
+    """N-r08-7：从行为表谓词定义推导"TARGET_CONTINUES 是否含分数门（T6-P02）"。
+
+    依据 predicates.TARGET_CONTINUES 的 `params` / `excludes`：T6-P02 出现在 params 内才算含分数门。
+    这样 m4_reachability 的复算完全由输入决定，而不是常量。
+    """
+    entry = (data.get("predicates") or {}).get("TARGET_CONTINUES") or {}
+    params = {str(p) for p in entry.get("params") or []}
+    excludes = {str(p) for p in entry.get("excludes") or []}
+    return "T6-P02" in params and "T6-P02" not in excludes
+
+
+def check_hand_cases(cases: dict[str, Any], data: dict[str, Any] | None = None) -> str:
     seen: set[str] = set()
     for case in cases["cases"]:
         case_id = case["case_id"]
@@ -942,7 +977,12 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
         seen.add(case_id)
         expected = case["expected"]
         try:
-            computed = recompute(case)
+            # N-r08-7：把「TARGET_CONTINUES 是否含分数门」由行为表推导后注入复算输入（非硬编码常量）
+            case_spec = case
+            if case.get("kind") == "m4_reachability" and data is not None:
+                case_spec = dict(case)
+                case_spec["target_continues_requires_score_gate"] = target_continues_score_gate(data)
+            computed = recompute(case_spec)
         except CheckFailure:
             raise
         except Exception as exc:  # noqa: BLE001
@@ -1100,13 +1140,13 @@ def check_evidence_integrity(
         for relpath, want in declared_run.items():
             target = evidence_dir / relpath
             got = sha256_file(target)
-            if got != want and hash_normalized(target) != want:
+            if want.casefold() not in {h.casefold() for h in hash_variants(target)}:
                 raise CheckFailure(f"清单哈希不符：{relpath}")
         for relpath, want in sorted(declared_out.items()):
             path = (project_root / relpath).resolve()
             if not path.is_file():
                 raise CheckFailure(f"清单声明的源码/输入文件不存在：{relpath}")
-            if sha256_file(path) != want and hash_normalized(path) != want:
+            if want.casefold() not in {h.casefold() for h in hash_variants(path)}:
                 raise CheckFailure(f"清单声明的源码/输入哈希不符：{relpath}")
         details.append(
             f"manifest 双向一致（运行目录 {len(declared_run)} 个文件 + 外部绑定 {len(declared_out)} 个文件哈希复算通过）"
@@ -1491,7 +1531,35 @@ def check_h4_no_hand(data: dict[str, Any], doc_text: str) -> None:
             raise CheckFailure(f"文档缺少 B-02 口径：{phrase}")
 
 
-def check_reachability(data: dict[str, Any], doc_text: str, cases: dict[str, Any]) -> None:
+M4_HISTORICAL_MARKERS = ("历史语境除外", "原声明", "改为", "r07 复评", "勘误")
+_M4_SEMANTIC_PATTERNS = (
+    # 语义判定（不依赖字面量）：同一行里 M4/T6-S04 与"不可达/遮蔽/不计入覆盖"等表述共存即命中
+    re.compile(r"(M4|T6-S04)[^\n]{0,60}(不可达|遮蔽|不计入|不纳入|不参与覆盖|不得计入)"),
+    re.compile(r"(不可达|遮蔽|不计入覆盖|不纳入覆盖)[^\n]{0,80}(M4|T6-S04)"),
+    # 只匹配**否定**形式（unreachab），避免把中性的 `reachability` 字段名误判（模式 C 收窄）
+    re.compile(r"(M4|T6-S04)[^\n]{0,40}unreachab", re.IGNORECASE),
+)
+
+
+def scan_m4_semantics(label: str, text: str, literals: tuple[str, ...]) -> list[str]:
+    """在单个交付文件里做**语义 + 字面量**双重扫描。
+
+    白名单只放行**显式标注历史语境的整行**（行内含 M4_HISTORICAL_MARKERS 之一）；
+    其余任何"M4/T6-S04 + 不可达/遮蔽/不计入覆盖"的行一律命中（BLK-r08-1）。
+    """
+    hits: list[str] = []
+    for lineno, line in enumerate(text.splitlines(), 1):
+        if any(marker in line for marker in M4_HISTORICAL_MARKERS):
+            continue
+        literal = next((needle for needle in literals if needle in line), None)
+        if literal is None and not any(p.search(line) for p in _M4_SEMANTIC_PATTERNS):
+            continue
+        hits.append(f"{label}:{lineno}（{'字面 ' + literal if literal else '语义命中'}）：{line.strip()[:110]}")
+    return hits
+
+
+def check_reachability(data: dict[str, Any], doc_text: str, cases: dict[str, Any],
+                       delivery_texts: dict[str, str] | None = None) -> None:
     transitions = {item["id"]: item for item in data["transitions"]}
     if "M14" in transitions:
         raise CheckFailure("r02 必须删除 M14（重获统一为 M10→M11→M1）")
@@ -1543,23 +1611,44 @@ def check_reachability(data: dict[str, Any], doc_text: str, cases: dict[str, Any
                  "M4 不得计入覆盖", "不得计入覆盖声明")
     # 逐行扫描：JSON 必须带缩进导出，否则整体成为一行会被白名单标记整行跳过。
     json_text = json.dumps(data, ensure_ascii=False, indent=2)
-    # 白名单：**显式标注为历史语境**的行（含下列标记之一）不计入禁语；其余一律 FAIL（BLK-r07-1）。
-    historical_markers = ("历史语境除外", "原声明", "改为", "r07 复评")
-    for label, haystack in (("文档", doc_text), ("行为表 JSON", json_text)):
-        for lineno, line in enumerate(haystack.splitlines(), 1):
-            if any(marker in line for marker in historical_markers):
-                continue
-            for needle in forbidden:
-                if needle in line:
-                    raise CheckFailure(
-                        f"{label}第 {lineno} 行仍出现禁语『{needle}』（M4 应可达并计入覆盖，BLK-r07-1）；"
-                        f"若确为历史语境，请在该行显式标注『历史语境除外』")
-    for case in cases.get("cases", []):
-        if case.get("expected", {}).get("m4_reachable_under_draft") is False:
-            raise CheckFailure(f"{case.get('case_id')}.expected.m4_reachable_under_draft=false 与 C16 结论相反"
-                               f"（BLK-r07-1）")
+    # r09/BLK-r08-1：扫描范围扩到**全部交付文件** + **语义判定**（白名单只放行显式历史语境整行）。
+    forbidden = ("M4 不可达", "M4/M7 不可达", "M4 在草案参数下不可达", "M4/T6-S04 与 M7 不得计入",
+                 "M4 不得计入覆盖", "不得计入覆盖声明", "M4 被 M10 遮蔽", "M4/M7 显式登记不可达")
+    haystacks = {"文档": doc_text, "行为表 JSON": json_text}
+    haystacks.update(delivery_texts or {})
+    hits: list[str] = []
+    for label, haystack in haystacks.items():
+        if not haystack:
+            continue
+        hits.extend(scan_m4_semantics(label, haystack, forbidden))
+    if hits:
+        raise CheckFailure("交付文件仍出现 M4 不可达类表述（语义判定）：" + "；".join(hits[:6]))
+    # NB-r03-10：**同一事实的两个表示**必须一致——transitions[*].reachability ↔ reachability.transitions.*.status。
+    flat_raw = data.get("transitions") or {}
+    if isinstance(flat_raw, list):
+        flat = {str(e.get("id", "")): e for e in flat_raw if isinstance(e, dict)}
+    else:
+        flat = flat_raw
+    reaches_raw = (data.get("reachability") or {}).get("transitions") or {}
+    if isinstance(reaches_raw, list):
+        reaches = {str(e.get("id", "")): e for e in reaches_raw if isinstance(e, dict)}
+    else:
+        reaches = reaches_raw
+    for mid, entry in flat.items():
+        if not isinstance(entry, dict) or "reachability" not in entry:
+            continue
+        flat_value = str(entry["reachability"]).upper()
+        nested = str((reaches.get(mid) or {}).get("status", "")).upper()
+        if not nested:
+            continue
+        flat_reachable = "UNREACHABLE" not in flat_value
+        nested_reachable = "UNREACHABLE" not in nested
+        if flat_reachable != nested_reachable:
+            raise CheckFailure(
+                f"迁移 {mid} 的可达性两个表示法冲突：transitions.{mid}.reachability={entry['reachability']} vs "
+                f"reachability.transitions.{mid}.status={nested}（NB-r03-10）")
     if "M4 可达" not in doc_text:
-        raise CheckFailure("文档未声明 M4 可达并计入覆盖（BLK-r07-1）")
+        raise CheckFailure("文档未声明 M4 可达并计入覆盖（BLK-r07-1）；历史语境除外")
 
 
 def check_stable_latching(data: dict[str, Any], doc_text: str) -> str:
@@ -1650,7 +1739,7 @@ def run_checks(
     run("C4", "待批准纪律", lambda: check_pending_approval_discipline(data, doc_text) or "24 项参数与指标 PENDING_APPROVAL")
     run("C5", "五类动作映射一致", lambda: check_action_map(data) or "5 类映射一致，target 唯一")
     run("C6", "硬不变量与唯一触发解释", lambda: check_invariants(data) or "H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一")
-    run("C7", "人工手算样例独立复算", lambda: check_hand_cases(cases))
+    run("C7", "人工手算样例独立复算", lambda: check_hand_cases(cases, data))
     run("C8", "上游只读文件哈希复算", lambda: check_upstream(bindings, project_root))
     run("C9", "文档必备覆盖与章节", lambda: check_doc_coverage(doc_text) or "关键词与章节齐全")
     run("C10", "禁止声明扫描（窄口径）", lambda: check_forbidden_claims(doc_text, data) or "未发现禁止声明")
@@ -1669,8 +1758,20 @@ def run_checks(
     run("C14", "W_min/窗口完成口径（B-04/N-05/F1）", lambda: check_w_min_and_period(data, doc_text)
         or "W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致")
     run("C15", "H-4/NO_HAND 一致性（B-02）", lambda: check_h4_no_hand(data, doc_text) or "NO_HAND 不推进匹配计数、零框不得完成窗口")
-    run("C16", "迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1）", lambda: check_reachability(data, doc_text, cases)
-        or "M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语")
+    delivery_texts: dict[str, str] = {}
+    if evidence_dir is not None:
+        for name in ("delivery_manifest.json", "inputs_manifest.json", "coverage_matrix.json",
+                     "limitations_not_executed.json", "fix_record.json", "fix_record.md",
+                     "S6A_run_summary.md", "hand_computed_cases.json", "upstream_bindings.json",
+                     "hashes_sha256.txt", "expected_freeze.json"):
+            candidate = evidence_dir / name
+            if candidate.is_file():
+                delivery_texts[name] = candidate.read_text(encoding="utf-8", errors="replace")
+    if state_text:
+        delivery_texts[".codex/STATE.md"] = state_text
+    run("C16", "迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1/BLK-r08-1）",
+        lambda: check_reachability(data, doc_text, cases, delivery_texts)
+        or (f"M4 可达并计入覆盖（M7 构造上不参与覆盖）；{len(delivery_texts)} 个交付文件经语义扫描一致"))
     run("C17", "STABLE 锁存语义一致性（观察项）", lambda: check_stable_latching(data, doc_text))
 
     status = "ALL_PASS" if not errors else "FAILED"

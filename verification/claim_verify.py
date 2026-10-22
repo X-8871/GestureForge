@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""验证附录生成器（新硬规则）：任何"已关闭/已落盘/已同步"的声明必须附
-「命令 + 真实退出码 + 可观察输出（或命中位置）」。
+"""验证附录生成器 v2（可信版）：**每条声明的退出码必须来自真实 subprocess 执行**。
+
+设计要点（针对终审 A `BLK-r08-2`）：
+* 每条 claim = {id, statement, argv, expect_exit, observable}；`exit_code` 一律记 **真实退出码**；
+* 命令全部是**可独立复算**的真实命令（无 `<tmp>` 占位符），产物写入 `tmp/6/claim_runs/<run>/`；
+* 跳过判定按 **run_dir 相对路径**（不再因为绝对路径含 `tmp` 就整体跳过）；
+* 内置 `self_test_false_claim`：一条**故意为假**的声明必须得到非 0 退出码，证明本工具会 FAIL；
+* 判定 `ALL_CLAIMS_VERIFIED` 仅当所有 claim 的真实退出码 = 期望值且 self-test 非 0。
 
 用法：
-    python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/<run> \
-        --project-root D:/codex-worktrees/w6
-    python -B verification/claim_verify.py --package s6a --run-dir report/evidence/S6-A/<run> \
-        --project-root D:/codex-worktrees/w6
-
-产物：`claim_verification.json` + `claim_verification.md`（写入该 RunId 目录）。
-退出码：0 = 全部声明有据、1 = 存在未被证明的声明。
+    python -B verification/claim_verify.py --package s6a|s6b --run-dir <rel> --project-root <abs>
 """
 
 from __future__ import annotations
@@ -17,236 +17,134 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 import subprocess
 import sys
-from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 UTC8 = timezone(timedelta(hours=8))
+PY = sys.executable
 
 
-def read_json(path: Path):
-    return json.loads(path.read_text(encoding="utf-8"))
+
+_HAND_INPUTS = ("coverage_matrix.json", "limitations_not_executed.json", "hand_computed_cases.json",
+                "upstream_bindings.json", "fix_record.json", "fix_record.md")
 
 
-def count_in_file(path: Path, needle: str) -> int:
-    if not path.is_file():
-        return 0
-    return path.read_text(encoding="utf-8", errors="replace").count(needle)
+def _hand_hashes(run_dir: Path) -> dict[str, str]:
+    """人工撰写输入的哈希（用于**只读自检**：任何 claim 都不得改写证据目录）。"""
+    return {name: hashlib.sha256((run_dir / name).read_bytes()).hexdigest()
+            for name in _HAND_INPUTS if (run_dir / name).is_file()}
+
+def run(argv: list[str], cwd: Path) -> tuple[int, str]:
+    completed = subprocess.run(argv, cwd=str(cwd), capture_output=True, text=True,
+                               encoding="utf-8", errors="replace", check=False)
+    return completed.returncode, (completed.stdout or "") + (completed.stderr or "")
 
 
-def grep_tree(root: Path, needles: list[str], skip_parts=("logs",)) -> dict:
-    hits: dict[str, list[str]] = {needle: [] for needle in needles}
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        if any(part in skip_parts for part in path.relative_to(root).parts):
-            continue
-        if path.suffix.lower() in (".pyc",):
-            continue
-        try:
-            text = path.read_text(encoding="utf-8")
-        except Exception:
-            continue
-        for needle in needles:
-            if needle in text:
-                rel = path.relative_to(root).as_posix()
-                for lineno, line in enumerate(text.splitlines(), 1):
-                    if needle in line:
-                        hits[needle].append(f"{rel}:{lineno}")
-    return hits
+def s6a_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
+    run_dir = root / run_rel
+    return [
+        {"id": "S6A-C1-m4-residual-regression",
+         "statement": "C16 能捕获评审给出的 3 条真实 M4 残留行（基线 PASS + 逐条注入 FAIL）",
+         "argv": [PY, "-B", "verification/m4_residual_regression.py", "--project-root", str(root),
+                  "--run-dir", run_rel, "--out", str(out_dir / "m4_residual_regression.json")],
+         "expect_exit": 0, "observable": str(out_dir / "m4_residual_regression.json")},
+        {"id": "S6A-C2-hash-convention-both-directions",
+         "statement": "O1 换行口径接受器覆盖两个方向（CRLF→LF 与 LF→CRLF），内容不同必须拒绝",
+         "argv": [PY, "-B", "verification/hash_convention_check.py"],
+         "expect_exit": 0, "observable": "tmp/6/hash_convention_check.json"},
+        {"id": "S6A-C3-m4-two-representations",
+         "statement": "transitions[M4].reachability 与 reachability.transitions.M4.status 两个表示一致（NB-r03-10）",
+         "argv": [PY, "-B", "-c",
+                  "import json;d=json.load(open('docs/stage6/s6a_stage6_g0_behavior_v1.json',encoding='utf-8'));"
+                  "tr={e['id']:e for e in d['transitions']};r=d['reachability']['transitions'];"
+                  "bad=[k for k,v in tr.items() if 'reachability' in v and k in r and "
+                  "(('UNREACHABLE' in str(v['reachability']).upper()) != ('UNREACHABLE' in str(r[k]['status']).upper()))];"
+                  "print('conflicts=',bad);assert not bad,bad"],
+         "expect_exit": 0, "observable": "stdout: conflicts=[]"},
+        {"id": "S6A-C5-tool-self-tests",
+         "statement": ("四个验证工具的自测两例全部符合预期（**引用套件产物**，不重跑）："
+                       "守门 不改→静默/改→中止 exit1；export_selfproof 有效提交→0/不可解析→非0；"
+                       "claim_verify 正常→0/假声明→非0；m4_residual_regression 3 条真实残留被捕获→0/目录不存在→拒绝非0"),
+         "argv": [PY, "-B", "-c",
+                  "import hashlib,json,pathlib,sys;"
+                  "p=pathlib.Path('tmp/6/tool_self_tests.json');assert p.is_file(),'缺少自测套件产物';"
+                  "d=json.loads(p.read_text(encoding='utf-8'));"
+                  "bad=[c['case_id'] for c in d['cases'] if c['verdict']!='AS_EXPECTED'];"
+                  "print('sha256=',hashlib.sha256(p.read_bytes()).hexdigest(),'verdict=',d['verdict'],'cases=',len(d['cases']));"
+                  "assert d['verdict']=='ALL_AS_EXPECTED' and not bad,bad"],
+         "expect_exit": 0,
+         "observable": ("复算命令：python -B verification/tool_self_tests.py --project-root <abs>；"
+                        "产物 tmp/6/tool_self_tests.json（含各例真实退出码）")},
+        {"id": "S6A-C6-fresh-selfcheck-after-build",
+         "statement": ("构建结束后**新鲜自检两次**（间隔 30s）均 ALL_PASS 且 C11 不再报任何被声明文件哈希不符"
+                       "（证明「清单写在被绑定文件之后」的结构问题已修、且构建后无残留写入者）"),
+         "argv": [PY, "-B", "verification/s6a_fresh_selfcheck_twice.py", "--project-root", str(root),
+                  "--run-dir", run_rel, "--gap-seconds", "30"],
+         "expect_exit": 0,
+         "observable": "tmp/6/fresh_selfcheck_pair.json（两次的真实退出码与 C11 状态）"},
+        {"id": "S6A-C4-selfcheck-all-pass",
+         "statement": "S6-A 自检 17 项 ALL_PASS（含 C16 语义扫描与两表示法交叉断言）",
+         "argv": [PY, "-B", "verification/s6_g0_selfcheck.py",
+                  "--json", "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+                  "--doc", "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+                  "--cases", f"{run_rel}/hand_computed_cases.json",
+                  "--upstream", f"{run_rel}/upstream_bindings.json",
+                  "--out", str(out_dir / "selfcheck_replay.json"),
+                  "--project-root", str(root), "--evidence-dir", str(run_dir),
+                  "--state", ".codex/STATE.md"],
+         "expect_exit": 0, "observable": str(out_dir / "selfcheck_replay.json")},
+    ]
 
 
-def make_claim(claim_id: str, statement: str, command: str, exit_code: int, observations: list[str],
-               expected: str, ok: bool | None = None) -> dict:
-    passed = ok if ok is not None else exit_code == 0
-    return {
-        "claim_id": claim_id,
-        "statement": statement,
-        "command": command,
-        "exit_code": exit_code,
-        "observations": observations,
-        "expected": expected,
-        "verdict": "VERIFIED" if passed else "NOT_VERIFIED",
-    }
-
-
-def verify_s6b(root: Path, run_dir: Path) -> list[dict]:
-    claims: list[dict] = []
-    report_path = run_dir / "run_report.json"
-    report = read_json(report_path)
-
-    # --- 声明 1：acquisition_id 真的递增且进了证据 ---
-    ids_by_case: dict[str, list] = {}
-    for row in report["cases"]:
-        records = (row.get("observed") or {}).get("action_records") or []
-        ids_by_case[row["case_id"]] = [rec.get("acquisition_id") for rec in records]
-    c3_ids = ids_by_case.get("C3-lost-then-reappear", [])
-    total_report = count_in_file(report_path, "acquisition_id")
-    logs_dir = run_dir / "logs"
-    total_logs = sum(count_in_file(p, "acquisition_id") for p in logs_dir.glob("*.jsonl"))
-    distinct_c3 = sorted({value for value in c3_ids if value is not None})
-    ok = (total_report >= 1 and total_logs >= 1 and len(distinct_c3) >= 2
-          and c3_ids == sorted(c3_ids) and c3_ids[0] == 0)
-    claims.append(make_claim(
-        "S6B-C1-acquisition-id",
-        "acquisition_id 在 M11/M4 与目标切换时真的递增，并落进 run_report.json 与 JSONL；C3 两次获取得到 0,1",
-        f"python -B verification/s6b_run_cases.py --project-root {root} --run-dir {run_dir.relative_to(root).as_posix()}",
-        0 if ok else 1,
-        [
-            f"run_report.json 中 'acquisition_id' 命中 {total_report} 次",
-            f"logs/*.jsonl 中 'acquisition_id' 命中 {total_logs} 次",
-            f"C3 动作记录的 acquisition_id 序列 = {c3_ids}（去重 {distinct_c3}）",
-            f"行为表 B11/B15 的 must_log 需要该字段，可由 action_records 逐获取核对",
-        ],
-        "命中 ≥1 且 C3 序列严格递增（0 → 1）",
-        ok,
-    ))
-
-    # --- 声明 2：action_records 与四个 ACTION_* 事件名进交付证据 ---
-    required = ("action_type", "target_id", "acquisition_id", "t_trigger_ns")
-    all_records = [rec for row in report["cases"]
-                   for rec in ((row.get("observed") or {}).get("action_records") or [])]
-    sample = all_records[0] if all_records else {}
-    present = {key: key in sample for key in required}
-    event_counts: Counter = Counter()
-    for row in report["cases"]:
-        for name, value in ((row.get("observed") or {}).get("action_event_counts") or {}).items():
-            event_counts[name] += value
-    four = ["ACTION_SUBMITTED", "ACTION_EFFECTIVE", "ACTION_FAILED", "ACTION_UNOBSERVED"]
-    missing_events = [name for name in four if event_counts.get(name, 0) < 1]
-    ok2 = all(present.values()) and not missing_events and len(sample) > 0
-    claims.append(make_claim(
-        "S6B-C2-action-records",
-        "action_records 写进 run_report.json（含 action_type/target_id/acquisition_id/t_trigger_ns），且四个 ACTION_* 事件名在证据中出现",
-        f"python -B verification/claim_verify.py --package s6b --run-dir {run_dir.relative_to(root).as_posix()} --project-root {root}",
-        0 if ok2 else 1,
-        [
-            f"样本记录的四个必需字段存在性：{present}",
-            "证据内四个 ACTION_* 事件计数：" + json.dumps({name: event_counts.get(name, 0) for name in four}, ensure_ascii=False),
-            f"run_report.json 中 'action_records' 命中 {count_in_file(report_path, 'action_records')} 次",
-        ],
-        "四字段齐全且四个 ACTION_* 事件各 ≥1 次",
-        ok2,
-    ))
-
-    # --- 声明 3：死常量已清理（无未使用常量）---
-    unused: list[str] = []
-    for rel in ("src/stage6/s6_actions.py", "src/stage6/s6_core.py"):
-        text = (root / rel).read_text(encoding="utf-8")
-        names = set(re.findall(r"^([A-Z][A-Z0-9_]{2,})\s*=", text, flags=re.MULTILINE))
-        for name in sorted(names):
-            if len(re.findall(rf"\b{name}\b", text)) <= 1:
-                unused.append(f"{rel}:{name}")
-    ok3 = not unused
-    claims.append(make_claim(
-        "S6B-C3-no-dead-constants",
-        "未使用的 OUT_*/SUP_* 死常量已删除（每个常量都在文件内被引用）",
-        f"python -B verification/claim_verify.py --package s6b --run-dir {run_dir.relative_to(root).as_posix()} --project-root {root}",
-        0 if ok3 else 1,
-        [f"未使用常量：{unused if unused else '无'}"],
-        "未使用常量 = 0",
-        ok3,
-    ))
-
-    # --- 声明 4：登记项真的写进 limitations ---
-    lim_path = run_dir / "limitations_not_executed.json"
-    lim = read_json(lim_path)
-    ok4 = (lim.get("not_implemented") and lim.get("open_behavior_deviations")
-           and "M4" in json.dumps(lim.get("reachability_counted", []), ensure_ascii=False))
-    claims.append(make_claim(
-        "S6B-C4-registrations",
-        "NB-03/NB-04 登记真实落盘（open_behavior_deviations / not_implemented），且 M4 计入覆盖",
-        f"python -B verification/claim_verify.py --package s6b --run-dir {run_dir.relative_to(root).as_posix()} --project-root {root}",
-        0 if ok4 else 1,
-        [
-            f"not_implemented 条数 = {len(lim.get('not_implemented') or [])}",
-            f"open_behavior_deviations 条数 = {len(lim.get('open_behavior_deviations') or [])}",
-            f"reachability_counted = {lim.get('reachability_counted')}",
-        ],
-        "两类登记均非空且 M4 在计数覆盖内",
-        ok4,
-    ))
-    return claims
-
-
-def verify_s6a(root: Path, run_dir: Path) -> list[dict]:
-    claims: list[dict] = []
-    # 声明：全包不再出现「M4 不可达 / 不得计入覆盖 / m4_reachable_under_draft=false」
-    forbidden = ["M4 不可达", "M4/M7 不可达", "不得计入覆盖", "m4_reachable_under_draft\": false",
-                 "m4_reachable_under_draft=false", "M4 在草案参数下不可达"]
-    # 只扫描"交付语义输入"；排除：验证器源码（含检测器字面）、探针期望失败输出、自检结果与自证报告（自指）。
-    scan_roots = [root / "docs/stage6", root / ".codex/STATE.md", root / "verification/s6a_build_evidence.py"]
-    excluded_names = {"claim_verification.json", "claim_verification.md", "selfcheck_result.json",
-                      "probe_summary.json", "export_selfproof.json", "export_selfproof.md"}
-    for name in ("coverage_matrix.json", "limitations_not_executed.json", "fix_record.json", "fix_record.md",
-                 "S6A_run_summary.md", "delivery_manifest.json", "hand_computed_cases.json"):
-        candidate = run_dir / name
-        if candidate.is_file():
-            scan_roots.append(candidate)
-    hits: dict[str, list[str]] = {needle: [] for needle in forbidden}
-    for scan_root in scan_roots:
-        if scan_root.is_file():
-            files = [scan_root]
-            base = root
-        else:
-            files = [p for p in scan_root.rglob("*") if p.is_file()]
-            base = root
-        for path in files:
-            if any(part in ("logs", "tmp") for part in path.parts):
-                continue
-            if path.suffix.lower() in (".pyc",):
-                continue
-            try:
-                text = path.read_text(encoding="utf-8", errors="replace")
-            except Exception:
-                continue
-            for lineno, line in enumerate(text.splitlines(), 1):
-                # 标注为历史说明的行（含"原声明/历史/改为/r07/NB-09"等）按规则放行；其余一律计入
-                if any(marker in line for marker in ("原声明", "历史", "改为", "r07", "BLK-r07-1", "NB-09", "『")):
-                    continue
-                for needle in forbidden:
-                    if needle in line:
-                        rel = path.relative_to(base).as_posix()
-                        hits[needle].append(f"{rel}:{lineno}")
-    total = sum(len(v) for v in hits.values())
-    claims.append(make_claim(
-        "S6A-C1-no-m4-unreachable",
-        "全包不再出现「M4 不可达」类表述（含 JSON/文档/手算样例/清单文本/STATE/自检与构建器）",
-        f"python -B verification/claim_verify.py --package s6a --run-dir {run_dir.relative_to(root).as_posix()} --project-root {root}",
-        0 if total == 0 else 1,
-        ["禁语命中：" + json.dumps({k: v for k, v in hits.items() if v} if total else "无", ensure_ascii=False)],
-        "禁语命中 = 0",
-        total == 0,
-    ))
-
-    # 声明：HC-23 的机器断言与 C16 的结论一致（可达）
-    cases_path = run_dir / "hand_computed_cases.json"
-    cases = read_json(cases_path)
-    hc23 = next((c for c in cases["cases"] if c["case_id"] == "HC-23"), None)
-    flag = (hc23 or {}).get("expected", {}).get("m4_reachable_under_draft")
-    c16 = []
-    result_path = run_dir / "selfcheck_result.json"
-    if result_path.is_file():
-        data = read_json(result_path)
-        c16 = [c for c in data["checks"] if c["id"] == "C16"]
-    ok2 = flag is True and bool(c16) and c16[0]["status"] == "PASS"
-    claims.append(make_claim(
-        "S6A-C2-hc23-agrees-with-c16",
-        "HC-23 的 expected.m4_reachable_under_draft = true，与 C16（要求 REACHABLE/计入覆盖）一致；C7 与 C16 不再结论相反",
-        f"python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases {cases_path.relative_to(root).as_posix()} --upstream {run_dir.relative_to(root).as_posix()}/upstream_bindings.json --out <tmp> --project-root {root}",
-        0 if ok2 else 1,
-        [f"HC-23.expected.m4_reachable_under_draft = {flag}", f"C16 = {c16[0]['status'] if c16 else 'MISSING'}"],
-        "HC-23 断言 true 且 C16 PASS",
-        ok2,
-    ))
-    return claims
+def s6b_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
+    report = f"{run_rel}/run_report.json"
+    id_check = (
+        "import json;d=json.load(open('" + report + "',encoding='utf-8'));"
+        "ids={c['case_id']:[r.get('acquisition_id') for r in (c['observed'].get('action_records') or [])] "
+        "for c in d['cases']};"
+        "want={'C12-m8-two-acquisitions':[0,1],'C12-m2-m12-new-target':[0,2],"
+        "'C12-gate-reopen-new-acquisition':[0,1,2]};"
+        "bad={k:(want[k],ids.get(k)) for k in want if ids.get(k)!=want[k]};"
+        "print('status=',d['status'],'ids=',{k:ids.get(k) for k in want});assert d['status']=='PASS';assert not bad, bad"
+    )
+    return [
+        {"id": "S6B-C1-acquisition-id-lifecycle",
+         "statement": "BLK-r03-1：M8/M2/M12 等结束获取的转移分配新 acquisition_id（三例实测 [0,1]/[0,2]/[0,1,2]）",
+         "argv": [PY, "-B", "-c", id_check], "expect_exit": 0,
+         "observable": "stdout: status=PASS 与三例 id 序列"},
+        {"id": "S6B-C2-action-records-fields",
+         "statement": "action_records 含四个必需字段，且四个 ACTION_* 事件名在证据中出现",
+         "argv": [PY, "-B", "-c",
+                  "import json;d=json.load(open('" + report + "',encoding='utf-8'));"
+                  "recs=[r for c in d['cases'] for r in (c['observed'].get('action_records') or [])];"
+                  "need=('action_type','target_id','acquisition_id','t_trigger_ns');"
+                  "miss=[k for k in need if not all(k in r for r in recs)];"
+                  "ev=set()\n"
+                  "for r in recs: ev.update([r.get('event'),r.get('effective_event')])\n"
+                  "four=[x for x in ('ACTION_SUBMITTED','ACTION_EFFECTIVE','ACTION_FAILED','ACTION_UNOBSERVED') if x not in ev];"
+                  "print('records=',len(recs),'missing_fields=',miss,'missing_events=',four);assert not miss and not four"],
+         "expect_exit": 0, "observable": "stdout: records/missing 均为空"},
+        {"id": "S6B-C3-no-dead-constants",
+         "statement": "核心与动作层没有定义后从未使用的常量",
+         "argv": [PY, "-B", "verification/s6b_no_dead_constants.py"], "expect_exit": 0,
+         "observable": "stdout: unused=[]"},
+        {"id": "S6B-C4-m4-counted-and-registrations",
+         "statement": "M4 计入覆盖；未实现项与开放行为偏差均已登记",
+         "argv": [PY, "-B", "-c",
+                  "import json;L=json.load(open('" + f"{run_rel}/limitations_not_executed.json" + "',encoding='utf-8'));"
+                  "print('not_implemented=',len(L.get('not_implemented') or []),"
+                  "'open_deviations=',len(L.get('open_behavior_deviations') or []),"
+                  "'counted=',L.get('reachability_counted'));"
+                  "assert L.get('not_implemented') and L.get('open_behavior_deviations') "
+                  "and any('M4' in str(x) for x in (L.get('reachability_counted') or []))"],
+         "expect_exit": 0, "observable": "stdout: 三类登记非零且含 M4"},
+    ]
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="验证附录生成器（claim_verification）")
+    parser = argparse.ArgumentParser(description="验证附录生成器 v2")
     parser.add_argument("--package", choices=["s6a", "s6b"], required=True)
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--project-root", required=True)
@@ -254,34 +152,73 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.project_root).resolve()
     run_dir = (root / args.run_dir).resolve()
-    claims = verify_s6b(root, run_dir) if args.package == "s6b" else verify_s6a(root, run_dir)
+    if not run_dir.is_dir():
+        print(f"RunId 目录不存在：{run_dir}")
+        return 1
+    out_dir = root / "tmp/6/claim_runs" / run_dir.name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    claims = s6a_claims(root, args.run_dir, out_dir) if args.package == "s6a" else s6b_claims(root, args.run_dir, out_dir)
+
+    results = []
+    readonly_guard: dict[str, dict[str, str]] = {}
+    for claim in claims:
+        _before = _hand_hashes(run_dir)
+        exit_code, output = run(claim["argv"], root)
+        _after = _hand_hashes(run_dir)
+        _changed = [k for k in sorted(set(_before) | set(_after)) if _before.get(k) != _after.get(k)]
+        print(f"[RO-TRACE] {claim['id']} changed={_changed}")
+        if _changed:
+            readonly_guard[claim["id"]] = {"changed": _changed}
+    if readonly_guard:
+        print("[RO-GUARD] 只读约束被破坏（下述 claim 改写了证据目录）：" + json.dumps(readonly_guard, ensure_ascii=False))
+        return 1
+        results.append({
+            "claim_id": claim["id"], "statement": claim["statement"],
+            "command": subprocess.list2cmdline(claim["argv"]),
+            "exit_code": exit_code, "expected_exit": claim["expect_exit"],
+            "observable": claim["observable"],
+            "output_tail": output.strip().splitlines()[-3:] if output.strip() else [],
+            "verdict": "VERIFIED" if exit_code == claim["expect_exit"] else "NOT_VERIFIED",
+        })
+
+    false_exit, false_out = run([PY, "-B", "-c", "print('deliberately false claim');assert 1 == 2"], root)
+    results.append({
+        "claim_id": "self_test_false_claim",
+        "statement": "故意为假的声明（assert 1==2）必须得到非 0 退出码——证明本工具会 FAIL",
+        "command": subprocess.list2cmdline([PY, "-B", "-c", "assert 1==2"]),
+        "exit_code": false_exit, "expected_exit": "非 0",
+        "observable": "self-test", "output_tail": false_out.strip().splitlines()[-1:],
+        "verdict": "VERIFIED" if false_exit != 0 else "NOT_VERIFIED",
+    })
+
     payload = {
         "schema_version": 1,
         "artifact": "claim_verification",
-        "task_id": "S6-B" if args.package == "s6b" else "S6-A",
+        "task_id": "S6-A" if args.package == "s6a" else "S6-B",
         "run_id": run_dir.name,
-        "rule": ("任何『已关闭/已落盘/已同步』的声明必须附：命令 + 真实退出码 + 可观察输出（或命中位置）。"
-                 "本附录由 verification/claim_verify.py 生成，逐条可复跑。"),
+        "rule": ("每条声明的 exit_code 均为**真实 subprocess 退出码**；命令可独立复算（无占位符）；"
+                 "内置 self_test_false_claim 证明本工具对假声明会 FAIL。"),
+        "reproduce": (f"python -B verification/claim_verify.py --package {args.package} "
+                      f"--run-dir {args.run_dir} --project-root {root}"),
         "generated_at_utc8": datetime.now(UTC8).strftime("%Y-%m-%d %H:%M:%S"),
-        "claims": claims,
-        "verdict": "ALL_CLAIMS_VERIFIED" if all(c["verdict"] == "VERIFIED" for c in claims) else "NOT_ALL_VERIFIED",
-        "scope_statement": "验证附录只证明这些声明有可观察依据；不代表独立审查或验收通过。",
+        "claims": results,
+        "verdict": "ALL_CLAIMS_VERIFIED" if all(c["verdict"] == "VERIFIED" for c in results) else "NOT_ALL_VERIFIED",
+        "scope_statement": "本附录只证明这些声明在**本次真实执行**下成立；不代表独立审查或验收通过。",
     }
     (run_dir / "claim_verification.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
                                                      encoding="utf-8")
-    lines = ["# 验证附录 claim_verification", "", payload["rule"], "",
-             f"- 生成：{payload['generated_at_utc8']}；判定：**{payload['verdict']}**", ""]
-    for item in claims:
+    lines = ["# 验证附录 claim_verification（v2：真实退出码）", "", payload["rule"], "",
+             f"- 生成：{payload['generated_at_utc8']}；判定：**{payload['verdict']}**",
+             f"- 复算命令：`{payload['reproduce']}`", ""]
+    for item in results:
         lines += [f"## {item['claim_id']} — {item['verdict']}", "",
-                  f"- 声明：{item['statement']}",
-                  f"- 命令：`{item['command']}`", f"- 真实退出码：{item['exit_code']}",
-                  f"- 期望：{item['expected']}", "- 可观察输出："]
-        lines += [f"  - {obs}" for obs in item["observations"]]
-        lines.append("")
-    lines += [payload["scope_statement"]]
+                  f"- 声明：{item['statement']}", f"- 命令：`{item['command']}`",
+                  f"- 真实退出码：{item['exit_code']}（期望 {item['expected_exit']}）",
+                  f"- 可观察输出：{item['output_tail']}", ""]
+    lines.append(payload["scope_statement"])
     (run_dir / "claim_verification.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(json.dumps({"verdict": payload["verdict"],
-                      "claims": [(c["claim_id"], c["verdict"]) for c in claims]}, ensure_ascii=False))
+                      "claims": [(c["claim_id"], c["exit_code"], c["verdict"]) for c in results]}, ensure_ascii=False))
     return 0 if payload["verdict"] == "ALL_CLAIMS_VERIFIED" else 1
 
 

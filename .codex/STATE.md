@@ -39,7 +39,7 @@
 - **S6-A r08（task-11）**：第 7 轮复评 1 阻断 + 6 非阻断收尾。`BLK-r07-1`：**M4 可达性口径统一 8 处**——JSON
   `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、
   **HC-23 的 `expected.m4_reachable_under_draft` 由 false 改为 true**（原先 C7 机器断言与 C16 结论相反）、
-  清单 limitations 与摘要、文档 §18、STATE；C16 新增**全包禁语断言**（探针 `m4_unreachable_phrase` 实测可捕获）。
+  清单 limitations 与摘要、文档 §18、STATE；C16 新增**全包禁语断言**（探针 `m4_conflict_phrase` 实测可捕获）。
   `N-r07-1`：自证工具换行对齐顺序改为「先工作区、后清单」，消除干净克隆 + `autocrlf=true` 下的假阴性。
   `N-r07-2`：自证报告移入同 RunId 的 `_selfproof` 兄弟目录，提交后可补入交付提交主体。
   `F2`/`F4`/`F5`/`F11`：`source_commit` 语义三处统一、`keep_reason` 统一为「样例数不足 32：29」、陈旧行与旧令牌清理。
@@ -58,7 +58,7 @@
 - 6-C 矩阵：`verification/s6b_run_cases.py`（虚拟单调时钟 + JSON 用例 + 逐帧 JSONL 日志 + 断言 + 非零退出；运行前校验 expected 冻结哈希）+ S6-B 证据目录内的 cases/case_matrix.json（**22 条 / 覆盖 CDX-012 §4 全部 11 类**，expected 由行为表 v1.5 人工推导）。
 - **N-r05-04 同步**：核心的 `window_complete_ns` 改为在 **M3 成立帧**（计数与时长取较晚）写入，不再在第 `T6-S02` 个 `WINDOW_MATCH` 帧写入；新增 30fps 用例 `C9c-30fps-later-of` 断言 `window_complete_ns=233100000`（旧逻辑会给 166.5 ms 帧）。
 - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RESOLVED`；N-05 acquisition_id 规则写入 decision_notes；N-06 `REQUIRED_PARAMETER_IDS` 扩到全部 24 项；N-07 `NO_HAND` 带 detections 计非法（新增用例 C6b）；N-08 IDLE 有目标时不求值 M10 写入 decision_notes；N-09 运行前校验 `cases_file_sha256`（冻结点后改用例即拒运行）；N-10 `source_commit` 动态取 HEAD 并由自证工具绑定交付提交。新 RunId `report/evidence/S6-B/s6b_core_20261023_r02/`：**23/23 用例 PASS**（覆盖 11 类）、探针 4/4 符合预期、两个检查器 exit 0，且 **F6 导出自证 ALL_SELF_PROVEN [0,0,0,0]**（S6-A 自检 STATE + S6-B 驱动 + S6-B inputs/evidence）。
-- 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
+- 不计入覆盖项：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）与 M7（构造上）；**M4/`T6-S04` 保留并计入覆盖**（M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）），见 `reachability_notes.json` 与行为表 `reachability.transitions.M4.status`。历史语境除外
 - `docs/stage6/s6b_frozen_interface_v1.json` 状态改为 `S6B_IMPLEMENTATION_BASELINE_PENDING_REVIEW`（只读 2A 常量，不是新冻结）。
 
 ## 未决与阻塞
@@ -92,9 +92,44 @@
   因此裸 `git archive`（全 LF）导出下 **C11 实测 PASS**（2026-10-23 在 `e3aeb09` 的裸导出上实测）；但裸导出仍需上游文档齐全（C8 依赖仓库内上游文件），
   故**权威自证路径仍是 `verification/export_selfproof.py`**，裸检出只作辅助核对。
 
+## 冻结判定与当前缺口（CANDIDATE_FREEZE）
+
+- **判定线（lead 裁决）**：只有 **S6-A 剖面 `[0,0,0]` 且 S6-B 剖面 `[0,0,0,0]` 同时成立**才算冻结。
+- `1839766883436f521383f5432446eb67a01ada56` 当前状态：**`CANDIDATE_FREEZE（未冻结）`**——其 S6-B 剖面未过，缺口如下（命令 + 真实退出码）：
+  - `python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit 1839766 --s6b-run report/evidence/S6-B/s6b_core_20261023_r03`
+    → `{"verdict": "NOT_ALL_SELF_PROVEN", "subjects": [["commit 1839766…", "NOT_SELF_PROVEN", [0, 0, 2, 2]]]}`，**退出码 1**（S6-B 两个交付检查器判 2）。
+  - 同一命令的 S6-A 剖面：`--commit 1839766`（不带 `--s6b-run`）→ `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+- **缺口根因（已定位，工作区已修，尚未提交）**：两处失配是**两个不同原因**，不是"内容级"同类：
+  1. `inputs_manifest.files[0]`（`docs/stage6/s6a_stage6_g0_behavior_v1.json`）：清单声明工作区**原字节（CRLF）**哈希、导出为 LF →
+     接受器此前只有 CRLF→LF 方向，故永远命中不了；已补 **LF→CRLF 反方向**（`hash_variants` 三口径）。
+  2. `delivery_manifest.files[42]`（`run_report.json`）：S6-B 自证模式在导出内重跑 driver，driver 会重写该文件；而 driver 的冻结
+     `expected_freeze.json` 含 `frozen_at_utc8` 时间戳且每次被强制重冻结，导致 `run_report.json`（内嵌 `expected_freeze_sha256`）
+     每次运行都变 → 任何声明值都会失配。已修：冻结**幂等复用**（内容等价不复写）+ `behavior_json_sha256` 按 **O1 归一化（CRLF→LF）** 取哈希
+     + 构建器不再强制重冻结。
+  3. 同一包内两条曾用**不同口径**，现已统一：清单声明一律取**git 归一化（LF）**值，接受器接受 原字节 / CRLF→LF / LF→CRLF 三种口径。
+- **工作区修正后的实测（尚未提交，等待终审 A/B 结论后再 amend `1839766` 或新建 freeze-r2）**：
+  - `python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --worktree-snapshot`
+    → `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+  - 加 `--s6b-run report/evidence/S6-B/s6b_core_20261023_r03` → `ALL_SELF_PROVEN [0,0,0,0]`，**退出码 0**。
+  - 双向反例（真实 `verify_hash`，非复刻）：`python -B verification/hash_convention_check.py` → `ALL_AS_EXPECTED`，**退出码 0**；
+    四个接受用例（清单 LF↔文件 LF、清单 CRLF↔文件 CRLF、CRLF→LF、**LF→CRLF**）+ 一个负例（内容不同必须拒绝）见
+    `hash_convention_counterexamples.json`（两个证据包内各一份）。
+  - 两包在工作区仍全绿：S6-A 自检 ALL_PASS（17 项）+ 两检查器 exit 0；S6-B 23/23 用例 PASS + 探针 4/4 + 两检查器 exit 0；
+    冻结哈希连续两次构建一致（`f81483a8…`，幂等生效）。
+- **纪律**：修正只在工作区，**未提交**；三个受保护提交（`e3aeb09`/`f3c537d`/`902be77`）与 `1839766` 均未 amend/rebase/revert。
+
+## 构建期结构规则（顺序/只读）
+
+- **冻结后禁止再改动 run-dir 内容**（第 5 次同源教训）：构建器 `FIXPOINT` 必须是最后动作，其后任何往 RunId 目录加/改文件的行为都会让清单失效；构建末尾新增 `[CLOSING]` 断言（重跑 evidence 模式，出现未声明文件即中止构建）。r09 现状：`[CLOSING] run-dir 无未声明文件、清单一致`、新鲜自检两步 `BOTH_ALL_PASS`（产物 tmp/6/fresh_selfcheck_pair.json 反映最终状态）。
+
+## 哈希绑定口径（活文档 vs 交付物）
+
+- **活文档（.codex/STATE.md、进度记录）不进硬哈希集合**；只有交付物（规格/证据/清单/工具）绑哈希。
+- STATE 只做「存在性 + 其声明的文件/目录必须存在」检查（F6 本质）；其哈希以信息性快照记在 _selfproof 报告中。
+
 ## 11 字段交接行（2026-10-23 04:20）
 
-任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`
+任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW；1839766 = CANDIDATE_FREEZE（未冻结），工作区修正双侧已全绿、待终审后一次性提交（未自称通过）/ 项目总控派 Reviewer 复评`
 
 ## 环境与恢复要点
 

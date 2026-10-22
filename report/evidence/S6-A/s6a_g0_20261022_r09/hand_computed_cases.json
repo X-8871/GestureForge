@@ -1,0 +1,1034 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_hand_computed_cases",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r09",
+  "status": "HAND_DERIVED_PENDING_G0_APPROVAL",
+  "derivation_note": "全部预期值由人工按行为表 v1.7（含 r08 的 M4 可达性统一与 HC-23 机器断言修正）独立推导。r08：HC-23 的 `expected.m4_reachable_under_draft` 由 false 改为 **true**（TARGET_CONTINUES 不含 score ≥ T6-P02 → 低分中断不推进 miss_streak → M10 不先命中 → M4 可达），与 C16 结论一致；其余样例沿用 r07（HC-31 30fps 取较晚完成帧、HC-32 序列不足以判定、HC-30 锁存 STABLE 角落）。所用参数全部为草案值（待批准），不是验收门槛。",
+  "parameter_assumptions_unfrozen": {
+    "T6-S01_ms": 200,
+    "T6-S02_frames": 6,
+    "T6-S03_logic": "同时满足帧数与时长，取较晚满足者",
+    "T6-L01_frames": 5,
+    "T6-L02_ms": 300,
+    "T6-K01_ms": 1000,
+    "T6-A02_ms": 500,
+    "T6-J01_frames": 1,
+    "T6-A01_ms": 1000,
+    "T6-STALE_LIMIT_ms": 200,
+    "T6-P02_score": 0.3,
+    "T6-P01_score": 0.35,
+    "T6-C01_frames": 2,
+    "T6-U00_W_frames": 3,
+    "T6-U00_N_frames": 3,
+    "T6-U01_frames": 5,
+    "T6-S04_ms": 500
+  },
+  "cases": [
+    {
+      "case_id": "HC-01",
+      "topic": "稳定窗口：时长恰好等于阈值（含等号）且帧数恰好满足",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 40,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "帧时刻 0,40,80,120,160,200 ms。第 6 帧时 matched=6 ≥ 6，且 duration=200−0=200 ms ≥ 200 ms，两条件同帧满足。",
+      "expected": {
+        "frames_required": 6,
+        "actual_window_ms": 200,
+        "lower_bound_W_ms": 200,
+        "stable": true
+      }
+    },
+    {
+      "case_id": "HC-02",
+      "topic": "稳定窗口：时长为阈值 −1 单位（199 ms）不满足",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 39.8,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "帧时刻 0,39.8,79.6,119.4,159.2,199.0 ms。第 6 帧 duration=199.0 < 200，帧数虽满足但时长不满足 → 不进入 STABLE；下一帧 238.8 ms 才满足（帧数 7）。",
+      "expected": {
+        "frames_required": 7,
+        "actual_window_ms": 238.8,
+        "lower_bound_W_ms": 200,
+        "stable_at_sixth_frame": false
+      }
+    },
+    {
+      "case_id": "HC-03",
+      "topic": "稳定窗口：帧数为阈值 −1（5 帧）不满足",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 60,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "帧时刻 0,60,120,180,240,300 ms。第 5 帧 duration=240 ≥ 200 但 matched=5 < 6 → 不满足（证明帧数条件是独立门槛）；第 6 帧 300 ms 满足。此周期下 W=max(200,(6−1)×60=300)=300 ms，故本样例同时由帧数支配。",
+      "expected": {
+        "frames_required": 6,
+        "actual_window_ms": 300,
+        "lower_bound_W_ms": 300,
+        "dominant": "frame_count",
+        "stable_at_fifth_frame": false
+      }
+    },
+    {
+      "case_id": "HC-04",
+      "topic": "低 FPS 5（周期 200 ms）：窗口由帧数支配，W=1000 ms",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 200,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "W=max(200, (6−1)×200)=max(200,1000)=1000 ms。帧时刻 0,200,400,600,800,1000 ms，第 6 帧 duration=1000 ms ≥ 200 ms 且 matched=6 → 稳定在 1000 ms。",
+      "expected": {
+        "frames_required": 6,
+        "actual_window_ms": 1000,
+        "lower_bound_W_ms": 1000,
+        "dominant": "frame_count"
+      }
+    },
+    {
+      "case_id": "HC-05",
+      "topic": "低 FPS 10（周期 100 ms）：W=500 ms",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 100,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "W=max(200,(6−1)×100)=500 ms；第 6 帧 duration=500 ms ≥200 → 稳定在 500 ms。",
+      "expected": {
+        "frames_required": 6,
+        "actual_window_ms": 500,
+        "lower_bound_W_ms": 500,
+        "dominant": "frame_count"
+      }
+    },
+    {
+      "case_id": "HC-06",
+      "topic": "30 FPS（周期 33.3 ms）：W 下界 200 ms，但离散帧栅格上实际完成在 233.1 ms",
+      "recompute": {
+        "kind": "stable_window",
+        "period_ms": 33.3,
+        "s01_ms": 200,
+        "s02_frames": 6
+      },
+      "derivation": "W=max(200,(6−1)×33.3)=max(200,166.5)=200 ms。帧时刻 0,33.3,…,199.8,233.1 ms：第 7 帧 t=199.8 duration=199.8<200 不满足；第 8 帧 t=233.1 duration=233.1≥200 且 matched=8≥6 → 实际完成 233.1 ms。说明 W 只是下界，真实完成时刻还取决于帧栅格对齐。",
+      "expected": {
+        "frames_required": 8,
+        "actual_completion_ms": 233.1,
+        "w_min_ms": 200,
+        "w_min_is_lower_bound_only": true,
+        "dominant": "duration"
+      }
+    },
+    {
+      "case_id": "HC-07",
+      "topic": "冷却边界：t_last_submit + 1000 ms 时冷却结束（含等号）",
+      "recompute": {
+        "kind": "cooldown",
+        "t_last_submit_ms": 10000,
+        "k01_ms": 1000,
+        "t_now_offsets_ns": {
+          "minus_1ns": 999999999,
+          "exact": 1000000000,
+          "plus_1ns": 1000000001
+        }
+      },
+      "derivation": "锚点 t_last_submit=10000 ms。判定 t_now − t_last_submit ≥ K01：t_last_submit + K01 − 1 ns 时差 999999999 ns < 1000 ms → 抑制；恰好 + K01 时差 1000000000 ns ≥ 1000 ms → 冷却结束（含等号）。",
+      "expected": {
+        "ended_at_ms": 11000,
+        "ended_at_minus_1ns": false,
+        "ended_at_exact": true
+      }
+    },
+    {
+      "case_id": "HC-08",
+      "topic": "去重窗口边界：抑制条件为严格小于 T6-A02",
+      "recompute": {
+        "kind": "dedup",
+        "t_last_submit_ms": 0,
+        "a02_ms": 500,
+        "t_now_offsets_ns": {
+          "minus_1ns": 499999999,
+          "exact": 500000000
+        }
+      },
+      "derivation": "抑制条件 t_now − t_last_submit < A02：偏移 499999999 ns < 500 ms → 抑制；偏移恰好 500 ms → 500<500 为假 → 不抑制。",
+      "expected": {
+        "suppressed_at_minus_1": true,
+        "suppressed_at_exact": false,
+        "unit_granularity": "ns_true_computation"
+      }
+    },
+    {
+      "case_id": "HC-09",
+      "topic": "丢失确认（帧数条件）：连续 5 条不匹配确认丢失",
+      "recompute": {
+        "kind": "lost_frames",
+        "l01_frames": 5
+      },
+      "derivation": "miss_streak=4 → 4≥5 假 → 未丢失；miss_streak=5 → 确认丢失（第 5 条不匹配结果上判定）。",
+      "expected": {
+        "lost_at_4": false,
+        "lost_at_5": true
+      }
+    },
+    {
+      "case_id": "HC-10",
+      "topic": "丢失确认（时间条件）：距锚点 t_last_target_continues 恰好 300 ms 确认丢失",
+      "recompute": {
+        "kind": "lost_time",
+        "t_last_target_continues_ms": 1000,
+        "l02_ms": 300,
+        "t_now_offsets_ns": {
+          "minus_1ns": 299999999,
+          "exact": 300000000
+        }
+      },
+      "derivation": "t_last_target_continues=1000 ms（最近一次 TARGET_CONTINUES 成立时刻）；t_now − t_last_target_continues：299999999 ns < 300 ms → 未丢失；恰好 300 ms → ≥ L02 → 确认丢失（含等号）。",
+      "expected": {
+        "lost_at_minus_1ns": false,
+        "lost_at_exact": true
+      }
+    },
+    {
+      "case_id": "HC-11",
+      "topic": "过期边界：严格大于才判过期",
+      "recompute": {
+        "kind": "stale",
+        "limit_ms": 200,
+        "ages_ns": {
+          "exact": 200000000,
+          "plus_1ns": 200000001
+        }
+      },
+      "derivation": "过期用严格 >：age=200 ms → 200>200 假 → 不过期；age=200 ms+1 ns → 过期。",
+      "expected": {
+        "stale_at_exact": false,
+        "stale_at_exact_plus_1ns": true
+      }
+    },
+    {
+      "case_id": "HC-12",
+      "topic": "抖动容忍：1 帧中断容忍，2 帧中断重置窗口",
+      "recompute": {
+        "kind": "jitter",
+        "j01_frames": 1
+      },
+      "derivation": "missing=1 ≤ 1 → 容忍、窗口不重置、记录 S_JITTER_TOLERATED；missing=2 = J01+1 → 立即重置窗口。",
+      "expected": {
+        "tolerated_at_1": true,
+        "reset_at_2": true
+      }
+    },
+    {
+      "case_id": "HC-13",
+      "topic": "重复 frame_id：幂等丢弃，不推进计数、不产生动作",
+      "recompute": {
+        "kind": "frame_id_seen",
+        "prev_frame_id": 7,
+        "cur_frame_id": 7,
+        "session_same": true
+      },
+      "derivation": "cur == prev 且同一会话 → E_FRAME_DUPLICATE：稳定窗口匹配计数不变、时间仍按显式 t_input 推进、不得产生任何动作。",
+      "expected": {
+        "event": "E_FRAME_DUPLICATE",
+        "advances_match_count": false,
+        "may_trigger_action": false
+      }
+    },
+    {
+      "case_id": "HC-14",
+      "topic": "倒序 frame_id：不推进窗口并计异常",
+      "recompute": {
+        "kind": "frame_id_seen",
+        "prev_frame_id": 10,
+        "cur_frame_id": 9,
+        "session_same": true
+      },
+      "derivation": "cur < prev 且同一会话 → E_FRAME_OUT_OF_ORDER：不推进窗口、不计匹配、异常计数 +1，不得延续旧会话状态。",
+      "expected": {
+        "event": "E_FRAME_OUT_OF_ORDER",
+        "advances_match_count": false,
+        "anomaly_delta": 1
+      }
+    },
+    {
+      "case_id": "HC-15",
+      "topic": "会话切换/重启帧号：全量复位到 IDLE",
+      "recompute": {
+        "kind": "session_change",
+        "session_same": false
+      },
+      "derivation": "session_id 变化 → 状态复位到 IDLE、清除当前目标与稳定证据、开启新会话计数；复位帧本身不得触发动作（需重新走 M1→M3）。",
+      "expected": {
+        "state_after": "IDLE",
+        "target_cleared": true,
+        "may_trigger_action_on_reset_frame": false
+      }
+    },
+    {
+      "case_id": "HC-16",
+      "topic": "持续保持只触发一次（含冷却结束后继续保持）：按 M1/M3/M5/M6/M9 逐步推导",
+      "recompute": {
+        "kind": "trigger_once_hold",
+        "c01_frames": 2,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 40,
+        "hold_frames": 40,
+        "k01_ms": 1000
+      },
+      "derivation": "帧 n 时刻 (n−1)×40 ms。第 1、2 帧候选连续 2 帧 → 第 2 帧 M1 建立获取（窗口起点 0 ms）；第 3..6 帧 WINDOW_MATCH，第 6 帧 matched=6 且 duration=200 ms → M3 STABLE；第 7 帧 M5 提交（t_submit=240 ms）；第 8 帧 M6 进入 COOLDOWN 并清空窗口；之后每帧维持 WINDOW_MATCH 重建窗口；冷却门在第 32 帧（t=1240 ms=240+1000）结束，此时展示状态由 M9 分支维持，且该获取已触发 → 不再次提交。第 2..41 帧全部保持同一目标，无丢失、无新获取 → 提交次数恒为 1，冷却结束后新增触发 0。",
+      "expected": {
+        "submitted_total": 1,
+        "trigger_after_cooldown": 0,
+        "trigger_frame_index": 7,
+        "m9_branch_frame_index": 32
+      }
+    },
+    {
+      "case_id": "HC-17",
+      "topic": "多框维持优先：TARGET_CONTINUES 成立时低分当前目标胜过更高分异类新框",
+      "recompute": {
+        "kind": "hysteresis",
+        "current_class_id": 0,
+        "other_class_id": 1,
+        "current_score": 0.4,
+        "same_class": true,
+        "iou": 0.6,
+        "center_disp": 0.1,
+        "p01": 0.35,
+        "p02": 0.3,
+        "p03": 0.3,
+        "p04": 0.15,
+        "other_class_score": 0.95
+      },
+      "derivation": "TARGET_CONTINUES = 同类别 且（IoU 0.6 ≥ P03 0.3 或 中心位移 0.1 ≤ P04 0.15）→ True（不看 score）；WINDOW_MATCH = TARGET_CONTINUES 且 score 0.4 ≥ P02 0.3 → True；迟滞成立 → 维持 fist，palm 0.95>0.40 且类别不同 → S_TARGET_HELD。",
+      "expected": {
+        "held": true,
+        "selected_class": "fist",
+        "selected_class_id": 0,
+        "higher_other_candidate": true,
+        "suppression_event": "S_TARGET_HELD"
+      }
+    },
+    {
+      "case_id": "HC-18",
+      "topic": "同分排序：分数完全相等时以 source_order 为准",
+      "recompute": {
+        "kind": "tie",
+        "scores": [
+          0.6,
+          0.6
+        ],
+        "source_orders": [
+          7,
+          3
+        ]
+      },
+      "derivation": "两个框 score 逐位相同 0.6 → 平票；按 2A 稳定同分顺序的权威字段 source_order，取较小者 3。",
+      "expected": {
+        "selected_source_order": 3
+      }
+    },
+    {
+      "case_id": "HC-19",
+      "topic": "提交成功与实际生效分离：unobserved 不算成功",
+      "recompute": {
+        "kind": "action_events",
+        "t_trigger_ms": 5000,
+        "t_submit_ms": 5032,
+        "t_effective_ms": 5080,
+        "a01_ms": 1000,
+        "effective_observed": true
+      },
+      "derivation": "latency_action=5080−5000=80 ms ≤1000 ms；提交在 5032 ms 成功（ACTION_SUBMITTED），生效在 5080 ms 被观测（ACTION_EFFECTIVE）→ 计成功。若执行层只回 submitted 而无生效观测（unobserved），则不满足生效条件：不得计入成功，单列 NOT_RUN 且不从分母剔除。",
+      "expected": {
+        "latency_action_ms": 80,
+        "latency_submit_ms": 32,
+        "counts_as_success_when_effective_observed": true,
+        "counts_as_success_when_unobserved": false
+      }
+    },
+    {
+      "case_id": "HC-20",
+      "topic": "未知拒绝不可由 class_id 自证：未知场景被判为已知类并满足可触发条件",
+      "recompute": {
+        "kind": "unknown_rejection_proof",
+        "unknown_class_id": 4,
+        "unknown_score": 0.9,
+        "p01": 0.35,
+        "c01_frames": 2,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 40
+      },
+      "derivation": "未知场景被误判为 three(class_id=4)、score=0.9：0.9 ≥ P01 → 通过选择门；类别在五类内 → 校验通过；若连续满足窗口（C01=2、S02=6、S01=200ms）则 M3→M5 会提交 1 次动作。因此 class_id 成员性检查通过不证明未知拒绝；该样本在 T6-02 口径下计 1 次误接受。",
+      "expected": {
+        "class_membership_passes": true,
+        "selection_gate_passes": true,
+        "would_submit_actions": 1,
+        "proves_unknown_rejection": false,
+        "counts_as_false_accept_in_T6_02": true
+      }
+    },
+    {
+      "case_id": "HC-21",
+      "topic": "T6-C01 边界：连续 C01−1 帧不建立获取，恰好 C01 帧建立",
+      "recompute": {
+        "kind": "acquisition_c01",
+        "c01_frames": 2,
+        "streaks": [
+          1,
+          2
+        ]
+      },
+      "derivation": "M1 要求连续同目标窗口推进帧 ≥ C01=2：streak=1 不建立（保持 IDLE 并继续探测）；streak=2 建立获取（acquisition_id+1，进入 CANDIDATE）。",
+      "expected": {
+        "acquired_at_streak_1": false,
+        "acquired_at_streak_2": true
+      }
+    },
+    {
+      "case_id": "HC-22",
+      "topic": "T6-U00 滑动窗口边界：最近 W 条结果内异常数 ≥ N 触发 M2",
+      "recompute": {
+        "kind": "anomaly_window",
+        "w_frames": 3,
+        "n_frames": 3,
+        "histories": {
+          "aaa": [
+            "A",
+            "A",
+            "A"
+          ],
+          "aala": [
+            "A",
+            "A",
+            "L",
+            "A"
+          ],
+          "aall": [
+            "A",
+            "A",
+            "L",
+            "L"
+          ]
+        }
+      },
+      "derivation": "按滑动窗口（最近 W=3 条结果）：[A,A,A] 窗口内 3≥3 → M2；[A,A,L,A] 最近 3 条为 [A,L,A] 异常数 2<3 → 不触发；[A,A,L,L] 最近 3 条 [A,L,L] 异常数 2<3 → 不触发（重复 frame_id 不计入序列）。",
+      "expected": {
+        "aaa_fires": true,
+        "aala_fires": false,
+        "aall_fires": false,
+        "window_type": "sliding"
+      }
+    },
+    {
+      "case_id": "HC-23",
+      "topic": "T6-S04/M4 可达性：草案 S04 ≥ L02 时 M4 仍可达（TARGET_CONTINUES 无分数门，M10 不先命中）",
+      "recompute": {
+        "kind": "m4_reachability",
+        "s04_ms": 500,
+        "l02_ms": 300,
+        "j01_frames": 1,
+        "l01_frames": 5,
+        "period_ms": 40
+      },
+      "derivation": "草案 T6-S04=500 ms ≥ T6-L02=300 ms **不是可达性的判定依据**：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进，而 §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，因此低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、miss_streak 保持 0 → M10 不会先命中 → 候选停留可达 T6-S04 → **M4 可达**。本样例的期待值由 C7 机器断言（r08/BLK-r07-1 修正前为 false，与 C16 结论相反）。`historical_earliest_m10_ms_if_score_gate` 只是「若 TARGET_CONTINUES 含分数门」的历史模型对照值，不参与判定。",
+      "expected": {
+        "m4_reachable_under_draft": true,
+        "target_continues_requires_score_gate": false,
+        "historical_earliest_m10_ms_if_score_gate": 200,
+        "m4_earliest_ms": 500,
+        "reachable_if_s04_lt_l02": true
+      }
+    },
+    {
+      "case_id": "HC-24",
+      "topic": "T6-P01 选择门边界：score 恰好 P01 入选，P01−1ULP 淘汰",
+      "recompute": {
+        "kind": "score_gate",
+        "p01": 0.35
+      },
+      "derivation": "选择门为 score ≥ P01（含等号）：score=0.35 入选；score=nextafter(0.35, 0) 小于 0.35 → 淘汰。",
+      "expected": {
+        "eligible_at_exact": true,
+        "eligible_at_minus_1ulp": false,
+        "inclusive": true
+      }
+    },
+    {
+      "case_id": "HC-25",
+      "topic": "T6-P02 稳定门边界：score 恰好 P02 计入 WINDOW_MATCH，P02−1ULP 不计入",
+      "recompute": {
+        "kind": "window_match_score",
+        "p02": 0.3
+      },
+      "derivation": "WINDOW_MATCH 要求 score ≥ P02（含等号）：0.30 计入；nextafter(0.30,0) 不计入（该帧按窗口中断处理，受 J01 容忍）。",
+      "expected": {
+        "window_match_at_exact": true,
+        "window_match_at_minus_1ulp": false,
+        "inclusive": true
+      }
+    },
+    {
+      "case_id": "HC-26",
+      "topic": "T6-U01 恢复边界：连续 U01−1 条合法结果不恢复，恰好 U01 条恢复",
+      "recompute": {
+        "kind": "recovery_streak",
+        "u01_frames": 5,
+        "streaks": [
+          4,
+          5
+        ]
+      },
+      "derivation": "M12 要求连续合法结果 ≥ U01=5：4 条不恢复（保持 UNKNOWN_RECOVER）；第 5 条恢复（进入 IDLE、清空目标、异常窗口清空）。",
+      "expected": {
+        "recovered_at_4": false,
+        "recovered_at_5": true
+      }
+    },
+    {
+      "case_id": "HC-27",
+      "topic": "T6-S01 ±1 ns 边界：时长差 1 ns 决定是否进入 STABLE",
+      "recompute": {
+        "kind": "stable_ns_border",
+        "s01_ms": 200,
+        "s02_frames": 6,
+        "period_ns": 40000000
+      },
+      "derivation": "帧时刻序列：前 5 帧按 P=40 ms 推进到 160 ms；第 6 帧在 200 ms−1 ns=199999999 ns 到达 → frames=6≥S02 但 duration=199999999 ns < S01 → 不进入 STABLE；第 7 帧在 200 ms+1 ns=200000001 ns 到达 → frames=7≥S02 且 duration=200000001 ns ≥ S01 → 进入 STABLE。（N02：预期由该序列推导，不再使用 (s02>=s02)/(s02+1>=s02) 自比较。）",
+      "expected": {
+        "stable_at_6th": false,
+        "stable_at_7th": true,
+        "granularity": "1ns"
+      }
+    },
+    {
+      "case_id": "HC-28",
+      "topic": "BLK-1：M3 必须用 WINDOW_MATCH 计数——低分（<P02）目标即使连续 8 帧 TARGET_CONTINUES 也不得进入 STABLE",
+      "recompute": {
+        "kind": "window_match_vs_continues",
+        "p02": 0.3,
+        "p03": 0.3,
+        "p04": 0.15,
+        "p05": 0.05,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 40,
+        "l01_frames": 5,
+        "l02_ms": 300,
+        "frames": [
+          {
+            "index": 1,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.025,
+            "score": 0.28
+          },
+          {
+            "index": 2,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.03,
+            "score": 0.28
+          },
+          {
+            "index": 3,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.035,
+            "score": 0.28
+          },
+          {
+            "index": 4,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.04,
+            "score": 0.28
+          },
+          {
+            "index": 5,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.045,
+            "score": 0.28
+          },
+          {
+            "index": 6,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.05,
+            "score": 0.28
+          },
+          {
+            "index": 7,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.055,
+            "score": 0.28
+          },
+          {
+            "index": 8,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.06,
+            "score": 0.28
+          }
+        ]
+      },
+      "derivation": "逐帧序列 8 帧：同类别且 IoU 0.60 ≥ P03 → 每帧 TARGET_CONTINUES 成立（8 帧）；每帧 score 0.28 < P02 0.30 → 0 个 WINDOW_MATCH 帧。计数 < T6-S02=6 → 不存在完成帧（completion_index=-1、window_span_ms=0）；旧口径同样为 false（两者一致）→ M3 不成立、不触发。若误用 TARGET_CONTINUES 计帧则 8≥6 会误触发（BLK-1 的安全后果）。continues_false_streak=0 → 不判 LOST。 另：0 个 WINDOW_MATCH 帧 → 不存在完成帧，`required_completion_index=-1`、`completion_within_sequence=false`（F7 口径）。",
+      "expected": {
+        "m3_fires": false,
+        "lost": false,
+        "trigger": false,
+        "window_match_count": 0,
+        "continues_count": 8,
+        "continues_false_streak": 0,
+        "window_span_ms": 0.0,
+        "sequence_span_ms": 280.0,
+        "completion_index": -1,
+        "later_of_applied": false,
+        "m3_fires_count_only": false,
+        "required_completion_index": -1,
+        "completion_within_sequence": false
+      }
+    },
+    {
+      "case_id": "HC-29",
+      "topic": "BLK-1：M10 必须用 TARGET_CONTINUES——score 跌破 P02 但几何连续的目标不得判 LOST",
+      "recompute": {
+        "kind": "window_match_vs_continues",
+        "p02": 0.3,
+        "p03": 0.3,
+        "p04": 0.15,
+        "p05": 0.05,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 40,
+        "l01_frames": 5,
+        "l02_ms": 300,
+        "frames": [
+          {
+            "index": 1,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.025,
+            "score": 0.35
+          },
+          {
+            "index": 2,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.03,
+            "score": 0.35
+          },
+          {
+            "index": 3,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.035,
+            "score": 0.35
+          },
+          {
+            "index": 4,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.04,
+            "score": 0.35
+          },
+          {
+            "index": 5,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.045,
+            "score": 0.35
+          },
+          {
+            "index": 6,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.05,
+            "score": 0.35
+          },
+          {
+            "index": 7,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.055,
+            "score": 0.28
+          },
+          {
+            "index": 8,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.06,
+            "score": 0.28
+          },
+          {
+            "index": 9,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.065,
+            "score": 0.28
+          }
+        ]
+      },
+      "derivation": "逐帧序列 9 帧（P=40 ms）：每帧 TARGET_CONTINUES 成立；前 6 帧 score 0.35 ≥ P02 且位移增量 ≤ P05 → 6 个 WINDOW_MATCH 帧（第 7–9 帧 score 0.28 不构成 WINDOW_MATCH，但 TARGET_CONTINUES 仍成立）。完成帧按 T6-S03「取较晚」：计数在第 6 个 WINDOW_MATCH 帧（帧序 5）已满足，时长需 ceil(200/40)=5 个间隔（帧序 5）→ 两者同帧，completion_index=5、later_of_applied=false、span=200 ms ≥ S01；本序列长度 9 > 5 → m3_fires=true。旧口径（只按第 6 个 WINDOW_MATCH 帧）在同场景下也是 true，故 HC-29 不是 N-r05-04 的判别样例（判别见 HC-31）。continues_false_streak=0 → 不判 LOST。 另：完成帧在序列内（5 ≤ 8）→ `completion_within_sequence=true`。",
+      "expected": {
+        "lost": false,
+        "m3_fires": true,
+        "trigger": false,
+        "continues_false_streak": 0,
+        "window_match_count": 6,
+        "continues_count": 9,
+        "window_span_ms": 200.0,
+        "sequence_span_ms": 320.0,
+        "completion_index": 5,
+        "later_of_applied": false,
+        "m3_fires_count_only": true,
+        "required_completion_index": 5,
+        "completion_within_sequence": true
+      }
+    },
+    {
+      "case_id": "HC-30",
+      "topic": "N-r04-01 角落序列：STABLE 已锁存、全局冷却门恰在 TIMEOUT 帧开启 → 该帧不得触发（B21），下一条窗口推进帧才触发",
+      "recompute": {
+        "kind": "latched_stable_gate_on_timeout",
+        "period_ms": 100,
+        "t_last_submit_ms": 0,
+        "k01_ms": 1000,
+        "u00_w": 3,
+        "u00_n": 3,
+        "s02_frames": 6,
+        "scenarios": [
+          {
+            "name": "gate_opens_on_timeout",
+            "frames": [
+              {
+                "index": 1,
+                "kind": "OK"
+              },
+              {
+                "index": 2,
+                "kind": "OK"
+              },
+              {
+                "index": 3,
+                "kind": "OK"
+              },
+              {
+                "index": 4,
+                "kind": "OK"
+              },
+              {
+                "index": 5,
+                "kind": "OK"
+              },
+              {
+                "index": 6,
+                "kind": "OK"
+              },
+              {
+                "index": 7,
+                "kind": "OK"
+              },
+              {
+                "index": 8,
+                "kind": "OK"
+              },
+              {
+                "index": 9,
+                "kind": "OK"
+              },
+              {
+                "index": 10,
+                "kind": "OK"
+              },
+              {
+                "index": 11,
+                "kind": "TIMEOUT"
+              },
+              {
+                "index": 12,
+                "kind": "OK"
+              }
+            ]
+          },
+          {
+            "name": "gate_opens_on_ok",
+            "frames": [
+              {
+                "index": 1,
+                "kind": "OK"
+              },
+              {
+                "index": 2,
+                "kind": "OK"
+              },
+              {
+                "index": 3,
+                "kind": "OK"
+              },
+              {
+                "index": 4,
+                "kind": "OK"
+              },
+              {
+                "index": 5,
+                "kind": "OK"
+              },
+              {
+                "index": 6,
+                "kind": "OK"
+              },
+              {
+                "index": 7,
+                "kind": "OK"
+              },
+              {
+                "index": 8,
+                "kind": "OK"
+              },
+              {
+                "index": 9,
+                "kind": "OK"
+              },
+              {
+                "index": 10,
+                "kind": "OK"
+              },
+              {
+                "index": 11,
+                "kind": "OK"
+              },
+              {
+                "index": 12,
+                "kind": "OK"
+              }
+            ]
+          }
+        ]
+      },
+      "derivation": "锁存 STABLE 且本次获取尚未触发。冷却门 = t_last_submit(0 ms) + K01(1000 ms) = 1000 ms，即第 11 帧开启。场景 A（gate_opens_on_timeout）：第 11 帧为 TIMEOUT，不是窗口推进帧（H-4）→ M5 不成立、无动作（B21）；第 12 帧（OK）为窗口推进帧 → M5 命中，恰好一次动作。场景 B：第 11 帧本身是 OK → 门开启的同一条窗口推进帧即触发。两场景的异常窗口 W=3/N=3 不被单个 TIMEOUT 触发（1<3）。**覆盖边界（N-r05-03）**：`actions_within_supplied_sequence` 只是**给定 12 帧序列内**的动作计数下界（action_count_is_lower_bound=true），不是「整个获取内共有几次动作」；本样例真正的判别力在 `gate_open_frame`、`first_action_frame` 与 `action_at_gate_open_frame` 三项。",
+      "expected": {
+        "gate_open_frame": {
+          "gate_opens_on_timeout": 11,
+          "gate_opens_on_ok": 11
+        },
+        "first_action_frame": {
+          "gate_opens_on_timeout": 12,
+          "gate_opens_on_ok": 11
+        },
+        "action_at_gate_open_frame": {
+          "gate_opens_on_timeout": false,
+          "gate_opens_on_ok": true
+        },
+        "actions_within_supplied_sequence": {
+          "gate_opens_on_timeout": 1,
+          "gate_opens_on_ok": 1
+        },
+        "action_count_is_lower_bound": true,
+        "action_count_scope": "within_supplied_sequence",
+        "action_count_discriminators": [
+          "gate_open_frame",
+          "first_action_frame",
+          "action_at_gate_open_frame"
+        ],
+        "no_action_on_timeout_frame": true,
+        "timeout_frames_not_window_advancing": true,
+        "latched_within_acquisition": true
+      }
+    },
+    {
+      "case_id": "HC-31",
+      "topic": "N-r05-04：30fps（P=33.3 ms）时长支配的窗口完成帧——必须按 T6-S03「取较晚」算到第 8 帧 233.1 ms",
+      "recompute": {
+        "kind": "window_match_vs_continues",
+        "p02": 0.3,
+        "p03": 0.3,
+        "p04": 0.15,
+        "p05": 0.05,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 33.3,
+        "l01_frames": 5,
+        "l02_ms": 300,
+        "frames": [
+          {
+            "index": 1,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.025,
+            "score": 0.9
+          },
+          {
+            "index": 2,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.03,
+            "score": 0.9
+          },
+          {
+            "index": 3,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.035,
+            "score": 0.9
+          },
+          {
+            "index": 4,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.04,
+            "score": 0.9
+          },
+          {
+            "index": 5,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.045,
+            "score": 0.9
+          },
+          {
+            "index": 6,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.05,
+            "score": 0.9
+          },
+          {
+            "index": 7,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.055,
+            "score": 0.9
+          },
+          {
+            "index": 8,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.06,
+            "score": 0.9
+          },
+          {
+            "index": 9,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.065,
+            "score": 0.9
+          }
+        ]
+      },
+      "derivation": "30fps（P=33.3 ms）下 9 帧全部为 WINDOW_MATCH（score 0.90 ≥ P02、位移增量 ≤ P05、TARGET_CONTINUES 成立）。计数条件在第 6 个 WINDOW_MATCH 帧（帧序 5）满足，但此时时长只有 5×33.3=166.5 ms < S01=200 ms；按 T6-S03「取较晚满足者」，时长需 ceil(200/33.3)=7 个间隔 → 完成帧 = 帧序 max(5,7) = **7（第 8 帧）**，完成时刻 **233.1 ms**（与文档 §15 示例一致）。旧口径（只按第 6 个 WINDOW_MATCH 帧取跨度）会得到 166.5 ms < 200 ms → 误报 m3_fires=false，正是第 5 轮复评 N-r05-04 指出的缺陷。本序列长度 9 覆盖到完成帧 → m3_fires=true；触发仍需下一帧 M5 → trigger=false。 另：完成帧在序列内（7 ≤ 8）→ `completion_within_sequence=true`；序列不足时会报 -1/0.0（见 HC-32，F7）。",
+      "expected": {
+        "m3_fires": true,
+        "m3_fires_count_only": false,
+        "later_of_applied": true,
+        "completion_index": 7,
+        "window_span_ms": 233.1,
+        "sequence_span_ms": 266.4,
+        "window_match_count": 9,
+        "continues_count": 9,
+        "trigger": false,
+        "lost": false,
+        "required_completion_index": 7,
+        "completion_within_sequence": true
+      }
+    },
+    {
+      "case_id": "HC-32",
+      "topic": "F7：完成帧超出所给序列时的报值口径——不得报越界的 completion_index/window_span_ms",
+      "recompute": {
+        "kind": "window_match_vs_continues",
+        "p02": 0.3,
+        "p03": 0.3,
+        "p04": 0.15,
+        "p05": 0.05,
+        "s02_frames": 6,
+        "s01_ms": 200,
+        "period_ms": 33.3,
+        "l01_frames": 5,
+        "l02_ms": 300,
+        "frames": [
+          {
+            "index": 1,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.025,
+            "score": 0.9
+          },
+          {
+            "index": 2,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.03,
+            "score": 0.9
+          },
+          {
+            "index": 3,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.035,
+            "score": 0.9
+          },
+          {
+            "index": 4,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.04,
+            "score": 0.9
+          },
+          {
+            "index": 5,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.045,
+            "score": 0.9
+          },
+          {
+            "index": 6,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.05,
+            "score": 0.9
+          },
+          {
+            "index": 7,
+            "same_class": true,
+            "iou": 0.6,
+            "center_disp": 0.055,
+            "score": 0.9
+          }
+        ]
+      },
+      "derivation": "30fps（P=33.3 ms）只给 7 帧（帧序 0..6）：计数条件在第 6 个 WINDOW_MATCH 帧（帧序 5）满足，但时长条件需要 ceil(200/33.3)=7 个间隔 → **所需完成帧是帧序 7（第 8 帧）**，已超出所给序列。按 F7：`completion_index` 记 **-1**、`window_span_ms` 记 **0.0**、`completion_within_sequence=false`、`m3_fires=false`（序列不足以判定），外推值单独放在 `required_completion_index=7`，避免把未观测到的帧误当已完成的完成帧。旧实现会直接报 7 / 233.1（越界外推）。",
+      "expected": {
+        "m3_fires": false,
+        "m3_fires_count_only": false,
+        "later_of_applied": true,
+        "completion_index": -1,
+        "required_completion_index": 7,
+        "completion_within_sequence": false,
+        "window_span_ms": 0.0,
+        "sequence_span_ms": 199.8,
+        "window_match_count": 7,
+        "continues_count": 7,
+        "trigger": false,
+        "lost": false
+      }
+    }
+  ],
+  "hand_cases_version": "S6A-HC-v1.8"
+}

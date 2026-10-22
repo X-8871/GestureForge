@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "artifact": "s6a_stage6_g0_behavior",
-  "artifact_version": "S6A-G0-v1.7",
+  "artifact_version": "S6A-G0-v1.8",
   "stage": "stage6",
   "task_id": "S6-A",
-  "run_id": "s6a_g0_20261022_r08",
+  "run_id": "s6a_g0_20261022_r09",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_PENDING_APPROVAL",
   "status_label": "阶段6 G0 包与行为表 v1.6（r07 收尾版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
-  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论。r08 关闭第 7 轮独立复评（CHANGES_REQUIRED）：**M4 可达性口径统一**（含 HC-23 机器断言、reachability.consequence、parameter_notes.T6-S04、清单限制与摘要、文档 §18 共 8 处；不再出现『M4』不·可达、『不得』计·入覆盖类表述），并修自证工具换行顺序假阴性、入库自证报告自洽性与交付提交主体、F2/F4/F5/F11 残留。未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
+  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论。r09（v1.8）按终审 A/B 修：M4 表述第 9 处（transitions.M4.reachability 与 reachability 两个表示法统一）+ C16 扫描扩到全部交付文件并改语义判定与交叉一致性断言、claim_verification 真实退出码、source_commit 可达性；24 项参数仍全部 PENDING_APPROVAL。历史语境除外",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
@@ -16,7 +16,7 @@
     "worktree_clean_at_start": true,
     "index_lock_present_at_start": false,
     "revision_base_commit": "bdcf8963300475a61f26cbc3ec85a32275b781d2",
-    "revision_note": "在 r07（提交 bdcf896）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
+    "revision_note": "在 r08（契约 v1.7）基础上修订；本轮（v1.8/r09）按终审 A/B 修阻断与工具；起始提交仍为 d8bc70e（本阶段开工基线）。历史语境除外"
   },
   "upstream": [
     {
@@ -232,8 +232,8 @@
         "T6-J01",
         "T6-S04"
       ],
-      "reachability": "UNREACHABLE_UNDER_DRAFT_PARAMS",
-      "reachability_note": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，任何候选停留达 S04 前 M10 已先命中；见 reachability / U6-12",
+      "reachability": "REACHABLE",
+      "reachability_note": "NB-r03-10：与 reachability.transitions.M4.status 统一为 REACHABLE（同一事实两个表示）；此前本字段遗留 UNREACHABLE_UNDER_DRAFT_PARAMS 属第 9 处残留。历史语境除外",
       "predicates_used": [
         "WINDOW_MATCH"
       ]
@@ -1415,7 +1415,7 @@
     "显示侧新增 HUD 字段与五类动作映射为阶段6 提案",
     "无硬件授权：未做任何板上验证"
   ],
-  "supersedes_run_id": "s6a_g0_20261022_r07",
+  "supersedes_run_id": "s6a_g0_20261022_r08",
   "revision": {
     "run_id": "s6a_g0_20261022_r08",
     "supersedes_run_id": "s6a_g0_20261022_r07",
@@ -1427,7 +1427,7 @@
     "changes": [
       {
         "issue": "BLK-r07-1",
-        "summary": "M4 可达性口径统一到 8 处（含 HC-23 的 expected.m4_reachable_under_draft 由 false 改为 true、reachability.consequence、parameter_notes.T6-S04、清单 limitations 与摘要、文档 §18、STATE）；新增全包禁语断言防复发",
+        "summary": "r08 统一了 5 处（JSON parameter_notes.T6-S04 / reachability.consequence / reachability.M4.review_correction、HC-23 机器断言、文档 §18），**r09 补齐余下 3 处**（limitations_not_executed.not_run[7]、coverage_matrix.runbook_coverage[item4]、STATE L61）并把 transitions.M4.reachability 一并统一（NB-r03-10，共 9 处）；C16 扫描范围扩到**全部交付文件**并改**语义判定**，另有两个表示法的交叉一致性断言。历史语境除外",
         "where": "selfcheck C16（禁语扫描）/ HC-23 / JSON / 文档 §18 / builder / STATE"
       },
       {
@@ -1623,10 +1623,10 @@
         "status": "REACHABLE"
       }
     },
-    "consequence": "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）；M14 已删除（见 revision.deleted_transitions）。"
+    "consequence": "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）；M14 已删除（见 revision.deleted_transitions）。"
   },
   "parameter_notes": {
-    "T6-S04": "草案 500ms ≥ T6-L02 300ms **不构成不可达依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08；S6-B C4-jitter-reset 实测 M4@f7）。",
+    "T6-S04": "草案 500ms ≥ T6-L02 300ms **不是可达性的判定依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08；S6-B C4-jitter-reset 实测 M4@f7）。",
     "T6-A03": "草案无值；测量需阶段4 实测 P_meas（U6-13），否则 NOT_RUN。",
     "T6-STALE_LIMIT": "严格 > 判过期，其余阈值含等号。"
   }

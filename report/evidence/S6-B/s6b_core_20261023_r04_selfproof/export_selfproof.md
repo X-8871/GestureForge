@@ -1,12 +1,25 @@
 # S6-A 冻结自证报告（导出副本复跑）
 
 - 规则：任何冻结/交付提交必须自证：导出该提交后，自检 + inputs + evidence 三项检查全部 exit 0。
-- 生成：2026-10-23 07:21:38+0800
+- 生成：2026-10-23 07:26:37+0800
+
+## commit 0725d9cf48aeed21d3ea445ef01575c16b68d950
+
+- 判定：**SELF_PROVEN**；契约 `S6A-G0-v1.8`；RunId `s6a_g0_20261022_r09`
+- 该提交内 S6-B 证据目录文件数：**182**（STATE 声明该目录时必须 > 0）
+- 证据目录文件数：41
+
+| 检查 | 真实退出码 |
+|---|---|
+| selfcheck（C11：仅 STATE 声明存在性；S6-B 模式下不复算 S6-A 旧轮次清单哈希） | 0 |
+| S6-B 确定性用例驱动（该提交内） | 0 |
+| S6-B check_stage_delivery --mode inputs | 0 |
+| S6-B check_stage_delivery --mode evidence | 0 |
 
 ## worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）
 
 - 判定：**SELF_PROVEN**；契约 `S6A-G0-v1.8`；RunId `s6a_g0_20261022_r09`
-- 该提交内 S6-B 证据目录文件数：**183**（STATE 声明该目录时必须 > 0）
+- 该提交内 S6-B 证据目录文件数：**182**（STATE 声明该目录时必须 > 0）
 - 证据目录文件数：41
 
 | 检查 | 真实退出码 |

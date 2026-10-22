@@ -1,0 +1,102 @@
+{
+  "schema_version": "gestureforge_s5t01_fps4_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_fps4_20261022_r02",
+  "generated_utc8": "2026-10-22T19:30:06+08:00",
+  "source_head": "875e487fa5595de6e76e82acf258c09f75603ffd",
+  "authority": "CDX-20261022-014 §3",
+  "elf": "s5t01_case5_r04.elf",
+  "elf_sha256": "29fe895a6fbbca885a7a727839c36c230acb0765721e949eb78618d5852c3aed",
+  "bitstream_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+  "video_source": "PS_SYNTHETIC",
+  "display_semantics": "B_latest_result_overlay",
+  "goal_reached": "FOUR_FPS_MEASURED_TWO_SOURCES_CROSS_VALIDATED",
+  "fps": {
+    "display_fps": 59.206,
+    "video_refresh_events_per_s": 118.351,
+    "video_refresh_frames_per_s": 59.175,
+    "events_per_frame": 2,
+    "unique_frame_update_fps": "case-level only",
+    "inference_fps": "NOT_APPLICABLE",
+    "cross_validation_rel_diff_pct": 0.05,
+    "warmup_windows_excluded": 1,
+    "start_stop_events": {
+      "display_fps": "MM2S FrmCntIrq (CR[23:16]=1) consecutive events",
+      "video_refresh": "VTC IRQ consecutive events (2 per frame)",
+      "latency": "t_overlay_commit -> next MM2S FrmCntIrq event (NOT photon-to-screen)"
+    }
+  },
+  "commands": [
+    {
+      "cmd": "bash dbdf/scripts/stage3_t05/run_t05_board_capture.sh <RUN_DIR> <ELF> r04 <sec>",
+      "exit_code": 0,
+      "log": "console/capture_fps4r04.txt"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/recompute_fps.py --log console/uart_fps4r04.log",
+      "exit_code": 0,
+      "log": "console/recompute_fps.json"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256": "d0be541e191d02a12f9141f2faffc2c4c72ceb4635d2e8f39cd535bf12a3bc01"
+    },
+    {
+      "path": "scripts/stage5_t01/gen_overlay_cases.py",
+      "sha256": "fff1ea7c62fd700074bd038eeb9a7e4f4a3e662261a0f19ced88f80733ec6cee"
+    },
+    {
+      "path": "scripts/stage5_t01/build_p1_app.sh",
+      "sha256": "3a5d10f29bf8c0b6895de4cd9ca8e4cd524d7aba30ed33a6fb2fe66eb28b7378"
+    },
+    {
+      "path": "scripts/stage5_t01/recompute_fps.py",
+      "sha256": "9e590fcc9b69b103d724b8a19da483af3d15f4e08346925eee51d84a301182d6"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/build_r04.log",
+      "sha256": "4d839645b8088559e460f189d1dea85f142f624d4790ab5c2a7dbfb75e6153e9"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/capture_fps4r04.txt",
+      "sha256": "d4ffb8102cb62fc63f0e8ce81a8f75e09d11f2d528abeb6d8c90a56f297fb168"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/input_hashes.txt",
+      "sha256": "0d41d53980f982f46fa3dbfe34a609f268b4d73a17b208dd5e589cd251193ec8"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/recompute_fps.json",
+      "sha256": "41c4f5abc4f9358b5b2f38031d680976f1d0bd3be5ee4d0956056e4a8dbe4a91"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/recompute_stdout.txt",
+      "sha256": "4636120d42f803aca70391e5305266cc583f66aa6da34311f851e284207e0c7a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/console/uart_fps4r04.log",
+      "sha256": "a6038ea7039b5b97ac144199a4560efb379b793901926eb51ab31161f621c624"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/summary.md",
+      "sha256": "c95fadbd8018f870dcf9eff60d4ccadcfe1eaf75383ef437804b20ce80920d1e"
+    }
+  ],
+  "not_executed": [
+    "unique_frame_update_fps 的 frame_id 级测量（T5-05）",
+    "inference_fps（无阶段4 注入源）",
+    "物理呈现延迟（光子到屏幕）",
+    "T5-09 30 分钟长跑",
+    "T5-11 故障计数"
+  ],
+  "limitations": [
+    "视频源为 PS 合成图，不得据此声称阶段3 采集/颜色结论。",
+    "VTC 每帧 2 次事件的位语义由实测计数推断，未逐位查 PG016 确认。",
+    "inference_fps 为 NA，不得用合成用例冒充推理帧率。",
+    "延迟仅为提交→首个帧完成事件边界，非光子到屏幕。"
+  ]
+}

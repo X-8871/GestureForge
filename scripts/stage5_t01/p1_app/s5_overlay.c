@@ -8,11 +8,14 @@
  * （verification/s5_display_geometry_reference.py，S5A-G0-v2）算好后嵌入 s5_overlay_cases.h；
  * 本文件**不含任何逆映射/取整逻辑**（只有 UI 布局与像素写入）。
  *
- * 修订 rev=r02（2026-10-22，依据实物照片发现的缺陷）：
- *   D-1 背景改为平滑灰度斜坡 `(x*255)/(W-1)`，消除 u8 回绕造成的黑色竖带；
- *   D-2 标签与左上 HUD 区域自动避让（右移），且 HUD **最后绘制**（置顶保证可读）；
- *   D-3 display_fps 测法：置 MM2S CR bit12（Frame Count IRQ Enable）后按 SR 帧计数差计时，
- *       并逐窗打印原始 SR；若计数仍不增长，则该字段保持 NOT_VERIFIED。
+ * 修订：
+ *   rev r02（2026-10-22）D-1 背景平滑斜坡；D-2 标签避让 HUD + HUD 置顶（照片缺陷修复）。
+ *   rev r03（2026-10-22）§3 可信帧事件：XScuGic（ID 61=MM2S 帧完成、ID 62=VTC）双 ISR + 四种 FPS 口径：
+ *       - video_refresh_fps：VTC 中断事件/秒（起止=连续两次 VTC 事件）
+ *       - display_fps      ：MM2S FrmCntIrq 事件/秒（起止=连续两次帧完成事件；CR[23:16]=1 ⇒ 每帧一次）
+ *       - unique_frame_update_fps：不同内容实际更新率（本轮为用例级；frame_id 级待 T5-05）
+ *       - inference_fps    ：无阶段4 注入源 ⇒ **NOT_APPLICABLE**（打印 NA，不用 0 伪装）
+ *     另报告 commit_to_frame_complete_ns（提交→首个帧完成事件；**不称光子到屏幕**）。
  *
  * 字节序：按阶段3 证据，DDR 内为 B,G,R（offset0=蓝）。背景为灰度（三通道同值）故与字节序无关；
  *         框线颜色按该顺序书写，若实机 R/B 互换只影响颜色观感，不影响几何判定。
@@ -22,8 +25,10 @@
 #include "xil_cache.h"
 #include "xtime_l.h"
 #include "xil_types.h"
+#include "xil_exception.h"
 #include "xparameters.h"
 #include "xaxivdma.h"
+#include "xscugic.h"
 #include "display_ctrl.h"
 #include "sleep.h"
 #include <string.h>
@@ -31,7 +36,12 @@
 
 #define S5_MM2S_CR_ADDR 0x43000000U   /* 显示通道 VDMA MM2S 控制寄存器 */
 #define S5_MM2S_SR_ADDR 0x43000004U   /* 显示通道 VDMA MM2S 状态寄存器（阶段3 证据：SR_MM2S=0x43000004） */
+#define S5_MM2S_FRMCNT_BIT 0x00001000U      /* SR bit12 = FrmCntIrq */
 #define S5_MM2S_FRMCNT_IRQ_EN 0x00001000U   /* CR bit12 = Frame Count IRQ Enable */
+#define S5_MM2S_FRMCNT_THRESH_SHIFT 16U     /* CR[23:16] = 帧计数阈值（=1 ⇒ 每帧一次 IRQ） */
+#define S5_VTC_BASE 0x43C00000U             /* XPAR_V_TC_0_BASEADDR */
+#define S5_VTC_ISR_ADDR (S5_VTC_BASE + 0x04U)
+#define S5_VTC_IER_ADDR (S5_VTC_BASE + 0x0CU)
 #define S5_DWELL_SECONDS 6U
 #define S5_BAR_W 64
 #define S5_HUD_X 24
@@ -44,6 +54,99 @@
 static const u8 S5_CLASS_COLOR[5][3] = {
     {255, 64, 64}, {64, 255, 64}, {64, 64, 255}, {255, 255, 64}, {255, 64, 255},
 };
+
+/* ── §3 可信帧事件（rev r03） ─────────────────────────────────────────────── */
+static XScuGic s5_gic;
+static volatile u32 s5_vtc_events;              /* VTC 中断事件数（视频刷新候选） */
+static volatile u32 s5_mm2s_events;             /* MM2S FrmCntIrq 事件数（显示帧完成） */
+static volatile u32 s5_vtc_last_isr;            /* 最近一次 VTC ISR 原始值（供证据判读位含义） */
+static volatile u32 s5_mm2s_last_sr;            /* 最近一次 MM2S SR 原始值 */
+static volatile u32 s5_vtc_bits_seen;           /* 累积出现过的 VTC ISR 位 */
+static volatile u32 s5_irq_spurious;            /* 无 IRQ 位的中断次数（诊断） */
+static volatile u32 s5_commit_pending;
+static volatile u64 s5_commit_counts;           /* t_overlay_commit（提交）时刻 */
+static volatile u64 s5_first_event_after_commit;/* 提交后首个帧完成事件时刻 */
+static volatile u32 s5_case_commits;            /* 内容提交次数（用例级 distinct） */
+static volatile u32 s5_vtc_b12, s5_vtc_b13, s5_vtc_b16, s5_vtc_other;  /* VTC ISR 逐位计数（定标用） */
+
+static void s5_mm2s_isr(void *ref)
+{
+    u32 sr = *(volatile u32 *)S5_MM2S_SR_ADDR;
+    (void)ref;
+    s5_mm2s_last_sr = sr;
+    /* W1C：清 IRQ 位（bit9 IOC / bit10 Dly / bit11 Err / bit12 FrmCnt） */
+    *(volatile u32 *)S5_MM2S_SR_ADDR = sr & 0x00001F00U;
+    if (sr & S5_MM2S_FRMCNT_BIT) {
+        s5_mm2s_events++;
+        if (s5_commit_pending && s5_first_event_after_commit == 0U) {
+            XTime t;
+            XTime_GetTime(&t);
+            s5_first_event_after_commit = (u64)t;
+            s5_commit_pending = 0U;
+        }
+    } else {
+        s5_irq_spurious++;
+    }
+}
+
+static void s5_vtc_isr(void *ref)
+{
+    u32 isr = *(volatile u32 *)S5_VTC_ISR_ADDR;
+    (void)ref;
+    s5_vtc_last_isr = isr;
+    s5_vtc_bits_seen |= isr;
+    *(volatile u32 *)S5_VTC_ISR_ADDR = isr;       /* W1C 清除 */
+    /* 位含义按实测原始值定标：r03 实机只见 0x1000/0x2000/0x10000，故逐位计数 */
+    if (isr & 0x00001000U) s5_vtc_b12++;
+    if (isr & 0x00002000U) s5_vtc_b13++;
+    if (isr & 0x00010000U) s5_vtc_b16++;
+    if (isr & ~0x00013000U) s5_vtc_other++;
+    if (isr != 0U) {
+        s5_vtc_events++;
+    }
+}
+
+static int s5_events_init(void)
+{
+    XScuGic_Config *cfg = XScuGic_LookupConfig(XPAR_SCUGIC_0_DEVICE_ID);
+    if (cfg == NULL) {
+        return -1;
+    }
+    if (XScuGic_CfgInitialize(&s5_gic, cfg, cfg->CpuBaseAddress) != XST_SUCCESS) {
+        return -1;
+    }
+    Xil_ExceptionInit();
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
+                                 (Xil_ExceptionHandler)XScuGic_InterruptHandler, &s5_gic);
+    if (XScuGic_Connect(&s5_gic, XPAR_FABRIC_AXI_VDMA_0_MM2S_INTROUT_INTR,
+                        (Xil_ExceptionHandler)s5_mm2s_isr, NULL) != XST_SUCCESS) {
+        return -2;
+    }
+    XScuGic_Enable(&s5_gic, XPAR_FABRIC_AXI_VDMA_0_MM2S_INTROUT_INTR);
+    if (XScuGic_Connect(&s5_gic, XPAR_FABRIC_V_TC_0_IRQ_INTR,
+                        (Xil_ExceptionHandler)s5_vtc_isr, NULL) != XST_SUCCESS) {
+        return -3;
+    }
+    XScuGic_Enable(&s5_gic, XPAR_FABRIC_V_TC_0_IRQ_INTR);
+    Xil_ExceptionEnable();
+    return 0;
+}
+
+static void s5_arm_frame_irq(void)
+{
+    volatile u32 *cr = (volatile u32 *)S5_MM2S_CR_ADDR;
+    u32 v = *cr;
+    v = (v & 0x00FFFFFFU) | (1U << S5_MM2S_FRMCNT_THRESH_SHIFT);   /* 阈值=1 */
+    v |= S5_MM2S_FRMCNT_IRQ_EN;                                    /* bit12 */
+    v |= 0x1U;                                                     /* RS=1 */
+    *cr = v;
+}
+
+static void s5_arm_vtc_irq(void)
+{
+    *(volatile u32 *)S5_VTC_IER_ADDR = 0xFFFFFFFFU;   /* 使能全部来源（ISR 内 W1C 自清） */
+    *(volatile u32 *)S5_VTC_ISR_ADDR = 0xFFFFFFFFU;   /* 清残留 */
+}
 
 static inline void s5_px(u8 *buf, u32 stride, int x, int y, u8 r, u8 g, u8 b)
 {
@@ -200,11 +303,12 @@ static u32 s5_mm2s_frames(void)
     return (s5_mm2s_sr() >> 16) & 0xFFU;                 /* VDMASR IRQFrameCntSts（阶段3 位定义证据） */
 }
 
-static void s5_enable_frame_count_irq(void)
+static int s5_fps10(u32 events, u64 counts, UINTPTR rate)
 {
-    volatile u32 *cr = (volatile u32 *)S5_MM2S_CR_ADDR;
-    u32 v = *cr;
-    *cr = v | S5_MM2S_FRMCNT_IRQ_EN;                      /* D-3：使帧计数状态有效 */
+    if (counts == 0U) {
+        return 0;
+    }
+    return (int)(((u64)events * 10U * (u64)rate) / counts);
 }
 
 void s5_overlay_loop(u8 **pFrames, u32 num_frames, u32 stride, DisplayCtrl *disp)
@@ -212,14 +316,18 @@ void s5_overlay_loop(u8 **pFrames, u32 num_frames, u32 stride, DisplayCtrl *disp
     UINTPTR count_rate = COUNTS_PER_SECOND ? COUNTS_PER_SECOND : 1U;
     u32 ncase = S5_NUM_CASES;
     u32 ci;
+    u32 common_case_id = 0;
+    int ev_rc;
     (void)disp;
 
-    xil_printf("\r\nS5_P1_BEGIN canvas=%dx%d stride=%u frames=%u cases=%u rev=r02\r\n",
+    xil_printf("\r\nS5_P1_BEGIN canvas=%dx%d stride=%u frames=%u cases=%u rev=r04\r\n",
                S5_CANVAS_W, S5_CANVAS_H, (unsigned)stride, (unsigned)num_frames, (unsigned)ncase);
     xil_printf("S5_P1_SOURCE=PS_SYNTHETIC (no sensor, no S2MM; zero new PL)\r\n");
     xil_printf("S5_P1_SEMANTICS=B_latest_result_overlay stale_limit_ns=%u\r\n", (unsigned)S5_STALE_LIMIT_NS);
     xil_printf("S5_P1_GEOMETRY=from_verification/s5_display_geometry_reference.py(S5A-G0-v2)\r\n");
-    xil_printf("S5_P1_FIXES=D1_smooth_ramp D2_label_hud_avoid D3_framecnt_irq_en\r\n");
+    xil_printf("S5_P1_FPS_DEF video_refresh=VTC_IRQ display=MM2S_FrmCntIrq uniq=content_commit "
+               "inference=NA(no_stage4_source)\r\n");
+    xil_printf("S5_P1_CLOCK counts_per_second=%u\r\n", (unsigned)count_rate);
     {
         u32 i;
         for (i = 0; i < num_frames; i++) {
@@ -231,44 +339,77 @@ void s5_overlay_loop(u8 **pFrames, u32 num_frames, u32 stride, DisplayCtrl *disp
                    S5_CASES[ci].id, S5_CASES[ci].nbox, S5_CASES[ci].stale, S5_CASES[ci].name);
     }
 
-    s5_enable_frame_count_irq();
-    xil_printf("S5_P1_MM2S_CR_AFTER_IRQEN=%08X SR=%08X\r\n",
+    ev_rc = s5_events_init();
+    xil_printf("S5_P1_EVENTS_INIT=%d (0=ok; -1=cfg -2=mm2s_connect -3=vtc_connect)\r\n", ev_rc);
+    xil_printf("S5_P1_VTC_IER_BEFORE=%08X ISR_BEFORE=%08X\r\n",
+               (unsigned)*(volatile u32 *)S5_VTC_IER_ADDR, (unsigned)*(volatile u32 *)S5_VTC_ISR_ADDR);
+    s5_arm_vtc_irq();
+    s5_arm_frame_irq();
+    xil_printf("S5_P1_VTC_IER_AFTER=%08X MM2S_CR_ARMED=%08X MM2S_SR=%08X\r\n",
+               (unsigned)*(volatile u32 *)S5_VTC_IER_ADDR,
                (unsigned)*(volatile u32 *)S5_MM2S_CR_ADDR, (unsigned)s5_mm2s_sr());
 
     for (;;) {
         for (ci = 0; ci < ncase; ci++) {
             const s5_case_t *c = &S5_CASES[ci];
             u32 f;
-            u32 f0, f1;
-            XTime t0, t1;
             u32 sec;
-            int fps10;
+            u32 v_prev = s5_vtc_events;
+            u32 m_prev = s5_mm2s_events;
+            XTime t_prev;
 
 #if S5_SINGLE_CASE > 0
             if (c->id != (unsigned)S5_SINGLE_CASE) {
                 continue;
             }
 #endif
+            XTime_GetTime(&t_prev);
+            s5_commit_counts = (u64)t_prev;
+            s5_commit_pending = 1U;
+            s5_first_event_after_commit = 0U;
             for (f = 0; f < num_frames; f++) {
                 s5_render_case(pFrames[f], stride, c);
                 Xil_DCacheFlushRange((INTPTR)pFrames[f], stride * S5_CANVAS_H);
             }
-            XTime_GetTime(&t0);
-            f0 = s5_mm2s_frames();
-            xil_printf("S5_P1_SHOW case=%u boxes=%u stale=%u hud=%s/%s/%s/%s\r\n",
-                       c->id, c->nbox, c->stale, c->hud[0], c->hud[1], c->hud[2], c->hud[3]);
-
-            for (sec = 0; sec < S5_DWELL_SECONDS; sec++) {
-                usleep(1000000);
+            if (c->id != common_case_id) {
+                s5_case_commits++;
+                common_case_id = c->id;
             }
-            XTime_GetTime(&t1);
-            f1 = s5_mm2s_frames();
-            fps10 = (int)(((u64)((f1 - f0) & 0xFFU) * 10U * (u64)count_rate) /
-                          (u64)(t1 - t0));
-            xil_printf("S5_P1_MEAS case=%u frames_delta=%u window_counts=%u mm2s_sr=%08X "
-                       "display_fps_x10=%d\r\n",
-                       c->id, (unsigned)((f1 - f0) & 0xFFU), (unsigned)(t1 - t0),
-                       (unsigned)s5_mm2s_sr(), fps10);
+            xil_printf("S5_P1_SHOW case=%u boxes=%u stale=%u hud=%s/%s/%s/%s uniq_case_updates=%u\r\n",
+                       c->id, c->nbox, c->stale, c->hud[0], c->hud[1], c->hud[2], c->hud[3],
+                       (unsigned)s5_case_commits);
+
+            for (sec = 1U; sec <= S5_DWELL_SECONDS; sec++) {
+                XTime t_now;
+                u32 dv, dm;
+                u64 dt;
+                usleep(1000000);
+                XTime_GetTime(&t_now);
+                dv = s5_vtc_events - v_prev;
+                dm = s5_mm2s_events - m_prev;
+                dt = (u64)t_now - (u64)t_prev;
+                xil_printf("S5_FPS4 case=%u win=%u vtc_events=%u mm2s_events=%u dt_counts=%u "
+                           "video_refresh_fps_x10=%d display_fps_x10=%d inference_fps=NA "
+                           "mm2s_frames_reg=%u raw_mm2s_sr=%08X raw_vtc_isr=%08X "
+                           "vtc_b12=%u vtc_b13=%u vtc_b16=%u vtc_other=%u spurious=%u\r\n",
+                           c->id, (unsigned)sec, (unsigned)dv, (unsigned)dm, (unsigned)dt,
+                           s5_fps10(dv, dt, count_rate), s5_fps10(dm, dt, count_rate),
+                           (unsigned)s5_mm2s_frames(), (unsigned)s5_mm2s_last_sr,
+                           (unsigned)s5_vtc_last_isr, (unsigned)s5_vtc_b12, (unsigned)s5_vtc_b13,
+                           (unsigned)s5_vtc_b16, (unsigned)s5_vtc_other, (unsigned)s5_irq_spurious);
+                v_prev = s5_vtc_events;
+                m_prev = s5_mm2s_events;
+                t_prev = t_now;
+            }
+            if (s5_first_event_after_commit != 0U) {
+                u64 delta = s5_first_event_after_commit - s5_commit_counts;
+                xil_printf("S5_LAT case=%u commit_to_frame_complete_ns=%u "
+                           "(definition=t_overlay_commit..next_MM2S_FrmCnt_event; NOT photon-to-screen)\r\n",
+                           c->id, (unsigned)((delta * 1000000000ULL) / (u64)count_rate));
+            } else {
+                xil_printf("S5_LAT case=%u commit_to_frame_complete_ns=NA "
+                           "(no MM2S frame-complete event observed in window)\r\n", c->id);
+            }
         }
         xil_printf("S5_P1_CYCLE_DONE\r\n");
     }

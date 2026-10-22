@@ -1,0 +1,467 @@
+=== 1. 参数（24 项）逐字段 ===
+数量: 24 -> 24 | 集合相同: True
+参数逐字段差异数: 0
+非 PENDING_APPROVAL: r05 = [] | r06 = []
+
+=== 2. ID 集合 ===
+transitions: 14 -> 14 | 新增=[] 删除=[]
+hard_invariants: 10 -> 10 | 新增=[] 删除=[]
+behavior_rows: 28 -> 28 | 新增=[] 删除=[]
+open_decisions: 16 -> 16 | 新增=[] 删除=[]
+parameters: 24 -> 24 | 新增=[] 删除=[]
+states: 7 -> 7 | 新增= []
+
+=== 3. 顶层键 ===
+新增: [] | 删除: []
+
+=== 4. JSON 全量键路径差异（含新增/删除/改值）===
+新增键 4 / 删除键 6 / 改值键 26
+  + .revision.retained_from_r05.artifact_version = 'S6A-G0-v1.4'
+  + .revision.retained_from_r05.note = 'r05 的 N-r04-01..05 收尾全部保留；r06 只修窗口完成口径与 3 项表述/覆盖边界。'
+  + .revision.retained_from_r05.run_id = 's6a_g0_20261022_r05'
+  + .time_anchors.window_complete = '窗口完成时刻 = 第一个「连续 WINDOW_MATCH 帧数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的帧的显式输入时刻（T6-S03 取较晚满足者）。30fps（P=33.3 ms）下第 6 
+  - .revision.changes[4].issue = 'N-r04-05'
+  - .revision.changes[4].summary = '清理 src/stage6 WIP 中对不存在的 docs/stage6/S6B_stage6_state_machine_design_v1.md 的引用，改引用现有 v1.4 契约文件；WIP 仍不提交'
+  - .revision.changes[4].where = 'src/stage6/s6_core.py（未跟踪 WIP）'
+  - .revision.retained_from_r04.artifact_version = 'S6A-G0-v1.3'
+  - .revision.retained_from_r04.note = 'r04 的 R3-B01/R3-B02/N01..N05 与 STABLE 锁存定论全部保留；r05 只做 5 项非阻断收尾。'
+  - .revision.retained_from_r04.run_id = 's6a_g0_20261022_r04'
+  -- 改值（排除纯索引位移）--
+  ~ .artifact_version : 'S6A-G0-v1.4' -> 'S6A-G0-v1.5'
+  ~ .baseline.revision_base_commit : 'b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7' -> '1632761b2d60d8c1328aa82be97d53eef30e1072'
+  ~ .baseline.revision_note : '在 r04（提交 b20b670）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。' -> '在 r05（提交 1632761）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。'
+  ~ .low_fps_latency.window_completion_definition : '窗口完成时刻 = 第 T6-S02 个 WINDOW_MATCH 结果到达且时长条件同时满足的那一帧的显式输入时刻' -> '窗口完成时刻 = 第一个「WINDOW_MATCH 帧计数 ≥ T6-S02」且「时长 ≥ T6-S01」同时满足的那一帧（T6-S03 later_of；30fps 由时长支配
+  ~ .not_claimed[5] : '本文件为 r05 修订版（v1.4），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。' -> '本文件为 r06 修订版（v1.5），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。'
+  ~ .revision.changes[0].issue : 'N-r04-01' -> 'N-r05-04'
+  ~ .revision.changes[0].summary : 'M5 条件补「本帧必须为窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）」并与 §4 锁存段/stable_latching 一致； -> '实现 T6-S03「取较晚满足者」：窗口完成帧 = 第一个计数 ≥ T6-S02 且 (帧序−窗口首帧)·P ≥ T6-S01 的帧；新增 30fps（P=33.3 ms）样例 
+  ~ .revision.changes[0].where : 'transitions.M5 / stable_latching / 文档 §4 / hand_computed_cases HC-30 / 自检 C12+C7' -> 'selfcheck C7 window_match_vs_continues / hand_computed_cases HC-31 / 文档 §15 / time_anchor
+  ~ .revision.changes[1].issue : 'N-r04-02' -> 'N-r05-01'
+  ~ .revision.changes[1].summary : 'predicate_binding_policy.statement 精确化：M5 带 global_cooldown_gate 标记、B13 由 H-10 承载；两者都只有条件 -> '探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」'
+  ~ .revision.changes[1].where : 'predicate_binding_policy / 文档 §4 / .codex/STATE.md' -> 'verification/s6a_r06_probe.py / s6a_build_evidence.py / fix_record / run summary / manife
+  ~ .revision.changes[2].issue : 'N-r04-03' -> 'N-r05-02'
+  ~ .revision.changes[2].summary : '自检 C12 增加普适断言：任何条目的 predicates_used 出现时必须为非空列表，显式空列表 [] 判不合法；由注入探针证明可捕获' -> 'r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 case_span_wrong 证据'
+  ~ .revision.changes[2].where : '自检 C12 / verification/s6a_r05_probe.py' -> 'fix_record / limitations / run summary / 探针注入清单'
+  ~ .revision.changes[3].issue : 'N-r04-04' -> 'N-r05-03'
+  ~ .revision.changes[3].summary : 'C7 的窗口跨度改为「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」（HC-29 由 320 ms 修正为 200 ms），并断言与宽松序列跨度口径下 m3_ -> 'HC-30 的动作计数去掉封顶：改为「给定序列内计数 actions_within_supplied_sequence」并注明至少 1 次的覆盖边界与真正的判别字段（gate_o
+  ~ .revision.changes[3].where : '自检 C7 recompute / hand_computed_cases HC-28/HC-29' -> 'selfcheck C7 latched_stable_gate_on_timeout / hand_computed_cases HC-30'
+  ~ .revision.review_source : 'report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/' -> 'report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r05_20261023_r01/'
+  ~ .revision.review_verdict : 'PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）' -> 'PASS（0 阻断 + 4 项非阻断 N-r05-01..N-r05-04）'
+  ~ .revision.run_id : 's6a_g0_20261022_r05' -> 's6a_g0_20261022_r06'
+  ~ .revision.semantic_changes : False -> True
+  ~ .revision.supersedes_run_id : 's6a_g0_20261022_r04' -> 's6a_g0_20261022_r05'
+  ~ .run_id : 's6a_g0_20261022_r05' -> 's6a_g0_20261022_r06'
+  ~ .status_label : '阶段6 G0 包与行为表 v1.4（r05 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准' -> '阶段6 G0 包与行为表 v1.5（r06 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准'
+  ~ .status_note : '本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r05 关闭第 4 轮独立复评（PASS，0 阻断）的 5 项非阻断建议：N-r04-01（M5 条件补「本帧必须为 -> '本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r06 关闭第 5 轮独立复评（PASS，0 阻断）的 4 项非阻断建议：N-r05-04（窗口完成时刻按 T6-S
+  ~ .supersedes_run_id : 's6a_g0_20261022_r04' -> 's6a_g0_20261022_r05'
+
+=== 5. artifact_version 一致性 ===
+  JSON artifact_version: S6A-G0-v1.5
+  JSON revision.retained_from_r05.artifact_version: S6A-G0-v1.4
+  doc 出现 v1.5 次数: 2
+  doc 出现 v1.4 次数: 1
+  doc 含 S6A-G0-v1.5 完整令牌: False
+  STATE 出现 v1.5 次数: 4
+  STATE 含 r06: True
+  evidence:S6A_run_summary.md: 1
+  evidence:coverage_matrix.json: 3
+  evidence:delivery_manifest.json: 2
+  evidence:fix_record.json: 1
+  evidence:fix_record.md: 1
+  evidence:hand_computed_cases.json: 2
+  evidence:limitations_not_executed.json: 2
+  evidence:probe_historical_model_check_stdout.txt: 2
+  evidence:selfcheck_result.json: 1
+
+=== 6. 声明但缺失 / 未声明但存在 ===
+manifest.evidence_dir = report/evidence/S6-A/s6a_g0_20261022_r06
+运行目录实际文件: 36 | manifest 运行目录条目: 35 | 外部绑定: 7
+声明但缺失: []
+存在但未声明: ['delivery_manifest.json']
+外部绑定: ['docs/stage6/S6A_stage6_g0_behavior_spec_v1.md', 'docs/stage6/s6a_stage6_g0_behavior_v1.json', 'verification/s6a_rerun_legacy_failures.py', 'verification/s6a_r06_probe.py', 'verification/s6_g0_selfcheck.py', 'verification/s6a_build_evidence.py', '.codex/STATE.md']
+外部绑定缺失: []
+
+=== 7. 文档 §18 点名文件存在性 ===
+§18 点名文件名: 34 | 证据目录缺失: ['S4A_stage4_g0_tracking_and_timing_draft.md', 's4a_stage4_g0_fields.json']
+
+=== 8. 自称『已审查/已通过』扫描（r06 证据 + 文档 + STATE）===
+  [doc] ...态：`G0_PACKET_PENDING_APPROVAL`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
+> **本文未冻结任何阈值或验...
+  [doc] ...、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
+> **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为 **待批准**（`PENDING_APPRO...
+  [doc] ...ication/s6_g0_selfcheck.py` 机器校验。
+> **修订记录（v1.5 / r06，2026-10-23）**：本包已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断），现按该轮 4 项非阻断建议收尾：**N-...
+  [doc] ...。** 复评由项目总控另行安排；本包不因收尾而视为通过。
+>
+> **上一轮修订记录（v1.4 / r05，2026-10-23）**：本包已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 项非阻断），现按该 5 项非阻断建...
+  [doc] ...-01..N-10（M14 删除、`A_DISPLAY_STATE` 删除、可达性登记、覆盖声明收敛、手算样例补实、±1 单位口径、措辞去“冻结/DONE”）。**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通...
+  [doc] ...**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。
+
+---
+
+## 0. 定位、范围与不宣称项
+
+- 阶段目标（计划 L102–L108）：**稳定手势判定 → HDMI 切图 / 界面...
+  [doc] ...0. 定位、范围与不宣称项
+
+- 阶段目标（计划 L102–L108）：**稳定手势判定 → HDMI 切图 / 界面 / 显示状态**；冻结多框目标选择、目标丢失与重获、稳定判定窗口、保持时是否只触发一次、冷却、重新触发条件、无手/未知输入与恢复行为。
+- 上轮结果（计划 L10...
+  [doc] ...能与可靠性验收；注入/回放获得的任何结论只对「回放/注入输入」有效，不得冒充真实摄像头验收（真手势验收因摄像头不可用而延期）。
+- 不宣称：G0 已通过；阈值已冻结；接口已集成验收；状态机已实现；任何板上/摄像头/HDMI 已实测。
+
+## 1. 工作树、基线与上游绑定
+
+- 工作树 `D:...
+  [doc] .../回放获得的任何结论只对「回放/注入输入」有效，不得冒充真实摄像头验收（真手势验收因摄像头不可用而延期）。
+- 不宣称：G0 已通过；阈值已冻结；接口已集成验收；状态机已实现；任何板上/摄像头/HDMI 已实测。
+
+## 1. 工作树、基线与上游绑定
+
+- 工作树 `D:\codex...
+  [doc] ...且不存在）。本阶段独占写入方 = 阶段6 总控；`main`/`w4`/`w5`/`dbdf`/`w2b`/厂商原件只读。
+- 上游绑定与冻结状态（只读，哈希见 §17 与 JSON `upstream`）：
+
+| 来源 | 用途 | 冻结状态 | 阶段6 可用性 |
+|---|-...
+  [doc] ...`w2b`/厂商原件只读。
+- 上游绑定与冻结状态（只读，哈希见 §17 与 JSON `upstream`）：
+
+| 来源 | 用途 | 冻结状态 | 阶段6 可用性 |
+|---|---|---|---|
+| `docs/obsidian-project/04-提交材料/阶段验收...
+  [doc] ...---|---|---|
+| `docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md` | 类别顺序、`score` 语义与阈值 0.25、NMS IoU 0.45、≤15 框、稳定同分顺序、比较容限 | **G0_F...
+  [doc] ...INT8数值规格.md`、`…/S1-T02-D6_检测评估口径与离线指标基础.md` | `no_hand` 语义、评估口径 | 阶段1 冻结件 | 可直接引用 |
+| `w4/docs/stage4/s4a_stage4_g0_fields.json`（`DRAFT_NOT_FR...
+  [doc] ...lds.json`（`DRAFT_NOT_FROZEN`） | 结果记录字段、`state` 枚举、缺失值/丢帧/过期口径 | **草案，未冻结** | 只能作草案/隔离测试输入；**不得**作集成验收依赖 |
+| `w5/docs/stage5/S5A_stage5_display...
+  [doc] ...调 |
+| `w5/docs/stage6/*`（v1 草案 + 阶段5 修订建议 S6-D-01…05） | 行为表起点 | **草案，未冻结** | 作为起点，逐条核对后由本阶段自行冻结语义 |
+
+- **G0 就绪性结论（本阶段自评，不代表批准）**：接口语义对本轮**离线/隔...
+  [doc] ...`（v1 草案 + 阶段5 修订建议 S6-D-01…05） | 行为表起点 | **草案，未冻结** | 作为起点，逐条核对后由本阶段自行冻结语义 |
+
+- **G0 就绪性结论（本阶段自评，不代表批准）**：接口语义对本轮**离线/隔离**工作足够明确；但**直接上游（阶段4 结...
+  [doc] ...性结论（本阶段自评，不代表批准）**：接口语义对本轮**离线/隔离**工作足够明确；但**直接上游（阶段4 结果记录、阶段5 显示契约）均未冻结**，因此阶段6 的集成验收依赖 `BLOCKED`，只能先做离线规格与注入驱动自测。此项须由项目总控转呈 Wong。
+- **上游并发写入...
+  [doc] ...3524d02a…` 变为 `657ea2fb…`），漂移记录见 `upstream_bindings.json`。因此阶段4 契约**既未冻结、也仍在变动**，阶段6 集成验收依赖继续 `BLOCKED`。阶段5 工作树 `w5` HEAD 由 `e4533e1` 推进至 `875...
+  [doc] ...据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_PENDING_APPROVAL`，**不是已批准、不是已冻结**）；**其中全部数值参数为待批准**。
+
+| ID | 行为 | 条件 → 转移 | 输出/动作 | 必须记录 | 判定依据 | 参数（...
+  [doc] ...累积证据 | 选择依据与新目标字段 | 计划 L104 | `T6-P01` |
+| B05 | 同分排序 | 分数完全相等 | 按 2A 冻结稳定顺序；`source_order` 可用时以其为权威 | 两者 `score` 与 `source_order` | 2A L75/L7...
+  [doc] ...rce_order` 可用时以其为权威 | 两者 `score` 与 `source_order` | 2A L75/L77 | 无（2A 冻结） |
+| B06 | 禁止未冻结启发式 | 任何选择/排序 | 不得按面积、像素位置、"中央优先"重排或加权重排 | — | 2A L77...
+  [doc] ...权威 | 两者 `score` 与 `source_order` | 2A L75/L77 | 无（2A 冻结） |
+| B06 | 禁止未冻结启发式 | 任何选择/排序 | 不得按面积、像素位置、"中央优先"重排或加权重排 | — | 2A L77 | 无 |
+| B07 | 稳定...
+  [doc] ...`；`A_DISPLAY_STATE` 在 r01 JSON 中登记但从未被任何类映射，r02 已删除（U6-15），若后续需要须回 G0 冻结。
+
+| 类别 | `class_id` | 动作类型 | `target_id` | 期望可观察显示状态 | 成功反馈（`ACTION_E...
+  [doc] ...先**：否则在 `score ≥ T6-P01` 的框中取最高分者。
+3. **平票**：`score` **逐位完全相等**时，按 2A 冻结稳定同分顺序（head → row-major cell → anchor-local → `class_id`）；`source_orde...
+  [doc] ...全部框低于 `T6-P01`、零框、或结果非法 → 本帧"无目标"，按 M10/M2 处理。
+5. **禁止**：不得按框面积、像素位置或未冻结顺序重排候选；新增启发式必须先回 G0 冻结并写入本文与 JSON。
+6. **同一目标判定**：`TARGET_CONTINUES` 仅在...
+  [doc] ...法 → 本帧"无目标"，按 M10/M2 处理。
+5. **禁止**：不得按框面积、像素位置或未冻结顺序重排候选；新增启发式必须先回 G0 冻结并写入本文与 JSON。
+6. **同一目标判定**：`TARGET_CONTINUES` 仅在**同一次获取内**用于迟滞；丢失确认后重新...
+  [doc] ...| PENDING_APPROVAL |
+| `T6-P01` | 选择最小分数 | 分数 | `≥` | 0.35（草案；必须 ≥ 2A 冻结 0.25） | PENDING_APPROVAL |
+| `T6-P02` | 稳定最小分数 | 分数 | `≥` | 0.30（草案）...
+  [doc] ...NDOW_MATCH` 谓词阈值、抖动容忍（§14） | 草案建议值 | Wong/G0 批准 |
+| U6-05 | 阶段4 结果记录接口冻结 | `DRAFT_NOT_FROZEN` | 阶段4 G0；未冻结前阶段6 集成验收 `BLOCKED` |
+| U6-06 | 阶段5...
+  [doc] ...摄像头不可用导致真手势验收 | 延期 | 等模块到货；阶段3 验收后回归 |
+| U6-10 | `T6-STALE_LIMIT` 的正式冻结 | 阶段5 已用同源 200 ms；阶段4 仍 `DRAFT_PROPOSED` | 阶段4/阶段5/G0 |
+| U6-11 | 状态机...
+  [doc] ...20261022-012` §2（6-A）覆盖**：1 独占写入方与 STATE → §1 + `.codex/STATE.md`；2 上游冻结版本核对 → §1；3 五类动作/成功失败反馈/可观察状态 + 两类事件 → §7 + §5-B01/B02；4 行为表冻结（多框选择、同分...
+  [doc] ...md`；2 上游冻结版本核对 → §1；3 五类动作/成功失败反馈/可观察状态 + 两类事件 → §7 + §5-B01/B02；4 行为表冻结（多框选择、同分、保持/重获、抖动、稳定窗口、冷却、再触发、过期、未知、无手、超时/错误）→ §5 + §8–§13；5 草案状态作起点 →...
+  [doc] ...触发一次」唯一 → §10；7 窗口用真实时间与有效结果数、重复帧不推进、低 FPS 延迟估算 → §9 + §13 + §15；8 阈值未冻结、不在正式集调参 → §14；9 `NO_HAND` 与未知拒绝证明 → §11 + H-5/H-6；10 异常/重复/过期不触发、单调时钟...
+  [doc] ...9<30；N-r05-03 → HC-30 动作计数去掉封顶并注明覆盖边界。
+
+**计划 L102–L108 覆盖**：L104 目标与八项冻结要求 → §4/§8/§9/§10/§11；L106 五个测试场景与沿用建议 → §5-B01…B28 与 §14；L108 证据与"不代替...
+  [doc] ...|
+|---|---|
+| `docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md` | `7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f2...
+  [doc] ...收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
+- 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad`...
+  [doc] ...注入输入**，不得冒充真实摄像头验收。
+- 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。
+- 独立 Reviewer：本阶段总控在本次会话中**无法创建子代理**（运行环境限制：委派深度已用尽），故本轮**...
+  [STATE] ....md` 只读。阶段技术事实以本文件与本树证据为准。
+
+## 阶段目标与范围
+
+- 目标：稳定手势判定 → HDMI 切图/界面/显示状态；冻结多框目标选择、丢失与重获、稳定窗口、保持期触发语义、冷却、再触发条件、无手/未知/超时错误与恢复行为（计划 L102–L108）。
+- 范围...
+  [STATE] ...只读；不 push；同时只跑一个重型任务。
+- 注入/回放结论适用范围仅限回放/注入输入；真手势验收延期至摄像头到货。
+
+## 上游绑定与冻结状态（2026-10-23 核实）
+
+- 已冻结、可直接引用：`S2A-T01` 规格（`7c2c8684…`）、阶段计划 L102–L10...
+  [STATE] ...注入/回放结论适用范围仅限回放/注入输入；真手势验收延期至摄像头到货。
+
+## 上游绑定与冻结状态（2026-10-23 核实）
+
+- 已冻结、可直接引用：`S2A-T01` 规格（`7c2c8684…`）、阶段计划 L102–L108、`D2`（`df95a843…`）、`D6`...
+  [STATE] ...`7c2c8684…`）、阶段计划 L102–L108、`D2`（`df95a843…`）、`D6`（`735cbc78…`）。
+- **未冻结（仅草案/隔离使用）**：阶段4 `s4a_stage4_g0_fields.json`（`DRAFT_NOT_FROZEN`，`73c3d...
+  [STATE] ...3dad` 版本 `3524d02a…`）；阶段5 `S5A v2`（`ca5968d4…`，离线定稿未验收）。
+- 阶段4/阶段5 接口未冻结 → 阶段6 集成验收依赖 `BLOCKED`；不得据此做集成验收。
+
+## 本轮已完成（S6-A v1.4 / r05 收尾，PENDIN...
+  [STATE] .../ r05 收尾，PENDING_REVIEW）
+
+- 输入：S6-A r04（提交 `b20b670`，契约 `S6A-G0-v1.3`）已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 非阻断）。r05 按 task-6...
+  [STATE] .../ r06 收尾，PENDING_REVIEW）
+
+- 输入：S6-A r05（提交 `1632761`，契约 `S6A-G0-v1.4`）已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断 / 4 非阻断）。
+- **N-r05-0...
+  [STATE] ...n_cases.py`（虚拟单调时钟 + JSON 用例 + 逐帧 JSONL 日志 + 断言 + 非零退出；运行前校验 expected 冻结哈希）+ S6-B 证据目录内的 cases/case_matrix.json（**22 条 / 覆盖 CDX-012 §4 全部 11 类...
+  [STATE] ...1.json` 状态改为 `S6B_IMPLEMENTATION_BASELINE_PENDING_REVIEW`（只读 2A 常量，不是新冻结）。
+
+## 未决与阻塞
+
+- **待 Wong/G0 确认**：`U6-16`（STABLE 锁存口径）；`U6-12`（`T6-S04`...
+  [STATE] ...）；`U6-15`（`A_DISPLAY_STATE`）；`U6-01..U6-11`。
+- **BLOCKED**：阶段4/阶段5 接口未冻结；阶段4 实测帧周期未取得；真摄像头验收延期；独立 Reviewer 无法由本会话创建（委派深度 0，由项目总控安排）。
+- **S6-A...
+  [STATE] ...*：v1.4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。
+
+## 证据入口（r05）
+
+- 本轮：`report/evidence/S6-A/s6a_g0_20261022_r05/`（...
+  [STATE] ....4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。
+
+## 证据入口（r05）
+
+- 本轮：`report/evidence/S6-A/s6a_g0_20261022_r05/`（`del...
+  [STATE] ...2 §5 的 6-D（无摄像头两级联调）前置项；`T6-A02>T6-K01` 若获批则打开 B16 去重路径。
+3. 阶段4/阶段5 接口冻结后做 6-D；摄像头到货后做 6-E。
+
+## 11 字段交接行（2026-10-23 02:03）
+
+任务=`S6-A v1.5（r06）...
+  [S6A_run_summary.md] ...SS`/`CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定；不验证状态机行为，不代表 G0 复评/独立审查/实物验收通过。
+- 回放/注入类结论仅限回放/注入输入；本包未运行任何状态机。
+
+## 限制与未执行
+
+见 `limitations_not_execu...
+  [coverage_matrix.json] ...,
+    {
+      "item": 2,
+      "requirement": "核对阶段4结果字段、错误语义和阶段5显示语义的冻结版本；未冻结接口只能草案/隔离使用",
+      "location": "§1 上游绑定表 + upstream_bindings.js...
+  [coverage_matrix.json] ...{
+      "item": 2,
+      "requirement": "核对阶段4结果字段、错误语义和阶段5显示语义的冻结版本；未冻结接口只能草案/隔离使用",
+      "location": "§1 上游绑定表 + upstream_bindings.json",...
+  [coverage_matrix.json] ...PENDING_APPROVAL"
+    },
+    {
+      "item": 4,
+      "requirement": "冻结多框选择、同分、保持/重获、抖动、窗口、冷却、再触发、过期、未知、无手、超时/错误",
+      "location": "§5 B01–...
+  [coverage_matrix.json] ..."item": 8,
+      "requirement": "草案 0.35/0.30、200ms、6 帧、1000ms 等未冻结；不在正式集调参",
+      "location": "§14 全表 24 项 PENDING_APPROVAL + §0",...
+  [coverage_matrix.json] ...DIDATE、U6-16）"
+    }
+  },
+  "not_claimed": [
+    "本矩阵不代表 G0 复评通过、不代表独立审查通过，也不代表状态机/摄像头/HDMI/板上验收。",
+    "全部阈值仍为 PENDING_APPROVAL；T6-A03 与交互延迟量级因...
+  [coverage_matrix.json] ...OT_RUN。",
+    "STABLE 锁存的「本次获取内锁存」为阶段6 定论（U6-16 待 Wong/G0 确认），未被批准前不构成冻结语义。",
+    "r06 只关闭第 5 轮复评的 4 项非阻断建议；是否再复评由项目总控决定。",
+    "窗口完成口径修正后，30f...
+  [delivery_manifest.json] ...022_r06",
+  "interfaces": [
+    {
+      "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
+      "version": "G0_FROZEN",
+      "froz...
+  [delivery_manifest.json] ..."path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f19...
+  [delivery_manifest.json] ...aee218aab34ebc3a3",
+      "role": "input",
+      "keep_reason": "输入清单（冻结上游接口与输入文件绑定）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_...
+  [delivery_manifest.json] ...获 BLK-1。",
+    "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+  ]
+}...
+  [fix_record.json] ...的表述（「8 个注入」等）保持原样不改写（RunId 证据不可覆盖）；更正记于本记录与 r06 包。",
+    "S6-B 开发期间与当轮冻结待审版本串行：冻结前已声明「评审期间不再写 w6」，评审结束后才继续 S6-B。",
+    "未触碰硬件；未 push；未改 main/w...
+  [fix_record.md] ...PENDING_APPROVAL` 状态未改**；未在测试集调参；未触碰硬件
+- 状态：**PENDING_REVIEW**；本记录不构成“已审查/已通过”
+
+## 第一优先：N-r05-04（真实 30fps）
+
+窗口完成帧按 `T6-S03`「**取较晚满足者**」实现：完成帧 =...
+  [fix_record.md] ...ING_APPROVAL` 状态未改**；未在测试集调参；未触碰硬件
+- 状态：**PENDING_REVIEW**；本记录不构成“已审查/已通过”
+
+## 第一优先：N-r05-04（真实 30fps）
+
+窗口完成帧按 `T6-S03`「**取较晚满足者**」实现：完成帧 = 第一个...
+  [fix_record.md] ...PASS` / `CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定；不代表状态机行为、G0 复评、独立审查或实物验收通过。
+30fps 结论基于草案 `P`=33.3 ms 假设，真实 `P_meas` 仍需阶段4 实测（U6-13）。...
+  [inputs_manifest.json] ...022_r06",
+  "interfaces": [
+    {
+      "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
+      "version": "G0_FROZEN",
+      "froz...
+  [inputs_manifest.json] ..."path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f19...
+  [inputs_manifest.json] ..."path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f19...
+  [inputs_manifest.json] ...e4f198075e6c97b371f230",
+      "role": "input",
+      "keep_reason": "冻结上游输入：S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）"
+    },
+    {...
+  [inputs_manifest.json] ..."role": "input",
+      "keep_reason": "冻结上游输入：S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）"
+    },
+    {
+      "path": "docs/obsidian-...
+  [inputs_manifest.json] ...8f31a18874980f69702e57",
+      "role": "input",
+      "keep_reason": "冻结上游输入：S1-T02-D2 固定预处理与 INT8 数值规格（no_hand 空标签语义）"
+    },
+    {
+      "pa...
+  [inputs_manifest.json] ...82be3a64f1db830f311dd7",
+      "role": "input",
+      "keep_reason": "冻结上游输入：S1-T02-D6 检测评估口径与离线指标基础"
+    },
+    {
+      "path": "docs/obsidia...
+  [inputs_manifest.json] ..."exit_code": 0
+    }
+  ],
+  "limitations": [
+    "inputs 清单只登记已冻结上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 草案区。",...
+  [inputs_manifest.json] ...limitations": [
+    "inputs 清单只登记已冻结上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 草案区。",
+    "inputs 模式 CHECKS_OK 只表示清单/路径/哈...
+  [inputs_manifest.json] ...indings.json 草案区。",
+    "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或 G0 通过。"
+  ]
+}...
+  [limitations_not_executed.json] ...": "本次声明范围的所有条件已验证",
+    "FAIL": "执行后不满足条件",
+    "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行",
+    "NOT_RUN": "本轮没有执行",
+    "NOT_APPLICABLE": "确实不适用，必须说明理...
+  [limitations_not_executed.json] ..."status": "NOT_RUN",
+      "reason": "由项目总控另派；r06 不因收尾视为通过，不得自称已审查/已通过。"
+    }
+  ],
+  "blocked": [
+    {
+      "item": "6-E 真摄像头验收与统计",...
+  [limitations_not_executed.json] ..."status": "NOT_RUN",
+      "reason": "由项目总控另派；r06 不因收尾视为通过，不得自称已审查/已通过。"
+    }
+  ],
+  "blocked": [
+    {
+      "item": "6-E 真摄像头验收与统计",...
+  [limitations_not_executed.json] ...eason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"
+    },
+    {
+      "item": "阶段5 显示侧新增 HUD 字段（sm_state 等...
+  [limitations_not_executed.json] ...本轮不适用，但仍属阶段6 后续关口。"
+    },
+    {
+      "item": "inputs 模式下对阶段4/阶段5 接口的冻结核验",
+      "status": "NOT_APPLICABLE",
+      "reason": "该两项直接上游接口未冻结，不...
+  [limitations_not_executed.json] ...口的冻结核验",
+      "status": "NOT_APPLICABLE",
+      "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstre...
+  [limitations_not_executed.json] ...LICABLE",
+      "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+    }...
+  [limitations_not_executed.json] ...两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+    }
+  ],
+  "hard_limits_observed"...
+  [limitations_not_executed.json] ...文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5。",
+  "r03_notes": [
+    "N-r05-04：窗口完成帧按 T6-S03「取较晚满足者」实...
+  [probe_summary.json] ...}
+  ],
+  "scope_statement": "探针只证明自检断言有判别力，不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+}...
+  [selfcheck_old_package_failure.json] ...tate.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍...
+  [selfcheck_old_package_failure.json] ...o 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近...
+  [selfcheck_r02_blk1_failure.json] ...tate.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍...
+  [selfcheck_r02_blk1_failure.json] ...o 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近...
+  [selfcheck_r03_failure.json] ...tate.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍...
+  [selfcheck_r03_failure.json] ...o 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近...
+  [selfcheck_r04_failure.json] ...tate.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍...
+  [selfcheck_r04_failure.json] ...o 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近...
+  [selfcheck_result.json] ...TATE.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍...
+  [selfcheck_result.json] ...o 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近...
+  [upstream_bindings.json] ...d373b4496dbfe6d8611081d6930d5",
+      "consequence": "阶段4 结果记录契约仍在变动且未冻结；阶段6 集成验收依赖继续 BLOCKED。"
+    },
+    {
+      "tree": "D:\\codex-worktree...
+  [upstream_bindings.json] ..."path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f19...
+  [upstream_bindings.json] ...1f230",
+      "frozen_status": "G0_FROZEN",
+      "authority": "2A G0 冻结规格（类别顺序、score 语义与阈值、同分顺序、比较容限）"
+    },
+    {
+      "id": "stage_plan",...
+  [upstream_bindings.json] ...0a0a1",
+      "frozen_status": "DRAFT",
+      "authority": "行为表起点（只读，未冻结）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "...
+  [upstream_bindings.json] ...c42",
+      "frozen_status": "DRAFT",
+      "authority": "草案参数值来源（只读，未冻结）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "...

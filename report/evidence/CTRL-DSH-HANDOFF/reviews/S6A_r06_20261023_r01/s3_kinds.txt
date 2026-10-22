@@ -1,0 +1,149 @@
+=== 样例 kind 一览 ===
+HC-01 | stable_window | {"period_ms": 40, "s01_ms": 200, "s02_frames": 6}
+HC-02 | stable_window | {"period_ms": 39.8, "s01_ms": 200, "s02_frames": 6}
+HC-03 | stable_window | {"period_ms": 60, "s01_ms": 200, "s02_frames": 6}
+HC-04 | stable_window | {"period_ms": 200, "s01_ms": 200, "s02_frames": 6}
+HC-05 | stable_window | {"period_ms": 100, "s01_ms": 200, "s02_frames": 6}
+HC-06 | stable_window | {"period_ms": 33.3, "s01_ms": 200, "s02_frames": 6}
+HC-07 | cooldown | {}
+HC-08 | dedup | {}
+HC-09 | lost_frames | {}
+HC-10 | lost_time | {}
+HC-11 | stale | {}
+HC-12 | jitter | {}
+HC-13 | frame_id_seen | {}
+HC-14 | frame_id_seen | {}
+HC-15 | session_change | {}
+HC-16 | trigger_once_hold | {"s02_frames": 6, "s01_ms": 200, "period_ms": 40}
+HC-17 | hysteresis | {"p02": 0.3}
+HC-18 | tie | {}
+HC-19 | action_events | {}
+HC-20 | unknown_rejection_proof | {"s02_frames": 6, "s01_ms": 200, "period_ms": 40}
+HC-21 | acquisition_c01 | {}
+HC-22 | anomaly_window | {}
+HC-23 | m4_reachability | {"period_ms": 40}
+HC-24 | score_gate | {}
+HC-25 | window_match_score | {"p02": 0.3}
+HC-26 | recovery_streak | {}
+HC-27 | stable_ns_border | {"s01_ms": 200, "s02_frames": 6, "period_ns": 40000000}
+HC-28 | window_match_vs_continues | {"p02": 0.3, "s02_frames": 6, "s01_ms": 200, "period_ms": 40}
+HC-29 | window_match_vs_continues | {"p02": 0.3, "s02_frames": 6, "s01_ms": 200, "period_ms": 40}
+HC-30 | latched_stable_gate_on_timeout | {"period_ms": 100, "s02_frames": 6}
+HC-31 | window_match_vs_continues | {"p02": 0.3, "s02_frames": 6, "s01_ms": 200, "period_ms": 33.3}
+
+=== HC-01..HC-06 全文 ===
+======================================================================
+{
+ "case_id": "HC-01",
+ "topic": "稳定窗口：时长恰好等于阈值（含等号）且帧数恰好满足",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 40,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "帧时刻 0,40,80,120,160,200 ms。第 6 帧时 matched=6 ≥ 6，且 duration=200−0=200 ms ≥ 200 ms，两条件同帧满足。",
+ "expected": {
+  "frames_required": 6,
+  "actual_window_ms": 200,
+  "lower_bound_W_ms": 200,
+  "stable": true
+ }
+}
+======================================================================
+{
+ "case_id": "HC-02",
+ "topic": "稳定窗口：时长为阈值 −1 单位（199 ms）不满足",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 39.8,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "帧时刻 0,39.8,79.6,119.4,159.2,199.0 ms。第 6 帧 duration=199.0 < 200，帧数虽满足但时长不满足 → 不进入 STABLE；下一帧 238.8 ms 才满足（帧数 7）。",
+ "expected": {
+  "frames_required": 7,
+  "actual_window_ms": 238.8,
+  "lower_bound_W_ms": 200,
+  "stable_at_sixth_frame": false
+ }
+}
+======================================================================
+{
+ "case_id": "HC-03",
+ "topic": "稳定窗口：帧数为阈值 −1（5 帧）不满足",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 60,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "帧时刻 0,60,120,180,240,300 ms。第 5 帧 duration=240 ≥ 200 但 matched=5 < 6 → 不满足（证明帧数条件是独立门槛）；第 6 帧 300 ms 满足。此周期下 W=max(200,(6−1)×60=300)=300 ms，故本样例同时由帧数支配。",
+ "expected": {
+  "frames_required": 6,
+  "actual_window_ms": 300,
+  "lower_bound_W_ms": 300,
+  "dominant": "frame_count",
+  "stable_at_fifth_frame": false
+ }
+}
+======================================================================
+{
+ "case_id": "HC-04",
+ "topic": "低 FPS 5（周期 200 ms）：窗口由帧数支配，W=1000 ms",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 200,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "W=max(200, (6−1)×200)=max(200,1000)=1000 ms。帧时刻 0,200,400,600,800,1000 ms，第 6 帧 duration=1000 ms ≥ 200 ms 且 matched=6 → 稳定在 1000 ms。",
+ "expected": {
+  "frames_required": 6,
+  "actual_window_ms": 1000,
+  "lower_bound_W_ms": 1000,
+  "dominant": "frame_count"
+ }
+}
+======================================================================
+{
+ "case_id": "HC-05",
+ "topic": "低 FPS 10（周期 100 ms）：W=500 ms",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 100,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "W=max(200,(6−1)×100)=500 ms；第 6 帧 duration=500 ms ≥200 → 稳定在 500 ms。",
+ "expected": {
+  "frames_required": 6,
+  "actual_window_ms": 500,
+  "lower_bound_W_ms": 500,
+  "dominant": "frame_count"
+ }
+}
+======================================================================
+{
+ "case_id": "HC-06",
+ "topic": "30 FPS（周期 33.3 ms）：W 下界 200 ms，但离散帧栅格上实际完成在 233.1 ms",
+ "recompute": {
+  "kind": "stable_window",
+  "period_ms": 33.3,
+  "s01_ms": 200,
+  "s02_frames": 6
+ },
+ "derivation": "W=max(200,(6−1)×33.3)=max(200,166.5)=200 ms。帧时刻 0,33.3,…,199.8,233.1 ms：第 7 帧 t=199.8 duration=199.8<200 不满足；第 8 帧 t=233.1 duration=233.1≥200 且 matched=8≥6 → 实际完成 233.1 ms。说明 W 只是下界，真实完成时刻还取决于帧栅格对齐。",
+ "expected": {
+  "frames_required": 8,
+  "actual_completion_ms": 233.1,
+  "w_min_ms": 200,
+  "w_min_is_lower_bound_only": true,
+  "dominant": "duration"
+ }
+}
+
+=== derivation_note / hand_cases_version ===
+S6A-HC-v1.5
+全部预期值由人工按行为表 v1.5（含 r06 的 N-r05-04「取较晚满足者」窗口完成口径）独立推导；r06：HC-28/HC-29 的 expected 改为按完成帧推导（`completion_index`/`later_of_applied`/`m3_fires_count_only`）；新增 HC-31 覆盖 30fps（P=33.3 ms）时长支配场景；HC-30 的动作计数改为「给定序列内计数」并注明至少 1 次的覆盖边界（N-r05-03）。所用参数全部为草案值（待批准），不是验收门槛。
+{'T6-S01_ms': 200, 'T6-S02_frames': 6, 'T6-S03_logic': '同时满足帧数与时长，取较晚满足者', 'T6-L01_frames': 5, 'T6-L02_ms': 300, 'T6-K01_ms': 1000, 'T6-A02_ms': 500, 'T6-J01_frames': 1, 'T6-A01_ms': 1000, 'T6-STALE_LIMIT_ms': 200, 'T6-P02_score': 0.3, 'T6-P01_score': 0.35, 'T6-C01_frames': 2, 'T6-U00_W_frames': 3, 'T6-U00_N_frames': 3, 'T6-U01_frames': 5, 'T6-S04_ms': 500}

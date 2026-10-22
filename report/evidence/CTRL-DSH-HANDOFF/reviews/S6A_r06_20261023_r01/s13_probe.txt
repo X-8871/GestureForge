@@ -1,0 +1,43 @@
+baseline_no_injection: 入库 2748B | 我的 2748B | 逐字节相同=True
+m5_window_advance_removed: 入库 3403B | 我的 3403B | 逐字节相同=True
+empty_predicates_used: 入库 2885B | 我的 2885B | 逐字节相同=True
+b13_predicates_used_added: 入库 3107B | 我的 3107B | 逐字节相同=True
+undeclared_predicate_name: 入库 3203B | 我的 3203B | 逐字节相同=True
+suppressed_release_not_window_advancing: 入库 2923B | 我的 2923B | 逐字节相同=True
+case_timeout_frame_action: 入库 2851B | 我的 2851B | 逐字节相同=True
+case_span_wrong: 入库 2605B | 我的 2605B | 逐字节相同=True
+historical_model_check: 入库 2898B | 我的 2898B | 逐字节相同=True
+相同 9 / 不同 0
+
+=== 入库 probe_summary historical c7_detail ===
+{
+ "case_id": "historical_model_check",
+ "note": "r05 版自检（旧口径）在 r06 样例上必须失败且 C7 报 FAIL（N-r05-04 捕获证明）",
+ "injection": "使用 git 1632761 的 verification/s6_g0_selfcheck.py（r05 旧口径）",
+ "expected_exit": 1,
+ "actual_exit": 1,
+ "expected_check": "C7",
+ "failed_checks": [
+  "C1",
+  "C7"
+ ],
+ "captured": true,
+ "c7_detail": "HC-28.completion_index 无法独立复算（禁止不可复算的预期）",
+ "selfcheck_status": "FAILED",
+ "stdout_file": "probe_historical_model_check_stdout.txt",
+ "verdict": "AS_EXPECTED"
+}
+
+=== 入库 probe_summary 各例 verdict/injection ===
+  baseline_no_injection                      exit=0 verdict=AS_EXPECTED check=None
+  m5_window_advance_removed                  exit=1 verdict=AS_EXPECTED check=C12
+  empty_predicates_used                      exit=1 verdict=AS_EXPECTED check=C12
+  b13_predicates_used_added                  exit=1 verdict=AS_EXPECTED check=C12
+  undeclared_predicate_name                  exit=1 verdict=AS_EXPECTED check=C12
+  suppressed_release_not_window_advancing    exit=1 verdict=AS_EXPECTED check=C12
+  case_timeout_frame_action                  exit=1 verdict=AS_EXPECTED check=C7
+  case_span_wrong                            exit=1 verdict=AS_EXPECTED check=C7
+  historical_model_check                     exit=1 verdict=AS_EXPECTED check=C7
+
+=== 入库 selfcheck_c11_stdout.txt ===
+{"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "status": "PASS", "detail": "10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致"}, {"id": "C4", "name": "待批准纪律", "status": "PASS", "detail": "24 项参数与指标 PENDING_APPROVAL"}, {"id": "C5", "name": "五类动作映射一致", "status": "PASS", "detail": "5 类映射一致，target 唯一"}, {"id": "C6", "name": "硬不变量与唯一触发解释", "status": "PASS", "detail": "H-1..

@@ -1,0 +1,25 @@
+INJECTIONS 条目数 = 8 | target 非 None（真注入）=  7 | 基线 = 1
+注入 id: ['baseline_no_injection', 'm5_window_advance_removed', 'empty_predicates_used', 'b13_predicates_used_added', 'undeclared_predicate_name', 'suppressed_release_not_window_advancing', 'case_timeout_frame_action', 'case_span_wrong']
+
+入库 probe_summary.composition = 基线 1 例 + 注入 7 例（共 8 例）+ 旧口径对照 1 例（共 9 次运行）
+入库 injection_count = 7 | total_runs = 9 | results = 9 | baseline_verdict = AS_EXPECTED
+
+=== 我的复刻结果 vs 入库 probe_summary ===
+case                                      mine_exit lib_exit  mine_failed     lib_failed      一致
+baseline_no_injection                     0         0         NONE            NONE            True
+m5_window_advance_removed                 1         1         C12             C12             True
+empty_predicates_used                     1         1         C12             C12             True
+Traceback (most recent call last):
+b13_predicates_used_added                 1         1         C12             C12             True
+undeclared_predicate_name                 1         1         C12             C12             True
+suppressed_release_not_window_advancing   1         1         C12             C12             True
+case_timeout_frame_action                 1         1         C7              C7              True
+case_span_wrong                           1         1         C7              C7              True
+historical_model_check                    1         1         C1,C7           C1,C7           True
+差异数 = 0
+
+入库 results 的 verdict: [('baseline_no_injection', 'AS_EXPECTED'), ('m5_window_advance_removed', 'AS_EXPECTED'), ('empty_predicates_used', 'AS_EXPECTED'), ('b13_predicates_used_added', 'AS_EXPECTED'), ('undeclared_predicate_name', 'AS_EXPECTED'), ('suppressed_release_not_window_advancing', 'AS_EXPECTED'), ('case_timeout_frame_action', 'AS_EXPECTED'), ('case_span_wrong', 'AS_EXPECTED'), ('historical_model_check', 'AS_EXPECTED')]
+  File "D:\FPGA_Competition\tmp\review\S6A_r06_20261023_r01\s8_probe.py", line 93, in <module>
+    print("�ҵ� verdict:", [(r["case_id"], r["verdict"]) for r in mine])
+                                           ~^^^^^^^^^^^
+KeyError: 'verdict'

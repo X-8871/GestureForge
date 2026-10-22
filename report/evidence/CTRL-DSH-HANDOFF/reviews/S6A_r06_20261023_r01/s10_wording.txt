@@ -1,0 +1,267 @@
+=== A. 关键词在所有 r06 提交文本中的出现 ===
+
+[8 个注入]  N-r05-01 旧表述（应已改）
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\S6A_run_summary.md x1: ...12 捕获 N-r04-01/02、C7 捕获 N-r04-04）
+- `probe_summary.json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）
+- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`li...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\delivery_manifest.json x1: ...2d51f3704f753dda05c4b2",
+      "role": "result",
+      "keep_reason": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r05/probe...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\fix_record.json x1: ...（selfcheck_r04_failure.json/.txt、r04_package_under_test.json）；再由注入探针（probe_summary.json）对 8 个注入用例逐条证明 C12/C7 新断言可捕获；最后对 r05 跑出 17 项 ALL_PASS"
+  },
+  "non_blocking_items": [
+    {...
+   r05_.codex_STATE.md x1: ...xit 1**，C12 捕获 M5 缺窗口推进帧限定与 M5/B13 措辞、C7 捕获样例数与窗口跨度口径；② `probe_summary.json`（基线未注入 exit 0；8 个注入用例各自被 C12/C7 捕获、exit 1）。先证明后出 `ALL_PASS`（17 项，含完整 C11）——见「证据入口」。
+- 24 项参数值与批准状态**未改**，全部 `...
+   r06_.codex_STATE.md x1: ...xit 1**，C12 捕获 M5 缺窗口推进帧限定与 M5/B13 措辞、C7 捕获样例数与窗口跨度口径；② `probe_summary.json`（基线未注入 exit 0；8 个注入用例各自被 C12/C7 捕获、exit 1）。先证明后出 `ALL_PASS`（17 项，含完整 C11）——见「证据入口」。
+- 24 项参数值与批准状态**未改**，全部 `...
+   r06_verification_s6a_build_evidence.py x1: ...ge_delivery --mode evidence 真实 stdout",
+        "probe_summary.json": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）",
+        "coverage_matrix.json": "CDX-012 §2 与计划 L102–L108 覆盖矩阵",...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json x1: ...37119f7be6633fa3951dc6",
+      "role": "result",
+      "keep_reason": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r06/probe...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x2: ..."FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r05-01",
+      "problem": "探针/构建器/记录中「8 个注入用例」表述与实际不符（实为基线 1 例 + 注入 7 例）。",
+      "fix": "全部改为「基线 1 例 + 注入 7 例（共 8 例）」，并在探针汇总中另记「旧口径对...
+
+[基线 1 例 + 注入 7 例]  N-r05-01 新表述
+   r06_.codex_STATE.md x2: ...文档 §15 与 JSON `time_anchors.window_complete`/`low_fps_latency` 同步。
+- `N-r05-01` 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」+ 旧口径对照 1 例；`N-r05-02` r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」且 N-r04-04 判别力只引探针 `case_sp...
+   r06_docs_stage6_S6A_stage6_g0_behavior_spec_v1.md x2: ...**HC-31**，并保留旧口径对照字段 `m3_fires_count_only` 与「旧口径对照」探针运行（失败输出随包保留）；**N-r05-01** 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」；**N-r05-02** r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」，N-r04-04 的判别力只引探针 `case_span_wrong`...
+   r06_docs_stage6_s6a_stage6_g0_behavior_v1.json x1: ..._fps_latency"
+      },
+      {
+        "issue": "N-r05-01",
+        "summary": "探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」",
+        "where": "verification/s6a_r06_probe.py / s6a_build_evidence.py / fix_r...
+   r06_verification_s6a_build_evidence.py x4: ...段6 S6-A 证据包构建器（r06 起：第 5 轮复评 N-r05-01..04 收尾）。
+
+r06 变更：探针改为 verification/s6a_r06_probe.py（基线 1 例 + 注入 7 例，共 8 例），
+并增加「旧口径对照」运行（用 r05 版自检脚本在 r06 样例上重跑，必须失败，证明 30fps 窗口完成口径修正可被捕获）；
+旧包失败证据重跑保持；版本口径统...
+   r06_verification_s6a_r06_probe.py x2: ...#!/usr/bin/env python3
+"""S6-A r06 判别力探针：基线 1 例 + 注入 7 例（共 8 例）+「旧口径对照」1 例。
+
+对 **r06 最终版**自检脚本执行：
+
+  * 基线（不注入）：exit 0 / ALL_PASS；
+  * 注入 7 例：每例把 r...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\S6A_run_summary.md x1: ...S6-A\s6a_g0_20261022_r06 --project-root D:\codex-worktrees\w6` | 实测 0（各类失败输出落盘） |
+| 判别力探针（基线 1 例 + 注入 7 例，共 8 例 + 旧口径对照） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\coverage_matrix.json x1: ...IXED_PENDING_REVIEW"
+    },
+    {
+      "issue": "N-r05-01",
+      "location": "探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」（probe 脚本 / builder / fix_record / run summary / manifest）",
+      "status": "FIXE...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json x1: ...22a98693cce911f15bfa6e9684",
+      "role": "source",
+      "keep_reason": "C12/C7 断言判别力探针（基线 1 例 + 注入 7 例 + 旧口径对照）"
+    },
+    {
+      "path": "verification/s6_g0_selfcheck.py",
+      "sha256": "...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x2: ...VIEW"
+    },
+    {
+      "id": "N-r05-01",
+      "problem": "探针/构建器/记录中「8 个注入用例」表述与实际不符（实为基线 1 例 + 注入 7 例）。",
+      "fix": "全部改为「基线 1 例 + 注入 7 例（共 8 例）」，并在探针汇总中另记「旧口径对照 1 例」。",
+      "evidence":...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.md x1: ...r05 版自检脚本在 r06 样例上重跑，必须 C7 FAIL）。
+
+## 其余 3 项
+
+| 项 | 处置 |
+|---|---|
+| N-r05-01 | 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」+ 旧口径对照 1 例 |
+| N-r05-02 | r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 判别力只引探针 `case...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\limitations_not_executed.json x1: ...1 ms，旧口径会误报未完成；probe 同时保留旧口径对照运行（r05 版自检脚本在 r06 样例上必须 C7 FAIL）。",
+    "N-r05-01：探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」（另有旧口径对照 1 例）。",
+    "N-r05-02：r04 重跑失败归因为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 `...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\probe_summary.json x1: ...,
+  "purpose": "先证明 C12/C7 的新断言能捕获缺陷，再允许 r06 出 ALL_PASS（N-r05-01..04）",
+  "composition": "基线 1 例 + 注入 7 例（共 8 例）+ 旧口径对照 1 例（共 9 次运行）",
+  "baseline_verdict": "AS_EXPECTED",
+  "injection_count": 7,...
+
+[C7 捕获 N-r04-04]  N-r05-02 旧归因（应已改）
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\S6A_run_summary.md x1: ...`selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）
+- `probe_summary.json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）
+-...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\fix_record.json x1: ...ck_before_after": "先用 r05 最终自检在 r04（git b20b670）字节上跑出失败输出（exit 1：C12 捕获 N-r04-01/N-r04-02、C7 捕获 N-r04-04）并保留（selfcheck_r04_failure.json/.txt、r04_package_under_test.json）；再由注入探针（probe_summary.jso...
+   r06_verification_s6a_build_evidence.py x1: ...`selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）",
+        "- `probe_summary.json` + `probe_*_stdout.txt`（基线 1 例 exit 0；注入 7 例各自捕获预期检查项；另...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\S6A_run_summary.md x1: ...`selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）
+- `probe_summary.json` + `probe_*_stdout.txt`（基线 1 例 exit 0；注入 7 例各自捕获预期检查项；另有旧口径对照 1 例必...
+
+[29<30]  N-r05-02 新归因（阈值 30）
+   r06_.codex_STATE.md x1: ...同步。
+- `N-r05-01` 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」+ 旧口径对照 1 例；`N-r05-02` r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」且 N-r04-04 判别力只引探针 `case_span_wrong`；`N-r05-03` HC-30 动作计数改为「给定序列内计数」+ 覆盖边界说明。
+-...
+   r06_docs_stage6_S6A_stage6_g0_behavior_spec_v1.md x2: ...运行（失败输出随包保留）；**N-r05-01** 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」；**N-r05-02** r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」，N-r04-04 的判别力只引探针 `case_span_wrong`；**N-r05-03** HC-30 动作计数去掉封顶，改为「给定序列内计数」并注明至...
+   r06_docs_stage6_s6a_stage6_g0_behavior_v1.json x1: ...ifest"
+      },
+      {
+        "issue": "N-r05-02",
+        "summary": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 case_span_wrong 证据",
+        "where": "fix_record / limitatio...
+   r06_verification_s6a_build_evidence.py x1: ...r05 新断言针对的缺陷）",
+        "selfcheck_r04_failure_stdout.txt": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）",
+        "selfcheck_old_package_failure.json": "加固自检在 r01 真实字节上的失败输出（exit 1）",...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\coverage_matrix.json x1: ...NDING_REVIEW"
+    },
+    {
+      "issue": "N-r05-02",
+      "location": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 判别力只引探针 `case_span_wrong`",
+      "status": "FIXED_PENDING_REVIEW"...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json x1: ...7ee57d8c",
+      "role": "diagnostic",
+      "keep_reason": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r06/selfcheck_...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x2: ...},
+    {
+      "id": "N-r05-02",
+      "problem": "r04 重跑失败的 C7 归因被写成「窗口跨度口径」，实际是样例数 29<30（缺 HC-30）。",
+      "fix": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 `case_span_w...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.md x1: ...| N-r05-01 | 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」+ 旧口径对照 1 例 |
+| N-r05-02 | r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 判别力只引探针 `case_span_wrong` |
+| N-r05-03 | HC-30 动作计数改为「给定序列内计数」并注明至少 1...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\limitations_not_executed.json x1: ..."N-r05-01：探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」（另有旧口径对照 1 例）。",
+    "N-r05-02：r04 重跑失败归因为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 `case_span_wrong`。",
+    "N-r05-03：HC-30 动作计数改为「给定序列内计数」并注明至少...
+
+[29<31]  N-r05-02 归因（r06 阈值 31）
+
+[不足 31]  r06 自检阈值
+   r06_verification_s6_g0_selfcheck.py x1: ....{key} 预期 {want} 与复算 {got} 不符")
+    if len(seen) < 31:
+        raise CheckFailure(f"手算样例数量不足 31：{len(seen)}")
+    return (
+        f"{len(seen)} 个样例全部由输入独立复算一致"
+        "（HC-16/17/20 手算...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\selfcheck_r04_failure.json x2: ..."id": "C7",
+      "name": "人工手算样例独立复算",
+      "status": "FAIL",
+      "detail": "手算样例数量不足 31：29"
+    },
+    {
+      "id": "C8",
+      "name": "上游只读文件哈希复算",
+      "status": "PASS",...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\selfcheck_r04_failure_stdout.txt x2: ...{"status": "FAILED", "errors": ["C7: 手算样例数量不足 31：29", "C12: predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；M5 条件未复述窗口推进帧限定 '窗口...
+
+[span_conventions_agree]  r05 已移除的口径一致性键
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\coverage_matrix.json x1: ..."location": "自检 C7 窗口跨度改为「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」；HC-29 由 320 ms 修正为 200 ms；`span_conventions_agree` 断言两种口径结论一致",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "issue": "N-r04-0...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\fix_record.json x1: ...帧」不一致；HC-29 推导写成 320 ms。",
+      "fix": "改为按 §9 口径计算（HC-29 = 5×40 = 200 ms），保留宽松序列跨度并新增 `span_conventions_agree` 断言两种口径下 `m3_fires` 结论一致；修正 HC-28/HC-29 推导文字。",
+      "evidence": [
+        "verification...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\fix_record.md x1: ...y.json` |
+| N-r04-04 窗口跨度口径 | 改为「窗口首帧 → 第 `T6-S02` 个 `WINDOW_MATCH` 帧」（HC-29 320→200 ms）；`span_conventions_agree` 断言两口径一致 | C7；HC-28/29 |
+| N-r04-05 悬空文档引用 | `src/stage6/s6_core.py` 改引用现有 v1.4 契约文件（WIP...
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\hand_computed_cases.json x2: ...ow_match_count": 0,
+        "continues_count": 8,
+        "window_span_ms": 0.0,
+        "span_conventions_agree": true
+      }
+    },
+    {
+      "case_id": "HC-29",
+      "topic": "BLK-1：M10 必须用 TARGE...
+   r05_.codex_STATE.md x1: ...-r04-04**：C7 窗口跨度改为「窗口首帧 → 第 `T6-S02` 个 `WINDOW_MATCH` 帧」（HC-29 由 320 ms 修正为 200 ms），并新增 `span_conventions_agree` 断言宽松序列跨度口径下 `m3_fires` 结论一致。
+  - **N-r04-05**：清理 `src/stage6/s6_core.py` 对不存在设计文档的引用，改引用...
+   r06_.codex_STATE.md x1: ...-r04-04**：C7 窗口跨度改为「窗口首帧 → 第 `T6-S02` 个 `WINDOW_MATCH` 帧」（HC-29 由 320 ms 修正为 200 ms），并新增 `span_conventions_agree` 断言宽松序列跨度口径下 `m3_fires` 结论一致。
+  - **N-r04-05**：清理 `src/stage6/s6_core.py` 对不存在设计文档的引用，改引用...
+
+[actions_within_supplied_sequence]  N-r05-03 新字段
+   r06_docs_stage6_s6a_stage6_g0_behavior_v1.json x1: ...},
+      {
+        "issue": "N-r05-03",
+        "summary": "HC-30 的动作计数去掉封顶：改为「给定序列内计数 actions_within_supplied_sequence」并注明至少 1 次的覆盖边界与真正的判别字段（gate_open_frame/first_action_frame/action_at_gate_open_frame）",...
+   r06_verification_s6_g0_selfcheck.py x1: ...me[name] == gate_open_frame[name] for name in gate_open_frame
+            },
+            "actions_within_supplied_sequence": total_actions,
+            "action_count_is_lower_bound": True,
+            "action_cou...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\coverage_matrix.json x1: ...ENDING_REVIEW"
+    },
+    {
+      "issue": "N-r05-03",
+      "location": "HC-30 动作计数去掉封顶：`actions_within_supplied_sequence` + `action_count_is_lower_bound` + `action_count_scope` + 判别字段说明",
+      "status": "FIXED...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x1: ...blem": "HC-30 的 `total_actions` 是把给定序列截断后的封顶计数，容易被误读为『整个获取共 1 次动作』。",
+      "fix": "重命名为 `actions_within_supplied_sequence`，新增 `action_count_is_lower_bound`、`action_count_scope=within_supplied_sequence` 与 `action...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\hand_computed_cases.json x2: ...：第 11 帧本身是 OK → 门开启的同一条窗口推进帧即触发。两场景的异常窗口 W=3/N=3 不被单个 TIMEOUT 触发（1<3）。**覆盖边界（N-r05-03）**：`actions_within_supplied_sequence` 只是**给定 12 帧序列内**的动作计数下界（action_count_is_lower_bound=true），不是「整个获取内共有几次动作」；本样例真正的判别力在 `ga...
+
+[total_actions]  N-r05-03 旧字段
+   r05\report\evidence\S6-A\s6a_g0_20261022_r05\hand_computed_cases.json x1: ..."gate_opens_on_timeout": 12,
+          "gate_opens_on_ok": 11
+        },
+        "total_actions": {
+          "gate_opens_on_timeout": 1,
+          "gate_opens_on_ok": 1
+        },...
+   r06_verification_s6_g0_selfcheck.py x5: ...frame: dict[str, int] = {}
+        first_action_frame: dict[str, int | None] = {}
+        total_actions: dict[str, int] = {}
+        for scenario in spec["scenarios"]:
+            name = str(sc...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x1: ...": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r05-03",
+      "problem": "HC-30 的 `total_actions` 是把给定序列截断后的封顶计数，容易被误读为『整个获取共 1 次动作』。",
+      "fix": "重命名为 `actions_within_supplied_sequen...
+
+[m3_fires_count_only]  N-r05-04 旧口径对照字段
+   r06_.codex_STATE.md x1: ...15「30fps → 第 8 帧 233.1 ms」冲突。新增样例 **HC-31**（完成帧 7 → 233.1 ms、`later_of_applied=true`、旧口径 `m3_fires_count_only=false`）；保留旧口径对照字段；probe 增加「旧口径对照」运行（用 r05 版自检脚本跑 r06 样例，必须 C7 FAIL）；文档 §15 与 JSON `time_a...
+   r06_docs_stage6_S6A_stage6_g0_behavior_spec_v1.md x2: ...s** 时会把本应完成的窗口误判为未完成，与 §15「30fps → 第 8 帧 233.1 ms」示例冲突）；新增 30fps 样例 **HC-31**，并保留旧口径对照字段 `m3_fires_count_only` 与「旧口径对照」探针运行（失败输出随包保留）；**N-r05-01** 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」；**N-r05-02** r04 重...
+   r06_docs_stage6_s6a_stage6_g0_behavior_v1.json x1: ...−窗口首帧)·P ≥ T6-S01 的帧；新增 30fps（P=33.3 ms）样例 HC-31，并保留旧口径（只按第 T6-S02 个 WINDOW_MATCH 帧）的对照字段 m3_fires_count_only 以证明差异；probe 增加「旧口径对照」运行并保留失败输出",
+        "where": "selfcheck C7 window_match_vs_continues...
+   r06_verification_s6_g0_selfcheck.py x4: ...N）
+  C7   人工手算样例的**独立复算**（31 例；窗口完成帧按 T6-S03「取较晚满足者」推导，覆盖 30fps 时长支配场景，
+       并保留旧口径对照字段 m3_fires_count_only；含锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
+  C8   上游只读文件 SHA-256 复算（含 w4/w5 只读提交版本）
+  C9   文档必备覆盖...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\coverage_matrix.json x1: ...: "自检 C7 `window_match_vs_continues` 按 T6-S03「取较晚」推导完成帧（completion_index/later_of_applied/m3_fires_count_only）+ HC-31（30fps）+ 文档 §15 + JSON `time_anchors.window_complete`/`low_fps_latency`+ probe `ca...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.json x1: ...S01/P)，与计数帧取 max）；新增 HC-31（P=33.3 ms，完成帧 7、span 233.1 ms、later_of_applied=true）；保留旧口径对照字段 m3_fires_count_only；probe 增加「旧口径对照」运行（r05 版脚本在 r06 样例上必须 C7 FAIL）；文档 §15 与 JSON `time_anchors.window_complete...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\fix_record.md x1: ...H` 帧只有 166.5 ms < 200 ms，完成帧是**第 8 帧 233.1 ms**（与文档 §15 示例一致）。
+新增样例 **HC-31**，并保留旧口径对照字段 `m3_fires_count_only` 与「旧口径对照」运行（用 r05 版自检脚本在 r06 样例上重跑，必须 C7 FAIL）。
+
+## 其余 3 项
+
+| 项 | 处置 |
+|---|---|
+| N-r05-...
+   r06ev\report\evidence\S6-A\s6a_g0_20261022_r06\hand_computed_cases.json x4: ...足者」窗口完成口径）独立推导；r06：HC-28/HC-29 的 expected 改为按完成帧推导（`completion_index`/`later_of_applied`/`m3_fires_count_only`）；新增 HC-31 覆盖 30fps（P=33.3 ms）时长支配场景；HC-30 的动作计数改为「给定序列内计数」并注明至少 1 次的覆盖边界（N-r05-03）。所用参数全...
+
+=== B. r04 重跑证据（r06 提交内）===
+status: FAILED | FAILED: ['C7', 'C12']
+  C7: 手算样例数量不足 31：29
+  C12: predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；文档 §4 M5 行未复述窗口
+r04_package_under_test: {"schema_version": 1, "artifact": "s6a_r04_package_under_test", "task_id": "S6-A", "run_id": "s6a_g0_20261022_r06", "purpose": "r04 被检版本字节与哈希（第 4 轮复评 PASS 的版本）；r05 加固后的自检必须在其上捕获N-r04-01（M5 条件缺「仅窗口推进帧」限定）、N-r04-02（M5/B13 叙述措辞）与 N-r04-04（样例数不足 30 / 缺 HC-30 与窗口跨度断言），即证明 r05 新断言不是空壳。", "git_commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7", "files_under_test": [{"path": "docs/stage6/s6a_stage6_g0_behavior_v1.json", "git_ref": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7:docs/stage6/s6a_stage6_g0_behavior_v1.json", "extracted_copy": "tmp/6/S6-A/s6a_g0_20261022_r06/legacy/r04/r04_behavior.json", "sha256": "119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38", "extraction": "git cat-fil
+
+=== C. C11 的 STATE 声明目录 vs 提交内容 ===
+STATE 声明文件: 36 | 声明目录: 4 ['report/evidence/S6-A/s6a_g0_20261022_r01', 'report/evidence/S6-A/s6a_g0_20261022_r05', 'report/evidence/S6-A/s6a_g0_20261022_r06', 'report/evidence/S6-B/s6b_core_20261023_r01']
+  report/evidence/S6-A/s6a_g0_20261022_r01: 提交内文件数=6 | 工作区存在=True
+  report/evidence/S6-A/s6a_g0_20261022_r05: 提交内文件数=35 | 工作区存在=True
+  report/evidence/S6-A/s6a_g0_20261022_r06: 提交内文件数=36 | 工作区存在=True
+  report/evidence/S6-B/s6b_core_20261023_r01: 提交内文件数=0 | 工作区存在=True
+=> 提交内不含任何文件、但工作区存在的声明目录： ['report/evidence/S6-B/s6b_core_20261023_r01']

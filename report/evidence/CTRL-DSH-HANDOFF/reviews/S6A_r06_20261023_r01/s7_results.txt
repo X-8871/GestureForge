@@ -1,0 +1,37 @@
+(exit code 取自 runs_inject.txt 的 exit=NN；这里读结果文件与 stdout)
+ext_cases: status=FAILED FAILED=['C7']
+   C7=ZX-E-25.0.completion_index 预期 -1 与复算 8 不符
+inj_hc31_old: status=FAILED FAILED=['C7']
+   C7=HC-31.m3_fires 预期 False 与复算 True 不符
+inj_hc31_later_false: status=FAILED FAILED=['C7']
+   C7=HC-31.later_of_applied 预期 False 与复算 True 不符
+inj_hc31_count_only_true: status=FAILED FAILED=['C7']
+   C7=HC-31.m3_fires_count_only 预期 True 与复算 False 不符
+inj_hc31_removed: status=FAILED FAILED=['C7']
+   C7=手算样例数量不足 31：30
+inj_hc29_later_true: status=FAILED FAILED=['C7']
+   C7=HC-29.later_of_applied 预期 True 与复算 False 不符
+hist_r05_selfcheck: status=FAILED FAILED=['C1', 'C7']
+   C7=HC-28.completion_index 无法独立复算（禁止不可复算的预期）
+   C1=artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4')，实际 'S6A-G0-v1.5'
+inj_anchor_old: status=ALL_PASS FAILED=[]
+   C7=31 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）
+inj_m3_no_later: status=ALL_PASS FAILED=[]
+   C7=31 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）
+inj_b07_fixed: status=ALL_PASS FAILED=[]
+   C7=31 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）
+inj_b07_b27_fixed: status=ALL_PASS FAILED=[]
+   C7=31 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）
+
+stdout 首行（各例）:
+ext_cases: {"status": "FAILED", "errors": ["C7: ZX-E-25.0.completion_index 预期 -1 与复算 8 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一
+inj_hc31_old: {"status": "FAILED", "errors": ["C7: HC-31.m3_fires 预期 False 与复算 True 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模
+inj_hc31_later_false: {"status": "FAILED", "errors": ["C7: HC-31.later_of_applied 预期 False 与复算 True 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 
+inj_hc31_count_only_true: {"status": "FAILED", "errors": ["C7: HC-31.m3_fires_count_only 预期 True 与复算 False 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "
+inj_hc31_removed: {"status": "FAILED", "errors": ["C7: 手算样例数量不足 31：30"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", 
+inj_hc29_later_true: {"status": "FAILED", "errors": ["C7: HC-29.later_of_applied 预期 True 与复算 False 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 
+hist_r05_selfcheck: {"status": "FAILED", "errors": ["C1: artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4')，实际 'S6A-G0-v1.5'", "C7: HC-28.completion_index 无法独立复算（禁止不可复算的预期）"], 
+inj_anchor_old: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique 
+inj_m3_no_later: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique 
+inj_b07_fixed: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique 
+inj_b07_b27_fixed: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique 

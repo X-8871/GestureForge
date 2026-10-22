@@ -1,0 +1,33 @@
+=== 我的独立推演 vs 自检写法（P / S01 / S02 = 见行）===
+情形                                literal(idx,span,m3)              checker(idx,span,m3)              一致
+A 30fps P=33.3ms 时长支配             (7, 233.1, True)                  (7, 233.1, True)                  True
+B 恰好 200.0ms P=40ms 两条件同帧         (5, 200.0, True)                  (5, 200.0, True)                  True
+C P=50ms 计数支配                     (5, 250.0, True)                  (5, 250.0, True)                  True
+D P=39.8ms 时长−1单位                 (6, 238.8, True)                  (6, 238.8, True)                  True
+E P=25ms 完成帧超出所给序列                (None, 0.0, False)                (8, 200.0, False)                 False
+F 10fps P=100ms（§15 表）            (5, 500.0, True)                  (5, 500.0, True)                  True
+G 5fps P=200ms（§15 表）             (5, 1000.0, True)                 (5, 1000.0, True)                 True
+H 计数不足（0 个 WM）                    (None, 0.0, False)                (None, 0.0, False)                True
+全部一致: False
+
+=== 与文档 §15 表 / HC-06 / HC-29 / HC-31 对照 ===
+30fps: 我的完成帧=第 8 帧, span=233.1 ms | 文档 第 8 帧 233.1 ms | 一致=True
+10fps: 我的完成帧=第 6 帧, span=500.0 ms | 文档 第 6 帧 500.0 ms | 一致=True
+5fps: 我的完成帧=第 6 帧, span=1000.0 ms | 文档 第 6 帧 1000.0 ms | 一致=True
+HC-06(P=33.3): 文档/入库 expected frames_required=8, actual_completion_ms=233.1 | 我=8, 233.1
+HC-29(P=40): 入库 expected completion_index=5, span=200.0, later_of=false | 我=5, 200.0
+HC-31(P=33.3): 入库 expected completion_index=7, span=233.1, later_of=true | 我=7, 233.1
+
+=== 浮点边界探测：s01/P 恰为整数但浮点乘积下偏 ===
+P=33.3 S01=99.9: s01/P=3.0000000000000004 ceil(.-1e-9)=3 literal间隔数=4 一致=False
+P=0.1 S01=0.3: s01/P=2.9999999999999996 ceil(.-1e-9)=3 literal间隔数=3 一致=True
+P=33.3 S01=200.0: s01/P=6.0060060060060065 ceil(.-1e-9)=7 literal间隔数=7 一致=True
+P=39.8 S01=199.0: s01/P=5.0 ceil(.-1e-9)=5 literal间隔数=5 一致=True
+
+我的自造样例 ZX-A-33.3 expected: {"m3_fires": true, "completion_index": 7, "window_span_ms": 233.1, "later_of_applied": true, "m3_fires_count_only": false, "window_match_count": 9, "continues_count": 9, "lost": false, "trigger": false}
+我的自造样例 ZX-B-40.0 expected: {"m3_fires": true, "completion_index": 5, "window_span_ms": 200.0, "later_of_applied": false, "m3_fires_count_only": true, "window_match_count": 9, "continues_count": 9, "lost": false, "trigger": false}
+我的自造样例 ZX-C-50.0 expected: {"m3_fires": true, "completion_index": 5, "window_span_ms": 250.0, "later_of_applied": false, "m3_fires_count_only": true, "window_match_count": 9, "continues_count": 9, "lost": false, "trigger": false}
+我的自造样例 ZX-D-39.8 expected: {"m3_fires": true, "completion_index": 6, "window_span_ms": 238.8, "later_of_applied": true, "m3_fires_count_only": false, "window_match_count": 9, "continues_count": 9, "lost": false, "trigger": false}
+我的自造样例 ZX-E-25.0 expected: {"m3_fires": false, "completion_index": -1, "window_span_ms": 0.0, "later_of_applied": false, "m3_fires_count_only": false, "window_match_count": 8, "continues_count": 8, "lost": false, "trigger": false}
+
+已写: D:\FPGA_Competition\tmp\review\S6A_r06_20261023_r01\runs\my_extended_cases.json 样例数: 36

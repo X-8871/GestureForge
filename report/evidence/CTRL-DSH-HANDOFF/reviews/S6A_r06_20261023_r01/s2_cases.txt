@@ -1,0 +1,468 @@
+顶层键: ['schema_version', 'artifact', 'task_id', 'run_id', 'status', 'derivation_note', 'parameter_assumptions_unfrozen', 'cases', 'hand_cases_version']
+样例总数: 31
+样例 id: ['HC-01', 'HC-02', 'HC-03', 'HC-04', 'HC-05', 'HC-06', 'HC-07', 'HC-08', 'HC-09', 'HC-10', 'HC-11', 'HC-12', 'HC-13', 'HC-14', 'HC-15', 'HC-16', 'HC-17', 'HC-18', 'HC-19', 'HC-20', 'HC-21', 'HC-22', 'HC-23', 'HC-24', 'HC-25', 'HC-26', 'HC-27', 'HC-28', 'HC-29', 'HC-30', 'HC-31']
+
+======================================================================
+{
+ "case_id": "HC-28",
+ "topic": "BLK-1：M3 必须用 WINDOW_MATCH 计数——低分（<P02）目标即使连续 8 帧 TARGET_CONTINUES 也不得进入 STABLE",
+ "recompute": {
+  "kind": "window_match_vs_continues",
+  "p02": 0.3,
+  "p03": 0.3,
+  "p04": 0.15,
+  "p05": 0.05,
+  "s02_frames": 6,
+  "s01_ms": 200,
+  "period_ms": 40,
+  "l01_frames": 5,
+  "l02_ms": 300,
+  "frames": [
+   {
+    "index": 1,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.025,
+    "score": 0.28
+   },
+   {
+    "index": 2,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.03,
+    "score": 0.28
+   },
+   {
+    "index": 3,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.035,
+    "score": 0.28
+   },
+   {
+    "index": 4,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.04,
+    "score": 0.28
+   },
+   {
+    "index": 5,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.045,
+    "score": 0.28
+   },
+   {
+    "index": 6,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.05,
+    "score": 0.28
+   },
+   {
+    "index": 7,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.055,
+    "score": 0.28
+   },
+   {
+    "index": 8,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.06,
+    "score": 0.28
+   }
+  ]
+ },
+ "derivation": "逐帧序列 8 帧：同类别且 IoU 0.60 ≥ P03 → 每帧 TARGET_CONTINUES 成立（8 帧）；每帧 score 0.28 < P02 0.30 → 0 个 WINDOW_MATCH 帧。计数 < T6-S02=6 → 不存在完成帧（completion_index=-1、window_span_ms=0）；旧口径同样为 false（两者一致）→ M3 不成立、不触发。若误用 TARGET_CONTINUES 计帧则 8≥6 会误触发（BLK-1 的安全后果）。continues_false_streak=0 → 不判 LOST。",
+ "expected": {
+  "m3_fires": false,
+  "lost": false,
+  "trigger": false,
+  "window_match_count": 0,
+  "continues_count": 8,
+  "continues_false_streak": 0,
+  "window_span_ms": 0.0,
+  "sequence_span_ms": 280.0,
+  "completion_index": -1,
+  "later_of_applied": false,
+  "m3_fires_count_only": false
+ }
+}
+======================================================================
+{
+ "case_id": "HC-29",
+ "topic": "BLK-1：M10 必须用 TARGET_CONTINUES——score 跌破 P02 但几何连续的目标不得判 LOST",
+ "recompute": {
+  "kind": "window_match_vs_continues",
+  "p02": 0.3,
+  "p03": 0.3,
+  "p04": 0.15,
+  "p05": 0.05,
+  "s02_frames": 6,
+  "s01_ms": 200,
+  "period_ms": 40,
+  "l01_frames": 5,
+  "l02_ms": 300,
+  "frames": [
+   {
+    "index": 1,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.025,
+    "score": 0.35
+   },
+   {
+    "index": 2,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.03,
+    "score": 0.35
+   },
+   {
+    "index": 3,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.035,
+    "score": 0.35
+   },
+   {
+    "index": 4,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.04,
+    "score": 0.35
+   },
+   {
+    "index": 5,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.045,
+    "score": 0.35
+   },
+   {
+    "index": 6,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.05,
+    "score": 0.35
+   },
+   {
+    "index": 7,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.055,
+    "score": 0.28
+   },
+   {
+    "index": 8,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.06,
+    "score": 0.28
+   },
+   {
+    "index": 9,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.065,
+    "score": 0.28
+   }
+  ]
+ },
+ "derivation": "逐帧序列 9 帧（P=40 ms）：每帧 TARGET_CONTINUES 成立；前 6 帧 score 0.35 ≥ P02 且位移增量 ≤ P05 → 6 个 WINDOW_MATCH 帧（第 7–9 帧 score 0.28 不构成 WINDOW_MATCH，但 TARGET_CONTINUES 仍成立）。完成帧按 T6-S03「取较晚」：计数在第 6 个 WINDOW_MATCH 帧（帧序 5）已满足，时长需 ceil(200/40)=5 个间隔（帧序 5）→ 两者同帧，completion_index=5、later_of_applied=false、span=200 ms ≥ S01；本序列长度 9 > 5 → m3_fires=true。旧口径（只按第 6 个 WINDOW_MATCH 帧）在同场景下也是 true，故 HC-29 不是 N-r05-04 的判别样例（判别见 HC-31）。continues_false_streak=0 → 不判 LOST。",
+ "expected": {
+  "lost": false,
+  "m3_fires": true,
+  "trigger": false,
+  "continues_false_streak": 0,
+  "window_match_count": 6,
+  "continues_count": 9,
+  "window_span_ms": 200.0,
+  "sequence_span_ms": 320.0,
+  "completion_index": 5,
+  "later_of_applied": false,
+  "m3_fires_count_only": true
+ }
+}
+======================================================================
+{
+ "case_id": "HC-30",
+ "topic": "N-r04-01 角落序列：STABLE 已锁存、全局冷却门恰在 TIMEOUT 帧开启 → 该帧不得触发（B21），下一条窗口推进帧才触发",
+ "recompute": {
+  "kind": "latched_stable_gate_on_timeout",
+  "period_ms": 100,
+  "t_last_submit_ms": 0,
+  "k01_ms": 1000,
+  "u00_w": 3,
+  "u00_n": 3,
+  "s02_frames": 6,
+  "scenarios": [
+   {
+    "name": "gate_opens_on_timeout",
+    "frames": [
+     {
+      "index": 1,
+      "kind": "OK"
+     },
+     {
+      "index": 2,
+      "kind": "OK"
+     },
+     {
+      "index": 3,
+      "kind": "OK"
+     },
+     {
+      "index": 4,
+      "kind": "OK"
+     },
+     {
+      "index": 5,
+      "kind": "OK"
+     },
+     {
+      "index": 6,
+      "kind": "OK"
+     },
+     {
+      "index": 7,
+      "kind": "OK"
+     },
+     {
+      "index": 8,
+      "kind": "OK"
+     },
+     {
+      "index": 9,
+      "kind": "OK"
+     },
+     {
+      "index": 10,
+      "kind": "OK"
+     },
+     {
+      "index": 11,
+      "kind": "TIMEOUT"
+     },
+     {
+      "index": 12,
+      "kind": "OK"
+     }
+    ]
+   },
+   {
+    "name": "gate_opens_on_ok",
+    "frames": [
+     {
+      "index": 1,
+      "kind": "OK"
+     },
+     {
+      "index": 2,
+      "kind": "OK"
+     },
+     {
+      "index": 3,
+      "kind": "OK"
+     },
+     {
+      "index": 4,
+      "kind": "OK"
+     },
+     {
+      "index": 5,
+      "kind": "OK"
+     },
+     {
+      "index": 6,
+      "kind": "OK"
+     },
+     {
+      "index": 7,
+      "kind": "OK"
+     },
+     {
+      "index": 8,
+      "kind": "OK"
+     },
+     {
+      "index": 9,
+      "kind": "OK"
+     },
+     {
+      "index": 10,
+      "kind": "OK"
+     },
+     {
+      "index": 11,
+      "kind": "OK"
+     },
+     {
+      "index": 12,
+      "kind": "OK"
+     }
+    ]
+   }
+  ]
+ },
+ "derivation": "锁存 STABLE 且本次获取尚未触发。冷却门 = t_last_submit(0 ms) + K01(1000 ms) = 1000 ms，即第 11 帧开启。场景 A（gate_opens_on_timeout）：第 11 帧为 TIMEOUT，不是窗口推进帧（H-4）→ M5 不成立、无动作（B21）；第 12 帧（OK）为窗口推进帧 → M5 命中，恰好一次动作。场景 B：第 11 帧本身是 OK → 门开启的同一条窗口推进帧即触发。两场景的异常窗口 W=3/N=3 不被单个 TIMEOUT 触发（1<3）。**覆盖边界（N-r05-03）**：`actions_within_supplied_sequence` 只是**给定 12 帧序列内**的动作计数下界（action_count_is_lower_bound=true），不是「整个获取内共有几次动作」；本样例真正的判别力在 `gate_open_frame`、`first_action_frame` 与 `action_at_gate_open_frame` 三项。",
+ "expected": {
+  "gate_open_frame": {
+   "gate_opens_on_timeout": 11,
+   "gate_opens_on_ok": 11
+  },
+  "first_action_frame": {
+   "gate_opens_on_timeout": 12,
+   "gate_opens_on_ok": 11
+  },
+  "action_at_gate_open_frame": {
+   "gate_opens_on_timeout": false,
+   "gate_opens_on_ok": true
+  },
+  "actions_within_supplied_sequence": {
+   "gate_opens_on_timeout": 1,
+   "gate_opens_on_ok": 1
+  },
+  "action_count_is_lower_bound": true,
+  "action_count_scope": "within_supplied_sequence",
+  "action_count_discriminators": [
+   "gate_open_frame",
+   "first_action_frame",
+   "action_at_gate_open_frame"
+  ],
+  "no_action_on_timeout_frame": true,
+  "timeout_frames_not_window_advancing": true,
+  "latched_within_acquisition": true
+ }
+}
+======================================================================
+{
+ "case_id": "HC-31",
+ "topic": "N-r05-04：30fps（P=33.3 ms）时长支配的窗口完成帧——必须按 T6-S03「取较晚」算到第 8 帧 233.1 ms",
+ "recompute": {
+  "kind": "window_match_vs_continues",
+  "p02": 0.3,
+  "p03": 0.3,
+  "p04": 0.15,
+  "p05": 0.05,
+  "s02_frames": 6,
+  "s01_ms": 200,
+  "period_ms": 33.3,
+  "l01_frames": 5,
+  "l02_ms": 300,
+  "frames": [
+   {
+    "index": 1,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.025,
+    "score": 0.9
+   },
+   {
+    "index": 2,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.03,
+    "score": 0.9
+   },
+   {
+    "index": 3,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.035,
+    "score": 0.9
+   },
+   {
+    "index": 4,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.04,
+    "score": 0.9
+   },
+   {
+    "index": 5,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.045,
+    "score": 0.9
+   },
+   {
+    "index": 6,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.05,
+    "score": 0.9
+   },
+   {
+    "index": 7,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.055,
+    "score": 0.9
+   },
+   {
+    "index": 8,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.06,
+    "score": 0.9
+   },
+   {
+    "index": 9,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.065,
+    "score": 0.9
+   }
+  ]
+ },
+ "derivation": "30fps（P=33.3 ms）下 9 帧全部为 WINDOW_MATCH（score 0.90 ≥ P02、位移增量 ≤ P05、TARGET_CONTINUES 成立）。计数条件在第 6 个 WINDOW_MATCH 帧（帧序 5）满足，但此时时长只有 5×33.3=166.5 ms < S01=200 ms；按 T6-S03「取较晚满足者」，时长需 ceil(200/33.3)=7 个间隔 → 完成帧 = 帧序 max(5,7) = **7（第 8 帧）**，完成时刻 **233.1 ms**（与文档 §15 示例一致）。旧口径（只按第 6 个 WINDOW_MATCH 帧取跨度）会得到 166.5 ms < 200 ms → 误报 m3_fires=false，正是第 5 轮复评 N-r05-04 指出的缺陷。本序列长度 9 覆盖到完成帧 → m3_fires=true；触发仍需下一帧 M5 → trigger=false。",
+ "expected": {
+  "m3_fires": true,
+  "m3_fires_count_only": false,
+  "later_of_applied": true,
+  "completion_index": 7,
+  "window_span_ms": 233.1,
+  "sequence_span_ms": 266.4,
+  "window_match_count": 9,
+  "continues_count": 9,
+  "trigger": false,
+  "lost": false
+ }
+}
+
+=== 各样例 expected 键 ===
+HC-01 | None | ['actual_window_ms', 'frames_required', 'lower_bound_W_ms', 'stable']
+HC-02 | None | ['actual_window_ms', 'frames_required', 'lower_bound_W_ms', 'stable_at_sixth_frame']
+HC-03 | None | ['actual_window_ms', 'dominant', 'frames_required', 'lower_bound_W_ms', 'stable_at_fifth_frame']
+HC-04 | None | ['actual_window_ms', 'dominant', 'frames_required', 'lower_bound_W_ms']
+HC-05 | None | ['actual_window_ms', 'dominant', 'frames_required', 'lower_bound_W_ms']
+HC-06 | None | ['actual_completion_ms', 'dominant', 'frames_required', 'w_min_is_lower_bound_only', 'w_min_ms']
+HC-07 | None | ['ended_at_exact', 'ended_at_minus_1ns', 'ended_at_ms']
+HC-08 | None | ['suppressed_at_exact', 'suppressed_at_minus_1', 'unit_granularity']
+HC-09 | None | ['lost_at_4', 'lost_at_5']
+HC-10 | None | ['lost_at_exact', 'lost_at_minus_1ns']
+HC-11 | None | ['stale_at_exact', 'stale_at_exact_plus_1ns']
+HC-12 | None | ['reset_at_2', 'tolerated_at_1']
+HC-13 | None | ['advances_match_count', 'event', 'may_trigger_action']
+HC-14 | None | ['advances_match_count', 'anomaly_delta', 'event']
+HC-15 | None | ['may_trigger_action_on_reset_frame', 'state_after', 'target_cleared']
+HC-16 | None | ['m9_branch_frame_index', 'submitted_total', 'trigger_after_cooldown', 'trigger_frame_index']
+HC-17 | None | ['held', 'higher_other_candidate', 'selected_class', 'selected_class_id', 'suppression_event']
+HC-18 | None | ['selected_source_order']
+HC-19 | None | ['counts_as_success_when_effective_observed', 'counts_as_success_when_unobserved', 'latency_action_ms', 'latency_submit_ms']
+HC-20 | None | ['class_membership_passes', 'counts_as_false_accept_in_T6_02', 'proves_unknown_rejection', 'selection_gate_passes', 'would_submit_actions']
+HC-21 | None | ['acquired_at_streak_1', 'acquired_at_streak_2']
+HC-22 | None | ['aaa_fires', 'aala_fires', 'aall_fires', 'window_type']
+HC-23 | None | ['earliest_m10_ms', 'm4_earliest_ms', 'm4_reachable_under_draft', 'reachable_if_s04_lt_l02']
+HC-24 | None | ['eligible_at_exact', 'eligible_at_minus_1ulp', 'inclusive']
+HC-25 | None | ['inclusive', 'window_match_at_exact', 'window_match_at_minus_1ulp']
+HC-26 | None | ['recovered_at_4', 'recovered_at_5']
+HC-27 | None | ['granularity', 'stable_at_6th', 'stable_at_7th']
+HC-28 | None | ['completion_index', 'continues_count', 'continues_false_streak', 'later_of_applied', 'lost', 'm3_fires', 'm3_fires_count_only', 'sequence_span_ms', 'trigger', 'window_match_count', 'window_span_ms']
+HC-29 | None | ['completion_index', 'continues_count', 'continues_false_streak', 'later_of_applied', 'lost', 'm3_fires', 'm3_fires_count_only', 'sequence_span_ms', 'trigger', 'window_match_count', 'window_span_ms']
+HC-30 | None | ['action_at_gate_open_frame', 'action_count_discriminators', 'action_count_is_lower_bound', 'action_count_scope', 'actions_within_supplied_sequence', 'first_action_frame', 'gate_open_frame', 'latched_within_acquisition', 'no_action_on_timeout_frame', 'timeout_frames_not_window_advancing']
+HC-31 | None | ['completion_index', 'continues_count', 'later_of_applied', 'lost', 'm3_fires', 'm3_fires_count_only', 'sequence_span_ms', 'trigger', 'window_match_count', 'window_span_ms']

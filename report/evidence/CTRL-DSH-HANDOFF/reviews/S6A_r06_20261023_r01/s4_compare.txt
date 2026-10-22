@@ -1,0 +1,53 @@
+=== 自检结果比对（我复跑 vs 入库）===
+status: ALL_PASS | ALL_PASS | equal: True
+errors: [] | []
+check 条目: 17 vs 17 | 逐字差异数: 0
+id_inventory equal: True
+limitations equal: True
+scope equal: True
+
+=== inputs 逐字段 ===
+OK   behavior_json_path | D:\codex-worktrees\w6\docs\stage6\s6a_stage6_g0_behavior_v1.json
+OK   behavior_json_sha256 | 32ec34cdb2e776f68edded39636de83e0e73b730b7301b483c4e1e28967a1337
+OK   human_doc_path | D:\codex-worktrees\w6\docs\stage6\S6A_stage6_g0_behavior_spec_v1.md
+OK   human_doc_sha256 | 025b8e884e55f4ee48a148d2460eacf70e0253d4cab77c4db75cc0b53edc2057
+OK   hand_cases_path | D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\hand_computed_cases.json
+OK   hand_cases_sha256 | 3220a8b24fe45272efd8dd7c3daf2519803824b587326a32e2a14114d97ff1ce
+OK   evidence_dir | D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06
+OK   manifest_path | D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json
+OK   state_path | D:\codex-worktrees\w6\.codex\STATE.md
+
+=== 我自算哈希（入库 r06 证据，blob/LF 字节）===
+hashes_sha256.txt 解析条数: 34 | manifest files: 42
+hashes_sha256.txt：不符条数 = 0
+
+=== 被审源码/规格 worktree(CRLF) 与 blob(LF) 哈希 ===
+docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+  worktree=025b8e884e55f4ee48a148d2460eacf70e0253d4cab77c4db75cc0b53edc2057
+  blob    =666be70ae161e4e849ef15aad9957bb2350b19f6f26b9e02bc5790ecd22ab735
+  equal=False
+docs/stage6/s6a_stage6_g0_behavior_v1.json
+  worktree=32ec34cdb2e776f68edded39636de83e0e73b730b7301b483c4e1e28967a1337
+  blob    =fa861d18dee384015e3cfa01be24ec0c35ac49277b4b77b02177f3bd0db82dba
+  equal=False
+verification/s6_g0_selfcheck.py
+  worktree=2b068ee26f5d0e9b9d020d8f0b99a3768ce73126a21bddac158ffbe84fb8a73d
+  blob    =2b068ee26f5d0e9b9d020d8f0b99a3768ce73126a21bddac158ffbe84fb8a73d
+  equal=True
+verification/s6a_build_evidence.py
+  worktree=e197e88f24a20390bda4806740b081b3f8460fa1afd2d7f15698c38af608faa6
+  blob    =e197e88f24a20390bda4806740b081b3f8460fa1afd2d7f15698c38af608faa6
+  equal=True
+verification/s6a_r06_probe.py
+  worktree=8a4dce87403463a5f6e00ed54aa8c0830c568f22a98693cce911f15bfa6e9684
+  blob    =8a4dce87403463a5f6e00ed54aa8c0830c568f22a98693cce911f15bfa6e9684
+  equal=True
+.codex/STATE.md
+  worktree=680ce89c24f5608b969069e6b5a136d5f51c93a6f801a95c01cd2af4c8a1d897
+  blob    =680ce89c24f5608b969069e6b5a136d5f51c93a6f801a95c01cd2af4c8a1d897
+  equal=True
+
+=== selfcheck_result.json.inputs 三项哈希 vs 我自算 worktree ===
+behavior_json_sha256 32ec34cdb2e776f68edded39636de83e0e73b730b7301b483c4e1e28967a1337 | mine(worktree) 32ec34cdb2e776f68edded39636de83e0e73b730b7301b483c4e1e28967a1337 | equal True
+human_doc_sha256 025b8e884e55f4ee48a148d2460eacf70e0253d4cab77c4db75cc0b53edc2057 | mine(worktree) 025b8e884e55f4ee48a148d2460eacf70e0253d4cab77c4db75cc0b53edc2057 | equal True
+hand_cases_sha256 3220a8b24fe45272efd8dd7c3daf2519803824b587326a32e2a14114d97ff1ce | mine(worktree) 3220a8b24fe45272efd8dd7c3daf2519803824b587326a32e2a14114d97ff1ce | equal True

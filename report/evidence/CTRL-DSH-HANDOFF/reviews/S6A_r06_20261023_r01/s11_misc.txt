@@ -1,0 +1,211 @@
+=== S6A_run_summary.md 全文 ===
+# S6-A v1.5 / r06 运行摘要
+
+- 任务：`S6-A`；RunId：`s6a_g0_20261022_r06`；工作树：`D:\codex-worktrees\w6`
+- 修订基线提交：`1632761b2d60d8c1328aa82be97d53eef30e1072`（证据由未提交工作树生成）
+- 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）
+- 阈值纪律：24 项参数值与 `PENDING_APPROVAL` 状态未改；未在测试集调参；未触碰硬件。
+
+## 真实命令与退出码
+
+| 检查 | 命令（绝对 project-root） | 实测退出码 |
+|---|---|---|
+| 旧包失败证据重跑（r01/r02/r03/r04） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6a_rerun_legacy_failures.py --run-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06 --project-root D:\codex-worktrees\w6` | 实测 0（各类失败输出落盘） |
+| 判别力探针（基线 1 例 + 注入 7 例，共 8 例 + 旧口径对照） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6a_r06_probe.py --run-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06 --project-root D:\codex-worktrees\w6` | 实测 0（各用例自检输出落盘） |
+| 自检（17 项，含完整 C11 与 C17） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6_g0_selfcheck.py --json D:\codex-worktrees\w6\docs\stage6\s6a_stage6_g0_behavior_v1.json --doc D:\codex-worktrees\w6\docs\stage6\S6A_stage6_g0_behavior_spec_v1.md --cases D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\hand_computed_cases.json --upstream D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\upstream_bindings.json --project-root D:\codex-worktrees\w6 --evidence-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06 --out D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\selfcheck_result.json --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json --state D:\codex-worktrees\w6\.codex\STATE.md` | 见 `delivery_manifest.json.checks` 与 `selfcheck_c11_stdout.txt` |
+| check_stage_delivery --mode inputs | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode inputs --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\inputs_manifest.json --project-root D:\codex-worktrees\w6` | 0（stdout: `check_inputs_mode_output.txt`） |
+| check_stage_delivery --mode evidence | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode evidence --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r06\delivery_manifest.json --project-root D:\codex-worktrees\w6` | 见 `delivery_manifest.json.checks`（stdout: `check_evidence_mode_output.txt`） |
+
+> 清单 checks 中 status=PASS 的条目其 exit_code 均为构建器实测值（PASS 必须为 0）。
+> 入库 `selfcheck_result.json` 由带 `--manifest` + `--state` 的命令生成，C11 detail 含清单双向一致与 STATE 声明核对。
+
+## 证据文件
+
+- `delivery_manifest.json` / `inputs_manifest.json` / `hashes_sha256.txt`（只哈希实际存在文件）
+- `selfcheck_result.json`（ALL_PASS 17 项，含完整 C11 与 C17）+ `selfcheck_c11_stdout.txt`
+- `check_inputs_mode_output.txt` / `check_evidence_mode_output.txt`（检查器完整 stdout）
+- `selfcheck_old_package_failure.json/.txt` + `old_package_under_test.json`（r01，git 字节可复核）
+- `selfcheck_r02_blk1_failure.json/.txt` + `r02_package_under_test.json`（r02，C12 捕获 BLK-1）
+- `selfcheck_r03_failure.json/.txt` + `r03_package_under_test.json`（r03，C12 捕获 R3-B01/R3-B02、C17 捕获缺锁存块）
+- `selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）
+- `probe_summary.json` + `probe_*_stdout.txt`（基线 1 例 exit 0；注入 7 例各自捕获预期检查项；另有旧口径对照 1 例必须失败，证明 N-r05-04 修正可被捕获）
+- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`
+
+## 结论边界
+
+- `ALL_PASS`/`CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定；不验证状态机行为，不代表 G0 复评/独立审查/实物验收通过。
+- 回放/注入类结论仅限回放/注入输入；本包未运行任何状态机。
+
+## 限制与未执行
+
+见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+
+=== delivery_manifest.json 非 files 块 ===
+{
+ "schema_version": 1,
+ "stage": "6",
+ "task_id": "S6-A",
+ "run_id": "s6a_g0_20261022_r06",
+ "source_commit": "1632761b2d60d8c1328aa82be97d53eef30e1072",
+ "evidence_dir": "report/evidence/S6-A/s6a_g0_20261022_r06",
+ "interfaces": [
+  {
+   "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
+   "version": "G0_FROZEN",
+   "frozen": true,
+   "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+   "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+  }
+ ],
+ "checks": [
+  {
+   "name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）",
+   "status": "PASS",
+   "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\hand_computed_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\upstream_bindings.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06 --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\selfcheck_result.json --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\delivery_manifest.json --state D:\\codex-worktrees\\w6\\.codex\\STATE.md",
+   "exit_code": 0
+  },
+  {
+   "name": "check_stage_delivery.py --mode inputs",
+   "status": "PASS",
+   "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+   "exit_code": 0
+  },
+  {
+   "name": "check_stage_delivery.py --mode evidence",
+   "status": "PASS",
+   "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+   "exit_code": 0
+  }
+ ],
+ "tool_versions": {
+  "python": "3.12.10",
+  "git": "git version 2.56.0.windows.2"
+ },
+ "limitations": [
+  "source_commit 为修订基线 b20b670；证据由未提交工作树生成，最终交付提交哈希见 git log。",
+  "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
+  "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
+  "M4/M7 在当前草案参数/实现结构下不可达（U6-12），不计入覆盖声明。",
+  "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
+  "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
+  "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+ ]
+}
+
+=== inputs_manifest.json 非 files 块 ===
+{
+ "schema_version": 1,
+ "stage": "6",
+ "task_id": "S6-A",
+ "run_id": "s6a_g0_20261022_r06",
+ "source_commit": "1632761b2d60d8c1328aa82be97d53eef30e1072",
+ "evidence_dir": "report/evidence/S6-A/s6a_g0_20261022_r06",
+ "interfaces": [
+  {
+   "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
+   "version": "G0_FROZEN",
+   "frozen": true,
+   "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+   "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+  },
+  {
+   "name": "S1-T02-D2 固定预处理与 INT8 数值规格（no_hand 空标签语义）",
+   "version": "STAGE1_FROZEN",
+   "frozen": true,
+   "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+   "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+  },
+  {
+   "name": "S1-T02-D6 检测评估口径与离线指标基础",
+   "version": "STAGE1_FROZEN",
+   "frozen": true,
+   "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+   "sha256": "735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7"
+  }
+ ],
+ "checks": [
+  {
+   "name": "输入文件 SHA-256 复算（构建器 --verify-inputs 实跑）",
+   "status": "PASS",
+   "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6a_build_evidence.py --verify-inputs D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r06\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+   "exit_code": 0
+  }
+ ],
+ "limitations": [
+  "inputs 清单只登记已冻结上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 草案区。",
+  "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或 G0 通过。"
+ ]
+}
+
+=== doc §18 的 r06 行（检查重复段）===
+行号: 365 | 长度: 2579
+首次出现「（清单」位置: 64
+  出现 '缓存 `tmp/6/S6-A/s6a_g0_20261022_r06/（' 次数: 0
+  出现 '（清单与自检：`delivery_manifest.json`' 次数: 1
+  出现 '缓存 `tmp/6/S6-A/s6a_g0_20261022_r05/（' 次数: 0
+  第二段起点: 1262
+  重复段片段: （清单与自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`se
+  重复段是否含 r05 缓存路径: False
+
+=== S6-B 证据目录清点（工作区，未跟踪；仅列事实，不评价内容）===
+   check_evidence_mode_output.txt 872
+   check_inputs_mode_output.txt 665
+   delivery_manifest.json 16339
+   expected_freeze.json 2669
+   hashes_sha256.txt 3640
+   inputs_manifest.json 1294
+   limitations_not_executed.json 2444
+   params_snapshot.json 7237
+   probe_baseline_stdout.txt 82
+   probe_expected_tampered_stdout.txt 215
+   probe_summary.json 2223
+   probe_threshold_tampered_stdout.txt 424
+   probe_wrong_semantics_expected_stdout.txt 104
+   reachability_notes.json 1182
+   run_report.json 54584
+   run_stdout.txt 82
+   s6b_run_summary.md 2780
+   [dir] cases
+   [dir] logs
+   cases/case_matrix.json 116793
+   logs/C1-fist-stable.jsonl 8229
+   logs/C1-one-stable.jsonl 8229
+   logs/C1-palm-stable.jsonl 8229
+   logs/C1-three-stable.jsonl 8229
+   logs/C1-two_up-stable.jsonl 8229
+   logs/C10-tick-time-advance.jsonl 5416
+   logs/C11-fail-then-success.jsonl 9175
+   logs/C11-global-gate-second-acquisition.jsonl 29456
+   logs/C11-unobserved.jsonl 8226
+   logs/C2-hold-past-cooldown.jsonl 18425
+   logs/C3-lost-then-reappear.jsonl 19530
+   logs/C4-jitter-reset.jsonl 6416
+   logs/C4-quick-switch.jsonl 4910
+   logs/C5-held-priority.jsonl 8705
+   logs/C5-target-jump.jsonl 9901
+   logs/C5-tie-source-order.jsonl 8261
+   logs/C6-no-hand-unknown-lowscore.jsonl 6242
+   logs/C7-timeout-error-dropped-stale.jsonl 9544
+   logs/C8-duplicate-reorder-missing-restart.jsonl 5219
+   logs/C9-s01-equal.jsonl 7403
+   logs/C9-s01-minus-1ns.jsonl 8228
+   logs/C9c-30fps-later-of.jsonl 9052
+STATE 的 S6-B 行点名文件是否都存在: {'run_report.json': True, 'expected_freeze.json': True, 'probe_summary.json': True, 'params_snapshot.json': True, 'reachability_notes.json': True, 'limitations_not_executed.json': True, 'delivery_manifest.json': True, 'inputs_manifest.json': True, 'hashes_sha256.txt': True, 'check_inputs_mode_output.txt': True, 'check_evidence_mode_output.txt': True, 's6b_run_summary.md': True, 'cases/case_matrix.json': True}
+
+=== 提交内 r01..r05 是否被改动 ===
+diff 输出: '' | rc= 0
+
+=== 工作区漂移（未跟踪 + 已跟踪修改）===
+
+
+未跟踪条目数(-uall): 0
+
+=== 被审提交内文件哈希 vs 工作区（是否漂移）===
+  docs/stage6/s6a_stage6_g0_behavior_v1.json: 工作区与提交一致=True
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md: 工作区与提交一致=True
+  verification/s6_g0_selfcheck.py: 工作区与提交一致=True
+  verification/s6a_build_evidence.py: 工作区与提交一致=True
+  verification/s6a_r06_probe.py: 工作区与提交一致=True
+  .codex/STATE.md: 工作区与提交一致=True
+  report/evidence/S6-A/s6a_g0_20261022_r06/selfcheck_result.json: 工作区与提交一致=True
+  report/evidence/S6-A/s6a_g0_20261022_r06/hand_computed_cases.json: 工作区与提交一致=True

@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_limitations_not_executed",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r01",
+  "status_legend": {
+    "PASS": "本次声明范围的所有条件已验证",
+    "FAIL": "执行后不满足条件",
+    "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行",
+    "NOT_RUN": "本轮没有执行",
+    "NOT_APPLICABLE": "确实不适用，必须说明理由"
+  },
+  "not_run": [
+    {"item": "6-B 状态机实现（纯核心 + 动作层隔离）", "status": "NOT_RUN", "reason": "本轮范围仅 6-A（G0 与行为表）；尚无任何状态机代码，故‘状态机确定性测试 PASS’不可声明。"},
+    {"item": "6-C 确定性测试矩阵（含 11 类用例行）", "status": "NOT_RUN", "reason": "依赖 6-B 实现与独立预期；本轮只产出行为表与人工手算样例（20 例），未运行任何状态机。"},
+    {"item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）", "status": "NOT_RUN", "reason": "无状态机实现、无硬件授权；不在本轮范围。"},
+    {"item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）", "status": "NOT_RUN", "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"},
+    {"item": "≥30 分钟回放稳定性实验", "status": "NOT_RUN", "reason": "无状态机与回放驱动；未执行。"},
+    {"item": "T6-01/02/03 任何统计", "status": "NOT_RUN", "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何‘观测值’为通过。"}
+  ],
+  "blocked": [
+    {"item": "6-E 真摄像头验收与统计", "status": "BLOCKED", "reason": "摄像头不可用（待重新采购）；真手势验收延期至模块到货并完成阶段3 验收后。"},
+    {"item": "阶段6 集成验收依赖", "status": "BLOCKED", "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且本轮期间被 w4 窗口并发修改（未提交）；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"},
+    {"item": "阶段5 显示侧新增 HUD 字段（sm_state 等）", "status": "BLOCKED", "reason": "属阶段6 提案，需与阶段5 协调并由项目总控确认；未采纳前只能用五元组与既有 HUD 字段做离线断言。"},
+    {"item": "独立 Reviewer 审查", "status": "BLOCKED", "reason": "本阶段总控在本次会话中无法创建子代理（运行环境委派深度已用尽）；独立审查须由项目总控在后续轮次安排。"}
+  ],
+  "not_applicable": [
+    {"item": "本轮板上 G3 实物验证", "status": "NOT_APPLICABLE", "reason": "本任务为 G0 规格交付，无实现、无位流，且本阶段无硬件授权；G3 对本轮不适用，但仍属阶段6 后续关口。"},
+    {"item": "inputs 模式下对阶段4/阶段5 接口的冻结核验", "status": "NOT_APPLICABLE", "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"}
+  ],
+  "hard_limits_observed": [
+    "未触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头",
+    "未烧录、未 program、未写寄存器",
+    "未 push；未新建其他工作树；未修改 main/w4/w5/dbdf/w2b 与厂商原件",
+    "同时只运行轻量任务（本轮无重型综合/实现/仿真）"
+  ],
+  "replay_injection_boundary": "任何由脚本注入或回放输入得到的结论，其适用范围仅限回放/注入输入，不得冒充真实摄像头验收；真手势验收延期至摄像头到货。",
+  "checker_scope_note": "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性与算术边界复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5 与实物验收通过。"
+}

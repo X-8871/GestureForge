@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_hand_computed_cases",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r01",
+  "status": "HAND_DERIVED_PENDING_G0_APPROVAL",
+  "derivation_note": "全部预期值由人工手算与公式独立推导，未使用任何状态机实现（本轮尚无实现）；verification/s6_g0_selfcheck.py 仅对这些算术与判别规则做独立复算。所用参数全部为草案值（待批准），仅用于演示边界口径，不是验收门槛。",
+  "parameter_assumptions_unfrozen": {
+    "T6-S01_ms": 200,
+    "T6-S02_frames": 6,
+    "T6-S03_logic": "同时满足帧数与时长，取较晚满足者",
+    "T6-L01_frames": 5,
+    "T6-L02_ms": 300,
+    "T6-K01_ms": 1000,
+    "T6-A02_ms": 500,
+    "T6-J01_frames": 1,
+    "T6-A01_ms": 1000,
+    "T6-STALE_LIMIT_ms": 200,
+    "T6-P02_score": 0.3,
+    "T6-P01_score": 0.35
+  },
+  "cases": [
+    {
+      "case_id": "HC-01",
+      "topic": "稳定窗口：时长恰好等于阈值（含等号）且帧数恰好满足",
+      "recompute": {"kind": "stable_window", "period_ms": 40, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "帧时刻 0,40,80,120,160,200 ms。第 6 帧时 matched=6 ≥ 6，且 duration=200−0=200 ms ≥ 200 ms，两条件同帧满足。",
+      "expected": {"frames_required": 6, "actual_window_ms": 200, "lower_bound_W_ms": 200, "stable": true}
+    },
+    {
+      "case_id": "HC-02",
+      "topic": "稳定窗口：时长为阈值 −1 单位（199 ms）不满足",
+      "recompute": {"kind": "stable_window", "period_ms": 39.8, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "帧时刻 0,39.8,79.6,119.4,159.2,199.0 ms。第 6 帧 duration=199.0 < 200，帧数虽满足但时长不满足 → 不进入 STABLE；下一帧 238.8 ms 才满足（帧数 7）。",
+      "expected": {"frames_required": 7, "actual_window_ms": 238.8, "lower_bound_W_ms": 200, "stable_at_sixth_frame": false}
+    },
+    {
+      "case_id": "HC-03",
+      "topic": "稳定窗口：帧数为阈值 −1（5 帧）不满足",
+      "recompute": {"kind": "stable_window", "period_ms": 60, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "帧时刻 0,60,120,180,240,300 ms。第 5 帧 duration=240 ≥ 200 但 matched=5 < 6 → 不满足（证明帧数条件是独立门槛）；第 6 帧 300 ms 满足。此周期下 W=max(200,(6−1)×60=300)=300 ms，故本样例同时由帧数支配。",
+      "expected": {"frames_required": 6, "actual_window_ms": 300, "lower_bound_W_ms": 300, "dominant": "frame_count", "stable_at_fifth_frame": false}
+    },
+    {
+      "case_id": "HC-04",
+      "topic": "低 FPS 5（周期 200 ms）：窗口由帧数支配，W=1000 ms",
+      "recompute": {"kind": "stable_window", "period_ms": 200, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "W=max(200, (6−1)×200)=max(200,1000)=1000 ms。帧时刻 0,200,400,600,800,1000 ms，第 6 帧 duration=1000 ms ≥ 200 ms 且 matched=6 → 稳定在 1000 ms。",
+      "expected": {"frames_required": 6, "actual_window_ms": 1000, "lower_bound_W_ms": 1000, "dominant": "frame_count"}
+    },
+    {
+      "case_id": "HC-05",
+      "topic": "低 FPS 10（周期 100 ms）：W=500 ms",
+      "recompute": {"kind": "stable_window", "period_ms": 100, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "W=max(200,(6−1)×100)=500 ms；第 6 帧 duration=500 ms ≥200 → 稳定在 500 ms。",
+      "expected": {"frames_required": 6, "actual_window_ms": 500, "lower_bound_W_ms": 500, "dominant": "frame_count"}
+    },
+    {
+      "case_id": "HC-06",
+      "topic": "30 FPS（周期 33.3 ms）：W 下界 200 ms，但离散帧栅格上实际完成在 233.1 ms",
+      "recompute": {"kind": "stable_window", "period_ms": 33.3, "s01_ms": 200, "s02_frames": 6},
+      "derivation": "W=max(200,(6−1)×33.3)=max(200,166.5)=200 ms。帧时刻 0,33.3,…,199.8,233.1 ms：第 7 帧 t=199.8 duration=199.8<200 不满足；第 8 帧 t=233.1 duration=233.1≥200 且 matched=8≥6 → 实际完成 233.1 ms。说明 W 只是下界，真实完成时刻还取决于帧栅格对齐。",
+      "expected": {"frames_required": 8, "actual_window_ms": 233.1, "lower_bound_W_ms": 200, "dominant": "duration"}
+    },
+    {
+      "case_id": "HC-07",
+      "topic": "冷却边界：t_submit+1000 ms 时冷却结束（含等号）",
+      "recompute": {"kind": "cooldown", "t_submit_ms": 10000, "k01_ms": 1000},
+      "derivation": "冷却起点=提交时刻 10000 ms。判定 t_now − t_submit ≥ 1000：t_now=10999.999999 ms → 999.999999 ms < 1000 → 仍抑制；t_now=11000 ms → 恰好 1000 → 冷却结束。",
+      "expected": {"ended_at_ms": 11000, "ended_at_minus_1ns": false, "ended_at_exact": true}
+    },
+    {
+      "case_id": "HC-08",
+      "topic": "去重窗口边界：抑制条件为严格小于 T6-A02",
+      "recompute": {"kind": "dedup", "t_last_submit_ms": 0, "a02_ms": 500},
+      "derivation": "抑制条件 t_now − t_last_submit < 500：t_now=499 ms → 抑制；t_now=500 ms → 500<500 为假 → 不抑制。",
+      "expected": {"suppressed_at_minus_1": true, "suppressed_at_exact": false}
+    },
+    {
+      "case_id": "HC-09",
+      "topic": "丢失确认（帧数条件）：连续 5 条不匹配确认丢失",
+      "recompute": {"kind": "lost_frames", "l01_frames": 5},
+      "derivation": "miss_streak=4 → 4≥5 假 → 未丢失；miss_streak=5 → 确认丢失（第 5 条不匹配结果上判定）。",
+      "expected": {"lost_at_4": false, "lost_at_5": true}
+    },
+    {
+      "case_id": "HC-10",
+      "topic": "丢失确认（时间条件）：距上次匹配恰好 300 ms 确认丢失",
+      "recompute": {"kind": "lost_time", "t_last_match_ms": 1000, "l02_ms": 300},
+      "derivation": "t_now − t_last_match ≥ 300：t_now=1299.999999 ms → 299.999999 < 300 → 未丢失；t_now=1300 ms → 恰好 300 → 确认丢失。帧条件与时间条件取较早满足者。",
+      "expected": {"lost_at_minus_1ns": false, "lost_at_exact": true}
+    },
+    {
+      "case_id": "HC-11",
+      "topic": "过期边界：严格大于才判过期",
+      "recompute": {"kind": "stale", "limit_ms": 200},
+      "derivation": "age=200 ms → 200>200 假 → 不过期；age=200 ms+1 ns → 过期。",
+      "expected": {"stale_at_exact": false, "stale_at_exact_plus_1ns": true}
+    },
+    {
+      "case_id": "HC-12",
+      "topic": "抖动容忍：1 帧中断容忍，2 帧中断重置窗口",
+      "recompute": {"kind": "jitter", "j01_frames": 1},
+      "derivation": "missing=1 ≤ 1 → 容忍、窗口不重置、记录 S_JITTER_TOLERATED；missing=2 = J01+1 → 立即重置窗口。",
+      "expected": {"tolerated_at_1": true, "reset_at_2": true}
+    },
+    {
+      "case_id": "HC-13",
+      "topic": "重复 frame_id：幂等丢弃，不推进计数、不产生动作",
+      "recompute": {"kind": "frame_id_seen", "prev_frame_id": 7, "cur_frame_id": 7, "session_same": true},
+      "derivation": "cur == prev 且同一会话 → E_FRAME_DUPLICATE：matched_frames 不变、时间仍按显式 t_input 推进、不得产生任何动作。",
+      "expected": {"event": "E_FRAME_DUPLICATE", "advances_match_count": false, "may_trigger_action": false}
+    },
+    {
+      "case_id": "HC-14",
+      "topic": "倒序 frame_id：不推进窗口并计异常",
+      "recompute": {"kind": "frame_id_seen", "prev_frame_id": 10, "cur_frame_id": 9, "session_same": true},
+      "derivation": "cur < prev 且同一会话 → E_FRAME_OUT_OF_ORDER：不推进窗口、不计匹配、异常计数 +1，不得延续旧会话状态。",
+      "expected": {"event": "E_FRAME_OUT_OF_ORDER", "advances_match_count": false, "anomaly_delta": 1}
+    },
+    {
+      "case_id": "HC-15",
+      "topic": "会话切换/重启帧号：全量复位到 IDLE",
+      "recompute": {"kind": "session_change", "session_same": false},
+      "derivation": "session_id 变化 → 状态复位到 IDLE、清除当前目标与稳定证据、开启新会话计数；复位帧本身不得触发动作（需重新走 M1→M3）。",
+      "expected": {"state_after": "IDLE", "target_cleared": true, "may_trigger_action_on_reset_frame": false}
+    },
+    {
+      "case_id": "HC-16",
+      "topic": "持续保持只触发一次（含冷却结束后继续保持）",
+      "recompute": {"kind": "trigger_once_hold", "fps": 30, "hold_s": 5, "k01_ms": 1000},
+      "derivation": "触发发生在窗口完成帧（手算取 233.1 ms 处附近，见 HC-06）。此后保持 5 s ≈ 150 帧；动作提交次数恒为 1。冷却在提交后 1000 ms 结束，此时目标仍匹配且窗口可再次满足 → M9 维持态，不触发。故整个获取内 ACTION_SUBMITTED=1，冷却结束后新增触发数=0。",
+      "expected": {"hold_frames": 150, "submitted_total": 1, "trigger_after_cooldown": 0}
+    },
+    {
+      "case_id": "HC-17",
+      "topic": "多框维持优先：低分当前目标胜过更高分异类新框",
+      "recompute": {"kind": "hysteresis", "current_score": 0.4, "p02": 0.3, "other_class_score": 0.95, "current_match": true},
+      "derivation": "当前 fist 目标分数 0.40 ≥ P02(0.30) 且有与其匹配的框 → 迟滞成立，维持 fist；即使出现 palm 0.95 也不切换，记录 S_TARGET_HELD 与两条候选。",
+      "expected": {"held": true, "selected_class": "fist", "suppression_event": "S_TARGET_HELD"}
+    },
+    {
+      "case_id": "HC-18",
+      "topic": "同分排序：分数完全相等时以 source_order 为准",
+      "recompute": {"kind": "tie", "scores": [0.6, 0.6], "source_orders": [7, 3]},
+      "derivation": "两个框 score 逐位相同 0.6 → 平票；按 2A 稳定同分顺序的权威字段 source_order，取较小者 3。",
+      "expected": {"selected_source_order": 3}
+    },
+    {
+      "case_id": "HC-19",
+      "topic": "提交成功与实际生效分离：unobserved 不算成功",
+      "recompute": {"kind": "action_events", "t_trigger_ms": 5000, "t_submit_ms": 5032, "t_effective_ms": 5080, "a01_ms": 1000, "effective_observed": true},
+      "derivation": "latency_action=5080−5000=80 ms ≤1000 ms；提交在 5032 ms 成功（ACTION_SUBMITTED），生效在 5080 ms 被观测（ACTION_EFFECTIVE）→ 计成功。若执行层只回 submitted 而无生效观测（unobserved），则不满足生效条件：不得计入成功，单列 NOT_RUN 且不从分母剔除。",
+      "expected": {"latency_action_ms": 80, "latency_submit_ms": 32, "counts_as_success_when_effective_observed": true, "counts_as_success_when_unobserved": false}
+    },
+    {
+      "case_id": "HC-20",
+      "topic": "未知拒绝不可由 class_id 自证",
+      "recompute": {"kind": "unknown_rejection_proof", "unknown_class_id": 4, "unknown_score": 0.9},
+      "derivation": "未知场景被模型误判为 `three`(class_id=4) 且 score=0.9：class_id 落在五类内（成员性检查通过），但该样本仍是误接受。故『class_id ∈ {0..4}』不能证明未知拒绝；必须按 T6-02 以独立未知样本上是否发生已提交动作计数，本样本计 1 次误接受。",
+      "expected": {"class_membership_passes": true, "proves_unknown_rejection": false, "counts_as_false_accept_in_T6_02": true}
+    }
+  ]
+}

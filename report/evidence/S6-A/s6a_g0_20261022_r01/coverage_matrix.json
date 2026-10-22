@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_coverage_matrix",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r01",
+  "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+  "machine_json": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+  "runbook_coverage": [
+    {"item": 1, "requirement": "由项目总控确认阶段6独占写入方与范围，负责人在 w6 建立有效 STATE", "location": "§1 + .codex/STATE.md（11 字段交接行）", "status": "DONE"},
+    {"item": 2, "requirement": "核对阶段4结果字段、错误语义和阶段5显示语义的冻结版本；未冻结接口只能草案/隔离使用", "location": "§1 上游绑定表 + §1 并发写入事实 + upstream_bindings.json", "status": "DONE_WITH_BLOCKED_DEPENDENCY"},
+    {"item": 3, "requirement": "五类手势逐项动作、动作成功反馈、失败反馈、可观察显示状态；切图/状态动作区分提交成功与实际生效", "location": "§7 表 A-1 + §5 B01/B02 + JSON actions/event_classes", "status": "DONE_PENDING_APPROVAL"},
+    {"item": 4, "requirement": "冻结多框选择、同分排序、目标保持/重获、抖动、稳定窗口、冷却、再触发、过期、未知、无手、超时/错误的行为表", "location": "§5 行为表 v1（B01–B28）+ §8–§13", "status": "DONE_BEHAVIOR_V1_PENDING_G0_APPROVAL"},
+    {"item": 5, "requirement": "草案状态可作为起点（IDLE/CANDIDATE/STABLE/TRIGGERED/COOLDOWN/LOST/UNKNOWN_RECOVER），状态名不等于实现已存在", "location": "§4（含状态名与迁移 M1–M15，显式声明不代表已实现）", "status": "DONE"},
+    {"item": 6, "requirement": "明确‘持续保持只触发一次’，冷却结束但手未离开时是否可再触发必须唯一", "location": "§10 唯一解释（一次获取只触发一次；M15 路径不再触发）", "status": "DONE_DECLARED_PENDING_CONFIRMATION"},
+    {"item": 7, "requirement": "窗口使用真实时间和有效结果数，重复 frame_id 不得推进；低推理 FPS 下估交互延迟", "location": "§9 窗口序列来源 + §13 重复/倒序/缺帧 + §15 低 FPS 口径", "status": "DONE"},
+    {"item": 8, "requirement": "草案 0.35/0.30、200ms、6 帧、1000ms 等未冻结；不降低模型冻结阈值或在正式测试集上调参", "location": "§14 全部登记 PENDING_APPROVAL + §0 不宣称项", "status": "DONE_PENDING_APPROVAL"},
+    {"item": 9, "requirement": "NO_HAND 是合法零框不是第六类；未知拒绝不能只用 class_id 落在五类内证明", "location": "H-5/H-6 + §11.1/§11.4 + 手算样例 HC-20", "status": "DONE"},
+    {"item": 10, "requirement": "异常/重复/过期输入不触发动作；超时与失踪计时按单调时钟推进，防停帧永久候选", "location": "H-3 + §11.5/§11.6 + §13 + 手算样例 HC-10/HC-13/HC-14", "status": "DONE"}
+  ],
+  "plan_coverage": [
+    {"plan_line": "L104", "requirement": "稳定手势判定→HDMI切图/界面/显示状态", "location": "§4、§5-B01、§7"},
+    {"plan_line": "L104", "requirement": "多框时的目标选择", "location": "§8 + B03/B04/B05/B06"},
+    {"plan_line": "L104", "requirement": "目标丢失与重获", "location": "§10 + B10/B11 + M10/M11/M14"},
+    {"plan_line": "L104", "requirement": "稳定判定窗口", "location": "§9 + B07/B08"},
+    {"plan_line": "L104", "requirement": "保持时是否只触发一次", "location": "§10（唯一声明）+ B15"},
+    {"plan_line": "L104", "requirement": "冷却", "location": "§10 + B13/B14 + M6/M8/M9/M15"},
+    {"plan_line": "L104", "requirement": "重新触发条件", "location": "§10 + B11/B12"},
+    {"plan_line": "L104", "requirement": "无手/未知输入与恢复行为", "location": "§11 + B17/B19/B20/B21 + M2/M12/M13"},
+    {"plan_line": "L106", "requirement": "测试短暂抖动/持续保持/手势切换/手离开/未知场景", "location": "B07/B08/B11/B12/B15/B17/B20（场景执行状态 NOT_RUN）"},
+    {"plan_line": "L106", "requirement": "已知手势有效动作成功率≥90%", "location": "§14 T6-01（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "至少200个独立未知输入误接受率≤5%", "location": "§14 T6-02 + §11.4（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "无有效手势30分钟误动作≤1次", "location": "§14 T6-03（PENDING_APPROVAL）"},
+    {"plan_line": "L106", "requirement": "各条件样本数及阈值在任务G0固定；不能只挑成功视频", "location": "§14 统计口径要点 + §16 U6-01"},
+    {"plan_line": "L108", "requirement": "证据：状态机规格、输入/事件/动作日志、失败案例、连续视频", "location": "§3 日志字段 + §18（本轮为规格证据；日志/视频类证据 NOT_RUN）"},
+    {"plan_line": "L108", "requirement": "交互通过不代替阶段7最终性能与可靠性验收", "location": "§0 边界 + §18"}
+  ],
+  "stage5_suggestion_coverage": [
+    {"id": "S6-D-01", "location": "H-4 + §9", "status": "ADOPTED"},
+    {"id": "S6-D-02", "location": "§9 + §13", "status": "ADOPTED"},
+    {"id": "S6-D-03", "location": "§11.1/§11.4", "status": "ADOPTED"},
+    {"id": "S6-D-04", "location": "§3 日志字段", "status": "ADOPTED"},
+    {"id": "S6-D-05", "location": "§7/§14（统一 score）", "status": "ADOPTED"}
+  ],
+  "selfcheck_mapping": {
+    "script": "verification/s6_g0_selfcheck.py",
+    "checks": {
+      "C1": "JSON 身份与必填块",
+      "C2": "标识唯一性",
+      "C3": "文档↔JSON 标识双向一致",
+      "C4": "待批准纪律",
+      "C5": "五类动作映射一致",
+      "C6": "硬不变量与唯一触发解释",
+      "C7": "人工手算样例独立复算（20 例）",
+      "C8": "上游只读文件哈希复算（11 项）",
+      "C9": "文档必备覆盖与章节",
+      "C10": "禁止声明扫描（窄口径、否定语境豁免）"
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": "gestureforge_s5t01_frame_stream_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_5t_20261022_r02",
+  "generated_utc8": "2026-10-22T19:42:03+08:00",
+  "source_head": "6ad6a0423ecdc0fcbe0575ac8c7f44e45217e35a",
+  "authority": "CDX-20261022-014 clause 4 (display-side subset, stage4-independent)",
+  "goal_reached": "120_FRAME_STREAM_CONSUMED_FIVE_TUPLE_LOGGED_10_OF_10_CHECKS_PASS",
+  "elf": "s5t01_frames_r05b.elf",
+  "elf_sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+  "bitstream_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+  "result_source": "SYNTHETIC (not stage-4 output; display-side only)",
+  "display_semantics": "B_latest_result_overlay",
+  "stale_limit_ns": 200000000,
+  "stream": {
+    "frames_per_round": 120,
+    "complete_rounds_verified": 2,
+    "runtime_s": 44.719,
+    "counters": {
+      "displayed": 107,
+      "stale_cleared": 17,
+      "dropped": 7,
+      "timeouts": 6,
+      "dup": 5,
+      "ooo": 4,
+      "warmup": 9,
+      "uniq_displayed": 101
+    },
+    "fps": {
+      "display_fps": 7.1,
+      "unique_frame_update_fps": 6.7,
+      "per_round_elapsed_s": 14.9
+    }
+  },
+  "five_tuple": [
+    "displayed_frame_id",
+    "result_frame_id",
+    "age_result_ns",
+    "age_frame_ns",
+    "display_semantics"
+  ],
+  "validation": {
+    "script": "scripts/stage5_t01/verify_frame_stream.py",
+    "exit_code": 0,
+    "checks_passed": 10,
+    "checks_failed": 0,
+    "json": "console/frame_stream_verify.json",
+    "seq_matches_model": true,
+    "counters_match_model": true
+  },
+  "hud": {
+    "fields": 13,
+    "na_fields": [
+      "capture_fps",
+      "inference_fps",
+      "inference_time_ns"
+    ],
+    "occlusion_max_px": 2133,
+    "note": "HUD 面板覆盖框线像素实测最大值（遮挡量化，见 §2.4）"
+  },
+  "commands": [
+    {
+      "cmd": "bash dbdf/scripts/stage3_t05/run_t05_board_capture.sh <RUN_DIR> <frames ELF> frames 60",
+      "exit_code": 0,
+      "log": "console/capture_frames.txt"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/verify_frame_stream.py --log console/uart_frames.log",
+      "exit_code": 0,
+      "log": "console/frame_stream_verify.json"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/build_r05b.log",
+      "sha256": "c715715a0793f531a97d29b3ea9f62e40d7c6c7a45ff765c63cc356993999b57"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/capture_frames.txt",
+      "sha256": "5e8c2474df4cf289311fce471c590f09065faf92a375a2a443475351904ac01a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/frame_stream_stdout.txt",
+      "sha256": "74064c3e88ef8e8f3548bfad2149017fcb9a52a444fb1f1521378711a242eb6d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/frame_stream_verify.json",
+      "sha256": "94bb4cab7d12a61d78e4835714c1a5bc6147ee16cb09bfa5ab5429129eb2bdbd"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/input_hashes.txt",
+      "sha256": "1f34ea39cc139a2cb197f3f6ce7d80d5e439252260560cead34a508d8d7d8a93"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/console/uart_frames.log",
+      "sha256": "0404c393a6c1175341587984683ad8415a344241fd9c0390bb9965661002a1c1"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/summary.md",
+      "sha256": "0d3825d1a36426103ba4327ffcec10439be6683e9d214b81c6378b6dbabb1d95"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256": "53b38d8b9db189584b531f8c9d248369a856f09c049467bd7e65f13e7f965b3e"
+    },
+    {
+      "path": "scripts/stage5_t01/gen_overlay_cases.py",
+      "sha256": "aef8728773a91c31682d2b3d8d320918ddb0111f8978d9724431d5d558240311"
+    },
+    {
+      "path": "scripts/stage5_t01/verify_frame_stream.py",
+      "sha256": "376fc095268f118052bfaf880459c5aa6b9e9d561bf3908565bc247ade61a933"
+    },
+    {
+      "path": "scripts/stage5_t01/build_p1_app.sh",
+      "sha256": "3a5d10f29bf8c0b6895de4cd9ca8e4cd524d7aba30ed33a6fb2fe66eb28b7378"
+    }
+  ],
+  "not_executed": [
+    "阶段4 冻结结果注入（依赖阶段4）",
+    "板上实际执行坐标映射（本轮仍为宿主端预计算）",
+    "跳帧/迟到/重复结果的跨进程注入",
+    "T5-09 长跑（另 RunId）"
+  ],
+  "limitations": [
+    "result 流为合成，仅覆盖显示侧消费语义。",
+    "unique_frame_update_fps 为 result-frame_id 级，不是推理完成率。",
+    "inference_fps=NA。",
+    "HUD 13 字段的视觉确认待照片；数值侧以 occ 与 UART 字段为准。",
+    "未烧 QSPI；0x503D 未改；hw_server 已清理。"
+  ]
+}

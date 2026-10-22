@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_review_result",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r02",
+  "reviewed_commit": "3b59674f93e8a2c020a0670fa475ee6a15330833",
+  "baseline_commit": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+  "reviewer_scope": "只读审查 r02 的 S6-A G0 包；不代表 G0/G2/G4/G5 或任何实物验收",
+  "verdict": "CHANGES_REQUIRED",
+  "real_exit_codes": {
+    "check_stage_delivery_inputs_mode_absolute_root": 0,
+    "check_stage_delivery_evidence_mode_absolute_root": 0,
+    "selfcheck_documented_command_evidence_dir": 0,
+    "selfcheck_with_manifest_and_state": 0,
+    "selfcheck_without_evidence_dir": 1,
+    "selfcheck_old_package_1fe4648": 1,
+    "hash_recompute_r02_dir": 0,
+    "old_package_hash_binding_check": 0
+  },
+  "semantic_rulings": {
+    "a_no_hand_not_advance_match_count": "PASS",
+    "b_cooldown_global_gate": "PASS",
+    "c_window_complete_vs_w_min_t6_a03_not_run": "PASS",
+    "d_predicate_split_full_table": "FAIL"
+  },
+  "evidence_reproducibility": {
+    "manifests_exist": true,
+    "hashes_sha256_matched": "12/12",
+    "manifest_internal_files_verified_by_checker": 18,
+    "build_evidence_script_hardcodes_exit_code": "delivery_manifest: no; inputs_manifest.checks[0]: yes (hardcoded 0)",
+    "committed_selfcheck_c11_strength": "仅文件计数（未跑 --manifest/--state）"
+  },
+  "old_vs_new_package": {
+    "old_1fe4648": "FAILED exit 1 (13 checks)",
+    "new_3b59674": "ALL_PASS exit 0 (16/16)",
+    "substance_verified": true,
+    "evidence_binding_verified": false
+  },
+  "reviewer_claim_correction_check": {
+    "r02_claim": "r01 第 41/66/74 行已存在 H-5/M2/M10，上一轮正则漏检",
+    "my_verification": "成立（git show 1fe4648 亲自核对）"
+  },
+  "no_regression": {
+    "parameters_value_changed": false,
+    "parameters_approval_status_changed": false,
+    "pending_approval_count": 24,
+    "only_metadata_change": "T6-U00_W.comparison: window -> sliding_window",
+    "transitions": "15 -> 14（仅删除 M14）",
+    "new_unreachable_transitions": false,
+    "doc_json_id_sets": "参数 24/24、迁移 14/14、不变量 10/10、行为行 28/28、事件 20/20、状态 7/7 双向一致"
+  },
+  "blocking_items": [
+    {
+      "id": "BLK-1",
+      "title": "谓词拆分未落到迁移表：M3/M10 等仍用未定义的“匹配”",
+      "locations": [
+        "JSON transitions.M3/M8/M9/M10/M15.condition",
+        "JSON behavior_rows.B04/B10/B12.condition",
+        "JSON predicates.*.used_by",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:76-78,82,100,106,108,110,208-211"
+      ],
+      "impact": "M3（进入 STABLE）与 M10（丢失确认）存在两种可读解释且行为不同：低分目标可完成窗口并触发，或与 B03 迟滞冲突",
+      "closing": "M3 改 WINDOW_MATCH 计数；M10/B10 绑定 TARGET_CONTINUES；M8/M9/M15/B04/B12/§12 同步；used_by 补 M3/M10；C12 增加迁移/行为行断言"
+    },
+    {
+      "id": "BLK-2",
+      "title": "old_package_under_test.json 哈希与被检版本不符，旧包失败明细不可复现",
+      "locations": [
+        "report/evidence/S6-A/s6a_g0_20261022_r02/old_package_under_test.json",
+        "report/evidence/S6-A/s6a_g0_20261022_r02/selfcheck_old_package_failure.json"
+      ],
+      "impact": "N-08/B-01 的“旧包被检版本可复核”不成立；C3 明细为输入改写伪影（实质结论仍为真：exit 1）",
+      "closing": "用 git show 1fe4648: 原始字节重算 5 个哈希并重跑旧包失败证据"
+    },
+    {
+      "id": "BLK-3",
+      "title": "C11 清单/STATE 核对未在入库证据中执行，且两个声明的检查输出文件缺失",
+      "locations": [
+        "selfcheck_result.json.checks[C11].detail",
+        "coverage_matrix.json:78",
+        "S6A_run_summary.md:15",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:343"
+      ],
+      "impact": "“证据清单/STATE 一致性已核验”的陈述强于已提交产物；声明但缺失 check_inputs_mode_output.txt / check_evidence_mode_output.txt",
+      "closing": "用 --manifest+--state 重生成自检证据并落盘完整 C11 stdout；删除或补齐两个缺失文件"
+    }
+  ],
+  "non_blocking_items": [
+    {"id": "NBL-1", "title": "inputs_manifest.checks[0] 硬编码 PASS/0（s6a_build_evidence.py:195-202）"},
+    {"id": "NBL-2", "title": "冷却锚点 t_submit vs t_last_submit 不一致；“提交/尝试提交”歧义"},
+    {"id": "NBL-3", "title": "N-04 部分复算为边界方向重述（selfcheck:489-521,595-616）"},
+    {"id": "NBL-4", "title": "§15 表格 5 列表头 / 6 列数据行"},
+    {"id": "NBL-5", "title": "fix_record/revision 对 B-05 “全表引用”与 transitions.M10 的描述过强"}
+  ],
+  "overclaim_check": {
+    "found_non_negated_pass_claims": false,
+    "declared_but_missing_files": [
+      "check_inputs_mode_output.txt",
+      "check_evidence_mode_output.txt",
+      "构建器 stdout（被摘要引用但未保存）"
+    ]
+  },
+  "artifacts_in_isolated_dir": [
+    "S6A_20261022_r02_review.md",
+    "review_result.json",
+    "id_compare.py / id_compare_result.txt",
+    "independent_doc_json.py / independent_doc_json_result.txt",
+    "my_check_inputs.txt / my_check_evidence.txt / my_hashes.txt",
+    "selfcheck_bare.json / selfcheck_bare_stdout.txt",
+    "selfcheck_full.json / selfcheck_with_state.json",
+    "selfcheck_old_pkg_myrun.json / selfcheck_old_pkg_stdout.txt"
+  ]
+}

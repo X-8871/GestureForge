@@ -1,0 +1,76 @@
+diff --git a/verification/s6b_no_dead_constants.py b/verification/s6b_no_dead_constants.py
+new file mode 100644
+index 0000000..0c7df74
+--- /dev/null
++++ b/verification/s6b_no_dead_constants.py
+@@ -0,0 +1,26 @@
++#!/usr/bin/env python3
++"""死常量检查（S6-B claim S6B-C3 的真实可执行命令）：定义后从未使用的常量必须为 0。"""
++
++from __future__ import annotations
++
++import re
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++TARGETS = ("src/stage6/s6_actions.py", "src/stage6/s6_core.py")
++
++
++def main() -> int:
++    bad: list[str] = []
++    for rel in TARGETS:
++        text = (ROOT / rel).read_text(encoding="utf-8")
++        for name in sorted(set(re.findall(r"^([A-Z][A-Z0-9_]{2,})\s*=", text, flags=re.MULTILINE))):
++            if len(re.findall(rf"\b{name}\b", text)) <= 1:
++                bad.append(f"{rel}:{name}")
++    print(f"unused={bad}")
++    return 0 if not bad else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+\ No newline at end of file
+diff --git a/verification/s6b_probe.py b/verification/s6b_probe.py
+index eb77a7d..124956d 100644
+--- a/verification/s6b_probe.py
++++ b/verification/s6b_probe.py
+@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
+ 
+     # P1 基线：在 evidence 目录内直接跑（不改动任何东西）
+     completed = run_driver(driver, root, run_dir, cases_src)
+-    ok_all &= record("baseline", 0, "未改动：21 例全部通过", completed)
++    ok_all &= record("baseline", 0, "未改动：23 例全部通过", completed)
+ 
+     # P2 冻结后篡改 expected → 拒绝运行
+     probe2 = work / "expected_tampered"
+diff --git a/verification/s6b_run_cases.py b/verification/s6b_run_cases.py
+index 9276c41..dbed67a 100644
+--- a/verification/s6b_run_cases.py
++++ b/verification/s6b_run_cases.py
+@@ -170,6 +170,11 @@ def compare(case: dict, observed: dict) -> list[str]:
+     for key in ("transitions",):
+         if key in expected and observed[key] != expected[key]:
+             failures.append(f"{key} 预期 {expected[key]}，实际 {observed[key]}")
++    # BLK-r03-1：动作记录携带的 acquisition_id 序列（"一次获取一次触发"的逐次凭据）
++    if "acquisition_ids" in expected:
++        got_ids = [row.get("acquisition_id") for row in observed.get("action_records", [])]
++        if got_ids != expected["acquisition_ids"]:
++            failures.append(f"acquisition_ids 预期 {expected['acquisition_ids']}，实际 {got_ids}")
+     summary = observed["action_summary"]
+     for key in ("action_submitted", "action_effective", "action_failed",
+                 "action_unobserved", "dedup_suppressed", "visible_state_changes",
+@@ -245,6 +250,13 @@ def main(argv: list[str] | None = None) -> int:
+             if existing.get("expected_sha256") != payload["expected_sha256"]:
+                 print("已存在不同的冻结文件；如需覆盖请加 --force-freeze")
+                 return 2
++            # 幂等（本轮修正）：期望与用例/行为表身份都一致时**不复写**，避免 frozen_at_utc8
++            # 时间戳漂移导致 run_report.json（内嵌 expected_freeze_sha256）每次运行都变。
++            if (existing.get("cases_file_sha256") == payload.get("cases_file_sha256")
++                    and existing.get("behavior_json_sha256") == payload.get("behavior_json_sha256")):
++                print(json.dumps({"status": "EXPECTED_FROZEN_REUSED",
++                                  "cases": len(payload["expected_sha256"])}, ensure_ascii=False))
++                return 0
+         run_dir.mkdir(parents=True, exist_ok=True)
+         freeze_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+         print(json.dumps({"status": "EXPECTED_FROZEN", "cases": len(payload["expected_sha256"])}, ensure_ascii=False))

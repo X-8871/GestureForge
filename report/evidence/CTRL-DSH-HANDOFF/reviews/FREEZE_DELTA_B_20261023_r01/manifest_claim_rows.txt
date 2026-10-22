@@ -1,0 +1,21 @@
+### report/evidence/S6-A/s6a_g0_20261022_r09/delivery_manifest.json
+  top keys: ['schema_version', 'stage', 'task_id', 'run_id', 'source_commit', 'evidence_dir', 'interfaces', 'files', 'checks', 'tool_versions', 'limitations']
+   - PASS                   冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）
+   - NOT_RUN                S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）
+   - PASS                   check_stage_delivery.py --mode inputs
+   - NOT_RUN                check_stage_delivery.py --mode evidence
+   FILE verification/export_selfproof.py sha=94bd1e510a26c510
+   FILE report/evidence/S6-A/s6a_g0_20261022_r09/claim_verification.json sha=611c709b73260dce
+   FILE report/evidence/S6-A/s6a_g0_20261022_r09/claim_verification.md sha=b99b1759f2d99498
+
+### report/evidence/S6-B/s6b_core_20261023_r04/delivery_manifest.json
+  top keys: ['schema_version', 'stage', 'task_id', 'run_id', 'source_commit', 'evidence_dir', 'interfaces', 'interfaces_not_applicable_reason', 'files', 'checks', 'tool_versions', 'limitations']
+   - PASS                   claim_verification.verdict == ALL_CLAIMS_VERIFIED
+   - PASS                   冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）
+   - PASS                   S6-B 确定性用例（26 条 / 11 类）
+   - PASS                   S6-B 判别力探针（4 项）
+   - PASS                   check_stage_delivery.py --mode inputs
+   - PASS                   check_stage_delivery.py --mode evidence
+   FILE report/evidence/S6-B/s6b_core_20261023_r04/claim_verification.json sha=a819a1790976a8fd
+   FILE report/evidence/S6-B/s6b_core_20261023_r04/claim_verification.md sha=8c07d26d2ffe49d1
+

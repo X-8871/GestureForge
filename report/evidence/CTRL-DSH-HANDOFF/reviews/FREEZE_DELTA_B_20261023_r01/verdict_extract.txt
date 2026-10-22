@@ -1,0 +1,100 @@
+======================================================================
+### F = 0725d9cf48aeed21d3ea445ef01575c16b68d950 ###
+  report/evidence/S6-A/s6a_g0_20261022_r09_selfproof/export_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='worktree_snapshot' verdict='SELF_PROVEN' subject='worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  [missing] report/evidence/S6-A/s6a_g0_20261022_r09_selfproof/transport_clone_selfproof.json
+  report/evidence/S6-B/s6b_core_20261023_r04_selfproof/export_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='worktree_snapshot' verdict='SELF_PROVEN' subject='worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  [missing] report/evidence/S6-B/s6b_core_20261023_r04_selfproof/transport_clone_selfproof.json
+  report/evidence/S6-A/s6a_g0_20261022_r09/delivery_manifest.json
+     top-level verdict: None
+  report/evidence/S6-B/s6b_core_20261023_r04/delivery_manifest.json
+     top-level verdict: None
+  report/evidence/S6-B/s6b_core_20261023_r04/claim_verification.json
+     top-level verdict: 'ALL_CLAIMS_VERIFIED'
+  .codex/STATE.md (text)
+     | - **冻结自证规则（F6，永久）**：任何“冻结/交付”提交必须自证 —— `python -B verification/export_selfproof.py --project-root <abs> --commit <rev>` 导出该提交后，自检与 `check_stage_delivery` inputs/evidence 三项都必须 exit 0；S6-B 最终冻结同样适用。
+     |   `N-r07-1`：自证工具换行对齐顺序改为「先工作区、后清单」，消除干净克隆 + `autocrlf=true` 下的假阴性。
+     |   `N-r07-2`：自证报告移入同 RunId 的 `_selfproof` 兄弟目录，提交后可补入交付提交主体。
+     | - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RESOLVED`；N-05 acquisition_id 规则写入 decision_notes；N-06 `REQUIRED_PARAMETER_IDS` 扩到全部 24 项；N-07 `NO_HAND` 带 detections 计非法（新增用例 C6b）；N-08 IDLE 有目标时不求值 M10 写入 decision_notes；N-09 运行前校验 `cases_file_sha256`（冻结点后改用例即拒运行）；N-10 `source_commit` 动态取 HEAD 并由自证工具绑定交付提交。新 RunId `report/evidence/S6-B/s6b_core_20261023_r02/`：**23/23 用例 PASS**（覆盖 11 类）、探针 4/4 符合预期、两个检查器 exit 0，且 **F6 导出自证 ALL_SELF_PROVEN [0,0,0,0]**（S6-A 自检 STATE + S6-B 驱动 + S6-B inputs/evidence）。
+     | - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r07/`（`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、`selfcheck_old_package_failure.json`、`selfcheck_old_package_failure_stdout.txt`、`selfcheck_r02_blk1_failure.json`、`selfcheck_r02_blk1_failure_stdout.txt`、`selfcheck_r03_failure.json`、`selfcheck_r03_failure_stdout.txt`、`selfcheck_r04_failure.json`、`selfcheck_r04_failure_stdout.txt`、`old_package_under_test.json`、`r02_package_under_test.json`、`r03_package_under_test.json`、`r04_package_under_test.json`、`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_b07_old_wording_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_case_out_of_sequence_index_stdout.txt`、`probe_historical_model_check_r05_stdout.txt`、`probe_historical_model_check_r06_stdout.txt`、`fix_record.json`、`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`；export_selfproof.json 与 export_selfproof.md 由自证工具在清单生成前写入，故由 `delivery_manifest.json` 声明而不在此列举——若在此声明，提交前的工作区快照自证会因该文件尚未生成而 C11 失败）。
+     | - 自证报告（N-r07-2）：位于同 RunId 的 `_selfproof` 兄弟目录（不被清单与 STATE 声明，避免快照自证时该目录尚为空而误判）。
+     | - 冻结自证：`python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit <rev>`（导出该提交后自检 + inputs + evidence 三项必须 exit 0）。
+     | - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；判别力探针：`verification/s6a_r07_probe.py`；冻结自证：`verification/export_selfproof.py`；缓存：`tmp/6/**`（不入库）。
+     |   → `{"verdict": "ALL_SELF_PROVEN", "subjects": [["commit e3aeb09…", "SELF_PROVEN", [0,0,0]]]}`，**退出码 0**（2026-10-23 实测）。
+     | - `05126fdb79ba77de57d9262857af66393b453d66`：amend **之前**的 r03 提交（现已被 amend 取代）。amend 当时实测 `SELF_PROVEN [0,0,0,0]`（退出码 0）；
+     |   **按当前工具复跑为 `NOT_SELF_PROVEN [0,0,0,2]`（退出码 1）**——其清单绑定的 `.codex/STATE.md` 与该提交树内的 STATE 不一致（该中间提交的内部不一致），
+     | - `902be77f5d672d1019f37d4c706276095d09e83f`：**中间提交，不自证**（其 STATE 声明了当时尚未提交的 r03 证据目录 → 单独检出 C11 会 FAIL）；
+     | - 未改写历史：未对以上提交做 amend/rebase/revert；最终冻结提交见下一段（标签正确 + 自证）。
+     | - **O1 口径与自证路径澄清**：本轮起清单可声明**git 归一化（CRLF→LF）口径**哈希，检查器与自检**同时接受**原字节与归一化字节，
+     |   故**权威自证路径仍是 `verification/export_selfproof.py`**，裸检出只作辅助核对。
+     |     → `{"verdict": "NOT_ALL_SELF_PROVEN", "subjects": [["commit 1839766…", "NOT_SELF_PROVEN", [0, 0, 2, 2]]]}`，**退出码 1**（S6-B 两个交付检查器判 2）。
+     |   - 同一命令的 S6-A 剖面：`--commit 1839766`（不带 `--s6b-run`）→ `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+     |   2. `delivery_manifest.files[42]`（`run_report.json`）：S6-B 自证模式在导出内重跑 driver，driver 会重写该文件；而 driver 的冻结
+     |     → `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+     |   - 加 `--s6b-run report/evidence/S6-B/s6b_core_20261023_r03` → `ALL_SELF_PROVEN [0,0,0,0]`，**退出码 0**。
+     | 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW；1839766 = CANDIDATE_FREEZE（未冻结），工作区修正双侧已全绿、待终审后一次性提交（未自称通过）/ 项目总控派 Reviewer 复评`
+======================================================================
+### G = 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e ###
+  report/evidence/S6-A/s6a_g0_20261022_r09_selfproof/export_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='commit_0725d9cf48aeed21d3ea445ef01575c16b68d950' verdict='SELF_PROVEN' subject='commit 0725d9cf48aeed21d3ea445ef01575c16b68d950'
+     subject: label='worktree_snapshot' verdict='SELF_PROVEN' subject='worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /subjects[1]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  report/evidence/S6-A/s6a_g0_20261022_r09_selfproof/transport_clone_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='commit_0725d9cf48aeed21d3ea445ef01575c16b68d950' verdict='SELF_PROVEN' subject='commit 0725d9cf48aeed21d3ea445ef01575c16b68d950'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  report/evidence/S6-B/s6b_core_20261023_r04_selfproof/export_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='commit_0725d9cf48aeed21d3ea445ef01575c16b68d950' verdict='SELF_PROVEN' subject='commit 0725d9cf48aeed21d3ea445ef01575c16b68d950'
+     subject: label='worktree_snapshot' verdict='SELF_PROVEN' subject='worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /subjects[1]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  report/evidence/S6-B/s6b_core_20261023_r04_selfproof/transport_clone_selfproof.json
+     top-level verdict: 'ALL_SELF_PROVEN'
+     subject: label='commit_0725d9cf48aeed21d3ea445ef01575c16b68d950' verdict='SELF_PROVEN' subject='commit 0725d9cf48aeed21d3ea445ef01575c16b68d950'
+     field /subjects[0]/verdict = 'SELF_PROVEN'
+     field /verdict = 'ALL_SELF_PROVEN'
+  report/evidence/S6-A/s6a_g0_20261022_r09/delivery_manifest.json
+     top-level verdict: None
+  report/evidence/S6-B/s6b_core_20261023_r04/delivery_manifest.json
+     top-level verdict: None
+  report/evidence/S6-B/s6b_core_20261023_r04/claim_verification.json
+     top-level verdict: 'ALL_CLAIMS_VERIFIED'
+  .codex/STATE.md (text)
+     | - **冻结自证规则（F6，永久）**：任何“冻结/交付”提交必须自证 —— `python -B verification/export_selfproof.py --project-root <abs> --commit <rev>` 导出该提交后，自检与 `check_stage_delivery` inputs/evidence 三项都必须 exit 0；S6-B 最终冻结同样适用。
+     |   `N-r07-1`：自证工具换行对齐顺序改为「先工作区、后清单」，消除干净克隆 + `autocrlf=true` 下的假阴性。
+     |   `N-r07-2`：自证报告移入同 RunId 的 `_selfproof` 兄弟目录，提交后可补入交付提交主体。
+     | - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RESOLVED`；N-05 acquisition_id 规则写入 decision_notes；N-06 `REQUIRED_PARAMETER_IDS` 扩到全部 24 项；N-07 `NO_HAND` 带 detections 计非法（新增用例 C6b）；N-08 IDLE 有目标时不求值 M10 写入 decision_notes；N-09 运行前校验 `cases_file_sha256`（冻结点后改用例即拒运行）；N-10 `source_commit` 动态取 HEAD 并由自证工具绑定交付提交。新 RunId `report/evidence/S6-B/s6b_core_20261023_r02/`：**23/23 用例 PASS**（覆盖 11 类）、探针 4/4 符合预期、两个检查器 exit 0，且 **F6 导出自证 ALL_SELF_PROVEN [0,0,0,0]**（S6-A 自检 STATE + S6-B 驱动 + S6-B inputs/evidence）。
+     | - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r07/`（`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、`selfcheck_old_package_failure.json`、`selfcheck_old_package_failure_stdout.txt`、`selfcheck_r02_blk1_failure.json`、`selfcheck_r02_blk1_failure_stdout.txt`、`selfcheck_r03_failure.json`、`selfcheck_r03_failure_stdout.txt`、`selfcheck_r04_failure.json`、`selfcheck_r04_failure_stdout.txt`、`old_package_under_test.json`、`r02_package_under_test.json`、`r03_package_under_test.json`、`r04_package_under_test.json`、`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_b07_old_wording_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_case_out_of_sequence_index_stdout.txt`、`probe_historical_model_check_r05_stdout.txt`、`probe_historical_model_check_r06_stdout.txt`、`fix_record.json`、`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`；export_selfproof.json 与 export_selfproof.md 由自证工具在清单生成前写入，故由 `delivery_manifest.json` 声明而不在此列举——若在此声明，提交前的工作区快照自证会因该文件尚未生成而 C11 失败）。
+     | - 自证报告（N-r07-2）：位于同 RunId 的 `_selfproof` 兄弟目录（不被清单与 STATE 声明，避免快照自证时该目录尚为空而误判）。
+     | - 冻结自证：`python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit <rev>`（导出该提交后自检 + inputs + evidence 三项必须 exit 0）。
+     | - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；判别力探针：`verification/s6a_r07_probe.py`；冻结自证：`verification/export_selfproof.py`；缓存：`tmp/6/**`（不入库）。
+     |   → `{"verdict": "ALL_SELF_PROVEN", "subjects": [["commit e3aeb09…", "SELF_PROVEN", [0,0,0]]]}`，**退出码 0**（2026-10-23 实测）。
+     | - `05126fdb79ba77de57d9262857af66393b453d66`：amend **之前**的 r03 提交（现已被 amend 取代）。amend 当时实测 `SELF_PROVEN [0,0,0,0]`（退出码 0）；
+     |   **按当前工具复跑为 `NOT_SELF_PROVEN [0,0,0,2]`（退出码 1）**——其清单绑定的 `.codex/STATE.md` 与该提交树内的 STATE 不一致（该中间提交的内部不一致），
+     | - `902be77f5d672d1019f37d4c706276095d09e83f`：**中间提交，不自证**（其 STATE 声明了当时尚未提交的 r03 证据目录 → 单独检出 C11 会 FAIL）；
+     | - 未改写历史：未对以上提交做 amend/rebase/revert；最终冻结提交见下一段（标签正确 + 自证）。
+     | - **O1 口径与自证路径澄清**：本轮起清单可声明**git 归一化（CRLF→LF）口径**哈希，检查器与自检**同时接受**原字节与归一化字节，
+     |   故**权威自证路径仍是 `verification/export_selfproof.py`**，裸检出只作辅助核对。
+     |     → `{"verdict": "NOT_ALL_SELF_PROVEN", "subjects": [["commit 1839766…", "NOT_SELF_PROVEN", [0, 0, 2, 2]]]}`，**退出码 1**（S6-B 两个交付检查器判 2）。
+     |   - 同一命令的 S6-A 剖面：`--commit 1839766`（不带 `--s6b-run`）→ `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+     |   2. `delivery_manifest.files[42]`（`run_report.json`）：S6-B 自证模式在导出内重跑 driver，driver 会重写该文件；而 driver 的冻结
+     |     → `ALL_SELF_PROVEN [0,0,0]`，**退出码 0**。
+     |   - 加 `--s6b-run report/evidence/S6-B/s6b_core_20261023_r03` → `ALL_SELF_PROVEN [0,0,0,0]`，**退出码 0**。
+     | - **F = 交付内容提交**：`0725d9cf48aeed21d3ea445ef01575c16b68d950`（S6-A v1.8/r09 + S6-B r04 + 工具/结构修复）。
+     | - **G = 自证记录提交**（本提交）：把 F 追加为自证报告主体，并附**传输克隆**自证记录；**附注 tag 打在 G 上**。
+     | - **传输克隆双侧自证（真实命令 + 退出码）**：
+     |   2. `<tmp>/verification/export_selfproof.py --project-root <tmp> --commit 0725d9cf…` → `ALL_SELF_PROVEN [0,0,0]`，**exit 0**（S6-A 剖面）；
+     |   3. 同上加 `--s6b-run report/evidence/S6-B/s6b_core_20261023_r04` → `ALL_SELF_PROVEN [0,0,0,0]`，**exit 0**（S6-B 剖面）。

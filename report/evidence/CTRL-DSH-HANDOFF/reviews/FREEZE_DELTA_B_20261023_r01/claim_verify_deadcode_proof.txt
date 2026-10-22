@@ -1,0 +1,36 @@
+### 原始缩进（第164-186行，repr 显示前导空白） ###
+ 164|'    for claim in claims:'
+ 165|'        _before = _hand_hashes(run_dir)'
+ 166|'        exit_code, output = run(claim["argv"], root)'
+ 167|'        _after = _hand_hashes(run_dir)'
+ 168|'        _changed = [k for k in sorted(set(_before) | set(_after)) if _before.get(k) != _after.get(k)]'
+ 169|'        print(f"[RO-TRACE] {claim[\'id\']} changed={_changed}")'
+ 170|'        if _changed:'
+ 171|'            readonly_guard[claim["id"]] = {"changed": _changed}'
+ 172|'    if readonly_guard:'
+ 173|'        print("[RO-GUARD] 只读约束被破坏（下述 claim 改写了证据目录）：" + json.dumps(readonly_guard, ensure_ascii=False))'
+ 174|'        return 1'
+ 175|'        results.append({'
+ 176|'            "claim_id": claim["id"], "statement": claim["statement"],'
+ 177|'            "command": subprocess.list2cmdline(claim["argv"]),'
+ 178|'            "exit_code": exit_code, "expected_exit": claim["expect_exit"],'
+ 179|'            "observable": claim["observable"],'
+ 180|'            "output_tail": output.strip().splitlines()[-3:] if output.strip() else [],'
+ 181|'            "verdict": "VERIFIED" if exit_code == claim["expect_exit"] else "NOT_VERIFIED",'
+ 182|'        })'
+ 183|''
+ 184|'    false_exit, false_out = run([PY, "-B", "-c", "print(\'deliberately false claim\');assert 1 == 2"], root)'
+ 185|'    results.append({'
+ 186|'        "claim_id": "self_test_false_claim",'
+
+### AST 可达性判定 ###
+for 循环体顶层语句（indent=8）:
+   line 165  Assign
+   line 166  Assign
+   line 167  Assign
+   line 168  Assign
+   line 169  Expr
+   line 170  If
+  -> 循环体内是否含 results.append: False
+if 块 line 155 内 return 之后还有 0 条语句: []
+if 块 line 172 内 return 之后还有 1 条语句: [('Expr', 175)]

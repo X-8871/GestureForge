@@ -1,6 +1,6 @@
 # 阶段6 状态入口（w6 / stage6-interact-prep）
 
-更新：2026-10-23 03:36（UTC+8）。按 `AGENTS.md` 与主 STATE 恢复；**本文件是阶段6 工作树专属状态**，主状态 `D:\FPGA_Competition\.codex\STATE.md` 只读。阶段技术事实以本文件与本树证据为准。
+更新：2026-10-23 04:20（UTC+8）。按 `AGENTS.md` 与主 STATE 恢复；**本文件是阶段6 工作树专属状态**，主状态 `D:\FPGA_Competition\.codex\STATE.md` 只读。阶段技术事实以本文件与本树证据为准。
 
 ## 阶段目标与范围
 
@@ -34,6 +34,23 @@
 - `N-r05-01` 探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」+ 旧口径对照 1 例；`N-r05-02` r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」且 N-r04-04 判别力只引探针 `case_span_wrong`；`N-r05-03` HC-30 动作计数改为「给定序列内计数」+ 覆盖边界说明。
 - 24 项参数值与批准状态**未改**；r05 包不改写（RunId 不可覆盖），更正记于 r06 记录。
 
+## 本轮已完成（S6-A v1.7 / r08 + S6-B r03，PENDING_REVIEW）
+
+- **S6-A r08（task-11）**：第 7 轮复评 1 阻断 + 6 非阻断收尾。`BLK-r07-1`：**M4 可达性口径统一 8 处**——JSON
+  `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、
+  **HC-23 的 `expected.m4_reachable_under_draft` 由 false 改为 true**（原先 C7 机器断言与 C16 结论相反）、
+  清单 limitations 与摘要、文档 §18、STATE；C16 新增**全包禁语断言**（探针 `m4_unreachable_phrase` 实测可捕获）。
+  `N-r07-1`：自证工具换行对齐顺序改为「先工作区、后清单」，消除干净克隆 + `autocrlf=true` 下的假阴性。
+  `N-r07-2`：自证报告移入同 RunId 的 `_selfproof` 兄弟目录，提交后可补入交付提交主体。
+  `F2`/`F4`/`F5`/`F11`：`source_commit` 语义三处统一、`keep_reason` 统一为「样例数不足 32：29」、陈旧行与旧令牌清理。
+- **S6-B r03（task-10）**：r02 复评 2 阻断 + 10 非阻断收尾。`BLK-r02-1`：`acquisition_id` 改为**真的在 M11/M4 递增**
+  （M8 归零、目标切换维持递增），每帧日志与动作记录都带该字段 → C3 两次获取实测 `[0, 1]`。
+  `BLK-r02-2`：`action_records` 写进 `run_report.json`（四字段齐全）且四个 `ACTION_*` 事件名进证据；
+  4 个 OUT_* 与 SUP_DEDUP/STATES 死常量删除。`NB-01..10` 同步（版本 v1.6、23 例、D8 按实测改写并登记开放偏差、
+  未实现项真登记、子进程显式 UTF-8、动作层重复键修复）。
+- **新硬规则（本轮起）**：任何「已关闭/已落盘/已同步」声明必须附 `claim_verification` 附录
+  （命令 + 真实退出码 + 可观察输出），由 `verification/claim_verify.py` 生成并随包入库。
+
 ## S6-B / S6-C（task-6 第二部分，已产出待复评）
 
 - 实现（按 v1.4 契约重写旧 WIP）：`src/stage6/s6_actions.py`（动作层：幂等提交、success/fail/unobserved 二分、`action_id`/来源帧、`T6-A02` 去重）、`src/stage6/s6_core.py`（纯核心：事件入、状态/动作请求/日志出，不读摄像头/墙钟/HDMI）、`src/stage6/s6_params.py`（阈值只从行为表 JSON 读入并强制 `PENDING_APPROVAL`，核心内无阈值字面量）。
@@ -53,13 +70,15 @@
 ## 证据入口（r07）
 
 - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r07/`（`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、`selfcheck_old_package_failure.json`、`selfcheck_old_package_failure_stdout.txt`、`selfcheck_r02_blk1_failure.json`、`selfcheck_r02_blk1_failure_stdout.txt`、`selfcheck_r03_failure.json`、`selfcheck_r03_failure_stdout.txt`、`selfcheck_r04_failure.json`、`selfcheck_r04_failure_stdout.txt`、`old_package_under_test.json`、`r02_package_under_test.json`、`r03_package_under_test.json`、`r04_package_under_test.json`、`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_b07_old_wording_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_case_out_of_sequence_index_stdout.txt`、`probe_historical_model_check_r05_stdout.txt`、`probe_historical_model_check_r06_stdout.txt`、`fix_record.json`、`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`；export_selfproof.json 与 export_selfproof.md 由自证工具在清单生成前写入，故由 `delivery_manifest.json` 声明而不在此列举——若在此声明，提交前的工作区快照自证会因该文件尚未生成而 C11 失败）。
-- 上一轮：`report/evidence/S6-A/s6a_g0_20261022_r06/`；更早 r01..r05 均保持原样（**RunId 证据不可覆盖**）。
+- 上一轮：`report/evidence/S6-A/s6a_g0_20261022_r07/`；更早 r01..r06 保持原样（**RunId 证据不可覆盖**）。
+- 自证报告（N-r07-2）：位于同 RunId 的 `_selfproof` 兄弟目录（不被清单与 STATE 声明，避免快照自证时该目录尚为空而误判）。
+- 验证附录（新硬规则）：`report/evidence/S6-A/s6a_g0_20261022_r08/` 与 `report/evidence/S6-B/s6b_core_20261023_r03/` 下的 `claim_verification.json`/`claim_verification.md`。
 - 冻结自证：`python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit <rev>`（导出该提交后自检 + inputs + evidence 三项必须 exit 0）。
 - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；判别力探针：`verification/s6a_r07_probe.py`；冻结自证：`verification/export_selfproof.py`；缓存：`tmp/6/**`（不入库）。
 
-## 11 字段交接行（2026-10-23 03:36）
+## 11 字段交接行（2026-10-23 04:20）
 
-任务=`S6-A v1.6（r07）第 6 轮复评 F1–F11 收尾（含 F6 冻结自证规则）+ BLK-1 的 M4 可达性修正；随后 S6-B 按 task-9 修正` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `43f7995`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 03:36` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r07/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r07（bdcf896）+ S6-B r02 修正 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`
+任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`
 
 ## 环境与恢复要点
 

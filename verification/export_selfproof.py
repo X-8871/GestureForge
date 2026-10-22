@@ -180,9 +180,15 @@ def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = No
     run_id = version_data.get("run_id", "")
     evidence_rel = f"report/evidence/S6-A/{run_id}"
     evidence = tree / evidence_rel
-    alignment = align_by_manifest_hashes(tree, f"{evidence_rel}/delivery_manifest.json")
+    # N-r07-1：**先**按工作区口径归一（内容一致、仅换行不同才写回），**再**按清单已声明哈希做最终口径选择。
+    # 顺序颠倒会把刚对齐好的文件再翻回去，在 autocrlf=true 的干净克隆上产生 NOT_SELF_PROVEN 假阴性。
+    worktree_alignment = None
     if source_root is not None:
-        alignment = dict(alignment, worktree_bytes=normalize_line_endings(tree, source_root))
+        worktree_alignment = normalize_line_endings(tree, source_root)
+    alignment = align_by_manifest_hashes(tree, f"{evidence_rel}/delivery_manifest.json")
+    if worktree_alignment is not None:
+        alignment = dict(alignment, worktree_bytes=worktree_alignment,
+                         order_note="先工作区口径、后清单口径（N-r07-1 修正）")
     s6b_dir_rel = "report/evidence/S6-B"
     s6b_files = ([p for p in (tree / s6b_dir_rel).rglob("*") if p.is_file()]
                  if (tree / s6b_dir_rel).is_dir() else [])
@@ -304,6 +310,12 @@ def main(argv: list[str] | None = None) -> int:
                     else "NOT_ALL_SELF_PROVEN"),
         "scope_statement": ("导出复跑只证明该提交的证据自足性与清单/STATE 一致性；"
                             "不代表语义正确、独立审查或实物验收通过。"),
+        "degradation_note": ("S6-B 模式（--s6b-run）下**不复算 S6-A 旧轮次的 inputs/evidence 清单**："
+                             "旧轮次清单绑定其构建时的源码字节，工作区前进后哈希自然不匹配（NB-10 显式声明）。"
+                             "该模式下仍跑 S6-A 自检（仅校验 STATE 声明存在性）与 S6-B 驱动 + S6-B 两个检查器。"),
+        "subject_note": ("报告主体至少包含：交付轮次的工作区快照；提交后可用同一命令追加 `--commit <交付提交>`，"
+                         "把交付提交本身列为主体（N-r07-2）。报告存放在同 RunId 的 `_selfproof` 兄弟目录，"
+                         "不属于被清单声明的运行目录，故可在提交后原地更新而不影响清单绑定。"),
         "newline_note": ("既有口径 O1：工作区 MD/JSON 为 CRLF、.py/STATE 为 LF，git blob 为 LF。"
                          "本工具只对「内容与工作区一致、仅换行不同」的文件做换行口径对齐，"
                          "内容真正不同的文件保留提交字节并由检查器如实报错；不对内容做任何修正。"),

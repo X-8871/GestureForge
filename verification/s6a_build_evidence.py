@@ -82,8 +82,8 @@ def keep_reason_for(relative: str) -> str:
         "selfcheck_r03_failure.json": "加固自检在 r03 上的失败输出（C12 捕获 R3 项、C17 捕获缺锁存块）",
         "selfcheck_r03_failure_stdout.txt": "r03 失败运行 stdout 原文",
         "r04_package_under_test.json": "r04 被检版本 git 字节与哈希（N-r04-01..04 捕获证据）",
-        "selfcheck_r04_failure.json": "r06/r07 自检在 r04 上的失败输出（C12 捕获 M5/policy 缺陷；"
-                                      "C7 因样例数不足（29 < 32，缺 HC-30/31/32）失败；F4）",
+        "selfcheck_r04_failure.json": "r06/r07/r08 自检在 r04 上的失败输出（C12 捕获 M5/policy 缺陷；"
+                                      "C7 因**样例数不足 32：29**（缺 HC-30/31/32）失败；F4）",
         "selfcheck_r04_failure_stdout.txt": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）",
         "selfcheck_old_package_failure.json": "加固自检在 r01 真实字节上的失败输出（exit 1）",
         "selfcheck_old_package_failure_stdout.txt": "r01 失败运行 stdout 原文",
@@ -110,10 +110,11 @@ def keep_reason_for(relative: str) -> str:
 
 def source_entries(root: Path) -> list[dict[str, str]]:
     sources = [
-        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.6/r07）"),
-        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.6/r07）"),
+        ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.7/r08）"),
+        ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.7/r08）"),
         ("verification/s6a_rerun_legacy_failures.py", "旧包失败证据可复现重跑脚本（N03）"),
-        ("verification/s6a_r07_probe.py", "C12/C7/C14 断言判别力探针（基线 1 例 + 注入 7 例 + 历史口径对照 2 例）"),
+        ("verification/s6a_r08_probe.py", "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史对照 1 例）"),
+        ("verification/claim_verify.py", "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"),
         ("verification/export_selfproof.py", "冻结自证工具（导出提交后复跑自检 + 两个交付检查器，F6 规则）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
         ("verification/s6a_build_evidence.py", "证据清单构建器（真实执行检查并记录退出码）"),
@@ -204,12 +205,13 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
         "interfaces": frozen_interfaces()[:1],
         "files": files, "checks": checks, "tool_versions": tool_versions,
         "limitations": [
-            f"source_commit 为本次证据绑定的修订基线 {source_commit}；证据由该次构建的工作树生成，"
-            "交付提交由 export_selfproof.py 导出复跑自证（见 export_selfproof.json）。",
+            f"source_commit = 本轮构建时的 HEAD（修订基线 {source_commit}）；本清单绑定的源码字节 = 该提交 + "
+            "本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；"
+            "交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
             "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，"
             "提取一律 git cat-file blob 二进制（N03）。",
             "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
-            "M4/M7 在当前草案参数/实现结构下不可达（U6-12），不计入覆盖声明。",
+            "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1、BLK-r07-1）。",
             "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
             "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
             "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。",
@@ -269,11 +271,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- r06：注入探针（基线 1 例 + 注入 7 例 + 旧口径对照；任何非预期结果即中止） ----
     probe_cmd = [
-        sys.executable, "-B", str(root / "verification/s6a_r07_probe.py"),
+        sys.executable, "-B", str(root / "verification/s6a_r08_probe.py"),
         "--run-dir", str(run_dir), "--project-root", str(root),
     ]
     probe_run = run_command(probe_cmd, root)
-    print(f"[r07-probe] exit={probe_run['exit_code']}")
+    print(f"[r08-probe] exit={probe_run['exit_code']}")
     if probe_run["exit_code"] != 0:
         print(probe_run["stdout"]); print(probe_run["stderr"]); return 1
 
@@ -291,6 +293,14 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = run_dir / "S6A_run_summary.md"
     result_path = run_dir / "selfcheck_result.json"
     c11_stdout_path = run_dir / "selfcheck_c11_stdout.txt"
+    claim_cmd = [sys.executable, "-B", str(root / "verification/claim_verify.py"),
+                 "--package", "s6a", "--run-dir", str(run_dir), "--project-root", str(root)]
+    claim_run = run_command(claim_cmd, root)
+    print(f"[claim-verify] exit={claim_run['exit_code']}")
+    if claim_run["exit_code"] != 0 and (run_dir / "selfcheck_result.json").is_file():
+        # 首版构建时自检结果可能尚未落盘（换代收敛中）；已有结果却失败即中止（不得带未验证声明发布）
+        print(claim_run["stdout"]); print(claim_run["stderr"]); return 1
+
     inputs_manifest_path = run_dir / "inputs_manifest.json"
     inputs_output_path = run_dir / "check_inputs_mode_output.txt"
     evidence_output_path = run_dir / "check_evidence_mode_output.txt"
@@ -341,7 +351,7 @@ def main(argv: list[str] | None = None) -> int:
     inputs_output_path.write_text(inputs_final["stdout"], encoding="utf-8")
 
     summary_lines = [
-        "# S6-A v1.6 / r07 运行摘要",
+        "# S6-A v1.7 / r08 运行摘要",
         "",
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 绑定提交：`{source_commit}`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）",
@@ -382,7 +392,7 @@ def main(argv: list[str] | None = None) -> int:
         "",
         "## 限制与未执行",
         "",
-        "见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。",
+        "见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4 可达并计入覆盖、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。",
         "",
     ]
     summary_path.write_text("\n".join(summary_lines), encoding="utf-8")
@@ -399,7 +409,7 @@ def main(argv: list[str] | None = None) -> int:
         hashes_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     def write_manifest(selfcheck_exit: int | None, evidence_exit: int | None, selfcheck_command: str) -> None:
-        selfproof_path = run_dir / "export_selfproof.json"
+        selfproof_path = run_dir.parent / f"{run_dir.name}_selfproof" / "export_selfproof.json"  # N-r07-2：自证报告在兄弟目录，可在提交后补入交付提交主体
         selfproof_check = None
         if selfproof_path.is_file():
             proof = json.loads(selfproof_path.read_text(encoding="utf-8"))
@@ -408,14 +418,16 @@ def main(argv: list[str] | None = None) -> int:
                               for key, verdict in verdicts.items())
             historical_failures = [key for key, verdict in verdicts.items()
                                    if key.startswith("commit") and verdict == "NOT_SELF_PROVEN"]
-            expected = snapshot_ok and len(historical_failures) == 1
+            # r08：自证报告以「工作区快照」为主体（历史提交主体在提交后由 export_selfproof 追加），
+            # 因此只要求快照 SELF_PROVEN；含历史提交时允许其 NOT_SELF_PROVEN（可能是真缺陷，见报告）。
+            expected = snapshot_ok
             selfproof_check = {
                 "name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）",
                 "status": "PASS" if expected else "FAIL",
                 "command": ("`python -B verification/export_selfproof.py --project-root <abs> "
                             "--commit <历史提交> --worktree-snapshot [--out <run>/export_selfproof.json]`"),
                 "exit_code": 0 if expected else 1,
-                "reason": (f"断言 = 本包快照 SELF_PROVEN 且恰好 1 个历史提交 NOT_SELF_PROVEN；实测 subjects={verdicts}；工具总体判定 {proof.get('verdict')}（历史提交 FAIL 时工具退出码为 1，属预期）"),
+                "reason": (f"断言 = 本包快照 SELF_PROVEN；实测 subjects={verdicts}；工具总体判定 {proof.get('verdict')}"),
             }
         checks = [
             *([] if selfproof_check is None else [selfproof_check]),

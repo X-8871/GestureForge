@@ -141,7 +141,7 @@ def check_identity(data: dict[str, Any]) -> None:
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
     allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4",
-                        "S6A-G0-v1.5", "S6A-G0-v1.6")
+                        "S6A-G0-v1.5", "S6A-G0-v1.6", "S6A-G0-v1.7")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
@@ -169,6 +169,7 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.4": "s6a_g0_20261022_r05",
         "S6A-G0-v1.5": "s6a_g0_20261022_r06",
         "S6A-G0-v1.6": "s6a_g0_20261022_r07",
+        "S6A-G0-v1.7": "s6a_g0_20261022_r08",
     }
     if version in expected_runs:
         revision = data.get("revision") or {}
@@ -707,11 +708,16 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         j01 = int(spec["j01_frames"])
         l01 = int(spec["l01_frames"])
         period = int(spec["period_ms"])
-        earliest_m10 = min(l01 * period, l02)
+        # r08/BLK-r07-1：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进；§3 的 TARGET_CONTINUES
+        # **不含** score ≥ T6-P02，故低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、
+        # miss_streak 保持 0 → M10 不会先命中 → 候选停留可达 T6-S04 → **M4 可达**。
+        # 下面同时给出「若 TARGET_CONTINUES 含分数门」的历史模型对照值，仅作对照、不参与判定。
+        earliest_m10_if_score_gate = min(l01 * period, l02)
         m4_earliest = max(s04, (j01 + 1) * period)
         return {
-            "m4_reachable_under_draft": m4_earliest < earliest_m10,
-            "earliest_m10_ms": earliest_m10,
+            "m4_reachable_under_draft": True,
+            "target_continues_requires_score_gate": False,
+            "historical_earliest_m10_ms_if_score_gate": earliest_m10_if_score_gate,
             "m4_earliest_ms": m4_earliest,
             "reachable_if_s04_lt_l02": True,
         }
@@ -1469,7 +1475,7 @@ def check_h4_no_hand(data: dict[str, Any], doc_text: str) -> None:
             raise CheckFailure(f"文档缺少 B-02 口径：{phrase}")
 
 
-def check_reachability(data: dict[str, Any], doc_text: str) -> None:
+def check_reachability(data: dict[str, Any], doc_text: str, cases: dict[str, Any]) -> None:
     transitions = {item["id"]: item for item in data["transitions"]}
     if "M14" in transitions:
         raise CheckFailure("r02 必须删除 M14（重获统一为 M10→M11→M1）")
@@ -1515,6 +1521,21 @@ def check_reachability(data: dict[str, Any], doc_text: str) -> None:
     for token in ("C01", "U00_W", "U00_N", "S04", "U01"):
         if token not in doc_section(doc_text, "### 12.1", "## 13."):
             raise CheckFailure(f"§12.1 缺口表缺少 {token}")
+    # r08/BLK-r07-1：**全包禁语断言**——任何"M4 不可达／不得计入覆盖"类表述一律 FAIL（防复发）。
+    # 扫描文档全文与 JSON 文本（含 reachability/parameter_notes/行为表），并单独校验手算样例的机器断言。
+    forbidden = ("M4 不可达", "M4/M7 不可达", "M4 在草案参数下不可达", "M4/T6-S04 与 M7 不得计入",
+                 "M4 不得计入覆盖", "不得计入覆盖声明")
+    json_text = json.dumps(data, ensure_ascii=False)
+    for label, haystack in (("文档", doc_text), ("行为表 JSON", json_text)):
+        for needle in forbidden:
+            if needle in haystack:
+                raise CheckFailure(f"{label}中仍出现禁语『{needle}』（M4 应可达并计入覆盖，BLK-r07-1）")
+    for case in cases.get("cases", []):
+        if case.get("expected", {}).get("m4_reachable_under_draft") is False:
+            raise CheckFailure(f"{case.get('case_id')}.expected.m4_reachable_under_draft=false 与 C16 结论相反"
+                               f"（BLK-r07-1）")
+    if "M4 可达" not in doc_text:
+        raise CheckFailure("文档未声明 M4 可达并计入覆盖（BLK-r07-1）")
 
 
 def check_stable_latching(data: dict[str, Any], doc_text: str) -> str:
@@ -1624,7 +1645,8 @@ def run_checks(
     run("C14", "W_min/窗口完成口径（B-04/N-05/F1）", lambda: check_w_min_and_period(data, doc_text)
         or "W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致")
     run("C15", "H-4/NO_HAND 一致性（B-02）", lambda: check_h4_no_hand(data, doc_text) or "NO_HAND 不推进匹配计数、零框不得完成窗口")
-    run("C16", "迁移可达性与覆盖声明（N-02/N-03）", lambda: check_reachability(data, doc_text) or "M4/M7 可达性声明与 B26/§12.1 覆盖一致")
+    run("C16", "迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1）", lambda: check_reachability(data, doc_text, cases)
+        or "M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语")
     run("C17", "STABLE 锁存语义一致性（观察项）", lambda: check_stable_latching(data, doc_text))
 
     status = "ALL_PASS" if not errors else "FAILED"

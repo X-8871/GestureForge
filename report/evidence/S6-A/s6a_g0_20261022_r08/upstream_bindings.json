@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_upstream_bindings",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r08",
+  "note": "本轮只读引用的上游文件绑定。w4/w5 路径位于本工作树之外，无法进入 check_stage_delivery.py 的 files/interfaces 字段（该检查器要求路径位于 project-root 内），故在此单独绑定并由 verification/s6_g0_selfcheck.py 复算。本阶段未修改其中任何一份。",
+  "verification_design": {
+    "w6_local": "按工作树内相对路径复算文件 SHA-256。",
+    "external_trees": "按 Git 对象复算（git -C <repo> show <commit>:<relpath>），因为 w4/w5 由其他窗口并发写入：绑定的必须是本阶段实际消费的**提交版本**，而不是当时的工作副本；工作副本的漂移另行记录，不作为失败。"
+  },
+  "observed_concurrency": [
+    {
+      "tree": "D:\\codex-worktrees\\w4",
+      "observed_utc8": "2026-10-22 19:12-19:22",
+      "fact": "w4 HEAD 仍为 73c3dad；docs/stage4/s4a_stage4_g0_fields.json 与 S4A_stage4_g0_tracking_and_timing_draft.md 出现未提交修改，另有新增 S4B 共享输入契约/S4-C02 证据/s4_inject_frame.c 等未跟踪文件 —— 阶段4 窗口正在写入。",
+      "consumed_version": "提交版本 73c3dad:docs/stage4/s4a_stage4_g0_fields.json（SHA-256 3524d02a…）",
+      "working_copy_hash_at_first_observation": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+      "working_copy_hash_at_verification": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "consequence": "阶段4 结果记录契约仍在变动且未冻结；阶段6 集成验收依赖继续 BLOCKED。"
+    },
+    {
+      "tree": "D:\\codex-worktrees\\w5",
+      "observed_utc8": "2026-10-22 19:0x → 19:2x",
+      "fact": "w5 HEAD 由 e4533e1 推进至 875e487（工作区干净）；本阶段消费的 stage5/stage6 文档哈希未变。",
+      "consequence": "阶段5 在本轮期间推进了提交；阶段6 引用的三份 w5 文件内容保持不变。"
+    }
+  ],
+  "bindings": [
+    {
+      "id": "s2a_t01_spec",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230",
+      "frozen_status": "G0_FROZEN",
+      "authority": "2A G0 冻结规格（类别顺序、score 语义与阈值、同分顺序、比较容限）"
+    },
+    {
+      "id": "stage_plan",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
+      "frozen_status": "CURRENT_APPROVED_PLAN",
+      "authority": "阶段6 目标与场景（L102-L108）；本哈希为 w6 基线 d8bc70e 中的版本"
+    },
+    {
+      "id": "s1_t02_d2_spec",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+      "frozen_status": "STAGE1_FROZEN",
+      "authority": "no_hand 为空标签负样本、不是第六类"
+    },
+    {
+      "id": "s1_t02_d6_metrics",
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md",
+      "sha256": "735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7",
+      "frozen_status": "STAGE1_FROZEN",
+      "authority": "评估口径与离线指标基础"
+    },
+    {
+      "id": "s4a_stage4_g0_fields",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+      "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+      "frozen_status": "DRAFT_NOT_FROZEN",
+      "authority": "阶段4 结果字段/state/丢帧/过期口径（只读，草案）",
+      "git_repo": "D:\\codex-worktrees\\w4",
+      "git_commit": "73c3dad",
+      "git_relpath": "docs/stage4/s4a_stage4_g0_fields.json",
+      "working_copy_drift_expected": true,
+      "drift_note": "w4 窗口正在写入：工作副本已变为 657ea2fb…（未提交）。本阶段绑定的消费版本是提交 73c3dad 的该文件版本。"
+    },
+    {
+      "id": "s4a_stage4_g0_doc",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4A_stage4_g0_tracking_and_timing_draft.md",
+      "sha256": "314335cd55e70630da5dbf591cb6271b8d51e8363825d2e88778b6b6ed64a371",
+      "frozen_status": "DRAFT_NOT_FROZEN",
+      "authority": "阶段4 时间口径草案（只读）",
+      "git_repo": "D:\\codex-worktrees\\w4",
+      "git_commit": "73c3dad",
+      "git_relpath": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
+      "working_copy_drift_expected": true,
+      "drift_note": "w4 窗口正在写入；本阶段绑定的消费版本是提交 73c3dad 的该文件版本。"
+    },
+    {
+      "id": "s5a_stage5_display_g0_v2",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\S5A_stage5_display_g0_spec_v2.md",
+      "sha256": "ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932",
+      "frozen_status": "STAGE5_G0_FINALIZED_OFFLINE_NOT_ACCEPTED",
+      "authority": "画面语义（最新结果叠加）、age_result/age_frame、过期常量、零框规则（只读）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "875e487",
+      "git_relpath": "docs/stage5/S5A_stage5_display_g0_spec_v2.md"
+    },
+    {
+      "id": "s5a_stage5_display_g0_fields",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+      "frozen_status": "STAGE5_G0_FINALIZED_OFFLINE_NOT_ACCEPTED",
+      "authority": "阶段5 机器可读 G0 契约（只读）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "875e487",
+      "git_relpath": "docs/stage5/s5a_stage5_display_g0_fields.json"
+    },
+    {
+      "id": "s6_v1_draft",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage6\\S6_stage6_interaction_spec_draft.md",
+      "sha256": "d7cf98093996fffb23180b078dfa4068dcab5b5031d5bd4c62e4c51baa40a0a1",
+      "frozen_status": "DRAFT",
+      "authority": "行为表起点（只读，未冻结）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "875e487",
+      "git_relpath": "docs/stage6/S6_stage6_interaction_spec_draft.md"
+    },
+    {
+      "id": "s6_v1_thresholds_draft",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage6\\s6_interaction_thresholds.json",
+      "sha256": "b87234e4f091bac94f9d7cc7c8ab16c180932f60dc8e5160e32cd3278b11ec42",
+      "frozen_status": "DRAFT",
+      "authority": "草案参数值来源（只读，未冻结）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "875e487",
+      "git_relpath": "docs/stage6/s6_interaction_thresholds.json"
+    },
+    {
+      "id": "s6d_stage5_revision_suggestions",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage6\\S6D_stage6_revision_suggestions_from_stage5.md",
+      "sha256": "809a9ccd490f91ea13a669a7437a8d6b35272b07c9935557399428d3cbdb527e",
+      "frozen_status": "SUGGESTIONS_ONLY",
+      "authority": "阶段5 对阶段6 草案的修订建议（只读）",
+      "git_repo": "D:\\codex-worktrees\\w5",
+      "git_commit": "875e487",
+      "git_relpath": "docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md"
+    }
+  ],
+  "supersedes_run_id": "s6a_g0_20261022_r07",
+  "revision_note": "r08：上游绑定集合与哈希未变；从 r07 原样复制并更新 run_id。本轮只做 M4 口径统一（含机器断言）、自证工具与文本收尾，未消费新上游版本。"
+}

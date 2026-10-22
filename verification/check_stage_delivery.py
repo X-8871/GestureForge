@@ -350,6 +350,21 @@ def load_json_strict(path: Path) -> Any:
     )
 
 
+TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
+
+
+def hash_normalized(path: Path) -> str:
+    """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
+
+    清单对文本文件可声明该口径；检查器**同时接受**原字节与归一化字节，因此
+    工作区 CRLF、`git archive` 的全 LF 导出、以及历史清单（绑原字节）三者都能通过。
+    """
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 def sha256_file(path: Path) -> tuple[str, int]:
     digest = hashlib.sha256()
     size = 0
@@ -379,7 +394,13 @@ def verify_hash(
         errors.append(f"{label}读取或哈希失败：{exc}")
         return
     if actual.casefold() != expected.casefold():
-        errors.append(f"{label} SHA-256 不匹配：清单 {expected}，实际 {actual}")
+        # O1 口径：文本文件的清单哈希可取「git 归一化（LF）」口径；两种口径任一匹配即通过。
+        try:
+            normalized = hash_normalized(path)
+        except OSError:
+            normalized = ""
+        if normalized.casefold() != expected.casefold():
+            errors.append(f"{label} SHA-256 不匹配：清单 {expected}，实际 {actual}（归一化 {normalized} 亦不匹配）")
     if size >= SIZE_WARNING_BYTES:
         warnings.append(
             f"{label}文件较大（{size} 字节）；此提示不是验收指标"

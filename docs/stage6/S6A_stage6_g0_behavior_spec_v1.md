@@ -5,7 +5,7 @@
 > **本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI。** 本文不含任何实测数据。
 > 机器可读权威：`docs/stage6/s6a_stage6_g0_behavior_v1.json`（契约身份 `S6A-G0-v1`）。两者冲突时以 JSON 为准并回改本文；一致性由 `verification/s6_g0_selfcheck.py` 机器校验。
 > **修订记录（v1.7 / r08，2026-10-23）**：r07 包（提交 `bdcf896`，契约 `S6A-G0-v1.6`）经第 7 轮独立复评判 `CHANGES_REQUIRED`（1 阻断 + 6 非阻断）。本轮（契约令牌 **`S6A-G0-v1.7`**，RunId `s6a_g0_20261022_r08`）只做收尾：
-> - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected.m4_reachable_under_draft` 由 false 改为 true，C7 机器断言与 C16 不再相反）**、清单 `limitations` 与摘要、文档 §18、STATE；C16 另加**全包禁语断言**（扫描『M4』不可达、『不得计入覆盖』、m4_reachable_under_draft=false 等，一律 FAIL）防复发。
+> - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected.m4_reachable_under_draft` 由 false 改为 true，C7 机器断言与 C16 不再相反）**、清单 `limitations` 与摘要、文档 §18、STATE；C16 另加**全包禁语断言**（扫描『M4』不可达、『不得计入覆盖』、m4_reachable_under_draft=false 等，一律 FAIL）防复发。（断言设**显式白名单**：标注『历史语境除外』的行不计入；其余残留必须清零）
 > - **`N-r07-1`**：自证工具的换行对齐顺序改正（先按工作区口径、再按清单口径），消除在干净克隆 + `autocrlf=true` 下把自洽提交误判 `NOT_SELF_PROVEN` 的假阴性。
 > - **`N-r07-2`**：自证报告移到同 RunId 的 `_selfproof` 兄弟目录，使其可在提交后原地补入**交付提交**主体，且不再出现「报告内嵌陈旧 FAIL、同目录清单记 PASS」的不自洽。
 > - **`F2`/`F4`/`F5`/`F11`**：`source_commit` 口径三处统一并写明语义；`keep_reason` 归因统一为「样例数不足 32：29」；STATE 陈旧行与旧版本令牌统一。

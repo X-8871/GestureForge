@@ -2,7 +2,7 @@
 
 任何『已关闭/已落盘/已同步』的声明必须附：命令 + 真实退出码 + 可观察输出（或命中位置）。本附录由 verification/claim_verify.py 生成，逐条可复跑。
 
-- 生成：2026-10-23 04:33:31；判定：**ALL_CLAIMS_VERIFIED**
+- 生成：2026-10-23 04:48:31；判定：**ALL_CLAIMS_VERIFIED**
 
 ## S6A-C1-no-m4-unreachable — VERIFIED
 

@@ -43,6 +43,21 @@ SOURCES = (
 )
 
 
+TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
+
+
+def hash_normalized(path: Path) -> str:
+    """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
+
+    清单对文本文件可声明该口径；检查器**同时接受**原字节与归一化字节，因此
+    工作区 CRLF、`git archive` 的全 LF 导出、以及历史清单（绑原字节）三者都能通过。
+    """
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -256,14 +271,14 @@ def main(argv: list[str] | None = None) -> int:
             relative = path.relative_to(run_dir).as_posix()
             if relative == "delivery_manifest.json":
                 continue  # 清单不声明自身（检查器按此约定放行）
-            rows.append({"path": path.relative_to(root).as_posix(), "sha256": sha256_file(path),
+            rows.append({"path": path.relative_to(root).as_posix(), "sha256": hash_normalized(path),
                          "role": "result" if "/logs/" not in relative else "log",
                          "keep_reason": f"S6-B 证据文件：{relative}"})
         if include_sources:
             for relative in SOURCES:
                 path = root / relative
                 if path.is_file():
-                    rows.append({"path": relative, "sha256": sha256_file(path), "role": "source",
+                    rows.append({"path": relative, "sha256": hash_normalized(path), "role": "source",
                                  "keep_reason": "S6-B 实现/契约/状态绑定"})
         return rows
 
@@ -342,7 +357,7 @@ def main(argv: list[str] | None = None) -> int:
                 interface_reason(pack.data.get("artifact_version"))
             ),
             "files": file_entries(include_sources=False) + [
-                {"path": source, "sha256": sha256_file(root / source), "role": "source",
+                {"path": source, "sha256": hash_normalized(root / source), "role": "source",
                  "keep_reason": "S6-B 实现/契约/状态绑定"} for source in SOURCES if (root / source).is_file()
             ],
             "checks": checks, "tool_versions": tool_versions,

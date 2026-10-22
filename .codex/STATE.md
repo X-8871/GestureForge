@@ -76,6 +76,22 @@
 - 冻结自证：`python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit <rev>`（导出该提交后自检 + inputs + evidence 三项必须 exit 0）。
 - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；判别力探针：`verification/s6a_r07_probe.py`；冻结自证：`verification/export_selfproof.py`；缓存：`tmp/6/**`（不入库）。
 
+## 提交勘误（erratum，2026-10-23）
+
+- `e3aeb091a0793737d99fbdfd1df4e146cb55eec6`：**标签写作 S6-B r03，实际内容 = S6-B r03 + 修正后的 STATE + 重建的 S6-A r08 证据**
+  （在 HEAD 已是 r03 提交时执行了 `git commit --amend --no-edit`，把 r08 侧收尾折入该提交）。按**内容**复跑（实测命令与退出码）：
+  `python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit e3aeb091a0793737d99fbdfd1df4e146cb55eec6`
+  → `{"verdict": "ALL_SELF_PROVEN", "subjects": [["commit e3aeb09…", "SELF_PROVEN", [0,0,0]]]}`，**退出码 0**（2026-10-23 实测）。
+- `05126fdb79ba77de57d9262857af66393b453d66`：amend **之前**的 r03 提交（现已被 amend 取代）。amend 当时实测 `SELF_PROVEN [0,0,0,0]`（退出码 0）；
+  **按当前工具复跑为 `NOT_SELF_PROVEN [0,0,0,2]`（退出码 1）**——其清单绑定的 `.codex/STATE.md` 与该提交树内的 STATE 不一致（该中间提交的内部不一致），
+  已由 `e3aeb09` 修正。差异如实记录，不追改历史。
+- `902be77f5d672d1019f37d4c706276095d09e83f`：**中间提交，不自证**（其 STATE 声明了当时尚未提交的 r03 证据目录 → 单独检出 C11 会 FAIL）；
+  非冻结提交，不算缺陷。
+- 未改写历史：未对以上提交做 amend/rebase/revert；最终冻结提交见下一段（标签正确 + 自证）。
+- **O1 口径与自证路径澄清**：本轮起清单可声明**git 归一化（CRLF→LF）口径**哈希，检查器与自检**同时接受**原字节与归一化字节，
+  因此裸 `git archive`（全 LF）导出下 **C11 实测 PASS**（2026-10-23 在 `e3aeb09` 的裸导出上实测）；但裸导出仍需上游文档齐全（C8 依赖仓库内上游文件），
+  故**权威自证路径仍是 `verification/export_selfproof.py`**，裸检出只作辅助核对。
+
 ## 11 字段交接行（2026-10-23 04:20）
 
 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`

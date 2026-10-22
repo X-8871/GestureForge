@@ -3,7 +3,7 @@
 - RunId：`s6b_core_20261023_r03`；工作树：`D:\codex-worktrees\w6`
 - 契约：`S6A-G0-v1.7`（S6-A r07；r05/r06 已分别过第 5/6 轮复评 PASS）
 - 用例：23 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **PASS**
-- 预期：运行前冻结，`expected_freeze.json` SHA-256 = `0d2f47cf9fc7fb1eedbeb0cec33ff8973d6344dabdf7211f6f70943a9f0515c6`
+- 预期：运行前冻结，`expected_freeze.json` SHA-256 = `f47981df1d792351db2ae28e6cd00144bb6ec23d1acdf4897bb5bb37901bb93e`
 - 参数：全部 `PENDING_APPROVAL`（见 `params_snapshot.json`）；未写死、未在测试集调参
 
 ## 真实命令与退出码

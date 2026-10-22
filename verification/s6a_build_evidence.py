@@ -36,6 +36,21 @@ from pathlib import Path
 from typing import Any
 
 
+TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
+
+
+def hash_normalized(path: Path) -> str:
+    """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
+
+    清单对文本文件可声明该口径；检查器**同时接受**原字节与归一化字节，因此
+    工作区 CRLF、`git archive` 的全 LF 导出、以及历史清单（绑原字节）三者都能通过。
+    """
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -113,7 +128,7 @@ def source_entries(root: Path) -> list[dict[str, str]]:
         ("docs/stage6/S6A_stage6_g0_behavior_spec_v1.md", "被证据绑定的规格文档（v1.7/r08）"),
         ("docs/stage6/s6a_stage6_g0_behavior_v1.json", "被证据绑定的机器可读行为表（v1.7/r08）"),
         ("verification/s6a_rerun_legacy_failures.py", "旧包失败证据可复现重跑脚本（N03）"),
-        ("verification/s6a_r08_probe.py", "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史对照 1 例）"),
+        ("verification/s6a_r08_probe.py", "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史口径对照 2 例）"),
         ("verification/claim_verify.py", "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"),
         ("verification/export_selfproof.py", "冻结自证工具（导出提交后复跑自检 + 两个交付检查器，F6 规则）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
@@ -125,7 +140,7 @@ def source_entries(root: Path) -> list[dict[str, str]]:
         path = root / relative
         if not path.is_file():
             raise SystemExit(f"缺少需要绑定的源码文件：{relative}")
-        entries.append({"path": relative, "sha256": sha256_file(path), "role": "source", "keep_reason": reason})
+        entries.append({"path": relative, "sha256": hash_normalized(path), "role": "source", "keep_reason": reason})
     return entries
 
 
@@ -139,7 +154,7 @@ def run_entries(run_dir: Path, root: Path) -> list[dict[str, str]]:
             continue
         entries.append({
             "path": path.relative_to(root).as_posix(),
-            "sha256": sha256_file(path),
+            "sha256": hash_normalized(path),
             "role": role_for(local),
             "keep_reason": keep_reason_for(local),
         })

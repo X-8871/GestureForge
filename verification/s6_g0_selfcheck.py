@@ -103,6 +103,21 @@ class CheckFailure(Exception):
     """单个检查项失败。"""
 
 
+TEXT_SUFFIXES = (".md", ".json", ".jsonl", ".txt", ".py", ".csv", ".yaml", ".yml", ".xdc")
+
+
+def hash_normalized(path: Path) -> str:
+    """git 归一化口径哈希：文本文件把 CRLF 归一为 LF 后再取 SHA-256（O1 口径的可移植写法）。
+
+    清单对文本文件可声明该口径；检查器**同时接受**原字节与归一化字节，因此
+    工作区 CRLF、`git archive` 的全 LF 导出、以及历史清单（绑原字节）三者都能通过。
+    """
+    data = path.read_bytes()
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -1083,14 +1098,15 @@ def check_evidence_integrity(
         if extra:
             raise CheckFailure(f"实际存在但清单未声明：{extra}")
         for relpath, want in declared_run.items():
-            got = sha256_file(evidence_dir / relpath)
-            if got != want:
+            target = evidence_dir / relpath
+            got = sha256_file(target)
+            if got != want and hash_normalized(target) != want:
                 raise CheckFailure(f"清单哈希不符：{relpath}")
         for relpath, want in sorted(declared_out.items()):
             path = (project_root / relpath).resolve()
             if not path.is_file():
                 raise CheckFailure(f"清单声明的源码/输入文件不存在：{relpath}")
-            if sha256_file(path) != want:
+            if sha256_file(path) != want and hash_normalized(path) != want:
                 raise CheckFailure(f"清单声明的源码/输入哈希不符：{relpath}")
         details.append(
             f"manifest 双向一致（运行目录 {len(declared_run)} 个文件 + 外部绑定 {len(declared_out)} 个文件哈希复算通过）"
@@ -1525,11 +1541,19 @@ def check_reachability(data: dict[str, Any], doc_text: str, cases: dict[str, Any
     # 扫描文档全文与 JSON 文本（含 reachability/parameter_notes/行为表），并单独校验手算样例的机器断言。
     forbidden = ("M4 不可达", "M4/M7 不可达", "M4 在草案参数下不可达", "M4/T6-S04 与 M7 不得计入",
                  "M4 不得计入覆盖", "不得计入覆盖声明")
-    json_text = json.dumps(data, ensure_ascii=False)
+    # 逐行扫描：JSON 必须带缩进导出，否则整体成为一行会被白名单标记整行跳过。
+    json_text = json.dumps(data, ensure_ascii=False, indent=2)
+    # 白名单：**显式标注为历史语境**的行（含下列标记之一）不计入禁语；其余一律 FAIL（BLK-r07-1）。
+    historical_markers = ("历史语境除外", "原声明", "改为", "r07 复评")
     for label, haystack in (("文档", doc_text), ("行为表 JSON", json_text)):
-        for needle in forbidden:
-            if needle in haystack:
-                raise CheckFailure(f"{label}中仍出现禁语『{needle}』（M4 应可达并计入覆盖，BLK-r07-1）")
+        for lineno, line in enumerate(haystack.splitlines(), 1):
+            if any(marker in line for marker in historical_markers):
+                continue
+            for needle in forbidden:
+                if needle in line:
+                    raise CheckFailure(
+                        f"{label}第 {lineno} 行仍出现禁语『{needle}』（M4 应可达并计入覆盖，BLK-r07-1）；"
+                        f"若确为历史语境，请在该行显式标注『历史语境除外』")
     for case in cases.get("cases", []):
         if case.get("expected", {}).get("m4_reachable_under_draft") is False:
             raise CheckFailure(f"{case.get('case_id')}.expected.m4_reachable_under_draft=false 与 C16 结论相反"

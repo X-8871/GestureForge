@@ -1,6 +1,7 @@
 # 阶段4 状态（摄像头推理 · 离线准备 + 4-A/4-B 起步）
 
-更新：2026-10-22 19:45（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`／起始 `8ee2530`（自 `main`）。规则见 `D:\FPGA_Competition\AGENTS.md`。
+更新：2026-10-23 00:35（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`／HEAD `bb5d9ab`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权状态：OFFERED 给 Codex 项目总控（2026-10-23 00:35 起 DSH 阶段4 总控停止写入，详见文末交接行与「交接给 Codex」节）。**
 **本树只做阶段4 离线工作；不是阶段4 验收。** 板上注入（4-D）与真实摄像头验收必须等正式硬件授权与阶段3 交付。
 
 ## 目标与范围
@@ -41,8 +42,17 @@
 ## 证据入口与下一步
 
 - 证据：`report/evidence/S4-A/s4a_g0_20261022_r01/`、`report/evidence/S4-B/s4b_injection_20261022_r01/`、`report/evidence/S4-CTRL/S4-C02|S4-C03/`；历史：`S4-A/s4a_draft_*_r05`、`S4-B/20261021_r13`、`S4-C`、`S4-D`。
-- 下一步：① 补独立审查（4-A r06、契约 r02、4-B）→ 关闭阻断后由 Lead 提交；② 阶段5 改绑 S4-A r06 并按契约消费；③ 取得硬件授权后做 4-D 单帧注入板测、再 109/1000 与摄像头回归。
+- 下一步：① 补独立审查（4-A r06、契约 r02、4-B）→ 关闭阻断后再提交；② 阶段5 改绑 S4-A r06 并按契约消费；③ 取得硬件授权后做 4-D 单帧注入板测、再 109/1000 与摄像头回归。
 
-## 交接行（11 字段，2026-10-22 19:45）
+## 交接给 Codex 项目总控（写权让出，2026-10-23 00:35）
 
-任务=`S4-CTRL 阶段4 起步 4-A（G0 r06 冻结）+ 4-B（共享契约 + 单帧注入通路，离线）` | 负责人=`DSH 阶段4 总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`8ee2530` | 允许修改范围=`本树全部（docs/、verification/、scripts/、vitis/、report/evidence/**、tmp/4/**、.codex/STATE.md）；主树/w2b/w5/w6/dbdf/96a3/厂商原件只读` | 未提交改动归属=`本树本轮改动全部由本总控持有；主树/w2b/w5 脏改动非本树，未触碰` | 让出声明=`未让出：本树写权由本窗口独占；不接管其他阶段工作树、不争用硬件` | 心跳(UTC+8)=`2026-10-22 19:45` | 证据入口=`report/evidence/S4-A/s4a_g0_20261022_r01/`、`report/evidence/S4-B/s4b_injection_20261022_r01/`、`report/evidence/S4-CTRL/S4-C02|S4-C03/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 rev-parse --short HEAD; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS（离线交付完成，待独立审查后提交；4-D 板测需正式硬件授权）/ 本阶段4 总控`
+- 让出前核验：`git status --short` 干净、`index.lock` 不存在、本树未持有任何 Vivado/xsim/hw_server 实例；HEAD `bb5d9ab`、分支 `stage4-infer-prep`。
+- 让出内容：`D:\codex-worktrees\w4` 的**独占写权**。本总控自让出起停止写入，等待 Codex 置 `CLAIMED` 后接管；第三方不得直接接管。
+- 接管方首步建议：① `python -B D:\FPGA_Competition\verification\handoff_check.py --worktree D:\codex-worktrees\w4 --json` 核对工作树/锁/进程/心跳/状态机；② 复跑自检 `scripts/stage4_s4a/verify_s4a_draft.py`、`scripts/stage4_s4ctrl/verify_shared_io_contract.py`、`scripts/stage4_s4b/run_s4b_injection_offline.py --run-id <新 RunId> --evidence-dir <新目录>`；③ 补独立审查（4-A r06、共享契约 r02、4-B 注入通路）——**这是本轮唯一未闭合关口，当前无 G2**。
+- 不得改动：已冻结的 S4-B 旧产物（`s4_ps_decode.*`、`s4_uart_protocol.*`、`s4_offline_host.c`、`run_s4b_offline_chain.py`、`build_s4b_manifest.py`、`test_s4_ps_decode.py`）与任何既有 RunId 证据；主树/w2b/w5/w6/dbdf/96a3/厂商原件只读；不争用阶段5 正在使用的硬件。
+- 未完成事项与失败记录：`report/evidence/S4-CTRL/S4-C04/s4_ctrl_20261022_r01/review_status_20261022.json`；跨方请求：`report/evidence/S4-CTRL/S4-C03/s4_ctrl_20261022_r01/S4CTRL-20261022-003-g0-r06-and-shared-contract-to-stage5.md`。
+- 主目录 `.codex/STATE.md` 写权不在本树（默认 DSH 项目总控）；若需在主 STATE 记录本次让出，由主目录持有方执行。
+
+## 交接行（11 字段，2026-10-23 00:35；状态机 OFFERED）
+
+任务=`S4-CTRL 阶段4 起步 4-A（G0 r06 冻结）+ 4-B（共享契约 + 单帧注入通路，离线）` | 负责人=`Codex 项目总控（已由 DSH 阶段4 总控让出）` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`bb5d9ab` | 允许修改范围=`自 2026-10-23 00:35 起：本树全部（docs/、verification/、scripts/、vitis/、report/evidence/**、tmp/4/**、.codex/STATE.md）；主树/w2b/w5/w6/dbdf/96a3/厂商原件只读` | 未提交改动归属=`无未提交改动：本轮全部已提交（e247b49、bb5d9ab），工作树干净` | 让出声明=`OFFERED 给 Codex 项目总控：DSH 阶段4 总控已停止写入本树，等待 Codex CLAIMED 后独占接管；第三方不得直接接管` | 心跳(UTC+8)=`2026-10-23 00:35` | 证据入口=`report/evidence/S4-A/s4a_g0_20261022_r01/`、`report/evidence/S4-B/s4b_injection_20261022_r01/`、`report/evidence/S4-CTRL/S4-C02|S4-C03|S4-C04/` | 恢复命令=`python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w4 --json; git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -2` | 状态/下一接手方=`OFFERED（离线交付完成、待独立审查；G2 未通过、4-D 板测未执行）/ Codex 项目总控`

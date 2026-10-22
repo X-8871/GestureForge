@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.3",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r04",
+  "supersedes_run_id": "s6a_g0_20261022_r03",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r03_20261022_r01/",
+  "review_verdict": "CHANGES_REQUIRED（R3-B01/R3-B02 + N01..N05 + 观察项）",
+  "review_status_after_fix": "PENDING_REVIEW（复评由项目总控另派；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r04",
+    "r01_r02_r03_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "s6b_wip_untouched": true,
+    "self_check_before_after": "先用 r04 加固后的自检在 r03 的 git 字节上跑出失败输出（exit 1，C12 捕获 R3-B01/R3-B02、C17 捕获缺 stable_latching）并保留，再对 r04 跑出 17 项 ALL_PASS"
+  },
+  "blocking_items": [
+    {
+      "id": "R3-B01",
+      "problem": "文档 §12 稳定帧数行仍写 `matched_frames ≥ S02`、丢失时间行仍写 `t_now − t_last_match ≥ L02`，与拆分后的谓词语义不符；`t_last_target_continues` 无定义；自检缺少禁用标识符扫描。",
+      "fix": "§12 `T6-S02` 行改为「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」；`T6-L02` 行改为 `t_now − t_last_target_continues ≥ T6-L02`；§3/§12/§13 给出 `t_last_target_continues` 定义（最近一次 `TARGET_CONTINUES` 成立时刻；被抑制/失败不更新）；JSON 增 `time_anchors` 并同步 `transitions.M10`/`behavior_rows.B10`；自检 C12 增加禁用标识符扫描（`matched_frames`/`t_last_match`/`t_submit+`，仅放行邻近标注“已废弃”的历史说明）。",
+      "evidence": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §3/§4/§5/§12/§13",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json time_anchors/transitions.M10/behavior_rows.B10",
+        "selfcheck C12（r04 PASS）",
+        "selfcheck_r03_failure.json（r03 上 C12 FAIL：禁用标识符/谓词双向不一致）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "R3-B02",
+      "problem": "`predicates.used_by` 与各项 `predicates_used` 非双向一致：B03/B17 缺字段、B14 反向缺、M1 过声明 `WINDOW_MATCH`；M5/B13 实际没有 `predicates_used` 字段，而 fix_record/STATE/coverage 叙述称其“显式绑定并写 predicates_used”，叙述强于 JSON 现状。",
+      "fix": "B03 补 `[\"TARGET_CONTINUES\"]`、B17 补 `[\"WINDOW_MATCH\"]`、`predicates.TARGET_CONTINUES.used_by` 补 B14、`transitions.M1.predicates_used` 收敛为仅 `[\"TARGET_CONTINUES\"]`；新增 `predicate_binding_policy` 明确 M5/B13「只有条件文本 + `global_cooldown_gate` 绑定，没有 `predicates_used` 字段」，全部叙述按此改写；自检 C12 增加全量双向断言（白名单仅 §12 文本引用）与 M5/B13 字段现状断言。",
+      "evidence": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json predicates/predicate_binding_policy/behavior_rows/transitions",
+        "selfcheck C12（r04 PASS）",
+        "selfcheck_r03_failure.json（r03 上 C12 FAIL）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "non_blocking_items": [
+    {
+      "id": "N01",
+      "fix": "§2 H-10 与 §4 统一 `t_last_submit`，删除已废弃的 `t_submit+` 写法与「自动作提交时刻」错字。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N02",
+      "fix": "HC-27 去掉 `(s02>=s02)`/`(s02+1>=s02)` 自比较，改为按帧时刻序列推导；HC-28/HC-29 改为逐帧 score/几何序列真推导；`revision.changes` 措辞按实际改动重述。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N03",
+      "fix": "旧包失败证据改由 `verification/s6a_rerun_legacy_failures.py` 用最终脚本重跑（r01/r02/r03，git cat-file blob 二进制提取），并纳入构建器流程；C11 文案一致。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N04",
+      "fix": "coverage C7 样例数 27→29；selfcheck/builder/limitations 版本号统一 v1.3/r04。",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N05",
+      "fix": "旧哈希成因措辞改为「LF→CRLF + 末尾补 CRLF」，去除无证据的「编码」表述。",
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "observation_item": {
+    "id": "STABLE-latch",
+    "problem": "「进入 STABLE 后、冷却结束前是否允许离开」在 r03 无唯一答案。",
+    "decision": "定论为**本次获取内锁存**：STABLE 进入后不因 `WINDOW_MATCH` 中断、`score` 跌破 `T6-P02` 或抖动耗尽而退回 `CANDIDATE`；离开 STABLE 仅有 M2（异常）、M10（丢失确认）、M5（触发）三条路径；冷却门未结束时 M5 被 H-10 抑制，门开启后下一条窗口推进帧即可触发，无需重新累积窗口证据。",
+    "evidence": [
+      "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §4 STABLE 锁存",
+      "docs/stage6/s6a_stage6_g0_behavior_v1.json stable_latching",
+      "selfcheck C17（r04 PASS）"
+    ],
+    "status": "DECLARED_PENDING_G0_CONFIRMATION（U6-16）"
+  },
+  "reviewer_claim_corrections": [
+    {
+      "claim": "r03 叙述称 M1/M4/M5/M8/M9/M15 与 B04/B08/B12/B13/B14「显式绑定并写 predicates_used」",
+      "finding": "r03 JSON 的 `predicates_used` 实际存在于 transitions M1/M3/M4/M8/M9/M10/M15 与 behavior_rows B04/B07/B08/B09/B10/B12/B14；M5 只有 `global_cooldown_gate` 标记，B13 无 `predicates_used` 字段。因此把 M5/B13 一并写成「显式绑定并写 predicates_used」属叙述强于 JSON 现状。",
+      "action": "r04 新增 `predicate_binding_policy` 并改写全部叙述为「M5/B13 只有条件文本 + `global_cooldown_gate` 绑定，没有 `predicates_used` 字段」；STATE/coverage 同步。"
+    },
+    {
+      "claim": "r03 coverage 自述 C7「27 个人工手算样例独立复算」",
+      "finding": "r03 实际已有 29 个样例（HC-01..HC-29），自述与实际不符（N04）。",
+      "action": "r04 改为 29，并由 C7 的 `len(seen) < 29` 断言兜底。"
+    }
+  ],
+  "verification_commands": [
+    "python -B verification/s6a_rerun_legacy_failures.py --run-dir report/evidence/S6-A/s6a_g0_20261022_r04 --project-root D:/codex-worktrees/w6",
+    "python -B verification/s6a_build_evidence.py --run-dir report/evidence/S6-A/s6a_g0_20261022_r04 --project-root D:/codex-worktrees/w6",
+    "python -B verification/check_stage_delivery.py --mode inputs|evidence --manifest ... --project-root D:/codex-worktrees/w6"
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；复评由项目总控另派 Reviewer。",
+    "全部 24 项参数值与 PENDING_APPROVAL 状态未改；未在测试集上调整任何参数。",
+    "S6-B WIP（docs/stage6/s6b_frozen_interface_v1.json、src/stage6/**）保持未提交，不参与本包证据。",
+    "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+  ]
+}

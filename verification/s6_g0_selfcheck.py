@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A（G0 包 + 行为表 v1.1）只读自检。
+"""阶段6 S6-A（G0 包 + 行为表 v1.3 / r04）只读自检。
 
 加固后的机器检查（r02，针对独立评审 S6A_20261022_r01 的 C3 盲区）：
 
@@ -15,11 +15,14 @@
   C9   文档必备覆盖关键词与章节存在
   C10  窄口径禁止声明扫描
   C11  **证据清单 vs 实际文件存在性/哈希**（manifest 双向比对 + STATE 声明的证据文件存在性）
-  C12  谓词拆分一致性（TARGET_CONTINUES / WINDOW_MATCH 定义、引用与禁用含糊“匹配”）
+  C12  谓词拆分一致性（定义、引用、禁用含糊“匹配”；**全量双向断言** predicates.used_by ↔ predicates_used；
+       禁用标识符扫描 matched_frames / t_last_match / t_submit+，仅放行邻近标注“已废弃”的历史说明；
+       M5/B13 无 predicates_used 字段的叙述必须与 JSON 现状一致）
   C13  冷却全局门一致性（H-10 / M5 / cooldown_policy / 文档）
   C14  W_min 与实测帧周期口径一致性（B-04/N-05）
   C15  H-4/NO_HAND 匹配计数一致性（B-02）
   C16  迁移可达性与覆盖声明一致性（M4/M7/M14；B26；§12.1）
+  C17  STABLE 锁存语义一致性（观察项：锁存范围、退出路径、不得存在 STABLE→CANDIDATE；U6-16）
 
 边界：本脚本只做规格一致性、算术与证据存在性复算，**不**验证状态机行为、
 **不**代表 G0/G2/G4/G5 或任何验收结论。
@@ -134,7 +137,7 @@ def check_identity(data: dict[str, Any]) -> None:
     if data.get("artifact") != "s6a_stage6_g0_behavior":
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
-    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2")
+    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
@@ -158,6 +161,7 @@ def check_identity(data: dict[str, Any]) -> None:
     expected_runs = {
         "S6A-G0-v1.1": "s6a_g0_20261022_r02",
         "S6A-G0-v1.2": "s6a_g0_20261022_r03",
+        "S6A-G0-v1.3": "s6a_g0_20261022_r04",
     }
     if version in expected_runs:
         revision = data.get("revision") or {}
@@ -515,12 +519,18 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
         l01 = int(spec["l01_frames"])
         return {"lost_at_4": 4 >= l01, "lost_at_5": 5 >= l01}
     if kind == "lost_time":
-        t_last_match_ns = int(round(float(spec["t_last_match_ms"]) * 1_000_000))
+        if "t_last_target_continues_ms" not in spec:
+            raise CheckFailure(
+                "lost_time 样例缺少 t_last_target_continues_ms"
+                "（r04 已废弃 t_last_match_ms，见 R3-B01）"
+            )
+        anchor_ns = int(round(float(spec["t_last_target_continues_ms"]) * 1_000_000))
         l02_ns = int(round(float(spec["l02_ms"]) * 1_000_000))
         offsets = spec["t_now_offsets_ns"]
         return {
-            "lost_at_minus_1ns": int(offsets["minus_1ns"]) >= l02_ns,
-            "lost_at_exact": int(offsets["exact"]) >= l02_ns,
+            "lost_at_minus_1ns": (anchor_ns + int(offsets["minus_1ns"]) - anchor_ns) >= l02_ns,
+            "lost_at_exact": (anchor_ns + int(offsets["exact"]) - anchor_ns) >= l02_ns,
+            "anchor": "t_last_target_continues",
         }
     if kind == "stale":
         limit_ns = int(round(float(spec["limit_ms"]) * 1_000_000))
@@ -717,40 +727,86 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "inclusive": True,
         }
     if kind == "window_match_vs_continues":
-        continues_frames = int(spec["continues_frames"])
-        window_match_frames = int(spec["window_match_frames"])
+        # N02：由逐帧 score/几何序列真推导 TARGET_CONTINUES 与 WINDOW_MATCH，不再接受结论式输入。
+        p02 = float(spec["p02"])
+        p03 = float(spec["p03"])
+        p04 = float(spec["p04"])
+        p05 = float(spec["p05"])
         s02 = int(spec["s02_frames"])
-        s01_ok = bool(spec["s01_ok"])
+        s01_ms = float(spec["s01_ms"])
+        period_ms = float(spec["period_ms"])
         l01 = int(spec["l01_frames"])
-        continues_false_streak = int(spec["continues_false_streak"])
-        m3_fires = (window_match_frames >= s02) and s01_ok
-        lost = continues_false_streak >= l01
+        l02_ms = float(spec["l02_ms"])
+        frames = spec["frames"]
+        if not frames:
+            raise CheckFailure("window_match_vs_continues 样例缺少 frames 逐帧序列")
+        continues_flags: list[bool] = []
+        window_flags: list[bool] = []
+        previous_window_disp: float | None = None
+        for frame in frames:
+            disp = float(frame["center_disp"])
+            continues = bool(frame["same_class"]) and (
+                float(frame["iou"]) >= p03 or disp <= p04
+            )
+            continues_flags.append(continues)
+            window_match = bool(continues and float(frame["score"]) >= p02)
+            if window_match and previous_window_disp is not None and (disp - previous_window_disp) > p05:
+                window_match = False
+            if window_match:
+                previous_window_disp = disp
+            window_flags.append(window_match)
+        window_match_count = sum(1 for flag in window_flags if flag)
+        continues_count = sum(1 for flag in continues_flags if flag)
+        window_span_ms = (len(frames) - 1) * period_ms
+        continues_false_streak = 0
+        for flag in reversed(continues_flags):
+            if flag:
+                break
+            continues_false_streak += 1
+        time_since_last_continues_ms = 0.0 if continues_flags[-1] else continues_false_streak * period_ms
+        lost = continues_false_streak >= l01 or time_since_last_continues_ms >= l02_ms
+        m3_fires = window_match_count >= s02 and window_span_ms >= s01_ms
         # M5 需要 STABLE 之后的下一条结果帧；本样例无后续帧 → 不触发
         trigger = m3_fires and bool(spec.get("m5_next_frame_supplied", False))
         return {
             "m3_fires": m3_fires,
             "lost": lost,
             "trigger": trigger,
-            "window_match_count": window_match_frames,
-            "continues_count": continues_frames,
+            "window_match_count": window_match_count,
+            "continues_count": continues_count,
             "continues_false_streak": continues_false_streak,
+            "window_span_ms": r6(window_span_ms),
         }
     if kind == "recovery_streak":
         u01 = int(spec["u01_frames"])
         return {f"recovered_at_{int(streak)}": int(streak) >= u01 for streak in spec["streaks"]}
     if kind == "stable_ns_border":
-        s01_ms = int(spec["s01_ms"])
+        s01_ns = int(spec["s01_ms"]) * 1_000_000
         s02 = int(spec["s02_frames"])
         period_ns = int(spec["period_ns"])
-        frames = [(index) * period_ns for index in range(s02 - 1)]
-        frames.append(s01_ms * 1_000_000 - 1)
-        frames.append(s01_ms * 1_000_000 + 1)
-        start = frames[0]
-        six = frames[s02 - 1]
-        seven = frames[s02]
-        stable_six = (s02 >= s02) and (six - start) >= s01_ms * 1_000_000
-        stable_seven = (s02 + 1 >= s02) and (seven - start) >= s01_ms * 1_000_000
-        return {"stable_at_6th": stable_six, "stable_at_7th": stable_seven, "granularity": "1ns"}
+        # 帧时刻序列：前 s02−1 帧按 P 推进；第 s02 帧落在 S01−1ns，第 s02+1 帧落在 S01+1ns。
+        times_ns = [index * period_ns for index in range(s02 - 1)]
+        times_ns.append(s01_ns - 1)
+        times_ns.append(s01_ns + 1)
+        start_ns = times_ns[0]
+        outcome: dict[int, dict[str, Any]] = {}
+        for frame_index in (s02, s02 + 1):
+            elapsed_ns = times_ns[frame_index - 1] - start_ns
+            frames_ok = frame_index >= s02
+            duration_ok = elapsed_ns >= s01_ns
+            outcome[frame_index] = {
+                "frames_ok": frames_ok,
+                "duration_ok": duration_ok,
+                "inclusive_gte": frames_ok and duration_ok,
+            }
+        return {
+            "stable_at_6th": outcome[s02]["inclusive_gte"],
+            "stable_at_7th": outcome[s02 + 1]["inclusive_gte"],
+            "frames_ok_at_6th": outcome[s02]["frames_ok"],
+            "frames_ok_at_7th": outcome[s02 + 1]["frames_ok"],
+            "duration_ok_at_6th": outcome[s02]["duration_ok"],
+            "granularity": "1ns",
+        }
     raise CheckFailure(f"未知的复算类型：{kind}")
 
 
@@ -779,7 +835,10 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
     if len(seen) < 29:
         raise CheckFailure(f"手算样例数量不足 29：{len(seen)}")
-    return f"{len(seen)} 个样例全部由输入独立复算一致（含 HC-16/17/20/28/29 真算与边界样例）"
+    return (
+        f"{len(seen)} 个样例全部由输入独立复算一致"
+        "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导）"
+    )
 
 
 # ---------------------------------------------------------------- C8
@@ -969,27 +1028,70 @@ def check_evidence_integrity(
 # ---------------------------------------------------------------- C12..C16
 
 
-def check_predicates(data: dict[str, Any], doc_text: str) -> None:
+PREDICATE_NAMES = ("TARGET_CONTINUES", "WINDOW_MATCH")
+FORBIDDEN_IDENTIFIERS = ("matched_frames", "t_last_match", "t_submit+")
+DEPRECATED_MARKERS = ("已废弃", "废弃")
+
+
+def collect_forbidden_identifiers(label: str, text: str) -> list[str]:
+    """禁用标识符扫描（R3-B01）：命中必须邻近“已废弃”标注，否则记问题。"""
+    issues: list[str] = []
+    for token in FORBIDDEN_IDENTIFIERS:
+        start = 0
+        while True:
+            index = text.find(token, start)
+            if index < 0:
+                break
+            context = text[max(0, index - 60) : index + len(token) + 60]
+            if not any(marker in context for marker in DEPRECATED_MARKERS):
+                issues.append(
+                    f"{label} 仍含已废弃标识符 {token!r}（未标注“已废弃”）：…{context.strip()}…"
+                )
+            start = index + len(token)
+    return issues
+
+
+def used_by_item_ids(entries: list[Any]) -> tuple[set[str], list[str]]:
+    """把 predicates.*.used_by 拆成条目 ID（M*/B*）与其余引用（白名单）。"""
+    ids: set[str] = set()
+    others: list[str] = []
+    for entry in entries:
+        match = re.match(r"^\s*(M\d+|B\d{2})\b", str(entry))
+        if match:
+            ids.add(match.group(1))
+        else:
+            others.append(str(entry))
+    return ids, others
+
+
+def check_predicates(
+    data: dict[str, Any],
+    doc_text: str,
+    state_text: str | None,
+    cases: dict[str, Any],
+) -> None:
+    """谓词拆分一致性（R3-B01/R3-B02）。
+
+    为保证旧包捕获证据能同时覆盖 R3-B01（禁用标识符）与 R3-B02（双向不一致/字段现状），
+    本检查一次性汇总全部缺陷后统一失败，而不是首个缺陷即停。
+    """
+    issues: list[str] = []
     predicates = data.get("predicates") or {}
-    for name in ("TARGET_CONTINUES", "WINDOW_MATCH"):
+    for name in PREDICATE_NAMES:
         if name not in predicates:
-            raise CheckFailure(f"缺少谓词定义：{name}")
+            issues.append(f"缺少谓词定义：{name}")
+            continue
         if name not in doc_text:
-            raise CheckFailure(f"文档未引用谓词：{name}")
+            issues.append(f"文档未引用谓词：{name}")
         if not predicates[name].get("definition") or not predicates[name].get("used_by"):
-            raise CheckFailure(f"{name} 缺少定义或引用位置")
-    used_by = {
-        name: [str(item) for item in predicates[name].get("used_by", [])]
-        for name in ("TARGET_CONTINUES", "WINDOW_MATCH")
-    }
-    for anchor in ("M3", "M10"):
-        if not any(item.startswith(anchor) for item in used_by["WINDOW_MATCH"] + used_by["TARGET_CONTINUES"]):
-            raise CheckFailure(f"predicates.used_by 未登记 {anchor}（BLK-1 关闭条件）")
+            issues.append(f"{name} 缺少定义或引用位置")
+    if issues:
+        raise CheckFailure("；".join(issues))
 
     transitions = {item["id"]: item for item in data["transitions"]}
     rows = {row["id"]: row for row in data["behavior_rows"]}
     required_binding = {
-        "M1": ["TARGET_CONTINUES", "WINDOW_MATCH"],
+        "M1": ["TARGET_CONTINUES"],
         "M3": ["WINDOW_MATCH"],
         "M4": ["WINDOW_MATCH"],
         "M8": ["TARGET_CONTINUES"],
@@ -1005,21 +1107,76 @@ def check_predicates(data: dict[str, Any], doc_text: str) -> None:
     }
     for item_id, expected in required_binding.items():
         if item_id.startswith("M"):
-            item = transitions[item_id]
-            text = str(item.get("condition", ""))
+            item = transitions.get(item_id)
+            text = str(item.get("condition", "")) if item else ""
         else:
-            item = rows[item_id]
-            text = str(item.get("condition", "")) + " " + str(item.get("output", ""))
+            item = rows.get(item_id)
+            text = (
+                str(item.get("condition", "")) + " " + str(item.get("output", ""))
+                if item
+                else ""
+            )
+        if item is None:
+            issues.append(f"{item_id} 不存在（无法核对谓词绑定）")
+            continue
         for name in expected:
             if name not in text:
-                raise CheckFailure(f"{item_id} 的条件/输出未绑定 {name}（BLK-1）")
+                issues.append(f"{item_id} 的条件/输出未绑定 {name}（BLK-1）")
         declared = item.get("predicates_used")
         if declared is None:
-            raise CheckFailure(f"{item_id} 缺少 predicates_used 字段（BLK-1）")
-        if sorted(set(declared)) != sorted(set(expected)):
-            raise CheckFailure(
-                f"{item_id}.predicates_used 与要求不符：{declared} vs {expected}"
+            issues.append(f"{item_id} 缺少 predicates_used 字段（BLK-1）")
+        elif sorted(set(declared)) != sorted(set(expected)):
+            issues.append(f"{item_id}.predicates_used 与要求不符：{declared} vs {expected}")
+
+    # 全量双向断言（R3-B02）：predicates.used_by ↔ 每一条目的 predicates_used
+    reverse: dict[str, set[str]] = {name: set() for name in PREDICATE_NAMES}
+    for item_id, item in list(transitions.items()) + list(rows.items()):
+        declared = item.get("predicates_used")
+        if declared is None:
+            continue
+        for name in declared:
+            if name not in PREDICATE_NAMES:
+                issues.append(f"{item_id}.predicates_used 含未定义谓词 {name!r}")
+            else:
+                reverse[name].add(item_id)
+    for name in PREDICATE_NAMES:
+        forward_ids, others = used_by_item_ids(list(predicates[name]["used_by"]))
+        for entry in others:
+            if not entry.strip().startswith("§12"):
+                issues.append(
+                    f"predicates.{name}.used_by 的非条目引用只允许 §12 文本白名单：{entry!r}"
+                )
+        only_forward = sorted(forward_ids - reverse[name])
+        only_reverse = sorted(reverse[name] - forward_ids)
+        if only_forward or only_reverse:
+            issues.append(
+                f"predicates.{name}.used_by 与 predicates_used 非双向一致："
+                f"仅 used_by 有 {only_forward}；仅 predicates_used 有 {only_reverse}"
             )
+
+    # M5/B13：JSON 现状（无 predicates_used 字段）与叙述必须一致（R3-B02）
+    policy = data.get("predicate_binding_policy") or {}
+    statement = str(policy.get("statement", ""))
+    if not statement:
+        issues.append("缺少 predicate_binding_policy.statement（M5/B13 绑定叙述）")
+    if sorted(str(item) for item in (policy.get("items_without_predicates_used") or [])) != ["B13", "M5"]:
+        issues.append("predicate_binding_policy.items_without_predicates_used 必须恰为 M5/B13")
+    for item_id, item in (("M5", transitions.get("M5")), ("B13", rows.get("B13"))):
+        if item is None:
+            issues.append(f"{item_id} 不存在（无法核对 predicates_used 现状）")
+        elif "predicates_used" in item:
+            issues.append(f"{item_id} 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）")
+    if statement and statement not in doc_text:
+        issues.append("文档未复述 predicate_binding_policy.statement（M5/B13 叙述与 JSON 不一致）")
+    if state_text is not None and statement and statement not in state_text:
+        issues.append("阶段 STATE 未复述 predicate_binding_policy.statement（叙述与 JSON 不一致）")
+
+    # 禁用标识符扫描（R3-B01）：规格文档、行为表 JSON、手算样例、阶段 STATE
+    issues.extend(collect_forbidden_identifiers("文档", doc_text))
+    issues.extend(collect_forbidden_identifiers("行为表 JSON", json.dumps(data, ensure_ascii=False)))
+    issues.extend(collect_forbidden_identifiers("手算样例", json.dumps(cases, ensure_ascii=False)))
+    if state_text is not None:
+        issues.extend(collect_forbidden_identifiers("阶段 STATE", state_text))
 
     # 裸“匹配”残留扫描（“匹配计数”是已定义计数器名，允许；其余裸用法禁止）
     bare_patterns = [phrase for phrase in AMBIGUOUS_MATCH_PHRASES] + [
@@ -1045,9 +1202,12 @@ def check_predicates(data: dict[str, Any], doc_text: str) -> None:
     )
     for phrase in bare_patterns:
         if phrase in json_text:
-            raise CheckFailure(f"JSON 迁移/行为行仍含未绑定谓词的表述：{phrase!r}")
+            issues.append(f"JSON 迁移/行为行仍含未绑定谓词的表述：{phrase!r}")
         if phrase in doc_text:
-            raise CheckFailure(f"文档仍含未绑定谓词的表述：{phrase!r}")
+            issues.append(f"文档仍含未绑定谓词的表述：{phrase!r}")
+
+    if issues:
+        raise CheckFailure("；".join(issues))
 
 
 def check_cooldown_gate(data: dict[str, Any], doc_text: str) -> None:
@@ -1158,6 +1318,43 @@ def check_reachability(data: dict[str, Any], doc_text: str) -> None:
             raise CheckFailure(f"§12.1 缺口表缺少 {token}")
 
 
+def check_stable_latching(data: dict[str, Any], doc_text: str) -> str:
+    """STABLE 锁存语义一致性（观察项定论，C17）。"""
+    latch = data.get("stable_latching") or {}
+    if not latch:
+        raise CheckFailure("缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）")
+    if latch.get("latched") is not True:
+        raise CheckFailure("stable_latching.latched 必须为 true（本 G0 定论：本次获取内锁存）")
+    if latch.get("scope") != "WITHIN_ACQUISITION":
+        raise CheckFailure("stable_latching.scope 必须为 WITHIN_ACQUISITION")
+    statement = str(latch.get("statement", ""))
+    if not statement:
+        raise CheckFailure("stable_latching 缺少 statement")
+    transitions = {item["id"]: item for item in data["transitions"]}
+    computed = sorted(
+        item_id for item_id, item in transitions.items() if item["from"] in ("STABLE", "*")
+    )
+    declared = sorted(str(item) for item in (latch.get("exit_paths") or []))
+    if computed != declared:
+        raise CheckFailure(f"STABLE 退出路径与迁移表不一致：推导 {computed} vs 声明 {declared}")
+    demote = sorted(
+        item_id for item_id, item in transitions.items()
+        if item["from"] == "STABLE" and item["to"] == "CANDIDATE"
+    )
+    if demote:
+        raise CheckFailure(f"锁存定论下不得存在 STABLE→CANDIDATE 迁移：{demote}")
+    if not latch.get("not_demoted_by"):
+        raise CheckFailure("stable_latching 必须写明哪些条件不会使其退回 CANDIDATE")
+    if statement not in doc_text:
+        raise CheckFailure("文档未复述 stable_latching.statement（§4 锁存定论）")
+    decisions = {item["id"] for item in data["open_decisions"]}
+    if "U6-16" not in decisions:
+        raise CheckFailure("缺少 U6-16（STABLE 锁存待 G0 确认）")
+    if "U6-16" not in doc_text:
+        raise CheckFailure("文档 §16 缺少 U6-16")
+    return f"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 {declared}，无 STABLE→CANDIDATE 迁移，U6-16 待确认"
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -1173,6 +1370,7 @@ def run_checks(
     evidence_dir: Path | None,
     manifest_path: Path | None,
     state_path: Path | None,
+    state_text: str | None,
 ) -> dict[str, Any]:
     checks: list[dict[str, str]] = []
     errors: list[str] = []
@@ -1217,11 +1415,17 @@ def run_checks(
         "证据清单/STATE 声明 vs 实际文件",
         lambda: check_evidence_integrity(evidence_dir, manifest_path, state_path, project_root),
     )
-    run("C12", "谓词拆分一致性（B-05）", lambda: check_predicates(data, doc_text) or "TARGET_CONTINUES/WINDOW_MATCH 定义与引用一致")
+    run(
+        "C12",
+        "谓词拆分一致性（B-05/R3-B01/R3-B02）",
+        lambda: check_predicates(data, doc_text, state_text, cases)
+        or "谓词定义、引用、禁用标识符与全量双向绑定一致",
+    )
     run("C13", "冷却全局门一致性（B-03/H-10）", lambda: check_cooldown_gate(data, doc_text) or "全局门字段与引用一致")
     run("C14", "W_min/实测帧周期口径（B-04/N-05）", lambda: check_w_min_and_period(data, doc_text) or "W_min 仅下界、window_complete 为统计基准")
     run("C15", "H-4/NO_HAND 一致性（B-02）", lambda: check_h4_no_hand(data, doc_text) or "NO_HAND 不推进匹配计数、零框不得完成窗口")
     run("C16", "迁移可达性与覆盖声明（N-02/N-03）", lambda: check_reachability(data, doc_text) or "M4/M7 可达性声明与 B26/§12.1 覆盖一致")
+    run("C17", "STABLE 锁存语义一致性（观察项）", lambda: check_stable_latching(data, doc_text))
 
     status = "ALL_PASS" if not errors else "FAILED"
     return {
@@ -1251,12 +1455,15 @@ def run_checks(
             "C10 为窄口径文本扫描，不是完备的声明审计",
             "C3 的 from/to 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
             "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+            "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），"
+            "仅放行邻近标注“已废弃”的历史说明；不是完备的术语审计",
+            "C17 只核对锁存声明与迁移表一致，不验证状态机实现",
         ],
     }
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="阶段6 S6-A G0 包自检（r02 加固版）")
+    parser = argparse.ArgumentParser(description="阶段6 S6-A G0 包自检（r04 加固版）")
     parser.add_argument("--json", required=True, help="行为表 JSON 路径")
     parser.add_argument("--doc", required=True, help="人读规格路径")
     parser.add_argument("--cases", required=True, help="人工手算样例 JSON 路径")
@@ -1289,6 +1496,11 @@ def main(argv: list[str] | None = None) -> int:
             sys.stdout.reconfigure(encoding="utf-8")
         print(json.dumps({"status": "INPUT_ERROR", "error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False))
         return 2
+    state_text = None
+    if args.state:
+        state_file = Path(args.state).resolve()
+        if state_file.is_file():
+            state_text = state_file.read_text(encoding="utf-8")
     result = run_checks(
         data,
         doc_text,
@@ -1301,6 +1513,7 @@ def main(argv: list[str] | None = None) -> int:
         Path(args.evidence_dir).resolve() if args.evidence_dir else None,
         Path(args.manifest).resolve() if args.manifest else None,
         Path(args.state).resolve() if args.state else None,
+        state_text,
     )
     Path(args.out).write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

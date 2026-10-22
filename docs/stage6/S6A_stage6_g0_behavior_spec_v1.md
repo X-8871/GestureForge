@@ -4,9 +4,11 @@
 > **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为 **待批准**（`PENDING_APPROVAL`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
 > **本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI。** 本文不含任何实测数据。
 > 机器可读权威：`docs/stage6/s6a_stage6_g0_behavior_v1.json`（契约身份 `S6A-G0-v1`）。两者冲突时以 JSON 为准并回改本文；一致性由 `verification/s6_g0_selfcheck.py` 机器校验。
-> **修订记录（v1.2 / r03，2026-10-22）**：本包针对**复评** `S6A_20261022_r02`（`CHANGES_REQUIRED`，BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）修订：**BLK-1** 谓词拆分落到全部迁移与行为行（M3 改 `WINDOW_MATCH`；M10/B10 绑 `TARGET_CONTINUES`；M8/M9/M15/B04/B12 与 §12 同步；`predicates.used_by` 补 M3/M10；自检 C12 增加迁移/行为行断言）；**BLK-2** 旧包哈希改用 `git show 1fe4648:` 原始字节重算并重跑失败证据；**BLK-3** 入库自检改用 `--manifest`+`--state` 完整 C11 并落盘检查输出；NBL-1..5 同批修（inputs 清单 checks 实测、`t_last_submit` 单一名词、边界样例真算、§15 表头、B-05 措辞更正）。**全部参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因修订而视为通过。
+> **修订记录（v1.3 / r04，2026-10-23）**：本包针对**第三轮独立复评** `S6A_r03_20261022_r01`（`CHANGES_REQUIRED`，R3-B01/R3-B02 + N01..N05 + 观察项）修订：**R3-B01** §12 `T6-S02` 行改用「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」、`T6-L02` 行改用 `t_now − t_last_target_continues ≥ T6-L02`，并在 §3/§12/§13 给出该锚点定义，自检 C12 增加禁用标识符扫描；**R3-B02** `predicates.used_by` 与全部 `predicates_used` **全量双向一致**（B03 补 `TARGET_CONTINUES`、B17 补 `WINDOW_MATCH`、`TARGET_CONTINUES.used_by` 补 B14、M1 收敛为仅 `TARGET_CONTINUES`），M5/B13 改为「只有条件文本 + `global_cooldown_gate` 绑定、无 `predicates_used` 字段」，自检 C12 增加全量双向断言；**观察项** STABLE 定论为「本次获取内锁存」（§4 + JSON `stable_latching` + 自检 C17 + U6-16）；N01..N05 同批修（H-10 统一 `t_last_submit`、HC-27 去自比较、HC-28/29 由逐帧 score/几何序列真推导、旧包重跑纳入构建器并落盘可复现脚本、C7 样例数 29、旧哈希成因措辞）。**全部 24 项参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因修订而视为通过。
 >
-> **上一轮修订记录（v1.1 / r02，2026-10-22）**：针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-02** `NO_HAND` 不推进匹配计数、零框不得完成稳定窗口（H-4 与 JSON 同步改写）；**B-03** 冷却改为**全局门**（任意状态/任意获取在 `t_submit+T6-K01` 内不得提交动作，新增 H-10）；**B-04** 窗口完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻，`W_min` 仅下界且不进入延迟统计；**B-05** 拆分 `TARGET_CONTINUES` 与 `WINDOW_MATCH` 两个唯一谓词并全表引用。另修 N-01..N-10（M14 删除、`A_DISPLAY_STATE` 删除、可达性登记、覆盖声明收敛、手算样例补实、±1 单位口径、措辞去“冻结/DONE”）。**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。
+> **上一轮修订记录（v1.2 / r03，2026-10-22）**：本包针对**复评** `S6A_20261022_r02`（`CHANGES_REQUIRED`，BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）修订：**BLK-1** 谓词拆分落到全部迁移与行为行（M3 改 `WINDOW_MATCH`；M10/B10 绑 `TARGET_CONTINUES`；M8/M9/M15/B04/B12 与 §12 同步；`predicates.used_by` 补 M3/M10；自检 C12 增加迁移/行为行断言）；**BLK-2** 旧包哈希改用 `git show 1fe4648:` 原始字节重算并重跑失败证据；**BLK-3** 入库自检改用 `--manifest`+`--state` 完整 C11 并落盘检查输出；NBL-1..5 同批修（inputs 清单 checks 实测、`t_last_submit` 单一名词、边界样例真算、§15 表头、B-05 措辞更正）。**全部参数值与 `PENDING_APPROVAL` 状态未改。** 复评由项目总控另行安排；本包不因修订而视为通过。
+>
+> **更早修订记录（v1.1 / r02，2026-10-22）**：针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-02** `NO_HAND` 不推进匹配计数、零框不得完成稳定窗口（H-4 与 JSON 同步改写）；**B-03** 冷却改为**全局门**（任意状态/任意获取在 `t_last_submit + T6-K01` 内不得提交动作，新增 H-10）；**B-04** 窗口完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻，`W_min` 仅下界且不进入延迟统计；**B-05** 拆分 `TARGET_CONTINUES` 与 `WINDOW_MATCH` 两个唯一谓词并全表引用。另修 N-01..N-10（M14 删除、`A_DISPLAY_STATE` 删除、可达性登记、覆盖声明收敛、手算样例补实、±1 单位口径、措辞去“冻结/DONE”）。**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。
 
 ---
 
@@ -46,7 +48,7 @@
 - **H-7 独立预期**：所有测试的预期序列必须由行为表独立推导或人工手算；**禁止**运行状态机生成 expected 后自我比较。
 - **H-8 事件二分**：`ACTION_SUBMITTED`（提交成功）与 `ACTION_EFFECTIVE`（实际生效）是两类事件，必须分别记录、分别统计；提交成功不等于生效。
 - **H-9 无硬件授权**：本阶段不得触碰板卡/JTAG/COM4/`hw_server`/HDMI 实物/摄像头，不得烧录。
-- **H-10 冷却全局门**：自动作提交时刻 `t_submit` 起 `T6-K01` 内，**任何状态、任何获取（含目标丢失后重获、异常恢复、目标切换）都不得提交动作**；展示状态 `COOLDOWN` 因丢失/异常提前退出**不解除**该门。门在动作执行前检查，命中记 `S_COOLDOWN`。
+- **H-10 冷却全局门**：自最近一次真实提交 `t_last_submit` 起 `T6-K01` 内，**任何状态、任何获取（含目标丢失后重获、异常恢复、目标切换）都不得提交动作**；展示状态 `COOLDOWN` 因丢失/异常提前退出**不解除**该门。门在动作执行前检查，命中记 `S_COOLDOWN`；被抑制或失败的提交尝试不更新 `t_last_submit`。
 
 ## 3. 术语与输入/输出事件
 
@@ -55,6 +57,7 @@
 - **获取（acquisition）**：从某目标**首次**被选为当前目标，到该目标**丢失确认**（LOST）或**切换到另一目标**之间的连续区间。一次获取最多触发一次（§10）。
 - **`TARGET_CONTINUES`（目标保持判定；仅用于迟滞/跟踪，不用于窗口计数）**：本帧存在与当前目标「类别相同」且「`IoU ≥ T6-P03` 或 归一化中心位移 ≤ `T6-P04`」的框。**不含** `score ≥ T6-P02`，也**不含**逐帧位移 `T6-P05`。
 - **`WINDOW_MATCH`（窗口推进判定；仅用于稳定窗口计数）**：在 `TARGET_CONTINUES` 成立的框上，再满足 `score ≥ T6-P02` **且** 与前一个 `WINDOW_MATCH` 帧的归一化中心位移 ≤ `T6-P05`。稳定窗口帧数、抖动容忍、稳定判定一律使用 `WINDOW_MATCH`。
+- **`t_last_target_continues`（丢失时间锚点）**：最近一次 `TARGET_CONTINUES` 成立的结果的显式输入时刻；`TARGET_CONTINUES` 不成立的结果不更新该锚点；被抑制或失败的动作尝试不更新该锚点（该锚点只由逐帧 `TARGET_CONTINUES` 判定更新）。用于 M10/B10 的 `T6-L02` 时间条件（定义见 §12）。
 - **用词约束**：本文与 JSON 不再使用无修饰的“匹配”一词指代上述两类判定；需要时写全 `TARGET_CONTINUES` 或 `WINDOW_MATCH`（B-05）。
 - **窗口序列推进帧**：`state ∈ {OK, NO_HAND}` 且 `stale=false`、`frame_id` 非重复、非倒序的结果。`NO_HAND` 属于窗口序列推进帧（推进时间/结果计数），但**不是** `WINDOW_MATCH`、不推进匹配计数；零框不得完成稳定窗口（H-4/B17）。
 - **异常（anomaly）**：`E_FRAME_INVALID`（类别越界/非 finite/框数超限/字段不自洽）、未知类别、`TIMEOUT`、`ERROR`、`DROPPED`。
@@ -68,7 +71,7 @@
 
 | 编号 | 从 → 到 | 条件 | 优先级 |
 |---|---|---|---|
-| M1 | `IDLE` → `CANDIDATE` | 存在通过 §8 选择的目标，且连续 `T6-C01` 条窗口推进帧为同一目标（`TARGET_CONTINUES` 判定同一目标；`WINDOW_MATCH` 仅用于窗口计数） | P4 |
+| M1 | `IDLE` → `CANDIDATE` | 存在通过 §8 选择的目标，且连续 `T6-C01` 条窗口推进帧为同一目标（同一目标由 `TARGET_CONTINUES` 判定，不以 `WINDOW_MATCH` 计数） | P4 |
 | M2 | `*`（任意状态） → `UNKNOWN_RECOVER` | 连续 `T6-U00_W` 条结果内异常数 ≥ `T6-U00_N` | P1 |
 | M3 | `CANDIDATE` → `STABLE` | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`（**取较晚**满足者）；**不得按 `TARGET_CONTINUES` 计帧**（低分目标不得进入 STABLE） | P3 |
 | M4 | `CANDIDATE` → `IDLE` | 抖动容忍耗尽（`> T6-J01` 帧不满足 `WINDOW_MATCH`）且候选停留 ≥ `T6-S04`；仅在 M10 未命中时求值。**当前草案 `T6-S04`=500 ms ≥ `T6-L02`=300 ms，M10 先命中，故 M4 在本轮参数下不可达**（见 JSON `reachability`、U6-12） | P3 |
@@ -77,14 +80,16 @@
 | M7 | `TRIGGERED` → `LOST` | 提交前目标已丢失。**M5 为同步提交，`TRIGGERED` 之后的提交前丢失没有独立路径，故 M7 在本轮实现中不可达**（见 JSON `reachability`） | P3 |
 | M8 | `COOLDOWN` → `IDLE` | 冷却结束且当前目标 `TARGET_CONTINUES` 不成立/已丢失 | P3 |
 | M9 | `COOLDOWN` → `STABLE` | 冷却结束、同一目标仍满足 `TARGET_CONTINUES` 且 `WINDOW_MATCH` 窗口再次满足 → **维持态，不再触发** | P3 |
-| M10 | `*`（任意有目标状态） → `LOST` | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 **或** 距上一次 `TARGET_CONTINUES` 成立 ≥ `T6-L02`（取**较早**满足者）；**不得用 `WINDOW_MATCH` 判丢失**（低分但几何连续的目标仍维持） | P2 |
+| M10 | `*`（任意有目标状态） → `LOST` | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 **或** 距上一次 `TARGET_CONTINUES` 成立（`t_last_target_continues`）≥ `T6-L02`（取**较早**满足者）；**不得用 `WINDOW_MATCH` 判丢失**（低分但几何连续的目标仍维持） | P2 |
 | M11 | `LOST` → `IDLE` | 丢失确认后立即清空当前目标与稳定证据 | P3 |
 | M12 | `UNKNOWN_RECOVER` → `IDLE` | 连续 `T6-U01` 条合法结果且无未知类别 | P5 |
 | M13 | `UNKNOWN_RECOVER` → `UNKNOWN_RECOVER` | 期间再次出现异常（按 §11.4 重置规则） | P1 |
 | M15 | `COOLDOWN` → `CANDIDATE` | 冷却结束、目标仍满足 `TARGET_CONTINUES` 但 `WINDOW_MATCH` 窗口未满足；**该路径达到稳定也不再触发** | P3 |
 
 - **M14 已删除（r02）**：`M10→M11` 使 `LOST` 立即回到 `IDLE`，故原 M14 的 `LOST` 分支不可达、`IDLE` 分支与 M1 同效；重获统一表达为 `M10→M11→M1`（新 `acquisition_id`）。删除记录见 JSON `revision.deleted_transitions`。
-- **全局冷却门不依赖展示状态**：即使 M10/M11 使状态提前离开 `COOLDOWN`，`t_submit+T6-K01` 内的任何 M5 仍被 H-10 抑制。
+- **全局冷却门不依赖展示状态**：即使 M10/M11 使状态提前离开 `COOLDOWN`，`t_last_submit + T6-K01` 内的任何 M5 仍被 H-10 抑制。
+- **STABLE 锁存（观察项定论，待 G0 确认 U6-16）**：STABLE 在本次获取内锁存：进入后不因窗口中断、score 跌破 T6-P02 或抖动耗尽而退回 CANDIDATE；离开 STABLE 仅有 M2（异常，P1）、M10（丢失确认，P2）、M5（触发，P3）三条路径。冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。
+- **M5/B13 的谓词绑定现状（R3-B02）**：M5 与 B13 只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段。
 - 逐帧求值、首次命中即停；同一帧最多一条迁移；未命中候选写入 `transition_candidates` 并记录 `S_CONFLICT_RESOLVED`。
 - 求值顺序：P1 异常（M2/M13）→ P2 丢失确认（M10）→ P3 当前状态推进（M5/M6/M8/M9/M15/M3/M4）→ P4 重获/获取（M1）→ P5 恢复（M12）。
 - `CANDIDATE` 下 M4 与 M10 同帧同时满足时以 **M10 优先**（更长确认期优先）。
@@ -105,7 +110,7 @@
 | B07 | 稳定窗口 | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` 且窗口时长 ≥ `T6-S01`；**完成时刻 = 第 N 个 `WINDOW_MATCH` 结果到达时刻**；`NO_HAND` 不计入 | M3 进入 `STABLE`（取较晚满足者） | 帧计数、窗口起点、两条件各自满足时刻、完成时刻 | 计划 L104；评审 B-02/B-04 | `T6-S01/S02/S03` |
 | B08 | 抖动容忍 | 窗口内短暂中断（窗口推进帧不满足 `WINDOW_MATCH`） | 中断 ≤ `T6-J01` 帧不重置；`= T6-J01+1` 立即重置 | `S_JITTER_TOLERATED` 或窗口重置原因 | 计划 L106 | `T6-J01` |
 | B09 | 目标保持 | `TARGET_CONTINUES` 成立 | 获取延续，窗口不重启（证据连续） | `TARGET_CONTINUES 依据（IoU/位移）` | 计划 L104 | `T6-P03/P04/P05` |
-| B10 | 丢失确认 | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 或 距上一次 `TARGET_CONTINUES` 成立 ≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还是时间条件 | 计划 L104 | `T6-L01/L02` |
+| B10 | 丢失确认 | 连续 `T6-L01` 条推进帧 `TARGET_CONTINUES` 不成立 或 距上一次 `TARGET_CONTINUES` 成立（`t_last_target_continues`）≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还是时间条件 | 计划 L104 | `T6-L01/L02` |
 | B11 | 重获 | `LOST`→`IDLE` 后同类目标再现并满足窗口 | 视为**新的独立获取**，可再次触发一次（受冷却约束） | 新获取的 `acquisition_id` | 计划 L104 | `T6-S01/S02` |
 | B12 | 目标切换 | 当前目标 `TARGET_CONTINUES` 不成立且出现另一合法目标 | 切换 → 丢失/重获路径；新目标必须重新满足窗口 | 旧/新目标字段与切换原因 | 计划 L106 | `T6-P01/P03/P04` |
 | B13 | 冷却抑制（全局门） | 自 `t_last_submit` 起 `t_now − t_last_submit < T6-K01`，**任意状态/任意获取** | 抑制**全部**触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间 | `S_COOLDOWN` + 目标与分数 + 剩余时间 | 计划 L104；评审 B-03；H-10 | `T6-K01` |
@@ -198,11 +203,11 @@
 
 | 项 | 比较 | 恰好等于阈值 | −1 单位 | +1 单位 |
 |---|---|---|---|---|
-| 稳定帧数 `T6-S02` | `matched_frames ≥ S02` | 满足（进入判定） | 不满足 | 满足 |
+| 稳定帧数 `T6-S02` | 连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02` | 满足（进入判定） | 不满足 | 满足 |
 | 稳定时长 `T6-S01` | `t_now − t_window_start ≥ S01` | 满足 | 不满足 | 满足 |
 | 抖动 `T6-J01` | `missing ≤ J01` 容忍 | 容忍（不重置） | — | 重置（`J01+1`） |
 | 丢失帧 `T6-L01` | `miss_streak ≥ L01` | 确认丢失 | 不丢失 | 确认丢失 |
-| 丢失时间 `T6-L02` | `t_now − t_last_match ≥ L02` | 确认丢失 | 不丢失 | 确认丢失 |
+| 丢失时间 `T6-L02` | `t_now − t_last_target_continues ≥ T6-L02` | 确认丢失 | 不丢失 | 确认丢失 |
 | 冷却 `T6-K01` | `t_now − t_last_submit ≥ K01` | 冷却结束（可走 M8/M9/M15） | 抑制中 | 结束 |
 | 去重 `T6-A02` | `t_now − t_last_submit < A02` 抑制 | 不被抑制 | 抑制 | 不被抑制 |
 | 候选超时 `T6-S04` | `dwell ≥ S04`（配合 M4） | M4 可用 | 不可用 | 可用 |
@@ -214,6 +219,7 @@
 | 过期 `T6-STALE_LIMIT` | `age > LIMIT` | **不过期**（严格大于） | 不过期 | 过期 |
 | 未知恢复 `T6-U01` | `legal_streak ≥ U01` | 恢复 | 未恢复 | 恢复 |
 
+- **丢失时间锚点 `t_last_target_continues`（R3-B01 定义）**：最近一次 `TARGET_CONTINUES` 成立的结果的显式输入时刻；`TARGET_CONTINUES` 不成立的结果不更新该锚点；被抑制或失败的动作尝试不更新该锚点（该锚点只由逐帧 `TARGET_CONTINUES` 判定更新）。M10/B10 的 `T6-L02` 条件与本表丢失时间行一律使用该锚点，**不得**再使用已废弃的 `t_last_match`（已废弃）。
 - **"±1 单位"定义**：帧类参数为 1 条结果；时间类参数为 **1 纳秒**（上报毫秒值时必须在日志中保留纳秒原值，避免舍入歧义）；分数类为 1 个 float64 ULP；归一化几何为 1 个 float64 ULP；`IoU` 同理。HC-02（199.0 ms vs 200 ms）与 HC-08（499 ms vs 500 ms）为**毫秒级方向性样例**，只验证不等式方向与 `W_min` 下界，不声称测试了 ±1 单位；±1 ns 样例见 HC-07/HC-10/HC-11 与新增 HC-27（N-09）。
 
 ### 12.1 边界覆盖缺口（r02 登记，N-03）
@@ -241,6 +247,7 @@
 | `frame_id` 回绕 | 达到 `0xFFFFFFFE` | 不得自然溢出到 0；必须新会话或显式复位（阶段4 约定） | 复位标记 |
 
 - 上述任一情形**都不得触发动作**；即使不推进计数，超时/失踪计时**仍按单调时钟推进**（H-3）。
+- 丢失时间条件（`T6-L02`）一律使用锚点 `t_last_target_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。
 
 ## 14. 阈值与指标登记（**全部待批准**）
 
@@ -315,6 +322,7 @@
 | U6-13 | 阶段4 实测帧周期 `P_meas`（`T6-A03` 与交互延迟基准） | 新登记 `BLOCKED`（无实测 P，评审 N-05/B-04） | 阶段4 + 项目总控 |
 | U6-14 | 五类动作反馈可见时长/过渡（逐类 UX） | 新登记（评审 N-06） | Wong/G0 |
 | U6-15 | `A_DISPLAY_STATE` 是否需要（r02 已从支持类型删除） | 新登记（评审 N-01） | Wong/G0 |
+| U6-16 | STABLE 是否在本次获取内锁存（进入后不因窗口中断退回 `CANDIDATE`） | 本 G0 定论为「本次获取内锁存」，见 §4 与 JSON `stable_latching` | Wong/G0 确认；若改则属语义变更 |
 
 ## 17. 覆盖矩阵与上游哈希
 
@@ -323,6 +331,8 @@
 **独立评审 S6A_20261022_r01 关闭索引（r02）**：B-01 → §18 清单与真实退出码 + `delivery_manifest.json`/`inputs_manifest.json`/`hashes_sha256.txt` + `fix_record.json`；B-02 → H-4/§9/§11.1/B17/JSON；B-03 → H-10/§10/B13/B14/M5/JSON `cooldown_policy`；B-04 → §15/§9/B27/JSON `low_fps_latency`；B-05 → §3/§8/§9/B03/B07/B09/JSON `predicates`；N-01 → M14 删除、§14 `T6-S03`、§3 `E_FRAME_CONFLICT`、`A_DISPLAY_STATE` 删除；N-02 → JSON `reachability` + §14 脚注；N-03 → §12.1；N-04 → HC-16/17/20 改为可复算 + 新增 HC-21..HC-27；N-05 → §15/U6-13/limitations；N-06 → §7 逐类 UX；N-07 → B16/B19/B23 依据；N-08 → 新 RunId 保留旧包失败输出；N-09 → §12 ±1 单位口径 + HC-27；N-10 → §5/STATE 措辞。
 
 **独立复评 S6A_20261022_r02 关闭索引（r03）**：BLK-1 → JSON `transitions.M1/M3/M4/M5/M8/M9/M10/M15` 与 `behavior_rows.B04/B08/B10/B12/B13/B14` 的谓词绑定、`predicates.*.used_by` 补 M3/M10、§4/§5/§9/§10/§12/§13 文本同步、自检 C12 增加迁移/行为行断言；BLK-2 → `old_package_under_test.json` 改为 `git show 1fe4648:` 原始字节哈希并重跑失败证据（`selfcheck_old_package_failure.json/.txt`），旧哈希错误原因见 `fix_record.json`；BLK-3 → 入库 `selfcheck_result.json` 改用 `--manifest`+`--state`，落盘 `selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；NBL-1 → inputs 清单 checks 两阶段实测回写；NBL-2 → 统一 `t_last_submit`；NBL-3 → 边界样例引入 `t_now` 真算；NBL-4 → §15 六列表头；NBL-5 → 修正 B-05/`transitions.M10` 描述。
+
+**第三轮复评 S6A_r03_20261022_r01 关闭索引（r04）**：R3-B01 → §12 `T6-S02`/`T6-L02` 行改写 + §3/§12/§13 `t_last_target_continues` 定义 + 自检 C12 禁用标识符扫描；R3-B02 → `behavior_rows.B03/B17.predicates_used`、`predicates.TARGET_CONTINUES.used_by` 补 B14、`transitions.M1.predicates_used` 收敛为仅 `TARGET_CONTINUES`、`predicate_binding_policy`（M5/B13）+ 自检 C12 全量双向断言；观察项 → §4 STABLE 锁存 + JSON `stable_latching` + 自检 C17 + U6-16；N01 → §2 H-10 与 §4 统一 `t_last_submit`；N02 → HC-27 去自比较、HC-28/29 逐帧序列真推导、`revision.changes` 措辞；N03 → `verification/s6a_rerun_legacy_failures.py` 并纳入构建器；N04 → C7 样例数 29、版本号统一 v1.3/r04；N05 → 旧哈希成因措辞改为「LF→CRLF + 末尾补 CRLF」。
 
 **计划 L102–L108 覆盖**：L104 目标与八项冻结要求 → §4/§8/§9/§10/§11；L106 五个测试场景与沿用建议 → §5-B01…B28 与 §14；L108 证据与"不代替阶段7" → §0、§18。
 
@@ -344,10 +354,10 @@
 
 ## 18. 证据、限制与不宣称项
 
-- 本轮（v1.2 / r03）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r03/`（机器可读清单 `delivery_manifest.json`；输入清单 `inputs_manifest.json`；哈希清单 `hashes_sha256.txt`；手算样例 `hand_computed_cases.json`；覆盖矩阵 `coverage_matrix.json`；自检结果 `selfcheck_result.json`（含完整 C11 清单/STATE 核对）；C11 完整 stdout `selfcheck_c11_stdout.txt`；交付检查真实输出 `check_inputs_mode_output.txt`/`check_evidence_mode_output.txt`；r01 旧包失败证据 `selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`；r02 BLK-1 失败证据 `selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`；修订记录 `fix_record.json`/`fix_record.md`；限制/未执行 `limitations_not_executed.json`；上游绑定 `upstream_bindings.json`；运行摘要 `S6A_run_summary.md`）。r01/r02 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r03/`（不入库）。
+- 本轮（v1.3 / r04）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r04/`（机器可读清单 `delivery_manifest.json`；输入清单 `inputs_manifest.json`；哈希清单 `hashes_sha256.txt`；手算样例 `hand_computed_cases.json`；覆盖矩阵 `coverage_matrix.json`；自检结果 `selfcheck_result.json`（含完整 C11 清单/STATE 核对）；C11 完整 stdout `selfcheck_c11_stdout.txt`；交付检查真实输出 `check_inputs_mode_output.txt`/`check_evidence_mode_output.txt`；r01 旧包失败证据 `selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`；r02 失败证据 `selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`；r03 R3 项失败证据 `selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`；修订记录 `fix_record.json`/`fix_record.md`；限制/未执行 `limitations_not_executed.json`；上游绑定 `upstream_bindings.json`；运行摘要 `S6A_run_summary.md`）。三类旧包失败证据由 `verification/s6a_rerun_legacy_failures.py` 用最终脚本重跑生成。r01/r02/r03 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`、`..._r03/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r04/`（不入库）。
 - **本轮全部实测类项目为 `NOT_RUN`**：状态机确定性测试（6-B/6-C）、脚本注入联调（6-D 一级）、独立图片/视频序列板上联调（6-D 二级）、≥30 分钟回放稳定性、真摄像头验收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
 - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。**阶段4 实测帧周期 `P_meas` 未取得 → `T6-A03` 与交互延迟量级 `NOT_RUN`（U6-13）**；`T6-S04`/M4 在当前草案下不可达（U6-12）；五类逐类反馈可见时长未批准（U6-14）。
-- **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。
+- **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。 **r04 修订说明**：R3-B01 修正 §12 的 `T6-S02`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates.used_by` 与 `predicates_used` 的双向一致；M5/B13 叙述改为「只有条件文本 + `global_cooldown_gate` 绑定、无 `predicates_used` 字段」；旧哈希成因（N05）更正为「LF→CRLF + 末尾补 CRLF」，不再声称「编码」被改写。
 - **回放/注入限定**：任何由脚本注入或回放输入得到的结论，其适用范围**仅限回放/注入输入**，不得冒充真实摄像头验收。
 - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。
 - 独立 Reviewer：本阶段总控在本次会话中**无法创建子代理**（运行环境限制：委派深度已用尽），故本轮**未完成独立审查**；该限制已如实登记，独立审查须在后续轮次由项目总控安排。

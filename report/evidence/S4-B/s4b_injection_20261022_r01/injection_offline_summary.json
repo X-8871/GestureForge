@@ -1,0 +1,1510 @@
+{
+  "task_id": "S4-B",
+  "run_id": "s4b_injection_20261022_r01",
+  "driver": "run_s4b_injection_offline",
+  "generated_at_utc8": "2026-10-22T19:33:11+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/stage4_s4b/run_s4b_injection_offline.py --run-id s4b_injection_20261022_r01 --evidence-dir report/evidence/S4-B/s4b_injection_20261022_r01",
+  "contract_version": "s4-shared-io/1.1.0",
+  "address_map": {
+    "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_stage4_address_map.json",
+    "sha256": "416c02419ebe93e15bed0093a5e8c3bb8bca966395aa0c0febdf63d1646db6c3",
+    "check": {
+      "status": "PASS",
+      "pairs_checked": 15,
+      "problems": [],
+      "negative_control": {
+        "mutation": "把 injection_frame_rgb.base_addr 改到 gf8_weight_package 起点",
+        "detected": true
+      }
+    }
+  },
+  "build": {
+    "command": "d:\\mingw64\\bin\\gcc.exe -std=c11 -O2 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -I D:\\codex-worktrees\\w4\\vitis\\stage4 D:\\codex-worktrees\\w4\\vitis\\stage4\\s4_inject_frame.c D:\\codex-worktrees\\w4\\vitis\\stage4\\s4_inject_frame_host.c -o D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\build\\s4_inject_host.exe",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "exe": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\build\\s4_inject_host.exe",
+    "exe_sha256": "2475b2f8e9ff7bc45660fef1ef3602d33bfcf217d7e3a8d24c57b5dedac5d29f"
+  },
+  "build_warning_lines": [],
+  "cases": [
+    {
+      "case": "single_frame_full",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status_name": "OK",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\single_frame_full.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\single_frame_full.json",
+      "consumer": {
+        "reads": 1,
+        "last_crc32": 2904624376,
+        "valid_bytes": 48,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 1,
+        "flush_events": 1,
+        "invalidate_events": 1,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 1,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 64,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "small_1x1",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status_name": "OK",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\small_1x1.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\small_1x1.json",
+      "consumer": {
+        "reads": 1,
+        "last_crc32": 2414802966,
+        "valid_bytes": 3,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 2,
+        "flush_events": 1,
+        "invalidate_events": 1,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 1,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 64,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "small_3x2",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status_name": "OK",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\small_3x2.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\small_3x2.json",
+      "consumer": {
+        "reads": 1,
+        "last_crc32": 4070869247,
+        "valid_bytes": 18,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 3,
+        "flush_events": 1,
+        "invalidate_events": 1,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 1,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 64,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "odd_width_5_rgb565_padded",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status_name": "OK",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\odd_width_5_rgb565_padded.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\odd_width_5_rgb565_padded.json",
+      "consumer": {
+        "reads": 1,
+        "last_crc32": 2904624376,
+        "valid_bytes": 30,
+        "padding_bytes": 18,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 4,
+        "flush_events": 1,
+        "invalidate_events": 1,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 1,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 64,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "queue_full_on_third_frame",
+      "expected_exit": 12,
+      "actual_exit": 12,
+      "status_name": "ERR_NO_FREE_BUFFER",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\queue_full_on_third_frame.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\queue_full_on_third_frame.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 2,
+        "held": 2,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 1,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "LOADING",
+            "frame_id": 10,
+            "events_mask": 1,
+            "integrity_checked": 1,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "LOADING",
+            "frame_id": 11,
+            "events_mask": 1,
+            "integrity_checked": 1,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "no_overwrite_held_slot",
+      "expected_exit": 13,
+      "actual_exit": 13,
+      "status_name": "ERR_NO_OVERWRITE",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\no_overwrite_held_slot.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\no_overwrite_held_slot.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 1,
+        "held": 1,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "LOADED",
+            "frame_id": 20,
+            "events_mask": 3,
+            "integrity_checked": 1,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "release_then_reuse",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "status_name": "OK",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\release_then_reuse.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\release_then_reuse.json",
+      "consumer": {
+        "reads": 2,
+        "last_crc32": 2904624376,
+        "valid_bytes": 48,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 1,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 31,
+        "flush_events": 2,
+        "invalidate_events": 2,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 2,
+        "invalidate_count": 2,
+        "flushed_bytes": 128,
+        "invalidated_bytes": 128,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ],
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ],
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_contract_version",
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "status_name": "ERR_CONTRACT_VERSION",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_contract_version.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_contract_version.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_source_kind",
+      "expected_exit": 3,
+      "actual_exit": 3,
+      "status_name": "ERR_SOURCE_KIND",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_source_kind.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_source_kind.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_pixel_format",
+      "expected_exit": 4,
+      "actual_exit": 4,
+      "status_name": "ERR_PIXEL_FORMAT",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_pixel_format.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_pixel_format.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_geometry_zero",
+      "expected_exit": 5,
+      "actual_exit": 5,
+      "status_name": "ERR_GEOMETRY",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_geometry_zero.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_geometry_zero.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_stride_too_small",
+      "expected_exit": 6,
+      "actual_exit": 6,
+      "status_name": "ERR_STRIDE",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_stride_too_small.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_stride_too_small.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_length_mismatch",
+      "expected_exit": 7,
+      "actual_exit": 7,
+      "status_name": "ERR_LENGTH",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_length_mismatch.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_length_mismatch.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_unknown_region",
+      "expected_exit": 8,
+      "actual_exit": 8,
+      "status_name": "ERR_REGION_UNKNOWN",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_unknown_region.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_unknown_region.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_out_of_range",
+      "expected_exit": 9,
+      "actual_exit": 9,
+      "status_name": "ERR_BUFFER_RANGE",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_out_of_range.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_out_of_range.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_alignment",
+      "expected_exit": 10,
+      "actual_exit": 10,
+      "status_name": "ERR_ALIGNMENT",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_alignment.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_alignment.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_integrity_wrong_digest",
+      "expected_exit": 17,
+      "actual_exit": 17,
+      "status_name": "ERR_INTEGRITY",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_integrity_wrong_digest.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_integrity_wrong_digest.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_forged_capture_time",
+      "expected_exit": 19,
+      "actual_exit": 19,
+      "status_name": "ERR_CAPTURE_TIME_FORGED",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_forged_capture_time.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_forged_capture_time.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 4,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 2,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 3,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_measurement_scope",
+      "expected_exit": 20,
+      "actual_exit": 20,
+      "status_name": "ERR_MEASUREMENT_SCOPE",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_measurement_scope.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_measurement_scope.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 4,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 2,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 3,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_duplicate_frame",
+      "expected_exit": 14,
+      "actual_exit": 14,
+      "status_name": "ERR_DUPLICATE_FRAME",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_duplicate_frame.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_duplicate_frame.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 1,
+        "held": 1,
+        "last_released_frame_id": 0,
+        "flush_events": 1,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "PUBLISHED",
+            "frame_id": 60,
+            "events_mask": 15,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 0,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_out_of_order_frame",
+      "expected_exit": 15,
+      "actual_exit": 15,
+      "status_name": "ERR_OUT_OF_ORDER",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_out_of_order_frame.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_out_of_order_frame.json",
+      "consumer": {
+        "reads": 1,
+        "last_crc32": 2904624376,
+        "valid_bytes": 48,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 70,
+        "flush_events": 1,
+        "invalidate_events": 1,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 255,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 64
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 1,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 64,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_event_order",
+      "expected_exit": 16,
+      "actual_exit": 16,
+      "status_name": "ERR_EVENT_ORDER",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_event_order.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_event_order.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 1,
+        "held": 1,
+        "last_released_frame_id": 0,
+        "flush_events": 0,
+        "invalidate_events": 0,
+        "timeout_events": 0,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "LOADING",
+            "frame_id": 80,
+            "events_mask": 1,
+            "integrity_checked": 1,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 0,
+        "invalidate_count": 0,
+        "flushed_bytes": 0,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    },
+    {
+      "case": "fault_consumer_timeout",
+      "expected_exit": 18,
+      "actual_exit": 18,
+      "status_name": "ERR_CONSUMER_TIMEOUT",
+      "matched": true,
+      "script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_consumer_timeout.op",
+      "json": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B\\s4b_injection_20261022_r01\\cases\\fault_consumer_timeout.json",
+      "consumer": {
+        "reads": 0,
+        "last_crc32": 0,
+        "valid_bytes": 0,
+        "padding_bytes": 0,
+        "padding_consumed": 0,
+        "busy_ticks": 0
+      },
+      "ring": {
+        "slot_count": 2,
+        "in_flight": 0,
+        "held": 0,
+        "last_released_frame_id": 0,
+        "flush_events": 1,
+        "invalidate_events": 0,
+        "timeout_events": 1,
+        "dropped_frames": 0,
+        "last_bind_slot": 0,
+        "slots": [
+          {
+            "slot": 0,
+            "state": "FAILED",
+            "frame_id": 90,
+            "events_mask": 15,
+            "integrity_checked": 1,
+            "flush_bytes": 64,
+            "invalidate_bytes": 0
+          },
+          {
+            "slot": 1,
+            "state": "FREE",
+            "frame_id": 0,
+            "events_mask": 0,
+            "integrity_checked": 0,
+            "flush_bytes": 0,
+            "invalidate_bytes": 0
+          }
+        ]
+      },
+      "mock_cache": {
+        "flush_count": 1,
+        "invalidate_count": 0,
+        "flushed_bytes": 64,
+        "invalidated_bytes": 0,
+        "dirty_lost_lines": 0,
+        "flush_ranges": [
+          [
+            275775488,
+            275775552
+          ]
+        ],
+        "invalidate_ranges": []
+      },
+      "stderr": ""
+    }
+  ],
+  "case_failures": [],
+  "small_image_checks": [
+    {
+      "case": "small_1x1",
+      "width": 1,
+      "height": 1,
+      "stride_bytes": 3,
+      "payload_bytes": 3,
+      "expected_crc32": 2414802966,
+      "actual_crc32": 2414802966,
+      "actual_valid_bytes": 3,
+      "crc_match": true,
+      "bytes_match": true
+    },
+    {
+      "case": "small_3x2",
+      "width": 3,
+      "height": 2,
+      "stride_bytes": 9,
+      "payload_bytes": 18,
+      "expected_crc32": 4070869247,
+      "actual_crc32": 4070869247,
+      "actual_valid_bytes": 18,
+      "crc_match": true,
+      "bytes_match": true
+    }
+  ],
+  "small_image_failures": [],
+  "counts": {
+    "cases": 23,
+    "matched": 23,
+    "failed": 0
+  },
+  "status": "PASS",
+  "limits": [
+    "仅主机 mock DDR/cache 与 gcc；未接板卡、未接真实串口、未跑 PL。",
+    "NOT_RUN：板上注入（4-D）、真实 UART、摄像头、PL 推理时间/期限/吞吐、109 全量（S4-C）。",
+    "注入模式下 capture_time_ns 不可用；本驱动不接受任何伪造采集时间。"
+  ]
+}

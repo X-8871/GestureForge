@@ -1,0 +1,77 @@
+{
+  "task_id": "S4-A",
+  "run_id": "s4a_g0_20261022_r01",
+  "revision": "r06",
+  "generated_at_utc8": "2026-10-22T19:23:32+08:00",
+  "cwd": "D:\\codex-worktrees\\w4",
+  "branch": "stage4-infer-prep",
+  "head": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a",
+  "note": "命令默认在 Git Bash/PowerShell 的 w4 工作树根执行；本任务未执行任何硬件操作，未 git add/commit。",
+  "commands": [
+    {
+      "id": "CMD-01",
+      "purpose": "定位并复算 D:\\FPGA_Data 外部模型资产（只读流式 SHA-256）",
+      "command": "python -B tmp/4/S4-A/s4a_g0_20261022_r01/discover_upstream_assets.py",
+      "exit_code": 0,
+      "note": "按字节数/文件名筛出 80 个候选、复算 1,705,700,919 B；5 项资产全部命中期望 SHA；路径以 2A manifest 声明路径为准（同内容副本共存不改变身份）"
+    },
+    {
+      "id": "CMD-02",
+      "purpose": "现场复算 task-5 要求的全部钉扎条目 SHA-256",
+      "command": "python -B tmp/4/S4-A/s4a_g0_20261022_r01/recompute_upstream_sha.py",
+      "exit_code": 0,
+      "note": "17/17 MATCH（外部 5 项、2A 树内 3 项、2B 8 项、2B 冻结回执 1 项），含字节数与 calibration.list 512 项核对"
+    },
+    {
+      "id": "CMD-03",
+      "purpose": "r06 自检：24 项钉扎复算 + 分片逐片 SHA + 字段/状态/measurement_scope 一致性 + 冻结块/三范围/边界口径/2B 事实对齐",
+      "command": "python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261022_r01",
+      "exit_code": 0,
+      "note": "18 项 PASS、0 项 FAIL；T25 分片 109/109 个、390,700,998 B、逐片 SHA 全部一致"
+    },
+    {
+      "id": "CMD-04",
+      "purpose": "变异自证：阳性对照必须 PASS，每条变异必须被检出",
+      "command": "python -B scripts/stage4_s4a/mutate_verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261022_r01",
+      "exit_code": 0,
+      "note": "9 例：M0 阳性对照 exit 0；M1 翻转钉扎 SHA、M2 删除冻结项、M3a/M3b stale_age_limit 写成已批准、M4 删除 12676 锚点、M5 删除回执 SHA、M6 删除钉扎条目、M7 删除注入不伪造锚点全部 exit 1"
+    },
+    {
+      "id": "CMD-05",
+      "purpose": "官方证据清单机器核验（evidence 模式）",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-A/s4a_g0_20261022_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "note": "CHECKS_OK；仅代表清单/文件绑定/目录枚举通过，不代表测试成功、独立审查或 G0/G4/G5"
+    },
+    {
+      "id": "CMD-06",
+      "purpose": "只读树未触碰与未提交核验",
+      "command": "git status --short",
+      "exit_code": 0,
+      "note": "未写主树/w2b/dbdf/w5/w6/D:\\FPGA_Data；未改 2B 接口正文与 S4-B/S4-C/S4-D 既有产物；未 git add/commit（提交由 Lead 统一执行）"
+    }
+  ],
+  "not_run": [
+    {
+      "item": "candidate_limit_boundary_actual_test",
+      "status": "NOT_RUN",
+      "reason": "本轮冻结的是边界测试口径（12675 恰好可行 / 追加 12676 硬错误）；实际边界测试由 S4-B 离线实现与 S4-D 板测在各自范围内执行，本轮未运行被测实现"
+    },
+    {
+      "item": "board_injection_and_camera_measurements",
+      "status": "NOT_RUN",
+      "reason": "本轮为离线 G0 基线冻结；硬件条件（正式实物授权、硬件会话交接、独占会话、产物绑定、4-B 命令交付）未具备，且阶段5 正在板测"
+    },
+    {
+      "item": "hardware_session_verification",
+      "status": "NOT_RUN",
+      "reason": "本任务不核验/不连接/不争用 hw_server、JTAG、COM4 或串口；当前硬件归属以现场会话核验为准（只读旁证见契约 round_freeze_metadata）"
+    }
+  ],
+  "limitations": [
+    "本轮冻结阶段4 G0 基线与结论口径，不是阶段4 验收；无板上/摄像头/HDMI/UART 实测。",
+    "上游只读引用；D:\\FPGA_Data 外部资产现场可读并已复算（未使用 NOT_AVAILABLE 出口）。",
+    "2A manifest 快照记录的 D2/D9/D6 SHA 与本工作树当前版本不同，差异属上游文档快照滞后。",
+    "时基常量与跨域门控方法、stale_age_limit 仍为 DRAFT_PENDING_APPROVAL。"
+  ]
+}

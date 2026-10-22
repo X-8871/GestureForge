@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-A",
+  "run_id": "s4a_g0_20261022_r01",
+  "source_commit": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a",
+  "evidence_dir": "report/evidence/S4-A/s4a_g0_20261022_r01",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
+      "sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+      "role": "source",
+      "keep_reason": "S4-A r06 人读文档：本轮冻结项、完整钉扎表、三范围、UART 方案 B 与旁路映射、边界与授权口径"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "source",
+      "keep_reason": "S4-A r06 机器可读契约：g0_round_freeze/scope_freeze/candidate_limit_boundary_test/uart_plan_b_freeze"
+    },
+    {
+      "path": "scripts/stage4_s4a/verify_s4a_draft.py",
+      "sha256": "dab618610eefdad015ffd80f9a3655b57cf6b0ccc7f21377336ea36140718f66",
+      "role": "source",
+      "keep_reason": "r06 自检脚本（钉扎现场复算、字段/状态/measurement_scope 一致性、冻结块与事实对齐）"
+    },
+    {
+      "path": "scripts/stage4_s4a/mutate_verify_s4a_draft.py",
+      "sha256": "f3282a59105f27a093d8614e276fc7eb6bc22b7f05e725ff945732ff048d4f5c",
+      "role": "source",
+      "keep_reason": "r06 变异自证脚本（隔离沙箱，只写 tmp 与证据目录）"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input",
+      "keep_reason": "D2 冻结预处理/INT8 数值参考（被钉扎的上游输入，只读）"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261022_r01/commands.json",
+      "sha256": "85beed043df0262cfa46209cd155744a4a3b46a30fee939c22b53c32fbf32796",
+      "role": "log",
+      "keep_reason": "本轮命令与真实退出码记录（含未执行项与限制）"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261022_r01/mutation_selfcheck_result.json",
+      "sha256": "54a482ec74a8a1ad144c3c957efc48485e4c4f7b61b07bf732089dd6af675f85",
+      "role": "result",
+      "keep_reason": "变异自证结果（9 例真实退出码：阳性对照 exit 0，8 条变异全部被检出 exit 1）"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261022_r01/upstream_sha_recompute.json",
+      "sha256": "d6f3b01d9c4493708ceddbace69bf19d1fe7cf5b9aa6d726f8ee9cd9a91d9be5",
+      "role": "result",
+      "keep_reason": "24 项上游钉扎的现场复算机器可读记录（SHA-256/字节数/样本数/目录聚合/NOT_AVAILABLE 诚实性）"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261022_r01/verify_s4a_draft_result.json",
+      "sha256": "4bac77d656d845fd4f02089deec56c7f9c663a706349375c21e6cc43cbae115d",
+      "role": "result",
+      "keep_reason": "r06 自检结果（含 24 项钉扎复算明细、三范围/边界/事实对齐检查与文档哈希）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s4a_g0_selfcheck_upstream_pinning_and_freeze_blocks",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261022_r01",
+      "exit_code": 0,
+      "reason": "18 项 PASS/0 项 FAIL：24 项钉扎现场复算（23 项带 SHA 全部 MATCH）、T25 分片 109/109 逐片 SHA 一致、字段/状态/measurement_scope 双向一致、6 个冻结项与 2 个未冻结项齐备、三范围与边界口径齐备、2B 事实对齐且旧快照语句已删除"
+    },
+    {
+      "name": "mutation_selfproof_pinning_freeze_and_draft_status",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4a/mutate_verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261022_r01",
+      "exit_code": 0,
+      "reason": "阳性对照 exit 0；改动钉扎 SHA、删除冻结项、把 stale_age_limit 写成已批准（JSON 与文档两路）等 8 条变异全部被检出（exit 1）"
+    },
+    {
+      "name": "official_checker_evidence_mode",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-A/s4a_g0_20261022_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；evidence_dir 与 task_id/run_id 精确匹配、运行目录文件被完整枚举并逐文件绑定 SHA-256；仅代表包装检查通过"
+    },
+    {
+      "name": "readonly_trees_and_hardware_untouched",
+      "status": "PASS",
+      "command": "git status --short",
+      "exit_code": 0,
+      "reason": "只改本任务写权范围（docs/stage4/S4A_*|s4a_*、scripts/stage4_s4a/**、report/evidence/S4-A/**、tmp/4/S4-A/**）；未写主树/w2b/dbdf/w5/w6/D:\\FPGA_Data，未改 2B 接口正文、未改 S4-B/C/D 冻结产物，未操作任何硬件，未 git add/commit"
+    },
+    {
+      "name": "candidate_limit_boundary_actual_test",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本轮冻结边界测试口径；实际边界测试由 S4-B 离线实现与 S4-D 板测执行，本轮未运行被测实现（禁止为此操作硬件）"
+    },
+    {
+      "name": "board_injection_and_camera_measurements",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线 G0 基线冻结：硬件授权/会话交接/独占会话/产物绑定与 4-B 命令交付均未具备，阶段5 正在板测，本轮不执行任何硬件操作"
+    }
+  ],
+  "limitations": [
+    "本轮冻结阶段4 G0 基线与结论口径，不是阶段4 验收；无板上、无摄像头、无 HDMI、无 UART 实测，本轮未执行任何硬件操作。",
+    "上游 2A/2B 资产只读引用；T25 分片未物化到本工作树，按只读绝对路径与分片恢复清单逐片复算。",
+    "2A manifest（2026-09-23 快照）记录的 D2/D9/D6 SHA 与本工作树当前版本不同（ea48281f/0be8e2dc/5ff91ffb 对应 6a3453d5/94dacdac/4dcf0f7d）；本契约钉扎当前树内版本，差异属上游文档快照滞后。",
+    "D:\\FPGA_Data 外部资产钉扎路径取自 2A manifest 声明路径；同 SHA 同内容副本（cfg 3 份、weights 3 份、calibration.list 3 份）不改变身份，本轮 5 项全部可读并已复算，未使用 NOT_AVAILABLE 出口。",
+    "2B 的释放只证明 2B 在其任务内释放；当前硬件归属以现场会话核验为准，本任务未核验、未连接、未争用任何硬件会话。",
+    "时基常量（COUNTS_PER_SECOND）与 PL 跨域实测门控方法、stale_age_limit 仍为 DRAFT_PENDING_APPROVAL，需阶段4 正式 G0 或 Wong 批准。",
+    "CHECKS_OK 与自检 PASS 只代表清单/哈希绑定/结构一致性；不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。",
+    "候选上限边界与三范围结论口径已冻结，但实际边界测试、注入链路与摄像头回归均未执行（NOT_RUN）。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "git": "系统 git（只读核验）",
+    "os": "Windows 10/11 x64",
+    "checker": "verification/check_stage_delivery.py schema_version=1",
+    "selfcheck": "scripts/stage4_s4a/verify_s4a_draft.py checker_version=r06"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "task_id": "S4-A",
+  "purpose": "自检器 r06 变异自证：改动钉扎 SHA / 删除冻结项 / 把 stale_age_limit 写成已批准 必须 FAIL",
+  "generated_at_utc8": "2026-10-22T19:22:24+08:00",
+  "sandbox": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-A\\s4a_g0_20261022_r01\\mutation_sandbox",
+  "shard_sha_in_mutation_runs": false,
+  "positive_control_expected_exit": 0,
+  "cases": [
+    {
+      "case": "M0 阳性对照（未变异）",
+      "exit_code": 0,
+      "expected": 0,
+      "verdict": "OK"
+    },
+    {
+      "case": "M1 翻转一条钉扎期望 SHA（s1_t02_d9_decoder）",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M2 删除冻结项 candidate_limit_boundary",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M3a 把 stale_age_limit 状态写成 APPROVED",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M3b 文档把 DRAFT_PENDING_APPROVAL 写成已批准",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M4 文档删除候选边界 12676 锚点",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M5 文档删除 2B 冻结回执 SHA",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M6 删除上游钉扎条目 stage2b_freeze_receipt",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    },
+    {
+      "case": "M7 文档删除注入不伪造采集时间锚点",
+      "exit_code": 1,
+      "expected": 1,
+      "verdict": "OK"
+    }
+  ],
+  "unexpected": 0,
+  "status": "PASS",
+  "exit_code": 0
+}

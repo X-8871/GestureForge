@@ -1,0 +1,487 @@
+{
+  "schema_version": "gestureforge_s4b_address_map_v1",
+  "task_id": "S4-B",
+  "stage": "stage4",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "generated_utc8": "2026-10-22T19:40:00+08:00",
+  "status": "DRAFT_PENDING_REVIEW",
+  "authority": "本图是共享契约 `docs/stage4/s4b_shared_input_result_contract.json` 中 `buffer.region_name` / region 方向语义的权威来源；契约只引用 region 名称，不重复数字。",
+  "revision_note": "r01 初版：以 2B 已冻结产物为事实来源；显示缓冲在阶段3/阶段5 未建立权威事实，按 w5 规定不得猜地址，记为 UNRESOLVED。",
+  "address_space": {
+    "half_open": true,
+    "byte_order": "little",
+    "cache_line_bytes": 64,
+    "spaces": [
+      {
+        "name": "ddr",
+        "base_addr": 0,
+        "base_addr_hex": "0x00000000",
+        "end_addr_exclusive": 536870912,
+        "end_addr_exclusive_hex": "0x20000000",
+        "notes": "Zynq PS DDR 物理空间；本阶段只声明被引用的对象与专用窗口。"
+      },
+      {
+        "name": "pl_mmio",
+        "base_addr": 1073741824,
+        "base_addr_hex": "0x40000000",
+        "end_addr_exclusive": 2147483648,
+        "end_addr_exclusive_hex": "0x80000000",
+        "notes": "PL/GP0 MMIO 地址段；设备强序访问，非 cacheable。"
+      }
+    ]
+  },
+  "factsources": [
+    {
+      "id": "W2B-PLATFORM",
+      "path": "D:\\FPGA_Competition\\w2b\\board\\s2b_inference_platform.json",
+      "sha256": "6f69e6ad1d77eb455ab924d41c06e0c93703bfdb89be6743ea301868975ecd97",
+      "status": "FROZEN_2B"
+    },
+    {
+      "id": "W2B-INTERFACE",
+      "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "status": "G0_FROZEN_2B"
+    },
+    {
+      "id": "W2B-APP",
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "status": "FROZEN_2B"
+    },
+    {
+      "id": "W5-S5T01",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\S5T01_stage5_board_bringup_runbook.md",
+      "sha256": null,
+      "status": "READONLY_ACTIVE_TREE",
+      "notes": "阶段5 活动树，本轮只读引用、不绑定哈希；其 P1 节规定送显缓冲布局/地址/所有权必须只读核对、不得猜地址。"
+    }
+  ],
+  "injection_point": {
+    "region_name": "injection_frame_rgb",
+    "pixel_format": "RGB888",
+    "position": "被验收的 D2 预处理（letterbox/颜色/量化）之前",
+    "covered_stages": [
+      "D2 被验收预处理（letterbox + 颜色 + INT8 量化 + CHW 布局）",
+      "网络输入张量装载（network_input_tensor）",
+      "PL 整数推理（38 层，含 GF8 权重）",
+      "PS 解码/NMS（head13/head26 → 结果记录）",
+      "结果记录与 PS 侧日志（(session_id, frame_id, result_seq) 唯一映射）"
+    ],
+    "not_covered": [
+      "真实摄像头采集链（传感器/PL 采集/格式整理）——仅 camera 模式覆盖",
+      "显示链路（display_buffer / 阶段5 叠框）",
+      "UART 物理传输（方案 B 下时间/状态由 PS 侧日志承载）"
+    ],
+    "rejected_alternatives": [
+      {
+        "pixel_format": "INT8_CHW_416",
+        "region_name": "network_input_tensor",
+        "why_rejected": "位于被验收预处理之后，只能覆盖网络+后处理，不能证明 D2 预处理；仅允许作为离线一致性核对用途（本 run 的冻结样本核对即此用途，且明确不作预处理覆盖声明）。"
+      },
+      {
+        "target": "display_buffer",
+        "why_rejected": "只覆盖显示；且该缓冲地址/所有权在阶段3/阶段5 未建立权威事实。"
+      }
+    ],
+    "consumer_rule": "注入帧的消费者 = 执行 D2 预处理的那个所有者；消费者在 ownership_publish_to_consumer 事件之前不得读取，且不得在注入模式下产生 capture_time_ns。",
+    "time_rule": "注入模式只记录 injection_start_ns（单调、声明时钟域）并列入 measurement_scope.unavailable_fields：capture_time_ns 不可用（非 0、非注入起点）。"
+  },
+  "regions": [
+    {
+      "name": "ps_app_arena",
+      "kind": "ddr",
+      "category": "ps_stack_workspace",
+      "base_addr": 1048576,
+      "base_addr_hex": "0x00100000",
+      "end_addr_exclusive": 17825792,
+      "end_addr_exclusive_hex": "0x01100000",
+      "length_bytes": 16777216,
+      "alignment_bytes": 4096,
+      "status": "FROZEN_2B_CANDIDATE",
+      "owner": "PS 应用（linker 声明的应用 arena：code/data/bss/heap/stack）",
+      "access": {
+        "ps_cpu": "read_write_cacheable",
+        "pl_hp0": "none",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "ps_cacheable_writeback",
+        "when": "该区域是 PS 私有工作区；向任何 DMA/PL 消费者移交前必须先 clean（写回）",
+        "line_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "无 PL/DMA 参与；不构成 PL 前置条件"
+      ],
+      "sub_regions_unresolved": [
+        "code",
+        "data/bss",
+        "heap",
+        "stack"
+      ],
+      "notes": "2B 文档只声明整个 16 MiB 应用 arena 由 linker 断言 VMA/LMA/size/64-byte 对齐，未公开内部堆栈切分；本阶段不得据该区间推断任何具体对象地址。stage4 自身堆栈/堆布局须在 4-D 用真实 .map 只读核对（本轮 NOT_RUN）。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-APP"
+      ]
+    },
+    {
+      "name": "network_input_tensor",
+      "kind": "ddr",
+      "category": "model_input",
+      "base_addr": 268435456,
+      "base_addr_hex": "0x10000000",
+      "end_addr_exclusive": 268954624,
+      "end_addr_exclusive_hex": "0x1007EC00",
+      "length_bytes": 519168,
+      "alignment_bytes": 64,
+      "status": "FROZEN_2A_2B",
+      "owner": "PS 写入 / PL HP0 只读（2A 冻结：输入图像 0x00000000，519,168 bytes，[1,3,416,416] CHW INT8）",
+      "access": {
+        "ps_cpu": "write_before_start_read_after_safe",
+        "pl_hp0": "read_only",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "flush_writeback_before_publish",
+        "when": "装载完成 → DSB → 对外 64 B 取整 flush → DSB；该 tensor 由 PL 只读，PS 侧不使用 invalidate",
+        "line_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "PL 读取前必须已 flush 完成；PL 不写该区域"
+      ],
+      "notes": "该 region 是 INT8_CHW_416 注入（网络+后处理覆盖）的落点，不是被验收预处理的覆盖证明点。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-APP"
+      ]
+    },
+    {
+      "name": "gf8_weight_package",
+      "kind": "ddr",
+      "category": "model_weights",
+      "base_addr": 269484032,
+      "base_addr_hex": "0x10100000",
+      "end_addr_exclusive": 275387132,
+      "end_addr_exclusive_hex": "0x106A12FC",
+      "length_bytes": 5903100,
+      "alignment_bytes": 64,
+      "status": "FROZEN_2A_2B",
+      "owner": "PS 装载 / PL HP0 只读（GFINT8W1 完整参数包，5,903,100 bytes）",
+      "access": {
+        "ps_cpu": "write_before_start_read_after_safe",
+        "pl_hp0": "read_only",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "flush_writeback_before_publish",
+        "when": "装载完成 → DSB → 对外 64 B 取整 flush → DSB",
+        "line_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "PL 读取前必须已 flush 完成；PL 不写该区域"
+      ],
+      "notes": "CSR WEIGHT_ADDR=0x00100000（逻辑）/ WEIGHT_BYTES=5,903,100 由 2A 冻结。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-APP"
+      ]
+    },
+    {
+      "name": "injection_frame_rgb",
+      "kind": "ddr",
+      "category": "input_frame",
+      "base_addr": 275775488,
+      "base_addr_hex": "0x10700000",
+      "end_addr_exclusive": 279969792,
+      "end_addr_exclusive_hex": "0x10B00000",
+      "length_bytes": 4194304,
+      "alignment_bytes": 64,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_G0",
+      "owner": "阶段4 注入器（生产者）/ D2 预处理所有者（消费者）",
+      "access": {
+        "ps_cpu": "producer_write_consumer_read",
+        "pl_hp0": "consumer_may_read",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "flush_writeback_then_consumer_invalidate",
+        "when": "生产者写完最后一字节 → flush（对外 64 B 取整）→ DSB → 发布所有权；消费者读取前 invalidate（对外 64 B 取整）→ DSB",
+        "line_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "producer_write_complete",
+        "cache_flush_by_producer",
+        "ownership_publish_to_consumer",
+        "consumer_start",
+        "consumer_done",
+        "consumer_invalidate",
+        "buffer_release_to_producer"
+      ],
+      "geometry_capacity": {
+        "proposed_default": {
+          "width": 1280,
+          "height": 720,
+          "pixel_format": "RGB888",
+          "stride_bytes": 3840,
+          "frame_bytes": 2764800
+        },
+        "max_frame_bytes_supported": 4194304,
+        "note": "容量 4 MiB 覆盖 <=1280x720 RGB888（2,764,800 B）及常见更小尺寸；原图尺寸的正式冻结值属 G0/4-D 决策。"
+      },
+      "placement_basis": {
+        "inside_gap": "gf8_weight_package_end..feature_envelope_base",
+        "gap_hex": "[0x106A12FC,0x11000000)",
+        "gap_bytes": 9825540,
+        "why_here": "位于 2B 专属窗口 [0x10000000,0x12000000) 内的既有空洞（2B 文档声明该类空洞从不由业务写入），且与输入/权重/特征包络均不相交。"
+      },
+      "required_before_use": [
+        "真实 .map/ELF 只读核对确认该区间未被 linker/heap/stack/下载段占用",
+        "G0/4-D 批准容量与几何默认值",
+        "板上实测 flush/invalidate 生效与 DMA 完成顺序"
+      ],
+      "notes": "该 region 是半开区间内的建议落点，不是从 2B 冻结产物抄来的既有地址；未获批准前不得据此装载/写入。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-PLATFORM"
+      ]
+    },
+    {
+      "name": "feature_envelope",
+      "kind": "ddr",
+      "category": "feature_maps",
+      "base_addr": 285212672,
+      "base_addr_hex": "0x11000000",
+      "end_addr_exclusive": 296594872,
+      "end_addr_exclusive_hex": "0x11ADADB8",
+      "length_bytes": 11382200,
+      "alignment_bytes": 64,
+      "status": "FROZEN_2A_2B",
+      "owner": "PL HP0 逐张量读写（白名单）；PS 在 RUN/ARMING/RECOVERING/FAULT 期间禁止访问",
+      "access": {
+        "ps_cpu": "forbidden_while_pl_owns_buffer",
+        "pl_hp0": "read_write_whitelisted_tensors",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "flush_and_invalidate_before_start_then_invalidate_after_done",
+        "when": "START 前：对外 64 B 取整 flush 再 invalidate（清除旧脏输出行）；done 之后：invalidate（对外 64 B 取整）→ DSB → 读结果",
+        "line_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "PS 前置 flush+invalidate 完成",
+        "PL 写完成",
+        "PL done 事件可见",
+        "PS invalidate",
+        "PS 读 head13/head26"
+      ],
+      "notes": "外包络 [0x01000000,0x01ADADB8)（逻辑）逐张量白名单；空洞从不由业务写入。仅凭 done 状态位读内存不足，必须先 invalidate。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-APP",
+        "W2B-PLATFORM"
+      ]
+    },
+    {
+      "name": "pl_control_csr",
+      "kind": "pl_mmio",
+      "category": "control_registers",
+      "base_addr": 1136656384,
+      "base_addr_hex": "0x43C00000",
+      "end_addr_exclusive": 1136721920,
+      "end_addr_exclusive_hex": "0x43C10000",
+      "length_bytes": 65536,
+      "alignment_bytes": 4,
+      "status": "FROZEN_2B",
+      "owner": "PS CPU0 单核标量 32-bit Device 访问；PL AXI4-Lite 从端",
+      "access": {
+        "ps_cpu": "device_strongly_ordered_scalar_32bit",
+        "pl_hp0": "none",
+        "pl_gp0_lite": "slave"
+      },
+      "cache_maintenance": {
+        "direction": "no_cache_device_strongly_ordered",
+        "when": "禁止 cache 维护；写后 DSB SY 保证顺序",
+        "line_bytes": 64,
+        "outward_floor": false
+      },
+      "dma_completion_order": [
+        "PS 写参数 → DSB → 写 START → DSB",
+        "PL 接受 start 后才取得 buffer 所有权"
+      ],
+      "notes": "GP0 AXI3→AXI4-Lite 转换器 TRANSLATION_MODE=0 要求 SI 收到 single-beat（AWLEN/ARLEN=0）；实际事务形态属 G3 实测。",
+      "sources": [
+        "W2B-INTERFACE",
+        "W2B-PLATFORM"
+      ]
+    }
+  ],
+  "sub_regions": [
+    {
+      "name": "head13_tensor",
+      "parent": "feature_envelope",
+      "base_addr": 295985408,
+      "base_addr_hex": "0x11A46100",
+      "end_addr_exclusive": 295990478,
+      "end_addr_exclusive_hex": "0x11A474CE",
+      "length_bytes": 5070,
+      "owner": "PL 写 / PS invalidate 后读",
+      "notes": "来源 layer29，YOLO layer30 别名；属于 feature_envelope，不单独参与顶层不相交证明。"
+    },
+    {
+      "name": "head26_tensor",
+      "parent": "feature_envelope",
+      "base_addr": 296574592,
+      "base_addr_hex": "0x11AD5E80",
+      "end_addr_exclusive": 296594872,
+      "end_addr_exclusive_hex": "0x11ADADB8",
+      "length_bytes": 20280,
+      "owner": "PL 写 / PS invalidate 后读",
+      "notes": "来源 layer36，YOLO layer37 别名；属于 feature_envelope。"
+    }
+  ],
+  "unresolved_regions": [
+    {
+      "name": "display_buffer",
+      "status": "UNRESOLVED_DO_NOT_GUESS",
+      "interval": null,
+      "reason": "阶段5（w5）明确规定：PS 软件叠框前必须先只读核对送显缓冲的布局、地址与所有权，并引用阶段3 软件既有事实，不得猜地址；本轮在阶段3 工作树只读检索 framebuffer/帧缓冲/送显缓冲/VDMA，仅见计划与参考资料表述，未发现权威地址/所有权事实。",
+      "owner": "阶段3/阶段5（不在阶段4 写权范围）",
+      "required_before_use": [
+        "阶段3 软件既有事实只读核对（布局/地址/所有权/帧边界）",
+        "确认写入须在帧边界或使用独立缓冲，避免与 VDMA 读竞争",
+        "阶段5 G0 冻结显示语义与缓冲深度"
+      ],
+      "stop_condition": "无法确认布局/所有权即停止并报告，不得猜地址、不得改阶段3 工程（w5 S5T01 §P1）",
+      "consequence_for_stage4": "阶段4 不写显示缓冲；阶段4 只提供结果记录与 PS 侧日志，显示由阶段5 只读消费。",
+      "sources": [
+        "W5-S5T01"
+      ]
+    },
+    {
+      "name": "ps_internal_stack_heap_layout",
+      "status": "UNRESOLVED_DO_NOT_GUESS",
+      "interval": null,
+      "reason": "只在 ps_app_arena 内部，2B 未公开 code/data/heap/stack 切分；须用 4-D 真实 .map/ELF 只读核对。",
+      "owner": "PS 应用（linker）",
+      "sources": [
+        "W2B-INTERFACE"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x00000000",
+      "end_addr_exclusive_hex": "0x00100000",
+      "length_bytes": 1048576,
+      "rule": "不得访问：低端 DDR 未声明对象"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x01100000",
+      "end_addr_exclusive_hex": "0x10000000",
+      "length_bytes": 250609664,
+      "rule": "不得访问：应用 arena 与专属窗口之间的中间 DDR，不由本程序分配"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x1007EC00",
+      "end_addr_exclusive_hex": "0x10100000",
+      "length_bytes": 529408,
+      "rule": "不得访问：输入张量与 GF8 之间空洞"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x106A12FC",
+      "end_addr_exclusive_hex": "0x10700000",
+      "length_bytes": 388356,
+      "rule": "不得访问：GF8 尾部与注入帧 staging 起点之间空洞"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x10B00000",
+      "end_addr_exclusive_hex": "0x11000000",
+      "length_bytes": 5242880,
+      "rule": "不得访问：注入帧 staging 终点与特征包络起点之间空洞"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x11ADADB8",
+      "end_addr_exclusive_hex": "0x12000000",
+      "length_bytes": 5395016,
+      "rule": "不得访问：特征包络尾部至专属窗口尾"
+    },
+    {
+      "address_space": "ddr",
+      "base_addr_hex": "0x12000000",
+      "end_addr_exclusive_hex": "0x20000000",
+      "length_bytes": 234881024,
+      "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围"
+    },
+    {
+      "address_space": "pl_mmio",
+      "base_addr_hex": "0x40000000",
+      "end_addr_exclusive_hex": "0x43C00000",
+      "length_bytes": 62914560,
+      "rule": "不得访问：PL 段未声明偏移"
+    },
+    {
+      "address_space": "pl_mmio",
+      "base_addr_hex": "0x43C10000",
+      "end_addr_exclusive_hex": "0x80000000",
+      "length_bytes": 1010761728,
+      "rule": "不得访问：64 KiB 解码窗口之外"
+    }
+  ],
+  "gap_rules": {
+    "must_not_access": true,
+    "padding_exception": "cache flush/invalidate 按 64 B 向外取整时，可能触及与对象相邻的空洞行 padding；这类 padding 维护允许存在，但不得在其中写入业务数据，也不得把 payload 扩展到对象边界之外。",
+    "overlap_rejects": "任何对象与空洞的写入、任何对象间的相交、以及未列入本图的 region_name 一律拒绝。"
+  },
+  "overlap_proof": {
+    "method": "对每个 address_space 内的顶层 region 按 base_addr 排序，逐对检查 交集(半开区间) 为空；并另行验证 end-base==length、region 完全落在所属 address_space 内。",
+    "algorithm": "empty = max(a0,b0) >= min(a1,b1)",
+    "top_level_regions_checked": [
+      "ps_app_arena",
+      "network_input_tensor",
+      "gf8_weight_package",
+      "injection_frame_rgb",
+      "feature_envelope",
+      "pl_control_csr"
+    ],
+    "pairs_checked": 10,
+    "status": "PASS",
+    "negative_control": {
+      "mutation": "把 injection_frame_rgb.base_addr 改为 0x10500000（落入 gf8_weight_package [0x10100000,0x106A12FC)）",
+      "expected": "FAIL",
+      "why": "证明检查器不是恒真：人为制造重叠必须被检出。"
+    }
+  },
+  "global_ordering": {
+    "note": "PL/DMA 完成顺序的离线建模；板上实测（真实 AWLEN/背压/reset/DDR 可见性）属 G3，本轮 NOT_RUN。",
+    "steps": [
+      "1 producer 写 injection_frame_rgb（write_start→write_complete，逐帧记录 CRC32/SHA-256 与 length_bytes）",
+      "2 producer flush（对外 64 B 取整）→ DSB → ownership_publish_to_consumer",
+      "3 consumer_start；consumer 只消费有效行字节，行尾 padding 内容未定义、帧尾之外不读",
+      "4 PS 侧写入前置对象：network_input_tensor 与 gf8_weight_package flush；feature_envelope flush+invalidate；均 DSB",
+      "5 PS 写 pl_control_csr 参数 → DSB → 写 START → DSB",
+      "6 PL 取得 buffer 所有权，读输入/权重、写 feature_envelope（HP0）",
+      "7 PL 提交 done（operator_result_valid 且 error_code 稳定）；PL 对 DDR 的写必须在该事件可见前完成",
+      "8 PS invalidate feature_envelope（对外 64 B 取整）→ DSB → 读 head13/head26 → 解码/NMS → 结果记录",
+      "9 consumer_done → consumer_invalidate → buffer_release_to_producer（此后生产者的该 buffer 才能复用）",
+      "10 任一事件缺失即该帧不可消费；不得用超时推断完成；不得覆盖仍被持有的帧"
+    ]
+  },
+  "limitations": [
+    "injection_frame_rgb 与 ps_app_arena 内部切分是阶段4 侧建议/未解析项，不来自 2B 冻结产物；未获 G0/4-D 批准前不得据其装载或写入。",
+    "display_buffer 无权威地址事实，按 w5 规定不得猜地址；本轮不提供任何显示缓冲数字。",
+    "本图为离线静态事实整理：所有板上前提（DMA 完成顺序、cache 维护生效、AXI 事务形态、可见性）均未实测，属 G3。",
+    "w5 阶段5 文档为活动树，引用不绑定哈希，避免把活动内容当冻结输入。"
+  ]
+}

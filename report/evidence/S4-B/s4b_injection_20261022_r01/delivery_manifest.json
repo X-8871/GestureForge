@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B",
+  "run_id": "s4b_injection_20261022_r01",
+  "source_commit": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a",
+  "evidence_dir": "report/evidence/S4-B/s4b_injection_20261022_r01",
+  "interfaces": [
+    {
+      "name": "s4-shared-io-contract-1.1.0",
+      "version": "s4-shared-io/1.1.0",
+      "frozen": false,
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "5c8aa5cb0e527dfcc8909bfceb05614fbdc1e0b84a4d1dbef50742ee2954c6af"
+    },
+    {
+      "name": "s4-stage4-address-map-v1",
+      "version": "gestureforge_s4b_address_map_v1",
+      "frozen": false,
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "416c02419ebe93e15bed0093a5e8c3bb8bca966395aa0c0febdf63d1646db6c3"
+    },
+    {
+      "name": "s4a-g0-r06",
+      "version": "r06",
+      "frozen": false,
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "5c8aa5cb0e527dfcc8909bfceb05614fbdc1e0b84a4d1dbef50742ee2954c6af",
+      "role": "input",
+      "keep_reason": "阶段4↔阶段5 共享契约（1.1.0，r02）"
+    },
+    {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "416c02419ebe93e15bed0093a5e8c3bb8bca966395aa0c0febdf63d1646db6c3",
+      "role": "input",
+      "keep_reason": "地址图（region/所有者/缓存方向/DMA 顺序/重叠证明）"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "input",
+      "keep_reason": "S4-A r06 G0 契约（结果字段/时间口径/measurement_scope 权威）"
+    },
+    {
+      "path": "vitis/stage4/s4_inject_frame.h",
+      "sha256": "6749ed1b52cecdbe0ca38b5c1fa566b17dcb0eba779761b39d87b54e984df7de",
+      "role": "source",
+      "keep_reason": "单帧注入状态机头文件（契约词表/错误码/结构）"
+    },
+    {
+      "path": "vitis/stage4/s4_inject_frame.c",
+      "sha256": "a5e2adb2b25392ec55a71899ea7d617887cac7c921e5ab3abd996741bab524b9",
+      "role": "source",
+      "keep_reason": "单帧注入状态机实现（校验/环/事件/缓存维护）"
+    },
+    {
+      "path": "vitis/stage4/s4_inject_frame_host.c",
+      "sha256": "db283b8f9707764248ebcb5707db6343077e3f9c9c974a557a435cc6c5e1fdaf",
+      "role": "source",
+      "keep_reason": "主机 mock DDR/cache harness（离线驱动入口）"
+    },
+    {
+      "path": "scripts/stage4_s4b/run_s4b_injection_offline.py",
+      "sha256": "9045b7f27b31da65aaf3ddf4874de840082d160c5d103c58e5e87d5c2921c92e",
+      "role": "source",
+      "keep_reason": "离线驱动：构建+地址图+单帧+小图+有限序列+故障序列"
+    },
+    {
+      "path": "verification/test_s4_inject_frame.py",
+      "sha256": "1d607074779782d2ca011965e07af41173edeb0ae39ae9403a65b25e604af8e5",
+      "role": "source",
+      "keep_reason": "单元/集成测试（地址图语义/词表/集成）"
+    },
+    {
+      "path": "docs/stage4/S4B_injection_path_runbook.md",
+      "sha256": "3800c9082463ae267903fad8db08891c68b254a05767554ddf05fd57c253826d",
+      "role": "input",
+      "keep_reason": "4-D 板上注入运行书（板上命令 NOT_RUN）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_injection_20261022_r01/injection_offline_summary.json",
+      "sha256": "0c27758bcb2edf0f8e7693b8aabc6c591b871e0663e7578fa697b74f2c6be9ac",
+      "role": "result",
+      "keep_reason": "离线驱动机器可读汇总（23 用例+2 小图+地址图正反例）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_injection_20261022_r01/driver_console.txt",
+      "sha256": "6847ff8849106ba1f780778bc280618f6a42dd4239957aa29fed65c32d0e0906",
+      "role": "log",
+      "keep_reason": "驱动原始控制台输出与退出码"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_injection_20261022_r01/unittest_s4_inject_frame.txt",
+      "sha256": "4218b829f8f4b8516c212cccf85a7779beba2c62cf3626b26d8d271a18600f01",
+      "role": "log",
+      "keep_reason": "unittest 原始输出（8 tests OK）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "gcc_strict_build",
+      "status": "PASS",
+      "command": "d:/mingw64/bin/gcc.exe -std=c11 -O2 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -I vitis/stage4 vitis/stage4/s4_inject_frame.c vitis/stage4/s4_inject_frame_host.c -o <exe>",
+      "exit_code": 0,
+      "reason": "0 error / 0 warning（build_warning_lines=[]）"
+    },
+    {
+      "name": "offline_driver_cases",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/run_s4b_injection_offline.py --run-id s4b_injection_20261022_r01 --evidence-dir report/evidence/S4-B/s4b_injection_20261022_r01",
+      "exit_code": 0,
+      "reason": "23 用例全部符合期望退出码；2 个小图 CRC/字节数独立复现一致；地址图重叠检查 PASS 且负例被检出；编译 0 告警"
+    },
+    {
+      "name": "unittest_s4_inject_frame",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s4_inject_frame -v",
+      "exit_code": 0,
+      "reason": "8 tests OK（地址图语义/负例/词表一致/集成）"
+    },
+    {
+      "name": "address_map_overlap",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/run_s4b_injection_offline.py（内置 check_address_map）",
+      "exit_code": 0,
+      "reason": "6 个顶层 region 两两不相交、半开区间自洽、均落在 ddr address_space；负例（把 injection_frame_rgb 移到 gf8 起点）被检出"
+    },
+    {
+      "name": "board_injection_and_uart",
+      "status": "NOT_RUN",
+      "command": "见 S4B_injection_path_runbook.md §6",
+      "exit_code": null,
+      "reason": "本轮只做离线；未接板卡、未接真实串口、未跑 PL；需正式硬件授权与会话交接"
+    },
+    {
+      "name": "camera_path",
+      "status": "NOT_RUN",
+      "command": "无",
+      "exit_code": null,
+      "reason": "等阶段3 摄像头交付；注入/合成结果不得替代"
+    },
+    {
+      "name": "full_109_replay",
+      "status": "NOT_RUN",
+      "command": "见 S4-C",
+      "exit_code": null,
+      "reason": "109 全量对拍属 S4-C（已有历史证据，本轮未重跑）"
+    },
+    {
+      "name": "official_checker_evidence_mode",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S4-B/s4b_injection_20261022_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；仅代表清单与哈希绑定通过，不代表 G0/G4/G5 或任何实物验收"
+    }
+  ],
+  "limitations": [
+    "离线证据：仅主机 mock DDR/cache 与 gcc；未接板卡、未接真实串口、未跑 PL。",
+    "板上注入（4-D）、真实 UART、摄像头、PL 推理时间/期限/吞吐均为 NOT_RUN。",
+    "注入模式 capture_time 不可用（capture_time_available=false）；驱动与实现均拒绝伪造采集时间。",
+    "本 RunId 由 Lead 在修完三处实现缺陷后生成：① host 缓存适配结构体为栈变量被环长期持有（悬垂指针）→ 改静态；② capture_avail 语义与契约 capture_time_available 反向 → 改为互补映射；③ token_present 只匹配孤立 key，导致 capture=<ns> 永远被忽略、伪造采集时间路径不可测 → 改用 token_value。三处均在报告中登记。",
+    "契约与地址图仍为 DRAFT_PENDING_REVIEW，待独立审查后冻结；stale_limit_ns 仍为 DRAFT_PENDING_APPROVAL。",
+    "source_commit 为提交前 HEAD；本轮改动由 Lead 统一提交，提交后 manifest 的 source_commit 与工作树一致性以提交记录为准。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "gcc": "gmingw64 8.1.0 x86_64-win32-seh",
+    "os": "Windows 10/11 x64",
+    "checker": "verification/check_stage_delivery.py schema_version=1"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schema_version": "gestureforge_s5t01_board_download_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_download_20261022_r01",
+  "generated_utc8": "2026-10-22T13:51:59+08:00",
+  "source_head": "961d310b919dbddc3c7a86039e95ad1359f40e66",
+  "goal_reached": "PL_PS_DOWNLOAD_OK__NO_VIDEO_SOURCE",
+  "frozen_artifacts": {
+    "bit_stdluma": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "xsa": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "elf_v12": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5"
+  },
+  "download": {
+    "fpga_program": "OK",
+    "ps7_init": "OK",
+    "dow_elf": "OK",
+    "run": "OK",
+    "exit_code": 0,
+    "qspi_burned": false
+  },
+  "video_source": {
+    "sensor_i2c": "ALL_0xFF (no ACK)",
+    "pattern_503d_write": "FAILED write_status=-2 readback=0xFF (0x503D unchanged)",
+    "frame_fingerprint": "nz=0 at three sites, samples t=5/10/15",
+    "conclusion": "NO_VIDEO_SOURCE (camera module absent/unresponsive)"
+  },
+  "vdma_readback": {
+    "CR_S2MM": "0x00018002",
+    "SR_S2MM": "0x00010001",
+    "VSIZE": "0x2D0",
+    "HSIZE": "0xF00",
+    "STRIDE": "0xF00",
+    "ADDR_S2MM": "0x00114C00",
+    "SR_MM2S": "0x00011000",
+    "DDR_FB_MID": "all zero"
+  },
+  "commands": [
+    {
+      "cmd": "bash dbdf/scripts/stage3_t05/run_t05_board_capture.sh <RUN_DIR> <v12 ELF> v12bars 60",
+      "exit_code": 0,
+      "log": "console/capture_v12bars.txt"
+    },
+    {
+      "cmd": "sha256sum <bit/xsa/elf>",
+      "exit_code": 0,
+      "log": "console/input_hashes.txt"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_download_20261022_r01/console/capture_v12bars.txt",
+      "sha256": "45efec6482892728a4588ad1245f38459632e41271049ef3d40c1245b50ca6a7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_download_20261022_r01/console/input_hashes.txt",
+      "sha256": "00395bb5a916a305ca9831f73574d2149836f078906722b568679364c5c88031"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_download_20261022_r01/summary.md",
+      "sha256": "f6ee2fe7712e3c1a01094c7129ac3384a098473e2a78d8a60396389e25cd0ac4"
+    }
+  ],
+  "not_executed": [
+    "HDMI 目视/拍照",
+    "叠框注入与验收",
+    "FPS/延迟实测",
+    "T5-0x 机上用例",
+    "G3"
+  ],
+  "limitations": [
+    "板卡链路与 PS 应用可用，但无视频源：摄像头模块 I2C 无应答 ⇒ 任务卡定义的 v12 图案视频源不可用。",
+    "0x503D 未被改变（写失败），无需恢复。",
+    "DDR_FB_000 的非零残留不作画面证据。",
+    "本次为易失下载，未烧 QSPI；hw_server 已清理不驻留。",
+    "视频源替代方案（PS 合成测试图 + 软件叠框）属范围/语义变化，须 Wong 决策后方可实施。"
+  ]
+}

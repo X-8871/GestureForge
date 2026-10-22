@@ -1,0 +1,56 @@
+baseline_no_injection: exit=0 expect=0 failed=[] captured=True verdict=AS_EXPECTED
+    
+m5_window_advance_removed: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）
+empty_predicates_used: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]
+b13_predicates_used_added: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）
+undeclared_predicate_name: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M8.predicates_used 与要求不符：['TARGET_LOST'] vs ['TARGET_CONTINUES']；M8.predicates_used 含未定义谓词 'TARGET_LOST'；predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 ['M8']；仅 predicates_used 有 []
+suppressed_release_not_window_advancing: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 '窗口推进帧'（N-r04-01）
+case_timeout_frame_action: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_timeout': False, 'gate_opens_on_ok': True} 不符
+case_span_wrong: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-29.window_span_ms 预期 320.0 与复算 200.0 不符
+X1_doc_m5_qualifier_removed: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    文档 §4 M5 行未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'state ∈ {OK, NO_HAND}'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'stale=false'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非重复'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非倒序'（N-r04-01）
+X2_m5_partial_marker_removed: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）
+X3_predicates_used_string: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M6.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：'TARGET_CONTINUES'
+X4_predicates_used_empty_M6: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    M6.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]
+X5_hc29_expected_150: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-29.window_span_ms 预期 150.0 与复算 200.0 不符
+X6_hc29_s01_250: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-29.m3_fires 预期 True 与复算 False 不符
+X7_hc30_total_actions_2: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-30.total_actions 预期 {'gate_opens_on_timeout': 2, 'gate_opens_on_ok': 1} 与复算 {'gate_opens_on_timeout': 1, 'gate_opens_on_ok': 1} 不符
+X8_hc30_frame12_timeout: exit=1 expect=1 failed=['C7'] captured=True verdict=AS_EXPECTED
+    HC-30.first_action_frame 预期 {'gate_opens_on_timeout': 12, 'gate_opens_on_ok': 11} 与复算 {'gate_opens_on_timeout': None, 'gate_opens_on_ok': 11} 不符
+X9_statement_old_wording: exit=1 expect=1 failed=['C12'] captured=True verdict=AS_EXPECTED
+    predicate_binding_policy.statement 缺少事实要素 'global_cooldown_gate'（N-r04-02）；predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；文档未复述 predicate_binding_policy.statement（M5/B13 叙述与 JSON 不一致）
+X10_version_downgrade: exit=0 expect=1 failed=[] captured=False verdict=UNEXPECTED
+    identity ok
+
+======================================================================
+文档 §18 点名的证据文件名 vs 实际存在性
+======================================================================
+§18 点名文件 31 个：['S6A_run_summary.md', 'check_evidence_mode_output.txt', 'check_inputs_mode_output.txt', 'coverage_matrix.json', 'delivery_manifest.json', 'fix_record.json', 'fix_record.md', 'hand_computed_cases.json', 'hashes_sha256.txt', 'inputs_manifest.json', 'limitations_not_executed.json', 'old_package_under_test.json', 'probe_b13_predicates_used_added_stdout.txt', 'probe_baseline_no_injection_stdout.txt', 'probe_case_span_wrong_stdout.txt', 'probe_case_timeout_frame_action_stdout.txt', 'probe_empty_predicates_used_stdout.txt', 'probe_m5_window_advance_removed_stdout.txt', 'probe_summary.json', 'probe_suppressed_release_not_window_advancing_stdout.txt', 'probe_undeclared_predicate_name_stdout.txt', 'r02_package_under_test.json', 'r03_package_under_test.json', 'r04_package_under_test.json', 'selfcheck_c11_stdout.txt', 'selfcheck_old_package_failure.json', 'selfcheck_r02_blk1_failure.json', 'selfcheck_r03_failure.json', 'selfcheck_r04_failure.json', 'selfcheck_result.json', 'upstream_bindings.json']
+§18 点名但运行目录不存在：[]
+运行目录中未被 §18 点名：['selfcheck_old_package_failure_stdout.txt', 'selfcheck_r02_blk1_failure_stdout.txt', 'selfcheck_r03_failure_stdout.txt', 'selfcheck_r04_failure_stdout.txt']
+
+======================================================================
+probe 用例口径
+======================================================================
+INJECTIONS 条目数=8（其中 target 非 None 的注入=7）
+落盘 probe_*_stdout.txt 个数=8；probe_summary.results=8
+hashes_sha256.txt 行数=33
+
+======================================================================
+coverage_matrix.json / limitations_not_executed.json 残留 v1.3 上下文
+======================================================================
+  [coverage_matrix.json] …"location": "§5 B01–B28（v1.3）+ §8–§13 + M1–M15（M14 删除）",…
+§18 中 v1.3 上下文：

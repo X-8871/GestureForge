@@ -1,0 +1,193 @@
+==============================================================================
+A. 自算 SHA-256（被审提交 1632761 版本 = 工作区字节）
+==============================================================================
+docs/stage6/s6a_stage6_g0_behavior_v1.json
+  worktree=fe28145f13108034d09b0aa19f1051fcdf69ff959dd5200bfd7c597124119b93
+  git@1632761=d01aaff3cb70bcc0a34fdd7f3c697aebf49d403a535afdede889371a4c1b6120  **不一致（工作区已偏离提交）**
+docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+  worktree=01154560fbe8597fc269db7185ad303b0f407899fb828fb3bba270c40b011572
+  git@1632761=8b4abfcafed50b13fccfb4e3221138ff66bc742c2dfe5957ad898a19895cb67c  **不一致（工作区已偏离提交）**
+verification/s6_g0_selfcheck.py
+  worktree=8287265570e1ecbe6f11e1fa21bc0dd0b6d1a4a0e7f494a740fbf23a980b3160
+  git@1632761=8287265570e1ecbe6f11e1fa21bc0dd0b6d1a4a0e7f494a740fbf23a980b3160  一致
+verification/s6a_build_evidence.py
+  worktree=f09b19970581d8b4f5986a91c75961db7f61e4f087fb199b6e0668f2b84d229f
+  git@1632761=f09b19970581d8b4f5986a91c75961db7f61e4f087fb199b6e0668f2b84d229f  一致
+verification/s6a_r05_probe.py
+  worktree=3aa02b83775383e949a35479aefb1fdbb846567caab7deaee6f211b814f571d6
+  git@1632761=3aa02b83775383e949a35479aefb1fdbb846567caab7deaee6f211b814f571d6  一致
+verification/s6a_rerun_legacy_failures.py
+  worktree=afd7cf83447432a585842b7945951d7509d64cfaf0e1b63f36ce6909c55eb968
+  git@1632761=afd7cf83447432a585842b7945951d7509d64cfaf0e1b63f36ce6909c55eb968  一致
+.codex/STATE.md
+  worktree=b0a888e4ca972e68307da723c4141dd57b3ea8d5b35c963ff7fb50eb105a690d
+  git@1632761=b0a888e4ca972e68307da723c4141dd57b3ea8d5b35c963ff7fb50eb105a690d  一致
+
+==============================================================================
+B. 自检复跑 vs 入库 selfcheck_result.json
+==============================================================================
+我的 status=ALL_PASS errors=0 checks=17
+入库 status=ALL_PASS errors=0 checks=17
+run_id 我的=s6a_g0_20261022_r05 入库=s6a_g0_20261022_r05
+artifact_version 我的=S6A-G0-v1.4 入库=S6A-G0-v1.4
+逐项（id/status/detail）不一致数：0
+inputs.behavior_json_sha256: 一致 fe28145f13108034d09b0aa19f1051fcdf69ff959dd5200bfd7c597124119b93 vs fe28145f13108034d09b0aa19f1051fcdf69ff959dd5200bfd7c597124119b93
+inputs.evidence_dir: 一致 D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05 vs D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05
+inputs.hand_cases_sha256: 一致 2a81adfc8236caff11cf6a3c1e08fe60cec137d3710f86e813aec9deb258b63e vs 2a81adfc8236caff11cf6a3c1e08fe60cec137d3710f86e813aec9deb258b63e
+inputs.human_doc_sha256: 一致 01154560fbe8597fc269db7185ad303b0f407899fb828fb3bba270c40b011572 vs 01154560fbe8597fc269db7185ad303b0f407899fb828fb3bba270c40b011572
+id_inventory 相等：True
+全部 17 项状态：[('C1', 'PASS'), ('C2', 'PASS'), ('C3', 'PASS'), ('C4', 'PASS'), ('C5', 'PASS'), ('C6', 'PASS'), ('C7', 'PASS'), ('C8', 'PASS'), ('C9', 'PASS'), ('C10', 'PASS'), ('C11', 'PASS'), ('C12', 'PASS'), ('C13', 'PASS'), ('C14', 'PASS'), ('C15', 'PASS'), ('C16', 'PASS'), ('C17', 'PASS')]
+入库 selfcheck_result.json 中关键 detail 摘录：
+  C1 [PASS] identity ok
+  C7 [PASS] 30 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列）
+  C11 [PASS] 实际文件 35 个；manifest 双向一致（运行目录 34 个文件 + 外部绑定 7 个文件哈希复算通过）；STATE 声明 35 个文件与 2 个目录全部存在
+  C12 [PASS] 谓词定义、引用、禁用标识符与全量双向绑定一致
+  C17 [PASS] STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认
+
+==============================================================================
+C. check_stage_delivery 输出 vs 提交的 *_mode_output.txt
+==============================================================================
+[inputs] 我的=b'{"status":"CHECKS_OK","mode":"inputs","task_id":"S6-A","run_id":"s6a_g0_20261022_r05","interfaces_not_applicable":null,"check_statuses":[{"status":"PASS","name":"\xe8\xbe\x93\xe5\x85\xa5\xe6\x96\x87\xe4\xbb\xb6 SHA-256 \xe5\xa4\x8d\xe7\xae\x97\xef\xbc\x88\xe6\x9e\x84\xe5\xbb\xba\xe5\x99\xa8 --verify-inputs \xe5\xae\x9e\xe8\xb7\x91\xef\xbc\x89"}],"errors":[],"warnings":[],"scope_statement":"\xe6\xa3\x80\xe6\x9f\xa5\xe7\xbb\x93\xe6\x9e\x9c\xe4\xb8\x8d\xe4\xbb\xa3\xe8\xa1\xa8 G0/G4/G5 \xe6\x88\x96\xe5\xae\x9e\xe7\x89\xa9\xe9\xaa\x8c\xe6\x94\xb6\xe3\x80\x82"}\r\n'
+[inputs] 入库=b'{"status":"CHECKS_OK","mode":"inputs","task_id":"S6-A","run_id":"s6a_g0_20261022_r05","interfaces_not_applicable":null,"check_statuses":[{"status":"PASS","name":"\xe8\xbe\x93\xe5\x85\xa5\xe6\x96\x87\xe4\xbb\xb6 SHA-256 \xe5\xa4\x8d\xe7\xae\x97\xef\xbc\x88\xe6\x9e\x84\xe5\xbb\xba\xe5\x99\xa8 --verify-inputs \xe5\xae\x9e\xe8\xb7\x91\xef\xbc\x89"}],"errors":[],"warnings":[],"scope_statement":"\xe6\xa3\x80\xe6\x9f\xa5\xe7\xbb\x93\xe6\x9e\x9c\xe4\xb8\x8d\xe4\xbb\xa3\xe8\xa1\xa8 G0/G4/G5 \xe6\x88\x96\xe5\xae\x9e\xe7\x89\xa9\xe9\xaa\x8c\xe6\x94\xb6\xe3\x80\x82"}\r\n'
+[inputs] 逐字节相同：True
+[evidence] 我的=b'{"status":"CHECKS_OK","mode":"evidence","task_id":"S6-A","run_id":"s6a_g0_20261022_r05","interfaces_not_applicable":null,"check_statuses":[{"status":"PASS","name":"S6-A \xe8\x87\xaa\xe6\xa3\x80\xef\xbc\x8817 \xe9\xa1\xb9\xef\xbc\x9a\xe8\xa7\x84\xe6\xa0\xbc\xe4\xb8\x80\xe8\x87\xb4\xe6\x80\xa7/\xe7\xae\x97\xe6\x9c\xaf/\xe8\xaf\x81\xe6\x8d\xae\xe5\xad\x98\xe5\x9c\xa8\xe6\x80\xa7/C11 \xe6\xb8\x85\xe5\x8d\x95\xe4\xb8\x8e STATE/C12 \xe5\x85\xa8\xe9\x87\x8f\xe5\x8f\x8c\xe5\x90\x91/C17 \xe9\x94\x81\xe5\xad\x98\xef\xbc\x89"},{"status":"PASS","name":"check_stage_delivery.py --mode inputs"},{"status":"PASS","name":"check_stage_delivery.py --mode evidence"}],"errors":[],"warnings":[],"scope_statement":"\xe6\xa3\x80\xe6\x9f\xa5\xe7\xbb\x93\xe6\x9e\x9c\xe4\xb8\x8d\xe4\xbb\xa3\xe8\xa1\xa8 G0/G4/G5 \xe6\x88\x96\xe5\xae\x9e\xe7\x89\xa9\xe9\xaa\x8c\xe6\x94\xb6\xe3\x80\x82"}\r\n'
+[evidence] 入库=b'{"status":"CHECKS_OK","mode":"evidence","task_id":"S6-A","run_id":"s6a_g0_20261022_r05","interfaces_not_applicable":null,"check_statuses":[{"status":"PASS","name":"S6-A \xe8\x87\xaa\xe6\xa3\x80\xef\xbc\x8817 \xe9\xa1\xb9\xef\xbc\x9a\xe8\xa7\x84\xe6\xa0\xbc\xe4\xb8\x80\xe8\x87\xb4\xe6\x80\xa7/\xe7\xae\x97\xe6\x9c\xaf/\xe8\xaf\x81\xe6\x8d\xae\xe5\xad\x98\xe5\x9c\xa8\xe6\x80\xa7/C11 \xe6\xb8\x85\xe5\x8d\x95\xe4\xb8\x8e STATE/C12 \xe5\x85\xa8\xe9\x87\x8f\xe5\x8f\x8c\xe5\x90\x91/C17 \xe9\x94\x81\xe5\xad\x98\xef\xbc\x89"},{"status":"PASS","name":"check_stage_delivery.py --mode inputs"},{"status":"PASS","name":"check_stage_delivery.py --mode evidence"}],"errors":[],"warnings":[],"scope_statement":"\xe6\xa3\x80\xe6\x9f\xa5\xe7\xbb\x93\xe6\x9e\x9c\xe4\xb8\x8d\xe4\xbb\xa3\xe8\xa1\xa8 G0/G4/G5 \xe6\x88\x96\xe5\xae\x9e\xe7\x89\xa9\xe9\xaa\x8c\xe6\x94\xb6\xe3\x80\x82"}\r\n'
+[evidence] 逐字节相同：True
+
+==============================================================================
+D. 证据目录文件 / 哈希清单 / manifest 双向核对
+==============================================================================
+运行目录实际文件 35 个
+  S6A_run_summary.md  f836b8752a5bc41a…
+  check_evidence_mode_output.txt  2a24ea43ddf5895d…
+  check_inputs_mode_output.txt  50d75a1a05a2a08c…
+  coverage_matrix.json  491c48d907934e10…
+  delivery_manifest.json  092f8387ff4641f6…
+  fix_record.json  162492419edc404c…
+  fix_record.md  5679707aa7f887d0…
+  hand_computed_cases.json  2a81adfc8236caff…
+  hashes_sha256.txt  b1309b8605c45c09…
+  inputs_manifest.json  1ea65b3202fa9720…
+  limitations_not_executed.json  ec3c46464851052f…
+  old_package_under_test.json  e741f26efc7774a6…
+  probe_b13_predicates_used_added_stdout.txt  ed73db8ad4d470cb…
+  probe_baseline_no_injection_stdout.txt  0567560da6fdc7ee…
+  probe_case_span_wrong_stdout.txt  8c9d04e137e9ac78…
+  probe_case_timeout_frame_action_stdout.txt  a4f6964a504421dc…
+  probe_empty_predicates_used_stdout.txt  95efdeeb6f55e5e2…
+  probe_m5_window_advance_removed_stdout.txt  1a9f29432899f77a…
+  probe_summary.json  2473a17f5f36db12…
+  probe_suppressed_release_not_window_advancing_stdout.txt  1dc2e279810f7c18…
+  probe_undeclared_predicate_name_stdout.txt  026c5b7206f27573…
+  r02_package_under_test.json  b86de41a67f471e5…
+  r03_package_under_test.json  c32d9f8a262e325d…
+  r04_package_under_test.json  7ef4904c80234dfa…
+  selfcheck_c11_stdout.txt  d1ebada9e9e006b7…
+  selfcheck_old_package_failure.json  1e0540fbb0dd9d6b…
+  selfcheck_old_package_failure_stdout.txt  38d55ee801a1d691…
+  selfcheck_r02_blk1_failure.json  a9f925e009f6c98f…
+  selfcheck_r02_blk1_failure_stdout.txt  5501e1893c9fe1dc…
+  selfcheck_r03_failure.json  87d6a9898b9a9aa7…
+  selfcheck_r03_failure_stdout.txt  ffc946eca33cf246…
+  selfcheck_r04_failure.json  488d9aa71e24e8a1…
+  selfcheck_r04_failure_stdout.txt  3750c1d343354115…
+  selfcheck_result.json  69afe2830718247d…
+  upstream_bindings.json  d01f5b0bf6b59090…
+hashes_sha256.txt 解析 33 条
+  声明缺失=[]  哈希不符=[]  未列入清单的实际文件=['delivery_manifest.json']
+manifest.files 条数=41  evidence_dir='report/evidence/S6-A/s6a_g0_20261022_r05'
+manifest.checks=[{"name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）", "status": "PASS", "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r05\\hand_computed_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r05\\upstream_bindings.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r05 --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r05\\selfcheck_result.json --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r05
+manifest 声明缺失=[]
+manifest 哈希不符=[]
+manifest 未声明但实际存在的运行目录文件=[]
+manifest 声明但实际缺失的运行目录文件=[]
+
+==============================================================================
+E. r04(b20b670) vs r05(1632761) 逐字段比较
+==============================================================================
+artifact_version: r04=S6A-G0-v1.3 r05=S6A-G0-v1.4
+参数集合相等：True  数量 24 -> 24
+参数逐字段差异数：0
+r05 非 PENDING_APPROVAL 参数：[]
+r05 参数草案值：{'T6-A01': 1000, 'T6-A02': 500, 'T6-A03': None, 'T6-C01': 2, 'T6-S01': 200, 'T6-S02': 6, 'T6-S03': '同时满足帧数与时长，取较晚满足者', 'T6-S04': 500, 'T6-L01': 5, 'T6-L02': 300, 'T6-K01': 1000, 'T6-J01': 1, 'T6-U00_W': 3, 'T6-U00_N': 3, 'T6-U01': 5, 'T6-P01': 0.35, 'T6-P02': 0.3, 'T6-P03': 0.3, 'T6-P04': 0.15, 'T6-P05': 0.05, 'T6-STALE_LIMIT': 200, 'T6-01': 0.9, 'T6-02': 0.05, 'T6-03': 1}
+transitions: r04=14 r05=14  新增=[]  删除=[]
+hard_invariants: r04=10 r05=10  新增=[]  删除=[]
+behavior_rows: r04=28 r05=28  新增=[]  删除=[]
+open_decisions: r04=16 r05=16  新增=[]  删除=[]
+parameters: r04=24 r05=24  新增=[]  删除=[]
+states: r04=['IDLE', 'CANDIDATE', 'STABLE', 'TRIGGERED', 'COOLDOWN', 'LOST', 'UNKNOWN_RECOVER'] r05=['IDLE', 'CANDIDATE', 'STABLE', 'TRIGGERED', 'COOLDOWN', 'LOST', 'UNKNOWN_RECOVER']
+顶层键 新增=[]  删除=[]
+predicates 键变化: []
+revision 键变化: ['retained_from_r04'] / 删除 ['retained_from_r03']
+non-param 顶层字段差异：
+  not_claimed 不同（长度 228 -> 227）
+  transitions 不同（长度 3248 -> 3442）
+baseline: {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "2ce290f495e3bd50b249158be9f4f876a5f8e3fb", "revision_note": "在 r03（提交 2ce290f）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+       -> {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7", "revision_note": "在 r04（提交 b20b670）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+revision.review_verdict: r04='CHANGES_REQUIRED（R3-B01/R3-B02 + N01..N05 + 观察项）'
+                         r05='PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）'
+r05 semantic_changes=False
+r05 supersedes=s6a_g0_20261022_r04  revision.supersedes=s6a_g0_20261022_r04
+r05 revision.changes 条数=5 issues=['N-r04-01', 'N-r04-02', 'N-r04-03', 'N-r04-04', 'N-r04-05']
+
+==============================================================================
+F. 必需核查项 1：M5 限定 / stable_latching / predicate_binding_policy
+==============================================================================
+JSON M5.condition = 'STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）（且本帧必须为窗口推进帧：state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）'
+JSON M5.window_advance_required = '只有窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）可触发 M5；异常/过期/重复/倒序/缺帧帧即使恰逢全局冷却门开启也不得触发（B18/B21/B22/B23、§13）。'
+JSON M5 keys = ['condition', 'from', 'global_cooldown_gate', 'id', 'params', 'predicate_binding_note', 'priority', 'to', 'window_advance_required']
+stable_latching.suppressed_trigger_release = '全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。若门恰在异常/重复/倒序/过期/缺帧帧开启，该帧不得触发（B18/B21/B22/B23、§13），必须等到下一条窗口推进帧。'
+stable_latching keys = ['exit_paths', 'latched', 'not_demoted_by', 'pending_confirmation', 'scope', 'source', 'statement', 'suppressed_trigger_release', 'window_advance_required']
+predicate_binding_policy.statement = 'M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段。'
+predicate_binding_policy.rule = 'predicates.used_by 与每一条目的 predicates_used 必须全量双向一致；不使用谓词的条目不得出现 predicates_used 字段，且全部叙述必须与本块一致（R3-B02）。'
+predicate_binding_policy.empty_list_rule = '任何条目的 predicates_used 若出现必须是非空列表；显式空列表 [] 视为不合法（N-r04-03）。'
+文档 §4 M5 行数=1
+  | M5 | `STABLE` → `TRIGGERED` | 触发一次动作并记录 `ACTION_SUBMITTED`；**仅当本次获取尚未触发、且全局冷却门已结束**（`t_now − t_last_submit ≥ T6-K01`，无提交记录视为已结束）**且本帧必须为窗口推进帧**（`state ∈ {OK, NO_HAND}`、`stale=false`、非重复、非倒序）时可用；异常/过期/重复/倒序/缺帧帧即使恰逢门开启也不得触发（B18/B21/B22/B23、§13） | P3 |
+文档含 statement 逐字：True
+STATE 含 statement 逐字：True
+STATE 含 stable_latching.statement 逐字：False
+latch.statement = 'STABLE 在本次获取内锁存：进入后不因窗口中断、score 跌破 T6-P02 或抖动耗尽而退回 CANDIDATE；离开 STABLE 仅有 M2（异常，P1）、M10（丢失确认，P2）、M5（触发，P3）三条路径。冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。'
+  marker '窗口推进帧': JSON M5=True  文档M5行=True  release=True
+  marker 'state ∈ {OK,NO_HAND}': JSON M5=True  文档M5行=False  release=False
+  marker 'state ∈ {OK, NO_HAND}': JSON M5=False  文档M5行=True  release=False
+  marker 'stale=false': JSON M5=True  文档M5行=True  release=False
+  marker '非重复': JSON M5=True  文档M5行=True  release=False
+  marker '非倒序': JSON M5=True  文档M5行=True  release=False
+
+==============================================================================
+G. 必需核查项 4：artifact_version 三处一致 + ID/文件声明 + 声明纪律
+==============================================================================
+JSON artifact_version=S6A-G0-v1.4
+文档提及 v1.4 行数=2；含 'S6A-G0-v1.4'：False
+文档是否仍出现 'S6A-G0-v1.3'：False（历史修订记录内属允许）
+fix_record.json: v1.4 出现=2 v1.3 出现=0 r05 出现=4
+coverage_matrix.json: v1.4 出现=3 v1.3 出现=1 r05 出现=4
+limitations_not_executed.json: v1.4 出现=3 v1.3 出现=0 r05 出现=2
+S6A_run_summary.md: v1.4 出现=1 v1.3 出现=0 r05 出现=12
+
+未跟踪 WIP src/stage6 引用核对（N-r04-05）：
+  src/stage6/s6_core.py: 1324 行；引用 docs/stage6/* = ['docs/stage6/S6A_stage6_g0_behavior_spec_v1.md', 'docs/stage6/s6a_stage6_g0_behavior_v1.json']
+     docs/stage6/S6A_stage6_g0_behavior_spec_v1.md 存在=True
+     docs/stage6/s6a_stage6_g0_behavior_v1.json 存在=True
+  src/stage6/s6_params.py: 296 行；引用 docs/stage6/* = ['docs/stage6/s6a_stage6_g0_behavior_v1.json', 'docs/stage6/s6b_frozen_interface_v1.json']
+     docs/stage6/s6a_stage6_g0_behavior_v1.json 存在=True
+     docs/stage6/s6b_frozen_interface_v1.json 存在=True
+  docs/stage6/s6b_frozen_interface_v1.json: 31 行；引用 docs/stage6/* = []
+  git status --short：
+?? docs/stage6/s6b_frozen_interface_v1.json
+?? src/stage6/
+
+声明纪律扫描（是否自称已审查/已通过/G0 通过）：
+  [doc] 审查通过 → …**全部参数值未改、24 项仍全部 `PENDING_APPROVAL`。** 复评由项目总控另行安排；本包不因修订而视为通过，也不代表独立审查通过。  ---  ## 0. 定位、范围与不宣称项  - 阶段目标（计划 L102–L108）：**稳定手势判定 → HDMI 切图 / 界面…
+  [doc] 审查通过 → …注入输入**，不得冒充真实摄像头验收。 - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。 - 独立 Reviewer：本阶段总控在本次会话中**无法创建子代理**（运行环境限制：委派深度已用尽），故本轮**…
+  [doc] 已通过 → …ication/s6_g0_selfcheck.py` 机器校验。 > **修订记录（v1.4 / r05，2026-10-23）**：本包已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 项非阻断），现按该 5 项非阻断建…
+  [doc] 已通过 → …靠性验收；注入/回放获得的任何结论只对「回放/注入输入」有效，不得冒充真实摄像头验收（真手势验收因摄像头不可用而延期）。 - 不宣称：G0 已通过；阈值已冻结；接口已集成验收；状态机已实现；任何板上/摄像头/HDMI 已实测。  ## 1. 工作树、基线与上游绑定  - 工作树 `D:…
+  [json] 审查通过 → …总控无法创建子代理）", "本文件为 r05 修订版（v1.4），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"], "evidence_boundaries": ["回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收", …
+  [json] G0 通过 → …v1.4（r05 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准", "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r05 关闭第 4 轮独立复评（PASS，0 阻断）的 5 项非阻断建议：N-r04-01（M5 条件补「本…
+  [json] G0 通过 → …NDING_CONFIRMATION", "owner": "Wong/G0"}], "not_claimed": ["本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论", "本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI", "全部阈值与指标为待批准；…
+  [json] G0 通过 → …审查（运行环境限制：阶段总控无法创建子代理）", "本文件为 r05 修订版（v1.4），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"], "evidence_boundaries": ["回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒…
+  [STATE] 已审查 → …*：v1.4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。  ## 证据入口（r05）  - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r05/`（…
+  [STATE] 已通过 → …/ r05 收尾，PENDING_REVIEW）  - 输入：S6-A r04（提交 `b20b670`，契约 `S6A-G0-v1.3`）已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 非阻断）。r05 按 task-6…
+  [STATE] 已通过 → ….4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。  ## 证据入口（r05）  - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r05/`（`del…
+  [fix_record] 已审查 → …VAL` 状态未改**；未在测试集调参；未触碰硬件；S6-B WIP 不提交 - 状态：**PENDING_REVIEW**；本记录不构成“已审查/已通过”  | 项 | 处置 | 证据 | |---|---|---| | N-r04-01 M5 缺「仅窗口推进帧」限定 | M5 条件…
+  [fix_record] 已通过 → … 状态未改**；未在测试集调参；未触碰硬件；S6-B WIP 不提交 - 状态：**PENDING_REVIEW**；本记录不构成“已审查/已通过”  | 项 | 处置 | 证据 | |---|---|---| | N-r04-01 M5 缺「仅窗口推进帧」限定 | M5 条件补（`s…

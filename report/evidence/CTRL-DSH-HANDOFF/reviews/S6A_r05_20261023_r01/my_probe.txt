@@ -1,0 +1,239 @@
+{
+ "artifact": "reviewer_r05_probe_replication",
+ "baseline_exit": 0,
+ "probe_cases": [
+  {
+   "case_id": "baseline_no_injection",
+   "injection": "（无注入）",
+   "expected_exit": 0,
+   "actual_exit": 0,
+   "expected_check": null,
+   "failed_checks": [],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": ""
+  },
+  {
+   "case_id": "m5_window_advance_removed",
+   "injection": "M5.condition 回退为无窗口推进帧限定：STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）"
+  },
+  {
+   "case_id": "empty_predicates_used",
+   "injection": "transitions.M2.predicates_used = []",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"
+  },
+  {
+   "case_id": "b13_predicates_used_added",
+   "injection": "behavior_rows.B13.predicates_used = ['TARGET_CONTINUES']",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）"
+  },
+  {
+   "case_id": "undeclared_predicate_name",
+   "injection": "transitions.M8.predicates_used = ['TARGET_LOST']",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M8.predicates_used 与要求不符：['TARGET_LOST'] vs ['TARGET_CONTINUES']；M8.predicates_used 含未定义谓词 'TARGET_LOST'；predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 ['M8']；仅 predicates_used 有 []"
+  },
+  {
+   "case_id": "suppressed_release_not_window_advancing",
+   "injection": "suppressed_trigger_release 去掉「窗口推进帧」",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 '窗口推进帧'（N-r04-01）"
+  },
+  {
+   "case_id": "case_timeout_frame_action",
+   "injection": "HC-30.expected.action_at_gate_open_frame.gate_opens_on_timeout = true",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_timeout': False, 'gate_opens_on_ok': True} 不符"
+  },
+  {
+   "case_id": "case_span_wrong",
+   "injection": "HC-29.expected.window_span_ms = 320.0",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-29.window_span_ms 预期 320.0 与复算 200.0 不符"
+  }
+ ],
+ "extra_cases": [
+  {
+   "case_id": "X1_doc_m5_qualifier_removed",
+   "injection": "文档 M5 行限定被删除",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "文档 §4 M5 行未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'state ∈ {OK, NO_HAND}'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'stale=false'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非重复'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非倒序'（N-r04-01）"
+  },
+  {
+   "case_id": "X2_m5_partial_marker_removed",
+   "injection": "M5 条件仅删去 '非倒序' 一个限定词",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）"
+  },
+  {
+   "case_id": "X3_predicates_used_string",
+   "injection": "M6.predicates_used = 字符串（非列表）",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M6.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：'TARGET_CONTINUES'"
+  },
+  {
+   "case_id": "X4_predicates_used_empty_M6",
+   "injection": "M6.predicates_used = []",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "M6.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"
+  },
+  {
+   "case_id": "X5_hc29_expected_150",
+   "injection": "HC-29.expected.window_span_ms = 150.0",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-29.window_span_ms 预期 150.0 与复算 200.0 不符"
+  },
+  {
+   "case_id": "X6_hc29_s01_250",
+   "injection": "HC-29.recompute.s01_ms = 250（宽松口径仍 ≥250、严格口径 200<250 → 两口径不一致）",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-29.m3_fires 预期 True 与复算 False 不符"
+  },
+  {
+   "case_id": "X7_hc30_total_actions_2",
+   "injection": "HC-30.expected.total_actions.gate_opens_on_timeout = 2",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-30.total_actions 预期 {'gate_opens_on_timeout': 2, 'gate_opens_on_ok': 1} 与复算 {'gate_opens_on_timeout': 1, 'gate_opens_on_ok': 1} 不符"
+  },
+  {
+   "case_id": "X8_hc30_frame12_timeout",
+   "injection": "HC-30 场景A 第 12 帧改为 TIMEOUT（此后无窗口推进帧 → 应无动作，与 expected 冲突）",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C7",
+   "failed_checks": [
+    "C7"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "HC-30.first_action_frame 预期 {'gate_opens_on_timeout': 12, 'gate_opens_on_ok': 11} 与复算 {'gate_opens_on_timeout': None, 'gate_opens_on_ok': 11} 不符"
+  },
+  {
+   "case_id": "X9_statement_old_wording",
+   "injection": "statement 回退为不含 H-10/global_cooldown_gate 要素的旧措辞",
+   "expected_exit": 1,
+   "actual_exit": 1,
+   "expected_check": "C12",
+   "failed_checks": [
+    "C12"
+   ],
+   "captured": true,
+   "verdict": "AS_EXPECTED",
+   "detail_first_240": "predicate_binding_policy.statement 缺少事实要素 'global_cooldown_gate'（N-r04-02）；predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；文档未复述 predicate_binding_policy.statement（M5/B13 叙述与 JSON 不一致）"
+  },
+  {
+   "case_id": "X10_version_downgrade",
+   "injection": "artifact_version 回退 v1.3（检验版本断言未削弱）",
+   "expected_exit": 1,
+   "actual_exit": 0,
+   "expected_check": "C1",
+   "failed_checks": [],
+   "captured": false,
+   "verdict": "UNEXPECTED",
+   "detail_first_240": "identity ok"
+  }
+ ],
+ "all_as_expected": false
+}

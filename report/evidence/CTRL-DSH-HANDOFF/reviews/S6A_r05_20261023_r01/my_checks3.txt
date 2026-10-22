@@ -1,0 +1,401 @@
+==============================================================================
+1. 被审提交改动的文件清单（确认 r01..r04 证据未被触碰）
+==============================================================================
+.codex/STATE.md
+docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+docs/stage6/s6a_stage6_g0_behavior_v1.json
+report/evidence/S6-A/s6a_g0_20261022_r05/S6A_run_summary.md
+report/evidence/S6-A/s6a_g0_20261022_r05/check_evidence_mode_output.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/check_inputs_mode_output.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/coverage_matrix.json
+report/evidence/S6-A/s6a_g0_20261022_r05/delivery_manifest.json
+report/evidence/S6-A/s6a_g0_20261022_r05/fix_record.json
+report/evidence/S6-A/s6a_g0_20261022_r05/fix_record.md
+report/evidence/S6-A/s6a_g0_20261022_r05/hand_computed_cases.json
+report/evidence/S6-A/s6a_g0_20261022_r05/hashes_sha256.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/inputs_manifest.json
+report/evidence/S6-A/s6a_g0_20261022_r05/limitations_not_executed.json
+report/evidence/S6-A/s6a_g0_20261022_r05/old_package_under_test.json
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_b13_predicates_used_added_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_baseline_no_injection_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_case_span_wrong_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_case_timeout_frame_action_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_empty_predicates_used_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_m5_window_advance_removed_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_summary.json
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_suppressed_release_not_window_advancing_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/probe_undeclared_predicate_name_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/r02_package_under_test.json
+report/evidence/S6-A/s6a_g0_20261022_r05/r03_package_under_test.json
+report/evidence/S6-A/s6a_g0_20261022_r05/r04_package_under_test.json
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_c11_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_old_package_failure.json
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_old_package_failure_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r02_blk1_failure.json
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r02_blk1_failure_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r03_failure.json
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r03_failure_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r04_failure.json
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_r04_failure_stdout.txt
+report/evidence/S6-A/s6a_g0_20261022_r05/selfcheck_result.json
+report/evidence/S6-A/s6a_g0_20261022_r05/upstream_bindings.json
+verification/s6_g0_selfcheck.py
+verification/s6a_build_evidence.py
+verification/s6a_r05_probe.py
+verification/s6a_rerun_legacy_failures.py
+
+r01/r02/r03/r04 证据目录是否被改动：
+  s6a_g0_20261022_r01: （无改动）
+  s6a_g0_20261022_r02: （无改动）
+  s6a_g0_20261022_r03: （无改动）
+  s6a_g0_20261022_r04: （无改动）
+docs/stage6 下被改动文件：docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+docs/stage6/s6a_stage6_g0_behavior_v1.json
+
+==============================================================================
+2. s6_g0_selfcheck.py 的 diff：全部被删除行（是否只增强）
+==============================================================================
+删除行数=8  新增行数=105
+  DEL """阶段6 S6-A（G0 包 + 行为表 v1.3 / r04）只读自检。
+  DEL   C7   人工手算样例的**独立复算**（新增可复算类型；HC-16/17/20 不再重述结论）
+  DEL        M5/B13 无 predicates_used 字段的叙述必须与 JSON 现状一致）
+  DEL     allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3")
+  DEL         window_span_ms = (len(frames) - 1) * period_ms
+  DEL     if len(seen) < 29:
+  DEL         raise CheckFailure(f"手算样例数量不足 29：{len(seen)}")
+  DEL         "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导）"
+
+被删除行中是否含 raise/append/断言类语句：
+  ['-    if len(seen) < 29:', '-        raise CheckFailure(f"手算样例数量不足 29：{len(seen)}")']
+
+新增的断言类语句（raise / issues.append / if 判定）：
+  ADD raise CheckFailure(f"手算样例数量不足 30：{len(seen)}")
+  ADD issues.append(
+  ADD if marker not in statement:
+  ADD issues.append(f"predicate_binding_policy.statement 缺少事实要素 {marker!r}（N-r04-02）")
+  ADD issues.append("缺少 M5（无法核对窗口推进帧限定）")
+  ADD if marker not in m5_condition:
+  ADD issues.append(f"M5 条件未复述窗口推进帧限定 {marker!r}（N-r04-01）")
+  ADD issues.append("文档 §4 缺少 M5 行（N-r04-01）")
+  ADD if marker not in doc_m5:
+  ADD issues.append(f"文档 §4 M5 行未复述窗口推进帧限定 {marker!r}（N-r04-01）")
+  ADD if marker not in release:
+  ADD issues.append(
+
+==============================================================================
+3. fix_record.json / fix_record.md
+==============================================================================
+{
+ "schema_version": 1,
+ "artifact": "s6a_revision_fix_record",
+ "artifact_version": "S6A-G0-v1.4",
+ "task_id": "S6-A",
+ "run_id": "s6a_g0_20261022_r05",
+ "supersedes_run_id": "s6a_g0_20261022_r04",
+ "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/",
+ "review_verdict": "PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）",
+ "review_status_after_fix": "PENDING_REVIEW（是否再复评由项目总控决定；本记录不构成通过）",
+ "revision_discipline": {
+  "new_run_id": "s6a_g0_20261022_r05",
+  "r01..r04_preserved_untouched": true,
+  "parameter_values_changed": false,
+  "parameter_approval_status_changed": false,
+  "all_parameters_pending_approval": true,
+  "hardware_touched": false,
+  "s6b_wip_committed": false,
+  "self_check_before_after": "先用 r05 最终自检在 r04（git b20b670）字节上跑出失败输出（exit 1：C12 捕获 N-r04-01/N-r04-02、C7 捕获 N-r04-04）并保留（selfcheck_r04_failure.json/.txt、r04_package_under_test.json）；再由注入探针（probe_summary.json）对 8 个注入用例逐条证明 C12/C7 新断言可捕获；最后对 r05 跑出 17 项 ALL_PASS"
+ },
+ "non_blocking_items": [
+  {
+   "id": "N-r04-01",
+   "problem": "M5 条件文本未复述「仅窗口推进帧」限定；「锁存 STABLE + 门在 TIMEOUT 帧开启」角落序列无显式用例。",
+   "fix": "M5 条件追加「（且本帧必须为窗口推进帧：state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）」；新增 `window_advance_required` 说明并与 `stable_latching.suppressed_trigger_release` 一致；C12 增加 M5/文档 §4/`suppressed_trigger_release` 三处文本断言；新增 HC-30 角落序列（门在 TIMEOUT 帧开启 → 无动作；门在 OK 帧开启 → 该帧触发）。",
+   "evidence": [
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json transitions.M5 / stable_latching",
+    "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §4 M5 行",
+    "hand_computed_cases.json HC-30",
+    "probe_summary.json: m5_window_advance_removed（C12）、case_timeout_frame_action（C7）"
+   ],
+   "status": "FIXED_PENDING_REVIEW"
+  },
+  {
+   "id": "N-r04-02",
+   "problem": "`predicate_binding_policy.statement` 称 M5 与 B13 都带 `global_cooldown_gate` 绑定，但 B13 实际没有该字段（其语义由 H-10 承载）。",
+   "fix": "statement 改为「M5 带 `global_cooldown_gate` 标记、B13 的抑制语义由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段」，文档 §4 与 STATE 同步；C12 增加 `global_cooldown_gate`/`H-10`/`predicates_used` 事实要素断言。",
+   "evidence": [
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json predicate_binding_policy.statement",
+    ".codex/STATE.md M5/B13 叙述口径行"
+   ],
+   "status": "FIXED_PENDING_REVIEW"
+  },
+  {
+   "id": "N-r04-03",
+   "problem": "C12 未拒绝显式空列表 `predicates_used: []`（注入 M2 时自检仍 ALL_PASS）。",
+   "fix": "C12 增加普适断言：任何条目的 `predicates_used` 出现时必须是非空列表，显式空列表或非列表均不合法；`predicate_binding_policy.empty_list_rule` 记录该规则。",
+   "evidence": [
+    "verification/s6_g0_selfcheck.py C12",
+    "probe_summary.json: empty_predicates_used（C12 捕获，exit 1）"
+   ],
+   "status": "FIXED_PENDING_REVIEW"
+  },
+  {
+   "id": "N-r04-04",
+   "problem": "C7 的 `window_span_ms` 用整段输入序列跨度，与 §9「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」不一致；HC-29 推导写成 320 ms。",
+   "fix": "改为按 §9 口径计算（HC-29 = 5×40 = 200 ms），保留宽松序列跨度并新增 `span_conventions_agree` 断言两种口径下 `m3_fires` 结论一致；修正 HC-28/HC-29 推导文字。",
+   "evidence": [
+    "verification/s6_g0_selfcheck.py C7 recompute",
+    "hand_computed_cases.json HC-28/HC-29 expected.window_span_ms",
+    "probe_summary.json: case_span_wrong（C7 捕获，exit 1）"
+   ],
+   "status": "FIXED_PENDING_REVIEW"
+  },
+  {
+   "id": "N-r04-05",
+   "problem": "`src/stage6/s6_core.py` 文档串引用不存在的 `docs/stage6/S6B_stage6_state_machine_design_v1.md`。",
+   "fix": "改为引用现有已冻结的 G0 契约文件（`docs/stage6/s6a_stage6_g0_behavior_v1.json` 与 `docs/stage6/S6A_stage6_g0_behavior_spec_v1.md`），并声明 WIP 与 v1.4 契约的差异须在 S6-B 返工时逐条消除；该 WIP 仍未提交、不作为本包证据。",
+   "evidence": [
+    "src/stage6/s6_core.py 模块文档串（未跟踪 WIP）"
+   ],
+   "status": "FIXED_PENDING_REVIEW（WIP 不入库）"
+  }
+ ],
+ "notes": [
+  "本记录是修订者自述，不是独立审查结论；是否再复评由项目总控决定。",
+  "全部 24 项参数值与 PENDING_APPROVAL 状态未改；未在测试集上调整任何参数。",
+  "S6-B WIP（docs/stage6/s6b_frozen_interface_v1.json、src/stage6/**）保持未提交，不参与本包证据。",
+  "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+ ]
+}
+
+---- fix_record.md ----
+# S6-A 修订记录 v1.4 / r05（第 4 轮复评 5 项非阻断收尾）
+
+- 任务：`S6-A`；被审基线：`b20b670`（r04，已 PASS）；新 RunId：`s6a_g0_20261022_r05`（r01..r04 均不覆盖）
+- 复评来源：`report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/REVIEW_r04.md`（`PASS`，0 阻断 / 5 非阻断）
+- 阈值纪律：**24 项参数值与 `PENDING_APPROVAL` 状态未改**；未在测试集调参；未触碰硬件；S6-B WIP 不提交
+- 状态：**PENDING_REVIEW**；本记录不构成“已审查/已通过”
+
+| 项 | 处置 | 证据 |
+|---|---|---|
+| N-r04-01 M5 缺「仅窗口推进帧」限定 | M5 条件补（`state ∈ {OK,NO_HAND}`、`stale=false`、非重复、非倒序）；`window_advance_required` 与 `suppressed_trigger_release` 同步；C12 三处文本断言；新增 HC-30（门在 `TIMEOUT` 帧开启 → 无动作；门在 `OK` 帧开启 → 该帧触发） | JSON `transitions.M5`/`stable_latching`；文档 §4；HC-30；`probe_*` |
+| N-r04-02 policy 措辞 | statement 改为「M5 带 `global_cooldown_gate` 标记、B13 由 H-10 承载；两者都只有条件文本、均无 `predicates_used` 字段」，§4 与 STATE 同步 | JSON `predicate_binding_policy`；`.codex/STATE.md` |
+| N-r04-03 空列表未拒 | C12 增加非空列表普适断言；注入用例 `empty_predicates_used` 证明可捕获 | `probe_summary.json` |
+| N-r04-04 窗口跨度口径 | 改为「窗口首帧 → 第 `T6-S02` 个 `WINDOW_MATCH` 帧」（HC-29 320→200 ms）；`span_conventions_agree` 断言两口径一致 | C7；HC-28/29 |
+| N-r04-05 悬空文档引用 | `src/stage6/s6_core.py` 改引用现有 v1.4 契约文件（WIP 不提交） | `src/stage6/s6_core.py` |
+
+## 结论边界
+
+- 探针只证明自检断言有判别力；`ALL_PASS` / `CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定，不代表状态机行为、G0 复评、独立审查或实物验收通过。
+- 回放/注入类结论仅限回放/注入输入；S6-A 包未运行任何状态机（S6-B 实现另立 RunId）。
+
+
+==============================================================================
+4. coverage_matrix.json 中 v1.3 / v1.4 上下文
+==============================================================================
+  …      "location": "§5 B01–B28（v1.3）+ §8–§13 + M1–M15（M14 删除）",…
+
+==============================================================================
+5. limitations_not_executed.json / S6A_run_summary.md / delivery_manifest 关键字段
+==============================================================================
+limitations keys=['artifact', 'artifact_version', 'blocked', 'checker_scope_note', 'hard_limits_observed', 'not_applicable', 'not_run', 'r03_notes', 'replay_injection_boundary', 'run_id', 'schema_version', 'status_legend', 'supersedes_run_id', 'task_id']
+{
+ "schema_version": 1,
+ "artifact": "s6a_limitations_not_executed",
+ "artifact_version": "S6A-G0-v1.4",
+ "task_id": "S6-A",
+ "run_id": "s6a_g0_20261022_r05",
+ "supersedes_run_id": "s6a_g0_20261022_r04",
+ "status_legend": {
+  "PASS": "本次声明范围的所有条件已验证",
+  "FAIL": "执行后不满足条件",
+  "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行",
+  "NOT_RUN": "本轮没有执行",
+  "NOT_APPLICABLE": "确实不适用，必须说明理由"
+ },
+ "not_run": [
+  {
+   "item": "6-B 状态机实现（纯核心 + 动作层隔离）",
+   "status": "NOT_RUN",
+   "reason": "S6-A v1.4 已收尾；6-B 实现由本轮第二部分（task-6）启动，产物另立 RunId 与证据目录，不在本 S6-A 证据包内。"
+  },
+  {
+   "item": "6-C 确定性测试矩阵（含 11 类用例行）",
+   "status": "NOT_RUN",
+   "reason": "依赖 6-B 实现与独立预期；本轮第一部分只修订 G0 规格与手算样例（30 例）。"
+  },
+  {
+   "item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）",
+   "status": "NOT_RUN",
+   "reason": "无状态机实现、无硬件授权；不在本轮范围。"
+  },
+  {
+   "item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）",
+   "status": "NOT_RUN",
+   "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"
+  },
+  {
+   "item": "≥30 分钟回放稳定性实验",
+   "status": "NOT_RUN",
+   "reason": "无状态机与回放驱动；未执行。"
+  },
+  {
+   "item": "T6-01/02/03 任何统计",
+   "status": "NOT_RUN",
+   "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何“观测值”为通过。"
+  },
+  {
+   "item": "T6-A03 交互延迟与低 FPS 延迟量级",
+   "status": "NOT_RUN",
+   "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.4 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。"
+  },
+  {
+   "item": "M4/T6-S04 运行时行为验证",
+   "status": "NOT_RUN",
+   "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"
+  },
+  {
+   "item": "独立复评（Reviewer）",
+   "status": "NOT_RUN",
+   "reason": "由项目总控另派；r05 不因收尾视为通过，不得自称已审查/已通过。"
+  }
+ ],
+ "blocked": [
+  {
+   "item": "6-E 真摄像头验收与统计",
+   "status": "BLOCKED",
+   "reason": "摄像头不可用（待重新采购）；真手势验收延期至模块到货并完成阶段3 验收后。"
+  },
+  {
+   "item": "阶段6 集成验收依赖",
+   "status": "BLOCKED",
+   "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"
+  },
+  {
+   "item": "阶段5 显示侧新增 HUD 字段（sm_state 等）",
+   "status": "BLOCKED",
+   "reason": "属阶段6 提案，需与阶段5 协调并由项目总控确认；未采纳前只能用五元组与既有 HUD 字段做离线断言。"
+  },
+  {
+   "item": "阶段4 实测帧周期 P_meas",
+   "status": "BLOCKED",
+   "reason": "未取得实测值；影响 T6-A03、交互延迟统计与低 FPS 窗口估算（U6-13）。"
+  },
+  {
+   "item": "独立 Reviewer 复评",
+   "status": "BLOCKED",
+   "reason": "阶段6 总控会话委派深度已用尽；由项目总控另派（本包状态 PENDING_REVIEW）。"
+  }
+ ],
+ "not_applicable": [
+  {
+   "item": "本轮板上 G3 实物验证",
+   "status": "NOT_APPLICABLE",
+   "reason": "本任务为 G0 规格交付，无实现、无位流，且本阶段无硬件授权；G3 对本轮不适用，但仍属阶段6 后续关口。"
+  },
+  {
+   "item": "inputs 模式下对阶段4/阶段5 接口的冻结核验",
+   "status": "NOT_APPLICABLE",
+   "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+  }
+ ],
+ "hard_limits_observed": [
+  "未触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头",
+  "未烧录、未 program、未写寄存器",
+  "未 push；未新建其他工作树；未修改 main/w4/w5/dbdf/w2b 与厂商原件",
+  "同时只运行轻量任务（本轮无重型综合/实现/仿真）"
+ ],
+ "replay_injection_boundary": "任何由脚本注入或回放输入得到的结论，其适用范围仅限回放/注入输入，不得冒充真实摄像头验收；真手势验收延期至摄像头到货。",
+ "checker_scope_note": "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5
+
+---- S6A_run_summary.md ----
+# S6-A v1.4 / r05 运行摘要
+
+- 任务：`S6-A`；RunId：`s6a_g0_20261022_r05`；工作树：`D:\codex-worktrees\w6`
+- 修订基线提交：`b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7`（证据由未提交工作树生成）
+- 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）
+- 阈值纪律：24 项参数值与 `PENDING_APPROVAL` 状态未改；未在测试集调参；未触碰硬件。
+
+## 真实命令与退出码
+
+| 检查 | 命令（绝对 project-root） | 实测退出码 |
+|---|---|---|
+| 旧包失败证据重跑（r01/r02/r03/r04） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6a_rerun_legacy_failures.py --run-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05 --project-root D:\codex-worktrees\w6` | 实测 0（各类失败输出落盘） |
+| 注入探针（基线 + 8 用例，N-r04-01/03/04） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6a_r05_probe.py --run-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05 --project-root D:\codex-worktrees\w6` | 实测 0（各用例自检输出落盘） |
+| 自检（17 项，含完整 C11 与 C17） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6_g0_selfcheck.py --json D:\codex-worktrees\w6\docs\stage6\s6a_stage6_g0_behavior_v1.json --doc D:\codex-worktrees\w6\docs\stage6\S6A_stage6_g0_behavior_spec_v1.md --cases D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\hand_computed_cases.json --upstream D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\upstream_bindings.json --project-root D:\codex-worktrees\w6 --evidence-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05 --out D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\selfcheck_result.json --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\delivery_manifest.json --state D:\codex-worktrees\w6\.codex\STATE.md` | 见 `delivery_manifest.json.checks` 与 `selfcheck_c11_stdout.txt` |
+| check_stage_delivery --mode inputs | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode inputs --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\inputs_manifest.json --project-root D:\codex-worktrees\w6` | 0（stdout: `check_inputs_mode_output.txt`） |
+| check_stage_delivery --mode evidence | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode evidence --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\delivery_manifest.json --project-root D:\codex-worktrees\w6` | 见 `delivery_manifest.json.checks`（stdout: `check_evidence_mode_output.txt`） |
+
+> 清单 checks 中 status=PASS 的条目其 exit_code 均为构建器实测值（PASS 必须为 0）。
+> 入库 `selfcheck_result.json` 由带 `--manifest` + `--state` 的命令生成，C11 detail 含清单双向一致与 STATE 声明核对。
+
+## 证据文件
+
+- `delivery_manifest.json` / `inputs_manifest.json` / `hashes_sha256.txt`（只哈希实际存在文件）
+- `selfcheck_result.json`（ALL_PASS 17 项，含完整 C11 与 C17）+ `selfcheck_c11_stdout.txt`
+- `check_inputs_mode_output.txt` / `check_evidence_mode_output.txt`（检查器完整 stdout）
+- `selfcheck_old_package_failure.json/.txt` + `old_package_under_test.json`（r01，git 字节可复核）
+- `selfcheck_r02_blk1_failure.json/.txt` + `r02_package_under_test.json`（r02，C12 捕获 BLK-1）
+- `selfcheck_r03_failure.json/.txt` + `r03_package_under_test.json`（r03，C12 捕获 R3-B01/R3-B02、C17 捕获缺锁存块）
+- `selfcheck_r04_failure.json/.txt` + `r04_package_under_test.json`（r04，C12 捕获 N-r04-01/02、C7 捕获 N-r04-04）
+- `probe_summary.json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）
+- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`
+
+## 结论边界
+
+- `ALL_PASS`/`CHECKS_OK` 只覆盖规格一致性、算术边界、证据存在性与清单/文件绑定；不验证状态机行为，不代表 G0 复评/独立审查/实物验收通过。
+- 回放/注入类结论仅限回放/注入输入；本包未运行任何状态机。
+
+## 限制与未执行
+
+见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+
+
+manifest source_commit=b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7 task_id=S6-A run_id=s6a_g0_20261022_r05
+manifest limitations=[
+ "source_commit 为修订基线 b20b670；证据由未提交工作树生成，最终交付提交哈希见 git log。",
+ "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
+ "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
+ "M4/M7 在当前草案参数/实现结构下不可达（U6-12），不计入覆盖声明。",
+ "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
+ "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
+ "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+]
+  check: status=PASS exit_code=0 name=S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）
+     cmd=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\s6_g0_selfcheck.py --json D:\codex-worktrees\w6\docs\stage6\s6a_stage6_g0_behavior_v1.json --doc D:\codex-worktrees\w6\docs\stage6\S6A_stage6_g0_behavior_spec_v1.md --cases D:\codex-worktrees\w6\r
+  check: status=PASS exit_code=0 name=check_stage_delivery.py --mode inputs
+     cmd=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode inputs --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\inputs_manifest.json --project-root D:\codex-worktrees\w6
+  check: status=PASS exit_code=0 name=check_stage_delivery.py --mode evidence
+     cmd=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w6\verification\check_stage_delivery.py --mode evidence --manifest D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261022_r05\delivery_manifest.json --project-root D:\codex-worktrees\w6
+
+==============================================================================
+6. probe 落盘 stdout 实体性（前 160 字符）
+==============================================================================
+probe_b13_predicates_used_added_stdout.txt: 2195 字节 | {"status": "FAILED", "errors": ["C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 
+probe_baseline_no_injection_stdout.txt: 1916 字节 | {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "
+probe_case_span_wrong_stdout.txt: 1892 字节 | {"status": "FAILED", "errors": ["C7: HC-29.window_span_ms 预期 320.0 与复算 200.0 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "d
+probe_case_timeout_frame_action_stdout.txt: 2124 字节 | {"status": "FAILED", "errors": ["C7: HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_
+probe_empty_predicates_used_stdout.txt: 2005 字节 | {"status": "FAILED", "errors": ["C12: M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status"
+probe_m5_window_advance_removed_stdout.txt: 2271 字节 | {"status": "FAILED", "errors": ["C12: M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'
+probe_suppressed_release_not_window_advancing_stdout.txt: 2051 字节 | {"status": "FAILED", "errors": ["C12: stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 '窗口推进帧'（N-r04-01）"], "checks": [{"id": "C1", "name": 
+probe_undeclared_predicate_name_stdout.txt: 2311 字节 | {"status": "FAILED", "errors": ["C12: M8.predicates_used 与要求不符：['TARGET_LOST'] vs ['TARGET_CONTINUES']；M8.predicates_used 含未定义谓词 'TARGET_LOST'；predica
+
+==============================================================================
+7. 文档 §17 上游哈希表与漂移声明（抽查）
+==============================================================================
+（本轮开工核验；阶段6 未修改任何一份）**：
+
+| 文件 | SHA-256 |
+|---|---|
+| `docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md` | `7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230` |
+| `docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md`（w6 基线版本） | `82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a` |
+| `docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md` | `df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57` |
+| `docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D6_检测评估口径与离线指标基础.md` | `735cbc78882dd299a952ee1d4c2f7ef972e8cc903782be3a64f1db830f311dd7` |
+| `w4/docs/stage4/s4a_stage4_g0_fields.json`（只读） | `3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87` |
+| `w5/docs/stage5/S5A_stage5_display_g0_spec_v2.md`（只读） | `ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932` |
+| `w5/docs/stage6/S6_stage6_interaction_spec_draft.md`（只读） | `d7cf98093996fffb23180b078dfa4068dcab5b5031d5bd4c62e4c51baa40a0a1` |
+| `w5/docs/stage6/s6_interaction_thresholds.json`（只读） | `b87234e4f091bac94f9d7cc7c8ab16c180932f60dc8e5160e32cd3278b11ec42` |
+| `w5/docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md`（只读） | `809a9ccd490f91ea13a669a7437a8d6b35272b07c9935557399428d3cbdb527e` |
+
+**阶段5 修订建议采纳情况（S6-D-01…05）**：S6-D-01（窗口基于**结果 `frame_id` 序列**、单位明确为"结果条数"）→ 已采纳，H-4 + §9。S6-D-02（窗口推进与缺失/过期处理）→ 已采纳，§9 + §13。S6-D-03（未知与零框语义区分）→ 已采纳，§11.1/§11.4 分别计数。S6-D-04（动作携带 `frame_id` 与年龄）→ 已采纳，§3 日志字段。S6-D-05（统一用 `score`，禁止 `confidence` 命名）→ 已采纳，§7/§14 全表使用 `score`。
+
+

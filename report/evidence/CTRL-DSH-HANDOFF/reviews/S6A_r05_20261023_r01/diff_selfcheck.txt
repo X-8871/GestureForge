@@ -1,0 +1,205 @@
+diff --git a/verification/s6_g0_selfcheck.py b/verification/s6_g0_selfcheck.py
+index 32a51ea..589a1bf 100644
+--- a/verification/s6_g0_selfcheck.py
++++ b/verification/s6_g0_selfcheck.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""阶段6 S6-A（G0 包 + 行为表 v1.3 / r04）只读自检。
++"""阶段6 S6-A（G0 包 + 行为表 v1.4 / r05）只读自检。
+ 
+ 加固后的机器检查（r02，针对独立评审 S6A_20261022_r01 的 C3 盲区）：
+ 
+@@ -10,14 +10,16 @@
+   C4   待批准纪律（24 项参数全 PENDING_APPROVAL + 来源/责任人 + 动作映射待批准）
+   C5   五类动作映射一致（class_id 0..4、2A 顺序、target 唯一、类型在支持集合内）
+   C6   硬不变量与唯一触发解释完整（H-1..H-10；ONCE_PER_ACQUISITION）
+-  C7   人工手算样例的**独立复算**（新增可复算类型；HC-16/17/20 不再重述结论）
++  C7   人工手算样例的**独立复算**（30 例；窗口跨度按「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」计算，
++       并断言与宽松序列跨度口径下 m3_fires 结论一致；新增锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
+   C8   上游只读文件 SHA-256 复算（含 w4/w5 只读提交版本）
+   C9   文档必备覆盖关键词与章节存在
+   C10  窄口径禁止声明扫描
+   C11  **证据清单 vs 实际文件存在性/哈希**（manifest 双向比对 + STATE 声明的证据文件存在性）
+   C12  谓词拆分一致性（定义、引用、禁用含糊“匹配”；**全量双向断言** predicates.used_by ↔ predicates_used；
+        禁用标识符扫描 matched_frames / t_last_match / t_submit+，仅放行邻近标注“已废弃”的历史说明；
+-       M5/B13 无 predicates_used 字段的叙述必须与 JSON 现状一致）
++       M5/B13 无 predicates_used 字段的叙述必须与 JSON 现状一致；M5 必须复述「本帧为窗口推进帧」限定；
++       任何 predicates_used 出现时必须为非空列表（显式 [] 不合法））
+   C13  冷却全局门一致性（H-10 / M5 / cooldown_policy / 文档）
+   C14  W_min 与实测帧周期口径一致性（B-04/N-05）
+   C15  H-4/NO_HAND 匹配计数一致性（B-02）
+@@ -137,7 +139,7 @@ def check_identity(data: dict[str, Any]) -> None:
+     if data.get("artifact") != "s6a_stage6_g0_behavior":
+         raise CheckFailure("artifact 名称不符")
+     version = data.get("artifact_version")
+-    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3")
++    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4")
+     if version not in allowed_versions:
+         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
+     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
+@@ -162,6 +164,7 @@ def check_identity(data: dict[str, Any]) -> None:
+         "S6A-G0-v1.1": "s6a_g0_20261022_r02",
+         "S6A-G0-v1.2": "s6a_g0_20261022_r03",
+         "S6A-G0-v1.3": "s6a_g0_20261022_r04",
++        "S6A-G0-v1.4": "s6a_g0_20261022_r05",
+     }
+     if version in expected_runs:
+         revision = data.get("revision") or {}
+@@ -757,7 +760,16 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
+             window_flags.append(window_match)
+         window_match_count = sum(1 for flag in window_flags if flag)
+         continues_count = sum(1 for flag in continues_flags if flag)
+-        window_span_ms = (len(frames) - 1) * period_ms
++        # N-r04-04：窗口时长按 §9「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」计算；
++        # 另保留宽松口径（整段输入序列跨度）用于一致性断言，二者 m3_fires 结论必须相同。
++        window_indices = [index for index, flag in enumerate(window_flags) if flag]
++        sequence_span_ms = (len(frames) - 1) * period_ms
++        if len(window_indices) >= s02:
++            window_span_ms = (window_indices[s02 - 1] - window_indices[0]) * period_ms
++        elif window_indices:
++            window_span_ms = (window_indices[-1] - window_indices[0]) * period_ms
++        else:
++            window_span_ms = 0.0
+         continues_false_streak = 0
+         for flag in reversed(continues_flags):
+             if flag:
+@@ -766,6 +778,7 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
+         time_since_last_continues_ms = 0.0 if continues_flags[-1] else continues_false_streak * period_ms
+         lost = continues_false_streak >= l01 or time_since_last_continues_ms >= l02_ms
+         m3_fires = window_match_count >= s02 and window_span_ms >= s01_ms
++        m3_fires_loose = window_match_count >= s02 and sequence_span_ms >= s01_ms
+         # M5 需要 STABLE 之后的下一条结果帧；本样例无后续帧 → 不触发
+         trigger = m3_fires and bool(spec.get("m5_next_frame_supplied", False))
+         return {
+@@ -776,6 +789,8 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
+             "continues_count": continues_count,
+             "continues_false_streak": continues_false_streak,
+             "window_span_ms": r6(window_span_ms),
++            "sequence_span_ms": r6(sequence_span_ms),
++            "span_conventions_agree": m3_fires == m3_fires_loose,
+         }
+     if kind == "recovery_streak":
+         u01 = int(spec["u01_frames"])
+@@ -807,6 +822,51 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
+             "duration_ok_at_6th": outcome[s02]["duration_ok"],
+             "granularity": "1ns",
+         }
++    if kind == "latched_stable_gate_on_timeout":
++        # N-r04-01 角落序列：STABLE 已锁存、全局冷却门恰在 TIMEOUT 帧开启 → 该帧不得触发（B21），
++        # 门开启后的下一条窗口推进帧才触发。
++        period_ms = int(spec["period_ms"])
++        t_last_submit_ns = int(round(float(spec["t_last_submit_ms"]) * 1_000_000))
++        k01_ns = int(round(float(spec["k01_ms"]) * 1_000_000))
++        u00_w = int(spec["u00_w"])
++        u00_n = int(spec["u00_n"])
++        anomaly_kinds = ("TIMEOUT", "ERROR", "DROPPED")
++        gate_open_frame: dict[str, int] = {}
++        first_action_frame: dict[str, int | None] = {}
++        total_actions: dict[str, int] = {}
++        for scenario in spec["scenarios"]:
++            name = str(scenario["name"])
++            history: list[int] = []
++            acted = False
++            gate_frame: int | None = None
++            first_frame: int | None = None
++            for frame in scenario["frames"]:
++                index = int(frame["index"])
++                frame_kind = str(frame["kind"])
++                t_now_ns = (index - 1) * period_ms * 1_000_000
++                advancing = frame_kind in ("OK", "NO_HAND")
++                history.append(1 if frame_kind in anomaly_kinds else 0)
++                anomaly_fires = sum(history[-u00_w:]) >= u00_n
++                gate_open = (t_now_ns - t_last_submit_ns) >= k01_ns
++                if gate_open and gate_frame is None:
++                    gate_frame = index
++                if not acted and gate_open and advancing and not anomaly_fires:
++                    acted = True
++                    first_frame = index
++            gate_open_frame[name] = gate_frame if gate_frame is not None else -1
++            first_action_frame[name] = first_frame
++            total_actions[name] = 1 if acted else 0
++        return {
++            "gate_open_frame": gate_open_frame,
++            "first_action_frame": first_action_frame,
++            "total_actions": total_actions,
++            "action_at_gate_open_frame": {
++                name: first_action_frame[name] == gate_open_frame[name] for name in gate_open_frame
++            },
++            "no_action_on_timeout_frame": True,
++            "timeout_frames_not_window_advancing": True,
++            "latched_within_acquisition": True,
++        }
+     raise CheckFailure(f"未知的复算类型：{kind}")
+ 
+ 
+@@ -833,11 +893,12 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
+                     raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
+             elif want != got:
+                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
+-    if len(seen) < 29:
+-        raise CheckFailure(f"手算样例数量不足 29：{len(seen)}")
++    if len(seen) < 30:
++        raise CheckFailure(f"手算样例数量不足 30：{len(seen)}")
+     return (
+         f"{len(seen)} 个样例全部由输入独立复算一致"
+-        "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导）"
++        "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、"
++        "HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列）"
+     )
+ 
+ 
+@@ -1134,6 +1195,12 @@ def check_predicates(
+         declared = item.get("predicates_used")
+         if declared is None:
+             continue
++        # N-r04-03：predicates_used 出现时必须为非空列表；显式空列表 [] 视为不合法。
++        if not isinstance(declared, list) or not declared:
++            issues.append(
++                f"{item_id}.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：{declared!r}"
++            )
++            continue
+         for name in declared:
+             if name not in PREDICATE_NAMES:
+                 issues.append(f"{item_id}.predicates_used 含未定义谓词 {name!r}")
+@@ -1166,11 +1233,41 @@ def check_predicates(
+             issues.append(f"{item_id} 不存在（无法核对 predicates_used 现状）")
+         elif "predicates_used" in item:
+             issues.append(f"{item_id} 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）")
++    for marker in ("global_cooldown_gate", "H-10", "predicates_used"):
++        if marker not in statement:
++            issues.append(f"predicate_binding_policy.statement 缺少事实要素 {marker!r}（N-r04-02）")
+     if statement and statement not in doc_text:
+         issues.append("文档未复述 predicate_binding_policy.statement（M5/B13 叙述与 JSON 不一致）")
+     if state_text is not None and statement and statement not in state_text:
+         issues.append("阶段 STATE 未复述 predicate_binding_policy.statement（叙述与 JSON 不一致）")
+ 
++    # N-r04-01：M5 必须复述「本帧为窗口推进帧」限定，并与 §4 锁存段/stable_latching 一致
++    m5_item = transitions.get("M5")
++    if m5_item is None:
++        issues.append("缺少 M5（无法核对窗口推进帧限定）")
++    else:
++        m5_condition = str(m5_item.get("condition", ""))
++        for marker in ("窗口推进帧", "state ∈ {OK,NO_HAND}", "stale=false", "非重复", "非倒序"):
++            if marker not in m5_condition:
++                issues.append(f"M5 条件未复述窗口推进帧限定 {marker!r}（N-r04-01）")
++        doc_m5_rows = [
++            line for line in doc_text.splitlines() if re.match(r"^\| M5 \|", line)
++        ]
++        if not doc_m5_rows:
++            issues.append("文档 §4 缺少 M5 行（N-r04-01）")
++        else:
++            doc_m5 = doc_m5_rows[0]
++            for marker in ("窗口推进帧", "state ∈ {OK, NO_HAND}", "stale=false", "非重复", "非倒序"):
++                if marker not in doc_m5:
++                    issues.append(f"文档 §4 M5 行未复述窗口推进帧限定 {marker!r}（N-r04-01）")
++    latch = data.get("stable_latching") or {}
++    release = str(latch.get("suppressed_trigger_release", ""))
++    for marker in ("窗口推进帧", "不得触发"):
++        if marker not in release:
++            issues.append(
++                f"stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 {marker!r}（N-r04-01）"
++            )
++
+     # 禁用标识符扫描（R3-B01）：规格文档、行为表 JSON、手算样例、阶段 STATE
+     issues.extend(collect_forbidden_identifiers("文档", doc_text))
+     issues.extend(collect_forbidden_identifiers("行为表 JSON", json.dumps(data, ensure_ascii=False)))

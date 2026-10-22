@@ -1,0 +1,35 @@
+提取 docs/stage6/s6a_stage6_g0_behavior_v1.json
+  sha256(git 字节)=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38  字节数=60482
+提取 docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+  sha256(git 字节)=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af  字节数=59468
+提取 report/evidence/S6-A/s6a_g0_20261022_r04/hand_computed_cases.json
+  sha256(git 字节)=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231  字节数=24481
+提取 report/evidence/S6-A/s6a_g0_20261022_r04/upstream_bindings.json
+  sha256(git 字节)=141b85f7d77f456e06d6b918251bd7a52a16d70022cd5bce4f9cee73a7c88695  字节数=7696
+提取 .codex/STATE.md
+  sha256(git 字节)=76346fbcaeb4d4b19a779b37e0998d09e62fca964a9773247f21b11028aec41f  字节数=9738
+
+[r05 自检 @ r04 git 字节] 真实退出码 = 1
+我的 status=FAILED  入库 status=FAILED
+我的 FAILED=['C7', 'C12']
+入库 FAILED=['C7', 'C12']
+FAILED 集合相同：True
+FAILED detail 逐字相同：True
+  C7: 手算样例数量不足 30：29
+  C12: predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'state ∈ {OK, NO_HAND}'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'stale=false'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非重复'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非倒序'（N-r04-01）；stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 '不得触发'（N-r04-01）
+全部 17 项 id/status 相同：True
+
+与入库 r04_package_under_test.json 的哈希对比：
+  docs/stage6/s6a_stage6_g0_behavior_v1.json: 入库=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38 我算=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38 一致
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md: 入库=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af 我算=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af 一致
+  report/evidence/S6-A/s6a_g0_20261022_r04/hand_computed_cases.json: 入库=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231 我算=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231 一致
+  report/evidence/S6-A/s6a_g0_20261022_r04/upstream_bindings.json: 入库=141b85f7d77f456e06d6b918251bd7a52a16d70022cd5bce4f9cee73a7c88695 我算=141b85f7d77f456e06d6b918251bd7a52a16d70022cd5bce4f9cee73a7c88695 一致
+  .codex/STATE.md: 入库=76346fbcaeb4d4b19a779b37e0998d09e62fca964a9773247f21b11028aec41f 我算=76346fbcaeb4d4b19a779b37e0998d09e62fca964a9773247f21b11028aec41f 一致
+
+入库 selfcheck_r04_failure.json 的 inputs 与我提取文件的哈希对比：
+  behavior_json_sha256: 我算=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38 入库=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38 一致
+  human_doc_sha256: 我算=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af 入库=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af 一致
+  hand_cases_sha256: 我算=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231 入库=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231 一致
+
+r04 样例数=29；HC-30 存在=False；HC-29.expected 键=['continues_false_streak', 'lost', 'm3_fires', 'trigger']
+r04 HC-29 推导文字片段：逐帧序列 9 帧：同类别且 IoU 0.60 ≥ P03 → 每帧 TARGET_CONTINUES 成立（9 帧，末尾 streak=0）；前 6 帧 score 0.35 ≥ P02 0.30 且彼此位移增量 ≤ P05 0.05 → 6 帧 WINDOW_MATCH；第 7–9 帧 score 0.28 < P02 → 不构成 WINDOW_MATCH（但 TARGET_CONTINUES 

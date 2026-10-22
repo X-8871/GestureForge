@@ -1,0 +1,408 @@
+hand_computed_cases.json: cases=30 ids=['HC-01', 'HC-02', 'HC-03', 'HC-04', 'HC-05', 'HC-06', 'HC-07', 'HC-08', 'HC-09', 'HC-10', 'HC-11', 'HC-12', 'HC-13', 'HC-14', 'HC-15', 'HC-16', 'HC-17', 'HC-18', 'HC-19', 'HC-20', 'HC-21', 'HC-22', 'HC-23', 'HC-24', 'HC-25', 'HC-26', 'HC-27', 'HC-28', 'HC-29', 'HC-30']
+顶层键=['artifact', 'cases', 'derivation_note', 'hand_cases_version', 'parameter_assumptions_unfrozen', 'run_id', 'schema_version', 'status', 'task_id']
+
+---- HC-28 ----
+{
+ "case_id": "HC-28",
+ "topic": "BLK-1：M3 必须用 WINDOW_MATCH 计数——低分（<P02）目标即使连续 8 帧 TARGET_CONTINUES 也不得进入 STABLE",
+ "recompute": {
+  "kind": "window_match_vs_continues",
+  "p02": 0.3,
+  "p03": 0.3,
+  "p04": 0.15,
+  "p05": 0.05,
+  "s02_frames": 6,
+  "s01_ms": 200,
+  "period_ms": 40,
+  "l01_frames": 5,
+  "l02_ms": 300,
+  "frames": [
+   {
+    "index": 1,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.025,
+    "score": 0.28
+   },
+   {
+    "index": 2,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.03,
+    "score": 0.28
+   },
+   {
+    "index": 3,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.035,
+    "score": 0.28
+   },
+   {
+    "index": 4,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.04,
+    "score": 0.28
+   },
+   {
+    "index": 5,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.045,
+    "score": 0.28
+   },
+   {
+    "index": 6,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.05,
+    "score": 0.28
+   },
+   {
+    "index": 7,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.055,
+    "score": 0.28
+   },
+   {
+    "index": 8,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.06,
+    "score": 0.28
+   }
+  ]
+ },
+ "derivation": "逐帧序列 8 帧：同类别且 IoU 0.60 ≥ P03 0.30 → 每帧 TARGET_CONTINUES 成立（8 帧）；但每帧 score 0.28 < P02 0.30 → 每帧 WINDOW_MATCH 不成立（0 帧）。因此 window_match_count=0 < S02=6 → 窗口跨度（严格口径）=0 ms、宽松序列跨度=7×40=280 ms，两种口径下 m3_fires 均为 false（结论一致）→ M3 不成立、不进入 STABLE、不触发；若误用 TARGET_CONTINUES 计帧则 8≥6 会误触发（BLK-1 的安全后果）。continues_false_streak=0 → 不判 LOST。",
+ "expected": {
+  "m3_fires": false,
+  "trigger": false,
+  "window_match_count": 0,
+  "continues_count": 8,
+  "window_span_ms": 0.0,
+  "span_conventions_agree": true
+ }
+}
+
+---- HC-29 ----
+{
+ "case_id": "HC-29",
+ "topic": "BLK-1：M10 必须用 TARGET_CONTINUES——score 跌破 P02 但几何连续的目标不得判 LOST",
+ "recompute": {
+  "kind": "window_match_vs_continues",
+  "p02": 0.3,
+  "p03": 0.3,
+  "p04": 0.15,
+  "p05": 0.05,
+  "s02_frames": 6,
+  "s01_ms": 200,
+  "period_ms": 40,
+  "l01_frames": 5,
+  "l02_ms": 300,
+  "frames": [
+   {
+    "index": 1,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.025,
+    "score": 0.35
+   },
+   {
+    "index": 2,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.03,
+    "score": 0.35
+   },
+   {
+    "index": 3,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.035,
+    "score": 0.35
+   },
+   {
+    "index": 4,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.04,
+    "score": 0.35
+   },
+   {
+    "index": 5,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.045,
+    "score": 0.35
+   },
+   {
+    "index": 6,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.05,
+    "score": 0.35
+   },
+   {
+    "index": 7,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.055,
+    "score": 0.28
+   },
+   {
+    "index": 8,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.06,
+    "score": 0.28
+   },
+   {
+    "index": 9,
+    "same_class": true,
+    "iou": 0.6,
+    "center_disp": 0.065,
+    "score": 0.28
+   }
+  ]
+ },
+ "derivation": "逐帧序列 9 帧：同类别且 IoU 0.60 ≥ P03 → 每帧 TARGET_CONTINUES 成立（9 帧，末尾 streak=0）；前 6 帧 score 0.35 ≥ P02 0.30 且彼此位移增量 ≤ P05 0.05 → 6 帧 WINDOW_MATCH；第 7–9 帧 score 0.28 < P02 → 不构成 WINDOW_MATCH（但 TARGET_CONTINUES 仍成立）。窗口跨度按 §9（N-r04-04）：窗口首帧（第 1 帧）→ 第 6 个 WINDOW_MATCH 帧（第 6 帧）= 5×40 = **200 ms** ≥ S01 200 ms；宽松序列跨度 8×40=320 ms 仅作对照，两种口径下 m3_fires 均为 true（结论一致）。window_match_count=6 ≥ S02 → M3 成立（触发仍需下一帧 M5）；continues_false_streak=0 < L01 → 不判 LOST。",
+ "expected": {
+  "lost": false,
+  "m3_fires": true,
+  "trigger": false,
+  "continues_false_streak": 0,
+  "window_span_ms": 200.0,
+  "span_conventions_agree": true
+ }
+}
+
+---- HC-30 ----
+{
+ "case_id": "HC-30",
+ "topic": "N-r04-01 角落序列：STABLE 已锁存、全局冷却门恰在 TIMEOUT 帧开启 → 该帧不得触发（B21），下一条窗口推进帧才触发",
+ "recompute": {
+  "kind": "latched_stable_gate_on_timeout",
+  "period_ms": 100,
+  "t_last_submit_ms": 0,
+  "k01_ms": 1000,
+  "u00_w": 3,
+  "u00_n": 3,
+  "s02_frames": 6,
+  "scenarios": [
+   {
+    "name": "gate_opens_on_timeout",
+    "frames": [
+     {
+      "index": 1,
+      "kind": "OK"
+     },
+     {
+      "index": 2,
+      "kind": "OK"
+     },
+     {
+      "index": 3,
+      "kind": "OK"
+     },
+     {
+      "index": 4,
+      "kind": "OK"
+     },
+     {
+      "index": 5,
+      "kind": "OK"
+     },
+     {
+      "index": 6,
+      "kind": "OK"
+     },
+     {
+      "index": 7,
+      "kind": "OK"
+     },
+     {
+      "index": 8,
+      "kind": "OK"
+     },
+     {
+      "index": 9,
+      "kind": "OK"
+     },
+     {
+      "index": 10,
+      "kind": "OK"
+     },
+     {
+      "index": 11,
+      "kind": "TIMEOUT"
+     },
+     {
+      "index": 12,
+      "kind": "OK"
+     }
+    ]
+   },
+   {
+    "name": "gate_opens_on_ok",
+    "frames": [
+     {
+      "index": 1,
+      "kind": "OK"
+     },
+     {
+      "index": 2,
+      "kind": "OK"
+     },
+     {
+      "index": 3,
+      "kind": "OK"
+     },
+     {
+      "index": 4,
+      "kind": "OK"
+     },
+     {
+      "index": 5,
+      "kind": "OK"
+     },
+     {
+      "index": 6,
+      "kind": "OK"
+     },
+     {
+      "index": 7,
+      "kind": "OK"
+     },
+     {
+      "index": 8,
+      "kind": "OK"
+     },
+     {
+      "index": 9,
+      "kind": "OK"
+     },
+     {
+      "index": 10,
+      "kind": "OK"
+     },
+     {
+      "index": 11,
+      "kind": "OK"
+     },
+     {
+      "index": 12,
+      "kind": "OK"
+     }
+    ]
+   }
+  ]
+ },
+ "derivation": "锁存 STABLE（`stable_latching.scope=WITHIN_ACQUISITION`）且本次获取尚未触发。全局冷却门 = t_last_submit(0 ms) + K01(1000 ms) = 1000 ms，即第 11 帧（t=(11−1)×100=1000 ms）开启。场景 A（gate_opens_on_timeout）：第 11 帧为 TIMEOUT —— H-4 规定 TIMEOUT 不推进窗口序列，因此它不是窗口推进帧，M5 不成立、无动作（B21）；第 12 帧（t=1100 ms，OK）是窗口推进帧 → M5 命中，全程恰好一次动作，动作帧 = 12。场景 B（gate_opens_on_ok）：第 11 帧本身是 OK → 门开启的同一条窗口推进帧即触发（对应 §4 锁存段「门开启后的下一条窗口推进帧即可触发」），动作帧 = 11。两场景异常窗口 W=3/N=3：单个 TIMEOUT 的异常计数 1 < 3，M2 不成立，不影响本推演。",
+ "expected": {
+  "gate_open_frame": {
+   "gate_opens_on_timeout": 11,
+   "gate_opens_on_ok": 11
+  },
+  "first_action_frame": {
+   "gate_opens_on_timeout": 12,
+   "gate_opens_on_ok": 11
+  },
+  "total_actions": {
+   "gate_opens_on_timeout": 1,
+   "gate_opens_on_ok": 1
+  },
+  "action_at_gate_open_frame": {
+   "gate_opens_on_timeout": false,
+   "gate_opens_on_ok": true
+  },
+  "no_action_on_timeout_frame": true,
+  "timeout_frames_not_window_advancing": true,
+  "latched_within_acquisition": true
+ }
+}
+
+======================================================================
+r04 失败证据（r05 自检 @ r04 git 字节）
+======================================================================
+status=FAILED artifact_version=S6A-G0-v1.3 run_id=s6a_g0_20261022_r04
+inputs={"behavior_json_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_behavior.json", "behavior_json_sha256": "119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38", "human_doc_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_doc.md", "human_doc_sha256": "1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af", "hand_cases_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_cases.json", "hand_cases_sha256": "c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231", "evidence_dir": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r04", "manifest_path": null, "state_path": "D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_state.md"}
+FAIL C7: 手算样例数量不足 30：29
+FAIL C12: predicate_binding_policy.statement 缺少事实要素 'H-10'（N-r04-02）；M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'state ∈ {OK, NO_HAND}'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 'stale=false'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非重复'（N-r04-01）；文档 §4 M5 行未复述窗口推进帧限定 '非倒序'（N-r04-01）；stable_latching.suppressed_trigger_release 未复述窗口推进帧限定/不得触发 '不得触发'（N-r04-01）
+PASS 项：['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C8', 'C9', 'C10', 'C11', 'C13', 'C14', 'C15', 'C16', 'C17']
+
+r04_package_under_test.json: commit=b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7
+  docs/stage6/s6a_stage6_g0_behavior_v1.json sha256=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md sha256=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af
+  report/evidence/S6-A/s6a_g0_20261022_r04/hand_computed_cases.json sha256=c90d746be021d1dd22c17372f56e39ba3c74ede8e93c46e2544fcdcf98b5c231
+  report/evidence/S6-A/s6a_g0_20261022_r04/upstream_bindings.json sha256=141b85f7d77f456e06d6b918251bd7a52a16d70022cd5bce4f9cee73a7c88695
+  .codex/STATE.md sha256=76346fbcaeb4d4b19a779b37e0998d09e62fca964a9773247f21b11028aec41f
+observed={"command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_behavior.json --doc D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r05\\legacy\\r04\\r04_doc.md --cases D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261022_r
+evidence_dir_under_test.actual_files=23
+
+======================================================================
+probe_summary.json（入库）
+======================================================================
+baseline_verdict=AS_EXPECTED results=8
+  baseline_no_injection: expect_exit=0 actual=0 expect_check=None failed=[] captured=True verdict=AS_EXPECTED
+  m5_window_advance_removed: expect_exit=1 actual=1 expect_check=C12 failed=['C12'] captured=True verdict=AS_EXPECTED
+  empty_predicates_used: expect_exit=1 actual=1 expect_check=C12 failed=['C12'] captured=True verdict=AS_EXPECTED
+  b13_predicates_used_added: expect_exit=1 actual=1 expect_check=C12 failed=['C12'] captured=True verdict=AS_EXPECTED
+  undeclared_predicate_name: expect_exit=1 actual=1 expect_check=C12 failed=['C12'] captured=True verdict=AS_EXPECTED
+  suppressed_release_not_window_advancing: expect_exit=1 actual=1 expect_check=C12 failed=['C12'] captured=True verdict=AS_EXPECTED
+  case_timeout_frame_action: expect_exit=1 actual=1 expect_check=C7 failed=['C7'] captured=True verdict=AS_EXPECTED
+  case_span_wrong: expect_exit=1 actual=1 expect_check=C7 failed=['C7'] captured=True verdict=AS_EXPECTED
+purpose=先证明 C12/C7 的新断言能捕获缺陷，再允许 r05 出 ALL_PASS（N-r04-01/N-r04-03/N-r04-04）
+scope=探针只证明自检断言有判别力，不代表状态机行为、G0 复评、独立审查或实物验收通过。
+
+======================================================================
+“8 个注入”表述计数核对
+======================================================================
+[verification/s6a_r05_probe.py] …  * 8 个注入用例：每个都把 r05 的 JSON/样例在 **tmp 副本**里改坏一处，…
+[verification/s6a_build_evidence.py] …verification/s6a_r05_probe.py 注入探针（基线 + 8 个注入用例，…
+[verification/s6a_build_evidence.py] …robe_summary.json": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）",…
+[verification/s6a_build_evidence.py] …        f"| 注入探针（基线 + 8 用例，N-r04-01/03/04） | `{subprocess.list2cmdline(probe_cmd)}` | …
+[verification/s6a_build_evidence.py] ….json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）",…
+[report/.../S6A_run_summary.md] …| 注入探针（基线 + 8 用例，N-r04-01/03/04） | `C:\Users\22061\AppData\Local\Programs\Py…
+[report/.../S6A_run_summary.md] ….json` + `probe_*_stdout.txt`（基线 exit 0；8 个注入用例各自捕获检查项，N-r04-01/03/04）…
+[report/.../fix_record.json] …_test.json）；再由注入探针（probe_summary.json）对 8 个注入用例逐条证明 C12/C7 新断言可捕获；最后对 r05 跑出 17 项 ALL_PASS"…
+[report/.../delivery_manifest.json] …     "keep_reason": "注入探针汇总（基线 exit 0 + 8 个注入用例的预期失败与捕获检查项）"…
+
+git show --format=%H%n%B -s 1632761 全文（提交信息）：
+fix(stage6): S6-A v1.4/r05 closes 4th-review non-blocking items N-r04-01..05
+
+- N-r04-01: M5 condition now requires the frame to be a window-advance frame
+  (state in {OK,NO_HAND}, stale=false, not duplicate/out-of-order); synced with doc §4 and
+  stable_latching.suppressed_trigger_release; C12 asserts it in JSON, doc §4 and the latch text;
+  new hand case HC-30 covers latched STABLE + gate opening exactly on a TIMEOUT frame (no action,
+  B21) versus on an OK frame (fires that frame).
+- N-r04-02: predicate_binding_policy.statement now says M5 carries the global_cooldown_gate marker
+  while B13 is carried by H-10, both condition-text only with no predicates_used field; C12 asserts
+  the factual markers; doc §4 and STATE synced verbatim.
+- N-r04-03: C12 rejects any explicit empty predicates_used list (universal, not just M5/B13).
+- N-r04-04: C7 window span now measured from the first window frame to the T6-S02-th WINDOW_MATCH
+  frame (HC-29 320ms -> 200ms) with a span_conventions_agree assertion versus the loose sequence span.
+- N-r04-05: removed the dangling S6-B design-doc reference in the untracked src/stage6 WIP (still
+  not committed).
+- Proof discipline: the r05 selfcheck runs against r04 (git b20b670 bytes) fail with exit 1
+  (C12 catches N-r04-01/02, C7 catches N-r04-04); verification/s6a_r05_probe.py injects 8 faults
+  (baseline exit 0) and all are caught by C12/C7. r05 itself: 17-check ALL_PASS incl. full C11.
+- 24 parameter values and PENDING_APPROVAL unchanged; r01..r04 evidence untouched; no hardware.
+
+
+
+======================================================================
+r04 证据绑定口径（工作树 CRLF 还是 git LF 字节？）
+======================================================================
+r04 selfcheck inputs.behavior_json_sha256=c6c11ed324ac6857f0cd4513c9cee7efa053052bd1c1e0c51e112dae4d0ec137
+  docs/stage6/s6a_stage6_g0_behavior_v1.json: git(LF)=119f21a7b35e33dd103d22108a16b9bb1e9986c9f888238fa47ff44d797a8c38
+     重建CRLF=c6c11ed324ac6857f0cd4513c9cee7efa053052bd1c1e0c51e112dae4d0ec137  与 r04 入库 behavior_json_sha256=一致(CRLF 口径)  
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md: git(LF)=1326236015f0be3c0b1d6362356da8517f1fafaad899d388739548f1d43396af
+     重建CRLF=f33e9a72ebbfed9a69d57ce2c7cdedf3803fa77496df7112c915b18a75ba79ba  与 r04 入库 human_doc_sha256=一致(CRLF 口径)  
+
+r05 证据绑定口径：
+  docs/stage6/s6a_stage6_g0_behavior_v1.json: git(LF)=d01aaff3cb70bcc0a34fdd7f3c697aebf49d403a535afdede889371a4c1b6120
+     重建CRLF=fe28145f13108034d09b0aa19f1051fcdf69ff959dd5200bfd7c597124119b93 入库=fe28145f13108034d09b0aa19f1051fcdf69ff959dd5200bfd7c597124119b93 → CRLF 口径
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md: git(LF)=8b4abfcafed50b13fccfb4e3221138ff66bc742c2dfe5957ad898a19895cb67c
+     重建CRLF=01154560fbe8597fc269db7185ad303b0f407899fb828fb3bba270c40b011572 入库=01154560fbe8597fc269db7185ad303b0f407899fb828fb3bba270c40b011572 → CRLF 口径

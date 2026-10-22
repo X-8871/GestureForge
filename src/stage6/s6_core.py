@@ -40,22 +40,16 @@ EV_FRAME_ERROR = "E_FRAME_ERROR"
 EV_FRAME_DROPPED = "E_FRAME_DROPPED"
 EV_TICK = "E_TICK"
 
-OUT_SUBMITTED = "ACTION_SUBMITTED"
-OUT_EFFECTIVE = "ACTION_EFFECTIVE"
-OUT_FAILED = "ACTION_FAILED"
-OUT_UNOBSERVED = "ACTION_UNOBSERVED"
 
-SUP_DEDUP = "S_DEDUP"
 SUP_COOLDOWN = "S_COOLDOWN"
 SUP_TARGET_HELD = "S_TARGET_HELD"
 SUP_JITTER = "S_JITTER_TOLERATED"
 SUP_WINDOW_TIMEOUT = "S_WINDOW_TIMEOUT"
 
-STATES = ("IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN", "LOST", "UNKNOWN_RECOVER")
 NON_ADVANCING_KINDS = (EV_FRAME_TIMEOUT, EV_FRAME_ERROR, EV_FRAME_DROPPED)
 
 #: 判定核心使用的期望契约版本（可被构造参数覆盖，但不允许静默跟随上游改版）。
-EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.6"
+EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.7"
 
 
 class CoreInputError(RuntimeError):
@@ -82,14 +76,15 @@ class GestureInteractionCore:
         "D5: 时间条件使用显式输入时刻；E_TICK 只推进时间，用于「无新结果但时间持续前进」。",
         "D6: 语义上无法由核心判定的未知场景（合法五类内的误识别）不做拒绝判定（H-6）；"
         "class_id ∉ {0..4} 按 E_FRAME_INVALID 处理并计入异常。",
-        "D7（N-05 acquisition_id 规则）：acquisition_id 只在**结束一次获取**时递增——M11（丢失确认→IDLE）、"
-        "M4（抖动超时→IDLE）、M8（会话/重启复位）与目标切换（D3）；M1 建立候选**不**递增；"
-        "因此同一获取内 M5 至多触发一次，与 B11/B15 的「一次获取一次触发」一致（日志即获取级 id）。",
-        "D8（N-08 IDLE 有目标时不求值 M10）：M10 只在已进入求值序的有目标状态判定；当前实现中 IDLE 不保留 "
-        "current_target（M11/M4/切换均清空），故该分支不会出现；若后续允许 IDLE 保留目标，必须显式求值 M10 "
-        "（规格 M10 为「任意有目标状态」）并回归本用例集。",
-        "D9（N-04 登记）：§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现——每帧只输出单一 transition；"
-        "该常量与相关分支已从代码移除，并在 limitations_not_executed.json 登记为未实现。",
+        "D7（N-05/BLK-r02-1，已按实测修正）：acquisition_id 在**结束一次获取**时递增——M11（丢失确认→IDLE）、"
+        "M4（抖动超时→IDLE）与目标切换（D3）各 +1；M8（会话/重启复位）由 _init_state 归零；M1 建立候选不递增。"
+        "同一获取内 M5 至多触发一次（B11/B15）；动作记录与日志都带该 id，可由交付证据逐获取核对。",
+        "D8（N-08/NB-03，按实测改写）：IDLE **会**保留 current_target——单帧选中目标时 M1 未成立（需 T6-C01=2 帧），"
+        "但该帧已按 §8 选定目标，而 IDLE 不在 M10 的求值分支里；实测「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10。"
+        "这是与规格「M10 适用于任意有目标状态」的**已知行为偏差**，已在 limitations_not_executed.json 的 "
+        "open_behavior_deviations 登记：修正前不得声称 M10 全覆盖；修正需在 IDLE 显式求值 M10 并回归全部用例。",
+        "D9（N-04/NB-04 登记）：§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现——每帧只输出单一 transition；"
+        "相关常量与分支已移除，并已在 limitations_not_executed.json 的 not_implemented 中登记（NB-04）。",
     )
 
     def __init__(self, pack: ParamPack) -> None:
@@ -508,7 +503,7 @@ class GestureInteractionCore:
         return False
 
     def _evaluate(self, t_now_ns: int, advancing: bool, log: dict[str, Any]) -> None:
-        """按 v1.4 求值序逐级判定，首次命中即停。"""
+        """按 v1.6 求值序逐级判定，首次命中即停（BLK-r02-1：M11/M4 递增 acquisition_id）。"""
         previous = self.state
 
         # P1 异常
@@ -604,6 +599,10 @@ class GestureInteractionCore:
             "M11": "IDLE", "M12": "IDLE", "M13": "UNKNOWN_RECOVER", "M15": "CANDIDATE",
         }[mid]
         if mid in ("M11", "M4", "M8"):
+            # BLK-r02-1：这三个迁移都**结束一次获取**，必须真的递增获取级 id（使 D7 与实现一致）；
+            # M8（会话/重启复位）由 _init_state 归零，故只在 M11/M4 递增。
+            if mid in ("M11", "M4"):
+                self.acquisition_id += 1
             self.current_target = None
             self._clear_window_evidence()
             self.continues_false_streak = 0
@@ -644,6 +643,7 @@ class GestureInteractionCore:
         }
 
     def _finish(self, log: dict[str, Any]) -> dict[str, Any]:
+        log["acquisition_id"] = self.acquisition_id  # BLK-r02-1/2：日志与动作记录同口径
         log["to_state"] = self.state
         log["counters"] = dict(self.counters)
         request = None

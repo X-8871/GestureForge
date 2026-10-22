@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from collections import Counter
@@ -62,8 +63,10 @@ def interface_reason(version: str) -> str:
 
 
 def run_command(command: list[str], root: Path) -> dict:
+    """执行子进程。NB-07：显式 UTF-8，使产物不依赖宿主 locale（否则不设 PYTHONUTF8 时出现 U+FFFD）。"""
+    env = {**os.environ, "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
     completed = subprocess.run(command, cwd=str(root), capture_output=True, text=True,
-                               encoding="utf-8", errors="replace", check=False)
+                               encoding="utf-8", errors="replace", env=env, check=False)
     return {"command_text": subprocess.list2cmdline(command), "exit_code": completed.returncode,
             "stdout": completed.stdout, "stderr": completed.stderr}
 
@@ -170,6 +173,15 @@ def main(argv: list[str] | None = None) -> int:
         ],
         "reachability_not_counted_as_coverage": ["B16 S_DEDUP（A02<K01，草案值下不可达）", "M7（构造上不可达）"],
         "reachability_counted": ["M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）"],
+        "not_implemented": [
+            "§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现：每帧只输出单一 transition；"
+            "相关常量与分支已从代码移除（NB-04 登记）。",
+        ],
+        "open_behavior_deviations": [
+            "M10 在 IDLE 有目标时不求值（D8/NB-03）：单帧选中目标后 IDLE 保留 current_target，"
+            "「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10，与规格「M10 适用于任意有目标状态」存在偏差；"
+            "修正前不得声称 M10 全覆盖（登记为 U6 开放项；修正需在 IDLE 显式求值 M10 并回归全部用例）。",
+        ],
         "expected_corrections": [
             "C3：初版把 t_last_target_continues 误判为第 7 帧值（未计入第 8 帧 OK 的刷新），"
             "并误把第 12 帧当作 NO_HAND；按 §9/§13 重新推演后改为 M10@f11、M11@f12、第二次触发@f19、"
@@ -290,7 +302,7 @@ def main(argv: list[str] | None = None) -> int:
         print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
     inputs_out.write_text(inputs_run["stdout"], encoding="utf-8")
 
-    selfproof_path = run_dir / "export_selfproof.json"
+    selfproof_path = run_dir.parent / f"{run_dir.name}_selfproof" / "export_selfproof.json"  # N-r07-2：自证报告在兄弟目录，可在提交后补入交付提交主体
     selfproof_check = None
     if selfproof_path.is_file():
         proof = json.loads(selfproof_path.read_text(encoding="utf-8"))
@@ -348,6 +360,16 @@ def main(argv: list[str] | None = None) -> int:
         if evidence_run["exit_code"] != 0:
             print(evidence_run["stdout"]); print(evidence_run["stderr"]); return 1
         evidence_out.write_text(evidence_run["stdout"], encoding="utf-8")
+        # NB-06：回填两个检查器的真实退出码（下一轮 iterate 的清单/哈希会带上该摘要版本，收敛一致）
+        _summary_path = run_dir / "s6b_run_summary.md"
+        if _summary_path.is_file():
+            _text = _summary_path.read_text(encoding="utf-8")
+            if "实测（下方回填）" in _text:
+                _text = _text.replace(
+                    "| 交付检查 inputs / evidence | 见 `delivery_manifest.json.checks` | 实测（下方回填） |",
+                    f"| 交付检查 inputs | `{inputs_run['command_text']}` | 实测 {inputs_run['exit_code']} |\n"
+                    f"| 交付检查 evidence | `{evidence_run['command_text']}` | 实测 {evidence_run['exit_code']} |")
+                _summary_path.write_text(_text, encoding="utf-8")
         checks[-1] = {"name": "check_stage_delivery.py --mode evidence", "status": "PASS",
                       "command": evidence_run["command_text"], "exit_code": evidence_run["exit_code"]}
         state = (sha256_file(manifest_path), sha256_file(hashes_path), sha256_file(evidence_out))

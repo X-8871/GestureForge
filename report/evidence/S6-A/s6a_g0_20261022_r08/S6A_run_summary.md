@@ -1,7 +1,7 @@
 # S6-A v1.7 / r08 运行摘要
 
 - 任务：`S6-A`；RunId：`s6a_g0_20261022_r08`；工作树：`D:\codex-worktrees\w6`
-- 绑定提交：`87a6bdc9951b9fed1baf5dad85a88db288ecda6a`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）
+- 绑定提交：`05126fdb79ba77de57d9262857af66393b453d66`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）
 - 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）
 - 阈值纪律：24 项参数值与 `PENDING_APPROVAL` 状态未改；未在测试集调参；未触碰硬件。
 

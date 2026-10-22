@@ -95,10 +95,10 @@ class ActionLayer:
             "target_id": target_id,
             "class_id": request.get("class_id"),
             "class_name": request.get("class_name"),
-            "acquisition_id": request.get("acquisition_id"),  # N-04：动作记录含获取级 id
-                "source_frame_id": request.get("source_frame_id"),
-            "trigger_frame_id": request.get("trigger_frame_id"),
+            "event": None,  # BLK-r02-2：ACTION_* 事件名，提交后按结果赋值
             "acquisition_id": request.get("acquisition_id"),
+            "source_frame_id": request.get("source_frame_id"),
+            "trigger_frame_id": request.get("trigger_frame_id"),
             "t_trigger_ns": request.get("t_trigger_ns"),
             "t_submit_ns": None,
             "t_effective_ns": None,
@@ -113,6 +113,7 @@ class ActionLayer:
         last_submit = self.last_submit_ns_by_key.get(key)
         if last_submit is not None and (t_now_ns - last_submit) < self.a02_ns:
             record["suppression"] = SUP_DEDUP
+            record["event"] = SUP_DEDUP
             record["reason"] = (
                 f"同一 (action_type,target_id) 在 T6-A02={self.a02_ns} ns 内重复提交：抑制并记录"
             )
@@ -126,19 +127,24 @@ class ActionLayer:
         if attempt in self.policy.fail_attempts:
             record["submit_result"] = "fail"
             record["effective_result"] = "unobserved"
+            record["event"] = OUT_FAILED
+            record["effective_event"] = OUT_UNOBSERVED
             record["reason"] = "执行层返回 fail：不产生 ACTION_SUBMITTED 成功、不更新冷却锚点"
             self.records.append(record)
             return record
 
         record["submit_result"] = "success"
+        record["event"] = OUT_SUBMITTED
         self.last_submit_ns_by_key[key] = t_now_ns
         already_active = record["already_active_before"]
         if attempt in self.policy.unobserved_attempts:
             record["effective_result"] = "unobserved"
+            record["effective_event"] = OUT_UNOBSERVED
             record["reason"] = "提交成功但未观察到生效：按 NOT_RUN 单列，不计成功（H-8）"
         else:
             self._apply(action_type, target_id)
             record["effective_result"] = "observed"
+            record["effective_event"] = OUT_EFFECTIVE
             record["t_effective_ns"] = t_now_ns
             record["visible_state_change"] = not already_active
             record["reason"] = (

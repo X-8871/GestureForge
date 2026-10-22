@@ -25,7 +25,7 @@ import json
 from pathlib import Path
 
 EXPECTED_ARTIFACT = "s6a_stage6_g0_behavior"
-EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.6"
+EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.7"
 PENDING_APPROVAL = "PENDING_APPROVAL"
 
 # 单位换算常量只出现在装载层，不进入判定核心。

@@ -66,6 +66,17 @@ def freeze_payload(cases: dict, behavior_sha: str) -> dict:
     }
 
 
+def _event_counts(records: list[dict]) -> dict:
+    """统计四个 ACTION_* 事件名与 S_DEDUP 的出现次数（供 must_log 核对）。"""
+    counts: dict[str, int] = {}
+    for row in records:
+        for key in ("event", "effective_event"):
+            name = row.get(key)
+            if name:
+                counts[name] = counts.get(name, 0) + 1
+    return counts
+
+
 def run_case(case: dict, pack: ParamPack) -> dict:
     """运行单条用例，返回实际观测（含逐帧日志）。"""
     period_ns = int(case.get("period_ns", 100_000_000))
@@ -280,6 +291,9 @@ def main(argv: list[str] | None = None) -> int:
                 "markers": observed["markers"],
                 "counter_highs": observed["counter_highs"],
                 "window_complete_ns": observed["window_complete_ns"],
+                # BLK-r02-2：动作记录与四个 ACTION_* 事件名必须进交付证据（原实现只在内存里）
+                "action_records": observed["action_records"],
+                "action_event_counts": _event_counts(observed["action_records"]),
             },
             "assertions_failed": failures,
             "status": "PASS" if not failures else "FAIL",

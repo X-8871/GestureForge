@@ -29,7 +29,7 @@
 
 ## 未决与风险
 
-- **独立审查未完成（环境限制）**：本轮多个 Reviewer 子代理连续 provider 失败（rev-spec/rev-c/dev-inject 多次 exit 异常），4-A r06、共享契约 r02、4-B 注入通路**尚未取得独立审查 PASS**；Lead 只做了自检、变异自证与官方清单核验，**不得据此宣称 G2 通过**。恢复后需补审（rev-spec 审契约/4-A，rev-b 审 4-B）。
+- **独立审查未完成（环境限制）**：本轮多个 Reviewer 子代理连续 provider 失败（rev-spec/rev-b/rev-c 多次 exit 异常、无结论），4-A r06、共享契约 r02、4-B 注入通路**尚未取得独立审查 PASS**；Lead 只做了自检、变异自证与官方清单核验，**不得据此宣称 G2 通过**。失败记录与待补审查清单见 `report/evidence/S4-CTRL/S4-C04/s4_ctrl_20261022_r01/review_status_20261022.json`。恢复后需补审（建议 rev-spec 审契约/4-A、rev-b 审 4-B）。
 - 契约与地址图为 `DRAFT_PENDING_REVIEW`；`stale_limit_ns` 仍 `DRAFT_PENDING_APPROVAL`（草案 200 ms），需正式 G0 或 Wong 批准；批准载体建议阶段5 `STALE_AGE_LIMIT_NS` 唯一。
 - 4-D 板测需正式实物授权与会话交接；阶段5 正在板测，硬件不归本树。
 - 注入/合成结果不得替代摄像头 G5；灰度输入不得对彩色 golden。

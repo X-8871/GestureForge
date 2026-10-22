@@ -1,0 +1,30 @@
+{
+  "schema_version": "gestureforge_s4_review_status_v1",
+  "record": "S4CTRL-20261022-004",
+  "created_utc8": "2026-10-22T19:55:00+08:00",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "branch": "stage4-infer-prep",
+  "commit": "e247b49",
+  "statement": "本轮 4-A / 4-B / 共享契约的**独立审查未完成**：多个 Reviewer 子代理在运行中连续异常退出（provider 失败、无结尾消息）。因此本阶段不宣称 G2 通过；下列交付物只有 Lead 侧自检、变异自证与官方清单核验。",
+  "review_attempts": [
+    {"reviewer": "rev-spec", "targets": ["共享契约 r01/r02", "4-A r06"], "result": "r01 返回过 CHANGES_REQUIRED（T1–T4 已修）；r02 与 4-A r06 的复审批次多次 exit 异常，无结论"},
+    {"reviewer": "rev-b", "targets": ["4-B 注入通路"], "result": "两次派卡均在运行中异常退出，无结论"},
+    {"reviewer": "rev-c", "targets": ["4-A r06"], "result": "派卡后异常退出，无结论"}
+  ],
+  "lead_side_verification_only": [
+    "4-A：自检 18 PASS/0 FAIL（exit 0）；变异 9/9 符合期望；官方 check_stage_delivery --mode evidence = CHECKS_OK；24 条钉扎现场复算（含 D:\\FPGA_Data 5 项、2B C 参考与冻结回执）",
+    "共享契约：自检 18 PASS/0 FAIL；6 项 upstream_bindings 现场复算一致；与 S4-A r06 词表/字段逐一比对；与 w5 display_semantics 值比对；HUD 恰 13 键",
+    "4-B：gcc 严格编译 0 error/0 warning；驱动 23 用例全符（16 类故障码逐项核对）；2 个小图 CRC/字节数由 Python 独立复现；地址图两两不相交 + 人为重叠负例被检出；unittest 8 OK；官方清单 CHECKS_OK",
+    "Lead 集成测试发现并修复三处实现缺陷：① host cache ops 栈变量被环长期持有（悬垂指针）；② capture_avail 与契约 capture_time_available 反向；③ token_present 只匹配孤立 key 导致 capture=<ns> 死分支、伪造采集时间不可测"
+  ],
+  "not_claimed": [
+    "G2 独立审查通过",
+    "任何板上/串口/摄像头/PL 实测结论",
+    "阶段4 验收或 G3/G4/G5"
+  ],
+  "follow_up": [
+    "环境恢复后必须补：共享契约 r02 + 4-A r06 独立审查（建议 rev-spec）、4-B 注入通路独立审查（建议 rev-b）",
+    "若审查出 CHANGES_REQUIRED：按『修复后冻结新差异复审，最多 3 轮』执行；不得以 Lead 自检替代",
+    "契约与地址图在审查通过前保持 DRAFT_PENDING_REVIEW，不得被下游当作已冻结接口"
+  ]
+}

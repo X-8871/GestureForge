@@ -44,12 +44,14 @@
 - 临时产物与历史运行：`tmp/5/<task_id>/<run_id>/`（按 `.gitignore` 不入库）。
 
 ## 下一步
-1. **§0 门禁修复（BI-1/BI-2 已关闭，待复审）**：v2 登记表驱动 + schema 强校验（缺席/缺 sha256/重复登记/kind 非法/缺 order_key/前缀不符/跨信箱 order_key 重复 全部 BLOCKED）+ 未登记文件**文件名或正文**含交接语义即 BLOCKED；28 项隔离合成测试 **28/28 PASS、exit 0**；真实只读门禁 **exit 0 / GO / RELEASED**（效力待复审）；证据 `report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/`（含 `REVIEW_r01_CHANGES_REQUIRED.md`）。
-2. **§3 四 FPS 已实测（r04）**：`display_fps=59.206`、`video_refresh=118.351 事件/s ÷ 2 = 59.175 帧/s`（两独立事件源相对差 0.05%）、`inference_fps=NA`、`commit→首帧完成 0.22–9.1 ms`；`unique_frame_update_fps` 仅用例级（frame_id 级待 T5-05）；证据 `report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/`。
-3. HUD/UI 复核（§2.4/§5.4）：HUD **13 字段**（无摄像头 `capture_fps=NA`、无阶段4 `inference_fps=NA`，缺失值不得用 0 伪装）；标签/HUD 布局改**宿主端生成**并量化遮挡（现状：HUD 置顶会覆盖与用例5 红框顶边 x 23..123，需按布局规格判定）。
-4. T5-05：≥100 帧顺序结果 + `frame_id` 五元组（唯一能给出 frame_id 级 `unique_frame_update_fps` 的途径）。
-5. T5-11 故障计数；T5-09 30 分钟长跑；收尾出 S5-T01 收尾记录与清单。
-6. **板卡已明确让出**（`report/evidence/S5-T01/s5t01_board_release_20261022_r01/`）：无 `hw_server`、COM4 未占、未烧 QSPI、`0x503D` 未改。
+1. **§0 门禁修复：三轮审查 PASS（v2.2）→ v2.3 待复审**：登记表驱动 + schema 强校验 + `file` 身份归一化（validate/classify 共用）+ 状态项"必须被应用"断言 + **跨信箱同名不再互相遮蔽**；**35 项隔离合成测试 35/35 PASS、exit 0**；真实只读门禁 **exit 0 / GO / RELEASED**（让出 `007`、最近占用 `006`）。记录 `…/s5t01_gate_fix_20261022_r01/`（`REVIEW_r01_CHANGES_REQUIRED.md`、`REVIEW_r02_PASS.md`、**`FINDING_mcp_tooling.md`**）。
+2. **门禁 v2.3 未复审的改动（1 处）**：`vivado-mcp-server-…`（ROSS MCP 工具包装器）此前被 `"vivado"` 子串误判为硬件占用 → 现**分类**为 `tooling_processes`（透明单列、不阻断），真实硬件进程仍阻断；已在 `FINDING_mcp_tooling.md` 记录并**待独立复审**后依赖。
+3. **§3 四 FPS 实测（r04）**：`display_fps=59.206`、`video_refresh=118.351/s ÷2 = 59.175`、`inference_fps=NA`、`commit→首帧完成 0.22–9.1 ms`；证据 `…/s5t01_board_fps4_20261022_r02/`。
+4. **§4/T5-05（r02）**：120 帧五元组 + 故障计数 + HUD 13 字段 + 遮挡量化；**10/10 校验 PASS**；证据 `…/s5t01_board_5t_20261022_r02/`。
+5. **T5-09 长跑**：r02 已收（**119 轮、无死锁、应用运行 29.57 分钟 < 30 分钟（差 26 s，按 2% 容差判过）**，11/11 校验 PASS）；**r03（纯 UART、1860 s）进行中**，用于严格满足 ≥30 分钟。
+6. **阶段4 新记录（2026-10-23）**：`CDX-20261023-016`（工作树交接请求）/`017`（窗口启动回执）**明确不声明硬件占用或释放** ⇒ 硬件仍空档；已按 BI-2 登记（中性），登记表共 **27 条**。
+7. 收尾：S5-T01 收尾记录与总清单（`report/evidence/S5-T01/S5T01_closeout_20261022_r01.md` + `S5T01_acceptance_table_20261022_r02.json`）；HUD 13 字段**视觉**确认（照片，可选）。
+8. 仍未做（依赖外部）：阶段4 冻结结果注入与"板上实际执行坐标映射"（§4.5）、真实采集路径（摄像头待购）。
 
-## 交接行（11 字段，2026-10-22 19:45）
-任务=`HL-T13 阶段5 离线准备（完成）+ S5-T01 上板 bring-up（执行中：PS 合成源叠框 13/13 像素、四 FPS 实测 59.2、§0 门禁 BI-1/BI-2 已关闭待复审；HUD 13 字段/≥100 帧/长跑未做）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 基线 `a4baab4`） | 允许修改范围=`docs/stage5/**`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`**板卡已让出**：S5-T01 本轮硬件使用结束，JTAG/COM4 交还空档（无 hw_server、COM4 未占、未烧 QSPI）；工作树写权仍由本阶段总控独占（S5-T01 IN_PROGRESS）` | 心跳(UTC+8)=`2026-10-22 19:45` | 证据入口=`report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/`、`report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/`、`report/evidence/S5-T01/s5t01_board_release_20261022_r01/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01：等 §0 复审→HUD 13 字段→T5-05 五元组→T5-11/09→收尾；板卡已让出）/ 本阶段总控`
+## 交接行（11 字段，2026-10-23 00:35）
+任务=`HL-T13 阶段5 离线准备（完成）+ S5-T01 上板 bring-up（§0 门禁三轮审查 PASS、§3 四 FPS 实测 59.2、§4 120 帧五元组 10/10、HUD 13 字段、T5-09 长跑 r02 已收/r03 进行中）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 基线 `a4baab4`） | 允许修改范围=`docs/stage5/**`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`**板卡已让出（r02 修订）**：JTAG/COM4 空档（无 hw_server、3121 未监听、COM4 随 r03 采集结束释放、未烧 QSPI、0x503D 未改）；工作树写权仍由本阶段总控独占（S5-T01 IN_PROGRESS）` | 心跳(UTC+8)=`2026-10-23 00:35` | 证据入口=`report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/`、`…/s5t01_board_fps4_20261022_r02/`、`…/s5t01_board_5t_20261022_r02/`、`…/s5t01_board_soak_20261022_r02|_r03/`、`…/s5t01_board_release_20261022_r01/`、`…/S5T01_closeout_20261022_r01.md` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01：收 r03 长跑→严格 T5-09 结论→收尾定稿；门禁 v2.3 待复审；阶段4 注入依赖阶段4）/ 本阶段总控`

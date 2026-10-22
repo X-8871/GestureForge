@@ -1,6 +1,6 @@
 # 阶段5 状态（HDMI 结果显示·离线准备）
 
-更新：2026-10-22 11:50（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
+更新：2026-10-22 13:15（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
 **本树只做阶段5 的离线准备**（规格定稿 + 离线渲染/叠框自测 + 与阶段4 数值链路回归勾连）；**不是阶段5 正式开工，更不是验收**（G0/G1/G3/G4/G5 均未通过）。真实 HDMI 显示与摄像头联调必须等阶段3 完成、阶段4 正式跑通且 2B 让出硬件。
 
 ## 目标与范围（离线、可独立验收）
@@ -33,7 +33,14 @@
 - 临时产物与历史运行：`tmp/5/<task_id>/<run_id>/`（按 `.gitignore` 不入库）。
 
 ## 下一步
-本阶段离线准备**完成并可交接**。阶段5 正式开工入口需同时满足：① Wong/正式 G0 固定成品指标与契约清单拆分；② 阶段3 颜色验收通过；③ 阶段4 正式跑通；④ 2B 明确让出 JTAG/COM4 与 `hw_server`。跨方事项 X-01/X-02/X-03 见收尾记录 §6，由项目总控转达。
+本阶段离线准备**完成并可交接**。
 
-## 交接行（11 字段，2026-10-22 11:50）
-任务=`HL-T13 阶段5 离线准备（规格定稿 + 离线渲染自测 + 阶段4 数值链回归勾连 + 独立审查关闭）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6` | 允许修改范围=`docs/stage5|stage4|stage6/**`、`verification/s5_*.py`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`写入已停止、交付完成；本树可交项目总控/下一阶段总控接管（OFFERED 语义），无遗留未提交改动` | 心跳(UTC+8)=`2026-10-22 11:50` | 证据入口=`report/evidence/S5-A/s5a_g0_20261021_r03/`、`report/evidence/S5-B/s5b_20261021_r07_a/`、`report/evidence/S5-C/s5c_regression_20261021_r04/`、`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`DONE（离线准备）/ 项目总控核对后决定阶段5 正式开工时机；显示实测待阶段3 通过 + 阶段4 跑通 + 2B 让出硬件`
+## S5-T01 上板 bring-up（进行中·受硬件前置阻断）
+- 任务卡已建（`task-4`）；硬性前置 = 2B 经 `codex_mailbox` **书面让出 JTAG/COM4** + DSH 宣布空档。**当前 `BLOCKED_NOT_RELEASED`**：门禁 `scripts/stage5_t01/check_hardware_gate.py` 实测 **exit 1**，唯一阻断原因＝信箱无新的让出通知（最近为 `CDX-20261022-006` 占用恢复，明确表示不构成硬件释放；DSH `DSH-20261022-009` 已向 2B 请求让出）。进程枚举**成功**且**无** `hw_server`/Vivado 进程，但**不作为让出依据**。
+- 未连接板卡、未启动 `hw_server`、未写任何寄存器（含 `0x503D`）；未烧录 QSPI；未碰他人工作树与两个 mailbox 目录。
+- 离线准备件（已交付且可离线验证）：运行书 `docs/stage5/S5T01_stage5_board_bringup_runbook.md`、fail-closed 门禁 `scripts/stage5_t01/check_hardware_gate.py`、注入计划校验器 `scripts/stage5_t01/validate_injection_plan.py`（**8 记录/25 框/0 失败、exit 0**）与示例 `docs/stage5/s5t01_injection_plan_example.json`。
+- 前置证据：`report/evidence/S5-T01/s5t01_prereq_20261022_r02/`（`hardware_gate.json`、`run_manifest.json`、`summary.md`）；r01 因门禁进程枚举缺陷（已修、fail-closed）标为被取代。
+- 硬件释放后执行：门禁附 `--release-id <让出编号>` 要求 exit 0 → 只读核对板上位流指纹与送显缓冲所有权 → 声明 `overlay_path`（默认 P1 PS 软件叠框，冻结位流零改动）→ 按运行书 §6 验收表出证据；收尾把 `0x503D` 写回 `0x00` 并退出 `hw_server`（不驻留）。阶段5 正式开工入口需同时满足：① Wong/正式 G0 固定成品指标与契约清单拆分；② 阶段3 颜色验收通过；③ 阶段4 正式跑通；④ 2B 明确让出 JTAG/COM4 与 `hw_server`。跨方事项 X-01/X-02/X-03 见收尾记录 §6，由项目总控转达。
+
+## 交接行（11 字段，2026-10-22 13:15）
+任务=`HL-T13 阶段5 离线准备（已完成，提交链 `0b942ed`→`a4baab4`）+ S5-T01 上板 bring-up（离线准备就绪、受 2B 书面让出硬件阻断）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 以 `a4baab4` 为基线） | 允许修改范围=`docs/stage5/**`（含 `S5T01_*`）、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`已认领：S5-T01 由本阶段总控独占写入（IN_PROGRESS）；当前无让出` | 心跳(UTC+8)=`2026-10-22 13:15` | 证据入口=`report/evidence/S5-A/s5a_g0_20261021_r03/`、`report/evidence/S5-B/s5b_20261021_r07_a/`、`report/evidence/S5-C/s5c_regression_20261021_r04/`、`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01 上板 bring-up，BLOCKED 待 2B 书面让出 JTAG/COM4 + DSH 宣布空档；离线准备件已就绪）/ 本阶段总控；阶段3 灰度 provisional freeze（颜色 DEFERRED_PENDING_MODULE）`

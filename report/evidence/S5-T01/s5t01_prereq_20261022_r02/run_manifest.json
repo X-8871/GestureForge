@@ -1,0 +1,144 @@
+{
+  "schema_version": "gestureforge_s5t01_prereq_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_prereq_20261022_r02",
+  "generated_utc8": "2026-10-22T13:08:30+08:00",
+  "source_head": "a4baab496bc0881514ef7eda48036a8c6109bcea",
+  "decision": "BLOCKED_NOT_RELEASED",
+  "blocking_reason": "codex_mailbox 未发现新的书面让出/释放通知（最近占用通知 CDX-20261022-006，10:29，明确表示不构成硬件释放）",
+  "commands": [
+    {
+      "cmd": "python -B scripts/stage5_t01/check_hardware_gate.py --out report/evidence/S5-T01/s5t01_prereq_20261022_r02",
+      "exit_code": 1,
+      "expected": "1 (BLOCKED)",
+      "log": "console/gate_stdout.txt"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/validate_injection_plan.py --plan docs/stage5/s5t01_injection_plan_example.json",
+      "exit_code": 0,
+      "expected": "0",
+      "log": "console/injection_plan_validation.txt"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/validate_injection_plan.py --plan docs/stage5/s5t01_injection_plan_example.json --json",
+      "exit_code": 0,
+      "expected": "0",
+      "log": "injection_plan_preview.json"
+    },
+    {
+      "cmd": "cmd.exe /c tasklist /FO CSV /NH (enumeration via gate)",
+      "exit_code": 0,
+      "expected": "0",
+      "log": "console/process_enumeration.txt"
+    },
+    {
+      "cmd": "MSYS2_ARG_CONV_EXCL=* tasklist /FO CSV /NH",
+      "exit_code": 0,
+      "expected": "0",
+      "log": "console/process_listing_raw.txt"
+    }
+  ],
+  "hardware_gate": {
+    "decision": "BLOCKED",
+    "hardware_processes": [],
+    "hardware_process_enumeration_ok": true,
+    "locks": [],
+    "release_notice_found": false
+  },
+  "injection_plan_check": {
+    "records": 8,
+    "boxes": 25,
+    "failed_records": 0,
+    "status": "PASS"
+  },
+  "defects_found_and_fixed": [
+    {
+      "id": "S5T01-D01",
+      "severity": "medium",
+      "desc": "首版门禁把 tasklist 枚举失败当作无进程（MSYS 改写 /FO），违反 fail-closed",
+      "fixed": true,
+      "superseded_run": "s5t01_prereq_20261022_r01"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/gate_stdout.txt",
+      "sha256": "22d35713ecc9a8a32c7e70b57691f98993f2b97ba99f321cad8f3a47623bd247"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/injection_plan_validation.txt",
+      "sha256": "03c5835dcacd34e0fec8452c209a3bc09291332f8701567dcd3c67c8da9d42f6"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/mailbox_entries.json",
+      "sha256": "c11ed35f4b378d67ae44704fd7c259101a5695346397494da220397db8d5fe95"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/process_enumeration.txt",
+      "sha256": "7225fb5e52b28c0c7db2827acd2d657b8838ddb6b0f00af5feb89d7ce04cac9d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/process_listing_raw.txt",
+      "sha256": "12242826874cf8b7e42bb2a99a00a73b2a13b734f58c2be5d609bba2a14efdaf"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/console/worktrees.json",
+      "sha256": "a1776ac8afd3030786880758ebd685889388d92f50d12a431f67918175c64dba"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/hardware_gate.json",
+      "sha256": "473d9ff434ba1c902aeeb5e2fbf8d2ff63fb9178a7660ac2eaee78da028986b5"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/injection_plan_preview.json",
+      "sha256": "8cd77bed42c647953e9f4ff9baa07c033534819fd81a84300a1de6e898265a96"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_prereq_20261022_r02/summary.md",
+      "sha256": "d0c5be8235ea84f5fa21324a08459ccadd656773ebe7a1b18018219fcb2a69e4"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/check_hardware_gate.py",
+      "sha256": "06f63219774df74e1d3e2df9d34039720b57180c186751407d71680264af3391"
+    },
+    {
+      "path": "scripts/stage5_t01/validate_injection_plan.py",
+      "sha256": "1edccf5b2bb9526c7da56981a598fc5c8477428b68370461d043fe12bfdfe343"
+    },
+    {
+      "path": "docs/stage5/S5T01_stage5_board_bringup_runbook.md",
+      "sha256": "4ce95371d1b7df5648188024f60b9ec3943c7fb2fa45504ce1331db39565c41b"
+    },
+    {
+      "path": "docs/stage5/s5t01_injection_plan_example.json",
+      "sha256": "773059abf04cabf8990c4fc8c56b2c2b55eb41ba0ec138a8ce6cc106b16a1df1"
+    },
+    {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553"
+    },
+    {
+      "path": "docs/stage5/s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+    }
+  ],
+  "not_executed": [
+    "位流下载与上板",
+    "0x503D 写 0x80 与写回 0x00",
+    "送显叠框与截图/照片",
+    "FPS/延迟实测",
+    "T5-08/T5-09/T5-11 真实统计",
+    "G3 实物验证"
+  ],
+  "limitations": [
+    "本 run 仅做前置核验与离线准备；未连接板卡、未启动 hw_server、未写寄存器。",
+    "无硬件占用不等于已让出；放行需书面让出 + --release-id 精确匹配。",
+    "阶段3 为灰度 provisional freeze（颜色 DEFERRED_PENDING_MODULE）；阶段5 上板基于灰度画面。"
+  ]
+}

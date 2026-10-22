@@ -1,0 +1,133 @@
+{
+  "reviewer": "independent S6-A reviewer",
+  "review_time_utc8": "2026-10-22T19:29:00+08:00",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\w6",
+    "branch": "stage6-interact-prep",
+    "commit": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+    "tracked_worktree_clean_at_review_start": true,
+    "index_lock_present": false
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "verdict_scope": "Only commit 1fe4648 / S6-A package; not G0/G4/G5, not state machine, not hardware.",
+  "selfcheck_rerun": {
+    "command": "python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json --out D:\\FPGA_Competition\\tmp\\review\\S6A_20261022_r01\\selfcheck_independent.json --project-root .",
+    "exit_code": 0,
+    "status": "ALL_PASS",
+    "identical_to_committed_result": true
+  },
+  "check_stage_delivery": {
+    "evidence_mode_project_root_dot_exit": 2,
+    "evidence_mode_project_root_dot_error": "project-root 不得包含 . 或 .. 路径分量",
+    "evidence_mode_abs_exit": 2,
+    "evidence_mode_abs_error": "manifest路径分量不存在或大小写不精确：...\\delivery_manifest.json",
+    "inputs_mode_abs_exit": 2,
+    "inputs_mode_abs_error": "manifest路径分量不存在或大小写不精确：...\\inputs_manifest.json"
+  },
+  "counts": {
+    "behavior_rows": 28,
+    "parameters": 24,
+    "transitions": 15,
+    "hard_invariants": 9,
+    "action_mappings": 5,
+    "hand_cases": 20,
+    "selfcheck_checks": 10
+  },
+  "approval_discipline": {
+    "parameters_pending": 24,
+    "parameters_not_pending": [],
+    "map_status": "PENDING_APPROVAL",
+    "draft_values_claimed_approved": false
+  },
+  "hashes_verified": {
+    "total": 14,
+    "all_match": true,
+    "upstream_bindings": 11,
+    "selfcheck_inputs": 3
+  },
+  "hand_cases_recomputed": {
+    "total": 20,
+    "arithmetic_match": 20,
+    "tautological_cases": ["HC-16", "HC-17", "HC-20"]
+  },
+  "blocking": [
+    {
+      "id": "B-01",
+      "title": "Evidence manifests missing; run-summary checker claims not reproducible",
+      "locations": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:313",
+        "report/evidence/S6-A/s6a_g0_20261022_r01/S6A_run_summary.md:33-34,42-49",
+        ".codex/STATE.md:35",
+        "tmp/6/S6-A/s6a_g0_20261022_r01/make_manifests.py:97-114,186-193"
+      ],
+      "impact": "No machine-readable artifact manifest; claimed checker commands exit 2; evidence gate cannot be verified."
+    },
+    {
+      "id": "B-02",
+      "title": "H-4 says NO_HAND advances match count; B17/§9/§11.1 say it does not",
+      "locations": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:40,108,159-161,179",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:97"
+      ],
+      "impact": "Literal H-4 implementation could complete a stable window on zero-box frames and trigger without a hand."
+    },
+    {
+      "id": "B-03",
+      "title": "Cooldown suppression is only a COOLDOWN-state property; M5 has no global cooldown gate",
+      "locations": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:104,69,74,75,78",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:121,126,130"
+      ],
+      "impact": "After loss/anomaly leaves COOLDOWN, a new acquisition can trigger before T6-K01 expires; B13 cannot be guaranteed."
+    },
+    {
+      "id": "B-04",
+      "title": "W labeled window completion time but HC-02/HC-06 show it is only a lower bound",
+      "locations": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:258,266,270",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:228",
+        "report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json:58-63"
+      ],
+      "impact": "30 FPS example understates actual completion (233.1 ms vs W=200 ms); T6-A03 measurement basis ambiguous."
+    },
+    {
+      "id": "B-05",
+      "title": "Two incompatible definitions of the core predicate 'match'",
+      "locations": [
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:52,150,160",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:141,147"
+      ],
+      "impact": "Target hold vs window advancement can diverge for low-score/high-IoU or high-displacement boxes."
+    }
+  ],
+  "non_blocking": [
+    {"id": "N-01", "title": "Doc/JSON inconsistencies: M14 from IDLE vs IDLE/LOST; T6-S03 absent from §14 table; A_DISPLAY_STATE extra; E_FRAME_CONFLICT missing from §3"},
+    {"id": "N-02", "title": "M4 and M7 unreachable; T6-S04 shadowed by M10 (L02=300 < S04=500)"},
+    {"id": "N-03", "title": "§12/B26 overclaim 'all numeric parameters' boundary coverage; C01/U00/S04/P01-P05/U01 lack hand cases"},
+    {"id": "N-04", "title": "Selfcheck C7 tautological recomputation for HC-16/HC-17/HC-20"},
+    {"id": "N-05", "title": "No stage-4 measured FPS estimate for low-FPS interaction latency"},
+    {"id": "N-06", "title": "No per-class UX requirement despite CDX-012 §2.3"},
+    {"id": "N-07", "title": "Mis-citations: B19 -> 2A L81/D2 L22; B16 -> runbook §2.3; B23 -> runbook §3"},
+    {"id": "N-08", "title": "Claimed pre-fix selfcheck failure record not preserved"},
+    {"id": "N-09", "title": "±1 time unit defined as 1 ns, but HC-02/HC-08 use 1 ms"},
+    {"id": "N-10", "title": "Wording: 'behavior semantics frozen as v1' / 'S6-A DONE' vs G0_PACKET_PENDING_APPROVAL"}
+  ],
+  "coverage_cdx012_s2": [
+    {"item": 1, "status": "PASS"},
+    {"item": 2, "status": "PASS"},
+    {"item": 3, "status": "PARTIAL", "reason": "UX requirement not explicit"},
+    {"item": 4, "status": "PARTIAL", "reason": "match predicate, cooldown gate, dead transitions"},
+    {"item": 5, "status": "PASS"},
+    {"item": 6, "status": "PASS", "reason": "declared unique; enforcement hole B-03"},
+    {"item": 7, "status": "PARTIAL", "reason": "H-4, W formula, no measured FPS"},
+    {"item": 8, "status": "PASS"},
+    {"item": 9, "status": "PASS", "reason": "H-4 contradiction noted in B-02"},
+    {"item": 10, "status": "PARTIAL", "reason": "H-4 and U00 window boundary semantics"}
+  ],
+  "notes": [
+    "No state machine implementation exists in tracked w6 at this commit; hand cases could not have been generated by an implementation.",
+    "14/14 hash bindings matched; w4 working-copy drift 657ea2fb / 75278f8d verified.",
+    "During review, untracked docs/stage6/s6b_frozen_interface_v1.json and src/stage6/s6_params.py appeared at ~19:32; tracked files unchanged, not part of this verdict.",
+    "Reviewer did not modify any reviewed file; all writes under D:\\FPGA_Competition\\tmp\\review\\S6A_20261022_r01\\."
+  ]
+}

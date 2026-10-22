@@ -43,6 +43,11 @@ EXPECTED_R04_BIT = ROOT / "report/evidence/S2B-T19/visibility1_csr_fixed_2026101
 EXPECTED_PREPARATION = ROOT / "report/evidence/S2B-T18/formal_online_20261018_r01/preparation_stress_first_csr_r04.json"
 EXPECTED_BUILD_DETAILS = ROOT / "report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/build_details.json"
 EXPECTED_APP_SOURCE = ROOT / "vitis/s2b_inference_app.c"
+BOOTROM_CPU_PCS = {"cpu0": 0xFFFFFF28, "cpu1": 0xFFFFFF34}
+BOOTROM_UNCONFIGURED_FIELDS = {"END OF STARTUP (EOS) STATUS": 0,
+                               "DONE INTERNAL SIGNAL STATUS": 0, "DONE PIN": 0,
+                               "GWE STATUS": 0, "GTS_CFG_B STATUS": 0,
+                               "CFG STARTUP STATE MACHINE PHASE": 0}
 
 
 class RebuiltAppAcceptanceError(RuntimeError):
@@ -201,6 +206,59 @@ def _create_sample_runner(wire, run_dir: Path, admission: dict):
     return model.AcceptanceRunner(wire, run_dir / "sample000", admission, capture_wire_receipts=True)
 
 
+def _register_preflight_csr_map(controller, csr_map, journal) -> None:
+    """仅在需要检查2B CSR或BootROM复位后部署时注册本session映射。"""
+    _require(csr_map is not None, "缺少本次controller session的CSR debug map")
+    helper, helper_config, helper_record, map_session, owner = csr_map
+    _require(map_session is controller.session and not owner.get("attempted"),
+             "CSR debug map必须是本会话新的自有注册")
+    helper.register_csr_debug_map(helper_config, helper_record, journal, map_session, controller, owner)
+
+
+def _preflight_entry(controller, csr_map, journal) -> dict:
+    """同一XSDB会话内停核并区分BootROM/EOS0与2B安全IDLE入口。"""
+    controller.verify_bindings()
+    rows = controller.call("session.targets.properties.entry_preflight", controller.session.targets,
+                           "--target_properties")
+    selected = jtag.validate_targets(rows)
+    controller.refresh_targets(selected)
+    controller.record["targets"] = selected
+    states_before = {label: controller.state(label) for label in ("cpu0", "cpu1")}
+    pcs_before = {label: controller.pc(label) for label in ("cpu0", "cpu1")}
+    evidence = {"cpu_states_before": states_before, "pc_before": pcs_before}
+    controller.record["entry_preflight"] = evidence
+    for label in ("cpu1", "cpu0"):
+        if states_before[label] == "Running":
+            if label == "cpu0":
+                controller.cpu0_touched = True
+            controller.call(label + ".stop.entry_preflight", controller.targets[label].stop)
+    states_after = {label: controller.state(label) for label in ("cpu0", "cpu1")}
+    pcs_after = {label: controller.pc(label) for label in ("cpu0", "cpu1")}
+    evidence.update(cpu_states_after_stop=states_after, pc_after_stop=pcs_after)
+    _require(all(state.startswith("Stopped") for state in states_after.values()),
+             "入口预检受控停核后仍有运行CPU")
+    controller.gate(both=True)
+    boot_mode = controller.words(0xF800025C, 1)[0]
+    _require(boot_mode == 0, "入口预检BOOT_MODE不是JTAG=0")
+    evidence["boot_mode"] = boot_mode
+    if pcs_after == BOOTROM_CPU_PCS:
+        controller.observe_config_status("pre_reset_bootrom", 0)
+        observation = controller.record["configuration_observations"][-1]
+        fields = {row["name"]: row["value"] for row in observation["fields"]}
+        _require(observation.get("status") == "PASS" and observation.get("eos") == 0 and
+                 all(fields.get(name) == value for name, value in BOOTROM_UNCONFIGURED_FIELDS.items()),
+                 "BootROM入口CONFIG_STATUS未证明EOS0/PL未配置")
+        evidence.update(status="PRE_RESET_BOOTROM_PL_UNCONFIGURED",
+                        configuration_status=observation, csr_read="NOT_READ_CSR_ABSENT")
+        return {"kind": "bootrom", "csr_map_registered": False, "evidence": evidence}
+
+    _register_preflight_csr_map(controller, csr_map, journal)
+    snapshot = controller.stable_csr("rebuilt_app.before_system_reset")
+    pre_reset = validate_pre_reset_snapshot(snapshot)
+    evidence.update(status="PRE_RESET_SAFE_IDLE", csr=pre_reset)
+    return {"kind": "2b_safe_idle", "csr_map_registered": True, "evidence": evidence}
+
+
 def execute(controller, wire, *, run_id: str, source_sha256: str, cold_basis: dict,
             cache_cpu_seed: int = 0xC0DEC0DE, cache_dap_seed: int = 0xDADA1234,
             journal=None, csr_map=None) -> dict:
@@ -270,20 +328,17 @@ def execute(controller, wire, *, run_id: str, source_sha256: str, cold_basis: di
                  "无法绑定当前源码提交")
         evidence["source_commit"] = head.stdout.strip()
 
-        controller.select_and_gate()
-        if csr_map is not None:
-            helper, helper_config, helper_record, map_session, owner = csr_map
-            _require(map_session is controller.session and not owner.get("attempted"),
-                     "CSR debug map必须是本会话新的自有注册")
-            helper.register_csr_debug_map(helper_config, helper_record, journal, map_session, controller, owner)
-        before_reset = controller.stable_csr("rebuilt_app.before_system_reset")
-        evidence["pre_reset_safety"] = validate_pre_reset_snapshot(before_reset)
-        controller.gate(both=True)
-        _require(controller.state("cpu0").startswith("Stopped") and
-                 controller.state("cpu1").startswith("Stopped"), "部署前两核必须停止")
-        evidence["steps"].append({"name": "pre_reset_safe_idle", "status": "PASS"})
-
+        entry = _preflight_entry(controller, csr_map, journal)
+        evidence["pre_reset_entry"] = entry["evidence"]
+        if entry["kind"] == "2b_safe_idle":
+            evidence["pre_reset_safety"] = entry["evidence"]["csr"]
+            step_name = "pre_reset_safe_idle"
+        else:
+            step_name = entry["evidence"]["status"]
+        evidence["steps"].append({"name": step_name, "status": "PASS"})
         controller.system_reset_stop(cold_basis)
+        if not entry["csr_map_registered"]:
+            _register_preflight_csr_map(controller, csr_map, journal)
         controller.deploy()
         _require(controller.configured and controller.postconfigured and controller.app_running and
                  not controller.failed, "R04全bit/postconfig/重建app部署未完整成功")

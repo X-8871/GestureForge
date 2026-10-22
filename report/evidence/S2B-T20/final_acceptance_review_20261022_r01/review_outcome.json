@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "review_id": "final_acceptance_review_20261022_r01",
+  "verdict": "PASS",
+  "g4": "PASS",
+  "g5": "PASS",
+  "review_scope": "stage2b_fixed_input_acceptance_and_candidate_freeze",
+  "reviewed_head": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+  "scope_document": {
+    "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md",
+    "sha256": "2345a741c9d05866def60c71681003dc96f9470347624e29db6eef4905a59bc6"
+  },
+  "candidate_run_id": "stage2b_freeze_20261022_r02",
+  "delivery_manifest": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/delivery_manifest.json",
+    "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66"
+  },
+  "final_freeze_inventory": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/final_freeze_inventory.json",
+    "sha256": "7ec952fe9d56b917414ff960374b2b99983de4fdbd87651a153ca2806edd25f6"
+  },
+  "inputs_manifest": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/inputs_manifest.json",
+    "bound_file_count": 79,
+    "checker_status": "CHECKS_OK",
+    "exit_code": 0
+  },
+  "evidence_checker": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/delivery_manifest.json",
+    "status": "CHECKS_OK",
+    "exit_code": 0,
+    "independent_final_verdict_was_NOT_RUN_in_candidate": true
+  },
+  "acceptance_basis": [
+    "108 ACK闭环黄金样本及1000连续任务满足正式数量门槛；109th最后ACK缺证保留",
+    "R04 xc7z020clg400-2 50MHz 布局后setup/hold与TNS/THS满足阶段计划",
+    "R08实际pending ABORT、ERROR_SAFE/code8、ACK及golden恢复子范围成立，顶层FAILED保留",
+    "R12 r05生产函数隔离封装重放、静止矩阵、BRESP组合边界及正常/CORE超时期限证据按限定范围成立",
+    "重建PS ELF实际sample000黄金/cache与独立后续只读ACK/IDLE/epoch/ledger证据绑定一致；R02整体失败保留",
+    "候选文档、manifest、inventory和恢复依赖绑定固定，版本/hash一致"
+  ],
+  "limitations": [
+    "109th最后ACK未证明，不追溯修补原运行",
+    "R08顶层FAILED；仅其pending ABORT及黄金恢复子范围计入",
+    "R12原runner最终退出码未知；r05是隔离封装重放，不是新板测",
+    "PS R02原整体FAILED_CLEANUP/FAILED_REBUILT_APP_ACCEPTANCE保留；黄金和后续只读observer分别计入受限范围",
+    "11项SDK COMMAND BRESP逐笔均UNKNOWN，仅采用条件限定的RTL共用路径与同地址CPU postmortem组合推论",
+    "未证明实际PCB修订、装配器件、实测电压或工业温度",
+    "BSP静态库复用，未从源码重建BSP、XSA或PL；不声称全平台干净环境源码重建",
+    "无全容量DDR扫描/带宽保证或任意未来DDR停顿最坏情况保证"
+  ],
+  "hardware_operated_by_reviewer": false,
+  "source_or_candidate_modified_by_reviewer": false,
+  "report_path": "report/evidence/S2B-T20/final_acceptance_review_20261022_r01/final_review.md"
+}

@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "stage2b_freeze_receipt_20261022_r01",
+  "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+  "evidence_dir": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01",
+  "interfaces": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "name": "physical",
+      "version": "s2b-physical/1.0.0",
+      "frozen": true
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "name": "uart",
+      "version": "s2bu/1.1",
+      "frozen": true
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/freeze_receipt.json",
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/packaging_checker_results.json",
+      "sha256": "22b3a2e3b8a3912c3b3cbc1c8816f3e2573aadbee841250e5202f5fa7a6a8ca9",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/README.md",
+      "sha256": "fa5dfa91f8e125c461110e01e7219110ba779083658e2b961c26331e54acdf8a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/source_artifacts/observe_rebuilt_r02_ack_20261022.py",
+      "sha256": "6bb8538dcf072628857459498009ff118d0192bfb1627d5bfa7a4e7209f9198c",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/source_artifacts/prepare_final_freeze_20261022.py",
+      "sha256": "9d4b66c618d895c444abb61c393dca4ece5918adc55b9adb6539e6435dd2c041",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/source_artifacts/README.md",
+      "sha256": "3e17084d8ce31501e77a9fb92afe343fb298e895899930683d892d3d340bd4fe",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T20/final_acceptance_review_20261022_r01/review_outcome.json",
+      "sha256": "ef3df215460e84ec8abf2eaf642e18a37ecc2eef797478f0df62f877a7eed8b1",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T20/final_acceptance_review_20261022_r01/final_review.md",
+      "sha256": "8da1ca479877c8d4cf0fc086cb8c24a7f17c0d5afb38c6b32bc68cf1477e9c00",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/delivery_manifest.json",
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/final_freeze_inventory.json",
+      "sha256": "7ec952fe9d56b917414ff960374b2b99983de4fdbd87651a153ca2806edd25f6",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md",
+      "sha256": "2345a741c9d05866def60c71681003dc96f9470347624e29db6eef4905a59bc6",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "独立阶段G4/G5验收",
+      "status": "PASS",
+      "command": "独立Reviewer只读审查，见绑定review_outcome.json与final_review.md",
+      "exit_code": 0,
+      "reason": "固定16ce2cdf代码基线、技术文档及最终候选清单已独立判G4 PASS/G5 PASS；原失败和范围限制保留。"
+    },
+    {
+      "name": "最终候选输入/证据完整性",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode inputs/evidence --manifest 对应stage2b_freeze_20261022_r02清单，实际逐条命令见packaging_checker_results.json",
+      "exit_code": 0,
+      "reason": "两种模式实际各返回CHECKS_OK；完整性检查本身不代替独立阶段判定。"
+    }
+  ],
+  "limitations": [
+    "本回执补充候选包G4/G5 NOT_RUN的最终独立判定，不修改候选与历史失败。",
+    "大二进制及原始模型证据由最终inventory定位，须保留本地或独立归档；Git源码本身不能恢复全部二进制。",
+    "验收边界与原始未观测项均以freeze_receipt.json及独立报告为准。"
+  ],
+  "tool_versions": {
+    "vitis": "2026.1",
+    "root_checker_python": "3.12",
+    "reviewer_checker_python": "见独立报告的实际工具路径"
+  }
+}

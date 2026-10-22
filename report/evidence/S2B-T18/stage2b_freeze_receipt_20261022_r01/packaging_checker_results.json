@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "scope": "只读包装核验，不代表G4/G5",
+  "failed_candidate": {
+    "run_id": "stage2b_freeze_20261022_r01",
+    "native_exit_codes": {
+      "inputs": 1,
+      "evidence": 1
+    },
+    "observed_errors": {
+      "inputs": [
+        "interfaces[0]含未知字段：note",
+        "interfaces[0]含未知字段：role",
+        "interfaces[1]含未知字段：note",
+        "interfaces[1]含未知字段：role"
+      ],
+      "evidence": [
+        "interfaces[0]含未知字段：note",
+        "interfaces[0]含未知字段：role",
+        "interfaces[1]含未知字段：note",
+        "interfaces[1]含未知字段：role",
+        "files[0]含未知字段：note",
+        "files[1]含未知字段：note",
+        "files[2]含未知字段：note"
+      ]
+    },
+    "preserved_unchanged": true
+  },
+  "accepted_candidate_checks": [
+    {
+      "command": "python -B verification/check_stage_delivery.py --mode inputs --manifest report/evidence/S2B-T18/stage2b_freeze_20261022_r02/inputs_manifest.json",
+      "native_exit_code": 0,
+      "result": {
+        "status": "CHECKS_OK",
+        "mode": "inputs",
+        "task_id": "S2B-T18",
+        "run_id": "stage2b_freeze_20261022_r02",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "来源文件哈希与组合证据完整性门禁",
+            "reason": "生成器仅在显式G2回执、PS r02失败原件与黄金结果、后续只读ACK补证及其他冻结输入均绑定后完成；不把PS r02整体失败改写为通过。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    },
+    {
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T18/stage2b_freeze_20261022_r02/delivery_manifest.json",
+      "native_exit_code": 0,
+      "result": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S2B-T18",
+        "run_id": "stage2b_freeze_20261022_r02",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "候选冻结输入门禁及产物写入",
+            "reason": "生成成功表示组合证据、显式G2回执、输入SHA及本RunId产物写入均通过；PS r02失败状态在清单中原样保留。"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "独立最终G4/G5 verdict",
+            "reason": "由根方在冻结候选生成后安排独立审查；清单不自行判阶段通过。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      }
+    }
+  ]
+}

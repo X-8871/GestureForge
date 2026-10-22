@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "status": "STAGE_2B_FROZEN_G4_G5_PASS",
+  "frozen_at_utc8": "2026-10-22T18:11:00+08:00",
+  "code_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+  "metadata_version_rule": "最终元数据版本由包含本回执的Git提交确定，避免提交哈希自引用。",
+  "target": {
+    "user_designation": "XC7Z020-2CLG400I",
+    "vivado_part": "xc7z020clg400-2",
+    "ddr_manual_candidate": "MT41K256M16TW-107",
+    "configured_clock_mhz": 50,
+    "model": "tiny416_8x8_tile_8_output_channels"
+  },
+  "stage_gates": {
+    "g4": "PASS",
+    "g5": "PASS",
+    "basis": "独立阶段审查核对真实子范围、恢复证据、规范及版本绑定；不是单个脚本或包装检查的推导。"
+  },
+  "independent_review": {
+    "path": "report/evidence/S2B-T20/final_acceptance_review_20261022_r01/review_outcome.json",
+    "sha256": "ef3df215460e84ec8abf2eaf642e18a37ecc2eef797478f0df62f877a7eed8b1",
+    "report": {
+      "path": "report/evidence/S2B-T20/final_acceptance_review_20261022_r01/final_review.md",
+      "sha256": "8da1ca479877c8d4cf0fc086cb8c24a7f17c0d5afb38c6b32bc68cf1477e9c00"
+    }
+  },
+  "scope_document": {
+    "path": "docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md",
+    "sha256": "2345a741c9d05866def60c71681003dc96f9470347624e29db6eef4905a59bc6"
+  },
+  "delivery_manifest": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/delivery_manifest.json",
+    "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66"
+  },
+  "final_freeze_inventory": {
+    "path": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/final_freeze_inventory.json",
+    "sha256": "7ec952fe9d56b917414ff960374b2b99983de4fdbd87651a153ca2806edd25f6"
+  },
+  "numeric_acceptance": {
+    "golden_required_minimum": 100,
+    "golden_outputs_compared": 109,
+    "golden_ack_closed_accepted": 108,
+    "continuous_tasks_required_minimum": 1000,
+    "continuous_tasks_accepted": 1000,
+    "all_selected_head_bytes_and_boxes_match": true,
+    "last_109th_ack": "NOT_PROVEN_RETAINED"
+  },
+  "frozen_artifacts": {
+    "r04_bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+    "r04_xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+    "csr_rtl_sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+    "original_infer_elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+    "rebuilt_infer_elf_sha256": "f7a8bc96418590a497577bb45a7cbc0cc75dec416f6af1bf9b33ffd0308fa5a9",
+    "rebuilt_elf_persistent_copy": "report/evidence/S2B-T18/stage2b_freeze_20261022_r02/artifacts/rebuilt_infer.elf",
+    "recovery_bundle_sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436"
+  },
+  "accepted_scopes": [
+    "108 ACK闭环黄金样本及1000连续任务满足正式数量门槛；109th最后ACK缺证保留",
+    "R04 xc7z020clg400-2 50MHz 布局后setup/hold与TNS/THS满足阶段计划",
+    "R08实际pending ABORT、ERROR_SAFE/code8、ACK及golden恢复子范围成立，顶层FAILED保留",
+    "R12 r05生产函数隔离封装重放、静止矩阵、BRESP组合边界及正常/CORE超时期限证据按限定范围成立",
+    "重建PS ELF实际sample000黄金/cache与独立后续只读ACK/IDLE/epoch/ledger证据绑定一致；R02整体失败保留",
+    "候选文档、manifest、inventory和恢复依赖绑定固定，版本/hash一致"
+  ],
+  "rebuilt_ps_evidence": {
+    "parent_run": "rebuilt_app_acceptance_20261022_r02",
+    "parent_status": "FAILED_CLEANUP",
+    "sample_status": "PASS_REBUILT_APP_SAMPLE000_GOLDEN",
+    "failure_reason": "黄金之后host把weights与模型两条响应误断言为一条，原失败不改写。",
+    "supplement": "report/evidence/S2B-T18/rebuilt_app_ack_observation_20261022_r01/observer_result.json",
+    "supplement_sha256": "52c7db0ba339c0cd788fbecf2c642e9562c779424312f8f1ec8098be789dbc14",
+    "supplement_status": "PASS_POST_R02_ACK_IDLE_EPOCH1_LEDGER0",
+    "supplement_exit_code": 0,
+    "supplement_cleanup_errors": [],
+    "new_model_requests": 0,
+    "writes_to_csr": 0
+  },
+  "deadline_choice": {
+    "core_cycles": 4294967295,
+    "drain_cycles": 4294967295,
+    "observed_max_complete_task_wall_seconds": 47.4058308,
+    "margin_multiplier": 1.25,
+    "nominal_configured_clock_margin_cycles": 2962864425,
+    "meaning": "固定输入观察包络依据，非实测FCLK、精确PL周期或任意未来HP停顿上界。"
+  },
+  "historical_outcomes_not_rewritten": [
+    "原完整109运行最后ACK缺证、整体独审CHANGES_REQUIRED",
+    "R08整体FAILED",
+    "R12原执行器最终退出码未知，r05仅隔离生产封装重放",
+    "PS R02整体FAILED_CLEANUP",
+    "11笔SDK COMMAND BRESP仍UNKNOWN，仅采限定组合推论",
+    "stage2b_freeze_20261022_r01包装schema失败保留"
+  ],
+  "limitations": [
+    "109th最后ACK未证明，不追溯修补原运行",
+    "R08顶层FAILED；仅其pending ABORT及黄金恢复子范围计入",
+    "R12原runner最终退出码未知；r05是隔离封装重放，不是新板测",
+    "PS R02原整体FAILED_CLEANUP/FAILED_REBUILT_APP_ACCEPTANCE保留；黄金和后续只读observer分别计入受限范围",
+    "11项SDK COMMAND BRESP逐笔均UNKNOWN，仅采用条件限定的RTL共用路径与同地址CPU postmortem组合推论",
+    "未证明实际PCB修订、装配器件、实测电压或工业温度",
+    "BSP静态库复用，未从源码重建BSP、XSA或PL；不声称全平台干净环境源码重建",
+    "无全容量DDR扫描/带宽保证或任意未来DDR停顿最坏情况保证",
+    "Git保留代码与元数据；R04 bit/XSA、恢复ZIP、ELF、原始模型输入/UART及官方工具链/BSP须保留本地或独立恢复归档，不能仅clone源码恢复全部二进制。",
+    "原字节脚本存档仅用于追溯；不得在存档目录原位执行依赖原ROOT推导的脚本。"
+  ],
+  "last_board_observation": {
+    "time_utc8": "2026-10-22T11:21:00+08:00",
+    "scope": "上述只读补证时的状态，不代表当前视频画面",
+    "cpu0": "Stopped",
+    "cpu1": "Stopped",
+    "csr": "SAFE_IDLE_EPOCH1_LEDGER0"
+  },
+  "current_host_observation": {
+    "time_utc8": "2026-10-22T18:05:00+08:00",
+    "active_hw_server_or_xsdb_job": false,
+    "stale_server_pid_not_reused": 4812
+  },
+  "remaining_stage2b_blockers": [],
+  "next_stage": "未在本任务中启动；仅交付2B冻结入口。"
+}

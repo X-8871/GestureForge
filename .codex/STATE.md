@@ -1,59 +1,47 @@
 # 项目状态入口
 
-更新：2026-10-21 20:18（UTC+8）。按适用 AGENTS.md 恢复；运行状态以代码与原始证据为准。
+更新：2026-10-22 18:14（UTC+8）。阶段2B已通过独立G4/G5并冻结；板上验收结束，不重复运行模型。
 
-## 目标、位置与授权
+## 目标、归属与授权
 
-- 本窗口持续完成阶段2B：tiny416固定输入上板、至少100黄金样本（现有109）、1000连续任务、CSR异常恢复及G4/G5；未通过不得称冻结，不自动进入阶段3或推送。
-- 实施树为 `D:\FPGA_Competition\w2b`，分支 `codex/stage2b-dma-g0`；本轮起始HEAD为 `2e9e3c625abe523e54be36a3010966b9f679c80e`，恢复时以实际Git HEAD为准。主目录只作全局入口，旧C盘工作树不再用作运行目录。
-- 用户确认器件 `XC7Z020-2CLG400I`，Vivado part `xc7z020clg400-2`；不再因旧XA照片解读阻断。DDR按用户“以手册为准”采用第12页 `MT41K256M16TW-107`、双x16/32-bit/1GiB候选；实装D9PSK解码与PCB修订仍未知，不声称已验证。
-- 用户已授权本阶段必要易失PL/PS下载、DDR装载和板上验收，不含QSPI非易失烧写。2026-10-18最新用户回复“18：30 JTAG 是的”：18:30上电、JTAG模式、断电至少10秒且上电后无人操作；原话无损绑定见 hardware_online_20261018_r01/user_message_utf8_r02.json，首份消息记录编码损坏原件保留。旧10月17日POR不复用。
-- 用户确认DMA按搬运功能验收：保留自定义AXI3 master/adapter；字节长度、cache、ownership、错误、取消、完成和连续任务标准不变。
-- 与DSH串行共享工作区：不修改其主目录XPR差异，不结束其他窗口会话，不操作对方沙箱权限，不全量暂存。主目录DSH交出及环境补正见主STATE和 `.codex/DSH_HANDOFF_20261018.md`。
+- 本窗口完成2B tiny416固定输入、至少100黄金样本、1000连续任务、CSR/恢复及独立G4/G5，完成相关提交；不自动进入阶段3或推送、不写QSPI。
+- 实施树 `D:\FPGA_Competition\w2b`，分支 `codex/stage2b-dma-g0`；冻结代码基线 `16ce2cdf8c00c6214435629d75a5e4b63acb66a9`，最终元数据由包含本STATE与冻结回执的Git提交确定。主目录由DSH持写权；只读其STATE、业务代码和阶段3树，不接管。
+- Wong指定 `XC7Z020-2CLG400I`，Vivado part `xc7z020clg400-2`；DDR按手册 `MT41K256M16TW-107`、双x16/32-bit/1GiB候选。D9PSK解码、实际PCB修订、电压与工业温度未测，不声称已核实。
+- 用户批准DMA按搬运功能验收、保留AXI3 adapter；已授权必要易失下载、停双核和恢复，不再重复索取旧POR确认。主机缓存、字节长度、ownership、错误、连续任务标准不变。
+- 最后实板会话使用hw_server PID4812，创建FILETIME134371091860065760，身份在 `tmp/2B/hw_server_20261022.json`；COM4/原CP210x PNP、Digilent HS1串号210512180081。11:21补证后已断SDK/串口并停核；18:05只读主机检查无hw_server/XSDB/板测程序，不把旧PID当当前身份。用户18点后述板子显示识别框并允许必要时停；余下冻结为离线，不据画面改写旧证据。
+- 主Codex信箱追加通知 `CDX-20261022-006-2b-final-acceptance-resume.md`；不修改主STATE或DSH信箱。活动任务期间不改HEAD/runtime、不关server、不连接JTAG/串口。
 
-## 已核实的技术结果
+## 固定平台及已完成范围
 
-- 2A tiny416/8×8空间tile/8路输出通道/双头及PS解码NMS已冻结。109离线整网与D9比较均通过、最大误差0；不重复整网离线仿真，不当作2B板上结果。
-- 外层CSR/恢复RTL完整矩阵R07及独立R08均通过：146 directed、128 random、25 integration、6362 cycles，两类四相位全1。CSR SHA `4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1`；入口 `report/evidence/S2B-T11/control_r18_xsim_first_axi_20261016_r07/`、`control_r18_independent_20261016_r08/`。G2不替代板上恢复。
-- 现有物理接口正文首行为 `s2b-physical/1.0.0 | G0_FROZEN`、UART为 `s2bu/1.1 | G0_FROZEN`；仅接口定义与受控实验规程冻结，不代表具体部署G0或G3/G4/G5。旧0.1.2候选名称不覆盖当前正文；源码闭包绑定正文实际SHA，不复用旧32×32分类规格。
-- T19 R04已完成XC/-2、50MHz实际路由，setup +0.156ns、hold +0.078ns、TNS/THS零；DRC 393项/0 errors。原始input_record保持FAIL（profile标记未采到stdout），Vivado Job原生0及22项产物哈希已核对；不为采集标记问题重跑综合。入口 `report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/`。
-- R04 bit SHA `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`；XSA SHA `ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6`，内嵌bit一致。
-- T15已按同R04 XSA重建BSP/ELF：infer SHA `a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8`，init SHA `237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1`；入口 `report/evidence/S2B-T15/qualification_r04_xsa_rebuild_20261016_r04_artifacts/`。原R04旧ELF来源不匹配的记录保留，不混用。
-- 旧R04独立资格收据实际存在且PASS，SHA `f6d94bb66ffb678d1334a7194246029d955e62df6075369ca17c422a266f30fe`；只覆盖sample000入口机制，硬件/sample结果NOT_RUN。入口 `report/evidence/S2B-T19/qualification_single_sample_review_20261017_r04/`。
-- 最新历史资格运行R14为BLOCKED、hardware_attempted=false、hardware_execution=NOT_RUN，原因是直接调用Python未使用官方Vitis2026.1环境。原件 `report/evidence/S2B-T19/single_sample_qualification_20261017_r14/model_qualification_result.json` 保持不变。
+- tiny416、8×8 tile、8路输出通道、双头、PS解码/NMS；物理接口 `s2b-physical/1.0.0`，UART `s2bu/1.1`。
+- R04 PL位流SHA `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`；XSA SHA `ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6`。50MHz，路由setup+0.156ns/hold+0.078ns/TNS/THS0，DRC393项/0error；原input_record标记失败保留，实际Vivado Job0。不重综合。
+- 原infer ELF `a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8`；init `237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1`。平台入口 T19 `visibility1_csr_fixed_20261016_r04/`、T15 `qualification_r04_xsa_rebuild_20261016_r04_artifacts/`。
+- CSR RTL SHA `4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1`。T11 R07及独立R08：146 directed、128 random、25 integration、6362cycles PASS，含晚排空/永久停顿；不冒称对应实板场景。
+- 模型真实运行 T18 `formal_stress1000_then109_20261018_r02/`：1109次RUN双头28113150字节及全部框比对通过。独审 `formal_model_result_review_20261019_r01/` 认可1000连续任务+前108个ACK闭合黄金样本，覆盖全标签；第109个最后ACK缺动态读回，完整R02独审CHANGES_REQUIRED保留，按108满足≥100。
+- 3项历史host源码漂移由 T18 `formal_model_evidence_audit_20261019_r01/` 的Git原字节及原始证据副本解释；不称原运行clean tree。原始9103文件和失败原件不得删除。
+- CSR实板R08真实完成忙START拒绝、同RUN黄金/ACK及重接受；RUN且AXI_PENDING=1时ABORT→ERROR_SAFE8/账本0→ACK→sample000黄金恢复。R08整体因后续静止矩阵失败保持FAILED，子范围另行审查。
+- CPU原生postmortem保存DFSR1808/DFAR43C00008/PC C344/STR e5801000/LAST_REJECT变化，独审判SLVERR；原SDK超时失败不改写。T20 `cpu_bresp_gp0_postmortem_independent_review_20261019_r01/`。
+- R11实际正常START47.4017962s和CORE10000/DRAIN最大值安全ACK通过，随后重复证据文件名失败。提交6e66bfc修复，52回归和独审PASS。
+- R12真实完成正常START47.4058308s、CORE10000/DRAIN最大值→ERROR_SAFE5/ACK、DRAIN1→bit3/ERROR_SAFE5/ACK、DIAG0对账及黄金恢复；8项非法参数START安全ERROR/ACK、11项COMMAND拒绝LAST_REJECT及其他CSR无副作用。SDK11笔BRESP仍UNKNOWN/BLOCKED。
+- 组合BRESP证据由固定RTL共用SLVERR提交路径+同地址CPU代表事务+逐场景无副作用支持实现级推论，不能称11笔SDK直接读回。入口 T20 `bresp_composition_review_20261021_r01/`。
+- R12板上子范围结束后封装失败；原orchestrator PASS/native0为封装前快照，实际最终退出未捕获。生产封装接口/失败快照已修复并独审，提交9115150；真实函数隔离重放 T18 `csr_r12_finalize_replay_20261022_r05/` inputs/evidence CHECKS_OK，仅证明包装。
+- 最终CORE/DRAIN选0xFFFFFFFF。较大完整START wall包络×名义50MHz×1.25=2962864425<4294967295；DRAIN最大值真实CORE错误场景安全ACK。逻辑请求96135961、compute424506368、乐观下界616778290不能当HP上界。实板FAULT_ISOLATED/晚响应未观察；见正式候选第4节及RTL分层证据。
+- 历史DDR有限cache探针 T19 `cache_probe_execution_20261017_r02/` 两相256B/64words零错，早于模型运行；原cold=false保留。T20 `ddr_prior_probe_review_20261021_r01/` 限定PASS，无带宽/全DDR容量声明。
+- 当前厂商资料对应已核验：手册时钟第17/18页、UART48/49第34页、DDR第12页；核心原理图Rev1.0第7页明确VCC1V8→MIO1_501、VCC1V5→DDR502。手册19/33页BANK矛盾保留，不当勘误或实装修订证明。解析整页/切片 T04 `board_material_mapping_20261022_r01/`，最终Reviewer已看图认可设计依据。
 
-## 本轮离线闭环
+## 恢复演练与当前运行
 
-- 官方 `D:\Xilinx\2026.1\Vitis\bin\vitis.bat -s` 已真实验证Vitis v2026.1/Python3.13及绑定XSDB/pyserial3.5导入，最终r03启动器/脚本均退出0；没有创建SDK会话、启动server、打开串口或操作板卡。入口 `report/evidence/S2B-T19/qualification_runtime_offline_20261018_r03/`；r01沙箱失败和r02成功原件均保留。
-- 新增离线检查器 `verification/check_s2b_qualification_runtime.py`，使用显式配置/结果环境变量、UTC+8和独占结果文件创建。官方启动器退出0不能单独替代脚本结果。
-- 旧C盘人工根已随历史树迁到 `D:\codex-worktrees\96a3`。runner仅固定迁移后的读取位置，保留用户原始C路径引用、两个JSON原字节及批准SHA：`c87a2f40…321ce5`、`e22fd0a1…c3d4c7ea`；没有改写历史JSON或扩大信任范围。
-- 34项候选源码/平台绑定核验通过，30项入口单测由总控与独立Reviewer分别运行退出0。新canonical digest为 `cf57921c78d33828f5c5da71d5ba7c6dba8f53a8f12d535b804d527dc560c6aa`；旧R04 canonical已被正确拒绝，不能自动继承旧收据。
-- 本轮独审PASS仅限离线迁移、入口代码和runtime checker；入口 `report/evidence/S2B-T19/offline_runtime_migration_review_20261018_r01/review_outcome.json`。单测/导入/包装检查均不代表G3/G4/G5。
-- 正式板上模型执行结果见下方：109样本及1000连续任务均已通过；CSR板上异常恢复仍未通过。
-
-## 当前阻碍与下一步
-
-- 已提交资格helper修复、31项回归及真实首样本证据：`e9fac6cbb1a0b7b60cd33e348dd1d304388de043`。首样本R02于19:00至19:11完成，native0、`GOLDEN_AND_ACK_IDLE_OBSERVED`、cleanup_errors=[]；双头5070/20280字节与全部框黄金一致，DONE_SAFE/HEAD_VALID，ACK后IDLE/epoch1，CPU停止、映射清理并断会话。原始状态仍为 `SINGLE_JOB_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING`，独审单样本观察PASS见 `S2B-T18/formal_review_20261018_r01/sample000_independent_review.json`；不是109/1000或阶段PASS。结果SHA `fa7174856e98889978c00122d779b8102b5a40cc4ce3d3dcd67f2e91740e3324`。旧R01失败及cache身份时间误差失败原件保持。
-- T18正式入口已补CSR映射注册/自有映射清理、修正正式接口首行版本解析，并按用户最新要求改为权重→1000连续任务→109语料，失败立即停止；没有减少数量/黄金条件，没有改JTAG、probe或34项平台闭包。原35项runner及23项调度回归通过，四文件独审见 `formal_execution_review_20261018_r02/review_outcome.json`。正式R01在首帧前因把文件引用误当构建内容而KeyError，无WEIGHTS/RUN/HP，清理成功；现两行改用预检已验证的checked.build，36项回归和增量独审PASS，见 `formal_build_context_fix_20261018_r01/`、`formal_execution_review_20261018_r02/review_outcome_r03.json` SHA `7051ccbdbab45a22dd9bb97b9f3aeb6d98dfc4fc299c8b8f6262bdd7f213f1d4`。当前runner SHA `f71d2e2c350fcff50336ac304737a9c6e2a66be101c2204cd54596f6867d3a60`。
-- 同R04 ELF/BSP/MMU的visibility proof/review、最终平台manifest/review及冷链回执已独审，见 `formal_review_20261018_r01/`、`final_platform_review_20261018_r01/`；仅覆盖当前单样本/平台准入，不是压力或G5通过。冷链基于18:30用户POR→无HP缓存探针→单样本SAFE/ACK→19:13:34主机独占快照，未改旧cold=false等原始记录，不因软件前置失败要求重复POR。
-- 新G0 R02绑定仅因host调度源码更新而重绑的prep：`formal_online_20261018_r01/preparation_stress_first.json` SHA `7121f86a36db1920652275af6ea0684af0dc1dd374d6fac3d4e438dc47049c09`；原109行、权重、输入及黄金JSON值完全不变。G0回执 `formal_execution_review_20261018_r02/g0_receipt_r02.json` SHA `cf8366cee925bc67751b751107afeb91c2b73b732864abc76d84a7fe2b1a078b` 已固定。最终 `formal_online_20261018_r01/model_config_r02.json` SHA `2cab084508388688480dd27b1d855e112462088bccb3edda3061f5329729506f` 已通过G0/cold与109 prep验证，完整runtime/主机检查仍未运行。
-- 自动审批超时/网络失败记录 `formal_online_20261018_r01/approval_service_failure_r01.json` 原件保留；服务已恢复。CIM真实确认原hw_server/3121均无进程后才新建本任务服务，当前PID10116/父23784，身份从同源CIM绑定，COM4/PNP相同；不因先前无HP软件错误要求新POR。
-- 正式板上模型运行 `report/evidence/S2B-T18/formal_stress1000_then109_20261018_r02/orchestrator_result.json` 已PASS：1000连续任务及109样本黄金比较均通过，最终epoch=1109、sequence=111、native exit 0，资源清理无错误。此结果不覆盖CSR异常恢复。
-- 一次性续办已按用户要求通过原生工具改为2026-10-19南京时间06:30，automation ID仍为 `10-19-05-2b-dsh`，目标窗口 `01a09ffa-555f-75f1-bdca-23787df39912`；不把已设置时间当作成功执行。用户授权该窗口继续与DSH对接、必要时自行关闭DSH、范围内自主决定；不得终止健康验收任务或争用JTAG/COM4。
-- 2026-10-19固定输入核验独审PASS：498处绑定、490文件、100084257字节全部SHA一致，XSA内嵌bit一致；提交 `f99b2e9f04a18b3e1d3eb0a24bd1ed6b07b41823`，入口 `S2B-T18/freeze_input_check_20261019_r02/`。R01沙箱读取受限失败原件保留；R02只读核验及inputs/evidence检查通过，不代表G3/G4/G5。CSR覆盖审查见 `S2B-T20/csr_offline_coverage_20261019_r01/coverage_review.json`：实际CORE短超时/排空恢复、DRAIN超时与晚排空、忙/未决期间reset仍未测。
-- CSR实板R06 `report/evidence/S2B-T18/formal_csr_recovery_20261019_r06/orchestrator_result.json` 失败，native exit 2；完成权重加载及sample000双头/黄金结果，但忙START未发送。根因为helper把sample000几何写死640×480，而冻结参考与实际请求为1440×1920。R10已按冻结参考绑定几何，独立代码审查PASS，官方Vitis 199项回归PASS，日志及摘要见 `report/evidence/S2B-T20/csr_geometry_fix_20261019_r10/`。R06失败证据完整保留；修复后的CSR实板流程尚未重跑。
-- 已独审离线准备：`S2B-T07/deadline_budget_20261019_r02/` 重算38层逻辑请求96135961、卷积compute迭代424506368、含最少request/response状态的乐观下界616778290 cycles；不代表实际周期或HP延迟上界。cache维护覆盖实际input/weights/features及两头，未用arena区不新增逐字节探针要求。`S2B-T15/offline_restore_20261019_r01/` 在隔离副本重编译4个C对象和两个ELF链接退出0，入口/布局相同，PT_LOAD仅20字节GNU build-id差异，归一化一致；BSP复用、PL未重建、副本linker BOM被忽略及初期部分失败日志已覆写的限制保留。上述准备及关闭日志已提交 `061f592`、`e1b048f`。回执 `S2B-T18/offline_freeze_preparation_review_20261019_r01/`；CSR覆盖/未测项见 `S2B-T20/csr_offline_coverage_20261019_r01/`。
-- PS独立恢复输入包独审PASS：`S2B-T15/recovery_inputs_20261019_r02/recovery_bundle.zip`，697551字节，SHA `50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436`；含67个BSP头及3库，隔离解包后4个C对象与两个ELF真实重编译退出均0，PT_LOAD只有GNU build-id描述字段差异。消费包依赖官方GCC及已构建BSP库，不代表BSP/PL源码重建或板测。ZIP为须保留本地artifact，不随Git源码提交；失败原件及provenance限制保留。独审回执 `S2B-T15/recovery_input_review_20261019_r01/`。
-- CSR实板R07已终止：权重与sample000黄金通过；实际忙START产生通用AHB AP错误、LAST_REJECT=1、epoch/frame不变，但SDK不暴露SLVERR/DECERR，BusyObserver严格判FAIL_LATCHED；CPU0停核、会话断开，controller.close记录失败。原件 `S2B-T18/formal_csr_recovery_20261019_r07/` 与相邻deployment、T20同前缀目录保留。下一轮重入必须先读取真实SAFE/空账本，禁止凭经过时间假定旧任务结束。新受限AHB部分证据分支与deadline/DIAG0对账恢复在开发独审中，尚未上板。
-- 109/1000原清单当前仅3项历史host源码漂移；Git原SHA快照与全量原始结果副本见 `S2B-T18/formal_model_evidence_audit_20261019_r01/`，CHECKS_OK仅表示绑定包装。完整原UART独审 `S2B-T18/formal_model_result_review_20261019_r01/` 重放1109份RUN：两头共28113150字节及全部框PASS，1000 stress与前108 corpus的ACK由后续epoch佐证；最后corpus epoch1109缺动态ACK/IDLE读回，完整R02结果独审CHANGES_REQUIRED，不把源码ACK路径当动态证据。两个source_commit原值不同，不声称clean tree。R10几何独审回执见 `S2B-T20/csr_geometry_review_20261019_r10/`。
-- 当前阶段结论仍为NOT ACCEPTED：109/1000输出比较通过；数量门槛由已闭合ACK的108黄金样本及1000连续任务严格满足，独立范围分析见 `S2B-T18/formal_model_result_review_20261019_r01/scope_analysis.json`，原R02最后第109帧ACK缺证不改写。CSR完整实板恢复、CORE/DRAIN实际期限、原生BRESP类型及正式G4/G5仍缺。规范不要求故意用POR清除未决AXI；真实RUN→ABORT可验证内核软复位，FCLK/reset波形与重叠仍无实测。DDR实装/PCB适配关系尚未核实，保留用户“以手册为准”的授权。R04时序与CSR仿真有效；综合预算10次已用6次，不重跑未变PL。
-- `75fcc59` 两profile独审R03及官方129回归通过。R08于19:23实际开始、19:38结束，session33508已终止：seed、busy同RUN黄金/ACK、reaccept通过；真实RUN+AXI_PENDING=1时ABORT→ERROR_SAFE→显式ACK→gold epoch5/frame1通过。静止第一非法命令因AHB UNKNOWN停止，原run FAILED/native2与controller.close错误保留；R09未启动。原件 `S2B-T18/formal_csr_recovery_20261019_r08/` 及相邻deployment、T20同前缀目录。服务10116/3121仅Listen、COM4原PNP已重新核对，无活跃硬件任务。
-- 新静止矩阵partial修复只接受精确AHB签名且拒绝后逐字无副作用/LAST_REJECT符合；未识别BRESP仍逐项BLOCKED。最终正式Vitis132回归PASS及独审PASS，见 `S2B-T20/csr_static_bresp_partial_20261019_r03/`、`csr_static_bresp_review_20261019_r03/`；r01旧版PASS、r02三fixture失败保留。下一轮只跑新R10 with_deadlines及完整静止矩阵，不重复R08成功stage。
-- CPU原生BRESP已实际诊断：`S2B-T20/cpu_bresp_gp0_board_20261019_r01/` 原运行因SDK未识别BKPT而FAILED；独立postmortem保存DFSR=0x1808、DFAR=0x43C00008、fault PC=0xC344、STR=e5801000及LAST_REJECT变化，判SLVERR，后观察DONE_SAFE/空账本。独审PASS见 `cpu_bresp_gp0_postmortem_independent_review_20261019_r01/`，不改旧运行失败。随后原infer已安全重载但未算黄金验收，见 `cpu_bresp_app_restore_20261019_r01/`。
-- R10于10月19日完成weights/seed后，完整正常START计时中途服务/进程消失；原生退出码未知，不能判期限通过。`S2B-T18/r10_interruption_20261019_r01/` 保留中断；10月20日AP0 observer_r02见DONE_SAFE epoch2/frame1，仅为当时观察。
-- 10月21日恢复时无hw_server/3121或板测程序，已新建自有服务PID28160、creation_filetime=134370581437493840，COM4原PNP不变。现场为后续阶段3视频配置；双核原Running，20:11停核后PC0=0x105D0C、PC1=0xFFFFFF34，非2B CSR。证据 `S2B-T18/r10_interruption_observer_20261021_r01` 至 `_r03`（前两次门禁拒绝，第三次非2B CSR变化，不能称2B失败）。不复用旧DDR/权重/冷链；恢复脚本独审后先停稳视频DMA再完整易失部署2B。
-- 阶段3树只读核验已于2026-10-21 19:53 OFFERED停止板测/构建，未接管其写权。占用通知 `D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\codex_mailbox\CDX-20261021-004-2b-hardware-resume.md`。当前2B仍NOT ACCEPTED；剩余期限/非法矩阵、重建ELF单样本与DDR有限范围证据及独立G4/G5。完整阶段矩阵见 `S2B-T20/final_acceptance_matrix_20261019_r01/`，不要求未决时强制reset或实板永久stall注入。
+- T15 `recovery_inputs_20261019_r02/recovery_bundle.zip` SHA `50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436`；67头文件/3库，隔离副本4C对象+2ELF重建原生0，PT_LOAD仅GNU build-id描述差异。BSP静态库复用、PL不重建，限制保留。
+- 新infer ELF SHA `f7a8bc96418590a497577bb45a7cbc0cc75dec416f6af1bf9b33ffd0308fa5a9`，entry100000。10/21重建app R02实际部署和两相256B通过，后sample000目录重复失败；目录修复aef41a8/10回归及独审PASS。
+- 10/22现场先后观察ROM及stage3 v10_read，原恢复r01/r02、同会话PS r01均在部署前失败并保留，不假定旧2B状态。
+- 最新 T18 `stage3_to_2b_restore_20261022_r03/` 实读16B唯一匹配stage3 v10_read，双VDMA RUNSTOP0/HALTED、卸映射、system reset/EOS0；后续新session所有权检查失败，未部署，cleanup[]。已完成的停DMA/复位证据保留。
+- T18 `rebuilt_app_acceptance_20261022_r02/` 于11:13结束，69929已终止。严格ROM/EOS0准入、完整R04+新ELF下载、两相256B及weights通过，真实sample000双头/框结果PASS、epoch1/seq4；随后host误把含weights+sample的两条frames断言为1条，内层FAILED、外层FAILED_CLEANUP。CPU0已停，原失败不改写；原r02没有动态IDLE读回，由下一条独立补证单独提供。
+- host双响应筛选修复已独审/15回归0并提交 `16ce2cdf8c00c6214435629d75a5e4b63acb66a9`，源码SHA171d83ca…075de、test b0de9b64…709c5。只读ACK补证脚本最终SHA6bb8538d…9198c，G2 R02 PASS，真实结果 T18 `rebuilt_app_ack_observation_20261022_r01/observer_result.json` SHA52c7db0b…9dbc14：PASS/exit0/cleanup[]，安全IDLE/epoch1/四项账本0、双核停。原r02逐项raw_logs哈希未变，无UART/LOAD/START/ACK/reset或CSR写。
+- 同会话代码G2独审PASS/14回归，T20 `final_host_restore_review_20261022_r01/review_rebuilt_single_session_r01.md` SHA `ae614e0a92186201b93fc3924862a203229cf7bbdf0f7eceafeba5eb4a8fe35d`。
+- 正式技术文档 `docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md` SHA2345a741…59bc6。最终候选 T18 `stage2b_freeze_20261022_r02/`，79项绑定，inputs/evidence实际CHECKS_OK/exit0；delivery SHA1efc124b…1aa66，inventory SHA7ec952fe…dd25f6。r01非法note/role字段的包装失败保留，r02独立新RunId已修，生成器G2 R03 PASS。
+- 最终独审 T20 `final_acceptance_review_20261022_r01/review_outcome.json` SHAef3df215…ed8b1，G4=PASS/G5=PASS，无阶段阻断。正式入口 T18 `stage2b_freeze_receipt_20261022_r01/freeze_receipt.json`；回执inputs/evidence均实跑CHECKS_OK/exit0。候选中此前NOT_RUN不追溯修改，由独立阶段回执补充最终判定。
+- 本阶段完成；仅交付2B冻结版本，不启动其他阶段。108闭环/1000正式门槛、原109末ACK缺口、各失败、SDK逐笔UNKNOWN、BSP复用、PL未从源码重建、硬件身份/温测/DDR范围限制完整保留。Git之外bit/XSA/恢复ZIP/原始模型与UART/ELF及官方工具链必须保全；不能只clone源码恢复全部二进制。
 
 ## 当前交接行（11字段）
 
-任务=`阶段2B验收冻结` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2b / codex/stage2b-dma-g0` | 起始提交=`bca323b1750caee783af5552c00769fd584fc1a6` | 允许修改范围=`2B verification/vitis/docs/report及本STATE` | 未提交改动归属=`本总控2B证据与STATE；历史未跟踪原件保留；不提交大产物/tmp；未完成warm候选未使用` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-21 20:18` | 证据入口=`report/evidence/S2B-T20/g5_remaining_audit_20261021_r01/` | 恢复命令=`先核对进程和最新原始结果；不得重启同RunId；读本STATE及AGENTS` | 状态/下一接手方=`IN_PROGRESS / 本总控`
+任务=`阶段2B验收冻结` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2b / codex/stage2b-dma-g0` | 起始提交=`16ce2cdf8c00c6214435629d75a5e4b63acb66a9` | 允许修改范围=`2B verification/vitis/docs/report及本STATE` | 未提交改动归属=`历史本总控2B原始证据与大产物保留本地；最终源码/元数据仅精确提交` | 让出声明=`阶段结束；未交接工作树写权，后续接管仍须正式OFFERED` | 心跳(UTC+8)=`2026-10-22 18:14` | 证据入口=`report/evidence/S2B-T18/stage2b_freeze_receipt_20261022_r01/freeze_receipt.json` | 恢复命令=`先读冻结回执及候选README、核对本地二进制与来源SHA；后续上板先检查实际会话，不复用旧PID、不覆盖RunId` | 状态/下一接手方=`DONE / 项目总控按冻结输入消费`

@@ -1,0 +1,98 @@
+{
+  "schema_version": "gestureforge_s5t01_soak_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_soak_20261022_r02",
+  "generated_utc8": "2026-10-23T00:33:39+08:00",
+  "source_head": "c1d88eb8b8f19f9e5c707d7f725b844dd30a9677",
+  "authority": "CDX-20261022-014 clause 5 / T5-09",
+  "goal_reached": "30MIN_CAPTURE_WINDOW_118_COMPLETE_ROUNDS_NO_DEADLOCK_11_OF_11_PASS__APP_RUNTIME_29_57_MIN",
+  "elf": "s5t01_frames_r05b.elf",
+  "elf_sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+  "bitstream_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+  "capture_seconds": 1800,
+  "rounds": 119,
+  "complete_rounds": 118,
+  "app_runtime_s": 1774.012,
+  "app_runtime_min": 29.57,
+  "strict_30min_reached": false,
+  "strict_30min_shortfall_s": 25.99,
+  "tolerance_rule": "2% (>=1764 s) -> PASS",
+  "per_round_counters": {
+    "displayed": 107,
+    "stale_cleared": 17,
+    "dropped": 7,
+    "timeouts": 6,
+    "dup": 5,
+    "ooo": 4,
+    "warmup": 9,
+    "uniq_displayed": 101,
+    "elapsed_ms": 14907,
+    "display_fps_x10": 71,
+    "unique_fps_x10": 67
+  },
+  "deadlock_verdict": "NO_DEADLOCK (119 rounds advanced continuously; per-round counters stable; FPS recomputable)",
+  "validation": {
+    "script": "scripts/stage5_t01/verify_frame_stream.py",
+    "exit_code": 0,
+    "checks_passed": 11,
+    "checks_failed": 0,
+    "json": "console/soak_verify.json"
+  },
+  "commands": [
+    {
+      "cmd": "bash dbdf/scripts/stage3_t05/run_t05_board_capture.sh <RUN_DIR> <ELF> soak 1800",
+      "exit_code": 0,
+      "log": "console/capture_soak.txt"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/verify_frame_stream.py --log console/uart_soak.log --soak-minutes 30",
+      "exit_code": 0,
+      "log": "console/soak_verify.json"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/capture_soak.txt",
+      "sha256": "f5415726cfa7ab1cc9b4fff59d645e3010e438d232a83cd7daa31ff95d36c776"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/download_soak.log",
+      "sha256": "a80eac839fac4165ba0c2935e19e2d9b94ac4244f102311ae1f3b3fae8f7cc0e"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/input_hashes.txt",
+      "sha256": "1f34ea39cc139a2cb197f3f6ce7d80d5e439252260560cead34a508d8d7d8a93"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/read_safe_soak.log",
+      "sha256": "98ecf6381976d6da98de94b5025e40783bff37537ae72c7da289ed9d3786a116"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/soak_start.txt",
+      "sha256": "e934e27aab928c8478b55b7f4ade7fd67dd09d7acd481d9f76aad6efcf02b1b4"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/soak_verify.json",
+      "sha256": "dd0cfada92867fa40ade2238d9d05eb9bbfd0c53d959d620f13e36c1c2ad16c4"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/soak_verify_stdout.txt",
+      "sha256": "d81df93203b60dda08f4458415e5c634d5adc764317a914e754f1f34c00f4acf"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/console/uart_soak.log",
+      "sha256": "58155c7ea713a16f2c4343dcfc4f8f5a5f02459e029a4ede9657a854b01da511"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r02/summary.md",
+      "sha256": "da6e59d9d39e84d64aeb495b0a53e9c6a11d25180fedf2823d02586762ddbfab"
+    }
+  ],
+  "follow_up": "s5t01_board_soak_20261022_r03 (UART-only, 1860 s) 用于严格满足 >=30 分钟应用运行",
+  "limitations": [
+    "严格 30 分钟未达（29.57 分钟）；另起 r03 纯 UART 采集补足。",
+    "仅显示/叠加路径；inference_fps=NA，不得声称推理 30 分钟无死锁。",
+    "result 流为合成；跨进程外部故障注入未做。",
+    "未烧 QSPI；0x503D 未改。"
+  ]
+}

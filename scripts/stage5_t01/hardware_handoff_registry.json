@@ -3,35 +3,265 @@
   "generated_utc8": "2026-10-22T19:20:00+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
-  "state_changing_kinds": ["hardware_occupation", "hardware_release"],
-  "neutral_kinds": ["hardware_request", "operation_doc", "delivery_receipt", "ack", "report", "decision"],
+  "state_changing_kinds": [
+    "hardware_occupation",
+    "hardware_release"
+  ],
+  "neutral_kinds": [
+    "hardware_request",
+    "operation_doc",
+    "delivery_receipt",
+    "ack",
+    "report",
+    "decision"
+  ],
   "default_hardware_scope": "JTAG+COM4",
   "unknown_record_policy": "BLOCKED：文件名或记录内声明标记自称硬件交接（hw_handoff/让出/释放/占用/handover/release/exclusive/独占/空档）但未登记，或登记项哈希/证据原文不匹配时，一律不可识别 → 阻断，不通过删除校验「修好」门禁。",
   "records": [
-    {"id": "CDX-20261020-001", "file": "codex_mailbox/CDX-20261020-001-mailbox-ack.md", "sha256": "21046cc7a31fca40df29ca47856e5d1c50a66d521bec02daaa4ce652f8062cfb", "order_key": "20261020-001", "kind": "ack", "issuer": "codex", "note": "信箱启用确认"},
-    {"id": "CDX-20261020-002", "file": "codex_mailbox/CDX-20261020-002-dsh-update-ack.md", "sha256": "d91de61f78a3491f7901b0a7f769445c1804956271557a023fed9370865d399e", "order_key": "20261020-002", "kind": "ack", "issuer": "codex", "note": "回执"},
-    {"id": "CDX-20261020-003", "file": "codex_mailbox/CDX-20261020-003-stage3-jtag-com4-request.md", "sha256": "2e98e2b4905d78ef79f7f66c7c0e170632bbbfd2b0192b713f2c3a6048395fc3", "order_key": "20261020-003", "kind": "hardware_request", "hardware_scope": "JTAG+COM4", "issuer": "codex", "note": "阶段3 请求使用；**请求不等于占用**，不改变状态"},
-    {"id": "CDX-20261021-004", "file": "codex_mailbox/CDX-20261021-004-2b-hardware-resume.md", "sha256": "f9c2a00bfb6ecf19da914f18a3fe14f87758c28354b9ba6209c8f42034ab5818", "order_key": "20261021-004", "kind": "hardware_occupation", "hardware_scope": "JTAG+COM4", "issuer": "codex", "evidence_quote": "JTAG/COM4现由2B独占", "note": "2B 恢复验收并占用"},
-    {"id": "CDX-20261021-005", "file": "codex_mailbox/CDX-20261021-005-2b-hardware-session-update.md", "sha256": "d955545c21af01ac83f73a7325760662089317fd0b2b7eb70804e71825b08164", "order_key": "20261021-005", "kind": "hardware_occupation", "hardware_scope": "JTAG+COM4", "issuer": "codex", "evidence_quote": "尚未让出", "note": "占用继续"},
-    {"id": "CDX-20261022-006", "file": "codex_mailbox/CDX-20261022-006-2b-final-acceptance-resume.md", "sha256": "6aacd640a56f055db0ce7bbfd0568014f67e21afe1f819b79df13a89648cd7a7", "order_key": "20261022-006", "kind": "hardware_occupation", "hardware_scope": "JTAG+COM4", "issuer": "codex", "evidence_quote": "新建本任务", "note": "2B 最终验收恢复并占用 JTAG/COM4"},
-    {"id": "CDX-20261022-007", "file": "codex_mailbox/CDX-20261022-007-stage2b-frozen.md", "sha256": "b17debd4790d73c6b892ca2f6e04c73945c3fc0aa3468b2ac2d247dceebecbdc", "order_key": "20261022-007", "kind": "hardware_release", "hardware_scope": "JTAG+COM4", "issuer": "codex", "declared_time_zh": "2026-10-22 18:17（UTC+8）", "evidence_quote": "2B本任务不再占用硬件", "note": "2B 冻结并明确硬件占用结束；旧 PID 4812 失效"},
-    {"id": "CDX-20261022-008", "file": "codex_mailbox/CDX-20261022-008-execution-index.md", "sha256": "fbcc28719aba7465eaf23859f5ac2a038845c806e230076e49f0628e3067ba7b", "order_key": "20261022-008", "kind": "operation_doc", "issuer": "codex", "note": "执行索引（普通操作文档，中性）"},
-    {"id": "CDX-20261022-009", "file": "codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md", "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48", "order_key": "20261022-009", "kind": "operation_doc", "issuer": "codex"},
-    {"id": "CDX-20261022-010", "file": "codex_mailbox/CDX-20261022-010-stage4-inference-runbook.md", "sha256": "4cd61ee0021440fd252bf06371bde87488c24941d78681992e40fc2d9521cf89", "order_key": "20261022-010", "kind": "operation_doc", "issuer": "codex"},
-    {"id": "CDX-20261022-011", "file": "codex_mailbox/CDX-20261022-011-stage5-display-runbook.md", "sha256": "9d38cb75b6a5d5ae9b59fe525ac69c66449cd7b085a17cdaa7e44203486bf407", "order_key": "20261022-011", "kind": "operation_doc", "issuer": "codex", "note": "已被 014 取代，保留不覆盖"},
-    {"id": "CDX-20261022-012", "file": "codex_mailbox/CDX-20261022-012-stage6-interaction-runbook.md", "sha256": "697506c743ebc6618c68380a86ab80b62f263ad16dbceefb252f260c2392e89f", "order_key": "20261022-012", "kind": "operation_doc", "issuer": "codex"},
-    {"id": "CDX-20261022-013", "file": "codex_mailbox/CDX-20261022-013-stage7-system-runbook.md", "sha256": "4dfc106d67c648e292560b76415d4a02f3b24b87f5eaffe6eb720f69083f15ff", "order_key": "20261022-013", "kind": "operation_doc", "issuer": "codex"},
-    {"id": "CDX-20261022-014", "file": "codex_mailbox/CDX-20261022-014-stage5-display-runbook-r02.md", "sha256": "f25e5ebb2e99c1b47a6e0e3aad3b8e903a496072c3c5fe148d129e353895a141", "order_key": "20261022-014", "kind": "operation_doc", "issuer": "codex", "note": "**普通操作文档**：正文出现「释放/独占」等词仅为门禁修复要求原文，**不改变硬件状态**（本次误判根因）"},
-    {"id": "CDX-20261022-015", "file": "codex_mailbox/CDX-20261022-015-execution-index-r02.md", "sha256": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7", "order_key": "20261022-015", "kind": "operation_doc", "issuer": "codex"},
-    {"id": "DSH-20261019-001", "file": "dsh_mailbox/DSH-20261019-001-mailbox-live.md", "sha256": "ed499963fa386495b0bc3d27cbc3ba463c16116e65c6fa220f667845e83bb1ea", "order_key": "20261019-001", "kind": "ack", "issuer": "dsh"},
-    {"id": "DSH-20261020-002", "file": "dsh_mailbox/DSH-20261020-002-live-check-recipe.md", "sha256": "6efd9a0da8a6738634ce9e69a92c3f36367375ac0bf6ea3619378ce4be1db64b", "order_key": "20261020-002", "kind": "operation_doc", "issuer": "dsh"},
-    {"id": "DSH-20261020-003", "file": "dsh_mailbox/DSH-20261020-003-receipt-confirmation.md", "sha256": "789182d5abaa58c9bf7ae84b24663edfce27aecb2f384eb74cbbc50877d6a5e5", "order_key": "20261020-003", "kind": "delivery_receipt", "issuer": "dsh"},
-    {"id": "DSH-20261020-004", "file": "dsh_mailbox/DSH-20261020-004-stage3-start-and-hardware-mutex.md", "sha256": "c88a600baefdfad3342069c4c4787059f3b3e2834480dd9c290802c5c0e637c8", "order_key": "20261020-004", "kind": "hardware_request", "hardware_scope": "JTAG+COM4", "issuer": "dsh", "note": "互斥口径请求；不改变状态"},
-    {"id": "DSH-20261020-005", "file": "dsh_mailbox/DSH-20261020-005-stage3-window-replace.md", "sha256": "13ddb9c7c51d7f54541c0e5dfd2db711baca2e21dd9926ab02e042b8f1affc0f", "order_key": "20261020-005", "kind": "operation_doc", "issuer": "dsh"},
-    {"id": "DSH-20261022-006", "file": "dsh_mailbox/DSH-20261022-006-stage3-color-hardware-verdict.md", "sha256": "614ae7c2656aff47282d0fa053adeee796919d888588b1c84060241ea663c18d", "order_key": "20261022-006", "kind": "report", "issuer": "dsh"},
-    {"id": "DSH-20261022-007", "file": "dsh_mailbox/DSH-20261022-007-colorbar-recheck.md", "sha256": "b252e7494683beadf966a52ec461a3be040b09bf4af633f291735cfc97dda443", "order_key": "20261022-007", "kind": "report", "issuer": "dsh"},
-    {"id": "DSH-20261022-008", "file": "dsh_mailbox/DSH-20261022-008-grayscale-first-and-module-retest.md", "sha256": "77409ed16522d50287bae321a92b544af93697a696c9b592e2b19fc222c09454", "order_key": "20261022-008", "kind": "decision", "issuer": "dsh"},
-    {"id": "DSH-20261022-009", "file": "dsh_mailbox/DSH-20261022-009-hardware-handover-after-2b-freeze.md", "sha256": "9b56747a4d7f84cd0699e5a765c3ffdf8befda42d8a3a0d77375a9c24db65242", "order_key": "20261022-009", "kind": "hardware_request", "hardware_scope": "JTAG+COM4", "issuer": "dsh", "note": "请求书面让出与时间窗；**请求不改变状态**"},
-    {"id": "DSH-20261022-010", "file": "dsh_mailbox/DSH-20261022-010-execution-index-receipt.md", "sha256": "98ab9e6a5165242533a07c2bd791b616f3e1d7d1e809938dce92c80535e0fb9b", "order_key": "20261022-010", "kind": "delivery_receipt", "issuer": "dsh"}
+    {
+      "id": "CDX-20261020-001",
+      "file": "codex_mailbox/CDX-20261020-001-mailbox-ack.md",
+      "sha256": "21046cc7a31fca40df29ca47856e5d1c50a66d521bec02daaa4ce652f8062cfb",
+      "order_key": "20261020-001",
+      "kind": "ack",
+      "issuer": "codex",
+      "note": "信箱启用确认"
+    },
+    {
+      "id": "CDX-20261020-002",
+      "file": "codex_mailbox/CDX-20261020-002-dsh-update-ack.md",
+      "sha256": "d91de61f78a3491f7901b0a7f769445c1804956271557a023fed9370865d399e",
+      "order_key": "20261020-002",
+      "kind": "ack",
+      "issuer": "codex",
+      "note": "回执"
+    },
+    {
+      "id": "CDX-20261020-003",
+      "file": "codex_mailbox/CDX-20261020-003-stage3-jtag-com4-request.md",
+      "sha256": "2e98e2b4905d78ef79f7f66c7c0e170632bbbfd2b0192b713f2c3a6048395fc3",
+      "order_key": "20261020-003",
+      "kind": "hardware_request",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "codex",
+      "note": "阶段3 请求使用；**请求不等于占用**，不改变状态"
+    },
+    {
+      "id": "CDX-20261021-004",
+      "file": "codex_mailbox/CDX-20261021-004-2b-hardware-resume.md",
+      "sha256": "f9c2a00bfb6ecf19da914f18a3fe14f87758c28354b9ba6209c8f42034ab5818",
+      "order_key": "20261021-004",
+      "kind": "hardware_occupation",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "codex",
+      "evidence_quote": "JTAG/COM4现由2B独占",
+      "note": "2B 恢复验收并占用"
+    },
+    {
+      "id": "CDX-20261021-005",
+      "file": "codex_mailbox/CDX-20261021-005-2b-hardware-session-update.md",
+      "sha256": "d955545c21af01ac83f73a7325760662089317fd0b2b7eb70804e71825b08164",
+      "order_key": "20261021-005",
+      "kind": "hardware_occupation",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "codex",
+      "evidence_quote": "尚未让出",
+      "note": "占用继续"
+    },
+    {
+      "id": "CDX-20261022-006",
+      "file": "codex_mailbox/CDX-20261022-006-2b-final-acceptance-resume.md",
+      "sha256": "6aacd640a56f055db0ce7bbfd0568014f67e21afe1f819b79df13a89648cd7a7",
+      "order_key": "20261022-006",
+      "kind": "hardware_occupation",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "codex",
+      "evidence_quote": "新建本任务",
+      "note": "2B 最终验收恢复并占用 JTAG/COM4"
+    },
+    {
+      "id": "CDX-20261022-007",
+      "file": "codex_mailbox/CDX-20261022-007-stage2b-frozen.md",
+      "sha256": "b17debd4790d73c6b892ca2f6e04c73945c3fc0aa3468b2ac2d247dceebecbdc",
+      "order_key": "20261022-007",
+      "kind": "hardware_release",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "codex",
+      "declared_time_zh": "2026-10-22 18:17（UTC+8）",
+      "evidence_quote": "2B本任务不再占用硬件",
+      "note": "2B 冻结并明确硬件占用结束；旧 PID 4812 失效"
+    },
+    {
+      "id": "CDX-20261022-008",
+      "file": "codex_mailbox/CDX-20261022-008-execution-index.md",
+      "sha256": "fbcc28719aba7465eaf23859f5ac2a038845c806e230076e49f0628e3067ba7b",
+      "order_key": "20261022-008",
+      "kind": "operation_doc",
+      "issuer": "codex",
+      "note": "执行索引（普通操作文档，中性）"
+    },
+    {
+      "id": "CDX-20261022-009",
+      "file": "codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md",
+      "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48",
+      "order_key": "20261022-009",
+      "kind": "operation_doc",
+      "issuer": "codex"
+    },
+    {
+      "id": "CDX-20261022-010",
+      "file": "codex_mailbox/CDX-20261022-010-stage4-inference-runbook.md",
+      "sha256": "4cd61ee0021440fd252bf06371bde87488c24941d78681992e40fc2d9521cf89",
+      "order_key": "20261022-010",
+      "kind": "operation_doc",
+      "issuer": "codex"
+    },
+    {
+      "id": "CDX-20261022-011",
+      "file": "codex_mailbox/CDX-20261022-011-stage5-display-runbook.md",
+      "sha256": "9d38cb75b6a5d5ae9b59fe525ac69c66449cd7b085a17cdaa7e44203486bf407",
+      "order_key": "20261022-011",
+      "kind": "operation_doc",
+      "issuer": "codex",
+      "note": "已被 014 取代，保留不覆盖"
+    },
+    {
+      "id": "CDX-20261022-012",
+      "file": "codex_mailbox/CDX-20261022-012-stage6-interaction-runbook.md",
+      "sha256": "697506c743ebc6618c68380a86ab80b62f263ad16dbceefb252f260c2392e89f",
+      "order_key": "20261022-012",
+      "kind": "operation_doc",
+      "issuer": "codex"
+    },
+    {
+      "id": "CDX-20261022-013",
+      "file": "codex_mailbox/CDX-20261022-013-stage7-system-runbook.md",
+      "sha256": "4dfc106d67c648e292560b76415d4a02f3b24b87f5eaffe6eb720f69083f15ff",
+      "order_key": "20261022-013",
+      "kind": "operation_doc",
+      "issuer": "codex"
+    },
+    {
+      "id": "CDX-20261022-014",
+      "file": "codex_mailbox/CDX-20261022-014-stage5-display-runbook-r02.md",
+      "sha256": "f25e5ebb2e99c1b47a6e0e3aad3b8e903a496072c3c5fe148d129e353895a141",
+      "order_key": "20261022-014",
+      "kind": "operation_doc",
+      "issuer": "codex",
+      "note": "**普通操作文档**：正文出现「释放/独占」等词仅为门禁修复要求原文，**不改变硬件状态**（本次误判根因）"
+    },
+    {
+      "id": "CDX-20261022-015",
+      "file": "codex_mailbox/CDX-20261022-015-execution-index-r02.md",
+      "sha256": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7",
+      "order_key": "20261022-015",
+      "kind": "operation_doc",
+      "issuer": "codex"
+    },
+    {
+      "id": "DSH-20261019-001",
+      "file": "dsh_mailbox/DSH-20261019-001-mailbox-live.md",
+      "sha256": "ed499963fa386495b0bc3d27cbc3ba463c16116e65c6fa220f667845e83bb1ea",
+      "order_key": "20261019-001",
+      "kind": "ack",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261020-002",
+      "file": "dsh_mailbox/DSH-20261020-002-live-check-recipe.md",
+      "sha256": "6efd9a0da8a6738634ce9e69a92c3f36367375ac0bf6ea3619378ce4be1db64b",
+      "order_key": "20261020-002",
+      "kind": "operation_doc",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261020-003",
+      "file": "dsh_mailbox/DSH-20261020-003-receipt-confirmation.md",
+      "sha256": "789182d5abaa58c9bf7ae84b24663edfce27aecb2f384eb74cbbc50877d6a5e5",
+      "order_key": "20261020-003",
+      "kind": "delivery_receipt",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261020-004",
+      "file": "dsh_mailbox/DSH-20261020-004-stage3-start-and-hardware-mutex.md",
+      "sha256": "c88a600baefdfad3342069c4c4787059f3b3e2834480dd9c290802c5c0e637c8",
+      "order_key": "20261020-004",
+      "kind": "hardware_request",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "dsh",
+      "note": "互斥口径请求；不改变状态"
+    },
+    {
+      "id": "DSH-20261020-005",
+      "file": "dsh_mailbox/DSH-20261020-005-stage3-window-replace.md",
+      "sha256": "13ddb9c7c51d7f54541c0e5dfd2db711baca2e21dd9926ab02e042b8f1affc0f",
+      "order_key": "20261020-005",
+      "kind": "operation_doc",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261022-006",
+      "file": "dsh_mailbox/DSH-20261022-006-stage3-color-hardware-verdict.md",
+      "sha256": "614ae7c2656aff47282d0fa053adeee796919d888588b1c84060241ea663c18d",
+      "order_key": "20261022-006",
+      "kind": "report",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261022-007",
+      "file": "dsh_mailbox/DSH-20261022-007-colorbar-recheck.md",
+      "sha256": "b252e7494683beadf966a52ec461a3be040b09bf4af633f291735cfc97dda443",
+      "order_key": "20261022-007",
+      "kind": "report",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261022-008",
+      "file": "dsh_mailbox/DSH-20261022-008-grayscale-first-and-module-retest.md",
+      "sha256": "77409ed16522d50287bae321a92b544af93697a696c9b592e2b19fc222c09454",
+      "order_key": "20261022-008",
+      "kind": "decision",
+      "issuer": "dsh"
+    },
+    {
+      "id": "DSH-20261022-009",
+      "file": "dsh_mailbox/DSH-20261022-009-hardware-handover-after-2b-freeze.md",
+      "sha256": "9b56747a4d7f84cd0699e5a765c3ffdf8befda42d8a3a0d77375a9c24db65242",
+      "order_key": "20261022-009",
+      "kind": "hardware_request",
+      "hardware_scope": "JTAG+COM4",
+      "issuer": "dsh",
+      "note": "请求书面让出与时间窗；**请求不改变状态**"
+    },
+    {
+      "id": "DSH-20261022-010",
+      "file": "dsh_mailbox/DSH-20261022-010-execution-index-receipt.md",
+      "sha256": "98ab9e6a5165242533a07c2bd791b616f3e1d7d1e809938dce92c80535e0fb9b",
+      "order_key": "20261022-010",
+      "kind": "delivery_receipt",
+      "issuer": "dsh"
+    },
+    {
+      "id": "CDX-20261023-016",
+      "file": "codex_mailbox/CDX-20261023-016-stage4-takeover-request.md",
+      "order_key": "20261023-016",
+      "kind": "hardware_request",
+      "issuer": "codex",
+      "hardware_scope": "JTAG+COM4",
+      "evidence_quote": "不声明任何硬件占用或释放",
+      "note": "阶段4 工作树交接请求；明文不声明硬件占用/释放、不接管阶段5 硬件 ⇒ 中性",
+      "sha256": "950fd8bb0f8150ab4979bf3ac3e5988063b22081e2c2fa2ba3742ca7f96b22b9"
+    },
+    {
+      "id": "CDX-20261023-017",
+      "file": "codex_mailbox/CDX-20261023-017-stage4-window-started.md",
+      "order_key": "20261023-017",
+      "kind": "ack",
+      "issuer": "codex",
+      "evidence_quote": "不声明硬件占用或释放",
+      "note": "阶段4 新窗口启动补充与回执；未授予硬件写权 ⇒ 中性",
+      "sha256": "bedf88fb10e37150d0254db8e5d2ce74831c1edcdf8af226dc7c17b842e8c8b2"
+    }
   ]
 }

@@ -52,6 +52,12 @@ WORKTREES = {
     "96a3": pathlib.Path(r"D:\codex-worktrees\96a3"),
 }
 PROCESS_PATTERNS = ("hw_server", "vivado", "xsdb", "vitis", "xsim", "cs_server")
+# 工具包装器（非板卡会话）：如 ROSS 的 `vivado-mcp-server-<ver>.exe --stdio`。
+# 2026-10-23 发现：名称含 "vivado" 的 MCP 工具进程会被 PROCESS_PATTERNS 命中而误判为硬件占用，
+# 使门禁在"无 hw_server、3121 未监听"时也 BLOCKED。此处**不删除检查**，而是**分类**：
+# 工具包装器单列 `tooling_processes`（透明可见、不阻断）；真实硬件进程仍 fail-closed 阻断。
+# 该分类需独立复审确认（见 report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/FINDING_mcp_tooling.md）。
+TOOLING_PATTERN = re.compile(r"vivado[-_]mcp[-_]server", re.IGNORECASE)
 # 仅用于**未登记**文件的“自称硬件交接”识别（不再用于全量状态推断）
 HANDOFF_HINT = re.compile(r"(让出|释放|占用|空档|handover|release|exclusive|独占|hw_handoff)", re.IGNORECASE)
 DECL_MARKER = re.compile(r"hw_handoff_kind\s*[:=]\s*([a-z_]+)", re.IGNORECASE)
@@ -253,16 +259,20 @@ def real_processes() -> tuple[list[dict], str, bool]:
         raw += f"$ {' '.join(cmd)}\n[exit code: {code}]\n{out}\n"
         if code != 0 or not out.strip():
             continue
-        found = []
+        found, tooling = [], []
         for line in out.splitlines():
             parts = [p.strip().strip('"') for p in line.split(",")]
             if len(parts) < 2:
                 continue
             name = parts[0].strip('"')
             if any(pattern in name.lower() for pattern in PROCESS_PATTERNS):
-                found.append({"name": name, "pid": parts[1].strip('"')})
-        return found, raw, True
-    return [], raw, False
+                entry = {"name": name, "pid": parts[1].strip('"')}
+                if TOOLING_PATTERN.search(name):
+                    tooling.append(entry)
+                else:
+                    found.append(entry)
+        return found, tooling, raw, True
+    return [], [], raw, False
 
 
 def main() -> int:
@@ -276,7 +286,8 @@ def main() -> int:
     parser.add_argument("--scope", default="JTAG+COM4")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
     parser.add_argument("--mailbox-root", action="append", default=None)
-    parser.add_argument("--process-check", choices=["real", "stub-ok", "stub-fail", "stub-hit"], default="real")
+    parser.add_argument("--process-check", choices=["real", "stub-ok", "stub-fail", "stub-hit", "stub-tooling"],
+                        default="real")
     parser.add_argument("--lock-check", choices=["real", "stub-none", "stub-lock"], default="real")
     parser.add_argument("--main-state", default=str(DEFAULT_MAIN_STATE))
     args = parser.parse_args()
@@ -340,13 +351,16 @@ def main() -> int:
 
     # 进程
     if args.process_check == "stub-ok":
-        procs, proc_raw, proc_ok = [], "[stub-ok] 测试替身：枚举成功且无命中\n", True
+        procs, tooling, proc_raw, proc_ok = [], [], "[stub-ok] 测试替身：枚举成功且无命中\n", True
     elif args.process_check == "stub-hit":
-        procs, proc_raw, proc_ok = [{"name": "hw_server", "pid": "9999"}], "[stub-hit]\n", True
+        procs, tooling, proc_raw, proc_ok = [{"name": "hw_server", "pid": "9999"}], [], "[stub-hit]\n", True
+    elif args.process_check == "stub-tooling":
+        procs, tooling, proc_raw, proc_ok = [], [
+            {"name": "vivado-mcp-server-windows-amd64-2026.9.1.exe", "pid": "10888"}], "[stub-tooling]\n", True
     elif args.process_check == "stub-fail":
-        procs, proc_raw, proc_ok = [], "[stub-fail] 测试替身：枚举失败\n", False
+        procs, tooling, proc_raw, proc_ok = [], [], "[stub-fail] 测试替身：枚举失败\n", False
     else:
-        procs, proc_raw, proc_ok = real_processes()
+        procs, tooling, proc_raw, proc_ok = real_processes()
     if not proc_ok:
         reasons.append("无法枚举系统进程（fail-closed）：不得据此认为无硬件占用，也不得放行")
     elif procs:
@@ -433,6 +447,7 @@ def main() -> int:
         "rejected_authorization": rejected_authorization,
         "worktrees": worktrees,
         "hardware_processes": procs,
+        "tooling_processes": tooling,
         "hardware_process_enumeration_ok": proc_ok,
         "lock_check_mode": args.lock_check,
         "process_check_mode": args.process_check,

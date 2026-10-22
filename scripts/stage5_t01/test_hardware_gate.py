@@ -438,6 +438,19 @@ class GateCase(unittest.TestCase):
         self.assertTrue(any(("正文含交接语义" in r) or ("未被应用" in r) or ("未登记的硬件交接" in r)
                             for r in payload["reasons"]), payload["reasons"])
 
+    def test_35_tooling_wrapper_process_does_not_block(self) -> None:
+        """2026-10-23 发现：ROSS 的 `vivado-mcp-server-…` 工具包装器不得被当作硬件占用。
+
+        真实硬件进程（hw_server 等）仍必须阻断（见 test_12）；工具包装器单列 `tooling_processes`。
+        """
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-tooling")
+        self.assertEqual(code, 0, payload.get("reasons"))
+        self.assertEqual(payload["hardware_processes"], [])
+        self.assertTrue(payload.get("tooling_processes"), "工具进程应被单列")
+        self.assertFalse(any("检测到硬件/重型进程" in r for r in payload["reasons"]))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

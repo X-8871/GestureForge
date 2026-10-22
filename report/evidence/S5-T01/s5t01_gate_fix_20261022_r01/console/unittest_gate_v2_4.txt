@@ -1,0 +1,59 @@
+test_01_release_then_plain_doc_stays_released_go (scripts.stage5_t01.test_hardware_gate.GateCase.test_01_release_then_plain_doc_stays_released_go) ... ok
+test_02_release_then_new_occupation_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_02_release_then_new_occupation_blocks) ... ok
+test_03_occupation_then_valid_release_go (scripts.stage5_t01.test_hardware_gate.GateCase.test_03_occupation_then_valid_release_go) ... ok
+test_04_unregistered_body_words_block_not_neutral (scripts.stage5_t01.test_hardware_gate.GateCase.test_04_unregistered_body_words_block_not_neutral)
+BI-2 收紧后：未登记且**正文**含"释放/独占"\u21d2 BLOCKED（既不能冒充通知，也不能被静默忽略）。 ... ok
+test_05_unregistered_filename_hint_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_05_unregistered_filename_hint_blocks) ... ok
+test_06_unregistered_declaration_marker_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_06_unregistered_declaration_marker_blocks) ... ok
+test_07_registry_hash_mismatch_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_07_registry_hash_mismatch_blocks) ... ok
+test_08_evidence_quote_mismatch_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_08_evidence_quote_mismatch_blocks) ... ok
+test_09_release_not_after_occupation_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_09_release_not_after_occupation_blocks) ... ok
+test_10_index_lock_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_10_index_lock_blocks) ... ok
+test_11_process_enumeration_failure_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_11_process_enumeration_failure_blocks) ... ok
+test_12_process_hit_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_12_process_hit_blocks) ... ok
+test_13_release_id_mismatch_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_13_release_id_mismatch_blocks) ... ok
+test_14_authorization_without_bound_source_rejected (scripts.stage5_t01.test_hardware_gate.GateCase.test_14_authorization_without_bound_source_rejected) ... ok
+test_15_authorization_with_bound_source_allows_unknown_state (scripts.stage5_t01.test_hardware_gate.GateCase.test_15_authorization_with_bound_source_allows_unknown_state) ... ok
+test_16_authorization_cannot_override_real_occupation (scripts.stage5_t01.test_hardware_gate.GateCase.test_16_authorization_cannot_override_real_occupation) ... ok
+test_17_missing_registry_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_17_missing_registry_blocks) ... ok
+test_18_real_parity_release_state_and_registry_binding (scripts.stage5_t01.test_hardware_gate.GateCase.test_18_real_parity_release_state_and_registry_binding)
+只读解析真实信箱 + 真实登记表：应判 RELEASED 且 GO（用替身进程/锁，避免误碰硬件）。 ... ok
+test_19_recursive_self_reference_registry_scan_covers_all_mailbox_files (scripts.stage5_t01.test_hardware_gate.GateCase.test_19_recursive_self_reference_registry_scan_covers_all_mailbox_files)
+真实登记表必须覆盖全部真实信箱 MD（防止“漏登记 → 被误判为不可识别交接”）。 ... ok
+test_20_registry_missing_file_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_20_registry_missing_file_blocks)
+BI-1 B4：登记项指向的文件缺席（等于删/改名登记文件）\u21d2 BLOCKED。 ... ok
+test_21_registry_missing_sha256_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_21_registry_missing_sha256_blocks)
+BI-1 B5：登记项缺 sha256 \u21d2 BLOCKED（不得跳过绑定）。 ... ok
+test_22_registry_duplicate_registration_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_22_registry_duplicate_registration_blocks)
+BI-1 B3c：同一文件重复登记（后一条中性）\u21d2 BLOCKED。 ... ok
+test_23_registry_bad_kind_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_23_registry_bad_kind_blocks)
+BI-1 B12：kind 拼写错误 \u21d2 BLOCKED（不得静默中性）。 ... ok
+test_24_state_record_missing_order_key_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_24_state_record_missing_order_key_blocks)
+BI-1 B8b：状态类登记项缺 order_key \u21d2 BLOCKED。 ... ok
+test_25_registry_prefix_mismatch_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_25_registry_prefix_mismatch_blocks)
+BI-1 B11：file 的目录前缀与实际信箱不符 \u21d2 BLOCKED。 ... ok
+test_26_unregistered_body_occupation_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_26_unregistered_body_occupation_blocks)
+BI-2 B6：未登记、文件名中性、正文自称占用 \u21d2 BLOCKED。 ... ok
+test_27_registered_operation_doc_with_handoff_words_stays_neutral (scripts.stage5_t01.test_hardware_gate.GateCase.test_27_registered_operation_doc_with_handoff_words_stays_neutral)
+回归护栏：已登记为 operation_doc 的文件，正文含"释放/独占"仍必须中性（014 不得回归）。 ... ok
+test_28_occupied_release_basis_is_null (scripts.stage5_t01.test_hardware_gate.GateCase.test_28_occupied_release_basis_is_null)
+非阻断观察修复：OCCUPIED 时 release_basis 必须为 null（不得写得像授权放行）。 ... ok
+test_29_backslash_state_record_is_applied_not_dropped (scripts.stage5_t01.test_hardware_gate.GateCase.test_29_backslash_state_record_is_applied_not_dropped)
+反斜杠写法必须与正斜杠等价：占用必须**被应用**（判 OCCUPIED→BLOCKED），不得静默中性。 ... ok
+test_30_bare_and_prefixed_duplicate_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_30_bare_and_prefixed_duplicate_blocks)
+裸名 + 前缀名混写同一文件 \u21d2 按 basename 判重复登记 → BLOCKED。 ... ok
+test_31_duplicate_order_key_among_state_records_blocks (scripts.stage5_t01.test_hardware_gate.GateCase.test_31_duplicate_order_key_among_state_records_blocks)
+两条状态类记录共用同一 order_key（排序歧义）\u21d2 BLOCKED。 ... ok
+test_32_occupied_reason_not_misleading (scripts.stage5_t01.test_hardware_gate.GateCase.test_32_occupied_reason_not_misleading)
+非阻断观察 1：OCCUPIED 时不得输出"未提供匹配的 --release-id"这类误导理由。 ... ok
+test_33_occupied_reason_discriminating_fixture (scripts.stage5_t01.test_hardware_gate.GateCase.test_33_occupied_reason_discriminating_fixture)
+复审建议的可判别夹具：让出(920)+占用(921)，传 --release-id 920。 ... ok
+test_34_cross_mailbox_same_basename_is_not_shadowed (scripts.stage5_t01.test_hardware_gate.GateCase.test_34_cross_mailbox_same_basename_is_not_shadowed)
+复审非阻断 3（既有 fail-open）：两信箱同名文件必须**都解析**，不得互相遮蔽。 ... ok
+test_35_tooling_wrapper_process_does_not_block (scripts.stage5_t01.test_hardware_gate.GateCase.test_35_tooling_wrapper_process_does_not_block)
+2026-10-23 发现：ROSS 的 `vivado-mcp-server-…` 工具包装器不得被当作硬件占用。 ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 3.089s
+
+OK

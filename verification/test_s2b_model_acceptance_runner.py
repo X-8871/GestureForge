@@ -543,6 +543,22 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
                 path.write_text("test-only / not approval: " + name + "\n", encoding="utf-8")
                 bindings[name] = {"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
             config = {**bindings, "bindings": {}}
+            interface_root = root / "docs/obsidian-project/02-方案设计"
+            interface_root.mkdir(parents=True)
+            physical_path = interface_root / "s2b_physical_interface_candidate.md"
+            uart_path = interface_root / "s2b_board_transport.md"
+            physical_path.write_text("状态：G0_FROZEN；版本：s2b-physical/1.0.0\n", encoding="utf-8")
+            uart_path.write_text("状态：G0_FROZEN；版本：s2bu/1.1\n", encoding="utf-8")
+            config["bindings"] = {
+                "interface": {"path": str(physical_path),
+                              "sha256": hashlib.sha256(physical_path.read_bytes()).hexdigest()},
+                "uart_interface": {"path": str(uart_path),
+                                   "sha256": hashlib.sha256(uart_path.read_bytes()).hexdigest()},
+            }
+            g0_path = Path(config["g0_basis"]["path"])
+            g0_path.write_text(json.dumps({"interface_versions": {
+                "interface": "s2b-physical/1.0.0", "uart_interface": "s2bu/1.1"}}), encoding="utf-8")
+            config["g0_basis"]["sha256"] = hashlib.sha256(g0_path.read_bytes()).hexdigest()
             fake_module = type("FakeModule", (), {"__file__": str(source_path)})
 
             class FakeDelivery:
@@ -567,6 +583,35 @@ class ModelAcceptanceRunnerTests(unittest.TestCase):
             rows = [row for row in manifest["files"] if row["path"] == Path(expected_path).relative_to(root).as_posix()]
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["sha256"], bindings["g0_basis"]["sha256"])
+            self.assertEqual(manifest["interfaces"], [
+                {"name": "physical", "version": "s2b-physical/1.0.0", "frozen": True,
+                 "path": physical_path.relative_to(root).as_posix(),
+                 "sha256": hashlib.sha256(physical_path.read_bytes()).hexdigest()},
+                {"name": "uart", "version": "s2bu/1.1", "frozen": True,
+                 "path": uart_path.relative_to(root).as_posix(),
+                 "sha256": hashlib.sha256(uart_path.read_bytes()).hexdigest()},
+            ])
+
+    def test_failure_snapshot_persists_runner_trace_and_manifest_hash(self):
+        with tempfile.TemporaryDirectory(prefix="s2b_t18_failure_snapshot_") as temp:
+            root = Path(temp)
+            run_dir = root / "report/evidence/S2B-T18/failure_run"
+            run_dir.mkdir(parents=True)
+            result_path = run_dir / "orchestrator_result.json"
+            result_path.write_text("{}\n", encoding="utf-8")
+            manifest_path = run_dir / "delivery_manifest.json"
+            manifest_path.write_text(json.dumps({"files": [{
+                "path": result_path.relative_to(root).as_posix(),
+                "sha256": hashlib.sha256(result_path.read_bytes()).hexdigest(), "role": "result"}]}),
+                encoding="utf-8")
+            record = {"status": "FAILED", "runner_failure": "RunnerError('offline failure')",
+                      "runner_failure_traceback": "Traceback (most recent call last): offline failure\n"}
+            with mock.patch.object(runner, "ROOT", root):
+                runner.persist_failure_snapshot(run_dir, manifest_path, record)
+            saved = json.loads(result_path.read_text(encoding="utf-8"))
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(saved, record)
+            self.assertEqual(manifest["files"][0]["sha256"], hashlib.sha256(result_path.read_bytes()).hexdigest())
 
     def test_direct_v1_validator_keeps_second_preflight_gate(self):
         with tempfile.TemporaryDirectory(prefix="s2b_t18_direct_validate_") as temp:

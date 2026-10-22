@@ -1309,6 +1309,49 @@ def _manifest_file(role: str, path: Path) -> dict:
     return {"path": _relative(exact_path(path)), "sha256": _bound_file(path)["sha256"], "role": role}
 
 
+def persist_failure_snapshot(run_dir: Path, manifest_path: Path, record: dict) -> None:
+    """失败退出前持久化最终 orchestrator 记录并同步其清单哈希。"""
+    result_path = run_dir / "orchestrator_result.json"
+    raw_result = (json.dumps(record, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode("utf-8")
+    with result_path.open("wb") as stream:
+        stream.write(raw_result)
+        stream.flush()
+        os.fsync(stream.fileno())
+    if not manifest_path.is_file():
+        return
+    manifest = strict_json(manifest_path.read_bytes())
+    require(type(manifest) is dict and type(manifest.get("files")) is list,
+            "失败快照无法更新：delivery manifest files 字段错误")
+    relative = _relative(result_path)
+    rows = [item for item in manifest["files"] if type(item) is dict and item.get("path") == relative]
+    require(len(rows) <= 1, "失败快照无法更新：orchestrator_result.json 重复声明")
+    binding = _manifest_file("result", result_path)
+    if rows:
+        rows[0].update(binding)
+    else:
+        manifest["files"].append(binding)
+    raw_manifest = (json.dumps(manifest, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode("utf-8")
+    with manifest_path.open("wb") as stream:
+        stream.write(raw_manifest)
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def _delivery_interfaces(config: dict) -> list[dict]:
+    """从已绑定的G0回执与正式接口文档重建schema-1接口声明。"""
+    basis_path, basis_raw = verify_binding(config["g0_basis"], "G0接口版本回执")
+    basis = strict_json(basis_raw)
+    versions = basis.get("interface_versions") if type(basis) is dict else None
+    require(type(versions) is dict and set(versions) == {"interface", "uart_interface"},
+            "G0回执缺少完整接口版本")
+    interfaces = []
+    for key, name in (("interface", "physical"), ("uart_interface", "uart")):
+        path, raw = verify_binding(config["bindings"][key], "delivery interface " + key)
+        interfaces.append({"name": name, "version": versions[key], "frozen": True,
+                           "path": _relative(path), "sha256": digest(raw)})
+    return interfaces
+
+
 def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, record: dict,
                       journal: Journal, controller, wire, runtime_objects: dict) -> dict:
     """封装部署、串口与 T18 产物，随后运行当前 Run 的清单核验。"""
@@ -1335,6 +1378,7 @@ def finalize_evidence(config: dict, checked: dict, apis, config_raw: bytes, reco
     require(manifest_path.is_file(), "T18 delivery_manifest.json 缺失")
     manifest = strict_json(manifest_path.read_bytes())
     require(type(manifest) is dict and type(manifest.get("files")) is list, "T18 清单文件字段错误")
+    manifest["interfaces"] = _delivery_interfaces(config)
     files_by_path = {}
     for path in sorted(run_dir.rglob("*")):
         if path.is_file() and path != manifest_path:
@@ -1626,6 +1670,21 @@ def run(config_path: str | Path, *, runtime=None, scope: str = "model") -> dict:
         failure = failure or error
         record.update(status="FAILED", evidence_packaging_error=repr(error),
                       evidence_packaging_traceback=traceback.format_exc())
+    if failure is not None:
+        record.update(status="FAILED", native_exit_code=2,
+                      runner_failure=repr(failure),
+                      runner_failure_traceback="".join(traceback.format_exception(failure)))
+        try:
+            persist_failure_snapshot(checked["run_dir"], checked["run_dir"] / "delivery_manifest.json", record)
+        except BaseException as persist_error:
+            record["failure_snapshot_persist_error"] = repr(persist_error)
+            try:
+                with (checked["run_dir"] / "orchestrator_result.json").open("wb") as stream:
+                    stream.write((json.dumps(record, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode("utf-8"))
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            except BaseException:
+                pass
     if failure is not None:
         raise RunnerError("S2B-T18 部署/验收失败；原始记录保留于 " + str(checked["deploy_dir"])) from failure
     return record

@@ -1,0 +1,58 @@
+{
+  "schema_version": "gestureforge_s5t01_acceptance_table_v3",
+  "task_id": "S5-T01",
+  "generated_utc8": "2026-10-23T01:00:00+08:00",
+  "supersedes": ["report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/acceptance_table.json (v1)",
+                  "report/evidence/S5-T01/S5T01_acceptance_table_20261022_r02.json (v2)"],
+  "video_source": "PS_SYNTHETIC",
+  "display_semantics": "B_latest_result_overlay",
+  "artifacts": {
+    "elf_frames_r05b_sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+    "elf_case5_r04_sha256": "29fe895a6fbbca885a7a727839c36c230acb0765721e949eb78618d5852c3aed",
+    "bitstream_stdluma_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "gate_v2_3": {"check_hardware_gate.py": "77eb1892f07f0d41b6f6a5fcd532c4c5d49bdabd494efa315c21105f2354bc45",
+                   "test_hardware_gate.py": "7551bc64a10e346fdf8577a7f8afc9ec882a94e14c7907eeb31eed517cbb409a",
+                   "hardware_handoff_registry.json": "337765ae08ca0f4f1d18b58627ee33eccd156b3b912f00b06482e98582b91037",
+                   "registry_records": 27, "tests": "35/35 PASS",
+                   "review_status": "round3 PASS (v2.2); v2.3 tooling-classification PENDING round-4 review"}
+  },
+  "items": [
+    {"id": "T5-01", "status": "PASS", "evidence": ["s5t01_board_numcheck_20261022_r01/console/decode_rows.json (13/13)"]},
+    {"id": "T5-02", "status": "PASS", "evidence": ["case 2/5 照片", "decode_rows 行 200/53 边界"]},
+    {"id": "T5-03", "status": "PASS", "evidence": ["case 3/4 照片", "UART boxes=15 / boxes=0"]},
+    {"id": "T5-04", "status": "PARTIAL",
+     "evidence": ["case 6 + 5T 流 stale 判定（stale ⇔ age>200ms，逐行 0 违反）"],
+     "notes": ["显示路径与 age>limit 判定 PASS；age==limit / limit+1 边界板上 NOT_RUN（离线 S5-B/C 已覆盖）"]},
+    {"id": "T5-05", "status": "PASS (display-side, synthetic result stream)",
+     "evidence": ["s5t01_board_5t_20261022_r02/console/frame_stream_verify.json (10/10 PASS, exit 0)"]},
+    {"id": "T5-06", "status": "PASS", "evidence": ["labels 为 score 文案；无 confidence/置信度断言"]},
+    {"id": "T5-08", "status": "PASS (display-side)",
+     "evidence": ["s5t01_board_fps4_20261022_r02/console/recompute_fps.json (exit 0)"],
+     "notes": ["display_fps=59.206、video_refresh=118.351/s÷2=59.175、unique=result-frame_id 级、inference_fps=NA、延迟 0.22–9.1 ms（commit→帧完成）"]},
+    {"id": "T5-09", "status": "PASS (strict, display-side)",
+     "evidence": ["s5t01_board_soak_20261022_r03/console/soak_r03_verify.json (11/11 PASS, exit 0)",
+                   "s5t01_board_soak_20261022_r02/console/soak_verify.json (11/11 PASS)"],
+     "notes": ["r03 严格 ≥30 分钟：124 完整轮、1863.35 s = 31.06 分钟；r02 30 分钟窗 119 轮（应用 29.57 分钟，容差判过）。
+      轮号跨窗连续（r02 0–118、r03 1152–1276）⇒ 同一实例自 19:39 连续运行 ≈5.28 h 无死锁。
+      **仅显示/叠加路径**；inference_fps=NA，不得声称推理 30 分钟无死锁。"]},
+    {"id": "T5-11", "status": "PASS (display-side)",
+     "evidence": ["5T 流 dup/ooo/drop/timeout/warm 逐项计数（1240 轮长跑内始终一致）"]},
+    {"id": "T5-12", "status": "PASS", "evidence": ["UART semantics=B 逐行断言 + 产物字段"]}
+  ],
+  "summary": {"PASS": 9, "PARTIAL": 1, "NOT_RUN": 0, "FAIL": 0},
+  "board": {
+    "released": true,
+    "release_record": "s5t01_board_release_20261022_r01/RELEASE_board_release_20261022.md (r02 修订)",
+    "hw_server_processes": 0, "port_3121_listening": false, "com4_released_after_r03": true,
+    "qspi_burned": false, "sensor_503d_changed": false,
+    "note": "现场另有 5 个 ROSS `vivado-mcp-server-…--stdio` 工具进程（非板卡会话，未终止）；门禁已分类为 tooling_processes（待复审）"
+  },
+  "not_claimed": [
+    "PS 合成源不得用于声称阶段3 采集/颜色结论（颜色 DEFERRED_PENDING_MODULE）。",
+    "T5-05 result 流为合成，非阶段4 输出；阶段4 真实注入与板上执行坐标映射（§4.5）NOT_RUN。",
+    "inference_fps=NA；T5-09 仅为显示侧。",
+    "T5-04 边界与 T5-11 外部故障注入未在板上测试。",
+    "HUD 13 字段的屏上视觉确认待照片（数值/UART/occ 已验证）。",
+    "门禁 v2.3 的工具进程分类待独立复审。"
+  ]
+}

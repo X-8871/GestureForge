@@ -1,0 +1,95 @@
+{
+  "schema_version": "gestureforge_s5t01_soak_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_soak_20261022_r03",
+  "generated_utc8": "2026-10-23T01:00:44+08:00",
+  "source_head": "02e926c55a5289680fb0932598291c1c74de9528",
+  "authority": "CDX-20261022-014 clause 5 / T5-09 (strict >=30 min)",
+  "goal_reached": "STRICT_30MIN_SATISFIED_31_06_MIN_124_COMPLETE_ROUNDS_NO_DEADLOCK_11_OF_11_PASS",
+  "method": "UART-only capture (read_uart.py COM4 1860), no download, board app already running",
+  "elf": "s5t01_frames_r05b.elf",
+  "elf_sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+  "capture_seconds": 1860,
+  "rounds": 125,
+  "complete_rounds": 124,
+  "app_runtime_s": 1863.35,
+  "app_runtime_min": 31.06,
+  "strict_30min_reached": true,
+  "per_round_counters": {
+    "displayed": 107,
+    "stale_cleared": 17,
+    "dropped": 7,
+    "timeouts": 6,
+    "dup": 5,
+    "ooo": 4,
+    "warmup": 9,
+    "uniq_displayed": 101,
+    "elapsed_ms": 14907,
+    "display_fps_x10": 71,
+    "unique_fps_x10": 67
+  },
+  "continuity": {
+    "r02_rounds": [
+      0,
+      118
+    ],
+    "r03_rounds": [
+      1152,
+      1276
+    ],
+    "no_reset": true,
+    "derived_continuous_hours_since_1939": 5.28,
+    "note": "跨空档连续性由轮号连续 + 时间算术推得（空档内无日志）"
+  },
+  "deadlock_verdict": "NO_DEADLOCK (124 complete rounds match the schedule model exactly; round index continues across the 4h gap)",
+  "validation": {
+    "script": "scripts/stage5_t01/verify_frame_stream.py",
+    "exit_code": 0,
+    "checks_passed": 11,
+    "checks_failed": 0,
+    "json": "console/soak_r03_verify.json"
+  },
+  "commands": [
+    {
+      "cmd": "python -B dbdf/scripts/stage3_t03b/read_uart.py COM4 1860 <log>",
+      "exit_code": 0,
+      "log": "console/uart_soak_r03.stdout"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/verify_frame_stream.py --log console/uart_soak_r03.log --soak-minutes 30",
+      "exit_code": 0,
+      "log": "console/soak_r03_verify.json"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/console/soak_r03_start.txt",
+      "sha256": "70b8ea9984abc412070481dd28f7d3b846056c7dd3264725e155b27a20ebdb25"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/console/soak_r03_verify.json",
+      "sha256": "059d10e7bfbb37f6e30e3bb0bdba3969aa87ce69ac33227ba51d760d8b794d5d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/console/soak_r03_verify_stdout.txt",
+      "sha256": "87c17df5d309d858433ec15594aeb71f95737d64a57293c80ec5689e76c0f6aa"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/console/uart_soak_r03.log",
+      "sha256": "d82193131c2339e8cbf595e58336ae3f3aa47caffd60b7b1f81c9838cfb09995"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/console/uart_soak_r03.stdout",
+      "sha256": "acfb044e14abdd0ba9ad0760e980cdfbbb3a48213b80ff4343f11290b216d456"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/summary.md",
+      "sha256": "8cb76367497b1a5319dae2a1e45ea3c7ce6b2e4771427d2adab485e337a0152d"
+    }
+  ],
+  "limitations": [
+    "仅显示/叠加路径；inference_fps=NA，不得声称推理 30 分钟无死锁。",
+    "result 流为合成；跨进程外部故障注入未做。",
+    "只读串口采集；未烧 QSPI、0x503D 未改、无 hw_server 驻留；采集后 COM4 已释放。"
+  ]
+}

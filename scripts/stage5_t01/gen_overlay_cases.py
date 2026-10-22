@@ -49,6 +49,9 @@ FONT: dict[str, list[tuple[int, int, int, int]]] = {
     "B": [(0, 0, 0, 6), (0, 0, 3, 0), (3, 0, 4, 1), (4, 1, 4, 2), (4, 2, 3, 3), (0, 3, 3, 3),
           (3, 3, 4, 4), (4, 4, 4, 5), (4, 5, 3, 6), (0, 6, 3, 6)],
     "C": [(4, 0, 0, 0), (0, 0, 0, 6), (0, 6, 4, 6)],
+    "D": [(0, 0, 0, 6), (0, 0, 3, 0), (3, 0, 4, 2), (4, 2, 4, 4), (4, 4, 3, 6), (3, 6, 0, 6)],
+    "G": [(4, 0, 0, 0), (0, 0, 0, 6), (0, 6, 4, 6), (4, 6, 4, 3), (4, 3, 2, 3)],
+    "Y": [(0, 0, 2, 3), (4, 0, 2, 3), (2, 3, 2, 6)],
     "E": [(4, 0, 0, 0), (0, 0, 0, 6), (0, 6, 4, 6), (0, 3, 3, 3)],
     "F": [(4, 0, 0, 0), (0, 0, 0, 6), (0, 3, 3, 3)],
     "H": [(0, 0, 0, 6), (4, 0, 4, 6), (0, 3, 4, 3)],
@@ -127,8 +130,12 @@ def compute_case(case: dict, geom: dict) -> dict:
 
 
 def emit_c(cases: list[dict], path: pathlib.Path) -> None:
-    extra_words = ["CASE", "BOXES", "SEM B", "FRESH", "STALE", "FPS", "MS", "COUNT"]
+    extra_words = ["CASE", "BOXES", "SEM B", "FRESH", "STALE", "FPS", "MS", "COUNT", "NA", "WARM", "STEADY"]
+    hud_fields = ["CAPTURE_FPS", "INFERENCE_FPS", "DISPLAY_FPS", "INFERENCE_TIME_NS", "AGE_RESULT_NS",
+                  "AGE_FRAME_NS", "FRAME_ID", "BOXES", "STALE_CLEARED", "DROPPED_FRAMES", "TIMEOUTS",
+                  "WARMUP_STATE", "DISPLAY_SEMANTICS"]
     chars = sorted({ch for text in extra_words for ch in text}
+                   | {ch for name in hud_fields for ch in name}
                    | {ch for meta in cases for text in [meta["name"], *meta["hud"]] for ch in text}
                    | {ch for meta in cases for box in meta["drawn"] for ch in box["label"]})
     lines = ["/* 自动生成（scripts/stage5_t01/gen_overlay_cases.py）：勿手改。",
@@ -152,7 +159,12 @@ def emit_c(cases: list[dict], path: pathlib.Path) -> None:
         segs = ",".join("{%d,%d,%d,%d}" % s for s in strokes)
         lines.append("    {'%s', %d, {%s}}," % ("'" if ch == "'" else ch, len(strokes), segs))
     lines += ["};", f"#define S5_GLYPH_COUNT {len([c for c in chars if FONT.get(c.upper() if c.isalpha() else c)])}",
-              "", "static const s5_box_t S5_BOXES[] = {"]
+              "", "/* HUD 13 字段名（§5.4；值在板上运行时格式化，缺失值用 NA，不得用 0 伪装） */",
+              f"#define S5_HUD_FIELD_COUNT {len(hud_fields)}",
+              "static const char *S5_HUD_FIELDS[S5_HUD_FIELD_COUNT] = {"]
+    for name in hud_fields:
+        lines.append(f'    "{name}",')
+    lines += ["};", "", "static const s5_box_t S5_BOXES[] = {"]
     offset = 0
     for case in cases:
         for box in case["drawn"]:

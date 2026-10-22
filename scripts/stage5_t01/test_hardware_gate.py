@@ -43,7 +43,8 @@ class GateCase(unittest.TestCase):
         path = self.mailbox / name
         path.write_text(text, encoding="utf-8")
         if register:
-            self.records.append({"id": name.split("-")[0] + "-" + order_key, "file": name,
+            self.records.append({"id": name.split("-")[0] + "-" + order_key,
+                                 "file": f"{self.mailbox.name}/{name}",
                                  "sha256": sha_override or sha_of(path), "order_key": order_key,
                                  "kind": kind, "hardware_scope": scope, "issuer": "test",
                                  **({"evidence_quote": quote} if quote else {})})
@@ -258,7 +259,8 @@ class GateCase(unittest.TestCase):
     def test_20_registry_missing_file_blocks(self) -> None:
         """BI-1 B4：登记项指向的文件缺席（等于删/改名登记文件）⇒ BLOCKED。"""
         self.add_plain_file("CDX-20261001-001-hw-release.md", "普通记录。\n")
-        self.records.append({"id": "CDX-20261002-002", "file": "CDX-20261002-002-hw-release.md",
+        self.records.append({"id": "CDX-20261002-002",
+                             "file": f"{self.mailbox.name}/CDX-20261002-002-hw-release.md",
                              "sha256": "0" * 64, "order_key": "20261002-002", "kind": "hardware_release"})
         code, payload = self.run_gate(release_id="CDX-20261002-002")
         self.assertEqual(code, 1)
@@ -268,7 +270,7 @@ class GateCase(unittest.TestCase):
         """BI-1 B5：登记项缺 sha256 ⇒ BLOCKED（不得跳过绑定）。"""
         path = self.mailbox / "CDX-20261001-001-hw-release.md"
         path.write_text("本任务不再占用硬件。\n", encoding="utf-8")
-        self.records.append({"id": "CDX-20261001-001", "file": path.name,
+        self.records.append({"id": "CDX-20261001-001", "file": f"{self.mailbox.name}/{path.name}",
                              "order_key": "20261001-001", "kind": "hardware_release"})
         code, payload = self.run_gate(release_id="CDX-20261001-001")
         self.assertEqual(code, 1)
@@ -278,7 +280,8 @@ class GateCase(unittest.TestCase):
         """BI-1 B3c：同一文件重复登记（后一条中性）⇒ BLOCKED。"""
         self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
                              kind="hardware_release", order_key="20261001-001")
-        self.records.append({"id": "CDX-20261001-001b", "file": "CDX-20261001-001-hw-release.md",
+        self.records.append({"id": "CDX-20261001-001b",
+                             "file": f"{self.mailbox.name}/CDX-20261001-001-hw-release.md",
                              "sha256": sha_of(self.mailbox / "CDX-20261001-001-hw-release.md"),
                              "order_key": "20261001-001b", "kind": "operation_doc"})
         code, payload = self.run_gate(release_id="CDX-20261001-001")
@@ -309,7 +312,8 @@ class GateCase(unittest.TestCase):
         self.records[0]["file"] = "dsh_mailbox/CDX-20261001-001-hw-release.md"
         code, payload = self.run_gate(release_id="CDX-20261001-001")
         self.assertEqual(code, 1)
-        self.assertTrue(any("目录前缀不匹配" in r for r in payload["reasons"]), payload["reasons"])
+        self.assertTrue(any(("缺席" in r) or ("前缀" in r) or ("未被应用" in r) for r in payload["reasons"]),
+                        payload["reasons"])
 
     def test_26_unregistered_body_occupation_blocks(self) -> None:
         """BI-2 B6：未登记、文件名中性、正文自称占用 ⇒ BLOCKED。"""
@@ -326,7 +330,7 @@ class GateCase(unittest.TestCase):
                              kind="hardware_release", order_key="20261001-001")
         path = self.mailbox / "CDX-20261022-014-runbook.md"
         path.write_text("本节说明释放流程与独占要求，并引用 release/exclusive。\n", encoding="utf-8")
-        self.records.append({"id": "CDX-20261022-014", "file": path.name,
+        self.records.append({"id": "CDX-20261022-014", "file": f"{self.mailbox.name}/{path.name}",
                              "sha256": sha_of(path), "order_key": "20261022-014", "kind": "operation_doc"})
         code, payload = self.run_gate(release_id="CDX-20261001-001")
         self.assertEqual(code, 0, payload.get("reasons"))
@@ -345,6 +349,94 @@ class GateCase(unittest.TestCase):
                                             "--authorization-source-sha256", sha_of(src)])
         self.assertEqual(code, 1)
         self.assertIsNone(payload["release_basis"])
+
+
+    # ── 第二轮审查 BI-1 残余（file 身份归一化）关闭条件 ──────────────────────────
+    def test_29_backslash_state_record_is_applied_not_dropped(self) -> None:
+        """反斜杠写法必须与正斜杠等价：占用必须**被应用**（判 OCCUPIED→BLOCKED），不得静默中性。"""
+        self.add_record_file("CDX-20261001-001-hw-resume.md", "独占 JTAG/COM4。\n",
+                             kind="hardware_occupation", order_key="20261001-001")
+        self.records[0]["file"] = f"{self.mailbox.name}\\CDX-20261001-001-hw-resume.md"
+        code, payload = self.run_gate()
+        self.assertEqual(code, 1)
+        self.assertEqual(payload["hardware_state"], "OCCUPIED")
+        self.assertNotIn("CDX-20261001-001-hw-resume.md", payload.get("unregistered_neutral_files") or [])
+        self.assertFalse(any("未被应用" in r for r in payload["reasons"]), payload["reasons"])
+
+    def test_30_bare_and_prefixed_duplicate_blocks(self) -> None:
+        """裸名 + 前缀名混写同一文件 ⇒ 按 basename 判重复登记 → BLOCKED。"""
+        self.add_record_file("CDX-20261001-001-hw-resume.md", "独占 JTAG/COM4。\n",
+                             kind="hardware_occupation", order_key="20261001-001")
+        path = self.mailbox / "CDX-20261001-001-hw-resume.md"
+        self.records.append({"id": "CDX-20261001-001b", "file": path.name,   # 裸名
+                             "sha256": sha_of(path), "order_key": "20261001-001b", "kind": "operation_doc"})
+        code, payload = self.run_gate()
+        self.assertEqual(code, 1)
+        self.assertTrue(any("重复登记" in r or "缺少信箱目录前缀" in r for r in payload["reasons"]),
+                        payload["reasons"])
+
+    def test_31_duplicate_order_key_among_state_records_blocks(self) -> None:
+        """两条状态类记录共用同一 order_key（排序歧义）⇒ BLOCKED。"""
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        p2 = self.mailbox / "CDX-20261001-002-hw-release-b.md"
+        p2.write_text("不再占用（第二条）。\n", encoding="utf-8")
+        self.records.append({"id": "CDX-20261001-002", "file": f"{self.mailbox.name}/{p2.name}",
+                             "sha256": sha_of(p2), "order_key": "20261001-001",   # 与上条同 key
+                             "kind": "hardware_release"})
+        code, payload = self.run_gate()
+        self.assertEqual(code, 1)
+        self.assertTrue(any("order_key 重复" in r for r in payload["reasons"]), payload["reasons"])
+
+    def test_32_occupied_reason_not_misleading(self) -> None:
+        """非阻断观察 1：OCCUPIED 时不得输出"未提供匹配的 --release-id"这类误导理由。"""
+        self.add_record_file("CDX-20261001-001-hw-resume.md", "独占 JTAG/COM4。\n",
+                             kind="hardware_occupation", order_key="20261001-001")
+        code, payload = self.run_gate(release_id="CDX-20261001-001")
+        self.assertEqual(code, 1)
+        self.assertFalse(any("未提供匹配的 --release-id" in r for r in payload["reasons"]),
+                         payload["reasons"])
+
+
+    # ── 第三轮复审非阻断项 → 加固 ────────────────────────────────────────────────
+    def test_33_occupied_reason_discriminating_fixture(self) -> None:
+        """复审建议的可判别夹具：让出(920)+占用(921)，传 --release-id 920。
+
+        固定版只应输出"占用态…"；若 OCCUPIED 守卫被回退，会额外出现
+        "未提供匹配的 --release-id"（即使 id 相同）⇒ 该断言可判别。
+        """
+        self.add_record_file("CDX-20261001-920-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-920")
+        self.add_record_file("CDX-20261002-921-hw-resume.md", "独占 JTAG/COM4。\n",
+                             kind="hardware_occupation", order_key="20261002-921")
+        code, payload = self.run_gate(release_id="CDX-20261001-920")
+        self.assertEqual(code, 1)
+        self.assertTrue(any("占用态" in r for r in payload["reasons"]), payload["reasons"])
+        self.assertFalse(any("未提供匹配的 --release-id" in r for r in payload["reasons"]),
+                         payload["reasons"])
+
+    def test_34_cross_mailbox_same_basename_is_not_shadowed(self) -> None:
+        """复审非阻断 3（既有 fail-open）：两信箱同名文件必须**都解析**，不得互相遮蔽。
+
+        夹具：root1 的 X.md 正文自称占用（未登记）；root2 的 X.md 登记为 operation_doc
+        + 一条更早的让出。若 scan 仍按 basename 去重（后者覆盖前者），门禁会 GO；
+        修复后必须 BLOCKED（未登记交接 / 未被应用 之一）。
+        """
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        dup_name = "CDX-20261009-009-notice.md"
+        self.add_plain_file(dup_name, "现由本任务独占使用 JTAG 与 COM4。\n")   # root1：自称占用（未登记）
+        root2 = self.tmp / "other_mailbox"
+        root2.mkdir(exist_ok=True)
+        p2 = root2 / dup_name
+        p2.write_text("普通记录（登记为 operation_doc）。\n", encoding="utf-8")
+        self.records.append({"id": "CDX-20261009-009", "file": f"{root2.name}/{dup_name}",
+                             "sha256": sha_of(p2), "order_key": "20261009-009", "kind": "operation_doc"})
+        code, payload = self.run_gate(release_id="CDX-20261001-001",
+                                      extra=["--mailbox-root", str(root2)])
+        self.assertEqual(code, 1, payload.get("reasons"))
+        self.assertTrue(any(("正文含交接语义" in r) or ("未被应用" in r) or ("未登记的硬件交接" in r)
+                            for r in payload["reasons"]), payload["reasons"])
 
 
 if __name__ == "__main__":

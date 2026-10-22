@@ -1,0 +1,133 @@
+{
+  "log": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_5t_20261022_r01\\console\\uart_frames.log",
+  "rounds": 3,
+  "rows": 331,
+  "skips": 39,
+  "total_runtime_s": 6.072,
+  "per_round": [
+    {
+      "round": 0,
+      "frames": 120,
+      "displayed": 107,
+      "stale_cleared": 17,
+      "dropped": 7,
+      "timeouts": 6,
+      "dup": 5,
+      "ooo": 4,
+      "warmup": 9,
+      "uniq_displayed": 101,
+      "elapsed_ns": 2024777064,
+      "display_fps_x10": 71,
+      "unique_fps_x10": 67,
+      "occ_max": 2133
+    },
+    {
+      "round": 1,
+      "frames": 120,
+      "displayed": 107,
+      "stale_cleared": 17,
+      "dropped": 7,
+      "timeouts": 6,
+      "dup": 5,
+      "ooo": 4,
+      "warmup": 9,
+      "uniq_displayed": 101,
+      "elapsed_ns": 2023362306,
+      "display_fps_x10": 71,
+      "unique_fps_x10": 67,
+      "occ_max": 2133
+    },
+    {
+      "round": 2,
+      "frames": 120,
+      "displayed": 107,
+      "stale_cleared": 17,
+      "dropped": 7,
+      "timeouts": 6,
+      "dup": 5,
+      "ooo": 4,
+      "warmup": 9,
+      "uniq_displayed": 101,
+      "elapsed_ns": 2023509828,
+      "display_fps_x10": 71,
+      "unique_fps_x10": 67,
+      "occ_max": 2133
+    }
+  ],
+  "counters": {
+    "displayed": 321,
+    "stale_cleared": 51,
+    "dropped": 21,
+    "timeouts": 18,
+    "dup": 15,
+    "ooo": 12,
+    "warmup": 27,
+    "uniq_displayed": 303
+  },
+  "checks": [
+    {
+      "name": "rounds_present",
+      "status": "PASS",
+      "detail": "round 数=3"
+    },
+    {
+      "name": "rows_count_matches_rounds",
+      "status": "FAIL",
+      "detail": "逐帧行数=331，SUMMARY displayed 合计=321"
+    },
+    {
+      "name": "skips_count_matches",
+      "status": "PASS",
+      "detail": "SKIP 行数=39，SUMMARY dropped+timeouts=39"
+    },
+    {
+      "name": "displayed_ids_strictly_increment",
+      "status": "PASS",
+      "detail": "全部 round 内 0..N-1 严格递增"
+    },
+    {
+      "name": "semantics_unique_B",
+      "status": "PASS",
+      "detail": "出现过的 semantics=['B']"
+    },
+    {
+      "name": "age_frame_ge_age_result",
+      "status": "PASS",
+      "detail": "全部满足 age_frame_ns >= age_result_ns"
+    },
+    {
+      "name": "stale_implies_no_box",
+      "status": "PASS",
+      "detail": "stale 行数=53"
+    },
+    {
+      "name": "stale_iff_age_over_limit",
+      "status": "PASS",
+      "detail": "违反条数=0（判据 age_result_ns > 200000000）"
+    },
+    {
+      "name": "per_round_counters_consistent",
+      "status": "PASS",
+      "detail": "逐 round displayed/stale 一致"
+    },
+    {
+      "name": "dup_ooo_recomputable",
+      "status": "FAIL",
+      "detail": "round0: dup 复算=6 vs 5, ooo 复算=3 vs 4; round1: dup 复算=6 vs 5, ooo 复算=3 vs 4; round2: dup 复算=6 vs 5, ooo 复算=3 vs 4"
+    },
+    {
+      "name": "fps_recomputable",
+      "status": "FAIL",
+      "detail": "round0: display 528.5 vs 71, uniq 498.8 vs 67; round1: display 528.8 vs 71, uniq 499.2 vs 67; round2: display 528.8 vs 71, uniq 499.1 vs 67"
+    }
+  ],
+  "passed": 8,
+  "failed": 3,
+  "occ_max": 2133,
+  "semantics": "B_latest_result_overlay",
+  "not_claimed": [
+    "result 流为**合成**（非阶段4 真实输出）；本校验只覆盖显示侧消费语义。",
+    "`unique_frame_update_fps` 为 result-frame_id 级（本轮已可算），非推理完成率。"
+  ]
+}
+[verify] PASS=8 FAIL=3 rounds=3 runtime_s=6.072

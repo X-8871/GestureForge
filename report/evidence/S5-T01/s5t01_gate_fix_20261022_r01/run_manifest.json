@@ -5,7 +5,7 @@
   "generated_utc8": "2026-10-22T19:19:07+08:00",
   "source_head": "e4533e1d3b9ef1a80f1350e36f7fb479dbc88dc6",
   "authority": "CDX-20261022-014 §0（取代 CDX-20261022-011）",
-  "goal_reached": "GATE_V2_1_BI1_BI2_CLOSED_28_TESTS_PASS_REAL_GATE_GO_REREVIEW_PENDING",
+  "goal_reached": "GATE_V2_2_REVIEWS_ROUND1_2_CHANGES_REQUIRED_ROUND3_PASS_34_TESTS_REAL_GATE_GO",
   "root_cause": "v1 按全部 MD 全文关键词二分推断占用 ⇒ 普通操作文档被当作最新占用，使有效让出失效",
   "fix": {
     "mechanism": "登记表驱动（registry）",
@@ -46,21 +46,9 @@
     }
   ],
   "synthetic_test_matrix": {
-    "total": 28,
-    "pass": 28,
-    "fail": 0,
-    "added": 9,
-    "added_cases": [
-      "registry file missing",
-      "registry missing sha256",
-      "duplicate registration",
-      "bad kind",
-      "state missing order_key",
-      "file prefix mismatch",
-      "unregistered body occupation",
-      "registered operation_doc with handoff words stays neutral",
-      "occupied release_basis null"
-    ]
+    "total": 34,
+    "pass": 34,
+    "fail": 0
   },
   "self_defects_found_by_tests": [
     "effective_state 原要求让出与占用同时存在才判 RELEASED（只有让出时误判 UNKNOWN）",
@@ -75,17 +63,13 @@
     "status": "DESIGN_ONLY_NOT_IMPLEMENTED_NOT_BOARD_TESTED"
   },
   "review": {
-    "status": "CHANGES_REQUIRED_ROUND1",
-    "record": "REVIEW_r01_CHANGES_REQUIRED.md",
-    "blocking_items": [
-      "BI-1 registry schema fail-open",
-      "BI-2 unregistered body-claim neutral"
-    ],
-    "closure": {
-      "BI-1": "CLOSED (schema hard validation + 7 blockers)",
-      "BI-2": "CLOSED (filename/body/marker hit -> BLOCKED; registered operation_doc stays neutral)",
-      "re_review": "PENDING"
-    }
+    "round1": "CHANGES_REQUIRED (BI-1/BI-2)",
+    "round2": "CHANGES_REQUIRED (BI-1 residual file identity)",
+    "round3": "PASS (BI-1 residual closed; non-blocking items fixed in v2.2)",
+    "records": [
+      "REVIEW_r01_CHANGES_REQUIRED.md",
+      "REVIEW_r02_PASS.md"
+    ]
   },
   "files": [
     {
@@ -97,6 +81,14 @@
       "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/real_gate_postfix2.txt",
+      "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/real_gate_postfix3.txt",
+      "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes.txt",
       "sha256": "72418263c4643b06ea65db9b39b0d87f0e86e37163fa87fd317be394241ad594"
     },
@@ -105,12 +97,28 @@
       "sha256": "b3ff2458f90b4d3f215177f5b59ccfc59dad7166b593345498aca06ea51cd96d"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes_postfix2.txt",
+      "sha256": "73887120ed14c08a1c902f10af264484e90d975b3b1504762f23fac81a376548"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes_postfix3.txt",
+      "sha256": "0ec2e523db79bcb761ed8207813756b4b4344885a3179ea1aed4e9297c180ffc"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2.txt",
       "sha256": "159e16a1ff75b0a8c626544e61082ffdedec755d94ec9b8ebce6d925ffac7a55"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2_1.txt",
       "sha256": "66a58cb3b60dcd7dbdc73d8685ca5559e9c9cb812e9196f2e24af990e7905e50"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2_2.txt",
+      "sha256": "7c948b8f1fb02b15e3896a51f3f8732a455b6180715d3c3d6e608a8a4d5531d0"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2_3.txt",
+      "sha256": "3328ccd4a33d63af94035b6bbbcff206b5cf215d429b96518a3f336d0d44e057"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/neutral_records.json",
@@ -135,6 +143,54 @@
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/hardware_gate.json",
       "sha256": "119f39c3b52076e4886d47bd07d3975ad11e7e58bf9db5561d8e372027f0b56a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/console/neutral_records.json",
+      "sha256": "202b8c6ca61fe4fb8ea8e7224c297bc573a50054f4c1cc0aeeed2c8bc0fa68ac"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/console/process_enumeration.txt",
+      "sha256": "2f25f309d0465a237974942e58a997fb1e589f15fcf28ad1ee7f23cfaff34c3b"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/console/state_records.json",
+      "sha256": "ae712b458d26fa43d42b0fa574579ee65fa801214c3485ec52674b3d2c0a00c7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/console/worktrees.json",
+      "sha256": "b058e6688322afb14cc89535d6591e2a6448913a6ef423d5a36150c3b619f2f7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix2_real_gate/hardware_gate.json",
+      "sha256": "5a975fabb8e3a36cedc6c5bc53dc1a1465c46a3795bd41dbc99787ad3539bb20"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/console/neutral_records.json",
+      "sha256": "202b8c6ca61fe4fb8ea8e7224c297bc573a50054f4c1cc0aeeed2c8bc0fa68ac"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/console/process_enumeration.txt",
+      "sha256": "8f05ed7e025c32c9a19df0220294f005ac394dad257f738ba9fd1db75f56e8cf"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/console/state_records.json",
+      "sha256": "ae712b458d26fa43d42b0fa574579ee65fa801214c3485ec52674b3d2c0a00c7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/console/worktrees.json",
+      "sha256": "b058e6688322afb14cc89535d6591e2a6448913a6ef423d5a36150c3b619f2f7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix3_real_gate/hardware_gate.json",
+      "sha256": "5f7db5a3536f660c0e89d36f18d10b5b638cb23ce1c46e51ab860211c4b67d9c"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/neutral_records.json",
@@ -189,6 +245,10 @@
       "sha256": "1ebcd902194d28eb1ec79b6b327c69589643409c5c3b207cb7dbc70d2ce6db85"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/REVIEW_r02_PASS.md",
+      "sha256": "24debced70ab729f84d1031ff8587a0d007792faf1302d5e266353a642dde62b"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/S5T01_S3_frame_event_design.md",
       "sha256": "de39399df93155816f94a21438db74b4fc8fadd2cd2de7546dcb54b66ae8b856"
     },
@@ -226,10 +286,14 @@
     "exit_code": 0,
     "decision": "GO",
     "hardware_state": "RELEASED",
-    "log": "console/real_gate_postfix.txt",
-    "caveat": "放行效力待独立复审（re-review PENDING）；不得据此单独放行真实硬件"
+    "log": "console/real_gate_postfix3.txt"
   },
   "tool_hashes_postfix": {
     "log": "console/tool_hashes_postfix.txt"
+  },
+  "tool_hashes_final": {
+    "check_hardware_gate.py": "6f46ab22d3d1a8eb4cd6680bbfe27646faa15bad0d95508b32a98975ab3ad894",
+    "test_hardware_gate.py": "9218814c5eb96ceafe2630f6aef1ad5482ef646550d350df3f11aa221e931422",
+    "hardware_handoff_registry.json": "d21fbfabf6275c44e3041f63ff031985a472692f282e829e3065ceec76db8120"
   }
 }

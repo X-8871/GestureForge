@@ -89,18 +89,39 @@ def load_registry(path: pathlib.Path) -> tuple[dict, list[str]]:
     return data, problems
 
 
-def scan_mailboxes(roots: list[pathlib.Path]) -> dict[str, pathlib.Path]:
-    found: dict[str, pathlib.Path] = {}
+def scan_mailboxes(roots: list[pathlib.Path]) -> list[pathlib.Path]:
+    """返回全部信箱 MD 的**列表**（不按 basename 去重）。
+
+    第三轮复审发现的既有 fail-open：原先以 basename 为键，两信箱同名文件会互相覆盖，
+    被覆盖的一方**永不解析**（真实占用可被同名普通记录遮蔽）。改为列表后两份都参与判定。
+    """
+    found: list[pathlib.Path] = []
     for root in roots:
         if not root.is_dir():
             continue
         for path in sorted(root.glob("*.md")):
-            found[path.name] = path
+            found.append(path)
     return found
 
 
-def validate_registry(registry: dict, files: dict[str, pathlib.Path]) -> tuple[list[str], list[dict]]:
-    """BI-1：登记项 schema 强校验。任何不一致 → 返回问题（调用方置 BLOCKED），不再静默退化。"""
+def normalize_file_entry(name: str) -> tuple[str, str]:
+    """把登记表的 `file` 规范化为 (root/basename, basename)。
+
+    BI-1 残余修复：**validate 与 classify 必须共用同一规范化结果**，否则
+    `codex_mailbox\\X.md`（反斜杠）或裸名 `X.md` 会让 validate 通过、classify 匹配不到，
+    使状态类登记项被静默丢弃（fail-open）。接受 `/` 与 `\\`，返回统一以 `/` 分隔的键。
+    """
+    s = str(name or "").replace("\\", "/").strip()
+    parts = [p for p in s.split("/") if p]
+    if not parts:
+        return "", ""
+    base = parts[-1]
+    root = parts[-2] if len(parts) >= 2 else ""
+    return (f"{root}/{base}" if root else base), base
+
+
+def validate_registry(registry: dict, files: list[pathlib.Path]) -> tuple[list[str], list[dict]]:
+    """BI-1：登记项 schema 强校验（含 file 身份归一化）。任何不一致 → BLOCKED。"""
     problems: list[str] = []
     records = registry.get("records")
     if not isinstance(records, list):
@@ -108,24 +129,26 @@ def validate_registry(registry: dict, files: dict[str, pathlib.Path]) -> tuple[l
     state_kinds = set(registry.get("state_changing_kinds", []))
     neutral_kinds = set(registry.get("neutral_kinds", []))
     allowed = state_kinds | neutral_kinds
-    seen: set[str] = set()
+    # 实际扫描集合：规范化键（root/basename）→ path（列表输入，同名不同根各自独立）
+    actual = {f"{p.parent.name}/{p.name}": p for p in files}
+    seen_basenames: dict[str, int] = {}
     for idx, rec in enumerate(records):
         name = rec.get("file")
         if not name:
             problems.append(f"登记项#{idx} 缺 file 字段")
             continue
-        parts = str(name).replace("\\", "/").split("/")
-        base = parts[-1]
-        root_hint = parts[0] if len(parts) > 1 else None
-        if base not in files:
-            problems.append(f"登记项指向的信箱文件缺席：{name}（不得靠删除/改名登记文件放行）")
+        key, base = normalize_file_entry(name)
+        if not base:
+            problems.append(f"登记项#{idx} 的 file 为空或不可解析：{name!r}")
             continue
-        actual_root = files[base].parent.name
-        if root_hint is not None and root_hint != actual_root:
-            problems.append(f"登记项目录前缀不匹配：{name} 实际位于 {actual_root}/（可能绑定到另一信箱同名文件）")
-        if name in seen:
-            problems.append(f"同一文件重复登记：{name}（后者可遮蔽前者状态）")
-        seen.add(name)
+        if "/" not in key:
+            problems.append(f"登记项缺少信箱目录前缀（裸文件名不可作为身份）：{name}（规范化={key}）")
+        if key not in actual:
+            problems.append(f"登记项指向的信箱文件缺席：{name}（规范化键={key}；不得靠删除/改名登记文件放行）")
+            continue
+        if base in seen_basenames:
+            problems.append(f"同一文件重复登记（按 basename 判定）：{name} 与第 {seen_basenames[base] + 1} 条")
+        seen_basenames.setdefault(base, idx)
         kind = rec.get("kind")
         if kind not in allowed:
             problems.append(f"登记项 kind 非法或拼写错误：{name} kind={kind!r}")
@@ -133,31 +156,37 @@ def validate_registry(registry: dict, files: dict[str, pathlib.Path]) -> tuple[l
         if not rec.get("sha256"):
             problems.append(f"登记项缺 sha256：{name}（不得跳过绑定）")
         else:
-            actual = sha256_file(files[base])
-            if str(rec["sha256"]).lower() != actual.lower():
+            actual_sha = sha256_file(actual[key])
+            if str(rec["sha256"]).lower() != actual_sha.lower():
                 problems.append(f"登记项哈希不匹配（证据矛盾）：{name} "
-                                f"登记={str(rec['sha256'])[:12]}… 实际={actual[:12]}…")
+                                f"登记={str(rec['sha256'])[:12]}… 实际={actual_sha[:12]}…")
         if kind in state_kinds and not rec.get("order_key"):
             problems.append(f"状态类登记项缺 order_key：{name}")
         quote = rec.get("evidence_quote")
         if quote:
-            text = files[base].read_text(encoding="utf-8", errors="replace")
+            text = actual[key].read_text(encoding="utf-8", errors="replace")
             if quote not in text:
                 problems.append(f"登记项证据原文不匹配（证据矛盾）：{name} 未找到引用原文 {quote!r}")
     return problems, records
 
 
-def classify(files: dict[str, pathlib.Path], registry: dict) -> tuple[list[dict], list[dict], list[str]]:
+def classify(files: list[pathlib.Path], registry: dict) -> tuple[list[dict], list[dict], list[str]]:
     """返回 (状态类记录, 中性记录, 问题)。"""
     problems: list[str] = []
-    by_name = {rec.get("file", "").split("/")[-1]: rec for rec in registry.get("records", [])}
+    by_key: dict[str, dict] = {}
+    for rec in registry.get("records", []):
+        key, base = normalize_file_entry(rec.get("file", ""))
+        if base:
+            by_key[key] = rec
     state_records: list[dict] = []
     neutral: list[dict] = []
     scopes = registry.get("state_changing_kinds", ["hardware_occupation", "hardware_release"])
 
-    for name, path in files.items():
+    for path in files:
+        name = path.name
+        key = f"{path.parent.name}/{name}"
         text = path.read_text(encoding="utf-8", errors="replace")
-        rec = by_name.get(name)
+        rec = by_key.get(key)
         if rec is None:
             hinted_name = bool(HANDOFF_HINT.search(name))
             marker = DECL_MARKER.search(text)
@@ -182,7 +211,7 @@ def classify(files: dict[str, pathlib.Path], registry: dict) -> tuple[list[dict]
         quote = rec.get("evidence_quote")
         if quote and quote not in text:
             problems.append(f"登记项证据原文不匹配（证据矛盾）：{name} 未找到引用原文 {quote!r}")
-        entry = {"file": name, "id": rec.get("id"), "kind": kind, "order_key": rec.get("order_key"),
+        entry = {"file": name, "key": key, "id": rec.get("id"), "kind": kind, "order_key": rec.get("order_key"),
                  "hardware_scope": rec.get("hardware_scope"), "issuer": rec.get("issuer"),
                  "sha256_actual": actual, "sha256_registered": rec.get("sha256"),
                  "note": rec.get("note")}
@@ -275,6 +304,16 @@ def main() -> int:
     if dup_keys:
         reasons.append(f"状态类 order_key 重复（排序歧义）：{sorted(dup_keys)}")
 
+    # BI-1 残余条件③：每条状态类登记项都必须**真正被应用**（否则等于被静默丢弃）
+    applied_keys = {r.get("key") for r in state_records}
+    state_kinds_all = set(registry.get("state_changing_kinds", []))
+    for rec in registry.get("records", []):
+        if rec.get("kind") in state_kinds_all:
+            rkey, _ = normalize_file_entry(rec.get("file", ""))
+            if rkey not in applied_keys:
+                reasons.append(f"状态类登记项未被应用（身份/前缀不一致，等同静默丢弃）："
+                               f"{rec.get('file')}（规范化={rkey}）")
+
     state, release, occupation = effective_state(state_records, args.scope)
 
     # 锁
@@ -357,7 +396,7 @@ def main() -> int:
             reasons.append(f"无法确定 {args.scope} 硬件状态（无登记的状态类记录）且无有效授权")
         else:
             authorization_ownership_unverifiable = True
-    if release_basis is None:
+    if release_basis is None and state != "OCCUPIED":
         if release is None:
             reasons.append(f"登记表未发现适用于 {args.scope} 的让出记录，且无有效授权")
         else:
@@ -384,7 +423,7 @@ def main() -> int:
         "latest_occupation": occupation,
         "registry": {"path": str(registry_path), "sha256": sha256_file(registry_path) if registry_path.exists() else None,
                      "records_total": len(registry.get("records", []))},
-        "mailbox_files_scanned": sorted(files.keys()),
+        "mailbox_files_scanned": sorted(f"{p.parent.name}/{p.name}" for p in files),
         "state_records": state_records,
         "neutral_records": neutral,
         "unregistered_neutral_files": [r.get("file") for r in neutral

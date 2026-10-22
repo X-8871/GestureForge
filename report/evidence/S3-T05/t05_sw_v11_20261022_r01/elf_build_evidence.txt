@@ -1,0 +1,67 @@
+# S3-T05-SW7 v11 证据：取帧 ELF 的编译行 / 哈希 / 无写测试 / 结构证据（2026-10-22 11:41:00 +0800）
+# 构建方式：**只用 make**（未运行 sdtgen/HSI、未运行 Vivado 综合/实现）；cp=/usr/bin/cp  make=/d/Xilinx/2026.1/Vitis/gnuwin/bin/make  gcc=/d/Xilinx/2026.1/Vitis/gnu/aarch32/nt/gcc-arm-none-eabi/bin/arm-none-eabi-gcc
+#   BSP/链接脚本复用既有构建树（同一 SOF 修复 XSA 1f5b138e...cb0e3，构建时校验哈希）。
+
+## 1) 编译行（原文，取自 make_only_build.log；不带任何 -D → 所有写开关默认 0）
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+
+## 2) ELF SHA-256 与字节数
+c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4 */d/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v11/elf_build/app/an5642_j11cmos2_v11_freeze.elf
+    bytes=310368
+    patched display_demo.c sha256: d921b5b3717e2d8e243f837de6bc000402e0f4a07a23a6b0c7f0067a6840e4c0
+
+## 3) 无写测试证据（保留的只读/OFF 行应=1，写测试路径应=0）
+保留的只读/OFF 行：
+    S3_DIAG6_TESTPATTERN=OFF                       1
+    S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)        1
+    S3_DIAG8_WB=OFF (auto AWB unchanged)           1
+    S3_DIAG9_ORDER=OFF (0x4745 unchanged)          1
+    S3_DIAG10_GRAY_NOTE=TRY0_read_only_no_write    1
+    S3_DIAG9_PAD=3017=                             1
+    S3_DIAG11_HALT=1                               1
+    S3_DIAG11_HOLD t=                              1
+写测试路径（全部应为 0）：
+    S3_DIAG6_TESTPATTERN=ON                        0
+    S3_DIAG7_AWB_OFF=ON                            0
+    S3_DIAG8_WB=MANUAL                             0
+    S3_DIAG9_FIX=301D                              0
+    S3_DIAG9_ORDER=NOT_RESTORED                    0
+    S3_DIAG10_GRAY_SKIPPED                         0
+
+## 4) 结构证据（生成器自检 + 补丁原文）
+    VERIFY_HAS_D11_HELPER=True
+    VERIFY_HAS_D11_HALT_LINE=True
+    VERIFY_HAS_D11_HOLD_LINE=True
+    VERIFY_HAS_D11_HOLD_DONE=True
+    VERIFY_HAS_D11_CR_WRITE=True
+    VERIFY_HAS_D11_RS_CLEAR=True
+    VERIFY_HAS_D11_CR_READBACK=True
+    VERIFY_D11_INV_COUNT=2
+    VERIFY_HAS_D11_3SAMPLES=True
+    VERIFY_NO_D11_5SAMPLES=True
+    VERIFY_HAS_D11_HOLD8=True
+    VERIFY_HAS_D11_HOLD30=True
+    VERIFY_HAS_D11_SENS_READONLY=True
+    VERIFY_NO_D11_WRITE_TESTS=True
+    补丁里的关键实现行：
+      589:+		for (s3_k = 0; s3_k < 3; s3_k++) {
+      624:+		Xil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES);
+      627:+			s3_11_crb & ~((u32)XAXIVDMA_CR_RUNSTOP_MASK));
+      630:+		Xil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES);
+      641:+			for (s3_11_h = 0; s3_11_h < 8; s3_11_h++) {
+      644:+				for (s3_11_w = 0; s3_11_w < 30; s3_11_w++) { sleep(1); }
+
+## 5) 出处与中间哈希（构建日志摘录）
+    EFFECTIVE_COMMAND=bash tmp/s3r06/t04_j11cmos2_elf_v11/make_only_build.sh  (make only; no sdtgen/HSI, no Vivado)
+      staged XSA sha256:               1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3
+      XSA expected:                    1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3
+      BSP libxil.a bytes:              1658648
+      lscript.ld sha256:               7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a
+      pristine display_demo.c sha256:  1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985
+      git apply -p1 -> exit 0
+      patched display_demo.c sha256:   d921b5b3717e2d8e243f837de6bc000402e0f4a07a23a6b0c7f0067a6840e4c0
+      make -> exit 0
+
+## 6) 补丁与生成器 SHA-256
+2e6428acffbc1ec9c905abf7f6838ab3d40e91665ae3bf7171317185f6f48537 */d/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v11.patch
+ff97c0a2a2a6940d906c62edb2f270c34d6136e724e15d6ead39a072afff94c2 */d/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py

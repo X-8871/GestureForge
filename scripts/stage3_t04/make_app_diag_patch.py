@@ -1,6 +1,6 @@
 """生成 S3-T04/S3-T05 应用诊断补丁：只给厂商摄像头应用加 UART 诊断打印，不改任何寄存器时序与配置。
 
-用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8|v9|v10]
+用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8|v9|v10|v11]
 
 变体（默认 v5）：
   v4 = 延时启动 + FB 回读（历史补丁 s3_t04_app_diag_v4.patch，仍可逐字节复现）
@@ -23,11 +23,15 @@
   v10 = v9 + 传感器端去色（黑白）尝试：编译期 S3_GRAY_TRY=0/1/2/3
         （0=只回读不写；1=0x5583=0x5584=0x00 置 U/V 饱和度 0；2=0x5580 效果位 (rb&~0xC0)|0x40；
          3=(rb&~0xC0)|0x80），统一打印 before/after/readback，读失败跳过写入
+  v11 = v10 + 取帧应用（供整帧导出）：指纹只做 3 次（t≈5/10/15 s），t≈20 s **停 S2MM**
+        （清 S2MM_CR 的 RUN/STOP 位，停前/停后各做一次帧缓冲 cache 失效，打印
+        S3_DIAG11_HALT=...），随后保持静止 240 s、每 30 s 一次 S3_DIAG11_HOLD 心跳；
+        **不做任何寄存器写测试**（所有写开关保持默认 0）
 
 做四件事：
 1) 从官方源复制一份应用目录到 scratch；
 2) 在 main() 关键节点插入 S3_DIAG 打印；
-3) 按变体追加 v5/v6/v7/v8/v9/v10 内容；
+3) 按变体追加 v5/v6/v7/v8/v9/v10/v11 内容；
 4) 用 git diff --no-index 生成 unified diff，并对全新副本验证补丁可干净应用。
 
 只改 display_demo.c；输出补丁不进 Git 之外的地方。
@@ -44,7 +48,7 @@ OUT_PATCH = Path(sys.argv[2]).resolve()
 SCRATCH = Path(sys.argv[3])
 # 变体选择：默认 v5（最新诊断补丁）；v4 仍可显式指定以逐字节复现历史补丁。
 VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v5"
-if VARIANT not in ("v4", "v5", "v6", "v7", "v8", "v9", "v10"):
+if VARIANT not in ("v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"):
     print(f"UNKNOWN_VARIANT: {VARIANT}")
     sys.exit(2)
 
@@ -809,19 +813,127 @@ if V9_WRITE_INIT_NEW.count(_V7_WRITE_INIT_ANCHOR) != 1:
 # → 顺序：测试图 → AWB 关 → 手动增益 → 端口 select → 输出顺序 → 去色 → 等待 → 启动 S2MM
 V10_WRITE_INIT_NEW = V9_WRITE_INIT_NEW.replace(_V7_WRITE_INIT_ANCHOR, V10_GRAY_BLOCK + _V7_WRITE_INIT_ANCHOR)
 
-# S3_DIAG5_SENS 打印块（v5~v10 共用）的结尾：v7 起在其后追加 AWB 回读块
+# ---------------------------------------------------------------------------
+# v11 变体追加内容（只在 VARIANT == "v11" 时生效；v4~v10 输出保持不变）
+# v11 = v10 + 取帧应用：指纹 3 次（t≈5/10/15 s）后 t≈20 s 停 S2MM，保持静止 240 s
+# ---------------------------------------------------------------------------
+V11_HELPERS = (
+    "/* ================= S3-DIAG11 取帧应用：停 S2MM、保持静止 240 s =================\n"
+    " * 目的：整帧经 JTAG 慢读期间 VDMA 仍在写新帧，会把多帧拼成撕裂帧（已实测到）。\n"
+    " *   本变体在 t≈20 s 把 S2MM 停住（清 S2MM_CR 的 RUN/STOP 位，保持其他位），\n"
+    " *   停前/停后各做一次帧缓冲 cache 失效，之后保持静止 240 s（每 30 s 一次心跳），\n"
+    " *   供外部（JTAG/调试器）做干净的整帧导出。\n"
+    " * 帧缓冲范围：720 行 × 3840 字节 = 2,764,800 = 0x2A3000（起点取 dispCtrl.framePtr[curFrame]，\n"
+    " *   预期 0x00110C00，运行时会打印实际值）。\n"
+    " * 本变体**不做任何寄存器写测试**：v6 测试图、v7 AWB、v8 手动增益、v9 端口/输出顺序、\n"
+    " *   v10 去色等开关全部保持默认 0（只打印各自的 OFF/TRY=0 行）。*/\n"
+    "#ifndef S3_DIAG11_FB_BYTES\n"
+    "#define S3_DIAG11_FB_BYTES (720 * 3840)\n"
+    "#endif\n"
+    "\n"
+)
+
+# v11 替换掉 v6 的“5 次指纹 + t≈30 s 传感器回读”采样段：改成 3 次（t≈5/10/15 s）+ 传感器回读 + 停 S2MM。
+# 直接从 V10_WRITE_INIT_NEW 里按锚点切出这一段，避免手抄出错（若锚点缺失就报错退出）。
+_V11_SAMP_START_ANCHOR = "\t/* S3-DIAG6: 启动后 t≈5/10/15/20/25 秒各做一次 64 KB×3 区指纹"
+_V11_SAMP_END_ANCHOR = "\txil_printf(\"S3_DIAG6_SAMPLING_DONE\\r\\n\");\n"
+if V10_WRITE_INIT_NEW.count(_V11_SAMP_START_ANCHOR) != 1 or V10_WRITE_INIT_NEW.count(_V11_SAMP_END_ANCHOR) != 1:
+    print("V11_SAMPLING_ANCHOR_NOT_UNIQUE")
+    sys.exit(2)
+_V11_I = V10_WRITE_INIT_NEW.index(_V11_SAMP_START_ANCHOR)
+_V11_J = V10_WRITE_INIT_NEW.index(_V11_SAMP_END_ANCHOR, _V11_I) + len(_V11_SAMP_END_ANCHOR)
+V11_SAMPLING_OLD = V10_WRITE_INIT_NEW[_V11_I:_V11_J]
+
+V11_SAMPLING_NEW = (
+    "\t/* S3-DIAG11 取帧应用：先做 3 次 64 KB×3 区指纹（t≈5/10/15 s）确认帧在动，\n"
+    "\t * 然后 t≈20 s 停 S2MM 让帧缓冲静止，之后保持 240 s 供整帧导出。*/\n"
+    "\txil_printf(\"S3_DIAG6_ALGO=sum32+crc32(0xEDB88320) bytes=65536 sites=0x000000,0x080000,0x100000\\r\\n\");\n"
+    "\ts3_diag5_regs(0);\n"
+    "\tXTime_GetTime(&s3_t6_start);\n"
+    "\t{\n"
+    "\t\tint s3_k, s3_s;\n"
+    "\t\tfor (s3_k = 0; s3_k < 3; s3_k++) {\n"
+    "\t\t\tu32 s3_tsec;\n"
+    "\t\t\tfor (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }\n"
+    "\t\t\tXTime_GetTime(&s3_t6_now);\n"
+    "\t\t\ts3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\t\txil_printf(\"S3_DIAG6_SAMPLE=%d\\r\\n\", s3_k + 1);\n"
+    "\t\t\ts3_diag6_sr(s3_tsec);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 0, 0x000000U);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 1, 0x080000U);\n"
+    "\t\t\ts3_diag6_fp(s3_tsec, 2, 0x100000U);\n"
+    "\t\t}\n"
+    "\t\t/* t≈15 s 处再做一次只读传感器回读（保留 v6 的 S3_DIAG6_SENS 行；只读，不写寄存器）*/\n"
+    "\t\t{\n"
+    "\t\t\tu32 s3_tsec;\n"
+    "\t\t\tu8 s3_s6_4202, s3_s6_3008, s3_s6_503d, s3_s6_3035;\n"
+    "\t\t\tXTime_GetTime(&s3_t6_now);\n"
+    "\t\t\ts3_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\t\ts3_s6_4202 = s3_diag5_sens(0x4202);\n"
+    "\t\t\ts3_s6_3008 = s3_diag5_sens(0x3008);\n"
+    "\t\t\ts3_s6_503d = s3_diag5_sens(0x503D);\n"
+    "\t\t\ts3_s6_3035 = s3_diag5_sens(0x3035);\n"
+    "\t\t\txil_printf(\"S3_DIAG6_SENS=4202=0x%02X 3008=0x%02X 503D=0x%02X 3035=0x%02X t=%u\\r\\n\",\n"
+    "\t\t\t\ts3_s6_4202, s3_s6_3008, s3_s6_503d, s3_s6_3035, s3_tsec);\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG6_SAMPLING_DONE\\r\\n\");\n"
+    "\t\t/* 等到 t≈20 s（3 次采样约到 15 s，再等 5 秒）*/\n"
+    "\t\tfor (s3_s = 0; s3_s < 5; s3_s++) { sleep(1); }\n"
+    "\t}\n"
+    "\t/* ---- S3-DIAG11: t≈20 s 停止 S2MM，让帧缓冲静止，供 JTAG 整帧导出 ---- */\n"
+    "\t{\n"
+    "\t\tu32 s3_11_crb, s3_11_cra, s3_11_sr, s3_11_frame0, s3_11_stride, s3_11_tsec;\n"
+    "\t\tu8 *s3_11_fb = (u8 *)dispCtrl.framePtr[dispCtrl.curFrame];\n"
+    "\t\tXTime_GetTime(&s3_t6_now);\n"
+    "\t\ts3_11_tsec = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\t/* 停住前：先失效帧缓冲 cache 范围（读前必须失效，否则可能读到陈旧 cache 行）*/\n"
+    "\t\tXil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES);\n"
+    "\t\ts3_11_crb = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);\n"
+    "\t\tXAxiVdma_WriteReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET,\n"
+    "\t\t\ts3_11_crb & ~((u32)XAXIVDMA_CR_RUNSTOP_MASK));\n"
+    "\t\ts3_11_cra = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);\n"
+    "\t\t/* 停住后再失效一次：确保后续读到的就是 DDR 里的静止内容 */\n"
+    "\t\tXil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES);\n"
+    "\t\ts3_11_sr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);\n"
+    "\t\ts3_11_frame0 = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x0CU);\n"
+    "\t\ts3_11_stride = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_S2MM_ADDR_OFFSET + 0x08U);\n"
+    "\t\txil_printf(\"S3_DIAG11_HALT=1 CR_before=0x%08X CR_after=0x%08X SR=0x%08X HALTED_bit=%d FRAME0=0x%08X STRIDE=0x%08X FB=0x%08X FB_BYTES=0x%08X t=%u\\r\\n\",\n"
+    "\t\t\ts3_11_crb, s3_11_cra, s3_11_sr,\n"
+    "\t\t\t(s3_11_sr & ((u32)XAXIVDMA_SR_HALTED_MASK)) ? 1 : 0,\n"
+    "\t\t\ts3_11_frame0, s3_11_stride, (u32)(UINTPTR)s3_11_fb, (u32)S3_DIAG11_FB_BYTES, s3_11_tsec);\n"
+    "\t\t/* 保持静止 240 s：每 30 s 一次心跳（8 次），期间不再写任何寄存器 */\n"
+    "\t\t{\n"
+    "\t\t\tint s3_11_h;\n"
+    "\t\t\tfor (s3_11_h = 0; s3_11_h < 8; s3_11_h++) {\n"
+    "\t\t\t\tu32 s3_11_ts;\n"
+    "\t\t\t\tint s3_11_w;\n"
+    "\t\t\t\tfor (s3_11_w = 0; s3_11_w < 30; s3_11_w++) { sleep(1); }\n"
+    "\t\t\t\tXTime_GetTime(&s3_t6_now);\n"
+    "\t\t\t\ts3_11_ts = (u32)((s3_t6_now - s3_t6_start) / COUNTS_PER_SECOND);\n"
+    "\t\t\t\ts3_11_sr = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);\n"
+    "\t\t\t\txil_printf(\"S3_DIAG11_HOLD t=%u SR=0x%08X HALTED_bit=%d\\r\\n\",\n"
+    "\t\t\t\t\ts3_11_ts, s3_11_sr, (s3_11_sr & ((u32)XAXIVDMA_SR_HALTED_MASK)) ? 1 : 0);\n"
+    "\t\t\t}\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG11_HOLD_DONE holds=8 seconds=240 frozen=1\\r\\n\");\n"
+    "\t}\n"
+)
+
+V11_WRITE_INIT_NEW = V10_WRITE_INIT_NEW[:_V11_I] + V11_SAMPLING_NEW + V10_WRITE_INIT_NEW[_V11_J:]
+
+# S3_DIAG5_SENS 打印块（v5~v11 共用）的结尾：v7 起在其后追加 AWB 回读块
 V5_SENS_ARGS_TAIL = (
     "\t\t\ts3_4202, s3_3008, s3_4740, s3_3035v, s3_3034v, s3_4300v, s3_501fv, s3_3824v, s3_503dv);\n"
     "\t}\n"
 )
-# S3_DIAG7_ISP_B 打印块（v7~v10 共用）的结尾：v9 起在其后追加 DVP 端口回读块
+# S3_DIAG7_ISP_B 打印块（v7~v11 共用）的结尾：v9 起在其后追加 DVP 端口回读块
 V7_ISP_B_TAIL = (
     "\t\txil_printf(\"S3_DIAG7_ISP_B=5586..558B=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\\r\\n\",\n"
     "\t\t\ts3_5586, s3_5587, s3_5588, s3_5589, s3_558a, s3_558b);\n"
     "\t}\n"
 )
 
-if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
     # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；各变体用各自的采样段）
     write_init_new = {
         "v5": V5_WRITE_INIT_NEW,
@@ -830,6 +942,7 @@ if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10"):
         "v8": V8_WRITE_INIT_NEW,
         "v9": V9_WRITE_INIT_NEW,
         "v10": V10_WRITE_INIT_NEW,
+        "v11": V11_WRITE_INIT_NEW,
     }[VARIANT]
     insertions = [
         (old, write_init_new) if old.startswith("\tvdma_write_init(") else (old, new)
@@ -841,28 +954,32 @@ if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10"):
         (V5_DIAG3_OLD, V5_DIAG3_NEW),
         (V5_RETURN_OLD, V5_RETURN_NEW),
     ]
-    if VARIANT in ("v6", "v7", "v8", "v9", "v10"):
+    if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11"):
         insertions += [
             (V6_INCLUDE_OLD, V6_INCLUDE_NEW),
             ("int main(void)\n{", V6_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT in ("v7", "v8", "v9", "v10"):
+    if VARIANT in ("v7", "v8", "v9", "v10", "v11"):
         insertions += [
             ("int main(void)\n{", V7_HELPERS + "int main(void)\n{"),
             (V5_SENS_ARGS_TAIL, V5_SENS_ARGS_TAIL + V7_AWB_READBACK),
         ]
-    if VARIANT in ("v8", "v9", "v10"):
+    if VARIANT in ("v8", "v9", "v10", "v11"):
         insertions += [
             ("int main(void)\n{", V8_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT in ("v9", "v10"):
+    if VARIANT in ("v9", "v10", "v11"):
         insertions += [
             ("int main(void)\n{", V9_HELPERS + "int main(void)\n{"),
             (V7_ISP_B_TAIL, V7_ISP_B_TAIL + V9_PAD_READBACK),
         ]
-    if VARIANT == "v10":
+    if VARIANT in ("v10", "v11"):
         insertions += [
             ("int main(void)\n{", V10_HELPERS + "int main(void)\n{"),
+        ]
+    if VARIANT == "v11":
+        insertions += [
+            ("int main(void)\n{", V11_HELPERS + "int main(void)\n{"),
         ]
 
 for old, new in insertions:
@@ -923,7 +1040,7 @@ print(f"VERIFY_HAS_APP_ENTER={'S3_DIAG_APP_ENTER' in verify_text}")
 print(f"VERIFY_HAS_SENSOR_ID={'S3_DIAG_SENSOR_ID' in verify_text}")
 print(f"VERIFY_HAS_DISPLAY_START={'S3_DIAG_DISPLAY_START' in verify_text}")
 print(f"VERIFY_HAS_VDMA_WRITE={'S3_DIAG_VDMA_WRITE_STARTED' in verify_text}")
-if VARIANT in ("v5", "v6", "v7", "v8", "v9"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D5_REG={'S3_DIAG5_REG' in verify_text}")
     print(f"VERIFY_HAS_D5_SR_DECODE={'S3_DIAG5_SR_DECODE' in verify_text}")
     print(f"VERIFY_HAS_D5_CFG={'S3_DIAG5_CFG' in verify_text}")
@@ -936,7 +1053,7 @@ if VARIANT == "v5":
     print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
     print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
     print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
-if VARIANT in ("v6", "v7", "v8", "v9", "v10"):
+if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D6_ALGO={'S3_DIAG6_ALGO=sum32+crc32(0xEDB88320)' in verify_text}")
     print(f"VERIFY_HAS_D6_FP={'S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u' in verify_text}")
     print(f"VERIFY_HAS_D6_SR={'S3_DIAG6_SR t=%u S2MM_SR=0x%08X' in verify_text}")
@@ -948,7 +1065,7 @@ if VARIANT in ("v6", "v7", "v8", "v9", "v10"):
     print(f"VERIFY_HAS_D6_INV64K={'Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES)' in verify_text}")
     print(f"VERIFY_HAS_XTIME={'#include \"xtime_l.h\"' in verify_text}")
     print(f"VERIFY_NO_D5_SAMPLING={'S3_DIAG5_SAMPLE=%d' not in verify_text}")
-if VARIANT in ("v7", "v8", "v9", "v10"):
+if VARIANT in ("v7", "v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D7_AWB={'S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AE={'S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_ISP_A={'S3_DIAG7_ISP_A=5580..5585=' in verify_text}")
@@ -959,7 +1076,7 @@ if VARIANT in ("v7", "v8", "v9", "v10"):
     print(f"VERIFY_HAS_D7_AWB_OFF_OFFLINE={'S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_VERIFY={'S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_SKIP={'S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed' in verify_text}")
-if VARIANT in ("v8", "v9", "v10"):
+if VARIANT in ("v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D8_SWITCH={'#if S3_WB_MANUAL' in verify_text and '#define S3_WB_MANUAL 0' in verify_text}")
     print(f"VERIFY_HAS_D8_DEFAULTS={'#define S3_WB_R 1024' in verify_text and '#define S3_WB_G 1024' in verify_text and '#define S3_WB_B 1024' in verify_text}")
     print(f"VERIFY_HAS_D8_3406_ENABLE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x3406, 0x01)' in verify_text}")
@@ -967,7 +1084,7 @@ if VARIANT in ("v8", "v9", "v10"):
     print(f"VERIFY_HAS_D8_WB_LINE={'S3_DIAG8_WB=MANUAL R=0x%04X G=0x%04X B=0x%04X before3406=0x%02X after3406=0x%02X readback3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_RB_LINE={'S3_DIAG8_WB_RB rb_r16=0x%04X rb_g16=0x%04X rb_b16=0x%04X match=%u,%u,%u write_status=%d' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_OFFLINE={'S3_DIAG8_WB=OFF (auto AWB unchanged)' in verify_text}")
-if VARIANT in ("v9", "v10"):
+if VARIANT in ("v9", "v10", "v11"):
     print(f"VERIFY_HAS_D9_PAD_LINE={'S3_DIAG9_PAD=3017=0x%02X 3018=0x%02X 301D=0x%02X 301E=0x%02X 300A=0x%02X 300B=0x%02X 4741=0x%02X 4745=0x%02X 4300=0x%02X 501F=0x%02X S3_DIAG9_D9SEL=%u D6SEL=%u' in verify_text}")
     print(f"VERIFY_HAS_D9_SWITCHES={'#ifndef S3_PAD_SEL_CLEAR' in verify_text and '#define S3_PAD_SEL_CLEAR 0' in verify_text and '#ifndef S3_DVP_ORDER_DEBUG' in verify_text and '#define S3_DVP_ORDER_DEBUG 0' in verify_text}")
     print(f"VERIFY_HAS_D9_FIX_LINE={'S3_DIAG9_FIX=301D before=0x%02X after=0x%02X readback=0x%02X 301E before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
@@ -980,7 +1097,7 @@ if VARIANT in ("v9", "v10"):
     print(f"VERIFY_HAS_D9_ORDER_OFFLINE={'S3_DIAG9_ORDER=OFF (0x4745 unchanged)' in verify_text}")
     print(f"VERIFY_HAS_D9_NO_RESTORE_CODE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_before)' not in verify_text}")
     print(f"VERIFY_HAS_D9_D9SEL_UNKNOWN={'s3_9_d9 = 255U' in verify_text and 's3_9_d6 = 255U' in verify_text}")
-if VARIANT == "v10":
+if VARIANT in ("v10", "v11"):
     print(f"VERIFY_HAS_D10_SWITCH={'#ifndef S3_GRAY_TRY' in verify_text and '#define S3_GRAY_TRY 0' in verify_text}")
     print(f"VERIFY_HAS_D10_GRAY_LINE={'S3_DIAG10_GRAY=TRY=%d 5580 before=0x%02X after=0x%02X readback=0x%02X | 5583 before=0x%02X after=0x%02X readback=0x%02X | 5584 before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
     print(f"VERIFY_HAS_D10_NOTE_TRY0={'S3_DIAG10_GRAY_NOTE=TRY0_read_only_no_write' in verify_text}")
@@ -992,6 +1109,21 @@ if VARIANT == "v10":
     print(f"VERIFY_HAS_D10_WRITE_5580_40={'(s3_10_5580 & (u8)~0xC0U) | 0x40U' in verify_text}")
     print(f"VERIFY_HAS_D10_WRITE_5580_80={'(s3_10_5580 & (u8)~0xC0U) | 0x80U' in verify_text}")
     print(f"VERIFY_HAS_D10_SKIPS={'S3_DIAG10_GRAY_SKIPPED reg=5583' in verify_text and 'S3_DIAG10_GRAY_SKIPPED reg=5580' in verify_text}")
+if VARIANT == "v11":
+    print(f"VERIFY_HAS_D11_HELPER={'#define S3_DIAG11_FB_BYTES (720 * 3840)' in verify_text}")
+    print(f"VERIFY_HAS_D11_HALT_LINE={'S3_DIAG11_HALT=1 CR_before=0x%08X CR_after=0x%08X SR=0x%08X HALTED_bit=%d FRAME0=0x%08X STRIDE=0x%08X' in verify_text}")
+    print(f"VERIFY_HAS_D11_HOLD_LINE={'S3_DIAG11_HOLD t=%u SR=0x%08X' in verify_text}")
+    print(f"VERIFY_HAS_D11_HOLD_DONE={'S3_DIAG11_HOLD_DONE holds=8 seconds=240 frozen=1' in verify_text}")
+    print(f"VERIFY_HAS_D11_CR_WRITE={'XAxiVdma_WriteReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET,' in verify_text}")
+    print(f"VERIFY_HAS_D11_RS_CLEAR={'s3_11_crb & ~((u32)XAXIVDMA_CR_RUNSTOP_MASK)' in verify_text}")
+    print(f"VERIFY_HAS_D11_CR_READBACK={'s3_11_cra = XAxiVdma_ReadReg(XPAR_AXIVDMA_1_BASEADDR, XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET)' in verify_text}")
+    print(f"VERIFY_D11_INV_COUNT={verify_text.count('Xil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES)')}")
+    print(f"VERIFY_HAS_D11_3SAMPLES={'for (s3_k = 0; s3_k < 3; s3_k++)' in verify_text}")
+    print(f"VERIFY_NO_D11_5SAMPLES={'for (s3_k = 0; s3_k < 5; s3_k++)' not in verify_text}")
+    print(f"VERIFY_HAS_D11_HOLD8={'for (s3_11_h = 0; s3_11_h < 8; s3_11_h++)' in verify_text}")
+    print(f"VERIFY_HAS_D11_HOLD30={'for (s3_11_w = 0; s3_11_w < 30; s3_11_w++)' in verify_text}")
+    print(f"VERIFY_HAS_D11_SENS_READONLY={'S3_DIAG6_SENS=4202=0x%02X 3008=0x%02X 503D=0x%02X 3035=0x%02X t=%u' in verify_text}")
+    print(f"VERIFY_NO_D11_WRITE_TESTS={'#if S3_TESTPATTERN' in verify_text and '#if S3_AWB_OFF' in verify_text and '#if S3_WB_MANUAL' in verify_text and '#if S3_PAD_SEL_CLEAR' in verify_text and '#if S3_DVP_ORDER_DEBUG' in verify_text and '#if S3_GRAY_TRY == 1' in verify_text}")
 print(f"PATCH_LINES={len(diff.splitlines())}")
 print(f"PATCH_SHA256={hashlib.sha256(OUT_PATCH.read_bytes()).hexdigest()}")
 print(f"VERIFY_DISPLAY_DEMO_SHA256={hashlib.sha256((VERIFY / FILE).read_bytes()).hexdigest()}")

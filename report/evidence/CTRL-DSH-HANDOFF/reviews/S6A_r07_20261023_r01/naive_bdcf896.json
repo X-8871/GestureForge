@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_export_selfproof",
+  "task_id": "S6-A",
+  "rule": "任何冻结/交付提交必须自证：导出该提交后，自检 + inputs + evidence 三项检查全部 exit 0。",
+  "tool": "verification/export_selfproof.py",
+  "generated_at": "2026-10-23 03:32:45+0800",
+  "subjects": [
+    {
+      "label": "commit_bdcf896",
+      "newline_alignment": {
+        "aligned": 6,
+        "unresolved": [],
+        "note": "仅选择换行口径（LF/CRLF）；两者都不匹配即内容不同，保留原字节并登记",
+        "worktree_bytes": {
+          "aligned": 6,
+          "content_differs": []
+        }
+      },
+      "artifact_version": "S6A-G0-v1.6",
+      "run_id": "s6a_g0_20261022_r07",
+      "evidence_dir": "report/evidence/S6-A/s6a_g0_20261022_r07",
+      "evidence_dir_file_count": 39,
+      "state_declared_s6b_dir_files_in_commit": 40,
+      "checks": [
+        {
+          "name": "selfcheck（含 C11 清单/STATE）",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\verification\\s6_g0_selfcheck.py --json D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07\\hand_computed_cases.json --upstream D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07\\upstream_bindings.json --out D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896_selfcheck.json --project-root D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896 --evidence-dir D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07 --manifest D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07\\delivery_manifest.json --state D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\.codex\\STATE.md",
+          "exit_code": 1,
+          "stdout_tail": "{\"status\": \"FAILED\", \"errors\": [\"C11: 清单声明的源码/输入哈希不符：.codex/STATE.md\"], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C2\", \"name\": \"ID 唯一性与最小规模\", \"status\": \"PASS\", \"detail\": \"unique ok\"}, {\"id\": \"C3\", \"name\": \"文档↔JSON 标识集合双向一致\", \"status\": \"PASS\", \"detail\": \"10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致\"}, {\"id\": \"C4\", \"name\": \"待批准纪律\", \"status\": \"PASS\", \"detail\": \"24 项参数与指标 PENDING_APPROVAL\"}, {\"id\": \"C5\", \"name\": \"五类动作映射一致\", \"status\": \"PASS\", \"detail\": \"5 类映射一致，target 唯一\"}, {\"id\": \"C6\", \"name\": \"硬不变量与唯一触发解释\", \"status\": \"PASS\", \"detail\": \"H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一\"}, {\"id\": \"C7\", \"name\": \"人工手算样例独立复算\", \"status\": \"PASS\", \"detail\": \"32 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、HC-32 完成帧超出所给序列（序列不足以判定，F7））\"}, {\"id\": \"C8\", \"name\": \"上游只读文件哈希复算\", \"status\": \"PASS\", \"detail\": \"11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d)\"}, {\"id\": \"C9\", \"name\": \"文档必备覆盖与章节\", \"status\": \"PASS\", \"detail\": \"关键词与章节齐全\"}, {\"id\": \"C10\", \"name\": \"禁止声明扫描（窄口径）\", \"status\": \"PASS\", \"detail\": \"未发现禁止声明\"}, {\"id\": \"C11\", \"name\": \"证据清单/STATE 声明 vs 实际文件\", \"status\": \"FAIL\", \"detail\": \"清单声明的源码/输入哈希不符：.codex/STATE.md\"}, {\"id\": \"C12\", \"name\": \"谓词拆分一致性（B-05/R3-B01/R3-B02）\", \"status\": \"PASS\", \"detail\": \"谓词定义、引用、禁用标识符与全量双向绑定一致\"}, {\"id\": \"C13\", \"name\": \"冷却全局门一致性（B-03/H-10）\", \"status\": \"PASS\", \"detail\": \"全局门字段与引用一致\"}, {\"id\": \"C14\", \"name\": \"W_min/窗口完成口径（B-04/N-05/F1）\", \"status\": \"PASS\", \"detail\": \"W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致\"}, {\"id\": \"C15\", \"name\": \"H-4/NO_HAND 一致性（B-02）\", \"status\": \"PASS\", \"detail\": \"NO_HAND 不推进匹配计数、零框不得完成窗口\"}, {\"id\": \"C16\", \"name\": \"迁移可达性与覆盖声明（N-02/N-03）\", \"status\": \"PASS\", \"detail\": \"M4/M7 可达性声明与 B26/§12.1 覆盖一致\"}, {\"id\": \"C17\", \"name\": \"STABLE 锁存语义一致性（观察项）\", \"status\": \"PASS\", \"detail\": \"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认\"}]}",
+          "stderr_tail": ""
+        },
+        {
+          "name": "check_stage_delivery --mode inputs",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07\\inputs_manifest.json --project-root D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896",
+          "exit_code": 0,
+          "stdout_tail": "{\"status\":\"CHECKS_OK\",\"mode\":\"inputs\",\"task_id\":\"S6-A\",\"run_id\":\"s6a_g0_20261022_r07\",\"interfaces_not_applicable\":null,\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"输入文件 SHA-256 复算（构建器 --verify-inputs 实跑）\"}],\"errors\":[],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}",
+          "stderr_tail": ""
+        },
+        {
+          "name": "check_stage_delivery --mode evidence",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896\\report\\evidence\\S6-A\\s6a_g0_20261022_r07\\delivery_manifest.json --project-root D:\\tmp\\s6a_selfproof_bmloqgo2\\commit_bdcf896",
+          "exit_code": 2,
+          "stdout_tail": "{\"status\":\"CHECKS_FAILED\",\"mode\":\"evidence\",\"task_id\":\"S6-A\",\"run_id\":\"s6a_g0_20261022_r07\",\"interfaces_not_applicable\":null,\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）\",\"reason\":\"断言 = 本包快照 SELF_PROVEN 且恰好 1 个历史提交 NOT_SELF_PROVEN；实测 subjects={'commit 04ea58e1e363e956b8a46ae5711ec8aecb27bfd4': 'NOT_SELF_PROVEN', 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': 'SELF_PROVEN'}；工具总体判定 NOT_ALL_SELF_PROVEN（历史提交 FAIL 时工具退出码为 1，属预期）\"},{\"status\":\"PASS\",\"name\":\"S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）\"},{\"status\":\"PASS\",\"name\":\"check_stage_delivery.py --mode inputs\"},{\"status\":\"PASS\",\"name\":\"check_stage_delivery.py --mode evidence\"}],\"errors\":[\"files[2].path SHA-256 不匹配：清单 afd7cf83447432a585842b7945951d7509d64cfaf0e1b63f36ce6909c55eb968，实际 ec3f06e463f6f520992e13c696442ce4eadaf00175585bfc7fce7653099dfdd5\",\"files[3].path SHA-256 不匹配：清单 197a5fc9816688ddf5c3927aa1d9f7a13ef3858fe61a24271558c514707adfc0，实际 69e850852e9174155afe594ebbe4a1ce1b7e3b6ade49d7d21ab606ed6a05104d\",\"files[4].path SHA-256 不匹配：清单 7df3fc934497f5147c0f91a63d79ff39d18a92172d2f7cbd1a0a2b253929694b，实际 3d9862fe603223f067609c3e51d1909b75d666c106f947d460598f0bebce7194\",\"files[5].path SHA-256 不匹配：清单 cd9866ddf4b19acbc9030fc00408126a3b21f381406cf7aaa5c7a8ccefb0ccb9，实际 ed98d7d680b059e7c9c1e4f898734492508e26b9db7d8f523c38e2c2e7a44804\",\"files[6].path SHA-256 不匹配：清单 977e2104bcab6bcd265d479cb48e2a51a0c98673a2ded7a84a6ce7f21d6eac16，实际 71baa358953859c7e90738d6e94977888b9eebb8ff5d9d7ea1abecd294b8d234\",\"files[7].path SHA-256 不匹配：清单 3adc82786b3d15cab7ad41bc3d002789bdcbca9884cd689466013eccc190bc26，实际 7cba2d8ca17be4e9b154a92dca74ad35ed1393d9b6564e8c13f6e7cda2a3bd5e\"],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}",
+          "stderr_tail": ""
+        }
+      ],
+      "selfcheck_status": "FAILED",
+      "selfcheck_errors": [
+        "C11: 清单声明的源码/输入哈希不符：.codex/STATE.md"
+      ],
+      "verdict": "NOT_SELF_PROVEN",
+      "subject": "commit bdcf896",
+      "commit_tree": "a60158d566beea9d9e698c9f4a8621675490d7d5"
+    }
+  ],
+  "verdict": "NOT_ALL_SELF_PROVEN",
+  "scope_statement": "导出复跑只证明该提交的证据自足性与清单/STATE 一致性；不代表语义正确、独立审查或实物验收通过。",
+  "newline_note": "既有口径 O1：工作区 MD/JSON 为 CRLF、.py/STATE 为 LF，git blob 为 LF。本工具只对「内容与工作区一致、仅换行不同」的文件做换行口径对齐，内容真正不同的文件保留提交字节并由检查器如实报错；不对内容做任何修正。",
+  "work_dir_note": "每次运行的导出副本与自检结果落在系统临时目录，不写入被审工作树。"
+}

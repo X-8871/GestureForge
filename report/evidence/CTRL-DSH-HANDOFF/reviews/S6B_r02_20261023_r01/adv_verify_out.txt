@@ -1,0 +1,25 @@
+thresholds: {'c01_frames': 2, 's01_ns': 200000000, 's02_frames': 6, 's04_ns': 500000000, 'l01_frames': 5, 'l02_ns': 300000000, 'k01_ns': 1000000000, 'j01_frames': 1, 'p01': 0.35, 'p02': 0.3, 'p03': 0.3, 'p04': 0.15, 'p05': 0.05, 'u00_w': 3, 'u00_n': 3}
+
+=== 1) M4 自构造序列：6 帧低分（score<P02、几何连续）===
+transitions: []
+final_state: IDLE action_submitted: 0
+M4_REACHABLE_SELF_CONSTRUCTED: False
+
+=== 2) 同帧 M4/M10 竞争：先长时间停留（miss_streak 累积）再看谁先命中 ===
+transitions: [(2, 'M1', 'CANDIDATE'), (7, 'M4', 'IDLE')] final: IDLE
+
+=== 3) 证据包 C4-jitter-reset 日志中的 M4 ===
+  frame 2 -> M1 CANDIDATE | 连续 2 条窗口推进帧为同一目标（TARGET_CONTINUES）
+  frame 7 -> M4 IDLE | 抖动容忍耗尽且候选停留 ≥ T6-S04（M10 未命中）
+
+=== 4) acquisition_id 递增规则（C3 两次获取）===
+transitions: [(2, 'M1', 'CANDIDATE'), (6, 'M3', 'STABLE'), (7, 'M5', 'TRIGGERED'), (11, 'M10', 'LOST'), (12, 'M11', 'IDLE'), (14, 'M1', 'CANDIDATE'), (18, 'M3', 'STABLE'), (19, 'M5', 'TRIGGERED')]
+action requests: [{'frame': 7, 'acq': 0, 'action_type': 'A_SWITCH_UI', 'target_id': 'UI_MENU', 't_trigger_ns': 600000000}, {'frame': 19, 'acq': 0, 'action_type': 'A_SWITCH_UI', 'target_id': 'UI_MENU', 't_trigger_ns': 1800000000}]
+distinct acquisition_id over two acquisitions: [0]
+
+=== 4b) 目标切换后的 acquisition_id ===
+transitions: [(2, 'M1', 'CANDIDATE'), (9, 'M3', 'STABLE'), (10, 'M5', 'TRIGGERED')] requests: [{'frame': 10, 'acq': 1, 'action_type': 'A_SWITCH_UI', 'target_id': 'UI_STATS', 't_trigger_ns': 900000000}]
+
+=== 4c) M4 结束一次获取后重新获取的 acquisition_id ===
+transitions: [(2, 'M1', 'CANDIDATE'), (7, 'M4', 'IDLE'), (9, 'M1', 'CANDIDATE'), (13, 'M3', 'STABLE'), (14, 'M5', 'TRIGGERED')]
+requests: [{'frame': 14, 'acq': 0, 'action_type': 'A_SWITCH_UI', 'target_id': 'UI_MENU', 't_trigger_ns': 1300000000}]

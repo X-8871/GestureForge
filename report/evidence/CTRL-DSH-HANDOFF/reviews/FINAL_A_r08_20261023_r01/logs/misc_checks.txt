@@ -1,0 +1,92 @@
+
+============================================================================================
+A. claim_verify needle 判别力（忠实复算，去掉绝对路径守卫；文件 = 入库字节）
+============================================================================================
+   被扫文件数 = 11
+   needle 命中（无路径守卫）：
+   => 0 命中
+
+   反证：把出厂探针字面量注入后（同一套 needle / 同一批文件）
+     命中 = ['M4 不可达', '不得计入覆盖']
+
+============================================================================================
+B. 声明 vs 实际：r08 清单双向、STATE 声明文件/目录存在性
+============================================================================================
+   清单 files 条数: 48
+   运行目录内声明: 39
+   运行目录实际文件: 40
+   实际多出（未声明）: ['S6A_run_summary.md', 'check_evidence_mode_output.txt', 'check_inputs_mode_output.txt', 'claim_verification.json', 'claim_verification.md', 'coverage_matrix.json', 'delivery_manifest.json', 'fix_record.json', 'fix_record.md', 'hand_computed_cases.json', 'hashes_sha256.txt', 'inputs_manifest.json', 'limitations_not_executed.json', 'old_package_under_test.json', 'probe_b07_old_wording_stdout.txt', 'probe_b13_predicates_used_added_stdout.txt', 'probe_baseline_no_injection_stdout.txt', 'probe_case_out_of_sequence_index_stdout.txt', 'probe_case_span_wrong_stdout.txt', 'probe_case_timeout_frame_action_stdout.txt', 'probe_empty_predicates_used_stdout.txt', 'probe_historical_model_check_r05_stdout.txt', 'probe_historical_model_check_r06_stdout.txt', 'probe_m4_unreachable_phrase_stdout.txt', 'probe_m5_window_advance_removed_stdout.txt', 'probe_summary.json', 'r02_package_under_test.json', 'r03_package_under_test.json', 'r04_package_under_test.json', 'selfcheck_c11_stdout.txt', 'selfcheck_old_package_failure.json', 'selfcheck_old_package_failure_stdout.txt', 'selfcheck_r02_blk1_failure.json', 'selfcheck_r02_blk1_failure_stdout.txt', 'selfcheck_r03_failure.json', 'selfcheck_r03_failure_stdout.txt', 'selfcheck_r04_failure.json', 'selfcheck_r04_failure_stdout.txt', 'selfcheck_result.json', 'upstream_bindings.json']
+   声明缺失: ['report/evidence/S6-A/s6a_g0_20261022_r08/S6A_run_summary.md', 'report/evidence/S6-A/s6a_g0_20261022_r08/check_evidence_mode_output.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/check_inputs_mode_output.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/claim_verification.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/claim_verification.md', 'report/evidence/S6-A/s6a_g0_20261022_r08/coverage_matrix.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.md', 'report/evidence/S6-A/s6a_g0_20261022_r08/hand_computed_cases.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/hashes_sha256.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/inputs_manifest.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/old_package_under_test.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_b07_old_wording_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_b13_predicates_used_added_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_baseline_no_injection_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_out_of_sequence_index_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_span_wrong_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_timeout_frame_action_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_empty_predicates_used_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_historical_model_check_r05_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_historical_model_check_r06_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_m4_unreachable_phrase_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_m5_window_advance_removed_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/probe_summary.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/r02_package_under_test.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/r03_package_under_test.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/r04_package_under_test.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_c11_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_old_package_failure.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_old_package_failure_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r02_blk1_failure.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r02_blk1_failure_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r03_failure.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r03_failure_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r04_failure.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r04_failure_stdout.txt', 'report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_result.json', 'report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json']
+   外部绑定（前 12）: ['docs/stage6/S6A_stage6_g0_behavior_spec_v1.md', 'docs/stage6/s6a_stage6_g0_behavior_v1.json', 'verification/s6a_rerun_legacy_failures.py', 'verification/s6a_r08_probe.py', 'verification/claim_verify.py', 'verification/export_selfproof.py', 'verification/s6_g0_selfcheck.py', 'verification/s6a_build_evidence.py', '.codex/STATE.md']
+   全量：缺失 = [] ；哈希不符 = []
+   hashes_sha256.txt 条数: 38 ；不一致 = [('check_evidence_mode_output.txt', '哈希不符'), ('check_inputs_mode_output.txt', '哈希不符'), ('claim_verification.json', '哈希不符'), ('claim_verification.md', '哈希不符'), ('coverage_matrix.json', '哈希不符'), ('fix_record.json', '哈希不符'), ('fix_record.md', '哈希不符'), ('hand_computed_cases.json', '哈希不符'), ('inputs_manifest.json', '哈希不符'), ('limitations_not_executed.json', '哈希不符'), ('old_package_under_test.json', '哈希不符'), ('probe_b07_old_wording_stdout.txt', '哈希不符'), ('probe_b13_predicates_used_added_stdout.txt', '哈希不符'), ('probe_baseline_no_injection_stdout.txt', '哈希不符'), ('probe_case_out_of_sequence_index_stdout.txt', '哈希不符'), ('probe_case_span_wrong_stdout.txt', '哈希不符'), ('probe_case_timeout_frame_action_stdout.txt', '哈希不符'), ('probe_empty_predicates_used_stdout.txt', '哈希不符'), ('probe_historical_model_check_r05_stdout.txt', '哈希不符'), ('probe_historical_model_check_r06_stdout.txt', '哈希不符'), ('probe_m4_unreachable_phrase_stdout.txt', '哈希不符'), ('probe_m5_window_advance_removed_stdout.txt', '哈希不符'), ('probe_summary.json', '哈希不符'), ('r02_package_under_test.json', '哈希不符'), ('r03_package_under_test.json', '哈希不符'), ('r04_package_under_test.json', '哈希不符'), ('S6A_run_summary.md', '哈希不符'), ('selfcheck_c11_stdout.txt', '哈希不符'), ('selfcheck_old_package_failure.json', '哈希不符'), ('selfcheck_old_package_failure_stdout.txt', '哈希不符'), ('selfcheck_r02_blk1_failure.json', '哈希不符'), ('selfcheck_r02_blk1_failure_stdout.txt', '哈希不符'), ('selfcheck_r03_failure.json', '哈希不符'), ('selfcheck_r03_failure_stdout.txt', '哈希不符'), ('selfcheck_r04_failure.json', '哈希不符'), ('selfcheck_r04_failure_stdout.txt', '哈希不符'), ('selfcheck_result.json', '哈希不符'), ('upstream_bindings.json', '哈希不符')]
+   STATE 声明的 report/evidence 路径:
+     report/evidence/S6-A/s6a_g0_20261022_r07/ -> 缺失
+     report/evidence/S6-A/s6a_g0_20261022_r08/ -> 存在
+     report/evidence/S6-B/s6b_core_20261023_r02/ -> 缺失
+
+============================================================================================
+C. 虚假「已审查/已通过/已冻结」表述扫描
+============================================================================================
+   （**需人工判读**） .codex/STATE.md:15: - 已冻结、可直接引用：`S2A-T01` 规格（`7c2c8684…`）、阶段计划 L102–L108、`D2`（`df95a843…`）、`D6`（`735cbc78…`）。
+   （**需人工判读**） .codex/STATE.md:16: - **未冻结（仅草案/隔离使用）**：阶段4 `s4a_stage4_g0_fields.json`（`DRAFT_NOT_FROZEN`，`73c3dad` 版本 `3524d02a…`）；阶段5 `S5A v2`（`ca5968d4…`，离线定稿未验收）。
+   （**需人工判读**） .codex/STATE.md:21: - 输入：S6-A r04（提交 `b20b670`，契约 `S6A-G0-v1.3`）已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 非阻断）。r05 按 task-6 第一部分逐条收尾：
+   （**需人工判读**） .codex/STATE.md:32: - 输入：S6-A r05（提交 `1632761`，契约 `S6A-G0-v1.4`）已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断 / 4 非阻断）。
+   （否定语境） .codex/STATE.md:68: - **S6-A 状态**：v1.4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。
+   （**需人工判读**） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:14: > **修订记录（v1.6 / r07，2026-10-23）**：r06 包（提交 `04ea58e1`，契约 `S6A-G0-v1.5`）已通过**第 6 轮独立复评** `S6A_r06_20261023_r01`（`PASS`，0 阻断 / 11 项非阻断或观察 `F1`–`F11`）。本轮（契约令牌 **`S6A-G0-v1.6`**，RunId `s6a_g0_20261022_r07`）只做收尾与自证性修复，不新增语义、不
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:21: > **修订记录（v1.5 / r06，2026-10-23）**：r05 包（提交 `1632761`，契约 `S6A-G0-v1.4`）已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断），现按该轮 4 项非阻断建议收尾：**N-r05-04** 实现 `T6-S03`「**取较晚满足者**」的窗口完成口径——完成帧 = 第一个「连续 `WINDOW_MATCH` 帧数 ≥ `T6
+   （**需人工判读**） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:23: > **上一轮修订记录（v1.4 / r05，2026-10-23）**：本包已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 项非阻断），现按该 5 项非阻断建议收尾：**N-r04-01** M5 条件补「本帧必须为窗口推进帧（`state ∈ {OK,NO_HAND}`、`stale=false`、非重复、非倒序）」并与 §4 锁存段、JSON `stable_latc
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:29: > **更早修订记录（v1.1 / r02，2026-10-22）**：针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-02** `NO_HAND` 不推进匹配计数、零框不得完成稳定窗口（H-4 与 JSON 同步改写）；**B-03** 冷却改为**全局门**
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:36: - 上轮结果（计划 L106）沿用为**强化建议**，不是已批准门槛：已知手势有效动作成功率 ≥90%、≥200 个独立未知输入误接受率 ≤5%、无有效手势 30 分钟误动作 ≤1 次。三项与样本数一律见 §14，状态 `PENDING_APPROVAL`。
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:39: - 不宣称：G0 已通过；阈值已冻结；接口已集成验收；状态机已实现；任何板上/摄像头/HDMI 已实测。
+   （**需人工判读**） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:48: | `docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md` | 类别顺序、`score` 语义与阈值 0.25、NMS IoU 0.45、≤15 框、稳定同分顺序、比较容限 | **G0_FROZEN** | 可直接引用并作为集成依赖 |
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:51: | `w4/docs/stage4/s4a_stage4_g0_fields.json`（`DRAFT_NOT_FROZEN`） | 结果记录字段、`state` 枚举、缺失值/丢帧/过期口径 | **草案，未冻结** | 只能作草案/隔离测试输入；**不得**作集成验收依赖 |
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:118: 每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_PENDING_APPROVAL`，**不是已批准、不是已冻结**）；**其中全部数值参数为待批准**。
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:272: 下表全部为 `PENDING_APPROVAL`：`草案值` 指上游草案建议或本 G0 提议，**不是**已批准门槛。批准权在 Wong（由项目总控转呈）。
+   （**需人工判读**） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:332: | U6-05 | 阶段4 结果记录接口冻结 | `DRAFT_NOT_FROZEN` | 阶段4 G0；未冻结前阶段6 集成验收 `BLOCKED` |
+   （否定语境） docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:389: - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:26: "frozen_status": "G0_FROZEN",
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:34: "frozen_status": "CURRENT_APPROVED_PLAN",
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:42: "frozen_status": "STAGE1_FROZEN",
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:50: "frozen_status": "STAGE1_FROZEN",
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:58: "frozen_status": "DRAFT_NOT_FROZEN",
+   （**需人工判读**） docs/stage6/s6a_stage6_g0_behavior_v1.json:1333: "status": "BLOCKED_DRAFT_NOT_FROZEN",
+   （否定语境） docs/stage6/s6a_stage6_g0_behavior_v1.json:1410: "本文件为 r08 修订版（v1.7），只按第 7 轮复评的阻断与非阻断项收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/coverage_matrix.json:223: "本矩阵不代表 G0 复评通过、不代表独立审查通过，也不代表状态机/摄像头/HDMI/板上验收。",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/delivery_manifest.json:11: "version": "G0_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/inputs_manifest.json:11: "version": "G0_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/inputs_manifest.json:18: "version": "STAGE1_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/inputs_manifest.json:25: "version": "STAGE1_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/inputs_manifest.json:66: "inputs 清单只登记已冻结上游（2A G0、D2、D6）与现行批准计划；阶段4/阶段5 接口未冻结，登记在 upstream_bindings.json 草案区。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json:59: "reason": "由项目总控另派；r07 不因收尾视为通过，不得自称已审查/已通过。"
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json:71: "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json:98: "reason": "该两项直接上游接口未冻结，不能作为 frozen 接口登记；inputs 清单只登记已冻结的上游（2A G0 规格、阶段计划、D2、D6），未冻结项在 upstream_bindings.json 中按草案登记。"
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json:108: "checker_scope_note": "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_old_package_failure.json:140: "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r02_blk1_failure.json:385: "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r03_failure.json:384: "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_r04_failure.json:383: "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+   （否定语境） report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_result.json:378: "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:33: "frozen_status": "G0_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:40: "frozen_status": "CURRENT_APPROVED_PLAN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:47: "frozen_status": "STAGE1_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:54: "frozen_status": "STAGE1_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:61: "frozen_status": "DRAFT_NOT_FROZEN",
+   （**需人工判读**） report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json:73: "frozen_status": "DRAFT_NOT_FROZEN",
+   需人工判读的行数 = 27
+
+============================================================================================
+D. S6-B r03 _selfproof（f3c537d 交付字节）subject 明细
+============================================================================================
+   verdict = NOT_ALL_SELF_PROVEN ；generated_at = 2026-10-23 04:34:45+0800
+   - commit 05126fdb79ba77de57d9262857af66393b453d66 -> SELF_PROVEN
+       selfcheck（C11：仅 STATE 声明存在性；S6-B 模式下不复算 S6-A 旧轮次清单哈希） exit=0
+       S6-B 确定性用例驱动（该提交内） exit=0
+       S6-B check_stage_delivery --mode inputs exit=0
+       S6-B check_stage_delivery --mode evidence exit=0
+   - worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出） -> NOT_SELF_PROVEN
+       selfcheck（C11：仅 STATE 声明存在性；S6-B 模式下不复算 S6-A 旧轮次清单哈希） exit=0
+       S6-B 确定性用例驱动（该提交内） exit=0
+       S6-B check_stage_delivery --mode inputs exit=0
+       S6-B check_stage_delivery --mode evidence exit=2
+          stdout_tail: {"status":"CHECKS_FAILED","mode":"evidence","task_id":"S6-B","run_id":"s6b_core_20261023_r03","interfaces_not_applicable":{"status":"NOT_APPLICABLE","reason":"S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.7），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。","review_note":"其适用性仍须正式G0/Reviewer确认"},"check_statuses":[{"status":"PASS","name":"冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）","reason":"工具判定 ALL_SELF_PROVEN；逐项退出码 {'worktre

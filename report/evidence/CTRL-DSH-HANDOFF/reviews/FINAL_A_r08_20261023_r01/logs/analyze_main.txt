@@ -1,0 +1,316 @@
+
+================================================================================================
+BLK-r07-1：八处 M4 表述（提交 f3c537d 字节）
+================================================================================================
+§18 全文：
+   ## 18. 证据、限制与不宣称项
+   
+   - 本轮（v1.7 / r08）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r08/`（与 r07 同构，另含 `claim_verification.json`/`.md` 验证附录）与自证报告目录 `report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/`。
+   - 上一轮（v1.6 / r07）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r07/`（与 r06 同构：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、旧包失败证据与前几轮同名的 `.json` + `_stdout.txt` 对、`p
+   - 上一轮（v1.5 / r06）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r06/`（清单/自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`
+   - **本轮全部实测类项目为 `NOT_RUN`**：状态机确定性测试（6-B/6-C）、脚本注入联调（6-D 一级）、独立图片/视频序列板上联调（6-D 二级）、≥30 分钟回放稳定性、真摄像头验收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
+   - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1）。
+   - **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。 **r04 修订说明**：R3-B01 修正 §12 的 `T6-S0
+   - **回放/注入限定**：任何由脚本注入或回放输入得到的结论，其适用范围**仅限回放/注入输入**，不得冒充真实摄像头验收。
+   - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。
+   - 独立 Reviewer：本阶段总控在本次会话中**无法创建子代理**（运行环境限制：委派深度已用尽），故本轮**未完成独立审查**；该限制已如实登记，独立审查须在后续轮次由项目总控安排。
+
+parameter_notes.T6-S04 = 草案 500ms ≥ T6-L02 300ms **不构成不可达依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08；S6-B C4-jitter-reset 实测 M4@f7）。
+
+清单 limitations =
+   [0] source_commit = 本轮构建时的 HEAD（修订基线 05126fdb79ba77de57d9262857af66393b453d66）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。
+   [1] r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。
+   [2] 全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。
+   [3] M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1、BLK-r07-1）。
+   [4] 入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。
+   [5] 旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。
+   [6] selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。
+
+HC-23 = [
+  {
+    "case_id": "HC-23",
+    "topic": "T6-S04/M4 可达性：草案 S04 ≥ L02 时 M4 仍可达（TARGET_CONTINUES 无分数门，M10 不先命中）",
+    "recompute": {
+      "kind": "m4_reachability",
+      "s04_ms": 500,
+      "l02_ms": 300,
+      "j01_frames": 1,
+      "l01_frames": 5,
+      "period_ms": 40
+    },
+    "derivation": "草案 T6-S04=500 ms ≥ T6-L02=300 ms **不构成不可达依据**：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进，而 §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，因此低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、miss_streak 保持 0 → M10 不会先命中 → 候选停留可达 T6-S04 → **M4 可达**。本样例的期待值由 C7 机器断言（r08/BLK-r07-1 修正前为 false，与 C16 结论相反）。`historical_earliest_m10_ms_if_score_gate` 只是「若 TARGET_CONTINUES 含分数门」的历史模型对照值，不参与判定。",
+    "expected": {
+      "m4_reachable_under_draft": true,
+      "target_continues_requires_score_gate": false,
+      "historical_earliest_m10_ms_if_score_gate": 200,
+      "m4_earliest_ms": 500,
+      "reachable_if_s04_lt_l02": true
+    }
+  }
+]
+
+limitations_not_executed.not_run =
+   [0] {"item": "6-B 状态机实现（纯核心 + 动作层隔离）", "status": "NOT_RUN", "reason": "S6-B 实现与 6-C 矩阵已产出（`report/evidence/S6-B/s6b_core_20261023_r03/`，23 例 PASS + claim_verification）；其 r02 复评判 CHANGES_REQUIRED，r03 已修正待复评。"}
+   [1] {"item": "6-C 确定性测试矩阵（含 11 类用例行）", "status": "NOT_RUN", "reason": "依赖 6-B 实现与独立预期；本轮只修订 G0 规格与手算样例（32 例）。"}
+   [2] {"item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）", "status": "NOT_RUN", "reason": "无状态机实现、无硬件授权；不在本轮范围。"}
+   [3] {"item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）", "status": "NOT_RUN", "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"}
+   [4] {"item": "≥30 分钟回放稳定性实验", "status": "NOT_RUN", "reason": "无状态机与回放驱动；未执行。"}
+   [5] {"item": "T6-01/02/03 任何统计", "status": "NOT_RUN", "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何“观测值”为通过。"}
+   [6] {"item": "T6-A03 交互延迟与低 FPS 延迟量级", "status": "NOT_RUN", "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.5 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。r06 的 30fps 完成帧结论是**按 P=33.3 ms 假设的模型一致性检查**，不是实测。"}
+   [7] {"item": "M4/T6-S04 运行时行为验证", "status": "NOT_RUN", "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"}
+   [8] {"item": "独立复评（Reviewer）", "status": "NOT_RUN", "reason": "由项目总控另派；r07 不因收尾视为通过，不得自称已审查/已通过。"}
+
+limitations_not_executed 其他相关键：
+   blocked = [{"item": "6-E 真摄像头验收与统计", "status": "BLOCKED", "reason": "摄像头不可用（待重新采购）；真手势验收延期至模块到货并完成阶段3 验收后。"}, {"item": "阶段6 集成验收依赖", "status": "BLOCKED", "reason": "阶段4 结果记录契约为 DRAFT_NOT_FROZEN 且仍可能被 w4 窗口修改；阶段5 显示契约为离线定稿未验收。未冻结依赖阻断依赖它的集成任务。"}, {"item": "阶段5 显示侧新增 HUD 字段（sm_state 等）", "status": "BLOCKED", "reason": "属阶段6 提案，需与阶段5 协调并由项目总控确认；未采纳前只能用五元组与既有 HUD 字段做离线断言。"}, {"item": "阶段4 实测帧周期 P_meas", "status": "BLOCKED", "reason": "未取得实测值；影响 T6-A03、交互延迟统计与低 FPS 窗口估算（U6-13）。"}, {"item": "独立 Reviewer 复评", "status": "BLOCKED", "reason": "阶段6 总控会话委派深度已用尽；由项目总控另派（本包状态 PENDING_REVIEW）。"}]
+   hard_limits_observed = ["未触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头", "未烧录、未 program、未写寄存器", "未 push；未新建其他工作树；未修改 main/w4/w5/dbdf/w2b 与厂商原件", "同时只运行轻量任务（本轮无重型综合/实现/仿真）"]
+   review_fix_notes = ["F6（冻结自证性）：`verification/export_selfproof.py` 把提交 `git archive` 导出后用**该提交内**的自检与两个检查器复跑；r06（04ea58e1）实测 C11 FAIL（STATE 声明了该提交内 0 文件的 S6-B 证据目录），r07 修正后同一提交内自证。规则固定：任何冻结/交付提交必须自证。", "F1：窗口完成表述统一为「第一个同时满足帧数与时长（取较晚）的帧」，并在 C14 增加机器断言；注入 `b07_old_wording` 证明可捕获。", "F7：完成帧超出所给序列时改报 `completion_index=-1`/`window_span_ms=0.0`/`completion_within_sequence=false`，外推值单列 `required_completion_index`；新增 HC-32 与注入 `case_out_of_sequence_index` 证明可捕获。", "BLK-1(b)：M4 修正为**可达**并计入覆盖（`TARGET_CONTINUES` 不含 `score ≥ T6-P02`）；U6-12 改写为「保留 M4/T6-S04，仅决定兜底次序」，不再要求删除 M4。", "F8（有意设计）：`ceil(S01/P − 1e−9)` 的 1e−9 余量用于让「数学上正好等于」的边界含等号（§12 除过期外全部含等号）；朴素浮点乘会在如 P=33.3/S01=99.9 时多要一个间隔。反向风险仅在 `S01/P` 落在整数上方 1e−9 以内时出现，对 ms 量级与现存/草案参数不可达。", "F9（有意简化）：`kind=\"window_match_vs_continues\"` 把**整段给定序列视为一个窗口**（不含 T6-J01 抖动重置、非 WM 帧不重置计数）；抖动/重置语义由 `kind=\"jitter\"`（HC-12）单独建模，r04/r05 同此。`window_span_ms` 自 r06 起不参与判定（判定用 `completion_index`）。", "F10：旧口径对照运行的首个 C7 失败发生在 HC-28（新键不可复算，脚本在首个不匹配处即抛错），**未走到 HC-31**；HC-31 的口径差异由探针 `case_span_wrong` 直接证明——两条结论皆为真，描述已改准。", "BLK-r07-1（r08）：M4 可达性口径统一到 8 处（含 HC-23 机器断言由 false 改为 true）；C16 新增全包禁语断言，探针 `m4_unreachable_phrase` 实测 exit 1 捕获。", "N-r07-1（r08）：自证工具换行对齐顺序改为「先工作区口径、后清单口径」，消除干净克
+   checker_scope_note = "check_stage_delivery.py 的 CHECKS_OK 仅表示清单/文件绑定核验通过；selfcheck 的 ALL_PASS 仅表示规格一致性、算术边界与证据存在性复算通过。二者都不代表状态机行为正确、独立审查通过或 G0/G2/G4/G5。"
+   replay_injection_boundary = "任何由脚本注入或回放输入得到的结论，其适用范围仅限回放/注入输入，不得冒充真实摄像头验收；真手势验收延期至摄像头到货。"
+   status_legend = {"PASS": "本次声明范围的所有条件已验证", "FAIL": "执行后不满足条件", "BLOCKED": "缺模块、批准指标或冻结依赖等，不能执行", "NOT_RUN": "本轮没有执行", "NOT_APPLICABLE": "确实不适用，必须说明理由"}
+
+coverage_matrix 全文：
+{
+  "schema_version": 1,
+  "artifact": "s6a_coverage_matrix",
+  "artifact_version": "S6A-G0-v1.7",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r08",
+  "supersedes_run_id": "s6a_g0_20261022_r07",
+  "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+  "machine_json": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+  "status_note": "本矩阵覆盖 S6-A G0 包（v1.7/r08：第 7 轮复评 BLK-r07-1 与 N-r07-1..6 收尾）的规格与证据项；不代表 G0 复评、状态机行为、板上或摄像头验收。",
+  "runbook_coverage": [
+    {
+      "item": 1,
+      "requirement": "由项目总控确认阶段6独占写入方与范围，负责人在 w6 建立有效 STATE",
+      "location": "§1 + .codex/STATE.md（11 字段交接行）",
+      "status": "DONE"
+    },
+    {
+      "item": 2,
+      "requirement": "核对阶段4结果字段、错误语义和阶段5显示语义的冻结版本；未冻结接口只能草案/隔离使用",
+      "location": "§1 上游绑定表 + upstream_bindings.json",
+      "status": "DONE_WITH_BLOCKED_DEPENDENCY"
+    },
+    {
+      "item": 3,
+      "requirement": "五类手势逐项动作、动作成功反馈、失败反馈、可观察显示状态；提交成功与实际生效区分",
+      "location": "§7 表 A-1 + 逐类 UX 要求 + B01/B02 + JSON actions.ux_requirements",
+      "status": "DONE_PENDING_APPROVAL"
+    },
+    {
+      "item": 4,
+      "requirement": "冻结多框选择、同分、保持/重获、抖动、窗口、冷却、再触发、过期、未知、无手、超时/错误",
+      "location": "§5 B01–B28（v1.5）+ §8–§13 + M1–M15（M14 删除）",
+      "status": "DONE_WITH_PREDICATE_BINDING（BLK-1 与 R3-B02 关闭：used_by ↔ predicates_used 全量双向一致；M4/M7 显式登记不可达，U6-12）"
+    },
+    {
+      "item": 5,
+      "requirement": "草案状态作起点，状态名不等于已实现",
+      "location": "§4 + states 7 个 + §0/§18",
+      "status": "DONE"
+    },
+    {
+      "item": 6,
+      "requirement": "明确「持续保持只触发一次」，冷却结束时是否可再触发必须唯一",
+      "location": "§10 + H-10 全局门 + JSON trigger_once_while_held",
+      "status": "DONE_DECLARED_PENDING_CONFIRMATION（U6-02 待 Wong 确认）"
+    },
+    {
+      "item": 7,
+      "requirement": "窗口用真实时间与有效结果数，重复 frame_id 不推进；低 FPS 估算交互延迟",
+      "location": "§9 WINDOW_MATCH/窗口完成时刻（T6-S03 取较晚）+ §13 + §15",
+      "status": "DONE_WITH_BLOCKED_DEPENDENCY（阶段4 实测 P_meas 未取得 → T6-A03 与延迟量级 NOT_RUN，U6-13）"
+    },
+    {
+      "item": 8,
+      "requirement": "草案 0.35/0.30、200ms、6 帧、1000ms 等未冻结；不在正式集调参",
+      "location": "§14 全表 24 项 PENDING_APPROVAL + §0",
+      "status": "DONE_PENDING_APPROVAL"
+    },
+    {
+      "item": 9,
+      "requirement": "NO_HAND 合法零框不是第六类；未知拒绝不能只用 class_id 落在五类内证明",
+      "location": "H-5/H-6 + B17/B20 + §11.1/§11.4 + HC-20（真算）",
+      "status": "DONE"
+    },
+    {
+      "item": 10,
+      "requirement": "异常/重复/过期不触发；超时与失踪计时按单调时钟推进，防停帧永久候选",
+      "location": "H-3/H-4 + §11.5/§11.6 + §13 + HC-10/HC-13/HC-14/HC-22",
+      "status": "DONE_WITH_DECLARED_GAPS（U00 窗口已定义滑动语义；U00/S04/P01–P05/U01 边界样例见 §12.1）"
+    }
+  ],
+  "plan_coverage": [
+    {
+      "plan_line": "L104",
+      "requirement": "稳定手势判定→HDMI切图/界面/显示状态",
+      "location": "§4、§5-B01、§7"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "多框时的目标选择",
+      "location": "§8 + B03/B04/B05/B06（TARGET_CONTINUES 迟滞）"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "目标丢失与重获",
+      "location": "§10 + B10/B11 + M10/M11/M1（M14 删除）"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "稳定判定窗口",
+      "location": "§9 + B07/B08（WINDOW_MATCH）"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "保持时是否只触发一次",
+      "location": "§10 + B15 + trigger_once_while_held"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "冷却",
+      "location": "§10 + H-10 + B13/B14 + M6/M8/M9/M15 + cooldown_policy"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "重新触发条件",
+      "location": "§10 + B11/B12"
+    },
+    {
+      "plan_line": "L104",
+      "requirement": "无手/未知输入与恢复行为",
+      "location": "§11 + B17/B19/B20/B21 + M2/M12/M13"
+    },
+    {
+      "plan_line": "L106",
+      "requirement": "测试短暂抖动/持续保持/手势切换/手离开/未知场景",
+      "location": "B07/B08/B11/B12/B15/B17/B20（场景执行状态 NOT_RUN）"
+    },
+    {
+      "plan_line": "L106",
+      "requirement": "已知手势有效动作成功率≥90%",
+      "location": "§14 T6-01（PENDING_APPROVAL）"
+    },
+    {
+      "plan_line": "L106",
+      "requirement": "至少200个独立未知输入误接受率≤5%",
+      "location": "§14 T6-02 + §11.4（PENDING_APPROVAL）"
+    },
+    {
+      "plan_line": "L106",
+      "requirement": "无有效手势30分钟误动作≤1次",
+      "location": "§14 T6-03（PENDING_APPROVAL）"
+    },
+    {
+      "plan_line": "L106",
+      "requirement": "各条件样本数及阈值在任务G0固定；不能只挑成功视频",
+      "location": "§14 统计口径要点 + §16 U6-01"
+    },
+    {
+      "plan_line": "L108",
+      "requirement": "证据：状态机规格、输入/事件/动作日志、失败案例、连续视频",
+      "location": "§3 日志字段 + §18（本轮为规格证据；日志/视频类证据 NOT_RUN）"
+    },
+    {
+      "plan_line": "L108",
+      "requirement": "交互通过不代替阶段7最终性能与可靠性验收",
+      "location": "§0 边界 + §18"
+    }
+  ],
+  "stage5_suggestion_coverage": [
+    {
+      "id": "S6-D-01",
+      "location": "H-4 + §9",
+      "status": "ADOPTED"
+    },
+    {
+      "id": "S6-D-02",
+      "location": "§9 + §13",
+      "status": "ADOPTED"
+    },
+    {
+      "id": "S6-D-03",
+      "location": "§11.1/§11.4",
+      "status": "ADOPTED"
+    },
+    {
+      "id": "S6-D-04",
+      "location": "§3 日志字段",
+      "status": "ADOPTED"
+    },
+    {
+      "id": "S6-D-05",
+      "location": "§7/§14（统一 score）",
+      "status": "ADOPTED"
+    }
+  ],
+  "review_fix_coverage": [
+    {
+      "issue": "BLK-r07-1",
+      "location": "M4 可达性 8 处统一：JSON parameter_notes.T6-S04 / reachability.consequence / reachability.M4.review_correction、**HC-23 的 expected.m4_reachable_under_draft=true**、清单 limitations 与摘要、文档 §18、STATE；C16 新增全包禁语断言（探针 m4_unreachable_phrase 可捕获）",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "issue": "N-r07-1",
+      "location": "verification/export_selfproof.py：先按工作区口径、再按清单口径对齐，消除 autocrlf=true 干净克隆下的 NOT_SELF_PROVEN 假阴性",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "issue": "N-r07-2",
+      "location": "自证报告移至同 RunId 的 `_selfproof` 兄弟目录，提交后可补入交付提交主体且不致清单失效",
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "issue": "F2/F4/F5/F11",
+      "location": "source_commit 口径统一并写明语义；keep_reason 统一为「样例数不足 32：29」；STATE 陈旧行与旧版本令牌统一",
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "selfcheck_mapping": {
+    "script"
+
+S6A_run_summary.md 含 M4/不可达/计入覆盖 的行：
+   42: 见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4 可达并计入覆盖、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+
+STATE.md 含 M4/不可达/计入覆盖 的行：
+   10: - 硬边界：**无硬件授权**——不碰板卡/JTAG/COM4/`hw_server`/HDMI 实物/摄像头，不烧录；`main`/`w4`/`w5`/`dbdf`/`w2b`/厂商原件只读；两个 mailbox 只读；不 push；同时只跑一个重型任务。
+   39: - **S6-A r08（task-11）**：第 7 轮复评 1 阻断 + 6 非阻断收尾。`BLK-r07-1`：**M4 可达性口径统一 8 处**——JSON
+   40:   `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、
+   46: - **S6-B r03（task-10）**：r02 复评 2 阻断 + 10 非阻断收尾。`BLK-r02-1`：`acquisition_id` 改为**真的在 M11/M4 递增**
+   60: - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RES
+   61: - 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
+   66: - **待 Wong/G0 确认**：`U6-16`（STABLE 锁存口径）；`U6-12`（`T6-S04`/M4 可达性）；`U6-13`（阶段4 实测帧周期 `P_meas`，`T6-A03` `NOT_RUN`）；`U6-14`（逐类 UX 可见时长）；`U6-15`（`A_DISPLAY_STATE`）；`U6-01..U6-11`。
+
+================================================================================================
+C7 / C16 实测状态（入库 selfcheck_result.json，f3c537d）
+================================================================================================
+status = ALL_PASS ；检查项数 = 17
+   C7 人工手算样例独立复算 -> PASS
+        detail: 32 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、HC-32 完成帧超出所给序列（序列不足以判定，F7））
+   C11 证据清单/STATE 声明 vs 实际文件 -> PASS
+        detail: 实际文件 40 个；manifest 双向一致（运行目录 39 个文件 + 外部绑定 9 个文件哈希复算通过）；STATE 声明 37 个文件与 3 个目录全部存在
+   C16 迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1） -> PASS
+        detail: M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语
+   C17 STABLE 锁存语义一致性（观察项） -> PASS
+        detail: STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认
+errors = []
+
+================================================================================================
+无回归：r07(bdcf896) → r08(f3c537d) 参数与 ID 集合
+================================================================================================
+参数个数 old/new = 24 24 ；ID 增删 = [] []
+参数逐字段差异 = 0
+非 PENDING_APPROVAL = []
+   transitions: 14 -> 14；新增=[] 删除=[]
+   hard_invariants: 10 -> 10；新增=[] 删除=[]
+   behavior_rows: 28 -> 28；新增=[] 删除=[]
+   open_decisions: 16 -> 16；新增=[] 删除=[]
+Traceback (most recent call last):
+  File "D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\analyze_main.py", line 217, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\analyze_main.py", line 165, in main
+    o = {x["id"] for x in old[key]}
+         ~^^^^^^
+TypeError: string indices must be integers, not 'str'

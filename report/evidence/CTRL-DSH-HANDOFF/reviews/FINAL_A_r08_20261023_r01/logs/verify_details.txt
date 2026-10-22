@@ -1,0 +1,236 @@
+
+============================================================================================
+1. BLK-r07-1：八处逐处精确核查（r07 提交字节 vs r08 提交字节）
+============================================================================================
+
+--- 1 docs/stage6/s6a_stage6_g0_behavior_v1.json :: parameter_notes.T6-S04
+    r08 值: 草案 500ms ≥ T6-L02 300ms **不构成不可达依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08；S6-B C4-jitter-reset 实测 M4@f7）。
+
+--- 2 r08/delivery_manifest.json :: limitations[3]
+    r08 值: M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1、BLK-r07-1）。
+
+--- 3 r08/hand_computed_cases.json :: HC-23
+    r08 HC-23.expected: {"m4_reachable_under_draft": true, "target_continues_requires_score_gate": false, "historical_earliest_m10_ms_if_score_gate": 200, "m4_earliest_ms": 500, "reachable_if_s04_lt_l02": true}
+
+--- 4 r08/limitations_not_executed.json :: not_run
+    r08 not_run[7]: {"item": "M4/T6-S04 运行时行为验证", "status": "NOT_RUN", "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"}
+
+--- 5 r08/coverage_matrix.json :: item4 status
+    r08 item4.status: DONE_WITH_PREDICATE_BINDING（BLK-1 与 R3-B02 关闭：used_by ↔ predicates_used 全量双向一致；M4/M7 显式登记不可达，U6-12）
+    r08 item4.location: §5 B01–B28（v1.5）+ §8–§13 + M1–M15（M14 删除）
+
+--- 6 r08/S6A_run_summary.md
+
+--- 7 docs/stage6/S6A_stage6_g0_behavior_spec_v1.md :: §18
+    r08 L8: > - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected.m4_reachable_under_draft` 由 false 改为 true，C7 机器断言与 C16 不再相反）**、清单 `limitations`
+
+--- 8 .codex/STATE.md :: 不可达项（不计入覆盖）
+    r08 L61: - 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
+
+>>> 仍断言『M4 不可达 / M4 不计入覆盖』的处数： ['4 r08/limitations_not_executed.json :: not_run', '5 r08/coverage_matrix.json :: item4 status', '7 docs/stage6/S6A_stage6_g0_behavior_spec_v1.md :: §18', '8 .codex/STATE.md :: 不可达项（不计入覆盖）']
+
+============================================================================================
+1b. r07 → r08 相关文件差异（得出改动范围）
+============================================================================================
+
+--- docs/stage6/s6a_stage6_g0_behavior_v1.json
+    键 artifact_version 有变：
+       r07: "S6A-G0-v1.6"
+       r08: "S6A-G0-v1.7"
+    键 baseline 有变：
+       r07: {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "04ea58e1e363e956b8a46ae5711ec8aecb27bfd4", "revision_note": "在 r06（提交 04ea58e）基础上收尾；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+       r08: {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "bdcf8963300475a61f26cbc3ec85a32275b781d2", "revision_note": "在 r07（提交 bdcf896）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+    键 not_claimed 有变：
+       r07: ["本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论", "本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI", "全部阈值与指标为待批准；获批前任何统计只能报告为观测值", "交互通过不代替阶段7 最终性能与可靠性验收", "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）", "本文件为 r07 收尾版（v1.6），只按第 6 轮复评的非阻断/观察项收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"]
+       r08: ["本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论", "本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI", "全部阈值与指标为待批准；获批前任何统计只能报告为观测值", "交互通过不代替阶段7 最终性能与可靠性验收", "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）", "本文件为 r08 修订版（v1.7），只按第 7 轮复评的阻断与非阻断项收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"]
+    键 parameter_notes 有变：
+       r07: {"T6-S04": "草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。", "T6-A03": "草案无值；测量需阶段4 实测 P_meas（U6-13），否则 NOT_RUN。", "T6-STALE_LIMIT": "严格 > 判过期，其余阈值含等号。"}
+       r08: {"T6-S04": "草案 500ms ≥ T6-L02 300ms **不构成不可达依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08；S6-B C4-jitter-reset 实测 M4@f7）。", "T6-A03": "草案无值；测量需阶段4 实测 P_meas（U6-13），否则 NOT_RUN。", "T6-STALE_LIMIT": "严格 > 判过期，其余阈值含等号。"}
+    键 reachability 有变：
+       r07: {"method": "按当前草案参数、§3 谓词定义与求值顺序推导；不改任何阈值。M4 的可达性由 TARGET_CONTINUES 的口径决定，不能只比较 T6-S04 与 T6-L02 的大小。", "draft_params_used": {"T6-S04_ms": 500, "T6-L02_ms": 300, "T6-L01_frames": 5, "T6-J01_frames": 1, "T6-K01_ms": 1000, "T6-A02_ms": 500}, "transitions": {"M1": {"status": "REACHABLE"}, "M2": {"status": "REACHABLE"}, "M3": {"status": "REACHABLE"}, "M4": {"status": "REACHABLE", "reason": "TARGET_CONT
+       r08: {"method": "按当前草案参数、§3 谓词定义与求值顺序推导；不改任何阈值。M4 的可达性由 TARGET_CONTINUES 的口径决定（不含 score ≥ T6-P02），不能只比较 T6-S04 与 T6-L02 的大小。", "draft_params_used": {"T6-S04_ms": 500, "T6-L02_ms": 300, "T6-L01_frames": 5, "T6-J01_frames": 1, "T6-K01_ms": 1000, "T6-A02_ms": 500}, "transitions": {"M1": {"status": "REACHABLE"}, "M2": {"status": "REACHABLE"}, "M3": {"status": "REACHABLE"}, "M4": {"status": "REACHABLE", "re
+    键 revision 有变：
+       r07: {"run_id": "s6a_g0_20261022_r07", "supersedes_run_id": "s6a_g0_20261022_r06", "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r06_20261023_r01/", "review_verdict": "PASS（0 阻断 + 11 项非阻断/观察 F1–F11）", "semantic_changes": true, "parameter_value_changes": false, "parameter_approval_changes": false, "changes": [{"issue": "F6", "summary": "冻结自证性：新增 verification/export_selfproof.py（git arch
+       r08: {"run_id": "s6a_g0_20261022_r08", "supersedes_run_id": "s6a_g0_20261022_r07", "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r07_20261023_r01/", "review_verdict": "CHANGES_REQUIRED（1 阻断 BLK-r07-1 + 6 非阻断 N-r07-1..6）", "semantic_changes": true, "parameter_value_changes": false, "parameter_approval_changes": false, "changes": [{"issue": "BLK-r07-1", "summary": "M4 可达性口径统一到 8 处（含 HC-2
+    键 run_id 有变：
+       r07: "s6a_g0_20261022_r07"
+       r08: "s6a_g0_20261022_r08"
+    键 status_note 有变：
+       r07: "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论。r07 按第 6 轮独立复评（PASS，0 阻断 / 11 项非阻断或观察）逐条收尾：F6 冻结自证性（导出副本复跑自证工具 + STATE 只声明入库路径）、F1 窗口完成文本统一（§9/B07/B27 与 B07.condition/B27.output 统一为「第一个同时满足帧数与时长（取较晚）的帧」）、F2–F5/F7/F10/F11 清单与表述收尾、F8/F9 确认为有意设计。未改任何参数值（24 项仍全部 PENDING_APPROVAL）。"
+       r08: "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论。r08 关闭第 7 轮独立复评（CHANGES_REQUIRED）：**M4 可达性口径统一**（含 HC-23 机器断言、reachability.consequence、parameter_notes.T6-S04、清单限制与摘要、文档 §18 共 8 处；不再出现『M4』不·可达、『不得』计·入覆盖类表述），并修自证工具换行顺序假阴性、入库自证报告自洽性与交付提交主体、F2/F4/F5/F11 残留。未改任何参数值（24 项仍全部 PENDING_APPROVAL）。"
+    键 supersedes_run_id 有变：
+       r07: "s6a_g0_20261022_r06"
+       r08: "s6a_g0_20261022_r07"
+
+--- docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+     r08 新增行: **第 7 轮复评 S6A_r07_20261023_r01 收尾索引（r08）**：`BLK-r07-1` → M4 口径 8 处统一 + HC-23 机器断言改可达 + C16 全包禁语断言；`N-r07-1` → 自证工具换行顺序；`N-r07-2` → 自证报告移到 `_selfproof` 兄弟目录并含交付提交主体；`F2`/`F4`/`F5`/`F11` → 文本与口径统一。
+     r08 新增行: - 上一轮（v1.6 / r07）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r07/`（与 r06 同构：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、旧包失败证据与前几轮同名的 `.json` + `_stdout.txt` 对、`p
+     r08 新增行: - 本轮（v1.7 / r08）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r08/`（与 r07 同构，另含 `claim_verification.json`/`.md` 验证附录）与自证报告目录 `report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/`。
+     r08 新增行: - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1）。
+     r08 新增行: > **修订记录（v1.7 / r08，2026-10-23）**：r07 包（提交 `bdcf896`，契约 `S6A-G0-v1.6`）经第 7 轮独立复评判 `CHANGES_REQUIRED`（1 阻断 + 6 非阻断）。本轮（契约令牌 **`S6A-G0-v1.7`**，RunId `s6a_g0_20261022_r08`）只做收尾：
+     r08 新增行: > - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected.m4_reachable_under_draft` 由 false 改为 true，C7 机器断言与 C16 不再相反）**、清单 `limitations` 与摘要、文档 §18、STATE；C16 另加**全包禁语断言**（扫描『M4
+     r08 新增行: > - **`F2`/`F4`/`F5`/`F11`**：`source_commit` 口径三处统一并写明语义；`keep_reason` 归因统一为「样例数不足 32：29」；STATE 陈旧行与旧版本令牌统一。
+     r07 删除行: - 本轮（v1.6 / r07）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r07/`（与 r06 同构：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、旧包失败证据与前几轮同名的 `.json` + `_stdout.txt` 对、`pr
+     r07 删除行: - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。**阶段4 实测帧周期 `P_meas` 未取得 → `T6-A03` 与交互延迟量级 `NOT_RUN`（U6-13）**；`T6-S04`/M4 在当前草案下不可达（U6-12）；五类逐类反馈可见时长未批准（U6-14）。
+
+--- .codex/STATE.md
+     r08 新增行: 4 个 OUT_* 与 SUP_DEDUP/STATES 死常量删除。`NB-01..10` 同步（版本 v1.6、23 例、D8 按实测改写并登记开放偏差、
+     r08 新增行: `F2`/`F4`/`F5`/`F11`：`source_commit` 语义三处统一、`keep_reason` 统一为「样例数不足 32：29」、陈旧行与旧令牌清理。
+     r08 新增行: `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、
+     r08 新增行: ## 本轮已完成（S6-A v1.7 / r08 + S6-B r03，PENDING_REVIEW）
+     r08 新增行: - **S6-A r08（task-11）**：第 7 轮复评 1 阻断 + 6 非阻断收尾。`BLK-r07-1`：**M4 可达性口径统一 8 处**——JSON
+     r08 新增行: - **S6-B r03（task-10）**：r02 复评 2 阻断 + 10 非阻断收尾。`BLK-r02-1`：`acquisition_id` 改为**真的在 M11/M4 递增**
+     r08 新增行: - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RES
+     r08 新增行: 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、v
+     r07 删除行: 任务=`S6-A v1.6（r07）第 6 轮复评 F1–F11 收尾（含 F6 冻结自证规则）+ BLK-1 的 M4 可达性修正；随后 S6-B 按 task-9 修正` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `43f7995`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/
+
+--- report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json
+    键 artifact_version 有变：
+       r07: "S6A-G0-v1.6"
+       r08: "S6A-G0-v1.7"
+    键 not_run 有变：
+       r07: [{"item": "6-B 状态机实现（纯核心 + 动作层隔离）", "status": "NOT_RUN", "reason": "S6-B 实现与 6-C 矩阵已产出（`report/evidence/S6-B/s6b_core_20261023_r01/`），其实现轮复评判 CHANGES_REQUIRED（1 阻断 + 10 非阻断），修正产物另立 RunId，不在本 S6-A 证据包内。"}, {"item": "6-C 确定性测试矩阵（含 11 类用例行）", "status": "NOT_RUN", "reason": "依赖 6-B 实现与独立预期；本轮只修订 G0 规格与手算样例（32 例）。"}, {"item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）", "status": "NOT_RUN", "reason": "无状态机实现、无硬件授权
+       r08: [{"item": "6-B 状态机实现（纯核心 + 动作层隔离）", "status": "NOT_RUN", "reason": "S6-B 实现与 6-C 矩阵已产出（`report/evidence/S6-B/s6b_core_20261023_r03/`，23 例 PASS + claim_verification）；其 r02 复评判 CHANGES_REQUIRED，r03 已修正待复评。"}, {"item": "6-C 确定性测试矩阵（含 11 类用例行）", "status": "NOT_RUN", "reason": "依赖 6-B 实现与独立预期；本轮只修订 G0 规格与手算样例（32 例）。"}, {"item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）", "status": "NOT_RUN", "reason": "无状态机实现、无硬件
+    键 review_fix_notes 有变：
+       r07: ["F6（冻结自证性）：`verification/export_selfproof.py` 把提交 `git archive` 导出后用**该提交内**的自检与两个检查器复跑；r06（04ea58e1）实测 C11 FAIL（STATE 声明了该提交内 0 文件的 S6-B 证据目录），r07 修正后同一提交内自证。规则固定：任何冻结/交付提交必须自证。", "F1：窗口完成表述统一为「第一个同时满足帧数与时长（取较晚）的帧」，并在 C14 增加机器断言；注入 `b07_old_wording` 证明可捕获。", "F7：完成帧超出所给序列时改报 `completion_index=-1`/`window_span_ms=0.0`/`completion_within_sequence=false`，外推值单列 `required_completion_index`；新增 HC-32 与
+       r08: ["F6（冻结自证性）：`verification/export_selfproof.py` 把提交 `git archive` 导出后用**该提交内**的自检与两个检查器复跑；r06（04ea58e1）实测 C11 FAIL（STATE 声明了该提交内 0 文件的 S6-B 证据目录），r07 修正后同一提交内自证。规则固定：任何冻结/交付提交必须自证。", "F1：窗口完成表述统一为「第一个同时满足帧数与时长（取较晚）的帧」，并在 C14 增加机器断言；注入 `b07_old_wording` 证明可捕获。", "F7：完成帧超出所给序列时改报 `completion_index=-1`/`window_span_ms=0.0`/`completion_within_sequence=false`，外推值单列 `required_completion_index`；新增 HC-32 与
+    键 run_id 有变：
+       r07: "s6a_g0_20261022_r07"
+       r08: "s6a_g0_20261022_r08"
+    键 supersedes_run_id 有变：
+       r07: "s6a_g0_20261022_r06"
+       r08: "s6a_g0_20261022_r07"
+
+--- report/evidence/S6-A/s6a_g0_20261022_r08/coverage_matrix.json
+    键 artifact_version 有变：
+       r07: "S6A-G0-v1.6"
+       r08: "S6A-G0-v1.7"
+    键 not_claimed 有变：
+       r07: ["本矩阵不代表 G0 复评通过、不代表独立审查通过，也不代表状态机/摄像头/HDMI/板上验收。", "全部阈值仍为 PENDING_APPROVAL；T6-A03 与交互延迟量级因缺阶段4 实测 P 记 NOT_RUN。", "STABLE 锁存的「本次获取内锁存」为阶段6 定论（U6-16 待 Wong/G0 确认），未被批准前不构成冻结语义。", "r07 只关闭第 6 轮复评的 F1–F11（含 F6 冻结自证规则）与 S6-B 复评 BLK-1 的 S6-A 侧两处；是否再复评由项目总控决定。", "30fps 完成帧结论基于草案 P=33.3 ms 假设，真实 P_meas 仍需阶段4 实测（U6-13）。", "M4 可达性结论基于「TARGET_CONTINUES 不含 score ≥ T6-P02」的 §3 口径；若该谓词口径变更，需重推。"]
+       r08: ["本矩阵不代表 G0 复评通过、不代表独立审查通过，也不代表状态机/摄像头/HDMI/板上验收。", "全部阈值仍为 PENDING_APPROVAL；T6-A03 与交互延迟量级因缺阶段4 实测 P 记 NOT_RUN。", "STABLE 锁存的「本次获取内锁存」为阶段6 定论（U6-16 待 Wong/G0 确认），未被批准前不构成冻结语义。", "r08 只关闭第 7 轮复评的 1 阻断 + 6 非阻断；是否再复评由项目总控决定。", "30fps 完成帧结论基于草案 P=33.3 ms 假设，真实 P_meas 仍需阶段4 实测（U6-13）。", "M4 可达性结论基于 §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02；该谓词口径若变更需重推。"]
+    键 review_fix_coverage 有变：
+       r07: [{"issue": "F6", "location": "verification/export_selfproof.py（导出提交后复跑自检 + 两个检查器）+ export_selfproof.json/.md（r06 FAIL / r07 快照 PASS）+ STATE 声明口径", "status": "FIXED_PENDING_REVIEW"}, {"issue": "F1", "location": "文档 §9/B07/B27 与 JSON B07.condition/B27.output 统一为「第一个同时满足帧数与时长（取较晚）的帧」；C14 机器断言 + 注入 b07_old_wording", "status": "FIXED_PENDING_REVIEW"}, {"issue": "F2/F3/F4/F5", "location": "builder 限制项基线
+       r08: [{"issue": "BLK-r07-1", "location": "M4 可达性 8 处统一：JSON parameter_notes.T6-S04 / reachability.consequence / reachability.M4.review_correction、**HC-23 的 expected.m4_reachable_under_draft=true**、清单 limitations 与摘要、文档 §18、STATE；C16 新增全包禁语断言（探针 m4_unreachable_phrase 可捕获）", "status": "FIXED_PENDING_REVIEW"}, {"issue": "N-r07-1", "location": "verification/export_selfproof.py：先按工作区口径、再按清单口径对齐，消除 autocrlf=
+    键 run_id 有变：
+       r07: "s6a_g0_20261022_r07"
+       r08: "s6a_g0_20261022_r08"
+    键 selfcheck_mapping 有变：
+       r07: {"script": "verification/s6_g0_selfcheck.py", "version": "r07-hardened", "checks": {"C1": "JSON 身份与必填块（v1/v1.1 + revision 块）", "C2": "ID 唯一性与最小规模（含 reachability 覆盖全部迁移）", "C3": "文档↔JSON 标识集合双向一致（不变量/迁移 from-to/§14 参数行/事件/状态/行为行/动作类型）", "C4": "待批准纪律（24 项）", "C5": "五类动作映射一致", "C6": "H-1..H-10 与唯一触发解释", "C7": "32 个人工手算样例独立复算（窗口完成帧按 T6-S03「取较晚」推导：HC-28/29/31 完成帧口径、HC-31 30fps 时长支配、HC-32 完成帧越界时「序列不足以判定
+       r08: {"script": "verification/s6_g0_selfcheck.py", "version": "r08-hardened", "checks": {"C1": "JSON 身份与必填块（v1/v1.1 + revision 块）", "C2": "ID 唯一性与最小规模（含 reachability 覆盖全部迁移）", "C3": "文档↔JSON 标识集合双向一致（不变量/迁移 from-to/§14 参数行/事件/状态/行为行/动作类型）", "C4": "待批准纪律（24 项）", "C5": "五类动作映射一致", "C6": "H-1..H-10 与唯一触发解释", "C7": "32 个人工手算样例独立复算（窗口完成帧按 T6-S03「取较晚」推导：HC-28/29/31 完成帧口径、HC-31 30fps 时长支配、HC-32 完成帧越界时「序列不足以判定
+    键 status_note 有变：
+       r07: "本矩阵覆盖 S6-A G0 包（v1.6/r07：第 6 轮复评 F1–F11 收尾 + S6-B 复评 BLK-1 的 M4 可达性修正）的规格与证据项；不代表 G0 复评、状态机行为、板上或摄像头验收。"
+       r08: "本矩阵覆盖 S6-A G0 包（v1.7/r08：第 7 轮复评 BLK-r07-1 与 N-r07-1..6 收尾）的规格与证据项；不代表 G0 复评、状态机行为、板上或摄像头验收。"
+    键 supersedes_run_id 有变：
+       r07: "s6a_g0_20261022_r06"
+       r08: "s6a_g0_20261022_r07"
+
+--- report/evidence/S6-A/s6a_g0_20261022_r08/S6A_run_summary.md
+     r08 新增行: # S6-A v1.7 / r08 运行摘要
+     r08 新增行: 见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4 可达并计入覆盖、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+     r07 删除行: # S6-A v1.6 / r07 运行摘要
+     r07 删除行: 见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4/M7 不可达、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+
+============================================================================================
+2. N-r07-3（F2）：修订基线三处口径
+============================================================================================
+   r08 delivery_manifest.source_commit = 05126fdb79ba77de57d9262857af66393b453d66
+   r08 limitations[0] 相关: ['source_commit = 本轮构建时的 HEAD（修订基线 05126fdb79ba77de57d9262857af66393b453d66）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。']
+   r08 JSON baseline = {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "bdcf8963300475a61f26cbc3ec85a32275b781d2", "revision_note": "在 r07（提交 bdcf896）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+   STATE L81: 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_fail
+   STATE L45(source_commit): `F2`/`F4`/`F5`/`F11`：`source_commit` 语义三处统一、`keep_reason` 统一为「样例数不足 32：29」、陈旧行与旧令牌清理。
+   STATE L60(source_commit): - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RES
+   [r07 对照] manifest.source_commit = 43f79957931c34fc9ed40ae1c63e03b9462c1a41 ; JSON baseline = {"worktree": "D:\\codex-worktrees\\w6", "branch": "stage6-interact-prep", "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151", "worktree_clean_at_start": true, "index_lock_present_at_start": false, "revision_base_commit": "04ea58e1e363e956b8a46ae5711ec8aecb27bfd4", "revision_note": "在 r06（提交 04ea58e）基础上收尾；起始提交仍为 d8bc70e（本阶段开工基线）。"}
+
+============================================================================================
+3. N-r07-4（F4）：keep_reason 归因数值
+============================================================================================
+   r08 delivery_manifest.json:14: "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+   r08 delivery_manifest.json:44: "sha256": "a794ae78911a4820b7e684c774ef854cc89e3f9e53298ebc7abae83bb50b7bad",
+   r08 delivery_manifest.json:74: "sha256": "12e4a62e75b665597664d490cfc5b08c232e14a40abeb1b77f73c9fe0c3291d6",
+   r08 delivery_manifest.json:104: "sha256": "fbebcbd2691c9d958e5c24332b974d107d680127cc7002c83fe299b5e5606718",
+   r08 delivery_manifest.json:128: "sha256": "52a6c79567847617e3aebf7c680491f9b6bfc7b032b24c4dcef2950c00782e4c",
+   r08 delivery_manifest.json:134: "sha256": "f5bfa328836ed866bf2b005c551dc0c58f0e84bfc21ec0d6b92977a5a1bc1e32",
+   r08 delivery_manifest.json:284: "sha256": "e7e150ea32e411133d699ac24727f23e73aed5d5eb31a517aa27300552949f9c",
+   r08 delivery_manifest.json:286: "keep_reason": "r06/r07/r08 自检在 r04 上的失败输出（C12 捕获 M5/policy 缺陷；C7 因**样例数不足 32：29**（缺 HC-30/31/32）失败；F4）"
+   r08 delivery_manifest.json:292: "keep_reason": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）"
+   r08 fix_record.json:59: "fix": "统一口径并写明语义；keep_reason 归因统一为「样例数不足 32：29」；STATE 按实际更新；令牌统一 v1.7。",
+   --- 含 '29<30' / '29 < 30' 的行 ---
+   [命中] r08 delivery_manifest.json:292: "keep_reason": "r04 失败运行 stdout 原文（C7 归因：样例数 29<30，缺 HC-30）"
+
+============================================================================================
+4. N-r07-5（F5）：STATE 陈旧行
+============================================================================================
+   STATE L8: - 范围：`w6` 独占写入；S6-A 契约（v1.6 / r07，r05、r06 已分别过第 5/6 轮复评 PASS）→ S6-B 状态机实现与 6-C 确定性矩阵（实现轮复评判 CHANGES_REQUIRED，修正中）→ 6-D 无摄像头两级联调 → 6-E 真摄像头验收（延期）。
+   STATE L19: ## 本轮已完成（S6-A v1.4 / r05 收尾，PENDING_REVIEW）
+   STATE L27: - 判别力证明（r05 当时）：旧包重跑 `selfcheck_r04_failure.json`（当时的口径为「样例数与窗口跨度」）与 `probe_summary.json`（基线 + 注入）均为 FAILED/exit 1；**r06 起该归因已改准为「样例数不足（缺 HC-30/31/32）」，见 r06/r07 记录**。先证明后出 `ALL_PASS`（17 项，含完整 C11）——见「证据入口」。
+   STATE L30: ## 本轮已完成（S6-A v1.5 / r06 收尾，PENDING_REVIEW）
+   STATE L37: ## 本轮已完成（S6-A v1.7 / r08 + S6-B r03，PENDING_REVIEW）
+   STATE L49: 4 个 OUT_* 与 SUP_DEDUP/STATES 死常量删除。`NB-01..10` 同步（版本 v1.6、23 例、D8 按实测改写并登记开放偏差、
+   STATE L58: - 6-C 矩阵：`verification/s6b_run_cases.py`（虚拟单调时钟 + JSON 用例 + 逐帧 JSONL 日志 + 断言 + 非零退出；运行前校验 expected 冻结哈希）+ S6-B 证据目录内的 cases/case_matrix.json（**22 条 / 覆盖 CDX-012 §4 全部 11 类**，expected 由行为表 v1.5 人工推导）。
+   STATE L60: - 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candida
+   STATE L62: - `docs/stage6/s6b_frozen_interface_v1.json` 状态改为 `S6B_IMPLEMENTATION_BASELINE_PENDING_REVIEW`（只读 2A 常量，不是新冻结）。
+   STATE L68: - **S6-A 状态**：v1.4/r05 为 `PENDING_REVIEW`（r04 已 PASS、r05 只关非阻断项）；是否再复评由项目总控决定；不得自称已审查/已通过。
+   STATE L70: ## 证据入口（r07）
+   STATE L81: 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工
+
+============================================================================================
+5. N-r07-6（F11）：v1.5 令牌残留（非历史语境）
+============================================================================================
+   r08 coverage_matrix.json:33 [v1.5]: "location": "§5 B01–B28（v1.5）+ §8–§13 + M1–M15（M14 删除）",
+   r08 coverage_matrix.json:203 [v1.1]: "C1": "JSON 身份与必填块（v1/v1.1 + revision 块）",
+   r08 limitations_not_executed.json:49 [v1.5]: "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.5 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。r06 的 30fps 完成帧结论是**按 P=33.3 ms 假设的模型一致性检查**，不是实测。"
+
+============================================================================================
+6. 回归：ID 集合 / 样例数 / 版本
+============================================================================================
+   transitions: 14 -> 14；新增=[] 删除=[]
+   hard_invariants: 10 -> 10；新增=[] 删除=[]
+   behavior_rows: 28 -> 28；新增=[] 删除=[]
+   open_decisions: 16 -> 16；新增=[] 删除=[]
+   states(old dict keys): 7 -> 7 ；symdiff = []
+   顶层键增删: [] []
+   样例数: 32 -> 32 ；新增 = [] ；删除 = []
+   内容有变的样例: ['HC-23']
+      HC-23.expected: old={"m4_reachable_under_draft": false, "earliest_m10_ms": 200, "m4_earliest_ms": 500, "reachable_if_s04_lt_l02": true}
+      HC-23.expected: new={"m4_reachable_under_draft": true, "target_continues_requires_score_gate": false, "historical_earliest_m10_ms_if_score_gate": 200, "m4_earliest_ms": 500, "reachable_if_s04_lt_l02": true}
+      HC-23.derivation: old="候选失去 WINDOW_MATCH 后：M10 时间条件在距上次匹配 ≥ L02=300ms 时满足（约第 8 帧），帧条件在连续 L01=5 条不匹配推进帧时满足（40ms/帧 → 200ms 即满足）；M4 需要候选停留 ≥ S04=500ms 且抖动耗尽（>J01）。M10 在 ≤300ms 先命中并离开 CANDIDATE → M4 在草案参数下不可达；仅当 S04 < L02 时 M4
+      HC-23.derivation: new="草案 T6-S04=500 ms ≥ T6-L02=300 ms **不构成不可达依据**：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进，而 §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，因此低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、miss_streak 
+      HC-23.topic: old="T6-S04/M4 可达性：当前草案 S04 ≥ L02 时 M4 被 M10 遮蔽"
+      HC-23.topic: new="T6-S04/M4 可达性：草案 S04 ≥ L02 时 M4 仍可达（TARGET_CONTINUES 无分数门，M10 不先命中）"
+   artifact_version: S6A-G0-v1.6 -> S6A-G0-v1.7
+   hand_cases_version: S6A-HC-v1.6 -> S6A-HC-v1.7
+   run_id: s6a_g0_20261022_r08
+
+============================================================================================
+7. 隔离副本复跑 vs 入库字节（O1 归一口径）
+============================================================================================
+   check_inputs_mode_output.txt: 归一后逐字节相同 = True（com 328B / rerun 328B）
+   check_evidence_mode_output.txt: 归一后逐字节相同 = True（com 819B / rerun 819B）
+   selfcheck_c11_stdout.txt: 归一后逐字节相同 = True（com 3054B / rerun 3054B）
+   selfcheck_result.json: 归一后逐字节相同 = False（com 9959B / rerun 10199B）
+        inputs: com={"behavior_json_path": "D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json", "behavior_json_sha256": "58e4892e896c882783119af843e702fd3ea6a14978cfac0b930ab283b30b4271", "human_doc_path": "D:\\codex-wor
+        inputs: rrn={"behavior_json_path": "D:\\FPGA_Competition\\tmp\\review\\FINAL_A_20261023_r01\\parity\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json", "behavior_json_sha256": "58e4892e896c882783119af843e702fd3ea6a14978cfac0b930ab283b30
+   probe_summary.json: 归一后逐字节相同 = True（com 6436B / rerun 6436B）
+   claim_verification.json: 归一后逐字节相同 = False（com 1859B / rerun 1939B）
+        generated_at_utc8: com="2026-10-23 04:33:31"
+        generated_at_utc8: rrn="2026-10-23 04:45:00"
+        claims[S6A-C1-no-m4-unreachable].command: com="python -B verification/claim_verify.py --package s6a --run-dir report/evidence/S6-A/s6a_g0_20261022_r08 --project-root D:\\codex-worktrees\\w6"
+        claims[S6A-C1-no-m4-unreachable].command: rrn="python -B verification/claim_verify.py --package s6a --run-dir report/evidence/S6-A/s6a_g0_20261022_r08 --project-root D:\\FPGA_Competition\\tmp\\review\\FINAL_A_20261023_r01\\parity"
+        claims[S6A-C2-hc23-agrees-with-c16].command: com="python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r08/hand_c
+        claims[S6A-C2-hc23-agrees-with-c16].command: rrn="python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r08/hand_c
+   claim_verification.md: 归一后逐字节相同 = False（com 1514B / rerun 1588B）
+   probe_*_stdout.txt：11 个，逐字节不同 = []
+
+============================================================================================
+8. claim_verification.json 逐条声明（入库）
+============================================================================================
+   verdict = ALL_CLAIMS_VERIFIED ；条数 = 2
+   - S6A-C1-no-m4-unreachable [VERIFIED] exit=0
+     声明: 全包不再出现「M4 不可达」类表述（含 JSON/文档/手算样例/清单文本/STATE/自检与构建器）
+     命令: python -B verification/claim_verify.py --package s6a --run-dir report/evidence/S6-A/s6a_g0_20261022_r08 --project-root D:\codex-worktrees\w6
+     观察: 禁语命中："无"
+   - S6A-C2-hc23-agrees-with-c16 [VERIFIED] exit=0
+     声明: HC-23 的 expected.m4_reachable_under_draft = true，与 C16（要求 REACHABLE/计入覆盖）一致；C7 与 C16 不再结论相反
+     命令: python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r08/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r08/upstream_bindings.json --out <tmp> --project-root D:\codex-worktrees\w6
+     观察: HC-23.expected.m4_reachable_under_draft = True
+     观察: C16 = PASS

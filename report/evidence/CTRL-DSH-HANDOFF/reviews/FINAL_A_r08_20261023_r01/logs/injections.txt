@@ -1,0 +1,132 @@
+=== 备份完成 === ['coverage_matrix.json', 'limitations_not_executed.json', 's6a_stage6_g0_behavior_v1.json', 'selfcheck_result.json', 'STATE.md']
+
+==========================================================================================
+T2a C16 vs 出厂探针字面量（M4 不可达 / 不得计入覆盖声明）
+==========================================================================================
+
+### [T2a_shipped_literal] exit=1
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report\evidence\S6-A\s6a_g0_20261022_r08\hand_computed_cases.json --upstream report\evidence\S6-A\s6a_g0_20261022_r08\upstream_bindings.json --out D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\logs\T2a_result.json --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity --evidence-dir D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity\report\evidence\S6-A\s6a_g0_20261022_r08 --state .codex/STATE.md
+    out: {"status": "FAILED", "errors": ["C16: 行为表 JSON中仍出现禁语『M4 不可达』（M4 应可达并计入覆盖，BLK-r07-1）"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "st
+    => status=FAILED；C16=FAIL；detail=行为表 JSON中仍出现禁语『M4 不可达』（M4 应可达并计入覆盖，BLK-r07-1）
+
+[restore] 已从备份恢复被改文件
+
+==========================================================================================
+T2b C16 vs 实际残留措辞（M4 被 M10 遮蔽、不可达）
+==========================================================================================
+
+### [T2b_residual_style] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report\evidence\S6-A\s6a_g0_20261022_r08\hand_computed_cases.json --upstream report\evidence\S6-A\s6a_g0_20261022_r08\upstream_bindings.json --out D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\logs\T2b_result.json --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity --evidence-dir D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity\report\evidence\S6-A\s6a_g0_20261022_r08 --state .codex/STATE.md
+    out: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "status": "PASS", "detail": "10 不变量 / 14 迁移(含 from/to
+    => status=ALL_PASS；C16=PASS；detail=M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语
+
+[restore] 已从备份恢复被改文件
+
+==========================================================================================
+T3a C16 vs 残留写进 limitations_not_executed.json（原样）
+==========================================================================================
+
+### [T3a_untouched_package] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report\evidence\S6-A\s6a_g0_20261022_r08\hand_computed_cases.json --upstream report\evidence\S6-A\s6a_g0_20261022_r08\upstream_bindings.json --out D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\logs\T3a_result.json --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity --evidence-dir D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity\report\evidence\S6-A\s6a_g0_20261022_r08 --state .codex/STATE.md
+    out: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "status": "PASS", "detail": "10 不变量 / 14 迁移(含 from/to
+    => status=ALL_PASS；C16=PASS；detail=M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语
+
+--- T3a 附加：把阴性对照（字面量）写进 limitations ---
+
+### [T3a2_literal_in_limits] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report\evidence\S6-A\s6a_g0_20261022_r08\hand_computed_cases.json --upstream report\evidence\S6-A\s6a_g0_20261022_r08\upstream_bindings.json --out D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\logs\T3a2_result.json --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity --evidence-dir D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity\report\evidence\S6-A\s6a_g0_20261022_r08 --state .codex/STATE.md
+    out: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "status": "PASS", "detail": "10 不变量 / 14 迁移(含 from/to
+    => status=ALL_PASS；C16=PASS；detail=M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语
+
+[restore] 已从备份恢复被改文件
+
+==========================================================================================
+T3b claim_verify 判别力
+==========================================================================================
+
+[1] 原样包（残留为『M4 被 M10 遮蔽、不可达』+ STATE『不可达项（不计入覆盖）』）
+
+### [T3b1_pristine] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/claim_verify.py --package s6a --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: {"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "VERIFIED"]]}
+
+[2] 注入出厂字面量『M4 不可达』到 limitations（应 FAIL）
+
+### [T3b2_literal_injected] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/claim_verify.py --package s6a --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: {"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "VERIFIED"]]}
+
+[restore] 已从备份恢复被改文件
+
+[3] 注入 coverage_matrix 风格『M4/M7 显式登记不可达』（应漏判）
+
+### [T3b3_cov_style] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/claim_verify.py --package s6a --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: {"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "VERIFIED"]]}
+
+[restore] 已从备份恢复被改文件
+
+[4] STATE 风格行（与包内 STATE L61 同形）——直接看是否已被漏判（不注入，读原包）
+    STATE L61 原文是否在扫描范围内：是（claim_verify 扫描 .codex/STATE.md）
+    L61: - 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
+
+==========================================================================================
+T5 构建器在声明失败时是否中止（已有 selfcheck_result.json）
+==========================================================================================
+
+### [T5_claim_verify_should_fail] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/claim_verify.py --package s6a --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: {"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "VERIFIED"]]}
+
+### [T5_builder_should_abort] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6a_build_evidence.py --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: [legacy-rerun] exit=0
+    out: [r08-probe] exit=0
+    out: [claim-verify] exit=0
+    out: [inputs-mode] exit=0
+    out: [evidence-mode:first] exit=0
+    out: [selfcheck:iter1] exit=0
+    out: [evidence-mode:iter1] exit=0
+    out: [selfcheck:iter2] exit=0
+    out: [evidence-mode:iter2] exit=0
+    out: [evidence-mode:final] exit=0
+    out: {"status": "EVIDENCE_BUILT", "selfcheck": "ALL_PASS", "c11_detail": "实际文件 40 个；manifest 双向一致（运行目录 39 个文件 + 外部绑定 9 个文件哈希复算通过）；STATE 声明 37 个文件与 3 个目录全部存在", "checks": [{"name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）", "status": "PASS", "exit_code": 0}, {"name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 ST
+
+[restore] 已从备份恢复被改文件
+
+==========================================================================================
+T6 首版构建（无 selfcheck_result.json）+ 未验证声明
+==========================================================================================
+    已删除 selfcheck_result.json（模拟首版构建）
+
+### [T6_builder_first_build] exit=0
+    cmd: C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B verification/s6a_build_evidence.py --run-dir report\evidence\S6-A\s6a_g0_20261022_r08 --project-root D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+    out: [legacy-rerun] exit=0
+    out: [r08-probe] exit=0
+    out: [claim-verify] exit=1
+    out: [inputs-mode] exit=0
+    out: [evidence-mode:first] exit=0
+    out: [selfcheck:iter1] exit=0
+    out: [evidence-mode:iter1] exit=0
+    out: [selfcheck:iter2] exit=0
+    out: [evidence-mode:iter2] exit=0
+    out: [evidence-mode:final] exit=0
+    out: {"status": "EVIDENCE_BUILT", "selfcheck": "ALL_PASS", "c11_detail": "实际文件 40 个；manifest 双向一致（运行目录 39 个文件 + 外部绑定 9 个文件哈希复算通过）；STATE 声明 37 个文件与 3 个目录全部存在", "checks": [{"name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）", "status": "PASS", "exit_code": 0}, {"name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 ST
+    => 构建结束后入库 claim_verification.json verdict = NOT_ALL_VERIFIED
+       claims = [('S6A-C1-no-m4-unreachable', 'VERIFIED'), ('S6A-C2-hc23-agrees-with-c16', 'NOT_VERIFIED')]
+    => 构建结束后入库清单 checks = [('冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）', 'PASS', 0), ('S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STAT', 'PASS', 0), ('check_stage_delivery.py --mode inputs', 'PASS', 0), ('check_stage_delivery.py --mode evidence', 'PASS', 0)]
+
+
+=== 汇总 ===
+  T2a_shipped_literal: exit=1
+  T2b_residual_style: exit=0
+  T3a_untouched_package: exit=0
+  T3a2_literal_in_limits: exit=0
+  T3b1_pristine: exit=0
+  T3b2_literal_injected: exit=0
+  T3b3_cov_style: exit=0
+  T5_claim_verify_should_fail: exit=0
+  T5_builder_should_abort: exit=0
+  T6_builder_first_build: exit=0
+
+[restore] 已从备份恢复被改文件

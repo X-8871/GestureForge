@@ -1,0 +1,57 @@
+============================================================================================
+P1 claim_verify 扫描路径守卫（绝对路径含 'tmp' 组件即整文件跳过）
+============================================================================================
+project_root = D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\parity
+含 'tmp' 组件？ True -> ['tmp']
+
+### [P1_tool_with_literal_injected] exit=0
+    out: {"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "VERIFIED"]]}
+    注入后 limitations_not_executed.json 命中行： [(54, '      "reason": "注入阴性对照：M4 不可达（U6-12）。"')]
+    工具实测 verdict/exit: 0 (扫描集为空 → C1 平凡通过)
+    因绝对路径守卫被整体跳过的文件数： 7
+    去掉路径守卫后的命中： []
+    => 结论：路径守卫使 claim_verify 在本评审目录下**完全不扫描**；needle 集合本身对
+       『M4 不可达』这类字面量是有判别力的，但对『M4 被 M10 遮蔽、不可达』/
+       『M4/M7 显式登记不可达』/『不可达项（不计入覆盖）…M4/T6-S04』无判别力。
+
+--------------------------------------------------------------------------------------------
+P2 needle 逐条对包内三条真实残留行的匹配结果（纯字符串判定）
+--------------------------------------------------------------------------------------------
+    limitations_not_executed.json not_run[7].reason: needle 命中 = 无（漏判）
+    coverage_matrix.json item4.status: needle 命中 = 无（漏判）
+    .codex/STATE.md L61: needle 命中 = 无（漏判）
+    [对照]出厂探针字面量: needle 命中 = ['M4 不可达', '不得计入覆盖']
+
+============================================================================================
+T5 构建器：声明未通过 + run_dir 已有 selfcheck_result.json → 应中止
+============================================================================================
+    已把 selfcheck_result.json 的 C16 改判 FAIL（合成状态，文件存在）
+
+### [T5_claim_verify_expected_fail] exit=1
+    out: {"verdict": "NOT_ALL_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "NOT_VERIFIED"]]}
+
+### [T5_builder_expected_abort] exit=1
+    out: [legacy-rerun] exit=0
+    out: [r08-probe] exit=0
+    out: [claim-verify] exit=1
+    out: {"verdict": "NOT_ALL_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "NOT_VERIFIED"]]}
+
+============================================================================================
+T6 构建器：首版构建（删除 selfcheck_result.json）→ 是否仍中止
+============================================================================================
+    已删除 selfcheck_result.json（模拟新 RunId 首版构建）
+
+### [T6_claim_verify_expected_fail] exit=1
+    out: {"verdict": "NOT_ALL_VERIFIED", "claims": [["S6A-C1-no-m4-unreachable", "VERIFIED"], ["S6A-C2-hc23-agrees-with-c16", "NOT_VERIFIED"]]}
+
+### [T6_builder_first_build] exit=0
+    out: [selfcheck:iter2] exit=0
+    out: [evidence-mode:iter2] exit=0
+    out: [evidence-mode:final] exit=0
+    out: {"status": "EVIDENCE_BUILT", "selfcheck": "ALL_PASS", "c11_detail": "实际文件 40 个；manifest 双向一致（运行目录 39 个文件 + 外部绑定 9 个文件哈希复算通过）；STATE 声明 37 个文件与 3 个目录全部存在", "checks": [{"name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）", "status": "PASS", "exit_code": 0}, {"name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）", "status": "PASS", "exit_code": 0}, {"name": "check_stage_delivery.py --mode i
+    => 构建结束后 run_dir/claim_verification.json verdict = NOT_ALL_VERIFIED
+       claims = [('S6A-C1-no-m4-unreachable', 'VERIFIED', 0), ('S6A-C2-hc23-agrees-with-c16', 'NOT_VERIFIED', 1)]
+    => 构建结束后清单 checks = [('PASS', 0), ('PASS', 0), ('PASS', 0), ('PASS', 0)]
+    => 清单是否引用 claim_verification 的判定： False
+
+[restore] 完成

@@ -1,0 +1,38 @@
+=== 0) 建立 envC（干净克隆 f3c537d，autocrlf=true） ===
+HEAD=f3c537d1b37646ec779e3eb6fecdc4330bb1d7e3 autocrlf=true
+
+=== 1) 中间提交 902be77 的自证（预期 NOT_SELF_PROVEN：STATE 声明了当时不存在的 S6-B r03 目录） ===
+{"verdict": "NOT_ALL_SELF_PROVEN", "subjects": [["commit 902be77f5d672d1019f37d4c706276095d09e83f", "NOT_SELF_PROVEN", [1, 0, 0]]]}
+exit=1
+verdict NOT_ALL_SELF_PROVEN
+commit 902be77f5d672d1019f37d4c706276095d09e83f NOT_SELF_PROVEN [1, 0, 0]
+   selfcheck（C11：清单 + STATE） 1 | {"status": "FAILED", "errors": ["C11: STATE 声明的证据目录不存在：['report/evidence/S6-B/s6b_core_20261023_r03']"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔J
+
+=== 2) 反例 A：改 1 个非换行字节（r08/coverage_matrix.json 的 schema_version 1→9） ===
+REV_A=ccb617ae7cc18e93b90a2b8a291d2bc898afc123
+{"verdict": "NOT_ALL_SELF_PROVEN", "subjects": [["commit ccb617ae7cc18e93b90a2b8a291d2bc898afc123", "NOT_SELF_PROVEN", [1, 0, 2]]]}
+exit=1
+verdict NOT_ALL_SELF_PROVEN
+commit ccb617ae7cc18e93b90a2b8a291d2bc898afc123 NOT_SELF_PROVEN [1, 0, 2]
+   newline_alignment: {"aligned": 7, "unresolved": ["report/evidence/S6-A/s6a_g0_20261022_r08/coverage_matrix.json"], "note": "仅选择换行口径（LF/CRLF）；两者都不匹配即内容不同，保留原字节并登记", "worktree_bytes": {"aligned": 0, "content_differs": []}, "order_note": "先工作区口径、后清单口径（N-r07-1 修正）"}
+   selfcheck（C11：清单 + STATE） 1 | {"status": "FAILED", "errors": ["C11: 清单哈希不符：coverage_matrix.json"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "name": "文档↔JSON 标识集合双向一致", "status": "PASS", "detail": "10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致"}, {"id": "C4
+   check_stage_delivery --mode evidence 2 | {"status":"CHECKS_FAILED","mode":"evidence","task_id":"S6-A","run_id":"s6a_g0_20261022_r08","interfaces_not_applicable":null,"check_statuses":[{"status":"PASS","name":"冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）","reason":"断言 = 本包快照 SELF_PROVEN；实测 subjects={'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': 'SELF_PROVEN'}；工具总体判定 ALL_SELF_PROVEN"},{"status":"PASS","name":"S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单
+
+=== 3) 反例 B：只改行尾（把清单声明的 .py blob 整体改 CRLF，内容不变） ===
+REV_B=4e010a469221af08ee13386749f0d2a5178e3c6a target_blob=a367791ef2b6026fd083924825673dfa858b98c4
+对照：原 blob 内容 LF 计数
+84366
+86116
+内容（去换行）是否相同：是
+{"verdict": "ALL_SELF_PROVEN", "subjects": [["commit 4e010a469221af08ee13386749f0d2a5178e3c6a", "SELF_PROVEN", [0, 0, 0]]]}
+exit=0
+verdict ALL_SELF_PROVEN
+commit 4e010a469221af08ee13386749f0d2a5178e3c6a SELF_PROVEN [0, 0, 0]
+   newline_alignment: {"aligned": 7, "unresolved": [], "note": "仅选择换行口径（LF/CRLF）；两者都不匹配即内容不同，保留原字节并登记", "worktree_bytes": {"aligned": 0, "content_differs": []}, "order_note": "先工作区口径、后清单口径（N-r07-1 修正）"}
+
+=== 4) 单元反例：align_by_manifest_hashes 在合成树上不改写内容 ===
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+ModuleNotFoundError: No module named 'export_selfproof'
+
+=== 完成 ===

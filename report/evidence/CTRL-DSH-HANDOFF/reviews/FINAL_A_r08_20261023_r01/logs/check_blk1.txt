@@ -1,0 +1,84 @@
+====================================================================================================
+BLK-r07-1 八处核查（提交 f3c537d 字节）
+====================================================================================================
+
+----- 文档：M4/T6-S04 行 :: f3c537d\docs\stage6\S6A_stage6_g0_behavior_spec_v1.md
+   >> 8: > - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected.m4_reachable_under_draft` 由 false 改为 true，C7 机器断言与 C16 不再相反）**、清单 `limitations` 与摘要、文档 §18、STATE；C16 另加**全包禁语断言**（扫描『M4』不可达、『不得计入覆盖』、m4_reachable_under_draft=false 等，一律 FAIL）防复发。
+   >> 68: - **H-9 无硬件授权**：本阶段不得触碰板卡/JTAG/COM4/`hw_server`/HDMI 实物/摄像头，不得烧录。
+   >> 95: | M4 | `CANDIDATE` → `IDLE` | 抖动容忍耗尽（`> T6-J01` 帧不满足 `WINDOW_MATCH`）且候选停留 ≥ `T6-S04`；仅在 M10 未命中时求值。**M4 在本轮参数下可达**（`T6-S04`=500 ms 与 `T6-L02`=300 ms 的大小不足以判定：§3 的 `TARGET_CONTINUES` **不含** `score ≥ T6-P02`，低分/位移造成的 `WINDOW_MATCH` 中断仍满足 `TARGET_CONTINUES` → `t_last_target_continues` 继续刷新、`miss_streak` 不增 → M10 不会先命中，候选停留可达到 `T6-S04`；见 JSON `reachability`、U6-12 与 S6-B `C4-jitter-reset`） | P3 |
+   >> 112: - 求值顺序：P1 异常（M2/M13）→ P2 丢失确认（M10）→ P3 当前状态推进（M5/M6/M8/M9/M15/M3/M4）→ P4 重获/获取（M1）→ P5 恢复（M12）。
+   >> 113: - `CANDIDATE` 下 M4 与 M10 同帧同时满足时以 **M10 优先**（更长确认期优先）。
+   >> 147: | B26 | 时间边界 | 等于阈值 / 阈值 ±1 单位（帧类 1 条结果；时间类 1 ns；分数/几何 1 ULP） | 见 §12 逐条（除过期用严格 `>`，其余 `≥`）；未覆盖参数见 §12.1 缺口登记 | 边界判定所用比较与两侧取值 | 运行手册 §4 | 全部数值参数（`T6-C01`/`T6-U00_W`/`T6-U00_N`/`T6-S04`/`T6-P01..P05`/`T6-U01` 边界样例待补，见 §12.1） |
+   >> 231: | 候选超时 `T6-S04` | `dwell ≥ S04`（配合 M4） | M4 可用 | 不可用 | 可用 |
+   >> 251: | `T6-S04` | 新增 HC-23（边界推导）+ HC-12（抖动耗尽与窗口重置）；**r07 修正：草案值下 M4 可达**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中） | 规则可达性，不是运行时样例 |
+   >> 283: | `T6-S04` | 候选停留超时 | ms | `≥` | 500（草案） | PENDING_APPROVAL |
+   >> 302: - `T6-S04` 当前草案 500 ms ≥ `T6-L02` 300 ms，但**两者大小不足以判定可达性**：§3 的 `TARGET_CONTINUES` 不含 `score ≥ T6-P02`，低分/位移造成的 `WINDOW_MATCH` 中断仍满足 `TARGET_CONTINUES` → `miss_streak` 不增 → M10 不会先命中 → 候选停留可达到 `T6-S04`，**M4 在本轮参数下可达并计入覆盖**（r07 按 S6-B 复评 BLK-1 修正，见 JSON `reachability`/U6-12）。
+   >> 339: | U6-12 | `T6-S04`/M4 可达性与兜底次序：M4 **可达并保留**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02`）；G0 只需决定是否让 `T6-S04` 早于 `T6-L02` 命中以改变兜底次序 | r07 修正（S6-B 复评 BLK-1） | Wong/G0 |
+   >> 351: **独立复评 S6A_20261022_r02 关闭索引（r03）**：BLK-1 → JSON `transitions.M1/M3/M4/M5/M8/M9/M10/M15` 与 `behavior_rows.B04/B08/B10/B12/B13/B14` 的谓词绑定、`predicates.*.used_by` 补 M3/M10、§4/§5/§9/§10/§12/§13 文本同步、自检 C12 增加迁移/行为行断言；BLK-2 → `old_package_under_test.json` 改为 `git show 1fe4648:` 原始字节哈希并重跑失败证据（`selfcheck_old_package_failure.json/.txt`），旧哈希错误原因见 `fix_record.json`；BLK-3 → 入库 `selfcheck_result.json` 改用 `--m
+   >> 357: **第 7 轮复评 S6A_r07_20261023_r01 收尾索引（r08）**：`BLK-r07-1` → M4 口径 8 处统一 + HC-23 机器断言改可达 + C16 全包禁语断言；`N-r07-1` → 自证工具换行顺序；`N-r07-2` → 自证报告移到 `_selfproof` 兄弟目录并含交付提交主体；`F2`/`F4`/`F5`/`F11` → 文本与口径统一。
+   >> 386: - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1）。
+
+----- 行为表 JSON：parameter_notes 中涉及 M4/T6-S04/L02 的全部键
+   T6-S04 = 草案 500ms ≥ T6-L02 300ms **不构成不可达依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08；S6-B C4-jitter-reset 实测 M4@f7）。
+
+----- reachability
+   M4 = {"status": "REACHABLE", "reason": "TARGET_CONTINUES（§3）不含 score ≥ T6-P02：低分或位移造成的 WINDOW_MATCH 中断仍满足 TARGET_CONTINUES，t_last_target_continues 继续刷新、miss_streak 不增 → M10 不会先命中，候选停留可达到 T6-S04(500 ms) → M4 可达（S6-B 实现轮复评 BLK-1；见 C4-jitter-reset 的 M4@f7）", "resolution": "M4/T6-S04 保留并计入覆盖；G0 可决定是否让 T6-S04 早于 T6-L02 命中以改变兜底次序（不改变 M4 存在性，见 U6-12）", "evidence": "S6-B 实现轮复评 BLK-1 + S6-B 用例 C4-jitter-reset（expected transitions=['M1','M4']，实测 M4@f7）", "review_correction": "原声明仅按 T6-S04 与 T6-L02 的大小比较就得出「不可达」结论，忽略了 TARGET_CONTINUES 不含 score ≥ T6-P02；r07 起修正为可达，r08 把全包表述（含机器断言 HC-23）统一到可达并计入覆盖。"}
+   M7 = {"status": "UNREACHABLE_BY_CONSTRUCTION", "reason": "M5 同步提交；不存在 TRIGGERED 之后、提交之前的丢失窗口", "resolution": "保留编号以便追溯；实现不得为 M7 造路径"}
+   consequence = "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）；M14 已删除（见 revision.deleted_transitions）。"
+
+----- open_decisions U6-12
+[
+  {
+    "id": "U6-12",
+    "item": "T6-S04/M4 可达性与兜底次序：M4 已修正为**可达**（TARGET_CONTINUES 不含 score ≥ T6-P02，低分中断不推进 miss_streak，因此 M10 不先命中）；M4/T6-S04 保留并计入覆盖，G0 只需决定是否让 S04 早于 L02 命中以改变兜底次序（不改变 M4 的存在性）",
+    "status": "CORRECTED_BY_S6B_REVIEW_BLK1",
+    "owner": "Wong/G0",
+    "note": "r07 修正：M4 可达并保留（BLK-1）。原「去掉 M4/T6-S04」的选项已撤销；如需缩小兜底窗口，可评估 T6-S04 < T6-L02，但 M4 与 T6-S04 均保留并计入覆盖。"
+  }
+]
+
+----- 清单 limitations
+   [0] "source_commit = 本轮构建时的 HEAD（修订基线 05126fdb79ba77de57d9262857af66393b453d66）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。"
+   [1] "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。"
+   [2] "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。"
+   [3] "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）（r08/BLK-1、BLK-r07-1）。"
+   [4] "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。"
+   [5] "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。"
+   [6] "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+
+----- HC-23（提交字节）
+[
+  {
+    "case_id": "HC-23",
+    "topic": "T6-S04/M4 可达性：草案 S04 ≥ L02 时 M4 仍可达（TARGET_CONTINUES 无分数门，M10 不先命中）",
+    "recompute": {
+      "kind": "m4_reachability",
+      "s04_ms": 500,
+      "l02_ms": 300,
+      "j01_frames": 1,
+      "l01_frames": 5,
+      "period_ms": 40
+    },
+    "derivation": "草案 T6-S04=500 ms ≥ T6-L02=300 ms **不构成不可达依据**：M10 的 miss_streak 只在 TARGET_CONTINUES 不成立时推进，而 §3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，因此低分/位移造成的 WINDOW_MATCH 中断仍刷新 t_last_target_continues、miss_streak 保持 0 → M10 不会先命中 → 候选停留可达 T6-S04 → **M4 可达**。本样例的期待值由 C7 机器断言（r08/BLK-r07-1 修正前为 false，与 C16 结论相反）。`historical_earliest_m10_ms_if_score_gate` 只是「若 TARGET_CONTINUES 含分数门」的历史模型对照值，不参与判定。",
+    "expected": {
+      "m4_reachable_under_draft": true,
+      "target_continues_requires_score_gate": false,
+      "historical_earliest_m10_ms_if_score_gate": 200,
+      "m4_earliest_ms": 500,
+      "reachable_if_s04_lt_l02": true
+    }
+  }
+]
+
+----- limitations_not_executed 顶层键： ['schema_version', 'artifact', 'artifact_version', 'task_id', 'run_id', 'supersedes_run_id', 'status_legend', 'not_run', 'blocked', 'not_applicable', 'hard_limits_observed', 'replay_injection_boundary', 'checker_scope_note', 'review_fix_notes']
+   not_run = [{"item": "6-B 状态机实现（纯核心 + 动作层隔离）", "status": "NOT_RUN", "reason": "S6-B 实现与 6-C 矩阵已产出（`report/evidence/S6-B/s6b_core_20261023_r03/`，23 例 PASS + claim_verification）；其 r02 复评判 CHANGES_REQUIRED，r03 已修正待复评。"}, {"item": "6-C 确定性测试矩阵（含 11 类用例行）", "status": "NOT_RUN", "reason": "依赖 6-B 实现与独立预期；本轮只修订 G0 规格与手算样例（32 例）。"}, {"item": "6-D 一级联调（脚本结果→PS 状态机→HDMI 动作）", "status": "NOT_RUN", "reason": "无状态机实现、无硬件授权；不在本轮范围。"}, {"item": "6-D 二级联调（独立图片/视频→板上推理→状态机→HDMI）", "status": "NOT_RUN", "reason": "依赖阶段4 板上链路与阶段5 显示；均未就绪。"}, {"item": "≥30 分钟回放稳定性实验", "status": "NOT_RUN", "reason": "无状态机与回放驱动；未执行。"}, {"item": "T6-01/02/03 任何统计", "status": "NOT_RUN", "reason": "指标未获批准（PENDING_APPROVAL），且无实现与样本；不得报告任何“观测值”为通过。"}, {"item": "T6-A03 交互延迟与低 FPS 延迟量级", "status": "NOT_RUN", "reason": "阶段4 未提供实测帧周期 P_meas；行为表 v1.5 规定无实测 P 时不得用假设 FPS 估算，登记 U6-13。r06 的 30fps 完成帧结论是**按 P=33.3 ms 假设的模型一致性检查**，不是实测。"}, {"item": "M4/
+
+----- coverage_matrix 顶层键： ['schema_version', 'artifact', 'artifact_version', 'task_id', 'run_id', 'supersedes_run_id', 'human_doc', 'machine_json', 'status_note', 'runbook_coverage', 'plan_coverage', 'stage5_suggestion_coverage', 'review_fix_coverage', 'selfcheck_mapping', 'not_claimed']
+   coverage_matrix 全文（截断 3000）:
+Traceback (most recent call last):
+  File "D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\check_blk1.py", line 95, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "D:\FPGA_Competition\tmp\review\FINAL_A_20261023_r01\check_blk1.py", line 86, in main
+    print(text(PLACES[5][1])[:3000])
+UnicodeEncodeError: 'gbk' codec can't encode character '\u2194' in position 1307: illegal multibyte sequence

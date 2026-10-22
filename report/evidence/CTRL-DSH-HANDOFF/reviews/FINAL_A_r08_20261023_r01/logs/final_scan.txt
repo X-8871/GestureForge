@@ -1,0 +1,63 @@
+### 非豁免（判定为真实残留）
+  [不可达项（不计入覆盖）] .codex/STATE.md:61
+      - 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/claim_verification.json:11
+      "statement": "全包不再出现「M4 不可达」类表述（含 JSON/文档/手算样例/清单文本/STATE/自检与构建器）",
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/claim_verification.md:9
+      - 声明：全包不再出现「M4 不可达」类表述（含 JSON/文档/手算样例/清单文本/STATE/自检与构建器）
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/coverage_matrix.json:34
+      "status": "DONE_WITH_PREDICATE_BINDING（BLK-1 与 R3-B02 关闭：used_by ↔ predicates_used 全量双向一致；M4/M7 显式登记不可达，U6-12）"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/limitations_not_executed.json:54
+      "reason": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，M4 被 M10 遮蔽、不可达；已登记 reachability 与 U6-12，未运行任何状态机。"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_summary.json:134
+      "injection": "parameter_notes.T6-S04 回退为「M4 不可达…不得计入覆盖声明」",
+  [M4 … 不可达] verification/claim_verify.py:177
+      # 声明：全包不再出现「M4 不可达 / 不得计入覆盖 / m4_reachable_under_draft=false」
+  [M4 … 不可达] verification/claim_verify.py:178
+      forbidden = ["M4 不可达", "M4/M7 不可达", "不得计入覆盖", "m4_reachable_under_draft\": false",
+  [M4 … 不可达] verification/claim_verify.py:179
+      "m4_reachable_under_draft=false", "M4 在草案参数下不可达"]
+  [M4 … 不可达] verification/claim_verify.py:217
+      "全包不再出现「M4 不可达」类表述（含 JSON/文档/手算样例/清单文本/STATE/自检与构建器）",
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1500
+      raise CheckFailure("reachability.M4.resolution 不得再按不可达处理（BLK-1）")
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1505
+      if "M4 在本轮参数下不可达" in doc_text:
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1506
+      raise CheckFailure("文档仍残留「M4 在本轮参数下不可达」旧结论（BLK-1）")
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1526
+      forbidden = ("M4 不可达", "M4/M7 不可达", "M4 在草案参数下不可达", "M4/T6-S04 与 M7 不得计入",
+  [不得计入覆盖] verification/s6_g0_selfcheck.py:1527
+      "M4 不得计入覆盖", "不得计入覆盖声明")
+  [m4_reachable_under_draft=false] verification/s6_g0_selfcheck.py:1535
+      raise CheckFailure(f"{case.get('case_id')}.expected.m4_reachable_under_draft=false 与 C16 结论相反"
+  [M4 … 不可达] verification/s6a_r08_probe.py:94
+      data["parameter_notes"]["T6-S04"] = "草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。"
+  [M4 … 不可达] verification/s6a_r08_probe.py:95
+      return "parameter_notes.T6-S04 回退为「M4 不可达…不得计入覆盖声明」"
+  合计 = 18
+
+### 豁免（历史/否定/元陈述语境，已人工判读）
+  [M4 … 不可达] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:8  > - **`BLK-r07-1`**：M4 可达性口径**统一到 8 处**——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-23（`expected
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.json:24  "problem": "M4 修正在 S6-A 侧漏 8 处仍写「不可达／『不得』计·入覆盖」，其中 `hand_computed_cases.json` 的 HC-23 `expected.m4_reachable_under_draft 为 false` 由 C7 机器断言 → C7 与 C16 同时通过却结论相反。",
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.json:25  "fix": "8 处统一为「M4 可达并计入覆盖；不可达仅 B16 S_DEDUP 与 M7」；HC-23 的机器断言改为 true 并保留「若 TARGET_CONTINUES 含分数门」的历史对照字段（仅对照、不参与判定）；C16 新增全包禁语断言防复发。",
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.md:12  - 问题：M4 修正在 S6-A 侧漏 8 处仍写「不可达／『不得』计·入覆盖」，其中 `hand_computed_cases.json` 的 HC-23 `expected.m4_reachable_under_draft 为 false` 由 C7 机器断言 → C7 与 C16 同时通过却结论相反。
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/fix_record.md:13  - 修正：8 处统一为「M4 可达并计入覆盖；不可达仅 B16 S_DEDUP 与 M7」；HC-23 的机器断言改为 true 并保留「若 TARGET_CONTINUES 含分数门」的历史对照字段（仅对照、不参与判定）；C16 新增全包禁语断言防复发。
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_b07_old_wording_stdout.txt:1  {"status": "FAILED", "errors": ["C14: behavior_rows.B07.condition 缺少统一窗口完成口径「第一个同时满足帧数与时长（取较晚）的帧」（F1）"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": 
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_b13_predicates_used_added_stdout.txt:1  {"status": "FAILED", "errors": ["C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_baseline_no_injection_stdout.txt:1  {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_out_of_sequence_index_stdout.txt:1  {"status": "FAILED", "errors": ["C7: HC-32.completion_index 预期 7 与复算 -1 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_span_wrong_stdout.txt:1  {"status": "FAILED", "errors": ["C7: HC-31.m3_fires 预期 False 与复算 True 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", 
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_case_timeout_frame_action_stdout.txt:1  {"status": "FAILED", "errors": ["C7: HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_timeout': False, 'gate_opens_o
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_empty_predicates_used_stdout.txt:1  {"status": "FAILED", "errors": ["C12: M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity 
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_m4_unreachable_phrase_stdout.txt:1  {"status": "FAILED", "errors": ["C16: 行为表 JSON中仍出现禁语『M4 不可达』（M4 应可达并计入覆盖，BLK-r07-1）"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/probe_m5_window_advance_removed_stdout.txt:1  {"status": "FAILED", "errors": ["C12: M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_c11_stdout.txt:1  {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08/selfcheck_result.json:103  "detail": "M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语"
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/export_selfproof.json:34  "stdout_tail": "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C
+  [M4 … 不可达] report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/export_selfproof.json:80  "stdout_tail": "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1524  # r08/BLK-r07-1：**全包禁语断言**——任何"M4 不可达／不得计入覆盖"类表述一律 FAIL（防复发）。
+  [M4 … 不可达] verification/s6_g0_selfcheck.py:1649  or "M4 可达并计入覆盖（M7 构造上不可达）；全包无 M4 不可达类禁语")
+  [M4 … 不可达] verification/s6a_r08_probe.py:12  8. m4_unreachable_phrase            BLK-r07-1：把 parameter_notes.T6-S04 回退为「M4 不可达」→ C16（全包禁语断言）
+  [M4 … 不可达] verification/s6a_r08_probe.py:93  """BLK-r07-1：把 M4 口径回退为不可达，验证 C16 的全包禁语断言可捕获。"""
+  合计 = 22

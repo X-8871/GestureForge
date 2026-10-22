@@ -246,7 +246,27 @@ def effective_state(state_records: list[dict], scope: str) -> tuple[str, dict | 
     return "UNKNOWN", latest_rel, latest_occ
 
 
-def real_processes() -> tuple[list[dict], str, bool]:
+def classify_process_rows(csv_text: str) -> tuple[list[dict], list[dict]]:
+    """把 tasklist / Get-Process 的 CSV 文本分类为 (硬件进程, 工具包装器)。
+
+    第四轮复审关闭条件 B1：真实枚举与测试替身（`--process-check stub-csv`）**共用此函数**，
+    使测试真正覆盖分类逻辑（此前 stub 硬编码，删/放宽分类都不被任何用例捕获）。
+    """
+    hardware: list[dict] = []
+    tooling: list[dict] = []
+    for line in csv_text.splitlines():
+        parts = [p.strip().strip('"') for p in line.split(",")]
+        if len(parts) < 2:
+            continue
+        name = parts[0].strip('"')
+        if not any(pattern in name.lower() for pattern in PROCESS_PATTERNS):
+            continue
+        entry = {"name": name, "pid": parts[1].strip('"')}
+        (tooling if TOOLING_PATTERN.search(name) else hardware).append(entry)
+    return hardware, tooling
+
+
+def real_processes() -> tuple[list[dict], list[dict], str, bool]:
     attempts = [
         ["cmd.exe", "/c", "tasklist", "/FO", "CSV", "/NH"],
         ["tasklist", "/FO", "CSV", "/NH"],
@@ -259,20 +279,30 @@ def real_processes() -> tuple[list[dict], str, bool]:
         raw += f"$ {' '.join(cmd)}\n[exit code: {code}]\n{out}\n"
         if code != 0 or not out.strip():
             continue
-        found, tooling = [], []
-        for line in out.splitlines():
-            parts = [p.strip().strip('"') for p in line.split(",")]
-            if len(parts) < 2:
-                continue
-            name = parts[0].strip('"')
-            if any(pattern in name.lower() for pattern in PROCESS_PATTERNS):
-                entry = {"name": name, "pid": parts[1].strip('"')}
-                if TOOLING_PATTERN.search(name):
-                    tooling.append(entry)
-                else:
-                    found.append(entry)
-        return found, tooling, raw, True
+        hardware, tooling = classify_process_rows(out)
+        return hardware, tooling, raw, True
     return [], [], raw, False
+
+
+def check_port_3121() -> tuple[bool, bool, str]:
+    """第二道门（第四轮复审建议）：3121 是否有 LISTENING（hw_server 特征）。
+
+    返回 (listening, enum_ok, raw)。仅凭进程名无法区分"被伪装命名的真实硬件会话"，
+    故端口监听作为独立判据：**有监听即视为硬件会话存在 → 阻断**（fail-closed）。
+    """
+    attempts = [["cmd.exe", "/c", "netstat", "-ano"], ["netstat", "-ano"]]
+    raw = ""
+    for cmd in attempts:
+        code, out = run(cmd)
+        raw += f"$ {' '.join(cmd)}\n[exit code: {code}]\n{out}\n"
+        if code != 0 or not out.strip():
+            continue
+        listening = False
+        for line in out.splitlines():
+            if ":3121" in line and "LISTENING" in line.upper():
+                listening = True
+        return listening, True, raw
+    return False, False, raw
 
 
 def main() -> int:
@@ -286,8 +316,12 @@ def main() -> int:
     parser.add_argument("--scope", default="JTAG+COM4")
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
     parser.add_argument("--mailbox-root", action="append", default=None)
-    parser.add_argument("--process-check", choices=["real", "stub-ok", "stub-fail", "stub-hit", "stub-tooling"],
+    parser.add_argument("--process-check",
+                        choices=["real", "stub-ok", "stub-fail", "stub-hit", "stub-tooling", "stub-csv"],
                         default="real")
+    parser.add_argument("--process-csv", default=None,
+                        help="stub-csv 模式下的伪造 tasklist CSV 文件（经 classify_process_rows 真实分类）")
+    parser.add_argument("--port-check", choices=["real", "stub-none", "stub-listening"], default="real")
     parser.add_argument("--lock-check", choices=["real", "stub-none", "stub-lock"], default="real")
     parser.add_argument("--main-state", default=str(DEFAULT_MAIN_STATE))
     args = parser.parse_args()
@@ -357,6 +391,15 @@ def main() -> int:
     elif args.process_check == "stub-tooling":
         procs, tooling, proc_raw, proc_ok = [], [
             {"name": "vivado-mcp-server-windows-amd64-2026.9.1.exe", "pid": "10888"}], "[stub-tooling]\n", True
+    elif args.process_check == "stub-csv":
+        csv_path = pathlib.Path(args.process_csv) if args.process_csv else None
+        if csv_path is None or not csv_path.exists():
+            procs, tooling, proc_raw, proc_ok = [], [], f"[stub-csv] 缺少 --process-csv：{args.process_csv}\n", False
+        else:
+            csv_text = csv_path.read_text(encoding="utf-8", errors="replace")
+            procs, tooling = classify_process_rows(csv_text)          # 走真实分类路径（B1 关闭条件）
+            proc_raw = f"[stub-csv] {csv_path}\n{csv_text}\n"
+            proc_ok = True
     elif args.process_check == "stub-fail":
         procs, tooling, proc_raw, proc_ok = [], [], "[stub-fail] 测试替身：枚举失败\n", False
     else:
@@ -365,6 +408,19 @@ def main() -> int:
         reasons.append("无法枚举系统进程（fail-closed）：不得据此认为无硬件占用，也不得放行")
     elif procs:
         reasons.append("检测到硬件/重型进程：" + ", ".join(f"{p['name']}({p['pid']})" for p in procs))
+
+    # 第二道门：3121 监听（名称可被伪装，端口不可）
+    if args.port_check == "stub-none":
+        port_listening, port_ok, port_raw = False, True, "[stub-none] 测试替身：3121 无监听\n"
+    elif args.port_check == "stub-listening":
+        port_listening, port_ok, port_raw = True, True, "[stub-listening] 测试替身：3121 有 LISTENING\n"
+    else:
+        port_listening, port_ok, port_raw = check_port_3121()
+    if not port_ok:
+        reasons.append("无法枚举端口监听（fail-closed）：不得据此认为无硬件会话，也不得放行")
+    elif port_listening:
+        reasons.append("3121 端口存在 LISTENING（hw_server 特征）⇒ 视为硬件会话存在，阻断"
+                       "（进程名可伪装，故以端口为独立判据）")
 
     # 授权（严格绑定出处）
     authorization = None
@@ -449,6 +505,9 @@ def main() -> int:
         "hardware_processes": procs,
         "tooling_processes": tooling,
         "hardware_process_enumeration_ok": proc_ok,
+        "port_3121_listening": port_listening,
+        "port_check_ok": port_ok,
+        "port_check_mode": args.port_check,
         "lock_check_mode": args.lock_check,
         "process_check_mode": args.process_check,
         "main_state_hardware_excerpt_informational": state_excerpt,
@@ -456,6 +515,10 @@ def main() -> int:
             "本门禁只读：不连接板卡、不启动 hw_server、不写寄存器。",
             "普通请求/操作文档/回执/报告中性，不改变硬件状态；只有登记表内 hardware_occupation/release 改变状态。",
             "未登记却自称硬件交接的记录、证据矛盾、锁或进程枚举失败 → BLOCKED（不通过删除校验“修好”）。",
+            "`hardware_process_enumeration_ok` 只表示**进程枚举本身成功**，不表示“无硬件占用”。",
+            "`tooling_processes` 是名称形如 `vivado-mcp-server-*` 的 IDE/MCP 工具包装器：**单列可见但不阻断**；"
+            "真实硬件进程（hw_server/xsdb/vitis/xsim/cs_server、非 MCP 的 vivado）仍阻断。",
+            "第二道门：3121 端口存在 LISTENING ⇒ 视为硬件会话存在并阻断（进程名可伪装，端口不可）。",
             "门禁 GO 只表示可进入上板流程，不代表 G3/G4/G5 或任何验收通过；也不自动授予硬件使用权。",
         ],
     }
@@ -466,6 +529,9 @@ def main() -> int:
     (console / "neutral_records.json").write_text(json.dumps(neutral, ensure_ascii=False, indent=2) + "\n",
                                                   encoding="utf-8")
     (console / "processes.json").write_text(json.dumps(procs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (console / "tooling_processes.json").write_text(json.dumps(tooling, ensure_ascii=False, indent=2) + "\n",
+                                                    encoding="utf-8")
+    (console / "port_3121.txt").write_text(port_raw, encoding="utf-8")
     (console / "process_enumeration.txt").write_text(proc_raw, encoding="utf-8")
     (console / "worktrees.json").write_text(json.dumps(worktrees, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out_dir / "hardware_gate.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

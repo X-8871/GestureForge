@@ -68,11 +68,15 @@ class GateCase(unittest.TestCase):
     def run_gate(self, *, process: str = "stub-ok", lock: str = "stub-none", release_id: str | None = None,
                  registry: pathlib.Path | None = None, mailbox_root: pathlib.Path | None = None,
                  extra: list[str] | None = None, out_name: str = "out",
-                 use_real_mailbox: bool = False) -> tuple[int, dict]:
+                 use_real_mailbox: bool = False, port: str = "stub-none",
+                 process_csv: pathlib.Path | None = None) -> tuple[int, dict]:
         out_dir = self.tmp / out_name
         cmd = [sys.executable, "-B", str(GATE), "--out", str(out_dir),
                "--registry", str(registry or self.write_registry()),
-               "--process-check", process, "--lock-check", lock, "--main-state", str(self.state)]
+               "--process-check", process, "--lock-check", lock, "--main-state", str(self.state),
+               "--port-check", port]
+        if process_csv is not None:
+            cmd += ["--process-csv", str(process_csv)]
         if not use_real_mailbox:
             cmd += ["--mailbox-root", str(mailbox_root or self.mailbox)]
         if release_id:
@@ -450,6 +454,55 @@ class GateCase(unittest.TestCase):
         self.assertEqual(payload["hardware_processes"], [])
         self.assertTrue(payload.get("tooling_processes"), "工具进程应被单列")
         self.assertFalse(any("检测到硬件/重型进程" in r for r in payload["reasons"]))
+
+    # ── 第四轮复审关闭条件 B1：必须经过**真实分类路径**（classify_process_rows）─────────
+    def _csv(self, rows: list[tuple[str, str]], name: str = "procs.csv") -> pathlib.Path:
+        path = self.tmp / name
+        path.write_text("\n".join(f'"{n}","{p}","Console","1","1 K"' for n, p in rows) + "\n",
+                        encoding="utf-8")
+        return path
+
+    def test_36_tooling_name_via_real_classification_is_not_blocking(self) -> None:
+        """伪造 tasklist CSV 经**真实分类函数** ⇒ `vivado-mcp-server-*` 单列且不阻断（GO）。
+
+        判别力：若分类逻辑被删除（全部命中即阻断），本用例必失败。
+        """
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        csv = self._csv([("vivado-mcp-server-windows-amd64-2026.9.1.exe", "10888"),
+                         ("notepad.exe", "4242")])
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-csv", process_csv=csv)
+        self.assertEqual(code, 0, payload.get("reasons"))
+        self.assertEqual(payload["hardware_processes"], [])
+        self.assertEqual([p["name"] for p in payload.get("tooling_processes") or []],
+                         ["vivado-mcp-server-windows-amd64-2026.9.1.exe"])
+
+    def test_37_all_hardware_names_via_real_classification_block(self) -> None:
+        """伪造 CSV 含 6 类真实硬件进程名 ⇒ 全部判硬件且阻断。
+
+        判别力：若 `TOOLING_PATTERN` 放宽为 `vivado`（把 `vivado.exe` 也当工具），本用例必失败。
+        """
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        names = ["vivado.exe", "hw_server.exe", "xsdb.exe", "vitis.exe", "xsim.exe", "cs_server.exe",
+                 "vivado-mcp-server-windows-amd64-2026.9.1.exe"]
+        csv = self._csv([(n, str(9000 + i)) for i, n in enumerate(names)])
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-csv", process_csv=csv)
+        self.assertEqual(code, 1)
+        self.assertEqual(sorted(p["name"] for p in payload["hardware_processes"]), sorted(names[:-1]))
+        self.assertEqual([p["name"] for p in payload["tooling_processes"]], [names[-1]])
+        self.assertTrue(any("检测到硬件/重型进程" in r for r in payload["reasons"]))
+
+    def test_38_port_3121_listening_blocks_even_if_names_are_tooling(self) -> None:
+        """第二道门：进程名像工具但 **3121 有监听** ⇒ 视为硬件会话存在，必须阻断（防伪装命名）。"""
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        csv = self._csv([("vivado-mcp-server-windows-amd64-2026.9.1.exe", "10888")])
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-csv",
+                                      process_csv=csv, port="stub-listening")
+        self.assertEqual(code, 1)
+        self.assertTrue(payload.get("port_3121_listening"))
+        self.assertTrue(any("3121" in r for r in payload["reasons"]), payload["reasons"])
 
 
 if __name__ == "__main__":

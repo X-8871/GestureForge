@@ -44,10 +44,11 @@
 - 临时产物与历史运行：`tmp/5/<task_id>/<run_id>/`（按 `.gitignore` 不入库）。
 
 ## 下一步
-1. `display_fps`/延迟：为 MM2S 帧计数接 GIC 中断服务（起止事件=帧完成中断，时间戳用 `XTime`），或改用 VTC/其它帧完成事件；仍测不到则保持 NOT_VERIFIED。
-2. T5-05：P1 内注入 ≥100 帧顺序结果 + `frame_id` 五元组日志。
-3. T5-11：故障注入（预热/丢帧/超时）与计数单列；T5-09：连续 30 分钟长跑。
-4. 收尾：板卡恢复到已知状态（必要时重载最小改动 ELF），并出 S5-T01 收尾记录与清单。
+1. **§0 门禁修复（已实现并提交，待审查结论）**：`scripts/stage5_t01/check_hardware_gate.py` v2（登记表驱动、普通文档中性、未登记自称交接即阻断、授权须绑定原文+哈希）× `hardware_handoff_registry.json`（25 条）× `test_hardware_gate.py`（19 项隔离合成测试 19/19 PASS、exit 0）；证据 `report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/`。**审查通过前不得据其放行真实硬件**；随后执行真实只读门禁（`--release-id CDX-20261022-007`）。
+2. `display_fps`/延迟（§3）：**事件源已核验**（MM2S 帧完成中断→GIC 61；VTC 中断→GIC 62；S2MM 未接入；`USE_FSYNC=1`），设计见 `…/S5T01_S3_frame_event_design.md`。下一步实现 P1 rev r03（XScuGic + 两个 ISR + `CR[23:16]` 阈值=1 + VTC IER）并按四种 FPS 语义测量。
+3. HUD/UI 复核（§2.4/§5.4）：HUD 13 字段（无摄像头 `capture_fps=NA`、无阶段4 `inference_fps=NA`，缺失值不得用 0 伪装）；标签/HUD 布局改为**宿主端生成**并量化遮挡。
+4. T5-05：≥100 帧顺序结果 + `frame_id` 五元组；T5-11 故障计数；T5-09 30 分钟长跑。
+5. 收尾：板卡恢复到已知状态并在**明确让出**记录中登记；出 S5-T01 收尾记录与清单。
 
-## 交接行（11 字段，2026-10-22 18:50）
-任务=`HL-T13 阶段5 离线准备（完成）+ S5-T01 上板 bring-up（执行中：PS 合成源叠框已跑通、逐像素核对 13/13 PASS；FPS/长跑等未做）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 基线 `a4baab4`） | 允许修改范围=`docs/stage5/**`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`已认领：S5-T01 由本阶段总控独占写入（IN_PROGRESS）；当前无让出` | 心跳(UTC+8)=`2026-10-22 18:50` | 证据入口=`report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/`、`report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/`、`report/evidence/S5-A/s5a_g0_20261021_r03/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01 上板执行中；下一步：FPS 中断计数、≥100 帧五元组、30 分钟长跑、故障计数、板卡恢复）/ 本阶段总控`
+## 交接行（11 字段，2026-10-22 19:50）
+任务=`HL-T13 阶段5 离线准备（完成）+ S5-T01 上板 bring-up（执行中：PS 合成源叠框跑通、逐像素 13/13；§0 门禁修复已实现+19/19 合成测试，待独立审查；FPS/长跑等未做）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 基线 `a4baab4`） | 允许修改范围=`docs/stage5/**`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`已认领：S5-T01 由本阶段总控独占写入（IN_PROGRESS）；当前无让出` | 心跳(UTC+8)=`2026-10-22 19:50` | 证据入口=`report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/`、`report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/`、`report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01：等 §0 审查结论→真实门禁；随后 r03 帧事件/四 FPS、HUD 13 字段、≥100 帧五元组、长跑、板卡让出）/ 本阶段总控`

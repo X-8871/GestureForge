@@ -1,0 +1,31 @@
+diff --git a/my_ip/ov5640_ip/src/alinx_ov5640.v b/my_ip/ov5640_ip/src/alinx_ov5640.v
+--- a/my_ip/ov5640_ip/src/alinx_ov5640.v
++++ b/my_ip/ov5640_ip/src/alinx_ov5640.v
+@@ -40,6 +40,9 @@
+ reg[15:0]     cmos_d_16bit_d1;
+ wire          s_axis_tvalid = cmos_href_16bit_d1 & cmos_hblank_d1 & s_axis_tready;
+ wire[15:0]    s_axis_tdata = cmos_d_16bit_d1;
++// S3-T05-PL1 blue fix: RGB565 blue MSB rebuild. B = tdata[4:0]; B'[4:0] = {B[3:0], B[3]}.
++// Only bit[4] changes; R/G and all other bits, tlast/tuser/tkeep/timing stay untouched.
++wire[15:0]    s_axis_tdata_bluefix = {s_axis_tdata[15:5], s_axis_tdata[3:0], s_axis_tdata[3]};
+ reg[31:0]     reset_cnt;
+ reg[31:0]     fifo_ready_cnt;
+ reg           fifo_ready;
+@@ -147,7 +150,7 @@
+ 	begin:ila
+ 	ila_0 ila_0_m0(
+         .clk(cmos_pclk),
+-        .probe0(s_axis_tdata),
++        .probe0(s_axis_tdata_bluefix),
+         .probe1(s_axis_tvalid),
+         .probe2(s_axis_tlast),
+         .probe3(s_axis_tuser),
+@@ -186,7 +189,7 @@
+       .rst              (~cmos_aresetn),
+       .wr_clk           (cmos_pclk),
+       .wr_en            (s_axis_tvalid & fifo_ready),
+-      .din              ({s_axis_tdata,s_axis_tlast,s_axis_tuser}),
++      .din              ({s_axis_tdata_bluefix,s_axis_tlast,s_axis_tuser}),
+       .full             (full),
+       .overflow         (),
+       .prog_full        (),

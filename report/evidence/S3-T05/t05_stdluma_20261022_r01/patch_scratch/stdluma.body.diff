@@ -1,0 +1,65 @@
+--- a/my_ip/ov5640_ip/src/alinx_ov5640.v
++++ b/my_ip/ov5640_ip/src/alinx_ov5640.v
+@@ -176,6 +176,53 @@
+     end
+ endgenerate
+ 
++// ---------------------------------------------------------------------------
++// S3-T05-PL5 standard-luminance greyscale: Y = (77*R8 + 150*G8 + 29*B8) >> 8
++// (integer approximation of 0.299R + 0.587G + 0.114B).
++// *** GREYSCALE COMPENSATION ONLY -- NOT A TRUE REPAIR. ***  The real fault --
++// the module-side dead DVP byte-MSB line cmos_d[9] -- is NOT fixed here. The
++// missing blue MSB is still *guessed* (B'[4] = B'[3] = B[3]) and that guessed bit
++// still feeds the luma, so this bitstream must NOT be used for colour acceptance
++// and cannot replace the hardware repair.
++// Word layout: word[15:11] = B[4:0], word[10:5] = G[5:0], word[4:0] = R[4:0]
++//   R8  = { tdata[4:0], 3'b000 }
++//   G'  = { tdata[10], tdata[9], tdata[8], maj3(tdata[8]), tdata[6], tdata[5] }
++//         (dead G[2] = tdata[7] rebuilt from G[3] = tdata[8] and smoothed by a
++//          horizontal 3-tap majority vote; 2 pixel-rate delay registers + 1
++//          majority gate only -- no line buffer / no BRAM, stream NOT delayed)
++//   G8  = { G'[5:0], 2'b00 }
++//   B'  = { tdata[14], tdata[14], tdata[13], tdata[12], tdata[11] }   (B'[4]=B'[3])
++//   B8  = { B'[4:0], 3'b000 }
++//   Y   = (77*R8 + 150*G8 + 29*B8) >> 8
++//   new = { Y[7:3], Y[7:2], Y[7:3] }  ->  R5 = B5 = Y>>3, G6 = Y>>2
++// tlast / tuser / tkeep / tvalid / tready and all clocks/timing are untouched.
++// ---------------------------------------------------------------------------
++wire        stdluma_g2_cand = s_axis_tdata[8];   // G[3]
++reg         stdluma_g2_d1;
++reg         stdluma_g2_d2;
++always@(posedge cmos_pclk)
++begin
++    if(cmos_aresetn == 1'b0)
++    begin
++        stdluma_g2_d1 <= 1'b0;
++        stdluma_g2_d2 <= 1'b0;
++    end
++    else
++    begin
++        stdluma_g2_d1 <= stdluma_g2_cand;
++        stdluma_g2_d2 <= stdluma_g2_d1;
++    end
++end
++// Majority of (n, n-1, n-2) -- affects ONLY the rebuilt G'[2] bit.
++wire        stdluma_g2_maj = (stdluma_g2_cand & stdluma_g2_d1) | (stdluma_g2_cand & stdluma_g2_d2) | (stdluma_g2_d1 & stdluma_g2_d2);
++wire[7:0]   stdluma_r8 = {s_axis_tdata[4:0],3'b000};
++wire[5:0]   stdluma_g6 = {s_axis_tdata[10],s_axis_tdata[9],s_axis_tdata[8],stdluma_g2_maj,s_axis_tdata[6],s_axis_tdata[5]};
++wire[7:0]   stdluma_g8 = {stdluma_g6,2'b00};
++wire[4:0]   stdluma_b5 = {s_axis_tdata[14],s_axis_tdata[14],s_axis_tdata[13],s_axis_tdata[12],s_axis_tdata[11]};
++wire[7:0]   stdluma_b8 = {stdluma_b5,3'b000};
++wire[31:0]  stdluma_luma32 = 77*stdluma_r8 + 150*stdluma_g8 + 29*stdluma_b8;
++wire[7:0]   stdluma_y = stdluma_luma32[15:8];
++wire[15:0]  s_axis_tdata_stdluma = {stdluma_y[7:3],stdluma_y[7:2],stdluma_y[7:3]};
+ wire empty;
+ wire full;
+ assign m_axis_video_tvalid = ~empty & m_axis_video_tready;
+@@ -205,7 +252,7 @@
+       .rst              (~cmos_aresetn),
+       .wr_clk           (cmos_pclk),
+       .wr_en            (s_axis_tvalid & fifo_ready),
+-      .din              ({s_axis_tdata,s_axis_tlast,s_axis_tuser}),
++      .din              ({s_axis_tdata_stdluma,s_axis_tlast,s_axis_tuser}),
+       .full             (full),
+       .overflow         (),
+       .prog_full        (),

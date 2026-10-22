@@ -1,0 +1,87 @@
+{
+  "invariant_text_diff": [
+    {
+      "id": "H-1",
+      "md": "状态机核心的输入 = 一条结果记录 + 显式单调时间 + `session_id`；输出 = 状态转移与动作请求。核心**不得**直接读摄像头、系统墙钟（wall clock）、HDMI 或任何硬件寄存器；时间一律由调用方注入。",
+      "json": "状态机核心的输入是一条结果记录 + 显式单调时间 + session_id，输出是状态转移与动作请求；核心不得直接读摄像头、系统墙钟、HDMI 或任何硬件寄存器。"
+    },
+    {
+      "id": "H-2",
+      "md": "动作执行层单独实现，负责提交动作、返回 `success/fail/unobserved` 与生效时刻；日志保留 `action_id` 与来源 `frame_id`，防止重复发送导致重复动作。",
+      "json": "动作执行层单独隔离，负责提交动作并返回 success/fail/unobserved 与生效时刻；日志保留 action_id 与来源 frame_id，防止重复发送导致重复动作。"
+    },
+    {
+      "id": "H-3",
+      "md": "所有超时/失踪/冷却/窗口计时按单调时钟推进；停帧、重复帧或被丢弃的帧**不得**把状态永久卡在候选。系统墙钟不得参与任何判定。",
+      "json": "所有超时/失踪/冷却/窗口计时按单调时钟推进；停帧、重复帧或丢弃帧不得把状态永久卡在候选；系统墙钟不得参与任何判定。"
+    },
+    {
+      "id": "H-4",
+      "md": "窗口推进与计数只由**结果条数（result）**定义，且只由 `state ∈ {OK, NO_HAND}` 的结果推进匹配计数；`TIMEOUT/ERROR/DROPPED` 不推进计数、但必须推进时间并计数。",
+      "json": "窗口推进与匹配计数只由 state ∈ {OK, NO_HAND} 且 stale=false、非重复、非倒序的结果推进；TIMEOUT/ERROR/DROPPED 不推进计数但必须推进时间并计数。"
+    },
+    {
+      "id": "H-5",
+      "issue": "MD 缺失"
+    },
+    {
+      "id": "H-6",
+      "md": "不得以「`class_id` 落在五类内」证明未知拒绝。五类模型可能把未知场景判为已知类，故未知拒绝只能由 §11 的独立未知样本统计（未发生已提交动作）支撑，且样本必须包含「高分误识别」场景。",
+      "json": "不得以 class_id 落在五类内证明未知拒绝；未知拒绝只能由独立未知样本上未发生已提交动作的统计支撑，样本必须包含高分误识别场景。"
+    },
+    {
+      "id": "H-7",
+      "md": "所有测试的预期序列必须由行为表独立推导或人工手算；**禁止**运行状态机生成 expected 后自我比较。",
+      "json": "所有测试的预期序列必须由行为表独立推导或人工手算；禁止运行状态机生成 expected 后自我比较。"
+    },
+    {
+      "id": "H-8",
+      "md": "`ACTION_SUBMITTED`（提交成功）与 `ACTION_EFFECTIVE`（实际生效）是两类事件，必须分别记录、分别统计；提交成功不等于生效。",
+      "json": "ACTION_SUBMITTED（提交成功）与 ACTION_EFFECTIVE（实际生效）是两类事件，必须分别记录与统计；提交成功不等于生效，仅触发未生效不得算成功。"
+    },
+    {
+      "id": "H-9",
+      "md": "本阶段不得触碰板卡/JTAG/COM4/`hw_server`/HDMI 实物/摄像头，不得烧录。",
+      "json": "本阶段不得触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头，不得烧录。"
+    }
+  ],
+  "behavior_title_diff": [
+    {
+      "id": "B02",
+      "md": "提交成功 ≠ 实际生效",
+      "json": "提交成功与实际生效分离"
+    },
+    {
+      "id": "B03",
+      "md": "多框维持优先",
+      "json": "多框维持优先（迟滞）"
+    },
+    {
+      "id": "B22",
+      "md": "重复 `frame_id`",
+      "json": "重复 frame_id"
+    },
+    {
+      "id": "B23",
+      "md": "倒序 `frame_id`",
+      "json": "倒序 frame_id"
+    }
+  ],
+  "behavior_params_diff": [],
+  "param_value_diff": [
+    {
+      "id": "T6-S03",
+      "issue": "MD §14 无此行"
+    }
+  ],
+  "open_decision_diff": {
+    "md_only": [],
+    "json_only": []
+  },
+  "doc_section3_events_diff": {
+    "doc_only": [],
+    "json_only": [
+      "E_FRAME_CONFLICT"
+    ]
+  }
+}

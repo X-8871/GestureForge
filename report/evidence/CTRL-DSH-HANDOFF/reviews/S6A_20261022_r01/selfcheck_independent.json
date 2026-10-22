@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_g0_selfcheck_result",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r01",
+  "status": "ALL_PASS",
+  "checks": [
+    {
+      "id": "C1",
+      "name": "JSON 身份与必填块",
+      "status": "PASS",
+      "detail": "identity ok"
+    },
+    {
+      "id": "C2",
+      "name": "标识唯一性",
+      "status": "PASS",
+      "detail": "unique ok"
+    },
+    {
+      "id": "C3",
+      "name": "文档↔JSON 标识双向一致",
+      "status": "PASS",
+      "detail": "28 行行为 + 24 个参数双向一致"
+    },
+    {
+      "id": "C4",
+      "name": "待批准纪律",
+      "status": "PASS",
+      "detail": "全部参数与指标 PENDING_APPROVAL"
+    },
+    {
+      "id": "C5",
+      "name": "五类动作映射一致",
+      "status": "PASS",
+      "detail": "5 类映射一致，target 唯一"
+    },
+    {
+      "id": "C6",
+      "name": "硬不变量与唯一触发解释",
+      "status": "PASS",
+      "detail": "H-1..H-9 齐全，ONCE_PER_ACQUISITION 唯一"
+    },
+    {
+      "id": "C7",
+      "name": "人工手算样例独立复算",
+      "status": "PASS",
+      "detail": "20 个样例全部复算一致"
+    },
+    {
+      "id": "C8",
+      "name": "上游只读文件哈希复算",
+      "status": "PASS",
+      "detail": "11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d)"
+    },
+    {
+      "id": "C9",
+      "name": "文档必备覆盖与章节",
+      "status": "PASS",
+      "detail": "关键词与章节齐全"
+    },
+    {
+      "id": "C10",
+      "name": "禁止声明扫描（窄口径）",
+      "status": "PASS",
+      "detail": "未发现禁止声明"
+    }
+  ],
+  "errors": [],
+  "inputs": {
+    "behavior_json_path": "D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json",
+    "behavior_json_sha256": "1cd0cfc357f3b02a8d8367fead64e5ba8b9cf900607fd65caab76fa88937c583",
+    "human_doc_path": "D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md",
+    "human_doc_sha256": "12bce40313289acb2f3f618630b82c53293fca15579355c12e329160c1585220",
+    "hand_cases_path": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r01\\hand_computed_cases.json",
+    "hand_cases_sha256": "34d35202e546740d0e9885a141afed686dbfbe232cb15a666e735d1209b969f1"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术边界，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性与算术边界；不验证状态机行为（本轮尚无实现）",
+    "C10 为窄口径文本扫描，不是完备的声明审计",
+    "CHECKS_OK/ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过"
+  ]
+}

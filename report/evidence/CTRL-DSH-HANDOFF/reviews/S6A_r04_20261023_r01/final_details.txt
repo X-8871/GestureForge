@@ -1,0 +1,71 @@
+### B03 / B09 / B17 全字段（谓词名在文本中的出现情况）
+  B03 declared=['TARGET_CONTINUES'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=False
+      condition=存在与当前目标 TARGET_CONTINUES 成立的框
+      output=维持当前目标，即使他框分更高且类别不同
+      must_log=['S_TARGET_HELD', '两条候选信息']
+  B09 declared=['TARGET_CONTINUES', 'WINDOW_MATCH'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=False
+      condition=TARGET_CONTINUES 成立
+      output=获取延续，窗口不重启，证据连续
+      must_log=['TARGET_CONTINUES 依据（IoU/位移）']
+  B17 declared=['WINDOW_MATCH'] 文中TARGET_CONTINUES=False 文中WINDOW_MATCH=True
+      condition=state=NO_HAND
+      output=合法结果：IDLE 下保持 IDLE；有目标时计入丢失判定；不满足 WINDOW_MATCH（零框不推进匹配计数、不得完成稳定窗口）；只推进时间与结果计数
+      must_log=['boxes=0', 'no_hand 计数']
+  B04 declared=['TARGET_CONTINUES'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=False
+      condition=当前目标 TARGET_CONTINUES 不成立时选最高分框
+      output=选 score ≥ T6-P01 的最高分框为新目标并重新累积证据
+      must_log=['选择依据', '新目标字段']
+  B07 declared=['WINDOW_MATCH'] 文中TARGET_CONTINUES=False 文中WINDOW_MATCH=True
+      condition=连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成时刻=第 N 个 WINDOW_MATCH 结果到达时刻；NO_HAND 不计入
+      output=M3 进入 STABLE（取较晚满足者）；完成时刻按 B-04 定义
+      must_log=['帧计数', '窗口起点', '两条件各自满足时刻', 'window_complete_ns']
+  B08 declared=['WINDOW_MATCH'] 文中TARGET_CONTINUES=False 文中WINDOW_MATCH=True
+      condition=窗口内短暂中断（窗口推进帧不满足 WINDOW_MATCH）
+      output=≤ T6-J01 帧不重置；达到 T6-J01+1 立即重置
+      must_log=['S_JITTER_TOLERATED 或窗口重置原因']
+  B10 declared=['TARGET_CONTINUES'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=False
+      condition=连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立（t_last_target_continues）≥ T6-L02
+      output=M10→M11 清空目标与证据，不产生动作
+      must_log=['丢失原因分类', '满足的是帧条件还是时间条件']
+  B12 declared=['TARGET_CONTINUES'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=False
+      condition=当前目标 TARGET_CONTINUES 不成立且出现另一合法目标
+      output=切换走丢失/重获路径，新目标必须重新满足窗口
+      must_log=['旧/新目标字段', '切换原因']
+  B14 declared=['TARGET_CONTINUES', 'WINDOW_MATCH'] 文中TARGET_CONTINUES=True 文中WINDOW_MATCH=True
+      condition=t_now − t_last_submit ≥ T6-K01（含等号）
+      output=TARGET_CONTINUES 成立且 WINDOW_MATCH 窗口满足→M9 维持（不触发）；TARGET_CONTINUES 成立但窗口未满足→M15 候选（不触发）；TARGET_CONTINUES 不成立/丢失→M8 IDLE；三分支只决定展示状态出口，不解除全局门
+      must_log=['分支判定证据']
+
+### B13 字段现状（是否带 global_cooldown_gate）
+  B13 键 = ['basis', 'condition', 'id', 'must_log', 'output', 'params', 'predicate_binding_note', 'semantics_status', 'title']
+  'global_cooldown_gate' in B13 = False
+  M5 键 = ['condition', 'from', 'global_cooldown_gate', 'id', 'params', 'predicate_binding_note', 'priority', 'to']
+  M5.global_cooldown_gate = True
+  policy.statement = M5 与 B13 只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段。
+  policy.item_notes.B13 = B13 的条件由 t_last_submit 与 T6-K01 构成，不使用 TARGET_CONTINUES/WINDOW_MATCH；其抑制语义由 H-10 全局门承载。
+  B13.predicate_binding_note = 本行为行不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本，其抑制语义由 H-10 全局门承载，没有 predicates_used 字段（见 predicate_binding_policy）。
+
+### 文档 §5 B09 / B17 行原文
+  | B09 | 目标保持 | `TARGET_CONTINUES` 成立 | 获取延续，窗口不重启（证据连续） | `TARGET_CONTINUES 依据（IoU/位移）` | 计划 L104 | `T6-P03/P04/P05` |
+  | B13 | 冷却抑制（全局门） | 自 `t_last_submit` 起 `t_now − t_last_submit < T6-K01`，**任意状态/任意获取** | 抑制**全部**触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间 | `S_COOLDOWN` + 目标与分数 + 剩余时间 | 计划 L104；评审 B-03；H-10 | `T6-K01` |
+  | B17 | 无手（零框） | `state=NO_HAND` | 合法结果：`IDLE` 下保持 `IDLE`；有目标时计入丢失判定；**不推进匹配计数、不得完成稳定窗口**；只推进时间与结果计数 | `boxes=0`、`no_hand` 计数 | 计划 L104；D2 L22；H-4/H-5；评审 B-02 | 无 |
+
+### M5 条件 vs stable_latching 叙述（“窗口推进帧”限定）
+  M5.condition = STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）
+  stable_latching.suppressed_trigger_release = 全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。
+  文档 §4 锁存段 = - **STABLE 锁存（观察项定论，待 G0 确认 U6-16）**：STABLE 在本次获取内锁存：进入后不因窗口中断、score 跌破 T6-P02 或抖动耗尽而退回 CANDIDATE；离开 STABLE 仅有 M2（异常，P1）、M10（丢失确认，P2）、M5（触发，P3）三条路径。冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。
+  §13 是否有“不得触发动作”汇总行 = True
+
+### C7 window_match_vs_continues 的 span 语义 vs 规格 §9
+  自检实现：window_span_ms = (len(frames) - 1) * period_ms   ← 覆盖整个序列
+  规格 §9：窗口完成时刻 = 第 T6-S02 个 WINDOW_MATCH 结果到达且时长条件同时满足的那一帧
+  规格 §9：窗口持续时间 = t(完成帧) − t(窗口首帧)
+  HC-29: frames=9 period=40ms → 自检用 span=(n-1)*P=320ms
+  HC-29: 第 6 个 WINDOW_MATCH 帧处的真实窗口时长=(6-1)*P=200ms
+  HC-29 预期 = {'lost': False, 'm3_fires': True, 'trigger': False, 'continues_false_streak': 0}（两种口径下 m3_fires 同为 True，结论未受影响）
+
+### 结尾状态：被审提交与工作树
+  git rev-parse HEAD = b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7
+  git status --short:
+    ?? docs/stage6/s6b_frozen_interface_v1.json
+    ?? src/stage6/

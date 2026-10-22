@@ -1,0 +1,101 @@
+### 1. delivery_manifest 声明文件存在性（自算）
+  manifest 中带 path+sha256 的条目 = 29
+  声明但缺失 = []
+  哈希不符 = []
+
+### 2. 文档 §18 声明的产物文件实际存在性
+  MISSING .codex/STATE.md
+  OK      check_evidence_mode_output.txt
+  OK      check_inputs_mode_output.txt
+  OK      coverage_matrix.json
+  OK      delivery_manifest.json
+  MISSING docs/stage6/s6a_stage6_g0_behavior_v1.json
+  OK      fix_record.json
+  OK      hand_computed_cases.json
+  OK      hashes_sha256.txt
+  OK      inputs_manifest.json
+  OK      limitations_not_executed.json
+  OK      old_package_under_test.json
+  OK      r02_package_under_test.json
+  OK      r03_package_under_test.json
+  MISSING s4a_stage4_g0_fields.json
+  OK      selfcheck_c11_stdout.txt
+  OK      selfcheck_old_package_failure.json
+  MISSING selfcheck_old_package_failure.json/.txt
+  OK      selfcheck_r02_blk1_failure.json
+  OK      selfcheck_r03_failure.json
+  OK      selfcheck_result.json
+  OK      upstream_bindings.json
+  MISSING w4/docs/stage4/s4a_stage4_g0_fields.json
+  MISSING w5/docs/stage5/S5A_stage5_display_g0_spec_v2.md
+  MISSING w5/docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md
+  MISSING w5/docs/stage6/S6_stage6_interaction_spec_draft.md
+  MISSING w5/docs/stage6/s6_interaction_thresholds.json
+
+### 3. 运行目录实际文件 vs 文档 §18 逐一列举
+  实际文件数 = 23
+  文档列举条目 = ['S6A_run_summary.md', 'check_evidence_mode_output.txt', 'check_inputs_mode_output.txt', 'coverage_matrix.json', 'delivery_manifest.json', 'fix_record.json', 'fix_record.md', 'hand_computed_cases.json', 'hashes_sha256.txt', 'inputs_manifest.json', 'limitations_not_executed.json', 'old_package_under_test.json', 'r02_package_under_test.json', 'r03_package_under_test.json', 'selfcheck_c11_stdout.txt', 'selfcheck_old_package_failure.json', 'selfcheck_r02_blk1_failure.json', 'selfcheck_r03_failure.json', 'selfcheck_result.json', 'upstream_bindings.json']
+  实际存在但 §18 未逐一点名的文件 = ['selfcheck_old_package_failure_stdout.txt', 'selfcheck_r02_blk1_failure_stdout.txt', 'selfcheck_r03_failure_stdout.txt']
+
+### 4. 声明纪律扫描（是否自称已审查/已通过/G0 通过）
+  文档: ['审查通过x2', '已通过x1', '已冻结x2', 'FROZENx3', 'DONEx1']
+  JSON: ['审查通过x1', 'G0 通过x3', 'APPROVEDx1', 'FROZENx5']
+  STATE: ['G0 通过x1', '已冻结x1', 'FROZENx1', 'PASSx2']
+  run_summary: ['验收通过x1', 'PASSx4']
+  limitations: ['审查通过x1', '已通过x1', '已冻结x1', 'FROZENx1', 'PASSx2']
+  coverage: ['审查通过x1', 'DONEx10']
+
+### 5. not_claimed / evidence_boundaries / limitations
+  not_claimed: 本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论
+  not_claimed: 本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI
+  not_claimed: 全部阈值与指标为待批准；获批前任何统计只能报告为观测值
+  not_claimed: 交互通过不代替阶段7 最终性能与可靠性验收
+  not_claimed: 本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）
+  not_claimed: 本文件为 r04 修订版（v1.3），只按独立复评关闭记录/语义缺陷；复评未完成前不构成 G0 通过，也不代表独立审查通过。
+  evidence_boundary: 回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收
+  evidence_boundary: 阶段4 结果记录与阶段5 显示契约为草案/离线定稿，未冻结；集成验收依赖 BLOCKED
+  evidence_boundary: 显示侧新增 HUD 字段与五类动作映射为阶段6 提案
+  evidence_boundary: 无硬件授权：未做任何板上验证
+  limitations keys = ['schema_version', 'artifact', 'artifact_version', 'task_id', 'run_id', 'supersedes_run_id', 'status_legend', 'not_run', 'blocked', 'not_applicable', 'hard_limits_observed', 'replay_injection_boundary', 'checker_scope_note', 'r03_notes']
+  limitations JSON 文本含 'NOT_RUN' = True
+
+### 6. coverage_matrix 自算核对
+  coverage keys = ['schema_version', 'artifact', 'artifact_version', 'task_id', 'run_id', 'supersedes_run_id', 'human_doc', 'machine_json', 'status_note', 'runbook_coverage', 'plan_coverage', 'stage5_suggestion_coverage', 'review_fix_coverage', 'selfcheck_mapping', 'not_claimed']
+  文档/JSON 声明的 C7 样例数：JSON 未直接给；coverage 中 c7 相关={}
+  hand_computed_cases 实际样例数 = 29
+  cases 顶层键 = ['schema_version', 'artifact', 'task_id', 'run_id', 'status', 'derivation_note', 'parameter_assumptions_unfrozen', 'cases', 'hand_cases_version']
+
+### 7. M5/B13 predicate_binding_note 与 global_cooldown_gate 实际内容
+  M5.predicate_binding_note = '本迁移不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段（见 predicate_binding_policy）。'
+  M5.global_cooldown_gate = True
+  B13.predicate_binding_note = '本行为行不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本，其抑制语义由 H-10 全局门承载，没有 predicates_used 字段（见 predicate_binding_policy）。'
+  B13.global_cooldown_gate = None
+  带 predicate_binding_note 的迁移 = ['M5']
+
+### 8. STATE 与阶段6 事实核对
+  STATE 含 'S6-A' = True
+  STATE 含 's6a' = True
+  STATE 含 'stage6' = True
+  STATE 含 '6-B' = True
+  STATE 含 'S6-B' = True
+  STATE 含 'NOT_RUN' = True
+  STATE 含 'stable' = True
+  STATE 含 '锁存' = True
+  STATE 含 '审查' = False
+  --- STATE 中 stage6/S6 相关行 ---
+    1: # 阶段6 状态入口（w6 / stage6-interact-prep）
+    3: 更新：2026-10-23 01:35（UTC+8）。按 `AGENTS.md` 与主 STATE 恢复；**本文件是阶段6 工作树专属状态**，主状态 `D:\FPGA_Competition\.codex\STATE.md` 只读。阶段技术事实以本文件与本树证据为准。
+    8: - 范围：`w6` 独占写入；G0 v1.3 复评 → 状态机实现与确定性测试（6-B/6-C）→ 无摄像头两级联调（6-D）→ 真摄像头验收（6-E，延期）。
+    16: - 阶段4/阶段5 接口未冻结 → 阶段6 集成验收依赖 `BLOCKED`；不得据此做集成验收。
+    18: ## 本轮已完成（S6-A v1.3 / r04 修订，PENDING_REVIEW）
+    20: - 针对**第三轮复评** `S6A_r03_20261022_r01`（`CHANGES_REQUIRED`，R3-B01/R3-B02 + N01..N05 + 观察项）按 task-5 逐条关闭（执行方 stage6-lead3）：
+    27: - 24 项参数值与批准状态**未改**，全部 `PENDING_APPROVAL`；未在测试集调参；未触碰硬件；S6-B WIP 未提交。
+    31: - **PENDING_REVIEW**：S6-A v1.3 复评由项目总控另派独立 Reviewer；复评通过前不得宣称 G0 通过，也不启动 S6-B。
+    32: - **待 Wong/G0 确认**：`U6-16`（STABLE 锁存口径）；`U6-12`（`T6-S04`/M4 可达性）；`U6-13`（阶段4 实测帧周期 `P_meas`，`T6-A03` `NOT_RUN`）；`U6-14`（逐类 UX 可见时长）；`U6-15`（`A_DISPLAY_STATE`）；`U6-01..U6-11`。
+    34: - **S6-B WIP（不提交）**：`docs/stage6/s6b_frozen_interface_v1.json`、`src/stage6/s6_params.py`、`src/stage6/s6_core.py` 为复评前的未提交草稿，不进本轮提交、不作为证据；复评通过后须按 v1.3 语义返工（尤其 STABLE 锁存与 `WINDOW_MATCH` 计数）。
+    38: - 本轮：`report/evidence/S6-A/s6a_g0_20261022_r04/`（`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、`selfcheck_old_package_failure.json`/`selfcheck_old_package_failure_stdout.txt`、`selfcheck_r02_blk1_failure.json`/`selfcheck_r02_blk1_failure_stdout.txt`、`selfcheck_r03_failure.json`/`selfcheck_r03_failure_stdout.txt`、`old_package_under_test.json`、`r02_package_under_test.json`、`r03_package_under_test.json`、`fix_record.json`、`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。
+    39: - r01/r02/r03 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`、`..._r03/`（不覆盖）。
+    40: - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；缓存：`tmp/6/**`（不入库）。
+    44: 1. 项目总控派独立 Reviewer 复评 S6-A v1.3（只读上表证据；本包状态 `PENDING_REVIEW`）。
+    45: 2. 复评通过且 Wong 批准参数与 `U6-16` 后开 S6-B（纯核心状态机 + 动作层隔离 + 确定性测试）；S6-B 必须按 v1.3 的 H-4/H-10/W_min/`TARGET_CONTINUES`/`WINDOW_MATCH`、M3/M10 绑定与 **STABLE 锁存**实现。
+    50: 任务=`S6-A 修订 v1.3（r04）：关闭第三轮复评 R3-B01/R3-B02 + N01..N05 + STABLE 锁存观察项` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（修订基线 `2ce290f`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、report/evidence/S6-A/**、.codex/STATE.md、tmp/6/**`（`main`/`w4`/`w5`/`dbdf`/`w2b`/厂商原件只读） | 未提交改动归属=`本轮随本行同批提交；S6-B WIP（docs/stage6/s6b_frozen_interface_v1.json、src/stage6/**）为未提交草稿，不属本轮提交` | 让出声明=`未让出：w6 写权仍由 DSH 阶段6 总控独占；无 OFFERED` | 心跳(UTC+8)=`2026-10-23 01:35` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r04/`（`selfcheck_result.json`=17 项 ALL_PASS 含完整 C11；r03 失败证据 `selfcheck_r03_failure.json`；真实退出码见 `delivery_manifest.json.checks`） | 恢复命令=`git -C D:/codex-worktrees/w6 status --short; git -C D:/codex-worktrees/w6 log --oneline -3; python -B D:/codex-worktrees/w6/verification/s6_g0_selfcheck.py --json D:/codex-worktrees/w6/docs/stage6/s6a_stage6_g0_behavior_v1.json --doc D:/codex-worktrees/w6/docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r04/hand_computed_cases.json --upstream D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r04/upstream_bindings.json --out D:/codex-worktrees/w6/tmp/6/S6-A/s6a_g0_20261022_r04/selfcheck_rerun.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r04 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r04/delivery_manifest.json --state D:/codex-worktrees/w6/.codex/STATE.md` | 状态/下一接手方=`DELIVERED_PENDING_REVIEW / 项目总控派 Reviewer 复评；通过后再开 S6-B`

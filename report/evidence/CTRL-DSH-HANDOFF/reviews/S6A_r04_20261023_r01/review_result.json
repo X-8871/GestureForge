@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_r04_independent_review",
+  "review_round": 4,
+  "reviewer": "independent (no relation to previous rounds)",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261023_r04_review_01",
+  "review_dir": "tmp/review/S6A_r04_20261023_r01",
+  "subject": {
+    "worktree": "D:/codex-worktrees/w6",
+    "branch": "stage6-interact-prep",
+    "commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7",
+    "commit_short": "b20b670",
+    "artifact_version": "S6A-G0-v1.3",
+    "base_r03": "2ce290f495e3bd50b249158be9f4f876a5f8e3fb",
+    "base_r02": "3b59674f93e8a2c020a0670fa475ee6a15330833",
+    "base_r01": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+    "self_computed_sha256": {
+      "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md": "f33e9a72ebbfed9a69d57ce2c7cdedf3803fa77496df7112c915b18a75ba79ba",
+      "docs/stage6/s6a_stage6_g0_behavior_v1.json": "c6c11ed324ac6857f0cd4513c9cee7efa053052bd1c1e0c51e112dae4d0ec137",
+      "verification/s6_g0_selfcheck.py": "b4fd70261f096c8a9c59ab328f6d1a6605d884b316dd483939e1629970b56bb9",
+      "verification/s6a_build_evidence.py": "c6621484d730b5a190812da2d1f88eb4599851ba9310238a6a281b7cb67a4587",
+      "verification/s6a_rerun_legacy_failures.py": "770716fd356e706c5180a294cb67cadb377ffffcdff6bf970bb9305f5805f0d9",
+      ".codex/STATE.md": "76346fbcaeb4d4b19a779b37e0998d09e62fca964a9773247f21b11028aec41f"
+    }
+  },
+  "verdict": "PASS",
+  "blocking_findings": [],
+  "non_blocking_findings": [
+    {
+      "id": "N-r04-01",
+      "location": "spec §4 M5 row; JSON transitions.M5.condition",
+      "issue": "M5 formal condition omits the 'window-advancing frame' qualifier that §4 latching prose and stable_latching.suppressed_trigger_release both state.",
+      "impact": "Literal M5 could fire on a TIMEOUT frame in the latched-STABLE + gate-opens corner sequence, clashing with B21 'no action'. Union of B18/B21/B22/B23 + §13 still yields a unique safe answer, so no r04 conclusion changes.",
+      "evidence": "final_details.txt (M5 condition vs stable_latching), json_dump.txt, spec §4/§13, B18/B21/B22/B23",
+      "close_condition": "Add '(and this frame is a window-advancing frame: state in {OK,NO_HAND}, stale=false, not duplicate, not out-of-order)' to M5's condition text in both doc §4 and JSON, and pin it with a C12 text assertion."
+    },
+    {
+      "id": "N-r04-02",
+      "location": "JSON predicate_binding_policy.statement; spec §4 restatement",
+      "issue": "Statement says 'M5 and B13 have only condition text + global_cooldown_gate binding', but B13 has no global_cooldown_gate field (only M5 does; B13's suppression rides on H-10).",
+      "impact": "Wording only; item_notes.B13 and B13.predicate_binding_note already disambiguate. Binding correctness unaffected (used_by <-> predicates_used fully equal).",
+      "evidence": "final_details.txt (B13 field status); C12 asserts only absence of predicates_used",
+      "close_condition": "Reword statement to 'M5 carries the global_cooldown_gate flag; B13's suppression semantics are carried by H-10; both have only condition text and no predicates_used field', syncing §4 and STATE."
+    },
+    {
+      "id": "N-r04-03",
+      "location": "verification/s6_g0_selfcheck.py check_predicates() bidirectional block",
+      "issue": "An empty predicates_used: [] on a non-predicate item is not rejected (only M5/B13 field absence is asserted).",
+      "impact": "No live defect (current JSON has no empty lists; full scan clean). Future vague writes could pass.",
+      "evidence": "fault_injection.txt case f12 (exit 0/ALL_PASS); my_bidir.txt section 2 empty",
+      "close_condition": "Add a general assertion that predicates_used must never be an empty list and must be absent on items that use no predicate."
+    },
+    {
+      "id": "N-r04-04",
+      "location": "verification/s6_g0_selfcheck.py recompute() ~line 760; HC-29 derivation text",
+      "issue": "window_span_ms = (len(frames)-1)*period_ms measures the whole supplied sequence, while spec §9 defines window duration from the window's first frame to the completion frame (the T6-S02-th WINDOW_MATCH frame). HC-29 states span=8*40=320 ms; the true window duration is 5*40=200 ms.",
+      "impact": "HC-28/HC-29 verdicts are unchanged under either reading, so the 29-case recompute still holds; but the looser formula could admit a wrong expectation for future tighter-period cases, and HC-29's prose contradicts §9.",
+      "evidence": "final_details.txt (C7 span semantics), s6_g0_selfcheck.py:760, hand_computed_cases.json HC-29",
+      "close_condition": "Compute the span from window start to the deciding WINDOW_MATCH frame (or declare the looser convention in limitations with its scope of validity) and correct HC-29's derivation text."
+    },
+    {
+      "id": "N-r04-05",
+      "location": "untracked docs/stage6/s6b_frozen_interface_v1.json, src/stage6/s6_core.py, src/stage6/s6_params.py",
+      "issue": "Untracked S6-B WIP drafts present in the worktree; s6_core.py references a non-existent docs/stage6/S6B_stage6_state_machine_design_v1.md.",
+      "impact": "Does not affect r04 (not in the reviewed commit; WIP self-declares exclusion and STATE line 34 records it). Risk is only future misuse as S6-B progress or implementation basis.",
+      "evidence": "final_details.txt (closing state), WIP headers, STATE line 34",
+      "close_condition": "No close needed for r04; handle at S6-B kickoff and never use these as evidence of completed S6-B."
+    }
+  ],
+  "checks_performed": {
+    "R3_B01_closed": {
+      "verdict": "CLOSED",
+      "detail": "§12 T6-S02 row now 'consecutive WINDOW_MATCH frames >= T6-S02'; §12 T6-L02 row now 't_now - t_last_target_continues >= T6-L02'; anchor defined in §3/§12/§13 and JSON time_anchors, consistent with M10/B10. Residual literal occurrences of matched_frames/t_last_match/t_submit+ exist ONLY inside explicit '已废弃' prohibition/revision notes (non-normative). C12 banned-identifier scan proved discriminative by 6 constructed injections.",
+      "banned_token_occurrences": {
+        "doc_matched_frames": 1,
+        "doc_t_last_match": 2,
+        "doc_t_submit+": 1,
+        "json_matched_frames": 1,
+        "json_t_last_match": 1,
+        "json_t_submit+": 2,
+        "all_within_deprecated_prohibition_or_revision_note": true
+      }
+    },
+    "R3_B02_closed": {
+      "verdict": "CLOSED",
+      "detail": "Independent re-implementation of the full bidirectional comparison: TARGET_CONTINUES used_by item ids {B03,B04,B09,B10,B12,B14,M1,M8,M9,M10,M15}; WINDOW_MATCH {B07,B08,B09,B14,B17,M3,M4,M9,M15}; both matched reverse sets exactly (only_forward=[] only_reverse=[]). M1 declares only TARGET_CONTINUES. M5/B13 have no predicates_used field (M5 has global_cooldown_gate=true). C12 bidirectional assertion is NOT weak: 6 injected faults all caught.",
+      "used_by_vs_predicates_used": "fully bidirectional, no discrepancy in either direction"
+    },
+    "stable_latching": {
+      "verdict": "UNIQUE_ANSWER_GIVEN (WITHIN_ACQUISITION latch, pending U6-16)",
+      "exit_paths_computed": ["M2", "M5", "M10"],
+      "exit_paths_declared": ["M2", "M10", "M5"],
+      "stable_to_candidate_transitions": [],
+      "c17_is_real": true,
+      "four_scenario_deduction": {
+        "window_invalid_target_continues": "STAYS STABLE (triggers via M5 only if gate open and acquisition untriggered); no demotion",
+        "score_below_P02": "STAYS STABLE while geometry continues; LOST via M10 if geometry breaks for L01 frames or L02 time",
+        "jitter_exceeds_J01": "STAYS STABLE (jitter resets window evidence only; M4 applies to CANDIDATE only)",
+        "cooldown_gate_opens": "TRIGGERED->COOLDOWN on the next window-advancing frame; no window re-accumulation (M5 does not require WINDOW_MATCH)"
+      }
+    },
+    "selfcheck_hardening": {
+      "r04_full_selfcheck_exit_code": 0,
+      "r04_status": "ALL_PASS",
+      "r04_check_count": 17,
+      "r04_errors": 0,
+      "detail_strings_identical_to_committed_result": true,
+      "delivery_check_inputs_exit_code": 0,
+      "delivery_check_evidence_exit_code": 0,
+      "delivery_check_outputs_byte_identical_to_committed": true,
+      "legacy_rerun_uses_git_cat_file_blob_binary": true,
+      "legacy_reruns": {
+        "r01": {"exit_code": 1, "failed_checks": ["C2","C3","C4","C5","C6","C7","C9","C11","C12","C13","C14","C15","C16","C17"], "matches_committed_evidence": true, "detail_verbatim_match": true, "hashes_match": "5/5"},
+        "r02": {"exit_code": 1, "failed_checks": ["C7","C12","C13","C17"], "matches_committed_evidence": true, "detail_verbatim_match": true, "hashes_match": "5/5"},
+        "r03": {"exit_code": 1, "failed_checks": ["C7","C12","C17"], "matches_committed_evidence": true, "detail_verbatim_match": true, "hashes_match": "5/5"}
+      }
+    },
+    "parameter_discipline": {
+      "parameter_count_r03": 24,
+      "parameter_count_r04": 24,
+      "field_level_differences": 0,
+      "non_pending_approval": [],
+      "id_sets_equal": {
+        "parameters": true, "transitions": true, "hard_invariants": true,
+        "behavior_rows": true, "states": true, "event_classes_keys": true, "actions_keys": true
+      },
+      "declared_additions_only": {
+        "open_decisions_added": ["U6-16"],
+        "top_level_keys_added": ["predicate_binding_policy", "stable_latching", "time_anchors"]
+      }
+    },
+    "delivery_and_claims": {
+      "manifest_declared_entries": 29,
+      "manifest_missing": [],
+      "manifest_hash_mismatch": [],
+      "hashes_sha256_entries_verified": 21,
+      "hashes_sha256_mismatch": [],
+      "declared_but_missing_files": [],
+      "false_completion_claims_found": false,
+      "evidence_dir_file_count": 23
+    },
+    "fault_injection": {
+      "cases": 17,
+      "control_baseline_exit_code": 0,
+      "detected": 15,
+      "undetected": ["f12 empty predicates_used on M2 (=> N-r04-03)"],
+      "whitelisted_by_design": ["f6 deprecated-token mention adjacent to '已废弃'"]
+    }
+  },
+  "scope_statement": "This verdict covers only the S6-A G0 packet at r04 (spec, behavior JSON, selfcheck/builder, r04 evidence) on commit b20b670. It does not represent G0/G2/G4/G5, nor S6-B/S6-C/S6-D/S6-E, state machine implementation, camera, HDMI or board acceptance. Selfcheck ALL_PASS only means spec-consistency/arithmetic/evidence-existence recomputation passed.",
+  "limitations": [
+    "Read-only with respect to all reviewed files; all verification artifacts written only under tmp/review/S6A_r04_20261023_r01/.",
+    "The previous round's detail (REVIEW_r03.md is 8 lines; no review_result.json in that directory) could not be re-verified from disk, so historical conclusions were treated only as assertions to falsify.",
+    "No state machine implementation exists; the four-scenario STABLE deduction is a paper derivation from the spec/JSON, not an execution.",
+    "s6a_rerun_legacy_failures.py was not executed directly (it writes into the reviewed worktree's tmp/6/**); its logic was independently replicated in the isolated review directory.",
+    "Did not review S6-B/6-C/6-D/6-E, camera, HDMI, board, or hw_server items."
+  ]
+}

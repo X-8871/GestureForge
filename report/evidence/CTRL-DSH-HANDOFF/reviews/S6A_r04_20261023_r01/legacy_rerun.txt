@@ -1,0 +1,98 @@
+================================================================================================
+旧包重跑（最终版自检 + 真实 git 字节）
+================================================================================================
+
+--- r01  commit=1fe4648cba5a9f1ffc87dbe21cea732b72716bff
+    我的重跑: exit=1  status=FAILED  FAILED=['C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C9', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17']
+    提交证据: exit(observed)=True status=FAILED  FAILED=['C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C9', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17']
+    失败项一致 = True
+    失败详情逐字一致 = True
+      [C2] 我: 硬不变量少于 10 条（H-10 全局冷却门必须存在）
+      [C2] 提交: 硬不变量少于 10 条（H-10 全局冷却门必须存在）
+      [C3] 我: M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comparison 不一致：JSON 'sliding_window' vs 文档 '—'；JSON 有而文档 §3 缺的事件：['E_FRAME_CONFLICT']；
+      [C3] 提交: M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comparison 不一致：JSON 'sliding_window' vs 文档 '—'；JSON 有而文档 §3 缺的事件：['E_FRAME_CONFLICT']；
+      [C4] 我: 文档 §14 缺少 T6-S03 行
+      [C4] 提交: 文档 §14 缺少 T6-S03 行
+      [C5] 我: r02 支持类型必须恰为 A_SWITCH_UI + A_SWITCH_CHANNEL
+      [C5] 提交: r02 支持类型必须恰为 A_SWITCH_UI + A_SWITCH_CHANNEL
+      [C6] 我: 缺少硬不变量 H-10
+      [C6] 提交: 缺少硬不变量 H-10
+      [C7] 我: HC-07 复算异常：KeyError: 't_last_submit_ms'
+      [C7] 提交: HC-07 复算异常：KeyError: 't_last_submit_ms'
+      [C9] 我: 文档缺少必备关键词：['TARGET_CONTINUES', 'WINDOW_MATCH', 'W_min', 'window_complete', 'H-10', 'DELIVERED_PENDING_APPROVAL']
+      [C9] 提交: 文档缺少必备关键词：['TARGET_CONTINUES', 'WINDOW_MATCH', 'W_min', 'window_complete', 'H-10', 'DELIVERED_PENDING_APPROVAL']
+      [C11] 我: STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW
+      [C11] 提交: STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW
+      [C12] 我: 缺少谓词定义：TARGET_CONTINUES；缺少谓词定义：WINDOW_MATCH
+      [C12] 提交: 缺少谓词定义：TARGET_CONTINUES；缺少谓词定义：WINDOW_MATCH
+      [C13] 我: cooldown_policy.scope 必须为 GLOBAL_GATE
+      [C13] 提交: cooldown_policy.scope 必须为 GLOBAL_GATE
+      [C14] 我: low_fps_latency 必须声明 W_min 只是下界
+      [C14] 提交: low_fps_latency 必须声明 W_min 只是下界
+      [C15] 我: H-4 必须区分窗口序列推进与匹配计数，并写明 NO_HAND 不推进匹配计数
+      [C15] 提交: H-4 必须区分窗口序列推进与匹配计数，并写明 NO_HAND 不推进匹配计数
+      [C16] 我: r02 必须删除 M14（重获统一为 M10→M11→M1）
+      [C16] 提交: r02 必须删除 M14（重获统一为 M10→M11→M1）
+      [C17] 我: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+      [C17] 提交: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+    哈希比对（我对 git 字节自算 vs 提交的 package_under_test）：
+      OK  docs/stage6/s6a_stage6_g0_behavior_v1.json
+      OK  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+      OK  report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json
+      OK  report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json
+      OK  .codex/STATE.md
+    全部哈希一致 = True
+    提交证据记录的 observed.exit_code=1 status=FAILED failed_checks=['C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C9', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17']
+
+--- r02  commit=3b59674f93e8a2c020a0670fa475ee6a15330833
+    我的重跑: exit=1  status=FAILED  FAILED=['C7', 'C12', 'C13', 'C17']
+    提交证据: exit(observed)=True status=FAILED  FAILED=['C7', 'C12', 'C13', 'C17']
+    失败项一致 = True
+    失败详情逐字一致 = True
+      [C7] 我: HC-07 复算异常：KeyError: 't_last_submit_ms'
+      [C7] 提交: HC-07 复算异常：KeyError: 't_last_submit_ms'
+      [C12] 我: M1 的条件/输出未绑定 TARGET_CONTINUES（BLK-1）；M1 缺少 predicates_used 字段（BLK-1）；M3 的条件/输出未绑定 WINDOW_MATCH（BLK-1）；M3 缺少 predicates_used 字段（BLK-1）；M4 缺少 predicates_used 字段（BLK-1）；M8 的条件/输出未绑定 TARGET_CONTINUES（BLK-1）；M8 缺少 predicates_used 字段（BL
+      [C12] 提交: M1 的条件/输出未绑定 TARGET_CONTINUES（BLK-1）；M1 缺少 predicates_used 字段（BLK-1）；M3 的条件/输出未绑定 WINDOW_MATCH（BLK-1）；M3 缺少 predicates_used 字段（BLK-1）；M4 缺少 predicates_used 字段（BLK-1）；M8 的条件/输出未绑定 TARGET_CONTINUES（BLK-1）；M8 缺少 predicates_used 字段（BL
+      [C13] 我: 冷却锚点必须统一为 t_last_submit（NBL-2）
+      [C13] 提交: 冷却锚点必须统一为 t_last_submit（NBL-2）
+      [C17] 我: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+      [C17] 提交: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+    哈希比对（我对 git 字节自算 vs 提交的 package_under_test）：
+      OK  docs/stage6/s6a_stage6_g0_behavior_v1.json
+      OK  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+      OK  report/evidence/S6-A/s6a_g0_20261022_r02/hand_computed_cases.json
+      OK  report/evidence/S6-A/s6a_g0_20261022_r02/upstream_bindings.json
+      OK  .codex/STATE.md
+    全部哈希一致 = True
+    提交证据记录的 observed.exit_code=1 status=FAILED failed_checks=['C7', 'C12', 'C13', 'C17']
+
+--- r03  commit=2ce290f495e3bd50b249158be9f4f876a5f8e3fb
+    我的重跑: exit=1  status=FAILED  FAILED=['C7', 'C12', 'C17']
+    提交证据: exit(observed)=True status=FAILED  FAILED=['C7', 'C12', 'C17']
+    失败项一致 = True
+    失败详情逐字一致 = True
+      [C7] 我: lost_time 样例缺少 t_last_target_continues_ms（r04 已废弃 t_last_match_ms，见 R3-B01）
+      [C7] 提交: lost_time 样例缺少 t_last_target_continues_ms（r04 已废弃 t_last_match_ms，见 R3-B01）
+      [C12] 我: M1.predicates_used 与要求不符：['TARGET_CONTINUES', 'WINDOW_MATCH'] vs ['TARGET_CONTINUES']；predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 ['B03']；仅 predicates_used 有 ['B14']；predicates.WINDOW_MATCH.used_by 与 pr
+      [C12] 提交: M1.predicates_used 与要求不符：['TARGET_CONTINUES', 'WINDOW_MATCH'] vs ['TARGET_CONTINUES']；predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 ['B03']；仅 predicates_used 有 ['B14']；predicates.WINDOW_MATCH.used_by 与 pr
+      [C17] 我: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+      [C17] 提交: 缺少 stable_latching 块（观察项：STABLE 是否锁存必须唯一写明）
+    哈希比对（我对 git 字节自算 vs 提交的 package_under_test）：
+      OK  docs/stage6/s6a_stage6_g0_behavior_v1.json
+      OK  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+      OK  report/evidence/S6-A/s6a_g0_20261022_r03/hand_computed_cases.json
+      OK  report/evidence/S6-A/s6a_g0_20261022_r03/upstream_bindings.json
+      OK  .codex/STATE.md
+    全部哈希一致 = True
+    提交证据记录的 observed.exit_code=1 status=FAILED failed_checks=['C7', 'C12', 'C17']
+
+================================================================================================
+r04 自身入库自检结果 vs 我的重跑
+================================================================================================
+  我:   status=ALL_PASS checks=17 errors=0
+  入库: status=ALL_PASS checks=17 errors=0
+  逐项状态一致 = True
+  逐项 detail 逐字一致 = True
+  入库 inputs.behavior_json_sha256 = c6c11ed324ac6857f0cd4513c9cee7efa053052bd1c1e0c51e112dae4d0ec137
+  入库 inputs.human_doc_sha256     = f33e9a72ebbfed9a69d57ce2c7cdedf3803fa77496df7112c915b18a75ba79ba
+  入库 inputs.hand_cases_sha256    = e53a965a7d62bc1e01be042bb1a67b66dcaf1697dab89319d63fda66e4371a22

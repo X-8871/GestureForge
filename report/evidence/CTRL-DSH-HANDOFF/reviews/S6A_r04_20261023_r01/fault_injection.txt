@@ -1,0 +1,113 @@
+====================================================================================================
+基线对照（无注入，必须 exit 0 / ALL_PASS）
+    exit=0 status=ALL_PASS failed=[]
+====================================================================================================
+R3-B01 类回归测试（C12 判别力）
+
+### [f1_s02_text] 把 §12 T6-S02 行改回 R3-B01 原始缺陷写法
+    预期触发: C12 FAIL（§12 T6-S02 行回到未绑谓词写法）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: 文档仍含未绑定谓词的表述：'连续匹配帧'；文档仍含未绑定谓词的表述：'匹配帧数'
+
+### [f2_l02_text] 把 §12 T6-L02 行改回 t_last_match
+    预期触发: C12 FAIL（丢失时间行改用已废弃锚点 t_last_match，无“废弃”标注）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: 文档 仍含已废弃标识符 't_last_match'（未标注“已废弃”）：…eak ≥ L01` | 确认丢失 | 不丢失 | 确认丢失 |
+| 丢失时间 `T6-L02` | `t_now − t_last_match ≥ T6-L02` | 确认丢失 | 不丢失 | 确认丢失 |
+| 冷却 `T6-K01` | `t_now − t_…
+
+### [f3_matched_frames] 插入含 matched_frames 的规格句（无“废弃”标注）
+    预期触发: C12 FAIL（新插入 matched_frames 未标注废弃）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: 文档 仍含已废弃标识符 'matched_frames'（未标注“已废弃”）：…target_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。
+
+锚点名称：matched_frames 表示匹配帧计数。
+
+## 14. 阈值与指标登记（**全部待批准**）
+
+下表全部为 `PENDING_APPROVA…
+
+### [f4_t_last_match_normative] 插入规范语义使用 t_last_match
+    预期触发: C12 FAIL（规范句用 t_last_match 且附近无“废弃”）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: 文档 仍含已废弃标识符 't_last_match'（未标注“已废弃”）：…get_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。
+
+丢失判定锚点取 t_last_match 的值作为条件输入。
+
+## 14. 阈值与指标登记（**全部待批准**）
+
+下表全部为 `PENDING_APPROV…
+
+### [f5_whitelist_bypass] 把“废弃”放到距 token >60 字符处，测试白名单窗是否被绕过
+    预期触发: C12 PASS 或 FAIL？用于验证 ±60 字符白名单窗（“废弃”距 token 超过 60 字符）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: 文档 仍含已废弃标识符 't_last_match'（未标注“已废弃”）：…填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充填充 条件仍用 t_last_match 判定。
+
+## 14. 阈值与指标登记（**全部待批准**）
+
+下表全部为 `PENDING_APPROVAL`：`草…
+
+### [f6_whitelist_bypass_near] 紧邻“已废弃”标注 → 应被放行（验证白名单确实生效）
+    预期触发: C12 PASS（“废弃”紧邻 token，属放行白名单）
+    实测: exit=0 status=ALL_PASS FAILED_CHECKS=[]
+====================================================================================================
+R3-B02 类回归测试（全量双向断言判别力）
+
+### [f7_only_forward] 往 WINDOW_MATCH.used_by 加入不存在的反向绑定 B02
+    预期触发: C12 FAIL only_forward=[B02]
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: predicates.WINDOW_MATCH.used_by 与 predicates_used 非双向一致：仅 used_by 有 ['B02']；仅 predicates_used 有 []
+
+### [f8_only_reverse] 从 TARGET_CONTINUES.used_by 删掉 B14（B14 仍声明 predicates_used）
+    预期触发: C12 FAIL only_reverse=[B14]
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B14']
+
+### [f9_m1_overdeclare] M1 过度声明 WINDOW_MATCH
+    预期触发: C12 FAIL（M1 必须只声明 TARGET_CONTINUES）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: M1.predicates_used 与要求不符：['TARGET_CONTINUES', 'WINDOW_MATCH'] vs ['TARGET_CONTINUES']；predicates.WINDOW_MATCH.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['M1']
+
+### [f10_b13_field] 给 B13 加上 predicates_used，制造叙述不实
+    预期触发: C12 FAIL（M5/B13 不得出现 predicates_used 字段）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）
+
+### [f11_undefined_predicate] 引入未定义谓词名
+    预期触发: C12 FAIL 含未定义谓词
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C12']
+      - C12: M8.predicates_used 与要求不符：['TARGET_CONTINUES', 'GHOST_PRED'] vs ['TARGET_CONTINUES']；M8.predicates_used 含未定义谓词 'GHOST_PRED'
+
+### [f12_empty_predicates] 给不使用谓词的 M2 加空列表 predicates_used（策略违规探测）
+    预期触发: C12 是否捕获空列表（策略要求不用谓词的条目不得出现该字段）
+    实测: exit=0 status=ALL_PASS FAILED_CHECKS=[]
+====================================================================================================
+观察项 / STABLE 锁存（C17 判别力）
+
+### [f13_stable_demote] 新增 STABLE→CANDIDATE 迁移并把 exit_paths 改一致（测 C17 的 demote 断言）
+    预期触发: C17 FAIL（锁存定论下不得存在 STABLE→CANDIDATE）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C2', 'C3', 'C12', 'C17']
+      - C2: reachability 未覆盖全部迁移：缺 ['M16']，多 []
+      - C3: JSON 有而文档 §4 表缺的迁移：['M16']
+      - C12: predicates.WINDOW_MATCH.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['M16']
+      - C17: 锁存定论下不得存在 STABLE→CANDIDATE 迁移：['M16']
+
+### [f14_latch_false] stable_latching.latched 改为 false
+    预期触发: C17 FAIL
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C17']
+      - C17: stable_latching.latched 必须为 true（本 G0 定论：本次获取内锁存）
+
+### [f15_exitpath_drift] 声明退出路径与迁移表漂移
+    预期触发: C17 FAIL（退出路径与迁移表不一致）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C17']
+      - C17: STABLE 退出路径与迁移表不一致：推导 ['M10', 'M2', 'M5'] vs 声明 ['M2', 'M5']
+====================================================================================================
+参数纪律（C4 判别力）
+
+### [f16_param_approved] 把 T6-K01 的 approval_status 改成 APPROVED
+    预期触发: C4 FAIL（有待批准项被标为已批准）
+    实测: exit=1 status=FAILED FAILED_CHECKS=['C4']
+      - C4: T6-K01 的 approval_status 必须是 PENDING_APPROVAL
+
+====================================================================================================
+故障注入完成（所有产物在隔离目录 faultinj/）

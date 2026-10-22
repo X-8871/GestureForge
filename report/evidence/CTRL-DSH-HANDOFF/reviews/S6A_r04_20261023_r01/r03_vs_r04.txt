@@ -1,0 +1,47 @@
+### 参数逐字段比较（id, kind, unit, comparison, draft_value, approval_status, approval_owner）
+  r03 参数数=24  r04 参数数=24
+  ID 集合相同 = True；仅 r03 有 = []；仅 r04 有 = []
+  逐字段差异总数 = 0
+
+### PENDING_APPROVAL 纪律
+  r03: 非 PENDING_APPROVAL 的参数 = []
+  r04: 非 PENDING_APPROVAL 的参数 = []
+
+### ID 集合全等性（除声明新增）
+  parameters: 全等 | 仅r03=[] | 仅r04=[]
+  transitions: 全等 | 仅r03=[] | 仅r04=[]
+  hard_invariants: 全等 | 仅r03=[] | 仅r04=[]
+  behavior_rows: 全等 | 仅r03=[] | 仅r04=[]
+  states: 全等 | 仅r03=[] | 仅r04=[]
+  open_decisions: 有差异 | 仅r03=[] | 仅r04=['U6-16']
+  event_classes_keys: 全等 | 仅r03=[] | 仅r04=[]
+  actions_keys: 全等 | 仅r03=[] | 仅r04=[]
+  top_keys: 有差异 | 仅r03=[] | 仅r04=['predicate_binding_policy', 'stable_latching', 'time_anchors']
+
+### 行为行 / 迁移 条数与内容级 ID 顺序
+  behavior_rows r03=28 r04=28 顺序相同 = True
+  transitions   r03=14 r04=14 顺序相同 = True
+  states r03=['IDLE', 'CANDIDATE', 'STABLE', 'TRIGGERED', 'COOLDOWN', 'LOST', 'UNKNOWN_RECOVER']
+  states r04=['IDLE', 'CANDIDATE', 'STABLE', 'TRIGGERED', 'COOLDOWN', 'LOST', 'UNKNOWN_RECOVER']
+
+### 新增块（r04 声明新增）
+  stable_latching: 在 r03 存在=False  在 r04 存在=True
+  time_anchors: 在 r03 存在=False  在 r04 存在=True
+  predicate_binding_policy: 在 r03 存在=False  在 r04 存在=True
+  U6-16 在 r03=False 在 r04=True
+
+### 版本/身份字段
+  artifact_version: r03='S6A-G0-v1.2' -> r04='S6A-G0-v1.3'
+  run_id: r03='s6a_g0_20261022_r03' -> r04='s6a_g0_20261022_r04'
+  status: r03='G0_PACKET_PENDING_APPROVAL' -> r04='G0_PACKET_PENDING_APPROVAL'
+  supersedes_run_id: r03='s6a_g0_20261022_r02' -> r04='s6a_g0_20261022_r03'
+  schema_version: r03=1 -> r04=1
+
+### 文档身份行
+  r03 文档行数=353 r04 文档行数=363
+  'matched_frames': r03 出现 1 次 -> r04 出现 1 次
+  't_last_match': r03 出现 1 次 -> r04 出现 2 次
+  't_submit+': r03 出现 2 次 -> r04 出现 1 次
+  'TARGET_CONTINUES': r03 29 -> r04 40
+  'WINDOW_MATCH': r03 35 -> r04 38
+  't_last_target_continues': r03 0 -> r04 9

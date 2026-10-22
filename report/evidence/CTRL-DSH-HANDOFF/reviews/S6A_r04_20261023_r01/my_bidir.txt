@@ -1,0 +1,71 @@
+### 1. 自写全量双向比较（predicates.used_by  <->  每条目 predicates_used）
+  used_by[TARGET_CONTINUES] 条目ID(11) = ['B03', 'B04', 'B09', 'B10', 'B12', 'B14', 'M1', 'M10', 'M15', 'M8', 'M9']
+  used_by[TARGET_CONTINUES] 非条目引用 = ['§12 边界：追踪 IoU / 追踪位移']
+  used_by[WINDOW_MATCH] 条目ID(9) = ['B07', 'B08', 'B09', 'B14', 'B17', 'M15', 'M3', 'M4', 'M9']
+  used_by[WINDOW_MATCH] 非条目引用 = ['§12 边界：稳定门 / 逐帧位移']
+  TARGET_CONTINUES: only_forward=[] only_reverse=[] -> 双向一致
+  WINDOW_MATCH: only_forward=[] only_reverse=[] -> 双向一致
+
+  逐条目 predicates_used 现值：
+    B03: ['TARGET_CONTINUES']
+    B04: ['TARGET_CONTINUES']
+    B07: ['WINDOW_MATCH']
+    B08: ['WINDOW_MATCH']
+    B09: ['TARGET_CONTINUES', 'WINDOW_MATCH']
+    B10: ['TARGET_CONTINUES']
+    B12: ['TARGET_CONTINUES']
+    B14: ['TARGET_CONTINUES', 'WINDOW_MATCH']
+    B17: ['WINDOW_MATCH']
+    M1: ['TARGET_CONTINUES']
+    M3: ['WINDOW_MATCH']
+    M4: ['WINDOW_MATCH']
+    M8: ['TARGET_CONTINUES']
+    M9: ['TARGET_CONTINUES', 'WINDOW_MATCH']
+    M10: ['TARGET_CONTINUES']
+    M15: ['TARGET_CONTINUES', 'WINDOW_MATCH']
+  没有 predicates_used 字段的条目(26) = ['B01', 'B02', 'B05', 'B06', 'B11', 'B13', 'B15', 'B16', 'B18', 'B19', 'B20', 'B21', 'B22', 'B23', 'B24', 'B25', 'B26', 'B27', 'B28', 'M2', 'M5', 'M6', 'M7', 'M11', 'M12', 'M13']
+
+### 2. 结构异常扫描
+
+### 3. 文本级绑定审计（我自己加的：声明绑定必须在该条目的文本里出现）
+  [文本未绑定] B09 声明使用 WINDOW_MATCH，但其 condition/output/must_log 全文未出现 WINDOW_MATCH
+      condition=TARGET_CONTINUES 成立
+      output=获取延续，窗口不重启，证据连续
+  （以上为文本级缺口；被审自检的 required_binding 只覆盖其中一部分条目）
+
+### 4. 文档层面
+  文档出现 TARGET_CONTINUES 次数 = 40
+  文档出现 WINDOW_MATCH 次数 = 38
+  文档 'matched_frames' 出现 1 次
+     @34477 邻近“废弃”=True :: ...`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates.used_by` 与 `predi...
+  文档 't_last_match' 出现 2 次
+     @22370 邻近“废弃”=True :: ...` 判定更新）。M10/B10 的 `T6-L02` 条件与本表丢失时间行一律使用该锚点，**不得**再使用已废弃的 `t_last_match`（已废弃）。 - **"±1 单位"定义**：帧类参数为 1 条结果；时间类参数为 **1 纳秒**（上报毫秒值时必须...
+     @34462 邻近“废弃”=True :: ...正 §12 的 `T6-S02`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates....
+  文档 't_submit+' 出现 1 次
+     @34494 邻近“废弃”=True :: ...t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates.used_by` 与 `predicates_used` ...
+  文档 't_last_target_continues' 出现 9 次
+     @692 邻近“废弃”=False :: ... 行改用「连续 `WINDOW_MATCH` 帧数 ≥ `T6-S02`」、`T6-L02` 行改用 `t_now − t_last_target_continues ≥ T6-L02`，并在 §3/§12/§13 给出该锚点定义，自检 C12 增加禁用标识符扫描；**R3-B02**...
+     @6522 邻近“废弃”=False :: ...一化中心位移 ≤ `T6-P05`。稳定窗口帧数、抖动容忍、稳定判定一律使用 `WINDOW_MATCH`。 - **`t_last_target_continues`（丢失时间锚点）**：最近一次 `TARGET_CONTINUES` 成立的结果的显式输入时刻；`TARGET_CON...
+     @9102 邻近“废弃”=False :: ...进帧 `TARGET_CONTINUES` 不成立 **或** 距上一次 `TARGET_CONTINUES` 成立（`t_last_target_continues`）≥ `T6-L02`（取**较早**满足者）；**不得用 `WINDOW_MATCH` 判丢失**（低分但几何连续的...
+     @11949 邻近“废弃”=False :: ...` 条推进帧 `TARGET_CONTINUES` 不成立 或 距上一次 `TARGET_CONTINUES` 成立（`t_last_target_continues`）≥ `T6-L02` | M10→M11 清空目标与证据；**不产生动作** | 丢失原因分类 + 满足的是帧条件还...
+     @21436 邻近“废弃”=False :: ...eak ≥ L01` | 确认丢失 | 不丢失 | 确认丢失 | | 丢失时间 `T6-L02` | `t_now − t_last_target_continues ≥ T6-L02` | 确认丢失 | 不丢失 | 确认丢失 | | 冷却 `T6-K01` | `t_now − t_...
+     @22160 邻近“废弃”=False :: ...-U01` | `legal_streak ≥ U01` | 恢复 | 未恢复 | 恢复 |  - **丢失时间锚点 `t_last_target_continues`（R3-B01 定义）**：最近一次 `TARGET_CONTINUES` 成立的结果的显式输入时刻；`TARGET_...
+     @23945 邻近“废弃”=False :: ...即使不推进计数，超时/失踪计时**仍按单调时钟推进**（H-3）。 - 丢失时间条件（`T6-L02`）一律使用锚点 `t_last_target_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。  ## 14. 阈值与指标登记（**全部待批...
+     @30524 邻近“废弃”=False :: ...闭索引（r04）**：R3-B01 → §12 `T6-S02`/`T6-L02` 行改写 + §3/§12/§13 `t_last_target_continues` 定义 + 自检 C12 禁用标识符扫描；R3-B02 → `behavior_rows.B03/B17.predic...
+     @34434 邻近“废弃”=True :: ...整 C11。 **r04 修订说明**：R3-B01 修正 §12 的 `T6-S02`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B0...
+
+  JSON 'matched_frames' 出现 1 次
+  JSON 't_last_match' 出现 1 次
+  JSON 't_submit+' 出现 2 次
+
+### 5. M5 / B13 字段现状 vs 叙述
+  M5: 有 predicates_used 字段 = False；键=['condition', 'from', 'global_cooldown_gate', 'id', 'params', 'predicate_binding_note', 'priority', 'to']
+  B13: 有 predicates_used 字段 = False；键=['basis', 'condition', 'id', 'must_log', 'output', 'params', 'predicate_binding_note', 'semantics_status', 'title']
+  predicate_binding_policy.statement = 'M5 与 B13 只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段。'
+  statement 出现在文档 = True
+
+### 6. STABLE 锁存 / 退出路径（自算）
+  迁移表中 from ∈ {STABLE,*} 的迁移 = ['M2', 'M5', 'M10']
+  stable_latching.exit_paths 声明 = ['M2', 'M10', 'M5']
+  STABLE→CANDIDATE 迁移 = []
+  M5 condition = STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）

@@ -1,0 +1,533 @@
+============================== predicates ==============================
+{
+  "TARGET_CONTINUES": {
+    "definition": "同一帧内存在与当前目标类别相同、且（IoU ≥ T6-P03 或 归一化中心位移 ≤ T6-P04）的框。",
+    "used_by": [
+      "B03 迟滞",
+      "B04 当前目标不成立时选择",
+      "B09 目标保持",
+      "B10 丢失确认",
+      "B12 目标切换",
+      "B14 冷却结束分支",
+      "M1 获取连续性",
+      "M8 冷却结束回 IDLE",
+      "M9 冷却结束维持",
+      "M10 丢失确认",
+      "M15 冷却结束回候选",
+      "§12 边界：追踪 IoU / 追踪位移"
+    ],
+    "params": [
+      "T6-P03",
+      "T6-P04"
+    ],
+    "excludes": [
+      "T6-P02",
+      "T6-P05"
+    ]
+  },
+  "WINDOW_MATCH": {
+    "definition": "在 TARGET_CONTINUES 成立的框上，再满足 score ≥ T6-P02 且与前一个 WINDOW_MATCH 帧的归一化中心位移 ≤ T6-P05。",
+    "used_by": [
+      "B07 稳定窗口",
+      "B08 抖动容忍",
+      "B09 目标保持（窗口不重启）",
+      "B14 冷却结束分支",
+      "B17 无手（零框不满足）",
+      "M3 进入 STABLE（帧计数）",
+      "M4 候选超时（抖动耗尽判定）",
+      "M9 窗口再次满足",
+      "M15 窗口未满足",
+      "§12 边界：稳定门 / 逐帧位移"
+    ],
+    "params": [
+      "T6-P02",
+      "T6-P05",
+      "T6-P03",
+      "T6-P04"
+    ],
+    "excludes": []
+  },
+  "NO_HAND_rule": "NO_HAND 为零框，既不满足 TARGET_CONTINUES 也不满足 WINDOW_MATCH；只推进时间与结果计数。",
+  "terminology_rule": "文档与行为表不得再用无修饰的“匹配”指代上述两类判定。"
+}
+============================== predicate_binding_policy ==============================
+{
+  "statement": "M5 与 B13 只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段。",
+  "items_without_predicates_used": [
+    "M5",
+    "B13"
+  ],
+  "item_notes": {
+    "M5": "M5 的条件由 STABLE、本次获取尚未触发、全局冷却门（t_now − t_last_submit ≥ T6-K01）构成，不使用 TARGET_CONTINUES/WINDOW_MATCH；只有 global_cooldown_gate 标记。",
+    "B13": "B13 的条件由 t_last_submit 与 T6-K01 构成，不使用 TARGET_CONTINUES/WINDOW_MATCH；其抑制语义由 H-10 全局门承载。"
+  },
+  "rule": "predicates.used_by 与每一条目的 predicates_used 必须全量双向一致；不使用谓词的条目不得出现 predicates_used 字段，且全部叙述必须与本块一致（R3-B02）。"
+}
+============================== time_anchors ==============================
+{
+  "t_last_target_continues": "最近一次 TARGET_CONTINUES 成立的结果的显式输入时刻；TARGET_CONTINUES 不成立的结果不更新该锚点；被抑制或失败的动作尝试不更新该锚点（该锚点只由逐帧 TARGET_CONTINUES 判定更新）。用于 M10/B10 的 T6-L02 时间条件与文档 §12 丢失时间行。",
+  "t_last_submit": "最近一次真实 ACTION_SUBMITTED 的 t_submit（被抑制或失败的尝试不更新）；用于 H-10 全局冷却门。"
+}
+============================== stable_latching ==============================
+{
+  "latched": true,
+  "scope": "WITHIN_ACQUISITION",
+  "statement": "STABLE 在本次获取内锁存：进入后不因窗口中断、score 跌破 T6-P02 或抖动耗尽而退回 CANDIDATE；离开 STABLE 仅有 M2（异常，P1）、M10（丢失确认，P2）、M5（触发，P3）三条路径。冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。",
+  "exit_paths": [
+    "M2",
+    "M10",
+    "M5"
+  ],
+  "not_demoted_by": [
+    "WINDOW_MATCH 中断（连续帧不满足稳定门 T6-P02 或逐帧位移 T6-P05）",
+    "抖动耗尽（M4 只作用于 CANDIDATE，不作用于 STABLE）",
+    "score 跌破 T6-P02"
+  ],
+  "suppressed_trigger_release": "全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。",
+  "pending_confirmation": "U6-16：若 G0 改为不锁存，属实质语义变更，需补 STABLE→CANDIDATE 迁移并同步 §4/§10/M5 与本块。",
+  "source": "第三轮复评 S6A_r03_20261022_r01 观察项（STABLE 是否锁存必须给出唯一答案）"
+}
+============================== transitions ==============================
+------------------------------------------------------------
+id= M1 | from= IDLE | to= CANDIDATE | priority= P4
+  params= ['T6-C01']
+  predicates_used= ['TARGET_CONTINUES']
+  condition= 存在通过 §8 选择的目标，且连续 T6-C01 条窗口推进帧为同一目标（同一目标由 TARGET_CONTINUES 判定，不以 WINDOW_MATCH 计数）
+------------------------------------------------------------
+id= M2 | from= * | to= UNKNOWN_RECOVER | priority= P1
+  params= ['T6-U00_W', 'T6-U00_N']
+  predicates_used= <ABSENT>
+  condition= 连续 T6-U00_W 条结果内异常数 ≥ T6-U00_N
+------------------------------------------------------------
+id= M3 | from= CANDIDATE | to= STABLE | priority= P3
+  params= ['T6-S01', 'T6-S02', 'T6-S03']
+  predicates_used= ['WINDOW_MATCH']
+  condition= 连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01（取较晚满足者）；不得按 TARGET_CONTINUES 计帧（低分目标不得进入 STABLE）
+------------------------------------------------------------
+id= M4 | from= CANDIDATE | to= IDLE | priority= P3
+  params= ['T6-J01', 'T6-S04']
+  predicates_used= ['WINDOW_MATCH']
+  condition= 抖动容忍耗尽（缺失 > T6-J01 帧不满足 WINDOW_MATCH）且候选停留 ≥ T6-S04；仅在 M10 未命中时求值
+------------------------------------------------------------
+id= M5 | from= STABLE | to= TRIGGERED | priority= P3
+  params= ['T6-K01']
+  predicates_used= <ABSENT>
+  condition= STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）
+------------------------------------------------------------
+id= M6 | from= TRIGGERED | to= COOLDOWN | priority= P3
+  params= []
+  predicates_used= <ABSENT>
+  condition= 动作提交事件落盘（同帧或下一帧）
+------------------------------------------------------------
+id= M7 | from= TRIGGERED | to= LOST | priority= P3
+  params= []
+  predicates_used= <ABSENT>
+  condition= 提交前目标已丢失（异常路径，必须记录）
+------------------------------------------------------------
+id= M8 | from= COOLDOWN | to= IDLE | priority= P3
+  params= ['T6-K01']
+  predicates_used= ['TARGET_CONTINUES']
+  condition= 冷却结束且当前目标 TARGET_CONTINUES 不成立/已丢失
+------------------------------------------------------------
+id= M9 | from= COOLDOWN | to= STABLE | priority= P3
+  params= ['T6-K01']
+  predicates_used= ['TARGET_CONTINUES', 'WINDOW_MATCH']
+  condition= 冷却结束、同一目标仍满足 TARGET_CONTINUES 且 WINDOW_MATCH 窗口再次满足 → 维持态，不再触发
+------------------------------------------------------------
+id= M10 | from= * | to= LOST | priority= P2
+  params= ['T6-L01', 'T6-L02']
+  predicates_used= ['TARGET_CONTINUES']
+  condition= 连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立（t_last_target_continues）≥ T6-L02（取较早满足者）；不得用 WINDOW_MATCH 判丢失（低分但几何连续的目标仍维持）
+------------------------------------------------------------
+id= M11 | from= LOST | to= IDLE | priority= P3
+  params= []
+  predicates_used= <ABSENT>
+  condition= 丢失确认后立即清空当前目标与稳定证据
+------------------------------------------------------------
+id= M12 | from= UNKNOWN_RECOVER | to= IDLE | priority= P5
+  params= ['T6-U01']
+  predicates_used= <ABSENT>
+  condition= 连续 T6-U01 条合法结果且无未知类别
+------------------------------------------------------------
+id= M13 | from= UNKNOWN_RECOVER | to= UNKNOWN_RECOVER | priority= P1
+  params= ['T6-U00_W', 'T6-U00_N']
+  predicates_used= <ABSENT>
+  condition= 恢复期间再次出现异常，按异常窗口规则重置计数起点
+------------------------------------------------------------
+id= M15 | from= COOLDOWN | to= CANDIDATE | priority= P3
+  params= ['T6-K01']
+  predicates_used= ['TARGET_CONTINUES', 'WINDOW_MATCH']
+  condition= 冷却结束、目标仍满足 TARGET_CONTINUES 但 WINDOW_MATCH 窗口未满足；该路径达到稳定也不再触发
+============================== behavior_rows ==============================
+------------------------------------------------------------
+id= B01 | 五类稳定触发
+  params= ['T6-S01', 'T6-S02', 'T6-P01', 'T6-P02']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 目标满足稳定窗口 → M3→M5
+------------------------------------------------------------
+id= B02 | 提交成功与实际生效分离
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= M5 之后执行层回执
+------------------------------------------------------------
+id= B03 | 多框维持优先（迟滞）
+  params= ['T6-P03', 'T6-P04']
+  predicates_used= ['TARGET_CONTINUES']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 存在与当前目标 TARGET_CONTINUES 成立的框
+------------------------------------------------------------
+id= B04 | 分数优先
+  params= ['T6-P01']
+  predicates_used= ['TARGET_CONTINUES']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 当前目标 TARGET_CONTINUES 不成立时选最高分框
+------------------------------------------------------------
+id= B05 | 同分排序
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= score 逐位完全相等
+------------------------------------------------------------
+id= B06 | 禁止未冻结启发式
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 任何选择或排序
+------------------------------------------------------------
+id= B07 | 稳定窗口
+  params= ['T6-S01', 'T6-S02', 'T6-S03']
+  predicates_used= ['WINDOW_MATCH']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成时刻=第 N 个 WINDOW_MATCH 结果到达时刻；NO_HAND 不计入
+------------------------------------------------------------
+id= B08 | 抖动容忍
+  params= ['T6-J01']
+  predicates_used= ['WINDOW_MATCH']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 窗口内短暂中断（窗口推进帧不满足 WINDOW_MATCH）
+------------------------------------------------------------
+id= B09 | 目标保持
+  params= ['T6-P03', 'T6-P04', 'T6-P05']
+  predicates_used= ['TARGET_CONTINUES', 'WINDOW_MATCH']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= TARGET_CONTINUES 成立
+------------------------------------------------------------
+id= B10 | 丢失确认
+  params= ['T6-L01', 'T6-L02']
+  predicates_used= ['TARGET_CONTINUES']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立（t_last_target_continues）≥ T6-L02
+------------------------------------------------------------
+id= B11 | 重获
+  params= ['T6-S01', 'T6-S02']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= LOST→IDLE 后同类目标再现并满足窗口
+------------------------------------------------------------
+id= B12 | 目标切换
+  params= ['T6-P01', 'T6-P03', 'T6-P04']
+  predicates_used= ['TARGET_CONTINUES']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 当前目标 TARGET_CONTINUES 不成立且出现另一合法目标
+------------------------------------------------------------
+id= B13 | 冷却抑制（全局门）
+  params= ['T6-K01']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 自 t_last_submit 起 t_now − t_last_submit < T6-K01（任意状态/任意获取）
+------------------------------------------------------------
+id= B14 | 冷却结束三分支
+  params= ['T6-K01']
+  predicates_used= ['TARGET_CONTINUES', 'WINDOW_MATCH']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= t_now − t_last_submit ≥ T6-K01（含等号）
+------------------------------------------------------------
+id= B15 | 持续保持只触发一次
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 同一获取内目标持续稳定（含冷却结束后）
+------------------------------------------------------------
+id= B16 | 动作去重窗口
+  params= ['T6-A02']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 相同 (action_type,target_id) 在 T6-A02 内重复提交
+------------------------------------------------------------
+id= B17 | 无手（零框）
+  params= []
+  predicates_used= ['WINDOW_MATCH']
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= state=NO_HAND
+------------------------------------------------------------
+id= B18 | 过期结果
+  params= ['T6-STALE_LIMIT']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= stale=true
+------------------------------------------------------------
+id= B19 | 未知类别/非法结果
+  params= ['T6-U00_W', 'T6-U00_N']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= class_id ∉ 0..4 或非 finite 或框数 >15 或字段不自洽
+------------------------------------------------------------
+id= B20 | 未知场景（合法类别）
+  params= ['T6-02']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 未知手势被判为已知类
+------------------------------------------------------------
+id= B21 | 超时/错误/丢帧
+  params= ['T6-U00_W', 'T6-U00_N', 'T6-U01']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= state ∈ {TIMEOUT,ERROR,DROPPED}
+------------------------------------------------------------
+id= B22 | 重复 frame_id
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= frame_id 等于上一条已处理值
+------------------------------------------------------------
+id= B23 | 倒序 frame_id
+  params= ['T6-U00_W', 'T6-U00_N']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= frame_id 小于上一条已处理值且 session_id 未变
+------------------------------------------------------------
+id= B24 | 缺帧
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= frame_id 跳号且既无结果也无 DROPPED 记录
+------------------------------------------------------------
+id= B25 | 重启/会话切换
+  params= []
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= session_id 变化，或同会话 frame_id 大幅回退
+------------------------------------------------------------
+id= B26 | 时间边界
+  params= ['T6-S01', 'T6-S02', 'T6-S04', 'T6-L01', 'T6-L02', 'T6-K01', 'T6-A02', 'T6-J01', 'T6-P01', 'T6-P02', 'T6-P03', 'T6-P04', 'T6-P05', 'T6-STALE_LIMIT', 'T6-U01', 'T6-C01', 'T6-U00_W', 'T6-U00_N']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 等于阈值 / 阈值 ±1 单位（帧类 1 条结果；时间类 1 ns；分数/几何 1 ULP）
+------------------------------------------------------------
+id= B27 | 低 FPS 交互延迟
+  params= ['T6-A01', 'T6-A03', 'T6-S01', 'T6-S02']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 帧周期 P_meas 较大时
+------------------------------------------------------------
+id= B28 | 动作失败/未观察/重复回执
+  params= ['T6-01']
+  predicates_used= <ABSENT>
+  semantics_status= BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL
+  condition= 执行层返回 fail/unobserved 或重复 ACK
+============================== parameters ==============================
+T6-A01 | timing | ms | <= | draft= 1000 | PENDING_APPROVAL
+T6-A02 | timing | ms | suppress_if_lt | draft= 500 | PENDING_APPROVAL
+T6-A03 | timing | ms | <= | draft= None | PENDING_APPROVAL
+T6-C01 | timing | frames | >= | draft= 2 | PENDING_APPROVAL
+T6-S01 | timing | ms | >= | draft= 200 | PENDING_APPROVAL
+T6-S02 | timing | frames | >= | draft= 6 | PENDING_APPROVAL
+T6-S03 | logic | None | later_of | draft= 同时满足帧数与时长，取较晚满足者 | PENDING_APPROVAL
+T6-S04 | timing | ms | >= | draft= 500 | PENDING_APPROVAL
+T6-L01 | timing | frames | >= | draft= 5 | PENDING_APPROVAL
+T6-L02 | timing | ms | >= | draft= 300 | PENDING_APPROVAL
+T6-K01 | timing | ms | >= | draft= 1000 | PENDING_APPROVAL
+T6-J01 | timing | frames | <= | draft= 1 | PENDING_APPROVAL
+T6-U00_W | timing | frames | sliding_window | draft= 3 | PENDING_APPROVAL
+T6-U00_N | timing | frames | >= | draft= 3 | PENDING_APPROVAL
+T6-U01 | timing | frames | >= | draft= 5 | PENDING_APPROVAL
+T6-P01 | score | score | >= | draft= 0.35 | PENDING_APPROVAL
+T6-P02 | score | score | >= | draft= 0.3 | PENDING_APPROVAL
+T6-P03 | geometry | ratio | >= | draft= 0.3 | PENDING_APPROVAL
+T6-P04 | geometry | normalized | <= | draft= 0.15 | PENDING_APPROVAL
+T6-P05 | geometry | normalized | <= | draft= 0.05 | PENDING_APPROVAL
+T6-STALE_LIMIT | timing | ms | > | draft= 200 | PENDING_APPROVAL
+T6-01 | metric | ratio | >= | draft= 0.9 | PENDING_APPROVAL
+T6-02 | metric | ratio | <= | draft= 0.05 | PENDING_APPROVAL
+T6-03 | metric | count_per_1800s | <= | draft= 1 | PENDING_APPROVAL
+============================== revision ==============================
+{
+  "run_id": "s6a_g0_20261022_r04",
+  "supersedes_run_id": "s6a_g0_20261022_r03",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r03_20261022_r01/",
+  "review_verdict": "CHANGES_REQUIRED（R3-B01/R3-B02 + N01..N05 + 观察项）",
+  "semantic_changes": true,
+  "parameter_value_changes": false,
+  "parameter_approval_changes": false,
+  "changes": [
+    {
+      "issue": "R3-B01",
+      "summary": "§12 稳定帧数行改用「连续 WINDOW_MATCH 帧数 ≥ T6-S02」、丢失时间行改用 t_now − t_last_target_continues ≥ T6-L02，并在 §3/§12/§13 给出该锚点定义；M10/B10 同步；C12 增加禁用标识符扫描（matched_frames、t_last_match、t_submit+ 均已废弃，仅放行邻近标注“已废弃”的历史说明）",
+      "where": "文档 §3/§4/§5/§12/§13 / transitions.M10 / behavior_rows.B10 / time_anchors / 自检 C12"
+    },
+    {
+      "issue": "R3-B02",
+      "summary": "predicates.used_by 与 predicates_used 全量双向一致：B03 补 [TARGET_CONTINUES]、B17 补 [WINDOW_MATCH]、TARGET_CONTINUES.used_by 补 B14、M1.predicates_used 收敛为仅 [TARGET_CONTINUES]；M5/B13 只有条件文本 + global_cooldown_gate 绑定、无 predicates_used 字段（叙述与 JSON 一致）；C12 增加全量双向断言",
+      "where": "behavior_rows.B03/B17 / transitions.M1 / predicates.TARGET_CONTINUES.used_by / predicate_binding_policy / 自检 C12"
+    },
+    {
+      "issue": "N01",
+      "summary": "H-10 与 §4 统一冷却锚点 t_last_submit，删除已废弃的 t_submit+ 写法与「自动作提交时刻」错字",
+      "where": "文档 §2 H-10 / §4"
+    },
+    {
+      "issue": "N02",
+      "summary": "HC-27 去掉自比较 (s02>=s02)/(s02+1>=s02)，改为按帧时刻序列推导；HC-28/HC-29 由逐帧 score/几何序列真推导 TARGET_CONTINUES 与 WINDOW_MATCH 计数；revision.changes 措辞按实际改动重述",
+      "where": "hand_computed_cases.json HC-27/28/29 / 自检 C7 recompute"
+    },
+    {
+      "issue": "N03",
+      "summary": "旧包失败证据改由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑（r01/r02/r03），并纳入构建器流程；提取一律 git cat-file blob 二进制",
+      "where": "verification/s6a_rerun_legacy_failures.py / verification/s6a_build_evidence.py"
+    },
+    {
+      "issue": "N04",
+      "summary": "coverage C7 样例数 27→29；limitations/selfcheck/构建器版本号统一为 v1.3/r04",
+      "where": "coverage_matrix.json / limitations_not_executed.json / verification/s6_g0_selfcheck.py / verification/s6a_build_evidence.py"
+    },
+    {
+      "issue": "N05",
+      "summary": "旧哈希成因措辞改为「LF→CRLF + 末尾补 CRLF」（去掉无证据的「编码」表述）",
+      "where": "fix_record / limitations_not_executed / old_package_under_test"
+    },
+    {
+      "issue": "观察项",
+      "summary": "STABLE 定论为「本次获取内锁存」：不因窗口中断/分数下降/抖动耗尽退回 CANDIDATE，离开路径为 M2/M10/M5；新增 stable_latching、自检 C17 与 U6-16",
+      "where": "文档 §4 / stable_latching / 自检 C17 / open_decisions U6-16"
+    }
+  ],
+  "deleted_transitions": [
+    {
+      "id": "M14",
+      "reason": "M10→M11 使 LOST→IDLE 立即完成，原 M14 的 LOST 分支不可达、IDLE 分支与 M1 同效；重获统一表达为 M10→M11→M1（新 acquisition_id）"
+    }
+  ],
+  "review_status": "PENDING_REVIEW",
+  "retained_from_r03": {
+    "artifact_version": "S6A-G0-v1.2",
+    "run_id": "s6a_g0_20261022_r03",
+    "note": "r03 的谓词落地、旧包哈希二进制重算、C11 完整入库与 NBL-1..5 修订全部保留；r04 只修 R3-B01/R3-B02、N01..N05 与 STABLE 锁存观察项。"
+  }
+}
+============================== reachability ==============================
+{
+  "method": "按当前草案参数与求值顺序推导；不改任何阈值",
+  "draft_params_used": {
+    "T6-S04_ms": 500,
+    "T6-L02_ms": 300,
+    "T6-L01_frames": 5,
+    "T6-J01_frames": 1,
+    "T6-K01_ms": 1000,
+    "T6-A02_ms": 500
+  },
+  "transitions": {
+    "M1": {
+      "status": "REACHABLE"
+    },
+    "M2": {
+      "status": "REACHABLE"
+    },
+    "M3": {
+      "status": "REACHABLE"
+    },
+    "M4": {
+      "status": "UNREACHABLE_UNDER_DRAFT_PARAMS",
+      "reason": "T6-S04(500ms) ≥ T6-L02(300ms)：候选停留达 S04 前 M10 已先命中并离开 CANDIDATE",
+      "resolution": "U6-12：G0 决定 T6-S04 < T6-L02 或删除 M4/T6-S04"
+    },
+    "M5": {
+      "status": "REACHABLE"
+    },
+    "M6": {
+      "status": "REACHABLE"
+    },
+    "M7": {
+      "status": "UNREACHABLE_BY_CONSTRUCTION",
+      "reason": "M5 同步提交；不存在 TRIGGERED 之后、提交之前的丢失窗口",
+      "resolution": "保留编号以便追溯；实现不得为 M7 造路径"
+    },
+    "M8": {
+      "status": "REACHABLE"
+    },
+    "M9": {
+      "status": "REACHABLE"
+    },
+    "M10": {
+      "status": "REACHABLE"
+    },
+    "M11": {
+      "status": "REACHABLE"
+    },
+    "M12": {
+      "status": "REACHABLE"
+    },
+    "M13": {
+      "status": "REACHABLE"
+    },
+    "M15": {
+      "status": "REACHABLE"
+    }
+  },
+  "consequence": "M4/T6-S04 与 M7 不得计入行为覆盖声明；M14 已删除（见 revision.deleted_transitions）。"
+}
+============================== cooldown_policy ==============================
+{
+  "scope": "GLOBAL_GATE",
+  "anchor": "t_last_submit（最近一次真实 ACTION_SUBMITTED 的 t_submit；被抑制或失败的尝试不更新）",
+  "gate_condition": "t_now − t_last_submit < T6-K01 → 禁止提交动作",
+  "applies_to_states": [
+    "IDLE",
+    "CANDIDATE",
+    "STABLE",
+    "TRIGGERED",
+    "COOLDOWN",
+    "LOST",
+    "UNKNOWN_RECOVER"
+  ],
+  "applies_across_acquisitions": true,
+  "checked_at": "M5 判定时 + 动作执行层提交前再次校验",
+  "suppression_event": "S_COOLDOWN",
+  "display_state_exit": "M8/M9/M15 只决定展示状态出口，不解除全局门",
+  "no_submit_record_means_gate_open": true,
+  "rationale": "评审 B-03：原实现只在 COOLDOWN 状态内抑制，M10/M11/异常可提前离开状态从而绕过 K01。",
+  "definitions": {
+    "t_submit": "动作执行层接受提交（ACTION_SUBMITTED）时的显式单调时刻",
+    "t_last_submit": "最近一次 ACTION_SUBMITTED 的 t_submit；无提交记录时冷却门开放",
+    "suppressed_or_failed_attempt_does_not_update_anchor": true
+  }
+}
+============================== trigger_once_while_held ==============================
+{
+  "declared": "ONCE_PER_ACQUISITION",
+  "acquisition_definition": "从某目标首次被选为当前目标起，到该目标丢失确认（M10→M11）或切换到另一目标为止的连续区间。",
+  "unique_interpretation": "一次获取只触发一次：区间内无论目标保持多久、冷却是否结束、窗口是否再次满足，恰好产生一次 ACTION_SUBMITTED；且第二次提交只有在新的获取成立且全局冷却门（t_now − 上一次 t_submit ≥ T6-K01）已结束时才允许。",
+  "second_trigger_allowed_only_by_new_acquisition": true,
+  "m15_path_is_not_new_acquisition": true,
+  "rejected_alternative": "保持期按周期重复触发（草案备选 B）不被采纳；若需要属实质语义变更，须 Wong 决策并同步改写本文 §10、M5 与 JSON。",
+  "w5_draft_option_a_adopted": true,
+  "cooldown_gate_global": true
+}
+============================== hard_invariants ==============================
+H-1 :: 状态机核心的输入是一条结果记录 + 显式单调时间 + session_id，输出是状态转移与动作请求；核心不得直接读摄像头、系统墙钟、HDMI 或任何硬件寄存器。
+H-2 :: 动作执行层单独隔离，负责提交动作并返回 success/fail/unobserved 与生效时刻；日志保留 action_id 与来源 frame_id，防止重复发送导致重复动作。
+H-3 :: 所有超时/失踪/冷却/窗口计时按单调时钟推进；停帧、重复帧或丢弃帧不得把状态永久卡在候选；系统墙钟不得参与任何判定。
+H-4 :: 窗口序列按结果条数推进，仅由 state ∈ {OK, NO_HAND}、stale=false、非重复、非倒序的结果推进；匹配计数只由 WINDOW_MATCH 成立的结果推进。NO_HAND 推进时间与结果计数、不推进匹配计数、不得完成稳定窗口；TIMEOUT/ERROR/DROPPED 不推进序列与匹配计数，但必须推进时间并计入异常。
+H-5 :: NO_HAND 是合法零框，不是第六类、不是未知、不是错误；不得改写为未知，也不得把其他空标签改写为 NO_HAND。
+H-6 :: 不得以 class_id 落在五类内证明未知拒绝；未知拒绝只能由独立未知样本上未发生已提交动作的统计支撑，样本必须包含高分误识别场景。
+H-7 :: 所有测试的预期序列必须由行为表独立推导或人工手算；禁止运行状态机生成 expected 后自我比较。
+H-8 :: ACTION_SUBMITTED（提交成功）与 ACTION_EFFECTIVE（实际生效）是两类事件，必须分别记录与统计；提交成功不等于生效，仅触发未生效不得算成功。
+H-9 :: 本阶段不得触碰板卡/JTAG/COM4/hw_server/HDMI 实物/摄像头，不得烧录。
+H-10 :: 冷却全局门：自最近一次真实提交 t_last_submit 起 T6-K01 内，任何状态、任何获取（含目标丢失后重获、异常恢复、目标切换）都不得提交动作；展示状态 COOLDOWN 因丢失/异常提前退出不解除该门；被抑制或失败的提交尝试不更新 t_last_submit；动作执行层在提交前再次校验。
+============================== parameter_notes ==============================
+{
+  "T6-S04": "草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。",
+  "T6-A03": "草案无值；测量需阶段4 实测 P_meas（U6-13），否则 NOT_RUN。",
+  "T6-STALE_LIMIT": "严格 > 判过期，其余阈值含等号。"
+}

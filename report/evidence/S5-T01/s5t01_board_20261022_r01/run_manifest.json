@@ -4,7 +4,7 @@
   "run_id": "s5t01_board_20261022_r01",
   "generated_utc8": "2026-10-22T13:37:45+08:00",
   "source_head": "cc0eb548da00711bf04c6e60e007d78715cad63f",
-  "goal_reached": "GATE_GO_BOARD_POWERED_BUT_JTAG_CHAIN_EMPTY",
+  "goal_reached": "RETRACTED_JTAG_CHAIN_EMPTY__SEE_CORRECTION",
   "hardware_gate": {
     "decision": "GO",
     "exit_code": 0,
@@ -85,6 +85,10 @@
       "sha256": "bf09c8ac535da14036241d760b93381d716f54e06b7e78217a1da1ffd9831ccd"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/CORRECTION_chain_not_empty.md",
+      "sha256": "88c5e8c6949cee33c4cd028387781b3722ae094c6e62abd1bdd1a82b87d7f22d"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/hardware_gate.json",
       "sha256": "93271e84068bcfe84d317a7799ed251a7c703693eea6d8f5626ad93e943facb0"
     },
@@ -128,5 +132,17 @@
     "JTAG 链为空，未对板卡做任何写操作；本 run 只有门禁与只读诊断。",
     "每次探测后清理本进程产生的 hw_server，收尾无驻留服务。",
     "v12 应用不自动恢复 0x503D（源码 S3_DIAG9_ORDER=NOT_RESTORED），恢复需重载非图案 ELF/传感器复位 => S5-T01 将在 P1 应用内显式写回 0x00。"
-  ]
+  ],
+  "retracted_conclusion": {
+    "claimed": "JTAG chain empty / board not powered",
+    "status": "WRONG_RETRACTED",
+    "correction_file": "report/evidence/S5-T01/s5t01_board_20261022_r01/CORRECTION_chain_not_empty.md",
+    "root_causes": [
+      "bare  prints nothing under output redirection (used as the判据)",
+      "my grep filter hid the chain lines already present in my own saved output"
+    ],
+    "evidence_that_refutes_it": "console/jtag_chain_query2.txt lines 42-44 (chain printed at 13:36)",
+    "corrected_fact": "board was connected and powered; chain = JTAG-HS1 + arm_dap(4ba00477) + xc7z020(23727093), 16 targets, two A9 cores Running",
+    "board_writes_performed": false
+  }
 }

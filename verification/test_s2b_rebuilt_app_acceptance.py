@@ -160,6 +160,28 @@ class RebuiltAppAcceptanceTests(unittest.TestCase):
             finally:
                 runner.log.close()
 
+    def test_sample000_selects_seq4_model_frame_after_seq3_weights_frame(self):
+        """真实结果含seq3权重帧和seq4模型帧，只把后者记作模型输出。"""
+        sample_frame = {"phase": "rebuilt_app_sample000", "sequence": 4,
+                        "epoch": 1, "frame": {"heads": [], "boxes": []}}
+        result = {"status": "PASS_REBUILT_APP_SAMPLE000_GOLDEN", "frames": [
+            {"phase": "weights", "sequence": 3, "epoch": 0,
+             "frame": {"kind": "weights_ack"}},
+            sample_frame,
+        ]}
+        wire = SimpleNamespace(epoch=1, last_sequence=4)
+        self.assertIs(acceptance._select_sample000_frame(result, wire), sample_frame)
+        invalid_results = [
+            {"status": result["status"], "frames": result["frames"] + [sample_frame]},
+            {"status": result["status"], "frames": list(reversed(result["frames"]))},
+            {"status": result["status"], "frames": [result["frames"][0],
+                                                        {**sample_frame, "epoch": 0}]},
+        ]
+        for invalid in invalid_results:
+            with self.subTest(frames=invalid["frames"]):
+                with self.assertRaises(acceptance.RebuiltAppAcceptanceError):
+                    acceptance._select_sample000_frame(invalid, wire)
+
     def test_real_recovery_inputs_are_bound_without_claiming_board_or_old_g0(self):
         result = acceptance.verify_recovery_inputs()
         self.assertEqual(result["scope"], "OFFLINE_INPUTS_VERIFIED_ONLY_NOT_G0_OR_BOARD_ACCEPTANCE")

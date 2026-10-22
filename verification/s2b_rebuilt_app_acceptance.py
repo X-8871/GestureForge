@@ -59,6 +59,26 @@ def _require(condition: bool, message: str) -> None:
         raise RebuiltAppAcceptanceError(message)
 
 
+def _select_sample000_frame(sample_result: dict, wire) -> dict:
+    """从验收记录中选出seq4模型帧，并验证此前seq3权重帧。"""
+    _require(type(sample_result) is dict and
+             sample_result.get("status") == "PASS_REBUILT_APP_SAMPLE000_GOLDEN",
+             "重建app sample000协议/黄金状态不符")
+    frames = sample_result.get("frames")
+    _require(type(frames) is list and all(type(row) is dict for row in frames),
+             "sample000帧记录格式不符")
+    weight_frames = [row for row in frames if row.get("phase") == "weights"]
+    model_frames = [row for row in frames if row.get("phase") != "weights"]
+    _require(len(weight_frames) == 1 and weight_frames[0].get("sequence") == 3 and
+             weight_frames[0].get("epoch") == 0 and len(model_frames) == 1 and
+             model_frames[0].get("phase") == "rebuilt_app_sample000" and
+             model_frames[0].get("sequence") == 4 and model_frames[0].get("epoch") == 1 and
+             frames.index(weight_frames[0]) < frames.index(model_frames[0]) and
+             wire.epoch == 1 and wire.last_sequence == 4,
+             "重建app sample000协议/黄金或动态epoch结果不符")
+    return model_frames[0]
+
+
 def _sha(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
@@ -387,15 +407,12 @@ def execute(controller, wire, *, run_id: str, source_sha256: str, cold_basis: di
         acceptance_runner.run_input(prep["rows"][0], wire.last_sequence + 1, 0, 1,
                                     0xFFFFFFFF, 0xFFFFFFFF, "rebuilt_app_sample000")
         sample_result = acceptance_runner.finish("PASS_REBUILT_APP_SAMPLE000_GOLDEN")
-        _require(sample_result["status"] == "PASS_REBUILT_APP_SAMPLE000_GOLDEN" and
-                 len(sample_result["frames"]) == 1 and sample_result["frames"][0]["epoch"] == 1 and
-                 wire.epoch == 1 and wire.last_sequence == 4,
-                 "重建app sample000协议/黄金或动态epoch结果不符")
+        sample_frame = _select_sample000_frame(sample_result, wire)
         _, _, sample_payload = wire.sent_requests[4]
         evidence["sample000"] = {"status": sample_result["status"],
                                  "result_path": str(sample_dir / "acceptance_result.json"),
                                  "result_sha256": _sha((sample_dir / "acceptance_result.json").read_bytes()),
-                                 "frame": sample_result["frames"][0], "uart_epoch": wire.epoch,
+                                 "frame": sample_frame, "uart_epoch": wire.epoch,
                                  "uart_sequence": wire.last_sequence,
                                  "golden_check": "PASS_HEADS_AND_ALL_BOXES"}
         evidence["sample000"]["actual_tx"] = _save_confirmed_tx_payload(

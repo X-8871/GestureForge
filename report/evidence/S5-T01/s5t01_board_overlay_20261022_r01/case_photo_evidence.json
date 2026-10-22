@@ -1,0 +1,88 @@
+{
+  "schema_version": "gestureforge_s5t01_case_photo_evidence_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_overlay_20261022_r01",
+  "provided_by": "Wong",
+  "received_utc8": "2026-10-22T17:58:00+08:00",
+  "artifact_under_test": {
+    "elf": "s5t01_overlay_cycle.elf",
+    "elf_sha256": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+    "bitstream": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "video_source": "PS_SYNTHETIC",
+    "display_semantics": "B_latest_result_overlay"
+  },
+  "note": "照片为手持斜拍；本轮只把它们用作**视觉证据**，不做画布↔照片定量映射（映射未达成，见 photo_analysis.json）。",
+  "cases": [
+    {
+      "case_id": 1,
+      "photo": "photos/hdmi_case1_20261022.jpg",
+      "sha256": "c2b773b733d134676640d06219c1bb132ea845df4bbea15a6511c3c3b31eb16c",
+      "expected_boxes_drawn": 1,
+      "expected_hud": ["CASE 1", "BOXES 1", "SEM B", "FRESH"],
+      "visual_observation": "画面中央偏上有一个红色（FIST 类色）框，标签「FIST 0.83」在框**左上外侧**；HUD 四行为 CASE 1 / BOXES 1 / SEM B / FRESH",
+      "confirms": ["单框渲染", "标签默认锚点=框左上外侧（有空间时不翻转）", "分数文案 0.83 与类别名 FIST 同时上屏", "HUD 计数与用例一致"]
+    },
+    {
+      "case_id": 2,
+      "photo": "photos/hdmi_case2_20261022.jpg",
+      "sha256": "c68c1a8a59e2186e0485e87d8e08ee9dc83706305c86b3651a59549046e18f4b",
+      "expected_boxes_drawn": 4,
+      "expected_hud": ["CASE 2", "BOXES 4", "SEM B", "FRESH"],
+      "visual_observation": "四角各一框：左上绿(PALM 0.55)、右上蓝(ONE 0.51)、左下黄(TWO_UP 0.47)、右下品红(THREE 0.44)。**上沿两框的标签翻转到框内**（因其顶边贴画布上沿），下沿两框标签在框外上方",
+      "confirms": ["四框与类色映射（0红/1绿/2蓝/3黄/4品红）", "标签锚点规则的**两个分支**（外侧 / 越界翻转内侧）", "画布四角几何（映射到原图四角）", "HUD BOXES 4"]
+    },
+    {
+      "case_id": 3,
+      "photo": "photos/hdmi_case3_20261022.jpg",
+      "sha256": "bd4cd40b97985473cb209e4e6042874b637ed011052817e60774d381cf4bd87f",
+      "expected_boxes_drawn": 15,
+      "expected_hud": ["CASE 3", "BOXES 15", "SEM B", "FRESH"],
+      "visual_observation": "15 个框按 6+6+3 三行排布，标签依次 FIST 0.30 → THREE 0.44（分数递增），颜色按类别循环",
+      "confirms": ["多框上限内的 15 框同时渲染（≤15 契约）", "稳定输出顺序（分数递增、按生成顺序绘制）", "类色与文案逐框正确", "HUD BOXES 15"]
+    },
+    {
+      "case_id": 4,
+      "photo": "photos/hdmi_case4_20261022.jpg",
+      "sha256": "126a9dabeaee44820da1c00fe43954bf4f917777aeed9bc6206cb42312e52b54",
+      "expected_boxes_drawn": 0,
+      "expected_hud": ["CASE 4", "BOXES 0", "SEM B", "FRESH"],
+      "visual_observation": "画面上**没有任何框**，HUD 显示 CASE 4 / BOXES 0 / SEM B / FRESH",
+      "confirms": ["零框（NO_HAND 语义）不绘制任何框", "零框 **不等于**过期：HUD 为 FRESH", "HUD 计数 0 与用例一致"]
+    },
+    {
+      "case_id": 5,
+      "photo": "photos/hdmi_case5_20261022.jpg (另有一张同用例照片 hdmi_case5_20261022_b.jpg)",
+      "sha256": ["110f46e3b2476cf44ed2f9e54c5cbc9b044fcdc994586412c97546fd52c5a78f",
+                 "26c2f1a737d757c59f3e9232f8aeda8b73a71bb17524c2815bcb67eda8f16ad4"],
+      "expected_boxes_drawn": 2,
+      "expected_hud": ["CASE 5", "BOXES 2", "SEM B", "FRESH"],
+      "visual_observation": "左侧一个红色高窄框（FIST 0.66）**贴着画布左边缘**；顶部一个绿色横框（PALM 0.62）**贴着画布上沿**，其标签翻转到框内；用例中第三个框（落在 letterbox 上补边带）**未被绘制**，HUD 为 BOXES 2",
+      "confirms": ["边缘贴边框渲染（左边缘/上边缘）", "letterbox 补边带内的框 → 裁剪后零面积 → **不绘制**（与冻结逆映射语义一致）", "顶部框标签翻转内侧", "HUD BOXES 2 反映“3 个输入框、2 个可绘制”"]
+    },
+    {
+      "case_id": 6,
+      "photo": "photos/hdmi_case6_20261022.jpg",
+      "sha256": "0d0b3f309f9644197733530727c2c205ab8fe2e132f5ae93cf5dcc9a15297626",
+      "expected_boxes_drawn": 0,
+      "expected_hud": ["CASE 6", "BOXES 0", "SEM B", "STALE"],
+      "visual_observation": "画面上**没有任何框**，HUD 显示 CASE 6 / BOXES 0 / SEM B / **STALE**",
+      "confirms": ["过期结果不叠加（不画框）", "过期状态在 HUD 显式可见（不静默丢弃）", "过期与零框在 HUD 上可区分"]
+    }
+  ],
+  "common_observations": [
+    "七张照片均可见合成背景：竖直灰度条 + 条间黑线 + 中心白十字 + 四角白色标记 ⇒ 画布边界与中心参考点稳定。",
+    "HUD 四行文字在所有用例中清晰可读 ⇒ 笔画字体、类色与 HUD 渲染均工作。",
+    "全部用例均为语义 B（最新结果叠加）下的 PS 合成源；不存在“同帧”声明。"
+  ],
+  "defects_visible_in_photos": [
+    {"id": "D-1", "desc": "背景条亮度 (x/64)*32 在 u8 溢出回绕，画面出现两条非预期黑色竖带（x≥512、1024）", "severity": "观感",
+     "status": "REGISTERED_NOT_FIXED"},
+    {"id": "D-2", "desc": "用例 5 的 FIST 标签（canvas y≈35..51）与左上 HUD 第 1/2 行文字重叠压盖", "severity": "布局/可读性",
+     "status": "REGISTERED_NOT_FIXED"}
+  ],
+  "not_claimed": [
+    "不使用照片做 1 px 级坐标门槛判定（映射未达成）。",
+    "不据此声称阶段3 采集/颜色结论（视频源为 PS 合成图）。",
+    "display_fps 仍未测出，照片不含 FPS 数值证据。"
+  ]
+}

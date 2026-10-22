@@ -1,0 +1,195 @@
+{
+  "checks": [
+    {
+      "name": "S1a NO_HAND 从不推进 WINDOW_MATCH（峰值仍为 1；连续 2 帧后按抖动规则重置证据）",
+      "pass": true,
+      "detail": "counts=[1, 1, 0, 0, 0, 0, 0, 0, 0, 0]"
+    },
+    {
+      "name": "S1a NO_HAND 不得完成窗口（无 M3）",
+      "pass": true,
+      "detail": "transitions=[] state=IDLE"
+    },
+    {
+      "name": "S1a 零框不触发动作",
+      "pass": true,
+      "detail": "submitted=0 no_hand=9"
+    },
+    {
+      "name": "S1b 5 匹配 + 3 零框 + 3 匹配 ≠ 完成窗口",
+      "pass": true,
+      "detail": "state=CANDIDATE cnt=3 transitions=['M1']"
+    },
+    {
+      "name": "S1b 无动作",
+      "pass": true,
+      "detail": "submitted=0"
+    },
+    {
+      "name": "S2a 首次触发帧 = 7",
+      "pass": true,
+      "detail": "first=[7]"
+    },
+    {
+      "name": "S2b 冷却内（切目标后）不得提交（0 次）",
+      "pass": true,
+      "detail": "冷却内提交帧=[]"
+    },
+    {
+      "name": "S2b 冷却内达标触发被 H-10 抑制并记 S_COOLDOWN",
+      "pass": true,
+      "detail": "suppressions=['S_COOLDOWN', 'S_JITTER_TOLERATED']"
+    },
+    {
+      "name": "S2c STABLE 锁存：低分帧不退回 CANDIDATE",
+      "pass": true,
+      "detail": "after_low=['STABLE', 'STABLE', 'STABLE']"
+    },
+    {
+      "name": "S2c 锁存期内不出现 M4",
+      "pass": true,
+      "detail": "transitions=['M1', 'M3', 'M5', 'M6', 'M10', 'M11', 'M1', 'M3', 'M5', 'M6']"
+    },
+    {
+      "name": "S2d 门开启那一帧为非推进帧（TIMEOUT）→ 不触发",
+      "pass": true,
+      "detail": "submitted=[7, 28]"
+    },
+    {
+      "name": "S2e 门开启后无需重新累积窗口即可触发（第 28 帧）",
+      "pass": true,
+      "detail": "core=2 layer=2"
+    },
+    {
+      "name": "S2f K01−1 ns 的推进帧被抑制（不产生第二次提交）",
+      "pass": true,
+      "detail": "submitted=[7]"
+    },
+    {
+      "name": "S2g K01 恰好等于 1000 ms 的推进帧触发（含等号）",
+      "pass": true,
+      "detail": "submitted=[7, 27]"
+    },
+    {
+      "name": "S3a L02−1 ns 的 TICK 不确认丢失（不出现 M10）",
+      "pass": true,
+      "detail": "transitions=['M1'] state=CANDIDATE"
+    },
+    {
+      "name": "S3b L02 恰好 300 ms 的 TICK 确认丢失（M10，含等号）",
+      "pass": true,
+      "detail": "transitions=['M1', 'M10'] state=LOST"
+    },
+    {
+      "name": "S3c 丢失确认不产生动作",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "S4a stale 帧即使恰逢门开启也不触发（状态停留 STABLE）",
+      "pass": true,
+      "detail": "submitted=[7] state=STABLE"
+    },
+    {
+      "name": "S4b 重复 frame_id 不得触发",
+      "pass": true,
+      "detail": "submitted=[7] dup=1"
+    },
+    {
+      "name": "S4c 倒序 frame_id 不得触发（并计异常）",
+      "pass": true,
+      "detail": "submitted=[7] ooo=1"
+    },
+    {
+      "name": "S4d 门开启后的下一条窗口推进帧触发",
+      "pass": true,
+      "detail": "submitted=[7, 28]"
+    },
+    {
+      "name": "S5a 窗口内异常数 2 < 3 时不进恢复态",
+      "pass": true,
+      "detail": "transitions=['M1'] state=CANDIDATE"
+    },
+    {
+      "name": "S5b 第 3 个异常（最近 3 条内）→ M2 进 UNKNOWN_RECOVER",
+      "pass": true,
+      "detail": "transitions=['M1', 'M2'] state=UNKNOWN_RECOVER"
+    },
+    {
+      "name": "S5c 恢复态清空目标与稳定证据",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "S5d 恢复期连续 5 条合法结果 → M12 回 IDLE",
+      "pass": true,
+      "detail": "transitions=['M1', 'M2', 'M12']"
+    },
+    {
+      "name": "S5e 恢复态内再次异常 → M13（保持 UNKNOWN_RECOVER）",
+      "pass": true,
+      "detail": "transitions=['M1', 'M2', 'M13'] state=UNKNOWN_RECOVER"
+    },
+    {
+      "name": "S5f M13 后需重新累计 5 条（4 条不恢复）",
+      "pass": true,
+      "detail": "state=UNKNOWN_RECOVER transitions=['M1', 'M2', 'M13']"
+    },
+    {
+      "name": "S6 30fps：第 6 帧 166.5 ms 不足 200 ms → M3 在第 8 帧（233.1 ms）",
+      "pass": true,
+      "detail": "complete=233100000 transitions=['M1', 'M3', 'M5', 'M6'] submitted=[9]"
+    },
+    {
+      "name": "S8 同帧 M4/M10 同时满足时按求值序取 M10（P2 先于 P3）",
+      "pass": true,
+      "detail": "transitions=['M1', 'M10'] state=LOST"
+    },
+    {
+      "name": "S9 M10 只按 TARGET_CONTINUES：距上次 WINDOW_MATCH 已达 300 ms（=L02）仍不确认丢失",
+      "pass": true,
+      "detail": "state=CANDIDATE transitions=['M1'] miss=0"
+    },
+    {
+      "name": "S9 这些帧确实不满足 WINDOW_MATCH（窗口证据被抖动重置，count=0）",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "name": "S7a 首次提交：success + observed + 可见变化",
+      "pass": true,
+      "detail": "{\"action_id\": \"ACT-0001\", \"submit_result\": \"success\", \"effective_result\": \"observed\", \"visible_state_change\": true}"
+    },
+    {
+      "name": "S7b A02 内重复 → S_DEDUP 抑制，且不分配新 action_id/不更新锚点",
+      "pass": true,
+      "detail": "{\"suppression\": \"S_DEDUP\", \"action_id\": null, \"submit_result\": null}"
+    },
+    {
+      "name": "S7c 恰 A02=500 ms 不再抑制（含等号外的严格小于语义）",
+      "pass": true,
+      "detail": "null"
+    },
+    {
+      "name": "S7d 幂等：同一具名状态再提交无额外可见变化",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "S7e 汇总不虚报成功：submitted=2 / effective=2 / dedup=1 / 可见变化=1",
+      "pass": true,
+      "detail": "{\"attempts\": 3, \"action_submitted\": 2, \"action_effective\": 2, \"action_failed\": 0, \"action_unobserved\": 0, \"dedup_suppressed\": 1, \"visible_state_changes\": 1, \"final_display_state\": \"UI_MENU\", \"final_channel\": null}"
+    },
+    {
+      "name": "S7f action_id 与来源帧保留",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "S7g K01 > A02 ⇒ 核心驱动路径下 S_DEDUP 不可达（与 reachability_notes 自洽）",
+      "pass": true,
+      "detail": "K01=1000000000 A02=500000000"
+    }
+  ],
+  "failed": 0
+}

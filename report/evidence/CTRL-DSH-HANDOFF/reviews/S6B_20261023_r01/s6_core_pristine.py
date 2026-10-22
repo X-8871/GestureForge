@@ -1,0 +1,688 @@
+"""阶段6 交互状态机纯核心（S6-B，契约 S6A-G0-v1.4）。
+
+设计边界（对应 S6-A 硬不变量 H-1/H-3/H-7 与 CDX-20261022-012 §3）：
+
+* 输入：一条事件（结果/超时/错误/丢帧/时钟推进）＋ 显式单调时间 ＋ ``session_id``；
+  核心不读摄像头、不读系统墙钟、不读 HDMI/硬件寄存器，也不 import 任何 IO 模块。
+* 输出：状态转移、动作**请求**、抑制事件与逐帧日志；动作的提交与回执由
+  :mod:`src.stage6.s6_actions` 的独立动作层负责，核心只登记 ``t_last_submit``。
+* 阈值全部来自 :class:`src.stage6.s6_params.ParamPack`（行为表 JSON，保持 PENDING_APPROVAL）；
+  本模块不出现任何阶段6 阈值字面量。
+
+本实现逐条对齐 v1.4 契约（关键点：
+
+* H-4：窗口**序列**由 ``state ∈ {OK, NO_HAND}``、``stale=false``、非重复、非倒序的结果推进；
+  **匹配计数只由 WINDOW_MATCH 推进**；``NO_HAND`` 推进时间与结果计数、不推进匹配计数、
+  不得完成稳定窗口。
+* H-10：冷却为**全局门**——``t_now − t_last_submit < T6-K01`` 时任何状态/任何获取都不得提交；
+  展示状态 ``COOLDOWN`` 提前退出不解除该门；被抑制或失败的尝试不更新锚点。
+* M3/M10 绑定：``M3`` 只按 ``WINDOW_MATCH`` 计帧（低分目标不得进入 STABLE）；
+  ``M10`` 只按 ``TARGET_CONTINUES`` 判丢失（低分但几何连续仍维持）。
+* STABLE 锁存（``stable_latching``，U6-16）：进入 STABLE 后不因窗口中断/分数下跌/抖动耗尽
+  退回 ``CANDIDATE``；离开 STABLE 只有 M2（异常）/M10（丢失）/M5（触发，且本帧为窗口推进帧）。
+* 一次获取只触发一次（``ONCE_PER_ACQUISITION``）；二次触发只允许来自新的获取且门已结束。
+
+实现决策集中记录在 :meth:`GestureInteractionCore.decision_notes`。
+"""
+
+from __future__ import annotations
+
+import math
+from collections import deque
+from typing import Any
+
+from .s6_params import ParamPack
+
+# ------------------------------------------------------------------ 事件与输出常量
+EV_FRAME_RESULT = "E_FRAME_RESULT"
+EV_FRAME_TIMEOUT = "E_FRAME_TIMEOUT"
+EV_FRAME_ERROR = "E_FRAME_ERROR"
+EV_FRAME_DROPPED = "E_FRAME_DROPPED"
+EV_TICK = "E_TICK"
+
+OUT_SUBMITTED = "ACTION_SUBMITTED"
+OUT_EFFECTIVE = "ACTION_EFFECTIVE"
+OUT_FAILED = "ACTION_FAILED"
+OUT_UNOBSERVED = "ACTION_UNOBSERVED"
+
+SUP_DEDUP = "S_DEDUP"
+SUP_COOLDOWN = "S_COOLDOWN"
+SUP_TARGET_HELD = "S_TARGET_HELD"
+SUP_JITTER = "S_JITTER_TOLERATED"
+SUP_WINDOW_TIMEOUT = "S_WINDOW_TIMEOUT"
+SUP_CONFLICT = "S_CONFLICT_RESOLVED"
+
+STATES = ("IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN", "LOST", "UNKNOWN_RECOVER")
+NON_ADVANCING_KINDS = (EV_FRAME_TIMEOUT, EV_FRAME_ERROR, EV_FRAME_DROPPED)
+
+#: 判定核心使用的期望契约版本（可被构造参数覆盖，但不允许静默跟随上游改版）。
+EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.5"
+
+
+class CoreInputError(RuntimeError):
+    """输入不满足核心契约（调用方按输入错误处理，退出码 2）。"""
+
+
+def _finite(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+
+
+class GestureInteractionCore:
+    """纯核心状态机：一条事件进，状态/动作请求/日志出。"""
+
+    #: 实现决策（行为表未逐字规定处的取舍，供独立评审逐条核对）
+    decision_notes = (
+        "D1: 获取帧（首次选为该目标的那一帧）若满足 WINDOW_MATCH 条件（score ≥ T6-P02、无前序窗口帧则跳过位移检查）"
+        "即计为第 1 个 WINDOW_MATCH 帧；窗口起点 = 该帧的显式输入时刻。",
+        "D2: 抖动容忍只累积不满足 WINDOW_MATCH 的**窗口推进帧**；达到 T6-J01+1 立即重置窗口证据"
+        "（帧计数归零、窗口起点清空），容忍期内保留原有帧计数。",
+        "D3: 目标切换（新目标 != 当前目标）视为当前获取结束：清空稳定窗口证据、分配新的 acquisition_id，"
+        "并重新按 §8 选择目标；切换后不继承旧目标的窗口。",
+        "D4: 异常/丢失/触发均按 v1.4 求值序 P1(M2/M13) → P2(M10) → P3(状态推进) → P4(M1) → P5(M12)，"
+        "同一帧首次命中即停。",
+        "D5: 时间条件使用显式输入时刻；E_TICK 只推进时间，用于「无新结果但时间持续前进」。",
+        "D6: 语义上无法由核心判定的未知场景（合法五类内的误识别）不做拒绝判定（H-6）；"
+        "class_id ∉ {0..4} 按 E_FRAME_INVALID 处理并计入异常。",
+    )
+
+    def __init__(self, pack: ParamPack) -> None:
+        self.pack = pack
+        self.th = pack.threshold_bundle()
+        version = pack.data.get("artifact_version")
+        if version != EXPECTED_CONTRACT_VERSION:
+            raise CoreInputError(
+                f"契约版本不符：核心按 {EXPECTED_CONTRACT_VERSION} 编写，实际 {version!r}"
+            )
+        self.session_id: str | None = None
+        self._init_state()
+
+    # ------------------------------------------------------------------ 会话与内部状态
+    def reset_session(self, session_id: str) -> None:
+        """全量复位到新会话（B25）：清目标与证据、开启新会话计数。"""
+        self._init_state()
+        self.session_id = session_id
+
+    def _init_state(self) -> None:
+        """初始化内部状态（不改变 session_id）。"""
+        self.state = "IDLE"
+        self.counters = {
+            "invalid": 0, "error": 0, "dropped": 0, "timeout": 0, "stale": 0, "false_actions": 0,
+            "no_hand_frames": 0, "unknown_class_frames": 0, "ok_frames": 0,
+            "duplicate_frames": 0, "out_of_order_frames": 0, "missing_frames": 0,
+            "action_submitted": 0, "action_effective": 0, "unobserved": 0,
+        }
+        self.last_frame_id: int | None = None
+        self.last_t_ns: int | None = None
+        self.current_target: dict[str, Any] | None = None
+        self.acquisition_id = 0
+        self.acquisition_triggered = False
+        self.t_last_submit_ns: int | None = None
+        self.t_last_target_continues_ns: int | None = None
+        self.continues_false_streak = 0
+        self.candidate_streak = 0
+        self.candidate_dwell_start_ns: int | None = None
+        self.window_match_count = 0
+        self.window_start_ns: int | None = None
+        self.window_last_match_center: tuple[float, float] | None = None
+        self.jitter_frames = 0
+        self.window_complete_ns: int | None = None
+        self.legal_streak = 0
+        self.step_anomaly = False
+        self.anomaly_history: deque[int] = deque(maxlen=self.th["u00_w"])
+        self.result_history: list[str] = []
+        self.action_log: list[dict[str, Any]] = []
+        self.suppressions: list[str] = []
+
+    # ------------------------------------------------------------------ 几何
+    @staticmethod
+    def _center(box: list[float]) -> tuple[float, float]:
+        return ((float(box[0]) + float(box[2])) / 2.0, (float(box[1]) + float(box[3])) / 2.0)
+
+    @classmethod
+    def _disp(cls, a: list[float], b: list[float]) -> float:
+        ax, ay = cls._center(a)
+        bx, by = cls._center(b)
+        return max(abs(ax - bx), abs(ay - by))
+
+    @staticmethod
+    def _iou(a: list[float], b: list[float]) -> float:
+        x1 = max(float(a[0]), float(b[0]))
+        y1 = max(float(a[1]), float(b[1]))
+        x2 = min(float(a[2]), float(b[2]))
+        y2 = min(float(a[3]), float(b[3]))
+        inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+        area_a = max(0.0, float(a[2]) - float(a[0])) * max(0.0, float(a[3]) - float(a[1]))
+        area_b = max(0.0, float(b[2]) - float(b[0])) * max(0.0, float(b[3]) - float(b[1]))
+        union = area_a + area_b - inter
+        return 0.0 if union <= 0.0 else inter / union
+
+    def _target_continues_for(self, target: dict[str, Any] | None, det: dict[str, Any]) -> bool:
+        """TARGET_CONTINUES：同类别 且（IoU ≥ T6-P03 或 归一化中心位移 ≤ T6-P04）；不含 score。"""
+        if target is None:
+            return False
+        if int(det["class_id"]) != int(target["class_id"]):
+            return False
+        return (
+            self._iou(target["xyxy"], det["xyxy"]) >= self.th["p03"]
+            or self._disp(target["xyxy"], det["xyxy"]) <= self.th["p04"]
+        )
+
+    def _target_continues(self, det: dict[str, Any]) -> bool:
+        return self._target_continues_for(self.current_target, det)
+
+    # ------------------------------------------------------------------ 输入校验与选择
+    def _validate(self, event: dict[str, Any]) -> str | None:
+        dets = event.get("detections") or []
+        if not isinstance(dets, list):
+            return "detections 非列表"
+        if len(dets) > self.th["boxes_max"]:
+            return f"框数 {len(dets)} 超过 {self.th['boxes_max']}"
+        for det in dets:
+            if not isinstance(det, dict):
+                return "检测项非对象"
+            class_id = det.get("class_id")
+            if isinstance(class_id, bool) or not isinstance(class_id, int):
+                return f"class_id 非整数：{class_id!r}"
+            if class_id not in self.th["class_ids"]:
+                return f"class_id 越界：{class_id}"
+            if not _finite(det.get("score")):
+                return f"score 非 finite：{det.get('score')!r}"
+            box = det.get("xyxy")
+            if not isinstance(box, (list, tuple)) or len(box) != 4 or not all(_finite(v) for v in box):
+                return f"xyxy 非法：{box!r}"
+            x1, y1, x2, y2 = (float(v) for v in box)
+            if not (0.0 <= x1 <= x2 <= 1.0 and 0.0 <= y1 <= y2 <= 1.0):
+                return f"xyxy 越界或非规范化：{box!r}"
+        return None
+
+    def _select(self, dets: list[dict[str, Any]], log: dict[str, Any]) -> dict[str, Any] | None:
+        """§8 多框选择：维持优先（TARGET_CONTINUES）→ 分数优先（≥ T6-P01）→ 平票按 source_order。"""
+        if self.current_target is not None:
+            continuing = [det for det in dets if self._target_continues(det)]
+            if continuing:
+                det = max(continuing, key=lambda item: float(item["score"]))
+                higher_other = [
+                    other for other in dets
+                    if float(other["score"]) > float(det["score"])
+                    and int(other["class_id"]) != int(det["class_id"])
+                ]
+                if higher_other:
+                    self.suppressions.append(SUP_TARGET_HELD)
+                    log["suppression_events"].append(SUP_TARGET_HELD)
+                    log["held_candidates"] = [
+                        {"class_id": int(other["class_id"]), "score": float(other["score"])}
+                        for other in higher_other
+                    ]
+                return det
+        eligible = [det for det in dets if float(det["score"]) >= self.th["p01"]]
+        if not eligible:
+            return None
+        best_score = max(float(det["score"]) for det in eligible)
+        tied = [det for det in eligible if float(det["score"]) == best_score]
+        if len(tied) > 1:
+            tied.sort(key=lambda det: (int(det.get("source_order", 0)), int(det["class_id"])))
+            log["tie_resolved"] = "source_order"
+        tied.sort(key=lambda det: int(det.get("source_order", 0)))
+        return tied[0]
+
+    # ------------------------------------------------------------------ 窗口与证据
+    def _clear_window_evidence(self) -> None:
+        self.window_match_count = 0
+        self.window_start_ns = None
+        self.window_last_match_center = None
+        self.jitter_frames = 0
+        self.jitter_exhausted = False
+        self.window_complete_ns = None
+
+    def _register_window_interrupt(self, log: dict[str, Any]) -> None:
+        """窗口推进帧不满足 WINDOW_MATCH：≤ T6-J01 容忍并记 S_JITTER_TOLERATED；超过即重置窗口证据。"""
+        self.jitter_frames += 1
+        if self.jitter_frames <= self.th["j01_frames"]:
+            self.suppressions.append(SUP_JITTER)
+            log["suppression_events"].append(SUP_JITTER)
+            log["window_reset_reason"] = None
+        else:
+            log["window_reset_reason"] = (
+                f"抖动中断 {self.jitter_frames} 帧 > T6-J01={self.th['j01_frames']}：立即重置窗口证据"
+            )
+            self._clear_window_evidence()
+            # 置位放在清空之后：清空会复位 jitter_exhausted，M4 需要本帧看到"容忍已耗尽"
+            self.jitter_exhausted = True
+
+    def _window_satisfied(self) -> bool:
+        if self.window_match_count < self.th["s02_frames"] or self.window_start_ns is None:
+            return False
+        return True  # 时长条件在 M3 内与当前时刻一并判定
+
+    # ------------------------------------------------------------------ 冷却门
+    def _gate_open(self, t_now_ns: int) -> bool:
+        if self.t_last_submit_ns is None:
+            return True
+        return (t_now_ns - self.t_last_submit_ns) >= self.th["k01_ns"]
+
+    def _cooldown_ended(self, t_now_ns: int) -> bool:
+        return self._gate_open(t_now_ns)
+
+    # ------------------------------------------------------------------ 主入口
+    def step(self, event: dict[str, Any]) -> dict[str, Any]:
+        """处理一条事件，返回 ``{"log": ..., "action_request": ...}``。"""
+        log: dict[str, Any] = {
+            "session_id": event.get("session_id", self.session_id),
+            "frame_id": event.get("frame_id"),
+            "event_kind": event.get("kind"),
+            "input_state": event.get("state"),
+            "age_result_ns": event.get("age_result_ns"),
+            "age_frame_ns": event.get("age_frame_ns"),
+            "from_state": self.state,
+            "to_state": self.state,
+            "transition": None,
+            "reason": None,
+            "timers": {},
+            "suppression_events": [],
+            "action_id": None,
+            "trigger_frame_id": None,
+            "t_submit_ns": None,
+            "t_effective_ns": None,
+            "window_complete_ns": None,
+            "counters": dict(self.counters),
+            "warmup": False,
+        }
+        self.step_anomaly = False
+        t_now_ns = event.get("t_input_ns")
+        if isinstance(t_now_ns, bool) or not isinstance(t_now_ns, int):
+            raise CoreInputError(f"缺少显式单调时间 t_input_ns：{t_now_ns!r}")
+        if self.last_t_ns is not None and t_now_ns < self.last_t_ns:
+            raise CoreInputError(f"单调时钟倒退：{t_now_ns} < {self.last_t_ns}")
+        self.last_t_ns = t_now_ns
+
+        session_id = event.get("session_id", self.session_id)
+        if self.session_id is None:
+            # 首个事件只建立会话，不视为会话切换
+            self.session_id = session_id
+            log["reason"] = "会话建立（首个事件）"
+        elif session_id != self.session_id:
+            log["from_state"] = self.state
+            self._init_state()
+            self.session_id = session_id
+            log["reason"] = "会话切换：全量复位到 IDLE（B25）"
+            log["to_state"] = self.state
+            log["transition"] = "RESET"
+            return {"log": log, "action_request": None}
+
+        kind = event.get("kind")
+        if kind not in (EV_FRAME_RESULT, *NON_ADVANCING_KINDS, EV_TICK):
+            raise CoreInputError(f"未知事件类型：{kind!r}")
+
+        if kind == EV_TICK:
+            log["reason"] = "时钟推进（无新结果）"
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+
+        frame_id = event.get("frame_id")
+        if isinstance(frame_id, bool) or not isinstance(frame_id, int):
+            raise CoreInputError(f"frame_id 非法：{frame_id!r}")
+
+        # frame_id 归类（重复/倒序）——不推进窗口序列
+        duplicate = frame_id == self.last_frame_id
+        out_of_order = self.last_frame_id is not None and frame_id < self.last_frame_id
+        missing = (
+            self.last_frame_id is not None and frame_id > self.last_frame_id + 1
+            and int(event.get("dropped_frames", 0)) == 0
+        )
+        if missing:
+            gap = frame_id - self.last_frame_id - 1
+            self.counters["missing_frames"] += int(gap)
+            log["reason"] = f"缺少 {gap} 帧（由后续结果时间戳推进时间，B24）"
+
+        if duplicate:
+            self.counters["duplicate_frames"] += 1
+            log["input_state"] = "DUPLICATE"
+            log["reason"] = "重复 frame_id：幂等丢弃，不推进计数与状态（B22）"
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+        if out_of_order:
+            self.counters["out_of_order_frames"] += 1
+            log["input_state"] = "OUT_OF_ORDER"
+            log["reason"] = "倒序 frame_id：不推进窗口，计异常（B23）"
+            self._anomaly(log, advancing=False)
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+
+        self.last_frame_id = frame_id
+
+        if kind != EV_FRAME_RESULT:
+            # TIMEOUT / ERROR / DROPPED：无动作、推进时间、计异常、不推进窗口与匹配计数（B21/H-4）
+            key = {"E_FRAME_TIMEOUT": "timeout", "E_FRAME_ERROR": "error", "E_FRAME_DROPPED": "dropped"}[kind]
+            self.counters[key] += 1
+            log["reason"] = f"{kind}：无动作、推进时间、不推进匹配计数（B21）"
+            self._anomaly(log, advancing=False)
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+
+        # E_FRAME_RESULT
+        state_value = event.get("state")
+        if state_value not in ("OK", "NO_HAND"):
+            raise CoreInputError(f"结果状态非法：{state_value!r}")
+        stale = bool(event.get("stale", False))
+        invalid_reason = self._validate(event)
+        if invalid_reason is not None:
+            self.counters["invalid"] += 1
+            if invalid_reason.startswith("class_id 越界"):
+                self.counters["unknown_class_frames"] += 1
+            log["input_state"] = "INVALID"
+            log["reason"] = f"E_FRAME_INVALID：丢弃该帧证据并计异常（B19）：{invalid_reason}"
+            self._anomaly(log, advancing=False)
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+        if stale:
+            self.counters["stale"] += 1
+            log["reason"] = "stale=true：不得触发、不得作为 WINDOW_MATCH 帧，仅推进时间（B18）"
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
+
+        # 合法窗口推进帧
+        self.result_history.append(state_value)
+        self.anomaly_history.append(0)
+        log["window_advance"] = True
+        if state_value == "NO_HAND":
+            self.counters["no_hand_frames"] += 1
+            self.current_target = None if self.current_target is None else self.current_target
+            self._on_advancing_no_target(log)
+        else:
+            self.counters["ok_frames"] += 1
+            self._on_advancing_with_dets(event, t_now_ns, log)
+        self._evaluate(t_now_ns, advancing=True, log=log)
+        return self._finish(log)
+
+    # ------------------------------------------------------------------ 推进帧处理
+    def _on_advancing_no_target(self, log: dict[str, Any]) -> None:
+        """NO_HAND：推进时间与结果计数，不推进匹配计数、不得完成稳定窗口（H-4/B17）。"""
+        if self.state == "UNKNOWN_RECOVER":
+            # §11.6：恢复期帧不得计入稳定窗口，也不保留旧目标
+            self.legal_streak += 1
+            return
+        if self.current_target is not None:
+            self.continues_false_streak += 1
+            self._register_window_interrupt(log)
+        self.candidate_streak = 0
+        self.legal_streak += 1
+
+    def _on_advancing_with_dets(self, event: dict[str, Any], t_now_ns: int, log: dict[str, Any]) -> None:
+        dets = event.get("detections") or []
+        if self.state == "UNKNOWN_RECOVER":
+            # §11.6：恢复期禁止保留旧目标触发、恢复期帧不得计入稳定窗口
+            self.legal_streak += 1
+            return
+        selected = self._select(dets, log)
+        if selected is None:
+            # 本帧无目标（全部低于 T6-P01 或零框）：不推进匹配计数，计入 TARGET_CONTINUES 不成立
+            if self.current_target is not None:
+                self.continues_false_streak += 1
+                self._register_window_interrupt(log)
+            self.candidate_streak = 0
+            self.legal_streak += 1
+            return
+
+        previous = self.current_target
+        continues = self._target_continues_for(previous, selected)
+        if not continues and previous is not None:
+            # 目标切换：当前获取结束、清空窗口证据、分配新 acquisition（D3）
+            self.acquisition_id += 1
+            self.acquisition_triggered = False
+            self._clear_window_evidence()
+            self.candidate_dwell_start_ns = t_now_ns
+        if previous is None:
+            self.candidate_dwell_start_ns = t_now_ns
+        xyxy = [float(v) for v in selected["xyxy"]]
+        self.current_target = {
+            "class_id": int(selected["class_id"]),
+            "xyxy": xyxy,
+            "score": float(selected["score"]),
+            "frame_id": event.get("frame_id"),
+            "acquisition_id": self.acquisition_id,
+        }
+        self.continues_false_streak = 0
+        self.t_last_target_continues_ns = t_now_ns
+        self.candidate_streak = self.candidate_streak + 1 if continues else 1
+        self._apply_window_match(xyxy, float(selected["score"]), t_now_ns, log)
+        self.legal_streak += 1
+
+    def _apply_window_match(self, xyxy: list[float], score: float, t_now_ns: int,
+                            log: dict[str, Any]) -> None:
+        """WINDOW_MATCH：TARGET_CONTINUES 且 score ≥ T6-P02 且与前一个 WINDOW_MATCH 帧位移 ≤ T6-P05。"""
+        window_match = score >= self.th["p02"]
+        if window_match and self.window_last_match_center is not None:
+            cx, cy = self._center(xyxy)
+            px, py = self.window_last_match_center
+            if max(abs(cx - px), abs(cy - py)) > self.th["p05"]:
+                window_match = False
+        if window_match:
+            if self.window_match_count == 0:
+                self.window_start_ns = t_now_ns
+            self.window_match_count += 1
+            self.jitter_frames = 0
+            self.jitter_exhausted = False
+            self.window_last_match_center = self._center(xyxy)
+            # N-r05-04：window_complete 不在「计数满足」时写，而是在 M3 成立帧（计数与时长取较晚）写
+        else:
+            self._register_window_interrupt(log)
+        log["window_match"] = window_match
+        log["window_match_count"] = self.window_match_count
+
+    # ------------------------------------------------------------------ 异常与求值
+    def _anomaly(self, log: dict[str, Any], advancing: bool) -> None:
+        self.step_anomaly = True
+        self.anomaly_history.append(1)
+        self.result_history.append("ANOMALY")
+        self.legal_streak = 0
+
+    def _anomaly_fires(self) -> bool:
+        return sum(self.anomaly_history) >= self.th["u00_n"] and len(self.anomaly_history) >= self.th["u00_w"]
+
+    def _loss_confirmed(self, t_now_ns: int) -> bool:
+        if self.current_target is None and self.t_last_target_continues_ns is None:
+            return False
+        if self.continues_false_streak >= self.th["l01_frames"]:
+            return True
+        if self.t_last_target_continues_ns is not None:
+            return (t_now_ns - self.t_last_target_continues_ns) >= self.th["l02_ns"]
+        return False
+
+    def _evaluate(self, t_now_ns: int, advancing: bool, log: dict[str, Any]) -> None:
+        """按 v1.4 求值序逐级判定，首次命中即停。"""
+        previous = self.state
+
+        # P1 异常
+        if self.state == "UNKNOWN_RECOVER":
+            if self.step_anomaly:
+                self.anomaly_history.clear()
+                self._transition(log, "M13", "恢复期再次异常：重置计数起点")
+                return
+        elif self._anomaly_fires():
+            self._transition(log, "M2", f"最近 {self.th['u00_w']} 条结果内异常数 ≥ {self.th['u00_n']}")
+            return
+
+        # P2 丢失确认（任何有目标状态）
+        if self.state in ("CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN") and self._loss_confirmed(t_now_ns):
+            self._transition(log, "M10", "连续推进帧 TARGET_CONTINUES 不成立或距上次成立超时")
+            return
+
+        # P3 当前状态推进
+        if self.state == "STABLE":
+            # STABLE 锁存：只由 M5（本帧为窗口推进帧且门已开且本次获取未触发）离开
+            if advancing and not self.acquisition_triggered and self._gate_open(t_now_ns):
+                self.acquisition_triggered = True
+                self._transition(log, "M5", "锁存 STABLE 且本帧为窗口推进帧、全局冷却门已结束")
+                return
+            if advancing and not self.acquisition_triggered and not self._gate_open(t_now_ns):
+                self.suppressions.append(SUP_COOLDOWN)
+                log["suppression_events"].append(SUP_COOLDOWN)
+                log["reason"] = "全局冷却门未结束：M5 被 H-10 抑制，状态停留 STABLE"
+            return
+
+        if self.state == "CANDIDATE":
+            if (self.window_match_count >= self.th["s02_frames"] and self.window_start_ns is not None
+                    and (t_now_ns - self.window_start_ns) >= self.th["s01_ns"]):
+                # N-r05-04：完成帧 = 计数与时长同时满足的第一帧（T6-S03 取较晚）；
+                # 30fps（P=33.3 ms）下由时长支配 → 第 8 帧 233.1 ms，而不是第 6 帧 166.5 ms。
+                self.window_complete_ns = t_now_ns
+                log["window_complete_ns"] = t_now_ns
+                self._transition(log, "M3", "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01（取较晚）")
+                return
+            dwell_ok = (
+                self.candidate_dwell_start_ns is not None
+                and (t_now_ns - self.candidate_dwell_start_ns) >= self.th["s04_ns"]
+            )
+            if self.jitter_exhausted and dwell_ok:
+                self.suppressions.append(SUP_WINDOW_TIMEOUT)
+                log["suppression_events"].append(SUP_WINDOW_TIMEOUT)
+                self._transition(log, "M4", "抖动容忍耗尽且候选停留 ≥ T6-S04（M10 未命中）")
+            return
+
+        if self.state == "COOLDOWN":
+            if not self._cooldown_ended(t_now_ns):
+                return
+            continues = self.current_target is not None and self.continues_false_streak == 0
+            if not continues:
+                self._transition(log, "M8", "冷却结束且当前目标 TARGET_CONTINUES 不成立/已丢失")
+                return
+            window_ok = (
+                self.window_match_count >= self.th["s02_frames"] and self.window_start_ns is not None
+                and (t_now_ns - self.window_start_ns) >= self.th["s01_ns"]
+            )
+            if window_ok:
+                self._transition(log, "M9", "冷却结束、同一目标仍 TARGET_CONTINUES 且窗口再次满足（维持态，不再触发）")
+            else:
+                self._transition(log, "M15", "冷却结束、目标仍 TARGET_CONTINUES 但窗口未满足（不触发）")
+            return
+
+        if self.state == "TRIGGERED":
+            # M6 由动作层回执驱动（note_action_ack）；此处不自动迁移
+            return
+
+        if self.state == "LOST":
+            self._transition(log, "M11", "丢失确认后清空当前目标与稳定证据")
+            return
+
+        if self.state == "UNKNOWN_RECOVER":
+            if self.legal_streak >= self.th["u01_frames"]:
+                self._transition(log, "M12", f"连续 {self.th['u01_frames']} 条合法结果且无未知类别")
+            return
+
+        # P4 获取（IDLE）
+        if self.state == "IDLE" and self.current_target is not None:
+            if self.candidate_streak >= self.th["c01_frames"]:
+                self.candidate_dwell_start_ns = self.candidate_dwell_start_ns or t_now_ns
+                self._transition(log, "M1", f"连续 {self.th['c01_frames']} 条窗口推进帧为同一目标（TARGET_CONTINUES）")
+
+        _ = previous
+
+    def _transition(self, log: dict[str, Any], mid: str, reason: str) -> None:
+        self.jitter_exhausted = False
+        self.state = {
+            "M1": "CANDIDATE", "M2": "UNKNOWN_RECOVER", "M3": "STABLE", "M4": "IDLE",
+            "M5": "TRIGGERED", "M6": "COOLDOWN", "M8": "IDLE", "M9": "STABLE", "M10": "LOST",
+            "M11": "IDLE", "M12": "IDLE", "M13": "UNKNOWN_RECOVER", "M15": "CANDIDATE",
+        }[mid]
+        if mid in ("M11", "M4", "M8"):
+            self.current_target = None
+            self._clear_window_evidence()
+            self.continues_false_streak = 0
+            self.t_last_target_continues_ns = None
+            self.candidate_streak = 0
+            self.candidate_dwell_start_ns = None
+            self.acquisition_triggered = False
+        if mid == "M15":
+            self._clear_window_evidence()
+            self.candidate_streak = 1
+            self.candidate_dwell_start_ns = self.last_t_ns
+        if mid == "M6":
+            # §4：进入 COOLDOWN 保留当前目标标识、重置稳定窗口证据
+            self._clear_window_evidence()
+        if mid == "M9":
+            self._clear_window_evidence()
+        if mid == "M2":
+            # §11.6：进入恢复态时清空目标与稳定证据，恢复期帧不计入窗口
+            self.current_target = None
+            self._clear_window_evidence()
+            self.continues_false_streak = 0
+            self.t_last_target_continues_ns = None
+            self.candidate_streak = 0
+            self.candidate_dwell_start_ns = None
+            self.legal_streak = 0
+            self.acquisition_triggered = False
+        log["transition"] = mid
+        log["reason"] = reason
+        log["to_state"] = self.state
+        log["timers"] = {
+            "window_match_count": self.window_match_count,
+            "window_start_ns": self.window_start_ns,
+            "jitter_frames": self.jitter_frames,
+            "continues_false_streak": self.continues_false_streak,
+            "t_last_target_continues_ns": self.t_last_target_continues_ns,
+            "t_last_submit_ns": self.t_last_submit_ns,
+            "candidate_streak": self.candidate_streak,
+        }
+
+    def _finish(self, log: dict[str, Any]) -> dict[str, Any]:
+        log["to_state"] = self.state
+        log["counters"] = dict(self.counters)
+        request = None
+        if log.get("transition") == "M5" and self.state == "TRIGGERED":
+            mapping = self.pack.class_action_map[int(self.current_target["class_id"])]
+            request = {
+                "action_type": mapping["action_type"],
+                "target_id": mapping["target_id"],
+                "class_id": int(mapping["class_id"]),
+                "class_name": mapping["class_name"],
+                "source_frame_id": log.get("frame_id"),
+                "trigger_frame_id": log.get("frame_id"),
+                "t_trigger_ns": self.last_t_ns,
+                "acquisition_id": self.acquisition_id,
+                "expected_display": self.pack.data["actions"].get("proposed_display_fields"),
+            }
+            log["trigger_frame_id"] = log.get("frame_id")
+        return {"log": log, "action_request": request}
+
+    # ------------------------------------------------------------------ 动作回执
+    def note_action_ack(self, ack: dict[str, Any]) -> dict[str, Any]:
+        """动作层回执：成功提交 → M6 进入 COOLDOWN；被抑制/失败不回退状态。"""
+        log: dict[str, Any] = {
+            "session_id": self.session_id,
+            "from_state": self.state,
+            "to_state": self.state,
+            "transition": None,
+            "reason": None,
+            "suppression_events": [],
+            "action_id": ack.get("action_id"),
+            "submit_result": ack.get("submit_result"),
+            "effective_result": ack.get("effective_result"),
+            "t_submit_ns": ack.get("t_submit_ns"),
+            "t_effective_ns": ack.get("t_effective_ns"),
+            "counters": dict(self.counters),
+        }
+        if ack.get("suppression"):
+            log["suppression_events"].append(str(ack["suppression"]))
+            log["reason"] = str(ack.get("reason"))
+            self.acquisition_triggered = False
+            self.state = "STABLE" if self.current_target is not None else "IDLE"
+        elif ack.get("submit_result") == "success":
+            self.counters["action_submitted"] += 1
+            self.t_last_submit_ns = ack.get("t_submit_ns")
+            if ack.get("effective_result") == "observed":
+                self.counters["action_effective"] += 1
+            else:
+                self.counters["unobserved"] += 1
+                self.counters["false_actions"] += 1
+            if self.state == "TRIGGERED":
+                self._transition(log, "M6", "动作提交事件落盘（TRIGGERED → COOLDOWN）")
+                log["reason"] = "动作提交事件落盘（M6）"
+        else:
+            self.counters["false_actions"] += 1
+            log["reason"] = "动作提交失败：不产生 ACTION_SUBMITTED、不更新 t_last_submit"
+            self.acquisition_triggered = False
+            self.state = "STABLE" if self.current_target is not None else "IDLE"
+        self.action_log.append(dict(ack))
+        log["to_state"] = self.state
+        log["counters"] = dict(self.counters)
+        return log

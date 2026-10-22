@@ -1,0 +1,65 @@
+##### C4-jitter-reset | 5 帧稳定后连续 2 帧 score<P02：第 1 帧容忍（≤T6-J01），第 2 帧重置窗口；候选停留已达 T6-S04=500 ms → M4→IDLE，不触发。
+  t_start_ns None period_ns None session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 3, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 4, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 5, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 6, "state": "OK", "detections": [{"class_id": 0, "score": 0.28, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 7, "state": "OK", "detections": [{"class_id": 0, "score": 0.28, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+  expected: {"final_state": "IDLE", "transitions": ["M1", "M4"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"action_submitted": 0}, "suppressions_include": ["S_JITTER_TOLERATED"]}
+##### C6-no-hand-unknown-lowscore | 4 帧 NO_HAND（合法零框）+ 1 帧 class_id=5（E_FRAME_INVALID，单独计 unknown_class_frames）+ 3 帧低分（<T6-P01）：全部不触发，分区计数不混用。
+  t_start_ns None period_ns None session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "NO_HAND", "detections": []}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "NO_HAND", "detections": []}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 3, "state": "NO_HAND", "detections": []}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 4, "state": "NO_HAND", "detections": []}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 5, "state": "OK", "detections": [{"class_id": 5, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 6, "state": "OK", "detections": [{"class_id": 0, "score": 0.2, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 7, "state": "OK", "detections": [{"class_id": 0, "score": 0.2, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 8, "state": "OK", "detections": [{"class_id": 0, "score": 0.2, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+  expected: {"final_state": "IDLE", "transitions": [], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"no_hand_frames": 4, "unknown_class_frames": 1, "invalid": 1, "ok_frames": 3}}
+##### C7-timeout-error-dropped-stale | 3 个异常帧（TIMEOUT/ERROR/DROPPED）达 T6-U00 阈值 → M2→UNKNOWN_RECOVER 并清空目标；stale 帧不触发不计窗口；随后 5 帧合法结果 → M12→IDLE。全程无动作。
+  t_start_ns None period_ns None session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_TIMEOUT", "dt_ns": 100000000, "frame_id": 3}
+    {"kind": "E_FRAME_ERROR", "dt_ns": 100000000, "frame_id": 4}
+    {"kind": "E_FRAME_DROPPED", "dt_ns": 100000000, "frame_id": 5}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 6, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}], "stale": true}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 7, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 8, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 9, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 10, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 11, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+  expected: {"final_state": "IDLE", "transitions": ["M1", "M2", "M12"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"timeout": 1, "error": 1, "dropped": 1, "stale": 1}}
+##### C8-duplicate-reorder-missing-restart | 重复 frame_id 幂等丢弃；缺帧计 2；倒序计异常；session 变化 → 全量复位（RESET）并清空计数，不延续旧会话状态。全程无动作。
+  t_start_ns None period_ns None session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 5, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 1, "session_id": "s2", "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+  expected: {"final_state": "IDLE", "transitions": ["M1", "RESET"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"duplicate_frames": 0, "out_of_order_frames": 0, "ok_frames": 0}, "counter_highs": {"duplicate_frames": 1, "missing_frames": 2, "out_of_order_frames": 1, "ok_frames": 3}}
+##### C9c-30fps-later-of | 30fps（P=33.3 ms，T6-S01=200 ms，T6-S02=6）：第 6 个 WINDOW_MATCH 帧只有 166.5 ms < 200 ms，按 T6-S03「取较晚」完成帧是第 8 帧（233.1 ms）→ 第 8 帧 M3、第 9 帧触发；若按旧口径（只数帧）会误判为第 6 帧完成。
+  t_start_ns None period_ns 33300000 session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 3, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 4, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 5, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 6, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 7, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 8, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 33300000, "frame_id": 9, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+  expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [9], "window_complete_ns": 233100000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+##### C10-tick-time-advance | 2 帧建立候选后只有时钟推进：距最近一次 TARGET_CONTINUES 成立达 T6-L02=300 ms → M10→LOST，下一 tick M11→IDLE；全程无动作。
+  t_start_ns None period_ns None session None
+    {"kind": "E_FRAME_RESULT", "dt_ns": 0, "frame_id": 1, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_FRAME_RESULT", "dt_ns": 100000000, "frame_id": 2, "state": "OK", "detections": [{"class_id": 0, "score": 0.9, "xyxy": [0.2, 0.2, 0.6, 0.6], "source_order": 0}]}
+    {"kind": "E_TICK", "dt_ns": 100000000}
+    {"kind": "E_TICK", "dt_ns": 100000000}
+    {"kind": "E_TICK", "dt_ns": 100000000}
+    {"kind": "E_TICK", "dt_ns": 100000000}
+  expected: {"final_state": "IDLE", "transitions": ["M1", "M10", "M11"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}}

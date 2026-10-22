@@ -1,0 +1,124 @@
+runbook_matrix_coverage:
+[
+ {
+  "case_class": "每类稳定输入",
+  "cases": [
+   "C1-fist-stable",
+   "C1-palm-stable",
+   "C1-one-stable",
+   "C1-two_up-stable",
+   "C1-three-stable"
+  ]
+ },
+ {
+  "case_class": "持续保持与冷却后保持",
+  "cases": [
+   "C2-hold-past-cooldown"
+  ]
+ },
+ {
+  "case_class": "手离开再出现",
+  "cases": [
+   "C3-lost-then-reappear"
+  ]
+ },
+ {
+  "case_class": "两类快速切换/短暂抖动",
+  "cases": [
+   "C4-jitter-reset",
+   "C4-quick-switch"
+  ]
+ },
+ {
+  "case_class": "多目标/同分/目标跳变",
+  "cases": [
+   "C5-tie-source-order",
+   "C5-held-priority",
+   "C5-target-jump"
+  ]
+ },
+ {
+  "case_class": "NO_HAND / 场景未知 / 低分",
+  "cases": [
+   "C6-no-hand-unknown-lowscore"
+  ]
+ },
+ {
+  "case_class": "TIMEOUT / ERROR / DROPPED / stale",
+  "cases": [
+   "C7-timeout-error-dropped-stale"
+  ]
+ },
+ {
+  "case_class": "重复、倒序、缺帧、重启帧号",
+  "cases": [
+   "C8-duplicate-reorder-missing-restart"
+  ]
+ },
+ {
+  "case_class": "时间等于阈值、前后 1 个计时单位",
+  "cases": [
+   "C9-s01-equal",
+   "C9-s01-minus-1ns"
+  ]
+ },
+ {
+  "case_class": "无新结果但时间持续前进",
+  "cases": [
+   "C10-tick-time-advance"
+  ]
+ },
+ {
+  "case_class": "动作失败/未观察/重复 ACK",
+  "cases": [
+   "C11-fail-then-success",
+   "C11-unobserved",
+   "C11-global-gate-second-acquisition"
+  ]
+ }
+]
+expected_derivation_note: expected 全部由行为表 v1.4（§4 迁移表、§9 窗口、§10 冷却/一次获取一次、§13 帧序、§14 参数草案值）人工推导：周期、帧号、时间偏移均在用例内显式给出；不使用状态机输出作为预期（H-7）。参数全部为 PENDING_APPROVAL 草案值，任何结论只对注入输入有效。
+== C1-fist-stable | 每类稳定输入 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"no_hand_frames": 0, "invalid": 0, "action_submitted": 1}}
+== C1-palm-stable | 每类稳定输入 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_STATS", "final_channel": null}, "core_counters": {"no_hand_frames": 0, "invalid": 0, "action_submitted": 1}}
+== C1-one-stable | 每类稳定输入 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": null, "final_channel": "CH_1"}, "core_counters": {"no_hand_frames": 0, "invalid": 0, "action_submitted": 1}}
+== C1-two_up-stable | 每类稳定输入 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": null, "final_channel": "CH_2"}, "core_counters": {"no_hand_frames": 0, "invalid": 0, "action_submitted": 1}}
+== C1-three-stable | 每类稳定输入 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": null, "final_channel": "CH_3"}, "core_counters": {"no_hand_frames": 0, "invalid": 0, "action_submitted": 1}}
+== C2-hold-past-cooldown | 持续保持与冷却后保持 | ev 20 | period None | t_start None
+   expected: {"final_state": "STABLE", "transitions": ["M1", "M3", "M5", "M6", "M9"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+== C3-lost-then-reappear | 手离开再出现 | ev 19 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6", "M10", "M11", "M1", "M3", "M5", "M6"], "submitted_at_frames": [7, 19], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 2, "action_effective": 2, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"no_hand_frames": 3, "action_submitted": 2}}
+== C4-jitter-reset | 短暂抖动 | ev 7 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": ["M1", "M4"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"action_submitted": 0}, "suppressions_include": ["S_JITTER_TOLERATED"]}
+== C4-quick-switch | 两类快速切换 | ev 6 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": [], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"action_submitted": 0}}
+== C5-tie-source-order | 多目标/同分 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_STATS", "final_channel": null}, "core_counters": {"action_submitted": 1}, "markers_include": ["source_order"]}
+== C5-held-priority | 多目标/维持优先 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 500000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}, "suppressions_include": ["S_TARGET_HELD"]}
+== C5-target-jump | 多目标/目标跳变 | ev 10 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [10], "window_complete_ns": 800000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_STATS", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+== C6-no-hand-unknown-lowscore | NO_HAND / 未知类 / 低分 | ev 8 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": [], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"no_hand_frames": 4, "unknown_class_frames": 1, "invalid": 1, "ok_frames": 3}}
+== C7-timeout-error-dropped-stale | TIMEOUT / ERROR / DROPPED / stale | ev 11 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": ["M1", "M2", "M12"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"timeout": 1, "error": 1, "dropped": 1, "stale": 1}}
+== C8-duplicate-reorder-missing-restart | 重复 / 倒序 / 缺帧 / 重启帧号 | ev 6 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": ["M1", "RESET"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}, "core_counters": {"duplicate_frames": 0, "out_of_order_frames": 0, "ok_frames": 0}, "counter_highs": {"duplicate_frames": 1, "missing_frames": 2, "out_of_order_frames": 1, "ok_frames": 3}}
+== C9c-30fps-later-of | 低 FPS / 窗口完成取较晚 | ev 9 | period 33300000 | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [9], "window_complete_ns": 233100000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+== C9-s01-equal | 时间等于阈值 | ev 7 | period 40000000 | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "window_complete_ns": 200000000, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+== C9-s01-minus-1ns | 时间阈值 −1 个计时单位 | ev 8 | period 40000000 | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [8], "window_complete_ns": 200000001, "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 0, "action_unobserved": 0, "visible_state_changes": 1, "final_display_state": "UI_MENU", "final_channel": null}, "core_counters": {"action_submitted": 1}}
+== C10-tick-time-advance | 无新结果但时间前进 | ev 6 | period None | t_start None
+   expected: {"final_state": "IDLE", "transitions": ["M1", "M10", "M11"], "submitted_at_frames": [], "action_summary": {"action_submitted": 0, "action_effective": 0}}
+== C11-fail-then-success | 动作失败 / 未观察 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M5", "M6"], "submitted_at_frames": [8], "action_summary": {"action_submitted": 1, "action_effective": 1, "action_failed": 1, "visible_state_changes": 1, "final_display_state": "UI_MENU"}}
+== C11-unobserved | 动作未观察 | ev 8 | period None | t_start None
+   expected: {"final_state": "COOLDOWN", "transitions": ["M1", "M3", "M5", "M6"], "submitted_at_frames": [7], "action_summary": {"action_submitted": 1, "action_effective": 0, "action_unobserved": 1, "visible_state_changes": 0, "final_display_state": null}, "core_counters": {"unobserved": 1}}
+== C11-global-gate-second-acquisition | 冷却后保持 / 全局冷却门 | ev 32 | period 20000000 | t_start None
+   expected: {"final_state": "STABLE", "submitted_at_frames": [12], "action_summary": {"action_submitted": 1, "action_effective": 1}, "core_counters": {"no_hand_frames": 6, "action_submitted": 1}, "suppressions_include": ["S_COOLDOWN"], "window_complete_ns": 200000000}

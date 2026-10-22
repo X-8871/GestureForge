@@ -1,0 +1,35 @@
+{
+  "record_id": "S5C-ADDENDUM-20261022-001",
+  "type": "claim_narrowing_addendum",
+  "authored_by": "DSH 阶段5 总控（Lead），代写：原 Developer dev-s5c 子代理失败退出",
+  "generated_utc8": "2026-10-22T10:45:00+08:00",
+  "closes_review_finding": "S5-R F-01 (MEDIUM)",
+  "amends_run": "report/evidence/S5-C/s5c_regression_20261021_r04",
+  "amend_scope": "仅收窄该运行 summary 中「离散字段全等」的措辞范围；不修改该运行任何原始产物，不改变其 PASS 与退出码",
+  "discrete_fields_claim": {
+    "compared_must_match": [
+      "frame_id",
+      "detection_count",
+      "class_id",
+      "class_name",
+      "source_order",
+      "box_count"
+    ],
+    "not_compared_upstream_not_carried": {
+      "nms_decision": "S4-C golden 的 detections_expected/detections_actual 与 S4-A detection_record.fields 均无该字段",
+      "output_order": "同上；阶段4 以稳定 tie 顺序与 source_order 隐式体现，未落成独立字段"
+    },
+    "indirect_constraints_only": [
+      "C2：显示层 accepted 集合 ≡ 阶段4 框集合（对象别名、不重排）",
+      "Gate D：显示消费逐字节位型一致（附加接口证据，不替代契约门槛）"
+    ],
+    "honest_wording": "C1 在 6 个可由上游承载的离散字段上全等；2 个字段为 NOT_COMPARED（上游未承载），未比较也未据此通过"
+  },
+  "bindings": {
+    "run_manifest_sha256": "61c0d507f022de3ce2e57255b284df2e7f4ed5f3a0115b728fbd8561313120a9",
+    "checker_sha256": "703959a2df4d230e596baca52e556b782f609efaf19b27d877ad1511eebfc5ab",
+    "contract_sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "reference_impl_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553"
+  },
+  "follow_up_for_stage5_g0": "建议正式 G0 把契约 discrete_fields_must_match 拆为「本层可比较 / 上游未承载」两段并与阶段4 契约同步；本阶段离线准备不擅自改冻结正文"
+}

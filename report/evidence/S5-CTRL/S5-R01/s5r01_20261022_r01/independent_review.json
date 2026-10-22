@@ -1,0 +1,219 @@
+{
+  "schema_version": "gestureforge_s5r_independent_review_v1",
+  "task_id": "S5-R",
+  "run_id": "s5r01_20261022_r01",
+  "reviewer": "rev-s5 (独立 Reviewer，非被审任务的开发方)",
+  "generated_utc8": "2026-10-22T10:41:00+08:00",
+  "verdict": "CHANGES_REQUIRED",
+  "verdict_scope": "仅限文档/证据包标注与覆盖披露；关键技术结论（几何同源、门槛未放宽、过期阈值同源、语义、零面积/零框、篡改探针真失败）经独立复现均成立，未发现放宽门槛或伪造通过。",
+  "reviewed_baseline": {
+    "worktree": "D:\\codex-worktrees\\w5",
+    "branch": "stage5-display-prep",
+    "git_head": "acd2df6774ead5c8085fa2417882c8315c18eecd",
+    "git_status": "工作区未提交（被审新增文件均为未跟踪）；本审查未 git add/commit",
+    "upstream_w4": {"path": "D:\\codex-worktrees\\w4", "head": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a", "status_short_lines": 0},
+    "main_tree": {"path": "D:\\FPGA_Competition", "head": "925ed2afca884b7c682f3cb7bd023fcf37e21f47", "stage5_stage4_files_changed": 0}
+  },
+  "reviewed_files_sha256": {
+    "verification/s5_display_geometry_reference.py": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
+    "verification/test_s5_display_geometry_reference.py": "0ef2a969319e34e95155a151da38bef737565789985dbde709041f6d87dae92d",
+    "docs/stage5/s5a_stage5_display_g0_fields.json": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "docs/stage5/S5A_stage5_display_g0_spec_v2.md": "ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932",
+    "docs/stage5/PROVENANCE_s4d_v1_baseline.md": "ed94999e7cc935ac05c371aa63350ab370d1fb3e551e2669574230d787ce190a",
+    "scripts/stage5_s5c/check_s5c_stage4_regression.py": "703959a2df4d230e596baca52e556b782f609efaf19b27d877ad1511eebfc5ab",
+    "scripts/stage5_s5c/test_s5c_regression.py": "6a0d967dd722d544baac8d58b53b4ad15b253405d3ce871b73593698e1c03717",
+    "scripts/stage5_s5b/render_s5b_overlay.py": "dbfef7aab3f5190f51f949646b9355cbe43ca326bf3318674ad9553b3f83bb5e",
+    "scripts/stage5_s5b/run_s5b_evidence.py": "de33db93d13931402e7357709f2c34751575a12b15eb3c8063a690daa44061fb",
+    "scripts/stage5_s5b/test_s5b_overlay.py": "8d4e2e5faaf19e0336e8a55e11c4b0cc7737130d369b8eb20dccb667cb285c9f",
+    "verification/s1_t02_d2_numeric_reference.py": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+  },
+  "authoritative_evidence": {
+    "S5-A": ["report/evidence/S5-A/s5a_g0_20261021_r03/"],
+    "S5-B": ["report/evidence/S5-B/s5b_20261021_r07_a/", "report/evidence/S5-B/s5b_20261021_r07_b/"],
+    "S5-C": ["report/evidence/S5-C/s5c_regression_20261021_r04/", "report/evidence/S5-C/s5c_regression_20261021_r04_limit8/"],
+    "historical": ["S5-A r01/r02", "S5-B r06_a/r06_b", "S5-C r03/r03_limit8"],
+    "pre_hardening_reference_sha256": "556f78c53bba8a75db5746b2cf94f5cfbb5c0f004400acafb5dfec809a05e4be",
+    "pre_hardening_checker_sha256": "60b5c7c70ca6cde1eed12cb49bcdfbf1f6849a65f4c7e0f5f5c19260c61cd759"
+  },
+  "risk_checks": [
+    {
+      "id": "R1",
+      "name": "几何唯一来源（显示侧必须 import 冻结参考，不得第二套 resize/逆映射）",
+      "verdict": "PASS",
+      "evidence": [
+        "scripts/stage5_s5b/render_s5b_overlay.py 在渲染路径全部使用 reference.<func>（letterbox_geometry/network_norm_to_original_norm/clip_unit_box/original_norm_to_display_px/original_norm_to_canvas_px/border_pixel_sets/canvas_fit/effective_stale/compute_ages/validate_result_record/round_half_up），未重写 resize/逆映射",
+        "scripts/stage5_s5c/check_s5c_stage4_regression.py 的 DISPLAY PATH 区块（行 358-393）只调用 self._ref.*，无公式",
+        "两脚本各含一处本地整数复算（S5-B hand_geometry 行 281；S5-C independent_letterbox 行 277），均显式标注为断言/对拍侧、渲染路径不使用；grep 确认 hand_geometry 调用点（846/1377/2174）与 independent_letterbox 调用点均在断言/自检路径",
+        "Reviewer 独立复算 probe（tmp/5/S5-R/<run>/independent_geometry_probe.py）：13 组尺寸（1280x720/720x1280/683x384/1920x1080/640x640/800x600/1440x1920/640x963/1013x617/37x900/255x255/416x416/833x469）纯整数正向几何 → S5 参考 == D2 冻结 == Reviewer 独立值，全部一致；Fraction 精确逆映射 4 个采样点/尺寸逐值一致"
+      ],
+      "reproduce": "python -B tmp/5/S5-R/s5r01_20261022_r01/independent_geometry_probe.py → exit 0",
+      "notes": "S5 参考在 D2 基础上新增 w_scale/h_scale 退化守卫字段，核心几何公式与 D2 逐值一致（D2 无守卫）；未发现第二套实现进入显示路径。"
+    },
+    {
+      "id": "R2",
+      "name": "坐标门槛未被放宽（Gate A ≤1e-6、Gate B ≤1.0 px、离散字段全等）",
+      "verdict": "PASS_WITH_FINDING",
+      "evidence": [
+        "checker 常量 GATE_A_SCORE_TOL=1e-06、GATE_A_XYXY_TOL=1e-06、GATE_B_PIXEL_TOL=1.0，与契约 coordinate_gate 逐项一致（C2 与 test_s5c 常量对拍）",
+        "契约 A_numeric_chain.discrete_fields_must_match 列 8 项；S5-C C1 实际比较 6 项（frame_id/detection_count/class_id/class_name/source_order/box_count）",
+        "S4-C golden（detections_expected 与 detections_actual）与 S4-A detection_record.fields 均不含 nms_decision/output_order；契约与 checker 中该二字段除契约行 110 外无任何出现，报告 limitations/skips 亦未披露",
+        "契约该 8 项清单可追溯到 2A 规格：docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md 第 75 行（frame_id、检测数、类别、source_order、NMS 决策、输出顺序 + 1e-6/相对容限 0）",
+        "S5-C 明确将 1 ULP 差异归 Gate D 并分列，Gate D 在报告中标注为 ADDITIONAL_INTERFACE_EVIDENCE，未替代 Gate A/B",
+        "未发现把 SKIP/NOT_RUN 写成 PASS：S5-C 的 C6 在抽样运行标 NOT_APPLICABLE_THIS_RUN；S5-B summary 对 T5-08/T5-10/T5-11 标 PARTIAL、T5-09 标 NOT_RUN"
+      ],
+      "reproduce": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_full --out tmp/5/S5-R/s5r01_20261022_r01/pristine_full → exit 0",
+      "finding_ids": ["F-01"]
+    },
+    {
+      "id": "R3",
+      "name": "过期阈值与阶段4 同源同值、同一单调时基、严格大于、age==limit 不过期",
+      "verdict": "PASS",
+      "evidence": [
+        "verification/s5_display_geometry_reference.py STALE_AGE_LIMIT_NS=200_000_000；契约 stale_and_age.stale_age_limit_ns=200000000；w5 docs/stage4/s4a_stage4_g0_fields.json draft_proposed_thresholds.stale_age_limit_ms=200（×1e6 一致）",
+        "S5-C C2 常量三方差（ref == 契约 == S4-A draft）为 match=True；契约同时标注阶段4 侧仍 DRAFT_PROPOSED",
+        "is_stale 用严格 > ；Reviewer probe：is_stale(limit)=False、is_stale(limit-1)=False、is_stale(limit+1)=True",
+        "S5-B t5_04_age_equal_limit：age_frame_ns=200000000、stale_cleared=0、1 框绘制（1/1）；t5_04_age_limit_plus_1：age_frame_ns=200000001、0 框绘制",
+        "阶段4/阶段5 同一 PS 单调时基由契约 fps_and_latency.timebase 与 stale_and_age.same_source_rule 声明；离线无法运行时验证（未执行项已声明）"
+      ],
+      "reproduce": "independent_geometry_probe.json: stale_rows / guard_rows"
+    },
+    {
+      "id": "R4",
+      "name": "画面语义：固定最新结果叠加、两个年龄分别记录、无同帧伪称",
+      "verdict": "PASS",
+      "evidence": [
+        "契约 display_semantics.value=B_latest_result_overlay；ref DISPLAY_SEMANTICS 同值；JSON↔ref 由 test_s5c 对拍",
+        "S5-B 五元组 129 条均为 (displayed_frame_id, result_frame_id, age_result_ns, age_frame_ns, B_latest_result_overlay)，age_result_ns 与 age_frame_ns 分别记录且取值不同（如 5000000 / 15000000）",
+        "Reviewer 独立扫描 report/evidence/S5-B 与 report/evidence/S5-C 全部文本产物：'同帧' 命中 0 处",
+        "docs/stage5 内 '同帧' 的 14 处均为禁止性/定义性表述（不得伪称同帧、语义 A 的定义、v1 草案 '同帧多目标' 指同帧多目标），无任何同日/同帧正向声明",
+        "S5-B console/wording_scan 与 final_verdict.wording_scan_hit_total=0（含拆分构造的 W6 同帧 token）"
+      ],
+      "reproduce": "grep 同帧 report/evidence/S5-B** report/evidence/S5-C** → no matches；S5-B summary 语义断言摘要"
+    },
+    {
+      "id": "R5",
+      "name": "零面积/零框/边缘框/多框（≤15 且 2A 稳定顺序）",
+      "verdict": "PASS",
+      "evidence": [
+        "clip_unit_box 返回 zero_area；S5-B/S5-C 对 zero_area 一律不绘制（S5-B t5_02_clip_zero_area 2 框/1 绘制、t5_02_letterbox_padding_zero_area 3/1；S5-C C4 zero_area_probes 4/4 PASS 且 display_border_pixels=0 而 raw_expansion_if_not_skipped>0）",
+        "NO_HAND 零框：validate_result_record 拒绝 NO_HAND 携带框；S5-B t5_03_no_hand_zero / no_hand_s4b 均 0 框 0 绘制；summary '零框被判过期的用例：无'",
+        "≤15：S5-B t5_03_multi_15 = 15 框 15 绘制；validate_result_record 对 >15 报问题；S5-C C2 box_count_within_frozen_limit 检查通过",
+        "顺序：渲染路径无 sort/reorder；t5_03_multi_15 用例 JSON 的 15 框 source_order=1000..1014 按输入原样保留（Reviewer 实读），test_s5b_overlay.py 行 321 断言 source_order 唯一"
+      ],
+      "reproduce": "Get-Content report/evidence/S5-B/s5b_20261021_r07_a/logs/t5_03_multi_15.json（boxes/src 序列）"
+    },
+    {
+      "id": "R6",
+      "name": "阶段4 数值链路追溯是否真实（含反例真失败、1 ULP 捕获、Gate D 定位）",
+      "verdict": "PASS",
+      "evidence": [
+        "任务卡指定复现：--limit 8 --seed 20261021 → exit 0（C1 mismatch 0、C3 21 种几何三方一致、C4 最大往返 0.452705 px ≤1.0、C5 D9 链完整、C7 无依据用词 0）",
+        "全量复现（Reviewer 自跑，无 --limit）→ exit 0；109/109 样本、104 框、字段值比较 1159、最大 score/坐标误差 0",
+        "tamper-probe source_order → exit 1，检出=True，命中 gate=['discrete']，1035→1036，authority_unchanged=true",
+        "tamper-probe score_ulp → exit 1，检出=True，命中 gate=['D']，Gate A 误差 1.110e-16（<1e-6）⇒ 证明 1 ULP 级差异只能由逐字节 Gate D 捕获，Gate A 单独会漏检；报告中 Gate D 标注为附加接口证据，未替代 Gate A/B",
+        "C5 追溯链：S4-B 3 条 PS 记录与 S4-C 同 sample_id 逐字段一致，并绑定 2A T29 CPU 参考的 SHA256（T29 SHA256 匹配=True）",
+        "C2 显示路径禁用 token 扫描命中 0，运行期未导入解码/NMS 模块，accepted 集合与阶段4 框集合按对象别名完全相同"
+      ],
+      "reproduce": [
+        "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_pristine --out tmp/5/S5-R/s5r01_20261022_r01/pristine2 --limit 8 --seed 20261021 → exit 0",
+        "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_so --out tmp/5/S5-R/s5r01_20261022_r01/tamper_source_order --limit 8 --seed 20261021 --tamper-probe source_order → exit 1",
+        "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_ulp --out tmp/5/S5-R/s5r01_20261022_r01/tamper_score_ulp --limit 8 --seed 20261021 --tamper-probe score_ulp → exit 1"
+      ]
+    },
+    {
+      "id": "R7",
+      "name": "证据诚实性（命令/退出码/哈希绑定/覆盖删除/未执行项）",
+      "verdict": "PASS_WITH_FINDINGS",
+      "evidence": [
+        "哈希绑定与磁盘一致（全部命中）：s5_display_geometry_reference.py=4d9fe369…（任务卡声明值一致）；S5-A r03 清单 8 项、S5-B r07_a scripts/imported_modules、S5-C r04 清单均与磁盘逐值相同（console/hash_binding_verification.txt）",
+        "退出码一致：S5-C r04 exit_code_verification.json 13/13 全match且 finalize=0；S5-B r07_a final_verdict 5 个退出码全 0；console 原始文件存在",
+        "独立重渲染比对：Reviewer 自跑 render_s5b_overlay.py（同参数）与 s5b_20261021_r07_a 逐文件比对 —— 26 PNG 全等、21 logs 全等 ⇒ 开发者证据确为同参数真实产物（Lead 代为执行不影响可复现性）",
+        "独立 unittest：S5-A 26 tests exit 0；S5-B 56 tests exit 0（隔离临时根运行，未写入被审 tmp/5/S5-B）",
+        "上游绑定真实：w4 干净（0 改动，HEAD 73c3dad）；计划文件 main=a94830af…/w5copy=82ef0796… 与契约声明一致；PROVENANCE 5 个复制件在 w5 与 w4 逐字节相同；S4-C golden=c5d25c64…、S4-B 4 件哈希与契约 file_sha256 逐值一致",
+        "过程事实纳入：S5-C r01/r02 被删除已由 report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md 如实披露（认定为口径违规、不可恢复、已定纠正措施；保留 r03/r03_limit8/r04/r04_limit8）。该删除削弱失败路径可追溯性，但不影响技术结论；本轮未再发生覆盖/删除",
+        "加固前/后证据可由哈希独立区分：S5-C r03 ref=556f78c5…、checker=60b5c7c7…；r04 ref=4d9fe369…、checker=703959a2…（与磁盘一致）"
+      ],
+      "reproduce": "console/hash_binding_verification.txt；console/repro_s5b_render.txt；console/repro_s5b_unittest_isolated.txt；console/repro_unittest_s5a.txt",
+      "finding_ids": ["F-01", "F-02", "F-03"]
+    },
+    {
+      "id": "R8",
+      "name": "规格是否越权/过度声明",
+      "verdict": "PASS",
+      "evidence": [
+        "S5-A 规格与契约状态均为 STAGE5_G0_FINALIZED_OFFLINE_NOT_ACCEPTED，正文明确 '阶段5 尚未正式开工、未上板、未接摄像头、未做显示实测'；未出现 已开工/已冻结/已验收/已上板/已联调 之类声明（对 docs/stage5 全文 grep 仅命中禁止性/说明性语句）",
+        "方案 B 下未声称满足计划 L88：契约 uart_mapping/open_decision 与 consumed_stage4_record.ps_only_consequence 明确 '不得据此宣称满足计划第 88 行'；S5-A §7 同述",
+        "阶段计划 L94-L100 引用可信：主树计划第 96/98/100 行内容与覆盖矩阵一致；L88 即阶段4 的采集/结果时间与推理耗时要求",
+        "未改动 w4/主树/2B：w4 status 0 行、HEAD 73c3dad；主树无任何 stage4/stage5 相关改动（w2b 路径不存在，无法核对，见限制）"
+      ],
+      "reproduce": "git -C D:\\codex-worktrees\\w4 status --short；git -C D:\\FPGA_Competition status --short"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-01",
+      "severity": "MEDIUM",
+      "title": "S5-C 权威证据把「离散字段全等」呈现为完整覆盖，但契约要求的 nms_decision / output_order 未参与比较且未披露",
+      "location": [
+        "docs/stage5/s5a_stage5_display_g0_fields.json:110（discrete_fields_must_match 8 项）",
+        "scripts/stage5_s5c/check_s5c_stage4_regression.py:591（C1 仅比较 class_id/class_name/source_order）与 run_checks 的 limitations（1601-1607，未列该缺口）",
+        "report/evidence/S5-C/s5c_regression_20261021_r04/summary.md:13（C1 标 PASS）"
+      ],
+      "impact": "下游按契约字面理解会认为 8 个离散字段均已逐值核对；实际 nms_decision/output_order 在 S4-C golden（detections_expected 与 detections_actual 均只有 class_id/class_name/score/xyxy/source_order）与 S4-A detection_record.fields 中都不存在，因而根本未被比较，也没有 NOT_COMPARED/SKIP 说明。属于「以部分覆盖表述为完整门槛」的披露缺口，不构成数据造假，但削弱 T5-10 的结论强度与可追溯性。",
+      "mitigation": "C2 的 accepted_set_equals_stage4_boxes + C1 的对象别名/Gate D 位型一致，从显示侧「原样消费、不重排、不重判」角度间接约束了显示层的 NMS 决策与输出顺序不变；风险实质低，缺口在披露而非事实。",
+      "closing_condition": "在 S5-C 权威运行（新 RunId 或对 r04 增补说明文件，不覆盖既有 RunId）中显式列出 nms_decision 与 output_order 为 NOT_COMPARED 并写明理由（上游 S4-C/S4-B 记录与 S4-A detection_record 均不含该二字段，属 2A 侧字段未进入阶段4 记录），并同步在 summary.md 的 C1/limitations 段落与 run_manifest 中标注；或在 S5-A 契约把 discrete_fields_must_match 拆为「本层可比较」与「上游未承载（NOT_COMPARED）」两段并注明依据。"
+    },
+    {
+      "id": "F-02",
+      "severity": "MEDIUM",
+      "title": "S5-C 证据保留披露文件把加固前的 r03 标为「权威」，与任务卡/磁盘事实矛盾",
+      "location": [
+        "report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md:7（'保留的运行：s5c_regression_20261021_r03（权威）、…、s5c_regression_20261021_r04（本轮接口加固后的重跑）'）",
+        "对比：report/evidence/S5-C/s5c_regression_20261021_r03/summary.md:6（绑定 ref SHA256 556f78c5…，非磁盘现值 4d9fe369…）；r03/run_manifest.json（checker=60b5c7c7…，非磁盘现值 703959a2…）"
+      ],
+      "impact": "r03 由加固前的参考实现与检查器产出（其报告无 geometry.degenerate_source_rule 证据段），其绑定的 ref/checker 版本已不在磁盘上；把它标为『权威』会使下游把加固前证据当作当前被审版本，直接违反『被审版本以磁盘实际文件与哈希为准』与『明确被审版本』的要求。r03/r03_limit8 目录内也没有『历史/加固前』标注。",
+      "closing_condition": "修改 EVIDENCE_RETENTION_INCIDENT.md（或追加不改旧记录的说明文件）：把 s5c_regression_20261021_r04 标为权威运行、r03/r03_limit8 标为『加固前历史证据、已被 r04 取代』；并在 r03 与 r03_limit8 目录各放一条 SUPERSEDED_BY_r04 说明（不删除、不改写原有产物）。"
+    },
+    {
+      "id": "F-03",
+      "severity": "LOW",
+      "title": "S5-A 旧 RunId 的取代链不完整：r02 无取代标注，r01 的说明指向已失效的 r02 绑定",
+      "location": [
+        "report/evidence/S5-A/s5a_g0_20261021_r01/SUPERSEDED_BY_r02.md:5（'以 r02 为本次自检的绑定证据'）",
+        "report/evidence/S5-A/s5a_g0_20261021_r02/run_manifest.json（local_artifact_sha256['docs/stage5/s5a_stage5_display_g0_fields.json']=abc976a1…，与磁盘现值 8eac7007… 不同；r02 目录无 SUPERSEDED 说明）"
+      ],
+      "impact": "按 r01 的指向去使用 r02 会得到与磁盘不一致的契约哈希绑定，读者需自行发现 r02 也已过期，才可能找到真正的 r03。当前仅 S5-A r03 的 8 项哈希与磁盘逐值一致。",
+      "closing_condition": "在 r02 目录补一条 SUPERSEDED_BY_r03 说明（列出 r02 绑定值与 r03/磁盘现值差异），并把 r01 说明中的『绑定证据指向』更新为 r03（不删除 r01/r02 产物）。"
+    }
+  ],
+  "process_facts_recorded": [
+    "S5-C r01/r02 与各自 _limit8 目录被 Developer 删除：已由 report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md 主动披露，属 AGENTS.md 口径违规（不可恢复）；本审查确认 r03/r03_limit8/r04/r04_limit8 与 S5-B r06_* / r07_* 均在位，未被覆盖。",
+    "本轮 S5-B/S5-C 重跑由 Lead 代为执行（原 Developer 子代理恢复时失败退出）：不影响证据效力——Reviewer 已用同参数独立重跑 S5-B 并逐文件比对（26 PNG + 21 JSON 全等），并独立复现 S5-C pristine（exit 0）与两个篡改探针（exit 1）。",
+    "接口加固（2026-10-21 22:55 / 23:40：退化守卫 new_w<=1/new_h<=1 与 src<=1、正向共用守卫、契约新增 rounding_rule_id/degenerate_source_rule）已由哈希链证实：加固前 ref 556f78c5…/checker 60b5c7c7… → 加固后 ref 4d9fe369…/checker 703959a2…，且磁盘现值等于加固后。"
+  ],
+  "limitations_and_not_verified": [
+    "未运行 Vivado/xsim、未接硬件、未启动或干扰 hw_server（PID 4812，10:19:46 启动，他人所有）；因此 T5-08/T5-09/T5-11 的真实统计、30 分钟无死锁、上板显示与截图一律 NOT_RUN，本审查不构成 G3/G4/G5。",
+    "未独立运行 S5-B/S5-C 的 .ps1 驱动脚本整体：等价核心步骤（渲染、unittest、pristine、8 类篡改探针中的 2 类、退出码汇总）已分别独立复现；其余 6 类探针仅核对了证据包内的真实退出码与 Gate 命中记录。",
+    "未逐像素人工目视全部 26 张 PNG 内容（采用逐哈希 + 断言日志 + 关键字段实读方式复核）。",
+    "w2b 路径 D:\\codex-worktrees\\w2b 不存在（现存为 96a3/dbdf/w4/w5），无法按要求核对该工作树是否被改动；w4 与主树已核对且干净。",
+    "阶段4 侧 stale_age_limit 仍为 DRAFT_PROPOSED：契约已如实标注，本审查只能确认『同源同值 + 严格大于』，不能替代阶段4 G0。",
+    "本审查不修改任何被审文件；结论仅覆盖本次磁盘哈希所示的版本，若被审文件在本 RunId 之后变更，结论失效。"
+  ],
+  "commands_and_real_exit_codes": [
+    {"cmd": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_pristine --out tmp/5/S5-R/s5r01_20261022_r01/pristine2 --limit 8 --seed 20261021", "exit_code": 0, "console": "console/repro_pristine_limit8.txt"},
+    {"cmd": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_full --out tmp/5/S5-R/s5r01_20261022_r01/pristine_full", "exit_code": 0, "console": "console/repro_pristine_full109.txt"},
+    {"cmd": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_so --out tmp/5/S5-R/s5r01_20261022_r01/tamper_source_order --limit 8 --seed 20261021 --tamper-probe source_order", "exit_code": 1, "console": "console/repro_tamper_source_order.txt"},
+    {"cmd": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_ulp --out tmp/5/S5-R/s5r01_20261022_r01/tamper_score_ulp --limit 8 --seed 20261021 --tamper-probe score_ulp", "exit_code": 1, "console": "console/repro_tamper_score_ulp.txt"},
+    {"cmd": "python -B -m unittest verification.test_s5_display_geometry_reference -v", "exit_code": 0, "console": "console/repro_unittest_s5a.txt"},
+    {"cmd": "python -B tmp/5/S5-R/s5r01_20261022_r01/independent_geometry_probe.py", "exit_code": 0, "console": "console/independent_geometry_probe.txt"},
+    {"cmd": "python -B scripts/stage5_s5b/render_s5b_overlay.py --out tmp/5/S5-R/s5r01_20261022_r01/s5b --run-id rev_s5b --seed 20261021", "exit_code": 0, "console": "console/repro_s5b_render.txt"},
+    {"cmd": "python -B tmp/5/S5-R/s5r01_20261022_r01/run_s5b_ut_isolated.py", "exit_code": 0, "console": "console/repro_s5b_unittest_isolated.txt"},
+    {"cmd": "只读哈希/绑定/工作树核对（见文件内命令清单）", "exit_code": 0, "console": "console/hash_binding_verification.txt"}
+  ],
+  "artifacts": {
+    "human_readable": "report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01/independent_review.md",
+    "console_index": "report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01/console/00_repro_commands_and_exit_codes.txt",
+    "reviewer_tmp": "tmp/5/S5-R/s5r01_20261022_r01/",
+    "notes": "Reviewer 未写被审目录、未写两个 mailbox、未 git add/commit、未触碰硬件"
+  }
+}

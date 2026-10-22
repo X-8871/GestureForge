@@ -1,0 +1,49 @@
+{
+  "schema_version": "gestureforge_s5c_stage4_regression_v1",
+  "task_id": "S5-C",
+  "run_id": "s5c_regression_20261021_r04",
+  "generated_utc8": "2026-10-22T10:29:32+08:00",
+  "probe_kind": "identity_rebuild",
+  "probe_required_for_acceptance": false,
+  "detection_expected": true,
+  "status": "FAIL",
+  "status_semantics": "反例模式：status=FAIL 表示篡改被检出（期望结果），status=PASS 表示检查器漏检；进程退出码同样由 detected 决定（检出=1）",
+  "description": "显示侧重建了数值对象（值完全相同但不复用阶段4 对象）——用于验证「逐字节消费/别名引用」这一接口证据判定是否有效",
+  "target": {
+    "sample_id": "test_fist_000",
+    "box_index": 0,
+    "kind": "identity_rebuild",
+    "description": "显示侧重建了数值对象（值完全相同但不复用阶段4 对象）——用于验证「逐字节消费/别名引用」这一接口证据判定是否有效"
+  },
+  "before": {
+    "detections_aliased": false,
+    "values_equal": true
+  },
+  "after": {
+    "detections_aliased": false,
+    "values_equal": true
+  },
+  "detected": true,
+  "gate_a_violated": false,
+  "gate_d_bit_identity_violated": false,
+  "discrete_violated": false,
+  "identity_invariant_violated": true,
+  "violations": [],
+  "violation_count": 0,
+  "authority_unchanged": true,
+  "authority_sha256_before": "867d5d9e1b2435da196b29587d18dd8c57b47621bd32038c2698dbfbfa9228dd",
+  "authority_sha256_after": "867d5d9e1b2435da196b29587d18dd8c57b47621bd32038c2698dbfbfa9228dd",
+  "c1_in_tamper_mode": {
+    "status": "PASS",
+    "identity_enforced": false,
+    "samples": 109,
+    "boxes": 104,
+    "max_score_abs_error": 0.0,
+    "max_xyxy_abs_error": 0.0,
+    "mismatch_count": 0,
+    "bit_identity_violation_count": 0
+  },
+  "expected_exit_code": 1,
+  "exit_code_self_reported": 1,
+  "note": "篡改施加在**显示侧**记录上（阶段4 权威记录不改动，authority_unchanged=true）；探针模式下显示侧刻意重建对象，故不据「别名」判定，另设 identity_rebuild 探针单独验证该判定。"
+}

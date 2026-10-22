@@ -1,0 +1,58 @@
+# S5-R 哈希/绑定复核（Reviewer 实跑，UTC+8 2026-10-22T10:39:16)
+## 命令 1: git -C D:\codex-worktrees\w5 rev-parse HEAD / branch --show-current / log --oneline -1
+acd2df6774ead5c8085fa2417882c8315c18eecd
+stage5-display-prep
+acd2df6 docs(state): record stage-4 offline prep closeout and pending decisions (HL-T12)
+
+## 命令 2: git -C D:\codex-worktrees\w4 status --short ; rev-parse HEAD
+w4 status lines = 0
+w4 HEAD = 73c3dadbf16f58f3ce85f34620855f7bdc408f5a
+
+## 命令 3: 被审文件 SHA256（磁盘实际值）
+4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553  verification\s5_display_geometry_reference.py
+0ef2a969319e34e95155a151da38bef737565789985dbde709041f6d87dae92d  verification\test_s5_display_geometry_reference.py
+8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911  docs\stage5\s5a_stage5_display_g0_fields.json
+ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932  docs\stage5\S5A_stage5_display_g0_spec_v2.md
+ed94999e7cc935ac05c371aa63350ab370d1fb3e551e2669574230d787ce190a  docs\stage5\PROVENANCE_s4d_v1_baseline.md
+703959a2df4d230e596baca52e556b782f609efaf19b27d877ad1511eebfc5ab  scripts\stage5_s5c\check_s5c_stage4_regression.py
+dbfef7aab3f5190f51f949646b9355cbe43ca326bf3318674ad9553b3f83bb5e  scripts\stage5_s5b\render_s5b_overlay.py
+de33db93d13931402e7357709f2c34751575a12b15eb3c8063a690daa44061fb  scripts\stage5_s5b\run_s5b_evidence.py
+8d4e2e5faaf19e0336e8a55e11c4b0cc7737130d369b8eb20dccb667cb285c9f  scripts\stage5_s5b\test_s5b_overlay.py
+6a0d967dd722d544baac8d58b53b4ad15b253405d3ce871b73593698e1c03717  scripts\stage5_s5c\test_s5c_regression.py
+6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f  verification\s1_t02_d2_numeric_reference.py
+
+## 命令 4: 证据 manifest 声明的哈希（对照上面磁盘值）
+--- s5a_g0_20261021_r03
+   docs/stage5/S5A_stage5_display_g0_spec_v2.md = ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932
+   docs/stage5/s5a_stage5_display_g0_fields.json = 8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911
+   docs/stage5/PROVENANCE_s4d_v1_baseline.md = ed94999e7cc935ac05c371aa63350ab370d1fb3e551e2669574230d787ce190a
+   docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md = 809a9ccd490f91ea13a669a7437a8d6b35272b07c9935557399428d3cbdb527e
+   verification/s5_display_geometry_reference.py = 4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553
+   verification/test_s5_display_geometry_reference.py = 0ef2a969319e34e95155a151da38bef737565789985dbde709041f6d87dae92d
+   verification/s1_t02_d2_numeric_reference.py = 6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f
+   scripts/stage5_s5a/run_s5a_selfcheck.py = 7c39a30e7d3533f782dd2cdc51b76a0ebc3321fbe71722c484bc7b989bdaa20b
+--- s5c_regression_20261021_r04
+   module s5_display_geometry_reference 4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553
+   module s1_t02_d2_numeric_reference 6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f
+   script  703959a2df4d230e596baca52e556b782f609efaf19b27d877ad1511eebfc5ab
+--- s5c_regression_20261021_r03
+   module s5_display_geometry_reference 556f78c53bba8a75db5746b2cf94f5cfbb5c0f004400acafb5dfec809a05e4be
+   module s1_t02_d2_numeric_reference 6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f
+   script  60b5c7c70ca6cde1eed12cb49bcdfbf1f6849a65f4c7e0f5f5c19260c61cd759
+--- s5b_20261021_r07_a
+   module  4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553
+   module  6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f
+   module  8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911
+   script render_s5b_overlay.py dbfef7aab3f5190f51f949646b9355cbe43ca326bf3318674ad9553b3f83bb5e
+   script run_s5b_evidence.py de33db93d13931402e7357709f2c34751575a12b15eb3c8063a690daa44061fb
+   script test_s5b_overlay.py 8d4e2e5faaf19e0336e8a55e11c4b0cc7737130d369b8eb20dccb667cb285c9f
+
+## 命令 5: 上游只读输入 SHA256（对照 S5-A 契约声明）
+golden_109 = c5d25c64642ac10c9ace3370d20d57ced9aa6c9515628f1ecf324f5bd90e106d  (declared c5d25c64642ac10c9ace3370d20d57ced9aa6c9515628f1ecf324f5bd90e106d)
+host_result_approved_no_hand_001.json = 57ac9515a5921a4f5c96535c89ae008b8792118eac9c05885aec12cdd52f3c9c
+host_result_test_one_056.json = e156410e429d623557509c713dcb60b051ec342f982676019cddb21e720dde91
+host_result_test_palm_036.json = c811f804cefc55db845e0cd6a1490721b969460de2d3907b8b70e732aee3b01d
+offline_chain_summary.json = a0e470f795e652b449a7f7cf8c22ddf8b1f283a2d0a2b393a123a1273cc33af8
+plan(main) = a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd  (declared a94830af...)
+plan(w5)   = 82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a  (declared 82ef0796...)
+EXIT_CODE=0

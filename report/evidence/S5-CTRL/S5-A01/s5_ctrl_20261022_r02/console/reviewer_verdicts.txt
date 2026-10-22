@@ -1,0 +1,17 @@
+# 独立审查结论摘录（原始记录见 S5-R01 两个 run 目录）
+
+## 第 1 轮：`report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01/`
+
+- verdict = **CHANGES_REQUIRED**（3 项发现，均为文档/证据标注层面）
+- 被审版本：w5 HEAD `acd2df6774ead5c8085fa2417882c8315c18eecd`
+- 关键哈希（与磁盘逐值一致）：参考实现 `4d9fe369…`、契约 `8eac7007…`、spec `ca5968d4…`、checker `703959a2…`、render `dbfef7aa…`
+- 独立通过项：几何唯一来源（自建探针 13 组尺寸三方一致）、门槛未放宽、过期阈值同源同值、语义与年龄分列、零面积/零框/边缘/多框、阶段4 链追溯（109 全量 exit 0；篡改 exit 1）、证据诚实性、未越权（未声称阶段开工/验收）
+- 发现：F-01（MEDIUM）C1 离散字段覆盖表述为完整；F-02（MEDIUM）加固前 r03 被标为权威；F-03（LOW）S5-A 取代链不完整
+- 复现命令与真实退出码见该目录 `console/00_repro_commands_and_exit_codes.txt`
+
+## 第 2 轮（聚焦关闭核验）：`report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r02/`
+
+- closure verdict = **PASS**（F-01 / F-02 / F-03 全部 CLOSED，无新增阻断项）
+- 确认被审技术文件与 S5-B/S5-C 权威证据哈希未被修复轮改动：参考实现 `4d9fe369…`、契约 `8eac7007…`、spec `ca5968d4…`、checker `703959a2…`、S5-C r04 manifest `61c0d507…`、S5-B r07_a manifest `75b68019…`
+- 残留观察项（非阻断）：OBS-01 文件名与标题措辞、OBS-02 r04 目录指引（已新增 `CLAIM_SCOPE_POINTER.md`）、OBS-03 契约清单拆分属正式 G0
+- 原始输出：该目录 `console/`（3 个文件）

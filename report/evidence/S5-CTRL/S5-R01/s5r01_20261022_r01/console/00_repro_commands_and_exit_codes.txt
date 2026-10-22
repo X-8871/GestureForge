@@ -1,0 +1,43 @@
+S5-R 独立审查 · 实际执行的命令与真实退出码（Reviewer rev-s5）
+时间：2026-10-22（UTC+8）  工作树：D:\codex-worktrees\w5（分支 stage5-display-prep，HEAD acd2df6774ead5c8085fa2417882c8315c18eecd）
+说明：本次审查未执行 git add/commit；未运行 Vivado/xsim；未接触 hw_server（PID 4812，10:19:46 启动，非本会话启动）。
+      被审文件只读；所有写入仅限 report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01/ 与 tmp/5/S5-R/。
+
+[1] S5-C 数值链路真复现（任务卡指定命令）
+cmd : python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_pristine --out tmp/5/S5-R/s5r01_20261022_r01/pristine2 --limit 8 --seed 20261021
+exit: 0   （期望 0）  原始输出：console/repro_pristine_limit8.txt
+cmd : python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_full --out tmp/5/S5-R/s5r01_20261022_r01/pristine_full
+exit: 0   （全 109 样本 109/109 PASS）  原始输出：console/repro_pristine_full109.txt
+
+[2] 篡改探针（反例必须真的失败）
+cmd : python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_so --out tmp/5/S5-R/s5r01_20261022_r01/tamper_source_order --limit 8 --seed 20261021 --tamper-probe source_order
+exit: 1   （期望 1；检出=True，命中门槛=['discrete']，source_order 1035→1036）  原始输出：console/repro_tamper_source_order.txt
+cmd : python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --run-id rev_tamper_ulp --out tmp/5/S5-R/s5r01_20261022_r01/tamper_score_ulp --limit 8 --seed 20261021 --tamper-probe score_ulp
+exit: 1   （期望 1；检出=True，命中门槛=['D']，Gate A 误差 1.110e-16 < 1e-6 ⇒ 仅 Gate D 可捕获 1 ULP）  原始输出：console/repro_tamper_score_ulp.txt
+
+[3] S5-A 自检 unittest
+cmd : python -B -m unittest verification.test_s5_display_geometry_reference -v
+exit: 0   （26 tests）  原始输出：console/repro_unittest_s5a.txt
+
+[4] Reviewer 独立复算探针（自建，tmp/5/S5-R/<run>/independent_geometry_probe.py）
+cmd : python -B tmp/5/S5-R/s5r01_20261022_r01/independent_geometry_probe.py
+exit: 0   （13 组尺寸正向几何三方一致；Fraction 精确逆映射逐值一致；取整/过期边界/退化守卫/边框像素全通过；failures=0）
+原始输出：console/independent_geometry_probe.txt  机器可读：tmp/5/S5-R/s5r01_20261022_r01/independent_geometry_probe.json
+
+[5] S5-B 独立重渲染并与权威证据逐字节比对
+cmd : python -B scripts/stage5_s5b/render_s5b_overlay.py --out tmp/5/S5-R/s5r01_20261022_r01/s5b --run-id rev_s5b --seed 20261021
+exit: 0   比对 report/evidence/S5-B/s5b_20261021_r07_a：26 个 PNG 全等、21 个日志 JSON 全等（mismatched=0）
+原始输出：console/repro_s5b_render.txt
+
+[6] S5-B 自带 unittest（隔离临时根，避免写入被审 tmp/5/S5-B）
+cmd : python -B tmp/5/S5-R/s5r01_20261022_r01/run_s5b_ut_isolated.py   （包装器：把测试模块 TMP_ROOT 重定向到 tmp/5/S5-R/**）
+exit: 0   （tests=56 failures=0 errors=0 skipped=0）  原始输出：console/repro_s5b_unittest_isolated.txt
+
+[7] 哈希/绑定复核
+cmd : 见 console/hash_binding_verification.txt 内列出的只读命令（Get-FileHash / git status / git rev-parse / manifest 解析）
+exit: 0   原始输出：console/hash_binding_verification.txt
+
+[8] 未执行（明确记录）
+- 未运行 Vivado 综合/实现/xsim；未接硬件；未启动/重启/结束 hw_server。
+- 未运行 S5-B/S5-C 的 ps1 驱动脚本整体（其等价核心步骤已由 [1][2][5][6] 独立复现）。
+- 未修改任何被审文件；未 git add/commit。

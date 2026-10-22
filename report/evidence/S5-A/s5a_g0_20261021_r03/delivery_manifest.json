@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-A",
+  "run_id": "s5a_g0_20261021_r03",
+  "source_commit": "acd2df6774ead5c8085fa2417882c8315c18eecd",
+  "evidence_dir": "report/evidence/S5-A/s5a_g0_20261021_r03",
+  "interfaces": [
+    {
+      "name": "阶段5 显示 G0 契约（S5A-G0-v2，离线准备定稿；非阶段验收）",
+      "version": "S5A-G0-v2 / 2026-10-21",
+      "frozen": false,
+      "path": "docs/stage5/s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+    },
+    {
+      "name": "阶段5 显示 G0 定稿规格 v2",
+      "version": "v2 / 2026-10-21",
+      "frozen": false,
+      "path": "docs/stage5/S5A_stage5_display_g0_spec_v2.md",
+      "sha256": "ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932"
+    },
+    {
+      "name": "阶段4 S4-A G0 草案（字段名与口径权威，DRAFT_NOT_FROZEN）",
+      "version": "draft r05 / 2026-10-21",
+      "frozen": false,
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87"
+    },
+    {
+      "name": "阶段计划（阶段5 要求来源，只读引用）",
+      "version": "2026-10-05 同步版",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "sha256": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-A/s5a_g0_20261021_r03/console/git_state.txt",
+      "role": "log",
+      "sha256": "9d24c80e157d2249e864a977200174cb9d31d2716180e8c845705605cb99384f"
+    },
+    {
+      "path": "report/evidence/S5-A/s5a_g0_20261021_r03/console/unittest_s5a.txt",
+      "role": "log",
+      "sha256": "d7306b9b62527191caaa61206f2d22aeade84b38e9c52070a0c7861ef2d1b2cc"
+    },
+    {
+      "path": "report/evidence/S5-A/s5a_g0_20261021_r03/run_manifest.json",
+      "role": "result",
+      "sha256": "6121a9a7f6c5d6453cf063f0625b7e649971131860cb5955d3151a55e596d12a"
+    },
+    {
+      "path": "report/evidence/S5-A/s5a_g0_20261021_r03/summary.md",
+      "role": "artifact",
+      "sha256": "7126772af4cb884bdeae067072873437081bbb7eb005e08e384ec5279cf4820a"
+    },
+    {
+      "path": "verification/s5_display_geometry_reference.py",
+      "role": "source",
+      "sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553"
+    },
+    {
+      "path": "verification/test_s5_display_geometry_reference.py",
+      "role": "source",
+      "sha256": "0ef2a969319e34e95155a151da38bef737565789985dbde709041f6d87dae92d"
+    },
+    {
+      "path": "scripts/stage5_s5a/run_s5a_selfcheck.py",
+      "role": "source",
+      "sha256": "7c39a30e7d3533f782dd2cdc51b76a0ebc3321fbe71722c484bc7b989bdaa20b"
+    },
+    {
+      "path": "scripts/stage5_s5a/build_s5_delivery_manifest.py",
+      "role": "source",
+      "sha256": "aff867771a64ff5ebcbe223f73069f8daf8c4e300dd2da1b56ce081d8127d98e"
+    },
+    {
+      "path": "scripts/stage5_s5a/verify_s5_tamper_detection.py",
+      "role": "source",
+      "sha256": "bb9ca7d888607b5638c1c3632c57be0f3812bbe04facf4d26460d05a28a2004f"
+    },
+    {
+      "path": "scripts/stage5_s5a/verify_s5r_verdicts.py",
+      "role": "source",
+      "sha256": "b93fe3c71c7da6bcbdf6c6385703dd8e343c13dce0a8af9cbbabf3e57c30d692"
+    },
+    {
+      "path": "docs/stage5/S5A_stage5_display_g0_spec_v2.md",
+      "role": "source",
+      "sha256": "ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932"
+    },
+    {
+      "path": "docs/stage5/s5a_stage5_display_g0_fields.json",
+      "role": "source",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S5-A 契约自检（26 用例：D2 逐值对拍/手算样例/退化守卫/契约一致/记录校验）",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s5_display_geometry_reference -v",
+      "exit_code": 0
+    },
+    {
+      "name": "S5-C 回归勾连正对照（seeded 子集 8 样本；全量 109 样本见 S5-C r04 证据）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_s5c/check_s5c_stage4_regression.py --limit 8 --seed 20261021",
+      "exit_code": 0
+    },
+    {
+      "name": "S5-C 反例探针检出（探针本身退出码 1；包装脚本在检出时返回 0）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_s5a/verify_s5_tamper_detection.py",
+      "exit_code": 0
+    },
+    {
+      "name": "S5-B 渲染器自检",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_s5b/render_s5b_overlay.py --selfcheck",
+      "exit_code": 0
+    },
+    {
+      "name": "S5-B 证据驱动（21 用例/583 断言/双 pass 逐文件 SHA256 一致）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_s5b/run_s5b_evidence.py --out report/evidence/S5-B --run-id s5b_20261021_r07 --seed 20261021",
+      "exit_code": 0
+    },
+    {
+      "name": "S5-C 证据驱动（13/13 步骤退出码与期望一致）",
+      "status": "PASS",
+      "command": "pwsh -NoProfile -File scripts/stage5_s5c/run_s5c_evidence.ps1 -RunId s5c_regression_20261021_r04",
+      "exit_code": 0
+    },
+    {
+      "name": "独立审查两轮结论一致（第 1 轮 CHANGES_REQUIRED → 第 2 轮聚焦关闭 PASS）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_s5a/verify_s5r_verdicts.py",
+      "exit_code": 0
+    },
+    {
+      "name": "本交付清单只读核验（verification/check_stage_delivery.py --mode evidence，核验通过的清单与本清单逐字节一致）",
+      "status": "PASS",
+      "command": "python -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "真实 HDMI/摄像头联调、上板、30 分钟无死锁、真实 FPS/延迟统计",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "无硬件会话：阶段3 颜色验收受阻（根因=硬件 DVP cmos_d[9] 无信号）、阶段4 未正式联调、2B 未让出 JTAG/COM4 与 hw_server"
+    }
+  ],
+  "limitations": [
+    "本清单只证明清单/文件绑定与目录检查通过；不代表接口语义正确、阶段5 开工、G0/G1/G3/G4/G5 或任何验收通过。",
+    "纯离线：无 Vivado/xsim/JTAG/COM4/摄像头/HDMI；真实显示、30 分钟无死锁与真实 FPS/延迟统计均为 NOT_RUN。",
+    "阶段4 S4-A 契约仍 DRAFT_NOT_FROZEN（frozen=false）；阶段5 契约为离线准备 G0 定稿，非冻结批准。",
+    "本任务无冻结的上游接口，故 `--mode inputs` 不适用（按 report/README.md：无本地输入的独立任务只对交付证据运行 evidence），未伪造接口或输入。",
+    "S5-C 曾有 r01/r02 两个运行目录被 Developer 删除（违反证据保留口径、不可恢复），已登记 EVIDENCE_RETENTION_INCIDENT.md。",
+    "S5-B r06_a|_b、S5-C r03|r03_limit8、S5-A r01|r02 为接口加固前证据，保留但不作权威引用。",
+    "本轮 S5-B/S5-C 加固后重跑由 Lead 代执行（Developer 子代理失败退出）；Reviewer 已独立复现确认无碍。",
+    "反例探针按设计返回退出码 1；清单中以包装脚本 verify_s5_tamper_detection.py（检出时返回 0）表达，包装不改变探针语义。",
+    "首次清单被检查器拒绝（exit 2，41 条 schema 违规）的事实已记录于 S5-CTRL 收尾记录；本清单为修正后版本。",
+    "tmp/ 下临时产物与历史运行按 .gitignore 不入库。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.4.6",
+    "pillow": "12.2.0"
+  }
+}

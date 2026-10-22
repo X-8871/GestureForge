@@ -1,0 +1,333 @@
+{
+  "ages": {
+    "age_frame_ns": 15000000,
+    "age_result_ns": 5000000,
+    "display_semantics": "B_latest_result_overlay"
+  },
+  "assertion_counts": {
+    "failed": 0,
+    "passed": 19,
+    "total": 19
+  },
+  "assertions": [
+    {
+      "detail": "validate_result_record 通过",
+      "id": "t5_02_degenerate_new_w_1.record_contract_valid",
+      "status": "PASS"
+    },
+    {
+      "detail": "冻结 new 1×416 off (207,0) pad (208,0) vs 手算 new 1×416 pad (208,0)",
+      "id": "t5_02_degenerate_new_w_1.geometry_vs_hand",
+      "status": "PASS"
+    },
+    {
+      "detail": "D2 与冻结 letterbox_geometry 的源/目标尺寸逐值一致",
+      "id": "t5_02_degenerate_new_w_1.geometry_vs_d2_reference",
+      "status": "PASS"
+    },
+    {
+      "detail": "DegenerateGeometryError：源尺寸 <=1 像素：无有效采样点，逆/正映射均无定义，必须使用阶段4 原图坐标字段",
+      "id": "t5_02_degenerate_new_w_1.degenerate_raises",
+      "status": "PASS"
+    },
+    {
+      "detail": "改用阶段4 原图坐标字段（契约 geometry.degenerate_rule）",
+      "id": "t5_02_degenerate_new_w_1.degenerate_fallback_recorded",
+      "status": "PASS"
+    },
+    {
+      "detail": "裁剪后零面积框一律不绘制",
+      "id": "t5_02_degenerate_new_w_1.zero_area_not_drawn",
+      "status": "PASS"
+    },
+    {
+      "detail": "退化几何下不出框（须改用阶段4 原图坐标字段）",
+      "id": "t5_02_degenerate_new_w_1.degenerate_no_box_drawn",
+      "status": "PASS"
+    },
+    {
+      "detail": "HUD 文本带仅 ASCII",
+      "id": "t5_02_degenerate_new_w_1.hud_band_ascii",
+      "status": "PASS"
+    },
+    {
+      "detail": "逐像素比对冻结 border_pixel_sets 与颜色归属（HUD 文本带之下、标签之上）：不一致 0 个像素，绘制像素总数 0",
+      "id": "t5_02_degenerate_new_w_1.draw_fidelity_exact",
+      "status": "PASS"
+    },
+    {
+      "detail": "全部标签为 ASCII",
+      "id": "t5_02_degenerate_new_w_1.labels_ascii_only",
+      "status": "PASS"
+    },
+    {
+      "detail": "[5111, 5110, 5000000, 15000000, 'B_latest_result_overlay']",
+      "id": "t5_02_degenerate_new_w_1.five_tuple_present",
+      "status": "PASS"
+    },
+    {
+      "detail": "B_latest_result_overlay == B_latest_result_overlay",
+      "id": "t5_02_degenerate_new_w_1.five_tuple_semantics_matches",
+      "status": "PASS"
+    },
+    {
+      "detail": "age_frame == age_result + (result_publish - capture)（契约 identity）",
+      "id": "t5_02_degenerate_new_w_1.age_frame_identity",
+      "status": "PASS"
+    },
+    {
+      "detail": "displayed_frame_id=5111 与 result_frame_id=5110 不同（最新结果叠加）",
+      "id": "t5_02_degenerate_new_w_1.latest_result_overlay_index_differs",
+      "status": "PASS"
+    },
+    {
+      "detail": "实际 {'stale_effective': False, 'reason': 'none', 'stale_flag': False, 'age_frame_exceeds_limit': False, 'limit_ns': 200000000, 'age_frame_ns': 15000000} vs 期望 {'stale_effective': False, 'reason': 'none'}",
+      "id": "t5_02_degenerate_new_w_1.stale_expected",
+      "status": "PASS"
+    },
+    {
+      "detail": "每结果只计一次：0 条",
+      "id": "t5_02_degenerate_new_w_1.stale_cleared_counted_once",
+      "status": "PASS"
+    },
+    {
+      "detail": "零框（NO_HAND）不因无框被判过期：过期仅由 PS stale 标志或 age 越限触发",
+      "id": "t5_02_degenerate_new_w_1.zero_box_not_counted_as_stale",
+      "status": "PASS"
+    },
+    {
+      "detail": "13 字段：['age_frame_ns', 'age_result_ns', 'boxes', 'capture_fps', 'display_fps', 'display_semantics', 'dropped_frames', 'frame_id', 'inference_fps', 'inference_time_ns', 'stale_cleared', 'timeouts', 'warmup_state']",
+      "id": "t5_02_degenerate_new_w_1.hud_fields_complete",
+      "status": "PASS"
+    },
+    {
+      "detail": "B_latest_result_overlay",
+      "id": "t5_02_degenerate_new_w_1.hud_semantics_single",
+      "status": "PASS"
+    }
+  ],
+  "boxes": [
+    {
+      "class_id": 0,
+      "class_name": "fist",
+      "drawn": false,
+      "index": 0,
+      "input_coords": [
+        0.2,
+        0.2,
+        0.6,
+        0.6
+      ],
+      "input_coords_kind": "fallback_inverse_mapping",
+      "score": 0.7,
+      "skip_reason": "degenerate_geometry_use_stage4_original_coords",
+      "source_order": 4
+    }
+  ],
+  "boxes_drawn": 0,
+  "boxes_in_result": 1,
+  "canvas": {
+    "display_height": 300,
+    "display_width": 1,
+    "fit": "exact",
+    "fit_info": null
+  },
+  "case_group": "T5-02",
+  "case_id": "t5_02_degenerate_new_w_1",
+  "case_kind": "synthetic",
+  "clip_summary": {
+    "clipped_count": 0,
+    "drawn_box_count": 0,
+    "zero_area_count": 0
+  },
+  "coordinate_path": "fallback_inverse_mapping",
+  "coordinate_path_note": "离线准备兜底路径：网络归一化 → network_norm_to_original_norm 逆映射（契约 fallback_inverse_mapping）",
+  "degenerate": {
+    "fallback": "改用阶段4 原图坐标字段（契约 geometry.degenerate_rule）",
+    "geometry": {
+      "new_height": 416,
+      "new_width": 1
+    },
+    "message": "源尺寸 <=1 像素：无有效采样点，逆/正映射均无定义，必须使用阶段4 原图坐标字段",
+    "ok": true,
+    "raised": "DegenerateGeometryError"
+  },
+  "display_semantics": "B_latest_result_overlay",
+  "drawing": {
+    "color_table": {
+      "0": [
+        255,
+        64,
+        64
+      ],
+      "1": [
+        64,
+        255,
+        64
+      ],
+      "2": [
+        64,
+        160,
+        255
+      ],
+      "3": [
+        255,
+        255,
+        64
+      ],
+      "4": [
+        255,
+        64,
+        255
+      ]
+    },
+    "draw_fidelity_checked_after_hud_before_labels": true,
+    "drawn_pixels": 0,
+    "hud_band_drawn": false,
+    "hud_band_skipped_reason": "canvas_too_small_for_hud_band",
+    "hud_band_text": null,
+    "layer_order": [
+      "synthetic_content_or_canvas_block_replication",
+      "hud_band_ascii",
+      "boxes_from_frozen_border_pixel_sets",
+      "box_labels_ascii"
+    ],
+    "line_width_px": 2,
+    "line_width_semantics": "偶数线宽居中：几何线落于像素索引 p 时占 {p-1, p}，逐边钳到画布内",
+    "note": "边框像素在 HUD 文本带之上、ASCII 标签之下；标签可能覆盖少量边框像素（文本叠加为可选层）"
+  },
+  "five_tuple": [
+    5111,
+    5110,
+    5000000,
+    15000000,
+    "B_latest_result_overlay"
+  ],
+  "frame_id": 5110,
+  "geometry": {
+    "asymmetric_padding": true,
+    "dst_height": 416,
+    "dst_width": 416,
+    "h_scale": 0.7204819277108434,
+    "new_height": 416,
+    "new_width": 1,
+    "offset_x": 207,
+    "offset_y": 0,
+    "pad_bottom": 0,
+    "pad_right": 208,
+    "padding_uint8": 128,
+    "src_height": 300,
+    "src_width": 1,
+    "w_scale": 0.0
+  },
+  "geometry_d2_check": {
+    "new_height": 416,
+    "new_width": 1,
+    "offset_x": 207,
+    "offset_y": 0
+  },
+  "geometry_hand_check": {
+    "asymmetric_padding": true,
+    "new_height": 416,
+    "new_width": 1,
+    "offset_x": 207,
+    "offset_y": 0,
+    "pad_bottom": 0,
+    "pad_right": 208
+  },
+  "hand_samples": [],
+  "hud": {
+    "age_frame_ns": 15000000,
+    "age_result_ns": 5000000,
+    "boxes": 0,
+    "capture_fps": 30.000000300000004,
+    "display_fps": 30.000000300000004,
+    "display_semantics": "B_latest_result_overlay",
+    "dropped_frames": 0,
+    "frame_id": 5110,
+    "inference_fps": 30.000000300000004,
+    "inference_time_ns": 33000000,
+    "stale_cleared": 0,
+    "timeouts": 0,
+    "warmup_state": "OFFLINE_PLACEHOLDER_NOT_MEASURED"
+  },
+  "hud_expected_fields": [
+    "capture_fps",
+    "inference_fps",
+    "display_fps",
+    "inference_time_ns",
+    "age_result_ns",
+    "age_frame_ns",
+    "frame_id",
+    "boxes",
+    "stale_cleared",
+    "dropped_frames",
+    "timeouts",
+    "warmup_state",
+    "display_semantics"
+  ],
+  "hud_provenance": {
+    "age_frame_ns": "t_overlay_commit - t_capture(result_frame_id)（合成台账；语义 B 下唯一可称端到端延迟者）",
+    "age_result_ns": "t_overlay_commit - t_result_publish（合成台账）",
+    "boxes": "最终实际绘制框数（过期清除/裁剪零面积/超框不入画）；结果内框数另记 boxes_in_result",
+    "capture_fps": "离线合成台账整段平均（(N-1)/(t_last-t_first)），非实测",
+    "display_fps": "离线合成台账：输出帧数 / 观测时长，非实测",
+    "display_semantics": "固定为契约 display_semantics.value（单一语义）",
+    "dropped_frames": "离线合成值（无真实丢帧事实）",
+    "frame_id": "被叠加结果自身的 frame_id（result_frame_id）",
+    "inference_fps": "离线合成台账：已完成并发布结果的帧数 / 观测时长，非实测",
+    "inference_time_ns": "OFFLINE_SYNTHETIC_NOT_MEASURED（推理耗时占位值，非实测）",
+    "stale_cleared": "每结果只计一次（0/1/累计）",
+    "timeouts": "离线合成值（无真实超时事实）",
+    "warmup_state": "离线占位枚举，非实测状态机值"
+  },
+  "labels": {
+    "ascii_only": true,
+    "cjk_font_available": false,
+    "declaration": "无 CJK 字体，仅 ASCII 标签",
+    "font": "PIL_default_bitmap",
+    "items": [],
+    "safe_area_px": 4
+  },
+  "limitations": [
+    "离线合成时间台账与 HUD 数值为占位量，非实测",
+    "本用例不含实板 HDMI / PL / UART 证据"
+  ],
+  "not_executed": [
+    "实板 HDMI 叠加",
+    "PL/UART 时序实测",
+    "长时间无死锁运行"
+  ],
+  "notes": [
+    "极窄源 1×300 ⇒ new_w=1；逆式不适用，必须抛 DegenerateGeometryError 并改用阶段4 原图坐标字段"
+  ],
+  "png": {
+    "bytes": 88,
+    "height": 300,
+    "name": "cases/t5_02_degenerate_new_w_1.png",
+    "sha256": "dbc798859192a4df1dbbb63c3785a41420ad0abece4407219fa57a1f7d532dc2",
+    "width": 1
+  },
+  "random_box_n": 64,
+  "record_contract_problems": [],
+  "round_trip": {
+    "max_abs_error": 0.0,
+    "n": 0
+  },
+  "schema_version": "gestureforge_s5b_case_log_v1",
+  "seed": 20261021,
+  "stale": {
+    "age_frame_exceeds_limit": false,
+    "age_frame_ns": 15000000,
+    "events": [],
+    "limit_ns": 200000000,
+    "reason": "none",
+    "stale_cleared": 0,
+    "stale_effective": false,
+    "stale_flag": false,
+    "zero_box_stale_conflation": false
+  },
+  "state": "OK",
+  "status": "PASS",
+  "task_id": "S5-B"
+}

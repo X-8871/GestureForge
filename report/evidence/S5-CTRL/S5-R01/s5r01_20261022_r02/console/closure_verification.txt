@@ -1,0 +1,38 @@
+# S5-R 第2轮（关闭核验）命令与真实退出码 · 2026-10-22T10:45:03
+工作树 D:\codex-worktrees\w5  分支 stage5-display-prep  HEAD acd2df6774ead5c8085fa2417882c8315c18eecd
+
+[C1] 被审技术文件哈希（应保持不变）
+  4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553  verification\s5_display_geometry_reference.py
+  8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911  docs\stage5\s5a_stage5_display_g0_fields.json
+  ca5968d444db7a017a3c2e4e95d838f385c605837da92e31b4c2aa9d3cf56932  docs\stage5\S5A_stage5_display_g0_spec_v2.md
+  703959a2df4d230e596baca52e556b782f609efaf19b27d877ad1511eebfc5ab  scripts\stage5_s5c\check_s5c_stage4_regression.py
+  dbfef7aab3f5190f51f949646b9355cbe43ca326bf3318674ad9553b3f83bb5e  scripts\stage5_s5b\render_s5b_overlay.py
+  0ef2a969319e34e95155a151da38bef737565789985dbde709041f6d87dae92d  verification\test_s5_display_geometry_reference.py
+
+[C2] 权威证据 manifest 哈希
+  r04 run_manifest.json  = 61c0d507f022de3ce2e57255b284df2e7f4ed5f3a0115b728fbd8561313120a9   (期望 61c0d507...)
+  r07_a run_manifest.json= 75b6801945fb287015f835faa92aee0e25ee5fdc8f1d705f3dec47521313e5cb   (期望 75b68019...)
+  S5-A r03 run_manifest.json = 6121a9a7f6c5d6453cf063f0625b7e649971131860cb5955d3151a55e596d12a
+
+[C3] r04 / r07_a 目录内最新 mtime（应早于本轮修复 10:43）
+  r04 最新: 2026-10-22T10:29:38
+  r07_a 最新: 2026-10-22T10:29:10
+
+[C4] r03 / r03_limit8 历史绑定（对照 SUPERSEDED 陈述）
+  r03 ref=556f78c53bba8a75db5746b2cf94f5cfbb5c0f004400acafb5dfec809a05e4be  checker=60b5c7c70ca6cde1eed12cb49bcdfbf1f6849a65f4c7e0f5f5c19260c61cd759
+  r03_limit8 ref=556f78c53bba8a75db5746b2cf94f5cfbb5c0f004400acafb5dfec809a05e4be  checker=60b5c7c70ca6cde1eed12cb49bcdfbf1f6849a65f4c7e0f5f5c19260c61cd759
+  r03 报告 degenerate_guard.contract_key_present = ''（空 ⇒ 加固前无该段）
+  r03 报告 degenerate_guard.all_negative_raise = ''
+  r03 exit_code_verification.step_count = 13  all_matched = True
+
+[C5] S5-A r01/r02/r03 unittest 结果（对照『26/26 PASS』陈述）
+  r01 : Ran 26 tests in 0.005s | OK
+  r02 : Ran 26 tests in 0.005s | OK
+  r03 : Ran 26 tests in 0.005s | OK
+
+[C6] 回归复跑（证明技术文件未被改动、行为不变）
+  S5-C 检查器 pristine --limit 8 --seed 20261021 → exit 0 （期望 0）  输出: console/regression_pristine_limit8.txt
+  S5-A unittest → exit 0 （期望 0；Ran 26 tests in 0.006s）
+  新增 c1_discrete_fields_claim_v2.json 可解析 → exit 0 （期望 0；JSON_OK）
+
+[C7] r04 未修改的独立旁证：r04 目录内全部文件 mtime 均为 10:29:38（早于本轮修复 10:43:10），新增文件 mtime 均为 10:43:10/10:43:29

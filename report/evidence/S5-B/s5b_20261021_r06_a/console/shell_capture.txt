@@ -1,0 +1,30 @@
+# 父 shell 真实捕获记录（由 Developer 在证据驱动结束后写入，非脚本自述）
+# 记录人：DSH 阶段5 Developer 子代理 dev-s5b（S5-B）；写入时刻：2026-10-21（UTC+8）
+
+## 一键命令（证据驱动：双 pass 确定性比对 + 单元测试 + 完整证据）
+$ python scripts/stage5_s5b/run_s5b_evidence.py --out report/evidence/S5-B --run-id s5b_20261021_r06 --seed 20261021
+# 父 shell 观测到 exit_code = 0
+# 驱动内部真实捕获的子进程退出码见 console/run_a_exit_code.txt、console/run_b_exit_code.txt、console/unittest_exit_code.txt
+
+## 扫描刷新（本记录写入之后执行，使全量写后扫描覆盖本文件）
+$ python -B tmp/5/S5-B/dev/refresh_scan.py s5b_20261021_r06
+# 父 shell 观测到 exit_code = 0
+
+## 历史 RunId（未覆盖、未删除；移入 tmp 隔离区保存并如实记录原因）
+# - s5b_20261021_r01_a/_b：首次一键运行；驱动组装阶段缺陷（determinism 摘要键名不匹配）导致写
+#   summary 前异常、退出码 2，证据包不完整（缺 summary.md 与 final_verdict.json）。缺陷已修复。
+#   原始产物保留于 tmp/5/S5-B/recovered_failure_s5b_20261021_r01/
+# - s5b_20261021_r02_a/_b：修复后首次完整通过（exit 0、确定性 PASS），但缺“独立哈希复核”步骤；
+#   原始产物保留于 tmp/5/S5-B/superseded_s5b_20261021_r02/
+# - s5b_20261021_r03_a/_b：complete 通过（exit 0），但 summary 缺少“契约 test_cases 覆盖对照”与
+#   实际一键命令；原始产物保留于 tmp/5/S5-B/superseded_s5b_20261021_r03/
+# - s5b_20261021_r04_a/_b：complete 通过（exit 0）；随后发现图层顺序缺陷（HUD 文本带画在边框之上，
+#   使贴边/四角框的贴边像素被 HUD 带覆盖，PNG 目视不完整），已调整为
+#   合成内容 → HUD 带 → 冻结边框像素 → ASCII 标签；原始产物保留于
+#   tmp/5/S5-B/superseded_s5b_20261021_r04/
+# - s5b_20261021_r05_a/_b：complete 通过（exit 0），但 Developer 随后误把“RunId 保护”负例测试
+#   直接跑在交付目录上，旧驱动在拒绝路径仍写 console/driver_stdout.txt / driver_exit_code.txt /
+#   shell_invocation.txt，覆盖了该包 3 个 console 文件；驱动已改为“拒绝时不创建、不改写任何
+#   证据文件”，并新增回归测试。原始（含被覆盖痕迹的）产物保留于
+#   tmp/5/S5-B/superseded_s5b_20261021_r05/
+# 交付 RunId：s5b_20261021_r06（本目录）。

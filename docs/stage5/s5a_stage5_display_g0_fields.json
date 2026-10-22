@@ -1,0 +1,215 @@
+{
+  "contract_id": "S5A-G0-v2",
+  "task_id": "S5-A",
+  "stage": 5,
+  "title": "阶段5（HDMI 结果显示）G0 契约：叠框、逆映射、坐标门槛、分数用词、FPS/延迟、画面语义",
+  "status": "STAGE5_G0_FINALIZED_OFFLINE_NOT_ACCEPTED",
+  "status_note": "这是阶段5 离线准备的 G0 定稿；阶段5 尚未正式开工、未上板、未联调，任何实测项一律 NOT_RUN。G0 指标若需变更须交 Wong 决策。",
+  "generated_utc8": "2026-10-21T23:20:00+08:00",
+  "upstream_bindings": [
+    {
+      "id": "plan_stage5_requirements",
+      "path": "docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md",
+      "lines": "94-100",
+      "sha256_main_tree": "a94830afe60ae6a339038c1f41656101931a2999529a1bf866ad75d8d1c9f3fd",
+      "sha256_this_worktree_copy": "82ef0796baf6a8cd04ae942019e1af226f645e27fe8309fe56bcb05a7b1a5f9a",
+      "note": "只读主树；行号以主树为准；本树复制件差异只在被引用行之外（与 S4-D v1 一致）"
+    },
+    {
+      "id": "s4d_v1_display_spec_draft",
+      "path": "docs/stage5/S5_stage5_display_spec_draft.md",
+      "source_path": "D:\\codex-worktrees\\w4\\docs\\stage5\\S5_stage5_display_spec_draft.md",
+      "source_commit": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a",
+      "sha256": "0b4f537d2efb572d5e67482c7bc095e57bb469701cff11209cbbafe36c0a5032",
+      "copy_rule": "按 v1 原文逐字节复制进本树；不改写 w4 已审查交付"
+    },
+    {
+      "id": "s4a_stage4_g0_contract_draft",
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "source_commit": "73c3dadbf16f58f3ce85f34620855f7bdc408f5a",
+      "sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+      "status": "DRAFT_NOT_FROZEN",
+      "note": "字段名与口径权威；本身未冻结，阶段5 引用时不得冒充阶段4 G0"
+    },
+    {
+      "id": "s4c_replay_golden_109",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-C\\s4c_replay_20261021_r05\\replay_golden_109.json",
+      "sha256": "c5d25c64642ac10c9ace3370d20d57ced9aa6c9515628f1ecf324f5bd90e106d",
+      "status": "PASS",
+      "note": "109/109 PASS、mismatch 0、最大 score/坐标误差 0（只读输入）；SHA 由 S5-A 于 2026-10-21 22:59 计算绑定"
+    },
+    {
+      "id": "s4b_offline_chain_r13",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r13\\",
+      "status": "PASS",
+      "note": "host_result_*.json 是显示消费的记录形态（PS 侧记录，非 UART 字段全集）",
+      "file_sha256": {
+        "host_result_approved_no_hand_001.json": "57ac9515a5921a4f5c96535c89ae008b8792118eac9c05885aec12cdd52f3c9c",
+        "host_result_test_one_056.json": "e156410e429d623557509c713dcb60b051ec342f982676019cddb21e720dde91",
+        "host_result_test_palm_036.json": "c811f804cefc55db845e0cd6a1490721b969460de2d3907b8b70e732aee3b01d",
+        "offline_chain_summary.json": "a0e470f795e652b449a7f7cf8c22ddf8b1f283a2d0a2b393a123a1273cc33af8"
+      }
+    },
+    {
+      "id": "stage3_state",
+      "path": "D:\\codex-worktrees\\dbdf\\.codex\\STATE.md",
+      "status": "IN_PROGRESS_NOT_ACCEPTED",
+      "note": "颜色受阻且根因收敛为硬件（DVP cmos_d[9] 单线无信号）⇒ 显示实测不可开始"
+    }
+  ],
+  "wong_decisions": [
+    {
+      "id": "WD-20261021-2245-B",
+      "decision": "超出 s2bu/1.1 payload 的结果/耗时/丢帧/过期/状态字段按方案 B 只记 PS 侧；新增扩展帧留待与 2B 协商",
+      "consequence": "阶段5 显示层只消费 PS 侧结果记录；不得声称这些字段来自 UART，也不得据此宣称满足计划第 88 行的‘每条结果包含…采集与结果时间、推理耗时和状态’"
+    },
+    {
+      "id": "WD-display-semantics",
+      "decision": "画面语义固定为‘最新结果叠加’（latest-result overlay，语义 B）",
+      "consequence": "显示帧与结果帧不要求同帧；必须同时记录 displayed_frame_id/result_frame_id/age_result/age_frame 并禁止伪称同帧"
+    }
+  ],
+  "scoring": {
+    "score_definition": "score = sigmoid(objectness_logit) * sigmoid(class_logit)（PS 在 float64 上计算；输入为 PL 的 INT8 原始 logits）",
+    "display_word": "score",
+    "forbidden_without_basis": ["confidence", "置信度", "probability", "可信度", "准确率"],
+    "rules": [
+      "R1 INT8 logits/整数分数一律称‘分数（score）’，禁止称置信度",
+      "R2 若某处必须写‘置信度’，须同处写出 sigmoid 转换式依据并声明‘未做概率校准，不表示可靠概率’",
+      "R3 无追溯依据即退回‘分数’",
+      "R4 不得把数值大小等同于可靠概率",
+      "R5 D6 产物字段 confidence ≡ 本文 score；复用 D6 产物须显式声明等价并绑定公式，禁止各自统计"
+    ],
+    "score_threshold": 0.25,
+    "score_threshold_rule": "score >= 0.25（含等号）",
+    "nms_iou": 0.45,
+    "max_outputs_per_image": 15,
+    "class_order": ["fist", "palm", "one", "two_up", "three"],
+    "tie_order": "head 顺序 → row-major cell → anchor-local → class_id",
+    "display_transform_rule": "显示层对 score 的任何二次变换（百分号/截位/颜色分档）必须在 HUD 或文档写明变换式；否则只显示原始分数",
+    "score_text_tolerance": 0.001
+  },
+  "geometry": {
+    "source": "D2/2A 冻结：整数截断 resize + 左上 floor padding + 端点对齐双线性",
+    "formula": "if (dst_w/src_w) < (dst_h/src_h): new_w=dst_w, new_h=(src_h*dst_w)//src_w; else new_h=dst_h, new_w=(src_w*dst_h)//src_h; off_x=(dst_w-new_w)//2; off_y=(dst_h-new_h)//2",
+    "network_input": {"width": 416, "height": 416},
+    "inverse": "x_r = u*dst_w - off_x; x_px = x_r * (src_w-1)/(new_w-1); u_orig = x_px/(src_w-1)",
+    "degenerate_rule": "new_w<=1 或 new_h<=1 时端点对齐映射不适用，必须使用阶段4 原图坐标字段（抛出 DegenerateGeometryError）",
+    "degenerate_source_rule": "源尺寸 src_w<=1 或 src_h<=1 时无有效采样点，逆/正映射均无定义（同一 DegenerateGeometryError）；正向 original_norm_to_network_norm 与逆向 network_norm_to_original_norm 共用同一守卫，禁止任一侧出现 ZeroDivisionError",
+    "no_early_rounding": "中间量必须 float64，禁止提前对 x_r/y_r 取整",
+    "rounding_rule": "几何→像素只取整一次，round_half_up(v)=floor(v+0.5)（最近像素索引，0.5 向上）",
+    "rounding_rule_id": "round_half_up_to_nearest_pixel_index",
+    "half_pixel_rule": "奇数总补边导致的非对称补边（如 683×384 → off_y=91 / 下侧 92）必须原样保留，禁止对称化、ceil 或重新居中",
+    "single_source_rule": "显示层必须与 verification/s1_t02_d2_numeric_reference.py::letterbox_geometry 同源；禁止在显示代码重写第二套 resize"
+  },
+  "coordinate_gate": {
+    "A_numeric_chain": {
+      "score_abs_tolerance": 1e-06,
+      "xyxy_abs_tolerance": 1e-06,
+      "relative_tolerance": 0,
+      "discrete_fields_must_match": ["frame_id", "detection_count", "class_id", "class_name", "source_order", "nms_decision", "output_order", "box_count"],
+      "rule": "沿用 2A/规格第 75 行，显示层不得放宽、替代或重新解释"
+    },
+    "B_display_pixel_layer": {
+      "inverse_mapping_vs_float64_reference_px": 1.0,
+      "draw_fidelity_px": 1.0,
+      "line_width_half_pixel_px": 0.5,
+      "zero_area_rule": "裁剪后零面积框不得绘制，判定与 2A 一致",
+      "score_text_tolerance": 0.001,
+      "measurement_method": "逐框、逐边比较几何中线像素索引；参考实现与哈希必须写入证据；禁止用‘看起来对齐’替代逐值比较",
+      "status": "G0_FIXED_OFFLINE"
+    }
+  },
+  "overlay_layout": {
+    "class_order": ["fist", "palm", "one", "two_up", "three"],
+    "line_width_px_1080p": 2,
+    "line_width_semantics": "偶数线宽居中：几何线像素索引 p 占 {p-1, p}，逐边钳到画布内",
+    "label_content": "类别 + 分数（如 fist 0.83）；frame_id 可选",
+    "score_digits": 2,
+    "label_anchor_rule": "框左上外侧；越界翻转到框内左上；仍越界则钳入安全区",
+    "safe_area_px_1080p": 16,
+    "zero_box_rule": "零框不绘制任何框；HUD 显示 boxes=0 与当前 frame_id（NO_HAND 是合法结果，区别于过期/丢失）",
+    "stale_box_rule": "过期结果不画框；HUD stale_cleared 计数 +1（每结果只计一次）",
+    "multi_box_rule": "按 2A 稳定同分顺序输出，≤15 框；显示层不得重排、不得因遮挡丢弃",
+    "non_square_rule": "按实际几何显示，不得拉伸；画布不同时用整数倍等比缩放居中（k>=1）并留黑边",
+    "hud_fields": ["capture_fps", "inference_fps", "display_fps", "inference_time_ns", "age_result_ns", "age_frame_ns", "frame_id", "boxes", "stale_cleared", "dropped_frames", "timeouts", "warmup_state", "display_semantics"]
+  },
+  "display_semantics": {
+    "value": "B_latest_result_overlay",
+    "decision": "Wong 已定（2026-10-21）",
+    "age_result_ns": "t_overlay_commit - t_result_publish",
+    "age_frame_ns": "t_overlay_commit - t_capture(frame_id)",
+    "identity": "age_frame = age_result + (t_result_publish - t_capture(frame_id))",
+    "report_rule": "两个年龄必须分别记录与报告（均值/P50/P95/P99 + 样本数）；报告‘延迟’必须写明是哪一个；语义 B 下‘端到端延迟’只能定义为 age_frame",
+    "no_same_frame_claim": "界面/截图/日志/报告均不得声称框与画面同帧；叠加时必须携带 result_frame_id",
+    "five_tuple_log": "(displayed_frame_id, result_frame_id, age_result_ns, age_frame_ns, display_semantics)",
+    "single_semantics_per_artifact": "任一运行/截图/证据包只能属于一种语义，产物清单必须标注 display_semantics"
+  },
+  "stale_and_age": {
+    "same_source_rule": "阶段4 stale_age_limit 与阶段5 过期判定阈值必须同源同一数值、同一单调时基；禁止各自冻结两个门槛",
+    "constant": "STALE_AGE_LIMIT_NS in verification/s5_display_geometry_reference.py",
+    "stale_age_limit_ns": 200000000,
+    "stale_age_limit_status": "G0_FIXED_OFFLINE (阶段4 侧仍为 DRAFT_PROPOSED，须在同一次 G0 决策中同步固定)",
+    "stage4_stale_definition": "stale=true 当结果年龄 = 发布时刻 - result_time_ns 超过 stale_age_limit；仅对 state ∈ {OK, NO_HAND} 定义",
+    "stage5_clear_rule": "stale_effective = PS 侧 stale 标志 OR age_frame_ns > limit；每结果只计一次，记录原因 (stale_flag / age_frame_exceeds_limit / both)",
+    "boundary": "边界为严格大于：age == limit 不判过期",
+    "no_silent_drop": "过期清除必须显式记录 frame_id、age_frame_ns、清除时刻与原因"
+  },
+  "fps_and_latency": {
+    "timebase": "同一 PS 单调时钟；事件写帧级事件日志（frame_id、事件类型、时间戳），任何统计量可由日志复算",
+    "capture_fps": {"start": "采集侧该帧首个有效像素写入帧缓冲", "stop": "下一帧同一事件", "formula": "(N-1)/(t_cap_sof(last)-t_cap_sof(first))", "must_declare": "整段平均 vs 滑动窗口；接收帧数 vs 有效帧数"},
+    "inference": {
+      "pl_inference_time_ns": {"start": "CSR 接受有效 start 的上升沿", "stop": "operator_result_valid 且 operator_error_code=0"},
+      "ps_result_time_ns": {"start": "同一次 start 接受时刻", "stop": "结果记录发布（字段集齐）"},
+      "fps_rule": "以‘已完成并发布结果的帧数 / 观测时长’计；必须声明是否剔除超时/丢帧；建议同时给出全部接收帧与有效完成帧两版分母"
+    },
+    "display_fps": {"start": "输出帧起始", "stop": "下一输出帧起始"},
+    "separation_rule": "采集 FPS、推理 FPS、显示 FPS、叠加结果更新率是不同量，必须分列；采集/显示帧率不得替代检测更新率",
+    "warmup_drop_timeout": {
+      "warmup": "单独统计并单列；若剔除，同时给出含/不含两版",
+      "dropped_frames": "计数 + 缺口清单 + 时刻；不得用平均 FPS 掩盖；与 S4-A 互斥规则一致（每个缺失帧恰好计一次）",
+      "timeout": "单列 frame_id/TIMEOUT_CYCLES/ERROR_CODE/时刻；不重试覆盖、不计入有效完成帧",
+      "stale_cleared": "计数 + 清单（见 stale_and_age）"
+    },
+    "not_committed": "检测吞吐下限、端到端 P99、采集/显示帧率下限由阶段7 + Wong 冻结；本契约不承诺任何数值"
+  },
+  "consumed_stage4_record": {
+    "authority": "docs/stage4/s4a_stage4_g0_fields.json (result_record.fields)，DRAFT_NOT_FROZEN",
+    "mode": "方案 B：显示层只消费 PS 侧记录",
+    "required_fields": ["frame_id", "geometry", "state", "detection_count", "detections", "stale", "dropped_frames", "capture_time_ns", "result_time_ns", "inference_time_ns", "end_to_end_latency_ns", "error_code"],
+    "detection_fields": ["class_id", "class_name", "score", "xyxy", "source_order"],
+    "xyxy_semantics": "归一化原图坐标（含补边逆映射，裁剪到 [0,1]，正面积）；显示层只允许使用该字段，不得自行反算第二份坐标",
+    "fallback_inverse_mapping": "仅当阶段4 缺失原图坐标字段时启用本契约 §geometry 的逆式（离线准备兜底，是否启用待阶段4 G0）",
+    "ps_only_fields": ["capture_time_ns", "result_time_ns", "inference_time_ns", "end_to_end_latency_ns", "stale", "dropped_frames"],
+    "ps_only_consequence": "这些字段不进 UART；显示层消费的是 PS 侧记录，不得声称来自 UART 或据此宣称满足计划第 88 行"
+  },
+  "test_cases": [
+    {"id": "T5-01", "name": "非方形视频（含竖屏与奇数宽 683×384）", "expected": "new_w/new_h/off_x/off_y 与冻结公式逐值一致；画面不拉伸", "status": "OFFLINE_RENDERED_ASSERTED"},
+    {"id": "T5-02", "name": "边缘框/四角/部分越界/裁剪后零面积", "expected": "逐边裁剪到 [0,1]；零面积不绘制；标签不越界", "status": "OFFLINE_RENDERED_ASSERTED"},
+    {"id": "T5-03", "name": "多框与零框", "expected": "≤15 框、2A 稳定顺序；零框不画框且 boxes=0", "status": "OFFLINE_RENDERED_ASSERTED"},
+    {"id": "T5-04", "name": "过期清除", "expected": "不叠加、计数 +1、日志含 frame_id 与 age_frame_ns 及原因", "status": "OFFLINE_RENDERED_ASSERTED"},
+    {"id": "T5-05", "name": "结果—帧号对应（≥100 帧）", "expected": "五元组可按 frame_id 索引；语义唯一；无伪称同帧", "status": "OFFLINE_LOGGED_ASSERTED"},
+    {"id": "T5-06", "name": "分数/置信度用词", "expected": "无依据时不出现‘置信度’；字段名为 score；阈值与冻结值一致", "status": "OFFLINE_TEXT_SCANNED"},
+    {"id": "T5-07", "name": "奇数补边半像素", "expected": "非对称补边差保留（91/92），未被对称化；采样与 D2 端点对齐一致", "status": "OFFLINE_ASSERTED"},
+    {"id": "T5-08", "name": "FPS/延迟口径", "expected": "采集/推理/显示三类 FPS 与两个年龄分别统计且可由帧级日志复算", "status": "PARTIAL_OFFLINE"},
+    {"id": "T5-09", "name": "30 分钟无死锁", "expected": "连续 ≥30 分钟采集/显示/推理同时活动无死锁", "status": "NOT_RUN_NEEDS_HARDWARE"},
+    {"id": "T5-10", "name": "回归阶段4 数值链路", "expected": "沿用 2A 容限；离散字段全等；显示消费可追溯到阶段4 整数结果与 D9 参考", "status": "OFFLINE_CHAIN_ASSERTED"},
+    {"id": "T5-11", "name": "预热/丢帧/超时不隐藏", "expected": "三类均单列计数并出现在 HUD 与日志", "status": "PARTIAL_OFFLINE"},
+    {"id": "T5-12", "name": "显示语义一致性", "expected": "单一证据包内 display_semantics 唯一且与五元组一致", "status": "OFFLINE_ASSERTED"}
+  ],
+  "unfrozen_and_unexecuted": [
+    {"id": "U5-01", "item": "画面语义", "state": "Wong 已定语义 B（本契约固定）"},
+    {"id": "U5-02", "item": "age_frame 允许延迟上限（成品指标）", "state": "离线准备用 200 ms 同源常量；成品允许延迟仍待阶段5 正式 G0/Wong"},
+    {"id": "U5-03", "item": "阶段4 侧 stale_age_limit", "state": "阶段4 仍 DRAFT_PROPOSED；须与阶段5 同源同步固定"},
+    {"id": "U5-04", "item": "布局/颜色/字号/安全区成品值", "state": "本契约固定布局规则与 1080p 参考值；颜色表与字号待正式 G0"},
+    {"id": "U5-05", "item": "真实 HDMI/摄像头联调、上板、30 分钟运行、截图/视频", "state": "NOT_RUN（等阶段3 完成 + 阶段4 跑通 + 2B 让出硬件）"},
+    {"id": "U5-06", "item": "阶段6 状态机联动实测", "state": "NOT_RUN（S6 v1 草案只读；修订建议见 docs/stage6/）"},
+    {"id": "U5-07", "item": "扩展帧/接口正文变更", "state": "OPEN（方案 B 落地；A 需与 2B 协商，本树不得改 2B 正文）"}
+  ],
+  "reference_implementation": {
+    "path": "verification/s5_display_geometry_reference.py",
+    "role": "阶段5 唯一几何与口径来源；S5-B 渲染与 S5-C 回归必须导入本模块，禁止复制公式",
+    "rounding_rule": "round_half_up_to_nearest_pixel_index",
+    "import_contract": "network_norm_to_original_norm / letterbox_geometry / clip_unit_box / original_norm_to_display_px / canvas_fit / original_norm_to_canvas_px / border_pixel_sets / is_stale / effective_stale / compute_ages / validate_result_record"
+  }
+}

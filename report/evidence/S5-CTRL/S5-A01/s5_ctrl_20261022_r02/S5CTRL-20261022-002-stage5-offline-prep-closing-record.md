@@ -73,6 +73,8 @@
 - **修复**：按项目既有惯例（`.gitattributes` 对证据/验证文件使用 `-text`），为阶段5 路径加 `-text` 并重新入库，使 **blob == 工作树字节**；修复后清单绑定的 12/12 文件 blob 与工作树 SHA-256 一致。
 - **复现口径**：所有证据/清单哈希以**仓库内字节**为准；复现命令 `git cat-file blob <commit>:<path> | sha256sum` 与工作树 `sha256sum <path>` 应相同。
 - 该修复只涉及 EOL 策略与重新入库，**不改**任何实现、规格、阈值或结论；交付清单核验（CHECKS_OK / exit 0）在修复后重新确认。
+- **提交链（本阶段）**：`0b942ed`（交付本体，425 文件）→ `ff8d78c`（`.gitattributes` `-text` + 本记录与 STATE 更新）→ `256fc98`（`git add --renormalize`，143 文件按新属性重存）＝ 本阶段 HEAD。修复后复验：清单绑定的 **12/12** 文件 blob 与工作树 SHA-256 一致，`check_stage_delivery.py --mode evidence` 仍 **exit 0 / CHECKS_OK**，工作区干净。
+- **清单 `source_commit` 语义**：`delivery_manifest.json` 的 `source_commit = acd2df6` 是**起始基线**（本阶段交付即 `acd2df6`→`256fc98` 的差异）；清单对交付物的绑定以**逐文件 SHA-256**（`role=source` 8 项 + 运行目录文件）为准，不以 `source_commit` 指代最终版本。
 
 ## 8. 边界声明与下一步
 
@@ -82,4 +84,4 @@
 
 ## 交接行（11 字段，2026-10-22 10:52）
 
-任务=`HL-T13 阶段5 离线准备（规格定稿 + 离线渲染自测 + 阶段4 数值链回归勾连 + 独立审查关闭）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6` | 允许修改范围=`docs/stage5|stage4|stage6/**`、`verification/s5_*.py`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，随本记录同批提交（tmp/ 为忽略项）` | 让出声明=`本阶段离线准备完成，写入停止；本树可交回项目总控/下一阶段总控（OFFERED 语义），无遗留未提交改动` | 心跳(UTC+8)=`2026-10-22 10:52` | 证据入口=`report/evidence/S5-A/s5a_g0_20261021_r03/`、`report/evidence/S5-B/s5b_20261021_r07_a/`、`report/evidence/S5-C/s5c_regression_20261021_r04/`、`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`DONE（离线准备）/ 项目总控核对后决定阶段5 正式开工时机；显示实测待阶段3 通过 + 阶段4 跑通 + 2B 让出硬件`
+任务=`HL-T13 阶段5 离线准备（规格定稿 + 离线渲染自测 + 阶段4 数值链回归勾连 + 独立审查关闭）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6` | 允许修改范围=`docs/stage5|stage4|stage6/**`、`verification/s5_*.py`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，随本记录同批提交（tmp/ 为忽略项）` | 让出声明=`本阶段离线准备完成，写入停止；本树可交回项目总控/下一阶段总控（OFFERED 语义），无遗留未提交改动` | 心跳(UTC+8)=`2026-10-22 11:50` | 证据入口=`report/evidence/S5-A/s5a_g0_20261021_r03/`、`report/evidence/S5-B/s5b_20261021_r07_a/`、`report/evidence/S5-C/s5c_regression_20261021_r04/`、`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`DONE（离线准备）/ 项目总控核对后决定阶段5 正式开工时机；显示实测待阶段3 通过 + 阶段4 跑通 + 2B 让出硬件`

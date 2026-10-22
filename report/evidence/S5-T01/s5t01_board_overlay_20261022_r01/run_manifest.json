@@ -1,0 +1,177 @@
+{
+  "schema_version": "gestureforge_s5t01_board_overlay_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_overlay_20261022_r01",
+  "generated_utc8": "2026-10-22T15:30:57+08:00",
+  "source_head": "bbaa3f8859a8cc813316cfbf6663bcb0a6a61400",
+  "decision": "Wong 2026-10-22 chose option B (PS synthetic video source + software overlay, zero new PL)",
+  "goal_reached": "P1_APP_BUILT_AND_RUNNING__DISPLAY_BUFFER_VERIFIED__FPS_NOT_VERIFIED",
+  "video_source": "PS_SYNTHETIC (not a real capture; must not be used to claim stage-3 capture/colour results)",
+  "display_semantics": "B_latest_result_overlay",
+  "artifacts": {
+    "bit_stdluma_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "xsa_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "elf_cycle_sha256": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+    "elf_case5_sha256": "3632e9fb29f9f70d779039c18e1d50b6ecb7b4e796fc77356352859b60d055b5",
+    "qspi_burned": false
+  },
+  "board_evidence": {
+    "download": {
+      "fpga_program": "OK",
+      "ps7_init": "OK",
+      "dow_elf": "OK",
+      "run": "OK",
+      "exit_code": 0
+    },
+    "uart_markers": {
+      "begin": "S5_P1_BEGIN canvas=1280x720 stride=3840 frames=3 cases=6",
+      "buf0": "0x00114C00",
+      "buf1": "0x00703800",
+      "buf2": "0x00CF2400",
+      "cases_verified": [
+        "CASE 1 BOXES 1",
+        "CASE 2 BOXES 4",
+        "CASE 3 BOXES 15",
+        "CASE 4 BOXES 0",
+        "CASE 5 BOXES 2",
+        "CASE 6 BOXES 0 STALE"
+      ],
+      "cycles": 2
+    },
+    "display_buffer_probe": {
+      "buf0_1_2_row0_first_word": "0xFFFFFFFF (white corner marker in all three buffers)",
+      "buf0_plus192": "0x20000000 (grid line + grey 0x20 pixel consistent with background design)",
+      "buf0_row53_x0": "0x40FF4040 (class-colour components, non-background)",
+      "buf0_row53_x77": "0xFF4040FF (contains red component)",
+      "caveat": "mrd reads 32-bit words while pixels are 3 bytes => intra-row word misalignment; per-pixel box-position conclusions are NOT drawn from this run"
+    },
+    "mm2s": {
+      "CR": "0x00010001 (RS=1 running)",
+      "SR": "0x00011000 (IRQFrameCntSts=1, no growth over 6 s)",
+      "frame_size": "VSIZE=0x2D0(720), HSIZE=0xF00(3840)"
+    }
+  },
+  "checks": [
+    {
+      "name": "P1 应用构建（arm-none-eabi-gcc，0 警告）",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "console/build_cycle.log"
+    },
+    {
+      "name": "冻结灰度位流 + P1 ELF 易失下载与运行",
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "console/download_overlaycycle.log"
+    },
+    {
+      "name": "六用例循环 UART 标记与框数一致",
+      "status": "PASS",
+      "log": "console/uart_overlaycycle.log"
+    },
+    {
+      "name": "送显缓冲含合成画面（首字白角标记 ×3）",
+      "status": "PASS",
+      "log": "console/read_overlay_buf.txt"
+    },
+    {
+      "name": "逐像素屏上框位核对",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "mrd 32 位字与 3 字节像素跨字错位，须字对齐重建后另做"
+    },
+    {
+      "name": "display_fps 实测",
+      "status": "NOT_VERIFIED",
+      "exit_code": null,
+      "reason": "MM2S SR 帧计数未增长（CR RS=1）；测法待修，本轮不报数值"
+    },
+    {
+      "name": "HDMI 屏目视/照片",
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "需 Wong 现场拍摄（最直接的视觉证据）"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/build_cycle.log",
+      "sha256": "6869cf8c4d33b3648a44e077b202226ba25b9cd0dc4882483477904014de1fa1"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/capture_overlaycycle.txt",
+      "sha256": "a6ddf3919467ea5cefc0abf3dd5e958b5d45cf0abcdaeb0e6919ea949f14e0ba"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/download_overlaycycle.log",
+      "sha256": "3a8e3bb97125bc4ee437daa1381f25752811d0662025c25ed11abc8a975385e3"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/input_hashes.txt",
+      "sha256": "2288ff130fba91d839df2c576a5740b18b30f4a35fc73a7b1b21f6faecccf83d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/read_overlay_buf.txt",
+      "sha256": "fa4143b2203226a0add263f0b1573eedca6931fe38873b554905d165ec9fd212"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/read_safe_overlaycycle.log",
+      "sha256": "98ecf6381976d6da98de94b5025e40783bff37537ae72c7da289ed9d3786a116"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/console/uart_overlaycycle.log",
+      "sha256": "9722510b02ec062568782625ab0414b0378fb8c3db8c8820c70352bc61d12111"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/summary.md",
+      "sha256": "59477922b6a67c2753d896130a342a46639a59f598fdc61638e2983a213cb008"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/gen_overlay_cases.py",
+      "sha256": "fff1ea7c62fd700074bd038eeb9a7e4f4a3e662261a0f19ced88f80733ec6cee"
+    },
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256": "5addb53c5ccb660dc05f9df0787d07ef8cb4466e7c18e3946781b7bf5e1e2ab2"
+    },
+    {
+      "path": "scripts/stage5_t01/apply_p1_patch.py",
+      "sha256": "8e54d56546f8550089cc8f483d661ab94500e7e2946604941c5b12a72f37655b"
+    },
+    {
+      "path": "scripts/stage5_t01/build_p1_app.sh",
+      "sha256": "3a5d10f29bf8c0b6895de4cd9ca8e4cd524d7aba30ed33a6fb2fe66eb28b7378"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_read_overlay_buf.tcl",
+      "sha256": "3e06883648151ca99aa5027043b4102f008ed0cd6b4ac2d31d3cd17c56bb0311"
+    },
+    {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553"
+    },
+    {
+      "path": "docs/stage5/s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+    }
+  ],
+  "not_executed": [
+    "逐用例屏上验收表",
+    "display_fps 实测",
+    "HDMI 照片",
+    "连续 30 分钟",
+    "G3"
+  ],
+  "limitations": [
+    "视频源为 PS 合成图，不是真实采集；不得据此声称阶段3 采集/颜色结论。",
+    "送显缓冲取样受 mrd 字对齐限制，未下逐像素结论。",
+    "display_fps 未测得；本轮不报任何 FPS 数值。",
+    "0x503D 未被改变（传感器不在位、写失败），无需恢复；未烧 QSPI；hw_server 已清理。"
+  ],
+  "self_defects_fixed": [
+    "生成头 seg[8][4] 装不下 'B' 的 10 笔画（越界/截断）",
+    "s5_text 中字形指针 g 遮蔽颜色参数 g（颜色错乱）"
+  ]
+}

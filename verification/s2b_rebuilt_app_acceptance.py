@@ -196,6 +196,11 @@ def _save_confirmed_tx_payload(wire, sequence: int, payload: bytes, path: Path) 
             "request_header_hex": header.hex(), "serial_write": event}
 
 
+def _create_sample_runner(wire, run_dir: Path, admission: dict):
+    """将未创建的样本目录交给验收器，由其唯一负责创建。"""
+    return model.AcceptanceRunner(wire, run_dir / "sample000", admission, capture_wire_receipts=True)
+
+
 def execute(controller, wire, *, run_id: str, source_sha256: str, cold_basis: dict,
             cache_cpu_seed: int = 0xC0DEC0DE, cache_dap_seed: int = 0xDADA1234,
             journal=None, csr_map=None) -> dict:
@@ -304,11 +309,11 @@ def execute(controller, wire, *, run_id: str, source_sha256: str, cold_basis: di
                  "真实cache probe之后须保持冷epoch0/seq2才能加载权重")
         weight_request, weight_header = transport.make_request(
             transport.OP_WEIGHTS, wire.last_sequence + 1, 0, weight_payload)
-        sample_dir = transport.new_directory(run_dir / "sample000")
         admission = {"scope": evidence["scope"], "status": "INDEPENDENT_REBUILT_APP_SCOPE",
                      "new_app_elf": recovery["new_app_elf"], "old_g0_receipt": "NOT_REUSED",
                      "offline_recovery_review": recovery["review"], "source_commit": evidence["source_commit"]}
-        acceptance_runner = model.AcceptanceRunner(wire, sample_dir, admission, capture_wire_receipts=True)
+        acceptance_runner = _create_sample_runner(wire, run_dir, admission)
+        sample_dir = acceptance_runner.run
         acceptance_runner.record["hardware_execution"] = "BORROWED_REAL_JTAG_UART_SESSION"
         acceptance_runner.record["app_elf"] = recovery["new_app_elf"]
         _require(weight_request.sequence == 3 and weight_request.op == transport.OP_WEIGHTS and

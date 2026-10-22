@@ -28,6 +28,20 @@ def safe_idle_snapshot():
 class RebuiltAppAcceptanceTests(unittest.TestCase):
     """验证独立恢复scope的离线输入绑定及现场安全条件。"""
 
+    def test_real_sample_runner_creates_its_directory_once(self):
+        """使用真实验收器和文件系统，捕获预先建目录造成的重复创建。"""
+        with tempfile.TemporaryDirectory(prefix="s2b_rebuilt_sample_") as temporary:
+            run_dir = Path(temporary)
+            wire = object()
+            runner = acceptance._create_sample_runner(wire, run_dir, {"scope": "OFFLINE_ONLY"})
+            try:
+                self.assertEqual(runner.run, run_dir / "sample000")
+                self.assertIs(runner.wire, wire)
+                self.assertTrue((runner.run / "started.json").is_file())
+                self.assertTrue(runner.capture_wire_receipts)
+            finally:
+                runner.log.close()
+
     def test_real_recovery_inputs_are_bound_without_claiming_board_or_old_g0(self):
         result = acceptance.verify_recovery_inputs()
         self.assertEqual(result["scope"], "OFFLINE_INPUTS_VERIFIED_ONLY_NOT_G0_OR_BOARD_ACCEPTANCE")

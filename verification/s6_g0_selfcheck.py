@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段6 S6-A（G0 包 + 行为表 v1.4 / r05）只读自检。
+"""阶段6 S6-A（G0 包 + 行为表 v1.5 / r06）只读自检。
 
 加固后的机器检查（r02，针对独立评审 S6A_20261022_r01 的 C3 盲区）：
 
@@ -10,8 +10,8 @@
   C4   待批准纪律（24 项参数全 PENDING_APPROVAL + 来源/责任人 + 动作映射待批准）
   C5   五类动作映射一致（class_id 0..4、2A 顺序、target 唯一、类型在支持集合内）
   C6   硬不变量与唯一触发解释完整（H-1..H-10；ONCE_PER_ACQUISITION）
-  C7   人工手算样例的**独立复算**（30 例；窗口跨度按「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」计算，
-       并断言与宽松序列跨度口径下 m3_fires 结论一致；新增锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
+  C7   人工手算样例的**独立复算**（31 例；窗口完成帧按 T6-S03「取较晚满足者」推导，覆盖 30fps 时长支配场景，
+       并保留旧口径对照字段 m3_fires_count_only；含锁存 STABLE + 门恰在 TIMEOUT 帧开启的角落序列）
   C8   上游只读文件 SHA-256 复算（含 w4/w5 只读提交版本）
   C9   文档必备覆盖关键词与章节存在
   C10  窄口径禁止声明扫描
@@ -139,7 +139,7 @@ def check_identity(data: dict[str, Any]) -> None:
     if data.get("artifact") != "s6a_stage6_g0_behavior":
         raise CheckFailure("artifact 名称不符")
     version = data.get("artifact_version")
-    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4")
+    allowed_versions = ("S6A-G0-v1", "S6A-G0-v1.1", "S6A-G0-v1.2", "S6A-G0-v1.3", "S6A-G0-v1.4", "S6A-G0-v1.5")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
     if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
@@ -165,6 +165,7 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.2": "s6a_g0_20261022_r03",
         "S6A-G0-v1.3": "s6a_g0_20261022_r04",
         "S6A-G0-v1.4": "s6a_g0_20261022_r05",
+        "S6A-G0-v1.5": "s6a_g0_20261022_r06",
     }
     if version in expected_runs:
         revision = data.get("revision") or {}
@@ -760,16 +761,29 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             window_flags.append(window_match)
         window_match_count = sum(1 for flag in window_flags if flag)
         continues_count = sum(1 for flag in continues_flags if flag)
-        # N-r04-04：窗口时长按 §9「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」计算；
-        # 另保留宽松口径（整段输入序列跨度）用于一致性断言，二者 m3_fires 结论必须相同。
+        # N-r05-04：窗口完成帧按 T6-S03「取较晚满足者」——
+        # 第一个「计数 ≥ T6-S02」且「(帧序 − 窗口首帧序)·P ≥ T6-S01」的帧。
+        # 当 P < T6-S01/(T6-S02−1)（草案值下 P<40 ms，30fps=33.3 ms 命中）时由时长支配：
+        # 第 6 个 WINDOW_MATCH 帧只有 166.7 ms，完成帧是第 8 帧（233.1 ms），与文档 §15 示例一致。
         window_indices = [index for index, flag in enumerate(window_flags) if flag]
         sequence_span_ms = (len(frames) - 1) * period_ms
+        completion_index: int | None = None
+        window_span_ms = 0.0
         if len(window_indices) >= s02:
-            window_span_ms = (window_indices[s02 - 1] - window_indices[0]) * period_ms
-        elif window_indices:
-            window_span_ms = (window_indices[-1] - window_indices[0]) * period_ms
+            first_index = window_indices[0]
+            count_index = window_indices[s02 - 1]
+            frames_for_duration = (
+                int(math.ceil(s01_ms / period_ms - 1e-9)) if period_ms > 0 else 0
+            )
+            duration_index = first_index + frames_for_duration
+            completion_index = max(count_index, duration_index)
+            window_span_ms = (completion_index - first_index) * period_ms
+        # 旧口径对照（r05 及以前）：只按第 T6-S02 个 WINDOW_MATCH 帧取跨度；仅供差异证明，不参与判定。
+        if len(window_indices) >= s02:
+            span_count_only = (window_indices[s02 - 1] - window_indices[0]) * period_ms
         else:
-            window_span_ms = 0.0
+            span_count_only = 0.0
+        m3_fires_count_only = len(window_indices) >= s02 and span_count_only >= s01_ms
         continues_false_streak = 0
         for flag in reversed(continues_flags):
             if flag:
@@ -777,8 +791,16 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             continues_false_streak += 1
         time_since_last_continues_ms = 0.0 if continues_flags[-1] else continues_false_streak * period_ms
         lost = continues_false_streak >= l01 or time_since_last_continues_ms >= l02_ms
-        m3_fires = window_match_count >= s02 and window_span_ms >= s01_ms
-        m3_fires_loose = window_match_count >= s02 and sequence_span_ms >= s01_ms
+        m3_fires = (
+            len(window_indices) >= s02
+            and completion_index is not None
+            and completion_index <= (len(frames) - 1)
+        )
+        later_of_applied = (
+            completion_index is not None
+            and len(window_indices) >= s02
+            and completion_index > window_indices[s02 - 1]
+        )
         # M5 需要 STABLE 之后的下一条结果帧；本样例无后续帧 → 不触发
         trigger = m3_fires and bool(spec.get("m5_next_frame_supplied", False))
         return {
@@ -790,7 +812,9 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "continues_false_streak": continues_false_streak,
             "window_span_ms": r6(window_span_ms),
             "sequence_span_ms": r6(sequence_span_ms),
-            "span_conventions_agree": m3_fires == m3_fires_loose,
+            "completion_index": completion_index if completion_index is not None else -1,
+            "later_of_applied": later_of_applied,
+            "m3_fires_count_only": m3_fires_count_only,
         }
     if kind == "recovery_streak":
         u01 = int(spec["u01_frames"])
@@ -863,6 +887,11 @@ def recompute(case: dict[str, Any]) -> dict[str, Any]:
             "action_at_gate_open_frame": {
                 name: first_action_frame[name] == gate_open_frame[name] for name in gate_open_frame
             },
+            "actions_within_supplied_sequence": total_actions,
+            "action_count_is_lower_bound": True,
+            "action_count_scope": "within_supplied_sequence",
+            "action_count_discriminators": ["gate_open_frame", "first_action_frame",
+                                            "action_at_gate_open_frame"],
             "no_action_on_timeout_frame": True,
             "timeout_frames_not_window_advancing": True,
             "latched_within_acquisition": True,
@@ -893,12 +922,12 @@ def check_hand_cases(cases: dict[str, Any]) -> str:
                     raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
             elif want != got:
                 raise CheckFailure(f"{case_id}.{key} 预期 {want} 与复算 {got} 不符")
-    if len(seen) < 30:
-        raise CheckFailure(f"手算样例数量不足 30：{len(seen)}")
+    if len(seen) < 31:
+        raise CheckFailure(f"手算样例数量不足 31：{len(seen)}")
     return (
         f"{len(seen)} 个样例全部由输入独立复算一致"
         "（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、"
-        "HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列）"
+        "HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧）"
     )
 
 

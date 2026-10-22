@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
   "artifact": "s6a_stage6_g0_behavior",
-  "artifact_version": "S6A-G0-v1.4",
+  "artifact_version": "S6A-G0-v1.5",
   "stage": "stage6",
   "task_id": "S6-A",
-  "run_id": "s6a_g0_20261022_r05",
+  "run_id": "s6a_g0_20261022_r06",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_PENDING_APPROVAL",
-  "status_label": "阶段6 G0 包与行为表 v1.4（r05 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
-  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r05 关闭第 4 轮独立复评（PASS，0 阻断）的 5 项非阻断建议：N-r04-01（M5 条件补「本帧必须为窗口推进帧」+ C12 文本断言 + 角落序列用例）、N-r04-02（M5/B13 绑定叙述精确化）、N-r04-03（C12 拒绝显式空列表 predicates_used）、N-r04-04（C7 窗口跨度改为窗口首帧→第 T6-S02 个 WINDOW_MATCH 帧）、N-r04-05（清理 S6-B WIP 中不存在的设计文档引用，WIP 仍不提交）；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
+  "status_label": "阶段6 G0 包与行为表 v1.5（r06 修订版）已产出；语义修订待 G0 复评批准，全部阈值与指标待批准",
+  "status_note": "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论；r06 关闭第 5 轮独立复评（PASS，0 阻断）的 4 项非阻断建议：N-r05-04（窗口完成时刻按 T6-S03「取较晚满足者」实现：计数与时长两者都满足的第一帧；覆盖 30fps=33.3 ms 的真实相机路径）、N-r05-01（探针计数表述）、N-r05-02（r04 重跑失败归因）、N-r05-03（HC-30 动作计数覆盖边界）；未改任何参数值（24 项仍全部 PENDING_APPROVAL）。",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
     "start_commit": "d8bc70e43572a8e44ddcd4b3489166e28a1c6151",
     "worktree_clean_at_start": true,
     "index_lock_present_at_start": false,
-    "revision_base_commit": "b20b6705e8c7dd6c43cc2195860e3fc84e1c4ec7",
-    "revision_note": "在 r04（提交 b20b670）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
+    "revision_base_commit": "1632761b2d60d8c1328aa82be97d53eef30e1072",
+    "revision_note": "在 r05（提交 1632761）基础上修订；起始提交仍为 d8bc70e（本阶段开工基线）。"
   },
   "upstream": [
     {
@@ -1244,7 +1244,7 @@
   },
   "low_fps_latency": {
     "frame_period_symbol": "P_meas（必须为阶段4 实测帧周期；无实测时 T6-A03 记 NOT_RUN，不得用假设 FPS 代替）",
-    "window_completion_definition": "窗口完成时刻 = 第 T6-S02 个 WINDOW_MATCH 结果到达且时长条件同时满足的那一帧的显式输入时刻",
+    "window_completion_definition": "窗口完成时刻 = 第一个「WINDOW_MATCH 帧计数 ≥ T6-S02」且「时长 ≥ T6-S01」同时满足的那一帧（T6-S03 later_of；30fps 由时长支配，完成在第 8 帧=233.1 ms）",
     "w_min_formula": "W_min = max(T6-S01, (T6-S02 − 1) · P_meas)",
     "w_min_is_lower_bound_only": true,
     "w_min_must_not_enter_latency_statistics": true,
@@ -1406,7 +1406,7 @@
     "全部阈值与指标为待批准；获批前任何统计只能报告为观测值",
     "交互通过不代替阶段7 最终性能与可靠性验收",
     "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）",
-    "本文件为 r05 修订版（v1.4），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
+    "本文件为 r06 修订版（v1.5），只按独立复评的非阻断建议收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
   ],
   "evidence_boundaries": [
     "回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收",
@@ -1414,40 +1414,35 @@
     "显示侧新增 HUD 字段与五类动作映射为阶段6 提案",
     "无硬件授权：未做任何板上验证"
   ],
-  "supersedes_run_id": "s6a_g0_20261022_r04",
+  "supersedes_run_id": "s6a_g0_20261022_r05",
   "revision": {
-    "run_id": "s6a_g0_20261022_r05",
-    "supersedes_run_id": "s6a_g0_20261022_r04",
-    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r04_20261023_r01/",
-    "review_verdict": "PASS（0 阻断 + 5 项非阻断 N-r04-01..N-r04-05）",
-    "semantic_changes": false,
+    "run_id": "s6a_g0_20261022_r06",
+    "supersedes_run_id": "s6a_g0_20261022_r05",
+    "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r05_20261023_r01/",
+    "review_verdict": "PASS（0 阻断 + 4 项非阻断 N-r05-01..N-r05-04）",
+    "semantic_changes": true,
     "parameter_value_changes": false,
     "parameter_approval_changes": false,
     "changes": [
       {
-        "issue": "N-r04-01",
-        "summary": "M5 条件补「本帧必须为窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）」并与 §4 锁存段/stable_latching 一致；新增 window_advance_required 说明；自检 C12 增加 M5 限定文本断言；新增手算样例 HC-30 覆盖「锁存 STABLE + 冷却门恰在 TIMEOUT 帧开启」",
-        "where": "transitions.M5 / stable_latching / 文档 §4 / hand_computed_cases HC-30 / 自检 C12+C7"
+        "issue": "N-r05-04",
+        "summary": "实现 T6-S03「取较晚满足者」：窗口完成帧 = 第一个计数 ≥ T6-S02 且 (帧序−窗口首帧)·P ≥ T6-S01 的帧；新增 30fps（P=33.3 ms）样例 HC-31，并保留旧口径（只按第 T6-S02 个 WINDOW_MATCH 帧）的对照字段 m3_fires_count_only 以证明差异；probe 增加「旧口径对照」运行并保留失败输出",
+        "where": "selfcheck C7 window_match_vs_continues / hand_computed_cases HC-31 / 文档 §15 / time_anchors / low_fps_latency"
       },
       {
-        "issue": "N-r04-02",
-        "summary": "predicate_binding_policy.statement 精确化：M5 带 global_cooldown_gate 标记、B13 由 H-10 承载；两者都只有条件文本、均无 predicates_used 字段（文档 §4 与 STATE 同步）",
-        "where": "predicate_binding_policy / 文档 §4 / .codex/STATE.md"
+        "issue": "N-r05-01",
+        "summary": "探针计数表述统一为「基线 1 例 + 注入 7 例（共 8 例）」",
+        "where": "verification/s6a_r06_probe.py / s6a_build_evidence.py / fix_record / run summary / manifest"
       },
       {
-        "issue": "N-r04-03",
-        "summary": "自检 C12 增加普适断言：任何条目的 predicates_used 出现时必须为非空列表，显式空列表 [] 判不合法；由注入探针证明可捕获",
-        "where": "自检 C12 / verification/s6a_r05_probe.py"
+        "issue": "N-r05-02",
+        "summary": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 case_span_wrong 证据",
+        "where": "fix_record / limitations / run summary / 探针注入清单"
       },
       {
-        "issue": "N-r04-04",
-        "summary": "C7 的窗口跨度改为「窗口首帧 → 第 T6-S02 个 WINDOW_MATCH 帧」（HC-29 由 320 ms 修正为 200 ms），并断言与宽松序列跨度口径下 m3_fires 结论一致",
-        "where": "自检 C7 recompute / hand_computed_cases HC-28/HC-29"
-      },
-      {
-        "issue": "N-r04-05",
-        "summary": "清理 src/stage6 WIP 中对不存在的 docs/stage6/S6B_stage6_state_machine_design_v1.md 的引用，改引用现有 v1.4 契约文件；WIP 仍不提交",
-        "where": "src/stage6/s6_core.py（未跟踪 WIP）"
+        "issue": "N-r05-03",
+        "summary": "HC-30 的动作计数去掉封顶：改为「给定序列内计数 actions_within_supplied_sequence」并注明至少 1 次的覆盖边界与真正的判别字段（gate_open_frame/first_action_frame/action_at_gate_open_frame）",
+        "where": "selfcheck C7 latched_stable_gate_on_timeout / hand_computed_cases HC-30"
       }
     ],
     "deleted_transitions": [
@@ -1457,10 +1452,10 @@
       }
     ],
     "review_status": "PENDING_REVIEW",
-    "retained_from_r04": {
-      "artifact_version": "S6A-G0-v1.3",
-      "run_id": "s6a_g0_20261022_r04",
-      "note": "r04 的 R3-B01/R3-B02/N01..N05 与 STABLE 锁存定论全部保留；r05 只做 5 项非阻断收尾。"
+    "retained_from_r05": {
+      "artifact_version": "S6A-G0-v1.4",
+      "run_id": "s6a_g0_20261022_r05",
+      "note": "r05 的 N-r04-01..05 收尾全部保留；r06 只修窗口完成口径与 3 项表述/覆盖边界。"
     }
   },
   "predicates": {
@@ -1554,7 +1549,8 @@
   },
   "time_anchors": {
     "t_last_target_continues": "最近一次 TARGET_CONTINUES 成立的结果的显式输入时刻；TARGET_CONTINUES 不成立的结果不更新该锚点；被抑制或失败的动作尝试不更新该锚点（该锚点只由逐帧 TARGET_CONTINUES 判定更新）。用于 M10/B10 的 T6-L02 时间条件与文档 §12 丢失时间行。",
-    "t_last_submit": "最近一次真实 ACTION_SUBMITTED 的 t_submit（被抑制或失败的尝试不更新）；用于 H-10 全局冷却门。"
+    "t_last_submit": "最近一次真实 ACTION_SUBMITTED 的 t_submit（被抑制或失败的尝试不更新）；用于 H-10 全局冷却门。",
+    "window_complete": "窗口完成时刻 = 第一个「连续 WINDOW_MATCH 帧数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的帧的显式输入时刻（T6-S03 取较晚满足者）。30fps（P=33.3 ms）下第 6 个 WINDOW_MATCH 帧的时长只有 166.7 ms < 200 ms，完成帧是第 8 帧（233.1 ms）——与文档 §15 示例一致。"
   },
   "reachability": {
     "method": "按当前草案参数与求值顺序推导；不改任何阈值",

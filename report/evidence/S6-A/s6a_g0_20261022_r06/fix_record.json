@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.5",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261022_r06",
+  "supersedes_run_id": "s6a_g0_20261022_r05",
+  "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r05_20261023_r01/",
+  "review_verdict": "PASS（0 阻断 + 4 项非阻断 N-r05-01..N-r05-04）",
+  "review_status_after_fix": "PENDING_REVIEW（是否再复评由项目总控决定；本记录不构成通过）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261022_r06",
+    "r01..r05_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "all_parameters_pending_approval": true,
+    "hardware_touched": false,
+    "s6b_wip_committed": false,
+    "self_check_before_after": "先用 r06 最终自检跑基线（ALL_PASS）；再用 r05 版自检（git 1632761 的脚本、旧窗口完成口径）在 r06 样例上运行，必须 exit 1 且 C7 报 FAIL（旧口径把 HC-31 算成第 6 帧 166.5 ms → m3_fires=false），失败输出落盘 probe_historical_model_check_stdout.txt；7 个注入用例各自被 C12/C7 捕获；最后对 r06 跑出 17 项 ALL_PASS"
+  },
+  "blocking_items": [],
+  "non_blocking_items": [
+    {
+      "id": "N-r05-04",
+      "problem": "C7 只按「第 T6-S02 个 WINDOW_MATCH 帧」取窗口跨度，未实现 M3/§9/§14 T6-S03「取较晚满足者」；当 P < T6-S01/(T6-S02−1)（草案下 40 ms，30fps=33.3 ms 命中）时计数先满足 → 误报 m3_fires=false，与文档 §15「30fps → 第 8 帧 233.1 ms」示例冲突。",
+      "fix": "C7 改为推导**完成帧** = 第一个「计数 ≥ T6-S02」且「(帧序 − 窗口首帧序)·P ≥ T6-S01」的帧（frames_for_duration = ceil(S01/P)，与计数帧取 max）；新增 HC-31（P=33.3 ms，完成帧 7、span 233.1 ms、later_of_applied=true）；保留旧口径对照字段 m3_fires_count_only；probe 增加「旧口径对照」运行（r05 版脚本在 r06 样例上必须 C7 FAIL）；文档 §15 与 JSON `time_anchors.window_complete`/`low_fps_latency.window_completion_definition` 同步；**S6-B 核心的 window_complete_ns 也改为在 M3 成立帧写入**（见 S6-B 证据）。",
+      "evidence": [
+        "verification/s6_g0_selfcheck.py C7 recompute",
+        "hand_computed_cases.json HC-31 / HC-28 / HC-29",
+        "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md §15",
+        "probe_historical_model_check_stdout.txt（旧口径 FAILED）",
+        "probe_case_span_wrong_stdout.txt（注入旧口径预期 → C7 FAIL）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r05-01",
+      "problem": "探针/构建器/记录中「8 个注入用例」表述与实际不符（实为基线 1 例 + 注入 7 例）。",
+      "fix": "全部改为「基线 1 例 + 注入 7 例（共 8 例）」，并在探针汇总中另记「旧口径对照 1 例」。",
+      "evidence": [
+        "verification/s6a_r06_probe.py 头注与 probe_summary.json.composition",
+        "verification/s6a_build_evidence.py（头注/summary/清单）",
+        "fix_record / limitations / S6A_run_summary.md / delivery_manifest.json"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r05-02",
+      "problem": "r04 重跑失败的 C7 归因被写成「窗口跨度口径」，实际是样例数 29<30（缺 HC-30）。",
+      "fix": "r04 重跑失败归因改为「样例数 29<30（缺 HC-30）」；N-r04-04 的判别力只引探针 `case_span_wrong` 证据。",
+      "evidence": [
+        "fix_record（本文件）",
+        "limitations_not_executed.json",
+        "verification/s6a_build_evidence.py keep_reason 与 summary",
+        "selfcheck_r04_failure.json（C7 detail = 手算样例数量不足 30：29）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r05-03",
+      "problem": "HC-30 的 `total_actions` 是把给定序列截断后的封顶计数，容易被误读为『整个获取共 1 次动作』。",
+      "fix": "重命名为 `actions_within_supplied_sequence`，新增 `action_count_is_lower_bound`、`action_count_scope=within_supplied_sequence` 与 `action_count_discriminators`，并在推导中注明真正判别力在 gate_open_frame/first_action_frame/action_at_gate_open_frame。",
+      "evidence": [
+        "verification/s6_g0_selfcheck.py C7 latched_stable_gate_on_timeout",
+        "hand_computed_cases.json HC-30"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；是否再复评由项目总控决定。",
+    "全部 24 项参数值与 PENDING_APPROVAL 状态未改；未在测试集上调整任何参数。",
+    "r05 包的表述（「8 个注入」等）保持原样不改写（RunId 证据不可覆盖）；更正记于本记录与 r06 包。",
+    "S6-B 开发期间与当轮冻结待审版本串行：冻结前已声明「评审期间不再写 w6」，评审结束后才继续 S6-B。",
+    "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+  ]
+}

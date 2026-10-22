@@ -2,8 +2,8 @@
   "schema_version": "gestureforge_s5t01_gate_fix_v1",
   "task_id": "S5-T01",
   "run_id": "s5t01_gate_fix_20261022_r01",
-  "generated_utc8": "2026-10-22T19:19:07+08:00",
-  "source_head": "e4533e1d3b9ef1a80f1350e36f7fb479dbc88dc6",
+  "generated_utc8": "2026-10-23T01:18:13+08:00",
+  "source_head": "a107a85c4f6eb6088b89cf333037678078b9d9d2",
   "authority": "CDX-20261022-014 §0（取代 CDX-20261022-011）",
   "goal_reached": "GATE_V2_4_ROUND4_B1_CLOSED_PORT3121_SECOND_GATE_40_TESTS_PENDING_ROUND5",
   "root_cause": "v1 按全部 MD 全文关键词二分推断占用 ⇒ 普通操作文档被当作最新占用，使有效让出失效",
@@ -48,7 +48,17 @@
   "synthetic_test_matrix": {
     "total": 40,
     "pass": 40,
-    "fail": 0
+    "fail": 0,
+    "added_in_v2_3": [
+      "test_33 OCCUPIED 可判别夹具",
+      "test_34 跨信箱同名不遮蔽",
+      "test_35 MCP 工具进程不阻断"
+    ],
+    "added_in_v2_4": [
+      "test_36/37 经真实 classify_process_rows（stub-csv）",
+      "test_38 3121 第二道门",
+      "test_39/40 端口边界（:31210 不误命中 / 真 :3121 阻断）"
+    ]
   },
   "self_defects_found_by_tests": [
     "effective_state 原要求让出与占用同时存在才判 RELEASED（只有让出时误判 UNKNOWN）",
@@ -431,7 +441,7 @@
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/REVIEW_r04_CHANGES_REQUIRED_closed.md",
-      "sha256": "24e4a833bb5b1918ac0a0f68a77e6e92085668fd95ceb29377b023ac0ff7fcb8"
+      "sha256": "161cf5c002005f532ec71494bed2a0a955df5c97e5fee2d429a79add62cea75d"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/S5T01_S3_frame_event_design.md",
@@ -499,9 +509,10 @@
     "exit_code": 0,
     "decision": "GO",
     "hardware_state": "RELEASED",
+    "hardware_processes": 0,
     "tooling_processes": 4,
     "port_3121_listening": false,
-    "log": "console/real_gate_post_round4.txt"
+    "log": "console/real_gate_post_round4b.txt"
   },
   "adversarial_r4": {
     "json": "console/adversarial_r4.json",
@@ -516,8 +527,8 @@
   "registry_v2_4": {
     "records": 28,
     "new_records": [
-      "CDX-20261023-016",
-      "CDX-20261023-017",
+      "CDX-20261023-016 (hardware_request)",
+      "CDX-20261023-017 (ack)",
       "DSH-20261023-011 (ack; 正文声明不占用/不释放硬件)"
     ]
   }

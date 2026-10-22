@@ -1,0 +1,132 @@
+{
+  "schema_version": "gestureforge_s5t01_board_attempt_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_board_20261022_r01",
+  "generated_utc8": "2026-10-22T13:37:45+08:00",
+  "source_head": "cc0eb548da00711bf04c6e60e007d78715cad63f",
+  "goal_reached": "GATE_GO_BOARD_POWERED_BUT_JTAG_CHAIN_EMPTY",
+  "hardware_gate": {
+    "decision": "GO",
+    "exit_code": 0,
+    "release_basis": "operator_authorization",
+    "authorized_by": "Wong"
+  },
+  "jtag_diagnosis": {
+    "hw_server_cables_detected": "digilent-ftdi cables 1",
+    "jtag_cable_target": "1 Digilent JTAG-HS1 210512180081",
+    "xsdb_target_tree": "EMPTY (0 devices)",
+    "jtag_frequency_error": "Invalid target. Use \"jtag targets\" command to select a target",
+    "interpretation": "外置 JTAG-HS1 探针的 USB 侧已被 hw_server 识别并占用，但 FPGA TAP 未枚举 => 探针排线未接到板卡 JTAG 排针 / 板卡 FPGA 未真正上电（仅 USB 供电）/ 链被复位保持",
+    "usb_uart": "COM4 Silicon Labs CP210x 在线",
+    "board_writes_performed": false
+  },
+  "commands": [
+    {
+      "cmd": "check_hardware_gate.py --out <run> --authorized-by Wong",
+      "exit_code": 0,
+      "log": "console/gate_stdout.txt"
+    },
+    {
+      "cmd": "run_xsdb.sh jtag_probe2.tcl（上电后）",
+      "exit_code": 0,
+      "log": "console/jtag_probe_powered.txt"
+    },
+    {
+      "cmd": "run_xsdb.sh xsdb_cmd_dump.tcl",
+      "exit_code": 0,
+      "log": "console/xsdb_cmd_dump.txt"
+    },
+    {
+      "cmd": "run_xsdb.sh jtag_chain_query.tcl",
+      "exit_code": 0,
+      "log": "console/jtag_chain_query.txt"
+    },
+    {
+      "cmd": "run_xsdb.sh jtag_chain_query2.tcl",
+      "exit_code": 0,
+      "log": "console/jtag_chain_query2.txt"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/gate_stdout.txt",
+      "sha256": "baef2922a533d6c6ff54530c39a76cee5cc3a84ed458d6d6c1a3a8fb8dc746e3"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/jtag_chain_query.txt",
+      "sha256": "78e53ed3933954bc3bb8fd88d8afd8f3390197b8802884bcb37375c7a83d5c8b"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/jtag_chain_query2.txt",
+      "sha256": "15d9de35c1167c107e8cc1c47465c3fe2208c391dc3986fc2f8d10a08e1ee02f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/jtag_probe_powered.txt",
+      "sha256": "26dd20b7cc0a19e20517b185767a1518fcb2acb6c3804642e7c7d754932d8ac7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/mailbox_entries.json",
+      "sha256": "c11ed35f4b378d67ae44704fd7c259101a5695346397494da220397db8d5fe95"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/process_enumeration.txt",
+      "sha256": "562396e2796c2652ac1e8afb8e6d29d2dc68e8cf2fd49eaa91b4335eea7cc8be"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/worktrees.json",
+      "sha256": "48fee7f3545a2e1c44ed262a205668aa2edae774847c57fc71d323ad93574f06"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/console/xsdb_cmd_dump.txt",
+      "sha256": "bf09c8ac535da14036241d760b93381d716f54e06b7e78217a1da1ffd9831ccd"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/hardware_gate.json",
+      "sha256": "93271e84068bcfe84d317a7799ed251a7c703693eea6d8f5626ad93e943facb0"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_board_20261022_r01/summary.md",
+      "sha256": "e1ed30b3abd599d3565ca53d1873d8f2a530fffb2d0e0bd30fdf688e080923af"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/check_hardware_gate.py",
+      "sha256": "1ce08b33ab41a3615a01231c8fa0358ad558e28c8f1987684576f6ce5776eb5f"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_probe2.tcl",
+      "sha256": "b6c566df7ebb19c11eec40ab1a48c4d949079a9c16ef4457b5786bf872bf2e82"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_chain_query.tcl",
+      "sha256": "92702925103927251f77e7934ca556de4470708e2e97bacfc1232c73b558394a"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_chain_query2.tcl",
+      "sha256": "f96044871e48216d31b42d1567ebf42a68ab19ab125556e647f8b14505055465"
+    },
+    {
+      "path": "scripts/stage5_t01/xsdb_cmd_dump.tcl",
+      "sha256": "b25d8be30f023def8ec94a4c2b05b7915a84dbaee101b2ea34fda7e3857833f0"
+    }
+  ],
+  "not_executed": [
+    "位流下载",
+    "ELF 下载/运行",
+    "0x503D 写入与回写",
+    "叠框出图",
+    "截图/照片",
+    "FPS/延迟实测",
+    "G3"
+  ],
+  "limitations": [
+    "JTAG 链为空，未对板卡做任何写操作；本 run 只有门禁与只读诊断。",
+    "每次探测后清理本进程产生的 hw_server，收尾无驻留服务。",
+    "v12 应用不自动恢复 0x503D（源码 S3_DIAG9_ORDER=NOT_RESTORED），恢复需重载非图案 ELF/传感器复位 => S5-T01 将在 P1 应用内显式写回 0x00。"
+  ]
+}

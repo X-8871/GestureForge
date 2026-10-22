@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_reachability_notes",
+  "task_id": "S6-B",
+  "derived_from": "S6A-G0-v1.4 draft parameters (PENDING_APPROVAL)",
+  "notes": [
+    {
+      "id": "B16-dedup-window",
+      "statement": "T6-A02(500 ms) < T6-K01(1000 ms)：任何第二次提交都必须等冷却门结束（≥K01），届时已超出 T6-A02 去重窗口 → 在当前草案值下 B16 的 S_DEDUP 分支不可达。",
+      "consequence": "去重逻辑保留并单列，但不得计入覆盖声明；若 G0 批准 T6-A02 > T6-K01 则可达。",
+      "checked": true
+    },
+    {
+      "id": "M4-candidate-timeout",
+      "statement": "T6-S04(500 ms) ≥ T6-L02(300 ms)：候选停留达 S04 前 M10 已先命中 → M4 在草案参数下不可达（U6-12）。",
+      "consequence": "实现保留 M4 与其断言分支，不计入覆盖声明。",
+      "checked": true
+    },
+    {
+      "id": "M7-triggered-loss",
+      "statement": "M5 为同步提交，TRIGGERED 之后不存在独立的提交流失窗口 → M7 构造上不可达。",
+      "consequence": "保留编号与日志位，不为 M7 造路径。",
+      "checked": true
+    }
+  ]
+}

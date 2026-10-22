@@ -1,0 +1,113 @@
+{
+  "task_id": "S4-CTRL",
+  "run_id": "handoff_20261023_r01",
+  "owner": "DSH 阶段4 总控（让出方）",
+  "phase": "offered",
+  "created_utc8": "2026-10-23 00:35",
+  "purpose": "把 D:\\codex-worktrees\\w4 的独占写权让出给 Codex 项目总控：记录 OFFERED 交接行、用 --record 让 handoff_check 的 e/f/g/h 从 SKIP 变为实检、并保留接管方需要知道的未完成事项入口",
+  "scope": "本树写入（.codex/STATE.md + 本交接证据目录）+ 只读核验；未写主树/w2b/w5/w6/dbdf/96a3/厂商原件；未访问 hw_server/JTAG/COM4/串口；未启动 Vivado/xsim/综合/实现；未结束任何他人进程",
+  "deliverable_state": {
+    "commit_subject_main": "e247b49 feat(stage4): 4-A G0 r06 + 4-B 共享契约 + 离线单帧注入通路",
+    "commit_review_status": "bb5d9ab docs(stage4): review-status limitation + follow-up list",
+    "commit_offered": "821b05a chore(stage4): hand over w4 write permission to Codex (OFFERED)",
+    "gates": "G1 交付完成（自检/变异/官方清单）；G2 独立审查【未完成】——Reviewer 子代理本轮连续 provider 失败；G3/G4/G5 未开始",
+    "not_run": [
+      "4-D 板上注入",
+      "真实 UART",
+      "摄像头链路",
+      "PL 时间/期限/吞吐",
+      "109/1000 全量重跑"
+    ]
+  },
+  "tree_facts_at_finalize": {
+    "w4": {
+      "worktree": "D:/codex-worktrees/w4",
+      "branch": "stage4-infer-prep",
+      "head": "821b05a6b3b538b75bec5d023305ab99b8b08a4e",
+      "dirty": 0
+    },
+    "index_locks": "w4/主树/w2b/w5/w6/dbdf 均无 index.lock（按 git rev-parse --git-path 解析）",
+    "heavy_processes": "无 vivado/xsim/xelab/xvlog/hw_server/cs_server/xsdb；（同机存在 vivado-mcp-server-* 辅助进程与若干 python.exe，均非本树持有；阶段5 硬件归属以现场会话为准）"
+  },
+  "commands": [
+    {
+      "cmd": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w4 --json",
+      "exit_code": 0,
+      "checks": {
+        "PASS": 4,
+        "FAIL": 0,
+        "SKIP": 5
+      },
+      "note": "未提供 record：a~d 实检 PASS，e~i SKIP；status=HANDOFF_OK",
+      "output": "（未单独保存，见 handoff_record 方式的实检运行）"
+    },
+    {
+      "cmd": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w4 --record report/evidence/CTRL-DSH-HANDOFF/handoff_20261023_r01/handoff_record_w4.json --json",
+      "exit_code": 0,
+      "checks": {
+        "PASS": 8,
+        "FAIL": 0,
+        "SKIP": 1
+      },
+      "output": "handoff_check_w4.json",
+      "note": "实检：a~h PASS（含心跳 2.7 分钟、状态机 OFFERED、证据入口存在且含 manifest.json、允许范围非空）；i SKIP 因未使用 --claim"
+    },
+    {
+      "cmd": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w4 --record report/evidence/CTRL-DSH-HANDOFF/handoff_20261023_r01/handoff_record_w4.json --claim --claimed-path report/evidence/CTRL-DSH-HANDOFF/handoff_20261023_r01 --json",
+      "exit_code": 0,
+      "checks": {
+        "PASS": 9,
+        "FAIL": 0,
+        "SKIP": 0
+      },
+      "note": "接管预演（只读，不代表已接管）：OFFERED + 让出声明/下一接手方非占位 + claimed-path 在允许范围内 ⇒ 满足接管条件；Codex 正式接管时应以自身实际改动路径重跑",
+      "output": "handoff_check_w4_claim_preview.json"
+    }
+  ],
+  "handover_channel": "阶段 STATE 11 字段交接行（.codex/STATE.md 文末；状态机 OFFERED）+ 本证据目录",
+  "next_owner_first_steps": [
+    "handoff_check --claim 复核并重绑本 record 到接管时 HEAD 后复跑（让出后 HEAD 会因本目录提交而变化，接管方须重绑）",
+    "复跑自检：scripts/stage4_s4a/verify_s4a_draft.py、scripts/stage4_s4ctrl/verify_shared_io_contract.py、scripts/stage4_s4b/run_s4b_injection_offline.py --run-id <新 RunId>",
+    "补独立审查（4-A r06、共享契约 r02、4-B 注入通路）——唯一未闭合关口，当前无 G2",
+    "阶段5 改绑 S4-A r05→r06（跨方请求 S4CTRL-20261022-003）",
+    "取得正式硬件授权与会话交接后才做 4-D 单帧注入板测"
+  ],
+  "do_not_touch": [
+    "已冻结 S4-B 旧产物：vitis/stage4/s4_ps_decode.*、s4_uart_protocol.*、s4_offline_host.c、scripts/stage4_s4b/run_s4b_offline_chain.py、build_s4b_manifest.py、verification/test_s4_ps_decode.py",
+    "任何既有 RunId 证据（不得原地改写或重跑覆盖）",
+    "主树/w2b/w5/w6/dbdf/96a3/厂商原件（只读）",
+    "阶段5 正在使用的硬件会话"
+  ],
+  "artifacts": [
+    {
+      "path": "handoff_record_w4.json",
+      "role": "input",
+      "sha256": "f931995be023571c560658f9c60ded93d7c017b969951835e3db87288dd27c12",
+      "note": "12 键记录（11 字段交接行展开）"
+    },
+    {
+      "path": "handoff_check_w4.json",
+      "role": "result",
+      "sha256": "6f0659426441e0632ca02aa955dfafd0a3d4b9852ce02e4caf429a018947e7b3",
+      "note": "带 record 的只读核验输出（HANDOFF_OK 8/0/1）"
+    },
+    {
+      "path": "handoff_check_w4_claim_preview.json",
+      "role": "result",
+      "sha256": "d5b3344af16a92812c29d1ceaf5fff71ef3c4298aaf329fe1a418d50873ac2db",
+      "note": "接管模式预演输出（HANDOFF_OK 9/0/0）"
+    },
+    {
+      "path": "exit_codes.txt",
+      "role": "log",
+      "sha256": "0441245d930e94b2b416e3d830ae50ab8111aaf08c5053677e0b28c6da5b522c",
+      "note": "三次运行的真实退出码"
+    }
+  ],
+  "limits": [
+    "只读核验不代表 G0/G2/G4/G5、测试通过或实物验收",
+    "本目录提交后 HEAD 变化，record 中的 base_commit 会落后于 HEAD；接管方必须重绑后复跑（预期行为，已写入 next_owner_first_steps）",
+    "让出仅限 w4；主目录 .codex/STATE.md 写权不在本树（默认 DSH 项目总控）",
+    "record 的 base_commit=821b05a 是本交接记录生成时的 HEAD；本目录提交后 HEAD 前移，接管方必须按 next_owner_first_steps 重绑 base_commit 后复跑（--claim 模式），这是记录随交接内容一起提交的固有结果，不是失败。"
+  ]
+}

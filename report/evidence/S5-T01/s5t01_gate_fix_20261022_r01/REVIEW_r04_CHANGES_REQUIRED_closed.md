@@ -17,7 +17,7 @@
 | (b) 6 类硬件名 → 阻断 | `test_37` 伪造 CSV：`vivado/hw_server/xsdb/vitis/xsim/cs_server` + 1 个 MCP 名 | **PASS**（`exit 1`、硬件 6 条、tooling 1 条） |
 | (c) 判别力自证 | `tmp/5/S5-T01/adversarial_r4.py`（隔离副本，不改 w5） | 变体 A：`exit 1`，失败含 **test_36**；变体 B：`exit 1`，失败含 **test_37**；`DISCRIMINATING=True` → `console/adversarial_r4.json` |
 
-测试总数：35 → **38**（新增 test_36/37/38），`python -B -m unittest scripts.stage5_t01.test_hardware_gate` → **38/38 OK，exit 0**（`console/unittest_gate_v2_5.txt`）。
+测试总数：35 → **40**（新增 test_36/37/38 及端口边界 test_39/40），`python -B -m unittest scripts.stage5_t01.test_hardware_gate` → **40/40 OK，exit 0**（`console/unittest_gate_v2_5.txt`）。
 
 ## 3. 第二道门（复审建议"非阻断但优先"）——已实施
 - 复审结论：**仅看进程名会漏判**（真实会话若被命名为 `vivado-mcp-server-*` 会被归入 tooling 不阻断）。
@@ -48,3 +48,8 @@
 - 工具哈希（v2.4）：`check_hardware_gate.py` = `e7d5f4844d083435c61d4bd42a05616da031e50a513bfeba0c32e31c2f2ed00e`；
   `test_hardware_gate.py` = `3541f8e4f122969ccd436656bc1e74ef7fad089fbbc4abeee70a753f480dde10`；
   `hardware_handoff_registry.json` 见 `console/tool_hashes_post_round4.txt`。
+
+## 7. 端口边界加固（Lead 自查后追加）
+-  用  严格边界，避免  误命中；
+  新增 （走**同一解析函数**）与 （ LISTENING + 远程 3121 ESTABLISHED ⇒ **不阻断**）、（真  LISTENING ⇒ 阻断）。
+- 测试 38 → **40**，判别力自证仍为 （变体A→test_36 失败；变体B→test_37 失败）。

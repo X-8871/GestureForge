@@ -284,6 +284,16 @@ def real_processes() -> tuple[list[dict], list[dict], str, bool]:
     return [], [], raw, False
 
 
+def port_3121_in_netstat(text: str) -> bool:
+    """netstat 文本中是否存在 **3121 端口** 的 LISTENING（边界严格，避免 `:31210` 误命中）。"""
+    for line in text.splitlines():
+        if "LISTENING" not in line.upper():
+            continue
+        if re.search(r":3121(?![0-9])", line):
+            return True
+    return False
+
+
 def check_port_3121() -> tuple[bool, bool, str]:
     """第二道门（第四轮复审建议）：3121 是否有 LISTENING（hw_server 特征）。
 
@@ -297,11 +307,7 @@ def check_port_3121() -> tuple[bool, bool, str]:
         raw += f"$ {' '.join(cmd)}\n[exit code: {code}]\n{out}\n"
         if code != 0 or not out.strip():
             continue
-        listening = False
-        for line in out.splitlines():
-            if ":3121" in line and "LISTENING" in line.upper():
-                listening = True
-        return listening, True, raw
+        return port_3121_in_netstat(out), True, raw
     return False, False, raw
 
 
@@ -321,7 +327,9 @@ def main() -> int:
                         default="real")
     parser.add_argument("--process-csv", default=None,
                         help="stub-csv 模式下的伪造 tasklist CSV 文件（经 classify_process_rows 真实分类）")
-    parser.add_argument("--port-check", choices=["real", "stub-none", "stub-listening"], default="real")
+    parser.add_argument("--port-check", choices=["real", "stub-none", "stub-listening", "stub-csv"], default="real")
+    parser.add_argument("--port-csv", default=None,
+                        help="stub-csv 模式下的伪造 netstat 文本（经 port_3121_in_netstat 真实解析）")
     parser.add_argument("--lock-check", choices=["real", "stub-none", "stub-lock"], default="real")
     parser.add_argument("--main-state", default=str(DEFAULT_MAIN_STATE))
     args = parser.parse_args()
@@ -414,6 +422,13 @@ def main() -> int:
         port_listening, port_ok, port_raw = False, True, "[stub-none] 测试替身：3121 无监听\n"
     elif args.port_check == "stub-listening":
         port_listening, port_ok, port_raw = True, True, "[stub-listening] 测试替身：3121 有 LISTENING\n"
+    elif args.port_check == "stub-csv":
+        port_path = pathlib.Path(args.port_csv) if args.port_csv else None
+        if port_path is None or not port_path.exists():
+            port_listening, port_ok, port_raw = False, False, f"[stub-csv] 缺少 --port-csv：{args.port_csv}\n"
+        else:
+            port_text = port_path.read_text(encoding="utf-8", errors="replace")
+            port_listening, port_ok, port_raw = port_3121_in_netstat(port_text), True, port_text
     else:
         port_listening, port_ok, port_raw = check_port_3121()
     if not port_ok:

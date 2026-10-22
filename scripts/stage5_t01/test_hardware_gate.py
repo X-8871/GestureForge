@@ -505,5 +505,35 @@ class GateCase(unittest.TestCase):
         self.assertTrue(any("3121" in r for r in payload["reasons"]), payload["reasons"])
 
 
+    def test_39_port_boundary_no_false_positive_on_31210(self) -> None:
+        """端口边界：`:31210`（或远程地址 3121）**不得**被误判为 3121 监听（防误阻断）。"""
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        netstat = ("  TCP    0.0.0.0:31210          0.0.0.0:0              LISTENING       4242\n"
+                   "  TCP    127.0.0.1:50000        10.0.0.1:3121          ESTABLISHED     4243\n")
+        path = self.tmp / "netstat.txt"
+        path.write_text(netstat, encoding="utf-8")
+        csv = self._csv([("vivado-mcp-server-windows-amd64-2026.9.1.exe", "10888")])
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-csv",
+                                      process_csv=csv, port="stub-csv",
+                                      extra=["--port-csv", str(path)])
+        self.assertEqual(code, 0, payload.get("reasons"))
+        self.assertFalse(payload["port_3121_listening"])
+
+    def test_40_port_boundary_true_positive_with_boundary_text(self) -> None:
+        """端口边界：真正的 `:3121 ... LISTENING` 必须判为监听（第二道门不失效）。"""
+        self.add_record_file("CDX-20261001-001-hw-release.md", "不再占用。\n",
+                             kind="hardware_release", order_key="20261001-001")
+        path = self.tmp / "netstat2.txt"
+        path.write_text("  TCP    0.0.0.0:3121           0.0.0.0:0              LISTENING       4242\n",
+                        encoding="utf-8")
+        csv = self._csv([("vivado-mcp-server-windows-amd64-2026.9.1.exe", "10888")])
+        code, payload = self.run_gate(release_id="CDX-20261001-001", process="stub-csv",
+                                      process_csv=csv, port="stub-csv",
+                                      extra=["--port-csv", str(path)])
+        self.assertEqual(code, 1)
+        self.assertTrue(payload["port_3121_listening"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

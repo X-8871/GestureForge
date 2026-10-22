@@ -52,8 +52,18 @@ test_34_cross_mailbox_same_basename_is_not_shadowed (scripts.stage5_t01.test_har
 复审非阻断 3（既有 fail-open）：两信箱同名文件必须**都解析**，不得互相遮蔽。 ... ok
 test_35_tooling_wrapper_process_does_not_block (scripts.stage5_t01.test_hardware_gate.GateCase.test_35_tooling_wrapper_process_does_not_block)
 2026-10-23 发现：ROSS 的 `vivado-mcp-server-…` 工具包装器不得被当作硬件占用。 ... ok
+test_36_tooling_name_via_real_classification_is_not_blocking (scripts.stage5_t01.test_hardware_gate.GateCase.test_36_tooling_name_via_real_classification_is_not_blocking)
+伪造 tasklist CSV 经**真实分类函数** \u21d2 `vivado-mcp-server-*` 单列且不阻断（GO）。 ... ok
+test_37_all_hardware_names_via_real_classification_block (scripts.stage5_t01.test_hardware_gate.GateCase.test_37_all_hardware_names_via_real_classification_block)
+伪造 CSV 含 6 类真实硬件进程名 \u21d2 全部判硬件且阻断。 ... ok
+test_38_port_3121_listening_blocks_even_if_names_are_tooling (scripts.stage5_t01.test_hardware_gate.GateCase.test_38_port_3121_listening_blocks_even_if_names_are_tooling)
+第二道门：进程名像工具但 **3121 有监听** \u21d2 视为硬件会话存在，必须阻断（防伪装命名）。 ... ok
+test_39_port_boundary_no_false_positive_on_31210 (scripts.stage5_t01.test_hardware_gate.GateCase.test_39_port_boundary_no_false_positive_on_31210)
+端口边界：`:31210`（或远程地址 3121）**不得**被误判为 3121 监听（防误阻断）。 ... ok
+test_40_port_boundary_true_positive_with_boundary_text (scripts.stage5_t01.test_hardware_gate.GateCase.test_40_port_boundary_true_positive_with_boundary_text)
+端口边界：真正的 `:3121 ... LISTENING` 必须判为监听（第二道门不失效）。 ... ok
 
 ----------------------------------------------------------------------
-Ran 35 tests in 3.089s
+Ran 40 tests in 3.231s
 
 OK

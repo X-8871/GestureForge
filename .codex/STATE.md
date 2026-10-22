@@ -1,6 +1,6 @@
 # 阶段6 状态入口（w6 / stage6-interact-prep）
 
-更新：2026-10-23 03:10（UTC+8）。按 `AGENTS.md` 与主 STATE 恢复；**本文件是阶段6 工作树专属状态**，主状态 `D:\FPGA_Competition\.codex\STATE.md` 只读。阶段技术事实以本文件与本树证据为准。
+更新：2026-10-23 03:36（UTC+8）。按 `AGENTS.md` 与主 STATE 恢复；**本文件是阶段6 工作树专属状态**，主状态 `D:\FPGA_Competition\.codex\STATE.md` 只读。阶段技术事实以本文件与本树证据为准。
 
 ## 阶段目标与范围
 
@@ -40,7 +40,7 @@
 - 关键语义落地：H-4（`NO_HAND` 推进时间/结果计数但不推进 WINDOW_MATCH、零框不得完成窗口）、H-10（冷却全局门；门在 STABLE 未开时记 `S_COOLDOWN` 并保持锁存）、M3 只按 `WINDOW_MATCH`、M10 只按 `TARGET_CONTINUES`、STABLE 本次获取内锁存（退出仅 M2/M10/M5）、一次获取一次触发、`window_complete` 与 `W_min` 口径、异常窗口/恢复（M2/M13/M12，恢复期不计窗口）。
 - 6-C 矩阵：`verification/s6b_run_cases.py`（虚拟单调时钟 + JSON 用例 + 逐帧 JSONL 日志 + 断言 + 非零退出；运行前校验 expected 冻结哈希）+ S6-B 证据目录内的 cases/case_matrix.json（**22 条 / 覆盖 CDX-012 §4 全部 11 类**，expected 由行为表 v1.5 人工推导）。
 - **N-r05-04 同步**：核心的 `window_complete_ns` 改为在 **M3 成立帧**（计数与时长取较晚）写入，不再在第 `T6-S02` 个 `WINDOW_MATCH` 帧写入；新增 30fps 用例 `C9c-30fps-later-of` 断言 `window_complete_ns=233100000`（旧逻辑会给 166.5 ms 帧）。
-- 结果：22/22 用例 PASS（`run_report.json`），4/4 判别力探针符合预期（`probe_summary.json`）。
+- 结果：22/22 用例 PASS（r01）。**r02（task-9 修正轮）**：BLK-1(a) 把 M4 修正为**可达并计入覆盖**（`TARGET_CONTINUES` 不含 `score ≥ T6-P02` → 低分中断不推进 `miss_streak`，M10 不先命中；用例 C4-jitter-reset 实测 M4@f7）；N-01 版本统一 v1.6；N-02 计数写实；N-03 11 类覆盖映射由实际用例派生（含 C9c）；N-04 动作记录含 acquisition_id 并登记未实现的 `transition_candidates`/`S_CONFLICT_RESOLVED`；N-05 acquisition_id 规则写入 decision_notes；N-06 `REQUIRED_PARAMETER_IDS` 扩到全部 24 项；N-07 `NO_HAND` 带 detections 计非法（新增用例 C6b）；N-08 IDLE 有目标时不求值 M10 写入 decision_notes；N-09 运行前校验 `cases_file_sha256`（冻结点后改用例即拒运行）；N-10 `source_commit` 动态取 HEAD 并由自证工具绑定交付提交。新 RunId `report/evidence/S6-B/s6b_core_20261023_r02/`：**23/23 用例 PASS**（覆盖 11 类）、探针 4/4 符合预期、两个检查器 exit 0，且 **F6 导出自证 ALL_SELF_PROVEN [0,0,0,0]**（S6-A 自检 STATE + S6-B 驱动 + S6-B inputs/evidence）。
 - 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。
 - `docs/stage6/s6b_frozen_interface_v1.json` 状态改为 `S6B_IMPLEMENTATION_BASELINE_PENDING_REVIEW`（只读 2A 常量，不是新冻结）。
 
@@ -57,9 +57,9 @@
 - 冻结自证：`python -B verification/export_selfproof.py --project-root D:/codex-worktrees/w6 --commit <rev>`（导出该提交后自检 + inputs + evidence 三项必须 exit 0）。
 - 规格：`docs/stage6/`；自检：`verification/s6_g0_selfcheck.py`（C1–C17）；清单构建器：`verification/s6a_build_evidence.py`；旧包重跑：`verification/s6a_rerun_legacy_failures.py`；判别力探针：`verification/s6a_r07_probe.py`；冻结自证：`verification/export_selfproof.py`；缓存：`tmp/6/**`（不入库）。
 
-## 11 字段交接行（2026-10-23 03:10）
+## 11 字段交接行（2026-10-23 03:36）
 
-任务=`S6-A v1.6（r07）第 6 轮复评 F1–F11 收尾（含 F6 冻结自证规则）+ BLK-1 的 M4 可达性修正；随后 S6-B 按 task-9 修正` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `43f7995`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 03:10` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r07/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/` | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r07 + S6-B 修正 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`
+任务=`S6-A v1.6（r07）第 6 轮复评 F1–F11 收尾（含 F6 冻结自证规则）+ BLK-1 的 M4 可达性修正；随后 S6-B 按 task-9 修正` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `43f7995`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 03:36` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r07/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r07（bdcf896）+ S6-B r02 修正 DELIVERED_PENDING_REVIEW（未自称通过）/ 项目总控派 Reviewer 复评`
 
 ## 环境与恢复要点
 

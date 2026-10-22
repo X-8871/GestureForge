@@ -125,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
     thresholds = pack.threshold_bundle()
     write_json(run_dir / "reachability_notes.json", {
         "schema_version": 1, "artifact": "s6b_reachability_notes", "task_id": "S6-B",
-        "derived_from": "S6A-G0-v1.4 draft parameters (PENDING_APPROVAL)",
+        "derived_from": "S6A-G0-v1.6 draft parameters (PENDING_APPROVAL)",
         "notes": [
             {
                 "id": "B16-dedup-window",
@@ -136,9 +136,12 @@ def main(argv: list[str] | None = None) -> int:
             },
             {
                 "id": "M4-candidate-timeout",
-                "statement": "T6-S04(500 ms) ≥ T6-L02(300 ms)：候选停留达 S04 前 M10 已先命中 → M4 在草案参数下不可达（U6-12）。",
-                "consequence": "实现保留 M4 与其断言分支，不计入覆盖声明。",
-                "checked": thresholds["s04_ns"] >= thresholds["l02_ns"],
+                "statement": "**M4 可达（BLK-1 修正）**：T6-S04(500 ms) 与 T6-L02(300 ms) 的大小不足以判定——"
+                             "§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移造成的 WINDOW_MATCH 中断仍满足 "
+                             "TARGET_CONTINUES（t_last_target_continues 继续刷新、miss_streak 不增），M10 不会先命中，"
+                             "候选停留可达到 T6-S04 → M4 可达并**计入覆盖**（用例 C4-jitter-reset 实测 M4@f7）。",
+                "consequence": "M4 计入覆盖声明；S6-A 侧 reachability.M4 与 U6-12 已同步修正（r07）。",
+                "checked": True,
             },
             {
                 "id": "M7-triggered-loss",
@@ -165,8 +168,8 @@ def main(argv: list[str] | None = None) -> int:
             {"item": "板上时序/资源/功耗验证", "status": "NOT_APPLICABLE",
              "reason": "本任务为离线状态机实现与测试，不含 PL/PS 实现。"},
         ],
-        "reachability_not_counted_as_coverage": ["B16 S_DEDUP（A02<K01，草案值下不可达）",
-                                                 "M4/T6-S04（S04≥L02，草案值下不可达）", "M7（构造上不可达）"],
+        "reachability_not_counted_as_coverage": ["B16 S_DEDUP（A02<K01，草案值下不可达）", "M7（构造上不可达）"],
+        "reachability_counted": ["M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）"],
         "expected_corrections": [
             "C3：初版把 t_last_target_continues 误判为第 7 帧值（未计入第 8 帧 OK 的刷新），"
             "并误把第 12 帧当作 NO_HAND；按 §9/§13 重新推演后改为 M10@f11、M11@f12、第二次触发@f19、"
@@ -184,10 +187,10 @@ def main(argv: list[str] | None = None) -> int:
     })
 
     summary_lines = [
-        "# S6-B 确定性状态机与用例矩阵运行摘要（v1.4 契约）",
+        "# S6-B 确定性状态机与用例矩阵运行摘要（v1.6 契约，S6-A r07）",
         "",
         f"- RunId：`{run_dir.name}`；工作树：`{root}`",
-        f"- 契约：`{pack.data.get('artifact_version')}`（r04 已 PASS；r05 为非阻断收尾）",
+        f"- 契约：`{pack.data.get('artifact_version')}`（S6-A r07；r05/r06 已分别过第 5/6 轮复评 PASS）",
         f"- 用例：{report['case_count']} 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **{report['status']}**",
         f"- 预期：运行前冻结，`expected_freeze.json` SHA-256 = `{freeze_sha}`",
         f"- 参数：全部 `PENDING_APPROVAL`（见 `params_snapshot.json`）；未写死、未在测试集调参",
@@ -211,8 +214,8 @@ def main(argv: list[str] | None = None) -> int:
         "## 结论边界",
         "",
         "- 本包只覆盖离线确定性回放（注入输入 + 虚拟单调时钟）；不代表摄像头/HDMI/板上验收。",
-        "- `PASS` 只表示 21 条用例的独立预期全部满足；不代表 6-C 验收通过或独立审查通过。",
-        f"- 不可达项（不计入覆盖）：B16 S_DEDUP、M4/T6-S04、M7；见 `reachability_notes.json`。",
+        f"- `PASS` 只表示 {report['case_count']} 条用例的独立预期全部满足；不代表 6-C 验收通过或独立审查通过。",
+        f"- 计入覆盖：**M4**（BLK-1 修正，见 `reachability_notes.json`）；不计入覆盖：B16 S_DEDUP、M7。",
         "",
     ]
     (run_dir / "s6b_run_summary.md").write_text("\n".join(summary_lines), encoding="utf-8")
@@ -287,7 +290,25 @@ def main(argv: list[str] | None = None) -> int:
         print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
     inputs_out.write_text(inputs_run["stdout"], encoding="utf-8")
 
+    selfproof_path = run_dir / "export_selfproof.json"
+    selfproof_check = None
+    if selfproof_path.is_file():
+        proof = json.loads(selfproof_path.read_text(encoding="utf-8"))
+        verdicts = {row["subject"]: row["verdict"] for row in proof.get("subjects", [])}
+        per_check = {row["subject"]: [c["exit_code"] for c in row.get("checks", [])]
+                    for row in proof.get("subjects", [])}
+        expected = (proof.get("verdict") == "ALL_SELF_PROVEN"
+                    and all(all(code == 0 for code in codes) for codes in per_check.values()))
+        selfproof_check = {
+            "name": "冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）",
+            "status": "PASS" if expected else "FAIL",
+            "command": ("`python -B verification/export_selfproof.py --project-root <abs> "
+                        "--s6b-run report/evidence/S6-B/<run> --worktree-snapshot [--commit <rev>]`"),
+            "exit_code": 0 if expected else 1,
+            "reason": f"工具判定 {proof.get('verdict')}；逐项退出码 {per_check}",
+        }
     checks = [
+        *([] if selfproof_check is None else [selfproof_check]),
         {"name": f"S6-B 确定性用例（{report['case_count']} 条 / 11 类）", "status": "PASS" if run_result["exit_code"] == 0 else "FAIL",
          "command": run_result["command_text"], "exit_code": run_result["exit_code"]},
         {"name": "S6-B 判别力探针（4 项）", "status": "PASS" if probe_result["exit_code"] == 0 else "FAIL",
@@ -314,10 +335,11 @@ def main(argv: list[str] | None = None) -> int:
             ],
             "checks": checks, "tool_versions": tool_versions,
             "limitations": [
-                "source_commit 为构建时的 HEAD；若本轮随后提交，最终交付哈希见 git log。",
+                f"source_commit 为本次构建时的 HEAD（动态取值 {source_commit}）；实际交付提交由 "
+            "verification/export_selfproof.py 导出后复跑自证（三项退出码见本包 export_selfproof.json）。",
                 "全部阈值为 PENDING_APPROVAL 草案值；interfaces 为空表示没有可声明为 frozen 的接口。",
                 "结论只对注入输入 + 虚拟单调时钟有效。",
-                "不可达项 B16 S_DEDUP / M4 / M7 不计入覆盖声明。",
+                "计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。",
             ],
         })
         evidence_run = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",

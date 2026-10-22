@@ -95,7 +95,8 @@ class ActionLayer:
             "target_id": target_id,
             "class_id": request.get("class_id"),
             "class_name": request.get("class_name"),
-            "source_frame_id": request.get("source_frame_id"),
+            "acquisition_id": request.get("acquisition_id"),  # N-04：动作记录含获取级 id
+                "source_frame_id": request.get("source_frame_id"),
             "trigger_frame_id": request.get("trigger_frame_id"),
             "acquisition_id": request.get("acquisition_id"),
             "t_trigger_ns": request.get("t_trigger_ns"),

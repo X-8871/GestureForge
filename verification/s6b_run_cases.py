@@ -216,6 +216,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     cases = json.loads(cases_path.read_text(encoding="utf-8"))
     cases["cases_file"] = cases_path.relative_to(root).as_posix()
+    # N-09：在同一字典（含 cases_file 身份字段）上取哈希，冻结与运行口径一致
+    cases_sha = sha256_text(_canonical(cases))
 
     behavior_json = (Path(args.behavior_json).resolve() if args.behavior_json
                      else root / "docs/stage6/s6a_stage6_g0_behavior_v1.json")
@@ -241,6 +243,11 @@ def main(argv: list[str] | None = None) -> int:
         print("缺少 expected_freeze.json：必须先冻结预期再运行（H-7）")
         return 2
     frozen = json.loads(freeze_path.read_text(encoding="utf-8"))
+    # N-09：运行前同时校验**用例文件**哈希（冻结点之后改用例即拒运行），
+    # 不只校验每条 expected；两者共同保证「先冻结、后运行」不被绕过（H-7）。
+    if frozen.get("cases_file_sha256") != cases_sha:
+        print("用例文件在冻结后被修改：expected_freeze.json.cases_file_sha256 与当前不一致——拒绝运行")
+        return 2
     for case in cases["cases"]:
         case_id = case["case_id"]
         want = frozen["expected_sha256"].get(case_id)

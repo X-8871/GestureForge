@@ -1,4 +1,4 @@
-"""阶段6 交互状态机纯核心（S6-B，契约 S6A-G0-v1.4）。
+"""阶段6 交互状态机纯核心（S6-B，契约 S6A-G0-v1.6，对应 S6-A r07）。
 
 设计边界（对应 S6-A 硬不变量 H-1/H-3/H-7 与 CDX-20261022-012 §3）：
 
@@ -9,7 +9,7 @@
 * 阈值全部来自 :class:`src.stage6.s6_params.ParamPack`（行为表 JSON，保持 PENDING_APPROVAL）；
   本模块不出现任何阶段6 阈值字面量。
 
-本实现逐条对齐 v1.4 契约（关键点：
+本实现逐条对齐 v1.6 契约（关键点：
 
 * H-4：窗口**序列**由 ``state ∈ {OK, NO_HAND}``、``stale=false``、非重复、非倒序的结果推进；
   **匹配计数只由 WINDOW_MATCH 推进**；``NO_HAND`` 推进时间与结果计数、不推进匹配计数、
@@ -50,13 +50,12 @@ SUP_COOLDOWN = "S_COOLDOWN"
 SUP_TARGET_HELD = "S_TARGET_HELD"
 SUP_JITTER = "S_JITTER_TOLERATED"
 SUP_WINDOW_TIMEOUT = "S_WINDOW_TIMEOUT"
-SUP_CONFLICT = "S_CONFLICT_RESOLVED"
 
 STATES = ("IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN", "LOST", "UNKNOWN_RECOVER")
 NON_ADVANCING_KINDS = (EV_FRAME_TIMEOUT, EV_FRAME_ERROR, EV_FRAME_DROPPED)
 
 #: 判定核心使用的期望契约版本（可被构造参数覆盖，但不允许静默跟随上游改版）。
-EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.5"
+EXPECTED_CONTRACT_VERSION = "S6A-G0-v1.6"
 
 
 class CoreInputError(RuntimeError):
@@ -78,11 +77,19 @@ class GestureInteractionCore:
         "（帧计数归零、窗口起点清空），容忍期内保留原有帧计数。",
         "D3: 目标切换（新目标 != 当前目标）视为当前获取结束：清空稳定窗口证据、分配新的 acquisition_id，"
         "并重新按 §8 选择目标；切换后不继承旧目标的窗口。",
-        "D4: 异常/丢失/触发均按 v1.4 求值序 P1(M2/M13) → P2(M10) → P3(状态推进) → P4(M1) → P5(M12)，"
+        "D4: 异常/丢失/触发均按 v1.6 求值序 P1(M2/M13) → P2(M10) → P3(状态推进) → P4(M1) → P5(M12)，"
         "同一帧首次命中即停。",
         "D5: 时间条件使用显式输入时刻；E_TICK 只推进时间，用于「无新结果但时间持续前进」。",
         "D6: 语义上无法由核心判定的未知场景（合法五类内的误识别）不做拒绝判定（H-6）；"
         "class_id ∉ {0..4} 按 E_FRAME_INVALID 处理并计入异常。",
+        "D7（N-05 acquisition_id 规则）：acquisition_id 只在**结束一次获取**时递增——M11（丢失确认→IDLE）、"
+        "M4（抖动超时→IDLE）、M8（会话/重启复位）与目标切换（D3）；M1 建立候选**不**递增；"
+        "因此同一获取内 M5 至多触发一次，与 B11/B15 的「一次获取一次触发」一致（日志即获取级 id）。",
+        "D8（N-08 IDLE 有目标时不求值 M10）：M10 只在已进入求值序的有目标状态判定；当前实现中 IDLE 不保留 "
+        "current_target（M11/M4/切换均清空），故该分支不会出现；若后续允许 IDLE 保留目标，必须显式求值 M10 "
+        "（规格 M10 为「任意有目标状态」）并回归本用例集。",
+        "D9（N-04 登记）：§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现——每帧只输出单一 transition；"
+        "该常量与相关分支已从代码移除，并在 limitations_not_executed.json 登记为未实现。",
     )
 
     def __init__(self, pack: ParamPack) -> None:
@@ -107,7 +114,8 @@ class GestureInteractionCore:
         self.state = "IDLE"
         self.counters = {
             "invalid": 0, "error": 0, "dropped": 0, "timeout": 0, "stale": 0, "false_actions": 0,
-            "no_hand_frames": 0, "unknown_class_frames": 0, "ok_frames": 0,
+            "no_hand_frames": 0, "unknown_class_frames": 0, "no_hand_with_detections": 0,
+            "ok_frames": 0,
             "duplicate_frames": 0, "out_of_order_frames": 0, "missing_frames": 0,
             "action_submitted": 0, "action_effective": 0, "unobserved": 0,
         }
@@ -364,6 +372,17 @@ class GestureInteractionCore:
         if state_value not in ("OK", "NO_HAND"):
             raise CoreInputError(f"结果状态非法：{state_value!r}")
         stale = bool(event.get("stale", False))
+        # N-07：state=NO_HAND 却携带 detections 属非法输入（§11.3），计非法并丢弃该帧证据，
+        # 不静默忽略（与 class_id 越界同一处理路径）。
+        if state_value == "NO_HAND" and event.get("detections"):
+            self.counters["invalid"] += 1
+            self.counters["no_hand_with_detections"] += 1
+            log["input_state"] = "INVALID"
+            log["reason"] = ("E_FRAME_INVALID：state=NO_HAND 却携带 detections（§11.3）；"
+                             "丢弃该帧证据并计异常（N-07）")
+            self._anomaly(log, advancing=False)
+            self._evaluate(t_now_ns, advancing=False, log=log)
+            return self._finish(log)
         invalid_reason = self._validate(event)
         if invalid_reason is not None:
             self.counters["invalid"] += 1
@@ -635,6 +654,7 @@ class GestureInteractionCore:
                 "target_id": mapping["target_id"],
                 "class_id": int(mapping["class_id"]),
                 "class_name": mapping["class_name"],
+                "acquisition_id": self.acquisition_id,  # N-04：动作记录含获取级 id
                 "source_frame_id": log.get("frame_id"),
                 "trigger_frame_id": log.get("frame_id"),
                 "t_trigger_ns": self.last_t_ns,

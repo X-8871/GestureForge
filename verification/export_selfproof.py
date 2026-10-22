@@ -170,7 +170,8 @@ def normalize_line_endings(tree: Path, source_root: Path) -> dict:
     return {"aligned": aligned, "content_differs": content_differs}
 
 
-def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = None) -> dict:
+def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = None,
+               s6b_rel: str | None = None) -> dict:
     behavior = tree / BEHAVIOR
     alignment = None
     if not behavior.is_file():
@@ -182,31 +183,51 @@ def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = No
     alignment = align_by_manifest_hashes(tree, f"{evidence_rel}/delivery_manifest.json")
     if source_root is not None:
         alignment = dict(alignment, worktree_bytes=normalize_line_endings(tree, source_root))
-    s6b_rel = "report/evidence/S6-B"
-    s6b_files = [p for p in (tree / s6b_rel).rglob("*") if p.is_file()] if (tree / s6b_rel).is_dir() else []
+    s6b_dir_rel = "report/evidence/S6-B"
+    s6b_files = ([p for p in (tree / s6b_dir_rel).rglob("*") if p.is_file()]
+                 if (tree / s6b_dir_rel).is_dir() else [])
 
     checks: list[dict] = []
     selfcheck_out = work / f"{label}_selfcheck.json"
     checks.append(dict(
-        name="selfcheck（含 C11 清单/STATE）",
+        name="selfcheck（C11：清单 + STATE）" if not s6b_rel else "selfcheck（C11：仅 STATE 声明存在性；S6-B 模式下不复算 S6-A 旧轮次清单哈希）",
         **run([sys.executable, "-B", str(tree / "verification/s6_g0_selfcheck.py"),
                "--json", str(behavior), "--doc", str(tree / DOC),
                "--cases", str(evidence / "hand_computed_cases.json"),
                "--upstream", str(evidence / "upstream_bindings.json"),
                "--out", str(selfcheck_out), "--project-root", str(tree),
                "--evidence-dir", str(evidence),
-               "--manifest", str(evidence / "delivery_manifest.json"),
+               *(["--manifest", str(evidence / "delivery_manifest.json")] if not s6b_rel else []),
                "--state", str(tree / ".codex/STATE.md")], tree)))
-    checks.append(dict(
-        name="check_stage_delivery --mode inputs",
-        **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
-               "--mode", "inputs", "--manifest", str(evidence / "inputs_manifest.json"),
-               "--project-root", str(tree)], tree)))
-    checks.append(dict(
-        name="check_stage_delivery --mode evidence",
-        **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
-               "--mode", "evidence", "--manifest", str(evidence / "delivery_manifest.json"),
-               "--project-root", str(tree)], tree)))
+    if not s6b_rel:
+        # S6-A 轮次清单绑定的是该轮次构建时的源码字节；进入 S6-B 模式（工作区已前进）时
+        # 旧轮次清单的源码哈希自然不再匹配，故只在非 S6-B 模式下复算 S6-A 清单。
+        checks.append(dict(
+            name="check_stage_delivery --mode inputs",
+            **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
+                   "--mode", "inputs", "--manifest", str(evidence / "inputs_manifest.json"),
+                   "--project-root", str(tree)], tree)))
+        checks.append(dict(
+            name="check_stage_delivery --mode evidence",
+            **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
+                   "--mode", "evidence", "--manifest", str(evidence / "delivery_manifest.json"),
+                   "--project-root", str(tree)], tree)))
+    if s6b_rel:
+        s6b_dir = tree / s6b_rel
+        checks.append(dict(
+            name="S6-B 确定性用例驱动（该提交内）",
+            **run([sys.executable, "-B", str(tree / "verification/s6b_run_cases.py"),
+                   "--project-root", str(tree), "--run-dir", str(s6b_dir)], tree)))
+        checks.append(dict(
+            name="S6-B check_stage_delivery --mode inputs",
+            **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
+                   "--mode", "inputs", "--manifest", str(s6b_dir / "inputs_manifest.json"),
+                   "--project-root", str(tree)], tree)))
+        checks.append(dict(
+            name="S6-B check_stage_delivery --mode evidence",
+            **run([sys.executable, "-B", str(tree / "verification/check_stage_delivery.py"),
+                   "--mode", "evidence", "--manifest", str(s6b_dir / "delivery_manifest.json"),
+                   "--project-root", str(tree)], tree)))
     selfcheck_status = None
     selfcheck_errors: list[str] = []
     if selfcheck_out.is_file():
@@ -239,6 +260,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="待自证提交（可多次）；与 --worktree-snapshot 可同时使用")
     parser.add_argument("--worktree-snapshot", action="store_true",
                         help="额外导出当前工作区快照做提交前自验")
+    parser.add_argument("--s6b-run", default=None,
+                        help="S6-B 证据目录（相对路径）：额外跑 S6-B 驱动 + 其 inputs/evidence 检查器")
     parser.add_argument("--out", default=None, help="报告输出路径（JSON）")
     parser.add_argument("--markdown", default=None, help="报告输出路径（Markdown）")
     args = parser.parse_args(argv)
@@ -250,7 +273,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         for rev in args.commit:
             tree = prepare_commit_repo(root, rev, work_root / f"commit_{rev}")
-            entry = self_prove(tree, work_root, f"commit_{rev}", source_root=root)
+            entry = self_prove(tree, work_root, f"commit_{rev}", source_root=root,
+                               s6b_rel=args.s6b_run)
             entry["subject"] = f"commit {rev}"
             try:
                 entry["commit_tree"] = subprocess.run(["git", "-C", str(root), "rev-parse", f"{rev}^{{tree}}"],
@@ -261,7 +285,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.worktree_snapshot:
             # 不排除本工具的既有输出：清单已声明它们，快照必须与清单一致（快照只是复制工作区字节）
             tree = prepare_snapshot_repo(root, work_root / "worktree", [])
-            entry = self_prove(tree, work_root, "worktree_snapshot", source_root=root)
+            entry = self_prove(tree, work_root, "worktree_snapshot", source_root=root,
+                               s6b_rel=args.s6b_run)
             entry["subject"] = "worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）"
             results.append(entry)
     finally:

@@ -1,7 +1,8 @@
-"""阶段6 参数装载与校验（S6-B，契约 S6A-G0-v1.4）。
+"""阶段6 参数装载与校验（S6-B，契约 S6A-G0-v1.6，对应 S6-A r07）。
 
-S6-A r04（v1.3）已通过第 4 轮独立复评（PASS），r05（v1.4）已收尾 5 项非阻断；
-本模块按 **v1.4** 契约装载参数，不做任何数值覆盖、不做"临时调参"入口。
+S6-A r05（v1.4）与 r06（v1.5）已分别通过第 5/6 轮独立复评（PASS），r07（v1.6）收尾 F1–F11 与 BLK-1；
+本模块按 **v1.6** 契约装载参数，不做任何数值覆盖、不做"临时调参"入口。
+`REQUIRED_PARAMETER_IDS` 覆盖行为表全部 24 项参数：删除任意一项即拒载（N-06）。
 
 设计约束（对应 AGENTS.md 与 S6-A G0 包）：
 
@@ -24,7 +25,7 @@ import json
 from pathlib import Path
 
 EXPECTED_ARTIFACT = "s6a_stage6_g0_behavior"
-EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.5"
+EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.6"
 PENDING_APPROVAL = "PENDING_APPROVAL"
 
 # 单位换算常量只出现在装载层，不进入判定核心。
@@ -35,6 +36,7 @@ _FRAME_TO_COUNT = 1
 REQUIRED_PARAMETER_IDS = (
     "T6-A01",
     "T6-A02",
+    "T6-A03",
     "T6-C01",
     "T6-S01",
     "T6-S02",
@@ -53,6 +55,9 @@ REQUIRED_PARAMETER_IDS = (
     "T6-P04",
     "T6-P05",
     "T6-STALE_LIMIT",
+    "T6-01",
+    "T6-02",
+    "T6-03",
 )
 
 _REQUIRED_HARD_INVARIANTS = ("H-1", "H-2", "H-3", "H-4", "H-5", "H-6", "H-7", "H-8", "H-9", "H-10")

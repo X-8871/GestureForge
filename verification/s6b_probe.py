@@ -6,7 +6,7 @@
   P1 baseline                 未改动：必须 PASS（exit 0）
   P2 expected_tampered        冻结后篡改 expected：驱动必须**拒绝运行**（exit 2）
   P3 wrong_semantics_expected 注入"NO_HAND 也能完成窗口"的错误预期：必须断言失败（exit 1）
-  P4 threshold_tampered       把行为表 JSON 的 T6-S02 改成 99（其余不变）：用例必须失败（exit 1），
+  P4 threshold_tampered       把行为表 JSON 的 T6-S01 改成 900 ms（其余不变）：用例必须失败（exit 1），
                               证明阈值确实从 JSON 读入、未写死
 
 用法：
@@ -116,17 +116,24 @@ def main(argv: list[str] | None = None) -> int:
     probe4 = work / "threshold_tampered"
     (probe4 / "cases").mkdir(parents=True, exist_ok=True)
     shutil.copy(cases_src, probe4 / "cases/case_matrix.json")
-    shutil.copy(freeze_src, probe4 / "expected_freeze.json")
+    # N-09 起，冻结文件与用例文件哈希绑定到其所在路径；探针目录必须重新冻结，
+    # 否则会在「用例文件哈希」这一层被拒（exit 2），测不到阈值篡改的判别力（exit 1）。
+    frozen4 = run_driver(driver, root, probe4, probe4 / "cases/case_matrix.json",
+                         extra=["--freeze-only", "--force-freeze"])
+    if frozen4.returncode != 0:
+        print(f"P4 冻结失败：{frozen4.stdout}")
+        return 1
     behavior = json.loads(behavior_src.read_text(encoding="utf-8"))
     for item in behavior["parameters"]:
-        if item["id"] == "T6-S02":
-            item["draft_value"] = 99
+        if item["id"] == "T6-S01":
+            # 取一个 ParamPack 允许范围内的值（99 会被装载校验直接拒载，退化为 exit 2 而测不到判别力）
+            item["draft_value"] = 900.0
             item["draft_source"] = "探针：临时篡改（仅 tmp 副本）"
     tampered = probe4 / "behavior_tampered.json"
     tampered.write_text(json.dumps(behavior, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     completed = run_driver(driver, root, probe4, probe4 / "cases/case_matrix.json",
                            extra=["--behavior-json", str(tampered)])
-    ok_all &= record("threshold_tampered", 1, "T6-S02 篡改为 99：用例必须失败（阈值来自 JSON）", completed)
+    ok_all &= record("threshold_tampered", 1, "T6-S01 篡改为 900 ms：用例必须失败（阈值确实来自 JSON）", completed)
 
     summary = {
         "schema_version": 1,

@@ -1,0 +1,110 @@
+{
+  "run_id": "t05_color_msb_missing_20261022_r01",
+  "task": "S3-T05",
+  "date": "2026-10-22",
+  "purpose": "第三方要求的两个便宜实验：已知颜色测试图案 + R/B 互换，判定“真缺位 vs 顺序错”",
+  "source_baseline_commit": "a9cd300fc7eef50a4b51e2e117be0fd895edb50e",
+  "branch": "codex/stage3-video",
+  "v12_register_condition": "S3_DIAG12_BARS=503D before=0x00 after=0x80 readback=0x80 write_status=0",
+  "v12_register_restored_evidence": "S3_DIAG5_SENS=4202=0x00 3008=0x02 4740=0x20 3035=0x21 3034=0x1A 4300=0x60 501F=0x01 3824=0x04 503D=0x00（v10_read 运行，init 表已把 0x503D 写回 0x00）",
+  "capture_command": "bash scripts/stage3_t05/run_t05_board_capture.sh D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01 D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf bars1 55",
+  "dump_command": "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_dump_frame.tcl <empty_dir> 0x00114C00   # 基址取自 UART 的 FB=（禁止写死）",
+  "hardware": {
+    "board": "AX7020",
+    "connector": "J11 (CMOS2)",
+    "sensor": "OV5640 (AN5642 module)",
+    "bitstream": "SOF fix baseline (no compensation)",
+    "app": "v12 bars+freeze",
+    "fb": "0x00114C00",
+    "fb_bytes": "0x2A3000",
+    "stride": "0x0F00"
+  },
+  "artifacts": {
+    "bars_raw.png": {
+      "file": "bars_raw.png",
+      "sha256": "456eeb27c5a22de227cf3c3c6c70e75b690dc147f1f21dfd7a02b9129bc4a0f1",
+      "source": "tmp/3/S3-T05/bars_20261022_r01/bars_raw.png"
+    },
+    "bars_raw.bin": {
+      "file": "bars_raw_frame_full.bin",
+      "sha256": "1c52577e539083b31acbdc81b951626ae0dfe3bc8239d2ff4b2d35f2a472fb89",
+      "source": "tmp/3/S3-T05/bars_20261022_r01/frame_full.bin"
+    },
+    "pose1_asis.png": {
+      "file": "pose1_asis.png",
+      "sha256": "33e8709cf151b4a0ed5245ad9460747dd260e3a367622e3f5ddcd6022b543c07",
+      "source": "tmp/3/S3-T05/pose1_20261022_r01/pose1_asis.png"
+    },
+    "pose1_rbswap.png": {
+      "file": "pose1_rbswap.png",
+      "sha256": "46a115db596991496527fba41a278e0c0d2d99227ca2a702829594d2cf51e6b9",
+      "source": "tmp/3/S3-T05/pose1_20261022_r01/pose1_rbswap.png"
+    },
+    "pose1.bin": {
+      "file": "pose1_frame_full.bin",
+      "sha256": "b9fef824368d58ef76b127d01e91bf7d4c049e04828a78380811a7e745161761",
+      "source": "tmp/3/S3-T05/pose1_20261022_r01/frame_full.bin"
+    },
+    "pose2_asis.png": {
+      "file": "pose2_asis.png",
+      "sha256": "35b1b372bf3f39f54b79d3c8f51f9a2c92eed85fbb98df685a8d938de5e11846",
+      "source": "tmp/3/S3-T05/pose2_20261022_r01/pose2_asis.png"
+    },
+    "pose2_rbswap.png": {
+      "file": "pose2_rbswap.png",
+      "sha256": "715faf29a37eaddf0a5ca82ebee178edbb0f0fc0b2a77359435f981ef20feddc",
+      "source": "tmp/3/S3-T05/pose2_20261022_r01/pose2_rbswap.png"
+    },
+    "pose2.bin": {
+      "file": "pose2_frame_full.bin",
+      "sha256": "594ae5c03a773d1b095a54ef3bbe7c3b3a08f73fab204b92e641e43085627b5f",
+      "source": "tmp/3/S3-T05/pose2_20261022_r01/frame_full.bin"
+    },
+    "colpose1_asis.png": {
+      "file": "colpose1_asis.png",
+      "sha256": "3aac9d6fd4d6ff992e1e7939850cf8b524036f47770b14f90c668000a0cff83f",
+      "source": "tmp/3/S3-T05/colpose1_20261022_r01/colpose1_asis.png"
+    },
+    "colpose1_rbswap.png": {
+      "file": "colpose1_rbswap.png",
+      "sha256": "5cb021f9fae8f0132edcdacf0ec20e3b89ccb732448be31f43a614735fb877ac",
+      "source": "tmp/3/S3-T05/colpose1_20261022_r01/colpose1_rbswap.png"
+    },
+    "colpose1.bin": {
+      "file": "colpose1_frame_full.bin",
+      "sha256": "de3b95999c698ae7a82153d643b0d6e73dce14d2c0fc39edbcf271e0fc27c62c",
+      "source": "tmp/3/S3-T05/colpose1_20261022_r01/frame_full.bin"
+    }
+  },
+  "script_sha256": {
+    "recompute_color_msb.py": "768c23d456ac6a782aefdd00d19ab467e19996195e0bbb47a9486629a696751f",
+    "jtag_dump_frame.tcl": "6a787a19c3b8a672d37e13d4559866fc89b80da3435e171f3c2319feb7206cd6"
+  },
+  "bars_values_file": "bars_values.txt",
+  "recompute_script": {
+    "file": "recompute_color_msb.py",
+    "note": "第三方自有复算脚本可并列引用；本文件只读 .bin 输出同口径数值与签名判读"
+  },
+  "third_party_model_measurements": {
+    "note": "由 Wong 转述的第三方实测，原始日志待补附",
+    "gray_two_orders": "逐项一致（灰度帧 R≈G≈B，R/B 互换渲染像素级相同）",
+    "compensated_color_two_orders": "tiny320 仅 26%，其余为 0",
+    "verdict": "该帧不能用于模型识别（对彩色训练模型属强域外），也不满足颜色验收"
+  },
+  "volume_policy": {
+    "raw_bin_total_bytes": 11059200,
+    "limit_bytes": 15728640,
+    "included_all_raw": true,
+    "note": "未搬入 tmp/** 整目录；未覆盖任何旧 RunId"
+  },
+  "limitations": [
+    "彩条为合成图案，只证明链路缺位与色相顺序，不覆盖真实场景噪声/白平衡",
+    "未做电气测量；模块侧断点位置（走线/焊点/传感器脚）仍未区分",
+    "灰色帧与补偿彩色帧的模型输出为第三方转述，原始日志未附"
+  ],
+  "not_executed": [
+    "RTL 仿真",
+    "≥30 分钟耐久",
+    "ILA 波形（BASIC 许可禁用 debug core）"
+  ]
+}

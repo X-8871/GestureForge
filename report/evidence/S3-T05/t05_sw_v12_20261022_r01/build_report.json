@@ -1,0 +1,284 @@
+{
+  "schema": "stage3_t05_sw_diag_v12_build_record_v1",
+  "task_id": "S3-T05-SW8 v12",
+  "task_board_id": "task-14",
+  "date_local": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "generated_local": "2026-10-22T12:21:13+0800",
+  "purpose": "v12 纯新增：传感器内置彩条测试图案（0x503D=0x80）+ v11 取帧保持。第三方建议用**已知颜色**的测试图案经同一条 DVP→VDMA→DDR 链路转储，以区分“真缺色相/缺位”与“仅 R/B 顺序或位拼接错”。本变体在 sensor_init() 之后写 0x503D=0x80（先回读、写后回读校验），保留 v11 的 t≈20 s 停 S2MM 与 240 s 静止窗口，便于把彩条帧整帧导出后按已知颜色判读。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "a9cd300fc7eef50a4b51e2e117be0fd895edb50e",
+    "note": "任务卡未固定起始 commit；此处记录本任务开工时的实际 HEAD。本任务未提交 Git。"
+  },
+  "inputs": {
+    "xsa_sof_fix": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "bytes": 633089,
+      "note": "任务卡指定 1f5b138e...cb0e3；构建时对 BSP 出处的 _input 副本再校验同一哈希"
+    },
+    "vendor_app_src_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "bytes": 3735,
+      "note": "构建前校验 pristine 哈希 1e2c74f1...a985"
+    },
+    "bsp_tree_reused": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v11/elf_build/app/lscript.ld",
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "bytes": 6324,
+      "note": "BSP/链接脚本来自既有 SOF 修复 XSA 构建树；本轮不运行 sdtgen"
+    },
+    "v4_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v4.patch",
+      "sha256": "9f927f5e77b29c68a459a7515e3f97e2976858a496491170de31b6cc74b4c5f0",
+      "bytes": 4437
+    },
+    "v5_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v5.patch",
+      "sha256": "1cee31451397d3e5df2b20f93d883311419e3f9ee44e2021c6cbb8bbce9bec0a",
+      "bytes": 10748
+    },
+    "v6_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v6.patch",
+      "sha256": "4c7becc145c845d14b457e7917273f9c50120d9d513a0dc2612ecd057c08b960",
+      "bytes": 14583
+    },
+    "v7_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v7.patch",
+      "sha256": "d471317726818a835e5e6aaf25108df688b122f6aacd641e933d48fffcb79cad",
+      "bytes": 18082
+    },
+    "v8_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v8.patch",
+      "sha256": "6c963628fc38a2d83e65bdddea599016756ca9eb2cf95112592de35036ce62d1",
+      "bytes": 21492
+    },
+    "v9_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v9.patch",
+      "sha256": "bea88dd21fcac8c7eed6e5f05d2f9a59540925b06b69e5ae91d43d7e3942a2fc",
+      "bytes": 26679
+    },
+    "v10_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "sha256": "82e2efe093ef968f6aeb37dc2484a39d519ff32622fd288fd24c680fe606369c",
+      "bytes": 30262
+    },
+    "v11_patch_regression_baseline": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v11.patch",
+      "sha256": "2e6428acffbc1ec9c905abf7f6838ab3d40e91665ae3bf7171317185f6f48537",
+      "bytes": 33645
+    },
+    "v6_color_analysis_reference": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_color_analysis_20261020_r01/README.md",
+      "sha256": "637efbd08cebd8b23743ccc3f0696a155062eb3cfa072d11b5407821062b64ab",
+      "bytes": 3238,
+      "note": "早前彩条上板分析（色相/顺序正确、蓝约 42%）——本卡第三方实验的对照背景"
+    }
+  },
+  "changed_files": [
+    {
+      "path": "D:/codex-worktrees/dbdf/scripts/stage3_t04/make_app_diag_patch.py",
+      "sha256": "f7aa1dff7fcdfaaf1df34e28fdf92f2c1ca0c8f787a04579bd46f1b49aeddbe8",
+      "bytes": 72300,
+      "note": "新增 v12 变体；默认变体仍为 v5；v4~v11 输出逐字节不变（见 commands 回归项）"
+    },
+    {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v12.patch",
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8",
+      "bytes": 34950,
+      "note": "只改 display_demo.c，682 行"
+    }
+  ],
+  "commands": [
+    {
+      "id": "regression_default_v5",
+      "exit_code": 0,
+      "command_text": "同脚本（无变体参数）",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/default_regen.log",
+      "result": "与 s3_t04_app_diag_v5.patch 逐字节相同"
+    },
+    {
+      "id": "regression_v4",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v4",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v4_regen.log",
+      "result": "与 v4 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v6",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v6",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v6_regen.log",
+      "result": "与 v6 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v7",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v7",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v7_regen.log",
+      "result": "与 v7 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v8",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v8",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v8_regen.log",
+      "result": "与 v8 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v9",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v9",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v9_regen.log",
+      "result": "与 v9 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v10",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v10",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v10_regen.log",
+      "result": "与 v10 补丁逐字节相同"
+    },
+    {
+      "id": "regression_v11",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v11",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v11_regen.log",
+      "result": "与 v11 补丁逐字节相同"
+    },
+    {
+      "id": "v12_patch_generation",
+      "exit_code": 0,
+      "command_text": "同脚本 + 末尾 v12 → board/stage3/software/sensor/s3_t04_app_diag_v12.patch",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/v12_gen.log",
+      "result": "GIT_APPLY_EXIT=0；VERIFY_HAS_D12_* 全部 True；VERIFY_D12_INV_COUNT=2"
+    },
+    {
+      "id": "git_apply_check_fresh_vendor_copy",
+      "exit_code": 0,
+      "command_text": "cp -r <vendor an5642_single> tmp/s3r06/t04_j11cmos2_elf_v12/patch_gen/check_v12/an5642_single && cd .../check_v12/an5642_single && git apply --check -p1 board/stage3/software/sensor/s3_t04_app_diag_v12.patch",
+      "result": "补丁可从厂商原始 display_demo.c 干净应用；只含 display_demo.c"
+    },
+    {
+      "id": "make_only_build",
+      "exit_code": 0,
+      "command_text": "bash tmp/s3r06/t04_j11cmos2_elf_v12/make_only_build.sh  (只用 make；未运行 sdtgen/HSI、未运行 Vivado 综合/实现；app 目录从厂商源全新铺开，BSP/链接脚本复用既有同一 XSA 的产物；不带任何 -D)",
+      "log": "tmp/s3r06/t04_j11cmos2_elf_v12/make_only_build.log",
+      "result": "XSA 与 pristine 源码哈希双重校验通过；git apply = 0；make = 0；V12_MAKE_OK"
+    }
+  ],
+  "artifacts": {
+    "elf_v12_bars_freeze": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf",
+      "sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+      "bytes": 310368,
+      "note": "唯一交付 ELF：彩条 ON（0x503D=0x80）+ t≈20 s 停 S2MM 保持 240 s"
+    },
+    "patched_display_demo_c": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/display_demo.c",
+      "sha256": "36e10a9314931e6236d9e8e43fd1067ae5a2921616cb21e390b65f06c850b782",
+      "bytes": 37703,
+      "note": "与生成器 verify 副本逐字节相同（36e10a93...）"
+    },
+    "v12_patch": {
+      "path": "D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v12.patch",
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8",
+      "bytes": 34950
+    },
+    "build_log_make_only": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/make_only_build.log",
+      "sha256": "36cf398a6b8dbb2e88f04b64ceabb9b6ebddc4df1aed1a573ef3419e3a314148",
+      "bytes": 2813
+    },
+    "elf_build_evidence": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v12_20261022_r01/elf_build_evidence.txt",
+      "sha256": "b4784adb555d9b7b5c7d6d03966d1d3899d04c9c79dd1f2576ebffe90d702b0e",
+      "bytes": 3954,
+      "note": "编译行 + ELF SHA-256 + 字符串矩阵 + 结构证据 + 出处哈希"
+    },
+    "build_script": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/make_only_build.sh",
+      "sha256": "9e1c0c0e1037625976acd17dccb19413398f4752de0db62504b135de88731ee1",
+      "bytes": 4012
+    },
+    "collect_script": {
+      "path": "D:/codex-worktrees/dbdf/tmp/s3r06/t04_j11cmos2_elf_v12/collect_v12_elf_evidence.sh",
+      "sha256": "3b53c588a4b7cdcd3798b8e93d9c7ed81c9e329d9e5bd0e93803a36bac5d8165",
+      "bytes": 2967
+    },
+    "evidence_readme": {
+      "path": "D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_sw_v12_20261022_r01/README.md",
+      "sha256": "e695850b664ce9cae18ee4bc4de890d44af25603d27c4033e67b78dc2bb25a4a",
+      "bytes": 5709
+    }
+  },
+  "artifacts_checks": {
+    "expected_strings": {
+      "S3_DIAG12_BARS=503D before=": 1,
+      "S3_DIAG12_BARS_SKIPPED reg=503D": 1,
+      "S3_DIAG11_HALT=1": 1,
+      "S3_DIAG11_HOLD t=": 1,
+      "S3_DIAG11_HOLD_DONE": 1,
+      "S3_DIAG9_PAD=3017=": 1,
+      "S3_DIAG10_GRAY_NOTE=TRY0": 1,
+      "S3_DIAG6_FP": 1,
+      "S3_DIAG6_SENS=4202=": 1,
+      "S3_DIAG6_TESTPATTERN=OFF": 1
+    },
+    "forbidden_write_lines": {
+      "S3_DIAG6_TESTPATTERN=ON": 0,
+      "S3_DIAG7_AWB_OFF=ON": 0,
+      "S3_DIAG8_WB=MANUAL": 0,
+      "S3_DIAG9_FIX=301D": 0,
+      "S3_DIAG9_ORDER=NOT_RESTORED": 0,
+      "S3_DIAG10_GRAY_SKIPPED": 0
+    },
+    "checks_pass": true
+  },
+  "bars_write": {
+    "register": "OV5640 0x503D",
+    "value": "0x80（传感器内置彩条测试图案 ON）",
+    "timing": "sensor_init() 之后、启动 S2MM 之前（15 s 等 待之前），因此 t≈5 s 起采到的就是彩条帧",
+    "protocol": "先 s3_diag5_i2c_read16 回读原值 → i2c_reg16_write 写 0x80 → 再回读校验；读失败则跳过写入并打印 S3_DIAG12_BARS_SKIPPED（write_status=-2），不写不可信值",
+    "print_line": "S3_DIAG12_BARS=503D before=0x%02X after=0x%02X readback=0x%02X write_status=%d",
+    "note_v6_switch": "v6 的编译期开关 S3_TESTPATTERN 在本 ELF 中为 0，因此会同时打印 S3_DIAG6_TESTPATTERN=OFF；0x503D 的实际写入以 S3_DIAG12_BARS 行为准（两处都写 0x503D=0x80，语义一致）。",
+    "restore": "彩条是传感器寄存器可逆设置；复位/重跑应用时厂商 init 表会重写 0x503D（init 表值 0x00）→ 回到正常图像。"
+  },
+  "freeze_timeline": {
+    "t_5_10_15_s": "3 次 64 KB×3 区指纹（S3_DIAG6_FP）+ S2MM SR（S3_DIAG6_SR）——此时画面已是彩条",
+    "t_15_s": "只读传感器回读 S3_DIAG6_SENS（保留 v6 行）",
+    "t_20_s": "停 S2MM（清 CR 的 RUN/STOP 位；停前/停后各一次帧缓冲 cache 失效）→ S3_DIAG11_HALT=1 ... FB=... FB_BYTES=0x2A3000",
+    "t_20_260_s": "保持静止 240 s，每 30 s 一次 S3_DIAG11_HOLD 心跳（8 次）+ S3_DIAG11_HOLD_DONE",
+    "jtag_window": "看到 S3_DIAG11_HALT=1 起约 240 s 内导出整帧；帧缓冲起点见 FB=（预期 0x00110C00），长度 0x2A3000"
+  },
+  "third_party_experiment": {
+    "goal": "用已知颜色的测试图案判定“真缺色相/缺位”还是“仅 R/B 顺序或位拼接错”。",
+    "procedure": "刷 v12 ELF → 等 S3_DIAG12_BARS 行确认 503D=0x80 且 readback=0x80 → 等 S3_DIAG11_HALT=1 → 在 240 s 窗口内用既有 JTAG 脚本导出整帧 → 按彩条已知颜色逐条比对 R/G/B。",
+    "how_to_read": "若各条**色相顺序正确但某一通道幅度系统性偏低/最高位恒 0** ⇒ 属缺位/缺色相（与既有结论一致）；若某两条通道整体互换、或 5/6 位字段错位拼接 ⇒ 属顺序/位拼接错。彩条是纯色块，比人像/实景更容易看出这类差异。",
+    "reference": "早前 v6 彩条上板分析（t05_color_analysis_20261020_r01）曾记录“色相与顺序正确、蓝约 42%”；本卡不重复该结论，只提供同一链路下可复核的彩条取帧。",
+    "note": "彩条图案来自传感器内部，会经过与本项目相同的 DVP→IP→VDMA→DDR 链路（这正是本实验的价值：图案已知，链路未知部分才可判读）。"
+  },
+  "environment": {
+    "vitis": "2026.1（仅 make；本轮不用 sdtgen/HSI）",
+    "licence": "本轮不涉及许可检出（未启动 Vivado/Vitis 工具）",
+    "host": "HAO",
+    "python": "3.12.10"
+  },
+  "not_executed": [
+    "未上板、未下载、未运行、未采集 UART、未做整帧 JTAG 导出（按任务卡边界）；S3_DIAG12_* 实际数值尚未产生。",
+    "未运行 sdtgen/HSI（按“只跑 make”）；未运行任何 Vivado 综合/实现。",
+    "未烧写 QSPI；未做任何非易失写入；未提交 Git。",
+    "未查 OV5640 手册原文核对 0x503D 的位定义与彩条颜色顺序（沿用任务卡与早前上板记录）。"
+  ],
+  "limitations": [
+    "本卡交付**可上板的彩条取帧 ELF**，不是判读结论：是否“真缺色相”要由导出帧的逐条比对给出。",
+    "停 S2MM 后显示器画面定格（预期）；彩条寄存器可由复位/重跑恢复。",
+    "t≈20 s 为软件计时，实际停住时刻以 S3_DIAG11_HALT 的 t= 字段为准；指纹按 v11 约定只做 3 次。",
+    "除新增的 0x503D 彩条写之外**不做任何写测试**：v6 测试图开关、v7 AWB、v8 手动增益、v9 端口/输出顺序、v10 去色等写路径在 ELF 字符串层面均为 0（见 artifacts_checks.forbidden_write_lines）。",
+    "本轮 BSP 为复用既有构建树产物（同一 XSA，已哈希校验）；如需完全走标准入口重建，建议另开一轮（预期字节一致）。",
+    "本任务只做软件与证据；G3 未闭合。"
+  ]
+}

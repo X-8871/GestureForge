@@ -1,6 +1,6 @@
 """生成 S3-T04/S3-T05 应用诊断补丁：只给厂商摄像头应用加 UART 诊断打印，不改任何寄存器时序与配置。
 
-用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8|v9|v10|v11]
+用法: make_app_diag_patch.py <厂商应用源目录> <输出补丁> <scratch 目录> [v4|v5|v6|v7|v8|v9|v10|v11|v12]
 
 变体（默认 v5）：
   v4 = 延时启动 + FB 回读（历史补丁 s3_t04_app_diag_v4.patch，仍可逐字节复现）
@@ -27,11 +27,14 @@
         （清 S2MM_CR 的 RUN/STOP 位，停前/停后各做一次帧缓冲 cache 失效，打印
         S3_DIAG11_HALT=...），随后保持静止 240 s、每 30 s 一次 S3_DIAG11_HOLD 心跳；
         **不做任何寄存器写测试**（所有写开关保持默认 0）
+  v12 = v11 + 传感器内置彩条测试图案：写 0x503D=0x80（先回读原值、写后回读校验，
+        打印 S3_DIAG12_BARS=503D before/after/readback/write_status；读失败跳过写入），
+        用于把**已知颜色**的图案经同一链路转储判读；保留 v11 的停帧保持能力
 
 做四件事：
 1) 从官方源复制一份应用目录到 scratch；
 2) 在 main() 关键节点插入 S3_DIAG 打印；
-3) 按变体追加 v5/v6/v7/v8/v9/v10/v11 内容；
+3) 按变体追加 v5/v6/v7/v8/v9/v10/v11/v12 内容；
 4) 用 git diff --no-index 生成 unified diff，并对全新副本验证补丁可干净应用。
 
 只改 display_demo.c；输出补丁不进 Git 之外的地方。
@@ -48,7 +51,7 @@ OUT_PATCH = Path(sys.argv[2]).resolve()
 SCRATCH = Path(sys.argv[3])
 # 变体选择：默认 v5（最新诊断补丁）；v4 仍可显式指定以逐字节复现历史补丁。
 VARIANT = sys.argv[4].strip().lower() if len(sys.argv) > 4 else "v5"
-if VARIANT not in ("v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"):
+if VARIANT not in ("v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11", "v12"):
     print(f"UNKNOWN_VARIANT: {VARIANT}")
     sys.exit(2)
 
@@ -921,19 +924,57 @@ V11_SAMPLING_NEW = (
 
 V11_WRITE_INIT_NEW = V10_WRITE_INIT_NEW[:_V11_I] + V11_SAMPLING_NEW + V10_WRITE_INIT_NEW[_V11_J:]
 
-# S3_DIAG5_SENS 打印块（v5~v11 共用）的结尾：v7 起在其后追加 AWB 回读块
+# ---------------------------------------------------------------------------
+# v12 变体追加内容（只在 VARIANT == "v12" 时生效；v4~v11 输出保持不变）
+# v12 = v11 + 传感器内置彩条测试图案（0x503D=0x80，写入前回读、写入后回读校验）
+# ---------------------------------------------------------------------------
+V12_HELPERS = (
+    "/* ================= S3-DIAG12 传感器内置彩条测试图案 =================\n"
+    " * 目的：给第三方实验提供**已知颜色**的测试图案（0x503D=0x80），经同一条 DVP→VDMA→DDR 链路\n"
+    " *   转储后判断“真缺色相/缺位”还是“仅 R/B 顺序或位拼接错”。\n"
+    " * 做法：写 0x503D=0x80（先回读原值，写后再回读校验）；读失败则跳过写入（沿用 v7~v11 安全原则，\n"
+    " *   不用不可信的值覆盖寄存器）。本变体同时保留 v11 的取帧能力（t≈20 s 停 S2MM、保持 240 s）。*/\n"
+    "\n"
+)
+
+V12_BARS_BLOCK = (
+    "\t/* S3-DIAG12: 打开传感器内置彩条测试图案（0x503D=0x80）。\n"
+    "\t * 先回读原值 → 写 → 回读校验；读失败跳过写入并打印 SKIPPED/-2。*/\n"
+    "\t{\n"
+    "\t\tu8 s3_12_before = 0, s3_12_rb = 0xFF;\n"
+    "\t\tint s3_12_wr;\n"
+    "\t\tif (s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_before) == 0) {\n"
+    "\t\t\ts3_12_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80);\n"
+    "\t\t\tif (s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_rb) != 0) { s3_12_rb = 0xFF; }\n"
+    "\t\t} else {\n"
+    "\t\t\ts3_12_before = 0xFF; s3_12_rb = 0xFF; s3_12_wr = -2;\n"
+    "\t\t\txil_printf(\"S3_DIAG12_BARS_SKIPPED reg=503D reason=read_failed\\r\\n\");\n"
+    "\t\t}\n"
+    "\t\txil_printf(\"S3_DIAG12_BARS=503D before=0x%02X after=0x%02X readback=0x%02X write_status=%d\\r\\n\",\n"
+    "\t\t\ts3_12_before, 0x80U, s3_12_rb, s3_12_wr);\n"
+    "\t}\n"
+)
+
+if V11_WRITE_INIT_NEW.count(_V7_WRITE_INIT_ANCHOR) != 1:
+    print("V12_WRITE_INIT_ANCHOR_NOT_UNIQUE")
+    sys.exit(2)
+# 插在 v10 去色块之后、15 s 等待之前
+# → 顺序：测试图(v6 开关 OFF) → AWB 关 → 手动增益 → 端口 select → 输出顺序 → 去色 → **彩条 v12** → 等待 → 启动 S2MM
+V12_WRITE_INIT_NEW = V11_WRITE_INIT_NEW.replace(_V7_WRITE_INIT_ANCHOR, V12_BARS_BLOCK + _V7_WRITE_INIT_ANCHOR)
+
+# S3_DIAG5_SENS 打印块（v5~v12 共用）的结尾：v7 起在其后追加 AWB 回读块
 V5_SENS_ARGS_TAIL = (
     "\t\t\ts3_4202, s3_3008, s3_4740, s3_3035v, s3_3034v, s3_4300v, s3_501fv, s3_3824v, s3_503dv);\n"
     "\t}\n"
 )
-# S3_DIAG7_ISP_B 打印块（v7~v11 共用）的结尾：v9 起在其后追加 DVP 端口回读块
+# S3_DIAG7_ISP_B 打印块（v7~v12 共用）的结尾：v9 起在其后追加 DVP 端口回读块
 V7_ISP_B_TAIL = (
     "\t\txil_printf(\"S3_DIAG7_ISP_B=5586..558B=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X\\r\\n\",\n"
     "\t\t\ts3_5586, s3_5587, s3_5588, s3_5589, s3_558a, s3_558b);\n"
     "\t}\n"
 )
 
-if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11", "v12"):
     # 替换 vdma_write_init 锚点的替换文本（保留 15 秒等待；各变体用各自的采样段）
     write_init_new = {
         "v5": V5_WRITE_INIT_NEW,
@@ -943,6 +984,7 @@ if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
         "v9": V9_WRITE_INIT_NEW,
         "v10": V10_WRITE_INIT_NEW,
         "v11": V11_WRITE_INIT_NEW,
+        "v12": V12_WRITE_INIT_NEW,
     }[VARIANT]
     insertions = [
         (old, write_init_new) if old.startswith("\tvdma_write_init(") else (old, new)
@@ -954,32 +996,36 @@ if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
         (V5_DIAG3_OLD, V5_DIAG3_NEW),
         (V5_RETURN_OLD, V5_RETURN_NEW),
     ]
-    if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11"):
+    if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11", "v12"):
         insertions += [
             (V6_INCLUDE_OLD, V6_INCLUDE_NEW),
             ("int main(void)\n{", V6_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT in ("v7", "v8", "v9", "v10", "v11"):
+    if VARIANT in ("v7", "v8", "v9", "v10", "v11", "v12"):
         insertions += [
             ("int main(void)\n{", V7_HELPERS + "int main(void)\n{"),
             (V5_SENS_ARGS_TAIL, V5_SENS_ARGS_TAIL + V7_AWB_READBACK),
         ]
-    if VARIANT in ("v8", "v9", "v10", "v11"):
+    if VARIANT in ("v8", "v9", "v10", "v11", "v12"):
         insertions += [
             ("int main(void)\n{", V8_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT in ("v9", "v10", "v11"):
+    if VARIANT in ("v9", "v10", "v11", "v12"):
         insertions += [
             ("int main(void)\n{", V9_HELPERS + "int main(void)\n{"),
             (V7_ISP_B_TAIL, V7_ISP_B_TAIL + V9_PAD_READBACK),
         ]
-    if VARIANT in ("v10", "v11"):
+    if VARIANT in ("v10", "v11", "v12"):
         insertions += [
             ("int main(void)\n{", V10_HELPERS + "int main(void)\n{"),
         ]
-    if VARIANT == "v11":
+    if VARIANT in ("v11", "v12"):
         insertions += [
             ("int main(void)\n{", V11_HELPERS + "int main(void)\n{"),
+        ]
+    if VARIANT == "v12":
+        insertions += [
+            ("int main(void)\n{", V12_HELPERS + "int main(void)\n{"),
         ]
 
 for old, new in insertions:
@@ -1040,7 +1086,7 @@ print(f"VERIFY_HAS_APP_ENTER={'S3_DIAG_APP_ENTER' in verify_text}")
 print(f"VERIFY_HAS_SENSOR_ID={'S3_DIAG_SENSOR_ID' in verify_text}")
 print(f"VERIFY_HAS_DISPLAY_START={'S3_DIAG_DISPLAY_START' in verify_text}")
 print(f"VERIFY_HAS_VDMA_WRITE={'S3_DIAG_VDMA_WRITE_STARTED' in verify_text}")
-if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11"):
+if VARIANT in ("v5", "v6", "v7", "v8", "v9", "v10", "v11", "v12"):
     print(f"VERIFY_HAS_D5_REG={'S3_DIAG5_REG' in verify_text}")
     print(f"VERIFY_HAS_D5_SR_DECODE={'S3_DIAG5_SR_DECODE' in verify_text}")
     print(f"VERIFY_HAS_D5_CFG={'S3_DIAG5_CFG' in verify_text}")
@@ -1053,7 +1099,7 @@ if VARIANT == "v5":
     print(f"VERIFY_HAS_D5_NZ={'S3_DIAG5_NZ' in verify_text}")
     print(f"VERIFY_HAS_D5_SAMPLES={'S3_DIAG5_SAMPLE=%d' in verify_text}")
     print(f"VERIFY_HAS_DCACHE_INV4096={'Xil_DCacheInvalidateRange((INTPTR)s3_p, 4096)' in verify_text}")
-if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11"):
+if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11", "v12"):
     print(f"VERIFY_HAS_D6_ALGO={'S3_DIAG6_ALGO=sum32+crc32(0xEDB88320)' in verify_text}")
     print(f"VERIFY_HAS_D6_FP={'S3_DIAG6_FP t=%u site=%u sum=0x%08X hash=0x%08X nz=%u' in verify_text}")
     print(f"VERIFY_HAS_D6_SR={'S3_DIAG6_SR t=%u S2MM_SR=0x%08X' in verify_text}")
@@ -1065,7 +1111,7 @@ if VARIANT in ("v6", "v7", "v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D6_INV64K={'Xil_DCacheInvalidateRange((INTPTR)s3_p, S3_DIAG6_FP_BYTES)' in verify_text}")
     print(f"VERIFY_HAS_XTIME={'#include \"xtime_l.h\"' in verify_text}")
     print(f"VERIFY_NO_D5_SAMPLING={'S3_DIAG5_SAMPLE=%d' not in verify_text}")
-if VARIANT in ("v7", "v8", "v9", "v10", "v11"):
+if VARIANT in ("v7", "v8", "v9", "v10", "v11", "v12"):
     print(f"VERIFY_HAS_D7_AWB={'S3_DIAG7_AWB=5001=0x%02X 3406=0x%02X 3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X 503D=0x%02X 4300=0x%02X 501F=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AE={'S3_DIAG7_AE=3503=0x%02X 3500..3502=0x%02X,0x%02X,0x%02X 3035=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_ISP_A={'S3_DIAG7_ISP_A=5580..5585=' in verify_text}")
@@ -1076,7 +1122,7 @@ if VARIANT in ("v7", "v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D7_AWB_OFF_OFFLINE={'S3_DIAG7_AWB_OFF=OFF (0x5001 unchanged)' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_VERIFY={'S3_DIAG7_AWB_OFF_VERIFY readback=0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D7_AWB_SKIP={'S3_DIAG7_AWB_OFF_SKIPPED reason=0x5001_read_failed' in verify_text}")
-if VARIANT in ("v8", "v9", "v10", "v11"):
+if VARIANT in ("v8", "v9", "v10", "v11", "v12"):
     print(f"VERIFY_HAS_D8_SWITCH={'#if S3_WB_MANUAL' in verify_text and '#define S3_WB_MANUAL 0' in verify_text}")
     print(f"VERIFY_HAS_D8_DEFAULTS={'#define S3_WB_R 1024' in verify_text and '#define S3_WB_G 1024' in verify_text and '#define S3_WB_B 1024' in verify_text}")
     print(f"VERIFY_HAS_D8_3406_ENABLE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x3406, 0x01)' in verify_text}")
@@ -1084,7 +1130,7 @@ if VARIANT in ("v8", "v9", "v10", "v11"):
     print(f"VERIFY_HAS_D8_WB_LINE={'S3_DIAG8_WB=MANUAL R=0x%04X G=0x%04X B=0x%04X before3406=0x%02X after3406=0x%02X readback3400..3405=0x%02X,0x%02X,0x%02X,0x%02X,0x%02X,0x%02X' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_RB_LINE={'S3_DIAG8_WB_RB rb_r16=0x%04X rb_g16=0x%04X rb_b16=0x%04X match=%u,%u,%u write_status=%d' in verify_text}")
     print(f"VERIFY_HAS_D8_WB_OFFLINE={'S3_DIAG8_WB=OFF (auto AWB unchanged)' in verify_text}")
-if VARIANT in ("v9", "v10", "v11"):
+if VARIANT in ("v9", "v10", "v11", "v12"):
     print(f"VERIFY_HAS_D9_PAD_LINE={'S3_DIAG9_PAD=3017=0x%02X 3018=0x%02X 301D=0x%02X 301E=0x%02X 300A=0x%02X 300B=0x%02X 4741=0x%02X 4745=0x%02X 4300=0x%02X 501F=0x%02X S3_DIAG9_D9SEL=%u D6SEL=%u' in verify_text}")
     print(f"VERIFY_HAS_D9_SWITCHES={'#ifndef S3_PAD_SEL_CLEAR' in verify_text and '#define S3_PAD_SEL_CLEAR 0' in verify_text and '#ifndef S3_DVP_ORDER_DEBUG' in verify_text and '#define S3_DVP_ORDER_DEBUG 0' in verify_text}")
     print(f"VERIFY_HAS_D9_FIX_LINE={'S3_DIAG9_FIX=301D before=0x%02X after=0x%02X readback=0x%02X 301E before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
@@ -1097,7 +1143,7 @@ if VARIANT in ("v9", "v10", "v11"):
     print(f"VERIFY_HAS_D9_ORDER_OFFLINE={'S3_DIAG9_ORDER=OFF (0x4745 unchanged)' in verify_text}")
     print(f"VERIFY_HAS_D9_NO_RESTORE_CODE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x4745, (char)s3_9o_before)' not in verify_text}")
     print(f"VERIFY_HAS_D9_D9SEL_UNKNOWN={'s3_9_d9 = 255U' in verify_text and 's3_9_d6 = 255U' in verify_text}")
-if VARIANT in ("v10", "v11"):
+if VARIANT in ("v10", "v11", "v12"):
     print(f"VERIFY_HAS_D10_SWITCH={'#ifndef S3_GRAY_TRY' in verify_text and '#define S3_GRAY_TRY 0' in verify_text}")
     print(f"VERIFY_HAS_D10_GRAY_LINE={'S3_DIAG10_GRAY=TRY=%d 5580 before=0x%02X after=0x%02X readback=0x%02X | 5583 before=0x%02X after=0x%02X readback=0x%02X | 5584 before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
     print(f"VERIFY_HAS_D10_NOTE_TRY0={'S3_DIAG10_GRAY_NOTE=TRY0_read_only_no_write' in verify_text}")
@@ -1109,7 +1155,7 @@ if VARIANT in ("v10", "v11"):
     print(f"VERIFY_HAS_D10_WRITE_5580_40={'(s3_10_5580 & (u8)~0xC0U) | 0x40U' in verify_text}")
     print(f"VERIFY_HAS_D10_WRITE_5580_80={'(s3_10_5580 & (u8)~0xC0U) | 0x80U' in verify_text}")
     print(f"VERIFY_HAS_D10_SKIPS={'S3_DIAG10_GRAY_SKIPPED reg=5583' in verify_text and 'S3_DIAG10_GRAY_SKIPPED reg=5580' in verify_text}")
-if VARIANT == "v11":
+if VARIANT in ("v11", "v12"):
     print(f"VERIFY_HAS_D11_HELPER={'#define S3_DIAG11_FB_BYTES (720 * 3840)' in verify_text}")
     print(f"VERIFY_HAS_D11_HALT_LINE={'S3_DIAG11_HALT=1 CR_before=0x%08X CR_after=0x%08X SR=0x%08X HALTED_bit=%d FRAME0=0x%08X STRIDE=0x%08X' in verify_text}")
     print(f"VERIFY_HAS_D11_HOLD_LINE={'S3_DIAG11_HOLD t=%u SR=0x%08X' in verify_text}")
@@ -1127,3 +1173,10 @@ if VARIANT == "v11":
 print(f"PATCH_LINES={len(diff.splitlines())}")
 print(f"PATCH_SHA256={hashlib.sha256(OUT_PATCH.read_bytes()).hexdigest()}")
 print(f"VERIFY_DISPLAY_DEMO_SHA256={hashlib.sha256((VERIFY / FILE).read_bytes()).hexdigest()}")
+if VARIANT == "v12":
+    print(f"VERIFY_HAS_D12_BARS_LINE={'S3_DIAG12_BARS=503D before=0x%02X after=0x%02X readback=0x%02X write_status=%d' in verify_text}")
+    print(f"VERIFY_HAS_D12_WRITE={'i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80)' in verify_text}")
+    print(f"VERIFY_HAS_D12_SKIP={'S3_DIAG12_BARS_SKIPPED reg=503D reason=read_failed' in verify_text}")
+    print(f"VERIFY_HAS_D12_READBACK={'if (s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_rb) != 0) { s3_12_rb = 0xFF; }' in verify_text}")
+    print(f"VERIFY_HAS_D12_FREEZE_KEPT={'S3_DIAG11_HALT=1' in verify_text and 'S3_DIAG11_HOLD t=%u' in verify_text and 'S3_DIAG11_HOLD_DONE' in verify_text}")
+    print(f"VERIFY_D12_INV_COUNT={verify_text.count('Xil_DCacheInvalidateRange((INTPTR)s3_11_fb, S3_DIAG11_FB_BYTES)')}")

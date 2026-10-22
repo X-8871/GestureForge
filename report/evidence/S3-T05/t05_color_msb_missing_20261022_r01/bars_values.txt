@@ -1,0 +1,29 @@
+传感器内置彩条（无补偿原始基线，0x503D=0x80）8 段数值，3 行 x 8 段 x 2 变体
+内存序 B,G,R；asis 按 R,G,B 渲染；rb_swap 强制 R/B 互换
+判定：白条蓝 5 位=15(120) 而非 31(255)、绿 6 位=59(236) 而非 63(252)
+      ⇒ 两个字节 MSB 同时丢失（真缺位），通道置换无法修复
+
+y=200 x=  80  asis(R,G,B)=248,236,120   rb_swap(R,G,B)=120,236,248
+y=200 x= 240  asis(R,G,B)=248,236, 96   rb_swap(R,G,B)= 96,236,248
+y=200 x= 400  asis(R,G,B)= 80,236, 88   rb_swap(R,G,B)= 88,236, 80
+y=200 x= 560  asis(R,G,B)= 64,236, 32   rb_swap(R,G,B)= 32,236, 64
+y=200 x= 720  asis(R,G,B)=184,  0, 88   rb_swap(R,G,B)= 88,  0,184
+y=200 x= 880  asis(R,G,B)=168,  8, 32   rb_swap(R,G,B)= 32,  8,168
+y=200 x=1040  asis(R,G,B)=  0,  4, 24   rb_swap(R,G,B)= 24,  4,  0
+y=200 x=1200  asis(R,G,B)=  0,  4,  0   rb_swap(R,G,B)=  0,  4,  0
+y=360 x=  80  asis(R,G,B)=248,236,120   rb_swap(R,G,B)=120,236,248
+y=360 x= 240  asis(R,G,B)=248,236, 96   rb_swap(R,G,B)= 96,236,248
+y=360 x= 400  asis(R,G,B)= 80,236, 88   rb_swap(R,G,B)= 88,236, 80
+y=360 x= 560  asis(R,G,B)= 64,236, 32   rb_swap(R,G,B)= 32,236, 64
+y=360 x= 720  asis(R,G,B)=184,  0, 88   rb_swap(R,G,B)= 88,  0,184
+y=360 x= 880  asis(R,G,B)=168,  8, 32   rb_swap(R,G,B)= 32,  8,168
+y=360 x=1040  asis(R,G,B)=  0,  4, 24   rb_swap(R,G,B)= 24,  4,  0
+y=360 x=1200  asis(R,G,B)=  0,  4,  0   rb_swap(R,G,B)=  0,  4,  0
+y=500 x=  80  asis(R,G,B)=248,236,120   rb_swap(R,G,B)=120,236,248
+y=500 x= 240  asis(R,G,B)=248,236, 96   rb_swap(R,G,B)= 96,236,248
+y=500 x= 400  asis(R,G,B)= 80,236, 88   rb_swap(R,G,B)= 88,236, 80
+y=500 x= 560  asis(R,G,B)= 64,236, 32   rb_swap(R,G,B)= 32,236, 64
+y=500 x= 720  asis(R,G,B)=184,  0, 88   rb_swap(R,G,B)= 88,  0,184
+y=500 x= 880  asis(R,G,B)=168,  8, 32   rb_swap(R,G,B)= 32,  8,168
+y=500 x=1040  asis(R,G,B)=  0,  4, 24   rb_swap(R,G,B)= 24,  4,  0
+y=500 x=1200  asis(R,G,B)=  0,  4,  0   rb_swap(R,G,B)=  0,  4,  0

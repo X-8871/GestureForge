@@ -1,0 +1,52 @@
+{
+  "run_id": "v12_bars_freeze_tool_20261022_r01",
+  "task": "S3-T14",
+  "date": "2026-10-22",
+  "tool": "an5642_j11cmos2_v12_bars_freeze.elf",
+  "tool_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+  "source_baseline_commit": "a9cd300fc7eef50a4b51e2e117be0fd895edb50e",
+  "writes_board_register": {
+    "register": "0x503D (OV5640 test pattern / color bar enable, sensor side)",
+    "value_written": "0x80",
+    "observed": "S3_DIAG12_BARS=503D before=0x00 after=0x80 readback=0x80 write_status=0",
+    "volatile_only": true,
+    "restored_on_board": true,
+    "restored_evidence": "S3_DIAG5_SENS=4202=0x00 3008=0x02 4740=0x20 3035=0x21 3034=0x1A 4300=0x60 501F=0x01 3824=0x04 503D=0x00（v10_read 运行，init 表已把 0x503D 写回 0x00）",
+    "halt_behaviour": "v12 自身会在 t≈20 s 停 S2MM 并保持 240 s（取帧设计）；当前板卡已回到非 HALT 的实时灰度应用，无 HALT"
+  },
+  "preconditions_for_future_use": [
+    "使用前必须确认硬件占用：CDX-20261021-004/005 所载 2B 的书面占用尚未让出，未获让出不得占用板卡/会话",
+    "不得把本工具当作通用“重置工具”反复使用；每次使用须登记 RunId、FB= 与恢复步骤",
+    "写入前必须回读原值、写入后回读校验；读失败一律跳过写入"
+  ],
+  "artifacts": {
+    "build_report.json": {
+      "sha256": "ecb33d7a49bcf4acb146e11118998f7c01c81cf232fe0037810a2bc42675dd18",
+      "source": "report/evidence/S3-T05/t05_sw_v12_20261022_r01/build_report.json"
+    },
+    "README.md": {
+      "sha256": "e695850b664ce9cae18ee4bc4de890d44af25603d27c4033e67b78dc2bb25a4a",
+      "source": "report/evidence/S3-T05/t05_sw_v12_20261022_r01/README.md"
+    },
+    "elf_build_evidence.txt": {
+      "sha256": "b4784adb555d9b7b5c7d6d03966d1d3899d04c9c79dd1f2576ebffe90d702b0e",
+      "source": "report/evidence/S3-T05/t05_sw_v12_20261022_r01/elf_build_evidence.txt"
+    },
+    "s3_t04_app_diag_v12.patch": {
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8",
+      "source": "board/stage3/software/sensor/s3_t04_app_diag_v12.patch"
+    },
+    "alinx_ov5640_sof_hrefgap.patch": {
+      "sha256": "fd854a622b52c32a43a6770be3f583cce29864a764845c313b623514c91ab2c5",
+      "source": "board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch"
+    }
+  },
+  "limitations": [
+    "该工具会写板卡传感器寄存器 0x503D（易失）；本次已在板上恢复为 0x00",
+    "未做 ≥30 分钟耐久；未做 RTL 仿真；无 ILA（BASIC 许可禁用 debug core）"
+  ],
+  "not_executed": [
+    "长期占用测试",
+    "非易失写入（禁止）"
+  ]
+}

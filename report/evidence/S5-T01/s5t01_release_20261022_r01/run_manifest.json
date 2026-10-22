@@ -1,0 +1,129 @@
+{
+  "schema_version": "gestureforge_s5t01_release_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_release_20261022_r01",
+  "generated_utc8": "2026-10-22T13:30:11+08:00",
+  "source_head": "d9c9ea3f210e1686f25b0af728ce2d3efcbfc9d6",
+  "goal_reached": "HARDWARE_GATE_GO_BOARD_NOT_ENUMERATED",
+  "hardware_gate": {
+    "decision": "GO",
+    "exit_code": 0,
+    "release_basis": "operator_authorization",
+    "authorized_by": "Wong",
+    "hardware_process_enumeration_ok": true,
+    "hardware_processes": [],
+    "locks": [],
+    "mailbox_release_notice": null,
+    "latest_occupation_notice": "CDX-20261022-006"
+  },
+  "frozen_artifacts": {
+    "bit_stdluma_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "xsa_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "elf_v12_bars_freeze_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+    "elf_v11_freeze_sha256": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4",
+    "source_tree": "D:/codex-worktrees/dbdf (read-only; tmp build dirs, gitignored)"
+  },
+  "jtak_state_typo_guard": "see jtag_state below",
+  "jtag_state": {
+    "probes": 2,
+    "targets_found": 0,
+    "usb_jtag_cable_present": true,
+    "usb_jtag_device": "USB Serial Converter (FTDI)",
+    "serial_port": "COM4 (Silicon Labs CP210x)",
+    "interpretation": "board power/JTAG enumeration absent; no on-board action taken",
+    "lingering_hw_server_after_cleanup": false
+  },
+  "commands": [
+    {
+      "cmd": "python -B scripts/stage5_t01/check_hardware_gate.py --out <run> --authorized-by Wong --authorization-note <...>",
+      "exit_code": 0,
+      "log": "console/gate_stdout.txt"
+    },
+    {
+      "cmd": "bash dbdf/scripts/stage3_t03b/run_xsdb.sh w5/scripts/stage5_t01/jtag_probe.tcl",
+      "exit_code": 0,
+      "log": "console/jtag_probe.txt"
+    },
+    {
+      "cmd": "bash dbdf/scripts/stage3_t03b/run_xsdb.sh w5/scripts/stage5_t01/jtag_probe2.tcl",
+      "exit_code": 0,
+      "log": "console/jtag_probe2.txt"
+    },
+    {
+      "cmd": "sha256sum <frozen bit/xsa/elf>",
+      "exit_code": 0,
+      "log": "console/frozen_artifact_hashes.txt"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/frozen_artifact_hashes.txt",
+      "sha256": "8df895c64d34e2b0f62a64a082bb6cda90321eef877a63a7cef4fb5276f2a2fc"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/gate_stdout.txt",
+      "sha256": "baef2922a533d6c6ff54530c39a76cee5cc3a84ed458d6d6c1a3a8fb8dc746e3"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/jtag_probe.txt",
+      "sha256": "041ac6dd7d88b212b254cffa57093bc030adcf5e3217851794929943fb57629c"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/jtag_probe2.txt",
+      "sha256": "26dd20b7cc0a19e20517b185767a1518fcb2acb6c3804642e7c7d754932d8ac7"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/mailbox_entries.json",
+      "sha256": "c11ed35f4b378d67ae44704fd7c259101a5695346397494da220397db8d5fe95"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/process_enumeration.txt",
+      "sha256": "7c4a18832b90b9b65bd940f7212cf6934b2f98fe339477990c99db41435ae088"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/console/worktrees.json",
+      "sha256": "54462c14fbfb17a699f111033da54f474bfdf1f42a49ef7006aff35a7b903da2"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/hardware_gate.json",
+      "sha256": "544180cfc42d71e7ab395a547e659e647fefc175d0a02445b91030d94d8cc329"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_release_20261022_r01/summary.md",
+      "sha256": "150d622b377eb4617ecd356264bf5fb955914659c9352ef41597ab702712be6e"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/check_hardware_gate.py",
+      "sha256": "1ce08b33ab41a3615a01231c8fa0358ad558e28c8f1987684576f6ce5776eb5f"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_probe.tcl",
+      "sha256": "a984ba5f2cbb8dc0a89ccd32590282ac4d03eac30b5f821b50c216fe994478c9"
+    },
+    {
+      "path": "scripts/stage5_t01/jtag_probe2.tcl",
+      "sha256": "b6c566df7ebb19c11eec40ab1a48c4d949079a9c16ef4457b5786bf872bf2e82"
+    }
+  ],
+  "not_executed": [
+    "位流下载",
+    "ELF 下载/运行",
+    "0x503D 写入与回写",
+    "送显叠框",
+    "截图/照片",
+    "FPS/延迟实测",
+    "G3"
+  ],
+  "limitations": [
+    "本 run 只完成放行依据与冻结产物核验、JTAG 只读探测；因链未枚举，未对板卡做任何写操作。",
+    "以用户显式授权替代信箱书面让出（已留痕），不伪造信箱记录。",
+    "阶段3 为灰度 provisional freeze（颜色 DEFERRED_PENDING_MODULE），阶段5 上板基于灰度画面。",
+    "硬件产物位于 dbdf 只读盘 tmp 目录（*.bit/*.xsa 被 gitignore），未复制进本树 Git。"
+  ]
+}

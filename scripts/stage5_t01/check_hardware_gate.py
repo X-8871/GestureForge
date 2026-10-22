@@ -125,6 +125,10 @@ def main() -> int:
     parser.add_argument("--out", required=True, help="证据输出目录")
     parser.add_argument("--release-id", default=None,
                         help="操作者确认的让出通知编号（必须与自动检出的一致才放行）")
+    parser.add_argument("--authorized-by", default=None,
+                        help="显式授权人（如 Wong）：当信箱尚无书面让出时，可用显式授权替代，但必须留痕")
+    parser.add_argument("--authorization-note", default=None,
+                        help="授权原文/说明（与 --authorized-by 同时提供才有效）")
     args = parser.parse_args()
 
     out_dir = pathlib.Path(args.out)
@@ -166,12 +170,27 @@ def main() -> int:
     release_keywords = ("让出", "空档", "释放", "handover")
     state_mentions_release = any(word in state_text for word in release_keywords)
 
-    if release is None:
+    authorization = None
+    if args.authorized_by and args.authorization_note:
+        authorization = {
+            "authorized_by": args.authorized_by,
+            "note": args.authorization_note,
+            "recorded_utc8": now_utc8(),
+            "basis": "operator_authorization：信箱尚无书面让出时由用户/项目总控显式授权，必须留痕；"
+                     "不替代进程/锁的 fail-closed 检查",
+        }
+    release_basis = None
+    if release is not None and args.release_id == release["id"]:
+        release_basis = "mailbox_release"
+    elif authorization is not None:
+        release_basis = "operator_authorization"
+    elif release is None:
         reasons.append("codex_mailbox 未发现新的书面让出/释放通知"
-                       f"（最近占用通知：{occupation['file'] if occupation else '未识别'}）")
-    elif args.release_id != release["id"]:
+                       f"（最近占用通知：{occupation['file'] if occupation else '未识别'}）；"
+                       "亦未提供 --authorized-by/--authorization-note 显式授权")
+    else:
         reasons.append(f"未提供匹配的 --release-id：自动检出 {release['id']}，"
-                       f"实际传入 {args.release_id!r}")
+                       f"实际传入 {args.release_id!r}；亦未提供显式授权")
 
     decision = "GO" if not reasons else "BLOCKED"
     report = {
@@ -180,6 +199,8 @@ def main() -> int:
         "generated_utc8": now_utc8(),
         "decision": decision,
         "reasons": reasons,
+        "release_basis": release_basis,
+        "authorization": authorization,
         "release_detection": {
             "latest_occupation_notice": occupation,
             "candidate_release_notice": release,

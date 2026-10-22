@@ -1,54 +1,73 @@
-"""S5-T01 上板硬性前置门禁（fail-closed）：未获 2B 书面让出则拒绝放行。
+"""S5-T01 上板硬性前置门禁 v2（fail-closed、只读）。
 
-本脚本**只读**：读信箱、读工作树状态、读进程列表；不连接板卡、不启动 `hw_server`、不写寄存器。
+修订原因（CDX-20261022-014 §0）：v1 用「全部 MD 全文关键词」推断占用，导致**普通操作文档**
+（如 `CDX-20261022-014` 运行书正文出现“释放/独占”）被当成最新占用，使此前有效让出失效。
 
-放行（GO）必须同时满足：
-  1. `codex_mailbox/` 存在**新的书面让出/释放**通知（编号晚于最近的占用通知，且正文含正向让出表述、
-     且不含“不将本通知当作…释放/占用”这类否定措辞）；
-  2. 操作者显式传入 `--release-id <该通知编号>`，与自动检出的编号一致；
-  3. 现场无 `hw_server`/`vivado`/`xsdb`/`vitis`/`xsim` 进程；
-  4. 六棵树均无 `index.lock`。
-任一不满足即 BLOCKED（退出码 1），并在 JSON 中给出原因。**不存在“没看到进程就算让出”的判定。**
+v2 规则：
+  1. **登记表驱动**：`scripts/stage5_t01/hardware_handoff_registry.json` 逐条登记 `id/file/sha256/
+     order_key/kind/hardware_scope`，状态类仅 `hardware_occupation` / `hardware_release`。
+     普通请求、操作文档、回执、报告、决策一律**中性**（不改变硬件状态）。
+  2. **绑定核验**：登记项的文件必须存在且 SHA256 一致；带 `evidence_quote` 的登记项，其引用原文必须
+     能在该记录中找到 ⇒ 否则视为证据矛盾 → BLOCKED。
+  3. **未登记即不可信**：未登记文件若文件名或声明标记（`hw_handoff_kind: ...`）自称硬件交接 →
+     BLOCKED（不可识别的硬件交接记录）；否则中性并在报告中列出。
+  4. **顺序与范围**：同一 `hardware_scope` 内按 `order_key` 排序，最新状态类记录决定硬件状态；
+     让出必须晚于最近占用，且其 scope 必须覆盖本次请求范围。
+  5. **现场一致性**：无 `index.lock`；硬件/重型进程枚举成功且为空。任一枚举失败 → BLOCKED。
+  6. 授权（`--authorized-by/--authorization-note`）仅在**存在适用本次操作的明确授权原文**时可用：
+     必须同时给出 `--authorization-source` 与其 `--authorization-source-sha256`，且 `note` 必须是该
+     原文的子串；否则授权被拒（记录原因）。**本操作文档不提供该授权，也不得为绕过误判而填造内容。**
 
 退出码：0=GO；1=BLOCKED；2=环境/输入错误。
 用法：
-  python -B scripts/stage5_t01/check_hardware_gate.py --out report/evidence/S5-T01/<run_id>
+  python -B scripts/stage5_t01/check_hardware_gate.py --out report/evidence/S5-T01/<run_id> \
+      --release-id <让出编号> [--authorized-by W --authorization-note ... \
+      --authorization-source <path> --authorization-source-sha256 <hex>]
+测试用隔离参数：--registry/--mailbox-root/--process-check/--lock-check/--main-state
 """
 
 from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import pathlib
 import re
 import subprocess
 import sys
 
+W5 = pathlib.Path(r"D:\codex-worktrees\w5")
 MAIN_ROOT = pathlib.Path(r"D:\FPGA_Competition")
-MAILBOX = MAIN_ROOT / "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox"
+DEFAULT_REGISTRY = W5 / "scripts/stage5_t01/hardware_handoff_registry.json"
+DEFAULT_MAILBOX_ROOTS = [MAIN_ROOT / "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox",
+                         MAIN_ROOT / "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox"]
+DEFAULT_MAIN_STATE = MAIN_ROOT / ".codex/STATE.md"
 WORKTREES = {
     "main": MAIN_ROOT,
     "w2b": MAIN_ROOT / "w2b",
     "w4": pathlib.Path(r"D:\codex-worktrees\w4"),
-    "w5": pathlib.Path(r"D:\codex-worktrees\w5"),
+    "w5": W5,
     "dbdf": pathlib.Path(r"D:\codex-worktrees\dbdf"),
     "96a3": pathlib.Path(r"D:\codex-worktrees\96a3"),
 }
 PROCESS_PATTERNS = ("hw_server", "vivado", "xsdb", "vitis", "xsim", "cs_server")
-# 正向让出表述
-POSITIVE = re.compile(r"(让出|释放|空档|交还|release)", re.IGNORECASE)
-# 否定措辞：出现即说明该通知不是让出声明（如占用通知里常见的“不将本通知当作…释放”）
-NEGATIVE = re.compile(r"(不将本通知当作|未让出|不得当作|尚未?让出|仍在占用|独占)", re.IGNORECASE)
+# 仅用于**未登记**文件的“自称硬件交接”识别（不再用于全量状态推断）
+HANDOFF_HINT = re.compile(r"(让出|释放|占用|空档|handover|release|exclusive|独占|hw_handoff)", re.IGNORECASE)
+DECL_MARKER = re.compile(r"hw_handoff_kind\s*[:=]\s*([a-z_]+)", re.IGNORECASE)
+STATE_HW_HINT = re.compile(r"(hw_server|JTAG|COM4|让出|占用|空档|硬件)")
 
 
 def now_utc8() -> str:
     return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%Y-%m-%dT%H:%M:%S+08:00")
 
 
-def run(cmd: list[str], cwd: pathlib.Path | None = None) -> tuple[int, str]:
-    proc = subprocess.run(cmd, cwd=str(cwd) if cwd else None, capture_output=True,
-                          text=True, encoding="utf-8", errors="replace")
+def sha256_file(path: pathlib.Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def run(cmd: list[str]) -> tuple[int, str]:
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
 
 
@@ -57,45 +76,89 @@ def git(worktree: pathlib.Path, *args: str) -> str:
     return out.strip()
 
 
-def mailbox_entries() -> list[dict]:
-    entries = []
-    if not MAILBOX.is_dir():
-        return entries
-    for path in sorted(MAILBOX.glob("*.md")):
+def load_registry(path: pathlib.Path) -> tuple[dict, list[str]]:
+    problems: list[str] = []
+    if not path.exists():
+        return {}, [f"登记表不存在：{path}"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:                                   # noqa: BLE001
+        return {}, [f"登记表无法解析：{exc}"]
+    if not isinstance(data.get("records"), list):
+        problems.append("登记表缺少 records 列表")
+    return data, problems
+
+
+def scan_mailboxes(roots: list[pathlib.Path]) -> dict[str, pathlib.Path]:
+    found: dict[str, pathlib.Path] = {}
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for path in sorted(root.glob("*.md")):
+            found[path.name] = path
+    return found
+
+
+def classify(files: dict[str, pathlib.Path], registry: dict) -> tuple[list[dict], list[dict], list[str]]:
+    """返回 (状态类记录, 中性记录, 问题)。"""
+    problems: list[str] = []
+    by_name = {rec.get("file", "").split("/")[-1]: rec for rec in registry.get("records", [])}
+    state_records: list[dict] = []
+    neutral: list[dict] = []
+    scopes = registry.get("state_changing_kinds", ["hardware_occupation", "hardware_release"])
+
+    for name, path in files.items():
         text = path.read_text(encoding="utf-8", errors="replace")
-        entries.append({
-            "file": path.name,
-            "id": path.stem.split("-")[0] + "-" + "-".join(path.stem.split("-")[1:3]) if "-" in path.stem else path.stem,
-            "mtime_utc8": datetime.datetime.fromtimestamp(path.stat().st_mtime,
-                                                          datetime.timezone(datetime.timedelta(hours=8))
-                                                          ).strftime("%Y-%m-%dT%H:%M:%S+08:00"),
-            "positive_release_wording": bool(POSITIVE.search(text)),
-            "non_release_negation": bool(NEGATIVE.search(text)),
-        })
-    return entries
-
-
-def detect_release(entries: list[dict]) -> tuple[dict | None, dict | None]:
-    """返回 (最近的占用通知, 候选让出通知)。占用/让出以文件名顺序（编号递增）与措辞共同判定。"""
-    occupation, release = None, None
-    for entry in entries:                        # 文件名已排序 = 编号递增
-        text_positive = entry["positive_release_wording"] and not entry["non_release_negation"]
-        if text_positive:
-            release = entry
+        rec = by_name.get(name)
+        if rec is None:
+            hinted_name = bool(HANDOFF_HINT.search(name))
+            marker = DECL_MARKER.search(text)
+            hinted_body = bool(marker)
+            if hinted_name or hinted_body:
+                problems.append(f"未登记的硬件交接记录（不可识别）：{name}"
+                                f"{'（文件名含交接语义）' if hinted_name else ''}"
+                                f"{'（声明标记 ' + marker.group(0) + '）' if marker else ''}")
+            else:
+                neutral.append({"file": name, "kind": "unregistered_neutral",
+                                "note": "未登记但不自称硬件交接 → 中性"})
+            continue
+        kind = rec.get("kind")
+        actual = sha256_file(path)
+        if rec.get("sha256") and rec["sha256"] != actual:
+            problems.append(f"登记项哈希不匹配（证据矛盾）：{name} 登记={rec['sha256'][:12]}… 实际={actual[:12]}…")
+        quote = rec.get("evidence_quote")
+        if quote and quote not in text:
+            problems.append(f"登记项证据原文不匹配（证据矛盾）：{name} 未找到引用原文 {quote!r}")
+        entry = {"file": name, "id": rec.get("id"), "kind": kind, "order_key": rec.get("order_key"),
+                 "hardware_scope": rec.get("hardware_scope"), "issuer": rec.get("issuer"),
+                 "sha256_actual": actual, "sha256_registered": rec.get("sha256"),
+                 "note": rec.get("note")}
+        if kind in scopes:
+            state_records.append(entry)
         else:
-            occupation = entry
-    # 只有当让出通知出现在最近占用通知之后才有效
-    if release is not None and occupation is not None and release["file"] <= occupation["file"]:
-        release = None
-    return occupation, release
+            neutral.append(entry)
+    state_records.sort(key=lambda r: r.get("order_key") or "")
+    return state_records, neutral, problems
 
 
-def processes() -> tuple[list[dict], str, bool]:
-    """枚举硬件/重型进程；返回 (命中列表, 原始输出, 枚举是否成功)。
+def effective_state(state_records: list[dict], scope: str) -> tuple[str, dict | None, dict | None]:
+    latest_occ, latest_rel = None, None
+    for rec in state_records:
+        rec_scope = rec.get("hardware_scope") or ""
+        if scope not in rec_scope and rec_scope:
+            continue
+        if rec["kind"] == "hardware_occupation":
+            latest_occ = rec
+        elif rec["kind"] == "hardware_release":
+            latest_rel = rec
+    if latest_rel and (latest_occ is None or (latest_rel.get("order_key") or "") > (latest_occ.get("order_key") or "")):
+        return "RELEASED", latest_rel, latest_occ
+    if latest_occ:
+        return "OCCUPIED", latest_rel, latest_occ
+    return "UNKNOWN", latest_rel, latest_occ
 
-    fail-closed：枚举失败时调用方**不得**把它当作“无占用”，必须判 BLOCKED。
-    注意 Git Bash(MSYS) 会把 `/FO` 改写成路径，故优先用 `cmd.exe /c tasklist`，并以 PowerShell 兜底。
-    """
+
+def real_processes() -> tuple[list[dict], str, bool]:
     attempts = [
         ["cmd.exe", "/c", "tasklist", "/FO", "CSV", "/NH"],
         ["tasklist", "/FO", "CSV", "/NH"],
@@ -121,117 +184,178 @@ def processes() -> tuple[list[dict], str, bool]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="S5-T01 上板硬性前置门禁（只读、fail-closed）")
-    parser.add_argument("--out", required=True, help="证据输出目录")
-    parser.add_argument("--release-id", default=None,
-                        help="操作者确认的让出通知编号（必须与自动检出的一致才放行）")
-    parser.add_argument("--authorized-by", default=None,
-                        help="显式授权人（如 Wong）：当信箱尚无书面让出时，可用显式授权替代，但必须留痕")
-    parser.add_argument("--authorization-note", default=None,
-                        help="授权原文/说明（与 --authorized-by 同时提供才有效）")
+    parser = argparse.ArgumentParser(description="S5-T01 上板硬性前置门禁 v2（只读、fail-closed、登记表驱动）")
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--release-id", default=None)
+    parser.add_argument("--authorized-by", default=None)
+    parser.add_argument("--authorization-note", default=None)
+    parser.add_argument("--authorization-source", default=None)
+    parser.add_argument("--authorization-source-sha256", default=None)
+    parser.add_argument("--scope", default="JTAG+COM4")
+    parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
+    parser.add_argument("--mailbox-root", action="append", default=None)
+    parser.add_argument("--process-check", choices=["real", "stub-ok", "stub-fail", "stub-hit"], default="real")
+    parser.add_argument("--lock-check", choices=["real", "stub-none", "stub-lock"], default="real")
+    parser.add_argument("--main-state", default=str(DEFAULT_MAIN_STATE))
     args = parser.parse_args()
 
     out_dir = pathlib.Path(args.out)
     if not out_dir.is_absolute():
-        out_dir = pathlib.Path(r"D:\codex-worktrees\w5") / out_dir
+        out_dir = W5 / out_dir
     console = out_dir / "console"
-    console.mkdir(parents=True, exist_ok=True)
 
-    reasons: list[str] = []
-    entries = mailbox_entries()
-    occupation, release = detect_release(entries)
+    registry_path = pathlib.Path(args.registry)
+    registry, problems = load_registry(registry_path)
+    reasons: list[str] = list(problems)
 
-    worktrees = {}
-    for name, path in WORKTREES.items():
-        if not path.exists():
-            worktrees[name] = {"exists": False}
-            continue
-        lock_path = git(path, "rev-parse", "--git-path", "index.lock")
-        lock_abs = pathlib.Path(lock_path) if pathlib.Path(lock_path).is_absolute() else path / lock_path
-        worktrees[name] = {
-            "exists": True,
-            "branch": git(path, "rev-parse", "--abbrev-ref", "HEAD"),
-            "head": git(path, "rev-parse", "HEAD"),
-            "index_lock_path": lock_path,
-            "index_lock_exists": lock_abs.exists(),
-        }
-    locks = [name for name, info in worktrees.items() if info.get("index_lock_exists")]
+    roots = [pathlib.Path(p) for p in args.mailbox_root] if args.mailbox_root else DEFAULT_MAILBOX_ROOTS
+    files = scan_mailboxes(roots)
+    if not files:
+        reasons.append("未发现任何信箱记录（fail-closed）")
+    state_records, neutral, class_problems = classify(files, registry)
+    reasons.extend(class_problems)
+
+    state, release, occupation = effective_state(state_records, args.scope)
+
+    # 锁
+    worktrees: dict[str, dict] = {}
+    locks: list[str] = []
+    if args.lock_check == "stub-lock":
+        locks = ["stub-w5"]
+        worktrees["stub"] = {"exists": True, "index_lock_exists": True, "note": "测试替身"}
+    elif args.lock_check == "stub-none":
+        worktrees["stub"] = {"exists": True, "index_lock_exists": False, "note": "测试替身"}
+    else:
+        for name, path in WORKTREES.items():
+            if not path.exists():
+                worktrees[name] = {"exists": False}
+                continue
+            lock_path = git(path, "rev-parse", "--git-path", "index.lock")
+            lock_abs = pathlib.Path(lock_path) if pathlib.Path(lock_path).is_absolute() else path / lock_path
+            worktrees[name] = {"exists": True, "branch": git(path, "rev-parse", "--abbrev-ref", "HEAD"),
+                               "head": git(path, "rev-parse", "HEAD"), "index_lock_path": lock_path,
+                               "index_lock_exists": lock_abs.exists()}
+        locks = [name for name, info in worktrees.items() if info.get("index_lock_exists")]
     if locks:
         reasons.append(f"存在 index.lock：{locks}")
 
-    procs, proc_raw, proc_enum_ok = processes()
-    if not proc_enum_ok:
+    # 进程
+    if args.process_check == "stub-ok":
+        procs, proc_raw, proc_ok = [], "[stub-ok] 测试替身：枚举成功且无命中\n", True
+    elif args.process_check == "stub-hit":
+        procs, proc_raw, proc_ok = [{"name": "hw_server", "pid": "9999"}], "[stub-hit]\n", True
+    elif args.process_check == "stub-fail":
+        procs, proc_raw, proc_ok = [], "[stub-fail] 测试替身：枚举失败\n", False
+    else:
+        procs, proc_raw, proc_ok = real_processes()
+    if not proc_ok:
         reasons.append("无法枚举系统进程（fail-closed）：不得据此认为无硬件占用，也不得放行")
     elif procs:
         reasons.append("检测到硬件/重型进程：" + ", ".join(f"{p['name']}({p['pid']})" for p in procs))
 
-    main_state = (MAIN_ROOT / ".codex/STATE.md")
-    state_text = main_state.read_text(encoding="utf-8", errors="replace") if main_state.exists() else ""
-    release_keywords = ("让出", "空档", "释放", "handover")
-    state_mentions_release = any(word in state_text for word in release_keywords)
-
+    # 授权（严格绑定出处）
     authorization = None
-    if args.authorized_by and args.authorization_note:
-        authorization = {
-            "authorized_by": args.authorized_by,
-            "note": args.authorization_note,
-            "recorded_utc8": now_utc8(),
-            "basis": "operator_authorization：信箱尚无书面让出时由用户/项目总控显式授权，必须留痕；"
-                     "不替代进程/锁的 fail-closed 检查",
-        }
+    rejected_authorization = None
+    if args.authorized_by or args.authorization_note:
+        if not (args.authorized_by and args.authorization_note and args.authorization_source
+                and args.authorization_source_sha256):
+            rejected_authorization = {"reason": "缺少 authorized-by/note/source/source-sha256 四者之一",
+                                      "provided": {"authorized_by": args.authorized_by,
+                                                   "source": args.authorization_source}}
+        else:
+            src = pathlib.Path(args.authorization_source)
+            if not src.exists():
+                rejected_authorization = {"reason": f"授权原文不存在：{src}"}
+            else:
+                actual = sha256_file(src)
+                if actual.lower() != args.authorization_source_sha256.lower():
+                    rejected_authorization = {"reason": "授权原文哈希不匹配",
+                                              "expected": args.authorization_source_sha256, "actual": actual}
+                else:
+                    text = src.read_text(encoding="utf-8", errors="replace")
+                    if args.authorization_note not in text:
+                        rejected_authorization = {"reason": "授权说明不是原文子串（不得转述或填造）"}
+                    else:
+                        authorization = {"authorized_by": args.authorized_by, "note": args.authorization_note,
+                                         "source": str(src), "source_sha256": actual, "recorded_utc8": now_utc8(),
+                                         "basis": "operator_authorization（原文+哈希绑定）"}
+    if rejected_authorization:
+        reasons.append(f"授权被拒：{rejected_authorization['reason']}")
+
     release_basis = None
-    if release is not None and args.release_id == release["id"]:
+    authorization_ownership_unverifiable = False
+    if release is not None and args.release_id == release.get("id"):
         release_basis = "mailbox_release"
     elif authorization is not None:
         release_basis = "operator_authorization"
-    elif release is None:
-        reasons.append("codex_mailbox 未发现新的书面让出/释放通知"
-                       f"（最近占用通知：{occupation['file'] if occupation else '未识别'}）；"
-                       "亦未提供 --authorized-by/--authorization-note 显式授权")
-    else:
-        reasons.append(f"未提供匹配的 --release-id：自动检出 {release['id']}，"
-                       f"实际传入 {args.release_id!r}；亦未提供显式授权")
+    if state == "OCCUPIED":
+        reasons.append(f"{args.scope} 处于占用态：最近状态类记录={occupation['id'] if occupation else '未知'}"
+                       "（有效授权也不能覆盖真实占用）")
+    elif state == "UNKNOWN":
+        if authorization is None:
+            reasons.append(f"无法确定 {args.scope} 硬件状态（无登记的状态类记录）且无有效授权")
+        else:
+            authorization_ownership_unverifiable = True
+    if release_basis is None:
+        if release is None:
+            reasons.append(f"登记表未发现适用于 {args.scope} 的让出记录，且无有效授权")
+        else:
+            reasons.append(f"未提供匹配的 --release-id：登记表检出 {release.get('id')}，实际传入 {args.release_id!r}")
 
+    main_state_path = pathlib.Path(args.main_state)
+    state_excerpt = []
+    if main_state_path.exists():
+        for line in main_state_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            if STATE_HW_HINT.search(line):
+                state_excerpt.append(line[:400])
     decision = "GO" if not reasons else "BLOCKED"
     report = {
-        "schema_version": "gestureforge_s5t01_hardware_gate_v1",
+        "schema_version": "gestureforge_s5t01_hardware_gate_v2",
         "task_id": "S5-T01",
         "generated_utc8": now_utc8(),
         "decision": decision,
         "reasons": reasons,
         "release_basis": release_basis,
+        "authorization_ownership_unverifiable": authorization_ownership_unverifiable,
+        "scope": args.scope,
+        "hardware_state": state,
+        "effective_release": release,
+        "latest_occupation": occupation,
+        "registry": {"path": str(registry_path), "sha256": sha256_file(registry_path) if registry_path.exists() else None,
+                     "records_total": len(registry.get("records", []))},
+        "mailbox_files_scanned": sorted(files.keys()),
+        "state_records": state_records,
+        "neutral_records": neutral,
+        "provided_release_id": args.release_id,
         "authorization": authorization,
-        "release_detection": {
-            "latest_occupation_notice": occupation,
-            "candidate_release_notice": release,
-            "provided_release_id": args.release_id,
-            "rule": "让出通知必须编号晚于最近占用通知，含正向让出表述且不含否定措辞；另需 --release-id 精确匹配",
-        },
-        "mailbox_entries": entries,
+        "rejected_authorization": rejected_authorization,
         "worktrees": worktrees,
         "hardware_processes": procs,
-        "hardware_process_enumeration_ok": proc_enum_ok,
-        "main_state_release_wording_present": state_mentions_release,
+        "hardware_process_enumeration_ok": proc_ok,
+        "lock_check_mode": args.lock_check,
+        "process_check_mode": args.process_check,
+        "main_state_hardware_excerpt_informational": state_excerpt,
         "notes": [
             "本门禁只读：不连接板卡、不启动 hw_server、不写寄存器。",
-            "“没看到进程”不作为让出依据；必须同时具备书面让出与显式 release-id。",
-            "门禁通过只表示可以进入上板流程，不代表 G3/G4/G5 或任何验收通过。",
+            "普通请求/操作文档/回执/报告中性，不改变硬件状态；只有登记表内 hardware_occupation/release 改变状态。",
+            "未登记却自称硬件交接的记录、证据矛盾、锁或进程枚举失败 → BLOCKED（不通过删除校验“修好”）。",
+            "门禁 GO 只表示可进入上板流程，不代表 G3/G4/G5 或任何验收通过；也不自动授予硬件使用权。",
         ],
     }
 
-    (console / "mailbox_entries.json").write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n",
-                                                 encoding="utf-8")
-    (console / "worktrees.json").write_text(json.dumps(worktrees, ensure_ascii=False, indent=2) + "\n",
-                                            encoding="utf-8")
-    (console / "processes.json").write_text(json.dumps(procs, ensure_ascii=False, indent=2) + "\n",
-                                            encoding="utf-8")
-    (console / "process_enumeration.txt").write_text(proc_raw, encoding="utf-8")
-    (out_dir / "hardware_gate.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+    console.mkdir(parents=True, exist_ok=True)
+    (console / "state_records.json").write_text(json.dumps(state_records, ensure_ascii=False, indent=2) + "\n",
                                                 encoding="utf-8")
-    print(json.dumps({"decision": decision, "reasons": reasons,
-                      "release": release["file"] if release else None,
-                      "occupation": occupation["file"] if occupation else None},
-                     ensure_ascii=False))
+    (console / "neutral_records.json").write_text(json.dumps(neutral, ensure_ascii=False, indent=2) + "\n",
+                                                  encoding="utf-8")
+    (console / "processes.json").write_text(json.dumps(procs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (console / "process_enumeration.txt").write_text(proc_raw, encoding="utf-8")
+    (console / "worktrees.json").write_text(json.dumps(worktrees, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "hardware_gate.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"decision": decision, "hardware_state": state,
+                      "effective_release": release.get("id") if release else None,
+                      "latest_occupation": occupation.get("id") if occupation else None,
+                      "reasons": reasons}, ensure_ascii=False))
     return 0 if decision == "GO" else 1
 
 

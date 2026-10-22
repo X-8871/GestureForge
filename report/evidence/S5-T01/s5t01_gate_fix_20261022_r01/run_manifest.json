@@ -1,0 +1,161 @@
+{
+  "schema_version": "gestureforge_s5t01_gate_fix_v1",
+  "task_id": "S5-T01",
+  "run_id": "s5t01_gate_fix_20261022_r01",
+  "generated_utc8": "2026-10-22T19:19:07+08:00",
+  "source_head": "e4533e1d3b9ef1a80f1350e36f7fb479dbc88dc6",
+  "authority": "CDX-20261022-014 §0（取代 CDX-20261022-011）",
+  "goal_reached": "GATE_V2_IMPLEMENTED_AND_SYNTHETICALLY_TESTED__INDEPENDENT_REVIEW_PENDING__REAL_GATE_NOT_RUN",
+  "root_cause": "v1 按全部 MD 全文关键词二分推断占用 ⇒ 普通操作文档被当作最新占用，使有效让出失效",
+  "fix": {
+    "mechanism": "登记表驱动（registry）",
+    "registry_records": 25,
+    "neutral_kinds": [
+      "hardware_request",
+      "operation_doc",
+      "delivery_receipt",
+      "ack",
+      "report",
+      "decision"
+    ],
+    "state_changing_kinds": [
+      "hardware_occupation",
+      "hardware_release"
+    ],
+    "binding": "路径 + SHA-256 + evidence_quote 原文命中",
+    "unregistered_policy": "文件名/声明标记自称硬件交接而未登记 ⇒ BLOCKED；否则中性",
+    "fail_closed": [
+      "index.lock",
+      "进程枚举失败",
+      "硬件进程命中"
+    ],
+    "authorization": "必须绑定原文+哈希，note 须为原文子串；不能覆盖真实占用"
+  },
+  "commands": [
+    {
+      "cmd": "python -B -m unittest scripts.stage5_t01.test_hardware_gate -v",
+      "exit_code": 0,
+      "log": "console/unittest_gate_v2.txt",
+      "result": "Ran 19 tests ... OK"
+    },
+    {
+      "cmd": "python -B scripts/stage5_t01/check_hardware_gate.py --out .../parity_stub --release-id CDX-20261022-007 --process-check stub-ok --lock-check stub-none",
+      "exit_code": 0,
+      "log": "console/parity_stub.txt",
+      "result": "GO / RELEASED / effective_release=CDX-20261022-007 / latest_occupation=CDX-20261022-006"
+    }
+  ],
+  "synthetic_test_matrix": {
+    "total": 19,
+    "pass": 19,
+    "fail": 0,
+    "covers": [
+      "release→plain doc neutral",
+      "release→new occupation blocks",
+      "occupation→release ordered",
+      "plain doc body words cannot masquerade",
+      "unregistered filename hint blocks",
+      "unregistered declaration marker blocks",
+      "registry hash mismatch blocks",
+      "evidence_quote mismatch blocks",
+      "release-before-occupation blocks",
+      "index.lock blocks",
+      "process enumeration failure blocks",
+      "process hit blocks",
+      "release-id mismatch blocks",
+      "authorization without bound source rejected",
+      "authorization with bound source (unknown state)",
+      "authorization cannot override occupation",
+      "missing registry blocks",
+      "real mailbox+registry read-only parity",
+      "registry covers all real mailbox files"
+    ]
+  },
+  "self_defects_found_by_tests": [
+    "effective_state 原要求让出与占用同时存在才判 RELEASED（只有让出时误判 UNKNOWN）",
+    "测试桩把 'use real mailbox' 的 None 覆盖为空合成目录"
+  ],
+  "s3_event_source_findings": {
+    "doc": "S5T01_S3_frame_event_design.md",
+    "mm2s_frame_irq_gic_id": 61,
+    "vtc_irq_gic_id": 62,
+    "s2mm_irq_connected": false,
+    "use_fsync": true,
+    "status": "DESIGN_ONLY_NOT_IMPLEMENTED_NOT_BOARD_TESTED"
+  },
+  "review": {
+    "status": "PENDING",
+    "note": "CDX-20261022-014 §0.5：审查通过前不得据该脚本放行真实硬件"
+  },
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/parity_stub.txt",
+      "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes.txt",
+      "sha256": "72418263c4643b06ea65db9b39b0d87f0e86e37163fa87fd317be394241ad594"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2.txt",
+      "sha256": "159e16a1ff75b0a8c626544e61082ffdedec755d94ec9b8ebce6d925ffac7a55"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/neutral_records.json",
+      "sha256": "4721f66eb17df742a9b39d0173e4a1f55dcf84f9003e5ca5344047b7fd8e9eff"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/process_enumeration.txt",
+      "sha256": "7b8608275289e5c18a6d58cce6a54d896968ff39f96b558f6bbbcdeaf4a4c264"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/state_records.json",
+      "sha256": "aa0cd3afb8e5acd9f5153e661f10cc97850db85fe0d4629dd5b3823efb6a8765"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/worktrees.json",
+      "sha256": "0ed0eebf20e40dcf4e73715720773cf8a1ccdfd376bf307e8852ad9ec884046e"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/hardware_gate.json",
+      "sha256": "119f39c3b52076e4886d47bd07d3975ad11e7e58bf9db5561d8e372027f0b56a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/S5T01_S3_frame_event_design.md",
+      "sha256": "de39399df93155816f94a21438db74b4fc8fadd2cd2de7546dcb54b66ae8b856"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/summary.md",
+      "sha256": "902f96c1ac90eae15f786bc9b8743092e11be8a3b8be3dfed4942ada7abc68ef"
+    }
+  ],
+  "bound_inputs": [
+    {
+      "path": "scripts/stage5_t01/check_hardware_gate.py",
+      "sha256": "8b82906e550e1beaed80837750977313e9d463251d48b945976f335bff49f7d2"
+    },
+    {
+      "path": "scripts/stage5_t01/hardware_handoff_registry.json",
+      "sha256": "d21fbfabf6275c44e3041f63ff031985a472692f282e829e3065ceec76db8120"
+    },
+    {
+      "path": "scripts/stage5_t01/test_hardware_gate.py",
+      "sha256": "0b61be9aeee3e0214db0f8a38646210ca4715a91049d02ddd93beb6a92535a2f"
+    }
+  ],
+  "not_executed": [
+    "真实只读门禁（真实进程/锁）",
+    "独立审查结论",
+    "P1 rev r03（中断型帧事件）实现与板测",
+    "HUD 13 字段复核"
+  ],
+  "limitations": [
+    "未做 v1→v2 的历史重放；中性化语义仅由合成输入证明。",
+    "登记表只读引用信箱记录哈希；未改任何 mailbox 文件。",
+    "本次未连接板卡、未启动 hw_server、未写寄存器。"
+  ]
+}
